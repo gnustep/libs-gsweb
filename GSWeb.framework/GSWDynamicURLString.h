@@ -1,6 +1,6 @@
 /** GSWDynamicURLString.h - <title>GSWeb: Class GSWDynamicURLString</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -36,7 +36,11 @@
 //====================================================================
 @interface GSWDynamicURLString : NSMutableString <NSCoding,NSCopying/*,NSMutableString*/>
 {
+  NSMutableString* _urlBeginning;
+  IMP _urlBeginningASImp;
   NSMutableString* _url;
+  IMP _urlASImp;
+  
   NSString* _protocol;//NDFN
   NSString* _host;//NDFN
   int _port;//NDFN
@@ -47,7 +51,11 @@
   NSString* _queryString;
   NSString* _requestHandlerPath;
   int _applicationNumber;
-  BOOL _composed;
+  struct {
+    unsigned int beginningComposed:1;
+    unsigned int composed:1;
+    unsigned int unused:30;
+  } _flags;
 };
 
 -(id)init;
