@@ -21,6 +21,8 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#define moduleRevision "$Revision$"
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -62,6 +64,7 @@ typedef struct _GSWeb_Config
 //  const char *pszRoot;       // normally htdocs/GSWeb
 } GSWeb_Config;
 
+
 #ifdef Apache2
 /*
  * Declare ourselves so the configuration routines can find and know us.
@@ -98,6 +101,14 @@ struct table
 };  
 #endif
 
+// 1.x/2.x Compatibility
+#ifdef Apache2
+#define APR_PSPRINTF apr_psprintf
+#else
+#define APR_PSPRINTF ap_psprintf
+#endif
+
+
 /*
 static CONST char *GSWeb_SetDocRoot(cmd_parms *p_pCmdParams,
 				    void      *p_pUnused,
@@ -122,6 +133,18 @@ GSWeb_GetServerConfig(server_rec *p_pServerRec)
 }
 
 
+#ifdef Apache2
+static int GSWeb_PostConfig(apr_pool_t *p, apr_pool_t *plog,
+                            apr_pool_t *ptemp, server_rec *s)
+{
+    ap_add_version_component(p, 
+                             "mod_gsweb/" 
+                             GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING 
+                             "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING
+                             "-" moduleRevision);
+    return OK;
+}
+#endif
 //--------------------------------------------------------------------
 // Init
 #ifdef Apache2
@@ -296,8 +319,8 @@ copyHeaders(request_rec    *p_pRequestRec,
   conn_rec           *pConnection = p_pRequestRec->connection;
   const array_header *headers_arr=ap_table_elts(p_pRequestRec->headers_in);
   table_entry        *headers=NULL;
-  int i;
-  char                szPort[40]="";
+  int i=0;
+  char		     *pszPort=NULL;
   CONST char         *pszRemoteLogName=NULL;
   GSWLog(GSW_DEBUG,pServerRec,"Start copyHeaders");
   
@@ -308,8 +331,9 @@ copyHeaders(request_rec    *p_pRequestRec,
       if (headers[i].key)
 	GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 				 headers[i].key,headers[i].val);
+      //GSWLog(GSW_DEBUG,pServerRec,"HEADERS %s=%s",headers[i].key,headers[i].val);
     };
-						
+
   // Add server headers
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ServerSoftware,
@@ -318,18 +342,31 @@ copyHeaders(request_rec    *p_pRequestRec,
 #else
 			   SERVER_VERSION
 #endif
-);
+                           );
+  GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
+			   g_szServerInfo_RequestScheme,
+			   ap_http_method(p_pRequestRec));
+
+  GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
+			   g_szServerInfo_Protocol,
+			   p_pRequestRec->protocol);
+
+  GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
+			   g_szServerInfo_ProtocolNum,
+			   APR_PSPRINTF(p_pRequestRec->pool,
+                                        "%u",
+                                        p_pRequestRec->proto_num));
+
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ServerName,
 			   pServerRec->server_hostname);
-  ap_snprintf(szPort,
-	      sizeof(szPort),
-	      "%u",
-	      pServerRec->port);
 
+  pszPort = APR_PSPRINTF(p_pRequestRec->pool,
+                         "%u",
+                         pServerRec->port);
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ServerPort,
-			   szPort);
+			   pszPort);
 #ifdef Apache2
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemoteHost,
@@ -355,18 +392,17 @@ copyHeaders(request_rec    *p_pRequestRec,
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ScriptFileName,
 			   p_pRequestRec->filename);
-  ap_snprintf(szPort,
-	      sizeof(szPort),
-	      "%d",
+  pszPort = APR_PSPRINTF(p_pRequestRec->pool,
+                         "%u",
 #ifdef Apache2
-	      pConnection->remote_addr->port
+                         pConnection->remote_addr->port
 #else
-	      ntohs(pConnection->remote_addr.sin_port)
+                         ntohs(pConnection->remote_addr.sin_port)
 #endif
-	      );
+                         );
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemotePort,
-			   szPort);
+			   pszPort);
   
 #ifdef Apache2
 //TODO
@@ -431,16 +467,10 @@ sendResponse(request_rec     *p_pRequestRec,
   GSWDict_PerformForAllElem(p_pHTTPResponse->pHeaders,getHeader,p_pRequestRec);
 	
   GSWLog(GSW_DEBUG,pServerRec,"status message=[%s]",p_pHTTPResponse->pszStatusMessage);
-#ifdef APACHE2
+  p_pRequestRec->status_line = APR_PSPRINTF(p_pRequestRec->pool,"%u %s",
+                                            p_pHTTPResponse->uStatus,
+                                            p_pHTTPResponse->pszStatusMessage);
 
-  p_pRequestRec->status_line = apr_psprintf(p_pRequestRec->pool,"%u %s",
-                                            p_pHTTPResponse->uStatus,
-                                            p_pHTTPResponse->pszStatusMessage);
-#else
-  p_pRequestRec->status_line = ap_psprintf(p_pRequestRec->pool,"%u %s",
-                                            p_pHTTPResponse->uStatus,
-                                            p_pHTTPResponse->pszStatusMessage);
-#endif
   p_pRequestRec->status = p_pHTTPResponse->uStatus;
   GSWLog(GSW_DEBUG,pServerRec,"p_pRequestRec->status_line=[%s]",p_pRequestRec->status_line);
 
@@ -700,7 +730,9 @@ static void
 GSWeb_register_hooks(apr_pool_t *p)
 {
 /*    ap_hook_pre_config(GSWeb_PreConfig, NULL, NULL, APR_HOOK_MIDDLE);
+*/
     ap_hook_post_config(GSWeb_PostConfig, NULL, NULL, APR_HOOK_MIDDLE);
+/*
     ap_hook_open_logs(GSWeb_OpenLogs, NULL, NULL, APR_HOOK_MIDDLE);
 */
     ap_hook_child_init(GSWeb_ChildInit, NULL, NULL, APR_HOOK_MIDDLE);

@@ -29,7 +29,11 @@
 #Solaris, Linux, FreeBSD
 
 OSNAME := "$(shell uname)"
+APXS := "$(shell which apxs2)"
+
+ifeq ("no apxs",$(findstring no apxs,$(APXS)))
 APXS := "$(shell which apxs)"
+endif
 
 ifeq ("",$(strip $(APXS)))
 	ifeq ("FreeBSD",$(strip $(OSNAME)))
@@ -43,10 +47,10 @@ else
 	endif
 endif
 
-APACHE_LIBEXECDIR := $(shell apxs -q LIBEXECDIR)
-APACHEHEADERS := -I$(shell apxs -q INCLUDEDIR)
-APACHE_CFLAGS := $(shell apxs -q CFLAGS)
-APACHE_CC := $(shell apxs -q CC)
+APACHE_LIBEXECDIR := $(shell $(APXS) -q LIBEXECDIR)
+APACHEHEADERS := -I$(shell $(APXS) -q INCLUDEDIR)
+APACHE_CFLAGS := $(shell $(APXS) -q CFLAGS)
+APACHE_CC := $(shell $(APXS) -q CC)
 
 SRCROOT = ..
 DSTROOT = .

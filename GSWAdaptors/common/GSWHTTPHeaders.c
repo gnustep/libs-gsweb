@@ -57,6 +57,9 @@ const char *g_szHeader_GSWeb_AuthPass="x-gsweb-auth-pass";
 const char *g_szHeader_GSWeb_AuthType="x-gsweb-auth-type";
 const char *g_szHeader_GSWeb_DocumentRoot="x-gsweb-documentroot";
 const char *g_szHeader_GSWeb_GatewayInterface="x-gsweb-gateway-interface";
+const char *g_szHeader_GSWeb_Protocol="x-gsweb-server-protocol";
+const char *g_szHeader_GSWeb_ProtocolNum="x-gsweb-server-protocol-num";
+const char *g_szHeader_GSWeb_RequestScheme="x-gsweb-request-scheme";
 
 const char *g_szHeader_Accept="accept";
 const char *g_szHeader_AcceptEncoding="accept-encoding";
@@ -132,6 +135,9 @@ const char *g_szServerInfo_HTTPGSWebRecording="HTTP_X_GSWEB_RECORDING";
 const char *g_szServerInfo_ServerAdmin="SERVER_ADMIN";
 const char *g_szServerInfo_ScriptFileName="SCRIPT_FILENAME";
 const char *g_szServerInfo_RemotePort="REMOTE_PORT";
+const char *g_szServerInfo_Protocol="PROTOCOL";
+const char *g_szServerInfo_ProtocolNum="PROTOCOL_NUM";
+const char *g_szServerInfo_RequestScheme="REQUEST_SCHEME";
 
 const char *g_szMethod_Get="GET";
 const char *g_szMethod_Post="POST";
@@ -247,6 +253,15 @@ GSWHeaderTranslationTable_Init()
 
   GSWHeaderTranslationTable[i].pszHTTP=g_szServerInfo_ServerSoftware;
   GSWHeaderTranslationTable[i++].pszGSWeb=g_szHeader_GSWeb_ServerSoftware;
+
+  GSWHeaderTranslationTable[i].pszHTTP=g_szServerInfo_Protocol;
+  GSWHeaderTranslationTable[i++].pszGSWeb=g_szHeader_GSWeb_Protocol;
+
+  GSWHeaderTranslationTable[i].pszHTTP=g_szServerInfo_ProtocolNum;
+  GSWHeaderTranslationTable[i++].pszGSWeb=g_szHeader_GSWeb_ProtocolNum;
+
+  GSWHeaderTranslationTable[i].pszHTTP=g_szServerInfo_RequestScheme;
+  GSWHeaderTranslationTable[i++].pszGSWeb=g_szHeader_GSWeb_RequestScheme;
 
   GSWHeaderTranslationTable[i].pszHTTP=NULL;
   GSWHeaderTranslationTable[i++].pszGSWeb=NULL;

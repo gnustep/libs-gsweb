@@ -40,7 +40,9 @@ extern const char *g_szHeader_GSWeb_AuthPass;
 extern const char *g_szHeader_GSWeb_AuthType;
 extern const char *g_szHeader_GSWeb_DocumentRoot;
 extern const char *g_szHeader_GSWeb_GatewayInterface;
-
+extern const char *g_szHeader_GSWeb_Protocol;
+extern const char *g_szHeader_GSWeb_ProtocolNum;
+extern const char *g_szHeader_GSWeb_HTTPMethod;
 
 extern const char *g_szHeader_Accept;
 extern const char *g_szHeader_AcceptEncoding;
@@ -78,7 +80,7 @@ extern const char *g_szServerInfo_HTTPMimeVersion;
 extern const char *g_szServerInfo_HTTPPragma;
 extern const char *g_szServerInfo_HTTPReferer;
 extern const char *g_szServerInfo_RemoteIdent;
-extern const char *g_szServerInfo_RequestMethod;
+extern const char *g_szServerInfo_RequestScheme;
 
 extern const char *g_szServerInfo_AnnotationServer;
 extern const char *g_szServerInfo_AuthPass;
@@ -114,6 +116,9 @@ extern const char *g_szServerInfo_HTTPGSWebRecording;
 extern const char *g_szServerInfo_ServerAdmin;
 extern const char *g_szServerInfo_ScriptFileName;
 extern const char *g_szServerInfo_RemotePort;
+extern const char *g_szServerInfo_Protocol;
+extern const char *g_szServerInfo_ProtocolNum;
+extern const char *g_szServerInfo_RequestScheme;
 
 extern const char *g_szMethod_Get;
 extern const char *g_szMethod_Post;
