@@ -37,180 +37,86 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWDirectActionRequestHandler
 
-//--------------------------------------------------------------------
--(GSWResponse*)handleRequest:(GSWRequest*)aRequest
+-(NSString*)defaultActionClassName
 {
-  //OK
-  GSWResponse* response=nil;
-  GSWStatisticsStore* statisticsStore=nil;
-  GSWApplication* application=nil;
-  LOGObjectFnStart();
-  application=[GSWApplication application];
-  if (0/*[application isRefusingNewSessions]*/)
-    {
-      //TODO
-    }
+  return @"DirectAction";
+}
+
+//--------------------------------------------------------------------
+-(void)registerWillHandleActionRequest
+{
+  [[[GSWApplication application]statisticsStore]
+    applicationWillHandleDirectActionRequest];
+}
+
+//--------------------------------------------------------------------
+-(void)registerDidHandleActionRequestWithActionNamed:(NSString*)actionName
+{
+  [[[GSWApplication application]statisticsStore]
+    applicationDidHandleDirectActionRequestWithActionNamed:actionName];
+}
+
+//--------------------------------------------------------------------
+-(NSArray*)getRequestHandlerPathForRequest:(GSWRequest*)aRequest
+{
+  NSArray* requestHandlerPath=nil;
+  id submitButtonsActionPathFromRequest=nil;
+  submitButtonsActionPathFromRequest=[self submitButtonsActionPathFromRequest:aRequest];
+  NSDebugMLLog(@"requests",@"submitButtonsActionPathFromRequest=%@",
+               submitButtonsActionPathFromRequest);
+  if (submitButtonsActionPathFromRequest)
+    requestHandlerPath=[submitButtonsActionPathFromRequest componentsSeparatedByString:@"/"];
   else
+    requestHandlerPath=[aRequest requestHandlerPathArray];
+  return requestHandlerPath;
+}
+
+//--------------------------------------------------------------------
+-(NSString*)submitButtonsActionPathFromRequest:(GSWRequest*)aRequest
+{
+  NSString* path=nil;
+  LOGObjectFnStart();
+  
+  if (!_allowsContentInputStream)
     {
-      id submitButtonsActionPathFromRequest=nil;
-      NSArray* requestHandlerPathArray=nil;
-      NSString* actionName=nil;
-      NSString* className=nil;
-      GSWContext* context=nil;
-      [application lockRequestHandling];
-      NS_DURING
+      NSArray* submitActions=[aRequest formValuesForKey:GSWKey_SubmitAction[GSWebNamingConv]];
+      if (submitActions)
         {
-          NS_DURING
+          int count=[submitActions count];
+          int i=0;
+          for(i=0;!path && i<count;i++)
             {
-              statisticsStore=[[GSWApplication application]statisticsStore];
-              [statisticsStore _applicationWillHandleDirectActionRequest];
-              submitButtonsActionPathFromRequest=[self submitButtonsActionPathFromRequest:aRequest]; //So what ?
-              NSDebugMLLog(@"requests",@"submitButtonsActionPathFromRequest=%@",
-                           submitButtonsActionPathFromRequest);
-              requestHandlerPathArray=[aRequest requestHandlerPathArray];
-              NSDebugMLLog(@"requests",@"requestHandlerPathArray=%@",
-                           requestHandlerPathArray);
-              switch([requestHandlerPathArray count])
+              NSString* submitAction=[submitActions objectAtIndex:i];
+              if ([aRequest formValuesForKey:submitAction])
+                path = submitAction;
+              else
                 {
-                case 0:
-                  actionName=@"default";
-                  className=@"DirectAction";
-                  break;
-                case 1:
-                  {
-                    NSString* tmpActionName=[NSString stringWithFormat:@"%@Action",
-                                                       [requestHandlerPathArray objectAtIndex:0]];
-                    SEL tmpActionSel=NSSelectorFromString(tmpActionName);
-                    Class aClass = NSClassFromString(@"DirectAction");
-                    NSDebugMLLog(@"requests",@"tmpActionName=%@",
-                                 tmpActionName);
-                    if (tmpActionSel && aClass)
-                      {
-                        if ([aClass instancesRespondToSelector:tmpActionSel])
-                          {
-                            actionName=[requestHandlerPathArray objectAtIndex:0];
-                            className=@"DirectAction";
-                          };
-                      };
-                    if (!actionName)
-                      {
-                        className=[requestHandlerPathArray objectAtIndex:0];
-                        actionName=@"default";
-                      };
-                  };
-                  break;
-                case 2:
-                default:
-                  className=[requestHandlerPathArray objectAtIndex:0];
-                  actionName=[NSString stringWithFormat:@"%@",
-                                       [requestHandlerPathArray objectAtIndex:1]];
-                  break;
+                  // Try image buttons
+                  NSString* imageButtonFormValueName=[submitAction stringByAppendingString:@".x"];
+                  if ([aRequest formValuesForKey:imageButtonFormValueName])
+                    path = submitAction;
                 };
-              NSDebugMLLog(@"requests",@"className=%@",className);
-              NSDebugMLLog(@"requests",@"actionName=%@",actionName);
-              if ([application isCachingEnabled])
-                {
-                  //TODO
-                };
-              {
-                GSWResourceManager* resourceManager=nil;
-                GSWDeployedBundle* appBundle=nil;
-                GSWDirectAction* directAction=nil;
-                id<GSWActionResults> actionResult=nil;
-                Class aClass=nil;
-                resourceManager=[application resourceManager];
-                appBundle=[resourceManager _appProjectBundle];
-                [resourceManager _allFrameworkProjectBundles];//So what ?
-                [application awake];
-                aClass=NSClassFromString(className);
-                NSAssert1(aClass,@"No direct action class named %@",
-                          className);
-                directAction=[[aClass alloc]initWithRequest:aRequest];
-                NSAssert1(directAction,@"Direct action of class named %@ can't be created",
-                          className);
-                context=[directAction _context];
-                actionResult=[directAction performActionNamed:actionName];
-                response=[actionResult generateResponse];
-                
-                //Finir ?
-              };
             }
-	  NS_HANDLER
-            {
-              LOGException(@"%@ (%@)",localException,[localException reason]);
-              if (!context)
-                context=[GSWApp _context];
-              response=[application handleException:localException
-                                    inContext:context];
-              //TODO
-            };
-	  NS_ENDHANDLER;
-	  NSDebugMLLog(@"requests",@"response=%@",response);
-	  RETAIN(response);
-	  if (!context)
-            context=[GSWApp _context];
-	  [context _putAwakeComponentsToSleep];
-	  [application saveSessionForContext:context];
-	  NSDebugMLLog(@"requests",@"response=%@",response);
-	  AUTORELEASE(response);
-	  
-	  //Here ???
-	  [application sleep];
-	  //TODO do not fnalize if already done (in handleException for exemple)
-	  [response _finalizeInContext:context];
-	  [application _setContext:nil];
-	  statisticsStore=[[GSWApplication application] statisticsStore];
-	  [statisticsStore _applicationDidHandleDirectActionRequestWithActionNamed:actionName];
-        }
-      NS_HANDLER
-        {
-          LOGException(@"%@ (%@)",localException,[localException reason]);
-          [application unlockRequestHandling];
-          [localException raise];//TODO
         };
-      NS_ENDHANDLER;
-      [application unlockRequestHandling];
     };
-  LOGObjectFnNotImplemented();	//TODOFN
+  
   LOGObjectFnStop();
-  return response;
+  return path;
 };
 
 //--------------------------------------------------------------------
--(GSWResponse*)_nilResponse
+-(GSWResponse*)generateNullResponse
 {
-  //OK
   GSWResponse* response=nil;
   LOGObjectFnStart();
   response=[GSWApp createResponseInContext:nil];
-  [response appendContentString:@"<HTML><HEAD><TITLE>DirectAction Error</TITLE></HEAD><BODY>The result of a direct action returned nothing.</BODY></HTML>"];
+  [response appendContentString:@"<HTML><HEAD><TITLE>DirectAction Error</TITLE></HEAD><BODY><CENTER>The result of a direct action returned nothing.</CENTER></BODY></HTML>"];
   LOGObjectFnStop();
   return response;
 };
 
-//--------------------------------------------------------------------
--(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-};
 
 //--------------------------------------------------------------------
--(id)submitButtonsActionPathFromRequest:(GSWRequest*)aRequest
-{
-  //OK
-  NSArray* submitActions=nil;
-  LOGObjectFnStart();
-  submitActions=[aRequest formValuesForKey:GSWKey_SubmitAction[GSWebNamingConv]];
-  if (submitActions)
-    {
-      //TODO
-    };
-  
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
-  return nil;
-};
-
 //NDFN: return additional path elements
 +(NSArray*)additionalRequestPathArrayFromRequest:(GSWRequest*)aRequest
 {
@@ -223,6 +129,27 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   return additionalRequestPathArray;
 };
+
+-(void)setAllowsContentInputStream:(BOOL)yn
+{
+  _allowsContentInputStream = yn;
+};
+
+-(BOOL)allowsContentInputStream
+{
+  return _allowsContentInputStream;
+};
+
+-(void)setDisplayExceptionPages:(BOOL)yn
+{
+  _displayExceptionPages=yn;
+};
+
+-(BOOL)displayExceptionPages
+{
+  return _displayExceptionPages;
+};
+
 @end
 
 //====================================================================
@@ -231,7 +158,21 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 +(id)handler
 {
-  return [[GSWDirectActionRequestHandler new] autorelease];
+  return [self handlerWithDefaultActionClassName:@"DirectAction"
+               defaultActionName:@"default"
+               shouldAddToStatistics:YES];
+};
+
++(GSWDirectActionRequestHandler*)handlerWithDefaultActionClassName:(NSString*)defaultActionClassName
+                                                 defaultActionName:(NSString*)defaultActionName
+                                             displayExceptionPages:(BOOL)displayExceptionPages
+{
+  GSWDirectActionRequestHandler* darh=[[[self alloc]initWithDefaultActionClassName:defaultActionClassName
+                                                    defaultActionName:defaultActionName
+                                                    shouldAddToStatistics:YES]autorelease];  
+  [darh setDisplayExceptionPages:displayExceptionPages];
+  return darh;
 };
 @end
+
 

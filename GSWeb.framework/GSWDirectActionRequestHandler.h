@@ -33,23 +33,27 @@
 	#define _GSWDirectActionRequestHandler_h__
 
 
-@interface GSWDirectActionRequestHandler: GSWRequestHandler
+@interface GSWDirectActionRequestHandler: GSWActionRequestHandler
 {
+  BOOL _displayExceptionPages;
+  BOOL _allowsContentInputStream;
 };
 
--(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
--(GSWResponse*)_nilResponse;
--(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext;
+-(GSWResponse*)generateNullResponse;
 -(id)submitButtonsActionPathFromRequest:(GSWRequest*)aRequest;
 +(NSArray*)additionalRequestPathArrayFromRequest:(GSWRequest*)aRequest;
+-(void)setAllowsContentInputStream:(BOOL)yn;
+-(BOOL)allowsContentInputStream;
+-(void)setDisplayExceptionPages:(BOOL)yn;
+-(BOOL)displayExceptionPages;
 @end
 
 //====================================================================
 @interface GSWDirectActionRequestHandler (GSWRequestHandlerClassA)
 +(id)handler;
++(GSWDirectActionRequestHandler*)handlerWithDefaultActionClassName:(NSString*)defaultActionClassName
+                                                 defaultActionName:(NSString*)defaultActionName
+                                             displayExceptionPages:(BOOL)displayExceptionPages;
 @end
-
-
-
 
 #endif //GSWDirectActionRequestHandler
