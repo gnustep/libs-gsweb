@@ -1,9 +1,9 @@
 /** GSWDynamicElement.h - <title>GSWeb: Class GSWDynamicElement</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -45,6 +45,11 @@
 
 //====================================================================
 @interface GSWDynamicElement (GSWDynamicElement)
+-(BOOL)		evaluateCondition:(id)condition
+                        inContext:(GSWContext*)context
+    noConditionAssociationDefault:(BOOL)noConditionAssociationDefault
+               noConditionDefault:(BOOL)noConditionDefault;
+
 -(BOOL)evaluateCondition:(id)condition
                inContext:(GSWContext*)context;
 @end

@@ -1,6 +1,6 @@
 /** GSWHTMLURLValuedElement.m - <title>GSWeb: Class GSWHTMLURLValuedElement</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
@@ -416,11 +416,20 @@ NS_DURING
               NSString* path=[resourceManager pathForResourceNamed:filenameValue
                                               inFramework:frameworkValue
                                               languages:languages];
+              if ([path length]==0)
+                NSWarnLog(@"No path (or empty one) for filenameValue: '%@' (association=%@) in %@ named %@",
+                          filenameValue,_filename,[self className],[self declarationName]);
+
               url=[self addPath:path
                         forCIDKeyAssociation:_cidKey
                         CIDStoreAssociation:_cidStore
                         inContext:aContext];
-              NSDebugMLLog(@"gswdync",@"url=%@",url);
+
+              NSDebugMLLog(@"gswdync",@"filenameValue=%@ url=%@",filenameValue,url);
+
+              if ([url length]==0)
+                NSWarnLog(@"No URL (or empty one) for filenameValue: '%@' (association=%@) in %@ named %@",
+                          filenameValue,_filename,[self className],[self declarationName]);
             }
           else
             {
@@ -428,7 +437,12 @@ NS_DURING
                                    inFramework:frameworkValue
                                    languages:languages
                                    request:request];
-              NSDebugMLLog(@"gswdync",@"url=%@",url);
+
+              NSDebugMLLog(@"gswdync",@"filenameValue=%@ url=%@",filenameValue,url);
+
+              if ([url length]==0)
+                NSWarnLog(@"No URL (or empty one) for filenameValue: '%@' (association=%@) in %@ named %@",
+                          filenameValue,_filename,[self className],[self declarationName]);
             };
         };
     };

@@ -1,9 +1,9 @@
 /** GSWContext.h - <title>GSWeb: Class GSWContext</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -57,6 +57,7 @@
  BOOL _pageReplaced;
  BOOL _generateCompleteURLs;
  BOOL _isInForm;
+ BOOL _isInEnabledForm;
  BOOL _actionInvoked;
  BOOL _formSubmitted;
  BOOL _isMultipleSubmitForm;
@@ -75,6 +76,8 @@
 
 -(void)setInForm:(BOOL)flag;
 -(BOOL)isInForm;
+-(void)setInEnabledForm:(BOOL)flag;
+-(BOOL)isInEnabledForm;
 -(GSWElementIDString*)elementID;
 -(NSString*)contextAndElementID;
 -(GSWComponent*)component;
@@ -145,6 +148,7 @@
                             queryString:(NSString*)queryString
                                isSecure:(BOOL)isSecure
                                    port:(int)port;
+
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString
@@ -156,6 +160,12 @@
                                    path:(NSString*)requestHandlerPath
                             queryString:(NSString*)queryString;
 
+-(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
+                      RequestHandlerKey:(NSString*)requestHandlerKey
+                                   path:(NSString*)requestHandlerPath
+                            queryString:(NSString*)queryString
+                               isSecure:(BOOL)isSecure;
+
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString;
@@ -165,6 +175,12 @@
                               requestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString;
+
+//NDFN
+-(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
+                                       isSecure:(BOOL)isSecure;
 
 //NDFN
 -(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey

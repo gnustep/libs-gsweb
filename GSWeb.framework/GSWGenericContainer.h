@@ -1,9 +1,9 @@
 /** GSWGenericContainer.h - <title>GSWeb: Class GSWGenericContainer</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002,2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -36,6 +36,9 @@
 //====================================================================
 @interface GSWGenericContainer: GSWDynamicElement
 {
+  GSWAssociation* _elementName;
+  GSWAssociation* _otherTagString;
+  GSWAssociation* _omitElement;
   GSWAssociation* _children;
   NSDictionary* _associations;
   GSWElement* _element;
@@ -44,8 +47,6 @@
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement;
--(void)dealloc;
--(NSString*)description;
 
 -(void)appendToResponse:(GSWResponse*)aResponse
 			  inContext:(GSWContext*)aContext;

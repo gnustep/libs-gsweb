@@ -275,21 +275,24 @@ Bindings
   if (_noSelectionString)
     {
       id noSelectionStringValue=nil;
-      [response _appendContentAsciiString:@"\n<OPTION"];
-      if (_selectedValue && !selectedValueValue)
-        {
-          [response appendContentCharacter:' '];
-          [response _appendContentAsciiString:@"selected"];//TODO
-        };
-      [response appendContentCharacter:'>'];
-
       noSelectionStringValue=[_noSelectionString valueInComponent:component];
-      if (escapeHTMLBoolValue)
-        noSelectionStringValue=[GSWResponse stringByEscapingHTMLString:noSelectionStringValue];
-      [response appendContentString:noSelectionStringValue];
-      //[response appendContentHTMLString:_noSelectionStringValue];
-      // There is no close tag on OPTION
-      //[response _appendContentAsciiString:@"</OPTION>"];
+      if (noSelectionStringValue)
+        {
+          [response _appendContentAsciiString:@"\n<OPTION"];
+          if (_selectedValue && !selectedValueValue)
+            {
+              [response appendContentCharacter:' '];
+              [response _appendContentAsciiString:@"selected"];//TODO
+            };
+          [response appendContentCharacter:'>'];
+          
+          if (escapeHTMLBoolValue)
+            noSelectionStringValue=[GSWResponse stringByEscapingHTMLString:noSelectionStringValue];
+          [response appendContentString:noSelectionStringValue];
+          //[response appendContentHTMLString:_noSelectionStringValue];
+          // There is no close tag on OPTION
+          //[response _appendContentAsciiString:@"</OPTION>"];
+        };
     };
 
   NSDebugMLLog(@"gswdync",@"countValue=%d",countValue);
@@ -299,12 +302,12 @@ Bindings
       if (listValue)
         itemValue=[listValue objectAtIndex:i];
       else
-        itemValue=GSWIntToNSString(i);
+        itemValue=[NSNumber numberWithShort:i];
       if (_item)
         [_item setValue:itemValue
                inComponent:component];
       if (_index)
-        [_index setValue: GSWIntToNSString(i)
+        [_index setValue:[NSNumber numberWithShort:i]
                 inComponent:component];
 
       NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
@@ -361,7 +364,7 @@ Bindings
                 };
 
               [response _appendContentAsciiString:@" value=\""];
-              [response _appendContentAsciiString:valueValue];
+              [response appendContentHTMLAttributeValue:valueValue];
               [response appendContentCharacter:'"'];
               [response appendContentCharacter:'>'];
             };
@@ -552,7 +555,7 @@ Bindings
                   if (listValue)
                     itemValue=[listValue objectAtIndex:i];
                   else
-                    itemValue=GSWIntToNSString(i);
+                    itemValue=[NSNumber numberWithShort:i];
                   NSDebugMLLog(@"gswdync",@"_itemValue=%@",itemValue);
                   NSDebugMLLog(@"gswdync",@"_item=%@",_item);
                       
@@ -561,15 +564,20 @@ Bindings
                            inComponent:component];
 
                   if (_index)
-                    [_index setValue:GSWIntToNSString(i)
+                    [_index setValue:[NSNumber numberWithShort:i]
                             inComponent:component];
 
                   NSDebugMLLog(@"gswdync",@"value=%@",_value);
                   if (_value)  	// Binded Value          
-                    valueValue = [_value valueInComponent:component];
+                    {
+                      valueValue = [_value valueInComponent:component];
+                      valueValueString=NSStringWithObject(valueValue);
+                    }
                   else		// Auto Value
-                    valueValue=GSWIntToNSString(i);
-                  valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+                    {
+                      valueValue=[NSNumber numberWithShort:i];
+                      valueValueString=GSWIntToNSString(i);
+                    };
                   NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
                   
                   if (valueValue)

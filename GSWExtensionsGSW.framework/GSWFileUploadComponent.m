@@ -70,6 +70,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
+  DESTROY(_tmpWithAndHeight);
   [super dealloc];
 };
 
@@ -109,7 +110,9 @@ RCS_ID("$Id$")
   NSDebugMLog(@"fileInfo.data %p",[_tmpFileInfo valueForKey:@"data"]);
   NSDebugMLog(@"fileInfo.data length %d",(int)[[_tmpFileInfo valueForKey:@"data"] length]);
   NSDebugMLog(@"fileInfo.mimeType %@",[_tmpFileInfo valueForKey:@"mimeType"]);
-  NSDebugMLog(@"fileInfo.isDeleted %@",[_tmpFileInfo valueForKey:@"isDeleted"]);
+  NSDebugMLog(@"fileInfo.widthAndHeightCode %@",[_tmpFileInfo valueForKey:@"widthAndHeightCode"]);
+  NSDebugMLog(@"fileInfo.width %@",[_tmpFileInfo valueForKey:@"width"]);
+  NSDebugMLog(@"fileInfo.height %@",[_tmpFileInfo valueForKey:@"height"]);
   if ([[_tmpFileInfo valueForKey:@"data"]length]>0 || boolValueWithDefaultFor([_tmpFileInfo valueForKey:@"isDeleted"],NO))
     [self setValue:_tmpFileInfo
           forBinding:@"fileInfo"];
@@ -172,6 +175,50 @@ RCS_ID("$Id$")
   return isDeleteEnabled;
 };
 
+//--------------------------------------------------------------------
+-(BOOL)hasWidthAndHeightList
+{
+  return ([self valueForBinding:@"isDeleteEnabled"]!=nil);
+};
+
+//--------------------------------------------------------------------
+-(NSString*)fileName
+{
+  NSMutableDictionary* fileInfo=[self fileInfo];
+  NSString* fileName = [fileInfo objectForKey:@"fileName"];
+  if (!fileName || fileName==(NSString*)[NSNull null])
+    {
+      fileName=[fileInfo objectForKey:@"filePath"];
+      if (!fileName || fileName==(NSString*)[NSNull null])
+        {
+          fileName = [fileInfo objectForKey:@"fileURL"];
+          if (fileName==(NSString*)[NSNull null])
+            fileName=nil;
+        };
+    };
+  if (fileName)
+    fileName=[fileName lastPathComponent];
+  else
+    fileName=@"";
+  return fileName;
+};
+
+//--------------------------------------------------------------------
+-(BOOL)isFileNameDisplay
+{
+  BOOL isFileNameDisplay=boolValueFor([self valueForBinding:@"isFileNameDisplay"]);
+  if (isFileNameDisplay
+      && [[self fileName]length]==0)
+    isFileNameDisplay=NO;
+  return isFileNameDisplay;
+};
+
+//--------------------------------------------------------------------
+-(BOOL)hasUploadFileTitle
+{
+  return (([self hasBinding:@"uploadFileTitle"]
+           && [[self valueForBinding:@"uploadFileTitle"] length]>0));
+};
 @end
 
 

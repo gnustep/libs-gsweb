@@ -41,11 +41,20 @@
   NSStringEncoding _contentEncoding;
   NSDictionary* _userInfo;
 //  NSMutableString* _contentString;
-  IMP _contentStringASImp;
+//  IMP _contentStringASImp;
   NSMutableData* _contentData;
   IMP _contentDataADImp;
+  IMP _appendContentStringIMP;
+  Class _selfClass;
+  IMP _stringByEscapingHTMLStringIMP;
+  IMP _stringByEscapingHTMLAttributeValueIMP;
+  IMP _stringByConvertingToHTMLEntitiesIMP;
+  IMP _stringByConvertingToHTMLIMP;
+
 #ifndef NO_GNUSTEP
   NSMutableArray* _cachesStack; // Cache Stacks
+  NSMutableData* _currentCacheData; // Current Cache Data (last object of _cachesStack). Do not retain/release
+  IMP _currentCacheDataADImp;
 #endif
 };
 
@@ -60,6 +69,12 @@
 -(void)setHeaders:(NSArray*)headerList
            forKey:(NSString*)key;
 -(void)setHeaders:(NSDictionary*)headerList;
+
+-(void)removeHeader:(NSString*)header
+             forKey:(NSString*)key;
+
+-(void)removeHeaderForKey:(NSString*)key;
+-(void)removeHeadersForKey:(NSString*)key;
 
 -(void)appendHeader:(NSString*)header
              forKey:(NSString*)key;
@@ -77,15 +92,12 @@
 -(void)setContentEncoding:(NSStringEncoding)encoding;
 -(NSStringEncoding)contentEncoding;
 
--(void)_initContentData;
-
 -(NSData*)content;
 -(NSString*)contentString;
 -(void)setContent:(NSData*)contentData;
--(void)setContentString:(NSString*)contentString;
 
 -(void)_appendContentAsciiString:(NSString*)aString;
--(void)_appendContentCharacter:(char)aChar;
+-(void)appendContentCharacter:(char)aChar;
 
 -(void)appendContentString:(NSString*)string;
 -(void)appendContentData:(NSData*)contentData;
@@ -96,10 +108,7 @@
 @interface GSWMessage (GSWContentConveniences)
 -(void)appendContentBytes:(const void*)contentsBytes
                    length:(unsigned)length;
--(void)appendContentCharacter:(char)aChar;
 -(void)appendDebugCommentContentString:(NSString*)string;
--(void)replaceContentString:(NSString*)replaceString
-                   byString:(NSString*)byString;
 -(void)replaceContentData:(NSData*)replaceData
                    byData:(NSData*)byData;
 

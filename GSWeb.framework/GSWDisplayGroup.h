@@ -1,6 +1,6 @@
 /** GSWDisplayGroup.h - <title>GSWeb: Class GSWDisplayGroup</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -169,8 +169,14 @@
 - (id)displayBatchContainingSelectedObject;
 - (NSArray *)displayedObjects;
 - (NSArray *)allDisplayedObjects;
+- (id)displayFirstBatch;
 - (id)displayNextBatch;
 - (id)displayPreviousBatch;
+- (id)displayLastBatch;
+- (BOOL)canDisplayFirstBatch;
+- (BOOL)canDisplayNextBatch;
+- (BOOL)canDisplayPreviousBatch;
+- (BOOL)canDisplayLastBatch;
 - (BOOL)endEditing;
 - (id)executeQuery;
 - (id)fetch;

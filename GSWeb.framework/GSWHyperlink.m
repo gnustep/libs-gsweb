@@ -132,6 +132,10 @@ RCS_ID("$Id$")
       _urlPrefix = [[anAssociationsDict objectForKey:urlPrefix__Key
                                         withDefaultObject:[_urlPrefix autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"urlPrefix=%@",_urlPrefix);
+
+      _escapeHTML = [[anAssociationsDict objectForKey:escapeHTML__Key
+                                         withDefaultObject:[_escapeHTML autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"escapeHTML=%@",_escapeHTML);
     };
 
 
@@ -158,6 +162,7 @@ RCS_ID("$Id$")
       [tmpOtherAssociations removeObjectForKey:key__Key];
       [tmpOtherAssociations removeObjectForKey:urlPrefix__Key];
       [tmpOtherAssociations removeObjectForKey:pathQueryDictionary__Key];
+      [tmpOtherAssociations removeObjectForKey:escapeHTML__Key];
     };
 
   if (!WOStrictFlag)
@@ -255,6 +260,7 @@ RCS_ID("$Id$")
   DESTROY(_mimeType);
   DESTROY(_key);
   DESTROY(_urlPrefix);
+  DESTROY(_escapeHTML);
   DESTROY(_pathQueryDictionary);
   DESTROY(_children);
   [super dealloc];
@@ -296,7 +302,7 @@ RCS_ID("$Id$")
     disabledValue=![self evaluateCondition:_enabled
                          inContext:context];
 
-  if (!WOStrictFlag && _displayDisabled)
+  if (!WOStrictFlag && disabledValue && _displayDisabled)
     {
       displayDisabledValue=[self evaluateCondition:_displayDisabled
                                  inContext:context];
@@ -642,11 +648,23 @@ RCS_ID("$Id$")
   if (_string)
     {
       id stringValue=nil;
+
       NSDebugMLLog(@"gswdync",@"string=%@",_string);
       stringValue=[_string valueInComponent:[aContext component]];
       NSDebugMLLog(@"gswdync",@"stringValue=%@",stringValue);
+
       if (stringValue)
-        [aResponse appendContentHTMLString:stringValue];
+        {
+          BOOL escapeHTMLValue=YES;
+          if (!WOStrictFlag && _escapeHTML)
+            escapeHTMLValue=[self evaluateCondition:_escapeHTML
+                                  inContext:aContext];
+
+          if (escapeHTMLValue)
+            [aResponse appendContentHTMLString:stringValue];
+          else
+            [aResponse appendContentString:stringValue];
+        };
     };
   LOGObjectFnStop();
 }

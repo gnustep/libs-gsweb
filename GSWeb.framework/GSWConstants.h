@@ -396,6 +396,7 @@ GSWEB_EXPORT id cidKey__Key;
 GSWEB_EXPORT id isDisplayStringBefore__Key;
 GSWEB_EXPORT id urlPrefix__Key;
 GSWEB_EXPORT id pathQueryDictionary__Key;
+GSWEB_EXPORT id omitElement__Key;
 
 #endif // _GSWebConstants_h__
 

@@ -28,6 +28,7 @@
 @interface GSWFileUploadComponent : GSWComponent
 {
   NSMutableDictionary* _tmpFileInfo;
+  id _tmpWithAndHeight;
 };
 
 -(NSMutableDictionary*)fileInfo;

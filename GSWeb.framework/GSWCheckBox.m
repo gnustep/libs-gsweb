@@ -160,8 +160,8 @@ Bindings
           NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
           if (selectionValue)
             {
-              NSString* valueValueString=[NSString stringWithFormat:@"%@",valueValue];
-              NSString* selectionValueString=[NSString stringWithFormat:@"%@",selectionValue];
+              NSString* valueValueString=NSStringWithObject(valueValue);
+              NSString* selectionValueString=NSStringWithObject(selectionValue);
               isChecked=SBIsValueEqual(selectionValueString,valueValueString);
             };
         };
@@ -217,7 +217,7 @@ Bindings
             
           if (formValues && [formValues count]>0 && valueValue)
             {
-              NSString* valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+              NSString* valueValueString=NSStringWithObject(valueValue);
               isChecked=[formValues containsObject:valueValueString];
             };
           NSDebugMLLog(@"gswdync",@"isChecked=%s",(isChecked ? "YES" : "NO"));

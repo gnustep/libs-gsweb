@@ -1,3 +1,129 @@
+2004-12-14  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWAction.m: 
+		o added NSAssert in pageWithName:
+		o added -context
+		o implemented -_session
+		o added -session
+	* GSWeb.framework/GSWAction.h: 
+		o added -context
+		o added -session
+	* GSWeb.framework/GSWActionRequestHandler.m:
+		o comments/documentation
+	* GSWeb.framework/GSWBrowser.m:	
+		o replace back GSWIntToNSString() by [NSNumber numberWithXXX] 
+			for setting values in associations. Anyway, short int 
+			objects are cached
+		o optimization by using NSString -stringWithObject:
+	* GSWeb.framework/GSWCheckBox.m:	
+		o optimization by using NSString -stringWithObject:
+	* GSWeb.framework/GSWCheckBoxList.m:	
+		o optimization by using NSString -stringWithObject: 
+			and GSWIntToNSString()
+	* GSWeb.framework/GSWComponent.h:
+		o added -userAssociationForKey:
+		o added -defaultAssociationForKey:
+		o logs
+	* GSWeb.framework/GSWConstants.[hm]:
+		o added omitElement__Key
+	* GSWeb.framework/GSWContext.[hm]:
+		o added ivar -isInEnabledForm to detect forms in form
+		o added -setInEnabledForm:
+		o added -isInEnabledForm
+		o added -urlWithURLPrefix:RequestHandlerKey:path:queryString:isSecure:
+		o added -urlWithRequestHandlerKey:path:queryString:isSecure:
+	* GSWeb.framework/GSWContext.m:
+		o fix in directActionURLForActionNamed:urlPrefix:queryDictionary:pathQueryDictionary:
+		o fix in directActionURLForActionNamed:urlPrefix:queryDictionary:isSecure:
+		o fix in -componentActionURLIsSecure:
+		o logs
+	* GSWeb.framework/GSWDefaultAdaptor.m:
+		o removed librwap paranoid mode
+	* GSWeb.framework/GSWDefaultAdaptorThread.m
+		o rewritten -createRequestFromRequestLine:headers:data:
+	* GSWeb.framework/GSWDisplayGroup.[hm]:
+		o added -displayFirstBatch
+		o added -displayLastBatch
+		o added -canDisplayFirstBatch
+		o added -canDisplayNextBatch
+		o added -canDisplayPreviousBatch
+		o added -canDisplayLastBatch
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o fix in insertAfterLastObject
+		o change MLLog key
+	* GSWeb.framework/GSWDynamicElement.[hm]
+		o -evaluateCondition:inContext:noConditionAssociationDefault:noConditionDefault:
+	* GSWeb.framework/GSWForm.h:
+		o added _displayDisabled
+	* GSWeb.framework/GSWForm.[hm]:
+		o handle _displayDisabled
+		o handle form in forms
+	* GSWeb.framework/GSWGenericContainer.[hm]:
+	  	o added _elementName
+  		o added _otherTagString
+  		o added _omitElement
+	* GSWeb.framework/GSWHTMLRawParser.m:
+		o logs
+		o fixes in -tagPropertiesForType:betweenIndex:andIndex: to avoid infinite loops
+		o fixes in -parseHTML to avoid infinite loops
+	* GSWeb.framework/GSWHyperlink.[hm]: 
+		o added _escapeHTML
+	* GSWeb.framework/GSWHTMLURLValuedElement.m:
+		o Warnings
+	* GSWeb.framework/GSWMessage.[hm]:
+		o added -removeHeader:forKey:
+		o added -removeHeaderForKey:
+		o added -removeHeadersForKey:
+	* GSWeb.framework/GSWMessage.m:
+		o cleaned code
+		o re-added disappeared caching mechanism
+		o use DESTROY macro in -setContent:
+		o replace NSString +stringWithObject by NSStringWithObject()
+	* GSWeb.framework/GSWPopUpButton.m:
+		o don't append noSelection string if there's none
+		o replace back GSWIntToNSString() by [NSNumber numberWithXXX] 
+			for setting values in associations. Anyway, short int 
+			objects are cached
+	* GSWeb.framework/GSWRadioButton.m:
+		o doc
+		o optimization by using NSString -stringWithObject:
+	* GSWeb.framework/GSWRadioButtonList.m:
+		o optimization by using NSString -stringWithObject: 
+			and GSWIntToNSString()
+	* GSWeb.framework/GSWRecording.m:
+		o corrected assert message
+		o changes according to GSWMessage string-To-Data changes
+	* GSWeb.framework/GSWRepetition.m:
+		o use IMP for performances
+	* GSWeb.framework/GSWResourcesManager.[hm]:
+		o added -stringsTableNamed:inFramework:languages:foundLanguage:
+		o added -lockedStringsTableNamed:inFramework:languages:foundLanguage:
+		o added -lockedStringForKey:inTableNamed:inFramework:languages:foundLanguage:
+	* GSWeb.framework/GSWResponse.[hm]:
+		o added -canDisableClientCaching and hadle it
+	* GSWeb.framework/GSWSession.[hm]:
+		o added _domainForIDCookies and fixes -domainForIDCookies
+	* GSWeb.framework/GSWString.[hm]:
+		o cleaned 
+		o added -formattedValueInContext:
+	* GSWeb.framework/GSWUtils.h:
+		o added NSString +stringWithContentsOfFile:encoding:
+		o added NSString +encodingNamed:
+	* GSWeb.framework/GSWUtils.m:
+		o dix in SBIsEqual()
+		o put values in array for cachedStringForInt()
+		o moved NSString +stringWithContentsOfFile:encoding: from GSWBundle
+		o moved NSString +encodingNamed: from GSWBundle
+			TODO: MultiThread protection
+	* GSWeb.framework/NSString+HTML.m:
+		o optimization in -stringByConvertingFromHTML
+		o optimization in -stringByConvertingToHTML
+	* GSWeb.framework/NSString+Trimming.m:
+		o added NSStringWithObject()
+		o optimized NSStringWithObject() 
+			TODO: MultiThread protection ?
+	* GSWExtensionsGSW.framework/GSWCacheElement.m:
+		o changes to follow GSWMessage content changes
+	
 2004-12-01  David Wetzel <dave@turbocat.de>
 
         * GSWeb.framework/GSWMessage.m

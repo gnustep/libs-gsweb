@@ -1,6 +1,6 @@
 /** GSWString.m - <title>GSWeb: Class GSWString</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        Jan 1999
@@ -121,37 +121,23 @@ RCS_ID("$Id$")
   GSWRequest* request=nil;
   BOOL isFromClientComponent=NO;
   GSWComponent* component=nil;
-  id valueValue = nil;
+
   LOGObjectFnStartC("GSWString");
+
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
+
   request=[context request];
   isFromClientComponent=[request isFromClientComponent];
   component=[context component];
-  NSDebugMLLog(@"gswdync",@"GSWString: component=%@",component);
-  NSDebugMLLog(@"gswdync",@"GSWString: value=%@",_value);
-  valueValue = [_value valueInComponent:component];
-  NSDebugMLLog(@"gswdync",@"GSWString: valueValue=%@",valueValue);
-  if (valueValue)
+
+  formattedValue=[self formattedValueInContext:context];
+
+  if (formattedValue)
     {
       BOOL escapeHTMLValue=YES;
       BOOL convertHTMLValue=NO;
       BOOL convertHTMLEntitiesValue=NO;
-      NSFormatter* formatter=[self formatterForComponent:component
-                                   value:valueValue];
-      if (!formatter)
-        {
-          formattedValue=valueValue;
-          // if we dont do this we get an exception on NSNumbers later. dave at turbocat.de
-          if ([formattedValue isKindOfClass:[NSNumber class]]) {
-            formattedValue = [(id)formattedValue stringValue];
-          } 
-        }
-      else
-        {
-          formattedValue=[formatter stringForObjectValue:valueValue];
-          NSDebugMLLog(@"gswdync",@"valueValue=%@ formattedValue=%@",valueValue,formattedValue);
-        };
 
       if (!WOStrictFlag && _convertHTML)
         convertHTMLValue=[self evaluateCondition:_convertHTML
@@ -184,7 +170,9 @@ RCS_ID("$Id$")
       else
         [response appendContentString:formattedValue];
     };
+
   GSWStopElement(context);
+
   LOGObjectFnStopC("GSWString");
 };
 
@@ -249,6 +237,47 @@ RCS_ID("$Id$")
   return nil;
 };
 
+//--------------------------------------------------------------------
+// return formatted value
+-(NSString*)formattedValueInContext:(GSWContext*)context
+{
+  NSString* formattedValue=nil;
+  GSWComponent* component=nil;
+  id valueValue = nil;
+
+  LOGObjectFnStartC("GSWString");
+
+  component=[context component];
+
+  NSDebugMLLog(@"gswdync",@"GSWString: value=%@",_value);
+
+  valueValue = [_value valueInComponent:component];
+  NSDebugMLLog(@"gswdync",@"GSWString: valueValue=%@",valueValue);
+
+  if (valueValue)
+    {
+      NSFormatter* formatter=[self formatterForComponent:component
+                                   value:valueValue];
+      if (!formatter)
+        {
+          formattedValue=valueValue;
+          // if we dont do this we get an exception on NSNumbers later. dave at turbocat.de
+          if ([formattedValue isKindOfClass:[NSNumber class]])
+            {
+              formattedValue = [(id)formattedValue stringValue];
+            } 
+        }
+      else
+        {
+          formattedValue=[formatter stringForObjectValue:valueValue];
+          NSDebugMLLog(@"gswdync",@"valueValue=%@ formattedValue=%@",valueValue,formattedValue);
+        };
+    }
+
+  LOGObjectFnStopC("GSWString");
+
+  return formattedValue;
+};
 
 @end
 

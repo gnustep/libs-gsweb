@@ -381,7 +381,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 //NDFN
 -(NSDictionary*)stringsTableNamed:(NSString*)tableName
                       inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages;
+                        languages:(NSArray*)languages
+                    foundLanguage:(NSString**)foundLanguagePtr
 {
   NSDictionary* stringsTable=nil;
   LOGObjectFnStart();
@@ -391,7 +392,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     {
       stringsTable=[self lockedStringsTableNamed:tableName
                          inFramework:aFrameworkName
-                         languages:languages];
+                         languages:languages
+                         foundLanguage:foundLanguagePtr];
     }
   NS_HANDLER
     {
@@ -405,6 +407,18 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   [self unlock];
   LOGObjectFnStop();
   return stringsTable;
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSDictionary*)stringsTableNamed:(NSString*)tableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages;
+{
+  return [self stringsTableNamed:tableName
+               inFramework:aFrameworkName
+               languages:languages
+               foundLanguage:NULL];
 };
 
 //--------------------------------------------------------------------
@@ -468,6 +482,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                   inTableNamed:(NSString*)aTableName
                    inFramework:(NSString*)aFrameworkName
                      languages:(NSArray*)languages
+                 foundLanguage:(NSString**)foundLanguagePtr
 {
   //OK
   NSString* string=nil;
@@ -477,33 +492,41 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   int iFramework=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+
   LOGObjectFnStart();
+
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
       frameworks=[frameworks arrayByAddingObject:@""];
     }
   _count=[languages count];
+
   NSDebugMLLog(@"resmanager",@"languages=%@",languages);
   NSDebugMLLog(@"resmanager",@"frameworks=%@",frameworks);
+
   for(i=0;!string && i<=_count;i++)
-	{
-	  if (i<_count)
-		language=[languages objectAtIndex:i];
-	  else
-		language=nil;
-	  for(iFramework=0;!string && iFramework<[frameworks count];iFramework++)
-		{
-		  frameworkName=[frameworks objectAtIndex:iFramework];
-		  if ([frameworkName length]==0)
-                    frameworkName=nil;
-		  string=[self lockedCachedStringForKey:aKey
-						inTableNamed:aTableName
-						inFramework:frameworkName
-						language:language];
-		};
-	};
+    {
+      if (i<_count)
+        language=[languages objectAtIndex:i];
+      else
+        language=nil;
+      for(iFramework=0;!string && iFramework<[frameworks count];iFramework++)
+        {
+          frameworkName=[frameworks objectAtIndex:iFramework];
+          if ([frameworkName length]==0)
+            frameworkName=nil;
+          string=[self lockedCachedStringForKey:aKey
+                       inTableNamed:aTableName
+                       inFramework:frameworkName
+                       language:language];
+          if (string && foundLanguagePtr)
+            *foundLanguagePtr=language;
+        };
+    };
+
   LOGObjectFnStop();
+
   return string;
 };
 
@@ -512,6 +535,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 -(NSDictionary*)lockedStringsTableNamed:(NSString*)aTableName
                             inFramework:(NSString*)aFrameworkName
                               languages:(NSArray*)languages
+                          foundLanguage:(NSString**)foundLanguagePtr
 {
   //OK
   NSDictionary* stringsTable=nil;
@@ -521,7 +545,9 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   int iFramework=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+
   LOGObjectFnStart();
+
   _count=[languages count];
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
@@ -530,33 +556,66 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+
   for(i=0;!stringsTable && i<_count;i++)
-	{
-	  language=[languages objectAtIndex:i];
-	  for(iFramework=0;!stringsTable && iFramework<[frameworks count];iFramework++)
-		{
-		  frameworkName=[frameworks objectAtIndex:iFramework];
-		  if ([frameworkName length]==0)
-			frameworkName=nil;
-		  stringsTable=[self lockedCachedStringsTableWithName:aTableName
-							  inFramework:frameworkName
-							  language:language];
-		};
-	};
+    {
+      language=[languages objectAtIndex:i];
+      for(iFramework=0;!stringsTable && iFramework<[frameworks count];iFramework++)
+        {
+          frameworkName=[frameworks objectAtIndex:iFramework];
+          if ([frameworkName length]==0)
+            frameworkName=nil;
+          stringsTable=[self lockedCachedStringsTableWithName:aTableName
+                             inFramework:frameworkName
+                             language:language];
+          if (stringsTable && foundLanguagePtr)
+            *foundLanguagePtr=language;
+        };
+    };
+
   NSDebugMLLog(@"resmanager",@"lockedStringsTableNamed:%@ inFramework:%@ languages:%@: %@",
                aTableName,
                aFrameworkName,
                languages,
                stringsTable);
+
   LOGObjectFnStop();
+
   return stringsTable;
 };
 
 //--------------------------------------------------------------------
 //NDFN
+-(NSString*)lockedStringForKey:(NSString*)aKey
+                  inTableNamed:(NSString*)aTableName
+                   inFramework:(NSString*)aFrameworkName
+                     languages:(NSArray*)languages
+{
+  return [self lockedStringForKey:aKey
+               inTableNamed:aTableName
+               inFramework:aFrameworkName
+               languages:languages
+               foundLanguage:NULL];
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSDictionary*)lockedStringsTableNamed:(NSString*)aTableName
+                            inFramework:(NSString*)aFrameworkName
+                              languages:(NSArray*)languages
+{
+  return [self lockedStringsTableNamed:aTableName
+               inFramework:aFrameworkName
+               languages:languages
+               foundLanguage:NULL];
+};
+
+//--------------------------------------------------------------------
+//NDFN
 -(NSArray*)lockedStringsTableArrayNamed:(NSString*)aTableName
-							inFramework:(NSString*)aFrameworkName
-							  languages:(NSArray*)languages
+                            inFramework:(NSString*)aFrameworkName
+                              languages:(NSArray*)languages
+                          foundLanguage:(NSString**)foundLanguagePtr
 {
   //OK
   NSArray* stringsTableArray=nil;
@@ -566,30 +625,48 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   int iFramework=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+
   LOGObjectFnStart();
+
   _count=[languages count];
+
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
-	{
-	  frameworks=[_frameworkProjectBundlesCache allKeys];
-	  frameworks=[frameworks arrayByAddingObject:@""];
-	}
+    {
+      frameworks=[_frameworkProjectBundlesCache allKeys];
+      frameworks=[frameworks arrayByAddingObject:@""];
+    }
   else
-	  frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+
   for(i=0;!stringsTableArray && i<_count;i++)
-	{
-	  language=[languages objectAtIndex:i];
-	  for(iFramework=0;!stringsTableArray && iFramework<[frameworks count];iFramework++)
-		{
-		  frameworkName=[frameworks objectAtIndex:iFramework];
-		  if ([frameworkName length]==0)
-			frameworkName=nil;
-		  stringsTableArray=[self lockedCachedStringsTableArrayWithName:aTableName
-								   inFramework:frameworkName
-								   language:language];
-		};
-	};
+    {
+      language=[languages objectAtIndex:i];
+      for(iFramework=0;!stringsTableArray && iFramework<[frameworks count];iFramework++)
+        {
+          frameworkName=[frameworks objectAtIndex:iFramework];
+          if ([frameworkName length]==0)
+            frameworkName=nil;
+          stringsTableArray=[self lockedCachedStringsTableArrayWithName:aTableName
+                                  inFramework:frameworkName
+                                  language:language];
+          if (stringsTableArray && foundLanguagePtr)
+            *foundLanguagePtr=language;
+        };
+    };
   LOGObjectFnStop();
   return stringsTableArray;
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSArray*)lockedStringsTableArrayNamed:(NSString*)aTableName
+                            inFramework:(NSString*)aFrameworkName
+                              languages:(NSArray*)languages
+{
+  return [self lockedStringsTableArrayNamed:aTableName
+               inFramework:aFrameworkName
+               languages:languages
+               foundLanguage:NULL];
 };
 
 //--------------------------------------------------------------------

@@ -294,6 +294,8 @@ RCS_ID("$Id$")
   DESTROY(_permanentPageCache);
   NSDebugFLog0(@"Dealloc GSWSession: permanentContextIDArray");
   DESTROY(_permanentContextIDArray);
+  NSDebugFLog0(@"Dealloc GSWSession: domainForIDCookies");
+  DESTROY(_domainForIDCookies);
   NSDebugFLog0(@"Dealloc GSWSession Super");
   [super dealloc];
   NSDebugFLog0(@"End Dealloc GSWSession");
@@ -366,27 +368,34 @@ RCS_ID("$Id$")
 -(NSString*)domainForIDCookies
 {
   //OK
-  NSString* domain=nil;
-  GSWContext* context=nil;
-  GSWRequest* request=nil;
-  NSString* applicationName=nil;
-  NSString* adaptorPrefix=nil;
   LOGObjectFnStart();
-  [[GSWApplication application]lock];
-  context=[self context];
-  request=[context request];
-  applicationName=[request applicationName];
-  NSDebugMLLog(@"sessions",@"applicationName=%@",applicationName);
-  adaptorPrefix=[request adaptorPrefix];
-  NSDebugMLLog(@"sessions",@"adaptorPrefix=%@",adaptorPrefix);
-  [[GSWApplication application]unlock];
-  domain=[NSString stringWithFormat:@"%@/%@.%@",
-                   adaptorPrefix,
-                   applicationName,
-                   GSWApplicationSuffix[GSWebNamingConv]];
-  NSDebugMLLog(@"sessions",@"domain=%@",domain);
+
+  if (!_domainForIDCookies)
+    {
+      GSWContext* context=nil;
+      GSWRequest* request=nil;
+      NSString* applicationName=nil;
+      NSString* adaptorPrefix=nil;
+      [[GSWApplication application]lock];
+      context=[self context];
+      request=[context request];
+      applicationName=[request applicationName];
+      NSDebugMLLog(@"sessions",@"applicationName=%@",applicationName);
+      adaptorPrefix=[request adaptorPrefix];
+      NSDebugMLLog(@"sessions",@"adaptorPrefix=%@",adaptorPrefix);
+      [[GSWApplication application]unlock];
+      ASSIGN(_domainForIDCookies,
+             ([NSString stringWithFormat:@"%@/%@.%@",
+                        adaptorPrefix,
+                        applicationName,
+                        GSWApplicationSuffix[GSWebNamingConv]]));
+    };
+
+  NSDebugMLLog(@"sessions",@"_domainForIDCookies=%@",_domainForIDCookies);
+
   LOGObjectFnStop();
-  return domain;
+
+  return _domainForIDCookies;
 };
 
 //--------------------------------------------------------------------
@@ -866,22 +875,34 @@ RCS_ID("$Id$")
   NSString* domainForIDCookies=nil;
   NSString* sessionID=nil;
   NSDate* anExpireDate=nil;
+  GSWCookie* sessionIDCookie=nil;
+  GSWCookie* instanceIDCookie=nil;  
+
   LOGObjectFnStart();
+
   domainForIDCookies=[self domainForIDCookies];
   sessionID=[self sessionID];
   anExpireDate=[NSDate date]; // Expire now
-  [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
-                                  value:sessionID
-                                  path:domainForIDCookies
-                                  domain:nil
-                                  expires:anExpireDate
-                                  isSecure:NO]];
-  [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
-                                  value:@"-1"
-                                  path:domainForIDCookies
-                                  domain:nil
-                                  expires:anExpireDate
-                                  isSecure:NO]];
+
+  sessionIDCookie=[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
+                             value:sessionID
+                             path:domainForIDCookies
+                             domain:nil
+                             expires:anExpireDate
+                             isSecure:NO];
+  NSDebugMLLog(@"sessions",@"sessionIDCookie=%@",sessionIDCookie);
+
+  [aResponse addCookie:sessionIDCookie];
+
+  instanceIDCookie=[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
+                              value:@"-1"
+                              path:domainForIDCookies
+                              domain:nil
+                              expires:anExpireDate
+                              isSecure:NO];
+  NSDebugMLLog(@"sessions",@"instanceIDCookie=%@",instanceIDCookie);
+
+  [aResponse addCookie:instanceIDCookie];
 
   LOGObjectFnStop();
 };
@@ -1569,8 +1590,7 @@ Returns first element of languages or nil if languages is empty
 //	awake
 -(void)awake 
 {
-  //ok
-  //Does Nothing
+  DESTROY(_domainForIDCookies);
 };
 
 //--------------------------------------------------------------------
@@ -1578,7 +1598,9 @@ Returns first element of languages or nil if languages is empty
 
 -(void)sleep 
 {
-  //Does Nothing
+  // We destroy domainForIDCookies because applictaion name may 
+  //   change between pages
+  DESTROY(_domainForIDCookies);
 };
 
 //--------------------------------------------------------------------

@@ -68,8 +68,10 @@
 -(void)setUserDictionary:(NSDictionary*)userDictionary;
 -(NSDictionary*)userAssociations;
 -(void)setUserAssociations:(NSDictionary*)userAssociations;
+-(GSWAssociation*)userAssociationForKey:(NSString*)key;
 -(NSDictionary*)defaultAssociations;
 -(void)setDefaultAssociations:(NSDictionary*)defaultAssociations;
+-(GSWAssociation*)defaultAssociationForKey:(NSString*)key;
 #endif
 -(NSString*)frameworkName;
 -(NSString*)baseURL;

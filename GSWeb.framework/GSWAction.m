@@ -1,9 +1,9 @@
 /** GSWAction.m - <title>GSWeb: Class GSWAction</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Feb 1999
+   Date: 	Feb 1999
    
    $Revision$
    $Date$
@@ -196,6 +196,7 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   NS_DURING
     {
+      NSAssert(_context,@"No Context");
       component=[[GSWApplication application]pageWithName:pageName
                                              inContext:_context];
     }
@@ -282,12 +283,13 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
-
+//--------------------------------------------------------------------
 -(void)setLanguages:(NSArray*)languages
 {
   [_context _setLanguages:languages];
 }
 
+//--------------------------------------------------------------------
 -(NSArray*)languages
 {
   return [_context languages];
@@ -297,6 +299,13 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWAction (GSWActionA)
+
+//--------------------------------------------------------------------
+-(GSWContext*)context
+{
+  return [self _context];
+};
+
 -(GSWContext*)_context
 {
   //OK
@@ -304,9 +313,15 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+-(GSWSession*)session
+{
+  return [self _session];
+};
+
+//--------------------------------------------------------------------
 -(GSWSession*)_session
 {
-  return nil;//TODO?
+  return [_context session];
 };
 
 @end

@@ -1,9 +1,9 @@
 /** GSWHyperlink.h - <title>GSWeb: Class GSWHyperlink</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date:        Jan 1999
    
    $Revision$
    $Date$
@@ -64,6 +64,7 @@
   NSDictionary* _otherPathQueryAssociations;
   GSWAssociation* _urlPrefix;
   GSWAssociation* _pathQueryDictionary;
+  GSWAssociation* _escapeHTML;
 // }
   GSWElement* _children;
 };

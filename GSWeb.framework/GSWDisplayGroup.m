@@ -1,6 +1,6 @@
 /** GSWDisplayGroup.m - <title>GSWeb: Class GSWDisplayGroup</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
                 Mirko Viviani <mirko.viviani@rccr.cremona.it>
@@ -124,9 +124,9 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
       _queryMinMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMax      = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMaxMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
-      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
+      NSDebugMLLog(@"GSWDisplayGroup",@"_queryOperator=%@",_queryOperator);
       _queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
-      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
+      NSDebugMLLog(@"GSWDisplayGroup",@"_queryOperator=%@",_queryOperator);
       _queryKeyValueQualifierClassName 
 	= [[NSMutableDictionary alloc] initWithCapacity:8];
 
@@ -138,9 +138,9 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 	     [[self class]globalDefaultStringMatchOperator]);
       ASSIGN(_defaultStringMatchFormat,
 	     [[self class]globalDefaultStringMatchFormat]);
-      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",
+      NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchOperator=%@",
 		   _defaultStringMatchOperator);
-      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",
+      NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchFormat=%@",
 		   _defaultStringMatchFormat);
 
       [self setFetchesOnLoad:YES];
@@ -154,7 +154,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   if ((self=[self init]))
     {
       LOGObjectFnStart();
-      NSDebugMLLog(@"gswdisplaygroup",@"GSWDisplayGroup %p",self);
+      NSDebugMLLog(@"GSWDisplayGroup",@"GSWDisplayGroup %p",self);
       [self setNumberOfObjectsPerBatch:
               [unarchiver decodeIntForKey:@"numberOfObjectsPerBatch"]];
       [self setFetchesOnLoad:
@@ -180,7 +180,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
       [self setQueryOperator:[unarchiver decodeObjectForKey:@"queryOperator"]];
       [self setQueryKeyValueQualifierClassName:[unarchiver decodeObjectForKey:@"queryKeyValueQualifierClassName"]];
       [self finishInitialization];
-      NSDebugMLLog(@"gswdisplaygroup",@"GSWDisplayGroup %p : %@",self,self);
+      NSDebugMLLog(@"GSWDisplayGroup",@"GSWDisplayGroup %p : %@",self,self);
       LOGObjectFnStop();
     };
   return self;
@@ -198,7 +198,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 {
   NSString* dscr=nil;
   GSWLogAssertGood(self);
-  NSDebugMLLog(@"gswdisplaygroup",@"GSWDisplayGroup description Self=%p",self);
+  NSDebugMLLog(@"GSWDisplayGroup",@"GSWDisplayGroup description Self=%p",self);
   dscr=[NSString stringWithFormat:@"<%s %p - \n",
                   object_get_class_name(self),
                   (void*)self];
@@ -705,26 +705,26 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
 +(NSString*)globalDefaultStringMatchOperator
 {
-  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchOperator=%@",globalDefaultStringMatchOperator);
+  NSDebugMLLog(@"GSWDisplayGroup",@"globalDefaultStringMatchOperator=%@",globalDefaultStringMatchOperator);
   return globalDefaultStringMatchOperator;
 }
 
 +(void)setGlobalDefaultStringMatchOperator:(NSString*)operatorString
 {
   ASSIGN(globalDefaultStringMatchOperator,operatorString);
-  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchOperator=%@",globalDefaultStringMatchOperator);
+  NSDebugMLLog(@"GSWDisplayGroup",@"globalDefaultStringMatchOperator=%@",globalDefaultStringMatchOperator);
 }
 
 +(NSString*)globalDefaultStringMatchFormat
 {
-  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchFormat=%@",globalDefaultStringMatchFormat);
+  NSDebugMLLog(@"GSWDisplayGroup",@"globalDefaultStringMatchFormat=%@",globalDefaultStringMatchFormat);
   return globalDefaultStringMatchFormat;
 }
 
 +(void)setGlobalDefaultStringMatchFormat:(NSString*)format
 {
   ASSIGN(globalDefaultStringMatchFormat,format);
-  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchFormat=%@",globalDefaultStringMatchFormat);
+  NSDebugMLLog(@"GSWDisplayGroup",@"globalDefaultStringMatchFormat=%@",globalDefaultStringMatchFormat);
 }
 
 +(BOOL)globalDefaultForValidatesChangesImmediately
@@ -841,7 +841,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
 - (NSString *)defaultStringMatchFormat
 {
-  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
   return _defaultStringMatchFormat;
 }
 
@@ -850,7 +850,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
 - (NSString *)defaultStringMatchOperator
 {
-  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
   return _defaultStringMatchOperator;
 }
 
@@ -995,8 +995,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   GSWLogAssertGood(_displayedObjects);
   displayedObjectsCount = [_displayedObjects count];
 
-  NSDebugMLLog(@"gswdisplaygroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
-  NSDebugMLLog(@"gswdisplaygroup",@"displayedObjectsCount=%d",displayedObjectsCount);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  NSDebugMLLog(@"GSWDisplayGroup",@"displayedObjectsCount=%d",displayedObjectsCount);
 
   if (_numberOfObjectsPerBatch == 0 || _numberOfObjectsPerBatch>=displayedObjectsCount)
     displayedObjects=_displayedObjects;
@@ -1004,12 +1004,12 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
     {
       int currentBatchIndex = [self currentBatchIndex];
       int startIndex=(currentBatchIndex - 1) * _numberOfObjectsPerBatch;
-      NSDebugMLLog(@"gswdisplaygroup",@"currentBatchIndex=%d",currentBatchIndex);
-      NSDebugMLLog(@"gswdisplaygroup",@"startIndex=%d",startIndex);
+      NSDebugMLLog(@"GSWDisplayGroup",@"currentBatchIndex=%d",currentBatchIndex);
+      NSDebugMLLog(@"GSWDisplayGroup",@"startIndex=%d",startIndex);
 
       if( displayedObjectsCount > (currentBatchIndex * _numberOfObjectsPerBatch))
         displayedObjectsCount = currentBatchIndex * _numberOfObjectsPerBatch;
-      NSDebugMLLog(@"gswdisplaygroup",@"displayedObjectsCount=%d",displayedObjectsCount);
+      NSDebugMLLog(@"GSWDisplayGroup",@"displayedObjectsCount=%d",displayedObjectsCount);
 
       displayedObjects=[_displayedObjects subarrayWithRange:NSMakeRange(startIndex,displayedObjectsCount-startIndex)];
     };
@@ -1033,13 +1033,31 @@ of all Batches, not only the current one.
 };
 
 //--------------------------------------------------------------------
+//	displayFirstBatch
+
+- (id)displayFirstBatch
+{
+  LOGObjectFnStart();
+
+  NSDebugMLLog(@"GSWDisplayGroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  if (_numberOfObjectsPerBatch>0)
+    {
+      [self setCurrentBatchIndex:1];
+      [self clearSelection];
+    };
+
+  LOGObjectFnStop();
+  return nil;//return nil for direct .gswd actions ==> same page
+}
+
+//--------------------------------------------------------------------
 //	displayNextBatch
 
 - (id)displayNextBatch
 {
   LOGObjectFnStart();
 
-  NSDebugMLLog(@"gswdisplaygroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
   if (_numberOfObjectsPerBatch>0)
     {
       [self setCurrentBatchIndex:_batchIndex+1];
@@ -1066,6 +1084,104 @@ of all Batches, not only the current one.
   LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
 }
+
+//--------------------------------------------------------------------
+//	displayLastBatch
+
+- (id)displayLastBatch
+{
+  LOGObjectFnStart();
+
+  NSDebugMLLog(@"GSWDisplayGroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  if (_numberOfObjectsPerBatch>0)
+    {
+      int batchCount=0;
+      batchCount=[self batchCount];
+
+      [self setCurrentBatchIndex:batchCount];
+      [self clearSelection];
+    };
+  LOGObjectFnStop();
+  return nil;//return nil for direct .gswd actions ==> same page
+}
+
+//--------------------------------------------------------------------
+/** Returns YES if batchCount>0 and current batch index>1 **/
+- (BOOL)canDisplayFirstBatch
+{
+  BOOL canDisplayFirstBatch=NO;
+
+  LOGObjectFnStart();
+
+  if(_numberOfObjectsPerBatch>0)
+    {
+      NSDebugMLLog(@"GSWDisplayGroup",@"batchIndex=%d",_batchIndex);
+      canDisplayFirstBatch=(_batchIndex>1);
+    };
+
+  LOGObjectFnStop();
+
+  return canDisplayFirstBatch;
+};
+
+//--------------------------------------------------------------------
+/** Returns YES if batchCount>0 and current batch index < batch count **/
+- (BOOL)canDisplayNextBatch
+{
+  BOOL canDisplayNextBatch=NO;
+
+  LOGObjectFnStart();
+
+  if(_numberOfObjectsPerBatch>0)
+    {
+      int batchCount=[self batchCount];
+      NSDebugMLLog(@"GSWDisplayGroup",@"batchIndex=%d batchCount=%d",_batchIndex,batchCount);
+      canDisplayNextBatch=(_batchIndex<batchCount);
+    };
+
+  LOGObjectFnStop();
+
+  return canDisplayNextBatch;
+};
+
+//--------------------------------------------------------------------
+/** Returns YES if batchCount>0 and current batch index > 1 **/
+- (BOOL)canDisplayPreviousBatch
+{
+  BOOL canDisplayPreviousBatch=NO;
+
+  LOGObjectFnStart();
+
+  if(_numberOfObjectsPerBatch>0)
+    {
+      NSDebugMLLog(@"GSWDisplayGroup",@"batchIndex=%d",_batchIndex);
+      canDisplayPreviousBatch=(_batchIndex>1);
+    };
+
+  LOGObjectFnStop();
+
+  return canDisplayPreviousBatch;
+};
+
+//--------------------------------------------------------------------
+/** Returns YES if batchCount>0 and current batch index < batch count **/
+- (BOOL)canDisplayLastBatch
+{
+  BOOL canDisplayLastBatch=NO;
+
+  LOGObjectFnStart();
+
+  if(_numberOfObjectsPerBatch>0)
+    {
+      int batchCount=[self batchCount];
+      NSDebugMLLog(@"GSWDisplayGroup",@"batchIndex=%d batchCount=%d",_batchIndex,batchCount);
+      canDisplayLastBatch=(_batchIndex<batchCount);
+    };
+
+  LOGObjectFnStop();
+
+  return canDisplayLastBatch;
+};
 
 //--------------------------------------------------------------------
 //	endEditing
@@ -1266,7 +1382,7 @@ of all Batches, not only the current one.
 
 - (id)insertAfterLastObject
 {
-  int index= [_allObjects count];
+  int index= [_displayedObjects count];
   return [self insertObjectAtIndex:index];
 }
 
@@ -1368,9 +1484,9 @@ of all Batches, not only the current one.
 
   if ([self endEditing])
     {
-      NSDebugMLLog(@"gswdisplaygroup",@"Will [_dataSource createObject]");
+      NSDebugMLLog(@"GSWDisplayGroup",@"Will [_dataSource createObject]");
       object = [_dataSource createObject];
-      NSDebugMLLog(@"gswdisplaygroup",@"End [_dataSource createObject]. Object %p=%@",
+      NSDebugMLLog(@"GSWDisplayGroup",@"End [_dataSource createObject]. Object %p=%@",
                    object,object);
       if (!object)
         {
@@ -1384,10 +1500,10 @@ of all Batches, not only the current one.
       else
         {
           [object takeValuesFromDictionary:[self insertedObjectDefaultValues]];
-          NSDebugMLLog(@"gswdisplaygroup",@"Will insertObject:AtIndex:");
+          NSDebugMLLog(@"GSWDisplayGroup",@"Will insertObject:AtIndex:");
           [self insertObject:object
                 atIndex:index];
-          NSDebugMLLog(@"gswdisplaygroup",@"End insertObject:AtIndex:");
+          NSDebugMLLog(@"GSWDisplayGroup",@"End insertObject:AtIndex:");
         };
     };
   LOGObjectFnStop();
@@ -1494,19 +1610,19 @@ of all Batches, not only the current one.
   EOQualifier* resultQualifier=nil;
   NSMutableArray *array=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"_queryMatch=%@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"_queryMatch=%@",
                _queryMatch);
-  NSDebugMLLog(@"gswdisplaygroup",@"_queryNotMatch=%@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"_queryNotMatch=%@",
                _queryNotMatch);
-  NSDebugMLLog(@"gswdisplaygroup",@"_queryMin=%@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"_queryMin=%@",
                _queryMin);
-  NSDebugMLLog(@"gswdisplaygroup",@"_queryMax=%@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"_queryMax=%@",
                _queryMax);
-  NSDebugMLLog(@"gswdisplaygroup",@"_queryMinMatch=%@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"_queryMinMatch=%@",
                _queryMinMatch);
-  NSDebugMLLog(@"gswdisplaygroup",@"_queryMaxMatch=%@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"_queryMaxMatch=%@",
                _queryMaxMatch);
-  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@ EOQualifier sel:%p",
+  NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchOperator=%@ EOQualifier sel:%p",
                _defaultStringMatchOperator,
                (void*)[EOQualifier operatorSelectorForString:_defaultStringMatchOperator]);
 
@@ -1533,12 +1649,12 @@ of all Batches, not only the current one.
   if (_auxiliaryQueryQualifier)
     [array addObject:_auxiliaryQueryQualifier];
 
-  NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
+  NSDebugMLLog(@"GSWDisplayGroup",@"array=%@",array);
   if ([array count]==1)
     resultQualifier=[array objectAtIndex:0];
   else if ([array count]>1)
     resultQualifier=[[[EOAndQualifier alloc] initWithQualifierArray:array] autorelease];
-  NSDebugMLLog(@"gswdisplaygroup",@"resultQualifier=%@",resultQualifier);
+  NSDebugMLLog(@"GSWDisplayGroup",@"resultQualifier=%@",resultQualifier);
   LOGObjectFnStop();
   return resultQualifier;
 }
@@ -1561,9 +1677,9 @@ of all Batches, not only the current one.
       [self setInQueryMode:NO];
 
       qualifier=[self qualifierFromQueryValues];
-      NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+      NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
 
-      NSDebugMLLog(@"gswdisplaygroup",@"_dataSource=%@",_dataSource);
+      NSDebugMLLog(@"GSWDisplayGroup",@"_dataSource=%@",_dataSource);
       if (_flags.isCustomDataSourceClass)
         {
           if ([_dataSource respondsToSelector:@selector(setAuxiliaryQualifier:)])
@@ -1601,7 +1717,7 @@ of all Batches, not only the current one.
   LOGObjectFnStart();
   [self setInQueryMode:NO];
   qualifier=[self qualifierFromQueryValues];
-  NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+  NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
   [self setQualifier:qualifier];
 
   NSDebugMLLog0(@"gswdisplaygroup",@"updateDisplayedObjects");
@@ -1717,10 +1833,10 @@ of all Batches, not only the current one.
 {
   id obj=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"_selectedObjects count=%d",[_selectedObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_selectedObjects count=%d",[_selectedObjects count]);
   if([_selectedObjects count]>0)
     obj=[_selectedObjects objectAtIndex:0];
-  NSDebugMLLog(@"gswdisplaygroup",@"selectedObject=%@",obj);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectedObject=%@",obj);
 
   LOGObjectFnStop();
   return obj;
@@ -1836,19 +1952,19 @@ of all Batches, not only the current one.
 
   GSWLogAssertGood(_displayedObjects);
   GSWLogAssertGood(objects);
-  NSDebugMLLog(@"gswdisplaygroup",@"_displayedObjects count]=%d",[_displayedObjects count]);
-  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_displayedObjects count]=%d",[_displayedObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"objects count]=%d",[objects count]);
   selectionIndexes = [_displayedObjects indexesOfObjectsIdenticalTo:objects];
-  NSDebugMLLog(@"gswdisplaygroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
 
   if ([selectionIndexes count]==0)
     {
       if (selectFirstOnNoMatch && [_displayedObjects count]>0)
         selectionIndexes=[NSArray arrayWithObject:[NSNumber numberWithInt:0]];
     };
-  NSDebugMLLog(@"gswdisplaygroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
   result = [self setSelectionIndexes:selectionIndexes];
-  NSDebugMLLog(@"gswdisplaygroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
 
   LOGObjectFnStop();
   return result;
@@ -1907,19 +2023,19 @@ of all Batches, not only the current one.
 {
   LOGObjectFnStart();
 
-  NSDebugMLLog(@"gswdisplaygroup",@"index=%d",index);
-  NSDebugMLLog(@"gswdisplaygroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  NSDebugMLLog(@"GSWDisplayGroup",@"index=%d",index);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
   if(_numberOfObjectsPerBatch>0)
     {
       int batchCount=[self batchCount];
-      NSDebugMLLog(@"gswdisplaygroup",@"batchCount=%d",batchCount);
+      NSDebugMLLog(@"GSWDisplayGroup",@"batchCount=%d",batchCount);
       if (index<1)
         _batchIndex=(batchCount>0 ?  batchCount : 1);
       else if (index>batchCount)
         _batchIndex=1;
       else
         _batchIndex=index;
-      NSDebugMLLog(@"gswdisplaygroup",@"_batchIndex=%d",_batchIndex);
+      NSDebugMLLog(@"GSWDisplayGroup",@"_batchIndex=%d",_batchIndex);
     };
   LOGObjectFnStop();
 }
@@ -1961,7 +2077,7 @@ of all Batches, not only the current one.
     {
       ASSIGN(_defaultStringMatchFormat, format);
     };
-  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
   LOGObjectFnStop();
 }
 
@@ -1972,7 +2088,7 @@ of all Batches, not only the current one.
 {
   LOGObjectFnStart();
   ASSIGN(_defaultStringMatchOperator, operator);
-  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
   LOGObjectFnStop();
 }
 
@@ -2095,17 +2211,17 @@ of all Batches, not only the current one.
 {
   EODetailDataSource *source=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"masterObject=%@",masterObject);
+  NSDebugMLLog(@"GSWDisplayGroup",@"masterObject=%@",masterObject);
   if([self hasDetailDataSource] == YES)
     {
       source = (EODetailDataSource *)_dataSource;
-      NSDebugMLLog(@"gswdisplaygroup",@"source=%@",source);
-      NSDebugMLLog(@"gswdisplaygroup",@"[source detailKey]=%@",[source detailKey]);
+      NSDebugMLLog(@"GSWDisplayGroup",@"source=%@",source);
+      NSDebugMLLog(@"GSWDisplayGroup",@"[source detailKey]=%@",[source detailKey]);
       [_dataSource qualifyWithRelationshipKey:[source detailKey]
 		  ofObject:masterObject];
       if ([self fetchesOnLoad])
         {
-          NSDebugMLLog(@"gswdisplaygroup",@"will fetch");
+          NSDebugMLLog(@"GSWDisplayGroup",@"will fetch");
           [self fetch];
         };
     };
@@ -2142,9 +2258,9 @@ of all Batches, not only the current one.
   RETAIN(selectedObjects);
   AUTORELEASE(selectedObjects);
   GSWLogAssertGood(selectedObjects);
-  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
-  NSDebugMLLog(@"gswdisplaygroup",@"_allObjects count]=%d",[_allObjects count]);
-  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_allObjects count]=%d",[_allObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"objects count]=%d",[objects count]);
 
   if (objects)
     ASSIGN(_allObjects,[NSMutableArray arrayWithArray:objects]);
@@ -2152,14 +2268,14 @@ of all Batches, not only the current one.
     ASSIGN(_allObjects,[NSMutableArray array]);
   GSWLogAssertGood(selectedObjects);
   GSWLogAssertGood(_allObjects);
-  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
-  NSDebugMLLog(@"gswdisplaygroup",@"_allObjects count]=%d",[_allObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_allObjects count]=%d",[_allObjects count]);
 
   [self updateDisplayedObjects];
   GSWLogAssertGood(selectedObjects);
   GSWLogAssertGood(_allObjects);
-  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
-  NSDebugMLLog(@"gswdisplaygroup",@"_allObjects count]=%d",[_allObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_allObjects count]=%d",[_allObjects count]);
 
   [self selectObjectsIdenticalTo:selectedObjects
         selectFirstOnNoMatch:[self selectsFirstObjectAfterFetch]];
@@ -2232,9 +2348,9 @@ of all Batches, not only the current one.
   LOGObjectFnStart();
 
   GSWLogAssertGood(selection);
-  NSDebugMLLog(@"gswdisplaygroup",@"selection count]=%d",[selection count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selection count]=%d",[selection count]);
   GSWLogAssertGood(_displayedObjects);
-  NSDebugMLLog(@"gswdisplaygroup",@"_displayedObjects count]=%d",[_displayedObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_displayedObjects count]=%d",[_displayedObjects count]);
   if([selection count]>1)
     {
       sortedSelection = [selection sortedArrayUsingSelector:@selector(compare:)];
@@ -2243,10 +2359,10 @@ of all Batches, not only the current one.
     sortedSelection = [NSArray arrayWithArray:selection];
   else
     sortedSelection = [NSArray array];
-  NSDebugMLLog(@"gswdisplaygroup",@"sortedSelection count]=%d",[sortedSelection count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"sortedSelection count]=%d",[sortedSelection count]);
 
   selectedObjects = [[[_displayedObjects objectsAtIndexes:sortedSelection] mutableCopy]autorelease];
-  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"selectedObjects count]=%d",[selectedObjects count]);
   isSelectedObjectsChanged = ![selectedObjects isEqual:_selectedObjects];
   isSelectionChanged = ![sortedSelection isEqual:_selection];
   if (!isSelectionChanged && !isSelectedObjectsChanged)
@@ -2276,7 +2392,7 @@ of all Batches, not only the current one.
             };
         };
     };
-  NSDebugMLLog(@"gswdisplaygroup",@"_selection count]=%d",[_selection count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"_selection count]=%d",[_selection count]);
 
   LOGObjectFnStop();
 
@@ -2333,13 +2449,13 @@ of all Batches, not only the current one.
   NSArray* newDisplayedObjects = nil;
 
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"START updateDisplayedObjects");
+  NSDebugMLLog(@"GSWDisplayGroup",@"START updateDisplayedObjects");
   
   selectedObjects = (NSMutableArray*)[self selectedObjects];
   GSWLogAssertGood(selectedObjects);
   newDisplayedObjects = _allObjects;
   GSWLogAssertGood(newDisplayedObjects);
-  NSDebugMLLog(@"gswdisplaygroup",@"[newDisplayedObjects count]=%d",
+  NSDebugMLLog(@"GSWDisplayGroup",@"[newDisplayedObjects count]=%d",
                [newDisplayedObjects count]);
 
   // Let's delegate doing the job ?
@@ -2350,35 +2466,35 @@ of all Batches, not only the current one.
     }
   else
     {
-      NSDebugMLLog(@"gswdisplaygroup",@"_qualifier=%d",
+      NSDebugMLLog(@"GSWDisplayGroup",@"_qualifier=%d",
                    _qualifier);
       // Filter ?
       if (_qualifier)
         {
           newDisplayedObjects=[newDisplayedObjects 
                                 filteredArrayUsingQualifier:_qualifier];
-          NSDebugMLLog(@"gswdisplaygroup",@"[newDisplayedObjects count]=%d",
+          NSDebugMLLog(@"GSWDisplayGroup",@"[newDisplayedObjects count]=%d",
                        [newDisplayedObjects count]);
         };
-      NSDebugMLLog(@"gswdisplaygroup",@"_sortOrdering=%d",
+      NSDebugMLLog(@"GSWDisplayGroup",@"_sortOrdering=%d",
                    _sortOrdering);
       // Sort ?
       if (_sortOrdering)
         {
           newDisplayedObjects=[newDisplayedObjects
                                 sortedArrayUsingKeyOrderArray:_sortOrdering];
-          NSDebugMLLog(@"gswdisplaygroup",@"[newDisplayedObjects count]=%d",
+          NSDebugMLLog(@"GSWDisplayGroup",@"[newDisplayedObjects count]=%d",
                        [newDisplayedObjects count]);
         };
     };
   ASSIGN(_displayedObjects,([NSMutableArray arrayWithArray:newDisplayedObjects]));
-  NSDebugMLLog(@"gswdisplaygroup",@"[_displayedObjects count]=%d",
+  NSDebugMLLog(@"GSWDisplayGroup",@"[_displayedObjects count]=%d",
                [_displayedObjects count]);
   
   [self selectObjectsIdenticalTo:selectedObjects
         selectFirstOnNoMatch:NO];
   [self redisplay];
-  NSDebugMLLog(@"gswdisplaygroup",@"STOP updateDisplayedObjects");
+  NSDebugMLLog(@"GSWDisplayGroup",@"STOP updateDisplayedObjects");
 /*
   NSEnumerator *objsEnum=nil;
   id object=nil;
@@ -2414,7 +2530,7 @@ of all Batches, not only the current one.
           [self displayNextBatch];
         }
 
-      NSDebugMLLog(@"gswdisplaygroup",@"_sortOrdering=%@",_sortOrdering);
+      NSDebugMLLog(@"GSWDisplayGroup",@"_sortOrdering=%@",_sortOrdering);
       if(_sortOrdering)
         [_displayedObjects sortUsingKeyOrderArray:_sortOrdering];
     };
@@ -2525,9 +2641,9 @@ of all Batches, not only the current one.
   NSEnumerator *enumerator=nil;
   NSString *key=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
-  NSDebugMLLog(@"gswdisplaygroup",@"values=%@",values);
-  NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"array=%@",array);
+  NSDebugMLLog(@"GSWDisplayGroup",@"values=%@",values);
+  NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
                (void*)sel,
                NSStringFromSelector(sel));
   enumerator = [values keyEnumerator];
@@ -2535,15 +2651,15 @@ of all Batches, not only the current one.
     {
       EOQualifier* qualifier=nil;
       id value=[values objectForKey:key];
-      NSDebugMLLog(@"gswdisplaygroup",@"key=%@ value=%@",key,value);
+      NSDebugMLLog(@"GSWDisplayGroup",@"key=%@ value=%@",key,value);
       qualifier=[self _qualifierForKey:key
                       value:value
                       operatorSelector:sel];
-      NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+      NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
       if (qualifier)
         [array addObject:qualifier];
     };
-  NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
+  NSDebugMLLog(@"GSWDisplayGroup",@"array=%@",array);
   LOGObjectFnStop();
 };
 
@@ -2557,8 +2673,8 @@ of all Batches, not only the current one.
   NSException* validateException=nil;
   LOGObjectFnStart();
 
-  NSDebugMLLog(@"gswdisplaygroup",@"value=%@",value);
-  NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+  NSDebugMLLog(@"GSWDisplayGroup",@"value=%@",value);
+  NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
                (void*)operatorSelector,
                NSStringFromSelector(operatorSelector));
 
@@ -2568,7 +2684,7 @@ of all Batches, not only the current one.
   // Validate the value against object class description
   validateException=[cd validateValue:&value
                         forKey:key];
-  NSDebugMLLog(@"gswdisplaygroup",@"validateException=%@",validateException);
+  NSDebugMLLog(@"GSWDisplayGroup",@"validateException=%@",validateException);
 
   if (validateException)
     {
@@ -2578,9 +2694,9 @@ of all Batches, not only the current one.
     {
       NSString* qualifierClassName=[_queryKeyValueQualifierClassName objectForKey:key];
       Class qualifierClass=Nil;
-      NSDebugMLLog(@"gswdisplaygroup",@"key=%@",key);
-      NSDebugMLLog(@"gswdisplaygroup",@"_queryKeyValueQualifierClassName=%@",_queryKeyValueQualifierClassName);
-      NSDebugMLLog(@"gswdisplaygroup",@"qualifierClassName=%@",qualifierClassName);
+      NSDebugMLLog(@"GSWDisplayGroup",@"key=%@",key);
+      NSDebugMLLog(@"GSWDisplayGroup",@"_queryKeyValueQualifierClassName=%@",_queryKeyValueQualifierClassName);
+      NSDebugMLLog(@"GSWDisplayGroup",@"qualifierClassName=%@",qualifierClassName);
       if ([qualifierClassName length]>0)
         {
           qualifierClass=NSClassFromString(qualifierClassName);
@@ -2591,10 +2707,10 @@ of all Batches, not only the current one.
         }
       else
         qualifierClass=[EOKeyValueQualifier class];
-      NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+      NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
                    (void*)operatorSelector,
                    NSStringFromSelector(operatorSelector));
-      NSDebugMLLog(@"gswdisplaygroup",@"EOQualifierOperatorEqual=%p: %@",
+      NSDebugMLLog(@"GSWDisplayGroup",@"EOQualifierOperatorEqual=%p: %@",
                    (void*)EOQualifierOperatorEqual,
                    NSStringFromSelector(EOQualifierOperatorEqual));
       
@@ -2603,10 +2719,10 @@ of all Batches, not only the current one.
         {
           // Search if there's a specific defined operator for it
           NSString* operatorString=[_queryOperator objectForKey:key];
-          NSDebugMLLog(@"gswdisplaygroup",@"key=%@",key);
-          NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
-          NSDebugMLLog(@"gswdisplaygroup",@"operatorString=%@",operatorString);
-          NSDebugMLLog(@"gswdisplaygroup",@"[value isKindOfClass:[NSString class]]=%d",
+          NSDebugMLLog(@"GSWDisplayGroup",@"key=%@",key);
+          NSDebugMLLog(@"GSWDisplayGroup",@"_queryOperator=%@",_queryOperator);
+          NSDebugMLLog(@"GSWDisplayGroup",@"operatorString=%@",operatorString);
+          NSDebugMLLog(@"GSWDisplayGroup",@"[value isKindOfClass:[NSString class]]=%d",
                        [value isKindOfClass:[NSString class]]);
 
           // If value is a string, try to do handle string specific operators
@@ -2621,7 +2737,7 @@ of all Batches, not only the current one.
                 {
                   NSString* stringValue = (NSString*)value;
                   // Other string operators don't care about empry string
-                  NSDebugMLLog(@"gswdisplaygroup",@"stringValue=%@",stringValue);
+                  NSDebugMLLog(@"GSWDisplayGroup",@"stringValue=%@",stringValue);
                   if ([stringValue length]==0)
                     {
                       // So ends here and we'll return a nil qualifier
@@ -2631,7 +2747,7 @@ of all Batches, not only the current one.
                     }
                   else if ([operatorString length]==0) // ==> defaultStringMatchOperator with defaultStringMatchFormat
                     {
-                      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
+                      NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
                       value=[NSString stringWithFormat:_defaultStringMatchFormat,
                                       value];
                       operatorString = _defaultStringMatchOperator;
@@ -2658,17 +2774,17 @@ of all Batches, not only the current one.
             }
           else
             {
-              NSDebugMLLog(@"gswdisplaygroup",@"! string value");
+              NSDebugMLLog(@"GSWDisplayGroup",@"! string value");
               if ([operatorString length]==0)
                 operatorString = @"=";
             };
-          NSDebugMLLog(@"gswdisplaygroup",@"operatorString=%@",operatorString);
+          NSDebugMLLog(@"GSWDisplayGroup",@"operatorString=%@",operatorString);
           operatorSelector = [qualifierClass operatorSelectorForString:operatorString];
-          NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+          NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
                        (void*)operatorSelector,
                        NSStringFromSelector(operatorSelector));
         };
-      NSDebugMLLog(@"gswdisplaygroup",@"%@ %@ %@",
+      NSDebugMLLog(@"GSWDisplayGroup",@"%@ %@ %@",
                    key,
                    NSStringFromSelector(operatorSelector),
                    value);
@@ -2680,7 +2796,7 @@ of all Batches, not only the current one.
                            initWithKey:key
                            operatorSelector:operatorSelector
                            value:value] autorelease];
-              NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+              NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
             }
           else
             {
@@ -2689,7 +2805,7 @@ of all Batches, not only the current one.
             };
         };
     };
-  NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+  NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
   return qualifier;
 };
 	
@@ -2704,8 +2820,8 @@ of all Batches, not only the current one.
   int selfCount=0;
   GSWLogAssertGood(objects);
   GSWLogAssertGood(self);
-  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
-  NSDebugMLLog(@"gswdisplaygroup",@"self count]=%d",[self count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"objects count]=%d",[objects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"self count]=%d",[self count]);
   selfCount=[self count];
   if (selfCount>0)
     {
@@ -2733,7 +2849,7 @@ of all Batches, not only the current one.
     };
   if (!indexes)
     indexes=[NSArray array];
-  NSDebugMLLog(@"gswdisplaygroup",@"indexes count]=%d",[indexes count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"indexes count]=%d",[indexes count]);
   return indexes;
 };
 
@@ -2743,8 +2859,8 @@ of all Batches, not only the current one.
   int selfCount=0;
   GSWLogAssertGood(self);
   GSWLogAssertGood(indexes);
-  NSDebugMLLog(@"gswdisplaygroup",@"indexes count]=%d",[indexes count]);
-  NSDebugMLLog(@"gswdisplaygroup",@"self count]=%d",[self count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"indexes count]=%d",[indexes count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"self count]=%d",[self count]);
   selfCount=[self count];
   if ([self count]>0)
     {
@@ -2772,7 +2888,7 @@ of all Batches, not only the current one.
     };
   if (!objects)
     objects=[NSArray array];
-  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
+  NSDebugMLLog(@"GSWDisplayGroup",@"objects count]=%d",[objects count]);
   return objects;
 };
 @end

@@ -1,6 +1,6 @@
 /** GSWResourceManager.h - <title>GSWeb: Class GSWResourceManager</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -75,6 +75,12 @@ GSWEB_EXPORT NSDictionary* globalMime;
 
 //NDFN
 -(NSDictionary*)stringsTableNamed:(NSString*)tableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages
+                    foundLanguage:(NSString**)foundLanguagePtr;
+
+//NDFN
+-(NSDictionary*)stringsTableNamed:(NSString*)tableName
                       inFramework:(NSString*)frameworkName
                         languages:(NSArray*)languages;
 
@@ -91,10 +97,31 @@ GSWEB_EXPORT NSDictionary* globalMime;
                   inTableNamed:(NSString*)tableName
                    inFramework:(NSString*)framework
                      languages:(NSArray*)languages;
+
+//NDFN
+-(NSDictionary*)lockedStringsTableNamed:(NSString*)aTableName
+                            inFramework:(NSString*)aFrameworkName
+                              languages:(NSArray*)languages
+                          foundLanguage:(NSString**)foundLanguagePtr;
+
+
+//NDFN
+-(NSString*)lockedStringForKey:(NSString*)aKey
+                  inTableNamed:(NSString*)aTableName
+                   inFramework:(NSString*)aFrameworkName
+                     languages:(NSArray*)languages
+                 foundLanguage:(NSString**)foundLanguagePtr;
+
 //NDFN
 -(NSDictionary*)lockedStringsTableNamed:(NSString*)tableName
                             inFramework:(NSString*)framework
                               languages:(NSArray*)languages;
+
+//NDFN
+-(NSArray*)lockedStringsTableArrayNamed:(NSString*)aTableName
+                            inFramework:(NSString*)aFrameworkName
+                              languages:(NSArray*)languages
+                          foundLanguage:(NSString**)foundLanguagePtr;
 
 //NDFN
 -(NSArray*)lockedStringsTableArrayNamed:(NSString*)tableName

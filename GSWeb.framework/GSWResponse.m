@@ -1,6 +1,6 @@
 /** GSWResponse.m - <title>GSWeb: Class GSWResponse</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -68,6 +68,7 @@ static NSArray* cacheControlHeaderValues=nil;
   LOGObjectFnStart();
   if ((self=[super init]))
     {
+      _canDisableClientCaching=YES;
       _status=200;
     };
   LOGObjectFnStop();
@@ -98,6 +99,7 @@ static NSArray* cacheControlHeaderValues=nil;
       ASSIGNCOPY(clone->_contentFaults,_contentFaults);
       ASSIGNCOPY(clone->_acceptedEncodings,_acceptedEncodings);
       clone->_isClientCachingDisabled=_isClientCachingDisabled;
+      clone->_canDisableClientCaching=_canDisableClientCaching;
       clone->_contentFaultsHaveBeenResolved=_contentFaultsHaveBeenResolved;
     };
   return clone;
@@ -147,10 +149,18 @@ static NSArray* cacheControlHeaderValues=nil;
 };
 
 //--------------------------------------------------------------------
+// should be called before finalizeInContext
+-(void)setCanDisableClientCaching:(BOOL)yn
+{
+  _canDisableClientCaching=yn;
+};
+
+//--------------------------------------------------------------------
 -(void)disableClientCaching
 {
   LOGObjectFnStart();
-  if (!_isClientCachingDisabled)
+
+  if (!_isClientCachingDisabled && _canDisableClientCaching)
     {
       [self setHeader:disabledCacheDateString 
             forKey:@"date"];
@@ -164,6 +174,7 @@ static NSArray* cacheControlHeaderValues=nil;
               forKey:@"cache-control"];
       _isClientCachingDisabled=YES;
     };
+
   LOGObjectFnStop();
 };
 

@@ -1,6 +1,6 @@
 /** GSWResponse.h - <title>GSWeb: Class GSWResponse</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -47,6 +47,7 @@
   unsigned int _contentStreamBufferSize;
   unsigned long _contentStreamBufferLength;
   NSArray* _acceptedEncodings;
+  BOOL _canDisableClientCaching;
   BOOL _isClientCachingDisabled;
   BOOL _contentFaultsHaveBeenResolved;
   BOOL _isFinalizeInContextHasBeenCalled;
@@ -61,6 +62,9 @@
 -(NSString*)description;
 
 -(void)disableClientCaching;
+
+// should be called before finalizeInContext
+-(void)setCanDisableClientCaching:(BOOL)yn;
 
 @end
 

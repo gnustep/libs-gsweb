@@ -1,6 +1,6 @@
 /** NSString+HTML.m - <title>GSWeb: NSString / HTML</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -509,7 +509,18 @@ initHtmlChars()
   if ([self length]>0)
     {
       //TODO speed
-      NSMutableString* tmp=[[self stringByConvertingToHTMLEntities] mutableCopy];
+      //From -stringByConvertingToHTMLEntities
+      int i=0;
+      NSMutableString* tmp=[self mutableCopy];
+      if (!normalChars)
+        initHtmlChars();
+      for(i=0;i<[normalChars count];i++)
+        {
+          [tmp replaceString:[normalChars objectAtIndex:i]
+               withString:[htmlChars objectAtIndex:i]];
+        };
+      //End From -stringByConvertingToHTMLEntities
+
       [tmp replaceString:@"\r\n" withString:@"<BR>"];
       [tmp replaceString:@"\r" withString:@"<BR>"];
       [tmp replaceString:@"\n" withString:@"<BR>"];
@@ -526,7 +537,18 @@ initHtmlChars()
   if ([self length]>0)
     {
       //TODO speed
-      NSMutableString* tmp=[[self stringByConvertingFromHTMLEntities] mutableCopy];
+      //From -stringByConvertingFromHTMLEntities
+      int i=0;
+      NSMutableString* tmp=[self mutableCopy];
+      if (!normalChars)
+        initHtmlChars();
+      for(i=0;i<[normalChars count];i++)
+        {
+          [tmp replaceString:[htmlChars objectAtIndex:i]
+               withString:[normalChars objectAtIndex:i]];
+        };
+      //End From -stringByConvertingFromHTMLEntities
+
       [tmp replaceString:@"<BR>" withString:@"\n"];
       str = AUTORELEASE([tmp copy]);
       RELEASE(tmp);

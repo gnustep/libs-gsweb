@@ -343,18 +343,22 @@ RCS_ID("$Id$")
                        requestHandlerPathArray);
           
           // Parse path into actionClassName,actionClass and actionName
+
+          // Be carefull: there's no context created for the moment
           NS_DURING
-            {          [self getRequestActionClassNameInto:&actionClassName
-                             classInto:&actionClass
-                             nameInto:&actionName
-                             forPath:requestHandlerPathArray];
-            NSDebugMLLog(@"requests",@"className=%@",actionClassName);
-            NSDebugMLLog(@"requests",@"actionClass=%@",actionClass);
-            NSDebugMLLog(@"requests",@"actionName=%@",actionName);
+            {          
+              [self getRequestActionClassNameInto:&actionClassName
+                    classInto:&actionClass
+                    nameInto:&actionName
+                    forPath:requestHandlerPathArray];
+              NSDebugMLLog(@"requests",@"className=%@",actionClassName);
+              NSDebugMLLog(@"requests",@"actionClass=%@",actionClass);
+              NSDebugMLLog(@"requests",@"actionName=%@",actionName);
             }
           NS_HANDLER
             {
               LOGException(@"%@ (%@)",localException,[localException reason]);
+              // Be carefull: there's no context created for the moment
               response=[application  handleActionRequestErrorWithRequest:aRequest
                                      exception:localException
                                      reason:@"InvalidPathError"
@@ -363,7 +367,7 @@ RCS_ID("$Id$")
                                      actionName:actionName
                                      actionClass:actionClass
                                      actionObject:action];
-              [localException raise];
+              [localException raise]; // Will be caught be up level Exception
             };
           NS_ENDHANDLER;
 
@@ -379,6 +383,7 @@ RCS_ID("$Id$")
           
               NS_DURING
                 {
+                  // Will also create context
                   action=[self getActionInstanceOfClass:actionClass
                                withRequest:aRequest];
                 }
@@ -393,7 +398,7 @@ RCS_ID("$Id$")
                                          actionName:actionName
                                          actionClass:actionClass
                                          actionObject:action];
-                  [localException raise];
+                  [localException raise];// Will be caught be up level Exception
                 };
               NS_ENDHANDLER;
 
@@ -415,7 +420,7 @@ RCS_ID("$Id$")
                                          actionName:actionName
                                          actionClass:actionClass
                                          actionObject:action];
-                  [localException raise];
+                  [localException raise]; // Will be caught be up level Exception
                 };
               NS_ENDHANDLER;
  
@@ -464,7 +469,7 @@ RCS_ID("$Id$")
                 };
               NSDebugMLog(@"Exception=%@",exception);
               NSDebugMLog(@"Response=%@",response);
-              [exception raise];
+              [exception raise]; // Will be caught be up level Exception
               NSDebugMLog(@"Not raised ? Exception=%@",exception);
             };
           if ([application isCachingEnabled])

@@ -41,6 +41,92 @@ ImageWithURL: GSWImage
     height = ^imageHeight;
 };
 
+IsFileNameDisplay: GSWConditional
+{
+        condition = isFileNameDisplay;
+};
+
+FileName: GSWString
+{
+        value = fileName;
+};
+
+HasWidthAndHeight: GSWConditional
+{
+        condition = ^hasWidthAndHeight;
+};
+
+HasWidthAndHeightList: GSWConditional
+{
+        condition = hasWidthAndHeightList;
+};
+
+HasNotWidthAndHeightList: GSWConditional
+{
+        condition = hasWidthAndHeightList;
+        negate = YES;
+};
+
+IsCustomWidthAndHeightEnabled: GSWConditional
+{
+        condition = ^isCustomWidthAndHeightEnabled;
+};
+
+WidthAndHeightList: GSWPopUpButton
+{
+        value= tmpWithAndHeight.code;
+        list = ^widthAndHeightList;
+        item = tmpWithAndHeight;
+        selectionValue = fileInfo.widthAndHeightCode;
+        selectedValue = fileInfo.widthAndHeightCode;
+        displayString = tmpWithAndHeight.label;
+        noSelectionString= ^customizedWidthAndHeightListLabel;
+        enabled=^isUploadEnabled;
+}
+
+WidthAndHeightListTitle: GSWString
+{
+        value = ^widthAndHeightListTitle;
+};
+
+WidthField: GSWTextField
+{
+        value = fileInfo.width;
+        enabled=^isUploadEnabled;
+}
+
+WidthTitle: GSWString
+{
+        value = ^widthTitle;
+};
+
+HeightField: GSWTextField
+{
+        value = fileInfo.height;
+        enabled=^isUploadEnabled;
+}
+
+HeightTitle: GSWString
+{
+        value = ^heightTitle;
+};
+
+HasUploadFileTitle: GSWConditional
+{
+        condition = hasUploadFileTitle;
+}
+
+HasNotUploadFileTitle: GSWConditional
+{
+        condition = hasUploadFileTitle;
+        negate = YES;
+}
+
+UploadFileTitle: GSWString
+{
+        value = ^uploadFileTitle;
+};
+
 UploadFile: GSWFileUpload
 {
 	data = fileInfo.data;

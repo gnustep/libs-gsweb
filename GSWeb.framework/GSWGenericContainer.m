@@ -1,6 +1,6 @@
 /** GSWGenericContainer.m - <title>GSWeb: Class GSWGenericContainer</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -40,9 +40,37 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
-  if ((self = [super init]))
+  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
+  LOGObjectFnStartC("GSWForm");
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ templateElement=%@",aName,associations,templateElement);
+
+  _elementName = [[associations objectForKey:elementName__Key
+                           withDefaultObject:[_elementName autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWGenericContainer: elementName=%@",_elementName);
+
+  _otherTagString = [[associations objectForKey:otherTagString__Key
+                         withDefaultObject:[_otherTagString autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWGenericContainer: otherTagString=%@",_otherTagString);
+
+  [tmpAssociations removeObjectForKey:elementName__Key];
+  [tmpAssociations removeObjectForKey:otherTagString__Key];
+
+  if (!WOStrictFlag)
     {
-      ASSIGN(_associations,associations);
+      _omitElement = [[associations objectForKey:omitElement__Key
+                                    withDefaultObject:[_omitElement autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWGenericContainer: omitElement=%@",_omitElement);
+
+      [tmpAssociations removeObjectForKey:omitElement__Key];
+    };
+
+
+  if ((self=[super initWithName:aName
+                   associations:tmpAssociations
+                   template:templateElement]))
+    {
+      if ([tmpAssociations count]>0)
+        ASSIGN(_associations,tmpAssociations);
       ASSIGN(_element,templateElement);
     };
   return self;
@@ -51,6 +79,9 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
+  DESTROY(_elementName);
+  DESTROY(_otherTagString);
+  DESTROY(_omitElement);
   DESTROY(_associations);
   DESTROY(_element);
   [super dealloc];
@@ -73,29 +104,47 @@ RCS_ID("$Id$")
   id component = [aContext component];
   id theValue=nil;
   id otherTag = nil;
-  id tag = [[_associations objectForKey:@"elementName"] valueInComponent:component];
-  
-  [aResponse appendContentString:[NSString stringWithFormat:@"<%@",tag]];
+  id tag = nil;
+  BOOL omitElement = NO;
 
-  if ((otherTag = [[_associations objectForKey:@"otherTagString"] valueInComponent:component])) 
+  if (!WOStrictFlag && _omitElement)
     {
-      [aResponse appendContentString:[NSString stringWithFormat:@" %@",otherTag]];
-    }
-    
-  assocEnumer = [_associations keyEnumerator];
-  while ((currentAssocKey = [assocEnumer nextObject])) 
+      omitElement=[self evaluateCondition:_omitElement
+                        inContext:aContext
+                        noConditionAssociationDefault:NO
+                        noConditionDefault:NO];
+    };
+
+  if (!omitElement)
     {
-      theValue = [[_associations objectForKey:currentAssocKey] valueInComponent:component];
-      if (([currentAssocKey isEqualToString:@"elementName"] == NO) 
-          && ([currentAssocKey isEqualToString:@"otherTagString"] == NO)) 
+      tag = [_elementName valueInComponent:component];
+      
+      [aResponse appendContentString:[NSString stringWithFormat:@"<%@",tag]];
+      
+      if ((otherTag = [_otherTagString valueInComponent:component])) 
         {
-          [aResponse appendContentString:[NSString stringWithFormat:@" %@=\"%@\"",currentAssocKey,theValue]];
+          [aResponse appendContentString:
+                       [NSString stringWithFormat:@" %@",otherTag]];
         }
-    }
+    
+      assocEnumer = [_associations keyEnumerator];
+      while ((currentAssocKey = [assocEnumer nextObject])) 
+        {
+          theValue = [[_associations objectForKey:currentAssocKey] 
+                       valueInComponent:component];
+
+          [aResponse appendContentString:
+                       [NSString stringWithFormat:@" %@=\"%@\"",
+                                 currentAssocKey,theValue]];
+        }
+
+      [aResponse appendContentString:@">"];
+    };
   
-  [aResponse appendContentString:@">"];
   [_element appendToResponse:aResponse inContext:aContext];
-  [aResponse appendContentString:[NSString stringWithFormat:@"</%@>",tag]];
+
+  if (!omitElement)
+    [aResponse appendContentString:[NSString stringWithFormat:@"</%@>",tag]];
 };
 
 //--------------------------------------------------------------------

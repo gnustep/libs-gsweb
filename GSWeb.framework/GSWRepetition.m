@@ -35,8 +35,25 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static SEL appendZeroElementIDComponentSEL=NULL;
+static SEL deleteLastElementIDComponentSEL=NULL;
+static SEL startOneIterationWithIndexSEL=NULL;
+static SEL stopOneIterationWithIndexSEL=NULL;
+
 //====================================================================
 @implementation GSWRepetition
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWRepetition class])
+    {
+      appendZeroElementIDComponentSEL=@selector(appendZeroElementIDComponent);
+      deleteLastElementIDComponentSEL=@selector(deleteLastElementIDComponent);
+      startOneIterationWithIndexSEL=@selector(startOneIterationWithIndex:startIndex:list:inContext:);
+      stopOneIterationWithIndexSEL=@selector(stopOneIterationWithIndex:stopIndex:count:isLastOne:inContext:);
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
@@ -243,10 +260,20 @@ RCS_ID("$Id$")
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
+
+  IMP appendZeroElementIDComponentIMP=NULL;
+  IMP deleteLastElementIDComponentIMP=NULL;
+
+  IMP startOneIterationWithIndexIMP=NULL;
+  IMP stopOneIterationWithIndexIMP=NULL;
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
+
   component=[context component];
+
   [self getParameterValuesReturnList:&listValue
         count:&countValue
         startIndex:&startIndexValue
@@ -254,7 +281,17 @@ RCS_ID("$Id$")
         withComponent:component];
 
   NSDebugMLLog(@"gswdync",@"countValue=%d",countValue);
+
   [context incrementLoopLevel];
+
+  if (startIndexValue<=stopIndexValue)
+    {
+      appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
+      deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
+      startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
+      stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
+    };
+
   for(i=startIndexValue;i<=stopIndexValue;i++)
     {
 #ifndef NDEBUG
@@ -264,10 +301,14 @@ RCS_ID("$Id$")
             startIndex:startIndexValue
             list:listValue
             inContext:context];
-      [context appendZeroElementIDComponent];
+
+      (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
+
       [_childrenGroup appendToResponse:response
                       inContext:context];
-      [context deleteLastElementIDComponent];
+
+      (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
+
       [self stopOneIterationWithIndex:i
             stopIndex:stopIndexValue
             count:countValue
@@ -340,16 +381,36 @@ RCS_ID("$Id$")
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
+
+  IMP appendZeroElementIDComponentIMP=NULL;
+  IMP deleteLastElementIDComponentIMP=NULL;
+
+  IMP startOneIterationWithIndexIMP=NULL;
+  IMP stopOneIterationWithIndexIMP=NULL;
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
+
   component=[context component];
+
   [self getParameterValuesReturnList:&listValue
         count:&countValue
         startIndex:&startIndexValue
         stopIndex:&stopIndexValue
         withComponent:component];
+
   [context incrementLoopLevel];
+
+  if (startIndexValue<=stopIndexValue)
+    {
+      appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
+      deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
+      startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
+      stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
+    };
+
   for(i=startIndexValue;i<=stopIndexValue;i++)
     {
 #ifndef NDEBUG
@@ -359,10 +420,14 @@ RCS_ID("$Id$")
             startIndex:startIndexValue
             list:listValue
             inContext:context];
-      [context appendZeroElementIDComponent];
+
+      (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
+
       [_childrenGroup takeValuesFromRequest:request
                       inContext:context];
-      [context deleteLastElementIDComponent];
+
+      (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
+
       [self stopOneIterationWithIndex:i
             stopIndex:stopIndexValue
             count:countValue
@@ -401,15 +466,34 @@ RCS_ID("$Id$")
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
+
+  IMP appendZeroElementIDComponentIMP=NULL;
+  IMP deleteLastElementIDComponentIMP=NULL;
+
+  IMP startOneIterationWithIndexIMP=NULL;
+  IMP stopOneIterationWithIndexIMP=NULL;
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
   component=[context component];
+
   [self getParameterValuesReturnList:&listValue
         count:&countValue
         startIndex:&startIndexValue
         stopIndex:&stopIndexValue
         withComponent:component];
+
   [context incrementLoopLevel];
+
+  if (startIndexValue<=stopIndexValue)
+    {
+      appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
+      deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
+      startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
+      stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
+    };
+
   for(i=startIndexValue;!element && i<=stopIndexValue;i++)
     {
 #ifndef NDEBUG
@@ -419,7 +503,9 @@ RCS_ID("$Id$")
             startIndex:startIndexValue
             list:listValue
             inContext:context];
-      [context appendZeroElementIDComponent];
+
+      (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
+
       element=[_childrenGroup invokeActionForRequest:request
                              inContext:context];
       NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
@@ -427,7 +513,9 @@ RCS_ID("$Id$")
                 _childrenGroup,
                 [element class],
                 element);
-      [context deleteLastElementIDComponent];
+
+      (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
+
       [self stopOneIterationWithIndex:i
             stopIndex:stopIndexValue
             count:countValue
@@ -460,11 +548,22 @@ RCS_ID("$Id$")
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
+
+  IMP appendZeroElementIDComponentIMP=NULL;
+  IMP deleteLastElementIDComponentIMP=NULL;
+
+  IMP startOneIterationWithIndexIMP=NULL;
+  IMP stopOneIterationWithIndexIMP=NULL;
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
+
   senderID=[context senderID];
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
+
   elementID=[context elementID];
+
   if ([senderID hasPrefix:elementID])
     {
 #ifndef NDEBUG
@@ -481,18 +580,32 @@ RCS_ID("$Id$")
             startIndex:&startIndexValue
             stopIndex:&stopIndexValue
             withComponent:component];
+
       [context incrementLoopLevel];
+
+      if (startIndexValue<=stopIndexValue)
+        {
+          appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
+          deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
+          startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
+          stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
+        };
+
       for(i=startIndexValue;!element && i<=stopIndexValue;i++)
         {
           [self startOneIterationWithIndex:i
                 startIndex:startIndexValue
                 list:listValue
                 inContext:context];
-          [context appendZeroElementIDComponent];
+
+          (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
+
           element=[_childrenGroup invokeActionForRequest:request
                                   inContext:context];
           NSDebugMLLog(@"gswdync",@"element=%@",element);
-          [context deleteLastElementIDComponent];
+
+          (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
+
           [self stopOneIterationWithIndex:i
                 stopIndex:stopIndexValue
                 count:countValue

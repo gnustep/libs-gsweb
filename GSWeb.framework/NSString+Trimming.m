@@ -202,21 +202,39 @@ RCS_ID("$Id$")
 @end
 
 //====================================================================
-@implementation NSString (stringWithObject)
 
-//--------------------------------------------------------------------
-+(NSString*)stringWithObject:(id)object
+NSString* NSStringWithObject(id object)
 {
+  //TODO MultiThread Protection ?
+  static Class theNSStringClass=Nil;
+  static Class theNSMutableStringClass=Nil;
+  static Class theEONullClass=Nil;
+  static Class theNSNullClass=Nil;
+
+  if (!theNSStringClass)
+    theNSStringClass=[NSString class];
+
+  if (!theNSMutableStringClass)
+    theNSMutableStringClass=[NSMutableString class];
+
+  if (!theEONullClass)
+    theEONullClass=[EONull class];
+
+  if (!theNSNullClass)
+    theNSNullClass=[NSNull class];
+
   NSString* string=nil;
   if (object)
     {
-      if ([object isKindOfClass:[NSString class]])
-        string=[[object copy] autorelease];
+      if ([object isKindOfClass:theNSMutableStringClass])
+        string=AUTORELEASE([object copy]);
+      else if ([object isKindOfClass:theNSStringClass])
+        string=(NSString*)object;
 #ifdef HAVE_GDL2
-      else if ([object isKindOfClass:[EONull class]])
+      else if ([object isKindOfClass:theEONullClass])
         string=@"";
 #else
-      else if ([object isKindOfClass:[NSNull class]])
+      else if ([object isKindOfClass:theNSNullClass])
         string=@"";
 #endif
       else if ([object respondsToSelector:@selector(stringValue)])
@@ -227,6 +245,14 @@ RCS_ID("$Id$")
         string=object;
     };
   return string;
+};
+
+@implementation NSString (stringWithObject)
+
+//--------------------------------------------------------------------
++(NSString*)stringWithObject:(id)object
+{
+  return NSStringWithObject(object);
 };
 @end
 

@@ -72,27 +72,27 @@ Bindings
 
       _cachedObject = [[associations objectForKey:@"cachedObject"
                                      withDefaultObject:[_cachedObject autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"cachedObject=%@",_cachedObject);
+      NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%@",_cachedObject);
       
       _cache = [[associations objectForKey:@"cache"
                               withDefaultObject:[_cache autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"cache=%@",_cache);
+      NSDebugMLLog(@"GSWCacheElement",@"cache=%@",_cache);
 
       _duration = [[associations objectForKey:@"duration"
                                  withDefaultObject:[_duration autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"duration=%@",_duration);
+      NSDebugMLLog(@"GSWCacheElement",@"duration=%@",_duration);
       
       _uniqID = [[associations objectForKey:@"uniqID"
                                withDefaultObject:[_uniqID autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"uniqID=%@",_uniqID);
+      NSDebugMLLog(@"GSWCacheElement",@"uniqID=%@",_uniqID);
       
       _disabled = [[associations objectForKey:disabled__Key
                                  withDefaultObject:[_disabled autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"disabled=%@",_disabled);
+      NSDebugMLLog(@"GSWCacheElement",@"disabled=%@",_disabled);
       
       _enabled = [[associations objectForKey:enabled__Key
                                 withDefaultObject:[_enabled autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"enabled=%@",_enabled);
+      NSDebugMLLog(@"GSWCacheElement",@"enabled=%@",_enabled);
       
       if (_disabled && _enabled)
         {
@@ -189,11 +189,11 @@ Bindings
 }
 
 //--------------------------------------------------------------------
--(void)setDefinitionName:(NSString*)definitionName
+-(void)setDeclarationName:(NSString*)declarationName
 {
-  [super setDefinitionName:definitionName];
-  if (definitionName && _childrenGroup)
-    [_childrenGroup setDefinitionName:[NSString stringWithFormat:@"%@-StaticGroup",definitionName]];
+  [super setDeclarationName:declarationName];
+  if (declarationName && _childrenGroup)
+    [_childrenGroup setDeclarationName:[NSString stringWithFormat:@"%@-StaticGroup",declarationName]];
 };
 
 //--------------------------------------------------------------------
@@ -254,19 +254,19 @@ Bindings
       [aContext appendElementIDComponent:[NSString stringWithFormat:@"CacheElement-%@",uniqID]];
 
       contextAndElementID=[aContext contextAndElementID];
-      NSDebugMLog(@"contextAndElementID=%@",contextAndElementID);
+      NSDebugMLLog(@"GSWCacheElement",@"contextAndElementID=%@",contextAndElementID);
 
       elementID=[[[aContext elementID] copy]autorelease]; // because elementID is mutable (and varying)
-      NSDebugMLog(@"elementID=%@",elementID);
+      NSDebugMLLog(@"GSWCacheElement",@"elementID=%@",elementID);
 
       sessionID=[[aContext session] sessionID];
-      NSDebugMLog(@"sessionID=%@",sessionID);
+      NSDebugMLLog(@"GSWCacheElement",@"sessionID=%@",sessionID);
       
-      NSDebugMLLog(@"gswdync",@"isDisabled=%d",isDisabled);
+      NSDebugMLLog(@"GSWCacheElement",@"isDisabled=%d",isDisabled);
 
       if (!isDisabled)
         {
-          id cachedObject=nil;
+          NSMutableData* cachedObject=nil;
           if (_cachedObject)
             cachedObject=[_cachedObject valueInComponent:component];
           else
@@ -276,17 +276,17 @@ Bindings
                 {
                   GSWAssociation* assoc=[_keys objectAtIndex:i];
                   keys[i]=[assoc valueInComponent:component];
-                  NSDebugMLLog(@"gswdync",@"keys[%d]=%@",i,keys[i]);
+                  NSDebugMLLog(@"GSWCacheElement",@"keys[%d]=%@",i,keys[i]);
                   if (!keys[i])
                     {
                       keys[i]=[NSNull null];
-                      NSDebugMLLog(@"gswdync",@"keys[%d]=%@",i,keys[i]);
+                      NSDebugMLLog(@"GSWCacheElement",@"keys[%d]=%@",i,keys[i]);
                     };
                 };
               cachedObject=[cache objectForKeys:keys
                                   count:keysCount];
             };
-          NSDebugMLLog(@"gswdync",@"cachedObject=%p",cachedObject);
+          NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%p",cachedObject);
 
           contextAndElementIDCacheKey=[NSString stringWithFormat:@"##CONTEXT_ELEMENT_ID-%@##",
                                                 uniqID];
@@ -295,55 +295,33 @@ Bindings
 
           if (cachedObject)
             {
+              NSLog(@"GSWCacheElement5: sessionID=%@",sessionID);
+              NSLog(@"GSWCacheElement5: elementID=%@",elementID);
+              NSLog(@"GSWCacheElement5: contextAndElementID=%@",contextAndElementID);
               cacheUsed=YES;
-              cachedObject=[[cachedObject mutableCopy] autorelease];
+              cachedObject=AUTORELEASE([cachedObject mutableCopy]);
               //NSLog(@"GSWCacheElement: cachedObject found=%@",cachedObject);
-              if ([cachedObject isKindOfClass:[NSString class]])
-                {
-                  NSDebugMLog(@"cachedObject=%@",cachedObject);
-                  
-                  [(NSMutableString*)cachedObject replaceOccurrencesOfString:contextAndElementIDCacheKey
-                                     withString:contextAndElementID
-                                     options:0
-                                     range:NSMakeRange(0,[cachedObject length])];
-
-                  [(NSMutableString*)cachedObject replaceOccurrencesOfString:elementIDCacheKey
-                                     withString:elementID
-                                     options:0
-                                     range:NSMakeRange(0,[cachedObject length])];
-
-                  [(NSMutableString*)cachedObject replaceOccurrencesOfString:@"##SESSION_ID##"
-                                     withString:sessionID
-                                     options:0
-                                     range:NSMakeRange(0,[cachedObject length])];
-
-                  NSDebugMLog(@"cachedObject result=%@",cachedObject);
-                  [aResponse appendContentString:(NSString*)cachedObject];
-                }
-              else
-                {
-                  [(NSMutableData*)cachedObject replaceOccurrencesOfData:[contextAndElementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
-                                   withData:[contextAndElementID dataUsingEncoding:[aResponse contentEncoding]]
+              [cachedObject replaceOccurrencesOfData:[contextAndElementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
+                            withData:[contextAndElementID dataUsingEncoding:[aResponse contentEncoding]]
+                            range:NSMakeRange(0,[cachedObject length])];
+              
+              [cachedObject replaceOccurrencesOfData:[elementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
+                            withData:[elementID dataUsingEncoding:[aResponse contentEncoding]]
                                    range:NSMakeRange(0,[cachedObject length])];
-
-                  [(NSMutableData*)cachedObject replaceOccurrencesOfData:[elementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
-                                   withData:[elementID dataUsingEncoding:[aResponse contentEncoding]]
-                                   range:NSMakeRange(0,[cachedObject length])];
-
-                  [(NSMutableData*)cachedObject replaceOccurrencesOfData:[@"##SESSION_ID##" dataUsingEncoding:[aResponse contentEncoding]]
-                                   withData:[sessionID dataUsingEncoding:[aResponse contentEncoding]]
-                                   range:NSMakeRange(0,[cachedObject length])];
-                  [aResponse appendContentData:(NSData*)cachedObject];
-                }
+              
+              [cachedObject replaceOccurrencesOfData:[@"##SESSION_ID##" dataUsingEncoding:[aResponse contentEncoding]]
+                            withData:[sessionID dataUsingEncoding:[aResponse contentEncoding]]
+                            range:NSMakeRange(0,[cachedObject length])];
+              [aResponse appendContentData:cachedObject];
             }
           else
             {
               _cacheIndex=[aResponse startCache];              
-              NSDebugMLLog(@"gswdync",@"cacheIndex=%d",_cacheIndex);
+              NSDebugMLLog(@"GSWCacheElement",@"cacheIndex=%d",_cacheIndex);
             };
         };
 
-      NSDebugMLLog(@"gswdync",@"cacheUsed=%d",cacheUsed);
+      NSDebugMLLog(@"GSWCacheElement",@"cacheUsed=%d",cacheUsed);
       if (!cacheUsed)
         {
           NSLog(@"GSWCacheElement Children Start Date=%@",[NSDate date]);
@@ -354,48 +332,29 @@ Bindings
 
       if (!cacheUsed && !isDisabled)
         {
-          id cachedObject=[aResponse stopCacheOfIndex:_cacheIndex];
-          NSDebugMLLog(@"gswdync",@"cachedObject=%p",cachedObject);
-          if ([cachedObject isKindOfClass:[NSMutableString class]])
-            {
-              NSDebugMLog(@"cachedObject=%@",cachedObject);
-              [(NSMutableString*)cachedObject replaceOccurrencesOfString:contextAndElementID
-                                 withString:contextAndElementIDCacheKey
-                                 options:0
-                                 range:NSMakeRange(0,[cachedObject length])];
-
-              [(NSMutableString*)cachedObject replaceOccurrencesOfString:elementID
-                                 withString:elementIDCacheKey
-                                 options:0
-                                 range:NSMakeRange(0,[cachedObject length])];
-              
-              [(NSMutableString*)cachedObject replaceOccurrencesOfString:sessionID
-                                 withString:@"##SESSION_ID##"
-                                 options:0
-                                 range:NSMakeRange(0,[cachedObject length])];                            
-              NSDebugMLLog(@"gswdync",@"cachedObject=%@",cachedObject);
-            }
-          else
-            {
-              [(NSMutableData*)cachedObject replaceOccurrencesOfData:[contextAndElementID dataUsingEncoding:[aResponse contentEncoding]]
-                               withData:[contextAndElementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
-                               range:NSMakeRange(0,[cachedObject length])];
-
-              [(NSMutableData*)cachedObject replaceOccurrencesOfData:[elementID dataUsingEncoding:[aResponse contentEncoding]]
-                               withData:[elementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
-                               range:NSMakeRange(0,[cachedObject length])];
-
-              [(NSMutableData*)cachedObject replaceOccurrencesOfData:[sessionID dataUsingEncoding:[aResponse contentEncoding]]
-                               withData:[@"##SESSION_ID##" dataUsingEncoding:[aResponse contentEncoding]]
-                               range:NSMakeRange(0,[cachedObject length])];
-            };
+          NSMutableData* cachedObject=[aResponse stopCacheOfIndex:_cacheIndex];
+          NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%p",cachedObject);
+          NSLog(@"GSWCacheElement6: sessionID=%@",sessionID);
+          NSLog(@"GSWCacheElement6: elementID=%@",elementID);
+          NSLog(@"GSWCacheElement6: contextAndElementID=%@",contextAndElementID);
+          [cachedObject replaceOccurrencesOfData:[contextAndElementID dataUsingEncoding:[aResponse contentEncoding]]
+                        withData:[contextAndElementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
+                        range:NSMakeRange(0,[cachedObject length])];
+          
+          [cachedObject replaceOccurrencesOfData:[elementID dataUsingEncoding:[aResponse contentEncoding]]
+                        withData:[elementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
+                        range:NSMakeRange(0,[cachedObject length])];
+          
+          [cachedObject replaceOccurrencesOfData:[sessionID dataUsingEncoding:[aResponse contentEncoding]]
+                        withData:[@"##SESSION_ID##" dataUsingEncoding:[aResponse contentEncoding]]
+                        range:NSMakeRange(0,[cachedObject length])];
           if (_cachedObject)
             [_cachedObject setValue:cachedObject
                            inComponent:component];
           else
             {
               id duration=[_duration valueInComponent:component];
-              NSDebugMLLog(@"gswdync",@"duration=%@",duration);
+              NSDebugMLLog(@"GSWCacheElement",@"duration=%@",duration);
               if (duration)
                 {
                   NSTimeInterval ts=0;
@@ -422,7 +381,7 @@ Bindings
 
       [aContext deleteLastElementIDComponent];
 
-      NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[aContext elementID]);
+      NSDebugMLLog(@"GSWCacheElement",@"END ET=%@ id=%@",[self class],[aContext elementID]);
 
       NSLog(@"GSWCacheElement Stop Date=%@",[NSDate date]);
 
@@ -490,7 +449,7 @@ Bindings
   element=[_childrenGroup invokeActionForRequest:aRequest
                           inContext:aContext];
 
-  NSDebugMLLog(@"gswdync",@"element=%@",element);
+  NSDebugMLLog(@"GSWCacheElement",@"element=%@",element);
   NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
             @"Element is a %@ not a GSWElement: %@",
             [element class],

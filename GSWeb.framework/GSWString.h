@@ -1,6 +1,6 @@
 /** GSWString.h - <title>GSWeb: Class GSWString</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002,2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -46,13 +46,9 @@
   GSWAssociation* _formatter;
 };
 
--(void)dealloc;
-
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;
-
--(NSString*)description;
 
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
@@ -66,6 +62,7 @@
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component
                                value:(id)value;
 -(NSString*)elementName;
+-(NSString*)formattedValueInContext:(GSWContext*)context;
 @end
 
 //====================================================================

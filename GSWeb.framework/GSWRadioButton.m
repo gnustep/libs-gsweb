@@ -1,9 +1,9 @@
 /** GSWRadioButton.m - <title>GSWeb: Class GSWRadioButton</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -44,6 +44,8 @@ Bindings
         name		Name of the element in the form (should be unique). If not specified, GSWeb assign one.
 
         disabled	If evaluated to yes, the button appear inactivated.
+
+        enabled		If evaluated to no, the button appear inactivated.
 **/
 
 //====================================================================
@@ -155,8 +157,8 @@ Bindings
               NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
               if (selectionValue)
                 {
-                  NSString* valueValueString=[NSString stringWithFormat:@"%@",valueValue];
-                  NSString* selectionValueString=[NSString stringWithFormat:@"%@",selectionValue];
+                  NSString* valueValueString=NSStringWithObject(valueValue);
+                  NSString* selectionValueString=NSStringWithObject(selectionValue);
                   isChecked=SBIsValueEqual(selectionValueString,valueValueString);
                 };
             };
@@ -206,7 +208,7 @@ Bindings
             
           if (formValue && valueValue)
             {
-              NSString* valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+              NSString* valueValueString=NSStringWithObject(valueValue);
               isChecked=SBIsValueEqual(formValue,valueValueString);
             };
           NSDebugMLLog(@"gswdync",@"isChecked=%s",(isChecked ? "YES" : "NO"));

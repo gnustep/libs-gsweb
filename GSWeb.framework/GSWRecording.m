@@ -1,6 +1,6 @@
 /** GSWRecording.m - <title>GSWeb: Class GSWRecording</title>
 
-   Copyright (C) 2003 Free Software Foundation, Inc.
+   Copyright (C) 2004 Free Software Foundation, Inc.
    
    Written by:  Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        Aug 2003
@@ -87,7 +87,7 @@ RCS_ID("$Id$")
       if (![fileManager createDirectoryAtPath:_recordingPath
                         attributes:nil])
         {
-          ExceptionRaise(@"GSWRecording: create directory '@'",_recordingPath);
+          ExceptionRaise(@"GSWRecording: can't create directory '%@'",_recordingPath);
         };
     };
   LOGObjectFnStop();
@@ -173,25 +173,26 @@ RCS_ID("$Id$")
 -(GSWResponse*)_wildcardedResponse:(GSWResponse*)response
 {
   NSString* sessionID = nil;
-  NSMutableString* contentString = nil;
+  NSMutableData* contentData = nil;
   int contentLength=0;
   NSString* applicationURLPrefix=nil;
+  NSStringEncoding contentEncoding=GSUndefinedEncoding;
 
   LOGObjectFnStart();
 
   response = (GSWResponse*)[[response copy]autorelease];
   sessionID = [response headerForKey:GSWHTTPHeader_RecordingSessionID[GSWebNamingConv]];
   NSDebugMLLog(@"GSWRecording",@"sessionID=%@",sessionID);
-  contentString = [[[response contentString] mutableCopy]autorelease];
-  contentLength=[contentString length];
+  contentEncoding=[response contentEncoding];
+  contentData = [[[response content] mutableCopy]autorelease];
+  contentLength=[contentData length];
 
   // Replace sessionID by ##GSWSESSIONID##
   if (sessionID)
     {
-      [contentString replaceOccurrencesOfString:sessionID
-                     withString:@"##GSWSESSIONID##"
-                     options:0
-                     range:NSMakeRange(0,[contentString length])];
+      [contentData replaceOccurrencesOfData:[sessionID dataUsingEncoding:contentEncoding]
+                   withData:[@"##GSWSESSIONID##" dataUsingEncoding:contentEncoding]
+                   range:NSMakeRange(0,[contentData length])];
     };
 
   applicationURLPrefix=[_request _applicationURLPrefix];
@@ -199,17 +200,16 @@ RCS_ID("$Id$")
                applicationURLPrefix);
   NSAssert(applicationURLPrefix,@"No applicationURLPrefix");
 
-  [contentString replaceOccurrencesOfString:applicationURLPrefix
-                 withString:@"##GSWAPPURLPREFIX##"
-                 options:0
-                 range:NSMakeRange(0,[contentString length])];
+  [contentData replaceOccurrencesOfData:[applicationURLPrefix dataUsingEncoding:contentEncoding]
+                 withData:[@"##GSWAPPURLPREFIX##" dataUsingEncoding:contentEncoding]
+                 range:NSMakeRange(0,[contentData length])];
 
   // Set new Content Length
-  [response setHeader:GSWIntToNSString([contentString length])
+  [response setHeader:GSWIntToNSString([contentData length])
             forKey:@"GSWHTTPHeader_ContentLength"];
   [response setHeader:GSWIntToNSString(contentLength)
             forKey:@"x-gsweb-unwildcarded-content-length"];
-  [response setContentString:contentString];
+  [response setContent:contentData];
 
   LOGObjectFnStop();
   return response;

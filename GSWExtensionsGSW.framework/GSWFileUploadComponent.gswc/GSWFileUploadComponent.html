@@ -1,23 +1,40 @@
+<table border="0">
   <gsweb name="ViewCondition">   
     <gsweb name="ViewPathCondition">
       <gsweb name="LinkViewCondition">
-        <gsweb name="FileLinkWithPath"></gsweb>
+        <tr><td colspan="2" align="center"><gsweb name="FileLinkWithPath"></gsweb></td></tr>
       </gsweb>
       <gsweb name="ImageViewCondition">
-        <gsweb name="ImageWithPath"></gsweb>
+        <tr><td colspan="2" align="center"><gsweb name="ImageWithPath"></gsweb></td></tr>
       </gsweb>
     </gsweb>
     <gsweb name="ViewURLCondition">
       <gsweb name="LinkViewCondition">
-        <gsweb name="FileLinkWithURL"></gsweb>
+        <tr><td colspan="2" align="center"><gsweb name="FileLinkWithURL"></gsweb></td></tr>
       </gsweb>
       <gsweb name="ImageViewCondition">
-        <gsweb name="ImageWithURL"></gsweb>
+        <tr><td colspan="2" align="center"><gsweb name="ImageWithURL"></gsweb></td></tr>
       </gsweb>
     </gsweb>
   </gsweb>
-  <br>
-  <gsweb name="UploadFile"></gsweb><br>
-  <gsweb name="DeleteCondition">
-    <gsweb name="DeleteCheckBoxTitle"></gsweb><gsweb name="DeleteCheckBox"></gsweb>
+  <gsweb name="IsFileNameDisplay">
+    <tr><td colspan="2"><gsweb name="FileName"></gsweb></td></tr>
   </gsweb>
+  <gsweb name="DeleteCondition">
+    <tr><th align="right"><gsweb name="DeleteCheckBoxTitle"></gsweb>&nbsp;:&nbsp;</td><td><gsweb name="DeleteCheckBox"></gsweb></td></tr>
+  </gsweb>
+  <gsweb name="HasWidthAndHeight">
+    <gsweb name="HasWidthAndHeightList">
+      <tr><th align="right"><gsweb name="WidthAndHeightListTitle"></gsweb>&nbsp;:&nbsp;</td><td><gsweb name="WidthAndHeightList"></gsweb></td></tr>
+    </gsweb>
+    <gsweb name="IsCustomWidthAndHeightEnabled">
+      <tr><th align="right"><gsweb name="WidthTitle"></gsweb>&nbsp;x&nbsp;<gsweb name="HeightTitle"></gsweb>&nbsp;:&nbsp;</td><td><gsweb name="WidthField" size="6"></gsweb>&nbsp;x&nbsp;<gsweb name="HeightField" size="6"></gsweb></td></tr>
+    </gsweb>
+  </gsweb>
+  <gsweb name="HasUploadFileTitle">
+    <tr><th align="right"><gsweb name="UploadFileTitle"></gsweb>&nbsp;:&nbsp;</td><td><gsweb name="UploadFile"></gsweb></td></tr>
+  </gsweb>
+  <gsweb name="HasNotUploadFileTitle">
+    <tr><td align="left" colspan="2"><gsweb name="UploadFile"></gsweb></td></tr>
+  </gsweb>
+</table>

@@ -259,10 +259,15 @@ Bindings
               
 	      NSDebugMLLog(@"gswdync",@"value=%@",_value);              
               if (_value)  	// Binded Value          
-                valueValue = [_value valueInComponent:component];
+                {
+                  valueValue = [_value valueInComponent:component];
+                  valueValueString=NSStringWithObject(valueValue);
+                }
               else		// Auto Value
-                valueValue = [NSNumber numberWithInt:i]; 
-              valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+                {
+                  valueValue = GSWIntToNSString(i); 
+                  valueValueString=valueValue;
+                };
 	      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
               
 	      if (valueValue)
@@ -441,12 +446,17 @@ Bindings
               NSDebugMLLog(@"gswdync",@"_value (class: %@): %@",[_value class],_value);
               // Value property of the INPUT tag
               if (_value)  	// Binded Value          
-                valueValue = [_value valueInComponent:component];
+                {
+                  valueValue = [_value valueInComponent:component];
+                  NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);              
+                  [response appendContentHTMLAttributeValue:valueValue];
+                }
               else		// Auto Value
-                valueValue = [NSNumber numberWithInt:i]; 
-              NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-              
-              [response appendContentHTMLAttributeValue:valueValue];
+                {
+                  valueValue = GSWIntToNSString(i);
+                  NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);              
+                  [response _appendContentAsciiString:valueValue];
+                }
               [response appendContentCharacter:'"'];
               
               NSDebugMLLog(@"gswdync",@"selectionsValue=%@",selectionsValue);

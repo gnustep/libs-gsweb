@@ -279,7 +279,7 @@ An exception is raised if the end quote is not found,...
       else
         (*indexPtr)++;
     }
-  NSDebugMLog(@"startIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
+  NSDebugMLLog(@"GSWHTMLRawParser",@"startIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
               startIndex,*indexPtr,(char)_uniBuf[*indexPtr]);
   if (_uniBuf[*indexPtr]!=quote)
     {
@@ -300,7 +300,7 @@ An exception is raised if the end quote is not found,...
             (char)quote,(char)_uniBuf[*indexPtr]);
 
   //ParserDebugLogBuffer(_uniBuf,stopIndex+1,*indexPtr,stopIndex+1);
-  NSDebugMLog(@"startIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
+  NSDebugMLLog(@"GSWHTMLRawParser",@"startIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
               startIndex,*indexPtr,(char)_uniBuf[*indexPtr]);
 
   LOGObjectFnStop();
@@ -338,12 +338,12 @@ An exception is raised if the end quote is not found,...
             (char)quote,(char)_uniBuf[*indexPtr]);
 
   //ParserDebugLogBuffer(_uniBuf,stopIndex+1,*indexPtr,stopIndex+1);
-  NSDebugMLog(@"startIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
+  NSDebugMLLog(@"GSWHTMLRawParser",@"startIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
               startIndex,*indexPtr,(char)_uniBuf[*indexPtr]);
   string=[NSString stringWithCharacters:_uniBuf+startIndex+1 // +1: skip begining quote
                    length:*indexPtr-startIndex-1]; // -1 because -1 for begining quote, -1 for ending quote +1 for length
 
-  NSDebugMLog(@"'string'='%@'",string);
+  NSDebugMLLog(@"GSWHTMLRawParser",@"'string'='%@'",string);
 
   LOGObjectFnStop();
 
@@ -389,7 +389,7 @@ It skip starting blank spaces
           string=[self _parseQuotedStringWithQuote:_uniBuf[*indexPtr]
                        index:indexPtr
                        stopIndex:stopIndex];          
-          NSDebugMLog(@"indexPtr=%d 'string'='%@'",*indexPtr,string);
+          NSDebugMLLog(@"GSWHTMLRawParser",@"indexPtr=%d 'string'='%@'",*indexPtr,string);
           (*indexPtr)++; // skip last quote
         }
       else
@@ -408,16 +408,16 @@ It skip starting blank spaces
               else
                 (*indexPtr)++;
             };
-          NSDebugMLog(@"startIndex=%d stopIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
+          NSDebugMLLog(@"GSWHTMLRawParser",@"startIndex=%d stopIndex=%d *indexPtr=%d _uniBuf[*indexPtr]='%c'",
                       startIndex,stopIndex,*indexPtr,(char)_uniBuf[*indexPtr]);
           if (*indexPtr>startIndex)
             string=[NSString stringWithCharacters:_uniBuf+startIndex
                              length:*indexPtr-startIndex];
-          NSDebugMLog(@"'string'='%@'",string);
+          NSDebugMLLog(@"GSWHTMLRawParser",@"'string'='%@'",string);
         };
     };
 
-  NSDebugMLog(@"'string'='%@'",string);                      
+  NSDebugMLLog(@"GSWHTMLRawParser",@"'string'='%@'",string);                      
 
   LOGObjectFnStop();
   return string;
@@ -444,6 +444,7 @@ if it is not the case but you'll have problems later...)
                             andIndex:(int)stopIndex
 {
   NSMutableDictionary* properties=nil;
+
   LOGObjectFnStart();
   //ParserDebugLogBuffer(_uniBuf,stopIndex+1,startIndex,stopIndex+1);
   if (stopIndex>=startIndex)
@@ -460,16 +461,18 @@ if it is not the case but you'll have problems later...)
                     {
                       tagName=[NSString stringWithCharacters:_uniBuf+startIndex
                                         length:index-startIndex+1];
-                      NSDebugMLog(@"tagName=%@",tagName);                      
+                      NSDebugMLLog(@"GSWHTMLRawParser",@"tagName=%@",tagName);                      
                     };
                   break;
                 }
+              else
+                index++;
             };
           if (!tagName && index>stopIndex)
             {
               tagName=[NSString stringWithCharacters:_uniBuf+startIndex
                                 length:index-startIndex];
-              NSDebugMLog(@"tagName=%@",tagName);
+              NSDebugMLLog(@"GSWHTMLRawParser",@"tagName=%@",tagName);
             };
           if (tagName)
             {
@@ -486,44 +489,60 @@ if it is not the case but you'll have problems later...)
 
       while(index<=stopIndex)
         {
-          NSString* key=[self _parsePropertiesStringEndingWith:'='
-                              or:' '
-                              index:&index
-                              stopIndex:stopIndex];
-          NSDebugMLog(@"'key'='%@'",key);
-          // Skip blank
-          while(index<=stopIndex
-                && _uniBuf[index]==' ')
-            index++;
+          NSString* key=nil;
+          int previousIndex=index;
 
-          if ([key length]>0)
+          if (_uniBuf[index]=='=')
+            [NSException raise:NSInvalidArgumentException 
+                         format:@"Found '=' in tag without key at %@.",
+                         [self lineAndColumnIndexesStringFromIndex:index]];
+          else
             {
-              key=[key lowercaseString];
-              if (!properties)
-                properties=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-              if (index>stopIndex) // key without value
-                [properties setObject:@""
-                            forKey:key];
-              else if (_uniBuf[index]=='=') // key=value
+              key=[self _parsePropertiesStringEndingWith:'='
+                        or:' '
+                        index:&index
+                        stopIndex:stopIndex];
+              NSDebugMLLog(@"GSWHTMLRawParser",@"'key'='%@'",key);
+              // Skip blank
+              while(index<=stopIndex
+                    && _uniBuf[index]==' ')
+                index++;
+              
+              if ([key length]>0)
                 {
-		  NSString *value;
-                  index++;
-                  value=[self _parsePropertiesStringEndingWith:'='
-			      or:' '
-			      index:&index
-			      stopIndex:stopIndex];
-                  NSDebugMLog(@"'value'='%@'",value);
-                  NSAssert(value,@"No value");
-                  [properties setObject:value
-                              forKey:key];
-                }
-              else // key without value
-                [properties setObject:@""
-                            forKey:key];                  
+                  key=[key lowercaseString];
+                  if (!properties)
+                    properties=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+                  if (index>stopIndex) // key without value
+                    [properties setObject:@""
+                                forKey:key];
+                  else if (_uniBuf[index]=='=') // key=value
+                    {
+                      NSString *value;
+                      index++;
+                      value=[self _parsePropertiesStringEndingWith:'='
+                                  or:' '
+                                  index:&index
+                                  stopIndex:stopIndex];
+                      NSDebugMLLog(@"GSWHTMLRawParser",@"'value'='%@'",value);
+                      NSAssert(value,@"No value");
+                      [properties setObject:value
+                                  forKey:key];
+                    }
+                  else // key without value
+                    [properties setObject:@""
+                                forKey:key];                  
+                };
+            };
+          if (index==previousIndex)
+            {
+              [NSException raise:NSInvalidArgumentException 
+                           format:@"Parser blocked at %@.",
+                           [self lineAndColumnIndexesStringFromIndex:index]];
             };
         };
     };
-  NSDebugMLog(@"properties=%@",properties);                      
+  NSDebugMLLog(@"GSWHTMLRawParser",@"properties=%@",properties);                      
   LOGObjectFnStop();
   return properties;
 };
@@ -536,7 +555,7 @@ May raise exception.
 {
 //  Object obj = null;
   LOGObjectFnStart();
-  NSDebugMLog(@"_string=%@",_string);
+  NSDebugMLLog(@"GSWHTMLRawParser",@"_string=%@",_string);
   _length=[_string length];
 
   _uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
@@ -546,12 +565,13 @@ May raise exception.
 
       _index=0;
 
-      NSDebugMLog(@"index=%d length=%d",_index,_length);
+      NSDebugMLLog(@"GSWHTMLRawParser",@"index=%d length=%d",_index,_length);
       //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
 
       _textStartIndex=_index;
       while(_index<_length)
         {      
+          int previousIndex=_index;
           //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
           switch(_uniBuf[_index])
             {
@@ -568,7 +588,7 @@ May raise exception.
                 if (_index>=_length)
                   {
                     [NSException raise:NSInvalidArgumentException 
-                                 format:@"Reached end of string when parsing tag opening at  %@.",
+                                 format:@"Reached end of string when parsing tag opening at %@.",
                                  [self lineAndColumnIndexesStringFromIndex:tagStartIndex]];
                   }
                 else
@@ -577,7 +597,7 @@ May raise exception.
                     GSWHTMLRawParserTagType tagType=GetTagType(_uniBuf,_length,&_index,&isClosingTag);
                     int tagPropertiesStartIndex=_index;
                     _textStopIndex=tagStartIndex-1;
-                    NSDebugMLog(@"tagType=%d isClosingTag=%s _textStartIndex=%d",tagType,(isClosingTag ? "YES" : "NO"),_textStartIndex);
+                    NSDebugMLLog(@"GSWHTMLRawParser",@"tagType=%d isClosingTag=%s _textStartIndex=%d",tagType,(isClosingTag ? "YES" : "NO"),_textStartIndex);
                     if (_parserIsDynamicTagType(tagType))
                       {
                         //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
@@ -600,7 +620,7 @@ May raise exception.
                             BOOL stopTag=NO;
                             int tagStopIndex=_index;
                             int tagPropertiesStopIndex=_index;
-                            NSDebugMLog(@"tagStartIndex=%d tagStopIndex=%d _textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
+                            NSDebugMLLog(@"GSWHTMLRawParser",@"tagStartIndex=%d tagStopIndex=%d _textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
                                         tagStartIndex,tagStopIndex,_textStartIndex,_textStopIndex,_length,_index);
                             if (isClosingTag)
                               {
@@ -617,14 +637,14 @@ May raise exception.
                                     stopTag=YES;
                                     tagPropertiesStopIndex--;
                                   };
-                                NSDebugMLog(@"stopTag=%d",stopTag);
+                                NSDebugMLLog(@"GSWHTMLRawParser",@"stopTag=%d",stopTag);
                                 tagPropertiesString=[NSString stringWithCharacters:_uniBuf+tagPropertiesStartIndex
                                                               length:tagPropertiesStopIndex-tagPropertiesStartIndex];
-                                NSDebugMLog(@"tagPropertiesString='%@'",tagPropertiesString);
+                                NSDebugMLLog(@"GSWHTMLRawParser",@"tagPropertiesString='%@'",tagPropertiesString);
                                 tagProperties=[self tagPropertiesForType:tagType
                                                                   betweenIndex:tagPropertiesStartIndex
                                                                   andIndex:tagPropertiesStopIndex-1];
-                                NSDebugMLog(@"tagProperties='%@'",tagProperties);
+                                NSDebugMLLog(@"GSWHTMLRawParser",@"tagProperties='%@'",tagProperties);
                                 [self startDynamicTagOfType:tagType
                                       withProperties:tagProperties
                                       templateInfo:[self lineAndColumnIndexesStringFromIndex:tagStartIndex]];
@@ -636,7 +656,7 @@ May raise exception.
                             _index++;
                             //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
                             _textStartIndex=_index;
-                            NSDebugMLog(@"_textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
+                            NSDebugMLLog(@"GSWHTMLRawParser",@"_textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
                                         _textStartIndex,_textStopIndex,_length,_index);
                           };
                       }
@@ -668,7 +688,7 @@ May raise exception.
                             [self didParseCommentWithContentString:commentString];
                             _index++;
                             _textStartIndex=_index;
-                            NSDebugMLog(@"_textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
+                            NSDebugMLLog(@"GSWHTMLRawParser",@"_textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
                                         _textStartIndex,_textStopIndex,_length,_index);
                           };
                       };
@@ -681,6 +701,12 @@ May raise exception.
             default:
               _index++;
               break;
+            };
+          if (_index==previousIndex)
+            {
+              [NSException raise:NSInvalidArgumentException 
+                           format:@"Parser blocked at %@.",
+                           [self lineAndColumnIndexesStringFromIndex:_index]];
             };
         };
       _textStopIndex=_length-1;

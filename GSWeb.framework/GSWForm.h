@@ -45,6 +45,7 @@
   GSWAssociation* _disabled;
   GSWAssociation* _enabled;
   GSWAssociation* _fragmentIdentifier;
+  GSWAssociation* _displayDisabled;
   NSDictionary* _otherPathQueryAssociations;
 // }
   NSDictionary* _otherQueryAssociations;

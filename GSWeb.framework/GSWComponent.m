@@ -289,38 +289,57 @@ RCS_ID("$Id$")
 };
 
 // GSWeb Additions {
+//--------------------------------------------------------------------
 -(NSDictionary*)userDictionary
 {
   return _userDictionary;
 };
 
+//--------------------------------------------------------------------
 -(void)setUserDictionary:(NSDictionary*)aUserDictionary
 {
   ASSIGN(_userDictionary,aUserDictionary);
   NSDebugMLLog(@"GSWComponent",@"userDictionary:%@",_userDictionary);
 };
 
+//--------------------------------------------------------------------
 -(NSDictionary*)userAssociations
 {
   return _userAssociations;
 };
 
+//--------------------------------------------------------------------
 -(void)setUserAssociations:(NSDictionary*)userAssociations
 {
   ASSIGN(_userAssociations,userAssociations);
   NSDebugMLLog(@"GSWComponent",@"userAssociations:%@",_userAssociations);
 };
 
+//--------------------------------------------------------------------
+-(GSWAssociation*)userAssociationForKey:(NSString*)key
+{
+  return [[self userAssociations]objectForKey:key];
+};
+
+//--------------------------------------------------------------------
 -(NSDictionary*)defaultAssociations
 {
   return _defaultAssociations;
 };
 
+//--------------------------------------------------------------------
 -(void)setDefaultAssociations:(NSDictionary*)defaultAssociations
 {
   ASSIGN(_defaultAssociations,defaultAssociations);
   NSDebugMLLog(@"GSWComponent",@"defaultAssociations:%@",_defaultAssociations);
 };
+
+//--------------------------------------------------------------------
+-(GSWAssociation*)defaultAssociationForKey:(NSString*)key
+{
+  return [[self defaultAssociations]objectForKey:key];
+};
+
 // }
 
 @end
@@ -399,7 +418,8 @@ associationsKeys:(NSArray*)associationsKeys
               && ![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
             {
               aValue=[self valueForKey:aKey];
-              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@",aKey,aValue);
+              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@ (%@)",
+                           aKey,aValue,NSStringFromClass([aValue class]));
               if (doLog)
                 [anAssociation logSynchronizeComponentToParentForValue:aValue
                                inComponent:_parent];
@@ -437,7 +457,8 @@ associationsKeys:(NSArray*)associationsKeys
           if (![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
             {
               aValue=[anAssociation valueInComponent:_parent];
-              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@",aKey,aValue);
+              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@ (%@)",
+                           aKey,aValue,NSStringFromClass([aValue class]));
               if (doLog)
                 [anAssociation logSynchronizeParentToComponentForValue:aValue
                                inComponent:self];
@@ -787,7 +808,9 @@ associationsKeys:(NSArray*)associationsKeys
   GSWAssociation* assoc=nil;
   unsigned int index=NSNotFound;
   LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"_associationsKeys=%@",_associationsKeys);
+  NSDebugMLLog(@"GSWComponent",@"In %@ Search %@ _associationsKeys=%@",
+               NSStringFromClass([self class]),
+               aName,_associationsKeys);
   //NSDebugMLLog(@"GSWComponent",@"_associations=%@",[_associations description]);
   if (_associationsKeys)
     {
@@ -800,7 +823,9 @@ associationsKeys:(NSArray*)associationsKeys
     {	  
       assoc=[_defaultAssociations objectForKey:aName];
     };
-  NSDebugMLLog(@"GSWComponent",@"assoc=%@",assoc);
+  NSDebugMLLog(@"GSWComponent",@"In %@ Association for %@=%@",
+               NSStringFromClass([self class]),
+               aName,assoc);
   LOGObjectFnStop();
   return assoc;
 };
@@ -843,15 +868,18 @@ associationsKeys:(NSArray*)associationsKeys
   //OK
   GSWAssociation* assoc=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - parentBindingName_=%@",
+  NSDebugMLLog(@"GSWComponent",@"self=%@ declarationName=%@ - parentBindingName_=%@",
+               NSStringFromClass([self class]),
                [self declarationName],
                parentBindingName);
   NSDebugMLLog(@"GSWComponent",@"value_=%@",value);
-  NSDebugMLLog(@"GSWComponent",@"_parent=%p",(void*)_parent);
+  NSDebugMLLog(@"GSWComponent",@"_parent=%p of class %@",
+               (void*)_parent,
+               NSStringFromClass([_parent class]));
   if (_parent)
     {
       assoc=[self _associationWithName:parentBindingName];
-      NSDebugMLLog(@"GSWComponent",@"assoc=%@",assoc);
+      NSDebugMLLog(@"GSWComponent",@"assoc for %@=%@",parentBindingName,assoc);
       if(assoc)
         [assoc setValue:value
                inComponent:_parent];
@@ -910,7 +938,8 @@ associationsKeys:(NSArray*)associationsKeys
 	    }
 #endif
 */
-	  NSDebugMLLog(@"GSWComponent",@"aValue=%@",aValue);
+	  NSDebugMLLog(@"GSWComponent",@"parentBindingName=%@ aValue=%@ (%@)",
+                       parentBindingName,aValue,NSStringFromClass([aValue class]));
 	};
   LOGObjectFnStop();
   return aValue; 

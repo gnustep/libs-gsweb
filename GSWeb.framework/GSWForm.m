@@ -107,6 +107,12 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"gswdync",@"fragmentIdentifier=%@",_fragmentIdentifier);
 
       [tmpAssociations removeObjectForKey:fragmentIdentifier__Key];
+
+      _displayDisabled = [[associations objectForKey:displayDisabled__Key
+                                        withDefaultObject:[_displayDisabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"displayDisabled=%@",_displayDisabled);
+      [tmpAssociations removeObjectForKey:displayDisabled__Key];
+      
     };
 
   _queryDictionary = [[associations objectForKey:queryDictionary__Key
@@ -152,6 +158,7 @@ RCS_ID("$Id$")
   DESTROY(_disabled);
   DESTROY(_enabled);
   DESTROY(_fragmentIdentifier);
+  DESTROY(_displayDisabled);
   DESTROY(_otherQueryAssociations);
   DESTROY(_otherPathQueryAssociations);
   [super dealloc];
@@ -256,10 +263,14 @@ RCS_ID("$Id$")
               inContext:(GSWContext*)context
 {
   //OK
+  BOOL disabledInContext=NO;
+  BOOL displayDisabledValue=YES;
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
+
   LOGObjectFnStartC("GSWForm");
+
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
   [response appendDebugCommentContentString:[NSString stringWithFormat:@"declarationName=%@ ID=%@",
@@ -268,25 +279,61 @@ RCS_ID("$Id$")
 
   if (!WOStrictFlag)
     {
-      BOOL disabledInContext=NO;
       disabledInContext=[self disabledInContext:context];
       [context setInForm:!disabledInContext];
+      if (!disabledInContext)
+        {
+          if ([context isInEnabledForm])
+            {
+              NSWarnLog(@"Enabled Form %@ ID=%@ in an enbled form. This usually doesn't works well",
+                        [self declarationName],
+                        [context elementID]);
+              //[response appendContentString:@"FORM in a FORM"];//TEMP
+              [context setInEnabledForm:YES];
+            };
+        };
+      if (disabledInContext && _displayDisabled)
+        {
+          displayDisabledValue=[self evaluateCondition:_displayDisabled
+                                     inContext:context];
+        };
     }
   else
     [context setInForm:YES];
 
-  [self appendToResponse:response
-        inContext:context
-        elementsFromIndex:0
-        toIndex:[_elementsMap length]-2];
-  [self _appendHiddenFieldsToResponse:response
-        inContext:context];
-  [self appendToResponse:response
-        inContext:context
-        elementsFromIndex:[_elementsMap length]-1
-        toIndex:[_elementsMap length]-1];
-  [context setInForm:NO];
+  if (!disabledInContext || displayDisabledValue)
+    {
+      [self appendToResponse:response
+            inContext:context
+            elementsFromIndex:0
+            toIndex:[_elementsMap length]-2];
+
+      [self _appendHiddenFieldsToResponse:response
+            inContext:context];
+      [self appendToResponse:response
+            inContext:context
+            elementsFromIndex:[_elementsMap length]-1
+            toIndex:[_elementsMap length]-1];
+      [context setInForm:NO];
+    }
+  else
+    {
+      if ([_elementsMap length]>2)
+        {
+          [self appendToResponse:response
+                inContext:context
+                elementsFromIndex:1 // omit <form>
+                toIndex:[_elementsMap length]-2]; // omit </form>
+        };
+    };
+  if (!disabledInContext)
+    {
+      [context setInForm:NO];
+      [context setInEnabledForm:NO];
+    };
+
   GSWStopElement(context);
+
 #ifndef NDEBBUG
   NSAssert3(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
            @"GSWForm appendToResponse: bad elementID: elementsNb=%d [context elementID]=%@ [(GSWElementIDString*)[context elementID]elementsNb]=%d",
@@ -334,6 +381,7 @@ RCS_ID("$Id$")
           if (isFormSubmited)
             {
               [context setInForm:YES];
+              [context setInEnabledForm:YES];
               [context _setFormSubmitted:YES];
               multipleSubmitValue=[self evaluateCondition:_multipleSubmit
                                         inContext:context];
@@ -374,6 +422,7 @@ RCS_ID("$Id$")
                     [context _setActionInvoked:YES];
                 };
               [context setInForm:NO];
+              [context setInEnabledForm:NO];
               [context _setFormSubmitted:NO];
               [context _setIsMultipleSubmitForm:NO];
             };
@@ -443,6 +492,7 @@ RCS_ID("$Id$")
       if (isFormSubmited)
         {
           [context setInForm:YES];
+          [context setInEnabledForm:YES];
           [context _setFormSubmitted:YES];
         };
       NSDebugMLLog(@"gswdync",@"\n\ndynamicChildren=%@",_dynamicChildren);
@@ -454,6 +504,7 @@ RCS_ID("$Id$")
       if (isFormSubmited)
         {
           [context setInForm:NO];
+          [context setInEnabledForm:NO];
           [context _setFormSubmitted:NO];
         };
     };
@@ -481,7 +532,13 @@ RCS_ID("$Id$")
       disabledInContext=[self disabledInContext:context];
       NSDebugMLLog(@"gswdync",@"disabledInContext=%s",(disabledInContext ? "YES" : "NO"));
     };
-  if (!disabledInContext)
+  if (disabledInContext)
+    {
+      // Mainly for debugginf purpose as it is not 
+      // handled by browsers
+      [response appendContentString:@" disabled"];
+    }
+  else
     {
       GSWComponent* component=[context component];
       if (_href)

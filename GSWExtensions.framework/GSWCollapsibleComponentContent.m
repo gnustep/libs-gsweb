@@ -75,7 +75,12 @@ RCS_ID("$Id$")
   NSDebugMLog(@"_isVisibleConditionPassed=%s",(_isVisibleConditionPassed ? "YES" : "NO"));
   if (!_isVisibleConditionPassed)
 	{
-	  _isVisible=boolValueFor([self valueForBinding:@"condition"]);
+          if ([self hasBinding:@"condition"])
+            _isVisible=boolValueFor([self valueForBinding:@"condition"]);
+          else if ([self hasBinding:@"visibility"])
+            _isVisible=boolValueFor([self valueForBinding:@"visibility"]);
+          else
+            _isVisible=boolValueFor([self valueForBinding:@"condition"]);
 	  _isVisibleConditionPassed=YES;
 	};
   NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
@@ -203,19 +208,21 @@ RCS_ID("$Id$")
 };
 
 //-----------------------------------------------------------------------------------
--(id)isDisabled
+-(BOOL)isDisabled
 {
-  id isDisabled=NO;
+  BOOL isDisabled=NO;
 
   LOGObjectFnStart();
 
   if ([self hasBinding:@"disabled"])
-    isDisabled=[self valueForBinding:@"disabled"];
+    isDisabled=boolValueFor([self valueForBinding:@"disabled"]);
   else if ([self hasBinding:@"enabled"])
     {
       BOOL isEnabled=boolValueFor([self valueForBinding:@"enabled"]);
-      isDisabled=[NSNumber numberWithBool:(isEnabled ? NO : YES)];
+      isDisabled=(isEnabled ? NO : YES);
     };
+
+  NSDebugMLog(@"isDisabled=%s",(isDisabled ? "YES" : "NO"));
 
   LOGObjectFnStop();
   
@@ -229,10 +236,12 @@ RCS_ID("$Id$")
 
   LOGObjectFnStart();
 
-  if (boolValueFor([self isDisabled])
+  if ([self isDisabled]
       && [self hasBinding:@"displayDisabled"]
       && !boolValueFor([self valueForBinding:@"displayDisabled"]))
     shouldDisplay=NO;
+
+  NSDebugMLog(@"shouldDisplay=%s",(shouldDisplay ? "YES" : "NO"));
 
   LOGObjectFnStop();
   

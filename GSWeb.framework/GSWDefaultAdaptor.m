@@ -801,7 +801,7 @@ int allow_severity = LOG_INFO;
 		   [appName cString], RQ_FILE, [handle fileDescriptor], 0);
       
       fromhost(&libwrapRequestInfo);      
-      if (STR_EQ(eval_hostname(libwrapRequestInfo.client), paranoid) 
+      if (STR_EQ(eval_hostname(libwrapRequestInfo.client), "") //!paranoid
 	  || !hosts_access(&libwrapRequestInfo)) 
         {
           allowed = NO;

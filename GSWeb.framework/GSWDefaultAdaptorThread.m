@@ -574,49 +574,84 @@ RCS_ID("$Id$")
                                       data:(NSData*)data
 {
   GSWRequest* request=nil;
-  NSArray* requestLineArray=nil;
+  int requestLineLength=0;
+
   LOGObjectFnStart();
+
   NSDebugDeepMLog0(@"GSWDefaultAdaptorThread: createRequestFromData");
-  requestLineArray=[requestLine componentsSeparatedByString:@" "];
   NSDebugDeepMLLog(@"low",@"requestLine:%@",requestLine);
-  NSDebugDeepMLLog(@"info",@"requestLineArray:%@",requestLineArray);
-  if ([requestLineArray count]!=3)
+
+  requestLineLength=[requestLine length];
+  if (requestLineLength==0)
     {
       ExceptionRaise(@"GSWDefaultAdaptorThread",
-                     @"bad request first line (elements count %d != 3). requestLine: '%@'.RequestLineArray: %@",
-                     [requestLineArray count],
-                     requestLine,
-                     requestLineArray);
+                     @"bad request first line: '%@'",
+                     requestLine);
     }
   else
     {
-      NSString* method=[requestLineArray objectAtIndex:0];
-      NSString* url=[requestLineArray objectAtIndex:1];
-      NSArray* http=[[requestLineArray objectAtIndex:2] componentsSeparatedByString:@"/"];
-      [GSWApplication statusLogWithFormat:@"RemoteAddress=%@ Request uri=%@",_remoteAddress,url];
+      NSRange spaceRange;
+      NSRange urlRange;
+      NSString* method=nil;
+      NSString* url=nil;
+      NSString* protocolString=nil;
+      NSArray* protocol=nil;
 
-      NSDebugDeepMLLog(@"info",@"method=%@",method);
-      NSDebugDeepMLLog(@"info",@"url=%@",url);
-      NSDebugDeepMLLog(@"info",@"http=%@",http);
-      if ([http count]!=2)
+      spaceRange=[requestLine rangeOfString:@" "];
+      if (spaceRange.length==0 || spaceRange.location+spaceRange.length>=requestLineLength)
         {
-          ExceptionRaise0(@"GSWDefaultAdaptorThread",@"bad request first line (HTTP)");
+          ExceptionRaise(@"GSWDefaultAdaptorThread",
+                         @"bad request first line: No method or no protocol '%@'",
+                         requestLine);
         }
       else
         {
-          NSString* httpVersion=[http objectAtIndex:1];
-          /*		  if (isHeaderKeysEqual(method,GSWHTTPHeader_MethodPost))
-                          {
-          */
-          request=[_application createRequestWithMethod:method
-                                uri:url
-                                httpVersion:httpVersion
-                                headers:headers
-                                content:data
-                                userInfo:nil];
-          /*			};*/
+          method=[requestLine substringToIndex:spaceRange.location];
+          urlRange.location=spaceRange.location+spaceRange.length;//+1 to skip space
+          spaceRange=[requestLine rangeOfString:@" "
+                                  options:NSBackwardsSearch
+                                  range:NSMakeRange(urlRange.location,requestLineLength-urlRange.location)];
+          if (spaceRange.length==0 || spaceRange.location<=urlRange.location)
+            {
+              ExceptionRaise(@"GSWDefaultAdaptorThread",
+                             @"bad request first line: No protocol or no url '%@'",
+                             requestLine);
+            }
+          else
+            {
+              protocolString=[requestLine substringFromIndex:spaceRange.location+spaceRange.length];
+              protocol=[protocolString componentsSeparatedByString:@"/"];
+              urlRange.length=spaceRange.location-urlRange.location;
+              url=[requestLine substringFromRange:urlRange];
+
+              NSDebugDeepMLLog(@"info",@"method=%@",method);
+              NSDebugDeepMLLog(@"info",@"url=%@",url);
+              NSDebugDeepMLLog(@"info",@"protocolString=%@",protocolString);
+              if ([protocol count]!=2)
+                {
+                  ExceptionRaise0(@"GSWDefaultAdaptorThread",@"bad request first line (HTTP)");
+                }
+              else
+                {
+                  NSString* httpVersion=[protocol objectAtIndex:1];
+                  [GSWApplication statusLogWithFormat:@"RemoteAddress=%@ Method=%@ Protocol=%@ httpVersion=%@ uri=%@",
+                                  _remoteAddress,method,protocolString,httpVersion,url];
+              
+                  /*		  if (isHeaderKeysEqual(method,GSWHTTPHeader_MethodPost))
+                                  {
+                  */
+                  request=[_application createRequestWithMethod:method
+                                        uri:url
+                                        httpVersion:httpVersion
+                                        headers:headers
+                                        content:data
+                                        userInfo:nil];
+                  /*			};*/
+                };
+            };
         };
     };
+
   LOGObjectFnStop();
   return request;
 };
@@ -688,7 +723,6 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
     {
       int headerN=0;
       int headerNForKey=0;
-      NSMutableData* allResponseData=nil;//to store response
       NSMutableData* responseData=(NSMutableData*)[NSMutableData data];
       NSArray* headerKeys=[response headerKeys];
       NSArray* headersForKey=nil;

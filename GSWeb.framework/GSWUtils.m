@@ -78,67 +78,25 @@ char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int
   return buffer;
 };
 
-
 NSString* cachedStringForInt(int value)
 {
-  switch(value)
-    {
-    case 0: return @"0"; break;
-    case 1: return @"1"; break;
-    case 2: return @"2"; break;
-    case 3: return @"3"; break;
-    case 4: return @"4"; break;
-    case 5: return @"5"; break;
-    case 6: return @"6"; break;
-    case 7: return @"7"; break;
-    case 8: return @"8"; break;
-    case 9: return @"9"; break;
-    case 10: return @"10"; break;
-    case 11: return @"11"; break;
-    case 12: return @"12"; break;
-    case 13: return @"13"; break;
-    case 14: return @"14"; break;
-    case 15: return @"15"; break;
-    case 16: return @"16"; break;
-    case 17: return @"17"; break;
-    case 18: return @"18"; break;
-    case 19: return @"19"; break;
-    case 20: return @"20"; break;
-    case 21: return @"21"; break;
-    case 22: return @"22"; break;
-    case 23: return @"23"; break;
-    case 24: return @"24"; break;
-    case 25: return @"25"; break;
-    case 26: return @"26"; break;
-    case 27: return @"27"; break;
-    case 28: return @"28"; break;
-    case 29: return @"29"; break;
-    case 30: return @"30"; break;
-    case 31: return @"31"; break;
-    case 33: return @"33"; break;
-    case 34: return @"34"; break;
-    case 35: return @"35"; break;
-    case 36: return @"36"; break;
-    case 37: return @"37"; break;
-    case 38: return @"38"; break;
-    case 39: return @"39"; break;
-    case 40: return @"49"; break;
-    case 41: return @"41"; break;
-    case 42: return @"42"; break;
-    case 43: return @"43"; break;
-    case 44: return @"44"; break;
-    case 45: return @"45"; break;
-    case 46: return @"46"; break;
-    case 47: return @"47"; break;
-    case 48: return @"48"; break;
-    case 49: return @"49"; break;
-    case 50: return @"50"; break;
-    default:              
-      break;
-    };
-    
+  static NSString* cachedString[] = {
+    @"0", @"1", @"2", @"3", @"4", @"5", @"6", @"7", @"8", @"9",
+    @"10", @"11", @"12", @"13", @"14", @"15", @"16", @"17", @"18", @"19", 
+    @"20", @"21", @"22", @"23", @"24", @"25", @"26", @"27", @"28", @"29", 
+    @"30", @"31", @"32", @"33", @"34", @"35", @"36", @"37", @"38", @"39", 
+    @"40", @"41", @"42", @"43", @"44", @"45", @"46", @"47", @"48", @"49", 
+    @"50", @"51", @"52", @"53", @"54", @"55", @"56", @"57", @"58", @"59", 
+    @"60", @"61", @"62", @"63", @"64", @"65", @"66", @"67", @"68", @"69",
+    @"70", @"71", @"72", @"73", @"74", @"75", @"76", @"77", @"78", @"79",
+    @"80", @"81", @"82", @"83", @"84", @"85", @"86", @"87", @"88", @"89",
+    @"90", @"91", @"92", @"93", @"94", @"95", @"96", @"97", @"98", @"99" };
+  if (value>=0 && value <100)
+    return cachedString[value];
+  else
     return nil;
 }
+
 
 NSString* GSWIntToNSString(int value)
 {
@@ -244,6 +202,10 @@ BOOL SBIsEqual(id id1,id id2)
     {
       if (id2)
         equal=[id1 isEqual:id2];
+    }
+  else if (!id2)
+    {
+      equal=YES;
     };
   return equal;
 };
@@ -257,12 +219,12 @@ BOOL SBIsValueEqual(id id1,id id2)
     {
       if ([id1 isKindOfClass:[NSString class]])
         {
-          NSString* id2String=[NSString stringWithObject:id2];
+          NSString* id2String=NSStringWithObject(id2);
           equal=[id1 isEqualToString:id2String];
         }
       else if ([id2 isKindOfClass:[NSString class]])
         {
-          NSString* id1String=[NSString stringWithObject:id1];
+          NSString* id1String=NSStringWithObject(id1);
           equal=[id2 isEqualToString:id1String];
         };
     };
@@ -1871,4 +1833,147 @@ NSString* GSWGetDefaultDocRoot()
     }
   return count;
 }
+@end
+
+//====================================================================
+
+// this should be in Gnustep base / extensions
+
+@implementation NSString (EncodingDataExt)
+
++ (id)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)encoding
+{
+  NSData   * tmpData = nil;
+  NSString * tmpString = nil;
+  
+  if ((tmpData = [NSData dataWithContentsOfFile: path]))
+  {
+    tmpString = [NSString alloc];
+    tmpString = [tmpString initWithData:tmpData 
+                               encoding:encoding];
+    if (!tmpString) {
+        NSLog(@"%s NO STRING for path '%@' encoding:%d", __PRETTY_FUNCTION__, path, encoding);
+            
+        [NSException raise:NSInvalidArgumentException 
+                    format:@"%s: could not open convert file contents '%s' non-lossy to encoding %i",
+                                __PRETTY_FUNCTION__, path, encoding];  
+    
+    }                               
+    [tmpString autorelease];
+  }
+  
+  return tmpString;
+}
+
+#warning XXX TODO MultiTread protection
+
++ (NSStringEncoding) encodingNamed:(NSString*) encodingName
+{  
+  static NSMapTable* encodingsByName=NULL;
+  NSStringEncoding encoding=GSUndefinedEncoding;
+  if (!encodingsByName)
+    {
+      encodingsByName=NSCreateMapTable(NSObjectMapKeyCallBacks,
+                                       NSIntMapValueCallBacks,
+                                       32);
+      NSMapInsert(encodingsByName,
+                  @"NSISOLatin1StringEncoding",
+                  (const void*)NSISOLatin1StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSASCIIStringEncoding",
+                  (const void*)NSASCIIStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSISOLatin2StringEncoding",
+                  (const void*)NSISOLatin2StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSJapaneseEUCStringEncoding",
+                  (const void*)NSJapaneseEUCStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSMacOSRomanStringEncoding",
+                  (const void*)NSMacOSRomanStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSNEXTSTEPStringEncoding",
+                  (const void*)NSNEXTSTEPStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSNonLossyASCIIStringEncoding",
+                  (const void*)NSNonLossyASCIIStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSUTF8StringEncoding",
+                  (const void*)NSUTF8StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSUnicodeStringEncoding",
+                  (const void*)NSUnicodeStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSWindowsCP1253StringEncoding",
+                  (const void*)NSWindowsCP1253StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSWindowsCP1252StringEncoding",
+                  (const void*)NSWindowsCP1252StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSWindowsCP1254StringEncoding",
+                  (const void*)NSWindowsCP1254StringEncoding);
+    }
+  encoding=(NSStringEncoding)NSMapGet(encodingsByName,(const void*)encodingName);
+  if (!encoding)
+    [NSException raise:NSInvalidArgumentException 
+                 format:@"%s: does not know about '%s'",
+                 __PRETTY_FUNCTION__, encodingName];  
+
+  return encoding;
+/*
+  if ([encodingName isEqualToString:@"NSISOLatin1StringEncoding"]) 
+  {
+  return NSISOLatin1StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSASCIIStringEncoding"]) 
+  {
+  return NSASCIIStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSISOLatin2StringEncoding"]) 
+  {
+  return NSISOLatin2StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSJapaneseEUCStringEncoding"]) 
+  {
+  return NSJapaneseEUCStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSMacOSRomanStringEncoding"]) 
+  {
+  return NSMacOSRomanStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSNEXTSTEPStringEncoding"]) 
+  {
+  return NSNEXTSTEPStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSNonLossyASCIIStringEncoding"]) 
+  {
+  return NSNonLossyASCIIStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSUTF8StringEncoding"]) 
+  {
+  return NSUTF8StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSUnicodeStringEncoding"]) 
+  {
+  return NSUnicodeStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSWindowsCP1253StringEncoding"]) 
+  {
+  return NSWindowsCP1253StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSWindowsCP1252StringEncoding"]) 
+  {
+  return NSWindowsCP1252StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSWindowsCP1254StringEncoding"]) 
+  {
+  return NSWindowsCP1254StringEncoding;
+  }
+  [NSException raise:NSInvalidArgumentException 
+  format:@"%s: does not know about '%s'",
+  __PRETTY_FUNCTION__, encodingName];  
+  return 0; // to make gcc happy
+*/
+}
+
 @end

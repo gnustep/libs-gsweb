@@ -1,6 +1,6 @@
 /** GSWDynamicElement.m - <title>GSWeb: Class GSWDynamicElement</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -63,18 +63,22 @@ RCS_ID("$Id$")
 }
 
 @end
+
 //====================================================================
 @implementation GSWDynamicElement (GSWDynamicElement)
 
 //--------------------------------------------------------------------
--(BOOL)evaluateCondition:(id)condition
-               inContext:(GSWContext*)context
+-(BOOL)		evaluateCondition:(id)condition
+                        inContext:(GSWContext*)context
+    noConditionAssociationDefault:(BOOL)noConditionAssociationDefault
+               noConditionDefault:(BOOL)noConditionDefault
 {
   //OK
-  BOOL result=NO;
+  BOOL result=noConditionAssociationDefault;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"condition_=%@",
-               condition);
+  NSDebugMLLog(@"gswdync",@"condition_=%@ noConditionAssociationDefault=%s noConditionDefault=%s",
+               condition,(noConditionAssociationDefault ? "YES" : "NO"),
+               (noConditionDefault ?  "YES" : "NO"));
   if (condition)
     {
       GSWComponent* component=[context component];
@@ -86,10 +90,27 @@ RCS_ID("$Id$")
           NSDebugMLLog(@"gswdync",@"unsignedCharValue=%d",(int)[value unsignedCharValue]);
         };
 #endif
-      result=boolValueWithDefaultFor(value,YES);
+      result=boolValueWithDefaultFor(value,noConditionDefault);
     };
-  NSDebugMLLog(@"gswdync",@"result=%s",
-               (result ? "YES" : "NO"));
+  NSDebugMLLog(@"gswdync",@"condition_=%@ noConditionAssociationDefault=%s noConditionDefault=%s ==> result=%s",
+               condition,(noConditionAssociationDefault ? "YES" : "NO"),
+               (noConditionDefault ?  "YES" : "NO"),(result ? "YES" : "NO"));
+  LOGObjectFnStop();
+  return result;
+};
+
+//--------------------------------------------------------------------
+-(BOOL)evaluateCondition:(id)condition
+               inContext:(GSWContext*)context
+{
+  BOOL result=NO;
+  LOGObjectFnStart();
+  
+  result=[self 	evaluateCondition:condition
+                inContext:context
+                noConditionAssociationDefault:NO
+                noConditionDefault:YES];
+  
   LOGObjectFnStop();
   return result;
 };

@@ -406,4 +406,15 @@ typedef enum _NSNumFmtType
                                     range: (NSRange)searchRange;
 @end
 
+//====================================================================
+// this should be in Gnustep base / extensions
+
+@interface NSString (EncodingDataExt)
+
++ (id)stringWithContentsOfFile:(NSString *)path
+                      encoding:(NSStringEncoding)encoding;
+
++ (NSStringEncoding) encodingNamed:(NSString*) encodingName;
+@end
+
 #endif // _GSWebUtils_h__
