@@ -1,3 +1,45 @@
+2002-09-12   Manuel Guesdon <mguesdon@orange-concept.com>
+	== See coments http://wiki.gnustep.org/index.php/GNUstepWeb ==
+	* GSWeb/GSWConstants.h/.m:
+		o added GSWOPT_DefaultTemplateParser, 
+			GSWOPTValue_DefaultTemplateParser_XMLHTML,
+			GSWOPTValue_DefaultTemplateParser_XMLHTML_NOOMITTEDTAGS,
+			GSWOPTValue_DefaultTemplateParser_XML,
+			GSWOPTValue_DefaultTemplateParser_ANTLR
+	* GSWeb/GSWApplication.h/.m:
+		o handle new options GSWApplicationMainReal()
+		o added +defaultTemplateParser
+		o added +setDefaultTemplateParser:
+	* GSWeb/GSWTemplateParser.h/.m:
+		o added GSWTemplateParserType
+		o removed GSWTemplateParser_DefaultParserClass
+		o removed +setDefaultParserClassName:
+		o changed +templateNamed:...
+		o +templateParserTypeFromString:
+		o added +defaultTemplateParserType
+	* GSWeb/GSWBundle.h/.m: 
+		o added -templateParserTypeForResourcesNamed:
+		o added ivar _templateParserTypeCache
+		o change +templateNamed:... call
+	* GSWeb/GSWConfig.h:
+		o removed GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME
+		o added GSWOPTVALUE_DefaultTemplateParser
+	* GSWeb/GSWeb..h:
+		o include templateparser before bundle
+	* GSWeb/GSWTemplateParserXML.h/.m
+		o added -setNoOmittedTags:
+		o changes in xml parsing calls
+		o allow null name gsweb/webobjects tags
+	* GSWExtensions.framework/GSWExceptionPage.html:
+		o replaced <br> by <br/>
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.html:
+		o replaced <br> by <br/>
+	* GSWExtensions.framework/GSWSessionCreationErrorPage.html
+		o replaced <br> by <br/>
+	* GSWeb.framework/GSWTemplateParser.m
+		o Don't raise exception if already processed .gswd 
+			in -parseDefinitionInclude:fromFrameworkNamed:processedFiles:
+
 2002-09-22  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* Makefile.postamble: install gsweb.make
