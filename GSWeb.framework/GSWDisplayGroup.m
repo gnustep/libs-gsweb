@@ -135,37 +135,51 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 -(NSString*)description
 {
-  NSString* _dscr=nil;
+  NSString* dscr=nil;
   GSWLogAssertGood(self);
   NSDebugMLLog(@"gswdisplaygroup",@"GSWDisplayGroup description Self=%p",self);
-  _dscr=[NSString stringWithFormat:@"<%s %p - \n",
-				  object_get_class_name(self),
-				  (void*)self];
+  dscr=[NSString stringWithFormat:@"<%s %p - \n",
+                  object_get_class_name(self),
+                  (void*)self];
 
-  _dscr=[_dscr stringByAppendingFormat:@"numberOfObjectsPerBatch:[%d]\n",
-			   _numberOfObjectsPerBatch];
-  _dscr=[_dscr stringByAppendingFormat:@"fetchesOnLoad:[%s]\n",
-			   _flags.autoFetch ? "YES" : "NO"];
-  _dscr=[_dscr stringByAppendingFormat:@"validatesChangesImmediately:[%s]\n",
-			   _flags.validateImmediately ? "YES" : "NO"];
-  _dscr=[_dscr stringByAppendingFormat:@"selectsFirstObjectAfterFetch:[%s]\n",
-			   _flags.selectFirstObject ? "YES" : "NO"];
-  _dscr=[_dscr stringByAppendingFormat:@"localKeys:[%@]\n",
-			   _localKeys];
-  _dscr=[_dscr stringByAppendingFormat:@"dataSource:[%@]\n",
-			   _dataSource];
-  _dscr=[_dscr stringByAppendingFormat:@"sortOrdering:[%@]\n",
-			   _sortOrdering];
-  _dscr=[_dscr stringByAppendingFormat:@"qualifier:[%@]\n",
-			   _qualifier];
-  _dscr=[_dscr stringByAppendingFormat:@"formatForLikeQualifier:[%@]\n",
-			   _defaultStringMatchFormat];
-  _dscr=[_dscr stringByAppendingFormat:@"insertedObjectDefaultValues:[%@]\n",
-			   _insertedObjectDefaultValues];
-  _dscr=[_dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
-			   _queryOperator];
-
-  return _dscr;
+  dscr=[dscr stringByAppendingFormat:@"numberOfObjectsPerBatch:[%d]\n",
+               _numberOfObjectsPerBatch];
+  dscr=[dscr stringByAppendingFormat:@"fetchesOnLoad:[%s]\n",
+               _flags.autoFetch ? "YES" : "NO"];
+  dscr=[dscr stringByAppendingFormat:@"validatesChangesImmediately:[%s]\n",
+               _flags.validateImmediately ? "YES" : "NO"];
+  dscr=[dscr stringByAppendingFormat:@"selectsFirstObjectAfterFetch:[%s]\n",
+               _flags.selectFirstObject ? "YES" : "NO"];
+  dscr=[dscr stringByAppendingFormat:@"localKeys:[%@]\n",
+               _localKeys];
+  dscr=[dscr stringByAppendingFormat:@"dataSource:[%@]\n",
+               _dataSource];
+  dscr=[dscr stringByAppendingFormat:@"sortOrdering:[%@]\n",
+               _sortOrdering];
+  dscr=[dscr stringByAppendingFormat:@"qualifier:[%@]\n",
+               _qualifier];
+  dscr=[dscr stringByAppendingFormat:@"formatForLikeQualifier:[%@]\n",
+               _defaultStringMatchFormat];
+  dscr=[dscr stringByAppendingFormat:@"insertedObjectDefaultValues:[%@]\n",
+               _insertedObjectDefaultValues];
+  dscr=[dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
+               _queryOperator];
+  dscr=[dscr stringByAppendingFormat:@"queryMatch:[%@]\n",
+               _queryMatch];
+  dscr=[dscr stringByAppendingFormat:@"queryMin:[%@]\n",
+               _queryMin];
+  dscr=[dscr stringByAppendingFormat:@"queryMax:[%@]\n",
+               _queryMax];
+  dscr=[dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
+               _queryOperator];
+  dscr=[dscr stringByAppendingFormat:@"defaultStringMatchOperator:[%@]\n",
+               _defaultStringMatchOperator];
+  dscr=[dscr stringByAppendingFormat:@"defaultStringMatchFormat:[%@]\n",
+               _defaultStringMatchFormat];
+  dscr=[dscr stringByAppendingFormat:@"queryBindings:[%@]\n",
+               _queryBindings];
+  dscr=[dscr stringByAppendingString:@">"];
+  return dscr;
 };
 
 
@@ -1816,6 +1830,7 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 		  ofObject:masterObject];
       if ([self fetchesOnLoad])
         {
+          NSDebugMLLog(@"gswdisplaygroup",@"will fetch");
           [self fetch];
         };
     };
@@ -1844,6 +1859,7 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 //self selectedObjects
 // self updateDisplayedObjects
   NSDebugMLog(@"objects=%@",objects);
+
   [_allObjects removeAllObjects];
   [_allObjects addObjectsFromArray:objects];
 
@@ -2053,6 +2069,7 @@ STOP ?
       else
         {
           _batchIndex = [self batchCount];
+          NSDebugMLog(@"_batchIndex=%d",_batchIndex);
           [self displayNextBatch];
         }
       

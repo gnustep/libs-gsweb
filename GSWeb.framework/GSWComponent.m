@@ -430,8 +430,13 @@ associationsKeys:(NSArray*)associationsKeys
                                inComponent:self];
               /*//MGNEW [self setIVarNamed:aKey
                 withValue:aValue];*/
+#if GDL2 // GDL2 implementation
+              [self smartTakeValue:aValue
+                    forKey:aKey];
+#else
               [self takeValue:aValue
                     forKey:aKey];
+#endif
             };
         };
     };
@@ -838,7 +843,7 @@ associationsKeys:(NSArray*)associationsKeys
           {
           NS_DURING
               {
-		[self takeValue:value_ 
+		[self smartTakeValue:value_ 
                   forKey:parentBindingName_];
                }
 	      NS_HANDLER;

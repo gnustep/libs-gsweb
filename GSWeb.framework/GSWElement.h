@@ -66,6 +66,7 @@ extern BYTE ElementsMap_attributeElement;
 #endif
 
 -(NSString*)definitionName;
+-(void)setDefinitionName:(NSString*)definitionName;
 @end
 
 #ifdef NDEBBUG

@@ -402,7 +402,7 @@ objectForReference:(NSString*)keyPath
                          variableValue,
                          variableValue,
                          [variableValue retainCount]);
-            [object_ takeValue:variableValue
+            [object_ smartTakeValue:variableValue
                      forKey:variableName];
             NSDebugMLLog(@"bundles",@"AFT variableValue %p:%@ [RC=%d]",
                          variableValue,

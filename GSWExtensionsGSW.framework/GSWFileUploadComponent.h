@@ -26,7 +26,7 @@
 //====================================================================
 @interface GSWFileUploadComponent : GSWComponent
 {
-  NSMutableDictionary* _fileInfo;
+  NSMutableDictionary* _tmpFileInfo;
 };
 -(id)init;
 -(void)dealloc;

@@ -42,6 +42,8 @@ static char rcsId[] = "$Id$";
   DESTROY(_exception);
   GSWLogC("Dealloc GSWExceptionPage reasons\n");  
   DESTROY(_reasons);
+  GSWLogC("Dealloc GSWExceptionPage reference\n");  
+  DESTROY(_reference);
   GSWLogC("Dealloc GSWExceptionPage super\n");  
   [super dealloc];
   GSWLogC("Dealloc GSWExceptionPage end\n");  
@@ -49,6 +51,10 @@ static char rcsId[] = "$Id$";
 
 -(void)awake
 {
+  if (!_reference)
+    {
+      ASSIGN(_reference,[NSCalendarDate calendarDate]);
+    }
   [super awake];
 };
 
@@ -86,5 +92,10 @@ static char rcsId[] = "$Id$";
       return [(NSArray*)_tmpUserInfoValue componentsJoinedByString:@"\n"];
   else
     return _tmpUserInfoValue;
+}
+
+-(NSString*)referenceString
+{
+  return _reference;
 }
 @end

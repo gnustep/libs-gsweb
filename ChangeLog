@@ -1,4 +1,35 @@
-2002-05-xx  Manuel Guesdon <mguesdon@orange-concept.com>
+2002-06-03  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWBundle.m:
+		o use smartTakeValue:forKey: instead of takeValue:forKey:
+	* GSWeb.framework/GSWAssociation.m:
+		o use smartTakeValue:forKeyPath: instead of takeValue:forKeyPath:
+	* GSWeb.framework/GSWComponent.m:
+		o use smartTakeValue:forKey: instead of takeValue:forKey:
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o changes in -description
+		o logs
+	* GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.gswd: 
+		o added "reference"
+	* GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.html: 
+		o added "reference"
+	* GSWExtensions.framework/French.lproj/GSWExceptionPage.gswc/GSWExceptionPage.html: 
+		o added "reference"
+	* GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.h/.m: 
+		o added "reference"
+	* GSWExtensionsGSW.framework/GSWFileUploadComponent.h/.m:
+		o bug fixes
+	* GSWExtensionsGSW.framework/GSWFileUploadComponent.gswc/GSWFileUploadComponent.gswd:
+		o added Height & With parameters for images
+	* GSWExtensionsGSW.framework/GSWFileUploadComponent.gswc/GSWFileUploadComponent.html:
+		o added delete check box title
+	* GSWeb.framework/GSWElement.m:
+		o logs
+	* GSWeb.framework/GSWFileUpload.m:
+		o logs
+	* GSWeb.framework/GSWRequest.m:
+		o bug fix for uploaded files
+	
+2002-05-16  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWTextField.m:
 		o added warning in _isFormattedValueInComponent:equalToFormattedValue:		
 		o added warning in takeValuesFromRequest:inContext:

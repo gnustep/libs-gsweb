@@ -51,6 +51,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   [super awake];
+  _tmpFileInfo=nil;
   LOGObjectFnStop();
 };
 
@@ -58,6 +59,7 @@ static char rcsId[] = "$Id$";
 -(void)sleep
 {
   LOGObjectFnStart();
+  _tmpFileInfo=nil;
   [super sleep];
   LOGObjectFnStop();
 };
@@ -65,7 +67,6 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(_fileInfo);
   [super dealloc];
 };
 
@@ -82,6 +83,7 @@ static char rcsId[] = "$Id$";
   [aResponse appendDebugCommentContentString:[[self fileInfo]description]];
   [super appendToResponse:aResponse
          inContext:aContext];
+  _tmpFileInfo=nil;
 };
 
 //--------------------------------------------------------------------
@@ -89,19 +91,20 @@ static char rcsId[] = "$Id$";
                    inContext:(GSWContext*)aContext
 {
   LOGObjectFnStart();
-  NSDebugMLog(@"fileInfo %@",_fileInfo);
+  NSDebugMLog(@"fileInfo %@",_tmpFileInfo);
   [super takeValuesFromRequest:aRequest
          inContext:aContext];
-  NSDebugMLog(@"fileInfo.fileURL %@",[_fileInfo valueForKey:@"fileURL"]);
-  NSDebugMLog(@"fileInfo.fileName %@",[_fileInfo valueForKey:@"fileName"]);
-  NSDebugMLog(@"fileInfo.filePath %@",[_fileInfo valueForKey:@"filePath"]);
-  NSDebugMLog(@"fileInfo.data %p",[_fileInfo valueForKey:@"data"]);
-  NSDebugMLog(@"fileInfo.mimeType %@",[_fileInfo valueForKey:@"mimeType"]);
-  NSDebugMLog(@"fileInfo.isDeleted %@",[_fileInfo valueForKey:@"isDeleted"]);
-  if ([[_fileInfo valueForKey:@"data"]length]>0 || boolValueWithDefaultFor([_fileInfo valueForKey:@"isDeleted"],NO))
-    [self setValue:_fileInfo
+  NSDebugMLog(@"fileInfo.fileURL %@",[_tmpFileInfo valueForKey:@"fileURL"]);
+  NSDebugMLog(@"fileInfo.fileName %@",[_tmpFileInfo valueForKey:@"fileName"]);
+  NSDebugMLog(@"fileInfo.filePath %@",[_tmpFileInfo valueForKey:@"filePath"]);
+  NSDebugMLog(@"fileInfo.data %p",[_tmpFileInfo valueForKey:@"data"]);
+  NSDebugMLog(@"fileInfo.data length %d",(int)[[_tmpFileInfo valueForKey:@"data"] length]);
+  NSDebugMLog(@"fileInfo.mimeType %@",[_tmpFileInfo valueForKey:@"mimeType"]);
+  NSDebugMLog(@"fileInfo.isDeleted %@",[_tmpFileInfo valueForKey:@"isDeleted"]);
+  if ([[_tmpFileInfo valueForKey:@"data"]length]>0 || boolValueWithDefaultFor([_tmpFileInfo valueForKey:@"isDeleted"],NO))
+    [self setValue:_tmpFileInfo
           forBinding:@"fileInfo"];
-  DESTROY(_fileInfo);
+  _tmpFileInfo=nil;
   LOGObjectFnStop();
 };
 
@@ -109,17 +112,17 @@ static char rcsId[] = "$Id$";
 -(NSMutableDictionary*)fileInfo
 {
   LOGObjectFnStart();
-  if (!_fileInfo)
+  if (!_tmpFileInfo)
     {
       if ([self hasBinding:@"fileInfo"])
         {
-          _fileInfo=[[self valueForBinding:@"fileInfo"] mutableCopy];
-          if (!_fileInfo)
-            _fileInfo=[NSMutableDictionary new];
+          _tmpFileInfo=[[[self valueForBinding:@"fileInfo"] mutableCopy] autorelease];
+          if (!_tmpFileInfo)
+            _tmpFileInfo=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         };
     };
   LOGObjectFnStop();
-  return _fileInfo;
+  return _tmpFileInfo;
 };
 
 //--------------------------------------------------------------------

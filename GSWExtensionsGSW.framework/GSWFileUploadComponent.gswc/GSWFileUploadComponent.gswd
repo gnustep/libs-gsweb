@@ -29,12 +29,16 @@ ImageWithPath: GSWImage
 {
     filename = fileInfo.filePath;
     border = 0;
+    width = ^imageWidth;
+    height = ^imageHeight;
 };
 
 ImageWithURL: GSWImage
 {
     src = fileInfo.fileURL;
     border = 0;
+    width = ^imageWidth;
+    height = ^imageHeight;
 };
 
 UploadFile: GSWFileUpload
@@ -70,4 +74,9 @@ DeleteCheckBox: GSWCheckBox
 {
 	enabled=isDeleteEnabled;
 	checked= fileInfo.isDeleted;
+};
+
+DeleteCheckBoxTitle: GSWString
+{
+	value = ^deleteCheckBoxText;
 };

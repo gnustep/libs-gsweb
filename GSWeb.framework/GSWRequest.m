@@ -1390,17 +1390,27 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 	  if (!_headersEnd)
 		{
 		  //TODO error
+                  NSDebugMLog(@"Error");
 		}
 	  else
 		{
-		  NSDebugMLLog(@"requests",@"i=%d",i);
+		  NSDebugMLLog(@"requests",@"i=%d _dataLength=%d _dataLength-i=%d",i,_dataLength,(_dataLength-i));
 		  _data=[data_ subdataWithRange:NSMakeRange(i,_dataLength-i)];
+                  //I'm not sure this is good but it avoid 2 bytes datas on an empty input type=file located t the end of the request)
+                  //It may be better to deal with this few lines up, around (_headersEnd=YES;)
+
+                  if ([_data length]==2)
+                    {
+                      const unsigned char* _bytes=(unsigned char*)[_data bytes];
+                      if (_bytes[0]=='\r' && _bytes[1]=='\n')
+                        _data=[NSData data];
+                    };
 		};
 	  _headers=[NSDictionary dictionaryWithDictionary:_headers];
 	  _parsedData=[NSArray arrayWithObjects:_headers,_data,nil];
 	  NSDebugMLLog(@"requests",@"_headers=%@",_headers);
-	  NSDebugMLLog(@"requests",@"_data=%@",_data);
-	  NSDebugMLLog(@"requests",@"_parsedData=%@",_parsedData);
+	  NSDebugMLLog(@"requests",@"_data %p (length=%d)=%@",_data,[_data length],_data);
+	  NSDebugMLLog(@"requests",@"_parsedData %p =%@",_parsedData,_parsedData);
 	};
   LOGObjectFnStop();
   return _parsedData;

@@ -763,7 +763,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if (keyPath)
     {
 #if GDL2
-      [object takeValue:value
+      [object smartTakeValue:value
               forKeyPath:keyPath];
 #else
       NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];

@@ -35,6 +35,7 @@
 
   NSException* _exception;
   NSArray* _reasons;
+  id _reference;
 };
 
 -(void)dealloc;
@@ -42,6 +43,7 @@
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 -(void)setException:(NSException*)exception;
+-(NSString*)referenceString;
 @end
 
 #endif // _GSWExceptionPage_h__

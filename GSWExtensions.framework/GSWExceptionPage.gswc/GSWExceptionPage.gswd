@@ -18,6 +18,13 @@ ApplicationNameString: GSWString
     escapeHTML = NO;
 }
 
+ReferenceString: GSWString
+{
+    value = referenceString;
+    escapeHTML = YES;
+    convertHTMLEntities = YES;
+}
+
 ExceptionNameString: GSWString
 {
     value = exception.name;

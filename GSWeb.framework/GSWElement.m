@@ -60,20 +60,22 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                                   line:(int)line
 {
   LOGObjectFnStartC("GSWElement");  
-  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
+/*  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
               self,
               [self class],
               [self definitionName],
               _appendToResponseElementID,[_appendToResponseElementID length]);
+*/
   [self assertIsElementIDInContext:context
         method:method
         file:file
         line:line];
-  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
+/*  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
               self,
               [self class],
               [self definitionName],
               _appendToResponseElementID,[_appendToResponseElementID length]);
+*/
   if ([_appendToResponseElementID length]>0)
     {
       NSString* elementID=[context elementID];
@@ -116,10 +118,11 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                              line:(int)line
 {
   LOGObjectFnStartC("GSWElement");
-  NSDebugMLog(@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
+/*  NSDebugMLog(@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
               self,
               [self definitionName],
               _appendToResponseElementID,_appendToResponseElementID,[context elementID]);
+*/
   if (_appendToResponseElementID && [_appendToResponseElementID length]==0 && [[context elementID] length]>0)
     {
       NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ definitionName=%@ (file %s line %d), in %@ _appendToResponseElementID '%@' (%p) is not set",

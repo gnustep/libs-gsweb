@@ -145,8 +145,8 @@ static char rcsId[] = "$Id$";
               if (fileDatasCount==1) 
                 {
                   dataValue=[fileDatas objectAtIndex:0];
-                  NSDebugMLLog(@"gswdync",@"dataValue (class=%@)=%@",
-                               [dataValue class],dataValue);
+                  NSDebugMLLog(@"gswdync",@"dataValue %p (class=%@)=%@",
+                               dataValue,[dataValue class],dataValue);
                   if (dataValue)
                     {
                       if ([dataValue isKindOfClass:[NSData class]])
@@ -161,12 +161,16 @@ static char rcsId[] = "$Id$";
                           if ([dataValue isKindOfClass:[NSString class]] && [dataValue length]==0)
                             {
                               LOGError(@"No Data: %@",dataValue);
+                              NSDebugMLLog(@"gswdync",@"No Data: %p (class=%@)=%@",
+                                           dataValue,[dataValue class],dataValue);
                               dataValue=nil;
                             }
                           else
                             {
                               NSLog(@"content type request : %@",[request _contentType]);
                               NSLog(@"data class = %@",NSStringFromClass([dataValue class]));
+                              NSDebugMLLog(@"gswdync",@"??Data: %p (class=%@)=%@",
+                                           dataValue,[dataValue class],dataValue);
                               /*if (![dataValue isMemberOfClass:[NSString class]]) {
                                 ExceptionRaise(@"GSWFileUpload",
                                 @"GSWFileUpload: bad data :%@",
