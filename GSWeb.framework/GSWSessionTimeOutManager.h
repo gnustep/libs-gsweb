@@ -56,6 +56,8 @@
 -(void)removeCallBack;
 -(void)setCallBack:(SEL)callback
             target:(id)target;
+-(BOOL)tryLockBeforeTimeIntervalSinceNow:(NSTimeInterval)ti;
+-(void)lockBeforeTimeIntervalSinceNow:(NSTimeInterval)ti;
 -(void)lock;
 -(void)unlock;
 // Must not be locked
