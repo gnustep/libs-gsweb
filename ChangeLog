@@ -3,6 +3,9 @@
 	* GSWeb.framework/GSUtils.m (boolValueWithDefaultFor): Do not
 	reimplement defaults bool evaluation semantics differently from
 	-base / Foundation.
+	* GSWeb.framework/GSWDeclarationParser.m (-[tryParseBoolean]):
+	Make more robust and allow upper and lower case variants and
+	single letter variants of both YES/NO and true/false.
 	
 2004-06-14  David Wetzel  <dave@turbocat.de>
 	

@@ -37,12 +37,13 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 
 #include "GSWDeclarationParser.h"
+#include <GNUstepBase/Unicode.h>
 
 static inline BOOL _parserIsIdentifierChar(unichar c)
 {
   switch(c)
     {
-      case ' ':
+    case ' ':
     case '\t':
     case '\f':
     case '\r':
@@ -537,67 +538,96 @@ Returns a NSString
 };
 
 //--------------------------------------------------------------------
-/** Try to Parse a boolean (Y/N/YES/NO value
-Index should be on the value first character
-Returns a NSString
+/** Try to Parse a boolean (Y/N/YES/NO/T/F/TRUE/FALSE value.
+Index should be on the value first character.
+Returns an NSNumber.
 **/
--(NSNumber*)tryParseBoolean
+- (NSNumber *)tryParseBoolean
 {
-  id value=nil;
-  NSAssert(_index<_length,@"Reached buffer end parsing boolean");
+  id value = nil;
+  NSAssert(_index<_length, @"Reached buffer end parsing boolean");
 
-  //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+  //ParserDebugLogBuffer(_uniBuf, _length, _index, 20);
 
   // Test if it is Y/YES or N/NO
-  if (_uniBuf[_index]=='Y' || _uniBuf[_index]=='N')
+  if (uni_toupper(_uniBuf[_index]) == 'Y' 
+      || uni_toupper(_uniBuf[_index]) == 'T'
+      || uni_toupper(_uniBuf[_index]) == 'N'
+      || uni_toupper(_uniBuf[_index]) == 'F')
     {
-      int i=(_index)+1;
-      while(i<_length
+      int i = (_index)+1;
+      while(i < _length
             && _parserIsIdentifierChar(_uniBuf[i]))
-        i++;
+	{
+	  i++;
+	}
+
       switch(i-_index)
         {
-        case 1:
-          if (_uniBuf[(_index)]=='Y')
-            {
-              value=[NSNumber numberWithBool:YES];
-              _index++;
-            }
-          else if (_uniBuf[(_index)]=='N')
-            {
-              value=[NSNumber numberWithBool:NO];
-              _index++;
-            };
-          break;
-        case 2:
-          if (_uniBuf[(_index)+1]=='O')
-            {
-              value=[NSNumber numberWithBool:NO];
-              _index+=2;
-            };
-          break;
-        case 3:
-          if (_uniBuf[(_index)+1]=='E'
-              && _uniBuf[(_index)+2]=='S')
-            {
-              value=[NSNumber numberWithBool:YES];
-              _index+=3;
-            };
-          break;
-        };
-    } 
-  else if (_uniBuf[_index]=='t' || _uniBuf[_index]=='f')  // true/false
-	{
-	  if (((_uniBuf[(_index)]=='t') && (_uniBuf[(_index)+1]=='r')) && 
-		  ((_uniBuf[(_index)+2]=='u') && (_uniBuf[(_index)+3]=='e'))) {
-		  value=[NSNumber numberWithBool:YES];
-		  _index+=4;
-	  } else if ((((_uniBuf[(_index)]=='f') && (_uniBuf[(_index)+1]=='a')) && 
-				 ((_uniBuf[(_index)+2]=='l') && (_uniBuf[(_index)+3]=='s'))) && (_uniBuf[(_index)+3]=='e')) {
-		  value=[NSNumber numberWithBool:NO];
-		  _index+=5;
-	  }
-	}
+	  case 1:
+	    {
+	      if (uni_toupper(_uniBuf[(_index)]) == 'Y'
+		  || uni_toupper(_uniBuf[(_index)]) == 'T')
+		{
+		  value = [NSNumber numberWithBool: YES];
+		  _index++;
+		}
+	      else if (uni_toupper(_uniBuf[(_index)]) == 'N'
+		       || uni_toupper(_uniBuf[(_index)]) == 'F')
+		{
+		  value = [NSNumber numberWithBool: NO];
+		  _index++;
+		}
+	      break;
+	    }
+	  case 2:
+	    {
+	      if (uni_toupper(_uniBuf[(_index)]) == 'N'
+		  && uni_toupper(_uniBuf[(_index)+1]) == 'O')
+		{
+		  value = [NSNumber numberWithBool: NO];
+		  _index += 2;
+		}
+	      break;
+	    }
+	  case 3:
+	    {
+	      if (uni_toupper(_uniBuf[(_index)]) == 'Y'
+		  && uni_toupper(_uniBuf[(_index)+1]) == 'E'
+		  && uni_toupper(_uniBuf[(_index)+2]) == 'S')
+		{
+		  value = [NSNumber numberWithBool: YES];
+		  _index += 3;
+		}
+	      break;
+	    }
+	  case 4:
+	    {
+	      if (uni_toupper(_uniBuf[(_index)]) == 'T'
+		  && uni_toupper(_uniBuf[(_index)+1]) == 'R'
+		  && uni_toupper(_uniBuf[(_index)+2]) == 'U'
+		  && uni_toupper(_uniBuf[(_index)+3]) == 'E')
+		{
+		  value = [NSNumber numberWithBool: YES];
+		  _index += 4;
+		}
+	      break;
+	    }
+	  case 5:
+	    {
+	      if (uni_toupper(_uniBuf[(_index)]) == 'F'
+		  && uni_toupper(_uniBuf[(_index)+1]) == 'A'
+		  && uni_toupper(_uniBuf[(_index)+2]) == 'L'
+		  && uni_toupper(_uniBuf[(_index)+3]) == 'S'
+		  && uni_toupper(_uniBuf[(_index)+4]) == 'E')
+		{
+		  value = [NSNumber numberWithBool: NO];
+		  _index += 5;
+		}
+	      break;
+	    }
+        }
+    }
   NSDebugMLog(@"value=%@",value);
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);  
   return value;
