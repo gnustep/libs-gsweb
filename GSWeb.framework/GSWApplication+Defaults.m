@@ -47,12 +47,16 @@ static NSUserDefaults *_userDefaults = nil;
    The following class does not exist.  The declaration is merely used
    to aid the compiler to find the correct signatures for messages
    sent to the class and to avoid polluting the compiler output with
-   superfluous warnings.
+   superfluous warnings or actually using incorrect signatures.
 */
 @interface GSWAppClassDummy : NSObject
 - (NSString *)adaptor;
 - (NSString *)host;
 - (NSNumber *)port;
+- (NSNumber *)sessionTimeOut;
+- (void)setSessionTimeOut:(NSNumber *)aTimeOut;
++ (NSNumber *)sessionTimeOut;
++ (void)setSessionTimeOut:(NSNumber *)aTimeOut;
 @end
 
 void
@@ -1472,9 +1476,11 @@ static NSNumber *_dflt_sessionTimeOut = nil;
 //--------------------------------------------------------------------
 +(void)setSessionTimeOutValue:(NSTimeInterval)aTimeOutValue
 {
+  id number=nil;
   LOGClassFnStart();
+  number = [NSNumber numberWithDouble: aTimeOutValue];
   NSDebugMLLog(@"sessions",@"aTimeOutValue=%f",aTimeOutValue);
-  [self setSessionTimeOut: [NSNumber numberWithDouble: aTimeOutValue]];
+  [(GSWAppClassDummy *)self setSessionTimeOut: number];
   LOGClassFnStop();
 };
 
@@ -1483,10 +1489,10 @@ static NSNumber *_dflt_sessionTimeOut = nil;
 {
   id sessionTimeOut=nil;
   LOGClassFnStart();
-  sessionTimeOut=[self sessionTimeOut];
+  sessionTimeOut=[(GSWAppClassDummy *)self sessionTimeOut];
   NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",sessionTimeOut);
   LOGClassFnStop();
-  return (NSTimeInterval)[sessionTimeOut doubleValue];
+  return [sessionTimeOut doubleValue];
 };
 
 //--------------------------------------------------------------------

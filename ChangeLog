@@ -1,3 +1,11 @@
+2004-11-26  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication+Defaults.m (GSWAppClassDummy):
+	Added method declarations to help various compiler versions
+	identify the correct signaure to use.
+	(+[GSWApplication setSessionTimeOutValue:]): Use it.
+	(+[GSWApplication sessionTimeOutValue]); Ditto.
+	
 2005-03-22  Manuel Guesdon <mguesdon@orange-concept.com>
         * GSWeb.framework/GSWBrowser.m
 		o fixed double HTML escaping bug (reported by David Ayers)
