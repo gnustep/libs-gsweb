@@ -1,3 +1,52 @@
+2004-03-01   Manuel Guesdon <mguesdon@orange-concept.com>
+		
+	* GSWeb.framework/GSWApplication.m:
+		o typo fix in _resetCache
+	* GSWeb.framework/GSWMessage.h/.m:
+		o added methods for element/component caching
+	* GSWeb.framework/GSWHTMLDynamicElement.h/.m:
+		o added -computeActionStringWithActionClassAssociation:
+			directActionNameAssociation:pathQueryDictionaryAssociation:
+			otherPathQueryAssociations:inContext:
+	* GSWeb.framework/GSWHyperlink.h/m:
+		o added _pathQueryDictionary and _pathQueryDictionary handling
+	* GSWeb.framework/GSWConstants.h/.m:
+		o added pathQueryDictionary__Key
+	* GSWeb.framework/GSWMultiKeyDictionary.m:
+		o fixes
+		o logs
+	* GSWeb.framework/GSWSwitchComponent.m:
+		o improved exception description in 
+			-_realComponentWithName:inContext:
+	* GSWeb.framework/GSWHTMLDynamicElement.h/.m:
+		o moved GSWHTMLURLValuedElement cid part here
+	* GSWeb.framework/GSWHTMLURLValuedElement.h/.m:
+		o moved cid part to GSWHTMLDynamicElement
+	* GSWeb.framework/GSWImageButton.h/.m:
+		o handle cidStore and cidKey
+	* GSWeb.framework/GSWForm.h/.m: added fragment handling
+	* GSWeb.framework/GSWContext.h/.m: added -contextAndElementID;
+	* GSWElementIDString.m: 
+		o fix in -incrementLastElementIDComponent when incrementing elementID 
+			whose last part is a componentID (i.e. not a number)
+		o cache nonNumericSet object
+		o rewritten -isSearchOverForSenderID: to handle number appending to 
+			string element
+		o added a warning in -appendElementIDComponent: to warn about adding 
+			element which ends with decimal character
+	* GSWHTMLStaticElement.m: logs
+	* GSWForm.m: cleaning
+	* GSWComponent.m: implemented -validateValue:forKey:
+
+	* GSWeb.framework/GNUmakefile: removed GSCache.*
+	* GSWeb.framework/GSCache.h/.m: removed
+		(use GSWCache now)
+	* GSWeb.framework/GSWeb.h: removed GSCache stuff
+	* GSWExtensions.framework/GSWKeyValueConditional.m:
+		o fix
+	* GSWExtensionsGSW.framework/GNUmakefile:
+		o GSWCacheElement.m 	
+
 2004-02-27  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWUtils.h (NSTimeIntervalSleep): Declare.
