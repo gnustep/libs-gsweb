@@ -57,7 +57,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCharactersNoCopy:chars
                                    length:length
@@ -76,7 +76,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCharacters:chars
                                    length:length];
@@ -94,7 +94,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCStringNoCopy:byteString
                                    length:length
@@ -112,7 +112,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCString:byteString
                                    length:length];
@@ -132,7 +132,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       NSDebugMLLog(@"low",@"byteString=%s",byteString);
       _url=[[NSMutableString alloc]initWithCString:byteString];
@@ -150,7 +150,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithString:string];
       if (string)
@@ -165,7 +165,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       va_list ap;
       va_start(ap,format);
@@ -184,7 +184,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithFormat:format
                                    arguments:argList];
@@ -200,7 +200,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithData:data
                                    encoding:encoding];
@@ -216,7 +216,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super init]))
+  //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithContentsOfFile:path];
       [self _parse];
@@ -241,7 +241,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithCoder:(NSCoder*)coder
 {
-  if ((self = [self init]))
+  //We are a primitive ! if ((self = [self init]))
     {
       [coder decodeValueOfObjCType:@encode(id)
              at:&_url];
@@ -256,6 +256,31 @@ RCS_ID("$Id$")
 {
   [self _compose];
   [coder encodeObject:_url];
+};
+
+//--------------------------------------------------------------------
+- (unsigned) length
+{
+  [self _compose];
+  return [_url length];
+};
+
+//--------------------------------------------------------------------
+- (unichar) characterAtIndex: (unsigned)index
+{
+  [self _compose];
+  return [_url characterAtIndex:index];
+};
+
+//--------------------------------------------------------------------
+- (void) replaceCharactersInRange: (NSRange)range 
+		       withString: (NSString*)aString
+{
+  LOGObjectFnStart();
+  [self _compose];
+  [_url replaceCharactersInRange:range
+        withString:aString];
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
