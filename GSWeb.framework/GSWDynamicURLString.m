@@ -485,6 +485,7 @@ static SEL appendStringSel = NULL;
           (*_urlASImp)(_url,appendStringSel,@"?");
           (*_urlASImp)(_url,appendStringSel,_queryString);
         };
+        _flags.composed=YES;
       //NSDebugMLLog(@"low",@"url %@ class=%@",_url,[_url class]);
     };
 };
@@ -863,6 +864,10 @@ static SEL appendStringSel = NULL;
 //--------------------------------------------------------------------
 -(void)setURLApplicationName:(NSString*)aString
 {
+  if (_applicationName==aString) {
+    return;
+  }
+
   LOGObjectFnStart();
   ASSIGN(_applicationName,aString);
   _flags.beginningComposed=NO;
@@ -873,6 +878,10 @@ static SEL appendStringSel = NULL;
 //--------------------------------------------------------------------
 -(void)setURLPrefix:(NSString*)aString
 {
+  if (_prefix==aString) {
+    return;
+  }
+
   LOGObjectFnStart();
   ASSIGN(_prefix,aString);
   _flags.beginningComposed=NO;
@@ -884,6 +893,10 @@ static SEL appendStringSel = NULL;
 //NDFN
 -(void)setURLProtocol:(NSString*)aString
 {
+  if (_protocol==aString) {
+    return;
+  }
+
   LOGObjectFnStart();
   ASSIGN(_protocol,aString);
   _flags.beginningComposed=NO;
@@ -895,6 +908,10 @@ static SEL appendStringSel = NULL;
 //NDFN
 -(void)setURLHost:(NSString*)aString
 {
+  if (_host==aString) {
+    return;
+  }
+
   LOGObjectFnStart();
   ASSIGN(_host,aString);
   _flags.beginningComposed=NO;
@@ -906,8 +923,13 @@ static SEL appendStringSel = NULL;
 //NDFN
 -(void)setURLPortString:(NSString*)aString
 {
+  int myport = [aString intValue];
+
   LOGObjectFnStart();
-  _port=[aString intValue];
+  if (_port==myport) {
+    return;
+  }
+  _port=myport;
   _flags.beginningComposed=NO;
   _flags.composed=NO;
   LOGObjectFnStop();
@@ -917,6 +939,9 @@ static SEL appendStringSel = NULL;
 //NDFN
 -(void)setURLPort:(int)port
 {
+  if (_port==port) {
+  return;
+  }
   LOGObjectFnStart();
   _port=port;
   _flags.beginningComposed=NO;
