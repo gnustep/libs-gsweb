@@ -16,9 +16,11 @@ Mean of tags in the code:
 
 TODO
 ===============================
+* process GSWHTTPHeader_LoadAverage and GSWHTTPHeader_RefuseSessions headers in Adaptors
 * WebScript Interpreter
 * Verify dynamic libraries loading (which enable to use dynamic libraries as we 
 	can use WebScripts) and unloading.
+* Rewrite GSWElements template handling and storing
 ...
 ...
 
