@@ -1,6 +1,6 @@
 /** GSWDefaultAdaptorThread.m - <title>GSWeb: Class GSWDefaultAdaptorThread</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        Feb 1999
@@ -124,16 +124,19 @@ RCS_ID("$Id$")
   NSString* requestLine=nil;
   NSDictionary* headers=nil;
   NSData* data=nil;
-  ASSIGN(_runDate,[NSDate date]);
-  DESTROY(_dispatchRequestDate);
-  DESTROY(_sendResponseDate);
-#ifdef GSWDEBUG_DEEP
-  [GSWApplication statusLogWithFormat:@"Thread run START"];
-#endif
+
   _pool=[NSAutoreleasePool new];
   GSWLogMemCF("New NSAutoreleasePool: %p",_pool);
 #ifdef GSWDEBUG_DEEP
   [GSWApplication logWithFormat:@"pool allocated!"];
+#endif
+
+  ASSIGN(_runDate,[NSDate date]);
+  DESTROY(_dispatchRequestDate);
+  DESTROY(_sendResponseDate);
+
+#ifdef GSWDEBUG_DEEP
+  [GSWApplication statusLogWithFormat:@"Thread run START"];
 #endif
   if (_isMultiThread)
     {

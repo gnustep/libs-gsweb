@@ -1,3 +1,9 @@
+2004-03-03   Manuel Guesdon <mguesdon@orange-concept.com>
+		
+	* GSWeb.framework/GSWDefaultAdaptorThread.m:
+		o fix for autoreleasing runDate inr -run: (from 
+		S.J.Chun <chunsj@embian.com>)
+	
 2004-03-01   Manuel Guesdon <mguesdon@orange-concept.com>
 		
 	* GSWeb.framework/GSWApplication.m:
