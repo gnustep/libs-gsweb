@@ -72,7 +72,8 @@ member:
 	;
 
 mname: 
-        (QUESTIONMARK)? (IDENT)
+//        (QUESTIONMARK)? (IDENT)        
+        (QUESTIONMARK | EXCLAMATIONMARK)? (IDENT | STRING)
         ;
 
 //TODO unescapedString
@@ -201,6 +202,9 @@ ASSIGN:	'='
 	;
  
 QUESTIONMARK:	'?'	
+	;
+
+EXCLAMATIONMARK:	'!'	
 	;
 
 WS:
