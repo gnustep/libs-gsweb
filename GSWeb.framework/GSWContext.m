@@ -228,9 +228,9 @@ static int dontTraceComponentActionURL=0;
 
 //--------------------------------------------------------------------
 //	elementID
--(GSWElementIDString*)elementID 
+-(NSString*)elementID 
 {
-  return _elementID;
+  return [_elementID elementIDString];
 };
 
 //--------------------------------------------------------------------
@@ -239,7 +239,7 @@ static int dontTraceComponentActionURL=0;
 {
   return [NSString stringWithFormat:@"%u.%@",
                    _contextID,
-                   _elementID];
+                   [_elementID elementIDString]];
 };
 
 //--------------------------------------------------------------------
@@ -338,7 +338,7 @@ static int dontTraceComponentActionURL=0;
   if(GSDebugSet(@"GSWDocStructure"))
     {
       NSString* string=nil;
-      int elementIDNb=[[self elementID] elementsNb];
+      int elementIDNb=[_elementID elementsCount];
       NSMutableData* data=[NSMutableData dataWithCapacity:elementIDNb+1];
       char* ptab=(char*)[data bytes];
       if (!_docStructure)
@@ -1584,7 +1584,7 @@ If none, try request languages
 -(void)incrementLastElementIDComponent 
 {
   if (!_elementID)
-    _elementID=[GSWElementIDString new];
+    _elementID=[GSWElementID new];
   [_elementID incrementLastElementIDComponent];
 };
 
@@ -1595,7 +1595,7 @@ If none, try request languages
 -(void)appendElementIDComponent:(NSString*)string
 {
   if (!_elementID)
-    _elementID=[GSWElementIDString new];
+    _elementID=[GSWElementID new];
   [_elementID appendElementIDComponent:string];
 };
 
@@ -1604,7 +1604,7 @@ If none, try request languages
 -(void)appendZeroElementIDComponent 
 {
   if (!_elementID)
-    _elementID=[GSWElementIDString new];
+    _elementID=[GSWElementID new];
   [_elementID appendZeroElementIDComponent];
 };
 
@@ -1613,7 +1613,7 @@ If none, try request languages
 -(void)deleteAllElementIDComponents 
 {
   if (!_elementID)
-    _elementID=[GSWElementIDString new];
+    _elementID=[GSWElementID new];
   [_elementID deleteAllElementIDComponents];
 };
 
@@ -1622,8 +1622,26 @@ If none, try request languages
 -(void)deleteLastElementIDComponent 
 {
   if (!_elementID)
-    _elementID=[GSWElementIDString new];
+    _elementID=[GSWElementID new];
   [_elementID deleteLastElementIDComponent];
+};
+
+//--------------------------------------------------------------------
+-(BOOL)isParentSenderIDSearchOver
+{
+  return [_elementID isParentSearchOverForSenderID:_senderID];
+};
+
+//--------------------------------------------------------------------
+-(BOOL)isSenderIDSearchOver
+{
+  return [_elementID isSearchOverForSenderID:_senderID];
+};
+
+//--------------------------------------------------------------------
+-(int)elementIDElementsCount
+{
+  return [_elementID elementsCount];
 };
 
 @end
@@ -1706,3 +1724,4 @@ If none, try request languages
 };
 
 @end
+

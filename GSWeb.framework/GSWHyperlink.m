@@ -287,178 +287,177 @@ RCS_ID("$Id$")
   GSWComponent* component=[context component];
   BOOL disabledValue=NO;
   BOOL displayDisabledValue=YES;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
+
   LOGObjectFnStart();
+
   NS_DURING
     {
-  GSWStartElement(context);
-  GSWSaveAppendToResponseElementID(context);
-  if (_disabled)
-    disabledValue=[self evaluateCondition:_disabled
-                        inContext:context];
-  else if (_enabled)
-    disabledValue=![self evaluateCondition:_enabled
-                         inContext:context];
-
-  if (!WOStrictFlag && disabledValue && _displayDisabled)
-    {
-      displayDisabledValue=[self evaluateCondition:_displayDisabled
-                                 inContext:context];
-    };
-  if (!disabledValue)
-    {
-      [response _appendContentAsciiString:@"<A "];
-      [response _appendContentAsciiString:@"href"];
-      [response appendContentCharacter:'='];
-      [response appendContentCharacter:'"'];
-
-      if (_href)
+      GSWStartElement(context);
+      GSWSaveAppendToResponseElementID(context);
+      if (_disabled)
+        disabledValue=[self evaluateCondition:_disabled
+                            inContext:context];
+      else if (_enabled)
+        disabledValue=![self evaluateCondition:_enabled
+                             inContext:context];
+      
+      if (!WOStrictFlag && disabledValue && _displayDisabled)
         {
-          NSString* hrefValue=[self hrefInContext:context];
-          [response appendContentString:hrefValue];
-          if (!hrefValue)
+          displayDisabledValue=[self evaluateCondition:_displayDisabled
+                                     inContext:context];
+        };
+      if (!disabledValue)
+        {
+          [response _appendContentAsciiString:@"<A "];
+          [response _appendContentAsciiString:@"href"];
+          [response appendContentCharacter:'='];
+          [response appendContentCharacter:'"'];
+          
+          if (_href)
             {
-              LOGSeriousError(@"href=%@ shouldn't return a nil value",_href);
-            };
-          NSDebugMLLog(@"gswdync",@"href=%@",_href);
-          NSDebugMLLog(@"gswdync",@"hrefValue=%@",hrefValue);
-          [self _appendQueryStringToResponse:response
-                inContext:context];
-          [self _appendFragmentToResponse:response
-                inContext:context];
-        }
-      else if (_actionClass || _directActionName)
-        {
-          //OK
-          [self _appendCGIActionURLToResponse:response
-                inContext:context];
-        }
-      else if (_action || _pageName || _redirectURL)
-        {
-          //OK
-          NSString* anUrl=nil;
-          BOOL completeUrlsPreviousState=NO;
-          BOOL isSecure=NO;
-          BOOL requestIsSecure=[[context request]isSecure];
-
-          if (_secure)
-            isSecure=[self evaluateCondition:_secure
-                           inContext:context];
-          else
-            isSecure=requestIsSecure;
-
-          // Force complete URLs
-          if (isSecure!=requestIsSecure)
-            completeUrlsPreviousState=[context _generateCompleteURLs];
-          anUrl=(NSString*)[context componentActionURLIsSecure:isSecure];
-          NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
-          [response appendContentString:anUrl];
-          [self _appendQueryStringToResponse:response
-                inContext:context];
-          [self _appendFragmentToResponse:response
-                inContext:context];
-          if (isSecure!=requestIsSecure && !completeUrlsPreviousState)
-            [context _generateRelativeURLs];
-        }
-      else if (!WOStrictFlag && (_filename || _data))
-        {
-          NSString* anUrl=nil;
-          NSString* keyValue=nil;
-          id dataValue=nil;
-          id mimeTypeValue=nil;
-          GSWURLValuedElementData* urlValuedElementData=nil;
-          GSWResourceManager* resourceManager=nil;
-          resourceManager=[[GSWApplication application]resourceManager];
-          if (_key)
-            {
-              keyValue=[_key valueInComponent:component];
-              urlValuedElementData=[resourceManager _cachedDataForKey:keyValue];
-            };
-          if (!urlValuedElementData && _data)
-            {
-              dataValue=[_data valueInComponent:component];  
-              NSDebugMLLog(@"gswdync",@"dataValue=%@",dataValue);
-              mimeTypeValue=[_mimeType valueInComponent:component];
-              NSDebugMLLog(@"gswdync",@"mimeType=%@",_mimeType);
-              NSDebugMLLog(@"gswdync",@"mimeTypeValue=%@",mimeTypeValue);
-              urlValuedElementData=[[[GSWURLValuedElementData alloc] initWithData:dataValue
-                                                                     mimeType:mimeTypeValue
-                                                                     key:nil] autorelease];
-              NSDebugMLLog(@"gswdync",@"urlValuedElementData=%@",urlValuedElementData);
-              [resourceManager setURLValuedElementData:urlValuedElementData];
+              NSString* hrefValue=[self hrefInContext:context];
+              [response appendContentString:hrefValue];
+              if (!hrefValue)
+                {
+                  LOGSeriousError(@"href=%@ shouldn't return a nil value",_href);
+                };
+              NSDebugMLLog(@"gswdync",@"href=%@",_href);
+              NSDebugMLLog(@"gswdync",@"hrefValue=%@",hrefValue);
+              [self _appendQueryStringToResponse:response
+                    inContext:context];
+              [self _appendFragmentToResponse:response
+                    inContext:context];
             }
-          else if (_filename)
+          else if (_actionClass || _directActionName)
             {
-              id filenameValue=nil;
-              id frameworkValue=nil;
-              GSWRequest* request=nil;
-              NSArray* languages=nil;
-              NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
-              filenameValue=[_filename valueInComponent:component];
-              NSDebugMLLog(@"gswdync",@"filenameValue=%@",filenameValue);
-              frameworkValue=[self frameworkNameInContext:context];
-              NSDebugMLLog(@"gswdync",@"frameworkValue=%@",frameworkValue);
-              request=[context request];
-              languages=[context languages];
-              anUrl=[resourceManager urlForResourceNamed:filenameValue
-                                     inFramework:frameworkValue
-                                     languages:languages
-                                     request:request];
-            };
-          if (_key || _data)
-            {
-              [urlValuedElementData appendDataURLToResponse:response
-                                    inContext:context];
+              //OK
+              [self _appendCGIActionURLToResponse:response
+                    inContext:context];
             }
-          else if (_filename)
+          else if (_action || _pageName || _redirectURL)
             {
+              //OK
+              NSString* anUrl=nil;
+              BOOL completeUrlsPreviousState=NO;
+              BOOL isSecure=NO;
+              BOOL requestIsSecure=[[context request]isSecure];
+          
+              if (_secure)
+                isSecure=[self evaluateCondition:_secure
+                               inContext:context];
+              else
+                isSecure=requestIsSecure;
+
+              // Force complete URLs
+              if (isSecure!=requestIsSecure)
+                completeUrlsPreviousState=[context _generateCompleteURLs];
+              anUrl=(NSString*)[context componentActionURLIsSecure:isSecure];
+              NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
               [response appendContentString:anUrl];
-            };
-        }
-      else
-        {		  
-          [self _appendQueryStringToResponse:response
-                inContext:context];
-          [self _appendFragmentToResponse:response
-                inContext:context];
-        };
-      [response appendContentCharacter:'"'];
-      NSDebugMLLog(@"gswdync",@"otherAssociations=%@",_otherAssociations);
-      if (_otherAssociations)
-        {
-          NSEnumerator *enumerator = [_otherAssociations keyEnumerator];
-          id aKey=nil;
-          id oaValue=nil;
-          while ((aKey = [enumerator nextObject]))
+              [self _appendQueryStringToResponse:response
+                    inContext:context];
+              [self _appendFragmentToResponse:response
+                    inContext:context];
+              if (isSecure!=requestIsSecure && !completeUrlsPreviousState)
+                [context _generateRelativeURLs];
+            }
+          else if (!WOStrictFlag && (_filename || _data))
             {
-              NSDebugMLLog(@"gswdync",@"aKey=%@",aKey);
-              oaValue=[[_otherAssociations objectForKey:aKey] valueInComponent:component];
-              NSDebugMLLog(@"gswdync",@"oaValue=%@",oaValue);
-              [response appendContentCharacter:' '];
-              [response _appendContentAsciiString:aKey];
-              [response appendContentCharacter:'='];
-              [response appendContentCharacter:'"'];
-              [response appendContentHTMLString:oaValue];
-              [response appendContentCharacter:'"'];
+              NSString* anUrl=nil;
+              NSString* keyValue=nil;
+              id dataValue=nil;
+              id mimeTypeValue=nil;
+              GSWURLValuedElementData* urlValuedElementData=nil;
+              GSWResourceManager* resourceManager=nil;
+              resourceManager=[[GSWApplication application]resourceManager];
+              if (_key)
+                {
+                  keyValue=[_key valueInComponent:component];
+                  urlValuedElementData=[resourceManager _cachedDataForKey:keyValue];
+                };
+              if (!urlValuedElementData && _data)
+                {
+                  dataValue=[_data valueInComponent:component];  
+                  NSDebugMLLog(@"gswdync",@"dataValue=%@",dataValue);
+                  mimeTypeValue=[_mimeType valueInComponent:component];
+                  NSDebugMLLog(@"gswdync",@"mimeType=%@",_mimeType);
+                  NSDebugMLLog(@"gswdync",@"mimeTypeValue=%@",mimeTypeValue);
+                  urlValuedElementData=[[[GSWURLValuedElementData alloc] initWithData:dataValue
+                                                                         mimeType:mimeTypeValue
+                                                                         key:nil] autorelease];
+                  NSDebugMLLog(@"gswdync",@"urlValuedElementData=%@",urlValuedElementData);
+                  [resourceManager setURLValuedElementData:urlValuedElementData];
+                }
+              else if (_filename)
+                {
+                  id filenameValue=nil;
+                  id frameworkValue=nil;
+                  GSWRequest* request=nil;
+                  NSArray* languages=nil;
+                  NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
+                  filenameValue=[_filename valueInComponent:component];
+                  NSDebugMLLog(@"gswdync",@"filenameValue=%@",filenameValue);
+                  frameworkValue=[self frameworkNameInContext:context];
+                  NSDebugMLLog(@"gswdync",@"frameworkValue=%@",frameworkValue);
+                  request=[context request];
+                  languages=[context languages];
+                  anUrl=[resourceManager urlForResourceNamed:filenameValue
+                                         inFramework:frameworkValue
+                                         languages:languages
+                                         request:request];
+                };
+              if (_key || _data)
+                {
+                  [urlValuedElementData appendDataURLToResponse:response
+                                        inContext:context];
+                }
+              else if (_filename)
+                {
+                  [response appendContentString:anUrl];
+                };
+            }
+          else
+            {		  
+              [self _appendQueryStringToResponse:response
+                    inContext:context];
+              [self _appendFragmentToResponse:response
+                    inContext:context];
             };
+          [response appendContentCharacter:'"'];
+          NSDebugMLLog(@"gswdync",@"otherAssociations=%@",_otherAssociations);
+          if (_otherAssociations)
+            {
+              NSEnumerator *enumerator = [_otherAssociations keyEnumerator];
+              id aKey=nil;
+              id oaValue=nil;
+              while ((aKey = [enumerator nextObject]))
+                {
+                  NSDebugMLLog(@"gswdync",@"aKey=%@",aKey);
+                  oaValue=[[_otherAssociations objectForKey:aKey] valueInComponent:component];
+                  NSDebugMLLog(@"gswdync",@"oaValue=%@",oaValue);
+                  [response appendContentCharacter:' '];
+                  [response _appendContentAsciiString:aKey];
+                  [response appendContentCharacter:'='];
+                  [response appendContentCharacter:'"'];
+                  [response appendContentHTMLString:oaValue];
+                  [response appendContentCharacter:'"'];
+                };
+            };
+          [response appendContentCharacter:'>'];
         };
-      [response appendContentCharacter:'>'];
-    };
-  if (!disabledValue || displayDisabledValue)
-    {
-      [self _appendChildrenToResponse:response
-            inContext:context];
-    };
-  if (!disabledValue)//??
-    {
-      [response _appendContentAsciiString:@"</a>"];
-    };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWHyperlink appendToResponse: bad elementID");
-#endif
+      if (!disabledValue || displayDisabledValue)
+        {
+          [self _appendChildrenToResponse:response
+                inContext:context];
+        };
+      if (!disabledValue)//??
+        {
+          [response _appendContentAsciiString:@"</a>"];
+        };
+
+      GSWStopElement(context);
+      GSWAssertDebugElementIDsCount(context);
     }
   NS_HANDLER
     {
@@ -470,6 +469,7 @@ RCS_ID("$Id$")
       [localException raise];
     }
   NS_ENDHANDLER;
+
   LOGObjectFnStop();
 };
 
@@ -709,12 +709,13 @@ RCS_ID("$Id$")
   GSWElement* element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
+
   senderID=[context senderID];
   elementID=[context elementID];
   if ([elementID isEqualToString:senderID])
@@ -813,13 +814,12 @@ RCS_ID("$Id$")
     };
   NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke element=%@",element);
   NSDebugMLLog(@"gswdync",@"senderID=%@",[context senderID]);
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[context elementID]);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],[context elementID]);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWHyperlink invokeActionForRequest: bad elementID");
-#endif
+
+  GSWStopElement(context);
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
+
   return element;
 };
 

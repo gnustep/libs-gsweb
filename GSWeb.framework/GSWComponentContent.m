@@ -46,14 +46,15 @@ RCS_ID("$Id$")
   GSWComponent* component=nil;
   GSWComponent* parent=nil;
   GSWElement* childTemplate=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[aContext elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(aContext);
+
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],[aContext elementID]);
+
+  GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);//Debug Only
+
   component=[aContext component];
+
   childTemplate=[component _childTemplate];
   parent=[component parent];
   [aContext _setCurrentComponent:parent];
@@ -62,10 +63,10 @@ RCS_ID("$Id$")
   [aContext _setCurrentComponent:component];
   NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
                [self class],[self declarationName],[aContext elementID]);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[aContext elementID]elementsNb],
-           @"GSWComponentContent appendToResponse: bad elementID");
-#endif
+
+  GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
+
   LOGObjectFnStop();
 };
 
@@ -78,12 +79,12 @@ RCS_ID("$Id$")
   GSWComponent* component=nil;
   GSWComponent* parent=nil;
   GSWElement* childTemplate=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[aContext elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(aContext);
+
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],[aContext elementID]);
+
+  GSWStartElement(aContext);
+
   component=[aContext component];
   NSDebugMLLog(@"gswdync",@"component=%@",component);
   childTemplate=[component _childTemplate];
@@ -99,13 +100,12 @@ RCS_ID("$Id$")
             [element class],
             element);
   [aContext _setCurrentComponent:component];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],[aContext elementID]);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[aContext elementID]elementsNb],
-           @"GSWComponentContent invokeActionForRequest: bad elementID");
-#endif
+
+  GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
+
   LOGObjectFnStop();
+
   return element;
 };
 
@@ -117,13 +117,13 @@ RCS_ID("$Id$")
   GSWComponent* component=nil;
   GSWComponent* parent=nil;
   GSWElement* childTemplate=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[aContext elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(aContext);
+
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],[aContext elementID]);
+
+  GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);// Debug Only
+
   component=[aContext component];
   childTemplate=[component _childTemplate];
   parent=[component parent];
@@ -131,12 +131,13 @@ RCS_ID("$Id$")
   [childTemplate takeValuesFromRequest:request
                  inContext:aContext];
   [aContext _setCurrentComponent:component];
+
   NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
                [self class],[self declarationName],[aContext elementID]);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[aContext elementID]elementsNb],
-           @"GSWComponentContent takeValuesFromRequest: bad elementID");
-#endif
+
+  GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
+
   LOGObjectFnStop();
 };
 

@@ -1,6 +1,6 @@
 /** GSWHTMLDynamicElement.m - <title>GSWeb: Class GSWHTMLDynamicElement</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
@@ -399,9 +399,12 @@ attributeAssociations:(NSDictionary*)attributeAssociations
   BYTE element=0;
   int elementsN[4]={0,0,0,0};
   BOOL inChildren=NO;
-#ifndef NDEBUG
-  NSString* debugElementID=nil;
-#endif
+  GSWDeclareDebugElementID(aContext);
+  GSWDeclareDebugElementIDsCount(aContext);
+
+  IMP appendZeroElementIDComponentIMP=NULL;
+  IMP deleteLastElementIDComponentIMP=NULL;
+
   LOGObjectFnStartC("GSWHTMLDynamicElement");
 
   encoding=[aResponse contentEncoding];
@@ -420,6 +423,14 @@ attributeAssociations:(NSDictionary*)attributeAssociations
             fromIndex,toIndex);
   NSDebugMLLog(@"gswdync",@"Starting HTMLDyn AR ET=%@ id=%@",
                [self class],[aContext elementID]);
+
+
+  if (toIndex>=0)
+    {
+      appendZeroElementIDComponentIMP=[aContext methodForSelector:appendZeroElementIDComponentSEL];
+      deleteLastElementIDComponentIMP=[aContext methodForSelector:deleteLastElementIDComponentSEL];
+    };
+
   for(elementN=0;elementN<=toIndex;elementN++)
     {
       element=(BYTE)elements[elementN];
@@ -428,10 +439,8 @@ attributeAssociations:(NSDictionary*)attributeAssociations
         {
           if (!inChildren)
             {
-#ifndef NDEBUG
-              debugElementID=[aContext elementID];
-#endif
-              [aContext appendZeroElementIDComponent];
+              GSWAssignDebugElementID(aContext);
+              (*appendZeroElementIDComponentIMP)(aContext,appendZeroElementIDComponentSEL);
               inChildren=YES;
             };
         }
@@ -439,16 +448,10 @@ attributeAssociations:(NSDictionary*)attributeAssociations
         {
           if (inChildren)
             {
-              [aContext deleteLastElementIDComponent];
+              (*deleteLastElementIDComponentIMP)(aContext,deleteLastElementIDComponentSEL);
               inChildren=NO;
-#ifndef NDEBUG
-              if (![debugElementID isEqualToString:[aContext elementID]])
-                {
-                  NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [aContext elementID]=%@",
-                               [self class],debugElementID,[aContext elementID]);
-                  
-                };
-#endif
+
+              GSWAssertDebugElementID(aContext);
             };
         };
       if (element==ElementsMap_htmlBareString)
@@ -494,16 +497,11 @@ attributeAssociations:(NSDictionary*)attributeAssociations
     };
   if (inChildren)
     {
-      [aContext deleteLastElementIDComponent];
-#ifndef NDEBUG
-      if (![debugElementID isEqualToString:[aContext elementID]])
-        {
-          NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [aContext elementID]=%@",
-                       [self class],debugElementID,[aContext elementID]);          
-        };
-#endif
+      (*deleteLastElementIDComponentIMP)(aContext,deleteLastElementIDComponentSEL);
+      GSWAssertDebugElementID(aContext);
     };
   GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
   LOGObjectFnStopC("GSWHTMLDynamicElement");
 };
 
@@ -515,11 +513,18 @@ attributeAssociations:(NSDictionary*)attributeAssociations
   //???
   GSWElement* element=nil;
   NSString* senderID=nil;
+  int elementsMapLength=0;
+  GSWDeclareDebugElementIDsCount(aContext);
+
   LOGObjectFnStartC("GSWHTMLDynamicElement");
+
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);// Debug Only
+
   senderID=[aContext senderID];
-  if ([_elementsMap length]>0)
+  elementsMapLength=[_elementsMap length];
+
+  if (elementsMapLength>0)
     {
       int elementN=0;
       NSArray* dynamicChildren=[self dynamicChildren];
@@ -528,20 +533,25 @@ attributeAssociations:(NSDictionary*)attributeAssociations
       int elementsN[4]={0,0,0,0};
       BOOL searchIsOver=NO;
       BOOL inChildren=NO;
-#ifndef NDEBUG
-      NSString* debugElementID=nil;
-#endif
-      for(elementN=0;!element && !searchIsOver && elementN<[_elementsMap length];elementN++)
+      GSWDeclareDebugElementID(aContext);
+      IMP appendZeroElementIDComponentIMP=NULL;
+      IMP deleteLastElementIDComponentIMP=NULL;
+
+      if (elementsMapLength>0)
+        {
+          appendZeroElementIDComponentIMP=[aContext methodForSelector:appendZeroElementIDComponentSEL];
+          deleteLastElementIDComponentIMP=[aContext methodForSelector:deleteLastElementIDComponentSEL];
+        };
+
+      for(elementN=0;!element && !searchIsOver && elementN<elementsMapLength;elementN++)
         {
           elementIndic=(BYTE)elements[elementN];      
           if (elementIndic==ElementsMap_dynamicElement)
             {
               if (!inChildren)
                 {
-#ifndef NDEBUG
-                  debugElementID=[aContext elementID];
-#endif
-                  [aContext appendZeroElementIDComponent];
+                  GSWAssignDebugElementID(aContext);
+                  (*appendZeroElementIDComponentIMP)(aContext,appendZeroElementIDComponentSEL);
                   inChildren=YES;
                 };
             }
@@ -549,18 +559,9 @@ attributeAssociations:(NSDictionary*)attributeAssociations
             {
               if (inChildren)
                 {
-                  [aContext deleteLastElementIDComponent];
+                  (*deleteLastElementIDComponentIMP)(aContext,deleteLastElementIDComponentSEL);
                   inChildren=NO;
-#ifndef NDEBUG
-                  if (![debugElementID isEqualToString:[aContext elementID]])
-                    {
-                      NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [aContext elementID]=%@",
-                                   [self class],
-                                   debugElementID,
-                                   [aContext elementID]);
-                      
-                    };
-#endif
+                  GSWAssertDebugElementID(aContext);
                 };
             };
           if (elementIndic==ElementsMap_htmlBareString)
@@ -576,7 +577,7 @@ attributeAssociations:(NSDictionary*)attributeAssociations
                         [dynamicChildren objectAtIndex:elementsN[2]],
                         [element class],
                         element);
-              if (![aContext _wasFormSubmitted] && [[aContext elementID] isSearchOverForSenderID:senderID])
+              if (![aContext _wasFormSubmitted] && [aContext isSenderIDSearchOver])
                 {
                   NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
                                [aContext elementID],
@@ -589,20 +590,15 @@ attributeAssociations:(NSDictionary*)attributeAssociations
           else if (elementIndic==ElementsMap_attributeElement)
             elementsN[3]++;
         };
-  if (inChildren)
-    {
-      [aContext deleteLastElementIDComponent];
-#ifndef NDEBUG
-      if (![debugElementID isEqualToString:[aContext elementID]])
+      if (inChildren)
         {
-          NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [aContext elementID]=%@",
-                       [self class],debugElementID,[aContext elementID]);
-          
+          (*deleteLastElementIDComponentIMP)(aContext,deleteLastElementIDComponentSEL);
+          GSWAssertDebugElementID(aContext);
         };
-#endif
-    };
+
     };
   GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
   NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
   LOGObjectFnStopC("GSWHTMLDynamicElement");
   return element;
@@ -613,10 +609,17 @@ attributeAssociations:(NSDictionary*)attributeAssociations
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext
 {
+  int elementsMapLength=0;
+  GSWDeclareDebugElementIDsCount(aContext);
+
   LOGObjectFnStartC("GSWHTMLDynamicElement");
+
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
-  if ([_elementsMap length]>0)
+
+  elementsMapLength=[_elementsMap length];
+
+  if (elementsMapLength>0)
     {
       int elementN=0;
       NSArray* dynamicChildren=[self dynamicChildren];
@@ -624,20 +627,25 @@ attributeAssociations:(NSDictionary*)attributeAssociations
       BYTE element=0;
       int elementsN[4]={0,0,0,0};
       BOOL inChildren=NO;
-#ifndef NDEBUG
-      NSString* debugElementID=nil;
-#endif
-      for(elementN=0;elementN<[_elementsMap length];elementN++)
+      GSWDeclareDebugElementID(aContext);
+      IMP appendZeroElementIDComponentIMP=NULL;
+      IMP deleteLastElementIDComponentIMP=NULL;
+
+      if (elementsMapLength>0)
+        {
+          appendZeroElementIDComponentIMP=[aContext methodForSelector:appendZeroElementIDComponentSEL];
+          deleteLastElementIDComponentIMP=[aContext methodForSelector:deleteLastElementIDComponentSEL];
+        };
+
+      for(elementN=0;elementN<elementsMapLength;elementN++)
 	{
 	  element=(BYTE)elements[elementN];
 	  if (element==ElementsMap_dynamicElement)
             {
               if (!inChildren)
                 {
-#ifndef NDEBUG
-                  debugElementID=[aContext elementID];
-#endif
-                  [aContext appendZeroElementIDComponent];
+                  GSWAssignDebugElementID(aContext);
+                  (*appendZeroElementIDComponentIMP)(aContext,appendZeroElementIDComponentSEL);
                   inChildren=YES;
                 };
             }
@@ -645,15 +653,9 @@ attributeAssociations:(NSDictionary*)attributeAssociations
             {
               if (inChildren)
                 {
-                  [aContext deleteLastElementIDComponent];
+                  (*deleteLastElementIDComponentIMP)(aContext,deleteLastElementIDComponentSEL);
                   inChildren=NO;
-#ifndef NDEBUG
-                  if (![debugElementID isEqualToString:[aContext elementID]])
-                    {
-                      NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [aContext elementID]=%@",
-                                   [self class],debugElementID,[aContext elementID]);                      
-                    };
-#endif
+                  GSWAssertDebugElementID(aContext);
                 };
             };
 
@@ -671,21 +673,16 @@ attributeAssociations:(NSDictionary*)attributeAssociations
               elementsN[2]++;
             }
 	  else if (element==ElementsMap_attributeElement)
-		elementsN[3]++;
+            elementsN[3]++;
 	};
       if (inChildren)
 	{
-	  [aContext deleteLastElementIDComponent];
-#ifndef NDEBUG
-	  if (![debugElementID isEqualToString:[aContext elementID]])
-            {
-              NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [aContext elementID]=%@",
-                           [self class],debugElementID,[aContext elementID]);              
-            };
-#endif
+	  (*deleteLastElementIDComponentIMP)(aContext,deleteLastElementIDComponentSEL);
+          GSWAssertDebugElementID(aContext);
 	};
     };
   GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
   LOGObjectFnStopC("GSWHTMLDynamicElement");
 };
  
@@ -793,7 +790,9 @@ attributeAssociations:(NSDictionary*)attributeAssociations
   id tmpDirectActionString=nil;
   id directActionNameValue=nil;
   id actionClassValue=nil;
+
   LOGObjectFnStart();
+
   component=[context component];
   if (directActionName)
     directActionNameValue=[directActionName valueInComponent:component];
@@ -835,9 +834,9 @@ attributeAssociations:(NSDictionary*)attributeAssociations
       if ([pathQueryDictionary count]>0 || [otherPathQueryAssociations count]>0)
         {
           NSMutableDictionary* pathKV=nil;
-	  NSArray* keys;
-	  unsigned int count;
-	  unsigned int i;
+	  NSArray* keys = nil;;
+	  unsigned int count = 0;
+	  unsigned int i = 0;
 
           if ([otherPathQueryAssociations count]>0)
             {              

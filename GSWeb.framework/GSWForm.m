@@ -265,14 +265,13 @@ RCS_ID("$Id$")
   //OK
   BOOL disabledInContext=NO;
   BOOL displayDisabledValue=YES;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
 
   LOGObjectFnStartC("GSWForm");
 
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
+
   [response appendDebugCommentContentString:[NSString stringWithFormat:@"declarationName=%@ ID=%@",
                                                       [self declarationName],
                                                       [context elementID]]];
@@ -333,12 +332,8 @@ RCS_ID("$Id$")
     };
 
   GSWStopElement(context);
+  GSWAssertDebugElementIDsCount(context);
 
-#ifndef NDEBBUG
-  NSAssert3(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWForm appendToResponse: bad elementID: elementsNb=%d [context elementID]=%@ [(GSWElementIDString*)[context elementID]elementsNb]=%d",
-           elementsNb,[context elementID],[(GSWElementIDString*)[context elementID]elementsNb]);
-#endif
   LOGObjectFnStopC("GSWForm");
 };
 
@@ -349,16 +344,15 @@ RCS_ID("$Id$")
   //OK
   GSWElement* element=nil;
   NSString* senderID=nil;
-  GSWElementIDString* elementID=nil;
+  NSString* elementID=nil;
   BOOL isFormSubmited=NO;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
   BOOL multipleSubmitValue=NO;
+  GSWDeclareDebugElementIDsCount(context);
 
   LOGObjectFnStartC("GSWForm");
 
   GSWStartElement(context);
+
   senderID=[context senderID];
   elementID=[context elementID];
   NSDebugMLLog(@"gswdync",@"senderId=%@",senderID);
@@ -429,11 +423,8 @@ RCS_ID("$Id$")
           elementID=[context elementID];
           GSWStopElement(context);
         };
-#ifndef NDEBBUG
-      NSAssert3(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-                @"GSWForm invokeActionForRequest: bad elementID: elementsNb=%d [context elementID]=%@ [(GSWElementIDString*)[context elementID]elementsNb]=%d",
-                elementsNb,[context elementID],[(GSWElementIDString*)[context elementID]elementsNb]);
-#endif
+
+      GSWAssertDebugElementIDsCount(context);
     }
   NS_HANDLER
     {
@@ -446,16 +437,13 @@ RCS_ID("$Id$")
     }
   NS_ENDHANDLER;
 
-  senderID=[context senderID];
-  elementID=[context elementID];
-
-  if (![context _wasActionInvoked] && [elementID isSearchOverForSenderID:senderID])
+  if (![context _wasActionInvoked] && [context isSenderIDSearchOver])
     {
       LOGError(@"Action not invoked at the end of %@ (declarationName=%@) (id=%@) senderId=%@",
                [self class],
                [self declarationName],
-               elementID,
-               senderID);
+               [context elementID],
+               [context senderID]);
     };
 
   LOGObjectFnStopC("GSWForm");
@@ -471,10 +459,10 @@ RCS_ID("$Id$")
   NSString* senderID=nil;
   NSString* elementID=nil;
   BOOL isFormSubmited=NO;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
+
   LOGObjectFnStartC("GSWForm");
+
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
 
@@ -508,11 +496,10 @@ RCS_ID("$Id$")
           [context _setFormSubmitted:NO];
         };
     };
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWForm takeValuesFromRequest: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStopC("GSWForm");
 };
 

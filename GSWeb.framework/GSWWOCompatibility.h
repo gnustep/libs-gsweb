@@ -1,6 +1,6 @@
 /** GSWWOCompatibility.h - <title>GSWeb: GSWWOCompatibility</title>
 
-   Copyright (C) 2000-2002 Free Software Foundation, Inc.
+   Copyright (C) 2000-2002,2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Dec 2000
@@ -65,7 +65,7 @@
 #define GSWComponentDefinition		WOComponentDefinition
 #define GSWBundle			WOBundle
 #define GSWMultiKeyDictionary		WOMultiKeyDictionary
-#define GSWElementIDString		WOElementIDString
+#define GSWElementID			WOElementIDString
 #define GSWComponentRequestHandler	WOComponentRequestHandler
 #define GSWResourceRequestHandler	WOResourceRequestHandler
 #define GSWDirectActionRequestHandler	WODirectActionRequestHandler

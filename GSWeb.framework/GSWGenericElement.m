@@ -147,7 +147,7 @@ RCS_ID("$Id$")
       if ([elementID isEqualToString: senderID])
 	{
           if (_elementID != nil)
-              [_elementID setValue: [elementID description]
+              [_elementID setValue: elementID
                           inComponent: component];
 
           element = [_invokeAction valueInComponent:component];
@@ -162,7 +162,7 @@ RCS_ID("$Id$")
           if (formValue)
             {
               if(_elementID)
-                [_elementID setValue: [elementID description]
+                [_elementID setValue: elementID
                             inComponent:component];
 
               element = [_invokeAction valueInComponent: component];
@@ -191,7 +191,7 @@ RCS_ID("$Id$")
 
       if (_elementID != nil)
 	{
-	  [_elementID setValue: [elementID description]
+	  [_elementID setValue: elementID
 		      inComponent: component];
 	}
       if (_formValue != nil)
@@ -219,7 +219,7 @@ RCS_ID("$Id$")
 
   if (_elementID != nil)
     {
-      [_elementID setValue: [[context elementID] description]
+      [_elementID setValue: [context elementID]
 		  inComponent: [context component]];
     }
 

@@ -204,17 +204,18 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
-			  inContext:(GSWContext*)context
+              inContext:(GSWContext*)context
 {
   //OK
   GSWComponent* component=nil;
   GSWComponent* componentPrev=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
+
   [response appendDebugCommentContentString:[NSString stringWithFormat:@"declarationName=%@ ID=%@ name=%@",
                                                       [self declarationName],
                                                       [context elementID],
@@ -230,11 +231,10 @@ RCS_ID("$Id$")
     }
   else
     [context _setCurrentComponent:componentPrev];
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWComponentReference appendToResponse: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
 };
 
@@ -245,12 +245,13 @@ RCS_ID("$Id$")
   GSWElement* element=nil;
   GSWComponent* component=nil;
   GSWComponent* componentPrev=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
+
   NSDebugMLLog(@"gswdync",@"name=%@ senderId=%@",
                _name,[context senderID]);
   componentPrev=[context component];
@@ -273,12 +274,12 @@ RCS_ID("$Id$")
     }
   else
     [context _setCurrentComponent:componentPrev];
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWComponentReference invokeActionForRequest: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
+
   return element;
 };
 
@@ -289,12 +290,13 @@ RCS_ID("$Id$")
   //OK
   GSWComponent* component=nil;
   GSWComponent* componentPrev=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
+
   LOGObjectFnStart();
+
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
+
   componentPrev=[context component];
   [self pushRefComponentInContext:context];
   if ([context component])
@@ -306,11 +308,10 @@ RCS_ID("$Id$")
     }
   else
     [context _setCurrentComponent:componentPrev];
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWComponentReference takeValuesFromRequest: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
 };
  

@@ -47,7 +47,7 @@ GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 };
 #endif
 
-#ifndef NDEBBUG
+#if defined(GSWDEBUG_ELEMENTSIDS) && !defined(NDEBBUG)
 -(void)saveAppendToResponseElementIDInContext:(id)context;
 -(void)assertCorrectElementIDInContext:(id)context
                                 method:(SEL)method
@@ -69,27 +69,66 @@ GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 -(void)setDeclarationName:(NSString*)declarationName;
 @end
 
-#ifdef NDEBBUG
+#if !defined(GSWDEBUG_ELEMENTSIDS) || defined(NDEBBUG)
+
 #define GSWSaveAppendToResponseElementID(TheContext);		{};
 #define GSWAssertCorrectElementID(TheContext); 			{};
 #define GSWAssertIsElementID(TheContext); 			{};
 #define GSWStartElement(TheContext); 				{};
 #define GSWStopElement(TheContext); 				{};
 #define GSWAddElementToDocStructure(TheContext); 		{};
+#define GSWDeclareDebugElementID(TheContext); 			{};
+#define GSWAssignDebugElementID(TheContext); 			{};
+#define GSWAssertDebugElementID(TheContext); 			{};
+#define GSWDeclareDebugElementIDsCount(TheContext); 		{};
+#define GSWAssertDebugElementIDsCount(TheContext); 		{};
+
 #else
-#define GSWSaveAppendToResponseElementID(TheContext);		[self saveAppendToResponseElementIDInContext:TheContext];
+
+#define GSWSaveAppendToResponseElementID(TheContext);		[self saveAppendToResponseElementIDInContext:(TheContext)];
+
 #define GSWAssertCorrectElementID(TheContext); 			\
 	([self assertCorrectElementIDInContext:TheContext method:_cmd file:__FILE__ line:__LINE__]);
+
 #define GSWAssertIsElementID(TheContext); 			\
 	([self assertIsElementIDInContext:TheContext method:_cmd file:__FILE__ line:__LINE__]);
+
 #define GSWStartElement(TheContext); 			\
 	([self logElementInContext:TheContext method:_cmd file:__FILE__ line:__LINE__ startFlag:YES stopFlag:NO]);
+
 #define GSWStopElement(TheContext); 			\
 	([self logElementInContext:TheContext method:_cmd file:__FILE__ line:__LINE__ startFlag:NO stopFlag:YES]);
+
 #define GSWLogElement(TheContext); 			\
 	([self logElementInContext:TheContext method:_cmd file:__FILE__ line:__LINE__ startFlag:NO stopFlag:NO]);
+
 #define GSWAddElementToDocStructure(TheContext); 	\
-	([TheContext addToDocStructureElement:self]);
+	[TheContext addToDocStructureElement:self];
+
+#define GSWDeclareDebugElementID(TheContext); 			\
+	NSString* debugElementID=[TheContext elementID];
+
+#define GSWAssignDebugElementID(TheContext); 			\
+	debugElementID=[TheContext elementID];
+
+#define GSWAssertDebugElementID(TheContext); 			\
+        if (![debugElementID isEqualToString:[(TheContext) elementID]])	\
+            {									\
+              NSDebugMLLog(@"gswdync",						\
+                           @"class=%@ debugElementID=%@ [context elementID]=%@",\
+			   [self class],debugElementID,[(TheContext) elementID]); \
+            };
+
+#define GSWDeclareDebugElementIDsCount(TheContext); 		\
+	int debugElementsCount=[(TheContext) elementIDElementsCount];
+
+#define GSWAssertDebugElementIDsCount(TheContext); 		\
+  NSAssert4(debugElementsCount==[(TheContext) elementIDElementsCount], \
+           @"Object %p bad elementID %d!=%d (%@)",		\
+            self,						\
+            debugElementsCount,					\
+            [(TheContext) elementIDElementsCount],		\
+            [(TheContext) elementID]);
 
 #endif
 

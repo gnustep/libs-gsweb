@@ -171,7 +171,7 @@ GSWHTMLStaticGroup.m \
 GSWInput.m \
 GSWConstantValueAssociation.m \
 GSWComponentReference.m \
-GSWElementIDString.m \
+GSWElementID.m \
 GSWHTMLDynamicElement.m \
 GSWDynamicURLString.m \
 GSWBindingNameAssociation.m \
@@ -239,7 +239,7 @@ GSWDisplayGroup.h \
 GSWDynamicElement.h \
 GSWDynamicURLString.h \
 GSWElement.h \
-GSWElementIDString.h \
+GSWElementID.h \
 GSWEmbeddedObject.h \
 GSWForm.h \
 GSWFrame.h \

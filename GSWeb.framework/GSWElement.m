@@ -41,21 +41,26 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 //====================================================================
 @implementation GSWElement
 
-#ifndef NDEBBUG
+#ifdef GSWDEBUG_ELEMENTSIDS
 //--------------------------------------------------------------------
 -(void)saveAppendToResponseElementIDInContext:(id)context
 {
   if(GSDebugSet(@"saveAppendToResponseElementID"))
     {
       NSString* elementID=nil;
+
       LOGObjectFnStartC("GSWElement");
+
       elementID=[context elementID];
-      /*  if ([elementID length]==0)
-          elementID=@"MARKER";*/
       NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ elementID=%@ %p",self,[self declarationName],elementID,elementID);
+
       ASSIGNCOPY(_appendToResponseElementID,elementID);
-      NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p",self,[self declarationName],_appendToResponseElementID,_appendToResponseElementID);
+      NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p",
+                   self,[self declarationName],
+                   _appendToResponseElementID,_appendToResponseElementID);
+
       GSWAssertIsElementID(context);
+
       LOGObjectFnStopC("GSWElement");
     };
 };
@@ -77,9 +82,14 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
       BOOL appendToResponseElementIDIsFirst=NO;
       BOOL elementIDIsFirst=NO;
       BOOL OK=YES;
-      appendToResponseElementIDIsFirst=([_appendToResponseElementID length]==0 || [_appendToResponseElementID isEqualToString:@"0"]);
-      elementIDIsFirst=([elementID length]==0 || [elementID isEqualToString:@"0"]);
-      if (!appendToResponseElementIDIsFirst || appendToResponseElementIDIsFirst!=elementIDIsFirst)
+      appendToResponseElementIDIsFirst=([_appendToResponseElementID length]==0
+                                        || [_appendToResponseElementID isEqualToString:@"0"]);
+
+      elementIDIsFirst=([elementID length]==0
+                        || [elementID isEqualToString:@"0"]);
+
+      if (!appendToResponseElementIDIsFirst
+          || appendToResponseElementIDIsFirst!=elementIDIsFirst)
         {
           OK=[_appendToResponseElementID isEqualToString:elementID];
           NSDebugMLLog(@"GSWElement",@"[context elementID]=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d OK=%d [context isInLoop]=%d",
@@ -117,7 +127,9 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
               [self declarationName],
               _appendToResponseElementID,_appendToResponseElementID,[context elementID]);
 */
-  if (_appendToResponseElementID && [_appendToResponseElementID length]==0 && [[context elementID] length]>0)
+  if (_appendToResponseElementID
+      && [_appendToResponseElementID length]==0
+      && [[context elementID] length]>0)
     {
       NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ declarationName=%@ (file %s line %d), in %@ _appendToResponseElementID '%@' (%p) is not set",
                               self,

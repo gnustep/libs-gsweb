@@ -390,7 +390,7 @@ RCS_ID("$Id$")
                         [aDynamicChildrensArray objectAtIndex:elementsN[1]],
                         [element class],
                         element);
-              if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
+              if (![context _wasFormSubmitted] && [context isSenderIDSearchOver])
                 {
                   searchIsOver=YES;
                 };

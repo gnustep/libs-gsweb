@@ -41,7 +41,7 @@
  NSString* _senderID;
  NSString* _requestSessionID;
  NSString* _requestContextID;
- GSWElementIDString* _elementID;
+ GSWElementID* _elementID;
  GSWSession* _session;
  GSWRequest* _request;
  GSWResponse* _response;
@@ -78,7 +78,7 @@
 -(BOOL)isInForm;
 -(void)setInEnabledForm:(BOOL)flag;
 -(BOOL)isInEnabledForm;
--(GSWElementIDString*)elementID;
+-(NSString*)elementID;
 -(NSString*)contextAndElementID;
 -(GSWComponent*)component;
 -(GSWComponent*)page;
@@ -300,6 +300,10 @@ If none, try request languages
 -(void)incrementLastElementIDComponent;
 -(void)appendElementIDComponent:(NSString*)string;
 -(void)appendZeroElementIDComponent;
+
+-(BOOL)isParentSenderIDSearchOver;
+-(BOOL)isSenderIDSearchOver;
+-(int)elementIDElementsCount;
 @end
 
 //====================================================================

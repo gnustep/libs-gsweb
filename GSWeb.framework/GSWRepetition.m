@@ -35,8 +35,6 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-static SEL appendZeroElementIDComponentSEL=NULL;
-static SEL deleteLastElementIDComponentSEL=NULL;
 static SEL startOneIterationWithIndexSEL=NULL;
 static SEL stopOneIterationWithIndexSEL=NULL;
 
@@ -48,8 +46,6 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 {
   if (self == [GSWRepetition class])
     {
-      appendZeroElementIDComponentSEL=@selector(appendZeroElementIDComponent);
-      deleteLastElementIDComponentSEL=@selector(deleteLastElementIDComponent);
       startOneIterationWithIndexSEL=@selector(startOneIterationWithIndex:startIndex:list:inContext:);
       stopOneIterationWithIndexSEL=@selector(stopOneIterationWithIndex:stopIndex:count:isLastOne:inContext:);
     };
@@ -257,10 +253,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
   int countValue=0;
   int startIndexValue = 0;
   int stopIndexValue = 0;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
-
+  GSWDeclareDebugElementIDsCount(context);
   IMP appendZeroElementIDComponentIMP=NULL;
   IMP deleteLastElementIDComponentIMP=NULL;
 
@@ -294,9 +287,8 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 
   for(i=startIndexValue;i<=stopIndexValue;i++)
     {
-#ifndef NDEBUG
-      GSWElementIDString* debugElementID=[context elementID];
-#endif
+      GSWDeclareDebugElementID(context);
+
       [self startOneIterationWithIndex:i
             startIndex:startIndexValue
             list:listValue
@@ -314,25 +306,14 @@ static SEL stopOneIterationWithIndexSEL=NULL;
             count:countValue
             isLastOne:NO
             inContext:context];
-#ifndef NDEBUG
-      if (![debugElementID isEqualToString:[context elementID]])
-        {
-          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",
-                       [self class],debugElementID,[context elementID]);
-          
-        };
-#endif
+
+      GSWAssertDebugElementID(context);
     };
   [context decrementLoopLevel];
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert4(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWRepetion %p appendToResponse: bad elementID %d!=%d (%@)",
-            self,
-            elementsNb,
-            [(GSWElementIDString*)[context elementID]elementsNb],
-            [context elementID]);
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
 };
 
@@ -343,11 +324,11 @@ static SEL stopOneIterationWithIndexSEL=NULL;
   //OK
   GSWElement* element=nil;
   BOOL isInForm=NO;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(context);
   LOGObjectFnStart();
+
   GSWStartElement(context);
+
   isInForm=[context isInForm];
   NSDebugMLLog(@"gswdync",@"isInForm=%s",isInForm ? "YES" : "NO");
   if (isInForm)
@@ -357,12 +338,12 @@ static SEL stopOneIterationWithIndexSEL=NULL;
     element=[self _fastInvokeActionForRequest:request
                   inContext:context];
   NSDebugMLLog(@"gswdync",@"element=%@",element);
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWRepetion invokeActionForRequest: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
+
   return element;
 };
 
@@ -378,10 +359,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
   int countValue=0;
   int startIndexValue = 0;
   int stopIndexValue = 0;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
-
+  GSWDeclareDebugElementIDsCount(context);
   IMP appendZeroElementIDComponentIMP=NULL;
   IMP deleteLastElementIDComponentIMP=NULL;
 
@@ -413,9 +391,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 
   for(i=startIndexValue;i<=stopIndexValue;i++)
     {
-#ifndef NDEBUG
-      GSWElementIDString* debugElementID=[context elementID];
-#endif
+      GSWDeclareDebugElementID(context);
       [self startOneIterationWithIndex:i
             startIndex:startIndexValue
             list:listValue
@@ -433,21 +409,13 @@ static SEL stopOneIterationWithIndexSEL=NULL;
             count:countValue
             isLastOne:NO
             inContext:context];
-#ifndef NDEBUG
-      if (![debugElementID isEqualToString:[context elementID]])
-        {
-          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",
-                       [self class],debugElementID,[context elementID]);
-          
-        };
-#endif
+
+      GSWAssertDebugElementID(context);
     };
   [context decrementLoopLevel];
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWRepetion takeValuesFromRequest: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
 };
 
@@ -463,10 +431,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
   int countValue=0;
   int startIndexValue = 0;
   int stopIndexValue = 0;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
-
+  GSWDeclareDebugElementIDsCount(context);
   IMP appendZeroElementIDComponentIMP=NULL;
   IMP deleteLastElementIDComponentIMP=NULL;
 
@@ -496,9 +461,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 
   for(i=startIndexValue;!element && i<=stopIndexValue;i++)
     {
-#ifndef NDEBUG
-      GSWElementIDString* debugElementID=[context elementID];
-#endif
+      GSWDeclareDebugElementID(context);
       [self startOneIterationWithIndex:i
             startIndex:startIndexValue
             list:listValue
@@ -521,19 +484,16 @@ static SEL stopOneIterationWithIndexSEL=NULL;
             count:countValue
             isLastOne:(element!=nil)
             inContext:context];
-#ifndef NDEBUG
-      if (![debugElementID isEqualToString:[context elementID]])
-        {
-          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
-        };
-#endif
+
+      GSWAssertDebugElementID(context);
     };
   [context decrementLoopLevel];
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion _slowInvokeActionForRequest: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
+
   return element;
 };
 
@@ -545,10 +505,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
   GSWElement* element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
-#endif
-
+  GSWDeclareDebugElementIDsCount(context);
   IMP appendZeroElementIDComponentIMP=NULL;
   IMP deleteLastElementIDComponentIMP=NULL;
 
@@ -566,9 +523,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 
   if ([senderID hasPrefix:elementID])
     {
-#ifndef NDEBUG
-      GSWElementIDString* debugElementID=[context elementID];
-#endif
+      GSWDeclareDebugElementID(context);
       int countValue=0;
       NSArray* listValue=nil;
       int startIndexValue = 0;
@@ -611,20 +566,17 @@ static SEL stopOneIterationWithIndexSEL=NULL;
                 count:countValue
                 isLastOne:(element!=nil)
                 inContext:context];
-#ifndef NDEBUG
-          if (![debugElementID isEqualToString:[context elementID]])
-            {
-              NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
-            };
-#endif
+
+          GSWAssertDebugElementID(context);
         };
       [context decrementLoopLevel];
     };
+
   GSWStopElement(context);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion _fastInvokeActionForRequest: bad elementID");
-#endif
+  GSWAssertDebugElementIDsCount(context);
+
   LOGObjectFnStop();
+
   return element;
 };
 
@@ -678,15 +630,19 @@ static SEL stopOneIterationWithIndexSEL=NULL;
       NSDebugMLLog(@"gswdync",@"currentIndex=%d startIndex=%d",currentIndex,startIndex);
       NSDebugMLLog(@"gswdync",@"_index=%@",_index);
       NSDebugMLLog(@"gswdync",@"_item=%@",_item);
-      if (_list && _item) {
-	if ([list count]>currentIndex) { 
-          NSDebugMLLog(@"gswdync",@"[list objectAtIndex:%d]=%@",currentIndex,[list objectAtIndex:currentIndex]);
-          [_item setValue:[list objectAtIndex:currentIndex]
-              inComponent:component];
-	} else {
-	//NSLog(@"startOneIterationWithIndex SKIPPING setValue:inComponent index=%d list.count=%d",currentIndex, [list count]);
-	}
-      }
+      if (_list && _item)
+        {
+          if ([list count]>currentIndex)
+            { 
+              NSDebugMLLog(@"gswdync",@"[list objectAtIndex:%d]=%@",currentIndex,[list objectAtIndex:currentIndex]);
+              [_item setValue:[list objectAtIndex:currentIndex]
+                     inComponent:component];
+            }
+          else
+            {
+              //NSLog(@"startOneIterationWithIndex SKIPPING setValue:inComponent index=%d list.count=%d",currentIndex, [list count]);
+            };
+        };
 
       if (_index)
         [_index setValue:[NSNumber numberWithShort:currentIndex]

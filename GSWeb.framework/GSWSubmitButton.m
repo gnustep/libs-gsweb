@@ -1,6 +1,6 @@
 /** GSWSubmitButton.m - <title>GSWeb: Class GSWSubmitButton</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -200,8 +200,8 @@ RCS_ID("$Id$")
       [localException raise];
     }
   NS_ENDHANDLER;
-  //if (![context _wasActionInvoked] && [[[context elementID] parentElementIDString] compare:[context senderID]]!=NSOrderedAscending)
-  if (![context _wasActionInvoked] && [(GSWElementIDString*)[[context elementID] parentElementIDString] isSearchOverForSenderID:[context senderID]])
+
+  if (![context _wasActionInvoked] && [context isParentSenderIDSearchOver])
     {
       LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
                [self class],

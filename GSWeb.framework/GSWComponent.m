@@ -1087,12 +1087,14 @@ associationsKeys:(NSArray*)associationsKeys
   GSWRequest* request=nil;
   BOOL isFromClientComponent=NO;
   GSWComponent* component=nil;
-#ifndef NDEBUG
-  GSWElementIDString* debugElementID=[aContext elementID];
-#endif
+  GSWDeclareDebugElementIDsCount(aContext);
+  GSWDeclareDebugElementID(aContext);
+
   LOGObjectFnStart();
+
   NSAssert(aContext,@"No Context");
   NSAssert(aResponse,@"No Response");
+
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);
 
@@ -1135,13 +1137,8 @@ associationsKeys:(NSArray*)associationsKeys
   [aContext deleteLastElementIDComponent];
 
   GSWStopElement(aContext);
-#ifndef NDEBUG
-  if (![debugElementID isEqualToString:[aContext elementID]])
-    {
-      NSDebugMLLog(@"GSWComponent",@"WARNING: class=%@ debugElementID=%@ [aContext elementID]=%@",
-                   [self class],debugElementID,[aContext elementID]);	  
-    };
-#endif
+  GSWAssertDebugElementID(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
 
 #ifndef NDEBUG
   if(GSDebugSet(@"gswcomponents") == YES)
@@ -1163,11 +1160,13 @@ associationsKeys:(NSArray*)associationsKeys
   //OK
   GSWElement* element=nil;
   GSWElement* template=nil;
-#ifndef NDEBUG
-  GSWElementIDString* debugElementID=[aContext elementID];
-#endif
+  GSWDeclareDebugElementIDsCount(aContext);
+  GSWDeclareDebugElementID(aContext);
+
   LOGObjectFnStart();
+
   GSWStartElement(aContext);
+
   NS_DURING
     {
       GSWAssertCorrectElementID(aContext);
@@ -1189,26 +1188,24 @@ associationsKeys:(NSArray*)associationsKeys
       [localException raise];
     }
   NS_ENDHANDLER;
+
   GSWStopElement(aContext);
-#ifndef NDEBUG
-  if (![debugElementID isEqualToString:[aContext elementID]])
-    {
-      NSDebugMLLog(@"GSWComponent",@"class=%@ debugElementID=%@ [aContext elementID]=%@",
-                   [self class],debugElementID,[aContext elementID]);
-      
-    };
-#endif
-//  if (![aContext _wasActionInvoked] && [[[aContext elementID] parentElementIDString] compare:[aContext senderID]]==NSOrderedDescending)
+  GSWAssertDebugElementID(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
+
   if (![aContext _wasActionInvoked]
-      && [(GSWElementIDString*)[[aContext elementID] parentElementIDString] isSearchOverForSenderID:[aContext senderID]])
+      && [aContext isParentSenderIDSearchOver])
     {
       LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
                [self class],
                [aContext elementID],
                [aContext senderID]);
     };
+
   GSWAssertIsElementID(aContext);
+
   LOGObjectFnStop();
+
   return element;
 };
 
@@ -1221,10 +1218,11 @@ associationsKeys:(NSArray*)associationsKeys
   //OK
   BOOL oldValidateFlag=NO;
   GSWElement* template=nil;
-#ifndef NDEBUG
-  GSWElementIDString* debugElementID=[aContext elementID];
-#endif
+  GSWDeclareDebugElementIDsCount(aContext);
+  GSWDeclareDebugElementID(aContext);
+
   LOGObjectFnStart();
+
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
 
@@ -1239,18 +1237,17 @@ associationsKeys:(NSArray*)associationsKeys
 			 inContext:aContext];
   NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ [aContext elementID]=%@",
                self,[self declarationName],[aContext elementID]);
+
   [aContext deleteLastElementIDComponent];
+
   GSWStopElement(aContext);
-#ifndef NDEBUG
-  if (![debugElementID isEqualToString:[aContext elementID]])
-    {
-      NSDebugMLLog(@"GSWComponent",@"WARNING class=%@ debugElementID=%@ [aContext elementID]=%@",
-                   [self class],debugElementID,[aContext elementID]);
-      
-    };
-#endif
+  GSWAssertDebugElementID(aContext);
+
   [aContext setValidate:oldValidateFlag];
+
   GSWAssertIsElementID(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
+
   LOGObjectFnStop();
 };
 

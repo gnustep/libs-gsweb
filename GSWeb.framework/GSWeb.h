@@ -102,7 +102,7 @@
 @class GSWBundle;
 @class GSWMultiKeyDictionary;
 @class GSWCookie;
-@class GSWElementIDString;
+@class GSWElementID;
 @class GSWAction;
 @class GSWDirectAction;
 @class GSWMailDelivery;
@@ -157,7 +157,7 @@
 #include "GSWDebug.h"
 #include "NSString+Trimming.h"
 #include "NSString+HTML.h"
-#include "GSWElementIDString.h"
+#include "GSWElementID.h"
 #include "GSWMessage.h"
 #include "GSWResponse.h"
 #include "GSWBaseParser.h"
