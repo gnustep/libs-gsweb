@@ -2,6 +2,12 @@
 
         * GSWeb.framework/GSWBrowser.m
         replaced +NSNumber numberWithXXX with GSWIntToNSString()
+        * GSWeb.framework/GSWBundle.m
+        added + (id)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)encoding
+        added + (NSStringEncoding) encodingNamed:(NSString*) encodingName
+        fixed some encoding issues.
+        * GSWeb.framework/GSWMessage.m 
+        added a NSLog and then raise the exception to make debugging easier
 
 2004-11-30  David Wetzel <dave@turbocat.de>
 
