@@ -55,7 +55,15 @@
 #define GSWOPTVALUE_WorkerThreadCount		 	   	@"8"
 #define GSWOPTVALUE_MultiThreadEnabled				@"YES"
 #define GSWOPTVALUE_AdaptorHost					@""
-#define GSWOPTVALUE_SaveResponsesPath				nil
 #define GSWOPTVALUE_DefaultTemplateParser      			@"XMLHTML"
+#define GSWOPTVALUE_LifebeatEnabled				@"YES"
+#define GSWOPTVALUE_LifebeatDestinationHost			@"localhost"
+#define GSWOPTVALUE_LifebeatDestinationPort			@"1085"
+#define GSWOPTVALUE_LifebeatInterval				@"30"
+#define GSWOPTVALUE_DefaultUndoStackLimit			@"10"
+#define GSWOPTVALUE_LockDefaultEditingContext			@"NO"
+#define GSWOPTVALUE_WorkerThreadCountMin			@"16"
+#define GSWOPTVALUE_WorkerThreadCountMax			@"256"
+#define GSWOPTVALUE_AcceptedContentEncoding			@"gzip"
 
 #endif // _GSWebConfig_h__
