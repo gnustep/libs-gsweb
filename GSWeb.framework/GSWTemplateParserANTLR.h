@@ -1,6 +1,6 @@
 /** GSWTemplateParserANTLR.h - <title>GSWeb: Class GSWTemplateParserANTLR</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:       Mar 1999
@@ -36,9 +36,6 @@
 #include <gsantlr/ANTLRTextStreams.h>
 #include "GSWTemplateParser.h"
 #include "GSWHTMLTokenTypes.h"
-#include "GSWPageDefLexer.h"
-#include "GSWPageDefParser.h"
-#include "GSWPageDefParserExt.h"
 #include "GSWHTMLAttrLexer.h"
 #include "GSWHTMLAttrParser.h"
 #include "GSWHTMLAttrParserExt.h"

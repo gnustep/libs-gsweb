@@ -1,6 +1,6 @@
 /** GSWTemplateParserANTLR.m - <title>GSWeb: Class GSWTemplateParserANTLR</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:       Mar 1999
@@ -56,7 +56,7 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"low",@"template named:%@ frameworkName:%@ pageDefString=%@",
                _templateName,
                _frameworkName,
-               _definitionsString);
+               _declarationsString);
   //TODO remove
   /*
     [ANTLRCharBuffer setTraceFlag_LA:YES];
@@ -338,16 +338,16 @@ RCS_ID("$Id$")
                             }
                           else
                             {
-                              GSWPageDefElement* pageDefElement=[_definitions objectForKey:name];
-                              NSDebugMLLog(@"low",@"pageDefElement:[%@]",
-                                           pageDefElement);
-                              NSDebugMLLog(@"low",@"GSWeb Tag pageDefElement:[%@]",
-                                           pageDefElement);
-                              if (pageDefElement)
+                              GSWDeclaration* declaration=[_declarations objectForKey:name];
+                              NSDebugMLLog(@"low",@"declaration:[%@]",
+                                           declaration);
+                              NSDebugMLLog(@"low",@"GSWeb Tag declaration:[%@]",
+                                           declaration);
+                              if (declaration)
                                 {
-                                  NSDictionary* _associations=[pageDefElement associations];
+                                  NSDictionary* _associations=[declaration associations];
                                   NSString* className=nil;
-                                  className=[pageDefElement className];
+                                  className=[declaration type];
                                   NSDebugMLLog(@"low",@"GSWeb Tag className:[%@]",
                                                className);
                                   if (className)
@@ -385,12 +385,12 @@ RCS_ID("$Id$")
                                                       template:[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease]
                                                       languages:_languages];
                                       if (element)
-                                        [element setDefinitionName:[pageDefElement elementName]];
+                                        [element setDeclarationName:[declaration name]];
                                       else
                                         {
                                           ExceptionRaise(@"GSWTemplateParser",
                                                          @"GSWTemplateParser: Creation failed for element named:%@ className:%@ in template named %@",
-                                                         [pageDefElement elementName],
+                                                         [declaration name],
                                                          className,
                                                          _templateName);
                                         };
@@ -398,9 +398,9 @@ RCS_ID("$Id$")
                                   else
                                     {
                                       ExceptionRaise(@"GSWTemplateParser",
-                                                     @"GSWTemplateParser: No class name in page definition for tag named:%@ pageDefElement=%@ in template named %@",
+                                                     @"GSWTemplateParser: No class name in page definition for tag named:%@ declaration=%@ in template named %@",
                                                      name,
-                                                     pageDefElement,
+                                                     declaration,
                                                      _templateName);
                                     };
                                 }
