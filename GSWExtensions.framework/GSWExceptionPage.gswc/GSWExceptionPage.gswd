@@ -7,7 +7,7 @@ ExclamationImage: GSWImage
 
 VisibleConditional: GSWCollapsibleComponentContent
 {
-    condition = application.class.isDebuggingEnabled;
+    condition = application.isDebuggingEnabled;
     closedLabel = "An Exception has Occurred";
     openedLabel = "Exception Description";
 }
