@@ -38,7 +38,6 @@ static char rcsId[] = "$Id$";
 #include "GSWPageDefParser.h"
 #include "GSWPageDefParserExt.h"
 
-Class GSWTemplateParser_DefaultParserClass=Nil;
 //====================================================================
 @implementation GSWTemplateParser
 
@@ -46,35 +45,35 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
 {
   if (self == [GSWTemplateParser class])
     {
-      GSWTemplateParser_DefaultParserClass=NSClassFromString(GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME);
-      NSAssert(GSWTemplateParser_DefaultParserClass,@"Bad GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME");
     };
 };
 
-//--------------------------------------------------------------------
-+(void)setDefaultParserClassName:(NSString*)parserClassName
++(GSWTemplateParserType)templateParserTypeFromString:(NSString*)string
 {
-  NSAssert(parserClassName,@"No defaultParser Class Name");
-  GSWTemplateParser_DefaultParserClass=NSClassFromString(parserClassName);
-  NSAssert1(GSWTemplateParser_DefaultParserClass,@"No class named %@",parserClassName);
-};
+  GSWTemplateParserType type=0;
+  if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_XMLHTML] == NSOrderedSame)
+    type=GSWTemplateParserType_XMLHTML;
+  else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags] == NSOrderedSame)
+    type=GSWTemplateParserType_XMLHTMLNoOmittedTags;
+  else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_XML] == NSOrderedSame)
+    type=GSWTemplateParserType_XML;
+  else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_ANTLR] == NSOrderedSame)
+    type=GSWTemplateParserType_ANTLR;
+  else 
+    type=GSWTemplateParserType_XMLHTML;
+  return type;
+}
 
-//--------------------------------------------------------------------
-+(Class)defaultParserClass
++(GSWTemplateParserType)defaultTemplateParserType
 {
-  return GSWTemplateParser_DefaultParserClass;
-};
-
-//--------------------------------------------------------------------
-+(NSString*)defaultParserClassName
-{
-  return [NSString stringWithCString:[GSWTemplateParser_DefaultParserClass name]];
-};
+  return [self templateParserTypeFromString:[GSWApplication defaultTemplateParser]];
+}
 
 //--------------------------------------------------------------------
 +(GSWElement*)templateNamed:(NSString*)aName
            inFrameworkNamed:(NSString*)aFrameworkName
-        withParserClassName:(NSString*)parserClassName
+             withParserType:(GSWTemplateParserType)parserType
+            parserClassName:(NSString*)parserClassName
                  withString:(NSString*)HTMLString
                    encoding:(NSStringEncoding)anEncoding
                    fromPath:(NSString*)HTMLPath
@@ -93,7 +92,8 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
     };
   resultTemplate=[self templateNamed:aName
                        inFrameworkNamed:aFrameworkName
-                       withParserClass:parserClass
+                       withParserType:(GSWTemplateParserType)parserType
+                       parserClass:parserClass
                        withString:HTMLString
                        encoding:anEncoding
                        fromPath:HTMLPath
@@ -107,7 +107,8 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
 //--------------------------------------------------------------------
 +(GSWElement*)templateNamed:(NSString*)aName
            inFrameworkNamed:(NSString*)aFrameworkName
-            withParserClass:(Class)parserClass
+             withParserType:(GSWTemplateParserType)parserType
+                parserClass:(Class)parserClass
                  withString:(NSString*)HTMLString
                    encoding:(NSStringEncoding)anEncoding
                    fromPath:(NSString*)HTMLPath
@@ -117,24 +118,57 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
 {
   GSWElement* resultTemplate=nil;
   GSWTemplateParser* templateParser=nil;
+  Class finalParserClass=Nil;
   LOGClassFnStart();
   NSDebugMLLog(@"GSWTemplateParser",@"template named:%@ frameworkName:%@ pageDefString=%@",aName,aFrameworkName,pageDefString);
   NSDebugMLLog(@"GSWTemplateParser",@"aDefinitionPath=%@",aDefinitionPath);
-  if (!parserClass)
+  NSDebugMLLog(@"GSWTemplateParser",@"parserClass:%@ parserType:%d",parserClass,parserType);
+/*  if (!parserClass)
     {
       parserClass=[self defaultParserClass];
       NSAssert(parserClass,@"No defaultParser Class");
     };
-  templateParser=[[[parserClass alloc] initWithTemplateName:aName
-                                       inFrameworkName:aFrameworkName
-                                       withString:HTMLString
-                                       encoding:anEncoding
-                                       fromPath:HTMLPath
-                                       withDefinitionsString:pageDefString
-                                       fromPath:aDefinitionPath
-                                       forLanguages:someLanguages] autorelease];
+*/
+  if (parserClass)
+    finalParserClass=parserClass;
+  else
+    {
+      if (parserType==GSWTemplateParserType_Default)
+        parserType=[self defaultTemplateParserType];
+      switch(parserType)
+        {
+        case GSWTemplateParserType_XMLHTML:
+        case GSWTemplateParserType_XMLHTMLNoOmittedTags:
+          finalParserClass=[GSWTemplateParserXMLHTML class];
+          break;
+        case GSWTemplateParserType_XML:
+          finalParserClass=[GSWTemplateParserXML class];
+          break;
+        case GSWTemplateParserType_ANTLR:
+          finalParserClass=[GSWTemplateParserANTLR class];
+          break;
+        default:
+          finalParserClass=[GSWTemplateParserXMLHTML class];
+          break;
+        };
+    };
+  NSDebugMLLog(@"GSWTemplateParser",@"finalParserClass:%@ parserType:%d",finalParserClass,parserType);
+  NSAssert2(finalParserClass,@"No Final Parser class: parserClass:%@ parserType:%d",
+            parserClass,parserType);
+  templateParser=[[[finalParserClass alloc] initWithTemplateName:aName
+                                            inFrameworkName:aFrameworkName
+                                            withString:HTMLString
+                                            encoding:anEncoding
+                                            fromPath:HTMLPath
+                                            withDefinitionsString:pageDefString
+                                            fromPath:aDefinitionPath
+                                            forLanguages:someLanguages] autorelease];
   if (templateParser)
-    resultTemplate=[templateParser template];
+    {
+      if (!parserClass && parserType==GSWTemplateParserType_XMLHTMLNoOmittedTags)
+        [(GSWTemplateParserXMLHTML*)templateParser setNoOmittedTags:YES];
+      resultTemplate=[templateParser template];
+    };
   LOGClassFnStop();
   return resultTemplate;
 };
@@ -422,7 +456,11 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
   NSString* path=nil;
   int iLanguage=0;
   int iName=0;
+  BOOL isPathAlreadyProcessed=NO;
+
   LOGObjectFnStart();  
+
+
   NSDebugMLLog(@"gswcomponents",@"anIncludeName=%@",anIncludeName);
   resourceManager=[GSWApp resourceManager];
   localDefinitionName=[anIncludeName lastPathComponent];
@@ -463,6 +501,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
                 {
                   NSDebugMLLog(@"gswcomponents",@"path=%@ already processed",path);
                   path=nil;
+                  isPathAlreadyProcessed=YES;
                   if (language)
                     iLanguage=[_languages count]-1;//For directly go to no language search  so we don't include (for exemple) an English file for a french file
                 };
@@ -480,6 +519,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
                     {
                       NSDebugMLLog(@"gswcomponents",@"path=%@ already processed",path);
                       path=nil;
+                      isPathAlreadyProcessed=YES;
                       if (language)
                         iLanguage=[_languages count]-1;//For directly go to no language search  so we don't include (for exemple) an English file for a french file
                     };
@@ -532,7 +572,12 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
                          localFrameworkName,
                          processedFiles);
         };
+      NSDebugMLLog(@"GSWTemplateParser",@"localDefinitions:%@\n",localDefinitions);
+      if (localDefinitions)
+        returnedLocalDefinitions=[NSDictionary dictionaryWithDictionary:localDefinitions];
     }
+  else if (isPathAlreadyProcessed)
+    returnedLocalDefinitions=[NSDictionary dictionary];//return an empty dictionary
   else
     {
       ExceptionRaise(@"GSWTemplateParser",
@@ -542,9 +587,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
                      localFrameworkName,
                      processedFiles);
     };
-  NSDebugMLLog(@"GSWTemplateParser",@"localDefinitions:%@\n",localDefinitions);
-  if (localDefinitions)
-    returnedLocalDefinitions=[NSDictionary dictionaryWithDictionary:localDefinitions];
+  NSDebugMLLog(@"GSWTemplateParser",@"returnedLocalDefinitions:%@\n",returnedLocalDefinitions);
   LOGObjectFnStop();
   return returnedLocalDefinitions;
 };

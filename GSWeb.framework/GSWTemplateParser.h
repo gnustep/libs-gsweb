@@ -32,6 +32,18 @@
 #ifndef _GSWTemplateParser_h__
 	#define _GSWTemplateParser_h__
 
+
+
+//====================================================================
+typedef enum _GSWTemplateParserType 
+{
+  GSWTemplateParserType_Default,
+  GSWTemplateParserType_XMLHTML,
+  GSWTemplateParserType_XMLHTMLNoOmittedTags,
+  GSWTemplateParserType_XML,
+  GSWTemplateParserType_ANTLR
+} GSWTemplateParserType;
+
 //====================================================================
 @interface GSWTemplateParser : NSObject
 {
@@ -51,7 +63,8 @@
 
 +(GSWElement*)templateNamed:(NSString*)aName
            inFrameworkNamed:(NSString*)aFrameworkName
-        withParserClassName:(NSString*)parserClassName
+             withParserType:(GSWTemplateParserType)parserType
+            parserClassName:(NSString*)parserClassName
                  withString:(NSString*)HTMLString
                    encoding:(NSStringEncoding)encoding
                    fromPath:(NSString*)HTMLPath
@@ -60,16 +73,16 @@
              definitionPath:(NSString*)aDefinitionPath;
 +(GSWElement*)templateNamed:(NSString*)aName
            inFrameworkNamed:(NSString*)aFrameworkName
-            withParserClass:(Class)parserClass
+             withParserType:(GSWTemplateParserType)parserType
+                parserClass:(Class)parserClass
                  withString:(NSString*)HTMLString
                    encoding:(NSStringEncoding)encoding
                    fromPath:(NSString*)HTMLPath
           definitionsString:(NSString*)pageDefString
                   languages:(NSArray*)someLanguages
              definitionPath:(NSString*)aDefinitionPath;
-+(void)setDefaultParserClassName:(NSString*)parserClassName;
-+(NSString*)defaultParserClassName;
-+(Class)defaultParserClass;
++(GSWTemplateParserType)templateParserTypeFromString:(NSString*)string;
++(GSWTemplateParserType)defaultTemplateParserType;
 -(id)initWithTemplateName:(NSString*)aName
           inFrameworkName:(NSString*)aFrameworkName
                withString:(NSString*)HTMLString
