@@ -31,6 +31,7 @@ I'll tell you if someone already works on it.
 GNUstepWeb maintainer: Manuel Guesdon <mguesdon@gnustepweb.org>
 
 GNUstep discussion list: <discussion@gnustep.org>
+GNUstepWeb hackers list: http://lists.turbocat.net/mailman/listinfo.cgi/gswhackers
 
 Special Thanks
 =================
@@ -50,8 +51,12 @@ Special Thanks
 *	Catherine Biscourp <cbiscourp@sbuilders.com> for the 
 		GNUstepWeb logos and some other things...
 
-*       David Wetzel <dave@turbocat.de> from Turbocat and Kim Shrier <kim@tinker.com> 
-                for patches
+*       David Wetzel <dave@turbocat.de> from Turbocat's Development
+
+*       David Ayers <d.ayers@inode.at>
+
+*       Kim Shrier <kim@tinker.com> for patches
 
 --------------------------------------------------------------------------------
 Note: All trademarks mentioned on this server belong to their respective owners.
+
