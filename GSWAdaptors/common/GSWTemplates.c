@@ -44,8 +44,8 @@ const char *g_szErrorResponseTextTemplate[2]={
 
 //--------------------------------------------------------------------
 const char *g_szErrorNoResponseMessageTemplate[2]={
-"##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't repond",
-"##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't repond"};
+"##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't respond",
+"##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't respond"};
 
 //--------------------------------------------------------------------
 const char *g_szStatusResponseAllowedTemplate[2]={
