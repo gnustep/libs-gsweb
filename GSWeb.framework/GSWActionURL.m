@@ -41,17 +41,10 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  IM_StartC("ActionURL");
-  MDumpInputObject(name);
-  MDumpInputObject(associations);
-  MDumpInputObject(template);
-  if ((self=[super initWithName:name
-                   associations:associations
-                   template:template]))
-    {
-    };
-  IM_StopC("ActionURL");
-  return self;
+  LOGObjectFnStart();
+  [self notImplemented:_cmd];
+  LOGObjectFnStop();
+  return nil;
 };
 
 //--------------------------------------------------------------------
@@ -63,12 +56,10 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)elementName
 {
-  id retValue=nil;
-  IM_StartC("ActionURL");
-  retValue=[super elementName];
-  MDumpReturnObject(retValue);
-  IM_StopC("ActionURL");
-  return retValue;
+  LOGObjectFnStart();
+  [self notImplemented:_cmd];
+  LOGObjectFnStop();
+  return nil;
 };
 
 @end
@@ -80,21 +71,18 @@ RCS_ID("$Id$")
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  IM_StartC("ActionURL");
-  [super appendToResponse:response
-		 inContext:context];
-  IM_StopC("ActionURL");
+  LOGObjectFnStart();
+  [self notImplemented:_cmd];
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 +(BOOL)hasGSWebObjectsAssociations
 {
-  BOOL retValue=NO;
-  CM_StartC("ActionURL");
-  retValue=[[self superclass] hasWebObjectsAssociations];
-  MDumpReturnUInt(retValue);
-  CM_StopC("ActionURL");
-  return retValue;
+  LOGObjectFnStart();
+  [self notImplemented:_cmd];
+  LOGObjectFnStop();
+  return NO;
 };
 
 @end
