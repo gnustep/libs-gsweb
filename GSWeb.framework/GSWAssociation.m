@@ -459,9 +459,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 //--------------------------------------------------------------------
 -(BOOL)isImplementedForComponent:(NSObject*)component
 {
-  //OK
-  [self subclassResponsibility:_cmd];
-  return NO;
+  return YES;
 };
 
 @end
