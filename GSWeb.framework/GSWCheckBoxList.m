@@ -44,6 +44,7 @@ static char rcsId[] = "$Id$";
   [_associations removeObjectForKey:suffix__Key];
   [_associations removeObjectForKey:selections__Key];
   [_associations removeObjectForKey:displayString__Key];
+  [_associations removeObjectForKey:disabled__Key];
   [_associations removeObjectForKey:escapeHTML__Key];
   if ((self=[super initWithName:name_
 				   associations:_associations
@@ -93,6 +94,10 @@ static char rcsId[] = "$Id$";
 									  withDefaultObject:[displayString autorelease]] retain];
 	  NSDebugMLLog(@"gswdync",@"displayString=%@",displayString);
 	  
+	  itemDisabled = [[associations_ objectForKey:disabled__Key
+								   withDefaultObject:[itemDisabled autorelease]] retain];
+	  NSDebugMLLog(@"gswdync",@"itemDisabled=%@",itemDisabled);
+
 	  escapeHTML = [[associations_ objectForKey:escapeHTML__Key
 								   withDefaultObject:[escapeHTML autorelease]] retain];
 	  NSDebugMLLog(@"gswdync",@"escapeHTML=%@",escapeHTML);
@@ -111,6 +116,7 @@ static char rcsId[] = "$Id$";
   DESTROY(prefix);
   DESTROY(suffix);
   DESTROY(displayString);
+  DESTROY(itemDisabled);
   DESTROY(escapeHTML);
   [super dealloc];
 }
@@ -266,6 +272,7 @@ static char rcsId[] = "$Id$";
 	  id _prefixValue=nil;
 	  id _suffixValue=nil;
 	  id _valueValue=nil;
+	  BOOL _disableValue=NO;
 	  NSArray* _listValue=[list valueInComponent:_component];
 	  NSAssert3(!_listValue || [_listValue respondsToSelector:@selector(count)],
 				@"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
@@ -278,6 +285,7 @@ static char rcsId[] = "$Id$";
 				inComponent:_component];
 		  _prefixValue=[prefix valueInComponent:_component];
 		  _suffixValue=[suffix valueInComponent:_component];
+		  _disableValue=[itemDisabled valueInComponent:_component];
 		  [index setValue:[NSNumber numberWithShort:i]
 				 inComponent:_component];
 		  _displayStringValue=[displayString valueInComponent:_component];
@@ -290,6 +298,11 @@ static char rcsId[] = "$Id$";
 		  //TODOV
 		  if ([_selectionsValue containsObject:_valueValue])
 			[response_ appendContentString:@"\" CHECKED"];
+
+			if (_disableValue) 
+			  [response_ appendContentString:@"\" DISABLED"];
+
+
 		  [response_ appendContentCharacter:'>'];
 		  [response_ appendContentString:_prefixValue];
 		  [response_ appendContentHTMLString:_displayStringValue];

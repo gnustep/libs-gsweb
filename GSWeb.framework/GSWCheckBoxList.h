@@ -37,6 +37,7 @@
   GSWAssociation* suffix;
   GSWAssociation* displayString;
   GSWAssociation* escapeHTML;
+  GSWAssociation* itemDisabled;
   BOOL defaultEscapeHTML;
 };
 

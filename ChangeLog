@@ -1,3 +1,6 @@
+2000-06-20  Karl Kraft <karl@nfox.com> 
+  *  GSWCheckBoxList.m  Added support for the disabled key.
+
 2000-06-20  Karl Kraft <karl@nfox.com>
   This is a series of minor bug fixes that I've been meaning to check in for some time.
   *  GSWAssociations.m  Added some exception handling when getting an ivar so that when this raises an exception the name of the ivar causing the exception can be recorded and reported.  The exception is then re-raised
