@@ -772,6 +772,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
     };
   if (retValue) 
     {
+      NSDebugMLLog(@"associations",@"retValue ptr=%p",retValue);
       NSDebugMLLog(@"associations",@"retValue=%@",retValue);
     } 
   else 

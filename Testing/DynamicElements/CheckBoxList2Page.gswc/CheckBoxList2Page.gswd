@@ -1,0 +1,16 @@
+#include "Base"
+
+ACheckBoxList: GSWCheckBoxList
+{
+        list = application.bundleInfo.CheckBoxList.list;
+        item = anItem;
+        displayString = anItem.label;
+        selections = selectedItems;
+        name = "CHECKNAME";
+};
+
+SelectedItems: GSWString
+{
+        value = selectedItems;
+};
+

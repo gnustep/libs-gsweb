@@ -60,9 +60,14 @@
 
 //====================================================================
 @interface GSWInput (GSWInputA)
+
+/** Return the name for html output. 
+If no name is binded, it return the context id **/
 -(NSString*)nameInContext:(GSWContext*)context;
--(NSString*)valueInContext:(GSWContext*)context;
--(void)resetAutoValue;
+
+/** Return YES if element is disabled, NO otherwise, 
+depending on disabled/enabled binding
+**/
 -(BOOL)disabledInContext:(GSWContext*)context;
 @end
 
@@ -75,10 +80,24 @@
 
 //====================================================================
 @interface GSWInput (GSWInputC)
+/** Append the following elements to response:
+    tag
+    name (by calling -appendNameToResponse:inContext:)
+    value (by calling -appendValueToResponse:inContext:)
+    and others specified tag properties
+**/
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
                                       inContext:(GSWContext*)context;
+
+/** Append value property to response. 
+(Called by -appendGSWebObjectsAssociationsToResponse:inContext:)
+**/
 -(void)appendValueToResponse:(GSWResponse*)response
                    inContext:(GSWContext*)context;
+
+/** Append name property to response.
+name come from -nameInContext:
+*/
 -(void)appendNameToResponse:(GSWResponse*)response
                   inContext:(GSWContext*)context;
 

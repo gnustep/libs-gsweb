@@ -314,6 +314,8 @@ extern id imageMapString__Key;
 extern id imageMapRegions__Key;
 extern id handleValidationException__Key;
 extern id selectedValues__Key;
+extern id startIndex__Key;
+extern id stopIndex__Key;
 
 
 #endif // _GSWebConstants_h__

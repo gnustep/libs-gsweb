@@ -39,13 +39,15 @@
   GSWAssociation* _item;
   GSWAssociation* _index;
   GSWAssociation* _selections;
+//GSWeb Additions {
+  GSWAssociation* _selectionValues;
+// }
   GSWAssociation* _prefix;
   GSWAssociation* _suffix;
   GSWAssociation* _displayString;
   GSWAssociation* _escapeHTML;
   GSWAssociation* _itemDisabled;
   BOOL _defaultEscapeHTML;
-  BOOL _autoValue;
 };
 
 -(id)initWithName:(NSString*)name

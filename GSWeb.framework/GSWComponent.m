@@ -47,6 +47,7 @@ static char rcsId[] = "$Id$";
     {
       NSMutableDictionary* currentThreadDictionary=GSCurrentThreadDictionary();
       GSWContext* aContext=[currentThreadDictionary objectForKey:GSWThreadKey_Context];
+      // This was set by GSWComponentDefintion -componentInstanceInContext:
       GSWComponentDefinition* aComponentDefinition=[currentThreadDictionary objectForKey:GSWThreadKey_ComponentDefinition];
       NSAssert(aContext,@"No Context in GSWComponent Init");
       NSAssert(aComponentDefinition,@"No ComponentDefinition in GSWComponent Init");
@@ -60,8 +61,10 @@ static char rcsId[] = "$Id$";
       NSDebugMLLog(@"GSWComponent",@"_templateName=%@",_templateName);
       [self setCachingEnabled:[GSWApp isCachingEnabled]];
       [_componentDefinition _finishInitializingComponent:self];
-      _isSynchronized=[self synchronizesVariablesWithBindings];
-      NSDebugMLLog(@"GSWComponent",@"_isSynchronized=%s",(_isSynchronized ? "YES" : "NO"));
+      _isParentToComponentSynchronized=[self synchronizesParentToComponentVariablesWithBindings];
+      _isComponentToParentSynchronized=[self synchronizesComponentToParentVariablesWithBindings];
+      NSDebugMLLog(@"GSWComponent",@"_isParentToComponentSynchronized=%s",(_isParentToComponentSynchronized ? "YES" : "NO"));
+      NSDebugMLLog(@"GSWComponent",@"_isComponentToParentSynchronized=%s",(_isComponentToParentSynchronized ? "YES" : "NO"));
     };
   LOGObjectFnStop();
   return self;
@@ -123,7 +126,8 @@ static char rcsId[] = "$Id$";
   ASSIGNCOPY(clone->_session,_session);
   clone->_isPage=_isPage;
   clone->_isCachingEnabled=_isCachingEnabled;
-  clone->_isSynchronized=_isSynchronized;
+  clone->_isParentToComponentSynchronized=_isParentToComponentSynchronized;
+  clone->_isComponentToParentSynchronized=_isComponentToParentSynchronized;
   return clone;
 };
 
@@ -148,7 +152,9 @@ static char rcsId[] = "$Id$";
   [aCoder encodeValueOfObjCType:@encode(BOOL)
           at:&_isCachingEnabled];
   [aCoder encodeValueOfObjCType:@encode(BOOL)
-          at:&_isSynchronized];
+          at:&_isParentToComponentSynchronized];
+  [aCoder encodeValueOfObjCType:@encode(BOOL)
+          at:&_isComponentToParentSynchronized];
 }
 
 //--------------------------------------------------------------------
@@ -184,7 +190,9 @@ static char rcsId[] = "$Id$";
       [aCoder decodeValueOfObjCType:@encode(BOOL)
               at:&_isCachingEnabled];
       [aCoder decodeValueOfObjCType:@encode(BOOL)
-              at:&_isSynchronized];
+              at:&_isParentToComponentSynchronized];
+      [aCoder decodeValueOfObjCType:@encode(BOOL)
+              at:&_isComponentToParentSynchronized];
 	};
   return self;
 }
@@ -365,9 +373,9 @@ associationsKeys:(NSArray*)associationsKeys
 {
   //OK
   LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"Name=%@ - isSynchronized=%s",
-              [self definitionName],(_isSynchronized ? "YES" : "NO"));
-  if (_isSynchronized)
+  NSDebugMLLog(@"GSWComponent",@"Name=%@ - isComponentToParentSynchronized=%s",
+              [self definitionName],(_isComponentToParentSynchronized ? "YES" : "NO"));
+  if (_isComponentToParentSynchronized)
     {
       int i=0;
       id aKey=nil;
@@ -404,9 +412,9 @@ associationsKeys:(NSArray*)associationsKeys
 {
   //OK
   LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"Name=%@ - isSynchronized=%s",
-              [self definitionName],(_isSynchronized ? "YES" : "NO"));
-  if (_isSynchronized)
+  NSDebugMLLog(@"GSWComponent",@"Name=%@ - isParentToComponentSynchronized=%s",
+              [self definitionName],(_isParentToComponentSynchronized ? "YES" : "NO"));
+  if (_isParentToComponentSynchronized)
     {
       //Synchro Component->SubComponent
       int i=0;
@@ -904,6 +912,62 @@ associationsKeys:(NSArray*)associationsKeys
 	};
   LOGObjectFnStop();
   return aValue; 
+};
+
+//--------------------------------------------------------------------
+//NDFN
+/** Do we need to synchronize parent to component **/
+-(BOOL)synchronizesParentToComponentVariablesWithBindings
+{
+  //OK
+  NSDictionary* userDictionary=nil;
+  id synchronizesParentToComponentVariablesWithBindingsValue=nil;
+  BOOL synchronizesParentToComponentVariablesWithBindings=YES;
+  LOGObjectFnStart();
+  userDictionary=[self userDictionary];
+  synchronizesParentToComponentVariablesWithBindingsValue=[userDictionary objectForKey:@"synchronizesParentToComponentVariablesWithBindings"];
+  NSDebugMLLog(@"GSWComponent",@"defName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
+               [self definitionName],
+               synchronizesParentToComponentVariablesWithBindingsValue);
+  //NDFN
+  if (synchronizesParentToComponentVariablesWithBindingsValue)
+    {
+      synchronizesParentToComponentVariablesWithBindings=[synchronizesParentToComponentVariablesWithBindingsValue boolValue];
+      NSDebugMLLog(@"GSWComponent",@"userDictionary synchronizesParentToComponentVariablesWithBindings=%s",
+                       (synchronizesParentToComponentVariablesWithBindings ? "YES" : "NO"));
+    }
+  else
+    synchronizesParentToComponentVariablesWithBindings=[self synchronizesVariablesWithBindings];
+  LOGObjectFnStop();
+  return synchronizesParentToComponentVariablesWithBindings;
+};
+
+//--------------------------------------------------------------------
+//NDFN
+/** Do we need to synchronize component to parent **/
+-(BOOL)synchronizesComponentToParentVariablesWithBindings
+{
+  //OK
+  NSDictionary* userDictionary=nil;
+  id synchronizesComponentToParentVariablesWithBindingsValue=nil;
+  BOOL synchronizesComponentToParentVariablesWithBindings=YES;
+  LOGObjectFnStart();
+  userDictionary=[self userDictionary];
+  synchronizesComponentToParentVariablesWithBindingsValue=[userDictionary objectForKey:@"synchronizesComponentToParentVariablesWithBindings"];
+  NSDebugMLLog(@"GSWComponent",@"defName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
+               [self definitionName],
+               synchronizesComponentToParentVariablesWithBindingsValue);
+  //NDFN
+  if (synchronizesComponentToParentVariablesWithBindingsValue)
+    {
+      synchronizesComponentToParentVariablesWithBindings=[synchronizesComponentToParentVariablesWithBindingsValue boolValue];
+      NSDebugMLLog(@"GSWComponent",@"userDictionary synchronizesComponentToParentVariablesWithBindings=%s",
+                       (synchronizesComponentToParentVariablesWithBindings ? "YES" : "NO"));
+    }
+  else
+    synchronizesComponentToParentVariablesWithBindings=[self synchronizesVariablesWithBindings];
+  LOGObjectFnStop();
+  return synchronizesComponentToParentVariablesWithBindings;
 };
 
 //--------------------------------------------------------------------
@@ -1535,11 +1599,13 @@ associationsKeys:(NSArray*)associationsKeys
   NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
   [session appendCookieToResponse:response];
 //==>11
+  NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
   [session _saveCurrentPage];
   [aContext _incrementContextID];
   [aContext deleteAllElementIDComponents];
   [aContext _setPageChanged:pageChanged];
   [aContext _setPageReplaced:NO];
+  NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
 
 //<==========
   LOGObjectFnStop();
@@ -1895,3 +1961,4 @@ associationsKeys:(NSArray*)associationsKeys
     };
 };
 @end
+

@@ -1,17 +1,13 @@
 /*
- * Main.wod
+ * Main.gswd
  *
  * You may freely copy, distribute and reuse the code in this example.
- * NeXT disclaims any warranty of any kind, expressed or implied, as to
+ * We disclaims any warranty of any kind, expressed or implied, as to
  * its fitness for any particular use.
  *
- * Written by WebObjects Development Team
- *
- * This is the declarations file for the first page (Main) of the 
- * HelloWorldObjC application. Each declaration corresponds to a WEBOBJECT
- * element in Main.html. The declarations specify a WODynamicElement to 
- * represent the corresponding WEBOBJECT element and configure the dynamic
- * element with variables and methods defined in the Main object.
+ * This is the declarations file for the Main page of the 
+ * HelloWorld ObjC application. Each declaration corresponds to a GNUstepWeb
+ * element in Main.html.
  *
  */
  

@@ -43,8 +43,9 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStartC("GSWInput");
   NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",aName,associations,elements);
   [attributedAssociations removeObjectForKey:disabled__Key];
-  [attributedAssociations removeObjectForKey:enabled__Key];//??
-  [attributedAssociations removeObjectForKey:value__Key];//??
+  [attributedAssociations removeObjectForKey:enabled__Key];
+  [attributedAssociations removeObjectForKey:value__Key];
+  [attributedAssociations removeObjectForKey:name__Key];
   if (!WOStrictFlag)    
     [attributedAssociations removeObjectForKey:handleValidationException__Key];
   _value = [[associations objectForKey:value__Key
@@ -131,50 +132,15 @@ static char rcsId[] = "$Id$";
       nameValue=[context elementID];
       NSDebugMLLog(@"gswdync",@"elementID=%@",[context elementID]);
     };
+  NSDebugMLLog(@"gswdync",@"nameValue=%@",nameValue);
   GSWAssertIsElementID(context);
   LOGObjectFnStopC("GSWInput");
   return nameValue;
 };
 
-static int countAutoValue = 0;
-
-//--------------------------------------------------------------------
--(NSString*)valueInContext:(GSWContext*)context
-{
-  //OK
-  GSWComponent *component=nil;
-  NSString *valueValue=nil;
-
-  LOGObjectFnStartC("GSWInput");
-  countAutoValue++;
-  if(_value)
-    {
-      component=[context component];
-      valueValue=[_value valueInComponent:component];
-    }
-  else
-    {
-      valueValue=[NSString stringWithFormat:@"%@.%d", [context elementID], countAutoValue];
-      NSDebugMLLog(@"gswdync",@"elementID=%@ _countAutoValue",[context elementID], countAutoValue);
-    }
-  LOGObjectFnStopC("GSWInput");
-  return valueValue;
-}
-
-//--------------------------------------------------------------------
-- (void)resetAutoValue
-{
-  LOGObjectFnStartC("GSWInput");
-
-  countAutoValue = 0;
-
-  LOGObjectFnStopC("GSWInput");
-}
-
 //--------------------------------------------------------------------
 -(BOOL)disabledInContext:(GSWContext*)context
 {
-  //OK
   if (!WOStrictFlag && _enabled)
     return ![self evaluateCondition:_enabled
                   inContext:context];
@@ -249,9 +215,9 @@ static int countAutoValue = 0;
   disabledInContext=[self disabledInContext:context]; //return 0
   if (disabledInContext)
     [response _appendContentAsciiString:@" disabled"];
-  [self appendValueToResponse:response
-        inContext:context];
   [self appendNameToResponse:response
+        inContext:context];
+  [self appendValueToResponse:response
         inContext:context];
   LOGObjectFnStopC("GSWInput");
 };

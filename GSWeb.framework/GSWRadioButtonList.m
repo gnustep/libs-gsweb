@@ -31,6 +31,36 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
+/**
+Bindings
+
+	list		Array of objects that the dynamic element iterate through.
+
+        index		On each iteration the element put the current index in this binding
+
+        item		On each iteration the element take the item at the current index and put it in this binding
+
+        displayString  	String to display for each radio button.
+
+        value		Value for the INPUT tag for each radio button
+
+        prefix		An html string to insert before each value.
+
+        suffix		An html string to insert after each value.
+
+        selection	Selected object (used to pre-check radio button and modified to reflect user choice)
+        			It contains  object from list, not value binding evaluated one !
+
+        selectionValue	Selected value (used to pre-check radio button and modified to reflect user choice)
+        			It contains evaluated value binding !
+
+        name		Name of the element in the form (should be unique). If not specified, GSWeb assign one.
+
+        disabled	If evaluated to yes, the radio button appear inactivated.
+
+        escapeHTML	If evaluated to yes, escape displayString
+
+**/
 //====================================================================
 @implementation GSWRadioButtonList
 
@@ -41,7 +71,7 @@ static char rcsId[] = "$Id$";
 {
   //OK
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStart();
+  LOGObjectFnStartC("GSWRadioButtonList");
   NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",
                aName,associations,elements);
   _defaultEscapeHTML=1;
@@ -49,6 +79,8 @@ static char rcsId[] = "$Id$";
   [tmpAssociations removeObjectForKey:item__Key];
   [tmpAssociations removeObjectForKey:index__Key];
   [tmpAssociations removeObjectForKey:selection__Key];
+  if (!WOStrictFlag)
+    [tmpAssociations removeObjectForKey:selectionValue__Key];
   [tmpAssociations removeObjectForKey:prefix__Key];
   [tmpAssociations removeObjectForKey:suffix__Key];
   [tmpAssociations removeObjectForKey:displayString__Key];
@@ -63,20 +95,29 @@ static char rcsId[] = "$Id$";
                           withDefaultObject:[_item autorelease]] retain];
       if (_item && ![_item isValueSettable])
         {
-          ExceptionRaise0(@"GSWCheckBox",@"'item' parameter must be settable");
+          ExceptionRaise0(@"GSWRadioButtonList",@"'item' parameter must be settable");
         };
       _index=[[associations objectForKey:index__Key
                             withDefaultObject:[_index autorelease]] retain];
       if (_index && ![_index isValueSettable])
         {
-          ExceptionRaise0(@"GSWCheckBox",@"'index' parameter must be settable");
+          ExceptionRaise0(@"GSWRadioButtonList",@"'index' parameter must be settable");
         };
       
       _selection=[[associations objectForKey:selection__Key
                                 withDefaultObject:[_selection autorelease]] retain];
-      if (![_selection isValueSettable])
+      if (_selection && ![_selection isValueSettable])
         {
-          ExceptionRaise0(@"GSWCheckBox",@"'selection' parameter must be settable");
+          ExceptionRaise0(@"GSWRadioButtonList",@"'selection' parameter must be settable");
+        };
+      if (!WOStrictFlag)
+        {
+          _selectionValue=[[associations objectForKey:selectionValue__Key
+                                         withDefaultObject:[_selectionValue autorelease]] retain];
+          if (_selectionValue && ![_selectionValue isValueSettable])
+            {
+              ExceptionRaise0(@"GSWRadioButtonList",@"'selectionValue' parameter must be settable");
+            };
         };
       _prefix=[[associations objectForKey:prefix__Key
                              withDefaultObject:[_prefix autorelease]] retain];
@@ -97,6 +138,7 @@ static char rcsId[] = "$Id$";
   DESTROY(_item);
   DESTROY(_index);
   DESTROY(_selection);
+  DESTROY(_selectionValue);//GSWeb Only
   DESTROY(_prefix);
   DESTROY(_suffix);
   DESTROY(_displayString);
@@ -128,10 +170,10 @@ static char rcsId[] = "$Id$";
                    inContext:(GSWContext*)context
 {
   //OK
-  LOGObjectFnStart();
+  LOGObjectFnStartC("GSWRadioButtonList");
   [self _slowTakeValuesFromRequest:request
         inContext:context];
-  LOGObjectFnStop();
+  LOGObjectFnStopC("GSWRadioButtonList");
 };
 
 //-----------------------------------------------------------------------------------
@@ -140,26 +182,31 @@ static char rcsId[] = "$Id$";
 {
   //OK
   BOOL disabledInContext=NO;
-  LOGObjectFnStart();
+  LOGObjectFnStartC("GSWRadioButtonList");
 
-  [self resetAutoValue];
   disabledInContext=[self disabledInContext:context];
   if (!disabledInContext)
     {
       if ([context _wasFormSubmitted])
         {
           GSWComponent* component=[context component];
-          NSArray* listValue=nil;
+          NSArray* listValue=nil; // _list value
           NSString* name=nil;
-          int foundIndex=-1;
+          BOOL found=NO;
           id formValue=nil;
-          id valueValue=nil;
-          id valueToSet=nil;
+          id valueValue=nil; // _value value (or autoValue)
+          id itemValue=nil; // _item value
+          NSString* valueValueString=nil; // _value value as string
+          id itemValueToSet=nil; // item value to set to _selection
+          id valueValueToSet=nil; // valueValue  to set to _selectionValue
           int i=0;
+
           name=[self nameInContext:context];
           NSDebugMLLog(@"gswdync",@"name=%@",name);
+
           formValue=[request formValueForKey:name];
           NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
+
           listValue=[_list valueInComponent:component];
           NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
                     @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
@@ -167,78 +214,103 @@ static char rcsId[] = "$Id$";
                     listValue,
                     [listValue class]);
           NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
-          for(i=0;i<[listValue count] && foundIndex<0;i++)
+
+          for(i=0;i<[listValue count] && !found;i++)
             {
               NSDebugMLLog(@"gswdync",@"item=%@",_item);
               NSDebugMLLog(@"gswdync",@"index=%@",_index);
-              if (_item)
-                [_item setValue:[listValue objectAtIndex:i]
+
+              itemValue=[listValue objectAtIndex:i];
+	      if (_item)
+		[_item setValue:itemValue
                        inComponent:component];
-              else if (_index)
+
+              if (_index)
                 [_index setValue:[NSNumber numberWithShort:i]
                         inComponent:component];
-              NSDebugMLLog(@"gswdync",@"value=%@",_value);
 
-              //TODOV
-              valueValue=[self valueInContext:context];
-              NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+              NSDebugMLLog(@"gswdync",@"value=%@",_value);
+              if (_value)  	// Binded Value          
+                valueValue = [_value valueInComponent:component];
+              else		// Auto Value
+                valueValue = [NSNumber numberWithInt:i]; 
+              valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+
+	      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+
               if (valueValue)
                 {
-                  BOOL isEqual=SBIsValueEqual(valueValue,formValue);
+                  // we compare (with object equality not pointer equality) 
+                  BOOL isEqual=SBIsValueEqual(valueValueString,formValue);
                   NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
+
                   if (isEqual)
                     {
-                      if(_autoValue == NO)
-                        valueToSet=valueValue;
-                      else
-                        valueToSet=[listValue objectAtIndex:i];
-                      foundIndex=i;
+                      itemValueToSet=itemValue;
+                      valueValueToSet=valueValue;
+                      found=YES;
                     };
                 };
             };
           NSDebugMLLog(@"gswdync",@"component=%@",component);
-          NSDebugMLLog(@"gswdync",@"foundIndex=%d",foundIndex);
+          NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
           NSDebugMLLog(@"gswdync",@"selection=%@",_selection);
           GSWLogAssertGood(component);
-          if (!WOStrictFlag)
+          NS_DURING
             {
-              NS_DURING
+              [_selection setValue:itemValueToSet
+                          inComponent:component];
+            };
+          NS_HANDLER
+            {
+              LOGException(@"GSWRadioButtonList _selection=%@ itemValueToSet=%@ exception=%@",
+                           _selection,itemValueToSet,localException);
+              if (WOStrictFlag)
                 {
-                  if (foundIndex>=0)
-                    [_selection setValue:valueToSet
-                                inComponent:component];
-                  else
-                    [_selection setValue:nil
-                                inComponent:component];
-                };
-              NS_HANDLER
+                  [localException raise];
+                }
+              else
                 {
                   [self handleValidationException:localException
                         inContext:context];
+                };
+            }
+          NS_ENDHANDLER;
+          if (!WOStrictFlag && _selectionValue)
+            {
+              NS_DURING
+                {
+                  [_selectionValue setValue:valueValueToSet
+                                   inComponent:component];
+                };
+              NS_HANDLER
+                {
+                  LOGException(@"GSWRadioButtonList _selectionValue=%@ valueValueToSet=%@ exception=%@",
+                               _selectionValue,valueValueToSet,localException);
+                  if (WOStrictFlag)
+                    {
+                      [localException raise];
+                    }
+                  else
+                    {
+                      [self handleValidationException:localException
+                            inContext:context];
+                    };
                 }
               NS_ENDHANDLER;
-            }
-          else
-            {
-              if (foundIndex>=0)
-                [_selection setValue:valueToSet
-                            inComponent:component];
-              else
-                [_selection setValue:nil
-                            inComponent:component];
             };
         };
     };
-  LOGObjectFnStop();
+  LOGObjectFnStopC("GSWRadioButtonList");
 };
 
 //-----------------------------------------------------------------------------------
 -(void)_fastTakeValuesFromRequest:(GSWRequest*)request
                         inContext:(GSWContext*)context
 {
-  LOGObjectFnStart();
+  LOGObjectFnStartC("GSWRadioButtonList");
   LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
+  LOGObjectFnStopC("GSWRadioButtonList");
 };
 
 //-----------------------------------------------------------------------------------
@@ -248,24 +320,28 @@ static char rcsId[] = "$Id$";
   //OK
   GSWRequest* request=nil;
   BOOL isFromClientComponent=NO;
+  BOOL disabledInContext=NO;
   NSString* name=nil;
   GSWComponent* component=nil;
   NSArray* listValue=nil;
   id selectionValue=nil;
+  id selectionValueValue=nil;
   int i=0;
   id displayStringValue=nil;
   id prefixValue=nil;
   id suffixValue=nil;
-  id valueValue=nil;
-  BOOL isEqual=NO;
-  LOGObjectFnStart();
-  [self resetAutoValue];
-  _autoValue = NO;
+  id valueValue=nil; // _value value (or auto value)
+  id itemValue=nil; // _item value
+  LOGObjectFnStartC("GSWRadioButtonList");
+
   request=[context request];
   isFromClientComponent=[request isFromClientComponent];
   name=[self nameInContext:context];
   component=[context component];
+
   selectionValue=[_selection valueInComponent:component];
+  selectionValueValue=[_selectionValue valueInComponent:component];
+
   listValue=[_list valueInComponent:component];
   NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
             @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
@@ -274,35 +350,70 @@ static char rcsId[] = "$Id$";
             [listValue class]);
   for(i=0;i<[listValue count];i++)
     {
-      [_item setValue:[listValue objectAtIndex:i]
+      BOOL isEqual=NO;
+
+      disabledInContext=[self disabledInContext:context];
+
+      itemValue=[listValue objectAtIndex:i];
+      [_item setValue:itemValue
              inComponent:component];
+
       prefixValue=[_prefix valueInComponent:component];
       suffixValue=[_suffix valueInComponent:component];
+
       [_index setValue:[NSNumber numberWithShort:i]
               inComponent:component];
+
       displayStringValue=[_displayString valueInComponent:component];
+
       [response appendContentString:@"<INPUT NAME=\""];
       [response appendContentString:name];
+
       [response appendContentString:@"\" TYPE=radio VALUE=\""];
-      valueValue=[self valueInContext:context];
+
+      NSDebugMLLog(@"gswdync",@"_value (class: %@): %@",[_value class],_value);
+      // Value property of the INPUT tag
+      if (_value)  	// Binded Value          
+        valueValue = [_value valueInComponent:component];
+      else		// Auto Value
+        valueValue = [NSNumber numberWithInt:i];
+      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+      
       [response appendContentHTMLAttributeValue:valueValue];
       [response appendContentCharacter:'"'];
-      //TODOV
-      if(_value)
-        isEqual=SBIsValueEqual(valueValue,selectionValue);
-      else
+
+      NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
+      NSDebugMLLog(@"gswdync",@"selectionValue class=%@",[selectionValue class]);
+      NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
+      NSDebugMLLog(@"gswdync",@"itemValue class=%@",[itemValue class]);
+      if (selectionValue)
         {
-          isEqual=SBIsValueEqual([listValue objectAtIndex:i],selectionValue);
-          _autoValue = YES;
+          isEqual=SBIsValueEqual(itemValue,selectionValue);
+          NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
         }
+
+      NSDebugMLLog(@"gswdync",@"selectionValueValue=%@",selectionValueValue);
+      NSDebugMLLog(@"gswdync",@"selectionValueValue class=%@",[selectionValueValue class]);
+      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+      NSDebugMLLog(@"gswdync",@"valueValue class=%@",[valueValue class]);
+      if (isEqual==NO && selectionValueValue)
+        {
+          isEqual=SBIsValueEqual(valueValue,selectionValueValue);
+          NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
+        }
+
       if (isEqual)
-        [response appendContentString:@"\" CHECKED"];
+        [response appendContentString:@" CHECKED"];
+
+      if (disabledInContext)
+        [response _appendContentAsciiString:@" DISABLED"];
+
       [response appendContentCharacter:'>'];
       [response appendContentString:prefixValue];
       [response appendContentHTMLString:displayStringValue];
       [response appendContentString:suffixValue];
-	};
-  LOGObjectFnStop();
+    };
+  LOGObjectFnStopC("GSWRadioButtonList");
 };
 
 @end

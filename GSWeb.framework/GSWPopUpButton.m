@@ -31,6 +31,35 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
+/**
+Bindings
+
+	list		Array of objects that the dynamic element iterate through.
+
+        index		On each iteration the element put the current index in this binding
+
+        item		On each iteration the element take the item at the current index and put it in this binding
+
+        displayString  	String to display for each item.
+
+        value		Value for each OPTION tag 
+
+        selection	Selected object (used to pre-select item and modified to reflect user choice)
+        			It contains  object from list, not value binding evaluated one !
+
+        selectedValue	Array of pre selected values (not objects !)
+
+        name		Name of the element in the form (should be unique). If not specified, GSWeb assign one.
+
+        disabled	If evaluated to yes, the check box appear inactivated.
+
+        escapeHTML	If evaluated to yes, escape displayString
+
+        noSelectionString	If binded, displayed as the first item. If selected, considered as 
+        				an empty selection (selection is set to nil, selectionValue too)
+
+**/
+
 //====================================================================
 @implementation GSWPopUpButton
 
@@ -147,7 +176,7 @@ static char rcsId[] = "$Id$";
 
 /*
 
- On WO it looks like that:
+ On WO it looks like that when value is not binded:
 
  <SELECT name="4.2.7">
  <OPTION value="0">blau</OPTION>
@@ -181,8 +210,6 @@ static char rcsId[] = "$Id$";
   id escapeHTMLValue=nil;
   int i=0;
   BOOL inOptGroup=NO;
-  NSString * popupName=nil;
-
 #ifndef ENABLE_OPTGROUP
   BOOL optGroupLabel=NO;
 #endif
@@ -190,17 +217,13 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStartC("GSWPopUpButton");
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
-  [self resetAutoValue];
-  _autoValue = NO;
+
   request=[context request];
   isFromClientComponent=[request isFromClientComponent];
   component=[context component];
-  popupName=[self nameInContext:context];
 
-  //[super appendToResponse:response
-  //		 inContext:context];
-  [response _appendContentAsciiString:@"<SELECT"];
-  [response _appendContentAsciiString:[NSString stringWithFormat:@" NAME=\"%@\">",popupName]];
+  [super appendToResponse:response
+         inContext:context];
 
   NSDebugMLLog(@"gswdync",@"_list=%@",_list);
   if (_list)
@@ -215,8 +238,6 @@ static char rcsId[] = "$Id$";
       countValue=[listValue count];
     };
 
- // NSLog(@"listValue=%@",listValue);
-  
   NSDebugMLLog(@"gswdync",@"_count=%@",_count);
   if (_count)
     {
@@ -246,6 +267,7 @@ static char rcsId[] = "$Id$";
       escapeHTMLValue=[_escapeHTML valueInComponent:component];
       escapeHTMLBoolValue=boolValueFor(escapeHTMLValue);
     };
+
   if (_noSelectionString)
     {
       id noSelectionStringValue=nil;
@@ -256,6 +278,7 @@ static char rcsId[] = "$Id$";
           [response _appendContentAsciiString:@"selected"];//TODO
         };
       [response appendContentCharacter:'>'];
+
       noSelectionStringValue=[_noSelectionString valueInComponent:component];
       if (escapeHTMLBoolValue)
         noSelectionStringValue=[GSWResponse stringByEscapingHTMLString:noSelectionStringValue];
@@ -264,6 +287,7 @@ static char rcsId[] = "$Id$";
       // There is no close tag on OPTION
       //[response _appendContentAsciiString:@"</OPTION>"];
     };
+
   NSDebugMLLog(@"gswdync",@"countValue=%d",countValue);
   for(i=0;i<countValue;i++)
     {
@@ -278,18 +302,18 @@ static char rcsId[] = "$Id$";
       if (_index)
         [_index setValue:[NSNumber numberWithShort:i]
                 inComponent:component];
+
       NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
       if (itemValue)
         {
-          NSDebugMLLog(@"gswdync",@"value=%@",_value);
-          if (_value)
-            valueValue=[self valueInContext:context];
-          else
-            {
-              _autoValue = YES;
-              valueValue = itemValue;
-            };
+          NSDebugMLLog(@"gswdync",@"_value (class: %@): %@",[_value class],_value);
+          // Value property of the INPUT tag
+          if (_value)  	// Binded Value          
+            valueValue = [_value valueInComponent:component];
+          else		// Auto Value
+            valueValue = [NSNumber numberWithInt:i];
           NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+
           if (valueValue)
             {
               BOOL isEqual=NO;
@@ -297,41 +321,15 @@ static char rcsId[] = "$Id$";
               NSDebugMLLog0(@"gswdync",@"Adding OPTION");
               [response _appendContentAsciiString:@"\n<OPTION"];
               NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
-              if (_selection)
-              {
-                if (_value)
-                {
-                  //NSLog(@"%s:%d valueValue:%@ selectionValue:%@",__FILE__,__LINE__,valueValue,selectionValue);
-                  isEqual=SBIsValueEqual(valueValue,selectionValue);
-                  // dave
-                  //			isEqual=[valueValue isEqual:selectionValue];
-                  //We can have a value but want to compare on item/selection object
-                  if (!isEqual) {
-                    //                        isEqual=(itemValue && (itemValue==selectionValue));
-                    isEqual=(itemValue && ([itemValue isEqual:selectionValue]));
-                  } // ??
-                } else {
-                  //NSLog(@"%s:%d itemValue:%@ selectionValue:%@",__FILE__,__LINE__,itemValue,selectionValue);
 
+              NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
+              NSDebugMLLog(@"gswdync",@"selectionValue class=%@",[selectionValue class]);
+              NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
+              NSDebugMLLog(@"gswdync",@"itemValue class=%@",[itemValue class]);
+              if (selectionValue)
+                {
                   isEqual=SBIsValueEqual(itemValue,selectionValue);
 
-                }
-                NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
-                if (isEqual)
-                {
-                  [response appendContentCharacter:' '];
-                  [response _appendContentAsciiString:@"selected"];
-                };
-              };
-              if (isEqual == NO && _selectedValue)
-                {
-                if(_value) {
-                  //NSLog(@"%s:%d valueValue:%@ selectedValueValue:%@",__FILE__,__LINE__,valueValue,selectedValueValue);
-                    isEqual=SBIsValueEqual(valueValue,selectedValueValue);
-                } else {
-                  //NSLog(@"%s:%d itemValue:%@ selectedValueValue:%@",__FILE__,__LINE__,itemValue,selectedValueValue);
-                    isEqual=SBIsValueEqual(itemValue,selectedValueValue);
-                }
                   NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
                   if (isEqual)
                     {
@@ -339,13 +337,23 @@ static char rcsId[] = "$Id$";
                       [response _appendContentAsciiString:@"selected"];
                     };
                 };
-              if (valueValue)
-              {
-                [response _appendContentAsciiString:@" value=\""];
-                //[response _appendContentAsciiString:valueValue];
-                [response _appendContentAsciiString:[NSString stringWithFormat:@"%d",i]];
-                [response appendContentCharacter:'"'];
-              };
+
+              if (isEqual == NO && _selectedValue)
+                {
+                  // selected values is selections but on valueValue not itemValue
+                  isEqual=SBIsValueEqual(valueValue,selectedValueValue);
+
+                  NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
+                  if (isEqual)
+                    {
+                      [response appendContentCharacter:' '];
+                      [response _appendContentAsciiString:@"selected"];
+                    };
+                };
+
+              [response _appendContentAsciiString:@" value=\""];
+              [response _appendContentAsciiString:valueValue];
+              [response appendContentCharacter:'"'];
               [response appendContentCharacter:'>'];
             };
           displayStringValue=nil;
@@ -402,7 +410,6 @@ static char rcsId[] = "$Id$";
             };
           if (valueValue)
             {
-              //NSDebugMLLog0(@"gswdync",@"Adding /OPTION");
               // K2- No /OPTION TAG
               //[response _appendContentAsciiString:@"</OPTION>"];
             }
@@ -439,8 +446,7 @@ static char rcsId[] = "$Id$";
 -(void)appendValueToResponse:(GSWResponse*)response
                    inContext:(GSWContext*)context
 {
-  //OK
-  //Does nothing !
+  //Does nothing because value is only printed in OPTION tag
 };
 
 //--------------------------------------------------------------------
@@ -475,7 +481,6 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStartC("GSWPopUpButton");
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
-  [self resetAutoValue];
   disabledValue=[self disabledInContext:context];
   if (!disabledValue)
     {
@@ -485,6 +490,7 @@ static char rcsId[] = "$Id$";
           GSWComponent* component=nil;
           NSArray* listValue=nil;
           id valueValue=nil;
+          NSString* valueValueString=nil;
           id itemValue=nil;
           NSString* name=nil;
           NSArray* formValues=nil;
@@ -492,127 +498,124 @@ static char rcsId[] = "$Id$";
           BOOL found=NO;
           int i=0;
           int countValue=0;
+          id itemValueToSet=nil;	// Object from list found (==> _selection)
+          id valueValueToSet=nil;	// Value Found (==> _selectionValue)
+
           component=[context component];
           name=[self nameInContext:context];
           NSDebugMLLog(@"gswdync",@"name=%@",name);
           formValues=[request formValuesForKey:name];
           NSDebugMLLog(@"gswdync",@"formValues=%@",formValues);
+
           if (formValues && [formValues count]>0)
-          {
-            BOOL isEqual=NO;
-            formValue=[formValues objectAtIndex:0];
-            //NSLog(@"GSWPopUpButton formValue=%@",formValue);
-            NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
-            if (_list)
             {
-              listValue=[_list valueInComponent:component];
-              NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
-                        @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
-                        _list,
-                        listValue,
-                        [listValue class]);
-              countValue=[listValue count];
-            }
-            if (_count)
-            {
-              id tmpCountValue=[_count valueInComponent:component];
-              int tmpCount=0;
-              NSAssert3(!tmpCountValue || [tmpCountValue respondsToSelector:@selector(intValue)],
-                        @"The 'count' (%@) value %@ (of class:%@) doesn't  respond to 'intValue'",
-                        _count,
-                        tmpCountValue,
-                        [tmpCountValue class]);
-              tmpCount=[tmpCountValue intValue];
-              NSDebugMLog(@"tmpCount=%d",tmpCount);
+              formValue=[formValues objectAtIndex:0];
+              NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
               if (_list)
-                countValue=min(tmpCount,countValue);
-              else
-                countValue=tmpCount;
-            }
-
-            for(i=0;!found && i<countValue;i++) {
-              itemValue=[listValue objectAtIndex:i];
-              //  NSDebugMLLog(@"gswdync",@"_itemValue=%@",itemValue);
-              //  NSDebugMLLog(@"gswdync",@"item=%@",_item);
-
-              if (_item)
-                [_item setValue:itemValue
-                    inComponent:component];
-              //NSDebugMLLog(@"gswdync",@"value=%@",_value);
-              if ([formValues containsObject:[NSString stringWithFormat:@"%d",i]])
-              {
-                found=YES;
-                if (_selection)
                 {
-                  NS_DURING
-                  {
-                    NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
-                    [_selection setValue:itemValue
-                             inComponent:component];
-                  }
-                  NS_HANDLER
-                  {
-                    LOGException(@"GSWPopUpButton _value=%@ resultValue=%@ exception=%@",
-                                 _value,resultValue,localException);
-                    if (WOStrictFlag)
+                  listValue=[_list valueInComponent:component];
+                  NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
+                            @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
+                            _list,
+                            listValue,
+                            [listValue class]);
+                  countValue=[listValue count];
+                }
+              if (_count)
+                {
+                  id tmpCountValue=[_count valueInComponent:component];
+                  int tmpCount=0;
+                  NSAssert3(!tmpCountValue || [tmpCountValue respondsToSelector:@selector(intValue)],
+                            @"The 'count' (%@) value %@ (of class:%@) doesn't  respond to 'intValue'",
+                            _count,
+                            tmpCountValue,
+                            [tmpCountValue class]);
+                  tmpCount=[tmpCountValue intValue];
+                  NSDebugMLog(@"tmpCount=%d",tmpCount);
+                  if (_list)
+                    countValue=min(tmpCount,countValue);
+                  else
+                    countValue=tmpCount;
+                }
+              
+              for(i=0;!found && i<countValue;i++)
+                {
+                  if (listValue)
+                    itemValue=[listValue objectAtIndex:i];
+                  else
+                    itemValue=[NSNumber numberWithShort:i];
+                  NSDebugMLLog(@"gswdync",@"_itemValue=%@",itemValue);
+                  NSDebugMLLog(@"gswdync",@"_item=%@",_item);
+                      
+                  if (_item)
+                    [_item setValue:itemValue
+                           inComponent:component];
+
+                  if (_index)
+                    [_index setValue:[NSNumber numberWithShort:i]
+                            inComponent:component];
+
+                  NSDebugMLLog(@"gswdync",@"value=%@",_value);
+                  if (_value)  	// Binded Value          
+                    valueValue = [_value valueInComponent:component];
+                  else		// Auto Value
+                    valueValue = [NSNumber numberWithInt:i]; 
+                  valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+                  NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+                  
+                  if (valueValue)
+                    {
+                      // we compare (with object equality not pointer equality) 
+                      found=[formValues containsObject:valueValueString];
+                      if (found)
+                        {
+                          itemValueToSet=itemValue;
+                          valueValueToSet=valueValue;
+                        }
+                    };
+                };
+            };
+          if (_selection)
+            {
+              NS_DURING
+                {
+                  NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
+                  [_selection setValue:itemValueToSet
+                              inComponent:component];
+                }
+              NS_HANDLER
+                {
+                  LOGException(@"GSWPopUpButton _selection=%@ itemValueToSet=%@ exception=%@",
+                               _selection,itemValueToSet,localException);
+                  if (WOStrictFlag)
                     {
                       [localException raise];
                     }
-                    else
+                  else
                     {
-                      [self handleValidationException:localException
-                                            inContext:context];
-                    };
-                  }
-                  NS_ENDHANDLER;
-                };
-
-              };
-            };// for
-
-          };
-          NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
-          if (!found)
-            {
-              if (_selection)
-                {
-                  NS_DURING
-                    {
-                      [_selection setValue:nil
-                                  inComponent:component];
-                    }
-                  NS_HANDLER
-                    {
-                      LOGException(@"GSWPopUpButton _selection=%@ exception=%@",
-                                   _selection,localException);
-                      if (WOStrictFlag)
-                        {
-                          [localException raise];
-                        }
-                      else
-                        {
-                          [self handleValidationException:localException
-                                inContext:context];
-                        };
-                    }
-                  NS_ENDHANDLER;
-                };
-              if (!WOStrictFlag && _selectionValue)
-                {
-                  NS_DURING
-                    {
-                      [_selectionValue setValue:nil
-                                       inComponent:component];
-                    };
-                  NS_HANDLER
-                    {
-                      LOGException(@"GSWPopUpButton _selectionValue=%@ exception=%@",
-                                   _selectionValue,localException);
                       [self handleValidationException:localException
                             inContext:context];
-                    }
-                  NS_ENDHANDLER;
-                };
+                    };
+                }
+              NS_ENDHANDLER;
+            };                    
+
+          NSDebugMLLog(@"gswdync",@"selectionValue=%@",_selectionValue);
+          if (!WOStrictFlag && _selectionValue)
+            {
+              NS_DURING
+                {
+                  [_selectionValue setValue:valueValueToSet
+                                   inComponent:component];
+                }
+              NS_HANDLER
+                {
+                  LOGException(@"GSWPopUpButton _selectionValue=%@ valueValueToSet=%@ exception=%@",
+                               _selectionValue,valueValue,localException);
+                  [self handleValidationException:localException
+                        inContext:context];
+                }
+              NS_ENDHANDLER;
             };
         };
     };

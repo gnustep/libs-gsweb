@@ -207,8 +207,10 @@ static char rcsId[] = "$Id$";
   DESTROY(_definitionsString);
   DESTROY(_languages);
   DESTROY(_definitionFilePath);
+  DESTROY(_processedDefinitionFilePaths);
   DESTROY(_template);
   DESTROY(_definitions);
+  DESTROY(_errorMessages);
   [super dealloc];
 };
 
@@ -219,6 +221,47 @@ static char rcsId[] = "$Id$";
                    _templateName,
                    _frameworkName,
                    _stringPath];
+};
+
+//--------------------------------------------------------------------
+-(void)addErrorMessage:(NSString*)errorMessage
+{
+  if (!_errorMessages)
+    _errorMessages=(NSMutableArray*)[NSMutableArray new];
+  [_errorMessages addObject:[NSString stringWithFormat:@"%@%@",
+                                      [self logPrefix],
+                                      errorMessage]];
+};
+
+//--------------------------------------------------------------------
+-(void)addErrorMessageFormat:(NSString*)format
+                   arguments:(va_list)arguments
+{
+  NSString* string=[NSString stringWithFormat:format
+                             arguments:arguments];
+  [self addErrorMessage:string];
+}
+
+//--------------------------------------------------------------------
+-(void)addErrorMessageFormat:(NSString*)format,...
+{
+  va_list ap=NULL;
+  va_start(ap,format);
+  [self addErrorMessageFormat:format
+        arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
+-(NSMutableArray*)errorMessages
+{
+  return _errorMessages;
+};
+
+//--------------------------------------------------------------------
+-(NSString*)errorMessagesAsText
+{
+  return [[self errorMessages]componentsJoinedByString:@"\n"];
 };
 
 //--------------------------------------------------------------------
@@ -320,11 +363,12 @@ static char rcsId[] = "$Id$";
         }
       else
         {
-          NSMutableSet* processedFiles=[NSMutableSet setWithObject:_definitionFilePath];
+          DESTROY(_processedDefinitionFilePaths);
+          ASSIGN(_processedDefinitionFilePaths,[NSMutableSet setWithObject:_definitionFilePath]);
           NSDictionary* tmpDefinitions=[self parseDefinitionsString:_definitionsString
                                              named:_templateName
                                              inFrameworkNamed:_frameworkName
-                                             processedFiles:processedFiles];
+                                             processedFiles:_processedDefinitionFilePaths];
           if (tmpDefinitions)
             ASSIGN(_definitions,[NSDictionary dictionaryWithDictionary:tmpDefinitions]);
         };

@@ -54,9 +54,11 @@ typedef enum _GSWTemplateParserType
   NSString*	   _stringPath;
   NSString*	   _definitionsString;
   NSArray*	   _languages;
-  NSMutableSet*	   _definitionFilePath;
+  NSString*	   _definitionFilePath;
+  NSMutableSet*    _processedDefinitionFilePaths;
   GSWElement*   _template;
   NSDictionary* _definitions;
+  NSMutableArray* _errorMessages;   /** Template/definition errors. If non empty, raise an exception **/
   int gswebTagN;
   int tagN;
 }
@@ -93,6 +95,12 @@ typedef enum _GSWTemplateParserType
              forLanguages:(NSArray*)someLanguages;
 -(void)dealloc;
 -(NSString*)logPrefix;
+-(void)addErrorMessage:(NSString*)errorMessage;
+-(void)addErrorMessageFormat:(NSString*)format
+                   arguments:(va_list)arguments;
+-(void)addErrorMessageFormat:(NSString*)format,...;
+-(NSMutableArray*)errorMessages;
+-(NSString*)errorMessagesAsText;
 -(GSWElement*)template;
 -(NSArray*)templateElements;
 -(NSDictionary*)definitions;

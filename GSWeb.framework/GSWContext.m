@@ -133,7 +133,7 @@ static int dontTraceComponentActionURL=0;
       ASSIGN(clone->_pageComponent,_pageComponent);
       ASSIGN(clone->_currentComponent,_currentComponent);
       ASSIGNCOPY(clone->_url,_url);
-      ASSIGNCOPY(clone->_awakePageComponents,_awakePageComponents);
+      ASSIGN(clone->_awakePageComponents,_awakePageComponents);
       clone->_urlApplicationNumber=_urlApplicationNumber;
       clone->_isClientComponentRequest=_isClientComponentRequest;
       clone->_distributionEnabled=_distributionEnabled;

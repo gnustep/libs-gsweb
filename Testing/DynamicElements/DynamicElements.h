@@ -1,0 +1,3 @@
+//====================================================================
+@interface DynamicElements : GSWApplication
+@end

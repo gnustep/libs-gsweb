@@ -50,6 +50,22 @@ static char rcsId[] = "$Id$";
 @end
 
 #ifdef DEBUG
+NSString* GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSString *fmt)
+{
+  NSString      *message;
+  Class         cls = (Class)obj;
+  char          c = '+';
+
+  if ([obj isInstance] == YES)
+    {
+      c = '-';
+      cls = [obj class];
+    }
+  message = [NSString stringWithFormat: @"File %s: %d. In object %p [%@ %c%@] %@",
+        file, line, obj,NSStringFromClass(cls), c, NSStringFromSelector(sel), fmt];
+  return message;
+}
+
 //--------------------------------------------------------------------
 void GSWLogC_(CONST char* file,int line,CONST char* string)
 {

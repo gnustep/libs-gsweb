@@ -39,6 +39,9 @@
   GSWAssociation* _item;
   GSWAssociation* _index;
   GSWAssociation* _selection;
+//GSWeb Additions {
+  GSWAssociation* _selectionValue;
+// }
   GSWAssociation* _prefix;
   GSWAssociation* _suffix;
   GSWAssociation* _displayString;

@@ -1,0 +1,16 @@
+#include "Base"
+
+ARadioButtonList: GSWRadioButtonList
+{
+        list = application.bundleInfo.RadioButtonList.list;
+        item = anItem;
+        displayString = anItem.label;
+        selection = selectedItem;
+        name = "RADIONAME";
+};
+
+SelectedItem: GSWString
+{
+        value = selectedItem;
+};
+

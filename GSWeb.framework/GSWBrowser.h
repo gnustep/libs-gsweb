@@ -37,6 +37,9 @@
 {
   GSWAssociation* _list;
   GSWAssociation* _item;
+//GSWeb Additions {
+  GSWAssociation* _index;
+// }
   GSWAssociation* _displayString;
   GSWAssociation* _selections;
 //GSWeb Additions {

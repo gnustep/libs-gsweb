@@ -2021,6 +2021,7 @@ selfLockn,
     {
       //TODO erreur
       NSDebugMLLog0(@"application",@"No Session Class");
+      NSAssert(NO,@"Can't find session class");
     }
   else
     {
@@ -2123,11 +2124,17 @@ selfLockn,
   [self lock];
   NS_DURING
     {
+      // If the pageName is empty, try to get one from -defaultPageName
       if ([aName length]<=0)
         aName=[self defaultPageName];//NDFN
+      // If the pageName is still empty, use a default one ("Main")
       if ([aName length]<=0)
         aName=GSWMainPageName;
+
+      // Retrieve context languages
       languages=[aContext languages];
+
+      // Find component definition for pageName and languages
       componentDefinition=[self lockedComponentDefinitionWithName:aName
                                 languages:languages];
       NSDebugMLLog(@"info",@"componentDefinition %p=%@ (%@)",
@@ -2154,10 +2161,14 @@ selfLockn,
         }
       else
         {
+          // As we've found a component defintion, we create an instance (an object of class GSWComponent)
           NSAssert(aContext,@"No Context");
           component=[componentDefinition componentInstanceInContext:aContext];
           NSAssert(aContext,@"No Context");
+          // Next we awake it
           [component awakeInContext:aContext];
+
+          // And flag it as a page.
           [component _setIsPage:YES];
         };
     }

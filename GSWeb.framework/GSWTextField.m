@@ -182,21 +182,23 @@ static char rcsId[] = "$Id$";
                                       inContext:(GSWContext*)context
 {
   //OK
+  LOGObjectFnStartC("GSWTextField");
+  //Does nothing special
+  [super appendGSWebObjectsAssociationsToResponse:response
+		 inContext:context];
+  LOGObjectFnStopC("GSWTextField");
+};
+
+//--------------------------------------------------------------------
+-(void)appendValueToResponse:(GSWResponse*)response
+                   inContext:(GSWContext*)context
+{
   id valueValue=nil;
   id formattedValue=nil;
   NSFormatter* formatter=nil;
   GSWComponent* component=nil;
-  id valueTmp=nil;
   LOGObjectFnStartC("GSWTextField");
   component=[context component];
-  //To avoid input value printing (stupid original hack !)
-  valueTmp=_value;
-  _value=nil;
-  [super appendGSWebObjectsAssociationsToResponse:response
-		 inContext:context];
-  //To avoid input value printing (stupid original hack !)
-  _value=valueTmp;
-  valueTmp=nil;
   valueValue=[_value valueInComponent:component];
   formatter=[self formatterForComponent:component];
   if (!formatter)

@@ -115,6 +115,11 @@ static char rcsId[] = "$Id$";
   GSWSaveAppendToResponseElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
   [aContext appendElementIDComponent:elementNameInContext];
+  if ([elementNameInContext length]==0)
+    {
+      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
+                     _componentName);
+    };
   element=[self _realComponentWithName:elementNameInContext
                 inContext:aContext];
   [element appendToResponse:response
@@ -135,8 +140,13 @@ static char rcsId[] = "$Id$";
   GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
   [aContext appendElementIDComponent:elementNameInContext];
+  if ([elementNameInContext length]==0)
+    {
+      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
+                     _componentName);
+    };
   element=[self _realComponentWithName:elementNameInContext
-				 inContext:aContext];
+                inContext:aContext];
   resultElement=[element invokeActionForRequest:request
                            inContext:aContext];
   [aContext deleteLastElementIDComponent];
@@ -155,6 +165,11 @@ static char rcsId[] = "$Id$";
   GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
   [aContext appendElementIDComponent:elementNameInContext];
+  if ([elementNameInContext length]==0)
+    {
+      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
+                     _componentName);
+    };
   element=[self _realComponentWithName:elementNameInContext
                 inContext:aContext];
   [element takeValuesFromRequest:aRequest
@@ -177,9 +192,10 @@ if the component has already been created, it get it from the cache; otherwise, 
   component=[aContext component];
   NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentName=%@ parent=%@",
                self,[self definitionName],_componentName,[component parent]);
-  if (!aName)
+  if ([aName length]==0)
     {      
-      ExceptionRaise0(@"GSWSwitchComponent",@"ComponentName is null !");
+      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName is null ! componentName key: %@",
+                     _componentName);
     }
   else
     {

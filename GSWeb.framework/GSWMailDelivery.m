@@ -54,19 +54,24 @@ static GSWMailDelivery *sharedInstance;
                    plainText:(NSString*)plainTextMessage
                         send:(BOOL)sendNow
 {
+  NSString* emailString=nil;
+  LOGObjectFnStart();
   NSDebugMLog(@"sender=%@",sender);
   NSDebugMLog(@"to=%@",to);
   NSDebugMLog(@"cc=%@",cc);
   NSDebugMLog(@"subject=%@",subject);
   NSDebugMLog(@"plainTextMessage=%@",plainTextMessage);
   NSDebugMLog(@"sendNow=%d",(int)sendNow);
-  return [self composeEmailFrom:sender
-               to:to
-               cc:cc
-               bcc:nil
-               subject:subject
-               plainText:plainTextMessage
-               send:sendNow];
+  emailString=[self composeEmailFrom:sender
+                    to:to
+                    cc:cc
+                    bcc:nil
+                    subject:subject
+                    plainText:plainTextMessage
+                    send:sendNow];
+  NSDebugMLog(@"emailString=%@",emailString);
+  LOGObjectFnStop();
+  return emailString;
 };
 
 -(NSString*)composeEmailFrom:(NSString*)sender
@@ -76,9 +81,26 @@ static GSWMailDelivery *sharedInstance;
                    component:(GSWComponent*)component
                         send:(BOOL)sendNow
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  NSString* emailString=nil;
+  LOGObjectFnStart();
+  NSDebugMLog(@"sender=%@",sender);
+  NSDebugMLog(@"to=%@",to);
+  NSDebugMLog(@"cc=%@",cc);
+  NSDebugMLog(@"subject=%@",subject);
+  NSDebugMLog(@"component=%@",component);
+  NSDebugMLog(@"sendNow=%d",(int)sendNow);
+  emailString=[self composeEmailFrom:sender
+                    to:to
+                    cc:cc
+                    bcc:nil
+                    subject:subject
+                    component:component
+                    send:sendNow];
+  NSDebugMLog(@"emailString=%@",emailString);
+  LOGObjectFnStop();
+  return emailString;
 };
+
 
 //NDFN
 -(NSString*)composeEmailFrom:(NSString*)sender
@@ -93,7 +115,10 @@ static GSWMailDelivery *sharedInstance;
   NSMutableString* toString=nil;
   int i=0;
   int count=0;
-
+  LOGObjectFnStart();
+  NSAssert1(!to || [to isKindOfClass:[NSArray class]],@"to is a %@, not a NSArray",[to class]);
+  NSAssert1(!cc || [cc isKindOfClass:[NSArray class]],@"cc is a %@, not a NSArray",[cc class]);
+  NSAssert1(!bcc || [bcc isKindOfClass:[NSArray class]],@"bcc is a %@, not a NSArray",[bcc class]);
   count=[to count];
   NSDebugMLog(@"sender=%@",sender);
   NSDebugMLog(@"to=%@",to);
@@ -147,10 +172,12 @@ static GSWMailDelivery *sharedInstance;
   NSDebugMLog(@"messageString=%@",messageString);
   if (sendNow)
     [self sendEmail:messageString];
+  LOGObjectFnStop();
   return messageString;
 };
 
 //NDFN
+// Be carefull: this call [context _generateCompleteURLs]
 -(NSString*)composeEmailFrom:(NSString*)sender
                           to:(NSArray*)to
                           cc:(NSArray*)cc
@@ -159,16 +186,107 @@ static GSWMailDelivery *sharedInstance;
                    component:(GSWComponent*)component
                         send:(BOOL)sendNow
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+//TODO setting the content type of the email as Content-type: text/html. 
+  GSWContext* context=nil;
+  NSString* plainTextMessage=nil;
+  NSString* messageString=nil;
+  GSWResponse* response=nil;
+  LOGObjectFnStart();
+  NSDebugMLog(@"component=%@",component);
+  context=[component context];
+  NSDebugMLog(@"context=%@",context);
+  [context _generateCompleteURLs];
+  response=[component generateResponse];
+  NSDebugMLog(@"response=%@",response);
+  plainTextMessage=[[[NSString alloc]initWithData:[response content]
+                                     encoding:[response contentEncoding]] autorelease];
+  NSDebugMLog(@"plainTextMessage=%@",plainTextMessage);
+  messageString=[self composeEmailFrom:sender
+                         to:to
+                         cc:cc
+                         bcc:bcc
+                         subject:subject
+                         plainText:plainTextMessage
+                         send:sendNow];
+  messageString=[[response content]description];
+  NSDebugMLog(@"messageString=%@",messageString);
+  LOGObjectFnStop();
+  return messageString;
 };
 
--(void)sendEmail:(NSString *)emailString_
-{
-  int files[2];
-  pid_t pid;
 
-  NSDebugMLog(@"emailString_=%@",emailString_);
+-(void)sendEmail:(NSString *)emailString
+{
+  FILE* sendmailFile=NULL;
+  NSString* sendmailPath=nil;
+  NSString* sendmailCommand=nil;
+  NSFileManager* fileManager=nil;
+  LOGObjectFnStart();
+  //TODO: here we should contact smtp server,... instead au using sendmail
+  NSDebugMLog(@"emailString=%@",emailString);
+  fileManager=[NSFileManager defaultManager];
+  NSAssert(fileManager,@"No fileManager");
+  sendmailPath=@"/usr/bin/sendmail";
+  if (![fileManager isExecutableFileAtPath:sendmailPath])
+    {
+      sendmailPath=@"/usr/lib/sendmail";
+      if (![fileManager isExecutableFileAtPath:sendmailPath])
+        {
+          sendmailPath=@"/usr/sbin/sendmail";
+          if (![fileManager isExecutableFileAtPath:sendmailPath])
+            {
+              sendmailPath=@"/bin/sendmail";
+              if (![fileManager isExecutableFileAtPath:sendmailPath])
+                {
+                  sendmailPath=@"/sbin/sendmail";
+                  if (![fileManager isExecutableFileAtPath:sendmailPath])
+                    {
+                      sendmailPath=@"/usr/local/bin/sendmail";
+                      if (![fileManager isExecutableFileAtPath:sendmailPath])
+                        {
+                          sendmailPath=@"/usr/local/lib/sendmail";
+                          if (![fileManager isExecutableFileAtPath:sendmailPath])
+                            {
+                              sendmailPath=@"/usr/local/sbin/sendmail";
+                              if (![fileManager isExecutableFileAtPath:sendmailPath])
+                                {
+                                  sendmailPath=@"sendmail"; //try without absolute path
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+  NSDebugMLog(@"sendmailPath=%@",sendmailPath);
+  // -i When reading a message from standard  input,  don't treat  a line with only a . character as the end of input.
+  // -t Extract  recipients  from  message  headers.   This requires  that  no  recipients  be specified on the command line.
+  sendmailCommand=[NSString stringWithFormat:@"%@  -i -t",sendmailPath];
+  NSDebugMLog(@"sendmailCommand=%@",sendmailCommand);
+  sendmailFile=popen([sendmailCommand lossyCString],"w");
+  if (sendmailFile)
+    {
+      const char* cString=[emailString lossyCString];
+      size_t len=strlen(cString);
+      size_t written=fwrite(cString, sizeof(char),len,sendmailFile);
+      if (written!=len)
+        {
+          NSDebugMLog(@"Error writing to sendmail (written %d / %d",written,len);
+        };
+      fclose(sendmailFile);
+    }
+  else
+    {
+      NSDebugMLog(@"Can't run sendmail (%@)",sendmailCommand);
+    };
+  LOGObjectFnStop();
+
+/*  int files[2];
+  pid_t pid;
+  LOGObjectFnStart();
+
+  NSDebugMLog(@"emailString=%@",emailString);
 
   if(pipe(files))
     [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot create pipe", 
@@ -179,6 +297,7 @@ static GSWMailDelivery *sharedInstance;
   switch(pid = fork())
     {
     case 0:
+      NSDebugMLog(@"FORK0");
       close(0);
       dup(files[0]);
       close(files[0]);
@@ -189,6 +308,7 @@ static GSWMailDelivery *sharedInstance;
       break;
 
     case -1:
+      NSDebugMLog(@"FORK-1");
       close(files[0]);
       close(files[1]);
       [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot fork process", 
@@ -198,13 +318,16 @@ static GSWMailDelivery *sharedInstance;
       break;
 
     default:
-      write(files[1], [emailString_ cString], strlen([emailString_ cString]));
+      NSDebugMLog(@"FORKDEF");
+      write(files[1], [emailString cString], strlen([emailString cString]));
       close(files[0]);
       close(files[1]);
 
       waitpid(pid, NULL, 0);
       break;
     }
+  LOGObjectFnStop();
+*/
 };
 
 -(void)_invokeGSWSendMailAt:(id)at
@@ -214,4 +337,5 @@ static GSWMailDelivery *sharedInstance;
 };
 
 @end
+
 

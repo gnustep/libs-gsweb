@@ -115,7 +115,8 @@ GSWExceptionPage.m \
 GSWDictionaryRepetition.m \
 GSWRedirect.m \
 GSWIFrame.m \
-GSWMetaRefresh.m
+GSWMetaRefresh.m \
+GSWLongResponsePage.m \
 
 #GSWCompletionBar.m
 
@@ -130,7 +131,8 @@ GSWPageRestorationErrorPage.h \
 GSWRedirect.h \
 GSWSessionCreationErrorPage.h \
 GSWSessionRestorationErrorPage.h \
-GSWStatsPage.h
+GSWStatsPage.h \
+GSWLongResponsePage.h
 
 #GSWCompletionBar.h
 #GSWThresholdColoredNumber.h

@@ -1,0 +1,25 @@
+#include "Base"
+
+APopUpButton: GSWPopUpButton
+{
+        list = application.bundleInfo.PopUpButton.list;
+        item = anItem;
+        value = anItem.value;
+        displayString = anItem.label;
+        selection = selectedItem;
+        selectedValue = selectedValue;
+        selectionValue = selectedValue;
+        noSelectionString = "Nothing Selected";
+        name = "POPNAME";
+};
+
+SelectedItem: GSWString
+{
+        value = selectedItem;
+};
+
+SelectedValue: GSWString
+{
+        value = selectedValue;
+};
+

@@ -31,6 +31,35 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
+/**
+Bindings
+
+	list		Array of objects that the dynamic element iterate through.
+
+        index		On each iteration the element put the current index in this binding
+
+        item		On each iteration the element take the item at the current index and put it in this binding
+
+        displayString  	String to display for each check box.
+
+        value		Value for each OPTION tag 
+
+        selections	Array of selected objects (used to pre-select items and modified to reflect user choices)
+        			It contains  objects from list, not value binding evaluated ones !
+
+        selectedValues	Array of pre selected values (not objects !)
+
+        name		Name of the element in the form (should be unique). If not specified, GSWeb assign one.
+
+        disabled	If evaluated to yes, the check box appear inactivated.
+
+        escapeHTML	If evaluated to yes, escape displayString
+
+        size		show 'size' iems at one time. Default=5. Must be > 1
+
+        multiple	multiple selection allowed
+**/
+
 //====================================================================
 @implementation GSWBrowser
 
@@ -47,6 +76,10 @@ static char rcsId[] = "$Id$";
   tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
   [tmpAssociations removeObjectForKey:list__Key];
   [tmpAssociations removeObjectForKey:item__Key];
+  if (!WOStrictFlag)
+    {
+      [tmpAssociations removeObjectForKey:index__Key];
+    };
   [tmpAssociations removeObjectForKey:displayString__Key];
   [tmpAssociations removeObjectForKey:selections__Key];
   if (!WOStrictFlag)
@@ -62,24 +95,41 @@ static char rcsId[] = "$Id$";
     {
       _list=[[associations objectForKey:list__Key
                            withDefaultObject:[_list autorelease]] retain];
+
       _item=[[associations objectForKey:item__Key
                            withDefaultObject:[_item autorelease]] retain];
+      if (_item && ![_item isValueSettable])
+        {
+          ExceptionRaise0(@"GSWBrowser",@"'item' parameter must be settable");
+        };
+
+      if (!WOStrictFlag)
+        {
+          _index = [[associations objectForKey:index__Key
+                                  withDefaultObject:[_index autorelease]] retain];
+          NSDebugMLLog(@"gswdync",@"index=%@",_index);
+          if (_index && ![_index isValueSettable])
+            {
+              ExceptionRaise0(@"GSWBrowser",@"'index' parameter must be settable");
+            };
+        };
+
       _displayString=[[associations objectForKey:displayString__Key
                                     withDefaultObject:[_displayString autorelease]] retain];
       _selections=[[associations objectForKey:selections__Key
                                  withDefaultObject:[_selections autorelease]] retain];
       if (_selections && ![_selections isValueSettable])
         {
-          //TODO
+          ExceptionRaise0(@"GSWBrowser",@"'selections' parameter must be settable");
         };
 
       if (!WOStrictFlag)
         {
-          _selectionValues=[[associations objectForKey:selectionValue__Key
+          _selectionValues=[[associations objectForKey:selectionValues__Key
                                           withDefaultObject:[_selectionValues autorelease]] retain];
           if (_selectionValues && ![_selectionValues isValueSettable])
             {
-              //TODO
+              ExceptionRaise0(@"GSWBrowser",@"'selectionValues' parameter must be settable");
             };
         };
       
@@ -101,6 +151,7 @@ static char rcsId[] = "$Id$";
 {
   DESTROY(_list);
   DESTROY(_item);
+  DESTROY(_index);
   DESTROY(_displayString);
   DESTROY(_selections);
   DESTROY(_selectionValues);
@@ -131,8 +182,7 @@ static char rcsId[] = "$Id$";
 @implementation GSWBrowser (GSWBrowserA)
 
 /*
-
- On WO it looks like that:
+ On WO it looks like that when value is not binded:
 
  <SELECT name="4.2.7" size=5 multiple>
  <OPTION value="0">blau</OPTION>
@@ -158,28 +208,21 @@ static char rcsId[] = "$Id$";
   id valueValue=nil;
   id itemValue=nil;
   id displayStringValue=nil;
-  NSString * browserName=nil;
   BOOL escapeHTMLBoolValue=YES;
   id escapeHTMLValue=nil;
-  BOOL isMultiple=NO;
   int i=0;
   BOOL inOptGroup=NO;
 #ifndef ENABLE_OPTGROUP
   BOOL optGroupLabel=NO;
 #endif
   LOGObjectFnStartC("GSWBrowser");
-  [self resetAutoValue];
-  _autoValue = NO;
+
   request=[context request];
   isFromClientComponent=[request isFromClientComponent];
   component=[context component];
-  browserName=[self nameInContext:context];
 
-//TODO: multiple
-//  [super appendToResponse:response
-//         inContext:context];
-
-  [response _appendContentAsciiString:@"<SELECT"];
+  [super appendToResponse:response
+         inContext:context];
 
   listValue=[_list valueInComponent:component];
   NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
@@ -188,40 +231,20 @@ static char rcsId[] = "$Id$";
             _list,
             listValue,
             [listValue class]);
+
   selectionsValue=[_selections valueInComponent:component];
   NSDebugMLLog(@"gswdync",@"selections=%@",_selections);
   NSDebugMLLog(@"gswdync",@"selectionsValue=%@",selectionsValue);
+
   selectedValuesValue=[_selectedValues valueInComponent:component];
   NSDebugMLLog(@"gswdync",@"selectedValues=%@",_selectedValues);
   NSDebugMLLog(@"gswdync",@"selectedValuesValue=%@",selectedValuesValue);
+
   if (_escapeHTML)
     {
       escapeHTMLValue=[_escapeHTML valueInComponent:component];
       escapeHTMLBoolValue=boolValueFor(escapeHTMLValue);
     };
-
-  [response _appendContentAsciiString:[NSString stringWithFormat:@" NAME=\"%@\"",browserName]];
-
- 
-  if (_size)
-  {
-    [response _appendContentAsciiString:@" SIZE="];
-    [response _appendContentAsciiString:[_size valueInComponent:component]];
-  } else {
-    // do we get an PopUp if we leave that out?
-    [response _appendContentAsciiString:@" SIZE=1"];
-  }
-  if (_multiple)
-  {
-    id multipleValue=nil;
-    multipleValue=[_multiple valueInComponent:component];
-    isMultiple=boolValueFor(multipleValue);
-
-    if (isMultiple) {
-      [response _appendContentAsciiString:@" MULTIPLE"];
-    }
-  };
-  [response _appendContentAsciiString:@">"];
 
   for(i=0;i<[listValue count];i++)
     {
@@ -231,52 +254,52 @@ static char rcsId[] = "$Id$";
         [_item setValue:itemValue
                inComponent:component];
       NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
+
+      if (_index)
+        [_index setValue:[NSNumber numberWithShort:i]
+                inComponent:component];
+      
       if (itemValue)
         {
-          NSDebugMLLog(@"gswdync",@"value=%@",_value);
-          valueValue=[self valueInContext:context];
+          NSDebugMLLog(@"gswdync",@"_value (class: %@): %@",[_value class],_value);
+          // Value property of the INPUT tag
+          if (_value)  	// Binded Value          
+            valueValue = [_value valueInComponent:component];
+          else		// Auto Value
+            valueValue = [NSNumber numberWithInt:i];
           NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+
           if (valueValue)
             {
-              BOOL isEqual;
+              BOOL isEqual=NO;
 
               NSDebugMLLog0(@"gswdync",@"Adding OPTION");
               [response _appendContentAsciiString:@"\n<OPTION"];
-              if (_selections)
-                {
-                  if(_value)
-                    isEqual=SBIsValueIsIn(valueValue,selectionsValue);
-                  else
-                    isEqual=SBIsValueIsIn(itemValue,selectionsValue);
 
-                  if (isEqual)
-                    {
-                      [response appendContentCharacter:' '];
-                      [response _appendContentAsciiString:@"selected"];
-                    };
+              NSDebugMLLog(@"gswdync",@"selectionsValue=%@",selectionsValue);
+              NSDebugMLLog(@"gswdync",@"selectionsValue classes=%@",[selectionsValue valueForKey:@"class"]);
+              NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
+              NSDebugMLLog(@"gswdync",@"itemValue class=%@",[itemValue class]);
+              if (selectionsValue)
+                {
+                  isEqual = [selectionsValue containsObject:itemValue];
                 };
               if (isEqual == NO && _selectedValues)
                 {
-                  if(_value)
-                    isEqual=SBIsValueIsIn(valueValue,selectedValuesValue);
-                  else
-                    isEqual=SBIsValueIsIn(itemValue,selectedValuesValue);
-
-                  if (isEqual)
-                    {
-                      [response appendContentCharacter:' '];
-                      [response _appendContentAsciiString:@"selected"];
-                    };
+                  // selected values is selections but on valueValue not itemValue
+                  isEqual = [selectionsValue containsObject:valueValue];
                 };
-              if (_value == nil)
-                _autoValue = YES;
-              if (valueValue)
-              {
-                [response _appendContentAsciiString:@" value=\""];
-                // [response _appendContentAsciiString:valueValue];
-                [response _appendContentAsciiString:[NSString stringWithFormat:@"%d",i]];
-                [response appendContentCharacter:'"'];
-              };
+
+              if (isEqual)
+                {
+                  [response appendContentCharacter:' '];
+                  [response _appendContentAsciiString:@"selected"];
+                };
+
+              [response _appendContentAsciiString:@" value=\""];
+              [response _appendContentAsciiString:valueValue];
+              [response appendContentCharacter:'"'];
+
               [response appendContentCharacter:'>'];
             };
           displayStringValue=nil;
@@ -328,7 +351,6 @@ static char rcsId[] = "$Id$";
             };
           if (valueValue)
             {
-              //NSDebugMLLog0(@"gswdync",@"Adding /OPTION");
               // K2- No /OPTION TAG
               //[response _appendContentAsciiString:@"</OPTION>"];
             }
@@ -377,30 +399,25 @@ static char rcsId[] = "$Id$";
 {
   //OK
   BOOL disabledValue=NO;
-  BOOL wasFormSubmitted=NO;
-  id selectionsValue=nil;
-  BOOL selectionsAreMutable=NO;
 
   LOGObjectFnStartC("GSWPopUpButton");
-  [self resetAutoValue];
+
   disabledValue=[self disabledInContext:context];
   if (!disabledValue)
     {
-      wasFormSubmitted=[context _wasFormSubmitted];
+      BOOL wasFormSubmitted=[context _wasFormSubmitted];
       if (wasFormSubmitted)
         {
           BOOL isMultiple=NO;
-          NSArray* foundValues=nil;
-          NSMutableArray* mutableFoundValues=[NSMutableArray array];
+	  NSMutableArray* selectionsValue=nil;
+	  NSMutableArray* selectionValuesValue=nil;
           GSWComponent* component=nil;
           NSArray* listValue=nil;
           id valueValue=nil;
+          NSString* valueValueString=nil;
           id itemValue=nil;
           NSString* name=nil;
           NSArray* formValues=nil;
-          id formValue=nil;
-          BOOL found=NO;
-          int i=0;
           component=[context component];
           name=[self nameInContext:context];
           NSDebugMLLog(@"gswdync",@"name=%@",name);
@@ -414,18 +431,14 @@ static char rcsId[] = "$Id$";
 
           //NSLog(@"formValues=%@",formValues);
           //NSLog(@"formValues class=%@",[formValues class]);
-
+          
           if (formValues && [formValues count])
             {
-              BOOL isEqual=NO;
-
-              formValue=[formValues objectAtIndex:0];
-              NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
+              BOOL found=NO;
+              int i=0;
 
               listValue=[_list valueInComponent:component];
-              selectionsValue=[_selections valueInComponent:component];
-
-
+              
               NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
                         @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
                         _list,
@@ -440,56 +453,86 @@ static char rcsId[] = "$Id$";
                   if (_item)
                     [_item setValue:itemValue
                            inComponent:component];
+
+                  if (_index)
+                    [_index setValue:[NSNumber numberWithShort:i]
+                            inComponent:component];
+
                   NSDebugMLLog(@"gswdync",@"value=%@",_value);
-                  if ([formValues containsObject:[NSString stringWithFormat:@"%d",i]])
+                  if (_value)  	// Binded Value          
+                    valueValue = [_value valueInComponent:component];
+                  else		// Auto Value
+                    valueValue = [NSNumber numberWithInt:i]; 
+                  valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+                  NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+                  
+                  if (valueValue)
                     {
-                      [mutableFoundValues addObject:itemValue];
-                      found=YES;
+                      // we compare (with object equality not pointer equality) 
+                      found=[formValues containsObject:valueValueString];
+                      
+                      NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
+                      if (found)
+                        {
+                          // We add list object
+                          if (_selections)
+                            {
+                              if (!selectionsValue)
+                                selectionsValue=[NSMutableArray array];
+                              
+                              [selectionsValue addObject:itemValue];
+                            };
+
+                          // We add valueValue
+                          if (_selectionValues)
+                            {
+                              if (!selectionValuesValue)
+                                selectionValuesValue=[NSMutableArray array];
+                              
+                              [selectionValuesValue addObject:valueValue];
+                            };
+                        };
                     };
                 };
-            };
-          foundValues=[NSArray arrayWithArray:mutableFoundValues];
-         // NSLog(@"new foundValues = %@",foundValues);
+              NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
+            };              
 
-          NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
           if (_selections)
             {
-              if (!WOStrictFlag)
+              NS_DURING
                 {
-                  NS_DURING
+                  [_selections setValue:selectionsValue
+                               inComponent:component];
+                };
+              NS_HANDLER
+                {
+                  LOGException(@"GSWBrowser _selections=%@ itemValueToSet=%@ exception=%@",
+                               _selections,itemValueToSet,localException);
+                  if (WOStrictFlag)
                     {
-                      [_selections setValue:foundValues
-                                  inComponent:component];
-                    };
-                  NS_HANDLER
+                      [localException raise];
+                    }
+                  else
                     {
                       [self handleValidationException:localException
                             inContext:context];
-                    }
-                  NS_ENDHANDLER;
+                    };
                 }
-              else
-                {
-                  [_selections setValue:foundValues
-                              inComponent:component];
-                };
-                };
-          if (!WOStrictFlag)
+              NS_ENDHANDLER;
+            };
+          if (!WOStrictFlag && _selectionValues)
             {
-              if (_selectionValues)
+              NS_DURING
                 {
-                  NS_DURING
-                    {
-                      [_selectionValues setValue:foundValues
-                                       inComponent:component];
-                    };
-                  NS_HANDLER
-                    {
-                      [self handleValidationException:localException
-                            inContext:context];
-                    }
-                  NS_ENDHANDLER;
+                  [_selectionValues setValue:selectionValuesValue
+                                    inComponent:component];
                 };
+              NS_HANDLER
+                {
+                  [self handleValidationException:localException
+                        inContext:context];
+                }
+              NS_ENDHANDLER;
             };
         };
     };
@@ -511,15 +554,42 @@ static char rcsId[] = "$Id$";
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
                                       inContext:(GSWContext*)context
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  BOOL isMultiple=NO;
+  id sizeValue=nil;
+  GSWComponent* component=nil;
+  LOGObjectFnStartC("GSWPopUpButton");
+
+  [super appendGSWebObjectsAssociationsToResponse:response
+         inContext:context];
+
+  component=[context component];
+
+  if (_size)
+    sizeValue=[_size valueInComponent:component];
+  else
+    sizeValue=@"5"; //Default is 5
+
+  [response _appendContentAsciiString:@" SIZE="];
+  [response _appendContentAsciiString:sizeValue];
+
+  if (_multiple)
+  {
+    id multipleValue=nil;
+    multipleValue=[_multiple valueInComponent:component];
+    isMultiple=boolValueFor(multipleValue);
+
+    if (isMultiple)
+      [response _appendContentAsciiString:@" MULTIPLE"];
+  };
+//  [response _appendContentAsciiString:@">"];
+  LOGObjectFnStopC("GSWPopUpButton");
 };
 
 //--------------------------------------------------------------------
-
 -(void)appendValueToResponse:(GSWResponse*)response
                    inContext:(GSWContext*)context
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  //Does nothing because value is only printed in OPTION tag
 };
 
 //--------------------------------------------------------------------

@@ -1,0 +1,17 @@
+MainPageLink: GSWHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: GSWForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: GSWSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

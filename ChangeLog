@@ -1,3 +1,65 @@
+2002-11-18   Manuel Guesdon <mguesdon@orange-concept.com>
+	I've rewritten AutoValue handling in GSWBrowser,GSWCheckBoxList, 
+		GSWRadioButtonList, GSWPopUpButton to make it coherent 
+		and working like specifications.	
+	
+	* GSWeb/GSWSwitchComponent.m:
+		o add more information when componentName is null 
+	* GSWRepetition.h/.m:
+		o added startIndex, stopIndex
+	* GSWeb/GSWConstants.h/.m:
+		o added startIndex__Key,stopIndex__Key
+	* GSWeb/GSWComponent.h/.m:
+		o replace _isSynchronized by _isParentToComponentSynchronized and 
+			_isComponentToParentSynchronized;
+		o added -synchronizesParentToComponentVariablesWithBindings and
+		        -synchronizesComponentToParentVariablesWithBindings
+	* GSWeb/GSWApplication.m:
+		o doc/comments
+		o Exception when no session class found
+	* GSWeb/GSWComponentDefinition.m
+		o doc/comments
+	* GSWeb/GSWComponentRequestHandler.m
+		o doc/comments
+		o response message changed when request handling failed
+	* GSWeb/GSWMailDelivery.m
+		o implemented composeEmail...component: methods
+		o change mail sending code
+	* GSWeb/GSWContext.h/.m:
+		o replace ASSIGNCOPY by ASSIGN in -copy for _awakePageComponents);
+	* GSWeb/GSWHyperlink.m:
+		o replaced otherAssociations by otherQueryAssociations in -computeQueryDictionaryInContext
+		o hanldle queryDictionary association
+		o GSWPopUpButton.m:
+	* GSWExtensionsGSW.framework/GSWValidationFailureComponent.gswc/GSWValidationFailureComponent.html:
+		o replaced <br> by <br/>
+	* GSWeb/GSWInput.h
+		o removed autoValue variable  (static var may cause multithread problems and there were different autoValue implementation).
+		o remove name key to avoid duplicate name in html produced code
+		o some rewrite for auto value
+		o doc/comments
+	* GSWeb/GSWPopUpButton.h/.m: 
+		o use super appendToResponse:inContext: (no more name problem)
+		o rewriten auto value handling (see Testing/DynamicElements for test)
+		o doc/comments
+	* GSWeb/GSWBrowser.h/.m:
+		o use super appendToResponse:inContext: (no more name problem)
+		o rewriten auto value handling (see Testing/DynamicElements for test)
+		o doc/comments
+	* GSWeb/GSWCheckBoxList.h/.m:
+		o rewriten auto value handling (see Testing/DynamicElements for test)
+		o handling disabled binding
+		o doc/comments
+	* GSWeb/GSWRadioButtonList.h/.m:
+		o rewriten auto value handling (see Testing/DynamicElements for test)
+		o handling disabled binding
+		o doc/comments
+	* GSWeb/GSWTextField.h/.m:
+		o output value in appendValueToResponse:inContext: instead of 
+			appendGSWebObjectsAssociationsToResponse:inContext:
+	* GSWExtensions.framework/GSWLongResponsePage.h/.m
+		o added
+	
 2002-10-28   David Wetzel <dave@turbocat.de>
         * a start to make statistics work
           Modified Files:

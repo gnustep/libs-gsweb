@@ -42,6 +42,10 @@
   GSWAssociation* _identifier;
   GSWAssociation* _count;
   GSWAssociation* _index;
+//GSWeb Additions {
+  GSWAssociation* _startIndex; /** Don't begin à 0 but at startIndex **/
+  GSWAssociation* _stopIndex;  /** Don't end à count-1 or list count -1  but at stopIndex **/
+//}
   GSWHTMLStaticGroup* _childrenGroup;
 };
 
@@ -75,10 +79,12 @@
                                 inContext:(GSWContext*)aContext;
 
 -(void)stopOneIterationWithIndex:(int)index
+                       stopIndex:(int)stopIndex
                            count:(int)count
                        isLastOne:(BOOL)isLastOne
                        inContext:(GSWContext*)aContext;
 -(void)startOneIterationWithIndex:(unsigned int)index
+                       startIndex:(unsigned int)startIndex
                              list:(NSArray*)aList
                         inContext:(GSWContext*)aContext;
 @end

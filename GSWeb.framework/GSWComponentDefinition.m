@@ -350,14 +350,19 @@ languages:(NSArray*)languages
   LOGObjectFnStart();
   NSAssert(aContext,@"No Context");
   NSDebugMLLog(@"gswcomponents",@"aContext=%@",aContext);
+
+  // Get component class
   componentClass=[self componentClass];
   NSAssert(componentClass,@"No componentClass");
   NSDebugMLLog(@"gswcomponents",@"componentClass=%p",(void*)componentClass);
+
+  // Put the component definition in the thread dictionary because we need it during component initialization
   threadDictionary=GSCurrentThreadDictionary();
   [threadDictionary setObject:self
                     forKey:GSWThreadKey_ComponentDefinition];
   NS_DURING
     {
+      // Now, create the component by allocation a new instance of the class.
       component=[[componentClass new] autorelease];
     }
   NS_HANDLER
@@ -368,6 +373,8 @@ languages:(NSArray*)languages
       [localException raise];
     };
   NS_ENDHANDLER;
+
+  // Remove the component from the thread dictionary
   [threadDictionary removeObjectForKey:GSWThreadKey_ComponentDefinition];
   //  [_component context];//so what ?
   LOGObjectFnStop();
@@ -382,6 +389,7 @@ languages:(NSArray*)languages
 };
 
 //--------------------------------------------------------------------
+/** Find the class of the component **/
 -(Class)_componentClass
 {
   //OK To Verify
@@ -392,13 +400,14 @@ languages:(NSArray*)languages
   if (!componentClass)
     componentClass=NSClassFromString(_name);//???
   NSDebugMLLog(@"gswcomponents",@"componentClass=%@",componentClass);
-  NSDebugMLLog(@"gswcomponents",@"componentClass superclass=%@",[componentClass superclass]);
-  if (!componentClass)
+  NSDebugMLLog(@"gswcomponents",@"componentClass superclass=%@",[componentClass superclass]);  
+  if (!componentClass) // There's no class with that name
     {
       BOOL createClassesOk=NO;
       NSString* superClassName=nil;
       if (!WOStrictFlag)
         {
+          // Search component archive for a superclass (superClassName keyword)
           NSDictionary* archive=[_bundle archiveNamed:_name];
           NSDebugMLLog(@"gswcomponents",@"archive=%@",archive);
           superClassName=[archive objectForKey:@"superClassName"];
@@ -413,15 +422,20 @@ languages:(NSArray*)languages
                 };
             };
         };
+      // If we haven't found a superclass, use GSWComponent as the superclass
       if (!superClassName)
         superClassName=@"GSWComponent";
       NSDebugMLLog(@"gswcomponents",@"superClassName=%@",superClassName);
+
+      // Create class
       createClassesOk=[GSWApplication createUnknownComponentClasses:[NSArray arrayWithObject:_name]
                                       superClassName:superClassName];
+
+      // Use it
       componentClass=NSClassFromString(_name);
       NSDebugMLLog(@"gswcomponents",@"componentClass=%p",(void*)componentClass);
     };
-//call GSWApp isCaching
+  //call GSWApp isCaching
   NSDebugMLLog(@"gswcomponents",@"componentClass=%@",componentClass);
   LOGObjectFnStop();
   return componentClass;

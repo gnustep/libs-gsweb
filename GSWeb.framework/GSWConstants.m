@@ -318,4 +318,6 @@ id imageMapString__Key = @"imageMapString";
 id imageMapRegions__Key = @"imageMapRegions";
 id handleValidationException__Key = @"handleValidationException";
 id selectedValues__Key = @"selectedValues";
+id startIndex__Key = @"startIndex";
+id stopIndex__Key = @"stopIndex";
 

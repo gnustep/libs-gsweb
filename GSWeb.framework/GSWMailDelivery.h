@@ -46,12 +46,15 @@
                    plainText:(NSString*)plainTextMessage
                         send:(BOOL)sendNow;
 
+
 -(NSString*)composeEmailFrom:(NSString*)sender
                           to:(NSArray*)to
                           cc:(NSArray*)cc
                      subject:(NSString*)subject
                    component:(GSWComponent*)component
                         send:(BOOL)sendNow;
+
+
 //NDFN
 -(NSString*)composeEmailFrom:(NSString*)sender
                           to:(NSArray*)to
@@ -60,6 +63,9 @@
                      subject:(NSString*)subject
                    plainText:(NSString*)plainTextMessage
                         send:(BOOL)sendNow;
+
+//NDFN
+
 //NDFN
 -(NSString*)composeEmailFrom:(NSString*)sender
                           to:(NSArray*)to
@@ -68,6 +74,7 @@
                      subject:(NSString*)subject
                    component:(GSWComponent*)component
                         send:(BOOL)sendNow;
+
 
 -(void)sendEmail:(NSString*)emailString;
 -(void)_invokeGSWSendMailAt:(id)at

@@ -1,0 +1,158 @@
+ 	defaults = {
+			        GSWAdaptor = GSWDefaultAdaptor;
+				GSWDebugSetConfigFilePath = "/etc/gsweb/DynamicEelements.logstate";
+				GSWHost = "localhost";
+				GSWPort = 9004;
+			        GSWApplicationBaseURL = "/GSW";
+			        GSWFrameworksBaseURL = "/GSW/frameworks";
+			        GSWLoadFrameworks = (
+								            "GSWExtensionsGSW",
+								            "GSWExtensions"
+								        );
+			        GSWMonitorAppConfFilePath = "/etc/httpd/conf/GSWebMonitor.conf";
+			        GSWSessionTimeOut = 1200;
+				};
+
+        dynamicElements = (
+                                {
+                                        pageName = "RadioButtonList1Page";
+                                        label = "GSWRadioButtonList 1";
+                                        comment = "GSWRadioButtonList Test 1";
+                                },
+                                {
+                                        pageName = "RadioButtonList2Page";
+                                        label = "GSWRadioButtonList 2";
+                                        comment = "GSWRadioButtonList Test 2";
+                                },
+                                {
+                                        pageName = "CheckBoxList1Page";
+                                        label = "GSWCheckBoxList 1";
+                                        comment = "GSWCheckBoxList Test 1";
+                                },
+                                {
+                                        pageName = "CheckBoxList2Page";
+                                        label = "GSWCheckBoxList 2";
+                                        comment = "GSWCheckBoxList Test 2";
+                                },
+                                {
+                                        pageName = "PopUpButton1Page";
+                                        label = "GSWPopUpButton 1";
+                                        comment = "GSWPopUpButton Test 1";
+                                },
+                                {
+                                        pageName = "PopUpButton2Page";
+                                        label = "GSWPopUpButton 2";
+                                        comment = "GSWPopUpButton Test 2";
+                                },
+                                {
+                                        pageName = "Browser1Page";
+                                        label = "GSWBrowser 1";
+                                        comment = "GSWBrowser Test 1";
+                                },
+                                {
+                                        pageName = "Browser2Page";
+                                        label = "GSWBrowser 2";
+                                        comment = "GSWBrowser Test 2";
+                                },
+                                {
+                                        pageName = "TextField1Page";
+                                        label = "TextField 1";
+                                        comment = "GSWTextField Test 1";
+                                }
+                        );
+        RadioButtonList = {
+                                list = (
+                                                {
+                                                        label = "An Apple";
+                                                        value = "apple";
+                                                },
+                                                {
+                                                        label = "A Fish";
+                                                        value = "fisch";
+                                                },
+                                                {
+                                                        label = "A table";
+                                                        value = "table";
+                                                },
+                                                {
+                                                        label = "An icon";
+                                                        value = "icon";
+                                                },
+                                                {
+                                                        label = "A turtle";
+                                                        value = "turtle";
+                                                }
+                                        );
+                          };
+        CheckBoxList = {
+                                list = (
+                                                {
+                                                        label = "An Apple";
+                                                        value = "apple";
+                                                },
+                                                {
+                                                        label = "A Fish";
+                                                        value = "fisch";
+                                                },
+                                                {
+                                                        label = "A table";
+                                                        value = "table";
+                                                },
+                                                {
+                                                        label = "An icon";
+                                                        value = "icon";
+                                                },
+                                                {
+                                                        label = "A turtle";
+                                                        value = "turtle";
+                                                }
+                                        );
+                          };
+        Browser = {
+                                list = (
+                                                {
+                                                        label = "An Apple";
+                                                        value = "apple";
+                                                },
+                                                {
+                                                        label = "A Fish";
+                                                        value = "fisch";
+                                                },
+                                                {
+                                                        label = "A table";
+                                                        value = "table";
+                                                },
+                                                {
+                                                        label = "An icon";
+                                                        value = "icon";
+                                                },
+                                                {
+                                                        label = "A turtle";
+                                                        value = "turtle";
+                                                }
+                                        );
+                          };
+        PopUpButton = {
+                                list = (
+                                                {
+                                                        label = "An Apple";
+                                                        value = "apple";
+                                                },
+                                                {
+                                                        label = "A Fish";
+                                                        value = "fisch";
+                                                },
+                                                {
+                                                        label = "A table";
+                                                        value = "table";
+                                                },
+                                                {
+                                                        label = "An icon";
+                                                        value = "icon";
+                                                },
+                                                {
+                                                        label = "A turtle";
+                                                        value = "turtle";
+                                                }
+                                        );
+                          };

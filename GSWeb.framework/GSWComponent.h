@@ -56,7 +56,9 @@
 // }
     BOOL _isPage;
     BOOL _isCachingEnabled;
-    BOOL _isSynchronized;
+    BOOL _isParentToComponentSynchronized;
+    BOOL _isComponentToParentSynchronized;
+
 };
 
 -(id)init;
@@ -160,6 +162,8 @@ associationsKeys:(NSArray*)associationsKeys
      forBinding:(NSString*)parentBindingName;
 -(id)valueForBinding:(NSString*)parentBindingName;
 -(BOOL)synchronizesVariablesWithBindings;
+-(BOOL)synchronizesParentToComponentVariablesWithBindings;
+-(BOOL)synchronizesComponentToParentVariablesWithBindings;
 -(NSDictionary*)bindingAssociations;
 @end
 

@@ -513,13 +513,33 @@ static char rcsId[] = "$Id$";
   //TODOV
   if (_otherQueryAssociations)
     {
-      NSEnumerator *enumerator = [_otherAssociations keyEnumerator];
+      NSEnumerator *enumerator = [_otherQueryAssociations keyEnumerator];
       id oaKey=nil;
       while ((oaKey = [enumerator nextObject]))
         {
-          id oaValue=[[_otherAssociations objectForKey:oaKey] valueInComponent:component];
+          id oaValue=[[_otherQueryAssociations objectForKey:oaKey] valueInComponent:component];
           if (!oaValue)
             oaValue=[NSString string];
+          [queryDictionary setObject:oaValue
+                           forKey:oaKey];
+        };
+    };
+  if (_queryDictionary)
+    {
+      NSEnumerator *enumerator = nil;
+      NSDictionary* queryDictionaryValue=[_queryDictionary valueInComponent:component];
+      NSAssert3(!queryDictionaryValue || [queryDictionaryValue isKindOfClass:[NSDictionary class]],
+                @"queryDictionary value is not a dictionary but a %@. association was: %@. queryDictionaryValue is:",
+                [queryDictionaryValue class],
+                _queryDictionary,
+                queryDictionaryValue);
+      enumerator = [queryDictionaryValue keyEnumerator];
+      id oaKey=nil;
+      while ((oaKey = [enumerator nextObject]))
+        {
+          id oaValue=[queryDictionaryValue objectForKey:oaKey];
+          if (!oaValue)
+            oaValue=@"";
           [queryDictionary setObject:oaValue
                            forKey:oaKey];
         };

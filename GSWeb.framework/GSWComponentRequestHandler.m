@@ -35,6 +35,9 @@ static char rcsId[] = "$Id$";
 @implementation GSWComponentRequestHandler
 
 //--------------------------------------------------------------------
+/** Handle request aRequest and return the response 
+    This lock application
+**/
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
   //OK
@@ -45,7 +48,7 @@ static char rcsId[] = "$Id$";
   response=[self lockedHandleRequest:aRequest];
   if (!response)
     {
-      response=[GSWResponse responseWithMessage:@"Component Handle request failed"
+      response=[GSWResponse responseWithMessage:@"Component Handle request failed. No Response"
                             inContext:nil
                             forRequest:aRequest];
       [response _finalizeInContext:nil]; //DO Call _finalizeInContext: !
@@ -57,6 +60,9 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+/** Handle request aRequest and return the response 
+    Application should be locked before this
+**/
 -(GSWResponse*)lockedHandleRequest:(GSWRequest*)aRequest
 {
   //OK
@@ -69,7 +75,7 @@ static char rcsId[] = "$Id$";
   BOOL exceptionRaised=NO;
   LOGObjectFnStart();
   NS_DURING
-    {
+    {      
       requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:aRequest];
     }
   NS_HANDLER
@@ -190,6 +196,7 @@ static char rcsId[] = "$Id$";
         {
           // check for refuseNewSessions
           session=[application _initializeSessionInContext:aContext];
+          NSDebugMLLog(@"requests",@"session=%@",session);
         }
     }
   NS_HANDLER

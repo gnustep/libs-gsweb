@@ -825,7 +825,16 @@ static NSString* TabsForLevel(int level)
                 {
                   gswebTagN=0;
                   tagN=0;
-                  elements=[self createElementsFromNode:node];			
+                  elements=[self createElementsFromNode:node];
+                  // If we've found error raise exception
+                  NSDebugMLog(@"_errorMessages=%@",_errorMessages);
+                  if ([[self errorMessages]count]>0)
+                    {
+                      NSDebugMLog(@"definitionFilePath=%@",_definitionFilePath);
+                      ExceptionRaise(@"GSWTemplateParser",@"%@\nDefinitionFiles: %@",
+                                     [self errorMessagesAsText],
+                                     _processedDefinitionFilePaths);
+                    };
                 }
               NS_HANDLER
                 {
@@ -958,16 +967,12 @@ text [Type:XML_TEXT_NODE] [{}] ####
                     {
                       // allow null name tags
                       elem=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
-/*                      ExceptionRaise(@"GSWTemplateParser",
-                                     @"%@ No element name for gsweb tag (%@) [#%d,#%d]",
-                                     [self logPrefix],
-                                     nodeName,
-                                     currentGSWebTagN,
-                                     currentTagN);
-*/
                     }
                   else
                     {
+                      NSDictionary* _associations=nil;
+                      NSString* className=nil;
+                      GSWHTMLStaticGroup* aStaticGroup=nil;
                       definitionsElement=[_definitions objectForKey:nodeNameAttribute];
                       NSDebugMLLog(@"GSWTemplateParser",@"definitionsElement:[%@]",
                                    definitionsElement);
@@ -975,79 +980,76 @@ text [Type:XML_TEXT_NODE] [{}] ####
                                    definitionsElement);
                       if (!definitionsElement)
                         {
-                          ExceptionRaise(@"GSWTemplateParser",
-                                         @"%@ No element definition for tag named:%@ [#%d,#%d]",
-                                         [self logPrefix],
-                                         nodeNameAttribute,
-                                         currentGSWebTagN,
-                                         currentTagN);
+                          // We don't raise exception know because it's better for developper to collect and report all errors before :-)
+                          [self addErrorMessageFormat:@"No element definition for tag named:%@ [#%d,#%d]",
+                                nodeNameAttribute,
+                                currentGSWebTagN,
+                                currentTagN];
                         }
                       else
                         {
-                          NSDictionary* _associations=[definitionsElement associations];
-                          NSString* className=[definitionsElement className];
+                          _associations=[definitionsElement associations];
+                          className=[definitionsElement className];
                           NSDebugMLLog(@"GSWTemplateParser",@"node=%p GSWeb Tag className:[%@]",currentNode,className);
                           if (!className)
                             {
-                              ExceptionRaise(@"GSWTemplateParser",
-                                             @"%@No class name in page definition for tag named:%@ definitionsElement=%@ [#%d,#%d]",
-                                             [self logPrefix],
-                                             nodeNameAttribute,
-                                             definitionsElement,
-                                             currentGSWebTagN,
-                                             currentTagN);
-                            }
-                          else
-                            {
-                              GSWHTMLStaticGroup* aStaticGroup=nil;
-                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p associations:%@",currentNode,_associations);
+                              // We don't raise exception know because it's better for developper to collect and report all errors before :-)
+                              [self addErrorMessageFormat:@"No class name in page definition for tag named:%@ definitionsElement=%@ [#%d,#%d]",
+                                    nodeNameAttribute,
+                                    definitionsElement,
+                                    currentGSWebTagN,
+                                    currentTagN];
+                            };
+                        };
+                      // No class name mean we'll raise an exception after so don't care about this part...
+                      if (className) //
+                        {
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p associations:%@",currentNode,_associations);
+                          {
+                            NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
+                            id _tagAttrKey=nil;
+                            id _tagAttrValue=nil;
+                            NSMutableDictionary* _addedAssoc=nil;
+                            while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
                               {
-                                NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
-                                id _tagAttrKey=nil;
-                                id _tagAttrValue=nil;
-                                NSMutableDictionary* _addedAssoc=nil;
-                                while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
+                                if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
                                   {
-                                    if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
-                                      {
-                                        if (!_addedAssoc)
-                                          _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-                                        _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
+                                    if (!_addedAssoc)
+                                      _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+                                    _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
                                         [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
                                                      forKey:_tagAttrKey];
-                                      };
-                                  };
-                                if (_addedAssoc)
-                                  {
-                                    _associations=[_associations dictionaryByAddingEntriesFromDictionary:_addedAssoc];
                                   };
                               };
-                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p gsweb name=%@ dynamicElementWithName: children=%@",
-                                          currentNode,
-                                          nodeNameAttribute,
-                                          children);
-                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p %@ [Type:%@] [%@] ##%s##\n",
-                                          currentNode,
-                                          [currentNode name],
-                                          [currentNode typeDescription],
-                                          [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
-                                          [[currentNode content] lossyCString]);
-                              aStaticGroup=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
-                              elem=[GSWApp dynamicElementWithName:className
-                                           associations:_associations
-                                           template:aStaticGroup
-                                           languages:_languages];
-                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@ StaticGroup %p=%@",currentNode,elem,aStaticGroup,aStaticGroup);
-                              if (elem)
-                                [elem setDefinitionName:[definitionsElement elementName]];
-                              else
-                                {
-                                  ExceptionRaise(@"GSWTemplateParser",
-                                                 @"%@ Creation failed for element named:%@ className:%@",
-                                                 [self logPrefix],
-                                                 [definitionsElement elementName],
-                                                 className);
-                                };
+                            if (_addedAssoc)
+                              {
+                                _associations=[_associations dictionaryByAddingEntriesFromDictionary:_addedAssoc];
+                              };
+                          };
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p gsweb name=%@ dynamicElementWithName: children=%@",
+                                       currentNode,
+                                       nodeNameAttribute,
+                                       children);
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p %@ [Type:%@] [%@] ##%s##\n",
+                                       currentNode,
+                                       [currentNode name],
+                                       [currentNode typeDescription],
+                                       [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
+                                       [[currentNode content] lossyCString]);
+                          aStaticGroup=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
+                          elem=[GSWApp dynamicElementWithName:className
+                                       associations:_associations
+                                       template:aStaticGroup
+                                       languages:_languages];
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@ StaticGroup %p=%@",currentNode,elem,aStaticGroup,aStaticGroup);
+                          if (elem)
+                            [elem setDefinitionName:[definitionsElement elementName]];
+                          else
+                            {
+                              // We don't raise exception know because it's better for developper to collect and report all errors before :-)
+                              [self addErrorMessageFormat:@"Creation failed for element named:%@ className:%@",
+                                    [definitionsElement elementName],
+                                    className];
                             };
                         };
                     };
