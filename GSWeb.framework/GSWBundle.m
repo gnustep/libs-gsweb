@@ -606,7 +606,7 @@ objectForReference:(NSString*)keyPath
             {
               NSString* absoluteDefinitionPath=nil;
               pageDefString=[self lockedResourceNamed:aName
-                                  ofType:GSWComponentDefinitionSuffix[GSWebNamingConv]
+                                  ofType:GSWComponentDeclarationsSuffix[GSWebNamingConv]
                                   withLanguages:someLanguages
                                   usingCache:nil
                                   relativePath:NULL
@@ -616,7 +616,7 @@ objectForReference:(NSString*)keyPath
               if (!pageDefString && !absoluteDefinitionPath)
                 {
                   pageDefString=[self lockedResourceNamed:aName
-                                      ofType:GSWComponentDefinitionSuffix[GSWebNamingConvInversed]
+                                      ofType:GSWComponentDeclarationsSuffix[GSWebNamingConvInversed]
                                       withLanguages:someLanguages
                                       usingCache:nil
                                       relativePath:NULL
@@ -645,9 +645,9 @@ objectForReference:(NSString*)keyPath
                                               withString:htmlString
                                               encoding:encoding
                                               fromPath:absoluteTemplatePath
-                                              definitionsString:pageDefString
+                                              declarationsString:pageDefString
                                               languages:someLanguages
-                                              definitionPath:absoluteDefinitionPath];
+                                              declarationsPath:absoluteDefinitionPath];
                 }
 #ifndef NDEBUG
               NS_HANDLER
