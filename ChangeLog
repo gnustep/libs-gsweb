@@ -1,3 +1,54 @@
+2004-12-27  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/common/GSWStats[hc]:
+		o added
+	* GSWAdaptors/Apache/mod_gsweb.c
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+		o Handle time statistics informations (GSWTimeStats)
+	* GSWAdaptors/netscape/gsweb.c
+		o Handle time statistics informations (GSWTimeStats)
+	* GSWAdaptors/common/GSWAppConnectNSSocket.c:
+		o Handle time statistics informations (GSWTimeStats)
+	* GSWAdaptors/common/GSWAppConnectSocket.c
+		o Handle time statistics informations (GSWTimeStats)
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+	* GSWAdaptors/common/GSWAppRequest.c
+		o Handle time statistics informations (GSWTimeStats)
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+	* GSWAdaptors/common/GSWAppRequest.h:
+		o removed GSWAppRequest_INITIALIZER
+	* GSWAdaptors/common/GSWAppRequestStruct.h:
+		o added pStats in GSWAppRequest
+	* GSWAdaptors/common/common/GSWConfig.[hc]:
+		o added isDebug parameter and handle it
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+	* GSWAdaptors/common/GSWDict.h:
+		o added GSWDict_DebugLog
+	* GSWAdaptors/common/GSWHTTPRequest.c:
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+		o handle pStats	
+	* GSWAdaptors/common/GSWHTTPRequest.h:
+		o added pStats	
+	* GSWAdaptors/common/GSWHTTPResponse.c:
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+		o handle pStats	
+		o fix bugs when having invalid response
+	* GSWAdaptors/common/GSWHTTPResponse.h:
+		o adedd pStats
+		o handle pStats	
+	* GSWAdaptors/common/common/GSWLoadBalancing.c
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+		o handle pStats	
+	* GSWAdaptors/common/GSWTemplates.c:
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+		o fix bug when having invalid response
+	* GSWAdaptors/common/GSWURLUtil.c:
+		o replaced GSWLog(GSW_DEBUG,..) by GSWDebugLog()
+	* GSWAdaptors/common/GSWUtil.[hc]:
+		o added GSWTime_* functions
+		o added GSWDebugLog and GSWDebugLogCond
+	* GSWAdaptors/common/common.make:
+		o added GSWStats.c
+
 2004-12-15  Manuel Guesdon <mguesdon@orange-concept.com>
 	* README:
 		o added a not on GSWElementIDString/GSWElementID 
