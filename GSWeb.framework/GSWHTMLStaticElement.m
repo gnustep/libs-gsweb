@@ -290,6 +290,7 @@ static char rcsId[] = "$Id$";
   GSWRequest* _request=[context_ request];
   BOOL _isFromClientComponent=[_request isFromClientComponent]; //bis repetitam
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   if ([elementsMap length]>0)
 	{
 	  [self appendToResponse:response_
@@ -355,7 +356,8 @@ static char rcsId[] = "$Id$";
   CONST BYTE* elements=[elementsMap bytes];
   BYTE element=0;
   int elementsN[3]={0,0,0};
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   for(elementN=0;!_element && elementN<[elementsMap length];elementN++)
 	{
 	  element=(BYTE)elements[elementN];
@@ -390,6 +392,7 @@ static char rcsId[] = "$Id$";
   int elementsN[3]={0,0,0};
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   for(elementN=0;elementN<[elementsMap length];elementN++)
 	{
 	  NSDebugMLLog(@"gswdync",@"elementN=%d",elementN);

@@ -31,10 +31,33 @@ extern BYTE ElementsMap_gswebElement;
 extern BYTE ElementsMap_dynamicElement;
 extern BYTE ElementsMap_attributeElement;
 
+
 //====================================================================
 @interface GSWElement : NSObject
+#ifndef NDEBBUG
+{
+  NSString* _appendToResponseElementID;
+};
+#endif
 
+#ifndef NDEBBUG
+-(void)saveAppendToResponseElementIDInContext:(id)context_;
+-(void)assertCorrectElementIDInContext:(id)context_
+							   inCLass:(Class)class_
+							  method:(SEL)method_
+								file:(const char*)file_
+								line:(int)line_;
+#endif
 @end
+
+#ifdef NDEBBUG
+#define GSWSaveAppendToResponseElementID(context_);		{};
+#define GSWAssertCorrectElementID(context_); 	{};
+#else
+#define GSWSaveAppendToResponseElementID(context_);		[self saveAppendToResponseElementIDInContext:context_];
+#define GSWAssertCorrectElementID(context_); 			([self assertCorrectElementIDInContext:context_ inCLass:[self class] method:_cmd file:__FILE__ line:__LINE__]);
+#endif
+
 
 //====================================================================
 @interface GSWElement (GSWRequestHandling)
@@ -47,6 +70,7 @@ extern BYTE ElementsMap_attributeElement;
 
 -(void)takeValuesFromRequest:(GSWRequest*)request_
 				   inContext:(GSWContext*)context_; 
+-(BOOL)prefixMatchSenderIDInContext:(GSWContext*)context_;
 @end
 
 #endif //_GSWElement_h__

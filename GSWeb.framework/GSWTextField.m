@@ -80,6 +80,7 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL _disabled=NO;
   LOGObjectFnStartC("GSWTextField");
+  GSWAssertCorrectElementID(context_);// Debug Only
   _disabled=[self disabledInContext:context_];
   if (!_disabled)
 	{
@@ -105,13 +106,13 @@ static char rcsId[] = "$Id$";
 					{
 					  NSException* _exception=nil;
 					  NSString* _valueKeyPath=[value keyPath];
-					  LOGException0(@"EOValidationException");
+					  LOGException(@"EOValidationException _resultValue=%@ _valueKeyPath=%@",_resultValue,_valueKeyPath);
 					  _exception=[NSException exceptionWithName:@"EOValidationException"
 											  reason:_errorDscr /*_exceptionDscr*/
 											  userInfo:[NSDictionary 
 														 dictionaryWithObjectsAndKeys:
-														   @"EOValidatedObjectUserInfoKey",_resultValue,
-														 @"EOValidatedPropertyUserInfoKey",_valueKeyPath,
+														   (_resultValue ? _resultValue : @"nil"),@"EOValidatedObjectUserInfoKey",
+														 _valueKeyPath,@"EOValidatedPropertyUserInfoKey",
 														 nil,nil]];
 					  [_component validationFailedWithException:_exception
 								  value:_resultValue

@@ -345,6 +345,7 @@ static char rcsId[] = "$Id$";
   //OK
   LOGObjectFnStartC("GSWHTMLDynamicElement");
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   if ([elementsMap length]>0)
 	{
 	  [self appendToResponse:response_
@@ -505,7 +506,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStartC("GSWHTMLDynamicElement");
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
   NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   for(elementN=0;!_element && elementN<[elementsMap length];elementN++)
 	{
 	  element=(BYTE)elements[elementN];
@@ -586,8 +587,8 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStartC("GSWHTMLDynamicElement");
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
   NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
   NSDebugMLLog(@"gswdync",@"Starting HTMLDyn TV ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   for(elementN=0;elementN<[elementsMap length];elementN++)
 	{
 	  element=(BYTE)elements[elementN];

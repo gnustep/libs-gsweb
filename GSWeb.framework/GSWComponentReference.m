@@ -202,6 +202,7 @@ static char rcsId[] = "$Id$";
 #endif
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   _componentPrev=[context_ component];
   [self pushRefComponentInContext:context_];
   if ([context_ component])
@@ -232,18 +233,13 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
   _componentPrev=[context_ component];
+  GSWAssertCorrectElementID(context_);// Debug Only
   [self pushRefComponentInContext:context_];
   if ([context_ component])
 	{
-	  NSString* _senderID=nil;
-	  NSString* _elementID=nil;
-	  _senderID=[context_ senderID];
-	  _elementID=[context_ elementID];
-	  NSDebugMLLog(@"gswdync",@"_senderID=%@",_senderID);
-	  NSDebugMLLog(@"gswdync",@"_elementID=%@",_elementID);
-	  if ([_senderID hasPrefix:_elementID]) //Avoid trying to find action if we are not the good component
+	  if ([self prefixMatchSenderIDInContext:context_]) //Avoid trying to find action if we are not the good component
 		{
 		  _component=[context_ component];
 		  _element=[_component invokeActionForRequest:request_
@@ -273,6 +269,7 @@ static char rcsId[] = "$Id$";
 #endif
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   _componentPrev=[context_ component];
   [self pushRefComponentInContext:context_];
   if ([context_ component])

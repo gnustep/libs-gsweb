@@ -616,6 +616,7 @@ static char rcsId[] = "$Id$";
   struct rusage _rusage;
   int i=0;
   LOGObjectFnStart();
+//Use NSRealMemoryAvailable ??
   for(i=0;i<2;i++)
 	{
 	  memset(&_rusage,0,sizeof(_rusage));

@@ -39,6 +39,9 @@
 #define IsStyle(__value,__style)			((((__value)&(__style))==(__style)) ? YES : NO)
 #define IsNumberStyle(__value,__style)		(((([__value unsignedIntValue])&(__style))==(__style)) ? YES : NO)
 
+#define VOID_RCSID	\
+static void VoidUseRCSId() { rcsId[0]=0; };
+
 typedef unsigned char BYTE;
 
 #define allFrameworks 	tmpAllFrameworks

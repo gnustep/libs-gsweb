@@ -27,6 +27,18 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWElementIDString
+
+//--------------------------------------------------------------------
+-(id)copyWithZone:(NSZone*)zone
+{
+  return [self mutableCopyWithZone:zone];
+};
+
+//--------------------------------------------------------------------
+-(id)mutableCopyWithZone:(NSZone*)zone
+{
+  return [[[self class] allocWithZone: zone] initWithString: self];
+};
 @end
 
 //====================================================================
@@ -118,6 +130,15 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)parentElementIDString
+{
+  GSWElementIDString* _id=[[self copy] autorelease];
+  if ([self length]>0)
+	[_id deleteLastElementIDComponent];
+  return _id;
+};
 //--------------------------------------------------------------------
 #ifndef NDEBBUG
 -(int)elementsNb

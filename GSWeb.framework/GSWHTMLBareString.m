@@ -76,6 +76,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   [response_ appendContentString:string];
   NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
   LOGObjectFnStop();

@@ -55,6 +55,7 @@ static char rcsId[] = "$Id$";
 -(void)takeValuesFromRequest:(GSWRequest*)request_
 				   inContext:(GSWContext*)context_
 {
+  GSWAssertCorrectElementID(context_);// Debug Only
   //Does Nothing and don't call its parent GSWInput !
 };
 

@@ -81,7 +81,7 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response_
-				   inContext:(GSWContext*)context_
+			  inContext:(GSWContext*)context_
 {
   [super appendToResponse:response_
 		 inContext:context_];
@@ -91,6 +91,7 @@ static char rcsId[] = "$Id$";
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
 						   inContext:(GSWContext*)context_
 {
+  GSWAssertCorrectElementID(context_);// Debug Only
   //Bypass GSWInput
   return nil;
 };
@@ -102,6 +103,7 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL _disabled=NO;
   LOGObjectFnStartC("GSWFileUpload");
+  GSWAssertCorrectElementID(context_);// Debug Only
   _disabled=[self disabledInContext:context_];
   if (!_disabled)
 	{

@@ -84,6 +84,7 @@ static char rcsId[] = "$Id$";
 {
   //OK
   LOGObjectFnStart();
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   [super appendToResponse:response_
 		 inContext:context_];
   LOGObjectFnStop();
@@ -97,8 +98,10 @@ static char rcsId[] = "$Id$";
   GSWElement* _element=nil;
   BOOL _disabled=NO;
   LOGObjectFnStart();
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
   NS_DURING
 	{
+	  GSWAssertCorrectElementID(context_);// Debug Only
 	  _disabled=[self disabledInContext:context_];
 	  if (!_disabled)
 		{
@@ -115,6 +118,10 @@ static char rcsId[] = "$Id$";
 				  NSDebugMLLog(@"gswdync",@"_formValue=%@",_formValue);
 				  if (_formValue)
 					_invoked=YES;
+				  else
+					{
+					  NSDebugMLLog(@"gswdync",@"[request_ formValueKeys]=%@",[request_ formValueKeys]);
+					};
 				}
 			  else
 				_invoked=YES;
@@ -155,6 +162,13 @@ static char rcsId[] = "$Id$";
 	  [localException raise];
 	}
   NS_ENDHANDLER;
+  if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] compare:[context_ senderID]]!=NSOrderedAscending)
+	{
+	  LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
+			   [self class],
+			   [context_ elementID],
+			   [context_ senderID]);
+	};
   LOGObjectFnStop();
   return _element;
 };
@@ -164,6 +178,7 @@ static char rcsId[] = "$Id$";
 				   inContext:(GSWContext*)context_
 {
   //Does Nothing ?
+  GSWAssertCorrectElementID(context_);// Debug Only
 };
  
 //--------------------------------------------------------------------

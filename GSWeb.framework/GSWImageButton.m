@@ -287,6 +287,7 @@ static char rcsId[] = "$Id$";
   GSWRequest* _request=[context_ request];
   BOOL _isFromClientComponent=[_request isFromClientComponent];
   BOOL _disabledInContext=[self disabledInContext:context_];
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   if (_disabledInContext)
 	{
 	  //TODO
@@ -308,6 +309,7 @@ static char rcsId[] = "$Id$";
 				   inContext:(GSWContext*)context_
 {
   LOGObjectFnStart();
+  GSWAssertCorrectElementID(context_);// Debug Only
   //Does nothing ?
   LOGObjectFnStop();
 };
@@ -319,6 +321,8 @@ static char rcsId[] = "$Id$";
   GSWElement* _element=nil;
   BOOL _disabledInContext=NO;
   LOGObjectFnStart();
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   _disabledInContext=[self disabledInContext:context_];
   if (!_disabledInContext)
 	{

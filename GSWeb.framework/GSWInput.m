@@ -148,6 +148,7 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL _disabledInContext=NO;
   LOGObjectFnStartC("GSWInput");
+  GSWAssertCorrectElementID(context_);// Debug Only
   _disabledInContext=[self disabledInContext:context_]; //return 0
   if (!_disabledInContext)
 	{
@@ -210,6 +211,7 @@ static char rcsId[] = "$Id$";
   //OK
   GSWComponent* _component=nil;
   LOGObjectFnStartC("GSWInput");
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   _component=[context_ component];
   if (value)
 	{

@@ -38,6 +38,7 @@
 -(void)incrementLastElementIDComponent;
 -(void)appendZeroElementIDComponent;
 -(void)appendElementIDComponent:(id)_element;
+-(NSString*)parentElementIDString;//NDFN
 #ifndef NDEBBUG
 -(int)elementsNb;
 #endif

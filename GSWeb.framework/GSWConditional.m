@@ -25,7 +25,6 @@ static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
 
-
 //====================================================================
 @implementation GSWConditional
 
@@ -95,6 +94,7 @@ static char rcsId[] = "$Id$";
   BOOL _doIt=NO;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   _condition=[self evaluateCondition:condition
 				   inContext:context_];
   _negate=[self evaluateCondition:negate
@@ -126,7 +126,8 @@ static char rcsId[] = "$Id$";
   BOOL _negate=NO;
   BOOL _doIt=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
+  GSWAssertCorrectElementID(context_);// Debug Only
   _condition=[self evaluateCondition:condition
 						inContext:context_];
   _negate=[self evaluateCondition:negate
@@ -161,6 +162,7 @@ static char rcsId[] = "$Id$";
   BOOL _doIt=NO;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   _condition=[self evaluateCondition:condition
 						inContext:context_];
   NSDebugMLLog(@"gswdync",@"_condition=%s",_condition ? "YES" : "NO");

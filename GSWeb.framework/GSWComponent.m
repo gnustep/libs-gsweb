@@ -25,7 +25,6 @@ static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
 
-
 //====================================================================
 @implementation GSWComponent
 
@@ -929,6 +928,7 @@ associationsKeys:(NSArray*)_associationsKeys
 #endif
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWSaveAppendToResponseElementID(context_);//Debug Only
   _template=[self _template];
   [response_ appendContentString:[NSString stringWithFormat:@"\n<!-- Start %@ -->\n",[self _templateName]]];//TODO enlever
 
@@ -967,6 +967,7 @@ associationsKeys:(NSArray*)_associationsKeys
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
   NS_DURING
 	{
+	  GSWAssertCorrectElementID(context_);// Debug Only
 	  _template=[self _template];
 	  [context_ appendZeroElementIDComponent];
 	  element=[[self _template] invokeActionForRequest:request_
@@ -991,6 +992,13 @@ associationsKeys:(NSArray*)_associationsKeys
 	  
 	};
 #endif
+  if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] compare:[context_ senderID]]==NSOrderedDescending)
+	{
+	  LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
+			   [self class],
+			   [context_ elementID],
+			   [context_ senderID]);
+	};
   LOGObjectFnStop();
   return element;
 };
@@ -1008,6 +1016,8 @@ associationsKeys:(NSArray*)_associationsKeys
   GSWElementIDString* debugElementID=[context_ elementID];
 #endif
   LOGObjectFnStart();
+  GSWAssertCorrectElementID(context_);// Debug Only
+
 #if !GSWEB_STRICT
   [validationFailureMessages removeAllObjects];
 #endif
