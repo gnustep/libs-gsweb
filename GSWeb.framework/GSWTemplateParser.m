@@ -36,11 +36,6 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-#include <gsantlr/ANTLRCommon.h>
-#include <gsantlr/ANTLRTextStreams.h>
-#include "GSWTemplateParserXML.h"
-#include "GSWTemplateParserANTLR.h"
-
 //====================================================================
 @implementation GSWTemplateParser
 
@@ -59,13 +54,25 @@ RCS_ID("$Id$")
   if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_RawHTML] == NSOrderedSame)
     type=GSWTemplateParserType_RawHTML;
   else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_XMLHTML] == NSOrderedSame)
-    type=GSWTemplateParserType_XMLHTML;
+    {
+      NSWarnLog(@"XMLHTL parser is no more handled. Using RawHTML one");
+      type=GSWTemplateParserType_RawHTML;
+    }
   else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags] == NSOrderedSame)
-    type=GSWTemplateParserType_XMLHTMLNoOmittedTags;
+    {
+      NSWarnLog(@"XMLHTMLNoOmittedTags parser is no more handled. Using RawHTML one");
+      type=GSWTemplateParserType_RawHTML;
+    }
   else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_XML] == NSOrderedSame)
-    type=GSWTemplateParserType_XML;
+    {
+      NSWarnLog(@"XML parser is no more handled. Using RawHTML one");
+      type=GSWTemplateParserType_RawHTML;
+    }
   else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_ANTLR] == NSOrderedSame)
-    type=GSWTemplateParserType_ANTLR;
+    {
+      NSWarnLog(@"ANTLR parser is no more handled. Using RawHTML one");
+      type=GSWTemplateParserType_RawHTML;
+    }
   else 
     type=GSWTemplateParserType_RawHTML;
   NSDebugMLog(@"templateParserTypeFromString:%@ ==> %d",string,type);
@@ -93,56 +100,9 @@ RCS_ID("$Id$")
                declarationsString: declarationsString
                languages: languages
                declarationsPath: nil];
-  
-  /*
-  GSWTemplateParserType parserType;
-  GSWElement   *rootElement;
-  NSDictionary *declarations;
-
-  declarations = [GSWDeclarationParser declarationsWithString: declarationsString];
-  parserType=[self defaultTemplateParserType];
-
-  switch(parserType)
-    {
-      case GSWTemplateParserType_XMLHTML:
-      case GSWTemplateParserType_XMLHTMLNoOmittedTags:
-       {
-         rootElement
-           = [GSWTemplateParserXMLHTML templateWithHTMLString: HTMLString
-                                       declarations: declarations
-                                       languages: languages];
-         break;
-       }
-      case GSWTemplateParserType_XML:
-       {
-         rootElement
-           = [GSWTemplateParserXML templateWithHTMLString: HTMLString
-                                   declarations: declarations
-                                   languages: languages];
-          break;
-       }
-      case GSWTemplateParserType_ANTLR:
-       {
-         rootElement
-           = [GSWTemplateParserANTLR templateWithHTMLString: HTMLString
-                                   declarations: declarations
-                                   languages: languages];
-          break;
-       }
-      default:
-       {
-         rootElement
-           = [GSWTemplateParserXMLHTML templateWithHTMLString: HTMLString
-                                       declarations: declarations
-                                       languages: languages];
-          break;
-       }
-    };
-
-  return rootElement;
-  */
 }
 
+//--------------------------------------------------------------------
 +(GSWElement*)templateNamed:(NSString*)aName
            inFrameworkNamed:(NSString*)aFrameworkName
              withParserType:(GSWTemplateParserType)parserType
@@ -185,23 +145,27 @@ RCS_ID("$Id$")
                  withString:(NSString*)HTMLString
                    encoding:(NSStringEncoding)anEncoding
                    fromPath:(NSString*)HTMLPath
-          declarationsString:(NSString*)declarationsString
+         declarationsString:(NSString*)declarationsString
                   languages:(NSArray*)someLanguages
-             declarationsPath:(NSString*)aDeclarationsPath
+           declarationsPath:(NSString*)aDeclarationsPath
 {
   GSWElement* resultTemplate=nil;
   GSWTemplateParser* templateParser=nil;
   Class finalParserClass=Nil;
+
   LOGClassFnStart();
-  NSDebugMLLog(@"GSWTemplateParser",@"template named:%@ frameworkName:%@ declarationsString=%@",aName,aFrameworkName,declarationsString);
-  NSDebugMLLog(@"GSWTemplateParser",@"aDeclarationsPath=%@",aDeclarationsPath);
-  NSDebugMLLog(@"GSWTemplateParser",@"parserClass:%@ parserType:%d",parserClass,parserType);
-/*  if (!parserClass)
-    {
-      parserClass=[self defaultParserClass];
-      NSAssert(parserClass,@"No defaultParser Class");
-    };
-*/
+
+  NSDebugMLLog(@"GSWTemplateParser",
+               @"template named:%@ frameworkName:%@ declarationsString=%@",
+               aName,aFrameworkName,declarationsString);
+
+  NSDebugMLLog(@"GSWTemplateParser",
+               @"aDeclarationsPath=%@",aDeclarationsPath);
+
+  NSDebugMLLog(@"GSWTemplateParser",
+               @"parserClass:%@ parserType:%d",
+               parserClass,parserType);
+
   if (parserClass)
     finalParserClass=parserClass;
   else
@@ -212,13 +176,17 @@ RCS_ID("$Id$")
         {
         case GSWTemplateParserType_XMLHTML:
         case GSWTemplateParserType_XMLHTMLNoOmittedTags:
-          finalParserClass=[GSWTemplateParserXMLHTML class];
+          NSWarnLog(@"XMLHTML parser is no more handled. Using RawHTML one");
+          finalParserClass=[GSWHTMLTemplateParser class];
           break;
         case GSWTemplateParserType_XML:
-          finalParserClass=[GSWTemplateParserXML class];
+          NSWarnLog(@"XML parser is no more handled. Using RawHTML one");
+          finalParserClass=[GSWHTMLTemplateParser class];
           break;
         case GSWTemplateParserType_ANTLR:
-          finalParserClass=[GSWTemplateParserANTLR class];
+          NSWarnLog(@"ANTLR parser is no more handled. Using RawHTML one");
+          finalParserClass=[GSWHTMLTemplateParser class];
+          break;
         case GSWTemplateParserType_RawHTML:
           finalParserClass=[GSWHTMLTemplateParser class];
           break;
@@ -228,9 +196,13 @@ RCS_ID("$Id$")
         };
     };
 
-  NSDebugMLLog(@"GSWTemplateParser",@"finalParserClass:%@ parserType:%d",finalParserClass,parserType);
+  NSDebugMLLog(@"GSWTemplateParser",
+               @"finalParserClass:%@ parserType:%d",
+               finalParserClass,parserType);
+
   NSAssert2(finalParserClass,@"No Final Parser class: parserClass:%@ parserType:%d",
             parserClass,parserType);
+
   templateParser=[[[finalParserClass alloc] initWithTemplateName:aName
                                             inFrameworkName:aFrameworkName
                                             withString:HTMLString
@@ -241,11 +213,11 @@ RCS_ID("$Id$")
                                             forLanguages:someLanguages] autorelease];
   if (templateParser)
     {
-      if (!parserClass && parserType==GSWTemplateParserType_XMLHTMLNoOmittedTags)
-        [(GSWTemplateParserXMLHTML*)templateParser setNoOmittedTags:YES];
       resultTemplate=[templateParser template];
     };
+
   LOGClassFnStop();
+
   return resultTemplate;
 };
 
@@ -342,6 +314,9 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+/** parse the template if it's not done and returns it 
+May raise exception
+**/
 -(GSWElement*)template
 {
   LOGObjectFnStart();
@@ -399,8 +374,9 @@ RCS_ID("$Id$")
               
               _template=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
               [_template setDeclarationName:[NSString stringWithFormat:@"Template - %@",_templateName]];
-              NSDebugMLLog(@"GSWTemplateParser",@"template %p=%@",_template,_template);
-              //NSLog(@"_string = %@", _string);
+
+              NSDebugMLLog(@"GSWTemplateParser",
+                           @"template %p=%@",_template,_template);
               
               docTypeRangeStart=[_string rangeOfString:@"<!DOCTYPE"];
               if (docTypeRangeStart.length) {
@@ -418,7 +394,9 @@ RCS_ID("$Id$")
             };
         };
     };
+
   LOGObjectFnStop();
+
   return _template;
 };
 
@@ -430,7 +408,11 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-//GSWDeclarationParserPragmaDelegate protocol
+/** returns declarations from includedFilePath included from 
+declaration file in framework named frameworkName
+
+Method for GSWDeclarationParserPragmaDelegate protocol
+**/
 -(NSDictionary*)includedDeclarationsFromFilePath:(NSString*)includedFilePath
                               fromFrameworkNamed:(NSString*)frameworkName
 {
@@ -445,17 +427,21 @@ RCS_ID("$Id$")
 
   LOGObjectFnStart();  
 
-  NSDebugMLLog(@"GSWTemplateParser",@"Template includedDeclarationsFromFilePath:%@",
-              includedFilePath);
+  NSDebugMLLog(@"GSWTemplateParser",
+               @"Template includedDeclarationsFromFilePath:%@",
+               includedFilePath);
 
   resourceManager=[GSWApp resourceManager];
 
   declarationFileName=[includedFilePath lastPathComponent];
   declarationFrameworkName=[includedFilePath stringByDeletingLastPathComponent];
 
-  NSDebugMLLog(@"gswcomponents",@"Template includedDeclarationsFromFilePath: '%@' declarationFileName=%@",
+  NSDebugMLLog(@"gswcomponents",
+               @"Template includedDeclarationsFromFilePath: '%@' declarationFileName=%@",
                includedFilePath,declarationFileName);
-  NSDebugMLLog(@"gswcomponents",@"Template includedDeclarationsFromFilePath: '%@' declarationFrameworkName=%@",
+
+  NSDebugMLLog(@"gswcomponents",
+               @"Template includedDeclarationsFromFilePath: '%@' declarationFrameworkName=%@",
                includedFilePath,declarationFrameworkName);
 
   if ([declarationFrameworkName length]==0)
@@ -467,7 +453,9 @@ RCS_ID("$Id$")
         };
     };
 
-  NSDebugMLLog(@"gswcomponents",@"declarationFrameworkName=%@",declarationFrameworkName);
+  NSDebugMLLog(@"gswcomponents",
+               @"declarationFrameworkName=%@",
+               declarationFrameworkName);
 
   for(iLanguage=0;iLanguage<=[_languages count] && !path;iLanguage++)
     {
@@ -485,15 +473,20 @@ RCS_ID("$Id$")
                                               GSWPagePSuffix[GSWebNamingConvForRound(iName)]];
           completeResourceName=[declarationFileName stringByAppendingString:
                                                              GSWComponentDeclarationsPSuffix[GSWebNamingConvForRound(iName)]];
-          NSDebugMLLog(@"gswcomponents",@"resourceName=%@ completeResourceName=%@ declarationFileName=%@",
+          NSDebugMLLog(@"gswcomponents",
+                       @"resourceName=%@ completeResourceName=%@ declarationFileName=%@",
                        resourceName,
                        completeResourceName,
                        declarationFileName);
-          NSDebugMLLog(@"gswcomponents",@"Search %@ Language=%@",resourceName,language);
+
+          NSDebugMLLog(@"gswcomponents",
+                       @"Search %@ Language=%@",resourceName,language);
+
           path=[resourceManager pathForResourceNamed:resourceName
                                   inFramework:declarationFrameworkName
                                   language:language];
-          NSDebugMLLog(@"gswcomponents",@"Search In Page Component: language=%@ path=%@ _processedDeclarationsFilePaths=%@",
+          NSDebugMLLog(@"gswcomponents",
+                       @"Search In Page Component: language=%@ path=%@ _processedDeclarationsFilePaths=%@",
                        language,
                        path,
                        _processedDeclarationsFilePaths);
@@ -501,6 +494,7 @@ RCS_ID("$Id$")
             {
               path=[path stringByAppendingPathComponent:completeResourceName];
               NSDebugMLLog(@"gswcomponents",@"Found %@ Language=%@ : %@",resourceName,language,path);
+
               if ([_processedDeclarationsFilePaths containsObject:path])
                 {
                   NSDebugMLLog(@"gswcomponents",@"path=%@ already processed",path);
@@ -512,28 +506,37 @@ RCS_ID("$Id$")
             };
           if (!path)
             {
-              NSDebugMLLog(@"gswcomponents",@"Direct Search %@ Language=%@",completeResourceName,language);
+              NSDebugMLLog(@"gswcomponents",
+                           @"Direct Search %@ Language=%@",
+                           completeResourceName,language);
+
               path=[resourceManager pathForResourceNamed:completeResourceName
                                     inFramework:declarationFrameworkName
                                     language:language];
               if (path)
                 {
-                  NSDebugMLLog(@"gswcomponents",@"Direct Found %@ Language=%@ : %@",completeResourceName,language,path);
+                  NSDebugMLLog(@"gswcomponents",
+                               @"Direct Found %@ Language=%@ : %@",
+                               completeResourceName,language,path);
+
                   if ([_processedDeclarationsFilePaths containsObject:path])
                     {
-                      NSDebugMLLog(@"gswcomponents",@"path=%@ already processed",path);
+                      NSDebugMLLog(@"gswcomponents",
+                                   @"path=%@ already processed",path);
                       path=nil;
                       isPathAlreadyProcessed=YES;
                       if (language)
                         iLanguage=[_languages count]-1;//For directly go to no language search  so we don't include (for exemple) an English file for a french file
                     };
                 };
-              NSDebugMLLog(@"gswcomponents",@"Direct Search in Component Declaration language=%@ path=%@ (_processedDeclarationsFilePaths=%@)",
+              NSDebugMLLog(@"gswcomponents",
+                           @"Direct Search in Component Declaration language=%@ path=%@ (_processedDeclarationsFilePaths=%@)",
                            language,
                            path,
                            _processedDeclarationsFilePaths);
             };          
-          NSDebugMLLog(@"gswcomponents",@"Search In Page Component: language=%@ path=%@ _processedDeclarationsFilePaths=%@",
+          NSDebugMLLog(@"gswcomponents",
+                       @"Search In Page Component: language=%@ path=%@ _processedDeclarationsFilePaths=%@",
                        language,
                        path,
                        _processedDeclarationsFilePaths);
@@ -543,21 +546,32 @@ RCS_ID("$Id$")
   if (path)
     {
       NSString* declarationsString=nil;
+
       NSDebugMLLog(@"GSWTemplateParser",@"path=%@",path);
+
       [_processedDeclarationsFilePaths addObject:path];
+
       //NSString* pageDefPath=[path stringByAppendingString:_declarationsPath];
       //TODO use encoding !
+
       declarationsString=[NSString stringWithContentsOfFile:path];
-      NSDebugMLLog(@"GSWTemplateParser",@"ParseDeclarations path=%@: declarationsString:%@\n",path,declarationsString);
+
+      NSDebugMLLog(@"GSWTemplateParser",
+                   @"ParseDeclarations path=%@: declarationsString:%@\n",path,declarationsString);
+
       if (declarationsString)
         {
           declarations=[self parseDeclarationsString:declarationsString
                              named:declarationFileName
                              inFrameworkNamed:declarationFrameworkName];
-          NSDebugMLLog(@"GSWTemplateParser",@"declarations:%@\n",declarations);
+
+          NSDebugMLLog(@"GSWTemplateParser",
+                       @"declarations:%@\n",declarations);
+
           if (!declarations)
             {
-              LOGError(@"%@ Template componentDeclaration parse failed for included file:%@ in framework:%@ (processedFiles=%@)",
+              LOGError(@"%@ Template componentDeclaration parse failed for "
+                       @"included file:%@ in framework:%@ (processedFiles=%@)",
                        [self logPrefix],
                        declarationFileName,
                        declarationFrameworkName,
@@ -568,7 +582,8 @@ RCS_ID("$Id$")
       else
         {
           ExceptionRaise(@"GSWTemplateParser",
-                         @"%@ Can't load included component declaration named:%@ in framework:%@ (_processedDeclarationsFilePaths=%@)",
+                         @"%@ Can't load included component declaration "
+                         @"named:%@ in framework:%@ (_processedDeclarationsFilePaths=%@)",
                          [self logPrefix],
                          declarationFileName,
                          declarationFrameworkName,
@@ -577,26 +592,34 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"GSWTemplateParser",@"declarations:%@\n",declarations);
     }
   else if (isPathAlreadyProcessed)
-    declarations=[NSDictionary dictionary];//return an empty dictionary
+    {
+      // Returns an empty dictionary
+      declarations=[NSDictionary dictionary];
+    }
   else
     {
       ExceptionRaise(@"GSWTemplateParser",
-                     @"%@ Can't find included component declaration named:%@ in framework:%@ (processedFiles=%@)",
+                     @"%@ Can't find included component declaration "
+                     @"named:%@ in framework:%@ (processedFiles=%@)",
                      [self logPrefix],
                      declarationFileName,
                      declarationFrameworkName,
                      _processedDeclarationsFilePaths);
     };
 
-  NSDebugMLLog(@"GSWTemplateParser",@"Template componentDeclaration includeName:%@ declarations=%@",
+  NSDebugMLLog(@"GSWTemplateParser",@"Template componentDeclaration "
+               @"includeName:%@ declarations=%@",
                includedFilePath,
                declarations);
+
   LOGObjectFnStop();
 
   return declarations;
 };
 
 //--------------------------------------------------------------------
+/** parses declarations from _declarationsString if it has not been 
+parsed **/
 -(void)parseDeclarations
 {
   LOGObjectFnStart();
@@ -632,6 +655,8 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+/** parse declarationsString if it is not already done and returns 
+declarations **/
 -(NSDictionary*)declarations
 {
   LOGObjectFnStart();
@@ -642,6 +667,8 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+/** return declarations parsed from declarationsString
+**/
 -(NSDictionary*)parseDeclarationsString:(NSString*)declarationsString
                                   named:(NSString*)declarationsName
                        inFrameworkNamed:(NSString*)declarationsFrameworkName
@@ -662,29 +689,12 @@ RCS_ID("$Id$")
                declarationsString);
   NS_DURING
     {
-      NSDebugMLLog0(@"low",@"Call declarationsParser");
       declarations=[declarationParser parseDeclarationString:declarationsString
                                       named:declarationsName
                                       inFrameworkNamed:declarationsFrameworkName];
-
-      /*
-      if ([declarationsParser isError])
-        {
-          LOGError(@"%@ %@",
-                   [self logPrefix],
-                   [declarationsParser errors]);
-          ExceptionRaise(@"GSWTemplateParser",
-                         @"%@ Errors in Declarations parsing template named %@: %@\nString:\n%@",
-                         [self logPrefix],
-                         declarationsName,
-                         [declarationsParser errors],
-                         declarationsString);
-        };
-      NSDebugMLLog0(@"low",@"Call [declarationsParser elements]");
-      tmpDeclarations=[[[declarationsParser elements] mutableCopy] autorelease];
-      */
-      NSDebugMLLog0(@"low",@"Declarations Parse OK!");
-      NSDebugMLLog(@"GSWTemplateParser",@"declarations=%@",declarations);
+      NSDebugMLLog(@"GSWTemplateParser",
+                   @"declarations=%@",
+                   declarations);
     }
   NS_HANDLER
     {
@@ -704,16 +714,24 @@ RCS_ID("$Id$")
       [localException raise];
     }
   NS_ENDHANDLER;
+
   NSDebugMLLog0(@"low",@"arpParse infos:\n");
   [declarations retain];
+
   NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
   GSWLogMemCF("Destroy NSAutoreleasePool: %p",arpParse);
+
   DESTROY(arpParse);
+
   NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
   [declarations autorelease];
   
-  NSDebugMLLog(@"GSWTemplateParser",@"declarations:%@\n",declarations);
+  NSDebugMLLog(@"GSWTemplateParser",
+               @"declarations:%@\n",
+               declarations);
+
   LOGObjectFnStop();
+
   return declarations;
 };
 
