@@ -1,3 +1,88 @@
+2003-06-25   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/common/GSWHTTPHeaders.h/.m:
+		o added g_szHeader_GSWeb_ApplicationName
+	* GSWAdaptors/Apache/mod_gsweb.c:
+		o added application name header
+	* GSWeb.framework/GSWUtils.m:
+		o log every 10 lock tries
+	* GSWeb.framework/GSWDefaultAdaptorThread.m:
+		o log remote address
+	* GSWeb.framework/GSWConstants.h/.m: 
+		o added GSWClassName_DefaultContext
+		o added GSWOPT_Context
+		o added GSWHTTPHeader_ApplicationName
+	* GSWeb.framework/GSWApplication.h/.m:
+		o added -setContextClassName:
+		o added -contextClassName;
+		o added -createContextForRequest:
+		o information on component search duration in debug mode
+	* GSWeb.framework/GSWComponentRequestHandler.m:
+		o call application -createContextForRequest: instead of directGSWContext creation
+		o use session -_contextIDMatchingIDsInContext
+		o use matchingContextID to restore already generated page
+		o fix in -lockedHandleRequest: to pur requestContextID in context
+	* GSWeb.framework/GSWDirectAction.m:
+		o call application -createContextForRequest: instead of directGSWContext creation
+	* GSWeb.framework/GSWContext.m:
+		o fix in +contextWithRequest: to use [self alloc]
+	* GSWeb.framework/GSWDeployedBundle.m:
+		o fix in lockedCachedRelativePathForResourceNamed:inDirectory:forLanguage:
+			to really use cache
+	* GSWeb.framework/GSWDisplayGroup.h:
+		o added flag isCustomDataSourceClass
+		o added flag isInitialized
+	* GSWeb.framework/GSWDynamicElement.h:
+		o removed -definitionName and -setDefinitionName:
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o added queryKeyValueQualifierClassName (to specify a specific key value qualifier for a key)
+		o finished -finishInitialization implementation
+		o finished -_setUpForNewDataSource implementation
+		o added -_isCustomDataSourceClass:
+		o rewritten part of -updateDisplayedObjects
+		o rewritten part of -setObjectArray:
+		o rewriten -setSelectedObjects:
+		o rewritten -setSelectionIndexes:
+		o rewritten -selectObject:
+		o rewritten -selectNext
+		o rewritten -selectPrevious
+		o rewritten -insertObject:atIndex:
+		o rewritten -deleteSelection
+		o rewritten -deleteObjectAtIndex:
+		o rewritten -_deleteObjectsAtIndexes:
+		o rewritten -displayedObjects
+		o rewritten -fetch
+		o rewritten -displayNextBatch
+		o rewritten -displayPreviousBatch;
+		o fixed -setNumberOfObjectsPerBatch:
+		o implemented -objectsChangedInEditingContext:
+		o replaced -_changedInEditingContext: by -objectsChangedInEditingContext:
+		o replaced -_changedInEditingContext: by -objectsInvalidatedInEditingContext:
+		o implemented -_notifySelectionChanged
+		o implemented -_notifyRowChanged:
+		o implemented -_lastObserverNotified:
+		o implemented -_beginObserverNotification:
+		o implemented -_selectionIndex
+		o implemented -_deleteObject:
+	* GSWeb.framework/GSWSession.m:
+		o implemented -_contextIDMatchingIDsInContext:
+		o implemented _rearrangeContextArrayStackForContextID:
+		o rewritten -_contextArrayForContextID:stackIndex:contextArrayIndex:
+		o rewritten parts of -_savePage:forChange:
+	* GSWeb.framework/GSWSessionStore.m/.h:
+		o partial rewriting of checkin/checkout code
+	* GSWeb.framework/GSWSessionServerStore.m/.h:
+		o changes for checkin/checkout code rewriting
+	* GSWeb.framework/GSWSessionTimeOutManager.m/.h:
+		o changes for checkin/checkout code rewriting
+		o set timer interval minimum to 5s instead of 1s
+	* GSWeb.framework/GSWSessionTimeOut.m/.h:
+		o changes for checkin/checkout code rewriting
+	* GSWeb.framework/GSWTransactionRecord.h/.m:
+		o added +transactionRecordWithResponsePage:context:
+		o replace signature by contextID,senderID and formValues
+	* GSWeb.framework/GSWClientSideScript.m:
+		o removed warning
+
 2003-06-01  David Ayers  <d.ayers@inode.at>
 
 	* gsweb.make.in
