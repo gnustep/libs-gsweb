@@ -40,7 +40,7 @@
   NSMutableArray* _cookies;
   NSStringEncoding _contentEncoding;
   NSDictionary* _userInfo;
-  NSMutableString* _contentString;
+//  NSMutableString* _contentString;
   IMP _contentStringASImp;
   NSMutableData* _contentData;
   IMP _contentDataADImp;

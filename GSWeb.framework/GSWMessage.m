@@ -43,22 +43,16 @@ static NSString* globalDefaultURLEncoding=nil;
 static SEL appendStringSel = NULL;
 static SEL appendDataSel = NULL;
 
+#define DEF_CONTENT_SIZE 64000
+
 //====================================================================
-#ifndef NO_GNUSTEP
-
-@interface GSWMessage (GSWMessageCachePrivate)
--(void)_cacheAppendString:(NSString*)string;
--(void)_cacheAppendData:(NSData*)data;
--(void)_cacheAppendBytes:(const void*)aBuffer
-                  length:(unsigned int)bufferSize;
-@end
-
-#endif
+/*
 
 #define assertContentStringASImp();		\
 	{ if (!_contentStringASImp) { 		\
 		_contentStringASImp=[_contentString \
 			methodForSelector:appendStringSel]; }; };
+*/
 
 #define assertContentDataADImp();		\
 	{ if (!_contentDataADImp) { 		\
@@ -67,6 +61,16 @@ static SEL appendDataSel = NULL;
 
 //====================================================================
 @implementation GSWMessage
+
+static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
+  if (self->_contentData == nil) {
+    self->_contentData = [[NSMutableData alloc] initWithCapacity:DEF_CONTENT_SIZE];
+  }
+  if (!self->_contentDataADImp) { 		
+		self->_contentDataADImp=[self->_contentData methodForSelector:appendDataSel]; 
+		}
+  return self->_contentData;
+}
 
 + (void) initialize
 {
@@ -90,7 +94,7 @@ static SEL appendDataSel = NULL;
       ASSIGN(_httpVersion,@"HTTP/1.0");
       _headers=[NSMutableDictionary new];
       _contentEncoding=[[self class] defaultEncoding];
-      [self _initContentData];
+      _checkBody(self);
     };
   LOGObjectFnStop();
   return self;
@@ -106,7 +110,7 @@ static SEL appendDataSel = NULL;
 //  NSDebugFLog0(@"Release Message headers");
   DESTROY(_headers);
 //  NSDebugFLog0(@"Release Message contentString");
-  DESTROY(_contentString);
+//  DESTROY(_contentString);
 //  NSDebugFLog0(@"Release Message contentData");
   DESTROY(_contentData);
 //  NSDebugFLog0(@"Release Message userInfo");
@@ -135,9 +139,9 @@ static SEL appendDataSel = NULL;
       ASSIGNCOPY(clone->_userInfo,_userInfo);
       ASSIGNCOPY(clone->_cookies,_cookies);
 
-      DESTROY(clone->_contentString);
-      clone->_contentString=[_contentString mutableCopyWithZone:zone];
-      clone->_contentStringASImp=NULL;
+//      DESTROY(clone->_contentString);
+//      clone->_contentString=[_contentString mutableCopyWithZone:zone];
+//      clone->_contentStringASImp=NULL;
 
       DESTROY(clone->_contentData);
       clone->_contentData=[_contentData mutableCopyWithZone:zone];
@@ -164,8 +168,7 @@ static SEL appendDataSel = NULL;
       GSWMessage* aMessage=(GSWMessage*)anObject;
       if ((_headers == aMessage->_headers
            || [_headers isEqual:aMessage->_headers])
-          && [_contentData isEqual:aMessage->_contentData]
-          && [_contentString isEqual:aMessage->_contentString])
+          && [_contentData isEqual:aMessage->_contentData])
         isEqual=YES;
     };
           
@@ -361,23 +364,6 @@ static SEL appendDataSel = NULL;
   [_headers removeObjectForKey:key];
 }
 
-//--------------------------------------------------------------------
--(void)_initContentData
-{
-  LOGObjectFnStart();
-
-  DESTROY(_contentString);
-  DESTROY(_contentData);
-
-  _contentString=[NSMutableString new];
-  _contentStringASImp=NULL;
-
-  _contentData=[NSMutableData new];
-  _contentDataADImp=NULL;
-
-  LOGObjectFnStop();
-};
-
 
 //--------------------------------------------------------------------
 /** Set content with contentData
@@ -385,205 +371,75 @@ static SEL appendDataSel = NULL;
 -(void)setContent:(NSData*)contentData
 {
   LOGObjectFnStart();
-  [self _initContentData];
+  [_contentData release];
+  _contentData = nil;
   [self appendContentData:contentData];
   LOGObjectFnStop();
 };
-
-//--------------------------------------------------------------------
-/** Set content with contentString
-**/
--(void)setContentString:(NSString*)contentString
-{
-  LOGObjectFnStart();
-  [self _initContentData];
-  [self appendContentString:contentString];
-  LOGObjectFnStop();
-};
-
 //--------------------------------------------------------------------
 //	content
-
+// DW
 -(NSData*)content
 {
-  NSData* content=nil;
-  LOGObjectFnStart();
-  if ([_contentString length]>0)
-    {
-      NS_DURING
-        {
-          content=[_contentString dataUsingEncoding:[self contentEncoding]];
-        }
-      NS_HANDLER
-        {
-          //TODO
-          [localException raise];
-        }
-      NS_ENDHANDLER;
-    }
-  else
-    content=_contentData;
-  LOGObjectFnStop();
-  return content;
+  return _contentData;
 };
 
 //--------------------------------------------------------------------
-//	contentString
-
--(NSString*)contentString
-{
-  NSString* contentString=nil;
-  LOGObjectFnStart();
-  if ([_contentString length]>0)
-    contentString=[NSString stringWithString:_contentString];
-  else
-    contentString=[[[NSString alloc]initWithData:_contentData
-                                    encoding:[self contentEncoding]]
-                    autorelease];
-  LOGObjectFnStop();
-  return contentString;
-}
-
-//--------------------------------------------------------------------
+// DW
 -(void)appendContentData:(NSData*)contentData
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"contentData:%@",contentData);
-  if ([contentData length]>0) // is there something to append ?
-    {
-      if ([_contentString length]>0) // is actual content is string ?
-        {
-          // Convert contentData to append into string and append it to _contentString
-          NSString* tmpString=nil;
-          NSDebugMLog(@"Converting appending Data To String");
-          tmpString=[[[NSString alloc]initWithData:contentData
-                                      encoding:[self contentEncoding]]
-                      autorelease];
-          assertContentStringASImp();
-          (*_contentStringASImp)(_contentString,appendStringSel,tmpString);
-
-#ifndef NO_GNUSTEP
-          if (_cachesStack)
-            [self _cacheAppendString:tmpString];
-#endif
-        }
-      else // No actual content or data one
-        {
-          if ([_contentData length]>0)
-            {
-              assertContentDataADImp();
-              (*_contentDataADImp)(_contentData,appendDataSel,contentData);
-            }
-          else
-            {
-              _contentData = (NSMutableData*)[contentData mutableCopy];
-              _contentDataADImp = NULL;
-            };
-
-#ifndef NO_GNUSTEP
-          if (_cachesStack)
-            [self _cacheAppendData:contentData];
-#endif
-        };
-    };
-  LOGObjectFnStop();
+  if (contentData == nil) {
+    return;
+  }
+  
+  _checkBody(self);
+  (*_contentDataADImp)(_contentData,appendDataSel,contentData);
 }
 
 //--------------------------------------------------------------------
--(void)_appendContentAsciiString:(NSString*)aString
+// DW
+- (void)appendContentString:(NSString *)aValue 
 {
-  NSString* string=nil;
+  NSData *myData = nil;
+  
+  // checking [aValue length] takes too long!  
+  if (!aValue) {
+    return;
+  }
+  
+  myData = [aValue dataUsingEncoding:_contentEncoding
+                allowLossyConversion:NO];
+                
+  NSAssert2(myData,@"(%s): could not convert string non-lossy to encoding %i",
+            __PRETTY_FUNCTION__, _contentEncoding);
 
-  LOGObjectFnStart();
+//  [self appendContentData: myData];
+  _checkBody(self);
+  (*_contentDataADImp)(_contentData,appendDataSel,myData);
 
-  NSAssert2([_contentData length]==0,
-            @"Try to append string but content is data. \nString: '%@'\nData: '%@'",
-            string,
-            [[[NSString alloc]initWithData:_contentData
-                              encoding:[self contentEncoding]]
-              autorelease]);
-
-  NSDebugMLLog(@"low",@"aString:%@",aString);
-  string=[NSString stringWithObject:aString];
-
-  NSDebugMLLog(@"low",@"string:%@",string);
-  assertContentStringASImp();
-  (*_contentStringASImp)(_contentString,appendStringSel,string);
-
-#ifndef NO_GNUSTEP
-  if (_cachesStack)
-    [self _cacheAppendString:string];
-#endif
-
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
-//	_appendContentCharacter:
-
--(void)_appendContentCharacter:(char)aChar
-{
-  NSString* string=nil;
-
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"aChar:%c",aChar);
-  NSAssert2([_contentData length]==0,
-            @"Try to append string but content is data. \naChar: '%c'\nData: '%@'",
-            aChar,
-            [[[NSString alloc]initWithData:_contentData
-                              encoding:[self contentEncoding]]
-              autorelease]);  
-
-  string=[NSString stringWithCString:&aChar
-                   length:1];
-
-  assertContentStringASImp();
-  (*_contentStringASImp)(_contentString,appendStringSel,string);
-
-#ifndef NO_GNUSTEP
-  if (_cachesStack)
-    [self _cacheAppendString:string];
-#endif
-
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)appendContentString:(NSString*)string
-{
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"string:%@",string);
-  NSAssert2([_contentData length]==0,
-            @"Try to append string but content is data. \n"
-	    @"String: '%@'\nData: '%@'",
-            string,
-            [[[NSString alloc]initWithData:_contentData
-                              encoding:[self contentEncoding]]
-              autorelease]);
-
-  if (string)
-    {
-      assertContentStringASImp();
-      (*_contentStringASImp)(_contentString,appendStringSel,string);
-
-#ifndef NO_GNUSTEP
-      if (_cachesStack)
-        [self _cacheAppendString:string];
-#endif
-    };
-
-  LOGObjectFnStop();
 }
 
+-(void)_appendContentAsciiString:(NSString*) aValue
+{
+  NSData *myData = nil;
+  
+  // checking [aValue length] takes too long!  
+  if (!aValue) {
+    return;
+  }
+  
+  myData = [aValue dataUsingEncoding:NSASCIIStringEncoding
+                allowLossyConversion:YES];
+                
+  _checkBody(self);
+//  [self appendContentData: myData];
+  (*_contentDataADImp)(_contentData,appendDataSel,myData);
+
+}
 //--------------------------------------------------------------------
 -(int)_contentLength
 {
-  int contentLength=[_contentString length];
-  if (contentLength==0)
-    contentLength=[_contentData length];
-  return contentLength;
+  return [_contentData length];
 }
 
 //--------------------------------------------------------------------
@@ -616,83 +472,31 @@ static SEL appendDataSel = NULL;
                    length:(unsigned)length
 {
   LOGObjectFnStart();
-  if (length>0)
+  if ((length>0) && (bytes != NULL))
     {
       [_contentData appendBytes:bytes
                     length:length];
-
-#ifndef NO_GNUSTEP
-      if (_cachesStack)
-        [self _cacheAppendBytes:bytes
-              length:length];
-#endif
     };
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 //	appendContentCharacter:
-
+// append one ASCII char
 -(void)appendContentCharacter:(char)aChar
 {
+  NSString * string = nil;
   LOGObjectFnStart();
-/*  [self appendContentBytes:&aChar
-        length:1];
-*/
-  [self _appendContentCharacter:aChar];
-  LOGObjectFnStop();
-};
-/*
-//--------------------------------------------------------------------
-//	appendContentData:
+  
+  string=[NSString stringWithCString:&aChar
+                   length:1];
 
--(void)appendContentData:(NSData*)dataObject
-{
-  const void* bytes=NULL;
-  unsigned int length=0;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"response=%p dataObject:%@",self,dataObject);
-  bytes=[dataObject bytes];
-  length=[dataObject length];
-  [self appendContentBytes:bytes
-        length:length];
-  LOGObjectFnStop();
-};
-*/
-//--------------------------------------------------------------------
-//	appendContentString:
-/*
--(void)appendContentString:(NSString*)aString
-{
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"response=%p contentEncoding=%d",self,(int)_contentEncoding);
-  [self _appendContentString:aString];
-
-  if (aString)
-    {
-      NSData* newData=nil;
-      NSString* string=nil;
-      string=[NSString stringWithObject:aString];
-      NSAssert(string,@"Can't get string from object");
-#ifndef NDEBUG
-      NSAssert3(![string isKindOfClass:[NSString class]] || [string canBeConvertedToEncoding:_contentEncoding],
-                @"string %s (of class %@) can't be converted to encoding %d",
-                [string lossyCString],
-                [string class],
-                _contentEncoding);
-#endif
-      newData=[string dataUsingEncoding:_contentEncoding];
-      NSAssert3(newData,@"Can't create data from %@ \"%s\" using encoding %d",
-               [string class],
-               ([string isKindOfClass:[NSString class]] ? [string lossyCString] : "**Not a string**"),
-               (int)_contentEncoding);
-      NSDebugMLLog(@"low",@"newData=%@",newData);
-      [_contentData appendData:newData];
-    };
+  if (string) {
+    [self appendContentString:string];
+  }
 
   LOGObjectFnStop();
 };
-*/
 
 //--------------------------------------------------------------------
 //	appendDebugCommentContentString:
@@ -707,83 +511,6 @@ static SEL appendDataSel = NULL;
       [self appendContentString:@" -->\n"];
     };
 #endif
-};
-
-//--------------------------------------------------------------------
--(void)replaceContentString:(NSString*)replaceString
-                   byString:(NSString*)byString
-{
-  LOGObjectFnStart();
-  NSDebugMLog(@"replaceString=%@",replaceString);
-  NSDebugMLog(@"byString=%@",byString);
-  if ([replaceString length]>0) // is there something to replace ?
-    {
-      NSDebugMLog(@"[_contentString length]=%d",[_contentString length]);
-      NSDebugMLog(@"[_contentData length]=%d",[_contentData length]);
-      if ([_contentString length]>0) // is actual content is string ?
-        {
-          [_contentString replaceOccurrencesOfString:replaceString
-                          withString:byString
-                          options:0
-                          range:NSMakeRange(0,[_contentString length])];
-        }
-      else // No actual content or data one
-        {
-          if ([_contentData length]>0)
-            {
-              // Convert to data
-              NSData* tmpReplaceData=nil;
-              NSData* tmpByData=nil;
-              NSDebugMLog(@"Converting String To Data");
-              tmpReplaceData=[replaceString dataUsingEncoding:[self contentEncoding]];
-              tmpByData=[byString dataUsingEncoding:[self contentEncoding]];
-              
-              [_contentData replaceOccurrencesOfData:tmpReplaceData
-                            withData:tmpByData
-                            range:NSMakeRange(0,[_contentData length])];
-            };
-        };
-    };
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)replaceContentData:(NSData*)replaceData
-                   byData:(NSData*)byData
-{
-  LOGObjectFnStart();
-  if ([replaceData length]>0) // is there something to replace ?
-    {
-      NSDebugMLog(@"[_contentString length]=%d",[_contentString length]);
-      NSDebugMLog(@"[_contentData length]=%d",[_contentData length]);
-      if ([_contentString length]>0) // is actual content is string ?
-        {
-          // Convert to string
-          NSString* tmpReplaceString=nil;
-          NSString* tmpByString=nil;
-          NSDebugMLog(@"Converting Data To String");
-          tmpReplaceString=[[[NSString alloc]initWithData:replaceData
-                                             encoding:[self contentEncoding]]
-                             autorelease];
-          tmpByString=[[[NSString alloc]initWithData:byData
-                                        encoding:[self contentEncoding]]
-                        autorelease];
-          [_contentString replaceOccurrencesOfString:tmpReplaceString
-                          withString:tmpByString
-                          options:0
-                          range:NSMakeRange(0,[_contentString length])];
-        }
-      else // No actual content or data one
-        {
-          if ([_contentData length]>0)
-            {
-              [_contentData replaceOccurrencesOfData:replaceData
-                            withData:byData
-                            range:NSMakeRange(0,[_contentData length])];
-            };
-        };
-    };
-  LOGObjectFnStop();
 };
 
 @end
@@ -1028,251 +755,3 @@ static SEL appendDataSel = NULL;
 
 
 @end
-
-
-//====================================================================
-#ifndef NO_GNUSTEP
-
-@implementation GSWMessage (GSWMessageCache)
-
-//--------------------------------------------------------------------
--(int)startCache
-{
-  int index=0;
-  LOGObjectFnStart();
-
-  if (!_cachesStack)
-    {
-      _cachesStack=[NSMutableArray new];
-    };
-  if (_contentData)
-    [_cachesStack addObject:[NSMutableData data]];
-  else
-    [_cachesStack addObject:[NSMutableString string]];
-
-  index=[_cachesStack count]-1;
-
-  LOGObjectFnStop();
-  return index;
-};
-
--(id)appendCacheData:(id)fromCacheData
-         toCacheData:(id)toCacheData
-{
-  LOGObjectFnStart();
-  if ([fromCacheData length]>0)
-    {
-      if ([fromCacheData isKindOfClass:[NSString class]])
-        {
-          if ([toCacheData isKindOfClass:[NSString class]]) // String+String
-            {
-              [toCacheData appendString:(NSString*)fromCacheData];
-            }
-          else if ([toCacheData length]==0)
-            { // Empty Data+String
-              toCacheData=[NSMutableString stringWithString:fromCacheData];
-            }
-          else                           
-            {
-              // Empty String
-              NSAssert(NO,
-                       @"Try to append cache string to cache");
-            };
-        }
-      else // ??+Data
-        {
-          if ([toCacheData isKindOfClass:[NSData class]]) // Data+Data
-            {
-              [toCacheData appendData:fromCacheData];
-            }
-          else // String+Data
-            {
-              // Convert fromCacheData data to append into toCacheData string
-              NSString* fromCacheDataString=nil;
-              NSDebugMLog(@"Converting appending Data To String");
-              fromCacheDataString=[[[NSString alloc]initWithData:(NSData*)fromCacheData
-                                          encoding:[self contentEncoding]]
-                          autorelease];
-              [toCacheData appendString:fromCacheDataString];
-            };
-        };
-    };
-  LOGObjectFnStop();
-  return toCacheData;
-}
-//--------------------------------------------------------------------
--(id)stopCacheOfIndex:(int)cacheIndex
-{
-  id cachedData=nil;
-  int cacheStackCount=0;
-
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"GSWCacheElement",@"cacheIndex=%d",cacheIndex);
-
-  cacheStackCount=[_cachesStack count];
-
-  NSDebugMLLog(@"GSWCacheElement",@"cacheStackCount=%d",cacheStackCount);
-
-  if (cacheIndex<cacheStackCount)
-    {
-      cachedData=[_cachesStack objectAtIndex:cacheIndex];
-      AUTORELEASE(RETAIN(cachedData));
-
-      NSDebugMLLog(@"GSWCacheElement",@"cachedData=%@",cachedData);
-
-      // Last one ? (normal case)
-      if (cacheIndex==(cacheStackCount-1))
-        {
-          [_cachesStack removeObjectAtIndex:cacheIndex];          
-        }
-      else
-        {
-          // Strange case: may be an exception which avoided component to retrieve their cache ?
-          cacheIndex++;
-          while(cacheIndex<cacheStackCount)
-            {
-              id tmp=[_cachesStack objectAtIndex:cacheIndex];
-              NSDebugMLLog(@"GSWCacheElement",@"tmp=%@",tmp);
-              cachedData=[self appendCacheData:tmp
-                               toCacheData:cachedData];
-              [_cachesStack removeObjectAtIndex:cacheIndex];
-            };
-        };
-      cacheStackCount=[_cachesStack count];
-
-      //Add cachedData to previous cache item data
-      if (cacheStackCount>0 && [cachedData length]>0)
-        {
-          id previous=[_cachesStack objectAtIndex:cacheStackCount-1];
-          id newPrevious=[self appendCacheData:cachedData
-                               toCacheData:previous];
-          if (newPrevious!=previous)
-            [_cachesStack replaceObjectAtIndex:cacheStackCount-1
-                          withObject:newPrevious];
-        };
-    };
-
-  NSDebugMLLog(@"GSWCacheElement",@"cachedData=%@",cachedData);
-
-  LOGObjectFnStop();
-  
-  return cachedData;
-}
-
-@end
-
-@implementation GSWMessage (GSWMessageCachePrivate)
-
-//--------------------------------------------------------------------
--(void)_cacheAppendString:(NSString*)string
-{
-  LOGObjectFnStart();
-
-  if ([string length]>0)
-    {
-      int index=0;
-      index=[_cachesStack count]-1;
-      if (index>=0)
-        {
-          id cachedData=[_cachesStack  objectAtIndex:index];
-          if ([cachedData isKindOfClass:[NSData class]])
-            {
-              if ([cachedData length]>0)
-                {
-                  NSAssert2(NO,
-                            @"Try to append string to cache but content is data. \nString: '%@'\nData: '%@'",
-                            string,
-                            [[[NSString alloc]initWithData:_contentData
-                                              encoding:[self contentEncoding]]
-                              autorelease]);
-                }
-              else
-                [_cachesStack replaceObjectAtIndex:index
-                              withObject:[NSMutableString stringWithString:string]];
-            }
-          else
-            [cachedData appendString:string];
-        };
-    };
-  LOGObjectFnStop();
-}
-
-//--------------------------------------------------------------------
--(void)_cacheAppendData:(NSData*)data
-{
-  LOGObjectFnStart();
-
-  if ([data length]>0)
-    {
-      int index=0;
-      index=[_cachesStack count]-1;
-      if (index>=0)
-        {
-          id cachedData=[_cachesStack  objectAtIndex:index];
-          if ([cachedData isKindOfClass:[NSString class]])
-            {
-              if ([cachedData length]>0)
-                {
-                  // Convert contentData to append into string and append it to _contentString
-                  NSString* tmpString=nil;
-                  NSDebugMLog(@"Converting appending Data To String");
-                  tmpString=[[[NSString alloc]initWithData:data
-                                              encoding:[self contentEncoding]]
-                              autorelease];
-                  [cachedData appendString:tmpString];
-                }
-              else
-                [_cachesStack  replaceObjectAtIndex:index
-                               withObject:[NSMutableData dataWithData:data]];
-            }
-          else
-            [cachedData appendData:data];
-        };
-    };
-  
-  LOGObjectFnStop();
-}
-
-//--------------------------------------------------------------------
--(void)_cacheAppendBytes:(const void*)aBuffer
-              length: (unsigned int)bufferSize
-{
-  LOGObjectFnStart();
-  if (bufferSize>0)
-    {
-      int index=0;
-      index=[_cachesStack count]-1;
-      if (index>=0)
-        {
-          id cachedData=[_cachesStack  objectAtIndex:index];
-          if ([cachedData isKindOfClass:[NSString class]])
-            {
-              if ([cachedData length]>0)
-                {
-                  // Convert contentData to append into string and append it to _contentString
-                  NSString* tmpString=nil;
-                  NSData* tmpData=nil;
-                  NSDebugMLog(@"Converting appending Data To String");
-                  tmpData=[NSData dataWithBytes:aBuffer
-                                  length:bufferSize];
-                  tmpString=[[[NSString alloc]initWithData:tmpData
-                                              encoding:[self contentEncoding]]
-                              autorelease];
-                  [cachedData appendString:tmpString];
-                }
-              else
-                [_cachesStack  replaceObjectAtIndex:index
-                               withObject:[NSMutableData dataWithBytes:aBuffer
-                                                         length:bufferSize]];
-            }
-          else
-            [cachedData appendBytes:aBuffer
-                        length:bufferSize];
-        };
-    };
-  LOGObjectFnStop();
-};
-@end
-
-#endif
