@@ -323,8 +323,8 @@ static char rcsId[] = "$Id$";
                   NSDebugMLLog0(@"low",@"Found Open Tag");
                   tagAttrs=[self getTagAttrsFor:_currentAST];
                   NSDebugMLLog(@"low",@"tagAttrs=%@",tagAttrs);
-                  if ([tagName caseInsensitiveCompare:@"gsweb"]==NSOrderedSame
-                      || [tagName caseInsensitiveCompare:@"webobject"]==NSOrderedSame)
+                  if ([tagName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
+                      || [tagName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
                     {
                       NSDebugMLLog0(@"low",@"Found GSWeb Tag");
                       NSDebugMLLog(@"low",@"tagAttrs=%@",

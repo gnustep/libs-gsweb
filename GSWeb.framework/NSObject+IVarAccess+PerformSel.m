@@ -82,12 +82,16 @@ typedef enum
 @end
 
 //====================================================================
-struct objc_ivar* GSGetInstanceVariableStruct(id obj,NSString *iVarName)
+struct objc_ivar* GSGetInstanceVariableStruct(id obj,
+                                              NSString* iVarName,
+                                              BOOL underscored)
 {
   const char* name=NULL;
   Class class;
   struct objc_ivar_list *ivars=NULL;
   struct objc_ivar      *ivar=NULL;
+  if (underscored)
+    iVarName=[NSString stringWithFormat:@"_%@",iVarName];
   name=[iVarName cString];
   class=[obj class];
   while (class && !ivar)
@@ -108,9 +112,11 @@ struct objc_ivar* GSGetInstanceVariableStruct(id obj,NSString *iVarName)
 };
 
 //--------------------------------------------------------------------
-const char* GSGetInstanceVariableType(id obj, NSString *iVarName)
+const char* GSGetInstanceVariableType(id obj,
+                                      NSString *iVarName,
+                                      BOOL underscored)
 {
-  struct objc_ivar      *ivar = GSGetInstanceVariableStruct(obj,iVarName);
+  struct objc_ivar      *ivar = GSGetInstanceVariableStruct(obj,iVarName,underscored);
   if (ivar)
 	return ivar->ivar_type;
   else
@@ -344,17 +350,19 @@ void IdToPData(const char* retType,id _value,void* pdata)
 			void* pdata=objc_atomic_malloc(objc_sizeof_type(retType));
 			if (!pdata)
 			  {
+                            NSAssert(pdata,@"No ret value buffer");
 				//TODO
 			  }
 			else
 			  {
 				NSDebugMLLog(@"low",
-							 @"getIVarNamed %@ in %@ %p (superClass:%@) with invocation (retType=%s)",
-							 name_,
-							 [self class],
-							 self,
-							 [self superclass],
-							 retType);
+                                             @"getIVarNamed %@ in %@ %p (superClass:%@) with invocation %@ (retType=%s)",
+                                             name_,
+                                             [self class],
+                                             self,
+                                             [self superclass],
+                                             ivarAccess_->infos.invocation,
+                                             retType);
 				[ivarAccess_->infos.invocation getReturnValue:pdata];
 				_value=PDataToId(retType,pdata);
 				objc_free(pdata);
@@ -382,6 +390,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		else
 		  {
 			//TODO
+                    NSAssert(NO,@"no pdata");
 		  };
 	  };
 	  break;
@@ -452,6 +461,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		  else
 			{
 			  const char* retType=[_sig methodReturnType];
+                          NSDebugMLLog(@"low",@"retType=%s",retType);
 			  if (!retType)
 				{
 				  _exception=[NSException exceptionWithName:@"NSObject IVar"
@@ -471,6 +481,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 				  else
 					{
 					  NSInvocation* _invocation = [NSInvocation invocationWithMethodSignature:_sig];
+                                          NSDebugMLLog(@"low",@"_invocation methodSignature methodReturnType=%s",[[_invocation methodSignature] methodReturnType]);
 					  [_invocation setSelector:sel];
 					  _ivarAccess->accessType=NSObjectIVarsAccessType_Invocation;
 					  _ivarAccess->infos.invocation=_invocation;
@@ -482,7 +493,9 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		}
 	  else
 		{
-		  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_);
+		  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_,YES);
+                  if (!ivar)
+                    ivar=GSGetInstanceVariableStruct(self,name_,NO);
 		  if (ivar)
 			{
 			  _ivarAccess->accessType=NSObjectIVarsAccessType_Direct;	
@@ -723,7 +736,9 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		}
 	  else
 		{
-		  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_);
+		  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_,YES);
+                  if (!ivar)
+                    ivar=GSGetInstanceVariableStruct(self,name_,NO);
 		  if (ivar)
 			{
 			  _ivarAccess->accessType=NSObjectIVarsAccessType_Direct;	

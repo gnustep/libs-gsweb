@@ -38,7 +38,7 @@
 //====================================================================
 @interface GSWTemplateParserSAXHandler : GSHTMLSAXHandler
 {
-  GSWTemplateParser* _templateParser;
+  GSWTemplateParser* _templateParser;  
 };
 
 +(void)lock;
@@ -51,15 +51,23 @@
 -(id)init;
 -(xmlParserInputPtr)resolveEntity:(NSString*)publicIdEntity
                          systemID:(NSString*)systemIdEntity;
--(void)warning:(NSString*)message;
--(void)error:(NSString*)message;
--(void)fatalError:(NSString*)message;
+-(void)warning:(NSString*)message
+     colNumber:(int)colNumber
+    lineNumber:(int)lineNumber;
+-(void)error:(NSString*)message
+   colNumber:(int)colNumber
+  lineNumber:(int)lineNumber;
+-(void)fatalError:(NSString*)message
+        colNumber:(int)colNumber
+       lineNumber:(int)lineNumber;
 @end
 
 //====================================================================
 @interface GSWTemplateParserXML : GSWTemplateParser
 {
   GSXMLDocument* _xmlDocument;
+  BOOL _isHTMLTag;
+  BOOL _isBodyTag;
 }
 
 -(void)dealloc;

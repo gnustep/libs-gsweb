@@ -59,10 +59,10 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - String:[%@]>",
+  return [NSString stringWithFormat:@"<%s %p - String:[%s]>",
 				   object_get_class_name(self),
 				   (void*)self,
-				   string];
+				   [string lossyCString]];
 };
 
 @end

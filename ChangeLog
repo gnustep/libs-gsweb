@@ -1,3 +1,75 @@
+2001-03-11  Manuel Guesdon <mguesdon@orange-concept.com>
+
+        * GSWeb.framework/GSWWOCompatibility.h/.m: added
+        * GSWeb.framework/GNUmakefile: added GSWWOCompatibility.h/.m
+        * GSWeb.framework/GSWApplication.h/m: added WOApplicationMain, handle WO/GSWeb names
+        * GSWeb.framework/GSWContext.m: handle WO/GSWeb names, added traces
+        * GSWeb.framework/GSWConstants.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWDynamicURLString.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWProjectBundle.m/.h: handle WO/GSWeb names, suppress warnings
+        * GSWeb.framework/GSWSession.m: handle WO/GSWeb names        
+        * GSWeb.framework/GSWRequest.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWTemplateParser.m: handle WO/GSWeb names, 
+                added tag counts to help errors hunt
+        * GSWeb.framework/GSWBundle.m: handle WO/GSWeb names, added traces
+        * GSWeb.framework/GSWResourceManager.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWURLValuedElementData.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWComponentRequestHandler.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWDirectAction.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWForm.m/.h: handle WO/GSWeb names
+        * GSWeb.framework/GSWHyperlink.m/.h: handle WO/GSWeb names
+        * GSWeb.framework/GSWResourceRequestHandler.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWDirectActionRequestHandler.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWActiveImage.m/.h: handle WO/GSWeb names
+        * GSWeb.framework/GSWBindingNameAssociation.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWBrowser.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWComponent.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWHTMLURLValuedElement.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWImageButton.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWInput.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWPopUpButton.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWString.h/.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWAssociation.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWCheckBox.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWCheckBoxList.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWComponentDefinition.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWRadioButton.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWRadioButtonList.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWText.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWTextField.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWDeployedBundle.m: warnings
+        * GSWeb.framework/GSWeb.h: added include GSWeb/GSWSessionTimeOut.h, GSWWOCompatibility.h
+        * GSWeb.framework/GSWAdaptor.m: traces
+        * GSWeb.framework/GSWDefaultAdaptor.m: handle WO/GSWeb names, added traces
+        * GSWeb.framework/GSWDefaultAdaptorThread.m/.h: handle WO/GSWeb names
+        * GSWeb.framework/NSNonBlockingFileHandle.m: added traces
+        * GSWeb.framework/GSWTemplateParserANTLR.m: handle WO/GSWeb names
+        * GSWeb.framework/GSWTemplateParserXML.m: handle WO/GSWeb names
+                added tag count to help errors hunt
+                remove "Tag gsweb invalid" message
+                handle unicode strings in node content traces
+                remove html and body tags if they are not present in the template
+        * GSWeb.framework/GSWTemplateParseXML.h: added ivar _isHTMLTag, _isBodyTag
+        * GSWeb.framework/GSWSessionTimeOutManager.m: dealloc sessionOrderedTimeOuts instead 
+                of deallocating 2 times sessionTimeOuts
+        * GSWExtensions.framework/French.lproj/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.html: 
+                tag mismatch, Encode french characters
+        * GSWExtensions.framework/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.html: 
+                tag mismatch
+        * GSWHTMLBareString.m: handle unicode strings in description
+        * GSWExtensions.framework/French.lproj/GSWExceptionPage.gswc/GSWExceptionPage.html: 
+                Encode french characters, Tag Mismatch
+        * GSWExtensions.framework/French.lproj/GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.html: 
+                Encode french characters
+        * GSWExtensions.framework/French.lproj/GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.html: 
+                Encode french characters
+        * GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.html: 
+                Tag Mismatch
+        * GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.gswd: 
+                added convertHTMLEntities for strings
+        * GSWeb.framework/GSWRepetition.m: added traces, fix "count" property bug, standardize ivars
+        * GSWeb.framework/NSObject+IVarAccess+PerformSel.m: added traces, handle underscored ivars search
+
 2001-02-23  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWApplication.m ([GSWApplication -dealloc]): reset

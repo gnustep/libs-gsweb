@@ -317,7 +317,7 @@ static char rcsId[] = "$Id$";
 	  if (url)
 		{
 		  int _length=[url length];
-		  NSDebugMLLog(@"low",@"url class=%@",[url class]);
+		  NSDebugMLLog(@"low",@"url %@ class=%@",url,[url class]);
 		  if (_length>0)
 			[url deleteCharactersInRange:NSMakeRange(0,_length)];
 		}
@@ -341,7 +341,7 @@ static char rcsId[] = "$Id$";
 	  if (prefix)
 		[url appendFormat:@"%@/",prefix];
 	  if (applicationName)
-		[url  appendFormat:@"%@.%@/",applicationName,GSWApplicationSuffix];
+		[url  appendFormat:@"%@.%@/",applicationName,GSWApplicationSuffix[GSWebNamingConv]];
 	  if (applicationNumber>=0)
 		[url  appendFormat:@"%d/",applicationNumber];
 	  if (requestHandlerKey)
@@ -350,6 +350,7 @@ static char rcsId[] = "$Id$";
 		[url  appendFormat:@"%@",requestHandlerPath];
 	  if (queryString)
 		[url  appendFormat:@"?%@",queryString];
+          NSDebugMLLog(@"low",@"url %@ class=%@",url,[url class]);
 	};
 };
 
@@ -471,14 +472,16 @@ static char rcsId[] = "$Id$";
 */
 	  for(tmpIndex=index;!prefix && tmpIndex<[_components count];tmpIndex++)
 		{
-		  if ([[_components objectAtIndex:tmpIndex]hasSuffix:GSWApplicationPSuffix])
-			{
-			  if (tmpIndex-index>1)
-				{
-				  ASSIGN(prefix,[[_components subarrayWithRange:NSMakeRange(index,tmpIndex-index)]componentsJoinedByString:@"/"]);
-				  index=tmpIndex;//Stay on ApplicationName !
-				};
-			};
+                  NSString* tmp=[_components objectAtIndex:tmpIndex];
+		  if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]]
+                      || [tmp hasSuffix:GSWApplicationPSuffix[WONAMES_INDEX]])
+                    {
+                      if (tmpIndex-index>1)
+                        {
+                          ASSIGN(prefix,[[_components subarrayWithRange:NSMakeRange(index,tmpIndex-index)]componentsJoinedByString:@"/"]);
+                          index=tmpIndex;//Stay on ApplicationName !
+                        };
+                    };
 		};	  
 	  if (!prefix)
 		{
@@ -495,20 +498,33 @@ static char rcsId[] = "$Id$";
 			}
 		  else
 			{
-			  NSDebugMLLog(@"low",@"applicationName: _components [%@]",[_components subarrayWithRange:NSMakeRange(index,[_components count]-index)]);
+			  NSDebugMLLog(@"low",@"applicationName: _components [%@]",
+                                       [_components subarrayWithRange:NSMakeRange(index,[_components count]-index)]);
 			  for(tmpIndex=index;!applicationName && tmpIndex<[_components count];tmpIndex++)
 				{
-				  if ([[_components objectAtIndex:tmpIndex]hasSuffix:GSWApplicationPSuffix])
+                                  NSString* tmp=[_components objectAtIndex:tmpIndex];
+                                  NSString* appSuffix=nil;
+				  if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]])
+                                    appSuffix=GSWApplicationPSuffix[GSWNAMES_INDEX];
+                                  else if ([tmp hasSuffix:GSWApplicationPSuffix[WONAMES_INDEX]])
+                                    appSuffix=GSWApplicationPSuffix[WONAMES_INDEX];
+                                  if (appSuffix)
 					{
-					  ASSIGN(applicationName,[[[_components subarrayWithRange:NSMakeRange(index,tmpIndex-index+1)]componentsJoinedByString:@"/"]stringWithoutSuffix:GSWApplicationPSuffix]);
+					  ASSIGN(applicationName,[[[_components 
+                                                                     subarrayWithRange:NSMakeRange(index,tmpIndex-index+1)] 
+                                                                    componentsJoinedByString:@"/"]
+                                                                   stringWithoutSuffix:appSuffix]);
 					  index=tmpIndex+1;
 					};
 				};
 			  if (!applicationName)
 				{
-				  NSString* tmp=[[_components subarrayWithRange:NSMakeRange(index,[_components count]-index)]componentsJoinedByString:@"/"];
-				  if ([tmp hasSuffix:GSWApplicationPSuffix])
-					tmp=[tmp stringWithoutSuffix:GSWApplicationPSuffix];
+				  NSString* tmp=[[_components subarrayWithRange:NSMakeRange(index,[_components count]-index)]
+                                                  componentsJoinedByString:@"/"];
+				  if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]])
+                                    tmp=[tmp stringWithoutSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]];
+                                  else if ([tmp hasSuffix:GSWApplicationPSuffix[WONAMES_INDEX]])
+                                    tmp=[tmp stringWithoutSuffix:GSWApplicationPSuffix[WONAMES_INDEX]];
 				  ASSIGN(applicationName,tmp);
 				  index=[_components count];
 				};

@@ -34,6 +34,10 @@
 #include "GSWString.h"
 #include "GSWApp.h"
 
+#define GSWNAMES_INDEX	0
+#define WONAMES_INDEX	1
+
+
 extern GSWLock g_lockAppList;
 extern GSWDict* g_pAppDict;
 extern time_t config_mtime;
@@ -46,7 +50,7 @@ extern const char* g_szGSWeb_Handler;
 extern const char* g_szGSWeb_StatusResponseAppName;
 
 
-extern const char* g_szGSWeb_AppExtention;
+extern const char* g_szGSWeb_AppExtention[2];
 
 extern const char* g_szGSWeb_MimeType;
 //extern const char* g_szGSWeb_Conf_DocRoot;
@@ -65,15 +69,15 @@ extern const char* g_szGSWeb_Conf_Name;
 #endif
 
 
-extern const char* g_szGSWeb_InstanceCookie;
+extern const char* g_szGSWeb_InstanceCookie[2];
 
 extern const char* g_szGSWeb_Server;
 extern const char* g_szGSWeb_ServerAndAdaptorVersion;
 
 
 extern const char* const g_szGNUstep;
-extern const char* const g_szOKGSWeb;
-extern const char* const g_szOKStatus;
+extern const char* const g_szOKGSWeb[2];
+extern const char* const g_szOKStatus[2];
 
 
 

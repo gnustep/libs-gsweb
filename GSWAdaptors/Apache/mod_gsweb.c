@@ -121,7 +121,7 @@ static void* GSWeb_CreateConfig(pool* p_pPool,
   GSWeb_Config *pConfig = (GSWeb_Config*)ap_palloc(p_pPool,sizeof(GSWeb_Config));
   pConfig->pszGSWeb = g_szGSWeb_Prefix;
   GSWLog(GSW_DEBUG,p_pServerRec,"GSWeb_CreateConfig: pConfig->pszGSWeb=%s",
-		 pConfig->pszGSWeb);
+         pConfig->pszGSWeb);
   pConfig->pszConfigPath = NULL;
 //  pConfig->pszRoot = NULL;
   return pConfig;

@@ -162,7 +162,7 @@ static char rcsId[] = "$Id$";
 -(NSArray*)pathsForResourcesOfType:(NSString*)type_
 {
   //OK
-  NSString* _paths=nil;
+  NSArray* _paths=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"type_=%@ language_=%@",type_);
   [self lock];
@@ -252,22 +252,25 @@ static char rcsId[] = "$Id$";
   NSString* _path=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"name_=%@ language_=%@",name_,language_);
+  NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying WebServerResources",bundlePath);
   _path=[self lockedRelativePathForResourceNamed:name_
 			  inDirectory:@"WebServerResources"
 			  forLanguage:language_];
-  //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+  NSDebugMLLog(@"bundles",@"_path=%@",_path);
   if (!_path)
 	{
+	  NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying Resources",bundlePath);
 	  _path=[self lockedRelativePathForResourceNamed:name_
 				  inDirectory:@"Resources"
 				  forLanguage:language_];
-	  //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+          NSDebugMLLog(@"bundles",@"_path=%@",_path);
 	  if (!_path)
 		{
+                  NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying .",bundlePath);
 		  _path=[self lockedRelativePathForResourceNamed:name_
 					  inDirectory:@"."
 					  forLanguage:language_];
-		  //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+		  NSDebugMLLog(@"bundles",@"_path=%@",_path);
 		};
 	};
   LOGObjectFnStop();
@@ -282,22 +285,25 @@ static char rcsId[] = "$Id$";
   NSString* _path=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"name_=%@ languages_=%@",name_,languages_);
+  NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying WebServerResources",bundlePath);
   _path=[self lockedRelativePathForResourceNamed:name_
 			  inDirectory:@"WebServerResources"
 			  forLanguages:languages_];
-  //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+  NSDebugMLLog(@"bundles",@"_path=%@",_path);
   if (!_path)
 	{
+	  NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying Resources",bundlePath);
 	  _path=[self lockedRelativePathForResourceNamed:name_
 				  inDirectory:@"Resources"
 				  forLanguages:languages_];
-	  //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+	  NSDebugMLLog(@"bundles",@"_path=%@",_path);
 	  if (!_path)
 		{
+                  NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying .",bundlePath);
 		  _path=[self lockedRelativePathForResourceNamed:name_
 					  inDirectory:@"."
 					  forLanguages:languages_];
-		  //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+		  NSDebugMLLog(@"bundles",@"_path=%@",_path);
 		};
 	};
   LOGObjectFnStop();
@@ -380,12 +386,12 @@ static char rcsId[] = "$Id$";
 									 [language_ stringByAppendingString:GSLanguagePSuffix]];
 		  //NSDebugMLLog(@"bundles",@"_pathTest=%@",_pathTest);
 		  _pathTest=[_pathTest stringByAppendingPathComponent:name_];
-		  //NSDebugMLLog(@"bundles",@"_pathTest=%@",_pathTest);
+		  NSDebugMLLog(@"bundles",@"_pathTest=%@",_pathTest);
 		  _completePathTest=[_bundlePath stringByAppendingPathComponent:_pathTest];
-		  //NSDebugMLLog(@"bundles",@"_completePathTest=%@",_completePathTest);
+		  NSDebugMLLog(@"bundles",@"_completePathTest=%@",_completePathTest);
 		  _fileManager=[NSFileManager defaultManager];
 		  _exists=[_fileManager fileExistsAtPath:_completePathTest];
-		  //NSDebugMLLog(@"bundles",@"_exists=%s",(_exists ? "YES" : "NO"));
+		  NSDebugMLLog(@"bundles",@"_exists=%s",(_exists ? "YES" : "NO"));
 		  if (_exists)
 			{
 			  _path=_pathTest;

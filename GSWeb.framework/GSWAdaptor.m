@@ -35,7 +35,9 @@ static char rcsId[] = "$Id$";
 -(id)initWithName:(NSString*)name_
 		arguments:(NSDictionary*)arguments_
 {
+  NSDebugMLog(@"Init");
   self=[super init];
+  LOGObjectFnStop();
   return self;
 };
 

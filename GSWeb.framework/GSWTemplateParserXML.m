@@ -364,25 +364,42 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
 
 //--------------------------------------------------------------------
 -(void)warning:(NSString*)message
+     colNumber:(int)colNumber
+    lineNumber:(int)lineNumber
 {
-  [[GSWApplication application] logWithFormat:@"%@ Warning: %@",
+  [[GSWApplication application] logWithFormat:@"%@ Warning (col %d,line %d): %@",
                                 [_templateParser logPrefix],
+                                colNumber,
+                                lineNumber,
                                 message];
 };
 
 //--------------------------------------------------------------------
 -(void)error: (NSString*)message
+     colNumber:(int)colNumber
+    lineNumber:(int)lineNumber
 {
-  [[GSWApplication application] logErrorWithFormat:@"%@ Error: %@",
-                                [_templateParser logPrefix],
-                                message];
+  NSString* testMessage=[[message lowercaseString] stringByTrimmingSpaces];
+  if (![testMessage isEqualToString:@"tag webobject invalid"]
+      && ![testMessage isEqualToString:@"tag gsweb invalid"])
+    {
+      [[GSWApplication application] logErrorWithFormat:@"%@ Error (col %d,line %d): %@",
+                                    [_templateParser logPrefix],
+                                    colNumber,
+                                    lineNumber,
+                                    message];
+    };
 };
 
 //--------------------------------------------------------------------
 -(void)fatalError: (NSString*)message
+     colNumber:(int)colNumber
+    lineNumber:(int)lineNumber
 {
-  [[GSWApplication application] logErrorWithFormat:@"%@ Fatal Error: %@",
+  [[GSWApplication application] logErrorWithFormat:@"%@ Fatal Error (col %d,line %d): %@",
                                 [_templateParser logPrefix],
+                                colNumber,
+                                lineNumber,
                                 message];
 };
 
@@ -415,19 +432,23 @@ static NSString* TabsForLevel(int level)
              atLevel:(int)level
 {
   NSString* dumpString=[NSString string];
+  LOGObjectFnStart();
   while (node)
     {
-      dumpString=[dumpString stringByAppendingFormat:@"%@%@ [Type:%@] [%@]:\n%@\n",
+      const char* content=[[node content] lossyCString];
+      dumpString=[dumpString stringByAppendingFormat:@"%@%@ [Type:%@] [%@]%s%s\n",
                              TabsForLevel(level),
                              [node name],
                              [node typeDescription],
                              [node propertiesAsDictionary],
-                             [node content]];
+                             (content ? ":\n" : ""),
+                             (content ? content : "")];
       if ([node children])
         dumpString=[dumpString stringByAppendingString:[self dumpNode:[node children]
                                                              atLevel:level+1]];
       node=[node next];
     };
+  LOGObjectFnStop();
   return dumpString;
 };
 
@@ -447,37 +468,41 @@ static NSString* TabsForLevel(int level)
         stringEncoding=NSISOLatin1StringEncoding;
         
       sax=[GSWTemplateParserSAXHandler handlerWithTemplateParser:self];
-      //NSLog(@"SAX=%p",sax);
-      NSLog(@"self class=%@",[self class]);
       if ([self isKindOfClass:[GSWTemplateParserXMLHTML class]])
-        parser=[GSHTMLParser parserWithSAXHandler:sax
-                             withData:[_string dataUsingEncoding:stringEncoding]];
+        {
+          NSRange tagRange=NSMakeRange(NSNotFound,0);
+          tagRange=[_string rangeOfString:@"<HTML"
+                            options:NSCaseInsensitiveSearch];
+          //NSDebugMLog(@"HTML Tag Range length=%d",tagRange.length);
+          if (tagRange.length>0)
+            _isHTMLTag=YES;
+          tagRange=[_string rangeOfString:@"<BODY"
+                            options:NSCaseInsensitiveSearch];
+          //NSDebugMLog(@"BODY Tag Range length=%d",tagRange.length);
+          if (tagRange.length>0)
+            _isBodyTag=YES;
+          parser=[GSHTMLParser parserWithSAXHandler:sax
+                               withData:[_string dataUsingEncoding:stringEncoding]];
+        }
       else
         {
           NSString* xmlHeader=nil;
           NSRange docTypeRange=NSMakeRange(NSNotFound,0);
           NSString* stringToParse=nil;
-          //NSLog(@"stringEncoding=%d",(int)stringEncoding);
           NSString* encodingString=nil;
-          //NSLog(@"_string=%@",_string);
           encodingString=[GSXMLParser xmlEncodingStringForStringEncoding:stringEncoding];
-          //NSLog(@"encodingString=%@",encodingString);
           if (encodingString)
             encodingString=[NSString stringWithFormat:@" encoding=\"%@\"",encodingString];
           else
             encodingString=@"";
-          //NSLog(@"encodingString=%@",encodingString);
           xmlHeader=[NSString stringWithFormat:@"<?xml version=\"%@\"%@?>\n",
                               @"1.0",
                               encodingString];
-          //NSLog(@"xmlHeader=%@",xmlHeader);
-          //NSLog(@"_string=%@",_string);
           docTypeRange=[_string rangeOfString:@"<!DOCTYPE"];
           if (docTypeRange.length==0)
             stringToParse=[@"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"xhtml1-transitional.dtd\">\n" stringByAppendingString:_string];
           else
             stringToParse=_string;
-          //NSLog(@"stringToParse=%@",stringToParse);      
           stringToParse=[xmlHeader stringByAppendingString:stringToParse];
           NSLog(@"stringToParse=%@",stringToParse);
           parser=[GSXMLParser parserWithSAXHandler:sax
@@ -524,9 +549,11 @@ static NSString* TabsForLevel(int level)
           {
             NSString* dumpString=[self dumpNode:node
                                        atLevel:0];
+            NSDebugMLLog0(@"low",@"Will dump _xmlDocument");
             NSDebugMLLog(@"low",@"%@ _xmlDocument=\n%@",
                          [self logPrefix],
                          dumpString);
+            NSDebugMLLog0(@"low",@"_xmlDocument dumped");
           };
 #endif
           /*			  if (node->type!=XML_DTD_NODE)
@@ -536,22 +563,49 @@ static NSString* TabsForLevel(int level)
                                   [nodeTypes objectForKey:[NSString stringWithFormat:@"%d",(int)XML_DTD_NODE]]);
                                   };
           */
-          NSDebugMLog(@"Test Root");
+//          NSDebugMLog(@"Test Root");
           if ([node type]!=XML_ELEMENT_NODE)
             node=[node children];
-          NSDebugMLog(@"Test Root children");
+//          NSDebugMLog(@"Test Root children");
           NSAssert1(node,@"%@ Empty Document ([root children])",
                     [self logPrefix]);
           if ([node type]!=XML_ELEMENT_NODE)
             node=[node next];
-          NSDebugMLog(@"Test Root children Next");
+//          NSDebugMLog(@"Test Root children Next");
           NSAssert1(node,@"%@ Empty Document ([[root children] next])",
                     [self logPrefix]);
+          //Remove html and body node when they have been added by html parser
+          if (!_isHTMLTag || !_isBodyTag)
+          {
+            BOOL cont=YES;
+            while (node && cont)
+              {
+                cont=NO;
+                if ([node type]==XML_ELEMENT_NODE)
+                  {
+                    NSString* nodeName=[node name];
+                    //NSDebugMLog(@"node name=%@",nodeName);
+                    /*NSDebugMLog(@"_isHTMLTag=%s _isBodyTag=%s",
+                          (_isHTMLTag ? "YES" : "NO"),
+                          (_isBodyTag ? "YES" : "NO"));
+                    */
+                    if ((!_isHTMLTag && [nodeName caseInsensitiveCompare:@"html"]==NSOrderedSame)
+                        || (!_isBodyTag && [nodeName caseInsensitiveCompare:@"body"]==NSOrderedSame))
+                      {
+                        //NSDebugMLog(@"==> Children");
+                        node=[node children];
+                        cont=YES;
+                      };
+                  };
+              };
+          };
           if (node)
             {
-              NSDebugMLog(@"Call createElementsFromNode:");
+              //NSDebugMLog(@"Call createElementsFromNode:");
               NS_DURING
                 {
+                  gswebTagN=0;
+                  tagN=0;
                   elements=[self createElementsFromNode:node];			
                 }
               NS_HANDLER
@@ -606,53 +660,78 @@ text [Type:XML_TEXT_NODE] [{}] ####
   while(currentNode)
     {
       GSWElement* elem=nil;
-      NSDebugMLog(@"BEGIN node=%p %@ [Type:%@] [%@] ##%@##\n",
+      NSDebugMLog(@"BEGIN node=%p %@ [Type:%@] [%@] ##%s##\n",
                   currentNode,
                   [currentNode name],
                   [currentNode typeDescription],
                   [currentNode propertiesAsDictionary],
-                  [currentNode content]);
+                  [[currentNode content] lossyCString]);
       switch([currentNode type])
         {
         case XML_TEXT_NODE:
           {
+            NSDebugMLog0(@"TEXT");
+            elem=[GSWHTMLBareString elementWithString:
+                                      [NSString stringWithCString:
+                                                  [[[currentNode content]
+                                                     stringByConvertingToHTMLEntities]
+                                                    lossyCString]]];//Because XML Parser decode characters
+            NSDebugMLog(@"TEXT element=%@",elem);
+          };
+          break;
+        case XML_CDATA_SECTION_NODE:
+          {
+            NSDebugMLog0(@"CDATA_SECTION");
             elem=[GSWHTMLBareString elementWithString:[currentNode content]];
             NSDebugMLog(@"TEXT element=%@",elem);
           };
           break;
         case XML_COMMENT_NODE:
           {
-            elem=[GSWHTMLBareString elementWithString:[currentNode content]];
+            NSDebugMLog0(@"COMMENT");
+            elem=[GSWHTMLBareString elementWithString:[NSString stringWithFormat:@"<!-- %s -->",[[currentNode content] lossyCString]]];
             NSDebugMLog(@"COMMENT element=%@",elem);
           };
           break;
         default:
           {
+            int currentGSWebTagN=0;
+            int currentTagN=0;
             NSArray* children=nil;
             NSDictionary* nodeAttributes=nil;
             NSString* nodeName=nil;
             NSString* nodeNameAttribute=nil;
             nodeName=[currentNode name];
-            NSDebugMLog(@"DEFAULT (%@)",nodeName);
-            if ([currentNode children])
-              {
-                children=[self createElementsFromNode:[currentNode children]];
-                NSDebugMLog(@"node=%p children=%@",currentNode,children);
-              };
+            NSDebugMLog(@"DEFAULT (name=%@ type=%@)",nodeName,[currentNode typeDescription]);
             //if (currentNode->type==XML_ELEMENT_NODE)
             {
-              nodeAttributes=[currentNode propertiesAsDictionaryWithKeyTransformationSel:@selector(lowercaseString)];
+              nodeAttributes=[currentNode propertiesAsDictionaryWithKeyTransformationSel:@selector(lowercaseString)];              
               nodeNameAttribute=[nodeAttributes objectForKey:@"name"];
               NSDebugMLog(@"node=%p nodeAttributes=%@",currentNode,nodeAttributes);
-              NSDebugMLog(@"node=%p nodeNameAttribute=%@",currentNode,nodeNameAttribute);
-              if ([nodeName caseInsensitiveCompare:@"gsweb"]==NSOrderedSame)
+              NSDebugMLog(@"node=%p nodeNameAttribute=%@",currentNode,nodeNameAttribute); 
+              tagN++;
+              if ([nodeName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
+                  ||[nodeName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
+                gswebTagN++;
+              currentGSWebTagN=gswebTagN;
+              currentTagN=tagN;
+              if ([currentNode children])
+                {
+                  children=[self createElementsFromNode:[currentNode children]];
+                  NSDebugMLog(@"node=%p children=%@",currentNode,children);
+                };
+              if ([nodeName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
+                  ||[nodeName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
                 {
                   GSWPageDefElement* definitionsElement=nil;
                   if (!nodeNameAttribute)
                     {
                       ExceptionRaise(@"GSWTemplateParser",
-                                     @"%@ No element name for gsweb tag",
-                                     [self logPrefix]);
+                                     @"%@ No element name for gsweb tag (%@) [#%d,#%d]",
+                                     [self logPrefix],
+                                     nodeName,
+                                     currentGSWebTagN,
+                                     currentTagN);
                     }
                   else
                     {
@@ -664,9 +743,11 @@ text [Type:XML_TEXT_NODE] [{}] ####
                       if (!definitionsElement)
                         {
                           ExceptionRaise(@"GSWTemplateParser",
-                                         @"%@ No element definition for tag named:%@",
+                                         @"%@ No element definition for tag named:%@ [#%d,#%d]",
                                          [self logPrefix],
-                                         nodeNameAttribute);
+                                         nodeNameAttribute,
+                                         currentGSWebTagN,
+                                         currentTagN);
                         }
                       else
                         {
@@ -676,10 +757,12 @@ text [Type:XML_TEXT_NODE] [{}] ####
                           if (!className)
                             {
                               ExceptionRaise(@"GSWTemplateParser",
-                                             @"%@No class name in page definition for tag named:%@ definitionsElement=%@",
+                                             @"%@No class name in page definition for tag named:%@ definitionsElement=%@ [#%d,#%d]",
                                              [self logPrefix],
                                              nodeNameAttribute,
-                                             definitionsElement);
+                                             definitionsElement,
+                                             currentGSWebTagN,
+                                             currentTagN);
                             }
                           else
                             {
@@ -709,12 +792,12 @@ text [Type:XML_TEXT_NODE] [{}] ####
                                           currentNode,
                                           nodeNameAttribute,
                                           children);
-                              NSDebugMLog(@"node=%p %@ [Type:%@] [%@] ##%@##\n",
+                              NSDebugMLog(@"node=%p %@ [Type:%@] [%@] ##%s##\n",
                                           currentNode,
                                           [currentNode name],
                                           [currentNode typeDescription],
                                           [currentNode propertiesAsDictionary],
-                                          [currentNode content]);
+                                          [[currentNode content] lossyCString]);
                               elem=[GSWApp dynamicElementWithName:className
                                            associations:_associations
                                            template:[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease]
@@ -734,44 +817,61 @@ text [Type:XML_TEXT_NODE] [{}] ####
                 }
               else
                 {
-                  NSDictionary* _associations=nil;
-                  NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
-                  id _tagAttrKey=nil;
-                  id _tagAttrValue=nil;
-                  NSMutableDictionary* _addedAssoc=nil;
-                  NSDebugMLog(@"node=%p Create nodeName=%@",currentNode,nodeName);
-                  while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
+                  //It's a hack to remove html & body elements where there's not in the template (HTML parser add them when there are missing)
+                  if ((!_isHTMLTag
+                      && [nodeName caseInsensitiveCompare:@"html"]==NSOrderedSame
+                      && [nodeAttributes count]==0)
+                      || (!_isBodyTag
+                          && [nodeName caseInsensitiveCompare:@"body"]==NSOrderedSame
+                          && [nodeAttributes count]==0))
                     {
-                      if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
+                      NSDebugMLog(@"node=%p StaticElement: children=%@",currentNode,children);
+                      elem=[[[GSWHTMLStaticElement alloc]initWithName:nil
+                                                         attributeDictionary:nil
+                                                         contentElements:children]autorelease];
+                      NSDebugMLog(@"node=%p element=%@",currentNode,elem);
+                    }
+                  else
+                    {
+                      NSDictionary* _associations=nil;
+                      NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
+                      id _tagAttrKey=nil;
+                      id _tagAttrValue=nil;
+                      NSMutableDictionary* _addedAssoc=nil;
+                      NSDebugMLog(@"node=%p Create nodeName=%@",currentNode,nodeName);
+                      while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
                         {
-                          if (!_addedAssoc)
-                            _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-                          _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
-                          [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
-                                       forKey:_tagAttrKey];
+                          if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
+                            {
+                              if (!_addedAssoc)
+                                _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+                              _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
+                              [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
+                                           forKey:_tagAttrKey];
+                            };
                         };
+                      if (_addedAssoc)
+                        {
+                          _associations=[NSDictionary dictionaryWithDictionary:_addedAssoc];
+                        };
+                      NSDebugMLog(@"node=%p StaticElement: children=%@",currentNode,children);
+                      elem=[[[GSWHTMLStaticElement alloc]initWithName:nodeName
+                                                         attributeDictionary:_associations
+                                                         contentElements:children]autorelease];
+                      NSDebugMLog(@"node=%p element=%@",currentNode,elem);
                     };
-                  if (_addedAssoc)
-                    {
-                      _associations=[NSDictionary dictionaryWithDictionary:_addedAssoc];
-                    };
-                  NSDebugMLog(@"node=%p StaticElement: children=%@",currentNode,children);
-                  elem=[[[GSWHTMLStaticElement alloc]initWithName:nodeName
-                                                     attributeDictionary:_associations
-                                                     contentElements:children]autorelease];
-                  NSDebugMLog(@"node=%p element=%@",currentNode,elem);
                 };
             };
           };
           break;
         };
       [_elements addObject:elem];
-      NSDebugMLog(@"END node=%p %@ [Type:%@] [%@] ##%@##\n",
+      NSDebugMLog(@"END node=%p %@ [Type:%@] [%@] ##%s##\n",
                   currentNode,
                   [currentNode name],
                   [currentNode typeDescription],
                   [currentNode propertiesAsDictionary],
-                  [currentNode content]);
+                  [[currentNode content] lossyCString]);
       currentNode=[currentNode next];
     };
   DESTROY(arp);

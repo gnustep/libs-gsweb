@@ -66,6 +66,7 @@ GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL,
   if (pszPrefix)
 	{
 	  CONST char* pszAppExtension=NULL;
+          CONST char* pszfoundExtension=NULL;
 	  pszStop=pszPrefix+strlen(g_szGSWeb_Prefix);
 	  pszNext=*pszStop ? pszStop+1 : pszStop; // Drop the trailing /
 	  pURLCPrefix->pszStart = pszPrefix;
@@ -76,7 +77,15 @@ GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL,
 
 	  // Get Application Name
 	  pszStart=pszNext;
-	  pszAppExtension=strcasestr(pszStart,g_szGSWeb_AppExtention);
+	  pszAppExtension=strcasestr(pszStart,g_szGSWeb_AppExtention[GSWNAMES_INDEX]);
+          if (pszAppExtension)
+            pszfoundExtension=g_szGSWeb_AppExtention[GSWNAMES_INDEX];
+          else
+            {
+              pszAppExtension=strcasestr(pszStart,g_szGSWeb_AppExtention[WONAMES_INDEX]);
+              if (pszAppExtension)
+                pszfoundExtension=g_szGSWeb_AppExtention[WONAMES_INDEX];
+            };
 	  if (pszAppExtension)
 		{
 		  if (pszQueryStringMark && pszQueryStringMark<=pszAppExtension)
@@ -88,7 +97,7 @@ GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL,
 		  else
 			{
 			  pszStop=pszAppExtension;
-			  pszNext=pszStop+strlen(g_szGSWeb_AppExtention);
+			  pszNext=pszStop+strlen(pszfoundExtension);
 			};
 		}
 	  else
@@ -253,8 +262,8 @@ void GSWComposeURL(char* p_pszURL,GSWURLComponents* p_pURLComponents,void* p_pLo
   *p_pszURL++='/';
   strncpy(p_pszURL, pURLCAppName->pszStart, pURLCAppName->iLength);
   p_pszURL+= pURLCAppName->iLength;
-  strcpy(p_pszURL,g_szGSWeb_AppExtention);
-  p_pszURL+=strlen(g_szGSWeb_AppExtention);
+  strcpy(p_pszURL,g_szGSWeb_AppExtention[GSWNAMES_INDEX]);
+  p_pszURL+=strlen(g_szGSWeb_AppExtention[GSWNAMES_INDEX]);
 
   if (pURLCAppNum->iLength>0)
 	{
@@ -299,7 +308,7 @@ int GSWComposeURLLen(GSWURLComponents* p_pURLComponents,void* p_pLogServerData)
   
   iLength+=pURLCPrefix->iLength;
   iLength+=1+pURLCAppName->iLength;
-  iLength+=strlen(g_szGSWeb_AppExtention);
+  iLength+=strlen(g_szGSWeb_AppExtention[GSWNAMES_INDEX]);
   if (pURLCAppNum->iLength>0)
 	iLength+= 1+pURLCAppNum->iLength;
   if (pURLCReqHandlerKey->iLength>0)

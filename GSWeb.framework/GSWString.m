@@ -58,15 +58,16 @@ static char rcsId[] = "$Id$";
 									  withDefaultObject:[escapeHTML autorelease]] retain];
 	  NSDebugMLLog(@"gswdync",@"GSWString: escapeHTML=%@",escapeHTML);
 
-#if !GSWEB_STRICT
-	  convertHTML = [[associations_ objectForKey:convertHTML__Key
-									withDefaultObject:[convertHTML autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWString: convertHTML=%@",convertHTML);
-
-	  convertHTMLEntities = [[associations_ objectForKey:convertHTMLEntities__Key
-											withDefaultObject:[convertHTMLEntities autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWString: convertHTMLEntities=%@",convertHTMLEntities);
-#endif
+          if (!WOStrictFlag)
+            {
+              convertHTML = [[associations_ objectForKey:convertHTML__Key
+                                            withDefaultObject:[convertHTML autorelease]] retain];
+              NSDebugMLLog(@"gswdync",@"GSWString: convertHTML=%@",convertHTML);
+              
+              convertHTMLEntities = [[associations_ objectForKey:convertHTMLEntities__Key
+                                                    withDefaultObject:[convertHTMLEntities autorelease]] retain];
+              NSDebugMLLog(@"gswdync",@"GSWString: convertHTMLEntities=%@",convertHTMLEntities);
+            };
 
 	  formatter = [[associations_ objectForKey:formatter__Key
 								  withDefaultObject:[formatter autorelease]] retain];
@@ -84,10 +85,8 @@ static char rcsId[] = "$Id$";
   DESTROY(dateFormat);
   DESTROY(numberFormat);
   DESTROY(escapeHTML);
-#if !GSWEB_STRICT
-  DESTROY(convertHTML);
-  DESTROY(convertHTMLEntities);
-#endif
+  DESTROY(convertHTML); //GSWeb Only
+  DESTROY(convertHTMLEntities); //GSWeb Only
   DESTROY(formatter);
   [super dealloc];
 };
@@ -127,10 +126,8 @@ static char rcsId[] = "$Id$";
   if (_valueValue)
 	{
 	  BOOL _escapeHTMLValue=YES;
-#if !GSWEB_STRICT
 	  BOOL _convertHTMLValue=NO;
 	  BOOL _convertHTMLEntitiesValue=NO;
-#endif
 	  NSFormatter* _formatter=[self formatterForComponent:_component
 									value:_valueValue];
 	  if (!_formatter)
@@ -142,37 +139,36 @@ static char rcsId[] = "$Id$";
 		  _formattedValue=[_formatter stringForObjectValue:_valueValue];
 		};
 
-#if !GSWEB_STRICT
-	  if (convertHTML)
+	  if (!WOStrictFlag && convertHTML)
 		_convertHTMLValue=[self evaluateCondition:convertHTML
 								inContext:context_];
-	  if (!_convertHTMLValue)
+	  if (!WOStrictFlag)
+            {
+              if (!_convertHTMLValue)
 		{
 		  if (convertHTMLEntities)
 			_convertHTMLEntitiesValue=[self evaluateCondition:convertHTMLEntities
 											inContext:context_];
 		  if (!_convertHTMLEntitiesValue)
 			{
-#endif
 			  if (escapeHTML)
 				_escapeHTMLValue=[self evaluateCondition:escapeHTML
 									   inContext:context_];
-#if !GSWEB_STRICT
 			};
 		};
-#endif
+            }
+          else if (escapeHTML)
+            _escapeHTMLValue=[self evaluateCondition:escapeHTML
+                                   inContext:context_];
 
-#if !GSWEB_STRICT
-	  if (_convertHTMLValue)
+	  if (!WOStrictFlag && _convertHTMLValue)
 		[response_ appendContentHTMLConvertString:_formattedValue];
-	  else if (_convertHTMLEntitiesValue)
+	  else if (!WOStrictFlag && _convertHTMLEntitiesValue)
 		[response_ appendContentHTMLEntitiesConvertString:_formattedValue];
-	  else
-#endif
-		if (_escapeHTMLValue)
-		  [response_ appendContentHTMLString:_formattedValue];
-		else
-		  [response_ appendContentString:_formattedValue];
+	  else if (_escapeHTMLValue)
+            [response_ appendContentHTMLString:_formattedValue];
+          else
+            [response_ appendContentString:_formattedValue];
 	};
   NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
   LOGObjectFnStopC("GSWString");

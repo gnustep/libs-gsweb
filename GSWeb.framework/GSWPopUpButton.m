@@ -42,9 +42,8 @@ static char rcsId[] = "$Id$";
   [_associations removeObjectForKey:item__Key];
   [_associations removeObjectForKey:displayString__Key];
   [_associations removeObjectForKey:selection__Key];
-#if !GSWEB_STRICT
-  [_associations removeObjectForKey:selectionValue__Key];
-#endif
+  if (!WOStrictFlag)
+    [_associations removeObjectForKey:selectionValue__Key];
   [_associations removeObjectForKey:selectedValue__Key];
   [_associations removeObjectForKey:noSelectionString__Key];
   [_associations removeObjectForKey:escapeHTML__Key];
@@ -66,14 +65,15 @@ static char rcsId[] = "$Id$";
 		  //TODO
 		};
 
-#if !GSWEB_STRICT
-	  selectionValue=[[associations_ objectForKey:selectionValue__Key
-									 withDefaultObject:[selectionValue autorelease]] retain];
-	  if (selectionValue && ![selectionValue isValueSettable])
+          if (!WOStrictFlag)
+            {
+              selectionValue=[[associations_ objectForKey:selectionValue__Key
+                                             withDefaultObject:[selectionValue autorelease]] retain];
+              if (selectionValue && ![selectionValue isValueSettable])
 		{
 		  //TODO
 		};
-#endif
+            };
 
 	  selectedValue=[[associations_ objectForKey:selectedValue__Key
 								   withDefaultObject:[selectedValue autorelease]] retain];
@@ -93,9 +93,7 @@ static char rcsId[] = "$Id$";
   DESTROY(item);
   DESTROY(displayString);
   DESTROY(selection);
-#if !GSWEB_STRICT
-  DESTROY(selectionValue);
-#endif
+  DESTROY(selectionValue);//GSWeb Only
   DESTROY(selectedValue);
   DESTROY(noSelectionString);
   DESTROY(escapeHTML);
@@ -408,40 +406,42 @@ static char rcsId[] = "$Id$";
 					  NSDebugMLLog(@"gswdync",@"selection=%@",selection);
 					  if (selection)
 						{
-#if !GSWEB_STRICT
-						  NS_DURING
+                                                  if (!WOStrictFlag)
+                                                    {
+                                                      NS_DURING
 							{
 							  [selection setValue:_itemValue
 										 inComponent:_component];
 							};
-						  NS_HANDLER
+                                                      NS_HANDLER
 							{
 							  [self handleValidationException:localException
-									inContext:context_];
+                                                                inContext:context_];
 							}
-						  NS_ENDHANDLER;
-#else
-						  [selection setValue:_itemValue
-									 inComponent:_component];
-#endif
+                                                      NS_ENDHANDLER;
+                                                    }
+                                                  else
+                                                    [selection setValue:_itemValue
+                                                               inComponent:_component];
 						};
-#if !GSWEB_STRICT
-					  NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
-					  if (selectionValue)
+                                          if (!WOStrictFlag)
+                                            {
+                                              NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
+                                              if (selectionValue)
 						{
 						  NS_DURING
-							{
-							  [selectionValue setValue:_valueValue
-											  inComponent:_component];
-							};
+                                                    {
+                                                      [selectionValue setValue:_valueValue
+                                                                      inComponent:_component];
+                                                    };
 						  NS_HANDLER
-							{
-							  [self handleValidationException:localException
-									inContext:context_];
-							}
+                                                    {
+                                                      [self handleValidationException:localException
+                                                            inContext:context_];
+                                                    }
 						  NS_ENDHANDLER;
 						};
-#endif
+                                            };
 					  _found=YES;
 					};
 				};
@@ -451,25 +451,25 @@ static char rcsId[] = "$Id$";
 			{
 			  if (selection)
 				{
-#if !GSWEB_STRICT
-				  NS_DURING
+                                  if (!WOStrictFlag)
+                                    {
+                                      NS_DURING
 					{
 					  [selection setValue:nil
-								 inComponent:_component];
+                                                     inComponent:_component];
 					};
-				  NS_HANDLER
+                                      NS_HANDLER
 					{
 					  [self handleValidationException:localException
-							inContext:context_];
+                                                inContext:context_];
 					}
-				  NS_ENDHANDLER;
-#else
-				  [selection setValue:nil
-							 inComponent:_component];
-#endif
+                                      NS_ENDHANDLER;
+                                    }
+                                  else
+                                    [selection setValue:nil
+                                               inComponent:_component];
 				};
-#if !GSWEB_STRICT
-			  if (selectionValue)
+			  if (!WOStrictFlag && selectionValue)
 				{
 				  NS_DURING
 					{
@@ -483,7 +483,6 @@ static char rcsId[] = "$Id$";
 					}
 				  NS_ENDHANDLER;
 				};
-#endif
 			};
 		};
 	};

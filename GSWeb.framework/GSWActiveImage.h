@@ -30,10 +30,11 @@
 @interface GSWActiveImage: GSWInput
 {
   GSWAssociation* imageMapFileName;
-#if !GSWEB_STRICT
+
+//GSWeb Additions {
   GSWAssociation* imageMapString;
   GSWAssociation* imageMapRegions;
-#endif
+// }
   GSWAssociation* action;
   GSWAssociation* href;
   GSWAssociation* src;

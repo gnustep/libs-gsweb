@@ -97,9 +97,10 @@ static char rcsId[] = "$Id$";
   [_associations removeObjectForKey:actionClass__Key];
   [_associations removeObjectForKey:directActionName__Key];
   [_associations removeObjectForKey:queryDictionary__Key];
-#if !GSWEB_STRICT
+  if (!WOStrictFlag)
+    {
   //pageSetVarAssociations//GNUstepWeb only
-  {
+      
 	NSDictionary* _pageSetVarAssociations=[associations_ associationsWithoutPrefix:pageSetVar__Prefix__Key
 														 removeFrom:_associations];
 	if ([_pageSetVarAssociations count]>0)
@@ -109,9 +110,7 @@ static char rcsId[] = "$Id$";
 									   withDefaultObject:[pageSetVarAssociationsDynamic autorelease]] retain];
 	NSDebugMLLog(@"gswdync",@"pageSetVarAssociationsDynamic=%@",pageSetVarAssociationsDynamic);
 	[_associations removeObjectForKey:pageSetVars__Key];
-  };
-#endif
-
+    };
   if ((self=[super initWithName:[self elementName]//NEW
 				   attributeAssociations:_associations
 				   contentElements:elements_]))
@@ -127,10 +126,8 @@ static char rcsId[] = "$Id$";
   DESTROY(src);
   DESTROY(value);
   DESTROY(pageName);
-#if !GSWEB_STRICT
   DESTROY(pageSetVarAssociations);//GNUstepWeb only
-  DESTROY(pageSetVarAssociationsDynamic);
-#endif
+  DESTROY(pageSetVarAssociationsDynamic);//GSWeb only
   DESTROY(filename);
   DESTROY(framework);
   DESTROY(data);
@@ -195,8 +192,7 @@ static char rcsId[] = "$Id$";
 		  NSString* _pageNameValue=[pageName valueInComponent:_component];
 		  _element=[GSWApp pageWithName:_pageNameValue
 						   inContext:context_];
-#if !GSWEB_STRICT
-		  if (_element)//GNUstepWeb only
+		  if (!WOStrictFlag && _element)//GNUstepWeb only
 			{
 			  if (pageSetVarAssociations)
 				{
@@ -224,7 +220,6 @@ static char rcsId[] = "$Id$";
 					};
 				};
 			};
-#endif
 		};
 	  NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke _element=%@",_element);
 	  //the end ?

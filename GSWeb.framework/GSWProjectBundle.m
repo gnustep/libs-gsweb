@@ -65,14 +65,14 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(NSString*)lockedPathsForResourcesOfType:(id)type_
+-(NSArray*)lockedPathsForResourcesOfType:(id)type_
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return [super lockedPathsForResourcesOfType:type_];
 };
 
 //--------------------------------------------------------------------
--(NSString*)lockedPathsForResourcesInSubprojectsOfType:(id)type_
+-(NSArray*)lockedPathsForResourcesInSubprojectsOfType:(id)type_
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -151,7 +151,7 @@ static char rcsId[] = "$Id$";
   NSEnumerator* _projectEnum = nil;
   NSEnumerator* _projectSearchPathEnum=nil;
   NSString* _path=nil;
-  NSString* _suffix=isFramework_ ? GSFrameworkPSuffix : GSWApplicationPSuffix;
+  NSString* _suffix=isFramework_ ? GSFrameworkPSuffix : GSWApplicationPSuffix[GSWebNamingConv];
   LOGClassFnStart();
   NSDebugMLLog(@"bundles",@"name_:%@",name_);
   NSDebugMLLog(@"bundles",@"isFramework_=%s",(isFramework_ ? "YES" : "NO"));

@@ -71,9 +71,9 @@ static char rcsId[] = "$Id$";
   NSString* _queryString=nil;
   GSWDynamicURLString* _url=nil;
   LOGObjectFnStart();
-  _queryString=[NSString stringWithFormat:@"%@=%@",GSWKey_Data,[self key]];
+  _queryString=[NSString stringWithFormat:@"%@=%@",GSWKey_Data[GSWebNamingConv],[self key]];
   NSDebugMLog(@"_queryString=%@",_queryString);
-  _url=[context_ urlWithRequestHandlerKey:GSWResourceRequestHandlerKey
+  _url=[context_ urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
 				 path:nil
 				 queryString:_queryString];
   NSDebugMLog(@"_url=%@",_url);

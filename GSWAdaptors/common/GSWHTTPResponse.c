@@ -102,7 +102,7 @@ GSWHTTPResponse* GSWHTTPResponse_BuildErrorResponse(GSWAppRequest* p_pAppRequest
   GSWLog(GSW_INFO,p_pLogServerData,"Build Error Response [%s] pApp=%p",p_pszMessage,pApp);
 #endif
   pHTTPResponse->uStatus = 200;
-  pHTTPResponse->pszStatusMessage = strdup(g_szOKGSWeb);
+  pHTTPResponse->pszStatusMessage = strdup(g_szOKGSWeb[GSWNAMES_INDEX]);
   pHTTPResponse->pHeaders = GSWDict_New(2);
   GSWDict_Add(pHTTPResponse->pHeaders,
 			  g_szHeader_ContentType,
@@ -145,7 +145,7 @@ GSWHTTPResponse* GSWHTTPResponse_BuildRedirectedResponse(CONST char* p_pszRedire
   GSWHTTPResponse* pHTTPResponse=calloc(1,sizeof(GSWHTTPResponse));
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPResponse_BuildRedirectedResponse");
   pHTTPResponse->uStatus = 302;
-  pHTTPResponse->pszStatusMessage = strdup(g_szOKGSWeb);
+  pHTTPResponse->pszStatusMessage = strdup(g_szOKGSWeb[GSWNAMES_INDEX]);
   pHTTPResponse->pHeaders=GSWDict_New(2);
   GSWDict_Add(pHTTPResponse->pHeaders, g_szHeader_ContentType, g_szContentType_TextHtml,FALSE);
   GSWDict_AddStringDup(pHTTPResponse->pHeaders,"location",p_pszRedirectPath);
@@ -343,7 +343,7 @@ void GSWHTTPResponse_AddHeaderToString(GSWDictElem* p_pElem,void* p_pData)
 //--------------------------------------------------------------------
 GSWHTTPResponse* GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest* p_pHTTPRequest,void* p_pLogServerData)
 {
-  GSWHTTPResponse* pHTTPResponse=GSWHTTPResponse_New(g_szOKStatus,p_pLogServerData);
+  GSWHTTPResponse* pHTTPResponse=GSWHTTPResponse_New(g_szOKStatus[GSWNAMES_INDEX],p_pLogServerData);
   GSWDict* pRequestHeaders=NULL;
   GSWString* pContent=GSWString_New();
   GSWString* pHeadersBuffer=GSWString_New();
@@ -404,7 +404,7 @@ GSWHTTPResponse* GSWDumpConfigFile(GSWURLComponents* p_pURLComponents,void* p_pL
 	  g_pszLocalHostName= strdup(szHostName);
 	};
 	  
-  pHTTPResponse = GSWHTTPResponse_New(g_szOKStatus,p_pLogServerData);
+  pHTTPResponse = GSWHTTPResponse_New(g_szOKStatus[GSWNAMES_INDEX],p_pLogServerData);
   GSWDict_AddString(pHTTPResponse->pHeaders,
 					g_szHeader_ContentType,
 					g_szContentType_TextHtml,

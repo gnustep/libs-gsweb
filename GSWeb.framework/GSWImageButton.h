@@ -31,10 +31,10 @@
 @interface GSWImageButton: GSWInput
 {
   GSWAssociation* imageMapFileName;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* imageMapString;
   GSWAssociation* imageMapRegions;
-#endif
+// }
   GSWAssociation* action;
   GSWAssociation* actionClass;
   GSWAssociation* directActionName;

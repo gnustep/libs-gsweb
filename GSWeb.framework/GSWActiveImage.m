@@ -39,10 +39,11 @@ static char rcsId[] = "$Id$";
   NSDebugMLog(@"name_=%@ associations_:%@ elements_=%@",name_,associations_,elements_);
   _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
   [_associations removeObjectForKey:imageMapFileName__Key];
-#if !GSWEB_STRICT
-  [_associations removeObjectForKey:imageMapString__Key];
-  [_associations removeObjectForKey:imageMapRegions__Key];
-#endif
+  if (!WOStrictFlag)
+    {
+      [_associations removeObjectForKey:imageMapString__Key];
+      [_associations removeObjectForKey:imageMapRegions__Key];
+    };
   [_associations removeObjectForKey:action__Key];
   [_associations removeObjectForKey:href__Key];
   [_associations removeObjectForKey:src__Key];
@@ -65,24 +66,25 @@ static char rcsId[] = "$Id$";
 	  if (imageMapFileName)
 		_imageMapDefNb++;
 
-#if !GSWEB_STRICT
-	  imageMapString = [[associations_ objectForKey:imageMapString__Key
-								 withDefaultObject:[imageMapString autorelease]] retain];
-	  if (imageMapString)
+          if (!WOStrictFlag)
+            {
+              imageMapString = [[associations_ objectForKey:imageMapString__Key
+                                               withDefaultObject:[imageMapString autorelease]] retain];
+              if (imageMapString)
 		_imageMapDefNb++;
-
-	  imageMapRegions = [[associations_ objectForKey:imageMapRegions__Key
-									 withDefaultObject:[imageMapRegions autorelease]] retain];
-	  if (imageMapRegions)
+              
+              imageMapRegions = [[associations_ objectForKey:imageMapRegions__Key
+                                                withDefaultObject:[imageMapRegions autorelease]] retain];
+              if (imageMapRegions)
 		_imageMapDefNb++;
-	  if (_imageMapDefNb>0)
+              if (_imageMapDefNb>0)
 		{
 		  ExceptionRaise(@"GSWActiveImage",@"you can't specify %@, %@ and %@",
-						 imageMapFileName__Key,
-						 imageMapString__Key,
-						 imageMapRegions__Key);
+                                 imageMapFileName__Key,
+                                 imageMapString__Key,
+                                 imageMapRegions__Key);
 		};
-#endif	  
+            };	  
 	  action = [[associations_ objectForKey:action__Key
 								  withDefaultObject:[action autorelease]] retain];
 
@@ -135,10 +137,8 @@ static char rcsId[] = "$Id$";
 -(void)dealloc
 {
   DESTROY(imageMapFileName);
-#if !GSWEB_STRICT
   DESTROY(imageMapString);
   DESTROY(imageMapRegions);
-#endif
   DESTROY(action);
   DESTROY(href);
   DESTROY(src);
@@ -259,7 +259,7 @@ static char rcsId[] = "$Id$";
 		  NSDebugMLog(@"_elementID=%@",_elementID);
 		  if ([_elementID isEqualToString:_senderID])
 			{
-			  id _param=[request_ formValueForKey:GSWKey_IsmapCoords];
+			  id _param=[request_ formValueForKey:GSWKey_IsmapCoords[GSWebNamingConv]];
 			  NSDebugMLLog(@"gswdync",@"_param=%@",_param);
 			  if (_param)
 				{
@@ -300,17 +300,15 @@ static char rcsId[] = "$Id$";
 				  NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
 				};
 			}
-#if !GSWEB_STRICT
-		  else if (imageMapString)
+		  else if (!WOStrictFlag && imageMapString)
 			{
 			  id _imageMapValue=[imageMapString valueInComponent:_component];
 			  _regions=[GSWGeometricRegion geometricRegionsWithString:_imageMapValue];
 			}
-		  else if (imageMapRegions)
+		  else if (!WOStrictFlag && imageMapRegions)
 			{
 			  _regions=[imageMapRegions valueInComponent:_component];
 			};
-#endif	  
 		  if (xAssoc)
 			[xAssoc setValue:[NSNumber numberWithInt:_x]
 					inComponent:_component];

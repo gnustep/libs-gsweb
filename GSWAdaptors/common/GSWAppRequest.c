@@ -247,14 +247,25 @@ GSWHTTPResponse* GSWAppRequest_HandleRequest(GSWHTTPRequest** p_ppHTTPRequest,
 				  CONST char* pszCookie=GSWHTTPRequest_HeaderForKey(*p_ppHTTPRequest,g_szHeader_Cookie);
 				  if (pszCookie)
 					{
-					  CONST char* pszInstanceCookie=strstr(pszCookie, g_szGSWeb_InstanceCookie);
+					  CONST char* pszInstanceCookie=strstr(pszCookie, g_szGSWeb_InstanceCookie[GSWNAMES_INDEX]);
 					  if (pszInstanceCookie)
+                                            {
+                                              stAppRequest.iInstance = atoi(pszInstanceCookie + strlen(g_szGSWeb_InstanceCookie[GSWNAMES_INDEX]));
+                                              GSWLog(GSW_INFO,p_pLogServerData,"Cookie instance %d from %s",
+                                                     stAppRequest.iInstance,
+                                                     pszCookie);
+                                            }
+                                          else
+                                            {
+                                              pszInstanceCookie=strstr(pszCookie, g_szGSWeb_InstanceCookie[WONAMES_INDEX]);
+                                              if (pszInstanceCookie)
 						{
-						  stAppRequest.iInstance = atoi(pszInstanceCookie + strlen(g_szGSWeb_InstanceCookie));
+						  stAppRequest.iInstance = atoi(pszInstanceCookie + strlen(g_szGSWeb_InstanceCookie[WONAMES_INDEX]));
 						  GSWLog(GSW_INFO,p_pLogServerData,"Cookie instance %d from %s",
-								 stAppRequest.iInstance,
-								 pszCookie);
+                                                         stAppRequest.iInstance,
+                                                         pszCookie);
 						};
+                                            };
 					};
 				};
 			  

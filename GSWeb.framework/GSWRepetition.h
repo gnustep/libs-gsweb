@@ -29,12 +29,12 @@
 //====================================================================
 @interface GSWRepetition: GSWDynamicElement
 {
-  GSWAssociation* list;
-  GSWAssociation* item;
-  GSWAssociation* identifier;
-  GSWAssociation* count;
-  GSWAssociation* index;
-  GSWHTMLStaticGroup* childrenGroup;
+  GSWAssociation* _list;
+  GSWAssociation* _item;
+  GSWAssociation* _identifier;
+  GSWAssociation* _count;
+  GSWAssociation* _index;
+  GSWHTMLStaticGroup* _childrenGroup;
 };
 
 -(id)initWithName:(NSString*)name_

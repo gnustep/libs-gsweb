@@ -178,6 +178,7 @@ GSWGeometricRegion.m \
 GSWFileUpload.m \
 GSWResourceURL.m \
 GSWProcFS.m \
+GSWWOCompatibility.m \
 stacktrace.m \
 attach.m
 
@@ -294,7 +295,8 @@ GSWUtils.h \
 GSWGeometricRegion.h \
 GSWFileUpload.h \
 GSWResourceURL.h \
-GSWProcFS.h
+GSWProcFS.h \
+GSWWOCompatibility.h
 
 
 SRCS = $(LIBRARY_NAME:=.m)

@@ -33,10 +33,10 @@
   GSWAssociation* dateFormat;
   GSWAssociation* numberFormat;
   GSWAssociation* escapeHTML;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* convertHTML;
   GSWAssociation* convertHTMLEntities;
-#endif
+// }
   GSWAssociation* formatter;
 };
 

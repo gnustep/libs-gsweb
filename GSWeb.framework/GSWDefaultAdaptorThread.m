@@ -33,9 +33,10 @@ static char rcsId[] = "$Id$";
 -(id)init
 {
   if ((self=[super init]))
-	{
-	  ASSIGN(creationDate,[NSDate date]);
-	};
+    {
+      ASSIGN(creationDate,[NSDate date]);
+      requestNamingConv=GSWebNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
+    };
   return self;
 };
 
@@ -352,6 +353,7 @@ static char rcsId[] = "$Id$";
 		{
 		  dataBlock=[stream availableDataNonBlocking];
 		  dataBlockLength=[dataBlock length];
+                  NSDebugMLog(@"dataBlockLength=%i",dataBlockLength);
 		  if (dataBlockLength>0)
 			{
 			  readenBytesNb+=dataBlockLength;
@@ -411,9 +413,11 @@ static char rcsId[] = "$Id$";
 									_value=[NSString string];
 								  NSDebugMLLog(@"low",@"_value:%@",_value);
 								};
+                                                          NSDebugMLLog(@"low",@"key:%@ value:%@",_key,_value);
 							  if ([_key isEqualToString:GSWHTTPHeader_ContentLength])
 								contentLength=[_value intValue];
-							  else if ([_key isEqualToString:GSWHTTPHeader_Method])
+							  else if ([_key isEqualToString:GSWHTTPHeader_Method[GSWNAMES_INDEX]]
+                                                                   || [_key isEqualToString:GSWHTTPHeader_Method[WONAMES_INDEX]])
 							    {
 							      if ([_value isEqualToString:GSWHTTPHeader_MethodPost])
 								_requestMethod=REQUEST_METHOD__POST;
@@ -421,13 +425,21 @@ static char rcsId[] = "$Id$";
 								_requestMethod=REQUEST_METHOD__GET;
 							      else
 								{
-								  NSAssert1(NO,@"Unknwon method %@",_value);
+								  NSAssert1(NO,@"Unknown method %@",_value);
 								};
 							    }
 							  else if ([_key isEqualToString:GSWHTTPHeader_UserAgent])
 							    _userAgent=_value;
-							  else if ([_key isEqualToString:GSWHTTPHeader_RemoteAddress])
+							  else if ([_key isEqualToString:GSWHTTPHeader_RemoteAddress[GSWNAMES_INDEX]]
+                                                                   ||[_key isEqualToString:GSWHTTPHeader_RemoteAddress[WONAMES_INDEX]])
 							    _remoteAddr=_value;
+                                                          if ([_key isEqualToString:GSWHTTPHeader_AdaptorVersion[GSWNAMES_INDEX]]
+                                                              || [_key isEqualToString:GSWHTTPHeader_ServerName[GSWNAMES_INDEX]])
+                                                              requestNamingConv=GSWNAMES_INDEX;
+                                                          else if ([_key isEqualToString:GSWHTTPHeader_AdaptorVersion[WONAMES_INDEX]]
+                                                                   || [_key isEqualToString:GSWHTTPHeader_ServerName[WONAMES_INDEX]])
+                                                            requestNamingConv=WONAMES_INDEX;
+
 							  _prevValue=[_headers objectForKey:_key];
 							  NSDebugMLLog(@"low",@"_prevValue:%@",_prevValue);
 							  if (_prevValue)
@@ -443,6 +455,7 @@ static char rcsId[] = "$Id$";
 					};
 				};
 			};
+                  NSDebugMLog(@"_requestMethod=%d",_requestMethod);
 		  dataBytesNb=[_pendingData length];
 		  if (_isDataStep)
 		    {
@@ -556,7 +569,7 @@ static char rcsId[] = "$Id$";
 							   [response httpVersion],
 							   [response status],
 							   GSWHTTPHeader_Response_OK,
-							   GSWHTTPHeader_Response_HeaderLineEnd];
+							   GSWHTTPHeader_Response_HeaderLineEnd[requestNamingConv]];
 /*	  NSString* cl=[NSString stringWithFormat:@"%@: %d\n",
 							 GSWHTTPHeader_ContentLength,
 							 [[response content] length]];

@@ -73,46 +73,45 @@ static char rcsId[] = "$Id$";
 							withDefaultObject:[directActionName autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"directActionName=%@",directActionName);
 
-#if !GSWEB_STRICT
-  enabled = [[associations_ objectForKey:enabled__Key
-							withDefaultObject:[enabled autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"enabled=%@",enabled);
-  if (disabled && enabled)
+  if (!WOStrictFlag)
+    {
+      enabled = [[associations_ objectForKey:enabled__Key
+                                withDefaultObject:[enabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"enabled=%@",enabled);
+      if (disabled && enabled)
 	{
 	  ExceptionRaise(@"GSWHyperlink",@"You can't specify 'disabled' and 'enabled' together. componentAssociations:%@",
-					 associations_);
+                         associations_);
 	};
+      
+      displayDisabled = [[associations_ objectForKey:displayDisabled__Key
+                                        withDefaultObject:[displayDisabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"displayDisabled=%@",displayDisabled);
+      
+      redirectURL = [[associations_ objectForKey:redirectURL__Key
+                                    withDefaultObject:[redirectURL autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"redirectURL=%@",redirectURL);
+  
+      filename = [[associations_ objectForKey:filename__Key
+                                 withDefaultObject:[filename autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"filename=%@",filename);
+      
+      framework = [[associations_ objectForKey:framework__Key
+                                  withDefaultObject:[framework autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"framework=%@",framework);
 
-  displayDisabled = [[associations_ objectForKey:displayDisabled__Key
-									withDefaultObject:[displayDisabled autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"displayDisabled=%@",displayDisabled);
-
-  redirectURL = [[associations_ objectForKey:redirectURL__Key
-								withDefaultObject:[redirectURL autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"redirectURL=%@",redirectURL);
-#endif
-
-#if !GSWEB_STRICT
-  filename = [[associations_ objectForKey:filename__Key
-							 withDefaultObject:[filename autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"filename=%@",filename);
-
-  framework = [[associations_ objectForKey:framework__Key
-							  withDefaultObject:[framework autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"framework=%@",framework);
-
-  data = [[associations_ objectForKey:data__Key
-						 withDefaultObject:[data autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"data=%@",data);
-
-  mimeType = [[associations_ objectForKey:mimeType__Key
-							 withDefaultObject:[mimeType autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"mimeType=%@",mimeType);
-
-  key = [[associations_ objectForKey:key__Key
-						withDefaultObject:[key autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"key=%@",key);
-#endif
+      data = [[associations_ objectForKey:data__Key
+                             withDefaultObject:[data autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"data=%@",data);
+      
+      mimeType = [[associations_ objectForKey:mimeType__Key
+                                 withDefaultObject:[mimeType autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"mimeType=%@",mimeType);
+      
+      key = [[associations_ objectForKey:key__Key
+                            withDefaultObject:[key autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"key=%@",key);
+    };
 
   _otherAssociations=[NSMutableDictionary dictionaryWithDictionary:associations_];
   [_otherAssociations removeObjectForKey:action__Key];
@@ -124,33 +123,31 @@ static char rcsId[] = "$Id$";
   [_otherAssociations removeObjectForKey:queryDictionary__Key];
   [_otherAssociations removeObjectForKey:actionClass__Key];
   [_otherAssociations removeObjectForKey:directActionName__Key];
-#if !GSWEB_STRICT
-  [_otherAssociations removeObjectForKey:enabled__Key];
-  [_otherAssociations removeObjectForKey:redirectURL__Key];
-#endif
+  if (!WOStrictFlag)
+    {
+      [_otherAssociations removeObjectForKey:enabled__Key];
+      [_otherAssociations removeObjectForKey:redirectURL__Key];
+    
+      [_otherAssociations removeObjectForKey:filename__Key];
+      [_otherAssociations removeObjectForKey:framework__Key];
+      [_otherAssociations removeObjectForKey:data__Key];
+      [_otherAssociations removeObjectForKey:mimeType__Key];
+      [_otherAssociations removeObjectForKey:key__Key];
+    };
 
-#if !GSWEB_STRICT
-  [_otherAssociations removeObjectForKey:filename__Key];
-  [_otherAssociations removeObjectForKey:framework__Key];
-  [_otherAssociations removeObjectForKey:data__Key];
-  [_otherAssociations removeObjectForKey:mimeType__Key];
-  [_otherAssociations removeObjectForKey:key__Key];
-#endif
-
-#if !GSWEB_STRICT
-  //pageSetVarAssociations//GNUstepWeb only
-  {
-	NSDictionary* _pageSetVarAssociations=[associations_ associationsWithoutPrefix:pageSetVar__Prefix__Key
-														 removeFrom:_otherAssociations];
-	if ([_pageSetVarAssociations count]>0)
+  if (!WOStrictFlag)
+    //pageSetVarAssociations//GNUstepWeb only
+    {
+      NSDictionary* _pageSetVarAssociations=[associations_ associationsWithoutPrefix:pageSetVar__Prefix__Key
+                                                           removeFrom:_otherAssociations];
+      if ([_pageSetVarAssociations count]>0)
 	  pageSetVarAssociations=[_pageSetVarAssociations retain];
-
-	pageSetVarAssociationsDynamic=[[associations_ objectForKey:pageSetVars__Key
-									   withDefaultObject:[pageSetVarAssociationsDynamic autorelease]] retain];
-	NSDebugMLLog(@"gswdync",@"pageSetVarAssociationsDynamic=%@",pageSetVarAssociationsDynamic);
-	[_otherAssociations removeObjectForKey:pageSetVars__Key];
-  };
-#endif
+      
+      pageSetVarAssociationsDynamic=[[associations_ objectForKey:pageSetVars__Key
+                                                    withDefaultObject:[pageSetVarAssociationsDynamic autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"pageSetVarAssociationsDynamic=%@",pageSetVarAssociationsDynamic);
+      [_otherAssociations removeObjectForKey:pageSetVars__Key];
+    };
 
   if ([_otherAssociations count]>0)
 	  otherAssociations=[[NSDictionary dictionaryWithDictionary:_otherAssociations] retain];
@@ -178,22 +175,18 @@ static char rcsId[] = "$Id$";
   DESTROY(queryDictionary);
   DESTROY(actionClass);
   DESTROY(directActionName);
-#if !GSWEB_STRICT
-  DESTROY(enabled);
+  DESTROY(enabled);//GSWeb Only
   DESTROY(displayDisabled);
   DESTROY(redirectURL);
   DESTROY(pageSetVarAssociations);//GNUstepWeb only
   DESTROY(pageSetVarAssociationsDynamic);
-#endif
   DESTROY(otherQueryAssociations);
   DESTROY(otherAssociations);
-#if !GSWEB_STRICT
   DESTROY(filename);
   DESTROY(framework);
   DESTROY(data);
   DESTROY(mimeType);
   DESTROY(key);
-#endif
   DESTROY(children);
   [super dealloc];
 }
@@ -218,9 +211,7 @@ static char rcsId[] = "$Id$";
   //OK (pageName/action/directActionName)
   GSWComponent* _component=[context_ component];
   BOOL _disabled=NO;
-#if !GSWEB_STRICT
   BOOL _displayDisabled=YES;
-#endif
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
 #endif
@@ -233,13 +224,12 @@ static char rcsId[] = "$Id$";
   else if (enabled)
 	_disabled=![self evaluateCondition:enabled
 					 inContext:context_];
-#if !GSWEB_STRICT
-  if (disabled && displayDisabled)
+
+  if (!WOStrictFlag && disabled && displayDisabled)
 	{
 	  _displayDisabled=[self evaluateCondition:displayDisabled
 							 inContext:context_];
 	};
-#endif
   if (!_disabled)
 	{
 	  [response_ _appendContentAsciiString:@"<A "];
@@ -271,8 +261,7 @@ static char rcsId[] = "$Id$";
 		  NSDebugMLLog(@"gswdync",@"href=%@",href);
 		  NSDebugMLLog(@"gswdync",@"_hrefValue=%@",_hrefValue);
 		}
-#if !GSWEB_STRICT
-	  else if (filename || data)
+	  else if (!WOStrictFlag && (filename || data))
 		{
 		  NSString* _url=nil;
 		  NSString* _keyValue=nil;
@@ -326,7 +315,6 @@ static char rcsId[] = "$Id$";
 			{
 			  [response_ appendContentString:_url];
 			};
-#endif
 		}
 	  else
 		{		  
@@ -384,7 +372,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStop();
 };
 
-#if !GSWEB_STRICT
+//GSWeb Addintions {
 //--------------------------------------------------------------------
 -(NSString*)frameworkNameInContext:(GSWContext*)context_
 {
@@ -398,7 +386,7 @@ static char rcsId[] = "$Id$";
 	_frameworkName=[_component frameworkName];
   return _frameworkName;
 };
-#endif
+// }
 //--------------------------------------------------------------------
 -(void)_appendCGIActionURLToResponse:(GSWResponse*)response_
 						   inContext:(GSWContext*)context_
@@ -507,13 +495,11 @@ static char rcsId[] = "$Id$";
   if (_session)
 	{
 	  if (!action && !pageName
-#if !GSWEB_STRICT
-		  && !redirectURL) //??
-#endif
+		  && (WOStrictFlag || (!WOStrictFlag && !redirectURL))) //??
 		{
 		  NSString* _sessionID=[_session sessionID];
 		  [_queryDictionary setObject:_sessionID
-							forKey:GSWKey_SessionID];
+							forKey:GSWKey_SessionID[GSWebNamingConv]];
 		};
 	};
   //TODOV
@@ -587,8 +573,7 @@ static char rcsId[] = "$Id$";
 		  _element=[GSWApp pageWithName:_pageNameValue
 						  inContext:context_];
 		  NSDebugMLLog(@"gswdync",@"_element=%@",_element);
-#if !GSWEB_STRICT
-		  if (_element)//GNUstepWeb only
+		  if (!WOStrictFlag && _element)//GNUstepWeb only
 			{
 			  if (pageSetVarAssociations)
 				{
@@ -616,10 +601,8 @@ static char rcsId[] = "$Id$";
 					};
 				};
 			};
-#endif
 		}
-#if !GSWEB_STRICT
-	  else if (redirectURL) //GNUstepWeb only
+	  else if (!WOStrictFlag && redirectURL) //GNUstepWeb only
 		{
 		  NSString* _url=[redirectURL valueInComponent:_component];
 		  id _redirectComponent = [GSWApp pageWithName:@"GSWRedirect"
@@ -627,7 +610,6 @@ static char rcsId[] = "$Id$";
 		  [_redirectComponent setURL:_url];
 		  _element=_redirectComponent;
 		}
-#endif
 	  else if (href)
 		{
 		  LOGSeriousError(@"We shouldn't come here (href=%@)",href);

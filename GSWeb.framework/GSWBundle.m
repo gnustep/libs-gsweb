@@ -255,12 +255,16 @@ objectForReference:(NSString*)keyPath
   id _resource=nil;
   NSString* _path=nil;
   NSFileManager* _fileManager=nil;
-  int _languagesNb=[languages_ count];
+  int _languagesNb=nil;
   BOOL _exists=NO;
+  LOGObjectFnStart();
+  NSDebugMLog(@"type=%@",type_);
+  _languagesNb=[languages_ count];
 
   _fileManager=[NSFileManager defaultManager];
 
   _fileName=[NSString stringWithFormat:@"%@.%@",name_,type_];
+  NSDebugMLog(@"fileName=%@",_fileName);
   for(_languageIndex=0;!_resource && !_path && _languageIndex<=_languagesNb;_languageIndex++)
 	{
 	  _language=nil;
@@ -298,6 +302,7 @@ objectForReference:(NSString*)keyPath
 	*relativePath_=_relativePath;
   if (absolutePath_)
 	*absolutePath_=_absolutePath;
+  LOGObjectFnStop();
   return _resource;
 };
 @end
@@ -337,26 +342,25 @@ objectForReference:(NSString*)keyPath
   [self lock];
   NS_DURING
     {
-#if !GSWEB_STRICT
-      {
-        NSDictionary* _userDictionary=[archive_ objectForKey:@"userDictionary"];
-        NSDictionary* _userAssociations=[archive_ objectForKey:@"userAssociations"];		
-        NSDictionary* _defaultAssociations=[archive_ objectForKey:@"defaultAssociations"];
-        NSDebugMLLog(@"bundles",@"_userDictionary:%@",_userDictionary);
-        NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
-        NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
-        _userAssociations=[_userAssociations dictionaryByReplacingStringsWithAssociations];
-        NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
-        _defaultAssociations=[_defaultAssociations dictionaryByReplacingStringsWithAssociations];
-        NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
-        if (_userDictionary && [object_ respondsToSelector:@selector(setUserDictionary:)])
-          [object_ setUserDictionary:_userDictionary];
-        if (_userAssociations && [object_ respondsToSelector:@selector(setUserAssociations:)])
-          [object_ setUserAssociations:_userAssociations];
-        if (_defaultAssociations && [object_ respondsToSelector:@selector(setDefaultAssociations:)])
-          [object_ setDefaultAssociations:_defaultAssociations];
-      };
-#endif
+      if (!WOStrictFlag)
+        {
+          NSDictionary* _userDictionary=[archive_ objectForKey:@"userDictionary"];
+          NSDictionary* _userAssociations=[archive_ objectForKey:@"userAssociations"];		
+          NSDictionary* _defaultAssociations=[archive_ objectForKey:@"defaultAssociations"];
+          NSDebugMLLog(@"bundles",@"_userDictionary:%@",_userDictionary);
+          NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
+          NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
+          _userAssociations=[_userAssociations dictionaryByReplacingStringsWithAssociations];
+          NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
+          _defaultAssociations=[_defaultAssociations dictionaryByReplacingStringsWithAssociations];
+          NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
+          if (_userDictionary && [object_ respondsToSelector:@selector(setUserDictionary:)])
+            [object_ setUserDictionary:_userDictionary];
+          if (_userAssociations && [object_ respondsToSelector:@selector(setUserAssociations:)])
+            [object_ setUserAssociations:_userAssociations];
+          if (_defaultAssociations && [object_ respondsToSelector:@selector(setDefaultAssociations:)])
+            [object_ setDefaultAssociations:_defaultAssociations];
+        };
 #if GDL2 // GDL2 implementation
       {
         EOKeyValueUnarchiver* unarchiver=nil;
@@ -456,11 +460,18 @@ objectForReference:(NSString*)keyPath
   NSString* _path=nil;
   id _script=nil;
   _script=[self lockedResourceNamed:name_
-				ofType:GSWScriptSuffix
+				ofType:GSWScriptSuffix[GSWebNamingConv]
 				withLanguages:nil
 				usingCache:classCache
 				relativePath:NULL
 				absolutePath:&_path];
+  if (!_script && !_path)
+    _script=[self lockedResourceNamed:name_
+                  ofType:GSWScriptSuffix[GSWebNamingConvInversed]
+                  withLanguages:nil
+                  usingCache:classCache
+                  relativePath:NULL
+                  absolutePath:&_path];
   return _path;
 };
 
@@ -546,11 +557,25 @@ objectForReference:(NSString*)keyPath
 			{
 			  NSString* _absoluteDefinitionPath=nil;
 			  _pageDefString=[self lockedResourceNamed:name_
-								   ofType:GSWComponentDefinitionSuffix
+								   ofType:GSWComponentDefinitionSuffix[GSWebNamingConv]
 								   withLanguages:languages_
 								   usingCache:nil
 								   relativePath:NULL
 								   absolutePath:&_absoluteDefinitionPath];
+                          NSDebugMLLog(@"bundles",@"_absoluteDefinitionPath=%@",
+                                       _absoluteDefinitionPath);
+			  if (!_pageDefString && !_absoluteDefinitionPath)
+                            {
+                              _pageDefString=[self lockedResourceNamed:name_
+                                                   ofType:GSWComponentDefinitionSuffix[GSWebNamingConvInversed]
+                                                   withLanguages:languages_
+                                                   usingCache:nil
+                                                   relativePath:NULL
+                                                   absolutePath:&_absoluteDefinitionPath];
+                              NSDebugMLLog(@"bundles",@"_absoluteDefinitionPath=%@",
+                                           _absoluteDefinitionPath);
+                            };
+                            
 			  if (_absoluteDefinitionPath)
 				{
 				  //TODO use encoding !
@@ -794,12 +819,11 @@ objectForReference:(NSString*)keyPath
 		  else
 			{
 			  NSString* _completePath=[path stringByAppendingString:_baseURL];
-			  _url=(NSString*)[request_ _urlWithRequestHandlerKey:GSWResourceRequestHandlerKey
-										path:nil
-										queryString:[NSString stringWithFormat:@"%@=%@",
-															  GSWKey_Data,
-															  _completePath]];//TODO Escape
-
+			  _url=(NSString*)[request_ _urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
+                                                    path:nil
+                                                    queryString:[NSString stringWithFormat:@"%@=%@",
+                                                                          GSWKey_Data[GSWebNamingConv],
+                                                                          _completePath]];//TODO Escape
 			};
 		};
 	}
@@ -941,11 +965,20 @@ objectForReference:(NSString*)keyPath
   BOOL _isCachingEnabled=NO;
   LOGObjectFnStart();
   _archive=[self lockedResourceNamed:name_
-				 ofType:GSWArchiveSuffix
+				 ofType:GSWArchiveSuffix[GSWebNamingConv]
 				 withLanguages:nil
 				 usingCache:archiveCache
 				 relativePath:&_relativePath
 				 absolutePath:&_absolutePath];
+  if (!_archive && !_absolutePath)
+    {
+      _archive=[self lockedResourceNamed:name_
+                     ofType:GSWArchiveSuffix[GSWebNamingConvInversed]
+                     withLanguages:nil
+                     usingCache:archiveCache
+                     relativePath:&_relativePath
+                     absolutePath:&_absolutePath];
+    };
   if (!_archive)
 	{
 	  if (_absolutePath)

@@ -27,10 +27,18 @@
 	#define _GSWApplication_h__
 
 extern void GSWApplicationSetDebugSetOption(NSString* opt_);
+extern int WOApplicationMain(NSString* applicationClassName,
+                             int argc,
+                             const char *argv[]);
 extern int GSWApplicationMain(NSString* applicationClassName,
 							  int argc,
 							  const char *argv[]);
 extern NSString* globalApplicationClassName;
+extern int GSWebNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
+#define GSWebNamingConvInversed		(GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX)
+#define GSWebNamingConvForRound(r)	((r)==0 ? GSWebNamingConv : (GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX))
+
+extern BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication : NSObject <NSLocking>
 {
@@ -514,6 +522,7 @@ extern NSString* globalApplicationClassName;
 +(void)setResourceRequestHandlerKey:(NSString*)key_;
 +(void)setSessionTimeOut:(id)timeOut_;
 +(id)sessionTimeOut;
++(NSTimeInterval)sessionTimeOutValue;
 +(NSString*)debugSetConfigFilePath;//NDFN
 +(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath_;//NDFN
 @end

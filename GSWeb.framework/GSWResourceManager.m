@@ -453,23 +453,15 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _language=nil;
   int i=0;
   int _count=0;
-#if !GSWEB_STRICT
   int iFramework=0;
   NSArray* _frameworks=nil;
-#endif
   NSString* _frameworkName=nil;
   LOGObjectFnStart();
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
-	{
-	  _frameworks=[frameworkProjectBundlesCache allKeys];
-	  _frameworks=[_frameworks arrayByAddingObject:@""];
-	}
-  else
-	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
+    {
+      _frameworks=[frameworkProjectBundlesCache allKeys];
+      _frameworks=[_frameworks arrayByAddingObject:@""];
+    }
   _count=[languages_ count];
   NSDebugMLLog(@"resmanager",@"languages_=%@",languages_);
   NSDebugMLLog(@"resmanager",@"_frameworks=%@",_frameworks);
@@ -479,20 +471,16 @@ NSString* globalLanguagesPListPathName=nil;
 		_language=[languages_ objectAtIndex:i];
 	  else
 		_language=nil;
-#if !GSWEB_STRICT
 	  for(iFramework=0;!_string && iFramework<[_frameworks count];iFramework++)
 		{
 		  _frameworkName=[_frameworks objectAtIndex:iFramework];
 		  if ([_frameworkName length]==0)
-			_frameworkName=nil;
-#endif
+                    _frameworkName=nil;
 		  _string=[self lockedCachedStringForKey:key_
 						inTableNamed:tableName_
 						inFramework:_frameworkName
 						language:_language];
-#if !GSWEB_STRICT
 		};
-#endif
 	};
   LOGObjectFnStop();
   return _string;
@@ -509,40 +497,30 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _language=nil;
   int i=0;
   int _count=0;
-#if !GSWEB_STRICT
   int iFramework=0;
   NSArray* _frameworks=nil;
-#endif
   NSString* _frameworkName=nil;
   LOGObjectFnStart();
   _count=[languages_ count];
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
-	{
-	  _frameworks=[frameworkProjectBundlesCache allKeys];
-	  _frameworks=[_frameworks arrayByAddingObject:@""];
-	}
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
+    {
+      _frameworks=[frameworkProjectBundlesCache allKeys];
+      _frameworks=[_frameworks arrayByAddingObject:@""];
+    }
   else
-	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
+    _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
   for(i=0;!_stringsTable && i<_count;i++)
 	{
 	  _language=[languages_ objectAtIndex:i];
-#if !GSWEB_STRICT
 	  for(iFramework=0;!_stringsTable && iFramework<[_frameworks count];iFramework++)
 		{
 		  _frameworkName=[_frameworks objectAtIndex:iFramework];
 		  if ([_frameworkName length]==0)
 			_frameworkName=nil;
-#endif
 		  _stringsTable=[self lockedCachedStringsTableWithName:tableName_
 							  inFramework:_frameworkName
 							  language:_language];
-#if !GSWEB_STRICT
 		};
-#endif
 	};
   LOGObjectFnStop();
   return _stringsTable;
@@ -559,40 +537,30 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _language=nil;
   int i=0;
   int _count=0;
-#if !GSWEB_STRICT
   int iFramework=0;
   NSArray* _frameworks=nil;
-#endif
   NSString* _frameworkName=nil;
   LOGObjectFnStart();
   _count=[languages_ count];
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
 	{
 	  _frameworks=[frameworkProjectBundlesCache allKeys];
 	  _frameworks=[_frameworks arrayByAddingObject:@""];
 	}
   else
 	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
   for(i=0;!_stringsTableArray && i<_count;i++)
 	{
 	  _language=[languages_ objectAtIndex:i];
-#if !GSWEB_STRICT
 	  for(iFramework=0;!_stringsTableArray && iFramework<[_frameworks count];iFramework++)
 		{
 		  _frameworkName=[_frameworks objectAtIndex:iFramework];
 		  if ([_frameworkName length]==0)
 			_frameworkName=nil;
-#endif
 		  _stringsTableArray=[self lockedCachedStringsTableArrayWithName:tableName_
 								   inFramework:_frameworkName
 								   language:_language];
-#if !GSWEB_STRICT
 		};
-#endif
 	};
   LOGObjectFnStop();
   return _stringsTableArray;
@@ -659,33 +627,25 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _path=nil;
   GSWDeployedBundle* _bundle=nil;
   NSString* _resourceName=nil;
-#if !GSWEB_STRICT
   int i=0;
   NSArray* _frameworks=nil;
-#endif
   NSString* _frameworkName=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"tableName_=%@ frameworkName_=%@ language_=%@",tableName_,frameworkName_,language_);
   _resourceName=[tableName_ stringByAppendingString:GSWStringTablePSuffix];
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
 	{
 	  _frameworks=[frameworkProjectBundlesCache allKeys];
 	  _frameworks=[_frameworks arrayByAddingObject:@""];
 	}
   else
 	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
 
-#if !GSWEB_STRICT
   for(i=0;!_path && i<[_frameworks count];i++)
 	{
 	  _frameworkName=[_frameworks objectAtIndex:i];
 	  if ([_frameworkName length]==0)
 		_frameworkName=nil;
-#endif		
 	  if (_frameworkName)
 		{
 //		  NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName_);
@@ -714,9 +674,7 @@ NSString* globalLanguagesPListPathName=nil;
 			  _path=[_applicationPath stringByAppendingPathComponent:_relativePath];
 			};
 		};
-#if !GSWEB_STRICT
 	};
-#endif
 //  NSDebugMLLog(@"resmanager",@"_path=%@",_path);
   if (_path)
 	{
@@ -747,33 +705,26 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _path=nil;
   GSWDeployedBundle* _bundle=nil;
   NSString* _resourceName=nil;
-#if !GSWEB_STRICT
   int i=0;
   NSArray* _frameworks=nil;
-#endif
   NSString* _frameworkName=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"tableName_=%@ frameworkName_=%@ language_=%@",tableName_,frameworkName_,language_);
   _resourceName=[tableName_ stringByAppendingString:GSWStringTableArrayPSuffix];
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
 	{
 	  _frameworks=[frameworkProjectBundlesCache allKeys];
 	  _frameworks=[_frameworks arrayByAddingObject:@""];
 	}
   else
 	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
 
-#if !GSWEB_STRICT
   for(i=0;!_path && i<[_frameworks count];i++)
 	{
 	  _frameworkName=[_frameworks objectAtIndex:i];
 	  if ([_frameworkName length]==0)
 		_frameworkName=nil;
-#endif		
+
 	  if (_frameworkName)
 		{
 //		  NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName_);
@@ -802,9 +753,7 @@ NSString* globalLanguagesPListPathName=nil;
 			  _path=[_applicationPath stringByAppendingPathComponent:_relativePath];
 			};
 		};
-#if !GSWEB_STRICT
 	};
-#endif
 //  NSDebugMLLog(@"resmanager",@"_path=%@",_path);
   if (_path)
 	{
@@ -864,11 +813,11 @@ NSString* globalLanguagesPListPathName=nil;
 		_path=[NSString stringWithFormat:@"ERROR_NOT_FOUND_framework_*%@*_filename_%@",
 						frameworkName_,
 						name_];
-	  _url=[_request _urlWithRequestHandlerKey:GSWResourceRequestHandlerKey
+	  _url=[_request _urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
 					 path:nil
 					 queryString:[NSString stringWithFormat:
 											 @"%@=%@",
-										   GSWKey_Data,
+										   GSWKey_Data[GSWebNamingConv],
 										   _path]];//TODO Escape
 	};
 //  NSDebugMLLog(@"resmanager",@"[frameworkProjectBundlesCache count]=%d",[frameworkProjectBundlesCache count]);
@@ -886,32 +835,24 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _url=nil;
   NSString* _relativePath=nil;
   GSWDeployedBundle* _bundle=nil;
-#if !GSWEB_STRICT
   int i=0;
   NSArray* _frameworks=nil;
-#endif
   NSString* _frameworkName=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"name_=%@ frameworkName_=%@ languages_=%@",name_,frameworkName_,languages_);
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
 	{
 	  _frameworks=[frameworkProjectBundlesCache allKeys];
 	  _frameworks=[_frameworks arrayByAddingObject:@""];
 	}
   else
 	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
 
-#if !GSWEB_STRICT
   for(i=0;!_url && i<[_frameworks count];i++)
 	{
 	  _frameworkName=[_frameworks objectAtIndex:i];
 	  if ([_frameworkName length]==0)
 		_frameworkName=nil;
-#endif
 	  if (_frameworkName)
 		{
 //		  NSDebugMLLog(@"resmanager",@"frameworkName=%@",_frameworkName);
@@ -952,9 +893,7 @@ NSString* globalLanguagesPListPathName=nil;
 			  _url=[_url stringByAppendingPathComponent:_relativePath];
 			};
 		};
-#if !GSWEB_STRICT
 	};
-#endif
   if (!_url)
 	{
 	  LOGSeriousError(@"No URL for resource named: %@ in framework named: %@ for languages: %@",
@@ -977,37 +916,30 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _path=nil;
   NSString* _relativePath=nil;
   GSWDeployedBundle* _bundle=nil;
-#if !GSWEB_STRICT
   int i=0;
   NSArray* _frameworks=nil;
   NSString* _frameworkName=nil;
-#endif
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"name_=%@ frameworkName_=%@ languages_=%@",name_,frameworkName_,languages_);
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
 	{
 	  _frameworks=[frameworkProjectBundlesCache allKeys];
 	  _frameworks=[_frameworks arrayByAddingObject:@""];
 	}
   else
 	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
+  NSDebugMLLog(@"resmanager",@"frameworks=%@",_frameworks);
 
-
-#if !GSWEB_STRICT
   for(i=0;!_path && i<[_frameworks count];i++)
 	{
 	  _frameworkName=[_frameworks objectAtIndex:i];
 	  if ([_frameworkName length]==0)
 		_frameworkName=nil;
-#endif
 	  if (_frameworkName)
 		{
 //		  NSDebugMLLog(@"resmanager",@"frameworkName=%@",_frameworkName);
 		  _bundle=[self lockedCachedBundleForFrameworkNamed:_frameworkName];
+		  NSDebugMLLog(@"resmanager",@"bundle=%@",_bundle);
 		  if (_bundle)
 			{
 //			  NSDebugMLLog(@"resmanager",@"found cached bundle=%@",_bundle);
@@ -1032,9 +964,7 @@ NSString* globalLanguagesPListPathName=nil;
 			  _path=[_applicationPath stringByAppendingPathComponent:_relativePath];
 			};
 		};
-#if !GSWEB_STRICT
 	};
-#endif
 //  NSDebugMLLog(@"resmanager",@"_path=%@",_path);
   LOGObjectFnStop();
   return _path;
@@ -1234,33 +1164,26 @@ NSString* globalLanguagesPListPathName=nil;
   NSString* _path=nil;
   NSString* _relativePath=nil;
   GSWDeployedBundle* _bundle=nil;
-#if !GSWEB_STRICT
   int i=0;
   NSArray* _frameworks=nil;
-#endif
   NSString* _frameworkName=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"name_=%@ frameworkName_=%@ language_=%@",name_,frameworkName_,language_);
 //  NSDebugMLLog(@"resmanager",@"frameworkProjectBundlesCache=%@",frameworkProjectBundlesCache);
-#if !GSWEB_STRICT
-  if ([frameworkName_ isEqualToString:GSWFramework_all])
+  if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
 	{
 	  _frameworks=[frameworkProjectBundlesCache allKeys];
 	  _frameworks=[_frameworks arrayByAddingObject:@""];
 	}
   else
 	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
-#else
-  _frameworkName=frameworkName_;
-#endif
 
-#if !GSWEB_STRICT
   for(i=0;!_path && i<[_frameworks count];i++)
 	{
 	  _frameworkName=[_frameworks objectAtIndex:i];
 	  if ([_frameworkName length]==0)
 		_frameworkName=nil;
-#endif
+
 	  if (_frameworkName)
 		{
 //		  NSDebugMLLog(@"resmanager",@"frameworkName=%@",_frameworkName);
@@ -1289,9 +1212,7 @@ NSString* globalLanguagesPListPathName=nil;
 			  _path=[_applicationPath stringByAppendingPathComponent:_relativePath];
 			};
 		};
-#if !GSWEB_STRICT
 	};
-#endif
 //  NSDebugMLLog(@"resmanager",@"_path=%@",_path);
   LOGObjectFnStop();
   return _path;

@@ -49,11 +49,14 @@ static char rcsId[] = "$Id$";
   [_associations removeObjectForKey:href__Key];
   [_associations removeObjectForKey:multipleSubmit__Key];
   [_associations removeObjectForKey:actionClass__Key];
-  if (directActionName) [_associations removeObjectForKey:directActionName];
-#if !GSWEB_STRICT
-  [_associations removeObjectForKey:disabled__Key];
-  [_associations removeObjectForKey:enabled__Key];
-#endif
+  if (directActionName)
+    [_associations removeObjectForKey:directActionName];
+
+  if (!WOStrictFlag)
+    {
+      [_associations removeObjectForKey:disabled__Key];
+      [_associations removeObjectForKey:enabled__Key];
+    };
   [_associations removeObjectForKey:queryDictionary__Key];
 
   //call isValueSettable sur value (return YES)
@@ -73,19 +76,20 @@ static char rcsId[] = "$Id$";
 										withDefaultObject:[directActionName autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"GSWForm: directActionName=%@",directActionName);
 
-#if !GSWEB_STRICT
-  disabled = [[associations_ objectForKey:disabled__Key
-							 withDefaultObject:[disabled autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm disabled=%@",disabled);
-  enabled = [[associations_ objectForKey:enabled__Key
-							 withDefaultObject:[enabled autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm enabled=%@",enabled);
-  if (disabled && enabled)
+  if (!WOStrictFlag)
+    {
+      disabled = [[associations_ objectForKey:disabled__Key
+                                 withDefaultObject:[disabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWForm disabled=%@",disabled);
+      enabled = [[associations_ objectForKey:enabled__Key
+                                withDefaultObject:[enabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWForm enabled=%@",enabled);
+      if (disabled && enabled)
 	{
 	  ExceptionRaise(@"GSWForm",@"You can't specify 'disabled' and 'enabled' together. componentAssociations:%@",
-					 associations_);
+                         associations_);
 	};
-#endif
+    };
 
   queryDictionary = [[associations_ objectForKey:queryDictionary__Key
 									   withDefaultObject:[queryDictionary autorelease]] retain];
@@ -108,10 +112,8 @@ static char rcsId[] = "$Id$";
   DESTROY(actionClass);
   DESTROY(directActionName);
   DESTROY(queryDictionary);
-#if !GSWEB_STRICT
   DESTROY(disabled);
   DESTROY(enabled);
-#endif
   DESTROY(otherQueryAssociations);
   [super dealloc];
 };
@@ -136,7 +138,7 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWForm (GSWFormA)
 
-#if !GSWEB_STRICT
+//GSWeb Additions {
 //--------------------------------------------------------------------
 -(BOOL)disabledInContext:(GSWContext*)_context
 {
@@ -148,7 +150,7 @@ static char rcsId[] = "$Id$";
 	return [self evaluateCondition:disabled
 				 inContext:_context];
 };
-#endif
+// }
 //--------------------------------------------------------------------
 -(BOOL)compactHTMLTags
 {
@@ -171,7 +173,7 @@ static char rcsId[] = "$Id$";
 	  //TODO
 	};
   _request=[context_ request];
-  _gswsid=[_request formValueForKey:GSWKey_SessionID];
+  _gswsid=[_request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
   if (_gswsid)
 	{
 	  //TODO
@@ -195,9 +197,6 @@ static char rcsId[] = "$Id$";
 			  inContext:(GSWContext*)context_
 {
   //OK
-#if !GSWEB_STRICT
-  BOOL _disabledInContext=NO;
-#endif
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
 #endif
@@ -206,12 +205,15 @@ static char rcsId[] = "$Id$";
 
   GSWSaveAppendToResponseElementID(context_);//Debug Only
 
-#if !GSWEB_STRICT
-  _disabledInContext=[self disabledInContext:context_];
-  [context_ setInForm:!_disabledInContext];
-#else
-  [context_ setInForm:YES];
-#endif
+  if (!WOStrictFlag)
+    {
+      BOOL _disabledInContext=NO;
+      _disabledInContext=[self disabledInContext:context_];
+      [context_ setInForm:!_disabledInContext];
+    }
+  else
+    [context_ setInForm:YES];
+
   [self appendToResponse:response_
 		inContext:context_
 		elementsFromIndex:0
@@ -259,10 +261,9 @@ static char rcsId[] = "$Id$";
 					   _elementID,
 					   _senderID,
 					   (_isFormSubmited ? "YES" : "NO"));
-#if !GSWEB_STRICT
-		  if (_isFormSubmited && [self disabledInContext:context_])
+		  if (!WOStrictFlag && _isFormSubmited && [self disabledInContext:context_])
 			_isFormSubmited=NO;
-#endif
+
 		  if (_isFormSubmited)
 			{
 			  [context_ setInForm:YES];
@@ -349,10 +350,8 @@ static char rcsId[] = "$Id$";
 	{
 	  _isFormSubmited=[_elementID isEqualToString:_senderID];
 	  NSDebugMLLog(@"gswdync",@"_isFormSubmited=%d",(int)_isFormSubmited);
-#if !GSWEB_STRICT
-	  if (_isFormSubmited && [self disabledInContext:context_])
+	  if (!WOStrictFlag && _isFormSubmited && [self disabledInContext:context_])
 		_isFormSubmited=NO;
-#endif
 	  
 	  NSDebugMLLog(@"gswdync",@"Starting GSWForm TV ET=%@ id=%@",[self class],[context_ elementID]);
 	  if (_isFormSubmited)
@@ -395,16 +394,15 @@ static char rcsId[] = "$Id$";
 						   inContext:(GSWContext*)context_
 {
   //OK//TODOV
-#if !GSWEB_STRICT
   BOOL _disabledInContext=NO;
-#endif
   LOGObjectFnStartC("GSWForm");
-#if !GSWEB_STRICT
-  _disabledInContext=[self disabledInContext:context_];
-  NSDebugMLLog(@"gswdync",@"_disabledInContext=%s",(_disabledInContext ? "YES" : "NO"));
+  if (!WOStrictFlag)
+    {
+      _disabledInContext=[self disabledInContext:context_];
+      NSDebugMLLog(@"gswdync",@"_disabledInContext=%s",(_disabledInContext ? "YES" : "NO"));
+    };
   if (!_disabledInContext)
 	{
-#endif
 	  GSWComponent* _component=[context_ component];
 	  id _actionValue=nil;
 	  if (href)
@@ -417,9 +415,7 @@ static char rcsId[] = "$Id$";
 	  [response_ appendContentCharacter:'"'];
 	  [response_ appendContentString:_actionValue];
 	  [response_ appendContentCharacter:'"'];
-#if !GSWEB_STRICT
 	};
-#endif
   LOGObjectFnStopC("GSWForm");
 };
 

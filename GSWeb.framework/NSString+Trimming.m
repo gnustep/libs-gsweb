@@ -191,7 +191,7 @@ static char rcsId[] = "$Id$";
 	  if ([object_ isKindOfClass:[NSString class]])
 		_string=[[object_ copy] autorelease];
 	  else if ([object_ isKindOfClass:[EONull class]])
-		_string=nil;
+		_string=@"";
 	  else if ([object_ respondsToSelector:@selector(stringValue)])
 		_string=[object_ stringValue];
 	  else if ([object_ respondsToSelector:@selector(description)])

@@ -55,7 +55,7 @@ const char* g_szGSWeb_AdaptorVersion=GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING "
 const char* g_szGSWeb_Prefix=GSWEB_PREFIX;
 const char* g_szGSWeb_Handler=GSWEB_HANDLER;
 const char* g_szGSWeb_StatusResponseAppName=GSWEB_STATUS_RESPONSE_APP_NAME;
-const char* g_szGSWeb_AppExtention=GSWAPP_EXTENSION;
+const char* g_szGSWeb_AppExtention[2]={ GSWAPP_EXTENSION_GSW, GSWAPP_EXTENSION_WO };
 
 const char* g_szGSWeb_MimeType=GSWEB__MIME_TYPE;
 //const char* g_szGSWeb_Conf_DocRoot=GSWEB_CONF__DOC_ROOT;
@@ -74,7 +74,7 @@ const char* g_szGSWeb_Conf_AppRoot=GSWEB_CONF__APP_ROOT;
 const char* g_szGSWeb_Conf_Name=GSWEB_CONF__NAME;
 #endif
 
-const char* g_szGSWeb_InstanceCookie=GSWEB_INSTANCE_COOKIE;
+const char* g_szGSWeb_InstanceCookie[2]={ GSWEB_INSTANCE_COOKIE_GSW, GSWEB_INSTANCE_COOKIE_WO };
 
 const char* g_szGSWeb_Server=SERVER;
 const char* g_szGSWeb_ServerAndAdaptorVersion=SERVER "/" GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING;
@@ -82,13 +82,8 @@ const char* g_szGSWeb_ServerAndAdaptorVersion=SERVER "/" GSWEB_SERVER_ADAPTOR_VE
 
 const char* const g_szGNUstep = "GNUstep";
 
-#if GSWEB_WONAMES
-const char* const g_szOKGSWeb = "OK Apple";
-const char* const g_szOKStatus = "HTTP/1.0 200 OK Apple GSWeb";
-#else
-const char* const g_szOKGSWeb = "OK GSWeb";
-const char* const g_szOKStatus = "HTTP/1.0 200 OK GNUstep GSWeb";
-#endif
+const char* const g_szOKGSWeb[2] = { "OK GSWeb", "OK Apple"};
+const char* const g_szOKStatus[2] = { "HTTP/1.0 200 OK GNUstep GSWeb", "HTTP/1.0 200 OK Apple GSWeb"};
 
 #if	defined(Apache)
 #define GSWServerVersion		ap_get_server_version()

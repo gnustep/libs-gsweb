@@ -327,13 +327,29 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 
 -(void)appendContentString:(NSString*)string_
 {
-  NSData* newData=nil;
-  NSString* _string=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"response=%p string_:%@",self,string_);
-  _string=[NSString stringWithObject:string_];
-  newData=[_string dataUsingEncoding:contentEncoding];
-  [contentData appendData:newData];
+  NSDebugMLLog(@"low",@"response=%p contentEncoding=%d",self,(int)contentEncoding);
+  if (string_)
+    {
+      NSData* newData=nil;
+      NSString* _string=nil;
+      _string=[NSString stringWithObject:string_];
+      NSAssert(_string,@"Can't get string from object");
+#ifndef NDEBUG
+      NSAssert3(![_string isKindOfClass:[NSString class]] || [_string canBeConvertedToEncoding:contentEncoding],
+                @"string %s (of class %@) can't be converted to encoding %d",
+                [_string lossyCString],
+                [_string class],
+                contentEncoding);
+#endif
+      newData=[_string dataUsingEncoding:contentEncoding];
+      NSAssert3(newData,@"Can't create data from %@ \"%s\" using encoding %d",
+               [_string class],
+               ([_string isKindOfClass:[NSString class]] ? [_string lossyCString] : @"**Not a string**"),
+               (int)contentEncoding);
+      NSDebugMLLog(@"low",@"newData=%@",newData);
+      [contentData appendData:newData];
+    };
   LOGObjectFnStop();
 };
 
@@ -350,6 +366,7 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 
 -(void)setContentEncoding:(NSStringEncoding)encoding_
 {
+  NSDebugMLLog(@"low",@"setContentEncoding:%d",(int)encoding_);
   contentEncoding=encoding_;
 };
 

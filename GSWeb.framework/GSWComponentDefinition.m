@@ -389,23 +389,24 @@ static char rcsId[] = "$Id$";
 	{
 	  BOOL _createClassesOk=NO;
 	  NSString* _superClassName=nil;
-#if !GSWEB_STRICT
-	  NSDictionary* _archive=[bundle archiveNamed:name];
-	  NSDebugMLLog(@"gswcomponents",@"_archive=%@",_archive);
-	  _superClassName=[_archive objectForKey:@"superClassName"];
-	  NSDebugMLLog(@"gswcomponents",@"_superClassName=%@",_superClassName);
-	  if (_superClassName)
+          if (!WOStrictFlag)
+            {
+              NSDictionary* _archive=[bundle archiveNamed:name];
+              NSDebugMLLog(@"gswcomponents",@"_archive=%@",_archive);
+              _superClassName=[_archive objectForKey:@"superClassName"];
+              NSDebugMLLog(@"gswcomponents",@"_superClassName=%@",_superClassName);
+              if (_superClassName)
 		{
 		  if (!NSClassFromString(_superClassName))
-			{
-			  ExceptionRaise(NSGenericException,@"Superclass %@ of component %@ doesn't exist",
-							 _superClassName,
-							 name);
-			};
+                    {
+                      ExceptionRaise(NSGenericException,@"Superclass %@ of component %@ doesn't exist",
+                                     _superClassName,
+                                     name);
+                    };
 		};
-	  if (!_superClassName)
-#endif
-		_superClassName=@"GSWComponent";
+            };
+          if (!_superClassName)
+            _superClassName=@"GSWComponent";
 	  NSDebugMLLog(@"gswcomponents",@"_superClassName=%@",_superClassName);
 	  _createClassesOk=[GSWApplication createUnknownComponentClasses:[NSArray arrayWithObject:name]
 									   superClassName:_superClassName];

@@ -216,13 +216,10 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if (keyPath_)
 	{
 	  if ([keyPath_ hasPrefix:@"^"]
-#if !GSWEB_STRICT
-		  || [keyPath_ hasPrefix:@"~"]
-#endif
-		  )
-		return [[[GSWBindingNameAssociation alloc]initWithKeyPath:keyPath_] autorelease];
+              || (!WOStrictFlag && [keyPath_ hasPrefix:@"~"]))
+            return [[[GSWBindingNameAssociation alloc]initWithKeyPath:keyPath_] autorelease];
 	  else
-		return [[[GSWKeyValueAssociation alloc]initWithKeyPath:keyPath_] autorelease];
+            return [[[GSWKeyValueAssociation alloc]initWithKeyPath:keyPath_] autorelease];
 	}
   else
 	return nil;

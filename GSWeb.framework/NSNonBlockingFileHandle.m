@@ -93,17 +93,21 @@
 // If no data is available, returns nil. Does not block.
 -(NSData*)readDataOfLengthNonBlocking:(unsigned int)length
 {
-  NSData* _data=nil;
+  NSData* data=nil;
   unsigned int readLength;
   LOGObjectFnStart();
 
   readLength = [self _availableByteCountNonBlocking];
+  NSDebugMLog(@"readLength=%u",readLength);
   readLength = (readLength < length) ? readLength : length;
   
   if (readLength>0)
-	_data=[self readDataOfLength: readLength];
+    {
+      data=[self readDataOfLength: readLength];
+      NSDebugMLog(@"[data length]=%u",[data length]);
+    };
   LOGObjectFnStop();
-  return _data;
+  return data;
 }
 
 @end

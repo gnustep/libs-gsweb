@@ -77,6 +77,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
   GSWElement* resultTemplate=nil;
   Class parserClass=Nil;
   LOGClassFnStart();
+  NSDebugMLLog(@"low",@"definitionPath_=%@",definitionPath_);
   if (parserClassName)
     {
       parserClass=NSClassFromString(parserClassName);
@@ -110,6 +111,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
   GSWTemplateParser* templateParser=nil;
   LOGClassFnStart();
   NSDebugMLLog(@"low",@"template named:%@ frameworkName:%@ pageDefString=%@",name_,frameworkName_,pageDefString);
+  NSDebugMLLog(@"low",@"definitionPath_=%@",definitionPath_);
   if (!parserClass)
     {
       parserClass=[self defaultParserClass];
@@ -148,7 +150,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
       ASSIGN(_stringPath,HTMLPath);
       ASSIGN(_definitionsString,pageDefString);
       ASSIGN(_languages,languages_);
-      ASSIGN(_definitionsPath,languages_);
+      ASSIGN(_definitionFilePath,definitionPath_);
     };
   return self;
 };
@@ -162,7 +164,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
   DESTROY(_stringPath);
   DESTROY(_definitionsString);
   DESTROY(_languages);
-  DESTROY(_definitionsPath);
+  DESTROY(_definitionFilePath);
   DESTROY(_template);
   DESTROY(_definitions);
   [super dealloc];
@@ -251,16 +253,18 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
   LOGObjectFnStart();
   if (!_definitions)
     {
+      NSDebugMLLog(@"low",@"_definitionFilePath=%@",_definitionFilePath);
       if ([_definitionsString length]==0)
         {
           ASSIGN(_definitions,[NSDictionary dictionary]);
         }
       else
         {
+          NSMutableSet* processedFiles=[NSMutableSet setWithObject:_definitionFilePath];
           NSDictionary* tmpDefinitions=[self parseDefinitionsString:_definitionsString
                                              named:_templateName
                                              inFrameworkNamed:_frameworkName
-                                             fromPath:_definitionsPath];
+                                             processedFiles:processedFiles];
           if (tmpDefinitions)
             ASSIGN(_definitions,[NSDictionary dictionaryWithDictionary:tmpDefinitions]);
         };
@@ -273,7 +277,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
 -(NSDictionary*)parseDefinitionsString:(NSString*)localDefinitionstring_
                                  named:(NSString*)localDefinitionName_
                       inFrameworkNamed:(NSString*)localFrameworkName_
-                              fromPath:(NSString*)localDefinitionPath_
+                        processedFiles:(NSMutableSet*)processedFiles
 {
   NSDictionary* returnedLocalDefinitions=nil;
   NSMutableDictionary* localDefinitions=nil;
@@ -293,6 +297,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
   definitionsTokenBuffer=[ANTLRTokenBuffer tokenBufferWithTokenizer:definitionsLexer];
   definitionsParser=[[[GSWPageDefParser alloc] initWithTokenBuffer:definitionsTokenBuffer]
                       autorelease];
+  NSDebugMLLog(@"low",@"processedFiles=%@",processedFiles);
   NSDebugMLLog(@"low",@"name:%@ definitionsString=%@",
                localDefinitionName_,
                localDefinitionstring_);
@@ -349,11 +354,11 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
       NSDebugMLLog(@"low",@"definitionsIncludes:%@\n",definitionsIncludes);
       NSDebugMLLog(@"low",@"localDefinitionName_:%@\n",localDefinitionName_);
       NSDebugMLLog(@"low",@"localFrameworkName_:%@\n",localFrameworkName_);
-      NSDebugMLLog(@"low",@"localDefinitionPath_:%@\n",localDefinitionPath_);
+      NSDebugMLLog(@"low",@"processedFiles:%@\n",processedFiles);
       tmpDefinitions=[self processIncludes:definitionsIncludes
                            named:localDefinitionName_
                            inFrameworkNamed:localFrameworkName_
-                           definitionPath:localDefinitionPath_];
+                           processedFiles:processedFiles];
       NSDebugMLLog(@"low",@"tmpDefinitions:%@\n",tmpDefinitions);
       if (tmpDefinitions)
         [localDefinitions addDefaultEntriesFromDictionary:tmpDefinitions];			  
@@ -377,7 +382,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
 //--------------------------------------------------------------------
 -(NSDictionary*)parseDefinitionInclude:(NSString*)includeName_
                     fromFrameworkNamed:(NSString*)fromFrameworkName_
-                        definitionPath:(NSString*)localDefinitionPath_
+                        processedFiles:(NSMutableSet*)processedFiles
 {
   NSDictionary* returnedLocalDefinitions=nil;
   NSMutableDictionary* localDefinitions=nil;
@@ -390,6 +395,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
   GSWResourceManager* _resourceManager=nil;
   NSString* _path=nil;
   int iLanguage=0;
+  int iName=0;
   LOGObjectFnStart();  
   NSDebugMLLog(@"gswcomponents",@"includeName_=%@",includeName_);
   _resourceManager=[GSWApp resourceManager];
@@ -401,85 +407,114 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
     localFrameworkName=fromFrameworkName_;
   NSDebugMLLog(@"gswcomponents",@"localFrameworkName=%@",localFrameworkName);
 
-  _resourceName=[localDefinitionName stringByAppendingString:GSWPagePSuffix];
-  localDefinitionResourceName=[localDefinitionName stringByAppendingString:GSWComponentDefinitionPSuffix];
-  NSDebugMLLog(@"gswcomponents",@"_resourceName=%@",_resourceName);
-
   for(iLanguage=0;iLanguage<=[_languages count] && !_path;iLanguage++)
     {
       if (iLanguage<[_languages count])
         _language=[_languages objectAtIndex:iLanguage];
       else
         _language=nil;
-      _path=[_resourceManager pathForResourceNamed:_resourceName
-                              inFramework:localFrameworkName
-                              language:_language];
-      NSDebugMLLog(@"gswcomponents",@"Search In Page Component: _language=%@ _path=%@ localDefinitionPath=%@",
-                   _language,
-                   _path,
-                   localDefinitionPath_);
-      if (_path)
-        _path=[_path stringByAppendingPathComponent:localDefinitionResourceName];
-      else
+      for(iName=0;!_path && iName<2;iName++)
         {
-          _path=[_resourceManager pathForResourceNamed:localDefinitionResourceName
+          _resourceName=[localDefinitionName stringByAppendingString:GSWPagePSuffix[GSWebNamingConvForRound(iName)]];
+          localDefinitionResourceName=[localDefinitionName stringByAppendingString:GSWComponentDefinitionPSuffix[GSWebNamingConvForRound(iName)]];
+          NSDebugMLLog(@"gswcomponents",@"_resourceName=%@ localDefinitionResourceName=%@ localDefinitionName=%@",
+                       _resourceName,
+                       localDefinitionResourceName,
+                       localDefinitionName);
+          NSDebugMLLog(@"gswcomponents",@"Search %@ Language=%@",_resourceName,_language);
+          _path=[_resourceManager pathForResourceNamed:_resourceName
                                   inFramework:localFrameworkName
                                   language:_language];
-          NSDebugMLLog(@"gswcomponents",@"Search in Component Definition _language=%@ _path=%@ (localDefinitionPath=%@)",
+          NSDebugMLLog(@"gswcomponents",@"Search In Page Component: _language=%@ _path=%@ processedFiles=%@",
                        _language,
                        _path,
-                       localDefinitionPath_);
-        };
-      if ([_path isEqualToString:localDefinitionPath_])
-        {
-          _path=nil;
-          iLanguage=[_languages count]-1;
+                       processedFiles);
+          if (_path)
+            {
+              _path=[_path stringByAppendingPathComponent:localDefinitionResourceName];
+              NSDebugMLLog(@"gswcomponents",@"Found %@ Language=%@ : %@",_resourceName,_language,_path);
+              if ([processedFiles containsObject:_path])
+                {
+                  NSDebugMLLog(@"gswcomponents",@"path=%@ already processed",_path);
+                  _path=nil;
+                  if (_language)
+                    iLanguage=[_languages count]-1;//For directly go to no language search  so we don't include (for exemple) an English file for a french file
+                };
+            };
+          if (!_path)
+            {
+              NSDebugMLLog(@"gswcomponents",@"Direct Search %@ Language=%@",localDefinitionResourceName,_language);
+              _path=[_resourceManager pathForResourceNamed:localDefinitionResourceName
+                                      inFramework:localFrameworkName
+                                      language:_language];
+              if (_path)
+                {
+                  NSDebugMLLog(@"gswcomponents",@"Direct Found %@ Language=%@ : %@",localDefinitionResourceName,_language,_path);
+                  if ([processedFiles containsObject:_path])
+                    {
+                      NSDebugMLLog(@"gswcomponents",@"path=%@ already processed",_path);
+                      _path=nil;
+                      if (_language)
+                        iLanguage=[_languages count]-1;//For directly go to no language search  so we don't include (for exemple) an English file for a french file
+                    };
+                };
+              NSDebugMLLog(@"gswcomponents",@"Direct Search in Component Definition _language=%@ _path=%@ (processedFiles=%@)",
+                           _language,
+                           _path,
+                           processedFiles);
+            };          
+          NSDebugMLLog(@"gswcomponents",@"Search In Page Component: _language=%@ _path=%@ processedFiles=%@",
+                       _language,
+                       _path,
+                       processedFiles);
         };
     };
   if (_path)
     {
       NSString* _pageDefString=nil;
       NSDebugMLLog(@"low",@"_path=%@",_path);
+      [processedFiles addObject:_path];
       //NSString* pageDefPath=[path stringByAppendingString:_definitionPath];
       //TODO use encoding !
       _pageDefString=[NSString stringWithContentsOfFile:_path];
+      NSDebugMLLog(@"low",@"path=%@: _pageDefString:%@\n",_path,_pageDefString);
       if (_pageDefString)
         {
           tmpDefinitions=[self parseDefinitionsString:_pageDefString
                                named:includeName_
                                inFrameworkNamed:localFrameworkName
-                               fromPath:_path];
+                               processedFiles:processedFiles];
           NSDebugMLLog(@"low",@"tmpDefinitions:%@\n",tmpDefinitions);
           if (tmpDefinitions)
             localDefinitions=[NSMutableDictionary dictionaryWithDictionary:tmpDefinitions];
           else
             {
-              LOGError(@"%@ Template componentDefinition parse failed for included file:%@ in framework:%@ (definitionPath=%@)",
+              LOGError(@"%@ Template componentDefinition parse failed for included file:%@ in framework:%@ (processedFiles=%@)",
                        [self logPrefix],
                        includeName_,
                        localFrameworkName,
-                       localDefinitionPath_);
+                       processedFiles);
             };
           NSDebugMLLog(@"low",@"localDefinitions:%@\n",localDefinitions);
         }
       else
         {
           ExceptionRaise(@"GSWTemplateParser",
-                         @"%@ Can't load included component definition named:%@ in framework:%@ (definitionPath=%@)",
+                         @"%@ Can't load included component definition named:%@ in framework:%@ (processedFiles=%@)",
                          [self logPrefix],
                          includeName_,
                          localFrameworkName,
-                         localDefinitionPath_);
+                         processedFiles);
         };
     }
   else
     {
       ExceptionRaise(@"GSWTemplateParser",
-                     @"%@ Can't find included component definition named:%@ in framework:%@ (definitionPath=%@)",
+                     @"%@ Can't find included component definition named:%@ in framework:%@ (processedFiles=%@)",
                      [self logPrefix],
                      includeName_,
                      localFrameworkName,
-                     localDefinitionPath_);
+                     processedFiles);
     };
   NSDebugMLLog(@"low",@"localDefinitions:%@\n",localDefinitions);
   if (localDefinitions)
@@ -492,7 +527,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
 -(NSDictionary*)processIncludes:(NSArray*)definitionsIncludes_
                           named:(NSString*)localDefinitionsName_
                inFrameworkNamed:(NSString*)localFrameworkName_
-                 definitionPath:(NSString*)localDefinitionPath_
+                 processedFiles:(NSMutableSet*)processedFiles
 {
   int _count=0;
   NSDictionary* returnedLocalDefinitions=nil;
@@ -516,7 +551,7 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
                        _includeName);
           tmpDefinitions=[self parseDefinitionInclude:_includeName
                                fromFrameworkNamed:localFrameworkName_
-                               definitionPath:localDefinitionPath_];
+                               processedFiles:processedFiles];
           NSDebugMLLog(@"low",@"Template componentDefinition _includeName:%@ tmpDefinitions=%@",
                        _includeName,
                        tmpDefinitions);

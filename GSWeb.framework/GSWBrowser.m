@@ -42,9 +42,8 @@ static char rcsId[] = "$Id$";
   [_associations removeObjectForKey:item__Key];
   [_associations removeObjectForKey:displayString__Key];
   [_associations removeObjectForKey:selections__Key];
-#if !GSWEB_STRICT
-  [_associations removeObjectForKey:selectionValues__Key];
-#endif
+  if (!WOStrictFlag)
+    [_associations removeObjectForKey:selectionValues__Key];
   [_associations removeObjectForKey:selectedValues__Key];
   [_associations removeObjectForKey:size__Key];
   [_associations removeObjectForKey:multiple__Key];
@@ -67,14 +66,15 @@ static char rcsId[] = "$Id$";
           //TODO
         };
 
-#if !GSWEB_STRICT
-      selectionValues=[[associations_ objectForKey:selectionValue__Key
-                                      withDefaultObject:[selectionValues autorelease]] retain];
-      if (selectionValues && ![selectionValues isValueSettable])
+      if (!WOStrictFlag)
         {
-          //TODO
+          selectionValues=[[associations_ objectForKey:selectionValue__Key
+                                          withDefaultObject:[selectionValues autorelease]] retain];
+          if (selectionValues && ![selectionValues isValueSettable])
+            {
+              //TODO
+            };
         };
-#endif
       
       selectedValues=[[associations_ objectForKey:selectedValues__Key
                                      withDefaultObject:[selectedValues autorelease]] retain];
@@ -96,9 +96,7 @@ static char rcsId[] = "$Id$";
   DESTROY(item);
   DESTROY(displayString);
   DESTROY(selections);
-#if !GSWEB_STRICT
   DESTROY(selectionValues);
-#endif
   DESTROY(selectedValues);
   DESTROY(size);
   DESTROY(multiple);
@@ -401,39 +399,43 @@ static char rcsId[] = "$Id$";
           NSDebugMLLog(@"gswdync",@"_found=%s",(_found ? "YES" : "NO"));
           if (selections)
             {
-#if !GSWEB_STRICT
-              NS_DURING
+              if (!WOStrictFlag)
+                {
+                  NS_DURING
+                    {
+                      [selections setValue:_foundValues
+                                  inComponent:_component];
+                    };
+                  NS_HANDLER
+                    {
+                      [self handleValidationException:localException
+                            inContext:context_];
+                    }
+                  NS_ENDHANDLER;
+                }
+              else
                 {
                   [selections setValue:_foundValues
                               inComponent:_component];
                 };
-              NS_HANDLER
-                {
-                  [self handleValidationException:localException
-                        inContext:context_];
-                }
-              NS_ENDHANDLER;
-#else
-              [selections setValue:_foundValues
-                          inComponent:_component];
-#endif
                 };
-#if !GSWEB_STRICT
-          if (selectionValues)
+          if (!WOStrictFlag)
             {
-              NS_DURING
+              if (selectionValues)
                 {
-                  [selectionValues setValue:_foundValues
-                                   inComponent:_component];
+                  NS_DURING
+                    {
+                      [selectionValues setValue:_foundValues
+                                       inComponent:_component];
+                    };
+                  NS_HANDLER
+                    {
+                      [self handleValidationException:localException
+                            inContext:context_];
+                    }
+                  NS_ENDHANDLER;
                 };
-              NS_HANDLER
-                {
-                  [self handleValidationException:localException
-                        inContext:context_];
-                }
-              NS_ENDHANDLER;
             };
-#endif
         };
     };
   LOGObjectFnStopC("GSWPopUpButton");

@@ -80,7 +80,6 @@ static char rcsId[] = "$Id$";
   DESTROY(associations);
   GSWLogC("Dealloc GSWComponent: childTemplate");
   DESTROY(childTemplate);
-#if !GSWEB_STRICT
   GSWLogC("Dealloc GSWComponent: userDictionary");
   DESTROY(userDictionary);
   GSWLogC("Dealloc GSWComponent: userAssociations");
@@ -89,7 +88,6 @@ static char rcsId[] = "$Id$";
   DESTROY(defaultAssociations);
   GSWLogC("Dealloc GSWComponent: validationFailureMessages");
   DESTROY(validationFailureMessages);
-#endif
   GSWLogC("Dealloc GSWComponent: context (set to nil)");
   context=nil;
   GSWLogC("Dealloc GSWComponent: session (set to nil)");
@@ -231,7 +229,7 @@ static char rcsId[] = "$Id$";
   //TODOV
   NSBundle* bundle=[NSBundle mainBundle];
   return [bundle pathForResource:name
-				 ofType:GSWPageSuffix];
+                 ofType:GSWPageSuffix[GSWebNamingConv]];
 };
 
 //--------------------------------------------------------------------
@@ -302,7 +300,7 @@ static char rcsId[] = "$Id$";
   return _dscr;
 };
 
-#if !GSWEB_STRICT
+// GSWeb Additions {
 -(NSDictionary*)userDictionary
 {
   return userDictionary;
@@ -335,7 +333,7 @@ static char rcsId[] = "$Id$";
   ASSIGN(defaultAssociations,defaultAssociations_);
   NSDebugMLLog(@"gswcomponents",@"defaultAssociations:%@",defaultAssociations);
 };
-#endif
+// }
 
 @end
 
@@ -778,12 +776,10 @@ associationsKeys:(NSArray*)_associationsKeys
 	  if (_index!=NSNotFound)
 		_assoc=[associations objectAtIndex:_index];
 	};
-#if !GSWEB_STRICT
-  if (_index==NSNotFound)
+  if (!WOStrictFlag && _index==NSNotFound)
 	{	  
 	  _assoc=[defaultAssociations objectForKey:_name];
 	};
-#endif
   NSDebugMLLog(@"gswcomponents",@"_assoc=%@",_assoc);
   LOGObjectFnStop();
   return _assoc;
@@ -808,12 +804,10 @@ associationsKeys:(NSArray*)_associationsKeys
 	  _hasBinding=(_index!=NSNotFound);
 	};
   NSDebugMLLog(@"gswcomponents",@"hasBinding=%s",(_hasBinding ? "YES" : "NO"));
-#if !GSWEB_STRICT
-  if (!_hasBinding)
+  if (!WOStrictFlag && !_hasBinding)
 	{	  
 	  _hasBinding=([defaultAssociations objectForKey:parentBindingName_]!=nil);
 	};
-#endif
   LOGObjectFnStop();
   return _hasBinding;
 };
@@ -1040,9 +1034,7 @@ associationsKeys:(NSArray*)_associationsKeys
   LOGObjectFnStart();
   GSWAssertCorrectElementID(context_);// Debug Only
 
-#if !GSWEB_STRICT
   [validationFailureMessages removeAllObjects];
-#endif
   _oldValidateFlag=[context_ isValidate];
   [context_ setValidate:YES];
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
@@ -1063,8 +1055,8 @@ associationsKeys:(NSArray*)_associationsKeys
   LOGObjectFnStop();
 };
 
-#if !GSWEB_STRICT
 
+//GSWeb Additions {
 //--------------------------------------------------------------------
 -(void)setValidationFailureMessage:(NSString*)message
 						forElement:(GSWDynamicElement*)element_
@@ -1125,7 +1117,7 @@ associationsKeys:(NSArray*)_associationsKeys
   return _msgs;
 };
 
-#endif
+// } 
 
 //--------------------------------------------------------------------
 -(void)ensureAwakeInContext:(GSWContext*)context_

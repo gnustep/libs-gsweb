@@ -70,7 +70,7 @@ static char rcsId[] = "$Id$";
 				  [_htmlBareStrings addObject:[NSString stringWithString:@"="]];
 				  [_elementsMap appendBytes:&ElementsMap_htmlBareString
 								 length:1];
-				  [_htmlBareStrings addObject:[NSString stringWithFormat:@"%@",_associationValue]];
+				  [_htmlBareStrings addObject:[NSString stringWithFormat:@"\"%@\"",_associationValue]];
 				  [_elementsMap appendBytes:&ElementsMap_htmlBareString
 								 length:1];
 				}
@@ -93,14 +93,16 @@ static char rcsId[] = "$Id$";
 		  for(;elementsN>0;elementsN--)
 			[_elementsMap appendBytes:&ElementsMap_dynamicElement
 						   length:1];
-		  if (_elementName)
-			{
-			  [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
-													 _elementName]];
-			  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-							 length:1];
-			};
-		};
+                };
+          //VERIFY Only if _elements ?
+          if (_elementName)
+            {
+              [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
+                                                    _elementName]];
+              [_elementsMap appendBytes:&ElementsMap_htmlBareString
+                            length:1];
+            };
+		
 	  [self _initWithElementsMap:_elementsMap
 			htmlBareStrings:_htmlBareStrings
 			dynamicChildren:_elements];
@@ -145,14 +147,15 @@ static char rcsId[] = "$Id$";
 		  for(;elementsN>0;elementsN--)
 			[_elementsMap appendBytes:&ElementsMap_dynamicElement
 						   length:1];
-		  if (_elementName)
-			{
-			  [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
-													 _elementName]];
-			  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-							 length:1];
-			};
-		};
+                };
+          //VERIFY Only if _elements ?
+          if (_elementName)
+            {
+              [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
+                                                    _elementName]];
+              [_elementsMap appendBytes:&ElementsMap_htmlBareString
+                            length:1];
+            };
 	  [self _initWithElementsMap:_elementsMap
 			htmlBareStrings:_htmlBareStrings
 			dynamicChildren:_elements];	  
@@ -289,7 +292,7 @@ static char rcsId[] = "$Id$";
   //OK (verifier avec GSWSession appendToR
   GSWRequest* _request=[context_ request];
   BOOL _isFromClientComponent=[_request isFromClientComponent]; //bis repetitam
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ self=%p",[self class],[context_ elementID],self);
   GSWSaveAppendToResponseElementID(context_);//Debug Only
   if ([elementsMap length]>0)
 	{
@@ -298,7 +301,7 @@ static char rcsId[] = "$Id$";
 			elementsFromIndex:0
 			toIndex:[elementsMap length]-1];
 	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@ self=%p",[self class],[context_ elementID],self);
 };
 
 //--------------------------------------------------------------------
@@ -322,17 +325,22 @@ static char rcsId[] = "$Id$";
 	  element=(BYTE)elements[elementN];
 	  if (element==ElementsMap_htmlBareString)
 		{
+                  NSDebugMLLog(@"gswdync",@"%d:htmlBareString : %@",elementN,[htmlBareStrings objectAtIndex:elementsN[0]]);
 		  if (elementN>=_fromIndex)
-			[response_ appendContentData:[[htmlBareStrings objectAtIndex:elementsN[0]] dataUsingEncoding:_encoding]];
+			[response_ appendContentData:[[htmlBareStrings objectAtIndex:elementsN[0]]
+                                                       dataUsingEncoding:_encoding]];
 		  elementsN[0]++;
 		}
 	  else if (element==ElementsMap_dynamicElement)
 		{
 		  if (elementN>=_fromIndex)
 			{
-			  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[_dynamicChildren objectAtIndex:elementsN[1]] class],[context_ elementID]);
+                          NSDebugMLLog(@"gswdync",@"%d:dynamicElement : %@",elementN,[_dynamicChildren objectAtIndex:elementsN[1]]);                  
+			  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
+                                       [[_dynamicChildren objectAtIndex:elementsN[1]] class],
+                                       [context_ elementID]);
 			  [[_dynamicChildren objectAtIndex:elementsN[1]] appendToResponse:response_
-															 inContext:context_];
+                                                                         inContext:context_];
 			  [context_ incrementLastElementIDComponent];
 			};
 		  elementsN[1]++;
@@ -340,6 +348,7 @@ static char rcsId[] = "$Id$";
 	  else if (element==ElementsMap_attributeElement)
 		{
 		  //TODO
+                  NSDebugMLLog(@"gswdync",@"%d:attributeElement",elementN);                  
 		  elementsN[2]++;
 		};
 	};

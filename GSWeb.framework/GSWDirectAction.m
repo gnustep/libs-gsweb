@@ -225,10 +225,10 @@ static char rcsId[] = "$Id$";
   NSString* _gswsid=nil;
   LOGObjectFnStart();
   _request=[_context request];
-  _gswsid=[_request formValueForKey:GSWKey_SessionID];
+  _gswsid=[_request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
   if (!_gswsid)
 	{
-	   _gswsid=[_request cookieValueForKey:GSWKey_SessionID];
+	   _gswsid=[_request cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
 	};
   if (_gswsid)
 	{

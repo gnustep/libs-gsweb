@@ -37,7 +37,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   if ((self = [super init]))
 	{
-	  NSTimeInterval _sessionTimeOut=(NSTimeInterval)[[GSWApplication sessionTimeOut] intValue];
+	  NSTimeInterval _sessionTimeOut=[GSWApplication sessionTimeOutValue];
 	  NSDebugMLLog(@"sessions",@"_sessionTimeOut=%ld",(long)_sessionTimeOut);
 	  [self setTimeOut:_sessionTimeOut];
 	  [self _initWithSessionID:[NSString stringUniqueIdWithLength:8]]; //TODO
@@ -200,7 +200,7 @@ static char rcsId[] = "$Id$";
   _domain=[NSString stringWithFormat:@"%@/%@.%@",
 					_adaptorPrefix,
 					_applicationName,
-					GSWApplicationSuffix];
+					GSWApplicationSuffix[GSWebNamingConv]];
   LOGObjectFnStop();
   return _domain;
 };
@@ -315,8 +315,8 @@ static char rcsId[] = "$Id$";
 
   isTerminating=YES;
   _sessionID=[self sessionID];
-  [[NSNotificationCenter defaultCenter] postNotificationName:GSWNotification__SessionDidTimeOutNotification
-										object:_sessionID];
+  [[NSNotificationCenter defaultCenter] postNotificationName:GSWNotification__SessionDidTimeOutNotification[GSWebNamingConv]
+                                        object:_sessionID];
   //goto => GSWApp _sessionDidTimeOutNotification:
   //call GSWApp _discountTerminatedSession
   //call GSWApp statisticsStore
@@ -549,13 +549,13 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   _domainForIDCookies=[self domainForIDCookies];
   _sessionID=[self sessionID];
-  [_response addCookie:[GSWCookie cookieWithName:GSWKey_SessionID
+  [_response addCookie:[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
 								 value:_sessionID
 								 path:_domainForIDCookies
 								 domain:nil
 								 expires:[self expirationDateForIDCookies]
 								 isSecure:NO]];
-  [_response addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID
+  [_response addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
 								 value:@"-1" //TODO
 								 path:_domainForIDCookies
 								 domain:nil
@@ -577,14 +577,14 @@ static char rcsId[] = "$Id$";
 	  NSString* _sessionID=nil;
 	  _domainForIDCookies=[self domainForIDCookies];
 	  _sessionID=[self sessionID];
-	  [_response addCookie:[GSWCookie cookieWithName:GSWKey_SessionID
+	  [_response addCookie:[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
 									  value:_sessionID
 									  path:_domainForIDCookies
 									  domain:nil
 									  expires:[self expirationDateForIDCookies]
 									  isSecure:NO]];
 	  
-	  [_response addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID
+	  [_response addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
 									  value:@"1" //TODO
 									  path:_domainForIDCookies
 									  domain:nil
@@ -599,7 +599,7 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWSession (GSWSessionG)
-
+extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)_releaseAutoreleasePool
 {

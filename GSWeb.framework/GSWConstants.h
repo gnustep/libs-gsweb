@@ -40,24 +40,27 @@ extern NSString* NSTNO;
 
 //====================================================================
 // Suffixes
-extern NSString* GSWApplicationSuffix;
-extern NSString* GSWApplicationPSuffix;
-extern NSString* GSWPageSuffix;
-extern NSString* GSWPagePSuffix;
-extern NSString* GSWScriptSuffix;
-extern NSString* GSWScriptPSuffix;
-extern NSString* GSWResourceRequestHandlerKey;
-extern NSString* GSWComponentRequestHandlerKey;
-extern NSString* GSWDirectActionRequestHandlerKey;
+#define GSWNAMES_INDEX	0
+#define WONAMES_INDEX	1
+extern NSString* GSWApplicationSuffix[2];
+extern NSString* GSWApplicationPSuffix[2];
+extern NSString* GSWPageSuffix[2];
+extern NSString* GSWPagePSuffix[2];
+extern NSString* GSWScriptSuffix[2];
+extern NSString* GSWScriptPSuffix[2];
+extern NSString* GSWResourceRequestHandlerKey[2];
+extern NSString* GSWComponentRequestHandlerKey[2];
+extern NSString* GSWDirectActionRequestHandlerKey[2];
 extern NSString* GSWComponentTemplateSuffix;
 extern NSString* GSWComponentTemplatePSuffix;
-extern NSString* GSWComponentDefinitionSuffix;
-extern NSString* GSWComponentDefinitionPSuffix;
-extern NSString* GSWLibrarySuffix;
-extern NSString* GSWLibraryPSuffix;
-extern NSString* GSWArchiveSuffix;
-extern NSString* GSWArchivePSuffix;
-extern NSString* GSWURLPrefix;
+extern NSString* GSWComponentDefinitionSuffix[2];
+extern NSString* GSWComponentDefinitionPSuffix[2];
+extern NSString* GSWLibrarySuffix[2];
+extern NSString* GSWLibraryPSuffix[2];
+extern NSString* GSWArchiveSuffix[2];
+extern NSString* GSWArchivePSuffix[2];
+extern NSString* GSWURLPrefix[2];
+
 extern NSString* GSFrameworkSuffix;
 extern NSString* GSFrameworkPSuffix;
 extern NSString* GSLanguageSuffix;
@@ -77,41 +80,41 @@ extern NSString* GSWAPIPSuffix;
 
 extern NSString* GSWClassName_Session;
 extern NSString* GSWClassName_Application;
-extern NSString* GSWClassName_DefaultAdaptor;
+extern NSString* GSWClassName_DefaultAdaptor[2];
 
 //====================================================================
 // Keys
 
-extern NSString* GSWKey_InstanceID;
-extern NSString* GSWKey_SessionID;
-extern NSString* GSWKey_PageName;
-extern NSString* GSWKey_ContextID;
-extern NSString* GSWKey_ElementID;
-extern NSString* GSWKey_Data;
-extern NSString* GSWKey_SubmitAction;
-extern NSString* GSWKey_IsmapCoords;
+extern NSString* GSWKey_InstanceID[2];
+extern NSString* GSWKey_SessionID[2];
+extern NSString* GSWKey_PageName[2];
+extern NSString* GSWKey_ContextID[2];
+extern NSString* GSWKey_ElementID[2];
+extern NSString* GSWKey_Data[2];
+extern NSString* GSWKey_SubmitAction[2];
+extern NSString* GSWKey_IsmapCoords[2];
 
 //====================================================================
 // HTTP Headers
 extern NSString* GSWHTTPHeader_Cookie;
 extern NSString* GSWHTTPHeader_SetCookie;
-extern NSString* GSWHTTPHeader_AdaptorVersion;
-extern NSString* GSWHTTPHeader_RequestMethod;
-extern NSString* GSWHTTPHeader_Recording;
-extern NSString* GSWHTTPHeader_QueryString;
-extern NSString* GSWHTTPHeader_RemoteAddress;
-extern NSString* GSWHTTPHeader_RemoteHost;
-extern NSString* GSWHTTPHeader_RemoteIdent;
-extern NSString* GSWHTTPHeader_RemoteUser;
-extern NSString* GSWHTTPHeader_ServerName;
-extern NSString* GSWHTTPHeader_ServerPort;
-extern NSString* GSWHTTPHeader_ServerSoftware;
-extern NSString* GSWHTTPHeader_AnnotationServer;
-extern NSString* GSWHTTPHeader_AuthPass;
-extern NSString* GSWHTTPHeader_AuthType;
-extern NSString* GSWHTTPHeader_DocumentRoot;
-extern NSString* GSWHTTPHeader_GatewayInterface;
-extern NSString* GSWHTTPHeader_Method;
+extern NSString* GSWHTTPHeader_AdaptorVersion[2];
+extern NSString* GSWHTTPHeader_RequestMethod[2];
+extern NSString* GSWHTTPHeader_Recording[2];
+extern NSString* GSWHTTPHeader_QueryString[2];
+extern NSString* GSWHTTPHeader_RemoteAddress[2];
+extern NSString* GSWHTTPHeader_RemoteHost[2];
+extern NSString* GSWHTTPHeader_RemoteIdent[2];
+extern NSString* GSWHTTPHeader_RemoteUser[2];
+extern NSString* GSWHTTPHeader_ServerName[2];
+extern NSString* GSWHTTPHeader_ServerPort[2];
+extern NSString* GSWHTTPHeader_ServerSoftware[2];
+extern NSString* GSWHTTPHeader_AnnotationServer[2];
+extern NSString* GSWHTTPHeader_AuthPass[2];
+extern NSString* GSWHTTPHeader_AuthType[2];
+extern NSString* GSWHTTPHeader_DocumentRoot[2];
+extern NSString* GSWHTTPHeader_GatewayInterface[2];
+extern NSString* GSWHTTPHeader_Method[2];
 extern NSString* GSWHTTPHeader_MethodPost;
 extern NSString* GSWHTTPHeader_MethodGet;
 extern NSString* GSWHTTPHeader_AcceptLanguage;
@@ -123,13 +126,13 @@ extern NSString* GSWHTTPHeader_MimeType_TextPlain;
 extern NSString* GSWHTTPHeader_UserAgent;
 
 extern NSString* GSWHTTPHeader_Response_OK;
-extern NSString* GSWHTTPHeader_Response_HeaderLineEnd;
+extern NSString* GSWHTTPHeader_Response_HeaderLineEnd[2];
 
-extern NSString* GSWFormValue_RemoteInvocationPost;
+extern NSString* GSWFormValue_RemoteInvocationPost[2];
 
 //====================================================================
 // Notifications
-extern NSString* GSWNotification__SessionDidTimeOutNotification;
+extern NSString* GSWNotification__SessionDidTimeOutNotification[2];
 
 //====================================================================
 // Frameworks
@@ -138,7 +141,7 @@ extern NSString* GSWNotification__SessionDidTimeOutNotification;
 	extern NSString* GSWFramework_all;
 #endif
 extern NSString* GSWFramework_app;
-extern NSString* GSWFramework_extensions;
+extern NSString* GSWFramework_extensions[2];
 
 //====================================================================
 // Protocols
@@ -149,29 +152,29 @@ extern NSString* GSWProtocol_HTTPS;
 //====================================================================
 // Option Names
 
-extern NSString* GSWOPT_Adaptor;
-extern NSString* GSWOPT_AdditionalAdaptors;
-extern NSString* GSWOPT_ApplicationBaseURL;
-extern NSString* GSWOPT_AutoOpenInBrowser;
-extern NSString* GSWOPT_CGIAdaptorURL;
-extern NSString* GSWOPT_CachingEnabled;
-extern NSString* GSWOPT_ComponentRequestHandlerKey;
-extern NSString* GSWOPT_DebuggingEnabled;
-extern NSString* GSWOPT_StatusDebuggingEnabled;
-extern NSString* GSWOPT_DirectActionRequestHandlerKey;
-extern NSString* GSWOPT_DirectConnectEnabled;
-extern NSString* GSWOPT_FrameworksBaseURL;
-extern NSString* GSWOPT_IncludeCommentsInResponse;
-extern NSString* GSWOPT_ListenQueueSize;
-extern NSString* GSWOPT_LoadFrameworks;
-extern NSString* GSWOPT_MonitorEnabled;
-extern NSString* GSWOPT_MonitorHost;
-extern NSString* GSWOPT_Port;
-extern NSString* GSWOPT_Host;
-extern NSString* GSWOPT_ResourceRequestHandlerKey;
-extern NSString* GSWOPT_SMTPHost;
-extern NSString* GSWOPT_SessionTimeOut;
-extern NSString* GSWOPT_WorkerThreadCount;
+extern NSString* GSWOPT_Adaptor[2];
+extern NSString* GSWOPT_AdditionalAdaptors[2];
+extern NSString* GSWOPT_ApplicationBaseURL[2];
+extern NSString* GSWOPT_AutoOpenInBrowser[2];
+extern NSString* GSWOPT_CGIAdaptorURL[2];
+extern NSString* GSWOPT_CachingEnabled[2];
+extern NSString* GSWOPT_ComponentRequestHandlerKey[2];
+extern NSString* GSWOPT_DebuggingEnabled[2];
+extern NSString* GSWOPT_StatusDebuggingEnabled[2];
+extern NSString* GSWOPT_DirectActionRequestHandlerKey[2];
+extern NSString* GSWOPT_DirectConnectEnabled[2];
+extern NSString* GSWOPT_FrameworksBaseURL[2];
+extern NSString* GSWOPT_IncludeCommentsInResponse[2];
+extern NSString* GSWOPT_ListenQueueSize[2];
+extern NSString* GSWOPT_LoadFrameworks[2];
+extern NSString* GSWOPT_MonitorEnabled[2];
+extern NSString* GSWOPT_MonitorHost[2];
+extern NSString* GSWOPT_Port[2];
+extern NSString* GSWOPT_Host[2];
+extern NSString* GSWOPT_ResourceRequestHandlerKey[2];
+extern NSString* GSWOPT_SMTPHost[2];
+extern NSString* GSWOPT_SessionTimeOut[2];
+extern NSString* GSWOPT_WorkerThreadCount[2];
 extern NSString* GSWOPT_ProjectSearchPath;
 extern NSString* GSWOPT_MultiThreadEnabled;
 extern NSString* GSWOPT_DebugSetConfigFilePath;
@@ -186,19 +189,17 @@ extern NSString* GSFoundMarker;
 //====================================================================
 // GSWAssociation special keys
 
-#if !GSWEB_STRICT
-	extern NSString* GSASK_Field;
-	extern NSString* GSASK_FieldValidate;
-	extern NSString* GSASK_FieldTitle;
-	extern NSString* GSASK_Class;
-#endif
+extern NSString* GSASK_Field;
+extern NSString* GSASK_FieldValidate;
+extern NSString* GSASK_FieldTitle;
+extern NSString* GSASK_Class;
 
 //====================================================================
 // Page names
 
-extern NSString* GSWSessionRestorationErrorPageName;
-extern NSString* GSWExceptionPageName;
-extern NSString* GSWPageRestorationErrorPageName;
+extern NSString* GSWSessionRestorationErrorPageName[2];
+extern NSString* GSWExceptionPageName[2];
+extern NSString* GSWPageRestorationErrorPageName[2];
 
 //====================================================================
 // Thread Keys
@@ -206,6 +207,11 @@ extern NSString* GSWPageRestorationErrorPageName;
 extern NSString* GSWThreadKey_ComponentDefinition;
 extern NSString* GSWThreadKey_DefaultAdaptorThread;
 extern NSString* GSWThreadKey_Context;
+
+//====================================================================
+// Tag Name
+
+extern NSString* GSWTag_Name[2];
 
 //====================================================================
 // Components Keys
@@ -259,7 +265,7 @@ extern id index__Key;
 extern id identifier__Key;
 extern id count__Key;
 extern id escapeHTML__Key;
-extern id GSWComponentName__Key;
+extern id GSWComponentName__Key[2];
 extern id prefix__Key;
 extern id suffix__Key;
 extern id level__Key;
@@ -277,25 +283,24 @@ extern id noSelectionString__Key;
 extern id displayString__Key;
 extern id filePath__Key;
 
-#if !GSWEB_STRICT
-	extern id redirectURL__Key;
-	extern id displayDisabled__Key;
-	extern id actionYes__Key;
-	extern id actionNo__Key;
-	extern id pageSetVar__Prefix__Key;
-	extern id pageSetVars__Key;
-	extern id selectionValue__Key;
-	extern id selectionValues__Key;
-	extern id enabled__Key;
-	extern id convertHTML__Key;
-	extern id convertHTMLEntities__Key;
-	extern id componentDesign__Key;
-	extern id pageDesign__Key;
-	extern id imageMapString__Key;
-	extern id imageMapRegions__Key;
-	extern id handleValidationException__Key;
-	extern id selectedValues__Key;
-#endif
+//GSWeb Additions
+extern id redirectURL__Key;
+extern id displayDisabled__Key;
+extern id actionYes__Key;
+extern id actionNo__Key;
+extern id pageSetVar__Prefix__Key;
+extern id pageSetVars__Key;
+extern id selectionValue__Key;
+extern id selectionValues__Key;
+extern id enabled__Key;
+extern id convertHTML__Key;
+extern id convertHTMLEntities__Key;
+extern id componentDesign__Key;
+extern id pageDesign__Key;
+extern id imageMapString__Key;
+extern id imageMapRegions__Key;
+extern id handleValidationException__Key;
+extern id selectedValues__Key;
 
 
 #endif // _GSWebConstants_h__

@@ -31,9 +31,9 @@
 {
   NSString* parentBindingName;
   NSString* keyPath;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   BOOL isNonMandatory; 
-#endif
+// }
 };
 
 -(id)initWithKeyPath:(NSString*)keyPath_;

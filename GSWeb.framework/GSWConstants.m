@@ -39,41 +39,22 @@ NSString* GSWMonitorServiceName=@"gsweb-monitor";
 
 //====================================================================
 // Suffixes
-#if GSWEB_WONAMES
-	NSString* GSWApplicationSuffix=@"woa";
-	NSString* GSWApplicationPSuffix=@".woa";
-	NSString* GSWPageSuffix=@"wo";
-	NSString* GSWPagePSuffix=@".wo";
-	NSString* GSWScriptSuffix=@"wos";
-	NSString* GSWScriptPSuffix=@".wos";
-	NSString* GSWResourceRequestHandlerKey=@"wr";
-	NSString* GSWComponentRequestHandlerKey=@"wo";
-	NSString* GSWDirectActionRequestHandlerKey=@"wa";
-	NSString* GSWComponentDefinitionSuffix=@"wod";
-	NSString* GSWComponentDefinitionPSuffix=@".wod";
-	NSString* GSWArchiveSuffix=@"woo";
-	NSString* GSWArchivePSuffix=@".woo";
-	NSString* GSWURLPrefix=@"WebObjects";
-	NSString* GSWLibrarySuffix=@"woso";
-	NSString* GSWLibraryPSuffix=@".woso";
-#else
-	NSString* GSWApplicationSuffix=@"gswa";
-	NSString* GSWApplicationPSuffix=@".gswa";
-	NSString* GSWPageSuffix=@"gswc";
-	NSString* GSWPagePSuffix=@".gswc";
-	NSString* GSWScriptSuffix=@"gsws";
-	NSString* GSWScriptPSuffix=@".gsws";
-	NSString* GSWResourceRequestHandlerKey=@"rr";
-	NSString* GSWComponentRequestHandlerKey=@"cr";
-	NSString* GSWDirectActionRequestHandlerKey=@"dr";
-	NSString* GSWComponentDefinitionSuffix=@"gswd";
-	NSString* GSWComponentDefinitionPSuffix=@".gswd";
-	NSString* GSWArchiveSuffix=@"gswi";
-	NSString* GSWArchivePSuffix=@".gswi";
-	NSString* GSWURLPrefix=@"GSWeb";
-	NSString* GSWLibrarySuffix=@"gswso";
-	NSString* GSWLibraryPSuffix=@".gswso";
-#endif
+NSString* GSWApplicationSuffix[2]={ @"gswa", @"woa" };
+NSString* GSWApplicationPSuffix[2]={ @".gswa", @".woa" };
+NSString* GSWPageSuffix[2]={ @"gswc", @"wo" };
+NSString* GSWPagePSuffix[2]={ @".gswc", @".wo" };
+NSString* GSWScriptSuffix[2]={ @"gsws", @"wos" };
+NSString* GSWScriptPSuffix[2]={ @".gsws", @".wos" };
+NSString* GSWResourceRequestHandlerKey[2]={ @"rr", @"wr" };
+NSString* GSWComponentRequestHandlerKey[2]={ @"cr", @"wo" };
+NSString* GSWDirectActionRequestHandlerKey[2]={ @"dr", @"wa" };
+NSString* GSWComponentDefinitionSuffix[2]={ @"gswd", @"wod" };
+NSString* GSWComponentDefinitionPSuffix[2]={ @".gswd", @".wod" };
+NSString* GSWArchiveSuffix[2]={ @"gswi", @"woo" };
+NSString* GSWArchivePSuffix[2]={ @".gswi", @".woo" };
+NSString* GSWURLPrefix[2]={ @"GSWeb", @"WebObjects" };
+NSString* GSWLibrarySuffix[2]={ @"gswso", @"woso" };
+NSString* GSWLibraryPSuffix[2]={ @".gswso", @".woso" };
 
 NSString* GSFrameworkSuffix=@"framework";
 NSString* GSFrameworkPSuffix=@".framework";
@@ -94,79 +75,44 @@ NSString* GSWMainPageName=@"Main";
 
 NSString* GSWClassName_Session=@"Session";
 NSString* GSWClassName_Application=@"Application";
-#if GSWEB_WONAMES
-NSString* GSWClassName_DefaultAdaptor=@"WODefaultAdaptor";
-#else
-NSString* GSWClassName_DefaultAdaptor=@"GSWDefaultAdaptor";
-#endif
+NSString* GSWClassName_DefaultAdaptor[2]={ @"GSWDefaultAdaptor", @"WODefaultAdaptor" };
+
 //====================================================================
 // Keys
 
-#if GSWEB_WONAMES
-	NSString* GSWKey_InstanceID=@"woinst";
-	NSString* GSWKey_SessionID=@"wosid";
-	NSString* GSWKey_PageName=@"wopage";
-	NSString* GSWKey_ContextID=@"wocid";
-	NSString* GSWKey_ElementID=@"woeid";
-	NSString* GSWKey_Data=@"wodata";
-	NSString* GSWKey_SubmitAction=@"WOSubmitAction";
-	NSString* GSWKey_IsmapCoords=@"WOIsmapCoords";
-#else
-	NSString* GSWKey_InstanceID=@"gswinst";
-	NSString* GSWKey_SessionID=@"gswsid";
-	NSString* GSWKey_PageName=@"gswpage";
-	NSString* GSWKey_ContextID=@"gswcid";
-	NSString* GSWKey_ElementID=@"gsweid";
-	NSString* GSWKey_Data=@"gswdata";
-	NSString* GSWKey_SubmitAction=@"GSWSubmitAction";
-	NSString* GSWKey_IsmapCoords=@"GSWIsmapCoords";
-#endif
+NSString* GSWKey_InstanceID[2]={ @"gswinst", @"woinst" };
+NSString* GSWKey_SessionID[2]={ @"gswsid", @"wosid" };
+NSString* GSWKey_PageName[2]={ @"gswpage", @"wopage" };
+NSString* GSWKey_ContextID[2]={ @"gswcid", @"wocid" };
+NSString* GSWKey_ElementID[2]={ @"gsweid", @"woeid" };
+NSString* GSWKey_Data[2]={ @"gswdata", @"wodata" };
+NSString* GSWKey_SubmitAction[2]={ @"GSWSubmitAction", @"WOSubmitAction" };
+NSString* GSWKey_IsmapCoords[2]={ @"GSWIsmapCoords", @"WOIsmapCoords" };
 
 //====================================================================
 // HTTP Headers
 NSString* GSWHTTPHeader_Cookie=@"cookie";
 NSString* GSWHTTPHeader_SetCookie=@"set-cookie";
 
-#if GSWEB_WONAMES
-NSString* GSWHTTPHeader_AdaptorVersion=@"x-webobjects-adaptor-version";
-NSString* GSWHTTPHeader_Method=@"x-webobjects-request-method";
-NSString* GSWHTTPHeader_Response_HeaderLineEnd=@" NeXT WebObjects";
-NSString* GSWHTTPHeader_RequestMethod=@"x-webobjects-request-method";
-NSString* GSWHTTPHeader_Recording=@"x-webobjects-recording";
-NSString* GSWHTTPHeader_QueryString=@"x-webobjects-query-string";
-NSString* GSWHTTPHeader_RemoteAddress=@"x-webobjects-remote-addr";
-NSString* GSWHTTPHeader_RemoteHost=@"x-webobjects-remote-host";
-NSString* GSWHTTPHeader_RemoteIdent=@"x-webobjects-remote-ident";
-NSString* GSWHTTPHeader_RemoteUser=@"x-webobjects-remote-user";
-NSString* GSWHTTPHeader_ServerName=@"x-webobjects-server-name";
-NSString* GSWHTTPHeader_ServerPort=@"x-webobjects-server-port";
-NSString* GSWHTTPHeader_ServerSoftware=@"x-webobjects-server-software";
-NSString* GSWHTTPHeader_AnnotationServer=@"x-webobjects-annotation-server";
-NSString* GSWHTTPHeader_AuthPass=@"x-webobjects-auth-pass";
-NSString* GSWHTTPHeader_AuthType=@"x-webobjects-auth-type";
-NSString* GSWHTTPHeader_DocumentRoot=@"x-webobjects-documentroot";
-NSString* GSWHTTPHeader_GatewayInterface=@"x-webobjects-gateway-interface";
+NSString* GSWHTTPHeader_AdaptorVersion[2]={ @"x-gsweb-adaptor-version", @"x-webobjects-adaptor-version" };
+NSString* GSWHTTPHeader_Method[2]={ @"x-gsweb-request-method", @"x-webobjects-request-method" };
+NSString* GSWHTTPHeader_Response_HeaderLineEnd[2]={ @" GNUstep GSWeb", @" NeXT WebObjects" };
+NSString* GSWHTTPHeader_RequestMethod[2]={ @"x-gsweb-request-method", @"x-webobjects-request-method" };
+NSString* GSWHTTPHeader_Recording[2]={ @"x-gsweb-recording", @"x-webobjects-recording" };
+NSString* GSWHTTPHeader_QueryString[2]={ @"x-gsweb-query-string", @"x-webobjects-query-string" };
+NSString* GSWHTTPHeader_RemoteAddress[2]={ @"x-gsweb-remote-addr", @"x-webobjects-remote-addr" };
+NSString* GSWHTTPHeader_RemoteHost[2]={ @"x-gsweb-remote-host", @"x-webobjects-remote-host" };
+NSString* GSWHTTPHeader_RemoteIdent[2]={ @"x-gsweb-remote-ident", @"x-webobjects-remote-ident" };
+NSString* GSWHTTPHeader_RemoteUser[2]={ @"x-gsweb-remote-user", @"x-webobjects-remote-user" };
+NSString* GSWHTTPHeader_ServerName[2]={ @"x-gsweb-server-name", @"x-webobjects-server-name" };
+NSString* GSWHTTPHeader_ServerPort[2]={ @"x-gsweb-server-port", @"x-webobjects-server-port" };
+NSString* GSWHTTPHeader_ServerSoftware[2]={ @"x-gsweb-server-software", @"x-webobjects-server-software" };
+NSString* GSWHTTPHeader_AnnotationServer[2]={ @"x-gsweb-annotation-server", @"x-webobjects-annotation-server" };
+NSString* GSWHTTPHeader_AuthPass[2]={ @"x-gsweb-auth-pass", @"x-webobjects-auth-pass" };
+NSString* GSWHTTPHeader_AuthType[2]={ @"x-gsweb-auth-type", @"x-webobjects-auth-type" };
+NSString* GSWHTTPHeader_DocumentRoot[2]={ @"x-gsweb-documentroot", @"x-webobjects-documentroot" };
+NSString* GSWHTTPHeader_GatewayInterface[2]={ @"x-gsweb-gateway-interface", @"x-webobjects-gateway-interface" };
 
-#else
-NSString* GSWHTTPHeader_AdaptorVersion=@"x-gsweb-adaptor-version";
-NSString* GSWHTTPHeader_Method=@"x-gsweb-request-method";
-NSString* GSWHTTPHeader_Response_HeaderLineEnd=@" GNUstep GSWeb";
-NSString* GSWHTTPHeader_RequestMethod=@"x-gsweb-request-method";
-NSString* GSWHTTPHeader_Recording=@"x-gsweb-recording";
-NSString* GSWHTTPHeader_QueryString=@"x-gsweb-query-string";
-NSString* GSWHTTPHeader_RemoteAddress=@"x-gsweb-remote-addr";
-NSString* GSWHTTPHeader_RemoteHost=@"x-gsweb-remote-host";
-NSString* GSWHTTPHeader_RemoteIdent=@"x-gsweb-remote-ident";
-NSString* GSWHTTPHeader_RemoteUser=@"x-gsweb-remote-user";
-NSString* GSWHTTPHeader_ServerName=@"x-gsweb-server-name";
-NSString* GSWHTTPHeader_ServerPort=@"x-gsweb-server-port";
-NSString* GSWHTTPHeader_ServerSoftware=@"x-gsweb-server-software";
-NSString* GSWHTTPHeader_AnnotationServer=@"x-gsweb-annotation-server";
-NSString* GSWHTTPHeader_AuthPass=@"x-gsweb-auth-pass";
-NSString* GSWHTTPHeader_AuthType=@"x-gsweb-auth-type";
-NSString* GSWHTTPHeader_DocumentRoot=@"x-gsweb-documentroot";
-NSString* GSWHTTPHeader_GatewayInterface=@"x-gsweb-gateway-interface";
-#endif
 NSString* GSWHTTPHeader_MethodPost=@"POST";
 NSString* GSWHTTPHeader_MethodGet=@"GET";
 NSString* GSWHTTPHeader_AcceptLanguage=@"accept-language";
@@ -180,20 +126,12 @@ NSString* GSWHTTPHeader_ContentLength=@"content-length";
 
 NSString* GSWHTTPHeader_Response_OK=@"OK";
 
-#if GSWEB_WONAMES
-NSString* GSWFormValue_RemoteInvocationPost=@"WORemoteInvocationPost";
-#else
-NSString* GSWFormValue_RemoteInvocationPost=@"GSWRemoteInvocationPost";
-#endif
+NSString* GSWFormValue_RemoteInvocationPost[2]={ @"GSWRemoteInvocationPost", @"WORemoteInvocationPost" };
 
 //====================================================================
 // Notifications
 
-#if GSWEB_WONAMES
-NSString* GSWNotification__SessionDidTimeOutNotification=@"WOSessionDidTimeOutNotification";
-#else
-NSString* GSWNotification__SessionDidTimeOutNotification=@"GSWSessionDidTimeOutNotification";
-#endif
+NSString* GSWNotification__SessionDidTimeOutNotification[2]={ @"GSWSessionDidTimeOutNotification", @"WOSessionDidTimeOutNotification" };
 //====================================================================
 // Frameworks
 
@@ -202,11 +140,7 @@ NSString* GSWNotification__SessionDidTimeOutNotification=@"GSWSessionDidTimeOutN
 #endif
 NSString* GSWFramework_app=@"app";
 
-#if GSWEB_WONAMES
-NSString* GSWFramework_extensions=@"WOExtensions";
-#else
-NSString* GSWFramework_extensions=@"GSWExtensions";
-#endif
+NSString* GSWFramework_extensions[2]={ @"GSWExtensions", @"WOExtensions" };
 
 //====================================================================
 // Protocols
@@ -217,57 +151,30 @@ NSString* GSWProtocol_HTTPS=@"https";
 //====================================================================
 // Option Names
 
-#if GSWEB_WONAMES
-NSString* GSWOPT_Adaptor=@"WOAdaptor";
-NSString* GSWOPT_AdditionalAdaptors=@"WOAdditionalAdaptors";
-NSString* GSWOPT_ApplicationBaseURL=@"WOApplicationBaseURL";
-NSString* GSWOPT_AutoOpenInBrowser=@"WOAutoOpenInBrowser";
-NSString* GSWOPT_CGIAdaptorURL=@"WOCGIAdaptorURL";
-NSString* GSWOPT_CachingEnabled=@"WOCachingEnabled";
-NSString* GSWOPT_ComponentRequestHandlerKey=@"WOComponentRequestHandlerKey";
-NSString* GSWOPT_DebuggingEnabled=@"WODebuggingEnabled";
-NSString* GSWOPT_StatusDebuggingEnabled=@"WOStatusDebuggingEnabled";//NDFN
-NSString* GSWOPT_DirectActionRequestHandlerKey=@"WODirectActionRequestHandlerKey";
-NSString* GSWOPT_DirectConnectEnabled=@"WODirectConnectEnabled";
-NSString* GSWOPT_FrameworksBaseURL=@"WOFrameworksBaseURL";
-NSString* GSWOPT_IncludeCommentsInResponse=@"WOIncludeCommentsInResponse";
-NSString* GSWOPT_ListenQueueSize=@"WOListenQueueSize";
-NSString* GSWOPT_LoadFrameworks=@"WOLoadFrameworks";
-NSString* GSWOPT_MonitorEnabled=@"WOMonitorEnabled";
-NSString* GSWOPT_MonitorHost=@"WOMonitorHost";
-NSString* GSWOPT_Port=@"WOPort";
-NSString* GSWOPT_Host=@"WOHost";
-NSString* GSWOPT_ResourceRequestHandlerKey=@"WOResourceRequestHandlerKey";
-NSString* GSWOPT_SMTPHost=@"WOSMTPHost";
-NSString* GSWOPT_SessionTimeOut=@"WOSessionTimeOut";
-NSString* GSWOPT_WorkerThreadCount=@"WOWorkerThreadCount";
+NSString* GSWOPT_Adaptor[2]={ @"GSWAdaptor", @"WOAdaptor" };
+NSString* GSWOPT_AdditionalAdaptors[2]={ @"GSWAdditionalAdaptors", @"WOAdditionalAdaptors" };
+NSString* GSWOPT_ApplicationBaseURL[2]={ @"GSWApplicationBaseURL", @"WOApplicationBaseURL" };
+NSString* GSWOPT_AutoOpenInBrowser[2]={ @"GSWAutoOpenInBrowser", @"WOAutoOpenInBrowser" };
+NSString* GSWOPT_CGIAdaptorURL[2]={ @"GSWCGIAdaptorURL", @"WOCGIAdaptorURL" };
+NSString* GSWOPT_CachingEnabled[2]={ @"GSWCachingEnabled", @"WOCachingEnabled" };
+NSString* GSWOPT_ComponentRequestHandlerKey[2]={ @"GSWComponentRequestHandlerKey", @"WOComponentRequestHandlerKey" };
+NSString* GSWOPT_DebuggingEnabled[2]={ @"GSWDebuggingEnabled", @"WODebuggingEnabled" };
+NSString* GSWOPT_StatusDebuggingEnabled[2]={ @"GSWStatusDebuggingEnabled", @"WOStatusDebuggingEnabled" };//NDFN
+NSString* GSWOPT_DirectActionRequestHandlerKey[2]={ @"GSWDirectActionRequestHandlerKey", @"WODirectActionRequestHandlerKey" };
+NSString* GSWOPT_DirectConnectEnabled[2]={ @"GSWDirectConnectEnabled", @"WODirectConnectEnabled" };
+NSString* GSWOPT_FrameworksBaseURL[2]={ @"GSWFrameworksBaseURL", @"WOFrameworksBaseURL" };
+NSString* GSWOPT_IncludeCommentsInResponse[2]={ @"GSWIncludeCommentsInResponse", @"WOIncludeCommentsInResponse" };
+NSString* GSWOPT_ListenQueueSize[2]={ @"GSWListenQueueSize", @"WOListenQueueSize" };
+NSString* GSWOPT_LoadFrameworks[2]={ @"GSWLoadFrameworks", @"WOLoadFrameworks" };
+NSString* GSWOPT_MonitorEnabled[2]={ @"GSWMonitorEnabled", @"WOMonitorEnabled" };
+NSString* GSWOPT_MonitorHost[2]={ @"GSWMonitorHost", @"WOMonitorHost" };
+NSString* GSWOPT_Port[2]={ @"GSWPort", @"WOPort" };
+NSString* GSWOPT_Host[2]={ @"GSWHost", @"WOHost" };
+NSString* GSWOPT_ResourceRequestHandlerKey[2]={ @"GSWResourceRequestHandlerKey", @"WOResourceRequestHandlerKey" };
+NSString* GSWOPT_SMTPHost[2]={ @"GSWSMTPHost", @"WOSMTPHost" };
+NSString* GSWOPT_SessionTimeOut[2]={ @"GSWSessionTimeOut", @"WOSessionTimeOut" };
+NSString* GSWOPT_WorkerThreadCount[2]={ @"GSWWorkerThreadCount", @"WOWorkerThreadCount" };
 NSString* GSWOPT_ProjectSearchPath=@"NSProjectSearchPath";
-#else
-NSString* GSWOPT_Adaptor=@"GSWAdaptor";
-NSString* GSWOPT_AdditionalAdaptors=@"GSWAdditionalAdaptors";
-NSString* GSWOPT_ApplicationBaseURL=@"GSWApplicationBaseURL";
-NSString* GSWOPT_AutoOpenInBrowser=@"GSWAutoOpenInBrowser";
-NSString* GSWOPT_CGIAdaptorURL=@"GSWCGIAdaptorURL";
-NSString* GSWOPT_CachingEnabled=@"GSWCachingEnabled";
-NSString* GSWOPT_ComponentRequestHandlerKey=@"GSWComponentRequestHandlerKey";
-NSString* GSWOPT_DebuggingEnabled=@"GSWDebuggingEnabled";
-NSString* GSWOPT_StatusDebuggingEnabled=@"GSWStatusDebuggingEnabled";//NDFN
-NSString* GSWOPT_DirectActionRequestHandlerKey=@"GSWDirectActionRequestHandlerKey";
-NSString* GSWOPT_DirectConnectEnabled=@"GSWDirectConnectEnabled";
-NSString* GSWOPT_FrameworksBaseURL=@"GSWFrameworksBaseURL";
-NSString* GSWOPT_IncludeCommentsInResponse=@"GSWIncludeCommentsInResponse";
-NSString* GSWOPT_ListenQueueSize=@"GSWListenQueueSize";
-NSString* GSWOPT_LoadFrameworks=@"GSWLoadFrameworks";
-NSString* GSWOPT_MonitorEnabled=@"GSWMonitorEnabled";
-NSString* GSWOPT_MonitorHost=@"GSWMonitorHost";
-NSString* GSWOPT_Port=@"GSWPort";
-NSString* GSWOPT_Host=@"GSWHost";
-NSString* GSWOPT_ResourceRequestHandlerKey=@"GSWResourceRequestHandlerKey";
-NSString* GSWOPT_SMTPHost=@"GSWSMTPHost";
-NSString* GSWOPT_SessionTimeOut=@"GSWSessionTimeOut";
-NSString* GSWOPT_WorkerThreadCount=@"GSWWorkerThreadCount";
-NSString* GSWOPT_ProjectSearchPath=@"NSProjectSearchPath";
-#endif
 NSString* GSWOPT_MultiThreadEnabled=@"GSWMTEnabled";
 NSString* GSWOPT_DebugSetConfigFilePath=@"GSWDebugSetConfigFilePath";
 
@@ -279,25 +186,17 @@ NSString* GSFoundMarker=@"FoundMarker";
 //====================================================================
 // GSWAssociation special keys
 
-#if !GSWEB_STRICT
 NSString* GSASK_Field=@"GSField";
 NSString* GSASK_FieldValidate=@"GSFieldValidate";
 NSString* GSASK_FieldTitle=@"GSFieldTitle";
 NSString* GSASK_Class = @"GSClass";
-#endif
 
 //====================================================================
 // Page names
 
-#if GSWEB_WONAMES
-NSString* GSWSessionRestorationErrorPageName=@"WOSessionRestorationErrorPage";
-NSString* GSWExceptionPageName=@"WOExceptionPage";
-NSString* GSWPageRestorationErrorPageName=@"WOPageRestorationErrorPage";
-#else
-NSString* GSWSessionRestorationErrorPageName=@"GSWSessionRestorationErrorPage";
-NSString* GSWExceptionPageName=@"GSWExceptionPage";
-NSString* GSWPageRestorationErrorPageName=@"GSWPageRestorationErrorPage";
-#endif
+NSString* GSWSessionRestorationErrorPageName[2]={ @"GSWSessionRestorationErrorPage", @"WOSessionRestorationErrorPage" };
+NSString* GSWExceptionPageName[2]={ @"GSWExceptionPage", @"WOExceptionPage" };
+NSString* GSWPageRestorationErrorPageName[2]={ @"GSWPageRestorationErrorPage", @"WOPageRestorationErrorPage" };
 
 
 //====================================================================
@@ -306,6 +205,12 @@ NSString* GSWPageRestorationErrorPageName=@"GSWPageRestorationErrorPage";
 NSString* GSWThreadKey_ComponentDefinition=@"ComponentDefinition";
 NSString* GSWThreadKey_DefaultAdaptorThread=@"DefaultAdaptorThread";
 NSString* GSWThreadKey_Context=@"Context";
+
+//====================================================================
+// Tag Name
+
+NSString* GSWTag_Name[2]={ @"gsweb", @"webobject" };
+
 //====================================================================
 // Components Keys
 
@@ -358,11 +263,7 @@ id index__Key = @"index";
 id identifier__Key = @"identifier";
 id count__Key = @"count";
 id escapeHTML__Key = @"escapeHTML";
-#if GSWEB_WONAMES
-	id GSWComponentName__Key = @"WOComponentName";
-#else
-	id GSWComponentName__Key = @"GSWComponentName";
-#endif
+id GSWComponentName__Key[2] = { @"GSWComponentName", @"WOComponentName"};
 id prefix__Key = @"prefix";
 id suffix__Key = @"suffix";
 id level__Key = @"level";
@@ -379,20 +280,21 @@ id selectedValue__Key = @"selectedValue";
 id noSelectionString__Key = @"noSelectionString";
 id displayString__Key = @"displayString";
 id filePath__Key = @"filePath";
-#if !GSWEB_STRICT
-	id redirectURL__Key = @"redirectURL";
-	id displayDisabled__Key = @"displayDisabled";
-	id actionYes__Key = @"actionYes";
-	id actionNo__Key = @"actionNo";
-	id pageSetVar__Prefix__Key=@"pageSetVar_";
-	id pageSetVars__Key=@"pageSetVars";
-	id selectionValue__Key=@"selectionValue";
-	id selectionValues__Key=@"selectionValues";
-	id enabled__Key=@"enabled";
-	id convertHTML__Key=@"convertHTML";
-	id convertHTMLEntities__Key=@"convertHTMLEntities";
-	id imageMapString__Key = @"imageMapString";
-	id imageMapRegions__Key = @"imageMapRegions";
-	id handleValidationException__Key = @"handleValidationException";
-	id selectedValues__Key = @"selectedValues";
-#endif
+
+//GSWeb additions
+id redirectURL__Key = @"redirectURL";
+id displayDisabled__Key = @"displayDisabled";
+id actionYes__Key = @"actionYes";
+id actionNo__Key = @"actionNo";
+id pageSetVar__Prefix__Key=@"pageSetVar_";
+id pageSetVars__Key=@"pageSetVars";
+id selectionValue__Key=@"selectionValue";
+id selectionValues__Key=@"selectionValues";
+id enabled__Key=@"enabled";
+id convertHTML__Key=@"convertHTML";
+id convertHTMLEntities__Key=@"convertHTMLEntities";
+id imageMapString__Key = @"imageMapString";
+id imageMapRegions__Key = @"imageMapRegions";
+id handleValidationException__Key = @"handleValidationException";
+id selectedValues__Key = @"selectedValues";
+

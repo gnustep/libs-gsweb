@@ -34,6 +34,7 @@ ReasonString: GSWString
 {
     value = tmpReason;
     escapeHTML = YES;
+    convertHTMLEntities = YES;
 }
 
 ReenterHyperlink: GSWHyperlink
@@ -70,4 +71,5 @@ UserInfoValueString: GSWString
 {
     value = tmpUserInfoValue;
     escapeHTML = YES;
+    convertHTMLEntities = YES;
 }

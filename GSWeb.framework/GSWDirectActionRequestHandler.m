@@ -110,7 +110,9 @@ static char rcsId[] = "$Id$";
 			[_resourceManager _allFrameworkProjectBundles];//So what ?
 			[_application awake];
 			_class=NSClassFromString(_className);
+                        NSAssert1(_class,@"No direct action class named %@",_className);
 			_directAction=[[_class alloc]initWithRequest:request_];
+                        NSAssert1(_directAction,@"Direct action of class named %@ can't be created",_className);
 			_context=[_directAction _context];
 			_actionResult=[_directAction performActionNamed:_actionName];
 			_response=[_actionResult generateResponse];
@@ -176,7 +178,7 @@ static char rcsId[] = "$Id$";
   //OK
   NSArray* _submitActions=nil;
   LOGObjectFnStart();
-  _submitActions=[_request formValuesForKey:GSWKey_SubmitAction];
+  _submitActions=[_request formValuesForKey:GSWKey_SubmitAction[GSWebNamingConv]];
   if (_submitActions)
 	{
 	  //TODO

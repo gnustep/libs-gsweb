@@ -29,57 +29,57 @@ static char rcsId[] = "$Id$";
 @implementation GSWRepetition
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
   //OK
   LOGObjectFnStart();
-  if ((self=[super initWithName:name_
-				   associations:nil
-				   template:nil]))
-	{
-	  list=[[associations_ objectForKey:list__Key
-							  withDefaultObject:[list autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"list=%@",list);
-	  item=[[associations_ objectForKey:item__Key
-							  withDefaultObject:[item autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"item=%@",item);
-	  if (item && ![item isValueSettable])
-		{
-		  ExceptionRaise0(@"GSWCheckBox",@"'item' parameter must be settable");
-		};
-	  identifier=[[associations_ objectForKey:identifier__Key
-									withDefaultObject:[identifier autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"identifier=%@",identifier);
-	  count=[[associations_ objectForKey:count__Key
-							   withDefaultObject:[count autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"count=%@",count);
-	  index=[[associations_ objectForKey:index__Key
-							   withDefaultObject:[index autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"index=%@",index);
-	  if (index && ![index isValueSettable])
-		{
-		  ExceptionRaise0(@"GSWCheckBox",@"'index' parameter must be settable");
-		};
-	  if (elements_)
-		{
-		  childrenGroup=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements_];
-		};
-	};
+  if ((self=[super initWithName:name
+                   associations:nil
+                   template:nil]))
+    {
+      _list=[[associations objectForKey:list__Key
+                           withDefaultObject:[_list autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"list=%@",_list);
+      _item=[[associations objectForKey:item__Key
+                            withDefaultObject:[_item autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"item=%@",_item);
+      if (_item && ![_item isValueSettable])
+        {
+          ExceptionRaise0(@"GSWCheckBox",@"'item' parameter must be settable");
+        };
+      _identifier=[[associations objectForKey:identifier__Key
+                                  withDefaultObject:[_identifier autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"identifier=%@",_identifier);
+      _count=[[associations objectForKey:count__Key
+                            withDefaultObject:[_count autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"count=%@",_count);
+      _index=[[associations objectForKey:index__Key
+                            withDefaultObject:[_index autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"index=%@",_index);
+      if (_index && ![_index isValueSettable])
+        {
+          ExceptionRaise0(@"GSWCheckBox",@"'index' parameter must be settable");
+        };
+      if (elements)
+        {
+          _childrenGroup=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
+        };
+    };
   LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)templateElement_
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)templateElement
 {
   LOGObjectFnStart();
-  self=[self initWithName:name_
-			 associations:associations_
-			 contentElements:templateElement_ ? [NSArray arrayWithObject:templateElement_] : nil];
+  self=[self initWithName:name
+             associations:associations
+             contentElements:templateElement ? [NSArray arrayWithObject:templateElement] : nil];
   LOGObjectFnStop();
   return self;
 };
@@ -87,12 +87,12 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(list);
-  DESTROY(item);
-  DESTROY(identifier);
-  DESTROY(count);
-  DESTROY(index);
-  DESTROY(childrenGroup);
+  DESTROY(_list);
+  DESTROY(_item);
+  DESTROY(_identifier);
+  DESTROY(_count);
+  DESTROY(_index);
+  DESTROY(_childrenGroup);
   [super dealloc];
 }
 
@@ -100,384 +100,396 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 //====================================================================
 @implementation GSWRepetition (GSWRepetitionA)
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK
-  GSWComponent* _component=nil;
-  NSArray* _listValue=nil;
+  GSWComponent* component=nil;
+  NSArray* listValue=nil;
   int i=0;
-  int _count=0;
+  int countValue=0;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _component=[context_ component];
-  if (list)
-	{
-	  _listValue=[list valueInComponent:_component];
-	  NSAssert2(!_listValue || [_listValue respondsToSelector:@selector(count)],
-				@"The list (%@) (of class:%@) doesn't  respond to 'count'",
-				list,
-				[_listValue class]);
-	  _count=[_listValue count];
-	};
-  if (count)
-	{
-	  id _tmpCountValue=[count valueInComponent:_component];
-	  int _tmpCount=0;
-	  NSAssert2([_tmpCountValue respondsToSelector:@selector(intValue)],
-				@"The 'count' (%@) (of class:%@) doesn't  respond to 'intValue'",
-				count,
-				[_tmpCountValue class]);
-	  _tmpCount=[_tmpCountValue intValue];
-	  _count=min(_tmpCount,_count);
-	};
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  component=[context component];
+  if (_list)
+    {
+      listValue=[_list valueInComponent:component];
+      NSAssert2(!listValue || [listValue respondsToSelector:@selector(count)],
+                @"The list (%@) (of class:%@) doesn't  respond to 'count'",
+                _list,
+                [listValue class]);
+      countValue=[listValue count];
+    };
+  if (_count)
+    {
+      id tmpCountValue=[_count valueInComponent:component];
+      int tmpCount=0;
+      NSAssert3(!tmpCountValue || [tmpCountValue respondsToSelector:@selector(intValue)],
+                @"The 'count' (%@) value %@ (of class:%@) doesn't  respond to 'intValue'",
+                _count,
+                tmpCountValue,
+                [tmpCountValue class]);
+      tmpCount=[tmpCountValue intValue];
+      NSDebugMLog(@"tmpCount=%d",tmpCount);
+      if (_list)
+        countValue=min(tmpCount,countValue);
+      else
+        countValue=tmpCount;
+    };
   
-  NSDebugMLLog(@"gswdync",@"_count=%d",_count);
-  for(i=0;i<_count;i++)
-	{
+  NSDebugMLLog(@"gswdync",@"countValue=%d",countValue);
+  for(i=0;i<countValue;i++)
+    {
 #ifndef NDEBUG
-	  GSWElementIDString* debugElementID=[context_ elementID];
+      GSWElementIDString* debugElementID=[context elementID];
 #endif
-	  [self startOneIterationWithIndex:i
-			list:_listValue
-			inContext:context_];
-	  [context_ appendZeroElementIDComponent];
-	  [childrenGroup appendToResponse:response_
-					 inContext:context_];
-	  [context_ deleteLastElementIDComponent];
-	  [self stopOneIterationWithIndex:i
-			count:_count
-			isLastOne:NO
-			inContext:context_];
+      [self startOneIterationWithIndex:i
+            list:listValue
+            inContext:context];
+      [context appendZeroElementIDComponent];
+      [_childrenGroup appendToResponse:response
+                      inContext:context];
+      [context deleteLastElementIDComponent];
+      [self stopOneIterationWithIndex:i
+            count:countValue
+            isLastOne:NO
+            inContext:context];
 #ifndef NDEBUG
-	  if (![debugElementID isEqualToString:[context_ elementID]])
-		{
-		  NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context_ elementID]=%@",[self class],debugElementID,[context_ elementID]);
-		  
-		};
+      if (![debugElementID isEqualToString:[context elementID]])
+        {
+          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
+          
+        };
 #endif
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWRepetion appendToResponse: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion appendToResponse: bad elementID");
 #endif
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context
 {
   //OK
-  GSWElement* _element=nil;
-  BOOL _isInForm=NO;
+  GSWElement* element=nil;
+  BOOL isInForm=NO;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _isInForm=[context_ isInForm];
-  NSDebugMLLog(@"gswdync",@"_isInForm=%s",_isInForm ? "YES" : "NO");
-  if (_isInForm)
-	_element=[self _slowInvokeActionForRequest:request_
-				   inContext:context_];
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  isInForm=[context isInForm];
+  NSDebugMLLog(@"gswdync",@"isInForm=%s",isInForm ? "YES" : "NO");
+  if (isInForm)
+    element=[self _slowInvokeActionForRequest:request
+                  inContext:context];
   else
-	_element=[self _fastInvokeActionForRequest:request_
-				   inContext:context_];
-  NSDebugMLLog(@"gswdync",@"_element=%@",_element);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+    element=[self _fastInvokeActionForRequest:request
+                  inContext:context];
+  NSDebugMLLog(@"gswdync",@"element=%@",element);
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWRepetion invokeActionForRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion invokeActionForRequest: bad elementID");
 #endif
   LOGObjectFnStop();
-  return _element;
+  return element;
 };
 
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
-  GSWComponent* _component=nil;
-  NSArray* _listValue=nil;
+  GSWComponent* component=nil;
+  NSArray* listValue=nil;
   int i=0;
-  int _count=0;
+  int countValue=0;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _component=[context_ component];
-  if (list)
-	{
-	  _listValue=[list valueInComponent:_component];
-	  NSAssert2(!_listValue || [_listValue respondsToSelector:@selector(count)],
-				@"The list (%@) (of class:%@) doesn't  respond to 'count'",
-				list,
-				[_listValue class]);
-	  _count=[_listValue count];
-	};
-  if (count)
-	{
-	  id _tmpCountValue=[count valueInComponent:_component];
-	  int _tmpCount=0;
-	  NSAssert2(!_tmpCountValue || [_tmpCountValue respondsToSelector:@selector(intValue)],
-				@"The 'count' (%@) (of class:%@) doesn't  respond to 'intValue'",
-				count,
-				[_tmpCountValue class]);
-	  _tmpCount=[_tmpCountValue intValue];
-	  _count=min(_tmpCount,_count);
-	};
-  for(i=0;i<_count;i++)
-	{
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  component=[context component];
+  if (_list)
+    {
+      listValue=[_list valueInComponent:component];
+      NSAssert2(!listValue || [listValue respondsToSelector:@selector(count)],
+                @"The list (%@) (of class:%@) doesn't  respond to 'count'",
+                _list,
+                [listValue class]);
+	  countValue=[listValue count];
+    };
+  if (_count)
+    {
+      id tmpCountValue=[_count valueInComponent:component];
+      int tmpCount=0;
+      NSAssert2(!tmpCountValue || [tmpCountValue respondsToSelector:@selector(intValue)],
+                @"The 'count' (%@) (of class:%@) doesn't  respond to 'intValue'",
+                _count,
+                [tmpCountValue class]);
+      tmpCount=[tmpCountValue intValue];
+      if (_list)
+        countValue=min(tmpCount,countValue);
+      else
+        countValue=tmpCount;
+    };
+  for(i=0;i<countValue;i++)
+    {
 #ifndef NDEBUG
-	  GSWElementIDString* debugElementID=[context_ elementID];
+      GSWElementIDString* debugElementID=[context elementID];
 #endif
-	  [self startOneIterationWithIndex:i
-			list:_listValue
-			inContext:context_];
-	  [context_ appendZeroElementIDComponent];
-	  [childrenGroup takeValuesFromRequest:request_
-					 inContext:context_];
-	  [context_ deleteLastElementIDComponent];
+      [self startOneIterationWithIndex:i
+            list:listValue
+            inContext:context];
+      [context appendZeroElementIDComponent];
+      [_childrenGroup takeValuesFromRequest:request
+                      inContext:context];
+	  [context deleteLastElementIDComponent];
 	  [self stopOneIterationWithIndex:i
-			count:_count
-			isLastOne:NO
-			inContext:context_];
+                count:countValue
+                isLastOne:NO
+                inContext:context];
 #ifndef NDEBUG
-	  if (![debugElementID isEqualToString:[context_ elementID]])
-		{
-		  NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context_ elementID]=%@",[self class],debugElementID,[context_ elementID]);
-		  
-		};
+	  if (![debugElementID isEqualToString:[context elementID]])
+            {
+              NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
+              
+            };
 #endif
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWRepetion takeValuesFromRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion takeValuesFromRequest: bad elementID");
 #endif
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(GSWElement*)_slowInvokeActionForRequest:(GSWRequest*)request_
-							   inContext:(GSWContext*)context_
+-(GSWElement*)_slowInvokeActionForRequest:(GSWRequest*)request
+                                inContext:(GSWContext*)context
 {
   //OK
-  GSWElement* _element=nil;
-  GSWComponent* _component=nil;
-  NSArray* _listValue=nil;
+  GSWElement* element=nil;
+  GSWComponent* component=nil;
+  NSArray* listValue=nil;
   int i=0;
-  int _count=0;
+  int countValue=0;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _component=[context_ component];
-  if (list)
-	{
-	  _listValue=[list valueInComponent:_component];
-	  NSAssert2(!_listValue || [_listValue respondsToSelector:@selector(count)],
-				@"The list (%@) (of class:%@) doesn't  respond to 'count'",
-				list,
-				[_listValue class]);
-	  _count=[_listValue count];
-	};
-  if (count)
-	{
-	  id _tmpCountValue=[count valueInComponent:_component];
-	  int _tmpCount=0;
-	  NSAssert2(!_tmpCountValue || [_tmpCountValue respondsToSelector:@selector(intValue)],
-				@"The 'count' (%@) (of class:%@) doesn't  respond to 'intValue'",
-				count,
-				[_tmpCountValue class]);
-	  _tmpCount=[_tmpCountValue intValue];
-	  _count=min(_tmpCount,_count);
-	};
-  for(i=0;!_element && i<_count;i++)
-	{
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  component=[context component];
+  if (_list)
+    {
+      listValue=[_list valueInComponent:component];
+      NSAssert2(!listValue || [listValue respondsToSelector:@selector(count)],
+                @"The list (%@) (of class:%@) doesn't  respond to 'count'",
+                _list,
+                [listValue class]);
+      countValue=[listValue count];
+    };
+  if (_count)
+    {
+      id tmpCountValue=[_count valueInComponent:component];
+      int tmpCount=0;
+      NSAssert2(!tmpCountValue || [tmpCountValue respondsToSelector:@selector(intValue)],
+                @"The 'count' (%@) (of class:%@) doesn't  respond to 'intValue'",
+                _count,
+                [tmpCountValue class]);
+      tmpCount=[tmpCountValue intValue];
+      if (_list)
+        countValue=min(tmpCount,countValue);
+      else
+        countValue=tmpCount;
+    };
+  for(i=0;!element && i<countValue;i++)
+    {
 #ifndef NDEBUG
-	  GSWElementIDString* debugElementID=[context_ elementID];
+      GSWElementIDString* debugElementID=[context elementID];
 #endif
-	  [self startOneIterationWithIndex:i
-			list:_listValue
-			inContext:context_];
-	  [context_ appendZeroElementIDComponent];
-	  _element=[childrenGroup invokeActionForRequest:request_
-							  inContext:context_];
-	  [context_ deleteLastElementIDComponent];
-	  [self stopOneIterationWithIndex:i
-			count:_count
-			isLastOne:(_element!=nil)
-			inContext:context_];
+      [self startOneIterationWithIndex:i
+            list:listValue
+            inContext:context];
+      [context appendZeroElementIDComponent];
+      element=[_childrenGroup invokeActionForRequest:request
+                             inContext:context];
+      [context deleteLastElementIDComponent];
+      [self stopOneIterationWithIndex:i
+            count:countValue
+            isLastOne:(element!=nil)
+            inContext:context];
 #ifndef NDEBUG
-	  if (![debugElementID isEqualToString:[context_ elementID]])
-		{
-		  NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context_ elementID]=%@",[self class],debugElementID,[context_ elementID]);
-		  
-		};
+      if (![debugElementID isEqualToString:[context elementID]])
+        {
+          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
+        };
 #endif
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWRepetion _slowInvokeActionForRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion _slowInvokeActionForRequest: bad elementID");
 #endif
   LOGObjectFnStop();
-  return _element;
+  return element;
 };
 
 //--------------------------------------------------------------------
--(GSWElement*)_fastInvokeActionForRequest:(GSWRequest*)request_
-							   inContext:(GSWContext*)context_
+-(GSWElement*)_fastInvokeActionForRequest:(GSWRequest*)request
+                                inContext:(GSWContext*)context
 {
   //OK
-  GSWElement* _element=nil;
-  NSString* _senderID=nil;
-  NSString* _elementID=nil;
+  GSWElement* element=nil;
+  NSString* senderID=nil;
+  NSString* elementID=nil;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _senderID=[context_ senderID];
-  NSDebugMLLog(@"gswdync",@"_senderID=%@",_senderID);
-  _elementID=[context_ elementID];
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",_elementID);
-  if ([_senderID hasPrefix:_elementID])
-	{
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  senderID=[context senderID];
+  NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
+  elementID=[context elementID];
+  NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
+  if ([senderID hasPrefix:elementID])
+    {
 #ifndef NDEBUG
-	  GSWElementIDString* debugElementID=[context_ elementID];
+      GSWElementIDString* debugElementID=[context elementID];
 #endif
-	  int _count=0;
-	  NSArray* _listValue=nil;
-	  int i=0;
-	  GSWComponent* _component=[context_ component];
-	  if (list)
-		{
-		  _listValue=[list valueInComponent:_component];
-		  NSAssert2(!_listValue || [_listValue respondsToSelector:@selector(count)],
-					@"The list (%@) (of class:%@) doesn't  respond to 'count'",
-					list,
-					[_listValue class]);
-		  _count=[_listValue count];
-		};
-	  if (count)
-		{
-		  id _tmpCountValue=[count valueInComponent:_component];
-		  int _tmpCount=0;
-		  NSAssert2(!_tmpCountValue || [_tmpCountValue respondsToSelector:@selector(intValue)],
-					@"The 'count' (%@) (of class:%@) doesn't  respond to 'intValue'",
-					count,
-					[_tmpCountValue class]);
-		  _tmpCount=[_tmpCountValue intValue];
-		  _count=min(_tmpCount,_count);
-		};
-	  for(i=0;!_element && i<_count;i++)
-		{
-		  [self startOneIterationWithIndex:i
-				list:_listValue
-				inContext:context_];
-		  [context_ appendZeroElementIDComponent];
-		  _element=[childrenGroup invokeActionForRequest:request_
-								  inContext:context_];
-		  NSDebugMLLog(@"gswdync",@"_element=%@",_element);
-		  [context_ deleteLastElementIDComponent];
-		  [self stopOneIterationWithIndex:i
-				count:_count
-				isLastOne:(_element!=nil)
-				inContext:context_];
+      int countValue=0;
+      NSArray* listValue=nil;
+      int i=0;
+      GSWComponent* component=[context component];
+      if (_list)
+        {
+          listValue=[_list valueInComponent:component];
+          NSAssert2(!listValue || [listValue respondsToSelector:@selector(count)],
+                    @"The list (%@) (of class:%@) doesn't  respond to 'count'",
+                    _list,
+                    [listValue class]);
+          countValue=[listValue count];
+        };
+      if (_count)
+        {
+          id tmpCountValue=[_count valueInComponent:component];
+          int tmpCount=0;
+          NSAssert2(!tmpCountValue || [tmpCountValue respondsToSelector:@selector(intValue)],
+                    @"The 'count' (%@) (of class:%@) doesn't  respond to 'intValue'",
+                    _count,
+                    [tmpCountValue class]);
+          tmpCount=[tmpCountValue intValue];
+          if (_list)
+            countValue=min(tmpCount,countValue);
+          else
+            countValue=tmpCount;
+        };
+      for(i=0;!element && i<countValue;i++)
+        {
+          [self startOneIterationWithIndex:i
+                list:listValue
+                inContext:context];
+          [context appendZeroElementIDComponent];
+          element=[_childrenGroup invokeActionForRequest:request
+                                  inContext:context];
+          NSDebugMLLog(@"gswdync",@"element=%@",element);
+          [context deleteLastElementIDComponent];
+          [self stopOneIterationWithIndex:i
+                count:countValue
+                isLastOne:(element!=nil)
+                inContext:context];
 #ifndef NDEBUG
-		  if (![debugElementID isEqualToString:[context_ elementID]])
-			{
-			  NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context_ elementID]=%@",[self class],debugElementID,[context_ elementID]);
-			  
-			};
+          if (![debugElementID isEqualToString:[context elementID]])
+            {
+              NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
+            };
 #endif
-		};
-	};
-  NSDebugMLLog(@"gswdync",@"_element=%@",_element);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+        };
+    };
+  NSDebugMLLog(@"gswdync",@"element=%@",element);
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWRepetion _fastInvokeActionForRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion _fastInvokeActionForRequest: bad elementID");
 #endif
   LOGObjectFnStop();
-  return _element;
+  return element;
 };
 
 //--------------------------------------------------------------------
--(void)stopOneIterationWithIndex:(int)index_
-						   count:(int)count_
-					   isLastOne:(BOOL)isLastOne_
-					   inContext:(GSWContext*)context_
+-(void)stopOneIterationWithIndex:(int)currentIndex
+                           count:(int)count
+                       isLastOne:(BOOL)isLastOne
+                       inContext:(GSWContext*)context
 {
   //OK
   LOGObjectFnStart();
-  if (index_==(count_-1) || isLastOne_)
-	{
-	  NS_DURING
-		{
-		  GSWComponent* _component=[context_ component];
-		  if (list && item)
-			[item setValue:nil //??
-				  inComponent:_component];
-		  if (index)
-			[index setValue:[NSNumber numberWithShort:0]
-				   inComponent:_component];
-		  [context_ deleteLastElementIDComponent];
-		}
-	  NS_HANDLER
-		{
-		  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In stopOneIterationWithIndex");
-		  [localException raise];
-		}
-	  NS_ENDHANDLER;
-	};
+  if (currentIndex==(count-1) || isLastOne)
+    {
+      NS_DURING
+        {
+          GSWComponent* component=[context component];
+          if (_list && _item)
+            [_item setValue:nil //??
+                   inComponent:component];
+          if (_index)
+            [_index setValue:[NSNumber numberWithShort:0]
+                    inComponent:component];
+          [context deleteLastElementIDComponent];
+        }
+      NS_HANDLER
+        {
+          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In stopOneIterationWithIndex");
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+    };
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)startOneIterationWithIndex:(unsigned int)index_
-							 list:(NSArray*)list_
-						inContext:(GSWContext*)context_
+-(void)startOneIterationWithIndex:(unsigned int)currentIndex
+                             list:(NSArray*)list
+                        inContext:(GSWContext*)context
 {
   //OK
-  GSWComponent* _component=nil;
+  GSWComponent* component=nil;
   LOGObjectFnStart();
   NS_DURING
-	{
-	  _component=[context_ component];
-	  NSDebugMLLog(@"gswdync",@"item=%@",item);
-	  if (list && item)
-		[item setValue:[list_ objectAtIndex:index_]
-			  inComponent:_component];
-	  NSDebugMLLog(@"gswdync",@"index_=%d",index_);
-	  NSDebugMLLog(@"gswdync",@"index=%@",index);
-	  if (index)
-		[index setValue:[NSNumber numberWithShort:index_]
-			   inComponent:_component];
-	  if (index_==0)
-		[context_ appendZeroElementIDComponent];
-	  else
-		[context_ incrementLastElementIDComponent];
-	}
+    {
+      component=[context component];
+      NSDebugMLLog(@"gswdync",@"_item=%@",_item);
+      if (_list && _item)
+        [_item setValue:[list objectAtIndex:currentIndex]
+               inComponent:component];
+      NSDebugMLLog(@"gswdync",@"currentIndex=%d",currentIndex);
+      NSDebugMLLog(@"gswdync",@"_index=%@",_index);
+      if (_index)
+        [_index setValue:[NSNumber numberWithShort:currentIndex]
+                inComponent:component];
+      if (currentIndex==0)
+        [context appendZeroElementIDComponent];
+      else
+        [context incrementLastElementIDComponent];
+    }
   NS_HANDLER
-	{
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In startOneIterationWithIndex");
-	  [localException raise];
-	}
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In startOneIterationWithIndex");
+      [localException raise];
+    }
   NS_ENDHANDLER;
   LOGObjectFnStop();
 };

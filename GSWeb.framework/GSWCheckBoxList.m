@@ -223,22 +223,25 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLLog(@"gswdync",@"_selections=%d",_selections);
 	  NSDebugMLLog(@"gswdync",@"selections=%@",selections);
 	  GSWLogAssertGood(_component);
-#if !GSWEB_STRICT
-	  NS_DURING
-	    {
-	      [selections setValue:_selections
-			  inComponent:_component];
-	    };
-	  NS_HANDLER
-	    {
-	      [self handleValidationException:localException
-		    inContext:context_];
-	    }
-	  NS_ENDHANDLER;
-#else
-	  [selections setValue:_selections
-		      inComponent:_component];
-#endif
+          if (!WOStrictFlag)
+            {
+              NS_DURING
+                {
+                  [selections setValue:_selections
+                              inComponent:_component];
+                };
+              NS_HANDLER
+                {
+                  [self handleValidationException:localException
+                        inContext:context_];
+                }
+              NS_ENDHANDLER;
+            }
+          else
+            {
+              [selections setValue:_selections
+                          inComponent:_component];
+            };
 	};
     };
   LOGObjectFnStopC("GSWCheckBoxList");

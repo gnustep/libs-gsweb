@@ -31,14 +31,14 @@
 @interface GSWInput: GSWHTMLDynamicElement
 {
   GSWAssociation* disabled;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* enabled;
-#endif
+//}
   GSWAssociation* name;
   GSWAssociation* value;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* handleValidationException;
-#endif
+// }
 };
 
 -(id)initWithName:(NSString*)name_

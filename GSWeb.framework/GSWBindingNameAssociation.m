@@ -40,19 +40,15 @@ static char rcsId[] = "$Id$";
 	  keys=[keyPath_ componentsSeparatedByString:@"."];
 	  if ([keys count]>0)
 		{
-#if !GSWEB_STRICT
-		  if ([keyPath_ hasPrefix:@"^"])
-			{
-#endif
-			  ASSIGNCOPY(parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"^"]);
-#if !GSWEB_STRICT
-			}
-		  else if ([keyPath_ hasPrefix:@"~"])
-			{
-			  ASSIGNCOPY(parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"~"]);
-			  isNonMandatory=YES; 
-			};
-#endif
+		  if (!WOStrictFlag && [keyPath_ hasPrefix:@"^"])
+                    {
+                      ASSIGNCOPY(parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"^"]);
+                    }
+		  else if (!WOStrictFlag && [keyPath_ hasPrefix:@"~"])
+                    {
+                      ASSIGNCOPY(parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"~"]);
+                      isNonMandatory=YES; 
+                    };
 		  if ([keys count]>1)
 			{
 			  ASSIGN(keyPath,[[keys subarrayWithRange:NSMakeRange(1,[keys count]-1)]componentsJoinedByString:@"."]);

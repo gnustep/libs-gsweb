@@ -123,22 +123,23 @@ static char rcsId[] = "$Id$";
 				_resultValue=_value;
 			};
 		  NSDebugMLLog(@"gswdync",@"_resultValue=%@",_resultValue);
-#if !GSWEB_STRICT
-		  NS_DURING
+                  if (!WOStrictFlag)
+                    {
+                      NS_DURING
 			{
 			  [value setValue:_resultValue
-					 inComponent:_component];
+                                 inComponent:_component];
 			};
-	  	  NS_HANDLER
+                      NS_HANDLER
 			{
 			  [self handleValidationException:localException
-					inContext:context_];
+                                inContext:context_];
 			}
 		  NS_ENDHANDLER;
-#else
-		  [value setValue:_resultValue
-				 inComponent:_component];		  
-#endif
+                    }
+                  else
+                    [value setValue:_resultValue
+                           inComponent:_component];		  
 
 		};
 	};

@@ -32,10 +32,10 @@
   GSWAssociation* src;
   GSWAssociation* value;
   GSWAssociation* pageName;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   NSDictionary* pageSetVarAssociations;
   GSWAssociation* pageSetVarAssociationsDynamic;
-#endif
+// }
   GSWAssociation* filename;
   GSWAssociation* framework;
   GSWAssociation* data;

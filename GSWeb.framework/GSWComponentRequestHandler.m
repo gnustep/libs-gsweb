@@ -89,7 +89,7 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLLog(@"requests",@"_statisticsStore=%@",_statisticsStore);
 	  [_statisticsStore _applicationWillHandleComponentActionRequest];
 	  _context=[GSWContext contextWithRequest:request_];
-	  _senderID=[_requestHandlerValues objectForKey:GSWKey_ElementID];
+	  _senderID=[_requestHandlerValues objectForKey:GSWKey_ElementID[GSWebNamingConv]];
 	  NSDebugMLLog(@"requests",@"AA _senderID=%@",_senderID);
 	  [_context _setSenderID:_senderID];
 	  [_application _setContext:_context];
@@ -160,7 +160,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   NS_DURING
 	{
-	  _sessionID=[_elements objectForKey:GSWKey_SessionID];
+	  _sessionID=[_elements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
 	  NSDebugMLLog(@"requests",@"_sessionID=%@",_sessionID);
 	  if (_sessionID)
 		{
@@ -234,7 +234,9 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"requests",@"_session=%@",_session);
   NSDebugMLLog(@"requests",@"_context=%@",_context);
   _storesIDsInCookies=[_session storesIDsInCookies]; //For What ?
-  _contextID=[_elements objectForKey:GSWKey_ContextID];
+  NSDebugMLLog(@"requests",@"_storesIDsInCookies=%s",(_storesIDsInCookies ? "YES" : "NO"));
+  _contextID=[_elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
+  NSDebugMLLog(@"requests",@"_contextID=%@",_contextID);
   if (_contextID) // ??
 	{
 	  NSAssert([_contextID length]>0,@"contextID empty");
@@ -252,8 +254,9 @@ static char rcsId[] = "$Id$";
 	}
   else
 	{
-	  NSString* _pageName=[_elements objectForKey:GSWKey_PageName];
+	  NSString* _pageName=[_elements objectForKey:GSWKey_PageName[GSWebNamingConv]];
 	  NSException* _exception=nil;
+          NSDebugMLLog(@"requests",@"_pageName=%@",_pageName);
 	  NS_DURING
 		{
 		  _page=[[GSWApplication application] pageWithName:_pageName
@@ -324,7 +327,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   NSDebugMLLog(@"requests",@"_component=%@",_component);
   _request=[_context request];
-  _contextID=[_elements objectForKey:GSWKey_ContextID];
+  _contextID=[_elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
   NSDebugMLLog(@"requests",@"_contextID=%@",_contextID);
   _response=[[GSWResponse new]autorelease];
   NSDebugMLLog(@"requests",@"_response=%@",_response);

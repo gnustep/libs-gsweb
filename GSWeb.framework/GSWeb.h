@@ -32,6 +32,7 @@
 #ifdef __FreeBSD__
 #include <float.h>
 #endif
+#include <Foundation/Foundation.h>
 #include <Foundation/NSObject.h>
 #include <Foundation/NSValue.h>
 #include <Foundation/NSString.h>
@@ -200,6 +201,7 @@
 #include <GSWeb/GSWResourceManager.h>
 #include <GSWeb/GSWSession.h>
 #include <GSWeb/GSWSessionStore.h>
+#include <GSWeb/GSWSessionTimeOut.h>
 #include <GSWeb/GSWStatisticsStore.h>
 #include <GSWeb/GSWAdaptor.h>
 #include <GSWeb/GSWDefaultAdaptor.h>
@@ -273,5 +275,6 @@
 #include <GSWeb/GSWGeometricRegion.h>
 #include <GSWeb/GSWFileUpload.h>
 #include <GSWeb/GSWResourceURL.h>
+#include <GSWeb/GSWWOCompatibility.h>
 
 #endif //_GSWeb_h__

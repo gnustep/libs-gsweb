@@ -31,21 +31,23 @@ static char rcsId[] = "$Id$";
 -(id)initWithName:(NSString*)name_
 		arguments:(NSDictionary*)arguments_
 {
+  NSDebugMLog(@"Init");
   if ((self=[super initWithName:name_
-				   arguments:arguments_]))
-	{
-	  fileHandle=nil;
-	  threads=[NSMutableArray new];
-	  waitingThreads=[NSMutableArray new];
-	  selfLock=[NSLock new];
-	  port=[[arguments_ objectForKey:GSWOPT_Port] intValue];
-	  NSDebugMLLog(@"info",@"port=%d",port);
-	  ASSIGN(host,[arguments_ objectForKey:GSWOPT_Host]);
-	  //  [self setInstance:_instance];
-	  queueSize=[[arguments_ objectForKey:GSWOPT_ListenQueueSize] intValue];
-	  workerThreadCount=[[arguments_ objectForKey:GSWOPT_WorkerThreadCount] intValue];
-	  isMultiThreadEnabled=[[arguments_ objectForKey:GSWOPT_MultiThreadEnabled] boolValue];
-	};
+                   arguments:arguments_]))
+    {
+      fileHandle=nil;
+      threads=[NSMutableArray new];
+      waitingThreads=[NSMutableArray new];
+      selfLock=[NSLock new];
+      port=[[arguments_ objectForKey:GSWOPT_Port[GSWebNamingConv]] intValue];
+      NSDebugMLLog(@"info",@"port=%d",port);
+      ASSIGN(host,[arguments_ objectForKey:GSWOPT_Host[GSWebNamingConv]]);
+      //  [self setInstance:_instance];
+      queueSize=[[arguments_ objectForKey:GSWOPT_ListenQueueSize[GSWebNamingConv]] intValue];
+      workerThreadCount=[[arguments_ objectForKey:GSWOPT_WorkerThreadCount[GSWebNamingConv]] intValue];
+      isMultiThreadEnabled=[[arguments_ objectForKey:GSWOPT_MultiThreadEnabled] boolValue];
+    };
+  LOGObjectFnStop();
   return self;
 };
 

@@ -38,8 +38,8 @@
 -(id)initWithPath:(NSString*)path_;
 -(void)dealloc;
 -(NSString*)description;
--(NSString*)lockedPathsForResourcesOfType:(id)type_;
--(NSString*)lockedPathsForResourcesInSubprojectsOfType:(id)type_;
+-(NSArray*)lockedPathsForResourcesOfType:(id)type_;
+-(NSArray*)lockedPathsForResourcesInSubprojectsOfType:(id)type_;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)name_
 								   forLanguage:(NSString*)language_;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)name_

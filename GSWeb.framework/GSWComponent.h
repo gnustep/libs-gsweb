@@ -41,12 +41,12 @@
     GSWElement* childTemplate;
     GSWContext* context;
     GSWSession* session;
-#if !GSWEB_STRICT
+//GSWeb Additions {
 	NSDictionary* userDictionary;
 	NSDictionary* userAssociations;
 	NSDictionary* defaultAssociations;
 	NSMutableDictionary* validationFailureMessages;
-#endif
+// }
     BOOL isPage;
     BOOL isCachingEnabled;
     BOOL isSynchronized;

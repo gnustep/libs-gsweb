@@ -39,7 +39,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   _elements=[request_ uriOrFormOrCookiesElements];
   NSDebugMLog(@"_elements=%@",_elements);
-  _gswdata=[_elements objectForKey:GSWKey_Data];
+  _gswdata=[_elements objectForKey:GSWKey_Data[GSWebNamingConv]];
   NSDebugMLog(@"_gswdata=%@",_gswdata);
   if (_gswdata)
 	_response=[self _responseForDataCachedWithKey:_gswdata];

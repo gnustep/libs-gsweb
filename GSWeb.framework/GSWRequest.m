@@ -52,7 +52,9 @@ static char rcsId[] = "$Id$";
 	  [self _initCookieDictionary];//NDFN
 	  applicationNumber=-9999;
 	  {
-		NSString* _adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion];
+		NSString* _adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConv]];
+                if (!_adaptorVersion)
+                  _adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConvInversed]];
 		NSDebugMLLog(@"requests",@"_adaptorVersion=%@",_adaptorVersion);
 		[self _setIsUsingWebServer:(_adaptorVersion!=nil)];//??
 	  };
@@ -198,42 +200,46 @@ static char rcsId[] = "$Id$";
 -(NSString*)urlProtocol
 {
   //TODO
-  NSString* _urlProtocol=[uri urlProtocol];
-  if (!_urlProtocol)
-	_urlProtocol=GSWProtocol_HTTP;
-  return _urlProtocol;
+  NSString* urlProtocol=[uri urlProtocol];
+  if (!urlProtocol)
+	urlProtocol=GSWProtocol_HTTP;
+  return urlProtocol;
 };
 
 //--------------------------------------------------------------------
 //NDFN
 -(NSString*)urlHost
 {
-  NSString* _urlHost=[uri urlHost];
-  if (!_urlHost)
-	_urlHost=[self headerForKey:GSWHTTPHeader_ServerName];
-  return _urlHost;
+  NSString* urlHost=[uri urlHost];
+  if (!urlHost)
+    urlHost=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConv]];
+  if (!urlHost)
+    urlHost=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConvInversed]];
+  return urlHost;
 };
 
 //--------------------------------------------------------------------
 //NDFN
 -(NSString*)urlPortString
 {
-  NSString* _urlPortString=[uri urlPortString];
-  if (!_urlPortString)
-	{
-	  _urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort];
-	};
-  return _urlPortString;
+  NSString* urlPortString=[uri urlPortString];
+  if (!urlPortString)
+    urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]];
+  if (!urlPortString)
+    urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConvInversed]];
+  return urlPortString;
 };
 
 //--------------------------------------------------------------------
 //NDFN
 -(int)urlPort
 {
-  int _port=[uri urlPort];
-  if (!_port)
-	_port=[[self headerForKey:GSWHTTPHeader_ServerPort]intValue];
-  return _port;
+  int port=[uri urlPort];
+  if (!port)
+    port=[[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]]intValue];
+  if (!port)
+    port=[[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConvInversed]]intValue];
+  return port;
 };
 
 //--------------------------------------------------------------------
@@ -516,7 +522,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   NSString* _remoteInvocationPost=nil;
   BOOL _isFromClientComponent=NO;
   LOGObjectFnStart();
-  _remoteInvocationPost=[self formValueForKey:GSWFormValue_RemoteInvocationPost];
+  _remoteInvocationPost=[self formValueForKey:GSWFormValue_RemoteInvocationPost[GSWebNamingConv]];
   _isFromClientComponent=(_remoteInvocationPost!=nil);
   LOGObjectFnStop();
   return _isFromClientComponent;
@@ -696,7 +702,9 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   NSDictionary* _uriElements=nil;
   LOGObjectFnStart();
   _uriElements=[self uriOrFormOrCookiesElements];
-  _sessionID=[_uriElements objectForKey:GSWKey_SessionID];
+  _sessionID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (!_sessionID)
+    _sessionID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
   LOGObjectFnStop();
   return _sessionID;
 };
@@ -734,7 +742,9 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   if (applicationNumber==-9999)
 	{
 	  NSDictionary* _uriElements=[self uriOrFormOrCookiesElements];
-	  NSString* _applicationNumber=[_uriElements objectForKey:GSWKey_InstanceID];
+	  NSString* _applicationNumber=[_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConv]];
+          if (!_applicationNumber)
+            _applicationNumber=[_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
 	  applicationNumber=[_applicationNumber intValue];
 	};
   return applicationNumber;
@@ -903,20 +913,32 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 //--------------------------------------------------------------------
 -(BOOL)_isSessionIDinRequest
 {
+  id ID=nil;
   NSDictionary* _uriElements=[self uriElements];
-  return ([_uriElements objectForKey:GSWKey_SessionID]!=nil);
+  ID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (!ID)
+    ID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+  return (ID!=nil);
 };
 
 //--------------------------------------------------------------------
 -(BOOL)_isSessionIDinCookies
 {
-  return ([self cookieValueForKey:GSWKey_SessionID]!=nil);
+  id ID=nil;
+  ID=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (!ID)
+    ID=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+  return (ID!=nil);
 };
 
 //--------------------------------------------------------------------
 -(BOOL)_isSessionIDinFormValues
 {
-  return ([self formValueForKey:GSWKey_SessionID]!=nil);
+  id ID=nil;
+  ID=[self formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (!ID)
+    ID=[self formValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+  return (ID!=nil);
 };
 
 //--------------------------------------------------------------------
@@ -1544,16 +1566,24 @@ into
 //	pageName
 -(NSString*)pageName 
 {
+  NSString* pageName=nil;
   NSDictionary* _uriElements=[self uriOrFormOrCookiesElements];
-  return [_uriElements objectForKey:GSWKey_PageName];
+  pageName=[_uriElements objectForKey:GSWKey_PageName[GSWebNamingConv]];
+  if (!pageName)
+    pageName=[_uriElements objectForKey:GSWKey_PageName[GSWebNamingConvInversed]];
+  return pageName;
 };
 
 //--------------------------------------------------------------------
 //	senderID
 -(NSString*)senderID 
 {
+  NSString* senderID=nil;
   NSDictionary* _uriElements=[self uriOrFormOrCookiesElements];
-  return [_uriElements objectForKey:GSWKey_ElementID];
+  senderID=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]];
+  if (!senderID)
+    senderID=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+  return senderID;
 };
 
 //--------------------------------------------------------------------
@@ -1565,7 +1595,9 @@ into
   NSDictionary* _uriElements=nil;
   LOGObjectFnStart();
   _uriElements=[self uriOrFormOrCookiesElements];
-  _contextID=[_uriElements objectForKey:GSWKey_ContextID];
+  _contextID=[_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
+  if (!_contextID)
+    _contextID=[_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
   LOGObjectFnStop();
   return _contextID;
 };
@@ -1578,58 +1610,136 @@ into
   NSMutableDictionary* _uriElements=nil;
   LOGObjectFnStart();
   _uriElements=[self uriElements];
-  if (![_uriElements objectForKey:GSWKey_SessionID])
+  if (![_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]])
 	{
-	  _tmp=[self formValueForKey:GSWKey_SessionID];
-	  if (!_tmp)
-		_tmp=[self cookieValueForKey:GSWKey_SessionID];
-	  if (_tmp)
-		[_uriElements setObject:_tmp
-					  forKey:GSWKey_SessionID];
+	  _tmp=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+          if (!_tmp)
+            {
+              _tmp=[self formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+              if (!_tmp)
+                {
+                  _tmp=[self formValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+                  if (!_tmp)
+                    {
+                      _tmp=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+                      if (!_tmp)
+                        {
+                          _tmp=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+                        };
+                    };
+                };
+            };
+          if (_tmp)
+            [_uriElements setObject:_tmp
+                          forKey:GSWKey_SessionID[GSWebNamingConv]];
 	};
-  if (![_uriElements objectForKey:GSWKey_ContextID])
+  if (![_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConv]])
 	{
-	  _tmp=[self formValueForKey:GSWKey_ContextID];
-	  if (!_tmp)
-		_tmp=[self cookieValueForKey:GSWKey_ContextID];
-	  if (_tmp)
-		[_uriElements setObject:_tmp
-					  forKey:GSWKey_ContextID];
+          _tmp=[_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
+          if (!_tmp)
+            {
+              _tmp=[self formValueForKey:GSWKey_ContextID[GSWebNamingConv]];
+              if (!_tmp)
+                {
+                  _tmp=[self formValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
+                  if (!_tmp)
+                    {
+                      _tmp=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConv]];
+                      if (!_tmp)
+                        {
+                          _tmp=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
+                        };
+                    };
+                };
+            };
+          if (_tmp)
+            [_uriElements setObject:_tmp
+                          forKey:GSWKey_ContextID[GSWebNamingConv]];
 	};
-  if (![_uriElements objectForKey:GSWKey_ElementID])
+  if (![_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
 	{
-	  _tmp=[self formValueForKey:GSWKey_ElementID];
-	  if (!_tmp)
-		_tmp=[self cookieValueForKey:GSWKey_ElementID];
+          _tmp=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+          if (!_tmp)
+            {
+              _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+              if (!_tmp)
+                {
+                  _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+                  if (!_tmp)
+                    {
+                      _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+                      if (!_tmp)
+                        {
+                          _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+                        };
+                    };
+                };
+            };
 	  if (_tmp)
-		[_uriElements setObject:_tmp
-					  forKey:GSWKey_ContextID];
+            [_uriElements setObject:_tmp
+                          forKey:GSWKey_ContextID[GSWebNamingConv]];
 	};
 
-  if (![_uriElements objectForKey:GSWKey_ElementID])
+  if (![_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
 	{
-	  _tmp=[self formValueForKey:GSWKey_ElementID];
-	  if (!_tmp)
-		_tmp=[self cookieValueForKey:GSWKey_ElementID];
+          _tmp=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+          if (!_tmp)
+            {
+              _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+              if (!_tmp)
+                {
+                  _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+                  if (!_tmp)
+                    {
+                      _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+                      if (!_tmp)
+                        {
+                          _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+                        };
+                    };
+                };
+            };
 	  if (_tmp)
-		[_uriElements setObject:_tmp
-					  forKey:GSWKey_ContextID];
+            [_uriElements setObject:_tmp
+                          forKey:GSWKey_ContextID[GSWebNamingConv]];
 	};
-  if (![_uriElements objectForKey:GSWKey_InstanceID])
+  if (![_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConv]])
 	{
-	  _tmp=[self formValueForKey:GSWKey_InstanceID];
-	  if (!_tmp)
-		_tmp=[self cookieValueForKey:GSWKey_InstanceID];
+          _tmp=[_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+          if (!_tmp)
+            {
+              _tmp=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
+              if (!_tmp)
+                {
+                  _tmp=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+                  if (!_tmp)
+                    {
+                      _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
+                      if (!_tmp)
+                        {
+                          _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+                        };
+                    };
+                };
+            };
 	  if (_tmp)
-		[_uriElements setObject:_tmp
-					  forKey:GSWKey_InstanceID];
+            [_uriElements setObject:_tmp
+                          forKey:GSWKey_InstanceID[GSWebNamingConv]];
 	};
-  if (![_uriElements objectForKey:GSWKey_Data])
+  if (![_uriElements objectForKey:GSWKey_Data[GSWebNamingConv]])
 	{
-	  _tmp=[self formValueForKey:GSWKey_Data];
+          _tmp=[_uriElements objectForKey:GSWKey_Data[GSWebNamingConvInversed]];
+          if (!_tmp)
+            {
+              _tmp=[self formValueForKey:GSWKey_Data[GSWebNamingConv]];
+              if (!_tmp)
+                {
+                  _tmp=[self formValueForKey:GSWKey_Data[GSWebNamingConvInversed]];
+                };
+            };
 	  if (_tmp)
-		[_uriElements setObject:_tmp
-					  forKey:GSWKey_Data];
+            [_uriElements setObject:_tmp
+                          forKey:GSWKey_Data[GSWebNamingConv]];
 	};
   LOGObjectFnStop();
   return _uriElements;
@@ -1654,7 +1764,9 @@ into
   _dict=[NSMutableDictionary new];
   //NEW//TODO
   _requestHandlerKey=[((GSWDynamicURLString*)[self uri]) urlRequestHandlerKey];
-  if (!_requestHandlerKey || ![_requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey])
+  if (!_requestHandlerKey
+      || (![_requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConv]]
+          &&![_requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]]))
 	{
 	  _requestHandlerPathArray=[self requestHandlerPathArray];
 	  NSDebugMLLog(@"requests",@"_requestHandlerPathArray=%@",_requestHandlerPathArray);
@@ -1662,12 +1774,18 @@ into
 		{
 		  tmp=[_requestHandlerPathArray objectAtIndex:_index];
 		  NSDebugMLLog(@"requests",@"tmp=%@",tmp);
-		  if ([tmp hasSuffix:GSWPagePSuffix])
-			{
-			  _gswpage=[tmp stringWithoutSuffix:GSWPagePSuffix];
-			  NSDebugMLLog(@"requests",@"_gswpage=%@",_gswpage);
-			  _index++;
-			};
+		  if ([tmp hasSuffix:GSWPagePSuffix[GSWebNamingConv]])
+                    {
+                      _gswpage=[tmp stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConv]];
+                      NSDebugMLLog(@"requests",@"_gswpage=%@",_gswpage);
+                      _index++;
+                    }
+                  else if ([tmp hasSuffix:GSWPagePSuffix[GSWebNamingConvInversed]])
+                    {
+                      _gswpage=[tmp stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConvInversed]];
+                      NSDebugMLLog(@"requests",@"_gswpage=%@",_gswpage);
+                      _index++;
+                    };
 		  if ([_requestHandlerPathArray count]>_index)
 			{
 			  _gswsid=[_requestHandlerPathArray objectAtIndex:_index];
@@ -1710,30 +1828,32 @@ into
   
   if (_gswpage)
 	[_dict setObject:_gswpage
-		   forKey:GSWKey_PageName];
+		   forKey:GSWKey_PageName[GSWebNamingConv]];
   
   if (_gswsid)
 	[_dict setObject:_gswsid
-		   forKey:GSWKey_SessionID];
+		   forKey:GSWKey_SessionID[GSWebNamingConv]];
 
   if (_gswcid)
 	[_dict setObject:_gswcid
-		   forKey:GSWKey_ContextID];
+		   forKey:GSWKey_ContextID[GSWebNamingConv]];
 
   if (_gsweid)
 	[_dict setObject:_gsweid
-		   forKey:GSWKey_ElementID];
+		   forKey:GSWKey_ElementID[GSWebNamingConv]];
 
   _applicationNumber=[uri urlApplicationNumber];
   if (_applicationNumber<0)
 	{
-	  NSString* _tmp=[self cookieValueForKey:GSWKey_InstanceID];
+	  NSString* _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
+          if (!_tmp)
+            _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
 	  if (_tmp)
-		_applicationNumber=[_gswinst intValue];
+            _applicationNumber=[_gswinst intValue];
 	};
   if (_applicationNumber>=0)
 	[_dict setObject:[NSString stringWithFormat:@"%d",_applicationNumber]
-		   forKey:GSWKey_InstanceID];
+		   forKey:GSWKey_InstanceID[GSWebNamingConv]];
 	
   NSDebugMLLog(@"requests",@"AA _dict=%@",_dict);
   LOGObjectFnStop();

@@ -38,23 +38,23 @@
   GSWAssociation* queryDictionary;
   GSWAssociation* actionClass;
   GSWAssociation* directActionName;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* enabled;
   GSWAssociation* displayDisabled;
   GSWAssociation* redirectURL;
   NSDictionary* pageSetVarAssociations;
   GSWAssociation* pageSetVarAssociationsDynamic;
-#endif
+// }
   NSDictionary* otherQueryAssociations;
   NSDictionary* otherAssociations;
 
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* filename;
   GSWAssociation* framework;
   GSWAssociation* data;
   GSWAssociation* mimeType;
   GSWAssociation* key;
-#endif
+// }
   GSWElement* children;
 };
 

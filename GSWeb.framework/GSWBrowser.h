@@ -33,9 +33,9 @@
   GSWAssociation* item;
   GSWAssociation* displayString;
   GSWAssociation* selections;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* selectionValues;
-#endif
+// }
   GSWAssociation* selectedValues;
   GSWAssociation* size;
   GSWAssociation* multiple;

@@ -367,6 +367,10 @@ static int dontTraceComponentActionURL=0;
   //OK
   GSWDynamicURLString* _url=nil;
   GSWRequest* _request=[self request];
+  LOGObjectFnStartCond(dontTraceComponentActionURL==0);
+  NSDebugMLogCond(dontTraceComponentActionURL==0,
+                  @"generateCompleteURLs=%s",
+                  (generateCompleteURLs ? "YES" : "NO"));
   if (generateCompleteURLs)
 	_url=[self completeURLWithRequestHandlerKey:requestHandlerKey_
 			   path:requestHandlerPath_
@@ -375,6 +379,9 @@ static int dontTraceComponentActionURL=0;
 	_url=[_request _urlWithRequestHandlerKey:requestHandlerKey_
 				   path:requestHandlerPath_
 				   queryString:queryString_];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,
+                  @"url=%@",_url);
+  LOGObjectFnStopCond(dontTraceComponentActionURL==0);
   return _url;
 };
 
@@ -401,6 +408,7 @@ static int dontTraceComponentActionURL=0;
 											   isSecure:(BOOL)isSecure_
 												   port:(int)port_
 {
+  NSString* host=nil;
   GSWDynamicURLString* _url=nil;
   GSWRequest* _request=nil;
   LOGObjectFnStart();
@@ -416,8 +424,11 @@ static int dontTraceComponentActionURL=0;
   
   if (port_)
 	[_url setURLPort:port_];
-
-  [_url setURLHost:[_request urlHost]];
+  NSDebugMLLog(@"low",@"_url=%@",_url);
+  host=[_request urlHost];
+  NSAssert(host,@"No host !");
+  NSDebugMLLog(@"low",@"host=%@",host);
+  [_url setURLHost:host];
   NSDebugMLLog(@"low",@"_url=%@",_url);
   LOGObjectFnStop();
   return _url;
@@ -507,6 +518,7 @@ static int dontTraceComponentActionURL=0;
 };
 
 //--------------------------------------------------------------------
+//_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
 -(id)_directActionURLForActionNamed:(NSString*)_actionName
 					queryDictionary:(NSDictionary*)_dict
 								url:(id)_url
@@ -516,6 +528,8 @@ static int dontTraceComponentActionURL=0;
   NSEnumerator* _enumerator =nil;
   id _key=nil;
   LOGObjectFnStart();
+  NSDebugMLogCond(dontTraceComponentActionURL==0,
+                  @"url=%@",_url);
 //  _url=[[_url copy] autorelease];
   //TODOV
   _enumerator = [_dict keyEnumerator];
@@ -530,13 +544,15 @@ static int dontTraceComponentActionURL=0;
 								 [_dict objectForKey:_key]];
 	};
   /*
-  [_url setURLRequestHandlerKey:GSWDirectActionRequestHandlerKey];
+  [_url setURLRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]];
   [_url setURLRequestHandlerPath:_actionName];
   [_url setURLQueryString:_queryString];
 */
-  _url=[self completeURLWithRequestHandlerKey:GSWDirectActionRequestHandlerKey
+  _url=[self completeURLWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
 			 path:_actionName
 			 queryString:_queryString];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,
+                  @"url=%@",_url);
   LOGObjectFnStop();
   return _url;
 };
@@ -612,11 +628,14 @@ static int dontTraceComponentActionURL=0;
   NSString* _adaptorPrefix=nil;
   NSString* _applicationName=nil;
   LOGObjectFnStart();
-  _adaptorPrefix=[_request adaptorPrefix];
+  NSDebugMLLog(@"low",@"_request=%@",_request);
   NSDebugMLLog(@"low",@"url=%@",url);
+  _adaptorPrefix=[_request adaptorPrefix];
+  NSDebugMLLog(@"low",@"_adaptorPrefix=%@",_adaptorPrefix);
   [url setURLPrefix:_adaptorPrefix];
   NSDebugMLLog(@"low",@"url=%@",url);
   _applicationName=[_request applicationName];
+  NSDebugMLLog(@"low",@"_applicationName=%@",_applicationName);
   [url setURLApplicationName:_applicationName];
   NSDebugMLLog(@"low",@"url=%@",url);
   ASSIGN(request,_request);
@@ -829,7 +848,7 @@ static int dontTraceComponentActionURL=0;
 				   [request urlProtocolHostPort],
 				   [request adaptorPrefix],
 				   [request applicationName],
-				   GSWApplicationSuffix,
+				   GSWApplicationSuffix[GSWebNamingConv],
 				   [session sessionID]];
 };
 

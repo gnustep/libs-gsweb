@@ -193,30 +193,33 @@ static char rcsId[] = "$Id$";
 		  NSDebugMLLog(@"gswdync",@"_foundIndex=%d",_foundIndex);
 		  NSDebugMLLog(@"gswdync",@"selection=%@",selection);
 		  GSWLogAssertGood(_component);
-#if !GSWEB_STRICT
-		  NS_DURING
+                  if (!WOStrictFlag)
+                    {
+                      NS_DURING
 			{
 			  if (_foundIndex>=0)
-				[selection setValue:_valueToSet
-						   inComponent:_component];
+                            [selection setValue:_valueToSet
+                                       inComponent:_component];
 			  else
-				[selection setValue:nil
-						   inComponent:_component];
+                            [selection setValue:nil
+                                       inComponent:_component];
 			};
-		  NS_HANDLER
+                      NS_HANDLER
 			{
 			  [self handleValidationException:localException
-					inContext:context_];
+                                inContext:context_];
 			}
-		  NS_ENDHANDLER;
-#else
-		  if (_foundIndex>=0)
+                      NS_ENDHANDLER;
+                    }
+                  else
+                    {
+                      if (_foundIndex>=0)
 			[selection setValue:_valueToSet
-					   inComponent:_component];
-		  else
+                                   inComponent:_component];
+                      else
 			[selection setValue:nil
-					   inComponent:_component];
-#endif
+                                   inComponent:_component];
+                    };
 		};
 	};
   LOGObjectFnStop();

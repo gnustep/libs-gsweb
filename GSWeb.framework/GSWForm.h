@@ -35,10 +35,10 @@
   GSWAssociation* actionClass;
   GSWAssociation* directActionName;
   GSWAssociation* queryDictionary;
-#if !GSWEB_STRICT
+//GSWeb Additions {
   GSWAssociation* disabled;
   GSWAssociation* enabled;
-#endif
+// }
   NSDictionary* otherQueryAssociations;
 };
 

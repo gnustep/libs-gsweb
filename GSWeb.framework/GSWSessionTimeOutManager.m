@@ -44,7 +44,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(sessionTimeOuts);
+  DESTROY(sessionOrderedTimeOuts);
   DESTROY(sessionTimeOuts);
   //Do Not Retain ! DESTROY(target);
   DESTROY(timer);

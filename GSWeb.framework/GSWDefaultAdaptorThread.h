@@ -42,6 +42,7 @@
   NSDate* runDate;
   NSDate* dispatchRequestDate;
   NSDate* sendResponseDate;
+  int requestNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
 }
 
 -(id)initWithApp:(GSWApplication*)_application

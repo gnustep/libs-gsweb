@@ -48,14 +48,10 @@ extern "C" {
 #define	GSWEB_PREFIX	"/GSWeb"
 #define	GSWEB_HANDLER	"GSWeb"
 #endif
-
 #define	GSWEB_STATUS_RESPONSE_APP_NAME	"status"
 
-#if GSWEB_WONAMES
-#define GSWAPP_EXTENSION ".woa"
-#else
-#define GSWAPP_EXTENSION ".gswa"
-#endif
+#define GSWAPP_EXTENSION_WO ".woa"
+#define GSWAPP_EXTENSION_GSW ".gswa"
 
 // Time Outs ...
 #define	APP_CONNECT_TIMEOUT			300
@@ -74,7 +70,6 @@ extern "C" {
 #else
 #define	GSWEB__MIME_TYPE		"application/x-httpd-gsweb"
 #endif
-
 // Config File Keywords
 
 // All
@@ -94,11 +89,8 @@ extern "C" {
 #endif
 
 
-#if GSWEB_WONAMES
-#define	GSWEB_INSTANCE_COOKIE	"woinst="
-#else
-#define	GSWEB_INSTANCE_COOKIE	"gswinst="
-#endif
+#define	GSWEB_INSTANCE_COOKIE_WO	"woinst="
+#define	GSWEB_INSTANCE_COOKIE_GSW	"gswinst="
 
 /*
  *	operating specific things regarding gethostbyname()

@@ -37,7 +37,8 @@ FRAMEWORK_NAME = GSWExtensions
 
 # The framework resource files and directories
 GSWExtensions_RESOURCE_FILES = \
-Resources/Info-gnustep.plist
+Resources/Info-gnustep.plist \
+GSWSessionRestorationErrorPage.gswd
 
 GSWExtensions_COMPONENTS = \
 GSWSessionCreationErrorPage.gswc \

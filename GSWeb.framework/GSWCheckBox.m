@@ -162,44 +162,50 @@ static char rcsId[] = "$Id$";
 				{
 				  //TODOV
 				  id _valueValue=[value valueInComponent:_component];
-#if !GSWEB_STRICT
-				  NS_DURING
+                                  if (!WOStrictFlag)
+                                    {
+                                      NS_DURING
 					{
 					  [selection setValue:_valueValue
-								 inComponent:_component];
+                                                     inComponent:_component];
 					};
-				  NS_HANDLER
+                                      NS_HANDLER
 					{
 					  [self handleValidationException:localException
-							inContext:context_];
+                                                inContext:context_];
 					}
-				  NS_ENDHANDLER;
-#else
-				  [selection setValue:_valueValue
-							 inComponent:_component];
-#endif
+                                      NS_ENDHANDLER;
+                                    }
+                                  else
+                                    {
+                                      [selection setValue:_valueValue
+                                                 inComponent:_component];
+                                    };
 				};
 			};
 		  if (checked)
 			{
 			  id _checkedValue=[NSNumber numberWithBool:_checkChecked];
 			  NSDebugMLLog(@"gswdync",@"_checkedValue=%@",_checkedValue);
-#if !GSWEB_STRICT
-			  NS_DURING
+                          if (!WOStrictFlag)
+                            {
+                              NS_DURING
 				{
 				  [checked setValue:_checkedValue
-						   inComponent:_component];
+                                           inComponent:_component];
 				};
-			  NS_HANDLER
+                              NS_HANDLER
 				{
 				  [self handleValidationException:localException
-						inContext:context_];
+                                        inContext:context_];
 				}
-			  NS_ENDHANDLER;
-#else
-			  [checked setValue:_checkedValue
-					   inComponent:_component];
-#endif
+                              NS_ENDHANDLER;
+                            }
+                          else
+                            {
+                              [checked setValue:_checkedValue
+                                       inComponent:_component];
+                            };
 			};
 		};
 	};

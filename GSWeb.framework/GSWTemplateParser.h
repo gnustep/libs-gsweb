@@ -36,9 +36,11 @@
   NSString*	   _stringPath;
   NSString*	   _definitionsString;
   NSArray*	   _languages;
-  NSString*	   _definitionsPath;
+  NSMutableSet*	   _definitionFilePath;
   GSWElement*   _template;
   NSDictionary* _definitions;
+  int gswebTagN;
+  int tagN;
 }
 
 +(GSWElement*)templateNamed:(NSString*)name_
@@ -79,16 +81,16 @@
 -(NSDictionary*)parseDefinitionsString:(NSString*)localDefinitionstring_
                                  named:(NSString*)localDefinitionName_
                       inFrameworkNamed:(NSString*)localFrameworkName_
-                              fromPath:(NSString*)localDefinitionPath_;
+                        processedFiles:(NSMutableSet*)processedFiles;
 
 -(NSDictionary*)parseDefinitionInclude:(NSString*)includeName_
                     fromFrameworkNamed:(NSString*)fromFrameworkName_
-                        definitionPath:(NSString*)localDefinitionPath_;
+                        processedFiles:(NSMutableSet*)processedFiles;
 
 -(NSDictionary*)processIncludes:(NSArray*)definitionsIncludes_
                           named:(NSString*)localDefinitionsName_
                inFrameworkNamed:(NSString*)localFrameworkName_
-                 definitionPath:(NSString*)localDefinitionPath_;
+                 processedFiles:(NSMutableSet*)processedFiles;
 
 @end
 
