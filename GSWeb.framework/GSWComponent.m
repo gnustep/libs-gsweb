@@ -35,7 +35,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#ifdef GDL2
+#ifdef HAVE_GDL2
 #include <EOControl/EOKeyValueCoding.h>
 #endif
 //====================================================================
@@ -441,7 +441,7 @@ associationsKeys:(NSArray*)associationsKeys
               if (doLog)
                 [anAssociation logSynchronizeParentToComponentForValue:aValue
                                inComponent:self];
-#if GDL2 // GDL2 implementation
+#if HAVE_GDL2 // GDL2 implementation
               [self smartTakeValue:aValue
                     forKey:aKey];
 #else
@@ -856,7 +856,7 @@ associationsKeys:(NSArray*)associationsKeys
         [assoc setValue:value
                inComponent:_parent];
       /* // Why doing this ? Be carefull: it may make a loop !
-#if GDL2
+#if HAVE_GDL2
 	  else
           {
           NS_DURING
@@ -895,7 +895,7 @@ associationsKeys:(NSArray*)associationsKeys
       if(assoc)
         aValue=[assoc valueInComponent:_parent];
 /* // Why doing this ? Be carefull: it may make a loop !
-#if GDL2
+#if HAVE_GDL2
 	  else
 	    {
 	      NS_DURING
@@ -1071,7 +1071,7 @@ associationsKeys:(NSArray*)associationsKeys
   NSAssert(template,@"No template");
 #ifndef NDEBUG
   if(GSDebugSet(@"gswcomponents"))
-    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"Start %@",[self _templateName]]];
+    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"Start %@ [%@]",[self _templateName],[aContext elementID]]];
 #endif
 
   request=[aContext request];
@@ -1082,7 +1082,8 @@ associationsKeys:(NSArray*)associationsKeys
   NS_DURING
     {
       [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"defName=%@ ID=%@",[self definitionName],[aContext elementID]]];
-      NSDebugMLLog(@"GSWComponent",@"COMPONENT %p defName=%@ [aContext elementID]=%@",self,[self definitionName],[aContext elementID]);
+      NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p defName=%@ [aContext elementID]=%@",
+                   self,[self definitionName],[aContext elementID]);
       [template appendToResponse:aResponse
                  inContext:aContext];
     }
@@ -1098,21 +1099,25 @@ associationsKeys:(NSArray*)associationsKeys
       [localException raise];
     }
   NS_ENDHANDLER;
+
+  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p defName=%@ [aContext elementID]=%@",
+               self,[self definitionName],[aContext elementID]);
+
   [aContext deleteLastElementIDComponent];
 
   GSWStopElement(aContext);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[aContext elementID]])
-	{
-	  NSDebugMLLog(@"GSWComponent",@"class=%@ debugElementID=%@ [aContext elementID]=%@",
-                       [self class],debugElementID,[aContext elementID]);	  
-	};
+    {
+      NSDebugMLLog(@"GSWComponent",@"WARNING: class=%@ debugElementID=%@ [aContext elementID]=%@",
+                   [self class],debugElementID,[aContext elementID]);	  
+    };
 #endif
 
 #ifndef NDEBUG
   if(GSDebugSet(@"gswcomponents") == YES)
-    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ -->\n",
-                                                         [self _templateName]]];//TODO enlever
+    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
+                                                         [self _templateName],[aContext elementID]]];//TODO enlever
 #endif
   GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
@@ -1197,15 +1202,18 @@ associationsKeys:(NSArray*)associationsKeys
   [aContext setValidate:YES];
   template=[self _template];
   [aContext appendZeroElementIDComponent];
-  NSDebugMLLog(@"GSWComponent",@"COMPONENT %p defName=%@ [aContext elementID]=%@",self,[self definitionName],[aContext elementID]);
+  NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p defName=%@ [aContext elementID]=%@",
+               self,[self definitionName],[aContext elementID]);
   [template takeValuesFromRequest:aRequest
 			 inContext:aContext];
+  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p defName=%@ [aContext elementID]=%@",
+               self,[self definitionName],[aContext elementID]);
   [aContext deleteLastElementIDComponent];
   GSWStopElement(aContext);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[aContext elementID]])
     {
-      NSDebugMLLog(@"GSWComponent",@"class=%@ debugElementID=%@ [aContext elementID]=%@",
+      NSDebugMLLog(@"GSWComponent",@"WARNING class=%@ debugElementID=%@ [aContext elementID]=%@",
                    [self class],debugElementID,[aContext elementID]);
       
     };

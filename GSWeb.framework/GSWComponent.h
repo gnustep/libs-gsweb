@@ -61,13 +61,6 @@
 
 };
 
--(id)init;
--(void)dealloc;
-
--(id)initWithCoder:(NSCoder*)coder;
--(void)encodeWithCoder:(NSCoder*)coder;
--(id)copyWithZone:(NSZone*)zone;
-
 -(NSString*)description;
 #if !GSWEB_STRICT
 -(NSDictionary*)userDictionary;
