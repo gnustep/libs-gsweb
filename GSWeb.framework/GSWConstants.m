@@ -140,6 +140,8 @@ NSString* GSWHTTPHeader_RecordingSessionID[2]={ @"x-gsweb-session-id", @"x-webob
 NSString* GSWHTTPHeader_RecordingIDsURL[2]={ @"x-gsweb-ids-url", @"x-webobjects-ids-url" };
 NSString* GSWHTTPHeader_RecordingIDsCookie[2]={ @"x-gsweb-ids-url", @"x-webobjects-ids-cookie" };
 NSString* GSWHTTPHeader_RecordingApplicationNumber[2]={ @"x-gsweb-application-number", @"x-webobjects-application-number" };
+NSString* GSWHTTPHeader_LoadAverage[2] = { @"x-gsweb-loadaverage", @"x-webobjects-loadaverage" };
+NSString* GSWHTTPHeader_RefuseSessions[2] = { @"x-gsweb-refusenewsessions", @"x-webobjects-refusenewsessions" };
 
 NSString* GSWHTTPHeader_MethodPost=@"POST";
 NSString* GSWHTTPHeader_MethodGet=@"GET";
@@ -231,6 +233,8 @@ NSString* GSWOPT_ResourceManagerClassName[2]= { @"GSWResourceManagerClassName", 
 NSString* GSWOPT_StatisticsStoreClassName[2]= { @"GSWStatisticsStoreClassName", @"WOStatisticsStoreClassName" };
 NSString* GSWOPT_RecordingClassName[2]= { @"GSWRecordingClassName", @"WORecordingClassName" };
 NSString* GSWOPT_DisplayExceptionPages[2]= { @"GSWDisplayExceptionPages", @"WODisplayExceptionPages" };
+NSString* GSWOPT_AllowsCacheControlHeader[2]= { @"GSWAllowsCacheControlHeader", @"WOAllowsCacheControlHeader" };
+
 
 
 //====================================================================

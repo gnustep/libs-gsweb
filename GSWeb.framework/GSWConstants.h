@@ -141,6 +141,8 @@ extern NSString* GSWHTTPHeader_RecordingSessionID[2];
 extern NSString* GSWHTTPHeader_RecordingIDsURL[2];
 extern NSString* GSWHTTPHeader_RecordingIDsCookie[2];
 extern NSString* GSWHTTPHeader_RecordingApplicationNumber[2];
+extern NSString* GSWHTTPHeader_LoadAverage[2];
+extern NSString* GSWHTTPHeader_RefuseSessions[2];
 
 extern NSString* GSWHTTPHeader_Method[2];
 extern NSString* GSWHTTPHeader_MethodPost;
@@ -232,6 +234,8 @@ extern NSString* GSWOPT_ResourceManagerClassName[2];
 extern NSString* GSWOPT_StatisticsStoreClassName[2];
 extern NSString* GSWOPT_RecordingClassName[2];
 extern NSString* GSWOPT_DisplayExceptionPages[2];
+extern NSString* GSWOPT_AllowsCacheControlHeader[2];
+
 
 
 //====================================================================
