@@ -279,8 +279,8 @@ Bindings
                   NSDebugMLLog(@"gswdync",@"keys[%d]=%@",i,keys[i]);
                   if (!keys[i])
                     {
-                      keysCount=i; // change count and stop
-                      break;
+                      keys[i]=[NSNull null];
+                      NSDebugMLLog(@"gswdync",@"keys[%d]=%@",i,keys[i]);
                     };
                 };
               cachedObject=[cache objectForKeys:keys
