@@ -34,6 +34,8 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+#include <limits.h>
+
 static NSArray* normalChars=nil;
 static NSArray* htmlChars=nil;
 

@@ -24,6 +24,8 @@
 	([GSWSession permanentPageCacheSize], [GSWSession pageCacheSize]):
 	Replace uint with unsigned int.
 
+	* GSWeb.framework/NSString+HTML.m: Include limits.h.
+
 2004-05-06  David Ayers  <d.ayers@inode.at>
 
 	* INSTALL: Update prerequisites.
