@@ -1356,12 +1356,15 @@ selfLockn,
 {
   //OK
   NSArray* array=nil;
-  NSArray* allFrameworks=nil;
+  NSMutableArray* allFrameworks=nil;
   LOGObjectFnStart();
-  allFrameworks=[NSBundle allFrameworks];
-//  NSDebugMLLog(@"gswcomponents",@"_allFrameworks=%@",_allFrameworks);
+  allFrameworks=[[NSBundle allFrameworks] mutableCopy];
+  [allFrameworks addObjectsFromArray:[NSBundle allBundles]];
+  //  NSDebugMLLog(@"gswcomponents",@"_allFrameworks=%@",_allFrameworks);
   array=[self lockedInitComponentBearingFrameworksFromBundleArray:allFrameworks];
   NSDebugMLLog(@"gswcomponents",@"array=%@",array);
+  [allFrameworks release];
+
   LOGObjectFnStop();
   return array;
 };
@@ -2449,12 +2452,12 @@ selfLockn,
 
   NS_DURING
     {
-      NSLog(@"Application : checkAppIfRefused");
-      NSLog(@"Application : allSessionIDs = %@", [_sessionStore allSessionIDs]);
+//      NSLog(@"Application : checkAppIfRefused");
+//      NSLog(@"Application : allSessionIDs = %@", [_sessionStore allSessionIDs]);
       requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:aRequest];
       if (requestHandlerValues) 
         {
-          NSLog(@"Application : requestHandlerValues is set");
+//          NSLog(@"Application : requestHandlerValues is set");
 
           sessionID=[requestHandlerValues objectForKey:GSWKey_SessionID[GSWebNamingConv]];
           if (!sessionID) 
@@ -2466,12 +2469,12 @@ selfLockn,
             } 
           else 
             {
-              NSLog(@"Application : sessionID found : %@", sessionID);
-              NSLog(@"Application : allSessionIDs = %@", [_sessionStore allSessionIDs]);
+//             NSLog(@"Application : sessionID found : %@", sessionID);
+//             NSLog(@"Application : allSessionIDs = %@", [_sessionStore allSessionIDs]);
               // check for existing session ID
               if (![_sessionStore containsSessionID:sessionID]) 
                 {
-                  NSLog(@"Application : sessionStore does not contain _sessionID");
+//                  NSLog(@"Application : sessionStore does not contain _sessionID");
                   if ([self isRefusingNewSessions])
                     refuseRequest = YES;				
                 }
