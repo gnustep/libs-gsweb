@@ -962,7 +962,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 -(id)displayBatchContainingSelectedObject
 {
   int newBatchIndex = 1;
-  int selectionIndex;
+  int selectionIndex = 0;
 
   LOGObjectFnStart();
 
@@ -2067,6 +2067,16 @@ of all Batches, not only the current one.
     [_queryOperator addEntriesFromDictionary:qo];
 };
 
+//--------------------------------------------------------------------
+/** add a query operator **/
+- (void)addQueryOperator:(NSString*)value
+                  forKey:(NSString*)operatorKey
+{
+  [_queryOperator setObject:value
+                  forKey:operatorKey];
+};
+
+//--------------------------------------------------------------------
 -(void)setQueryKeyValueQualifierClassName:(NSDictionary*)qo
 {
   NSAssert1((!qo || [qo isKindOfClass:[NSDictionary class]]),
@@ -2467,7 +2477,7 @@ of all Batches, not only the current one.
   LOGObjectFnStart();
   if(_dataSource)
     {
-      EOEditingContext* editingContext;
+      EOEditingContext* editingContext = nil;
       // Set flags to detect customer dataSource
       _flags.isCustomDataSourceClass = [self _isCustomDataSourceClass:[_dataSource class]];
 

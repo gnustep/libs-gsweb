@@ -238,6 +238,8 @@
 - (void)setInQueryMode:(BOOL)flag;
 - (void)setInsertedObjectDefaultValues:(NSDictionary *)defaultValues;
 - (void)setQueryOperator:(NSDictionary*)qo;
+- (void)addQueryOperator:(NSString*)value
+                  forKey:(NSString*)operatorKey;
 - (void)setQueryKeyValueQualifierClassName:(NSDictionary*)qo;
 - (void)setLocalKeys:(NSArray *)keys;
 - (void)setMasterObject:(id)masterObject;
