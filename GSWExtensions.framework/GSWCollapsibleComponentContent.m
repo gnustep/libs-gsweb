@@ -66,6 +66,15 @@ RCS_ID("$Id$")
     return NO;
 };
 
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext 
+{
+  _tmpAnchorName=[NSString stringWithString:[[self context] elementID]];
+  [super appendToResponse:aResponse
+         inContext:aContext];
+  _tmpAnchorName=nil;
+};
+
 -(BOOL)isVisible
 {
   LOGObjectFnStart();
@@ -189,5 +198,9 @@ RCS_ID("$Id$")
   return _helpString;
 };
 
+-(NSString*)anchorName
+{
+  return _tmpAnchorName;
+};
 
 @end

@@ -1,7 +1,14 @@
+Anchor: GSWGenericContainer
+{
+        elementName = "a";
+        name = anchorName;
+}
+
 Link: GSWHyperlink
 {
 	action = toggleVisibilityAction;
-    disabled = ^disabled;
+        disabled = ^disabled;
+        fragmentIdentifier = anchorName;
 };
 
 Image: GSWImage

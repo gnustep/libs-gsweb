@@ -28,6 +28,7 @@
 //==============================================================================
 @interface GSWCollapsibleComponentContent: GSWComponent
 {
+  NSString* _tmpAnchorName;
   BOOL _isVisibleConditionPassed;
   BOOL _isVisible;
   NSString* _openedImageFileName;
@@ -36,10 +37,6 @@
   NSString* _closedHelpString;
 };
 
--(void)awake;
--(void)sleep;
--(void)dealloc;
--(BOOL)synchronizesVariablesWithBindings;
 -(BOOL)isVisible;
 -(GSWComponent*)toggleVisibilityAction;
 -(NSString*)imageFileName;
