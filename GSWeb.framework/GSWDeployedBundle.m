@@ -424,6 +424,21 @@ RCS_ID("$Id$")
               fileManager=[NSFileManager defaultManager];
               exists=[fileManager fileExistsAtPath:completePathTest];
               NSDebugMLLog(@"bundles",@"exists=%s",(exists ? "YES" : "NO"));
+              #ifdef __APPLE__
+              if(!exists)
+                {
+                  NSString  *aCompletePath = [[[NSBundle bundleWithPath:bundlePath] pathForResource:[aName stringByDeletingPathExtension] 
+                                                                                             ofType:[aName pathExtension] 
+                                                                                        inDirectory:aDirectory forLocalization:aLanguage]
+                                              stringByResolvingSymlinksInPath];
+                
+                if([aCompletePath length] >= ([bundlePath length] + 1))
+                  {
+                    exists = YES;
+                    pathTest = [aCompletePath substringFromIndex:[bundlePath length] + 1];
+                  }
+                }
+              #endif //__APPLE__
               if (exists)
                 {
                   path=pathTest;
