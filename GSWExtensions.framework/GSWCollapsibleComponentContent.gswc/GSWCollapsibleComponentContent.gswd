@@ -4,17 +4,24 @@ Anchor: GSWGenericContainer
         name = anchorName;
 }
 
+ShouldDisplay: GSWConditional
+{
+        condition = shouldDisplay;
+}
+
 Link: GSWHyperlink
 {
 	action = toggleVisibilityAction;
-        disabled = ^disabled;
+        disabled = isDisabled;
+        displayDisabled = ^displayDisabled;        
         fragmentIdentifier = anchorName;
+        class = ~linkClass;
 };
 
 Image: GSWImage
 {
     filename = imageFileName;
-    framework = "GSWExtensions";
+    //framework = "GSWExtensions";
     alt = helpString;
     name = helpString;
     border = "0";
@@ -25,6 +32,7 @@ Label: GSWString
 {
     value = label;
     escapeHTML = NO;
+    class = ~labelClass;
 }
 
 Condition: GSWConditional
