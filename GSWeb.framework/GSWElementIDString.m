@@ -49,12 +49,17 @@ RCS_ID("$Id$")
     }
 }
 
+//--------------------------------------------------------------------
 - (id) initWithCharactersNoCopy: (unichar*)chars
 			 length: (unsigned)length
 		   freeWhenDone: (BOOL)flag
 {
   LOGObjectFnStart();
-  if (!_string)
+  if (_string)
+    _string=[_string initWithCharactersNoCopy:chars
+                     length:length
+                     freeWhenDone:flag];
+  else
     _string=[[NSMutableString alloc] initWithCharactersNoCopy:chars
                                      length:length
                                      freeWhenDone:flag];
@@ -62,12 +67,17 @@ RCS_ID("$Id$")
   return self;
 };
 
+//--------------------------------------------------------------------
 - (id) initWithCStringNoCopy: (char*)byteString
 		      length: (unsigned)length
 		freeWhenDone: (BOOL)flag
 {
   LOGObjectFnStart();
-  if (!_string)
+  if (_string)
+    _string=[_string  initWithCStringNoCopy:byteString
+                      length:length
+                      freeWhenDone:flag];
+  else
     _string=[[NSMutableString alloc] initWithCStringNoCopy:byteString
                                      length:length
                                      freeWhenDone:flag];
@@ -75,26 +85,32 @@ RCS_ID("$Id$")
   return self;
 };
 
+//--------------------------------------------------------------------
 - (id) initWithCapacity: (unsigned)capacity
 {
   LOGObjectFnStart();
-  if (!_string)
+  if (_string)
+    _string=[_string initWithCapacity:capacity];
+  else
     _string=[[NSMutableString alloc] initWithCapacity:capacity];
   LOGObjectFnStop();
   return self;
 };
 
+//--------------------------------------------------------------------
 - (unsigned) length
 {
   return [_string length];
 };
 
+//--------------------------------------------------------------------
 - (unichar) characterAtIndex: (unsigned)index
 {
   NSAssert(_string,@"No String");
   return [_string characterAtIndex:index];
 };
 
+//--------------------------------------------------------------------
 - (void) replaceCharactersInRange: (NSRange)range 
 		       withString: (NSString*)aString
 {
@@ -105,11 +121,13 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(BOOL)canBeConvertedToEncoding:(NSStringEncoding)encoding
 {
   return [_string canBeConvertedToEncoding:encoding];
 };
 
+//--------------------------------------------------------------------
 -(void)dealloc
 {
   LOGObjectFnStart();
@@ -122,6 +140,7 @@ RCS_ID("$Id$")
   GSWLogMemC("GSWElementIDString end of dealloc");
 };
 
+//--------------------------------------------------------------------
 -(void)getCString:(char*)buffer
         maxLength:(unsigned int)maxLength
             range:(NSRange)aRange
@@ -134,6 +153,7 @@ RCS_ID("$Id$")
                   remainingRange:leftoverRange];
 };
 
+//--------------------------------------------------------------------
 -(void)getCString:(char*)buffer
         maxLength:(unsigned int)maxLength;
 {
@@ -142,12 +162,14 @@ RCS_ID("$Id$")
                   maxLength:maxLength];
 };
 
+//--------------------------------------------------------------------
 -(void)getCString:(char *)buffer;
 {
   NSAssert(_string,@"No String");
   return [_string getCString:buffer];
 };
 
+//--------------------------------------------------------------------
 -(id)initWithCoder:(NSCoder*)decoder
 {
   DESTROY(_string);
@@ -157,6 +179,7 @@ RCS_ID("$Id$")
   return self;
 };
 
+//--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)encoder
 {
   NSAssert(_string,@"No String");
@@ -164,16 +187,17 @@ RCS_ID("$Id$")
           at:&_string];
 };
 
+//--------------------------------------------------------------------
 -(const char*)cString
 {
   return [_string cString];
 };
 
+//--------------------------------------------------------------------
 -(unsigned int)cStringLength
 {
   return  [_string cStringLength];
 };
-
 
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
@@ -188,6 +212,7 @@ RCS_ID("$Id$")
   return obj;
 };
 
+//--------------------------------------------------------------------
 -(BOOL)isSearchOverForSenderID:(NSString*)senderID
 {
   BOOL over=NO;
@@ -381,6 +406,7 @@ RCS_ID("$Id$")
     [_id deleteLastElementIDComponent];
   return _id;
 };
+
 //--------------------------------------------------------------------
 #ifndef NDEBBUG
 -(int)elementsNb
