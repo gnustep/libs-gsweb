@@ -640,7 +640,13 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 			}
 		  else
 			{
-			  retValue=[retValue getIVarNamed:_part];
+			  NS_DURING
+			    retValue=[retValue getIVarNamed:_part];
+			  NS_HANDLER
+			    NSLog(@"Attempt to get %@/%@ raised an exception (%@)",[retValue class],_part,localException);
+        localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods" format:@"-[%@ %@]",[retValue class],_part];
+        [localException raise];
+			  NS_ENDHANDLER
 			};
 		};
 	};
