@@ -1032,11 +1032,14 @@ selfLockn,
 {
   GSWAdaptor* adaptor=nil;
   NSDictionary* args=nil;
+  NSString* adaptorName=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"options",@"userDefault=%@",userDefaults);
   args=[self _argsDictionaryWithUserDefaults:userDefaults];
   NSDebugMLLog(@"options",@"args=%@",args);
-  adaptor=[self adaptorWithName:[userDefaults objectForKey:GSWOPT_Adaptor[GSWebNamingConv]]
+  adaptorName=[userDefaults objectForKey:GSWOPT_Adaptor[GSWebNamingConv]];
+  NSAssert([adaptorName length]>0,@"No adaptor name");
+  adaptor=[self adaptorWithName:adaptorName
                 arguments:args];
   if (_adaptors)
     ASSIGN(_adaptors,[_adaptors arrayByAddingObject:adaptor]);
@@ -1808,6 +1811,7 @@ selfLockn,
   LOGObjectFnStart();
   NSDebugMLLog(@"application",@"adaptor name:%@",name);
   gswadaptorClass=[GSWAdaptor class];
+  NSAssert([name length]>0,@"No adaptor name");
   adaptorClass=NSClassFromString(name);
   NSAssert1(adaptorClass,@"No adaptor named '%@'",name);
   if (adaptorClass)
@@ -4019,6 +4023,9 @@ selfLockn,
       NSBundle* mainBundle=[self mainBundle];
       NSString* bundlePath=[mainBundle bundlePath];
       NSString* path=[bundlePath stringGoodPath];
+      NSAssert(mainBundle,@"No mainBundle");
+      NSAssert(bundlePath,@"No bundlePath");
+      NSAssert(path,@"No path");
       NSDebugMLLog(@"application",@"bundlePath:%@",bundlePath);
       NSDebugMLLog(@"application",@"path:%@",path);
       NSDebugMLLog(@"application",@"mainBundle:%@",mainBundle);

@@ -63,7 +63,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
           //NSDebugMLLog(@"resmanager",@"mainBundle:%@",mainBundle);
           bundlePath=[mainBundle  bundlePath];
           //NSDebugMLLog(@"resmanager",@"bundlePath:%@",bundlePath);
-          printf("bundlePath:%s",[bundlePath lossyCString]);
           deployedBundle=(GSWDeployedBundle*)[GSWDeployedBundle bundleWithPath:bundlePath];
           //NSDebugMLLog(@"resmanager",@"deployedBundle:%@",deployedBundle);
 	  
@@ -1530,6 +1529,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 +(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOLanguages
 {
   NSArray* GSLanguages=nil;
+  LOGClassFnStart();
   if (ISOLanguages)
     {
       NSMutableArray* array=[NSMutableArray array];
@@ -1549,6 +1549,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         };
       GSLanguages=[NSArray arrayWithArray:array];
     }
+  LOGClassFnStop();
   return GSLanguages;
 };
 
@@ -1564,6 +1565,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 +(NSArray*)ISOLanguagesFromGSLanguages:(NSArray*)GSLanguages
 {
   NSArray* ISOLanguages=nil;
+  LOGClassFnStart();
   if (GSLanguages)
     {
       NSMutableArray* array=[NSMutableArray array];
@@ -1574,10 +1576,17 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         {
           GSLanguage=[GSLanguages objectAtIndex:i];
           ISOLanguage=[self ISOLanguageFromGSLanguage:GSLanguage];
-          [array addObject:ISOLanguage];
+  NSDebugMLog(@"ISOLanguage=%@",ISOLanguage);
+          if (ISOLanguage)
+            [array addObject:ISOLanguage];
+          else
+            {
+              LOGError(@"Unknown language: %@\nKnown languages are : %@",GSLanguage,localGS2ISOLanguages);
+            };
         };
       ISOLanguages=[NSArray arrayWithArray:array];
     }
+  LOGClassFnStop();
   return ISOLanguages;
 };
 //--------------------------------------------------------------------
@@ -1633,11 +1642,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
           if (tmpMimeTypes)
             {
               NSEnumerator* enumerator = [tmpMimeTypes keyEnumerator];
-              id key;
-              id value;
+              id key=nil;
+              id value=nil;
               while ((key = [enumerator nextObject]))
                 {
                   value=[tmpMimeTypes objectForKey:key];
+                  NSAssert(value,@"No value");
                   value=[value lowercaseString];
                   key=[key lowercaseString];
                   NSAssert(key,@"No key");
