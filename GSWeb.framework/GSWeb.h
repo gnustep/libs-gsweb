@@ -118,7 +118,10 @@
 @class GSWHTMLStaticGroup;
 @class GSWInput;
 @class GSWComponentReference;
-@class GSWPageDefElement;
+@class GSWTemporaryElement;
+@class GSWBaseParser;
+@class GSWDeclaration;
+@class GSWGSWDeclarationParser;
 @class GSWBundle;
 @class GSWSessionTimeOutManager;
 @class GSWServerSessionStore;
@@ -159,8 +162,9 @@
 #include "GSWHTMLLexer.h"
 #include "GSWHTMLParser.h"
 #include "GSWHTMLParserExt.h"
-#include "GSWPageDefParser.h"
-#include "GSWPageDefParserExt.h"
+#include "GSWBaseParser.h"
+#include "GSWDeclaration.h"
+#include "GSWDeclarationParser.h"
 #include "GSWAdaptor.h"
 #include "GSWApplication.h"
 #include "GSWAssociation.h"
@@ -233,8 +237,9 @@
 #include "GSWDefaultAdaptorThread.h"
 #include "GSWKeyValueAssociation.h"
 #include "GSWConstantValueAssociation.h"
-#include "GSWPageDefElement.h"
 #include "GSWTemplateParser.h"
+#include "GSWHTMLTemplateParser.h"
+#include "GSWTemporaryElement.h"
 #include "GSWBundle.h"
 #include "GSWSessionTimeOutManager.h"
 #include "GSWServerSessionStore.h"
