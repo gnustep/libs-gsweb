@@ -1,3 +1,297 @@
+2003-11-24   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWResourceManager.m/.h:
+		o added -cachedBundleForFrameworkNamed:
+		o fix in -lockedCachedBundleForFrameworkNamed: to return AppBundle if none is found
+		o changes in -lockedCachedURLForResourceNamed:inFramework:languages:
+			to call DeployedBundle -urlForResourceNamed:forLanguages:
+		o changes in -lockedPathForResourceNamed:inFramework:languages:
+			to call DeployedBundle -absolutePathResourceNamed:forLanguages:
+	* GSWeb.framework/GSWDeployedBundle.m/.h:
+		o added -urlForResourceNamed:forLanguages:
+		o added ivars: _wrapperName,_projectName, _urlsCache,_absolutePathesCache;
+		o build _wrapperName in init (will avoid recreation each call of -wrapperName)
+		o build _projectName in init (will avoid recreation each call of -projectName)
+		o rename methis ...forLangue.. to ...language to be coherent
+	* GSWeb.framework/GSWProjectBundle.m/.h:
+		o removed projectName (now inherit from GSWDeployedBundle)
+	* GSWeb.framework/GSWTemplateParserXML.m:
+		o in -createElementsFromNode: don't remove name property for non gsweb tags
+	* GSWeb.framework/GSWTextField.h/.m:
+		o fix in -takeValuesFromRequest:inContext: to avoid ecxception where 
+			value is empty and formatter is date formatter
+	* GSWeb.framework/GSWRequest.h/.m:
+		o added -stringFormValueForKey
+		o added -numberFormValueForKey:withFormatter:
+		o added -dateFormValueForKey:withFormatter:
+		o inherit from GSWMessage.
+	* GSWeb.framework/GSWMessage.h/.m:
+		o added
+	* GSWeb.framework/GSWRadioButtonList.h/.m:
+		o handle isDisplayStringBefore binding
+	* GSWeb.framework/GSWCheckBoxList.h/.m:
+		o handle isDisplayStringBefore binding
+	* GSWeb.framework/GSWBundle.m:
+		o replaced GDL2 #if by HAVE_GDL2 #if
+	* GSWeb.framework/GSWComponent.m:
+		o replaced GDL2 #if by HAVE_GDL2 #if
+		o improved some traces
+	* GSWeb.framework/NSObject+IVarAccess+PerformSel.m:
+		o replaced GDL2 #if by HAVE_GDL2 #if
+	* GSWeb.framework/NSString+Trimming.m:
+		o replaced GDL2 #if by HAVE_GDL2 #if
+	* GSWAdaptors/common/GSWApp.h
+		o added fSwitchToKnownInstance in GSWApp
+	* GSWAdaptors/common/GSWConfig.c:
+		o handle switchToKnownInstance parameter
+	* GSWAdaptors/common/GSWLoadBalancing.c:
+		o switch to known app instance when requesting unknown instance
+	* GSWeb.framework/GSWProcFS.m:
+		o better format byte size data
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWUtils.[hm]:
+		o fixes in NSLog category
+		o added NSMutableData -replaceOccurrencesOfData:withData:range: 
+		o added NSData -rangeOfData:range:
+		o added NSData -base64Representation
+		o added NSData -initWithBase64Representation:
+	* GSWeb.framework/GSWSession.h:	
+		o added -validateStatisticsLogin:withPassword:
+		o added -_allowedToViewEvents
+		o added -_allowToViewEvents
+		o added -_setAllowedToViewEvents:
+		o added -validateEventsLogin:withPassword:		
+		o added -_setBirthDate:
+		o added -addLanguage:
+		o added -firstLanguage
+	* GSWeb.framework/GSWSession.m:	
+		o replaced GDL2 #if by HAVE_GDL2 #if
+		o modified -setTimeOut: to handle null timeOut (no time out)
+		o added -_setAllowedToViewStatistics:
+		o modified setDistributionEnabled: to call GSWContext 
+			-_synchronizeForDistribution
+		o modified setStoresIDsInCookies: to call GSWContext 
+			-_synchronizeForDistribution
+		o call -takeValuesFromRequest:inContext: on pageElement 
+			instead of pageComponent in -takeValuesFromRequest:inContext:
+		o call -invokeActionForRequest:inContext: on pageElement 
+			instead of pageComponent in -invokeActionForRequest:inContext:
+		o call -appendToResponse:inContext: on pageElement 
+			instead of pageComponent in -appendToResponse:inContext:
+		o finalized -appendToResponse:inContext: implementation	
+		o implemented -statistics
+		o implemented -_formattedStatistics
+		o lock editing context in -awakeInContext:
+		o unlock editing context in -sleepInContext:		
+		o in set undo limit and lock editingContext in  -defaultEditingContext
+		o lock editing context and disallow setting context when one 
+			already exists in -setDefaultEditingContext:
+		o added -validateStatisticsLogin:withPassword:
+		o added -_allowedToViewEvents
+		o added -_allowToViewEvents
+		o added -_setAllowedToViewEvents:
+		o added -validateEventsLogin:withPassword:		
+		o added -addLanguage:
+		o added -firstLanguage
+	* GSWeb/GSWApplication.h:
+		o added +defaultRequestHandlerClassName
+		o added +defaultRequestHandlerClass
+		o added _lastAccessDate
+	* GSWeb/GSWApplication.m:
+		o replaced GDL2 #if by HAVE_GDL2 #if
+		o implemented -number
+		o implemented -_directConnectURL
+		o implemented -_webserverConnectURL
+		o improved -_initializeSessionInContext:
+		o finalized -_discountTerminatedSession implementation
+		o added new handlers in -registerRequestHandlers
+		o added +workerThreadCountMin;
+		o added +setWorkerThreadCountMin:
+		o added +workerThreadCountMax
+		o added +setWorkerThreadCountMax:
+		o added +isLifebeatEnabled
+		o added +setLifebeatEnabled:flag
+		o added +lifebeatDestinationPort;
+		o added +setLifebeatDestinationPort:
+		o added +lifebeatInterval
+		o added +setLifebeatInterval:
+		o added +streamActionRequestHandlerKey;
+		o added +setStreamActionRequestHandlerKey:
+		o added +sessionStoreClassName
+		o added +setSessionStoreClassName:
+		o added +setDefaultUndoStackLimit:
+		o added +defaultUndoStackLimit;
+		o added +_lockDefaultEditingContext;
+		o added +_setLockDefaultEditingContext:
+		o added +outputPath
+		o added +setOutputPath:
+		o implemented -monitoringEnabled
+		o implemented -isTerminating 
+		o implemented -terminate
+		o modified -setTimeOut: to handle null timeOut (no time out)
+			and call -_scheduleApplicationTimerForTimeInterval:
+		o implemented -_scheduleApplicationTimerForTimeInterval:
+		o finalized -appendToResponse:inContext: implementation
+		o implemented -_terminateFromMonitor
+		o implemented _newLocationForRequest:
+		o removed -_handleException:inContext:
+		o added -_handleErrorWithPageNamed:exception:inContext:
+		o added +recordingClassName
+		o added +setRecordingClassName:
+		o +saveResponsesPath is obsolete; use +recordingPath
+		o +setSaveResponsesPath is obsolete; use +setRecordingPath
+		o added +defaultRequestHandlerClassName
+		o added +defaultRequestHandlerClass
+		o added _lastAccessDate
+	* GSWStaticResourceRequestHandler.h/.m:
+		o added
+	* GSWeb/GSWResponse.h/.m:
+		o added @interface GSWResponse (Stream)
+		o added -setContentStreamFileHandle:bufferSize:length:
+		o added _contentStreamFileHandle
+		o added _contentStreamBufferSize;
+		o added _contentStreamBufferLength;
+	* GSWeb/GSWDefaultAdaptor.h/.m:
+		o added -workerThreadCountMin;
+		o added -setWorkerThreadCountMin:
+		o added -workerThreadCountMax
+		o added -setWorkerThreadCountMax:
+	* GSWeb/GSWStatisticsStore.h/.m:
+		o changed definition of +formatDescription:forResponse:inContext:
+		o implemented +formatDescription:forResponse:inContext:
+		o change types from double to NSTimeInterval
+		o implemented missing methods
+	* GSWeb/GSWConstants.h/.m:
+		o added GSWHTTPHeader_RecordingSessionID, 
+			GSWHTTPHeader_RecordingIDsURL,
+			GSWHTTPHeader_RecordingIDsCookie, 
+			GSWHTTPHeader_RecordingApplicationNumber
+		o added GSWOPT_WorkerThreadCountMin,
+			GSWOPT_WorkerThreadCountMax
+		o added GSWOPT_OutputPath
+		o added GSWOPT_LifebeatEnabled
+		o added GSWOPT_LifebeatDestinationPort
+		o added GSWOPT_LifebeatInterval
+		o added GSWOPT_DefaultUndoStackLimit
+		o added GSWOPT_LockDefaultEditingContext
+		o added isDisplayStringBefore__Key
+	* GSWeb/GSWLifebeatThread.h/.m:
+		o added
+	* GSWeb/GSWActionRequestHandler.h/.m:
+		o added 
+	* GSWeb/GSWDirectAction.h/.m
+		o added GSWAction as superclass of GSWDirectAction
+	* GSWeb/GSWAction.h/.m:
+		o added 
+	* GSWeb/GSWDirectActionRequestHandler.h/.m
+		o added +handlerWithDefaultActionClassName:defaultActionName:displayExceptionPages:
+		o adedd _displayExceptionPages
+		o added GSWActionRequestHandler as superclass of GSWDirectActionRequestHandler
+		o moved some code in GSWActionRequestHandler
+	* GSWeb/GSWDisplayGroup.m:
+		o replaced GDL2 #if by HAVE_GDL2 #if
+		o fix in -objectsAtIndexes:
+		o added _auxiliaryQueryQualifier
+			used when qualifying dataSource (added to query qualifiers)
+		o added _queryNotMatch to enable not clause
+	* GSWeb/GSWPageDefLexer.h:
+		o regenerated
+	* GSWeb/GSWPageDefParserTokenTypes.txt:
+		o regenerated
+	* GSWeb/GSWPageDefParserTokenTypes.h:
+		o regenerated
+	* GSWeb/GSWPageDefParser.m:
+		o regenerated
+	* GSWeb/GSWPageDefParser.h:
+		o regenerated
+	* GSWeb/GSWPageDefLexer.m:
+		o regenerated
+	* GSWeb/PageDef.g:
+		o modified to handle quotes in binding names (for GSWGenericContainer)
+	* GSWeb.framework/GSWRecording.m/.h:
+		o added
+	* GSWeb.framework/GSWDefaultAdaptorThread.h/.m:
+		o remove response saving (now use recording)
+	* GSWeb.framework/GSWHTMLStaticElement.m:
+		o appendContentString: instead of appendContentData:
+	* GSWeb.framework/GSWHTMLStaticGroup.m:
+		o appendContentString: instead of appendContentData:
+	* GSWeb.framework/GSWText.m:
+		o fix in takeValuesFromRequest:inContext: 
+			when control was diasbled, previous value was lost.
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.html:
+		o added Anchor
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.gswd:
+		o added Anchor
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.m:
+		o added Anchor
+	* GSWeb.framework/GNUmakefile:
+		o added GSWLifebeatThread.h/.m
+		o added GSWStaticResourceRequestHandler.h/.m
+	* GSWeb.framework/GSWForm.h/.m:
+		o added _otherPathQueryAssociations
+	* GSWeb.framework/GSWHyperlink.h/.m:
+		o added _otherPathQueryAssociations
+	* GSWeb.framework/GSWPopUpButton.m:
+		o logs
+	* GSWeb.framework/Resources/languages.plist:
+		o added languages
+	* GSWeb.framework/GSWeb.h:
+		o added classes and includes
+	* GSWeb.framework/GSWText.h:
+		o removed -dealloc
+	* GSWeb.framework/GSWSessionTimeOutManager.m:
+		o logs
+		o exception handlers
+	* GSWeb.framework/GSWSessionTimeOutManager.h:
+		o added -tryLockBeforeTimeIntervalSinceNow:
+		o added -lockBeforeTimeIntervalSinceNow:
+	* GSWeb.framework/GSWSessionStore.m
+		o use NSTimeIntervalSleep instead of usleep
+	* GSWeb.framework/GSWResourceRequestHandler.m
+		o logs
+	* GSWeb.framework/GSWHTMLURLValuedElement.m/.h:
+		o added _otherPathQueryAssociations
+	* GSWeb.framework/GSWHTMLDynamicElement.m/.h:
+		o handle otherPathQueryAssociations
+	* GSWeb.framework/GSWElement.m:
+		o logs
+	* GSWeb.framework/GSWDynamicURLString.m:
+		o coder changes
+	* GSWeb.framework/GSWDebug.h:
+		o logs
+	* GSWeb.framework/GSWContext.h/.m:
+		o handle isRefusingThisRequest
+		o handle pathQuery
+		o fix languages stuff
+		o fix _synchronizeForDistribution
+	* GSWeb.framework/GSWConfig.h:
+		o removed GSWOPTVALUE_SaveResponsesPath
+		o added GSWOPTVALUE_LifebeatEnabled
+		o added GSWOPTVALUE_LifebeatDestinationHost
+		o added GSWOPTVALUE_LifebeatDestinationPort
+		o added GSWOPTVALUE_LifebeatInterval
+		o added GSWOPTVALUE_DefaultUndoStackLimit
+		o added GSWOPTVALUE_LockDefaultEditingContext
+		o added GSWOPTVALUE_WorkerThreadCountMin
+		o added GSWOPTVALUE_WorkerThreadCountMax
+		o added GSWOPTVALUE_AcceptedContentEncoding
+	* GSWeb.framework/GSWComponentReference.m:
+		o logs
+	* GSWeb.framework/GSWBrowser.m:
+		o logs
+	* GSWeb.framework/GSWAssociation.m:
+		o logs
+	* GSWExtensions.framework/GSWExceptionPage.m:
+		o logs
+	* GSWExtensionsGSW.framework/GSWLogin.m:
+		o removed date stuff
+	* GSWExtensionsGSW.framework/GSWLogin.gswc/GSWLogin.html:
+		o removed date stuff
+	* GSWExtensionsGSW.framework/GSWLogin.gswc/GSWLogin.gswd:
+		o removed date stuff
+	* config.mak.in:
+		o added GSWDEBUG=no
+	
 2003-11-09  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GNUmakefile
