@@ -116,6 +116,10 @@ attributeAssociations:(NSDictionary*)attributeAssociations
 -(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
                               directActionNameAssociation:(GSWAssociation*)directActionName
                                                 inContext:(GSWContext*)context;
+-(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
+                              directActionNameAssociation:(GSWAssociation*)directActionName
+                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
+                                                inContext:(GSWContext*)context;
 -(NSDictionary*)computeQueryDictionaryWithActionClassAssociation:(GSWAssociation*)actionClass
                                      directActionNameAssociation:(GSWAssociation*)directActionName
                                       queryDictionaryAssociation:(GSWAssociation*)queryDictionary

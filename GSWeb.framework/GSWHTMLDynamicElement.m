@@ -754,9 +754,21 @@ attributeAssociations:(NSDictionary*)attributeAssociations
 // move it to GSWHTMLDynamicElement later !!!!
 
 @implementation GSWDynamicElement (GSWHTMLDynamicElementD)
+
 //--------------------------------------------------------------------
 -(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
                               directActionNameAssociation:(GSWAssociation*)directActionName
+                                                inContext:(GSWContext*)context
+{
+  return [self computeActionStringWithActionClassAssociation:actionClass
+               directActionNameAssociation:directActionName
+               otherPathQueryAssociations:nil
+               inContext:context];
+};
+//--------------------------------------------------------------------
+-(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
+                              directActionNameAssociation:(GSWAssociation*)directActionName
+                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
                                                 inContext:(GSWContext*)context
 {
   //OK
@@ -787,6 +799,29 @@ attributeAssociations:(NSDictionary*)attributeAssociations
       LOGSeriousError(@"No actionClass (for %@) and no directActionName (for %@)",
                       actionClass,
                       directActionName);
+    };
+
+  if (tmpDirectActionString && [otherPathQueryAssociations count]>0)
+    {
+      // We sort keys so URL are always the same for same parameters
+      NSArray* keys=[[otherPathQueryAssociations allKeys]sortedArrayUsingSelector:@selector(compare:)];
+      int count=[keys count];
+      int i=0;
+      NSDebugMLLog(@"gswdync",@"otherPathQueryAssociations=%@",otherPathQueryAssociations);
+      for(i=0;i<count;i++)
+        {
+          id associationKey = [keys objectAtIndex:i];
+          id association = [otherPathQueryAssociations valueForKey:associationKey];
+          id associationValue=[association valueInComponent:component];
+          NSDebugMLLog(@"gswdync",@"associationKey=%@",associationKey);
+          NSDebugMLLog(@"gswdync",@"association=%@",association);
+          NSDebugMLLog(@"gswdync",@"associationValue=%@",associationValue);
+          if (!associationValue)
+            associationValue=[NSString string];
+          tmpDirectActionString=[tmpDirectActionString stringByAppendingFormat:@"/%@=%@",
+                                                       associationKey,
+                                                       associationValue];
+        };
     };
 
   NSDebugMLLog(@"gswdync",@"tmpDirectActionString=%@",tmpDirectActionString);
