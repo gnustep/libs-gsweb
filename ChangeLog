@@ -1,7 +1,16 @@
+2004-11-30  David Wetzel <dave@turbocat.de>
+
+        * GSWeb.framework/GSWPopUpButton.m
+        replaced +NSNumber numberWithXXX with GSWIntToNSString()
+
 2004-11-29  David Wetzel <dave@turbocat.de>
+
         * GSWeb.framework/GSWMessage.h
         * GSWeb.framework/GSWMessage.m
         uses NSMutableData now. 3.74 % faster than previous version
+        * GSWeb.framework/GSWUtils.m
+        added NSString* cachedStringForInt(int value) to cache
+        strings for 0 to 50.
 
 2004-11-26  David Ayers  <d.ayers@inode.at>
 

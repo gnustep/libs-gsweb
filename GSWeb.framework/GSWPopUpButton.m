@@ -299,12 +299,12 @@ Bindings
       if (listValue)
         itemValue=[listValue objectAtIndex:i];
       else
-        itemValue=[NSNumber numberWithShort:i];
+        itemValue=GSWIntToNSString(i);
       if (_item)
         [_item setValue:itemValue
                inComponent:component];
       if (_index)
-        [_index setValue:[NSNumber numberWithShort:i]
+        [_index setValue: GSWIntToNSString(i)
                 inComponent:component];
 
       NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
@@ -315,7 +315,7 @@ Bindings
           if (_value)  	// Binded Value          
             valueValue = [_value valueInComponent:component];
           else		// Auto Value
-            valueValue = [NSNumber numberWithInt:i];
+            valueValue = GSWIntToNSString(i);
           NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
 
           if (valueValue)
@@ -552,7 +552,7 @@ Bindings
                   if (listValue)
                     itemValue=[listValue objectAtIndex:i];
                   else
-                    itemValue=[NSNumber numberWithShort:i];
+                    itemValue=GSWIntToNSString(i);
                   NSDebugMLLog(@"gswdync",@"_itemValue=%@",itemValue);
                   NSDebugMLLog(@"gswdync",@"_item=%@",_item);
                       
@@ -561,14 +561,14 @@ Bindings
                            inComponent:component];
 
                   if (_index)
-                    [_index setValue:[NSNumber numberWithShort:i]
+                    [_index setValue:GSWIntToNSString(i)
                             inComponent:component];
 
                   NSDebugMLLog(@"gswdync",@"value=%@",_value);
                   if (_value)  	// Binded Value          
                     valueValue = [_value valueInComponent:component];
                   else		// Auto Value
-                    valueValue = [NSNumber numberWithInt:i]; 
+                    valueValue=GSWIntToNSString(i);
                   valueValueString=[NSString stringWithFormat:@"%@",valueValue];
                   NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
                   
