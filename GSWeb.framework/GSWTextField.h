@@ -1,6 +1,6 @@
 /** GSWTextField.h - <title>GSWeb: Class GSWTextField</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -32,7 +32,7 @@
 #ifndef _GSWTextField_h__
 	#define _GSWTextField_h__
 
-//OK
+
 @interface GSWTextField: GSWInput
 {
   GSWAssociation* _dateFormat;
@@ -40,15 +40,19 @@
   GSWAssociation* _useDecimalNumber;
   GSWAssociation* _formatter;
 };
+
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;
--(void)dealloc;
+
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
+
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
                                       inContext:(GSWContext*)context; 
+
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component;
+
 @end
 
 @interface GSWTextField (TurbocatAdditions)
