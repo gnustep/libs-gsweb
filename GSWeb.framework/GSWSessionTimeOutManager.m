@@ -215,7 +215,7 @@ RCS_ID("$Id$")
   BOOL selfLocked=NO;
   BOOL targetLocked=NO;
   [GSWApplication statusLogWithFormat:@"Start HandleTimer"];
-  NSDebugMLog(@"Start HandleTimer");
+//  NSDebugMLog(@"Start HandleTimer");
   NSDebugMLLog(@"sessions",@"timer=%@",aTimer);
   NSDebugMLLog(@"sessions",@"timer fireDate=%@",[aTimer fireDate]);
   NSDebugMLLog(@"sessions",@"timer tisn=%f",[[aTimer fireDate]timeIntervalSinceNow]);
@@ -376,7 +376,7 @@ RCS_ID("$Id$")
     };
   //  LOGObjectFnStop();
   [GSWApplication statusLogWithFormat:@"Stop HandleTimer"];
-  NSDebugMLog(@"Stop HandleTimer");
+//  NSDebugMLog(@"Stop HandleTimer");
 };
 
 //--------------------------------------------------------------------
