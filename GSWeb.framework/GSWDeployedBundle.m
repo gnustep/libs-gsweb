@@ -384,23 +384,22 @@ RCS_ID("$Id$")
         {
           NSString* emptyString=[NSString string];
           NSString* bundlePath=[self bundlePath];
-          NSArray* keys;
+          NSDebugMLLog(@"bundles",@"aName=%@ bundlePath=%@ aDirectory=%@ aLanguage=%@",
+                       aName,bundlePath,aDirectory,aLanguage);
           if ([aDirectory isEqualToString:@"."])
             aDirectory=nil;
           if (aLanguage)
-            keys=[NSArray arrayWithObjects:aName,
-                          bundlePath ? bundlePath : emptyString,
-                          aDirectory ? aDirectory : emptyString,
-                          aLanguage ? aLanguage : emptyString,
-                          nil];
+            path=[_relativePathsCache objectForKeys:aName,
+                                      (bundlePath ? bundlePath : emptyString),
+                                      (aDirectory ? aDirectory : emptyString),
+                                      (aLanguage ? aLanguage : emptyString),
+                                      nil];
           else
-            keys=[NSArray arrayWithObjects:aName,
-                          bundlePath ? bundlePath : emptyString,
-                          aDirectory ? aDirectory : emptyString,
-                          nil];
-          //NSDebugMLLog(@"bundles",@"_keys=%@",_keys);
-          path=[_relativePathsCache objectForKeysArray:keys];
-          //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+            path=[_relativePathsCache objectForKeys:aName,
+                                      (bundlePath ? bundlePath : emptyString),
+                                      (aDirectory ? aDirectory : emptyString),
+                                      nil];
+          NSDebugMLLog(@"bundles",@"path=%@",path);
           if (path==GSNotFoundMarker)
             path=nil;
           else if (!path)
@@ -427,12 +426,36 @@ RCS_ID("$Id$")
               if (exists)
                 {
                   path=pathTest;
-                  [_relativePathsCache setObject:path
-                                       forKeysArray:keys];
+                  if (aLanguage)
+                    [_relativePathsCache setObject:path
+                                         forKeys:aName,
+                                         (bundlePath ? bundlePath : emptyString),
+                                         (aDirectory ? aDirectory : emptyString),
+                                         (aLanguage ? aLanguage : emptyString),
+                                         nil];
+                  else
+                    [_relativePathsCache setObject:path
+                                         forKeys:aName,
+                                         (bundlePath ? bundlePath : emptyString),
+                                         (aDirectory ? aDirectory : emptyString),
+                                         nil];
                 }
               else
-                [_relativePathsCache setObject:GSNotFoundMarker
-                                     forKeysArray:keys];
+                {
+                  if (aLanguage)
+                    [_relativePathsCache setObject:GSNotFoundMarker
+                                         forKeys:aName,
+                                         (bundlePath ? bundlePath : emptyString),
+                                         (aDirectory ? aDirectory : emptyString),
+                                         (aLanguage ? aLanguage : emptyString),
+                                         nil];
+                  else
+                    [_relativePathsCache setObject:GSNotFoundMarker
+                                         forKeys:aName,
+                                         (bundlePath ? bundlePath : emptyString),
+                                         (aDirectory ? aDirectory : emptyString),
+                                         nil];
+                }
             }
         }
       NS_HANDLER
@@ -568,9 +591,20 @@ if it was not cached **/
 -(NSString*)absolutePathForResourceNamed:(NSString*)aName
                             languages:(NSArray*)someLanguages
 {
-  NSString* relativePath = [self relativePathForResourceNamed:aName
-                                 languages:someLanguages];
-  return [self absolutePathForRelativePath:relativePath];
+  NSString* absolutePath=nil;
+  NSString* relativePath=nil;
+
+  LOGObjectFnStart();
+
+  relativePath = [self relativePathForResourceNamed:aName
+                       languages:someLanguages];
+  NSDebugMLLog(@"bundles",@"relativePath=%@",relativePath);
+
+  absolutePath=[self absolutePathForRelativePath:relativePath];
+  NSDebugMLLog(@"bundles",@"absolutePath=%@",absolutePath);
+
+  LOGObjectFnStop();
+  return absolutePath;
 }
 
 //--------------------------------------------------------------------
