@@ -41,11 +41,6 @@ static GSWMailDelivery *sharedInstance;
   return sharedInstance;
 };
 
-- (void)dealloc
-{
-  DESTROY(sender);
-}
-
 -(NSString*)composeEmailFrom:(NSString*)sender_
 						  to:(NSArray*)to_
 						  cc:(NSArray*)cc_
@@ -92,6 +87,7 @@ static GSWMailDelivery *sharedInstance;
   NSMutableString* _to=nil;
   int i=0;
   int _count=0;
+
   _count=[to_ count];
   NSDebugMLog(@"sender_=%@",sender_);
   NSDebugMLog(@"to_=%@",to_);
@@ -100,7 +96,7 @@ static GSWMailDelivery *sharedInstance;
   NSDebugMLog(@"subject_=%@",subject_);
   NSDebugMLog(@"plainTextMessage_=%@",plainTextMessage_);
   NSDebugMLog(@"sendNow_=%d",(int)sendNow_);
-  ASSIGN(sender, sender_);
+
   for(i=0;i<_count;i++)
 	{
 	  if (!_to)
@@ -161,17 +157,42 @@ static GSWMailDelivery *sharedInstance;
   return nil;
 };
 
--(void)sendEmail:(NSString*)emailString_
+-(void)sendEmail:(NSString *)emailString_
 {
-  NSString* _command=nil;
-  NSString* _emailString=nil;
-  LOGObjectFnNotImplemented();	//TODOFN
+  int files[2];
+  pid_t pid;
+
   NSDebugMLog(@"emailString_=%@",emailString_);
-  _emailString=[emailString_ stringByReplacingString:@"&"
-							 withString:@"\\&"];
-  NSDebugMLog(@"_emailString=%@",_emailString);
-  _command=[NSString stringWithFormat:@"echo \"%@\" | /usr/sbin/sendmail \"%@\"",_emailString, sender];
-  system([_command cString]);
+
+  if(pipe(files))
+    [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot create pipe", NSStringFromSelector(_cmd), NSStringFromClass([self class]), self];
+
+  switch(pid = fork())
+    {
+    case 0:
+      close(0);
+      dup(files[0]);
+      close(files[0]);
+      close(files[1]);
+
+      execlp("sendmail", "sendmail", "-i", "-t", NULL);
+
+      break;
+
+    case -1:
+      close(files[0]);
+      close(files[1]);
+      [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot fork process", NSStringFromSelector(_cmd), NSStringFromClass([self class]), self];
+      break;
+
+    default:
+      write(files[1], [emailString_ cString], strlen([emailString_ cString]));
+      close(files[0]);
+      close(files[1]);
+
+      waitpid(pid, NULL, 0);
+      break;
+    }
 };
 
 -(void)_invokeGSWSendMailAt:(id)at_

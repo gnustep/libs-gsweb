@@ -1678,7 +1678,7 @@ static char rcsId[] = "$Id$";
 
 - (void)setCurrentBatchIndex:(unsigned)index_
 {
-  unsigned batchCount, num;
+  unsigned batchCount, num, count;
   int i;
 
   if(!index_)
@@ -1690,8 +1690,10 @@ static char rcsId[] = "$Id$";
   if(index_ > batchCount)
     index_ = 1;
 
+  count = [allObjects count];
+
   if(!numberOfObjectsPerBatch)
-    num = [allObjects count];
+    num = count;
   else
     num = numberOfObjectsPerBatch;
 
@@ -1699,7 +1701,7 @@ static char rcsId[] = "$Id$";
     return;
 
   for( i = (index_-1) * num;
-       i < index_ * num;
+       (i < index_ * num) && (i < index_ * count);
        i++)
     [displayedObjects addObject:[allObjects objectAtIndex:i]];
 

@@ -1,3 +1,9 @@
+2000-08-26  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWMailDelivery.m/.h: rewritten sendEmail: with execlp() to avoid
+	  email content manipulation.
+	* GSWDisplayGroup.m: fixed a cursor bug.
+
 2000-08-14  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWApplication.m: added "exit" in terminate
