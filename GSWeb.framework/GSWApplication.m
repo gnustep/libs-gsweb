@@ -2877,7 +2877,7 @@ to another instance **/
       GSWSession* session = nil;
       NSString* header=nil;
       
-      header=[NSString stringWithFormat:@"%d",[aRequest applicationNumber]];
+      header=GSWIntToNSString([aRequest applicationNumber]);
       NSDebugMLog(@"header=%@",header);
 
       [aResponse setHeader:header

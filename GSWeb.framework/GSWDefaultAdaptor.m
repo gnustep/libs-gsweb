@@ -1,6 +1,6 @@
 /** GSWDefaultAdaptor.m - <title>GSWeb: Class GSWDefaultAdaptor</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -115,7 +115,7 @@ int allow_severity = LOG_INFO;
       ASSIGN(_host,[[NSHost currentHost] name]);
     };
   _fileHandle=[[NSFileHandle fileHandleAsServerAtAddress:_host
-			    service:[NSString stringWithFormat:@"%d",_port]
+                             service:GSWIntToNSString(_port)
 			    protocol:@"tcp"] retain];
   NSDebugDeepMLLog(@"info",@"fileHandle=%p",(void*)_fileHandle);
   [[NSNotificationCenter defaultCenter] addObserver:self
