@@ -1,6 +1,6 @@
 /** GSWHTMLStaticElement.m - <title>GSWeb: Class GSWHTMLStaticElement</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -362,8 +362,12 @@ RCS_ID("$Id$")
   GSWElement* element=nil;
   BOOL searchIsOver=NO;
   NSString* senderID=nil;
+
+  LOGObjectFnStart();
+
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);// Debug Only
+
   senderID=[context senderID];
   if ([_elementsMap length]>0)
     {
@@ -399,8 +403,12 @@ RCS_ID("$Id$")
             };
         };
     };
+
   GSWAssertIsElementID(context);
   GSWStopElement(context);
+
+  LOGObjectFnStop();
+
   return element;
 };
 
