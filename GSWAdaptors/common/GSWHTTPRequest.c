@@ -181,12 +181,19 @@ GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest   *p_pHTTPRequest,
   strcat(p_pHTTPRequest->pszRequest,"\n");
   
   // Add Application Headers
+#ifdef DEBUG
+  GSWLog(GSW_INFO,p_pLogServerData,"App Specific Headers");
+  GSWDict_Log(&pApp->stHeadersDict,p_pLogServerData);
+#endif
   GSWDict_PerformForAllElem(&pApp->stHeadersDict,
 			    GSWHTTPRequest_AddHeaderElem,
 			    (void*)p_pHTTPRequest);
 #ifdef DEBUG
   if (p_pHTTPRequest->pHeaders)
-    GSWDict_Log(p_pHTTPRequest->pHeaders,p_pLogServerData);
+    {
+      GSWLog(GSW_INFO,p_pLogServerData,"HTTP Request Headers");
+      GSWDict_Log(p_pHTTPRequest->pHeaders,p_pLogServerData);
+    };
 #endif
 
   GSWLog(GSW_INFO,p_pLogServerData,"App Request: %s",

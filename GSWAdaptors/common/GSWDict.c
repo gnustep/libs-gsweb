@@ -272,7 +272,7 @@ GSWDict_AllKeys(GSWDict *p_pDict)
 static void GSWDict_LogStringElem(GSWDictElem *p_pElem,
                                   void        *p_pLogServerData)
 {
-      GSWLog(GSW_DEBUG,p_pLogServerData,"%s=%s",p_pElem->pszKey,p_pElem->pValue);  
+  GSWLog(GSW_DEBUG,p_pLogServerData,"%s=%s",p_pElem->pszKey,p_pElem->pValue);  
 };
 
 void GSWDict_Log(GSWDict *p_pDict,

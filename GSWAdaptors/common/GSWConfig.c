@@ -312,7 +312,7 @@ GSWConfig_PropListHeadersToHeaders(GSWDict    *p_pHeaders,
 {
   BOOL fOk=TRUE;
   char pszParents[4096]="";
-  //Headers
+  //Headers:
   //  {
   //    header1=1234;
   //    header2=4567;
@@ -378,6 +378,7 @@ GSWConfig_PropListHeadersToHeaders(GSWDict    *p_pHeaders,
 	};
       PLRelease(propListHeadersNames);//Because it's a newly created proplist
     };
+
   return fOk;
 };
 
@@ -465,8 +466,10 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
       free(p_pApp->pszName);
     }
   p_pApp->pszName=SafeStrdup(p_pszAppName);//We'll own the AppName
-  // CanDump
+
   sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+
+  // CanDump
   pValueCanDump=GSWPropList_GetDictionaryEntry(p_propListApp,
 					       "canDump",
 					       pszParents,
@@ -545,7 +548,6 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
   
   {
     proplist_t propListHeaders=NULL;
-    sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
 
     propListHeaders =
 	GSWPropList_GetDictionaryEntry(p_propListApp,
@@ -554,11 +556,12 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
 				       FALSE,//No Error If Not Exists
 				       GSWPropList_TestDictionary,
 				       p_pLogServerData);
-    sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+
     fOk=GSWConfig_PropListHeadersToHeaders(&p_pApp->stHeadersDict,
 					   propListHeaders,
 					   pszParents,
 					   p_pLogServerData);
+      GSWDict_Log(&p_pApp->stHeadersDict,p_pLogServerData);
   };
 
   //Instances
@@ -581,7 +584,6 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
 
   {
     proplist_t propListInstances=NULL;
-    sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
     propListInstances =
 	GSWPropList_GetDictionaryEntry(p_propListApp,
 				       "instances",
@@ -589,6 +591,7 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
 				       TRUE,//Error If Not Exists
 				       GSWPropList_TestDictionary,
 				       p_pLogServerData);
+
     if (propListInstances)
       {
 	int iInstanceIndex=0;
