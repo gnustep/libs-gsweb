@@ -1,11 +1,16 @@
-/* utils.m - utils
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWUtils.m - <title>GSWeb: Utilities</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -44,60 +50,60 @@ BOOL ClassIsKindOfClass(Class classA,Class classB)
 };
 
 //--------------------------------------------------------------------
-BOOL boolValueFor(id id_)
+BOOL boolValueFor(id anObject)
 {
-  if (id_)
-	{
-	  if (/*id_==BNYES ||*/ id_==NSTYES)
-		return YES;
-	  else if (/*id_==BNNO ||*/ id_==NSTNO)
-		return NO;
-	  else if (/*[id_ conformsTo:@protocol(NSString)]*/ [id_ isKindOfClass:[NSString class]] && [id_ length]>0)
-		return ([id_ caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
-	  else if ([id_ respondsToSelector:@selector(boolValue)] && [id_ boolValue])
-		return YES;
-	  else if ([id_ respondsToSelector:@selector(intValue)] && [id_ intValue])
-		return YES;
-	  //BOOL is unisgned char
-	  else if ([id_ respondsToSelector:@selector(unsignedCharValue)] && [id_ unsignedCharValue])
-		return YES;
-	  else
-		return NO;
-	}
+  if (anObject)
+    {
+      if (/*anObject==BNYES ||*/ anObject==NSTYES)
+        return YES;
+      else if (/*anObject==BNNO ||*/ anObject==NSTNO)
+        return NO;
+      else if (/*[anObject conformsTo:@protocol(NSString)]*/ [anObject isKindOfClass:[NSString class]] && [anObject length]>0)
+        return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
+      else if ([anObject respondsToSelector:@selector(boolValue)] && [anObject boolValue])
+        return YES;
+      else if ([anObject respondsToSelector:@selector(intValue)] && [anObject intValue])
+        return YES;
+      //BOOL is unisgned char
+      else if ([anObject respondsToSelector:@selector(unsignedCharValue)] && [anObject unsignedCharValue])
+        return YES;
+      else
+        return NO;
+    }
   else
-	return NO;
+    return NO;
 };
 
 //--------------------------------------------------------------------
-BOOL boolValueWithDefaultFor(id id_,BOOL default_)
+BOOL boolValueWithDefaultFor(id anObject,BOOL defaultValue)
 {
-  if (id_)
-	{
-	  if (/*id_==BNYES ||*/ id_==NSTYES)
-		return YES;
-	  else if (/*id_==BNNO ||*/ id_==NSTNO)
-		return NO;
-//@protocol NSString
-	  else if (/*[id_ conformsTo:@protocol(NSString)]*/ [id_ isKindOfClass:[NSString class]] && [id_ length]>0)
-		return ([id_ caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
-	  else if ([id_ respondsToSelector:@selector(boolValue)])
-		return ([id_ boolValue]!=NO);
-	  else if ([id_ respondsToSelector:@selector(intValue)])
-		return ([id_ intValue]!=0);
-	  else if ([id_ respondsToSelector:@selector(unsignedCharValue)]) //BOOL is unsigned char
-		return ([id_ unsignedCharValue]!=0);
-	  else
-		return default_;
-	}
+  if (anObject)
+    {
+      if (/*anObject==BNYES ||*/ anObject==NSTYES)
+        return YES;
+      else if (/*anObject==BNNO ||*/ anObject==NSTNO)
+        return NO;
+      //@protocol NSString
+      else if (/*[anObject conformsTo:@protocol(NSString)]*/ [anObject isKindOfClass:[NSString class]] && [anObject length]>0)
+        return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
+      else if ([anObject respondsToSelector:@selector(boolValue)])
+        return ([anObject boolValue]!=NO);
+      else if ([anObject respondsToSelector:@selector(intValue)])
+        return ([anObject intValue]!=0);
+      else if ([anObject respondsToSelector:@selector(unsignedCharValue)]) //BOOL is unsigned char
+        return ([anObject unsignedCharValue]!=0);
+      else
+        return defaultValue;
+    }
   else
-	return NO;
+    return NO;
 };
 
 /*
 //--------------------------------------------------------------------
-BOOLNB boolNbFor(BOOL value_)
+BOOLNB boolNbFor(BOOL value)
 {
-  return (value_ ? BNYES : BNNO);
+  return (value ? BNYES : BNNO);
 };
 */
 
@@ -111,36 +117,36 @@ BOOL isHeaderKeysEqual(NSString* headerKey,NSString* testKey)
 //--------------------------------------------------------------------
 BOOL SBIsEqual(id id1,id id2)
 {
-  BOOL _equal=NO;
+  BOOL equal=NO;
   if (id1==id2)
-	_equal=YES;
+    equal=YES;
   else if (id1)
-	{
-	  if (id2)
-		  _equal=[id1 isEqual:id2];
-	};
-  return _equal;
+    {
+      if (id2)
+        equal=[id1 isEqual:id2];
+    };
+  return equal;
 };
 
 //--------------------------------------------------------------------
 BOOL SBIsValueEqual(id id1,id id2)
 {
-  BOOL _equal=SBIsEqual(id1,id2);
-  if (!_equal
+  BOOL equal=SBIsEqual(id1,id2);
+  if (!equal
       && [id1 class]!=[id2 class])
     {
       if ([id1 isKindOfClass:[NSString class]])
         {
-          NSString* _id2String=[NSString stringWithObject:id2];
-          _equal=[id1 isEqualToString:_id2String];
+          NSString* id2String=[NSString stringWithObject:id2];
+          equal=[id1 isEqualToString:id2String];
         }
       else if ([id2 isKindOfClass:[NSString class]])
         {
-          NSString* _id1String=[NSString stringWithObject:id1];
-          _equal=[id2 isEqualToString:_id1String];
+          NSString* id1String=[NSString stringWithObject:id1];
+          equal=[id2 isEqualToString:id1String];
         };
     };
-  return _equal;
+  return equal;
 };
 
 //--------------------------------------------------------------------
@@ -162,15 +168,15 @@ id GetTmpName(NSString* dir,NSString* prefix)
   id result=nil;
   char *pszTmpFile=tempnam([dir cString],[prefix cString]);
   if (!pszTmpFile)
-	{
-	  //TODO
-	  //result=NewError(1,@"Can't get TmpFile",0,0,0);
-	}
+    {
+      //TODO
+      //result=NewError(1,@"Can't get TmpFile",0,0,0);
+    }
   else
-	{
-	  result=[NSString stringWithCString:pszTmpFile];
-	  free(pszTmpFile);
-	};
+    {
+      result=[NSString stringWithCString:pszTmpFile];
+      free(pszTmpFile);
+    };
   return result;
 };
 
@@ -194,280 +200,283 @@ NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv)
   return interval;
 };
 
-NSString* pidproccontent(NSString* _path)
+NSString* pidproccontent(NSString* path)
 {
-  NSString* _content=nil;
-  char          thePath[BUFSIZ*2];
-  FILE          *theFile = 0;
-  if ([_path getFileSystemRepresentation:thePath
-                              maxLength:sizeof(thePath)-1] == NO)
+  NSString* content=nil;
+  char thePath[BUFSIZ*2];
+  FILE* theFile = 0;
+  if ([path getFileSystemRepresentation:thePath
+            maxLength:sizeof(thePath)-1] == NO)
     {
-	  LOGSeriousError(@"Open (%@) attempt failed - bad path",
-					  _path);
+      LOGSeriousError(@"Open (%@) attempt failed - bad path",
+                      path);
     }
   else
-	{
+    {
 #if     defined(__WIN32__)
-	  theFile = fopen(thePath, "rb");
+      theFile = fopen(thePath, "rb");
 #else
-	  theFile = fopen(thePath, "r");
+      theFile = fopen(thePath, "r");
 #endif
-	  if (theFile == NULL)          /* We failed to open the file. */
-		{
-		  LOGSeriousError(@"Open (%s) attempt failed - %s", thePath, strerror(errno));
-		}
-	  else
-		{
-		  char buff[1024]="";
-		  if (!fgets(buff,1024,theFile))
-			{
-			  LOGSeriousError(@"Read (%s) attempt failed",thePath);
-			}
-		  else
-			{
-			  _content=[NSString stringWithCString:buff];
-			};
-		  fclose(theFile);
-		};
-	};
-  return _content;
+      if (theFile == NULL)          /* We failed to open the file. */
+        {
+          LOGSeriousError(@"Open (%s) attempt failed - %s",
+                          thePath, strerror(errno));
+        }
+      else
+        {
+          char buff[1024]="";
+          if (!fgets(buff,1024,theFile))
+            {
+              LOGSeriousError(@"Read (%s) attempt failed",thePath);
+            }
+          else
+            {
+              content=[NSString stringWithCString:buff];
+            };
+          fclose(theFile);
+        };
+    };
+  return content;
 };
 void pidstat(pid_t pid, proc_t* P)
 {
-  NSString* _filename=[NSString stringWithFormat:@"/proc/%d/stat",(int)pid];
-  NSString* pidstat=pidproccontent(_filename);
+  NSString* filename=[NSString stringWithFormat:@"/proc/%d/stat",(int)pid];
+  NSString* pidstat=pidproccontent(filename);
   NSDebugFLog(@"pidstat=%@",pidstat);
-  NSDebugFLog(@"_filename=%@",_filename);
+  NSDebugFLog(@"filename=%@",filename);
   NSDebugFLog(@"pid=%d",(int)pid);
   if (pidstat)
-	{
-	  NSRange _cmdEnd=[pidstat rangeOfString:@") "];
-	  if (_cmdEnd.length>0)
-		{
-		  NSString* _pid_cmd=[pidstat substringToIndex:_cmdEnd.location];
-		  NSDebugFLog(@"_pid_cmd=%@",_pid_cmd);
-		  if (_cmdEnd.location+_cmdEnd.length<[pidstat length])
-			{
-			  NSString* _stats=[pidstat substringFromIndex:_cmdEnd.location+_cmdEnd.length];
-			  /*
-				char* tmp = strrchr(S, ')');        // split into "PID (cmd" and "<rest>" 
-				*tmp = '\0';                        // replace trailing ')' with NUL 
-				// parse these two strings separately, skipping the leading "(". 
-				memset(P->cmd, 0, sizeof P->cmd);   // clear even though *P xcalloc'd ?! 
-				sscanf(S, "%d (%39c", &P->pid, P->cmd);
-			  */
-			  const char* _statsChars=[_stats cString];
-			  NSDebugFLog(@"_stats=%@",_stats);
-			  sscanf(_statsChars,
-					 "%c %d %d %d %d %d %lu %lu %lu %lu %lu %ld %ld %ld %ld %d "
-					 "%d %lu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %LX %LX %LX %LX %lu",
-					 &P->state, &P->ppid, &P->pgrp, &P->session, &P->tty, &P->tpgid,
-					 &P->flags, &P->min_flt, &P->cmin_flt, &P->maj_flt, &P->cmaj_flt,
-					 &P->utime, &P->stime, &P->cutime, &P->cstime, &P->priority, &P->nice,
-					 &P->timeout, &P->it_real_value, &P->start_time, &P->vsize, &P->rss,
-					 &P->rss_rlim, &P->start_code, &P->end_code, &P->start_stack,
-					 &P->kstk_esp, &P->kstk_eip, &P->signal, &P->blocked, &P->sigignore,
-					 &P->sigcatch, &P->wchan);
-			  if (P->tty == 0)
-				P->tty = -1;  // the old notty val, update elsewhere bef. moving to 0 
-/*			  if (linux_version_code < LINUX_VERSION(1,3,39))
-				{
-				  P->priority = 2*15 - P->priority;       // map old meanings to new 
-				  P->nice = 15 - P->nice;
-				}
-			  if (linux_version_code < LINUX_VERSION(1,1,30) && P->tty != -1)
-				P->tty = 4*0x100 + P->tty;              // when tty wasn't full devno 
-*/
-			  NSDebugFLog(@"P->vsize=%lu",P->vsize);
-			  NSDebugFLog(@"P->rss=%lu",P->rss);
-			};
-		};
-	};
+    {
+      NSRange cmdEnd=[pidstat rangeOfString:@") "];
+      if (cmdEnd.length>0)
+        {
+          NSString* pid_cmd=[pidstat substringToIndex:cmdEnd.location];
+          NSDebugFLog(@"pid_cmd=%@",pid_cmd);
+          if (cmdEnd.location+cmdEnd.length<[pidstat length])
+            {
+              NSString* stats=[pidstat substringFromIndex:cmdEnd.location+cmdEnd.length];
+              /*
+                char* tmp = strrchr(S, ')');        // split into "PID (cmd" and "<rest>" 
+                *tmp = '\0';                        // replace trailing ')' with NUL 
+                // parse these two strings separately, skipping the leading "(". 
+                memset(P->cmd, 0, sizeof P->cmd);   // clear even though *P xcalloc'd ?! 
+                sscanf(S, "%d (%39c", &P->pid, P->cmd);
+              */
+              const char* statsChars=[stats cString];
+              NSDebugFLog(@"stats=%@",stats);
+              sscanf(statsChars,
+                     "%c %d %d %d %d %d %lu %lu %lu %lu %lu %ld %ld %ld %ld %d "
+                     "%d %lu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %LX %LX %LX %LX %lu",
+                     &P->state, &P->ppid, &P->pgrp, &P->session, &P->tty, &P->tpgid,
+                     &P->flags, &P->min_flt, &P->cmin_flt, &P->maj_flt, &P->cmaj_flt,
+                     &P->utime, &P->stime, &P->cutime, &P->cstime, &P->priority, &P->nice,
+                     &P->timeout, &P->it_real_value, &P->start_time, &P->vsize, &P->rss,
+                     &P->rss_rlim, &P->start_code, &P->end_code, &P->start_stack,
+                     &P->kstk_esp, &P->kstk_eip, &P->signal, &P->blocked, &P->sigignore,
+                     &P->sigcatch, &P->wchan);
+              if (P->tty == 0)
+                P->tty = -1;  // the old notty val, update elsewhere bef. moving to 0 
+              /*			  if (linux_version_code < LINUX_VERSION(1,3,39))
+                                          {
+                                          P->priority = 2*15 - P->priority;       // map old meanings to new 
+                                          P->nice = 15 - P->nice;
+                                          }
+                                          if (linux_version_code < LINUX_VERSION(1,1,30) && P->tty != -1)
+                                          P->tty = 4*0x100 + P->tty;              // when tty wasn't full devno 
+              */
+              NSDebugFLog(@"P->vsize=%lu",P->vsize);
+              NSDebugFLog(@"P->rss=%lu",P->rss);
+            };
+        };
+    };
 };
 
 void pidstatm(pid_t pid, proc_t* P)
 {
-  NSString* _filename=[NSString stringWithFormat:@"/proc/%d/statm",(int)pid];
-  NSString* pidstat=pidproccontent(_filename);
+  NSString* filename=[NSString stringWithFormat:@"/proc/%d/statm",(int)pid];
+  NSString* pidstat=pidproccontent(filename);
   NSDebugFLog(@"pidstat=%@",pidstat);
-  NSDebugFLog(@"_filename=%@",_filename);
+  NSDebugFLog(@"filename=%@",filename);
   NSDebugFLog(@"pid=%d",(int)pid);
   if (pidstat)
-	{
-	  const char* _statsChars=[pidstat cString];
-	  NSDebugFLog(@"pidstat=%@",pidstat);
-	  sscanf(_statsChars, "%ld %ld %ld %ld %ld %ld %ld",
-			 &P->size, &P->resident, &P->share,
-			 &P->trs, &P->lrs, &P->drs, &P->dt);
-	  NSDebugFLog(@"P->size=%ld",P->size);
-	  NSDebugFLog(@"P->resident=%ld",P->resident);
-	  NSDebugFLog(@"P->share=%ld",P->share);
-	  NSDebugFLog(@"P->trs=%ld",P->trs);
-	  NSDebugFLog(@"P->lrs=%ld",P->lrs);
-	  NSDebugFLog(@"P->drs=%ld",P->drs);
-	  NSDebugFLog(@"P->dt=%ld",P->dt);	  
-	};
+    {
+      const char* statsChars=[pidstat cString];
+      NSDebugFLog(@"pidstat=%@",pidstat);
+      sscanf(statsChars, "%ld %ld %ld %ld %ld %ld %ld",
+             &P->size, &P->resident, &P->share,
+             &P->trs, &P->lrs, &P->drs, &P->dt);
+      NSDebugFLog(@"P->size=%ld",P->size);
+      NSDebugFLog(@"P->resident=%ld",P->resident);
+      NSDebugFLog(@"P->share=%ld",P->share);
+      NSDebugFLog(@"P->trs=%ld",P->trs);
+      NSDebugFLog(@"P->lrs=%ld",P->lrs);
+      NSDebugFLog(@"P->drs=%ld",P->drs);
+      NSDebugFLog(@"P->dt=%ld",P->dt);	  
+    };
 };
 
 //--------------------------------------------------------------------
 void StackTraceIFND()
 {
-  NSString* _stackTraceString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/tmp/%@.stacktrace",
-																		 globalApplicationClassName]];
-  if ([_stackTraceString intValue])
-	{
-	  StackTrace();
-	};
+  NSString* stackTraceString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/tmp/%@.stacktrace",
+                                                                          globalApplicationClassName]];
+  if ([stackTraceString intValue])
+    {
+      StackTrace();
+    };
 };
 
 //--------------------------------------------------------------------
 void DebugBreakpointIFND()
 {
-  NSString* _breakString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/tmp/%@.break",
-																		 globalApplicationClassName]];
-  if ([_breakString intValue])
-	{
-	  DebugBreakpoint();
-	};
+  NSString* breakString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/tmp/%@.break",
+                                                                     globalApplicationClassName]];
+  if ([breakString intValue])
+    {
+      DebugBreakpoint();
+    };
 };
 
 //--------------------------------------------------------------------
 void ExceptionRaiseFn(const char *func, 
-					  const char *file,
-					  int line,
-					  NSString* name_,
-					  NSString* format_,
-					  ...)
+                      const char *file,
+                      int line,
+                      NSString* name,
+                      NSString* format,
+                      ...)
 {
   NSString* fmt =  [NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-							 func,line,file,name_,format_];
+                             func,line,file,name,format];
   NSString* string= nil;
   va_list args;
-  va_start(args,format_);
+  va_start(args,format);
   string=[NSString stringWithFormat:fmt
-				   arguments:args];
+                   arguments:args];
   va_end(args);
   NSLog(@"%@",string);
   StackTraceIFND();
   DebugBreakpointIFND();
-  [NSException raise:name_ format:@"%@",string];
+  [NSException raise:name
+               format:@"%@",string];
 };
 
 //--------------------------------------------------------------------
 void ExceptionRaiseFn0(const char *func, 
-					   const char *file,
-					   int line,
-					   NSString* name_,
-					   NSString* format_)
+                       const char *file,
+                       int line,
+                       NSString* name,
+                       NSString* format)
 {
   NSString* string =  [NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-								func,line,file,name_,format_];
+                                func,line,file,name,format];
   NSLog(@"%@",string);
   StackTraceIFND();
   DebugBreakpointIFND();
-  [NSException raise:name_ format:@"%@",string];
+  [NSException raise:name
+               format:@"%@",string];
 };
 
 //--------------------------------------------------------------------
 void ValidationExceptionRaiseFn(const char *func, 
-								const char *file,
-								int line,
-								NSString* name_,
-								NSString* message_,
-								NSString* format_,
-								...)
+                                const char *file,
+                                int line,
+                                NSString* name,
+                                NSString* message,
+                                NSString* format,
+                                ...)
 {
-  NSException* _exception=nil;
-  NSString* fmt =  [NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-							 func,line,file,name_,format_];
-  NSString* string= nil;
+  NSException* exception=nil;
+  NSString* fmt=[NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
+                          func,line,file,name,format];
+  NSString* string=nil;
   va_list args;
-  va_start(args,format_);
+  va_start(args,format);
   string=[NSString stringWithFormat:fmt
-				   arguments:args];
+                   arguments:args];
   va_end(args);
   NSLog(@"%@",string);
-  _exception=[NSException exceptionWithName:name_
-						  reason:string
-						  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-												   [NSNumber numberWithBool:YES],@"isValidationException",
-												 message_,@"message",
-												 nil,nil]];
+  exception=[NSException exceptionWithName:name
+                         reason:string
+                         userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                  [NSNumber numberWithBool:YES],@"isValidationException",
+                                                message,@"message",
+                                                nil,nil]];
   StackTraceIFND();
   DebugBreakpointIFND();
-  [_exception raise];
+  [exception raise];
 };
 
 //--------------------------------------------------------------------
 void ValidationExceptionRaiseFn0(const char *func, 
-								 const char *file,
-								 int line,
-								 NSString* name_,
-								 NSString* message_,
-								 NSString* format_)
+                                 const char *file,
+                                 int line,
+                                 NSString* name,
+                                 NSString* message,
+                                 NSString* format)
 {
-  NSException* _exception=nil;
-  NSString* string =  [NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-								func,line,file,name_,format_];
+  NSException* exception=nil;
+  NSString* string=[NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
+                             func,line,file,name,format];
   NSLog(@"%@",string);
-  _exception=[NSException exceptionWithName:name_
-						  reason:format_
-						  userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-												   [NSNumber numberWithBool:YES],@"isValidationException",
-												 message_,@"message",
-												 nil,nil]];
+  exception=[NSException exceptionWithName:name
+                         reason:format
+                         userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                  [NSNumber numberWithBool:YES],@"isValidationException",
+                                                message,@"message",
+                                                nil,nil]];
   StackTraceIFND();
   DebugBreakpointIFND();
-  [_exception raise];
+  [exception raise];
 };
 
 //====================================================================
 @implementation NSException (NSBuild)
-+(NSException*)exceptionWithName:(NSString *)name
-						  format:(NSString *)format,...
++(NSException*)exceptionWithName:(NSString*)name
+                          format:(NSString*)format,...
 {
-  NSException* _exception=nil;
+  NSException* exception=nil;
   NSString* reason=nil;
   va_list args;
   va_start(args,format);
-  reason = [NSString stringWithFormat:format
-					 arguments:args];
+  reason=[NSString stringWithFormat:format
+                   arguments:args];
   va_end(args);
-  _exception=[self exceptionWithName:name
-				   reason:reason
-				   userInfo: nil];
-  return _exception;
+  exception=[self exceptionWithName:name
+                  reason:reason
+                  userInfo: nil];
+  return exception;
 };
 @end
 
 //====================================================================
 @implementation NSException (NSExceptionUserInfoAdd)
 
--(NSException*)exceptionByAddingUserInfo:(NSDictionary*)userInfo_
+-(NSException*)exceptionByAddingUserInfo:(NSDictionary*)aUserInfo
 {
-  NSMutableDictionary* _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
-  [_userInfo addEntriesFromDictionary:userInfo_];
+  NSMutableDictionary* userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  [userInfo addEntriesFromDictionary:aUserInfo];
   return [[self class]exceptionWithName:[self name]
-					  reason:[self reason]
-					  userInfo:_userInfo];
+                      reason:[self reason]
+                      userInfo:userInfo];
 };
 
--(NSException*)exceptionByAddingToUserInfoKey:(id)key_
-                                       format:(NSString*)format_,...
+-(NSException*)exceptionByAddingToUserInfoKey:(id)key
+                                       format:(NSString*)format,...
 {
   NSException* exception=nil;
-  NSString* _userInfoString=nil;
-  NSMutableDictionary* _userInfo=nil;
+  NSString* userInfoString=nil;
+  NSMutableDictionary* userInfo=nil;
   va_list args;
   LOGObjectFnStart();
-  _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
-  va_start(args,format_);
-  _userInfoString = [NSString stringWithFormat:format_
-                              arguments:args];
+  userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  va_start(args,format);
+  userInfoString = [NSString stringWithFormat:format
+                             arguments:args];
   va_end(args);
   {
-    id curArray = [_userInfo objectForKey:key_];
-    id newArray=[NSMutableArray arrayWithObject:_userInfoString];
+    id curArray = [userInfo objectForKey:key];
+    id newArray=[NSMutableArray arrayWithObject:userInfoString];
     if (!curArray)
       {
         curArray = [NSMutableArray array];
@@ -479,100 +488,100 @@ void ValidationExceptionRaiseFn0(const char *func,
         [curArray addObject:tempObject];
       }
     [newArray addObjectsFromArray:curArray];
-    [_userInfo setObject:newArray forKey:key_];
+    [userInfo setObject:newArray forKey:key];
   }
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
-                         userInfo:_userInfo];
+                         userInfo:userInfo];
   LOGObjectFnStop();
   return exception;
 };
 
 
--(NSException*)exceptionByAddingUserInfoKey:(id)key_
-                                     format:(NSString*)format_,...
+-(NSException*)exceptionByAddingUserInfoKey:(id)key
+                                     format:(NSString*)format,...
 {
   NSException* exception=nil;
-  NSString* _userInfoString=nil;
-  NSMutableDictionary* _userInfo=nil;
+  NSString* userInfoString=nil;
+  NSMutableDictionary* userInfo=nil;
   va_list args;
   LOGObjectFnStart();
-  _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
-  va_start(args,format_);
-  _userInfoString = [NSString stringWithFormat:format_
-                              arguments:args];
+  userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  va_start(args,format);
+  userInfoString = [NSString stringWithFormat:format
+                             arguments:args];
   va_end(args);
-  [_userInfo setObject:_userInfoString
-			 forKey:key_];
+  [userInfo setObject:userInfoString
+            forKey:key];
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
-                         userInfo:_userInfo];
+                         userInfo:userInfo];
   LOGObjectFnStop();
   return exception;
 };
 
--(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo_
+-(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo
 {
   NSException* exception=nil;
-  NSMutableDictionary* _userInfo=nil;
-  NSArray* _frameInfoArray=nil;
+  NSMutableDictionary* userInfo=nil;
+  NSArray* frameInfoArray=nil;
   LOGObjectFnStart();
-  _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
-  _frameInfoArray=[_userInfo objectForKey:@"FrameInfo"];
-  if (_frameInfoArray)
-    _frameInfoArray=[_frameInfoArray arrayByAddingObject:frameInfo_];
+  userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  frameInfoArray=[userInfo objectForKey:@"FrameInfo"];
+  if (frameInfoArray)
+    frameInfoArray=[frameInfoArray arrayByAddingObject:frameInfo];
   else
-    _frameInfoArray=[NSArray arrayWithObject:frameInfo_];
-  [_userInfo setObject:_frameInfoArray
-             forKey:@"FrameInfo"];
+    frameInfoArray=[NSArray arrayWithObject:frameInfo];
+  [userInfo setObject:frameInfoArray
+            forKey:@"FrameInfo"];
   exception=[[self class]exceptionWithName:[self name]
-                      reason:[self reason]
-                      userInfo:_userInfo];
+                         reason:[self reason]
+                         userInfo:userInfo];
   LOGObjectFnStop();
   return exception;
 };
 
--(NSException*)exceptionByAddingUserInfoFrameInfoFormat:(NSString*)format_,...
+-(NSException*)exceptionByAddingUserInfoFrameInfoFormat:(NSString*)format,...
 {
   NSException* exception=nil;
-  NSString* _frameInfo=nil;
+  NSString* frameInfo=nil;
   va_list args;
   LOGObjectFnStart();
-  va_start(args,format_);
-  _frameInfo = [NSString stringWithFormat:format_
-                         arguments:args];
+  va_start(args,format);
+  frameInfo = [NSString stringWithFormat:format
+                        arguments:args];
   va_end(args);
-  exception=[self exceptionByAddingUserInfoFrameInfo:_frameInfo];
+  exception=[self exceptionByAddingUserInfoFrameInfo:frameInfo];
   LOGObjectFnStop();
   return exception;
 };
 
--(NSException*)exceptionByAddingUserInfoFrameInfoObject:(id)obj_
-                                                    sel:(SEL)sel_
-                                                   file:(const char*)file_
-                                                   line:(int)line_
-                                                 format:(NSString*)format_,...
+-(NSException*)exceptionByAddingUserInfoFrameInfoObject:(id)obj
+                                                    sel:(SEL)sel
+                                                   file:(const char*)file
+                                                   line:(int)line
+                                                 format:(NSString*)format,...
 {
   NSException* exception=nil;
-  Class         cls = (Class)obj_;
+  Class         cls = (Class)obj;
   char          c = '+';
   NSString* fmt=nil;
   NSString* string= nil;
   va_list args;
   LOGObjectFnStart();
-  if ([obj_ isInstance] == YES)
+  if ([obj isInstance] == YES)
     {
       c = '-';
-      cls = [obj_ class];
+      cls = [obj class];
     };
   fmt = [NSString stringWithFormat: @"%s: %d. In [%@ %c%@] %@",
-                  file_,
-                  line_,
+                  file,
+                  line,
                   NSStringFromClass(cls),
                   c,
-                  NSStringFromSelector(sel_),
-                  format_];
-  va_start(args,format_);
+                  NSStringFromSelector(sel),
+                  format];
+  va_start(args,format);
   string=[NSString stringWithFormat:fmt
                    arguments:args];
   va_end(args);
@@ -581,19 +590,19 @@ void ValidationExceptionRaiseFn0(const char *func,
   return exception;
 };
 
--(NSException*)exceptionByAddingUserInfoFrameInfoFunction:(const char*)fn_
-                                                     file:(const char*)file_
-                                                     line:(int)line_
-                                                   format:(NSString*)format_,...
+-(NSException*)exceptionByAddingUserInfoFrameInfoFunction:(const char*)fn
+                                                     file:(const char*)file
+                                                     line:(int)line
+                                                   format:(NSString*)format,...
 {
   NSException* exception=nil;
   NSString* fmt =nil;
   NSString* string= nil;
   va_list args;
   LOGObjectFnStart();
-  va_start(args,format_);
+  va_start(args,format);
   fmt =  [NSString stringWithFormat:@"%s: %d. In %s %@: %@",
-                   file_,line_,fn_,format_];
+                   file,line,fn,format];
   string=[NSString stringWithFormat:fmt
                    arguments:args];
   va_end(args);
@@ -604,8 +613,8 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 -(BOOL)isValidationException
 {
-  BOOL _isValidationException=boolValueWithDefaultFor([[self userInfo] objectForKey:@"isValidationException"],NO);
-  return _isValidationException;
+  BOOL isValidationException=boolValueWithDefaultFor([[self userInfo] objectForKey:@"isValidationException"],NO);
+  return isValidationException;
 };
 
 @end
@@ -630,12 +639,12 @@ void ValidationExceptionRaiseFn0(const char *func,
 @implementation NSMutableOrderedArray: NSMutableArray
 
 //--------------------------------------------------------------------
-- (id)initWithCompareSelector:(SEL)compareSelector_
+- (id)initWithCompareSelector:(SEL)compareSelector
 {
   if ((self=[super init]))
     {
-      array = [[NSMutableArray array] retain];
-      compareSelector=compareSelector_;
+      _array = [NSMutableArray new];
+      _compareSelector=compareSelector;
     }
 
   return self;
@@ -643,69 +652,71 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 - (id)initWithCapacity:(unsigned)cap
 {
-  array = [[NSMutableArray array] retain];
-  compareSelector=NULL;
-
+  if ((self=[super init]))
+    {
+      _array = [NSMutableArray new];
+      _compareSelector=NULL;
+    };
   return self;
 }
 
 - (unsigned)count
 {
-  return [array count];
+  return [_array count];
 }
 
 - (id)objectAtIndex:(unsigned)i
 {
-  return [array objectAtIndex:i];
+  return [_array objectAtIndex:i];
 }
 
 - (void)removeObjectAtIndex:(unsigned)i
 {
-  [array removeObjectAtIndex:i];
+  [_array removeObjectAtIndex:i];
 }
 
 - (void)release
 {
-  [array release];
-  compareSelector=NULL;
+  DESTROY(_array);
+  _compareSelector=NULL;
   [super dealloc];
 }
 
 //--------------------------------------------------------------------
--(void)addObject:(id)object_
+-(void)addObject:(id)object
 {
   //TODO better method
   int i=0;
-  NSComparisonResult _result=NSOrderedSame;
+  NSComparisonResult result=NSOrderedSame;
 
-  for(i=0;_result!=NSOrderedDescending && i<[array count];i++)
+  for(i=0;result!=NSOrderedDescending && i<[_array count];i++)
     {
-      _result=(NSComparisonResult)[object_ performSelector:compareSelector
-					   withObject:[array objectAtIndex:i]];
+      result=(NSComparisonResult)[object performSelector:_compareSelector
+                                         withObject:[_array objectAtIndex:i]];
 
-      if (_result==NSOrderedDescending)
-	[array insertObject:object_
-	       atIndex:i];
+      if (result==NSOrderedDescending)
+	[_array insertObject:object
+                atIndex:i];
     };
 
-  if (_result!=NSOrderedDescending)
-    [array addObject:object_];
+  if (result!=NSOrderedDescending)
+    [_array addObject:object];
 };
 
 //--------------------------------------------------------------------
--(void)addObjectsFromArray:(NSArray*)array_
+-(void)addObjectsFromArray:(NSArray*)array
 {
   int i;
 
-  for(i=0;i<[array_ count];i++)
+  for(i=0;i<[array count];i++)
     {
-      [array addObject:[array_ objectAtIndex:i]];
+      [_array addObject:[array objectAtIndex:i]];
     };
 };
 
 //--------------------------------------------------------------------
--(void)insertObject:(id)object_
-			atIndex:(unsigned int)index_
+-(void)insertObject:(id)object
+            atIndex:(unsigned int)index
 {
   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
 
@@ -714,8 +725,8 @@ void ValidationExceptionRaiseFn0(const char *func,
 };
 
 //--------------------------------------------------------------------
--(void)replaceObjectAtIndex:(unsigned int)index_
-				 withObject:(id)object_
+-(void)replaceObjectAtIndex:(unsigned int)index
+                 withObject:(id)object
 {
   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
 
@@ -724,8 +735,8 @@ void ValidationExceptionRaiseFn0(const char *func,
 };
 
 //--------------------------------------------------------------------
--(void)replaceObjectsInRange:(NSRange)range_
-		withObjectsFromArray:(NSArray*)array_
+-(void)replaceObjectsInRange:(NSRange)range
+        withObjectsFromArray:(NSArray*)array
 {
   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
 
@@ -734,9 +745,9 @@ void ValidationExceptionRaiseFn0(const char *func,
 };
 
 //--------------------------------------------------------------------
--(void)replaceObjectsInRange:(NSRange)range_
-		withObjectsFromArray:(NSArray*)array_
-					   range:(NSRange)arrayRange_
+-(void)replaceObjectsInRange:(NSRange)range
+        withObjectsFromArray:(NSArray*)array
+                       range:(NSRange)arrayRange
 {
   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
 
@@ -745,9 +756,9 @@ void ValidationExceptionRaiseFn0(const char *func,
 };
 
 //--------------------------------------------------------------------
--(void)setArray:(NSArray*)array_
+-(void)setArray:(NSArray*)array
 {
-  [array setArray:[array_ sortedArrayUsingSelector:compareSelector]];
+  [_array setArray:[array sortedArrayUsingSelector:_compareSelector]];
 };
 
 @end
@@ -757,19 +768,19 @@ void ValidationExceptionRaiseFn0(const char *func,
 //--------------------------------------------------------------------
 -(NSString*)bundleName
 {
-  NSString* _bundlePath=nil;
-  NSString* _name=nil;
+  NSString* bundlePath=nil;
+  NSString* name=nil;
   LOGObjectFnStart();
-  _bundlePath=[self bundlePath];
-  NSDebugMLLog(@"low",@"_bundlePath=%@",_bundlePath);
-  _bundlePath=[_bundlePath stringGoodPath];
-  NSDebugMLLog(@"low",@"_bundlePath=%@",_bundlePath);
-  _name=[_bundlePath lastPathComponent];
-  NSDebugMLLog(@"low",@"_name=%@",_name);
-  _name=[_name stringByDeletingPathExtension];
-  NSDebugMLLog(@"low",@"_name=%@",_name);
+  bundlePath=[self bundlePath];
+  NSDebugMLLog(@"low",@"bundlePath=%@",bundlePath);
+  bundlePath=[bundlePath stringGoodPath];
+  NSDebugMLLog(@"low",@"bundlePath=%@",bundlePath);
+  name=[bundlePath lastPathComponent];
+  NSDebugMLLog(@"low",@"name=%@",name);
+  name=[name stringByDeletingPathExtension];
+  NSDebugMLLog(@"low",@"name=%@",name);
   LOGObjectFnStop();
-  return _name;
+  return name;
 };
 
 @end
@@ -804,39 +815,39 @@ void ValidationExceptionRaiseFn0(const char *func,
 -(id)performSelectorIfPossible:(SEL)aSelector
 {
   if ([self respondsToSelector:aSelector])
-	return [self performSelector:aSelector];
+    return [self performSelector:aSelector];
   else
-	return nil;
+    return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)performSelectorIfPossible:(SEL)aSelector
-					withObject:(id)anObject
+                    withObject:(id)anObject
 {
   if ([self respondsToSelector:aSelector])
-	return [self performSelector:aSelector
-				 withObject:anObject];
+    return [self performSelector:aSelector
+                 withObject:anObject];
   else
-	return nil;
+    return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)performSelectorIfPossible:(SEL)aSelector
-					withObject:(id)object1
-					withObject:(id)object2
+                    withObject:(id)object1
+                    withObject:(id)object2
 {
   if ([self respondsToSelector:aSelector])
-	return [self performSelector:aSelector
-				 withObject:object1
-				 withObject:object2];
+    return [self performSelector:aSelector
+                 withObject:object1
+                 withObject:object2];
   else
-	return nil;
+    return nil;
 };
 
 
 @end
 
-extern struct PTHREAD_HANDLE * nub_get_active_thread( void );
+extern struct PTHREAD_HANDLE* nub_get_active_thread(void);
 
 NSString *NSLockException = @"NSLockException";
 
@@ -846,17 +857,17 @@ NSString *NSLockException = @"NSLockException";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - ",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 //--------------------------------------------------------------------
 -(BOOL)isLocked
 {
-  BOOL _isLocked=YES;
+  BOOL isLocked=YES;
   if ([self tmptryLock])
     {
-      _isLocked=NO;
+      isLocked=NO;
       [self tmpunlock];
     }
   else
@@ -865,22 +876,22 @@ NSString *NSLockException = @"NSLockException";
                   (void*)_mutex->owner,
                   (void*)objc_thread_id());
     };
-  return _isLocked;
+  return isLocked;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)tmplock
 {
   return [self tmplockFromFunction:NULL
-			   file:NULL
-			   line:-1];
+               file:NULL
+               line:-1];
 };
 
 
 //--------------------------------------------------------------------
--(BOOL)tmplockFromFunction:(const char*)fn_
-					  file:(const char*)file_
-					  line:(int)line_
+-(BOOL)tmplockFromFunction:(const char*)fn
+                      file:(const char*)file
+                      line:(int)line
 {
   BOOL locked=NO;
   int result=0;
@@ -895,21 +906,21 @@ NSString *NSLockException = @"NSLockException";
 
 //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
-	{
-//	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	}
+    {
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+    }
   else
-	{
-	  LOGException(@"NSLockException lock: failed to lock mutex. Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_);
-	  [NSException raise:NSLockException
-				   format:@"lock: failed to lock mutex. Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_];
-	};
+    {
+      LOGException(@"NSLockException lock: failed to lock mutex. Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line);
+      [NSException raise:NSLockException
+                   format:@"lock: failed to lock mutex. Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line];
+    };
 //  LOGObjectFnStop();
   return locked;
 };
@@ -923,9 +934,9 @@ NSString *NSLockException = @"NSLockException";
 };
 
 //--------------------------------------------------------------------
--(BOOL)tmptryLockFromFunction:(const char*)fn_
-						 file:(const char*)file_
-						 line:(int)line_
+-(BOOL)tmptryLockFromFunction:(const char*)fn
+                         file:(const char*)file
+                         line:(int)line
 {
   BOOL locked=NO;
   int result=0;
@@ -936,7 +947,7 @@ NSString *NSLockException = @"NSLockException";
   if (result != 0 && result!=1)
     locked=NO;
   else
-	locked=YES;
+    locked=YES;
 //  LOGObjectFnStop();
   return locked;
 };
@@ -945,16 +956,16 @@ NSString *NSLockException = @"NSLockException";
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit
 {
   return [self tmptryLockBeforeDate:limit
-			   fromFunction:NULL
-			   file:NULL
-			   line:-1];
+               fromFunction:NULL
+               file:NULL
+               line:-1];
 };
 
 //--------------------------------------------------------------------
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-			   fromFunction:(const char*)fn_
-					   file:(const char*)file_
-					   line:(int)line_
+               fromFunction:(const char*)fn
+                       file:(const char*)file
+                       line:(int)line
 {
   BOOL locked=NO;
   int result=0;
@@ -965,35 +976,35 @@ NSString *NSLockException = @"NSLockException";
   if (result != 0 && result!=1)
     locked=NO;
   else
-	locked=YES;
-
-//  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
+    locked=YES;
+  
+  //  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-	{
-//	  NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-	  usleep(100);
-//	  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	  result=objc_mutex_trylock(_mutex);
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result != 0 && result!=1)
-		locked=NO;
-	  else
-		locked=YES;
-	}; 
-//  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
+    {
+      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
+      usleep(100);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      result=objc_mutex_trylock(_mutex);
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result != 0 && result!=1)
+        locked=NO;
+      else
+        locked=YES;
+    }; 
+  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
-	{
-//	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	}
+    {
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+    }
   else
-	{
-	  NSDebugMLog(@"NSLock tmptryLockBeforeDate lock: failed to lock mutex before %@. Called from %s in %s %d",
-				  limit,
-				  fn_ ? fn_ : "Unknown",
-				  file_ ? file_ : "Unknown",
-				  line_);
-	};
-//  LOGObjectFnStop();
+    {
+      NSDebugMLog(@"NSLock tmptryLockBeforeDate lock: failed to lock mutex before %@. Called from %s in %s %d",
+                  limit,
+                  fn ? fn : "Unknown",
+                  file ? file : "Unknown",
+                  line);
+    };
+  //  LOGObjectFnStop();
   return locked;
 };
 
@@ -1008,9 +1019,9 @@ NSString *NSLockException = @"NSLockException";
 
 //--------------------------------------------------------------------
 -(BOOL)tmplockBeforeDate:(NSDate*)limit
-			fromFunction:(const char*)fn_
-					file:(const char*)file_
-					line:(int)line_
+            fromFunction:(const char*)fn
+                    file:(const char*)file
+                    line:(int)line
 {
   BOOL locked=NO;
   int result=0;
@@ -1025,36 +1036,36 @@ NSString *NSLockException = @"NSLockException";
 
 //  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-	{
-//	  NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-	  usleep(100);
-//	  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	  result=objc_mutex_trylock(_mutex);
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result != 0 && result!=1)
-		locked=NO;
-	  else
-		locked=YES;
-	}; 
-//  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
+    {
+      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
+      usleep(100);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      result=objc_mutex_trylock(_mutex);
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result != 0 && result!=1)
+        locked=NO;
+      else
+        locked=YES;
+    }; 
+  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
-	{
-//	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	}
+    {
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+    }
   else
-	{
-	  LOGException(@"NSLockException lock: failed to lock mutex before date %@. Called from %s in %s %d",
-				   limit,
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_);
-	  [NSException raise:NSLockException
-				   format:@"lock: failed to lock mutex before date %@. Called from %s in %s %d",
-				   limit,
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_];
-	};
+    {
+      LOGException(@"NSLockException lock: failed to lock mutex before date %@. Called from %s in %s %d",
+                   limit,
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line);
+      [NSException raise:NSLockException
+                   format:@"lock: failed to lock mutex before date %@. Called from %s in %s %d",
+                   limit,
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line];
+    };
 //  LOGObjectFnStop();
   return locked;
 };
@@ -1063,50 +1074,50 @@ NSString *NSLockException = @"NSLockException";
 -(void)tmpunlock
 {
   [self tmpunlockFromFunction:NULL
-						file:NULL
-						line:-1];
+        file:NULL
+        line:-1];
 };
 
 //--------------------------------------------------------------------
--(void)tmpunlockFromFunction:(const char*)fn_
-						file:(const char*)file_
-						line:(int)line_;
+-(void)tmpunlockFromFunction:(const char*)fn
+                        file:(const char*)file
+                        line:(int)line;
 {
   int result=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (_mutex->owner!=objc_thread_id())
-	{
-	  LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_);
-	  [NSException raise:NSLockException
-				   format:@"unlock: failed to lock mutex (not owner). Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_];
-	}
+    {
+      LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line);
+      [NSException raise:NSLockException
+                   format:@"unlock: failed to lock mutex (not owner). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line];
+    }
   else
-	{
-	  result=objc_mutex_unlock(_mutex);
-//	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result != 0)
-		{
-//		  NSDebugMLLog(@"low",@"UNLOCK PROBLEM");
-		  LOGException(@"NSLockException unlock: failed to unlock mutex (result!=0). Called from %s in %s %d",
-					   fn_ ? fn_ : "Unknown",
-					   file_ ? file_ : "Unknown",
-					   line_);
-		  [NSException raise:NSLockException
-					   format:@"unlock: failed to lock mutex (result!=0). Called from %s in %s %d",
-					   fn_ ? fn_ : "Unknown",
-					   file_ ? file_ : "Unknown",
-					   line_];
-		};
-	};
-//  LOGObjectFnStop();
+    {
+      result=objc_mutex_unlock(_mutex);
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result != 0)
+        {
+          //NSDebugMLLog(@"low",@"UNLOCK PROBLEM");
+          LOGException(@"NSLockException unlock: failed to unlock mutex (result!=0). Called from %s in %s %d",
+                       fn ? fn : "Unknown",
+                       file ? file : "Unknown",
+					   line);
+          [NSException raise:NSLockException
+                       format:@"unlock: failed to lock mutex (result!=0). Called from %s in %s %d",
+                       fn ? fn : "Unknown",
+                       file ? file : "Unknown",
+                       line];
+        };
+    };
+  //  LOGObjectFnStop();
 };
 @end
 
@@ -1118,77 +1129,77 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - ",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 //--------------------------------------------------------------------
 -(BOOL)isLocked
 {
-  BOOL _isLocked=YES;
+  BOOL isLocked=YES;
   if ([self tmptryLock])
-	{
-	  _isLocked=NO;
-	  [self unlock];
-	};
-  return _isLocked;
+    {
+      isLocked=NO;
+      [self unlock];
+    };
+  return isLocked;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)tmplock
 {
   return [self tmplockFromFunction:NULL
-			   file:NULL
-			   line:-1];
+               file:NULL
+               line:-1];
 };
 
 
 //--------------------------------------------------------------------
--(BOOL)tmplockFromFunction:(const char*)fn_
-					  file:(const char*)file_
-					  line:(int)line_
+-(BOOL)tmplockFromFunction:(const char*)fn
+                      file:(const char*)file
+                      line:(int)line
 {
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
-	{
-	  result=objc_mutex_trylock(_mutex);
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result == -1)
-		{
-		  locked=NO;
-		  LOGException(@"NSLockException lock: failed to lock mutex (result==-1). Called from %s in %s %d",
-					   fn_ ? fn_ : "Unknown",
-					   file_ ? file_ : "Unknown",
-					   line_);
-		  [NSException raise:NSLockException
-					   format:@"lock: failed to lock mutex (result==-1). Called from %s in %s %d",
-					   fn_ ? fn_ : "Unknown",
-					   file_ ? file_ : "Unknown",
-					   line_];
-		}
-	  else
-		{
-		  locked=YES;
-		  //	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-		};
-	}
+    {
+      result=objc_mutex_trylock(_mutex);
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result == -1)
+        {
+          locked=NO;
+          LOGException(@"NSLockException lock: failed to lock mutex (result==-1). Called from %s in %s %d",
+                       fn ? fn : "Unknown",
+                       file ? file : "Unknown",
+                       line);
+          [NSException raise:NSLockException
+                       format:@"lock: failed to lock mutex (result==-1). Called from %s in %s %d",
+                       fn ? fn : "Unknown",
+                       file ? file : "Unknown",
+                       line];
+        }
+      else
+        {
+          locked=YES;
+          //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+        };
+    }
   else
-	{
-	  LOGException(@"NSLockException lock: failed to lock mutex (not owner). Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_);
-	  [NSException raise:NSLockException
-				   format:@"lock: failed to lock mutex (not owner). Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_];
-	};
-//  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-//  LOGObjectFnStop();
+    {
+      LOGException(@"NSLockException lock: failed to lock mutex (not owner). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line);
+      [NSException raise:NSLockException
+                   format:@"lock: failed to lock mutex (not owner). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line];
+    };
+  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
+  //  LOGObjectFnStop();
   return locked;
 };
 
@@ -1196,35 +1207,35 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 -(BOOL)tmptryLock
 {
   return [self tmptryLockFromFunction:NULL
-			   file:NULL
-			   line:-1];
+               file:NULL
+               line:-1];
 };
 
 
 //--------------------------------------------------------------------
--(BOOL)tmptryLockFromFunction:(const char*)fn_
-						 file:(const char*)file_
-						 line:(int)line_
+-(BOOL)tmptryLockFromFunction:(const char*)fn
+                         file:(const char*)file
+                         line:(int)line
 {
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
-	{
-	  result=objc_mutex_trylock(_mutex);
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result == -1)
-		{
-		  locked=NO;
-		}
-	  else
-		{
-		  locked=YES;
-		};
-	};
-//  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-//  LOGObjectFnStop();
+    {
+      result=objc_mutex_trylock(_mutex);
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result == -1)
+        {
+          locked=NO;
+        }
+      else
+        {
+          locked=YES;
+        };
+    };
+  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
+  //  LOGObjectFnStop();
   return locked;
 };
 
@@ -1232,16 +1243,16 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit
 {
   return [self tmptryLockBeforeDate:limit
-			   fromFunction:NULL
-			   file:NULL
-			   line:-1];
+               fromFunction:NULL
+               file:NULL
+               line:-1];
 };
 
 //--------------------------------------------------------------------
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-			   fromFunction:(const char*)fn_
-					   file:(const char*)file_
-					   line:(int)line_
+               fromFunction:(const char*)fn
+                       file:(const char*)file
+                       line:(int)line
 {
   BOOL locked=NO;
   BOOL notOwner=NO;
@@ -1249,50 +1260,50 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
-	{
-	  notOwner=NO;
-	  result=objc_mutex_trylock(_mutex);
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result == -1)
-		locked=NO;
-	  else
-		locked=YES;
-	}
+    {
+      notOwner=NO;
+      result=objc_mutex_trylock(_mutex);
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result == -1)
+        locked=NO;
+      else
+        locked=YES;
+    }
   else
-	notOwner=YES;
+    notOwner=YES;
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-	{
-//	  NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-	  usleep(100);
-//	  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	  if (!_mutex->owner || _mutex->owner==objc_thread_id())
-		{
-		  notOwner=NO;
-		  result=objc_mutex_trylock(_mutex);
-//		  NSDebugMLLog(@"low",@"result=%d",result);
-		  if (result == -1)
-			locked=NO;
-		  else
-			locked=YES;
-		}
-	  else
-		notOwner=YES;
-	}; 
-//  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
+    {
+      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
+      usleep(100);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      if (!_mutex->owner || _mutex->owner==objc_thread_id())
+        {
+          notOwner=NO;
+          result=objc_mutex_trylock(_mutex);
+          //NSDebugMLLog(@"low",@"result=%d",result);
+          if (result == -1)
+            locked=NO;
+          else
+            locked=YES;
+        }
+      else
+        notOwner=YES;
+    }; 
+  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
-	{
-//	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	}
+    {
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+    }
   else
-	{
-	  NSDebugMLog(@"NSLock tmptryLockBeforeDate lock: failed to lock mutex before %@ (%s). Called from %s in %s %d",
-				  limit,
-				  notOwner ? "Not Owner" : "result==-1",
-				  fn_ ? fn_ : "Unknown",
-				  file_ ? file_ : "Unknown",
-				  line_);
-	};
-//  LOGObjectFnStop();
+    {
+      NSDebugMLog(@"NSLock tmptryLockBeforeDate lock: failed to lock mutex before %@ (%s). Called from %s in %s %d",
+                  limit,
+                  notOwner ? "Not Owner" : "result==-1",
+                  fn ? fn : "Unknown",
+                  file ? file : "Unknown",
+                  line);
+    };
+  //  LOGObjectFnStop();
   return locked;
 };
 
@@ -1300,16 +1311,16 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 -(BOOL)tmplockBeforeDate:(NSDate*)limit
 {
   return [self tmplockBeforeDate:limit
-			   fromFunction:NULL
-			   file:NULL
-			   line:-1];
+               fromFunction:NULL
+               file:NULL
+               line:-1];
 };
 
 //--------------------------------------------------------------------
 -(BOOL)tmplockBeforeDate:(NSDate*)limit
-			fromFunction:(const char*)fn_
-					file:(const char*)file_
-					line:(int)line_
+            fromFunction:(const char*)fn
+                    file:(const char*)file
+                    line:(int)line
 {
   BOOL locked=NO;
   BOOL notOwner=NO;
@@ -1317,57 +1328,57 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
-	{
-	  notOwner=NO;
-	  result=objc_mutex_trylock(_mutex);
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result == -1)
-		locked=NO;
-	  else
-		locked=YES;
-	}
+    {
+      notOwner=NO;
+      result=objc_mutex_trylock(_mutex);
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result == -1)
+        locked=NO;
+      else
+        locked=YES;
+    }
   else
-	notOwner=YES;
-
+    notOwner=YES;
+  
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-	{
-//	  NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-	  usleep(100);
-//	  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	  if (!_mutex->owner || _mutex->owner==objc_thread_id())
-		{
-		  notOwner=NO;
-		  result=objc_mutex_trylock(_mutex);
-//		  NSDebugMLLog(@"low",@"result=%d",result);
-		  if (result == -1)
-			locked=NO;
-		  else
-			locked=YES;
-		}
-	  else
-		notOwner=YES;
-	}; 
-//  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
+    {
+      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
+      usleep(100);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      if (!_mutex->owner || _mutex->owner==objc_thread_id())
+        {
+          notOwner=NO;
+          result=objc_mutex_trylock(_mutex);
+          //NSDebugMLLog(@"low",@"result=%d",result);
+          if (result == -1)
+            locked=NO;
+          else
+            locked=YES;
+        }
+      else
+        notOwner=YES;
+    }; 
+  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
-	{
-//	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-	}
+    {
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+    }
   else
-	{
-	  LOGException(@"NSLockException lock: failed to lock mutex before date %@ (%s). Called from %s in %s %d",
-				   limit,
-				   notOwner ? "Not Owner" : "result==-1",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_);
-	  [NSException raise:NSLockException
-				   format:@"lock: failed to lock mutex before date %@ (%s). Called from %s in %s %d",
-				   limit,
-				   notOwner ? "Not Owner" : "result==-1",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_];
-	};
+    {
+      LOGException(@"NSLockException lock: failed to lock mutex before date %@ (%s). Called from %s in %s %d",
+                   limit,
+                   notOwner ? "Not Owner" : "result==-1",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line);
+      [NSException raise:NSLockException
+                   format:@"lock: failed to lock mutex before date %@ (%s). Called from %s in %s %d",
+                   limit,
+                   notOwner ? "Not Owner" : "result==-1",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line];
+    };
 //  LOGObjectFnStop();
   return locked;
 };
@@ -1376,64 +1387,64 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 -(void)tmpunlock
 {
   [self tmpunlockFromFunction:NULL
-						file:NULL
-						line:-1];
+        file:NULL
+        line:-1];
 };
 
 //--------------------------------------------------------------------
--(void)tmpunlockFromFunction:(const char*)fn_
-						file:(const char*)file_
-						line:(int)line_;
+-(void)tmpunlockFromFunction:(const char*)fn
+                        file:(const char*)file
+                        line:(int)line;
 {
   int result=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (_mutex->owner!=objc_thread_id())
-	{
-	  LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_);
-	  [NSException raise:NSLockException
-				   format:@"unlock: failed to lock mutex (not owner). Called from %s in %s %d",
-				   fn_ ? fn_ : "Unknown",
-				   file_ ? file_ : "Unknown",
-				   line_];
-	}
+    {
+      LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line);
+      [NSException raise:NSLockException
+                   format:@"unlock: failed to lock mutex (not owner). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line];
+    }
   else
-	{
-	  result=objc_mutex_unlock(_mutex);
-//	  NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-//	  NSDebugMLLog(@"low",@"result=%d",result);
-	  if (result == -1)
-		{
-		  LOGException(@"NSLockException unlock: failed to unlock mutex (result==-1). Called from %s in %s %d",
-					   fn_ ? fn_ : "Unknown",
-					   file_ ? file_ : "Unknown",
-					   line_);
-		  [NSException raise:NSLockException
-					   format:@"unlock: failed to lock mutex (result==-1). Called from %s in %s %d",
-					   fn_ ? fn_ : "Unknown",
-					   file_ ? file_ : "Unknown",
-					   line_];
-		};
-	};
-//  LOGObjectFnStop();
+    {
+      result=objc_mutex_unlock(_mutex);
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"result=%d",result);
+      if (result == -1)
+        {
+          LOGException(@"NSLockException unlock: failed to unlock mutex (result==-1). Called from %s in %s %d",
+                       fn ? fn : "Unknown",
+                       file ? file : "Unknown",
+                       line);
+          [NSException raise:NSLockException
+                       format:@"unlock: failed to lock mutex (result==-1). Called from %s in %s %d",
+                       fn ? fn : "Unknown",
+                       file ? file : "Unknown",
+                       line];
+        };
+    };
+  //  LOGObjectFnStop();
 };
 @end
 
 //====================================================================
 @implementation NSArray (NSPerformSelectorWith2Objects)
 //--------------------------------------------------------------------
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object1_
-					   withObject:(id)object2_
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object1
+                       withObject:(id)object2
 {
   unsigned i = [self count];
   while (i-- > 0)
-    [[self objectAtIndex:i]performSelector:selector_
-						   withObject:object1_
-						   withObject:object2_];
+    [[self objectAtIndex:i]performSelector:selector
+                           withObject:object1
+                           withObject:object2];
 };
 
 //--------------------------------------------------------------------
@@ -1452,32 +1463,32 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)argument
+                                 withObject:(id)argument
 {
   unsigned i = [self count];
   while (i-->0)
     [[self objectAtIndex: i] performSelectorIfPossible:aSelector
-							 withObject:argument];
+                             withObject:argument];
 }
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)argument1
-								 withObject:(id)argument2
+                                 withObject:(id)argument1
+                                 withObject:(id)argument2
 {
   unsigned i = [self count];
   while (i-->0)
     [[self objectAtIndex: i] performSelectorIfPossible:aSelector
-							 withObject:argument1
-							 withObject:argument2];
+                             withObject:argument1
+                             withObject:argument2];
 }
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformIfPossible:(SEL)aSelector
-						 withObject:(id)argument
+                         withObject:(id)argument
 {
-   [self makeObjectsPerformSelectorIfPossible:aSelector
-		 withObject: argument];
+  [self makeObjectsPerformSelectorIfPossible:aSelector
+        withObject: argument];
 }
 
 
@@ -1487,74 +1498,74 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 @implementation NSDictionary (NSPerformSelector)
 
 //--------------------------------------------------------------------
--(void)makeObjectsPerformSelector:(SEL)selector_
+-(void)makeObjectsPerformSelector:(SEL)selector
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelector:selector_];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelector:selector];
 };
 
 //--------------------------------------------------------------------
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object_
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelector:selector_
-		  withObject:object_];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelector:selector
+         withObject:object];
 };
 
 //--------------------------------------------------------------------
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object1_
-					   withObject:(id)object2_
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object1
+                       withObject:(id)object2
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelector:selector_
-		  withObject:object1_
-		  withObject:object2_];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelector:selector
+         withObject:object1
+         withObject:object2];
 };
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelectorIfPossible:aSelector];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelectorIfPossible:aSelector];
 };
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformIfPossible:(SEL)aSelector
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelectorIfPossible:aSelector];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelectorIfPossible:aSelector];
 };
 
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)object_
+                                 withObject:(id)object
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelectorIfPossible:aSelector
-		  withObject:object_];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelectorIfPossible:aSelector
+         withObject:object];
 };
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformIfPossible:(SEL)aSelector
-						 withObject:(id)argument
+                         withObject:(id)argument
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelectorIfPossible:aSelector
-		  withObject:argument];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelectorIfPossible:aSelector
+         withObject:argument];
 };
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)object1_
-								 withObject:(id)object2_
+                                 withObject:(id)object1
+                                 withObject:(id)object2
 {
-  NSArray* _array=[self allValues];
-  [_array makeObjectsPerformSelectorIfPossible:aSelector
-		  withObject:object1_
-		  withObject:object2_];
+  NSArray* array=[self allValues];
+  [array makeObjectsPerformSelectorIfPossible:aSelector
+         withObject:object1
+         withObject:object2];
 };
 
 
@@ -1567,7 +1578,7 @@ NSString* GSWGetDefaultDocRoot()
   NSDictionary* gsweb=[userDefaults objectForKey:@"GSWeb"];
   NSString* rootDoc=[gsweb objectForKey:@"rootDoc"];
   if (!rootDoc)
-	rootDoc=[NSString stringWithString:@"/home/httpd/gsweb"];
+    rootDoc=[NSString stringWithString:@"/home/httpd/gsweb"];
   return rootDoc;
 };
   
@@ -1579,56 +1590,56 @@ NSString* DataToHexString(NSData* data)
 {
   unsigned int size=[data length];
   if (size)
-	{
-	  const unsigned char* pData=(const unsigned char*)[data bytes];
-	  if (pData)
-		{
-		  NSMutableString* string=[[NSMutableString new] autorelease];
-		  int i=0;
-		  for(i=0;i<size;i++)
-			{
-			  [string appendFormat:@"%02x",(unsigned int)pData[i]];
-			};
-		  return string;
-		};
-	};
+    {
+      const unsigned char* pData=(const unsigned char*)[data bytes];
+      if (pData)
+        {
+          NSMutableString* string=[[NSMutableString new] autorelease];
+          int i=0;
+          for(i=0;i<size;i++)
+            {
+              [string appendFormat:@"%02x",(unsigned int)pData[i]];
+            };
+          return string;
+        };
+    };
   return nil;
 };
 
 //--------------------------------------------------------------------
-NSData* HexStringToData(NSString* _string)
+NSData* HexStringToData(NSString* string)
 {
-  int size=[_string length];
+  int size=[string length];
   if (size>0)
-	{
-	  const char* pString=(const char*)[[_string uppercaseString]cString];
-	  if (pString)
-		{
-		  NSMutableData* data=[NSMutableData dataWithLength:size/2];
-		  unsigned char* pData=(unsigned char*)[data bytes];
-		  int i=0;
-		  for(i=0;i<size/2;i++)
-			{
-			  if (pString[i*2]>='0' && pString[i*2]<='9')
-				pData[i]=(pString[i*2]-'0') << 4;
-			  else if (pString[i*2]>='A' && pString[i*2]<='F')
-				pData[i]=(pString[i*2]-'A') << 4;
-			  else
-				{
-				  NSCAssert(NO,@"Bad hex String");
-				};
-			  if (pString[i*2+1]>='0' && pString[i*2+1]<='9')
-				pData[i]=pData[i]|(pString[i*2+1]-'0');
-			  else if (pString[i*2+1]>='A' && pString[i*2+1]<='F')
-				pData[i]=pData[i]|(pString[i*2+1]-'A');
-			  else
-				{
-				  NSCAssert(NO,@"Bad hex String");
-				};
-			};
-		  return data;
-		};
-	};
+    {
+      const char* pString=(const char*)[[string uppercaseString]cString];
+      if (pString)
+        {
+          NSMutableData* data=[NSMutableData dataWithLength:size/2];
+          unsigned char* pData=(unsigned char*)[data bytes];
+          int i=0;
+          for(i=0;i<size/2;i++)
+            {
+              if (pString[i*2]>='0' && pString[i*2]<='9')
+                pData[i]=(pString[i*2]-'0') << 4;
+              else if (pString[i*2]>='A' && pString[i*2]<='F')
+                pData[i]=(pString[i*2]-'A') << 4;
+              else
+                {
+                  NSCAssert(NO,@"Bad hex String");
+                };
+              if (pString[i*2+1]>='0' && pString[i*2+1]<='9')
+                pData[i]=pData[i]|(pString[i*2+1]-'0');
+              else if (pString[i*2+1]>='A' && pString[i*2+1]<='F')
+                pData[i]=pData[i]|(pString[i*2+1]-'A');
+              else
+                {
+                  NSCAssert(NO,@"Bad hex String");
+                };
+            };
+          return data;
+        };
+    };
   return nil;
 };
 
@@ -1636,54 +1647,54 @@ NSData* HexStringToData(NSString* _string)
 @implementation NSDictionary (SBDictionary)
 
 //--------------------------------------------------------------------
--(id)		objectForKey:(id)_key
-	   withDefaultObject:(id)_default
+-(id)		objectForKey:(id)key
+	   withDefaultObject:(id)defaultObject
 {
-  id object=[self objectForKey:_key];
+  id object=[self objectForKey:key];
   if (object)
-	return object;
+    return object;
   else
-	return _default;
+    return defaultObject;
 };
 
 //--------------------------------------------------------------------
-+(id)	dictionaryWithDictionary:(NSDictionary*)dictionary_
- andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults_
++(id)	dictionaryWithDictionary:(NSDictionary*)dictionary
+ andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults
 {
-  NSMutableDictionary* _dict=nil;
-  if (dictionary_)
-	{
-	  _dict=[[dictionary_ mutableCopy]autorelease];
-//	  NSDebugFLog(@"_dict=%@",_dict);
-	  [_dict addDefaultEntriesFromDictionary:dictionaryDefaults_];
-//	  NSDebugFLog(@"_dict=%@",_dict);
-	  _dict=[NSDictionary dictionaryWithDictionary:_dict];
-//	  NSDebugFLog(@"_dict=%@",_dict);
-	}
+  NSMutableDictionary* dict=nil;
+  if (dictionary)
+    {
+      dict=[[dictionary mutableCopy]autorelease];
+      //NSDebugFLog(@"_dict=%@",_dict);
+      [dict addDefaultEntriesFromDictionary:dictionaryDefaults];
+      //NSDebugFLog(@"_dict=%@",_dict);
+      dict=[NSDictionary dictionaryWithDictionary:dict];
+      //NSDebugFLog(@"_dict=%@",_dict);
+    }
   else
-	_dict=[NSDictionary dictionaryWithDictionary:dictionaryDefaults_];
-//  NSDebugFLog(@"_dict=%@",_dict);
-  return _dict;
+    dict=[NSDictionary dictionaryWithDictionary:dictionaryDefaults];
+  //  NSDebugFLog(@"dict=%@",dict);
+  return dict;
 };
 
 //--------------------------------------------------------------------
--(id)dictionaryBySettingObject:(id)object_
-						forKey:(id)key_
+-(id)dictionaryBySettingObject:(id)object
+                        forKey:(id)key
 {
-  NSMutableDictionary* _dict=[[self mutableCopy]autorelease];
-  [_dict setObject:object_
-		 forKey:key_];
-  _dict=[NSDictionary dictionaryWithDictionary:_dict];
-  return _dict;
+  NSMutableDictionary* dict=[[self mutableCopy]autorelease];
+  [dict setObject:object
+        forKey:key];
+  dict=[NSDictionary dictionaryWithDictionary:dict];
+  return dict;
 };
 
 //--------------------------------------------------------------------
--(id)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary_
+-(id)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary
 {
-  NSMutableDictionary* _dict=[[self mutableCopy]autorelease];
-  [_dict addEntriesFromDictionary:dictionary_];
-  _dict=[NSDictionary dictionaryWithDictionary:_dict];
-  return _dict;
+  NSMutableDictionary* dict=[[self mutableCopy]autorelease];
+  [dict addEntriesFromDictionary:dictionary];
+  dict=[NSDictionary dictionaryWithDictionary:dict];
+  return dict;
 };
 
 @end
@@ -1692,22 +1703,22 @@ NSData* HexStringToData(NSString* _string)
 @implementation NSMutableDictionary (SBMutableDictionary)
 
 //--------------------------------------------------------------------
--(void)setDefaultObject:(id)object_
-				 forKey:(id)key_
+-(void)setDefaultObject:(id)object
+                 forKey:(id)key
 {
-  if (![self objectForKey:key_])
-	[self setObject:object_
-		  forKey:key_];
+  if (![self objectForKey:key])
+	[self setObject:object
+              forKey:key];
 };
 
 //--------------------------------------------------------------------
--(void)addDefaultEntriesFromDictionary:(NSDictionary*)dictionary_
+-(void)addDefaultEntriesFromDictionary:(NSDictionary*)dictionary
 {
-  id _key=nil;
-  NSEnumerator* _enum = [dictionary_ keyEnumerator];
-  while ((_key = [_enum nextObject]))
-    [self setDefaultObject:[dictionary_ objectForKey:_key]
-		  forKey:_key];
+  id key=nil;
+  NSEnumerator* anEnum = [dictionary keyEnumerator];
+  while ((key=[anEnum nextObject]))
+    [self setDefaultObject:[dictionary objectForKey:key]
+          forKey:key];
 };
 
 @end
@@ -1719,15 +1730,15 @@ NSData* HexStringToData(NSString* _string)
 //--------------------------------------------------------------------
 -(NSString*)stringGoodPath
 {
-  NSString* _good=[self stringByStandardizingPath];
-  while([_good hasSuffix:@"/."])
-	{
-	  if ([_good length]>2)
-		_good=[_good stringWithoutSuffix:@"/."];
-	  else
-		_good=[NSString stringWithString:@"/"];
-	};
-  return _good;
+  NSString* good=[self stringByStandardizingPath];
+  while([good hasSuffix:@"/."])
+    {
+      if ([good length]>2)
+        good=[good stringWithoutSuffix:@"/."];
+      else
+        good=[NSString stringWithString:@"/"];
+    };
+  return good;
 };
 @end
 
@@ -1738,15 +1749,15 @@ NSData* HexStringToData(NSString* _string)
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n tickingTimer:\n%@\n>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   _searchList,
-				   _persDomains,
-				   _tempDomains,
-				   _changedDomains,
-				   _dictionaryRep,
-				   _defaultsDatabase,
-				   _tickingTimer];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _searchList,
+                   _persDomains,
+                   _tempDomains,
+                   _changedDomains,
+                   _dictionaryRep,
+                   _defaultsDatabase,
+                   _tickingTimer];
 };
 
 @end
@@ -1755,47 +1766,47 @@ NSData* HexStringToData(NSString* _string)
 @implementation NSDictionary (FromNSArray)
 
 //--------------------------------------------------------------------
-+(id)dictionaryWithArray:(NSArray*)array_
-			  onSelector:(SEL)sel_
++(id)dictionaryWithArray:(NSArray*)array
+              onSelector:(SEL)sel
 {
-  NSMutableDictionary* _dict=[NSMutableDictionary dictionary];
-  int _count=[array_ count];
+  NSMutableDictionary* dict=[NSMutableDictionary dictionary];
+  int count=[array count];
   int i=0;
-  id _object=nil;
-  id _key=nil;
-  for(i=0;i<_count;i++)
-	{
-	  //TODO optimiser
-	  _object=[array_ objectAtIndex:i];
-	  _key=[_object performSelector:sel_];
-	  NSAssert1(_key,@"NSDictionary dictionaryWithArray: no key for object:%@",_object);
-	  [_dict setObject:_object
-			 forKey:_key];
-	};
-  return [self dictionaryWithDictionary:_dict];
+  id object=nil;
+  id key=nil;
+  for(i=0;i<count;i++)
+    {
+      //TODO optimiser
+      object=[array objectAtIndex:i];
+      key=[object performSelector:sel];
+      NSAssert1(key,@"NSDictionary dictionaryWithArray: no key for object:%@",object);
+      [dict setObject:object
+            forKey:key];
+    };
+  return [self dictionaryWithDictionary:dict];
 };
 
 //--------------------------------------------------------------------
-+(id)dictionaryWithArray:(NSArray*)array_
-			  onSelector:(SEL)sel_
-			  withObject:(id)object
++(id)dictionaryWithArray:(NSArray*)array
+              onSelector:(SEL)sel
+              withObject:(id)object
 {
-  NSMutableDictionary* _dict=[NSMutableDictionary dictionary];
-  int _count=[array_ count];
+  NSMutableDictionary* dict=[NSMutableDictionary dictionary];
+  int count=[array count];
   int i=0;
-  id _object=nil;
-  id _key=nil;
-  for(i=0;i<_count;i++)
-	{
-	  //TODO optimiser
-	  _object=[array_ objectAtIndex:i];
-	  _key=[_object performSelector:sel_
-					withObject:object];
-	  NSAssert1(_key,@"NSDictionary dictionaryWithArray: no key for object:%@",_object);
-	  [_dict setObject:_object
-			 forKey:_key];
-	};
-  return [self dictionaryWithDictionary:_dict];
+  id object=nil;
+  id key=nil;
+  for(i=0;i<count;i++)
+    {
+      //TODO optimiser
+      object=[array objectAtIndex:i];
+      key=[object performSelector:sel
+                  withObject:object];
+      NSAssert1(key,@"NSDictionary dictionaryWithArray: no key for object:%@",object);
+      [dict setObject:object
+            forKey:key];
+    };
+  return [self dictionaryWithDictionary:dict];
 };
 @end
 
@@ -1803,35 +1814,35 @@ NSData* HexStringToData(NSString* _string)
 @implementation NSNumber (SBNumber)
 
 //--------------------------------------------------------------------
-+(NSNumber*)maxValueOf:(NSNumber*)_val0
-				   and:(NSNumber*)_val1
++(NSNumber*)maxValueOf:(NSNumber*)val0
+                   and:(NSNumber*)val1
 {
-  NSComparisonResult _compare=NSOrderedSame;
-  NSAssert(_val0,@"_val0 can't be nil");
-  NSAssert(_val1,@"_val1 can't be nil");
-  NSAssert([_val0 isKindOfClass:[NSNumber class]],@"_val0 must't be a NSNumber");
-  NSAssert([_val1 isKindOfClass:[NSNumber class]],@"_val1 must't be a NSNumber");
-  _compare=[_val0 compare:_val1];
-  if (_compare==NSOrderedAscending)
-	return _val1;
+  NSComparisonResult compare=NSOrderedSame;
+  NSAssert(val0,@"val0 can't be nil");
+  NSAssert(val1,@"val1 can't be nil");
+  NSAssert([val0 isKindOfClass:[NSNumber class]],@"val0 must't be a NSNumber");
+  NSAssert([val1 isKindOfClass:[NSNumber class]],@"val1 must't be a NSNumber");
+  compare=[val0 compare:val1];
+  if (compare==NSOrderedAscending)
+    return val1;
   else
-	return _val0;
+    return val0;
 };
 
 //--------------------------------------------------------------------
-+(NSNumber*)minValueOf:(NSNumber*)_val0
-				   and:(NSNumber*)_val1
++(NSNumber*)minValueOf:(NSNumber*)val0
+                   and:(NSNumber*)val1
 {
-  NSComparisonResult _compare=NSOrderedSame;
-  NSAssert(_val0,@"_val0 can't be nil");
-  NSAssert(_val1,@"_val1 can't be nil");
-  NSAssert([_val0 isKindOfClass:[NSNumber class]],@"_val0 must't be a NSNumber");
-  NSAssert([_val1 isKindOfClass:[NSNumber class]],@"_val1 must't be a NSNumber");
-  _compare=[_val0 compare:_val1];
-  if (_compare==NSOrderedDescending)
-	return _val1;
+  NSComparisonResult compare=NSOrderedSame;
+  NSAssert(val0,@"val0 can't be nil");
+  NSAssert(val1,@"val1 can't be nil");
+  NSAssert([val0 isKindOfClass:[NSNumber class]],@"val0 must't be a NSNumber");
+  NSAssert([val1 isKindOfClass:[NSNumber class]],@"val1 must't be a NSNumber");
+  compare=[val0 compare:val1];
+  if (compare==NSOrderedDescending)
+    return val1;
   else
-	return _val0;
+    return val0;
 };
 
 @end
@@ -1844,144 +1855,145 @@ NSData* HexStringToData(NSString* _string)
 {
   NSRange all =NSMakeRange(0,[self length]);
   return [self rangeOfData:data
-                options:0
-                range:all];
+               options:0
+               range:all];
 }
 
 //--------------------------------------------------------------------
 -(NSRange)rangeOfData:(NSData*)data
-			  options:(unsigned)mask
+              options:(unsigned)mask
 {
   NSRange all = NSMakeRange(0,[self length]);
   return [self rangeOfData:data
-			   options:mask
-			   range:all];
+               options:mask
+               range:all];
 }
 
 //--------------------------------------------------------------------
 -(NSRange)rangeOfData:(NSData *)aData
-			  options:(unsigned)mask
-				range:(NSRange)aRange
+              options:(unsigned)mask
+                range:(NSRange)aRange
 {
-  NSRange _range=NSMakeRange(NSNotFound,0);
+  NSRange range=NSMakeRange(NSNotFound,0);
   NSDebugFLog(@"self=%@",self);
   NSDebugFLog(@"aData=%@",aData);
   NSDebugFLog(@"mask=%u",mask);
   NSDebugFLog(@"aRange=(%u,%u)",aRange.location,aRange.length);
   if (aData)
-	{
-	  int _aDataLength=[aData length];
-	  int _selfLength=[self length];
-	  NSDebugFLog(@"_aDataLength=%d",_aDataLength);
-	  NSDebugFLog(@"_selfLength=%d",_selfLength);
-	  if (aRange.location+aRange.length>_selfLength)
-		[NSException raise:NSInvalidArgumentException format:@"Bad Range (%d,%d) for self length %d",
-					 aRange.location,
-					 aRange.length,
-					 _selfLength];
-	  else if (_aDataLength>0)		
-		{
-		  BOOL _reverse=((mask&NSBackwardsSearch)==NSBackwardsSearch);
-		  BOOL _anchored=((mask&NSAnchoredSearch)==NSAnchoredSearch);
-		  const void* _bytes=[self bytes];
-		  const void* _aDataBytes=[aData bytes];
-		  NSDebugFLog(@"_reverse=%d",(int)_reverse);
-		  NSDebugFLog(@"_anchored=%d",(int)_anchored);
-		  if (_anchored)
-			{
-			  // Can be found ?
-			  if (_aDataLength<=aRange.length)
-				{
-				  if (_reverse)
-					{
-					  NSDebugFLog(@"cmp at %d length %d",
-								  aRange.location-_aDataLength,
-								  _aDataLength);
-					  if (memcmp(_bytes+aRange.location-_aDataLength,
-								 _aDataBytes,
-								 _aDataLength)==0)
-						{
-						  NSDebugFLog0(@"FOUND");
-						  _range=NSMakeRange(_selfLength-_aDataLength,_aDataLength);
-						};
-					}
-				  else
-					{
-					  NSDebugFLog(@"cmp at %d length %d",
-								  aRange.location,
-								  _aDataLength);
-					  if (memcmp(_bytes+aRange.location,
-								 _aDataBytes,
-								 _aDataLength))
-						{
-						  NSDebugFLog0(@"FOUND");
-						  _range=NSMakeRange(0,_aDataLength);
-						};
-					};
-				};
-			}
-		  else
-			{
-			  if (_reverse)
-				{
-				  int i=0;
-				  int _first=(aRange.location+_aDataLength);
-				  NSDebugFLog(@"cmp at %d downto index: %d",
-							  aRange.location+aRange.length-1,
-							  _first);
-				  for(i=aRange.location+aRange.length-1;i>=_first && _range.length==0;i--)
-					{
-					  if (((unsigned char*)_bytes)[i]==((unsigned char*)_aDataBytes)[_aDataLength-1])
-						{
-						  NSDebugFLog(@"FOUND Last Char at %d",i);
-						  if (memcmp(_bytes+i-_aDataLength,_aDataBytes,_aDataLength)==0)
-							{
-							  _range=NSMakeRange(i-_aDataLength,_aDataLength);
-							  NSDebugFLog(@"FOUND at %d",i-_aDataLength);
-							};
-						};
-					};
-				}
-			  else
-				{
-				  int i=0;
-				  int _last=aRange.location+aRange.length-_aDataLength;
-				  NSDebugFLog(@"cmp at %d upto index: %d",
-							  aRange.location,
-							  _last);
-				  for(i=aRange.location;i<=_last && _range.length==0;i++)
-					{
-					  if (((unsigned char*)_bytes)[i]==((unsigned char*)_aDataBytes)[0])
-						{
-						  NSDebugFLog(@"FOUND First Char at %d",i);
-						  if (memcmp(_bytes+i,_aDataBytes,_aDataLength)==0)
-							{
-							  _range=NSMakeRange(i,_aDataLength);
-							  NSDebugFLog(@"FOUND at %d",i);
-							};
-						};
-					};
-				};
-			};
-		};
-	}
+    {
+      int aDataLength=[aData length];
+      int selfLength=[self length];
+      NSDebugFLog(@"aDataLength=%d",aDataLength);
+      NSDebugFLog(@"selfLength=%d",selfLength);
+      if (aRange.location+aRange.length>selfLength)
+        [NSException raise:NSInvalidArgumentException format:@"Bad Range (%d,%d) for self length %d",
+                     aRange.location,
+                     aRange.length,
+                     selfLength];
+      else if (aDataLength>0)		
+        {
+          BOOL reverse=((mask&NSBackwardsSearch)==NSBackwardsSearch);
+          BOOL anchored=((mask&NSAnchoredSearch)==NSAnchoredSearch);
+          const void* selfBytes=[self bytes];
+          const void* aDataBytes=[aData bytes];
+          NSDebugFLog(@"reverse=%d",(int)reverse);
+          NSDebugFLog(@"anchored=%d",(int)anchored);
+          if (anchored)
+            {
+              // Can be found ?
+              if (aDataLength<=aRange.length)
+                {
+                  if (reverse)
+                    {
+                      NSDebugFLog(@"cmp at %d length %d",
+                                  aRange.location-aDataLength,
+                                  aDataLength);
+                      if (memcmp(selfBytes+aRange.location-aDataLength,
+                                 aDataBytes,
+                                 aDataLength)==0)
+                        {
+                          NSDebugFLog0(@"FOUND");
+                          range=NSMakeRange(selfLength-aDataLength,aDataLength);
+                        };
+                    }
+                  else
+                    {
+                      NSDebugFLog(@"cmp at %d length %d",
+                                  aRange.location,
+                                  aDataLength);
+                      if (memcmp(selfBytes+aRange.location,
+                                 aDataBytes,
+                                 aDataLength))
+                        {
+                          NSDebugFLog0(@"FOUND");
+                          range=NSMakeRange(0,aDataLength);
+                        };
+                    };
+                };
+            }
+          else
+            {
+              if (reverse)
+                {
+                  int i=0;
+                  int first=(aRange.location+aDataLength);
+                  NSDebugFLog(@"cmp at %d downto index: %d",
+                              aRange.location+aRange.length-1,
+                              first);
+                  for(i=aRange.location+aRange.length-1;i>=first && range.length==0;i--)
+                    {
+                      if (((unsigned char*)selfBytes)[i]==((unsigned char*)aDataBytes)[aDataLength-1])
+                        {
+                          NSDebugFLog(@"FOUND Last Char at %d",i);
+                          if (memcmp(selfBytes+i-aDataLength,aDataBytes,aDataLength)==0)
+                            {
+                              range=NSMakeRange(i-aDataLength,aDataLength);
+                              NSDebugFLog(@"FOUND at %d",i-aDataLength);
+                            };
+                        };
+                    };
+                }
+              else
+                {
+                  int i=0;
+                  int last=aRange.location+aRange.length-aDataLength;
+                  NSDebugFLog(@"cmp at %d upto index: %d",
+                              aRange.location,
+                              last);
+                  for(i=aRange.location;i<=last && range.length==0;i++)
+                    {
+                      if (((unsigned char*)selfBytes)[i]==((unsigned char*)aDataBytes)[0])
+                        {
+                          NSDebugFLog(@"FOUND First Char at %d",i);
+                          if (memcmp(selfBytes+i,aDataBytes,aDataLength)==0)
+                            {
+                              range=NSMakeRange(i,aDataLength);
+                              NSDebugFLog(@"FOUND at %d",i);
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    }
   else
-    [NSException raise:NSInvalidArgumentException format: @"range of nil"];  
-  return _range;
+    [NSException raise:NSInvalidArgumentException 
+                 format: @"range of nil"];  
+  return range;
 }
 
 //--------------------------------------------------------------------
--(NSArray*)componentsSeparatedByData:(NSData*)separator_
+-(NSArray*)componentsSeparatedByData:(NSData*)aSeparator
 {
   NSRange search, complete;
   NSRange found;
   NSData* tmpData=nil;
   NSMutableArray *array = [NSMutableArray array];
-  NSDebugFLog(@"separator_ %@ length=%d",separator_,[separator_ length]);
+  NSDebugFLog(@"aSeparator %@ length=%d",aSeparator,[aSeparator length]);
   NSDebugFLog(@"self length=%d",[self length]);
   search=NSMakeRange(0, [self length]);
   complete=search;
-  found=[self rangeOfData:separator_];
+  found=[self rangeOfData:aSeparator];
   NSDebugFLog(@"found=(%u,%u)",found.location,found.length);
   while (found.length)
     {
@@ -1993,7 +2005,7 @@ NSData* HexStringToData(NSString* _string)
       [array addObject:tmpData];
       search = NSMakeRange (found.location + found.length,
                             complete.length - found.location - found.length);
-      found = [self rangeOfData:separator_
+      found = [self rangeOfData:aSeparator
                     options: 0
                     range:search];
     }
@@ -2005,18 +2017,18 @@ NSData* HexStringToData(NSString* _string)
 };
 
 //--------------------------------------------------------------------
--(NSData*)dataByDeletingFirstBytesCount:(unsigned int)bytesCount_
+-(NSData*)dataByDeletingFirstBytesCount:(unsigned int)bytesCount
 {
   NSMutableData* tmpdata=[self mutableCopy];
-  [tmpdata deleteFirstBytesCount:bytesCount_];
+  [tmpdata deleteFirstBytesCount:bytesCount];
   return [NSData dataWithData:tmpdata];
 };
 
 //--------------------------------------------------------------------
--(NSData*)dataByDeletingLastBytesCount:(unsigned int)bytesCount_
+-(NSData*)dataByDeletingLastBytesCount:(unsigned int)bytesCount
 {
   NSMutableData* tmpdata=[self mutableCopy];
-  [tmpdata deleteLastBytesCount:bytesCount_];
+  [tmpdata deleteLastBytesCount:bytesCount];
   return [NSData dataWithData:tmpdata];
 };
 
@@ -2026,22 +2038,26 @@ NSData* HexStringToData(NSString* _string)
 @implementation NSMutableData (SBNSData)
 
 //--------------------------------------------------------------------
--(void)deleteFirstBytesCount:(unsigned int)bytesCount_
+-(void)deleteFirstBytesCount:(unsigned int)bytesCount
 {
-  void* _mutableBytes=NULL;
-  unsigned int _length=[self length];
-  NSAssert2(_length>=bytesCount_,@"Can't delete %d first bytes from a data of length %d",bytesCount_,_length);
-  _mutableBytes=[self mutableBytes];
-  memmove(_mutableBytes,_mutableBytes+bytesCount_,bytesCount_);
-  [self setLength:_length-bytesCount_];
+  void* mutableBytes=NULL;
+  unsigned int length=[self length];
+  NSAssert2(length>=bytesCount,
+            @"Can't delete %d first bytes from a data of length %d",
+            bytesCount,length);
+  mutableBytes=[self mutableBytes];
+  memmove(mutableBytes,mutableBytes+bytesCount,bytesCount);
+  [self setLength:length-bytesCount];
 };
 
 //--------------------------------------------------------------------
--(void)deleteLastBytesCount:(unsigned int)bytesCount_;
+-(void)deleteLastBytesCount:(unsigned int)bytesCount;
 {
-  unsigned int _length=[self length];
-  NSAssert2(_length>=bytesCount_,@"Can't delete %d last bytes from a data of length %d",bytesCount_,_length);
-  [self setLength:_length-bytesCount_];
+  unsigned int length=[self length];
+  NSAssert2(length>=bytesCount,
+            @"Can't delete %d last bytes from a data of length %d",
+            bytesCount,length);
+  [self setLength:length-bytesCount];
 };
 @end
 
@@ -2050,98 +2066,98 @@ NSData* HexStringToData(NSString* _string)
 @implementation NSFooNumberFormatter
 
 //--------------------------------------------------------------------
--(id)initType:(NSNumFmtType)type_
+-(id)initType:(NSNumFmtType)type
 {
   if ((self=[super init]))
-	{
-	  type=type_;
-	};
+    {
+      _type=type;
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)stringForObjectValue:(id)anObject
 {
-  NSString* _string=nil;
+  NSString* string=nil;
   if ([anObject isKindOfClass:[NSString class]])
-	_string=anObject;
+    string=anObject;
   else if (anObject)
-	{
-	  switch(type)
-		{
-		case NSNumFmtType__Int:
-		  if ([anObject isKindOfClass:[NSNumber class]])
-			{
-			  int _value=[anObject intValue];
-			  _string=[NSString stringWithFormat:@"%d",_value];
-			}
-		  else if ([anObject respondsToSelector:@selector(intValue)])
-			{
-			  int _value=[anObject intValue];
-			  _string=[NSString stringWithFormat:@"%d",_value];			  
-			}
-		  else if ([anObject respondsToSelector:@selector(floatValue)])
-			{
-			  int _value=(int)[anObject floatValue];
-			  _string=[NSString stringWithFormat:@"%d",_value];			  
-			}
-		  else if ([anObject respondsToSelector:@selector(doubleValue)])
-			{
-			  int _value=(int)[anObject doubleValue];
-			  _string=[NSString stringWithFormat:@"%d",_value];			  
-			}
-		  else
-			{
-			  LOGSeriousError(@"Can't convert %@ of class %@ to string",
-							  anObject,
-							  [anObject class]);
-			  _string=@"***";
-			};
-		  break;
-		case NSNumFmtType__Float:
-		  if ([anObject isKindOfClass:[NSNumber class]])
-			{
-			  double _value=[anObject doubleValue];
-			  _string=[NSString stringWithFormat:@"%.2f",_value];
-			}
-		  else if ([anObject respondsToSelector:@selector(intValue)])
-			{
-			  int _value=[anObject intValue];
-			  _string=[NSString stringWithFormat:@"%d.00",_value];			  
-			}
-		  else if ([anObject respondsToSelector:@selector(floatValue)])
-			{
-			  double _value=(double)[anObject floatValue];
-			  _string=[NSString stringWithFormat:@"%.2f",_value];			  
-			}
-		  else if ([anObject respondsToSelector:@selector(doubleValue)])
-			{
-			  double _value=[anObject doubleValue];
-			  _string=[NSString stringWithFormat:@"%.2f",_value];			  
-			}
-		  else
-			{
-			  LOGSeriousError(@"Can't convert %@ of class %@ to string",
-							  anObject,
-							  [anObject class]);
-			  _string=@"***";
-			};
-		  break;
-		case NSNumFmtType__Unknown:
-		default:
-		  LOGSeriousError(@"Unknown type %d to convert %@ to string",
-						  (int)type,
-						  anObject);
-		  _string=@"***";
-		  break;
-		};
-	};
-  return _string;
+    {
+      switch(_type)
+        {
+        case NSNumFmtType__Int:
+          if ([anObject isKindOfClass:[NSNumber class]])
+            {
+              int value=[anObject intValue];
+              string=[NSString stringWithFormat:@"%d",value];
+            }
+          else if ([anObject respondsToSelector:@selector(intValue)])
+            {
+              int value=[anObject intValue];
+              string=[NSString stringWithFormat:@"%d",value];
+            }
+          else if ([anObject respondsToSelector:@selector(floatValue)])
+            {
+              int value=(int)[anObject floatValue];
+              string=[NSString stringWithFormat:@"%d",value];
+            }
+          else if ([anObject respondsToSelector:@selector(doubleValue)])
+            {
+              int value=(int)[anObject doubleValue];
+              string=[NSString stringWithFormat:@"%d",value];
+            }
+          else
+            {
+              LOGSeriousError(@"Can't convert %@ of class %@ to string",
+                              anObject,
+                              [anObject class]);
+              string=@"***";
+            };
+          break;
+        case NSNumFmtType__Float:
+          if ([anObject isKindOfClass:[NSNumber class]])
+            {
+              double value=[anObject doubleValue];
+              string=[NSString stringWithFormat:@"%.2f",value];
+            }
+          else if ([anObject respondsToSelector:@selector(intValue)])
+            {
+              int value=[anObject intValue];
+              string=[NSString stringWithFormat:@"%d.00",value];
+            }
+          else if ([anObject respondsToSelector:@selector(floatValue)])
+            {
+              double value=(double)[anObject floatValue];
+              string=[NSString stringWithFormat:@"%.2f",value];
+            }
+          else if ([anObject respondsToSelector:@selector(doubleValue)])
+            {
+              double value=[anObject doubleValue];
+              string=[NSString stringWithFormat:@"%.2f",value];
+            }
+          else
+            {
+              LOGSeriousError(@"Can't convert %@ of class %@ to string",
+                              anObject,
+                              [anObject class]);
+              string=@"***";
+            };
+          break;
+        case NSNumFmtType__Unknown:
+        default:
+          LOGSeriousError(@"Unknown type %d to convert %@ to string",
+                          (int)type,
+                          anObject);
+          string=@"***";
+          break;
+        };
+    };
+  return string;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)getObjectValue:(id*)anObject
-			forString:(NSString*)string
+            forString:(NSString*)string
 	 errorDescription:(NSString**)error
 {
   BOOL ok=NO;
@@ -2149,24 +2165,24 @@ NSData* HexStringToData(NSString* _string)
   NSAssert(error,@"No error* to return");
   *anObject=nil;
   *error=nil;
-  switch(type)
-	{
-	case NSNumFmtType__Int:
-	  *anObject=[NSNumber numberWithInt:[string intValue]];
-	  ok=YES;
-	  break;
-	case NSNumFmtType__Float:
-	  *anObject=[NSNumber numberWithFloat:[string floatValue]];
-	  ok=YES;
-	  break;
-	case NSNumFmtType__Unknown:
-	default:	  
-	  LOGSeriousError(@"Unknown type %d to convert from string %@",
-					  (int)type,
-					  string);
-	   *error = @"Unknown type";
-	  break;
-	};
+  switch(_type)
+    {
+    case NSNumFmtType__Int:
+      *anObject=[NSNumber numberWithInt:[string intValue]];
+      ok=YES;
+      break;
+    case NSNumFmtType__Float:
+      *anObject=[NSNumber numberWithFloat:[string floatValue]];
+      ok=YES;
+      break;
+    case NSNumFmtType__Unknown:
+    default:	  
+      LOGSeriousError(@"Unknown type %d to convert from string %@",
+                      (int)_type,
+                      string);
+      *error = @"Unknown type";
+      break;
+    };
   return ok;
 };
 

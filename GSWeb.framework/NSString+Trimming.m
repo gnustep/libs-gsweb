@@ -1,11 +1,16 @@
-/* NSString+Trimming.m
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** NSString+Trimming.m - <title>GSWeb: Class NSString with Trimming </title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -40,7 +46,7 @@ static char rcsId[] = "$Id$";
   //TODOV
   NSRange nonNumberRange;
   NSMutableCharacterSet* nonNumberCS=[[NSCharacterSet decimalDigitCharacterSet] 
-									   mutableCopy];
+                                       mutableCopy];
   [nonNumberCS addCharactersInString:@".Ee-+"];
   [nonNumberCS invert];
   nonNumberRange  = [self rangeOfCharacterFromSet:nonNumberCS];
@@ -53,7 +59,7 @@ static char rcsId[] = "$Id$";
   //TODOV
   NSRange nonNumberRange;
   NSMutableCharacterSet* nonNumberCS=[[NSCharacterSet decimalDigitCharacterSet] 
-									   mutableCopy];
+                                       mutableCopy];
   [nonNumberCS addCharactersInString:@".-+"];
   [nonNumberCS invert];
   nonNumberRange  = [self rangeOfCharacterFromSet:nonNumberCS];
@@ -62,24 +68,24 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 #ifdef LONG_LONG_MAX
--(BOOL)isAnIntegerNumberWithMin:(long long)min_
-									max:(long long)max_
+-(BOOL)isAnIntegerNumberWithMin:(long long)min
+                            max:(long long)max
 #else
--(BOOL)isAnIntegerNumberWithMin:(long)min_
-									max:(long)max_
+-(BOOL)isAnIntegerNumberWithMin:(long)min
+                            max:(long)max
 #endif
 {
   if ([self isAnIntegerNumber])
-	{
-	  //TODO
-	  long _v=[self longValue];
-	  if (_v>=min_ && _v<=max_)
-		return YES;
-	  else
-		return NO;
-	}
+    {
+      //TODO
+      long v=[self longValue];
+      if (v>=min && v<=max)
+        return YES;
+      else
+        return NO;
+    }
   else
-	return NO;
+    return NO;
 };
 
 //--------------------------------------------------------------------
@@ -88,7 +94,7 @@ static char rcsId[] = "$Id$";
   //TODOV
   NSRange nonNumberRange;
   NSMutableCharacterSet* nonNumberCS=[[NSCharacterSet decimalDigitCharacterSet] 
-									   mutableCopy];
+                                       mutableCopy];
   [nonNumberCS addCharactersInString:@".+"];
   [nonNumberCS invert];
   nonNumberRange  = [self rangeOfCharacterFromSet:nonNumberCS];
@@ -97,22 +103,22 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 #ifdef LONG_LONG_MAX
--(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long long)max_
+-(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long long)max
 #else
--(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long)max_
+-(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long)max
 #endif
 {
   if ([self isAnUnsignedIntegerNumber])
-	{
-	  //TODO
-	  unsigned long _v=[self ulongValue];
-	  if (_v<=max_)
-		return YES;
-	  else
-		return NO;
-	}
+    {
+      //TODO
+      unsigned long v=[self ulongValue];
+      if (v<=max)
+        return YES;
+      else
+        return NO;
+    }
   else
-	return NO;
+    return NO;
 };
 
 //--------------------------------------------------------------------
@@ -121,7 +127,7 @@ static char rcsId[] = "$Id$";
   //TODOV
   NSRange numberRange;
   NSMutableCharacterSet* numberCS=[[NSCharacterSet decimalDigitCharacterSet]
-									mutableCopy];
+                                    mutableCopy];
   [numberCS addCharactersInString:@".-+"];
   numberRange  = [self rangeOfCharacterFromSet:numberCS];
   return (numberRange.location==0 && numberRange.length>0);
@@ -142,10 +148,10 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(long long)longLongValue
 {
-  long long _v=0;
-  NSScanner* _scanner = [NSScanner scannerWithString:self];
-  [_scanner scanLongLong:&_v];
-  return _v;
+  long long v=0;
+  NSScanner* scanner = [NSScanner scannerWithString:self];
+  [scanner scanLongLong:&v];
+  return v;
 }
 
 @end
@@ -153,7 +159,7 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation NSString (UniqueIdString)
 //--------------------------------------------------------------------
-+(NSString*)stringUniqueIdWithLength:(int)_lentgh
++(NSString*)stringUniqueIdWithLength:(int)length
 {
   int i=0;
   NSTimeInterval ti=[[NSDate date]timeIntervalSinceReferenceDate];
@@ -161,9 +167,9 @@ static char rcsId[] = "$Id$";
   NSMutableData* data=nil;
   void* pData=NULL;
   NSString* dataHex=nil;
-  int intLength=(_lentgh/sizeof(int))-sizeof(ti);
+  int intLength=(length/sizeof(int))-sizeof(ti);
   if (intLength<0)
-	intLength=0;
+    intLength=0;
   size=sizeof(ti)+intLength*sizeof(int);
   data=[NSMutableData dataWithLength:size];
   pData=[data mutableBytes];
@@ -171,10 +177,10 @@ static char rcsId[] = "$Id$";
   *((NSTimeInterval*)pData)=ti;//TODO: NSSwapHostLongToBig(ti);
   pData+=sizeof(ti);
   for(i=0;i<intLength;i++)
-	{
-	  *((int*)pData)=rand(); //TODO: NSSwapHostIntToBig(rand());
-	  pData+=sizeof(int);
-	};
+    {
+      *((int*)pData)=rand(); //TODO: NSSwapHostIntToBig(rand());
+      pData+=sizeof(int);
+    };
   dataHex=DataToHexString(data);
   return dataHex;
 };
@@ -183,28 +189,28 @@ static char rcsId[] = "$Id$";
 @implementation NSString (stringWithObject)
 
 //--------------------------------------------------------------------
-+(NSString*)stringWithObject:(id)object_
++(NSString*)stringWithObject:(id)object
 {
-  NSString* _string=nil;
-  if (object_)
-	{
-	  if ([object_ isKindOfClass:[NSString class]])
-		_string=[[object_ copy] autorelease];
+  NSString* string=nil;
+  if (object)
+    {
+      if ([object isKindOfClass:[NSString class]])
+        string=[[object copy] autorelease];
 #ifdef GDL2
-	  else if ([object_ isKindOfClass:[EONull class]])
-		_string=@"";
+      else if ([object isKindOfClass:[EONull class]])
+        string=@"";
 #else
-	  else if ([object_ isKindOfClass:[NSNull class]])
-		_string=@"";
+      else if ([object isKindOfClass:[NSNull class]])
+        string=@"";
 #endif
-	  else if ([object_ respondsToSelector:@selector(stringValue)])
-		_string=[object_ stringValue];
-	  else if ([object_ respondsToSelector:@selector(description)])
-		_string=[object_ description];
-	  else
-		_string=object_;
-	};
-  return _string;
+      else if ([object respondsToSelector:@selector(stringValue)])
+        string=[object stringValue];
+      else if ([object respondsToSelector:@selector(description)])
+        string=[object description];
+      else
+        string=object;
+    };
+  return string;
 };
 @end
 
@@ -212,35 +218,35 @@ static char rcsId[] = "$Id$";
 @implementation NSString (uniqueFileName)
 
 //--------------------------------------------------------------------
-+(NSString*)stringForUniqueFilenameInDirectory:(NSString*)directory_
-									withPrefix:(NSString*)prefix_
-									withSuffix:(NSString*)suffix_
++(NSString*)stringForUniqueFilenameInDirectory:(NSString*)directory
+                                    withPrefix:(NSString*)prefix
+                                    withSuffix:(NSString*)suffix
 {
-  NSString* _filename=nil;
-  NSFileManager* _fileManager=nil;
-  NSArray* _directoryContents=nil;
+  NSString* filename=nil;
+  NSFileManager* fileManager=nil;
+  NSArray* directoryContents=nil;
   LOGObjectFnStart();
-  _fileManager=[NSFileManager defaultManager];
-  _directoryContents=[_fileManager directoryContentsAtPath:directory_];
-  if (!_directoryContents)
-	{
-	  //ERROR
-	}
+  fileManager=[NSFileManager defaultManager];
+  directoryContents=[fileManager directoryContentsAtPath:directory];
+  if (!directoryContents)
+    {
+      //ERROR
+    }
   else
-	{
-	  int _attempts=16;
-	  while(_attempts-->0 && !_filename)
-		{
-		  NSString* _unique=[NSString stringUniqueIdWithLength:16];
-		  _filename=[NSString stringWithFormat:@"%@_%@_%@",prefix_,_unique,suffix_];
-		  if ([_directoryContents containsObject:_filename])
-			_filename=nil;
-		};
-	};
-  if (_filename)
-	_filename=[directory_ stringByAppendingPathComponent:_filename];
+    {
+      int attempts=16;
+      while(attempts-->0 && !filename)
+        {
+          NSString* unique=[NSString stringUniqueIdWithLength:16];
+          filename=[NSString stringWithFormat:@"%@_%@_%@",prefix,unique,suffix];
+          if ([directoryContents containsObject:filename])
+            filename=nil;
+        };
+    };
+  if (filename)
+    filename=[directory stringByAppendingPathComponent:filename];
   LOGObjectFnStop();
-  return _filename;
+  return filename;
 };
 @end
 
@@ -248,30 +254,30 @@ static char rcsId[] = "$Id$";
 @implementation NSString (Qutotes)
 
 //--------------------------------------------------------------------
--(BOOL)hasPrefix:(NSString*)prefix_
-	   andSuffix:(NSString*)suffix_
+-(BOOL)hasPrefix:(NSString*)prefix
+       andSuffix:(NSString*)suffix
 {
-  return [self hasPrefix:prefix_] && [self hasSuffix:suffix_];
+  return [self hasPrefix:prefix] && [self hasSuffix:suffix];
 };
 
 //--------------------------------------------------------------------
--(NSString*)stringWithoutPrefix:(NSString*)prefix_
-					  andSuffix:(NSString*)suffix_
+-(NSString*)stringWithoutPrefix:(NSString*)prefix
+                      andSuffix:(NSString*)suffix
 {
-  return [[self stringWithoutPrefix:prefix_]stringWithoutSuffix:suffix_];
+  return [[self stringWithoutPrefix:prefix]stringWithoutSuffix:suffix];
 };
 
 //--------------------------------------------------------------------
--(BOOL)isQuotedWith:(NSString*)quote_
+-(BOOL)isQuotedWith:(NSString*)quote
 {
-  return [self hasPrefix:quote_
-			   andSuffix:quote_];
+  return [self hasPrefix:quote
+               andSuffix:quote];
 };
 //--------------------------------------------------------------------
--(NSString*)stringWithoutQuote:(NSString*)quote_
+-(NSString*)stringWithoutQuote:(NSString*)quote
 {
-  return [self stringWithoutPrefix:quote_
-			   andSuffix:quote_];
+  return [self stringWithoutPrefix:quote
+               andSuffix:quote];
 };
 @end
 
@@ -279,18 +285,18 @@ static char rcsId[] = "$Id$";
 @implementation NSMutableString (Qutotes)
 
 //--------------------------------------------------------------------
--(void)removePrefix:(NSString*)prefix_
-		  andSuffix:(NSString*)suffix_
+-(void)removePrefix:(NSString*)prefix
+          andSuffix:(NSString*)suffix
 {
-  [self removePrefix:prefix_];
-  [self removeSuffix:suffix_];
+  [self removePrefix:prefix];
+  [self removeSuffix:suffix];
 };
 
 //--------------------------------------------------------------------
--(void)removeQuote:(NSString*)quote_
+-(void)removeQuote:(NSString*)quote
 {
-  [self removePrefix:quote_
-		andSuffix:quote_];
+  [self removePrefix:quote
+        andSuffix:quote];
 };
 @end
 

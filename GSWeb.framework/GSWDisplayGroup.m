@@ -1,12 +1,17 @@
-/* GSWDisplayGroup.m - GSWeb: Class GSWDisplayGroup
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDisplayGroup.m - <title>GSWeb: Class GSWDisplayGroup</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
                 Mirko Viviani <mirko.viviani@rccr.cremona.it>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -20,7 +25,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -53,7 +59,7 @@ static char rcsId[] = "$Id$";
       _queryBindings = [[NSMutableDictionary alloc] initWithCapacity:8];
 
       //  _selection = 1; //????
-	  _batchIndex = 1;
+      _batchIndex = 1;
 
       [[NSNotificationCenter defaultCenter]
         addObserver:self
@@ -312,7 +318,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   return qualifier;
 };
 
--(BOOL)_deleteObjectsAtIndexes:(id)indexes_
+-(BOOL)_deleteObjectsAtIndexes:(id)indexes
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
@@ -321,7 +327,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 };
 
 
--(BOOL)_deleteObject:(id)object_
+-(BOOL)_deleteObject:(id)object
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
@@ -338,7 +344,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 };
 
 
--(void)_lastObserverNotified:(id)object_
+-(void)_lastObserverNotified:(id)object
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
@@ -346,7 +352,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 };
 
 
--(void)_beginObserverNotification:(id)object_
+-(void)_beginObserverNotification:(id)object
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
@@ -362,7 +368,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 
 
--(void)_notifyRowChanged:(int)row_
+-(void)_notifyRowChanged:(int)row
 {
   LOGObjectFnStart();
 //-1 ==> nil ?
@@ -372,19 +378,19 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 
 
--(id)_notify:(SEL)selector_
+-(id)_notify:(SEL)selector
         with:(id)object1
         with:(id)object2
 
 {
   LOGObjectFnStart();
   //TODOFN
-  if (selector_==@selector(displayGroup:didFetchObjects:)) //TODO ????
+  if (selector==@selector(displayGroup:didFetchObjects:)) //TODO ????
     {
       //Do it on object1
       if(_delegateRespondsTo.didFetchObjects)
-        [delegate displayGroup:object1
-                  didFetchObjects:object2];
+        [_delegate displayGroup:object1
+                   didFetchObjects:object2];
     }
   else
     {
@@ -395,8 +401,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 };
 
 
--(id)_notify:(SEL)selector_
-        with:(id)object_
+-(id)_notify:(SEL)selector
+        with:(id)object
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
@@ -422,7 +428,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 };
 
 
--(void)objectsChangedInEditingContext:(id)object_
+-(void)objectsChangedInEditingContext:(id)object
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
@@ -436,7 +442,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
 
   if(_delegateRespondsTo.shouldRedisplay == YES)
-    redisplay = [delegate displayGroup:self
+    redisplay = [_delegate displayGroup:self
 		      shouldRedisplayForEditingContextChangeNotification:notification];
 
   if(redisplay == YES)
@@ -450,7 +456,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
 
   if(_delegateRespondsTo.shouldRefetchObjects == YES)
-    refetch = [delegate displayGroup:self
+    refetch = [_delegate displayGroup:self
 		    shouldRefetchForInvalidatedAllObjectsNotification:
 		      notification];
 
@@ -464,7 +470,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
 
-  delegate = nil;
+  _delegate = nil;
 
   DESTROY(_dataSource);
 
@@ -574,7 +580,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 //--------------------------------------------------------------------
 //	setDataSource:
 
-- (void)setDataSource:(EODataSource *)dataSource_
+- (void)setDataSource:(EODataSource *)dataSource
 {
   EOEditingContext *context=nil;
   LOGObjectFnStart();
@@ -587,7 +593,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 	[context setMessageHandler:nil];
     }
 
-  ASSIGN(_dataSource, dataSource_);
+  ASSIGN(_dataSource,dataSource);
 
   context = [_dataSource editingContext];
   [context addEditor:self];
@@ -597,7 +603,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   [_displayedObjects removeAllObjects];
 
   if(_delegateRespondsTo.didChangeDataSource == YES)
-    [delegate displayGroupDidChangeDataSource:self];
+    [_delegate displayGroupDidChangeDataSource:self];
   LOGObjectFnStop();
 }
 
@@ -622,47 +628,47 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (id)delegate
 {
-  return delegate;
+  return _delegate;
 }
 
 //--------------------------------------------------------------------
 //	setDelegate:
 
-- (void)setDelegate:(id)delegate_
+- (void)setDelegate:(id)delegate
 {
   LOGObjectFnStart();
-  delegate = delegate_;
+  _delegate = delegate;
 
   _delegateRespondsTo.createObjectFailed = 
-    [delegate respondsToSelector:@selector(displayGroup:createObjectFailedForDataSource:)];
+    [_delegate respondsToSelector:@selector(displayGroup:createObjectFailedForDataSource:)];
   _delegateRespondsTo.didDeleteObject = 
-    [delegate respondsToSelector:@selector(displayGroup:didDeleteObject:)];
+    [_delegate respondsToSelector:@selector(displayGroup:didDeleteObject:)];
   _delegateRespondsTo.didFetchObjects = 
-    [delegate respondsToSelector:@selector(displayGroup:didFetchObjects:)];
+    [_delegate respondsToSelector:@selector(displayGroup:didFetchObjects:)];
   _delegateRespondsTo.didInsertObject = 
-    [delegate respondsToSelector:@selector(displayGroup:didInsertObject:)];
+    [_delegate respondsToSelector:@selector(displayGroup:didInsertObject:)];
   _delegateRespondsTo.didSetValueForObject = 
-    [delegate respondsToSelector:@selector(displayGroup:didSetValue:forObject:key:)];
+    [_delegate respondsToSelector:@selector(displayGroup:didSetValue:forObject:key:)];
   _delegateRespondsTo.displayArrayForObjects = 
-    [delegate respondsToSelector:@selector(displayGroup:displayArrayForObjects:)];
+    [_delegate respondsToSelector:@selector(displayGroup:displayArrayForObjects:)];
   _delegateRespondsTo.shouldChangeSelection = 
-    [delegate respondsToSelector:@selector(displayGroup:shouldChangeSelectionToIndexes:)];
+    [_delegate respondsToSelector:@selector(displayGroup:shouldChangeSelectionToIndexes:)];
   _delegateRespondsTo.shouldInsertObject = 
-    [delegate respondsToSelector:@selector(displayGroup:shouldInsertObject:atIndex:)];
+    [_delegate respondsToSelector:@selector(displayGroup:shouldInsertObject:atIndex:)];
   _delegateRespondsTo.shouldDeleteObject = 
-    [delegate respondsToSelector:@selector(displayGroup:shouldDeleteObject:)];
+    [_delegate respondsToSelector:@selector(displayGroup:shouldDeleteObject:)];
   _delegateRespondsTo.shouldRedisplay = 
-    [delegate respondsToSelector:@selector(displayGroup:shouldRedisplayForEditingContextChangeNotification:)];
+    [_delegate respondsToSelector:@selector(displayGroup:shouldRedisplayForEditingContextChangeNotification:)];
   _delegateRespondsTo.shouldRefetchObjects = 
-    [delegate respondsToSelector:@selector(displayGroup:shouldRefetchForInvalidatedAllObjectsNotification:)];
+    [_delegate respondsToSelector:@selector(displayGroup:shouldRefetchForInvalidatedAllObjectsNotification:)];
   _delegateRespondsTo.didChangeDataSource = 
-    [delegate respondsToSelector:@selector(displayGroupDidChangeDataSource:)];
+    [_delegate respondsToSelector:@selector(displayGroupDidChangeDataSource:)];
   _delegateRespondsTo.didChangeSelectedObjects = 
-    [delegate respondsToSelector:@selector(displayGroupDidChangeSelectedObjects:)];
+    [_delegate respondsToSelector:@selector(displayGroupDidChangeSelectedObjects:)];
   _delegateRespondsTo.didChangeSelection = 
-    [delegate respondsToSelector:@selector(displayGroupDidChangeSelection:)];
+    [_delegate respondsToSelector:@selector(displayGroupDidChangeSelection:)];
   _delegateRespondsTo.shouldFetchObjects = 
-    [delegate respondsToSelector:@selector(displayGroupShouldFetch:)];
+    [_delegate respondsToSelector:@selector(displayGroupShouldFetch:)];
   LOGObjectFnStop();
 }
 
@@ -689,7 +695,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   object = [_allObjects objectAtIndex:index];
 
   if(_delegateRespondsTo.shouldDeleteObject == YES)
-    delete = [delegate displayGroup:self  shouldDeleteObject:object];
+    delete = [_delegate displayGroup:self  shouldDeleteObject:object];
 
   if(delete)
     {
@@ -701,7 +707,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
           [_allObjects removeObjectIdenticalTo:object];
           
           if(_delegateRespondsTo.didDeleteObject == YES)
-            [delegate displayGroup:self  didDeleteObject:object];
+            [_delegate displayGroup:self  didDeleteObject:object];
         }
       NS_HANDLER
         {
@@ -738,7 +744,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   while((object = [enumerator nextObject]))
     {
       if(_delegateRespondsTo.shouldDeleteObject == YES)
-	delete = [delegate displayGroup:self
+	delete = [_delegate displayGroup:self
 			   shouldDeleteObject:object];
 
       if(delete == NO)
@@ -757,7 +763,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
               [_allObjects removeObjectIdenticalTo:object];
               
               if(_delegateRespondsTo.didDeleteObject == YES)
-                [delegate displayGroup:self
+                [_delegate displayGroup:self
                           didDeleteObject:object];
             }
         }
@@ -938,7 +944,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   [_dataSource setQualifierBindings:_queryBindings];
 
   if(_delegateRespondsTo.shouldFetchObjects == YES)
-    fetch = [delegate displayGroupShouldFetch:self];
+    fetch = [_delegate displayGroupShouldFetch:self];
 
   if(fetch)
     {
@@ -1034,7 +1040,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 }
 
 //--------------------------------------------------------------------
--(void)editingContext:(id)editingContext_
+-(void)editingContext:(id)editingContext
   presentErrorMessage:(id)msg
 {
   LOGObjectFnStart();
@@ -1090,7 +1096,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
   LOGObjectFnStart();
   if(_delegateRespondsTo.shouldInsertObject == YES)
-    insert = [delegate displayGroup:self
+    insert = [_delegate displayGroup:self
 		       shouldInsertObject:anObject
 		       atIndex:index];
 
@@ -1105,7 +1111,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       [self setCurrentBatchIndex:_batchIndex];
       
       if(_delegateRespondsTo.didInsertObject == YES)
-        [delegate displayGroup:self
+        [_delegate displayGroup:self
                   didInsertObject:anObject];
 
       [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:index]]];
@@ -1127,7 +1133,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   if(object == nil)
     {
       if(_delegateRespondsTo.createObjectFailed == YES)
-	[delegate displayGroup:self
+	[_delegate displayGroup:self
 		  createObjectFailedForDataSource:_dataSource];
     }
   else
@@ -1660,20 +1666,20 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 //--------------------------------------------------------------------
 //	setCurrentBatchIndex:
 
-- (void)setCurrentBatchIndex:(unsigned)index_
+- (void)setCurrentBatchIndex:(unsigned)index
 {
   unsigned batchCount, num;
   int i;
   LOGObjectFnStart();
 
-  if(index_)
+  if(index)
     {
       [_displayedObjects removeAllObjects];
       
       batchCount = [self batchCount];
 		NSLog(@"setCurrentBatchIndex : [self batchCount] = %d", [self batchCount]);
-      if(index_ > batchCount)
-        index_ = 1;
+      if(index > batchCount)
+        index = 1;
       
       num = [_allObjects count];
 		NSLog(@"setCurrentBatchIndex : [_allObjects count] = %d", [_allObjects count]);
@@ -1683,11 +1689,11 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
       
       if(num)
         {
-		NSLog(@"setCurrentBatchIndex : index_ = %d", index_);
+		NSLog(@"setCurrentBatchIndex : index = %d", index);
 		NSLog(@"setCurrentBatchIndex : num = %d", num);
 
-          for( i = (index_-1) * num;
-               ((i < index_ * num) && (i < [_allObjects count]));
+          for( i = (index-1) * num;
+               ((i < index * num) && (i < [_allObjects count]));
                i++)
             [_displayedObjects addObject:[_allObjects objectAtIndex:i]];
           
@@ -1712,7 +1718,7 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 };
 
 
--(BOOL)_allowsNullForKey:(id)key_
+-(BOOL)_allowsNullForKey:(id)key
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
@@ -1879,10 +1885,10 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 //--------------------------------------------------------------------
 //	setQualifier:
 
-- (void)setQualifier:(EOQualifier *)qualifier_
+- (void)setQualifier:(EOQualifier *)qualifier
 {
   LOGObjectFnStart();
-  ASSIGN(_qualifier, qualifier_);
+  ASSIGN(_qualifier, qualifier);
   LOGObjectFnStop();
 }
 
@@ -1948,7 +1954,7 @@ STOP ?
   LOGObjectFnStart();
 //call selectedObjects //
   if(_delegateRespondsTo.shouldChangeSelection == YES 
-     && [delegate displayGroup:self
+     && [_delegate displayGroup:self
                   shouldChangeSelectionToIndexes:selection_] == NO)
     retValue=NO;
   else
@@ -1983,10 +1989,10 @@ STOP ?
           ASSIGN(_selection, selection_);
           
           if(_delegateRespondsTo.didChangeSelection == YES)
-            [delegate displayGroupDidChangeSelection:self];
+            [_delegate displayGroupDidChangeSelection:self];
       
           if(_delegateRespondsTo.didChangeSelectedObjects == YES)
-            [delegate displayGroupDidChangeSelectedObjects:self];
+            [_delegate displayGroupDidChangeSelectedObjects:self];
         };
     };
   LOGObjectFnStop();
@@ -2052,8 +2058,8 @@ STOP ?
 
   if(_delegateRespondsTo.displayArrayForObjects == YES)
     {
-      [_displayedObjects addObjectsFromArray:[delegate displayGroup:self
-                                                       displayArrayForObjects:_allObjects]];
+      [_displayedObjects addObjectsFromArray:[_delegate displayGroup:self
+                                                        displayArrayForObjects:_allObjects]];
     }
   else
     {

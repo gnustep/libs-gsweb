@@ -1,11 +1,16 @@
-/* GSWComponentRequestHandler.h - GSWeb: Class GSWComponentRequestHandler
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWComponentRequestHandler.h - <title>GSWeb: Class GSWComponentRequestHandler</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,27 +37,27 @@
 {
 }
 
--(GSWResponse*)handleRequest:(GSWRequest*)request_;
--(GSWResponse*)lockedHandleRequest:(GSWRequest*)request_;
--(GSWResponse*)lockedDispatchWithPreparedApplication:(GSWApplication*)_application
-									 inContext:(GSWContext*)context_
-									  elements:(NSDictionary*)_elements;
--(GSWResponse*)lockedDispatchWithPreparedSession:(GSWSession*)_session
-								 inContext:(GSWContext*)context_
-								  elements:(NSDictionary*)_elements;
+-(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
+-(GSWResponse*)lockedHandleRequest:(GSWRequest*)aRequest;
+-(GSWResponse*)lockedDispatchWithPreparedApplication:(GSWApplication*)application
+                                           inContext:(GSWContext*)aContext
+                                            elements:(NSDictionary*)elements;
+-(GSWResponse*)lockedDispatchWithPreparedSession:(GSWSession*)aSession
+                                       inContext:(GSWContext*)aContext
+                                        elements:(NSDictionary*)elements;
 -(GSWResponse*)lockedDispatchWithPreparedPage:(GSWComponent*)_component
-							  inSession:(GSWSession*)_session
-							  inContext:(GSWContext*)context_
-							   elements:(NSDictionary*)_elements;
--(GSWComponent*)lockedRestorePageForContextID:(NSString*)context_ID
-							  inSession:(GSWSession*)_session;
+                                    inSession:(GSWSession*)aSession
+                                    inContext:(GSWContext*)aContext
+                                     elements:(NSDictionary*)elements;
+-(GSWComponent*)lockedRestorePageForContextID:(NSString*)aContextID
+                                    inSession:(GSWSession*)aSession;
 
 @end
 
 //====================================================================
 @interface GSWComponentRequestHandler (GSWRequestHandlerClassA)
 +(id)handler;
-+(NSDictionary*)_requestHandlerValuesForRequest:(GSWRequest*)request_;
++(NSDictionary*)_requestHandlerValuesForRequest:(GSWRequest*)aRequest;
 @end
 
 #endif //_GSWComponentRequestHandler_h__

@@ -1,11 +1,16 @@
-/* GSWMultiKeyDictionary.h - GSWeb: Class GSWMultiKeyDictionary
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWMultiKeyDictionary.h - <title>GSWeb: Class GSWMultiKeyDictionary</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Mar 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,35 +36,35 @@
 //==============================================================================
 @interface GSWMultiKeyDictionary : NSObject
 {
-  NSMutableDictionary* dict;
+  NSMutableDictionary* _dict;
 };
 
 +(id)dictionary;
 -(id)init;
--(id)initWithCapacity:(unsigned int)capacity_;
+-(id)initWithCapacity:(unsigned int)capacity;
 -(void)dealloc;
 -(NSString*)description;
 
 
 -(NSEnumerator*)objectEnumerator;
 -(void)removeAllObjects;
--(void)setObject:(id)object_
-		 forKeys:(id)keys_,...;
--(id)objectForKeys:(id)keys_,...;
+-(void)setObject:(id)object
+         forKeys:(id)keys,...;
+-(id)objectForKeys:(id)keys,...;
 
--(void)setObject:(id)object_
-	forKeysArray:(NSArray*)keys_;
--(id)objectForKeysArray:(NSArray*)keys_;
+-(void)setObject:(id)object
+    forKeysArray:(NSArray*)keys;
+-(id)objectForKeysArray:(NSArray*)keys;
 -(NSArray*)allValues;
 -(NSArray*)allKeys;
--(NSArray*)objectsForKeysArrays:(NSArray*)keys_
-				 notFoundMarker:(id)notFoundMarker_;
--(void)makeObjectsPerformSelector:(SEL)selector_;
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object_;
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object1_
-					   withObject:(id)object2_;
+-(NSArray*)objectsForKeysArrays:(NSArray*)keys
+                 notFoundMarker:(id)notFoundMarker;
+-(void)makeObjectsPerformSelector:(SEL)selector;
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object;
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object1
+                       withObject:(id)object2;
 @end
 
 #endif // _GSWMultiKeyDictionary_h__

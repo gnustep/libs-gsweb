@@ -1,11 +1,16 @@
-/* GSWParam.m - GSWeb: Class GSWParam
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** GSWParam.m - <title>GSWeb: Class GSWParam</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -28,12 +34,12 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWParam
 
--(id)		initWithName:(NSString*)name_
-			associations:(NSDictionary*)associations_
-		 contentElements:(NSArray*)elements_
-				  target:(id)target_
-					 key:(NSString*)key_
-   treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
+           target:(id)target
+              key:(NSString*)key
+treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -41,9 +47,9 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -75,8 +81,8 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWParam (GSWParamA)
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -87,15 +93,15 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWParam (GSWParamB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
 
--(id)valueInComponent:(id)component_
+-(id)valueInComponent:(id)component
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;

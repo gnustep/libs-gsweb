@@ -1,8 +1,9 @@
 /** GSWTemplateParserXML.m - <title>GSWeb: Class GSWTemplateParserXML</title>
+
    Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Mar 1999
+   Date: 	Mar 1999
    
    $Revision$
    $Date$
@@ -121,9 +122,9 @@ static NSMutableDictionary* DTDCache=nil;
 };
 
 //--------------------------------------------------------------------
-+(id)handlerWithTemplateParser:(GSWTemplateParser*)templateParser_
++(id)handlerWithTemplateParser:(GSWTemplateParser*)templateParser
 {
-  return AUTORELEASE([[self alloc] initWithTemplateParser:templateParser_]);
+  return AUTORELEASE([[self alloc] initWithTemplateParser:templateParser]);
 };  
 
 extern void            externalSubset                  (void *ctx,
@@ -132,11 +133,11 @@ extern void            externalSubset                  (void *ctx,
                                                         const xmlChar *SystemID);
 
 //--------------------------------------------------------------------
--(id)initWithTemplateParser:(GSWTemplateParser*)templateParser_
+-(id)initWithTemplateParser:(GSWTemplateParser*)templateParser
 {
   if ((self=[self init]))
     {
-      _templateParser=templateParser_;
+      _templateParser=templateParser;
       //NSLog(@"my sax lib=%p",lib);
       if (lib)
         {

@@ -1,11 +1,16 @@
-/* GSWKeyValueAssociation.m - GSWeb: Class GSWKeyValueAssociation
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWKeyValueAssociation.m - <title>GSWeb: Class GSWKeyValueAssociation</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,13 +35,13 @@ static char rcsId[] = "$Id$";
 @implementation GSWKeyValueAssociation
 
 //--------------------------------------------------------------------
--(id)initWithKeyPath:(NSString*)keyPath_
+-(id)initWithKeyPath:(NSString*)aKeyPath
 {
   //OK
   if ((self=[super init]))
-	{
-	  ASSIGNCOPY(keyPath,keyPath_);
-	};
+    {
+      ASSIGNCOPY(_keyPath,aKeyPath);
+    };
   return self;
 };
 
@@ -44,30 +50,30 @@ static char rcsId[] = "$Id$";
 {
   GSWLogMemC("GSWKeyValueAssociation start of dealloc");
   GSWLogAssertGood(self);
-  DESTROY(keyPath);
+  DESTROY(_keyPath);
   GSWLogMemC("keyPath deallocated");
   [super dealloc];
   GSWLogMemC("GSWKeyValueAssociation end of dealloc");
 };
 
 //--------------------------------------------------------------------
--(id)copyWithZone:(NSZone*)zone;
+-(id)copyWithZone:(NSZone*)zone
 {
   GSWKeyValueAssociation* clone = [super copyWithZone:zone];
-  ASSIGN(clone->keyPath,keyPath);
+  ASSIGN(clone->_keyPath,_keyPath);
   return clone;
 };
 
 //--------------------------------------------------------------------
--(id)valueInObject:(id)object_
+-(id)valueInObject:(id)object
 {
   id retValue=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"associations",@"self=%@ ",self);
-  NSDebugMLLog(@"associations",@"keyPath=%@ ",keyPath);
-  NSDebugMLLog(@"associations",@"object_=%@ ", object_);
-  retValue=[GSWAssociation valueInObject:object_
-                           forKeyPath:keyPath];
+  NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
+  NSDebugMLLog(@"associations",@"object=%@ ", object);
+  retValue=[GSWAssociation valueInObject:object
+                           forKeyPath:_keyPath];
   NSDebugMLLog(@"associations",@"self=%@ retValue=%@ (%p) (class=%@)",
                self,
                retValue,
@@ -79,24 +85,25 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)setValue:(id)value_
-	   inObject:(id)object_
+-(void)setValue:(id)aValue
+       inObject:(id)object
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"keyPath=%@ ",keyPath);
-  NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@ (self=%@)",value_,self);
-  if (value_) {
-    NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([value_ class]));
-  }
+  NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
+  NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@ (self=%@)",aValue,self);
+  if (aValue) 
+    {
+      NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([aValue class]));
+    }
   /*Not Here because self is not a string key !
   //TODO (return something!)
-  [object_ validateValue:&value_
-			  forKey:self];
+  [object validateValue:&aValue
+  forKey:self];
   */
-  [GSWAssociation setValue:value_
-				  inObject:object_
-				  forKeyPath:keyPath];
-  [self logSetValue:value_];
+  [GSWAssociation setValue:aValue
+                  inObject:object
+                  forKeyPath:_keyPath];
+  [self logSetValue:aValue];
   LOGObjectFnStop();
 };
 
@@ -121,7 +128,7 @@ static char rcsId[] = "$Id$";
                  object_get_class_name(self),
                  (void*)self];
   dscr=[dscr stringByAppendingFormat:@" keyPath=%@>",
-             keyPath];
+             _keyPath];
   return dscr;
 };
 
@@ -133,7 +140,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSString*)keyPath
 {
-  return keyPath;
+  return _keyPath;
 };
 
 //--------------------------------------------------------------------

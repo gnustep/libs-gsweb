@@ -199,6 +199,7 @@ static char rcsId[] = "$Id$";
   GSWComponentDefinition* aComponentDefinition=nil;
   LOGObjectFnStart();
   aComponentDefinition=[self _componentDefinition];
+  NSAssert(aComponentDefinition,@"No componentDefinition");
   aFrameworkName=[aComponentDefinition frameworkName];
   NSDebugMLLog(@"GSWComponent",@"aFrameworkName=%@",aFrameworkName);
   LOGObjectFnStop();
@@ -458,7 +459,9 @@ associationsKeys:(NSArray*)associationsKeys
   LOGObjectFnStart();
   if (!template)
     {
+      NSDebugMLLog(@"GSWComponent",@"templateName=%@",[self _templateName]);
       template=[self templateWithName:[self _templateName]];
+      NSDebugMLLog(@"GSWComponent",@"template=%p",template);
       if ([self isCachingEnabled])
         {
           ASSIGN(_template,template);
@@ -474,13 +477,17 @@ associationsKeys:(NSArray*)associationsKeys
   //OK
   GSWComponentDefinition* aComponentDefinition=nil;
   LOGObjectFnStart();
+  NSDebugMLLog(@"GSWComponent",@"_componentDefinition=%@",_componentDefinition);
   if (_componentDefinition)
     aComponentDefinition=_componentDefinition;
   else
     {
       NSArray* languages=[self languages];
+      NSDebugMLLog(@"GSWComponent",@"languages=%@",languages);
+      NSDebugMLLog(@"GSWComponent",@"_name=%@",_name);
       aComponentDefinition=[GSWApp componentDefinitionWithName:_name
                                    languages:languages];
+      NSDebugMLLog(@"GSWComponent",@"aComponentDefinition=%@",aComponentDefinition);
       if ([self isCachingEnabled])
         {
           ASSIGN(_componentDefinition,aComponentDefinition);
@@ -543,9 +550,10 @@ associationsKeys:(NSArray*)associationsKeys
   LOGObjectFnStart();
   languages=[self languages];
   aComponentDefinition=[self _componentDefinition];
+  NSAssert(aComponentDefinition,@"No componentDefinition");
   template=[aComponentDefinition templateWithName:aName
                                  languages:languages];
-  NSDebugMLLog(@"GSWComponent",@"template=%@",template);
+  NSDebugMLLog(@"GSWComponent",@"aName=%@ template=%@",aName,template);
   LOGObjectFnStop();
   return template;
 };
@@ -988,17 +996,20 @@ associationsKeys:(NSArray*)associationsKeys
   GSWElementIDString* debugElementID=[aContext elementID];
 #endif
   LOGObjectFnStart();
+  NSAssert(aContext,@"No Context");
+  NSAssert(aResponse,@"No Response");
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);
 
   template=[self _template];
-
+  NSAssert(template,@"No template");
 #ifndef NDEBUG
-  if(GSDebugSet(@"gswcomponents") == YES)
+  if(GSDebugSet(@"gswcomponents"))
     [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"Start %@",[self _templateName]]];
 #endif
 
   request=[aContext request];
+  NSAssert(request,@"No request");
   isFromClientComponent=[request isFromClientComponent];
   component=[aContext component];
   [aContext appendZeroElementIDComponent];

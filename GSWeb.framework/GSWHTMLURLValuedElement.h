@@ -1,11 +1,16 @@
-/* GSWHTMLURLValuedElement.h - GSWeb: Class GSWHTMLURLValuedElement
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLURLValuedElement.m - <title>GSWeb: Class GSWHTMLURLValuedElement</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Apr 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Apr 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,27 +35,27 @@
 
 @interface GSWHTMLURLValuedElement: GSWHTMLDynamicElement
 {
-  GSWAssociation* src;
-  GSWAssociation* value;
-  GSWAssociation* pageName;
+  GSWAssociation* _src;
+  GSWAssociation* _value;
+  GSWAssociation* _pageName;
 //GSWeb Additions {
-  NSDictionary* pageSetVarAssociations;
-  GSWAssociation* pageSetVarAssociationsDynamic;
+  NSDictionary* _pageSetVarAssociations;
+  GSWAssociation* _pageSetVarAssociationsDynamic;
 // }
-  GSWAssociation* filename;
-  GSWAssociation* framework;
-  GSWAssociation* data;
-  GSWAssociation* mimeType;
-  GSWAssociation* key;
-  GSWAssociation* actionClass;
-  GSWAssociation* directActionName;
-  GSWAssociation* queryDictionary;
-  NSDictionary* otherQueryAssociations;
+  GSWAssociation* _filename;
+  GSWAssociation* _framework;
+  GSWAssociation* _data;
+  GSWAssociation* _mimeType;
+  GSWAssociation* _key;
+  GSWAssociation* _actionClass;
+  GSWAssociation* _directActionName;
+  GSWAssociation* _queryDictionary;
+  NSDictionary* _otherQueryAssociations;
 };
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_;
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements;
 -(void)dealloc;
 
 -(NSString*)valueAttributeName;
@@ -58,21 +64,21 @@
 @end
 
 @interface GSWHTMLURLValuedElement (GSWHTMLURLValuedElementA)
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_; 
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext; 
 @end
 
 @interface GSWHTMLURLValuedElement (GSWHTMLURLValuedElementB)
 //NDFN
--(void)appendURLToResponse:(GSWResponse*)response_
-				 inContext:(GSWContext*)context_;
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									inContext:(GSWContext*)context_; 
--(void)_appendCGIActionURLToResponse:(GSWResponse*)response_
-						   inContext:(GSWContext*)context_; 
--(id)computeActionStringInContext:(GSWContext*)context_; 
--(id)computeQueryDictionaryInContext:(GSWContext*)context_; 
--(NSString*)frameworkNameInContext:(GSWContext*)context_;
+-(void)appendURLToResponse:(GSWResponse*)aResponse
+                 inContext:(GSWContext*)aContext;
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext; 
+-(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
+                           inContext:(GSWContext*)aContext; 
+-(id)computeActionStringInContext:(GSWContext*)aContext; 
+-(id)computeQueryDictionaryInContext:(GSWContext*)aContext; 
+-(NSString*)frameworkNameInContext:(GSWContext*)aContext;
 @end
 
 #endif // _GSWHTMLURLValuedElement_h__

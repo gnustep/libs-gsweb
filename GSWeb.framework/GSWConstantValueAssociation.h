@@ -1,11 +1,16 @@
-/* GSWConstantValueAssociation.h - GSWeb: Class GSWConstantValueAssociation
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWConstantValueAssociation.h - <title>GSWeb: Class GSWConstantValueAssociation</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,18 +35,18 @@
 //====================================================================
 @interface GSWConstantValueAssociation:GSWAssociation
 {
-  id value;
+  id _value;
 };
 
--(id)initWithValue:(id)value_;
+-(id)initWithValue:(id)aValue;
 -(void)dealloc;
--(id)copyWithZone:(NSZone *)zone;
+-(id)copyWithZone:(NSZone*)zone;
 -(NSString*)debugDescription;
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
--(id)valueInObject:(id)object_;
--(void)setValue:(id)value_
-	   inObject:(id)object_;
+-(id)valueInObject:(id)object;
+-(void)setValue:(id)aValue
+	   inObject:(id)object;
 -(NSString*)description;
 
 @end

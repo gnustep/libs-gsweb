@@ -1,12 +1,16 @@
-/* GSWHTMLAttrParserExt.m - GSWeb: Class GSWHTMLAttrParser: Categories
+/** GSWHTMLAttrParserExt.m - <title>GSWeb: Class GSWHTMLAttrParserExt: Categories</title>
 
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Mar 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -20,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -59,37 +64,37 @@ static char rcsId[] = "$Id$";
 
 
 //--------------------------------------------------------------------
--(void)reportErrorWithException:(NSException*)_exception
+-(void)reportErrorWithException:(NSException*)exception
 {
-  NSString* _error=nil;
+  NSString* error=nil;
   if (!errors)
-	errors=[NSMutableArray new];
-  _error=[NSString stringWithFormat:@"Parsing Exception: %@ (Reason:%@)",
-				   [_exception description],
-				   [_exception reason]];
-  [errors addObject:_error];
+    errors=[NSMutableArray new];
+  error=[NSString stringWithFormat:@"Parsing Exception: %@ (Reason:%@)",
+                  [exception description],
+                  [exception reason]];
+  [errors addObject:error];
 };
 
 //--------------------------------------------------------------------
--(void)reportError:(NSString*)_text
+-(void)reportError:(NSString*)text
 {
-  NSString* _error=nil;
+  NSString* error=nil;
   if (!errors)
-	errors=[NSMutableArray new];
-  _error=[NSString stringWithFormat:@"Parsing Error: %@",
-				   _text];
-  [errors addObject:_error];
+    errors=[NSMutableArray new];
+  error=[NSString stringWithFormat:@"Parsing Error: %@",
+                  text];
+  [errors addObject:error];
 };
 
 //--------------------------------------------------------------------
--(void)reportWarning:(NSString*)_text
+-(void)reportWarning:(NSString*)text
 {
-  NSString* _warning=nil;
+  NSString* warning=nil;
   if (!warnings)
-	warnings=[NSMutableArray new];
-  _warning=[NSString stringWithFormat:@"Parsing Warning: %@",
-				   _text];
-  [warnings addObject:_warning];
+    warnings=[NSMutableArray new];
+  warning=[NSString stringWithFormat:@"Parsing Warning: %@",
+                    text];
+  [warnings addObject:warning];
 };
 
 //--------------------------------------------------------------------

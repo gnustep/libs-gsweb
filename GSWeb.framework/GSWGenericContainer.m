@@ -1,11 +1,16 @@
-/* GSWGenericContainer.m - GSWeb: Class GSWGenericContainer
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWGenericContainer.m - <title>GSWeb: Class GSWGenericContainer</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -28,83 +34,84 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWGenericContainer
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)templateElement_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)templateElement
 {
-	self = [super init];
-	associations=[associations_ retain];
-	element=[templateElement_ retain];
-    return self;
+  if ((self = [super init]))
+    {
+      ASSIGN(_associations,associations);
+      ASSIGN(_element,templateElement);
+    };
+  return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-    [associations release];
-    [element release];
-    [super dealloc];
+  DESTROY(_associations);
+  DESTROY(_element);
+  [super dealloc];
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-//TODOFN
+  //TODOFN
   return [super description];
 };
 
 //--------------------------------------------------------------------
 
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
-    NSEnumerator *assocEnumer;
-    id currentAssocKey;
-    id component = [context_ component];
-    id theValue;
-    id otherTag = nil;
-	id tag = [[associations objectForKey:@"elementName"] valueInComponent:component];
+  NSEnumerator *assocEnumer=nil;
+  id currentAssocKey=nil;
+  id component = [aContext component];
+  id theValue=nil;
+  id otherTag = nil;
+  id tag = [[_associations objectForKey:@"elementName"] valueInComponent:component];
+  
+  [aResponse appendContentString:[NSString stringWithFormat:@"<%@",tag]];
 
-    [response_ appendContentString:[NSString stringWithFormat:@"<%@",tag]];
-
-    if (otherTag = [[associations objectForKey:@"otherTagString"] valueInComponent:component]) {
-        [response_ appendContentString:[NSString stringWithFormat:@" %@",otherTag]];
+  if ((otherTag = [[_associations objectForKey:@"otherTagString"] valueInComponent:component])) 
+    {
+      [aResponse appendContentString:[NSString stringWithFormat:@" %@",otherTag]];
     }
-
     
-    assocEnumer = [associations keyEnumerator];
-    while (currentAssocKey = [assocEnumer nextObject]) {
-        theValue = [[associations objectForKey:currentAssocKey] valueInComponent:component];
-        if (([currentAssocKey isEqualToString:@"elementName"] == NO) && ([currentAssocKey isEqualToString:@"otherTagString"] == NO)) {
-            [response_ appendContentString:[NSString stringWithFormat:@" %@=\"%@\"",currentAssocKey,theValue]];
+  assocEnumer = [_associations keyEnumerator];
+  while ((currentAssocKey = [assocEnumer nextObject])) 
+    {
+      theValue = [[_associations objectForKey:currentAssocKey] valueInComponent:component];
+      if (([currentAssocKey isEqualToString:@"elementName"] == NO) 
+          && ([currentAssocKey isEqualToString:@"otherTagString"] == NO)) 
+        {
+          [aResponse appendContentString:[NSString stringWithFormat:@" %@=\"%@\"",currentAssocKey,theValue]];
         }
     }
-
-    [response_ appendContentString:@">"];
-    [element appendToResponse:response_ inContext:context_];
-	[response_ appendContentString:[NSString stringWithFormat:@"</%@>",tag]];
+  
+  [aResponse appendContentString:@">"];
+  [_element appendToResponse:aResponse inContext:aContext];
+  [aResponse appendContentString:[NSString stringWithFormat:@"</%@>",tag]];
 };
 
 //--------------------------------------------------------------------
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext
 {
-//  LOGObjectFnNotImplemented();	//TODOFN
-
-    return [element invokeActionForRequest:request_ inContext:context_];
-
+  return [_element invokeActionForRequest:aRequest
+                   inContext:aContext];
 };
 
 //--------------------------------------------------------------------
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext
 {
- // LOGObjectFnNotImplemented();	//TODOFN
-
-    return [element takeValuesFromRequest:request_ inContext:context_];
-
+  return [_element takeValuesFromRequest:aRequest 
+                   inContext:aContext];
 };
 
 //-------------------------------------------------------------------- 

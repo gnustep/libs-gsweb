@@ -1,11 +1,16 @@
-/* GSWTemplateParser.h - GSWeb: Class GSWTemplateParser
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWTemplateParser - <title>GSWeb: Class GSWTemplateParser</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Mar 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -43,53 +49,53 @@
   int tagN;
 }
 
-+(GSWElement*)templateNamed:(NSString*)name_
-           inFrameworkNamed:(NSString*)frameworkName_
++(GSWElement*)templateNamed:(NSString*)aName
+           inFrameworkNamed:(NSString*)aFrameworkName
         withParserClassName:(NSString*)parserClassName
                  withString:(NSString*)HTMLString
                    encoding:(NSStringEncoding)encoding
                    fromPath:(NSString*)HTMLPath
           definitionsString:(NSString*)pageDefString
-                  languages:(NSArray*)languages_
-             definitionPath:(NSString*)definitionPath_;
-+(GSWElement*)templateNamed:(NSString*)name_
-           inFrameworkNamed:(NSString*)frameworkName_
+                  languages:(NSArray*)someLanguages
+             definitionPath:(NSString*)aDefinitionPath;
++(GSWElement*)templateNamed:(NSString*)aName
+           inFrameworkNamed:(NSString*)aFrameworkName
             withParserClass:(Class)parserClass
                  withString:(NSString*)HTMLString
                    encoding:(NSStringEncoding)encoding
                    fromPath:(NSString*)HTMLPath
           definitionsString:(NSString*)pageDefString
-                  languages:(NSArray*)languages_
-             definitionPath:(NSString*)definitionPath_;
+                  languages:(NSArray*)someLanguages
+             definitionPath:(NSString*)aDefinitionPath;
 +(void)setDefaultParserClassName:(NSString*)parserClassName;
 +(NSString*)defaultParserClassName;
 +(Class)defaultParserClass;
--(id)initWithTemplateName:(NSString*)name_
-          inFrameworkName:(NSString*)frameworkName_
+-(id)initWithTemplateName:(NSString*)aName
+          inFrameworkName:(NSString*)aFrameworkName
                withString:(NSString*)HTMLString
-                 encoding:(NSStringEncoding)encoding_
+                 encoding:(NSStringEncoding)anEncoding
                  fromPath:(NSString*)HTMLPath
     withDefinitionsString:(NSString*)pageDefString
-                 fromPath:(NSString*)definitionPath_
-             forLanguages:(NSArray*)languages_;
+                 fromPath:(NSString*)aDefinitionPath
+             forLanguages:(NSArray*)someLanguages;
 -(void)dealloc;
 -(NSString*)logPrefix;
 -(GSWElement*)template;
 -(NSArray*)templateElements;
 -(NSDictionary*)definitions;
 
--(NSDictionary*)parseDefinitionsString:(NSString*)localDefinitionstring_
-                                 named:(NSString*)localDefinitionName_
-                      inFrameworkNamed:(NSString*)localFrameworkName_
+-(NSDictionary*)parseDefinitionsString:(NSString*)localDefinitionstring
+                                 named:(NSString*)localDefinitionName
+                      inFrameworkNamed:(NSString*)localFrameworkName
                         processedFiles:(NSMutableSet*)processedFiles;
 
--(NSDictionary*)parseDefinitionInclude:(NSString*)includeName_
-                    fromFrameworkNamed:(NSString*)fromFrameworkName_
+-(NSDictionary*)parseDefinitionInclude:(NSString*)includeName
+                    fromFrameworkNamed:(NSString*)fromFrameworkName
                         processedFiles:(NSMutableSet*)processedFiles;
 
--(NSDictionary*)processIncludes:(NSArray*)definitionsIncludes_
-                          named:(NSString*)localDefinitionsName_
-               inFrameworkNamed:(NSString*)localFrameworkName_
+-(NSDictionary*)processIncludes:(NSArray*)definitionsIncludes
+                          named:(NSString*)localDefinitionsName
+               inFrameworkNamed:(NSString*)localFrameworkName
                  processedFiles:(NSMutableSet*)processedFiles;
 
 @end

@@ -1,11 +1,16 @@
-/* GSWApplication.h - GSWeb: Class GSWApplication
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** GSWApplication.h - <title>GSWeb: Class GSWApplication</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,20 +24,21 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
 #ifndef _GSWApplication_h__
 	#define _GSWApplication_h__
 
-extern void GSWApplicationSetDebugSetOption(NSString* opt_);
+extern void GSWApplicationSetDebugSetOption(NSString* opt);
 extern int WOApplicationMain(NSString* applicationClassName,
                              int argc,
                              const char *argv[]);
 extern int GSWApplicationMain(NSString* applicationClassName,
-							  int argc,
-							  const char *argv[]);
+                              int argc,
+                              const char *argv[]);
 extern NSString* globalApplicationClassName;
 extern int GSWebNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
 #define GSWebNamingConvInversed		(GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX)
@@ -42,56 +48,56 @@ extern BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication : NSObject <NSLocking>
 {
-  NSArray* adaptors;
-  GSWSessionStore* sessionStore;
-  GSWMultiKeyDictionary* componentDefinitionCache;
-  NSTimeInterval timeOut;
-  NSTimer* timer;
+  NSArray* _adaptors;
+  GSWSessionStore* _sessionStore;
+  GSWMultiKeyDictionary* _componentDefinitionCache;
+  NSTimeInterval _timeOut;
+  NSTimer* _timer;
 //  GSWContext* context;        // being deprecated
-  GSWStatisticsStore* statisticsStore;
-  GSWResourceManager* resourceManager;
-  NSDistantObject* remoteMonitor;
-  NSConnection* remoteMonitorConnection;
-  NSString* instanceNumber;
-  NSMutableDictionary* requestHandlers;
-  GSWRequestHandler* defaultRequestHandler;
+  GSWStatisticsStore* _statisticsStore;
+  GSWResourceManager* _resourceManager;
+  NSDistantObject* _remoteMonitor;
+  NSConnection* _remoteMonitorConnection;
+  NSString* _instanceNumber;
+  NSMutableDictionary* _requestHandlers;
+  GSWRequestHandler* _defaultRequestHandler;
 @public //TODO-NOW REMOVE
-  NSRecursiveLock* selfLock;
+  NSRecursiveLock* _selfLock;
 #ifndef NDEBUG
-  int selfLockn;
-  objc_thread_t selfLock_thread_id;
+  int _selfLockn;
+  objc_thread_t _selfLock_thread_id;
 #endif
-  NSLock* globalLock;
+  NSLock* _globalLock;
 #ifndef NDEBUG
-  int globalLockn;
-  objc_thread_t globalLock_thread_id;
+  int _globalLockn;
+  objc_thread_t _globalLock_thread_id;
 #endif
-  NSAutoreleasePool* globalAutoreleasePool;
-  unsigned pageCacheSize;
-  unsigned permanentPageCacheSize;
-  int activeSessionsCount;
-  int minimumActiveSessionsCount;
-  BOOL pageRecreationEnabled;
-  BOOL pageRefreshOnBacktrackEnabled;
-  BOOL terminating;
-  BOOL dynamicLoadingEnabled;
-  BOOL printsHTMLParserDiagnostics;
-  BOOL refusingNewSessions;
-  BOOL shouldDieWhenRefusing;
-  BOOL refusingNewClients;
-  BOOL refuseThisRequest;
-  BOOL isMultiThreaded;
-  BOOL isMTProtected;
-  BOOL timedRunLoop;
-  BOOL isTracingEnabled;
-  BOOL isTracingAssignmentsEnabled;
-  BOOL isTracingObjectiveCMessagesEnabled;
-  BOOL isTracingScriptedMessagesEnabled;
-  BOOL isTracingStatementsEnabled;
-  NSRunLoop* currentRunLoop;
-  NSDate* runLoopDate;
-  NSTimer* initialTimer;
-  NSLock* activeSessionsCountLock;
+  NSAutoreleasePool* _globalAutoreleasePool;
+  unsigned _pageCacheSize;
+  unsigned _permanentPageCacheSize;
+  int _activeSessionsCount;
+  int _minimumActiveSessionsCount;
+  BOOL _pageRecreationEnabled;
+  BOOL _pageRefreshOnBacktrackEnabled;
+  BOOL _terminating;
+  BOOL _dynamicLoadingEnabled;
+  BOOL _printsHTMLParserDiagnostics;
+  BOOL _refusingNewSessions;
+  BOOL _shouldDieWhenRefusing;
+  BOOL _refusingNewClients;
+  BOOL _refuseThisRequest;
+  BOOL _isMultiThreaded;
+  BOOL _isMTProtected;
+  BOOL _timedRunLoop;
+  BOOL _isTracingEnabled;
+  BOOL _isTracingAssignmentsEnabled;
+  BOOL _isTracingObjectiveCMessagesEnabled;
+  BOOL _isTracingScriptedMessagesEnabled;
+  BOOL _isTracingStatementsEnabled;
+  NSRunLoop* _currentRunLoop;
+  NSDate* _runLoopDate;
+  NSTimer* _initialTimer;
+  NSLock* _activeSessionsCountLock;
 }
 
 -(void)dealloc;
@@ -117,8 +123,8 @@ extern BOOL WOStrictFlag;
 -(void)setPageRefreshOnBacktrackEnabled:(BOOL)flag;
 
 -(void)registerRequestHandlers;
--(void)_initAdaptorsWithUserDefaults:(NSUserDefaults*)_userDefault;
--(NSDictionary*)_argsDictionaryWithUserDefaults:(NSUserDefaults*)_userDefault;
+-(void)_initAdaptorsWithUserDefaults:(NSUserDefaults*)userDefault;
+-(NSDictionary*)_argsDictionaryWithUserDefaults:(NSUserDefaults*)userDefault;
 -(void)unlock;
 -(void)lock;
 -(void)unlockRequestHandling;
@@ -149,22 +155,22 @@ extern BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication (GSWApplicationD)
 
--(GSWComponentDefinition*)componentDefinitionWithName:(NSString*)_name
-											languages:(NSArray*)_languages;
--(GSWComponentDefinition*)lockedComponentDefinitionWithName:(NSString*)_name
-												  languages:(NSArray*)_languages;
--(GSWComponentDefinition*)lockedLoadComponentDefinitionWithName:(NSString*)_name
-													   language:(NSString*)_language;
+-(GSWComponentDefinition*)componentDefinitionWithName:(NSString*)aName
+                                            languages:(NSArray*)languages;
+-(GSWComponentDefinition*)lockedComponentDefinitionWithName:(NSString*)aName
+                                                  languages:(NSArray*)languages;
+-(GSWComponentDefinition*)lockedLoadComponentDefinitionWithName:(NSString*)aName
+                                                       language:(NSString*)language;
 -(NSArray*)lockedComponentBearingFrameworks;
--(NSArray*)lockedInitComponentBearingFrameworksFromBundleArray:(NSArray*)_bundles;
+-(NSArray*)lockedInitComponentBearingFrameworksFromBundleArray:(NSArray*)bundles;
 
 @end
 
 //====================================================================
 @interface GSWApplication (GSWApplicationE)
 -(void)_discountTerminatedSession;
--(void)_finishInitializingSession:(GSWSession*)_session;
--(GSWSession*)_initializeSessionInContext:(GSWContext*)context_;
+-(void)_finishInitializingSession:(GSWSession*)aSession;
+-(GSWSession*)_initializeSessionInContext:(GSWContext*)aContext;
 -(int)lockedDecrementActiveSessionCount;
 -(int)lockedIncrementActiveSessionCount;
 -(int)_activeSessionsCount;
@@ -173,7 +179,7 @@ extern BOOL WOStrictFlag;
 
 //====================================================================
 @interface GSWApplication (GSWApplicationF)
--(void)_setContext:(GSWContext*)context_;
+-(void)_setContext:(GSWContext*)aContext;
 // Internal Use only
 -(GSWContext*)_context;
 @end
@@ -198,11 +204,11 @@ extern BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication (GSWApplicationJ)
 
--(id)_newLocationForRequest:(GSWRequest*)_request;
--(void)_connectionDidDie:(id)_unknown;
+-(id)_newLocationForRequest:(GSWRequest*)aRequest;
+-(void)_connectionDidDie:(id)unknown;
 -(BOOL)_shouldKill;
--(void)_setShouldKill:(BOOL)_flag;
--(void)_synchronizeInstanceSettingsWithMonitor:(id)_monitor;
+-(void)_setShouldKill:(BOOL)flag;
+-(void)_synchronizeInstanceSettingsWithMonitor:(id)aMonitor;
 -(BOOL)_setupForMonitoring;
 -(id)_remoteMonitor;
 -(NSString*)_monitorHost;
@@ -219,8 +225,8 @@ extern BOOL WOStrictFlag;
 @interface GSWApplication (GSWAdaptorManagement)
 
 -(NSArray*)adaptors;
--(GSWAdaptor*)adaptorWithName:(NSString*)name_
-				   arguments:(NSDictionary*)someArguments;
+-(GSWAdaptor*)adaptorWithName:(NSString*)aName
+                    arguments:(NSDictionary*)someArguments;
 
 @end
 
@@ -228,55 +234,55 @@ extern BOOL WOStrictFlag;
 @interface GSWApplication (GSWCacheManagement)
 
 -(BOOL)isCachingEnabled;
--(void)setCachingEnabled:(BOOL)flag_;
+-(void)setCachingEnabled:(BOOL)flag;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWSessionManagement)
 
 -(GSWSessionStore*)sessionStore;
--(void)setSessionStore:(GSWSessionStore*)sessionStore_;
+-(void)setSessionStore:(GSWSessionStore*)sessionStore;
 
--(GSWSession*)createSessionForRequest:(GSWRequest*)_request;
--(GSWSession*)_createSessionForRequest:(GSWRequest*)_request;
+-(GSWSession*)createSessionForRequest:(GSWRequest*)aRequest;
+-(GSWSession*)_createSessionForRequest:(GSWRequest*)aRequest;
 -(Class)_sessionClass;
--(GSWSession*)restoreSessionWithID:(NSString*)_sessionID
-						inContext:(GSWContext*)context_;
--(GSWSession*)_restoreSessionWithID:(NSString*)_sessionID
-						inContext:(GSWContext*)context_;
--(void)saveSessionForContext:(GSWContext*)context_;
--(void)_saveSessionForContext:(GSWContext*)context_;
+-(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
+                         inContext:(GSWContext*)aContext;
+-(GSWSession*)_restoreSessionWithID:(NSString*)aSessionID
+                          inContext:(GSWContext*)aContext;
+-(void)saveSessionForContext:(GSWContext*)aContext;
+-(void)_saveSessionForContext:(GSWContext*)aContext;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWPageManagement)
 
 -(unsigned int)pageCacheSize;
--(void)setPageCacheSize:(unsigned int)size_;
+-(void)setPageCacheSize:(unsigned int)aSize;
 -(unsigned)permanentPageCacheSize;
--(void)setPermanentPageCacheSize:(unsigned)size_;
+-(void)setPermanentPageCacheSize:(unsigned)aSize;
 -(BOOL)isPageRefreshOnBacktrackEnabled;
--(void)setPageRefreshOnBacktrackEnabled:(BOOL)_flag;
--(GSWComponent*)pageWithName:(NSString*)name_
-				 forRequest:(GSWRequest*)request_;
--(GSWComponent*)pageWithName:(NSString*)name_
-				  inContext:(GSWContext*)context_;
+-(void)setPageRefreshOnBacktrackEnabled:(BOOL)flag;
+-(GSWComponent*)pageWithName:(NSString*)aName
+                  forRequest:(GSWRequest*)aRequest;
+-(GSWComponent*)pageWithName:(NSString*)aName
+                   inContext:(GSWContext*)aContext;
 -(NSString*)defaultPageName;//NDFN
--(GSWComponent*)_pageWithName:(NSString*)name_
-				  inContext:(GSWContext*)context_;
+-(GSWComponent*)_pageWithName:(NSString*)aName
+                    inContext:(GSWContext*)aContext;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWElementCreation)
 
--(GSWElement*)dynamicElementWithName:(NSString *)name_
-						associations:(NSDictionary*)associations_
-							template:(GSWElement*)templateElement_
-						   languages:(NSArray*)languages_;
--(GSWElement*)lockedDynamicElementWithName:(NSString *)name_
-							  associations:(NSDictionary*)associations_
-								  template:(GSWElement*)templateElement_
-								 languages:(NSArray*)languages_;
+-(GSWElement*)dynamicElementWithName:(NSString *)aName
+                        associations:(NSDictionary*)someAssociations
+                            template:(GSWElement*)templateElement
+                           languages:(NSArray*)languages;
+-(GSWElement*)lockedDynamicElementWithName:(NSString*)aName
+                              associations:(NSDictionary*)someAssociations
+                                  template:(GSWElement*)templateElement
+                                 languages:(NSArray*)languages;
 @end
 
 //====================================================================
@@ -285,13 +291,13 @@ extern BOOL WOStrictFlag;
 -(void)threadWillExit;//NDFN
 -(void)run;
 -(BOOL)runOnce;
--(void)setTimeOut:(NSTimeInterval)timeInterval_;
+-(void)setTimeOut:(NSTimeInterval)aTimeInterval;
 -(NSTimeInterval)timeOut;
 -(void)terminate;
 -(BOOL)isTerminating;
 
--(void)_scheduleApplicationTimerForTimeInterval:(NSTimeInterval)timeInterval_;
--(void)addTimer:(NSTimer*)timer_;//NDFN
+-(void)_scheduleApplicationTimerForTimeInterval:(NSTimeInterval)aTimeInterval;
+-(void)addTimer:(NSTimer*)aTimer;//NDFN
 -(void)cancelInitialTimer;
 -(void)handleInitialTimer;
 -(void)_setNextCollectionCount:(int)_count;
@@ -302,111 +308,111 @@ extern BOOL WOStrictFlag;
 
 //====================================================================
 @interface GSWApplication (GSWRequestHandling)
--(GSWResponse*)dispatchRequest:(GSWRequest*)request_;
+-(GSWResponse*)dispatchRequest:(GSWRequest*)aRequest;
 -(void)awake;
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						   inContext:(GSWContext*)context_;
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext;
 
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
 -(void)sleep;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWErrorHandling)
--(GSWResponse*)handleException:(NSException*)exception_
-					 inContext:(GSWContext*)context_;
--(GSWResponse*)_handleException:(NSException*)exception_
-					  inContext:(GSWContext*)context_;
--(GSWResponse*)handlePageRestorationErrorInContext:(GSWContext*)context_;
--(GSWResponse*)_handlePageRestorationErrorInContext:(GSWContext*)context_;
--(GSWResponse*)handleSessionCreationErrorInContext:(GSWContext*)context_;
--(GSWResponse*)_handleSessionCreationErrorInContext:(GSWContext*)context_;
--(GSWResponse*)handleSessionRestorationErrorInContext:(GSWContext*)context_;
--(GSWResponse*)_handleSessionRestorationErrorInContext:(GSWContext*)context_;
+-(GSWResponse*)handleException:(NSException*)exception
+                     inContext:(GSWContext*)aContext;
+-(GSWResponse*)_handleException:(NSException*)exception
+                      inContext:(GSWContext*)aContext;
+-(GSWResponse*)handlePageRestorationErrorInContext:(GSWContext*)aContext;
+-(GSWResponse*)_handlePageRestorationErrorInContext:(GSWContext*)aContext;
+-(GSWResponse*)handleSessionCreationErrorInContext:(GSWContext*)aContext;
+-(GSWResponse*)_handleSessionCreationErrorInContext:(GSWContext*)aContext;
+-(GSWResponse*)handleSessionRestorationErrorInContext:(GSWContext*)aContext;
+-(GSWResponse*)_handleSessionRestorationErrorInContext:(GSWContext*)aContext;
 
 @end
 
 //====================================================================
 @interface GSWApplication (GSWConveniences)
-+(void)_setApplication:(GSWApplication*)_application;
++(void)_setApplication:(GSWApplication*)application;
 +(GSWApplication*)application;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWHTMLTemplateParsingDebugging)
 -(BOOL)printsHTMLParserDiagnostics;
--(void)setPrintsHTMLParserDiagnostics:(BOOL)flag_;
+-(void)setPrintsHTMLParserDiagnostics:(BOOL)flag;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWScriptedObjectSupport)
--(Class)scriptedClassWithPath:(NSString*)path_;
--(Class)scriptedClassWithPath:(NSString*)path_
-					 encoding:(NSStringEncoding)encoding_;
--(Class)_classWithScriptedClassName:(NSString*)_name
-						  languages:(NSArray*)_languages;
--(void)_setClassFromNameResolutionEnabled:(BOOL)_flag;
+-(Class)scriptedClassWithPath:(NSString*)path;
+-(Class)scriptedClassWithPath:(NSString*)path
+                     encoding:(NSStringEncoding)encoding;
+-(Class)_classWithScriptedClassName:(NSString*)aName
+                          languages:(NSArray*)languages;
+-(void)_setClassFromNameResolutionEnabled:(BOOL)flag;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWLibrarySupport)
--(Class)libraryClassWithPath:(NSString*)path_;//NDFN
+-(Class)libraryClassWithPath:(NSString*)path;//NDFN
 @end
 
 //====================================================================
 @interface GSWApplication (GSWDebugging)
--(void)debugWithString:(NSString*)_string;
--(void)debugWithFormat:(NSString*)_format
-			 arguments:(va_list)someArgumentsu;
--(void)debugWithFormat:(NSString*)formatString_,...;
-+(void)debugWithFormat:(NSString*)formatString_,...;
--(void)logWithFormat:(NSString*)format_,...;
-+(void)logWithFormat:(NSString*)format_,...;
+-(void)debugWithString:(NSString*)string;
+-(void)debugWithFormat:(NSString*)format
+             arguments:(va_list)someArgumentsu;
+-(void)debugWithFormat:(NSString*)formatString,...;
++(void)debugWithFormat:(NSString*)formatString,...;
+-(void)logWithFormat:(NSString*)aFormat,...;
++(void)logWithFormat:(NSString*)aFormat,...;
 -(void)logWithFormat:(NSString*)formatString_
-		   arguments:(va_list)arguments_;
--(void)logErrorWithFormat:(NSString*)format_,...;
-+(void)logErrorWithFormat:(NSString*)format_,...;
--(void)logErrorWithFormat:(NSString*)formatString_
-				arguments:(va_list)arguments_;
--(void)trace:(BOOL)flag_;
--(void)traceAssignments:(BOOL)flag_;
--(void)traceObjectiveCMessages:(BOOL)flag_;
--(void)traceScriptedMessages:(BOOL)flag_;
--(void)traceStatements:(BOOL)flag_;
-+(void)logTakeValueForDeclarationNamed:(NSString*)declarationName_
-								  type:(NSString*)declarationType_
-						  bindingNamed:(NSString*)bindingName_
-				associationDescription:(NSString*)associationDescription_
-								 value:(id)value_;
-+(void)logSetValueForDeclarationNamed:(NSString*)declarationName_
-								 type:(NSString*)declarationType_
-						 bindingNamed:(NSString*)bindingName_
-			   associationDescription:(NSString*)associationDescription_
-								value:(id)value_;
+		   arguments:(va_list)arguments;
+-(void)logErrorWithFormat:(NSString*)aFormat,...;
++(void)logErrorWithFormat:(NSString*)aFormat,...;
+-(void)logErrorWithFormat:(NSString*)formatString
+                arguments:(va_list)arguments;
+-(void)trace:(BOOL)flag;
+-(void)traceAssignments:(BOOL)flag;
+-(void)traceObjectiveCMessages:(BOOL)flag;
+-(void)traceScriptedMessages:(BOOL)flag;
+-(void)traceStatements:(BOOL)flag;
++(void)logTakeValueForDeclarationNamed:(NSString*)aDeclarationName
+                                  type:(NSString*)aDeclarationType
+                          bindingNamed:(NSString*)aBindingName
+                associationDescription:(NSString*)anAssociationDescription
+                                 value:(id)aValue;
++(void)logSetValueForDeclarationNamed:(NSString*)aDeclarationName
+                                 type:(NSString*)aDeclarationType
+                         bindingNamed:(NSString*)aBindingName
+               associationDescription:(NSString*)anAssociationDescription
+                                value:(id)aValue;
 
--(void)logTakeValueForDeclarationNamed:(NSString*)declarationName_
-								  type:(NSString*)declarationType_
-						  bindingNamed:(NSString*)bindingName_
-				associationDescription:(NSString*)associationDescription_
-								 value:(id)value_;
+-(void)logTakeValueForDeclarationNamed:(NSString*)aDeclarationName
+                                  type:(NSString*)aDeclarationType
+                          bindingNamed:(NSString*)aBindingName
+                associationDescription:(NSString*)anAssociationDescription
+                                 value:(id)aValue;
 
--(void)logSetValueForDeclarationNamed:(NSString*)declarationName_
-								 type:(NSString*)declarationType_
-						 bindingNamed:(NSString*)bindingName_
-			   associationDescription:(NSString*)associationDescription_
-								value:(id)value_;
+-(void)logSetValueForDeclarationNamed:(NSString*)aDeclarationName
+                                 type:(NSString*)aDeclarationType
+                         bindingNamed:(NSString*)aBindingName
+			   associationDescription:(NSString*)anAssociationDescription
+                                value:(id)aValue;
 +(void)logSynchronizeComponentToParentForValue:(id)value_
-								   association:(GSWAssociation*)association_
-								   inComponent:(NSObject*)component_;
-+(void)logSynchronizeParentToComponentForValue:(id)value_
-								   association:(GSWAssociation*)association_
-								   inComponent:(NSObject*)component_;
+                                   association:(GSWAssociation*)anAssociation
+                                   inComponent:(NSObject*)aComponent;
++(void)logSynchronizeParentToComponentForValue:(id)aValue
+                                   association:(GSWAssociation*)anAssociation
+                                   inComponent:(NSObject*)aComponent;
 
--(void)_setTracingAspect:(id)_unknwon
-				 enabled:(BOOL)_enabled;
+-(void)_setTracingAspect:(id)unknwon
+                 enabled:(BOOL)enabled;
 @end
 
 //====================================================================
@@ -414,24 +420,24 @@ extern BOOL WOStrictFlag;
 //Same as GSWDebugging but it print messages on stdout AND call GSWDebugging methods
 @interface GSWApplication (GSWDebuggingStatus)
 
--(void)statusDebugWithString:(NSString*)string_;
--(void)statusDebugWithFormat:(NSString*)format_
-				   arguments:(va_list)arguments_;
--(void)statusDebugWithFormat:(NSString*)format_,...;
-+(void)statusDebugWithFormat:(NSString*)format_,...;
--(void)statusLogWithFormat:(NSString*)format_,...;
-+(void)statusLogWithFormat:(NSString*)format_,...;
--(void)statusLogWithFormat:(NSString*)format_
-				 arguments:(va_list)arguments_;
--(void)statusLogErrorWithFormat:(NSString*)format_,...;
-+(void)statusLogErrorWithFormat:(NSString*)format_,...;
--(void)statusLogErrorWithFormat:(NSString*)format_
-					  arguments:(va_list)arguments_;
+-(void)statusDebugWithString:(NSString*)aString;
+-(void)statusDebugWithFormat:(NSString*)aFormat
+                   arguments:(va_list)arguments;
+-(void)statusDebugWithFormat:(NSString*)aFormat,...;
++(void)statusDebugWithFormat:(NSString*)aFormat,...;
+-(void)statusLogWithFormat:(NSString*)aFormat,...;
++(void)statusLogWithFormat:(NSString*)aFormat,...;
+-(void)statusLogWithFormat:(NSString*)aFormat
+                 arguments:(va_list)arguments;
+-(void)statusLogErrorWithFormat:(NSString*)aFormat,...;
++(void)statusLogErrorWithFormat:(NSString*)aFormat,...;
+-(void)statusLogErrorWithFormat:(NSString*)aFormat
+                      arguments:(va_list)arguments;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWStatisticsSupport)
--(void)setStatisticsStore:(GSWStatisticsStore*)statisticsStore_;
+-(void)setStatisticsStore:(GSWStatisticsStore*)statisticsStore;
 -(NSDictionary*)statistics;//bycopy
 -(GSWStatisticsStore*)statisticsStore;
 @end
@@ -441,16 +447,16 @@ extern BOOL WOStrictFlag;
 -(BOOL)monitoringEnabled;
 -(int)activeSessionsCount;
 -(int)minimumActiveSessionsCount;
--(void)setMinimumActiveSessionsCount:(int)count_;
+-(void)setMinimumActiveSessionsCount:(int)aCount;
 -(BOOL)isRefusingNewSessions;
 -(void)refuseNewSessions:(BOOL)flag;
--(void)logToMonitorWithFormat:(NSString*)format_;
--(void)terminateAfterTimeInterval:(NSTimeInterval)timeInterval_;
+-(void)logToMonitorWithFormat:(NSString*)aFormat;
+-(void)terminateAfterTimeInterval:(NSTimeInterval)aTimeInterval;
 @end
 
 //====================================================================
 @interface GSWApplication (GSWResourceManagerSupport)
--(void)setResourceManager:(GSWResourceManager*)resourceManager_;
+-(void)setResourceManager:(GSWResourceManager*)resourceManager;
 -(GSWResourceManager*)resourceManager;
 @end
 
@@ -458,76 +464,76 @@ extern BOOL WOStrictFlag;
 @interface GSWApplication (RequestDispatching)
 -(GSWRequestHandler*)defaultRequestHandler;
 
--(void)setDefaultRequestHandler:(GSWRequestHandler*)handler_;
+-(void)setDefaultRequestHandler:(GSWRequestHandler*)handler;
 
--(void)registerRequestHandler:(GSWRequestHandler*)handler_
-					   forKey:(NSString*)key_;
+-(void)registerRequestHandler:(GSWRequestHandler*)handler
+                       forKey:(NSString*)aKey;
 
--(void)removeRequestHandlerForKey:(NSString*)requestHandlerKey_;
+-(void)removeRequestHandlerForKey:(NSString*)requestHandlerKey;
 
 -(NSArray*)registeredRequestHandlerKeys;
 
--(GSWRequestHandler*)requestHandlerForKey:(NSString*)key_;
+-(GSWRequestHandler*)requestHandlerForKey:(NSString*)aKey;
 
--(GSWRequestHandler*)handlerForRequest:(GSWRequest*)request_;
+-(GSWRequestHandler*)handlerForRequest:(GSWRequest*)aRequest;
 @end
 
 //====================================================================
 @interface GSWApplication (UserDefaults)
 +(NSArray*)loadFrameworks;
-+(void)setLoadFrameworks:(NSArray*)frameworks_;
++(void)setLoadFrameworks:(NSArray*)frameworks;
 +(BOOL)isDebuggingEnabled;
-+(void)setDebuggingEnabled:(BOOL)flag_;
++(void)setDebuggingEnabled:(BOOL)flag;
 +(BOOL)isStatusDebuggingEnabled;//NDFN
-+(void)setStatusDebuggingEnabled:(BOOL)flag_;//NDFN
++(void)setStatusDebuggingEnabled:(BOOL)flag;//NDFN
 +(BOOL)autoOpenInBrowser;
-+(void)setAutoOpenInBrowser:(BOOL)flag_;
++(void)setAutoOpenInBrowser:(BOOL)flag;
 +(BOOL)isDirectConnectEnabled;
-+(void)setDirectConnectEnabled:(BOOL)flag_;
++(void)setDirectConnectEnabled:(BOOL)flag;
 +(NSString*)cgiAdaptorURL;
-+(void)setCGIAdaptorURL:(NSString*)url_;
++(void)setCGIAdaptorURL:(NSString*)url;
 +(BOOL)isCachingEnabled;
-+(void)setCachingEnabled:(BOOL)flag_;
++(void)setCachingEnabled:(BOOL)flag;
 +(NSString*)applicationBaseURL;
-+(void)setApplicationBaseURL:(NSString*)baseURL_;
++(void)setApplicationBaseURL:(NSString*)baseURL;
 +(NSString*)frameworksBaseURL;
-+(void)setFrameworksBaseURL:(NSString*)baseURL_;
++(void)setFrameworksBaseURL:(NSString*)baseURL;
 +(NSString*)recordingPath;
-+(void)setRecordingPath:(NSString*)path_;
++(void)setRecordingPath:(NSString*)path;
 +(NSArray*)projectSearchPath;
-+(void)setProjectSearchPath:(NSArray*)pathArray_;
++(void)setProjectSearchPath:(NSArray*)pathArray;
 +(BOOL)isMonitorEnabled;
-+(void)setMonitorEnabled:(BOOL)flag_;
++(void)setMonitorEnabled:(BOOL)flag;
 +(NSString*)monitorHost;
-+(void)setMonitorHost:(NSString*)hostName_;
++(void)setMonitorHost:(NSString*)hostName;
 +(NSString*)SMTPHost;
-+(void)setSMTPHost:(NSString*)hostName_;
++(void)setSMTPHost:(NSString*)hostName;
 +(NSString*)adaptor;
-+(void)setAdaptor:(NSString*)adaptorName_;
++(void)setAdaptor:(NSString*)adaptorName;
 +(id)port;
-+(void)setPort:(id)port_;
++(void)setPort:(id)port;
 +(id)host;
-+(void)setHost:(id)host_;
++(void)setHost:(id)host;
 +(id)listenQueueSize;
-+(void)setListenQueueSize:(id)listenQueueSize_;
++(void)setListenQueueSize:(id)aSize;
 +(id)workerThreadCount;
-+(void)setWorkerThreadCount:(id)workerThreadCount_;
++(void)setWorkerThreadCount:(id)workerThreadCount;
 +(NSArray*)additionalAdaptors;
 +(void)setAdditionalAdaptors:(NSArray*)adaptorList;
 +(BOOL)includeCommentsInResponses;
-+(void)setIncludeCommentsInResponses:(BOOL)flag_;
++(void)setIncludeCommentsInResponses:(BOOL)flag;
 +(NSString*)componentRequestHandlerKey;
-+(void)setComponentRequestHandlerKey:(NSString*)key_;
++(void)setComponentRequestHandlerKey:(NSString*)aKey;
 +(NSString*)directActionRequestHandlerKey;
-+(void)setDirectActionRequestHandlerKey:(NSString*)key_;
++(void)setDirectActionRequestHandlerKey:(NSString*)aKey;
 +(NSString*)resourceRequestHandlerKey;
-+(void)setResourceRequestHandlerKey:(NSString*)key_;
-+(void)setSessionTimeOut:(NSNumber*)timeOut_;
++(void)setResourceRequestHandlerKey:(NSString*)aKey;
++(void)setSessionTimeOut:(NSNumber*)aTimeOut;
 +(NSNumber*)sessionTimeOut;
-+(void)setSessionTimeOutValue:(NSTimeInterval)timeOutValue_;
++(void)setSessionTimeOutValue:(NSTimeInterval)aTimeOutValue;
 +(NSTimeInterval)sessionTimeOutValue;
 +(NSString*)debugSetConfigFilePath;//NDFN
-+(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath_;//NDFN
++(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath;//NDFN
 +(NSString*)saveResponsesPath;//NDFN
 +(void)setSaveResponsesPath:(NSString*)saveResponsesPath;//NDFN
 @end
@@ -560,9 +566,9 @@ extern BOOL WOStrictFlag;
 @interface GSWApplication (GSWApplicationClassD)
 +(int)_garbageCollectionRepeatCount;
 +(BOOL)_lockDefaultEditingContext;
-+(void)_setLockDefaultEditingContext:(BOOL)_flag;
++(void)_setLockDefaultEditingContext:(BOOL)flag;
 +(id)_allowsConcurrentRequestHandling;
-+(void)_setAllowsConcurrentRequestHandling:(id)_unknown;
++(void)_setAllowsConcurrentRequestHandling:(id)unknown;
 
 @end
 
@@ -578,50 +584,50 @@ extern BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication (NDFN)
 //NDFN
--(id)propListWithResourceNamed:(NSString*)name_
-						ofType:(NSString*)type_
-				   inFramework:(NSString*)frameworkName_
-					 languages:(NSArray*)languages_;
-+(BOOL)createUnknownComponentClasses:(NSArray*)classes_
-					  superClassName:(NSString*)superClassName_;
-+(void)addDynCreateClassName:(NSString*)className_
-			  superClassName:(NSString*)superClassName_;
+-(id)propListWithResourceNamed:(NSString*)aName
+                        ofType:(NSString*)aType
+                   inFramework:(NSString*)aFrameworkName
+                     languages:(NSArray*)languages;
++(BOOL)createUnknownComponentClasses:(NSArray*)classes
+                      superClassName:(NSString*)aSuperClassName;
++(void)addDynCreateClassName:(NSString*)aClassName
+              superClassName:(NSString*)aSuperClassName;
 //NDFN
--(NSString*)pathForResourceNamed:(NSString*)name_
-					 inFramework:(NSString*)frameworkName_
-					   languages:(NSArray*)languages_;
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                     inFramework:(NSString*)aFrameworkName
+                       languages:(NSArray*)languages;
 //NDFN
--(NSString*)pathForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)type_ 
-					 inFramework:(NSString*)frameworkName_
-					   languages:(NSArray*)languages_;
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)aType 
+                     inFramework:(NSString*)aFrameworkName
+                       languages:(NSArray*)languages;
 
 //NDFN
--(NSString*)urlForResourceNamed:(NSString*)name_
-					inFramework:(NSString*)frameworkName_
-					  languages:(NSArray*)languages_
-						request:(GSWRequest*)request_;
+-(NSString*)urlForResourceNamed:(NSString*)aName
+                    inFramework:(NSString*)aFrameworkName
+                      languages:(NSArray*)languages
+                        request:(GSWRequest*)aRequest;
 //NDFN
 -(NSString*)stringForKey:(NSString*)key_
-			inTableNamed:(NSString*)tableName_
-		withDefaultValue:(NSString*)defaultValue_
-			 inFramework:(NSString*)frameworkName_
-			   languages:(NSArray*)languages_;
+            inTableNamed:(NSString*)aTableName
+        withDefaultValue:(NSString*)defaultValue
+             inFramework:(NSString*)aFrameworkName
+               languages:(NSArray*)languages;
 //NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)tableName_
-					  inFramework:(NSString*)frameworkName_
-						languages:(NSArray*)languages_;
+-(NSDictionary*)stringsTableNamed:(NSString*)aTableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages;
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)tableName_
-					  inFramework:(NSString*)frameworkName_
-						languages:(NSArray*)languages_;
+-(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages;
 //NDFN
 -(NSArray*)filterLanguages:(NSArray*)languages;
 @end
 //====================================================================
 /*
 @interface GSWApplication (GSWDeprecatedAPI)
--(GSWComponent*)pageWithName:(NSString*)name_; //OldFN
+-(GSWComponent*)pageWithName:(NSString*)aName; //OldFN
 -(void)savePage:(GSWComponent*)page_;
 -(GSWSession*)session;
 -(GSWContext*)context;
@@ -635,15 +641,15 @@ extern BOOL WOStrictFlag;
 -(GSWResponse*)handleException:(NSException*)exception_;
 
 -(GSWComponent*)restorePageForContextID:(NSString*)contextID_;
--(NSString*)pathForResourceNamed:(NSString*)name_
-						   ofType:(NSString*)type_;
--(NSString*)urlForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)type_;
+-(NSString*)pathForResourceNamed:(NSString*)aName
+						   ofType:(NSString*)aType;
+-(NSString*)urlForResourceNamed:(NSString*)aName
+						  ofType:(NSString*)aType;
 -(NSString*)stringForKey:(NSString*)key_
 			inTableNamed:(NSString*)table_
 		withDefaultValue:(NSString*)defaultValue_;
--(GSWResponse*)handleRequest:(GSWRequest*)request_;
--(GSWDynamicElement*)dynamicElementWithName:(NSString*)name_
+-(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
+-(GSWDynamicElement*)dynamicElementWithName:(NSString*)aName
 							  associations:(NSDictionary*)associations_
 								  template:(GSWElement*)templateElement_; //OldFN
 @end

@@ -1,11 +1,16 @@
-/* GSWHTMLURLValuedElement.m - GSWeb: Class GSWHTMLURLValuedElement
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLURLValuedElement.m - <title>GSWeb: Class GSWHTMLURLValuedElement</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Apr 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,93 +35,93 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLURLValuedElement
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)inAssociations
+  contentElements:(NSArray*)elements
 {
-  NSString* _urlAttributeName=nil;
-  NSString* _valueAttributeName=nil;
-  NSMutableDictionary* _associations=nil;
+  NSString* urlAttributeName=nil;
+  NSString* valueAttributeName=nil;
+  NSMutableDictionary* associations=nil;
   LOGObjectFnStartC("GSWHTMLURLValuedElement");
-  _urlAttributeName=[self urlAttributeName];//so what ?
-  _valueAttributeName=[self valueAttributeName];//so what ?
+  urlAttributeName=[self urlAttributeName];//so what ?
+  valueAttributeName=[self valueAttributeName];//so what ?
 
-  _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
+  associations=[NSMutableDictionary dictionaryWithDictionary:inAssociations];
 
-  src = [[associations_ objectForKey:src__Key
-						   withDefaultObject:[src autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"src=%@",src);
+  _src = [[inAssociations objectForKey:src__Key
+                          withDefaultObject:[_src autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"src=%@",_src);
 
-  value = [[associations_ objectForKey:value__Key
-							 withDefaultObject:[value autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"value=%@",value);
+  _value = [[inAssociations objectForKey:value__Key
+                            withDefaultObject:[_value autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"value=%@",_value);
 
-  pageName = [[associations_ objectForKey:pageName__Key
-								withDefaultObject:[pageName autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"pageName=%@",pageName);
+  _pageName = [[inAssociations objectForKey:pageName__Key
+                               withDefaultObject:[_pageName autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"pageName=%@",_pageName);
 
-  filename = [[associations_ objectForKey:filename__Key
-								withDefaultObject:[filename autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"filename=%@",filename);
+  _filename = [[inAssociations objectForKey:filename__Key
+                               withDefaultObject:[_filename autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
 
-  framework = [[associations_ objectForKey:framework__Key
-								 withDefaultObject:[framework autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"framework=%@",framework);
+  _framework = [[inAssociations objectForKey:framework__Key
+                                withDefaultObject:[_framework autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"framework=%@",_framework);
 
-  data = [[associations_ objectForKey:data__Key
-							 withDefaultObject:[data autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"data=%@",data);
+  _data = [[inAssociations objectForKey:data__Key
+                           withDefaultObject:[_data autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"data=%@",_data);
 
-  mimeType = [[associations_ objectForKey:mimeType__Key
-							 withDefaultObject:[mimeType autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"mimeType=%@",mimeType);
+  _mimeType = [[inAssociations objectForKey:mimeType__Key
+                               withDefaultObject:[_mimeType autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"mimeType=%@",_mimeType);
 
-  key = [[associations_ objectForKey:key__Key
-							 withDefaultObject:[key autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"key=%@",key);
+  _key = [[inAssociations objectForKey:key__Key
+                          withDefaultObject:[_key autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"key=%@",_key);
 
-  actionClass = [[associations_ objectForKey:actionClass__Key
-							 withDefaultObject:[actionClass autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"actionClass=%@",actionClass);
+  _actionClass = [[inAssociations objectForKey:actionClass__Key
+                                  withDefaultObject:[_actionClass autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"actionClass=%@",_actionClass);
 
-  directActionName = [[associations_ objectForKey:directActionName__Key
-							 withDefaultObject:[directActionName autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"directActionName=%@",directActionName);
+  _directActionName = [[inAssociations objectForKey:directActionName__Key
+                                       withDefaultObject:[_directActionName autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"directActionName=%@",_directActionName);
 
-  queryDictionary = [[associations_ objectForKey:queryDictionary__Key
-							 withDefaultObject:[queryDictionary autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);
+  _queryDictionary = [[inAssociations objectForKey:queryDictionary__Key
+                                      withDefaultObject:[_queryDictionary autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"queryDictionary=%@",_queryDictionary);
 
-  [_associations removeObjectForKey:src__Key];
-  [_associations removeObjectForKey:value__Key];
-  [_associations removeObjectForKey:pageName__Key];
-  [_associations removeObjectForKey:filename__Key];
-  [_associations removeObjectForKey:framework__Key];
-  [_associations removeObjectForKey:data__Key];
-  [_associations removeObjectForKey:mimeType__Key];
-  [_associations removeObjectForKey:key__Key];
-  [_associations removeObjectForKey:actionClass__Key];
-  [_associations removeObjectForKey:directActionName__Key];
-  [_associations removeObjectForKey:queryDictionary__Key];
+  [associations removeObjectForKey:src__Key];
+  [associations removeObjectForKey:value__Key];
+  [associations removeObjectForKey:pageName__Key];
+  [associations removeObjectForKey:filename__Key];
+  [associations removeObjectForKey:framework__Key];
+  [associations removeObjectForKey:data__Key];
+  [associations removeObjectForKey:mimeType__Key];
+  [associations removeObjectForKey:key__Key];
+  [associations removeObjectForKey:actionClass__Key];
+  [associations removeObjectForKey:directActionName__Key];
+  [associations removeObjectForKey:queryDictionary__Key];
   if (!WOStrictFlag)
     {
-  //pageSetVarAssociations//GNUstepWeb only
-      
-	NSDictionary* _pageSetVarAssociations=[associations_ associationsWithoutPrefix:pageSetVar__Prefix__Key
-														 removeFrom:_associations];
-	if ([_pageSetVarAssociations count]>0)
-	  pageSetVarAssociations=[_pageSetVarAssociations retain];
-
-	pageSetVarAssociationsDynamic=[[associations_ objectForKey:pageSetVars__Key
-									   withDefaultObject:[pageSetVarAssociationsDynamic autorelease]] retain];
-	NSDebugMLLog(@"gswdync",@"pageSetVarAssociationsDynamic=%@",pageSetVarAssociationsDynamic);
-	[_associations removeObjectForKey:pageSetVars__Key];
+  //pageSetVarAssociations//GNUstepWeb only      
+      NSDictionary* pageSetVarAssociations=[inAssociations associationsWithoutPrefix:pageSetVar__Prefix__Key
+                                                           removeFrom:associations];
+	if ([pageSetVarAssociations count]>0)
+          {
+            ASSIGN(_pageSetVarAssociations,pageSetVarAssociations);
+          };
+	_pageSetVarAssociationsDynamic=[[inAssociations objectForKey:pageSetVars__Key
+                                                        withDefaultObject:[_pageSetVarAssociationsDynamic autorelease]] retain];
+	NSDebugMLLog(@"gswdync",@"_pageSetVarAssociationsDynamic=%@",_pageSetVarAssociationsDynamic);
+	[associations removeObjectForKey:pageSetVars__Key];
     };
   if ((self=[super initWithName:[self elementName]//NEW
-				   attributeAssociations:_associations
-				   contentElements:elements_]))
-	{
-	};
+                   attributeAssociations:associations
+                   contentElements:elements]))
+    {
+    };
   LOGObjectFnStopC("GSWHTMLURLValuedElement");
   return self;
 };
@@ -123,20 +129,20 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(src);
-  DESTROY(value);
-  DESTROY(pageName);
-  DESTROY(pageSetVarAssociations);//GNUstepWeb only
-  DESTROY(pageSetVarAssociationsDynamic);//GSWeb only
-  DESTROY(filename);
-  DESTROY(framework);
-  DESTROY(data);
-  DESTROY(mimeType);
-  DESTROY(key);
-  DESTROY(actionClass);
-  DESTROY(directActionName);
-  DESTROY(queryDictionary);
-  DESTROY(otherQueryAssociations);
+  DESTROY(_src);
+  DESTROY(_value);
+  DESTROY(_pageName);
+  DESTROY(_pageSetVarAssociations);//GNUstepWeb only
+  DESTROY(_pageSetVarAssociationsDynamic);//GSWeb only
+  DESTROY(_filename);
+  DESTROY(_framework);
+  DESTROY(_data);
+  DESTROY(_mimeType);
+  DESTROY(_key);
+  DESTROY(_actionClass);
+  DESTROY(_directActionName);
+  DESTROY(_queryDictionary);
+  DESTROY(_otherQueryAssociations);
   [super dealloc];
 }
 
@@ -158,8 +164,8 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 @end
@@ -168,76 +174,76 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLURLValuedElement (GSWHTMLURLValuedElementA)
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext
 {
   //OK
-  GSWElement* _element=nil;
-  NSString* _senderID=nil;
-  NSString* _elementID=nil;
+  GSWElement* element=nil;
+  NSString* senderID=nil;
+  NSString* elementID=nil;
   LOGObjectFnStartC("GSWHTMLURLValuedElement");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _senderID=[context_ senderID];
-  _elementID=[context_ elementID];
-  NSDebugMLLog(@"gswdync",@"_senderID=%@",_senderID);
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",_elementID);
-  NSDebugMLLog(@"gswdync",@"[_elementID isEqualToString:_senderID]=%d",(int)[_elementID isEqualToString:_senderID]);
-  if ([_elementID isEqualToString:_senderID])
-	{
-	  GSWComponent* _component=[context_ component];
-	  if (value)
-		_element=[value valueInComponent:_component];
-	  else if (pageName)
-		{
-		  NSString* _pageNameValue=[pageName valueInComponent:_component];
-		  _element=[GSWApp pageWithName:_pageNameValue
-						   inContext:context_];
-		  if (!WOStrictFlag && _element)//GNUstepWeb only
-			{
-			  if (pageSetVarAssociations)
-				{
-				  [pageSetVarAssociations associationsSetValuesFromObject:_component
-										  inObject:(GSWComponent*)_element];
-				};
-			  if (pageSetVarAssociationsDynamic)
-				{
-				  NSDictionary* _assocs=[pageSetVarAssociationsDynamic valueInComponent:_component];
-				  if (_assocs)
-					{
-					  if (![_assocs isKindOfClass:[NSDictionary class]])
-						{
-						  ExceptionRaise(@"GSWHTMLURLValuedElement",@"%@ (%@) must return a Dictionary, not a %@ like %@",
-										 pageSetVars__Key,
-										 pageSetVarAssociationsDynamic,
-										 [_assocs class],
-										 _assocs);
-						}
-					  else
-						{
-						  [_assocs associationsSetValuesFromObject:_component
-								   inObject:(GSWComponent*)_element];
-						};
-					};
-				};
-			};
-		};
-	  NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke _element=%@",_element);
-	  //the end ?
-	  //TODOV
-	  if (!_element)
-		_element=[context_ page];
-	}
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[aContext elementID]);
+  senderID=[aContext senderID];
+  elementID=[aContext elementID];
+  NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
+  NSDebugMLLog(@"gswdync",@"[elementID isEqualToString:senderID]=%d",(int)[elementID isEqualToString:senderID]);
+  if ([elementID isEqualToString:senderID])
+    {
+      GSWComponent* component=[aContext component];
+      if (_value)
+        element=[_value valueInComponent:component];
+      else if (_pageName)
+        {
+          NSString* pageNameValue=[_pageName valueInComponent:component];
+          element=[GSWApp pageWithName:pageNameValue
+                          inContext:aContext];
+          if (!WOStrictFlag && element)//GNUstepWeb only
+            {
+              if (_pageSetVarAssociations)
+                {
+                  [_pageSetVarAssociations associationsSetValuesFromObject:component
+                                           inObject:(GSWComponent*)element];
+                };
+              if (_pageSetVarAssociationsDynamic)
+                {
+                  NSDictionary* assocs=[_pageSetVarAssociationsDynamic valueInComponent:component];
+                  if (assocs)
+                    {
+                      if (![assocs isKindOfClass:[NSDictionary class]])
+                        {
+                          ExceptionRaise(@"GSWHTMLURLValuedElement",@"%@ (%@) must return a Dictionary, not a %@ like %@",
+                                         pageSetVars__Key,
+                                         _pageSetVarAssociationsDynamic,
+                                         [assocs class],
+                                         assocs);
+                        }
+                      else
+                        {
+                          [assocs associationsSetValuesFromObject:component
+                                  inObject:(GSWComponent*)element];
+                        };
+                    };
+                };
+            };
+        };
+      NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke element=%@",element);
+      //the end ?
+      //TODOV
+      if (!element)
+        element=[aContext page];
+    }
   else
-	{
-	  _element=[super invokeActionForRequest:request_
-					  inContext:context_];
-	};
-  NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke _element=%@",_element);
-  NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+    {
+      element=[super invokeActionForRequest:aRequest
+                     inContext:aContext];
+    };
+  NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke element=%@",element);
+  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[aContext elementID]);
   LOGObjectFnStopC("GSWHTMLURLValuedElement");
-  return _element;
+  return element;
 };
 
 
@@ -246,146 +252,146 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 //NDFN
--(void)appendURLToResponse:(GSWResponse*)response_
-				 inContext:(GSWContext*)context_
+-(void)appendURLToResponse:(GSWResponse*)aResponse
+                 inContext:(GSWContext*)aContext
 {
   //OK
-  NSString* _urlAttributeName=nil;
-  NSString* _url=nil;
-  GSWComponent* _component=nil;
-  NSString* _keyValue=nil;
-  id _data=nil;
-  id _mimeTypeValue=nil;
-  GSWURLValuedElementData* _dataValue=nil;
-  GSWResourceManager* _resourceManager=nil;
+  NSString* urlAttributeName=nil;
+  NSString* url=nil;
+  GSWComponent* component=nil;
+  NSString* keyValue=nil;
+  id data=nil;
+  id mimeTypeValue=nil;
+  GSWURLValuedElementData* dataValue=nil;
+  GSWResourceManager* resourceManager=nil;
   LOGObjectFnStartC("GSWHTMLURLValuedElement");
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
-  _component=[context_ component];
-  NSDebugMLLog(@"gswdync",@"data=%@",data);
-  NSDebugMLLog(@"gswdync",@"filename=%@",filename);
-  NSDebugMLLog(@"gswdync",@"pageName=%@",pageName);
-  _resourceManager=[[GSWApplication application]resourceManager];
-  if (src)
-	_url=[src  valueInComponent:_component];
+  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+  component=[aContext component];
+  NSDebugMLLog(@"gswdync",@"data=%@",_data);
+  NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
+  NSDebugMLLog(@"gswdync",@"pageName=%@",_pageName);
+  resourceManager=[[GSWApplication application]resourceManager];
+  if (_src)
+    url=[_src valueInComponent:component];
   else
-	{
-	  if (key)
-		{
-		  _keyValue=[key valueInComponent:_component];
-		  _dataValue=[_resourceManager _cachedDataForKey:_keyValue];
-		};
-	  if (!_dataValue && data)
-		{
-		  _data=[data valueInComponent:_component];  
-		  NSDebugMLLog(@"gswdync",@"_data=%@",_data);
-		  _mimeTypeValue=[mimeType valueInComponent:_component];
-		  NSDebugMLLog(@"gswdync",@"mimeType=%@",mimeType);
-		  NSDebugMLLog(@"gswdync",@"_mimeTypeValue=%@",_mimeTypeValue);
-		  _dataValue=[[[GSWURLValuedElementData alloc] initWithData:_data
-													   mimeType:_mimeTypeValue
-													   key:nil] autorelease];
-		  NSDebugMLLog(@"gswdync",@"_dataValue=%@",_dataValue);
-		  [_resourceManager setURLValuedElementData:_dataValue];
-		}
-	  else if (filename)
-		{
-		  //Exemple: Body with filename
-		  id _filenameValue=nil;
-		  id _frameworkValue=nil;
-		  GSWRequest* _request=nil;
-		  NSArray* _languages=nil;
-		  NSDebugMLLog(@"gswdync",@"filename=%@",filename);
-		  _filenameValue=[filename valueInComponent:_component];
-		  NSDebugMLLog(@"gswdync",@"_filenameValue=%@",_filenameValue);
-		  _frameworkValue=[self frameworkNameInContext:context_];
-		  NSDebugMLLog(@"gswdync",@"_frameworkValue=%@",_frameworkValue);
-		  _request=[context_ request];
-		  _languages=[context_ languages];
-		  _url=[_resourceManager urlForResourceNamed:_filenameValue
-								 inFramework:_frameworkValue
-								 languages:_languages
-								 request:_request];
-		};
-	};
-  [response_ appendContentCharacter:' '];
-  _urlAttributeName=[self urlAttributeName];
-  if (_urlAttributeName)
-	{
-	  [response_ _appendContentAsciiString:_urlAttributeName];
-	  [response_ _appendContentAsciiString:@"=\""];
-	};
-  if (src)
-	{
-	  [response_ appendContentString:_url];
-	}
+    {
+      if (_key)
+        {
+          keyValue=[_key valueInComponent:component];
+          dataValue=[resourceManager _cachedDataForKey:keyValue];
+        };
+      if (!dataValue && _data)
+        {
+          data=[_data valueInComponent:component];  
+          NSDebugMLLog(@"gswdync",@"_data=%@",data);
+          mimeTypeValue=[_mimeType valueInComponent:component];
+          NSDebugMLLog(@"gswdync",@"mimeType=%@",_mimeType);
+          NSDebugMLLog(@"gswdync",@"mimeTypeValue=%@",mimeTypeValue);
+          dataValue=[[[GSWURLValuedElementData alloc] initWithData:data
+                                                      mimeType:mimeTypeValue
+                                                      key:nil] autorelease];
+          NSDebugMLLog(@"gswdync",@"dataValue=%@",dataValue);
+          [resourceManager setURLValuedElementData:dataValue];
+        }
+      else if (_filename)
+        {
+          //Exemple: Body with filename
+          id filenameValue=nil;
+          id frameworkValue=nil;
+          GSWRequest* request=nil;
+          NSArray* languages=nil;
+          NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
+          filenameValue=[_filename valueInComponent:component];
+          NSDebugMLLog(@"gswdync",@"filenameValue=%@",filenameValue);
+          frameworkValue=[self frameworkNameInContext:aContext];
+          NSDebugMLLog(@"gswdync",@"frameworkValue=%@",frameworkValue);
+          request=[aContext request];
+          languages=[aContext languages];
+          url=[resourceManager urlForResourceNamed:filenameValue
+                               inFramework:frameworkValue
+                               languages:languages
+                               request:request];
+        };
+    };
+  [aResponse appendContentCharacter:' '];
+  urlAttributeName=[self urlAttributeName];
+  if (urlAttributeName)
+    {
+      [aResponse _appendContentAsciiString:urlAttributeName];
+      [aResponse _appendContentAsciiString:@"=\""];
+    };
+  if (_src)
+    {
+      [aResponse appendContentString:url];
+    }
   else
-	{	
-	  if (key || data)
-		{
-		  [_dataValue appendDataURLToResponse:response_
-					  inContext:context_];
-		}
-	  else if (filename)
-		{
-                  NSDebugMLLog(@"gswdync",@"_url = %@",_url);
-		  [response_ appendContentString:_url];
-		}
-	  else
-		{
-		  GSWDynamicURLString* _componentActionURL=[context_ componentActionURL];
-		  NSDebugMLLog(@"gswdync",@"_componentActionURL=%@",_componentActionURL);
-		  [response_ appendContentString:(NSString*)_componentActionURL];
-		};
-	};
-  if (_urlAttributeName)
-	[response_ appendContentCharacter:'"'];
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
+    {	
+      if (_key || _data)
+        {
+          [dataValue appendDataURLToResponse:aResponse
+                     inContext:aContext];
+        }
+      else if (_filename)
+        {
+          NSDebugMLLog(@"gswdync",@"url = %@",url);
+          [aResponse appendContentString:url];
+        }
+      else
+        {
+          GSWDynamicURLString* componentActionURL=[aContext componentActionURL];
+          NSDebugMLLog(@"gswdync",@"componentActionURL=%@",componentActionURL);
+          [aResponse appendContentString:(NSString*)componentActionURL];
+        };
+    };
+  if (urlAttributeName)
+    [aResponse appendContentCharacter:'"'];
+  NSDebugMLLog(@"gswdync",@"_elementID=%@",[aContext elementID]);
   LOGObjectFnStopC("GSWHTMLURLValuedElement");
 };
 
 //--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									  inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext
 {
   //OK
   LOGObjectFnStartC("GSWHTMLURLValuedElement");
-  [self appendURLToResponse:response_
-		inContext:context_];
+  [self appendURLToResponse:aResponse
+        inContext:aContext];
   LOGObjectFnStopC("GSWHTMLURLValuedElement");
 };
 
 //--------------------------------------------------------------------
--(void)_appendCGIActionURLToResponse:(GSWResponse*)response_
-						   inContext:(GSWContext*)context_
+-(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
+                           inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(id)computeActionStringInContext:(GSWContext*)context_
+-(id)computeActionStringInContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(id)computeQueryDictionaryInContext:(GSWContext*)context_
+-(id)computeQueryDictionaryInContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(NSString*)frameworkNameInContext:(GSWContext*)context_
+-(NSString*)frameworkNameInContext:(GSWContext*)aContext
 {
   //OK
-  NSString* _frameworkName=nil;  
-  GSWComponent* _component=[context_ component];
-  NSDebugMLog(@"framework=%@",framework);
-  if (framework)
-	_frameworkName=[framework valueInComponent:_component];
+  NSString* frameworkName=nil;  
+  GSWComponent* component=[aContext component];
+  NSDebugMLog(@"framework=%@",_framework);
+  if (_framework)
+    frameworkName=[_framework valueInComponent:component];
   else
-	_frameworkName=[_component frameworkName];
-  return _frameworkName;
+    frameworkName=[component frameworkName];
+  return frameworkName;
 };
 @end

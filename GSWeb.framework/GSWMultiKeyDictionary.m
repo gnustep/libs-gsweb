@@ -1,11 +1,16 @@
-/* GSWMultiKeyDictionary.m - GSWeb: Class GSWMultiKeyDictionary
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWMultiKeyDictionary.m - <title>GSWeb: Class GSWMultiKeyDictionary</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Mar 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -46,13 +52,13 @@ static char rcsId[] = "$Id$";
 };
 
 //------------------------------------------------------------------------------
--(id)initWithCapacity:(unsigned int)capacity_
+-(id)initWithCapacity:(unsigned int)capacity
 {
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  dict=[[NSMutableDictionary dictionaryWithCapacity:capacity_] retain];
-	};
+    {
+      _dict=[[NSMutableDictionary dictionaryWithCapacity:capacity] retain];
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -60,7 +66,7 @@ static char rcsId[] = "$Id$";
 //------------------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(dict);
+  DESTROY(_dict);
   [super dealloc];
 };
 
@@ -74,7 +80,7 @@ static char rcsId[] = "$Id$";
 				  (void*)self];
 //  GSWLogC("GSWMultiKeyDictionary description B");
   descr=[descr stringByAppendingFormat:@"dict=%@>",
-			   dict];
+               _dict];
 //  GSWLogC("GSWMultiKeyDictionary description C");
   return descr;
 };
@@ -82,18 +88,18 @@ static char rcsId[] = "$Id$";
 //------------------------------------------------------------------------------
 -(NSEnumerator*)objectEnumerator
 {
-  return [dict objectEnumerator];
+  return [_dict objectEnumerator];
 };
 
 //------------------------------------------------------------------------------
 -(void)removeAllObjects
 {
-  [dict removeAllObjects];
+  [_dict removeAllObjects];
 };
 
 //------------------------------------------------------------------------------
--(void)setObject:(id)object_
-		 forKeys:(id)keys_,...
+-(void)setObject:(id)object
+         forKeys:(id)keys,...
 {
   NSMutableArray* array=nil;
   va_list ap;
@@ -101,37 +107,39 @@ static char rcsId[] = "$Id$";
 
   array = [NSMutableArray array];
 
-  va_start(ap, keys_);
+  va_start(ap, keys);
 
-  tmpId = keys_;
-  do {
-    [array addObject:tmpId];
-    tmpId = va_arg(ap,id);
-  }
-  while ( tmpId );
+  tmpId = keys;
+  do 
+    {
+      [array addObject:tmpId];
+      tmpId = va_arg(ap,id);
+    }
+  while(tmpId);
 
   va_end(ap);
 
-  [self setObject:object_
+  [self setObject:object
 	forKeysArray:array];
 };
 
 //------------------------------------------------------------------------------
--(id)objectForKeys:(id)keys_,...
+-(id)objectForKeys:(id)keys,...
 {
   NSMutableArray* array=nil;
   va_list ap;
   id tmpId;
 
   array = [NSMutableArray array];
-  va_start(ap, keys_);
+  va_start(ap, keys);
 
-  tmpId = keys_;
-  do {
-    [array addObject:tmpId];
-    tmpId = va_arg(ap,id);
-  }
-  while ( tmpId );
+  tmpId = keys;
+  do 
+    {
+      [array addObject:tmpId];
+      tmpId = va_arg(ap,id);
+    }
+  while(tmpId);
 
   va_end(ap);
 
@@ -139,61 +147,61 @@ static char rcsId[] = "$Id$";
 };
 
 //------------------------------------------------------------------------------
--(void)setObject:(id)object_
-	forKeysArray:(NSArray*)keys_
+-(void)setObject:(id)object
+    forKeysArray:(NSArray*)keys
 {
-  [dict setObject:object_
-		forKey:keys_];
+  [_dict setObject:object
+        forKey:keys];
 };
 
 //------------------------------------------------------------------------------
--(id)objectForKeysArray:(NSArray*)keys_
+-(id)objectForKeysArray:(NSArray*)keys
 {
-  return [dict objectForKey:keys_];
+  return [_dict objectForKey:keys];
 };
 
 //------------------------------------------------------------------------------
--(NSArray*)objectsForKeysArrays:(NSArray*)keys_
-				 notFoundMarker:(id)notFoundMarker_
+-(NSArray*)objectsForKeysArrays:(NSArray*)keys
+                 notFoundMarker:(id)notFoundMarker
 {
-  return [dict objectsForKeys:keys_
-			   notFoundMarker:notFoundMarker_];  
+  return [_dict objectsForKeys:keys
+                notFoundMarker:notFoundMarker];
 };
 
 //------------------------------------------------------------------------------
 -(NSArray*)allValues
 {
-  return [dict allValues];
+  return [_dict allValues];
 };
 
 //------------------------------------------------------------------------------
 -(NSArray*)allKeys
 {
-  return [dict allKeys];
+  return [_dict allKeys];
 };
 
 //------------------------------------------------------------------------------
--(void)makeObjectsPerformSelector:(SEL)selector_
+-(void)makeObjectsPerformSelector:(SEL)selector
 {
-  [dict makeObjectsPerformSelector:selector_];
+  [_dict makeObjectsPerformSelector:selector];
 };
 
 //------------------------------------------------------------------------------
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object_
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object
 {
-  [dict makeObjectsPerformSelector:selector_
-		withObject:object_];
+  [_dict makeObjectsPerformSelector:selector
+         withObject:object];
 };
 
 //------------------------------------------------------------------------------
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object1_
-					   withObject:(id)object2_
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object1
+                       withObject:(id)object2
 {
-  [dict makeObjectsPerformSelector:selector_
-		withObject:object1_
-		withObject:object2_];
+  [_dict makeObjectsPerformSelector:selector
+		withObject:object1
+		withObject:object2];
 };
 
 @end

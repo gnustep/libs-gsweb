@@ -1,11 +1,16 @@
-/* NSString+HTML.m
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** NSString+HTML.m - <title>GSWeb: NSString / HTML</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -136,59 +142,59 @@ static NSArray* htmlChars=nil;
 void initHtmlChars()
 {
   if (!normalChars)
-	{
-	  normalChars=[[NSArray arrayWithObjects:
-							 @"&",
-						   @">",
-						   @"<",
-						   @"\"",
-						   @"£",
-						   @"|",
-						   @"°",
-						   @"é",
-						   @"ç",
-						   @"à",
-						   @"â",
-						   @"ã",
-						   @"è",
-						   @"ê",
-						   @"ì",
-						   @"î",
-						   @"ñ",
-						   @"ô",
-						   @"õ",
-						   @"ù",
-						   @"û",
-						   nil
-	  ] retain];
-	};
+    {
+      normalChars=[[NSArray arrayWithObjects:
+                              @"&",
+                            @">",
+                            @"<",
+                            @"\"",
+                            @"£",
+                            @"|",
+                            @"°",
+                            @"é",
+                            @"ç",
+                            @"à",
+                            @"â",
+                            @"ã",
+                            @"è",
+                            @"ê",
+                            @"ì",
+                            @"î",
+                            @"ñ",
+                            @"ô",
+                            @"õ",
+                            @"ù",
+                            @"û",
+                            nil
+                    ] retain];
+    };
   if (!htmlChars)
-	{
-	  htmlChars=[[NSArray arrayWithObjects:
-							@"&amp;",
-						  @"&gt;",	
-						  @"&lt;",	
-						  @"&quot;",
-						  @"&pound;",
-						  @"&brvbar;",	
-						  @"&deg;",
-						  @"&eacute;",							
-						  @"&ccedil;",
-						  @"&agrave;",
-						  @"&acirc;",
-						  @"&atilde;",
-						  @"&egrave;",
-						  @"&ecirc;",	
-						  @"&igrave;",
-						  @"&icirc;",							
-						  @"&ntilde;",
-						  @"&ocirc;",
-						  @"&otilde;",
-						  @"&ugrave;",
-						  @"&ucirc;",
-						  nil
-	  ] retain];
-	};
+    {
+      htmlChars=[[NSArray arrayWithObjects:
+                            @"&amp;",
+                          @"&gt;",	
+                          @"&lt;",	
+                          @"&quot;",
+                          @"&pound;",
+                          @"&brvbar;",	
+                          @"&deg;",
+                          @"&eacute;",							
+                          @"&ccedil;",
+                          @"&agrave;",
+                          @"&acirc;",
+                          @"&atilde;",
+                          @"&egrave;",
+                          @"&ecirc;",	
+                          @"&igrave;",
+                          @"&icirc;",							
+                          @"&ntilde;",
+                          @"&ocirc;",
+                          @"&otilde;",
+                          @"&ugrave;",
+                          @"&ucirc;",
+                          nil
+                  ] retain];
+    };
 };
 
 //====================================================================
@@ -198,7 +204,7 @@ void initHtmlChars()
 -(NSString*)htmlPlus2Space
 {
   return [self stringByReplacingString:@"+"
-			   withString:@" "];
+               withString:@" "];
 };
 
 //--------------------------------------------------------------------
@@ -211,46 +217,46 @@ void initHtmlChars()
 -(NSString*)decodeURL
 {
   //TODO speed
-  unichar* _unichars=NULL;
-  unichar _uniChar=0;
-  NSString* _void=nil;
+  unichar* unichars=NULL;
+  unichar uniChar=0;
+  NSString* voidString=nil;
   NSString* temp=nil;
   const char* p=NULL;
   int uniCharsIndex=0;
   NSDebugMLLog(@"low",@"self=%@",self);
-  _void=[self htmlPlus2Space];  
-  NSDebugMLLog(@"low",@"_void=%@",_void);
-  _unichars=_fastMallocBuffer(sizeof(unichar)*([_void length]+1));
-  NSDebugMLLog(@"low",@"[_void cString]=%s",[_void cString]);
-  for (p=[_void cString];p && *p;p++)
+  voidString=[self htmlPlus2Space];  
+  NSDebugMLLog(@"low",@"voidString=%@",voidString);
+  unichars=_fastMallocBuffer(sizeof(unichar)*([voidString length]+1));
+  NSDebugMLLog(@"low",@"[voidString cString]=%s",[voidString cString]);
+  for (p=[voidString cString];p && *p;p++)
     {
-	  if (*p == '%')
+      if (*p == '%')
         {
-		  //
-		  // 2 hex digits follow...
-		  //
-		  int i=0;
-		  _uniChar=0;
-		  for (i=0;p[1] && i<2;i++)
+          //
+          // 2 hex digits follow...
+          //
+          int i=0;
+          uniChar=0;
+          for (i=0;p[1] && i<2;i++)
             {
-			  p++;
-			  NSDebugMLLog(@"low",@"*p=%c %u",(char)*p,(unsigned int)*p);
-			  _uniChar <<= 4;
-			  NSDebugMLLog(@"low",@"_uniChar=%x",(unsigned int)_uniChar);
-			  if (isdigit(*p))
-				_uniChar+=*p-'0';
-			  else
-				_uniChar+=toupper(*p)-'A'+10;
-			  NSDebugMLLog(@"low",@"_uniChar=%x",(unsigned int)_uniChar);
+              p++;
+              NSDebugMLLog(@"low",@"*p=%c %u",(char)*p,(unsigned int)*p);
+              uniChar <<= 4;
+              NSDebugMLLog(@"low",@"uniChar=%x",(unsigned int)uniChar);
+              if (isdigit(*p))
+                uniChar+=*p-'0';
+              else
+                uniChar+=toupper(*p)-'A'+10;
+              NSDebugMLLog(@"low",@"uniChar=%x",(unsigned int)uniChar);
             };
         }
-	  else
-		_uniChar=(unsigned char)*p;
-	  _unichars[uniCharsIndex]=_uniChar;
-	  uniCharsIndex++;
+      else
+        uniChar=(unsigned char)*p;
+      unichars[uniCharsIndex]=uniChar;
+      uniCharsIndex++;
     };
-  temp=[NSString stringWithCharacters:_unichars
-				 length:uniCharsIndex];
+  temp=[NSString stringWithCharacters:unichars
+                 length:uniCharsIndex];
   NSDebugMLLog(@"low",@"temp=%@",temp);
   NSDebugMLLog(@"low",@"temp data=%@",[temp dataUsingEncoding:NSISOLatin1StringEncoding]);
   return temp;
@@ -270,120 +276,121 @@ void initHtmlChars()
 };
 
 //--------------------------------------------------------------------
--(NSString*)encodeURLWithValid:(NSString*)_valid
+-(NSString*)encodeURLWithValid:(NSString*)validString
 {
   NSMutableString* temp=[NSMutableString stringWithCapacity:[self length]];
   const char* p=NULL;
-  const char* valid=[_valid cString];
+  const char* valid=[validString cString];
   static char *digits = "0123456789ABCDEF";
   for (p =[self cString]; p && *p; p++)
     {
-	  if (isdigit(*p) || isalpha(*p) || (valid && strchr(valid, *p)))
-		[temp appendFormat:@"%c",*p];
-	  else
-		  [temp appendFormat:@"%%%c%c",digits[(*p >> 4) & 0x0f],digits[*p & 0x0f]];
+      if (isdigit(*p) || isalpha(*p) || (valid && strchr(valid, *p)))
+        [temp appendFormat:@"%c",*p];
+      else
+        [temp appendFormat:@"%%%c%c",digits[(*p >> 4) & 0x0f],digits[*p & 0x0f]];
     };
-    return [NSString stringWithString:temp];
+  return [NSString stringWithString:temp];
 }
 
 //--------------------------------------------------------------------
 -(NSDictionary*)dictionaryQueryString
 {
   return [self dictionaryWithSep1:@"&"
-			   withSep2:@"="
-			   withOptionUnescape:YES];
+               withSep2:@"="
+               withOptionUnescape:YES];
 };
 
 //--------------------------------------------------------------------
--(NSDictionary*)dictionaryWithSep1:(NSString*)p_pstrSep1
-						  withSep2:(NSString*)p_pstrSep2
-				withOptionUnescape:(BOOL)_unescape
+-(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
+                          withSep2:(NSString*)sep2
+                withOptionUnescape:(BOOL)unescape
 {
-	NSMutableDictionary*  pDico=nil;
-	if	([self length]>0)
-	  {
-		NSArray* listItems = [self componentsSeparatedByString:p_pstrSep1];
-		int iCount=0;
-		pDico=[NSMutableDictionary dictionary];
-		for(iCount=0;iCount<[listItems count];iCount++)
-		  {
-			if ([[listItems objectAtIndex:iCount] length]>0)
-			  {
-				NSArray* listParam = [[listItems objectAtIndex:iCount] componentsSeparatedByString:p_pstrSep2];
-				id key=nil;
-				id value=nil;
-				if ([listParam count]==1)
-				  {
-					key=[listParam objectAtIndex:0];
-					if (_unescape)
-						key=[key decodeURL];
-				  }
-				else if ([listParam count]==2)
-				  {
-					key=[listParam objectAtIndex:0];
-					value=[listParam objectAtIndex:1];
-					if (_unescape)
-					  {
-						key=[key decodeURL];
-						value=[value decodeURL];
-					  };
-				  };
-				if (key)
-				  {
-					id newValue=nil;
-					id prevValue=[pDico objectForKey:key];
-					if (!value)
-					  value=[NSString string];
-					if (prevValue)
-					  newValue=[prevValue arrayByAddingObject:value];
-					else
-					  newValue=[NSArray arrayWithObject:value];
-					[pDico setObject:newValue
-						   forKey: key];
-				  };
-			  };
-		  };
-		pDico=[NSDictionary dictionaryWithDictionary:pDico];
-	  };
-	return pDico;
+  NSMutableDictionary*  pDico=nil;
+  if	([self length]>0)
+    {
+      NSArray* listItems = [self componentsSeparatedByString:sep1];
+      int iCount=0;
+      pDico=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+      for(iCount=0;iCount<[listItems count];iCount++)
+        {
+          if ([[listItems objectAtIndex:iCount] length]>0)
+            {
+              NSArray* listParam = [[listItems objectAtIndex:iCount] componentsSeparatedByString:sep2];
+              id key=nil;
+              id value=nil;
+              if ([listParam count]==1)
+                {
+                  key=[listParam objectAtIndex:0];
+                  if (unescape)
+                    key=[key decodeURL];
+                }
+              else if ([listParam count]==2)
+                {
+                  key=[listParam objectAtIndex:0];
+                  value=[listParam objectAtIndex:1];
+                  if (unescape)
+                    {
+                      key=[key decodeURL];
+                      value=[value decodeURL];
+                    };
+                };
+              if (key)
+                {
+                  id newValue=nil;
+                  id prevValue=[pDico objectForKey:key];
+                  if (!value)
+                    value=[NSString string];
+                  if (prevValue)
+                    newValue=[prevValue arrayByAddingObject:value];
+                  else
+                    newValue=[NSArray arrayWithObject:value];
+                  [pDico setObject:newValue
+                         forKey: key];
+                };
+            };
+        };
+      pDico=[NSDictionary dictionaryWithDictionary:pDico];
+    };
+  return pDico;
 };
 
 //--------------------------------------------------------------------
--(BOOL)ismapCoordx:(int*)x_
-				 y:(int*)y_
+-(BOOL)ismapCoordx:(int*)x
+                 y:(int*)y
 {
-  BOOL _ok=NO;
-  NSScanner* _scanner=[NSScanner scannerWithString:self];
-  if ([_scanner scanInt:x_])
-	{
-	  if (x_)
-		{
-		  NSDebugMLLog(@"low",@"x=%d",*x_);
-		};
-	  if ([_scanner scanString:@"," intoString:NULL])
-		{
-		  if ([_scanner scanInt:y_])
-			{
-			  if (y_)
-				{
-				  NSDebugMLLog(@"low",@"y=%d",*y_);
-				};
-			  NSDebugMLLog(@"low",@"[_scanner isAtEnd]=%d",(int)[_scanner isAtEnd]);
-			  if ([_scanner isAtEnd])
-				{
-				  _ok=YES;
-				};
-			};
-		};
-	};
-  if (!_ok)
-	{
-	  if (x_)
-		*x_=INT_MAX;
-	  if (y_)
-		*y_=INT_MAX;
-	};
-  return _ok;
+  BOOL ok=NO;
+  NSScanner* scanner=[NSScanner scannerWithString:self];
+  if ([scanner scanInt:x])
+    {
+      if (x)
+        {
+          NSDebugMLLog(@"low",@"x=%d",*x);
+        };
+      if ([scanner scanString:@"," 
+                   intoString:NULL])
+        {
+          if ([scanner scanInt:y])
+            {
+              if (y)
+                {
+                  NSDebugMLLog(@"low",@"y=%d",*y);
+                };
+              NSDebugMLLog(@"low",@"[scanner isAtEnd]=%d",(int)[scanner isAtEnd]);
+              if ([scanner isAtEnd])
+                {
+                  ok=YES;
+                };
+            };
+        };
+    };
+  if (!ok)
+    {
+      if (x)
+        *x=INT_MAX;
+      if (y)
+        *y=INT_MAX;
+    };
+  return ok;
 };
 
 //--------------------------------------------------------------------
@@ -392,15 +399,15 @@ void initHtmlChars()
   //TODO speed
   NSString* str=nil;
   if ([self length]>0)
-	{
-	  NSMutableString* tmp=[self mutableCopy];
-	  [tmp replaceString:@"&" withString:@"&amp;"];
-	  [tmp replaceString:@"\"" withString:@"&quot;"];
-	  [tmp replaceString:@"<" withString:@"&lt;"];
-	  [tmp replaceString:@">" withString:@"&gt;"];
-	  str = AUTORELEASE([tmp copy]);
-	  RELEASE(tmp);
-	};
+    {
+      NSMutableString* tmp=[self mutableCopy];
+      [tmp replaceString:@"&" withString:@"&amp;"];
+      [tmp replaceString:@"\"" withString:@"&quot;"];
+      [tmp replaceString:@"<" withString:@"&lt;"];
+      [tmp replaceString:@">" withString:@"&gt;"];
+      str = AUTORELEASE([tmp copy]);
+      RELEASE(tmp);
+    };
   return str;
 };
 
@@ -410,18 +417,18 @@ void initHtmlChars()
   //TODO speed
   NSString* str=nil;
   if ([self length]>0)
-	{
-	  NSMutableString* tmp=[self mutableCopy];
-	  [tmp replaceString:@"&" withString:@"&amp;"];
-	  [tmp replaceString:@"\"" withString:@"&quot;"];
-	  [tmp replaceString:@"<" withString:@"&lt;"];
-	  [tmp replaceString:@">" withString:@"&gt;"];
-	  [tmp replaceString:@"\t" withString:@"&#9;"];
-	  [tmp replaceString:@"\n" withString:@"&#10;"];
-	  [tmp replaceString:@"\r" withString:@"&#13;"];
-	  str = AUTORELEASE([tmp copy]);
-	  RELEASE(tmp);
-	};
+    {
+      NSMutableString* tmp=[self mutableCopy];
+      [tmp replaceString:@"&" withString:@"&amp;"];
+      [tmp replaceString:@"\"" withString:@"&quot;"];
+      [tmp replaceString:@"<" withString:@"&lt;"];
+      [tmp replaceString:@">" withString:@"&gt;"];
+      [tmp replaceString:@"\t" withString:@"&#9;"];
+      [tmp replaceString:@"\n" withString:@"&#10;"];
+      [tmp replaceString:@"\r" withString:@"&#13;"];
+      str = AUTORELEASE([tmp copy]);
+      RELEASE(tmp);
+    };
   return str;
 };
 
@@ -431,19 +438,19 @@ void initHtmlChars()
   //TODO speed
   NSString* str=nil;
   if ([self length]>0)
-	{
-	  int i=0;
-	  NSMutableString* tmp=[self mutableCopy];
-	  if (!normalChars)
-		initHtmlChars();
-	  for(i=0;i<[normalChars count];i++)
-		{
-		  [tmp replaceString:[normalChars objectAtIndex:i]
-			   withString:[htmlChars objectAtIndex:i]];
-		};
-	  str = AUTORELEASE([tmp copy]);
-	  RELEASE(tmp);
-	};
+    {
+      int i=0;
+      NSMutableString* tmp=[self mutableCopy];
+      if (!normalChars)
+        initHtmlChars();
+      for(i=0;i<[normalChars count];i++)
+        {
+          [tmp replaceString:[normalChars objectAtIndex:i]
+               withString:[htmlChars objectAtIndex:i]];
+        };
+      str = AUTORELEASE([tmp copy]);
+      RELEASE(tmp);
+    };
   return str;
 };
 
@@ -452,19 +459,19 @@ void initHtmlChars()
 {
   NSString* str=nil;
   if ([self length]>0)
-	{
-	  int i=0;
-	  NSMutableString* tmp=[self mutableCopy];
-	  if (!normalChars)
-		initHtmlChars();
-	  for(i=0;i<[normalChars count];i++)
-		{
-		  [tmp replaceString:[htmlChars objectAtIndex:i]
-			   withString:[normalChars objectAtIndex:i]];
-		};
-	  str = AUTORELEASE([tmp copy]);
-	  RELEASE(tmp);
-	};
+    {
+      int i=0;
+      NSMutableString* tmp=[self mutableCopy];
+      if (!normalChars)
+        initHtmlChars();
+      for(i=0;i<[normalChars count];i++)
+        {
+          [tmp replaceString:[htmlChars objectAtIndex:i]
+               withString:[normalChars objectAtIndex:i]];
+        };
+      str = AUTORELEASE([tmp copy]);
+      RELEASE(tmp);
+    };
   return str;
 };
 
@@ -473,15 +480,15 @@ void initHtmlChars()
 {
   NSString* str=nil;
   if ([self length]>0)
-	{
-	  //TODO speed
-	  NSMutableString* tmp=[[self stringByConvertingToHTMLEntities] mutableCopy];
-	  [tmp replaceString:@"\r\n" withString:@"<BR>"];
-	  [tmp replaceString:@"\r" withString:@"<BR>"];
-	  [tmp replaceString:@"\n" withString:@"<BR>"];
-	  str = AUTORELEASE([tmp copy]);
-	  RELEASE(tmp);
-	};
+    {
+      //TODO speed
+      NSMutableString* tmp=[[self stringByConvertingToHTMLEntities] mutableCopy];
+      [tmp replaceString:@"\r\n" withString:@"<BR>"];
+      [tmp replaceString:@"\r" withString:@"<BR>"];
+      [tmp replaceString:@"\n" withString:@"<BR>"];
+      str = AUTORELEASE([tmp copy]);
+      RELEASE(tmp);
+    };
   return str;
 };
 
@@ -490,13 +497,13 @@ void initHtmlChars()
 {
   NSString* str=nil;
   if ([self length]>0)
-	{
-	  //TODO speed
-	  NSMutableString* tmp=[[self stringByConvertingFromHTMLEntities] mutableCopy];
-	  [tmp replaceString:@"<BR>" withString:@"\n"];
-	  str = AUTORELEASE([tmp copy]);
-	  RELEASE(tmp);
-	};
+    {
+      //TODO speed
+      NSMutableString* tmp=[[self stringByConvertingFromHTMLEntities] mutableCopy];
+      [tmp replaceString:@"<BR>" withString:@"\n"];
+      str = AUTORELEASE([tmp copy]);
+      RELEASE(tmp);
+    };
   return str;
 };
 

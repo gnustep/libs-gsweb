@@ -1,11 +1,16 @@
-/* GSWBindingNameAssociation.m - GSWeb: Class GSWBindingNameAssociation
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWBindingNameAssociation.m - <title>GSWeb: Class GSWBindingNameAssociation</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Apr 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Apr 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,34 +35,34 @@ static char rcsId[] = "$Id$";
 @implementation GSWBindingNameAssociation
 
 //--------------------------------------------------------------------
--(id)initWithKeyPath:(NSString*)keyPath_
+-(id)initWithKeyPath:(NSString*)aKeyPath
 {
   //OK
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  NSArray* keys=nil;
-	  NSDebugMLLog(@"associations",@"keyPath_=%@",keyPath_);
-	  keys=[keyPath_ componentsSeparatedByString:@"."];
-	  if ([keys count]>0)
-		{
-		  if (!WOStrictFlag && [keyPath_ hasPrefix:@"^"])
-                    {
-                      ASSIGNCOPY(parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"^"]);
-                    }
-		  else if (!WOStrictFlag && [keyPath_ hasPrefix:@"~"])
-                    {
-                      ASSIGNCOPY(parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"~"]);
-                      isNonMandatory=YES; 
-                    };
-		  if ([keys count]>1)
-			{
-			  ASSIGN(keyPath,[[keys subarrayWithRange:NSMakeRange(1,[keys count]-1)]componentsJoinedByString:@"."]);
-			};
-		};
-	  NSDebugMLLog(@"associations",@"parentBindingName=%@",parentBindingName);
-	  NSDebugMLLog(@"associations",@"keyPath=%@",keyPath);
-	};
+    {
+      NSArray* keys=nil;
+      NSDebugMLLog(@"associations",@"aKeyPath=%@",aKeyPath);
+      keys=[aKeyPath componentsSeparatedByString:@"."];
+      if ([keys count]>0)
+        {
+          if (!WOStrictFlag && [aKeyPath hasPrefix:@"^"])
+            {
+              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"^"]);
+            }
+          else if (!WOStrictFlag && [aKeyPath hasPrefix:@"~"])
+            {
+              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"~"]);
+              _isNonMandatory=YES; 
+            };
+          if ([keys count]>1)
+            {
+              ASSIGN(_keyPath,[[keys subarrayWithRange:NSMakeRange(1,[keys count]-1)]componentsJoinedByString:@"."]);
+            };
+        };
+      NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
+      NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -64,8 +70,8 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(parentBindingName);
-  DESTROY(keyPath);
+  DESTROY(_parentBindingName);
+  DESTROY(_keyPath);
   [super dealloc];
 };
 
@@ -73,8 +79,9 @@ static char rcsId[] = "$Id$";
 -(id)copyWithZone:(NSZone*)zone;
 {
   GSWBindingNameAssociation* clone = [super copyWithZone:zone];
-  ASSIGN(clone->parentBindingName,parentBindingName);
-  ASSIGN(clone->keyPath,keyPath);
+  ASSIGN(clone->_parentBindingName,_parentBindingName);
+  ASSIGN(clone->_keyPath,_keyPath);
+  _isNonMandatory=_isNonMandatory;
   return clone;
 };
 
@@ -82,96 +89,96 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - parentBindingName=%@ keyPath=%@>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   parentBindingName,
-				   keyPath];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _parentBindingName,
+                   _keyPath];
 };
 
 //--------------------------------------------------------------------
--(BOOL)isImplementedForComponent:(NSObject*)object_
+-(BOOL)isImplementedForComponent:(NSObject*)object
 {
-  BOOL _isImplemented=NO;
+  BOOL isImplemented=NO;
   LOGObjectFnStart();
-  _isImplemented=[object_ hasBinding:parentBindingName];
+  isImplemented=(BOOL)[object hasBinding:_parentBindingName];
   LOGObjectFnStop();
-  return _isImplemented;
+  return isImplemented;
 };
 
 //--------------------------------------------------------------------
--(id)valueInObject:(id)object_
+-(id)valueInObject:(id)object
 {
-  id _value=nil;
+  id value=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"parentBindingName=%@",parentBindingName);
-  NSDebugMLLog(@"associations",@"keyPath=%@",keyPath);
-  NSDebugMLLog(@"associations",@"object_=%@",object_);
-  if (object_)
-	{
-/*
-#if !GSWEB_STRICT
-	  if (!isNonMandatory)
-#endif
-		{
-		  if (![self isImplementedForComponent:object_])
-			{
-			  ExceptionRaise(NSGenericException,@"%@ is not implemented for object of class %@",
-							 self,
-							 [object_ class]);			  
-			};
-		};
-*/
-	  _value=[object_ valueForBinding:parentBindingName];
-	  NSDebugMLLog(@"associations",@"_value=%@",_value);
-	  if (_value && keyPath)
-		{
-		  _value=[GSWAssociation valueInObject:_value
-								 forKeyPath:keyPath];
-		  NSDebugMLLog(@"associations",@"_value=%@",_value);
-		};
-	};
-  NSDebugMLLog(@"associations",@"_value=%@",_value);
-  [self logTakeValue:_value];
+  NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
+  NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
+  NSDebugMLLog(@"associations",@"object=%@",object);
+  if (object)
+    {
+      /*
+        #if !GSWEB_STRICT
+        if (!isNonMandatory)
+        #endif
+        {
+        if (![self isImplementedForComponent:object_])
+        {
+        ExceptionRaise(NSGenericException,@"%@ is not implemented for object of class %@",
+        self,
+        [object_ class]);			  
+        };
+        };
+      */
+      value=[object valueForBinding:_parentBindingName];
+      NSDebugMLLog(@"associations",@"value=%@",value);
+      if (value && _keyPath)
+        {
+          value=[GSWAssociation valueInObject:value
+                                forKeyPath:_keyPath];
+          NSDebugMLLog(@"associations",@"value=%@",value);
+        };
+    };
+  NSDebugMLLog(@"associations",@"value=%@",value);
+  [self logTakeValue:value];
   LOGObjectFnStop();
-  return _value;
+  return value;
 };
 
 //--------------------------------------------------------------------
--(void)setValue:(id)value_
-	   inObject:(id)object_
+-(void)setValue:(id)value
+       inObject:(id)object
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"parentBindingName=%@",parentBindingName);
-  NSDebugMLLog(@"associations",@"keyPath=%@",keyPath);
-  if (object_)
-	{
-	  [object_ validateValue:&value_
-			   forKey:self];
-/*
-#if !GSWEB_STRICT
-	  if (!isNonMandatory)
-#endif
-		{
-		  if (![self isImplementedForComponent:object_])
-			{
-			  ExceptionRaise(NSGenericException,@"%@ is not implemented for object of class %@",
-							 self,
-							 [object_ class]);			  
-			};
-		};
-*/
-	  if (keyPath)
-		{
-		  id tmpValue=[object_ valueForBinding:parentBindingName];
-		  [GSWAssociation setValue:value_
-						  inObject:tmpValue
-						  forKeyPath:keyPath];
-		}
-	  else
-		[object_ setValue:value_
-				 forBinding:parentBindingName];
-	};
-  [self logSetValue:value_];
+  NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
+  NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
+  if (object)
+    {
+      [object validateValue:&value
+              forKey:self];
+      /*
+        #if !GSWEB_STRICT
+        if (!isNonMandatory)
+        #endif
+        {
+        if (![self isImplementedForComponent:object_])
+        {
+        ExceptionRaise(NSGenericException,@"%@ is not implemented for object of class %@",
+        self,
+        [object_ class]);			  
+        };
+        };
+      */
+      if (_keyPath)
+        {
+          id tmpValue=[object valueForBinding:_parentBindingName];
+          [GSWAssociation setValue:value
+                          inObject:tmpValue
+                          forKeyPath:_keyPath];
+        }
+      else
+        [object setValue:value
+                forBinding:_parentBindingName];
+    };
+  [self logSetValue:value];
   LOGObjectFnStop();
 };
 

@@ -1,11 +1,16 @@
-/* GSWPageDefElement.m - GSWeb: Class GSWPageDefElement
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWPageDefElement.m - <title>GSWeb: Class GSWPageDefElement</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 		Mar 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -35,8 +41,8 @@ static char rcsId[] = "$Id$";
 -(id)init
 {
   if ((self=[super init]))
-	{
-	};
+    {
+    };
   return self;
 };
 
@@ -45,11 +51,11 @@ static char rcsId[] = "$Id$";
 {
 //  NSDebugFLLog(@"low",@"Dealloc GSWPageDefElement=%p",(void*)self);
 //  GSWLogC("Dealloc GSWPageDefElement: elementName");
-  DESTROY(elementName);
+  DESTROY(_elementName);
 //  GSWLogC("Dealloc GSWPageDefElement: className");
-  DESTROY(className);
+  DESTROY(_className);
 //  GSWLogC("Dealloc GSWPageDefElement: associations");
-  DESTROY(associations);
+  DESTROY(_associations);
   [super dealloc];
 //  GSWLogC("End Dealloc GSWPageDefElement");
 }
@@ -58,84 +64,84 @@ static char rcsId[] = "$Id$";
 -(id)copyWithZone:(NSZone*)zone
 {
   GSWPageDefElement* clone = [[isa allocWithZone:zone] init];
-  ASSIGNCOPY(clone->elementName,elementName);
-  ASSIGNCOPY(clone->className,className);
-  ASSIGNCOPY(clone->associations,associations);
+  ASSIGNCOPY(clone->_elementName,_elementName);
+  ASSIGNCOPY(clone->_className,_className);
+  ASSIGNCOPY(clone->_associations,_associations);
   return clone;
 };
 
 //--------------------------------------------------------------------
--(id)initWithCoder:(NSCoder*)coder_
+-(id)initWithCoder:(NSCoder*)coder
 {
   if ((self = [super init]))
-	{
-	  [coder_ decodeValueOfObjCType:@encode(id)
-			  at:&elementName];
-	  [coder_ decodeValueOfObjCType:@encode(id)
-			  at:&className];
-	  [coder_ decodeValueOfObjCType:@encode(id)
-			  at:&associations];
-	};
+    {
+      [coder decodeValueOfObjCType:@encode(id)
+             at:&_elementName];
+      [coder decodeValueOfObjCType:@encode(id)
+             at:&_className];
+      [coder decodeValueOfObjCType:@encode(id)
+             at:&_associations];
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(void)encodeWithCoder:(NSCoder*)coder_
+-(void)encodeWithCoder:(NSCoder*)coder
 {
-  [coder_ encodeObject:elementName];
-  [coder_ encodeObject:className];
-  [coder_ encodeObject:associations];
+  [coder encodeObject:_elementName];
+  [coder encodeObject:_className];
+  [coder encodeObject:_associations];
 };
 
 
 //--------------------------------------------------------------------
 -(NSString*)elementName
 {
-  return elementName;
+  return _elementName;
 };
 
 //--------------------------------------------------------------------
--(void)setElementName:(NSString*)_name
+-(void)setElementName:(NSString*)aName
 {
-  ASSIGNCOPY(elementName,_name);
+  ASSIGNCOPY(_elementName,aName);
 };
 
 //--------------------------------------------------------------------
 -(NSString*)className
 {
-  return className;
+  return _className;
 };
 
 //--------------------------------------------------------------------
--(void)setClassName:(NSString*)_name
+-(void)setClassName:(NSString*)aName
 {
-  ASSIGNCOPY(className,_name);
+  ASSIGNCOPY(_className,aName);
 };
 
 //--------------------------------------------------------------------
 -(NSDictionary*)associations
 {
-  return associations;
+  return _associations;
 };
 
 //--------------------------------------------------------------------
--(void)setAssociation:(GSWAssociation*)_association
-			   forKey:(NSString*)_key
+-(void)setAssociation:(GSWAssociation*)association
+               forKey:(NSString*)key
 {
-  if (!associations)
-	associations=[NSMutableDictionary new];
-  [associations setObject:_association
-				forKey:_key];
+  if (!_associations)
+    _associations=[NSMutableDictionary new];
+  [_associations setObject:association
+                 forKey:key];
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%@ %p elementName:[%@] className:[%@] associations:\n%@",
-				   [self class],
-				   (void*)self,
-				   elementName,
-				   className,
-				   associations];
+                   [self class],
+                   (void*)self,
+                   _elementName,
+                   _className,
+                   _associations];
 };
 @end

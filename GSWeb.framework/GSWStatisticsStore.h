@@ -1,11 +1,16 @@
-/* GSWStatisticsStore.h - GSWeb: Class GSWStatisticsStore
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** GSWStatisticsStore.h - <title>GSWeb: Class GSWStatisticsStore</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,9 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
-
-// $Id$
+   </license>
+**/
 
 #ifndef _GSWStatisticsStore_h__
 	#define _GSWStatisticsStore_h__
@@ -29,46 +33,46 @@
 
 @interface GSWStatisticsStore : NSObject <NSLocking>
 {
-  NSRecursiveLock* selfLock;
+  NSRecursiveLock* _selfLock;
 #ifndef NDEBUG
-  int selfLockn;
+  int _selfLockn;
 #endif
-  int transactionMovingAverageSampleCount;
-  int sessionMovingAverageSampleCount;
-  int transactionsCount;
-  int lastStatsTransactionsCount;
-  int directActionTransactionsCount;
-  int componentActionTransactionsCount;
-  int sessionsCount;
-  int lastStatsSessionsCount;
-  int maxActiveSessionsCount;
-  NSDate* maxActiveSessionsDate;
-  float averageRequestsPerSession;
-  double averageSessionLife;
-  NSArray* lastSessionStatistics;
-  double movingAverageSessionLife;
-  float movingAverageRequestsPerSession;
-  int movingAverageSessionsCount;
-  NSDate* startDate;
-  NSDate* lastStatsDate;
-  double lastWillHandleRequestTimeInterval;
-  double lastDidHandleRequestTimeInterval;
-  double totalIdleTimeInterval;
-  double totalTransactionTimeInterval;
-  double totalDATransactionTimeInterval;
-  double totalCATransactionTimeInterval;
-  double movingIdleTimeInterval;
-  double movingTransactionTimeInterval;
-  int movingAverageTransactionsCount;
-  NSDictionary* initializationMemory;
-  NSMutableDictionary* pagesStatistics;
-  NSString* currentPage;
-  NSMutableDictionary* pathsStatistics;
-  NSString* logPath;
-  double logRotation;
-  NSDate* logCreationDate;
-  NSString* password;
-  NSMutableDictionary* directActionStatistics;
+  int _transactionMovingAverageSampleCount;
+  int _sessionMovingAverageSampleCount;
+  int _transactionsCount;
+  int _lastStatsTransactionsCount;
+  int _directActionTransactionsCount;
+  int _componentActionTransactionsCount;
+  int _sessionsCount;
+  int _lastStatsSessionsCount;
+  int _maxActiveSessionsCount;
+  NSDate* _maxActiveSessionsDate;
+  float _averageRequestsPerSession;
+  double _averageSessionLife;
+  NSArray* _lastSessionStatistics;
+  double _movingAverageSessionLife;
+  float _movingAverageRequestsPerSession;
+  int _movingAverageSessionsCount;
+  NSDate* _startDate;
+  NSDate* _lastStatsDate;
+  double _lastWillHandleRequestTimeInterval;
+  double _lastDidHandleRequestTimeInterval;
+  double _totalIdleTimeInterval;
+  double _totalTransactionTimeInterval;
+  double _totalDATransactionTimeInterval;
+  double _totalCATransactionTimeInterval;
+  double _movingIdleTimeInterval;
+  double _movingTransactionTimeInterval;
+  int _movingAverageTransactionsCount;
+  NSDictionary* _initializationMemory;
+  NSMutableDictionary* _pagesStatistics;
+  NSString* _currentPage;
+  NSMutableDictionary* _pathsStatistics;
+  NSString* _logPath;
+  double _logRotation;
+  NSDate* _logCreationDate;
+  NSString* _password;
+  NSMutableDictionary* _directActionStatistics;
 };
 
 -(id)init;
@@ -78,22 +82,22 @@
 -(void)lock;
 -(id)statistics;
 -(int)sessionMovingAverageSampleSize;
--(void)setSessionMovingAverageSampleSize:(int)size_;
+-(void)setSessionMovingAverageSampleSize:(int)aSize;
 -(int)transactionMovingAverageSampleSize;
--(void)setTransactionMovingAverageSampleSize:(int)size_;
+-(void)setTransactionMovingAverageSampleSize:(int)aSize;
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreA)
 -(void)_purgePathsStatistics;
--(void)_updatePathsStatisticsWithPaths:(id)paths_;
--(void)_updatePagesStatisticsForPage:(id)page_
-						timeInterval:(NSTimeInterval)timeInterval_;
--(void)_updateDAStatisticsForActionNamed:(id)name_
-							timeInterval:(NSTimeInterval)timeInterval_;
--(void)_sessionTerminating:(id)session_;
--(void)_applicationCreatedSession:(GSWSession*)session_;
+-(void)_updatePathsStatisticsWithPaths:(id)paths;
+-(void)_updatePagesStatisticsForPage:(id)page
+                        timeInterval:(NSTimeInterval)timeInterval;
+-(void)_updateDAStatisticsForActionNamed:(id)name
+                            timeInterval:(NSTimeInterval)timeInterval;
+-(void)_sessionTerminating:(id)session;
+-(void)_applicationCreatedSession:(GSWSession*)session;
 -(void)_applicationDidHandleComponentActionRequest;
--(void)_applicationDidHandleDirectActionRequestWithActionNamed:(id)name_;
+-(void)_applicationDidHandleDirectActionRequestWithActionNamed:(id)name;
 -(double)_applicationDidHandleRequest;
 -(void)_applicationWillHandleDirectActionRequest;
 -(void)_applicationWillHandleComponentActionRequest;
@@ -101,22 +105,22 @@
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreB)
--(NSString*)descriptionForResponse:(GSWResponse*)response_
-						 inContext:(GSWContext*)context_;
--(void)recordStatisticsForResponse:(GSWResponse*)response_
-				  inContext:(GSWContext*)context_;
+-(NSString*)descriptionForResponse:(GSWResponse*)aResponse
+                         inContext:(GSWContext*)aContext;
+-(void)recordStatisticsForResponse:(GSWResponse*)aResponse
+                         inContext:(GSWContext*)aContext;
 
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreC)
--(void)logString:(id)string_;
+-(void)logString:(id)string;
 -(double)logFileRotationFrequencyInDays;
 -(NSString*)logFile;
--(void)			setLogFile:(NSString*)logFile_
+-(void)			setLogFile:(NSString*)logFile
    rotationFrequencyInDays:(double)rotationFrequency;
--(id)formatDescription:(id)description_
-		   forResponse:(GSWResponse*)response_
-			 inContext:(GSWContext*)context_;
+-(id)formatDescription:(id)description
+           forResponse:(GSWResponse*)aResponse
+             inContext:(GSWContext*)aContext;
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreD)
@@ -146,14 +150,14 @@
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreE)
--(BOOL)validateLogin:(id)login_
-		  forSession:(id)session_;
--(void)setPassword:(NSString*)password_;
+-(BOOL)validateLogin:(id)login
+          forSession:(id)session;
+-(void)setPassword:(NSString*)password;
 
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreF)
--(BOOL)validateLogin:(id)login_;
+-(BOOL)validateLogin:(id)login;
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreG)
@@ -162,6 +166,6 @@
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreH)
-+(id)timeIntervalDescription:(double)timeInterval_;
++(id)timeIntervalDescription:(double)timeInterval;
 @end
 #endif //_GSWStatisticsStore_h__

@@ -311,7 +311,8 @@ static char rcsId[] = "$Id$";
                  inComponent:component];
 	  prefixValue=[_prefix valueInComponent:component];
 	  suffixValue=[_suffix valueInComponent:component];
-	  disableValue=[_itemDisabled valueInComponent:component];
+	  disableValue=[self evaluateCondition:_itemDisabled
+                             inContext:context];
 	  [_index setValue:[NSNumber numberWithShort:i]
                   inComponent:component];
 	  displayStringValue=[_displayString valueInComponent:component];

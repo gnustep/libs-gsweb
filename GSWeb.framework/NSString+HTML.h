@@ -1,11 +1,16 @@
-/* NSString+HTML.h
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** NSString+HTML.h - <title>GSWeb: NSString / HTML</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,13 +37,13 @@
 -(NSString*)htmlPlus2Space;
 -(NSString*)decodeURL;
 -(NSString*)encodeURL;
--(NSString*)encodeURLWithValid:(NSString*)_valid;
+-(NSString*)encodeURLWithValid:(NSString*)valid;
 -(NSDictionary*)dictionaryQueryString;
--(NSDictionary*)dictionaryWithSep1:(NSString*)p_pstrSep1
-						  withSep2:(NSString*)p_pstrSep2
-				withOptionUnescape:(BOOL)_unescape;
--(BOOL)ismapCoordx:(int*)x_
-				 y:(int*)y_;
+-(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
+                          withSep2:(NSString*)sep2
+                withOptionUnescape:(BOOL)unescape;
+-(BOOL)ismapCoordx:(int*)x
+                 y:(int*)y;
 -(NSString*)stringByEscapingHTMLString;
 -(NSString*)stringByEscapingHTMLAttributeValue;
 -(NSString*)stringByConvertingToHTMLEntities;

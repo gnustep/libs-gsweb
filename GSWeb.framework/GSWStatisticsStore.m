@@ -1,11 +1,16 @@
-/* GSWStatisticsStore.m - GSWeb: Class GSWStatisticsStore
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** GSWStatisticsStore.m - <title>GSWeb: Class GSWStatisticsStore</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -36,11 +42,11 @@ static char rcsId[] = "$Id$";
   //OK
   if ((self=[super init]))
     {
-      transactionMovingAverageSampleCount = 100;
-      sessionMovingAverageSampleCount = 10;
-      ASSIGN(startDate, [NSDate date]);
-      ASSIGN(initializationMemory, [self _memoryUsage]);
-      selfLock = [NSRecursiveLock new];
+      _transactionMovingAverageSampleCount = 100;
+      _sessionMovingAverageSampleCount = 10;
+      ASSIGN(_startDate, [NSDate date]);
+      ASSIGN(_initializationMemory, [self _memoryUsage]);
+      _selfLock = [NSRecursiveLock new];
     };
   return self;
 };
@@ -50,20 +56,20 @@ static char rcsId[] = "$Id$";
 {
   GSWLogC("Dealloc GSWStatisticsStore");
   GSWLogC("Dealloc GSWStatisticsStore: selfLock");
-  DESTROY(selfLock);
+  DESTROY(_selfLock);
   GSWLogC("Dealloc GSWStatisticsStore: maxActiveSessionsDate");
-  DESTROY(maxActiveSessionsDate);
-  DESTROY(lastSessionStatistics);
-  DESTROY(startDate);
-  DESTROY(lastStatsDate);
-  DESTROY(initializationMemory);
-  DESTROY(pagesStatistics);
-  DESTROY(currentPage);
-  DESTROY(pathsStatistics);
-  DESTROY(logPath);
-  DESTROY(logCreationDate);
-  DESTROY(password);
-  DESTROY(directActionStatistics);
+  DESTROY(_maxActiveSessionsDate);
+  DESTROY(_lastSessionStatistics);
+  DESTROY(_startDate);
+  DESTROY(_lastStatsDate);
+  DESTROY(_initializationMemory);
+  DESTROY(_pagesStatistics);
+  DESTROY(_currentPage);
+  DESTROY(_pathsStatistics);
+  DESTROY(_logPath);
+  DESTROY(_logCreationDate);
+  DESTROY(_password);
+  DESTROY(_directActionStatistics);
   GSWLogC("Dealloc GSWStatisticsStore Super");
   [super dealloc];
   GSWLogC("End Dealloc GSWStatisticsStore");
@@ -73,12 +79,12 @@ static char rcsId[] = "$Id$";
 -(void)unlock
 {
   LOGObjectFnStart();
-  NSDebugMLog(@"selfLockn=%d",selfLockn);
-  TmpUnlock(selfLock);
+  NSDebugMLog(@"selfLockn=%d",_selfLockn);
+  TmpUnlock(_selfLock);
 #ifndef NDEBUG
-	selfLockn--;
+  _selfLockn--;
 #endif
-  NSDebugMLog(@"selfLockn=%d",selfLockn);
+  NSDebugMLog(@"selfLockn=%d",_selfLockn);
   LOGObjectFnStop();
 };
 
@@ -86,12 +92,12 @@ static char rcsId[] = "$Id$";
 -(void)lock
 {
   LOGObjectFnStart();
-  NSDebugMLog(@"selfLockn=%d",selfLockn);
-  TmpLockBeforeDate(selfLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+  NSDebugMLog(@"selfLockn=%d",_selfLockn);
+  TmpLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
 #ifndef NDEBUG
-  selfLockn++;
+  _selfLockn++;
 #endif
-  NSDebugMLog(@"selfLockn=%d",selfLockn);
+  NSDebugMLog(@"selfLockn=%d",_selfLockn);
   LOGObjectFnStop();
 };
 
@@ -107,14 +113,14 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return sessionMovingAverageSampleCount;
+  return _sessionMovingAverageSampleCount;
 };
 
 //--------------------------------------------------------------------
--(void)setSessionMovingAverageSampleSize:(int)size_
+-(void)setSessionMovingAverageSampleSize:(int)aSize
 {
   LOGObjectFnStart();
-  sessionMovingAverageSampleCount=size_;
+  _sessionMovingAverageSampleCount=aSize;
   LOGObjectFnStop();
 };
 
@@ -123,14 +129,14 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return transactionMovingAverageSampleCount;
+  return _transactionMovingAverageSampleCount;
 };
 
 //--------------------------------------------------------------------
--(void)setTransactionMovingAverageSampleSize:(int)size_
+-(void)setTransactionMovingAverageSampleSize:(int)aSize
 {
   LOGObjectFnStart();
-  transactionMovingAverageSampleCount=size_;
+  _transactionMovingAverageSampleCount=aSize;
   LOGObjectFnStop();
 };
 
@@ -146,198 +152,204 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  LOGObjectFnNotImplemented();	//TODOFN
-	}
+    {
+      LOGObjectFnNotImplemented();	//TODOFN
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];  
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_updatePathsStatisticsWithPaths:(id)paths_
+-(void)_updatePathsStatisticsWithPaths:(id)paths
 {
   //OK
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  [self _purgePathsStatistics];
-	  LOGObjectFnNotImplemented();	//TODOFN
-	}
+    {
+      [self _purgePathsStatistics];
+      LOGObjectFnNotImplemented();	//TODOFN
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];  
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_updatePagesStatisticsForPage:(id)page_
-						timeInterval:(NSTimeInterval)timeInterval_
+-(void)_updatePagesStatisticsForPage:(id)aPage
+                        timeInterval:(NSTimeInterval)aTimeInterval
 {
   //OK
-  NSMutableDictionary* _pageStats=nil;
-  NSNumber* _AvgRespTime=nil;
-  NSNumber* _MinRespTime=nil;
-  NSNumber* _MaxRespTime=nil;
-  NSNumber* _Served=nil;
-  double _AvgRespTimeValue=0;
-  double _MinRespTimeValue=0;
-  double _MaxRespTimeValue=0;
-  int _ServedValue=0;
+  NSMutableDictionary* pageStats=nil;
+  NSNumber* AvgRespTime=nil;
+  NSNumber* MinRespTime=nil;
+  NSNumber* MaxRespTime=nil;
+  NSNumber* Served=nil;
+  double AvgRespTimeValue=0;
+  double MinRespTimeValue=0;
+  double MaxRespTimeValue=0;
+  int ServedValue=0;
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  NSDebugMLog(@"page_=%@",page_);
-	  if (!pagesStatistics)
-		pagesStatistics=[NSMutableDictionary new];
-	  else
-		_pageStats=[pagesStatistics objectForKey:page_];
-	  NSDebugMLog(@"pagesStatistics=%@",pagesStatistics);
-	  NSDebugMLog(@"_pageStats=%@",_pageStats);
-	  if (_pageStats)
-		{
-		  _AvgRespTime=[_pageStats objectForKey:@"Avg Resp. Time"];
-		  _MinRespTime=[_pageStats objectForKey:@"Min Resp. Time"];
-		  _MaxRespTime=[_pageStats objectForKey:@"Max Resp. Time"];
-		  _Served=[_pageStats objectForKey:@"Served"];
+    {
+      NSDebugMLog(@"aPage=%@",aPage);
+      if (!_pagesStatistics)
+        _pagesStatistics=[NSMutableDictionary new];
+      else
+        pageStats=[_pagesStatistics objectForKey:aPage];
+      NSDebugMLog(@"pagesStatistics=%@",_pagesStatistics);
+      NSDebugMLog(@"pageStats=%@",pageStats);
+      if (pageStats)
+        {
+          AvgRespTime=[pageStats objectForKey:@"Avg Resp. Time"];
+          MinRespTime=[pageStats objectForKey:@"Min Resp. Time"];
+          MaxRespTime=[pageStats objectForKey:@"Max Resp. Time"];
+          Served=[pageStats objectForKey:@"Served"];
 		  
-		  _ServedValue=[_Served intValue];
-		  if (_MinRespTime)
-			{
-			  _MinRespTimeValue=[_MinRespTime doubleValue];
-			  _MinRespTimeValue=min(_MinRespTimeValue,timeInterval_);
-			}
-		  else
-			_MinRespTimeValue=timeInterval_;
-		  if (_MaxRespTime)
-			{
-			  _MaxRespTimeValue=[_MaxRespTime doubleValue];
-			  _MaxRespTimeValue=max(_MaxRespTimeValue,timeInterval_);
-			}
-		  else
-			_MaxRespTimeValue=timeInterval_;
-		  if (_AvgRespTime)
-			{
-			  _AvgRespTimeValue=[_AvgRespTime doubleValue];
-			  _AvgRespTimeValue=((_AvgRespTimeValue*_ServedValue)+timeInterval_)/(_ServedValue+1);
-			}
-		  else
-			_AvgRespTimeValue=timeInterval_;
-		  _Served++;
-		}
-	  else
-		{
-		  _pageStats=[NSMutableDictionary dictionary];
-		  [pagesStatistics setObject:_pageStats
-						   forKey:page_];
-		  _AvgRespTimeValue=timeInterval_;
-		  _MinRespTimeValue=timeInterval_;
-		  _MaxRespTimeValue=timeInterval_;
-		  _ServedValue=1;
-		};
-	  _AvgRespTime=[NSNumber numberWithDouble:_AvgRespTimeValue];
-	  _MinRespTime=[NSNumber numberWithDouble:_MinRespTimeValue];
-	  _MaxRespTime=[NSNumber numberWithDouble:_MaxRespTimeValue];
-	  _Served=[NSNumber numberWithInt:_ServedValue];
-	  NSDebugMLog(@"_AvgRespTime=%@",_AvgRespTime);
-	  NSDebugMLog(@"_MinRespTime=%@",_MinRespTime);
-	  NSDebugMLog(@"_MaxRespTime=%@",_MaxRespTime);
-	  NSDebugMLog(@"_Served=%@",_Served);
-	  [_pageStats setObject:_AvgRespTime
-				  forKey:@"Avg Resp. Time"];
-	  [_pageStats setObject:_MinRespTime
-				  forKey:@"Min Resp. Time"];
-	  [_pageStats setObject:_MaxRespTime
-				  forKey:@"Max Resp. Time"];
-	  [_pageStats setObject:_Served
-				  forKey:@"Served"];
-	}
+          ServedValue=[Served intValue];
+          if (MinRespTime)
+            {
+              MinRespTimeValue=[MinRespTime doubleValue];
+              MinRespTimeValue=min(MinRespTimeValue,aTimeInterval);
+            }
+          else
+            MinRespTimeValue=aTimeInterval;
+          if (MaxRespTime)
+            {
+              MaxRespTimeValue=[MaxRespTime doubleValue];
+              MaxRespTimeValue=max(MaxRespTimeValue,aTimeInterval);
+            }
+          else
+            MaxRespTimeValue=aTimeInterval;
+          if (AvgRespTime)
+            {
+              AvgRespTimeValue=[AvgRespTime doubleValue];
+              AvgRespTimeValue=((AvgRespTimeValue*ServedValue)+aTimeInterval)/(ServedValue+1);
+            }
+          else
+            AvgRespTimeValue=aTimeInterval;
+          Served++;
+        }
+      else
+        {
+          pageStats=[NSMutableDictionary dictionary];
+          [_pagesStatistics setObject:pageStats
+                           forKey:aPage];
+          AvgRespTimeValue=aTimeInterval;
+          MinRespTimeValue=aTimeInterval;
+          MaxRespTimeValue=aTimeInterval;
+          ServedValue=1;
+        };
+      AvgRespTime=[NSNumber numberWithDouble:AvgRespTimeValue];
+      MinRespTime=[NSNumber numberWithDouble:MinRespTimeValue];
+      MaxRespTime=[NSNumber numberWithDouble:MaxRespTimeValue];
+      Served=[NSNumber numberWithInt:ServedValue];
+      NSDebugMLog(@"AvgRespTime=%@",AvgRespTime);
+      NSDebugMLog(@"MinRespTime=%@",MinRespTime);
+      NSDebugMLog(@"MaxRespTime=%@",MaxRespTime);
+      NSDebugMLog(@"Served=%@",Served);
+      [pageStats setObject:AvgRespTime
+                 forKey:@"Avg Resp. Time"];
+      [pageStats setObject:MinRespTime
+                 forKey:@"Min Resp. Time"];
+      [pageStats setObject:MaxRespTime
+                 forKey:@"Max Resp. Time"];
+      [pageStats setObject:Served
+                 forKey:@"Served"];
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_updateDAStatisticsForActionNamed:(id)name_
-							timeInterval:(NSTimeInterval)timeInterval_
+-(void)_updateDAStatisticsForActionNamed:(id)aName
+                            timeInterval:(NSTimeInterval)aTimeInterval
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)_sessionTerminating:(id)session_
+-(void)_sessionTerminating:(id)aSession
 {
   //OK
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  int _activeSessionsCount=[GSWApp _activeSessionsCount];
-	  NSArray* _statistics=[session_ statistics];
-	  NSDate* _sessionBirthDate=nil;
-	  NSTimeInterval _sessionTimeOut=0;
-	  int _sessionRequestCounter=0;
-	  [self _updatePathsStatisticsWithPaths:_statistics];
-	  _sessionBirthDate=[session_ _birthDate];
-	  _sessionTimeOut=[session_ timeOut];
-	  _sessionRequestCounter=[session_ _requestCounter];
-	  //TODOFN
-	}
+    {
+      int activeSessionsCount=[GSWApp _activeSessionsCount];
+      NSArray* statistics=[aSession statistics];
+      NSDate* sessionBirthDate=nil;
+      NSTimeInterval sessionTimeOut=0;
+      int sessionRequestCounter=0;
+      [self _updatePathsStatisticsWithPaths:statistics];
+      sessionBirthDate=[aSession _birthDate];
+      sessionTimeOut=[aSession timeOut];
+      sessionRequestCounter=[aSession _requestCounter];
+      //TODOFN
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];  
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_applicationCreatedSession:(GSWSession*)session_
+-(void)_applicationCreatedSession:(GSWSession*)aSession
 {
   //OK
-  int _activeSessionsCount=0;
+  int activeSessionsCount=0;
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  _activeSessionsCount=[[GSWApplication application] _activeSessionsCount];
-	  ASSIGN(maxActiveSessionsDate,[NSDate date]);
-	  maxActiveSessionsCount=max(_activeSessionsCount,maxActiveSessionsCount);
-	  sessionsCount++; //ou _activeSessionsCount
-	}
+    {
+      activeSessionsCount=[[GSWApplication application] _activeSessionsCount];
+      ASSIGN(_maxActiveSessionsDate,[NSDate date]);
+      _maxActiveSessionsCount=max(activeSessionsCount,_maxActiveSessionsCount);
+      _sessionsCount++; //ou activeSessionsCount
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -347,31 +359,33 @@ static char rcsId[] = "$Id$";
 -(void)_applicationDidHandleComponentActionRequest
 {
   //OK
-  double _timeInterval=0;
+  double timeInterval=0;
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  _timeInterval=[self _applicationDidHandleRequest];
-	  NSDebugMLog(@"currentPage=%@",currentPage);
-	  if (currentPage)//TODO no current page if no session (error page,...)
-		[self _updatePagesStatisticsForPage:currentPage
-			  timeInterval:_timeInterval];
-	}
+    {
+      timeInterval=[self _applicationDidHandleRequest];
+      NSDebugMLog(@"currentPage=%@",_currentPage);
+      if (_currentPage)//TODO no current page if no session (error page,...)
+        [self _updatePagesStatisticsForPage:_currentPage
+              timeInterval:timeInterval];
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_applicationDidHandleDirectActionRequestWithActionNamed:(id)name_
+-(void)_applicationDidHandleDirectActionRequestWithActionNamed:(id)aName
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -381,11 +395,11 @@ static char rcsId[] = "$Id$";
 {
   //OK
   LOGObjectFnNotImplemented();	//TODOFN
-  //lastDidHandleRequestTimeInterval=115.005370  (ancien=53.516954)
-  //totalTransactionTimeInterval=double DOUBLE:61.488416 (ancien=0)
-  //movingTransactionTimeInterval=double DOUBLE:61.488416 (ancien=0)
+  //_lastDidHandleRequestTimeInterval=115.005370  (ancien=53.516954)
+  //_totalTransactionTimeInterval=double DOUBLE:61.488416 (ancien=0)
+  //_movingTransactionTimeInterval=double DOUBLE:61.488416 (ancien=0)
 
-  return movingTransactionTimeInterval; //??? 61.488416: ou _totalTransactionTimeInterval - precedent
+  return _movingTransactionTimeInterval; //??? 61.488416: ou _totalTransactionTimeInterval - precedent
 };
 
 //--------------------------------------------------------------------
@@ -395,17 +409,19 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  directActionTransactionsCount++;
-	  [self _applicationWillHandleRequest];
-	}
+    {
+      _directActionTransactionsCount++;
+      [self _applicationWillHandleRequest];
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -418,17 +434,19 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  componentActionTransactionsCount++;
-	  [self _applicationWillHandleRequest];
-	}
+    {
+      _componentActionTransactionsCount++;
+      [self _applicationWillHandleRequest];
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -439,13 +457,13 @@ static char rcsId[] = "$Id$";
 {
   //OK
   LOGObjectFnNotImplemented();	//TODOFN
-  transactionsCount++;
+  _transactionsCount++;
   /*
 	lastWillHandleRequestTimeInterval=double DOUBLE:53.516954 [RC=4294967295]
 	totalIdleTimeInterval=double DOUBLE:53.516954 [RC=4294967295]
 	movingIdleTimeInterval=double DOUBLE:53.516954 [RC=4294967295]
   */
-  movingAverageTransactionsCount++;
+  _movingAverageTransactionsCount++;
 };
 
 @end
@@ -454,59 +472,63 @@ static char rcsId[] = "$Id$";
 @implementation GSWStatisticsStore (GSWStatisticsStoreB)
 
 //--------------------------------------------------------------------
--(NSString*)descriptionForResponse:(GSWResponse*)response_
-						 inContext:(GSWContext*)context_
+-(NSString*)descriptionForResponse:(GSWResponse*)aResponse
+                         inContext:(GSWContext*)aContext
 {
   //OK
-  GSWComponent* _page=nil;
-  NSString* _description=nil;
+  GSWComponent* page=nil;
+  NSString* description=nil;
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  _page=[context_ page];
-	  _description=[_page descriptionForResponse:response_
-						  inContext:context_];
-	}
+    {
+      page=[aContext page];
+      description=[page descriptionForResponse:aResponse
+                        inContext:aContext];
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
-  return _description;
+  return description;
 };
 
 //--------------------------------------------------------------------
--(void)recordStatisticsForResponse:(GSWResponse*)response_
-						 inContext:(GSWContext*)context_
+-(void)recordStatisticsForResponse:(GSWResponse*)aResponse
+                         inContext:(GSWContext*)aContext
 {
   //OK
-  GSWComponent* _page=nil;
-  NSString* _pageName=nil;
+  GSWComponent* page=nil;
+  NSString* pageName=nil;
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  _page=[context_ page];
-	  NSDebugMLog(@"_page=%@",_page);
-	  _pageName=[_page name];
-	  NSDebugMLog(@"_pageName=%@",_pageName);
-	  ASSIGN(currentPage,_pageName);
-	  NSDebugMLog(@"currentPage=%@",currentPage);
- [self _memoryUsage];//TODO Delete because it's Just for Test !
-	}
+    {
+      page=[aContext page];
+      NSDebugMLog(@"page=%@",page);
+      pageName=[page name];
+      NSDebugMLog(@"pageName=%@",pageName);
+      ASSIGN(_currentPage,pageName);
+      NSDebugMLog(@"_currentPage=%@",_currentPage);
+      [self _memoryUsage];//TODO Delete because it's Just for Test !
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -518,7 +540,7 @@ static char rcsId[] = "$Id$";
 @implementation GSWStatisticsStore (GSWStatisticsStoreC)
 
 //--------------------------------------------------------------------
--(void)logString:(id)string_
+-(void)logString:(id)aString
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -528,47 +550,49 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return logRotation;
+  return _logRotation;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)logFile
 {
   //OK
-  NSString* _logFile=nil;
+  NSString* logFile=nil;
   LOGObjectFnStart();
   [self lock];
   NS_DURING
-	{
-	  _logFile=logPath;
-	}
+    {
+      logFile=_logPath;
+    }
   NS_HANDLER
-	{
-	  NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
-  return _logFile;
+  return logFile;
 };
 
 //--------------------------------------------------------------------
--(void)			setLogFile:(id)logFile_
-   rotationFrequencyInDays:(double)rotationFrequency
+-(void)	       setLogFile:(id)logFile
+  rotationFrequencyInDays:(double)rotationFrequency
 {
   LOGObjectFnStart();
-  ASSIGN(logPath,logFile_);
-  logRotation=rotationFrequency;
+  ASSIGN(_logPath,logFile);
+  _logRotation=rotationFrequency;
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(id)formatDescription:(id)description_
-		   forResponse:(GSWResponse*)response_
-			 inContext:(GSWContext*)context_
+-(id)formatDescription:(id)description
+           forResponse:(GSWResponse*)aResponse
+             inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -584,7 +608,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return password;
+  return _password;
 };
 
 //--------------------------------------------------------------------
@@ -592,7 +616,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return pathsStatistics;
+  return _pathsStatistics;
 };
 
 //--------------------------------------------------------------------
@@ -600,7 +624,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return pagesStatistics;
+  return _pagesStatistics;
 };
 
 //--------------------------------------------------------------------
@@ -613,49 +637,49 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSDictionary*)_memoryUsage
 {
-  struct rusage _rusage;
+  struct rusage rusageStruct;
   int i=0;
   LOGObjectFnStart();
 //Use NSRealMemoryAvailable ??
   for(i=0;i<2;i++)
-	{
-	  memset(&_rusage,0,sizeof(_rusage));
-	  if (getrusage(i>0 ? RUSAGE_CHILDREN : RUSAGE_SELF,&_rusage)!=0)
-		{
-		  LOGError(@"getrusage faled %d",errno);
-		}
-	  else
-		{
-		  NSTimeInterval _userTime=NSTimeIntervalFromTimeVal(&_rusage.ru_utime);
-		  NSTimeInterval _systemTime=NSTimeIntervalFromTimeVal(&_rusage.ru_stime);
-		  NSDebugMLog(@"_userTime=%ld",(long)_userTime);
-		  NSDebugMLog(@"_systemTime=%ld",(long)_systemTime);
-		  NSDebugMLog(@"ru_maxrss=%ld",_rusage.ru_maxrss);          /* maximum resident set size */
-		  NSDebugMLog(@"ru_ixrss=%ld",_rusage.ru_ixrss);      /* integral shared memory size */
-		  NSDebugMLog(@"ru_idrss=%ld",_rusage.ru_idrss);      /* integral unshared data size */
-		  NSDebugMLog(@"ru_isrss=%ld",_rusage.ru_isrss);      /* integral unshared stack size */
-		  NSDebugMLog(@"ru_minflt=%ld",_rusage.ru_minflt);          /* page reclaims */
-		  NSDebugMLog(@"ru_minflt bytes=%ld",_rusage.ru_minflt*getpagesize());          /* page reclaims */
-		  NSDebugMLog(@"ru_majflt=%ld",_rusage.ru_majflt);          /* page faults */
-		  NSDebugMLog(@"ru_majflt bytes=%ld",_rusage.ru_majflt*getpagesize());          /* page faults */
-		  NSDebugMLog(@"ru_nswap=%ld",_rusage.ru_nswap);      /* swaps */
-		  NSDebugMLog(@"ru_inblock=%ld",_rusage.ru_inblock);         /* block input operations */
-		  NSDebugMLog(@"ru_oublock=%ld",_rusage.ru_oublock);         /* block output operations */
-		  NSDebugMLog(@"ru_msgsnd=%ld",_rusage.ru_msgsnd);          /* messages sent */
-		  NSDebugMLog(@"ru_msgrcv=%ld",_rusage.ru_msgrcv);          /* messages received */
-		  NSDebugMLog(@"ru_nsignals=%ld",_rusage.ru_nsignals);        /* signals received */
-		  NSDebugMLog(@"ru_nvcsw=%ld",_rusage.ru_nvcsw);      /* voluntary context switches */
-		  NSDebugMLog(@"ru_nivcsw=%ld",_rusage.ru_nivcsw);          /* involuntary context switches */	  
-		};
-	};
+    {
+      memset(&rusageStruct,0,sizeof(rusageStruct));
+      if (getrusage(i>0 ? RUSAGE_CHILDREN : RUSAGE_SELF,&rusageStruct)!=0)
+        {
+          LOGError(@"getrusage faled %d",errno);
+        }
+      else
+        {
+          NSTimeInterval userTime=NSTimeIntervalFromTimeVal(&rusageStruct.ru_utime);
+          NSTimeInterval systemTime=NSTimeIntervalFromTimeVal(&rusageStruct.ru_stime);
+          NSDebugMLog(@"userTime=%ld",(long)userTime);
+          NSDebugMLog(@"systemTime=%ld",(long)systemTime);
+          NSDebugMLog(@"ru_maxrss=%ld",rusageStruct.ru_maxrss);          /* maximum resident set size */
+          NSDebugMLog(@"ru_ixrss=%ld",rusageStruct.ru_ixrss);      /* integral shared memory size */
+          NSDebugMLog(@"ru_idrss=%ld",rusageStruct.ru_idrss);      /* integral unshared data size */
+          NSDebugMLog(@"ru_isrss=%ld",rusageStruct.ru_isrss);      /* integral unshared stack size */
+          NSDebugMLog(@"ru_minflt=%ld",rusageStruct.ru_minflt);          /* page reclaims */
+          NSDebugMLog(@"ru_minflt bytes=%ld",rusageStruct.ru_minflt*getpagesize());          /* page reclaims */
+          NSDebugMLog(@"ru_majflt=%ld",rusageStruct.ru_majflt);          /* page faults */
+          NSDebugMLog(@"ru_majflt bytes=%ld",rusageStruct.ru_majflt*getpagesize());          /* page faults */
+          NSDebugMLog(@"ru_nswap=%ld",rusageStruct.ru_nswap);      /* swaps */
+          NSDebugMLog(@"ru_inblock=%ld",rusageStruct.ru_inblock);         /* block input operations */
+          NSDebugMLog(@"ru_oublock=%ld",rusageStruct.ru_oublock);         /* block output operations */
+          NSDebugMLog(@"ru_msgsnd=%ld",rusageStruct.ru_msgsnd);          /* messages sent */
+          NSDebugMLog(@"ru_msgrcv=%ld",rusageStruct.ru_msgrcv);          /* messages received */
+          NSDebugMLog(@"ru_nsignals=%ld",rusageStruct.ru_nsignals);        /* signals received */
+          NSDebugMLog(@"ru_nvcsw=%ld",rusageStruct.ru_nvcsw);      /* voluntary context switches */
+          NSDebugMLog(@"ru_nivcsw=%ld",rusageStruct.ru_nivcsw);          /* involuntary context switches */	  
+        };
+    };
   {
-	proc_t P;
-	memset(&P,0,sizeof(proc_t));
-	pidstat(getpid(),&P);
-	pidstatm(getpid(),&P);
+    proc_t P;
+    memset(&P,0,sizeof(proc_t));
+    pidstat(getpid(),&P);
+    pidstatm(getpid(),&P);
   };
   NSDebugMLog(@"ProcInfo:%@",[GSWProcFSProcInfo filledProcInfo]);
-
+  
   //{Committed = 14184448; Reserved = 19025920; }
 /*
  sysinfo(struct sysinfo *info);
@@ -699,7 +723,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return movingAverageSessionLife;
+  return _movingAverageSessionLife;
 };
 
 //--------------------------------------------------------------------
@@ -707,7 +731,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return averageSessionLife;
+  return _averageSessionLife;
 };
 
 //--------------------------------------------------------------------
@@ -715,7 +739,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return movingAverageRequestsPerSession;
+  return _movingAverageRequestsPerSession;
 };
 
 //--------------------------------------------------------------------
@@ -723,7 +747,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return averageRequestsPerSession;
+  return _averageRequestsPerSession;
 };
 
 //--------------------------------------------------------------------
@@ -731,7 +755,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return maxActiveSessionsDate;
+  return _maxActiveSessionsDate;
 };
 
 //--------------------------------------------------------------------
@@ -739,7 +763,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return maxActiveSessionsCount;
+  return _maxActiveSessionsCount;
 };
 
 //--------------------------------------------------------------------
@@ -747,61 +771,61 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return sessionsCount;
+  return _sessionsCount;
 };
 
 //--------------------------------------------------------------------
 -(double)_movingAverageTransactionTime
 {
   LOGObjectFnStart();
-  NSAssert(movingAverageTransactionsCount,@"movingAverageTransactionsCount==0");
+  NSAssert(_movingAverageTransactionsCount!=0,@"movingAverageTransactionsCount==0");
   LOGObjectFnStop();
-  return movingTransactionTimeInterval/movingAverageTransactionsCount; //?
+  return _movingTransactionTimeInterval/_movingAverageTransactionsCount; //?
 };
 
 //--------------------------------------------------------------------
 -(double)_movingAverageIdleTime
 {
   LOGObjectFnStart();
-  NSAssert(movingAverageTransactionsCount,@"movingAverageTransactionsCount==0");
+  NSAssert(_movingAverageTransactionsCount!=0,@"movingAverageTransactionsCount==0");
   LOGObjectFnStop();
-  return movingIdleTimeInterval/movingAverageTransactionsCount;//??
+  return _movingIdleTimeInterval/_movingAverageTransactionsCount;//??
 };
 
 //--------------------------------------------------------------------
 -(double)_averageCATransactionTime
 {
   LOGObjectFnStart();
-  NSAssert(movingAverageTransactionsCount,@"movingAverageTransactionsCount==0");
+  NSAssert(_movingAverageTransactionsCount!=0,@"movingAverageTransactionsCount==0");
   LOGObjectFnStop();
-  return totalCATransactionTimeInterval/movingAverageTransactionsCount; //??
+  return _totalCATransactionTimeInterval/_movingAverageTransactionsCount; //??
 };
 
 //--------------------------------------------------------------------
 -(double)_averageDATransactionTime
 {
   LOGObjectFnStart();
-  NSAssert(movingAverageTransactionsCount,@"movingAverageTransactionsCount==0");
+  NSAssert(_movingAverageTransactionsCount!=0,@"movingAverageTransactionsCount==0");
   LOGObjectFnStop();
-  return totalDATransactionTimeInterval/movingAverageTransactionsCount; //??
+  return _totalDATransactionTimeInterval/_movingAverageTransactionsCount; //??
 };
 
 //--------------------------------------------------------------------
 -(double)_averageTransactionTime
 {
   LOGObjectFnStart();
-  NSAssert(movingAverageTransactionsCount,@"movingAverageTransactionsCount==0");
+  NSAssert(_movingAverageTransactionsCount!=0,@"movingAverageTransactionsCount==0");
   LOGObjectFnStop();
-  return totalTransactionTimeInterval/movingAverageTransactionsCount; //?
+  return _totalTransactionTimeInterval/_movingAverageTransactionsCount; //?
 };
 
 //--------------------------------------------------------------------
 -(double)_averageIdleTime
 {
   LOGObjectFnStart();
-  NSAssert(movingAverageTransactionsCount,@"movingAverageTransactionsCount==0");
+  NSAssert(_movingAverageTransactionsCount!=0,@"movingAverageTransactionsCount==0");
   LOGObjectFnStop();
-  return totalIdleTimeInterval/movingAverageTransactionsCount;//??
+  return _totalIdleTimeInterval/_movingAverageTransactionsCount;//??
 };
 
 //--------------------------------------------------------------------
@@ -809,7 +833,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return directActionTransactionsCount;
+  return _directActionTransactionsCount;
 };
 
 //--------------------------------------------------------------------
@@ -817,7 +841,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return componentActionTransactionsCount;
+  return _componentActionTransactionsCount;
 };
 
 //--------------------------------------------------------------------
@@ -825,7 +849,7 @@ s
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return transactionsCount;
+  return _transactionsCount;
 };
 
 @end
@@ -834,18 +858,18 @@ s
 @implementation GSWStatisticsStore (GSWStatisticsStoreE)
 
 //--------------------------------------------------------------------
--(BOOL)validateLogin:(id)login_
-		  forSession:(id)session_
+-(BOOL)validateLogin:(id)aLogin
+          forSession:(id)aSession
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
--(void)setPassword:(NSString*)password_
+-(void)setPassword:(NSString*)aPassword
 {
   LOGObjectFnStart();
-  ASSIGN(password,password_);
+  ASSIGN(_password,aPassword);
   LOGObjectFnStop();
 };
 
@@ -854,7 +878,7 @@ s
 //====================================================================
 @implementation GSWStatisticsStore (GSWStatisticsStoreF)
 //--------------------------------------------------------------------
--(BOOL)validateLogin:(id)login_
+-(BOOL)validateLogin:(id)aLogin
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
@@ -876,7 +900,7 @@ s
 @implementation GSWStatisticsStore (GSWStatisticsStoreH)
 
 //--------------------------------------------------------------------
-+(id)timeIntervalDescription:(double)timeInterval_
++(id)timeIntervalDescription:(double)aTimeInterval
 {
   LOGClassFnNotImplemented();	//TODOFN
   return nil;

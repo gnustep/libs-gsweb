@@ -1,11 +1,16 @@
-/* GSWComponentDefinition.h - GSWeb: Class GSWComponentDefinition
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWComponentDefinition.h - <title>GSWeb: Class GSWComponentDefinition</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,36 +24,36 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
 #ifndef _GSWComponentDefinition_h__
 	#define _GSWComponentDefinition_h__
 
-
 //====================================================================
 @interface GSWComponentDefinition : NSObject <NSCoding,NSCopying>
 {
-  NSString* name;
-  GSWBundle* bundle;
-  NSMutableArray* observers;
-  NSString* frameworkName;
-  NSString* templateName;
-  Class componentClass;
-  BOOL isScriptedClass;
-  BOOL isCachingEnabled;
-  BOOL isAwake;
+  NSString* _name;
+  GSWBundle* _bundle;
+  NSMutableArray* _observers;
+  NSString* _frameworkName;
+  NSString* _templateName;
+  Class _componentClass;
+  BOOL _isScriptedClass;
+  BOOL _isCachingEnabled;
+  BOOL _isAwake;
 };
 
--(id)initWithName:(NSString*)name_
-			 path:(NSString*)_path
-		  baseURL:(NSString*)_baseURL
-	frameworkName:(NSString*)_frameworkName;
+-(id)initWithName:(NSString*)aName
+             path:(NSString*)aPath
+          baseURL:(NSString*)baseURL
+    frameworkName:(NSString*)aFrameworkName;
 -(void)dealloc;
--(id)initWithCoder:(NSCoder*)coder_;
--(void)encodeWithCoder:(NSCoder*)coder_;
--(id)copyWithZone:(NSZone*)zone_;
+-(id)initWithCoder:(NSCoder*)coder;
+-(void)encodeWithCoder:(NSCoder*)coder;
+-(id)copyWithZone:(NSZone*)zone;
 
 -(NSString*)frameworkName;
 -(NSString*)baseURL;
@@ -62,7 +67,7 @@
 //====================================================================
 @interface GSWComponentDefinition (GSWCacheManagement)
 -(BOOL)isCachingEnabled;
--(void)setCachingEnabled:(BOOL)flag_;
+-(void)setCachingEnabled:(BOOL)flag;
 @end
 
 //====================================================================
@@ -72,55 +77,55 @@
 
 //====================================================================
 @interface GSWComponentDefinition (GSWComponentDefinitionB)
--(GSWElement*)templateWithName:(NSString*)name_
-					languages:(NSArray*)languages_;
+-(GSWElement*)templateWithName:(NSString*)aName
+                     languages:(NSArray*)languages;
 /*
 -(NSString*)stringForKey:(NSString*)key_
-			inTableNamed:(NSString*)name_
-		withDefaultValue:(NSString*)defaultValue_
-			   languages:(NSArray*)languages_;
+	    inTableNamed:(NSString*)aName
+	withDefaultValue:(NSString*)defaultValue_
+       	       languages:(NSArray*)languages;
 //NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)name_
-					withLanguages:(NSArray*)languages_;
+-(NSDictionary*)stringsTableNamed:(NSString*)aName
+	            withLanguages:(NSArray*)languages;
 
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)name_
-						 withLanguages:(NSArray*)languages_;
+-(NSArray*)stringsTableArrayNamed:(NSString*)aName
+		    withLanguages:(NSArray*)languages;
 
--(NSString*)urlForResourceNamed:(NSString*)name_
-						 ofType:(NSString*)type_
-					  languages:(NSArray*)languages_
-						request:(GSWRequest*)request_;
+-(NSString*)urlForResourceNamed:(NSString*)aName
+		         ofType:(NSString*)aType
+		      languages:(NSArray*)languages
+	      		request:(GSWRequest*)aRequest;
 */
--(NSString*)pathForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)type_
-					   languages:(NSArray*)languages_;
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)aType
+                       languages:(NSArray*)languages;
 @end
 
 //====================================================================
 @interface GSWComponentDefinition (GSWComponentDefinitionC)
--(GSWComponent*)componentInstanceInContext:(GSWContext*)context_;
+-(GSWComponent*)componentInstanceInContext:(GSWContext*)aContext;
 -(Class)componentClass;
 -(Class)_componentClass;
--(GSWComponentReference*)componentReferenceWithAssociations:(NSDictionary*)associations_
-												  template:(GSWElement*)_template;
+-(GSWComponentReference*)componentReferenceWithAssociations:(NSDictionary*)associations
+                                                   template:(GSWElement*)template;
 
 -(NSDictionary*)componentAPI;//NDFN
 @end
 
 //====================================================================
 @interface GSWComponentDefinition (GSWComponentDefinitionD)
--(void)_finishInitializingComponent:(GSWComponent*)_component;
+-(void)_finishInitializingComponent:(GSWComponent*)aComponent;
 @end
 
 //====================================================================
 @interface GSWComponentDefinition (GSWComponentDefinitionE)
--(void)_notifyObserversForDyingComponent:(GSWComponent*)_component;
--(void)_awakeObserversForComponent:(GSWComponent*)_component;
--(void)_deallocForComponent:(GSWComponent*)_component;
--(void)_awakeForComponent:(GSWComponent*)_component;
--(void)_registerObserver:(id)_observer;
-+(void)_registerObserver:(id)_observer;
+-(void)_notifyObserversForDyingComponent:(GSWComponent*)aComponent;
+-(void)_awakeObserversForComponent:(GSWComponent*)aComponent;
+-(void)_deallocForComponent:(GSWComponent*)aComponent;
+-(void)_awakeForComponent:(GSWComponent*)aComponent;
+-(void)_registerObserver:(id)observer;
++(void)_registerObserver:(id)observer;
 @end
 
 

@@ -1,11 +1,16 @@
-/* GSWResourceRequestHandler.h - GSWeb: Class GSWResourceRequestHandler
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWResourceRequestHandler.h - <title>GSWeb: Class GSWResourceRequestHandler</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,12 +37,12 @@
 {
 };
 
--(GSWResponse*)handleRequest:(GSWRequest*)request_;
--(GSWResponse*)_responseForJavaClassAtPath:(NSString*)_path;
--(GSWResponse*)_responseForDataAtPath:(NSString*)_path;
--(GSWResponse*)_responseForDataCachedWithKey:(NSString*)_key;
--(GSWResponse*)_generateResponseForData:(NSData*)_data
-							  mimeType:(NSString*)_mimeType;
+-(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
+-(GSWResponse*)_responseForJavaClassAtPath:(NSString*)aPath;
+-(GSWResponse*)_responseForDataAtPath:(NSString*)aPath;
+-(GSWResponse*)_responseForDataCachedWithKey:(NSString*)aKey;
+-(GSWResponse*)_generateResponseForData:(NSData*)aData
+                               mimeType:(NSString*)mimeType;
 
 @end
 

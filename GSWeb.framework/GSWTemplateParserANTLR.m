@@ -1,11 +1,16 @@
-/* GSWTemplateParserANTLR.m - GSWeb: Class GSWTemplateParserANTLR
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWTemplateParserANTLR.h - <title>GSWeb: Class GSWTemplateParserANTLR</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date:       Mar 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -152,18 +158,18 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(BOOL)parseTag:(ANTLRDefAST)_AST
+-(BOOL)parseTag:(ANTLRDefAST)anAST
 {
   BOOL htmlAttrParseOK=YES;
-  NSString* tagName=[_tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
+  NSString* tagName=[_tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)anAST]]; //TODO bad hack
   LOGClassFnStart();
   if (!tagName
-      && ([_AST tokenType]==GSWHTMLTokenType_OPENTAG
-          || [_AST tokenType]==GSWHTMLTokenType_CLOSETAG))
+      && ([anAST tokenType]==GSWHTMLTokenType_OPENTAG
+          || [anAST tokenType]==GSWHTMLTokenType_CLOSETAG))
     {
       NSAutoreleasePool* arpParse=nil;
       ANTLRTextInputStreamString* _tagStream=[[[ANTLRTextInputStreamString alloc] 
-                                                initWithString:[_AST text]]
+                                                initWithString:[anAST text]]
                                                autorelease];
       GSWHTMLAttrLexer* htmlAttrLexer=[[[GSWHTMLAttrLexer alloc]
                                          initWithTextStream:_tagStream]
@@ -173,7 +179,7 @@ static char rcsId[] = "$Id$";
                                       autorelease];
       NSString* tagName=nil;
       NSDictionary* tagAttrs=nil;
-      NSDebugMLLog(@"low",@"PARSE:[%@]",[_AST text]);
+      NSDebugMLLog(@"low",@"PARSE:[%@]",[anAST text]);
       NSDebugMLLog(@"low",@"stream:[%@]",_tagStream);
       htmlAttrParseOK=NO;	  
       arpParse=[NSAutoreleasePool new];
@@ -197,7 +203,7 @@ static char rcsId[] = "$Id$";
       NS_HANDLER
         {
           htmlAttrParseOK=NO;
-          LOGError(@"PARSE PB:[%@]",[_AST text]);//TODO
+          LOGError(@"PARSE PB:[%@]",[anAST text]);//TODO
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"In [_tagParser tag]...");
           [localException raise];
@@ -217,7 +223,7 @@ static char rcsId[] = "$Id$";
       DESTROY(arpParse);
       NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
 
-      NSDebugMLLog(@"low",@"END PARSE:[%@]",[_AST text]);
+      NSDebugMLLog(@"low",@"END PARSE:[%@]",[anAST text]);
 	  
       if (htmlAttrParseOK && tagName)
         {
@@ -227,17 +233,17 @@ static char rcsId[] = "$Id$";
           NSDebugMLLog(@"low",@"Add tagName:[%@]",
                        tagName);
           [_tagsNames setObject:tagName
-                     forKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
+                     forKey:[NSNumber numberWithUnsignedLong:(unsigned long)anAST]]; //TODO bad hack
           NSDebugMLLog(@"low",@"Verify tagName=%@",
-                       [_tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]); //TODO bad hack
+                       [_tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)anAST]]); //TODO bad hack
           NSDebugMLLog(@"low",@"Add tagsAttrs:[%@]",
                        tagAttrs);
           if (tagAttrs)
             {
               [_tagsAttrs setObject:tagAttrs
-                         forKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
+                         forKey:[NSNumber numberWithUnsignedLong:(unsigned long)anAST]]; //TODO bad hack
               NSDebugMLLog(@"low",@"Verify tagAttrs=%@",
-                           [_tagsAttrs objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]); //TODO bad hack
+                           [_tagsAttrs objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)anAST]]); //TODO bad hack
             };
         };
     };
@@ -246,16 +252,18 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(NSString*)getTagNameFor:(ANTLRDefAST)_AST
+-(NSString*)getTagNameFor:(ANTLRDefAST)anAST
 {
-  NSString* tagName=[_tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
+  NSString* tagName=[_tagsNames objectForKey:
+                                  [NSNumber numberWithUnsignedLong:(unsigned long)anAST]]; //TODO bad hack
   LOGClassFnStart();
-  NSDebugMLLog(@"low",@"[%@]",[_AST text]);
+  NSDebugMLLog(@"low",@"[%@]",[anAST text]);
   if (!tagName)
     {
-      BOOL htmlAttrParseOK=[self parseTag:_AST];
+      BOOL htmlAttrParseOK=[self parseTag:anAST];
       if (htmlAttrParseOK)
-        tagName=[_tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
+        tagName=[_tagsNames objectForKey:
+                              [NSNumber numberWithUnsignedLong:(unsigned long)anAST]]; //TODO bad hack
     };
   NSDebugMLLog(@"low",@"tagName:[%@]",tagName);
   LOGClassFnStop();
@@ -263,18 +271,18 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(NSDictionary*)getTagAttrsFor:(ANTLRDefAST)_AST
+-(NSDictionary*)getTagAttrsFor:(ANTLRDefAST)anAST
 {
   NSDictionary* tagAttrs=[_tagsAttrs objectForKey:
-                                       [NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
+                                       [NSNumber numberWithUnsignedLong:(unsigned long)anAST]]; //TODO bad hack
   LOGClassFnStart();
-  NSDebugMLLog(@"low",@"[%@]",[_AST text]);
+  NSDebugMLLog(@"low",@"[%@]",[anAST text]);
   if (!tagAttrs)
     {
-      BOOL htmlAttrParseOK=[self parseTag:_AST];
+      BOOL htmlAttrParseOK=[self parseTag:anAST];
       if (htmlAttrParseOK)
         tagAttrs=[_tagsAttrs objectForKey:
-                               [NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
+                               [NSNumber numberWithUnsignedLong:(unsigned long)anAST]]; //TODO bad hack
     };
   NSDebugMLLog(@"low",@"tagAttrs:[%@]",tagAttrs);
   LOGClassFnStop();
@@ -282,34 +290,34 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(NSArray*)createElementsStartingWithAST:(ANTLRDefAST*)_AST
-                          stopOnTagNamed:(NSString*)_stopTagName
+-(NSArray*)createElementsStartingWithAST:(ANTLRDefAST*)anAST
+                          stopOnTagNamed:(NSString*)stopTagName
 {
-  NSMutableArray* _elements=[NSMutableArray array];
-  ANTLRDefAST _currentAST=*_AST;
+  NSMutableArray* elements=[NSMutableArray array];
+  ANTLRDefAST currentAST=*anAST;
   BOOL end=NO;
   BOOL inHTMLBareString=NO;
   NSMutableString* htmlBareString=nil;
   LOGClassFnStart();
-  NSDebugMLLog(@"low",@"_stopTagName:[%@]",_stopTagName);
-  while(_currentAST && !end)
+  NSDebugMLLog(@"low",@"stopTagName:[%@]",stopTagName);
+  while(currentAST && !end)
     {
       GSWElement* element=nil;
       NSString* tagName=nil;
       NSDictionary* tagAttrs=nil;
       BOOL stopBareString=NO;
-      NSDebugMLLog(@"low",@"[_currentAST: text=[%@] Type=%d",
-                   [_currentAST text],
-                   [_currentAST tokenType]);
+      NSDebugMLLog(@"low",@"[currentAST: text=[%@] Type=%d",
+                   [currentAST text],
+                   [currentAST tokenType]);
       NSDebugMLLog(@"low",@"end=%s inHTMLBareString=%s stopBareString=%s",
                    end ? "YES" : "NO",
                    inHTMLBareString ? "YES" : "NO",
                    stopBareString ? "YES" : "NO");
 
-      if ([_currentAST tokenType]==GSWHTMLTokenType_OPENTAG
-          || [_currentAST tokenType]==GSWHTMLTokenType_CLOSETAG)
+      if ([currentAST tokenType]==GSWHTMLTokenType_OPENTAG
+          || [currentAST tokenType]==GSWHTMLTokenType_CLOSETAG)
         {
-          tagName=[self getTagNameFor:_currentAST];
+          tagName=[self getTagNameFor:currentAST];
           NSDebugMLLog(@"low",@"Result tagName:[%@]",tagName);
           if (!tagName)
             {
@@ -317,11 +325,11 @@ static char rcsId[] = "$Id$";
             }
           else
             {
-              NSDebugMLLog(@"low",@"[_currentAST tokenType]=%d",(int)[_currentAST tokenType]);
-              if ([_currentAST tokenType]==GSWHTMLTokenType_OPENTAG)
+              NSDebugMLLog(@"low",@"[currentAST tokenType]=%d",(int)[currentAST tokenType]);
+              if ([currentAST tokenType]==GSWHTMLTokenType_OPENTAG)
                 {
                   NSDebugMLLog0(@"low",@"Found Open Tag");
-                  tagAttrs=[self getTagAttrsFor:_currentAST];
+                  tagAttrs=[self getTagAttrsFor:currentAST];
                   NSDebugMLLog(@"low",@"tagAttrs=%@",tagAttrs);
                   if ([tagName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
                       || [tagName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
@@ -336,7 +344,7 @@ static char rcsId[] = "$Id$";
                         }
                       else
                         {
-                          ANTLRDefAST nextAST=[_currentAST nextSibling];
+                          ANTLRDefAST nextAST=[currentAST nextSibling];
                           NSString* name=[tagAttrs objectForKey:@"name"];
                           NSDebugMLLog0(@"low",@"Process GSWeb Tag");
                           NSDebugMLLog(@"low",@"GSWeb Tag: name:[%@]",
@@ -344,7 +352,7 @@ static char rcsId[] = "$Id$";
                           if (!name)
                             {
                               LOGError(@"No name for Element:%@",
-                                       [_currentAST text]);//TODO
+                                       [currentAST text]);//TODO
                               ExceptionRaise(@"GSWTemplateParser",
                                              @"GSWTemlateParser: no name for GNUstepWeb tag in template named %@",
                                              _templateName);
@@ -425,28 +433,28 @@ static char rcsId[] = "$Id$";
                                                  _templateName);
                                 };
                             };
-                          _currentAST=nextAST;
+                          currentAST=nextAST;
                         };
                     };
                 }
               else
                 {				  
-                  if (_stopTagName
-                      && [tagName caseInsensitiveCompare:_stopTagName]==NSOrderedSame)
+                  if (stopTagName
+                      && [tagName caseInsensitiveCompare:stopTagName]==NSOrderedSame)
                     {
-                      NSDebugMLLog(@"low",@"_stopTagName found: %@",_stopTagName);
+                      NSDebugMLLog(@"low",@"stopTagName found: %@",stopTagName);
                       end=YES;
                       stopBareString=YES;
-                      _currentAST=[_currentAST nextSibling];
+                      currentAST=[currentAST nextSibling];
                     };
                 };
             };
         }
-      else if ([_currentAST tokenType]==GSWHTMLTokenType_COMMENT)
+      else if ([currentAST tokenType]==GSWHTMLTokenType_COMMENT)
         {
           stopBareString=YES;
-          element=[GSWHTMLComment elementWithString:[_currentAST text]];
-          _currentAST=[_currentAST nextSibling];
+          element=[GSWHTMLComment elementWithString:[currentAST text]];
+          currentAST=[currentAST nextSibling];
         }
       NSDebugMLLog(@"low",@"end=%s inHTMLBareString=%s stopBareString=%s",
                    end ? "YES" : "NO",
@@ -461,17 +469,17 @@ static char rcsId[] = "$Id$";
               inHTMLBareString=YES;
               htmlBareString=[[NSMutableString new] autorelease];
             };
-          NSDebugMLLog(@"low",@"inHTMLBareString: adding [%@]",[_currentAST text]);
-          if ([_currentAST tokenType]==GSWHTMLTokenType_OPENTAG)
-            [htmlBareString appendFormat:@"<%@>",[_currentAST text]];
-          else if ([_currentAST tokenType]==GSWHTMLTokenType_CLOSETAG)
-            [htmlBareString appendFormat:@"</%@>",[_currentAST text]];
+          NSDebugMLLog(@"low",@"inHTMLBareString: adding [%@]",[currentAST text]);
+          if ([currentAST tokenType]==GSWHTMLTokenType_OPENTAG)
+            [htmlBareString appendFormat:@"<%@>",[currentAST text]];
+          else if ([currentAST tokenType]==GSWHTMLTokenType_CLOSETAG)
+            [htmlBareString appendFormat:@"</%@>",[currentAST text]];
           else
-            [htmlBareString appendString:[_currentAST text]];
+            [htmlBareString appendString:[currentAST text]];
           NSDebugMLLog(@"low",@"htmlBareString: ==> [%@]",htmlBareString);
-          _currentAST=[_currentAST nextSibling];
+          currentAST=[currentAST nextSibling];
         };
-      if (inHTMLBareString && (stopBareString || !_currentAST))
+      if (inHTMLBareString && (stopBareString || !currentAST))
         {
           NSDebugMLLog0(@"low",@"inHTMLBareString && stopBareString");
           NSDebugMLLog(@"low",@"CREATE GSWHTMLBareString:\n%@",htmlBareString);
@@ -483,17 +491,17 @@ static char rcsId[] = "$Id$";
       if (element)
         {
           NSDebugMLLog(@"low",@"element to add: element=[%@]",element);
-          [_elements addObject:element];
+          [elements addObject:element];
           element=nil;
         };
       NSDebugMLLog(@"low",@"element:%@",element);
       NSDebugMLLog(@"low",@"inHTMLBareString:%d",(int)inHTMLBareString);
       NSDebugMLLog(@"low",@"htmlBareString:%@",htmlBareString);
     };
-  *_AST=_currentAST;
-  NSDebugMLLog(@"low",@"_elements]:%@",_elements);
+  *anAST=currentAST;
+  NSDebugMLLog(@"low",@"elements]:%@",elements);
   LOGClassFnStop();
-  return _elements;
+  return elements;
 };
 
 @end

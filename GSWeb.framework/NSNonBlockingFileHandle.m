@@ -1,11 +1,16 @@
-/* NSNonBlockingFileHandle.m - NSNonBlockingFileHandle
-   Copyright (C) 1999 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+/** NSNonBlockingFileHandle.m - <title>GSWeb: NSNonBlockingFileHandle</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 #include <time.h>
 #include <sys/time.h>
@@ -53,11 +59,11 @@
 // Does not block if there is no data; returns nil instead.
 -(NSData*)availableDataNonBlocking
 {
-  NSData* _data=nil;
+  NSData* data=nil;
   LOGObjectFnStart();
-  _data=[self readDataOfLengthNonBlocking: UINT_MAX];
+  data=[self readDataOfLengthNonBlocking: UINT_MAX];
   LOGObjectFnStop();
-  return _data;
+  return data;
 };
 
 // Returns an NSData object containing all of the currently available data. 
@@ -65,26 +71,26 @@
 //  Cover for #{-availableDataNonBlocking}.
 -(NSData*)readDataToEndOfFileNonBlocking
 {
-  NSData* _data=nil;
+  NSData* data=nil;
   LOGObjectFnStart();
-  _data=[self readDataOfLengthNonBlocking: UINT_MAX];
+  data=[self readDataOfLengthNonBlocking: UINT_MAX];
   LOGObjectFnStop();
-  return _data;
+  return data;
 };
 
 -(unsigned int)_availableByteCountNonBlocking
 {
-  int numBytes;
+  int numBytes=0;
   int fd = 0;
   LOGObjectFnStart();
   fd=[self fileDescriptor];
 
-  if(ioctl(fd, FIONREAD, (char *) &numBytes) == -1)
-	{
-	  LOGException0(@"NSFileHandleOperationException ioctl() Err");
-	  [NSException raise: NSFileHandleOperationException
-				   format: @"ioctl() Err # %d", (int)errno];
-	};
+  if (ioctl(fd, FIONREAD, (char *) &numBytes) == -1)
+    {
+      LOGException0(@"NSFileHandleOperationException ioctl() Err");
+      [NSException raise: NSFileHandleOperationException
+                   format: @"ioctl() Err # %d", (int)errno];
+    };
   LOGObjectFnStop();
   return numBytes;
 };
@@ -94,7 +100,7 @@
 -(NSData*)readDataOfLengthNonBlocking:(unsigned int)length
 {
   NSData* data=nil;
-  unsigned int readLength;
+  unsigned int readLength=0;
   LOGObjectFnStart();
 
   readLength = [self _availableByteCountNonBlocking];

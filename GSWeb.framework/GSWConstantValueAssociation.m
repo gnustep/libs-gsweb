@@ -1,11 +1,16 @@
-/* GSWConstantValueAssociation.m - GSWeb: Class GSWConstantValueAssociation
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWConstantValueAssociation.m - <title>GSWeb: Class GSWConstantValueAssociation</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,13 +35,13 @@ static char rcsId[] = "$Id$";
 @implementation GSWConstantValueAssociation
 
 //--------------------------------------------------------------------
--(id)initWithValue:(id)value_
+-(id)initWithValue:(id)aValue
 {
   //OK
   if ((self=[super init]))
-	{
-	  ASSIGNCOPY(value,value_);
-	};
+    {
+      ASSIGNCOPY(_value,aValue);
+    };
   return self;
 };
 
@@ -44,29 +50,29 @@ static char rcsId[] = "$Id$";
 {
   GSWLogMemC("GSWConstantValueAssociation start of dealloc");
   GSWLogAssertGood(self);
-  DESTROY(value);
+  DESTROY(_value);
   GSWLogMemC("value deallocated");
   [super dealloc];
   GSWLogMemC("GSWConstantValueAssociation end of dealloc");
 };
 
 //--------------------------------------------------------------------
--(id)copyWithZone:(NSZone*)zone;
+-(id)copyWithZone:(NSZone*)zone
 {
   GSWConstantValueAssociation* clone = [super copyWithZone:zone];
-  ASSIGN(clone->value,value);
+  ASSIGN(clone->_value,_value);
   return clone;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)debugDescription
 {
-  NSString* _dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
-                            object_get_class_name(self),
-                            (void*)self,
-                            value,
-                            [value class]];
-  return _dscr;
+  NSString* dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
+                           object_get_class_name(self),
+                           (void*)self,
+                           _value,
+                           [_value class]];
+  return dscr;
 };
 
 //--------------------------------------------------------------------
@@ -82,34 +88,35 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(id)valueInObject:(id)object_
+-(id)valueInObject:(id)object
 {
-  [self logTakeValue:value];
-  return value;
+  [self logTakeValue:_value];
+  return _value;
 };
 
 //--------------------------------------------------------------------
--(void)setValue:(id)value_
-	   inObject:(id)object_
+-(void)setValue:(id)aValue
+       inObject:(id)object
 {
-  ExceptionRaise0(@"GSWConstantValueAssociation",@"Can't set value for a constant value association");
+  ExceptionRaise0(@"GSWConstantValueAssociation",
+                  @"Can't set value for a constant value association");
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  NSString* _dscr=nil;
+  NSString* dscr=nil;
   GSWLogAssertGood(self);
-  if (value)
-	{
-	  GSWLogAssertGood(value);
-	};
-  _dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
-                  object_get_class_name(self),
-                  (void*)self,
-                  value,
-                  [value class]];
-  return _dscr;
+  if (_value)
+    {
+      GSWLogAssertGood(_value);
+    };
+  dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
+                 object_get_class_name(self),
+                 (void*)self,
+                 _value,
+                 [_value class]];
+  return dscr;
 };
 
 @end

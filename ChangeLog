@@ -1,3 +1,76 @@
+2002-08-04   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWEmbeddedObject.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWGenericContainer.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWDirectActionRequestHandler.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWDynamicURLString.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWBindingNameAssociation.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWComponentDefinition.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWComponentRequestHandler.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWConstantValueAssociation.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWDisplayGroup.h/.m
+		o ivar names changes to conform to coding standards
+	 	o include for TCSimpleDB/
+	* GSWeb.framework/GSWKeyValueAssociation.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWParam.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWRequestHandler.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWResourceRequestHandler.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/NSString+Trimming.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWStats.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/NSNonBlockingFileHandle.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/NSString+HTML.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWStatisticsStore.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWHTMLURLValuedElement.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWApplication.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWBundle.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWDeployedBundle.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWTemplateParserXML.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWHTMLParserExt.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWMultiKeyDictionary.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWProjectBundle.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWTemplateParser.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWPageDefElement.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWUtils.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWeb.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWWOCompatibility.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWQuickTime.h
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWTemplateParserANTLR.h/.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWDebug.m
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWComponent.m
+		o NSAsserts
+	
 2002-07-28   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/WebObjects:
 		o added WebObjects headers (suggested by David Wetzel <dave@turbocat.de>)

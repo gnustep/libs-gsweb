@@ -2,7 +2,7 @@
 
    Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Mar 1999
    
    $Revision$

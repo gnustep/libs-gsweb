@@ -1,11 +1,16 @@
-/* utils.h - utils
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWUtils.m - <title>GSWeb: Utilities</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
-   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,10 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+// $Id$
 
 #ifndef _GSWebUtils_h__
 #define _GSWebUtils_h__
@@ -95,7 +103,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   { ValidationExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__,name_,message_,format_); }
 
 extern BOOL boolValueFor(id id_);
-extern BOOL boolValueWithDefaultFor(id id_,BOOL default_);
+extern BOOL boolValueWithDefaultFor(id id_,BOOL defaultValue);
 //extern BOOLNB boolNbFor(BOOL value_);
 extern BOOL isHeaderKeysEqual(NSString* headerKey,NSString* testKey);
 extern BOOL SBIsEqual(id id1,id id2);
@@ -179,7 +187,7 @@ extern NSData* HexStringToData(NSString* _string);
 //====================================================================
 @interface NSException (NSBuild)
 +(NSException*)exceptionWithName:(NSString *)name
-						  format:(NSString *)format,...;
+                          format:(NSString *)format,...;
 @end
 
 
@@ -198,22 +206,22 @@ extern NSData* HexStringToData(NSString* _string);
 //====================================================================
 @interface NSException (NSExceptionUserInfoAdd)
 
--(NSException*)exceptionByAddingUserInfo:(NSDictionary*)userInfo_;
--(NSException*)exceptionByAddingUserInfoKey:(id)key_
-									 format:(NSString*)format_,...;
--(NSException*)exceptionByAddingToUserInfoKey:(id)key_
-									 format:(NSString*)format_,...;
--(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo_;
--(NSException*)exceptionByAddingUserInfoFrameInfoFormat:(NSString*)format_,...;
--(NSException*)exceptionByAddingUserInfoFrameInfoObject:(id)obj_
-													sel:(SEL)sel_
-												   file:(const char*)file_
-												   line:(int)line_
-												 format:(NSString*)format_,...;
--(NSException*)exceptionByAddingUserInfoFrameInfoFunction:(const char*)fn_
-													 file:(const char*)file_
-													 line:(int)line_
-												   format:(NSString*)format_,...;
+-(NSException*)exceptionByAddingUserInfo:(NSDictionary*)userInfo;
+-(NSException*)exceptionByAddingUserInfoKey:(id)key
+                                     format:(NSString*)format,...;
+-(NSException*)exceptionByAddingToUserInfoKey:(id)key
+                                       format:(NSString*)format,...;
+-(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo;
+-(NSException*)exceptionByAddingUserInfoFrameInfoFormat:(NSString*)format,...;
+-(NSException*)exceptionByAddingUserInfoFrameInfoObject:(id)obj
+                                                    sel:(SEL)sel
+                                                   file:(const char*)file
+                                                   line:(int)line
+                                                 format:(NSString*)format,...;
+-(NSException*)exceptionByAddingUserInfoFrameInfoFunction:(const char*)fn
+                                                     file:(const char*)file
+                                                     line:(int)line
+                                                   format:(NSString*)format,...;
 -(BOOL)isValidationException;
 @end
 
@@ -224,41 +232,41 @@ extern NSData* HexStringToData(NSString* _string);
 
 //====================================================================
 @interface NSDictionary (SBDictionary)
--(id)		objectForKey:(id)_key
-	   withDefaultObject:(id)_default;
-+(id)	dictionaryWithDictionary:(NSDictionary*)dictionary_
- andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults_;
--(id)dictionaryBySettingObject:(id)object_
-						forKey:(id)key_;
--(id)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary_;
+-(id)		objectForKey:(id)key
+	   withDefaultObject:(id)defaultObject;
++(id)	dictionaryWithDictionary:(NSDictionary*)dictionary
+ andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults;
+-(id)dictionaryBySettingObject:(id)object
+                        forKey:(id)key;
+-(id)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary;
 @end
 
 //====================================================================
 @interface NSMutableDictionary (SBMutableDictionary)
--(void)setDefaultObject:(id)object_
-				 forKey:(id)key_;
--(void)addDefaultEntriesFromDictionary:(NSDictionary*)dictionary_;
+-(void)setDefaultObject:(id)object
+                 forKey:(id)key;
+-(void)addDefaultEntriesFromDictionary:(NSDictionary*)dictionary;
 @end
 
 //====================================================================
 @interface NSMutableOrderedArray: NSMutableArray
 {
-  NSMutableArray *array;
-  SEL compareSelector;
+  NSMutableArray* _array;
+  SEL _compareSelector;
 };
 -(id)initWithCompareSelector:(SEL)compareSelector;
--(void)addObject:(id)object_;
--(void)addObjectsFromArray:(NSArray*)array_;
--(void)insertObject:(id)object_
-			atIndex:(unsigned int)index_;
--(void)replaceObjectAtIndex:(unsigned int)index_
-				 withObject:(id)object_;
--(void)replaceObjectsInRange:(NSRange)range_
-		withObjectsFromArray:(NSArray*)array_;
--(void)replaceObjectsInRange:(NSRange)range_
-		withObjectsFromArray:(NSArray*)array_
-					   range:(NSRange)arrayRange_;
--(void)setArray:(NSArray*)array_;
+-(void)addObject:(id)object;
+-(void)addObjectsFromArray:(NSArray*)array;
+-(void)insertObject:(id)object
+            atIndex:(unsigned int)index;
+-(void)replaceObjectAtIndex:(unsigned int)index
+                 withObject:(id)object;
+-(void)replaceObjectsInRange:(NSRange)range
+        withObjectsFromArray:(NSArray*)array;
+-(void)replaceObjectsInRange:(NSRange)range
+        withObjectsFromArray:(NSArray*)array
+                       range:(NSRange)arrayRange;
+-(void)setArray:(NSArray*)array;
 @end
 
 //====================================================================
@@ -274,10 +282,10 @@ extern NSData* HexStringToData(NSString* _string);
 +(NSString*)className;
 -(id)performSelectorIfPossible:(SEL)aSelector;
 -(id)performSelectorIfPossible:(SEL)aSelector
-					withObject:(id)anObject;
+                    withObject:(id)anObject;
 -(id)performSelectorIfPossible:(SEL)aSelector
-					withObject:(id)object1
-					withObject:(id)object2;
+                    withObject:(id)object1
+                    withObject:(id)object2;
 @end
 
 //====================================================================
@@ -286,155 +294,162 @@ extern NSData* HexStringToData(NSString* _string);
 @end
 
 //====================================================================
-#define TmpLock(_lock_)								[(_lock_) tmplockFromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
-#define TmpTryLockBeforeDate(_lock_,_limit_)		[(_lock_) tmptryLockBeforeDate:(_limit_) fromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
-#define TmpLockBeforeDate(_lock_,_limit_)			[(_lock_) tmplockBeforeDate:(_limit_) fromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
-#define TmpUnlock(_lock_)							[(_lock_) tmpunlockFromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
+#define TmpLock(_lock_)				[(_lock_) tmplockFromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
+#define TmpTryLockBeforeDate(_lock_,_limit_)	[(_lock_) tmptryLockBeforeDate:(_limit_) fromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
+#define TmpLockBeforeDate(_lock_,_limit_)	[(_lock_) tmplockBeforeDate:(_limit_) fromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
+#define TmpUnlock(_lock_)			[(_lock_) tmpunlockFromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
 
 //====================================================================
 @interface NSLock (NSLockBD)
 -(BOOL)isLocked;
 -(BOOL)tmplock;
--(BOOL)tmplockFromFunction:(const char*)fn_
-					  file:(const char*)file_
-					  line:(int)line_;
+-(BOOL)tmplockFromFunction:(const char*)fn
+                      file:(const char*)file
+                      line:(int)line;
+
 -(BOOL)tmptryLock;
--(BOOL)tmptryLockFromFunction:(const char*)fn_
-						 file:(const char*)file_
-						 line:(int)line_;
+-(BOOL)tmptryLockFromFunction:(const char*)fn
+                         file:(const char*)file
+                         line:(int)line;
+
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit;
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-			   fromFunction:(const char*)fn_
-					   file:(const char*)file_
-					   line:(int)line_;
+               fromFunction:(const char*)fn
+                       file:(const char*)file
+                       line:(int)line;
+
 -(BOOL)tmplockBeforeDate:(NSDate*)limit;
 -(BOOL)tmplockBeforeDate:(NSDate*)limit
-			fromFunction:(const char*)fn_
-					file:(const char*)file_
-					line:(int)line_;
+            fromFunction:(const char*)fn
+                    file:(const char*)file
+                    line:(int)line;
+
 -(void)tmpunlock;
--(void)tmpunlockFromFunction:(const char*)fn_
-						file:(const char*)file_
-						line:(int)line_;
+-(void)tmpunlockFromFunction:(const char*)fn
+                        file:(const char*)file
+                        line:(int)line;
 @end
 
 //====================================================================
 @interface NSRecursiveLock (NSLockBD)
 -(BOOL)isLocked;
 -(BOOL)tmplock;
--(BOOL)tmplockFromFunction:(const char*)fn_
-					  file:(const char*)file_
-					  line:(int)line_;
+-(BOOL)tmplockFromFunction:(const char*)fn
+                      file:(const char*)file
+                      line:(int)line;
+
 -(BOOL)tmptryLock;
--(BOOL)tmptryLockFromFunction:(const char*)fn_
-						 file:(const char*)file_
-						 line:(int)line_;
+-(BOOL)tmptryLockFromFunction:(const char*)fn
+                         file:(const char*)file
+                         line:(int)line;
+
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit;
 -(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-			   fromFunction:(const char*)fn_
-					   file:(const char*)file_
-					   line:(int)line_;
+               fromFunction:(const char*)fn
+                       file:(const char*)file
+                       line:(int)line;
 -(BOOL)tmplockBeforeDate:(NSDate*)limit;
 -(BOOL)tmplockBeforeDate:(NSDate*)limit
-			fromFunction:(const char*)fn_
-					file:(const char*)file_
-					line:(int)line_;
+            fromFunction:(const char*)fn
+                    file:(const char*)file
+                    line:(int)line;
 -(void)tmpunlock;
--(void)tmpunlockFromFunction:(const char*)fn_
-						file:(const char*)file_
-						line:(int)line_;
+-(void)tmpunlockFromFunction:(const char*)fn
+                        file:(const char*)file
+                        line:(int)line;
 @end
 
 //====================================================================
 @interface NSArray (NSPerformSelectorWith2Objects)
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object1_
-					   withObject:(id)object2_;
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object1
+                       withObject:(id)object2;
+
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector;
 -(void)makeObjectsPerformIfPossible:(SEL)aSelector;
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)argument;
+                                 withObject:(id)argument;
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)argument1
-								 withObject:(id)argument2;
+                                 withObject:(id)argument1
+                                 withObject:(id)argument2;
 -(void)makeObjectsPerformIfPossible:(SEL)aSelector
-						 withObject:(id)argument;
+                         withObject:(id)argument;
 
 @end
 
 //====================================================================
 @interface NSDictionary (NSPerformSelector)
--(void)makeObjectsPerformSelector:(SEL)selector_;
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object_;
--(void)makeObjectsPerformSelector:(SEL)selector_
-					   withObject:(id)object1_
-					   withObject:(id)object2_;
+-(void)makeObjectsPerformSelector:(SEL)selector;
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object;
+-(void)makeObjectsPerformSelector:(SEL)selector
+                       withObject:(id)object_
+                       withObject:(id)object2;
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector;
 -(void)makeObjectsPerformIfPossible:(SEL)aSelector;
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)argument;
+                                 withObject:(id)argument;
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)argument1
-								 withObject:(id)argument2;
+                                 withObject:(id)argument1
+                                 withObject:(id)argument2;
 -(void)makeObjectsPerformIfPossible:(SEL)aSelector
-						 withObject:(id)argument;
+                         withObject:(id)argument;
 @end
 
 //====================================================================
 @interface NSDictionary (FromNSArray)
-+(id)dictionaryWithArray:(NSArray*)array_
-			  onSelector:(SEL)sel_;
-+(id)dictionaryWithArray:(NSArray*)array_
-			  onSelector:(SEL)sel_
-			  withObject:(id)object;
++(id)dictionaryWithArray:(NSArray*)array
+              onSelector:(SEL)sel;
++(id)dictionaryWithArray:(NSArray*)array
+              onSelector:(SEL)sel
+              withObject:(id)object;
 @end
 
 //====================================================================
 @interface NSNumber (SBNumber)
-+(NSNumber*)maxValueOf:(NSNumber*)_val0
-				   and:(NSNumber*)_val1;
-+(NSNumber*)minValueOf:(NSNumber*)_val0
-				   and:(NSNumber*)_val1;
++(NSNumber*)maxValueOf:(NSNumber*)val0
+                   and:(NSNumber*)val1;
++(NSNumber*)minValueOf:(NSNumber*)val0
+                   and:(NSNumber*)val1;
 @end
 
 //====================================================================
 @interface NSData (SBNSData)
 -(NSRange)rangeOfData:(NSData*)data;
 -(NSRange)rangeOfData:(NSData*)data
-			  options:(unsigned)mask;
+              options:(unsigned)mask;
 -(NSRange)rangeOfData:(NSData *)aData
-			  options:(unsigned)mask
-				range:(NSRange)aRange;
--(NSArray*)componentsSeparatedByData:(NSData*)separator_;
--(NSData*)dataByDeletingFirstBytesCount:(unsigned int)bytesCount_;
--(NSData*)dataByDeletingLastBytesCount:(unsigned int)bytesCount_;
+              options:(unsigned)mask
+                range:(NSRange)aRange;
+-(NSArray*)componentsSeparatedByData:(NSData*)separator;
+-(NSData*)dataByDeletingFirstBytesCount:(unsigned int)bytesCount;
+-(NSData*)dataByDeletingLastBytesCount:(unsigned int)bytesCount;
 @end
 
 //====================================================================
 @interface NSMutableData (SBNSData)
--(void)deleteFirstBytesCount:(unsigned int)bytesCount_;
--(void)deleteLastBytesCount:(unsigned int)bytesCount_;
+-(void)deleteFirstBytesCount:(unsigned int)bytesCount;
+-(void)deleteLastBytesCount:(unsigned int)bytesCount;
 @end
 
 //====================================================================
 typedef enum _NSNumFmtType
 {
   NSNumFmtType__Unknown	=	0,
-  NSNumFmtType__Int		=	1,
+  NSNumFmtType__Int	=	1,
   NSNumFmtType__Float	=	2,
 } NSNumFmtType;
 
 @interface NSFooNumberFormatter : NSFormatter <NSCoding, NSCopying>
 {
-  NSNumFmtType type;
+  NSNumFmtType _type;
 };
 
--(id)initType:(NSNumFmtType)type_;
+-(id)initType:(NSNumFmtType)type;
 -(NSString*)stringForObjectValue:(id)anObject;
 -(BOOL)getObjectValue:(id*)anObject
-			forString:(NSString*)string
-	 errorDescription:(NSString**)error;
+            forString:(NSString*)string
+     errorDescription:(NSString**)error;
 @end
 
 #endif // _GSWebUtils_h__

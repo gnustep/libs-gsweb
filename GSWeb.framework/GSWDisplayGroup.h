@@ -1,11 +1,16 @@
-/* GSWDisplayGroup.h - GSWeb: Class GSWDisplayGroup
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDisplayGroup.h - <title>GSWeb: Class GSWDisplayGroup</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -27,46 +33,46 @@
 #define _GSWDisplayGroup_h__
 
 #if !GDL2
-#ifndef TCSDB
-#include <eoaccess/EOModel.h>
-#include <eoaccess/EOEntity.h>
-#include <eoaccess/EOAttribute.h>
-#include <eoaccess/EOAttributeOrdering.h>
-#include <eoaccess/EORelationship.h>
-#include <eoaccess/EOQualifier.h>
+   #ifdef TCSDB
+      #import <TCSimpleDB/EODefines.h>
+      #import <TCSimpleDB/EODefines.h>
+   #else // TCSDB
+      #include <eoaccess/EOModel.h>
+      #include <eoaccess/EOEntity.h>
+      #include <eoaccess/EOAttribute.h>
+      #include <eoaccess/EOAttributeOrdering.h>
+      #include <eoaccess/EORelationship.h>
+      #include <eoaccess/EOQualifier.h>
 
-#include <eoaccess/EOAdaptor.h>
-#include <eoaccess/EOAdaptorContext.h>
-#include <eoaccess/EOAdaptorChannel.h>
+      #include <eoaccess/EOAdaptor.h>
+      #include <eoaccess/EOAdaptorContext.h>
+      #include <eoaccess/EOAdaptorChannel.h>
 
-#include <eoaccess/EODatabase.h>
-#include <eoaccess/EODatabaseContext.h>
-#include <eoaccess/EODatabaseChannel.h>
-#include <eoaccess/EODataSources.h>
-#include <eoaccess/EODatabaseDataSource.h>
+      #include <eoaccess/EODatabase.h>
+      #include <eoaccess/EODatabaseContext.h>
+      #include <eoaccess/EODatabaseChannel.h>
+      #include <eoaccess/EODataSources.h>
+      #include <eoaccess/EODatabaseDataSource.h>
 
-#include <eoaccess/EOGenericRecord.h>
-#include <eoaccess/EONull.h>
-#include <eoaccess/EOSQLExpression.h>
+      #include <eoaccess/EOGenericRecord.h>
+      #include <eoaccess/EONull.h>
+      #include <eoaccess/EOSQLExpression.h>
 
-@class EOKeyValueUnarchiver;
+      @class EOKeyValueUnarchiver;
 
-#define EODataSource EODatabaseDataSource
-#else // TCSDB
-#import <TCSimpleDB/TCSimpleDB.h>
-#import <TCSimpleDB/EODefines.h>
-#endif
+      #define EODataSource EODatabaseDataSource
+   #endif
 #else
-#import <EOControl/EOQualifier.h>
-#import <EOControl/EODataSource.h>
-#import <EOControl/EODetailDataSource.h>
-#import <EOControl/EOKeyValueArchiver.h>
-#import <EOAccess/EODatabaseDataSource.h>
+   #import <EOControl/EOQualifier.h>
+   #import <EOControl/EODataSource.h>
+   #import <EOControl/EODetailDataSource.h>
+   #import <EOControl/EOKeyValueArchiver.h>
+   #import <EOAccess/EODatabaseDataSource.h>
 #endif
 
 @interface GSWDisplayGroup : NSObject <NSCoding>
 {
-  id delegate;
+  id _delegate;
 /*
      objects (array) supplied by the EODataSource 
      EOQualifier and EOSortOrderings to filter the objects for display 
@@ -149,17 +155,17 @@
 - (unsigned)indexOfLastDisplayedObject;
 - (id)init;
 - (id)initWithKeyValueUnarchiver:(EOKeyValueUnarchiver*)unarchiver;
-- (void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object_;
+- (void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object;
 - (NSMutableDictionary *)inputObjectForQualifier;
 - (BOOL)inQueryMode;
-- (void)editingContext:(id)editingContext_
+- (void)editingContext:(id)editingContext
    presentErrorMessage:(id)msg;
 - (id)insert;
 - (id)insertAfterLastObject;
 - (NSDictionary *)insertedObjectDefaultValues;
-- (void)insertObject:object_
+- (void)insertObject:object
 	     atIndex:(unsigned)index;
-- (id)insertObjectAtIndex:(unsigned)index_;
+- (id)insertObjectAtIndex:(unsigned)index;
 - (EOQualifier *)lastQualifierFromInputValues;
 - (NSArray *)localKeys;
 - (id)masterObject;
@@ -190,11 +196,11 @@
 - (id)selectPrevious;
 - (BOOL)selectsFirstObjectAfterFetch;
 - (void)setBuildsQualifierFromInput:(BOOL)flag;
-- (void)setCurrentBatchIndex:(unsigned)index_;
-- (void)setDataSource:(EODataSource *)dataSource_;
+- (void)setCurrentBatchIndex:(unsigned)index;
+- (void)setDataSource:(EODataSource *)dataSource;
 - (void)setDefaultStringMatchFormat:(NSString *)format;
 - (void)setDefaultStringMatchOperator:(NSString *)operator;
-- (void)setDelegate:(id)object_;
+- (void)setDelegate:(id)object;
 - (void)setDetailKey:(NSString *)detailKey;
 - (void)setFetchesOnLoad:(BOOL)flag;
 - (void)setInQueryMode:(BOOL)flag;
@@ -204,7 +210,7 @@
 - (void)setMasterObject:(id)masterObject;
 - (void)setNumberOfObjectsPerBatch:(unsigned)count;
 - (void)setObjectArray:(NSArray *)objects;
-- (void)setQualifier:(EOQualifier *)qualifier_;
+- (void)setQualifier:(EOQualifier *)qualifier;
 - (BOOL)setSelectionIndexes:(NSArray *)selection;
 - (void)setSelectsFirstObjectAfterFetch:(BOOL)flag;
 - (void)setSortOrderings:(NSArray *)orderings;
@@ -219,46 +225,46 @@
 
 @interface NSObject (GSWDisplayGroupDelegation)
 
--(void)displayGroup:(GSWDisplayGroup*)displayGroup_
-createObjectFailedForDataSource:(id)dataSource_;
+-(void)displayGroup:(GSWDisplayGroup*)displayGroup
+createObjectFailedForDataSource:(id)dataSource;
 
--(void)displayGroup:(GSWDisplayGroup*)displayGroup_
-    didDeleteObject:(id)object_;
+-(void)displayGroup:(GSWDisplayGroup*)displayGroup
+    didDeleteObject:(id)object;
 
--(void)displayGroup:(GSWDisplayGroup*)displayGroup_
+-(void)displayGroup:(GSWDisplayGroup*)displayGroup
     didFetchObjects:(NSArray*)objects;
 
--(void)displayGroup:(GSWDisplayGroup*)displayGroup_
-    didInsertObject:object_;
+-(void)displayGroup:(GSWDisplayGroup*)displayGroup
+    didInsertObject:(id)object;
 
--(void)displayGroup:(GSWDisplayGroup*)displayGroup_
+-(void)displayGroup:(GSWDisplayGroup*)displayGroup
 	didSetValue:(id)value
-	  forObject:(id)object_
+	  forObject:(id)object
 		key:(NSString*)key;
 
--(NSArray*)displayGroup:(GSWDisplayGroup*)displayGroup_
+-(NSArray*)displayGroup:(GSWDisplayGroup*)displayGroup
  displayArrayForObjects:(NSArray*)objects;
 
--(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup_
+-(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup
 shouldChangeSelectionToIndexes:(NSArray*)newIndexes;
 
--(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup_
- shouldInsertObject:object_
-	    atIndex:(unsigned)index_;
+-(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup
+ shouldInsertObject:object
+	    atIndex:(unsigned)index;
 
 -(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup
  shouldDeleteObject:object;
 
--(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup_
-shouldRedisplayForEditingContextChangeNotification:(NSNotification*)notification_;
+-(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup
+shouldRedisplayForEditingContextChangeNotification:(NSNotification*)notification;
 
--(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup_
-shouldRefetchForInvalidatedAllObjectsNotification:(NSNotification*)notification_;
+-(BOOL)displayGroup:(GSWDisplayGroup*)displayGroup
+shouldRefetchForInvalidatedAllObjectsNotification:(NSNotification*)notification;
 
--(void)displayGroupDidChangeDataSource:(GSWDisplayGroup*)displayGroup_;
--(void)displayGroupDidChangeSelectedObjects:(GSWDisplayGroup*)displayGroup_;
--(void)displayGroupDidChangeSelection:(GSWDisplayGroup*)displayGroup_;
--(BOOL)displayGroupShouldFetch:(GSWDisplayGroup*)displayGroup_;
+-(void)displayGroupDidChangeDataSource:(GSWDisplayGroup*)displayGroup;
+-(void)displayGroupDidChangeSelectedObjects:(GSWDisplayGroup*)displayGroup;
+-(void)displayGroupDidChangeSelection:(GSWDisplayGroup*)displayGroup;
+-(BOOL)displayGroupShouldFetch:(GSWDisplayGroup*)displayGroup;
 
 @end
 

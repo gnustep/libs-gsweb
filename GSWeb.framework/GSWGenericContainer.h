@@ -1,11 +1,16 @@
-/* GSWGenericContainer.h - GSWeb: Class GSWGenericContainer
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWGenericContainer.h - <title>GSWeb: Class GSWGenericContainer</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,25 +36,25 @@
 //====================================================================
 @interface GSWGenericContainer: GSWDynamicElement
 {
-  GSWAssociation* children;
-  NSDictionary *associations;
-  GSWElement* element;
+  GSWAssociation* _children;
+  NSDictionary* _associations;
+  GSWElement* _element;
 };
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)templateElement_;
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)templateElement;
 -(void)dealloc;
 -(NSString*)description;
 
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)aResponse
+			  inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_; 
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext; 
 
 @end
 

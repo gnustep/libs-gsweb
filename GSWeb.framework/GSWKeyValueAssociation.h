@@ -1,11 +1,16 @@
-/* GSWKeyValueAssociation.h - GSWeb: Class GSWKeyValueAssociation
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWKeyValueAssociation.h - <title>GSWeb: Class GSWKeyValueAssociation</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,16 +35,16 @@
 //====================================================================
 @interface GSWKeyValueAssociation : GSWAssociation
 {
-  NSString* keyPath;
+  NSString* _keyPath;
 }
 
--(id)initWithKeyPath:(NSString*)keypath_;
+-(id)initWithKeyPath:(NSString*)aKeyPath;
 -(void)dealloc;
 -(id)copyWithZone:(NSZone*)zone;
 
--(id)valueInObject:(id)object_;
--(void)setValue:(id)value_
-	   inObject:(id)object_;
+-(id)valueInObject:(id)object;
+-(void)setValue:(id)aValue
+       inObject:(id)object;
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
 
