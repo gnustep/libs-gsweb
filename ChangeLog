@@ -2,6 +2,7 @@
 
 	* INSTALL: Update prerequisites.
 	* GSWAdaptors/common/common.make: Whitespace update.
+	* GSWeb.framework/GSWDefaultAdaptor.m: Ditto.
 	
 2004-04-22  S.J. Chun <chunsj@embian.com>
 

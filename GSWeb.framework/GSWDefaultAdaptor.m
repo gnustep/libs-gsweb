@@ -770,15 +770,18 @@ int allow_severity = LOG_INFO;
   if ([_adaptorHost length]>0)
     {
       NSString* connAddress=[handle socketAddress];
-      NSDebugMLog(@"HANDLE connAddress: %@ _adaptorHost=%@",connAddress,_adaptorHost);
+      NSDebugMLog(@"HANDLE connAddress: %@ _adaptorHost=%@",
+		  connAddress,_adaptorHost);
       if ([connAddress isEqualToString:_adaptorHost])
         {
-          [GSWApplication statusDebugWithFormat:@"ACCEPTED connection from: %@ (Allowed: %@)",
+          [GSWApplication statusDebugWithFormat:
+			    @"ACCEPTED connection from: %@ (Allowed: %@)",
                           connAddress,_adaptorHost];
         }
       else
         {
-          [GSWApplication statusLogErrorWithFormat:@"REFUSED connection from: %@ (Allowed: %@)",
+          [GSWApplication statusLogErrorWithFormat:
+			    @"REFUSED connection from: %@ (Allowed: %@)",
                           connAddress,_adaptorHost];
           allowed=NO;
           if (retMessage)
@@ -791,25 +794,31 @@ int allow_severity = LOG_INFO;
 #if HAVE_LIBWRAP
       NSString* appName=nil;
       struct request_info libwrapRequestInfo;
-      memset(&libwrapRequestInfo,0,sizeof(libwrapRequestInfo));
+      memset(&libwrapRequestInfo, 0, sizeof(libwrapRequestInfo));
 
-      appName=[[GSWApplication application]name];
-      request_init(&libwrapRequestInfo, RQ_DAEMON,[appName cString], RQ_FILE, [handle fileDescriptor], 0);
+      appName = [[GSWApplication application] name];
+      request_init(&libwrapRequestInfo, RQ_DAEMON,
+		   [appName cString], RQ_FILE, [handle fileDescriptor], 0);
       
       fromhost(&libwrapRequestInfo);      
-      if (STR_EQ(eval_hostname(libwrapRequestInfo.client), paranoid) || !hosts_access(&libwrapRequestInfo)) 
+      if (STR_EQ(eval_hostname(libwrapRequestInfo.client), paranoid) 
+	  || !hosts_access(&libwrapRequestInfo)) 
         {
-          allowed=NO;
+          allowed = NO;
           if (retMessage)
-            *retMessage=@"libwrap denied";//TODO
-          [GSWApplication statusDebugWithFormat:@"libwrap app: %@ REFUSED connection from: %s (%s)",
+	    {
+	      *retMessage = @"libwrap denied";//TODO
+	    }
+          [GSWApplication statusDebugWithFormat:
+			    @"libwrap: %@ REFUSED connection from: %s (%s)",
                           appName,
                           libwrapRequestInfo.client[0].name,
                           libwrapRequestInfo.client[0].addr];
         }
       else
         {
-          [GSWApplication statusDebugWithFormat:@"libwrap app: %@ ACCEPTED connection from: %s (%s)",
+          [GSWApplication statusDebugWithFormat:
+			    @"libwrap: %@ ACCEPTED connection from: %s (%s)",
                           appName,
                           libwrapRequestInfo.client[0].name,
                           libwrapRequestInfo.client[0].addr];
