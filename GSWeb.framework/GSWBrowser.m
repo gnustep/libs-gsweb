@@ -130,28 +130,6 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWBrowser (GSWBrowserA)
 
-// PRIVATE!
--(void) _setValues:(NSArray*)mutableFoundValues inArray:(NSMutableArray*)selectionsValue
-{
-  NSEnumerator *myEnumer;
-  id			currentObj;
-
-  myEnumer = [[[selectionsValue copy] autorelease] objectEnumerator];
-  while (currentObj = [myEnumer nextObject]) {
-    if ([mutableFoundValues containsObject:currentObj]==NO) {
-      [selectionsValue removeObject:currentObj];
-    }
-  }
-
-  myEnumer = [mutableFoundValues objectEnumerator];
-  while (currentObj = [myEnumer nextObject]) {
-    if ([selectionsValue containsObject:currentObj]==NO) {
-      [selectionsValue addObject:currentObj];
-    }
-  }
-
-}
-
 /*
 
  On WO it looks like that:
@@ -463,17 +441,6 @@ static char rcsId[] = "$Id$";
                     [_item setValue:itemValue
                            inComponent:component];
                   NSDebugMLLog(@"gswdync",@"value=%@",_value);
-                  /*
-                  valueValue=[self valueInContext:context];
-                  NSLog(@"valueValue is %@",valueValue);
-
-                  NSDebugMLLog(@"gswdync",@"_valueValue=%@ [class=%@] _formValue=%@ [class=%@]",
-                               valueValue,[valueValue class],
-                               formValue,[formValue class]);
-                  isEqual=SBIsValueIsIn(valueValue,formValue);
-                  
-                  if (isEqual)
-                   */
                   if ([formValues containsObject:[NSString stringWithFormat:@"%d",i]])
                     {
                       [mutableFoundValues addObject:itemValue];
@@ -491,13 +458,6 @@ static char rcsId[] = "$Id$";
                 {
                   NS_DURING
                     {
-                    ////  selectionsValue=[_selections valueInComponent:component];
-//                      NSLog(@"new _setValues...  = %@  (%@)",selectionsValue,[selectionsValue class]);
-
-//                      [self _setValues:mutableFoundValues
-//                               inArray:selectionsValue];
-//                      NSLog(@"new _setValues done");
-
                       [_selections setValue:foundValues
                                   inComponent:component];
                     };
