@@ -1,7 +1,7 @@
 /* GSWHTTPResponse.c - GSWeb: Adaptors: HTTP Response
    Copyright (C) 1999, 2000, 2001, 2003 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
@@ -99,6 +99,9 @@ GSWHTTPResponse_New(CONST char *p_pszStatus,
 //--------------------------------------------------------------------
 GSWHTTPResponse * 
 GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
+                                   unsigned int  p_uStatus,
+                                   GSWDict	 *p_pHeaders,
+                                   GSWTemplate_FN pTemplateFN,
 				   CONST char    *p_pszMessage,
 				   void          *p_pLogServerData)
 {
@@ -111,20 +114,30 @@ GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
 
   GSWLog(GSW_DEBUG,p_pLogServerData,
 	 "Start GSWHTTPResponse_BuildErrorResponse");
-  if (p_pAppRequest && p_pAppRequest->pAppInstance)
-    pApp=p_pAppRequest->pAppInstance->pApp;
+
 #ifdef	DEBUG
   GSWLog(GSW_INFO,p_pLogServerData,
-	 "Build Error Response [%s] pApp=%p",p_pszMessage,pApp);
+	 "Build Error Response [%s] p_pAppRequest=%p p_pAppRequest->pAppInstance=%p pApp=%p",
+         p_pszMessage,p_pAppRequest,
+         ((p_pAppRequest) ? p_pAppRequest->pAppInstance : NULL),
+         ((p_pAppRequest && p_pAppRequest->pAppInstance) ? p_pAppRequest->pAppInstance->pApp : NULL));
 #endif
-  pHTTPResponse->uStatus = 200;
+
+  if (p_pAppRequest && p_pAppRequest->pAppInstance)
+    pApp=p_pAppRequest->pAppInstance->pApp;
+
+  pHTTPResponse->uStatus = p_uStatus;
   pHTTPResponse->pszStatusMessage = strdup(g_szOKGSWeb[GSWNAMES_INDEX]);
   pHTTPResponse->pHeaders = GSWDict_New(2);
   GSWDict_Add(pHTTPResponse->pHeaders,
 	      g_szHeader_ContentType,
 	      g_szContentType_TextHtml,
 	      FALSE);
+  if (p_pHeaders)
+    GSWDict_AddStringDupFromDict(pHTTPResponse->pHeaders,p_pHeaders);
+
   GSWString_Append(pBufferMessage,p_pszMessage);
+
   if (p_pAppRequest)
     {
       GSWString_SearchReplace(pBufferMessage,"##APP_NAME##",
@@ -136,12 +149,20 @@ GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
       sprintf(szBuffer,"%d",p_pAppRequest->iPort);
       GSWString_SearchReplace(pBufferMessage,"##APP_PORT##",szBuffer);
     };
+
   GSWTemplate_ReplaceStd(pBufferMessage,pApp);
 
-  pszString=GSWTemplate_ErrorResponseText(TRUE,pApp);
-  GSWString_Append(pBuffer,pszString);
-  free(pszString);
-  GSWString_SearchReplace(pBuffer,"##TEXT##",pBufferMessage->pszData);  
+  if (pTemplateFN)
+    {
+      pszString=(*pTemplateFN)(TRUE,pApp);
+      GSWString_Append(pBuffer,pszString);
+      free(pszString);
+      pszString=NULL;
+      GSWString_SearchReplace(pBuffer,"##TEXT##",pBufferMessage->pszData);  
+    }
+  else
+    GSWString_Append(pBuffer,pBufferMessage->pszData);
+
   GSWTemplate_ReplaceStd(pBuffer,pApp);
   
   pHTTPResponse->uContentLength = GSWString_Len(pBuffer);
@@ -156,6 +177,7 @@ GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
   GSWDict_AddStringDup(pHTTPResponse->pHeaders,
 		       g_szHeader_ContentLength,szBuffer);
   GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPResponse_BuildErrorResponse");
+
   return pHTTPResponse;
 };
 
@@ -175,6 +197,73 @@ GSWHTTPResponse_BuildRedirectedResponse(CONST char *p_pszRedirectPath,
   GSWDict_AddStringDup(pHTTPResponse->pHeaders,"location",p_pszRedirectPath);
   GSWLog(GSW_DEBUG,p_pLogServerData,
 	 "Stop GSWHTTPResponse_BuildRedirectedResponse");
+  return pHTTPResponse;
+};
+
+//--------------------------------------------------------------------
+GSWHTTPResponse *
+GSWHTTPResponse_BuildServiceUnavailableResponse(GSWAppRequest *p_pAppRequest,
+                                                time_t     unavailableUntil,
+                                                void       *p_pLogServerData)
+{
+  GSWDict* pHeaders = NULL;
+  GSWHTTPResponse *pHTTPResponse = NULL;
+  char szUnavailableUntil[100] = "";
+  GSWString  *pContent = GSWString_New();
+  char       *pszString=NULL;
+  GSWApp          *pApp=NULL;
+
+  GSWLog(GSW_DEBUG,p_pLogServerData,
+	 "Start GSWHTTPResponse_BuildServiceUnavailableResponse");
+
+  if (p_pAppRequest && p_pAppRequest->pAppInstance)
+    pApp=p_pAppRequest->pAppInstance->pApp;
+
+  if (unavailableUntil>0)
+    {
+      char retryAfterString[25]="";
+      pHeaders = GSWDict_New(1);
+      sprintf(retryAfterString,"%d",(int)(unavailableUntil-time(NULL)));      
+      GSWDict_AddStringDup(pHeaders,
+                           "Retry-After",
+                           retryAfterString);
+      ctime_r(&unavailableUntil,szUnavailableUntil);
+    }
+  else
+    strcpy(szUnavailableUntil,"unknown date");
+
+  // Get the template string
+  pszString=GSWTemplate_ServiceUnavailableResponse(TRUE,pApp);
+
+  // Append it to GSWString pContent
+  GSWString_Append(pContent,pszString);
+
+  // Free The template
+  free(pszString);
+
+  // Replace texts
+  GSWString_SearchReplace(pContent,"##UNAVAILABLE_UNTIL##",szUnavailableUntil);
+
+  pHTTPResponse=GSWHTTPResponse_BuildErrorResponse(p_pAppRequest,
+                                                   503, // Status
+                                                   pHeaders, // Headers
+                                                   NULL, // Template
+                                                   pContent->pszData,
+                                                   p_pLogServerData);
+  if (pContent)
+    {
+      GSWString_Free(pContent);
+      pContent=NULL;
+    };
+
+  if (pHeaders)
+    {
+      GSWDict_Free(pHeaders);
+      pHeaders=NULL;
+    };
+
+  GSWLog(GSW_DEBUG,p_pLogServerData,
+	 "Stop GSWHTTPResponse_BuildServiceUnavailableResponse");
   return pHTTPResponse;
 };
 
@@ -256,7 +345,11 @@ GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
 #endif
 	
   if (!pHTTPResponse) //Error
-    pHTTPResponse=GSWHTTPResponse_BuildErrorResponse(NULL,"Invalid Response",
+    pHTTPResponse=GSWHTTPResponse_BuildErrorResponse(NULL,
+                                                     200, 	// Status
+                                                     NULL,	// Headers
+                                                     &GSWTemplate_ErrorResponse,	// Template
+                                                     "Invalid Response",	// Message
 						     p_pLogServerData);
   else
     {
@@ -295,7 +388,11 @@ GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
 	      GSWHTTPResponse_Free(pHTTPResponse,p_pLogServerData);
 	      pHTTPResponse=NULL;
 	      pHTTPResponse = GSWHTTPResponse_BuildErrorResponse(NULL,
-				  "Invalid Response",p_pLogServerData);
+                                                                 200,	// Status
+                                                                 NULL,	// Headers
+                                                                 &GSWTemplate_ErrorResponse,	// Template
+                                                                 "Invalid Response",	// Message
+                                                                 p_pLogServerData);
 
 	    }
 	  else

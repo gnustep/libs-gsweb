@@ -1,7 +1,7 @@
 /* GSWApp.h - GSWeb: Adaptors: GSWApp & GSWAppInstance
-   Copyright (C) 2000, 2001, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2001, 2003-2004 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	March 2000
    
    This file is part of the GNUstep Web Library.
@@ -35,6 +35,7 @@ typedef struct _GSWApp
   BOOL	  fSwitchToKnownInstance;
   char   *pszAdaptorTemplatesPath;
   int     iLastInstanceIndex;//Last Instance Index
+  time_t  unavailableUntil; // Application is unavailable unti this date. Config format is YYYYMMDD-HHMMSS
 } GSWApp;
 
 typedef struct _GSWAppInstance

@@ -462,6 +462,7 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
   proplist_t pValueCanDump=NULL;  
   proplist_t pValueSwitchToKnownInstance=NULL;  
   proplist_t pValueAdaptorTemplatesPath=NULL;
+  proplist_t pValueUnavailableUntil=NULL;  
 
   if (p_pApp->pszName)
     {
@@ -484,6 +485,105 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
     {
       CONST char *pszCanDump=PLGetString(pValueCanDump);//Do Not Free It
       p_pApp->fCanDump=(strcasecmp(pszCanDump,"YES")==0);
+    };
+
+  // Unavailable Date
+  pValueUnavailableUntil=GSWPropList_GetDictionaryEntry(p_propListApp,
+                                                        "unavailableUntil",
+                                                        pszParents,
+                                                        FALSE,//No Error If Not Exists
+                                                        GSWPropList_TestString,
+                                                        p_pLogServerData);
+
+  p_pApp->unavailableUntil=0;
+  if (pValueUnavailableUntil)
+    {
+      CONST char *pszUnavailableUntil=PLGetString(pValueUnavailableUntil);//Do Not Free It
+      if (pszUnavailableUntil)
+        {
+          if (strlen(pszUnavailableUntil)<8) 
+            {
+              GSWLog(GSW_WARNING,NULL,
+                     "Bad format for unavailableUntil ('%s'). Should be YYYYMMDD or YYYYMMDD-HHMMSS",
+                     pszUnavailableUntil);
+            }
+          else // At least YYYYMMDD
+            {
+              struct tm tmStruct;
+              memset(&tmStruct,0,sizeof(tmStruct));
+
+              //1900 Based
+              tmStruct.tm_year=((pszUnavailableUntil[0]-'0')*1000
+                                +(pszUnavailableUntil[1]-'0')*100
+                                +(pszUnavailableUntil[2]-'0')*10
+                                +(pszUnavailableUntil[3]-'0'))-1900;
+              if (tmStruct.tm_year<0)
+                {
+                  GSWLog(GSW_WARNING,p_pLogServerData,
+                         "Bad year (%d) in unavailableUntil ('%s')",
+                         (int)(tmStruct.tm_year+1900),
+                         pszUnavailableUntil);
+                }
+              else
+                {
+                  //0 based
+                  tmStruct.tm_mon=((pszUnavailableUntil[4]-'0')*10
+                                   +(pszUnavailableUntil[5]-'0'))-1;
+                  if (tmStruct.tm_mon<0 || tmStruct.tm_mon>11)
+                    {
+                      GSWLog(GSW_WARNING,p_pLogServerData,
+                             "Bad month (%d) in unavailableUntil ('%s')",
+                             (int)(tmStruct.tm_mon+1),
+                             pszUnavailableUntil);
+                    }
+                  else
+                    {
+                      tmStruct.tm_mday=((pszUnavailableUntil[6]-'0')*10
+                                        +(pszUnavailableUntil[7]-'0'));              
+                      if (tmStruct.tm_mday<1 || tmStruct.tm_mday>31)
+                        {
+                          GSWLog(GSW_WARNING,p_pLogServerData,
+                                 "Bad month day (%d) in unavailableUntil ('%s')",
+                                 (int)(tmStruct.tm_mday),
+                                 pszUnavailableUntil);
+                        }
+                      else
+                        {
+                          if (strlen(pszUnavailableUntil)>=15) // YYYYMMDD-HHMMSS
+                            {
+                              tmStruct.tm_hour=((pszUnavailableUntil[9]-'0')*10
+                                                +(pszUnavailableUntil[10]-'0'));
+                              if (tmStruct.tm_hour<0 || tmStruct.tm_hour>23)
+                                {
+                                  tmStruct.tm_hour=23;
+                                }
+                              else
+                                {
+                                  tmStruct.tm_min=((pszUnavailableUntil[11]-'0')*10
+                                                   +(pszUnavailableUntil[12]-'0'));
+                                  if (tmStruct.tm_min<0 || tmStruct.tm_hour>59)
+                                    {
+                                      tmStruct.tm_min=59;
+                                    }
+                                  else
+                                    {
+                                      tmStruct.tm_sec=((pszUnavailableUntil[13]-'0')*10
+                                                       +(pszUnavailableUntil[14]-'0'));
+                                      if (tmStruct.tm_sec<0 || tmStruct.tm_sec>59)
+                                        {
+                                          tmStruct.tm_sec=59;
+                                        };
+                                    };
+                                };
+                            };
+                          p_pApp->unavailableUntil=mktime(&tmStruct);
+                          if (p_pApp->unavailableUntil<0) // Invalid
+                            p_pApp->unavailableUntil=0;
+                        };
+                    };
+                };
+            };
+        };
     };
 
   // SwitchToKnownInstance

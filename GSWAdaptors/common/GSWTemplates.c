@@ -1,7 +1,7 @@
 /* GSWTemplates.c - GSWeb: GSWTemplates
-   Copyright (C) 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2001, 2002, 2003-2004 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	March 2000
    
    This file is part of the GNUstep Web Library.
@@ -34,7 +34,7 @@
 #include "GSWTemplates.h"
 
 //--------------------------------------------------------------------
-const char *g_szErrorResponseTextTemplate[2]={
+const char *g_szErrorResponseTemplate[2]={
 "##TEXT##",
 "<HTML><BODY BGCOLOR=\"#FFFFFF\">\n"
 "<CENTER><H1>##TEXT##</H1></CENTER>\n"
@@ -43,7 +43,16 @@ const char *g_szErrorResponseTextTemplate[2]={
 "</BODY></HTML>\n"};
 
 //--------------------------------------------------------------------
-const char *g_szErrorNoResponseMessageTemplate[2]={
+const char *g_szErrorNoResponseTemplate[2]={
+"##TEXT##",
+"<HTML><BODY BGCOLOR=\"#FFFFFF\">\n"
+"<CENTER><H1>##TEXT##</H1></CENTER>\n"
+"<BR>\n"
+"<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.png\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
+"</BODY></HTML>\n"};
+
+//--------------------------------------------------------------------
+const char *g_szErrorNoResponseIncludedMessageTemplate[2]={
 "##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't respond",
 "##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't respond"};
 
@@ -132,16 +141,30 @@ char *g_szDump_AppInstanceTemplate[2]={
   "</TR>"};
 
 //--------------------------------------------------------------------
+char *g_szServiceUnavailableResponseTemplate[2]={
+  "Application ##APP_NAME## is unavailable until ##UNAVAILABLE_UNTIL##.\n",
+
+  "<HTML><HEAD><TITLE>Application ##APP_NAME## is unavailable until ##UNAVAILABLE_UNTIL##</TITLE></HEAD>\n"
+  "<BODY BGCOLOR=\"#FFFFFF\">\n"
+  "<CENTER><H1>Application ##APP_NAME##</H1><H3>is unavailable until ##UNAVAILABLE_UNTIL##</H3></CENTER>"
+  "<BR>\n"
+  "<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.png\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
+  "</BODY></HTML>\n"};
+
+//--------------------------------------------------------------------
 char *
 GSWTemplate_GetTemplate(BOOL        p_fHTML,
 			GSWApp     *pApp,
 			CONST char *p_pszTemplateName)
 {
   char *pszTemplate=NULL;
-  if (pApp && pApp->pszAdaptorTemplatesPath && p_pszTemplateName)
+  GSWConfig *gswConfig=GSWConfig_GetConfig();
+
+  if (p_pszTemplateName
+      && ((pApp && pApp->pszAdaptorTemplatesPath)
+          || gswConfig->pszAdaptorTemplatesPath))
     {
       FILE *fd=NULL;
-      GSWConfig *gswConfig=GSWConfig_GetConfig();
       int applen = 0;
       int globallen = 0;
       int maxlen = 0;
@@ -163,6 +186,7 @@ GSWTemplate_GetTemplate(BOOL        p_fHTML,
         else
           sprintf(pathName,"%s/%s.txt",pApp->pszAdaptorTemplatesPath,
 		  p_pszTemplateName);
+
         fd=fopen(pathName,"r");
         if (!fd)
           {
@@ -172,8 +196,10 @@ GSWTemplate_GetTemplate(BOOL        p_fHTML,
             else
               sprintf(pathName,"%s/%s.txt",
 		      gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
+
             fd=fopen(pathName,"r");
-          }
+          };
+
         if (fd)
           {
             char buff[4096]="";
@@ -191,31 +217,44 @@ GSWTemplate_GetTemplate(BOOL        p_fHTML,
         pathName=NULL;
       };
     };
+
   return pszTemplate;
 };
 
 
 //--------------------------------------------------------------------
 char *
-GSWTemplate_ErrorResponseText(BOOL    p_fHTML,
-			      GSWApp *pApp)
+GSWTemplate_ErrorResponse(BOOL    p_fHTML,
+                          GSWApp *pApp)
 {
   char *pszString=NULL;
-  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorResponseText");
+  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorResponse");
   if (!pszString)
-    pszString=strdup(g_szErrorResponseTextTemplate[p_fHTML ? 1 : 0]);
+    pszString=strdup(g_szErrorResponseTemplate[p_fHTML ? 1 : 0]);
   return pszString;
 };
 
 //--------------------------------------------------------------------
 char *
-GSWTemplate_ErrorNoResponseMessage(BOOL    p_fHTML,
-				   GSWApp *pApp)
+GSWTemplate_ErrorNoResponse(BOOL    p_fHTML,
+                            GSWApp *pApp)
 {
   char *pszString=NULL;
   pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorNoResponse");
   if (!pszString)
-    pszString=strdup(g_szErrorNoResponseMessageTemplate[p_fHTML ? 1 : 0]);
+    pszString=strdup(g_szErrorNoResponseTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
+};
+
+//--------------------------------------------------------------------
+char *
+GSWTemplate_ErrorNoResponseIncludedMessage(BOOL    p_fHTML,
+                                           GSWApp *pApp)
+{
+  char *pszString=NULL;
+  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorNoResponseIncludedMessage");
+  if (!pszString)
+    pszString=strdup(g_szErrorNoResponseIncludedMessageTemplate[p_fHTML ? 1 : 0]);
   return pszString;
 };
 
@@ -240,6 +279,18 @@ GSWTemplate_StatusDeniedResponse(BOOL    p_fHTML,
   pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"StatusDeniedResponse");
   if (!pszString)
     pszString=strdup(g_szStatusResponseDeniedTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
+};
+
+//--------------------------------------------------------------------
+char *
+GSWTemplate_ServiceUnavailableResponse(BOOL    p_fHTML,
+                                       GSWApp *pApp)
+{
+  char *pszString=NULL;
+  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ServiceUnavailableResponse");
+  if (!pszString)
+    pszString=strdup(g_szServiceUnavailableResponseTemplate[p_fHTML ? 1 : 0]);
   return pszString;
 };
 

@@ -1,3 +1,24 @@
+2004-11-08  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/Apache/mod_gsweb.c: change in 
+		GSWHTTPResponse_BuildErrorResponse call for templates
+	* GSWAdaptors/common/GSWApp.h: added unavailableUntil
+	* GSWAdaptors/common/GSWAppRequest.c: 
+		o changes in GSWHTTPResponse_BuildErrorResponse 
+			call for templates
+		o handle unavailableUntil
+	* GSWAdaptors/common/GSWConfig.c:
+		o handle unavailableUntil configuration directive
+	* GSWAdaptors/common/GSWDict.[ch]:
+		o added GSWDict_AddStringDupFromDict
+	* GSWAdaptors/common/GSWHTTPResponse.[hc]:
+		o renamed some templates
+		o changes to handle templates function pointers
+		o added GSWHTTPResponse_BuildServiceUnavailableResponse	
+	* GSWAdaptors/common/GSWTemplates.[ch]:
+		o renamed some templates
+		o changes to handle templates function pointers
+		o added UnavailableResponseTemplate
+	
 2004-11-08  David Ayers  <d.ayers@inode.at>
 
 	* Examples/WebBookStore1: New example.

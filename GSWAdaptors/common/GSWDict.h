@@ -1,7 +1,7 @@
 /* GSWDict.h - GSWeb: Dictionary
-   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003-2004 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
@@ -61,6 +61,9 @@ void GSWDict_AddString(GSWDict    *p_pDict,
 void GSWDict_AddStringDup(GSWDict    *p_pDict,
 			  CONST char *p_pszKey,
 			  CONST char *p_pValue);
+
+void GSWDict_AddStringDupFromDict(GSWDict *p_pDictDst,GSWDict *p_pDictSrc);
+
 void GSWDict_RemoveKey(GSWDict    *p_pDict,
 		       CONST char *p_pszKey);
 CONST void* GSWDict_ValueForKey(GSWDict    *p_pDict,

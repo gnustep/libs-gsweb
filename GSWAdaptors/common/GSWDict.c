@@ -1,7 +1,7 @@
 /* GSWDict.c - GSWeb: Dictionary
-   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003-2004 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
@@ -267,6 +267,28 @@ GSWDict_AllKeys(GSWDict *p_pDict)
 	};
     };
   return pList;
+};
+
+void GSWDict_AddStringDupFromDict(GSWDict *p_pDictDst,GSWDict *p_pDictSrc)
+{
+  if (!p_pDictSrc)
+    {
+      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict src");
+    }
+  else if (!p_pDictDst)
+    {
+      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict dst");
+    }
+  else
+    {
+      int i=0;
+      GSWDictElem *pElem=NULL;
+      for (pElem=p_pDictSrc->pElems;i<p_pDictSrc->uCount;i++,pElem++)
+	{
+	  if (pElem->pszKey)
+            GSWDict_AddStringDup(p_pDictDst,pElem->pszKey,pElem->pValue);
+	};
+    };
 };
 
 static void GSWDict_LogStringElem(GSWDictElem *p_pElem,

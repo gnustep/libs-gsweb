@@ -1,7 +1,7 @@
 /* GSWHTTPResponse.h - GSWeb: GSWeb Request
-   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003-2004 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
@@ -28,6 +28,8 @@
 extern "C" {
 #endif // __cplusplus
 
+#include "GSWTemplates.h"
+
 typedef struct _GSWHTTPResponse
 {
   unsigned int uStatus;
@@ -48,12 +50,20 @@ GSWHTTPResponse *GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
 
 // Build an error response
 GSWHTTPResponse *GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
+                                                    unsigned int  p_uStatus,
+                                                    GSWDict	 *p_pHeaders,
+                                                    GSWTemplate_FN pTemplateFN,
 						    CONST char *p_pszMessage,
 						    void *p_pLogServerData);
 
 // Redirect Response
 GSWHTTPResponse *GSWHTTPResponse_BuildRedirectedResponse(CONST char *p_pszRedirectPath,
 						       void *p_pLogServerData);
+
+// Service Unavailabel Response
+GSWHTTPResponse *GSWHTTPResponse_BuildServiceUnavailableResponse(GSWAppRequest *p_pAppRequest,
+                                                                 time_t     unavailableUntil,
+                                                                 void       *p_pLogServerData);
 
 // Add Header
 void GSWHTTPResponse_AddHeader(GSWHTTPResponse *p_pHTTPResponse,

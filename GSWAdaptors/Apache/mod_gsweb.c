@@ -1,7 +1,7 @@
 /* mod_gsweb.c - GSWeb: Apache Module
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
@@ -578,7 +578,11 @@ dieWithMessage(request_rec *p_pRequestRec,
 
   GSWLog(GSW_DEBUG,pServerRec,"Start dieWithMessage");
   GSWLog(GSW_ERROR,pServerRec,"Send Error Response: %s",p_pszMessage);
-  pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,p_pszMessage,
+  pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,
+                                                 200,	// Status
+                                                 NULL,	// Headers
+                                                 &GSWTemplate_ErrorResponse,	// Template
+                                                 p_pszMessage, // Message
 						 p_pRequestRec->server);
   iReturn=dieSendResponse(p_pRequestRec,&pResponse,p_fDecline);
   GSWLog(GSW_DEBUG,pServerRec,"Stop dieWithMessage");
