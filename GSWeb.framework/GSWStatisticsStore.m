@@ -1,6 +1,6 @@
 /** GSWStatisticsStore.m - <title>GSWeb: Class GSWStatisticsStore</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -164,7 +164,7 @@ RCS_ID("$Id$")
 
  // Sessions
 
-  [sessionsDict setObject:[NSString stringWithFormat:@"%d",_sessionsCount]
+  [sessionsDict setObject:GSWIntToNSString(_sessionsCount)
                    forKey:@"Current Active Sessions"];
 
 
@@ -267,11 +267,11 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)_sessionTerminating:(GSWSession*)aSession
 {
-  int activeSessionsCount;
-  NSArray* statistics;
-  NSDate* sessionBirthDate;
-  NSTimeInterval sessionTimeOut;
-  int sessionRequestCounter;
+  int activeSessionsCount = 0;
+  NSArray* statistics = nil;
+  NSDate* sessionBirthDate = nil;
+  NSTimeInterval sessionTimeOut = nil;
+  int sessionRequestCounter = 0;
   //OK
   LOGObjectFnStart();
   activeSessionsCount=[GSWApp _activeSessionsCount];

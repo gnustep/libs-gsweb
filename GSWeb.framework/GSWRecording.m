@@ -205,9 +205,9 @@ RCS_ID("$Id$")
                  range:NSMakeRange(0,[contentString length])];
 
   // Set new Content Length
-  [response setHeader:[NSString stringWithFormat:@"%d",[contentString length]]
+  [response setHeader:GSWIntToNSString([contentString length])
             forKey:@"GSWHTTPHeader_ContentLength"];
-  [response setHeader:[NSString stringWithFormat:@"%d",contentLength]
+  [response setHeader:GSWIntToNSString(contentLength)
             forKey:@"x-gsweb-unwildcarded-content-length"];
   [response setContentString:contentString];
 

@@ -466,7 +466,7 @@ RCS_ID("$Id$")
     {
       NSArray* adaptors = [[GSWApplication application]adaptors];
       if ([adaptors count]>0)
-        serverPort = [NSString stringWithFormat:@"%d",[(GSWAdaptor*)[adaptors objectAtIndex:0] port]];
+        serverPort = GSWIntToNSString([(GSWAdaptor*)[adaptors objectAtIndex:0] port]);
     }
   return serverPort;
 }
@@ -2596,7 +2596,7 @@ into
             applicationNumber=[gswinst intValue];
         };
       if (applicationNumber>=0)
-        [dict setObject:[NSString stringWithFormat:@"%d",applicationNumber]
+        [dict setObject:GSWIntToNSString(applicationNumber)
               forKey:GSWKey_InstanceID[GSWebNamingConv]];
   
       ASSIGN(_uriElements,[NSDictionary dictionaryWithDictionary:dict]);

@@ -257,8 +257,6 @@ static NSArray* cacheControlHeaderValues=nil;
 //--------------------------------------------------------------------
 -(void)_finalizeInContext:(GSWContext*)aContext
 {
-  GSWRequest* request=nil;
-  int applicationNumber=-1;
   int dataLength=0;
   NSString* dataLengthString=nil;
   NSData* content=nil;
@@ -287,13 +285,13 @@ static NSArray* cacheControlHeaderValues=nil;
 
   // Add load info to headers
   if (![self headersForKey:GSWHTTPHeader_LoadAverage[GSWebNamingConv]])
-    [self setHeader:[NSString stringWithFormat:@"%d",[GSWApp activeSessionsCount]]
+    [self setHeader:GSWIntToNSString([GSWApp activeSessionsCount])
           forKey:GSWHTTPHeader_LoadAverage[GSWebNamingConv]];
 
   // Add refusing new sessions info to headers
   if ([GSWApp isRefusingNewSessions]
       && ![self headersForKey:GSWHTTPHeader_RefuseSessions[GSWebNamingConv]])
-    [self setHeader:[NSString stringWithFormat:@"%d",(int)[GSWApp _refuseNewSessionsTimeInterval]]
+    [self setHeader:GSWIntToNSString((int)[GSWApp _refuseNewSessionsTimeInterval])
           forKey:GSWHTTPHeader_RefuseSessions[GSWebNamingConv]];
 
   [self _finalizeContentEncodingInContext:aContext];
@@ -302,8 +300,7 @@ static NSArray* cacheControlHeaderValues=nil;
   dataLength=[self _contentLength];
   NSDebugMLog(@"dataLength=%d",dataLength);
 
-  dataLengthString=[NSString stringWithFormat:@"%d",
-                             dataLength];
+  dataLengthString=GSWIntToNSString(dataLength);
 
   [self setHeader:dataLengthString
 		forKey:GSWHTTPHeader_ContentLength];
@@ -516,7 +513,7 @@ escapingHTMLAttributeValue:(BOOL)escape
     {
       [self appendContentString:message];
       
-      [self setHeader:[NSString stringWithFormat:@"%d",[[self content] length]] 
+      [self setHeader:GSWIntToNSString([[self content] length])
             forKey:@"content-length"];
     };
   if (isDefinitive)

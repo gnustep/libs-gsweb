@@ -931,7 +931,7 @@ RCS_ID("$Id$")
           instance=-1;
         };
       [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
-                                      value:[NSString stringWithFormat:@"%d",instance]
+                                      value:GSWIntToNSString(instance)
                                       path:domainForIDCookies
                                       domain:nil
                                       expires:anExpireDate
