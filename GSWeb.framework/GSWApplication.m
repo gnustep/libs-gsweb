@@ -2721,7 +2721,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [self debugWithFormat:format_
 		  arguments:ap];
@@ -2731,7 +2731,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)debugWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [GSWApp debugWithFormat:format_
 		  arguments:ap];
@@ -2749,7 +2749,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)logWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [self logWithFormat:format_
 		arguments:ap];
@@ -2759,7 +2759,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)logWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [GSWApp logWithFormat:format_
 		  arguments:ap];
@@ -2780,7 +2780,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)logErrorWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [self logErrorWithFormat:format_
 		arguments:ap];
@@ -2790,7 +2790,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)logErrorWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [GSWApp logErrorWithFormat:format_
 		  arguments:ap];
@@ -2991,7 +2991,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)statusDebugWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [self statusDebugWithFormat:format_
 		arguments:ap];
@@ -3001,7 +3001,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)statusDebugWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [GSWApp statusDebugWithFormat:format_
 		  arguments:ap];
@@ -3011,7 +3011,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)statusLogWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [self statusLogWithFormat:format_
 		arguments:ap];
@@ -3021,7 +3021,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)statusLogWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [GSWApp statusLogWithFormat:format_
 		  arguments:ap];
@@ -3043,7 +3043,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)statusLogErrorWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [self statusLogErrorWithFormat:format_
 		arguments:ap];
@@ -3053,7 +3053,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)statusLogErrorWithFormat:(NSString*)format_,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format_);
   [GSWApp statusLogErrorWithFormat:format_
 		  arguments:ap];

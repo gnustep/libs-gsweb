@@ -1,3 +1,6 @@
+2000-04-20  Karl Kraft <karl@nfox.com>
+        *   Removed assignments to va_list because they don't work on PPC
+
 2000-04-11  Karl Kraft <karl@nfox.com>
         *   Fixed a strcpy into a short malloc buffer in GSWAdaptors/common/GSWHTTPResponse.c
 
