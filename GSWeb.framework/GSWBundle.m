@@ -197,7 +197,7 @@ objectForReference:(NSString*)keyPath
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
-  TmpUnlock(_selfLock);
+  LoggedUnlock(_selfLock);
 #ifndef NDEBUG
   _selfLockn--;
 #endif
@@ -210,7 +210,7 @@ objectForReference:(NSString*)keyPath
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
-  TmpLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+  LoggedLockBeforeDate(_selfLock,GSW_LOCK_LIMIT);
 #ifndef NDEBUG
   _selfLockn++;
 #endif

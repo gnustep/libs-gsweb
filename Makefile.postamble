@@ -80,6 +80,7 @@ after-uninstall::
 after-distclean::
 	rm -rf config.cache config.log config.status
 	rm -rf config.h config.mak gsweb.make
+	rm -rf autom4te.cache
 
 gsweb.make: gsweb.make.in
 	./configure

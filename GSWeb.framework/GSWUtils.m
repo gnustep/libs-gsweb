@@ -37,6 +37,9 @@ RCS_ID("$Id$")
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef GNUSTEP
+#include <objc/thr.h>
+#endif
 #include "stacktrace.h"
 #include "attach.h"
 //--------------------------------------------------------------------
@@ -867,769 +870,175 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 @end
 
-extern struct PTHREAD_HANDLE* nub_get_active_thread(void);
-
-NSString *NSLockException = @"NSLockException";
-
-NSString* MessageForMutexLockError(int errorNo)
-{
-  NSDebugFLog(@"errorNo=%d",errorNo);
-  switch(errorNo)
-    {
-    case EINVAL:
-      return @"EINVAL the mutex has not been properly initialized.";
-      break;
-    case EDEADLK:
-      return @"EDEADLK the  mutex  is  already  locked  by  the  calling  thread";
-      break;
-    case EBUSY:
-      return @"the mutex could not be acquired or destroyed because it was currently locked.";
-      break;
-    case EPERM:
-      return @"EPERM  the calling thread does not own the mutex";
-      break;
-    default:
-      return [NSString stringWithFormat:@"Unknown %d",errorNo];
-      break;
-    };
-};
 //====================================================================
-@implementation NSLock (NSLockBD)
 
--(NSString*)description
+#ifdef GNUSTEP
+@implementation NSThread (Debugging)
+- (NSString *)description
 {
-  return [NSString stringWithFormat:@"<%s %p - ",
-                   object_get_class_name(self),
-                   (void*)self];
-};
-
-//--------------------------------------------------------------------
--(BOOL)isLocked
-{
-  BOOL isLocked=YES;
-  //TODO
-#ifdef NeXT_Foundation_LIBRARY
-  if ([self tmptryLock])
+  /* This guards us from associating the wrong objc_thread_id()
+     when other threads invoke description on us.  */
+  if (self == [NSThread currentThread])
     {
-      isLocked = NO;
-      [self tmpunlock];
+      return [NSString stringWithFormat: @"<%s: %p (%p)>",
+		       GSClassNameFromObject(self),
+		       self, objc_thread_id()];
     }
-#else
-  if (!_mutex->owner)
-    isLocked=NO;
-  else
-    {
-      NSDebugMLog(@"Locked by _mutex->owner=%p _mutex->depth=%d (this thread=%p)",
-                  (void*)_mutex->owner,(int)_mutex->depth,
-                  (void*)objc_thread_id());
-    };
-/*
-  if ([self tmptryLock])
-    {
-      isLocked=NO;
-      [self tmpunlock];
-    }
-  else
-    {
-      NSDebugMLog(@"Locked by _mutex->owner=%p _mutex->depth=%d (this thread=%p)",
-                  (void*)_mutex->owner,(int)_mutex->depth,
-                  (void*)objc_thread_id());
-    };
-*/
-#endif
-  return isLocked;
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmplock
-{
-  return [self tmplockFromFunction:NULL
-               file:NULL
-               line:-1];
-};
-
-
-//--------------------------------------------------------------------
--(BOOL)tmplockFromFunction:(const char*)fn
-                      file:(const char*)file
-                      line:(int)line
-{
-//TODO
-#ifdef NeXT_Foundation_LIBRARY
-  return [self tryLock];
-#else
-  BOOL locked=NO;
-  int result=0;
-//  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
-               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner)
-    {
-      result=objc_mutex_trylock(_mutex);
-      //  NSDebugMLLog(@"low",@"result=%d",result);
-      if (result != 0 && result!=1)
-        locked=NO;
-      else
-        locked=YES;
-    };
-//  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-  if (locked)
-    {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-    }
-  else
-    {
-      LOGException(@"NSLockException lock: failed to lock mutex. Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line);
-      [NSException raise:NSLockException
-                   format:@"lock: failed to lock mutex. Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line];
-    };
-//  LOGObjectFnStop();
-  return locked;
-#endif
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLock
-{
-  return [self tmptryLockFromFunction:NULL
-			   file:NULL
-			   line:-1];
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLockFromFunction:(const char*)fn
-                         file:(const char*)file
-                         line:(int)line
-{
-//TODO
-#ifdef NeXT_Foundation_LIBRARY
-  return [self tryLock];
-#else
-  BOOL locked=NO;
-  int result=0;
-//  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner)
-    {
-      result=objc_mutex_trylock(_mutex);
-      //  NSDebugMLLog(@"low",@"result=%d",result);
-      if (result != 0 && result!=1)
-        locked=NO;
-      else
-        locked=YES;
-      //  LOGObjectFnStop();
-    };
-  return locked;
-#endif
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-{
-  return [self tmptryLockBeforeDate:limit
-               fromFunction:NULL
-               file:NULL
-               line:-1];
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-               fromFunction:(const char*)fn
-                       file:(const char*)file
-                       line:(int)line
-{
-  //TODO
-#ifdef NeXT_Foundation_LIBRARY
-  return [self lockBeforeDate:limit];
-#else
-  BOOL locked=NO;
-  int result=0;
-  int tryCount=0;
-//  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
-               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner)
-    {
-      result=objc_mutex_trylock(_mutex);
-      //  NSDebugMLLog(@"low",@"result=%d",result);
-      if (result != 0 && result!=1)
-        locked=NO;
-      else
-        locked=YES;
-    };
-  //  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
-  while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-    {
-      tryCount++;
-      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      NSTimeIntervalSleep(0.010);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-      if (!_mutex->owner)
-        {
-          result=objc_mutex_trylock(_mutex);
-          //NSDebugMLLog(@"low",@"result=%d",result);
-          if (result != 0 && result!=1)
-            {
-              if (tryCount%10==0)
-                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
-                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
-              locked=NO;
-            }
-          else
-            locked=YES;
-        }
-      else
-        {
-          if (tryCount%10==0)
-            NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
-                  10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
-          locked=NO;
-        }
-    }; 
-  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-  if (locked)
-    {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-    }
-  else
-    {
-      NSDebugMLog(@"NSLock tmptryLockBeforeDate lock: failed to lock mutex before %@. Called from %s in %s %d",
-                  limit,
-                  fn ? fn : "Unknown",
-                  file ? file : "Unknown",
-                  line);
-    };
-  //  LOGObjectFnStop();
-  return locked;
-#endif
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmplockBeforeDate:(NSDate*)limit
-{
-  return [self tmplockBeforeDate:limit
-			   fromFunction:NULL
-			   file:NULL
-			   line:-1];
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmplockBeforeDate:(NSDate*)limit
-            fromFunction:(const char*)fn
-                    file:(const char*)file
-                    line:(int)line
-{
-  //TODO
-#ifdef NeXT_Foundation_LIBRARY
-  return [self lockBeforeDate:limit];
-#else
-  BOOL locked=NO;
-  int result=0;
-  int tryCount=0;
-//  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
-               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner)
-    {
-      result=objc_mutex_trylock(_mutex);
-      //  NSDebugMLLog(@"low",@"result=%d",result);
-      if (result != 0 && result!=1)
-        locked=NO;
-      else
-        locked=YES;
-    };
-
-//  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
-  while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-    {
-      tryCount++;
-      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      NSTimeIntervalSleep(0.010);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-      if (!_mutex->owner)
-        {
-          result=objc_mutex_trylock(_mutex);
-          //NSDebugMLLog(@"low",@"result=%d",result);
-          if (result != 0 && result!=1)
-            {
-              if (tryCount%10==0)
-                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
-                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
-              locked=NO;
-            }
-          else
-            locked=YES;
-        }
-      else
-        {
-          if (tryCount%10==0)
-            NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
-                  10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
-          locked=NO;
-        };
-    }; 
-  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-  if (locked)
-    {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-    }
-  else
-    {
-      LOGException(@"NSLockException lock: failed to lock mutex before date %@. Called from %s in %s %d",
-                   limit,
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line);
-      [NSException raise:NSLockException
-                   format:@"lock: failed to lock mutex before date %@. Called from %s in %s %d",
-                   limit,
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line];
-    };
-//  LOGObjectFnStop();
-  return locked;
-#endif
-};
-
-//--------------------------------------------------------------------
--(void)tmpunlock
-{
-  [self tmpunlockFromFunction:NULL
-        file:NULL
-        line:-1];
-};
-
-//--------------------------------------------------------------------
--(void)tmpunlockFromFunction:(const char*)fn
-                        file:(const char*)file
-                        line:(int)line;
-{
-//TODO
-#ifdef NeXT_Foundation_LIBRARY
-  [self unlock];
-#else
-  int result=0;
-//  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
-               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner)
-    {
-      LOGException(@"NSLockException unlock: failed to unlock mutex (not locked). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line);
-      [NSException raise:NSLockException
-                   format:@"unlock: failed to lock mutex (not locked). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line];
-    }
-  else if (_mutex->owner!=objc_thread_id())
-    {
-      LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line);
-      [NSException raise:NSLockException
-                   format:@"unlock: failed to lock mutex (not owner). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line];
-    }
-  else
-    {
-      result=objc_mutex_unlock(_mutex);
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result != 0)
-        {
-          NSDebugMLLog(@"low",@"AFT self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
-                       self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-          //NSDebugMLLog(@"low",@"UNLOCK PROBLEM");
-          LOGException(@"NSLockException unlock: failed to unlock mutex (result %d!=0).%@. Called from %s in %s %d",
-                       result,
-                       MessageForMutexLockError(result),
-                       fn ? fn : "Unknown",
-                       file ? file : "Unknown",
-                       line);
-          [NSException raise:NSLockException
-                       format:@"unlock: failed to unlock mutex (result %d!=0).%@. Called from %s in %s %d",
-                       result,
-                       MessageForMutexLockError(result),
-                       fn ? fn : "Unknown",
-                       file ? file : "Unknown",
-                       line];
-        };
-    };
-  //  LOGObjectFnStop();
-#endif
-};
+  return [super description];
+}
 @end
-
-NSString *NSRecursiveLockException = @"NSRecursiveLockException";
-
-//====================================================================
-@implementation NSRecursiveLock (NSLockBD)
-
--(NSString*)description
-{
-  return [NSString stringWithFormat:@"<%s %p - ",
-                   object_get_class_name(self),
-                   (void*)self];
-};
+#endif
 
 //--------------------------------------------------------------------
--(BOOL)isLocked
+static NSString *
+volatileInternalDescription(NSLock *self)
 {
-  BOOL isLocked=YES;
-  if ([self tmptryLock])
+#ifdef GNUSTEP
+  struct objc_mutex *mutex = 0;
+  const char *type;
+  unsigned int size;
+  int offset;
+
+  if (GSObjCFindVariable(self, "_mutex", &type, &size, &offset))
     {
-      isLocked=NO;
-      [self unlock];
-    };
+      GSObjCGetVariable(self, offset, size, &mutex);
+    }
+
+  if (mutex != 0)
+    {
+      return [NSString stringWithFormat: @"(%@ mutex:%p owner:%p depth:%d)",
+		       self, mutex, mutex->owner, mutex->depth];
+    }
+  else
+    {
+      return [NSString stringWithFormat: @"(%@ mutex:%p)",
+		       self, mutex];
+    }
+#else
+  return [self description];
+#endif
+}
+
+BOOL
+loggedLockBeforeDateFromFunctionInFileInLine(id self,
+					     BOOL try,
+					     NSDate *limit, 
+					     const char *file,
+					     const char *function,
+					     long line)
+{
+  BOOL isLocked = YES;
+  NSThread *thread;
+  void *threadID = 0;
+
+  thread = [NSThread currentThread];
+#ifdef GNUSTEP
+  threadID = objc_thread_id();
+#endif
+  NSDebugFLLog(@"locking",
+	       @"%@ thread %@(%p) "
+	       @"date:%@ file:%s function:%s line:%li "
+	       @"lock:%@",
+	       (try ? @"trying lock" : @"locking"),
+	       thread, threadID,
+	       limit, file, function, line, 
+	       volatileInternalDescription(self));
+
+  if (limit == nil)
+    {
+      if (try == YES)
+	{
+	  isLocked = [self tryLock];
+	}
+      else
+	{
+	  NS_DURING
+	    [self lock];
+	  NS_HANDLER
+	    {
+	      NSDebugFLLog(@"locking",
+			   @"locking FAILED thread %@(%p) "
+			   @"date:%@ file:%s function:%s line:%li "
+			   @"lock:%@ "
+			   @"excaption:%@ reason:%@ info:%@",
+			   thread, threadID, 
+			   limit, file, function, line, 
+			   volatileInternalDescription(self),
+			   [localException name], [localException reason],
+			   [localException userInfo]);
+	      [localException raise];
+	    }
+	  NS_ENDHANDLER
+	}
+    }
+  else
+    {
+      isLocked = [self lockBeforeDate: limit];
+
+      if (try == NO && isLocked == NO)
+	{
+	  NSString *name;
+
+	  NSDebugFLLog(@"locking",
+		       @"tried lock FAILED thread %@(%p) "
+		       @"date:%@ file:%s function:%s line:%li "
+		       @"lock:%@ "
+		       @"exception:%@ reason:%@ info:%@",
+		       thread, threadID, 
+		       limit, file, function, line, 
+		       volatileInternalDescription(self));
+
+	  name = NSStringFromClass([self class]);
+	  name = [name stringByAppendingString:@"Exception"];
+
+	  [NSException raise: name 
+		       format: @"lockBeforeDate (%@) failed", limit];
+	}
+    }
+
+  NSDebugFLLog(@"locking",
+	       @"%@ %@ thread %@(%p) "
+	       @"date:%@ file:%s function:%s line:%li "
+	       @"result:%d lock:%@",
+	       (try ? @"tried lock" : @"lock"),
+	       (isLocked ? @"SUCCEEDED" : @"FAILED"),
+	       thread, threadID,
+	       limit, file, function, line,
+	       isLocked, volatileInternalDescription(self));
+
   return isLocked;
-};
+}
 
-//--------------------------------------------------------------------
--(BOOL)tmplock
+void
+loggedUnlockFromFunctionInFileInLine(id self,
+				     const char *file,
+				     const char *function,
+				     long line)
 {
-  return [self tmplockFromFunction:NULL
-               file:NULL
-               line:-1];
-};
+  NSThread *thread;
+  void *threadID = 0;
 
-
-//--------------------------------------------------------------------
--(BOOL)tmplockFromFunction:(const char*)fn
-                      file:(const char*)file
-                      line:(int)line
-{
-//TODO
-#ifdef NeXT_Foundation_LIBRARY
-  return [self tryLock];
-#else
-  BOOL locked=NO;
-  int result=0;
-//  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner || _mutex->owner==objc_thread_id())
-    {
-      result=objc_mutex_trylock(_mutex);
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result == -1)
-        {
-          locked=NO;
-          LOGException(@"NSLockException lock: failed to lock mutex (result==-1). Called from %s in %s %d",
-                       fn ? fn : "Unknown",
-                       file ? file : "Unknown",
-                       line);
-          [NSException raise:NSLockException
-                       format:@"lock: failed to lock mutex (result==-1). Called from %s in %s %d",
-                       fn ? fn : "Unknown",
-                       file ? file : "Unknown",
-                       line];
-        }
-      else
-        {
-          locked=YES;
-          //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-        };
-    }
-  else
-    {
-      LOGException(@"NSLockException lock: failed to lock mutex (not owner). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line);
-      [NSException raise:NSLockException
-                   format:@"lock: failed to lock mutex (not owner). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line];
-    };
-  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-  //  LOGObjectFnStop();
-  return locked;
+  thread = [NSThread currentThread];
+#ifdef GNUSTEP
+  threadID = objc_thread_id();
 #endif
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLock
-{
-  return [self tmptryLockFromFunction:NULL
-               file:NULL
-               line:-1];
-};
-
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLockFromFunction:(const char*)fn
-                         file:(const char*)file
-                         line:(int)line
-{
-//TODO
-#ifdef NeXT_Foundation_LIBRARY
-	return [self tryLock];
-#else
-  BOOL locked=NO;
-  int result=0;
-//  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner || _mutex->owner==objc_thread_id())
-    {
-      result=objc_mutex_trylock(_mutex);
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result == -1)
-        {
-          locked=NO;
-        }
-      else
-        {
-          locked=YES;
-        };
-    };
-  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-  //  LOGObjectFnStop();
-  return locked;
-#endif
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-{
-  return [self tmptryLockBeforeDate:limit
-               fromFunction:NULL
-               file:NULL
-               line:-1];
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-               fromFunction:(const char*)fn
-                       file:(const char*)file
-                       line:(int)line
-{
-  //TODO
-#ifdef NeXT_Foundation_LIBRARY
-  return [self lockBeforeDate:limit];
-#else
-  BOOL locked=NO;
-  BOOL notOwner=NO;
-  int tryCount=0;
-  int result=0;
-//  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner || _mutex->owner==objc_thread_id())
-    {
-      tryCount++;
-      notOwner=NO;
-      result=objc_mutex_trylock(_mutex);
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result == -1)
-        locked=NO;
-      else
-        locked=YES;
-    }
-  else
-    notOwner=YES;
-  while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-    {
-      tryCount++;
-      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      NSTimeIntervalSleep(0.010);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-      if (!_mutex->owner || _mutex->owner==objc_thread_id())
-        {
-          notOwner=NO;
-          result=objc_mutex_trylock(_mutex);
-          //NSDebugMLLog(@"low",@"result=%d",result);
-          if (result == -1)
-            {
-              if (tryCount%10==0)
-                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
-                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
-              locked=NO;
-            }
-          else
-            locked=YES;
-        }
-      else
-        notOwner=YES;
-    }; 
-  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-  if (locked)
-    {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-    }
-  else
-    {
-      NSDebugMLog(@"NSLock tmptryLockBeforeDate lock: failed to lock mutex before %@ (%s). Called from %s in %s %d",
-                  limit,
-                  notOwner ? "Not Owner" : "result==-1",
-                  fn ? fn : "Unknown",
-                  file ? file : "Unknown",
-                  line);
-    };
-  //  LOGObjectFnStop();
-  return locked;
-#endif
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmplockBeforeDate:(NSDate*)limit
-{
-  return [self tmplockBeforeDate:limit
-               fromFunction:NULL
-               file:NULL
-               line:-1];
-};
-
-//--------------------------------------------------------------------
--(BOOL)tmplockBeforeDate:(NSDate*)limit
-            fromFunction:(const char*)fn
-                    file:(const char*)file
-                    line:(int)line
-{
-  //TODO
-#ifdef NeXT_Foundation_LIBRARY
-  return [self lockBeforeDate:limit];
-#else
-  BOOL locked=NO;
-  BOOL notOwner=NO;
-  int tryCount=0;
-  int result=0;
-//  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (!_mutex->owner || _mutex->owner==objc_thread_id())
-    {
-      tryCount++;
-      notOwner=NO;
-      result=objc_mutex_trylock(_mutex);
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result == -1)
-        {
-          if (tryCount%10==0)
-            NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
-                  10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
-          locked=NO;
-        }
-      else
-        locked=YES;
-    }
-  else
-    notOwner=YES;
-  
-  while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
-    {
-      tryCount++;
-      //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      NSTimeIntervalSleep(0.010);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-      if (!_mutex->owner || _mutex->owner==objc_thread_id())
-        {
-          notOwner=NO;
-          result=objc_mutex_trylock(_mutex);
-          //NSDebugMLLog(@"low",@"result=%d",result);
-          if (result == -1)
-            {
-              if (tryCount%10==0)
-                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
-                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
-              locked=NO;
-            }
-          else
-            locked=YES;
-        }
-      else
-        notOwner=YES;
-    }; 
-  //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
-  if (locked)
-    {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-    }
-  else
-    {
-      LOGException(@"NSLockException lock: failed to lock mutex before date %@ (%s). Called from %s in %s %d",
-                   limit,
-                   notOwner ? "Not Owner" : "result==-1",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line);
-      [NSException raise:NSLockException
-                   format:@"lock: failed to lock mutex before date %@ (%s). Called from %s in %s %d",
-                   limit,
-                   notOwner ? "Not Owner" : "result==-1",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line];
-    };
-//  LOGObjectFnStop();
-  return locked;
-#endif
-};
-
-//--------------------------------------------------------------------
--(void)tmpunlock
-{
-  [self tmpunlockFromFunction:NULL
-        file:NULL
-        line:-1];
-};
-
-//--------------------------------------------------------------------
--(void)tmpunlockFromFunction:(const char*)fn
-                        file:(const char*)file
-                        line:(int)line;
-{
-  //TODO
-#ifdef NeXT_Foundation_LIBRARY
+  NSDebugFLLog(@"locking",
+	       @"unlock thread %@(%p) "
+	       @"file:%s function:%s line:%li "
+	       @"lock:%@",
+	       thread, threadID,
+	       file, function, line, 
+	       volatileInternalDescription(self));
   [self unlock];
-#else
-  int result=0;
-//  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-  if (_mutex->owner!=objc_thread_id())
-    {
-      LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line);
-      [NSException raise:NSLockException
-                   format:@"unlock: failed to lock mutex (not owner). Called from %s in %s %d",
-                   fn ? fn : "Unknown",
-                   file ? file : "Unknown",
-                   line];
-    }
-  else
-    {
-      result=objc_mutex_unlock(_mutex);
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result == -1)
-        {
-          LOGException(@"NSLockException unlock: failed to unlock mutex (result==-1). Called from %s in %s %d",
-                       fn ? fn : "Unknown",
-                       file ? file : "Unknown",
-                       line);
-          [NSException raise:NSLockException
-                       format:@"unlock: failed to lock mutex (result==-1). Called from %s in %s %d",
-                       fn ? fn : "Unknown",
-                       file ? file : "Unknown",
-                       line];
-        };
-    };
-  //  LOGObjectFnStop();
-#endif
-};
-@end
+  NSDebugFLLog(@"locking",
+	       @"unlock SUCCEEDED thread %@(%p) "
+	       @"file:%s function:%s line:%li "
+	       @"lock:%@",
+	       thread, threadID,
+	       file, function, line, 
+	       volatileInternalDescription(self));
+
+}
 
 //====================================================================
 @implementation NSArray (NSPerformSelectorWith2Objects)

@@ -716,7 +716,8 @@ int allow_severity = LOG_INFO;
   LOGObjectFnStart();
   NSDebugLockMLog(@"self=%p ThreadID=%p TRYLOCK\n",
                    self,(void*)objc_thread_id());
-  locked=[_selfLock tmptryLockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:90]];
+  locked=LoggedTryLockBeforeDate(_selfLock,
+				 [NSDate dateWithTimeIntervalSinceNow:90]);
   NSDebugLockMLog(@"self=%p ThreadID=%p TRYLOCK LOCKED ?\n",
                    self,(void*)objc_thread_id());
   LOGObjectFnStop();
@@ -730,7 +731,7 @@ int allow_severity = LOG_INFO;
   LOGObjectFnStart();
   NSDebugLockMLog(@"self=%p ThreadID=%p UNLOCK\n",
          self,(void*)objc_thread_id());
-  [_selfLock tmpunlock];
+  LoggedUnlock(_selfLock);
   NSDebugLockMLog(@"self=%p ThreadID=%p UNLOCK UNLOCKED ?\n",
                    self,(void*)objc_thread_id());
   LOGObjectFnStop();

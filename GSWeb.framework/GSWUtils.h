@@ -42,8 +42,10 @@
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
-#define IsStyle(__value,__style)			((((__value)&(__style))==(__style)) ? YES : NO)
-#define IsNumberStyle(__value,__style)		(((([__value unsignedIntValue])&(__style))==(__style)) ? YES : NO)
+#define IsStyle(__value,__style) \
+  ((((__value)&(__style))==(__style)) ? YES : NO)
+#define IsNumberStyle(__value,__style) \
+  (((([__value unsignedIntValue])&(__style))==(__style)) ? YES : NO)
 
 #define VOID_RCSID	\
 static void VoidUseRCSId() { rcsId[0]=0; };
@@ -60,45 +62,51 @@ typedef unsigned int UINT32;
 #define UINTs_DEFINED
 #endif
 
+#define GSW_LOCK_LIMIT [NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]
+
 BOOL ClassIsKindOfClass(Class classA,Class classB);
 
 void ExceptionRaiseFn(const char *func, 
-					  const char *file,
-					  int line,
-					  NSString* name_,
-					  NSString* format_,
-					  ...);
+		      const char *file,
+		      int line,
+		      NSString* name_,
+		      NSString* format_,
+		      ...);
 void ExceptionRaiseFn0(const char *func, 
-					   const char *file,
-					   int line,
-					   NSString* name_,
-					   NSString* format_);
+		       const char *file,
+		       int line,
+		       NSString* name_,
+		       NSString* format_);
 
 void ValidationExceptionRaiseFn(const char *func, 
-								const char *file,
-								int line,
-								NSString* name_,
-								NSString* message_,
-								NSString* format_,
-								...);
+				const char *file,
+				int line,
+				NSString* name_,
+				NSString* message_,
+				NSString* format_,
+				...);
 void ValidationExceptionRaiseFn0(const char *func, 
-								 const char *file,
-								 int line,
-								 NSString* name_,
-								 NSString* message_,
-								 NSString* format_);
+				 const char *file,
+				 int line,
+				 NSString* name_,
+				 NSString* message_,
+				 NSString* format_);
 
-#define ExceptionRaise(name_, format_, args...)		\
-  { ExceptionRaiseFn(__PRETTY_FUNCTION__, __FILE__, __LINE__,name_,format_, ## args); }
+#define ExceptionRaise(name_, format_, args...) \
+  { ExceptionRaiseFn(__PRETTY_FUNCTION__, __FILE__, __LINE__, \
+                     name_,format_, ## args); }
 
-#define ExceptionRaise0(name_, format_)		\
-  { ExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__,name_,format_); }
+#define ExceptionRaise0(name_, format_) \
+  { ExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__, \
+                      name_,format_); }
 
-#define ValidationExceptionRaise(name_,message_, format_, args...)		\
-  { ValidationExceptionRaiseFn(__PRETTY_FUNCTION__, __FILE__, __LINE__,name_,message_,format_, ## args); }
+#define ValidationExceptionRaise(name_,message_, format_, args...) \
+  { ValidationExceptionRaiseFn(__PRETTY_FUNCTION__, __FILE__, __LINE__,\
+                               name_,message_,format_, ## args); }
 
-#define ValidationExceptionRaise0(name_,message_, format_)		\
-  { ValidationExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__,name_,message_,format_); }
+#define ValidationExceptionRaise0(name_,message_, format_) \
+  { ValidationExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__,\
+                                name_,message_,format_); }
 
 extern BOOL boolValueFor(id id_);
 extern BOOL boolValueWithDefaultFor(id id_,BOOL defaultValue);
@@ -186,17 +194,21 @@ extern NSString* GSWGetDefaultDocRoot();
 @end
 
 
-#define ExceptionByAddingUserInfoObjectFrameInfo(_exception,format_, args...)		\
-[(_exception) exceptionByAddingUserInfoFrameInfoObject:self sel:_cmd file:__FILE__ line:__LINE__ format:format_, ## args]
+#define ExceptionByAddingUserInfoObjectFrameInfo(_exception,format_, args...) \
+[(_exception) exceptionByAddingUserInfoFrameInfoObject:self sel:_cmd \
+              file:__FILE__ line:__LINE__ format:format_, ## args]
 
-#define ExceptionByAddingUserInfoObjectFrameInfo0(_exception,format_)		\
-[(_exception) exceptionByAddingUserInfoFrameInfoObject:self sel:_cmd file:__FILE__ line:__LINE__ format:format_]
+#define ExceptionByAddingUserInfoObjectFrameInfo0(_exception,format_) \
+[(_exception) exceptionByAddingUserInfoFrameInfoObject:self sel:_cmd \
+              file:__FILE__ line:__LINE__ format:format_]
 
-#define ExceptionByAddingUserInfoFunctionFrameInfo(format_, args...)		\
-[(_exception) exceptionByAddingUserInfoFrameInfoFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__ format:format_, ## args]
+#define ExceptionByAddingUserInfoFunctionFrameInfo(format_, args...) \
+[(_exception) exceptionByAddingUserInfoFrameInfoFunction:__PRETTY_FUNCTION__ \
+              file:__FILE__ line:__LINE__ format:format_, ## args]
 
-#define ExceptionByAddingUserInfoFunctionFrameInfo0(format_)		\
-[(_exception) exceptionByAddingUserInfoFrameInfoFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__ format:format_]
+#define ExceptionByAddingUserInfoFunctionFrameInfo0(format_) \
+[(_exception) exceptionByAddingUserInfoFrameInfoFunction:__PRETTY_FUNCTION__ \
+              file:__FILE__ line:__LINE__ format:format_]
 
 //====================================================================
 @interface NSException (NSExceptionUserInfoAdd)
@@ -291,70 +303,35 @@ extern NSString* GSWGetDefaultDocRoot();
 @end
 
 //====================================================================
-#define TmpLock(_lock_)				[(_lock_) tmplockFromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
-#define TmpTryLockBeforeDate(_lock_,_limit_)	[(_lock_) tmptryLockBeforeDate:(_limit_) fromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
-#define TmpLockBeforeDate(_lock_,_limit_)	[(_lock_) tmplockBeforeDate:(_limit_) fromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
-#define TmpUnlock(_lock_)			[(_lock_) tmpunlockFromFunction:__PRETTY_FUNCTION__ file:__FILE__ line:__LINE__]
+#define LoggedLock(__lock) \
+  (loggedLockBeforeDateFromFunctionInFileInLine((__lock), NO, nil, \
+     __FILE__, __PRETTY_FUNCTION__, __LINE__))
+#define LoggedLockBeforeDate(__lock,__limit) \
+  (loggedLockBeforeDateFromFunctionInFileInLine((__lock), NO, (__limit), \
+     __FILE__, __PRETTY_FUNCTION__,  __LINE__))
+#define LoggedTryLock(__lock) \
+  (loggedLockBeforeDateFromFunctionInFileInLine((__lock), YES, nil, \
+     __FILE__, __PRETTY_FUNCTION__, __LINE__))
+#define LoggedTryLockBeforeDate(__lock,__limit) \
+  (loggedLockBeforeDateFromFunctionInFileInLine((__lock), YES, (__limit), \
+     __FILE__, __PRETTY_FUNCTION__, __LINE__))
+#define LoggedUnlock(__lock) \
+  (loggedUnlockFromFunctionInFileInLine(__lock, \
+     __FILE__, __PRETTY_FUNCTION__, __LINE__))
 
-//====================================================================
-@interface NSLock (NSLockBD)
--(BOOL)isLocked;
--(BOOL)tmplock;
--(BOOL)tmplockFromFunction:(const char*)fn
-                      file:(const char*)file
-                      line:(int)line;
+extern BOOL
+loggedLockBeforeDateFromFunctionInFileInLine(id self,
+					     BOOL try,
+					     NSDate *limit, 
+					     const char *file,
+					     const char *function,
+					     long line);
+extern void
+loggedUnlockFromFunctionInFileInLine(id self,
+				     const char *file,
+				     const char *function,
+				     long line);
 
--(BOOL)tmptryLock;
--(BOOL)tmptryLockFromFunction:(const char*)fn
-                         file:(const char*)file
-                         line:(int)line;
-
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit;
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-               fromFunction:(const char*)fn
-                       file:(const char*)file
-                       line:(int)line;
-
--(BOOL)tmplockBeforeDate:(NSDate*)limit;
--(BOOL)tmplockBeforeDate:(NSDate*)limit
-            fromFunction:(const char*)fn
-                    file:(const char*)file
-                    line:(int)line;
-
--(void)tmpunlock;
--(void)tmpunlockFromFunction:(const char*)fn
-                        file:(const char*)file
-                        line:(int)line;
-@end
-
-//====================================================================
-@interface NSRecursiveLock (NSLockBD)
--(BOOL)isLocked;
--(BOOL)tmplock;
--(BOOL)tmplockFromFunction:(const char*)fn
-                      file:(const char*)file
-                      line:(int)line;
-
--(BOOL)tmptryLock;
--(BOOL)tmptryLockFromFunction:(const char*)fn
-                         file:(const char*)file
-                         line:(int)line;
-
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit;
--(BOOL)tmptryLockBeforeDate:(NSDate*)limit
-               fromFunction:(const char*)fn
-                       file:(const char*)file
-                       line:(int)line;
--(BOOL)tmplockBeforeDate:(NSDate*)limit;
--(BOOL)tmplockBeforeDate:(NSDate*)limit
-            fromFunction:(const char*)fn
-                    file:(const char*)file
-                    line:(int)line;
--(void)tmpunlock;
--(void)tmpunlockFromFunction:(const char*)fn
-                        file:(const char*)file
-                        line:(int)line;
-@end
 
 //====================================================================
 @interface NSArray (NSPerformSelectorWith2Objects)

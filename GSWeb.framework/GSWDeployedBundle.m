@@ -643,11 +643,13 @@ if it was not cached **/
 -(void)lock
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"selfLock=%p selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
-			   (void*)_selfLock,
-			   _selfLockn,
-			   (void*)_selfLock_thread_id,
-			   (void*)objc_thread_id());
+  NSDebugMLLog(@"bundles",
+	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%p "
+	       @"objc_thread_id()=%p",
+	       (void*)_selfLock,
+	       _selfLockn,
+	       (void*)_selfLock_thread_id,
+	       (void*)objc_thread_id());
   if (_selfLockn>0)
     {
       if (_selfLock_thread_id!=objc_thread_id())
@@ -655,12 +657,14 @@ if it was not cached **/
           NSDebugMLog0(@"PROBLEM: owner!=thread id");
         };
     };
-  TmpLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+  LoggedLockBeforeDate(_selfLock,GSW_LOCK_LIMIT);
 #ifndef NDEBUG
   _selfLockn++;
   _selfLock_thread_id=objc_thread_id();
 #endif
-  NSDebugMLLog(@"bundles",@"selfLock=%p selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+  NSDebugMLLog(@"bundles",
+	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%p "
+	       @"objc_thread_id()=%p",
                _selfLock,
                _selfLockn,
                (void*)_selfLock_thread_id,
@@ -685,7 +689,7 @@ if it was not cached **/
           NSDebugMLog0(@"PROBLEM: owner!=thread id");
         };
     };
-  TmpUnlock(_selfLock);
+  LoggedUnlock(_selfLock);
 #ifndef NDEBUG
   _selfLockn--;
   if (_selfLockn==0)

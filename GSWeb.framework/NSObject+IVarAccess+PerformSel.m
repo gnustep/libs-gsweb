@@ -460,139 +460,156 @@ void IdToPData(const char* retType,id _value,void* pdata)
   NSObjectIVarsAccess* _ivarAccess=nil;
   NSMutableDictionary* _classCache=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"getIVarNamed %@ in %p %@  (superClass:%@)",name_,self,[self class],[self superclass]);
+  NSDebugMLLog(@"low",@"getIVarNamed %@ in %p %@  (superClass:%@)",
+	       name_,self,[self class],[self superclass]);
   _class=[self class];
   _classCache=[objectIVarAccessCache_Get objectForKey:_class];
   if (!_classCache)
+    {
+      _cachindEnabled=![_class isIVarAccessCachingDisabled];
+      if (_cachindEnabled)
 	{
-	  _cachindEnabled=![_class isIVarAccessCachingDisabled];
-	  if (_cachindEnabled)
-		{
-		  if (!objectClassLock)
-			objectClassLock=[NSLock new];
-		  TmpLockBeforeDate(objectClassLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
-		  _classCache=[NSMutableDictionary dictionary];
-		  if (!objectIVarAccessCache_Get)
-			objectIVarAccessCache_Get=[NSMutableDictionary new];
-		  [objectIVarAccessCache_Get setObject:_classCache
-									 forKey:_class];
-		  TmpUnlock(objectClassLock);
-		};
+	  if (!objectClassLock)
+	    objectClassLock=[NSLock new];
+	  LoggedLockBeforeDate(objectClassLock, GSW_LOCK_LIMIT);
+	  _classCache=[NSMutableDictionary dictionary];
+	  if (!objectIVarAccessCache_Get)
+	    objectIVarAccessCache_Get=[NSMutableDictionary new];
+	  [objectIVarAccessCache_Get setObject:_classCache
+				     forKey:_class];
+	  LoggedUnlock(objectClassLock);
 	};
+    };
   if (_cachindEnabled)
-	_ivarAccess=[_classCache objectForKey:name_];
+    _ivarAccess=[_classCache objectForKey:name_];
   if (!_ivarAccess)
+    {
+      SEL sel=NULL;
+      _ivarAccess=[NSObjectIVarsAccess ivarAccess];
+      sel=[self getSelectorWithFunctionTemplate:@"get%@"
+		forVariable:name_
+		uppercaseFirstLetter:YES];
+      if (!sel)
+	sel=[self getSelectorWithFunctionTemplate:@"%@"
+		  forVariable:name_
+		  uppercaseFirstLetter:NO];
+      NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p sel=%p ",
+		   name_,[self class],self,(void*)sel);
+      if (sel)
 	{
-	  SEL sel=NULL;
-	  _ivarAccess=[NSObjectIVarsAccess ivarAccess];
-	  sel=[self getSelectorWithFunctionTemplate:@"get%@"
-				forVariable:name_
-				uppercaseFirstLetter:YES];
-	  if (!sel)
-		sel=[self getSelectorWithFunctionTemplate:@"%@"
-				  forVariable:name_
-				  uppercaseFirstLetter:NO];
-	  NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p sel=%p ",name_,[self class],self,(void*)sel);
-	  if (sel)
-		{
-		  NSMethodSignature* _sig = [self methodSignatureForSelector:sel];
-		  if ([_sig numberOfArguments]!=2)
-			{
-			  _exception=[NSException exceptionWithName:@"NSObject IVar"
-									  format:@"Can't get Variable named %@ in %@ %p (superClass:%@): fn args mismatch",
-									  name_,
-									  [self class],
-									  self,
-									  [self superclass]];
-			}
-		  else
-			{
-			  const char* retType=[_sig methodReturnType];
-                          NSDebugMLLog(@"low",@"retType=%s",retType);
-			  if (!retType)
-				{
-				  _exception=[NSException exceptionWithName:@"NSObject IVar"
-								 format:@"Can't get Variable named %@ in %@ %p (superClass:%@): fn unknown type",
-								 name_,
-								 [self class],
-								 self,
-								 [self superclass]];
-				}
-			  else
-				{
-				  if (*retType==_C_ID)
-					{
-					  _ivarAccess->accessType=NSObjectIVarsAccessType_PerformSelector;	
-					  _ivarAccess->infos.selector=sel;
-					}
-				  else
-					{
-					  NSInvocation* _invocation = [NSInvocation invocationWithMethodSignature:_sig];
-                                          NSDebugMLLog(@"low",@"_invocation methodSignature methodReturnType=%s",[[_invocation methodSignature] methodReturnType]);
-					  [_invocation setSelector:sel];
-					  _ivarAccess->accessType=NSObjectIVarsAccessType_Invocation;
-					  _ivarAccess->infos.invocation=_invocation;
-					  NSAssert([_ivarAccess->infos.invocation selector],@"No Selector in Invocation");
-					  [_ivarAccess->infos.invocation retain];
-					};
-				};
-			};
-		}
+	  NSMethodSignature* _sig = [self methodSignatureForSelector:sel];
+	  if ([_sig numberOfArguments]!=2)
+	    {
+	      _exception =[NSException exceptionWithName: @"NSObject IVar"
+				       format: @"Can't get Variable named "
+				       @"%@ in %@ %p (superClass:%@): "
+				       @"fn args mismatch",
+				       name_,
+				       [self class],
+				       self,
+				       [self superclass]];
+	    }
 	  else
+	    {
+	      const char* retType=[_sig methodReturnType];
+	      NSDebugMLLog(@"low",@"retType=%s",retType);
+	      if (!retType)
 		{
-		  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_,YES);
-                  if (!ivar)
-                    ivar=GSGetInstanceVariableStruct(self,name_,NO);
-		  if (ivar)
-			{
-			  _ivarAccess->accessType=NSObjectIVarsAccessType_Direct;	
-			  _ivarAccess->infos.ivar=ivar;
-			}
+		  _exception=[NSException exceptionWithName:@"NSObject IVar"
+					  format:@"Can't get Variable named "
+					  @"%@ in %@ %p (superClass:%@): "
+					  @"fn unknown type",
+					  name_,
+					  [self class],
+					  self,
+					  [self superclass]];
+		}
+	      else
+		{
+		  if (*retType==_C_ID)
+		    {
+		      _ivarAccess->accessType
+			= NSObjectIVarsAccessType_PerformSelector;	
+		      _ivarAccess->infos.selector=sel;
+		    }
 		  else
-			{
-			  NSDebugMLLog(@"low",
-						   @"getIVarNamed %@ in %@ %p (superClass:%@) with objectForKey ",
-						   name_,
-						   [self class],
-						   self,
-						   [self superclass]);
-			  if ([self respondsToSelector:@selector(objectForKey:)]) 
-				{
-				  _ivarAccess->accessType=NSObjectIVarsAccessType_Dictionary;
-				}
-                          else if ([self respondsToSelector:@selector(valueForKey:)]) 
-				{
-				  _ivarAccess->accessType=NSObjectIVarsAccessType_EO;
-				}
-			  else
-				{
-				  _exception=[NSException exceptionWithName:@"NSObject IVar"
-								 format:@"Can't get Variable named %@ in %@ %p (superClass:%@) with objectForKey",
-								 name_,
-								 [self class],
-								 self,
-								 [self superclass]];
-				};
-			};
+		    {
+		      NSInvocation* _invocation 
+			= [NSInvocation invocationWithMethodSignature:_sig];
+		      NSDebugMLLog(@"low",
+				   @"_invocation methodSignature "
+				   @"methodReturnType=%s",
+				   [[_invocation methodSignature]
+				     methodReturnType]);
+		      [_invocation setSelector:sel];
+		      _ivarAccess->accessType
+			= NSObjectIVarsAccessType_Invocation;
+		      _ivarAccess->infos.invocation=_invocation;
+		      NSAssert([_ivarAccess->infos.invocation selector],
+			       @"No Selector in Invocation");
+		      [_ivarAccess->infos.invocation retain];
+		    };
 		};
-
-	  if (_exception)
-		_ivarAccess->accessType=NSObjectIVarsAccessType_Error;	
-	  if (_cachindEnabled)
+	    };
+	}
+      else
+	{
+	  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_,YES);
+	  if (!ivar)
+	    ivar=GSGetInstanceVariableStruct(self,name_,NO);
+	  if (ivar)
+	    {
+	      _ivarAccess->accessType=NSObjectIVarsAccessType_Direct;	
+	      _ivarAccess->infos.ivar=ivar;
+	    }
+	  else
+	    {
+	      NSDebugMLLog(@"low",
+			   @"getIVarNamed %@ in %@ %p (superClass:%@) "
+			   @"with objectForKey ",
+			   name_,
+			   [self class],
+			   self,
+			   [self superclass]);
+	      if ([self respondsToSelector:@selector(objectForKey:)]) 
 		{
-		  if (!objectClassLock)
-			objectClassLock=[NSLock new];
-		  TmpLockBeforeDate(objectClassLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
-		  [_classCache setObject:_ivarAccess
-					   forKey:name_];
-		  TmpUnlock(objectClassLock);
+		  _ivarAccess->accessType=NSObjectIVarsAccessType_Dictionary;
+		}
+	      else if ([self respondsToSelector:@selector(valueForKey:)]) 
+		{
+		  _ivarAccess->accessType=NSObjectIVarsAccessType_EO;
+		}
+	      else
+		{
+		  _exception=[NSException exceptionWithName:@"NSObject IVar"
+					  format:@"Can't get Variable named "
+					  @"%@ in %@ %p (superClass:%@) "
+					  @"with objectForKey",
+					  name_,
+					  [self class],
+					  self,
+					  [self superclass]];
 		};
+	    };
 	};
+
+      if (_exception)
+	_ivarAccess->accessType=NSObjectIVarsAccessType_Error;	
+      if (_cachindEnabled)
+	{
+	  if (!objectClassLock)
+	    objectClassLock=[NSLock new];
+	  LoggedLockBeforeDate(objectClassLock, GSW_LOCK_LIMIT);
+	  [_classCache setObject:_ivarAccess
+		       forKey:name_];
+	  LoggedUnlock(objectClassLock);
+	};
+    };
   if (_exception)
-	[_exception raise];
+    [_exception raise];
   else
-	_value=[self getIVarNamed:name_
-				 withCacheObject:_ivarAccess];
+    _value=[self getIVarNamed:name_
+		 withCacheObject:_ivarAccess];
 //  LOGObjectFnStop();
   return _value;
 };
@@ -708,163 +725,183 @@ void IdToPData(const char* retType,id _value,void* pdata)
 
 //--------------------------------------------------------------------
 -(void)setIVarNamed:(NSString*)name_
-		  withValue:(id)value_
+	  withValue:(id)value_
 {
   NSException* _exception=nil;
   BOOL _cachindEnabled=YES;
   Class _class=[self class];
   NSObjectIVarsAccess* _ivarAccess=nil;
-  NSMutableDictionary* _classCache=[objectIVarAccessCache_Set objectForKey:_class];
+  NSMutableDictionary* _classCache
+    = [objectIVarAccessCache_Set objectForKey:_class];
 //  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"LOG setIVarNamed:%@ withValue:%@ in %p %@ (superClass:%@)",name_,value_,self,[self class],[self superclass]);
+  NSDebugMLLog(@"low",
+	       @"LOG setIVarNamed:%@ withValue:%@ in %p %@ (superClass:%@)",
+	       name_,value_,self,[self class],[self superclass]);
   if (!_classCache)
+    {
+      _cachindEnabled=![_class isIVarAccessCachingDisabled];
+      if (_cachindEnabled)
 	{
-	  _cachindEnabled=![_class isIVarAccessCachingDisabled];
-	  if (_cachindEnabled)
-		{
-		  if (!objectClassLock)
-			objectClassLock=[NSLock new];
-		  TmpLockBeforeDate(objectClassLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
-		  _classCache=[NSMutableDictionary dictionary];
-		  if (!objectIVarAccessCache_Set)
-			objectIVarAccessCache_Set=[NSMutableDictionary new];
-		  [objectIVarAccessCache_Set setObject:_classCache
-									 forKey:_class];
-		  TmpUnlock(objectClassLock);
-		};
+	  if (!objectClassLock)
+	    objectClassLock=[NSLock new];
+	  LoggedLockBeforeDate(objectClassLock, GSW_LOCK_LIMIT);
+	  _classCache=[NSMutableDictionary dictionary];
+	  if (!objectIVarAccessCache_Set)
+	    objectIVarAccessCache_Set=[NSMutableDictionary new];
+	  [objectIVarAccessCache_Set setObject:_classCache
+				     forKey:_class];
+	  LoggedUnlock(objectClassLock);
 	};
+    };
   if (_cachindEnabled)
-	_ivarAccess=[_classCache objectForKey:name_];
+    _ivarAccess=[_classCache objectForKey:name_];
   if (!_ivarAccess)
+    {
+      SEL sel=NULL;
+      NSDebugMLLog(@"low",@"Not ivarAccess for name:%@",name_);
+      _ivarAccess=[NSObjectIVarsAccess ivarAccess];
+      //  NSDebugMLLog(@"low",@"LOG setIVarNamed:%@ withValue:%@ in %@",name_,value_,[self class]);
+      sel=[self getSelectorWithFunctionTemplate:@"set%@:"
+		forVariable:name_
+		uppercaseFirstLetter:YES];
+      NSDebugMLLog(@"low",
+		   @"sel=%ld (for %@ in %@)",
+		   sel,name_,[self class]);
+      if (sel)
 	{
-	  SEL sel=NULL;
-	  NSDebugMLLog(@"low",@"Not ivarAccess for name:%@",name_);
-	  _ivarAccess=[NSObjectIVarsAccess ivarAccess];
-	  //  NSDebugMLLog(@"low",@"LOG setIVarNamed:%@ withValue:%@ in %@",name_,value_,[self class]);
-	  sel=[self getSelectorWithFunctionTemplate:@"set%@:"
-				forVariable:name_
-				uppercaseFirstLetter:YES];
-	  NSDebugMLLog(@"low",
-				   @"sel=%ld (for %@ in %@)",
-				   sel,name_,[self class]);
-	  if (sel)
-		{
-		  NSMethodSignature* _sig = [self methodSignatureForSelector:sel];
-		  if ([_sig numberOfArguments]!=3)
-			{
-			  _exception=[NSException exceptionWithName:@"NSObject IVar"
-									  format:@"Can't set Variable named %@ in %@ %p (superClass:%@) (fn Bad number of Arguments)",
-									  name_,
-									  [self class],
-									  self,
-									  [self superclass]];
-			}
-		  else
-			{
-			  const char* type=[_sig getArgumentTypeAtIndex:2];
-			  if (!type)
-				{
-				  _exception=[NSException exceptionWithName:@"NSObject IVar"
-										  format:@"Can't set Variable named %@ in %@ %p (superClass:%@) (fn get argument type)",
-										  name_,
-										  [self class],
-										  self,
-										  [self superclass]];
-				}
-			  else
-				{
-				  if (*type==_C_ID)
-					{
-					  _ivarAccess->accessType=NSObjectIVarsAccessType_PerformSelector;	
-					  _ivarAccess->infos.selector=sel;
-					  NSDebugMLLog(@"low",
-								   @"perform selector (IVar named :%@)",
-								   name_);
-					}
-				  else
-					{
-					  NSInvocation* _invocation = [NSInvocation invocationWithMethodSignature:_sig];
-					  [_invocation setSelector:sel];
-					  _ivarAccess->accessType=NSObjectIVarsAccessType_Invocation;
-					  _ivarAccess->infos.invocation=_invocation;
-					  NSAssert([_ivarAccess->infos.invocation selector],@"No Selector in Invocation");
-					  [_ivarAccess->infos.invocation retain];
-					  NSDebugMLLog(@"low",
-								   @"invocation (IVar named :%@)",
-								   name_);
-					};
-				};
-			};
-		}
+	  NSMethodSignature* _sig = [self methodSignatureForSelector:sel];
+	  if ([_sig numberOfArguments]!=3)
+	    {
+	      _exception=[NSException exceptionWithName:@"NSObject IVar"
+				      format:@"Can't set Variable named %@ "
+				      @"in %@ %p (superClass:%@) "
+				      @"(fn Bad number of Arguments)",
+				      name_,
+				      [self class],
+				      self,
+				      [self superclass]];
+	    }
 	  else
+	    {
+	      const char* type=[_sig getArgumentTypeAtIndex:2];
+	      if (!type)
 		{
-		  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_,YES);
-                  if (!ivar)
-                    ivar=GSGetInstanceVariableStruct(self,name_,NO);
-		  if (ivar)
-			{
-			  _ivarAccess->accessType=NSObjectIVarsAccessType_Direct;	
-			  _ivarAccess->infos.ivar=ivar;
-			  NSDebugMLLog(@"low",
-						   @"direct (IVar named :%@)",
-						   name_);
-			}
+		  _exception
+		    =[NSException exceptionWithName:@"NSObject IVar"
+				  format:@"Can't set Variable named %@ "
+				  @"in %@ %p (superClass:%@) "
+				  @"(fn get argument type)",
+				  name_,
+				  [self class],
+				  self,
+				  [self superclass]];
+		}
+	      else
+		{
+		  if (*type==_C_ID)
+		    {
+		      _ivarAccess->accessType
+			= NSObjectIVarsAccessType_PerformSelector;	
+		      _ivarAccess->infos.selector=sel;
+		      NSDebugMLLog(@"low",
+				   @"perform selector (IVar named :%@)",
+				   name_);
+		    }
 		  else
-			{
-			  BOOL _respondsToSetObject=NO;
-			  BOOL _respondsToRemoveObject=NO;
-			  NSDebugMLLog(@"low",
-						   @"setIVarNamed %@ in %@ %p (superClass:%@) with dictionary ",
-						   name_,
-						   [self class],
-						   self,
-						   [self superclass]);
-			  _respondsToSetObject=[self respondsToSelector:@selector(setObject:forKey:)];
-			  _respondsToRemoveObject=[self respondsToSelector:@selector(removeObjectForKey:)];
-			  if (_respondsToSetObject)
-				{
-				  if (_respondsToRemoveObject)
-					_ivarAccess->accessType=NSObjectIVarsAccessType_DictionaryWithRemoveObject;
-				  else
-					_ivarAccess->accessType=NSObjectIVarsAccessType_DictionaryWithoutRemoveObject;
-				}
-                          else
-                            {
-                              BOOL _respondsToTakeValue=[self respondsToSelector:@selector(takeValue:forKey:)];
-                              if (_respondsToTakeValue)
-                                _ivarAccess->accessType=NSObjectIVarsAccessType_EO;
-                              else
-				{
-				  _exception=[NSException exceptionWithName:@"NSObject IVar"
-										  format:@"Can't set Variable named %@ in %@ %p (superClass:%@) value=%@",
-										  name_,
-										  [self class],
-										  self,
-										  [self superclass],
-										  value_];
-				};
-                            };
-			};
+		    {
+		      NSInvocation* _invocation 
+			= [NSInvocation invocationWithMethodSignature:_sig];
+		      [_invocation setSelector:sel];
+		      _ivarAccess->accessType
+			= NSObjectIVarsAccessType_Invocation;
+		      _ivarAccess->infos.invocation=_invocation;
+		      NSAssert([_ivarAccess->infos.invocation selector],
+			       @"No Selector in Invocation");
+		      [_ivarAccess->infos.invocation retain];
+		      NSDebugMLLog(@"low",
+				   @"invocation (IVar named :%@)",
+				   name_);
+		    };
 		};
-	  
-	  if (_exception)
-		_ivarAccess->accessType=NSObjectIVarsAccessType_Error;	
-	  if (_cachindEnabled)
+	    };
+	}
+      else
+	{
+	  struct objc_ivar* ivar=GSGetInstanceVariableStruct(self,name_,YES);
+	  if (!ivar)
+	    ivar=GSGetInstanceVariableStruct(self,name_,NO);
+	  if (ivar)
+	    {
+	      _ivarAccess->accessType=NSObjectIVarsAccessType_Direct;	
+	      _ivarAccess->infos.ivar=ivar;
+	      NSDebugMLLog(@"low",
+			   @"direct (IVar named :%@)",
+			   name_);
+	    }
+	  else
+	    {
+	      BOOL _respondsToSetObject=NO;
+	      BOOL _respondsToRemoveObject=NO;
+	      NSDebugMLLog(@"low",
+			   @"setIVarNamed %@ in %@ %p (superClass:%@) "
+			   @"with dictionary ",
+			   name_,
+			   [self class],
+			   self,
+			   [self superclass]);
+	      _respondsToSetObject
+		= [self respondsToSelector:@selector(setObject:forKey:)];
+	      _respondsToRemoveObject
+		=[self respondsToSelector:@selector(removeObjectForKey:)];
+	      if (_respondsToSetObject)
 		{
-		  if (!objectClassLock)
-			objectClassLock=[NSLock new];
-		  TmpLockBeforeDate(objectClassLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
-		  [_classCache setObject:_ivarAccess
-					   forKey:name_];
-		  TmpUnlock(objectClassLock);
+		  if (_respondsToRemoveObject)
+		    _ivarAccess->accessType
+		      = NSObjectIVarsAccessType_DictionaryWithRemoveObject;
+		  else
+		    _ivarAccess->accessType
+		      = NSObjectIVarsAccessType_DictionaryWithoutRemoveObject;
+		}
+	      else
+		{
+		  BOOL _respondsToTakeValue
+		    = [self respondsToSelector:@selector(takeValue:forKey:)];
+		  if (_respondsToTakeValue)
+		    _ivarAccess->accessType=NSObjectIVarsAccessType_EO;
+		  else
+		    {
+		      _exception
+			= [NSException exceptionWithName:@"NSObject IVar"
+				       format:@"Can't set Variable named %@ "
+				       @"in %@ %p (superClass:%@) value=%@",
+				       name_,
+				       [self class],
+				       self,
+				       [self superclass],
+				       value_];
+		    };
 		};
+	    };
 	};
+      
+      if (_exception)
+	_ivarAccess->accessType=NSObjectIVarsAccessType_Error;	
+      if (_cachindEnabled)
+	{
+	  if (!objectClassLock)
+	    objectClassLock=[NSLock new];
+	  LoggedLockBeforeDate(objectClassLock, GSW_LOCK_LIMIT);
+	  [_classCache setObject:_ivarAccess
+		       forKey:name_];
+	  LoggedUnlock(objectClassLock);
+	};
+    };
   if (_exception)
-	[_exception raise];
+    [_exception raise];
   else
-	[self setIVarNamed:name_
-		  withValue:value_
-		  withCacheObject:_ivarAccess];
+    [self setIVarNamed:name_
+	  withValue:value_
+	  withCacheObject:_ivarAccess];
 //  LOGObjectFnStop();
 };
 #endif

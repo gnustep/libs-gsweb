@@ -379,7 +379,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"class=%@",class);
   NSDebugMLLog(@"associations",@"handler=%@",handler);
-  TmpLockBeforeDate(associationsLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+  LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
   if (!associationsHandlerClasses)
     {
       if (class)
@@ -390,7 +390,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                                 forKey:handler];
   else if (associationsHandlerClasses)
     [associationsHandlerClasses removeObjectForKey:handler];
-  TmpUnlock(associationsLock);
+  LoggedUnlock(associationsLock);
   LOGClassFnStop();
 };
 
@@ -399,7 +399,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 {
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"class=%@",class);
-  TmpLockBeforeDate(associationsLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+  LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
   if (!associationsLogsHandlerClasses)
     {
       if (class)
@@ -407,7 +407,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
     };
   if (class)
     [associationsLogsHandlerClasses addObject:class];
-  TmpUnlock(associationsLock);
+  LoggedUnlock(associationsLock);
   LOGClassFnStop();
 };
 
@@ -416,13 +416,13 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 {
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"class=%@",class);
-  TmpLockBeforeDate(associationsLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+  LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
   if (associationsHandlerClasses)
     {
       if (class)
         [associationsLogsHandlerClasses removeObject:class];
     };
-  TmpUnlock(associationsLock);
+  LoggedUnlock(associationsLock);
   LOGClassFnStop();
 };
 
@@ -486,7 +486,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
     {
       if (associationsLogsHandlerClasses)
         {
-          TmpLockBeforeDate(associationsLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+          LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
           NS_DURING
             {
               int i=0;
@@ -513,11 +513,11 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           NS_HANDLER
             {
               LOGException(@"%@ (%@)",localException,[localException reason]);
-              TmpUnlock(associationsLock);
+              LoggedUnlock(associationsLock);
               [localException raise];
             }
           NS_ENDHANDLER;
-          TmpUnlock(associationsLock);
+          LoggedUnlock(associationsLock);
         };
     };
 };
@@ -543,7 +543,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 {
   if (associationsHandlerClasses)
     {
-      TmpLockBeforeDate(associationsLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+      LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
       NS_DURING
         {
           int i=0;
@@ -565,11 +565,11 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       NS_HANDLER
         {
           LOGException(@"%@ (%@)",localException,[localException reason]);
-          TmpUnlock(associationsLock);
+          LoggedUnlock(associationsLock);
           [localException raise];
         }
       NS_ENDHANDLER;
-      TmpUnlock(associationsLock);
+      LoggedUnlock(associationsLock);
     };
 };
 

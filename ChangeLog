@@ -1,3 +1,93 @@
+2004-02-16  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWUtils.h/m
+	(IsStyle,IsNumberStyle, ExceptionRaise, ExceptionRaise0,
+	ValidationExceptionRaise, ValidationExceptionRaise0,
+	ExceptionByAddingUserInfoObjectFrameInfo,
+	ExceptionByAddingUserInfoObjectFrameInfo0,
+	ExceptionByAddingUserInfoFunctionFrameInfo,
+	ExceptionByAddingUserInfoFunctionFrameInfo0, ): Reformat defines.
+	(GSW_LOCK_LIMIT): New define.
+	(ExceptionRaiseFn, ExceptionRaiseFn0, ValidationExceptionRaiseFn,
+	ValidationExceptionRaiseFn0): Reformat declaration.
+	(TmpLock, TmpTryLockBeforeDate, TmpLockBeforeDate, TmpUnlock):
+	Remove.
+	([NSLock isLocked]): Remove.
+	([NSLock tmplock]): Ditto.
+	([NSLock tmplockFromFunction:file:line:]): Ditto.
+	([NSLock tmptryLock]): Ditto.
+	([NSLock tmptryLockFromFunction:file:line:]): Ditto.
+	([NSLock tmptryLockBeforeDate:]): Ditto.
+	([NSLock tmptryLockBeforeDate:fromFunction:file:line:]): Ditto.
+	([NSLock tmpunlock]): Ditto.
+	([NSLock tmpunlockFromFunction:file:line:]): Ditto.
+	([NSLock description]): Ditto.
+	([NSRecursiveLock isLocked]): Ditto.
+	([NSRecursiveLock tmplock]): Ditto.
+	([NSRecursiveLock tmplockFromFunction:file:line:]): Ditto.
+	([NSRecursiveLock tmptryLock]): Ditto.
+	([NSRecursiveLock tmptryLockFromFunction:file:line:]): Ditto.
+	([NSRecursiveLock tmptryLockBeforeDate:]): Ditto.
+	([NSRecursiveLock tmptryLockBeforeDate:fromFunction:file:line:]):
+	Ditto.
+	([NSRecursiveLock tmpunlock]): Ditto.
+	([NSRecursiveLock tmpunlockFromFunction:file:line:]): Ditto.
+	(NSLockException, MessageForMutexLockError)
+	(LoggedLock, LoggedLockBeforeDate, LoggedTryLock,
+	LoggedTryLockBeforeDate, LoggedUnlock): New macros.
+	(loggedLockBeforeDateFromFunctionInFileInLine,
+	loggedUnlockFromFunctionInFileInLine): New logging lock
+	functions.
+	([NSThread description]): New Category.
+	(volatileInternalDescription): New static function.
+	(GSW_LOCK_LIMIT): New marco.
+	* GSWeb.framework/GSWApplication.m
+	([GSWApplication isRequestHandlingLocked]): Test lock instead of
+	relying on obsolete lock categories.
+	([GSWApplication lockRequestHandling]): Use new locking macros.
+	([GSWApplication unlockRequestHandling]): Ditto.
+	([GSWApplication lock]): Ditto.
+	([GSWApplication unlock]): Ditto.
+	* GSWeb.framework/GSWAssociation.m
+	([GSWAssociation setClasse:forHandler:]): Ditto
+	([GSWAssociation addLogHandlerClasse:]): Ditto.
+	([GSWAssociation removeLogHandlerClasse:]): Ditto.
+	([GSWAssociation logValue:forSet:]): Ditto.
+	([GSWAssociation
+	logSynchronizeForValue:inComponent:componentToParent:]): Ditto.
+	* GSWeb.framework/GSWBundle.m
+	([GSWBundle unlock]): Ditto.
+	([GSWBundle lock]): Ditto.
+	* GSWeb.framework/GSWDefaultAdaptor.m
+	([GSWDefaultAdaptor tryLock]): Ditto.
+	([GSWDefaultAdaptor unlock]): Ditto.
+	* GSWeb.framework/GSWDeployedBundle.m
+	([GSWDeployedBundle lock]): Ditto.
+	([GSWDeployedBundle unlock]): Ditto.
+	* GSWeb.framework/GSWResourceManager.m
+	([GSWResourceManager unlock]): Ditto.
+	([GSWResourceManager lock]): Ditto.
+	* GSWeb.framework/GSWSessionStore.m
+	([GSWSessionStore unlock]): Ditto.
+	([GSWSessionStore tryLock]): Ditto.
+	([GSWSessionStore lock]): Ditto.
+	* GSWeb.framework/GSWSessionTimeOutManager.m
+	([GSWSessionTimeOutManager tryLockBeforeTimeIntervalSinceNow:]):
+	Ditto.
+	([GSWSessionTimeOutManager lockBeforeTimeIntervalSinceNow]): Ditto.
+	([GSWSessionTimeOutManager unlock]): Ditto.
+	* GSWeb.framework/GSWStaticResourceRequestHandler.m
+	([GSWStaticResourceRequestHandler handleRequest:]): Ditto.
+	* GSWeb.framework/GSWStatisticsStore.m
+	([GSWStatisticsStore unlock]): Ditto.
+	([GSWStatisticsStore lock]): Ditto.
+	* GSWeb.framework/NSObject+IVarAccess+PerformSel.m:
+	([NSObject getIVarNamed]): Use GSW_LOCK_LIMIT macro.
+	Reformat.
+	([NSObject setIVarNamed:withValue:]): Ditto.
+
+	* Makefile.postamble: Remove autom4te.cache on distclean.
+
 2004-02-04   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWTemplateParserXML.m: fix to avoid html and 

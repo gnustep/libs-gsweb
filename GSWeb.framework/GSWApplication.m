@@ -936,7 +936,14 @@ int GSWApplicationMain(NSString* applicationClassName,
 //	lockRequestHandling
 -(BOOL)isRequestHandlingLocked
 {
-  return [_globalLock isLocked];
+  BOOL lockable = LoggedTryLock(_globalLock);
+
+  if (lockable == YES)
+    {
+      LoggedUnlock(_globalLock);
+    }
+
+  return (lockable ? NO : YES);
 };
 
 //--------------------------------------------------------------------
@@ -962,8 +969,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       NS_DURING
         {
           NSDebugLockMLog(@"GLOBALLOCK lock ThreadID=%p\n",(void*)objc_thread_id());
-          //TODO-NOW	  TmpLockBeforeDate(globalLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
-          [_globalLock lock];
+          LoggedLockBeforeDate(_globalLock,GSW_LOCK_LIMIT);
           NSDebugLockMLog(@"GLOBALLOCK locked ThreadID=%p\n",(void*)objc_thread_id());
 #ifndef NDEBUG
           _globalLockn++;
@@ -977,7 +983,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       NS_HANDLER
         {
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"globalLock tmplockBeforeDate");
+                                                                   @"globalLock loggedlockBeforeDate");
           LOGException(@"%@ (%@)",localException,[localException reason]);
           [localException raise];
         };
@@ -1008,7 +1014,7 @@ int GSWApplicationMain(NSString* applicationClassName,
                 };
             };
           NSDebugLockMLog(@"GLOBALLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
-          TmpUnlock(_globalLock);
+          LoggedUnlock(_globalLock);
           NSDebugLockMLog(@"GLOBALLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
 #ifndef NDEBUG
           _globalLockn--;
@@ -1027,7 +1033,7 @@ int GSWApplicationMain(NSString* applicationClassName,
                       (void*)_globalLock_thread_id,
                       (void*)objc_thread_id());
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"globalLock tmpunlock");
+                                                                   @"globalLock loggedunlock");
           LOGException(@"%@ (%@)",localException,[localException reason]);
           [localException raise];
         };
@@ -1058,7 +1064,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NS_DURING
     {
       /*          printf("SELFLOCK lock ThreadID=%p\n",(void*)objc_thread_id());
-                  TmpLockBeforeDate(selfLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+                  LoggedLockBeforeDate(selfLock,GSW_LOCK_LIMIT);
                   printf("SELFLOCK locked ThreadID=%p\n",(void*)objc_thread_id());
 #ifndef NDEBUG
                   selfLockn++;
@@ -1108,7 +1114,7 @@ selfLockn,
   NS_DURING
     {
       NSDebugLockMLog(@"SELFLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
-      //	  TmpUnlock(selfLock);
+      //	  LoggedUnlock(selfLock);
       [_selfLock unlock];//NEW
       NSDebugLockMLog(@"SELFLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
 #ifndef NDEBUG
@@ -1129,7 +1135,7 @@ selfLockn,
                    (void*)_selfLock_thread_id,
                    (void*)objc_thread_id());
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"selfLock tmpunlock");
+                                                               @"selfLock loggedunlock");
       LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };

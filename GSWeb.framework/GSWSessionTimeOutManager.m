@@ -520,7 +520,8 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   NSDebugMLLog(@"sessions",@"selfLockn=%d lock before %f s (%@)",
                _selfLockn,ti,[NSDate dateWithTimeIntervalSinceNow:ti]);
-  locked=TmpTryLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:ti]);
+  locked=LoggedTryLockBeforeDate(_selfLock,
+				 [NSDate dateWithTimeIntervalSinceNow:ti]);
 #ifndef NDEBUG
   if (locked)
     _selfLockn++;
@@ -536,7 +537,7 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   NSDebugMLLog(@"sessions",@"selfLockn=%d lock before %f s (%@)",
                _selfLockn,ti,[NSDate dateWithTimeIntervalSinceNow:ti]);
-  TmpLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:ti]);
+  LoggedLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:ti]);
 #ifndef NDEBUG
   _selfLockn++;
 #endif
@@ -557,7 +558,7 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"sessions",@"selfLockn=%d",_selfLockn);
-  TmpUnlock(_selfLock);
+  LoggedUnlock(_selfLock);
 #ifndef NDEBUG
 	_selfLockn--;
 #endif

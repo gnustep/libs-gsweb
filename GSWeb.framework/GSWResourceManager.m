@@ -442,7 +442,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"_selfLockn=%d",_selfLockn);
-  TmpUnlock(_selfLock);
+  LoggedUnlock(_selfLock);
 #ifndef NDEBUG
 	_selfLockn--;
 #endif
@@ -455,7 +455,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"_selfLockn=%d",_selfLockn);
-  TmpLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
+  LoggedLockBeforeDate(_selfLock,GSW_LOCK_LIMIT);
 #ifndef NDEBUG
   _selfLockn++;
 #endif
