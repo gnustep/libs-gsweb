@@ -722,7 +722,7 @@ static const command_rec GSWeb_Commands[] =
    NULL,                    /* argument to include in call */
    RSRC_CONF,               /* where available */
    "ScriptAlias for GSWeb"  /* directive description */
-   );
+   ),
   AP_INIT_TAKE1
   (
    GSWEB_CONF__CONFIG_FILE_PATH,        /* directive name */

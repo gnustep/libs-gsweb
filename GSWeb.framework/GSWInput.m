@@ -157,12 +157,18 @@
 //--------------------------------------------------------------------
 -(BOOL)disabledInContext:(GSWContext*)context
 {
+  BOOL isDisabled=NO;
+  LOGObjectFnStartC("GSWInput");
+  NSDebugMLLog(@"gswdync",@"_enabled=%@ _disabled=%@",_enabled,_disabled);
   if (!WOStrictFlag && _enabled)
-    return ![self evaluateCondition:_enabled
+    isDisabled=![self evaluateCondition:_enabled
                   inContext:context];
   else
-    return [self evaluateCondition:_disabled
-                 inContext:context];
+    isDisabled=[self evaluateCondition:_disabled
+                     inContext:context];
+  NSDebugMLLog(@"gswdync",@"isDisabled=%d",isDisabled);
+  LOGObjectFnStopC("GSWInput");
+  return isDisabled;
 };
 
 @end

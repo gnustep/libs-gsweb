@@ -136,44 +136,47 @@ Bindings
   //OK
   GSWComponent* component=nil;
   BOOL disabledInContext=NO;
+  BOOL isChecked=NO;
   LOGObjectFnStartC("GSWCheckBox");
   component=[context component];
   disabledInContext=[self disabledInContext:context];
-  if (!disabledInContext)
+  NSDebugMLLog(@"gswdync",@"disabledInContext=%d",disabledInContext);
+
+  [self appendValueToResponse:response
+        inContext:context];
+  [self appendNameToResponse:response
+        inContext:context];
+
+  NSDebugMLLog(@"gswdync",@"_value=%@",_value);
+  NSDebugMLLog(@"gswdync",@"_selection=%@",_selection);
+  NSDebugMLLog(@"gswdync",@"_checked=%@",_checked);
+  if (_value && _selection)
     {
-      BOOL isChecked=NO;
-      [self appendValueToResponse:response
-            inContext:context];
-      [self appendNameToResponse:response
-            inContext:context];
-
-      NSDebugMLLog(@"gswdync",@"_value=%@",_value);
-      NSDebugMLLog(@"gswdync",@"_selection=%@",_selection);
-      NSDebugMLLog(@"gswdync",@"_checked=%@",_checked);
-      if (_value && _selection)
+      id valueValue=[_value valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+      if (valueValue)
         {
-          id valueValue=[_value valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-          if (valueValue)
+          id selectionValue=[_selection valueInComponent:component];
+          NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
+          if (selectionValue)
             {
-              id selectionValue=[_selection valueInComponent:component];
-              NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
-              if (selectionValue)
-                {
-                  NSString* valueValueString=[NSString stringWithFormat:@"%@",valueValue];
-                  NSString* selectionValueString=[NSString stringWithFormat:@"%@",selectionValue];
-                  isChecked=SBIsValueEqual(selectionValueString,valueValueString);
-                };
+              NSString* valueValueString=[NSString stringWithFormat:@"%@",valueValue];
+              NSString* selectionValueString=[NSString stringWithFormat:@"%@",selectionValue];
+              isChecked=SBIsValueEqual(selectionValueString,valueValueString);
             };
-        }
-      else if (_checked)
-        isChecked=[self evaluateCondition:_checked
-                        inContext:context];
-      NSDebugMLLog(@"gswdync",@"isChecked=%s",(isChecked ? "YES" : "NO"));
+        };
+    }
+  else if (_checked)
+    isChecked=[self evaluateCondition:_checked
+                    inContext:context];
+  NSDebugMLLog(@"gswdync",@"isChecked=%s",(isChecked ? "YES" : "NO"));
+  
+  if (isChecked)
+    [response _appendContentAsciiString:@" checked"];
 
-      if (isChecked)
-        [response _appendContentAsciiString:@" checked"];
-    };
+  if (disabledInContext) 
+    [response appendContentString:@" disabled"];
+
   LOGObjectFnStopC("GSWCheckBox");
 };
 

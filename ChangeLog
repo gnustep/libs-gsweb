@@ -1,3 +1,12 @@
+2003-03-04   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWInput.m:
+		o logs
+	* GSWeb/GSWCheckBox.m:
+		o logs
+		o fix for disabled check box
+	* GSWAdaptors/Apache/mod_gsweb.c 
+		o typo fix
+	
 2003-03-03   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWSessionTimeOutManager.m:
 		o Better handling of lock during exceptions 
