@@ -55,7 +55,6 @@ RCS_ID("$Id$")
   message=nil;
   user=nil;
   password=nil;
-  currentDate=nil;
   LOGObjectFnStop();
 };
 
@@ -65,7 +64,6 @@ RCS_ID("$Id$")
   message=nil;
   user=nil;
   password=nil;
-  currentDate=nil;
   [super sleep];
   LOGObjectFnStop();
 };
