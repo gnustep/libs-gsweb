@@ -107,7 +107,7 @@ RCS_ID("$Id$")
   NSRange range=[string rangeOfString:@"\r\n"];
   if (range.length>0)
     string=[string stringByReplacingString:@"\r\n"
-                   withString:@"n"];
+                   withString:@"\n"];
   return string;
 };
 
