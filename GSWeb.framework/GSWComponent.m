@@ -1674,19 +1674,18 @@ associationsKeys:(NSArray*)associationsKeys
 };
 
 //--------------------------------------------------------------------
--(id)validateValue:(id*)valuePtr
-            forKey:(id)key
+-(NSException*)validateValue:(id*)valuePtr
+                      forKey:(NSString*)key
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-+(id)validateValue:(id*)valuePtr
-            forKey:(id)key
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return nil;
+  NSException* exception=nil;
+  LOGObjectFnStart();
+/*
+  // Should all default implementation (i.e. the one which call validateXX:
+  exception=[super validateValue:valuePtr
+                   forKey:key];
+*/
+  LOGObjectFnStop();
+  return exception;
 };
 
 @end
