@@ -36,7 +36,7 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 @class EOUndoManager;
 
-#if GDL2 // GDL2 implementation
+#if HAVE_GDL2 // GDL2 implementation
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOClassDescription.h>
 
@@ -71,7 +71,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 //====================================================================
 @implementation GSWDisplayGroup
 
-#if GDL2 // GDL2 implementation
+#if HAVE_GDL2 // GDL2 implementation
 
 + (void)initialize
 {
@@ -119,6 +119,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
       _selection = [[NSMutableArray alloc] initWithCapacity:8];
       
       _queryMatch    = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryNotMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMin      = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMinMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMax      = [[NSMutableDictionary alloc] initWithCapacity:8];
@@ -164,6 +165,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
               [unarchiver decodeObjectForKey:@"sortOrdering"]];
       [self setQualifier:
               [unarchiver decodeObjectForKey:@"qualifier"]];
+      [self setAuxiliaryQueryQualifier:
+              [unarchiver decodeObjectForKey:@"auxiliaryQueryQualifier"]];
       [self setDefaultStringMatchFormat:
               [unarchiver decodeObjectForKey:@"formatForLikeQualifier"]];
       [self setInsertedObjectDefaultValues:
@@ -210,19 +213,23 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
                _sortOrdering];
   dscr=[dscr stringByAppendingFormat:@"qualifier:[%@]\n",
                _qualifier];
+  dscr=[dscr stringByAppendingFormat:@"qualifier:[%@]\n",
+               _auxiliaryQueryQualifier];
   dscr=[dscr stringByAppendingFormat:@"formatForLikeQualifier:[%@]\n",
                _defaultStringMatchFormat];
   dscr=[dscr stringByAppendingFormat:@"insertedObjectDefaultValues:[%@]\n",
                _insertedObjectDefaultValues];
   dscr=[dscr stringByAppendingFormat:@"queryMatch:[%@]\n",
                _queryMatch];
+  dscr=[dscr stringByAppendingFormat:@"queryNotMatch:[%@]\n",
+               _queryNotMatch];
   dscr=[dscr stringByAppendingFormat:@"queryMin:[%@]\n",
                _queryMin];
-  dscr=[dscr stringByAppendingFormat:@"queryMin:[%@]\n",
+  dscr=[dscr stringByAppendingFormat:@"queryMinMatch:[%@]\n",
                _queryMinMatch];
   dscr=[dscr stringByAppendingFormat:@"queryMax:[%@]\n",
                _queryMax];
-  dscr=[dscr stringByAppendingFormat:@"queryMax:[%@]\n",
+  dscr=[dscr stringByAppendingFormat:@"queryMaxMatch:[%@]\n",
                _queryMaxMatch];
   dscr=[dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
                _queryOperator];
@@ -272,6 +279,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
             forKey:@"sortOrdering"];
   [archiver encodeObject:_qualifier
             forKey:@"qualifier"];
+  [archiver encodeObject:_auxiliaryQueryQualifier
+            forKey:@"auxiliaryQueryQualifier"];
   [archiver encodeObject:[self defaultStringMatchFormat]
                   forKey:@"formatForLikeQualifier"];
   [archiver encodeObject:_insertedObjectDefaultValues
@@ -641,12 +650,14 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   DESTROY(_selectedObjects);
   DESTROY(_sortOrdering);
   DESTROY(_qualifier);
+  DESTROY(_auxiliaryQueryQualifier);
   DESTROY(_localKeys);
 
   DESTROY(_insertedObjectDefaultValues);
   DESTROY(_savedAllObjects);
 
   DESTROY(_queryMatch);
+  DESTROY(_queryNotMatch);
   DESTROY(_queryMin);
   DESTROY(_queryMinMatch);
   DESTROY(_queryMax);
@@ -1212,11 +1223,12 @@ of all Batches, not only the current one.
 }
 
 //--------------------------------------------------------------------
--(void)editingContext:(id)editingContext
-  presentErrorMessage:(id)msg
+-(void)editingContext:(EOEditingContext*)editingContext
+  presentErrorMessage:(NSString*)message
 {
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self _presentAlertWithTitle:@"Editing Context Error"
+        message:message];
   LOGObjectFnStop();
 };
 
@@ -1451,6 +1463,12 @@ of all Batches, not only the current one.
 }
 
 //--------------------------------------------------------------------
+- (EOQualifier *)_auxiliaryQueryQualifier
+{
+  return _auxiliaryQueryQualifier;
+}
+
+//--------------------------------------------------------------------
 //	qualifierFromInputValues
 
 -(EOQualifier*)qualifierFromInputValues
@@ -1471,6 +1489,8 @@ of all Batches, not only the current one.
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdisplaygroup",@"_queryMatch=%@",
                _queryMatch);
+  NSDebugMLLog(@"gswdisplaygroup",@"_queryNotMatch=%@",
+               _queryNotMatch);
   NSDebugMLLog(@"gswdisplaygroup",@"_queryMin=%@",
                _queryMin);
   NSDebugMLLog(@"gswdisplaygroup",@"_queryMax=%@",
@@ -1498,8 +1518,13 @@ of all Batches, not only the current one.
         forValues:_queryMinMatch
         operatorSelector:EOQualifierOperatorGreaterThanOrEqualTo];
   [self _addQualifiersToArray:array
+        forValues:_queryNotMatch
+        operatorSelector:EOQualifierOperatorNotEqual];
+  [self _addQualifiersToArray:array
         forValues:_queryMatch
         operatorSelector:EOQualifierOperatorEqual];
+  if (_auxiliaryQueryQualifier)
+    [array addObject:_auxiliaryQueryQualifier];
 
   NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
   if ([array count]==1)
@@ -1591,6 +1616,14 @@ of all Batches, not only the current one.
 - (NSMutableDictionary *)queryMatch
 {
   return _queryMatch;
+}
+
+//--------------------------------------------------------------------
+//	queryNotMatch
+
+- (NSMutableDictionary *)queryNotMatch
+{
+  return _queryNotMatch;
 }
 
 //--------------------------------------------------------------------
@@ -2129,6 +2162,16 @@ of all Batches, not only the current one.
 }
 
 //--------------------------------------------------------------------
+//	setAuxiliaryQueryQualifier:
+
+- (void)setAuxiliaryQueryQualifier:(EOQualifier *)qualifier
+{
+  LOGObjectFnStart();
+  ASSIGN(_auxiliaryQueryQualifier, qualifier);
+  LOGObjectFnStop();
+}
+
+//--------------------------------------------------------------------
 //	setSelectedObject:
 
 - (void)setSelectedObject:(id)object
@@ -2342,7 +2385,7 @@ of all Batches, not only the current one.
           objsEnum = [_allObjects objectEnumerator];
           while((object = [objsEnum nextObject]))
             {
-              if([_qualifier evaluateWithObject:object] == YES)
+              if ([_qualifier evaluateWithObject:object] == YES)
                 [_displayedObjects addObject:object];
             }
         }
@@ -2390,7 +2433,7 @@ of all Batches, not only the current one.
 
 @end
 
-#if GDL2 // GDL2 implementation
+#if HAVE_GDL2 // GDL2 implementation
 //====================================================================
 @implementation GSWDisplayGroup (Private)
 -(void)finishInitialization
@@ -2622,8 +2665,8 @@ of all Batches, not only the current one.
             }
           else
             {
-              NSLog(@"Error: null selector for %@ %@ %@. Discard it !",
-                    key,[_queryOperator objectForKey:key],value);
+              NSLog(@"Error: Qualifier (%@) null selector for %@ %@ %@. Discard it !",
+                    qualifierClass,key,[_queryOperator objectForKey:key],value);
             };
         };
     };
@@ -2679,8 +2722,8 @@ of all Batches, not only the current one.
 {
   NSArray* objects=nil;
   int selfCount=0;
-  GSWLogAssertGood(objects);
   GSWLogAssertGood(self);
+  GSWLogAssertGood(indexes);
   NSDebugMLLog(@"gswdisplaygroup",@"indexes count]=%d",[indexes count]);
   NSDebugMLLog(@"gswdisplaygroup",@"self count]=%d",[self count]);
   selfCount=[self count];

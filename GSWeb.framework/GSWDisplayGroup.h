@@ -32,7 +32,7 @@
 #ifndef _GSWDisplayGroup_h__
 #define _GSWDisplayGroup_h__
 
-#if !GDL2
+#if !HAVE_GDL2
    #ifdef TCSDB
       #include <TCSimpleDB/TCSimpleDB.h>
       #include <TCSimpleDB/EODefines.h>
@@ -88,11 +88,13 @@
   NSMutableArray* _selectedObjects;
   NSArray* _selection;
   NSArray* _sortOrdering;
-  EOQualifier* _qualifier;
+  EOQualifier* _qualifier; /** qualifier used to in memory filter after fetch **/
+  EOQualifier* _auxiliaryQueryQualifier; /** qualifier used when qualifying dataSource (added to query qualifiers) **/
   NSArray* _localKeys;
   NSDictionary* _insertedObjectDefaultValues;
   NSMutableArray* _savedAllObjects;
   NSMutableDictionary* _queryMatch;
+  NSMutableDictionary* _queryNotMatch;
   NSMutableDictionary* _queryMin;
   NSMutableDictionary* _queryMinMatch;
   NSMutableDictionary* _queryMax;
@@ -139,7 +141,7 @@
 };
 
 + (GSWDisplayGroup* )displayGroup;
-#if GDL2
+#if HAVE_GDL2
 - (EOUndoManager*)undoManager;
 #else
 - (id)undoManager;
@@ -182,8 +184,8 @@
 - (void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object;
 - (NSMutableDictionary *)inputObjectForQualifier;
 - (BOOL)inQueryMode;
-- (void)editingContext:(id)editingContext
-   presentErrorMessage:(id)msg;
+-(void) editingContext:(EOEditingContext*)editingContext
+   presentErrorMessage:(NSString*)msg;
 - (id)insert;
 - (id)insertAfterLastObject;
 - (NSDictionary *)insertedObjectDefaultValues;
@@ -195,12 +197,14 @@
 - (id)masterObject;
 - (unsigned)numberOfObjectsPerBatch;
 - (EOQualifier *)qualifier;
+- (EOQualifier *)auxiliaryQueryQualifier;
 - (EOQualifier *)qualifierFromInputValues;
 - (EOQualifier *)qualifierFromQueryValues;
 - (void)qualifyDataSource;
 - (void)qualifyDisplayGroup;
 - (NSMutableDictionary*)queryBindings;
 - (NSMutableDictionary*)queryMatch;
+- (NSMutableDictionary*)queryNotMatch;
 - (NSMutableDictionary*)queryMax;
 - (NSMutableDictionary*)queryMaxMatch;
 - (NSMutableDictionary*)queryMin;
@@ -240,6 +244,7 @@
 - (void)setNumberOfObjectsPerBatch:(unsigned)count;
 - (void)setObjectArray:(NSArray *)objects;
 - (void)setQualifier:(EOQualifier *)qualifier;
+- (void)setAuxiliaryQueryQualifier:(EOQualifier *)qualifier;
 - (BOOL)setSelectionIndexes:(NSArray *)selection;
 - (void)setSelectsFirstObjectAfterFetch:(BOOL)flag;
 - (void)setSortOrderings:(NSArray *)orderings;
