@@ -32,233 +32,138 @@
 #ifndef _GSWWOCompatibility_h__
 	#define _GSWWOCompatibility_h__
 
-#if GSWEB_WONAMES
-#else
-@interface WOApplication : GSWApplication
-@end
-
-@interface WOAdaptor : GSWAdaptor
-@end
-
-@interface WODefaultAdaptor: GSWDefaultAdaptor
-@end
-
-@interface WOAssociation : GSWAssociation
-@end
-
-@interface WOComponent : GSWComponent
-@end
-
-@interface WOContext : GSWContext
-@end
-
-@interface WODisplayGroup : GSWDisplayGroup
-@end
-
-@interface WOElement : GSWElement
-@end
-
-@interface WODynamicElement : GSWDynamicElement
-@end
-
-@interface WORequest : GSWRequest
-@end
-
-@interface WOResourceManager : GSWResourceManager
-@end
-
-@interface WOResponse : GSWResponse
-@end
-
-@interface WOSession : GSWSession
-@end
-
-@interface WOSessionStore : GSWSessionStore
-@end
-
-@interface WOStatisticsStore : GSWStatisticsStore
-@end
-
-@interface WORequestHandler : GSWRequestHandler
-@end
-
-@interface WOComponentDefinition : GSWComponentDefinition
-@end
-
-@interface WOBundle : GSWBundle
-@end
-
-@interface WOMultiKeyDictionary : GSWMultiKeyDictionary
-@end
-
-@interface WOCookie : GSWCookie
-@end
-
-@interface WOElementIDString : GSWElementIDString
-@end
-
-@interface WODirectAction : GSWDirectAction
-@end
-
-@interface WOMailDelivery : GSWMailDelivery
-@end
-
-@interface WOComponentRequestHandler : GSWComponentRequestHandler
-@end
-
-@interface WOResourceRequestHandler : GSWResourceRequestHandler
-@end
-
-@interface WODirectActionRequestHandler : GSWDirectActionRequestHandler
-@end
-
-@interface WODefaultAdaptorThread : GSWDefaultAdaptorThread
-@end
-
-@interface WOKeyValueAssociation : GSWKeyValueAssociation
-@end
-
-@interface WOConstantValueAssociation : GSWConstantValueAssociation
-@end
-
-@interface WOHTMLStaticElement : GSWHTMLStaticElement
-@end
-
-@interface WOHTMLStaticGroup : GSWHTMLStaticGroup
-@end
-
-@interface WOInput : GSWInput
-@end
-
-@interface WOComponentReference : GSWComponentReference
-@end
-
-@interface WOPageDefElement : GSWPageDefElement
-@end
-
-@interface WOSessionTimeOutManager : GSWSessionTimeOutManager
-@end
-
-@interface WOServerSessionStore : GSWServerSessionStore
-@end
-
-@interface WODeployedBundle : GSWDeployedBundle
-@end
-
-@interface WOProjectBundle : GSWProjectBundle
-@end
-
-@interface WOSessionTimeOut : GSWSessionTimeOut
-@end
-
-@interface WOTemplateParser : GSWTemplateParser
-@end
-
-@interface WODynamicURLString : GSWDynamicURLString
-@end
-
-@interface WOBindingNameAssociation : GSWBindingNameAssociation
-@end
-
-@interface WOURLValuedElementData : GSWURLValuedElementData
-@end
-
-@interface WOHTMLURLValuedElement : GSWHTMLURLValuedElement
-@end
-
-@interface WOStats : GSWStats
-@end
-
-@interface WOTransactionRecord : GSWTransactionRecord
-@end
-
-@interface WOComponentContent : GSWComponentContent
-@end
-
-@interface WOFileUpload : GSWFileUpload
-@end
-
-@interface WOResourceURL : GSWResourceURL
-@end
-
-@interface WOString : GSWString
-@end
-
-@interface WORepetition : GSWRepetition
-@end
-
-@interface WOActiveImage : GSWActiveImage
-@end
-
-@interface WOApplet : GSWApplet
-@end
-
-@interface WOBrowser : GSWBrowser
-@end
-
-
-@interface WOCheckBox : GSWCheckBox
-@end
-
-@interface WOCheckBoxList : GSWCheckBoxList
-@end
-
-@interface WOParam : GSWParam
-@end
-
-@interface WOForm : GSWForm
-@end
-
-@interface WOPopUpButton : GSWPopUpButton
-@end
-
-@interface WOTextField : GSWTextField
-@end
-
-@interface WOSubmitButton : GSWSubmitButton
-@end
-
-@interface WOConditional : GSWConditional
-@end
-
-@interface WOText : GSWText
-@end
-
-@interface WOHiddenField : GSWHiddenField
-@end
-
-@interface WOPasswordField : GSWPasswordField
-@end
-
-@interface WOResetButton : GSWResetButton
-@end
-
-@interface WOFrame : GSWFrame 
-@end
-
-@interface WOGenericContainer : GSWGenericContainer
-@end
-
-@interface WOGenericElement : GSWGenericElement
-@end
-
-@interface WOImage : GSWImage
-@end
-
-@interface WOImageButton : GSWImageButton
-@end
-
-@interface WORadioButton : GSWRadioButton
-@end
-
-@interface WORadioButtonList : GSWRadioButtonList
-@end
-
-@interface WOHyperlink : GSWHyperlink
-@end
-
-extern WOApplication *WOApp;
-
-#endif
+#ifdef GSWEB_WONAMES
+
+/* public */
+#define GSWAdaptor			WOAdaptor
+#define GSWApplication			WOApplication
+#define GSWAssociation			WOAssociation
+#define GSWComponent			WOComponent
+#define GSWContext			WOContext
+#define GSWCookie			WOCookie
+#define GSWDirectAction			WODirectAction
+#define GSWDisplayGroup			WODisplayGroup
+#define GSWDynamicElement		WODynamicElement
+#define GSWElement			WOElement
+#define GSWEvent                        WOEvent
+#define GSWHTTPConnection               WOHTTPConnection
+#define GSWMailDelivery			WOMailDelivery
+#define GSWMessage                      WOMesssage
+#define GSWRequest			WORequest
+#define GSWRequestHandler		WORequestHandler
+#define GSWResourceManager		WOResourceManager
+#define GSWResponse			WOResponse
+#define GSWSession			WOSession
+#define GSWSessionStore			WOSessionStore
+#define GSWStatisticsStore		WOStatisticsStore
+
+/* protocols */
+#define GSWActionResults                WOActionResults
+//#define GSWDisplayGroup                 WODisplayGroup
+
+/* private */
+#define GSWComponentDefinition		WOComponentDefinition
+#define GSWBundle			WOBundle
+#define GSWMultiKeyDictionary		WOMultiKeyDictionary
+#define GSWElementIDString		WOElementIDString
+#define GSWComponentRequestHandler	WOComponentRequestHandler
+#define GSWResourceRequestHandler	WOResourceRequestHandler
+#define GSWDirectActionRequestHandler	WODirectActionRequestHandler
+#define GSWDefaultAdaptorThread		WODefaultAdaptorThread
+#define GSWKeyValueAssociation		WOKeyValueAssociation
+#define GSWConstantValueAssociation	WOConstantValueAssociation
+#define GSWHTMLStaticElement		WOHTMLStaticElement
+#define GSWHTMLStaticGroup		WOHTMLStaticGroup
+#define GSWInput			WOInput
+#define GSWComponentReference		WOComponentReference
+#define GSWPageDefElement		WOPageDefElement
+#define GSWBundle			WOBundle
+#define GSWSessionTimeOutManager	WOSessionTimeOutManager
+#define GSWServerSessionStore		WOServerSessionStore
+#define GSWDeployedBundle		WODeployedBundle
+#define GSWProjectBundle		WOProjectBundle
+#define GSWSessionTimeOut		WOSessionTimeOut
+#define GSWMultiKeyDictionary		WOMultiKeyDictionary
+#define GSWTemplateParser		WOTemplateParser
+#define GSWDynamicURLString		WODynamicURLString
+#define GSWBindingNameAssociation	WOBindingNameAssociation
+#define GSWURLValuedElementData		WOURLValuedElementData
+#define GSWHTMLURLValuedElement		WOHTMLURLValuedElement
+#define GSWStats			WOStats
+#define GSWTransactionRecord		WOTransactionRecord
+#define GSWDefaultAdaptor		WODefaultAdaptor
+
+
+/* Dynamic Elements */
+#define GSWActionURL                    WOActionURL
+#define GSWActiveImage                  WOActiveImage
+#define GSWApplet                       WOApplet
+#define GSWBody                         WOBody
+#define GSWBrowser                      WOBrowser
+#define GSWCheckBox                     WOCheckBox
+#define GSWCheckBoxList                 WOCheckBoxList
+#define GSWComponentContent             WOComponentContent
+#define GSWConditional                  WOConditional
+#define GSWEmbeddedObject               WOEmbeddedObject
+#define GSWFileUpload                   WOFileUpload
+#define GSWForm                         WOForm
+#define GSWFrame                        WOFrame
+#define GSWGenericContainer             WOGenericContainer
+#define GSWGenericElement               WOGenericElement
+#define GSWHiddenField                  WOHiddenField
+#define GSWHyperlink                    WOHyperlink
+#define GSWImage                        WOImage
+#define GSWImageButton                  WOImageButton
+#define GSWJavaScript                   WOJaveScript
+#define GSWNestedList                   WONestedList
+#define GSWParam                        WOParam
+#define GSWPasswordField                WOPasswordField
+#define GSWPopUpButton                  WOPopUpButton
+#define GSWQuickTime                    WOQuickTime
+#define GSWRadioButton                  WORadioButton
+#define GSWRadioButtonList              WORadioButtonList
+#define GSWRepetition                   WORepetition
+#define GSWResetButton                  WOResetButton
+#define GSWResourceURL                  WOResourceURL
+#define GSWString                       WOString
+#define GSWSubmitButton                 WOSubmitButton
+#define GSWSwitchComponent              WOSwitchComponent
+#define GSWText                         WOText
+#define GSWTextField                    WOTextField
+#define GSWVBScript                     WOVBScript
+
+/* Extensions */
+#define GSWAnyField                     WOAnyField
+#define GSWBatchNavigatorBar            WOBatchNavigatorBar
+#define GSWCheckboxMatrix               WOCheckboxMatrix
+#define GSWCollapsibleComponentContent  WOCollapsibleComponentContent
+#define GSWCompletionBar                WOCompletionBar
+#define GSWDictionaryRepetition         WODictionaryRepetition
+#define GSWEventDisplayPage             WOEventDisplayPage
+#define GSWEventSetupPage               WOEventSetupPage
+#define GSWIFrame                       WOIFrame
+#define GSWKeyValueConditional          WOKeyValueConditional
+#define GSWLongResponsePage             WOLongResponsePage
+#define GSWMeteRefresh                  WOMetaRefresh
+#define GSWPageRestorationErrorPage     WOPageRestorationErrorPage
+#define GSWRadioButtonMatrix            WORadioButtonMatrix
+#define GSWRedirect                     WORedirect
+#define GSWSessionCreationErrorPage     WOSessionCreationErrorPage
+#define GSWSessionRestorationErrorPage  WOSessionRestorationErrorPage
+#define GSWSimpleArrayDisplay           WOSimpleArrayDisplay
+#define GSWSimpleArrayDisplay2          WOSimpleArrayDisplay2
+#define GSWSortOrder                    WOSortOrder
+#define GSWSortOrderManyKey             WOSortOrderManyKey
+#define GSWStatsPage                    WOStatsPage
+#define GSWTabPanel                     WOTabPanel
+#define GSWTable                        WOTable
+#define GSWThresholdColoredNumber       WOThresholdColoredNumber
+#define GSWToManyRelationship           WOToManyRelationship
+#define GSWToOneRelationship            WOToOneRelationship
+
+/* Constants */
+#define GSWApp				WOApp
+
+#endif // GSWEB_WONAMES
 
 #endif // _GSWWOCompatibility_h__

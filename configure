@@ -785,6 +785,7 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-gswnames=NAMESPC Set the default namespace (gsw,wo,all=def)
   --with-xml-prefix=PFX    Prefix where libxml is installed (optional)
 
 Some influential environment variables:
@@ -1151,6 +1152,27 @@ echo "$as_me: error: You must run the GNUstep initialization script first!" >&2;
 fi
 
 ac_config_headers="$ac_config_headers config.h"
+
+
+#--------------------------------------------------------------------
+# Define default gswnames
+#--------------------------------------------------------------------
+
+# Check whether --with-gswnames or --without-gswnames was given.
+if test "${with_gswnames+set}" = set; then
+  withval="$with_gswnames"
+
+fi;
+echo "$as_me:$LINENO: checking default gswnames" >&5
+echo $ECHO_N "checking default gswnames... $ECHO_C" >&6
+if test "x$with_gswnames" = "x"; then
+  GSWNAMES=all
+else
+  GSWNAMES=${with_gswnames}
+fi
+echo "$as_me:$LINENO: result: $GSWNAMES" >&5
+echo "${ECHO_T}$GSWNAMES" >&6
+
 
 
 #--------------------------------------------------------------------
@@ -1978,6 +2000,8 @@ if test "$wrap_ok" = yes; then
 _ACEOF
 
 fi
+LIBWRAP=$wrap_ok
+
 
 #--------------------------------------------------------------------
 # Check recent libxml for XML parser
@@ -2292,7 +2316,7 @@ echo "${ECHO_T}$VERSION" >&6
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-ac_config_files="$ac_config_files gsweb.make GSWeb.framework/Makefile.preamble"
+ac_config_files="$ac_config_files config.mak gsweb.make GSWeb.framework/Makefile.preamble"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -2764,6 +2788,7 @@ for ac_config_target in $ac_config_targets
 do
   case "$ac_config_target" in
   # Handling of arguments.
+  "config.mak" ) CONFIG_FILES="$CONFIG_FILES config.mak" ;;
   "gsweb.make" ) CONFIG_FILES="$CONFIG_FILES gsweb.make" ;;
   "GSWeb.framework/Makefile.preamble" ) CONFIG_FILES="$CONFIG_FILES GSWeb.framework/Makefile.preamble" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
@@ -2848,6 +2873,7 @@ s,@ECHO_C@,$ECHO_C,;t t
 s,@ECHO_N@,$ECHO_N,;t t
 s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
+s,@GSWNAMES@,$GSWNAMES,;t t
 s,@CC@,$CC,;t t
 s,@CFLAGS@,$CFLAGS,;t t
 s,@LDFLAGS@,$LDFLAGS,;t t
@@ -2855,6 +2881,7 @@ s,@CPPFLAGS@,$CPPFLAGS,;t t
 s,@ac_ct_CC@,$ac_ct_CC,;t t
 s,@EXEEXT@,$EXEEXT,;t t
 s,@OBJEXT@,$OBJEXT,;t t
+s,@LIBWRAP@,$LIBWRAP,;t t
 s,@XML2_CONFIG@,$XML2_CONFIG,;t t
 s,@XML_CONFIG@,$XML_CONFIG,;t t
 s,@XML_CFLAGS@,$XML_CFLAGS,;t t

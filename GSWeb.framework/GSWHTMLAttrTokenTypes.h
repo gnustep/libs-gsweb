@@ -11,7 +11,7 @@
  */
 
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 enum GSWHTMLAttrTokenTypes {
 	GSWHTMLAttrTokenType_EOF_ = 1,

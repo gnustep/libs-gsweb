@@ -23,7 +23,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 NSMutableDictionary* objectIVarAccessCache_Set=nil;
 NSMutableDictionary* objectIVarAccessCache_Get=nil;

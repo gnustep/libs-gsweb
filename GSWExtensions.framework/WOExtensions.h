@@ -2,9 +2,9 @@
 
    Copyright (C) 2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Written by:	David Ayers <d.ayers@inode.at>
 
-   Date:        Jul 2002
+   Date:        Nov 2002
    
    $Revision$
    $Date$
@@ -30,10 +30,12 @@
 
 // $Id$
 
-#ifndef _WebObjects_h__
-	#define _WebObjects_h__
+#ifndef _WOExtensions_h__
+	#define _WOExtensions_h__
 
 #define  GSWEB_WONAMES
-#include "GSWeb.h"
+
+#include "GSWExtensions.h"
 
 #endif
+

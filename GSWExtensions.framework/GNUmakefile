@@ -33,12 +33,31 @@ include ../config.mak
 srcdir = .
 
 # The framework to be compiled
+
+# Options
+ifeq ($(gswnames), gsw)
 FRAMEWORK_NAME = GSWExtensions
+endif
+ifeq ($(gswnames), wo)
+FRAMEWORK_NAME = GSWExtensions_wo
+endif
+ifeq ($(gswnames), all)
+FRAMEWORK_NAME = GSWExtensions GSWExtensions_wo
+endif
+
+# Ensure that each framework uses its own GNUSTEP_OBJ_DIR & DERIVED_SRC
+ifneq ($(GNUSTEP_INSTANCE),)
+GNUSTEP_OBJ_DIR := $(GNUSTEP_OBJ_DIR)/$(GNUSTEP_INSTANCE)
+DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
+endif
+
+GSWExtensions_wo_CPPFLAGS = -DGSWEB_WONAMES
 
 # The framework resource files and directories
 GSWExtensions_RESOURCE_FILES = \
 Resources/Info-gnustep.plist \
 GSWSessionRestorationErrorPage.gswd
+GSWExtensions_wo_RESOURCE_FILES = $(GSWExtensions_RESOURCE_FILES)
 
 GSWExtensions_COMPONENTS = \
 GSWSessionCreationErrorPage.gswc \
@@ -65,11 +84,14 @@ GSWRedirect.gswc
 #GSWToManyRelationship.gswc 
 #GSWPageRestorationErrorPage.gswc 
 #GSWToOneRelationship.gswc 
+GSWExtensions_wo_COMPONENTS = $(GSWExtensions_COMPONENTS)
 
 GSWExtensions_LANGUAGES = \
 French
+GSWExtensions_wo_LANGUAGES = $(GSWExtensions_LANGUAGES)
 
 GSWExtensions_RESOURCE_DIRS = 
+GSWExtensions_wo_RESOURCE_DIRS = $(GSWExtensions_RESOURCE_DIRS)
 
 GSWExtensions_WEBSERVER_RESOURCE_FILES = \
 Ascending.png \
@@ -92,18 +114,7 @@ gswapp.png \
 gswappsrv.png \
 warning.mng \
 error.mng
-
-
-# Determine the bundle directory extension
-#ifeq ($(profile), yes)
-#  GSWBUNDLE_EXTENSION = .frameworkp
-#else
-#  ifeq ($(debug), yes)
-#    GSWBUNDLE_EXTENSION = .frameworkd
-#  else
-#    GSWBUNDLE_EXTENSION = .framework
-#  endif
-#endif
+GSWExtensions_wo_WEBSERVER_RESOURCE_FILES = $(GSWExtensions_WEBSERVER_RESOURCE_FILES)
 
 # The Objective-C source files to be compiled
 GSWExtensions_OBJC_FILES = \
@@ -119,9 +130,12 @@ GSWMetaRefresh.m \
 GSWLongResponsePage.m \
 
 #GSWCompletionBar.m
+GSWExtensions_wo_OBJC_FILES = $(GSWExtensions_OBJC_FILES)
 
 # The header files to be installed
 GSWExtensions_HEADER_FILES = \
+GSWExtWOCompatibility.h \
+GSWExtensions.h \
 GSWCollapsibleComponentContent.h \
 GSWDictionaryRepetition.h \
 GSWExceptionPage.h \
@@ -141,13 +155,24 @@ GSWLongResponsePage.h
 #GSWSimpleArrayDisplay.h
 #GSWSimpleArrayDisplay2.h
 #GSWBatchNavigationBar.h
+GSWExtensions_wo_HEADER_FILES = $(GSWExtensions_HEADER_FILES)
+
+WO_HEADER_FILES = \
+	WOLongResponsePage.h \
+	WORedirect.h
+
+# WOExtensions.h not needed as it gets copied explicitly
+
+GSWExtensions_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWExtensions_wo_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWExtensions_wo_HEADER_FILES_INSTALL_DIR = WOExtensions
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)
+
 GSWExtensions_AUTOGSDOC_HEADERS = $(GSWExtensions_HEADER_FILES)
 GSWExtensions_AUTOGSDOC_SOURCE = $(GSWExtensions_OBJC_FILES)
 DOCUMENT_NAME = GSWExtensions
-GSWExtensions_HEADER_FILES_DIR = $(HEADER_DIR)
 GSWExtensions_AGSDOC_FILES = gswextensions.gsdoc $(GSWExtensions_AUTOGSDOC_HEADERS) 
 #$(GSWExtensions_AUTOGSDOC_SOURCE)
 GSWExtensions_AGSDOC_FLAGS = \

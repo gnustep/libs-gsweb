@@ -1,3 +1,4 @@
+#   -*-makefile-*-
 #   Copyright (C) 1999-2002 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
@@ -61,11 +62,9 @@ ADDITIONAL_CFLAGS =
 ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I../.. -I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
-ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS = -lGSWeb_d -lGSANTLR_d
-else
-	ADDITIONAL_LDFLAGS = -lGSWeb -lGSANTLR 
-endif
+ADDITIONAL_LDFLAGS = -lGSANTLR 
+GSWExtensions_ADDITIONAL_LDFLAGS = GSWeb
+GSWExtensions_wo_ADDITIONAL_LDFLAGS = GSWeb_wo
 
 #-lgnustep-xraw
 

@@ -755,7 +755,7 @@ static NSString* TabsForLevel(int level)
                     [self logPrefix]);
 #ifndef NDEBUG
           {
-            NSString* dumpString=[self dumpNode:node
+	    NSString* dumpString=[self dumpNode:node
                                        atLevel:0];
             NSDebugMLLog0(@"low",@"Will dump _xmlDocument");
             NSDebugMLLog(@"GSWTemplateParser",@"%@ _xmlDocument=\n%@",

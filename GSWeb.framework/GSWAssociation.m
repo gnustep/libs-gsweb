@@ -29,7 +29,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 #include <math.h>
 #if !defined(__NetBSD__)
 #include <values.h>

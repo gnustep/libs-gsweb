@@ -1,4 +1,5 @@
-#  Makefile.postamble
+#   -*-makefile-*-
+#   Makefile.postamble
 #   Copyright (C) 1999 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
@@ -40,7 +41,7 @@
 # before-install::
 
 # Things to do after installing
-# after-install::
+after-install:: install-WO-headers
 
 # Things to do before uninstalling
 # before-uninstall::
@@ -83,3 +84,17 @@ gsdocs:
 regenerate:
 
 copy-dist: $(DIST_FILES)
+
+ifneq ($(gswnames),gsw)
+install-WO-headers : 
+	$(MKDIRS) $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR);
+	$(EC)$(INSTALL_DATA) ./WOExtensions.h \
+	    $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR)/WOExtensions.h; \
+	cd $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR); \
+	pwd;\
+	for file in $(WO_HEADER_FILES) ; do \
+	  $(LN_S) -f WOExtensions.h $$file; \
+	done;$(ECHO_END)
+else
+install-WO-headers: ;
+endif

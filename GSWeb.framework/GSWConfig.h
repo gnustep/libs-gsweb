@@ -26,10 +26,13 @@
 #ifndef _GSWebConfig_h__
 #define _GSWebConfig_h__
 
+#ifdef  GSWEB_WONAMES
+#import "GSWWOCompatibility.h"
+#endif
+
 #define GSLOCK_DELAY_S	360
 
 #define GSWEB_STRICT	0
-#define GSWEB_WONAMES	0
 
 #define GSWOPTVALUE_ApplicationBaseURL_WO			@"/WebObjects"
 #define GSWOPTVALUE_ApplicationBaseURL_GSWEB			@"/GSWeb"

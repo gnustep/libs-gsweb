@@ -30,7 +30,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWExtGSWWOCompatibility.h"
 #include "GSWFileUploadComponent.h"
 //====================================================================
 @implementation GSWFileUploadComponent

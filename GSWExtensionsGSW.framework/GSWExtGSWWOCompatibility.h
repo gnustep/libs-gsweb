@@ -1,16 +1,17 @@
-/** WebObjects.h - <title>GSWeb: Compatibility Header - WebObjects</title>
+/** GSWExtGSWWOCompatibility.h -  <title>GSWExtGSWWOCompatibility</title>
 
-   Copyright (C) 2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-
-   Date:        Jul 2002
+   Written by:	David Ayers <d.ayers@inode.at>
+   Date: 	2002/11/11
    
    $Revision$
    $Date$
+   
+   <abstract></abstract>
 
    This file is part of the GNUstep Web Library.
-   
+
    <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
@@ -30,10 +31,13 @@
 
 // $Id$
 
-#ifndef _WebObjects_h__
-	#define _WebObjects_h__
+#ifndef _GSWExtGSWWOCompatibility_h__
+#define _GSWExtGSWWOCompatibility_h__
 
-#define  GSWEB_WONAMES
-#include "GSWeb.h"
-
+#ifndef GSWEB_WONAMES
+#include <GSWeb/GSWeb.h>
+#else
+#include <WebObjects/GSWeb.h>
 #endif
+
+#endif //_GSWExtGSWWOCompatibility_h__

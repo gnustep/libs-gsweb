@@ -31,7 +31,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 //====================================================================
 @implementation GSWRepetition

@@ -29,7 +29,7 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 @class EOUndoManager;
 
 //====================================================================

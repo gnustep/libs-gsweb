@@ -28,7 +28,7 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 #include "GSWTemplateParserANTLR.h"
 
 //====================================================================

@@ -29,7 +29,7 @@
 
 static const char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 //====================================================================
 @implementation GSWComponentRequestHandler

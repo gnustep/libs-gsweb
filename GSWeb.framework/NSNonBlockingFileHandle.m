@@ -49,7 +49,7 @@
 #endif
 #include <Foundation/Foundation.h>
 #include "NSNonBlockingFileHandle.h"
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 #include "GSWUtils.h"
 
 @implementation NSFileHandle (CFRNonBlockingIO)

@@ -30,7 +30,8 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
+
 #include <gsantlr/ANTLRCommon.h>
 #include <gsantlr/ANTLRTextStreams.h>
 #include "GSWTemplateParserXML.h"
@@ -218,7 +219,8 @@
 //--------------------------------------------------------------------
 -(NSString*)logPrefix
 {
-  return [NSString stringWithFormat:@"Template Parser for template named %@ in framework %@ at %@ - ",
+  return [NSString stringWithFormat:@"%@:Template Parser for template named %@ in framework %@ \nat %@ - ",
+		   NSStringFromClass(isa),
                    _templateName,
                    _frameworkName,
                    _stringPath];

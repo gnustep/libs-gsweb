@@ -69,65 +69,10 @@
 #include <Foundation/NSConcreteNumber.h>
 #include <Foundation/NSFormatter.h>
 #include <Foundation/GSXML.h>
+
 #include "GSCache.h"
+#include "GSWConfig.h"
 
-
-#include <GSWeb/GSWConfig.h>
-
-#if GSWEB_WONAMES
-#define GSWAdaptor						WOAdaptor
-#define GSWDefaultAdaptor				WODefaultAdaptor
-#define GSWApplication					WOApplication
-#define GSWAssociation					WOAssociation
-#define GSWComponent					WOComponent
-#define GSWContext						WOContext
-#define GSWDisplayGroup					WODisplayGroup
-#define GSWElement						WOElement
-#define GSWDynamicElement				WODynamicElement
-#define GSWRequest						WORequest
-#define GSWResourceManager				WOResourceManager
-#define GSWResponse						WOResponse
-#define GSWSession						WOSession
-#define GSWSessionStore					WOSessionStore
-#define GSWStatisticsStore				WOStatisticsStore
-#define GSWRequestHandler				WORequestHandler
-#define GSWComponentDefinition			WOComponentDefinition
-#define GSWBundle						WOBundle
-#define GSWMultiKeyDictionary			WOMultiKeyDictionary
-#define GSWCookie						WOCookie
-#define GSWElementIDString				WOElementIDString
-#define GSWDirectAction					WODirectAction
-#define GSWMailDelivery					WOMailDelivery
-#define GSWComponentRequestHandler		WOComponentRequestHandler
-#define GSWResourceRequestHandler		WOResourceRequestHandler
-#define GSWDirectActionRequestHandler	WODirectActionRequestHandler
-#define GSWDefaultAdaptorThread			WODefaultAdaptorThread
-#define GSWKeyValueAssociation			WOKeyValueAssociation
-#define GSWConstantValueAssociation		WOConstantValueAssociation
-#define GSWHTMLStaticElement			WOHTMLStaticElement
-#define GSWHTMLStaticGroup				WOHTMLStaticGroup
-#define GSWInput						WOInput
-#define GSWComponentReference			WOComponentReference
-#define GSWPageDefElement				WOPageDefElement
-#define GSWBundle						WOBundle
-#define GSWSessionTimeOutManager		WOSessionTimeOutManager
-#define GSWServerSessionStore			WOServerSessionStore
-#define GSWDeployedBundle				WODeployedBundle
-#define GSWProjectBundle				WOProjectBundle
-#define GSWSessionTimeOut				WOSessionTimeOut
-#define GSWMultiKeyDictionary			WOMultiKeyDictionary
-#define GSWTemplateParser				WOTemplateParser
-#define GSWDynamicURLString				WODynamicURLString
-#define GSWBindingNameAssociation		WOBindingNameAssociation
-#define GSWURLValuedElementData			WOURLValuedElementData
-#define GSWHTMLURLValuedElement			WOHTMLURLValuedElement
-#define GSWStats						WOStats
-#define GSWTransactionRecord			WOTransactionRecord
-#define GSWComponentContent				WOComponentContent
-#define GSWFileUpload					WOFileUpload
-#define GSWResourceURL					WOResourceURL
-#define GSWApp						WOApp
-#endif
 @class EOEditingContext;
 
 @class GSWAdaptor;
@@ -182,106 +127,109 @@
 @class GSWResourceURL;
 @class GSWProcFSProcInfo;
 
-#include <GSWeb/GSWConstants.h>
-#include <GSWeb/GSWUtils.h>
-#include <GSWeb/GSWProcFS.h>
-#include <GSWeb/GSWDebug.h>
-#include <GSWeb/NSString+Trimming.h>
-#include <GSWeb/NSString+HTML.h>
-#include <GSWeb/NSObject+IVarAccess+PerformSel.h>
-#include <GSWeb/GSWElementIDString.h>
-#include <GSWeb/GSWResponse.h>
-#include <GSWeb/GSWHTMLLexer.h>
-#include <GSWeb/GSWHTMLParser.h>
-#include <GSWeb/GSWHTMLParserExt.h>
-#include <GSWeb/GSWPageDefParser.h>
-#include <GSWeb/GSWPageDefParserExt.h>
-#include <GSWeb/GSWAdaptor.h>
-#include <GSWeb/GSWApplication.h>
-#include <GSWeb/GSWAssociation.h>
-#include <GSWeb/GSWContext.h>
-#include <GSWeb/GSWDisplayGroup.h>
-#include <GSWeb/GSWElement.h>
-#include <GSWeb/GSWComponent.h>
-#include <GSWeb/GSWHTMLStaticElement.h>
-#include <GSWeb/GSWHTMLStaticGroup.h>
-#include <GSWeb/GSWDynamicElement.h>
-#include <GSWeb/GSWRequest.h>
-#include <GSWeb/GSWResourceManager.h>
-#include <GSWeb/GSWSession.h>
-#include <GSWeb/GSWSessionStore.h>
-#include <GSWeb/GSWSessionTimeOut.h>
-#include <GSWeb/GSWStatisticsStore.h>
-#include <GSWeb/GSWAdaptor.h>
-#include <GSWeb/GSWDefaultAdaptor.h>
-#include <GSWeb/GSWHTMLDynamicElement.h>
-#include <GSWeb/GSWHTMLURLValuedElement.h>
-#include <GSWeb/GSWClientSideScript.h>
-#include <GSWeb/GSWComponentReference.h>
-#include <GSWeb/GSWInput.h>
-#include <GSWeb/GSWTextField.h>
-#include <GSWeb/GSWForm.h>
-#include <GSWeb/GSWSubmitButton.h>
-#include <GSWeb/GSWActiveImage.h>
-#include <GSWeb/GSWHTMLBareString.h>
-#include <GSWeb/GSWHTMLComment.h>
-#include <GSWeb/GSWBody.h>
-#include <GSWeb/GSWApplet.h>
-#include <GSWeb/GSWBrowser.h>
-#include <GSWeb/GSWCheckBox.h>
-#include <GSWeb/GSWCheckBoxList.h>
-#include <GSWeb/GSWConditional.h>
-#include <GSWeb/GSWEmbeddedObject.h>
-#include <GSWeb/GSWFrame.h>
-#include <GSWeb/GSWGenericContainer.h>
-#include <GSWeb/GSWGenericElement.h>
-#include <GSWeb/GSWHiddenField.h>
-#include <GSWeb/GSWHyperlink.h>
-#include <GSWeb/GSWImage.h>
-#include <GSWeb/GSWImageButton.h>
-#include <GSWeb/GSWJavaScript.h>
-#include <GSWeb/GSWNestedList.h>
-#include <GSWeb/GSWParam.h>
-#include <GSWeb/GSWPasswordField.h>
-#include <GSWeb/GSWPopUpButton.h>
-#include <GSWeb/GSWRadioButton.h>
-#include <GSWeb/GSWRadioButtonList.h>
-#include <GSWeb/GSWRepetition.h>
-#include <GSWeb/GSWResetButton.h>
-#include <GSWeb/GSWResetButton.h>
-#include <GSWeb/GSWSwitchComponent.h>
-#include <GSWeb/GSWVBScript.h>
-#include <GSWeb/GSWString.h>
-#include <GSWeb/GSWText.h>
-#include <GSWeb/GSWCookie.h>
-#include <GSWeb/GSWRequestHandler.h>
-#include <GSWeb/GSWComponentDefinition.h>
-#include <GSWeb/GSWDirectAction.h>
-#include <GSWeb/GSWMailDelivery.h>
-#include <GSWeb/GSWComponentRequestHandler.h>
-#include <GSWeb/GSWResourceRequestHandler.h>
-#include <GSWeb/GSWDirectActionRequestHandler.h>
-#include <GSWeb/GSWDefaultAdaptorThread.h>
-#include <GSWeb/GSWKeyValueAssociation.h>
-#include <GSWeb/GSWConstantValueAssociation.h>
-#include <GSWeb/GSWPageDefElement.h>
-#include <GSWeb/GSWTemplateParser.h>
-#include <GSWeb/GSWBundle.h>
-#include <GSWeb/GSWSessionTimeOutManager.h>
-#include <GSWeb/GSWServerSessionStore.h>
-#include <GSWeb/GSWDeployedBundle.h>
-#include <GSWeb/GSWProjectBundle.h>
-#include <GSWeb/GSWMultiKeyDictionary.h>
-#include <GSWeb/GSWDynamicURLString.h>
-#include <GSWeb/GSWBindingNameAssociation.h>
-#include <GSWeb/GSWURLValuedElementData.h>
-#include <GSWeb/GSWStats.h>
-#include <GSWeb/GSWTransactionRecord.h>
-#include <GSWeb/GSWToggle.h>
-#include <GSWeb/GSWComponentContent.h>
-#include <GSWeb/GSWGeometricRegion.h>
-#include <GSWeb/GSWFileUpload.h>
-#include <GSWeb/GSWResourceURL.h>
-#include <GSWeb/GSWWOCompatibility.h>
+#include "GSWConstants.h"
+#include "GSWUtils.h"
+#include "GSWProcFS.h"
+#include "GSWDebug.h"
+#include "NSString+Trimming.h"
+#include "NSString+HTML.h"
+#include "NSObject+IVarAccess+PerformSel.h"
+#include "GSWElementIDString.h"
+#include "GSWResponse.h"
+#include "GSWHTMLLexer.h"
+#include "GSWHTMLParser.h"
+#include "GSWHTMLParserExt.h"
+#include "GSWPageDefParser.h"
+#include "GSWPageDefParserExt.h"
+#include "GSWAdaptor.h"
+#include "GSWApplication.h"
+#include "GSWAssociation.h"
+#include "GSWContext.h"
+#include "GSWDisplayGroup.h"
+#include "GSWElement.h"
+#include "GSWComponent.h"
+#include "GSWHTMLStaticElement.h"
+#include "GSWHTMLStaticGroup.h"
+#include "GSWDynamicElement.h"
+#include "GSWRequest.h"
+#include "GSWResourceManager.h"
+#include "GSWSession.h"
+#include "GSWSessionStore.h"
+#include "GSWSessionTimeOut.h"
+#include "GSWStatisticsStore.h"
+#include "GSWAdaptor.h"
+#include "GSWDefaultAdaptor.h"
+#include "GSWHTMLDynamicElement.h"
+#include "GSWHTMLURLValuedElement.h"
+#include "GSWClientSideScript.h"
+#include "GSWComponentReference.h"
+#include "GSWInput.h"
+#include "GSWTextField.h"
+#include "GSWForm.h"
+#include "GSWSubmitButton.h"
+#include "GSWActiveImage.h"
+#include "GSWHTMLBareString.h"
+#include "GSWHTMLComment.h"
+#include "GSWBody.h"
+#include "GSWApplet.h"
+#include "GSWBrowser.h"
+#include "GSWCheckBox.h"
+#include "GSWCheckBoxList.h"
+#include "GSWConditional.h"
+#include "GSWEmbeddedObject.h"
+#include "GSWFrame.h"
+#include "GSWGenericContainer.h"
+#include "GSWGenericElement.h"
+#include "GSWHiddenField.h"
+#include "GSWHyperlink.h"
+#include "GSWImage.h"
+#include "GSWImageButton.h"
+#include "GSWJavaScript.h"
+#include "GSWNestedList.h"
+#include "GSWParam.h"
+#include "GSWPasswordField.h"
+#include "GSWPopUpButton.h"
+#include "GSWRadioButton.h"
+#include "GSWRadioButtonList.h"
+#include "GSWRepetition.h"
+#include "GSWResetButton.h"
+#include "GSWResetButton.h"
+#include "GSWSwitchComponent.h"
+#include "GSWVBScript.h"
+#include "GSWString.h"
+#include "GSWText.h"
+#include "GSWCookie.h"
+#include "GSWRequestHandler.h"
+#include "GSWComponentDefinition.h"
+#include "GSWDirectAction.h"
+#include "GSWMailDelivery.h"
+#include "GSWComponentRequestHandler.h"
+#include "GSWResourceRequestHandler.h"
+#include "GSWDirectActionRequestHandler.h"
+#include "GSWDefaultAdaptorThread.h"
+#include "GSWKeyValueAssociation.h"
+#include "GSWConstantValueAssociation.h"
+#include "GSWPageDefElement.h"
+#include "GSWTemplateParser.h"
+#include "GSWBundle.h"
+#include "GSWSessionTimeOutManager.h"
+#include "GSWServerSessionStore.h"
+#include "GSWDeployedBundle.h"
+#include "GSWProjectBundle.h"
+#include "GSWMultiKeyDictionary.h"
+#include "GSWDynamicURLString.h"
+#include "GSWBindingNameAssociation.h"
+#include "GSWURLValuedElementData.h"
+#include "GSWStats.h"
+#include "GSWTransactionRecord.h"
+#include "GSWToggle.h"
+#include "GSWComponentContent.h"
+#include "GSWGeometricRegion.h"
+#include "GSWFileUpload.h"
+#include "GSWResourceURL.h"
 
 #endif //_GSWeb_h__
+
+
+
+

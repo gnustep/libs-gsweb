@@ -64,9 +64,11 @@
    #endif
 #else
    #import <EOControl/EOQualifier.h>
+   #import <EOControl/EOEditingContext.h>
    #import <EOControl/EODataSource.h>
    #import <EOControl/EODetailDataSource.h>
    #import <EOControl/EOKeyValueArchiver.h>
+   #import <EOControl/EONull.h>
    #import <EOAccess/EODatabaseDataSource.h>
 #endif
 

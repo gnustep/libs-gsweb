@@ -29,7 +29,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 BYTE ElementsMap_htmlBareString	=	(BYTE)0x53;
 BYTE ElementsMap_gswebElement	=	(BYTE)0x57;

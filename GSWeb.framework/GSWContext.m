@@ -30,7 +30,7 @@
 
 static const char rcsId[]="$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 static int dontTraceComponentActionURL=0;
 //====================================================================

@@ -1,3 +1,105 @@
+2003-01-22   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/Makefile.postamble: 
+		o use $(LN_S) -f in install-WO-headers
+		o added $(MKDIRS) $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR);
+	* GSWExtensionsGSW.framework/Makefile.postamble: use $(LN_S) -f in install-WO-headers
+
+2003-01-20   David Ayers <d.ayers@inode.at>
+	* Makefile.postamble
+		o added support for make gswnames=(gsw,wo,all) (corrected
+		typo)
+		o reinserted support for $(INSTALL_ROOT_DIR) 
+	* config.h.in
+		o added HAVE_GDL2
+	* configure
+		o added support for --with-gswnames=(gsw,wo,all)
+		o set LIBWRAP during configure
+		o added config.mak.in as configurable file        
+	* configure.ac
+		o (see configure)
+	* config.mak: removed (replaced by config.mak.in)
+	* config.mak.in: new file
+		o added support for make gswnames=(gsw,wo,all)
+	* gsweb.make.in
+		o add GSANTLR as auxiliary lib
+		o add gsweb libs to AUXILIARY_GSW_LIBS
+		o include correct extensions for GSW/WO-libs
+	* gsweb_wo.make: new file
+	* GSWeb/GSWConfig.h
+		o changed support for GSWEB_WONAMES
+		o conditionally import file GSWWOCompatiblity
+		  here instead of in GSWeb.h
+	* GSWeb/GNUMakefile
+		o added support for make gswnames=(gsw,wo,all)
+		o ensure each lib gets built with its own object files
+		o removed deactivated framework extension determination code
+		o removed reference to unused files:
+		  GSWeb.m, GSWWOCompatibility.m
+		o added references to new files:
+		  GSWExtenstions.h, GSWExtWOCompatibility.h
+		o added support to create WO header files
+	* GSWeb/Makefile.postamble
+		o changed support to install WO header files according to
+	          make gswnames=(gsw,wo,all)
+		o remove Makefile.preamble during distclean
+	* GSWeb/Makefile.preamble.in
+		o fixed typo
+	* GSWeb/GSWeb.h
+		o moved GSW/WO-Name-mapping to GSWWOCompatibility.h
+		o replaced inclusions of
+		  <GSWeb/file.h> with "file.h"
+	* GSWeb/GSWeb.m: removed
+	* GSWeb/GSWWOCompatibility.h
+		o changed GSWEB_WONAMES handling
+		o removed hybrid namespace WO subclasses
+		o moved & reorganized GSW/WO-Name-mapping from GSWeb.h
+		o inlucluded missing GSW/WO-Name-mappings
+	* GSWeb/GSWWOCompatibility.m: removed
+	* GSWeb/*.m
+		o replaced inclusions of
+		  <GSWeb/file.h> with "file.h"
+	* GSWeb/GSWApplication.m
+		o remove special GSW/WO handling of WOApp
+	* GSWeb/WebObject/WO*: removed
+	* GSWeb/WebObject/WebObjects
+		o replaced inclusions of
+		  <GSWeb/file.h> with "file.h"
+	* GSWExtensions/GNUMakefile
+		o added support for make gswnames=(gsw,wo,all)
+		o ensure each lib gets built with its own object files
+		o removed deactivated framework extension determination code
+		o added references to new files:
+		  GSWExtenstions.h, GSWExtWOCompatibility.h
+		o added support to create WO header files
+	* GSWExtensions/Makefile.preamble
+		o let gnustep make figure whether to link agains debug libs
+		o added support for make gswnames=(gsw,wo,all)
+	* GSWExtensions/Makefile.postamble
+		o changed support to install WO header files according to
+	          make gswnames=(gsw,wo,all)
+	* GSWExtensions/*.m
+		o replaced inclusions of
+		  <GSWeb/GSWeb.h> with "GSWExtWOCompatibility.h"
+		o replaces inclusions of
+		  <GSWExtensions/file.h> with "file.h"
+	* GSWExtensions/GSWExtensions.h: new file
+	* GSWExtensions/WOExtensions.h: new file
+	* GSWExtensions/GSWExtWOCompatibility.h: new file
+	* GSWExtensionsGSW/GNUMakefile
+		o added support for make gswnames=(gsw,wo,all)
+		o ensure each lib gets built with its own object files
+		o removed deactivated framework extension determination code
+		o added references to new file GSWExtGSWWOCompatibility.h
+		o added support to create WO header files
+	* GSWExtensionsGSW/Makefile.pramble
+		o let gnustep make figure whether to link agains debug libs
+		o added support for make gswnames=(gsw,wo,all)
+	        o removed GSWExtensions from ADDITIONAL_LIB_DIRS
+	* GSWExtensionsGSW/*.m
+		o replaced inclusions of
+		  <GSWeb/GSWeb.h> with "GSWExtGSWWOCompatibility.h"
+	* GSWExtensions/GSWExtGSWWOCompatibility.h: new file
+	
 2003-01-19   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWApplication.m
 		o removed unused +initialize
@@ -5,12 +107,12 @@
 		o more information on "bad request first line" exception
 	* GSWeb/GSWHTMLDynamicElement.m
 		o in -initWithName:attributeAssociations:contentElements:
-			add "" to association values because XML parser romove them.
+		  add "" to association values because XML parser romove them.
 		o added -computeActionStringWithActionClassAssociation:
-				directActionNameAssociation:inContext:
+		  directActionNameAssociation:inContext:
 		o added -computeQueryDictionaryWithActionClassAssociation:
-				directActionNameAssociation:queryDictionaryAssociation:
-				otherQueryAssociations:inContext:
+		  directActionNameAssociation:queryDictionaryAssociation:
+		  otherQueryAssociations:inContext:
 	* GSWeb/GSWResponse.m:
 		o don't append debugcomment if !GSDebugSet(@"debugComments")
 		o fixed bug in appendContentString: in NSAssert3 params
@@ -20,12 +122,14 @@
 		o added -forceFinalizeInContext
 		o added GSWResponse (GSWResponseRedirected)
 	* GSWeb/GSWTemplateParserXML.m:
-		o only include comments if [GSWApplication includeCommentsInResponses]
+		o only include comments if
+		  [GSWApplication includeCommentsInResponses]
 	* GSWExtensions.framework/GSWLongResponsePage.m:
 		o in -cancel call cancelPageForStatus: instead of cancelPage
 		o declare private interface
 	* GSWeb/GSWComponent.m:
-		o don't output end of component commend if !DEBUG && !GSDebugSet(@"gswcomponents")
+		o don't output end of component commend
+		  if !DEBUG && !GSDebugSet(@"gswcomponents")
 		o fixes in _generateResponseInContext:
 	* GSWeb/GSWContext.[hm]:
 		o added _userInfo to enable developper context specific 
@@ -37,7 +141,8 @@
 		o added -_directActionURLForActionNamed:queryDictionary:isSecure:url:
 		o added -componentActionURLIsSecure:
 		o modified -session
-		o modified -_takeAwakeComponent: to not add already added component 
+		o modified -_takeAwakeComponent: to not add already added
+		  component 
 		o implemented _takeAwakeComponentsFromArray;
 		o fixed -_incrementContextID
 		o added _session
@@ -48,7 +153,8 @@
 		o added _secure
 		o added binding validation tests
 		o fixes in -appendToResponse:inContext:
-		o handle correctly otherQueryAssociations (bindings starting with '?')
+		o handle correctly otherQueryAssociations
+		  (bindings starting with '?')
 	* GSWeb/GSWConstants.[hm]:
 		o added cidStore__Key for GSWHTMLURLValuedElement
 		o added cidKey__Key for GSWHTMLURLValuedElement
@@ -68,22 +174,29 @@
 		o rewrite form/uri/cookie values retrieving (for sessionID,...)
 		o new use GSMimeParser for formData parsing
 	* Doc/antlr.txt added
-	* GSWeb/GSWPageDefParser.[hm] regenerated to handle (bindings starting with '?')
-	* GSWeb/GSWPageDefParserTokenTypes.txt regenerated to handle (bindings starting with '?')
-	* GSWeb/GSWPageDefParserTokenTypes.h regenerated to handle (bindings starting with '?')
-	* GSWeb/GSWPageDefLexer.[hm]  regenerated to handle (bindings starting with '?')
+	* GSWeb/GSWPageDefParser.[hm] regenerated to handle
+	  (bindings starting with '?')
+	* GSWeb/GSWPageDefParserTokenTypes.txt regenerated to handle
+	  (bindings starting with '?')
+	* GSWeb/GSWPageDefParserTokenTypes.h regenerated to handle
+	  (bindings starting with '?')
+	* GSWeb/GSWPageDefLexer.[hm]  regenerated to handle
+	  (bindings starting with '?')
 	* GSWeb/GSWUtils.[hm]:
 		o added -extractObjectsForKeysWithPrefix:removePrefix:
 		o fixed bug in HexStringToData
-		o fixed bug in NSDictionary +dictionaryWithArray:onSelector:withObject:
+		o fixed bug in NSDictionary
+		  +dictionaryWithArray:onSelector:withObject:
 	* GSWeb/GSWForm.[hm]
 		o handle otherQueryAssociations (bindings starting with '?')
 		o implemented -computeQueryDictionaryInContext:
 		o implemented/fixed -_appendHiddenFieldsToResponse:inContext:
 		o implemented -_appendCGIActionToResponse:inContext:
-		o fix -appendGSWebObjectsAssociationsToResponse:inContext: for directAction 
+		o fix -appendGSWebObjectsAssociationsToResponse:inContext:
+		  for directAction 
 		o added -computeActionStringInContext:
-		o fixed -invokeActionForRequest:inContext: to invoke action when to element is invoked
+		o fixed -invokeActionForRequest:inContext: to invoke
+		  action when to element is invoked
 	* GSWeb/GSWDirectAction.m:
 		o fixed -_initializeRequestSessionIDInContext:
 		o added -sessionIDForRequest:

@@ -29,7 +29,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 #define DEFAULT_DICTIONARY_CAPACITY 32
 

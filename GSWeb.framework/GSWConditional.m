@@ -30,7 +30,7 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 /**
 Bindings

@@ -1,3 +1,4 @@
+#   -*-makefile-*-
 #   Copyright (C) 1999-2002 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
@@ -61,18 +62,15 @@ ADDITIONAL_CFLAGS =
 ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db  -I../.. -I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
-ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS = -lGSWeb_d -lGSANTLR_d 
-#-lGSWExtensions_d 
-else
-	ADDITIONAL_LDFLAGS = -lGSWeb -lGSANTLR 
-#-lGSWExtensions
-endif
+ADDITIONAL_LDFLAGS = -lGSANTLR 
+GSWExtensionsGSW_ADDITIONAL_LDFLAGS = -lGSWeb
+GSWExtensionsGSW_wo_ADDITIONAL_LDFLAGS = -lGSWeb_wo
 
 #-lgnustep-xraw
 
 # Additional library directories the linker should search
-ADDITIONAL_LIB_DIRS = -L../src/$(GNUSTEP_OBJ_DIR) -L$(GNUSTEP_SYSTEM_ROOT)/lib -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR) -L../GSWExtensions.framework/$(GNUSTEP_OBJ_DIR)
+ADDITIONAL_LIB_DIRS = -L../src/$(GNUSTEP_OBJ_DIR) -L$(GNUSTEP_SYSTEM_ROOT)/lib -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR) 
+#-L../GSWExtensions.framework/$(GNUSTEP_OBJ_DIR)
 
 #
 # Flags dealing with installing and uninstalling

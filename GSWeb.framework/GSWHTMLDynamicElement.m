@@ -32,7 +32,7 @@
 
 static const char rcsId[]="$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 //====================================================================
 @implementation GSWHTMLDynamicElement
@@ -54,7 +54,6 @@ static const char rcsId[]="$Id$";
   LOGObjectFnStopC("GSWHTMLDynamicElement");
   return self;
 };
-
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)elementName

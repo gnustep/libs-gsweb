@@ -35,7 +35,25 @@ include ../config.mak
 srcdir = .
 
 # The framework to be compiled
+
+# Options
+ifeq ($(gswnames), gsw)
 FRAMEWORK_NAME = GSWeb
+endif
+ifeq ($(gswnames), wo)
+FRAMEWORK_NAME = GSWeb_wo
+endif
+ifeq ($(gswnames), all)
+FRAMEWORK_NAME = GSWeb GSWeb_wo
+endif
+
+# Ensure that each framework uses its own GNUSTEP_OBJ_DIR & DERIVED_SRC
+ifneq ($(GNUSTEP_INSTANCE),)
+GNUSTEP_OBJ_DIR := $(GNUSTEP_OBJ_DIR)/$(GNUSTEP_INSTANCE)
+DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
+endif
+
+GSWeb_wo_CPPFLAGS = -DGSWEB_WONAMES
 
 # DTDs to install
 srcDTDDir = DTDs
@@ -54,22 +72,13 @@ GSWeb_RESOURCE_FILES = \
 Resources/MIME.plist \
 Resources/languages.plist \
 DTDs
+GSWeb_wo_RESOURCE_FILES = $(GSWeb_RESOURCE_FILES)
 
 GSWeb_RESOURCE_DIRS = DTDs
+GSWeb_wo_RESOURCE_DIRS = $(GSWeb_RESOURCE_DIRS)
 
 # The framework libraries to link against
-GSWeb_GSWBUNDLE_LIBS = 
-
-# Determine the bundle directory extension
-#ifeq ($(profile), yes)
-#  GSWBUNDLE_EXTENSION = .frameworkp
-#else
-#  ifeq ($(debug), yes)
-#    GSWBUNDLE_EXTENSION = .frameworkd
-#  else
-#    GSWBUNDLE_EXTENSION = .framework
-#  endif
-#endif
+#GSWeb_GSWBUNDLE_LIBS = 
 
 # The Bundle Objective-C source files to be compiled
 GSWeb_OBJC_FILES = \
@@ -87,7 +96,6 @@ GSWSessionTimeOut.m \
 GSWStats.m \
 NSNonBlockingFileHandle.m \
 GSWTransactionRecord.m \
-GSWeb.m \
 GSWBundle.m \
 NSObject+IVarAccess+PerformSel.m \
 NSString+Trimming.m \
@@ -180,14 +188,15 @@ GSWGeometricRegion.m \
 GSWFileUpload.m \
 GSWResourceURL.m \
 GSWProcFS.m \
-GSWWOCompatibility.m \
 stacktrace.m \
 attach.m
+GSWeb_wo_OBJC_FILES = $(GSWeb_OBJC_FILES)
 
 
 # The framework installed header files
 GSWeb_HEADER_FILES = \
 GSCache.h  \
+GSWeb.h \
 GSWActiveImage.h \
 GSWAdaptor.h \
 GSWApplet.h \
@@ -285,7 +294,6 @@ GSWToggle.h \
 GSWTransactionRecord.h \
 GSWURLValuedElementData.h \
 GSWVBScript.h \
-GSWeb.h \
 NSNonBlockingFileHandle.h \
 NSObject+IVarAccess+PerformSel.h \
 NSString+HTML.h \
@@ -300,27 +308,47 @@ GSWResourceURL.h \
 GSWProcFS.h \
 GSWWOCompatibility.h
 
-# The framework installed WO header files
-GSWeb_WO_HEADER_FILES = \
-WebObjects.h \
-WOApplication.h \
-WOComponent.h \
-WOContext.h \
-WODirectAction.h \
-WORequest.h \
-WOSession.h \
 
-WO_HEADERS_DSTDIR = $(GNUSTEP_HEADERS)/WebObjects
-WO_HEADERS_SRCDIR = WebObjects
+# The framework installed WO header files
+GSWeb_wo_HEADER_FILES = $(GSWeb_HEADER_FILES)
+
+WO_HEADER_FILES = \
+	WOAdaptor.h \
+	WOApplication.h \
+	WOAssociation.h \
+	WOComponent.h \
+	WOContext.h \
+	WOCookie.h \
+	WODirectAction.h \
+	WODisplayGroup.h \
+	WODynamicElement.h \
+	WOElement.h \
+	WOMailDelivery.h \
+	WORequest.h \
+	WORequestHandler.h \
+	WOResourceManager.h \
+	WOResponse.h \
+	WOSession.h \
+	WOSessionStore.h \
+	WOStatisitcsStore.h 
+
+# WebObjects.h not needed as it gets copied explicitly
+
+
+GSWeb_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWeb_wo_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWeb_wo_HEADER_FILES_INSTALL_DIR = WebObjects
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)
+
+# Documentation
+DOCUMENT_NAME = GSWeb
+
 GSWeb_AUTOGSDOC_HEADERS = $(GSWeb_HEADER_FILES)
 GSWeb_AUTOGSDOC_SOURCE = $(GSWeb_OBJC_FILES)
-DOCUMENT_NAME = GSWeb
-GSWeb_HEADER_FILES_DIR = $(HEADER_DIR)
 GSWeb_AGSDOC_FILES = gsweb.gsdoc $(GSWeb_AUTOGSDOC_HEADERS) 
-#$(GSWeb_AUTOGSDOC_SOURCE)
+
 GSWeb_AGSDOC_FLAGS = \
 	-Declared Foundation \
 	-Standards YES \
@@ -334,6 +362,7 @@ GSWeb_AGSDOC_FLAGS = \
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
 	}' -Up gsweb
 
+GSWeb_AGSDOC_FLAGS = $(GSWeb_AGSDOC_FLAGS)
 
 -include Makefile.preamble
 

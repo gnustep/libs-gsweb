@@ -1,11 +1,12 @@
 #
-#   gsweb.make
+#   gsweb_wo.make
 #
-#   Makefile flags and configs to build with the base library.
+#   Makefile flags and configs to build with the gsweb library
+#   using WO-Names
 #
 #   Copyright (C) 2002 Free Software Foundation, Inc.
 #
-#   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
+#   Author: David Ayers <d.ayers@inode.at>
 #   Based on code originally in the gnustep make package
 #
 #   This file is part of the GNUstep Base Library.
@@ -20,22 +21,11 @@
 #   If not, write to the Free Software Foundation,
 #   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-ifeq ($(GSWEB_MAKE_LOADED),)
-GSWEB_MAKE_LOADED=yes
+ifeq ($(GSWEB_WO_MAKE_LOADED),)
+GSWEB_WO_MAKE_LOADED=yes
 
-GSWEB_VERSION = @VERSION@
-GSWEB_MAJOR_VERSION = @MAJOR_VERSION@
-GSWEB_MINOR_VERSION = @MINOR_VERSION@
-GSWEB_SUBMINOR_VERSION = @SUBMINOR_VERSION@
+GSW_NAMES=wo
+include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
 
-ifeq ($(GSW_NAMES),wo)
-     GSWEXT = _wo
-endif
-
-AUXILIARY_GSW_LIBS += -lGSWeb$(GSWEXT) -lGSWExtensions$(GSWEXT) -lGSWExtensionsGSW$(GSWEXT)
-
-AUXILIARY_INCLUDE_DIRS += @AUX_INCS@
-AUXILIARY_INCLUDE_LIBS += @AUX_LIBS@ -lGSANTLR
-
-endif # GSWEB_MAKE_LOADED
+endif # GSWEB_WO_MAKE_LOADED
 

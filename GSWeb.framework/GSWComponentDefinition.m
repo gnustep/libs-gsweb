@@ -28,7 +28,7 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 //====================================================================
 @implementation GSWComponentDefinition
@@ -352,7 +352,7 @@ languages:(NSArray*)languages
 
   // Get component class
   componentClass=[self componentClass];
-  NSAssert(componentClass,@"No componentClass");
+  NSAssert1(componentClass,@"No componentClass for:%@",NSStringFromClass([self class]));
   NSDebugMLLog(@"gswcomponents",@"componentClass=%p",(void*)componentClass);
 
   // Put the component definition in the thread dictionary because we need it during component initialization

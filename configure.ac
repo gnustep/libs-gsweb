@@ -31,6 +31,21 @@ fi
 AC_CONFIG_HEADER(config.h)
 
 #--------------------------------------------------------------------
+# Define default gswnames
+#--------------------------------------------------------------------
+AC_ARG_WITH(gswnames,
+ [  --with-gswnames=NAMESPC Set the default namespace (gsw,wo,all=def)])
+AC_MSG_CHECKING(default gswnames)
+if test "x$with_gswnames" = "x"; then
+  GSWNAMES=all
+else
+  GSWNAMES=${with_gswnames}
+fi
+AC_MSG_RESULT($GSWNAMES)
+AC_SUBST(GSWNAMES)
+
+
+#--------------------------------------------------------------------
 # Check for libwrap
 #--------------------------------------------------------------------
 AC_CHECK_LIB(wrap, main, wrap_ok=yes, wrap_ok=no)
@@ -39,6 +54,7 @@ if test "$wrap_ok" = yes; then
   USE_LIBWRAP=1
   AC_DEFINE(HAVE_LIBWRAP)
 fi
+AC_SUBST(LIBWRAP,$wrap_ok)
 
 #--------------------------------------------------------------------
 # Check recent libxml for XML parser
@@ -84,5 +100,5 @@ AC_SUBST(AUX_LIBS)
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-AC_CONFIG_FILES([gsweb.make GSWeb.framework/Makefile.preamble])
+AC_CONFIG_FILES([config.mak gsweb.make GSWeb.framework/Makefile.preamble])
 AC_OUTPUT

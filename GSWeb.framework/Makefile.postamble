@@ -1,4 +1,4 @@
-#
+#-*-makefile-*-
 #  Makefile.postamble
 #
 #  Copyright (C) 1997 Free Software Foundation, Inc.
@@ -37,6 +37,7 @@
 
 # Things to do before compiling
 # before-all::
+ 
 
 # Things to do after compiling
 # after-all::
@@ -45,19 +46,13 @@
 # before-install:: 
 
 # Things to do after installing
-after-install::
+after-install:: install-WO-headers
 	@if [ ! -f $(dstDTDDir) ]; then \
 	  $(MKDIRS) $(dstDTDDir); \
 	fi; \
 	for file in $(DTD_FILES); do \
 	  $(INSTALL_DATA) $(srcDTDDir)/$$file $(dstDTDDir)/$$file; \
-	done; \
-	if [ ! -f $(WO_HEADERS_DSTDIR) ]; then \
-	  $(MKDIRS) $(WO_HEADERS_DSTDIR); \
-	fi; \
-	for file in $(GSWeb_WO_HEADER_FILES); do \
-	  $(INSTALL_DATA) $(WO_HEADERS_SRCDIR)/$$file $(WO_HEADERS_DSTDIR)/$$file; \
-	done; 
+	done;
 
 
 # Things to do before uninstalling
@@ -76,7 +71,8 @@ after-install::
 # before-distclean::
 
 # Things to do after distcleaning
-# after-distclean::
+after-distclean::
+	rm -rf Makefile.preamble
 
 # Things to do before checking
 # before-check::
@@ -87,3 +83,16 @@ after-install::
 regenerate:
 
 copy-dist: $(DIST_FILES)
+
+ifneq ($(gswnames),gsw)
+install-WO-headers : 
+	$(EC)$(INSTALL_DATA) ./WebObjects/WebObjects.h \
+	    $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/$(GSWeb_wo_HEADER_FILES_INSTALL_DIR)/WebObjects.h; \
+	cd $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/$(GSWeb_wo_HEADER_FILES_INSTALL_DIR); \
+	for file in $(WO_HEADER_FILES) ; do \
+	  $(LN_S) -f WebObjects.h $$file; \
+	done;$(ECHO_END)
+else
+install-WO-headers: ;
+endif
+

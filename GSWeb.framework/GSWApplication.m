@@ -30,7 +30,8 @@
 
 static const char rcsId[]="$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
+
 #if GDL2 // GDL2 implementation
 #include <EOAccess/EOModelGroup.h>
 #endif
@@ -471,7 +472,7 @@ int GSWApplicationMainReal(NSString* applicationClassName,
       NS_ENDHANDLER;
     };
   NSDebugLog(@"result=%d",result);
-  printf("result=%d\n",result);  
+  printf("result=%d\n",result);
   if (result>=0 && GSWApp)
     {
       [GSWApp _setPool:[NSAutoreleasePool new]];
@@ -626,10 +627,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   if (GSWApp == self)
   {
     GSWApp = nil;
-#if !GSWEB_WONAMES
-    WOApp = nil;
-#endif
-   }
+  }
 
   GSWLogMemC("Dealloc GSWApplication Super");
   [super dealloc];
@@ -3017,9 +3015,6 @@ selfLockn,
               [application class],
               [application name]);
   GSWApp=application;
-#if !GSWEB_WONAMES
-  WOApp=(WOApplication*)application;
-#endif
 };
 
 @end
@@ -4828,7 +4823,7 @@ selfLockn,
 	}
   else
 	{
-	  Class GSWElementClass=[GSWElement class]);
+	  Class GSWElementClass=[GSWElement class];
 	  if (!ClassIsKindOfClass(aClass,GSWElementClass))
 		{
 		  ExceptionRaise(@"GSWApplication",

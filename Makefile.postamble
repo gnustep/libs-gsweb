@@ -46,14 +46,15 @@ gsdocs:
 # The following rule is important mainly for packaging, because in that case 
 # you install into a fake system tree, and the directory is not there.
 #
-$(GNUSTEP_MAKEFILES)/Auxiliary:
+$(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary:
 	$(MKINSTALLDIRS) $@
 
 # Things to do before installing
-+before-install:: $(GNUSTEP_MAKEFILES)/Auxiliary
+before-install:: $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary
 	$(INSTALL_DATA) gsweb.make \
 	   $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
-	   $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
+	$(INSTALL_DATA) gsweb_wo.make \
+	   $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gsweb_wo.make
 
 # Things to do after installing
 #after-install::
@@ -63,7 +64,8 @@ $(GNUSTEP_MAKEFILES)/Auxiliary:
 
 # Things to do after uninstalling
 after-uninstall::
-	rm -f $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
+	rm -f $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
+	rm -f $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gsweb_wo.make
 
 # Things to do before cleaning
 # before-clean::

@@ -33,11 +33,30 @@ include ../config.mak
 srcdir = .
 
 # The framework to be compiled
+
+# Options
+ifeq ($(gswnames), gsw)
 FRAMEWORK_NAME = GSWExtensionsGSW
+endif
+ifeq ($(gswnames), wo)
+FRAMEWORK_NAME = GSWExtensionsGSW_wo
+endif
+ifeq ($(gswnames), all)
+FRAMEWORK_NAME = GSWExtensionsGSW GSWExtensionsGSW_wo
+endif
+
+# Ensure that each framework uses its own GNUSTEP_OBJ_DIR & DERIVED_SRC
+ifneq ($(GNUSTEP_INSTANCE),)
+GNUSTEP_OBJ_DIR := $(GNUSTEP_OBJ_DIR)/$(GNUSTEP_INSTANCE)
+DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
+endif
+
+GSWExtensionsGSW_wo_CPPFLAGS = -DGSWEB_WONAMES
 
 # The framework resource files and directories
 GSWExtensionsGSW_RESOURCE_FILES = \
-Resources/Info-gnustep.plist \
+Resources/Info-gnustep.plist
+GSWExtensionsGSW_wo_RESOURCE_FILES = $(GSWExtensionsGSW_RESOURCE_FILES)
 
 GSWExtensionsGSW_COMPONENTS= \
 GSWTabComponent.gswc \
@@ -46,24 +65,17 @@ GSWLogin.gswc \
 GSWSimpleFormComponent.gswc \
 GSWFileUploadFormComponent.gswc \
 GSWFileUploadComponent.gswc
+GSWExtensionsGSW_wo_COMPONENTS = $(GSWExtensionsGSW_COMPONENTS)
 
 GSWExtensionsGSW_LANGUAGES= \
 French
+GSWExtensionsGSW_wo_LANGUAGES = $(GSWExtensionsGSW_LANGUAGES)
 
 GSWExtensionsGSW_RESOURCE_DIRS = 
+GSWExtensionsGSW_wo_RESOURCE_DIRS = $(GSWExtensionsGSW_RESOURCE_DIRS)
 
 GSWExtensionsGSW_WEBSERVER_RESOURCE_FILES = 
-
-# Determine the bundle directory extension
-#ifeq ($(profile), yes)
-#  GSWBUNDLE_EXTENSION = .frameworkp
-#else
-#  ifeq ($(debug), yes)
-#    GSWBUNDLE_EXTENSION = .frameworkd
-#  else
-#    GSWBUNDLE_EXTENSION = .framework
-#  endif
-#endif
+GSWExtensionsGSW_wo_WEBSERVER_RESOURCE_FILES = $(GSWExtensionsGSW_WEBSERVER_RESOURCE_FILES)
 
 # The Objective-C source files to be compiled
 GSWExtensionsGSW_OBJC_FILES = \
@@ -73,22 +85,28 @@ GSWValidationFailureComponent.m \
 GSWSimpleFormComponent.m \
 GSWFileUploadFormComponent.m \
 GSWFileUploadComponent.m 
+GSWExtensionsGSW_wo_OBJC_FILES = $(GSWExtensionsGSW_OBJC_FILES)
 
 # The header files to be installed
 GSWExtensionsGSW_HEADER_FILES = \
+GSWExtGSWWOCompatibility.h \
 GSWLogin.h \
 GSWTabComponent.h \
 GSWValidationFailureComponent.h \
 GSWFileUploadFormComponent.h \
-GSWFileUploadComponent.h \
+GSWFileUploadComponent.h
+GSWExtensionsGSW_wo_HEADER_FILES = $(GSWExtensionsGSW_HEADER_FILES)
 
+GSWExtensionsGSW_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWExtensionsGSW_wo_HEADER_FILES_DIR = $(GSWExtensionsGSW_HEADER_FILES_DIR)
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)
+
 GSWExtensionsGSW_AUTOGSDOC_HEADERS = $(GSWExtensionsGSW_HEADER_FILES)
 GSWExtensionsGSW_AUTOGSDOC_SOURCE = $(GSWExtensionsGSW_OBJC_FILES)
 DOCUMENT_NAME = GSWExtensionsGSW
-GSWExtensionsGSW_HEADER_FILES_DIR = $(HEADER_DIR)
+
 GSWExtensionsGSW_AGSDOC_FILES = gswextensionsgsw.gsdoc $(GSWExtensionsGSW_AUTOGSDOC_HEADERS) 
 #$(GSWExtensionsGSW_AUTOGSDOC_SOURCE)
 GSWExtensionsGSW_AGSDOC_FLAGS = \
@@ -119,3 +137,4 @@ include $(GNUSTEP_MAKEFILES)/documentation.make
 endif
 
 -include Makefile.postamble
+

@@ -29,8 +29,8 @@
 
 static char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
-#include <GSWeb/GSWDebug.h>
+#include "GSWeb.h"
+#include "GSWDebug.h"
 #include <Foundation/NSThread.h>
 #include <Foundation/NSAutoreleasePool.h>
 #include <unistd.h>

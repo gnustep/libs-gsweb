@@ -1,3 +1,4 @@
+# -*-makefile-*-
 # Makefile.preamble - GSWeb: Makefile.preamble
 #   Copyright (C) 1999-2002 Free Software Foundation, Inc.
 #   
@@ -63,7 +64,7 @@ ADDITIONAL_CFLAGS =  -DUSE_BUILTIN
 ADDITIONAL_INCLUDE_DIRS =  -I. -I../.. @XML_CFLAGS@
 
 # Additional LDFLAGS to pass to the linker
-LIBRARIES_DEPENP_UPON += @AUX_LIBS@
+LIBRARIES_DEPEND_UPON += @AUX_LIBS@
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = -L../src/$(GNUSTEP_OBJ_DIR) -L$(GNUSTEP_SYSTEM_ROOT)/lib 

@@ -31,7 +31,7 @@
 
 static const char rcsId[] = "$Id$";
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 #include <unistd.h>
 #include <math.h> //for fabs
 #include "NSNonBlockingFileHandle.h"

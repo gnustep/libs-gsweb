@@ -32,8 +32,8 @@
 
 static const char rcsId[]="$Id$";
 
-#include <GSWeb/GSWeb.h>
-#include <GSWExtensions/GSWLongResponsePage.h>
+#include "GSWExtWOCompatibility.h"
+#include "GSWLongResponsePage.h"
 
 @interface GSWLongResponsePage (Private)
 -(void) _setCancelled:(BOOL)cancelled;
