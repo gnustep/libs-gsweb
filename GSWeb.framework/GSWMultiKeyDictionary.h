@@ -1,6 +1,6 @@
 /** GSWMultiKeyDictionary.h - <title>GSWeb: Class GSWMultiKeyDictionary</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -36,35 +36,39 @@
 //==============================================================================
 @interface GSWMultiKeyDictionary : NSObject
 {
-  NSMutableDictionary* _dict;
+  void* _mapBase;
 };
 
 +(id)dictionary;
--(id)init;
 -(id)initWithCapacity:(unsigned int)capacity;
--(void)dealloc;
--(NSString*)description;
 
-
--(NSEnumerator*)objectEnumerator;
 -(void)removeAllObjects;
 -(void)setObject:(id)object
          forKeys:(id)keys,...;
 -(id)objectForKeys:(id)keys,...;
+-(void)removeObjectForKeys:(id)keys,...;
+
+-(void)setObject:(id)object
+          forKey:(id)key
+         andKeys:(va_list)nextKeys;
+-(id)objectForKey:(id)key
+          andKeys:(va_list)nextKeys;
+-(void)removeObjectForKey:(id)key
+                  andKeys:(va_list)nextKeys;
 
 -(void)setObject:(id)object
     forKeysArray:(NSArray*)keys;
 -(id)objectForKeysArray:(NSArray*)keys;
--(NSArray*)allValues;
--(NSArray*)allKeys;
--(NSArray*)objectsForKeysArrays:(NSArray*)keys
-                 notFoundMarker:(id)notFoundMarker;
+-(void)removeObjectForKeysArray:(NSArray*)keys;
+
 -(void)makeObjectsPerformSelector:(SEL)selector;
 -(void)makeObjectsPerformSelector:(SEL)selector
                        withObject:(id)object;
 -(void)makeObjectsPerformSelector:(SEL)selector
                        withObject:(id)object1
                        withObject:(id)object2;
+-(NSEnumerator*)objectEnumerator;
+-(NSArray*)allValues;
 @end
 
 #endif // _GSWMultiKeyDictionary_h__
