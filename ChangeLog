@@ -1,3 +1,7 @@
+2003-11-25   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWInputStreamData.m/.h:
+		o added
+
 2003-11-24   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWResourceManager.m/.h:
 		o added -cachedBundleForFrameworkNamed:
