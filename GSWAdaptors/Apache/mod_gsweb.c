@@ -311,6 +311,8 @@ GSWeb_Translation(request_rec *p_pRequestRec)
 };
 
 //--------------------------------------------------------------------
+// Copy p_pRequestRec in headers into p_pGSWHTTPRequest
+// Also add some environment variable headers
 static void
 copyHeaders(request_rec    *p_pRequestRec,
 	    GSWHTTPRequest *p_pGSWHTTPRequest)
@@ -323,7 +325,7 @@ copyHeaders(request_rec    *p_pRequestRec,
   char		     *pszPort=NULL;
   CONST char         *pszRemoteLogName=NULL;
   GSWLog(GSW_DEBUG,pServerRec,"Start copyHeaders");
-  
+
   // copy p_pRequestRec headers
   headers =  (table_entry *) headers_arr->elts;
   for (i=0;i<headers_arr->nelts;i++)
@@ -331,7 +333,6 @@ copyHeaders(request_rec    *p_pRequestRec,
       if (headers[i].key)
 	GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 				 headers[i].key,headers[i].val);
-      //GSWLog(GSW_DEBUG,pServerRec,"HEADERS %s=%s",headers[i].key,headers[i].val);
     };
 
   // Add server headers
@@ -441,7 +442,7 @@ getHeader(GSWDictElem *p_pElem,
     {
       pRequestRec->content_type = (char *)ap_pstrdup(pRequestRec->pool,
                                                      (char *)p_pElem->pValue);//TODOVERIFY: strdup or not ?
-#ifdef APACHE2
+#ifdef Apache2
       ap_set_content_type(pRequestRec, (char *)p_pElem->pValue);
 #endif
     }
@@ -463,6 +464,29 @@ sendResponse(request_rec     *p_pRequestRec,
   server_rec *pServerRec = p_pRequestRec->server;
   GSWLog(GSW_DEBUG,pServerRec,"Start sendResponse");
 	
+  // Add Headers for processing time information
+#ifdef Apache2
+  if (GSWConfig_AddTimeHeaders())
+    {
+      char *pszBuffer= malloc(100);
+      apr_time_t tnow=apr_time_now();
+      apr_time_t duration=apr_time_as_msec(tnow-p_pRequestRec->request_time); // ms
+      strcpy(pszBuffer,"gswadaptor-requestdate: ");            
+      FormatAPRTime(pszBuffer+strlen(pszBuffer),p_pRequestRec->request_time);
+      GSWHTTPResponse_AddHeader(p_pHTTPResponse,
+                                pszBuffer);
+      strcpy(pszBuffer,"gswadaptor-sendresponsedate: ");            
+      FormatAPRTime(pszBuffer+strlen(pszBuffer),tnow);
+      GSWHTTPResponse_AddHeader(p_pHTTPResponse,
+                                pszBuffer);
+      sprintf(pszBuffer,"gswadaptor-processduration: %d.%d s",
+              (int)(duration/1000),(int)(duration%1000));
+      GSWHTTPResponse_AddHeader(p_pHTTPResponse,
+                                pszBuffer);
+      free(pszBuffer);
+      pszBuffer=NULL;
+  };
+#endif
   // Process Headers
   GSWDict_PerformForAllElem(p_pHTTPResponse->pHeaders,getHeader,p_pRequestRec);
 	
@@ -478,7 +502,7 @@ sendResponse(request_rec     *p_pRequestRec,
   if (!p_pRequestRec->content_type)
     {
       p_pRequestRec->content_type = g_szContentType_TextHtml;
-#ifdef APACHE2
+#ifdef Apache2
       ap_set_content_type(p_pRequestRec, g_szContentType_TextHtml);
 #endif
     };
@@ -490,7 +514,7 @@ sendResponse(request_rec     *p_pRequestRec,
   // Now Send response...
 
   // send Headers
-#ifndef APACHE2 // No more needed in Apache2 (?)
+#ifndef Apache2 // No more needed in Apache2 (?)
   ap_send_http_header(p_pRequestRec);	
 #endif
 

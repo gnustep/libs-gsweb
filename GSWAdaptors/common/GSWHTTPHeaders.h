@@ -134,6 +134,7 @@ typedef	struct _GSWHeaderTranslationItem {
 
 extern /*const*/ GSWHeaderTranslationItem GSWHeaderTranslationTable[];
 extern int GSWHeaderTranslationTableItemsNb;
+CONST char* GSWebHeaderForHTTPHeader(CONST char *p_pszHTTPHeader);
 /*
 static const GSWHeaderTranslationItem GSWHeaderTranslationTable[] =
 {

@@ -536,3 +536,47 @@ GSWUtil_HostLookup(CONST char *p_pszHost,
   return pHost;
 };
 
+#ifdef Apache2
+// 2003/04/05 10:12:25.123
+void FormatAPRTime(char *date_str, apr_time_t t)
+{
+  apr_time_exp_t xt;
+  const char *s=NULL;
+  int real_year;
+
+  apr_time_exp_gmt(&xt, t);
+  real_year = 1900 + xt.tm_year;
+  
+  *date_str++ = real_year / 1000 + '0';
+  *date_str++ = (real_year % 1000) / 100 + '0';
+  *date_str++ = (real_year % 100) / 10 + '0';
+  *date_str++ = real_year % 10 + '0';
+
+  *date_str++ = '/';
+
+  *date_str++ = (xt.tm_mon+1) / 10 + '0';
+  *date_str++ = (xt.tm_mon+1) % 10 + '0';
+
+  *date_str++ = '/';
+
+  *date_str++ = xt.tm_mday / 10 + '0';
+  *date_str++ = xt.tm_mday % 10 + '0';
+  
+  *date_str++ = ' ';
+  *date_str++ = xt.tm_hour / 10 + '0';
+  *date_str++ = xt.tm_hour % 10 + '0';
+  *date_str++ = ':';
+  *date_str++ = xt.tm_min / 10 + '0';
+  *date_str++ = xt.tm_min % 10 + '0';
+  *date_str++ = ':';
+  *date_str++ = xt.tm_sec / 10 + '0';
+  *date_str++ = xt.tm_sec % 10 + '0';
+  *date_str++ = '.';
+  *date_str++ = (xt.tm_usec/1000) / 100 + '0';
+  *date_str++ = ((xt.tm_usec/1000) % 100) / 10 + '0';
+  *date_str++ = (xt.tm_usec/1000) % 10 + '0';
+
+  *date_str++ = 0;
+}
+
+#endif

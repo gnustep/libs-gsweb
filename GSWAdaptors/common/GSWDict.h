@@ -74,6 +74,9 @@ void GSWDict_PerformForAllElem(GSWDict *p_pDict,
 //Free the list but Do Not Free Elements
 GSWList* GSWDict_AllKeys(GSWDict *p_pDict);
 
+void GSWDict_Log(GSWDict *p_pDict,
+                 void    *p_pLogServerData);
+
 #ifdef __cplusplus
 } // end of C header
 #endif //_cplusplus

@@ -142,6 +142,13 @@ GSWConfig_CanDumpStatus()
 };
 
 //--------------------------------------------------------------------
+BOOL
+GSWConfig_AddTimeHeaders()
+{
+  return g_gswConfig.fAddTimeHeaders;
+};
+
+//--------------------------------------------------------------------
 void
 GSWConfig_SetConfigFilePath(CONST char *p_pszConfigFilePath)
 {
@@ -309,6 +316,7 @@ GSWConfig_PropListHeadersToHeaders(GSWDict    *p_pHeaders,
   //    header1=1234;
   //    header2=4567;
   //  };
+
   if (p_propListHeaders)
     {
       int iHeaderIndex=0;
@@ -326,6 +334,7 @@ GSWConfig_PropListHeadersToHeaders(GSWDict    *p_pHeaders,
 					   p_pLogServerData);
       //Nb Of Headers
       uHeaderNb=PLGetNumberOfElements(propListHeadersNames);
+
       //For Each Header
       for(iHeaderIndex=0;iHeaderIndex<uHeaderNb;iHeaderIndex++)
         {
@@ -337,6 +346,7 @@ GSWConfig_PropListHeadersToHeaders(GSWDict    *p_pHeaders,
 					    TRUE,
 					    GSWPropList_TestString,
 					    p_pLogServerData);
+
 	    if (!propListHeaderKey)
 	      {
 		//TODO
@@ -353,11 +363,13 @@ GSWConfig_PropListHeadersToHeaders(GSWDict    *p_pHeaders,
 						   TRUE,//Error If Not Exists
 						   GSWPropList_TestString,
 						   p_pLogServerData);
+
 		if (propListHeader)
 		  {
 		    //Get Header Value (1234)
 		    CONST char *pszHeaderValue=PLGetString(propListHeader);
-                                               //Do Not Free It
+                    //Do Not Free It
+
 		    GSWDict_AddStringDup(p_pHeaders,pszHeaderName,
 					 pszHeaderValue);
 		  };
@@ -444,8 +456,9 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
 {
   BOOL fOk=TRUE;
   char pszParents[4096]="";
-  proplist_t pValueCanDump=NULL;
+  proplist_t pValueCanDump=NULL;  
   proplist_t pValueAdaptorTemplatesPath=NULL;
+
   if (p_pApp->pszName)
     {
       free(p_pApp->pszName);
@@ -459,12 +472,14 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
 					       FALSE,//No Error If Not Exists
 					       GSWPropList_TestString,
 					       p_pLogServerData);
+
   p_pApp->fCanDump=NO;
   if (pValueCanDump)
     {
       CONST char *pszCanDump=PLGetString(pValueCanDump);//Do Not Free It
       p_pApp->fCanDump=(strcasecmp(pszCanDump,"YES")==0);
     };
+
   //adaptorTemplates
   pValueAdaptorTemplatesPath =
       GSWPropList_GetDictionaryEntry(p_propListApp,
@@ -521,7 +536,7 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
       p_pApp->pszLogFilePath=PLGetString(pValueLogFilePath);//Do Not Free It
     };
 */
-  //Headers
+  //headers = 
   //  {
   //    header1=1234;
   //    header2=4567;
@@ -530,6 +545,7 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
   {
     proplist_t propListHeaders=NULL;
     sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+
     propListHeaders =
 	GSWPropList_GetDictionaryEntry(p_propListApp,
 				       "headers",
@@ -666,7 +682,9 @@ GSWConfig_LoadConfiguration(void *p_pLogServerData)
   p_pLogServerData=NULL;
   GSWLog(GSW_DEBUG,p_pLogServerData,
 	 "GSWeb: GSWConfig_LoadConfiguration");
+
   GSWLock_Lock(g_lockAppList);
+
   if (!g_pAppDict)
     {
       g_pAppDict = GSWDict_New(16);
@@ -696,6 +714,25 @@ GSWConfig_LoadConfiguration(void *p_pLogServerData)
 	    CONST char *pszCanDumpStatus=PLGetString(pValueCanDumpStatus);
 	                                 //Do Not Free It
 	    g_gswConfig.fCanDumpStatus=(strcasecmp(pszCanDumpStatus,"YES")==0);
+	  };
+      };
+
+      //AddTimeHeaders
+      {
+	proplist_t pValueAddTimeHeaders=NULL;
+	g_gswConfig.fAddTimeHeaders=NO;
+	pValueAddTimeHeaders =
+	    GSWPropList_GetDictionaryEntry(propListConfig,
+					   "addTimeHeaders",
+					   NULL,
+					   FALSE,//No Error If Not Exists
+					   GSWPropList_TestString,
+					   p_pLogServerData);
+	if (pValueAddTimeHeaders)
+	  {
+	    CONST char *pszAddTimeHeaders=PLGetString(pValueAddTimeHeaders);
+	                                 //Do Not Free It
+	    g_gswConfig.fAddTimeHeaders=(strcasecmp(pszAddTimeHeaders,"YES")==0);
 	  };
       };
       

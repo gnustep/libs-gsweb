@@ -122,6 +122,9 @@ PSTHostent GSWUtil_FindHost(CONST char *p_pszHost, void *p_pLogServerData);
 
 void GSWLog_Init(GSWDict *p_pDict, int p_iLevel);
 
+#ifdef Apache2
+  void FormatAPRTime(char *date_str, apr_time_t t); // 2003/04/05 10:12:25.123
+#endif
 
 #ifdef __cplusplus
 }

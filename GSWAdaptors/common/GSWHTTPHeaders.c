@@ -147,8 +147,40 @@ const char *g_szMethod_Put="PUT";
 const char *g_szContentType_TextHtml="text/html";
 
 
-/*const*/ GSWHeaderTranslationItem GSWHeaderTranslationTable[50];
+GSWHeaderTranslationItem GSWHeaderTranslationTable[50];
 int GSWHeaderTranslationTableItemsNb=0;
+
+//--------------------------------------------------------------------
+// p_pKey0 is a header key
+// p_pKey1 is a dictionary element
+static int
+compareHeader(CONST void *p_pKey0,
+	      CONST void *p_pKey1)
+{
+  CONST char *pKey1=((GSWHeaderTranslationItem *)p_pKey1)->pszHTTP;
+  if (pKey1)
+    return strcmp((CONST char *)p_pKey0,pKey1);
+  else if (!p_pKey0)
+    return 0;
+  else
+    return 1;
+};
+
+//--------------------------------------------------------------------
+// p_pKey0 and p_pKey1 are dictionary elements
+static int
+compareHeaderItems(CONST void *p_pKey0,
+                   CONST void *p_pKey1)
+{
+  CONST char *pKey0=((GSWHeaderTranslationItem *)p_pKey0)->pszHTTP;
+  CONST char *pKey1=((GSWHeaderTranslationItem *)p_pKey1)->pszHTTP;
+  if (pKey1)
+    return strcmp((CONST char *)pKey0,pKey1);
+  else if (!pKey0)
+    return 0;
+  else
+    return 1;
+};
 
 //--------------------------------------------------------------------
 void
@@ -267,17 +299,38 @@ GSWHeaderTranslationTable_Init()
   GSWHeaderTranslationTable[i++].pszGSWeb=NULL;
 
   GSWHeaderTranslationTableItemsNb=i;
-  /*
-  GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTableItemsNb=%d",
+
+  // Because bsearch require sorted array
+  qsort(GSWHeaderTranslationTable,GSWHeaderTranslationTableItemsNb,sizeof(GSWHeaderTranslationItem),
+        compareHeaderItems);
+
+/*  
+  GSWLog(GSW_ERROR,LOGSD,"GSWHeaderTranslationTableItemsNb=%d",
 	 GSWHeaderTranslationTableItemsNb);
   for(i=0;i<GSWHeaderTranslationTableItemsNb-1;i++)
     {
-      GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTable[i].pszHTTP=%s",
-	     GSWHeaderTranslationTable[i].pszHTTP);
-      GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTable[i].pszGSWeb=%s",
-	     GSWHeaderTranslationTable[i].pszGSWeb);
+      GSWLog(GSW_ERROR,LOGSD,"GSWHeaderTranslationTable[%d].pszHTTP=%s",
+	     i,GSWHeaderTranslationTable[i].pszHTTP);
+      GSWLog(GSW_ERROR,LOGSD,"GSWHeaderTranslationTable[%d].pszGSWeb=%s",
+	     i,GSWHeaderTranslationTable[i].pszGSWeb);
     };
-  */
+*/
+};
+
+//--------------------------------------------------------------------
+CONST char* GSWebHeaderForHTTPHeader(CONST char *p_pszHTTPHeader)
+{
+  GSWHeaderTranslationItem *pItem=NULL;
+  if (GSWHeaderTranslationTableItemsNb==0)
+    GSWHeaderTranslationTable_Init();
+
+  pItem=bsearch(p_pszHTTPHeader,
+		GSWHeaderTranslationTable,
+		GSWHeaderTranslationTableItemsNb,
+		sizeof(GSWHeaderTranslationItem),
+		compareHeader);
+
+  return (pItem ? pItem->pszGSWeb : NULL);
 };
 
 

@@ -38,11 +38,11 @@
 #include "GSWHTTPHeaders.h"
 
 static ERequestMethod GetHTTPRequestMethod();
-static CONST char *GSWebHeaderForHTTPHeader(CONST char *header);
 static char *GSWHTTPRequest_PackageHeaders(GSWHTTPRequest *p_pHTTPRequest,
 					   char           *pszBuffer,
 					   int             p_iBufferSize);
-
+static void GSWHTTPRequest_AddHeaderElem(GSWDictElem *p_pElem,
+                                         GSWHTTPRequest *p_pHTTPRequest);
 
 //--------------------------------------------------------------------
 GSWHTTPRequest *
@@ -134,9 +134,13 @@ GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest   *p_pHTTPRequest,
   char *pszDefaultHTTPVersion = "HTTP/1.0";
   int iHTTPVersionLength = p_pszHTTPVersion ?
     strlen(p_pszHTTPVersion) : strlen(pszDefaultHTTPVersion);
+  GSWApp* pApp=p_pAppRequest->pAppInstance->pApp;
+
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_HTTPToAppRequest");
+
   if (p_pAppRequest->iInstance > 0)	/* should be -1 !!! */
     sprintf(szInstanceBuffer,"%d",p_pAppRequest->iInstance);
+
   p_pURLComponents->stAppName.pszStart = p_pAppRequest->pszName;
   p_pURLComponents->stAppName.iLength = strlen(p_pAppRequest->pszName);
   p_pURLComponents->stAppNumber.pszStart = szInstanceBuffer;		
@@ -176,9 +180,28 @@ GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest   *p_pHTTPRequest,
     strcat(p_pHTTPRequest->pszRequest,pszDefaultHTTPVersion);
   strcat(p_pHTTPRequest->pszRequest,"\n");
   
+  // Add Application Headers
+  GSWDict_PerformForAllElem(&pApp->stHeadersDict,
+			    GSWHTTPRequest_AddHeaderElem,
+			    (void*)p_pHTTPRequest);
+#ifdef DEBUG
+  if (p_pHTTPRequest->pHeaders)
+    GSWDict_Log(p_pHTTPRequest->pHeaders,p_pLogServerData);
+#endif
+
   GSWLog(GSW_INFO,p_pLogServerData,"App Request: %s",
 	 p_pHTTPRequest->pszRequest);
   GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_HTTPToAppRequest");
+};
+
+//--------------------------------------------------------------------
+static void
+GSWHTTPRequest_AddHeaderElem(GSWDictElem *p_pElem,
+                             GSWHTTPRequest *p_pHTTPRequest)
+{
+  GSWHTTPRequest_AddHeader(p_pHTTPRequest,
+                           p_pElem->pszKey,
+                           p_pElem->pValue);
 };
 
 //--------------------------------------------------------------------
@@ -280,7 +303,6 @@ GSWHTTPRequest_SendRequest(GSWHTTPRequest   *p_pHTTPRequest,
   GSWDict_PerformForAllElem(p_pHTTPRequest->pHeaders,
 			    FormatHeader,
 			    (void *)&pszTmp);
-
   *pszTmp++ = '\n';
     
   if (iContentLength>0)
@@ -350,46 +372,5 @@ GetHTTPRequestMethod(CONST char *pszMethod)
     }
   else
     return ERequestMethod_None;
-};
-
-//--------------------------------------------------------------------
-static int
-compareHeader(CONST void *p_pKey0,
-	      CONST void *p_pKey1)
-{
-  CONST char *pKey1=((GSWHeaderTranslationItem *)p_pKey1)->pszHTTP;
-/*
-  if (p_pKey0)
-    GSWLog(GSW_ERROR,NULL,"p_pKey0=%p (CONST char *)p_pKey0=%s",
-	   p_pKey0,(CONST char *)p_pKey0);
-  if (p_pKey1)
-    {
-      if (((GSWHeaderTranslationItem *)p_pKey1)->pszHTTP)
-	GSWLog(GSW_ERROR,NULL,"p_pKey1=%p  (CONST char *)p_pKey1=%s",
-	       p_pKey1,((GSWHeaderTranslationItem *)p_pKey1)->pszHTTP);
-      
-    };
-*/
-  if (pKey1)
-    return strcmp((CONST char *)p_pKey0,pKey1);
-  else if (!p_pKey0)
-    return 0;
-  else
-    return 1;
-};
-
-//--------------------------------------------------------------------
-static CONST char *
-GSWebHeaderForHTTPHeader(CONST char *p_pszHTTPHeader)
-{
-  GSWHeaderTranslationItem *pItem=NULL;
-  if (GSWHeaderTranslationTableItemsNb==0)
-    GSWHeaderTranslationTable_Init();
-  pItem=bsearch(p_pszHTTPHeader,
-		GSWHeaderTranslationTable,
-		GSWHeaderTranslationTableItemsNb,
-		sizeof(GSWHeaderTranslationItem),
-		compareHeader);
-  return (pItem ? pItem->pszGSWeb : NULL);
 };
 

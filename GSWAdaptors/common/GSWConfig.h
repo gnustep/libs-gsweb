@@ -99,6 +99,7 @@ typedef struct _GSWConfig
   char *pszConfigFilePath;
   char *pszGSWExtensionsFrameworkWebServerResources;
   BOOL fCanDumpStatus;
+  BOOL fAddTimeHeaders;
   char *pszAdaptorTemplatesPath;
 } GSWConfig;
 
@@ -125,6 +126,7 @@ proplist_t GSWConfig_ApplicationsKeysFromConfig(proplist_t p_propListConfig,
 
 GSWConfig *GSWConfig_GetConfig();
 BOOL GSWConfig_CanDumpStatus();
+BOOL GSWConfig_AddTimeHeaders();
 CONST char *GSWConfig_GetConfigFilePath();
 void GSWConfig_SetConfigFilePath(CONST char *p_pszConfigFilePath);
 GSWString *GSWConfig_DumpGSWApps(const char *p_pszReqApp,

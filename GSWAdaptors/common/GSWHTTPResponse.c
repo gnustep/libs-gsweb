@@ -300,6 +300,19 @@ GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
 	    }
 	  else
 	    pHTTPResponse->pContent = pszBuffer;
+
+#ifdef Apache2
+          if (GSWConfig_AddTimeHeaders())
+            {
+              char *pszBuffer= malloc(100);
+              strcpy(pszBuffer,"gswadaptor-receivedresponsedate: ");            
+              FormatAPRTime(pszBuffer+strlen(pszBuffer),apr_time_now());
+              GSWHTTPResponse_AddHeader(pHTTPResponse,
+                                        pszBuffer);
+              free(pszBuffer);
+              pszBuffer=NULL;
+            };
+#endif
 	}
 #ifdef	DEBUG
 /*
