@@ -1,3 +1,75 @@
+2004-03-25   Manuel Guesdon <mguesdon@orange-concept.com>
+		
+	* GSWeb.framework/GSWActionRequestHandler.m:
+		o -_handleRequest: partially rewritten for exception handling
+	* GSWeb.framework/GSWHTMLURLValuedElement.m:
+		o fix in -appendURLToResponse:inContext: when we have key and 
+			filename binding (Stéphane Corthésy <stephane@sente.ch> 
+			and Philip Mötteli <Philip.Moetteli@tele2.ch>)
+	* GSWeb.framework/GSWApplication.h/.m:
+		o added -handleActionRequestErrorWithRequest:exception:reason:
+			requestHanlder:actionClassName:actionName:actionClass:
+			actionObject:
+		o added +defaultDisplayExceptionPages
+		o added +setDefaultDisplayExceptionPages:
+		o handle GSWDefaultDisplayExceptionPages
+	* GSWeb.framework/GSWDirectActionRequestHandler.h/.m:
+		o added -generateRequestRefusalResponseForRequest:
+		o added -generateErrorResponseWithException:inContext:
+	* GSWeb.framework/GSWConstants.h/.m:
+		o added GSWOPT_DisplayExceptionPages
+		o renamed GSWComponentDefinition* into GSWComponentDeclarations*
+		o added GSWOPTValue_DefaultTemplateParser_RawHTML	
+	* GSWeb.framework/GSWConfig.h:
+		o added GSWOPTVALUE_DisplayExceptionPages
+		o changed default template parser to RawHTML
+	* GSWExtensionsGSW.framework/GSWLogin.m/.h:
+		o added _tryCount
+	* GSWExtensionsGSW.framework/GSWLogin.gswc/GSWLogin.gswd:
+		o added IsTryCountEqualToXX,...
+	* GSWeb.framework/GSWHTMLTemplateParser.m/.h:
+		o added (New HTML Template Parser)
+	* GSWeb.framework/GSWHTMLRawParser.m/.h:
+		o aded (New HTML Parser)
+	* GSWeb.framework/GSWDeclaration.h/.m:
+		o added (Handle a declaration i.e. an entry from .gswd)
+	* GSWeb.framework/GSWDeclarationParser.h/.m:
+		o added (.gswd parser)
+	* GSWeb.framework/GSWBaseParser.h/.m:
+		o added (base class for parsers)
+	* GSWeb.framework/GSWTemporaryElement.h/.m:
+		o added (Temporary element to handle dynamic tags)
+	* GSWeb.framework/GSWBundle.m:
+		o renamed GSWComponentDefinition* to GSWComponentDeclarations*
+	* GSWeb.framework/GSWElement.h/.m:
+		o renamed definitionName to declarationName
+	* GSWeb.framework/GSWHTMLBareString.h/.m:
+		o cleaned
+		o remove _data and _encoding
+	* GSWeb.framework/GSWHTMLDynamicElement.m:
+		o fixed bug in -initWithName:attributeAssociations:contentElements: 
+		for associationValue quoting	
+	* GSWeb.framework/GSWHTMLStaticGroup.m/.h:
+		o added +elementWithContentElements:
+	* GSWeb.framework/GSWTemplateParser.h/.m:
+		o multiple changes to support RawHTML parser and new 
+		declarations parser
+	* GSWeb.framework/GSWTemplateParserANTLR.h:
+		o removed GSWPageDef* includes
+	* GSWeb.framework/GSWTemplateParserANTLR.m:
+		o renamed defintions* to declarations*
+		o replaced GSWPageDefElement by GSWDeclaration
+	* GSWeb.framework/GSWTemplateParserXML.m:
+		o renamed defintions* to declarations*
+		o replaced GSWPageDefElement by GSWDeclaration
+	* GSWeb.framework/GSWeb.h:
+		o added includes for new files
+		o removed includes for removed files
+	* GSWeb.framework/GNUmakefile
+		o added new files
+		o removed old files
+		o moved some files
+
 2004-03-10  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWUtils.m: Use GNUSTEP in favor of 
