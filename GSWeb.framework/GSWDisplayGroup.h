@@ -69,7 +69,7 @@
    #include <EOControl/EODetailDataSource.h>
    #include <EOControl/EOKeyValueArchiver.h>
    #include <EOControl/EONull.h>
-   #include <EOControl/EOUndoManager.h>
+   #include <EOControl/EODeprecated.h>
    #include <EOAccess/EODatabaseDataSource.h>
 #endif
 
