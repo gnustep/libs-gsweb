@@ -1,3 +1,18 @@
+2004-03-04  David Ayers  <d.ayers@inode.at>
+
+	* config.mak.in: Added EOCONTROL_LIBRARY_NAME, 
+	EOACCESS_LIBRARY_NAME and HAVE_NATIVE_FRAMEWORK_SUPPORT.
+	* GSWeb.framework/Makefile.preamble.in: Added support for 
+	buildings on OS X and improve support for others.
+	* GSWExtensions.framework/Makefile.preamble: Ditto.
+	* GSWExtensionsGSW.framework/Makefile.preamble: Ditto.
+	* GSWeb.framework/GNUmakefile: Remove GNUSTEP_MAKEFILES.
+
+	* GSWeb.framework/GSWMultiKeyDictionary.m
+	([GSWMultiKeyDictionary initWithNodeSize:capacity:]): Replace
+	usage of GSObjCZone with -zone for OS X compatibility.
+	([GSWMultiKeyDictionary dealloc]): Ditto.
+
 2004-03-03   Manuel Guesdon <mguesdon@orange-concept.com>
 		
 	* GSWeb.framework/GSWDefaultAdaptorThread.m:

@@ -68,15 +68,40 @@ ADDITIONAL_LDFLAGS =
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = 
-GSWExtensionsGSW_ADDITIONAL_LIB_DIRS += \
-	-L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb
-WOExtensionsGSW_ADDITIONAL_LIB_DIRS += \
-	-L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/WebObjects
 
+ifeq ($(HAVE_NATIVE_FRAMEWORK_SUPPORT),yes)
+ADDITIONAL_FRAMEWORK_DIRS = -F../GSWeb.framework
+else
+#This is needed to strip GSW/WOExtensions from GNUSTEP_OBJ_DIR
+GSWEB_LIBRARY_BASE = ../GSWeb.framework/GSWeb.framework
+WO_LIBRARY_BASE = ../GSWeb.framework/WebObjects.framework
+GSW_FRAMEWORK_SUFFIX = Versions/Current/$(GNUSTEP_TARGET_LDIR)
 
-LIBRARIES_DEPEND_UPON = 
-GSWExtentions_LIBRARIES_DEPEND_UPON += -lGSWeb
-WOExtentions_LIBRARIES_DEPEND_UPON += -lWebObjects
+GSWExtensionsGSW_LIB_DIRS = \
+	-L$(GSWEB_LIBRARY_BASE)/$(GSW_FRAMEWORK_SUFFIX)
+WOExtensionsGSW_LIB_DIRS = \
+	-L$(WO_LIBRARY_BASE)/$(GSW_FRAMEWORK_SUFFIX)
+endif
+
+LIBRARIES_DEPEND_UPON += -lGSANTLR
+
+ifneq ($(FOUNDATION_LIB),gnu)
+LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
+endif
+
+ifeq ($(GDL2),yes)
+LIBRARIES_DEPEND_UPON += \
+        -l$(EOCONTROL_LIBRARY_NAME) \
+        -l$(EOACCESS_LIBRARY_NAME)
+endif
+
+ifeq ($(HAVE_NATIVE_FRAMEWORK_SUPPORT),yes)
+GSWExtensionsGSW_LIBRARIES_DEPEND_UPON += -framework GSWeb
+WOExtensionsGSW_LIBRARIES_DEPEND_UPON += -framework WebObjects
+else
+GSWExtensionsGSW_LIBRARIES_DEPEND_UPON += -lGSWeb
+WOExtensionsGSW_LIBRARIES_DEPEND_UPON += -lWebObjects
+endif
 
 #
 # Flags dealing with installing and uninstalling

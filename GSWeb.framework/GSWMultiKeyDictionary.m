@@ -1048,14 +1048,15 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
              sizeof(GSWMapNode_t));
   if ((self=[super init]))
     {
-      _mapBase = (GSWMapBase)NSZoneMalloc(GSObjCZone(self),sizeof(GSWMapBase_t));
+      _mapBase = (GSWMapBase)NSZoneMalloc([self zone],sizeof(GSWMapBase_t));
       ((GSWMapBase)_mapBase)->nodeSize=nodeSize;
       /*
       NSDebugMLLog(@"GSWMultiKeyDictionary",
                    @"self=%p class=%@ base=%p nodeSize=%u sizeof(GSWMapNode_t)=%u",
                    self,[self class],_mapBase,nodeSize,sizeof(GSWMapNode_t));
       */
-      GSWMapBaseInitWithZoneAndCapacity((GSWMapBase)_mapBase, GSObjCZone(self),capacity);
+      GSWMapBaseInitWithZoneAndCapacity((GSWMapBase)_mapBase, [self zone],
+					capacity);
     };
   LOGObjectFnStop();
   return self;
@@ -1077,7 +1078,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
   if (_mapBase)
     {
       GSWMapEmptyBase((GSWMapBase)_mapBase);
-      NSZoneFree(GSObjCZone(self),_mapBase);
+      NSZoneFree([self zone],_mapBase);
     };
   [super dealloc];
 }

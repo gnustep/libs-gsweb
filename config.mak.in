@@ -5,6 +5,23 @@ DYNAMIC_LINKER=simple
 GDL2=@GDL2@
 LIBWRAP=@LIBWRAP@
 
+#EOControl dependancy
+ifeq ($(GDL2),yes)
+EOCONTROL_LIBRARY_NAME=gnustep-db2control
+EOACCESS_LIBRARY_NAME=gnustep-db2
+endif
+
+#Native Framework support
+ifeq ($(OBJC_RUNTIME_LIB),apple)
+HAVE_NATIVE_FRAMEWORK_SUPPORT=yes
+else
+ifeq ($(OBJC_RUNTIME_LIB),nx)
+HAVE_NATIVE_FRAMEWORK_SUPPORT=yes
+else
+HAVE_NATIVE_FRAMEWORK_SUPPORT=no
+endif
+endif
+
 #Log
 GSWDEBUG=no
 

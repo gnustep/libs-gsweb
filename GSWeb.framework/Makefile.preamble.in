@@ -69,7 +69,9 @@ ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
 ifeq ($(GDL2),yes)
-LIBRARIES_DEPEND_UPON += -lgnustep-db2control -lgnustep-db2
+LIBRARIES_DEPEND_UPON += \
+	-l$(EOCONTROL_LIBRARY_NAME) \
+	-l$(EOACCESS_LIBRARY_NAME)
 endif
 
 # Additional library directories the linker should search
