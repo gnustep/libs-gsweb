@@ -353,8 +353,9 @@ static SEL appendStringSel = NULL;
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  //OK
-  [self _compose];
+  if (!_flags.composed) {
+    [self _compose];
+  }
   return _url;
 };
 
