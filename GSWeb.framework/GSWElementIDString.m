@@ -1,6 +1,6 @@
 /** GSWElementIDString.m - <title>GSWeb: Class GSWElementIDString</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -33,10 +33,21 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static NSCharacterSet* nonNumericSet=nil;
 
 //====================================================================
 @implementation GSWElementIDString
 
+//--------------------------------------------------------------------
++(void)initialize
+{
+  if (self==[GSWElementIDString class])
+    {
+      ASSIGN(nonNumericSet,([[NSCharacterSet decimalDigitCharacterSet] invertedSet]));
+    };
+};
+
+//--------------------------------------------------------------------
 + (id) allocWithZone: (NSZone*)z
 {
   if (self == [GSWElementIDString class])
@@ -216,107 +227,134 @@ RCS_ID("$Id$")
 -(BOOL)isSearchOverForSenderID:(NSString*)senderID
 {
   BOOL over=NO;
+
+  LOGObjectFnStart();
+
   if (senderID == nil)
     [NSException raise:NSInvalidArgumentException
                  format:@"compare with nil"];
   else
     {
-      BOOL finished=NO;
-      NSCharacterSet* nonNumericSet=[[NSCharacterSet decimalDigitCharacterSet] invertedSet];
       NSArray* selfElements=[self componentsSeparatedByString:@"."];
       NSArray* senderIDElements=[senderID componentsSeparatedByString:@"."];
       int i=0;
       int selfElementsCount=[selfElements count];
       int senderIDElementsCount=[senderIDElements count];
       int count=min(selfElementsCount,senderIDElementsCount);
-      for(i=0;i<count && !over && !finished;i++)
+
+      NSDebugMLLog(@"gswdync",@"selfElements=%@",selfElements);
+      NSDebugMLLog(@"gswdync",@"senderIDElements=%@",senderIDElements);
+
+      //NSLog(@"%s %i: selfElements=%@",__FILE__,__LINE__,selfElements);
+      //NSLog(@"%s %i: senderIDElements=%@",__FILE__,__LINE__,senderIDElements);
+
+      for(i=0;i<count && !over;i++)
         {
           NSString* selfElement=[selfElements objectAtIndex:i];
           NSString* senderIDElement=[senderIDElements objectAtIndex:i];
-          BOOL selfElementIsNumeric=[selfElement rangeOfCharacterFromSet:nonNumericSet].length==0;
-          BOOL selfAStringIsNumeric=[senderIDElement rangeOfCharacterFromSet:nonNumericSet].length==0;
-          if (selfElementIsNumeric && selfAStringIsNumeric) //Numeric comparison
+          NSRange selfRange=[selfElement rangeOfCharacterFromSet:nonNumericSet
+                                         options:NSBackwardsSearch];
+          NSRange senderRange=[senderIDElement rangeOfCharacterFromSet:nonNumericSet
+                                               options:NSBackwardsSearch];
+
+          BOOL selfElementIsNumeric=(selfRange.length==0);
+          BOOL senderIDElementIsNumeric=(senderRange.length==0);
+
+          //NSLog(@"%s %i: selfElement=%@",__FILE__,__LINE__,selfElement);
+          //NSLog(@"%s %i: senderIDElement=%@",__FILE__,__LINE__,senderIDElement);
+
+          //NSLog(@"%s %i: selfElementIsNumeric=%d",__FILE__,__LINE__,selfElementIsNumeric);
+          //NSLog(@"%s %i: senderIDElementIsNumeric=%d",__FILE__,__LINE__,senderIDElementIsNumeric);
+
+          if (selfElementIsNumeric && senderIDElementIsNumeric)
             {
+              //Numeric comparison like 2 and 24
               int selfIntValue=[selfElement intValue];
               int senderIDIntValue=[senderIDElement intValue];
               if (selfIntValue>senderIDIntValue)
                 over=YES;
             }
-          else if (!selfElementIsNumeric && !selfAStringIsNumeric)//string comparison
-            {
-              if ([selfElement compare:senderIDElement]==NSOrderedDescending)
-                over=YES;
-            }
           else
-            finished=YES;
+            {
+              NSComparisonResult cResult=NSOrderedSame;
+              NSString* selfNumberString=nil;
+              NSString* selfNonNumberString=nil;
+              
+              NSString* senderIDNumberString=nil;
+              NSString* senderIDNonNumberString=nil;
+
+              if (selfElementIsNumeric)
+                {
+                  selfNumberString=selfElement;
+                  selfNonNumberString=@"";
+                }
+              else
+                {
+                  int selfElementLength=[selfElement length];
+                  if (selfRange.location+selfRange.length<selfElementLength)
+                    {
+                      selfNonNumberString=[selfElement substringToIndex:
+                                                         selfRange.location+selfRange.length];
+                      selfNumberString=[selfElement substringFromIndex:
+                                                      selfRange.location+selfRange.length];
+                    }
+                  else
+                    {
+                      selfNumberString=@"";
+                      selfNonNumberString=selfElement;
+                    };
+                };
+
+              //NSLog(@"%s %i: selfElement range=%@",__FILE__,__LINE__,NSStringFromRange(selfRange));
+              //NSLog(@"%s %i: selfNonNumberString=%@",__FILE__,__LINE__,selfNonNumberString);
+              //NSLog(@"%s %i: selfNumberString=%@",__FILE__,__LINE__,selfNumberString);
+
+              if (senderIDElementIsNumeric)
+                {
+                  senderIDNumberString=senderIDElement;
+                  senderIDNonNumberString=@"";
+                }
+              else
+                {
+                  int senderElementLength=[senderIDElement length];
+                  if (senderRange.location+senderRange.length<senderElementLength)
+                    {
+                      senderIDNonNumberString=[senderIDElement substringToIndex:
+                                                                 senderRange.location+senderRange.length];
+                      senderIDNumberString=[senderIDElement substringFromIndex:
+                                                              senderRange.location+senderRange.length];
+                    }
+                  else
+                    {
+                      senderIDNumberString=@"";
+                      senderIDNonNumberString=senderIDElement;
+                    };
+                };
+
+
+              //NSLog(@"%s %i: senderIDElement range=%@",__FILE__,__LINE__,NSStringFromRange(senderRange));
+              //NSLog(@"%s %i: senderIDNumberString=%@",__FILE__,__LINE__,senderIDNumberString);
+              //NSLog(@"%s %i: senderIDNonNumberString=%@",__FILE__,__LINE__,senderIDNonNumberString);
+
+              // First compare on string
+              cResult=[selfNonNumberString compare:senderIDNonNumberString];
+              if (cResult==NSOrderedDescending)
+                over=YES;
+              else if (cResult==NSOrderedSame
+                       && [selfNumberString intValue]>[senderIDNumberString intValue])
+                over=YES;
+            };
+          NSDebugMLLog(@"gswdync",@"i=%d selfElement='%@' senderIDElement='%@' => over=%d",
+                       i,selfElement,senderIDElement,over);
         };
-/*      if (!over && !finished)
-        {
-          if (selfElementsCount>senderIDElementsCount)
-            over=YES;
-        };
-*/
+      NSDebugMLLog(@"gswdync",@"selfElements=%@ senderIDElements=%@ => over=%d",
+                   selfElements,senderIDElements,over);
     };
+
+  LOGObjectFnStop();
+
   return over;
 }
-/*
-{  
-  NSComparisonResult result=NSOrderedSame;
-  if (aString == nil)
-    [NSException raise:NSInvalidArgumentException
-                 format:@"compare with nil"];
-  else if (mask!=0) //TODO
-    [NSException raise:NSInvalidArgumentException
-                 format:@"no options are allowed in GSWElementIDString compare"];
-  else if (aRange.location!=0)
-    [NSException raise:NSInvalidArgumentException
-                 format:@"GSWElementIDString compare only on full string (range.location=%d instead of 0)",
-                 aRange.location];
-  else if (aRange.length!=[self length])
-    [NSException raise:NSInvalidArgumentException
-                 format:@"GSWElementIDString compare only on full string (range.length=%d instead of %d)",
-                 aRange.length,
-                 [self length]];
-  else
-    {
-      NSCharacterSet* nonNumericSet=[[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-      NSArray* selfElements=[self componentsSeparatedByString:@"."];
-      NSArray* aStringElements=[aString componentsSeparatedByString:@"."];
-      int i=0;
-      int selfElementsCount=[selfElements count];
-      int aStringElementsCount=[aStringElements count];
-      int count=min(selfElementsCount,aStringElementsCount);
-      for(i=0;i<count && result==NSOrderedSame;i++)
-        {
-          NSString* selfElement=[selfElements objectAtIndex:i];
-          NSString* aStringElement=[aStringElements objectAtIndex:i];
-          BOOL selfElementIsNumeric=[selfElement rangeOfCharacterFromSet:nonNumericSet].length==0;
-          BOOL selfAStringIsNumeric=[aStringElement rangeOfCharacterFromSet:nonNumericSet].length==0;
-          if (selfElementIsNumeric && selfAStringIsNumeric) //Numeric comparison
-            {
-              int selfIntValue=[selfElement intValue];
-              int aStringIntValue=[aStringElement intValue];
-              result=(selfIntValue==aStringIntValue ? 0 : (selfIntValue>aStringIntValue ? NSOrderedDescending : NSOrderedAscending));
-            }
-          else if (selfElementIsNumeric) //we consider strictly num < string
-            result=NSOrderedAscending;
-          else if (selfAStringIsNumeric) //we consider strictly num < string
-            result=NSOrderedDescending;
-          else //string comparison
-            result=[selfElement compare:aStringElement];
-        };
-      if (result==NSOrderedSame)
-        {
-          if (selfElementsCount<aStringElementsCount)
-            result=NSOrderedAscending;
-          else if (selfElementsCount>aStringElementsCount)
-            result=NSOrderedDescending;
-        };
-    };
-  return result;
-}
-
-*/
 
 @end
 
@@ -357,24 +395,55 @@ RCS_ID("$Id$")
 -(void)incrementLastElementIDComponent
 {
   NSArray* ids=nil;
+  int idsCount=0;
   LOGObjectFnStart();
   ids=[self componentsSeparatedByString:@"."];
-  if (ids && [ids count]>0)
+  idsCount=[ids count];
+  if (ids && idsCount>0)
     {
-      NSString* _last=[ids lastObject];
-      NSString* _new=nil;
-      _last=[NSString  stringWithFormat:@"%d",([_last intValue]+1)];	  
-      if ([ids count]>1)
-        _new=[[[ids subarrayWithRange:NSMakeRange(0,[ids count]-1)]
-                componentsJoinedByString:@"."]
-               stringByAppendingFormat:@".%@",_last];
+      NSString* lastPart=[ids lastObject];
+      if ([lastPart length]==0) // not possible ?
+        {
+          // ads a '1' at the end
+          [self appendString:@"1"];
+        }
       else
-        _new=_last;
-      [self setString:_new];
+        {
+          // find last 'number'         
+          // search for last non '0'-'9' char
+          NSRange range=[lastPart rangeOfCharacterFromSet:nonNumericSet
+                                  options:NSBackwardsSearch];
+          if (range.length>0) // a string and (may be) a number
+            {
+              if ((range.location+range.length)==[lastPart length]) // no number
+                {
+                  lastPart=[lastPart stringByAppendingString:@"1"]; // add '1' at the end
+                }
+              else
+                {
+                  NSString* numberString=[lastPart substringFromIndex:range.location+range.length];
+                  NSString* nonNumberString=[lastPart substringToIndex:range.location+range.length];
+                  lastPart=[NSString  stringWithFormat:@"%@%d",
+                                   nonNumberString,
+                                   [numberString intValue]+1];
+                };
+            }
+          else
+            {
+              // it's a number 
+              lastPart=[NSString  stringWithFormat:@"%d",([lastPart intValue]+1)];
+            };
+          if (idsCount>1)
+            [self setString:[[[ids subarrayWithRange:NSMakeRange(0,idsCount-1)]
+                               componentsJoinedByString:@"."]
+                              stringByAppendingFormat:@".%@",lastPart]];
+          else
+            [self setString:lastPart];
+        };
     };
   LOGObjectFnStop();
 };
-
+  
 //--------------------------------------------------------------------
 -(void)appendZeroElementIDComponent
 {
@@ -387,13 +456,21 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)appendElementIDComponent:(id)_element
+-(void)appendElementIDComponent:(id)element
 {
+  NSRange range;
   LOGObjectFnStart();
   if (self && [self length]>0)
-    [self appendFormat:@".%@",_element];
+    [self appendFormat:@".%@",element];
   else
-    [self setString:_element];
+    [self setString:element];
+  range=[self rangeOfCharacterFromSet:nonNumericSet
+              options:NSBackwardsSearch];
+  if (range.location+range.length<[self length])
+    {
+      NSWarnLog(@"You'll may get problems if you use anElementID which ends with decimal character like you do: '%@'",
+                element);
+    };
   LOGObjectFnStop();
 };
 
