@@ -682,8 +682,9 @@ text [Type:XML_TEXT_NODE] [{}] ####
         case XML_CDATA_SECTION_NODE:
           {
             NSDebugMLog0(@"CDATA_SECTION");
+            NSDebugMLog(@"CDATA_SECTION content=%s",[[currentNode content] lossyCString]);
             elem=[GSWHTMLBareString elementWithString:[currentNode content]];
-            NSDebugMLog(@"TEXT element=%@",elem);
+            NSDebugMLog(@"CDATA_SECTION element=%@",elem);
           };
           break;
         case XML_COMMENT_NODE:
@@ -900,3 +901,4 @@ text [Type:XML_TEXT_NODE] [{}] ####
 @implementation GSWTemplateParserXMLHTML
 
 @end
+
