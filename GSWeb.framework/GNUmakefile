@@ -116,6 +116,7 @@ GSWMultiKeyDictionary.m \
 GSWDisplayGroup.m \
 GSWDynamicElement.m \
 GSWElement.m \
+GSWMessage.m \
 GSWRequest.m \
 GSWResourceManager.m \
 GSWResponse.m \
@@ -163,10 +164,12 @@ GSWText.m \
 GSWCookie.m \
 GSWRequestHandler.m \
 GSWComponentDefinition.m \
+GSWAction.m \
 GSWDirectAction.m \
 GSWMailDelivery.m \
 GSWComponentRequestHandler.m \
 GSWResourceRequestHandler.m \
+GSWActionRequestHandler.m \
 GSWDirectActionRequestHandler.m \
 GSWDefaultAdaptorThread.m \
 GSWKeyValueAssociation.m \
@@ -189,7 +192,21 @@ GSWResourceURL.m \
 GSWProcFS.m \
 NSData+Compress.m \
 stacktrace.m \
-attach.m
+attach.m \
+GSWLifebeatThread.m \
+GSWStaticResourceRequestHandler.m \
+GSWRecording.m \
+GSWInputStreamData.m \
+
+#For next Version:
+#GSWAdminAction.m \
+#GSWStack.m \
+#GSWXMLCoder.m \
+#GSWXMLMappingCoder.m \
+#GSWXMLDecoder.m \
+#GSWMonitorXMLCoder.m \
+#GSWMonitorXMLDecoder.m \
+
 GSWeb_wo_OBJC_FILES = $(GSWeb_OBJC_FILES)
 
 
@@ -221,7 +238,9 @@ GSWCookie.h \
 GSWDefaultAdaptor.h \
 GSWDefaultAdaptorThread.h \
 GSWDeployedBundle.h \
+GSWAction.h \
 GSWDirectAction.h \
+GSWActionRequestHandler.h \
 GSWDirectActionRequestHandler.h \
 GSWDisplayGroup.h \
 GSWDynamicElement.h \
@@ -261,6 +280,7 @@ GSWProjectBundle.h \
 GSWRadioButton.h \
 GSWRadioButtonList.h \
 GSWRepetition.h \
+GSWMessage.h \
 GSWRequest.h \
 GSWRequestHandler.h \
 GSWResetButton.h \
@@ -306,8 +326,20 @@ GSWFileUpload.h \
 GSWResourceURL.h \
 GSWProcFS.h \
 NSData+Compress.h \
-GSWWOCompatibility.h
+GSWWOCompatibility.h \
+GSWLifebeatThread.h \
+GSWStaticResourceRequestHandler.h \
+GSWRecording.h \
+GSWInputStreamData.h \
 
+#For next Version:
+#GSWAdminAction.h \
+#GSWStack.h \
+#GSWXMLCoder.h \
+#GSWXMLMappingCoder.h \
+#GSWXMLDecoder.h \
+#GSWMonitorXMLCoder.h \
+#GSWMonitorXMLDecoder.h \
 
 # The framework installed WO header files
 GSWeb_wo_HEADER_FILES = $(GSWeb_HEADER_FILES)
