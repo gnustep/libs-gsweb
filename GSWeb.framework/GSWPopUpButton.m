@@ -265,8 +265,9 @@ static char rcsId[] = "$Id$";
 			};
 		  if (_valueValue)
 			{
-			  NSDebugMLLog0(@"gswdync",@"Adding /OPTION");
-			  [response_ _appendContentAsciiString:@"</OPTION>"];
+			  //NSDebugMLLog0(@"gswdync",@"Adding /OPTION");
+                          // K2- No /OPTION TAG
+			  //[response_ _appendContentAsciiString:@"</OPTION>"];
 			}
 		  else
 			{
@@ -276,7 +277,7 @@ static char rcsId[] = "$Id$";
 #else
 			  if (_optGroupLabel)
 				{
-				  [response_ _appendContentAsciiString:@"</OPTION>"];
+				  //[response_ _appendContentAsciiString:@"</OPTION>"];
 				  _optGroupLabel=NO;
 				};
 #endif
