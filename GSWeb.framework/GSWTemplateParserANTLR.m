@@ -397,7 +397,9 @@ static char rcsId[] = "$Id$";
                                                       associations:_associations
                                                       template:[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease]
                                                       languages:_languages];
-                                      if (!element)
+                                      if (element)
+                                        [element setDefinitionName:[pageDefElement elementName]];
+                                      else
                                         {
                                           ExceptionRaise(@"GSWTemplateParser",
                                                          @"GSWTemplateParser: Creation failed for element named:%@ className:%@ in template named %@",

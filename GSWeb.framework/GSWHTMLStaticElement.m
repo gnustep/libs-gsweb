@@ -354,7 +354,7 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+                           inContext:(GSWContext*)context_
 {
   //OK
   GSWElement* _element=nil;
@@ -363,26 +363,37 @@ static char rcsId[] = "$Id$";
   const BYTE* elements=[elementsMap bytes];
   BYTE element=0;
   int elementsN[3]={0,0,0};
+  BOOL searchIsOver=NO;
+  NSString* _senderID=nil;
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
   GSWAssertCorrectElementID(context_);// Debug Only
-  for(elementN=0;!_element && elementN<[elementsMap length];elementN++)
-	{
-	  element=(BYTE)elements[elementN];
-	  if (element==ElementsMap_htmlBareString)
-		  elementsN[0]++;
-	  else if (element==ElementsMap_dynamicElement)
-		{
-		  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[_dynamicChildren objectAtIndex:elementsN[1]] class],[context_ elementID]);
-		  _element=[[_dynamicChildren objectAtIndex:elementsN[1]] invokeActionForRequest:request_
-																  inContext:context_];
-		  [context_ incrementLastElementIDComponent];
-		  elementsN[1]++;
-		}
-	  else if (element==ElementsMap_attributeElement)
-		{
-		  elementsN[2]++;
-		};
-	};
+  _senderID=[context_ senderID];
+  for(elementN=0;!_element && !searchIsOver && elementN<[elementsMap length];elementN++)
+    {
+      element=(BYTE)elements[elementN];
+      if (element==ElementsMap_htmlBareString)
+        elementsN[0]++;
+      else if (element==ElementsMap_dynamicElement)
+        {
+          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[_dynamicChildren objectAtIndex:elementsN[1]] class],[context_ elementID]);
+          _element=[[_dynamicChildren objectAtIndex:elementsN[1]] invokeActionForRequest:request_
+                                                                  inContext:context_];
+//          if (![context_ _wasFormSubmitted] && [[context_ elementID] compare:_senderID]==NSOrderedDescending)
+          if (![context_ _wasFormSubmitted] && [[context_ elementID] isSearchOverForSenderID:_senderID])
+            {
+              NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
+                           [context_ elementID],
+                           _senderID);
+              searchIsOver=YES;
+            };
+          [context_ incrementLastElementIDComponent];
+          elementsN[1]++;
+        }
+      else if (element==ElementsMap_attributeElement)
+        {
+          elementsN[2]++;
+        };
+    };
   NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
   return _element;
 };

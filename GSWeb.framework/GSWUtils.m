@@ -1737,7 +1737,7 @@ NSData* HexStringToData(NSString* _string)
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n defaultsDatabaseLockName:\n%@\n defaultsDatabaseLock:\n%@\n tickingTimer:\n%@\n>",
+  return [NSString stringWithFormat:@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n tickingTimer:\n%@\n>",
 				   object_get_class_name(self),
 				   (void*)self,
 				   _searchList,
@@ -1746,8 +1746,6 @@ NSData* HexStringToData(NSString* _string)
 				   _changedDomains,
 				   _dictionaryRep,
 				   _defaultsDatabase,
-				   _defaultsDatabaseLockName,
-				   _defaultsDatabaseLock,
 				   _tickingTimer];
 };
 

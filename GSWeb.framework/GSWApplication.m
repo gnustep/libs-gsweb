@@ -1106,7 +1106,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 -(GSWComponentDefinition*)lockedComponentDefinitionWithName:(NSString*)_name
-												  languages:(NSArray*)_languages
+                                                  languages:(NSArray*)_languages
 {
   //OK
   BOOL isCachedComponent=NO;
@@ -1114,87 +1114,88 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSString* _language=nil;
   int iLanguage=0;
   LOGObjectFnStart();
-  NSDebugMLLog(@"application",@"_Name=%@",_name);
+  NSDebugMLLog(@"application",@"_Name %p=%@",_name,_name);
   for(iLanguage=0;iLanguage<[_languages count] && !_componentDefinition;iLanguage++)
-	{
-	  _language=[_languages objectAtIndex:iLanguage];
-	  if (_language)
-		{
-		  NSDebugMLLog(@"gswcomponents",@"trying _language=%@",_language);
-		  NSDebugMLLog(@"gswcomponents",@"[self isCachingEnabled]=%s",([self isCachingEnabled] ? "YES" : "NO"));
-		  if ([self isCachingEnabled])
-			{
-			  _componentDefinition=[componentDefinitionCache objectForKeys:_name,_language,nil];
-			  if (_componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
-				_componentDefinition=nil;
-			  else if (_componentDefinition)
-				isCachedComponent=YES;
-			};
-		  if (!_componentDefinition)
-			{
-			  _componentDefinition=[self lockedLoadComponentDefinitionWithName:_name
-										 language:_language];
-			  if ([self isCachingEnabled])
-				{
-				  if (_componentDefinition)
-					[componentDefinitionCache setObject:_componentDefinition
-											  forKeys:_name,_language,nil];
-				  else
-					[componentDefinitionCache setObject:GSNotFoundMarker
-											  forKeys:_name,_language,nil];
-				};
-			};
-		};
-	};
+    {
+      _language=[_languages objectAtIndex:iLanguage];
+      if (_language)
+        {
+          NSDebugMLLog(@"gswcomponents",@"trying _language=%@",_language);
+          NSDebugMLLog(@"gswcomponents",@"[self isCachingEnabled]=%s",([self isCachingEnabled] ? "YES" : "NO"));
+          if ([self isCachingEnabled])
+            {
+              _componentDefinition=[componentDefinitionCache objectForKeys:_name,_language,nil];
+              if (_componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
+                _componentDefinition=nil;
+              else if (_componentDefinition)
+                isCachedComponent=YES;
+            };
+          if (!_componentDefinition)
+            {
+              _componentDefinition=[self lockedLoadComponentDefinitionWithName:_name
+                                         language:_language];
+              if ([self isCachingEnabled])
+                {
+                  if (_componentDefinition)
+                    [componentDefinitionCache setObject:_componentDefinition
+                                              forKeys:_name,_language,nil];
+                  else
+                    [componentDefinitionCache setObject:GSNotFoundMarker
+                                              forKeys:_name,_language,nil];
+                };
+            };
+        };
+    };
   if (!_componentDefinition)
-	{
-	  _language=nil;
-	  NSDebugMLLog0(@"application",@"trying no language");
-	  NSDebugMLLog(@"gswcomponents",@"[self isCachingEnabled]=%s",([self isCachingEnabled] ? "YES" : "NO"));
-	  if ([self isCachingEnabled])
-		{
-		  _componentDefinition=[componentDefinitionCache objectForKeys:_name,nil];
-		  if (_componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
-			_componentDefinition=nil;
-		  else if (_componentDefinition)
-			isCachedComponent=YES;
-		};
-	  NSDebugMLLog(@"gswcomponents",@"D componentDefinition for %@ %s cached",_name,(_componentDefinition ? "" : "NOT"));
-	  if (!_componentDefinition)
-		{
-		  _componentDefinition=[self lockedLoadComponentDefinitionWithName:_name
-									 language:_language];
-		  if ([self isCachingEnabled])
-			{
-			  if (_componentDefinition)
-				[componentDefinitionCache setObject:_componentDefinition
-										  forKeys:_name,nil];
-			  else
-				[componentDefinitionCache setObject:GSNotFoundMarker
-										  forKeys:_name,nil];
-			};
-		};
-	};
+    {
+      _language=nil;
+      NSDebugMLLog0(@"application",@"trying no language");
+      NSDebugMLLog(@"gswcomponents",@"[self isCachingEnabled]=%s",([self isCachingEnabled] ? "YES" : "NO"));
+      if ([self isCachingEnabled])
+        {
+          _componentDefinition=[componentDefinitionCache objectForKeys:_name,nil];
+          if (_componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
+            _componentDefinition=nil;
+          else if (_componentDefinition)
+            isCachedComponent=YES;
+        };
+      NSDebugMLLog(@"gswcomponents",@"D componentDefinition for %@ %s cached",_name,(_componentDefinition ? "" : "NOT"));
+      if (!_componentDefinition)
+        {
+          _componentDefinition=[self lockedLoadComponentDefinitionWithName:_name
+                                     language:_language];
+          if ([self isCachingEnabled])
+            {
+              if (_componentDefinition)
+                [componentDefinitionCache setObject:_componentDefinition
+                                          forKeys:_name,nil];
+              else
+                [componentDefinitionCache setObject:GSNotFoundMarker
+                                          forKeys:_name,nil];
+            };
+        };
+    };
   if (!_componentDefinition)
-	{
-	  ExceptionRaise(@"GSWApplication",
-					 @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
-					 _name,
-					 _languages);
-	};
+    {
+      ExceptionRaise(@"GSWApplication",
+                     @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
+                     _name,
+                     _languages);
+    };
   if (_componentDefinition)
-	{
-	  [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached)",
-			_name,
-			(_language ? "" : "no"),
-			(_language ? _language : @""),
-			(isCachedComponent ? "" : "Not ")];
-	};
-  NSDebugMLLog(@"application",@"%s componentDefinition for %@ class=%@ %s",
-			   (_componentDefinition ? "FOUND" : "NOTFOUND"),
-			   _name,
-			   (_componentDefinition ? [[_componentDefinition class] description]: @""),
-			   (_componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""));
+    {
+      [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached)",
+            _name,
+            (_language ? "" : "no"),
+            (_language ? _language : @""),
+            (isCachedComponent ? "" : "Not ")];
+    };
+  NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s",
+               (_componentDefinition ? "FOUND" : "NOTFOUND"),
+               _componentDefinition,
+               _name,
+               (_componentDefinition ? [[_componentDefinition class] description]: @""),
+               (_componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""));
   LOGObjectFnStop();
   return _componentDefinition;
 };
@@ -2007,60 +2008,63 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 //--------------------------------------------------------------------
 -(GSWComponent*)_pageWithName:(NSString*)name_
-					inContext:(GSWContext*)context_
+                    inContext:(GSWContext*)context_
 {
   //OK
   GSWComponent* _component=nil;
   GSWComponentDefinition* _componentDefinition=nil;
   NSArray* _languages=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"info",@"name_=%@",name_);
+  NSDebugMLLog(@"info",@"name_ %p=%@",name_,name_);
   NSAssert(context_,@"No Context");
   [self lock];
   NS_DURING
-	{
-	  if ([name_ length]<=0)
-		name_=[self defaultPageName];//NDFN
-	  if ([name_ length]<=0)
-		name_=GSWMainPageName;
-	  _languages=[context_ languages];
-	  _componentDefinition=[self lockedComponentDefinitionWithName:name_
-								 languages:_languages];
-	  NSDebugMLLog(@"application",@"_componentDefinition=%@ (%@)",_componentDefinition,[_componentDefinition class]);
-	}
+    {
+      if ([name_ length]<=0)
+        name_=[self defaultPageName];//NDFN
+      if ([name_ length]<=0)
+        name_=GSWMainPageName;
+      _languages=[context_ languages];
+      _componentDefinition=[self lockedComponentDefinitionWithName:name_
+                                 languages:_languages];
+      NSDebugMLLog(@"info",@"_componentDefinition %p=%@ (%@)",
+                   _componentDefinition,
+                   _componentDefinition,
+                   [_componentDefinition class]);
+    }
   NS_HANDLER
-	{
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In lockedComponentDefinitionWithName:");
-	  LOGException(@"exception=%@",localException);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	};
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In lockedComponentDefinitionWithName:");
+      LOGException(@"exception=%@",localException);
+      //TODO
+      [self unlock];
+      [localException raise];
+    };
   NS_ENDHANDLER;
   NS_DURING
-	{
-	  if (!_componentDefinition)
-		{
-		  //TODO
-		  NSDebugMLLog0(@"application",@"GSWApplication _pageWithName no _componentDefinition");
-		}
-	  else
-		{
-		  NSAssert(context_,@"No Context");
-		  _component=[_componentDefinition componentInstanceInContext:context_];
-		  NSAssert(context_,@"No Context");
-		  [_component awakeInContext:context_];
-		  [_component _setIsPage:YES];
-		};
-	}
+    {
+      if (!_componentDefinition)
+        {
+          //TODO
+          NSDebugMLLog0(@"info",@"GSWApplication _pageWithName no _componentDefinition");
+        }
+      else
+        {
+          NSAssert(context_,@"No Context");
+          _component=[_componentDefinition componentInstanceInContext:context_];
+          NSAssert(context_,@"No Context");
+          [_component awakeInContext:context_];
+          [_component _setIsPage:YES];
+        };
+    }
   NS_HANDLER
-	{
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In componentInstanceInContext:");
-	  LOGException(@"exception=%@",localException);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	};
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In componentInstanceInContext:");
+      LOGException(@"exception=%@",localException);
+      //TODO
+      [self unlock];
+      [localException raise];
+    };
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -2073,9 +2077,9 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 //--------------------------------------------------------------------
 -(GSWElement*)dynamicElementWithName:(NSString*)name_
-						associations:(NSDictionary*)associations_
-							template:(GSWElement*)templateElement_
-						   languages:(NSArray*)languages_
+                        associations:(NSDictionary*)associations_
+                            template:(GSWElement*)templateElement_
+                           languages:(NSArray*)languages_
 {
   GSWElement* _element=nil;
   [self lock];
@@ -2099,47 +2103,47 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 //--------------------------------------------------------------------
 -(GSWElement*)lockedDynamicElementWithName:(NSString*)name_
-							  associations:(NSDictionary*)associations_
-								  template:(GSWElement*)templateElement_
-								 languages:(NSArray*)languages_
+                              associations:(NSDictionary*)associations_
+                                  template:(GSWElement*)templateElement_
+                                 languages:(NSArray*)languages_
 {
   GSWElement* _element=nil;
   Class _elementClass=nil;
   //lock bundle
   //unlock bundle
   if ([associations_ isAssociationDebugEnabledInComponent:nil])
-	[associations_ associationsSetDebugEnabled];
+    [associations_ associationsSetDebugEnabled];
   _elementClass=NSClassFromString(name_);
-  NSDebugMLLog(@"application",@"_elementClass:%@",_elementClass);
-  NSDebugMLLog(@"application",@"_elementClass superClass:%@",[_elementClass superClass]);
+  NSDebugMLLog(@"info",@"_elementClass %p:%@",_elementClass,_elementClass);
+  NSDebugMLLog(@"info",@"_elementClass superClass:%@",[_elementClass superClass]);
   if (_elementClass && !ClassIsKindOfClass(_elementClass,NSClassFromString(@"GSWComponent")))
-	{
-	  NSDebugMLLog(@"application",@"CREATE Element of Class:%@",name_);
-	  _element=[[[_elementClass alloc] initWithName:name_
-									   associations:associations_
-									   template:templateElement_]
-				 autorelease];
-	  NSDebugMLLog(@"application",@"Created Element: %@",_element);
-	}
+    {
+      NSDebugMLLog(@"info",@"CREATE Element of Class %p:%@",name_,name_);
+      _element=[[[_elementClass alloc] initWithName:name_
+                                       associations:associations_
+                                       template:templateElement_]
+                 autorelease];
+      NSDebugMLLog(@"info",@"Created Element %p: %@",_element,_element);
+    }
   else
-	{
-	  GSWComponentDefinition* _componentDefinition=nil;
-	  _componentDefinition=[self lockedComponentDefinitionWithName:name_
-								 languages:languages_];
-	  if (_componentDefinition)
-		{
-		  NSDebugMLLog(@"application",@"CREATE SubComponent:%@",name_);
-		  _element=[_componentDefinition componentReferenceWithAssociations:associations_
-										 template:templateElement_];
-		  NSDebugMLLog(@"application",@"Created SubComponent: %@",_element);
-		}
-	  else
-		{
-		  ExceptionRaise(@"GSWApplication",
-						 @"GSWApplication: Component Definition named '%@' not found or can't be created",
-						 name_);
-		};
-	};
+    {
+      GSWComponentDefinition* _componentDefinition=nil;
+      _componentDefinition=[self lockedComponentDefinitionWithName:name_
+                                 languages:languages_];
+      if (_componentDefinition)
+        {
+          NSDebugMLLog(@"info",@"CREATE SubComponent %p:%@",name_,name_);
+          _element=[_componentDefinition componentReferenceWithAssociations:associations_
+                                         template:templateElement_];
+          NSDebugMLLog(@"info",@"Created SubComponent %p: %@",_element,_element);
+        }
+      else
+        {
+          ExceptionRaise(@"GSWApplication",
+                         @"GSWApplication: Component Definition named '%@' not found or can't be created",
+                         name_);
+        };
+    };
   return _element;
 };
 

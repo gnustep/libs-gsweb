@@ -246,6 +246,7 @@ static char rcsId[] = "$Id$";
 {
   //OK
   LOGObjectFnStart();
+  NSDebugMLLog(@"sessions",@"newflag=%d",(int)_flag);
   storesIDsInCookies=_flag;
   LOGObjectFnStop();
 };

@@ -72,24 +72,24 @@ French
 GSWExtensions_RESOURCE_DIRS = 
 
 GSWExtensions_WEBSERVER_RESOURCE_FILES = \
-Ascending.gif \
-Descending.gif \
-DownTriangle.gif \
-PoweredByGNUstep.gif \
-PoweredByGNUstepWeb.gif \
-RightTriangle.gif \
-Unsorted.gif \
-appOff.gif \
-appOn.gif \
-back.gif \
-dir.gif \
+Ascending.png \
+Descending.png \
+DownTriangle.png \
+PoweredByGNUstep.png \
+PoweredByGNUstepWeb.png \
+RightTriangle.png \
+Unsorted.png \
+appOff.png \
+appOn.png \
+back.png \
+dir.png \
 exclamation.gif \
-eye.gif \
-lft-OSarw.gif \
-rt-OSarw.gif \
-text.gif \
-gswapp.gif \
-gswappsrv.gif \
+eye.png \
+lft-OSarw.png \
+rt-OSarw.png \
+text.png \
+gswapp.png \
+gswappsrv.png \
 warning.gif \
 error.gif
 

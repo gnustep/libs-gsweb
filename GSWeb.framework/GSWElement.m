@@ -72,6 +72,11 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 	};
 };
 #endif
+
+-(NSString*)definitionName
+{
+  return nil; //return nil (for non dynamic element)
+};
 @end
 
 //====================================================================

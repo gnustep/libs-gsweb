@@ -653,23 +653,33 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                       for(i=0;!v && i<count;i++)
                         {
                           id language=[languages objectAtIndex:i];
-                          v=[retValue getIVarNamed:language];
+                          //MGNEW v=[retValue getIVarNamed:language];
+                          v=[retValue valueForKey:language];
                         };
                       retValue=v;
                     }
 		  else
-			{
-				BOOL skipping = NO;
-			  NS_DURING
-
-			    	retValue=[retValue getIVarNamed:_part];
-
-			  NS_HANDLER
-			    NSLog(@"Attempt to get %@/%@ raised an exception (%@)",[retValue class],_part,localException);
-        localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods" format:@"-[%@ %@]",[retValue class],_part];
-        [localException raise];
-			  NS_ENDHANDLER
-			};
+                    {
+                      BOOL skipping = NO;
+                      NSDebugMLLog(@"associations",@"call %@ valueForKey:%@",
+                                   [retValue class],
+                                   _part);
+                      NS_DURING
+                        {
+			    	//MGNEW retValue=[retValue getIVarNamed:_part];
+                            retValue=[retValue valueForKey:_part];
+                        }
+                      NS_HANDLER
+                        {
+                          NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
+                                [retValue class],
+                                _part,
+                                localException);
+                          localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods" format:@"-[%@ %@]",[retValue class],_part];
+                          [localException raise];
+                        }
+                      NS_ENDHANDLER;
+                    };
                   if (retValue==EONullNull)
                     retValue=nil;
 		};
@@ -740,17 +750,22 @@ if (retValue) {
 						_object=nil;
 					}
 				  else {
-					_object=[_object getIVarNamed:_part];
+					//MGNEW _object=[_object getIVarNamed:_part];
+                                    _object=[_object valueForKey:_part];//MGNEW
 					}
 				}
 			  else
 				{
 				  GSWLogAssertGood(_object);
-				  [_object setIVarNamed:_part
-						  withValue:value_];
+				  /* //MGNEW [_object setIVarNamed:_part
+						  withValue:value_];*/
+                                  [_object takeValue:value_
+                                           forKey:_part];//MGNEW 
 #ifdef GDL2
+                                  NSDebugMLLog(@"associations",@"object_ class=%@",[object_ class]);
+                                  NSDebugMLLog(@"associations",@"_object class=%@",[_object class]);
 					// Turbocat
-					if (object_ && [object_ isKindOfClass:[GSWComponent class]]) {
+					if (_object && [_object isKindOfClass:[GSWComponent class]]) {
 					  	NSException* _exp = [_object validateValue:&value_ forKey:_part];
 
 						if (_exp) {

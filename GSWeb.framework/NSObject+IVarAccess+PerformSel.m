@@ -179,18 +179,27 @@ const char* GSGetInstanceVariableType(id obj,
 
 - (id)getIVarNamed:(NSString *)name_
 {
-  id value;
+  id value=nil;
   SEL sel = @selector(valueForKey:);//NEW NSSelectorFromString(@"valueForKey:");
-  id	(*imp)(id, SEL, id) = (id (*)(id, SEL, id))[NSObject instanceMethodForSelector: sel];
-
+//MGNEW  id	(*imp)(id, SEL, id) = (id (*)(id, SEL, id))[NSObject instanceMethodForSelector: sel];
+  NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p (superClass:%@)",
+               name_,
+               [self class],
+               self,
+               [self superclass]);
   //NSLog(@"%@",name_);
   //NSLog(@"sel (valueForKey <NSObject>) : %d", (int)sel);
 
   NS_DURING
-    //value = [self valueForKey:name_];
-	value = (*imp)(self, sel, name_);
+    value = [self valueForKey:name_];//MGNEW
+	//MGNEW value = (*imp)(self, sel, name_);
   NS_HANDLER
     {
+      NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p (superClass:%@). valueForKey: exception",
+                   name_,
+                   [self class],
+                   self,
+                   [self superclass]);
       if([self respondsToSelector:@selector(objectForKey:)] == YES) {
 		if (name_) {
 			value = [self objectForKey:name_];
@@ -219,7 +228,7 @@ const char* GSGetInstanceVariableType(id obj,
 	   withValue:(id)value_
 {
   SEL sel = @selector(takeValue:forKey:);//NEW NSSelectorFromString(@"takeValue:forKey:");
-  id	(*imp)(id, SEL, id, id) = (id (*)(id, SEL, id, id))[NSObject instanceMethodForSelector: sel];
+//MGNEW  id	(*imp)(id, SEL, id, id) = (id (*)(id, SEL, id, id))[NSObject instanceMethodForSelector: sel];
 
   //NSLog(@"sel (takeValue:forKey: <NSObject>) : %d", (int)sel);
 
@@ -227,8 +236,8 @@ const char* GSGetInstanceVariableType(id obj,
 //NSLog(@"setIVarNamed : self = %@", NSStringFromClass([self class]));
 //NSLog(@"setIVarNamed : name_ = %@ (%@)", name_, NSStringFromClass([name_ class]));
 //NSLog(@"setIVarNamed : value_ = %@ (%@)", value_, NSStringFromClass([value_ class]));
-    //[self takeValue:value_ forKey:name_];
-	(*imp)(self, sel, value_, name_);
+    [self takeValue:value_ forKey:name_];//MGNEW
+	//MGNEW (*imp)(self, sel, value_, name_);
   NS_HANDLER
     {
 	if (![name_ isEqualToString:@"self"]) {

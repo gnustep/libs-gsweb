@@ -107,11 +107,14 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSString*)description
 {
+  NSString* dscr=nil;
   GSWLogAssertGood(self);
-  return [NSString stringWithFormat:@"<%s %p - keyPath=%@>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   keyPath];
+  dscr=[NSString stringWithFormat:@"<%s %p -",
+                 object_get_class_name(self),
+                 (void*)self];
+  dscr=[dscr stringByAppendingFormat:@" keyPath=%@>",
+             keyPath];
+  return dscr;
 };
 
 @end

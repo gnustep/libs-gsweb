@@ -1,3 +1,56 @@
+2002-01-26  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWSwitchComponent.m: 
+		o logs
+		o corected bug: use GSWComponentName__Key[]
+	* GSWeb.framework/GSWSession.m: 
+		o logs
+	* GSWExtensions.framework/GSWExtensions.m: 
+		o added better formatting
+	* GSWExtensions.framework/GSWExtensions.gswc/GSWExtensions.HTML: 
+		o added better formatting
+	* GSWExtensions.framework/French.lproj/GSWExtensions.gswc/GSWExtensions.HTML: 
+		o added better formatting
+	* GSWExtensionsGSW.framework/GSWLogin.m: 
+		o added -login exception cataching to add exception verbosity.
+	* GSWeb.framework/GSWDynamicElement.m/.h:
+		o logs
+		o added ivar _definitionName and associated methods
+	* GSWeb.framework/GSWElement.m/.h:
+		o added ivar -definitionName
+	* GSWeb.framework/GSWTemplateParserANTLR.m:
+		o set dynamic element definition name
+	* GSWeb.framework/GSWTemplateParserXML.m:
+		o set dynamic element definition name
+	* GSWeb.framework/GSWConditional.m:
+		o logs
+	* GSWeb.framework/GSWComponent.m:
+		o logs
+		o remove GDL2  code in -valueForBinding: and setValue:forBinding:
+		    I don't see a reason for this code and it may make a loop
+	* GSWeb.framework/GSWAssociation.m:
+		o logs
+		o Fix in validateValue:forKeyPath: test & call
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o logs
+	* GSWeb.framework/GSWBundle.m:
+		o logs
+	* GSWeb.framework/GSWImageButton.m:
+		o logs (element definition name)
+	* GSWeb.framework/GSWForm.m:
+		o logs (element definition name)
+		o stop invokeActionForRequest:inContext: when the current Id is after senderID
+	* GSWeb.framework: GSWElementIDString.m
+		o added -compare:options:range:
+	* GSWeb.framework: GSWHTMLDynamicElement.m
+		o stop invokeActionForRequest:inContext: when the current Id is after senderID
+	* GSWeb.framework: GSWHTMLStaticElement.m
+		o stop invokeActionForRequest:inContext: when the current Id is after senderID
+	* GSWExtensions.framework/WebServerResources: 
+		o converted .gif to .png
+	* GSWeb.framework/GSWUtils.m:
+		o removed members in NSUserDefaults description
+	
 2001-12-11  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWResourceManager.m: logs

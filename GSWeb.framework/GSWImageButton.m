@@ -201,7 +201,8 @@ static char rcsId[] = "$Id$";
   _disabledInContext=[self disabledInContext:context_];
   [response_ _appendContentAsciiString:@" type=image"];
   _name=[self nameInContext:context_];
-  NSDebugMLLog(@"gswdync",@"_name=%@",_name);
+  NSDebugMLLog(@"gswdync",@"definition name=%@ _name=%@",
+               [self definitionName],_name);
   [response_ _appendContentAsciiString:@" name=\""];
   [response_ appendContentHTMLAttributeValue:_name];
   [response_ appendContentCharacter:'"'];
@@ -337,7 +338,8 @@ static char rcsId[] = "$Id$";
   _senderID=[context_ senderID];
   NSDebugMLog(@"_senderID=%@",_senderID);
   _elementID=[context_ elementID];
-  NSDebugMLog(@"_elementID=%@",_elementID);
+  NSDebugMLog(@"definition name=%@ _elementID=%@",
+              [self definitionName],_elementID);
   if ([_elementID isEqualToString:_senderID])
 	{
 	  //TODO

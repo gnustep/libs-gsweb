@@ -834,7 +834,9 @@ text [Type:XML_TEXT_NODE] [{}] ####
                                            template:[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease]
                                            languages:_languages];
                               NSDebugMLog(@"node=%p element=%@",currentNode,elem);
-                              if (!elem)
+                              if (elem)
+                                [elem setDefinitionName:[definitionsElement elementName]];
+                              else
                                 {
                                   ExceptionRaise(@"GSWTemplateParser",
                                                  @"%@ Creation failed for element named:%@ className:%@",

@@ -103,6 +103,13 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"gswdync",@"elementID=%@",[context_ elementID]);
   if (_negate)
 	_doIt=!_doIt;
+  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s _doIt=%s",
+               [self definitionName],
+               condition,
+               negate,
+               (_condition ? "YES" : "NO"),
+               (_negate ? "YES" : "NO"),
+               (_doIt ? "YES" : "NO"));
   if (_doIt)
 	{
 	  GSWRequest* _request=[context_ request];
@@ -118,7 +125,7 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+                           inContext:(GSWContext*)context_
 {
   //OK
   GSWElement* _element=nil;
@@ -129,24 +136,30 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
   GSWAssertCorrectElementID(context_);// Debug Only
   _condition=[self evaluateCondition:condition
-						inContext:context_];
+                   inContext:context_];
   _negate=[self evaluateCondition:negate
-					 inContext:context_];
+                inContext:context_];
   _doIt=_condition;
   if (_negate)
-	_doIt=!_doIt;
-  NSDebugMLLog(@"gswdync",@"_doIt=%s",_doIt ? "YES" : "NO");
+    _doIt=!_doIt;
+  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s _doIt=%s",
+               [self definitionName],
+               condition,
+               negate,
+               (_condition ? "YES" : "NO"),
+               (_negate ? "YES" : "NO"),
+               (_doIt ? "YES" : "NO"));
   if (_doIt)
-	{
-	  GSWRequest* _request=[context_ request];
-	  BOOL _isFromClientComponent=[_request isFromClientComponent];
-	  [context_ appendZeroElementIDComponent];
-	  NSDebugMLLog(@"gswdync",@"childrenGroup=%@",childrenGroup);
-	  _element=[childrenGroup invokeActionForRequest:request_
-							  inContext:context_];
-	  NSDebugMLLog(@"gswdync",@"_element=%@",_element);
-	  [context_ deleteLastElementIDComponent];
-	};
+    {
+      GSWRequest* _request=[context_ request];
+      BOOL _isFromClientComponent=[_request isFromClientComponent];
+      [context_ appendZeroElementIDComponent];
+      NSDebugMLLog(@"gswdync",@"childrenGroup=%@",childrenGroup);
+      _element=[childrenGroup invokeActionForRequest:request_
+                              inContext:context_];
+      NSDebugMLLog(@"gswdync",@"_element=%@",_element);
+      [context_ deleteLastElementIDComponent];
+    };
   NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
   LOGObjectFnStop();
   return _element;
@@ -172,7 +185,13 @@ static char rcsId[] = "$Id$";
   _doIt=_condition;
   if (_negate)
 	_doIt=!_doIt;
-  NSDebugMLLog(@"gswdync",@"_doIt=%s",_doIt ? "YES" : "NO");
+  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s _doIt=%s",
+               [self definitionName],
+               condition,
+               negate,
+               (_condition ? "YES" : "NO"),
+               (_negate ? "YES" : "NO"),
+               (_doIt ? "YES" : "NO"));
   if (_doIt)
 	{
 	  GSWRequest* _request=[context_ request];

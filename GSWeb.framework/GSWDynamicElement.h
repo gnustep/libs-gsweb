@@ -30,12 +30,14 @@
 //====================================================================
 @interface GSWDynamicElement : GSWElement
 {
+  NSString* _definitionName; // Name of element in def file (.gswd) - Mainly for debugging purpose
 };
 
 -(id)initWithName:(NSString*)name_
 	 associations:(NSDictionary*)associations_
 		 template:(GSWElement*)template_;
-
+-(NSString*)definitionName;
+-(void)setDefinitionName:(NSString*)definitionName;
 @end
 
 //====================================================================

@@ -372,26 +372,42 @@ objectForReference:(NSString*)keyPath
         NSDictionary* variables=nil;
         NSEnumerator* variablesEnum=nil;
         id variableName=nil;
-        //NSDebugMLLog(@"bundles",@"archive_:%@",archive_);
+        NSDebugMLLog(@"bundles",@"archive_ %p:%@",archive_,archive_);
         unarchiver=[[[EOKeyValueUnarchiver alloc] initWithDictionary:archive_]
                      autorelease];
-        //NSDebugMLLog(@"bundles",@"unarchiver:%@",unarchiver);
+        NSDebugMLLog(@"bundles",@"unarchiver %p:%@",unarchiver,unarchiver);
         bundleDelegate=[[[GSWBundleUnarchiverDelegate alloc] initWithObject:object_]
                          autorelease];
-        //NSDebugMLLog(@"bundles",@"bundleDelegate:%@",bundleDelegate);
+        NSDebugMLLog(@"bundles",@"bundleDelegate %p:%@",bundleDelegate,bundleDelegate);
         [unarchiver setDelegate:bundleDelegate];
-        //NSDebugMLLog(@"bundles",@"decodevar");
+        NSDebugMLLog(@"bundles",@"decodevar here=%p",[NSString string]);
         variables=[unarchiver decodeObjectForKey:@"variables"];
-        //NSDebugMLLog(@"bundles",@"variables:%@",variables);
+        NSDebugMLLog(@"bundles",@"variables %p:%@",variables,variables);
         [unarchiver finishInitializationOfObjects];
+        NSDebugMLLog(@"bundles",@"here=%p",[NSString string]);
         [unarchiver awakeObjects];
         variablesEnum=[variables keyEnumerator];
+        NSDebugMLLog(@"bundles",@"here=%p",[NSString string]);
+        NSDebugMLLog0(@"bundles",@"Will set variables");
         while ((variableName = [variablesEnum nextObject]))
           {
             id variableValue=[variables objectForKey:variableName];
-            //NSDebugMLLog(@"bundles",@"variableName:%@ variableValue:%@",variableName,variableValue);
+            NSDebugMLLog(@"bundles",@"ObjectClas=%@ variableName %p:%@ variableValue %p:%@",
+                         [object_ class],
+                         variableName,
+                         variableName,
+                         variableValue,
+                         variableValue);
+            NSDebugMLLog(@"bundles",@"BEF variableValue %p:%@ [RC=%d]",
+                         variableValue,
+                         variableValue,
+                         [variableValue retainCount]);
             [object_ takeValue:variableValue
                      forKey:variableName];
+            NSDebugMLLog(@"bundles",@"AFT variableValue %p:%@ [RC=%d]",
+                         variableValue,
+                         variableValue,
+                         [variableValue retainCount]);
           };
       };
 #else

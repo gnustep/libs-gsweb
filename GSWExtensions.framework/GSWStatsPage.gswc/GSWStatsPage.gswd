@@ -224,7 +224,7 @@ PoweredByImage: GSWImage
     BORDER = 0;
     HEIGHT = 49;
     WIDTH = 221;
-    filename = "PoweredByGNUstepWeb.gif";
+    filename = "PoweredByGNUstepWeb.png";
 }
 
 REFRESH: GSWSubmitButton

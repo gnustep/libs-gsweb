@@ -258,45 +258,10 @@ static char rcsId[] = "$Id$";
   //TODO
   NSString* _dscr=nil;
   GSWLogAssertGood(self);
-//  GSWLogC("GSWComponent description A");
-  NSDebugMLLog(@"gswcomponents",@"GSWComponent description Self=%p",self);
-  _dscr=[NSString stringWithFormat:@"<%s %p - ",
+  NSDebugMLLog(@"gswcomponents",@"GSWComponent description self=%p",self);
+  _dscr=[NSString stringWithFormat:@"<%s %p>",
 				  object_get_class_name(self),
 				  (void*)self];
-/*
-//  GSWLogC("GSWComponent description B");
-  _dscr=[_dscr stringByAppendingFormat:@"name:[%@] subComponents:[%@] templateName:[%@] ",
-			   name,
-			   subComponents,
-			   templateName];
-//  GSWLogC("GSWComponent description C");
-  _dscr=[_dscr stringByAppendingFormat:@"template:[%@] ",
-			   template];
-//  GSWLogC("GSWComponent description D");
-  _dscr=[_dscr stringByAppendingFormat:@"componentDefinition:[%p] ",
-			   (void*)componentDefinition];
-//  GSWLogC("GSWComponent description D2");
-  _dscr=[_dscr stringByAppendingFormat:@"[%@] ",
-			   componentDefinition];
-//  GSWLogC("GSWComponent description E");
-  _dscr=[_dscr stringByAppendingFormat:@"parent:[%p] ",
-			   (void*)parent];
-//  GSWLogC("GSWComponent description F");
-  _dscr=[_dscr stringByAppendingFormat:@"associationsKeys:[%@] associations:[%@] childTemplate:[%@] ",
-			   associationsKeys,
-			   associations,
-			   childTemplate];
-//  GSWLogC("GSWComponent description G");
-  _dscr=[_dscr stringByAppendingFormat:@"context:[%p] session:[%p] ",
-			   (void*)context,
-			   (void*)session];
-//  GSWLogC("GSWComponent description H");
-  _dscr=[_dscr stringByAppendingFormat:@"isPage:[%s] isCachingEnabled:[%s] isSynchronized:[%s]>",
-			   isPage ? "YES" : "NO",
-			   isCachingEnabled ? "YES" : "NO",
-			   isSynchronized ? "YES" : "NO"];
-//  GSWLogC("GSWComponent description I");
-*/
   return _dscr;
 };
 
@@ -372,7 +337,9 @@ associationsKeys:(NSArray*)_associationsKeys
   //OK
   LOGObjectFnStart();
   parent=_parent;
-  NSDebugMLLog(@"gswcomponents",@"parent=%p (%@)",(void*)parent,[parent class]);
+  NSDebugMLLog(@"gswcomponents",@"name=%@ parent=%p (%@)",
+               [self definitionName],
+               (void*)parent,[parent class]);
   ASSIGN(associations,_associations);
   NSDebugMLLog(@"gswcomponents",@"associations=%@",associations);
   ASSIGN(associationsKeys,_associationsKeys);
@@ -395,7 +362,8 @@ associationsKeys:(NSArray*)_associationsKeys
 	  id _value=nil;
 	  id _logValue=[self valueForBinding:@"GSWDebug"];
 	  BOOL _log=boolValueWithDefaultFor(_logValue,NO);
-	  NSDebugMLog0(@"Synchro SubComponent->Component");
+	  NSDebugMLog(@"defName=%@ - Synchro SubComponent->Component",               
+                      [self definitionName]);
 	  for(i=0;i<[associationsKeys count];i++)
 		{
 		  _key=[associationsKeys objectAtIndex:i];
@@ -404,7 +372,8 @@ associationsKeys:(NSArray*)_associationsKeys
 		  if ([_assoc isValueSettable]
 			  && ![_assoc isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
 			{
-			  _value=[self getIVarNamed:_key];
+			  //MGNEW _value=[self getIVarNamed:_key];
+                          _value=[self valueForKey:_key];//MGNEW 
 			  NSDebugMLLog(@"gswcomponents",@"_value=%@",_value);
 			  if (_log)
 				[_assoc logSynchronizeComponentToParentForValue:_value
@@ -429,7 +398,8 @@ associationsKeys:(NSArray*)_associationsKeys
 	  id _value=nil;
 	  id _logValue=[self valueForBinding:@"GSWDebug"];
 	  BOOL _log=boolValueWithDefaultFor(_logValue,NO);
-	  NSDebugMLog0(@"Synchro Component->SubComponent");
+	  NSDebugMLog(@"Nme=%@ - Synchro Component->SubComponent",
+                      [self definitionName]);
 	  for(i=0;i<[associationsKeys count];i++)
 		{
 		  _key=[associationsKeys  objectAtIndex:i];
@@ -442,8 +412,10 @@ associationsKeys:(NSArray*)_associationsKeys
 			  if (_log)
 				[_assoc logSynchronizeParentToComponentForValue:_value
 						inComponent:self];
-			  [self setIVarNamed:_key
-					withValue:_value];
+			  /*//MGNEW [self setIVarNamed:_key
+					withValue:_value];*/
+                  [self takeValue:_value
+                        forKey:_key];
 			};
 		};
 	};
@@ -768,7 +740,7 @@ associationsKeys:(NSArray*)_associationsKeys
   unsigned int _index=NSNotFound;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"associationsKeys=%@",associationsKeys);
-  NSDebugMLLog(@"gswcomponents",@"associations=%@",associations);
+  //NSDebugMLLog(@"gswcomponents",@"associations=%@",[associations description]);
   if (associationsKeys)
 	{
 	  _index=[associationsKeys indexOfObject:_name];
@@ -796,14 +768,18 @@ associationsKeys:(NSArray*)_associationsKeys
   //OK
   BOOL _hasBinding=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"parentBindingName_=%@",parentBindingName_);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@ - parentBindingName_=%@",
+               [self definitionName],
+               parentBindingName_);
   if (associationsKeys)
 	{
 	  int _index=[associationsKeys indexOfObject:parentBindingName_];
 	  NSDebugMLLog(@"gswcomponents",@"_index=%u",_index);
 	  _hasBinding=(_index!=NSNotFound);
 	};
-  NSDebugMLLog(@"gswcomponents",@"hasBinding=%s",(_hasBinding ? "YES" : "NO"));
+  NSDebugMLLog(@"gswcomponents",@"defName=%@ - hasBinding=%s",
+               [self definitionName],
+               (_hasBinding ? "YES" : "NO"));
   if (!WOStrictFlag && !_hasBinding)
 	{	  
 	  _hasBinding=([defaultAssociations objectForKey:parentBindingName_]!=nil);
@@ -819,7 +795,9 @@ associationsKeys:(NSArray*)_associationsKeys
   //OK
   GSWAssociation* _assoc=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"parentBindingName_=%@",parentBindingName_);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@ - parentBindingName_=%@",
+               [self definitionName],
+               parentBindingName_);
   NSDebugMLLog(@"gswcomponents",@"value_=%@",value_);
   NSDebugMLLog(@"gswcomponents",@"parent=%p",(void*)parent);
   if (parent)
@@ -829,15 +807,23 @@ associationsKeys:(NSArray*)_associationsKeys
 	  if(_assoc)
 	    [_assoc setValue:value_
 		    inComponent:parent];
+/* // Why doing this ? Be carefull: it may make a loop !
 #if GDL2
 	  else
 	    {
 	      NS_DURING
-		[self takeValue:value_ forKey:parentBindingName_];
+              {
+		[self takeValue:value_ 
+                  forKey:parentBindingName_];
+               }
 	      NS_HANDLER;
+               {
+                  //TODO
+               }
 	      NS_ENDHANDLER;
 	    }
 #endif
+*/
 	};
   LOGObjectFnStop();
 };
@@ -849,7 +835,10 @@ associationsKeys:(NSArray*)_associationsKeys
   id _value=nil;
   GSWAssociation* _assoc=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"parentBindingName_=%@",parentBindingName_);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",
+               [self definitionName]);
+  NSDebugMLLog(@"gswcomponents",@"parentBindingName_=%@",
+               parentBindingName_);
   NSDebugMLLog(@"gswcomponents",@"parent=%p of class %@",(void*)parent,[parent class]);
   if (parent)
 	{
@@ -857,15 +846,22 @@ associationsKeys:(NSArray*)_associationsKeys
 	  NSDebugMLLog(@"gswcomponents",@"_assoc=%@",_assoc);
 	  if(_assoc)
 	    _value=[_assoc valueInComponent:parent];
+/* // Why doing this ? Be carefull: it may make a loop !
 #if GDL2
 	  else
 	    {
 	      NS_DURING
-		_value = [self valueForKey:parentBindingName_];
-	      NS_HANDLER;
+                {
+                  _value = [self valueForKey:parentBindingName_];
+                }
+	      NS_HANDLER
+                {
+                  //TODO
+                }
 	      NS_ENDHANDLER;
 	    }
 #endif
+*/
 	  NSDebugMLLog(@"gswcomponents",@"_value=%@",_value);
 	};
   LOGObjectFnStop();
@@ -879,7 +875,9 @@ associationsKeys:(NSArray*)_associationsKeys
   NSDictionary* _userDictionary=[self userDictionary];
   id _synchronizesVariablesWithBindingsValue=[_userDictionary objectForKey:@"synchronizesVariablesWithBindings"];
   BOOL _synchronizesVariablesWithBindings=YES;
-  NSDebugMLLog(@"gswcomponents",@"userDictionary _synchronizesVariablesWithBindingsValue=%@",_synchronizesVariablesWithBindingsValue);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
+               [self definitionName],
+               _synchronizesVariablesWithBindingsValue);
   //NDFN
   if (_synchronizesVariablesWithBindingsValue)
 	{
@@ -923,7 +921,9 @@ associationsKeys:(NSArray*)_associationsKeys
   [_componentDefinition sleep];
   [self sleep];
   [self _setContext:nil];
-  NSDebugMLLog(@"gswcomponents",@"subComponents=%@",subComponents);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@ - subComponents=%@",
+               [self definitionName],
+               subComponents);
   [subComponents makeObjectsPerformSelector:@selector(sleepInContext:)
 				 withObject:context_];
   LOGObjectFnStop();
@@ -945,6 +945,7 @@ associationsKeys:(NSArray*)_associationsKeys
 #endif
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
   GSWSaveAppendToResponseElementID(context_);//Debug Only
 
   _template=[self _template];
@@ -960,6 +961,7 @@ associationsKeys:(NSArray*)_associationsKeys
   [context_ deleteLastElementIDComponent];
 
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[context_ elementID]])
 	{
@@ -987,6 +989,7 @@ associationsKeys:(NSArray*)_associationsKeys
 #endif
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
   NS_DURING
 	{
 	  GSWAssertCorrectElementID(context_);// Debug Only
@@ -1007,6 +1010,7 @@ associationsKeys:(NSArray*)_associationsKeys
 	}
   NS_ENDHANDLER;
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[context_ elementID]])
 	{
@@ -1014,7 +1018,8 @@ associationsKeys:(NSArray*)_associationsKeys
 	  
 	};
 #endif
-  if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] compare:[context_ senderID]]==NSOrderedDescending)
+//  if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] compare:[context_ senderID]]==NSOrderedDescending)
+  if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] isSearchOverForSenderID:[context_ senderID]])
 	{
 	  LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
 			   [self class],
@@ -1044,12 +1049,14 @@ associationsKeys:(NSArray*)_associationsKeys
   _oldValidateFlag=[context_ isValidate];
   [context_ setValidate:YES];
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
   _template=[self _template];
   [context_ appendZeroElementIDComponent];
   [_template takeValuesFromRequest:request_
 			 inContext:context_];
   [context_ deleteLastElementIDComponent];
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[context_ elementID]])
 	{
@@ -1159,6 +1166,7 @@ associationsKeys:(NSArray*)_associationsKeys
   GSWComponentDefinition* _componentDefinition=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"context_=%@",context_);
+  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
   NSAssert(context_,@"No Context");
   [self _setContext:context_];
   _componentDefinition=[self _componentDefinition];
@@ -1185,7 +1193,9 @@ associationsKeys:(NSArray*)_associationsKeys
   id _ret=nil;
 
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents", @"parent=%p", (void*)parent);
+  NSDebugMLLog(@"gswcomponents", @"name=%@ - parent=%p",
+               [self definitionName],
+               (void*)parent);
   if (parent)
     {
       _assoc = [self _associationWithName:attribute];

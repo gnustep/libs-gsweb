@@ -48,6 +48,8 @@ extern BYTE ElementsMap_attributeElement;
 								file:(const char*)file_
 								line:(int)line_;
 #endif
+
+-(NSString*)definitionName; //return nil (for non dynamic element)
 @end
 
 #ifdef NDEBBUG

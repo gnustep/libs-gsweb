@@ -547,7 +547,9 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ definition name=%@ id=%@ senderId=%@",
+               [self class],[self definitionName],
+               [context_ elementID],[context_ senderID]);
   GSWAssertCorrectElementID(context_);// Debug Only
   _senderID=[context_ senderID];
   _elementID=[context_ elementID];
@@ -646,7 +648,8 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke _element=%@",_element);
   NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
   NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"END ET=%@ definition name=%@ id=%@",
+               [self class],[self definitionName],[context_ elementID]);
 #ifndef NDEBBUG
   NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWHyperlink invokeActionForRequest: bad elementID");
 #endif

@@ -95,7 +95,7 @@
 		  else if ([self hasBinding:@"helpString"])
 			ASSIGN(openedImageFileName,[self valueForBinding:@"helpString"]);
 		  else
-			ASSIGN(openedImageFileName,@"DownTriangle.gif");
+			ASSIGN(openedImageFileName,@"DownTriangle.png");
 		};
 	  _image=openedImageFileName;
 	}
@@ -109,7 +109,7 @@
 		  else if ([self hasBinding:@"helpString"])
 			ASSIGN(closedImageFileName,[self valueForBinding:@"helpString"]);
 		  else
-			ASSIGN(closedImageFileName,@"RightTriangle.gif");
+			ASSIGN(closedImageFileName,@"RightTriangle.png");
 		};
 	  _image=closedImageFileName;
 	};

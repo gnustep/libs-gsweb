@@ -490,7 +490,7 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+                           inContext:(GSWContext*)context_
 {
   //???
   GSWElement* _element=nil;
@@ -500,6 +500,8 @@ static char rcsId[] = "$Id$";
   BYTE element=0;
   int elementsN[4]={0,0,0,0};
   BOOL inChildren=NO;
+  BOOL searchIsOver=NO;
+  NSString* _senderID=nil;
 #ifndef NDEBUG
   NSString* debugElementID=nil;
 #endif
@@ -507,62 +509,76 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
   NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
   GSWAssertCorrectElementID(context_);// Debug Only
-  for(elementN=0;!_element && elementN<[elementsMap length];elementN++)
-	{
-	  element=(BYTE)elements[elementN];
-	  if (element==ElementsMap_dynamicElement)
-		{
-		  if (!inChildren)
-			{
+  _senderID=[context_ senderID];
+  for(elementN=0;!_element && !searchIsOver && elementN<[elementsMap length];elementN++)
+    {
+      element=(BYTE)elements[elementN];
+      if (element==ElementsMap_dynamicElement)
+        {
+          if (!inChildren)
+            {
 #ifndef NDEBUG
-			  debugElementID=[context_ elementID];
+              debugElementID=[context_ elementID];
 #endif
-			  [context_ appendZeroElementIDComponent];
-			  inChildren=YES;
-			};
-		}
-	  else
-		{
-		  if (inChildren)
-			{
-			  [context_ deleteLastElementIDComponent];
-			  inChildren=NO;
+              [context_ appendZeroElementIDComponent];
+              inChildren=YES;
+            };
+        }
+      else
+        {
+          if (inChildren)
+            {
+              [context_ deleteLastElementIDComponent];
+              inChildren=NO;
 #ifndef NDEBUG
-			  if (![debugElementID isEqualToString:[context_ elementID]])
-				{
-				  NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [context_ elementID]=%@",[self class],debugElementID,[context_ elementID]);
-				  
-				};
+              if (![debugElementID isEqualToString:[context_ elementID]])
+                {
+                  NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [context_ elementID]=%@",
+                               [self class],
+                               debugElementID,
+                               [context_ elementID]);
+                  
+                };
 #endif
-			};
-		};
-
-	  if (element==ElementsMap_htmlBareString)
-		  elementsN[0]++;
-	  else if (element==ElementsMap_gswebElement)
-		  elementsN[1]++;
-	  else if (element==ElementsMap_dynamicElement)
-		{
-		  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[_dynamicChildren objectAtIndex:elementsN[2]] class],[context_ elementID]);
-		  _element=[[_dynamicChildren objectAtIndex:elementsN[2]] invokeActionForRequest:request_
-																  inContext:context_];
-		  [context_ incrementLastElementIDComponent];
-		  elementsN[2]++;
-		}
-	  else if (element==ElementsMap_attributeElement)
-		elementsN[3]++;
-	};
+            };
+        };
+      
+      if (element==ElementsMap_htmlBareString)
+        elementsN[0]++;
+      else if (element==ElementsMap_gswebElement)
+        elementsN[1]++;
+      else if (element==ElementsMap_dynamicElement)
+        {
+          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
+                       [[_dynamicChildren objectAtIndex:elementsN[2]] class],
+                       [context_ elementID]);
+          _element=[[_dynamicChildren objectAtIndex:elementsN[2]] invokeActionForRequest:request_
+                                                                  inContext:context_];
+          //if (![context_ _wasFormSubmitted] && [[context_ elementID] compare:_senderID]==NSOrderedDescending)
+          if (![context_ _wasFormSubmitted] && [[context_ elementID] isSearchOverForSenderID:_senderID])
+            {
+              NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
+                           [context_ elementID],
+                           _senderID);
+              searchIsOver=YES;
+            };
+          [context_ incrementLastElementIDComponent];
+          elementsN[2]++;
+        }
+      else if (element==ElementsMap_attributeElement)
+        elementsN[3]++;
+    };
   if (inChildren)
-	{
-	  [context_ deleteLastElementIDComponent];
+    {
+      [context_ deleteLastElementIDComponent];
 #ifndef NDEBUG
-	  if (![debugElementID isEqualToString:[context_ elementID]])
-		{
-		  NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [context_ elementID]=%@",[self class],debugElementID,[context_ elementID]);
-		  
-		};
+      if (![debugElementID isEqualToString:[context_ elementID]])
+        {
+          NSDebugMLLog(@"gswdync",@"ERROR class=%@ debugElementID=%@ [context_ elementID]=%@",[self class],debugElementID,[context_ elementID]);
+          
+        };
 #endif
-	};
+    };
   NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
   NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
   NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);

@@ -108,11 +108,11 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   GSWLogAssertGood(self);
   GSWLogAssertGood(_string);
-  //GSWLogC("_string deallocate");
+  GSWLogC("_string deallocate");
   DESTROY(_string);
-  //GSWLogC("_string deallocated");
+  GSWLogC("_string deallocated");
   [super dealloc];
-  //GSWLogC("GSWElementIDString end of dealloc");
+  GSWLogC("GSWElementIDString end of dealloc");
 };
 
 -(void)getCString:(char*)buffer
@@ -179,6 +179,110 @@ static char rcsId[] = "$Id$";
   GSWElementIDString* obj = [[[self class] alloc] initWithString:_string];
   return obj;
 };
+
+-(BOOL)isSearchOverForSenderID:senderID
+{
+  BOOL over=NO;
+  if (senderID == nil)
+    [NSException raise:NSInvalidArgumentException
+                 format:@"compare with nil"];
+  else
+    {
+      BOOL finished=NO;
+      NSCharacterSet* nonNumericSet=[[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+      NSArray* selfElements=[self componentsSeparatedByString:@"."];
+      NSArray* senderIDElements=[senderID componentsSeparatedByString:@"."];
+      int i=0;
+      int selfElementsCount=[selfElements count];
+      int senderIDElementsCount=[senderIDElements count];
+      int count=min(selfElementsCount,senderIDElementsCount);
+      for(i=0;i<count && !over && !finished;i++)
+        {
+          NSString* selfElement=[selfElements objectAtIndex:i];
+          NSString* senderIDElement=[senderIDElements objectAtIndex:i];
+          BOOL selfElementIsNumeric=[selfElement rangeOfCharacterFromSet:nonNumericSet].length==0;
+          BOOL selfAStringIsNumeric=[senderIDElement rangeOfCharacterFromSet:nonNumericSet].length==0;
+          if (selfElementIsNumeric && selfAStringIsNumeric) //Numeric comparison
+            {
+              int selfIntValue=[selfElement intValue];
+              int senderIDIntValue=[senderIDElement intValue];
+              if (selfIntValue>senderIDIntValue)
+                over=YES;
+            }
+          else if (!selfElementIsNumeric && !selfAStringIsNumeric)//string comparison
+            {
+              if ([selfElement compare:senderIDElement]==NSOrderedDescending)
+                over=YES;
+            }
+          else
+            finished=YES;
+        };
+      if (!over && !finished)
+        {
+          if (selfElementsCount>senderIDElementsCount)
+            over=YES;
+        };
+    };
+  return over;
+}
+/*
+{  
+  NSComparisonResult result=NSOrderedSame;
+  if (aString == nil)
+    [NSException raise:NSInvalidArgumentException
+                 format:@"compare with nil"];
+  else if (mask!=0) //TODO
+    [NSException raise:NSInvalidArgumentException
+                 format:@"no options are allowed in GSWElementIDString compare"];
+  else if (aRange.location!=0)
+    [NSException raise:NSInvalidArgumentException
+                 format:@"GSWElementIDString compare only on full string (range.location=%d instead of 0)",
+                 aRange.location];
+  else if (aRange.length!=[self length])
+    [NSException raise:NSInvalidArgumentException
+                 format:@"GSWElementIDString compare only on full string (range.length=%d instead of %d)",
+                 aRange.length,
+                 [self length]];
+  else
+    {
+      NSCharacterSet* nonNumericSet=[[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+      NSArray* selfElements=[self componentsSeparatedByString:@"."];
+      NSArray* aStringElements=[aString componentsSeparatedByString:@"."];
+      int i=0;
+      int selfElementsCount=[selfElements count];
+      int aStringElementsCount=[aStringElements count];
+      int count=min(selfElementsCount,aStringElementsCount);
+      for(i=0;i<count && result==NSOrderedSame;i++)
+        {
+          NSString* selfElement=[selfElements objectAtIndex:i];
+          NSString* aStringElement=[aStringElements objectAtIndex:i];
+          BOOL selfElementIsNumeric=[selfElement rangeOfCharacterFromSet:nonNumericSet].length==0;
+          BOOL selfAStringIsNumeric=[aStringElement rangeOfCharacterFromSet:nonNumericSet].length==0;
+          if (selfElementIsNumeric && selfAStringIsNumeric) //Numeric comparison
+            {
+              int selfIntValue=[selfElement intValue];
+              int aStringIntValue=[aStringElement intValue];
+              result=(selfIntValue==aStringIntValue ? 0 : (selfIntValue>aStringIntValue ? NSOrderedDescending : NSOrderedAscending));
+            }
+          else if (selfElementIsNumeric) //we consider strictly num < string
+            result=NSOrderedAscending;
+          else if (selfAStringIsNumeric) //we consider strictly num < string
+            result=NSOrderedDescending;
+          else //string comparison
+            result=[selfElement compare:aStringElement];
+        };
+      if (result==NSOrderedSame)
+        {
+          if (selfElementsCount<aStringElementsCount)
+            result=NSOrderedAscending;
+          else if (selfElementsCount>aStringElementsCount)
+            result=NSOrderedDescending;
+        };
+    };
+  return result;
+}
+
+*/
 
 @end
 

@@ -51,7 +51,7 @@
 {
   if (!reasons)
 	{
-	  ASSIGN(reasons,[[exception description] componentsSeparatedByString:@"\n"]);
+	  ASSIGN(reasons,[[exception reason] componentsSeparatedByString:@"\n"]);
 	};
   return reasons;
 };
@@ -69,4 +69,12 @@
   ASSIGN(exception,exception_);
 };
 
+-(id)getTmpUserInfoValue
+{
+  //If array, print it nicely
+  if ([tmpUserInfoValue  isKindOfClass:[NSArray class]])
+      return [tmpUserInfoValue componentsJoinedByString:@"\n"];
+  else
+    return tmpUserInfoValue;
+}
 @end

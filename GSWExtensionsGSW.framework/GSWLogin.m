@@ -75,36 +75,49 @@
   LOGObjectFnStart();
   NSDebugMLog(@"user=%@ password=%@",user,password);
   NSDebugMLog(@"associationsKeys=%@",associationsKeys);
-  if ([self hasBinding:@"password"])
+  NS_DURING
+    {
+      if ([self hasBinding:@"password"])
 	{
 	  if ([self hasBinding:@"user"])
-		{
-		  _bindingOk=YES;
-		  [self setValue:user
-				forBinding:@"user"];
-		}
+            {
+              _bindingOk=YES;
+              [self setValue:user
+                    forBinding:@"user"];
+            }
 	  else if ([self hasBinding:@"login"])
-		{
-		  _bindingOk=YES;
-		  [self setValue:user
-				forBinding:@"login"];
-		};
+            {
+              _bindingOk=YES;
+              [self setValue:user
+                    forBinding:@"login"];
+            };
 	};
-  NSDebugMLog(@"_bindingOk=%s",(_bindingOk ? "YES" : "NO"));
-  if (_bindingOk)
+      NSDebugMLog(@"_bindingOk=%s",(_bindingOk ? "YES" : "NO"));
+      if (_bindingOk)
 	{
 	  [self setValue:password
-			forBinding:@"password"];
+                forBinding:@"password"];
 	  _nextPage=[[self parent] validateLogin];
 	}
-  else
+      else
 	_nextPage=[[self parent] validateLoginUser:user
-							 password:password];
-  if ([self hasBinding:@"message"])
+                                 password:password];
+      if ([self hasBinding:@"message"])
 	{
 	  message=[self valueForBinding:@"message"];
 	};
-  NSDebugMLog(@"message=%@",message);
+      NSDebugMLog(@"message=%@",message);
+    }
+  NS_HANDLER
+    {
+      LOGException0(@"exception in GSWLogin login action");
+      LOGException(@"exception=%@",localException);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"In GSWLogin login action");
+      LOGException(@"exception=%@",localException);
+      [localException raise];
+    }
+  NS_ENDHANDLER;
   LOGObjectFnStop();
   return _nextPage;
 };

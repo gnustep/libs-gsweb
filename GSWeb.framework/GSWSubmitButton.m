@@ -186,7 +186,8 @@ static char rcsId[] = "$Id$";
 	  [localException raise];
 	}
   NS_ENDHANDLER;
-  if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] compare:[context_ senderID]]!=NSOrderedAscending)
+  //if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] compare:[context_ senderID]]!=NSOrderedAscending)
+    if (![context_ _wasActionInvoked] && [[[context_ elementID] parentElementIDString] isSearchOverForSenderID:[context_ senderID]])
 	{
 	  LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
 			   [self class],

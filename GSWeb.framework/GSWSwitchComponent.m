@@ -35,24 +35,26 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStartC("GSWSwitchComponent");
   if ((self=[super initWithName:name_
-				   associations:associations_
-				   template:nil]))
-	{
-	  NSMutableDictionary* _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
-	  [_associations removeObjectForKey:GSWComponentName__Key];
+                   associations:associations_
+                   template:nil]))
+    {
+      NSMutableDictionary* _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: _associations=%@",_associations);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: GSWComponentName__Key=%@",GSWComponentName__Key[GSWebNamingConv]);
+      [_associations removeObjectForKey:GSWComponentName__Key[GSWebNamingConv]];
+      
+      componentName = [[associations_ objectForKey:GSWComponentName__Key[GSWebNamingConv]
+                                      withDefaultObject:[componentName autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: componentName=%@",componentName);
 
-	  componentName = [[associations_ objectForKey:GSWComponentName__Key
-									  withDefaultObject:[componentName autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: componentName=%@",componentName);
-
-	  ASSIGN(componentAttributes,[NSDictionary dictionaryWithDictionary:_associations]);
-	  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: componentAttributes=%@",componentAttributes);
-
-	  ASSIGN(template,templateElement_);
-	  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: template=%@",template);
-
-	  componentCache=[NSMutableDictionary new];
-	};
+      ASSIGN(componentAttributes,[NSDictionary dictionaryWithDictionary:_associations]);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: componentAttributes=%@",componentAttributes);
+      
+      ASSIGN(template,templateElement_);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent: template=%@",template);
+      
+      componentCache=[NSMutableDictionary new];
+    };
   LOGObjectFnStopC("GSWSwitchComponent");
   return self;
 };
