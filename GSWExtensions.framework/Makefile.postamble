@@ -131,5 +131,5 @@ WO-components-clean:
 	rm -f GSWWOReplaceScript.sed ;$(END_ECHO)
 
 $(WO_HEADER_FILES): WOExtenstions.h
-        $(ECHO_NOTHING)$(LN_S) WOExtenstions.h $@;$(END_ECHO)
+	$(ECHO_NOTHING)$(LN_S) WOExtenstions.h $@;$(END_ECHO)
 
