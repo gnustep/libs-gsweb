@@ -1,3 +1,25 @@
+2000-02-13  Manuel Guesdon <mguesdon@sbuilders.com>
+
+	* GSWStatisticsStore.m: added comment
+	* GSWSubmitButton.m: added log and assert
+	* GSWImageButton.m: added log and assert
+	* GSWHyperlink.m: added log and assert
+	* GSWHTMLStaticElement.m: added log and assert
+	* GSWForm.m: added log and assert
+	* GSWElement.m: added log and assert
+	* GSWConditional.m: added log and assert
+	* GSWComponentReference.m: added log and assert
+	* GSWComponent.m: added log and assert
+	* GSWElement.m: added log and assert
+	* GSWElement.h: added debug ivar
+	* GSWTextField.m: added log and assert
+	* GSWInput.m: added log and assert
+	* GSWelementIDString.h/.m: added
+		-parentElementIDString
+		-copyWithZone:
+		-mutableCopyWithZone:
+
+
 2000-02-12  Manuel Guesdon <mguesdon@sbuilders.com>
 
 	* GSWApplication.m: move DESTROY(appAutoreleasePool); 
