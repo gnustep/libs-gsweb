@@ -2181,7 +2181,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",[NSRunLoop currentRunLoop]);
   ASSIGN(currentRunLoop,[NSRunLoop currentRunLoop]);
   NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",GSCurrentThreadDictionary());
-  [NSRunLoop run];
+  [[NSRunLoop currentRunLoop] run];
   
   NSDebugMLLog0(@"application",@"NSRunLoop end run");
   [adaptors makeObjectsPerformSelector:unregisterForEventsSEL];

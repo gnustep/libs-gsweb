@@ -1,3 +1,15 @@
+2002-02-01  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWApplication.m:
+		o in run: [[NSRunLoop currentRunLoop] run] instead of [NSRunLoop run]
+	
+2002-02-01  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWConfig.h: 
+		o set localhost for GSWOPTVALUE_MonitorHost	
+	* GSWeb.framework/GSWApplication.m:
+		o logs
+
 2002-01-26  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWSwitchComponent.m: 
