@@ -45,6 +45,10 @@
 #include <GNUstepBase/GNUstep.h>
 #endif
 
+#if GDL2
+#define HAVE_GDL2 1
+#endif
+
 #include <Foundation/Foundation.h>
 #include <Foundation/NSObject.h>
 #include <Foundation/NSValue.h>
@@ -87,6 +91,7 @@
 @class GSWDisplayGroup;
 @class GSWElement;
 @class GSWDynamicElement;
+@class GSWMessage;
 @class GSWRequest;
 @class GSWResourceManager;
 @class GSWResponse;
@@ -99,10 +104,13 @@
 @class GSWMultiKeyDictionary;
 @class GSWCookie;
 @class GSWElementIDString;
+@class GSWAction;
 @class GSWDirectAction;
 @class GSWMailDelivery;
 @class GSWComponentRequestHandler;
 @class GSWResourceRequestHandler;
+@class GSWStaticResourceRequestHandler;
+@class GSWActionRequestHandler;
 @class GSWDirectActionRequestHandler;
 @class GSWDefaultAdaptorThread;
 @class GSWKeyValueAssociation;
@@ -130,6 +138,15 @@
 @class GSWFileUpload;
 @class GSWResourceURL;
 @class GSWProcFSProcInfo;
+@class GSWLifebeatThread;
+@class GSWAdminAction;
+@class GSWStack;
+@class GSWXMLCoder;
+@class GSWXMLDecoder;
+@class GSWMonitorXMLCoder;
+@class GSWMonitorXMLDecoder;
+@class GSWRecording;
+@class GSWInputStreamData;
 
 #include "GSWConstants.h"
 #include "GSWUtils.h"
@@ -138,6 +155,7 @@
 #include "NSString+Trimming.h"
 #include "NSString+HTML.h"
 #include "GSWElementIDString.h"
+#include "GSWMessage.h"
 #include "GSWResponse.h"
 #include "GSWHTMLLexer.h"
 #include "GSWHTMLParser.h"
@@ -204,10 +222,13 @@
 #include "GSWCookie.h"
 #include "GSWRequestHandler.h"
 #include "GSWComponentDefinition.h"
+#include "GSWAction.h"
 #include "GSWDirectAction.h"
 #include "GSWMailDelivery.h"
 #include "GSWComponentRequestHandler.h"
 #include "GSWResourceRequestHandler.h"
+#include "GSWStaticResourceRequestHandler.h"
+#include "GSWActionRequestHandler.h"
 #include "GSWDirectActionRequestHandler.h"
 #include "GSWDefaultAdaptorThread.h"
 #include "GSWKeyValueAssociation.h"
