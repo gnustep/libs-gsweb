@@ -198,7 +198,7 @@ static char rcsId[] = "$Id$";
 						{
 						  if (!_selections)
 							_selections=[NSMutableArray array];
-						  [_selections addObject:_valueValue];
+						  [_selections addObject:[item valueInComponent:_component]];
 						};
 					};
 				};
@@ -283,7 +283,7 @@ static char rcsId[] = "$Id$";
 		  _displayStringValue=[displayString valueInComponent:_component];
 		  [response_ appendContentString:@"<INPUT NAME=\""];
 		  [response_ appendContentString:_name];
-		  [response_ appendContentString:@"\" TYPE=check VALUE=\""];
+		  [response_ appendContentString:@"\" TYPE=checkbox VALUE=\""];
 		  _valueValue=[value valueInComponent:_component];
 		  [response_ appendContentHTMLAttributeValue:_valueValue];
 		  [response_ appendContentCharacter:'"'];
