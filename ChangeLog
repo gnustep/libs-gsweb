@@ -1,3 +1,14 @@
+2002-02-22  Adam Fedor  <fedor@gnu.org>
+
+	* GSWExtensions.framework/WebServerResources/error.gif: Change to
+	png (can't get mng conversion to work, still working on it).
+	* GSWExtensions.framework/WebServerResources/exclaimation.gif: 
+	Likewise.
+	* GSWExtensions.framework/WebServerResources/warning.gif: Likewise.
+	* GSWExtensions.framework/GNUmakefile: Update for new names.
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.gswd: 
+	Likewise.
+
 2002-02-01  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWApplication.m:

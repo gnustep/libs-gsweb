@@ -83,15 +83,15 @@ appOff.png \
 appOn.png \
 back.png \
 dir.png \
-exclamation.gif \
+exclamation.mng \
 eye.png \
 lft-OSarw.png \
 rt-OSarw.png \
 text.png \
 gswapp.png \
 gswappsrv.png \
-warning.gif \
-error.gif
+warning.mng \
+error.mng
 
 
 # Determine the bundle directory extension
