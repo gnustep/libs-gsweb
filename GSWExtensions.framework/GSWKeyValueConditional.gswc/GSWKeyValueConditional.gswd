@@ -1,0 +1,8 @@
+
+Conditional: GSWConditional {
+	condition = condition;
+	negate = ^negate;
+}
+
+Content: GSWComponentContent {
+}
