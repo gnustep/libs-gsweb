@@ -3,7 +3,7 @@ GNUstepWeb HOWTO
 
    GNUstepWeb-HOWTO
    
-   Last Update: 22 January 2000
+   Last Update: 05 February 2000
    
    This document explains how to build and manage GNUstepWeb applications.
 
@@ -143,20 +143,7 @@ Known bugs
 
    In order to make your application working you can follow these guidelines:
    
-1. In main() always create an autorelease pool before invoking
-   GSWApplicationMain(), eg:
-
-   int main(int argc, const char *argv[])
-   {
-     int ret = 0;
-     NSAutoreleasePool *arp = [NSAutoreleasePool new];
-
-     ret = GSWApplicationMain(@"Application", argc, argv);
-     [arp release];
-     return ret;
-   }
-
-2. Always create an Application and Session class also if you don't use them.
+1. Always create an Application and Session class also if you don't use them.
 
    @interface Session:GSWSession
    {
@@ -176,20 +163,19 @@ Known bugs
    @implementation Application
    @end
 
-3. Start your application with -GSWHost hostname else it will crash.
+2. Start your application with -GSWHost hostname else it will crash.
 
-4. In your component definition file (gswd or wod) don't use spaces between
-   GSWeb NAME and component name, eg:
+4. The HTML parser has some problems with percentage fields, eg:
    
-   <GSWEB NAME = "NAME_FIELD"></GSWEB>   This does NOT work
-   <GSWEB NAME="NAME_FIELD"></GSWEB>     This work
+   <TABLE WIDTH=100% BORDER="0">       This does NOT work
+   <TABLE WIDTH="100%" BORDER="0">     This work
 
 
 Documentation
 =============
 
    You can find WebObjects documentation and good tutorials at
-http://developer.apple.com/techpubs/enterprise/WebObjects
+http://developer.apple.com/techpubs/enterprise/WebObjects/
 
 
 ----------
