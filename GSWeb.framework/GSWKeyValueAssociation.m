@@ -42,8 +42,12 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
+  GSWLogMemC("GSWKeyValueAssociation start of dealloc");
+  GSWLogAssertGood(self);
   DESTROY(keyPath);
+  GSWLogMemC("keyPath deallocated");
   [super dealloc];
+  GSWLogMemC("GSWKeyValueAssociation end of dealloc");
 };
 
 //--------------------------------------------------------------------
@@ -82,9 +86,11 @@ static char rcsId[] = "$Id$";
   if (value_) {
     NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([value_ class]));
   }
+  /*Not Here because self is not a string key !
   //TODO (return something!)
   [object_ validateValue:&value_
 			  forKey:self];
+  */
   [GSWAssociation setValue:value_
 				  inObject:object_
 				  forKeyPath:keyPath];

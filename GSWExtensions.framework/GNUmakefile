@@ -151,7 +151,6 @@ GSWExtensions_AGSDOC_FILES = gswextensions.gsdoc $(GSWExtensions_AUTOGSDOC_HEADE
 GSWExtensions_AGSDOC_FLAGS = \
 	-Declared Foundation \
 	-Standards YES \
-	-SystemProjects System \
 	-Project gswextensions \
 	-WordMap '{\
 	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
@@ -161,6 +160,7 @@ GSWExtensions_AGSDOC_FLAGS = \
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
 	}' -Up gswextensions
 
+#	-SystemProjects System \
 
 #DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
 

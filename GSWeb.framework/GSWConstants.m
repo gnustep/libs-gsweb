@@ -273,6 +273,7 @@ id identifier__Key = @"identifier";
 id count__Key = @"count";
 id escapeHTML__Key = @"escapeHTML";
 id GSWComponentName__Key[2] = { @"GSWComponentName", @"WOComponentName"};
+id componentName__Key = @"componentName";
 id prefix__Key = @"prefix";
 id suffix__Key = @"suffix";
 id level__Key = @"level";

@@ -268,6 +268,7 @@ extern id identifier__Key;
 extern id count__Key;
 extern id escapeHTML__Key;
 extern id GSWComponentName__Key[2];
+extern id componentName__Key;
 extern id prefix__Key;
 extern id suffix__Key;
 extern id level__Key;

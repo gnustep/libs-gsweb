@@ -348,8 +348,8 @@ associationsKeys:(NSArray*)_associationsKeys
   NSDebugMLLog(@"gswcomponents",@"name=%@ parent=%p (%@)",
                [self definitionName],
                (void*)parent,[parent class]);
-  ASSIGN(associations,_associations);
   NSDebugMLLog(@"gswcomponents",@"associations=%@",associations);
+  ASSIGN(associations,_associations);
   ASSIGN(associationsKeys,_associationsKeys);
   NSDebugMLLog(@"gswcomponents",@"associationsKeys=%@",associationsKeys);
   ASSIGN(childTemplate,_template);

@@ -902,25 +902,40 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   LOGObjectFnStop();
 };
 
--(void)associationsSetValuesFromObject:(id)from_
-							  inObject:(id)to_
+-(void)associationsSetValuesFromObject:(id)from
+                              inObject:(id)to
 {
   NSEnumerator *enumerator = nil;
-  id _key=nil;
-  id _varValue=nil;
-  id _var=nil;
+  id key=nil;
+  id varValue=nil;
+  id var=nil;
   LOGObjectFnStart();
+  NSDebugMLLog(@"associations",@"from=%@",from);
+  NSDebugMLLog(@"associations",@"to=%@",to);
   enumerator = [self keyEnumerator];
-  while ((_key = [enumerator nextObject]))
-	{
-	  NSDebugMLLog(@"associations",@"_key=%@",_key);
-	  _var=[self objectForKey:_key];
-	  NSDebugMLLog(@"associations",@"_var=%@",_var);
-	  _varValue=[_var valueInComponent:from_];
-	  NSDebugMLLog(@"associations",@"_varValue=%@",_varValue);
-	  [_key setValue:_varValue
-			inComponent:to_];
-	};
+  while ((key = [enumerator nextObject]))
+    {
+      NSDebugMLLog(@"associations",@"key=%@",key);
+/*      NSAssert2([key isKindOfClass:[GSWAssociation class]],
+                @"key is not an GSWAssociation but a %@: %@",
+                [key class],
+                key);*/
+      var=[self objectForKey:key];
+      NSDebugMLLog(@"associations",@"var=%@",var);
+/*      NSAssert2([var isKindOfClass:[GSWAssociation class]],
+                @"Variable is not an GSWAssociation but a %@: %@",
+                [var class],
+                var);*/
+      if ([var isKindOfClass:[GSWAssociation class]])
+        varValue=[var valueInComponent:from];
+      else
+        varValue=var;
+      NSDebugMLLog(@"associations",@"varValue=%@",varValue);
+      if (![key isKindOfClass:[GSWAssociation class]])
+        key=[GSWAssociation associationWithKeyPath:key];
+      [key setValue:varValue
+            inComponent:to];
+    };
   LOGObjectFnStop();
 };
 
@@ -935,7 +950,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   id _varKeyAssociation=nil;
   id _value=nil;
   LOGObjectFnStart();
-  _newAssociation=[NSMutableDictionary dictionary];
+  _newAssociation=(NSMutableDictionary*)[NSMutableDictionary dictionary];
   enumerator = [self keyEnumerator];
   while ((_key = [enumerator nextObject]))
 	{

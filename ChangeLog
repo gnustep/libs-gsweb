@@ -1,3 +1,22 @@
+2002-03-25  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWAdaptors/common/GSWConfig.c: changed comments
+	* GSWeb.framework/GSWSwitchComponent.h/.m: 
+		o ivar names changes to conform to coding standards
+		o logs
+	* GSWeb.framework/GSWComponentContent.h/.m: 
+		o ivar names changes to conform to coding standards
+		o logs
+	* GSWAdaptors/common/GSWTemplates.c:
+		o change .gif to .png
+	* GSWeb.framework/GSWAssociation.m: 
+		o Added Key/Value association conversion in associationsSetValuesFromObject:inObject:
+	* GSWeb.framework/GSWKeyValueAssociation.m:
+		o removed validateValue in -setValue:inObject:
+		o logs
+	* GSWeb.framework/GSWConstantValueAssociation.m
+		o logs
+	
 2002-03-07  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWAdaptor.h/.m: 

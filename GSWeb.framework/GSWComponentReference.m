@@ -30,29 +30,29 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
+     associations:(NSDictionary*)associations_
 {
   LOGObjectFnStart();
   //OK
   NSDebugMLLog(@"gswdync",@"name:%@",name);
   NSDebugMLLog(@"gswdync",@"associations_:%@",associations_);
   if ((self==[super initWithName:name_
-					associations:associations_
-					template:nil]))
-	{
-	  ASSIGN(name,name_);
-	  if (associations_ && [associations_ count])
-		{
-		  NSMutableArray* tmpArray=[NSMutableArray array];
-		  int i=0;
-		  ASSIGN(associationsKeys,[associations_ allKeys]);
-		  for(i=0;i<[associationsKeys count];i++)
-			{
-			  [tmpArray addObject:[associations_ objectForKey:[associationsKeys objectAtIndex:i]]];
-			};
-		  ASSIGN(associations,[NSArray arrayWithArray:tmpArray]);
-		};
-	};
+                    associations:associations_
+                    template:nil]))
+    {
+      ASSIGN(name,name_);
+      if (associations_ && [associations_ count])
+        {
+          NSMutableArray* tmpArray=[NSMutableArray array];
+          int i=0;
+          ASSIGN(associationsKeys,[associations_ allKeys]);
+          for(i=0;i<[associationsKeys count];i++)
+            {
+              [tmpArray addObject:[associations_ objectForKey:[associationsKeys objectAtIndex:i]]];
+            };
+          ASSIGN(associations,[NSArray arrayWithArray:tmpArray]);
+        };
+    };
   LOGObjectFnStop();
   return self;
 };

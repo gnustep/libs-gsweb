@@ -90,7 +90,6 @@ GSWExtensionsGSW_AGSDOC_FILES = gswextensionsgsw.gsdoc $(GSWExtensionsGSW_AUTOGS
 GSWExtensionsGSW_AGSDOC_FLAGS = \
 	-Declared Foundation \
 	-Standards YES \
-	-SystemProjects System \
 	-Project gswextensionsgsw \
 	-WordMap '{\
 	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
@@ -99,6 +98,8 @@ GSWExtensionsGSW_AGSDOC_FLAGS = \
 	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
 	}' -Up gswextensionsgsw
+
+#	-SystemProjects System \
 
 #DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
 

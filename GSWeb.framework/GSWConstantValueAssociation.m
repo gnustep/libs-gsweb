@@ -42,8 +42,12 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
+  GSWLogMemC("GSWConstantValueAssociation start of dealloc");
+  GSWLogAssertGood(self);
   DESTROY(value);
+  GSWLogMemC("value deallocated");
   [super dealloc];
+  GSWLogMemC("GSWConstantValueAssociation end of dealloc");
 };
 
 //--------------------------------------------------------------------

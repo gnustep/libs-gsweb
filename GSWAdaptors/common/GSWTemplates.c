@@ -39,7 +39,7 @@ const char* g_szErrorResponseTextTemplate[2]={
 "<HTML><BODY BGCOLOR=\"#FFFFFF\">\n"
 "<CENTER><H1>##TEXT##</H1></CENTER>\n"
 "<BR>\n"
-"<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.gif\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
+"<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.png\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
 "</BODY></HTML>\n"};
 
 //--------------------------------------------------------------------
@@ -62,7 +62,7 @@ const char* g_szStatusResponseAllowedTemplate[2]={
   "<p><strong>Headers:</strong><br>\n"
   "##HEADERS##\n"
   "<BR>\n"
-  "<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.gif\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
+  "<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.png\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
   "</BODY></HTML>\n"};
 
 //--------------------------------------------------------------------
@@ -73,7 +73,7 @@ const char* g_szStatusResponseDeniedTemplate[2]={
   "<BODY BGCOLOR=\"#FFFFFF\">\n"
   "<CENTER><H1>Don't play with me ##REMOTE_ADDR## ##REMOTE_HOST##, I'll win!</H1></CENTER>"
   "<BR>\n"
-  "<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.gif\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
+  "<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.png\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
   "</BODY></HTML>\n"};
 
 //--------------------------------------------------------------------
@@ -100,7 +100,7 @@ const char* g_szDump_FootTemplate[2]={
 "",
 "</table></CENTER>\n"
 "<BR>\n"
-"<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.gif\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
+"<CENTER><A HREF=\"http://www.gnustepweb.org\"><IMG SRC=\"##GSWEXTFWKWSR##/PoweredByGNUstepWeb.png\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
 "</BODY></HTML>"};
 
 //--------------------------------------------------------------------

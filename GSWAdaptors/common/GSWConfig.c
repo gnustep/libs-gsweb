@@ -165,10 +165,10 @@ CONST char* GSWConfig_GetConfigFilePath()
 
 /*{
     canDumpStatus=NO;
-    GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources"
+    GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/Resources/WebServer"
 	applications=	{
 				MyApp1 = {
-				        GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources"
+				        GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/Resources/WebServer"
 						instances = 	{
 									1 = {
 										host=12.13.14.15;

@@ -1,11 +1,17 @@
-/* GSWComponentContent.m - GSWeb: Class GSWComponentContent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWComponentContent.m - <title>GSWeb: Class GSWComponentContent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+   
+   <abstract></abstract>
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,87 +36,96 @@ static char rcsId[] = "$Id$";
 @implementation GSWComponentContent
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)aContext
 {
   //OK
-  GSWComponent* _component=nil;
-  GSWComponent* _parent=nil;
-  GSWElement* _childTemplate=nil;
+  GSWComponent* component=nil;
+  GSWComponent* parent=nil;
+  GSWElement* childTemplate=nil;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[aContext elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _component=[context_ component];
-  _childTemplate=[_component _childTemplate];
-  _parent=[_component parent];
-  [context_ _setCurrentComponent:_parent];
-  [_childTemplate appendToResponse:response_
-				  inContext:context_];
-  [context_ _setCurrentComponent:_component];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ id=%@",
+               [self class],[self definitionName],[aContext elementID]);
+  component=[aContext component];
+  childTemplate=[component _childTemplate];
+  parent=[component parent];
+  [aContext _setCurrentComponent:parent];
+  [childTemplate appendToResponse:response
+                 inContext:aContext];
+  [aContext _setCurrentComponent:component];
+  NSDebugMLLog(@"gswdync",@"END ET=%@ defName=%@ id=%@",
+               [self class],[self definitionName],[aContext elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWComponentContent appendToResponse: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[aContext elementID]elementsNb],
+           @"GSWComponentContent appendToResponse: bad elementID");
 #endif
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)aContext
 {
   //OK
-  GSWElement* _element=nil;
-  GSWComponent* _component=nil;
-  GSWComponent* _parent=nil;
-  GSWElement* _childTemplate=nil;
+  GSWElement* element=nil;
+  GSWComponent* component=nil;
+  GSWComponent* parent=nil;
+  GSWElement* childTemplate=nil;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[aContext elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _component=[context_ component];
-  NSDebugMLLog(@"gswdync",@"_component=%@",_component);
-  _childTemplate=[_component _childTemplate];
-  NSDebugMLLog(@"gswdync",@"_childTemplate=%@",_childTemplate);
-  _parent=[_component parent];
-  NSDebugMLLog(@"gswdync",@"_parent=%@",_parent);
-  [context_ _setCurrentComponent:_parent];
-  _element=[_childTemplate invokeActionForRequest:request_
-						   inContext:context_];
-  [context_ _setCurrentComponent:_component];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ id=%@",
+               [self class],[self definitionName],[aContext elementID]);
+  component=[aContext component];
+  NSDebugMLLog(@"gswdync",@"component=%@",component);
+  childTemplate=[component _childTemplate];
+  NSDebugMLLog(@"gswdync",@"childTemplate=%@",childTemplate);
+  parent=[component parent];
+  NSDebugMLLog(@"gswdync",@"parent=%@",parent);
+  [aContext _setCurrentComponent:parent];
+  element=[childTemplate invokeActionForRequest:request
+                         inContext:aContext];
+  [aContext _setCurrentComponent:component];
+  NSDebugMLLog(@"gswdync",@"END ET=%@ defName=%@ id=%@",
+               [self class],[self definitionName],[aContext elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWComponentContent invokeActionForRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[aContext elementID]elementsNb],
+           @"GSWComponentContent invokeActionForRequest: bad elementID");
 #endif
   LOGObjectFnStop();
-  return _element;
+  return element;
 };
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)aContext
 {
   //OK
-  GSWComponent* _component=nil;
-  GSWComponent* _parent=nil;
-  GSWElement* _childTemplate=nil;
+  GSWComponent* component=nil;
+  GSWComponent* parent=nil;
+  GSWElement* childTemplate=nil;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[aContext elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _component=[context_ component];
-  _childTemplate=[_component _childTemplate];
-  _parent=[_component parent];
-  [context_ _setCurrentComponent:_parent];
-  [_childTemplate takeValuesFromRequest:request_
-				  inContext:context_];
-  [context_ _setCurrentComponent:_component];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ id=%@",
+               [self class],[self definitionName],[aContext elementID]);
+  component=[aContext component];
+  childTemplate=[component _childTemplate];
+  parent=[component parent];
+  [aContext _setCurrentComponent:parent];
+  [childTemplate takeValuesFromRequest:request
+                 inContext:aContext];
+  [aContext _setCurrentComponent:component];
+  NSDebugMLLog(@"gswdync",@"END ET=%@ defName=%@ id=%@",
+               [self class],[self definitionName],[aContext elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWComponentContent takeValuesFromRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[aContext elementID]elementsNb],
+           @"GSWComponentContent takeValuesFromRequest: bad elementID");
 #endif
   LOGObjectFnStop();
 };
