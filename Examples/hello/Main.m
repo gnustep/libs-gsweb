@@ -10,7 +10,7 @@
  */
 
 #ifndef GNUSTEP
-#include <gnsutep/base/GNUstep.h>
+#include <GNUstepBase/GNUstep.h>
 #endif
 
 #include "Main.h"

@@ -6,6 +6,9 @@
 	* GSWeb.framework/Makefile.postamble: Simplify rules for
 	installing WO_HEADER_FILES.
 	* GSWExtensions.framework/Makefile.postamble: Ditto.
+
+	* hello/Hello.m, hello/HelloPage.m, hello/Hello_main.m,
+	hello/Hello_main.m, hello/Main.m:  Correct include directive.
 	
 2004-03-04  David Ayers  <d.ayers@inode.at>
 
