@@ -66,7 +66,7 @@ static char rcsId[] = "$Id$";
                            withDefaultObject:[_item autorelease]] retain];
       _displayString=[[associations objectForKey:displayString__Key
                                     withDefaultObject:[_displayString autorelease]] retain];
-      _selections=[[associations objectForKey:selection__Key
+      _selections=[[associations objectForKey:selections__Key
                                  withDefaultObject:[_selections autorelease]] retain];
       if (_selections && ![_selections isValueSettable])
         {
@@ -130,6 +130,43 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWBrowser (GSWBrowserA)
 
+// PRIVATE!
+-(void) _setValues:(NSArray*)mutableFoundValues inArray:(NSMutableArray*)selectionsValue
+{
+  NSEnumerator *myEnumer;
+  id			currentObj;
+
+  myEnumer = [[[selectionsValue copy] autorelease] objectEnumerator];
+  while (currentObj = [myEnumer nextObject]) {
+    if ([mutableFoundValues containsObject:currentObj]==NO) {
+      [selectionsValue removeObject:currentObj];
+    }
+  }
+
+  myEnumer = [mutableFoundValues objectEnumerator];
+  while (currentObj = [myEnumer nextObject]) {
+    if ([selectionsValue containsObject:currentObj]==NO) {
+      [selectionsValue addObject:currentObj];
+    }
+  }
+
+}
+
+/*
+
+ On WO it looks like that:
+
+ <SELECT name="4.2.7" size=5 multiple>
+ <OPTION value="0">blau</OPTION>
+ <OPTION value="1">braun</OPTION>
+ <OPTION selected value="2">gruen</OPTION>
+ <OPTION value="3">marineblau</OPTION>
+ <OPTION value="4">schwarz</OPTION>
+ <OPTION value="5">silber</OPTION>
+ <OPTION value="6">weiss</OPTION></SELECT>
+
+ */
+
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
@@ -143,6 +180,7 @@ static char rcsId[] = "$Id$";
   id valueValue=nil;
   id itemValue=nil;
   id displayStringValue=nil;
+  NSString * browserName=nil;
   BOOL escapeHTMLBoolValue=YES;
   id escapeHTMLValue=nil;
   BOOL isMultiple=NO;
@@ -157,9 +195,14 @@ static char rcsId[] = "$Id$";
   request=[context request];
   isFromClientComponent=[request isFromClientComponent];
   component=[context component];
+  browserName=[self nameInContext:context];
+
 //TODO: multiple
-  [super appendToResponse:response
-         inContext:context];
+//  [super appendToResponse:response
+//         inContext:context];
+
+  [response _appendContentAsciiString:@"<SELECT"];
+
   listValue=[_list valueInComponent:component];
   NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
   NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
@@ -178,12 +221,30 @@ static char rcsId[] = "$Id$";
       escapeHTMLValue=[_escapeHTML valueInComponent:component];
       escapeHTMLBoolValue=boolValueFor(escapeHTMLValue);
     };
+
+  [response _appendContentAsciiString:[NSString stringWithFormat:@" NAME=\"%@\"",browserName]];
+
+ 
+  if (_size)
+  {
+    [response _appendContentAsciiString:@" SIZE="];
+    [response _appendContentAsciiString:[_size valueInComponent:component]];
+  } else {
+    // do we get an PopUp if we leave that out?
+    [response _appendContentAsciiString:@" SIZE=1"];
+  }
   if (_multiple)
-    {
-      id multipleValue=nil;
-      multipleValue=[_multiple valueInComponent:component];
-      isMultiple=boolValueFor(multipleValue);
-    };
+  {
+    id multipleValue=nil;
+    multipleValue=[_multiple valueInComponent:component];
+    isMultiple=boolValueFor(multipleValue);
+
+    if (isMultiple) {
+      [response _appendContentAsciiString:@" MULTIPLE"];
+    }
+  };
+  [response _appendContentAsciiString:@">"];
+
   for(i=0;i<[listValue count];i++)
     {
       NSDebugMLLog(@"gswdync",@"inOptGroup=%s",(inOptGroup ? "YES" : "NO"));
@@ -232,11 +293,12 @@ static char rcsId[] = "$Id$";
               if (_value == nil)
                 _autoValue = YES;
               if (valueValue)
-                {
-                  [response _appendContentAsciiString:@" value=\""];
-                  [response _appendContentAsciiString:valueValue];
-                  [response appendContentCharacter:'"'];
-                };
+              {
+                [response _appendContentAsciiString:@" value=\""];
+                // [response _appendContentAsciiString:valueValue];
+                [response _appendContentAsciiString:[NSString stringWithFormat:@"%d",i]];
+                [response appendContentCharacter:'"'];
+              };
               [response appendContentCharacter:'>'];
             };
           displayStringValue=nil;
@@ -338,6 +400,9 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL disabledValue=NO;
   BOOL wasFormSubmitted=NO;
+  id selectionsValue=nil;
+  BOOL selectionsAreMutable=NO;
+
   LOGObjectFnStartC("GSWPopUpButton");
   [self resetAutoValue];
   disabledValue=[self disabledInContext:context];
@@ -368,12 +433,21 @@ static char rcsId[] = "$Id$";
             };
           formValues=[request formValuesForKey:name];
           NSDebugMLLog(@"gswdync",@"formValues=%@",formValues);
+
+          //NSLog(@"formValues=%@",formValues);
+          //NSLog(@"formValues class=%@",[formValues class]);
+
           if (formValues && [formValues count])
             {
               BOOL isEqual=NO;
+
               formValue=[formValues objectAtIndex:0];
               NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
+
               listValue=[_list valueInComponent:component];
+              selectionsValue=[_selections valueInComponent:component];
+
+
               NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
                         @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
                         _list,
@@ -384,25 +458,32 @@ static char rcsId[] = "$Id$";
                   itemValue=[listValue objectAtIndex:i];
                   NSDebugMLLog(@"gswdync",@"_itemValue=%@",itemValue);
                   NSDebugMLLog(@"gswdync",@"item=%@",_item);
+
                   if (_item)
                     [_item setValue:itemValue
                            inComponent:component];
                   NSDebugMLLog(@"gswdync",@"value=%@",_value);
+                  /*
                   valueValue=[self valueInContext:context];
+                  NSLog(@"valueValue is %@",valueValue);
+
                   NSDebugMLLog(@"gswdync",@"_valueValue=%@ [class=%@] _formValue=%@ [class=%@]",
                                valueValue,[valueValue class],
                                formValue,[formValue class]);
                   isEqual=SBIsValueIsIn(valueValue,formValue);
+                  
                   if (isEqual)
+                   */
+                  if ([formValues containsObject:[NSString stringWithFormat:@"%d",i]])
                     {
-                      if(_autoValue == NO)
-                        itemValue = valueValue;
                       [mutableFoundValues addObject:itemValue];
                       found=YES;
                     };
                 };
             };
           foundValues=[NSArray arrayWithArray:mutableFoundValues];
+         // NSLog(@"new foundValues = %@",foundValues);
+
           NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
           if (_selections)
             {
@@ -410,6 +491,13 @@ static char rcsId[] = "$Id$";
                 {
                   NS_DURING
                     {
+                    ////  selectionsValue=[_selections valueInComponent:component];
+//                      NSLog(@"new _setValues...  = %@  (%@)",selectionsValue,[selectionsValue class]);
+
+//                      [self _setValues:mutableFoundValues
+//                               inArray:selectionsValue];
+//                      NSLog(@"new _setValues done");
+
                       [_selections setValue:foundValues
                                   inComponent:component];
                     };
