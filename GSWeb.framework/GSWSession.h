@@ -44,6 +44,7 @@
   NSArray* _languages;
   NSMutableDictionary* _componentState;
   NSDate* _birthDate;
+  BOOL _wasTimedOut;
   NSMutableArray* _statistics;
   NSMutableString* _formattedStatistics;
   GSWContext* _currentContext;
@@ -71,6 +72,7 @@
 -(BOOL)isDistributionEnabled;
 -(void)setDistributionEnabled:(BOOL)flag;
 -(NSString*)sessionID;
+-(void)setSessionID:(NSString*)sessionID;
 -(NSString*)description;
 
 
@@ -86,6 +88,7 @@
 @interface GSWSession (GSWTermination)
 
 -(void)terminate;
+-(void)_terminateByTimeout;
 -(BOOL)isTerminating;
 -(void)setTimeOut:(NSTimeInterval)timeInterval;
 -(NSTimeInterval)timeOut;
@@ -131,12 +134,11 @@
 -(void)_createAutoreleasePool;
 -(GSWComponent*)_permanentPageWithContextID:(NSString*)aContextID;
 -(NSMutableDictionary*)_permanentPageCache;
--(GSWContext*)_contextIDMatchingContextID:(NSString*)aContextID
-                          requestSenderID:(NSString*)aSenderID;
--(void)_rearrangeContextArrayStack;
--(NSArray*)_contextArrayForContextID:(NSString*)aContextID
-                          stackIndex:(unsigned int*)pStackIndex
-                   contextArrayIndex:(unsigned int*)pContextArrayIndex;
+-(NSString*)_contextIDMatchingIDsInContext:(GSWContext*)aContext;
+-(void)_rearrangeContextArrayStackForContextID:(NSString*)contextID;
+-(NSMutableArray*)_contextArrayForContextID:(NSString*)aContextID
+                                 stackIndex:(unsigned int*)pStackIndex
+                          contextArrayIndex:(unsigned int*)pContextArrayIndex;
 -(void)_replacePage:(GSWComponent*)page;
 -(void)_savePage:(GSWComponent*)page
        forChange:(BOOL)forChange;
