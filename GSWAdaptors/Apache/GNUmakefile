@@ -42,7 +42,7 @@ else
 	endif
 endif
 
-APACHEHEADERS := -I/usr/apache/include -I/usr/include/apache -I/usr/local/include/apache -I/usr/lib/apache/include -I/usr/local/apache/include -I/usr/local/include
+APACHEHEADERS := -I/usr/apache/include -I/usr/include/apache -I/usr/local/include/apache -I/usr/lib/apache/include -I/usr/local/include  -I/usr/local/apache/include
 
 APXS := $(APXS) -lPropList -L/usr/local/lib -L/usr/pkg/lib
 

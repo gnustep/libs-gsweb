@@ -55,6 +55,7 @@ extern BOOL WOStrictFlag;
   NSString* instanceNumber;
   NSMutableDictionary* requestHandlers;
   GSWRequestHandler* defaultRequestHandler;
+@public //TODO-NOW REMOVE
   NSRecursiveLock* selfLock;
 #ifndef NDEBUG
   int selfLockn;
@@ -611,6 +612,8 @@ extern BOOL WOStrictFlag;
 -(NSArray*)stringsTableArrayNamed:(NSString*)tableName_
 					  inFramework:(NSString*)frameworkName_
 						languages:(NSArray*)languages_;
+//NDFN
+-(NSArray*)filterLanguages:(NSArray*)languages;
 @end
 //====================================================================
 /*

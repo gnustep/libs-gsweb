@@ -620,6 +620,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   object=[cookie objectForKey:key_];
   if (object && [object count]>0)
 	_cookieValueForKey=[object objectAtIndex:0];
+  NSDebugMLLog(@"requests",@"cookieValueForKey:%@=%@",key_,_cookieValueForKey);
   LOGObjectFnStop();
   return _cookieValueForKey;
 };
@@ -1621,6 +1622,7 @@ into
   NSMutableDictionary* _uriElements=nil;
   LOGObjectFnStart();
   _uriElements=[self uriElements];
+  NSDebugMLLog(@"requests",@"_uriElements=%@",_uriElements);
   if (![_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]])
 	{
 	  _tmp=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
@@ -1752,6 +1754,7 @@ into
             [_uriElements setObject:_tmp
                           forKey:GSWKey_Data[GSWebNamingConv]];
 	};
+  NSDebugMLLog(@"requests",@"_uriElements=%@",_uriElements);
   LOGObjectFnStop();
   return _uriElements;
 };
@@ -1775,6 +1778,7 @@ into
   _dict=[[NSMutableDictionary new] autorelease];
   //NEW//TODO
   _requestHandlerKey=[((GSWDynamicURLString*)[self uri]) urlRequestHandlerKey];
+  NSDebugMLLog(@"requests",@"_requestHandlerKey=%@",_requestHandlerKey);
   if (!_requestHandlerKey
       || (![_requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConv]]
           &&![_requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]]))

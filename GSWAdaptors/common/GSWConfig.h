@@ -99,6 +99,7 @@ typedef struct _GSWConfig
   char* pszConfigFilePath;
   char* pszGSWExtensionsFrameworkWebServerResources;
   BOOL fCanDumpStatus;
+  char* pszAdaptorTemplatesPath;
 } GSWConfig;
 
 

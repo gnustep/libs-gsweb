@@ -577,6 +577,8 @@ static int dontTraceComponentActionURL=0;
 		  LOGError0(@"No languages in session");
 		};
 	};
+  //Not WO: It enable application languages filtering
+  _languages=[GSWApp filterLanguages:_languages];
   return _languages;
 };
 

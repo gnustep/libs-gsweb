@@ -416,7 +416,7 @@ extern NSData* HexStringToData(NSString* _string);
 -(void)deleteFirstBytesCount:(unsigned int)bytesCount_;
 -(void)deleteLastBytesCount:(unsigned int)bytesCount_;
 @end
-/*
+
 //====================================================================
 typedef enum _NSNumFmtType
 {
@@ -425,7 +425,7 @@ typedef enum _NSNumFmtType
   NSNumFmtType__Float	=	2,
 } NSNumFmtType;
 
-@interface NSNumberFormatter : NSFormatter <NSCoding, NSCopying>
+@interface NSFooNumberFormatter : NSFormatter <NSCoding, NSCopying>
 {
   NSNumFmtType type;
 };
@@ -436,5 +436,5 @@ typedef enum _NSNumFmtType
 			forString:(NSString*)string
 	 errorDescription:(NSString**)error;
 @end
-*/
+
 #endif // _GSWebUtils_h__

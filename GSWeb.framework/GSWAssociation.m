@@ -705,6 +705,7 @@ if (retValue) {
 		  _part=[keys objectAtIndex:0];
 		  [keys removeObjectAtIndex:0];
 		  NSDebugMLLog(@"associations",@"_part=%@",_part);
+		  NSDebugMLLog(@"associations",@"_part class=%@",NSStringFromClass([_part class]));
 		  _handlerClass=[associationsHandlerClasses objectForKey:_part];
 		  NSDebugMLLog(@"associations",@"_handlerClass=%@",_handlerClass);
 		  if (_handlerClass)

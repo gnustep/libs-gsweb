@@ -429,6 +429,7 @@ BOOL GSWConfig_PropListApplicationToApplication(GSWApp* p_pApp,
   BOOL fOk=TRUE;
   char pszParents[4096]="";
   proplist_t pValueCanDump=NULL;
+  proplist_t pValueAdaptorTemplatesPath=NULL;
   if (p_pApp->pszName)
 	free(p_pApp->pszName);
   p_pApp->pszName=SafeStrdup(p_pszAppName);//We'll own the AppName
@@ -446,6 +447,24 @@ BOOL GSWConfig_PropListApplicationToApplication(GSWApp* p_pApp,
 	  CONST char* pszCanDump=PLGetString(pValueCanDump);//Do Not Free It
 	  p_pApp->fCanDump=(strcasecmp(pszCanDump,"YES")==0);
 	};
+  //adaptorTemplates
+  pValueAdaptorTemplatesPath=GSWPropList_GetDictionaryEntry(p_propListApp,
+													 "adaptorTemplatesPath",
+													 pszParents,
+													 FALSE,//No Error If Not Exists
+													 GSWPropList_TestString,
+													 p_pLogServerData);
+  if (p_pApp->pszAdaptorTemplatesPath)
+    {
+      free(p_pApp->pszAdaptorTemplatesPath);
+      p_pApp->pszAdaptorTemplatesPath=NULL;
+    };
+  if (pValueAdaptorTemplatesPath)
+    {
+      CONST char* pszPath=PLGetString(pValueAdaptorTemplatesPath);//Do Not Free It
+      p_pApp->pszAdaptorTemplatesPath=SafeStrdup(pszPath);
+    };
+
   //GSWExtensionsFrameworkWebServerResources
   {
 	proplist_t pValuePath=NULL;
@@ -640,6 +659,27 @@ BOOL GSWConfig_LoadConfiguration(void* p_pLogServerData)
 			g_gswConfig.fCanDumpStatus=(strcasecmp(pszCanDumpStatus,"YES")==0);
 		  };
 	  };
+          
+          //adaptorTemplates
+          {
+            proplist_t pValueAdaptorTemplatesPath=NULL;
+            if (g_gswConfig.pszAdaptorTemplatesPath)
+              {
+                free(g_gswConfig.pszAdaptorTemplatesPath);
+                g_gswConfig.pszAdaptorTemplatesPath=NULL;
+              };
+            pValueAdaptorTemplatesPath=GSWPropList_GetDictionaryEntry(propListConfig,
+                                                                      "adaptorTemplatesPath",
+                                                                      NULL,
+                                                                      FALSE,//No Error If Not Exists
+                                                                      GSWPropList_TestString,
+                                                                      p_pLogServerData);
+            if (pValueAdaptorTemplatesPath)
+              {
+                CONST char* pszPath=PLGetString(pValueAdaptorTemplatesPath);//Do Not Free It
+                g_gswConfig.pszAdaptorTemplatesPath=SafeStrdup(pszPath);
+              };
+          };
 
 	  //GSWExtensionsFrameworkWebServerResources
 	  {
@@ -837,8 +877,12 @@ void GSWConfig_DumpGSWAppInstanceIntern(GSWDictElem* p_pElem,void* p_pData)
   char szBuffer[4096]="";
   GSWAppInstance* pAppInstance=(GSWAppInstance*)p_pElem->pValue;
   GSWDumpParams* pParams=(GSWDumpParams*)p_pData;
+  char* pszString=NULL;
+
   //Template
-  GSWString_Append(pBuffer,GSWTemplate_GetDumpAppInstance(pParams->fHTML));
+  pszString=GSWTemplate_GetDumpAppInstance(pParams->fHTML);
+  GSWString_Append(pBuffer,pszString);
+  free(pszString);
   
   //NUM
   sprintf(szBuffer,"%d",
@@ -861,7 +905,7 @@ void GSWConfig_DumpGSWAppInstanceIntern(GSWDictElem* p_pElem,void* p_pData)
 
   //InstanceHeader
   //TODO
-  
+
   GSWTemplate_ReplaceStd(pBuffer,pAppInstance->pApp);
   //Append !
   GSWString_Append(pParams->pBuffer,pBuffer->pszData);
@@ -878,9 +922,12 @@ void GSWConfig_DumpGSWAppIntern(GSWDictElem* p_pElem,void* p_pData)
 	{
 	  GSWString* pBuffer=GSWString_New();
 	  char szBuffer[4096]="";
+          char* pszString=NULL;
 	  	  
 	  //Template
-	  GSWString_Append(pBuffer,GSWTemplate_GetDumpApp(pParams->fHTML));
+          pszString=GSWTemplate_GetDumpApp(pParams->fHTML);
+	  GSWString_Append(pBuffer,pszString);
+          free(pszString);
 	  
 	  //AppName
 	  GSWString_SearchReplace(pBuffer,"##NAME##",pApp->pszName);
@@ -926,6 +973,7 @@ GSWString* GSWConfig_DumpGSWApps(const char* p_pszReqApp,
 {
   GSWString* pBuffer=GSWString_New();
   GSWDumpParams stParams;
+  char* pszString=NULL;
   GSWLock_Lock(g_lockAppList);
 
   stParams.pBuffer=GSWString_New();
@@ -936,7 +984,9 @@ GSWString* GSWConfig_DumpGSWApps(const char* p_pszReqApp,
   stParams.pLogServerData=p_pLogServerData;
 
   //Template Head
-  GSWString_Append(pBuffer,GSWTemplate_GetDumpHead(p_fHTML));
+  pszString=GSWTemplate_GetDumpHead(p_fHTML);
+  GSWString_Append(pBuffer,pszString);
+  free(pszString);
   GSWString_SearchReplace(pBuffer,"##APP_NAME##",p_pszReqApp);
 
   GSWTemplate_ReplaceStd(pBuffer,NULL);
@@ -950,7 +1000,9 @@ GSWString* GSWConfig_DumpGSWApps(const char* p_pszReqApp,
 							&stParams);
   //Template Foot
   pBuffer=GSWString_New();
-  GSWString_Append(pBuffer,GSWTemplate_GetDumpFoot(p_fHTML));
+  pszString=GSWTemplate_GetDumpFoot(p_fHTML);
+  GSWString_Append(pBuffer,pszString);
+  free(pszString);
   GSWTemplate_ReplaceStd(pBuffer,NULL);
   GSWString_Append(stParams.pBuffer,pBuffer->pszData);
   GSWString_Free(pBuffer);  

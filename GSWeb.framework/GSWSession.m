@@ -195,12 +195,15 @@ static char rcsId[] = "$Id$";
   _context=[self context];
   _request=[_context request];
   _applicationName=[_request applicationName];
+  NSDebugMLLog(@"sessions",@"_applicationName=%@",_applicationName);
   _adaptorPrefix=[_request adaptorPrefix];
+  NSDebugMLLog(@"sessions",@"_adaptorPrefix=%@",_adaptorPrefix);
   [[GSWApplication application]unlock];
   _domain=[NSString stringWithFormat:@"%@/%@.%@",
 					_adaptorPrefix,
 					_applicationName,
 					GSWApplicationSuffix[GSWebNamingConv]];
+  NSDebugMLLog(@"sessions",@"_domain=%@",_domain);
   LOGObjectFnStop();
   return _domain;
 };
@@ -222,7 +225,13 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSDate*)expirationDateForIDCookies
 {
-  return [NSDate dateWithTimeIntervalSinceNow:timeOut];
+  NSDate* expirationDateForIDCookies=nil;
+  NSDebugMLLog(@"sessions",@"timeOut=%f",(double)timeOut);
+  expirationDateForIDCookies=[NSDate dateWithTimeIntervalSinceNow:timeOut];
+  NSDebugMLLog(@"sessions",@"expirationDateForIDCookies=%@ (HTML: %@)",
+               expirationDateForIDCookies,
+               [expirationDateForIDCookies htmlDescription]);
+  return expirationDateForIDCookies;
 };
 
 //--------------------------------------------------------------------
@@ -318,6 +327,8 @@ static char rcsId[] = "$Id$";
   [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
   [[NSNotificationCenter defaultCenter] postNotificationName:GSWNotification__SessionDidTimeOutNotification[GSWebNamingConv]
                                         object:_sessionID];
+  //TODO: VERIFY
+  [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
   //goto => GSWApp _sessionDidTimeOutNotification:
   //call GSWApp _discountTerminatedSession
   //call GSWApp statisticsStore
@@ -606,8 +617,14 @@ extern id gcObjectsToBeVisited;
 {
   //OK
   LOGObjectFnStart();
-  [GarbageCollector collectGarbages];
+  printf("session %p _releaseAutoreleasePool START",self);
+  fprintf(stderr,"session %p _releaseAutoreleasePool START",self);
+//TODO-NOW remettre  [GarbageCollector collectGarbages];
+  printf("session %p _releaseAutoreleasePool after garbage",self);
+fprintf(stderr,"session %p _releaseAutoreleasePool after garbage",self);
   DESTROY(autoreleasePool);
+  printf("session %p _releaseAutoreleasePool STOP",self);
+fprintf(stderr,"session %p _releaseAutoreleasePool STOP",self);
   LOGObjectFnStop();
 };
 

@@ -47,7 +47,7 @@ static char rcsId[] = "$Id$";
 void GSWLogC_(CONST char* file,int line,CONST char* string)
 {
   int len=0;
-  if ([NSThread isMultiThreaded])
+/*  if ([NSThread isMultiThreaded])
 	{
 	  NSThread* t = [NSThread currentThread];
 	  fprintf(stderr,"TID=");
@@ -57,10 +57,11 @@ void GSWLogC_(CONST char* file,int line,CONST char* string)
 	  else
 #endif
 		{
+*/
 		  void* tid=(void*)objc_thread_id();
 		  fprintf(stderr,"%p [%ld] (%d) ",tid,(long)tid,(int)getpid());
-		};
-	};
+/*		};
+	};*/
   fprintf(stderr,"File %s: %d. ",file,line);
   fprintf(stderr,string);
   len=strlen(string);

@@ -95,6 +95,7 @@ GSWHTTPResponse* GSWHTTPResponse_BuildErrorResponse(GSWAppRequest* p_pAppRequest
   GSWString* pBuffer=GSWString_New();
   GSWString* pBufferMessage=GSWString_New();
   GSWHTTPResponse* pHTTPResponse=calloc(1,sizeof(GSWHTTPResponse));
+  char* pszString=NULL;
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPResponse_BuildErrorResponse");
   if (p_pAppRequest && p_pAppRequest->pAppInstance)
 	pApp=p_pAppRequest->pAppInstance->pApp;
@@ -120,7 +121,9 @@ GSWHTTPResponse* GSWHTTPResponse_BuildErrorResponse(GSWAppRequest* p_pAppRequest
 	};
   GSWTemplate_ReplaceStd(pBufferMessage,pApp);
 
-  GSWString_Append(pBuffer,GSWTemplate_ErrorResponseText(TRUE));
+  pszString=GSWTemplate_ErrorResponseText(TRUE,pApp);
+  GSWString_Append(pBuffer,pszString);
+  free(pszString);
   GSWString_SearchReplace(pBuffer,"##TEXT##",pBufferMessage->pszData);  
   GSWTemplate_ReplaceStd(pBuffer,pApp);
   
@@ -355,6 +358,7 @@ GSWHTTPResponse* GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest* p_pHTTPRequ
   GSWString* pHeadersBuffer=GSWString_New();
   const char* pszRemoteAddr=NULL;
   const char* pszRemoteHost=NULL;
+  char* pszString=NULL;
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPResponse_BuildStatusResponse");
   GSWLog(GSW_INFO,p_pLogServerData,"Build Status Page.");
   GSWConfig_LoadConfiguration(p_pLogServerData);
@@ -366,9 +370,11 @@ GSWHTTPResponse* GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest* p_pHTTPRequ
   pRequestHeaders = (GSWDict*)(p_pHTTPRequest->pHeaders);
   GSWDict_PerformForAllElem(pRequestHeaders,GSWHTTPResponse_AddHeaderToString,pHeadersBuffer);
   if (GSWConfig_CanDumpStatus())
-	GSWString_Append(pContent,GSWTemplate_StatusAllowedResponse(TRUE));
+    pszString=GSWTemplate_StatusAllowedResponse(TRUE,NULL);
   else
-	GSWString_Append(pContent,GSWTemplate_StatusDeniedResponse(TRUE));
+    pszString=GSWTemplate_StatusDeniedResponse(TRUE,NULL);
+  GSWString_Append(pContent,pszString);
+  free(pszString);
   pszRemoteAddr=(const char*)GSWDict_ValueForKey(pRequestHeaders,"x-gsweb-remote-addr");
   if (!pszRemoteAddr)
 	pszRemoteAddr="";

@@ -1,3 +1,35 @@
+2001-10-28  Manuel Guesdon <mguesdon@orange-concept.com>
+	Compilation is OK but this version hasn't been tested
+	
+        * GSWeb.framework/GSWFileUpload.m: Added Traces
+                corrected bug when uploading string type data.
+        * GSWExtensionsGSW.framework/GSWFileUploadFormComponent.m:
+                handle nil fileInfo retrieving, added isDeleteEnabled
+        * GSWExtensionsGSW.framework/GSWFileUploadFormComponent.gswc/GSWFileUploadFormComponent.html/.gswd:
+                added isDeleteEnabled condition
+        * GSWAdaptors/commun/GSWConfig.c/.h: added adaptorTemplatesPath handle (per application and global)
+        * GSWAdaptors/commun/GSWApp.h/.c: added pszAdaptorTemplatesPath
+        * GSWAdaptors/commun/GSWHTTPResponse.c added parameter to GSWTemplate_* calls
+        * GSWAdaptors/commun/GSWAppRequest.c added parameter to GSWTemplate_* calls
+        * GSWAdaptors/commun/GSWTemplates.h/.c: added GSWApp* parameter
+                o handle per application Templates
+        * GSWeb.framework/GSWResourcesManager.m: traces
+        * GSWeb.framework/GSWApplication.m: 
+                o change trace level from "low" to "application"
+                o added filterLanguages: method                
+        * GSWeb.framework/GSWContext.m: added filterLanguages: call in _languages
+        * GSWeb.framework/GSWAssociations.m: traces        
+        * GSWeb.framework/GSWSession.m: Added Traces
+        * GSWeb.framework/GSWUtils.m: Added warning
+        * GSWeb.framework/GSWRequest.m: Added Traces
+        * GSWeb.framework/GSWWOCompatibility.h/.m: added WOImageButton
+        * GSWeb.framework/GSWPopUpButton.m: Added Traces
+        * GSWeb.framework/GSWResponse.m: fix stringByEscapingHTMLString:
+                o stringByEscapingHTMLAttributeValue:
+                o stringByConvertingToHTMLEntities:
+                o stringByConvertingToHTML:
+        * GSWeb.framework/NSObject+IVarAccess+PerformSel.m: added EOF access type
+        
 2001-10-27  Manuel Guesdon <mguesdon@orange-concept.com>
 	Applied patch from Turbocat (www.turbocat.de): gsw_26_oct_2001.patch
 		except 

@@ -39,6 +39,9 @@
 //GSWeb Additions {
   GSWAssociation* handleValidationException;
 // }
+//GSWeb Additions {
+  GSWAssociation* tcEscapeHTML;
+// }
 };
 
 -(id)initWithName:(NSString*)name_

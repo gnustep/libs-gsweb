@@ -132,51 +132,131 @@ char* g_szDump_AppInstanceTemplate[2]={
   "</TR>"};
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_ErrorResponseText(BOOL p_fHTML)
+char* GSWTemplate_GetTemplate(BOOL p_fHTML,GSWApp* pApp,CONST char* p_pszTemplateName)
 {
-  return g_szErrorResponseTextTemplate[p_fHTML ? 1 : 0];
+  char* pszTemplate=NULL;
+  if (pApp && pApp->pszAdaptorTemplatesPath && p_pszTemplateName)
+    {
+      FILE* fd=NULL;
+      GSWConfig* gswConfig=GSWConfig_GetConfig();
+      int applen=strlen(pApp->pszAdaptorTemplatesPath)+strlen(p_pszTemplateName);
+      int globallen=strlen(gswConfig->pszAdaptorTemplatesPath)+strlen(p_pszTemplateName);
+      int maxlen=(applen > globallen ? applen : globallen)+20;
+      {
+        char* pathName=malloc(maxlen);
+        memset(pathName,0,maxlen);
+        if (p_fHTML)
+          sprintf(pathName,"%s/%s.html",pApp->pszAdaptorTemplatesPath,p_pszTemplateName);
+        else
+          sprintf(pathName,"%s/%s.txt",pApp->pszAdaptorTemplatesPath,p_pszTemplateName);
+        fd=fopen(pathName,"r");
+        if (!fd)
+          {
+            if (p_fHTML)
+              sprintf(pathName,"%s/%s.html",gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
+            else
+              sprintf(pathName,"%s/%s.txt",gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
+            fd=fopen(pathName,"r");
+          }
+        if (fd)
+          {
+            char buff[4096]="";
+            GSWString* pBuffer=GSWString_New();
+            while(fgets(buff,4096,fd))
+              {
+                GSWString_Append(pBuffer,buff);
+              };          
+            fclose(fd);
+            pszTemplate=pBuffer->pszData;
+            GSWString_Detach(pBuffer);
+            GSWString_Free(pBuffer);
+          };
+        free(pathName);
+        pathName=NULL;
+      };
+    };
+  return pszTemplate;
+};
+
+
+//--------------------------------------------------------------------
+char* GSWTemplate_ErrorResponseText(BOOL p_fHTML,GSWApp* pApp)
+{
+  char* pszString=NULL;
+  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorResponseText");
+  if (!pszString)
+    pszString=strdup(g_szErrorResponseTextTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML)
+char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML,GSWApp* pApp)
 {
-  return g_szErrorNoResponseMessageTemplate[p_fHTML ? 1 : 0];
+  char* pszString=NULL;
+  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorNoResponse");
+  if (!pszString)
+    pszString=strdup(g_szErrorNoResponseMessageTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML)
+char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML,GSWApp* pApp)
 {
-  return g_szStatusResponseAllowedTemplate[p_fHTML ? 1 : 0];
+  char* pszString=NULL;
+  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"StatusAllowedResponse");
+  if (!pszString)
+    pszString=strdup(g_szStatusResponseAllowedTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML)
+char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML,GSWApp* pApp)
 {
-  return g_szStatusResponseDeniedTemplate[p_fHTML ? 1 : 0];
+  char* pszString=NULL;
+  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"StatusDeniedResponse");
+  if (!pszString)
+    pszString=strdup(g_szStatusResponseDeniedTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_GetDumpHead(BOOL p_fHTML)
+char* GSWTemplate_GetDumpHead(BOOL p_fHTML)
 {
-  return g_szDump_HeadTemplate[p_fHTML ? 1 : 0];
+  char* pszString=NULL;
+/*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpHead");
+  if (!pszString)*/
+    pszString=strdup(g_szDump_HeadTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_GetDumpFoot(BOOL p_fHTML)
+char* GSWTemplate_GetDumpFoot(BOOL p_fHTML)
 {
-  return g_szDump_FootTemplate[p_fHTML ? 1 : 0];
+  char* pszString=NULL;
+/*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpFoot");
+  if (!pszString)*/
+    pszString=strdup(g_szDump_FootTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_GetDumpApp(BOOL p_fHTML)
+char* GSWTemplate_GetDumpApp(BOOL p_fHTML)
 {
-  return g_szDump_AppTemplate[p_fHTML ? 1 : 0];
+  char* pszString=NULL;
+/*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpApp");
+  if (!pszString)*/
+    pszString=strdup(g_szDump_AppTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------
-CONST char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML)
+char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML)
 {
-  return g_szDump_AppInstanceTemplate[p_fHTML ? 1 : 0];
+  char* pszString=NULL;
+/*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpAppInstance");
+  if (!pszString)*/
+    pszString=strdup(g_szDump_AppInstanceTemplate[p_fHTML ? 1 : 0]);
+  return pszString;
 };
 
 //--------------------------------------------------------------------

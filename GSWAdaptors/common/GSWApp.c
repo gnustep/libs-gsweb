@@ -68,6 +68,8 @@ void GSWApp_Free(GSWApp* p_pApp)
 			free(p_pApp->pszName);
 		  if (p_pApp->pszGSWExtensionsFrameworkWebServerResources)
 			free(p_pApp->pszGSWExtensionsFrameworkWebServerResources);
+                  if (p_pApp->pszAdaptorTemplatesPath)
+                    free(p_pApp->pszAdaptorTemplatesPath);
 		  GSWDict_FreeElements(&p_pApp->stInstancesDict);
 		  GSWDict_FreeElements(&p_pApp->stHeadersDict);
 		  free(p_pApp);

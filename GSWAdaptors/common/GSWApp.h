@@ -33,6 +33,7 @@ typedef struct _GSWApp
   GSWDict stHeadersDict;
   char* pszGSWExtensionsFrameworkWebServerResources;
   BOOL fCanDump;
+  char* pszAdaptorTemplatesPath;
 } GSWApp;
 
 typedef struct _GSWAppInstance

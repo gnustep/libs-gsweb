@@ -143,6 +143,10 @@ static char rcsId[] = "$Id$";
   //OK ?
   NSString* _projectName=nil;
   LOGObjectFnStart();
+  NSDebugMLLog(@"bundles",@"_gnustep_target_cpu=%@",[NSBundle _gnustep_target_cpu]);
+  NSDebugMLLog(@"bundles",@"_gnustep_target_dir=%@",[NSBundle _gnustep_target_dir]);
+  NSDebugMLLog(@"bundles",@"_gnustep_target_os=%@",[NSBundle _gnustep_target_os]);
+  NSDebugMLLog(@"bundles",@"_library_combo=%@",[NSBundle _library_combo]);
   NSDebugMLLog(@"bundles",@"bundlePath=%@",bundlePath);
   _projectName=[bundlePath lastPathComponent];
   NSDebugMLLog(@"bundles",@"_projectName=%@",_projectName);

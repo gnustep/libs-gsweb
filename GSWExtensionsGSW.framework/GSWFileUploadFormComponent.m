@@ -74,6 +74,8 @@
 	  if ([self hasBinding:@"fileInfo"])
 		{
 		  fileInfo=[[self valueForBinding:@"fileInfo"] mutableCopy];
+                  if (!fileInfo)
+                    fileInfo=[NSMutableDictionary new];
 		};
 	};
   LOGObjectFnStop();
@@ -83,17 +85,33 @@
 //--------------------------------------------------------------------
 -(BOOL)isViewEnabled
 {
-  BOOL _isViewEnabled=YES;
+  BOOL isViewEnabled=YES;
   if ([self hasBinding:@"isViewEnabled"])
 	{
-	  id _isViewEnabledObject=[self valueForBinding:@"isViewEnabled"];
-	  _isViewEnabled=boolValueFor(_isViewEnabledObject);
+	  id isViewEnabledObject=[self valueForBinding:@"isViewEnabled"];
+	  isViewEnabled=boolValueFor(isViewEnabledObject);
 	};
-  if (_isViewEnabled)
+  if (isViewEnabled)
 	{
-	  _isViewEnabled=([[self fileInfo]objectForKey:@"data"]!=nil);
+	  isViewEnabled=([[self fileInfo]objectForKey:@"data"]!=nil);
 	};
-  return _isViewEnabled;
+  return isViewEnabled;
+};
+
+//--------------------------------------------------------------------
+-(BOOL)isDeleteEnabled
+{
+  BOOL isDeleteEnabled=NO;
+  if ([self hasBinding:@"isDeleteEnabled"])
+	{
+	  id isDeleteEnabledObject=[self valueForBinding:@"isDeleteEnabled"];
+	  isDeleteEnabled=boolValueFor(isDeleteEnabledObject);
+	};
+  if (isDeleteEnabled)
+	{
+	  isDeleteEnabled=([[self fileInfo]objectForKey:@"data"]!=nil);
+	};
+  return isDeleteEnabled;
 };
 
 //--------------------------------------------------------------------

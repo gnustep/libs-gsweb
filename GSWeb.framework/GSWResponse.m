@@ -52,21 +52,21 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogAssertGood(self);
-  NSDebugFLog(@"dealloc Response %p",self);
-  NSDebugFLog0(@"Release Response httpVersion");
+//  GSWLogAssertGood(self);
+//  NSDebugFLog(@"dealloc Response %p",self);
+//  NSDebugFLog0(@"Release Response httpVersion");
   DESTROY(httpVersion);
-  NSDebugFLog0(@"Release Response headers");
+//  NSDebugFLog0(@"Release Response headers");
   DESTROY(headers);
-  NSDebugFLog0(@"Release Response contentFaults");
+//  NSDebugFLog0(@"Release Response contentFaults");
   DESTROY(contentFaults);
-  NSDebugFLog0(@"Release Response contentData");
+//  NSDebugFLog0(@"Release Response contentData");
   DESTROY(contentData);
-  NSDebugFLog0(@"Release Response userInfo");
+//  NSDebugFLog0(@"Release Response userInfo");
   DESTROY(userInfo);
-  NSDebugFLog0(@"Release Response cookies");
+  //NSDebugFLog0(@"Release Response cookies");
   DESTROY(cookies);
-  NSDebugFLog0(@"Release Response");
+//  NSDebugFLog0(@"Release Response");
   [super dealloc];
 };
 
@@ -107,6 +107,10 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
   NSAssert(isFinalizeInContextHasBeenCalled,@"GSWResponse _finalizeInContext: not called");
 };
 
+-(void)forceFinalizeInContext
+{
+  isFinalizeInContextHasBeenCalled=YES;
+};
 
 //--------------------------------------------------------------------
 //	headerForKey:
@@ -203,33 +207,32 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 
 //--------------------------------------------------------------------
 //	setHeaders:
-
+ 
 -(void)setHeaders:(NSDictionary*)headerDictionary
 {
   if (!headers)
     headers=[NSMutableDictionary new];
-
-  if (headerDictionary) 
+  
+  if (headerDictionary)
     {
-      NSEnumerator	*keyEnum;
-      id		headerName;
-
+      NSEnumerator* keyEnum=nil;
+      id	    headerName=nil;
+    
       keyEnum = [headerDictionary keyEnumerator];
-      while (headerName = [keyEnum nextObject]) 
+      while ((headerName = [keyEnum nextObject]))
         {
-          [self setHeaders:[NSArray arrayWithObject:[headerDictionary objectForKey:headerName]] 
-                forKey:headerName];
-	}
-    }
-}
-
+          [self setHeaders:[NSArray arrayWithObject:[headerDictionary objectForKey:headerName]] forKey:headerName];
+ 	};
+    };
+};
+ 
 //--------------------------------------------------------------------
 //	headers
 
 -(NSMutableDictionary*)headers
 {
   return headers;
-}
+};
 
 //--------------------------------------------------------------------
 //	setHTTPVersion:
@@ -280,17 +283,22 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
   //OK
   NSString* _dateString=nil;
   LOGObjectFnStart();
-  _dateString=[[NSCalendarDate date] htmlDescription];
-  NSDebugMLLog(@"low",@"_dateString:%@",_dateString);
-  [self setHeader:_dateString 
-		forKey:@"date"];
-  [self setHeader:_dateString
-		forKey:@"expires"];
-  [self setHeader:@"no-cache"
-		forKey:@"pragma"];
-  [self setHeaders:[NSArray arrayWithObjects:@"private",@"no-cache",@"max-age=0",nil]
-		forKey:@"cache-control"];		
-  isClientCachingDisabled=YES;
+  if (!isClientCachingDisabled)
+    {
+      _dateString=[[NSCalendarDate date] htmlDescription];
+      NSDebugMLLog(@"low",@"_dateString:%@",_dateString);
+      [self setHeader:_dateString 
+            forKey:@"date"];
+      [self setHeader:_dateString
+            forKey:@"expires"];
+      [self setHeader:@"no-cache"
+            forKey:@"pragma"];
+      
+      [self setHeaders:[NSArray arrayWithObjects:@"private",@"no-cache",@"max-age=0",nil]
+            forKey:@"cache-control"];
+  
+      isClientCachingDisabled=YES;
+    };
   LOGObjectFnStop();
 };
 
@@ -445,25 +453,29 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 //--------------------------------------------------------------------
 +(NSString*)stringByEscapingHTMLString:(NSString*)string_
 {
-  return [string_ stringByEscapingHTMLString];
+  NSString* _string=[NSString stringWithObject:string_];
+  return [_string stringByEscapingHTMLString];
 };
 
 //--------------------------------------------------------------------
 +(NSString*)stringByEscapingHTMLAttributeValue:(NSString*)string_
 {
-  return [string_ stringByEscapingHTMLAttributeValue];
+  NSString* _string=[NSString stringWithObject:string_];
+  return [_string stringByEscapingHTMLAttributeValue];
 };
 
 //--------------------------------------------------------------------
 +(NSString*)stringByConvertingToHTMLEntities:(NSString*)string_
 {
-  return [string_ stringByConvertingToHTMLEntities];
+  NSString* _string=[NSString stringWithObject:string_];
+  return [_string stringByConvertingToHTMLEntities];
 };
 
 //--------------------------------------------------------------------
 +(NSString*)stringByConvertingToHTML:(NSString*)string_
 {
-  return [string_ stringByConvertingToHTML];
+  NSString* _string=[NSString stringWithObject:string_];
+  return [_string stringByConvertingToHTML];
 };
 
 @end
@@ -703,9 +715,21 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 //--------------------------------------------------------------------
 //NDFN
 //Last cHance Response
+
 +(GSWResponse*)responseWithMessage:(NSString*)message_
 			 inContext:(GSWContext*)context_
 			forRequest:(GSWRequest*)request_
+{
+  return [self responseWithMessage:message_
+               inContext:context_
+               forRequest:request_
+               forceFinalize:NO];
+};
+
++(GSWResponse*)responseWithMessage:(NSString*)message_
+			 inContext:(GSWContext*)context_
+			forRequest:(GSWRequest*)request_
+                     forceFinalize:(BOOL)forceFinalize
 {
   GSWResponse* _response=nil;
   NSString* _httpVersion=nil;
@@ -725,6 +749,8 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
       _responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
 				[[_response class]stringByEscapingHTMLString:message_]];
       [_response appendContentString:_responseString];
+      if (forceFinalize)
+        [_response forceFinalizeInContext];
     };
   LOGClassFnStop();
   return _response;

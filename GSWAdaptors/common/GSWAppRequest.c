@@ -185,9 +185,12 @@ GSWHTTPResponse* GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest** p_ppHTTPRequ
 	};
   if (fAppNotResponding)
 	{
+          GSWApp* pApp=(p_pAppRequest ? (p_pAppRequest->pAppInstance ? p_pAppRequest->pAppInstance->pApp : NULL) : NULL);
+          char* pszString=GSWTemplate_ErrorNoResponseMessage(TRUE,pApp);
 	  pHTTPResponse = GSWHTTPResponse_BuildErrorResponse(p_pAppRequest,
-														 GSWTemplate_ErrorNoResponseMessage(TRUE),
-														 p_pLogServerData);
+                                                             pszString,
+                                                             p_pLogServerData);
+          free(pszString);
 	};
   if (!pHTTPResponse)
 	{

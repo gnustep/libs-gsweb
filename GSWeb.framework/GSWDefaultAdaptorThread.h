@@ -68,7 +68,8 @@
 -(void)sendResponse:(GSWResponse*)response;
 -(void)threadExited;
 +(id)threadExited:(NSNotification*)notif_;
-
+-(NSDate*)creationDate;
+-(BOOL)isExpired;
 @end
 
 #endif

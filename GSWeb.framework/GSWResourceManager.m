@@ -49,13 +49,14 @@ NSString* globalLanguagesPListPathName=nil;
 		{
 		  NSString* _bundlePath=nil;
 		  _mainBundle=[GSWApplication mainBundle];
-//		  NSDebugFLog(@"_mainBundle:%@",_mainBundle);
+		  NSDebugMLLog(@"resmanager",@"_mainBundle:%@",_mainBundle);
 		  _bundlePath=[_mainBundle  bundlePath];
+		  NSDebugMLLog(@"resmanager",@"_bundlePath:%@",_bundlePath);
 		  _deployedBundle=[GSWDeployedBundle bundleWithPath:_bundlePath];
-//		  NSDebugFLog(@"_deployedBundle:%@",_deployedBundle);
+		  NSDebugMLLog(@"resmanager",@"_deployedBundle:%@",_deployedBundle);
 	  
 		  globalAppProjectBundle=[[_deployedBundle projectBundle] retain];
-//		  NSDebugFLog(@"globalAppProjectBundle=%@",globalAppProjectBundle);
+		  NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
 		  NSAssert(globalAppProjectBundle,@"no globalAppProjectBundle");
 //		  LOGDumpObject(globalAppProjectBundle,2);
 		  //call  _deployedBundle bundlePath

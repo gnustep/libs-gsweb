@@ -103,6 +103,7 @@ static char rcsId[] = "$Id$";
 			{
 			NSLog(@"### exception from ... addTimer... %@", [localException reason]);
 			  LOGException(@"%@ (%@)",localException,[localException reason]);
+                          NSLog(@"### exception ... %@", [localException reason]);
 			  //TODO
 			  [target unlock];
 			  [self unlock];

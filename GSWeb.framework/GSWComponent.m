@@ -946,6 +946,7 @@ associationsKeys:(NSArray*)_associationsKeys
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
   GSWSaveAppendToResponseElementID(context_);//Debug Only
+
   _template=[self _template];
   if(GSDebugSet(@"gswcomponents") == YES)
     [response_ appendContentString:[NSString stringWithFormat:@"\n<!-- Start %@ -->\n",[self _templateName]]];//TODO enlever
@@ -957,6 +958,7 @@ associationsKeys:(NSArray*)_associationsKeys
   [_template appendToResponse:response_
 			 inContext:context_];
   [context_ deleteLastElementIDComponent];
+
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[context_ elementID]])
@@ -967,6 +969,7 @@ associationsKeys:(NSArray*)_associationsKeys
 #endif
   if(GSDebugSet(@"gswcomponents") == YES)
     [response_ appendContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ -->\n",[self _templateName]]];//TODO enlever
+
   LOGObjectFnStop();
 };
 
@@ -1338,6 +1341,23 @@ associationsKeys:(NSArray*)_associationsKeys
 -(void)_debugWithString:(NSString*)_string
 {
   LOGObjectFnNotImplemented();	//TODOFN
+/* Seems there's a problem with patches... Why this code is here ?
+   LOGObjectFnStart();
+   if (![self context])
+     {
+       NSDebugMLLog(@"gswcomponents",@"component sleeps, we awake it = %@",self);
+       [self awakeInContext:context_];
+     }
+   else
+     {
+       if ([self context] != context_)
+         { 
+           NSDebugMLLog(@"gswcomponents",@"component is already awaken, but has not the current context, we awake it twice with current context = %@",self);
+           [self awakeInContext:context_];
+         };
+     };
+   LOGObjectFnStop();
+*/
 };
 
 //--------------------------------------------------------------------
@@ -1406,23 +1426,33 @@ associationsKeys:(NSArray*)_associationsKeys
   [_response setHeader:@"text/html"
 			 forKey:@"content-type"];
   [_context _setResponse:_response];
+//====>
   _pageElement=[_context _pageElement];
   _pageChanged=(self!=(GSWComponent*)_pageElement);
   [_context _setPageChanged:_pageChanged];
+//====>
   if (_pageChanged)
 	[_context _setPageElement:self];
   [_context _setCurrentComponent:self];
+//====>
+
   [self appendToResponse:_response
 		inContext:_context];
+
+//----------------
+//==>10
   _session=[_context session];
   NSDebugMLog(@"_session=%@",_session);
   NSDebugMLog(@"_sessionID=%@",[_session sessionID]);
   [_session appendCookieToResponse:_response];
+//==>11
   [_session _saveCurrentPage];
   [_context _incrementContextID];
   [_context deleteAllElementIDComponents];
   [_context _setPageChanged:_pageChanged];
   [_context _setPageReplaced:NO];
+
+//<==========
   LOGObjectFnStop();
   return _response;
 };

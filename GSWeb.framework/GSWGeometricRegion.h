@@ -269,4 +269,4 @@
 
 @end 
 
-#endif __GSWGeometricRegion_h_
+#endif // __GSWGeometricRegion_h_

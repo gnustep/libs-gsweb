@@ -26,14 +26,15 @@
 
 #include "GSWApp.h"
 
-CONST char* GSWTemplate_ErrorResponseText(BOOL p_fHTML);
-CONST char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML);
-CONST char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML);
-CONST char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML);
-CONST char* GSWTemplate_GetDumpHead(BOOL p_fHTML);
-CONST char* GSWTemplate_GetDumpFoot(BOOL p_fHTML);
-CONST char* GSWTemplate_GetDumpApp(BOOL p_fHTML);
-CONST char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML);
+//You need to free returned char
+char* GSWTemplate_ErrorResponseText(BOOL p_fHTML,GSWApp* pApp);
+char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML,GSWApp* pApp);
+char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML,GSWApp* pApp);
+char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML,GSWApp* pApp);
+char* GSWTemplate_GetDumpHead(BOOL p_fHTML);
+char* GSWTemplate_GetDumpFoot(BOOL p_fHTML);
+char* GSWTemplate_GetDumpApp(BOOL p_fHTML);
+char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML);
 void GSWTemplate_ReplaceStd(GSWString* p_pString,GSWApp* p_pApp);
 
 #endif //_GSWTemplates_h__

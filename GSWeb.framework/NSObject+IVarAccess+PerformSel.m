@@ -41,7 +41,8 @@ typedef enum
 
   NSObjectIVarsAccessType_Dictionary,
   NSObjectIVarsAccessType_DictionaryWithRemoveObject,
-  NSObjectIVarsAccessType_DictionaryWithoutRemoveObject
+  NSObjectIVarsAccessType_DictionaryWithoutRemoveObject,
+  NSObjectIVarsAccessType_EO
 
 } NSObjectIVarsAccessType;
 
@@ -179,7 +180,7 @@ const char* GSGetInstanceVariableType(id obj,
 - (id)getIVarNamed:(NSString *)name_
 {
   id value;
-  SEL sel = NSSelectorFromString(@"valueForKey:");
+  SEL sel = @selector(valueForKey:);//NEW NSSelectorFromString(@"valueForKey:");
   id	(*imp)(id, SEL, id) = (id (*)(id, SEL, id))[NSObject instanceMethodForSelector: sel];
 
   //NSLog(@"%@",name_);
@@ -197,6 +198,14 @@ const char* GSGetInstanceVariableType(id obj,
 			value=nil;
 		}
 	  } else {
+          LOGException(@"==> %@ (%@) gvfk from string=%p gvfk sel=%p initWithCapacity from string:=%p initWithCapacity sel:=%p NSStringFromSelector(sel)",
+                       localException,
+                       [localException reason],
+                       NSSelectorFromString(@"valueForKey:"),
+                       @selector(valueForKey:),
+                       NSSelectorFromString(@"initWithCapacity:"),
+                       @selector(initWithCapacity:),
+                       NSStringFromSelector(sel));
 		[localException raise];
 		}
     }
@@ -205,12 +214,11 @@ const char* GSGetInstanceVariableType(id obj,
   return value;
 }
 
-
 //--------------------------------------------------------------------
 - (void)setIVarNamed:(NSString *)name_
 	   withValue:(id)value_
 {
-  SEL sel = NSSelectorFromString(@"takeValue:forKey:");
+  SEL sel = @selector(takeValue:forKey:);//NEW NSSelectorFromString(@"takeValue:forKey:");
   id	(*imp)(id, SEL, id, id) = (id (*)(id, SEL, id, id))[NSObject instanceMethodForSelector: sel];
 
   //NSLog(@"sel (takeValue:forKey: <NSObject>) : %d", (int)sel);
@@ -424,6 +432,9 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	case NSObjectIVarsAccessType_Dictionary:
 	  _value=[self objectForKey:name_];
 	  break;
+	case NSObjectIVarsAccessType_EO:
+	  _value=[self valueForKey:name_];
+	  break;
 	default:
 	  break;
 	};
@@ -539,6 +550,10 @@ void IdToPData(const char* retType,id _value,void* pdata)
 			  if ([self respondsToSelector:@selector(objectForKey:)]) 
 				{
 				  _ivarAccess->accessType=NSObjectIVarsAccessType_Dictionary;
+				}
+                          else if ([self respondsToSelector:@selector(valueForKey:)]) 
+				{
+				  _ivarAccess->accessType=NSObjectIVarsAccessType_EO;
 				}
 			  else
 				{
@@ -664,6 +679,17 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		  // keyvalue coding
 		  [self removeObjectForKey:name_];
 		};
+	  break;
+	case NSObjectIVarsAccessType_EO:
+          NSDebugMLLog(@"low",
+                       @"setIVarNamed %@ in %@ %p (superClass:%@) with takeValue:forKey:",
+                       name_,
+                       [self class],
+                       self,
+                       [self superclass]);
+          // keyvalue coding
+          [self takeValue:value_
+                forKey:name_];
 	  break;
 	default:
 	  break;
@@ -793,7 +819,12 @@ void IdToPData(const char* retType,id _value,void* pdata)
 				  else
 					_ivarAccess->accessType=NSObjectIVarsAccessType_DictionaryWithoutRemoveObject;
 				}
-			  else
+                          else
+                            {
+                              BOOL _respondsToTakeValue=[self respondsToSelector:@selector(takeValue:forKey:)];
+                              if (_respondsToTakeValue)
+                                _ivarAccess->accessType=NSObjectIVarsAccessType_EO;
+                              else
 				{
 				  _exception=[NSException exceptionWithName:@"NSObject IVar"
 										  format:@"Can't set Variable named %@ in %@ %p (superClass:%@) value=%@",
@@ -803,6 +834,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 										  [self superclass],
 										  value_];
 				};
+                            };
 			};
 		};
 	  

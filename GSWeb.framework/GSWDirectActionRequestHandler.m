@@ -50,7 +50,9 @@ static char rcsId[] = "$Id$";
 	  GSWContext* _context=nil;
 	  [_application lockRequestHandling];
 	  NS_DURING
-		{
+            {
+              NS_DURING
+                {
 		  _statisticsStore=[[GSWApplication application]statisticsStore];
 		  [_statisticsStore _applicationWillHandleDirectActionRequest];
 		  _submitButtonsActionPathFromRequest=[self submitButtonsActionPathFromRequest:request_]; //So what ?
@@ -58,67 +60,67 @@ static char rcsId[] = "$Id$";
 		  _requestHandlerPathArray=[request_ requestHandlerPathArray];
 		  NSDebugMLLog(@"requests",@"_requestHandlerPathArray=%@",_requestHandlerPathArray);
 		  switch([_requestHandlerPathArray count])
-			{
-			case 0:
-			  _actionName=@"default";
-			  _className=@"DirectAction";
-			  break;
-			case 1:
-			  {
-				NSString* _tmpActionName=[NSString stringWithFormat:@"%@Action",
-												   [_requestHandlerPathArray objectAtIndex:0]];
-				SEL _tmpActionSel=NSSelectorFromString(_tmpActionName);
-				Class _class = NSClassFromString(@"DirectAction");
-				NSDebugMLLog(@"requests",@"_tmpActionName=%@",_tmpActionName);
-				if (_tmpActionSel && _class)
-				  {
-					if ([_class instancesRespondToSelector:_tmpActionSel])
-					  {
-						_actionName=[_requestHandlerPathArray objectAtIndex:0];
-						_className=@"DirectAction";
-					  };
-				  };
-				if (!_actionName)
-				  {
-					_className=[_requestHandlerPathArray objectAtIndex:0];
-					_actionName=@"default";
-				  };
-			  };
-			  break;
-			case 2:
-			  _className=[_requestHandlerPathArray objectAtIndex:0];
-			  _actionName=[NSString stringWithFormat:@"%@",
-									[_requestHandlerPathArray objectAtIndex:1]];
-			  break;
-			default:
-			  ExceptionRaise0(@"GSWDirectActionRequestHandler",@"bad parameters count");
-			  break;
-			};
+                    {
+                    case 0:
+                      _actionName=@"default";
+                      _className=@"DirectAction";
+                      break;
+                    case 1:
+                      {
+                        NSString* _tmpActionName=[NSString stringWithFormat:@"%@Action",
+                                                           [_requestHandlerPathArray objectAtIndex:0]];
+                        SEL _tmpActionSel=NSSelectorFromString(_tmpActionName);
+                        Class _class = NSClassFromString(@"DirectAction");
+                        NSDebugMLLog(@"requests",@"_tmpActionName=%@",_tmpActionName);
+                        if (_tmpActionSel && _class)
+                          {
+                            if ([_class instancesRespondToSelector:_tmpActionSel])
+                              {
+                                _actionName=[_requestHandlerPathArray objectAtIndex:0];
+                                _className=@"DirectAction";
+                              };
+                          };
+                        if (!_actionName)
+                          {
+                            _className=[_requestHandlerPathArray objectAtIndex:0];
+                            _actionName=@"default";
+                          };
+                      };
+                      break;
+                    case 2:
+                      _className=[_requestHandlerPathArray objectAtIndex:0];
+                      _actionName=[NSString stringWithFormat:@"%@",
+                                            [_requestHandlerPathArray objectAtIndex:1]];
+                      break;
+                    default:
+                      ExceptionRaise0(@"GSWDirectActionRequestHandler",@"bad parameters count");
+                      break;
+                    };
 		  NSDebugMLLog(@"requests",@"_className=%@",_className);
 		  NSDebugMLLog(@"requests",@"_actionName=%@",_actionName);
 		  if ([_application isCachingEnabled])
-			{
-			  //TODO
-			};
+                    {
+                      //TODO
+                    };
 		  {
-			GSWResourceManager* _resourceManager=nil;
-			GSWDeployedBundle* _appBundle=nil;
-			GSWDirectAction* _directAction=nil;
-			id<GSWActionResults> _actionResult=nil;
-			Class _class=nil;
-			_resourceManager=[_application resourceManager];
-			_appBundle=[_resourceManager _appProjectBundle];
-			[_resourceManager _allFrameworkProjectBundles];//So what ?
-			[_application awake];
-			_class=NSClassFromString(_className);
-                        NSAssert1(_class,@"No direct action class named %@",_className);
-			_directAction=[[_class alloc]initWithRequest:request_];
-                        NSAssert1(_directAction,@"Direct action of class named %@ can't be created",_className);
-			_context=[_directAction _context];
-			_actionResult=[_directAction performActionNamed:_actionName];
-			_response=[_actionResult generateResponse];
+                    GSWResourceManager* _resourceManager=nil;
+                    GSWDeployedBundle* _appBundle=nil;
+                    GSWDirectAction* _directAction=nil;
+                    id<GSWActionResults> _actionResult=nil;
+                    Class _class=nil;
+                    _resourceManager=[_application resourceManager];
+                    _appBundle=[_resourceManager _appProjectBundle];
+                    [_resourceManager _allFrameworkProjectBundles];//So what ?
+                    [_application awake];
+                    _class=NSClassFromString(_className);
+                    NSAssert1(_class,@"No direct action class named %@",_className);
+                    _directAction=[[_class alloc]initWithRequest:request_];
+                    NSAssert1(_directAction,@"Direct action of class named %@ can't be created",_className);
+                    _context=[_directAction _context];
+                    _actionResult=[_directAction performActionNamed:_actionName];
+                    _response=[_actionResult generateResponse];
 
-			//Finir ?
+                    //Finir ?
 		  };
 		}
 	  NS_HANDLER
@@ -147,7 +149,14 @@ static char rcsId[] = "$Id$";
 	  [_application _setContext:nil];
 	  _statisticsStore=[[GSWApplication application] statisticsStore];
 	  [_statisticsStore _applicationDidHandleDirectActionRequestWithActionNamed:_actionName];
-
+            }
+          NS_HANDLER
+            {
+              LOGException(@"%@ (%@)",localException,[localException reason]);
+              [_application unlockRequestHandling];
+              [localException raise];//TODO
+            };
+          NS_ENDHANDLER;
 	  [_application unlockRequestHandling];
 	};
   LOGObjectFnNotImplemented();	//TODOFN

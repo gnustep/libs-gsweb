@@ -26,6 +26,9 @@ static char rcsId[] = "$Id$";
 #include <GSWeb/GSWeb.h>
 #include <unistd.h>
 #include "NSNonBlockingFileHandle.h"
+#include <gnustep/base/UnixFileHandle.h> //TODO-NOW remove
+#define ADAPTOR_THREAD_TIME_OUT  (5*60) //threads waiting for more than 5 minutes are not processed
+
 //====================================================================
 @implementation GSWDefaultAdaptorThread
 
@@ -60,17 +63,22 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("dealloc GSWDefaultAdaptorThread");
+//  GSWLogC("dealloc GSWDefaultAdaptorThread");
+  printf("dealloc GSWDefaultAdaptorThread");
   DESTROY(stream);
-  GSWLogC("release dates");
+  printf("release dates");
+//  GSWLogC("release dates");
   DESTROY(creationDate);
   DESTROY(runDate);
   DESTROY(dispatchRequestDate);
   DESTROY(sendResponseDate);
-  GSWLogC("release pool");
+//  GSWLogC("release pool");
+  printf("release pool");
 //  DESTROY(pool);
+  printf("super dealloc");
   [super dealloc];
-  GSWLogC("dealloc GSWDefaultAdaptorThread end");
+//  GSWLogC("dealloc GSWDefaultAdaptorThread end");
+printf("dealloc GSWDefaultAdaptorThread end");
 };
 
 //--------------------------------------------------------------------
@@ -91,7 +99,9 @@ static char rcsId[] = "$Id$";
 {
   if (destroy_)
 	{
-	  DESTROY(pool);
+  printf("dealloc pool\n");
+  DESTROY(pool);
+  printf("end dealloc pool\n");
 	};
   pool=pool_;
 };
@@ -202,7 +212,10 @@ static char rcsId[] = "$Id$";
 				}
 			  NS_HANDLER
 				{
-				  LOGException(@"GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",localException,[localException reason]);
+				  LOGException(@"GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",
+                                               localException,
+                                               [localException reason],
+                                               [localException userInfo]);
 				}
 			  NS_ENDHANDLER;
 			  NSDebugMLLog(@"low",@"application:%@",application);
@@ -210,7 +223,7 @@ static char rcsId[] = "$Id$";
 			};
 		};
 	};
-  NSDebugMLog0(@"GSWDefaultAdaptorThread: run end");
+  NSDebugMLog(@"GSWDefaultAdaptorThread: ThreadID=%p run end",(void*)objc_thread_id());
   NSDebugMLLog(@"low",@"application:%@",application);
   LOGObjectFnStop();
 #ifdef DEBUG
@@ -236,13 +249,15 @@ static char rcsId[] = "$Id$";
 -(void)threadExited
 {
 //  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"[_defaultAdaptorThread retainCount=%d",
-			   (int)[self retainCount]);
+//  NSDebugMLLog0(@"trace",@"GSWDefaultAdaptorThread: threadExited method");
+//  NSDebugMLLog(@"low",@"[_defaultAdaptorThread retainCount=%d",
+//			   (int)[self retainCount]);
   [adaptor adaptorThreadExited:self];
   [self setPool:nil
 		destroyLast:YES];
 //  LOGObjectFnStop();
-  GSWLogC("threadExited");
+//  GSWLogC("threadExited\n");
+  printf("threadExited\n");
 };
 
 //--------------------------------------------------------------------
@@ -269,8 +284,10 @@ static char rcsId[] = "$Id$";
 						  object:_thread];
 */
   [_adaptorThread threadExited];
-  GSWLogC("Stop threadExited:");
-  GSWLogC("threadExited really exit");
+//  GSWLogC("Stop threadExited:");
+  printf("Stop threadExited:");
+//  GSWLogC("threadExited really exit");
+  printf("threadExited really exit");
   return nil; //??
 };
 
@@ -565,21 +582,35 @@ static char rcsId[] = "$Id$";
 -(void)sendResponse:(GSWResponse*)response
 {
   LOGObjectFnStart();
+  [[self class]sendResponse:response
+               toStream:stream
+               withNamingConv:requestNamingConv];
+  ASSIGN(stream,nil);
+  LOGObjectFnStop();
+};
+
++(void)sendResponse:(GSWResponse*)response
+           toStream:(NSFileHandle*)aStream
+    withNamingConv:(int)requestNamingConv
+{
+  BOOL ok=YES;
+  LOGObjectFnStart();
+  printf("class sendResponse: START\n");
   [response willSend];
   if (response)
-	{
-	  int headerN=0;
-	  int headerNForKey=0;
-	  NSMutableData* responseData=[[NSMutableData new]autorelease];
-	  NSArray* headerKeys=[response headerKeys];
-	  NSArray* headersForKey=nil;
-	  NSString* key=nil;
-	  NSString* anHeader=nil;
-	  NSString* head=[NSString stringWithFormat:@"HTTP/%@ %d %@%@\n",
-							   [response httpVersion],
-							   [response status],
-							   GSWHTTPHeader_Response_OK,
-							   GSWHTTPHeader_Response_HeaderLineEnd[requestNamingConv]];
+    {
+      int headerN=0;
+      int headerNForKey=0;
+      NSMutableData* responseData=[[NSMutableData new]autorelease];
+      NSArray* headerKeys=[response headerKeys];
+      NSArray* headersForKey=nil;
+      NSString* key=nil;
+      NSString* anHeader=nil;
+      NSString* head=[NSString stringWithFormat:@"HTTP/%@ %d %@%@\n",
+                               [response httpVersion],
+                               [response status],
+                               GSWHTTPHeader_Response_OK,
+                               GSWHTTPHeader_Response_HeaderLineEnd[requestNamingConv]];
 /*	  NSString* cl=[NSString stringWithFormat:@"%@: %d\n",
 							 GSWHTTPHeader_ContentLength,
 							 [[response content] length]];
@@ -605,8 +636,17 @@ static char rcsId[] = "$Id$";
 //	  [responseData appendData:[cl dataUsingEncoding:NSASCIIStringEncoding]];
 	  [responseData appendData:[empty dataUsingEncoding:NSASCIIStringEncoding]];
                  
-	  [stream writeData:responseData];
-	  if ([[response content] length]>0)
+          NS_DURING
+            {
+              [stream writeData:responseData];
+            }
+          NS_HANDLER
+            {
+              ok=NO;
+              LOGException(@"GSWDefaultAdaptorThread: readRequestFromStream Exception:%@ (%@)",localException,[localException reason]);
+            }
+          NS_ENDHANDLER;
+	  if (ok && [[response content] length]>0)
 		{
 		  [responseData setLength:[[response content] length]];
 		  [responseData setData:[response content]];
@@ -620,12 +660,64 @@ static char rcsId[] = "$Id$";
 		  NSDebugMLLog(@"low",@"Response content String :%@",[[[NSString alloc] initWithData:[response content]
 																 encoding:NSISOLatin1StringEncoding]
 												  autorelease]);
-		  [stream writeData:responseData];
-		  NSDebugMLog0(@"Response content Written");
+                  NS_DURING
+                    {
+                      [aStream writeData:responseData];
+                    }
+                  NS_HANDLER
+                    {
+                      ok=NO;
+                      LOGException(@"GSWDefaultAdaptorThread: readRequestFromStream Exception:%@ (%@)",localException,[localException reason]);
+                    }
+                  NS_ENDHANDLER;
+		  NSDebugMLLog0(@"info",@"Response content Written");
 		};
-	  [stream closeFile];
+	  [aStream closeFile];
 	};
+  printf("class sendResponse: STOP\n");
   LOGObjectFnStop();
 };
 
+-(NSDate*)creationDate
+{
+  return creationDate;
+};
+
+-(BOOL)isExpired
+{
+  BOOL isExpired=(fabs([creationDate timeIntervalSinceNow])>ADAPTOR_THREAD_TIME_OUT);
+  printf("EXPIRED %@ %f isExpired=%d\n",//connectOK=%d isExpired=%d\n",
+         creationDate,
+         [creationDate timeIntervalSinceNow],
+         //(int)(((UnixFileHandle*)stream)->connectOK),
+         isExpired);
+  return isExpired;
+};
+
+-(NSFileHandle*)stream
+{
+  return stream;
+};
++(void)sendRetryLasterResponseToStream:(NSFileHandle*)stream
+{
+/*  GSWResponse* response=nil;
+  NSAutoreleasePool* pool=nil;
+  pool=[NSAutoreleasePool new];
+  printf("sendRetryLasterResponseToStream: START\n");
+//  LOGObjectFnStart();
+  response=[GSWResponse responseWithMessage:@"Temporary unavailable"
+			 inContext:nil
+			forRequest:nil
+                        forceFinalize:YES];
+  [response setStatus:503];//503=Service Unavailable
+  printf("sendResponse:\n");
+  [self sendResponse:response
+        toStream:stream
+        withNamingConv:GSWNAMES_INDEX];
+//  LOGObjectFnStop();  
+  printf("sendRetryLasterResponseToStream: STOP\n");
+  DESTROY(pool);
+*/
+//  [stream closeFile];
+};
 @end

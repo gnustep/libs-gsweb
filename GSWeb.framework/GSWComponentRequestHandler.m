@@ -93,12 +93,14 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLLog(@"requests",@"AA _senderID=%@",_senderID);
 	  [_context _setSenderID:_senderID];
 	  [_application _setContext:_context];
+//====>
 	  NS_DURING
 		{
 		  [_application awake];
 		  _response=[self lockedDispatchWithPreparedApplication:_application
 						  inContext:_context
 						  elements:_requestHandlerValues];
+
 		}
 	  NS_HANDLER
 		{
@@ -120,7 +122,7 @@ static char rcsId[] = "$Id$";
 		  NS_DURING
 			{
 			  [_application sleep];
-			  [_response _finalizeInContext:_context];
+			  [_response _finalizeInContext:_context];//LAST //CLEAN
 			}
 		  NS_HANDLER
 			{
@@ -137,11 +139,12 @@ static char rcsId[] = "$Id$";
 			};
 		  NS_ENDHANDLER;
 		};
+//<===========
 	};
+
   [_application _setContext:nil];
   _statisticsStore=[[GSWApplication application] statisticsStore];
   [_statisticsStore _applicationDidHandleComponentActionRequest];
-
   NSDebugMLLog(@"requests",@"_response=%@",_response);
   LOGObjectFnStop();
   return _response;
@@ -207,6 +210,7 @@ static char rcsId[] = "$Id$";
 		  NS_ENDHANDLER;
 		};
 	};
+//======LAST //CLEAN
   if (_response || _errorResponse)
 	{
 	  NSDebugMLLog(@"requests",@"_response=%@",_response);

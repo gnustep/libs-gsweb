@@ -70,6 +70,13 @@ static char rcsId[] = "$Id$";
               handleValidationException = [[associations_ objectForKey:handleValidationException__Key
                                                           withDefaultObject:[handleValidationException autorelease]] retain];
               NSDebugMLLog(@"gswdync",@"GSWInput: handleValidationException=%@",handleValidationException);
+
+ 	    // Turbocat Additions
+ 	    //  [_attributedAssociations removeObjectForKey: escapeHTML__Key];
+ 	    if ([associations_ objectForKey: escapeHTML__Key])
+              {
+                tcEscapeHTML = [[associations_ objectForKey:escapeHTML__Key withDefaultObject:nil] retain];
+              };
             };
 	};
   LOGObjectFnStopC("GSWInput");
@@ -84,6 +91,7 @@ static char rcsId[] = "$Id$";
   DESTROY(name);
   DESTROY(value);
   DESTROY(handleValidationException);//GSWeb Only
+  DESTROY(tcEscapeHTML);//GSWeb Only
   [super dealloc];
 };
 
@@ -254,7 +262,14 @@ static int countAutoValue = 0;
 		  [response_ _appendContentAsciiString:@"value"];
 		  [response_ appendContentCharacter:'='];
 		  [response_ appendContentCharacter:'"'];
-		  [response_ appendContentHTMLAttributeValue:_value];
+ 	  	  if (tcEscapeHTML && [self evaluateCondition:tcEscapeHTML inContext:context_] == NO)
+                    {
+                      [response_ appendContentString:_value];
+                    }
+                  else
+                    {
+                      [response_ appendContentHTMLAttributeValue:_value];
+                    };
 		  [response_ appendContentCharacter:'"'];
 		};
 	};

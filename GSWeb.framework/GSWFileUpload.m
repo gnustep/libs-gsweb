@@ -136,6 +136,7 @@ static char rcsId[] = "$Id$";
 		  if (_fileDatasCount==1) {
 
 			  _data=[_fileDatas objectAtIndex:0];
+			  NSDebugMLLog(@"gswdync",@"_data (class=%@)=%@",[_data class],_data);
 			  if (_data)
 				{
 				  if ([_data isKindOfClass:[NSData class]])

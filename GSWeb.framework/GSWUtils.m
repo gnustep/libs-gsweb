@@ -453,123 +453,153 @@ void ValidationExceptionRaiseFn0(const char *func,
 };
 
 -(NSException*)exceptionByAddingToUserInfoKey:(id)key_
-									 format:(NSString*)format_,...
+                                       format:(NSString*)format_,...
 {
+  NSException* exception=nil;
   NSString* _userInfoString=nil;
-  NSMutableDictionary* _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  NSMutableDictionary* _userInfo=nil;
   va_list args;
+  LOGObjectFnStart();
+  _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format_);
   _userInfoString = [NSString stringWithFormat:format_
-							  arguments:args];
+                              arguments:args];
   va_end(args);
   {
     id curArray = [_userInfo objectForKey:key_];
     id newArray=[NSMutableArray arrayWithObject:_userInfoString];
-    if (!curArray) {
-      curArray = [NSMutableArray array];
-    }
-    if (![curArray isKindOf:[NSMutableArray class]]) {
-      id tempObject = curArray;
-      curArray = [NSMutableArray array];
-      [curArray addObject:tempObject];
-    }
+    if (!curArray)
+      {
+        curArray = [NSMutableArray array];
+      }
+    if (![curArray isKindOf:[NSMutableArray class]])
+      {
+        id tempObject = curArray;
+        curArray = [NSMutableArray array];
+        [curArray addObject:tempObject];
+      }
     [newArray addObjectsFromArray:curArray];
     [_userInfo setObject:newArray forKey:key_];
   }
-  return [[self class]exceptionWithName:[self name]
-					  reason:[self reason]
-					  userInfo:_userInfo];
+  exception=[[self class]exceptionWithName:[self name]
+                         reason:[self reason]
+                         userInfo:_userInfo];
+  LOGObjectFnStop();
+  return exception;
 };
 
 
 -(NSException*)exceptionByAddingUserInfoKey:(id)key_
-									 format:(NSString*)format_,...
+                                     format:(NSString*)format_,...
 {
+  NSException* exception=nil;
   NSString* _userInfoString=nil;
-  NSMutableDictionary* _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  NSMutableDictionary* _userInfo=nil;
   va_list args;
+  LOGObjectFnStart();
+  _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format_);
   _userInfoString = [NSString stringWithFormat:format_
-							  arguments:args];
+                              arguments:args];
   va_end(args);
   [_userInfo setObject:_userInfoString
 			 forKey:key_];
-  return [[self class]exceptionWithName:[self name]
-					  reason:[self reason]
-					  userInfo:_userInfo];
+  exception=[[self class]exceptionWithName:[self name]
+                         reason:[self reason]
+                         userInfo:_userInfo];
+  LOGObjectFnStop();
+  return exception;
 };
 
 -(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo_
 {
-  NSMutableDictionary* _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
-  NSArray* _frameInfoArray=[_userInfo objectForKey:@"FrameInfo"];
+  NSException* exception=nil;
+  NSMutableDictionary* _userInfo=nil;
+  NSArray* _frameInfoArray=nil;
+  LOGObjectFnStart();
+  _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  _frameInfoArray=[_userInfo objectForKey:@"FrameInfo"];
   if (_frameInfoArray)
-	_frameInfoArray=[_frameInfoArray arrayByAddingObject:frameInfo_];
+    _frameInfoArray=[_frameInfoArray arrayByAddingObject:frameInfo_];
   else
-	_frameInfoArray=[NSArray arrayWithObject:frameInfo_];
+    _frameInfoArray=[NSArray arrayWithObject:frameInfo_];
   [_userInfo setObject:_frameInfoArray
-			 forKey:@"FrameInfo"];
-  return [[self class]exceptionWithName:[self name]
-					  reason:[self reason]
-					  userInfo:_userInfo];
+             forKey:@"FrameInfo"];
+  exception=[[self class]exceptionWithName:[self name]
+                      reason:[self reason]
+                      userInfo:_userInfo];
+  LOGObjectFnStop();
+  return exception;
 };
 
 -(NSException*)exceptionByAddingUserInfoFrameInfoFormat:(NSString*)format_,...
 {
+  NSException* exception=nil;
   NSString* _frameInfo=nil;
   va_list args;
+  LOGObjectFnStart();
   va_start(args,format_);
   _frameInfo = [NSString stringWithFormat:format_
-						 arguments:args];
+                         arguments:args];
   va_end(args);
-  return [self exceptionByAddingUserInfoFrameInfo:_frameInfo];
+  exception=[self exceptionByAddingUserInfoFrameInfo:_frameInfo];
+  LOGObjectFnStop();
+  return exception;
 };
 
 -(NSException*)exceptionByAddingUserInfoFrameInfoObject:(id)obj_
-													sel:(SEL)sel_
-												   file:(const char*)file_
-												   line:(int)line_
-												 format:(NSString*)format_,...
+                                                    sel:(SEL)sel_
+                                                   file:(const char*)file_
+                                                   line:(int)line_
+                                                 format:(NSString*)format_,...
 {
+  NSException* exception=nil;
   Class         cls = (Class)obj_;
   char          c = '+';
   NSString* fmt=nil;
   NSString* string= nil;
   va_list args;
+  LOGObjectFnStart();
   if ([obj_ isInstance] == YES)
     {
       c = '-';
       cls = [obj_ class];
     };
   fmt = [NSString stringWithFormat: @"%s: %d. In [%@ %c%@] %@",
-				  file_,
-				  line_,
-				  NSStringFromClass(cls),
-				  c,
-				  NSStringFromSelector(sel_),
-				  format_];
+                  file_,
+                  line_,
+                  NSStringFromClass(cls),
+                  c,
+                  NSStringFromSelector(sel_),
+                  format_];
   va_start(args,format_);
   string=[NSString stringWithFormat:fmt
-				   arguments:args];
+                   arguments:args];
   va_end(args);
-  return [self exceptionByAddingUserInfoFrameInfo:string];
-
+  exception=[self exceptionByAddingUserInfoFrameInfo:string];
+  LOGObjectFnStop();
+  return exception;
 };
 
 -(NSException*)exceptionByAddingUserInfoFrameInfoFunction:(const char*)fn_
-													 file:(const char*)file_
-													 line:(int)line_
-												   format:(NSString*)format_,...
+                                                     file:(const char*)file_
+                                                     line:(int)line_
+                                                   format:(NSString*)format_,...
 {
-  NSString* fmt =  [NSString stringWithFormat:@"%s: %d. In %s %@: %@",
-							 file_,line_,fn_,format_];
+  NSException* exception=nil;
+  NSString* fmt =nil;
   NSString* string= nil;
   va_list args;
+  LOGObjectFnStart();
   va_start(args,format_);
+  fmt =  [NSString stringWithFormat:@"%s: %d. In %s %@: %@",
+                   file_,line_,fn_,format_];
   string=[NSString stringWithFormat:fmt
-				   arguments:args];
+                   arguments:args];
   va_end(args);
-  return [self exceptionByAddingUserInfoFrameInfo:string];
+  exception=[self exceptionByAddingUserInfoFrameInfo:string];
+  LOGObjectFnStop();
+  return exception;
 };
 
 -(BOOL)isValidationException
@@ -585,10 +615,13 @@ void ValidationExceptionRaiseFn0(const char *func,
 //------------------------------------------------------------------------------
 -(NSString*)htmlDescription
 {
+  NSTimeZone* gmtTZ=[NSTimeZone timeZoneWithName:@"GMT"];
   LOGObjectFnNotImplemented();	//TODOFN
+  if (!gmtTZ)
+    NSWarnLog(@"no time zone for GMT");
   //TODO English day...
   return [self descriptionWithCalendarFormat:@"%A, %d-%b-%Y %H:%M:%S GMT"
-			   timeZone:[NSTimeZone timeZoneWithName:@"GMT"]
+			   timeZone:gmtTZ
 			   locale:nil];
 };
 @end
@@ -822,10 +855,16 @@ NSString *NSLockException = @"NSLockException";
 {
   BOOL _isLocked=YES;
   if ([self tmptryLock])
-	{
-	  _isLocked=NO;
-	  [self tmpunlock];
-	};
+    {
+      _isLocked=NO;
+      [self tmpunlock];
+    }
+  else
+    {
+      NSDebugMLog(@"Locked by _mutex->owner=%p (our ThreadID=%p)",
+                  (void*)_mutex->owner,
+                  (void*)objc_thread_id());
+    };
   return _isLocked;
 };
 
@@ -2008,9 +2047,9 @@ NSData* HexStringToData(NSString* _string)
 };
 @end
 
-/*
+
 //====================================================================
-@implementation NSNumberFormatter
+@implementation NSFooNumberFormatter
 
 //--------------------------------------------------------------------
 -(id)initType:(NSNumFmtType)type_
@@ -2134,4 +2173,4 @@ NSData* HexStringToData(NSString* _string)
 };
 
 @end
-*/
+

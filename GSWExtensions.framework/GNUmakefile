@@ -89,7 +89,9 @@ lft-OSarw.gif \
 rt-OSarw.gif \
 text.gif \
 gswapp.gif \
-gswappsrv.gif
+gswappsrv.gif \
+warning.gif \
+error.gif
 
 
 # Determine the bundle directory extension

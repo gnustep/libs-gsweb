@@ -17,6 +17,7 @@ UploadFile: GSWFileUpload
 	enabled=^isUploadEnabled;
 };
 
+
 FileLink: GSWHyperlink
 {
 	filename=fileInfo.filePath;
@@ -34,6 +35,10 @@ SubmitButton: GSWSubmitButton
 	action = updateAction;
 };
 
+DeleteCondition: GSWConditional
+{
+        condition = isDeleteEnabled;
+};
 DeleteButton: GSWSubmitButton
 {
 	enabled=^isUploadEnabled;

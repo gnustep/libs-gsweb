@@ -137,6 +137,7 @@ static char rcsId[] = "$Id$";
 	  else
 		{
 		  _formattedValue=[_formatter stringForObjectValue:_valueValue];
+                  NSDebugMLog(@"_valueValue=%@ _formattedValue=%@",_valueValue,_formattedValue);
 		};
 
 	  if (!WOStrictFlag && convertHTML)
@@ -223,6 +224,7 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLog0(@"Formatter");
 	  _formatter=[formatter valueInComponent:_component];
 	};
+  NSDebugMLog(@"_formatter=%@",_formatter);
   LOGObjectFnStopC("GSWString");
   return _formatter;
 };

@@ -74,6 +74,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)registerForEvents
 {
+  NSDebugMLog(@"START registerForEvents - ThreadID=%p",(void*)objc_thread_id());
   NSAssert(!fileHandle,@"fileHandle already exists");
   NSDebugMLLog(@"info",@"registerForEvents port=%d",port);
   NSDebugMLLog(@"info",@"registerForEvents host=%@",host);
@@ -95,12 +96,16 @@ static char rcsId[] = "$Id$";
     object:fileHandle];
 */
   [fileHandle acceptConnectionInBackgroundAndNotify];
-  [GSWApplication statusLogWithFormat:@"Waiting for connections."];
+  NSDebugMLog(@"ThreadID=%p - B readInProgress=%d",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+  printf("ThreadID=%p - B readInProgress=%d\n",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+  [GSWApplication statusLogWithFormat:@"ThreadID %p: Waiting for connections.",(void*)objc_thread_id()];
+  NSDebugMLog(@"STOP registerForEvents");
 };
 
 //--------------------------------------------------------------------
 -(void)unregisterForEvents
 {
+  printf("ThreadID=%p - unregisterForEvents\n",(void*)objc_thread_id());
   [[NSNotificationCenter defaultCenter] removeObserver:self
 										name: NSFileHandleConnectionAcceptedNotification
 										object:fileHandle];
@@ -232,17 +237,72 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   _listenHandle=[notification object];
   requestDate=[NSCalendarDate calendarDate];
-  requestDateString=[NSString stringWithFormat:@"New Request %@",requestDate];
+  requestDateString=[NSString stringWithFormat:@"ThreadID=%p: New Request %@",(void*)objc_thread_id(),requestDate];
   [GSWApplication statusLogWithFormat:@"%@",requestDateString];
   NSDebugMLLog(@"info",@"_listenHandle=%p",(void*)_listenHandle);
   inStream = [[notification userInfo]objectForKey:@"NSFileHandleNotificationFileHandleItem"];
-  NSDebugMLLog(@"info",@"announceNewConnection notification=%@\n",notification);
-  NSDebugMLLog(@"info",@"notification userInfo=%@\n",[notification userInfo]);
-
+  printf("ThreadID=%p announceNewConnection notification=%@ socketAddress=%@ [notification userInfo]=%p\n",
+         (void*)objc_thread_id(),
+         notification,
+         [inStream socketAddress],
+         [notification userInfo]);
+  NSDebugMLLog(@"info",@"notification userInfo=%@\n",
+               [notification userInfo]);
+  NSDebugMLog(@"ThreadID=%p - A1 readInProgress=%d",
+              (void*)objc_thread_id(),
+              (int)[fileHandle readInProgress]);
+  printf("ThreadID=%p - A1 readInProgress=%d\n",
+         (void*)objc_thread_id(),
+         (int)[fileHandle readInProgress]);
+  printf("NEW CONN APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
+         (int)([GSWApplication application]->selfLockn),
+         (void*)([GSWApplication application]->selfLock_thread_id),
+         (int)([GSWApplication application]->globalLockn),
+         (void*)([GSWApplication application]->globalLock_thread_id),
+         [threads count],
+         [waitingThreads count],
+         blocked);
+  printf("[waitingThreads count]=%d queueSize=%d",[waitingThreads count],queueSize);
   if ([waitingThreads count]>=queueSize)
 	{
-	  DESTROY(_newThread);
-	}
+          //remove expired thread
+          if ([self tryLock])
+            {
+              NSDebugMLog0(@"locked !");
+              NS_DURING
+                {
+                  int i=0;
+                  GSWDefaultAdaptorThread* thread=nil;
+                  for(i=0;i<[waitingThreads count];)
+                    {
+                      thread=[waitingThreads objectAtIndex:i];
+                      if ([thread isExpired])
+                        {
+//                          [GSWDefaultAdaptorThread sendRetryLasterResponseToStream:[thread stream]];
+                          [waitingThreads removeObjectAtIndex:i];
+                        }
+                      else
+                        i++;
+                    };
+                }
+              NS_HANDLER
+                {
+                  LOGException(@"%@ (%@)",
+                               localException,[localException reason]);
+                  //TODO
+                  [self unlock];
+                  [localException raise];
+                }
+              NS_ENDHANDLER;
+              [self unlock];
+            };
+        };                  
+  if ([waitingThreads count]>=queueSize)
+    {
+      printf("DESTROY the connection: too many conn - ThreadID=%p - A1 readInProgress=%d\n",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+      [GSWDefaultAdaptorThread sendRetryLasterResponseToStream:inStream];
+      //[inStream closeFile];
+    }
   else
 	{
 	  //release done after lock !
@@ -264,14 +324,18 @@ static char rcsId[] = "$Id$";
 				  if ([threads count]<workerThreadCount)
 					{
 					  [threads addObject:_newThread];
+                                          NSDebugMLLog(@"trace",@"isMultiThreadEnabled=%d",isMultiThreadEnabled);
 					  if (isMultiThreadEnabled)
 						{
 						  requestDate=[NSCalendarDate calendarDate];
-						  requestDateString=[NSString stringWithFormat:@"Lauch Thread (Multi) %@",requestDate];
+						  requestDateString=[NSString stringWithFormat:@"ThreadID=%p : Lauch Thread (Multi) %@",
+                                                                              (void*)objc_thread_id(),
+                                                                              requestDate];
 						  [GSWApplication statusLogWithFormat:@"%@",requestDateString];
 						  NSDebugMLLog(@"info",
-									   @"Lauch Thread (Multi) %p",
-									   (void*)_newThread);
+                                                               @"ThreadID=%p : Lauch Thread (Multi) %p",
+                                                               (void*)objc_thread_id(),
+                                                               (void*)_newThread);
 						  [NSThread detachNewThreadSelector:@selector(run:)
 									toTarget:_newThread
 									withObject:nil];
@@ -332,28 +396,49 @@ static char rcsId[] = "$Id$";
 		  NSDebugMLLog0(@"info",
 						requestDateString);
 		};
-	  if ([self tryLock])
-		{
-		  BOOL accept=[waitingThreads count]<queueSize;
-		  NS_DURING
-			{
-			  if (accept)
-				[_listenHandle acceptConnectionInBackgroundAndNotify];
-			}
-		  NS_HANDLER
-			{
-			  LOGException(@"%@ (%@)",
-						   localException,[localException reason]);
-			  //TODO
-			  blocked=!accept;
-			  [self unlock];
-			  [localException raise];
-			}
-		  NS_ENDHANDLER;
-		  blocked=!accept;		  
-		  [self unlock];
-		};
-	};
+        };
+  NSDebugMLLog(@"trace",@"Try Lock");
+  if ([self tryLock])
+    {
+      BOOL accept=YES;//NEW[waitingThreads count]<queueSize;
+      NSDebugMLLog(@"trace",@"Accept=%d",accept);
+      NS_DURING
+        {
+          if (accept)
+            {
+              [_listenHandle acceptConnectionInBackgroundAndNotify];
+              blocked=NO;
+              printf("ACCEPT ThreadID=%p A2 readInProgress=%d\n",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+            }
+          else
+            printf("NOT ACCEPT ThreadID=%p A2 readInProgress=%d\n",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+
+          NSDebugMLog(@"ThreadID=%p A2 readInProgress=%d",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+          printf("ThreadID=%p A2 readInProgress=%d\n",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+        }
+      NS_HANDLER
+        {
+          LOGException(@"%@ (%@)",
+                       localException,[localException reason]);
+          //TODO
+          blocked=!accept;
+          [self unlock];
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+      blocked=!accept;		  
+      printf("blocked=%d",blocked);
+      [self unlock];
+    };
+  NSDebugMLLog(@"trace",@"end announceNewConnection");
+  printf("END NEWCONN APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d acceptOK\n",
+         (int)([GSWApplication application]->selfLockn),
+         (void*)([GSWApplication application]->selfLock_thread_id),
+         (int)([GSWApplication application]->globalLockn),
+         (void*)([GSWApplication application]->globalLock_thread_id),
+         [threads count],
+         [waitingThreads count],
+         blocked);
   LOGObjectFnStop();
   return self;
 };
@@ -362,6 +447,17 @@ static char rcsId[] = "$Id$";
 -(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread_
 {
   LOGObjectFnStart();
+//  NSDebugMLLog(@"trace",@"adaptorThreadExited");
+  printf("adaptorThreadExited\n");
+  printf("EXIT APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
+         (int)([GSWApplication application]->selfLockn),
+         (void*)([GSWApplication application]->selfLock_thread_id),
+         (int)([GSWApplication application]->globalLockn),
+         (void*)([GSWApplication application]->globalLock_thread_id),
+         [threads count],
+         [waitingThreads count],
+         blocked);
+
   if ([self tryLock])
 	{
 	  NSAutoreleasePool* pool=nil;
@@ -374,6 +470,8 @@ static char rcsId[] = "$Id$";
 #endif
 	  NS_DURING
 		{
+                  [adaptorThread_ retain];
+                  [adaptorThread_ autorelease];
 		  [threads removeObject:adaptorThread_];
 		}
 	  NS_HANDLER
@@ -403,6 +501,7 @@ static char rcsId[] = "$Id$";
 			{
 			  pool=[NSAutoreleasePool new];
 			  LOGSeriousError0(@"Application RequestHandling is LOCKED !!!");
+NSAssert(NO,@"Application RequestHandling is LOCKED !!!");//TODO-NOW
 			  [[GSWApplication application] terminate];
 			  DESTROY(pool);
 			};
@@ -411,23 +510,36 @@ static char rcsId[] = "$Id$";
 		{
 		  NS_DURING
 			{
-			  GSWDefaultAdaptorThread* _thread=[waitingThreads objectAtIndex:0];
-			  [threads addObject:_thread];
-			  [waitingThreads removeObjectAtIndex:0];
+			  GSWDefaultAdaptorThread* _thread=nil;
+                          while(!_thread && [waitingThreads count]>0)
+                            {
+                              _thread=[waitingThreads objectAtIndex:0];
+                              if ([_thread isExpired])
+                                {
+//                                  [GSWDefaultAdaptorThread sendRetryLasterResponseToStream:[_thread stream]];
+                                  _thread=nil;
+                                }
+                              else
+                                [threads addObject:_thread];
+                              [waitingThreads removeObjectAtIndex:0];
+                            };
+                          if (_thread)
+                            {
 #ifndef NDEBUG
-			  pool=[NSAutoreleasePool new];
-			  [GSWApplication statusLogWithFormat:@"Lauch waiting Thread"];
-			  NSDebugMLLog(@"info",
-						   @"Lauch waiting Thread %p",
-						   (void*)_thread);
-			  DESTROY(pool);
+                              pool=[NSAutoreleasePool new];
+                              [GSWApplication statusLogWithFormat:@"Lauch waiting Thread"];
+                              NSDebugMLLog(@"info",
+                                           @"Lauch waiting Thread %p",
+                                           (void*)_thread);
+                              DESTROY(pool);
 #endif
-			  if (isMultiThreadEnabled)
+                              if (isMultiThreadEnabled)
 				[NSThread detachNewThreadSelector:@selector(run:)
-						  toTarget:_thread
-						  withObject:nil];
-			  else
+                                          toTarget:_thread
+                                          withObject:nil];
+                              else
 				[_thread run:nil];
+                            };
 			}
 		  NS_HANDLER
 			{
@@ -448,6 +560,7 @@ static char rcsId[] = "$Id$";
 		  BOOL accept=[waitingThreads count]<queueSize;
 		  if (blocked && accept)
 			{
+                          printf("ACCEPT AGAIN ThreadID=%p A2 readInProgress=%d\n",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
 			  [fileHandle acceptConnectionInBackgroundAndNotify];
 			  blocked=NO;
 			};
@@ -467,13 +580,31 @@ static char rcsId[] = "$Id$";
 
 	  [self unlock];
 	};
+  //TODO remove
+  printf("END EXIT APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
+         (int)([GSWApplication application]->selfLockn),
+         (void*)([GSWApplication application]->selfLock_thread_id),
+         (int)([GSWApplication application]->globalLockn),
+         (void*)([GSWApplication application]->globalLock_thread_id),
+         [threads count],
+         [waitingThreads count],
+         blocked);
+//         (int)(((UnixFileHandle*)fileHandle)->acceptOK));
+  NSDebugMLog(@"ThreadID=%p B2 readInProgress=%d",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
+  printf("ThreadID=%p B2 readInProgress=%d\n",(void*)objc_thread_id(),(int)[fileHandle readInProgress]);
   LOGObjectFnStop();
+};
+
+-(NSFileHandle*)fileHandle
+{
+  return fileHandle;
 };
 //--------------------------------------------------------------------
 //NDFN
 -(id)announceBrokenConnection:(id)notification
 {
   LOGObjectFnNotImplemented();	//TODOFN
+  NSDebugMLLog(@"trace",@"announceBrokenConnection");
 //  [self shutDownConnectionWithSocket:[in_port _port_socket]];
   return self;
 };
@@ -484,7 +615,9 @@ static char rcsId[] = "$Id$";
 {
   BOOL _locked=NO;
   LOGObjectFnStart();
+  printf("self=%p ThreadID=%p TRYLOCK\n",self,(void*)objc_thread_id());
   _locked=[selfLock tmptryLockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:90]];
+  printf("self=%p ThreadID=%p TRYLOCK LOCKED ?\n",self,(void*)objc_thread_id());
   LOGObjectFnStop();
   return _locked;
 };
@@ -494,7 +627,9 @@ static char rcsId[] = "$Id$";
 -(void)unlock
 {
   LOGObjectFnStart();
+  printf("self=%p ThreadID=%p UNLOCK\n",self,(void*)objc_thread_id());
   [selfLock tmpunlock];
+  printf("self=%p ThreadID=%p UNLOCK UNLOCKED ?\n",self,(void*)objc_thread_id());
   LOGObjectFnStop();
 };
 
