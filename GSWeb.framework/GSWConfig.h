@@ -66,4 +66,5 @@
 #define GSWOPTVALUE_WorkerThreadCountMax			@"256"
 #define GSWOPTVALUE_AcceptedContentEncoding			@"gzip"
 #define GSWOPTVALUE_DisplayExceptionPages			@"YES"
+#define GSWOPTVALUE_AllowsCacheControlHeader			@"NO"
 #endif // _GSWebConfig_h__
