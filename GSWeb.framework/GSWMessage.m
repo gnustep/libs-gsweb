@@ -559,13 +559,16 @@ static SEL appendDataSel = NULL;
                               encoding:[self contentEncoding]]
               autorelease]);
 
-  assertContentStringASImp();
-  (*_contentStringASImp)(_contentString,appendStringSel,string);
+  if (string)
+    {
+      assertContentStringASImp();
+      (*_contentStringASImp)(_contentString,appendStringSel,string);
 
 #ifndef NO_GNUSTEP
-  if (_cachesStack)
-    [self _cacheAppendString:string];
+      if (_cachesStack)
+        [self _cacheAppendString:string];
 #endif
+    };
 
   LOGObjectFnStop();
 }
