@@ -69,6 +69,7 @@
    #include <EOControl/EODetailDataSource.h>
    #include <EOControl/EOKeyValueArchiver.h>
    #include <EOControl/EONull.h>
+   #include <EOControl/EOUndoManager.h>
    #include <EOAccess/EODatabaseDataSource.h>
 #endif
 
@@ -94,21 +95,27 @@
   NSMutableDictionary* _queryMatch;
   NSMutableDictionary* _queryMin;
   NSMutableDictionary* _queryMinMatch;
-  NSMutableDictionary*_queryMax;
-  NSMutableDictionary*_queryMaxMatch;
-  NSMutableDictionary*_queryOperator;
+  NSMutableDictionary* _queryMax;
+  NSMutableDictionary* _queryMaxMatch;
+  NSMutableDictionary* _queryOperator;
+  NSMutableDictionary* _queryKeyValueQualifierClassName;
   NSString* _defaultStringMatchOperator;
   NSString* _defaultStringMatchFormat;
   NSMutableDictionary*_queryBindings;
+  int _updatedObjectIndex;
   unsigned _numberOfObjectsPerBatch;
   unsigned _batchIndex;
   struct {
     unsigned int selectFirstObject:1;
     unsigned int autoFetch:1;
     unsigned int validateImmediately:1;
-    unsigned int queryMode:1;
     unsigned int fetchAll:1;
-    unsigned int _reserved:27;
+    unsigned int isCustomDataSourceClass:1;
+    unsigned int isInitialized:1;
+    unsigned int didChangeContents:1;
+    unsigned int didChangeSelection:1;
+    unsigned int haveFetched:1;
+    unsigned int _reserved:23;
   } _flags;
   struct {
     unsigned int didChangeDataSource:1;
@@ -131,6 +138,12 @@
   } _delegateRespondsTo;
 };
 
++ (GSWDisplayGroup* )displayGroup;
+#if GDL2
+- (EOUndoManager*)undoManager;
+#else
+- (id)undoManager;
+#endif
 - (NSArray *)allObjects;
 - (NSArray *)allQualifierOperators;
 - (unsigned)batchCount;
@@ -140,6 +153,12 @@
 - (EODataSource *)dataSource;
 - (NSString *)defaultStringMatchFormat;
 - (NSString *)defaultStringMatchOperator;
++ (NSString*)globalDefaultStringMatchOperator;
++ (void)setGlobalDefaultStringMatchOperator:(NSString *)operatorString;
++ (NSString *)globalDefaultStringMatchFormat;
++ (void)setGlobalDefaultStringMatchFormat:(NSString *)format;
++ (BOOL)globalDefaultForValidatesChangesImmediately;
++ (void)setGlobalDefaultForValidatesChangesImmediately:(BOOL)flag;
 - (id)delegate;
 - (id)delete;
 - (BOOL)deleteObjectAtIndex:(unsigned)index;
@@ -147,6 +166,7 @@
 - (NSString *)detailKey;
 - (id)displayBatchContainingSelectedObject;
 - (NSArray *)displayedObjects;
+- (NSArray *)allDisplayedObjects;
 - (id)displayNextBatch;
 - (id)displayPreviousBatch;
 - (BOOL)endEditing;
@@ -186,11 +206,13 @@
 - (NSMutableDictionary*)queryMin;
 - (NSMutableDictionary*)queryMinMatch;
 - (NSMutableDictionary*)queryOperator;
+- (NSMutableDictionary*)queryKeyValueQualifierClassName;
 - (void)redisplay;
 - (NSArray *)relationalQualifierOperators;
 - (NSMutableDictionary *)secondObjectForQualifier;
 - (id)selectedObject;
 - (void)setSelectedObject:(id)object;
+- (void)setSelectedObjects:(NSArray *)objects;
 - (NSArray *)selectedObjects;
 - (NSArray *)selectionIndexes;
 - (id)selectFirst;
@@ -211,7 +233,8 @@
 - (void)setFetchesOnLoad:(BOOL)flag;
 - (void)setInQueryMode:(BOOL)flag;
 - (void)setInsertedObjectDefaultValues:(NSDictionary *)defaultValues;
--(void)setQueryOperator:(NSDictionary*)qo;
+- (void)setQueryOperator:(NSDictionary*)qo;
+- (void)setQueryKeyValueQualifierClassName:(NSDictionary*)qo;
 - (void)setLocalKeys:(NSArray *)keys;
 - (void)setMasterObject:(id)masterObject;
 - (void)setNumberOfObjectsPerBatch:(unsigned)count;

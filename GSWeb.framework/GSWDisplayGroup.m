@@ -37,9 +37,15 @@ RCS_ID("$Id$")
 @class EOUndoManager;
 
 #if GDL2 // GDL2 implementation
-#include <EOControl/EOUndoManager.h>
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOClassDescription.h>
+
+static NSArray* globalStringQualifierOperators=nil;
+static NSArray* globalAllQualifierOperators=nil;
+static NSString* globalDefaultStringMatchFormat = nil;
+static NSString* globalDefaultStringMatchOperator = nil;
+static BOOL globalDefaultForValidatesChangesImmediately = NO;
+                                               
 
 //====================================================================
 @interface GSWDisplayGroup (Private)
@@ -57,10 +63,48 @@ RCS_ID("$Id$")
 
 #endif
 
+@interface NSArray (Indexes)
+-(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects;
+-(NSArray*)objectsAtIndexes:(NSArray*)indexes;
+@end
+
 //====================================================================
 @implementation GSWDisplayGroup
 
 #if GDL2 // GDL2 implementation
+
++ (void)initialize
+{
+  if (self == [GSWDisplayGroup class])
+    {
+      if (!globalStringQualifierOperators)
+        ASSIGN(globalStringQualifierOperators,([NSArray arrayWithObjects:@"starts with",
+                                                      @"contains",
+                                                      @"ends with", 
+                                                      @"is", 
+                                                      @"like",
+                                                      nil]));
+
+      if (!globalAllQualifierOperators)
+        ASSIGN(globalAllQualifierOperators,
+               ([globalStringQualifierOperators 
+                  arrayByAddingObjectsFromArray:
+                    [EOQualifier relationalQualifierOperators]]));
+
+      if (!globalDefaultStringMatchFormat)
+        ASSIGN(globalDefaultStringMatchFormat,@"%@*");
+
+      if (!globalDefaultStringMatchOperator)
+        ASSIGN(globalDefaultStringMatchOperator,@"caseInsensitiveLike");
+    };
+}
+
++(GSWDisplayGroup*)displayGroup
+{
+  GSWDisplayGroup* displayGroup=[[[self alloc] init] autorelease];
+  [displayGroup finishInitialization];
+  return displayGroup;
+};
 
 //--------------------------------------------------------------------
 //	init
@@ -72,7 +116,8 @@ RCS_ID("$Id$")
       _allObjects = [[NSMutableArray alloc] initWithCapacity:16];
       _displayedObjects = [[NSMutableArray alloc] initWithCapacity:16];
       _selectedObjects = [[NSMutableArray alloc] initWithCapacity:8];
-
+      _selection = [[NSMutableArray alloc] initWithCapacity:8];
+      
       _queryMatch    = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMin      = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMinMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
@@ -81,28 +126,16 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
       _queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
       NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
+      _queryKeyValueQualifierClassName = [[NSMutableDictionary alloc] initWithCapacity:8];
 
       _queryBindings = [[NSMutableDictionary alloc] initWithCapacity:8];
 
-      //  _selection = 1; //????
-      _batchIndex = 1;
+      [self setCurrentBatchIndex:1];
 
-      [[NSNotificationCenter defaultCenter]
-        addObserver:self
-        selector:@selector(_changedInEditingContext:)
-        name:EOObjectsChangedInEditingContextNotification
-        object:nil];
-
-      [[NSNotificationCenter defaultCenter]
-        addObserver:self
-        selector:@selector(_invalidatedAllObjectsInStore:)
-        name:EOInvalidatedAllObjectsInStoreNotification
-        object:nil];
-
-      //_selection=NSArray * object:0xf78b80 Description:()
-      //_insertedObjectDefaultValues=NSDictionary * object:0xf78b60 Description:{}
-      ASSIGN(_defaultStringMatchOperator,@"caseInsensitiveLike");
-      ASSIGN(_defaultStringMatchFormat,@"%@");
+      ASSIGN(_defaultStringMatchOperator,[[self class]globalDefaultStringMatchOperator]);
+      ASSIGN(_defaultStringMatchFormat,[[self class]globalDefaultStringMatchFormat]);
+      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
+      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
 
       [self setSelectsFirstObjectAfterFetch:YES];
     };
@@ -111,28 +144,6 @@ RCS_ID("$Id$")
 
 -(id)initWithKeyValueUnarchiver:(EOKeyValueUnarchiver*)unarchiver
 {
-/*
-Description: <EOKeyValueUnarchiver: 0x1a84d20>
-  --[1] Dumping object 0x1a84d20 of Class EOKeyValueUnarchiver
-  _propertyList=NSDictionary * object:0x1057850 Description:{
-    class = WODisplayGroup; 
-    dataSource = {
-        class = EODatabaseDataSource; 
-        editingContext = session.defaultEditingContext; 
-        fetchSpecification = {class = EOFetchSpecification; entityName = MovieMedia; isDeep = YES; }; 
-    }; 
-    formatForLikeQualifier = "%@*"; 
-    _numberOfObjectsPerBatch = 10; 
-    selectsFirstObjectAfterFetch = YES; 
-}
-  _parent=id object:0x0 Description:*nil*
-  _nextParent=id object:0x0 Description:*nil*
-  _allUnarchivedObjects=NSMutableArray * object:0x1a85920 Description:()
-  _delegate=id object:0x1a84ff0 Description:<WOBundleUnarchiverDelegate: 0x1a84ff0>
-  _awakenedObjects=struct ? {...} * PTR
-  isa=Class Class:EOKeyValueUnarchiver
-
-*/
   if ((self=[self init]))
     {
       LOGObjectFnStart();
@@ -154,16 +165,25 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       [self setQualifier:
               [unarchiver decodeObjectForKey:@"qualifier"]];
       [self setDefaultStringMatchFormat:
-              [unarchiver decodeObjectForKey:@"defaultStringMatchFormat"]];
+              [unarchiver decodeObjectForKey:@"formatForLikeQualifier"]];
       [self setInsertedObjectDefaultValues:
               [unarchiver decodeObjectForKey:@"insertedObjectDefaultValues"]];
       [self setQueryOperator:[unarchiver decodeObjectForKey:@"queryOperator"]];
+      [self setQueryKeyValueQualifierClassName:[unarchiver decodeObjectForKey:@"queryKeyValueQualifierClassName"]];
       [self finishInitialization];
       NSDebugMLLog(@"gswdisplaygroup",@"GSWDisplayGroup %p : %@",self,self);
       LOGObjectFnStop();
     };
   return self;
 };
+
+-(void)unableToSetNilForKey:(NSString*)key
+{
+  if ([key isEqualToString:@"numberOfObjectsPerBatch"])
+    [self setNumberOfObjectsPerBatch:0];
+  else
+    [super unableToSetNilForKey:key];
+}
 
 -(NSString*)description
 {
@@ -194,8 +214,6 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
                _defaultStringMatchFormat];
   dscr=[dscr stringByAppendingFormat:@"insertedObjectDefaultValues:[%@]\n",
                _insertedObjectDefaultValues];
-  dscr=[dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
-               _queryOperator];
   dscr=[dscr stringByAppendingFormat:@"queryMatch:[%@]\n",
                _queryMatch];
   dscr=[dscr stringByAppendingFormat:@"queryMin:[%@]\n",
@@ -208,6 +226,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
                _queryMaxMatch];
   dscr=[dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
                _queryOperator];
+  dscr=[dscr stringByAppendingFormat:@"queryKeyValueQualifierClassName:[%@]\n",
+               _queryKeyValueQualifierClassName];
   dscr=[dscr stringByAppendingFormat:@"defaultStringMatchOperator:[%@]\n",
                _defaultStringMatchOperator];
   dscr=[dscr stringByAppendingFormat:@"defaultStringMatchFormat:[%@]\n",
@@ -228,49 +248,185 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     {
       NSLog(@"***** awakeFromKeyValueUnarchiver in GSWDisplayGroup is called *****");
       [self fetch];
-      //      [self fetch];//?? NO: fetch "each time it is loaded in web browser"
     };
   LOGObjectFnStop();
 };
 
-
--(void)encodeWithKeyValueArchiver:(id)object_
+-(void)encodeWithKeyValueArchiver:(EOKeyValueArchiver*)archiver
 {
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+  
+  [archiver encodeInt:_numberOfObjectsPerBatch
+            forKey:@"numberOfObjectsPerBatch"];
+  [archiver encodeBool:[self fetchesOnLoad]
+            forKey:@"fetchesOnLoad"];
+  [archiver encodeBool:[self validatesChangesImmediately]
+            forKey:@"validatesChangesImmediately"];
+  [archiver encodeBool:[self selectsFirstObjectAfterFetch]
+            forKey:@"selectsFirstObjectAfterFetch"];
+  [archiver encodeObject:[self localKeys]
+            forKey:@"localKeys"];
+  [archiver encodeObject:_dataSource
+            forKey:@"dataSource"];
+  [archiver encodeObject:_sortOrdering
+            forKey:@"sortOrdering"];
+  [archiver encodeObject:_qualifier
+            forKey:@"qualifier"];
+  [archiver encodeObject:[self defaultStringMatchFormat]
+                  forKey:@"formatForLikeQualifier"];
+  [archiver encodeObject:_insertedObjectDefaultValues
+            forKey:@"insertedObjectDefaultValues"];
+
   LOGObjectFnStop();
 };
-
--(BOOL)_deleteObjectsAtIndexes:(id)indexes
-{
-  LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
-  return NO;
-};
-
 
 -(BOOL)_deleteObject:(id)object
 {
+  BOOL result=NO;
+
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+
+  if(_delegateRespondsTo.shouldDeleteObject
+     && ![_delegate displayGroup:self
+                    shouldDeleteObject:object])
+    result=NO;
+  else
+    {
+      BOOL deletionOK=NO;
+      NS_DURING
+        {
+          if(_dataSource)
+            [_dataSource deleteObject:object];
+          deletionOK=YES;
+        }
+      NS_HANDLER
+        {
+          NSLog(@"EXCEPTION: %@",localException);
+          [self _presentAlertWithTitle:@"Error Deleting Object"
+                message:[localException reason]];
+          result=NO;
+        }
+      NS_ENDHANDLER;
+      if (deletionOK)
+        {
+          EOUndoManager* undoManager=[self undoManager];
+          if (undoManager)
+            {
+              [undoManager registerUndoWithTarget:self
+                           selector:@selector(_selectObjects:)
+                           arg:[self selectedObjects]];
+
+              [undoManager registerUndoWithTarget:self
+                           selector:@selector(_insertObjectWithObjectAndIndex:)
+                           arg:[NSArray arrayWithObjects:object,
+                                        [NSNumber numberWithInt:[_displayedObjects indexOfObjectIdenticalTo:object]],
+                                        nil]];
+            };
+
+          [_displayedObjects removeObjectIdenticalTo:object];
+          [_allObjects removeObjectIdenticalTo:object];
+
+          [self selectObjectsIdenticalTo:[self selectedObjects]
+                selectFirstOnNoMatch:NO];
+
+          if (_delegateRespondsTo.didDeleteObject)
+            [_delegate displayGroup:self
+                       didDeleteObject:object];
+
+          [self redisplay];
+
+          result=YES;
+        };
+    };
   LOGObjectFnStop();
-  return NO;
+  return result;
 };
 
+-(BOOL)_deleteObjects:(NSArray*)objects
+{
+  BOOL result=NO;
+  int objectsCount = 0;
+  LOGObjectFnStart();
+  objectsCount = [objects count];
+  if (objectsCount>0)
+    {
+      result = YES;
+      int i=0;
+      for(i=0;i<objectsCount;i++)
+        {
+          id object=[objects objectAtIndex:i];
+          if (![self _deleteObject:object])
+            result = NO;
+        };
+    };
+  LOGObjectFnStop();
+  return result;
+};
+
+-(BOOL)_deleteObjectsAtIndexes:(NSArray*)indexes
+{
+  BOOL result=NO;
+  int indexesCount = 0;
+
+  LOGObjectFnStart();
+
+  indexesCount = [indexes count];
+  if (indexesCount>0)
+    {
+      NSArray* objects=[_displayedObjects objectsAtIndexes:indexes];
+      result=[self _deleteObjects:objects];
+    };
+
+  LOGObjectFnStop();
+
+  return result;
+};
+
+-(void)_insertObjectWithObjectAndIndex:(NSArray*)objectAndIndex
+{
+  id object=nil;
+  NSNumber* indexObject=nil;
+  int index=0;
+
+  LOGObjectFnStart();
+
+  NSAssert1([objectAndIndex count]==0,
+            @"Bad Array : %@",objectAndIndex);
+
+  object = [objectAndIndex objectAtIndex:0];
+
+  indexObject = [objectAndIndex objectAtIndex:1];
+
+  index = [indexObject intValue];
+
+  [self insertObject:object
+        atIndex:index];
+
+  LOGObjectFnStop();
+}
+
+/** Returns 1st index of selection if any, -1 otherwise **/
 -(int)_selectionIndex
 {
-  LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
-  return 0;
-};
+  int index=-1;
 
+  LOGObjectFnStart();
+
+  if ([_selection count]>0)
+    index=[[_selection objectAtIndex:0] intValue];
+
+  LOGObjectFnStop();
+
+  return index;
+};
 
 -(void)_lastObserverNotified:(id)object
 {
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+  _flags.didChangeContents = NO;
+  _flags.didChangeSelection = NO;
+  _updatedObjectIndex = -2;
+  [EOObserverCenter notifyObserversObjectWillChange:nil];
   LOGObjectFnStop();
 };
 
@@ -278,27 +434,44 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 -(void)_beginObserverNotification:(id)object
 {
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+  if(!_flags.haveFetched && _flags.autoFetch)
+    [self fetch];
   LOGObjectFnStop();
 };
 
 -(void)_notifySelectionChanged
 {
   LOGObjectFnStart();
-  [EOObserverCenter notifyObserversObjectWillChange:nil];//OK ?
+
+  _flags.didChangeSelection = YES;
+
+  if (_delegateRespondsTo.didChangeSelection)
+    [_delegate displayGroupDidChangeSelection:self];
+
+  [self willChange];
+
   LOGObjectFnStop();
 };
-
-
 
 -(void)_notifyRowChanged:(int)row
 {
   LOGObjectFnStart();
-//-1 ==> nil ?
-  [EOObserverCenter notifyObserversObjectWillChange:nil]; //VERIFY
+
+  if(row!=_updatedObjectIndex)
+    _updatedObjectIndex = _updatedObjectIndex != -2 ? -1 : row;
+
+  _flags.didChangeContents = YES;
+
+  [self willChange];
+
   LOGObjectFnStop();
 };
 
+-(void)willChange
+{
+  [EOObserverCenter notifyObserversObjectWillChange:self];
+  [EOObserverCenter notifyObserversObjectWillChange:nil];
+}
 
 
 -(id)_notify:(SEL)selector
@@ -343,37 +516,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   return undoManager;
 };
 
--(void)objectsInvalidatedInEditingContext:(id)object_
-{
-  LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
-};
-
-
--(void)objectsChangedInEditingContext:(id)object
-{
-  LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
-};
-
-
--(void)_changedInEditingContext:(NSNotification *)notification
-{
-  BOOL redisplay = YES;
-  LOGObjectFnStart();
-
-  if(_delegateRespondsTo.shouldRedisplay == YES)
-    redisplay = [_delegate displayGroup:self
-		      shouldRedisplayForEditingContextChangeNotification:notification];
-
-  if(redisplay == YES)
-    [self redisplay];
-  LOGObjectFnStop();
-}
-
--(void)_invalidatedAllObjectsInStore:(NSNotification *)notification
+/** Called when objects invalidated in dataSource editing context **/
+-(void)objectsInvalidatedInEditingContext:(NSNotification*)notification
 {
   BOOL refetch = YES;
   LOGObjectFnStart();
@@ -388,10 +532,104 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStop();
 }
 
+/** Called when objects changed in dataSource editing context **/
+-(void)objectsChangedInEditingContext:(NSNotification*)notification
+{
+  BOOL isAllObjectsChanged = NO;
+  LOGObjectFnStart();
+  
+  if(_delegateRespondsTo.shouldRedisplay == YES)
+    isAllObjectsChanged = [_delegate displayGroup:self
+                                     shouldRedisplayForEditingContextChangeNotification:notification];
+  else
+    {
+      NSArray* deletedObjects=nil;
+      int deletedObjectsCount = 0;
+
+      deletedObjects = [[notification userInfo] objectForKey:@"deleted"];
+      deletedObjectsCount=[deletedObjects count];
+
+      if (deletedObjectsCount>0)
+        {
+          int i = 0;
+          NSMutableSet* allObjectsSet = (NSMutableSet*)[NSMutableSet setWithArray:_allObjects];
+
+          NSMutableSet* displayedObjectsSet = nil;
+          BOOL isDisplayedObjectsChanged = NO;
+
+          NSMutableSet* selectedObjectsSet = nil;
+          BOOL isSelectedObjectsChanged = NO;
+
+          for(i=0;i<deletedObjectsCount;i++)
+            {
+              id object = [deletedObjects objectAtIndex:i];
+
+              // Do we need to remove deleted object from _allObjects ?
+              if ([allObjectsSet containsObject:object]) 
+                {
+                  [allObjectsSet removeObject:object]; // Remove it
+                  isAllObjectsChanged = YES; // will have to update _allObjects
+
+                  // We also have to check displayed objects
+                  if (!displayedObjectsSet)
+                    displayedObjectsSet = (NSMutableSet*)[NSMutableSet setWithArray:_displayedObjects];
+
+                  if ([displayedObjectsSet containsObject:object])
+                    {
+                      [displayedObjectsSet removeObject:object];
+                      isDisplayedObjectsChanged = YES;
+
+                      // And we also have to check selected objects
+                      if (!selectedObjectsSet)
+                        selectedObjectsSet = (NSMutableSet*)[NSMutableSet setWithArray:_selectedObjects];
+
+                      if ([selectedObjectsSet containsObject:object])
+                        {
+                          [selectedObjectsSet removeObject:object];
+                          isSelectedObjectsChanged = YES;
+                        };
+                    };
+                };
+            };
+      
+          // Now, if something changed, apply changes
+          if (isAllObjectsChanged)
+            {
+              // Set new _allObjects
+              ASSIGN(_allObjects,([NSMutableArray arrayWithArray:[allObjectsSet allObjects]]));
+
+              if (isDisplayedObjectsChanged)
+                {
+                  // Remove deleted (no more selected objects)
+                  for(i=[_displayedObjects count]-1;i>=0;i--)
+                    {
+                      id object = [_displayedObjects objectAtIndex:i];
+                      if (![displayedObjectsSet containsObject:object])
+                        [_displayedObjects removeObjectAtIndex:i];
+                    }
+              
+                  if (isSelectedObjectsChanged)
+                    {
+                      ASSIGN(_selectedObjects,
+                             ([NSMutableArray arrayWithArray:[selectedObjectsSet allObjects]]));
+                    };
+                  ASSIGN(_selection,([_displayedObjects 
+                                       indexesOfObjectsIdenticalTo:_selectedObjects]));
+                };
+            };
+        };
+    };
+  if (isAllObjectsChanged)
+    [self redisplay];
+  LOGObjectFnStop();
+};
+
 //--------------------------------------------------------------------
 - (void)dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
+
+  [[self undoManager]removeAllActionsWithTarget:self];
 
   _delegate = nil;
 
@@ -414,6 +652,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   DESTROY(_queryMax);
   DESTROY(_queryMaxMatch);
   DESTROY(_queryOperator);
+  DESTROY(_queryKeyValueQualifierClassName);
 
   DESTROY(_defaultStringMatchOperator);
   DESTROY(_defaultStringMatchFormat);
@@ -436,7 +675,49 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (NSArray *)allQualifierOperators
 {
-  return [EOQualifier allQualifierOperators];
+  return globalAllQualifierOperators;
+}
+
+//--------------------------------------------------------------------
+//	stringQualifierOperators
+
+- (NSArray *)stringQualifierOperators
+{
+  return globalStringQualifierOperators;
+}
+
++(NSString*)globalDefaultStringMatchOperator
+{
+  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchOperator=%@",globalDefaultStringMatchOperator);
+  return globalDefaultStringMatchOperator;
+}
+
++(void)setGlobalDefaultStringMatchOperator:(NSString*)operatorString
+{
+  ASSIGN(globalDefaultStringMatchOperator,operatorString);
+  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchOperator=%@",globalDefaultStringMatchOperator);
+}
+
++(NSString*)globalDefaultStringMatchFormat
+{
+  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchFormat=%@",globalDefaultStringMatchFormat);
+  return globalDefaultStringMatchFormat;
+}
+
++(void)setGlobalDefaultStringMatchFormat:(NSString*)format
+{
+  ASSIGN(globalDefaultStringMatchFormat,format);
+  NSDebugMLLog(@"gswdisplaygroup",@"globalDefaultStringMatchFormat=%@",globalDefaultStringMatchFormat);
+}
+
++(BOOL)globalDefaultForValidatesChangesImmediately
+{
+  return globalDefaultForValidatesChangesImmediately;
+}
+
++(void)setGlobalDefaultForValidatesChangesImmediately:(BOOL)flag
+{
+  globalDefaultForValidatesChangesImmediately = flag;
 }
 
 //--------------------------------------------------------------------
@@ -445,15 +726,14 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 - (unsigned)batchCount
 {
   unsigned batchCount=0;
-  unsigned count=0;
   LOGObjectFnStart();
 
-  if(!_numberOfObjectsPerBatch)
+  if(_numberOfObjectsPerBatch==0)
     batchCount=1;
   else
     {
-      count = [_allObjects count];
-      if(!count)
+      unsigned count = [_allObjects count];
+      if(count==0)
         batchCount=1;
       else
         batchCount=(count / _numberOfObjectsPerBatch) +
@@ -481,7 +761,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 {
   BOOL result=NO;
   LOGObjectFnStart();
+
   result=[self setSelectionIndexes:[NSArray array]];
+
   LOGObjectFnStop();
   return result;
 }
@@ -507,28 +789,33 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (void)setDataSource:(EODataSource *)dataSource
 {
-  EOEditingContext *context=nil;
   LOGObjectFnStart();
-
-  if(_dataSource)
+  if (dataSource!=_dataSource)
     {
-      context = [_dataSource editingContext];
-      [context removeEditor:self];
-      if([self isEqual:[context messageHandler]] == YES)
-	[context setMessageHandler:nil];
-    }
+      if (_dataSource)
+        {
+          EOEditingContext *editingContext = [_dataSource editingContext];
+          if (editingContext)
+            {
+              [editingContext removeEditor:self];
+              if([self isEqual:[editingContext messageHandler]] == YES)
+                [editingContext setMessageHandler:nil];
+            }
+        };
 
-  ASSIGN(_dataSource,dataSource);
-
-  context = [_dataSource editingContext];
-  [context addEditor:self];
-  if([context messageHandler] == nil)
-    [context setMessageHandler:self];
-
-  [_displayedObjects removeAllObjects];
-
-  if(_delegateRespondsTo.didChangeDataSource == YES)
-    [_delegate displayGroupDidChangeDataSource:self];
+      ASSIGN(_dataSource,dataSource);
+      [self _setUpForNewDataSource];
+      /*
+        context = [_dataSource editingContext];
+        [context addEditor:self];
+        if([context messageHandler] == nil)
+        [context setMessageHandler:self];
+        [_displayedObjects removeAllObjects];
+      */
+      [self setObjectArray:nil];
+      if(_delegateRespondsTo.didChangeDataSource == YES)
+        [_delegate displayGroupDidChangeDataSource:self];
+    };
   LOGObjectFnStop();
 }
 
@@ -537,6 +824,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (NSString *)defaultStringMatchFormat
 {
+  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
   return _defaultStringMatchFormat;
 }
 
@@ -545,6 +833,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (NSString *)defaultStringMatchOperator
 {
+  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
   return _defaultStringMatchOperator;
 }
 
@@ -604,6 +893,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 {
   LOGObjectFnStart();
   [self deleteSelection];
+  [self displayBatchContainingSelectedObject];
   LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
 }
@@ -613,101 +903,23 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (BOOL)deleteObjectAtIndex:(unsigned)index
 {
-  BOOL delete = YES;
-  id object=nil;
+  BOOL result=NO;
   LOGObjectFnStart();
-
-  object = [_allObjects objectAtIndex:index];
-
-  if(_delegateRespondsTo.shouldDeleteObject == YES)
-    delete = [_delegate displayGroup:self  shouldDeleteObject:object];
-
-  if(delete)
-    {
-      NS_DURING
-        {
-          [_dataSource deleteObject:object];
-          
-          [_displayedObjects removeObjectIdenticalTo:object];
-          [_allObjects removeObjectIdenticalTo:object];
-          
-          if(_delegateRespondsTo.didDeleteObject == YES)
-            [_delegate displayGroup:self  didDeleteObject:object];
-        }
-      NS_HANDLER
-        {
-          NSLog(@"GSWDisplayGroup (deleteObjectAtIndex:) Can't delete object at index : %d", index);
-          NSLog(@"object : %@", object);
-          NSLog(@"Exception :  %@ %@ Name:%@ Reason:%@\n",
-                localException,
-                [localException description],
-                [localException name],
-                [localException reason]);
-          delete = NO;
-        }
-      NS_ENDHANDLER;
-    };
-  
-  [self clearSelection];
-
+  [self endEditing];
+  result=[self _deleteObject:[_allObjects objectAtIndex:index]];
   LOGObjectFnStop();
-  return delete;
-}
+  return result;
+};
 
 //--------------------------------------------------------------------
 //	deleteSelection
 
 - (BOOL)deleteSelection
 {
-  BOOL result=YES;
-  BOOL delete = YES;
-  NSEnumerator *enumerator=nil;
-  id object=nil;
+  BOOL result=NO;
   LOGObjectFnStart();
-
-  enumerator = [_selectedObjects objectEnumerator];
-  while((object = [enumerator nextObject]))
-    {
-      if(_delegateRespondsTo.shouldDeleteObject == YES)
-	delete = [_delegate displayGroup:self
-			   shouldDeleteObject:object];
-
-      if(delete == NO)
-	result=NO;
-    }
-  if (result)
-    {
-      NS_DURING
-        {
-          enumerator = [_selectedObjects objectEnumerator];
-          while((object = [enumerator nextObject]))
-            {
-              [_dataSource deleteObject:object];
-              
-              [_displayedObjects removeObjectIdenticalTo:object];
-              [_allObjects removeObjectIdenticalTo:object];
-              
-              if(_delegateRespondsTo.didDeleteObject == YES)
-                [_delegate displayGroup:self
-                          didDeleteObject:object];
-            }
-        }
-      NS_HANDLER
-        {
-          NSLog(@"GSWDisplayGroup (deleteSelection:) Can't delete object");
-          NSLog(@"object : %@", object);
-          NSLog(@"Exception :  %@ %@ Name:%@ Reason:%@\n",
-                localException,
-                [localException description],
-                [localException name],
-                [localException reason]);
-          delete = NO;
-        }
-      NS_ENDHANDLER;
-    };
-
-  [self clearSelection];
-
+  [self endEditing];
+  result=[self _deleteObjectsAtIndexes:[self selectionIndexes]];
   LOGObjectFnStop();
   return result;
 }
@@ -732,8 +944,20 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 -(id)displayBatchContainingSelectedObject
 {
+  int newBatchIndex = 1;
+
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+
+  int selectionIndex=[self _selectionIndex];
+
+  if ([self batchCount]>0)
+    newBatchIndex = selectionIndex / _numberOfObjectsPerBatch + 1;
+
+  if(newBatchIndex!=_batchIndex)
+    {
+      [self setCurrentBatchIndex:newBatchIndex];
+    };
+
   LOGObjectFnStop();
   return nil;
 };
@@ -741,49 +965,68 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 //--------------------------------------------------------------------
 //	displayedObjects
 
+/** Returns currently displayed objects for the current batch **/
+
 - (NSArray *)displayedObjects
 {
-  //OK
-  return _displayedObjects;
+  NSArray* displayedObjects=nil;
+  int displayedObjectsCount = 0;
+  
+  LOGObjectFnStart();
+
+  GSWLogAssertGood(_displayedObjects);
+  displayedObjectsCount = [_displayedObjects count];
+
+  NSDebugMLLog(@"gswdisplaygroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  NSDebugMLLog(@"gswdisplaygroup",@"displayedObjectsCount=%d",displayedObjectsCount);
+
+  if (_numberOfObjectsPerBatch == 0 || _numberOfObjectsPerBatch>=displayedObjectsCount)
+    displayedObjects=_displayedObjects;
+  else
+    {
+      int currentBatchIndex = [self currentBatchIndex];
+      int startIndex=(currentBatchIndex - 1) * _numberOfObjectsPerBatch;
+      NSDebugMLLog(@"gswdisplaygroup",@"currentBatchIndex=%d",currentBatchIndex);
+      NSDebugMLLog(@"gswdisplaygroup",@"startIndex=%d",startIndex);
+
+      if( displayedObjectsCount > (currentBatchIndex * _numberOfObjectsPerBatch))
+        displayedObjectsCount = currentBatchIndex * _numberOfObjectsPerBatch;
+      NSDebugMLLog(@"gswdisplaygroup",@"displayedObjectsCount=%d",displayedObjectsCount);
+
+      displayedObjects=[_displayedObjects subarrayWithRange:NSMakeRange(startIndex,displayedObjectsCount-startIndex)];
+    };
+
+  LOGObjectFnStop();
+
+  return displayedObjects;
 }
+
+//--------------------------------------------------------------------
+//	allDisplayedObjects
+
+/** Returns all displayed objects
+Objects are filtered and sorted (unlike allObjects) and this array contains objetcs 
+of all Batches, not only the current one.
+**/
+
+- (NSArray *)allDisplayedObjects
+{
+  return _displayedObjects;
+};
 
 //--------------------------------------------------------------------
 //	displayNextBatch
 
 - (id)displayNextBatch
 {
-  int count = [_allObjects count];
-  NSRange range;
   LOGObjectFnStart();
 
-  [_displayedObjects removeAllObjects];
-
-  if(!_numberOfObjectsPerBatch || count <= _numberOfObjectsPerBatch)
+  NSDebugMLLog(@"gswdisplaygroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  if (_numberOfObjectsPerBatch>0)
     {
-      _batchIndex = 1;
-      [_displayedObjects addObjectsFromArray:_allObjects];
-    }
-  else
-    {
-      if(_batchIndex >= [self batchCount])
-	{
-	  _batchIndex = 1;
-	  range.location = 0;
-	  range.length = _numberOfObjectsPerBatch;
-	}
-      else
-	{
-	  range.location = _batchIndex * _numberOfObjectsPerBatch;
-	  range.length = (range.location + _numberOfObjectsPerBatch > count ?
-			  count - range.location : _numberOfObjectsPerBatch);
-	  _batchIndex++;
-	}
-
-      [_displayedObjects addObjectsFromArray:[_allObjects
-					      subarrayWithRange:range]];
-    }
-
-  [self clearSelection];
+      [self setCurrentBatchIndex:_batchIndex+1];
+      [self clearSelection];
+    };
 
   LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
@@ -794,39 +1037,13 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (id)displayPreviousBatch
 {
-  int count = [_allObjects count];
-  NSRange range;
   LOGObjectFnStart();
 
-  [_displayedObjects removeAllObjects];
-
-  if(!_numberOfObjectsPerBatch || count <= _numberOfObjectsPerBatch)
+  if (_numberOfObjectsPerBatch>0)
     {
-      _batchIndex = 1;
-      [_displayedObjects addObjectsFromArray:_allObjects];
-    }
-  else
-    {
-      if(_batchIndex == 1)
-	{
-	  _batchIndex = [self batchCount];
-	  range.location = (_batchIndex-1) * _numberOfObjectsPerBatch;
-
-	  range.length = (range.location + _numberOfObjectsPerBatch > count ?
-			  count - range.location : _numberOfObjectsPerBatch);
-	}
-      else
-	{
-	  _batchIndex--;
-	  range.location = (_batchIndex-1) *  _numberOfObjectsPerBatch;
-	  range.length = _numberOfObjectsPerBatch;
-	}
-
-      [_displayedObjects addObjectsFromArray:[_allObjects
-					      subarrayWithRange:range]];
-    }
-
-  [self clearSelection];
+      [self setCurrentBatchIndex:_batchIndex-1];
+      [self clearSelection];
+    };
 
   LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
@@ -834,7 +1051,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 //--------------------------------------------------------------------
 //	endEditing
-
+// deprecatd
 - (BOOL)endEditing
 {
   return YES;
@@ -855,50 +1072,58 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 //	fetch
 
 - (id)fetch
-  //Near OK
 {
-  BOOL fetch = YES;
-  EOUndoManager* undoManager=nil;
   LOGObjectFnStart();
-  //[self endEditing];//WO45P3 ret 1 //TODO if NO ?
-  [[NSNotificationCenter defaultCenter] 
-    postNotificationName:@"WODisplayGroupWillFetch" //TODO Name
-    object:self];
-  undoManager=[self undoManager];
-  [undoManager removeAllActionsWithTarget:self];
-  [_dataSource setQualifierBindings:_queryBindings];
 
-  if(_delegateRespondsTo.shouldFetchObjects == YES)
-    fetch = [_delegate displayGroupShouldFetch:self];
-
-  if(fetch)
+  _flags.haveFetched = YES;
+  if (_dataSource)
     {
-      NSArray *objects=nil;
+      if ([self endEditing])
+        {
+          if(!_delegateRespondsTo.shouldFetchObjects
+             || [_delegate displayGroupShouldFetch:self])
+            {
+              EOUndoManager* undoManager=nil;
+              NSArray *objects=nil;
+              NSAutoreleasePool* arp = nil;
 
-      NSAutoreleasePool* arp = [NSAutoreleasePool new];
-      NS_DURING //for trace purpose
-        {
-          objects = [_dataSource fetchObjects];
-          [self setObjectArray:objects];//OK
-        }
-      NS_HANDLER
-        {
-          NSLog(@"%@ (%@)",localException,[localException reason]);
-          LOGException(@"%@ (%@)",localException,[localException reason]);
-          RETAIN(localException);
-          DESTROY(arp);
-          AUTORELEASE(localException);
-          [localException raise];
-        }
-      NS_ENDHANDLER;
-      DESTROY(arp);
-      [self _notify:@selector(displayGroup:didFetchObjects:)
-            with:self
-            with:_allObjects];
-      /*IN  setObjectArray:     // selection
-        if ([self selectsFirstObjectAfterFetch] == YES) {
-        [self setCurrentBatchIndex:1];
-      */
+              [[NSNotificationCenter defaultCenter] 
+                postNotificationName:@"WODisplayGroupWillFetch" //TODO Name
+                object:self];
+
+              undoManager=[self undoManager];
+              [undoManager removeAllActionsWithTarget:self];
+
+              if (_flags.isCustomDataSourceClass 
+                  && [_dataSource respondsToSelector:@selector(setQualifierBindings:)])
+                {
+                  [_dataSource setQualifierBindings:_queryBindings];
+                };
+
+              arp = [NSAutoreleasePool new];
+              NS_DURING
+                {
+                  objects = [_dataSource fetchObjects];
+                  [self setObjectArray:objects];
+                  objects=nil;
+                }
+              NS_HANDLER
+                {
+                  NSLog(@"%@ (%@)",localException,[localException reason]);
+                  LOGException(@"%@ (%@)",localException,[localException reason]);
+                  RETAIN(localException);
+                  DESTROY(arp);
+                  AUTORELEASE(localException);
+                  [localException raise];
+                }
+              NS_ENDHANDLER;
+              DESTROY(arp);
+
+              if (_delegateRespondsTo.didFetchObjects)
+                [_delegate displayGroup:self
+                           didFetchObjects:_allObjects];
+            };
+        };
     };
   LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
@@ -925,7 +1150,6 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (BOOL)hasMultipleBatches
 {
-  //return !_flags.fetchAll;
   return ([self batchCount]>1);
 }
 
@@ -946,11 +1170,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 - (unsigned)indexOfFirstDisplayedObject
 {
   int indexOfFirstDisplayedObject=0;
-  int batch = 0;
   LOGObjectFnStart();
 
-  batch=[self currentBatchIndex];
-  indexOfFirstDisplayedObject=((batch-1) * _numberOfObjectsPerBatch);
+  indexOfFirstDisplayedObject=(([self currentBatchIndex]-1) * _numberOfObjectsPerBatch);
 
   LOGObjectFnStop();
   return indexOfFirstDisplayedObject;
@@ -962,12 +1184,22 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 - (unsigned)indexOfLastDisplayedObject
 {
   int indexOfLastDisplayedObject=0;
-  int batch = 0;
-  LOGObjectFnStart();
-  batch=[self currentBatchIndex];
+  int allObjectsCount=0;
 
-  indexOfLastDisplayedObject=((batch-1) * _numberOfObjectsPerBatch) + [_displayedObjects count];
+  LOGObjectFnStart();
+
+  allObjectsCount=[_allObjects count];  
+
+  if (_numberOfObjectsPerBatch==0)
+    indexOfLastDisplayedObject=allObjectsCount-1;
+  else
+    {
+      int index = _numberOfObjectsPerBatch * [self currentBatchIndex];
+      indexOfLastDisplayedObject=(allObjectsCount>index ? index : allObjectsCount-1);
+    };
+
   LOGObjectFnStop();
+
   return indexOfLastDisplayedObject;
 }
 
@@ -976,7 +1208,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (BOOL)inQueryMode
 {
-  return _flags.queryMode;
+  return (_savedAllObjects!=nil);
 }
 
 //--------------------------------------------------------------------
@@ -1005,6 +1237,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
   NSDebugMLog(@"INSERT Index=%d",index);
   [self insertObjectAtIndex:index];
+  [self displayBatchContainingSelectedObject];
 
   LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
@@ -1029,33 +1262,81 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 //--------------------------------------------------------------------
 //	insertObject:atIndex:
 
-- (void)insertObject:anObject
+- (void)insertObject:(id)anObject
 	     atIndex:(unsigned)index
 {
-  BOOL insert = YES;
-
   LOGObjectFnStart();
-  if(_delegateRespondsTo.shouldInsertObject == YES)
-    insert = [_delegate displayGroup:self
-		       shouldInsertObject:anObject
-		       atIndex:index];
 
-  if(insert)
+  if ([self endEditing])
     {
-      NSDebugMLLog(@"gswdisplaygroup",@"insertObject:AtIndex: Will [_dataSource insertObject:anObject]");
-      [_dataSource insertObject:anObject];
-      NSDebugMLLog(@"gswdisplaygroup",@"insertObject:AtIndex: End [_dataSource insertObject:anObject]");
-      
-      [_allObjects insertObject:anObject 
-                   atIndex:index];
-      [self setCurrentBatchIndex:_batchIndex];
-      
-      if(_delegateRespondsTo.didInsertObject == YES)
-        [_delegate displayGroup:self
-                  didInsertObject:anObject];
-
-      [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:index]]];
+      if (index>[_displayedObjects count])
+        {
+          [[NSException exceptionWithName:NSInvalidArgumentException
+                        reason:[NSString stringWithFormat:@"%@ %@: index %u is beyond the bounds of %d",
+                                         [self class],NSStringFromSelector(_cmd),
+                                         index,[_displayedObjects count]]
+                        userInfo:nil] raise];
+        }
+      else if (_delegateRespondsTo.shouldInsertObject == YES
+               && ![_delegate displayGroup:self
+                              shouldInsertObject:anObject
+                              atIndex:index])
+        {
+          // to nothing more
+        }
+      else
+        {
+          BOOL insertionOK=NO;
+          NS_DURING
+            {
+              if (_dataSource)
+                [_dataSource insertObject:anObject];
+              insertionOK=YES;
+            }
+          NS_HANDLER
+            {
+              NSLog(@"EXCEPTION: %@",localException);
+              [self _presentAlertWithTitle:@"Error Inserting Object"
+                    message:[localException reason]];
+            }
+          NS_ENDHANDLER;
+          if (insertionOK)
+            {
+              EOUndoManager* undoManager=[self undoManager];
+              if (undoManager)
+                {
+                  [undoManager registerUndoWithTarget:self
+                               selector:@selector(_selectObjects:)
+                               arg:[self selectedObjects]];
+                  [undoManager registerUndoWithTarget:self
+                               selector:@selector(_deleteObject:)
+                               arg:anObject];
+                };
+              [_displayedObjects insertObject:anObject
+                                 atIndex:index];
+              [_allObjects insertObject:anObject
+                           atIndex:index];
+              [self redisplay];
+              
+              if (_delegateRespondsTo.didInsertObject)
+                [_delegate displayGroup:self
+                           didInsertObject:anObject];
+              [self selectObjectsIdenticalTo:[NSArray arrayWithObject:anObject]];
+            };
+        };
     };
+}
+
+//--------------------------------------------------------------------
+//	insertNewObjectAtIndex:
+
+- (id)insertNewObjectAtIndex:(unsigned)index
+{
+  id object=nil;
+  LOGObjectFnStart();
+  object=[self insertObjectAtIndex:index];
+  LOGObjectFnStop();
+  return object;
 }
 
 //--------------------------------------------------------------------
@@ -1066,23 +1347,29 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   id object=nil;
   LOGObjectFnStart();
 
-  NSDebugMLLog(@"gswdisplaygroup",@"Will [_dataSource createObject]");
-  object = [_dataSource createObject];
-  NSDebugMLLog(@"gswdisplaygroup",@"End [_dataSource createObject]. Object %p=%@",
-               object,object);
-  if(object == nil)
+  if ([self endEditing])
     {
-      if(_delegateRespondsTo.createObjectFailed == YES)
-	[_delegate displayGroup:self
-		  createObjectFailedForDataSource:_dataSource];
-    }
-  else
-    {
-      [object takeValuesFromDictionary:[self insertedObjectDefaultValues]];
-      NSDebugMLLog(@"gswdisplaygroup",@"Will insertObject:AtIndex:");
-      [self insertObject:object
-            atIndex:index];
-      NSDebugMLLog(@"gswdisplaygroup",@"End insertObject:AtIndex:");
+      NSDebugMLLog(@"gswdisplaygroup",@"Will [_dataSource createObject]");
+      object = [_dataSource createObject];
+      NSDebugMLLog(@"gswdisplaygroup",@"End [_dataSource createObject]. Object %p=%@",
+                   object,object);
+      if (!object)
+        {
+          if(_delegateRespondsTo.createObjectFailed == YES)
+            [_delegate displayGroup:self
+                       createObjectFailedForDataSource:_dataSource];
+          else
+            [self _presentAlertWithTitle:@"Error Inserting Object"
+                  message:@"Data source didn't created object"];
+        }
+      else
+        {
+          [object takeValuesFromDictionary:[self insertedObjectDefaultValues]];
+          NSDebugMLLog(@"gswdisplaygroup",@"Will insertObject:AtIndex:");
+          [self insertObject:object
+                atIndex:index];
+          NSDebugMLLog(@"gswdisplaygroup",@"End insertObject:AtIndex:");
+        };
     };
   LOGObjectFnStop();
   return object;
@@ -1179,7 +1466,6 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (EOQualifier *)qualifierFromQueryValues
 {
-  //Near OK
   EOQualifier* resultQualifier=nil;
   NSMutableArray *array=nil;
   LOGObjectFnStart();
@@ -1211,13 +1497,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   [self _addQualifiersToArray:array
         forValues:_queryMinMatch
         operatorSelector:EOQualifierOperatorGreaterThanOrEqualTo];
-
-  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@ EOQualifier sel:%p",
-               _defaultStringMatchOperator,
-               (void*)[EOQualifier operatorSelectorForString:_defaultStringMatchOperator]);
   [self _addQualifiersToArray:array
         forValues:_queryMatch
-        operatorSelector:[EOQualifier operatorSelectorForString:_defaultStringMatchOperator]];//VERIFY
+        operatorSelector:EOQualifierOperatorEqual];
 
   NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
   if ([array count]==1)
@@ -1234,22 +1516,39 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (void)qualifyDataSource
 {
-  // near OK
   EOQualifier* qualifier=nil;
+
   LOGObjectFnStart();
+
   NS_DURING //for trace purpose
     {
-      //TODO
-      //[self endEditing];//WO45P3 ret 1 //TODO if NO ?
+      SEL setQualifierSel=NULL;
+
+      [self endEditing];
+
       [self setInQueryMode:NO];
-      qualifier=[self qualifierFromQueryValues];//OK
+
+      qualifier=[self qualifierFromQueryValues];
       NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+
       NSDebugMLLog(@"gswdisplaygroup",@"_dataSource=%@",_dataSource);
-      [(EODatabaseDataSource*)_dataSource setAuxiliaryQualifier:qualifier];//OK
+      if (_flags.isCustomDataSourceClass)
+        {
+          if ([_dataSource respondsToSelector:@selector(setAuxiliaryQualifier:)])
+            setQualifierSel=@selector(setAuxiliaryQualifier:);
+          else if ([_dataSource respondsToSelector:@selector(setQualifier:)])
+            setQualifierSel=@selector(setQualifier:);
+        };
+
+      if (setQualifierSel)
+        [_dataSource performSelector:setQualifierSel
+                     withObject:qualifier];
 
       NSDebugMLLog0(@"gswdisplaygroup",@"Will fetch");
-      [self fetch];//OK use ret Value ?
+      [self fetch];
       NSDebugMLLog0(@"gswdisplaygroup",@"End fetch");
+
+      [self setCurrentBatchIndex:1];
     }
   NS_HANDLER
     {
@@ -1335,13 +1634,20 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 }
 
 //--------------------------------------------------------------------
+//	queryOperator
+
+- (NSMutableDictionary *)queryKeyValueQualifierClassName
+{
+  return _queryKeyValueQualifierClassName;
+}
+
+//--------------------------------------------------------------------
 //	redisplay
 
 -(void)redisplay
 {
-  //VERIFY
   LOGObjectFnStart();
-  [self _notifyRowChanged:-1]; // -1 ??
+  [self _notifyRowChanged:-1];
   LOGObjectFnStop();
 };
 
@@ -1372,7 +1678,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   id obj=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdisplaygroup",@"_selectedObjects count=%d",[_selectedObjects count]);
-  if([_selectedObjects count])
+  if([_selectedObjects count]>0)
     obj=[_selectedObjects objectAtIndex:0];
   NSDebugMLLog(@"gswdisplaygroup",@"selectedObject=%@",obj);
 
@@ -1385,6 +1691,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (NSArray *)selectedObjects
 {
+  if (!_selectedObjects)
+    ASSIGN(_selectedObjects,([_displayedObjects objectsAtIndexes:_selection]));
+
   return _selectedObjects;
 }
 
@@ -1407,6 +1716,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     {
       [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
     };
+
+  LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
 };  
 
@@ -1415,40 +1726,23 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
 - (id)selectNext
 {
-  unsigned index=0;
-  id obj=nil;
   LOGObjectFnStart();
 
-  if([_allObjects count]>0)
+  if ([_allObjects count]>0)
     {
-      if(![_selectedObjects count])
-        [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
-      else
+      int nextIndex=0;
+      if([_selection count]>0)
         {
-          obj = [_selectedObjects objectAtIndex:0];
-          
-          if([obj isEqual:[_displayedObjects lastObject]] == YES)
-            {
-              index = [_allObjects indexOfObject:[_displayedObjects
-                                                   objectAtIndex:0]];
-              
-              [self setSelectionIndexes:
-                      [NSArray arrayWithObject:
-                                 [NSNumber numberWithUnsignedInt:index]]];
-            }
-          else
-            {
-              index = [_allObjects indexOfObject:obj]+1;
-              
-              if(index >= [_allObjects count])
-                index = 0;
-              
-              [self setSelectionIndexes:
-                      [NSArray arrayWithObject:
-                                 [NSNumber numberWithUnsignedInt:index]]];
-            };
+          nextIndex=[[_selection objectAtIndex:0] intValue];
+          nextIndex++;
+          if (nextIndex>=[_displayedObjects count]) // passed the end
+            nextIndex=0; // ==> back to the beginning
         };
+      [self setSelectionIndexes:
+              [NSArray arrayWithObject:
+                         [NSNumber numberWithInt:nextIndex]]];
     };
+
   LOGObjectFnStop();
   return nil;//return nil for direct .gswd actions ==> same page
 }
@@ -1460,68 +1754,31 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 {
   BOOL result=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"object=%@",object);
-  NSDebugMLLog(@"gswdisplaygroup",@"_allObjects=%@",_allObjects);
-  NSDebugMLLog(@"gswdisplaygroup",@"[_allObjects containsObject:object]=%d",
-               (int)[_allObjects containsObject:object]);
-  if(![_allObjects containsObject:object])
-    result=NO;
-  else
-    result=[self setSelectionIndexes:
-                   [NSArray arrayWithObject:
-                              [NSNumber numberWithUnsignedInt:
-                                          [_allObjects
-                                            indexOfObject:object]]]];
-  NSDebugMLLog(@"gswdisplaygroup",@"result=%d",(int)result);
+  
+  result=[self selectObjectsIdenticalTo:
+                 [NSArray arrayWithObject:object]];
+
   LOGObjectFnStop();
   return result;
 }
 
 //--------------------------------------------------------------------
 //	selectObjectsIdenticalTo:
+
 - (BOOL)selectObjectsIdenticalTo:(NSArray *)objects
-{
+{ 
   BOOL result=NO;
-  NSMutableArray *array=nil;
-  NSEnumerator *objsEnum=nil;
-  NSEnumerator *dispEnum=nil;
-  id object=nil;
-  id dispObj=nil;
+  NSArray* selectionIndexes = nil;
+
   LOGObjectFnStart();
+  GSWLogAssertGood(_displayedObjects);
+  selectionIndexes = [_displayedObjects indexesOfObjectsIdenticalTo:objects];
 
-  // Array of new selected indexes
-  array = [NSMutableArray arrayWithCapacity:8];
+  result = [self setSelectionIndexes:selectionIndexes];
 
-  // ENumeratoe Objects to select
-  objsEnum = [objects objectEnumerator];
+  if([objects count]>0 && [selectionIndexes count]==0)
+    result=NO;
 
-  // For each object to select
-  while((object = [objsEnum nextObject]))
-    {
-      //Enumerated displayed objects
-      dispEnum = [_displayedObjects objectEnumerator];
-
-      // For each already displayed object
-      while((dispObj = [dispEnum nextObject]))
-	{
-          //if object to select is displayed
-	  if(dispObj == object)
-	    {
-              // Add it to array of selected indexes
-	      [array addObject:[NSNumber numberWithUnsignedInt:
-					   [_allObjects indexOfObject:object]]];
-	      break;
-	    };
-	};
-
-      //???
-      if(dispObj == nil)
-	{
-	  [array removeAllObjects];
-	  break;
-	};
-    };
-  result=[self setSelectionIndexes:array];
   LOGObjectFnStop();
   return result;
 }
@@ -1530,42 +1787,29 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 //	selectObjectsIdenticalTo:selectFirstOnNoMatch:
 
 - (BOOL)selectObjectsIdenticalTo:(NSArray *)objects
-	    selectFirstOnNoMatch:(BOOL)flag
+            selectFirstOnNoMatch:(BOOL)selectFirstOnNoMatch
 {
-
-
-/*
-//--------------------------------------------------------------------
-//	selectObjectsIdenticalTo:selectFirstOnNoMatch: //WO45
--(BOOL)selectObjectsIdenticalTo:(NSArray*)objects //0x1962ca8
-
-           selectFirstOnNoMatch:(int)index //0
-{
-self setSelectionIndexes:indexes of objects in objects? //ret 1
-  return 1; ??
-}
-*/
-
   BOOL result=NO;
-  unsigned index=0;
+  NSArray* selectionIndexes = nil;
+
   LOGObjectFnStart();
-  if([self selectObjectsIdenticalTo:objects] == NO && flag == YES)
+
+  GSWLogAssertGood(_displayedObjects);
+  GSWLogAssertGood(objects);
+  NSDebugMLLog(@"gswdisplaygroup",@"_displayedObjects count]=%d",[_displayedObjects count]);
+  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
+  selectionIndexes = [_displayedObjects indexesOfObjectsIdenticalTo:objects];
+  NSDebugMLLog(@"gswdisplaygroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
+
+  if ([selectionIndexes count]==0)
     {
-      if(![_selectedObjects count] &&
-	 [_displayedObjects count])
-	{
-	  index = [_allObjects indexOfObject:[_displayedObjects
-					      objectAtIndex:0]];
-	  [self setSelectionIndexes:
-		  [NSArray arrayWithObject:[NSNumber
-					     numberWithUnsignedInt:index]]];
-	  result=YES;
-	}
-      else
-        result=NO;
-    }
-  else
-    result=YES;
+      if (selectFirstOnNoMatch && [_displayedObjects count]>0)
+        selectionIndexes=[NSArray arrayWithObject:[NSNumber numberWithInt:0]];
+    };
+  NSDebugMLLog(@"gswdisplaygroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
+  result = [self setSelectionIndexes:selectionIndexes];
+  NSDebugMLLog(@"gswdisplaygroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
+
   LOGObjectFnStop();
   return result;
 }
@@ -1575,40 +1819,23 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 
 - (id)selectPrevious
 {
-  unsigned index=0;
-  id obj=nil;
   LOGObjectFnStart();
 
-  if([_allObjects count]>0)
+  if ([_allObjects count]>0)
     {
-      if(![_selectedObjects count])
-        [self setSelectionIndexes:
-                [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
-      else
+      int previousIndex=0;
+      if([_selection count]>0)
         {
-          obj = [_selectedObjects objectAtIndex:0];
-          
-          if([obj isEqual:[_displayedObjects objectAtIndex:0]] == YES)
-            {
-              index = [_allObjects indexOfObject:[_displayedObjects lastObject]];
-              
-              [self setSelectionIndexes:
-                      [NSArray arrayWithObject:
-                                 [NSNumber numberWithUnsignedInt:index]]];
-            }
-          else
-            {
-              index = [_allObjects indexOfObject:obj]-1;
-              
-              if(!index || index >= [_allObjects count])
-                index = [_allObjects count] - 1;
-              
-              [self setSelectionIndexes:
-                      [NSArray arrayWithObject:
-                                 [NSNumber numberWithUnsignedInt:index]]];
-            };
+          previousIndex=[[_selection objectAtIndex:0] intValue];
+          previousIndex--;
+          if (previousIndex<=0) // too low ?
+            previousIndex=[_displayedObjects count]-1; // ==> to the end
         };
+      [self setSelectionIndexes:
+              [NSArray arrayWithObject:
+                         [NSNumber numberWithInt:previousIndex]]];
     };
+
   LOGObjectFnStop();
   return nil;
 }
@@ -1619,8 +1846,8 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 - (BOOL)selectsFirstObjectAfterFetch
 {
   LOGObjectFnStart();
-  return _flags.selectFirstObject;
   LOGObjectFnStop();
+  return _flags.selectFirstObject;
 }
 
 //--------------------------------------------------------------------
@@ -1638,44 +1865,21 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 
 - (void)setCurrentBatchIndex:(unsigned)index
 {
-  unsigned batchCount, num;
-  int i;
   LOGObjectFnStart();
 
-  if(index)
+  NSDebugMLLog(@"gswdisplaygroup",@"index=%d",index);
+  NSDebugMLLog(@"gswdisplaygroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
+  if(_numberOfObjectsPerBatch>0)
     {
-      [_displayedObjects removeAllObjects];
-      
-      batchCount = [self batchCount];
-		NSLog(@"setCurrentBatchIndex : [self batchCount] = %d", [self batchCount]);
-      if(index > batchCount)
-        index = 1;
-      
-      num = [_allObjects count];
-		NSLog(@"setCurrentBatchIndex : [_allObjects count] = %d", [_allObjects count]);
-
-      if(_numberOfObjectsPerBatch && _numberOfObjectsPerBatch < num)
-        num = _numberOfObjectsPerBatch;
-      
-      if(num)
-        {
-		NSLog(@"setCurrentBatchIndex : index = %d", index);
-		NSLog(@"setCurrentBatchIndex : num = %d", num);
-
-          for( i = (index-1) * num;
-               ((i < index * num) && (i < [_allObjects count]));
-               i++)
-            [_displayedObjects addObject:[_allObjects objectAtIndex:i]];
-          
-          //if(_flags.selectFirstObject == YES && [_selection count])
-          if ((_flags.selectFirstObject == YES) && [_displayedObjects count])
-            [self setSelectionIndexes:
-                    [NSArray arrayWithObject:
-                               [NSNumber numberWithUnsignedInt:
-                                           [_allObjects
-                                             indexOfObject:
-                                               [_displayedObjects objectAtIndex:0]]]]];
-        };
+      int batchCount=[self batchCount];
+      NSDebugMLLog(@"gswdisplaygroup",@"batchCount=%d",batchCount);
+      if (index<1)
+        _batchIndex=(batchCount>0 ?  batchCount : 1);
+      else if (index>batchCount)
+        _batchIndex=1;
+      else
+        _batchIndex=index;
+      NSDebugMLLog(@"gswdisplaygroup",@"_batchIndex=%d",_batchIndex);
     };
   LOGObjectFnStop();
 }
@@ -1703,7 +1907,20 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 - (void)setDefaultStringMatchFormat:(NSString *)format
 {
   LOGObjectFnStart();
-  ASSIGN(_defaultStringMatchFormat, format);
+  // This must contains value format string
+  NSRange range=[format rangeOfString:@"%@"];
+  if (range.length==0)
+    {
+      [[NSException exceptionWithName:NSInvalidArgumentException
+                    reason:[NSString stringWithFormat:@"defaultStringMatchFormat '%@' must contains value format string (i.e. %%@).",
+                                     format]
+                    userInfo:nil] raise];
+    }
+  else
+    {
+      ASSIGN(_defaultStringMatchFormat, format);
+    };
+  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
   LOGObjectFnStop();
 }
 
@@ -1714,23 +1931,26 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 {
   LOGObjectFnStart();
   ASSIGN(_defaultStringMatchOperator, operator);
+  NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
   LOGObjectFnStop();
 }
-
 
 //--------------------------------------------------------------------
 //	setDetailKey:
 
 - (void)setDetailKey:(NSString *)detailKey
 {
-  EODetailDataSource *source=nil;
   LOGObjectFnStart();
 
   if([self hasDetailDataSource] == YES)
     {
-      source = (EODetailDataSource *)_dataSource;
-      [source qualifyWithRelationshipKey:detailKey
-	      ofObject:[source masterObject]];
+      /*
+        EODetailDataSource *source=nil;
+        source = (EODetailDataSource *)_dataSource;
+        [source qualifyWithRelationshipKey:detailKey
+        ofObject:[source masterObject]];
+      */
+      [(EODetailDataSource*)_dataSource setDetailKey:detailKey];
     }
   LOGObjectFnStop();
 }
@@ -1747,12 +1967,30 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 
 //--------------------------------------------------------------------
 //	setInQueryMode:
-
+// Deprectaed
 - (void)setInQueryMode:(BOOL)flag
 {
   LOGObjectFnStart();
-//[self inQueryMode]//WO45P3
-  _flags.queryMode = flag;
+  if( flag != [self inQueryMode])
+    {
+      if(flag)
+        {
+          GSWLogAssertGood(_allObjects);
+          ASSIGN(_savedAllObjects,_allObjects);
+          [self setObjectArray:[NSArray arrayWithObject:_queryMatch]];
+          [self selectObject:_queryMatch];
+        } 
+      else
+        {
+          NSMutableArray* savedAllObjects=_savedAllObjects;
+          GSWLogAssertGood(savedAllObjects);
+          GSWLogAssertGood(_allObjects);
+          RETAIN(savedAllObjects);
+          AUTORELEASE(savedAllObjects);
+          DESTROY(_savedAllObjects);
+          [self setObjectArray:savedAllObjects];
+        }
+    }
   LOGObjectFnStop();
 }
 
@@ -1788,12 +2026,22 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
     [_queryOperator addEntriesFromDictionary:qo];
 };
 
+-(void)setQueryKeyValueQualifierClassName:(NSDictionary*)qo
+{
+  NSAssert1((!qo || [qo isKindOfClass:[NSDictionary class]]),
+            @"queryOperatorKeyValueClass is not a dictionary but a %@",
+            [qo class]);
+  [_queryKeyValueQualifierClassName removeAllObjects];
+  if (qo)
+    [_queryKeyValueQualifierClassName addEntriesFromDictionary:qo];
+};
+
+
 //--------------------------------------------------------------------
 //	setMasterObject:
 
 - (void)setMasterObject:(id)masterObject
 {
-  //OK
   EODetailDataSource *source=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdisplaygroup",@"masterObject=%@",masterObject);
@@ -1819,10 +2067,12 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 - (void)setNumberOfObjectsPerBatch:(unsigned)count
 {
   LOGObjectFnStart();
-//FIXME  call clearSelection
-
-  _numberOfObjectsPerBatch = count;
-  _batchIndex=max(1,_batchIndex);
+  if(count!=_numberOfObjectsPerBatch)
+    {
+      [self clearSelection];
+      _numberOfObjectsPerBatch = count;
+      _batchIndex = 1;
+    };
   LOGObjectFnStop();
 }
 
@@ -1831,24 +2081,40 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 
 - (void)setObjectArray:(NSArray *)objects
 {
-  LOGObjectFnStart();
-//self selectedObjects
-// self updateDisplayedObjects
-  NSDebugMLog(@"objects=%@",objects);
+  NSMutableArray* selectedObjects = nil;
 
-  [_allObjects removeAllObjects];
-  [_allObjects addObjectsFromArray:objects];
+  LOGObjectFnStart();
+
+  GSWLogAssertGood(_allObjects);
+  GSWLogAssertGood(objects);
+  selectedObjects = (NSMutableArray*)[self selectedObjects];
+  RETAIN(selectedObjects);
+  AUTORELEASE(selectedObjects);
+  GSWLogAssertGood(selectedObjects);
+  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  NSDebugMLLog(@"gswdisplaygroup",@"_allObjects count]=%d",[_allObjects count]);
+  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
+
+  if (objects)
+    ASSIGN(_allObjects,[NSMutableArray arrayWithArray:objects]);
+  else
+    ASSIGN(_allObjects,[NSMutableArray array]);
+  GSWLogAssertGood(selectedObjects);
+  GSWLogAssertGood(_allObjects);
+  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  NSDebugMLLog(@"gswdisplaygroup",@"_allObjects count]=%d",[_allObjects count]);
 
   [self updateDisplayedObjects];
+  GSWLogAssertGood(selectedObjects);
+  GSWLogAssertGood(_allObjects);
+  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  NSDebugMLLog(@"gswdisplaygroup",@"_allObjects count]=%d",[_allObjects count]);
 
-  if ([self selectsFirstObjectAfterFetch])
-    {
-      [self selectObjectsIdenticalTo:_selection //TODO _selection ?? 
-            selectFirstOnNoMatch:1];
-      [self redisplay];
-    }
+  [self selectObjectsIdenticalTo:selectedObjects
+        selectFirstOnNoMatch:[self selectsFirstObjectAfterFetch]];
 
-  // TODO selection
+  [self redisplay];
+
   LOGObjectFnStop();
 }
 
@@ -1868,7 +2134,10 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 - (void)setSelectedObject:(id)object
 {
   LOGObjectFnStart();
-  [self selectObject:object];
+  if (object)
+    [self setSelectedObjects:[NSArray arrayWithObject:object]];
+  else
+    [self clearSelection];
   LOGObjectFnStop();
 }
 
@@ -1877,97 +2146,82 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 
 - (void)setSelectedObjects:(NSArray *)objects
 {
-  NSMutableArray *indexArray;
-  NSEnumerator   *enumerator;
-  id              object;
-
   LOGObjectFnStart();
 
-  indexArray = [NSMutableArray arrayWithCapacity:16];
-
-  enumerator = [objects objectEnumerator];
-  while((object = [enumerator nextObject]))
-    {
-      if([_allObjects containsObject:object] == YES)
-	[indexArray addObject:[NSNumber numberWithUnsignedInt:
-					  [_allObjects indexOfObject:object]]];
-    }
-
-  [self setSelectionIndexes:indexArray];
+  GSWLogAssertGood(objects);
+  GSWLogAssertGood(_selectedObjects);
+  GSWLogAssertGood(_selection);
+  ASSIGN(_selectedObjects,([NSMutableArray arrayWithArray:objects]));
+  ASSIGN(_selection,([_displayedObjects indexesOfObjectsIdenticalTo:_selectedObjects]));
 
   LOGObjectFnStop();
 }
+
 //--------------------------------------------------------------------
 //	setSelectionIndexes:
 
-- (BOOL)setSelectionIndexes:(NSArray *)selection_
+- (BOOL)setSelectionIndexes:(NSArray *)selection
 {
-//(0) object 0x2859148 
-/*
-if objects to selet and no prev selection
-{
-[self endEditing]//ret 1
-ASSIGN(_selection,selection_); //Array of indexes
-[self _notifySelectionChanged]
-STOP ?
-}
-
-
-*/
-
-
-
-  NSEnumerator *objsEnum=nil;
-  NSNumber *number=nil;
-  BOOL	stop = NO;
   BOOL retValue=NO;
+  NSMutableArray* selectedObjects = nil;
+  NSArray* sortedSelection = nil;
+  BOOL isSelectionChanged = NO;
+  BOOL isSelectedObjectsChanged = NO;
+
   LOGObjectFnStart();
-//call selectedObjects //
-  if(_delegateRespondsTo.shouldChangeSelection == YES 
-     && [_delegate displayGroup:self
-                  shouldChangeSelectionToIndexes:selection_] == NO)
-    retValue=NO;
+
+  GSWLogAssertGood(selection);
+  NSDebugMLLog(@"gswdisplaygroup",@"selection count]=%d",[selection count]);
+  GSWLogAssertGood(_displayedObjects);
+  NSDebugMLLog(@"gswdisplaygroup",@"_displayedObjects count]=%d",[_displayedObjects count]);
+  if([selection count]>1)
+    {
+      sortedSelection = [selection sortedArrayUsingSelector:@selector(compare:)];
+    }
+  else if([_displayedObjects count]>0)
+    sortedSelection = [NSArray arrayWithArray:selection];
+  else
+    sortedSelection = [NSArray array];
+  NSDebugMLLog(@"gswdisplaygroup",@"sortedSelection count]=%d",[sortedSelection count]);
+
+  selectedObjects = [[[_displayedObjects objectsAtIndexes:sortedSelection] mutableCopy]autorelease];
+  NSDebugMLLog(@"gswdisplaygroup",@"selectedObjects count]=%d",[selectedObjects count]);
+  isSelectedObjectsChanged = ![selectedObjects isEqual:_selectedObjects];
+  isSelectionChanged = ![sortedSelection isEqual:_selection];
+  if (!isSelectionChanged && !isSelectedObjectsChanged)
+    retValue=YES;
   else
     {
-      objsEnum = [selection_ objectEnumerator];
-      while((number = [objsEnum nextObject]))
+      if (![self endEditing])
+        retValue=NO;
+      else
         {
-          NS_DURING
+          if(_delegateRespondsTo.shouldChangeSelection == YES 
+             && [_delegate displayGroup:self
+                           shouldChangeSelectionToIndexes:sortedSelection] == NO)
+            retValue=NO;
+          else 
             {
-              // check for objects
-              [_allObjects objectAtIndex:[number unsignedIntValue]];
-            }
-          NS_HANDLER
-            {
-              //return NO;
-              stop = YES;
-              retValue=NO;
-            }
-          NS_ENDHANDLER;
-        }
-
-      if (!stop)
-        {
-          [_selectedObjects removeAllObjects];
-          
-          objsEnum = [selection_ objectEnumerator];
-          while((number = [objsEnum nextObject]))
-            {
-              [_selectedObjects   addObject:[_allObjects objectAtIndex:[number unsignedIntValue]]];
-            }
-
-          ASSIGN(_selection, selection_);
-          
-          if(_delegateRespondsTo.didChangeSelection == YES)
-            [_delegate displayGroupDidChangeSelection:self];
-      
-          if(_delegateRespondsTo.didChangeSelectedObjects == YES)
-            [_delegate displayGroupDidChangeSelectedObjects:self];
+              if (isSelectionChanged)
+                ASSIGN(_selection,sortedSelection);
+              if (isSelectedObjectsChanged)
+                {
+                  ASSIGN(_selectedObjects,selectedObjects);
+                  if(_delegateRespondsTo.didChangeSelectedObjects == YES)
+                    [_delegate displayGroupDidChangeSelectedObjects:self];
+                };
+              [self _notifySelectionChanged];
+              retValue=YES;
+            };
         };
     };
+  NSDebugMLLog(@"gswdisplaygroup",@"_selection count]=%d",[_selection count]);
+
   LOGObjectFnStop();
+
   return retValue;
 }
+
 
 //--------------------------------------------------------------------
 //	setSelectsFirstObjectAfterFetch:
@@ -2014,9 +2268,59 @@ STOP ?
 
 - (void)updateDisplayedObjects
 {
+  NSMutableArray* selectedObjects = nil;
+  NSArray* newDisplayedObjects = nil;
+
+  LOGObjectFnStart();
+  NSDebugMLLog(@"gswdisplaygroup",@"START updateDisplayedObjects");
+  
+  selectedObjects = (NSMutableArray*)[self selectedObjects];
+  GSWLogAssertGood(selectedObjects);
+  newDisplayedObjects = _allObjects;
+  GSWLogAssertGood(newDisplayedObjects);
+  NSDebugMLLog(@"gswdisplaygroup",@"[newDisplayedObjects count]=%d",
+               [newDisplayedObjects count]);
+
+  // Let's delegate doing the job ?
+  if (_delegateRespondsTo.displayArrayForObjects == YES)
+    {
+      newDisplayedObjects = [_delegate displayGroup:self
+                                       displayArrayForObjects:newDisplayedObjects];
+    }
+  else
+    {
+      NSDebugMLLog(@"gswdisplaygroup",@"_qualifier=%d",
+                   _qualifier);
+      // Filter ?
+      if (_qualifier)
+        {
+          newDisplayedObjects=[newDisplayedObjects 
+                                filteredArrayUsingQualifier:_qualifier];
+          NSDebugMLLog(@"gswdisplaygroup",@"[newDisplayedObjects count]=%d",
+                       [newDisplayedObjects count]);
+        };
+      NSDebugMLLog(@"gswdisplaygroup",@"_sortOrdering=%d",
+                   _sortOrdering);
+      // Sort ?
+      if (_sortOrdering)
+        {
+          newDisplayedObjects=[newDisplayedObjects
+                                sortedArrayUsingKeyOrderArray:_sortOrdering];
+          NSDebugMLLog(@"gswdisplaygroup",@"[newDisplayedObjects count]=%d",
+                       [newDisplayedObjects count]);
+        };
+    };
+  ASSIGN(_displayedObjects,([NSMutableArray arrayWithArray:newDisplayedObjects]));
+  NSDebugMLLog(@"gswdisplaygroup",@"[_displayedObjects count]=%d",
+               [_displayedObjects count]);
+  
+  [self selectObjectsIdenticalTo:selectedObjects
+        selectFirstOnNoMatch:NO];
+  [self redisplay];
+  NSDebugMLLog(@"gswdisplaygroup",@"STOP updateDisplayedObjects");
+/*
   NSEnumerator *objsEnum=nil;
   id object=nil;
-  LOGObjectFnStart();
 
 //TODO
 //self selectedObjects //() 
@@ -2048,10 +2352,12 @@ STOP ?
           NSDebugMLog(@"_batchIndex=%d",_batchIndex);
           [self displayNextBatch];
         }
-      
+
+      NSDebugMLLog(@"gswdisplaygroup",@"_sortOrdering=%@",_sortOrdering);
       if(_sortOrdering)
         [_displayedObjects sortUsingKeyOrderArray:_sortOrdering];
     };
+*/
   LOGObjectFnStop();
 }
 
@@ -2090,25 +2396,63 @@ STOP ?
 -(void)finishInitialization
 {
   LOGObjectFnStart();
-  [self _setUpForNewDataSource];
-  //Finished ?
-
+  if (!_flags.isInitialized)
+    {
+      [self _setUpForNewDataSource];
+      _flags.isInitialized=YES;
+    };
   LOGObjectFnStop();
 };
+
+/** Returns YES if aClass equals EODetailDataSource or EOArrayDataSource class **/
+-(BOOL)_isCustomDataSourceClass:(Class)aClass
+{
+  return (aClass!=[EODetailDataSource class]
+          /*&& aClass!=[EOArrayDataSource class]*/); //EOArrayDataSource has to be added in GDL2
+}
 
 -(void)_setUpForNewDataSource
 {
   LOGObjectFnStart();
-  // call [_dataSource editingContext];
-  //Finished ?
+  if(_dataSource)
+    {
+      // Set flags to detect customer dataSource
+      _flags.isCustomDataSourceClass = [self _isCustomDataSourceClass:[_dataSource class]];
+
+      // Add self as observer on dataSource editingContext
+      EOEditingContext* editingContext = [_dataSource editingContext];
+      if(editingContext)
+        {
+          [[NSNotificationCenter defaultCenter]
+            addObserver:self
+            selector:@selector(objectsChangedInEditingContext:)
+            name:EOObjectsChangedInEditingContextNotification
+            object:editingContext];
+          [[NSNotificationCenter defaultCenter]
+            addObserver:self
+            selector:@selector(objectsInvalidatedInEditingContext:)
+            name:EOInvalidatedAllObjectsInStoreNotification
+            object:editingContext];
+        };
+    }
   LOGObjectFnStop();
 };
 
--(void)_presentAlertWithTitle:(id)title
-                      message:(id)msg
+//Deprecated
+-(void)editingContext:(EOEditingContext*)editingContext
+  presentErrorMessage:(NSString*)message
+{
+  [self _presentAlertWithTitle:@"Editing context error"
+        message:message];
+};
+
+-(void)_presentAlertWithTitle:(NSString*)title
+                      message:(NSString*)message
 {
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+  NSLog(@"%@ %@: %@",
+        NSStringFromClass([self class]),
+        title,message);
   LOGObjectFnStop();
 };
 
@@ -2116,7 +2460,6 @@ STOP ?
                    forValues:(NSDictionary*)values
             operatorSelector:(SEL)sel
 {
-  //OK
   NSEnumerator *enumerator=nil;
   NSString *key=nil;
   LOGObjectFnStart();
@@ -2142,52 +2485,147 @@ STOP ?
   LOGObjectFnStop();
 };
 
+
 -(EOQualifier*)_qualifierForKey:(id)key
                           value:(id)value
-               operatorSelector:(SEL)sel
+               operatorSelector:(SEL)operatorSelector
 {
-  //near OK (see VERIFY)
   EOClassDescription* cd=nil;
   EOQualifier* qualifier=nil;
   NSException* validateException=nil;
   LOGObjectFnStart();
+
   NSDebugMLLog(@"gswdisplaygroup",@"value=%@",value);
   NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
-               (void*)sel,
-               NSStringFromSelector(sel));
-  cd=[_dataSource classDescriptionForObjects];// //ret [EOEntityClassDescription]: <EOEntityClassDescription: 0x1a3c7b0>
+               (void*)operatorSelector,
+               NSStringFromSelector(operatorSelector));
+
+  // Get object class description
+  cd=[_dataSource classDescriptionForObjects];
+
+  // Validate the value against object class description
   validateException=[cd validateValue:&value
                         forKey:key];
   NSDebugMLLog(@"gswdisplaygroup",@"validateException=%@",validateException);
+
   if (validateException)
     {
       [validateException raise]; //VERIFY
     }
   else
     {
-      NSString* op=nil;
-      NSString* fvalue=value;
-      
-      //VERIFY!!
-      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
-      op = [_queryOperator objectForKey:key];
-      NSDebugMLLog(@"gswdisplaygroup",@"op=%@",op);
-      if(op)
-	sel = [EOQualifier operatorSelectorForString:op];
+      NSString* qualifierClassName=[_queryKeyValueQualifierClassName objectForKey:key];
+      Class qualifierClass=Nil;
+      NSDebugMLLog(@"gswdisplaygroup",@"key=%@",key);
+      NSDebugMLLog(@"gswdisplaygroup",@"_queryKeyValueQualifierClassName=%@",_queryKeyValueQualifierClassName);
+      NSDebugMLLog(@"gswdisplaygroup",@"qualifierClassName=%@",qualifierClassName);
+      if ([qualifierClassName length]>0)
+        {
+          qualifierClass=NSClassFromString(qualifierClassName);
+          NSAssert1(qualifierClass,@"No qualifier class named %@",qualifierClassName);
+          NSAssert1([qualifierClass instancesRespondToSelector:@selector(initWithKey:operatorSelector:value:)],
+                    @"Qualifier class %@ instance does not responds to -initWithKey:operatorSelector:value:",
+                    qualifierClassName);
+        }
+      else
+        qualifierClass=[EOKeyValueQualifier class];
       NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
-                   (void*)sel,
-                   NSStringFromSelector(sel));
+                   (void*)operatorSelector,
+                   NSStringFromSelector(operatorSelector));
+      NSDebugMLLog(@"gswdisplaygroup",@"EOQualifierOperatorEqual=%p: %@",
+                   (void*)EOQualifierOperatorEqual,
+                   NSStringFromSelector(EOQualifierOperatorEqual));
+      
+      // If the selector is the equal operator
+      if (sel_eq(operatorSelector, EOQualifierOperatorEqual))
+        {
+          // Search if there's a specific defined operator for it
+          NSString* operatorString=[_queryOperator objectForKey:key];
+          NSDebugMLLog(@"gswdisplaygroup",@"key=%@",key);
+          NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
+          NSDebugMLLog(@"gswdisplaygroup",@"operatorString=%@",operatorString);
+          NSDebugMLLog(@"gswdisplaygroup",@"[value isKindOfClass:[NSString class]]=%d",
+                       [value isKindOfClass:[NSString class]]);
 
-      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
-
-      if (_defaultStringMatchFormat)
-        fvalue=[NSString stringWithFormat:_defaultStringMatchFormat,
-                         value];//VERIFY !!!      
-      NSDebugMLLog(@"gswdisplaygroup",@"fvalue=%@",fvalue);
-      qualifier=[[[EOKeyValueQualifier alloc]
-                   initWithKey:key
-                   operatorSelector:sel
-                   value:fvalue] autorelease];
+          // If value is a string, try to do handle string specific operators
+          if([value isKindOfClass:[NSString class]])
+            {
+              // 'Basic' equal operator
+              if ([operatorString isEqualToString:@"is"])
+                {
+                  operatorString = @"=";
+                }
+              else
+                {
+                  NSString* stringValue = (NSString*)value;
+                  // Other string operators don't care about empry string
+                  NSDebugMLLog(@"gswdisplaygroup",@"stringValue=%@",stringValue);
+                  if ([stringValue length]==0)
+                    {
+                      // So ends here and we'll return a nil qualifier
+                      key=nil; 
+                      value=nil;
+                      operatorString=nil;
+                    }
+                  else if ([operatorString length]==0) // ==> defaultStringMatchOperator with defaultStringMatchFormat
+                    {
+                      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
+                      value=[NSString stringWithFormat:_defaultStringMatchFormat,
+                                      value];
+                      operatorString = _defaultStringMatchOperator;
+                    }
+                  else if ([operatorString isEqualToString:@"starts with"])
+                    {
+                      value=[NSString stringWithFormat:@"%@*",
+                                      value];
+                      operatorString = _defaultStringMatchOperator;
+                    } 
+                  else if ([operatorString isEqualToString:@"ends with"])
+                    {
+                      value=[NSString stringWithFormat:@"*%@",
+                                      value];
+                      operatorString = _defaultStringMatchOperator;
+                    } 
+                  else if([operatorString isEqualToString:@"contains"])
+                    {
+                      value=[NSString stringWithFormat:@"*%@*",
+                                      value];
+                      operatorString = _defaultStringMatchOperator;
+                    };
+                };
+            }
+          else
+            {
+              NSDebugMLLog(@"gswdisplaygroup",@"! string value");
+              if ([operatorString length]==0)
+                operatorString = @"=";
+            };
+          NSDebugMLLog(@"gswdisplaygroup",@"operatorString=%@",operatorString);
+          operatorSelector = [qualifierClass operatorSelectorForString:operatorString];
+          NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+                       (void*)operatorSelector,
+                       NSStringFromSelector(operatorSelector));
+        };
+      NSDebugMLLog(@"gswdisplaygroup",@"%@ %@ %@",
+                   key,
+                   NSStringFromSelector(operatorSelector),
+                   value);
+      if (key || operatorSelector || value) // qualifier returned will be nil when we have to discard it
+        {
+          if (operatorSelector)
+            {
+              qualifier=[[[qualifierClass alloc]
+                           initWithKey:key
+                           operatorSelector:operatorSelector
+                           value:value] autorelease];
+              NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+            }
+          else
+            {
+              NSLog(@"Error: null selector for %@ %@ %@. Discard it !",
+                    key,[_queryOperator objectForKey:key],value);
+            };
+        };
     };
   NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
   return qualifier;
@@ -2196,3 +2634,84 @@ STOP ?
 @end
 
 #endif
+
+@implementation NSArray (Indexes)
+-(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects
+{
+  NSArray* indexes=nil;
+  int selfCount=0;
+  GSWLogAssertGood(objects);
+  GSWLogAssertGood(self);
+  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
+  NSDebugMLLog(@"gswdisplaygroup",@"self count]=%d",[self count]);
+  selfCount=[self count];
+  if (selfCount>0)
+    {
+      int objectsCount=[objects count];
+      if (objectsCount>0)
+        {
+          NSMutableArray* tmpIndexes=nil;
+          int i=0;
+          for(i=0;i<objectsCount;i++)
+            {
+              id object=[objects objectAtIndex:i];
+              unsigned int index=[self indexOfObjectIdenticalTo:object];
+              if (index!=NSNotFound)
+                {
+                  NSNumber* indexObject=[NSNumber numberWithInt:(int)index];
+                  if (tmpIndexes)
+                    [tmpIndexes addObject:indexObject];
+                  else
+                    tmpIndexes=(NSMutableArray*)[NSMutableArray arrayWithObject:indexObject];
+                };
+            };
+          if (tmpIndexes)
+            indexes=[NSArray arrayWithArray:tmpIndexes];
+        };
+    };
+  if (!indexes)
+    indexes=[NSArray array];
+  NSDebugMLLog(@"gswdisplaygroup",@"indexes count]=%d",[indexes count]);
+  return indexes;
+};
+
+-(NSArray*)objectsAtIndexes:(NSArray*)indexes
+{
+  NSArray* objects=nil;
+  int selfCount=0;
+  GSWLogAssertGood(objects);
+  GSWLogAssertGood(self);
+  NSDebugMLLog(@"gswdisplaygroup",@"indexes count]=%d",[indexes count]);
+  NSDebugMLLog(@"gswdisplaygroup",@"self count]=%d",[self count]);
+  selfCount=[self count];
+  if ([self count]>0)
+    {
+      int indexesCount=[indexes count];
+      if (indexesCount>0)
+        {
+          NSMutableArray* tmpObjects=nil;
+          int i=0;
+          for(i=0;i<indexesCount;i++)
+            {
+              id indexObject=[indexes objectAtIndex:i];
+              int index=[indexObject intValue];
+              if (index<selfCount)
+                {
+                  id object=[self objectAtIndex:index];
+                  if (tmpObjects)
+                    [tmpObjects addObject:object];
+                  else
+                    tmpObjects=(NSMutableArray*)[NSMutableArray arrayWithObject:object];
+                };
+            };
+          if (tmpObjects)
+            objects=[NSArray arrayWithArray:tmpObjects];
+        };
+    };
+  if (!objects)
+    objects=[NSArray array];
+  NSDebugMLLog(@"gswdisplaygroup",@"objects count]=%d",[objects count]);
+  return objects;
+};
+@end
+
