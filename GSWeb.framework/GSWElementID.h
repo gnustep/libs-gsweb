@@ -43,6 +43,30 @@ typedef struct _GSWElementIDPart
 
 GSWEB_EXPORT SEL appendZeroElementIDComponentSEL;
 GSWEB_EXPORT SEL deleteLastElementIDComponentSEL;
+GSWEB_EXPORT SEL incrementLastElementIDComponentSEL;
+GSWEB_EXPORT SEL appendElementIDComponentSEL;
+GSWEB_EXPORT SEL deleteAllElementIDComponentsSEL;
+GSWEB_EXPORT SEL isParentSearchOverForSenderIDSEL;
+GSWEB_EXPORT SEL isSearchOverForSenderIDSEL;
+GSWEB_EXPORT SEL elementIDStringSEL;
+
+typedef struct _GSWElementIDIMPs
+{
+  IMP _incrementLastElementIDComponentIMP;
+  IMP _appendElementIDComponentIMP;
+  IMP _appendZeroElementIDComponentIMP;
+  IMP _deleteAllElementIDComponentsIMP;
+  IMP _deleteLastElementIDComponentIMP;
+  GSWIMP_BOOL _isParentSearchOverForSenderIDIMP;
+  GSWIMP_BOOL _isSearchOverForSenderIDIMP;
+  IMP _elementIDStringIMP;
+} GSWElementIDIMPs;
+
+/** Initialize GSWElementID selectors **/
+GSWEB_EXPORT void InitializeGSWElementIDSELs();
+
+/** Fill impsPtr structure with IMPs for elementID **/
+GSWEB_EXPORT void GetGSWElementIDIMPs(GSWElementIDIMPs* impsPtr,GSWElementID* elementID);
 
 //====================================================================
 #define GSWElementID_DefaultElementPartsCount	128
@@ -67,6 +91,9 @@ GSWEB_EXPORT SEL deleteLastElementIDComponentSEL;
   IMP _deleteElementsFromIndexIMP;	/** -_deleteElementsFromIndex IMP **/
   IMP _buildElementPartsIMP;		/** -_buildElementParts IMP **/
 };
+
+/** Set GSWElementID standard class (so we can use pre-build GSWElementIDIMPs) **/
++(void)setStandardClass:(Class)standardClass;
 
 /** Returns a elementID **/
 +(GSWElementID*)elementID;

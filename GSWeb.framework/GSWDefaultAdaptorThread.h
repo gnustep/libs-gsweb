@@ -39,10 +39,13 @@
   NSRunLoop* _currentRunLoop;
   NSDate* _runLoopDate;
   BOOL _isMultiThread;
-  NSDate* _creationDate;
-  NSDate* _runDate;
-  NSDate* _dispatchRequestDate;
-  NSDate* _sendResponseDate;
+
+  GSWTime _requestTS;
+  GSWTime _creationTS;
+  GSWTime _runTS;
+  GSWTime _beginDispatchRequestTS;
+  GSWTime _endDispatchRequestTS;
+  GSWTime _sendResponseTS;
   NSString* _remoteAddress;
   int _requestNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
 }
@@ -71,9 +74,9 @@
 -(void)sendResponse:(GSWResponse*)response;
 -(void)threadExited;
 +(id)threadExited:(NSNotification*)notif;
--(NSDate*)creationDate;
+-(GSWTime)creationTS;
 -(BOOL)isExpired;
-
+-(void)setRequestTS:(GSWTime)requestTS;
 +(void)sendResponse:(GSWResponse*)response
            toStream:(NSFileHandle*)aStream
      withNamingConv:(int)requestNamingConv

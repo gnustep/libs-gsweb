@@ -110,7 +110,7 @@ char* GSWStats_formatStats(GSWTimeStats *p_pStats,
   sprintf(formattedString,
          "%srequestedApplication=%s requestedInstance=%d finalApplication=%s finalInstance=%d host=%s port=%d responseStatus=%u responseLength=%u requestDate=%s "
          "beginHandleRequest=+%0.3fs beginHandleAppRequest=+%0.3fs "
-         "beginSearchAppInstance=+%0.3fs endSearchAppInstance=+%0.3fs SearchAppInstance=%0.3fs "
+         "beginSearchAppInstance=+%0.3fs endSearchAppInstance=+%0.3fs searchAppInstance=%0.3fs "
          "tryContactingAppInstance=+%0.3fs tryContactingAppInstanceCount=%d tryContactingAppInstance=%0.3fs "
          "prepareToSendRequest=+%0.3fs beginSendRequest=+%0.3fs endSendRequest=+%0.3fs sendRequest=%0.3fs "
          "%s"

@@ -541,7 +541,7 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
      if (_dflt_init_##name == NO) { \
        id key = [NSString stringWithCString: #name]; \
        int  v = [NSUSERDEFAULTS integerForKey: opt]; \
-       id val = [NSNumber numberWithInt: v]; \
+       id val = GSWIntNumber(v); \
        TAKEVALUEFORKEY; }
 
 #define INIT_DFLT_FLT(name, opt) \
@@ -1100,7 +1100,7 @@ static NSNumber *_dflt_port = nil;
 //--------------------------------------------------------------------
 +(void)setIntPort:(int)port
 {
-  [self setPort:[NSNumber numberWithInt:port]];
+  [self setPort:GSWIntNumber(port)];
 };
 
 //--------------------------------------------------------------------

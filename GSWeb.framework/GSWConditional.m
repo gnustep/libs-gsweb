@@ -50,8 +50,24 @@ Bindings
         negate		If evaluated to yes, negate the condition (defaut=NO)
 **/
 
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWConditional
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWConditional class])
+    {
+      standardClass=[GSWConditional class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -161,7 +177,7 @@ Bindings
   GSWAssertCorrectElementID(aContext);
   if (!WOStrictFlag && _conditionValue)
     {
-      GSWComponent* component=[aContext component];
+      GSWComponent* component=GSWContext_component(aContext);
       id conditionValueValue=[_conditionValue valueInComponent:component];
       id valueValue=[_value valueInComponent:component];
       NSDebugMLog(@"_conditionValue=%@ conditionValueValue=%@",
@@ -171,13 +187,21 @@ Bindings
       condition=SBIsValueEqual(conditionValueValue,valueValue);
     }
   else    
-    condition=[self evaluateCondition:_condition
-                    inContext:aContext];
+    {
+      condition=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                         standardEvaluateConditionInContextIMP,
+                                                         _condition,aContext);
+    };
 
-  negate=[self evaluateCondition:_negate
-               inContext:aContext];
+  if (_negate)
+    {
+      negate=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                      standardEvaluateConditionInContextIMP,
+                                                      _negate,aContext);
+    };
+
   doIt=condition;
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
   if (negate)
     doIt=!doIt;
   NSDebugMLLog(@"gswdync",@"declarationName=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
@@ -191,10 +215,10 @@ Bindings
     {
       //GSWRequest* _request=[aContext request];
       //Deprecated  BOOL isFromClientComponent=[_request isFromClientComponent];
-      [aContext appendZeroElementIDComponent];
+      GSWContext_appendZeroElementIDComponent(aContext);
       [_childrenGroup takeValuesFromRequest:aRequest
                      inContext:aContext];
-      [aContext deleteLastElementIDComponent];
+      GSWContext_deleteLastElementIDComponent(aContext);
     };
   GSWStopElement(aContext);
   GSWAssertIsElementID(aContext);
@@ -215,7 +239,7 @@ Bindings
   GSWAssertCorrectElementID(aContext);
   if (!WOStrictFlag && _conditionValue)
     {
-      GSWComponent* component=[aContext component];
+      GSWComponent* component=GSWContext_component(aContext);
       id conditionValueValue=[_conditionValue valueInComponent:component];
       id valueValue=[_value valueInComponent:component];
       NSDebugMLog(@"_conditionValue=%@ conditionValueValue=%@",
@@ -225,11 +249,19 @@ Bindings
       condition=SBIsValueEqual(conditionValueValue,valueValue);
     }
   else    
-    condition=[self evaluateCondition:_condition
-                    inContext:aContext];
+    {
+      condition=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                         standardEvaluateConditionInContextIMP,
+                                                         _condition,aContext);
+    };
 
-  negate=[self evaluateCondition:_negate
-               inContext:aContext];
+  if (_negate)
+    {
+      negate=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                      standardEvaluateConditionInContextIMP,
+                                                      _negate,aContext);
+    };
+
   doIt=condition;
   if (negate)
     doIt=!doIt;
@@ -244,7 +276,7 @@ Bindings
     {
       //GSWRequest* request=[aContext request];
       //Deprecated  BOOL isFromClientComponent=[request isFromClientComponent];
-      [aContext appendZeroElementIDComponent];
+      GSWContext_appendZeroElementIDComponent(aContext);
       NSDebugMLLog(@"gswdync",@"childrenGroup=%@",_childrenGroup);
       element=[_childrenGroup invokeActionForRequest:aRequest
                              inContext:aContext];
@@ -253,7 +285,7 @@ Bindings
                 @"Element is a %@ not a GSWElement: %@",
                 [element class],
                 element);
-      [aContext deleteLastElementIDComponent];
+      GSWContext_deleteLastElementIDComponent(aContext);
     };
   GSWStopElement(aContext);
   GSWAssertIsElementID(aContext);
@@ -275,7 +307,7 @@ Bindings
 
   if (!WOStrictFlag && _conditionValue)
     {
-      GSWComponent* component=[aContext component];
+      GSWComponent* component=GSWContext_component(aContext);
       id conditionValueValue=[_conditionValue valueInComponent:component];
       id valueValue=[_value valueInComponent:component];
       NSDebugMLog(@"_conditionValue=%@ conditionValueValue=%@",
@@ -285,11 +317,21 @@ Bindings
       condition=SBIsValueEqual(conditionValueValue,valueValue);
     }
   else    
-    condition=[self evaluateCondition:_condition
-                    inContext:aContext];
+    {
+      condition=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                         standardEvaluateConditionInContextIMP,
+                                                         _condition,aContext);
+    };
+
   NSDebugMLLog(@"gswdync",@"condition=%s",condition ? "YES" : "NO");
-  negate=[self evaluateCondition:_negate
-               inContext:aContext];
+
+  if (_negate)
+    {
+      negate=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                      standardEvaluateConditionInContextIMP,
+                                                      _negate,aContext);
+    };
+
   NSDebugMLLog(@"gswdync",@"negate=%s",negate ? "YES" : "NO");
   doIt=condition;
   if (negate)
@@ -305,10 +347,10 @@ Bindings
     {
       //GSWRequest* request=[aContext request];
       //Deprecated  BOOL isFromClientComponent=[request isFromClientComponent];
-      [aContext appendZeroElementIDComponent];
+      GSWContext_appendZeroElementIDComponent(aContext);
       [_childrenGroup appendToResponse:aResponse
                       inContext:aContext];
-      [aContext deleteLastElementIDComponent];
+      GSWContext_deleteLastElementIDComponent(aContext);
     };
   GSWStopElement(aContext);
   GSWAssertIsElementID(aContext);

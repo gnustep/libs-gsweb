@@ -65,8 +65,24 @@ Bindings
         isDisplayStringBefore If evaluated to no, displayString is displayed after radio button. 
 **/
 
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWCheckBoxList
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWCheckBoxList class])
+    {
+      standardClass=[GSWCheckBoxList class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -217,7 +233,7 @@ Bindings
     {
       if ([context _wasFormSubmitted])
 	{
-	  GSWComponent* component=[context component];
+	  GSWComponent* component=GSWContext_component(context);
 	  NSArray* listValue=nil; // _list value
 	  NSMutableArray* selectionsValue=nil;
 	  NSMutableArray* selectionValuesValue=nil;
@@ -227,6 +243,7 @@ Bindings
 	  NSString* valueValueString=nil; // _value value
           id itemValue=nil;  // _item value
 	  int i=0;
+          int listValueCount=0;
 
 	  name=[self nameInContext:context];
 	  NSDebugMLLog(@"gswdync",@"name=%@",name);
@@ -243,7 +260,9 @@ Bindings
 		    [listValue class]);
 	  NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
 
-	  for(i=0;i<[listValue count];i++)
+          listValueCount=[listValue count];
+
+	  for(i=0;i<listValueCount;i++)
 	    {
 	      NSDebugMLLog(@"gswdync",@"item=%@",_item);
 	      NSDebugMLLog(@"gswdync",@"index=%@",_index);
@@ -254,7 +273,7 @@ Bindings
                        inComponent:component];
 
 	      if (_index)
-		[_index setValue:[NSNumber numberWithShort:i]
+		[_index setValue:GSWIntNumber(i)
                         inComponent:component];
               
 	      NSDebugMLLog(@"gswdync",@"value=%@",_value);              
@@ -360,7 +379,7 @@ Bindings
   LOGObjectFnStopC("GSWCheckBoxList");
 };
 //-----------------------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
+-(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)context
 {
   //OK
@@ -376,7 +395,7 @@ Bindings
   request=[context request];
   isFromClientComponent=[request isFromClientComponent];
   name=[self nameInContext:context];
-  component=[context component];
+  component=GSWContext_component(context);
   selectionsValue=[_selections valueInComponent:component];
   if (selectionsValue && ![selectionsValue isKindOfClass:[NSArray class]])
     {
@@ -406,6 +425,7 @@ Bindings
           BOOL disabledInContext=NO;
           BOOL isDisplayStringBefore=NO;
           NSArray* listValue=[_list valueInComponent:component];
+          int listValueCount=0;
           
           NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
                     @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
@@ -413,7 +433,9 @@ Bindings
                     listValue,
                     [listValue class]);
           
-          for(i=0;i<[listValue count];i++)
+          listValueCount=[listValue count];
+
+          for(i=0;i<listValueCount;i++)
             {              
               BOOL isEqual=NO;
 
@@ -426,22 +448,23 @@ Bindings
               prefixValue=[_prefix valueInComponent:component];
               suffixValue=[_suffix valueInComponent:component];
               
-              [_index setValue:[NSNumber numberWithShort:i]
+              [_index setValue:GSWIntNumber(i)
                       inComponent:component];
               
               if (_isDisplayStringBefore)
-                isDisplayStringBefore=[self evaluateCondition:_isDisplayStringBefore
-                                            inContext:context];
+                isDisplayStringBefore=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                               standardEvaluateConditionInContextIMP,
+                                                                               _isDisplayStringBefore,context);
 
               displayStringValue=[_displayString valueInComponent:component];
 
               if (isDisplayStringBefore)
-                [response appendContentHTMLString:displayStringValue];
+                GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
               
-              [response appendContentString:@"<INPUT NAME=\""];
-              [response appendContentString:name];
+              GSWResponse_appendContentAsciiString(aResponse,@"<INPUT NAME=\"");
+              GSWResponse_appendContentString(aResponse,name);
               
-              [response appendContentString:@"\" TYPE=checkbox VALUE=\""];
+              GSWResponse_appendContentAsciiString(aResponse,@"\" TYPE=checkbox VALUE=\"");
               
               NSDebugMLLog(@"gswdync",@"_value (class: %@): %@",[_value class],_value);
               // Value property of the INPUT tag
@@ -449,15 +472,15 @@ Bindings
                 {
                   valueValue = [_value valueInComponent:component];
                   NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);              
-                  [response appendContentHTMLAttributeValue:valueValue];
+                  GSWResponse_appendContentHTMLAttributeValue(aResponse,valueValue);
                 }
               else		// Auto Value
                 {
                   valueValue = GSWIntToNSString(i);
                   NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);              
-                  [response _appendContentAsciiString:valueValue];
+                  GSWResponse_appendContentAsciiString(aResponse,valueValue);
                 }
-              [response appendContentCharacter:'"'];
+              GSWResponse_appendContentCharacter(aResponse,'"');
               
               NSDebugMLLog(@"gswdync",@"selectionsValue=%@",selectionsValue);
               NSDebugMLLog(@"gswdync",@"selectionsValue classes=%@",[selectionsValue valueForKey:@"class"]);
@@ -482,16 +505,16 @@ Bindings
                 }
               
               if(isEqual)
-                [response appendContentString:@" CHECKED"];
+                GSWResponse_appendContentAsciiString(aResponse,@" CHECKED");
               
               if (disabledInContext) 
-                [response appendContentString:@" DISABLED"];
+                GSWResponse_appendContentAsciiString(aResponse,@" DISABLED");
               
-              [response appendContentCharacter:'>'];
-              [response appendContentString:prefixValue];
+              GSWResponse_appendContentCharacter(aResponse,'>');
+              GSWResponse_appendContentString(aResponse,prefixValue);
               if (!isDisplayStringBefore)
-                [response appendContentHTMLString:displayStringValue];
-              [response appendContentString:suffixValue];
+                GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
+              GSWResponse_appendContentString(aResponse,suffixValue);
             };
         };
     };

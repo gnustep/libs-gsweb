@@ -32,6 +32,29 @@
 #ifndef _GSWDeclarationParser_h__
 	#define _GSWDeclarationParser_h__
 
+typedef struct _GSWDeclarationParserIMPs
+{
+  GSWIMP_BOOL _skipBlanksIMP;
+  GSWIMP_BOOL _skipCommentIMP;
+  GSWIMP_BOOL _skipBlanksAndCommentsIMP;
+  IMP _parsePragmaIMP;
+  IMP _parseIdentifierIMP;
+  IMP _parseKeyIMP;
+  IMP _parseQuotedStringIMP;
+  IMP _parseHexDataIMP;
+  IMP _parseKeyPathIMP;
+  IMP _tryParseBooleanIMP;
+  IMP _parseNumberIMP;
+  IMP _parseHexNumberIMP;
+  IMP _parseValueAsAssociationIMP;
+  IMP _parseDictionaryWithValuesAsAssociationsIMP;
+  IMP _parseArrayIMP;
+  IMP _parseDeclarationIMP;
+} GSWDeclarationParserIMPs;
+
+/** Fill impsPtr structure with IMPs for context **/
+GSWEB_EXPORT void GetGSWDeclarationParserIMPS(GSWDeclarationParserIMPs* impsPtr,GSWDeclarationParser* declarationParser);
+
 
 GS_EXPORT NSString* const GSWDFEMissingDeclarationForElement;
 GS_EXPORT NSString* const GSWDFEMissingElementName;
@@ -76,6 +99,9 @@ accumulated instead of blocking on first error) **/
   NSMutableDictionary* _declarations;
   NSString* _fileName;
   NSString* _frameworkName;
+
+@public
+  GSWDeclarationParserIMPs _selfIMPs;
 }
 +(GSWDeclarationParser*)declarationParserWithPragmaDelegate:(id<GSWDeclarationParserPragmaDelegate>)pragmaDelegate;
 -(id)initWithPragmaDelegate:(id<GSWDeclarationParserPragmaDelegate>)pragmaDelegate;

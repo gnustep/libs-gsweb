@@ -376,7 +376,9 @@ May raise exception if element can't be created
                           languages:languages];
           NSDebugMLog(@"element=%@",element);
           if (element)
-            [element setDeclarationName:[declaration name]];
+            {
+              [element setDeclarationName:[declaration name]];
+            }
           else
             {
               [GSWDeclarationFormatException raise:GSWDFEElementCreationFailed

@@ -1,6 +1,6 @@
 /** GSWAssociation.m - <title>GSWeb: Class GSWAssociation</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        Jan 1999
@@ -32,6 +32,9 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWKeyValueAssociation.h"
+#include "GSWConstantValueAssociation.h"
+#include "GSWBindingNameAssociation.h"
 #include <math.h>
 
 #include <limits.h>
@@ -48,6 +51,7 @@ static NSDictionary* localMinMaxDictionary=nil;
 static NSMutableDictionary* associationsHandlerClasses=nil;
 static NSLock* associationsLock=nil;
 static NSMutableArray* associationsLogsHandlerClasses=nil;
+
 //====================================================================
 @implementation GSWAssociation
 
@@ -56,6 +60,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if (self==[GSWAssociation class])
     {
       associationsLock=[NSLock new];
+
       if (!localMinMaxDictionary)
         {
           localMinMaxDictionary=[[NSDictionary dictionaryWithObjectsAndKeys:
@@ -179,43 +184,20 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 };
 
 //--------------------------------------------------------------------
-//	setValue:inObject:
-//NDFN
--(void)setValue:(id)value
-       inObject:(id)object
-{
-  //OK
-  [self subclassResponsibility:_cmd];
-};
-
-
-//--------------------------------------------------------------------
 //	setValue:inComponent:
 
 -(void)setValue:(id)value
     inComponent:(GSWComponent*)component
 {
-  [self setValue:value
-        inObject:component];
+  [self subclassResponsibility:_cmd];
 };
-
-//--------------------------------------------------------------------
-//	valueInObject:
-//NDFN
--(id)valueInObject:(id)object
-{
-  //OK
-  return [self subclassResponsibility:_cmd];
-};
-
 
 //--------------------------------------------------------------------
 //	valueInComponent:
 
 -(id)valueInComponent:(GSWComponent*)component;
 {
-  //OK
-  return [self valueInObject:component];
+  return [self subclassResponsibility:_cmd];
 };
 
 
@@ -266,12 +248,12 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       NSString* trimmedString=[string stringByTrimmingSpaces];
       if ([trimmedString isEqualToString:NSTYES])
         {
-          assoc=[self associationWithValue:[NSNumber numberWithBool:YES]];
+          assoc=[self associationWithValue:GSWNumberYes];
           NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
         }
       else if ([trimmedString isEqualToString:NSTNO])
         {
-          assoc=[self associationWithValue:[NSNumber numberWithBool:NO]];
+          assoc=[self associationWithValue:GSWNumberNo];
           NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
         }
       else if ([trimmedString hasPrefix:@"^"])
@@ -319,7 +301,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                              trimmedString,
                              (int)(endPtr-cString+1));
             };
-          assoc=[self associationWithValue:[NSNumber numberWithInt:value]];
+          assoc=[self associationWithValue:GSWIntNumber(value)];
         }
       else
         {
@@ -358,7 +340,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                                      @"String '%@' must be a good number",
                                      trimmedString);
                     };
-                  assoc=[self associationWithValue:[NSNumber numberWithInt:value]];
+                  assoc=[self associationWithValue:GSWIntNumber(value)];
                 };
             };
         };
@@ -434,22 +416,18 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 -(id)value
 {
-  //OK
   GSWContext* context=[[GSWApplication application] context];
-  id object=[context component];
-  [self valueInComponent:object];
+  [self valueInComponent:GSWContext_component(context)];
 };
 
 //--------------------------------------------------------------------
 //	setValue:inComponent:
 //OldFn
--(void)setValue:(id)value_
+-(void)setValue:(id)value
 {
-  //OK
   GSWContext* context=[[GSWApplication application] context];
-  id object=[context component];
-  [self setValue:(id)value_ 
-		inComponent:object];
+  [self setValue:(id)value
+        inComponent:GSWContext_component(context)];
 };
 @end
 */
@@ -535,7 +513,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 //--------------------------------------------------------------------
 -(void)logSynchronizeForValue:(id)value
-                  inComponent:(NSObject*)component
+                  inComponent:(GSWComponent*)component
             componentToParent:(BOOL)componentToParent
 {
   if (associationsHandlerClasses)
@@ -572,15 +550,16 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 //--------------------------------------------------------------------
 -(void)logSynchronizeComponentToParentForValue:(id)value
-                                   inComponent:(NSObject*)component
+                                   inComponent:(GSWComponent*)component
 {
   [self logSynchronizeForValue:value
         inComponent:component
         componentToParent:YES];
 };
+
 //--------------------------------------------------------------------
 -(void)logSynchronizeParentToComponentForValue:(id)value
-                                   inComponent:(NSObject*)component
+                                   inComponent:(GSWComponent*)component
 {
   [self logSynchronizeForValue:value
         inComponent:component
@@ -607,19 +586,24 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 };
 
 //--------------------------------------------------------------------
-+(id)valueInObject:(id)object
-        forKeyPath:(NSString*)keyPath
++(id)valueInComponent:(GSWComponent*)object
+           forKeyPath:(NSString*)keyPath
 {
-  id retValue=nil;
+  static id EONullNull=nil;
+  //TODO MultiThread Protection ?
+  if (!EONullNull)
+    {
 #ifdef HAVE_GDL2 
-  id EONullNull=[EONull null];
+  EONullNull=[EONull null];
 #else
 #ifdef TCSDB
-  id EONullNull=[DBNull null];
+  EONullNull=[DBNull null];
 #else
-  id EONullNull=[NSNull null];
+  EONullNull=[NSNull null];
 #endif
 #endif
+    };
+  id retValue=nil;
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
                keyPath,object,[object class],[object superclass]);
@@ -792,7 +776,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 #ifdef TCSDB
 +(void)setValue:(id)value
-       inObject:(id)object
+    inComponent:(GSWComponent*)object
      forKeyPath:(NSString*)keyPath
 {
 
@@ -861,7 +845,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 #else // GDL2 or GDL1
 
 +(void)setValue:(id)value
-       inObject:(id)object
+    inComponent:(GSWComponent*)object
      forKeyPath:(NSString*)keyPath
 {
   LOGClassFnStart();
@@ -876,7 +860,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
     {
         [NSException raise:NSInvalidArgumentException 
                      format:@"No key path when setting value %@ in object of class %@",
-                     value,NSStringFromClass(object)];
+                     value,NSStringFromClass([object class])];
     };
 
 #if HAVE_GDL2
@@ -994,13 +978,13 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 //===================================================================================
 @implementation NSDictionary (GSWAssociation)
 
--(BOOL)isAssociationDebugEnabledInComponent:(NSObject*)component
+-(BOOL)isAssociationDebugEnabledInComponent:(GSWComponent*)component
 {
   BOOL debug=NO;
   GSWAssociation* debugAssociation=[self objectForKey:@"GSWDebug"];
   if (debugAssociation)
     {
-      id value=[debugAssociation valueInObject:component];
+      id value=[debugAssociation valueInComponent:component];
       debug=boolValueWithDefaultFor(value,NO);
     };
   return debug;

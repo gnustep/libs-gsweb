@@ -41,12 +41,229 @@ static NSStringEncoding globalDefaultEncoding=GSUndefinedEncoding;
 static NSString* globalDefaultURLEncoding=nil;
 
 static SEL appendDataSel = NULL;
+
+static SEL contentEncodingSEL = NULL;
+static SEL contentSEL = NULL;
+static SEL contentStringSEL = NULL;
+
+static SEL appendContentAsciiStringSEL = NULL;
+static SEL appendContentCharacterSEL = NULL;
+
 static SEL appendContentStringSEL = NULL;
+static SEL appendContentDataSEL = NULL;
+
+static SEL appendContentBytesSEL = NULL;
+static SEL appendDebugCommentContentStringSEL = NULL;
+static SEL replaceContentDataByDataSEL = NULL;
+
+static SEL appendContentHTMLStringSEL = NULL;
+static SEL appendContentHTMLAttributeValueSEL = NULL;
+static SEL appendContentHTMLConvertStringSEL = NULL;
+static SEL appendContentHTMLEntitiesConvertStringSEL = NULL;
 
 static SEL stringByEscapingHTMLStringSEL = NULL;
 static SEL stringByEscapingHTMLAttributeValueSEL = NULL;
 static SEL stringByConvertingToHTMLEntitiesSEL = NULL;
 static SEL stringByConvertingToHTMLSEL = NULL;
+
+
+//====================================================================
+/** functions to accelerate calls of frequently used GSWMessage methods **/
+
+//--------------------------------------------------------------------
+NSStringEncoding GSWMessage_contentEncoding(GSWMessage* aMessage)
+{
+  if (aMessage)
+    {
+      return (*(aMessage->_selfMsgIMPs._contentEncodingIMP))
+        (aMessage,contentEncodingSEL);
+    }
+  else
+    return (NSStringEncoding)0;
+}
+
+//--------------------------------------------------------------------
+NSData* GSWMessage_content(GSWMessage* aMessage)
+{
+  if (aMessage)
+    {
+      return (*(aMessage->_selfMsgIMPs._contentIMP))
+        (aMessage,contentSEL);
+    }
+  else
+    return nil;
+}
+
+//--------------------------------------------------------------------
+NSString* GSWMessage_contentString(GSWMessage* aMessage)
+{
+  if (aMessage)
+    {
+      return (*(aMessage->_selfMsgIMPs._contentStringIMP))
+        (aMessage,contentStringSEL);
+    }
+  else
+    return nil;
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentAsciiString(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentAsciiStringIMP))
+        (aMessage,appendContentAsciiStringSEL,aString);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentCharacter(GSWMessage* aMessage,char aChar)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentCharacterIMP))
+        (aMessage,appendContentCharacterSEL,aChar);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentString(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentStringIMP))
+        (aMessage,appendContentStringSEL,aString);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentData(GSWMessage* aMessage,NSData* contentData)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentDataIMP))
+        (aMessage,appendContentDataSEL,contentData);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentBytes(GSWMessage* aMessage,const void* contentsBytes,unsigned length)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentBytesIMP))
+        (aMessage,appendContentBytesSEL,contentsBytes,length);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendDebugCommentContentString(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendDebugCommentContentStringIMP))
+        (aMessage,appendDebugCommentContentStringSEL,aString);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_replaceContentDataByData(GSWMessage* aMessage,NSData* replaceData,NSData* byData)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._replaceContentDataByDataIMP))
+        (aMessage,replaceContentDataByDataSEL,replaceData,byData);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentHTMLString(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentHTMLStringIMP))
+        (aMessage,appendContentHTMLStringSEL,aString);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentHTMLAttributeValue(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentHTMLAttributeValueIMP))
+        (aMessage,appendContentHTMLAttributeValueSEL,aString);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentHTMLConvertString(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentHTMLConvertStringIMP))
+        (aMessage,appendContentHTMLConvertStringSEL,aString);
+    };
+}
+
+//--------------------------------------------------------------------
+void GSWMessage_appendContentHTMLEntitiesConvertString(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      (*(aMessage->_selfMsgIMPs._appendContentHTMLEntitiesConvertStringIMP))
+        (aMessage,appendContentHTMLEntitiesConvertStringSEL,aString);
+    };
+}
+
+//--------------------------------------------------------------------
+NSString* GSWMessage_stringByEscapingHTMLString(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      return (*(aMessage->_selfMsgIMPs._stringByEscapingHTMLStringIMP))
+        (object_get_class(aMessage),stringByEscapingHTMLStringSEL,aString);
+    }
+  else 
+    return nil;
+};
+
+//--------------------------------------------------------------------
+NSString* GSWMessage_stringByEscapingHTMLAttributeValue(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      return (*(aMessage->_selfMsgIMPs._stringByEscapingHTMLAttributeValueIMP))
+        (object_get_class(aMessage),stringByEscapingHTMLAttributeValueSEL,aString);
+    }
+  else 
+    return nil;
+};
+
+//--------------------------------------------------------------------
+NSString* GSWMessage_stringByConvertingToHTMLEntities(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      return (*(aMessage->_selfMsgIMPs._stringByConvertingToHTMLEntitiesIMP))
+        (object_get_class(aMessage),stringByConvertingToHTMLEntitiesSEL,aString);
+    }
+  else 
+    return nil;
+};
+
+//--------------------------------------------------------------------
+NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,NSString* aString)
+{
+  if (aMessage)
+    {
+      return (*(aMessage->_selfMsgIMPs._stringByConvertingToHTMLIMP))
+        (object_get_class(aMessage),stringByConvertingToHTMLSEL,aString);
+    }
+  else 
+    return nil;
+};
+
 
 // Site size of Ascii characters to data cache
 #define GSWMESSGAEDATACHESIZE 128
@@ -101,6 +318,79 @@ void initGSWMessageDataCache(void)
     };
 }
 
+
+//====================================================================
+/** Fill impsPtr structure with IMPs for message **/
+void GetGSWMessageIMPs(GSWMessageIMPs* impsPtr,GSWMessage* message)
+{
+  memset(impsPtr,0,sizeof(GSWMessageIMPs));
+
+  NSCAssert(message,@"No message");
+
+  Class messageClass=object_get_class(message);
+
+  NSCAssert(contentEncodingSEL,@"No contentEncodingSEL on GetGSWMessageIMPs");
+
+  impsPtr->_contentEncodingIMP = 
+    (GSWIMP_STRING_ENCODING)[message methodForSelector:contentEncodingSEL];
+  
+  impsPtr->_contentIMP = 
+    [message methodForSelector:contentSEL];
+  
+  impsPtr->_contentStringIMP = 
+    [message methodForSelector:contentStringSEL];
+  
+  impsPtr->_appendContentAsciiStringIMP = 
+    [message methodForSelector:appendContentAsciiStringSEL];
+  
+  impsPtr->_appendContentCharacterIMP = 
+    [message methodForSelector:appendContentCharacterSEL];
+  
+  impsPtr->_appendContentDataIMP = 
+    [message methodForSelector:appendContentDataSEL];
+  
+  impsPtr->_appendContentStringIMP = 
+    [message methodForSelector:appendContentStringSEL];
+  
+  impsPtr->_appendContentBytesIMP = 
+    [message methodForSelector:appendContentBytesSEL];
+  
+  impsPtr->_appendDebugCommentContentStringIMP = 
+    [message methodForSelector:appendDebugCommentContentStringSEL];
+  
+  impsPtr->_replaceContentDataByDataIMP = 
+    [message methodForSelector:replaceContentDataByDataSEL];
+  
+  impsPtr->_appendContentHTMLStringIMP = 
+    [message methodForSelector:appendContentHTMLStringSEL];
+  
+  impsPtr->_appendContentHTMLAttributeValueIMP = 
+    [message methodForSelector:appendContentHTMLAttributeValueSEL];
+  
+  impsPtr->_appendContentHTMLConvertStringIMP = 
+    [message methodForSelector:appendContentHTMLConvertStringSEL];
+  
+  impsPtr->_appendContentHTMLEntitiesConvertStringIMP = 
+    [message methodForSelector:appendContentHTMLEntitiesConvertStringSEL];
+  
+  impsPtr->_stringByEscapingHTMLStringIMP = 
+    [messageClass methodForSelector:stringByEscapingHTMLStringSEL];
+  NSCAssert(impsPtr->_stringByEscapingHTMLStringIMP,@"No stringByEscapingHTMLStringIMP");
+  
+  impsPtr->_stringByEscapingHTMLAttributeValueIMP = 
+    [messageClass methodForSelector:stringByEscapingHTMLAttributeValueSEL];
+  NSCAssert(impsPtr->_stringByEscapingHTMLAttributeValueIMP,@"No stringByEscapingHTMLAttributeValueIMP");
+  
+  impsPtr->_stringByConvertingToHTMLEntitiesIMP = 
+    [messageClass methodForSelector:stringByConvertingToHTMLEntitiesSEL];
+  NSCAssert(impsPtr->_stringByConvertingToHTMLEntitiesIMP,@"No stringByConvertingToHTMLEntitiesIMP");
+  
+  impsPtr->_stringByConvertingToHTMLIMP = 
+    [messageClass methodForSelector:stringByConvertingToHTMLSEL];
+  NSCAssert(impsPtr->_stringByConvertingToHTMLIMP,@"No stringByConvertingToHTMLIMP");
+};
+
+
 //====================================================================
 @implementation GSWMessage
 
@@ -119,13 +409,64 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 {
   if (self == [GSWMessage class])
     {
+      NSLog(@"Initialize GSWMessage");
+
       appendDataSel = @selector(appendData:);
+      NSAssert(appendDataSel,@"No appendDataSel");
+
+      contentEncodingSEL = @selector(contentEncoding);
+      NSAssert(contentEncodingSEL,@"No contentEncodingSEL");
+
+      contentSEL = @selector(content);
+      NSAssert(contentSEL,@"No contentSEL");
+
+      contentStringSEL = @selector(contentString);
+      NSAssert(contentStringSEL,@"No contentStringSEL");
+      
+      appendContentAsciiStringSEL = @selector(_appendContentAsciiString:);
+      NSAssert(appendContentAsciiStringSEL,@"No appendContentAsciiStringSEL");
+
+      appendContentCharacterSEL = @selector(appendContentCharacter:);
+      NSAssert(appendContentCharacterSEL,@"No appendContentCharacterSEL");
+      
+      appendContentDataSEL = @selector(appendContentData:);
+      NSAssert(appendContentDataSEL,@"No appendContentDataSEL");
+
       appendContentStringSEL = @selector(appendContentString:);
+      NSAssert(appendContentStringSEL,@"No appendContentStringSEL");
+      
+      appendContentBytesSEL = @selector(appendContentBytes:length:);
+      NSAssert(appendContentBytesSEL,@"No appendContentBytesSEL");
+
+      appendDebugCommentContentStringSEL = @selector(appendDebugCommentContentString:);
+      NSAssert(appendDebugCommentContentStringSEL,@"No appendDebugCommentContentStringSEL");
+
+      replaceContentDataByDataSEL = @selector(replaceContentData:byData:);
+      NSAssert(replaceContentDataByDataSEL,@"No replaceContentDataByDataSEL");
+      
+      appendContentHTMLStringSEL = @selector(appendContentHTMLString:);
+      NSAssert(appendContentHTMLStringSEL,@"No appendContentHTMLStringSEL");
+
+      appendContentHTMLAttributeValueSEL = @selector(appendContentHTMLAttributeValue:);
+      NSAssert(appendContentHTMLAttributeValueSEL,@"No appendContentHTMLAttributeValueSEL");
+
+      appendContentHTMLConvertStringSEL = @selector(appendContentHTMLConvertString:);
+      NSAssert(appendContentHTMLConvertStringSEL,@"No appendContentHTMLConvertStringSEL");
+
+      appendContentHTMLEntitiesConvertStringSEL = @selector(appendContentHTMLEntitiesConvertString:);
+      NSAssert(appendContentHTMLEntitiesConvertStringSEL,@"No appendContentHTMLEntitiesConvertStringSEL");
 
       stringByEscapingHTMLStringSEL = @selector(stringByEscapingHTMLString:);
+      NSAssert(stringByEscapingHTMLStringSEL,@"No stringByEscapingHTMLStringSEL");
+
       stringByEscapingHTMLAttributeValueSEL = @selector(stringByEscapingHTMLAttributeValue:);
+      NSAssert(stringByEscapingHTMLAttributeValueSEL,@"No stringByEscapingHTMLAttributeValueSEL");
+
       stringByConvertingToHTMLEntitiesSEL = @selector(stringByConvertingToHTMLEntities:);
+      NSAssert(stringByConvertingToHTMLEntitiesSEL,@"No stringByConvertingToHTMLEntitiesSEL");
+
       stringByConvertingToHTMLSEL = @selector(stringByConvertingToHTML:);
+      NSAssert(stringByConvertingToHTMLSEL,@"No stringByConvertingToHTMLSEL");
            
       globalDefaultEncoding = WOStrictFlag ? NSISOLatin1StringEncoding : GetDefEncoding();
       initGSWMessageDataCache();
@@ -140,24 +481,10 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      _selfClass=[self class];
-      _appendContentStringIMP=[self methodForSelector:@selector(appendContentString:)]; 
-
-      _stringByEscapingHTMLStringIMP = [_selfClass methodForSelector:stringByEscapingHTMLStringSEL];
-      NSAssert(_stringByEscapingHTMLStringIMP,@"No IMP for stringByEscapingHTMLString:");
-
-      _stringByEscapingHTMLAttributeValueIMP = [_selfClass methodForSelector:stringByEscapingHTMLAttributeValueSEL];
-      NSAssert(_stringByEscapingHTMLAttributeValueIMP,@"No IMP for stringByEscapingHTMLAttributeValue:");
-
-      _stringByConvertingToHTMLEntitiesIMP = [_selfClass methodForSelector:stringByConvertingToHTMLEntitiesSEL];
-      NSAssert(_stringByConvertingToHTMLEntitiesIMP,@"No IMP for stringByConvertingToHTMLEntities:");
-
-      _stringByConvertingToHTMLIMP = [_selfClass methodForSelector:stringByConvertingToHTMLSEL];
-      NSAssert(_stringByConvertingToHTMLIMP,@"No IMP for stringByConvertingToHTML:");
-
+      GetGSWMessageIMPs(&_selfMsgIMPs,self);
       ASSIGN(_httpVersion,@"HTTP/1.0");
       _headers=[NSMutableDictionary new];
-      _contentEncoding=[_selfClass defaultEncoding];
+      _contentEncoding=[[self class] defaultEncoding];
       _checkBody(self);
     };
   LOGObjectFnStop();
@@ -477,7 +804,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 {
   LOGObjectFnStart();
   DESTROY(_contentData);
-  [self appendContentData:contentData];
+  GSWMessage_appendContentData(self,contentData);
   LOGObjectFnStop();
 };
 
@@ -543,6 +870,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 {
   LOGObjectFnStart();
 
+  NSDebugMLLog(@"low",@"aValue:%@",aValue);
+
   // checking [aValue length] takes too long!  
   if (aValue)
     {
@@ -578,15 +907,31 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 {
   LOGObjectFnStart();
 
+  NSDebugMLLog(@"low",@"aValue:%@",aValue);
+
   // checking [aValue length] takes too long!  
   if (aValue)
     {
+NSData* ad=[aValue dataUsingEncoding:NSASCIIStringEncoding
+                   allowLossyConversion:YES];;
+      
+          (*_contentDataADImp)(_contentData,appendDataSel,ad);
+
+#ifndef NO_GNUSTEP
+          // Caching management
+          if (_currentCacheData)
+            {
+              assertCurrentCacheDataADImp();
+              (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,ad);
+            };
+#endif
+/*
       NSData *myData = nil;
       const char *lossyCString = NULL;
       int    length = 0;
       int    i = 0;
       int    ch = 0;
-        
+********        
       lossyCString = [aValue lossyCString];
       length = strlen(lossyCString);
 
@@ -607,6 +952,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
             };
 #endif
         }
+*/
     };
 
   LOGObjectFnStop();
@@ -622,6 +968,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
   LOGObjectFnStart();
   
+  NSDebugMLLog(@"low",@"aChar:%c",aChar);
+
   myData=GSWMessageDataCache[i];
   
   if (!myData)
@@ -630,7 +978,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
                                  length:1];
       if (string)
         {
-          (*_appendContentStringIMP)(self,appendContentStringSEL,string);
+          GSWMessage_appendContentString(self,string);
         }
     }
   else
@@ -712,9 +1060,9 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 #ifndef NDEBUG
   if (GSDebugSet(@"debugComments") == YES)
     {
-      (*_appendContentStringIMP)(self,appendContentStringSEL,@"\n<!-- ");
-      (*_appendContentStringIMP)(self,appendContentStringSEL,aString);
-      (*_appendContentStringIMP)(self,appendContentStringSEL,@" -->\n");      
+      GSWMessage_appendContentAsciiString(self,@"\n<!-- ");
+      GSWMessage_appendContentString(self,aString);
+      GSWMessage_appendContentAsciiString(self,@" -->\n");      
     };
 #endif
 };
@@ -752,10 +1100,9 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
   NSDebugMLLog(@"low",@"response=%p value=%@",self,value);
 
-  (*_appendContentStringIMP)(self,appendContentStringSEL,
-                             (*_stringByEscapingHTMLAttributeValueIMP)
-                             (_selfClass,stringByEscapingHTMLAttributeValueSEL,value));
-
+  GSWMessage_appendContentString(self,
+                                 GSWMessage_stringByEscapingHTMLAttributeValue(self,value));
+  
   LOGObjectFnStop();
 };
 
@@ -768,9 +1115,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
   NSDebugMLLog(@"low",@"aString=%@",aString);
 
-  (*_appendContentStringIMP)(self,appendContentStringSEL,
-                             (*_stringByEscapingHTMLStringIMP)
-                             (_selfClass,stringByEscapingHTMLStringSEL,aString));
+  GSWMessage_appendContentString(self,
+                                 GSWMessage_stringByEscapingHTMLString(self,aString));
 
   LOGObjectFnStop();
 };
@@ -782,9 +1128,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
   NSDebugMLLog(@"low",@"aString=%@",aString);
 
-  (*_appendContentStringIMP)(self,appendContentStringSEL,
-                             (*_stringByConvertingToHTMLIMP)
-                             (_selfClass,stringByConvertingToHTMLSEL,aString));
+  GSWMessage_appendContentString(self,
+                                 GSWMessage_stringByConvertingToHTML(self,aString));
 
   LOGObjectFnStop();
 };
@@ -796,9 +1141,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
   NSDebugMLLog(@"low",@"aString=%@",aString);
 
-  (*_appendContentStringIMP)(self,appendContentStringSEL,
-                             (*_stringByConvertingToHTMLEntitiesIMP)
-                             (_selfClass,stringByConvertingToHTMLEntitiesSEL,aString));
+  GSWMessage_appendContentString(self,
+                                 GSWMessage_stringByConvertingToHTMLEntities(self,aString));
 
   LOGObjectFnStop();
 };
@@ -818,13 +1162,13 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 //--------------------------------------------------------------------
 +(NSString*)stringByConvertingToHTMLEntities:(NSString*)aString
 {
-  return [NSStringWithObject(aString) stringByConvertingToHTMLEntities];
+  return stringByConvertingToHTMLEntities(NSStringWithObject(aString));
 };
 
 //--------------------------------------------------------------------
 +(NSString*)stringByConvertingToHTML:(NSString*)aString
 {
-  return [NSStringWithObject(aString) stringByConvertingToHTML];
+  return stringByConvertingToHTML(NSStringWithObject(aString));
 };
 
 @end

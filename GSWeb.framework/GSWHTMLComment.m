@@ -1,6 +1,6 @@
 /** GSWHTMLComment.m - <title>GSWeb: Class GSWRequest</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Sept 1999
@@ -83,11 +83,11 @@ RCS_ID("$Id$")
               inContext:(GSWContext*)aContext
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  [aResponse _appendContentAsciiString:@"<!--"];
-  [aResponse _appendContentAsciiString:_string];
-  [aResponse _appendContentAsciiString:@"-->"];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[aContext elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
+  GSWResponse_appendContentAsciiString(aResponse,@"<!--");
+  GSWResponse_appendContentAsciiString(aResponse,_string);
+  GSWResponse_appendContentAsciiString(aResponse,@"-->");
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
   LOGObjectFnStop();
 };
 

@@ -55,10 +55,6 @@
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement;
-
--(NSString*)description;
--(void)dealloc;
-
 @end
 
 //====================================================================
@@ -77,16 +73,6 @@
 
 -(GSWElement*)_fastInvokeActionForRequest:(GSWRequest*)aRequest
                                 inContext:(GSWContext*)aContext;
-
--(void)stopOneIterationWithIndex:(int)index
-                       stopIndex:(int)stopIndex
-                           count:(int)count
-                       isLastOne:(BOOL)isLastOne
-                       inContext:(GSWContext*)aContext;
--(void)startOneIterationWithIndex:(unsigned int)index
-                       startIndex:(unsigned int)startIndex
-                             list:(NSArray*)aList
-                        inContext:(GSWContext*)aContext;
 @end
 
 

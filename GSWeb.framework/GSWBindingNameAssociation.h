@@ -1,6 +1,6 @@
 /** GSWBindingNameAssociation.h - <title>GSWeb: Class GSWBindingNameAssociation</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
@@ -43,15 +43,13 @@
 };
 
 -(id)initWithKeyPath:(NSString*)keyPath;
--(void)dealloc;
--(id)copyWithZone:(NSZone*)zone;
--(NSString*)description;
+
 -(BOOL)isImplementedForComponent:(GSWComponent*)object;
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
--(id)valueInObject:(id)object;
+-(id)valueInComponent:(GSWComponent*)component;
 -(void)setValue:(id)value
-       inObject:(id)object;
+    inComponent:(GSWComponent*)component;
 @end
 
 #endif //_GSWBindingNameAssociation_h__

@@ -53,7 +53,7 @@ RCS_ID("$Id$")
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);//Debug Only
 
-  component=[aContext component];
+  component=GSWContext_component(aContext);
 
   childTemplate=[component _childTemplate];
   parent=[component parent];
@@ -62,7 +62,7 @@ RCS_ID("$Id$")
                  inContext:aContext];
   [aContext _setCurrentComponent:component];
   NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],[aContext elementID]);
+               [self class],[self declarationName],GSWContext_elementID(aContext));
 
   GSWStopElement(aContext);
   GSWAssertDebugElementIDsCount(aContext);
@@ -85,7 +85,7 @@ RCS_ID("$Id$")
 
   GSWStartElement(aContext);
 
-  component=[aContext component];
+  component=GSWContext_component(aContext);
   NSDebugMLLog(@"gswdync",@"component=%@",component);
   childTemplate=[component _childTemplate];
   NSDebugMLLog(@"gswdync",@"childTemplate=%@",childTemplate);
@@ -124,7 +124,7 @@ RCS_ID("$Id$")
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);// Debug Only
 
-  component=[aContext component];
+  component=GSWContext_component(aContext);
   childTemplate=[component _childTemplate];
   parent=[component parent];
   [aContext _setCurrentComponent:parent];
@@ -133,7 +133,7 @@ RCS_ID("$Id$")
   [aContext _setCurrentComponent:component];
 
   NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],[aContext elementID]);
+               [self class],[self declarationName],GSWContext_elementID(aContext));
 
   GSWStopElement(aContext);
   GSWAssertDebugElementIDsCount(aContext);

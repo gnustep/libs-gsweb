@@ -1,6 +1,6 @@
 /** GSWLongResponsePage.m - <title>GSWeb: Class GSWLongResponsePage</title>
 
-   Copyright (C) 2002-2003 Free Software Foundation, Inc.
+   Copyright (C) 2002-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Sep 2002
@@ -348,7 +348,7 @@ Default implementation stops automatic refresh and returns self.
   //??
   GSWElement *element=nil;
   LOGObjectFnStartC("GSWLongResponsePage");
-  if ([[aContext senderID] isEqualToString:@"GSWMetaRefresh"])//GSWMetaRefreshSenderId])//senderID ret: GSWMetaRefresh // Seems OK
+  if ([GSWContext_senderID(aContext) isEqualToString:@"GSWMetaRefresh"])//GSWMetaRefreshSenderId])//senderID ret: GSWMetaRefresh // Seems OK
     {
       element=[self refresh];//OK
     }

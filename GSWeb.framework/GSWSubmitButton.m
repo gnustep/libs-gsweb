@@ -104,30 +104,30 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context
+                           inContext:(GSWContext*)aContext
 {
   //OK
   GSWElement* element=nil;
   BOOL disabledValue=NO;
   LOGObjectFnStart();
-  GSWStartElement(context);
+  GSWStartElement(aContext);
   NS_DURING
     {
-      GSWAssertCorrectElementID(context);
-      disabledValue=[self disabledInContext:context];
+      GSWAssertCorrectElementID(aContext);
+      disabledValue=[self disabledInContext:aContext];
       NSDebugMLLog(@"gswdync",@"disabledValue=%s",(disabledValue ? "YES" : "NO"));
       if (!disabledValue)
         {
-          BOOL wasFormSubmitted=[context _wasFormSubmitted];
+          BOOL wasFormSubmitted=[aContext _wasFormSubmitted];
           NSDebugMLLog(@"gswdync",@"wasFormSubmitted=%s",(wasFormSubmitted ? "YES" : "NO"));
           if (wasFormSubmitted)
             {
               BOOL invoked=NO;
-              GSWComponent* component=[context component];
-              BOOL isMultipleSubmitForm=[context _isMultipleSubmitForm];
+              GSWComponent* component=GSWContext_component(aContext);
+              BOOL isMultipleSubmitForm=[aContext _isMultipleSubmitForm];
               if (isMultipleSubmitForm)
                 {
-                  NSString* nameInContext=[self nameInContext:context];
+                  NSString* nameInContext=[self nameInContext:aContext];
                   NSString* formValue=[request formValueForKey:nameInContext];
                   NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
                   if (formValue)
@@ -143,7 +143,7 @@ RCS_ID("$Id$")
                 {
                   id actionValue=nil;
                   NSDebugMLLog0(@"gswdync",@"Invoked Object Found !!");
-                  [context _setActionInvoked:1];
+                  [aContext _setActionInvoked:1];
                   NS_DURING
                     {
                       NSDebugMLLog(@"gswdync",@"Invoked Object Found: action=%@",_action);
@@ -171,20 +171,20 @@ RCS_ID("$Id$")
                       else 
                         {
                           // call awakeInContext when _element is sleeping deeply
-                          [(GSWComponent*)element ensureAwakeInContext:context];
+                          [(GSWComponent*)element ensureAwakeInContext:aContext];
                           /*
                             if (![_element context]) {
                             NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
-                            [_element awakeInContext:context];
+                            [_element awakeInContext:aContext];
                             } else {
-                            [_element awakeInContext:context];
+                            [_element awakeInContext:aContext];
                             }
                           */
                         }
                     }
                   /* ???
                      if (!_element)
-                     _element=[context page];
+                     _element=[aContext page];
                   */
                 };
             };
@@ -201,41 +201,41 @@ RCS_ID("$Id$")
     }
   NS_ENDHANDLER;
 
-  if (![context _wasActionInvoked] && [context isParentSenderIDSearchOver])
+  if (![aContext _wasActionInvoked] && GSWContext_isParentSenderIDSearchOver(aContext))
     {
       LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
                [self class],
-               [context elementID],
-               [context senderID]);
+               GSWContext_elementID(aContext),
+               GSWContext_senderID(aContext));
     };
-  GSWStopElement(context);
+  GSWStopElement(aContext);
   LOGObjectFnStop();
   return element;
 };
 
 //--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context
+                   inContext:(GSWContext*)aContext
 {
   //Does Nothing ?
-  GSWStartElement(context);
-  GSWAssertCorrectElementID(context);
-  GSWStopElement(context);
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
+  GSWStopElement(aContext);
 };
  
 //--------------------------------------------------------------------
 -(void)appendNameToResponse:(GSWResponse*)response
-                  inContext:(GSWContext*)context
+                  inContext:(GSWContext*)aContext
 {
   //OK
   //Here we call parent (GSWInput) method instead of doing it by ourself (as GSW)
   [super appendNameToResponse:response
-         inContext:context];
+         inContext:aContext];
 };
 
 //--------------------------------------------------------------------
 -(void)_appendActionClassAndNameToResponse:(GSWResponse*)response
-                                 inContext:(GSWContext*)context
+                                 inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };

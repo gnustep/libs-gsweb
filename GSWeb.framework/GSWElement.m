@@ -33,10 +33,10 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-BYTE ElementsMap_htmlBareString	=	(BYTE)0x53;
-BYTE ElementsMap_gswebElement	=	(BYTE)0x57;
-BYTE ElementsMap_dynamicElement	=	(BYTE)0x43;
-BYTE ElementsMap_attributeElement = (BYTE)0x41;
+BYTE ElementsMap_htmlBareString	=	(BYTE)0x53; // 'S'
+BYTE ElementsMap_gswebElement	=	(BYTE)0x57; // 'W'
+BYTE ElementsMap_dynamicElement	=	(BYTE)0x43; // 'C'
+BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 
 //====================================================================
 @implementation GSWElement
@@ -51,7 +51,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 
       LOGObjectFnStartC("GSWElement");
 
-      elementID=[context elementID];
+      elementID=GSWContext_elementID(context);
       NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ elementID=%@ %p",self,[self declarationName],elementID,elementID);
 
       ASSIGNCOPY(_appendToResponseElementID,elementID);
@@ -78,7 +78,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
         line:line];
   if ([_appendToResponseElementID length]>0)
     {
-      NSString* elementID=[context elementID];
+      NSString* elementID=GSWContext_elementID(context);
       BOOL appendToResponseElementIDIsFirst=NO;
       BOOL elementIDIsFirst=NO;
       BOOL OK=YES;
@@ -92,8 +92,8 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
           || appendToResponseElementIDIsFirst!=elementIDIsFirst)
         {
           OK=[_appendToResponseElementID isEqualToString:elementID];
-          NSDebugMLLog(@"GSWElement",@"[context elementID]=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d OK=%d [context isInLoop]=%d",
-                       [context elementID],_appendToResponseElementID,[_appendToResponseElementID length],OK,[context isInLoop]);
+          NSDebugMLLog(@"GSWElement",@"GSWContext_elementID(context)=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d OK=%d [context isInLoop]=%d",
+                       GSWContext_elementID(context),_appendToResponseElementID,[_appendToResponseElementID length],OK,[context isInLoop]);
         };
       if (!OK && ![context isInLoop])
         {
@@ -103,8 +103,8 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                                   [self declarationName],
                                   file,
                                   line,
-                                  [context elementID],
-                                  [context elementID],
+                                  GSWContext_elementID(context),
+                                  GSWContext_elementID(context),
                                   NSStringFromSelector(method),
                                   _appendToResponseElementID,
                                   _appendToResponseElementID];
@@ -122,14 +122,14 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                              line:(int)line
 {
   LOGObjectFnStartC("GSWElement");
-/*  NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
+/*  NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p / GSWContext_elementID(context)=%@",
               self,
               [self declarationName],
-              _appendToResponseElementID,_appendToResponseElementID,[context elementID]);
+              _appendToResponseElementID,_appendToResponseElementID,GSWContext_elementID(context));
 */
   if (_appendToResponseElementID
       && [_appendToResponseElementID length]==0
-      && [[context elementID] length]>0)
+      && [GSWContext_elementID(context) length]>0)
     {
       NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ declarationName=%@ (file %s line %d), in %@ _appendToResponseElementID '%@' (%p) is not set",
                               self,
@@ -146,23 +146,23 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 };
 
 //--------------------------------------------------------------------
--(void)logElementInContext:(id)context
+-(void)logElementInContext:(id)aContext
                     method:(SEL)method
                       file:(const char*)file
                       line:(int)line
                  startFlag:(BOOL)start
                   stopFlag:(BOOL)stop
 {
-  NSString* senderID=[context senderID];
+  NSString* senderID=GSWContext_senderID(aContext);
   if (start)
-    [context addToDocStructureElement:self];
+    [aContext addToDocStructureElement:self];
   NSDebugMLLog(@"GSWElement",@"%s:.%d - %@ %s ELEMENT self=%p class=%@ defName=%@ id=%@ appendID:%@ %s%@",
                file,line,NSStringFromSelector(method),
                (start ? "START" : (stop ? "STOP" : "")),
                self,
                [self class],
                [self declarationName],
-               [context elementID],
+               GSWContext_elementID(aContext),
                _appendToResponseElementID,
                (senderID ? "senderID:" : ""),
                (senderID ? senderID : @""));
@@ -170,33 +170,47 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 
 #endif
 
+
+// No specific dealloc ifndef GSWELEMENT_HAS_DECLARATION_NAME
+// So we avoir a call to super.
+#ifdef GSWELEMENT_HAS_DECLARATION_NAME
 //--------------------------------------------------------------------
 -(void)dealloc
 {
   GSWLogAssertGood(self);
-  GSWLogC("Dealloc GSWElement");
-  GSWLogC("Dealloc GSWElement: name");
+  //GSWLogC("Dealloc GSWElement");
+  //GSWLogC("Dealloc GSWElement: _appendToResponseElementID");
+  DESTROY(_appendToResponseElementID);
+  //GSWLogC("Dealloc GSWElement: _name");
   DESTROY(_declarationName);
-  GSWLogC("Dealloc GSWElement Super");
+  //GSWLogC("Dealloc GSWElement Super");
   [super dealloc];
-  GSWLogC("End Dealloc GSWElement");
+  //GSWLogC("End Dealloc GSWElement");
 }
+#endif
 
 //--------------------------------------------------------------------
 -(NSString*)declarationName
 {
+#ifdef GSWELEMENT_HAS_DECLARATION_NAME
   return _declarationName;
+#else
+  return @"**No available declarationName**";
+#endif
 };
 
 //--------------------------------------------------------------------
 -(void)setDeclarationName:(NSString*)declarationName
 {
+#ifdef GSWELEMENT_HAS_DECLARATION_NAME
   NSDebugMLLog(@"gswdync",@"setDeclarationName1 in %p: %p %@",
                self,declarationName,declarationName);
   ASSIGN(_declarationName,declarationName);
   NSDebugMLLog(@"gswdync",@"setDeclarationName2 in %p: %p %@",
                self,_declarationName,_declarationName);
+#endif
 };
+
 @end
 
 //====================================================================
@@ -242,11 +256,11 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 
 //--------------------------------------------------------------------
 //NDFN
--(BOOL)prefixMatchSenderIDInContext:(GSWContext*)context
+-(BOOL)prefixMatchSenderIDInContext:(GSWContext*)aContext
 {
   BOOL match=NO;
-  NSString* senderID=[context senderID];
-  NSString* elementID=[context elementID];
+  NSString* senderID=GSWContext_senderID(aContext);
+  NSString* elementID=GSWContext_elementID(aContext);
   NSDebugMLLog(@"gswdync",@" senderID=%@",senderID);
   NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
   match=([elementID hasPrefix:senderID] || [senderID hasPrefix:elementID]);

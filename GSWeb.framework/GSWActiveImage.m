@@ -1,9 +1,9 @@
 /** GSWActiveImage.m - <title>GSWeb: Class GSWActiveImage</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -225,18 +225,24 @@ RCS_ID("$Id$")
   GSWComponent* component=nil;
   int x=0;
   int y=0;
+
   LOGObjectFnStart();
-  component=[aContext component];
-  [aContext appendZeroElementIDComponent];
-  senderID=[aContext senderID];
+
+  component=GSWContext_component(aContext);
+
+  GSWContext_appendZeroElementIDComponent(aContext);
+
+  senderID=GSWContext_senderID(aContext);
   NSDebugMLog(@"senderID=%@",senderID);
-  elementID=[aContext elementID];
+
+  elementID=GSWContext_elementID(aContext);
   NSDebugMLog(@"elementID=%@",elementID);
+
   if ([elementID isEqualToString:senderID])
     {
       //TODO
     };
-  [aContext deleteLastElementIDComponent];
+  GSWContext_deleteLastElementIDComponent(aContext);
   disabledInContext=[self disabledInContext:aContext];
   if (!disabledInContext)
     {
@@ -268,7 +274,7 @@ RCS_ID("$Id$")
         }
       else
         {
-          elementID=[aContext elementID];
+          elementID=GSWContext_elementID(aContext);
           NSDebugMLog(@"elementID=%@",elementID);
           if ([elementID isEqualToString:senderID])
             {
@@ -294,7 +300,7 @@ RCS_ID("$Id$")
           if (_imageMapFileName)
             {
               id imageMapFileNameValue=[_imageMapFileName valueInComponent:component];
-              NSString* imageMapFilePath=[[aContext component]
+              NSString* imageMapFilePath=[GSWContext_component(aContext)
                                            pathForResourceNamed:imageMapFileNameValue
                                            ofType:nil];
               if (!imageMapFilePath)
@@ -323,11 +329,11 @@ RCS_ID("$Id$")
               regions=[_imageMapRegions valueInComponent:component];
             };
           if (_xAssoc)
-            [_xAssoc setValue:[NSNumber numberWithInt:x]
-                    inComponent:component];
+            [_xAssoc setValue:GSWIntNumber(x)
+                     inComponent:component];
           if (_yAssoc)
-            [_yAssoc setValue:[NSNumber numberWithInt:y]
-                    inComponent:component];
+            [_yAssoc setValue:GSWIntNumber(y)
+                     inComponent:component];
 	  
           actionAssociation=[self hitTestX:x
                                   y:y
@@ -399,7 +405,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
+-(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
   //OK
@@ -411,32 +417,32 @@ RCS_ID("$Id$")
   if (isInForm)
     {
       if (!disabledInContext)
-        [response _appendContentAsciiString:@"<INPUT "];
+        GSWResponse_appendContentAsciiString(aResponse,@"<INPUT ");
       else
-        [response _appendContentAsciiString:@"<IMG "];
+        GSWResponse_appendContentAsciiString(aResponse,@"<IMG ");
     }
   else
     {
       if (!disabledInContext)
         {
           NSString* hrefValue=nil;
-          [response _appendContentAsciiString:@"<A HREF=\""];
+          GSWResponse_appendContentAsciiString(aResponse,@"<A HREF=\"");
           if (_href)
             hrefValue=[self hrefInContext:aContext];
           else
             hrefValue=(NSString*)[aContext componentActionURL];
-          [response appendContentString:hrefValue];
-          [response _appendContentAsciiString:@"\">"];
+          GSWResponse_appendContentString(aResponse,hrefValue);
+          GSWResponse_appendContentAsciiString(aResponse,@"\">");
         };
-      [response _appendContentAsciiString:@"<IMG"];
+      GSWResponse_appendContentAsciiString(aResponse,@"<IMG");
     };
-  [super appendToResponse:response
+  [super appendToResponse:aResponse
          inContext:aContext];
   if (!isInForm)
     {
       if (!disabledInContext)
         {
-          [response _appendContentAsciiString:@"</A>"];
+          GSWResponse_appendContentAsciiString(aResponse,@"</A>");
         };
     };
 };
@@ -446,7 +452,7 @@ RCS_ID("$Id$")
 {
   //OK
   NSString* frameworkName=nil;  
-  GSWComponent* component=[aContext component];
+  GSWComponent* component=GSWContext_component(aContext);
   NSDebugMLog(@"_framework=%@",_framework);
   if (_framework)
     frameworkName=[_framework valueInComponent:component];
@@ -461,7 +467,7 @@ RCS_ID("$Id$")
 {
   GSWComponent* component=nil;
   NSString* imageSource=nil;
-  component=[aContext component];
+  component=GSWContext_component(aContext);
   imageSource=[_src valueInComponent:component];
   return imageSource;
 };
@@ -472,7 +478,7 @@ RCS_ID("$Id$")
 {
   GSWComponent* component=nil;
   NSString* hrefValue=nil;
-  component=[aContext component];
+  component=GSWContext_component(aContext);
   hrefValue=[_href valueInComponent:component];
   return hrefValue;
 };
@@ -480,7 +486,7 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWActiveImage (GSWActiveImageC)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
                                       inContext:(GSWContext*)aContext
 {
   //OK
@@ -493,8 +499,8 @@ RCS_ID("$Id$")
   BOOL disabledInContext=NO;
   BOOL isInForm=NO;
   LOGObjectFnStartC("GSWActiveImage");
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
-  component=[aContext component];
+  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
+  component=GSWContext_component(aContext);
   disabledInContext=[self disabledInContext:aContext];
   isInForm=[aContext isInForm];
 
@@ -503,14 +509,14 @@ RCS_ID("$Id$")
       if (isInForm)
 	{
 	  NSString* nameInContext=[self nameInContext:aContext];
-	  [response _appendContentAsciiString:@" type=image"];
-	  [response _appendContentAsciiString:@" name=\""];
-	  [response appendContentHTMLAttributeValue:nameInContext];
-	  [response appendContentCharacter:'"'];
+	  GSWResponse_appendContentAsciiString(aResponse,@" type=image");
+	  GSWResponse_appendContentAsciiString(aResponse,@" name=\"");
+	  GSWResponse_appendContentHTMLAttributeValue(aResponse,nameInContext);
+	  GSWResponse_appendContentCharacter(aResponse,'"');
 	}
       else
 	{
-	  [response _appendContentAsciiString:@" ismap"];
+	  GSWResponse_appendContentAsciiString(aResponse,@" ismap");
 	};
     }
 
@@ -563,29 +569,29 @@ RCS_ID("$Id$")
                           languages);
         };
     };
-  [response _appendContentAsciiString:@" src=\""];
+  GSWResponse_appendContentAsciiString(aResponse,@" src=\"");
   if (_key || _data)
     {
-      [dataValue appendDataURLToResponse:response
+      [dataValue appendDataURLToResponse:aResponse
                  inContext:aContext];
     }
   else if (_filename)
     {
-      [response appendContentString:url];
+      GSWResponse_appendContentString(aResponse,url);
     }
   else if (_src)
     {
       NSString* srcValue=[self imageSourceInContext:aContext];
-      [response appendContentString:srcValue];
+      GSWResponse_appendContentString(aResponse,srcValue);
     }
   else
     {
       GSWDynamicURLString* componentActionURL=[aContext componentActionURL];
       NSDebugMLLog(@"gswdync",@"componentActionURL=%@",componentActionURL);
-      [response appendContentString:(NSString*)componentActionURL];
+      GSWResponse_appendContentString(aResponse,(NSString*)componentActionURL);
     };
-  [response appendContentCharacter:'"'];
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+  GSWResponse_appendContentCharacter(aResponse,'"');
+  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
   LOGObjectFnStopC("GSWActiveImage");
 };
 

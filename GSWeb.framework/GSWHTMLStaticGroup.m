@@ -72,20 +72,20 @@ RCS_ID("$Id$")
 }
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   LOGObjectFnStart();  
-  GSWStartElement(context);
+  GSWStartElement(aContext);
   if (_documentTypeString)
     {
       NSDebugMLLog(@"gswdync",@"added documentTypeString = %@",_documentTypeString);
-      [response appendContentString:_documentTypeString];
+      GSWResponse_appendContentString(aResponse,_documentTypeString);
     };
   
-  [super appendToResponse:response
-         inContext:context];
-  GSWStopElement(context);
+  [super appendToResponse:aResponse
+         inContext:aContext];
+  GSWStopElement(aContext);
   LOGObjectFnStop();  
 };
 

@@ -32,6 +32,47 @@
 #ifndef _NSString_HTML_h__
 #define _NSString_HTML_h__
 
+GSWEB_EXPORT void NSStringHTML_Initialize();
+
+
+typedef struct _GSWHTMLConvertingStruct
+{
+  unichar* normalChars;
+  unichar* htmlChars;
+  int* htmlCharsLen;
+  int charsCount;
+} GSWHTMLConvertingStruct;
+
+GSWEB_EXPORT GSWHTMLConvertingStruct htmlConvertStruct;
+GSWEB_EXPORT GSWHTMLConvertingStruct htmlConvertAttributeValueStruct;
+GSWEB_EXPORT GSWHTMLConvertingStruct htmlConvertHTMLString;
+
+GSWEB_EXPORT NSString* baseStringByConvertingToHTML(NSString* string,
+                                                    GSWHTMLConvertingStruct* convStructPtr,
+                                                    BOOL includeCRLF);
+GSWEB_EXPORT NSString* baseStringByConvertingFromHTML(NSString* string,
+                                                      GSWHTMLConvertingStruct* convStructPtr,
+                                                      BOOL includeBR);
+
+#define stringByConvertingToHTMLEntities(string) \
+	baseStringByConvertingToHTML(string,&htmlConvertStruct,NO)
+
+#define stringByConvertingFromHTMLEntities(string) \
+	baseStringByConvertingFromHTML(string,&htmlConvertStruct,NO)
+
+#define stringByEscapingHTMLString(string) \
+	baseStringByConvertingToHTML(string,&htmlConvertHTMLString,NO)
+
+#define stringByEscapingHTMLAttributeValue(string) \
+	baseStringByConvertingToHTML(string,&htmlConvertAttributeValueStruct,NO)
+
+
+#define stringByConvertingToHTML(string) \
+	baseStringByConvertingToHTML(string,&htmlConvertStruct,YES)
+
+#define stringByConvertingFromHTML(string) \
+	baseStringByConvertingFromHTML(string,&htmlConvertStruct,YES)
+
 //====================================================================
 @interface NSString (HTMLString)
 -(NSString*)htmlPlus2Space;

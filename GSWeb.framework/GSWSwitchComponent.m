@@ -117,7 +117,7 @@ RCS_ID("$Id$")
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
-  [aContext appendElementIDComponent:elementNameInContext];
+  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
   if ([elementNameInContext length]==0)
     {
       ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
@@ -127,7 +127,7 @@ RCS_ID("$Id$")
                 inContext:aContext];
   [element appendToResponse:response
            inContext:aContext];
-  [aContext deleteLastElementIDComponent];
+  GSWContext_deleteLastElementIDComponent(aContext);
   LOGObjectFnStopC("GSWSwitchComponent");
 };
 
@@ -142,7 +142,7 @@ RCS_ID("$Id$")
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
-  [aContext appendElementIDComponent:elementNameInContext];
+  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
   if ([elementNameInContext length]==0)
     {
       ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
@@ -152,7 +152,7 @@ RCS_ID("$Id$")
                 inContext:aContext];
   resultElement=[element invokeActionForRequest:request
                            inContext:aContext];
-  [aContext deleteLastElementIDComponent];
+  GSWContext_deleteLastElementIDComponent(aContext);
   LOGObjectFnStopC("GSWSwitchComponent");
   return resultElement;
 };
@@ -167,7 +167,7 @@ RCS_ID("$Id$")
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
-  [aContext appendElementIDComponent:elementNameInContext];
+  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
   if ([elementNameInContext length]==0)
     {
       ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
@@ -177,7 +177,7 @@ RCS_ID("$Id$")
                 inContext:aContext];
   [element takeValuesFromRequest:aRequest
            inContext:aContext];
-  [aContext deleteLastElementIDComponent];
+  GSWContext_deleteLastElementIDComponent(aContext);
   LOGObjectFnStopC("GSWSwitchComponent");
 };
 
@@ -191,10 +191,14 @@ if the component has already been created, it get it from the cache; otherwise, 
   GSWElement* element=nil;
   NSArray* languages=nil;
   GSWComponent* component=nil;
+
   LOGObjectFnStartC("GSWSwitchComponent");
-  component=[aContext component];
+
+  component=GSWContext_component(aContext);
+
   NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@ parent=%@",
                self,[self declarationName],_componentName,[component parent]);
+
   if ([aName length]==0)
     {      
       ExceptionRaise(@"GSWSwitchComponent",
@@ -234,14 +238,19 @@ if the component has already been created, it get it from the cache; otherwise, 
 {
   GSWComponent* component=nil;
   NSString* componentNameValue=nil;
+
   LOGObjectFnStartC("GSWSwitchComponent");
-  component=[aContext component];
+
+  component=GSWContext_component(aContext);
   NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@",
                self,[self declarationName],_componentName);
+
   componentNameValue=[_componentName valueInComponent:component];
   NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentNameValue=%@",
                self,[self declarationName],componentNameValue);
+
   LOGObjectFnStopC("GSWSwitchComponent");
+
   return componentNameValue;
 };
 

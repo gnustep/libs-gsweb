@@ -64,8 +64,25 @@ Bindings
 
         isDisplayStringBefore If evaluated to yes, displayString is displayed before radio button
 **/
+
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWRadioButtonList
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWRadioButtonList class])
+    {
+      standardClass=[GSWRadioButtonList class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -199,7 +216,7 @@ Bindings
     {
       if ([context _wasFormSubmitted])
         {
-          GSWComponent* component=[context component];
+          GSWComponent* component=GSWContext_component(context);
           NSArray* listValue=nil; // _list value
           NSString* name=nil;
           BOOL found=NO;
@@ -210,6 +227,7 @@ Bindings
           id itemValueToSet=nil; // item value to set to _selection
           id valueValueToSet=nil; // valueValue  to set to _selectionValue
           int i=0;
+          int listValueCount=0;
 
           name=[self nameInContext:context];
           NSDebugMLLog(@"gswdync",@"name=%@",name);
@@ -225,7 +243,8 @@ Bindings
                     [listValue class]);
           NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
 
-          for(i=0;i<[listValue count] && !found;i++)
+          listValueCount=[listValue count];
+          for(i=0;i<listValueCount && !found;i++)
             {
               NSDebugMLLog(@"gswdync",@"item=%@",_item);
               NSDebugMLLog(@"gswdync",@"index=%@",_index);
@@ -236,7 +255,7 @@ Bindings
                        inComponent:component];
 
               if (_index)
-                [_index setValue:[NSNumber numberWithShort:i]
+                [_index setValue:GSWIntNumber(i)
                         inComponent:component];
 
               NSDebugMLLog(@"gswdync",@"value=%@",_value);
@@ -247,7 +266,7 @@ Bindings
                 }
               else		// Auto Value
                 {
-                  valueValue = [NSNumber numberWithShort:i];
+                  valueValue = GSWIntNumber(i);
                   valueValueString=GSWIntToNSString(i); 
                 };
 
@@ -329,8 +348,8 @@ Bindings
 };
 
 //-----------------------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   //OK
   GSWRequest* request=nil;
@@ -348,12 +367,14 @@ Bindings
   id suffixValue=nil;
   id valueValue=nil; // _value value (or auto value)
   id itemValue=nil; // _item value
+  int listValueCount=0;
+
   LOGObjectFnStartC("GSWRadioButtonList");
 
-  request=[context request];
+  request=[aContext request];
   isFromClientComponent=[request isFromClientComponent];
-  name=[self nameInContext:context];
-  component=[context component];
+  name=[self nameInContext:aContext];
+  component=GSWContext_component(aContext);
 
   selectionValue=[_selection valueInComponent:component];
   selectionValueValue=[_selectionValue valueInComponent:component];
@@ -364,11 +385,13 @@ Bindings
             _list,
             listValue,
             [listValue class]);
-  for(i=0;i<[listValue count];i++)
+
+  listValueCount=[listValue count];
+  for(i=0;i<listValueCount;i++)
     {
       BOOL isEqual=NO;
 
-      disabledInContext=[self disabledInContext:context];
+      disabledInContext=[self disabledInContext:aContext];
 
       itemValue=[listValue objectAtIndex:i];
       [_item setValue:itemValue
@@ -377,22 +400,24 @@ Bindings
       prefixValue=[_prefix valueInComponent:component];
       suffixValue=[_suffix valueInComponent:component];
 
-      [_index setValue:[NSNumber numberWithShort:i]
+      [_index setValue:GSWIntNumber(i)
               inComponent:component];
 
       if (_isDisplayStringBefore)
-        isDisplayStringBefore=[self evaluateCondition:_isDisplayStringBefore
-                                    inContext:context];
-
+        {
+          isDisplayStringBefore=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                         standardEvaluateConditionInContextIMP,
+                                                                         _isDisplayStringBefore,aContext);
+        };
       displayStringValue=[_displayString valueInComponent:component];
 
       if (isDisplayStringBefore)
-        [response appendContentHTMLString:displayStringValue];
+        GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
 
-      [response appendContentString:@"<INPUT NAME=\""];
-      [response appendContentString:name];
+      GSWResponse_appendContentString(aResponse,@"<INPUT NAME=\"");
+      GSWResponse_appendContentString(aResponse,name);
 
-      [response appendContentString:@"\" TYPE=radio VALUE=\""];
+      GSWResponse_appendContentString(aResponse,@"\" TYPE=radio VALUE=\"");
 
       NSDebugMLLog(@"gswdync",@"_value (class: %@): %@",[_value class],_value);
       // Value property of the INPUT tag
@@ -400,15 +425,15 @@ Bindings
         {
           valueValue = [_value valueInComponent:component];
           NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);      
-          [response appendContentHTMLAttributeValue:valueValue];
+          GSWResponse_appendContentHTMLAttributeValue(aResponse,valueValue);
         }
       else		// Auto Value
         {
-          valueValue = [NSNumber numberWithShort:i];
+          valueValue = GSWIntNumber(i);
           NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);      
-          [response _appendContentAsciiString:GSWIntToNSString(i)];
+          GSWResponse_appendContentAsciiString(aResponse,GSWIntToNSString(i));
         };
-      [response appendContentCharacter:'"'];
+      GSWResponse_appendContentCharacter(aResponse,'"');
 
       NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
       NSDebugMLLog(@"gswdync",@"selectionValue class=%@",[selectionValue class]);
@@ -431,16 +456,16 @@ Bindings
         }
 
       if (isEqual)
-        [response appendContentString:@" CHECKED"];
+        GSWResponse_appendContentString(aResponse,@" CHECKED");
 
       if (disabledInContext)
-        [response _appendContentAsciiString:@" DISABLED"];
+        GSWResponse_appendContentAsciiString(aResponse,@" DISABLED");
 
-      [response appendContentCharacter:'>'];
-      [response appendContentString:prefixValue];
+      GSWResponse_appendContentCharacter(aResponse,'>');
+      GSWResponse_appendContentString(aResponse,prefixValue);
       if (!isDisplayStringBefore)
-        [response appendContentHTMLString:displayStringValue];
-      [response appendContentString:suffixValue];
+        GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
+      GSWResponse_appendContentString(aResponse,suffixValue);
     };
   LOGObjectFnStopC("GSWRadioButtonList");
 };

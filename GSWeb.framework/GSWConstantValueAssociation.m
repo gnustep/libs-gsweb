@@ -1,6 +1,6 @@
 /** GSWConstantValueAssociation.m - <title>GSWeb: Class GSWConstantValueAssociation</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -90,7 +90,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(id)valueInObject:(id)object
+-(id)valueInComponent:(GSWComponent*)object
 {
   [self logTakeValue:_value];
   return _value;
@@ -98,7 +98,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(void)setValue:(id)aValue
-       inObject:(id)object
+       inComponent:(GSWComponent*)object
 {
   ExceptionRaise0(@"GSWConstantValueAssociation",
                   @"Can't set value for a constant value association");

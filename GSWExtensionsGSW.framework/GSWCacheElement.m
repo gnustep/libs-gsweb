@@ -57,6 +57,22 @@ Bindings
 //====================================================================
 @implementation GSWCacheElement
 
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWCacheElement class])
+    {
+      standardClass=[GSWCacheElement class];
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
+
+
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
@@ -237,14 +253,21 @@ Bindings
       GSWStartElement(aContext);
       GSWSaveAppendToResponseElementID(aContext);
 
-      NSLog(@"GSWCacheElement Start Date=%@",[NSDate date]);
+      /*NSLog(@"GSWCacheElement Start Date=%@",
+        GSWTime_format(GSWTime_now()));*/
 
       if (_disabled)
-        isDisabled=[self evaluateCondition:_disabled
-                         inContext:aContext];
+        {
+          isDisabled=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                              standardEvaluateConditionInContextIMP,
+                                                              _disabled,aContext);
+        }
       else if (_enabled)
-        isDisabled=![self evaluateCondition:_enabled
-                          inContext:aContext];
+        {
+          isDisabled=!GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                               standardEvaluateConditionInContextIMP,
+                                                               _enabled,aContext);
+        };
       
       uniqID=[_uniqID valueInComponent:component];
 
@@ -322,19 +345,21 @@ Bindings
       NSDebugMLLog(@"GSWCacheElement",@"cacheUsed=%d",cacheUsed);
       if (!cacheUsed)
         {
-          NSLog(@"GSWCacheElement Children Start Date=%@",[NSDate date]);
+          /*NSLog(@"GSWCacheElement Children Start Date=%@",
+            GSWTime_format(GSWTime_now()));*/
           [_childrenGroup appendToResponse:aResponse
                           inContext:aContext];
-          NSLog(@"GSWCacheElement Children Stop Date=%@",[NSDate date]);
+          /*NSLog(@"GSWCacheElement Children Stop Date=%@",
+            GSWTime_format(GSWTime_now()));*/
         };
 
       if (!cacheUsed && !isDisabled)
         {
           NSMutableData* cachedObject=[aResponse stopCacheOfIndex:_cacheIndex];
           NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%p",cachedObject);
-          NSLog(@"GSWCacheElement6: sessionID=%@",sessionID);
-          NSLog(@"GSWCacheElement6: elementID=%@",elementID);
-          NSLog(@"GSWCacheElement6: contextAndElementID=%@",contextAndElementID);
+          //NSLog(@"GSWCacheElement6: sessionID=%@",sessionID);
+          //NSLog(@"GSWCacheElement6: elementID=%@",elementID);
+          //NSLog(@"GSWCacheElement6: contextAndElementID=%@",contextAndElementID);
           [cachedObject replaceOccurrencesOfData:[contextAndElementID dataUsingEncoding:[aResponse contentEncoding]]
                         withData:[contextAndElementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
                         range:NSMakeRange(0,[cachedObject length])];
@@ -381,7 +406,8 @@ Bindings
 
       NSDebugMLLog(@"GSWCacheElement",@"END ET=%@ id=%@",[self class],[aContext elementID]);
 
-      NSLog(@"GSWCacheElement Stop Date=%@",[NSDate date]);
+      /*NSLog(@"GSWCacheElement Stop Date=%@",
+        GSWTime_format(GSWTime_now()));*/
 
       GSWAssertDebugElementIDsCount(aContext);
     }

@@ -37,17 +37,20 @@ GSWEB_EXPORT BYTE ElementsMap_gswebElement;
 GSWEB_EXPORT BYTE ElementsMap_dynamicElement;
 GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 
+#ifndef NDEBBUG
+#define GSWELEMENT_HAS_DECLARATION_NAME
+#endif
 
 //====================================================================
 @interface GSWElement : NSObject
-#ifndef NDEBBUG
+#ifdef GSWELEMENT_HAS_DECLARATION_NAME
 {
   NSString* _appendToResponseElementID;
   NSString* _declarationName; // Name of element in def file (.gswd) - Mainly for debugging purpose
 };
 #endif
 
-#if defined(GSWDEBUG_ELEMENTSIDS) && !defined(NDEBBUG)
+#if defined(GSWDEBUG_ELEMENTSIDS) && defined(GSWELEMENT_HAS_DECLARATION_NAME)
 -(void)saveAppendToResponseElementIDInContext:(id)context;
 -(void)assertCorrectElementIDInContext:(id)context
                                 method:(SEL)method
@@ -65,6 +68,7 @@ GSWEB_EXPORT BYTE ElementsMap_attributeElement;
                   stopFlag:(BOOL)stop;
 #endif
 
+//Do nothing ifndef GSWELEMENT_HAS_DECLARATION_NAME
 -(NSString*)declarationName;
 -(void)setDeclarationName:(NSString*)declarationName;
 @end

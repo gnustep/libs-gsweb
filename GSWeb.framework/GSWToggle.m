@@ -1,6 +1,6 @@
 /** GSWToggle.m - <title>GSWeb: Class GSWToggle</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -33,8 +33,24 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWToggle
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWToggle class])
+    {
+      standardClass=[GSWToggle class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -114,24 +130,28 @@ RCS_ID("$Id$")
               inContext:(GSWContext*)aContext
 {
   //OK (condition/action/directActionName)
-  GSWComponent* component=[aContext component];
+  GSWComponent* component=GSWContext_component(aContext);
   BOOL disabled=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
   if (_disabled)
-    disabled=[self evaluateCondition:_disabled
-                   inContext:aContext];
+    {
+      disabled=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                        standardEvaluateConditionInContextIMP,
+                                                        _disabled,aContext);
+    };
+
   if (!disabled)
     {
       NSString* url=nil;
-      [aResponse _appendContentAsciiString:@"<A "];
-      [aResponse _appendContentAsciiString:@"href"];
-      [aResponse appendContentCharacter:'='];
-      [aResponse appendContentCharacter:'"'];
+      GSWResponse_appendContentAsciiString(aResponse,@"<A ");
+      GSWResponse_appendContentAsciiString(aResponse,@"href");
+      GSWResponse_appendContentCharacter(aResponse,'=');
+      GSWResponse_appendContentCharacter(aResponse,'"');
       url=(NSString*)[aContext componentActionURL];
       NSDebugMLLog(@"gswdync",@"url=%@",url);
-      [aResponse appendContentString:url];
-      [aResponse appendContentCharacter:'"'];
+      GSWResponse_appendContentString(aResponse,url);
+      GSWResponse_appendContentCharacter(aResponse,'"');
       NSDebugMLLog(@"gswdync",@"_otherAssociations=%@",_otherAssociations);
       if (_otherAssociations)
         {
@@ -144,23 +164,23 @@ RCS_ID("$Id$")
               oaValue=[[_otherAssociations objectForKey:key] 
                         valueInComponent:component];
               NSDebugMLLog(@"gswdync",@"oaValue=%@",oaValue);
-              [aResponse appendContentCharacter:' '];
-              [aResponse _appendContentAsciiString:key];
-              [aResponse appendContentCharacter:'='];
-              [aResponse appendContentCharacter:'"'];
-              [aResponse appendContentHTMLString:oaValue];
-              [aResponse appendContentCharacter:'"'];
+              GSWResponse_appendContentCharacter(aResponse,' ');
+              GSWResponse_appendContentAsciiString(aResponse,key);
+              GSWResponse_appendContentCharacter(aResponse,'=');
+              GSWResponse_appendContentCharacter(aResponse,'"');
+              GSWResponse_appendContentHTMLString(aResponse,oaValue);
+              GSWResponse_appendContentCharacter(aResponse,'"');
             };
         };
-      [aResponse appendContentCharacter:'>'];
+      GSWResponse_appendContentCharacter(aResponse,'>');
     };
   [_children appendToResponse:aResponse
             inContext:aContext];
   if (!disabled)//??
     {
-      [aResponse _appendContentAsciiString:@"</a>"];
+      GSWResponse_appendContentAsciiString(aResponse,@"</a>");
     };
-  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
+  NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
   LOGObjectFnStop();
 };
 
@@ -172,19 +192,24 @@ RCS_ID("$Id$")
   GSWElement* element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
+
   LOGObjectFnStart();
-  senderID=[aContext senderID];
+
+  senderID=GSWContext_senderID(aContext);
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
-  elementID=[aContext elementID];
+
+  elementID=GSWContext_elementID(aContext);
   NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
+
   if ([elementID isEqualToString:senderID])
     {
-      GSWComponent* component=[aContext component];
-      BOOL conditionValue=[self evaluateCondition:_condition
-                                inContext:aContext];
+      GSWComponent* component=GSWContext_component(aContext);
+      BOOL conditionValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                   standardEvaluateConditionInContextIMP,
+                                                                   _condition,aContext);
       conditionValue=!conditionValue;
       if (_action)
-        [_action setValue:[NSNumber numberWithBool:conditionValue]
+        [_action setValue:(conditionValue ? GSWNumberYes : GSWNumberNo)
                  inComponent:component];
       else
         {
@@ -207,9 +232,12 @@ RCS_ID("$Id$")
                         inContext:aContext];
       NSDebugMLLog(@"gswdync",@"element=%@",element);
     };
-  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+
+  NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
+  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
+
   LOGObjectFnStop();
+
   return element;
 };
 

@@ -39,16 +39,12 @@
 }
 
 -(id)initWithKeyPath:(NSString*)aKeyPath;
--(void)dealloc;
--(id)copyWithZone:(NSZone*)zone;
 
--(id)valueInObject:(id)object;
+-(id)valueInComponent:(GSWComponent*)component;
 -(void)setValue:(id)aValue
-       inObject:(id)object;
+       inComponent:(GSWComponent*)component;
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
-
--(NSString*)description;
 
 @end
 

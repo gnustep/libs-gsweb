@@ -1,6 +1,6 @@
 /** GSWApplication.m - <title>GSWeb: Class GSWApplication</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:  Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -143,13 +143,14 @@ int GSWApplicationMainReal(NSString* applicationClassName,
           NSBundle* bundle=nil;
           int i=0;
           BOOL loadResult=NO;
+          int frameworksCount=[frameworks count];
           NSString* GNUstepRoot=[[[NSProcessInfo processInfo]environment]
                                   objectForKey:@"GNUSTEP_SYSTEM_ROOT"];
           NSDebugFLLog(@"bundles",@"GNUstepRoot=%@",GNUstepRoot);
           //		  NSDebugFLLog(@"bundles",@"[[NSProcessInfo processInfo]environment]=%@",[[NSProcessInfo processInfo]environment]);
           NSDebugFLLog(@"bundles",@"[NSProcessInfo processInfo]=%@",
                        [NSProcessInfo processInfo]);
-          for(i=0;i<[frameworks count];i++)
+          for(i=0;i<frameworksCount;i++)
             {
               NSString* bundlePath=[frameworks objectAtIndex:i];
               NSDebugFLLog(@"bundles",@"bundlePath=%@",bundlePath);
@@ -239,6 +240,17 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 //====================================================================
 @implementation GSWApplication
+
+//--------------------------------------------------------------------
++(void)initialize
+{
+  BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+      GSWInitializeAllMisc();
+    };
+};
 
 //--------------------------------------------------------------------
 - (void)_setPool:(NSAutoreleasePool *)pool
@@ -1051,13 +1063,19 @@ int GSWApplicationMain(NSString* applicationClassName,
   GSWComponentDefinition* componentDefinition=nil;
   NSString* language=nil;
   int iLanguage=0;
+  int languagesCount=0;
 #ifdef DEBUG
-  NSDate* startDate=[NSDate date];
-  NSDate* stopDate=nil;
+  GSWTime startTS=GSWTime_now();
+  GSWTime stopTS=nil;
 #endif
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"application",@"aName %p=%@",aName,aName);
-  for(iLanguage=0;iLanguage<[languages count] && !componentDefinition;iLanguage++)
+
+  languagesCount=[languages count];
+
+  for(iLanguage=0;iLanguage<languagesCount && !componentDefinition;iLanguage++)
     {
       language=[languages objectAtIndex:iLanguage];
       if (language)
@@ -1160,7 +1178,7 @@ int GSWApplicationMain(NSString* applicationClassName,
                      languages);
     };
 #ifdef DEBUG
-  stopDate=[NSDate date];
+  stopTS=GSWTime_now();
 #endif
   if (componentDefinition)
     {
@@ -1170,7 +1188,7 @@ int GSWApplicationMain(NSString* applicationClassName,
             (language ? "" : "no"),
             (language ? language : @""),
             (isCachedComponent ? "" : "Not "),
-            [stopDate timeIntervalSinceDate:startDate]];
+            GSWTime_floatSec(stopTS-startTS)];
 #else
       [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached)",
             aName,
@@ -1186,7 +1204,7 @@ int GSWApplicationMain(NSString* applicationClassName,
                aName,
                (componentDefinition ? [[componentDefinition class] description]: @""),
                (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""),
-	       [stopDate timeIntervalSinceDate:startDate]);
+	       GSWTime_floatSec(stopTS-startTS));
 #else
   NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s.",
                (componentDefinition ? "FOUND" : "NOTFOUND"),
@@ -1228,7 +1246,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 	  NSArray* frameworks=[self lockedComponentBearingFrameworks];
 	  NSBundle* framework=nil;
 	  int frameworkN=0;
-	  for(frameworkN=0;frameworkN<[frameworks count] && !path;frameworkN++)
+          int frameworksCount=[frameworks count];
+	  for(frameworkN=0;frameworkN<frameworksCount && !path;frameworkN++)
             {
               framework=[frameworks objectAtIndex:frameworkN];
               NSDebugMLLog(@"gswcomponents",@"TRY framework=%@",framework);
@@ -1299,13 +1318,18 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   NSMutableArray* array=nil;
   int i=0;
+  int bundlesCount=0;
   NSBundle* bundle=nil;
   // NSDictionary* bundleInfo=nil;
   // This makes only trouble and saves not so much time dave@turbocat.de
   // id hasGSWComponents=nil;
+
   LOGObjectFnStart();
+
   array=[NSMutableArray array];
-  for(i=0;i<[bundles count];i++)
+  bundlesCount=[bundles count];
+
+  for(i=0;i<bundlesCount;i++)
     {
       bundle=[bundles objectAtIndex:i];
       //NSDebugMLLog(@"gswcomponents",@"bundle=%@",bundle);
@@ -1333,12 +1357,20 @@ int GSWApplicationMain(NSString* applicationClassName,
 @implementation GSWApplication (GSWApplicationE)
 
 //--------------------------------------------------------------------
--(GSWContext*)createContextForRequest:(GSWRequest*)aRequest
+-(Class)contextClass
 {
-  GSWContext* context=nil;
   NSString* contextClassName=[self contextClassName];
   Class contextClass=NSClassFromString(contextClassName);
   NSAssert1(contextClass,@"No contextClass named '%@'",contextClassName);
+  return contextClass;
+};
+
+//--------------------------------------------------------------------
+-(GSWContext*)createContextForRequest:(GSWRequest*)aRequest
+{
+  GSWContext* context=nil;
+  Class contextClass=[self contextClass];
+  NSAssert(contextClass,@"No contextClass");
   if (contextClass)
     {
       context=[contextClass contextWithRequest:aRequest];
@@ -1352,12 +1384,20 @@ int GSWApplicationMain(NSString* applicationClassName,
 }
 
 //--------------------------------------------------------------------
--(GSWResponse*)createResponseInContext:(GSWContext*)aContext
+-(Class)responseClass
 {
-  GSWResponse* response=nil;
   NSString* responseClassName=[self responseClassName];
   Class responseClass=NSClassFromString(responseClassName);
   NSAssert1(responseClass,@"No responseClass named '%@'",responseClassName);
+  return responseClass;
+};
+
+//--------------------------------------------------------------------
+-(GSWResponse*)createResponseInContext:(GSWContext*)aContext
+{
+  GSWResponse* response=nil;
+  Class responseClass=[self responseClass];
+  NSAssert(responseClass,@"No responseClass named");
   if (responseClass)
     {
       response=[[responseClass new]autorelease];
@@ -1368,6 +1408,15 @@ int GSWApplicationMain(NSString* applicationClassName,
       NSAssert(NO,@"Can't create response");
     };
   return response;
+};
+
+//--------------------------------------------------------------------
+-(Class)requestClass
+{
+  NSString* requestClassName=[self requestClassName];
+  Class requestClass=NSClassFromString(requestClassName);
+  NSAssert1(requestClass,@"No requestClass named '%@'",requestClassName);
+  return requestClass;
 };
 
 //--------------------------------------------------------------------
@@ -1633,14 +1682,17 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)_touchPrincipalClasses
 {
   NSArray* allFrameworks=nil;
-  int frameworkN=0;
   LOGObjectFnStart();
   [self lock];
   NS_DURING
     {
+      int frameworkN=0;
+      int allFrameworksCount=0;
       //????
       allFrameworks=[NSBundle allFrameworks];
-      for(frameworkN=0;frameworkN<[allFrameworks count];frameworkN++)
+      allFrameworksCount=[allFrameworks count];
+
+      for(frameworkN=0;frameworkN<allFrameworksCount;frameworkN++)
         {
           //Not used yet NSDictionary* infoDictionary=[[allFrameworks objectAtIndex:frameworkN] infoDictionary];
           //TODO what ???
@@ -4191,13 +4243,18 @@ to another instance **/
 
 #else
   BOOL ok=YES;
+  int classesCount=0;
+
   LOGClassFnStart();
-  if ([classes count]>0)
+
+  classesCount=[classes count];
+
+  if (classesCount>0)
     {
       int i=0;
       NSString* aClassName=nil;
       NSMutableArray* newClasses=nil;
-      for(i=0;i<[classes count];i++)
+      for(i=0;i<classesCount;i++)
         {
           aClassName=[classes objectAtIndex:i];
           NSDebugMLLog(@"application",@"aClassName:%@",aClassName);

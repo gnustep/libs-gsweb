@@ -35,8 +35,216 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 
 static int dontTraceComponentActionURL=0;
+
+static SEL componentSEL=NULL;
+static SEL elementIDSEL=NULL;
+static SEL senderIDSEL=NULL;
+static SEL isParentSenderIDSearchOverSEL=NULL;
+static SEL isSenderIDSearchOverSEL=NULL;
+
+// 'Standard' GSWContext class. Used to get IMPs from standardElementIDIMPs
+static Class standardClass=Nil;
+
+// List of standardClass IMPs
+static GSWContextIMPs standardContextIMPs;
+
+//====================================================================
+/** Fill impsPtr structure with IMPs for context **/
+void GetGSWContextIMPs(GSWContextIMPs* impsPtr,GSWContext* context)
+{
+  if ([context class]==standardClass)
+    {
+      memcpy(impsPtr,&standardContextIMPs,sizeof(GSWContextIMPs));
+    }
+  else
+    {
+      memset(impsPtr,0,sizeof(GSWContextIMPs));
+
+      impsPtr->_incrementLastElementIDComponentIMP = 
+        [context methodForSelector:incrementLastElementIDComponentSEL];
+
+      impsPtr->_appendElementIDComponentIMP 
+        = [context methodForSelector:appendElementIDComponentSEL];
+
+      impsPtr->_appendZeroElementIDComponentIMP = 
+        [context methodForSelector:appendZeroElementIDComponentSEL];
+
+      impsPtr->_deleteAllElementIDComponentsIMP = 
+        [context methodForSelector:deleteAllElementIDComponentsSEL];
+
+      impsPtr->_deleteLastElementIDComponentIMP = 
+        [context methodForSelector:deleteLastElementIDComponentSEL];
+
+      impsPtr->_elementIDIMP = 
+        [context methodForSelector:elementIDSEL];
+
+      impsPtr->_componentIMP = 
+        [context methodForSelector:componentSEL];
+
+      impsPtr->_senderIDIMP = 
+        [context methodForSelector:senderIDSEL];
+
+      impsPtr->_isParentSenderIDSearchOverIMP = 
+        (GSWIMP_BOOL)[context methodForSelector:isParentSenderIDSearchOverSEL];
+      
+      impsPtr->_isSenderIDSearchOverIMP = 
+        (GSWIMP_BOOL)[context methodForSelector:isSenderIDSearchOverSEL];
+    };
+};
+
+//====================================================================
+/** functions to accelerate calls of frequently used GSWContext methods **/
+
+//--------------------------------------------------------------------
+void GSWContext_incrementLastElementIDComponent(GSWContext* aContext)
+{
+  if (aContext)
+    (*(aContext->_selfIMPs._incrementLastElementIDComponentIMP))
+      (aContext,incrementLastElementIDComponentSEL);
+};
+
+//--------------------------------------------------------------------
+void GSWContext_appendElementIDComponent(GSWContext* aContext,NSString* component)
+{
+  if (aContext)
+    (*(aContext->_selfIMPs._appendElementIDComponentIMP))
+      (aContext,appendElementIDComponentSEL,component);
+};
+
+//--------------------------------------------------------------------
+void GSWContext_appendZeroElementIDComponent(GSWContext* aContext)
+{
+  if (aContext)
+    (*(aContext->_selfIMPs._appendZeroElementIDComponentIMP))
+      (aContext,appendZeroElementIDComponentSEL);
+};
+
+//--------------------------------------------------------------------
+void GSWContext_deleteAllElementIDComponents(GSWContext* aContext)
+{
+  if (aContext)
+    (*(aContext->_selfIMPs._deleteAllElementIDComponentsIMP))
+      (aContext,deleteAllElementIDComponentsSEL);
+};
+
+//--------------------------------------------------------------------
+void GSWContext_deleteLastElementIDComponent(GSWContext* aContext)
+{
+  if (aContext)
+    (*(aContext->_selfIMPs._deleteLastElementIDComponentIMP))
+      (aContext,deleteLastElementIDComponentSEL);
+};
+
+//--------------------------------------------------------------------
+NSString* GSWContext_elementID(GSWContext* aContext)
+{
+  if (aContext)
+    return (*(aContext->_selfIMPs._elementIDIMP))
+      (aContext,elementIDSEL);
+  else
+    return nil;
+};
+
+//--------------------------------------------------------------------
+NSString* GSWContext_senderID(GSWContext* aContext)
+{
+  if (aContext)
+    return (*(aContext->_selfIMPs._senderIDIMP))
+      (aContext,senderIDSEL);
+  else
+    return nil;
+};
+
+//--------------------------------------------------------------------
+GSWComponent* GSWContext_component(GSWContext* aContext)
+{
+  if (aContext)
+    return (GSWComponent*)(*(aContext->_selfIMPs._componentIMP))
+      (aContext,componentSEL);
+  else
+    return nil;
+};
+
+//--------------------------------------------------------------------
+GSWEB_EXPORT BOOL GSWContext_isParentSenderIDSearchOver(GSWContext* aContext)
+{
+  if (aContext)
+    return (*(aContext->_selfIMPs._isParentSenderIDSearchOverIMP))
+      (aContext,isParentSenderIDSearchOverSEL);
+  else
+    return NO;
+}
+
+//--------------------------------------------------------------------
+GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
+{
+  if (aContext)
+    return (*(aContext->_selfIMPs._isSenderIDSearchOverIMP))
+      (aContext,isSenderIDSearchOverSEL);
+  else
+    return NO;
+}
+
 //====================================================================
 @implementation GSWContext
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWContext class])
+    {
+      componentSEL=@selector(component);
+      elementIDSEL=@selector(elementID);
+      senderIDSEL=@selector(senderID);
+      isParentSenderIDSearchOverSEL=@selector(isParentSenderIDSearchOver);
+      isSenderIDSearchOverSEL=@selector(isSenderIDSearchOver);
+      [self setStandardClass:[GSWContext class]];
+    };
+};
+
+//--------------------------------------------------------------------
++(void)setStandardClass:(Class)aStandardClass
+{
+  // TODO MultiThread protection
+  standardClass=aStandardClass;
+
+  memset(&standardContextIMPs,0,sizeof(GSWContextIMPs));
+
+  InitializeGSWElementIDSELs();
+
+  standardContextIMPs._incrementLastElementIDComponentIMP = 
+    [self instanceMethodForSelector:incrementLastElementIDComponentSEL];
+
+  standardContextIMPs._appendElementIDComponentIMP = 
+    [self instanceMethodForSelector:appendElementIDComponentSEL];
+
+  standardContextIMPs._appendZeroElementIDComponentIMP = 
+    [self instanceMethodForSelector:appendZeroElementIDComponentSEL];
+
+  standardContextIMPs._deleteAllElementIDComponentsIMP = 
+    [self instanceMethodForSelector:deleteAllElementIDComponentsSEL];
+
+  standardContextIMPs._deleteLastElementIDComponentIMP = 
+    [self instanceMethodForSelector:deleteLastElementIDComponentSEL];
+
+  standardContextIMPs._elementIDIMP = 
+    [self instanceMethodForSelector:elementIDSEL];
+
+  standardContextIMPs._componentIMP = 
+    [self instanceMethodForSelector:componentSEL];
+
+  standardContextIMPs._senderIDIMP = 
+    [self instanceMethodForSelector:senderIDSEL];
+
+  standardContextIMPs._componentIMP = 
+    [self instanceMethodForSelector:componentSEL];
+
+  standardContextIMPs._isParentSenderIDSearchOverIMP = 
+    (GSWIMP_BOOL)[self instanceMethodForSelector:isParentSenderIDSearchOverSEL];
+
+  standardContextIMPs._isSenderIDSearchOverIMP = 
+    (GSWIMP_BOOL)[self instanceMethodForSelector:isSenderIDSearchOverSEL];
+};
 
 //--------------------------------------------------------------------
 //	init
@@ -47,6 +255,7 @@ static int dontTraceComponentActionURL=0;
   LOGObjectFnStart();
   if ((self=[super init]))
     {
+      GetGSWContextIMPs(&_selfIMPs,self);
       [self _initWithContextID:(unsigned int)-1];
     };
   LOGObjectFnStop();
@@ -135,7 +344,19 @@ static int dontTraceComponentActionURL=0;
       ASSIGNCOPY(clone->_senderID,_senderID);
       ASSIGNCOPY(clone->_requestSessionID,_requestSessionID);
       ASSIGNCOPY(clone->_requestContextID,_requestContextID);
-      ASSIGNCOPY(clone->_elementID,_elementID);
+      NSLog(@"self=%p clone=%p _elementID=%p",
+                self,clone,_elementID);
+      if (_elementID)
+        {
+          ASSIGNCOPY(clone->_elementID,_elementID);
+          NSLog(@"self=%p clone=%p _elementID=%p clone->_elementID=%p",
+                self,clone,_elementID,clone->_elementID);
+          NSAssert(clone->_elementID,@"No clone elementID");
+          
+          GetGSWElementIDIMPs(&clone->_elementIDIMPs,clone->_elementID);
+          NSLog(@"self=%p clone=%p _elementID=%p clone->_elementID=%p _elementIDIMPs._deleteAllElementIDComponentsIMP=%p",
+                self,clone,_elementID,clone->_elementID,_elementIDIMPs._deleteAllElementIDComponentsIMP);
+        };
       ASSIGN(clone->_session,_session); //TODOV
       ASSIGN(clone->_request,_request); //TODOV
       ASSIGN(clone->_response,_response); //TODOV
@@ -227,10 +448,27 @@ static int dontTraceComponentActionURL=0;
 };
 
 //--------------------------------------------------------------------
+// Create the elementID and set IMPs
+-(void)_createElementID
+{
+  if (!_elementID)
+    _elementID=[GSWElementID new];
+
+  GetGSWElementIDIMPs(&_elementIDIMPs,_elementID);
+};
+
+//--------------------------------------------------------------------
 //	elementID
 -(NSString*)elementID 
-{
-  return [_elementID elementIDString];
+{  
+  if (_elementID)
+    {
+      NSAssert(_elementIDIMPs._elementIDStringIMP,
+               @"No _elementIDIMPs._elementIDStringIMP");
+      return (*_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL);
+    }
+  else
+    return nil;
 };
 
 //--------------------------------------------------------------------
@@ -319,20 +557,25 @@ static int dontTraceComponentActionURL=0;
 };
 
 #ifndef NDEBUG
+//--------------------------------------------------------------------
 -(void)incrementLoopLevel //ForDebugging purpose: each repetition increment and next decrement it
 {
   _loopLevel++;
 };
+
+//--------------------------------------------------------------------
 -(void)decrementLoopLevel
 {
   _loopLevel--;
 };
 
+//--------------------------------------------------------------------
 -(BOOL)isInLoop
 {
   return _loopLevel>0;
 };
 
+//--------------------------------------------------------------------
 -(void)addToDocStructureElement:(id)element
 {
   if(GSDebugSet(@"GSWDocStructure"))
@@ -361,6 +604,7 @@ static int dontTraceComponentActionURL=0;
     };
 }
 
+//--------------------------------------------------------------------
 -(void)addDocStructureStep:(NSString*)stepLabel
 {
   if(GSDebugSet(@"GSWDocStructure"))
@@ -372,6 +616,7 @@ static int dontTraceComponentActionURL=0;
     };
 }
 
+//--------------------------------------------------------------------
 -(NSString*)docStructure
 {
   if(GSDebugSet(@"GSWDocStructure"))
@@ -700,7 +945,7 @@ static int dontTraceComponentActionURL=0;
 
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
-                      RequestHandlerKey:(NSString*)requestHandlerKey
+                      requestHandlerKey:(NSString*)requestHandlerKey
                                    path:(NSString*)requestHandlerPath
                             queryString:(NSString*)queryString
 {
@@ -709,7 +954,7 @@ static int dontTraceComponentActionURL=0;
   LOGObjectFnStartCond(dontTraceComponentActionURL==0);
 
   url=[self urlWithURLPrefix:urlPrefix
-              RequestHandlerKey:requestHandlerKey
+              requestHandlerKey:requestHandlerKey
               path:requestHandlerPath
               queryString:queryString
               isSecure:NO];
@@ -721,7 +966,7 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 //TODO rewrite to avoid request call
 -(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
-                      RequestHandlerKey:(NSString*)requestHandlerKey
+                      requestHandlerKey:(NSString*)requestHandlerKey
                                    path:(NSString*)requestHandlerPath
                             queryString:(NSString*)queryString
                                 isSecure:(BOOL)isSecure
@@ -757,7 +1002,7 @@ static int dontTraceComponentActionURL=0;
                                     queryString:(NSString*)queryString
 {
   return [self urlWithURLPrefix:nil
-               RequestHandlerKey:requestHandlerKey
+               requestHandlerKey:requestHandlerKey
                path:requestHandlerPath
                queryString:queryString
                isSecure:NO];
@@ -770,7 +1015,7 @@ static int dontTraceComponentActionURL=0;
                                        isSecure:(BOOL)isSecure
 {
   return [self urlWithURLPrefix:nil
-               RequestHandlerKey:requestHandlerKey
+               requestHandlerKey:requestHandlerKey
                path:requestHandlerPath
                queryString:queryString
                isSecure:isSecure];
@@ -970,10 +1215,15 @@ static int dontTraceComponentActionURL=0;
 -(void)_putAwakeComponentsToSleep
 {
   int i=0;
+  int count=0;
   GSWComponent* component=nil;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"low",@"awakePageComponents=%@",_awakePageComponents);
-  for(i=0;i<[_awakePageComponents count];i++)
+  count=[_awakePageComponents count];
+
+  for(i=0;i<count;i++)
     {
       component=[_awakePageComponents objectAtIndex:i];
       [component sleepInContext:self];
@@ -997,6 +1247,11 @@ static int dontTraceComponentActionURL=0;
   return previousState;
 };
 
+//--------------------------------------------------------------------
+-(BOOL)isGeneratingCompleteURLs
+{
+  return _generateCompleteURLs;
+};
 
 //--------------------------------------------------------------------
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
@@ -1574,18 +1829,38 @@ If none, try request languages
             userInfo);
   ASSIGN(_userInfo,userInfo);
 };
+
+//--------------------------------------------------------------------
+// context can add key/values in query dictionary
+-(NSDictionary*)computeQueryDictionary:(NSDictionary*)queryDictionary
+{
+  //Do nothing
+  return queryDictionary;
+};
+
+//--------------------------------------------------------------------
+// context can add key/values in query dictionary
+-(NSDictionary*)computePathQueryDictionary:(NSDictionary*)queryDictionary
+{
+  //Do nothing
+  return queryDictionary;
+};
+
 @end
 
 //====================================================================
-@implementation GSWContext (GSWContextC)
+@implementation GSWContext (GSWContextElementID)
 
 //--------------------------------------------------------------------
 //	incrementLastElementIDComponent
 -(void)incrementLastElementIDComponent 
 {
   if (!_elementID)
-    _elementID=[GSWElementID new];
-  [_elementID incrementLastElementIDComponent];
+    [self _createElementID];
+  
+  NSAssert(_elementIDIMPs._incrementLastElementIDComponentIMP,
+           @"No _elementIDIMPs._incrementLastElementIDComponentIMP");
+  (*_elementIDIMPs._incrementLastElementIDComponentIMP)(_elementID,incrementLastElementIDComponentSEL);
 };
 
 
@@ -1595,8 +1870,12 @@ If none, try request languages
 -(void)appendElementIDComponent:(NSString*)string
 {
   if (!_elementID)
-    _elementID=[GSWElementID new];
-  [_elementID appendElementIDComponent:string];
+    [self _createElementID];
+
+  NSAssert(_elementIDIMPs._appendElementIDComponentIMP,
+           @"No _elementIDIMPs._appendElementIDComponentIMP");
+
+  (*_elementIDIMPs._appendElementIDComponentIMP)(_elementID,appendElementIDComponentSEL,string);
 };
 
 //--------------------------------------------------------------------
@@ -1604,8 +1883,12 @@ If none, try request languages
 -(void)appendZeroElementIDComponent 
 {
   if (!_elementID)
-    _elementID=[GSWElementID new];
-  [_elementID appendZeroElementIDComponent];
+    [self _createElementID];
+
+  NSAssert(_elementIDIMPs._appendZeroElementIDComponentIMP,
+           @"No _elementIDIMPs._appendZeroElementIDComponentIMP");
+
+  (*_elementIDIMPs._appendZeroElementIDComponentIMP)(_elementID,appendZeroElementIDComponentSEL);
 };
 
 //--------------------------------------------------------------------
@@ -1613,8 +1896,12 @@ If none, try request languages
 -(void)deleteAllElementIDComponents 
 {
   if (!_elementID)
-    _elementID=[GSWElementID new];
-  [_elementID deleteAllElementIDComponents];
+    [self _createElementID];
+  
+  NSAssert(_elementIDIMPs._deleteAllElementIDComponentsIMP,
+           @"No _elementIDIMPs._deleteAllElementIDComponentsIMP");
+
+  (*_elementIDIMPs._deleteAllElementIDComponentsIMP)(_elementID,deleteAllElementIDComponentsSEL);
 };
 
 //--------------------------------------------------------------------
@@ -1622,20 +1909,38 @@ If none, try request languages
 -(void)deleteLastElementIDComponent 
 {
   if (!_elementID)
-    _elementID=[GSWElementID new];
-  [_elementID deleteLastElementIDComponent];
+    [self _createElementID];
+
+  NSAssert(_elementIDIMPs._deleteLastElementIDComponentIMP,
+           @"No _elementIDIMPs._deleteLastElementIDComponentIMP");
+
+  (*_elementIDIMPs._deleteLastElementIDComponentIMP)(_elementID,deleteLastElementIDComponentSEL);
 };
 
 //--------------------------------------------------------------------
 -(BOOL)isParentSenderIDSearchOver
 {
-  return [_elementID isParentSearchOverForSenderID:_senderID];
+  if (_elementID)
+    {
+      NSAssert(_elementIDIMPs._isParentSearchOverForSenderIDIMP,
+               @"No _elementIDIMPs._isParentSearchOverForSenderIDIMP");
+      return (*_elementIDIMPs._isParentSearchOverForSenderIDIMP)(_elementID,isParentSearchOverForSenderIDSEL,_senderID);
+    }
+  else
+    return NO;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)isSenderIDSearchOver
 {
-  return [_elementID isSearchOverForSenderID:_senderID];
+  if (_elementID)
+    {
+      NSAssert(_elementIDIMPs._isSearchOverForSenderIDIMP,
+               @"No _elementIDIMPs._isSearchOverForSenderIDIMP");
+      return (*_elementIDIMPs._isSearchOverForSenderIDIMP)(_elementID,isSearchOverForSenderIDSEL,_senderID);
+    }
+  else
+    return NO;
 };
 
 //--------------------------------------------------------------------

@@ -507,6 +507,7 @@ static SEL appendStringSel = NULL;
   if (_url)
     {
       NSArray* components=nil;
+      int componentsCount=0;
       NSString* Left=_url;
       int index=0;
       int tmpIndex=0;
@@ -599,7 +600,8 @@ static SEL appendStringSel = NULL;
       //prefix
       //NSDebugMLLog(@"low",@"prefix: components [%@]",components);
       components=[Left componentsSeparatedByString:@"/"];
-      for(tmpIndex=index;!_prefix && tmpIndex<[components count];tmpIndex++)
+      componentsCount=[components count];
+      for(tmpIndex=index;!_prefix && tmpIndex<componentsCount;tmpIndex++)
         {
           NSString* tmp=[components objectAtIndex:tmpIndex];
           if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]]
@@ -620,7 +622,7 @@ static SEL appendStringSel = NULL;
       else
         {
           //applicationName
-          if (index>=[components count])
+          if (index>=componentsCount)
             {
               //TODO Erreur
               //NSDebugMLLog(@"low",@"No applicationName in [%@]",_url);
@@ -628,9 +630,9 @@ static SEL appendStringSel = NULL;
           else
             {
               /*NSDebugMLLog(@"low",@"applicationName: components [%@]",
-              [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+              [components subarrayWithRange:NSMakeRange(index,componentsCount-index)]);
               */
-              for(tmpIndex=index;!_applicationName && tmpIndex<[components count];tmpIndex++)
+              for(tmpIndex=index;!_applicationName && tmpIndex<componentsCount;tmpIndex++)
                 {
                   NSString* tmp=[components objectAtIndex:tmpIndex];
                   NSString* appSuffix=nil;
@@ -648,40 +650,40 @@ static SEL appendStringSel = NULL;
                 };
               if (!_applicationName)
                 {
-                  NSString* tmp=[[components subarrayWithRange:NSMakeRange(index,[components count]-index)]
+                  NSString* tmp=[[components subarrayWithRange:NSMakeRange(index,componentsCount-index)]
                                   componentsJoinedByString:@"/"];
                   if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]])
                     tmp=[tmp stringByDeletingSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]];
                   else if ([tmp hasSuffix:GSWApplicationPSuffix[WONAMES_INDEX]])
                     tmp=[tmp stringByDeletingSuffix:GSWApplicationPSuffix[WONAMES_INDEX]];
                   ASSIGN(_applicationName,tmp);
-                  index=[components count];
+                  index=componentsCount;
                 };
               
               //Application Number
-              if (index<[components count])
+              if (index<componentsCount)
                 {
                   /*NSDebugMLLog(@"low",@"applicationNumber: components [%@]",
-                    [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                    [components subarrayWithRange:NSMakeRange(index,componentsCount-index)]);
                   */
                   ASSIGN(_applicationNumberString,[components objectAtIndex:index]);
                   _applicationNumber=[_applicationNumberString intValue];
                   index++;
                   //requestHandlerKey
-                  if (index<[components count])
+                  if (index<componentsCount)
                     {
                       /*NSDebugMLLog(@"low",@"requestHandlerKey: _components [%@]",
-                        [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                        [components subarrayWithRange:NSMakeRange(index,componentsCount-index)]);
                       */
                       ASSIGN(_requestHandlerKey,[components objectAtIndex:index]);
                       index++;
                       //requestHandlerPath
-                      if (index<[components count])
+                      if (index<componentsCount)
                         {
                           /* NSDebugMLLog(@"low",@"requestHandlerPath: components [%@]",
-                             [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                             [components subarrayWithRange:NSMakeRange(index,componentsCount-index)]);
                           */
-                          ASSIGN(_requestHandlerPath,[[components subarrayWithRange:NSMakeRange(index,[components count]-index)]componentsJoinedByString:@"/"]);
+                          ASSIGN(_requestHandlerPath,[[components subarrayWithRange:NSMakeRange(index,componentsCount-index)]componentsJoinedByString:@"/"]);
                           index++;
                         };
                     };

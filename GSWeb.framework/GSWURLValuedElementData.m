@@ -76,31 +76,31 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)appendDataURLToResponse:(GSWResponse*)response
-                     inContext:(GSWContext*)context
+-(void)appendDataURLToResponse:(GSWResponse*)aResponse
+                     inContext:(GSWContext*)aContext
 {
   NSString* queryString=nil;
   GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
   queryString=[NSString stringWithFormat:@"%@=%@",GSWKey_Data[GSWebNamingConv],[self key]];
   NSDebugMLog(@"queryString=%@",queryString);
-  url=[context urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
+  url=[aContext urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
                path:nil
                queryString:queryString];
   NSDebugMLog(@"url=%@",url);
-  [response _appendContentAsciiString:(NSString*)url];
+  GSWResponse_appendContentAsciiString(aResponse,(NSString*)url);
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+              inContext:(GSWContext*)aContext
 {
   //OK
   NSData* data=_data;
   LOGObjectFnStart();
-//  GSWStartElement(context);
-//  GSWSaveAppendToResponseElementID(context);
+//  GSWStartElement(aContext);
+//  GSWSaveAppendToResponseElementID(aContext);
   NSDebugMLog(@"data=%@",data);
   if (!data)
     {

@@ -1,6 +1,6 @@
 /** GSWParam.m - <title>GSWeb: Class GSWParam</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -37,14 +37,54 @@ RCS_ID("$Id$")
 @implementation GSWParam
 
 -(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
+     associations:(NSDictionary*)inAssociations
   contentElements:(NSArray*)elements
            target:(id)target
               key:(NSString*)key
 treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  NSMutableDictionary* associations=nil;
+  LOGObjectFnStartC("GSWImage");
+
+  _treatNilValueAsGSWNull = treatNilValueAsGSWNull;
+  ASSIGN(_target,target);
+  ASSIGN(_targetKey,key);
+
+  associations=[NSMutableDictionary dictionaryWithDictionary:inAssociations];
+
+  _action = [[inAssociations objectForKey:action__Key
+                             withDefaultObject:[_action autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"_action=%@",_action);
+
+  _value = [[inAssociations objectForKey:value__Key
+                          withDefaultObject:[_value autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"_value=%@",_value);
+
+  [associations removeObjectForKey:action__Key];
+  [associations removeObjectForKey:value__Key];
+
+  if ((self=[super initWithName:aName
+                   associations:associations
+                   contentElements:elements]))
+    {
+      if (!_target)
+        {
+          if (_value)
+            {
+              if (_action)
+                {
+                  ExceptionRaise(@"GSWParam",@"You can't specify 'value' and 'action' together. componentAssociations:%@",
+                                 inAssociations);
+                };
+            }
+          else if (!_action)
+            {
+              ExceptionRaise(@"GSWParam",@"You have to specify 'value' or 'action'. componentAssociations:%@",
+                             inAssociations);
+            };
+        };
+    };
+  return self;
 };
 
 //--------------------------------------------------------------------
@@ -53,17 +93,25 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
--(void)dealloc
-{
-  LOGObjectFnNotImplemented();	//TODOFN
+  return [self initWithName:aName
+               associations:associations
+               contentElements:elements
+               target:nil
+               key:nil
+               treatNilValueAsGSWNull:NO];
 };
 
 //--------------------------------------------------------------------
+-(void)dealloc
+{
+  DESTROY(_action);
+  DESTROY(_value);
+  DESTROY(_target);
+  DESTROY(_targetKey);
+  [super dealloc];
+};
 
+//--------------------------------------------------------------------
 -(NSString*)description
 {
   LOGObjectFnNotImplemented();	//TODOFN
@@ -86,11 +134,26 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  GSWElement* element=nil;
+
+  LOGObjectFnStart();
+
+  if (_action
+      && [GSWContext_elementID(aContext) isEqualToString:GSWContext_senderID(aContext)])
+    {
+      GSWComponent* component=GSWContext_component(aContext);
+
+      element = [_action valueInComponent:component];
+
+      if (!element)
+        element = [aContext page];
+    };
+
+  LOGObjectFnStart();
+
+  return element;
 };
 
-//--------------------------------------------------------------------
 @end
 
 //====================================================================
@@ -98,22 +161,62 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
                                       inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [super appendGSWebObjectsAssociationsToResponse:aResponse
+         inContext:aContext];
+  if (_action)
+    {
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
+                                                                    @"value",
+                                                                    [aContext componentActionURL],
+                                                                    NO);// Don't escape
+    }
+  else
+    {
+      GSWComponent* component=GSWContext_component(aContext);
+
+      id value = [self valueInComponent:component];
+      if (value)
+        {
+          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
+                                                                        @"value",
+                                                                        value,
+                                                                        YES);
+        }
+      else if(_treatNilValueAsGSWNull)
+        {
+          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
+                                                                        @"value", 
+                                                                        @"GSWNull",
+                                                                        NO);
+        }
+      else
+        NSWarnLog(@"GSWParam: nil 'value'");
+    };
 };
 
 //--------------------------------------------------------------------
-
--(id)valueInComponent:(id)component
+-(id)valueInComponent:(GSWComponent*)component
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  id value=nil;
+
+  LOGObjectFnStart();
+
+  if (_target)
+    value=[_target valueForKey:_targetKey];
+  else if (_value)
+    value=[_value valueInComponent:component];
+
+  LOGObjectFnStop();
+
+  return value;
 };
 
-//--------------------------------------------------------------------
 @end
 
 //====================================================================
 @implementation GSWParam (GSWParamC)
+
+//--------------------------------------------------------------------
 +(BOOL)escapeHTML
 {
   LOGClassFnNotImplemented();	//TODOFN
@@ -123,8 +226,8 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 //--------------------------------------------------------------------
 +(BOOL)hasGSWebObjectsAssociations
 {
+
   return YES;
 };
 
-//--------------------------------------------------------------------
 @end

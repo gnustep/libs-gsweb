@@ -36,10 +36,6 @@ RCS_ID("$Id$")
 
 #include <limits.h>
 
-static NSArray* normalChars=nil;
-static NSArray* htmlChars=nil;
-
-
 /*
   <!ENTITY amp CDATA "&#38;"     -- ampersand          -->
   <!ENTITY gt CDATA "&#62;"      -- greater than       -->
@@ -165,40 +161,424 @@ static NSArray* htmlChars=nil;
                         \"\\U00F9\", \
                         \"\\U00FB\")"
 
-static void
-initHtmlChars()
+#define HTML_CHARS @"(    \"&amp;\",	\
+                          \"&gt;\",	\
+                          \"&lt;\",	\
+                          \"&quot;\",	\
+                          \"&pound;\",	\
+                          \"&brvbar;\",	\
+                          \"&deg;\",	\
+                          \"&eacute;\",	\
+                          \"&ccedil;\",	\
+                          \"&agrave;\",	\
+                          \"&acirc;\",	\
+                          \"&atilde;\",	\
+                          \"&egrave;\",	\
+                          \"&ecirc;\",	\
+                          \"&igrave;\",	\
+                          \"&icirc;\",	\
+                          \"&ntilde;\",	\
+                          \"&ocirc;\",	\
+                          \"&otilde;\",	\
+                          \"&ugrave;\",	\
+                          \"&ucirc;\")"
+
+#define ESCAPING_HTML_ATTRIBUTE_VALUE_NORMAL_CHARS @"( 	\
+      \"&\",	\
+      \"\\\"\",	\
+      \"<\",	\
+      \">\",	\
+      \"\t\",	\
+      \"\n\",	\
+      \"\r\" )"
+
+#define ESCAPING_HTML_ATTRIBUTE_VALUE_HTML_CHARS @"( 	\
+      \"&amp;\",  \
+      \"&quot;\", \
+      \"&lt;\",	\
+      \"&gt;\",	\
+      \"&#9;\",	\
+      \"&#10;\",\
+      \"&#13;\" )"	
+
+#define ESCAPING_HTML_STRING_NORMAL_CHARS @"( 	\
+      \"&\",	\
+      \"\\\"\",	\
+      \"<\",	\
+      \">\" )"
+
+#define ESCAPING_HTML_STRING_HTML_CHARS @"( 	\
+      \"&amp;\",  \
+      \"&quot;\", \
+      \"&lt;\",	\
+      \"&gt;\" )"	
+
+GSWHTMLConvertingStruct htmlConvertStruct;
+GSWHTMLConvertingStruct htmlConvertAttributeValueStruct;
+GSWHTMLConvertingStruct htmlConvertHTMLString;
+
+static unichar unicodeBR[5];
+static int unicodeBRLen=4;
+#define htmlCharsMaxLength 9
+#define htmlCharsAtIndex(convStructPtr,i)	(((convStructPtr)->htmlChars)+((i)*(htmlCharsMaxLength+1)))
+
+
+static Class mutableStringClass = Nil;
+static Class stringClass=Nil;
+static SEL stringWithCharactersSEL=NULL;
+static SEL stringWithStringSEL=NULL;
+static IMP stringClass_stringWithCharactersIMP=NULL;
+static IMP stringClass_stringWithStringIMP=NULL;
+
+static void initNormalHTMLChars(GSWHTMLConvertingStruct* htmlConvertStruct,
+                                NSString* normalCharsPropertyListString,
+                                NSString* htmlCharsPropertyListString)
 {
-  if (!normalChars)
+  NSArray* normalCharsStringArray=[normalCharsPropertyListString propertyList];
+  NSArray* htmlCharsStringArray=[htmlCharsPropertyListString propertyList];      
+  int i=0;
+  htmlConvertStruct->charsCount=[normalCharsStringArray count];
+  NSCAssert([htmlCharsStringArray count]==htmlConvertStruct->charsCount,
+                @"html and normal characters array have not the same count of elements");
+  htmlConvertStruct->normalChars=NSZoneMalloc(NSDefaultMallocZone(),sizeof(unichar)*(htmlConvertStruct->charsCount));
+  htmlConvertStruct->htmlChars=NSZoneMalloc(NSDefaultMallocZone(),sizeof(unichar)*(htmlCharsMaxLength+1)*(htmlConvertStruct->charsCount));
+  htmlConvertStruct->htmlCharsLen=NSZoneMalloc(NSDefaultMallocZone(),sizeof(int)*(htmlConvertStruct->charsCount));
+  
+  for(i=0;i<(htmlConvertStruct->charsCount);i++)
     {
-      normalChars = [[NORMAL_CHARS  propertyList] retain];
+      NSString* htmlString=[htmlCharsStringArray objectAtIndex:i];
+      htmlConvertStruct->htmlCharsLen[i]=[htmlString length];
+      NSCAssert1(htmlConvertStruct->htmlCharsLen[i]<=htmlCharsMaxLength,
+                 @"html character at inde i is too long",i);
+      
+      htmlConvertStruct->normalChars[i]=[[normalCharsStringArray objectAtIndex:i]characterAtIndex:0];
+      [htmlString getCharacters:htmlCharsAtIndex(htmlConvertStruct,i)];
     };
-  if (!htmlChars)
+}
+
+static void testStringByConvertingHTML();
+
+void NSStringHTML_Initialize()
+{
+  static BOOL initialized=NO;
+  if (!initialized)
     {
-      htmlChars=[[NSArray arrayWithObjects:
-                            @"&amp;",
-                          @"&gt;",	
-                          @"&lt;",	
-                          @"&quot;",
-                          @"&pound;",
-                          @"&brvbar;",	
-                          @"&deg;",
-                          @"&eacute;",							
-                          @"&ccedil;",
-                          @"&agrave;",
-                          @"&acirc;",
-                          @"&atilde;",
-                          @"&egrave;",
-                          @"&ecirc;",	
-                          @"&igrave;",
-                          @"&icirc;",							
-                          @"&ntilde;",
-                          @"&ocirc;",
-                          @"&otilde;",
-                          @"&ugrave;",
-                          @"&ucirc;",
-                          nil
-                  ] retain];
+      initialized=YES;
+
+      initNormalHTMLChars(&htmlConvertStruct,
+                          NORMAL_CHARS,
+                          HTML_CHARS);
+
+      initNormalHTMLChars(&htmlConvertAttributeValueStruct,
+                          ESCAPING_HTML_ATTRIBUTE_VALUE_NORMAL_CHARS,
+                          ESCAPING_HTML_ATTRIBUTE_VALUE_HTML_CHARS);
+
+      initNormalHTMLChars(&htmlConvertHTMLString,
+                          ESCAPING_HTML_STRING_NORMAL_CHARS,
+                          ESCAPING_HTML_STRING_HTML_CHARS);
+
+      [@"<BR>" getCharacters:unicodeBR];
+
+      ASSIGN(mutableStringClass,[NSMutableString class]);
+      ASSIGN(stringClass,[NSString class]);
+
+      stringWithCharactersSEL=@selector(stringWithCharacters:length:);
+      stringWithStringSEL=@selector(stringWithString:);
+      stringClass_stringWithCharactersIMP=[stringClass methodForSelector:stringWithCharactersSEL];
+      stringClass_stringWithStringIMP=[stringClass methodForSelector:stringWithStringSEL];
+
+      //testStringByConvertingHTML();
     };
+};
+
+//====================================================================
+#define GSWMemMove(dst,src,size);		\
+{						\
+int __size=(size);				\
+unsigned char* __dst=((char*)(dst));		\
+unsigned char* __pDst=__dst+__size;		\
+unsigned char* __pSrc=((char*)(src))+__size;	\
+while(__pDst>=__dst) *__pDst--=*__pSrc--;	\
+};
+
+void testStringByConvertingHTML()
+{
+  NSString* strings[] = { @"", @"ABCDEF", @"&12é" , @"&\n1", @"&\r\n2è", @"Relation \"eoseq_display_component\" does not exist" };
+  int i=0;
+  for(i=0;i<(sizeof(strings)/sizeof(NSString*));i++)
+    {
+      NSString* result=[strings[i] stringByConvertingToHTML];
+      NSString* reverse=[result stringByConvertingFromHTML];
+      NSDebugFLog(@"RESULT: %d: '%@' => '%@'",i,strings[i],result);
+      NSDebugFLog(@"Reverce RESULT: %d: '%@' => '%@'",i,result,reverse);
+    };
+};
+
+void allocOrReallocUnicharString(unichar** ptrPtr,int* capacityPtr,int length,int newCapacity)
+{
+  //Really need ?  
+  if (newCapacity>*capacityPtr)
+    {
+      int allocSize=newCapacity*sizeof(unichar);
+      unichar* newPtr=GSAutoreleasedBuffer(allocSize);
+
+      NSCAssert1(newPtr,@"Can't alloc %d allocSize bytes",
+                 allocSize);
+
+      if (length>0)
+        {
+          // Copy previous parts
+          GSWMemMove(newPtr,*ptrPtr,length*sizeof(unichar));
+        };
+
+      *capacityPtr=newCapacity;
+      *ptrPtr=newPtr;
+    };
+
+};
+
+//--------------------------------------------------------------------
+NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct* convStructPtr,BOOL includeCRLF)
+{
+  NSString* str=nil;
+  int length=[string length];
+  NSCAssert(convStructPtr->charsCount>0,@"normalChars not initialized");
+  if (length>0)
+    {
+      BOOL changed=NO;
+      int srcLen=0;
+      int dstLen=0;
+      unichar* dstChars=NULL;
+      int capacity=0;
+      unichar* pString=NULL;
+      int i=0;
+      int j=0;
+      int allocMargin=max(128,length/2);
+      allocOrReallocUnicharString(&pString,&capacity,0,length+1+allocMargin);
+      [string getCharacters:pString];
+      NSDebugFLog(@"string=%@",string);
+      while(i<length)
+        {
+          srcLen=0;
+          unichar c=pString[i];
+          NSDebugFLog(@"i=%d: c=%c",i,(char)c);
+          if (includeCRLF && c=='\r')
+            {
+              if (i<(length-1)
+                  && pString[i+1]=='\n')
+                {
+                  srcLen=2;
+                  dstLen=unicodeBRLen;
+                  dstChars=unicodeBR;
+                }
+              else
+                {
+                  srcLen=1;
+                  dstLen=unicodeBRLen;
+                  dstChars=unicodeBR;
+                };
+            }
+          else if (c=='\n' && includeCRLF)
+            {
+              srcLen=1;
+              dstLen=4;
+              dstChars=unicodeBR;
+            }
+          else
+            {
+              for(j=0;j<convStructPtr->charsCount;j++)
+                {
+                  if (c==convStructPtr->normalChars[j])
+                    {
+                      srcLen=1;
+                      dstLen=convStructPtr->htmlCharsLen[j];
+                      dstChars=htmlCharsAtIndex(convStructPtr,j);
+                      break;
+                    };
+                };
+            };
+          if (srcLen>0)
+            {
+              NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:dstChars
+                                                                                                length:dstLen]);
+              changed=YES;
+              NSDebugFLog(@"-1==> %@",[NSString stringWithCharacters:pString
+                                                length:length]);
+              if (length+1+dstLen-srcLen>capacity)
+                allocOrReallocUnicharString(&pString,&capacity,length,capacity+allocMargin);
+              NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
+                                               length:length]);
+              GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
+              NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
+                                               length:length+dstLen-srcLen]);
+              GSWMemMove(pString+i,dstChars,sizeof(unichar)*dstLen);
+              i+=dstLen;
+              length+=dstLen-srcLen;
+              NSDebugFLog(@"2==> i=%d %@",i,[NSString stringWithCharacters:pString
+                                                      length:length]);
+              
+            }
+          else
+            i++;
+        };
+      if (changed)
+        str=(*stringClass_stringWithCharactersIMP)(stringClass,stringWithCharactersSEL,pString,length);
+      else if ([string isKindOfClass:mutableStringClass])
+        str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
+      else
+        str=string;
+    }
+  else if ([string isKindOfClass:mutableStringClass])
+    str=@"";
+  else
+    str=AUTORELEASE(RETAIN(string));
+  return str;
+};
+
+inline BOOL areUnicharEquals(unichar* p1,unichar* p2,int len)
+{
+  switch(len)
+    {
+    case 0:
+      NSCAssert(NO,@"Too short comparaison");
+      return NO;
+    case 1:
+      return *p1==*p2;
+    case 2:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1));
+    case 3:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1)
+              && *(p1+2)==*(p2+2));
+    case 4:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1)
+              && *(p1+2)==*(p2+2)
+              && *(p1+3)==*(p2+3));
+    case 5:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1)
+              && *(p1+2)==*(p2+2)
+              && *(p1+3)==*(p2+3)
+              && *(p1+4)==*(p2+4));
+    case 6:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1)
+              && *(p1+2)==*(p2+2)
+              && *(p1+3)==*(p2+3)
+              && *(p1+4)==*(p2+4)
+              && *(p1+5)==*(p2+5));
+    case 7:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1)
+              && *(p1+2)==*(p2+2)
+              && *(p1+3)==*(p2+3)
+              && *(p1+4)==*(p2+4)
+              && *(p1+5)==*(p2+5)
+              && *(p1+6)==*(p2+6));
+    case 8:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1)
+              && *(p1+2)==*(p2+2)
+              && *(p1+3)==*(p2+3)
+              && *(p1+4)==*(p2+4)
+              && *(p1+5)==*(p2+5)
+              && *(p1+6)==*(p2+6)
+              && *(p1+7)==*(p2+7));
+    case 9:
+      return (*p1==*p2
+              && *(p1+1)==*(p2+1)
+              && *(p1+2)==*(p2+2)
+              && *(p1+3)==*(p2+3)
+              && *(p1+4)==*(p2+4)
+              && *(p1+5)==*(p2+5)
+              && *(p1+6)==*(p2+6)
+              && *(p1+7)==*(p2+7)
+              && *(p1+8)==*(p2+8));
+    default:
+      NSCAssert(NO,@"Compraison too long");
+      return NO;
+    };
+};
+
+//--------------------------------------------------------------------
+NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruct* convStructPtr,BOOL includeBR)
+{
+  NSString* str=nil;
+  int length=[string length];
+  NSCAssert(convStructPtr->charsCount>0,@"normalChars not initialized");
+  if (length>0)
+    {
+      BOOL changed=NO;
+      int srcLen=0;
+      int dstLen=0;
+      unichar dstUnichar;
+      unichar* pString=GSAutoreleasedBuffer((length+1)*sizeof(unichar));
+      int i=0;
+      int j=0;
+      [string getCharacters:pString];
+      NSDebugFLog(@"string=%@",string);
+      while(i<(length-2)) // at least 2 characters for html coded
+        {
+          srcLen=0;
+          NSDebugFLog(@"i=%d: c=%@",i,[NSString stringWithCharacters:pString+i
+                                                length:length-i]);
+          if (includeBR
+              && length-i>=unicodeBRLen
+              && areUnicharEquals(pString+i,unicodeBR,unicodeBRLen))
+            {
+              srcLen=unicodeBRLen;
+              dstLen=1;
+              dstUnichar='\n';
+            }
+          else
+            {
+              for(j=0;j<convStructPtr->charsCount;j++)
+                {
+                  if (length-i>=convStructPtr->htmlCharsLen[j]
+                      && areUnicharEquals(pString+i,htmlCharsAtIndex(convStructPtr,j),convStructPtr->htmlCharsLen[j]))
+                    {
+                      srcLen=convStructPtr->htmlCharsLen[j];
+                      dstLen=1;
+                      dstUnichar=convStructPtr->normalChars[j];
+                      break;
+                    }
+                };
+            };
+          if (srcLen>0)
+            {
+              NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:&dstUnichar
+                                                                                                length:dstLen]);
+              changed=YES;
+              NSDebugFLog(@"-1==> %@",[NSString stringWithCharacters:pString
+                                                length:length]);
+              NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
+                                               length:length]);
+              GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
+              NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
+                                               length:length+dstLen-srcLen]);
+              GSWMemMove(pString+i,&dstUnichar,sizeof(unichar)*dstLen);
+              i+=dstLen;
+              length+=dstLen-srcLen;
+              NSDebugFLog(@"2==> i=%d %@",i,[NSString stringWithCharacters:pString
+                                                      length:length]);
+            };
+          if (srcLen==0)
+            i++;
+        };
+      if (changed)
+        str=(*stringClass_stringWithCharactersIMP)(stringClass,stringWithCharactersSEL,pString,length);
+      else if ([string isKindOfClass:mutableStringClass])
+        str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
+      else
+        str=string;
+    }
+  else if ([string isKindOfClass:mutableStringClass])
+    str=@"";
+  else
+    str=AUTORELEASE(RETAIN(string));
+  return str;
 };
 
 //====================================================================
@@ -316,6 +696,7 @@ initHtmlChars()
                withOptionUnescape:unescape
                forceArray:NO];
 };
+
 //--------------------------------------------------------------------
 -(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
                           withSep2:(NSString*)sep2
@@ -323,12 +704,15 @@ initHtmlChars()
                         forceArray:(BOOL)forceArray// Put value in array even if there's only one value
 {
   NSMutableDictionary*  pDico=nil;
-  if	([self length]>0)
+  if ([self length]>0)
     {
       NSArray* listItems = [self componentsSeparatedByString:sep1];
       int iCount=0;
+      int itemsCount=[listItems count];
+
       pDico=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-      for(iCount=0;iCount<[listItems count];iCount++)
+
+      for(iCount=0;iCount<itemsCount;iCount++)
         {
           if ([[listItems objectAtIndex:iCount] length]>0)
             {
@@ -423,137 +807,37 @@ initHtmlChars()
 //--------------------------------------------------------------------
 -(NSString*)stringByEscapingHTMLString
 {
-  //TODO speed
-  NSString* str=nil;
-  if ([self length]>0)
-    {
-      NSMutableString* tmp=[self mutableCopy];
-      [tmp replaceString:@"&" withString:@"&amp;"];
-      [tmp replaceString:@"\"" withString:@"&quot;"];
-      [tmp replaceString:@"<" withString:@"&lt;"];
-      [tmp replaceString:@">" withString:@"&gt;"];
-      str = AUTORELEASE([tmp copy]);
-      RELEASE(tmp);
-    };
-  return str;
+  return stringByEscapingHTMLString(self);
 };
 
 //--------------------------------------------------------------------
 -(NSString*)stringByEscapingHTMLAttributeValue
 {
-  //TODO speed
-  NSString* str=nil;
-  if ([self length]>0)
-    {
-      NSMutableString* tmp=[self mutableCopy];
-      [tmp replaceString:@"&" withString:@"&amp;"];
-      [tmp replaceString:@"\"" withString:@"&quot;"];
-      [tmp replaceString:@"<" withString:@"&lt;"];
-      [tmp replaceString:@">" withString:@"&gt;"];
-      [tmp replaceString:@"\t" withString:@"&#9;"];
-      [tmp replaceString:@"\n" withString:@"&#10;"];
-      [tmp replaceString:@"\r" withString:@"&#13;"];
-      str = AUTORELEASE([tmp copy]);
-      RELEASE(tmp);
-    };
-  return str;
+return stringByEscapingHTMLAttributeValue(self);
 };
 
 //--------------------------------------------------------------------
 -(NSString*)stringByConvertingToHTMLEntities
 {
-  //TODO speed
-  NSString* str=nil;
-  if ([self length]>0)
-    {
-      int i=0;
-      NSMutableString* tmp=[self mutableCopy];
-      if (!normalChars)
-        initHtmlChars();
-      for(i=0;i<[normalChars count];i++)
-        {
-          [tmp replaceString:[normalChars objectAtIndex:i]
-               withString:[htmlChars objectAtIndex:i]];
-        };
-      str = AUTORELEASE([tmp copy]);
-      RELEASE(tmp);
-    };
-  return str;
+  return stringByConvertingToHTMLEntities(self);
 };
 
 //--------------------------------------------------------------------
 -(NSString*)stringByConvertingFromHTMLEntities
 {
-  NSString* str=nil;
-  if ([self length]>0)
-    {
-      int i=0;
-      NSMutableString* tmp=[self mutableCopy];
-      if (!normalChars)
-        initHtmlChars();
-      for(i=0;i<[normalChars count];i++)
-        {
-          [tmp replaceString:[htmlChars objectAtIndex:i]
-               withString:[normalChars objectAtIndex:i]];
-        };
-      str = AUTORELEASE([tmp copy]);
-      RELEASE(tmp);
-    };
-  return str;
+  return stringByConvertingFromHTMLEntities(self);
 };
 
 //--------------------------------------------------------------------
 -(NSString*)stringByConvertingToHTML
 {
-  NSString* str=nil;
-  if ([self length]>0)
-    {
-      //TODO speed
-      //From -stringByConvertingToHTMLEntities
-      int i=0;
-      NSMutableString* tmp=[self mutableCopy];
-      if (!normalChars)
-        initHtmlChars();
-      for(i=0;i<[normalChars count];i++)
-        {
-          [tmp replaceString:[normalChars objectAtIndex:i]
-               withString:[htmlChars objectAtIndex:i]];
-        };
-      //End From -stringByConvertingToHTMLEntities
-
-      [tmp replaceString:@"\r\n" withString:@"<BR>"];
-      [tmp replaceString:@"\r" withString:@"<BR>"];
-      [tmp replaceString:@"\n" withString:@"<BR>"];
-      str = AUTORELEASE([tmp copy]);
-      RELEASE(tmp);
-    };
-  return str;
+  return stringByConvertingToHTML(self);
 };
 
 //--------------------------------------------------------------------
 -(NSString*)stringByConvertingFromHTML
 {
-  NSString* str=nil;
-  if ([self length]>0)
-    {
-      //TODO speed
-      //From -stringByConvertingFromHTMLEntities
-      int i=0;
-      NSMutableString* tmp=[self mutableCopy];
-      if (!normalChars)
-        initHtmlChars();
-      for(i=0;i<[normalChars count];i++)
-        {
-          [tmp replaceString:[htmlChars objectAtIndex:i]
-               withString:[normalChars objectAtIndex:i]];
-        };
-      //End From -stringByConvertingFromHTMLEntities
-
-      [tmp replaceString:@"<BR>" withString:@"\n"];
-      str = AUTORELEASE([tmp copy]);
-      RELEASE(tmp);
-    };
-  return str;
+  return stringByConvertingFromHTML(self);
 };
 
 @end

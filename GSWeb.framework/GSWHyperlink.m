@@ -34,8 +34,24 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWHyperlink
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWHyperlink class])
+    {
+      standardClass=[GSWHyperlink class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -280,60 +296,64 @@ RCS_ID("$Id$")
 @implementation GSWHyperlink (GSWHyperlinkA)
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   //OK (pageName/action/directActionName)
-  GSWComponent* component=[context component];
+  GSWComponent* component=GSWContext_component(aContext);
   BOOL disabledValue=NO;
   BOOL displayDisabledValue=YES;
-  GSWDeclareDebugElementIDsCount(context);
+  GSWDeclareDebugElementIDsCount(aContext);
 
   LOGObjectFnStart();
 
   NS_DURING
     {
-      GSWStartElement(context);
-      GSWSaveAppendToResponseElementID(context);
+      GSWStartElement(aContext);
+      GSWSaveAppendToResponseElementID(aContext);
       if (_disabled)
-        disabledValue=[self evaluateCondition:_disabled
-                            inContext:context];
+        {
+          disabledValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                 standardEvaluateConditionInContextIMP,
+                                                                 _disabled,aContext);
+        }
       else if (_enabled)
-        disabledValue=![self evaluateCondition:_enabled
-                             inContext:context];
+        {
+          disabledValue!=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                  standardEvaluateConditionInContextIMP,
+                                                                  _enabled,aContext);
+        };
       
       if (!WOStrictFlag && disabledValue && _displayDisabled)
         {
-          displayDisabledValue=[self evaluateCondition:_displayDisabled
-                                     inContext:context];
+          displayDisabledValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                        standardEvaluateConditionInContextIMP,
+                                                                        _displayDisabled,aContext);
         };
       if (!disabledValue)
         {
-          [response _appendContentAsciiString:@"<A "];
-          [response _appendContentAsciiString:@"href"];
-          [response appendContentCharacter:'='];
-          [response appendContentCharacter:'"'];
+          GSWResponse_appendContentAsciiString(aResponse,@"<A href=\"");
           
           if (_href)
             {
-              NSString* hrefValue=[self hrefInContext:context];
-              [response appendContentString:hrefValue];
+              NSString* hrefValue=[self hrefInContext:aContext];
+              GSWResponse_appendContentString(aResponse,hrefValue);
               if (!hrefValue)
                 {
                   LOGSeriousError(@"href=%@ shouldn't return a nil value",_href);
                 };
               NSDebugMLLog(@"gswdync",@"href=%@",_href);
               NSDebugMLLog(@"gswdync",@"hrefValue=%@",hrefValue);
-              [self _appendQueryStringToResponse:response
-                    inContext:context];
-              [self _appendFragmentToResponse:response
-                    inContext:context];
+              [self _appendQueryStringToResponse:aResponse
+                    inContext:aContext];
+              [self _appendFragmentToResponse:aResponse
+                    inContext:aContext];
             }
           else if (_actionClass || _directActionName)
             {
               //OK
-              [self _appendCGIActionURLToResponse:response
-                    inContext:context];
+              [self _appendCGIActionURLToResponse:aResponse
+                    inContext:aContext];
             }
           else if (_action || _pageName || _redirectURL)
             {
@@ -341,26 +361,29 @@ RCS_ID("$Id$")
               NSString* anUrl=nil;
               BOOL completeUrlsPreviousState=NO;
               BOOL isSecure=NO;
-              BOOL requestIsSecure=[[context request]isSecure];
+              BOOL requestIsSecure=[[aContext request]isSecure];
           
               if (_secure)
-                isSecure=[self evaluateCondition:_secure
-                               inContext:context];
+                {
+                  isSecure=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                    standardEvaluateConditionInContextIMP,
+                                                                    _secure,aContext);
+                }
               else
                 isSecure=requestIsSecure;
 
               // Force complete URLs
               if (isSecure!=requestIsSecure)
-                completeUrlsPreviousState=[context _generateCompleteURLs];
-              anUrl=(NSString*)[context componentActionURLIsSecure:isSecure];
+                completeUrlsPreviousState=[aContext _generateCompleteURLs];
+              anUrl=(NSString*)[aContext componentActionURLIsSecure:isSecure];
               NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
-              [response appendContentString:anUrl];
-              [self _appendQueryStringToResponse:response
-                    inContext:context];
-              [self _appendFragmentToResponse:response
-                    inContext:context];
+              GSWResponse_appendContentString(aResponse,anUrl);
+              [self _appendQueryStringToResponse:aResponse
+                    inContext:aContext];
+              [self _appendFragmentToResponse:aResponse
+                    inContext:aContext];
               if (isSecure!=requestIsSecure && !completeUrlsPreviousState)
-                [context _generateRelativeURLs];
+                [aContext _generateRelativeURLs];
             }
           else if (!WOStrictFlag && (_filename || _data))
             {
@@ -398,10 +421,10 @@ RCS_ID("$Id$")
                   NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
                   filenameValue=[_filename valueInComponent:component];
                   NSDebugMLLog(@"gswdync",@"filenameValue=%@",filenameValue);
-                  frameworkValue=[self frameworkNameInContext:context];
+                  frameworkValue=[self frameworkNameInContext:aContext];
                   NSDebugMLLog(@"gswdync",@"frameworkValue=%@",frameworkValue);
-                  request=[context request];
-                  languages=[context languages];
+                  request=[aContext request];
+                  languages=[aContext languages];
                   anUrl=[resourceManager urlForResourceNamed:filenameValue
                                          inFramework:frameworkValue
                                          languages:languages
@@ -409,22 +432,22 @@ RCS_ID("$Id$")
                 };
               if (_key || _data)
                 {
-                  [urlValuedElementData appendDataURLToResponse:response
-                                        inContext:context];
+                  [urlValuedElementData appendDataURLToResponse:aResponse
+                                        inContext:aContext];
                 }
               else if (_filename)
                 {
-                  [response appendContentString:anUrl];
+                  GSWResponse_appendContentString(aResponse,anUrl);
                 };
             }
           else
             {		  
-              [self _appendQueryStringToResponse:response
-                    inContext:context];
-              [self _appendFragmentToResponse:response
-                    inContext:context];
+              [self _appendQueryStringToResponse:aResponse
+                    inContext:aContext];
+              [self _appendFragmentToResponse:aResponse
+                    inContext:aContext];
             };
-          [response appendContentCharacter:'"'];
+          GSWResponse_appendContentCharacter(aResponse,'"');
           NSDebugMLLog(@"gswdync",@"otherAssociations=%@",_otherAssociations);
           if (_otherAssociations)
             {
@@ -436,28 +459,28 @@ RCS_ID("$Id$")
                   NSDebugMLLog(@"gswdync",@"aKey=%@",aKey);
                   oaValue=[[_otherAssociations objectForKey:aKey] valueInComponent:component];
                   NSDebugMLLog(@"gswdync",@"oaValue=%@",oaValue);
-                  [response appendContentCharacter:' '];
-                  [response _appendContentAsciiString:aKey];
-                  [response appendContentCharacter:'='];
-                  [response appendContentCharacter:'"'];
-                  [response appendContentHTMLString:oaValue];
-                  [response appendContentCharacter:'"'];
+                  GSWResponse_appendContentCharacter(aResponse,' ');
+                  GSWResponse_appendContentAsciiString(aResponse,aKey);
+                  GSWResponse_appendContentCharacter(aResponse,'=');
+                  GSWResponse_appendContentCharacter(aResponse,'"');
+                  GSWResponse_appendContentHTMLString(aResponse,oaValue);
+                  GSWResponse_appendContentCharacter(aResponse,'"');
                 };
             };
-          [response appendContentCharacter:'>'];
+          GSWResponse_appendContentCharacter(aResponse,'>');
         };
       if (!disabledValue || displayDisabledValue)
         {
-          [self _appendChildrenToResponse:response
-                inContext:context];
+          [self _appendChildrenToResponse:aResponse
+                inContext:aContext];
         };
       if (!disabledValue)//??
         {
-          [response _appendContentAsciiString:@"</a>"];
+          GSWResponse_appendContentAsciiString(aResponse,@"</a>");
         };
 
-      GSWStopElement(context);
-      GSWAssertDebugElementIDsCount(context);
+      GSWStopElement(aContext);
+      GSWAssertDebugElementIDsCount(aContext);
     }
   NS_HANDLER
     {
@@ -475,11 +498,11 @@ RCS_ID("$Id$")
 
 //GSWeb Addintions {
 //--------------------------------------------------------------------
--(NSString*)frameworkNameInContext:(GSWContext*)context
+-(NSString*)frameworkNameInContext:(GSWContext*)aContext
 {
   //OK
   NSString* frameworkName=nil;  
-  GSWComponent* component=[context component];
+  GSWComponent* component=GSWContext_component(aContext);
   NSDebugMLog(@"framework=%@",_framework);
   if (_framework)
     frameworkName=[_framework valueInComponent:component];
@@ -489,8 +512,8 @@ RCS_ID("$Id$")
 };
 // }
 //--------------------------------------------------------------------
--(void)_appendCGIActionURLToResponse:(GSWResponse*)response
-                           inContext:(GSWContext*)context
+-(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
+                           inContext:(GSWContext*)aContext
 {
   //OK
   NSString* actionString=nil;
@@ -502,51 +525,54 @@ RCS_ID("$Id$")
   NSString* urlPrefix=nil;
   LOGObjectFnStart();
 
-  actionString=[self computeActionStringInContext:context];
+  actionString=[self computeActionStringInContext:aContext];
   NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);
 
-  queryDictionary=[self computeQueryDictionaryInContext:context];
+  queryDictionary=[self computeQueryDictionaryInContext:aContext];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);
 
-  requestIsSecure=[[context request]isSecure];
+  requestIsSecure=[[aContext request]isSecure];
   if (_secure)
-    isSecure=[self evaluateCondition:_secure
-                   inContext:context];
+    {
+      isSecure=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                        standardEvaluateConditionInContextIMP,
+                                                        _secure,aContext);
+    }
   else
     isSecure=requestIsSecure;
   
   // Force complete URLs is secure mode is not the same
   if (isSecure!=requestIsSecure)
-    completeUrlsPreviousState=[context _generateCompleteURLs];
+    completeUrlsPreviousState=[aContext _generateCompleteURLs];
 
   if (_urlPrefix)
     {
-      GSWComponent* component=[context component];
+      GSWComponent* component=GSWContext_component(aContext);
       urlPrefix=[_urlPrefix valueInComponent:component];
-      anUrl=(NSString*)[context directActionURLForActionNamed:actionString
+      anUrl=(NSString*)[aContext directActionURLForActionNamed:actionString
                                 urlPrefix:urlPrefix
                                 queryDictionary:queryDictionary
                                 isSecure:isSecure];
     }
   else
-      anUrl=(NSString*)[context directActionURLForActionNamed:actionString
+      anUrl=(NSString*)[aContext directActionURLForActionNamed:actionString
                                 queryDictionary:queryDictionary
                                 isSecure:isSecure];
 
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
 
   if (isSecure!=requestIsSecure && !completeUrlsPreviousState)
-    [context _generateRelativeURLs];
+    [aContext _generateRelativeURLs];
 
-  [response appendContentString:anUrl];
+  GSWResponse_appendContentString(aResponse,anUrl);
 
-  [self _appendFragmentToResponse:response
-        inContext:context];
+  [self _appendFragmentToResponse:aResponse
+        inContext:aContext];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(NSString*)computeActionStringInContext:(GSWContext*)context
+-(NSString*)computeActionStringInContext:(GSWContext*)aContext
 {
   NSString* actionString=nil;
   LOGObjectFnStart();
@@ -556,19 +582,19 @@ RCS_ID("$Id$")
                                         directActionNameAssociation:_directActionName
                                         pathQueryDictionaryAssociation:_pathQueryDictionary
                                         otherPathQueryAssociations:_otherPathQueryAssociations
-                                        inContext:context];
+                                        inContext:aContext];
   NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);  
   LOGObjectFnStop();
   return actionString;
 };
 
 //--------------------------------------------------------------------
--(void)_appendQueryStringToResponse:(GSWResponse*)response
-                          inContext:(GSWContext*)context
+-(void)_appendQueryStringToResponse:(GSWResponse*)aResponse
+                          inContext:(GSWContext*)aContext
 {
   NSDictionary* queryDictionary=nil;
   LOGObjectFnStart();
-  queryDictionary=[self computeQueryDictionaryInContext:context];
+  queryDictionary=[self computeQueryDictionaryInContext:aContext];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);  
 
   //TODOV
@@ -578,23 +604,23 @@ RCS_ID("$Id$")
       id aKey=nil;
       id value=nil;
       BOOL first=YES;
-      [response appendContentCharacter:'?'];
+      GSWResponse_appendContentCharacter(aResponse,'?');
       while ((aKey = [_enumerator nextObject]))
         {
           NSDebugMLLog(@"gswdync",@"aKey=%@",aKey);  
           if (first)
             first=NO;
           else
-            [response appendContentCharacter:'&'];
-          [response appendContentHTMLString:aKey];
+            GSWResponse_appendContentCharacter(aResponse,'&');
+          GSWResponse_appendContentHTMLString(aResponse,aKey);
           value=[queryDictionary objectForKey:aKey];
           NSDebugMLLog(@"gswdync",@"value=%@",value);  
           value=[value description];
           NSDebugMLLog(@"gswdync",@"value=%@",value);  
           if ([value length]>0)
             {
-              [response appendContentCharacter:'='];
-              [response appendContentHTMLString:value];
+              GSWResponse_appendContentCharacter(aResponse,'=');
+              GSWResponse_appendContentHTMLString(aResponse,value);
             };
         };
     };
@@ -602,7 +628,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context
+-(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)aContext
 {
   NSDictionary* queryDictionary=nil;
   LOGObjectFnStart();
@@ -614,27 +640,27 @@ RCS_ID("$Id$")
                                            directActionNameAssociation:_directActionName
                                            queryDictionaryAssociation:_queryDictionary
                                            otherQueryAssociations:_otherQueryAssociations
-                                           inContext:context];
+                                           inContext:aContext];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);  
   LOGObjectFnStop();
   return queryDictionary;
 };
 
 //--------------------------------------------------------------------
--(void)_appendFragmentToResponse:(GSWResponse*)response
-                       inContext:(GSWContext*)context
+-(void)_appendFragmentToResponse:(GSWResponse*)aResponse
+                       inContext:(GSWContext*)aContext
 {
   //OK
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"_fragmentIdentifier=%@",_fragmentIdentifier);
   if (_fragmentIdentifier)
     {
-      id fragment=[_fragmentIdentifier valueInComponent:[context component]];
+      id fragment=[_fragmentIdentifier valueInComponent:GSWContext_component(aContext)];
       NSDebugMLLog(@"gswdync",@"fragment=%@",fragment);
       if (fragment)
         {
-          [response appendContentCharacter:'#'];
-          [response appendContentString:fragment];
+          GSWResponse_appendContentCharacter(aResponse,'#');
+          GSWResponse_appendContentString(aResponse,fragment);
         };
     };
   LOGObjectFnStop();
@@ -650,20 +676,22 @@ RCS_ID("$Id$")
       id stringValue=nil;
 
       NSDebugMLLog(@"gswdync",@"string=%@",_string);
-      stringValue=[_string valueInComponent:[aContext component]];
+      stringValue=[_string valueInComponent:GSWContext_component(aContext)];
       NSDebugMLLog(@"gswdync",@"stringValue=%@",stringValue);
 
       if (stringValue)
         {
           BOOL escapeHTMLValue=YES;
           if (!WOStrictFlag && _escapeHTML)
-            escapeHTMLValue=[self evaluateCondition:_escapeHTML
-                                  inContext:aContext];
-
+            {
+              escapeHTMLValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                       standardEvaluateConditionInContextIMP,
+                                                                       _escapeHTML,aContext);
+            };
           if (escapeHTMLValue)
-            [aResponse appendContentHTMLString:stringValue];
+            GSWResponse_appendContentHTMLString(aResponse,stringValue);
           else
-            [aResponse appendContentString:stringValue];
+            GSWResponse_appendContentString(aResponse,stringValue);
         };
     };
   LOGObjectFnStop();
@@ -679,22 +707,28 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"gswdync",@"_children=%p",_children);
   if (_children)
     {
-      [aContext appendZeroElementIDComponent];
+      GSWContext_appendZeroElementIDComponent(aContext);
       [_children appendToResponse:aResponse
                  inContext:aContext];
-      [aContext deleteLastElementIDComponent];
+      GSWContext_deleteLastElementIDComponent(aContext);
     };
   LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 //NDFN
--(NSString*)hrefInContext:(GSWContext*)context
+-(NSString*)hrefInContext:(GSWContext*)aContext
 {
   GSWComponent* component=nil;
   NSString* hrefValue=nil;
-  component=[context component];
+
+  LOGObjectFnStart();
+
+  component=GSWContext_component(aContext);
   hrefValue=[_href valueInComponent:component];
+
+  LOGObjectFnStop();
+
   return hrefValue;
 };
 @end
@@ -703,24 +737,24 @@ RCS_ID("$Id$")
 @implementation GSWHyperlink (GSWHyperlinkB)
 //--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context
+                           inContext:(GSWContext*)aContext
 {
   //OK
   GSWElement* element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
-  GSWDeclareDebugElementIDsCount(context);
+  GSWDeclareDebugElementIDsCount(aContext);
 
   LOGObjectFnStart();
 
-  GSWStartElement(context);
-  GSWAssertCorrectElementID(context);
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
 
-  senderID=[context senderID];
-  elementID=[context elementID];
+  senderID=GSWContext_senderID(aContext);
+  elementID=GSWContext_elementID(aContext);
   if ([elementID isEqualToString:senderID])
     {
-      GSWComponent* component=[context component];
+      GSWComponent* component=GSWContext_component(aContext);
       if (_action)
         {
           NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke action=%@",_action);
@@ -734,11 +768,11 @@ RCS_ID("$Id$")
               else 
                 {
                   // call awakeInContext when _element is sleeping deeply
-                  [(GSWComponent*)element ensureAwakeInContext:context];
+                  [(GSWComponent*)element ensureAwakeInContext:aContext];
                   /*
-                    if (![_element context]) {
+                    if (![_element aContext]) {
                     NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
-                    [_element awakeInContext:context];
+                    [_element awakeInContext:aContext];
                     }
                   */
                 }
@@ -749,7 +783,7 @@ RCS_ID("$Id$")
           id pageNameValue=nil;
           pageNameValue=[_pageName valueInComponent:component];
           element=[GSWApp pageWithName:pageNameValue
-                          inContext:context];
+                          inContext:aContext];
           NSDebugMLLog(@"gswdync",@"element=%@",element);
           if (!WOStrictFlag && element)//GNUstepWeb only
             {
@@ -784,7 +818,7 @@ RCS_ID("$Id$")
         {
           NSString* anUrl=[_redirectURL valueInComponent:component];
           id redirectComponent = [GSWApp pageWithName:@"GSWRedirect"
-                                         inContext:context];
+                                         inContext:aContext];
           [redirectComponent setURL: (id)anUrl];
           element=redirectComponent;
         }
@@ -799,24 +833,24 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke _element=%@",element);
       //TODOV
       if (!element)
-        element=[context page];
+        element=[aContext page];
       //the end ?
     }
   else
     {
       if (_children)
         {
-          [context appendZeroElementIDComponent];
+          GSWContext_appendZeroElementIDComponent(aContext);
           element=[_children invokeActionForRequest:request
-                             inContext:context];
-          [context deleteLastElementIDComponent];
+                             inContext:aContext];
+          GSWContext_deleteLastElementIDComponent(aContext);
         };
     };
   NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke element=%@",element);
-  NSDebugMLLog(@"gswdync",@"senderID=%@",[context senderID]);
+  NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
 
-  GSWStopElement(context);
-  GSWAssertDebugElementIDsCount(context);
+  GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
 
   LOGObjectFnStop();
 

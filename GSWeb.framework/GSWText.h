@@ -1,6 +1,6 @@
 /** GSWText.h - <title>GSWeb: Class GSWText</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -40,24 +40,16 @@
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;
 
--(NSString*)description;
 -(NSString*)elementName;
 
-@end
-
-//====================================================================
-@interface GSWText (GSWTextA)
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
 
 -(NSString*)_filterSoftReturnsFromString:(NSString*)string;
 @end
 
 //====================================================================
-@interface GSWText (GSWTextB)
+@interface GSWText (GSWTextA)
 -(BOOL)appendStringAtRight:(id)unkwnon
                withMapping:(char*)mapping;
 @end

@@ -118,6 +118,7 @@ int allow_severity = LOG_INFO;
                              service:GSWIntToNSString(_port)
 			    protocol:@"tcp"] retain];
   NSDebugDeepMLLog(@"info",@"fileHandle=%p",(void*)_fileHandle);
+  NSAssert(_fileHandle,@"No fileHandle to wait for connections");
   [[NSNotificationCenter defaultCenter] addObserver:self
 					selector: @selector(announceNewConnection:)
 					name: NSFileHandleConnectionAcceptedNotification
@@ -128,6 +129,7 @@ int allow_severity = LOG_INFO;
     object:fileHandle];
 */
   [_fileHandle acceptConnectionInBackgroundAndNotify];
+  NSAssert([_fileHandle readInProgress],@"No [_fileHandle readInProgress]");
   NSDebugDeepMLog(@"%@ - B readInProgress=%d",
 		  GSCurrentThread(),(int)[_fileHandle readInProgress]);
   [GSWApplication statusLogWithFormat:
@@ -226,7 +228,7 @@ int allow_severity = LOG_INFO;
 //--------------------------------------------------------------------
 -(id)workerThreadCountMin
 {
-  return [NSNumber numberWithInt:_workerThreadCountMin];
+  return GSWIntNumber(_workerThreadCountMin);
 };
 
 //--------------------------------------------------------------------
@@ -258,7 +260,7 @@ int allow_severity = LOG_INFO;
 //--------------------------------------------------------------------
 -(id)workerThreadCountMax
 {
-  return [NSNumber numberWithInt:_workerThreadCountMax];
+  return GSWIntNumber(_workerThreadCountMax);
 };
 
 //--------------------------------------------------------------------
@@ -300,16 +302,19 @@ int allow_severity = LOG_INFO;
   GSWDefaultAdaptorThread* newThread=nil;
   NSFileHandle* listenHandle=nil;
   NSFileHandle* inStream = nil;
-  NSCalendarDate* requestDate=nil;
-  NSString* requestDateString=nil;
+  GSWTime requestTS=0;
   NSString* connRefusedMessage=nil;
   LOGObjectFnStart();
+
+  requestTS=GSWTime_now();
+
   listenHandle=[notification object];
-  requestDate=[NSCalendarDate calendarDate];
-  requestDateString=[NSString stringWithFormat:@"%@: New Request %@",
-			      GSCurrentThread(),requestDate];
-  [GSWApplication statusLogWithFormat:@"%@",requestDateString];
+
+  [GSWApplication statusLogWithFormat:@"%@: New Request %@",
+                  GSCurrentThread(),GSWTime_format(requestTS)];
+
   NSDebugDeepMLLog(@"info",@"listenHandle=%p",(void*)listenHandle);
+
   inStream = [[notification userInfo]objectForKey:@"NSFileHandleNotificationFileHandleItem"];
   NSDebugDeepMLog(@"%@ announceNewConnection notification=%@ "
 		  @"socketAddress=%@ [notification userInfo]=%p",
@@ -317,6 +322,7 @@ int allow_severity = LOG_INFO;
                    notification,
                    [inStream socketAddress],
                    [notification userInfo]);
+
   if (![self isConnectionAllowedWithHandle:inStream
              returnedMessage:&connRefusedMessage])
     {
@@ -359,8 +365,9 @@ int allow_severity = LOG_INFO;
               NS_DURING
                 {
                   int i=0;
+                  int waitingThreadsCount=[_waitingThreads count];
                   GSWDefaultAdaptorThread* thread=nil;
-                  for(i=0;i<[_waitingThreads count];)
+                  for(i=0;i<waitingThreadsCount;)
                     {
                       thread=[_waitingThreads objectAtIndex:i];
                       if ([thread isExpired])
@@ -402,6 +409,7 @@ int allow_severity = LOG_INFO;
 	  if (newThread)
             {
               NSDebugLockMLog0(@"_newThread !");
+              [newThread setRequestTS:requestTS];
               if ([self tryLock])
                 {
                   NSDebugLockMLog0(@"locked !");
@@ -419,14 +427,10 @@ int allow_severity = LOG_INFO;
                                            _isMultiThreadEnabled);
                           if (_isMultiThreadEnabled)
                             {
-                              requestDate=[NSCalendarDate calendarDate];
-                              requestDateString
-				=[NSString stringWithFormat:@"%@ : "
-					   @"Lauch Thread (Multi) %@",
-					   GSCurrentThread(),
-					   requestDate];
-                              [GSWApplication statusLogWithFormat:@"%@",
-					      requestDateString];
+                              [GSWApplication statusLogWithFormat:@"%@ : Lauch Thread (Multi) %@",
+                                              GSCurrentThread(),
+                                              GSWTime_format(GSWTime_now())];
+
                               NSDebugLockMLLog(@"info",
                                                @"%@ : "
 					       @"Lauch Thread (Multi) %p",
@@ -477,20 +481,22 @@ int allow_severity = LOG_INFO;
             };
 	  if (!_isMultiThreadEnabled && newThread)
             {
-              requestDate=[NSCalendarDate calendarDate];
-              requestDateString=[NSString stringWithFormat:@"Lauch Thread (Mono) %@",requestDate];
-              [GSWApplication statusLogWithFormat:@"%@",requestDateString];
+              [GSWApplication statusLogWithFormat:@"Launch Thread (Mono) %@",
+                              GSWTime_format(GSWTime_now())];
+
               NSDebugLockMLLog(@"info",
-                               @"%@ %p",
-                               requestDateString,
+                               @"Launch Thread (Mono) %@ %p",
+                               GSWTime_format(GSWTime_now()),
                                (void*)newThread);
+
               [newThread run:nil];
+
               DESTROY(newThread);
-              requestDate=[NSCalendarDate calendarDate];
-              requestDateString=[NSString stringWithFormat:@"Stop Thread (Mono) %@",requestDate];
-              [GSWApplication statusLogWithFormat:@"%@",requestDateString];
-              NSDebugLockMLLog0(@"info",
-                                requestDateString);
+
+              [GSWApplication statusLogWithFormat:@"Stop Thread (Mono) %@",
+                              GSWTime_format(GSWTime_now())];
+              NSDebugLockMLLog(@"info",
+                               @"Stop Thread (Mono) %@",GSWTime_format(GSWTime_now()));
             };
         };
     };
@@ -627,7 +633,8 @@ int allow_severity = LOG_INFO;
           NS_DURING
             {
               GSWDefaultAdaptorThread* thread=nil;
-              while(!thread && [_waitingThreads count]>0)
+              int waitingThreadsCount=[_waitingThreads count];
+              while(!thread && waitingThreadsCount>0)
                 {
                   thread=[_waitingThreads objectAtIndex:0];
                   if ([thread isExpired])
@@ -638,6 +645,7 @@ int allow_severity = LOG_INFO;
                   else
                     [_threads addObject:thread];
                   [_waitingThreads removeObjectAtIndex:0];
+                  waitingThreadsCount--;
                 };
               if (thread)
                 {

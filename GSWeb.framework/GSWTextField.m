@@ -115,7 +115,7 @@ RCS_ID("$Id$")
       BOOL wasFormSubmitted=[context _wasFormSubmitted];
       if (wasFormSubmitted)
         {
-          GSWComponent* component=[context component];
+          GSWComponent* component=GSWContext_component(context);
           NSString* nameInContext=[self nameInContext:context];
           NSString* value=[request stringFormValueForKey:nameInContext];
           id resultValue=nil;
@@ -211,15 +211,15 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)appendValueToResponse:(GSWResponse*)response
-                   inContext:(GSWContext*)context
+-(void)appendValueToResponse:(GSWResponse*)aResponse
+                   inContext:(GSWContext*)aContext
 {
   id valueValue=nil;
   id formattedValue=nil;
   NSFormatter* formatter=nil;
   GSWComponent* component=nil;
   LOGObjectFnStartC("GSWTextField");
-  component=[context component];
+  component=GSWContext_component(aContext);
   valueValue=[_value valueInComponent:component];
   formatter=[self formatterForComponent:component];
   if (!formatter)
@@ -231,12 +231,12 @@ RCS_ID("$Id$")
     {
       formattedValue=[formatter stringForObjectValue:valueValue];
     };
-  [response appendContentCharacter:' '];
-  [response _appendContentAsciiString:@"value"];
-  [response appendContentCharacter:'='];
-  [response appendContentCharacter:'"'];
-  [response appendContentHTMLAttributeValue:formattedValue];
-  [response appendContentCharacter:'"'];
+  GSWResponse_appendContentCharacter(aResponse,' ');
+  GSWResponse_appendContentAsciiString(aResponse,@"value");
+  GSWResponse_appendContentCharacter(aResponse,'=');
+  GSWResponse_appendContentCharacter(aResponse,'"');
+  GSWResponse_appendContentHTMLAttributeValue(aResponse,formattedValue);
+  GSWResponse_appendContentCharacter(aResponse,'"');
   LOGObjectFnStopC("GSWTextField");
 };
 

@@ -1,6 +1,6 @@
 /** GSWInput.m - <title>GSWeb: Class GSWInput</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
@@ -30,8 +30,24 @@
 
 #include "GSWeb.h"
 
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWInput
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWInput class])
+    {
+      standardClass=[GSWInput class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -123,13 +139,12 @@
   GSWAssertIsElementID(context);
   if (_name)
     {
-      component=[context component];
+      component=GSWContext_component(context);
       nameValue=[_name valueInComponent:component];
     }
   else
     {
-      nameValue=[context elementID];
-      NSDebugMLLog(@"gswdync",@"elementID=%@",[context elementID]);
+      nameValue=GSWContext_elementID(context);
     };
   NSDebugMLLog(@"gswdync",@"nameValue=%@",nameValue);
   GSWAssertIsElementID(context);
@@ -146,7 +161,7 @@
   if (_value)
     {
       GSWComponent* component=nil;
-      component=[context component];
+      component=GSWContext_component(context);
       value=[_value valueInComponent:component];
       NSDebugMLLog(@"gswdync",@"value=%@",value);
     };
@@ -158,16 +173,28 @@
 -(BOOL)disabledInContext:(GSWContext*)context
 {
   BOOL isDisabled=NO;
+
   LOGObjectFnStartC("GSWInput");
+
   NSDebugMLLog(@"gswdync",@"_enabled=%@ _disabled=%@",_enabled,_disabled);
+
   if (!WOStrictFlag && _enabled)
-    isDisabled=![self evaluateCondition:_enabled
-                  inContext:context];
+    {
+      return !GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                       standardEvaluateConditionInContextIMP,
+                                                       _enabled,context);
+    }
   else
-    isDisabled=[self evaluateCondition:_disabled
-                     inContext:context];
+    {
+      return GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                      standardEvaluateConditionInContextIMP,
+                                                      _disabled,context);
+    };
+
   NSDebugMLLog(@"gswdync",@"isDisabled=%d",isDisabled);
+
   LOGObjectFnStopC("GSWInput");
+
   return isDisabled;
 };
 
@@ -191,7 +218,7 @@
       BOOL wasFormSubmitted=[context _wasFormSubmitted];
       if (wasFormSubmitted)
         {
-          GSWComponent* component=[context component];
+          GSWComponent* component=GSWContext_component(context);
           NSString* nameInContext=[self nameInContext:context];
           NSString* valueValue=[request formValueForKey:nameInContext];
           NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
@@ -228,68 +255,69 @@
 @implementation GSWInput (GSWInputC)
 
 //--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext
 {
-  //OK
   BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWInput");
-  disabledInContext=[self disabledInContext:context]; //return 0
+  disabledInContext=[self disabledInContext:aContext]; //return 0
   if (disabledInContext)
-    [response _appendContentAsciiString:@" disabled"];
-  [self appendNameToResponse:response
-        inContext:context];
-  [self appendValueToResponse:response
-        inContext:context];
+    GSWResponse_appendContentAsciiString(aResponse,@" disabled");
+  [self appendNameToResponse:aResponse
+        inContext:aContext];
+  [self appendValueToResponse:aResponse
+        inContext:aContext];
   LOGObjectFnStopC("GSWInput");
 };
 
 //--------------------------------------------------------------------
--(void)appendValueToResponse:(GSWResponse*)response
-                   inContext:(GSWContext*)context
+-(void)appendValueToResponse:(GSWResponse*)aResponse
+                   inContext:(GSWContext*)aContext
 {
   //OK
   id valueValue=nil;
   LOGObjectFnStartC("GSWInput");
-  valueValue=[self valueInContext:(GSWContext*)context];
+  valueValue=[self valueInContext:aContext];
   NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
   if (valueValue)
     {
-      [response appendContentCharacter:' '];
-      [response _appendContentAsciiString:@"value"];
-      [response appendContentCharacter:'='];
-      [response appendContentCharacter:'"'];
-      if (_tcEscapeHTML && [self evaluateCondition:_tcEscapeHTML 
-                                 inContext:context] == NO)
+      GSWResponse_appendContentCharacter(aResponse,' ');
+      GSWResponse_appendContentAsciiString(aResponse,@"value");
+      GSWResponse_appendContentCharacter(aResponse,'=');
+      GSWResponse_appendContentCharacter(aResponse,'"');
+      if (_tcEscapeHTML
+          && GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                      standardEvaluateConditionInContextIMP,
+                                                      _tcEscapeHTML,aContext) == NO)
         {
-          [response appendContentString:valueValue];
+          GSWResponse_appendContentString(aResponse,valueValue);
         }
       else
         {
-          [response appendContentHTMLAttributeValue:valueValue];
+          GSWResponse_appendContentHTMLAttributeValue(aResponse,valueValue);
         };
-      [response appendContentCharacter:'"'];
+      GSWResponse_appendContentCharacter(aResponse,'"');
     };
   LOGObjectFnStopC("GSWInput");
 };
 
 //--------------------------------------------------------------------
--(void)appendNameToResponse:(GSWResponse*)response
-                  inContext:(GSWContext*)context
+-(void)appendNameToResponse:(GSWResponse*)aResponse
+                  inContext:(GSWContext*)aContext
 {
   //OK
   NSString* name=nil;
   LOGObjectFnStartC("GSWInput");
-  name=[self nameInContext:context];
+  name=[self nameInContext:aContext];
   NSDebugMLLog(@"gswdync",@"name=%@",name);
   if (name)
     {
-      [response appendContentCharacter:' '];
-      [response _appendContentAsciiString:@"name"];
-      [response appendContentCharacter:'='];
-      [response appendContentCharacter:'"'];
-      [response appendContentHTMLAttributeValue:name];
-      [response appendContentCharacter:'"'];
+      GSWResponse_appendContentCharacter(aResponse,' ');
+      GSWResponse_appendContentAsciiString(aResponse,@"name");
+      GSWResponse_appendContentCharacter(aResponse,'=');
+      GSWResponse_appendContentCharacter(aResponse,'"');
+      GSWResponse_appendContentHTMLAttributeValue(aResponse,name);
+      GSWResponse_appendContentCharacter(aResponse,'"');
     };
   LOGObjectFnStopC("GSWInput");
 };
@@ -312,14 +340,14 @@
 
 //GSWeb additions {
 -(void)handleValidationException:(NSException*)exception
-                       inContext:(GSWContext*)context
+                       inContext:(GSWContext*)aContext
 {
   BOOL isValidationException=[exception isValidationException];
   BOOL raise=YES;
   LOGObjectFnStartC("GSWInput");
   if (isValidationException)
     {				  
-      GSWComponent* component=[context component];
+      GSWComponent* component=GSWContext_component(aContext);
       id handleValidationException=[handleValidationException valueInComponent:component];
       BOOL handle=NO;
       if (!handleValidationException)

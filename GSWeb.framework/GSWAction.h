@@ -56,7 +56,6 @@
 /** Returns YES if self reponds to actionName **/
 -(BOOL)isActionNamed:(NSString*)actionName;
 
--(id)existingSession;
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest;
 -(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext;
 

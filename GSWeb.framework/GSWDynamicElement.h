@@ -32,6 +32,7 @@
 #ifndef _GSWDynamicElement_h__
 	#define _GSWDynamicElement_h__
 
+GSWEB_EXPORT SEL evaluateConditionInContextSEL;
 
 //====================================================================
 @interface GSWDynamicElement : GSWElement
@@ -53,4 +54,20 @@
 -(BOOL)evaluateCondition:(id)condition
                inContext:(GSWContext*)context;
 @end
+
+static inline
+BOOL GSWDynamicElement_evaluateValueInContext(GSWDynamicElement* element,Class standardClass,
+                                              GSWIMP_BOOL imp,GSWAssociation* condition,GSWContext* context)
+{
+  if (imp && object_get_class(element)==standardClass)
+    {
+      return (*imp)(element,evaluateConditionInContextSEL,
+                    condition,context);
+    }
+  else
+    return [element evaluateCondition:condition
+            inContext:context];
+};
+
+
 #endif //_GSWDynamicElement_h__

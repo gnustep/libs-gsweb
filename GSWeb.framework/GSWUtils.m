@@ -43,7 +43,134 @@ RCS_ID("$Id$")
 #include "stacktrace.h"
 #include "attach.h"
 
+static NSNumber* cachedGSWNumber_Yes=nil;
+static NSNumber* cachedGSWNumber_No=nil;
 
+#define INT_NUMBER_CACHE_SIZE 128
+static NSNumber* GSWIntNumber_cache[INT_NUMBER_CACHE_SIZE];
+static SEL numberWithIntSEL = NULL;
+static IMP numberWithIntIMP = NULL;
+
+static SEL stringWithStringSEL = NULL;
+static IMP nsString_stringWithStringIMP = NULL;
+
+static SEL stringWithFormatSEL = NULL;
+static IMP nsString_stringWithFormatIMP = NULL;
+
+static SEL stringWithCString_lengthSEL = NULL;
+static IMP nsString_stringWithCString_lengthIMP = NULL;
+
+static Class nsNumberClass=Nil;
+static Class nsStringClass=Nil;
+static Class nsMutableStringClass=Nil;
+static Class eoNullClass=Nil;
+static Class nsNullClass=Nil;
+
+static NSMapTable* encodingsByName=NULL;
+
+//--------------------------------------------------------------------
+void GSWInitializeAllMisc()
+{
+  static BOOL initialized=NO;
+  if (!initialized)
+    {
+      initialized=YES;
+
+      // Yes & No
+      ASSIGN(cachedGSWNumber_Yes,([NSNumber numberWithBool:YES]));
+      ASSIGN(cachedGSWNumber_No,([NSNumber numberWithBool:NO]));
+
+      // GSWInt Number
+      int i=0;
+      nsNumberClass=[NSNumber class];
+      numberWithIntSEL=@selector(numberWithInt:);
+      NSCAssert(numberWithIntSEL,@"No SEL for numberWithIntSEL:");
+      numberWithIntIMP=[nsNumberClass methodForSelector:numberWithIntSEL];
+      for(i=0;i<INT_NUMBER_CACHE_SIZE;i++)
+        ASSIGN(GSWIntNumber_cache[i],((*numberWithIntIMP)(nsNumberClass,numberWithIntSEL,i)));
+
+      // Strings things
+      ASSIGN(nsStringClass,[NSString class]);
+      ASSIGN(nsMutableStringClass,[NSMutableString class]);
+      ASSIGN(eoNullClass,[EONull class]);
+      ASSIGN(nsNullClass,[NSNull class]);
+
+      stringWithStringSEL = @selector(stringWithString:);
+      NSCAssert(stringWithStringSEL,@"No SEL for stringWithString:");
+      nsString_stringWithStringIMP = [nsStringClass methodForSelector:stringWithStringSEL];
+      NSCAssert(nsString_stringWithStringIMP,@"No IMP for stringWithString:");
+
+      stringWithFormatSEL = @selector(stringWithFormat:);
+      NSCAssert(stringWithFormatSEL,@"No SEL for stringWithFormat:");
+      nsString_stringWithFormatIMP = [nsStringClass methodForSelector:stringWithFormatSEL];
+      NSCAssert(nsString_stringWithFormatIMP,@"No IMP for stringWithFormat:");
+
+      stringWithCString_lengthSEL = @selector(stringWithCString:length:);
+      NSCAssert(stringWithCString_lengthSEL,@"No SEL for stringWithCString:length::");
+      nsString_stringWithCString_lengthIMP = [nsStringClass methodForSelector:stringWithCString_lengthSEL];
+      NSCAssert(nsString_stringWithCString_lengthIMP,@"No IMP for stringWithCString:length:");
+
+      // Encodings
+      encodingsByName=NSCreateMapTable(NSObjectMapKeyCallBacks,
+                                       NSIntMapValueCallBacks,
+                                       32);
+      NSMapInsert(encodingsByName,
+                  @"NSISOLatin1StringEncoding",
+                  (const void*)NSISOLatin1StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSASCIIStringEncoding",
+                  (const void*)NSASCIIStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSISOLatin2StringEncoding",
+                  (const void*)NSISOLatin2StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSJapaneseEUCStringEncoding",
+                  (const void*)NSJapaneseEUCStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSMacOSRomanStringEncoding",
+                  (const void*)NSMacOSRomanStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSNEXTSTEPStringEncoding",
+                  (const void*)NSNEXTSTEPStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSNonLossyASCIIStringEncoding",
+                  (const void*)NSNonLossyASCIIStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSUTF8StringEncoding",
+                  (const void*)NSUTF8StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSUnicodeStringEncoding",
+                  (const void*)NSUnicodeStringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSWindowsCP1253StringEncoding",
+                  (const void*)NSWindowsCP1253StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSWindowsCP1252StringEncoding",
+                  (const void*)NSWindowsCP1252StringEncoding);
+      NSMapInsert(encodingsByName,
+                  @"NSWindowsCP1254StringEncoding",
+                  (const void*)NSWindowsCP1254StringEncoding);
+
+      // NSString+HTML
+      NSStringHTML_Initialize();
+    };
+};
+
+//--------------------------------------------------------------------
+NSNumber* GSWNumber_Yes()
+{
+  NSCAssert(cachedGSWNumber_Yes,@"cachedGSWNumber_Yes not initialized");
+  return cachedGSWNumber_Yes;
+};
+
+//--------------------------------------------------------------------
+NSNumber* GSWNumber_No()
+{
+  NSCAssert(cachedGSWNumber_No,@"cachedGSWNumber_No not initialized");
+  return cachedGSWNumber_No;
+};
+
+//--------------------------------------------------------------------
 char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int* resultLength)
 {
   int origValue=value;
@@ -78,6 +205,7 @@ char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int
   return buffer;
 };
 
+//--------------------------------------------------------------------
 NSString* cachedStringForInt(int value)
 {
   static NSString* cachedString[] = {
@@ -97,20 +225,33 @@ NSString* cachedStringForInt(int value)
     return nil;
 }
 
-
+//--------------------------------------------------------------------
 NSString* GSWIntToNSString(int value)
 {
   NSString* s=nil;
   char buffer[20];
   unsigned int resultLength=0;
   
+  NSCAssert(nsStringClass,@"GSWUtils not initialized");
+
   s=cachedStringForInt(value);
-  if (!s) {
-    GSWIntToString(buffer,20,value,&resultLength);
-    s=[NSString stringWithCString:buffer
-                length:resultLength];
-  }
+  if (!s)
+    {
+      GSWIntToString(buffer,20,value,&resultLength);
+      s=(*nsString_stringWithCString_lengthIMP)(nsStringClass,stringWithCString_lengthSEL,
+                                                buffer,resultLength);
+    }
   return s;
+};
+
+//--------------------------------------------------------------------
+NSNumber* GSWIntNumber(int value)
+{
+  NSCAssert(numberWithIntIMP,@"GSWIntNumber not initialized");
+  if (value>=0 && value<INT_NUMBER_CACHE_SIZE)
+    return GSWIntNumber_cache[value];
+  else
+    return (*numberWithIntIMP)(nsNumberClass,numberWithIntSEL,value);
 };
 
 //--------------------------------------------------------------------
@@ -128,15 +269,88 @@ BOOL ClassIsKindOfClass(Class classA,Class classB)
 };
 
 //--------------------------------------------------------------------
+GSWTime GSWTime_now()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return GSWTime_makeTimeFromSecAndUSec(tv.tv_sec,tv.tv_usec);
+}
+
+//--------------------------------------------------------------------
+time_t GSWTime_secPart(GSWTime t)
+{
+  return (time_t)(t/USEC_PER_SEC);
+};
+
+//--------------------------------------------------------------------
+long GSWTime_usecPart(GSWTime t)
+{
+  return (time_t)(t%USEC_PER_SEC);
+};
+
+//--------------------------------------------------------------------
+long GSWTime_msecPart(GSWTime t)
+{
+  return ((time_t)(t%USEC_PER_SEC))/1000;
+};
+
+//--------------------------------------------------------------------
+// 2003/12/24 22:12:25.123
+NSString* GSWTime_format(GSWTime t)
+{
+  char sDate[24];
+  struct tm stTM;
+  time_t timeSecPart=GSWTime_secPart(t);
+  long timeMSecPart=GSWTime_msecPart(t);
+  int real_year;
+
+  localtime_r(&timeSecPart,&stTM);
+  real_year = 1900 + stTM.tm_year;
+  
+  sDate[0] = real_year / 1000 + '0';
+  sDate[1] = (real_year % 1000) / 100 + '0';
+  sDate[2] = (real_year % 100) / 10 + '0';
+  sDate[3] = real_year % 10 + '0';
+
+  sDate[4] = '/';
+
+  sDate[5] = (stTM.tm_mon+1) / 10 + '0';
+  sDate[6] = (stTM.tm_mon+1) % 10 + '0';
+
+  sDate[7] = '/';
+
+  sDate[8] = stTM.tm_mday / 10 + '0';
+  sDate[9] = stTM.tm_mday % 10 + '0';
+  
+  sDate[10] = ' ';
+  sDate[11] = stTM.tm_hour / 10 + '0';
+  sDate[12] = stTM.tm_hour % 10 + '0';
+  sDate[13] = ':';
+  sDate[14] = stTM.tm_min / 10 + '0';
+  sDate[15] = stTM.tm_min % 10 + '0';
+  sDate[16] = ':';
+  sDate[17] = stTM.tm_sec / 10 + '0';
+  sDate[18] = stTM.tm_sec % 10 + '0';
+  sDate[19] = '.';
+  sDate[20] = (timeMSecPart/1000) / 100 + '0';
+  sDate[21] = ((timeMSecPart/1000) % 100) / 10 + '0';
+  sDate[22] = (timeMSecPart/1000) % 10 + '0';
+
+  sDate[23] = 0;
+  return (*nsString_stringWithCString_lengthIMP)(nsStringClass,stringWithCString_lengthSEL,
+                                                 sDate,23);
+}
+
+//--------------------------------------------------------------------
 BOOL boolValueFor(id anObject)
 {
   if (anObject)
     {
-      if (/*anObject==BNYES ||*/ anObject==NSTYES)
+      if (/*anObject==BNYES ||*/ anObject==NSTYES || anObject==GSWNumberYes)
         return YES;
-      else if (/*anObject==BNNO ||*/ anObject==NSTNO)
+      else if (/*anObject==BNNO ||*/ anObject==NSTNO || anObject==GSWNumberNo)
         return NO;
-      else if (/*[anObject conformsTo:@protocol(NSString)]*/ [anObject isKindOfClass:[NSString class]] && [anObject length]>0)
+      else if (/*[anObject conformsTo:@protocol(NSString)]*/ [anObject isKindOfClass:nsStringClass] && [anObject length]>0)
         return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
       else if ([anObject respondsToSelector:@selector(boolValue)] && [anObject boolValue])
         return YES;
@@ -161,7 +375,7 @@ BOOL boolValueWithDefaultFor(id anObject,BOOL defaultValue)
         return YES;
       else if (/*anObject==BNNO ||*/ anObject==NSTNO)
         return NO;
-      else if ([anObject isKindOfClass:[NSString class]] && [anObject length]>0)
+      else if ([anObject isKindOfClass:nsStringClass] && [anObject length]>0)
         return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
       else if ([anObject respondsToSelector:@selector(boolValue)])
         return ([anObject boolValue]!=NO);
@@ -217,12 +431,12 @@ BOOL SBIsValueEqual(id id1,id id2)
   if (!equal
       && [id1 class]!=[id2 class])
     {
-      if ([id1 isKindOfClass:[NSString class]])
+      if ([id1 isKindOfClass:nsStringClass])
         {
           NSString* id2String=NSStringWithObject(id2);
           equal=[id1 isEqualToString:id2String];
         }
-      else if ([id2 isKindOfClass:[NSString class]])
+      else if ([id2 isKindOfClass:nsStringClass])
         {
           NSString* id1String=NSStringWithObject(id1);
           equal=[id2 isEqualToString:id1String];
@@ -256,7 +470,7 @@ id GetTmpName(NSString* dir,NSString* prefix)
     }
   else
     {
-      result=[NSString stringWithCString:pszTmpFile];
+      result=[nsStringClass stringWithCString:pszTmpFile];
       free(pszTmpFile);
     };
   return result;
@@ -282,6 +496,7 @@ NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv)
   return interval;
 };
 
+//--------------------------------------------------------------------
 void NSTimeIntervalSleep(NSTimeInterval ti)
 {
   struct timespec ts;  
@@ -300,8 +515,9 @@ void NSTimeIntervalSleep(NSTimeInterval ti)
 //--------------------------------------------------------------------
 void StackTraceIFND()
 {
-  NSString* stackTraceString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/tmp/%@.stacktrace",
-                                                                          globalApplicationClassName]];
+  NSString* stackTraceString=[nsStringClass stringWithContentsOfFile:
+                                              (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"/tmp/%@.stacktrace",
+                                                             globalApplicationClassName)];
   if ([stackTraceString intValue])
     {
       StackTrace();
@@ -311,8 +527,9 @@ void StackTraceIFND()
 //--------------------------------------------------------------------
 void DebugBreakpointIFND()
 {
-  NSString* breakString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/tmp/%@.break",
-                                                                     globalApplicationClassName]];
+  NSString* breakString=[nsStringClass stringWithContentsOfFile:
+                                         (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"/tmp/%@.break",
+                                                                         globalApplicationClassName)];
   if ([breakString intValue])
     {
       DebugBreakpoint();
@@ -327,13 +544,14 @@ void ExceptionRaiseFn(const char *func,
                       NSString* format,
                       ...)
 {
-  NSString* fmt =  [NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-                             func,line,file,name,format];
+  NSString* fmt =  (*nsString_stringWithFormatIMP)
+    (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
+     func,line,file,name,format);
   NSString* string= nil;
   va_list args;
   va_start(args,format);
-  string=[NSString stringWithFormat:fmt
-                   arguments:args];
+  string=[nsStringClass stringWithFormat:fmt
+                        arguments:args];
   va_end(args);
   NSLog(@"%@",string);
   StackTraceIFND();
@@ -349,8 +567,9 @@ void ExceptionRaiseFn0(const char *func,
                        NSString* name,
                        NSString* format)
 {
-  NSString* string =  [NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-                                func,line,file,name,format];
+  NSString* string =  (*nsString_stringWithFormatIMP)
+    (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
+     func,line,file,name,format);
   NSLog(@"%@",string);
   StackTraceIFND();
   DebugBreakpointIFND();
@@ -368,19 +587,20 @@ void ValidationExceptionRaiseFn(const char *func,
                                 ...)
 {
   NSException* exception=nil;
-  NSString* fmt=[NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-                          func,line,file,name,format];
+  NSString* fmt=(*nsString_stringWithFormatIMP)
+    (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
+     func,line,file,name,format);
   NSString* string=nil;
   va_list args;
   va_start(args,format);
-  string=[NSString stringWithFormat:fmt
-                   arguments:args];
+  string=[nsStringClass stringWithFormat:fmt
+                        arguments:args];
   va_end(args);
   NSLog(@"%@",string);
   exception=[NSException exceptionWithName:name
                          reason:string
                          userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  [NSNumber numberWithBool:YES],@"isValidationException",
+                                                  GSWNumberYes,@"isValidationException",
                                                 message,@"message",
                                                 nil,nil]];
   StackTraceIFND();
@@ -397,13 +617,14 @@ void ValidationExceptionRaiseFn0(const char *func,
                                  NSString* format)
 {
   NSException* exception=nil;
-  NSString* string=[NSString stringWithFormat:@"File %s: %d. In %s EXCEPTION %@: %@",
-                             func,line,file,name,format];
+  NSString* string=(*nsString_stringWithFormatIMP)
+    (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
+     func,line,file,name,format);
   NSLog(@"%@",string);
   exception=[NSException exceptionWithName:name
                          reason:format
                          userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  [NSNumber numberWithBool:YES],@"isValidationException",
+                                                  GSWNumberYes,@"isValidationException",
                                                 message,@"message",
                                                 nil,nil]];
   StackTraceIFND();
@@ -413,6 +634,8 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 //====================================================================
 @implementation NSException (NSBuild)
+
+//--------------------------------------------------------------------
 +(NSException*)exceptionWithName:(NSString*)excptName
                           format:(NSString*)format,...
 {
@@ -420,8 +643,8 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSString* excptReason=nil;
   va_list args;
   va_start(args,format);
-  excptReason=[NSString stringWithFormat:format
-			arguments:args];
+  excptReason=[nsStringClass stringWithFormat:format
+                             arguments:args];
   va_end(args);
   exception=[self exceptionWithName:excptName
                   reason:excptReason
@@ -433,6 +656,7 @@ void ValidationExceptionRaiseFn0(const char *func,
 //====================================================================
 @implementation NSException (NSExceptionUserInfoAdd)
 
+//--------------------------------------------------------------------
 -(NSException*)exceptionByAddingUserInfo:(NSDictionary*)aUserInfo
 {
   NSMutableDictionary* excptUserInfo
@@ -443,6 +667,7 @@ void ValidationExceptionRaiseFn0(const char *func,
                       userInfo: excptUserInfo];
 };
 
+//--------------------------------------------------------------------
 -(NSException*)exceptionByAddingToUserInfoKey:(id)key
                                        format:(NSString*)format,...
 {
@@ -453,8 +678,8 @@ void ValidationExceptionRaiseFn0(const char *func,
   LOGObjectFnStart();
   excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format);
-  userInfoString = [NSString stringWithFormat:format
-                             arguments:args];
+  userInfoString = [nsStringClass stringWithFormat:format
+                                  arguments:args];
   va_end(args);
   {
     id curArray = [excptUserInfo objectForKey:key];
@@ -480,6 +705,7 @@ void ValidationExceptionRaiseFn0(const char *func,
 };
 
 
+//--------------------------------------------------------------------
 -(NSException*)exceptionByAddingUserInfoKey:(id)key
                                      format:(NSString*)format,...
 {
@@ -490,8 +716,8 @@ void ValidationExceptionRaiseFn0(const char *func,
   LOGObjectFnStart();
   excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format);
-  userInfoString = [NSString stringWithFormat:format
-                             arguments:args];
+  userInfoString = [nsStringClass stringWithFormat:format
+                                  arguments:args];
   va_end(args);
   [excptUserInfo setObject:userInfoString
 		 forKey:key];
@@ -502,6 +728,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   return exception;
 };
 
+//--------------------------------------------------------------------
 -(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo
 {
   NSException* exception=nil;
@@ -524,6 +751,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   return exception;
 };
 
+//--------------------------------------------------------------------
 -(NSException*)exceptionByAddingUserInfoFrameInfoFormat:(NSString*)format,...
 {
   NSException* exception=nil;
@@ -531,14 +759,15 @@ void ValidationExceptionRaiseFn0(const char *func,
   va_list args;
   LOGObjectFnStart();
   va_start(args,format);
-  frameInfo = [NSString stringWithFormat:format
-                        arguments:args];
+  frameInfo = [nsStringClass stringWithFormat:format
+                             arguments:args];
   va_end(args);
   exception=[self exceptionByAddingUserInfoFrameInfo:frameInfo];
   LOGObjectFnStop();
   return exception;
 };
 
+//--------------------------------------------------------------------
 -(NSException*)exceptionByAddingUserInfoFrameInfoObject:(id)obj
                                                     sel:(SEL)sel
                                                    file:(const char*)file
@@ -557,22 +786,23 @@ void ValidationExceptionRaiseFn0(const char *func,
       c = '-';
       cls = [obj class];
     };
-  fmt = [NSString stringWithFormat: @"%s: %d. In [%@ %c%@] %@",
-                  file,
-                  line,
-                  NSStringFromClass(cls),
-                  c,
-                  NSStringFromSelector(sel),
-                  format];
+  fmt = (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"%s: %d. In [%@ %c%@] %@",
+                                        file,
+                                        line,
+                                        NSStringFromClass(cls),
+                                        c,
+                                        NSStringFromSelector(sel),
+                                        format);
   va_start(args,format);
-  string=[NSString stringWithFormat:fmt
-                   arguments:args];
+  string=[nsStringClass stringWithFormat:fmt
+                        arguments:args];
   va_end(args);
   exception=[self exceptionByAddingUserInfoFrameInfo:string];
   LOGObjectFnStop();
   return exception;
 };
 
+//--------------------------------------------------------------------
 -(NSException*)exceptionByAddingUserInfoFrameInfoFunction:(const char*)fn
                                                      file:(const char*)file
                                                      line:(int)line
@@ -584,16 +814,17 @@ void ValidationExceptionRaiseFn0(const char *func,
   va_list args;
   LOGObjectFnStart();
   va_start(args,format);
-  fmt =  [NSString stringWithFormat:@"%s: %d. In %s %@: %@",
-                   file,line,fn,format];
-  string=[NSString stringWithFormat:fmt
-                   arguments:args];
+  fmt =  (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%s: %d. In %s %@: %@",
+                                         file,line,fn,format);
+  string=[nsStringClass stringWithFormat:fmt
+                        arguments:args];
   va_end(args);
   exception=[self exceptionByAddingUserInfoFrameInfo:string];
   LOGObjectFnStop();
   return exception;
 };
 
+//--------------------------------------------------------------------
 -(BOOL)isValidationException
 {
   BOOL isValidationException=boolValueWithDefaultFor([[self userInfo] objectForKey:@"isValidationException"],NO);
@@ -633,6 +864,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   return self;
 };
 
+//--------------------------------------------------------------------
 - (id)initWithCapacity:(unsigned)cap
 {
   if ((self=[super init]))
@@ -643,21 +875,25 @@ void ValidationExceptionRaiseFn0(const char *func,
   return self;
 }
 
+//--------------------------------------------------------------------
 - (unsigned)count
 {
   return [_array count];
 }
 
+//--------------------------------------------------------------------
 - (id)objectAtIndex:(unsigned)i
 {
   return [_array objectAtIndex:i];
 }
 
+//--------------------------------------------------------------------
 - (void)removeObjectAtIndex:(unsigned)i
 {
   [_array removeObjectAtIndex:i];
 }
 
+//--------------------------------------------------------------------
 - (void)release
 {
   DESTROY(_array);
@@ -670,9 +906,10 @@ void ValidationExceptionRaiseFn0(const char *func,
 {
   //TODO better method
   int i=0;
+  int count=[_array count];
   NSComparisonResult result=NSOrderedSame;
 
-  for(i=0;result!=NSOrderedDescending && i<[_array count];i++)
+  for(i=0;result!=NSOrderedDescending && i<count;i++)
     {
       result=(NSComparisonResult)[object performSelector:_compareSelector
                                          withObject:[_array objectAtIndex:i]];
@@ -690,8 +927,9 @@ void ValidationExceptionRaiseFn0(const char *func,
 -(void)addObjectsFromArray:(NSArray*)array
 {
   int i;
+  int count=[array count];
 
-  for(i=0;i<[array count];i++)
+  for(i=0;i<count;i++)
     {
       [_array addObject:[array objectAtIndex:i]];
     };
@@ -751,6 +989,7 @@ void ValidationExceptionRaiseFn0(const char *func,
 //--------------------------------------------------------------------
 -(NSString*)bundleName
 {
+  //TODO: Cache it !
   NSString* bundlePath=nil;
   NSString* name=nil;
   LOGObjectFnStart();
@@ -834,15 +1073,17 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 #ifdef GNUSTEP
 @implementation NSThread (Debugging)
+
+//--------------------------------------------------------------------
 - (NSString *)description
 {
   /* This guards us from associating the wrong objc_thread_id()
      when other threads invoke description on us.  */
   if (self == [NSThread currentThread])
     {
-      return [NSString stringWithFormat: @"<%s: %p (%p)>",
+      return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"<%s: %p (%p)>",
 		       GSClassNameFromObject(self),
-		       self, objc_thread_id()];
+		       self, objc_thread_id());
     }
   return [super description];
 }
@@ -866,19 +1107,20 @@ volatileInternalDescription(NSLock *self)
 
   if (mutex != 0)
     {
-      return [NSString stringWithFormat: @"(%@ mutex:%p owner:%p depth:%d)",
-		       self, mutex, mutex->owner, mutex->depth];
+      return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"(%@ mutex:%p owner:%p depth:%d)",
+                                             self, mutex, mutex->owner, mutex->depth);
     }
   else
     {
-      return [NSString stringWithFormat: @"(%@ mutex:%p)",
-		       self, mutex];
+      return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"(%@ mutex:%p)",
+                                             self, mutex);
     }
 #else
   return [self description];
 #endif
 }
 
+//--------------------------------------------------------------------
 BOOL
 loggedLockBeforeDateFromFunctionInFileInLine(id self,
 					     BOOL try,
@@ -969,6 +1211,7 @@ loggedLockBeforeDateFromFunctionInFileInLine(id self,
   return isLocked;
 }
 
+//--------------------------------------------------------------------
 void
 loggedUnlockFromFunctionInFileInLine(id self,
 				     const char *file,
@@ -1002,6 +1245,7 @@ loggedUnlockFromFunctionInFileInLine(id self,
 
 //====================================================================
 @implementation NSArray (NSPerformSelectorWith2Objects)
+
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelector:(SEL)selector
                        withObject:(id)object1
@@ -1145,7 +1389,7 @@ NSString* GSWGetDefaultDocRoot()
   NSDictionary* gsweb=[userDefaults objectForKey:@"GSWeb"];
   NSString* rootDoc=[gsweb objectForKey:@"rootDoc"];
   if (!rootDoc)
-    rootDoc=[NSString stringWithString:@"/home/httpd/gsweb"];
+    rootDoc=[nsStringClass stringWithString:@"/home/httpd/gsweb"];
   return rootDoc;
 };
 
@@ -1276,7 +1520,7 @@ NSString* GSWGetDefaultDocRoot()
       if ([good length]>2)
         good=[good stringByDeletingSuffix:@"/."];
       else
-        good=[NSString stringWithString:@"/"];
+        good=[nsStringClass stringWithString:@"/"];
     };
   return good;
 };
@@ -1290,7 +1534,7 @@ NSString* GSWGetDefaultDocRoot()
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n>",
+  return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n>",
                    object_get_class_name(self),
                    (void*)self,
                    _searchList,
@@ -1298,7 +1542,7 @@ NSString* GSWGetDefaultDocRoot()
                    _tempDomains,
                    _changedDomains,
                    _dictionaryRep,
-                   _defaultsDatabase];
+                   _defaultsDatabase);
 };
 
 @end
@@ -1362,8 +1606,8 @@ NSString* GSWGetDefaultDocRoot()
   NSComparisonResult compare=NSOrderedSame;
   NSAssert(val0,@"val0 can't be nil");
   NSAssert(val1,@"val1 can't be nil");
-  NSAssert([val0 isKindOfClass:[NSNumber class]],@"val0 must't be a NSNumber");
-  NSAssert([val1 isKindOfClass:[NSNumber class]],@"val1 must't be a NSNumber");
+  NSAssert([val0 isKindOfClass:nsNumberClass],@"val0 must't be a NSNumber");
+  NSAssert([val1 isKindOfClass:nsNumberClass],@"val1 must't be a NSNumber");
   compare=[val0 compare:val1];
   if (compare==NSOrderedAscending)
     return val1;
@@ -1378,8 +1622,8 @@ NSString* GSWGetDefaultDocRoot()
   NSComparisonResult compare=NSOrderedSame;
   NSAssert(val0,@"val0 can't be nil");
   NSAssert(val1,@"val1 can't be nil");
-  NSAssert([val0 isKindOfClass:[NSNumber class]],@"val0 must't be a NSNumber");
-  NSAssert([val1 isKindOfClass:[NSNumber class]],@"val1 must't be a NSNumber");
+  NSAssert([val0 isKindOfClass:nsNumberClass],@"val0 must't be a NSNumber");
+  NSAssert([val1 isKindOfClass:nsNumberClass],@"val1 must't be a NSNumber");
   compare=[val0 compare:val1];
   if (compare==NSOrderedDescending)
     return val1;
@@ -1621,14 +1865,14 @@ NSString* GSWGetDefaultDocRoot()
 -(NSString*)stringForObjectValue:(id)anObject
 {
   NSString* string=nil;
-  if ([anObject isKindOfClass:[NSString class]])
+  if ([anObject isKindOfClass:nsStringClass])
     string=anObject;
   else if (anObject)
     {
       switch(_type)
         {
         case NSNumFmtType__Int:
-          if ([anObject isKindOfClass:[NSNumber class]])
+          if ([anObject isKindOfClass:nsNumberClass])
             {
               int value=[anObject intValue];
               string=GSWIntToNSString(value);
@@ -1657,25 +1901,25 @@ NSString* GSWGetDefaultDocRoot()
             };
           break;
         case NSNumFmtType__Float:
-          if ([anObject isKindOfClass:[NSNumber class]])
+          if ([anObject isKindOfClass:nsNumberClass])
             {
               double value=[anObject doubleValue];
-              string=[NSString stringWithFormat:@"%.2f",value];
+              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else if ([anObject respondsToSelector:@selector(intValue)])
             {
               int value=[anObject intValue];
-              string=[NSString stringWithFormat:@"%d.00",value];
+              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%d.00",value);
             }
           else if ([anObject respondsToSelector:@selector(floatValue)])
             {
               double value=(double)[anObject floatValue];
-              string=[NSString stringWithFormat:@"%.2f",value];
+              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else if ([anObject respondsToSelector:@selector(doubleValue)])
             {
               double value=[anObject doubleValue];
-              string=[NSString stringWithFormat:@"%.2f",value];
+              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else
             {
@@ -1710,11 +1954,11 @@ NSString* GSWGetDefaultDocRoot()
   switch(_type)
     {
     case NSNumFmtType__Int:
-      *anObject=[NSNumber numberWithInt:[string intValue]];
+      *anObject=GSWIntNumber([string intValue]);
       ok=YES;
       break;
     case NSNumFmtType__Float:
-      *anObject=[NSNumber numberWithFloat:[string floatValue]];
+      *anObject=[nsNumberClass numberWithFloat:[string floatValue]];
       ok=YES;
       break;
     case NSNumFmtType__Unknown:
@@ -1732,14 +1976,17 @@ NSString* GSWGetDefaultDocRoot()
 
 #include <GNUstepBase/GSMime.h>
 
+//====================================================================
 @implementation NSData (Base64)
 
+//--------------------------------------------------------------------
 - (NSString*) base64Representation
 {
-  return [[[NSString alloc]initWithData:[GSMimeDocument encodeBase64:self]
-                   encoding:NSASCIIStringEncoding] autorelease];
+  return [[[nsStringClass alloc]initWithData:[GSMimeDocument encodeBase64:self]
+                                encoding:NSASCIIStringEncoding] autorelease];
 };
 
+//--------------------------------------------------------------------
 - (id) initWithBase64Representation: (NSString*)string
 {
   return [self initWithData:[GSMimeDocument decodeBase64:[string dataUsingEncoding: NSASCIIStringEncoding]]];
@@ -1747,7 +1994,10 @@ NSString* GSWGetDefaultDocRoot()
 
 @end
 
+//====================================================================
 @implementation NSData (Search)
+
+//--------------------------------------------------------------------
 - (NSRange) rangeOfData: (NSData *)data
                   range: (NSRange)aRange
 {
@@ -1788,7 +2038,10 @@ NSString* GSWGetDefaultDocRoot()
 }
 @end
 
+//====================================================================
 @implementation NSMutableData (Replace)
+
+//--------------------------------------------------------------------
 - (unsigned int) replaceOccurrencesOfData: (NSData*)replace
                                  withData: (NSData*)by
                                     range: (NSRange)searchRange
@@ -1836,83 +2089,43 @@ NSString* GSWGetDefaultDocRoot()
 @end
 
 //====================================================================
-
 // this should be in Gnustep base / extensions
 
 @implementation NSString (EncodingDataExt)
 
-+ (id)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)encoding
+//--------------------------------------------------------------------
++ (id)stringWithContentsOfFile:(NSString *)path
+                      encoding:(NSStringEncoding)encoding
 {
   NSData   * tmpData = nil;
   NSString * tmpString = nil;
   
   if ((tmpData = [NSData dataWithContentsOfFile: path]))
-  {
-    tmpString = [NSString alloc];
-    tmpString = [tmpString initWithData:tmpData 
-                               encoding:encoding];
-    if (!tmpString) {
+    {
+      tmpString = [nsStringClass alloc];
+      tmpString = [tmpString initWithData:tmpData 
+                             encoding:encoding];
+      if (!tmpString) {
         NSLog(@"%s NO STRING for path '%@' encoding:%d", __PRETTY_FUNCTION__, path, encoding);
-            
+        
         [NSException raise:NSInvalidArgumentException 
-                    format:@"%s: could not open convert file contents '%s' non-lossy to encoding %i",
-                                __PRETTY_FUNCTION__, path, encoding];  
-    
-    }                               
-    [tmpString autorelease];
-  }
+                     format:@"%s: could not open convert file contents '%s' non-lossy to encoding %i",
+                     __PRETTY_FUNCTION__, path, encoding];  
+        
+      }                               
+      AUTORELEASE(tmpString);
+    }
   
   return tmpString;
 }
 
-#warning XXX TODO MultiTread protection
-
+//--------------------------------------------------------------------
 + (NSStringEncoding) encodingNamed:(NSString*) encodingName
 {  
-  static NSMapTable* encodingsByName=NULL;
   NSStringEncoding encoding=GSUndefinedEncoding;
-  if (!encodingsByName)
-    {
-      encodingsByName=NSCreateMapTable(NSObjectMapKeyCallBacks,
-                                       NSIntMapValueCallBacks,
-                                       32);
-      NSMapInsert(encodingsByName,
-                  @"NSISOLatin1StringEncoding",
-                  (const void*)NSISOLatin1StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSASCIIStringEncoding",
-                  (const void*)NSASCIIStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSISOLatin2StringEncoding",
-                  (const void*)NSISOLatin2StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSJapaneseEUCStringEncoding",
-                  (const void*)NSJapaneseEUCStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSMacOSRomanStringEncoding",
-                  (const void*)NSMacOSRomanStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSNEXTSTEPStringEncoding",
-                  (const void*)NSNEXTSTEPStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSNonLossyASCIIStringEncoding",
-                  (const void*)NSNonLossyASCIIStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSUTF8StringEncoding",
-                  (const void*)NSUTF8StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSUnicodeStringEncoding",
-                  (const void*)NSUnicodeStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSWindowsCP1253StringEncoding",
-                  (const void*)NSWindowsCP1253StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSWindowsCP1252StringEncoding",
-                  (const void*)NSWindowsCP1252StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSWindowsCP1254StringEncoding",
-                  (const void*)NSWindowsCP1254StringEncoding);
-    }
+
+  NSCAssert(encodingsByName,@"encodingsByName not initialized");
+
   encoding=(NSStringEncoding)NSMapGet(encodingsByName,(const void*)encodingName);
   if (!encoding)
     [NSException raise:NSInvalidArgumentException 
@@ -1920,60 +2133,34 @@ NSString* GSWGetDefaultDocRoot()
                  __PRETTY_FUNCTION__, encodingName];  
 
   return encoding;
-/*
-  if ([encodingName isEqualToString:@"NSISOLatin1StringEncoding"]) 
-  {
-  return NSISOLatin1StringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSASCIIStringEncoding"]) 
-  {
-  return NSASCIIStringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSISOLatin2StringEncoding"]) 
-  {
-  return NSISOLatin2StringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSJapaneseEUCStringEncoding"]) 
-  {
-  return NSJapaneseEUCStringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSMacOSRomanStringEncoding"]) 
-  {
-  return NSMacOSRomanStringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSNEXTSTEPStringEncoding"]) 
-  {
-  return NSNEXTSTEPStringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSNonLossyASCIIStringEncoding"]) 
-  {
-  return NSNonLossyASCIIStringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSUTF8StringEncoding"]) 
-  {
-  return NSUTF8StringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSUnicodeStringEncoding"]) 
-  {
-  return NSUnicodeStringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSWindowsCP1253StringEncoding"]) 
-  {
-  return NSWindowsCP1253StringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSWindowsCP1252StringEncoding"]) 
-  {
-  return NSWindowsCP1252StringEncoding;
-  }
-  if ([encodingName isEqualToString:@"NSWindowsCP1254StringEncoding"]) 
-  {
-  return NSWindowsCP1254StringEncoding;
-  }
-  [NSException raise:NSInvalidArgumentException 
-  format:@"%s: does not know about '%s'",
-  __PRETTY_FUNCTION__, encodingName];  
-  return 0; // to make gcc happy
-*/
 }
 
 @end
+
+//====================================================================
+NSString* NSStringWithObject(id object)
+{
+  NSString* string=nil;
+  NSCAssert(nsMutableStringClass,@"GSWUtils not initialized");
+  if (object)
+    {
+      if ([object isKindOfClass:nsMutableStringClass])
+        string=AUTORELEASE([object copy]);
+      else if ([object isKindOfClass:nsStringClass])
+        string=(NSString*)object;
+#ifdef HAVE_GDL2
+      else if ([object isKindOfClass:eoNullClass])
+        string=@"";
+#else
+      else if ([object isKindOfClass:nsNullClass])
+        string=@"";
+#endif
+      else if ([object respondsToSelector:@selector(stringValue)])
+        string=[object stringValue];
+      else if ([object respondsToSelector:@selector(description)])
+        string=[object description];
+      else
+        string=object;
+    };
+  return string;
+};

@@ -334,7 +334,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
               [undoManager registerUndoWithTarget:self
                            selector:@selector(_insertObjectWithObjectAndIndex:)
                            arg:[NSArray arrayWithObjects:object,
-                                        [NSNumber numberWithInt:[_displayedObjects indexOfObjectIdenticalTo:object]],
+                                        GSWIntNumber([_displayedObjects indexOfObjectIdenticalTo:object]),
                                         nil]];
             };
 
@@ -1896,7 +1896,7 @@ of all Batches, not only the current one.
         };
       [self setSelectionIndexes:
               [NSArray arrayWithObject:
-                         [NSNumber numberWithInt:nextIndex]]];
+                         GSWIntNumber(nextIndex)]];
     };
 
   LOGObjectFnStop();
@@ -1960,7 +1960,7 @@ of all Batches, not only the current one.
   if ([selectionIndexes count]==0)
     {
       if (selectFirstOnNoMatch && [_displayedObjects count]>0)
-        selectionIndexes=[NSArray arrayWithObject:[NSNumber numberWithInt:0]];
+        selectionIndexes=[NSArray arrayWithObject:GSWIntNumber(0)];
     };
   NSDebugMLLog(@"GSWDisplayGroup",@"selectionIndexes count]=%d",[selectionIndexes count]);
   result = [self setSelectionIndexes:selectionIndexes];
@@ -1989,7 +1989,7 @@ of all Batches, not only the current one.
         };
       [self setSelectionIndexes:
               [NSArray arrayWithObject:
-                         [NSNumber numberWithInt:previousIndex]]];
+                         GSWIntNumber(previousIndex)]];
     };
 
   LOGObjectFnStop();
@@ -2836,7 +2836,7 @@ of all Batches, not only the current one.
               unsigned int index=[self indexOfObjectIdenticalTo:object];
               if (index!=NSNotFound)
                 {
-                  NSNumber* indexObject=[NSNumber numberWithInt:(int)index];
+                  NSNumber* indexObject=GSWIntNumber((int)index);
                   if (tmpIndexes)
                     [tmpIndexes addObject:indexObject];
                   else

@@ -107,28 +107,28 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext
 {
   //OK
   LOGObjectFnStartC("GSWImage");
-  [super appendGSWebObjectsAssociationsToResponse:response
-         inContext:context];
+  [super appendGSWebObjectsAssociationsToResponse:aResponse
+         inContext:aContext];
   NSDebugMLLog(@"gswdync",@"_width=%@",_width);
   NSDebugMLLog(@"gswdync",@"_height=%@",_height);
 
   if (_width || _height)
     {
-      GSWComponent* component=[context component];
+      GSWComponent* component=GSWContext_component(aContext);
       if (_width)
         {
           id width=[_width valueInComponent:component];
           NSDebugMLLog(@"gswdync",@"width=%@",width);
           if (width)
             {
-              [response _appendContentAsciiString:@" width=\""];
-              [response appendContentHTMLString:width];
-              [response appendContentCharacter:'"'];
+              GSWResponse_appendContentAsciiString(aResponse,@" width=\"");
+              GSWResponse_appendContentHTMLString(aResponse,width);
+              GSWResponse_appendContentCharacter(aResponse,'"');
             };
         };
       if (_height)
@@ -137,9 +137,9 @@ RCS_ID("$Id$")
           NSDebugMLLog(@"gswdync",@"height=%@",height);
           if (height)
             {
-              [response _appendContentAsciiString:@" height=\""];
-              [response appendContentHTMLString:height];
-              [response appendContentCharacter:'"'];
+              GSWResponse_appendContentAsciiString(aResponse,@" height=\"");
+              GSWResponse_appendContentHTMLString(aResponse,height);
+              GSWResponse_appendContentCharacter(aResponse,'"');
             };
         };
     };

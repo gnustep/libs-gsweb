@@ -87,10 +87,10 @@ RCS_ID("$Id$")
               inContext:(GSWContext*)aContext
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[aContext elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
   GSWSaveAppendToResponseElementID(aContext);//Debug Only
-  [aResponse appendContentString:_string];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[aContext elementID]);
+  GSWResponse_appendContentString(aResponse,_string);
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
   LOGObjectFnStop();
 };
 

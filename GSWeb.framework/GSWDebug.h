@@ -682,7 +682,7 @@ GSWLogAssertGoodFn(CONST char* file,int line,id object);
 
 #define LOGLOCKSeriousError(format, args...) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	    \
 				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)

@@ -63,8 +63,6 @@
 @end
 
 //====================================================================
-GSWEB_EXPORT NSString* NSStringWithObject(id object);
-
 @interface NSString (stringWithObject)
 +(NSString*)stringWithObject:(id)object;
 @end

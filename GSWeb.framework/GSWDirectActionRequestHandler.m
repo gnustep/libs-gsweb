@@ -126,12 +126,17 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(GSWResponse*)generateNullResponse
 {
-  GSWResponse* response=nil;
+  GSWResponse* aResponse=nil;
+
   LOGObjectFnStart();
-  response=[GSWApp createResponseInContext:nil];
-  [response appendContentString:@"<HTML><HEAD><TITLE>DirectAction Error</TITLE></HEAD><BODY><CENTER>The result of a direct action returned nothing.</CENTER></BODY></HTML>"];
+
+  aResponse=[GSWApp createResponseInContext:nil];
+
+  GSWResponse_appendContentString(aResponse,@"<HTML><HEAD><TITLE>DirectAction Error</TITLE></HEAD><BODY><CENTER>The result of a direct action returned nothing.</CENTER></BODY></HTML>");
+
   LOGObjectFnStop();
-  return response;
+
+  return aResponse;
 };
 
 //--------------------------------------------------------------------

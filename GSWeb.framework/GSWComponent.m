@@ -407,9 +407,11 @@ associationsKeys:(NSArray*)associationsKeys
       id aValue=nil;
       id logValue=[self valueForBinding:@"GSWDebug"];
       BOOL doLog=boolValueWithDefaultFor(logValue,NO);
+      int associationsKeysCount=[_associationsKeys count];
+
       NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - Synchro SubComponent->Component",               
                   [self declarationName]);
-      for(i=0;i<[_associationsKeys count];i++)
+      for(i=0;i<associationsKeysCount;i++)
         {
           aKey=[_associationsKeys objectAtIndex:i];
           anAssociation=[_associations objectAtIndex:i];
@@ -447,9 +449,11 @@ associationsKeys:(NSArray*)associationsKeys
       id aValue=nil;
       id logValue=[self valueForBinding:@"GSWDebug"];
       BOOL doLog=boolValueWithDefaultFor(logValue,NO);
+      int associationsKeysCount=[_associationsKeys count];
+
       NSDebugMLLog(@"GSWComponent",@"Name=%@ - Synchro Component->SubComponent",
                   [self declarationName]);
-      for(i=0;i<[_associationsKeys count];i++)
+      for(i=0;i<associationsKeysCount;i++)
         {
           aKey=[_associationsKeys  objectAtIndex:i];
           anAssociation=[_associations objectAtIndex:i];
@@ -1102,19 +1106,28 @@ associationsKeys:(NSArray*)associationsKeys
   NSAssert(template,@"No template");
 #ifndef NDEBUG
   if(GSDebugSet(@"gswcomponents"))
-    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"Start %@ [%@]",[self _templateName],[aContext elementID]]];
+    {
+      GSWResponse_appendDebugCommentContentString(aResponse,
+                                                  ([NSString stringWithFormat:@"Start %@ [%@]",
+                                                             [self _templateName],
+                                                             GSWContext_elementID(aContext)]));
+    };
 #endif
 
   request=[aContext request];
   NSAssert(request,@"No request");
   isFromClientComponent=[request isFromClientComponent];
-  component=[aContext component];
-  [aContext appendZeroElementIDComponent];
+  component=GSWContext_component(aContext);
+  GSWContext_appendZeroElementIDComponent(aContext);
   NS_DURING
     {
-      [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"declarationName=%@ ID=%@",[self declarationName],[aContext elementID]]];
-      NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ [aContext elementID]=%@",
-                   self,[self declarationName],[aContext elementID]);
+      GSWResponse_appendDebugCommentContentString(aResponse,
+                                                  ([NSString stringWithFormat:@"declarationName=%@ ID=%@",
+                                                             [self declarationName],GSWContext_elementID(aContext)]));
+
+      NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ GSWContext_elementID(aContext)=%@",
+                   self,[self declarationName],GSWContext_elementID(aContext));
+
       [template appendToResponse:aResponse
                  inContext:aContext];
     }
@@ -1131,10 +1144,10 @@ associationsKeys:(NSArray*)associationsKeys
     }
   NS_ENDHANDLER;
 
-  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ [aContext elementID]=%@",
-               self,[self declarationName],[aContext elementID]);
+  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ GSWContext_elementID(aContext)=%@",
+               self,[self declarationName],GSWContext_elementID(aContext));
 
-  [aContext deleteLastElementIDComponent];
+  GSWContext_deleteLastElementIDComponent(aContext);
 
   GSWStopElement(aContext);
   GSWAssertDebugElementID(aContext);
@@ -1142,10 +1155,10 @@ associationsKeys:(NSArray*)associationsKeys
 
 #ifndef NDEBUG
   if(GSDebugSet(@"gswcomponents") == YES)
-    [aResponse appendDebugCommentContentString:
-		 [NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
-			   [self _templateName],
-			   [aContext elementID]]];//TODO enlever
+    GSWResponse_appendDebugCommentContentString(aResponse,
+                                                ([NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
+                                                           [self _templateName],
+                                                           GSWContext_elementID(aContext)]));//TODO enlever
 #endif
   GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
@@ -1171,10 +1184,10 @@ associationsKeys:(NSArray*)associationsKeys
     {
       GSWAssertCorrectElementID(aContext);
       template=[self _template];
-      [aContext appendZeroElementIDComponent];
+      GSWContext_appendZeroElementIDComponent(aContext);
       element=[[self _template] invokeActionForRequest:aRequest
                                 inContext:aContext];
-      [aContext deleteLastElementIDComponent];
+      GSWContext_deleteLastElementIDComponent(aContext);
     }
   NS_HANDLER
     {
@@ -1198,8 +1211,8 @@ associationsKeys:(NSArray*)associationsKeys
     {
       LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
                [self class],
-               [aContext elementID],
-               [aContext senderID]);
+               GSWContext_elementID(aContext),
+               GSWContext_senderID(aContext));
     };
 
   GSWAssertIsElementID(aContext);
@@ -1230,15 +1243,15 @@ associationsKeys:(NSArray*)associationsKeys
   oldValidateFlag=[aContext isValidate];
   [aContext setValidate:YES];
   template=[self _template];
-  [aContext appendZeroElementIDComponent];
-  NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ [aContext elementID]=%@",
-               self,[self declarationName],[aContext elementID]);
+  GSWContext_appendZeroElementIDComponent(aContext);
+  NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ GSWContext_elementID(aContext)=%@",
+               self,[self declarationName],GSWContext_elementID(aContext));
   [template takeValuesFromRequest:aRequest
 			 inContext:aContext];
-  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ [aContext elementID]=%@",
-               self,[self declarationName],[aContext elementID]);
+  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ GSWContext_elementID(aContext)=%@",
+               self,[self declarationName],GSWContext_elementID(aContext));
 
-  [aContext deleteLastElementIDComponent];
+  GSWContext_deleteLastElementIDComponent(aContext);
 
   GSWStopElement(aContext);
   GSWAssertDebugElementID(aContext);
@@ -1612,7 +1625,7 @@ associationsKeys:(NSArray*)associationsKeys
   NSAssert(aContext,@"No context");
   NS_DURING
     {
-      [aContext deleteAllElementIDComponents];
+      GSWContext_deleteAllElementIDComponents(aContext);
       request=[aContext request];
       NSDebugMLLog(@"GSWComponent",@"request=%@",request);
       httpVersion=(request ? [request httpVersion] : @"HTTP/1.0");
@@ -1671,7 +1684,7 @@ associationsKeys:(NSArray*)associationsKeys
           [session _saveCurrentPage];
         };
       [aContext _incrementContextID];
-      [aContext deleteAllElementIDComponents];
+      GSWContext_deleteAllElementIDComponents(aContext);
       [aContext _setPageChanged:YES];
       //[aContext _setPageReplaced:NO];
       NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);

@@ -101,10 +101,11 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       //TODO NSBundle* mainBundle=[NSBundle mainBundle];
       NSArray* allFrameworks=[NSBundle allFrameworks];
       int i=0;
+      int allFrameworksCount=[allFrameworks count];
       NSString* bundlePath=nil;
       NSBundle* bundle=nil;
       NSDictionary* infoDictionary=nil;
-      for(i=0;i<[allFrameworks count];i++)
+      for(i=0;i<allFrameworksCount;i++)
         {
           bundle=[allFrameworks objectAtIndex:i];
           bundlePath=[bundle bundlePath];
@@ -127,7 +128,9 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       //	  _frameworkPathsToFrameworksNames=[NSMutableDictionary new];
 
       allFrameworks=[NSBundle allFrameworks];
-      for(i=0;i<[allFrameworks count];i++)
+      allFrameworksCount=[allFrameworks count];
+
+      for(i=0;i<allFrameworksCount;i++)
         {
           bundle=[allFrameworks objectAtIndex:i];
           infoDictionary=[bundle infoDictionary];
@@ -206,14 +209,21 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   //OK
   NSArray* allFrameworks=nil;
   int i=0;
+  int allFrameworksCount=0;
   NSBundle* bundle=nil;
   NSString* frameworkName=nil;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
+
   allFrameworks=[NSBundle allFrameworks];
   NSDebugMLLog(@"resmanager",@"allBundles=%@",[NSBundle allBundles]);
   NSDebugMLLog(@"resmanager",@"allFrameworks=%@",allFrameworks);
-  for(i=0;i<[allFrameworks count];i++)
+
+  allFrameworksCount=[allFrameworks count];
+
+  for(i=0;i<allFrameworksCount;i++)
     {
       bundle=[allFrameworks objectAtIndex:i];
       NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
@@ -488,10 +498,11 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* string=nil;
   NSString* language=nil;
   int i=0;
-  int _count=0;
+  int count=0;
   int iFramework=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+  int frameworksCount=0;
 
   LOGObjectFnStart();
 
@@ -500,18 +511,19 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       frameworks=[_frameworkProjectBundlesCache allKeys];
       frameworks=[frameworks arrayByAddingObject:@""];
     }
-  _count=[languages count];
+  count=[languages count];
+  frameworksCount=[frameworks count];
 
   NSDebugMLLog(@"resmanager",@"languages=%@",languages);
   NSDebugMLLog(@"resmanager",@"frameworks=%@",frameworks);
 
-  for(i=0;!string && i<=_count;i++)
+  for(i=0;!string && i<=count;i++)
     {
-      if (i<_count)
+      if (i<count)
         language=[languages objectAtIndex:i];
       else
         language=nil;
-      for(iFramework=0;!string && iFramework<[frameworks count];iFramework++)
+      for(iFramework=0;!string && iFramework<frameworksCount;iFramework++)
         {
           frameworkName=[frameworks objectAtIndex:iFramework];
           if ([frameworkName length]==0)
@@ -541,14 +553,15 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSDictionary* stringsTable=nil;
   NSString* language=nil;
   int i=0;
-  int _count=0;
+  int count=0;
   int iFramework=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+  int frameworksCount=0;
 
   LOGObjectFnStart();
 
-  _count=[languages count];
+  count=[languages count];
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
@@ -557,10 +570,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
 
-  for(i=0;!stringsTable && i<_count;i++)
+  frameworksCount=[frameworks count];
+
+  for(i=0;!stringsTable && i<count;i++)
     {
       language=[languages objectAtIndex:i];
-      for(iFramework=0;!stringsTable && iFramework<[frameworks count];iFramework++)
+      for(iFramework=0;!stringsTable && iFramework<frameworksCount;iFramework++)
         {
           frameworkName=[frameworks objectAtIndex:iFramework];
           if ([frameworkName length]==0)
@@ -621,14 +636,15 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSArray* stringsTableArray=nil;
   NSString* language=nil;
   int i=0;
-  int _count=0;
+  int count=0;
   int iFramework=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+  int frameworksCount=0;
 
   LOGObjectFnStart();
 
-  _count=[languages count];
+  count=[languages count];
 
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
@@ -638,10 +654,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
 
-  for(i=0;!stringsTableArray && i<_count;i++)
+  frameworksCount=[frameworks count];
+
+  for(i=0;!stringsTableArray && i<count;i++)
     {
       language=[languages objectAtIndex:i];
-      for(iFramework=0;!stringsTableArray && iFramework<[frameworks count];iFramework++)
+      for(iFramework=0;!stringsTableArray && iFramework<frameworksCount;iFramework++)
         {
           frameworkName=[frameworks objectAtIndex:iFramework];
           if ([frameworkName length]==0)
@@ -751,7 +769,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   int i=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+  int frameworksCount=0;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"resmanager",@"aTableName=%@ aFrameworkName=%@ aLanguage=%@",
                aTableName,aFrameworkName,aLanguage);
   resourceName=[aTableName stringByAppendingString:GSWStringTablePSuffix];
@@ -763,7 +784,9 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
 
-  for(i=0;!path && i<[frameworks count];i++)
+  frameworksCount=[frameworks count];
+
+  for(i=0;!path && i<frameworksCount;i++)
     {
       frameworkName=[frameworks objectAtIndex:i];
       if ([frameworkName length]==0)
@@ -866,7 +889,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   int i=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+  int frameworksCount=0;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"resmanager",@"aTableName=%@ aFrameworkName=%@ aLanguage=%@",aTableName,aFrameworkName,aLanguage);
   resourceName=[aTableName stringByAppendingString:GSWStringTableArrayPSuffix];
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
@@ -876,8 +902,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+
+  frameworksCount=[frameworks count];
   
-  for(i=0;!path && i<[frameworks count];i++)
+  for(i=0;!path && i<frameworksCount;i++)
     {
       frameworkName=[frameworks objectAtIndex:i];
       if ([frameworkName length]==0)
@@ -1021,7 +1049,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* url=nil;
   int i=0;
   NSArray* frameworks=nil;
+  int frameworksCount=0;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@",resourceName,aFrameworkName,languages);
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
@@ -1031,7 +1062,9 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
   
-  for(i=0;!url && i<[frameworks count];i++)
+  frameworksCount=[frameworks count];
+
+  for(i=0;!url && i<frameworksCount;i++)
     {
       GSWDeployedBundle* bundle=nil;
       NSString* frameworkName=[frameworks objectAtIndex:i];
@@ -1067,6 +1100,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* path=nil;
   int i=0;
   NSArray* frameworks=nil;
+  int frameworksCount=0;
+
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@",
                resourceName,aFrameworkName,languages);
@@ -1079,7 +1114,9 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
   NSDebugMLLog(@"resmanager",@"frameworks=%@",frameworks);
 
-  for(i=0;!path && i<[frameworks count];i++)
+  frameworksCount=[frameworks count];
+
+  for(i=0;!path && i<frameworksCount;i++)
     {
       GSWDeployedBundle* bundle=nil;
       NSString* frameworkName=[frameworks objectAtIndex:i];
@@ -1140,7 +1177,8 @@ bundle if none is found
   NSDebugMLLog(@"resmanager",@"resourceName=%@",resourceName);
   NSAssert(resourceName,@"No name");
 //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
-  if ([resourceName isEqualToString:GSWFramework_app])
+  if (resourceName==GSWFramework_app
+      || [resourceName isEqualToString:GSWFramework_app])
     {
       resourceName=[globalAppProjectBundle projectName];
       bundle=globalAppProjectBundle;
@@ -1150,18 +1188,19 @@ bundle if none is found
   //  NSDebugMLLog(@"resmanager",@"bundle %@ %s cached",resourceName,(bundle ? "" : "NOT"));
   if (!bundle)
     {
-      NSMutableArray* allFrameworks=[[NSBundle allFrameworks] mutableCopy];
+      NSMutableArray* allFrameworks=AUTORELEASE([[NSBundle allFrameworks] mutableCopy]);
       int i=0;
+      int frameworksCount=[allFrameworks count];
       NSString* bundlePath=nil;
       NSBundle* tmpBundle=nil;
       NSString* frameworkName=nil;
-
-      [allFrameworks addObjectsFromArray:[NSBundle allBundles]];
-      [allFrameworks autorelease];
       
-      for(i=0;!bundle && i<[allFrameworks count];i++)
+      [allFrameworks addObjectsFromArray:[NSBundle allBundles]];
+      
+      for(i=0;!bundle && i<frameworksCount;i++)
         {
           tmpBundle=[allFrameworks objectAtIndex:i];
+          //TODO: use bundleName ?
           // NSDebugMLLog(@"resmanager",@"tmpBundle=%@",tmpBundle);
           bundlePath=[tmpBundle bundlePath];
           // NSDebugMLLog(@"resmanager",@"bundlePath=%@",bundlePath);
@@ -1181,15 +1220,14 @@ bundle if none is found
                 //TODO
                 };
               */
-              NSAssert(bundle,@"No bundle");
-              NSAssert(resourceName,@"No name");
-              [_frameworkProjectBundlesCache setObject:bundle
-                                             forKey:resourceName];
               //NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
             };
         };
       if (!bundle)
         bundle=globalAppProjectBundle;
+      NSAssert(bundle,@"No bundle");
+      [_frameworkProjectBundlesCache setObject:bundle
+                                     forKey:resourceName];
     };
   //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
   //  NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
@@ -1344,7 +1382,10 @@ bundle if none is found
   int i=0;
   NSArray* frameworks=nil;
   NSString* frameworkName=nil;
+  int frameworksCount=0;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ aLanguage=%@",resourceName,aFrameworkName,aLanguage);
 //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
@@ -1355,7 +1396,9 @@ bundle if none is found
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
 
-  for(i=0;!path && i<[frameworks count];i++)
+  frameworksCount=[frameworks count];
+
+  for(i=0;!path && i<frameworksCount;i++)
     {
       frameworkName=[frameworks objectAtIndex:i];
       if ([frameworkName length]==0)
@@ -1599,7 +1642,9 @@ bundle if none is found
       NSString* ISOLanguage=nil;
       NSString* GSLanguage=nil;
       int i=0;
-      for(i=0;i<[ISOLanguages count];i++)
+      int ISOLanguagesCount=[ISOLanguages count];
+
+      for(i=0;i<ISOLanguagesCount;i++)
         {
           ISOLanguage=[ISOLanguages objectAtIndex:i];
           GSLanguage=[self GSLanguageFromISOLanguage:ISOLanguage];
@@ -1635,11 +1680,13 @@ bundle if none is found
       NSString* ISOLanguage=nil;
       NSString* GSLanguage=nil;
       int i=0;
-      for(i=0;i<[GSLanguages count];i++)
+      int GSLanguagesCount=[GSLanguages count];
+
+      for(i=0;i<GSLanguagesCount;i++)
         {
           GSLanguage=[GSLanguages objectAtIndex:i];
           ISOLanguage=[self ISOLanguageFromGSLanguage:GSLanguage];
-  NSDebugMLog(@"ISOLanguage=%@",ISOLanguage);
+          NSDebugMLog(@"ISOLanguage=%@",ISOLanguage);
           if (ISOLanguage)
             [array addObject:ISOLanguage];
           else

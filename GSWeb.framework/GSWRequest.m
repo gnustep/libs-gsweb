@@ -564,16 +564,23 @@ RCS_ID("$Id$")
             {
               //Remove Duplicates
               int i=0;
+              int browserLanguagesCount=0;
+
               browserLanguages=[browserLanguages mutableCopy];
-              for(i=0;i<[browserLanguages count];i++)
+              browserLanguagesCount=[browserLanguages count];
+
+              for(i=0;i<browserLanguagesCount;i++)
                 {
                   int j=0;
                   NSString* language=[browserLanguages objectAtIndex:i];
-                  for(j=[browserLanguages count]-1;j>i;j--)
+                  for(j=browserLanguagesCount-1;j>i;j--)
                     {
                       NSString* language2=[browserLanguages objectAtIndex:j];
                       if ([language2 isEqual:language])
-                        [browserLanguages removeObjectAtIndex:j];
+                        {
+                          [browserLanguages removeObjectAtIndex:j];
+                          browserLanguagesCount--;
+                        };
                     };
                 };
             };
@@ -1055,7 +1062,8 @@ RCS_ID("$Id$")
                 {
                   id cookieValue=nil;
                   int index=0;
-                  for(index=0;index<[value count];index++)
+                  int valueCount=[value count];
+                  for(index=0;index<valueCount;index++)
                     {
                       cookieValue=[value objectAtIndex:index];
                       if (cookieValue)
@@ -1139,18 +1147,24 @@ RCS_ID("$Id$")
       NSArray* cookieArrayValue=nil;
       NSArray* cookiePrevValue=nil;
       int i=0;
+      int cookiesArrayCount=[cookiesArray count];
+
       NSDebugMLLog(@"low",@"cookieDescription=%@",cookieDescription);
       NSDebugMLLog(@"low",@"cookiesArray=%@",cookiesArray);
-      for(i=0;i<[cookiesArray count];i++)
+
+      for(i=0;i<cookiesArrayCount;i++)
         {
+          int cookieCount=0;
           cookieString=[cookiesArray objectAtIndex:i];
           NSDebugMLLog(@"low",@"cookieString=%@",cookieString);
           cookie=[cookieString componentsSeparatedByString:@"="];
           NSDebugMLLog(@"low",@"cookie=%@",cookie);
-          if ([cookie count]>0)
+
+          cookieCount=[cookie count];
+          if (cookieCount>0)
             {
               cookieName=[cookie objectAtIndex:0];
-              if ([cookie count]>1)
+              if (cookieCount>1)
                 cookieValue=[cookie objectAtIndex:1];
               else
                 cookieValue=[NSString string];
@@ -1308,25 +1322,34 @@ RCS_ID("$Id$")
   NSArray* allKeys=nil;
   NSDictionary* tmpFormData=nil;
   NSString* formString=nil;
+  int allKeysCount=0;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"requests",@"aFormData=%@",aFormData);
   NSDebugMLLog(@"requests",@"encoding=%ld",(long)encoding);
+
   formString=[[[NSString alloc]initWithData:aFormData
                                encoding:encoding] autorelease];
   NSDebugMLLog(@"requests",@"formString=%@",formString);
+
   tmpFormData=[formString dictionaryQueryString];
   NSDebugMLLog(@"requests",@"tmpFormData=%@",tmpFormData);
+
   allKeys=[tmpFormData allKeys];
   NSDebugMLLog(@"requests",@"allKeys=%@",allKeys);
-  NSDebugMLLog(@"requests",@"allKeys count=%d",[allKeys count]);
-  if ([allKeys count]>0)
+
+  allKeysCount=[allKeys count];
+  NSDebugMLLog(@"requests",@"allKeys count=%d",allKeysCount);
+
+  
+  if (allKeysCount>0)
     {
       int i=0;
-      int count=[allKeys count];
       NSString* key=nil;
       BOOL ismapCoordsFound=NO;
       NSArray* value=nil;
-      for(i=0;i<count && !ismapCoordsFound;i++)
+      for(i=0;i<allKeysCount && !ismapCoordsFound;i++)
         {
           key=[allKeys objectAtIndex:i];
           NSDebugMLLog(@"requests",@"key=%@",key);
@@ -1947,6 +1970,7 @@ RCS_ID("$Id$")
   NSArray* parts=nil;
   int i=0;
   NSData* tmpData=nil;
+  int partsCount=0;
 /*  _CRLFSeparator=NO;
   unsigned char* _CRLF[2]={ 0x0d, 0x0a };
   unsigned char* _LF[2]={ 0x0a };
@@ -1972,34 +1996,38 @@ RCS_ID("$Id$")
   NSDebugMLLog0(@"requests",@"componentsSeparatedByData");
   parts=[aBody componentsSeparatedByData:dataBoundary];
   NSDebugMLLog(@"requests",@"parts=%@",parts);
-  {
-    for(i=0;i<[parts count];i++)
-      {
-        tmpData=[parts objectAtIndex:i];
-        if ([tmpData length]<400)
-          {
-            NSString* _dataString=nil;
-            _dataString=[[[NSString alloc]initWithData:tmpData
-                                          encoding:[self formValueEncoding]]autorelease];
-            NSDebugMLLog(@"requests",@"_tmpDataString=[\n%@\n]",_dataString);
-          }
-        else
-          {
-            NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
-          };
-      };
-  };
-  // The 1st part should be empty (or it's only a warning message...)
-  if ([parts count]>0)
-    {
-      parts=[parts subarrayWithRange:NSMakeRange(1,[parts count]-1)];
-    };
-  // Now deleting last \r\n of each object
-  parts=[parts mutableCopy];
-  for(i=0;i<[parts count];i++)
+
+  partsCount=[parts count];
+
+  for(i=0;i<partsCount;i++)
     {
       tmpData=[parts objectAtIndex:i];
-      if (i==[parts count]-1)
+      if ([tmpData length]<400)
+        {
+          NSString* _dataString=nil;
+          _dataString=[[[NSString alloc]initWithData:tmpData
+                                        encoding:[self formValueEncoding]]autorelease];
+          NSDebugMLLog(@"requests",@"_tmpDataString=[\n%@\n]",_dataString);
+        }
+      else
+        {
+          NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
+      };
+    };
+
+  // The 1st part should be empty (or it's only a warning message...)
+  if (partsCount>0)
+    {
+      parts=[parts subarrayWithRange:NSMakeRange(1,partsCount-1)];
+      partsCount=[parts count];
+    };
+
+  // Now deleting last \r\n of each object
+  parts=[parts mutableCopy];
+  for(i=0;i<partsCount;i++)
+    {
+      tmpData=[parts objectAtIndex:i];
+      if (i==partsCount-1)
         {
           //Delete the last \r\nseparator--\r\n
           boundaryString=[NSString stringWithFormat:@"\r\n%@--\r\n",aBoundary];
@@ -2016,25 +2044,26 @@ RCS_ID("$Id$")
       [(NSMutableArray*)parts replaceObjectAtIndex:i
                         withObject:tmpData];
     };
-  {
-    for(i=0;i<[parts count];i++)
-      {
-        tmpData=[parts objectAtIndex:i];
-        if ([tmpData length]<400)
-          {
-            NSString* dataString=nil;
-            dataString=[[[NSString alloc]initWithData:tmpData
-                                         encoding:[self formValueEncoding]]autorelease];
-            NSDebugMLLog(@"requests",@"tmpDataString=[\n%@\n]",dataString);
-			
-          }
-        else
-          {
-            NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
-          };
-      };
-  };
+  
+  for(i=0;i<partsCount;i++)
+    {
+      tmpData=[parts objectAtIndex:i];
+      if ([tmpData length]<400)
+        {
+          NSString* dataString=nil;
+          dataString=[[[NSString alloc]initWithData:tmpData
+                                       encoding:[self formValueEncoding]]autorelease];
+          NSDebugMLLog(@"requests",@"tmpDataString=[\n%@\n]",dataString);
+          
+        }
+      else
+        {
+          NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
+        };
+    };
+
   LOGObjectFnStop();
+
   return parts;
 };
 
@@ -2495,11 +2524,13 @@ into
           || (![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConv]]
               &&![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]]))
         {
+          int requestHandlerPathArrayCount=0;
           requestHandlerPathArray=[self requestHandlerPathArray];
           NSDebugMLLog(@"requests",@"request %p: requestHandlerPathArray=%@",
                        self,requestHandlerPathArray);
 
-          if ([requestHandlerPathArray count]>index)
+          requestHandlerPathArrayCount=[requestHandlerPathArray count];
+          if (requestHandlerPathArrayCount>index)
             {
               tmpString=[requestHandlerPathArray objectAtIndex:index];
               NSDebugMLLog(@"requests",@"rquest %p: tmpString=%@",
@@ -2520,14 +2551,14 @@ into
                   index++;
                 };
 
-              if ([requestHandlerPathArray count]>index)
+              if (requestHandlerPathArrayCount>index)
                 {
                   gswsid=[requestHandlerPathArray objectAtIndex:index];
                   NSDebugMLLog(@"requests",@"request %p: gswsid=%@",
                                self,gswsid);
                   index++;
 
-                  if ([requestHandlerPathArray count]>index)
+                  if (requestHandlerPathArrayCount>index)
                     {
                       NSString* senderID=[requestHandlerPathArray objectAtIndex:index];
                       NSDebugMLLog(@"requests",@"senderID=%@",senderID);

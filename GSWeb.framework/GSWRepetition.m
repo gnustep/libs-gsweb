@@ -35,8 +35,9 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-static SEL startOneIterationWithIndexSEL=NULL;
-static SEL stopOneIterationWithIndexSEL=NULL;
+static SEL prepareIterationSEL=NULL;
+static SEL objectAtIndexSEL = NULL;
+static SEL setValueInComponentSEL = NULL;
 
 //====================================================================
 @implementation GSWRepetition
@@ -46,8 +47,9 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 {
   if (self == [GSWRepetition class])
     {
-      startOneIterationWithIndexSEL=@selector(startOneIterationWithIndex:startIndex:list:inContext:);
-      stopOneIterationWithIndexSEL=@selector(stopOneIterationWithIndex:stopIndex:count:isLastOne:inContext:);
+      prepareIterationSEL=@selector(_prepareIterationWithIndex:startIndex:stopIndex:list:listCount:listObjectAtIndexIMP:itemSetValueIMP:indexSetValueIMP:component:inContext:);
+      objectAtIndexSEL=@selector(objectAtIndex:);
+      setValueInComponentSEL=@selector(setValue:inComponent:);
     };
 };
 
@@ -155,6 +157,7 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 @implementation GSWRepetition (GSWRepetitionA)
 
 -(void)getParameterValuesReturnList:(NSArray**)listValuePtr
+                          listCount:(int*)listCountPtr
                               count:(int*)countValuePtr
                          startIndex:(int*)startIndexValuePtr
                           stopIndex:(int*)stopIndexValuePtr
@@ -169,9 +172,12 @@ static SEL stopOneIterationWithIndexSEL=NULL;
                 @"The list (%@) (of class:%@) doesn't  respond to 'count'",
                 _list,
                 [(*listValuePtr) class]);
-      *countValuePtr=[(*listValuePtr) count];
+      *listCountPtr=[(*listValuePtr) count];
+      *countValuePtr=*listCountPtr;
       NSDebugMLLog(@"gswdync",@"list count=%d",*countValuePtr);
-    };
+    }
+  else
+    *listCountPtr=0;
   NSDebugMLLog(@"gswdync",@"_count=%@",_count);
   if (_count)
     {
@@ -242,32 +248,112 @@ static SEL stopOneIterationWithIndexSEL=NULL;
                *countValuePtr);
   LOGObjectFnStop();
 };
+
+//--------------------------------------------------------------------
+-(void)_prepareIterationWithIndex:(unsigned int)currentIndex
+                       startIndex:(unsigned int)startIndex
+                        stopIndex:(unsigned int)stopIndex
+                             list:(NSArray*)list
+                        listCount:(unsigned int)listCount
+             listObjectAtIndexIMP:(IMP)oaiIMP
+                  itemSetValueIMP:(IMP)itemSetValueIMP
+                 indexSetValueIMP:(IMP)indexSetValueIMP
+                        component:(GSWComponent*)component
+                        inContext:(GSWContext*)context
+{
+  LOGObjectFnStart();
+  NS_DURING
+    {
+      NSDebugMLLog(@"gswdync",@"currentIndex=%d startIndex=%d stopIndex=%d",
+                   currentIndex,startIndex,stopIndex);
+      NSDebugMLLog(@"gswdync",@"_index=%@",_index);
+      NSDebugMLLog(@"gswdync",@"_item=%@",_item);
+      if (_list && _item)
+        {
+          if (listCount>currentIndex)
+            { 
+              NSDebugMLLog(@"gswdync",@"[list objectAtIndex:%d]=%@",currentIndex,[list objectAtIndex:currentIndex]);
+              (*itemSetValueIMP)(_item,setValueInComponentSEL,
+                                 (*oaiIMP)(list,objectAtIndexSEL,currentIndex),
+                                 component);
+            }
+          else
+            {
+              //NSLog(@"startOneIterationWithIndex SKIPPING setValue:inComponent index=%d list.count=%d",currentIndex, [list count]);
+            };
+        };
+
+      if (_index)
+        (*indexSetValueIMP)(_index,setValueInComponentSEL,
+                            GSWIntNumber(currentIndex),component);
+
+      if (currentIndex==startIndex)
+        GSWContext_appendZeroElementIDComponent(context);
+      else
+        GSWContext_incrementLastElementIDComponent(context);
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In startOneIterationWithIndex");
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(void)_cleanupAfterIterationsWithItemSetValueIMP:(IMP)itemSetValueIMP
+                                 indexSetValueIMP:(IMP)indexSetValueIMP
+                                        component:(GSWComponent*)component
+                                        inContext:(GSWContext*)context
+  
+{
+  LOGObjectFnStart();
+
+  NS_DURING
+    {
+      if (_list && _item)
+        (*itemSetValueIMP)(_item,setValueInComponentSEL,
+                           nil,component);
+      if (_index)
+        (*indexSetValueIMP)(_index,setValueInComponentSEL,
+                            GSWIntNumber(0),component);
+      GSWContext_deleteLastElementIDComponent(context);
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In cleanupAfterIterations");
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+
+  LOGObjectFnStop();
+};
+
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  //OK
   GSWComponent* component=nil;
   NSArray* listValue=nil;
+  int listCount=0;
   int i=0;
   int countValue=0;
   int startIndexValue = 0;
   int stopIndexValue = 0;
-  GSWDeclareDebugElementIDsCount(context);
-  IMP appendZeroElementIDComponentIMP=NULL;
-  IMP deleteLastElementIDComponentIMP=NULL;
 
-  IMP startOneIterationWithIndexIMP=NULL;
-  IMP stopOneIterationWithIndexIMP=NULL;
+  GSWDeclareDebugElementIDsCount(context);
+  GSWDeclareDebugElementID(context);
 
   LOGObjectFnStart();
 
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
 
-  component=[context component];
+  component=GSWContext_component(context);
 
   [self getParameterValuesReturnList:&listValue
+        listCount:&listCount
         count:&countValue
         startIndex:&startIndexValue
         stopIndex:&stopIndexValue
@@ -275,44 +361,42 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 
   NSDebugMLLog(@"gswdync",@"countValue=%d",countValue);
 
-  [context incrementLoopLevel];
-
   if (startIndexValue<=stopIndexValue)
     {
-      appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
-      deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
-      startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
-      stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
-    };
+      IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
+      IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
+      IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
+      IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
 
-  for(i=startIndexValue;i<=stopIndexValue;i++)
-    {
-      GSWDeclareDebugElementID(context);
+      [context incrementLoopLevel];
 
-      [self startOneIterationWithIndex:i
-            startIndex:startIndexValue
-            list:listValue
+      for(i=startIndexValue;i<=stopIndexValue;i++)
+        {
+          (*prepareIterationIMP)(self,prepareIterationSEL,
+                                 i,startIndexValue,stopIndexValue,
+                                 listValue,listCount,
+                                 listOAIIMP,
+                                 itemSetValueIMP,indexSetValueIMP,
+                                 component,context);
+          
+          GSWContext_appendZeroElementIDComponent(context);
+          
+          [_childrenGroup appendToResponse:response
+                          inContext:context];
+          
+          GSWContext_deleteLastElementIDComponent(context);         
+        };
+      [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
+            indexSetValueIMP:indexSetValueIMP
+            component:component
             inContext:context];
 
-      (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
-
-      [_childrenGroup appendToResponse:response
-                      inContext:context];
-
-      (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
-
-      [self stopOneIterationWithIndex:i
-            stopIndex:stopIndexValue
-            count:countValue
-            isLastOne:NO
-            inContext:context];
-
-      GSWAssertDebugElementID(context);
+      [context decrementLoopLevel];
     };
-  [context decrementLoopLevel];
 
   GSWStopElement(context);
   GSWAssertDebugElementIDsCount(context);
+  GSWAssertDebugElementID(context);
 
   LOGObjectFnStop();
 };
@@ -352,69 +436,68 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  //OK
   GSWComponent* component=nil;
   NSArray* listValue=nil;
+  int listCount=0;
   int i=0;
   int countValue=0;
   int startIndexValue = 0;
   int stopIndexValue = 0;
-  GSWDeclareDebugElementIDsCount(context);
-  IMP appendZeroElementIDComponentIMP=NULL;
-  IMP deleteLastElementIDComponentIMP=NULL;
 
-  IMP startOneIterationWithIndexIMP=NULL;
-  IMP stopOneIterationWithIndexIMP=NULL;
+  GSWDeclareDebugElementIDsCount(context);
+  GSWDeclareDebugElementID(context);
 
   LOGObjectFnStart();
 
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
 
-  component=[context component];
+  component=GSWContext_component(context);
 
   [self getParameterValuesReturnList:&listValue
+        listCount:&listCount
         count:&countValue
         startIndex:&startIndexValue
         stopIndex:&stopIndexValue
         withComponent:component];
 
-  [context incrementLoopLevel];
-
   if (startIndexValue<=stopIndexValue)
     {
-      appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
-      deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
-      startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
-      stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
-    };
+      IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
+      IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
+      IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
+      IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
 
-  for(i=startIndexValue;i<=stopIndexValue;i++)
-    {
-      GSWDeclareDebugElementID(context);
-      [self startOneIterationWithIndex:i
-            startIndex:startIndexValue
-            list:listValue
+      [context incrementLoopLevel];
+
+      for(i=startIndexValue;i<=stopIndexValue;i++)
+        {
+          
+          (*prepareIterationIMP)(self,prepareIterationSEL,
+                                 i,startIndexValue,stopIndexValue,
+                                 listValue,listCount,
+                                 listOAIIMP,
+                                 itemSetValueIMP,indexSetValueIMP,
+                                 component,context);
+          
+          GSWContext_appendZeroElementIDComponent(context);
+          
+          [_childrenGroup takeValuesFromRequest:request
+                          inContext:context];
+          
+          GSWContext_deleteLastElementIDComponent(context);
+        };
+      [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
+            indexSetValueIMP:indexSetValueIMP
+            component:component
             inContext:context];
 
-      (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
-
-      [_childrenGroup takeValuesFromRequest:request
-                      inContext:context];
-
-      (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
-
-      [self stopOneIterationWithIndex:i
-            stopIndex:stopIndexValue
-            count:countValue
-            isLastOne:NO
-            inContext:context];
-
-      GSWAssertDebugElementID(context);
+      [context decrementLoopLevel];
     };
-  [context decrementLoopLevel];
+
   GSWStopElement(context);
   GSWAssertDebugElementIDsCount(context);
+  GSWAssertDebugElementID(context);
 
   LOGObjectFnStop();
 };
@@ -427,70 +510,72 @@ static SEL stopOneIterationWithIndexSEL=NULL;
   GSWElement* element=nil;
   GSWComponent* component=nil;
   NSArray* listValue=nil;
+  int listCount=0;
   int i=0;
   int countValue=0;
   int startIndexValue = 0;
   int stopIndexValue = 0;
-  GSWDeclareDebugElementIDsCount(context);
-  IMP appendZeroElementIDComponentIMP=NULL;
-  IMP deleteLastElementIDComponentIMP=NULL;
 
-  IMP startOneIterationWithIndexIMP=NULL;
-  IMP stopOneIterationWithIndexIMP=NULL;
+  GSWDeclareDebugElementIDsCount(context);
+  GSWDeclareDebugElementID(context);
 
   LOGObjectFnStart();
 
   GSWStartElement(context);
-  component=[context component];
+  component=GSWContext_component(context);
 
   [self getParameterValuesReturnList:&listValue
+        listCount:&listCount
         count:&countValue
         startIndex:&startIndexValue
         stopIndex:&stopIndexValue
         withComponent:component];
 
-  [context incrementLoopLevel];
 
   if (startIndexValue<=stopIndexValue)
     {
-      appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
-      deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
-      startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
-      stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
-    };
+      IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
+      IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
+      IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
+      IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
 
-  for(i=startIndexValue;!element && i<=stopIndexValue;i++)
-    {
-      GSWDeclareDebugElementID(context);
-      [self startOneIterationWithIndex:i
-            startIndex:startIndexValue
-            list:listValue
+      [context incrementLoopLevel];
+
+      for(i=startIndexValue;!element && i<=stopIndexValue;i++)
+        {
+          (*prepareIterationIMP)(self,prepareIterationSEL,
+                                 i,startIndexValue,stopIndexValue,
+                                 listValue,listCount,
+                                 listOAIIMP,
+                                 itemSetValueIMP,indexSetValueIMP,
+                                 component,context);
+          
+          GSWContext_appendZeroElementIDComponent(context);
+          
+          element=[_childrenGroup invokeActionForRequest:request
+                                  inContext:context];
+          NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
+                    @"_childrenGroup=%@ Element is a %@ not a GSWElement: %@",
+                    _childrenGroup,
+                    [element class],
+                    element);
+          
+          GSWContext_deleteLastElementIDComponent(context);
+        };
+
+      [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
+            indexSetValueIMP:indexSetValueIMP
+            component:component
             inContext:context];
 
-      (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
-
-      element=[_childrenGroup invokeActionForRequest:request
-                             inContext:context];
-      NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
-                @"_childrenGroup=%@ Element is a %@ not a GSWElement: %@",
-                _childrenGroup,
-                [element class],
-                element);
-
-      (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
-
-      [self stopOneIterationWithIndex:i
-            stopIndex:stopIndexValue
-            count:countValue
-            isLastOne:(element!=nil)
-            inContext:context];
-
-      GSWAssertDebugElementID(context);
+      [context decrementLoopLevel];
     };
-  [context decrementLoopLevel];
+
+
 
   GSWStopElement(context);
   GSWAssertDebugElementIDsCount(context);
+  GSWAssertDebugElementID(context);
 
   LOGObjectFnStop();
 
@@ -499,167 +584,87 @@ static SEL stopOneIterationWithIndexSEL=NULL;
 
 //--------------------------------------------------------------------
 -(GSWElement*)_fastInvokeActionForRequest:(GSWRequest*)request
-                                inContext:(GSWContext*)context
+                                inContext:(GSWContext*)aContext
 {
-  //OK
   GSWElement* element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
-  GSWDeclareDebugElementIDsCount(context);
-  IMP appendZeroElementIDComponentIMP=NULL;
-  IMP deleteLastElementIDComponentIMP=NULL;
-
-  IMP startOneIterationWithIndexIMP=NULL;
-  IMP stopOneIterationWithIndexIMP=NULL;
+  GSWDeclareDebugElementIDsCount(aContext);
+  GSWDeclareDebugElementID(aContext);
 
   LOGObjectFnStart();
 
-  GSWStartElement(context);
+  GSWStartElement(aContext);
 
-  senderID=[context senderID];
+  senderID=GSWContext_senderID(aContext);
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
 
-  elementID=[context elementID];
+  elementID=GSWContext_elementID(aContext);
 
   if ([senderID hasPrefix:elementID])
     {
-      GSWDeclareDebugElementID(context);
       int countValue=0;
       NSArray* listValue=nil;
+      int listCount=0;
       int startIndexValue = 0;
       int stopIndexValue = 0;
       int i=0;
-      GSWComponent* component=[context component];
+      GSWComponent* component=GSWContext_component(aContext);
+
       [self getParameterValuesReturnList:&listValue
+            listCount:&listCount
             count:&countValue
             startIndex:&startIndexValue
             stopIndex:&stopIndexValue
             withComponent:component];
 
-      [context incrementLoopLevel];
 
       if (startIndexValue<=stopIndexValue)
         {
-          appendZeroElementIDComponentIMP=[context methodForSelector:appendZeroElementIDComponentSEL];
-          deleteLastElementIDComponentIMP=[context methodForSelector:deleteLastElementIDComponentSEL];
-          startOneIterationWithIndexIMP=[self methodForSelector:startOneIterationWithIndexSEL];
-          stopOneIterationWithIndexIMP=[self methodForSelector:stopOneIterationWithIndexSEL];
+          IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
+          IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
+          IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
+          IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
+
+          [aContext incrementLoopLevel];
+
+          for(i=startIndexValue;!element && i<=stopIndexValue;i++)
+            {
+              (*prepareIterationIMP)(self,prepareIterationSEL,
+                                     i,startIndexValue,stopIndexValue,
+                                     listValue,listCount,
+                                     listOAIIMP,
+                                     itemSetValueIMP,indexSetValueIMP,
+                                     component,aContext);
+              
+              GSWContext_appendZeroElementIDComponent(aContext);
+              
+              element=[_childrenGroup invokeActionForRequest:request
+                                      inContext:aContext];
+              NSDebugMLLog(@"gswdync",@"element=%@",element);
+              
+              GSWContext_deleteLastElementIDComponent(aContext);              
+            };
+
+          [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
+                indexSetValueIMP:indexSetValueIMP
+                component:component
+                inContext:aContext];
+          
+          [aContext decrementLoopLevel];
         };
-
-      for(i=startIndexValue;!element && i<=stopIndexValue;i++)
-        {
-          [self startOneIterationWithIndex:i
-                startIndex:startIndexValue
-                list:listValue
-                inContext:context];
-
-          (*appendZeroElementIDComponentIMP)(context,appendZeroElementIDComponentSEL);
-
-          element=[_childrenGroup invokeActionForRequest:request
-                                  inContext:context];
-          NSDebugMLLog(@"gswdync",@"element=%@",element);
-
-          (*deleteLastElementIDComponentIMP)(context,deleteLastElementIDComponentSEL);
-
-          [self stopOneIterationWithIndex:i
-                stopIndex:stopIndexValue
-                count:countValue
-                isLastOne:(element!=nil)
-                inContext:context];
-
-          GSWAssertDebugElementID(context);
-        };
-      [context decrementLoopLevel];
     };
 
-  GSWStopElement(context);
-  GSWAssertDebugElementIDsCount(context);
+  GSWStopElement(aContext);
+  GSWAssertDebugElementIDsCount(aContext);
+  GSWAssertDebugElementID(aContext);
 
   LOGObjectFnStop();
 
   return element;
 };
 
-//--------------------------------------------------------------------
--(void)stopOneIterationWithIndex:(int)currentIndex
-                       stopIndex:(int)stopIndex
-                           count:(int)count
-                       isLastOne:(BOOL)isLastOne
-                       inContext:(GSWContext*)context
-{
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"self=%p currentIndex=%d stopIndex=%d count=%d isLastOne=%s [context elementID]=%@",
-               self,currentIndex,stopIndex,count,(isLastOne ? "YES" : "NO"),
-               [context elementID]);
-  if (currentIndex==(count-1) || currentIndex==stopIndex ||isLastOne)
-    {
-      NS_DURING
-        {
-          GSWComponent* component=[context component];
-          if (_list && _item)
-            [_item setValue:nil //??
-                   inComponent:component];
-          if (_index)
-            [_index setValue:[NSNumber numberWithShort:0]
-                    inComponent:component];
-          [context deleteLastElementIDComponent];
-        }
-      NS_HANDLER
-        {
-          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In stopOneIterationWithIndex");
-          [localException raise];
-        }
-      NS_ENDHANDLER;
-    };
-  LOGObjectFnStop();
-};
 
-//--------------------------------------------------------------------
--(void)startOneIterationWithIndex:(unsigned int)currentIndex
-                       startIndex:(unsigned int)startIndex
-                             list:(NSArray*)list
-                        inContext:(GSWContext*)context
-{
-  //OK
-  GSWComponent* component=nil;
-  LOGObjectFnStart();
-  NS_DURING
-    {
-      component=[context component];
-      NSDebugMLLog(@"gswdync",@"currentIndex=%d startIndex=%d",currentIndex,startIndex);
-      NSDebugMLLog(@"gswdync",@"_index=%@",_index);
-      NSDebugMLLog(@"gswdync",@"_item=%@",_item);
-      if (_list && _item)
-        {
-          if ([list count]>currentIndex)
-            { 
-              NSDebugMLLog(@"gswdync",@"[list objectAtIndex:%d]=%@",currentIndex,[list objectAtIndex:currentIndex]);
-              [_item setValue:[list objectAtIndex:currentIndex]
-                     inComponent:component];
-            }
-          else
-            {
-              //NSLog(@"startOneIterationWithIndex SKIPPING setValue:inComponent index=%d list.count=%d",currentIndex, [list count]);
-            };
-        };
-
-      if (_index)
-        [_index setValue:[NSNumber numberWithShort:currentIndex]
-                inComponent:component];
-      if (currentIndex==startIndex)
-        [context appendZeroElementIDComponent];
-      else
-        [context incrementLastElementIDComponent];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In startOneIterationWithIndex");
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  LOGObjectFnStop();
-};
 
 @end
 

@@ -1,6 +1,6 @@
 /** GSWText.m - <title>GSWeb: Class GSWText</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -69,35 +69,22 @@ RCS_ID("$Id$")
   return @"TEXTAREA";
 };
 
-@end
-
-//====================================================================
-@implementation GSWText (GSWTextA)
-
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context
-{
-  [super takeValuesFromRequest:request
-         inContext:context];
-};
-
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   //OK
-  //GSWRequest* request=[context request];
+  //GSWRequest* request=[aContext request];
   NSString* valueValue=nil;
   NSString* valueValueFiltered=nil;
   //not used BOOL isFromClientComponent=[request isFromClientComponent];
-  GSWComponent* component=[context component];
-  [super appendToResponse:response
-		 inContext:context];
+  GSWComponent* component=GSWContext_component(aContext);
+  [super appendToResponse:aResponse
+		 inContext:aContext];
   valueValue=[_value valueInComponent:component];
   valueValueFiltered=[self _filterSoftReturnsFromString:valueValue];
-  [response appendContentHTMLString:valueValueFiltered];
-  [response _appendContentAsciiString:@"</TEXTAREA>"];
+  GSWResponse_appendContentHTMLString(aResponse,valueValueFiltered);
+  GSWResponse_appendContentAsciiString(aResponse,@"</TEXTAREA>");
 };
 
 //--------------------------------------------------------------------
@@ -114,7 +101,7 @@ RCS_ID("$Id$")
 @end
 
 //====================================================================
-@implementation GSWText (GSWTextB)
+@implementation GSWText (GSWTextA)
 -(BOOL)appendStringAtRight:(id)unkwnon
                withMapping:(char*)mapping
 {

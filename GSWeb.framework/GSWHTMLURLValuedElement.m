@@ -216,16 +216,23 @@ RCS_ID("$Id$")
   GSWElement* element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
+
   LOGObjectFnStartC("GSWHTMLURLValuedElement");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  senderID=[aContext senderID];
-  elementID=[aContext elementID];
+
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],
+               GSWContext_elementID(aContext));
+
+  senderID=GSWContext_senderID(aContext);
+  elementID=GSWContext_elementID(aContext);
+
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
   NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
-  NSDebugMLLog(@"gswdync",@"[elementID isEqualToString:senderID]=%d",(int)[elementID isEqualToString:senderID]);
+  NSDebugMLLog(@"gswdync",@"[elementID isEqualToString:senderID]=%d",
+               (int)[elementID isEqualToString:senderID]);
+
   if ([elementID isEqualToString:senderID])
     {
-      GSWComponent* component=[aContext component];
+      GSWComponent* component=GSWContext_component(aContext);
       if (_value)
         {
           element=[_value valueInComponent:component];
@@ -296,11 +303,14 @@ RCS_ID("$Id$")
                 [element class],
                 element);
     };
+
   NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke element=%@",element);
-  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[aContext elementID]);
+  NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
+  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
+
   LOGObjectFnStopC("GSWHTMLURLValuedElement");
+
   return element;
 };
 
@@ -328,8 +338,8 @@ RCS_ID("$Id$")
   LOGObjectFnStartC("GSWHTMLURLValuedElement");  
 NS_DURING
   {
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
-  component=[aContext component];
+  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
+  component=GSWContext_component(aContext);
   NSDebugMLLog(@"gswdync",@"data=%@",_data);
   NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
   NSDebugMLLog(@"gswdync",@"pageName=%@",_pageName);
@@ -446,27 +456,27 @@ NS_DURING
             };
         };
     };
-  [aResponse appendContentCharacter:' '];
+  GSWResponse_appendContentCharacter(aResponse,' ');
   urlAttributeName=[self urlAttributeName];
   if (urlAttributeName)
     {
-      [aResponse _appendContentAsciiString:urlAttributeName];
-      [aResponse _appendContentAsciiString:@"=\""];
+      GSWResponse_appendContentAsciiString(aResponse,urlAttributeName);
+      GSWResponse_appendContentAsciiString(aResponse,@"=\"");
     };
   if (_src)
     {
-      [aResponse appendContentString:url];
+      GSWResponse_appendContentString(aResponse,url);
     }
   else if (_actionClass || _directActionName)
     {
-      [aResponse appendContentString:url];
+      GSWResponse_appendContentString(aResponse,url);
     }
   else
     {	
       if (dataValue)//_key || _data)
         {
           if (cidStoreValue)
-            [aResponse appendContentString:url];
+            GSWResponse_appendContentString(aResponse,url);
           else
             [dataValue appendDataURLToResponse:aResponse
                        inContext:aContext];
@@ -474,12 +484,12 @@ NS_DURING
       else if (_filename)
         {
           NSDebugMLLog(@"gswdync",@"url = %@",url);
-          [aResponse appendContentString:url];
+          GSWResponse_appendContentString(aResponse,url);
         };
     };
   if (urlAttributeName)
-    [aResponse appendContentCharacter:'"'];
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[aContext elementID]);
+    GSWResponse_appendContentCharacter(aResponse,'"');
+  NSDebugMLLog(@"gswdync",@"_elementID=%@",GSWContext_elementID(aContext));
     }
   NS_HANDLER
     {
@@ -525,7 +535,7 @@ NS_DURING
                              queryDictionary:queryDictionary];
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
 
-  [aResponse appendContentString:anUrl];
+  GSWResponse_appendContentString(aResponse,anUrl);
 
   LOGObjectFnStop();
 };
@@ -562,7 +572,7 @@ NS_DURING
 {
   //OK
   NSString* frameworkName=nil;  
-  GSWComponent* component=[aContext component];
+  GSWComponent* component=GSWContext_component(aContext);
   NSDebugMLog(@"framework=%@",_framework);
   if (_framework)
     frameworkName=[_framework valueInComponent:component];

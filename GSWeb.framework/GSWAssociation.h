@@ -1,6 +1,6 @@
 /** GSWAssociation.h - <title>GSWeb: Class GSWAssociation</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -68,15 +68,9 @@ In the case value = myMember.label, value came from method "label" or member "la
   NSString* _declarationType;
 };
 
--(id)init;
--(id)copyWithZone:(NSZone *)zone;
-
 -(id)valueInComponent:(GSWComponent*)component;
--(id)valueInObject:(id)object;//NDFN
 -(void)setValue:(id)value
     inComponent:(GSWComponent*)component;
--(void)setValue:(id)value
-       inObject:(id)object;//NDFN
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
 -(NSString*)description;
@@ -120,9 +114,9 @@ In the case value = myMember.label, value came from method "label" or member "la
 
 -(NSString*)keyPath;
 -(void)logSynchronizeComponentToParentForValue:(id)value
-                                   inComponent:(NSObject*)component;
+                                   inComponent:(GSWComponent*)component;
 -(void)logSynchronizeParentToComponentForValue:(id)value
-                                   inComponent:(NSObject*)component;
+                                   inComponent:(GSWComponent*)component;
 -(void)logTakeValue:(id)value;
 -(void)logSetValue:(id)value;
 
@@ -131,18 +125,18 @@ In the case value = myMember.label, value came from method "label" or member "la
                  declarationName:(NSString*)declarationName
                  declarationType:(NSString*)declarationType;
 
-+(id)valueInObject:(id)object
-        forKeyPath:(NSString*)keyPath;
++(id)valueInComponent:(GSWComponent*)component
+           forKeyPath:(NSString*)keyPath;
 
 +(void)setValue:(id)value
-       inObject:(id)object
+    inComponent:(GSWComponent*)component
      forKeyPath:(NSString*)keyPath;
 
 @end
 
 //===================================================================================
 @interface NSDictionary (GSWAssociation)
--(BOOL)isAssociationDebugEnabledInComponent:(NSObject*)component;
+-(BOOL)isAssociationDebugEnabledInComponent:(GSWComponent*)component;
 -(void)associationsSetDebugEnabled;
 -(void)associationsSetValuesFromObject:(id)from
                               inObject:(id)to;

@@ -48,8 +48,24 @@ Bindings
         enabled		If evaluated to no, the button appear inactivated.
 **/
 
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWRadioButton
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWRadioButton class])
+    {
+      standardClass=[GSWRadioButton class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -123,26 +139,25 @@ Bindings
   if (_value)
     value=[super valueInContext:context];
   else
-    value=[context elementID];
+    value=GSWContext_elementID(context);
   NSDebugMLLog(@"gswdync",@"value=%@",value);
   LOGObjectFnStopC("GSWCheckBox");
   return value;
 };
 
 //--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext
 {
-  //OK
-  GSWComponent* component=[context component];
-  BOOL disabledInContext=[self disabledInContext:context];
+  GSWComponent* component=GSWContext_component(aContext);
+  BOOL disabledInContext=[self disabledInContext:aContext];
   if (!disabledInContext)
     {
       BOOL isChecked=NO;
-      [self appendValueToResponse:response
-            inContext:context];
-      [self appendNameToResponse:response
-            inContext:context];
+      [self appendValueToResponse:aResponse
+            inContext:aContext];
+      [self appendNameToResponse:aResponse
+            inContext:aContext];
 
       NSDebugMLLog(@"gswdync",@"_value=%@",_value);
       NSDebugMLLog(@"gswdync",@"_selection=%@",_selection);
@@ -164,12 +179,15 @@ Bindings
             };
         }
       else if (_checked)
-        isChecked=[self evaluateCondition:_checked
-                        inContext:context];
+        {
+          isChecked=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                             standardEvaluateConditionInContextIMP,
+                                                             _checked,aContext);
+        };
       NSDebugMLLog(@"gswdync",@"isChecked=%s",(isChecked ? "YES" : "NO"));
 
       if (isChecked)
-        [response _appendContentAsciiString:@" checked"];
+        GSWResponse_appendContentAsciiString(aResponse,@" checked");
     };
 };
 @end
@@ -179,24 +197,24 @@ Bindings
 
 //--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context
+                   inContext:(GSWContext*)aContext
 {
   //OK
   BOOL disabledInContext=NO;
   LOGObjectFnStart();
-  GSWStartElement(context);
-  GSWAssertCorrectElementID(context);
-  disabledInContext=[self disabledInContext:context];
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
+  disabledInContext=[self disabledInContext:aContext];
   if (!disabledInContext)
     {
-      if ([context _wasFormSubmitted])
+      if ([aContext _wasFormSubmitted])
         {
-          GSWComponent* component=[context component];
+          GSWComponent* component=GSWContext_component(aContext);
           NSString* name=nil;
           id formValue=nil;
           id valueValue=nil;
           BOOL isChecked=NO;
-          name=[self nameInContext:context];
+          name=[self nameInContext:aContext];
           NSDebugMLLog(@"gswdync",@"name=%@",name);
           formValue=[request formValueForKey:name];
           NSDebugMLLog(@"gswdync",@"formValue for %@=%@",name,formValue);
@@ -204,7 +222,7 @@ Bindings
           if (_value)
             valueValue=[_value valueInComponent:component];
           else
-            valueValue=[context elementID];
+            valueValue=GSWContext_elementID(aContext);
             
           if (formValue && valueValue)
             {
@@ -234,7 +252,7 @@ Bindings
                   else
                     {
                       [self handleValidationException:localException
-                            inContext:context];
+                            inContext:aContext];
                     };
                 }
               NS_ENDHANDLER;
@@ -244,7 +262,7 @@ Bindings
             {
               NS_DURING
                 {
-                  [_checked setValue:[NSNumber numberWithBool:isChecked]
+                  [_checked setValue:(isChecked ? GSWNumberYes : GSWNumberNo)
                             inComponent:component];
                 };
               NS_HANDLER
@@ -258,7 +276,7 @@ Bindings
                   else
                     {
                       [self handleValidationException:localException
-                            inContext:context];
+                            inContext:aContext];
                     };
                 }
               NS_ENDHANDLER;

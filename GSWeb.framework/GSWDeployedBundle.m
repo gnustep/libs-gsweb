@@ -1,6 +1,6 @@
 /** GSWDeployedBundle.m - <title>GSWeb: Class GSWDeployedBundle</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -343,7 +343,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
                                    inDirectory:(id)aDirectory
-                                  languages:(NSArray*)someLanguages
+                                     languages:(NSArray*)someLanguages
 {
   //OK
   NSString* path=nil;
@@ -352,7 +352,8 @@ RCS_ID("$Id$")
   if (someLanguages)
     {
       int i=0;
-      for(i=0;!path && i<[someLanguages count];i++)
+      int someLanguagesCount=[someLanguages count];
+      for(i=0;!path && i<someLanguagesCount;i++)
         {
           path=[self lockedCachedRelativePathForResourceNamed:aName
                      inDirectory:aDirectory
@@ -372,7 +373,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)lockedCachedRelativePathForResourceNamed:(NSString*)aName
                                          inDirectory:(NSString*)aDirectory
-                                         language:(NSString*)aLanguage
+                                            language:(NSString*)aLanguage
 {
   //OK
   NSString* path=nil;
@@ -383,7 +384,7 @@ RCS_ID("$Id$")
       NSAutoreleasePool* arp = [NSAutoreleasePool new];
       NS_DURING
         {
-          NSString* emptyString=[NSString string];
+          NSString* emptyString=@"";
           NSString* bundlePath=[self bundlePath];
           NSDebugMLLog(@"bundles",@"aName=%@ bundlePath=%@ aDirectory=%@ aLanguage=%@",
                        aName,bundlePath,aDirectory,aLanguage);
@@ -405,11 +406,12 @@ RCS_ID("$Id$")
             path=nil;
           else if (!path)
             {
+              //TODO: use a mutable string for path ?
               //call again _relativePathForResourceNamed:inDirectory:language:
               NSString* completePathTest=nil;
               BOOL exists=NO;
               NSFileManager* fileManager=nil;
-              NSString* pathTest=[NSString string];
+              NSString* pathTest=@"";
               if (aDirectory)
                 pathTest=[pathTest stringByAppendingPathComponent:aDirectory];
               //NSDebugMLLog(@"bundles",@"_pathTest=%@",_pathTest);
@@ -427,9 +429,11 @@ RCS_ID("$Id$")
               #ifdef __APPLE__
               if(!exists)
                 {
-                  NSString  *aCompletePath = [[[NSBundle bundleWithPath:bundlePath] pathForResource:[aName stringByDeletingPathExtension] 
-                                                                                             ofType:[aName pathExtension] 
-                                                                                        inDirectory:aDirectory forLocalization:aLanguage]
+                  NSString  *aCompletePath = [[[NSBundle bundleWithPath:bundlePath] 
+                                                pathForResource:[aName stringByDeletingPathExtension] 
+                                                ofType:[aName pathExtension] 
+                                                inDirectory:aDirectory
+                                                forLocalization:aLanguage]
                                               stringByResolvingSymlinksInPath];
                 
                 if([aCompletePath length] >= ([bundlePath length] + 1))

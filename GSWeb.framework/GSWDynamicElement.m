@@ -33,9 +33,19 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+SEL evaluateConditionInContextSEL = NULL;
 
 //====================================================================
 @implementation GSWDynamicElement
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWDynamicElement class])
+    {
+      evaluateConditionInContextSEL=@selector(evaluateCondition:inContext:);
+    };
+};
 
 //--------------------------------------------------------------------
 //	initWithName:associations:template:
@@ -81,7 +91,7 @@ RCS_ID("$Id$")
                (noConditionDefault ?  "YES" : "NO"));
   if (condition)
     {
-      GSWComponent* component=[context component];
+      GSWComponent* component=GSWContext_component(context);
       id value=[condition valueInComponent:component];
       NSDebugMLLog(@"gswdync",@"_value=%@ class=%@",value,[value class]);
 #ifndef NDEBUG

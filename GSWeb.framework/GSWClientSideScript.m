@@ -1,6 +1,6 @@
 /** GSWClientSideScript.m - <title>GSWeb: Class GSWClientSideScript</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        May 1999
@@ -33,9 +33,27 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
 //====================================================================
 @implementation GSWClientSideScript
 
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWClientSideScript class])
+    {
+      standardClass=[GSWClientSideScript class];
+
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
+
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
@@ -101,16 +119,17 @@ RCS_ID("$Id$")
   LOGObjectFnStartC("GSWClientSideScript");
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);
-  component=[aContext component];
+  component=GSWContext_component(aContext);
   [super appendToResponse:aResponse
          inContext:aContext];
   //hideInCommentValue=[_hideInComment valueInComponent:component];
-  hideInCommentValue=[self evaluateCondition:_hideInComment
-                           inContext:aContext];
-  [aResponse _appendContentAsciiString:@"<SCRIPT language="];
+  hideInCommentValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                              standardEvaluateConditionInContextIMP,
+                                                              _hideInComment,aContext);
+  GSWResponse_appendContentAsciiString(aResponse,@"<SCRIPT language=");
   languageValue=[_language valueInComponent:component];
 
-  [aResponse appendContentHTMLAttributeValue:languageValue];
+  GSWResponse_appendContentHTMLAttributeValue(aResponse,languageValue);
   if ([_otherAttributes count]>0)
   {
     NSEnumerator* enumerator = [_otherAttributes keyEnumerator];
@@ -119,12 +138,12 @@ RCS_ID("$Id$")
     while ((key = [enumerator nextObject]))
       {
         value=[_otherAttributes objectForKey:key];
-        [aResponse appendContentCharacter:' '];
-        [aResponse appendContentString:key];
+        GSWResponse_appendContentCharacter(aResponse,' ');
+        GSWResponse_appendContentString(aResponse,key);
         if (value)
           {
-            [aResponse appendContentCharacter:'='];
-            [aResponse appendContentHTMLAttributeValue:value];
+            GSWResponse_appendContentCharacter(aResponse,'=');
+            GSWResponse_appendContentHTMLAttributeValue(aResponse,value);
           };
       };
   };
@@ -133,23 +152,23 @@ RCS_ID("$Id$")
       scriptValue=[_scriptSource valueInComponent:component];
       if (scriptValue)
         {
-          [aResponse appendContentString:@" src=\""];
-          [aResponse appendContentString:scriptValue];
-          [aResponse appendContentCharacter:'"'];
+          GSWResponse_appendContentString(aResponse,@" src=\"");
+          GSWResponse_appendContentString(aResponse,scriptValue);
+          GSWResponse_appendContentCharacter(aResponse,'"');
         };
     }
-  [aResponse appendContentCharacter:'>'];
+  GSWResponse_appendContentCharacter(aResponse,'>');
   if (_scriptString || _scriptFile)
     {
-      [aResponse appendContentCharacter:'\n'];
+      GSWResponse_appendContentCharacter(aResponse,'\n');
       if (hideInCommentValue)
-        [aResponse _appendContentAsciiString:@"<!-- GNUstepWeb ClientScript\n"];
+        GSWResponse_appendContentAsciiString(aResponse,@"<!-- GNUstepWeb ClientScript\n");
       
       if (_scriptString)
         {
           scriptValue=[_scriptString valueInComponent:component];
           if (scriptValue)
-            [aResponse appendContentString:scriptValue];
+            GSWResponse_appendContentString(aResponse,scriptValue);
           else
             {
               //TODO
@@ -172,7 +191,7 @@ RCS_ID("$Id$")
                   scriptValue=[NSString stringWithContentsOfFile:path];
                   if (scriptValue)
                     {
-                      [aResponse appendContentString:scriptValue];
+                      GSWResponse_appendContentString(aResponse,scriptValue);
                     }
                   else
                     {
@@ -197,11 +216,11 @@ RCS_ID("$Id$")
             };
         };
       
-      [aResponse appendContentCharacter:'\n'];
+      GSWResponse_appendContentCharacter(aResponse,'\n');
       if (hideInCommentValue)
-        [aResponse _appendContentAsciiString:@"//-->\n"];
+        GSWResponse_appendContentAsciiString(aResponse,@"//-->\n");
     };
-  [aResponse _appendContentAsciiString:@"</SCRIPT>"];
+  GSWResponse_appendContentAsciiString(aResponse,@"</SCRIPT>");
   GSWStopElement(aContext);
   LOGObjectFnStopC("GSWClientSideScript");
 };

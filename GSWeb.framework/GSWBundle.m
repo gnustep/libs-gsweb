@@ -287,8 +287,7 @@ objectForReference:(NSString*)keyPath
     {
       language=nil;
       if (languageIndex==languagesNb)
-        relativePath=[NSString stringWithFormat:@"/%@",
-                               fileName];
+        relativePath=[@"/" stringByAppendingString:fileName];
       else
         {
           language=[someLanguages objectAtIndex:languageIndex];
@@ -1015,7 +1014,7 @@ objectForReference:(NSString*)keyPath
               templateParserTypeObject=[archive objectForKey:@"templateParserType"];
               if (templateParserTypeObject)
                 {
-                  templateParserTypeObject=[NSNumber numberWithInt:[GSWTemplateParser templateParserTypeFromString:templateParserTypeObject]];
+                  templateParserTypeObject=GSWIntNumber([GSWTemplateParser templateParserTypeFromString:templateParserTypeObject]);
                   [_templateParserTypeCache setObject:templateParserTypeObject
                                   forKey:aName];
                 };

@@ -497,7 +497,7 @@ RCS_ID("$Id$")
       AvgRespTime=[NSNumber numberWithDouble:AvgRespTimeValue];
       MinRespTime=[NSNumber numberWithDouble:MinRespTimeValue];
       MaxRespTime=[NSNumber numberWithDouble:MaxRespTimeValue];
-      Served=[NSNumber numberWithInt:ServedValue];
+      Served=GSWIntNumber(ServedValue);
       NSDebugMLog(@"AvgRespTime=%@",AvgRespTime);
       NSDebugMLog(@"MinRespTime=%@",MinRespTime);
       NSDebugMLog(@"MaxRespTime=%@",MaxRespTime);

@@ -130,7 +130,7 @@ RCS_ID("$Id$")
           int fileDatasCount=0;
           NS_DURING
             {
-              component=[context component];
+              component=GSWContext_component(context);
               nameInContext=[self nameInContext:context];
               NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
               fileDatas=[request formValuesForKey:nameInContext];

@@ -101,7 +101,7 @@ RCS_ID("$Id$")
 {
   NSEnumerator *assocEnumer=nil;
   id currentAssocKey=nil;
-  id component = [aContext component];
+  id component = GSWContext_component(aContext);
   id theValue=nil;
   id otherTag = nil;
   id tag = nil;
@@ -119,12 +119,13 @@ RCS_ID("$Id$")
     {
       tag = [_elementName valueInComponent:component];
       
-      [aResponse appendContentString:[NSString stringWithFormat:@"<%@",tag]];
+      GSWResponse_appendContentCharacter(aResponse,'<');
+      GSWResponse_appendContentString(aResponse,tag);
       
       if ((otherTag = [_otherTagString valueInComponent:component])) 
         {
-          [aResponse appendContentString:
-                       [NSString stringWithFormat:@" %@",otherTag]];
+          GSWResponse_appendContentCharacter(aResponse,' ');
+          GSWResponse_appendContentString(aResponse,otherTag);
         }
     
       assocEnumer = [_associations keyEnumerator];
@@ -133,18 +134,23 @@ RCS_ID("$Id$")
           theValue = [[_associations objectForKey:currentAssocKey] 
                        valueInComponent:component];
 
-          [aResponse appendContentString:
-                       [NSString stringWithFormat:@" %@=\"%@\"",
-                                 currentAssocKey,theValue]];
+          GSWResponse_appendContentString(aResponse,
+                       ([NSString stringWithFormat:@" %@=\"%@\"",
+                                  currentAssocKey,theValue]));
         }
 
-      [aResponse appendContentString:@">"];
+      GSWResponse_appendContentCharacter(aResponse,'>');
     };
   
-  [_element appendToResponse:aResponse inContext:aContext];
+  [_element appendToResponse:aResponse
+            inContext:aContext];
 
   if (!omitElement)
-    [aResponse appendContentString:[NSString stringWithFormat:@"</%@>",tag]];
+    {
+      GSWResponse_appendContentAsciiString(aResponse,@"</");
+      GSWResponse_appendContentString(aResponse,tag);
+      GSWResponse_appendContentCharacter(aResponse,'>');
+    };
 };
 
 //--------------------------------------------------------------------

@@ -41,6 +41,35 @@ RCS_ID("$Id$")
 static NSString* disabledCacheDateString=nil;
 static NSArray* cacheControlHeaderValues=nil;
 
+static SEL appendTagAttributeValueEscapingHTMLAttributeValueSEL = NULL;
+
+//====================================================================
+/** Fill impsPtr structure with IMPs for response **/
+void GetGSWResponseIMPs(GSWResponseIMPs* impsPtr,GSWResponse* aResponse)
+{
+  memset(impsPtr,0,sizeof(GSWResponseIMPs));
+
+  NSCAssert(aResponse,@"No response");
+
+  impsPtr->_appendTagAttributeValueEscapingHTMLAttributeValueIMP = 
+    [aResponse methodForSelector:appendTagAttributeValueEscapingHTMLAttributeValueSEL];
+};
+
+//====================================================================
+/** functions to accelerate calls of frequently used GSWResponse methods **/
+
+//--------------------------------------------------------------------
+void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* aResponse,
+                                                                   NSString* aString,
+                                                                   id value,
+                                                                   BOOL escaping)
+{
+  if (aResponse)
+    {
+      (*(aResponse->_selfIMPs._appendTagAttributeValueEscapingHTMLAttributeValueIMP))
+        (aResponse,appendTagAttributeValueEscapingHTMLAttributeValueSEL,aString,value,escaping);
+    };
+}
 
 //--------------------------------------------------------------------
 +(void)initialize
@@ -57,6 +86,8 @@ static NSArray* cacheControlHeaderValues=nil;
                                                 @"must-revalidate",
                                                 @"max-age=0",
                                                 nil]));
+
+      appendTagAttributeValueEscapingHTMLAttributeValueSEL = @selector(_appendTagAttribute:value:escapingHTMLAttributeValue:);
     };
 };
 
@@ -68,6 +99,7 @@ static NSArray* cacheControlHeaderValues=nil;
   LOGObjectFnStart();
   if ((self=[super init]))
     {
+      GetGSWResponseIMPs(&_selfIMPs,self);
       _canDisableClientCaching=YES;
       _status=200;
     };
@@ -281,7 +313,8 @@ static NSArray* cacheControlHeaderValues=nil;
     {
       NSString* docStructure=[aContext docStructure];
       if (docStructure)
-        [self appendContentString:[NSString stringWithFormat:@"\n<!-- %@ -->\n",docStructure]];
+        GSWResponse_appendContentString(self,
+                                        ([NSString stringWithFormat:@"\n<!-- %@ -->\n",docStructure]));
     }
 #endif
 
@@ -327,14 +360,19 @@ static NSArray* cacheControlHeaderValues=nil;
                      value:(id)value
 escapingHTMLAttributeValue:(BOOL)escape
 {
-  [self appendContentCharacter:' '];
-  [self _appendContentAsciiString:attributeName];
-  [self _appendContentAsciiString:@"=\""];
+  LOGObjectFnStart();
+
+  GSWResponse_appendContentCharacter(self,' ');
+  GSWResponse_appendContentAsciiString(self,attributeName);
+  GSWResponse_appendContentAsciiString(self,@"=\"");
   if (escape)
-    [self _appendContentAsciiString:[[self class]stringByEscapingHTMLAttributeValue:value]];
+    GSWResponse_appendContentAsciiString(self,
+                                         GSWResponse_stringByEscapingHTMLAttributeValue(self,value));
   else
-    [self _appendContentAsciiString:value];
-  [self appendContentCharacter:'"'];
+    GSWResponse_appendContentAsciiString(self,value);
+  GSWResponse_appendContentCharacter(self,'"');
+
+  LOGObjectFnStop();
 };
 
 @end
@@ -430,29 +468,29 @@ escapingHTMLAttributeValue:(BOOL)escape
 			forRequest:(GSWRequest*)aRequest
                      forceFinalize:(BOOL)forceFinalize
 {
-  GSWResponse* response=nil;
+  GSWResponse* aResponse=nil;
   NSString* httpVersion=nil;
   LOGClassFnStart();
-  response=[GSWApp createResponseInContext:aContext];
-  if (response)
+  aResponse=[GSWApp createResponseInContext:aContext];
+  if (aResponse)
     {
       NSString* responseString=nil;
       if (aContext && [aContext request])
 	aRequest=[aContext request];
       httpVersion=[aRequest httpVersion];
       if (httpVersion)
-	[response setHTTPVersion:httpVersion];
-      [response setHeader:@"text/html"
+	[aResponse setHTTPVersion:httpVersion];
+      [aResponse setHeader:@"text/html"
                 forKey:@"content-type"];
-      [aContext _setResponse:response];
+      [aContext _setResponse:aResponse];
       responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
-                               [[response class]stringByEscapingHTMLString:aMessage]];
-      [response appendContentString:responseString];
+                               GSWResponse_stringByEscapingHTMLString(aResponse,aMessage)];
+      GSWResponse_appendContentString(aResponse,responseString);
       if (forceFinalize)
-        [response forceFinalizeInContext];
+        [aResponse forceFinalizeInContext];
     };
   LOGClassFnStop();
-  return response;
+  return aResponse;
 };
 
 @end
@@ -522,7 +560,7 @@ escapingHTMLAttributeValue:(BOOL)escape
 {
   if (message)
     {
-      [self appendContentString:message];
+      GSWResponse_appendContentString(self,message);
       
       [self setHeader:GSWIntToNSString([[self content] length])
             forKey:@"content-length"];

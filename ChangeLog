@@ -1,3 +1,205 @@
+2004-12-31  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/common/GSWStats.c:
+		o fixed type
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.m
+		o replaced numberWithBool: by GSWNumberXX
+	* GSWExtensions.framework/GSWLongResponsePage.m:
+		o replaced [context senderID] by GSWContext_senderID()
+	* GSWExtensionsGSW.framework/GSWCacheElement.m:
+		o use GSWDynamicElement_evaluateValueInContext
+		o replaced numberWithBool: by GSWNumberXX
+	* GSWeb.framework/GSWAction.h:
+		o added -existingSession
+	* GSWeb.framework/GSWAction.m:
+		o added -existingSession
+		o fixed application -logWithFormat:arguments:
+	* GSWeb.framework/GSWActiveImage.m
+		o use IMPs
+		o use GSWIntNumber()
+	* GSWeb.framework/GSWApplication+Defaults.m
+		o use GSWIntNumber()
+	* GSWeb.framework/GSWApplication.h:
+		o added -contextClass
+		o added -responseClass
+		o added -requestClass
+	* GSWeb.framework/GSWApplication.m:
+		o added -contextClass
+		o added -responseClass
+		o added -requestClass
+		o replaced some [NSDate date] by GSWTime_now()
+		o added +initialized to call GSWInitializeAllMisc();
+		o removed [xx count] in 'for' loops
+	* GSWeb.framework/GSWAssociation.[hm]:
+		o use static EONull instead of calling [xxNULL null] each time
+		o removed xxInObject:
+		o replaced numberWithBool: by GSWNumberXX
+	* GSWeb.framework/GSWBindingNameAssociation.[hm]
+		o replaced xxInObject: by xxInComponent:
+		o replace xxInObject: by xxInComponent:
+	* GSWeb.framework/GSWBrowser.m
+		o use IMPs
+		o use GSWIntNumber()
+		o removed [xx count] in 'for' loops
+	* GSWeb.framework/GSWBundle.m:
+		o use GSWIntNumber()
+		o replaced a -stringWithFormat:		
+	* GSWeb.framework/GSWCheckBox.m:
+		o use IMPs
+	* GSWeb.framework/GSWCheckBoxList.m:
+		o use IMPs
+		o removed [xx count] in 'for' loops
+	* GSWeb.framework/GSWClientSideScript.m:
+		o use IMPs
+	* GSWeb.framework/GSWComponent.m:
+		o removed [xx count] in 'for' loops
+		o use IMPs
+	* GSWeb.framework/GSWComponentContent.m:
+		o use IMPs
+	* GSWeb.framework/GSWComponentReference.m:
+		o removed [xx count] in 'for' loops
+		o use IMPs
+	* GSWeb.framework/GSWComponentRequestHandler.m:
+		o use IMPs
+	* GSWeb.framework/GSWConditional.m:
+		o use IMPs
+	* GSWeb.framework/GSWKeyValueAssociation.[hm]:
+		o replaced xxInObject: by xxInComponent:
+	* GSWeb.framework/GSWConstantValueAssociation.[hm]:
+		o replaced xxInObject: by xxInComponent:
+	* GSWeb.framework/GSWConstants.[hm]:
+		o added GSWHTTPHeader_AdaptorStats
+	* GSWeb.framework/GSWContext.[hm]:
+		o use of IMPs of elementID manipulation
+		o added structure and methods to use IMPs
+		o added computeQueryDictionary:
+		o added computePathQueryDictionary:
+	* GSWeb.framework/GSWDeclarationParser.[hm]:
+		o added structure and methods to use IMPs
+	* GSWeb.framework/GSWDefaultAdaptor.h:
+		o replaced NSDate by GSWTime	
+	* GSWeb.framework/GSWDefaultAdaptor.m:
+		o use GSWIntNumber()
+		o replaced NSDate by GSWTime	
+		o removed [xx count] in 'for' loops
+	* GSWeb.framework/GSWDefaultAdaptorThread.h:
+		o replaced NSDate by GSWTime	
+	* GSWeb.framework/GSWDefaultAdaptorThread.m:
+		o use IMPs
+		o replaced NSDate by GSWTime	
+		o added stats header
+	* GSWeb.framework/GSWDeployedBundle.m:
+		o replace [NSString string] by @""
+		o removed [xx count] in 'for' loops
+	* GSWeb.framework/GSWDirectActionRequestHandler.m:
+		o use IMPs
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o use GSWIntNumber()
+	*GSWeb.framework/GSWDynamicElement.[hm]:
+		o added evaluateConditionInContextSEL
+		o added IMP call function
+	* GSWeb.framework/GSWDynamicURLString.m:
+		o removed [xx count] in 'for' loops
+	* GSWeb.framework/GSWElement.h:
+		o added GSWELEMENT_HAS_DECLARATION_NAME for future use
+	* GSWeb.framework/GSWElement.m:
+		o use GSWELEMENT_HAS_DECLARATION_NAME
+		o use IMPs
+	* GSWeb.framework/GSWElementID.[hm]:
+		o added more public selectors
+		o added structure and methods to use IMPs
+	* GSWeb.framework/GSWFileUpload.m		
+		o use IMPs
+	* GSWeb.framework/GSWForm.m:
+		o use IMPs
+	* GSWeb.framework/GSWGenericContainer.m		
+		o use IMPs
+	* GSWeb.framework/GSWGenericElement.m
+		o use IMPs
+	* GSWeb.framework/GSWHTMLBareString.m	
+		o use IMPs
+	* GSWeb.framework/GSWHTMLComment.m
+		o use IMPs
+	* GSWeb.framework/GSWHTMLDynamicElement.m
+		o fix in -computeQueryDictionaryWithActionClassAssociation:directActionNameAssociation:queryDictionaryAssociation:otherQueryAssociations:inContext:
+			to remove nil valued otherQueryAssociations, like WO do.
+		o use IMPs
+		o replaced some -stringWithFormat:
+	* GSWeb.framework/GSWHTMLStaticElement.m:
+		o use IMPs
+		o replaced some -stringWithFormat:
+		o removed [xx length] in 'for' loops
+	* GSWeb.framework/GSWHTMLStaticGroup.m:
+		o use IMPs
+	* GSWeb.framework/GSWHTMLURLValuedElement.m:
+		o use IMPs
+	* GSWeb.framework/GSWHyperlink.m:
+		o use IMPs
+	* GSWeb.framework/GSWImage.m:
+		o use IMPs
+	* GSWeb.framework/GSWImageButton.m:
+		o use IMPs
+	* GSWeb.framework/GSWInput.m:	
+		o use IMPs
+	* GSWeb.framework/GSWMessage.[hm]:
+		o added structure and methods to use IMPs
+	* GSWeb.framework/GSWParam.[hm]:
+		o cleaned
+		o partially implemented
+	* GSWeb.framework/GSWPopUpButton.m:
+		o use IMPs
+		o use GSWIntNumber()
+	* GSWeb.framework/GSWRadioButton.m:
+		o use IMPs
+	* GSWeb.framework/GSWRadioButtonList.m:
+		o use IMPs
+		o use GSWIntNumber()
+	* GSWeb.framework/GSWRepetition.[hm]:
+		o replaced startOneIteration/stopOneIteration by 
+			_prepareIteration/_cleanupAfterIterations
+		o use IMPs
+	* GSWeb.framework/GSWRequest.m:
+		o removed [xx length] in 'for' loops
+	* GSWeb.framework/GSWResourceManager.m:
+		o removed [xx length] in 'for' loops
+	* GSWeb.framework/GSWResponse.[hm]:
+		o added structure and methods to use IMPs
+		o use IMPs
+	* GSWeb.framework/GSWSession.m:
+		o Asserts in -setObject:forKey:
+	* GSWeb.framework/GSWSessionTimeOutManager.m::
+		o define for timer time interval
+		o increase Session time out timer interval from 5 to 15s
+	* GSWeb.framework/GSWStatisticsStore.m:
+		o use GSWIntNumber()
+	* GSWeb.framework/GSWString.m:
+		o use IMPs
+	* GSWeb.framework/GSWSubmitButton.m:
+		o use IMPs
+	* GSWeb.framework/GSWSwitchComponent.m:
+		o use IMPs
+	* GSWeb.framework/GSWText.h:
+		o cleaned
+	* GSWeb.framework/GSWText.m:
+		o use IMPs
+	* GSWeb.framework/GSWTextField.m:
+		o use IMPs
+	* GSWeb.framework/GSWToggle.m:	
+		o use IMPs
+	* GSWeb.framework/GSWTransactionRecord.m
+		o use IMPs
+	* GSWeb.framework/GSWURLValuedElementData.m:
+		o use IMPs
+	* GSWeb.framework/GSWUtils.[hm]:
+		o Various IMP types declaration
+		o added GSWNumber_Yes() & GSWNumber_No() and macros
+		o moved NSStringWithObject() from NSString+Trimming
+		o added GSWInitializeAllMisc() for various initializations
+		o use IMPs	
+	* GSWeb.framework/NSString+HTML.m:
+		o optimized html convertions
+	* GSWeb.framework/NSString+Trimming.m:
+		o moved NSStringWithObject() to GSWUtils
+
 2004-12-31  David Wetzel <dave@turbocat.de>
         * GSWeb.framework/GSWElementID.m
                 o fixed use of static SEL

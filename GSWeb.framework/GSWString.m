@@ -33,9 +33,30 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-//====================================================================
+static SEL formattedValueInContextSEL = NULL;
 
+static IMP standardFormattedValueInContextIMP = NULL;
+static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+
+static Class standardClass = Nil;
+
+//====================================================================
 @implementation GSWString
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWString class])
+    {
+      standardClass=[GSWString class];
+      formattedValueInContextSEL=@selector(formattedValueInContext:);
+
+      standardFormattedValueInContextIMP = 
+        [self instanceMethodForSelector:formattedValueInContextSEL];
+      standardEvaluateConditionInContextIMP = 
+        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -113,8 +134,8 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   //OK
   NSString* formattedValue=nil;
@@ -124,14 +145,17 @@ RCS_ID("$Id$")
 
   LOGObjectFnStartC("GSWString");
 
-  GSWStartElement(context);
-  GSWSaveAppendToResponseElementID(context);
+  GSWStartElement(aContext);
+  GSWSaveAppendToResponseElementID(aContext);
 
-  request=[context request];
+  request=[aContext request];
   isFromClientComponent=[request isFromClientComponent];
-  component=[context component];
+  component=GSWContext_component(aContext);
 
-  formattedValue=[self formattedValueInContext:context];
+  if (object_get_class(self)==standardClass)
+    formattedValue=(*standardFormattedValueInContextIMP)(self,formattedValueInContextSEL,aContext);
+  else
+    formattedValue=[self formattedValueInContext:aContext];
 
   if (formattedValue)
     {
@@ -140,38 +164,51 @@ RCS_ID("$Id$")
       BOOL convertHTMLEntitiesValue=NO;
 
       if (!WOStrictFlag && _convertHTML)
-        convertHTMLValue=[self evaluateCondition:_convertHTML
-                               inContext:context];
+        {
+          convertHTMLValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                    standardEvaluateConditionInContextIMP,
+                                                                    _convertHTML,aContext);
+        };
+
       if (!WOStrictFlag)
         {
           if (!convertHTMLValue)
             {
               if (_convertHTMLEntities)
-                convertHTMLEntitiesValue=[self evaluateCondition:_convertHTMLEntities
-                                               inContext:context];
+                {
+                  convertHTMLEntitiesValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                                    standardEvaluateConditionInContextIMP,
+                                                                                    _convertHTMLEntities,aContext);
+                };
               if (!convertHTMLEntitiesValue)
                 {
                   if (_escapeHTML)
-                    escapeHTMLValue=[self evaluateCondition:_escapeHTML
-                                          inContext:context];
+                    {
+                      escapeHTMLValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                               standardEvaluateConditionInContextIMP,
+                                                                               _escapeHTML,aContext);
+                    };
                 };
             };
         }
       else if (_escapeHTML)
-        escapeHTMLValue=[self evaluateCondition:_escapeHTML
-                              inContext:context];
+        {
+          escapeHTMLValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                                   standardEvaluateConditionInContextIMP,
+                                                                   _escapeHTML,aContext);
+        };
 
       if (!WOStrictFlag && convertHTMLValue)
-        [response appendContentHTMLConvertString:formattedValue];
+        GSWResponse_appendContentHTMLConvertString(aResponse,formattedValue);
       else if (!WOStrictFlag && convertHTMLEntitiesValue)
-        [response appendContentHTMLEntitiesConvertString:formattedValue];
+        GSWResponse_appendContentHTMLEntitiesConvertString(aResponse,formattedValue);
       else if (escapeHTMLValue)
-        [response appendContentHTMLString:formattedValue];
+        GSWResponse_appendContentHTMLString(aResponse,formattedValue);
       else
-        [response appendContentString:formattedValue];
+        GSWResponse_appendContentString(aResponse,formattedValue);
     };
 
-  GSWStopElement(context);
+  GSWStopElement(aContext);
 
   LOGObjectFnStopC("GSWString");
 };
@@ -239,7 +276,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 // return formatted value
--(NSString*)formattedValueInContext:(GSWContext*)context
+-(NSString*)formattedValueInContext:(GSWContext*)aContext
 {
   NSString* formattedValue=nil;
   GSWComponent* component=nil;
@@ -247,7 +284,7 @@ RCS_ID("$Id$")
 
   LOGObjectFnStartC("GSWString");
 
-  component=[context component];
+  component=GSWContext_component(aContext);
 
   NSDebugMLLog(@"gswdync",@"GSWString: value=%@",_value);
 

@@ -97,8 +97,8 @@ RCS_ID("$Id$")
   NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
   if ([self hasBinding:@"visibility"])
 	{
-	  [self setValue:[NSNumber numberWithBool:_isVisible]
-							   forBinding:@"visibility"];
+	  [self setValue:(_isVisible ? GSWNumberYes : GSWNumberNo)
+                forBinding:@"visibility"];
 	};
   LOGObjectFnStop();
   return nil;

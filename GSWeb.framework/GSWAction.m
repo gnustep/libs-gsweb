@@ -340,8 +340,8 @@ RCS_ID("$Id$")
 {
   va_list ap;
   va_start(ap,aFormat);
-  [GSWApplication logWithFormat:aFormat
-                  arguments:ap];
+  [[GSWApplication application]logWithFormat:aFormat
+                               arguments:ap];
   va_end(ap);
 };
 
@@ -350,8 +350,8 @@ RCS_ID("$Id$")
 {
   va_list ap;
   va_start(ap,aFormat);
-  [GSWApplication logWithFormat:aFormat
-                  arguments:ap];
+  [[GSWApplication application] logWithFormat:aFormat
+                                arguments:ap];
   va_end(ap);
 };
 

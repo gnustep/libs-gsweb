@@ -1,6 +1,6 @@
 /** GSWConstantValueAssociation.h - <title>GSWeb: Class GSWConstantValueAssociation</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -39,15 +39,12 @@
 };
 
 -(id)initWithValue:(id)aValue;
--(void)dealloc;
--(id)copyWithZone:(NSZone*)zone;
 -(NSString*)debugDescription;
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
--(id)valueInObject:(id)object;
+-(id)valueInComponent:(GSWComponent*)component;
 -(void)setValue:(id)aValue
-	   inObject:(id)object;
--(NSString*)description;
+       inComponent:(GSWComponent*)component;
 
 @end
 #endif //GSWConstantValueAssociation

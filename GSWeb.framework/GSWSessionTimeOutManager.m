@@ -1,6 +1,6 @@
 /** GSWSessionTimeOutManager.m - <title>GSWeb: Class GSWSessionTimeOutManager</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -34,6 +34,10 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include "GSWSessionTimeOut.h"
+
+#define SESSION_TIMEOUT_TIMER_INTERVAL_MIN	15	// 15s minimum
+#define REFUSING_NEW_SESSION_TIMER_INTERVAL	5	// 5s minimum
+#define REFUSING_NEW_SESSION_APPLICATION_END	10	// 10s
 
 //====================================================================
 @implementation GSWSessionTimeOutManager
@@ -435,7 +439,7 @@ RCS_ID("$Id$")
               NSTimeInterval timerTimeInterval=[sessionTimeOut timeOutTime]-now;
 
               NSDebugMLLog(@"sessions",@"timerTimeInterval=%ld",(long)timerTimeInterval);
-              timerTimeInterval=max(timerTimeInterval,5);//5s minimum
+              timerTimeInterval=max(timerTimeInterval,SESSION_TIMEOUT_TIMER_INTERVAL_MIN);// TIMER_INTERVAL_MIN seconds minimum
               NSDebugMLLog(@"sessions",@"timerTimeInterval=%ld",(long)timerTimeInterval);
               /*
               NSLog(@"%s %d new timerTimeInterval=%ld for sessionTimeOut: %@",
@@ -582,8 +586,8 @@ RCS_ID("$Id$")
   //LOGObjectFnStart();
   [self lock];
   /*
-    newTimer=[NSTimer timerWithTimeInterval:5	// first time after 5 seconds
-    target:self
+    newTimer=[NSTimer timerWithTimeInterval:REFUSING_NEW_SESSION_TIMER_INTERVAL	// first time after 5 seconds
+    target:self*****
     selector:@selector(handleTimerRefusingSessions:)
     userInfo:nil
     repeats:NO];
@@ -592,7 +596,7 @@ RCS_ID("$Id$")
     [GSWApp addTimer:newTimer];
 	
 */
-  newTimer = [NSTimer scheduledTimerWithTimeInterval:5 
+  newTimer = [NSTimer scheduledTimerWithTimeInterval:REFUSING_NEW_SESSION_TIMER_INTERVAL
                       target:self
                       selector:@selector(handleTimerRefusingSessions:)
                       userInfo:nil
@@ -667,7 +671,7 @@ RCS_ID("$Id$")
                           LOGException(@"%@ (%@)",localException,[localException reason]);
                           //TODO
                           [_target unlock];
-        		  timer = [NSTimer scheduledTimerWithTimeInterval:5 
+        		  timer = [NSTimer scheduledTimerWithTimeInterval:REFUSING_NEW_SESSION_TIMER_INTERVAL
                                            target:self
                                            selector:@selector(handleTimerRefusingSessions:)
                                            userInfo:nil
@@ -699,9 +703,10 @@ RCS_ID("$Id$")
                     }
                 }
               // app terminate
-              NSLog(@"application is preparing to shut down in 10 sec...");
+              NSLog(@"application is preparing to shut down in %d sec...",
+                    (int)REFUSING_NEW_SESSION_APPLICATION_END);
               
-              timer = [NSTimer scheduledTimerWithTimeInterval:10 
+              timer = [NSTimer scheduledTimerWithTimeInterval:REFUSING_NEW_SESSION_APPLICATION_END
                                target:self
                                selector:@selector(handleTimerKillingApplication:)
                                userInfo:nil
@@ -711,7 +716,7 @@ RCS_ID("$Id$")
           else  
             {
               // new timer, app does not terminate
-              timer = [NSTimer scheduledTimerWithTimeInterval:5 
+              timer = [NSTimer scheduledTimerWithTimeInterval:REFUSING_NEW_SESSION_TIMER_INTERVAL
                                target:self
                                selector:@selector(handleTimerRefusingSessions:)
                                userInfo:nil
@@ -743,7 +748,7 @@ RCS_ID("$Id$")
       // Can't lock, reschedule
       NSLog(@"Can't lock, reschedule....");
       NSDebugMLLog(@"sessions",@"selfLockn=%d",_selfLockn);
-      newTimer = [NSTimer scheduledTimerWithTimeInterval:5 
+      newTimer = [NSTimer scheduledTimerWithTimeInterval:REFUSING_NEW_SESSION_TIMER_INTERVAL
                           target:self
                           selector:@selector(handleTimerRefusingSessions:)
                           userInfo:nil

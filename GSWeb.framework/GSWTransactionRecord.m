@@ -1,6 +1,6 @@
 /** GSWTransactionRecord.m - <title>GSWeb: Class GSWTransactionRecord</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        Apr 1999
@@ -54,11 +54,11 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"low",@"responsePage=%@",_responsePage);
 
       ASSIGN(_contextID,([aContext _requestContextID]));
-      ASSIGN(_senderID,([aContext senderID]));
+      ASSIGN(_senderID,GSWContext_senderID(aContext));
       ASSIGN(_formValues,([[aContext request] formValues]));
 
       NSDebugMLLog(@"low",@"contextID=%@",[aContext _requestContextID]);
-      NSDebugMLLog(@"low",@"senderID=%@",[aContext senderID]);
+      NSDebugMLLog(@"low",@"senderID=%@",_senderID);
     };
   LOGObjectFnStop();
   return self;
@@ -131,7 +131,7 @@ RCS_ID("$Id$")
 {
   BOOL match=NO;
   if ([_contextID isEqualToString:[aContext _requestContextID]]
-      && [_senderID isEqualToString:[aContext senderID]])
+      && [_senderID isEqualToString:GSWContext_senderID(aContext)])
     {
       NSDictionary* requestFormValues=[[aContext request] formValues];
       match=((!_formValues && !requestFormValues)

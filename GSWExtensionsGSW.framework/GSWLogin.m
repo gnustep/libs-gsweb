@@ -143,7 +143,7 @@ RCS_ID("$Id$")
 {
   NSDebugMLog(@"_tryCount=%d",_tryCount);
   NSDebugMLog(@"count=%@ countIntValue=%d",count,[count intValue]);
-  return [NSNumber numberWithBool:(_tryCount>[count intValue] ? YES : NO)];
+  return ((_tryCount>[count intValue]) ? GSWNumberYes : GSWNumberNo);
 };
 @end
 

@@ -1,6 +1,6 @@
 /** GSWKeyValueAssociation.m - <title>GSWeb: Class GSWKeyValueAssociation</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -67,14 +67,14 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(id)valueInObject:(id)object
+-(id)valueInComponent:(GSWComponent*)object
 {
   id retValue=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"associations",@"self=%@ ",self);
   NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
   NSDebugMLLog(@"associations",@"object=%@ ", object);
-  retValue=[GSWAssociation valueInObject:object
+  retValue=[GSWAssociation valueInComponent:object
                            forKeyPath:_keyPath];
   NSDebugMLLog(@"associations",@"self=%@ retValue=%@ (%p) (class=%@)",
                self,
@@ -88,7 +88,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(void)setValue:(id)aValue
-       inObject:(id)object
+    inComponent:(GSWComponent*)object
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
@@ -101,7 +101,7 @@ RCS_ID("$Id$")
     {
       [NSException raise:NSInvalidArgumentException 
                    format:@"No key path when setting value %@ in object of class %@ for association %@",
-                   aValue,NSStringFromClass(object),self];
+                   aValue,NSStringFromClass([object class]),self];
     }
   /*Not Here because self is not a string key !
   //TODO (return something!)
@@ -109,7 +109,7 @@ RCS_ID("$Id$")
   forKey:self];
   */
   [GSWAssociation setValue:aValue
-                  inObject:object
+                  inComponent:object
                   forKeyPath:_keyPath];
   [self logSetValue:aValue];
   LOGObjectFnStop();

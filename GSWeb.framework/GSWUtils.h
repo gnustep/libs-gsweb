@@ -62,12 +62,45 @@ typedef unsigned int UINT32;
 #define UINTs_DEFINED
 #endif
 
+// Function which call various initialization functions
+GSWEB_EXPORT void GSWInitializeAllMisc();
+
+// Various IMP types declaration
+typedef short (*GSWIMP_SHORT)(id, SEL, ...);
+typedef int (*GSWIMP_INT)(id, SEL, ...);
+typedef long (*GSWIMP_LONG)(id, SEL, ...);
+typedef BOOL (*GSWIMP_BOOL)(id, SEL, ...);
+typedef float (*GSWIMP_FLOAT)(id, SEL, ...);
+typedef double (*GSWIMP_DOUBLE)(id, SEL, ...);
+typedef NSStringEncoding (*GSWIMP_STRING_ENCODING)(id, SEL, ...);
+
+GSWEB_EXPORT NSNumber* GSWNumber_Yes();
+GSWEB_EXPORT NSNumber* GSWNumber_No();
+#define GSWNumberYes 	(GSWNumber_Yes())
+#define GSWNumberNo 	(GSWNumber_No())
+
 #define GSW_LOCK_LIMIT [NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]
 
 GSWEB_EXPORT char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int* resultLength);
 GSWEB_EXPORT NSString* GSWIntToNSString(int value);
+GSWEB_EXPORT NSNumber* GSWIntNumber(int value);
 
-BOOL ClassIsKindOfClass(Class classA,Class classB);
+GSWEB_EXPORT BOOL ClassIsKindOfClass(Class classA,Class classB);
+
+typedef long long GSWTime; // usec since Epoch
+
+#define USEC_PER_SEC	((GSWTime)1000000)
+#define GSWTime_makeTimeFromSecAndUSec(sec,usec)	((GSWTime)(sec)*USEC_PER_SEC+(GSWTime)(usec))
+
+GSWEB_EXPORT GSWTime GSWTime_now();
+#define GSWTime_zero()	((GSWTime)0)
+GSWEB_EXPORT NSString* GSWTime_format(GSWTime t); // 2003/12/24 22:12:25.123
+GSWEB_EXPORT time_t GSWTime_secPart(GSWTime t);
+GSWEB_EXPORT long GSWTime_usecPart(GSWTime t);
+GSWEB_EXPORT long GSWTime_msecPart(GSWTime t);
+
+#define GSWTime_floatSec(t) ((double)(((double)GSWTime_secPart(t))+((double)GSWTime_usecPart(t))/USEC_PER_SEC))
+
 
 GSWEB_EXPORT void
 ExceptionRaiseFn(const char *func, 
@@ -416,5 +449,8 @@ typedef enum _NSNumFmtType
 
 + (NSStringEncoding) encodingNamed:(NSString*) encodingName;
 @end
+
+//====================================================================
+GSWEB_EXPORT NSString* NSStringWithObject(id object);
 
 #endif // _GSWebUtils_h__

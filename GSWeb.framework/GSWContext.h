@@ -32,6 +32,36 @@
 #ifndef _GSWContext_h__
 	#define _GSWContext_h__
 
+@class GSWContext;
+
+typedef struct _GSWContextIMPs
+{
+  IMP _incrementLastElementIDComponentIMP;
+  IMP _appendElementIDComponentIMP;
+  IMP _appendZeroElementIDComponentIMP;
+  IMP _deleteAllElementIDComponentsIMP;
+  IMP _deleteLastElementIDComponentIMP;
+  IMP _elementIDIMP;
+  IMP _componentIMP;
+  IMP _senderIDIMP;
+  GSWIMP_BOOL _isParentSenderIDSearchOverIMP;
+  GSWIMP_BOOL _isSenderIDSearchOverIMP;
+} GSWContextIMPs;
+
+/** Fill impsPtr structure with IMPs for context **/
+GSWEB_EXPORT void GetGSWContextIMPs(GSWContextIMPs* impsPtr,GSWContext* context);
+
+/** functions to accelerate calls of frequently used GSWContext methods **/
+GSWEB_EXPORT void GSWContext_incrementLastElementIDComponent(GSWContext* aContext);
+GSWEB_EXPORT void GSWContext_appendElementIDComponent(GSWContext* aContext,NSString* component);
+GSWEB_EXPORT void GSWContext_appendZeroElementIDComponent(GSWContext* aContext);
+GSWEB_EXPORT void GSWContext_deleteAllElementIDComponents(GSWContext* aContext);
+GSWEB_EXPORT void GSWContext_deleteLastElementIDComponent(GSWContext* aContext);
+GSWEB_EXPORT NSString* GSWContext_elementID(GSWContext* aContext);
+GSWEB_EXPORT GSWComponent* GSWContext_component(GSWContext* aContext);
+GSWEB_EXPORT NSString* GSWContext_senderID(GSWContext* aContext);
+GSWEB_EXPORT BOOL GSWContext_isParentSenderIDSearchOver(GSWContext* aContext);
+GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 
 //====================================================================
 @interface GSWContext : NSObject <NSCopying>
@@ -65,12 +95,21 @@
 #ifndef NDEBUG
  int _loopLevel; //ForDebugging purpose: each repetition increment and next decrement it
  NSMutableString* _docStructure; //ForDebugging purpose: array of all objects if the document during appendResponse, takeValues, invokeAction
-  NSMutableSet* _docStructureElements;
+ NSMutableSet* _docStructureElements;
 #endif
-  NSMutableDictionary* _userInfo;
-  NSArray* _languages;
-  BOOL _isRefusingThisRequest;
+ NSMutableDictionary* _userInfo;
+ NSArray* _languages;
+ BOOL _isRefusingThisRequest;
+ 
+ // IMPs for elementID manipulations
+ // As there's not many GSWContext objects, using some extra memory is not a problem
+ GSWElementIDIMPs _elementIDIMPs;
+@public // So we can use it in functions
+ GSWContextIMPs _selfIMPs;
 };
+
+/** Set GSWContext standard class (so we can use pre-build GSWContextIMPs) **/
++(void)setStandardClass:(Class)standardClass;
 
 +(GSWContext*)contextWithRequest:(GSWRequest*)aRequest;
 
@@ -78,6 +117,7 @@
 -(BOOL)isInForm;
 -(void)setInEnabledForm:(BOOL)flag;
 -(BOOL)isInEnabledForm;
+-(void)_createElementID;
 -(NSString*)elementID;
 -(NSString*)contextAndElementID;
 -(GSWComponent*)component;
@@ -156,12 +196,12 @@
                                            port:(int)port;
 
 -(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
-                      RequestHandlerKey:(NSString*)requestHandlerKey
+                      requestHandlerKey:(NSString*)requestHandlerKey
                                    path:(NSString*)requestHandlerPath
                             queryString:(NSString*)queryString;
 
 -(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
-                      RequestHandlerKey:(NSString*)requestHandlerKey
+                      requestHandlerKey:(NSString*)requestHandlerKey
                                    path:(NSString*)requestHandlerPath
                             queryString:(NSString*)queryString
                                isSecure:(BOOL)isSecure;
@@ -217,6 +257,7 @@
 -(void)_putAwakeComponentsToSleep;
 -(BOOL)_generateCompleteURLs;
 -(BOOL)_generateRelativeURLs;
+-(BOOL)isGeneratingCompleteURLs;
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
                                             urlPrefix:(NSString*)urlPrefix
                                       queryDictionary:(NSDictionary*)dict
@@ -291,10 +332,14 @@ If none, try request languages
 -(NSMutableDictionary*)userInfo;
 -(NSMutableDictionary*)_userInfo;
 -(void)_setUserInfo:(NSMutableDictionary*)userInfo;
+
+// context can add key/values in query dictionary
+-(NSDictionary*)computeQueryDictionary:(NSDictionary*)queryDictionary;
+-(NSDictionary*)computePathQueryDictionary:(NSDictionary*)queryDictionary;
 @end
 
 //====================================================================
-@interface GSWContext (GSWContextC)
+@interface GSWContext (GSWContextElementID)
 -(void)deleteAllElementIDComponents;
 -(void)deleteLastElementIDComponent;
 -(void)incrementLastElementIDComponent;

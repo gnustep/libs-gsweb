@@ -1,6 +1,6 @@
 /** GSWParam.h - <title>GSWeb: Class GSWParam</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -54,9 +54,6 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull;
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;
 
--(void)dealloc;
-
--(NSString*)description;
 -(NSString*)elementName;
 
 @end
@@ -72,7 +69,7 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull;
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
                                       inContext:(GSWContext*)aContext;
 
--(id)valueInComponent:(id)component;
+-(id)valueInComponent:(GSWComponent*)component;
 @end
 
 //====================================================================

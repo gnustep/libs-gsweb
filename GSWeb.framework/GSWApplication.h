@@ -180,10 +180,13 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 //====================================================================
 @interface GSWApplication (GSWApplicationE)
+-(Class)contextClass;
 -(GSWContext*)createContextForRequest:(GSWRequest*)aRequest;
 
+-(Class)responseClass;
 -(GSWResponse*)createResponseInContext:(GSWContext*)aContext;
 
+-(Class)requestClass;
 -(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
                                   uri:(NSString*)anURL
                           httpVersion:(NSString*)aVersion

@@ -1506,6 +1506,10 @@ Returns first element of languages or nil if languages is empty
           forKey:(NSString*)key
 {
   LOGObjectFnStart();
+
+  NSAssert(object,@"No object");
+  NSAssert(key,@"No key");
+
   if (!_componentState)
     _componentState=[NSMutableDictionary new];
   NSDebugMLLog(@"sessions",@"key=%@ object=%@",key,object);

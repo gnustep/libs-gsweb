@@ -1,6 +1,6 @@
 /** GSWBindingNameAssociation.m - <title>GSWeb: Class GSWBindingNameAssociation</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
@@ -108,7 +108,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(id)valueInObject:(id)object
+-(id)valueInComponent:(GSWComponent*)object
 {
   id value=nil;
   LOGObjectFnStart();
@@ -134,7 +134,7 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"associations",@"value=%@",value);
       if (value && _keyPath)
         {
-          value=[GSWAssociation valueInObject:value
+          value=[GSWAssociation valueInComponent:value
                                 forKeyPath:_keyPath];
           NSDebugMLLog(@"associations",@"value=%@",value);
         };
@@ -147,7 +147,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(void)setValue:(id)value
-       inObject:(id)object
+       inComponent:(GSWComponent*)object
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
@@ -173,7 +173,7 @@ RCS_ID("$Id$")
         {
           id tmpValue=[object valueForBinding:_parentBindingName];
           [GSWAssociation setValue:value
-                          inObject:tmpValue
+                          inComponent:tmpValue
                           forKeyPath:_keyPath];
         }
       else
