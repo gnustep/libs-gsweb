@@ -304,10 +304,18 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(GSWAction*)getActionInstanceOfClass:(Class)actionClass
                           withRequest:(GSWRequest*)aRequest
 {
-  GSWAction* action=(GSWAction*)[[actionClass alloc]initWithRequest:aRequest];
+  GSWAction* action=nil;
+
+  LOGObjectFnStart();
+
+  action = (GSWAction*)[[actionClass alloc]initWithRequest:aRequest];
+
+  LOGObjectFnStop();
+
   return action;
 }
 
@@ -324,6 +332,7 @@ RCS_ID("$Id$")
   NSString* actionName=nil;
   NSString* actionClassName=nil;
   GSWContext* context=nil;
+  GSWAction* action=nil;
   LOGObjectFnStart();
   application=[GSWApplication application];
 
@@ -332,6 +341,8 @@ RCS_ID("$Id$")
       statisticsStore=[application statisticsStore];
       if (_shouldAddToStatistics)
         [self registerWillHandleActionRequest];
+
+      [application awake];
 
       requestHandlerPathArray=[self getRequestHandlerPathForRequest:aRequest];
       NSDebugMLLog(@"requests",@"requestHandlerPathArray=%@",
@@ -354,21 +365,36 @@ RCS_ID("$Id$")
           resourceManager=[application resourceManager];
           appBundle=[resourceManager _appProjectBundle];
           [resourceManager _allFrameworkProjectBundles];//So what ?
-          [application awake];
           
-          GSWAction* action=[self getActionInstanceOfClass:actionClass
-                                  withRequest:aRequest];
+          action=[self getActionInstanceOfClass:actionClass
+                       withRequest:aRequest];
 
           NSAssert1(action,@"Direct action of class named %@ can't be created",
                     actionClassName);
           
-          actionResult=[action performActionNamed:actionName];
+          NS_DURING
+            {
+              actionResult=[action performActionNamed:actionName];
+            }
+          NS_HANDLER
+            {
+              LOGException(@"%@ (%@)",localException,[localException reason]);
+              response=[application  handleActionRequestErrorWithRequest:aRequest
+                                     exception:localException
+                                     reason:"InvocationError"
+                                     requestHanlder:self
+                                     actionClassName:actionClassName
+                                     actionName:actionName
+                                     actionClass:actionClass
+                                     actionObject:action];
+              [localException raise];
+            };
+          NS_ENDHANDLER;
  
           response=[actionResult generateResponse];
           
           context=[action _context];
           
-
           [[NSNotificationCenter defaultCenter]postNotificationName:@"DidHandleRequestNotification"
                                                object:context];
           [self _setRecordingHeadersToResponse:response
@@ -381,19 +407,37 @@ RCS_ID("$Id$")
 
           if ([actionClassName length]>0)
             {
-
-              exception=[NSException exceptionWithName:NSInvalidArgumentException//TODO better name
+              exception=[NSException exceptionWithName:NSInvalidArgumentException//TODO better name (IllegalStateException)
                                      reason:[NSString stringWithFormat:@"Can't find action class named '%@'",actionClassName]
                                      userInfo:nil];
-
+              response=[application  handleActionRequestErrorWithRequest:aRequest
+                                     exception:exception
+                                     reason:"InvocationError"
+                                     requestHanlder:self
+                                     actionClassName:actionClassName
+                                     actionName:actionName
+                                     actionClass:actionClass
+                                     actionObject:action];
             }
-          else {
-            exception=[NSException exceptionWithName:NSInvalidArgumentException//TODO better name
-                                   reason:[NSString stringWithFormat:@"Can't execute action with path: '%@'",requestHandlerPathArray]
-                                   userInfo:nil];
-          }
-
+          else 
+            {
+              exception=[NSException exceptionWithName:NSInvalidArgumentException//TODO better name (IllegalStateException)
+                                     reason:[NSString stringWithFormat:@"Can't execute action with path: '%@'",
+                                                      requestHandlerPathArray]
+                                     userInfo:nil];
+              response=[application  handleActionRequestErrorWithRequest:aRequest
+                                     exception:exception
+                                     reason:"InvocationError"
+                                     requestHanlder:self
+                                     actionClassName:actionClassName
+                                     actionName:actionName
+                                     actionClass:actionClass
+                                     actionObject:action];
+            };
+          NSDebugMLog(@"Exception=%@",exception);
+          NSDebugMLog(@"Response=%@",response);
           [exception raise];
+          NSDebugMLog(@"Not raised ? Exception=%@",exception);
         };
       if ([application isCachingEnabled])
         {
@@ -406,13 +450,26 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-
       LOGException(@"%@ (%@)",localException,[localException reason]);
-      if (!context)
-        context=[GSWApp _context];
-      response=[application handleException:localException
-                            inContext:context];
-      //TODO
+      NSDebugMLog(@"EXCEPTION localException=%@",localException);
+      if (!response)
+        {
+          if (!context)
+            {
+              context=[action _context];
+              if (!context)
+                {
+                  context=[GSWApp _context];
+                  if (!context)
+                    {
+                      context = [application createContextForRequest:aRequest];
+                    };
+                };
+            };
+               
+          response = [self generateErrorResponseWithException:localException
+                           inContext:context];
+        };
     };
   NS_ENDHANDLER;
   NSDebugMLLog(@"requests",@"response=%@",response);
