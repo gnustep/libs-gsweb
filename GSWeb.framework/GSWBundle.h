@@ -42,6 +42,7 @@
   NSMutableDictionary* _archiveCache;
   NSMutableDictionary* _apiCache;//NDFN
   NSMutableDictionary* _encodingCache;
+  NSMutableDictionary* _templateParserTypeCache;//NDFN
   NSMutableDictionary* _pathCache;
   NSMutableDictionary* _urlCache;
   NSMutableDictionary* _stringsTableCache;
@@ -132,6 +133,8 @@
                        languages:(NSArray*)languages;
 
 -(NSStringEncoding)encodingForResourcesNamed:(NSString*)aName;
+
+-(GSWTemplateParserType)templateParserTypeForResourcesNamed:(NSString*)aName;//NDFN
 
 -(NSDictionary*)archiveNamed:(NSString*)aName;
 -(NSDictionary*)apiNamed:(NSString*)aName;//NDFN

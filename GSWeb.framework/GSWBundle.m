@@ -101,6 +101,7 @@ objectForReference:(NSString*)keyPath
       _archiveCache=[NSMutableDictionary new];
       _apiCache=[NSMutableDictionary new];
       _encodingCache=[NSMutableDictionary new];
+      _templateParserTypeCache=[NSMutableDictionary new];
       _pathCache=[NSMutableDictionary new];
       _urlCache=[NSMutableDictionary new];
       _stringsTableCache=[NSMutableDictionary new];
@@ -127,6 +128,8 @@ objectForReference:(NSString*)keyPath
   DESTROY(_apiCache);
   GSWLogC("Dealloc GSWBundle: encodingCache");
   DESTROY(_encodingCache);
+  GSWLogC("Dealloc GSWBundle: templateParserTypeCache");
+  DESTROY(_templateParserTypeCache);
   GSWLogC("Dealloc GSWBundle: pathCache");
   DESTROY(_pathCache);
   GSWLogC("Dealloc GSWBundle: urlCache");
@@ -579,6 +582,7 @@ objectForReference:(NSString*)keyPath
         }
       else
         {
+          GSWTemplateParserType templateParserType=[self templateParserTypeForResourcesNamed:aName];
           NSStringEncoding encoding=[self encodingForResourcesNamed:aName];
           NSString* pageDefString=nil;
           //TODO use encoding !
@@ -626,15 +630,16 @@ objectForReference:(NSString*)keyPath
                 {
                   NSDebugMLLog(@"bundles",@"GSWTemplateParser on template named %@",
                                aName);
-                  template=[GSWTemplateParserXML templateNamed:aName
-                                                 inFrameworkNamed:[self frameworkName]
-                                                 withParserClassName:nil
-                                                 withString:htmlString
-                                                 encoding:encoding
-                                                 fromPath:absoluteTemplatePath
-                                                 definitionsString:pageDefString
-                                                 languages:someLanguages
-                                                 definitionPath:absoluteDefinitionPath];
+                  template=[GSWTemplateParser templateNamed:aName
+                                              inFrameworkNamed:[self frameworkName]
+                                              withParserType:templateParserType
+                                              parserClassName:nil
+                                              withString:htmlString
+                                              encoding:encoding
+                                              fromPath:absoluteTemplatePath
+                                              definitionsString:pageDefString
+                                              languages:someLanguages
+                                              definitionPath:absoluteDefinitionPath];
                 }
 #ifndef NDEBUG
               NS_HANDLER
@@ -967,6 +972,51 @@ objectForReference:(NSString*)keyPath
   [self unlock];
   LOGObjectFnStop();
   return encoding;
+};
+
+//--------------------------------------------------------------------
+-(GSWTemplateParserType)templateParserTypeForResourcesNamed:(NSString*)aName
+{
+  NSDictionary* archive=nil;
+  GSWTemplateParserType templateParserType=GSWTemplateParserType_Default;
+  id templateParserTypeObject=nil;
+  LOGObjectFnStart();
+  [self lock];
+  NS_DURING
+    {
+      NSDebugMLLog(@"bundles",@"aName=%@",aName);
+      NSDebugMLLog(@"bundles",@"templateParserTypeCache=%@",_templateParserTypeCache);
+      NSDebugMLLog(@"bundles",@"archiveCache=%@",_archiveCache);
+      templateParserTypeObject=[_templateParserTypeCache objectForKey:aName];
+      if (!templateParserTypeObject)
+        {
+          archive=[self archiveNamed:aName];
+          if (archive)
+            {
+              templateParserTypeObject=[archive objectForKey:@"templateParserType"];
+              if (templateParserTypeObject)
+                {
+                  templateParserTypeObject=[NSNumber valueWithInt:[GSWTemplateParser templateParserTypeFromString:templateParserTypeObject]];
+                  [_templateParserTypeCache setObject:templateParserTypeObject
+                                  forKey:aName];
+                };
+            };
+        };
+      if (templateParserTypeObject)
+        templateParserType=[templateParserTypeObject intValue];
+    }
+  NS_HANDLER
+    {
+      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
+                   localException,[localException reason],__FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  [self unlock];
+  LOGObjectFnStop();
+  return templateParserType;
 };
 
 //--------------------------------------------------------------------
