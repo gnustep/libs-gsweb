@@ -212,7 +212,7 @@ RCS_ID("$Id$")
     {
       if ([object isKindOfClass:[NSString class]])
         string=[[object copy] autorelease];
-#ifdef GDL2
+#ifdef HAVE_GDL2
       else if ([object isKindOfClass:[EONull class]])
         string=@"";
 #else

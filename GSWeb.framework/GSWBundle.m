@@ -36,7 +36,7 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-#ifdef GDL2
+#ifdef HAVE_GDL2
 #include <EOControl/EOKeyValueCoding.h>
 
 //====================================================================
@@ -76,7 +76,7 @@ objectForReference:(NSString*)keyPath
 };
 
 @end
-#endif // GDL2
+#endif // HAVE_GDL2
 //====================================================================
 @implementation GSWBundle
 
@@ -387,7 +387,7 @@ objectForReference:(NSString*)keyPath
           if (defaultAssociations && [anObject respondsToSelector:@selector(setDefaultAssociations:)])
             [anObject setDefaultAssociations:defaultAssociations];
         };
-#if GDL2 // GDL2 implementation
+#if HAVE_GDL2 // GDL2 implementation
       {
         EOKeyValueUnarchiver* unarchiver=nil;
         GSWBundleUnarchiverDelegate* bundleDelegate=nil;

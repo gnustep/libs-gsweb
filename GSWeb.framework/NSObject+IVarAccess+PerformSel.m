@@ -173,7 +173,7 @@ const char* GSGetInstanceVariableType(id obj,
   return selector;
 };
 
-#if GDL2
+#if HAVE_GDL2
 
 //--------------------------------------------------------------------
 
