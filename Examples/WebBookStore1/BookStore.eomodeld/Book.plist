@@ -1,0 +1,44 @@
+{
+    attributes = (
+        {
+            allowsNull = Y; 
+            columnName = FK_AUTHOR; 
+            externalType = integer; 
+            name = fk_author; 
+            valueClassName = NSNumber; 
+            valueType = i; 
+        }, 
+        {
+            columnName = PID; 
+            externalType = integer; 
+            name = pid; 
+            valueClassName = NSNumber; 
+            valueType = i; 
+        }, 
+        {
+            allowsNull = Y; 
+            columnName = TITLE; 
+            externalType = varchar; 
+            name = title; 
+            valueClassName = NSString; 
+            width = 30; 
+        }
+    ); 
+    attributesUsedForLocking = (pid, title, fk_author); 
+    className = EOGenericRecord; 
+    classProperties = (title, author); 
+    externalName = BSBOOK; 
+    fetchSpecificationDictionary = {}; 
+    name = Book; 
+    primaryKeyAttributes = (pid); 
+    relationships = (
+        {
+            destination = Author; 
+            isToMany = N; 
+            joinSemantic = EOInnerJoin; 
+            joins = ({destinationAttribute = pid; sourceAttribute = fk_author; }); 
+            name = author; 
+            ownsDestination = Y; 
+        }
+    ); 
+}

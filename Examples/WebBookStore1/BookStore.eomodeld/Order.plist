@@ -1,0 +1,45 @@
+{
+    attributes = (
+        {
+            allowsNull = Y; 
+            columnName = FK_CUSTOMER; 
+            externalType = integer; 
+            name = fk_customer; 
+            valueClassName = NSNumber; 
+            valueType = i; 
+        }, 
+        {
+            columnName = PID; 
+            externalType = integer; 
+            name = pid; 
+            valueClassName = NSNumber; 
+            valueType = i; 
+        }
+    ); 
+    attributesUsedForLocking = (pid, fk_customer); 
+    className = EOGenericRecord; 
+    classProperties = (customer, position); 
+    externalName = BSORDER; 
+    fetchSpecificationDictionary = {}; 
+    name = Order; 
+    primaryKeyAttributes = (pid); 
+    relationships = (
+        {
+            destination = Customer; 
+            isMandatory = Y; 
+            isToMany = N; 
+            joinSemantic = EOInnerJoin; 
+            joins = ({destinationAttribute = pid; sourceAttribute = fk_customer; }); 
+            name = customer; 
+        }, 
+        {
+            deleteRule = EODeleteRuleCascade; 
+            destination = OrderPos; 
+            isToMany = Y; 
+            joinSemantic = EOInnerJoin; 
+            joins = ({destinationAttribute = fk_order; sourceAttribute = pid; }); 
+            name = position; 
+            ownsDestination = Y; 
+        }
+    ); 
+}

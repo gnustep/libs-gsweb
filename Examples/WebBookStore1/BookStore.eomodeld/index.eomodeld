@@ -1,0 +1,15 @@
+{
+    EOModelVersion = 2; 
+    adaptorName = Postgres95; 
+    connectionDictionary = {
+        databaseName = BookStore;
+    }; 
+    entities = (
+        {className = EOGenericRecord; name = Author; }, 
+        {className = EOGenericRecord; name = Book; }, 
+        {className = EOGenericRecord; name = Customer; }, 
+        {className = EOGenericRecord; name = Order; }, 
+        {className = EOGenericRecord; name = OrderPos; }
+    ); 
+    internalInfo = {}; 
+}

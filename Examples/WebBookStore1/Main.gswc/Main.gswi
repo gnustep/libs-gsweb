@@ -1,0 +1,21 @@
+{
+    variables = {
+        authorDG = {
+            class = GSWDisplayGroup;
+            dataSource = {
+                class = EODatabaseDataSource;
+                editingContext = session.defaultEditingContext;
+                fetchSpecification = {
+                    class = EOFetchSpecification;
+                    entityName = Author;
+                    fetchLimit = 0;
+                    isDeep = YES;
+                };
+            };
+            formatForLikeQualifier = "%@*";
+            localKeys = ();
+            numberOfObjectsPerBatch = 0;
+            selectsFirstObjectAfterFetch = YES;
+        };
+    };
+}

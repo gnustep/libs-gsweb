@@ -1,0 +1,34 @@
+{
+    attributes = (
+        {
+            allowsNull = Y; 
+            columnName = FNAME; 
+            externalType = varchar; 
+            name = firstName; 
+            valueClassName = NSString; 
+            width = 30; 
+        }, 
+        {
+            allowsNull = Y; 
+            columnName = LNAME; 
+            externalType = varchar; 
+            name = lastName; 
+            valueClassName = NSString; 
+            width = 30; 
+        }, 
+        {
+            columnName = PID; 
+            externalType = integer; 
+            name = pid; 
+            valueClassName = NSNumber; 
+            valueType = i; 
+        }
+    ); 
+    attributesUsedForLocking = (pid, firstName, lastName); 
+    className = EOGenericRecord; 
+    classProperties = (firstName, lastName); 
+    externalName = BSCUSTOMER; 
+    fetchSpecificationDictionary = {}; 
+    name = Customer; 
+    primaryKeyAttributes = (pid); 
+}

@@ -1,3 +1,32 @@
+2004-11-08  David Ayers  <d.ayers@inode.at>
+
+	* Examples/WebBookStore1: New example.
+	* Examples/WebBookStore1/Application.h,
+	* Examples/WebBookStore1/Application.m,
+	* Examples/WebBookStore1/DirectAction.h,
+	* Examples/WebBookStore1/DirectAction.m,
+	* Examples/WebBookStore1/GNUmakefile,
+	* Examples/WebBookStore1/Main.h,
+	* Examples/WebBookStore1/Main.m,
+	* Examples/WebBookStore1/Session.h,
+	* Examples/WebBookStore1/Session.m,
+	* Examples/WebBookStore1/WebBookStore1_main.m,
+	* Examples/WebBookStore1/BookStore.eomodeld/Author.plist,
+	* Examples/WebBookStore1/BookStore.eomodeld/Book.plist,
+	* Examples/WebBookStore1/BookStore.eomodeld/Customer.plist,
+	* Examples/WebBookStore1/BookStore.eomodeld/Order.plist,
+	* Examples/WebBookStore1/BookStore.eomodeld/OrderPos.plist,
+	* Examples/WebBookStore1/BookStore.eomodeld/index.eomodeld,
+	* Examples/WebBookStore1/Main.gswc/Main.gswd,
+	* Examples/WebBookStore1/Main.gswc/Main.gswi,
+	* Examples/WebBookStore1/Main.gswc/Main.html,
+	* Examples/WebBookStore1/WebServerResources/Insert.png,
+	* Examples/WebBookStore1/WebServerResources/Save.png,
+	* Examples/WebBookStore1/WebServerResources/Delete.png,
+	* Examples/WebBookStore1/WebServerResources/CreateTables.png,
+	* Examples/WebBookStore1/WebServerResources/DropTables.png: 
+	New files.
+	
 2004-11-03  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWRepetition.h: Only use ASCII characters

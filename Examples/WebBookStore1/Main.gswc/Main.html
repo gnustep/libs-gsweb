@@ -1,0 +1,50 @@
+<HTML>
+<HEAD>
+  <TITLE>Authors</TITLE>
+</HEAD>
+<BODY>
+<!-- Query section -->
+<CENTER>
+  <H2>Search for Authors</H2>
+  <P>Specify which authors to display below:</P>
+  <GSWEB name=QueryForm>
+    <P>
+    First Name: <GSWEB name=firstNameQueryField></GSWEB> <BR/>
+    Last  Name: <GSWEB name=lastNameQueryField></GSWEB> <BR/>
+    </P>
+    <GSWEB name=ExecuteQuery></GSWEB>
+  </GSWEB >
+</CENTER>
+
+<!-- Selection section -->
+<CENTER>
+  <P>Click a link to select that author.</P>
+  <P><GSWEB name=SelectionList>
+    <GSWEB name=SelectObjectLink>
+      <GSWEB name=ObjectIdentifier></GSWEB>
+    </GSWEB>
+    <BR>
+  </GSWEB></P>
+</CENTER>
+<HR>
+
+<!-- Displayed objects section -->
+<GSWEB name=ModificationForm>
+  <TABLE BORDER=0>
+  <TR><TD>First Name: </TD> <TD> <GSWEB name=firstNameField></GSWEB> </TD></TR>
+  <TR><TD>Last Name: </TD> <TD> <GSWEB name=lastNameField></GSWEB> </TD></TR>
+  </TABLE>
+  <CENTER>
+    <GSWEB name=InsertButton></GSWEB>
+    <GSWEB name=UpdateButton></GSWEB>
+    <GSWEB name=DeleteButton></GSWEB>
+  </CENTER>
+  <CENTER>
+    <GSWEB name=CreateTablesButton></GSWEB>
+    <GSWEB name=DropTablesButton></GSWEB>
+  </CENTER>
+</GSWEB>
+<HR>
+
+</BODY>
+</HTML>

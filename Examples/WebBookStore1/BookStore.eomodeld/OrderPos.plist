@@ -1,0 +1,25 @@
+{
+    attributes = (
+        {
+            allowsNull = Y; 
+            columnName = FK_ORDER; 
+            externalType = integer; 
+            name = fk_order; 
+            valueClassName = NSNumber; 
+            valueType = i; 
+        }, 
+        {
+            columnName = PID; 
+            externalType = integer; 
+            name = pid; 
+            valueClassName = NSNumber; 
+            valueType = i; 
+        }
+    ); 
+    attributesUsedForLocking = (pid, fk_order); 
+    className = EOGenericRecord; 
+    externalName = BSORDERPOS; 
+    fetchSpecificationDictionary = {}; 
+    name = OrderPos; 
+    primaryKeyAttributes = (pid); 
+}
