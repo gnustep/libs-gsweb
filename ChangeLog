@@ -1,3 +1,10 @@
+2001-11-07  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWExtensions.framework/Makefile.preamble:
+		Added -I../GSWeb.framework/derived_src in ADDITIONAL_INCLUDE_DIRS
+	* GSWExtensionsGSW.framework/Makefile.preamble:
+		Added -I../GSWeb.framework/derived_src in ADDITIONAL_INCLUDE_DIRS
+
 2001-10-28  Manuel Guesdon <mguesdon@orange-concept.com>
 	Compilation is OK but this version hasn't been tested
 	

@@ -46,7 +46,7 @@ endif
 ADDITIONAL_CFLAGS =  
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I../..
+ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I../.. -I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
