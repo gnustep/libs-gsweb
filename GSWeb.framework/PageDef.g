@@ -10,7 +10,7 @@ options {
 
 class GSWPageDefParser extends Parser;
 options {
-	exportVocab=GSWPageDef;
+	/*exportVocab=GSWPageDef;*/
     buildAST=true;
 	k = 4;
 }
@@ -95,13 +95,13 @@ mvalue:
     ;
 
 idref:
-		(CIRC | TILDE)? (IDENT) (PIDENT)*
+		(CIRC | TILDE)? (IDENT | IDENTREF ) (PIDENT | PIDENTREF)*
 ;
 	
 class GSWPageDefLexer extends Lexer;
 options {	
 	k = 4;
-	exportVocab=GSWPageDef;
+	/*exportVocab=GSWPageDef;*/
 	charVocabulary = '\3'..'\377';
 	caseSensitive=true;
 	filter=UNDEFINED_TOKEN;
@@ -153,6 +153,16 @@ IDENT
 PIDENT
 	options { testLiterals = true; }
 	:       POINT (IDENT | STRING)
+	;
+
+IDENTREF
+	options { testLiterals = true; }
+	:       (LETTER|'_'|'@') (LETTER|'_'|DIGIT)*
+	;
+
+PIDENTREF
+	options { testLiterals = true; }
+	:       POINT (IDENTREF | STRING)
 	;
 
 YES

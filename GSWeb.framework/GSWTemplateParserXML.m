@@ -606,11 +606,11 @@ static NSString* TabsForLevel(int level)
                 if ([node type]==XML_ELEMENT_NODE)
                   {
                     NSString* nodeName=[node name];
-                    //NSDebugMLLog(@"GSWTemplateParser",@"node name=%@",nodeName);
-                    /*NSDebugMLLog(@"GSWTemplateParser",@"_isHTMLTag=%s _isBodyTag=%s",
+/*                    NSDebugMLLog(@"GSWTemplateParser",@"node name=%@",nodeName);
+                    NSDebugMLLog(@"GSWTemplateParser",@"_isHTMLTag=%s _isBodyTag=%s",
                           (_isHTMLTag ? "YES" : "NO"),
                           (_isBodyTag ? "YES" : "NO"));
-                    */
+*/                  
 /*
       NSLog(@"while1 node=%p %@ [Type:%@] [%@] ##%s##\n",
                   node,
@@ -622,7 +622,7 @@ static NSString* TabsForLevel(int level)
                     if ((!_isHTMLTag && [nodeName caseInsensitiveCompare:@"html"]==NSOrderedSame)
                         || (!_isBodyTag && [nodeName caseInsensitiveCompare:@"body"]==NSOrderedSame))
                       {
-                        //NSDebugMLLog(@"GSWTemplateParser",@"==> Children");
+//                        NSDebugMLLog(@"GSWTemplateParser",@"==> Children");
                         node=[node firstChild];
                         cont=YES;
                       };

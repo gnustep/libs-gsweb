@@ -74,6 +74,9 @@ information, not that there is nothing to do !
 		invokeActionForRequest
 		appendToResponse
 
+* GSWClientSideScript.m
+      	OK. Verify
+
 * GSWComponent.m
 
 * GSWComponentContent.m
@@ -150,10 +153,7 @@ information, not that there is nothing to do !
 		appendToResponse
 
 * GSWJavaScript.m
-	TODO:
-		takeValuesFromRequest
-		invokeActionForRequest
-		appendToResponse
+	OK. Verify
 
 * GSWKeyValueAssociation
 
@@ -243,10 +243,7 @@ information, not that there is nothing to do !
 * GSWTransactionRecord
 
 * GSWVBScript.m
-	TODO:
-		takeValuesFromRequest
-		invokeActionForRequest
-		appendToResponse
+      	OK. Verify
 
 * GSWPageDefElement.m
 	OK. Finished

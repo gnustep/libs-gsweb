@@ -1,11 +1,16 @@
-/** GSWResponse.h - GSWeb: Class GSWResponse
+/** GSWResponse.h - <title>GSWeb: Class GSWResponse</title>
+
    Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,6 +24,7 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   </license>
 **/
 
 // $Id$
@@ -35,17 +41,17 @@
 @interface GSWResponse : NSObject <NSCopying>
 {
 @private
-    NSString* httpVersion;
-    unsigned int status;
-    NSMutableDictionary* headers;
-    NSMutableArray* contentFaults;
-    NSMutableData* contentData;
-    NSStringEncoding contentEncoding;
-    NSDictionary* userInfo;
-    NSMutableArray* cookies;
-    BOOL isClientCachingDisabled;
-    BOOL contentFaultsHaveBeenResolved;
-    BOOL isFinalizeInContextHasBeenCalled;
+    NSString* _httpVersion;
+    unsigned int _status;
+    NSMutableDictionary* _headers;
+    NSMutableArray* _contentFaults;
+    NSMutableData* _contentData;
+    NSStringEncoding _contentEncoding;
+    NSDictionary* _userInfo;
+    NSMutableArray* _cookies;
+    BOOL _isClientCachingDisabled;
+    BOOL _contentFaultsHaveBeenResolved;
+    BOOL _isFinalizeInContextHasBeenCalled;
 };
 
 -(id)init;
@@ -59,9 +65,9 @@
 -(NSString*)httpVersion;
 -(void)setContent:(NSData*)someData;
 -(void)setHeader:(NSString*)header
-		  forKey:(NSString*)key;
+          forKey:(NSString*)key;
 -(void)setHeaders:(NSArray*)headerList
-		   forKey:(NSString*)key;
+           forKey:(NSString*)key;
 -(void)setHeaders:(NSDictionary*)headerList;
 -(NSMutableDictionary*)headers;
 -(void)setHTTPVersion:(NSString*)version;

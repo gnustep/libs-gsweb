@@ -1,11 +1,16 @@
-/* GSWSessionStore.h - GSWeb: Class GSWSessionStore
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWSessionStore.m - <title>GSWeb: Class GSWSessionStore</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,10 +35,10 @@
 
 @interface GSWSessionStore : NSObject <NSLocking>
 {
-  NSMutableSet* usedIDs;
-  NSRecursiveLock* lock;
+  NSMutableSet* _usedIDs;
+  NSRecursiveLock* _lock;
 #ifndef NDEBUG
-  int lockn;
+  int _lockn;
 #endif
 //TODO  void* sessionCheckedInCondition;
 };
@@ -40,18 +46,18 @@
 -(void)dealloc;
 -(id)init;
 
--(GSWSession*)restoreSessionWithID:(NSString*)sessionID_
-						  request:(GSWRequest*)request_;
--(void)saveSessionForContext:(GSWContext*)context_;
--(GSWSession*)checkOutSessionWithID:(NSString*)sessionID_
-						   request:(GSWRequest*)request_;
--(void)checkInSessionForContext:(GSWContext*)context_;
+-(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
+                           request:(GSWRequest*)aRequest;
+-(void)saveSessionForContext:(GSWContext*)aContext;
+-(GSWSession*)checkOutSessionWithID:(NSString*)aSessionID
+                            request:(GSWRequest*)aRequest;
+-(void)checkInSessionForContext:(GSWContext*)aContext;
 
--(void)_checkInSessionForContext:(GSWContext*)context_;
--(GSWSession*)_checkOutSessionWithID:(NSString*)sessionID_
-							request:(GSWRequest*)request_;
--(void)_checkinSessionID:(NSString*)sessionID_;
--(void)_checkoutSessionID:(NSString*)sessionID_;
+-(void)_checkInSessionForContext:(GSWContext*)aContext;
+-(GSWSession*)_checkOutSessionWithID:(NSString*)aSessionID
+                             request:(GSWRequest*)aRequest;
+-(void)_checkinSessionID:(NSString*)aSessionID;
+-(void)_checkoutSessionID:(NSString*)aSessionID;
 -(void)unlock;
 -(BOOL)tryLock;
 -(void)lock;
@@ -65,19 +71,19 @@
 
 //====================================================================
 @interface GSWSessionStore (GSWSessionStoreOldFn)
-+(GSWSessionStore*)cookieSessionStoreWithDistributionDomain:(NSString*)domain_
-													secure:(BOOL)flag_;
++(GSWSessionStore*)cookieSessionStoreWithDistributionDomain:(NSString*)aDomain
+secure:(BOOL)flag;
 +(GSWSessionStore*)pageSessionStore;
 +(GSWSessionStore*)serverSessionStore;
 
 -(GSWSession*)restoreSession;
--(void)saveSession:(GSWSession*)session_;
+-(void)saveSession:(GSWSession*)session;
 @end
 */
 
 //====================================================================
 @interface GSWSessionStore (GSWSessionStoreA)
--(BOOL)_isSessionIDCheckedOut:(NSString*)sessionID_;
+-(BOOL)_isSessionIDCheckedOut:(NSString*)aSessionID;
 
 @end
 

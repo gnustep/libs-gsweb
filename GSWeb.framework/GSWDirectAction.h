@@ -1,11 +1,16 @@
-/* GSWDirectAction.h - GSWeb: Class GSWDirectAction
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDirectAction.h - <title>GSWeb: Class GSWDirectAction</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,19 +37,20 @@
 @interface GSWDirectAction : NSObject
 {
   @private
-    GSWContext* context;
+    GSWContext* _context;
 };
 -(void)dealloc;
--(id)initWithRequest:(GSWRequest*)request_;
+-(id)initWithRequest:(GSWRequest*)aRequest;
 -(GSWRequest*)request;
 -(GSWSession*)existingSession;
+-(GSWSession*)existingSessionWithSessionID:(NSString*)aSessionID;
 -(GSWSession*)session;
 -(GSWApplication*)application;//NDFN
--(GSWComponent*)pageWithName:(NSString*)pageName_;
--(id <GSWActionResults>)performActionNamed:(NSString*)actionName_;
+-(GSWComponent*)pageWithName:(NSString*)pageName;
+-(id <GSWActionResults>)performActionNamed:(NSString*)actionName;
 -(id)defaultAction;
 -(id)existingSession;
--(void)_initializeRequestSessionIDInContext:(GSWContext*)context_;
+-(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext;
 @end
 
 //====================================================================
@@ -53,19 +60,19 @@
 @end
 //====================================================================
 @interface GSWDirectAction (GSWTakeValuesConvenience)
--(void)takeFormValueArraysForKeyArray:(NSArray*)keys_;
--(void)takeFormValuesForKeyArray:(NSArray*)keys_;
--(void)takeFormValueArraysForKeys:(NSString*)firstKey_, ...;
--(void)takeFormValuesForKeys:(NSString*)firstKey_, ...;
+-(void)takeFormValueArraysForKeyArray:(NSArray*)keys;
+-(void)takeFormValuesForKeyArray:(NSArray*)keys;
+-(void)takeFormValueArraysForKeys:(NSString*)firstKey,...;
+-(void)takeFormValuesForKeys:(NSString*)firstKey,...;
 @end
 
 //====================================================================
 @interface GSWDirectAction (GSWDebugging)
--(void)logWithString:(NSString*)string_;
--(void)logWithFormat:(NSString*)format_,...;
-+(void)logWithFormat:(NSString*)format_,...;
--(void)_debugWithString:(NSString*)string_;
--(void)debugWithFormat:(NSString*)format_,...;
+-(void)logWithString:(NSString*)string;
+-(void)logWithFormat:(NSString*)format,...;
++(void)logWithFormat:(NSString*)format,...;
+-(void)_debugWithString:(NSString*)string;
+-(void)debugWithFormat:(NSString*)format,...;
 @end
 
 #endif //_GSWDirectAction_h__

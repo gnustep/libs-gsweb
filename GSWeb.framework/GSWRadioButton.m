@@ -152,12 +152,16 @@ static char rcsId[] = "$Id$";
           name=[self nameInContext:context];
           NSDebugMLLog(@"gswdync",@"name=%@",name);
           formValue=[request formValueForKey:name];
+          NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
           valueValue=[_value valueInComponent:component];
+          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
           //TODO if checked !
           isEqual=SBIsValueEqual(formValue,valueValue);
+          NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
           if (isEqual)
             {
               checkChecked=YES;
+              NSDebugMLLog(@"gswdync",@"_selection=%@",_selection);
               if (_selection)
                 {
                   if (!WOStrictFlag)
@@ -178,11 +182,18 @@ static char rcsId[] = "$Id$";
                     [_selection setValue:valueValue
                                 inComponent:component];
                 };
+            }
+          else if (_checked)
+            {
+              if ([formValue caseInsensitiveCompare:@"on"]==NSOrderedSame
+                  || [formValue caseInsensitiveCompare:@"yes"]==NSOrderedSame)
+                checkChecked=YES;
             };
           if (_checked)
             {
               id checkedValue=[NSNumber numberWithBool:checkChecked];
               NSDebugMLLog(@"gswdync",@"checkedValue=%@",checkedValue);
+              NSDebugMLLog(@"gswdync",@"_checked=%@",_checked);
               if (!WOStrictFlag)
                 {
                   NS_DURING

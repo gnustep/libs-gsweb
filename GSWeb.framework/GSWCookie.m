@@ -1,11 +1,16 @@
-/* GSWCookie.m - GSWeb: Class GSWCookie
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWCookie.m - <title>GSWeb: Class GSWResponse</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -30,33 +36,33 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 //	cookieWithName:value:
-+(GSWCookie*)cookieWithName:(NSString*)name_
-					 value:(NSString*)value_
++(GSWCookie*)cookieWithName:(NSString*)aName
+                      value:(NSString*)aValue
 {
-  return [GSWCookie cookieWithName:name_
-				   value:value_
-				   path:nil
-				   domain:nil
-				   expires:nil
-				   isSecure:NO];
+  return [GSWCookie cookieWithName:aName
+                    value:aValue
+                    path:nil
+                    domain:nil
+                    expires:nil
+                    isSecure:NO];
 };
 
 //--------------------------------------------------------------------
 //	cookieWithName:value:path:domain:expires:isSecure:
-+(GSWCookie*)cookieWithName:(NSString*)name_
-					 value:(NSString*)value_
-					  path:(NSString*)path_
-					domain:(NSString*)domain_
-				   expires:(NSDate*)expireDate_
-				  isSecure:(BOOL)isSecure_
++(GSWCookie*)cookieWithName:(NSString*)aName
+                      value:(NSString*)aValue
+                       path:(NSString*)aPath
+                     domain:(NSString*)aDomain
+                    expires:(NSDate*)anExpireDate
+                   isSecure:(BOOL)isSecureFlag
 {
-  return [[[GSWCookie alloc] initWithName:name_
-							 value:value_
-							 path:path_
-							 domain:domain_
-							 expires:expireDate_
-							 isSecure:isSecure_]
-		   autorelease];
+  return [[[GSWCookie alloc] initWithName:aName
+                             value:aValue
+                             path:aPath
+                             domain:aDomain
+                             expires:anExpireDate
+                             isSecure:isSecureFlag]
+           autorelease];
 };
 
 //--------------------------------------------------------------------
@@ -64,36 +70,36 @@ static char rcsId[] = "$Id$";
 -(id)init
 {
   if ((self=[super init]))
-	{
-	};
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
 //	initWithName:value:path:domain:expires:isSecure:
--(id)initWithName:(NSString*)name_
-			value:(NSString*)value_
-			 path:(NSString*)path_
-		   domain:(NSString*)domain_
-		  expires:(NSDate*)expireDate_
-		 isSecure:(BOOL)isSecure_
+-(id)initWithName:(NSString*)aName
+            value:(NSString*)aValue
+             path:(NSString*)aPath
+           domain:(NSString*)aDomain
+          expires:(NSDate*)anExpireDate
+         isSecure:(BOOL)isSecureFlag
 {
   LOGObjectFnStart();
   if ((self=[self init]))
-	{
-	  NSDebugMLLog(@"low",@"name_:%@",name_);
-	  NSDebugMLLog(@"low",@"value_:%@",value_);
-	  NSDebugMLLog(@"low",@"path_:%@",path_);
-	  NSDebugMLLog(@"low",@"domain_:%@",domain_);
-	  NSDebugMLLog(@"low",@"expireDate_:%@",expireDate_);
-	  NSDebugMLLog(@"low",@"isSecure:%d",isSecure);
-	  [self setName:name_];
-	  [self setValue:value_];
-	  [self setPath:path_];
-	  [self setDomain:domain_];
-	  [self setExpires:expireDate_];
-	  [self setIsSecure:isSecure_];
-	};
+    {
+      NSDebugMLLog(@"low",@"aName:%@",aName);
+      NSDebugMLLog(@"low",@"aValue:%@",aValue);
+      NSDebugMLLog(@"low",@"aPath:%@",aPath);
+      NSDebugMLLog(@"low",@"aDomain:%@",aDomain);
+      NSDebugMLLog(@"low",@"anExpireDate:%@",anExpireDate);
+      NSDebugMLLog(@"low",@"isSecure:%d",isSecureFlag);
+      [self setName:aName];
+      [self setValue:aValue];
+      [self setPath:aPath];
+      [self setDomain:aDomain];
+      [self setExpires:anExpireDate];
+      [self setIsSecure:isSecureFlag];
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -101,11 +107,11 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(name);
-  DESTROY(value);
-  DESTROY(domain);
-  DESTROY(path);
-  DESTROY(expires);
+  DESTROY(_name);
+  DESTROY(_value);
+  DESTROY(_domain);
+  DESTROY(_path);
+  DESTROY(_expires);
   [super dealloc];
 }
 
@@ -113,34 +119,34 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"name=%@; value=%@; expires=%@; path=%@; domain=%@; %@",
-				   name,
-				   value,
-				   [expires htmlDescription],
-				   path,
-				   domain,
-				   (isSecure ? @"secure;" : @"")];
+                   _name,
+                   _value,
+                   [_expires htmlDescription],
+                   _path,
+                   _domain,
+                   (_isSecure ? @"secure;" : @"")];
 };
 
 //--------------------------------------------------------------------
--(NSString*)name { return name; };
--(void)setName:(NSString*)name_ { ASSIGNCOPY(name,name_); };
--(NSString*)value { return value; };
--(void)setValue:(NSString*)value_ { ASSIGNCOPY(value,value_); };
--(NSString*)domain { return domain; };
--(void)setDomain:(NSString*)domain_ { ASSIGNCOPY(domain,domain_); };
--(NSString*)path { return path; };
--(void)setPath:(NSString*)path_ { ASSIGNCOPY(path,path_); };
--(NSDate*)expires { return expires; };
--(void)setExpires:(NSDate*)expireDate_ { ASSIGNCOPY(expires,expireDate_); };
--(BOOL)isSecure { return isSecure; };
--(void)setIsSecure:(BOOL)isSecure_ { isSecure=isSecure_; };
+-(NSString*)name { return _name; };
+-(void)setName:(NSString*)aName { ASSIGNCOPY(_name,aName); };
+-(NSString*)value { return _value; };
+-(void)setValue:(NSString*)aValue { ASSIGNCOPY(_value,aValue); };
+-(NSString*)domain { return _domain; };
+-(void)setDomain:(NSString*)aDomain { ASSIGNCOPY(_domain,aDomain); };
+-(NSString*)path { return _path; };
+-(void)setPath:(NSString*)aPath { ASSIGNCOPY(_path,aPath); };
+-(NSDate*)expires { return _expires; };
+-(void)setExpires:(NSDate*)anExpireDate { ASSIGNCOPY(_expires,anExpireDate); };
+-(BOOL)isSecure { return _isSecure; };
+-(void)setIsSecure:(BOOL)isSecureFlag { _isSecure=isSecureFlag; };
 
 //--------------------------------------------------------------------
 -(NSString*)headerString
 {
   return [NSString stringWithFormat:@"%@: %@",
-				   [self headerKey],
-				   [self headerValue]];
+                   [self headerKey],
+                   [self headerValue]];
 };
 
 //--------------------------------------------------------------------
@@ -152,42 +158,42 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSString*)headerValue
 {
-  NSString* _header=nil;
-  NSString* _domainString=nil;
-  NSString* _pathString=nil;
-  NSDate* _expires=nil;
+  NSString* header=nil;
+  NSString* domainString=nil;
+  NSString* pathString=nil;
+  NSDate* expires=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"name:%@",name);
-  NSDebugMLLog(@"low",@"value:%@",value);
-  NSDebugMLLog(@"low",@"path:%@",path);
-  NSDebugMLLog(@"low",@"domain:%@",domain);
+  NSDebugMLLog(@"low",@"name:%@",_name);
+  NSDebugMLLog(@"low",@"value:%@",_value);
+  NSDebugMLLog(@"low",@"path:%@",_path);
+  NSDebugMLLog(@"low",@"domain:%@",_domain);
+  NSDebugMLLog(@"low",@"expires:%@",_expires);
+  NSDebugMLLog(@"low",@"isSecure:%d",_isSecure);
+  if (_domain)
+    domainString=[NSString stringWithFormat:@" domain=%@;",_domain];
+  else
+    domainString=@"";
+  if (_path)
+    pathString=[NSString stringWithFormat:@" path=%@;",_path];
+  else
+    pathString=@"/";
+  if (_expires)
+    expires=_expires;
+  else
+    expires=[NSDate dateWithTimeIntervalSinceNow:24L*60L*60L*365L];//1 Year
+  NSDebugMLLog(@"low",@"pathString:%@",pathString);
+  NSDebugMLLog(@"low",@"domainString:%@",domainString);
   NSDebugMLLog(@"low",@"expires:%@",expires);
-  NSDebugMLLog(@"low",@"isSecure:%d",isSecure);
-  if (domain)
-	_domainString=[NSString stringWithFormat:@" domain=%@;",domain];
-  else
-	_domainString=@"";
-  if (path)
-	_pathString=[NSString stringWithFormat:@" path=%@;",path];
-  else
-	_pathString=@"/";
-  if (expires)
-	_expires=expires;
-  else
-	_expires=[NSDate dateWithTimeIntervalSinceNow:24L*60L*60L*365L];//1 Year
-  NSDebugMLLog(@"low",@"_pathString:%@",_pathString);
-  NSDebugMLLog(@"low",@"_domainString:%@",_domainString);
-  NSDebugMLLog(@"low",@"_expires:%@",_expires);
-  _header=[NSString stringWithFormat:@"%@=%@; expires=%@;%@%@%@",
-					name,
-					(value ? value : @""),
-					[_expires  htmlDescription],
-					_pathString,
-					_domainString,
-					(isSecure ? @" secure;" : @"")];
-  NSDebugMLLog(@"low",@"_header=%@",_header);
+  header=[NSString stringWithFormat:@"%@=%@; expires=%@;%@%@%@",
+                   _name,
+                   (_value ? _value : @""),
+                   [expires  htmlDescription],
+                   pathString,
+                   domainString,
+                   (_isSecure ? @" secure;" : @"")];
+  NSDebugMLLog(@"low",@"header=%@",header);
   LOGObjectFnStop();
-  return _header;
+  return header;
 };
 
 @end

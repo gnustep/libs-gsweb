@@ -1,11 +1,16 @@
-/* GSWApplet.m - GSWeb: Class GSWApplet
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWApplet.m - <title>GSWeb: Class GSWApplet</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
-   
+      
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -28,9 +34,9 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWApplet
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -44,8 +50,8 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 
--(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping
+-(BOOL)appendStringAtRight:(id)unkwnon
+               withMapping:(char*)mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
@@ -53,11 +59,11 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 
--(id)		paramWithName:(id)name_
-					value:(id)value_
-				   target:(id)target_
-					  key:(id)key_
-	treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull_
+-(id)	  paramWithName:(id)name
+                  value:(id)value
+                 target:(id)target
+                    key:(id)key
+ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -79,7 +85,7 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)setContextID:(id)contextID_
+-(void)setContextID:(id)contextID
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -93,7 +99,7 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)setURL:(id)url_
+-(void)setURL:(id)url
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -106,7 +112,7 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)setElementID:(NSString*)elementID_
+-(void)setElementID:(NSString*)elementID
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -116,16 +122,16 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWApplet (GSWAppletA)
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -133,61 +139,61 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //-------------------------------------------------------------------- 
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)_computeAgcArchiveStringInContext:(GSWContext*)context_
+-(void)_computeAgcArchiveStringInContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(id)_agcArchiveURLsListInContext:(GSWContext*)context_
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
--(id)_archiveURLsListInContext:(GSWContext*)context_
+-(id)_agcArchiveURLsListInContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(id)_agcArchiveNamesListInContext:(GSWContext*)context_
+-(id)_archiveURLsListInContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(id)_archiveNamesListInContext:(GSWContext*)context_
+-(id)_agcArchiveNamesListInContext:(GSWContext*)aContext
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(void)_deallocForComponent:(id)component_
+-(id)_archiveNamesListInContext:(GSWContext*)aContext
+{
+  LOGObjectFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+//--------------------------------------------------------------------
+-(void)_deallocForComponent:(id)aComponent
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)_awakeForComponent:(id)component_
+-(void)_awakeForComponent:(id)aComponent
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };

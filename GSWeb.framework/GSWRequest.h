@@ -1,11 +1,16 @@
-/* GSWRequest.h - GSWeb: Class GSWRequest
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWRequest.h - <title>GSWeb: Class GSWRequest</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,40 +37,40 @@
 @interface GSWRequest : NSObject <NSCopying>
 {
 @private
-  NSString* method;
-  GSWDynamicURLString* uri;
-  NSString* httpVersion;
-  NSDictionary* headers;
-  NSData* content;
-  NSDictionary* userInfo;
-  NSStringEncoding defaultFormValueEncoding;
-  NSStringEncoding formValueEncoding;
-  NSDictionary* formValues;
-  NSDictionary* cookie;
-  NSString* applicationURLPrefix;
-  NSArray* requestHandlerPathArray;
-  NSArray* browserLanguages;
-  int requestType;
-  BOOL isUsingWebServer;
-  BOOL formValueEncodingDetectionEnabled;
-  int applicationNumber;
+  NSString* _method;
+  GSWDynamicURLString* _uri;
+  NSString* _httpVersion;
+  NSDictionary* _headers;
+  NSData* _content;
+  NSDictionary* _userInfo;
+  NSStringEncoding _defaultFormValueEncoding;
+  NSStringEncoding _formValueEncoding;
+  NSDictionary* _formValues;
+  NSDictionary* _cookie;
+  NSString* _applicationURLPrefix;
+  NSArray* _requestHandlerPathArray;
+  NSArray* _browserLanguages;
+  int _requestType;
+  BOOL _isUsingWebServer;
+  BOOL _formValueEncodingDetectionEnabled;
+  int _applicationNumber;
 };
 
--(id)initWithMethod:(NSString*)method_
-				uri:(NSString*)url_
-		httpVersion:(NSString*)httpVersion_
-			headers:(NSDictionary*)headers_
-			content:(NSData*)content_
-		   userInfo:(NSDictionary*)userInfo_;
+-(id)initWithMethod:(NSString*)aMethod
+                uri:(NSString*)anURL
+        httpVersion:(NSString*)aVersion
+            headers:(NSDictionary*)headers
+            content:(NSData*)content
+           userInfo:(NSDictionary*)userInfo;
 
 -(void)dealloc;
--(id)copyWithZone:(NSZone*)zone_;
+-(id)copyWithZone:(NSZone*)zone;
 
 -(NSData*)content;
 -(NSDictionary*)headers;
--(NSString*)headerForKey:(NSString*)key_;
+-(NSString*)headerForKey:(NSString*)key;
 -(NSArray*)headerKeys;
--(NSArray*)headersForKey:(NSString*)key_;
+-(NSArray*)headersForKey:(NSString*)key;
 -(NSString*)httpVersion;
 -(NSString*)method;
 -(NSArray*)browserLanguages;
@@ -84,16 +90,16 @@
 //====================================================================
 @interface GSWRequest (GSWFormValueReporting)
 
--(void)setDefaultFormValueEncoding:(NSStringEncoding)encoding_;
+-(void)setDefaultFormValueEncoding:(NSStringEncoding)encoding;
 -(NSStringEncoding)defaultFormValueEncoding;
 
--(void)setFormValueEncodingDetectionEnabled:(BOOL)flag_;
+-(void)setFormValueEncodingDetectionEnabled:(BOOL)flag;
 -(BOOL)isFormValueEncodingDetectionEnabled;
 
 -(NSStringEncoding)formValueEncoding;
 -(NSArray*)formValueKeys;
--(NSArray*)formValuesForKey:(NSString*)key_;
--(id)formValueForKey:(NSString*)key_; // return id because GSWFileUpload
+-(NSArray*)formValuesForKey:(NSString*)key;
+-(id)formValueForKey:(NSString*)key; // return id because GSWFileUpload
 
 -(NSDictionary*)formValues;
 @end
@@ -108,8 +114,8 @@
 //NDFN
 -(void)setCookieFromHeaders;
 
--(NSArray*)cookieValuesForKey:(NSString*)key_;
--(NSString*)cookieValueForKey:(NSString*)key_;
+-(NSArray*)cookieValuesForKey:(NSString*)key;
+-(NSString*)cookieValueForKey:(NSString*)key;
 -(NSDictionary*)cookieValues;
 
 -(NSDictionary*)_initCookieDictionary;
@@ -129,9 +135,9 @@
 @end
 //====================================================================
 @interface GSWRequest (GSWRequestB)
--(NSDictionary*)_extractValuesFromFormData:(NSData*)_formData
-							  withEncoding:(NSStringEncoding)_encoding;
--(NSStringEncoding)_formValueEncodingFromFormData:(NSData*)_formData;
+-(NSDictionary*)_extractValuesFromFormData:(NSData*)formData
+                              withEncoding:(NSStringEncoding)encoding;
+-(NSStringEncoding)_formValueEncodingFromFormData:(NSData*)formData;
 -(NSData*)_formData;
 -(NSString*)_contentType;
 -(NSString*)_urlQueryString;
@@ -147,14 +153,14 @@
 -(BOOL)_isSessionIDinRequest;
 -(BOOL)_isSessionIDinCookies;
 -(BOOL)_isSessionIDinFormValues;
--(id)_completeURLWithRequestHandlerKey:(NSString*)_key
-								  path:(NSString*)_path
-						   queryString:(NSString*)_queryString
-							  isSecure:(BOOL)_isSecure
-								  port:(int)_port;
--(GSWDynamicURLString*)_urlWithRequestHandlerKey:(NSString*)_key
-										   path:(NSString*)_path
-									queryString:(NSString*)_queryString;
+-(id)_completeURLWithRequestHandlerKey:(NSString*)key
+                                  path:(NSString*)path
+                           queryString:(NSString*)queryString
+                              isSecure:(BOOL)isSecure
+                                  port:(int)port;
+-(GSWDynamicURLString*)_urlWithRequestHandlerKey:(NSString*)key
+                                            path:(NSString*)path
+                                     queryString:(NSString*)queryString;
 -(GSWDynamicURLString*)_applicationURLPrefix;
 -(NSDictionary*)_formValues;
 -(void)_getFormValuesFromURLEncoding;
@@ -164,26 +170,26 @@
 //====================================================================
 @interface GSWRequest (GSWRequestH)
 -(void)_getFormValuesFromMultipartFormData;
--(NSArray*)_decodeMultipartBody:(NSData*)_body
-					   boundary:(NSString*)_boundary;
--(NSArray*)_parseData:(NSData*)_data;
--(NSDictionary*)_parseOneHeader:(NSString*)_header;
+-(NSArray*)_decodeMultipartBody:(NSData*)body
+                       boundary:(NSString*)boundary;
+-(NSArray*)_parseData:(NSData*)data;
+-(NSDictionary*)_parseOneHeader:(NSString*)header;
 @end
 //====================================================================
 @interface GSWRequest (GSWRequestI)
--(id)nonNilFormValueForKey:(NSString*)_key;
+-(id)nonNilFormValueForKey:(NSString*)key;
 @end
 //====================================================================
 @interface GSWRequest (GSWRequestJ)
--(id)dictionaryWithKeys:(id)_unknown;
+-(id)dictionaryWithKeys:(id)unknown;
 -(NSString*)selectedButtonName;
--(id)valueFromImageMapNamed:(NSString*)_name;
--(id)valueFromImageMapNamed:(NSString*)_name
-				inFramework:(NSString*)_framework;
--(id)valueFromImageMap:(id)_unknown;
+-(id)valueFromImageMapNamed:(NSString*)aName;
+-(id)valueFromImageMapNamed:(NSString*)aName
+                inFramework:(NSString*)aFramework;
+-(id)valueFromImageMap:(id)unknown;
 -(id)yCoord;
 -(id)xCoord;
--(id)formKeyWithSuffix:(NSString*)_suffix;
+-(id)formKeyWithSuffix:(NSString*)suffix;
 @end
 //====================================================================
 @interface GSWRequest (GSWRequestK)

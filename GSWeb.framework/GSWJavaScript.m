@@ -2,7 +2,7 @@
 
    Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
@@ -37,8 +37,23 @@ static char rcsId[] = "$Id$";
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  GSWAssociation* languageAssociation=nil;
+  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
+  LOGObjectFnStartC("GSWJavaScript");
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ templateElement=%@",aName,associations,templateElement);
+  if (![tmpAssociations objectForKey:language__Key])
+    {
+      // Create and set the language (Javascript)
+      languageAssociation=[GSWConstantValueAssociation associationWithValue:@"JavaScript"];
+      [tmpAssociations setObject:languageAssociation
+                       forKey:language__Key];
+    };
+  if ((self=[super initWithName:aName
+                   associations:tmpAssociations
+                   template:templateElement]))
+    {
+    };
+  return self;
 };
 
 //--------------------------------------------------------------------

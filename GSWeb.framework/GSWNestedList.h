@@ -1,11 +1,16 @@
-/* GSWNestedList.h - GSWeb: Class GSWNestedList
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWNestedList.h - <title>GSWeb: Class GSWNestedList</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,42 +36,42 @@
 //====================================================================
 @interface GSWNestedList: GSWDynamicElement
 {
-  GSWAssociation* list;
-  GSWAssociation* item;
-  GSWAssociation* displayString;
-  GSWAssociation* sublist;
-  GSWAssociation* action;
-  GSWAssociation* selection;
-  GSWAssociation* index;
-  GSWAssociation* level;
-  GSWAssociation* isOrdered;
-  GSWAssociation* prefix;
-  GSWAssociation* suffix;
-  BOOL defaultEscapeHTML;
+  GSWAssociation* _list;
+  GSWAssociation* _item;
+  GSWAssociation* _displayString;
+  GSWAssociation* _sublist;
+  GSWAssociation* _action;
+  GSWAssociation* _selection;
+  GSWAssociation* _index;
+  GSWAssociation* _level;
+  GSWAssociation* _isOrdered;
+  GSWAssociation* _prefix;
+  GSWAssociation* _suffix;
+  BOOL _defaultEscapeHTML;
 };
 
 -(void)dealloc;
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)templateElement_;
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)templateElement;
 
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
--(void)_appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
-			 orderedList:(id)orderedList_
-				   level:(int)level_;
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
+-(void)_appendToResponse:(GSWResponse*)aResponse
+               inContext:(GSWContext*)aContext
+             orderedList:(id)orderedList
+                   level:(int)level;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 
--(id)objectAtIndexPath:(id)indexPath_
-				inList:(id)list_
-		   inComponent:(id)component_;
--(id)_objectAtIndexPath:(id)indexPath_
-				 inList:(id)list_
-		   currentIndex:(unsigned int)index_
-			inComponent:(id)component_;
+-(id)objectAtIndexPath:(id)indexPath
+                inList:(id)list
+           inComponent:(id)component;
+-(id)_objectAtIndexPath:(id)indexPath
+                 inList:(id)list
+           currentIndex:(unsigned int)index
+            inComponent:(id)component;
 @end
 
 #endif //_GSWNestedList_h__

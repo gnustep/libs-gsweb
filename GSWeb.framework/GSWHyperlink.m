@@ -148,6 +148,7 @@ static char rcsId[] = "$Id$";
                                                                   removeFrom:tmpOtherAssociations];
       if ([tmpPageSetVarAssociations count]>0)
         _pageSetVarAssociations=[tmpPageSetVarAssociations retain];
+      NSDebugMLLog(@"gswdync",@"_pageSetVarAssociations=%@",_pageSetVarAssociations);
       
       _pageSetVarAssociationsDynamic=[[anAssociationsDict objectForKey:pageSetVars__Key
                                                           withDefaultObject:[_pageSetVarAssociationsDynamic autorelease]] retain];
@@ -158,6 +159,7 @@ static char rcsId[] = "$Id$";
   if ([tmpOtherAssociations count]>0)
     _otherAssociations=[[NSDictionary dictionaryWithDictionary:tmpOtherAssociations] retain];
 
+  NSDebugMLLog(@"gswdync",@"_otherAssociations=%@",_otherAssociations);
   //TODO NSDictionary* otherQueryAssociations;
 
   if ((self=[super initWithName:aName

@@ -4,16 +4,15 @@
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
  * and Manuel Guesdon, Software Builders
- * ANTLR Version 2.7.1; 1996,1997,1998,1999,2000
+ * ANTLR Version 2.5.0; 1996,1997,1998,1999
  */
 
 
 #include <GSWeb/GSWeb.h>
 
-
 #include "gsantlr/ANTLRCommon.h"
 #include "GSWPageDefParser.h"
-#include "GSWPageDefTokenTypes.h"
+#include "GSWPageDefParserTokenTypes.h"
 #include "gsantlr/ANTLRNoViableAltException.h"
 #include "gsantlr/ANTLRBitSet.h"
 #include "gsantlr/ANTLRAST.h"
@@ -79,7 +78,7 @@
 			{
 				switch ( [self LA:1])
 				{
-				case GSWPageDefTokenType_IDENT:
+				case GSWPageDefParserTokenType_IDENT:
 				{
 					{
 						[self object];
@@ -88,7 +87,7 @@
 					}
 					break;
 				}
-				case GSWPageDefTokenType_INCLUDE:
+				case GSWPageDefParserTokenType_INCLUDE:
 				{
 					{
 						[self include];
@@ -135,14 +134,14 @@
 			objectId_AST = [astFactory create:objectId];
 			[astFactory makeASTRoot:objectId_AST in:currentAST];
 		}
-		[self matchTokenType:GSWPageDefTokenType_IDENT];
+		[self matchTokenType:GSWPageDefParserTokenType_IDENT];
 		currentElement=[[GSWPageDefElement new] autorelease]; [currentElement setElementName:[objectId_AST text]];
 		{
 			ANTLRDefAST tmp1_AST = ANTLRnullAST;
 			tmp1_AST = [astFactory create:[self LT:1]];
 			[astFactory makeASTRoot:tmp1_AST in:currentAST];
 		}
-		[self matchTokenType:GSWPageDefTokenType_COLUMN];
+		[self matchTokenType:GSWPageDefParserTokenType_COLUMN];
 		{
 			[self definition];
 			[astFactory addASTChild:returnAST in:currentAST];
@@ -178,18 +177,18 @@
 				tmp2_AST = [astFactory create:[self LT:1]];
 				[astFactory addASTChild:tmp2_AST in:currentAST];
 			}
-			[self matchTokenType:GSWPageDefTokenType_INCLUDE];
+			[self matchTokenType:GSWPageDefParserTokenType_INCLUDE];
 			{
 				do
 				{
-					if (([self LA:1]==GSWPageDefTokenType_WS))
+					if (([self LA:1]==GSWPageDefParserTokenType_WS))
 					{
 						{
 							ANTLRDefAST tmp3_AST = ANTLRnullAST;
 							tmp3_AST = [astFactory create:[self LT:1]];
 							[astFactory addASTChild:tmp3_AST in:currentAST];
 						}
-						[self matchTokenType:GSWPageDefTokenType_WS];
+						[self matchTokenType:GSWPageDefParserTokenType_WS];
 					}
 					else
 					{
@@ -205,7 +204,7 @@
 			includeObj_AST = [astFactory create:includeObj];
 			[astFactory addASTChild:includeObj_AST in:currentAST];
 		}
-		[self matchTokenType:GSWPageDefTokenType_STRING];
+		[self matchTokenType:GSWPageDefParserTokenType_STRING];
 		[includes addObject:[self unescapedString:[[[includeObj  text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
 		include_AST = [currentAST root];
 	}
@@ -239,11 +238,11 @@
 			tmp4_AST = [astFactory create:[self LT:1]];
 			[astFactory makeASTRoot:tmp4_AST in:currentAST];
 		}
-		[self matchTokenType:GSWPageDefTokenType_LCURLY];
+		[self matchTokenType:GSWPageDefParserTokenType_LCURLY];
 		{
 			do
 			{
-				if (([self LA:1]==GSWPageDefTokenType_IDENT))
+				if (([self LA:1]==GSWPageDefParserTokenType_IDENT))
 				{
 					[self member];
 					[astFactory addASTChild:returnAST in:currentAST];
@@ -261,23 +260,23 @@
 			ANTLRDefAST tmp5_AST = ANTLRnullAST;
 			tmp5_AST = [astFactory create:[self LT:1]];
 		}
-		[self matchTokenType:GSWPageDefTokenType_RCURLY];
+		[self matchTokenType:GSWPageDefParserTokenType_RCURLY];
 		{
 			switch ( [self LA:1])
 			{
-			case GSWPageDefTokenType_SEMI:
+			case GSWPageDefParserTokenType_SEMI:
 			{
 				{
 					ANTLRDefAST tmp6_AST = ANTLRnullAST;
 					tmp6_AST = [astFactory create:[self LT:1]];
 					[astFactory addASTChild:tmp6_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_SEMI];
+				[self matchTokenType:GSWPageDefParserTokenType_SEMI];
 				break;
 			}
 			case ANTLRToken_EOF_TYPE:
-			case GSWPageDefTokenType_INCLUDE:
-			case GSWPageDefTokenType_IDENT:
+			case GSWPageDefParserTokenType_INCLUDE:
+			case GSWPageDefParserTokenType_IDENT:
 			{
 				break;
 			}
@@ -317,7 +316,7 @@
 			objectClass_AST = [astFactory create:objectClass];
 			[astFactory addASTChild:objectClass_AST in:currentAST];
 		}
-		[self matchTokenType:GSWPageDefTokenType_IDENT];
+		[self matchTokenType:GSWPageDefParserTokenType_IDENT];
 		[currentElement setClassName:[objectClass text]];
 		classname_AST = [currentAST root];
 	}
@@ -349,14 +348,14 @@
 			memberName_AST = [astFactory create:memberName];
 			[astFactory makeASTRoot:memberName_AST in:currentAST];
 		}
-		[self matchTokenType:GSWPageDefTokenType_IDENT];
+		[self matchTokenType:GSWPageDefParserTokenType_IDENT];
 		ASSIGN(currentMemberName,[memberName text]);
 		{
 			ANTLRDefAST tmp7_AST = ANTLRnullAST;
 			tmp7_AST = [astFactory create:[self LT:1]];
 			[astFactory addASTChild:tmp7_AST in:currentAST];
 		}
-		[self matchTokenType:GSWPageDefTokenType_ASSIGN];
+		[self matchTokenType:GSWPageDefParserTokenType_ASSIGN];
 		{
 			[self mvalue];
 			[astFactory addASTChild:returnAST in:currentAST];
@@ -364,14 +363,14 @@
 		{
 			do
 			{
-				if (([self LA:1]==GSWPageDefTokenType_SEMI))
+				if (([self LA:1]==GSWPageDefParserTokenType_SEMI))
 				{
 					{
 						ANTLRDefAST tmp8_AST = ANTLRnullAST;
 						tmp8_AST = [astFactory create:[self LT:1]];
 						[astFactory addASTChild:tmp8_AST in:currentAST];
 					}
-					[self matchTokenType:GSWPageDefTokenType_SEMI];
+					[self matchTokenType:GSWPageDefParserTokenType_SEMI];
 				}
 				else
 				{
@@ -414,9 +413,10 @@
 		{
 			switch ( [self LA:1])
 			{
-			case GSWPageDefTokenType_IDENT:
-			case GSWPageDefTokenType_CIRC:
-			case GSWPageDefTokenType_TILDE:
+			case GSWPageDefParserTokenType_IDENT:
+			case GSWPageDefParserTokenType_CIRC:
+			case GSWPageDefParserTokenType_TILDE:
+			case GSWPageDefParserTokenType_IDENTREF:
 			{
 				[self idref];
 				assocKeyPath_AST = returnAST;
@@ -425,62 +425,62 @@
 								 ASSIGN(currentAssociation,assoc); };
 				break;
 			}
-			case GSWPageDefTokenType_INT:
+			case GSWPageDefParserTokenType_INT:
 			{
 				assocConstantInt = [self LT:1];
 				{
 					assocConstantInt_AST = [astFactory create:assocConstantInt];
 					[astFactory addASTChild:assocConstantInt_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_INT];
+				[self matchTokenType:GSWPageDefParserTokenType_INT];
 				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber valueFromString:[assocConstantInt text]]];
 								 ASSIGN(currentAssociation,assoc); };
 				break;
 			}
-			case GSWPageDefTokenType_YES:
+			case GSWPageDefParserTokenType_YES:
 			{
 				{
 					ANTLRDefAST tmp9_AST = ANTLRnullAST;
 					tmp9_AST = [astFactory create:[self LT:1]];
 					[astFactory addASTChild:tmp9_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_YES];
+				[self matchTokenType:GSWPageDefParserTokenType_YES];
 				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber numberWithBool:YES]];
 								 ASSIGN(currentAssociation,assoc); };
 				break;
 			}
-			case GSWPageDefTokenType_NO:
+			case GSWPageDefParserTokenType_NO:
 			{
 				{
 					ANTLRDefAST tmp10_AST = ANTLRnullAST;
 					tmp10_AST = [astFactory create:[self LT:1]];
 					[astFactory addASTChild:tmp10_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_NO];
+				[self matchTokenType:GSWPageDefParserTokenType_NO];
 				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber numberWithBool:NO]];
 								 ASSIGN(currentAssociation,assoc); };
 				break;
 			}
-			case GSWPageDefTokenType_STRING:
+			case GSWPageDefParserTokenType_STRING:
 			{
 				assocConstantString = [self LT:1];
 				{
 					assocConstantString_AST = [astFactory create:assocConstantString];
 					[astFactory addASTChild:assocConstantString_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_STRING];
+				[self matchTokenType:GSWPageDefParserTokenType_STRING];
 				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[self unescapedString:[[[assocConstantString text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
 								ASSIGN(currentAssociation,assoc); };
 				break;
 			}
-			case GSWPageDefTokenType_HEXNUM:
+			case GSWPageDefParserTokenType_HEXNUM:
 			{
 				assocConstantHexNum = [self LT:1];
 				{
 					assocConstantHexNum_AST = [astFactory create:assocConstantHexNum];
 					[astFactory addASTChild:assocConstantHexNum_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_HEXNUM];
+				[self matchTokenType:GSWPageDefParserTokenType_HEXNUM];
 				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber valueFromString:[assocConstantHexNum text]]];
 								ASSIGN(currentAssociation,assoc); };
 				break;
@@ -517,27 +517,28 @@
 		{
 			switch ( [self LA:1])
 			{
-			case GSWPageDefTokenType_CIRC:
+			case GSWPageDefParserTokenType_CIRC:
 			{
 				{
 					ANTLRDefAST tmp11_AST = ANTLRnullAST;
 					tmp11_AST = [astFactory create:[self LT:1]];
 					[astFactory addASTChild:tmp11_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_CIRC];
+				[self matchTokenType:GSWPageDefParserTokenType_CIRC];
 				break;
 			}
-			case GSWPageDefTokenType_TILDE:
+			case GSWPageDefParserTokenType_TILDE:
 			{
 				{
 					ANTLRDefAST tmp12_AST = ANTLRnullAST;
 					tmp12_AST = [astFactory create:[self LT:1]];
 					[astFactory addASTChild:tmp12_AST in:currentAST];
 				}
-				[self matchTokenType:GSWPageDefTokenType_TILDE];
+				[self matchTokenType:GSWPageDefParserTokenType_TILDE];
 				break;
 			}
-			case GSWPageDefTokenType_IDENT:
+			case GSWPageDefParserTokenType_IDENT:
+			case GSWPageDefParserTokenType_IDENTREF:
 			{
 				break;
 			}
@@ -548,30 +549,64 @@
 			}
 		}
 		{
+			switch ( [self LA:1])
 			{
-				ANTLRDefAST tmp13_AST = ANTLRnullAST;
-				tmp13_AST = [astFactory create:[self LT:1]];
-				[astFactory addASTChild:tmp13_AST in:currentAST];
+			case GSWPageDefParserTokenType_IDENT:
+			{
+				{
+					ANTLRDefAST tmp13_AST = ANTLRnullAST;
+					tmp13_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp13_AST in:currentAST];
+				}
+				[self matchTokenType:GSWPageDefParserTokenType_IDENT];
+				break;
 			}
-			[self matchTokenType:GSWPageDefTokenType_IDENT];
+			case GSWPageDefParserTokenType_IDENTREF:
+			{
+				{
+					ANTLRDefAST tmp14_AST = ANTLRnullAST;
+					tmp14_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp14_AST in:currentAST];
+				}
+				[self matchTokenType:GSWPageDefParserTokenType_IDENTREF];
+				break;
+			}
+			default:
+			{
+				[ANTLRNoViableAltException raiseWithToken:[self LT:1]];
+			}
+			}
 		}
 		{
 			do
 			{
-				if (([self LA:1]==GSWPageDefTokenType_PIDENT))
+				switch ( [self LA:1])
+				{
+				case GSWPageDefParserTokenType_PIDENT:
 				{
 					{
-						ANTLRDefAST tmp14_AST = ANTLRnullAST;
-						tmp14_AST = [astFactory create:[self LT:1]];
-						[astFactory addASTChild:tmp14_AST in:currentAST];
+						ANTLRDefAST tmp15_AST = ANTLRnullAST;
+						tmp15_AST = [astFactory create:[self LT:1]];
+						[astFactory addASTChild:tmp15_AST in:currentAST];
 					}
-					[self matchTokenType:GSWPageDefTokenType_PIDENT];
+					[self matchTokenType:GSWPageDefParserTokenType_PIDENT];
+					break;
 				}
-				else
+				case GSWPageDefParserTokenType_PIDENTREF:
+				{
+					{
+						ANTLRDefAST tmp16_AST = ANTLRnullAST;
+						tmp16_AST = [astFactory create:[self LT:1]];
+						[astFactory addASTChild:tmp16_AST in:currentAST];
+					}
+					[self matchTokenType:GSWPageDefParserTokenType_PIDENTREF];
+					break;
+				}
+				default:
 				{
 					goto _loop28;
 				}
-				
+				}
 			} while (YES);
 			_loop28:;
 		}
@@ -608,7 +643,9 @@ static CONST NSString* GSWPageDefParser___tokenNames[] = {
 	@"HEXNUM",
 	@"CIRC",
 	@"TILDE",
+	@"IDENTREF",
 	@"PIDENT",
+	@"PIDENTREF",
 	@"SL_COMMENT",
 	@"ML_COMMENT",
 	@"POINT",

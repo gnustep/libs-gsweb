@@ -4,17 +4,16 @@
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
  * and Manuel Guesdon, Software Builders
- * ANTLR Version 2.7.1; 1996,1997,1998,1999,2000
+ * ANTLR Version 2.5.0; 1996,1997,1998,1999
  */
 
 
 #include <GSWeb/GSWeb.h>
 
-
 #include "gsantlr/ANTLRCommon.h"
 #include "gsantlr/ANTLRException.h"
 #include "GSWPageDefLexer.h"
-#include "GSWPageDefTokenTypes.h"
+#include "GSWPageDefParserTokenTypes.h"
 
 
 @implementation GSWPageDefLexer
@@ -50,12 +49,12 @@
 
 -(ANTLRDefToken) nextToken
 {
-	ANTLRDefToken theRetToken=nil;
+	ANTLRDefToken _rettoken=nil;
 	BOOL end=NO;
 	//LOGObjectFnStart();
 	for (;!end;)
 	{
-		ANTLRDefToken theRetToken;
+		ANTLRDefToken _rettoken;
 		ANTLRTokenType _ttype = ANTLRToken_INVALID_TYPE;
 		[self resetText];
 		NS_DURING   // for error handling
@@ -65,55 +64,55 @@
 			case ((unichar)('"')):  case ((unichar)('\'')):
 			{
 				[self mSTRINGWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)('{')):
 			{
 				[self mLCURLYWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)('}')):
 			{
 				[self mRCURLYWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)(';')):
 			{
 				[self mSEMIWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)('^')):
 			{
 				[self mCIRCWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)('~')):
 			{
 				[self mTILDEWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)(':')):
 			{
 				[self mCOLUMNWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)('=')):
 			{
 				[self mASSIGNWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)('\t')):  case ((unichar)('\n')):  case ((unichar)('\r')):  case ((unichar)(' ')):
 			{
 				[self mWSWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
@@ -121,54 +120,64 @@
 			case ((unichar)('8')):  case ((unichar)('9')):
 			{
 				[self mINTWithCreateToken:YES];
-				theRetToken=_returnToken;
+				_rettoken=_returnToken;
 				break;
 			}
 			default:
 				if (([self LA:1]==((unichar)('Y'))) && ([self LA:2]==((unichar)('E'))) && ([self LA:3]==((unichar)('S'))))
 				{
 					[self mYESWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('/'))) && ([self LA:2]==((unichar)('/'))))
 				{
 					[self mSL_COMMENTWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('/'))) && ([self LA:2]==((unichar)('*'))))
 				{
 					[self mML_COMMENTWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('#'))) && ([self LA:2]==((unichar)('i'))))
 				{
 					[self mINCLUDEWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('.'))) && ([GSWPageDefLexer___tokenSet_0 isMember:[self LA:2]]))
 				{
 					[self mPIDENTWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
+				}
+				else if (([self LA:1]==((unichar)('.'))) && ([GSWPageDefLexer___tokenSet_1 isMember:[self LA:2]]))
+				{
+					[self mPIDENTREFWithCreateToken:YES];
+					_rettoken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('N'))) && ([self LA:2]==((unichar)('O'))))
 				{
 					[self mNOWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
 				}
-				else if (([self LA:1]==((unichar)('#'))) && ([GSWPageDefLexer___tokenSet_1 isMember:[self LA:2]]))
+				else if (([self LA:1]==((unichar)('#'))) && ([GSWPageDefLexer___tokenSet_2 isMember:[self LA:2]]))
 				{
 					[self mHEXNUMWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
 				}
-				else if (([GSWPageDefLexer___tokenSet_2 isMember:[self LA:1]]))
+				else if (([GSWPageDefLexer___tokenSet_3 isMember:[self LA:1]]))
 				{
 					[self mIDENTWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('.'))))
 				{
 					[self mPOINTWithCreateToken:YES];
-					theRetToken=_returnToken;
+					_rettoken=_returnToken;
+				}
+				else if (([GSWPageDefLexer___tokenSet_4 isMember:[self LA:1]]))
+				{
+					[self mIDENTREFWithCreateToken:YES];
+					_rettoken=_returnToken;
 				}
 			else
 			{
@@ -199,7 +208,7 @@
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_SL_COMMENT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_SL_COMMENT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -207,10 +216,10 @@ int _begin=[text length];
 	{
 		do
 		{
-			if (([GSWPageDefLexer___tokenSet_3 isMember:[self LA:1]]))
+			if (([GSWPageDefLexer___tokenSet_5 isMember:[self LA:1]]))
 			{
 				{
-					[self matchCharSet:GSWPageDefLexer___tokenSet_3];
+					[self matchCharSet:GSWPageDefLexer___tokenSet_5];
 				}
 			}
 			else
@@ -264,7 +273,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_ML_COMMENT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_ML_COMMENT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -345,7 +354,7 @@ int _begin=[text length];
 			case ((unichar)(0xfe)):  case ((unichar)(0xff)):
 			{
 				{
-					[self matchCharSet:GSWPageDefLexer___tokenSet_4];
+					[self matchCharSet:GSWPageDefLexer___tokenSet_6];
 				}
 				break;
 			}
@@ -388,7 +397,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_INCLUDE;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_INCLUDE;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -406,7 +415,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_IDENT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_IDENT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -497,7 +506,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_LETTER;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_LETTER;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -543,7 +552,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_DIGIT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_DIGIT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -561,7 +570,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_PIDENT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_PIDENT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -612,7 +621,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_POINT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_POINT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -630,7 +639,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_STRING;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_STRING;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -714,17 +723,17 @@ int _begin=[text length];
 				case ((unichar)(0xfd)):  case ((unichar)(0xfe)):  case ((unichar)(0xff)):
 				{
 					{
-						[self matchCharSet:GSWPageDefLexer___tokenSet_5];
+						[self matchCharSet:GSWPageDefLexer___tokenSet_7];
 					}
 					break;
 				}
 				default:
 				{
-					goto _loop60;
+					goto _loop66;
 				}
 				}
 			} while (YES);
-			_loop60:;
+			_loop66:;
 		}
 		[self matchCharacter:'\''];
 		break;
@@ -807,17 +816,17 @@ int _begin=[text length];
 				case ((unichar)(0xfd)):  case ((unichar)(0xfe)):  case ((unichar)(0xff)):
 				{
 					{
-						[self matchCharSet:GSWPageDefLexer___tokenSet_6];
+						[self matchCharSet:GSWPageDefLexer___tokenSet_8];
 					}
 					break;
 				}
 				default:
 				{
-					goto _loop63;
+					goto _loop69;
 				}
 				}
 			} while (YES);
-			_loop63:;
+			_loop69:;
 		}
 		[self matchCharacter:'"'];
 		break;
@@ -836,11 +845,158 @@ int _begin=[text length];
 	//LOGObjectFnStop();
 }
 
+-(void) mIDENTREFWithCreateToken:(BOOL)_createToken 
+{
+	ANTLRDefToken _token=nil;
+int _begin=[text length];
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_IDENTREF;
+	int _saveIndex;
+	
+	//LOGObjectFnStart();
+	{
+		switch ( [self LA:1])
+		{
+		case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):  case ((unichar)('D')):
+		case ((unichar)('E')):  case ((unichar)('F')):  case ((unichar)('G')):  case ((unichar)('H')):
+		case ((unichar)('I')):  case ((unichar)('J')):  case ((unichar)('K')):  case ((unichar)('L')):
+		case ((unichar)('M')):  case ((unichar)('N')):  case ((unichar)('O')):  case ((unichar)('P')):
+		case ((unichar)('Q')):  case ((unichar)('R')):  case ((unichar)('S')):  case ((unichar)('T')):
+		case ((unichar)('U')):  case ((unichar)('V')):  case ((unichar)('W')):  case ((unichar)('X')):
+		case ((unichar)('Y')):  case ((unichar)('Z')):  case ((unichar)('a')):  case ((unichar)('b')):
+		case ((unichar)('c')):  case ((unichar)('d')):  case ((unichar)('e')):  case ((unichar)('f')):
+		case ((unichar)('g')):  case ((unichar)('h')):  case ((unichar)('i')):  case ((unichar)('j')):
+		case ((unichar)('k')):  case ((unichar)('l')):  case ((unichar)('m')):  case ((unichar)('n')):
+		case ((unichar)('o')):  case ((unichar)('p')):  case ((unichar)('q')):  case ((unichar)('r')):
+		case ((unichar)('s')):  case ((unichar)('t')):  case ((unichar)('u')):  case ((unichar)('v')):
+		case ((unichar)('w')):  case ((unichar)('x')):  case ((unichar)('y')):  case ((unichar)('z')):
+		{
+			[self mLETTERWithCreateToken:NO];
+			break;
+		}
+		case ((unichar)('_')):
+		{
+			[self matchCharacter:'_'];
+			break;
+		}
+		case ((unichar)('@')):
+		{
+			[self matchCharacter:'@'];
+			break;
+		}
+		default:
+		{
+			[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+		}
+		}
+	}
+	{
+		do
+		{
+			switch ( [self LA:1])
+			{
+			case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):  case ((unichar)('D')):
+			case ((unichar)('E')):  case ((unichar)('F')):  case ((unichar)('G')):  case ((unichar)('H')):
+			case ((unichar)('I')):  case ((unichar)('J')):  case ((unichar)('K')):  case ((unichar)('L')):
+			case ((unichar)('M')):  case ((unichar)('N')):  case ((unichar)('O')):  case ((unichar)('P')):
+			case ((unichar)('Q')):  case ((unichar)('R')):  case ((unichar)('S')):  case ((unichar)('T')):
+			case ((unichar)('U')):  case ((unichar)('V')):  case ((unichar)('W')):  case ((unichar)('X')):
+			case ((unichar)('Y')):  case ((unichar)('Z')):  case ((unichar)('a')):  case ((unichar)('b')):
+			case ((unichar)('c')):  case ((unichar)('d')):  case ((unichar)('e')):  case ((unichar)('f')):
+			case ((unichar)('g')):  case ((unichar)('h')):  case ((unichar)('i')):  case ((unichar)('j')):
+			case ((unichar)('k')):  case ((unichar)('l')):  case ((unichar)('m')):  case ((unichar)('n')):
+			case ((unichar)('o')):  case ((unichar)('p')):  case ((unichar)('q')):  case ((unichar)('r')):
+			case ((unichar)('s')):  case ((unichar)('t')):  case ((unichar)('u')):  case ((unichar)('v')):
+			case ((unichar)('w')):  case ((unichar)('x')):  case ((unichar)('y')):  case ((unichar)('z')):
+			{
+				[self mLETTERWithCreateToken:NO];
+				break;
+			}
+			case ((unichar)('_')):
+			{
+				[self matchCharacter:'_'];
+				break;
+			}
+			case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+			case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+			case ((unichar)('8')):  case ((unichar)('9')):
+			{
+				[self mDIGITWithCreateToken:NO];
+				break;
+			}
+			default:
+			{
+				goto _loop49;
+			}
+			}
+		} while (YES);
+		_loop49:;
+	}
+	_ttype = [self testLiteralsTable:_ttype];
+	if ( _createToken && _token==0 )
+	{
+		   _token = [self makeToken:_ttype];
+		   [_token setText:[text substringFromIndex:_begin]];
+	}
+	ASSIGN(_returnToken,_token);
+	//LOGObjectFnStop();
+}
+
+-(void) mPIDENTREFWithCreateToken:(BOOL)_createToken 
+{
+	ANTLRDefToken _token=nil;
+int _begin=[text length];
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_PIDENTREF;
+	int _saveIndex;
+	
+	//LOGObjectFnStart();
+	[self mPOINTWithCreateToken:NO];
+	{
+		switch ( [self LA:1])
+		{
+		case ((unichar)('@')):  case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):
+		case ((unichar)('D')):  case ((unichar)('E')):  case ((unichar)('F')):  case ((unichar)('G')):
+		case ((unichar)('H')):  case ((unichar)('I')):  case ((unichar)('J')):  case ((unichar)('K')):
+		case ((unichar)('L')):  case ((unichar)('M')):  case ((unichar)('N')):  case ((unichar)('O')):
+		case ((unichar)('P')):  case ((unichar)('Q')):  case ((unichar)('R')):  case ((unichar)('S')):
+		case ((unichar)('T')):  case ((unichar)('U')):  case ((unichar)('V')):  case ((unichar)('W')):
+		case ((unichar)('X')):  case ((unichar)('Y')):  case ((unichar)('Z')):  case ((unichar)('_')):
+		case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):  case ((unichar)('d')):
+		case ((unichar)('e')):  case ((unichar)('f')):  case ((unichar)('g')):  case ((unichar)('h')):
+		case ((unichar)('i')):  case ((unichar)('j')):  case ((unichar)('k')):  case ((unichar)('l')):
+		case ((unichar)('m')):  case ((unichar)('n')):  case ((unichar)('o')):  case ((unichar)('p')):
+		case ((unichar)('q')):  case ((unichar)('r')):  case ((unichar)('s')):  case ((unichar)('t')):
+		case ((unichar)('u')):  case ((unichar)('v')):  case ((unichar)('w')):  case ((unichar)('x')):
+		case ((unichar)('y')):  case ((unichar)('z')):
+		{
+			[self mIDENTREFWithCreateToken:NO];
+			break;
+		}
+		case ((unichar)('"')):  case ((unichar)('\'')):
+		{
+			[self mSTRINGWithCreateToken:NO];
+			break;
+		}
+		default:
+		{
+			[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+		}
+		}
+	}
+	_ttype = [self testLiteralsTable:_ttype];
+	if ( _createToken && _token==0 )
+	{
+		   _token = [self makeToken:_ttype];
+		   [_token setText:[text substringFromIndex:_begin]];
+	}
+	ASSIGN(_returnToken,_token);
+	//LOGObjectFnStop();
+}
+
 -(void) mYESWithCreateToken:(BOOL)_createToken 
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_YES;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_YES;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -859,7 +1015,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_NO;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_NO;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -878,7 +1034,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_LCURLY;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_LCURLY;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -896,7 +1052,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_RCURLY;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_RCURLY;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -914,7 +1070,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_SEMI;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_SEMI;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -932,7 +1088,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_CIRC;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_CIRC;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -950,7 +1106,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_TILDE;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_TILDE;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -968,7 +1124,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_COLUMN;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_COLUMN;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -986,7 +1142,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_ASSIGN;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_ASSIGN;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -1004,7 +1160,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_WS;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_WS;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -1058,7 +1214,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_ESC;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_ESC;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -1109,7 +1265,7 @@ int _begin=[text length];
 		case ((unichar)('u')):
 		{
 			{
-				int _cnt72=0;
+				int _cnt78=0;
 				do
 				{
 					if (([self LA:1]==((unichar)('u'))))
@@ -1118,12 +1274,12 @@ int _begin=[text length];
 					}
 					else
 					{
-						if ( _cnt72>=1 ) { goto _loop72; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+						if ( _cnt78>=1 ) { goto _loop78; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 					}
 					
-					_cnt72++;
+					_cnt78++;
 				} while (YES);
-				_loop72:;
+				_loop78:;
 			}
 			[self mHEXDIGITWithCreateToken:NO];
 			[self mHEXDIGITWithCreateToken:NO];
@@ -1210,12 +1366,12 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_INT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_INT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt67=0;
+		int _cnt73=0;
 		do
 		{
 			if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))))
@@ -1224,12 +1380,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt67>=1 ) { goto _loop67; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt73>=1 ) { goto _loop73; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt67++;
+			_cnt73++;
 		} while (YES);
-		_loop67:;
+		_loop73:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -1244,7 +1400,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_HEXNUM;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_HEXNUM;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -1263,26 +1419,26 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_HEXINT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_HEXINT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt82=0;
+		int _cnt88=0;
 		do
 		{
-			if (([GSWPageDefLexer___tokenSet_1 isMember:[self LA:1]]))
+			if (([GSWPageDefLexer___tokenSet_2 isMember:[self LA:1]]))
 			{
 				[self mHEXDIGITWithCreateToken:NO];
 			}
 			else
 			{
-				if ( _cnt82>=1 ) { goto _loop82; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt88>=1 ) { goto _loop88; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt82++;
+			_cnt88++;
 		} while (YES);
-		_loop82:;
+		_loop88:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -1297,7 +1453,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_HEXDIGIT;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_HEXDIGIT;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -1342,7 +1498,7 @@ int _begin=[text length];
 {
 	ANTLRDefToken _token=nil;
 int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefTokenType_LCLETTER;
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_LCLETTER;
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
@@ -1359,18 +1515,22 @@ int _begin=[text length];
 
 CONST unsigned long GSWPageDefLexer___tokenSet_0_data_[] = { 0UL, 132UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_0=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_1_data_[] = { 0UL, 67043328UL, 126UL, 126UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_1_data_[] = { 0UL, 132UL, 2281701375UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_1=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_2_data_[] = { 0UL, 0UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_2_data_[] = { 0UL, 67043328UL, 126UL, 126UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_2=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_3_data_[] = { 4294958072UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_3_data_[] = { 0UL, 0UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_3=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_4_data_[] = { 4294958072UL, 4294966271UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_4_data_[] = { 0UL, 0UL, 2281701375UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_4=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_5_data_[] = { 4294967288UL, 4294967167UL, 4026531839UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_5_data_[] = { 4294958072UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_5=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_6_data_[] = { 4294967288UL, 4294967291UL, 4026531839UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_6_data_[] = { 4294958072UL, 4294966271UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_6=nil;
+CONST unsigned long GSWPageDefLexer___tokenSet_7_data_[] = { 4294967288UL, 4294967167UL, 4026531839UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+static ANTLRBitSet* GSWPageDefLexer___tokenSet_7=nil;
+CONST unsigned long GSWPageDefLexer___tokenSet_8_data_[] = { 4294967288UL, 4294967291UL, 4026531839UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+static ANTLRBitSet* GSWPageDefLexer___tokenSet_8=nil;
 +(void)initialize
 {
 	if (!GSWPageDefLexer___tokenSet_0)
@@ -1380,13 +1540,17 @@ static ANTLRBitSet* GSWPageDefLexer___tokenSet_6=nil;
 	if (!GSWPageDefLexer___tokenSet_2)
 		GSWPageDefLexer___tokenSet_2=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_2_data_ length:20] retain];
 	if (!GSWPageDefLexer___tokenSet_3)
-		GSWPageDefLexer___tokenSet_3=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_3_data_ length:32] retain];
+		GSWPageDefLexer___tokenSet_3=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_3_data_ length:20] retain];
 	if (!GSWPageDefLexer___tokenSet_4)
-		GSWPageDefLexer___tokenSet_4=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_4_data_ length:32] retain];
+		GSWPageDefLexer___tokenSet_4=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_4_data_ length:20] retain];
 	if (!GSWPageDefLexer___tokenSet_5)
 		GSWPageDefLexer___tokenSet_5=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_5_data_ length:32] retain];
 	if (!GSWPageDefLexer___tokenSet_6)
 		GSWPageDefLexer___tokenSet_6=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_6_data_ length:32] retain];
+	if (!GSWPageDefLexer___tokenSet_7)
+		GSWPageDefLexer___tokenSet_7=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_7_data_ length:32] retain];
+	if (!GSWPageDefLexer___tokenSet_8)
+		GSWPageDefLexer___tokenSet_8=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefLexer___tokenSet_8_data_ length:32] retain];
 }
 +(void)dealloc
 {
@@ -1397,6 +1561,8 @@ static ANTLRBitSet* GSWPageDefLexer___tokenSet_6=nil;
 	DESTROY(GSWPageDefLexer___tokenSet_4);
 	DESTROY(GSWPageDefLexer___tokenSet_5);
 	DESTROY(GSWPageDefLexer___tokenSet_6);
+	DESTROY(GSWPageDefLexer___tokenSet_7);
+	DESTROY(GSWPageDefLexer___tokenSet_8);
 	[[self superclass] dealloc];
 }
 @end

@@ -1,3 +1,60 @@
+2002-07-28   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWJavaScript.h/.m:
+		o implementation
+	* GSWeb.framework/GSWClientSideScript.h/.m:
+		o implementation
+	* GSWeb.framework/GSWVBScript.h/.m:
+		o implementation
+	* TODO:
+		o updated
+	* GSWeb.framework/GSWConstants.h/.m:
+		o added language__Key
+	* GSWeb.framework/GSWRadioButton.m:
+		o logs
+		o bug fix for checked case
+	* GSWeb.framework/GSWDirectAction.m:
+		o added -existingSessionWithSessionID:
+	* GSWeb.framework/PageDef.g
+		o Handle function references (@ in values)
+	* GSWeb.framework/GSWPageDefLexer.h/.m:
+		o re-generated after PageDef.g change 
+	* GSWeb.framework/GSWPageDefParserTokenTypes.h
+		o re-generated after PageDef.g change 
+	* GSWeb.framework/GSWPageDefParser.h/.m:
+		o re-generated after PageDef.g change 
+	* GSWeb.framework/GSWPageDefParserTokenTypes.txt
+		o re-generated after PageDef.g change 
+	* GSWeb.framework/GSWContext.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWDirectAction.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWResponse.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWCookie.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWNestedList.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWSessionTimeOut.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWSessionStore.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWServerSessionStore.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWTransactionRecord.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWSession.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWRequest.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWToggle.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWHTMLComment.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWHTMLBareString.m/.h:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWMailDelivery.m/.h:
+		o ivar names changes to conform to coding standards
+	
 2002-07-04  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWDefaultAdaptorThread.m
 		o trace request uri

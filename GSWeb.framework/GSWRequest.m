@@ -1,11 +1,16 @@
-/* GSWRequest.m - GSWeb: Class GSWRequest
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWRequest.m - <title>GSWeb: Class GSWRequest</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -33,46 +39,46 @@ static char rcsId[] = "$Id$";
 //	initWithMethod:uri:httpVersion:headers:content:userInfo:
 
 // may raise exception
--(id)initWithMethod:(NSString*)method_
-				uri:(NSString*)url_
-		httpVersion:(NSString*)httpVersion_
-			headers:(NSDictionary*)headers_
-			content:(NSData*)content_
-		   userInfo:(NSDictionary*)userInfo_
+-(id)initWithMethod:(NSString*)aMethod
+                uri:(NSString*)anURL
+        httpVersion:(NSString*)aVersion
+            headers:(NSDictionary*)headers
+            content:(NSData*)content
+           userInfo:(NSDictionary*)userInfo
 {
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  ASSIGNCOPY(method,method_);
-	  NSDebugMLLog(@"requests",@"method=%@",method);
-	  ASSIGNCOPY(httpVersion,httpVersion_);
-	  ASSIGNCOPY(headers,headers_);
-	  defaultFormValueEncoding=NSISOLatin1StringEncoding;
-	  formValueEncoding=NSISOLatin1StringEncoding;
-	  [self _initCookieDictionary];//NDFN
-	  applicationNumber=-9999;
-	  {
-		NSString* _adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConv]];
-                if (!_adaptorVersion)
-                  _adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConvInversed]];
-		NSDebugMLLog(@"requests",@"_adaptorVersion=%@",_adaptorVersion);
-		[self _setIsUsingWebServer:(_adaptorVersion!=nil)];//??
-	  };
-	  NSDebugMLLog(@"requests",@"url_=%@",url_);
-	  uri=[[GSWDynamicURLString alloc]initWithCString:[url_ cString]
-									 length:[url_ length]];
-	  NSDebugMLLog(@"requests",@"uri=%@",uri);
-	  [uri checkURL];
-	  ASSIGNCOPY(content,content_);
-	  ASSIGNCOPY(userInfo,userInfo_);
+    {
+      ASSIGNCOPY(_method,aMethod);
+      NSDebugMLLog(@"requests",@"method=%@",_method);
+      ASSIGNCOPY(_httpVersion,aVersion);
+      ASSIGNCOPY(_headers,headers);
+      _defaultFormValueEncoding=NSISOLatin1StringEncoding;
+      _formValueEncoding=NSISOLatin1StringEncoding;
+      [self _initCookieDictionary];//NDFN
+      _applicationNumber=-9999;
+      {
+        NSString* adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConv]];
+        if (!adaptorVersion)
+          adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConvInversed]];
+        NSDebugMLLog(@"requests",@"adaptorVersion=%@",adaptorVersion);
+        [self _setIsUsingWebServer:(adaptorVersion!=nil)];//??
+      };
+      NSDebugMLLog(@"requests",@"anURL=%@",anURL);
+      _uri=[[GSWDynamicURLString alloc]initWithCString:[anURL cString]
+                                      length:[anURL length]];
+      NSDebugMLLog(@"requests",@"uri=%@",_uri);
+      [_uri checkURL];
+      ASSIGNCOPY(_content,content);
+      ASSIGNCOPY(_userInfo,userInfo);
 	  
-	  if (!method_ || !url_)
-		{
-		  LOGException0(@"NSGenericException GSWRequest: no method and no url");
-		  [NSException raise:NSGenericException
-					   format:@"GSWRequest: no method and no url"];
-		};
-	};
+      if (!aMethod || !anURL)
+        {
+          LOGException0(@"NSGenericException GSWRequest: no method and no url");
+          [NSException raise:NSGenericException
+                       format:@"GSWRequest: no method and no url"];
+        };
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -83,55 +89,55 @@ static char rcsId[] = "$Id$";
   GSWLogAssertGood(self);
   NSDebugFLog0(@"dealloc GSWRequest");
   NSDebugFLog0(@"Release GSWRequest method");
-  DESTROY(method);
+  DESTROY(_method);
   NSDebugFLog0(@"Release GSWRequest uri");
-  DESTROY(uri);
+  DESTROY(_uri);
   NSDebugFLog0(@"Release GSWRequest httpVersion");
-  DESTROY(httpVersion);
+  DESTROY(_httpVersion);
   NSDebugFLog0(@"Release GSWRequest headers");
-  DESTROY(headers);
+  DESTROY(_headers);
   NSDebugFLog0(@"Release GSWRequest content");
-  DESTROY(content);
+  DESTROY(_content);
   NSDebugFLog0(@"Release GSWRequest userInfo");
-  DESTROY(userInfo);
+  DESTROY(_userInfo);
   NSDebugFLog0(@"Release GSWRequest formValues");
-  DESTROY(formValues);
+  DESTROY(_formValues);
   NSDebugFLog0(@"Release GSWRequest cookie");
-  DESTROY(cookie);
+  DESTROY(_cookie);
   NSDebugFLog0(@"Release GSWRequest applicationURLPrefix");
-  DESTROY(applicationURLPrefix);
+  DESTROY(_applicationURLPrefix);
   NSDebugFLog0(@"Release GSWRequest requestHandlerPathArray");
-  DESTROY(requestHandlerPathArray);
+  DESTROY(_requestHandlerPathArray);
   NSDebugFLog0(@"Release GSWRequest browserLanguages");
-  DESTROY(browserLanguages);
+  DESTROY(_browserLanguages);
   NSDebugFLog0(@"Release GSWRequest super");
   [super dealloc];
 };
 
 //--------------------------------------------------------------------
--(id)copyWithZone:(NSZone*)zone_
+-(id)copyWithZone:(NSZone*)zone
 {
-  GSWRequest* clone = [[isa allocWithZone:zone_] init];
+  GSWRequest* clone = [[isa allocWithZone:zone] init];
   if (clone)
-	{
-	  ASSIGNCOPY(clone->method,method);
-	  ASSIGNCOPY(clone->uri,uri);
-	  ASSIGNCOPY(clone->httpVersion,httpVersion);
-	  ASSIGNCOPY(clone->headers,headers);
-	  ASSIGNCOPY(clone->content,content);
-	  ASSIGNCOPY(clone->userInfo,userInfo);
-	  clone->defaultFormValueEncoding=defaultFormValueEncoding;
-	  clone->formValueEncoding=formValueEncoding;
-	  ASSIGNCOPY(clone->formValues,formValues);
-	  ASSIGNCOPY(clone->cookie,cookie);
-	  ASSIGNCOPY(clone->applicationURLPrefix,applicationURLPrefix);
-	  ASSIGNCOPY(clone->requestHandlerPathArray,requestHandlerPathArray);
-	  ASSIGNCOPY(clone->browserLanguages,browserLanguages);
-	  clone->requestType=requestType;
-	  clone->isUsingWebServer=isUsingWebServer;
-	  clone->formValueEncodingDetectionEnabled=formValueEncodingDetectionEnabled;
-	  clone->applicationNumber=applicationNumber;
-	};
+    {
+      ASSIGNCOPY(clone->_method,_method);
+      ASSIGNCOPY(clone->_uri,_uri);
+      ASSIGNCOPY(clone->_httpVersion,_httpVersion);
+      ASSIGNCOPY(clone->_headers,_headers);
+      ASSIGNCOPY(clone->_content,_content);
+      ASSIGNCOPY(clone->_userInfo,_userInfo);
+      clone->_defaultFormValueEncoding=_defaultFormValueEncoding;
+      clone->_formValueEncoding=_formValueEncoding;
+      ASSIGNCOPY(clone->_formValues,_formValues);
+      ASSIGNCOPY(clone->_cookie,_cookie);
+      ASSIGNCOPY(clone->_applicationURLPrefix,_applicationURLPrefix);
+      ASSIGNCOPY(clone->_requestHandlerPathArray,_requestHandlerPathArray);
+      ASSIGNCOPY(clone->_browserLanguages,_browserLanguages);
+      clone->_requestType=_requestType;
+      clone->_isUsingWebServer=_isUsingWebServer;
+      clone->_formValueEncodingDetectionEnabled=_formValueEncodingDetectionEnabled;
+      clone->_applicationNumber=_applicationNumber;
+    };
   return clone;
 };
 
@@ -140,19 +146,19 @@ static char rcsId[] = "$Id$";
 
 -(NSData*)content 
 {
-  return content;
+  return _content;
 };
 
 //--------------------------------------------------------------------
 //	headerForKey:
 
--(NSString*)headerForKey:(NSString*)key_ 
+-(NSString*)headerForKey:(NSString*)key
 {
-  id value=[self headersForKey:key_];
+  id value=[self headersForKey:key];
   if (value && [value count]>0)
-	return [value objectAtIndex:0];
+    return [value objectAtIndex:0];
   else
-	return nil;
+    return nil;
 };
 
 //--------------------------------------------------------------------
@@ -160,15 +166,15 @@ static char rcsId[] = "$Id$";
 
 -(NSArray*)headerKeys 
 {
-  return [headers allKeys];
+  return [_headers allKeys];
 };
 
 //--------------------------------------------------------------------
 //	headersForKey:
 
--(NSArray*)headersForKey:(NSString*)key_ 
+-(NSArray*)headersForKey:(NSString*)key
 {
-  return [headers objectForKey:key_];
+  return [_headers objectForKey:key];
 };
 
 //--------------------------------------------------------------------
@@ -176,7 +182,7 @@ static char rcsId[] = "$Id$";
 
 -(NSDictionary*)headers
 {
-  return headers;
+  return _headers;
 }
 
 //--------------------------------------------------------------------
@@ -184,7 +190,7 @@ static char rcsId[] = "$Id$";
 
 -(NSString*)httpVersion 
 {
-  return httpVersion;
+  return _httpVersion;
 };
 
 //--------------------------------------------------------------------
@@ -193,14 +199,14 @@ static char rcsId[] = "$Id$";
 
 -(NSString*)method 
 {
-  return method;
+  return _method;
 };
 
 //--------------------------------------------------------------------
 //	uri
 -(NSString*)uri 
 {
-  return (NSString*)uri;
+  return (NSString*)_uri;
 };
 
 //--------------------------------------------------------------------
@@ -208,9 +214,9 @@ static char rcsId[] = "$Id$";
 -(NSString*)urlProtocol
 {
   //TODO
-  NSString* urlProtocol=[uri urlProtocol];
+  NSString* urlProtocol=[_uri urlProtocol];
   if (!urlProtocol)
-	urlProtocol=GSWProtocol_HTTP;
+    urlProtocol=GSWProtocol_HTTP;
   return urlProtocol;
 };
 
@@ -218,7 +224,7 @@ static char rcsId[] = "$Id$";
 //NDFN
 -(NSString*)urlHost
 {
-  NSString* urlHost=[uri urlHost];
+  NSString* urlHost=[_uri urlHost];
   if (!urlHost)
     urlHost=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConv]];
   if (!urlHost)
@@ -230,7 +236,7 @@ static char rcsId[] = "$Id$";
 //NDFN
 -(NSString*)urlPortString
 {
-  NSString* urlPortString=[uri urlPortString];
+  NSString* urlPortString=[_uri urlPortString];
   if (!urlPortString)
     urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]];
   if (!urlPortString)
@@ -242,7 +248,7 @@ static char rcsId[] = "$Id$";
 //NDFN
 -(int)urlPort
 {
-  int port=[uri urlPort];
+  int port=[_uri urlPort];
   if (!port)
     port=[[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]]intValue];
   if (!port)
@@ -254,7 +260,7 @@ static char rcsId[] = "$Id$";
 //NDFN
 -(NSString*)urlProtocolHostPort
 {
-  return [uri urlProtocolHostPort];
+  return [_uri urlProtocolHostPort];
 };
 
 //--------------------------------------------------------------------
@@ -269,95 +275,95 @@ static char rcsId[] = "$Id$";
 {
   //OK
   LOGObjectFnStart();
-  if (!browserLanguages)
-	{
-	  NSMutableArray* _browserLanguages=nil;
-	  NSString* header=[self headerForKey:GSWHTTPHeader_AcceptLanguage];
-	  NSDebugMLLog(@"requests",@"lang header:%@",header);
-	  if (header)
-		{
-		  NSArray* _languages=[header componentsSeparatedByString:@","];
-		  if (!_languages)
-			{
-			  LOGError0(@"No languages");
-			};
-/*
-//		  NSDebugMLLog(@"requests",@"_languages:%@",_languages);
-		  if ([_languages count]>0)
-			{
-			  int i=0;
-			  NSString* _fromLanguage=nil;
-			  NSString* _toLanguage=nil;
-			  _browserLanguages=[NSMutableArray array];
-			  for(i=0;i<[_languages count];i++)
-				{
-				  _fromLanguage=[[_languages objectAtIndex:i] lowercaseString];
-//				  NSDebugMLLog(@"requests",@"_fromLanguage:%@",_fromLanguage);
-				  _toLanguage=[globalLanguages objectForKey:_fromLanguage];
-//				  NSDebugMLLog(@"requests",@"_toLanguage:%@",_toLanguage);
-				  [_browserLanguages addObject:_toLanguage];
-				};
-			};
-		};
-	  if (_browserLanguages)
-		_browserLanguages=[NSArray arrayWithArray:_browserLanguages];
+  if (!_browserLanguages)
+    {
+      NSMutableArray* browserLanguages=nil;
+      NSString* header=[self headerForKey:GSWHTTPHeader_AcceptLanguage];
+      NSDebugMLLog(@"requests",@"lang header:%@",header);
+      if (header)
+        {
+          NSArray* languages=[header componentsSeparatedByString:@","];
+          if (!languages)
+            {
+              LOGError0(@"No languages");
+            };
+          /*
+          //		  NSDebugMLLog(@"requests",@"languages:%@",languages);
+          if ([languages count]>0)
+          {
+          int i=0;
+          NSString* fromLanguage=nil;
+          NSString* toLanguage=nil;
+          browserLanguages=[NSMutableArray array];
+          for(i=0;i<[languages count];i++)
+          {
+          fromLanguage=[[languages objectAtIndex:i] lowercaseString];
+          //				  NSDebugMLLog(@"requests",@"fromLanguage:%@",fromLanguage);
+          toLanguage=[globalLanguages objectForKey:fromLanguage];
+          //				  NSDebugMLLog(@"requests",@"toLanguage:%@",toLanguage);
+          [browserLanguages addObject:toLanguage];
+          };
+          };
+          };
+	  if (browserLanguages)
+		browserLanguages=[NSArray arrayWithArray:browserLanguages];
 	  else
-		_browserLanguages=[[NSArray new]autorelease];
-*/
-		  _browserLanguages=(NSMutableArray*)[GSWResourceManager GSLanguagesFromISOLanguages:_languages];
-		  NSDebugMLLog(@"requests",@"browserLanguages:%@",browserLanguages);
-		  if (_browserLanguages)
-			{
-			  //Remove Duplicates
-			  int i=0;
-			  _browserLanguages=[_browserLanguages mutableCopy];
-			  for(i=0;i<[_browserLanguages count];i++)
-				{
-				  int j=0;
-				  NSString* language=[_browserLanguages objectAtIndex:i];
-				  for(j=[_browserLanguages count]-1;j>i;j--)
-					{
-					  NSString* language2=[_browserLanguages objectAtIndex:j];
-					  if ([language2 isEqual:language])
-						[_browserLanguages removeObjectAtIndex:j];
-					};
-				};
-			};
-		}
-	  else
-		{
-		  LOGError0(@"No languages header");
-		};
-
-	  if (!_browserLanguages)
-		{
-		  LOGError0(@"No known languages");
-		  _browserLanguages=(NSMutableArray*)[NSArray array];
-		};
-	  ASSIGN(browserLanguages,_browserLanguages);
-	  NSDebugMLLog(@"requests",@"browserLanguages:%@",browserLanguages);
-	};
+          browserLanguages=[[NSArray new]autorelease];
+          */
+          browserLanguages=(NSMutableArray*)[GSWResourceManager GSLanguagesFromISOLanguages:languages];
+          NSDebugMLLog(@"requests",@"browserLanguages:%@",browserLanguages);
+          if (browserLanguages)
+            {
+              //Remove Duplicates
+              int i=0;
+              browserLanguages=[browserLanguages mutableCopy];
+              for(i=0;i<[browserLanguages count];i++)
+                {
+                  int j=0;
+                  NSString* language=[browserLanguages objectAtIndex:i];
+                  for(j=[browserLanguages count]-1;j>i;j--)
+                    {
+                      NSString* language2=[browserLanguages objectAtIndex:j];
+                      if ([language2 isEqual:language])
+                        [browserLanguages removeObjectAtIndex:j];
+                    };
+                };
+            };
+        }
+      else
+        {
+          LOGError0(@"No languages header");
+        };
+      
+      if (!browserLanguages)
+        {
+          LOGError0(@"No known languages");
+          browserLanguages=(NSMutableArray*)[NSArray array];
+        };
+      ASSIGN(_browserLanguages,browserLanguages);
+      NSDebugMLLog(@"requests",@"browserLanguages:%@",_browserLanguages);
+    };
   LOGObjectFnStop();
-  return browserLanguages;
+  return _browserLanguages;
 };
 
 //--------------------------------------------------------------------
 -(NSArray*)requestHandlerPathArray
 {
-  if (!requestHandlerPathArray)
-	{
-	  NSString* _urlRequestHandlerPath=[uri urlRequestHandlerPath];
-	  ASSIGN(requestHandlerPathArray,
-			 [_urlRequestHandlerPath componentsSeparatedByString:@"/"]);
-	};
-  return requestHandlerPathArray;
+  if (!_requestHandlerPathArray)
+    {
+      NSString* urlRequestHandlerPath=[_uri urlRequestHandlerPath];
+      ASSIGN(_requestHandlerPathArray,
+             [urlRequestHandlerPath componentsSeparatedByString:@"/"]);
+    };
+  return _requestHandlerPathArray;
 };
 
 //--------------------------------------------------------------------
 //	userInfo
 -(NSDictionary*)userInfo 
 {
-  return userInfo;
+  return _userInfo;
 };
 
 //--------------------------------------------------------------------
@@ -365,25 +371,25 @@ static char rcsId[] = "$Id$";
 {
   return [NSString stringWithFormat:@"<%s %p - 
 method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultFormValueEncoding=%u, formValueEncoding=%u, formValues=%@, cookie=%@, applicationURLPrefix=%@, requestHandlerPathArray=%@, browserLanguages=%@, requestType=%d, isUsingWebServer=%s, formValueEncodingDetectionEnabled=%s, applicationNumber=%d",
-				   object_get_class_name(self),
-				   (void*)self,
-				   method,
-				   uri,
-				   httpVersion,
-				   headers,
-				   content,
-				   userInfo,
-				   defaultFormValueEncoding,
-				   formValueEncoding,
-				   formValues,
-				   cookie,
-				   applicationURLPrefix,
-				   requestHandlerPathArray,
-				   browserLanguages,
-				   requestType,
-				   isUsingWebServer ? "YES" : "NO",
-				   formValueEncodingDetectionEnabled ? "YES" : "NO",
-				   applicationNumber];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _method,
+                   _uri,
+                   _httpVersion,
+                   _headers,
+                   _content,
+                   _userInfo,
+                   _defaultFormValueEncoding,
+                   _formValueEncoding,
+                   _formValues,
+                   _cookie,
+                   _applicationURLPrefix,
+                   _requestHandlerPathArray,
+                   _browserLanguages,
+                   _requestType,
+                   _isUsingWebServer ? "YES" : "NO",
+                   _formValueEncodingDetectionEnabled ? "YES" : "NO",
+                   _applicationNumber];
 };
 
 @end
@@ -393,30 +399,30 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 
 //--------------------------------------------------------------------
 //	setDefaultFormValueEncoding:
--(void)setDefaultFormValueEncoding:(NSStringEncoding)encoding_ 
+-(void)setDefaultFormValueEncoding:(NSStringEncoding)encoding
 {
-  defaultFormValueEncoding=encoding_;
+  _defaultFormValueEncoding=encoding;
 };
 
 //--------------------------------------------------------------------
 //	defaultFormValueEncoding
 -(NSStringEncoding)defaultFormValueEncoding 
 {
-  return defaultFormValueEncoding;
+  return _defaultFormValueEncoding;
 };
 
 //--------------------------------------------------------------------
 //	setFormValueEncodingDetectionEnabled:
--(void)setFormValueEncodingDetectionEnabled:(BOOL)flag_ 
+-(void)setFormValueEncodingDetectionEnabled:(BOOL)flag
 {
-  formValueEncodingDetectionEnabled=flag_;
+  _formValueEncodingDetectionEnabled=flag;
 };
 
 //--------------------------------------------------------------------
 //	isFormValueEncodingDetectionEnabled
 -(BOOL)isFormValueEncodingDetectionEnabled 
 {
-  return formValueEncodingDetectionEnabled;
+  return _formValueEncodingDetectionEnabled;
 };
 
 //--------------------------------------------------------------------
@@ -424,7 +430,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 
 -(NSStringEncoding)formValueEncoding 
 {
-  return formValueEncoding;
+  return _formValueEncoding;
 };
 
 //--------------------------------------------------------------------
@@ -432,88 +438,90 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 
 -(NSArray*)formValueKeys
 {
-  NSDictionary* _formValues=nil;
-  NSArray* _formValueKeys=nil;
+  NSDictionary* formValues=nil;
+  NSArray* formValueKeys=nil;
   LOGObjectFnStart();
   NS_DURING
     {
-	  _formValues=[self _formValues];
+      formValues=[self _formValues];
     }
   NS_HANDLER
     {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest _formValues");
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"GSWRequest formValueKeys");
       LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
-  _formValueKeys=[_formValues allKeys];
+  formValueKeys=[formValues allKeys];
   LOGObjectFnStop();
-  return _formValueKeys;
+  return formValueKeys;
 };
 
 //--------------------------------------------------------------------
 //	formValuesForKey:
 
--(NSArray*)formValuesForKey:(NSString*)key_ 
+-(NSArray*)formValuesForKey:(NSString*)key
 {
-  NSArray* _formValuesForKey=nil;
-  NSDictionary* _formValues=nil;
+  NSArray* formValuesForKey=nil;
+  NSDictionary* formValues=nil;
   LOGObjectFnStart();
   NS_DURING
     {
-      _formValues=[self _formValues];
+      formValues=[self _formValues];
     }
   NS_HANDLER
     {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest _formValues");
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest formValuesForKey");
       LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
-  _formValuesForKey=[_formValues objectForKey:key_];
+  formValuesForKey=[formValues objectForKey:key];
   LOGObjectFnStop();
-  return _formValuesForKey;
+  return formValuesForKey;
 };
 
 //--------------------------------------------------------------------
 //	formValueForKey:
 // return id because GSWFileUpload
--(id)formValueForKey:(NSString*)key_ 
+-(id)formValueForKey:(NSString*)key
 {
   //OK
-  id _formValue=nil;
-  NSArray* _formValuesForKey=nil;
+  id formValue=nil;
+  NSArray* formValuesForKey=nil;
   LOGObjectFnStart();
-  _formValuesForKey=[self formValuesForKey:key_];
-  NSAssert3(!_formValuesForKey || [_formValuesForKey isKindOfClass:[NSArray class]],@"formValues:%@ ForKey:%@ is not a NSArray it's a %@",
-			_formValuesForKey,
-			key_,
-			[_formValuesForKey class]);
-  if (_formValuesForKey && [_formValuesForKey count]>0)
-	_formValue=[_formValuesForKey objectAtIndex:0];
+  formValuesForKey=[self formValuesForKey:key];
+  NSAssert3(!formValuesForKey || [formValuesForKey isKindOfClass:[NSArray class]],@"formValues:%@ ForKey:%@ is not a NSArray it's a %@",
+            formValuesForKey,
+            key,
+            [formValuesForKey class]);
+  if (formValuesForKey && [formValuesForKey count]>0)
+    formValue=[formValuesForKey objectAtIndex:0];
   LOGObjectFnStop();
-  return _formValue;
+  return formValue;
 };
 
 //--------------------------------------------------------------------
 //	formValues
 -(NSDictionary*)formValues
 {
-  NSDictionary* _formValues=nil;
+  NSDictionary* formValues=nil;
   LOGObjectFnStart();
   NS_DURING
     {
-      _formValues=[self _formValues];
+      formValues=[self _formValues];
     }
   NS_HANDLER
     {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest _formValues");
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"GSWRequest formValues");
       LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
   LOGObjectFnStop();
-  return _formValues;
+  return formValues;
 };
 
 @end
@@ -527,13 +535,13 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 -(BOOL)isFromClientComponent 
 {
   //OK
-  NSString* _remoteInvocationPost=nil;
-  BOOL _isFromClientComponent=NO;
+  NSString* remoteInvocationPost=nil;
+  BOOL isFromClientComponent=NO;
   LOGObjectFnStart();
-  _remoteInvocationPost=[self formValueForKey:GSWFormValue_RemoteInvocationPost[GSWebNamingConv]];
-  _isFromClientComponent=(_remoteInvocationPost!=nil);
+  remoteInvocationPost=[self formValueForKey:GSWFormValue_RemoteInvocationPost[GSWebNamingConv]];
+  isFromClientComponent=(remoteInvocationPost!=nil);
   LOGObjectFnStop();
-  return _isFromClientComponent;
+  return isFromClientComponent;
 };
 
 @end
@@ -544,85 +552,85 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 //--------------------------------------------------------------------
 -(void)setCookieFromHeaders
 {
-  NSDictionary* _cookie=nil;
+  NSDictionary* cookie=nil;
   NSString* cookieHeader=nil;
   LOGObjectFnStart();
   cookieHeader=[self headerForKey:GSWHTTPHeader_Cookie];
   if (cookieHeader)
-	{
-	  NSDictionary* _cookieStrings=[cookieHeader dictionaryWithSep1:@"; "
-												   withSep2:@"="
-												   withOptionUnescape:NO];
-	  if (_cookieStrings)
-		{
-		  NSMutableDictionary* _cookieTmp=[NSMutableDictionary dictionary];
-		  NSEnumerator* enumerator = [_cookieStrings keyEnumerator];
-		  id key;
-		  id value;
-		  NSArray* newValue;
-		  id prevValue;
-		  NSDebugMLLog(@"requests",@"enumerator=%@ _cookieTmp=%@",enumerator,_cookieTmp);
-		  while ((key = [enumerator nextObject]))
-			{
-			  value=[_cookieStrings objectForKey:key];
-			  if (value)
-				{
-				  id cookieValue=nil;
-				  int index=0;
-				  for(index=0;index<[value count];index++)
-					{
-					  cookieValue=[value objectAtIndex:index];
-					  if (cookieValue)
-						{
-						  newValue=nil;
-						  cookieValue=[GSWCookie cookieWithName:key
-												value:cookieValue];
-						  prevValue=[_cookieTmp objectForKey:key];
-						  if (prevValue)
-							newValue=[prevValue arrayByAddingObject:cookieValue];
-						  else
-							newValue=[NSArray arrayWithObject:cookieValue];
-						  [_cookieTmp setObject:newValue
-									   forKey:key];
-						};
-					};
-				};
-			};		  
-		  _cookie=[NSDictionary dictionaryWithDictionary:_cookieTmp];
-		};
-	};
-  ASSIGN(cookie,_cookie);
-  NSDebugMLLog(@"requests",@"Cookie: %@",cookie);
+    {
+      NSDictionary* cookieStrings=[cookieHeader dictionaryWithSep1:@"; "
+                                                withSep2:@"="
+                                                withOptionUnescape:NO];
+      if (cookieStrings)
+        {
+          NSMutableDictionary* cookieTmp=[NSMutableDictionary dictionary];
+          NSEnumerator* enumerator = [cookieStrings keyEnumerator];
+          id key;
+          id value;
+          NSArray* newValue;
+          id prevValue;
+          NSDebugMLLog(@"requests",@"enumerator=%@ cookieTmp=%@",enumerator,cookieTmp);
+          while ((key = [enumerator nextObject]))
+            {
+              value=[cookieStrings objectForKey:key];
+              if (value)
+                {
+                  id cookieValue=nil;
+                  int index=0;
+                  for(index=0;index<[value count];index++)
+                    {
+                      cookieValue=[value objectAtIndex:index];
+                      if (cookieValue)
+                        {
+                          newValue=nil;
+                          cookieValue=[GSWCookie cookieWithName:key
+                                                 value:cookieValue];
+                          prevValue=[cookie objectForKey:key];
+                          if (prevValue)
+                            newValue=[prevValue arrayByAddingObject:cookieValue];
+                          else
+                            newValue=[NSArray arrayWithObject:cookieValue];
+                          [cookieTmp setObject:newValue
+                                     forKey:key];
+                        };
+                    };
+                };
+            };		  
+          cookie=[NSDictionary dictionaryWithDictionary:cookieTmp];
+        };
+    };
+  ASSIGN(_cookie,cookie);
+  NSDebugMLLog(@"requests",@"Cookie: %@",_cookie);
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 //	cookieValuesForKey:
--(NSArray*)cookieValuesForKey:(NSString*)key_
+-(NSArray*)cookieValuesForKey:(NSString*)key
 {
-  NSArray* _cookieValuesForKey=nil;
+  NSArray* cookieValuesForKey=nil;
   LOGObjectFnStart();
   [self _initCookieDictionary];
-  _cookieValuesForKey=[cookie objectForKey:key_];
+  cookieValuesForKey=[_cookie objectForKey:key];
   LOGObjectFnStop();
-  return _cookieValuesForKey;
+  return cookieValuesForKey;
 };
 
 //--------------------------------------------------------------------
 //	cookieValueForKey:
--(NSString*)cookieValueForKey:(NSString*)key_
+-(NSString*)cookieValueForKey:(NSString*)key
 {
   id object=nil;
-  NSString* _cookieValueForKey=nil;
+  NSString* cookieValueForKey=nil;
   //OK
   LOGObjectFnStart();
   [self _initCookieDictionary];
-  object=[cookie objectForKey:key_];
+  object=[_cookie objectForKey:key];
   if (object && [object count]>0)
-	_cookieValueForKey=[object objectAtIndex:0];
-  NSDebugMLLog(@"requests",@"cookieValueForKey:%@=%@",key_,_cookieValueForKey);
+    cookieValueForKey=[object objectAtIndex:0];
+  NSDebugMLLog(@"requests",@"cookieValueForKey:%@=%@",key,cookieValueForKey);
   LOGObjectFnStop();
-  return _cookieValueForKey;
+  return cookieValueForKey;
 };
 
 //--------------------------------------------------------------------
@@ -633,7 +641,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   LOGObjectFnStart();
   [self _initCookieDictionary];
   LOGObjectFnStop();
-  return cookie;
+  return _cookie;
 };
 
 //--------------------------------------------------------------------
@@ -641,58 +649,58 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 {
   //ok
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"cookie=%@",cookie);
-  if (!cookie)
-	{
-	  NSString* _cookieDescription=[self _cookieDescription];
-	  NSArray* _cookiesArray=[_cookieDescription componentsSeparatedByString:@"; "];
-	  NSMutableDictionary* _cookies=[NSMutableDictionary dictionary];
-	  NSString* _cookieString=nil;
-	  NSArray* _cookie=nil;
-	  NSString* _cookieName=nil;
-	  NSString* _cookieValue=nil;
-	  NSArray* _cookieArrayValue=nil;
-	  NSArray* _cookiePrevValue=nil;
-	  int i=0;
-	  NSDebugMLLog(@"low",@"_cookieDescription=%@",_cookieDescription);
-	  NSDebugMLLog(@"low",@"_cookiesArray=%@",_cookiesArray);
-	  for(i=0;i<[_cookiesArray count];i++)
-		{
-		  _cookieString=[_cookiesArray objectAtIndex:i];
-		  NSDebugMLLog(@"low",@"_cookieString=%@",_cookieString);
-		  _cookie=[_cookieString componentsSeparatedByString:@"="];
-		  NSDebugMLLog(@"low",@"_cookie=%@",_cookie);
-		  if ([_cookie count]>0)
-			{
-			  _cookieName=[_cookie objectAtIndex:0];
-			  if ([_cookie count]>1)
-				_cookieValue=[_cookie objectAtIndex:1];
-			  else
-				_cookieValue=[NSString string];
-			  _cookiePrevValue=[_cookies objectForKey:_cookieName];
-			  if (_cookiePrevValue)
-				_cookieArrayValue=[_cookiePrevValue arrayByAddingObject:_cookieValue];
-			  else
-				_cookieArrayValue=[NSArray arrayWithObject:_cookieValue];
-			  [_cookies setObject:_cookieArrayValue
-						forKey:_cookieName];
-			};		 
-		};
-	  ASSIGN(cookie,[NSDictionary dictionaryWithDictionary:_cookies]);
-	};
+  NSDebugMLLog(@"low",@"cookie=%@",_cookie);
+  if (!_cookie)
+    {
+      NSString* cookieDescription=[self _cookieDescription];
+      NSArray* cookiesArray=[cookieDescription componentsSeparatedByString:@"; "];
+      NSMutableDictionary* cookies=[NSMutableDictionary dictionary];
+      NSString* cookieString=nil;
+      NSArray* cookie=nil;
+      NSString* cookieName=nil;
+      NSString* cookieValue=nil;
+      NSArray* cookieArrayValue=nil;
+      NSArray* cookiePrevValue=nil;
+      int i=0;
+      NSDebugMLLog(@"low",@"cookieDescription=%@",cookieDescription);
+      NSDebugMLLog(@"low",@"cookiesArray=%@",cookiesArray);
+      for(i=0;i<[cookiesArray count];i++)
+        {
+          cookieString=[cookiesArray objectAtIndex:i];
+          NSDebugMLLog(@"low",@"cookieString=%@",cookieString);
+          cookie=[cookieString componentsSeparatedByString:@"="];
+          NSDebugMLLog(@"low",@"cookie=%@",cookie);
+          if ([cookie count]>0)
+            {
+              cookieName=[cookie objectAtIndex:0];
+              if ([cookie count]>1)
+                cookieValue=[cookie objectAtIndex:1];
+              else
+                cookieValue=[NSString string];
+              cookiePrevValue=[cookies objectForKey:cookieName];
+              if (cookiePrevValue)
+                cookieArrayValue=[cookiePrevValue arrayByAddingObject:cookieValue];
+              else
+                cookieArrayValue=[NSArray arrayWithObject:cookieValue];
+              [cookies setObject:cookieArrayValue
+                       forKey:cookieName];
+            };		 
+        };
+      ASSIGN(_cookie,[NSDictionary dictionaryWithDictionary:cookies]);
+    };
   LOGObjectFnStop();
-  return cookie;
+  return _cookie;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)_cookieDescription
 {
   //OK
-  NSString* _cookieHeader=nil;
+  NSString* cookieHeader=nil;
   LOGObjectFnStart();
-  _cookieHeader=[self headerForKey:GSWHTTPHeader_Cookie];
+  cookieHeader=[self headerForKey:GSWHTTPHeader_Cookie];
   LOGObjectFnStop();
-  return _cookieHeader;
+  return cookieHeader;
 };
 
 @end
@@ -707,21 +715,21 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 
 -(NSString*)sessionID 
 {
-  NSString* _sessionID=nil;
-  NSDictionary* _uriElements=nil;
+  NSString* sessionID=nil;
+  NSDictionary* uriElements=nil;
   LOGObjectFnStart();
-  _uriElements=[self uriOrFormOrCookiesElements];
-  _sessionID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
-  if (!_sessionID)
-    _sessionID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+  uriElements=[self uriOrFormOrCookiesElements];
+  sessionID=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (!sessionID)
+    sessionID=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
   LOGObjectFnStop();
-  return _sessionID;
+  return sessionID;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)requestHandlerPath
 {
-  return [uri urlRequestHandlerPath];
+  return [_uri urlRequestHandlerPath];
 };
 
 //--------------------------------------------------------------------
@@ -729,7 +737,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 
 -(NSString*)adaptorPrefix
 {
-  return [uri urlPrefix];
+  return [_uri urlPrefix];
 };
 
 
@@ -738,7 +746,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 
 -(NSString*)applicationName
 {
-  return [uri urlApplicationName];
+  return [_uri urlApplicationName];
 };
 
 //--------------------------------------------------------------------
@@ -748,23 +756,23 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 -(int)applicationNumber
 {
   //OK
-  if (applicationNumber==-9999)
-	{
-	  NSDictionary* _uriElements=[self uriOrFormOrCookiesElements];
-	  NSString* _applicationNumber=[_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConv]];
-          if (!_applicationNumber)
-            _applicationNumber=[_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-	  applicationNumber=[_applicationNumber intValue];
-	};
-  return applicationNumber;
+  if (_applicationNumber==-9999)
+    {
+      NSDictionary* uriElements=[self uriOrFormOrCookiesElements];
+      NSString* applicationNumber=[uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConv]];
+      if (!applicationNumber)
+        applicationNumber=[uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+      _applicationNumber=[applicationNumber intValue];
+    };
+  return _applicationNumber;
 
 };
 
 //--------------------------------------------------------------------
 -(NSString*)requestHandlerKey
 {
-  NSString* _requestHandlerKey=[uri urlRequestHandlerKey];
-  return _requestHandlerKey;
+  NSString* requestHandlerKey=[_uri urlRequestHandlerKey];
+  return requestHandlerKey;
 };
 
 @end
@@ -773,56 +781,56 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 @implementation GSWRequest (GSWRequestB)
 
 //--------------------------------------------------------------------
--(NSDictionary*)_extractValuesFromFormData:(NSData*)formData_
-							  withEncoding:(NSStringEncoding)encoding_
+-(NSDictionary*)_extractValuesFromFormData:(NSData*)aFormData
+                              withEncoding:(NSStringEncoding)encoding
 {
-  NSArray* _allKeys=nil;
-  NSDictionary* _formData=nil;
-  NSString* _formString=nil;
+  NSArray* allKeys=nil;
+  NSDictionary* tmpFormData=nil;
+  NSString* formString=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"requests",@"formData_=%@",formData_);
-  NSDebugMLLog(@"requests",@"encoding_=%ld",(long)encoding_);
-  _formString=[[[NSString alloc]initWithData:formData_
-								encoding:encoding_] autorelease];
-  NSDebugMLLog(@"requests",@"_formString=%@",_formString);
-  _formData=[_formString dictionaryQueryString];
-  NSDebugMLLog(@"requests",@"_formData=%@",_formData);
-  _allKeys=[_formData allKeys];
-  NSDebugMLLog(@"requests",@"_allKeys=%@",_allKeys);
-  NSDebugMLLog(@"requests",@"_allKeys count=%d",[_allKeys count]);
-  if ([_allKeys count]>0)
-	{
-	  int i=0;
-	  int _count=[_allKeys count];
-	  NSString* _key=nil;
-	  BOOL ismapCoordsFound=NO;
-	  NSArray* _value=nil;
-	  for(i=0;i<_count && !ismapCoordsFound;i++)
-		{
-		  _key=[_allKeys objectAtIndex:i];
-		  NSDebugMLLog(@"requests",@"_key=%@",_key);
-		  _value=[_formData objectForKey:_key];
-		  if ([_value count]==1
-			  &&[[_value objectAtIndex:0]length]==0
-			  &&[_key ismapCoordx:NULL
-					  y:NULL])
-			{
-			  NSMutableDictionary* _formDataMutable=[[_formData mutableCopy]autorelease];
-			  ismapCoordsFound=YES;
-			  [_formDataMutable setObject:[NSArray arrayWithObject:_key]
-								forKey:GSWKey_IsmapCoords];
-			  [_formDataMutable removeObjectForKey:_key];
-			  _formData=[NSDictionary dictionaryWithDictionary:_formDataMutable];
-			};
-		};
-	};
-  NSDebugMLLog(@"requests",@"_formData=%@",_formData);
+  NSDebugMLLog(@"requests",@"aFormData=%@",aFormData);
+  NSDebugMLLog(@"requests",@"encoding=%ld",(long)encoding);
+  formString=[[[NSString alloc]initWithData:aFormData
+                               encoding:encoding] autorelease];
+  NSDebugMLLog(@"requests",@"formString=%@",formString);
+  tmpFormData=[formString dictionaryQueryString];
+  NSDebugMLLog(@"requests",@"tmpFormData=%@",tmpFormData);
+  allKeys=[tmpFormData allKeys];
+  NSDebugMLLog(@"requests",@"allKeys=%@",allKeys);
+  NSDebugMLLog(@"requests",@"allKeys count=%d",[allKeys count]);
+  if ([allKeys count]>0)
+    {
+      int i=0;
+      int count=[allKeys count];
+      NSString* key=nil;
+      BOOL ismapCoordsFound=NO;
+      NSArray* value=nil;
+      for(i=0;i<count && !ismapCoordsFound;i++)
+        {
+          key=[allKeys objectAtIndex:i];
+          NSDebugMLLog(@"requests",@"key=%@",key);
+          value=[tmpFormData objectForKey:key];
+          if ([value count]==1
+              &&[[value objectAtIndex:0]length]==0
+              &&[key ismapCoordx:NULL
+                     y:NULL])
+            {
+              NSMutableDictionary* tmpFormDataMutable=[[tmpFormData mutableCopy]autorelease];
+              ismapCoordsFound=YES;
+              [tmpFormDataMutable setObject:[NSArray arrayWithObject:key]
+                                  forKey:GSWKey_IsmapCoords[GSWebNamingConv]];
+              [tmpFormDataMutable removeObjectForKey:key];
+              tmpFormData=[NSDictionary dictionaryWithDictionary:tmpFormDataMutable];
+            };
+        };
+    };
+  NSDebugMLLog(@"requests",@"tmpFormData=%@",tmpFormData);
   LOGObjectFnStop();
-  return _formData;
+  return tmpFormData;
 };
 
 //--------------------------------------------------------------------
--(NSStringEncoding)_formValueEncodingFromFormData:(NSData*)_formData
+-(NSStringEncoding)_formValueEncodingFromFormData:(NSData*)aFormData
 {
   return NSISOLatin1StringEncoding; //TODO
 };
@@ -831,71 +839,71 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 -(NSData*)_formData
 {
   //OK
-  NSData* _data=nil;
+  NSData* data=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"requests",@"method=%@",method);
-  NSDebugMLLog(@"requests",@"content=%@",content);
-  if ([method isEqualToString:GSWHTTPHeader_MethodGet])
-	{
-	  NSString* _urlQueryString=[self _urlQueryString];
-	  _data=[_urlQueryString dataUsingEncoding:NSISOLatin1StringEncoding];//??
-	  NSDebugMLLog(@"requests",@"_data=%@",_data);
-	}
-  else if ([method isEqualToString:GSWHTTPHeader_MethodPost])
-	{
-	  _data=content;
-	  NSDebugMLLog(@"requests",@"_data=%@",_data);
-	};
+  NSDebugMLLog(@"requests",@"method=%@",_method);
+  NSDebugMLLog(@"requests",@"content=%@",_content);
+  if ([_method isEqualToString:GSWHTTPHeader_MethodGet])
+    {
+      NSString* urlQueryString=[self _urlQueryString];
+      data=[urlQueryString dataUsingEncoding:NSISOLatin1StringEncoding];//??
+      NSDebugMLLog(@"requests",@"data=%@",data);
+    }
+  else if ([_method isEqualToString:GSWHTTPHeader_MethodPost])
+    {
+      data=_content;
+      NSDebugMLLog(@"requests",@"data=%@",data);
+    };
   LOGObjectFnStop();
-  return _data;
+  return data;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)_contentType
 {
   //OK
-  NSString* _contentType=nil;
-  NSRange _range;
+  NSString* contentType=nil;
+  NSRange range;
   LOGObjectFnStart();
-  _contentType=[self headerForKey:GSWHTTPHeader_ContentType];
-  NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
+  contentType=[self headerForKey:GSWHTTPHeader_ContentType];
+  NSDebugMLLog(@"requests",@"contentType=%@",contentType);
   //We can get something like 
   // multipart/form-data; boundary=---------------------------1810101926251
   // In this case, return only multipart/form-data
-  if (_contentType) 
+  if (contentType) 
     {
-      _range=[_contentType rangeOfString:@";"];
-      if (_range.length>0)
+      range=[contentType rangeOfString:@";"];
+      if (range.length>0)
         {
-          _contentType=[_contentType substringToIndex:_range.location];
-          NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
+          contentType=[contentType substringToIndex:range.location];
+          NSDebugMLLog(@"requests",@"contentType=%@",contentType);
         };
     };
   LOGObjectFnStop();
-  return _contentType;
+  return contentType;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)_urlQueryString
 {
   //OK
-  NSString* _urlQueryString=nil;
-//  NSArray* _url=nil;
+  NSString* urlQueryString=nil;
+//  NSArray* url=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"requests",@"uri=%@",uri);
-  NSDebugMLLog(@"requests",@"uri class=%@",[uri class]);
-  _urlQueryString=[uri urlQueryString];
+  NSDebugMLLog(@"requests",@"uri=%@",_uri);
+  NSDebugMLLog(@"requests",@"uri class=%@",[_uri class]);
+  urlQueryString=[_uri urlQueryString];
 /*
-  _url=[uri componentsSeparatedByString:@"?"];
-  NSDebugMLLog(@"requests",@"_url=%@",_url);
-  if ([_url count]>1)
-	_urlQueryString=[[_url subarrayWithRange:NSMakeRange(1,[_url count])]
-					  componentsJoinedByString:@"?"];
+  url=[_uri componentsSeparatedByString:@"?"];
+  NSDebugMLLog(@"requests",@"url=%@",url);
+  if ([url count]>1)
+  urlQueryString=[[url subarrayWithRange:NSMakeRange(1,[url count])]
+  componentsJoinedByString:@"?"];
   else
-	_urlQueryString=[NSString string];
+  urlQueryString=[NSString string];
 */
   LOGObjectFnStop();
-  return _urlQueryString;
+  return urlQueryString;
 };
 
 
@@ -908,13 +916,13 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 //--------------------------------------------------------------------
 -(BOOL)_isUsingWebServer
 {
-  return isUsingWebServer;
+  return _isUsingWebServer;
 };
 
 //--------------------------------------------------------------------
--(void)_setIsUsingWebServer:(BOOL)_flag
+-(void)_setIsUsingWebServer:(BOOL)flag
 {
-  isUsingWebServer=_flag;
+  _isUsingWebServer=flag;
 };
 
 @end
@@ -926,10 +934,10 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 -(BOOL)_isSessionIDinRequest
 {
   id ID=nil;
-  NSDictionary* _uriElements=[self uriElements];
-  ID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
+  NSDictionary* uriElements=[self uriElements];
+  ID=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
   if (!ID)
-    ID=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+    ID=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
   return (ID!=nil);
 };
 
@@ -954,38 +962,38 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 };
 
 //--------------------------------------------------------------------
--(id)_completeURLWithRequestHandlerKey:(NSString*)_key
-								  path:(NSString*)_path
-						   queryString:(NSString*)_queryString
-							  isSecure:(BOOL)_isSecure
-								  port:(int)_port
+-(id)_completeURLWithRequestHandlerKey:(NSString*)key
+                                  path:(NSString*)path
+                           queryString:(NSString*)queryString
+                              isSecure:(BOOL)isSecure
+                                  port:(int)port
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(GSWDynamicURLString*)_urlWithRequestHandlerKey:(NSString*)_key
-										   path:(NSString*)_path
-									queryString:(NSString*)_queryString
+-(GSWDynamicURLString*)_urlWithRequestHandlerKey:(NSString*)key
+                                            path:(NSString*)path
+                                     queryString:(NSString*)queryString
 {
   //OK
-  GSWDynamicURLString* _url=[self _applicationURLPrefix];
-  [_url setURLRequestHandlerKey:_key];
-  [_url setURLRequestHandlerPath:_path];
-  [_url setURLQueryString:_queryString];
-  return _url;
+  GSWDynamicURLString* url=[self _applicationURLPrefix];
+  [url setURLRequestHandlerKey:key];
+  [url setURLRequestHandlerPath:path];
+  [url setURLQueryString:queryString];
+  return url;
 };
 
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)_applicationURLPrefix
 {
   //OK
-  GSWDynamicURLString* _applicationURLPrefix=[[uri copy] autorelease];
-  [_applicationURLPrefix setURLRequestHandlerKey:nil];
-  [_applicationURLPrefix setURLRequestHandlerPath:nil];
-  [_applicationURLPrefix setURLQueryString:nil];
-  return _applicationURLPrefix;
+  GSWDynamicURLString* applicationURLPrefix=[[_uri copy] autorelease];
+  [applicationURLPrefix setURLRequestHandlerKey:nil];
+  [applicationURLPrefix setURLRequestHandlerPath:nil];
+  [applicationURLPrefix setURLQueryString:nil];
+  return applicationURLPrefix;
 };
 
 //--------------------------------------------------------------------
@@ -993,46 +1001,46 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 {
   //OK
   LOGObjectFnStart();
-  if(!formValues)
-	{
-	  NSString* _contentType=[self _contentType];
-	  if (!_contentType || [_contentType isEqualToString:GSWHTTPHeader_FormURLEncoded])
-		{
-		  [self _getFormValuesFromURLEncoding];
-		}
-	  else if ([_contentType isEqualToString:GSWHTTPHeader_MultipartFormData])
-		{
-		  [self _getFormValuesFromMultipartFormData];
-		}
-	  else
-		{
-		  NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
-		  LOGObjectFnNotImplemented(); //TODO
-		};
-	  NSDebugMLLog(@"requests",@"formValues=%@",formValues);
-	};
+  if(!_formValues)
+    {
+      NSString* contentType=[self _contentType];
+      if (!contentType || [contentType isEqualToString:GSWHTTPHeader_FormURLEncoded])
+        {
+          [self _getFormValuesFromURLEncoding];
+        }
+      else if ([contentType isEqualToString:GSWHTTPHeader_MultipartFormData])
+        {
+          [self _getFormValuesFromMultipartFormData];
+        }
+      else
+        {
+          NSDebugMLLog(@"requests",@"contentType=%@",contentType);
+          LOGObjectFnNotImplemented(); //TODO
+        };
+      NSDebugMLLog(@"requests",@"formValues=%@",_formValues);
+    };
   LOGObjectFnStop();
-  return formValues;
+  return _formValues;
 };
 
 //--------------------------------------------------------------------
 -(void)_getFormValuesFromURLEncoding
 {
   //OK
-  NSData* _formData=nil;
+  NSData* formData=nil;
   LOGObjectFnStart();
-  _formData=[self _formData];
-  NSDebugMLLog(@"requests",@"_formData=%@",_formData);
-  if (_formData)
-	{
-	  NSStringEncoding _formValueEncoding=[self _formValueEncodingFromFormData:_formData];
-	  NSDictionary* _formValues=nil;
-	  NSDebugMLLog(@"requests",@"_formValueEncoding=%d",(int)_formValueEncoding);
-	  _formValues=[self _extractValuesFromFormData:_formData
-						withEncoding:_formValueEncoding];
-	  ASSIGN(formValues,_formValues);
-	  NSDebugMLLog(@"requests",@"formValues=%@",formValues);
-	};
+  formData=[self _formData];
+  NSDebugMLLog(@"requests",@"formData=%@",formData);
+  if (formData)
+    {
+      NSStringEncoding formValueEncoding=[self _formValueEncodingFromFormData:formData];
+      NSDictionary* formValues=nil;
+      NSDebugMLLog(@"requests",@"formValueEncoding=%d",(int)formValueEncoding);
+      formValues=[self _extractValuesFromFormData:formData
+                       withEncoding:formValueEncoding];
+      ASSIGN(_formValues,formValues);
+      NSDebugMLLog(@"requests",@"formValues=%@",_formValues);
+    };
   LOGObjectFnStop();
 };
 
@@ -1040,8 +1048,8 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 -(BOOL)_hasFormValues
 {
   //OK
-  NSDictionary* _formValues=[self _formValues];
-  return [_formValues count]>0;
+  NSDictionary* formValues=[self _formValues];
+  return [formValues count]>0;
 };
 
 
@@ -1053,158 +1061,170 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 //--------------------------------------------------------------------
 -(void)_getFormValuesFromMultipartFormData
 {
-  NSMutableDictionary* _formValues=nil;
-  NSArray* _contentTypes=nil;
-  int _contentTypeIndex=0;
-  int _contentTypeCount=0;
-  NSString* _contentType=nil;
-  NSData* _content=nil;
+  NSMutableDictionary* formValues=nil;
+  NSArray* contentTypes=nil;
+  int contentTypeIndex=0;
+  int contentTypeCount=0;
+  NSString* contentType=nil;
+  NSData* tmpContentData=nil;
   LOGObjectFnStart();
-  _formValues=[NSMutableDictionary dictionary];
-  _contentTypes=[self headersForKey:GSWHTTPHeader_ContentType];
-  _contentTypeIndex=0;
-  _contentTypeCount=[_contentTypes count];
-  NSDebugMLLog(@"requests",@"_contentTypes=%@",_contentTypes);
-  _content=[self content];
+  formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+  contentTypes=[self headersForKey:GSWHTTPHeader_ContentType];
+  contentTypeIndex=0;
+  contentTypeCount=[contentTypes count];
+  NSDebugMLLog(@"requests",@"contentTypes=%@",contentTypes);
+  tmpContentData=[self content];
   NS_DURING
     {
-	  for(_contentTypeIndex=0;_contentTypeIndex<_contentTypeCount;_contentTypeIndex++)
-		{
-		  NSDictionary* _parsedContentType=nil;
-		  NSString* _boundary=nil;
-		  NSArray* _decodedParts=nil;
-		  int _decodedPartIndex=0;
-		  int _decodedPartCount=0;
-		  
-		  // get "multipart/form-data; boundary=---------------------------1810101926251"
-		  _contentType=[_contentTypes objectAtIndex:_contentTypeIndex];
-		  NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
-		  // convert it into
-		  //	{
-		  //		boundary = "---------------------------1810101926251";
-		  //		"multipart/form-data" = "multipart/form-data"; 
-		  //	}
-		  _parsedContentType=[self _parseOneHeader:_contentType];
-		  NSDebugMLLog(@"requests",@"_parsedContentType=%@",_parsedContentType);
-		  _boundary=[_parsedContentType objectForKey:@"boundary"];
-		  NSDebugMLLog(@"requests",@"_boundary=%@",_boundary);
-		  NSAssert1(_boundary,@"No boundary in %@",_parsedContentType);
-		  NSDebugMLLog(@"requests",@"_content=%@",_content);
-		  _decodedParts=[self _decodeMultipartBody:_content
-							  boundary:_boundary];
-		  NSDebugMLLog(@"requests",@"_decodedParts=%@",_decodedParts);
-		  _decodedPartIndex=0;
-		  _decodedPartCount=[_decodedParts count];
-		  for(_decodedPartIndex=0;_decodedPartIndex<_decodedPartCount;_decodedPartIndex++)
-			{
-			  NSData* _decodedPart=nil;
-			  NSArray* _parsedParts=nil;
-			  int _parsedPartsCount=0;
+      for(contentTypeIndex=0;contentTypeIndex<contentTypeCount;contentTypeIndex++)
+        {
+          NSDictionary* parsedContentType=nil;
+          NSString* boundaryString=nil;
+          NSArray* decodedParts=nil;
+          int decodedPartIndex=0;
+          int decodedPartCount=0;
+          
+          // get "multipart/form-data; boundary=---------------------------1810101926251"
+          contentType=[contentTypes objectAtIndex:contentTypeIndex];
+          NSDebugMLLog(@"requests",@"contentType=%@",contentType);
+          // convert it into
+          //	{
+          //		boundary = "---------------------------1810101926251";
+          //		"multipart/form-data" = "multipart/form-data"; 
+          //	}
+          parsedContentType=[self _parseOneHeader:contentType];
+          NSDebugMLLog(@"requests",@"parsedContentType=%@",parsedContentType);
+          boundaryString=[parsedContentType objectForKey:@"boundary"];
+          NSDebugMLLog(@"requests",@"boundaryString=%@",boundaryString);
+          NSAssert1(boundaryString,@"No boundary in %@",parsedContentType);
+          NSDebugMLLog(@"requests",@"tmpContentData=%@",tmpContentData);
+          decodedParts=[self _decodeMultipartBody:tmpContentData
+                             boundary:boundaryString];
+          NSDebugMLLog(@"requests",@"decodedParts=%@",decodedParts);
+          decodedPartIndex=0;
+          decodedPartCount=[decodedParts count];
+          for(decodedPartIndex=0;decodedPartIndex<decodedPartCount;decodedPartIndex++)
+            {
+              NSData* decodedPart=nil;
+              NSArray* parsedParts=nil;
+              int parsedPartsCount=0;
 
-			  _decodedPart=[_decodedParts objectAtIndex:_decodedPartIndex];
-			  NSDebugMLLog(@"requests",@"_decodedPart=%@",_decodedPart);
-			  _parsedParts=[self _parseData:_decodedPart];
-			  NSDebugMLLog(@"requests",@"_parsedParts=%@",_parsedParts);
-			  //return :
-			  //	(
-			  //		{
-			  //			"content-disposition" = "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\""; 
-			  //			"content-type" = text/plain; 
-			  //	    },
-			  //		<41514541 41415177 4d444179 666f3054 6c4e2b58 58684357 69314b50 51635159 73573677 426d336f 52617247 36584633 4c7a6455 5637664e 39654b6b 764b4a43 71715059 67417250 59374863 78397944 36506b66 774a7550 465a4141 2f303463 446c5072 48525670 537a4135 67664738 62364572 44314158 372b7067 734c5075 304b4d77 0d0a0d0a >
-			  //	)
-			  _parsedPartsCount=[_parsedParts count];
-			  if (_parsedPartsCount==0)
-				{
-				  LOGError(@"_parsedPartsCount==0 _decodedPart=%@",_decodedPart);
-				  //TODO error
-				}
-			  else
-				{
-				  NSDictionary* _partInfo=nil;
-				  NSString* _parsedPartsContentType=nil;
-				  NSString* _parsedPartsContentDisposition=nil;
-				  NSDictionary* _parsedContentDispositionOfParsedPart=nil;
-				  NSEnumerator* _enum=nil;
-				  NSString* _name=nil;
-				  NSString* _dscrKey=nil;
-				  id _descrValue=nil;
+              decodedPart=[decodedParts objectAtIndex:decodedPartIndex];
+              NSDebugMLLog(@"requests",@"decodedPart=%@",decodedPart);
+              parsedParts=[self _parseData:decodedPart];
+              NSDebugMLLog(@"requests",@"parsedParts=%@",parsedParts);
+              //return :
+              //	(
+              //		{
+              //			"content-disposition" = "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\""; 
+              //			"content-type" = text/plain; 
+              //	    },
+              //		<41514541 41415177 4d444179 666f3054 6c4e2b58 58684357 69314b50 51635159 73573677 426d336f 52617247 36584633 4c7a6455 5637664e 39654b6b 764b4a43 71715059 67417250 59374863 78397944 36506b66 774a7550 465a4141 2f303463 446c5072 48525670 537a4135 67664738 62364572 44314158 372b7067 734c5075 304b4d77 0d0a0d0a >
+              //	)
+              parsedPartsCount=[parsedParts count];
+              if (parsedPartsCount==0)
+                {
+                  LOGError(@"parsedPartsCount==0 decodedPart=%@",decodedPart);
+                  //TODO error
+                }
+              else
+                {
+                  NSDictionary* partInfo=nil;
+                  NSString* parsedPartsContentType=nil;
+                  NSString* parsedPartsContentDisposition=nil;
+                  NSDictionary* parsedContentDispositionOfParsedPart=nil;
+                  NSEnumerator* anEnumerator=nil;
+                  NSString* aName=nil;
+                  NSString* dscrKey=nil;
+                  id descrValue=nil;
 
-				  _partInfo=[_parsedParts objectAtIndex:0];
-				  NSDebugMLLog(@"requests",@"_partInfo=%@",_partInfo);
-				  NSAssert1([_partInfo isKindOfClass:[NSDictionary class]],@"partInfo %@ is not a dictionary",_partInfo);
-				  _parsedPartsContentType=[[_partInfo objectForKey:GSWHTTPHeader_ContentType] lowercaseString];
-				  NSDebugMLLog(@"requests",@"_parsedPartsContentType=%@",_parsedPartsContentType);
-				  _parsedPartsContentDisposition=[_partInfo objectForKey:@"content-disposition"];
-				  NSDebugMLLog(@"requests",@"_parsedPartsContentDisposition=%@",_parsedPartsContentDisposition);
-				  //Convert: "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\"";
-				  // into: {filename = "C:\\TEMP\\zahn.txt"; "form-data" = "form-data"; name = 9.1; }
-				  _parsedContentDispositionOfParsedPart=[self _parseOneHeader:_parsedPartsContentDisposition];
-				  NSDebugMLLog(@"requests",@"_parsedContentDispositionOfParsedPart=%@",_parsedContentDispositionOfParsedPart);
-				  _enum=[_parsedContentDispositionOfParsedPart keyEnumerator];
-				  _name=[_parsedContentDispositionOfParsedPart objectForKey:@"name"];
-				  NSDebugMLLog(@"requests",@"_name=%@",_name);
-				  if (!_name)
-					{
-					  ExceptionRaise(@"GSWRequest",
-									 @"GSWRequest: No name \n%@\n",
-									 _parsedContentDispositionOfParsedPart);
-					};
-				  while((_dscrKey=[_enum nextObject]))
-					{
-					  NSDebugMLLog(@"requests",@"_dscrKey=%@",_dscrKey);
-					  if (![_dscrKey isEqualToString:@"name"] && ![_dscrKey isEqualToString:@"form-data"])
-						{
-						  NSString* _key=nil;
-						  _descrValue=[_parsedContentDispositionOfParsedPart objectForKey:_dscrKey];
-						  NSDebugMLLog(@"requests",@"_descrValue=%@",_descrValue);
-						  _key=[NSString stringWithFormat:@"%@.%@",_name,_dscrKey];
-						  NSDebugMLLog(@"requests",@"_key=%@",_key);
-						  [_formValues setObject:[NSArray arrayWithObject:_descrValue]
-									   forKey:_key];
-						};
-					};
-				  if (_parsedPartsCount>1)
-					{
-					  NSArray* _values=[_parsedParts subarrayWithRange:NSMakeRange(1,[_parsedParts count]-1)];
-					  NSMutableArray* _valuesNew=[NSMutableArray array];
-					  NSDebugMLLog(@"requests",@"_values=%@",_values);
-					  NSDebugMLLog(@"requests",@"_parsedPartsContentType=%@",_parsedPartsContentType);
-					  if (!_parsedPartsContentType || [_parsedPartsContentType isEqualToString:GSWHTTPHeader_MimeType_TextPlain])
-						{
-						  int _valueIndex=0;
-						  int _valuesCount=[_values count];
-						  id _value=nil;
-						  for(_valueIndex=0;_valueIndex<_valuesCount;_valueIndex++)
-							{
-							  _value=[_values objectAtIndex:_valueIndex];
-							  NSDebugMLLog(@"requests",@"_value=%@",_value);
-							  _value=[[[NSString alloc]initWithData:_value
-													   encoding:NSISOLatin1StringEncoding]autorelease];
-							  [_valuesNew addObject:_value];
-							};
-						  _values=[NSArray arrayWithArray:_valuesNew];
-						};
-					  [_formValues setObject:_values
-								   forKey:_name];
-					};
-				};
-			};
-		};
+                  partInfo=[parsedParts objectAtIndex:0];
+
+                  NSDebugMLLog(@"requests",@"partInfo=%@",
+                               partInfo);
+                  NSAssert1([partInfo isKindOfClass:[NSDictionary class]],
+                            @"partInfo %@ is not a dictionary",partInfo);
+
+                  parsedPartsContentType=[[partInfo objectForKey:GSWHTTPHeader_ContentType] lowercaseString];
+                  NSDebugMLLog(@"requests",@"parsedPartsContentType=%@",
+                               parsedPartsContentType);
+                  parsedPartsContentDisposition=[partInfo objectForKey:@"content-disposition"];
+                  NSDebugMLLog(@"requests",@"parsedPartsContentDisposition=%@",
+                               parsedPartsContentDisposition);
+                  //Convert: "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\"";
+                  // into: {filename = "C:\\TEMP\\zahn.txt"; "form-data" = "form-data"; name = 9.1; }
+                  parsedContentDispositionOfParsedPart=[self _parseOneHeader:parsedPartsContentDisposition];
+                  NSDebugMLLog(@"requests",@"parsedContentDispositionOfParsedPart=%@",
+                               parsedContentDispositionOfParsedPart);
+                  anEnumerator=[parsedContentDispositionOfParsedPart keyEnumerator];
+                  aName=[parsedContentDispositionOfParsedPart objectForKey:@"name"];
+                  NSDebugMLLog(@"requests",@"aName=%@",
+                               aName);
+                  if (!aName)
+                    {
+                      ExceptionRaise(@"GSWRequest",
+                                     @"GSWRequest: No name \n%@\n",
+                                     parsedContentDispositionOfParsedPart);
+                    };
+                  while((dscrKey=[anEnumerator nextObject]))
+                    {
+                      NSDebugMLLog(@"requests",@"dscrKey=%@",dscrKey);
+                      if (![dscrKey isEqualToString:@"name"] 
+                          && ![dscrKey isEqualToString:@"form-data"])
+                        {
+                          NSString* _key=nil;
+                          descrValue=[parsedContentDispositionOfParsedPart objectForKey:dscrKey];
+                          NSDebugMLLog(@"requests",@"descrValue=%@",descrValue);
+                          _key=[NSString stringWithFormat:@"%@.%@",aName,dscrKey];
+                          NSDebugMLLog(@"requests",@"_key=%@",_key);
+                          [formValues setObject:[NSArray arrayWithObject:descrValue]
+                                      forKey:_key];
+                        };
+                    };
+                  if (parsedPartsCount>1)
+                    {
+                      NSArray* values=[parsedParts subarrayWithRange:NSMakeRange(1,[parsedParts count]-1)];
+                      NSMutableArray* valuesNew=[NSMutableArray array];
+                      NSDebugMLLog(@"requests",@"values=%@",
+                                   values);
+                      NSDebugMLLog(@"requests",@"parsedPartsContentType=%@",
+                                   parsedPartsContentType);
+                      if (!parsedPartsContentType
+                          || [parsedPartsContentType isEqualToString:GSWHTTPHeader_MimeType_TextPlain])
+                        {
+                          int valueIndex=0;
+                          int valuesCount=[values count];
+                          id value=nil;
+                          for(valueIndex=0;valueIndex<valuesCount;valueIndex++)
+                            {
+                              value=[values objectAtIndex:valueIndex];
+                              NSDebugMLLog(@"requests",@"value=%@",value);
+                              value=[[[NSString alloc]initWithData:value
+                                                      encoding:NSISOLatin1StringEncoding]autorelease];
+                              [valuesNew addObject:value];
+                            };
+                          values=[NSArray arrayWithArray:valuesNew];
+                        };
+                      [formValues setObject:values
+                                  forKey:aName];
+                    };
+                };
+            };
+        };
     }
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest in _getFormValuesFromMultipartFormData");
-      LOGException(@"%@ (%@) \n_contentTypes=%@\n_content=%@",
-				   localException,
-				   [localException reason],
-				   _contentTypes,
-				   _content);
+      LOGException(@"%@ (%@) \ncontentTypes=%@\ntmpContentData=%@",
+                   localException,
+                   [localException reason],
+                   contentTypes,
+                   tmpContentData);
       [localException raise];
     };
   NS_ENDHANDLER;
-  NSDebugMLLog(@"requests",@"_formValues=%@",_formValues);
-  ASSIGN(formValues,_formValues);
+  NSDebugMLLog(@"requests",@"formValues=%@",formValues);
+  ASSIGN(_formValues,formValues);
   //
   //	{
   //    	9.1 = 	(
@@ -1217,12 +1237,12 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 };
 
 //--------------------------------------------------------------------
--(NSArray*)_decodeMultipartBody:(NSData*)body_
-					   boundary:(NSString*)boundary_
+-(NSArray*)_decodeMultipartBody:(NSData*)aBody
+                       boundary:(NSString*)aBoundary
 {
-  NSData* _dataBoundary=nil;
-  NSString* _boundary=nil;
-  NSArray* _parts=nil;
+  NSData* dataBoundary=nil;
+  NSString* boundaryString=nil;
+  NSArray* parts=nil;
   int i=0;
   NSData* tmpData=nil;
 /*  _CRLFSeparator=NO;
@@ -1234,12 +1254,12 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 						  length:1];
 */
   LOGObjectFnStart();
-  NSDebugMLLog(@"requests",@"body_=%@",body_);
-  NSDebugMLLog(@"requests",@"boundary_=%@",boundary_);
-  _boundary=[NSString stringWithFormat:@"--%@\r\n",boundary_];//Add "--" and "\r\n"
-  NSDebugMLLog(@"requests",@"boundary_=%@",boundary_);
-  _dataBoundary=[_boundary dataUsingEncoding:NSISOLatin1StringEncoding];//TODO
-  NSDebugMLLog(@"requests",@"_dataBoundary=%@",_dataBoundary);
+  NSDebugMLLog(@"requests",@"aBody=%@",aBody);
+  NSDebugMLLog(@"requests",@"aBoundary=%@",aBoundary);
+  boundaryString=[NSString stringWithFormat:@"--%@\r\n",aBoundary];//Add "--" and "\r\n"
+  NSDebugMLLog(@"requests",@"aBoundary=%@",aBoundary);
+  dataBoundary=[boundaryString dataUsingEncoding:NSISOLatin1StringEncoding];//TODO
+  NSDebugMLLog(@"requests",@"dataBoundary=%@",dataBoundary);
 /*  {
 	NSString* _dataString=nil;
 	_dataString=[[[NSString alloc]initWithData:_body
@@ -1248,72 +1268,72 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   }
 */
   NSDebugMLLog0(@"requests",@"componentsSeparatedByData");
-  _parts=[body_ componentsSeparatedByData:_dataBoundary];
-  NSDebugMLLog(@"requests",@"_parts=%@",_parts);
+  parts=[aBody componentsSeparatedByData:dataBoundary];
+  NSDebugMLLog(@"requests",@"parts=%@",parts);
   {
-	for(i=0;i<[_parts count];i++)
-	  {
-		tmpData=[_parts objectAtIndex:i];
-		if ([tmpData length]<400)
-		  {
-			NSString* _dataString=nil;
-			_dataString=[[[NSString alloc]initWithData:tmpData
-										  encoding:NSISOLatin1StringEncoding]autorelease];
-			NSDebugMLLog(@"requests",@"_tmpDataString=%@",_dataString);
-		  }
-		else
-		  {
-			NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
-		  };
-	  };
+    for(i=0;i<[parts count];i++)
+      {
+        tmpData=[parts objectAtIndex:i];
+        if ([tmpData length]<400)
+          {
+            NSString* _dataString=nil;
+            _dataString=[[[NSString alloc]initWithData:tmpData
+                                          encoding:NSISOLatin1StringEncoding]autorelease];
+            NSDebugMLLog(@"requests",@"_tmpDataString=%@",_dataString);
+          }
+        else
+          {
+            NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
+          };
+      };
   };
   // The 1st part should be empty (or it's only a warning message...)
-  if ([_parts count]>0)
-	{
-	  _parts=[_parts subarrayWithRange:NSMakeRange(1,[_parts count]-1)];
-	};
+  if ([parts count]>0)
+    {
+      parts=[parts subarrayWithRange:NSMakeRange(1,[parts count]-1)];
+    };
   // Now deleting last \r\n of each object
-  _parts=[_parts mutableCopy];
-  for(i=0;i<[_parts count];i++)
-	{
-	  tmpData=[_parts objectAtIndex:i];
-	  if (i==[_parts count]-1)
-		{
-		  //Delete the last \r\nseparator--\r\n
-		  _boundary=[NSString stringWithFormat:@"\r\n%@--\r\n",boundary_];
-		  NSDebugMLLog(@"requests",@"boundary_=%@",boundary_);
-		  _dataBoundary=[_boundary dataUsingEncoding:NSISOLatin1StringEncoding];//TODO
-		  NSDebugMLLog(@"requests",@"tmpData_=%@",tmpData);
-		  tmpData=[tmpData dataByDeletingLastBytesCount:[_dataBoundary length]];
-		  NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
-		}
-	  else
-		{
-		  tmpData=[tmpData dataByDeletingLastBytesCount:2];
-		};
-	  [(NSMutableArray*)_parts replaceObjectAtIndex:i
-						withObject:tmpData];
-	};
+  parts=[parts mutableCopy];
+  for(i=0;i<[parts count];i++)
+    {
+      tmpData=[parts objectAtIndex:i];
+      if (i==[parts count]-1)
+        {
+          //Delete the last \r\nseparator--\r\n
+          boundaryString=[NSString stringWithFormat:@"\r\n%@--\r\n",aBoundary];
+          NSDebugMLLog(@"requests",@"aBoundary=%@",aBoundary);
+          dataBoundary=[boundaryString dataUsingEncoding:NSISOLatin1StringEncoding];//TODO
+          NSDebugMLLog(@"requests",@"tmpData_=%@",tmpData);
+          tmpData=[tmpData dataByDeletingLastBytesCount:[dataBoundary length]];
+          NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
+        }
+      else
+        {
+          tmpData=[tmpData dataByDeletingLastBytesCount:2];
+        };
+      [(NSMutableArray*)parts replaceObjectAtIndex:i
+                        withObject:tmpData];
+    };
   {
-	for(i=0;i<[_parts count];i++)
-	  {
-		tmpData=[_parts objectAtIndex:i];
-		if ([tmpData length]<400)
-		  {
-			NSString* _dataString=nil;
-			_dataString=[[[NSString alloc]initWithData:tmpData
-										  encoding:NSISOLatin1StringEncoding]autorelease];
-			NSDebugMLLog(@"requests",@"_tmpDataString=%@",_dataString);
+    for(i=0;i<[parts count];i++)
+      {
+        tmpData=[parts objectAtIndex:i];
+        if ([tmpData length]<400)
+          {
+            NSString* dataString=nil;
+            dataString=[[[NSString alloc]initWithData:tmpData
+                                         encoding:NSISOLatin1StringEncoding]autorelease];
+            NSDebugMLLog(@"requests",@"tmpDataString=%@",dataString);
 			
-		  }
-		else
-		  {
-			NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
-		  };
-	  };
+          }
+        else
+          {
+            NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
+          };
+      };
   };
   LOGObjectFnStop();
-  return _parts;
+  return parts;
 };
 
 //--------------------------------------------------------------------
@@ -1337,83 +1357,86 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 //		},
 //		<7375626d 6974>
 //	)
--(NSArray*)_parseData:(NSData*)data_
+-(NSArray*)_parseData:(NSData*)aData
 {
-  NSArray* _parsedData=nil;
-  NSMutableDictionary* _headers=[NSMutableDictionary dictionary];
-  NSData* _data=nil;
+  NSArray* parsedData=nil;
+  NSMutableDictionary* tmpHeaders=[NSMutableDictionary dictionary];
+  NSData* tmpData=nil;
   LOGObjectFnStart();
-  if (data_)
-	{
-	  unsigned int _dataLength=[data_ length];
-	  const unsigned char* _bytes=(unsigned char*)[data_ bytes];
-	  BOOL _headersEnd=NO;
-	  int _start=0;
-	  int i=0;
-	  for(i=0;i<_dataLength-1 && !_headersEnd;i++) // -1 for \n
-		{
-		  //Parse Headers
-		  if (_bytes[i]=='\r' && _bytes[i+1]=='\n')
-			{
-			  if (i-_start==0)//Empty Line: End Of Headers
-				_headersEnd=YES;
-			  else
-				{
-				  NSRange _range;
-				  NSString* _key=@"";
-				  NSString* _value=@"";
-				  NSData* _headerData=[data_ subdataWithRange:NSMakeRange(_start,i-_start)];
-				  NSString* _headerString=[[[NSString alloc]initWithData:_headerData
-															encoding:NSISOLatin1StringEncoding]autorelease];
-				  NSDebugMLLog(@"requests",@"i=%d",i);
-				  NSDebugMLLog(@"requests",@"_start=%d",_start);
-				  NSDebugMLLog(@"requests",@"_headerData=%@",_headerData);
-				  NSDebugMLLog(@"requests",@"_headerString=%@",_headerString);
-				  _range=[_headerString rangeOfString:@": "];
-				  if (_range.length>0)
-					{
-					  _key=[_headerString  substringToIndex:_range.location];
-					  _key=[_key lowercaseString];
-					  if (_range.location+1<[_headerString length])
-						{
-						  _value=[_headerString substringFromIndex:_range.location+1];
-						  _value=[_value stringByTrimmingSpaces];
-						};
-					};
-				  [_headers setObject:_value
-							forKey:_key];
-				};
-			  i++; //Pass the '\n'
-			  _start=i+1;
-			};
-		};
-	  if (!_headersEnd)
-		{
-		  //TODO error
-                  NSDebugMLog(@"Error");
-		}
-	  else
-		{
-		  NSDebugMLLog(@"requests",@"i=%d _dataLength=%d _dataLength-i=%d",i,_dataLength,(_dataLength-i));
-		  _data=[data_ subdataWithRange:NSMakeRange(i,_dataLength-i)];
-                  //I'm not sure this is good but it avoid 2 bytes datas on an empty input type=file located t the end of the request)
-                  //It may be better to deal with this few lines up, around (_headersEnd=YES;)
-
-                  if ([_data length]==2)
+  if (aData)
+    {
+      unsigned int tmpDataLength=[aData length];
+      const unsigned char* bytes=(unsigned char*)[aData bytes];
+      BOOL tmpHeadersEnd=NO;
+      int start=0;
+      int i=0;
+      for(i=0;i<tmpDataLength-1 && !tmpHeadersEnd;i++) // -1 for \n
+        {
+          //Parse Headers
+          if (bytes[i]=='\r' && bytes[i+1]=='\n')
+            {
+              if (i-start==0)//Empty Line: End Of Headers
+                tmpHeadersEnd=YES;
+              else
+                {
+                  NSRange range;
+                  NSString* key=@"";
+                  NSString* value=@"";
+                  NSData* headerData=[aData subdataWithRange:NSMakeRange(start,i-start)];
+                  NSString* tmpHeaderString=[[[NSString alloc]initWithData:headerData
+                                                              encoding:NSISOLatin1StringEncoding]autorelease];
+                  NSDebugMLLog(@"requests",@"i=%d",i);
+                  NSDebugMLLog(@"requests",@"start=%d",start);
+                  NSDebugMLLog(@"requests",@"headerData=%@",headerData);
+                  NSDebugMLLog(@"requests",@"tmpHeaderString=%@",tmpHeaderString);
+                  range=[tmpHeaderString rangeOfString:@": "];
+                  if (range.length>0)
                     {
-                      const unsigned char* _bytes=(unsigned char*)[_data bytes];
-                      if (_bytes[0]=='\r' && _bytes[1]=='\n')
-                        _data=[NSData data];
+                      key=[tmpHeaderString  substringToIndex:range.location];
+                      key=[key lowercaseString];
+                      if (range.location+1<[tmpHeaderString length])
+                        {
+                          value=[tmpHeaderString substringFromIndex:range.location+1];
+                          value=[value stringByTrimmingSpaces];
+                        };
                     };
-		};
-	  _headers=[NSDictionary dictionaryWithDictionary:_headers];
-	  _parsedData=[NSArray arrayWithObjects:_headers,_data,nil];
-	  NSDebugMLLog(@"requests",@"_headers=%@",_headers);
-	  NSDebugMLLog(@"requests",@"_data %p (length=%d)=%@",_data,[_data length],_data);
-	  NSDebugMLLog(@"requests",@"_parsedData %p =%@",_parsedData,_parsedData);
-	};
+                  [tmpHeaders setObject:value
+                              forKey:key];
+                };
+              i++; //Pass the '\n'
+              start=i+1;
+            };
+        };
+      if (!tmpHeadersEnd)
+        {
+          //TODO error
+          NSDebugMLog(@"Error");
+        }
+      else
+        {
+          NSDebugMLLog(@"requests",@"i=%d tmpDataLength=%d tmpDataLength-i=%d",
+                       i,tmpDataLength,(tmpDataLength-i));
+          tmpData=[aData subdataWithRange:NSMakeRange(i,tmpDataLength-i)];
+          //I'm not sure this is good but it avoid 2 bytes datas on an empty input type=file located t the end of the request)
+          //It may be better to deal with this few lines up, around (tmpHeadersEnd=YES;)
+          
+          if ([tmpData length]==2)
+            {
+              const unsigned char* bytes=(unsigned char*)[tmpData bytes];
+              if (bytes[0]=='\r' && bytes[1]=='\n')
+                tmpData=[NSData data];
+            };
+        };
+      tmpHeaders=[NSDictionary dictionaryWithDictionary:tmpHeaders];
+      parsedData=[NSArray arrayWithObjects:tmpHeaders,tmpData,nil];
+      NSDebugMLLog(@"requests",@"tmpHeaders=%@",tmpHeaders);
+      NSDebugMLLog(@"requests",@"tmpData %p (length=%d)=%@",
+                   tmpData,[tmpData length],tmpData);
+      NSDebugMLLog(@"requests",@"parsedData %p =%@",
+                   parsedData,parsedData);
+    };
   LOGObjectFnStop();
-  return _parsedData;
+  return parsedData;
 };
 
 //--------------------------------------------------------------------
@@ -1434,63 +1457,63 @@ into
 {"form-data" = "form-data"; name = 9.3; }
 */
 
--(NSDictionary*)_parseOneHeader:(NSString*)_header
+-(NSDictionary*)_parseOneHeader:(NSString*)aHeader
 {
   //TODO Process quoted string !
-  NSMutableDictionary* _parsedParts=nil;
-  NSArray* _headerParts=nil;
-  int _partIndex=0;
-  int _partCount=0;
-  NSString* _part=nil;
+  NSMutableDictionary* parsedParts=nil;
+  NSArray* headerParts=nil;
+  int partIndex=0;
+  int partCount=0;
+  NSString* part=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"requests",@"_header=%@",_header);
-  _parsedParts=[NSMutableDictionary dictionary];
-  NSDebugMLLog(@"requests",@"_parsedParts=%@",_parsedParts);
-  _headerParts=[_header componentsSeparatedByString:@";"];
-  NSDebugMLLog(@"requests",@"_headerParts=%@",_headerParts);
-  _partCount=[_headerParts count];
-  for(_partIndex=0;_partIndex<_partCount;_partIndex++)
-	{
-	  NSArray* _parsedPart=nil;
-	  int _parsedPartCount=0;
-	  NSString* _key=nil;
-	  NSString* _value=nil;
-	  _part=[_headerParts objectAtIndex:_partIndex];
-	  NSDebugMLLog(@"requests",@"_part=%@",_part);
-	  _part=[_part stringByTrimmingSpaces];
-	  NSDebugMLLog(@"requests",@"_part=%@",_part);
-	  _parsedPart=[_part componentsSeparatedByString:@"="];
-	  NSDebugMLLog(@"requests",@"_parsedPart=%@",_parsedPart);
-	  _parsedPartCount=[_parsedPart count];
-	  switch(_parsedPartCount)
-		{
-		case 1:
-		  _key=[_parsedPart objectAtIndex:0];
-		  _value=_key;
-		  break;
-		case 2:
-		  _key=[_parsedPart objectAtIndex:0];
-		  _value=[_parsedPart objectAtIndex:1];
-		  break;
-		default:
-		  NSAssert1(NO,@"objects number != 1 or 2 in %@",_parsedPart);
-		  //TODO Error
-		  break;
-		};
-	  NSDebugMLLog(@"requests",@"_key=%@",_key);
-	  NSDebugMLLog(@"requests",@"_value=%@",_value);
-	  if (_key && _value)
-		{
-		  if ([_value isQuotedWith:@"\""])
-			_value=[_value stringWithoutQuote:@"\""];
-		  [_parsedParts setObject:_value
-						forKey:_key];
-		};
-	};
-  NSDebugMLLog(@"requests",@"_parsedParts=%@",_parsedParts);
-  _parsedParts=[NSDictionary dictionaryWithDictionary:_parsedParts];
+  NSDebugMLLog(@"requests",@"aHeader=%@",aHeader);
+  parsedParts=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+  NSDebugMLLog(@"requests",@"parsedParts=%@",parsedParts);
+  headerParts=[aHeader componentsSeparatedByString:@";"];
+  NSDebugMLLog(@"requests",@"headerParts=%@",headerParts);
+  partCount=[headerParts count];
+  for(partIndex=0;partIndex<partCount;partIndex++)
+    {
+      NSArray* parsedPart=nil;
+      int parsedPartCount=0;
+      NSString* key=nil;
+      NSString* value=nil;
+      part=[headerParts objectAtIndex:partIndex];
+      NSDebugMLLog(@"requests",@"part=%@",part);
+      part=[part stringByTrimmingSpaces];
+      NSDebugMLLog(@"requests",@"part=%@",part);
+      parsedPart=[part componentsSeparatedByString:@"="];
+      NSDebugMLLog(@"requests",@"parsedPart=%@",parsedPart);
+      parsedPartCount=[parsedPart count];
+      switch(parsedPartCount)
+        {
+        case 1:
+          key=[parsedPart objectAtIndex:0];
+          value=key;
+          break;
+        case 2:
+          key=[parsedPart objectAtIndex:0];
+          value=[parsedPart objectAtIndex:1];
+          break;
+        default:
+          NSAssert1(NO,@"objects number != 1 or 2 in %@",parsedPart);
+          //TODO Error
+          break;
+        };
+      NSDebugMLLog(@"requests",@"key=%@",key);
+      NSDebugMLLog(@"requests",@"value=%@",value);
+      if (key && value)
+        {
+          if ([value isQuotedWith:@"\""])
+            value=[value stringWithoutQuote:@"\""];
+          [parsedParts setObject:value
+                       forKey:key];
+        };
+    };
+  NSDebugMLLog(@"requests",@"parsedParts=%@",parsedParts);
+  parsedParts=[NSDictionary dictionaryWithDictionary:parsedParts];
   LOGObjectFnStop();
-  return _parsedParts;
+  return parsedParts;
 };
 
 
@@ -1500,7 +1523,7 @@ into
 @implementation GSWRequest (GSWRequestI)
 
 //--------------------------------------------------------------------
--(id)nonNilFormValueForKey:(NSString*)_key
+-(id)nonNilFormValueForKey:(NSString*)key
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -1513,7 +1536,7 @@ into
 @implementation GSWRequest (GSWRequestJ)
 
 //--------------------------------------------------------------------
--(id)dictionaryWithKeys:(id)_unknown
+-(id)dictionaryWithKeys:(id)unknown
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -1527,22 +1550,22 @@ into
 };
 
 //--------------------------------------------------------------------
--(id)valueFromImageMapNamed:(NSString*)_name
+-(id)valueFromImageMapNamed:(NSString*)aName
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(id)valueFromImageMapNamed:(NSString*)_name
-				inFramework:(NSString*)_framework
+-(id)valueFromImageMapNamed:(NSString*)aName
+                inFramework:(NSString*)aFramework
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
--(id)valueFromImageMap:(id)_unknown
+-(id)valueFromImageMap:(id)unknown
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -1563,7 +1586,7 @@ into
 };
 
 //--------------------------------------------------------------------
--(id)formKeyWithSuffix:(NSString*)_suffix
+-(id)formKeyWithSuffix:(NSString*)suffix
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -1589,10 +1612,10 @@ into
 -(NSString*)pageName 
 {
   NSString* pageName=nil;
-  NSDictionary* _uriElements=[self uriOrFormOrCookiesElements];
-  pageName=[_uriElements objectForKey:GSWKey_PageName[GSWebNamingConv]];
+  NSDictionary* uriElements=[self uriOrFormOrCookiesElements];
+  pageName=[uriElements objectForKey:GSWKey_PageName[GSWebNamingConv]];
   if (!pageName)
-    pageName=[_uriElements objectForKey:GSWKey_PageName[GSWebNamingConvInversed]];
+    pageName=[uriElements objectForKey:GSWKey_PageName[GSWebNamingConvInversed]];
   return pageName;
 };
 
@@ -1601,10 +1624,10 @@ into
 -(NSString*)senderID 
 {
   NSString* senderID=nil;
-  NSDictionary* _uriElements=[self uriOrFormOrCookiesElements];
-  senderID=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]];
+  NSDictionary* uriElements=[self uriOrFormOrCookiesElements];
+  senderID=[uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]];
   if (!senderID)
-    senderID=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+    senderID=[uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
   return senderID;
 };
 
@@ -1613,276 +1636,276 @@ into
 
 -(NSString*)contextID 
 {
-  NSString* _contextID=nil;
-  NSDictionary* _uriElements=nil;
+  NSString* contextID=nil;
+  NSDictionary* uriElements=nil;
   LOGObjectFnStart();
-  _uriElements=[self uriOrFormOrCookiesElements];
-  _contextID=[_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
-  if (!_contextID)
-    _contextID=[_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
+  uriElements=[self uriOrFormOrCookiesElements];
+  contextID=[uriElements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
+  if (!contextID)
+    contextID=[uriElements objectForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
   LOGObjectFnStop();
-  return _contextID;
+  return contextID;
 };
 
 //--------------------------------------------------------------------
 //NDFN
 -(NSDictionary*)uriOrFormOrCookiesElements
 {
-  NSString* _tmp=nil;
-  NSMutableDictionary* _uriElements=nil;
+  NSString* tmpString=nil;
+  NSMutableDictionary* uriElements=nil;
   LOGObjectFnStart();
-  _uriElements=[self uriElements];
-  NSDebugMLLog(@"requests",@"_uriElements=%@",_uriElements);
-  if (![_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]])
-	{
-	  _tmp=[_uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
-          if (!_tmp)
+  uriElements=[self uriElements];
+  NSDebugMLLog(@"requests",@"uriElements=%@",uriElements);
+  if (![uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]])
+    {
+      tmpString=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+      if (!tmpString)
+        {
+          tmpString=[self formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+          if (!tmpString)
             {
-              _tmp=[self formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-              if (!_tmp)
+              tmpString=[self formValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+              if (!tmpString)
                 {
-                  _tmp=[self formValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
-                  if (!_tmp)
+                  tmpString=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+                  if (!tmpString)
                     {
-                      _tmp=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-                      if (!_tmp)
-                        {
-                          _tmp=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
-                        };
+                      tmpString=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
+                    };
+                };
+                };
+        };
+      if (tmpString)
+        [uriElements setObject:tmpString
+                     forKey:GSWKey_SessionID[GSWebNamingConv]];
+    };
+  if (![uriElements objectForKey:GSWKey_ContextID[GSWebNamingConv]])
+    {
+      tmpString=[uriElements objectForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
+      if (!tmpString)
+        {
+          tmpString=[self formValueForKey:GSWKey_ContextID[GSWebNamingConv]];
+          if (!tmpString)
+            {
+              tmpString=[self formValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
+              if (!tmpString)
+                {
+                  tmpString=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConv]];
+                  if (!tmpString)
+                    {
+                      tmpString=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
                     };
                 };
             };
-          if (_tmp)
-            [_uriElements setObject:_tmp
-                          forKey:GSWKey_SessionID[GSWebNamingConv]];
-	};
-  if (![_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConv]])
-	{
-          _tmp=[_uriElements objectForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
-          if (!_tmp)
+        };
+      if (tmpString)
+        [uriElements setObject:tmpString
+                     forKey:GSWKey_ContextID[GSWebNamingConv]];
+    };
+  if (![uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
+    {
+      tmpString=[uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+      if (!tmpString)
+        {
+          tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+          if (!tmpString)
             {
-              _tmp=[self formValueForKey:GSWKey_ContextID[GSWebNamingConv]];
-              if (!_tmp)
+              tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+              if (!tmpString)
                 {
-                  _tmp=[self formValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
-                  if (!_tmp)
+                  tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+                  if (!tmpString)
                     {
-                      _tmp=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConv]];
-                      if (!_tmp)
-                        {
-                          _tmp=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
-                        };
+                      tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
                     };
                 };
             };
-          if (_tmp)
-            [_uriElements setObject:_tmp
-                          forKey:GSWKey_ContextID[GSWebNamingConv]];
-	};
-  if (![_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
-	{
-          _tmp=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-          if (!_tmp)
+        };
+      if (tmpString)
+        [uriElements setObject:tmpString
+                     forKey:GSWKey_ContextID[GSWebNamingConv]];
+    };
+  
+  if (![uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
+    {
+      tmpString=[uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+      if (!tmpString)
+        {
+          tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+          if (!tmpString)
             {
-              _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-              if (!_tmp)
+              tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
+              if (!tmpString)
                 {
-                  _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-                  if (!_tmp)
+                  tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
+                  if (!tmpString)
                     {
-                      _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-                      if (!_tmp)
-                        {
-                          _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-                        };
+                      tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
                     };
                 };
             };
-	  if (_tmp)
-            [_uriElements setObject:_tmp
-                          forKey:GSWKey_ContextID[GSWebNamingConv]];
-	};
-
-  if (![_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
-	{
-          _tmp=[_uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-          if (!_tmp)
+        };
+      if (tmpString)
+        [uriElements setObject:tmpString
+                     forKey:GSWKey_ContextID[GSWebNamingConv]];
+    };
+  if (![uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConv]])
+    {
+      tmpString=[uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+      if (!tmpString)
+        {
+          tmpString=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
+          if (!tmpString)
             {
-              _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-              if (!_tmp)
+              tmpString=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+              if (!tmpString)
                 {
-                  _tmp=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-                  if (!_tmp)
+                  tmpString=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
+                  if (!tmpString)
                     {
-                      _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-                      if (!_tmp)
-                        {
-                          _tmp=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-                        };
+                      tmpString=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
                     };
                 };
             };
-	  if (_tmp)
-            [_uriElements setObject:_tmp
-                          forKey:GSWKey_ContextID[GSWebNamingConv]];
-	};
-  if (![_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConv]])
-	{
-          _tmp=[_uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-          if (!_tmp)
+        };
+      if (tmpString)
+        [uriElements setObject:tmpString
+                     forKey:GSWKey_InstanceID[GSWebNamingConv]];
+    };
+  if (![uriElements objectForKey:GSWKey_Data[GSWebNamingConv]])
+    {
+      tmpString=[uriElements objectForKey:GSWKey_Data[GSWebNamingConvInversed]];
+      if (!tmpString)
+        {
+          tmpString=[self formValueForKey:GSWKey_Data[GSWebNamingConv]];
+          if (!tmpString)
             {
-              _tmp=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
-              if (!_tmp)
-                {
-                  _tmp=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-                  if (!_tmp)
-                    {
-                      _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
-                      if (!_tmp)
-                        {
-                          _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-                        };
-                    };
-                };
+              tmpString=[self formValueForKey:GSWKey_Data[GSWebNamingConvInversed]];
             };
-	  if (_tmp)
-            [_uriElements setObject:_tmp
-                          forKey:GSWKey_InstanceID[GSWebNamingConv]];
-	};
-  if (![_uriElements objectForKey:GSWKey_Data[GSWebNamingConv]])
-	{
-          _tmp=[_uriElements objectForKey:GSWKey_Data[GSWebNamingConvInversed]];
-          if (!_tmp)
-            {
-              _tmp=[self formValueForKey:GSWKey_Data[GSWebNamingConv]];
-              if (!_tmp)
-                {
-                  _tmp=[self formValueForKey:GSWKey_Data[GSWebNamingConvInversed]];
-                };
-            };
-	  if (_tmp)
-            [_uriElements setObject:_tmp
-                          forKey:GSWKey_Data[GSWebNamingConv]];
-	};
-  NSDebugMLLog(@"requests",@"_uriElements=%@",_uriElements);
+        };
+      if (tmpString)
+        [uriElements setObject:tmpString
+                     forKey:GSWKey_Data[GSWebNamingConv]];
+    };
+  NSDebugMLLog(@"requests",@"uriElements=%@",uriElements);
   LOGObjectFnStop();
-  return _uriElements;
+  return uriElements;
 };
 //--------------------------------------------------------------------
 //NDFN
 -(NSMutableDictionary*)uriElements
 {
   //OK
-  NSMutableDictionary* _dict=nil;
-  NSArray* _requestHandlerPathArray=nil;
-  int _index=0;
-  NSString* tmp=nil;
-  NSString* _gswpage=nil;
-  NSString* _gswsid=nil;
-  NSString* _gswcid=nil;
-  NSString* _gsweid=nil;
-  NSString* _gswinst=nil;
-  NSString* _requestHandlerKey=nil;
-  int _applicationNumber;
+  NSMutableDictionary* dict=nil;
+  NSArray* requestHandlerPathArray=nil;
+  int index=0;
+  NSString* tmpString=nil;
+  NSString* gswpage=nil;
+  NSString* gswsid=nil;
+  NSString* gswcid=nil;
+  NSString* gsweid=nil;
+  NSString* gswinst=nil;
+  NSString* requestHandlerKey=nil;
+  int applicationNumber;
   LOGObjectFnStart();
-  _dict=[[NSMutableDictionary new] autorelease];
+  dict=[[NSMutableDictionary new] autorelease];
   //NEW//TODO
-  _requestHandlerKey=[((GSWDynamicURLString*)[self uri]) urlRequestHandlerKey];
-  NSDebugMLLog(@"requests",@"_requestHandlerKey=%@",_requestHandlerKey);
-  if (!_requestHandlerKey
-      || (![_requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConv]]
-          &&![_requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]]))
-	{
-	  _requestHandlerPathArray=[self requestHandlerPathArray];
-	  NSDebugMLLog(@"requests",@"_requestHandlerPathArray=%@",_requestHandlerPathArray);
-	  if ([_requestHandlerPathArray count]>_index)
-		{
-		  tmp=[_requestHandlerPathArray objectAtIndex:_index];
-		  NSDebugMLLog(@"requests",@"tmp=%@",tmp);
-		  if ([tmp hasSuffix:GSWPagePSuffix[GSWebNamingConv]])
+  requestHandlerKey=[((GSWDynamicURLString*)[self uri]) urlRequestHandlerKey];
+  NSDebugMLLog(@"requests",@"requestHandlerKey=%@",requestHandlerKey);
+  if (!requestHandlerKey
+      || (![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConv]]
+          &&![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]]))
+    {
+      requestHandlerPathArray=[self requestHandlerPathArray];
+      NSDebugMLLog(@"requests",@"requestHandlerPathArray=%@",requestHandlerPathArray);
+      if ([requestHandlerPathArray count]>index)
+        {
+          tmpString=[requestHandlerPathArray objectAtIndex:index];
+          NSDebugMLLog(@"requests",@"tmpString=%@",tmpString);
+          if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConv]])
+            {
+              gswpage=[tmpString stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConv]];
+              NSDebugMLLog(@"requests",@"gswpage=%@",gswpage);
+              index++;
+            }
+          else if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConvInversed]])
+            {
+              gswpage=[tmpString stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConvInversed]];
+              NSDebugMLLog(@"requests",@"gswpage=%@",gswpage);
+              index++;
+            };
+          if ([requestHandlerPathArray count]>index)
+            {
+              gswsid=[requestHandlerPathArray objectAtIndex:index];
+              NSDebugMLLog(@"requests",@"gswsid=%@",gswsid);
+              index++;
+              if ([requestHandlerPathArray count]>index)
+                {
+                  NSString* senderID=[requestHandlerPathArray objectAtIndex:index];
+                  NSDebugMLLog(@"requests",@"senderID=%@",senderID);
+                  index++;
+                  if (senderID && [senderID length]>0)
                     {
-                      _gswpage=[tmp stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConv]];
-                      NSDebugMLLog(@"requests",@"_gswpage=%@",_gswpage);
-                      _index++;
-                    }
-                  else if ([tmp hasSuffix:GSWPagePSuffix[GSWebNamingConvInversed]])
-                    {
-                      _gswpage=[tmp stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConvInversed]];
-                      NSDebugMLLog(@"requests",@"_gswpage=%@",_gswpage);
-                      _index++;
+                      NSArray* senderIDParts=[senderID componentsSeparatedByString:@"."];
+                      NSDebugMLLog(@"requests",@"senderIDParts=%@",senderIDParts);
+                      if ([senderIDParts count]>0)
+                        {
+                          tmpString=[senderIDParts objectAtIndex:0];
+                          NSDebugMLLog(@"requests",@"tmpString=%@",tmpString);
+                          if (tmpString && [tmpString length]>0)
+                            gswcid=tmpString;
+                          
+                          if ([senderIDParts count]>1)
+                            {
+                              tmpString=[[senderIDParts subarrayWithRange:
+                                                          NSMakeRange(1,[senderIDParts count]-1)]
+                                          componentsJoinedByString:@"."];
+                              NSDebugMLLog(@"requests",@"tmpString=%@",tmpString);
+                              if (tmpString && [tmpString length]>0)
+                                {
+                                  gsweid=tmpString;
+                                  NSDebugMLLog(@"requests",@"gsweid=%@",gsweid);
+                                };
+                            };
+                        };
                     };
-		  if ([_requestHandlerPathArray count]>_index)
-			{
-			  _gswsid=[_requestHandlerPathArray objectAtIndex:_index];
-			  NSDebugMLLog(@"requests",@"_gswsid=%@",_gswsid);
-			  _index++;
-			  if ([_requestHandlerPathArray count]>_index)
-				{
-				  NSString* _senderID=[_requestHandlerPathArray objectAtIndex:_index];
-				  NSDebugMLLog(@"requests",@"_senderID=%@",_senderID);
-				  _index++;
-				  if (_senderID && [_senderID length]>0)
-					{
-					  NSArray* _senderIDParts=[_senderID componentsSeparatedByString:@"."];
-					  NSDebugMLLog(@"requests",@"_senderIDParts=%@",_senderIDParts);
-					  if ([_senderIDParts count]>0)
-						{
-						  tmp=[_senderIDParts objectAtIndex:0];
-						  NSDebugMLLog(@"requests",@"tmp=%@",tmp);
-						  if (tmp && [tmp length]>0)
-							_gswcid=tmp;
-					  
-						  if ([_senderIDParts count]>1)
-							{
-							  tmp=[[_senderIDParts subarrayWithRange:
-													 NSMakeRange(1,[_senderIDParts count]-1)]
-									componentsJoinedByString:@"."];
-							  NSDebugMLLog(@"requests",@"tmp=%@",tmp);
-							  if (tmp && [tmp length]>0)
-								{
-								  _gsweid=tmp;
-								  NSDebugMLLog(@"requests",@"_gsweid=%@",_gsweid);
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
+                };
+            };
+        };
+    };
   
-  if (_gswpage)
-	[_dict setObject:_gswpage
-		   forKey:GSWKey_PageName[GSWebNamingConv]];
+  if (gswpage)
+    [dict setObject:gswpage
+          forKey:GSWKey_PageName[GSWebNamingConv]];
   
-  if (_gswsid)
-	[_dict setObject:_gswsid
-		   forKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (gswsid)
+    [dict setObject:gswsid
+          forKey:GSWKey_SessionID[GSWebNamingConv]];
 
-  if (_gswcid)
-	[_dict setObject:_gswcid
-		   forKey:GSWKey_ContextID[GSWebNamingConv]];
-
-  if (_gsweid)
-	[_dict setObject:_gsweid
-		   forKey:GSWKey_ElementID[GSWebNamingConv]];
-
-  _applicationNumber=[uri urlApplicationNumber];
-  if (_applicationNumber<0)
-	{
-	  NSString* _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
-          if (!_tmp)
-            _tmp=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-	  if (_tmp)
-            _applicationNumber=[_gswinst intValue];
-	};
-  if (_applicationNumber>=0)
-	[_dict setObject:[NSString stringWithFormat:@"%d",_applicationNumber]
-		   forKey:GSWKey_InstanceID[GSWebNamingConv]];
-	
-  NSDebugMLLog(@"requests",@"AA _dict=%@",_dict);
+  if (gswcid)
+    [dict setObject:gswcid
+          forKey:GSWKey_ContextID[GSWebNamingConv]];
+  
+  if (gsweid)
+    [dict setObject:gsweid
+          forKey:GSWKey_ElementID[GSWebNamingConv]];
+  
+  applicationNumber=[_uri urlApplicationNumber];
+  if (applicationNumber<0)
+    {
+      NSString* tmpString2=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
+      if (!tmpString2)
+        tmpString2=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+      if (tmpString2)
+        applicationNumber=[gswinst intValue];
+    };
+  if (applicationNumber>=0)
+    [dict setObject:[NSString stringWithFormat:@"%d",applicationNumber]
+          forKey:GSWKey_InstanceID[GSWebNamingConv]];
+  
+  NSDebugMLLog(@"requests",@"AA dict=%@",dict);
   LOGObjectFnStop();
-  return _dict;
+  return dict;
 };
 @end
 

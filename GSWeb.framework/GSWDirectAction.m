@@ -1,11 +1,16 @@
-/* GSWDirectAction.m - GSWeb: Class GSWDirectAction
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDirectAction.m - <title>GSWeb: Class GSWDirectAction</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,15 +35,15 @@ static char rcsId[] = "$Id$";
 @implementation GSWDirectAction
 
 //--------------------------------------------------------------------
--(id)initWithRequest:(GSWRequest*)request_
+-(id)initWithRequest:(GSWRequest*)aRequest
 {
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  context=[GSWContext contextWithRequest:request_];
-	  [GSWApp _setContext:context]; //NDFN
-	  [self _initializeRequestSessionIDInContext:context];
-	};
+    {
+      _context=[GSWContext contextWithRequest:aRequest];
+      [GSWApp _setContext:_context]; //NDFN
+      [self _initializeRequestSessionIDInContext:_context];
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -45,95 +51,130 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(context);
+  DESTROY(_context);
   [super dealloc];
 };
 
 //--------------------------------------------------------------------
 -(GSWRequest*)request
 {
-  return [context request];
+  return [_context request];
 };
 
 //--------------------------------------------------------------------
 -(GSWSession*)existingSession
 {
   //OK
-  GSWSession* _session=nil;
-  BOOL _hasSession=NO;
+  GSWSession* session=nil;
+  BOOL hasSession=NO;
   LOGObjectFnStart();
-  _hasSession=[context hasSession];
-  if (_hasSession)
-	_session=[context existingSession];
-  if (!_session)
-	{
-	  NSString* _sessionID=nil;
-	  _sessionID=[[self request] sessionID];
-	  if (_sessionID)
-		{
-		  NS_DURING
-			{
-			  NSDebugMLLog(@"requests",@"_sessionID=%@",_sessionID);
-			  _session=[GSWApp restoreSessionWithID:_sessionID
-							   inContext:context];
-			  //No Exception if session can't be restored !
-			}
-		  NS_HANDLER
-			{
-			  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-			  LOGException(@"exception=%@",localException);
-			  //No Exception if session can't be restored !
-			  _session=nil;
-			}
-		  NS_ENDHANDLER;
-		};
-	};
+  hasSession=[_context hasSession];
+  if (hasSession)
+    session=[_context existingSession];
+  if (!session)
+    {
+      NSString* sessionID=nil;
+      sessionID=[[self request] sessionID];
+      if (sessionID)
+        {
+          NS_DURING
+            {
+              NSDebugMLLog(@"requests",@"sessionID=%@",sessionID);
+              session=[GSWApp restoreSessionWithID:sessionID
+                              inContext:_context];
+              //No Exception if session can't be restored !
+            }
+          NS_HANDLER
+            {
+              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
+              LOGException(@"exception=%@",localException);
+              //No Exception if session can't be restored !
+              session=nil;
+            }
+          NS_ENDHANDLER;
+        };
+    };
   LOGObjectFnStop();
-  return _session;
+  return session;
+};
+
+//--------------------------------------------------------------------
+-(GSWSession*)existingSessionWithSessionID:(NSString*)aSessionID
+{
+  //OK
+  GSWSession* session=nil;
+  BOOL hasSession=NO;
+  LOGObjectFnStart();
+  hasSession=[_context hasSession];
+  if (hasSession)
+    session=[_context existingSession];
+  if (!session)
+    {
+      if (aSessionID)
+        {
+          NS_DURING
+            {
+              NSDebugMLLog(@"requests",@"aSessionID=%@",aSessionID);
+              session=[GSWApp restoreSessionWithID:aSessionID
+                              inContext:_context];
+              //No Exception if session can't be restored !
+            }
+          NS_HANDLER
+            {
+              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
+              LOGException(@"exception=%@",localException);
+              //No Exception if session can't be restored !
+              session=nil;
+            }
+          NS_ENDHANDLER;
+        };
+    };
+  LOGObjectFnStop();
+  return session;
 };
 
 //--------------------------------------------------------------------
 -(GSWSession*)session
 {
-  BOOL _hasSession=NO;
-  GSWSession* _session=nil;
+  BOOL hasSession=NO;
+  GSWSession* session=nil;
   LOGObjectFnStart();
-  _hasSession=[context hasSession];
-  if (_hasSession)
-	_session=[context existingSession];
-  if (!_session)
-	{
-	  NSString* _sessionID=nil;
-	  _sessionID=[[self request] sessionID];
-	  if (_sessionID)
-		{
-		  NS_DURING
-			{
-			  _session=[GSWApp restoreSessionWithID:_sessionID
-							   inContext:context];
-			}
-		  NS_HANDLER
-			{
-			  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-			  LOGException(@"exception=%@",localException);
-			  [localException raise];
-			};
-		  NS_ENDHANDLER;
-		  if (!_session)
-			{
-			  ExceptionRaise(@"GSWDirectAction",
-							 @"Unable to restore sessionID %@.",
-							 _sessionID);
-			};
-		}
-	  else
-		{
-		  // No Session ID: Create a new Session
-		  _session=[context session];
-		};
-	};
+  hasSession=[_context hasSession];
+  if (hasSession)
+    session=[_context existingSession];
+  if (!session)
+    {
+      NSString* sessionID=nil;
+      sessionID=[[self request] sessionID];
+      if (sessionID)
+        {
+          NS_DURING
+            {
+              session=[GSWApp restoreSessionWithID:sessionID
+                              inContext:_context];
+            }
+          NS_HANDLER
+            {
+              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
+              LOGException(@"exception=%@",localException);
+              [localException raise];
+            };
+          NS_ENDHANDLER;
+          if (!session)
+            {
+              ExceptionRaise(@"GSWDirectAction",
+                             @"Unable to restore sessionID %@.",
+                             sessionID);
+            };
+        }
+      else
+        {
+          // No Session ID: Create a new Session
+          session=[_context session];
+        };
+    };
   LOGObjectFnStop();
-  return _session;
+  return session;
 };
 
 //--------------------------------------------------------------------
@@ -145,68 +186,68 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(GSWComponent*)pageWithName:(NSString*)pageName_
+-(GSWComponent*)pageWithName:(NSString*)pageName
 {
   //OK
-  GSWComponent* _component=nil;
+  GSWComponent* component=nil;
   LOGObjectFnStart();
   NS_DURING
-	{
-	  _component=[[GSWApplication application]pageWithName:pageName_
-											  inContext:context];
-	}
+    {
+      component=[[GSWApplication application]pageWithName:pageName
+                                             inContext:_context];
+    }
   NS_HANDLER
-	{
-	  LOGException(@"%@ (%@)",
-				   localException,
-				   [localException reason]);
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In pageWithName:inContext:");
-	  [localException raise];
-	};
+    {
+      LOGException(@"%@ (%@)",
+                   localException,
+                   [localException reason]);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In pageWithName:inContext:");
+      [localException raise];
+    };
   NS_ENDHANDLER;
   LOGObjectFnStop();
-  return _component;
+  return component;
 };
 
 //--------------------------------------------------------------------
--(id <GSWActionResults>)performActionNamed:(NSString*)actionName_
+-(id <GSWActionResults>)performActionNamed:(NSString*)actionName
 {
   //OK
-  id<GSWActionResults> _actionResult=nil;
-  NSString* _actionSelName=nil;
-  SEL _actionSel=NULL;
+  id<GSWActionResults> actionResult=nil;
+  NSString* actionSelName=nil;
+  SEL actionSel=NULL;
   LOGObjectFnStart();
-  _actionSelName=[NSString stringWithFormat:@"%@Action",actionName_];
-  NSDebugMLLog(@"requests",@"_actionSelName=%@",_actionSelName);
-  _actionSel=NSSelectorFromString(_actionSelName);
-  NSDebugMLLog(@"requests",@"_actionSel=%p",(void*)_actionSel);
-  if (_actionSel)
-	{
-	  NS_DURING
-		{
-		  _actionResult=[self performSelector:_actionSel];
-		  NSDebugMLLog(@"requests",
-					   @"_actionResult=%@ class=%@",
-					   _actionResult,
-					   [_actionResult class]);
-		}
-	  NS_HANDLER
-		{
-		  LOGException(@"%@ (%@)",
-					   localException,
-					   [localException reason]);
-		  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In performSelector:");
-		  [localException raise];
-		};
-	  NS_ENDHANDLER;
-	}
+  actionSelName=[NSString stringWithFormat:@"%@Action",actionName];
+  NSDebugMLLog(@"requests",@"actionSelName=%@",actionSelName);
+  actionSel=NSSelectorFromString(actionSelName);
+  NSDebugMLLog(@"requests",@"actionSel=%p",(void*)actionSel);
+  if (actionSel)
+    {
+      NS_DURING
+        {
+          actionResult=[self performSelector:actionSel];
+          NSDebugMLLog(@"requests",
+                       @"_actionResult=%@ class=%@",
+                       actionResult,
+                       [actionResult class]);
+        }
+      NS_HANDLER
+        {
+          LOGException(@"%@ (%@)",
+                       localException,
+                       [localException reason]);
+          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In performSelector:");
+          [localException raise];
+        };
+      NS_ENDHANDLER;
+    }
   else
-	{
-	  LOGError(@"No selector for: %@",_actionSelName);//TODO
-	  _actionResult=[self defaultAction];//No ??
-	};
+    {
+      LOGError(@"No selector for: %@",actionSelName);//TODO
+      actionResult=[self defaultAction];//No ??
+    };
   LOGObjectFnStop();
-  return _actionResult;
+  return actionResult;
 };
 
 //--------------------------------------------------------------------
@@ -218,22 +259,22 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)_initializeRequestSessionIDInContext:(GSWContext*)_context
+-(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext
 {
   //OK
-  GSWRequest* _request=nil;
-  NSString* _gswsid=nil;
+  GSWRequest* request=nil;
+  NSString* gswsid=nil;
   LOGObjectFnStart();
-  _request=[_context request];
-  _gswsid=[_request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-  if (!_gswsid)
-	{
-	   _gswsid=[_request cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-	};
-  if (_gswsid)
-	{
-	  //TODO
-	};
+  request=[aContext request];
+  gswsid=[request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (!gswsid)
+    {
+      gswsid=[request cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+    };
+  if (gswsid)
+    {
+      //TODO
+    };
   LOGObjectFnStop();
 };
 
@@ -244,7 +285,7 @@ static char rcsId[] = "$Id$";
 -(GSWContext*)_context
 {
   //OK
-  return context;
+  return _context;
 };
 
 //--------------------------------------------------------------------
@@ -259,25 +300,25 @@ static char rcsId[] = "$Id$";
 @implementation GSWDirectAction (GSWTakeValuesConvenience)
 
 //--------------------------------------------------------------------
--(void)takeFormValueArraysForKeyArray:(NSArray*)keyArray_
+-(void)takeFormValueArraysForKeyArray:(NSArray*)keyArray
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)takeFormValuesForKeyArray:(NSArray*)keyArray_
+-(void)takeFormValuesForKeyArray:(NSArray*)keyArray
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)takeFormValueArraysForKeys:(NSString*)firstKey_, ...
+-(void)takeFormValueArraysForKeys:(NSString*)firstKey,...
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)takeFormValuesForKeys:(NSString*)firstKey_, ...
+-(void)takeFormValuesForKeys:(NSString*)firstKey,...
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -288,31 +329,31 @@ static char rcsId[] = "$Id$";
 @implementation GSWDirectAction (GSWDebugging)
 
 //--------------------------------------------------------------------
--(void)logWithString:(NSString*)_string
+-(void)logWithString:(NSString*)string
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)logWithFormat:(NSString*)format_,...
+-(void)logWithFormat:(NSString*)format,...
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
-+(void)logWithFormat:(NSString*)format_,...
++(void)logWithFormat:(NSString*)format,...
 {
   LOGClassFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)_debugWithString:(NSString*)_string
+-(void)_debugWithString:(NSString*)string
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)debugWithFormat:(NSString*)format_,...
+-(void)debugWithFormat:(NSString*)format,...
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };

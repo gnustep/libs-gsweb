@@ -1,11 +1,16 @@
-/* GSWSessionTimeOut.h - GSWeb: Class GSWSessionTimeOut
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWSessionTimeOut.h - <title>GSWeb: Class GSWSessionTimeOut</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Mar 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,24 +36,24 @@
 //====================================================================
 @interface GSWSessionTimeOut : NSObject
 {
-  NSString* sessionID;
-  NSTimeInterval lastAccessTime;
-  NSTimeInterval timeOut;
+  NSString* _sessionID;
+  NSTimeInterval _lastAccessTime;
+  NSTimeInterval _timeOut;
 };
 
 -(void)dealloc;
--(id)initWithSessionID:(NSString*)sessionID_
-		lastAccessTime:(NSTimeInterval)lastAccessTime_
-		sessionTimeOut:(NSTimeInterval)timeOut;
-+(id)timeOutWithSessionID:(NSString*)sessionID_
-		   lastAccessTime:(NSTimeInterval)lastAccessTime_
-		   sessionTimeOut:(NSTimeInterval)timeOut;
+-(id)initWithSessionID:(NSString*)aSessionID
+        lastAccessTime:(NSTimeInterval)aTime
+        sessionTimeOut:(NSTimeInterval)aTimeOutInterval;
++(id)timeOutWithSessionID:(NSString*)aSessionID
+           lastAccessTime:(NSTimeInterval)aTime
+           sessionTimeOut:(NSTimeInterval)aTimeOutInterval;
 -(NSString*)description;
--(NSComparisonResult)compareTimeOutDate:(GSWSessionTimeOut*)timeOutObject_;
+-(NSComparisonResult)compareTimeOutDate:(GSWSessionTimeOut*)timeOutObject;
 -(NSTimeInterval)sessionTimeOut;
--(void)setSessionTimeOut:(NSTimeInterval)timeOut_;
+-(void)setSessionTimeOut:(NSTimeInterval)aTimeOutInterval;
 -(NSString*)sessionID;
--(void)setLastAccessTime:(NSTimeInterval)lastAccessTime_;
+-(void)setLastAccessTime:(NSTimeInterval)aTime;
 -(NSTimeInterval)lastAccessTime;
 -(NSTimeInterval)timeOutTime;
 @end

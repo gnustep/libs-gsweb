@@ -1,11 +1,16 @@
-/* GSWMailDelivery.m - GSWeb: Class GSWMailDelivery
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWMailDelivery.m - <title>GSWeb: Class GSWMailDelivery</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -41,117 +47,117 @@ static GSWMailDelivery *sharedInstance;
   return sharedInstance;
 };
 
--(NSString*)composeEmailFrom:(NSString*)sender_
-						  to:(NSArray*)to_
-						  cc:(NSArray*)cc_
-					 subject:(NSString*)subject_
-				   plainText:(NSString*)plainTextMessage_
-						send:(BOOL)sendNow_
+-(NSString*)composeEmailFrom:(NSString*)sender
+                          to:(NSArray*)to
+                          cc:(NSArray*)cc
+                     subject:(NSString*)subject
+                   plainText:(NSString*)plainTextMessage
+                        send:(BOOL)sendNow
 {
-  NSDebugMLog(@"sender_=%@",sender_);
-  NSDebugMLog(@"to_=%@",to_);
-  NSDebugMLog(@"cc_=%@",cc_);
-  NSDebugMLog(@"subject_=%@",subject_);
-  NSDebugMLog(@"plainTextMessage_=%@",plainTextMessage_);
-  NSDebugMLog(@"sendNow_=%d",(int)sendNow_);
-  return [self composeEmailFrom:sender_
-			   to:to_
-			   cc:cc_
-			   bcc:nil
-			   subject:subject_
-			   plainText:plainTextMessage_
-			   send:sendNow_];
+  NSDebugMLog(@"sender=%@",sender);
+  NSDebugMLog(@"to=%@",to);
+  NSDebugMLog(@"cc=%@",cc);
+  NSDebugMLog(@"subject=%@",subject);
+  NSDebugMLog(@"plainTextMessage=%@",plainTextMessage);
+  NSDebugMLog(@"sendNow=%d",(int)sendNow);
+  return [self composeEmailFrom:sender
+               to:to
+               cc:cc
+               bcc:nil
+               subject:subject
+               plainText:plainTextMessage
+               send:sendNow];
 };
 
--(NSString*)composeEmailFrom:(NSString*)sender_
-						  to:(NSArray*)to_
-						  cc:(NSArray*)cc_
-					 subject:(NSString*)subject_
-				   component:(GSWComponent*)component_
-						send:(BOOL)sendNow_
+-(NSString*)composeEmailFrom:(NSString*)sender
+                          to:(NSArray*)to
+                          cc:(NSArray*)cc
+                     subject:(NSString*)subject
+                   component:(GSWComponent*)component
+                        send:(BOOL)sendNow
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //NDFN
--(NSString*)composeEmailFrom:(NSString*)sender_
-						  to:(NSArray*)to_
-						  cc:(NSArray*)cc_
-						  bcc:(NSArray*)bcc_
-					 subject:(NSString*)subject_
-				   plainText:(NSString*)plainTextMessage_
-						send:(BOOL)sendNow_
+-(NSString*)composeEmailFrom:(NSString*)sender
+                          to:(NSArray*)to
+                          cc:(NSArray*)cc
+                         bcc:(NSArray*)bcc
+                     subject:(NSString*)subject
+                   plainText:(NSString*)plainTextMessage
+                        send:(BOOL)sendNow
 {
-  NSString* _msg=nil;
-  NSMutableString* _to=nil;
+  NSString* messageString=nil;
+  NSMutableString* toString=nil;
   int i=0;
-  int _count=0;
+  int count=0;
 
-  _count=[to_ count];
-  NSDebugMLog(@"sender_=%@",sender_);
-  NSDebugMLog(@"to_=%@",to_);
-  NSDebugMLog(@"cc_=%@",cc_);
-  NSDebugMLog(@"bcc_=%@",bcc_);
-  NSDebugMLog(@"subject_=%@",subject_);
-  NSDebugMLog(@"plainTextMessage_=%@",plainTextMessage_);
-  NSDebugMLog(@"sendNow_=%d",(int)sendNow_);
+  count=[to count];
+  NSDebugMLog(@"sender=%@",sender);
+  NSDebugMLog(@"to=%@",to);
+  NSDebugMLog(@"cc=%@",cc);
+  NSDebugMLog(@"bcc=%@",bcc);
+  NSDebugMLog(@"subject=%@",subject);
+  NSDebugMLog(@"plainTextMessage=%@",plainTextMessage);
+  NSDebugMLog(@"sendNow=%d",(int)sendNow);
 
-  for(i=0;i<_count;i++)
-	{
-	  if (!_to)
-		_to=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[to_ objectAtIndex:i]];
-	  else
-		[_to appendFormat:@", %@",[to_ objectAtIndex:i]];
-	};
-  NSDebugMLog(@"_to=%@",_to);
-  _msg=[NSString stringWithFormat:@"From: %@\nTo: %@\n",sender_,_to];
-  NSDebugMLog(@"_msg=%@",_msg);
-  _count=[cc_ count];
-  if (_count)
-	{
-	  NSMutableString* _cc=nil;
-	  for(i=0;i<_count;i++)
-		{
-		  if (!_cc)
-			_cc=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[cc_ objectAtIndex:i]];
-		  else
-			[_cc appendFormat:@", %@",[cc_ objectAtIndex:i]];
-		};
-	  NSDebugMLog(@"_cc=%@",_cc);
-	  _msg=[_msg stringByAppendingFormat:@"Cc: %@\n",_cc];
-	  NSDebugMLog(@"_msg=%@",_msg);
-	};
-  _count=[bcc_ count];
-  if (_count)
-	{
-	  NSMutableString* _bcc=nil;
-	  for(i=0;i<_count;i++)
-		{
-		  if (!_bcc)
-			_bcc=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[bcc_ objectAtIndex:i]];
-		  else
-			[_bcc appendFormat:@", %@",[bcc_ objectAtIndex:i]];
-		};
-	  NSDebugMLog(@"_bcc=%@",_bcc);
-	  _msg=[_msg stringByAppendingFormat:@"Bcc: %@\n",_bcc];
-	  NSDebugMLog(@"_msg=%@",_msg);
-	};
-  _msg=[_msg stringByAppendingFormat:@"Subject: %@\n\n%@",subject_,plainTextMessage_];
-  NSDebugMLog(@"_msg=%@",_msg);
-  if (sendNow_)
-	[self sendEmail:_msg];
-  return _msg;
+  for(i=0;i<count;i++)
+    {
+      if (!toString)
+        toString=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[to objectAtIndex:i]];
+      else
+        [toString appendFormat:@", %@",[to objectAtIndex:i]];
+    };
+  NSDebugMLog(@"toString=%@",toString);
+  messageString=[NSString stringWithFormat:@"From: %@\nTo: %@\n",sender,toString];
+  NSDebugMLog(@"messageString=%@",messageString);
+  count=[cc count];
+  if (count)
+    {
+      NSMutableString* ccString=nil;
+      for(i=0;i<count;i++)
+        {
+          if (!ccString)
+            ccString=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[cc objectAtIndex:i]];
+          else
+            [ccString appendFormat:@", %@",[cc objectAtIndex:i]];
+        };
+      NSDebugMLog(@"ccString=%@",ccString);
+      messageString=[messageString stringByAppendingFormat:@"Cc: %@\n",ccString];
+      NSDebugMLog(@"messageString=%@",messageString);
+    };
+  count=[bcc count];
+  if (count)
+    {
+      NSMutableString* bccString=nil;
+      for(i=0;i<count;i++)
+        {
+          if (!bccString)
+            bccString=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[bcc objectAtIndex:i]];
+          else
+            [bccString appendFormat:@", %@",[bcc objectAtIndex:i]];
+        };
+      NSDebugMLog(@"bccString=%@",bccString);
+      messageString=[messageString stringByAppendingFormat:@"Bcc: %@\n",bccString];
+      NSDebugMLog(@"messageString=%@",messageString);
+    };
+  messageString=[messageString stringByAppendingFormat:@"Subject: %@\n\n%@",subject,plainTextMessage];
+  NSDebugMLog(@"messageString=%@",messageString);
+  if (sendNow)
+    [self sendEmail:messageString];
+  return messageString;
 };
 
 //NDFN
--(NSString*)composeEmailFrom:(NSString*)sender_
-						  to:(NSArray*)to_
-						  cc:(NSArray*)cc_
-						  bcc:(NSArray*)bcc_
-					 subject:(NSString*)subject_
-				   component:(GSWComponent*)component_
-						send:(BOOL)sendNow_
+-(NSString*)composeEmailFrom:(NSString*)sender
+                          to:(NSArray*)to
+                          cc:(NSArray*)cc
+                         bcc:(NSArray*)bcc
+                     subject:(NSString*)subject
+                   component:(GSWComponent*)component
+                        send:(BOOL)sendNow
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
@@ -165,7 +171,10 @@ static GSWMailDelivery *sharedInstance;
   NSDebugMLog(@"emailString_=%@",emailString_);
 
   if(pipe(files))
-    [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot create pipe", NSStringFromSelector(_cmd), NSStringFromClass([self class]), self];
+    [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot create pipe", 
+                 NSStringFromSelector(_cmd), 
+                 NSStringFromClass([self class]), 
+                 self];
 
   switch(pid = fork())
     {
@@ -182,7 +191,10 @@ static GSWMailDelivery *sharedInstance;
     case -1:
       close(files[0]);
       close(files[1]);
-      [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot fork process", NSStringFromSelector(_cmd), NSStringFromClass([self class]), self];
+      [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot fork process", 
+                   NSStringFromSelector(_cmd), 
+                   NSStringFromClass([self class]), 
+                   self];
       break;
 
     default:
@@ -195,8 +207,8 @@ static GSWMailDelivery *sharedInstance;
     }
 };
 
--(void)_invokeGSWSendMailAt:(id)at_
-				 withEmail:(id)email_
+-(void)_invokeGSWSendMailAt:(id)at
+                  withEmail:(id)email
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };

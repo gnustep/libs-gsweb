@@ -1,11 +1,16 @@
-/* GSWHTMLComment.m - GSWeb: Class GSWHTMLComment
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLComment.m - <title>GSWeb: Class GSWRequest</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Sept 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Sept 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -32,27 +38,27 @@ static char rcsId[] = "$Id$";
 -(id)init
 {
   if ((self=[super init]))
-	{
-	  encoding=NSISOLatin1StringEncoding;
-	};
+    {
+      _encoding=NSISOLatin1StringEncoding;
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithString:(NSString*)_string
+-(id)initWithString:(NSString*)aString
 {
   if ((self=[self init]))
-	{
-	  ASSIGN(string,_string);
-	};
+    {
+      ASSIGN(_string,aString);
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(string);
-  DESTROY(data);
+  DESTROY(_string);
+  DESTROY(_data);
   [super dealloc];
 }
 
@@ -60,9 +66,9 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - String:[%@]>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   string];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _string];
 };
 
 @end
@@ -71,15 +77,15 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLComment (GSWHTMLCommentA)
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  [response_ _appendContentAsciiString:@"<!--"];
-  [response_ _appendContentAsciiString:string];
-  [response_ _appendContentAsciiString:@"-->"];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[aContext elementID]);
+  [aResponse _appendContentAsciiString:@"<!--"];
+  [aResponse _appendContentAsciiString:_string];
+  [aResponse _appendContentAsciiString:@"-->"];
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[aContext elementID]);
   LOGObjectFnStop();
 };
 
@@ -89,8 +95,8 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLComment (GSWHTMLCommentB)
 
 //--------------------------------------------------------------------
-+(id)elementWithString:(NSString*)_string
++(id)elementWithString:(NSString*)aString
 {
-  return [[[GSWHTMLComment alloc]initWithString:_string] autorelease];
+  return [[[GSWHTMLComment alloc]initWithString:aString] autorelease];
 };
 @end

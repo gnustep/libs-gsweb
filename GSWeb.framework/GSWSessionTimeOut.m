@@ -1,11 +1,16 @@
-/* GSWSessionTimeOut.m - GSWeb: Class GSWSessionTimeOut
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWSessionTimeOut.m - <title>GSWeb: Class GSWSessionTimeOut</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Mar 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -30,38 +36,38 @@ static char rcsId[] = "$Id$";
 @implementation GSWSessionTimeOut
 
 //--------------------------------------------------------------------
--(id)initWithSessionID:(NSString*)sessionID_
-		lastAccessTime:(NSTimeInterval)lastAccessTime_
-		sessionTimeOut:(NSTimeInterval)timeOut_
+-(id)initWithSessionID:(NSString*)aSessionID
+        lastAccessTime:(NSTimeInterval)aTime
+        sessionTimeOut:(NSTimeInterval)aTimeOutInterval
 {
   if ((self=[super init]))
-	{
-	  ASSIGN(sessionID,sessionID_);
-	  lastAccessTime=lastAccessTime_;
-	  timeOut=timeOut_;
-	};
+    {
+      ASSIGN(_sessionID,aSessionID);
+      _lastAccessTime=aTime;
+      _timeOut=aTimeOutInterval;
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
-+(id)timeOutWithSessionID:(NSString*)sessionID_
-		   lastAccessTime:(NSTimeInterval)lastAccessTime_
-		   sessionTimeOut:(NSTimeInterval)timeOut_
++(id)timeOutWithSessionID:(NSString*)aSessionID
+           lastAccessTime:(NSTimeInterval)aTime
+           sessionTimeOut:(NSTimeInterval)aTimeOutInterval
 {
-  return [[[self alloc]initWithSessionID:sessionID_
-					  lastAccessTime:lastAccessTime_
-					  sessionTimeOut:timeOut_]autorelease];
+  return [[[self alloc]initWithSessionID:aSessionID
+                       lastAccessTime:aTime
+                       sessionTimeOut:aTimeOutInterval]autorelease];
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
   NSDebugFLog0(@"Dealloc GSWSessionTimeOut");
-  if (sessionID)
-	{
-	  NSDebugFLog(@"sessionIDCount=%u",[sessionID retainCount]);
-	};
-  DESTROY(sessionID);
+  if (_sessionID)
+    {
+      NSDebugFLog(@"sessionIDCount=%u",[_sessionID retainCount]);
+    };
+  DESTROY(_sessionID);
   [super dealloc];
 };
 
@@ -70,64 +76,64 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - sessionID=%@ timeOutTime=%f lastAccessTime=%f timeOut=%ld",
-				  object_get_class_name(self),
-				  (void*)self,
-				   sessionID,
-				   [self timeOutTime],
-				   lastAccessTime,
-				   (long)timeOut];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _sessionID,
+                   [self timeOutTime],
+                   _lastAccessTime,
+                   (long)_timeOut];
 };
 
 //--------------------------------------------------------------------
--(NSComparisonResult)compareTimeOutDate:(GSWSessionTimeOut*)timeOutObject_
+-(NSComparisonResult)compareTimeOutDate:(GSWSessionTimeOut*)timeOutObject
 {
-  if (timeOutObject_)
-	{
-	  if ([self timeOutTime]<[timeOutObject_ timeOutTime])
-		return NSOrderedAscending;
-	  else if ([self timeOutTime]==[timeOutObject_ timeOutTime])
-		return NSOrderedSame;
-	  else
-		return NSOrderedDescending;
-	}
+  if (timeOutObject)
+    {
+      if ([self timeOutTime]<[timeOutObject timeOutTime])
+        return NSOrderedAscending;
+      else if ([self timeOutTime]==[timeOutObject timeOutTime])
+        return NSOrderedSame;
+      else
+        return NSOrderedDescending;
+    }
   else
-	return NSOrderedDescending;
+    return NSOrderedDescending;
 };
 
 //--------------------------------------------------------------------
 -(NSTimeInterval)sessionTimeOut
 {
-  return timeOut;
+  return _timeOut;
 };
 
 //--------------------------------------------------------------------
--(void)setSessionTimeOut:(NSTimeInterval)timeOut_
+-(void)setSessionTimeOut:(NSTimeInterval)aTimeOutInterval
 {
-  timeOut=timeOut_;
+  _timeOut=aTimeOutInterval;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)sessionID
 {
-  return sessionID;
+  return _sessionID;
 };
 
 //--------------------------------------------------------------------
--(void)setLastAccessTime:(NSTimeInterval)lastAccessTime_
+-(void)setLastAccessTime:(NSTimeInterval)aTime
 {
-  lastAccessTime=lastAccessTime_;
+  _lastAccessTime=aTime;
 };
 
 //--------------------------------------------------------------------
 -(NSTimeInterval)lastAccessTime
 {
-  return lastAccessTime;
+  return _lastAccessTime;
 };
 
 //--------------------------------------------------------------------
 -(NSTimeInterval)timeOutTime
 {
-  return lastAccessTime+timeOut;
+  return _lastAccessTime+_timeOut;
 };
 
 @end

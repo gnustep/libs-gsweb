@@ -1,11 +1,16 @@
-/* GSWSession.h - GSWeb: Class GSWSession
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWSession.h - <title>GSWeb: Class GSWSession</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,28 +35,28 @@
 @interface GSWSession : NSObject <NSCoding,NSCopying>
 {
 @private
-  NSString* sessionID;
-  NSAutoreleasePool* autoreleasePool;
-  NSTimeInterval timeOut;
-  NSMutableArray* contextArrayStack;
-  NSMutableDictionary* contextRecords;
-  EOEditingContext* editingContext;
-  NSArray* languages;
-  NSMutableDictionary* componentState;
-  NSDate* birthDate;
-  NSMutableArray* statistics;
-  NSMutableString* formattedStatistics;
-  GSWContext* currentContext;
-  NSMutableDictionary* permanentPageCache;
-  NSMutableArray* permanentContextIDArray;
-  int contextCounter;
-  int requestCounter;
-  BOOL isAllowedToViewStatistics;
-  BOOL isTerminating;
-  BOOL isDistributionEnabled;
-  BOOL storesIDsInCookies;
-  BOOL storesIDsInURLs;
-  BOOL hasSessionLockedEditingContext;
+  NSString* _sessionID;
+  NSAutoreleasePool* _autoreleasePool;
+  NSTimeInterval _timeOut;
+  NSMutableArray* _contextArrayStack;
+  NSMutableDictionary* _contextRecords;
+  EOEditingContext* _editingContext;
+  NSArray* _languages;
+  NSMutableDictionary* _componentState;
+  NSDate* _birthDate;
+  NSMutableArray* _statistics;
+  NSMutableString* _formattedStatistics;
+  GSWContext* _currentContext;
+  NSMutableDictionary* _permanentPageCache;
+  NSMutableArray* _permanentContextIDArray;
+  int _contextCounter;
+  int _requestCounter;
+  BOOL _isAllowedToViewStatistics;
+  BOOL _isTerminating;
+  BOOL _isDistributionEnabled;
+  BOOL _storesIDsInCookies;
+  BOOL _storesIDsInURLs;
+  BOOL _hasSessionLockedEditingContext;
 };
 
 
@@ -60,12 +66,12 @@
 
 -(NSString*)domainForIDCookies;
 -(BOOL)storesIDsInURLs;
--(void)setStoresIDsInURLs:(BOOL)flag_;
+-(void)setStoresIDsInURLs:(BOOL)flag;
 -(NSDate*)expirationDateForIDCookies;
 -(BOOL)storesIDsInCookies;
--(void)setStoresIDsInCookies:(BOOL)flag_;
+-(void)setStoresIDsInCookies:(BOOL)flag;
 -(BOOL)isDistributionEnabled;
--(void)setDistributionEnabled:(BOOL)flag_;
+-(void)setDistributionEnabled:(BOOL)flag;
 -(NSString*)sessionID;
 -(NSString*)description;
 
@@ -74,7 +80,7 @@
 
 //====================================================================
 @interface GSWSession (GSWSessionA)
--(id)_initWithSessionID:(NSString*)_sessionID;
+-(id)_initWithSessionID:(NSString*)aSessionID;
 
 @end
 
@@ -91,32 +97,32 @@
 //====================================================================
 @interface GSWSession (GSWSessionDebugging)
 
--(void)debugWithFormat:(NSString*)format_, ...;
+-(void)debugWithFormat:(NSString*)format,...;
 
 @end
 
 //====================================================================
 @interface GSWSession (GSWSessionD)
 
--(void)_debugWithString:(NSString*)_string;
+-(void)_debugWithString:(NSString*)string;
 
 @end
 
 //====================================================================
 @interface GSWSession (GSWPageManagement)
 
--(void)savePage:(GSWComponent*)page_;
--(GSWComponent*)restorePageForContextID:(NSString*)contextID_;
+-(void)savePage:(GSWComponent*)page;
+-(GSWComponent*)restorePageForContextID:(NSString*)aContextID;
 -(uint)permanentPageCacheSize;
--(void)savePageInPermanentCache:(GSWComponent*)page_;
+-(void)savePageInPermanentCache:(GSWComponent*)page;
 
 @end
 
 //====================================================================
 @interface GSWSession (GSWSessionF)
 
--(void)clearCookieFromResponse:(GSWResponse*)response_;
--(void)appendCookieToResponse:(GSWResponse*)response_;
+-(void)clearCookieFromResponse:(GSWResponse*)aResponse;
+-(void)appendCookieToResponse:(GSWResponse*)aResponse;
 
 @end
 
@@ -125,32 +131,32 @@
 
 -(void)_releaseAutoreleasePool;
 -(void)_createAutoreleasePool;
--(GSWComponent*)_permanentPageWithContextID:(NSString*)contextID_;
+-(GSWComponent*)_permanentPageWithContextID:(NSString*)aContextID;
 -(NSMutableDictionary*)_permanentPageCache;
--(GSWContext*)_contextIDMatchingContextID:(NSString*)contextID_
-						 requestSenderID:(NSString*)_senderID;
+-(GSWContext*)_contextIDMatchingContextID:(NSString*)aContextID
+                          requestSenderID:(NSString*)aSenderID;
 -(void)_rearrangeContextArrayStack;
--(NSArray*)_contextArrayForContextID:(NSString*)contextID_
-						 stackIndex:(unsigned int*)pStackIndex_
-				  contextArrayIndex:(unsigned int*)pContextArrayIndex_;
--(void)_replacePage:(GSWComponent*)_page;
--(void)_savePage:(GSWComponent*)_page
-	   forChange:(BOOL)_forChange;
+-(NSArray*)_contextArrayForContextID:(NSString*)aContextID
+                          stackIndex:(unsigned int*)pStackIndex
+                   contextArrayIndex:(unsigned int*)pContextArrayIndex;
+-(void)_replacePage:(GSWComponent*)page;
+-(void)_savePage:(GSWComponent*)page
+       forChange:(BOOL)forChange;
 -(uint)pageCacheSize;
 -(void)_saveCurrentPage;
 -(int)_requestCounter;
 -(void)_contextDidIncrementContextID;
 -(int)_contextCounter;
--(void)_setContext:(GSWContext*)context_;
--(void)sleepInContext:(GSWContext*)context_;
--(void)awakeInContext:(GSWContext*)context_; 
+-(void)_setContext:(GSWContext*)aContext;
+-(void)sleepInContext:(GSWContext*)aContext;
+-(void)awakeInContext:(GSWContext*)aContext; 
 
 @end
 
 //====================================================================
 @interface GSWSession (GSWLocalization)
 
--(void)setLanguages:(NSArray*)languages_;
+-(void)setLanguages:(NSArray*)languages;
 -(NSArray*)languages;
 
 @end
@@ -159,10 +165,10 @@
 @interface GSWSession (GSWComponentStateManagement)
 
 -(void)setObject:(id)object
-		  forKey:(NSString*)key_;
+          forKey:(NSString*)key;
 
--(id)objectForKey:(NSString*)key_;
--(void)removeObjectForKey:(NSString*)key_;
+-(id)objectForKey:(NSString*)key;
+-(void)removeObjectForKey:(NSString*)key;
 -(NSMutableDictionary*)componentState;//NDFN
 @end
 
@@ -179,14 +185,14 @@
 
 -(GSWContext*)context;
 -(void)awake;
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext *)context_;
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
 
 -(void)sleep;
 
@@ -225,7 +231,7 @@
 
 //====================================================================
 @interface GSWSession (GSWSessionClassA)
-+(void)__setContextCounterIncrementingEnabled:(BOOL)flag_;
++(void)__setContextCounterIncrementingEnabled:(BOOL)flag;
 +(int)__counterIncrementingEnabledFlag;
 
 @end

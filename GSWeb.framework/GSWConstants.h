@@ -285,6 +285,7 @@ extern id selectedValue__Key;
 extern id noSelectionString__Key;
 extern id displayString__Key;
 extern id filePath__Key;
+extern id language__Key;
 
 //GSWeb Additions
 extern id redirectURL__Key;

@@ -1,11 +1,16 @@
-/* GSWToggle.m - GSWeb: Class GSWToggle
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWToggle.m - <title>GSWeb: Class GSWToggle</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jan 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,48 +35,48 @@ static char rcsId[] = "$Id$";
 @implementation GSWToggle
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)someAssociations
-		 template:(GSWElement*)templateElement_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)someAssociations
+         template:(GSWElement*)templateElement
 {
   //OK
-  NSMutableDictionary* _otherAssociations=nil;
+  NSMutableDictionary* otherAssociations=nil;
   LOGObjectFnStart();
-  ASSIGN(children,templateElement_);
-  action = [[someAssociations objectForKey:action__Key
-							  withDefaultObject:[action autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"action=%@",action);
+  ASSIGN(_children,templateElement);
+  _action = [[someAssociations objectForKey:action__Key
+                               withDefaultObject:[_action autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"_action=%@",_action);
 
-  actionYes = [[someAssociations objectForKey:actionYes__Key
-							  withDefaultObject:[actionYes autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"actionYes=%@",actionYes);
+  _actionYes = [[someAssociations objectForKey:actionYes__Key
+                                  withDefaultObject:[_actionYes autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"_actionYes=%@",_actionYes);
 
-  actionNo = [[someAssociations objectForKey:actionNo__Key
-							  withDefaultObject:[actionNo autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"actionNo=%@",actionNo);
+  _actionNo = [[someAssociations objectForKey:actionNo__Key
+                                 withDefaultObject:[_actionNo autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"_actionNo=%@",_actionNo);
 
-  condition = [[someAssociations objectForKey:condition__Key
-								withDefaultObject:[condition autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"condition=%@",condition);
+  _condition = [[someAssociations objectForKey:condition__Key
+                                  withDefaultObject:[_condition autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"_condition=%@",_condition);
 
-  disabled = [[someAssociations objectForKey:disabled__Key
-								withDefaultObject:[disabled autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"disabled=%@",disabled);
+  _disabled = [[someAssociations objectForKey:disabled__Key
+                                 withDefaultObject:[_disabled autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"_disabled=%@",_disabled);
 
-  _otherAssociations=[NSMutableDictionary dictionaryWithDictionary:someAssociations];
-  [_otherAssociations removeObjectForKey:action__Key];
-  [_otherAssociations removeObjectForKey:actionYes__Key];
-  [_otherAssociations removeObjectForKey:actionNo__Key];
-  [_otherAssociations removeObjectForKey:condition__Key];
-  [_otherAssociations removeObjectForKey:disabled__Key];
-  if ([_otherAssociations count]>0)
-	  otherAssociations=[[NSDictionary dictionaryWithDictionary:_otherAssociations] retain];
+  otherAssociations=[NSMutableDictionary dictionaryWithDictionary:someAssociations];
+  [otherAssociations removeObjectForKey:action__Key];
+  [otherAssociations removeObjectForKey:actionYes__Key];
+  [otherAssociations removeObjectForKey:actionNo__Key];
+  [otherAssociations removeObjectForKey:condition__Key];
+  [otherAssociations removeObjectForKey:disabled__Key];
+  if ([otherAssociations count]>0)
+    _otherAssociations=[[NSDictionary dictionaryWithDictionary:otherAssociations] retain];
 
-  if ((self=[super initWithName:name_
-				   associations:nil
-				   template:nil]))
-	{
-	};
+  if ((self=[super initWithName:aName
+                   associations:nil
+                   template:nil]))
+    {
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -78,13 +84,13 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(action);
-  DESTROY(actionYes);
-  DESTROY(actionNo);
-  DESTROY(condition);
-  DESTROY(disabled);
-  DESTROY(otherAssociations);
-  DESTROY(children);
+  DESTROY(_action);
+  DESTROY(_actionYes);
+  DESTROY(_actionNo);
+  DESTROY(_condition);
+  DESTROY(_disabled);
+  DESTROY(_otherAssociations);
+  DESTROY(_children);
   [super dealloc];
 }
 
@@ -92,8 +98,8 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 @end
@@ -102,106 +108,107 @@ static char rcsId[] = "$Id$";
 @implementation GSWToggle (GSWToggleA)
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
   //OK (condition/action/directActionName)
-  GSWComponent* _component=[context_ component];
-  BOOL _disabled=NO;
+  GSWComponent* component=[aContext component];
+  BOOL disabled=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
-  if (disabled)
-	_disabled=[self evaluateCondition:disabled
-					inContext:context_];
-  if (!_disabled)
-	{
-	  NSString* _url=nil;
-	  [response_ _appendContentAsciiString:@"<A "];
-	  [response_ _appendContentAsciiString:@"href"];
-	  [response_ appendContentCharacter:'='];
-	  [response_ appendContentCharacter:'"'];
-	  _url=(NSString*)[context_ componentActionURL];
-	  NSDebugMLLog(@"gswdync",@"_url=%@",_url);
-	  [response_ appendContentString:_url];
-	  [response_ appendContentCharacter:'"'];
-	  NSDebugMLLog(@"gswdync",@"otherAssociations=%@",otherAssociations);
-	  if (otherAssociations)
-		{
-		  NSEnumerator *enumerator = [otherAssociations keyEnumerator];
-		  id _key=nil;
-		  id _oaValue=nil;
-		  while ((_key = [enumerator nextObject]))
-			{
-			  NSDebugMLLog(@"gswdync",@"_key=%@",_key);
-			  _oaValue=[[otherAssociations objectForKey:_key] valueInComponent:_component];
-			  NSDebugMLLog(@"gswdync",@"_oaValue=%@",_oaValue);
-			  [response_ appendContentCharacter:' '];
-			  [response_ _appendContentAsciiString:_key];
-			  [response_ appendContentCharacter:'='];
-			  [response_ appendContentCharacter:'"'];
-			  [response_ appendContentHTMLString:_oaValue];
-			  [response_ appendContentCharacter:'"'];
-			};
-		};
-	  [response_ appendContentCharacter:'>'];
-	};
-  [children appendToResponse:response_
-			inContext:context_];
-  if (!_disabled)//??
-	{
-	  [response_ _appendContentAsciiString:@"</a>"];
-	};
-  NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+  if (_disabled)
+    disabled=[self evaluateCondition:_disabled
+                   inContext:aContext];
+  if (!disabled)
+    {
+      NSString* url=nil;
+      [aResponse _appendContentAsciiString:@"<A "];
+      [aResponse _appendContentAsciiString:@"href"];
+      [aResponse appendContentCharacter:'='];
+      [aResponse appendContentCharacter:'"'];
+      url=(NSString*)[aContext componentActionURL];
+      NSDebugMLLog(@"gswdync",@"url=%@",url);
+      [aResponse appendContentString:url];
+      [aResponse appendContentCharacter:'"'];
+      NSDebugMLLog(@"gswdync",@"_otherAssociations=%@",_otherAssociations);
+      if (_otherAssociations)
+        {
+          NSEnumerator *enumerator = [_otherAssociations keyEnumerator];
+          id key=nil;
+          id oaValue=nil;
+          while ((key = [enumerator nextObject]))
+            {
+              NSDebugMLLog(@"gswdync",@"key=%@",key);
+              oaValue=[[_otherAssociations objectForKey:key] 
+                        valueInComponent:component];
+              NSDebugMLLog(@"gswdync",@"oaValue=%@",oaValue);
+              [aResponse appendContentCharacter:' '];
+              [aResponse _appendContentAsciiString:key];
+              [aResponse appendContentCharacter:'='];
+              [aResponse appendContentCharacter:'"'];
+              [aResponse appendContentHTMLString:oaValue];
+              [aResponse appendContentCharacter:'"'];
+            };
+        };
+      [aResponse appendContentCharacter:'>'];
+    };
+  [_children appendToResponse:aResponse
+            inContext:aContext];
+  if (!disabled)//??
+    {
+      [aResponse _appendContentAsciiString:@"</a>"];
+    };
+  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext
 {
   //OK
-  GSWElement* _element=nil;
-  NSString* _senderID=nil;
-  NSString* _elementID=nil;
+  GSWElement* element=nil;
+  NSString* senderID=nil;
+  NSString* elementID=nil;
   LOGObjectFnStart();
-  _senderID=[context_ senderID];
-  NSDebugMLLog(@"gswdync",@"_senderID=%@",_senderID);
-  _elementID=[context_ elementID];
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",_elementID);
-  if ([_elementID isEqualToString:_senderID])
-	{
-	  GSWComponent* _component=[context_ component];
-	  BOOL _conditionValue=[self evaluateCondition:condition
-								 inContext:context_];
-	  _conditionValue=!_conditionValue;
-	  if (action)
-		[action setValue:[NSNumber numberWithBool:_conditionValue]
-				inComponent:_component];
-	  else
-		{
-		  if (actionYes && _conditionValue)
-			[actionYes valueInComponent:_component];
-		  else if (actionNo && !_conditionValue)
-			[actionNo valueInComponent:_component];
-		  else
-			{
-			  //TODO ERROR
-			};
-		};
-	  //TODOV
-	  if (!_element)
-		_element=[context_ page];
-	}
+  senderID=[aContext senderID];
+  NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
+  elementID=[aContext elementID];
+  NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
+  if ([elementID isEqualToString:senderID])
+    {
+      GSWComponent* component=[aContext component];
+      BOOL conditionValue=[self evaluateCondition:_condition
+                                inContext:aContext];
+      conditionValue=!conditionValue;
+      if (_action)
+        [_action setValue:[NSNumber numberWithBool:conditionValue]
+                 inComponent:component];
+      else
+        {
+          if (_actionYes && conditionValue)
+            [_actionYes valueInComponent:component];
+          else if (_actionNo && !conditionValue)
+            [_actionNo valueInComponent:component];
+          else
+            {
+              //TODO ERROR
+            };
+        };
+      //TODOV
+      if (!element)
+        element=[aContext page];
+    }
   else
-	{
-	  _element=[children invokeActionForRequest:request_
-						 inContext:context_];
-	  NSDebugMLLog(@"gswdync",@"_element=%@",_element);
-	};
-  NSDebugMLLog(@"gswdync",@"_senderID=%@",[context_ senderID]);
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",[context_ elementID]);
+    {
+      element=[_children invokeActionForRequest:aRequest
+                        inContext:aContext];
+      NSDebugMLLog(@"gswdync",@"element=%@",element);
+    };
+  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
   LOGObjectFnStop();
-  return _element;
+  return element;
 };
 
 

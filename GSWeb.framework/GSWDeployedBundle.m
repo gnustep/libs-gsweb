@@ -504,7 +504,9 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 +(id)bundleWithPath:(NSString*)path_
 {
-  id _bundle=[[[GSWDeployedBundle alloc]initWithPath:path_]autorelease];
+  id _bundle=nil;
+  NSDebugMLLog(@"bundles",@"path_=%@",path_);
+  _bundle=[[[GSWDeployedBundle alloc]initWithPath:path_]autorelease];
   return _bundle;
 };
 

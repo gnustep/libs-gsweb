@@ -4178,8 +4178,12 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 +(NSBundle*)mainBundle
 {
+  NSBundle* mainBundle=nil;
 //  LOGClassFnNotImplemented();	//TODOFN
-  return [NSBundle mainBundle];
+  mainBundle=[NSBundle mainBundle];
+  NSDebugMLog(@"[mainBundle  bundlePath]:%@",[mainBundle  bundlePath]);
+  return mainBundle;
+
 /*
 			_flags=unsigned int UINT:104005633
 				_infoDictionary=id object:11365312 Description:{

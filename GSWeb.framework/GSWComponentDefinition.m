@@ -30,29 +30,29 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name_
-			 path:(NSString*)path_
-		  baseURL:(NSString*)baseURL_
-	frameworkName:(NSString*)frameworkName_
+             path:(NSString*)path_
+          baseURL:(NSString*)baseURL_
+    frameworkName:(NSString*)frameworkName_
 {
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  NSDebugMLLog(@"gswcomponents",@"name_=%@ frameworkName_=%@",name_,frameworkName_);
-	  ASSIGN(name,name_);
-	  bundle=[[GSWBundle alloc] initWithPath:path_
-								baseURL:baseURL_
-								inFrameworkNamed:frameworkName_];
-	  observers=nil;
-	  ASSIGN(frameworkName,frameworkName_);
-	  NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-	  ASSIGN(templateName,name_);//TODOV
-	  NSDebugMLLog(@"gswcomponents",@"templateName=%@",templateName);
-	  componentClass=Nil;
-	  isScriptedClass=NO;
-	  isCachingEnabled=NO;
-	  isAwake=NO;
-	  [self setCachingEnabled:[GSWApplication isCachingEnabled]];
-	};
+    {
+      NSDebugMLLog(@"gswcomponents",@"name_=%@ frameworkName_=%@",name_,frameworkName_);
+      ASSIGN(name,name_);
+      bundle=[[GSWBundle alloc] initWithPath:path_
+                                baseURL:baseURL_
+                                inFrameworkNamed:frameworkName_];
+      observers=nil;
+      ASSIGN(frameworkName,frameworkName_);
+      NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
+      ASSIGN(templateName,name_);//TODOV
+      NSDebugMLLog(@"gswcomponents",@"templateName=%@",templateName);
+      componentClass=Nil;
+      isScriptedClass=NO;
+      isCachingEnabled=NO;
+      isAwake=NO;
+      [self setCachingEnabled:[GSWApplication isCachingEnabled]];
+    };
   LOGObjectFnStop();
   return self;
 };

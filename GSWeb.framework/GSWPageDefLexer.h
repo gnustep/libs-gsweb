@@ -7,7 +7,7 @@
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
  * and Manuel Guesdon, Software Builders
- * ANTLR Version 2.7.1; 1996,1997,1998,1999,2000
+ * ANTLR Version 2.5.0; 1996,1997,1998,1999
  */
 
 
@@ -19,7 +19,6 @@
 #include "gsantlr/ANTLRCharBuffer.h"
 #include "gsantlr/ANTLRBitSet.h"
 #include "gsantlr/ANTLRCharScanner.h"
-
 @interface GSWPageDefLexer : ANTLRCharScanner
  {
  };
@@ -37,6 +36,8 @@
 	/*public: */-(void) mPIDENTWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mPOINTWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mSTRINGWithCreateToken:(BOOL)_createToken ;
+	/*public: */-(void) mIDENTREFWithCreateToken:(BOOL)_createToken ;
+	/*public: */-(void) mPIDENTREFWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mYESWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mNOWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mLCURLYWithCreateToken:(BOOL)_createToken ;
@@ -71,5 +72,9 @@ extern CONST unsigned long GSWPageDefLexer___tokenSet_5_data_[];
 extern ANTLRBitSet* GSWPageDefLexer___tokenSet_5;
 extern CONST unsigned long GSWPageDefLexer___tokenSet_6_data_[];
 extern ANTLRBitSet* GSWPageDefLexer___tokenSet_6;
+extern CONST unsigned long GSWPageDefLexer___tokenSet_7_data_[];
+extern ANTLRBitSet* GSWPageDefLexer___tokenSet_7;
+extern CONST unsigned long GSWPageDefLexer___tokenSet_8_data_[];
+extern ANTLRBitSet* GSWPageDefLexer___tokenSet_8;
 
 #endif /*INC_GSWPageDefLexer_h_*/

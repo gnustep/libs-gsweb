@@ -1,11 +1,16 @@
-/* GSWCookie.h - GSWeb: Class GSWCookie
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWCookie.h - <title>GSWeb: Class GSWResponse</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Feb 1999
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,41 +37,41 @@
 @interface GSWCookie : NSObject
 {
 @private
-  NSString* name;
-  NSString* value;
-  NSString* domain;
-  NSString* path;
-  NSDate* expires;
-  BOOL isSecure;
+  NSString* _name;
+  NSString* _value;
+  NSString* _domain;
+  NSString* _path;
+  NSDate* _expires;
+  BOOL _isSecure;
 };
 
-+(GSWCookie*)cookieWithName:(NSString*)name_
-					 value:(NSString*)value_;
-+(GSWCookie*)cookieWithName:(NSString*)name_
-					 value:(NSString*)value_
-					  path:(NSString*)path_
-					domain:(NSString*)domain_
-				   expires:(NSDate*)expireDate_
-				  isSecure:(BOOL)isSecure_;
--(id)initWithName:(NSString*)name_
-			value:(NSString*)value_
-			 path:(NSString*)path_
-		   domain:(NSString*)domain_
-		  expires:(NSDate*)expireDate_
-		 isSecure:(BOOL)isSecure_;
++(GSWCookie*)cookieWithName:(NSString*)aName
+                      value:(NSString*)aValue;
++(GSWCookie*)cookieWithName:(NSString*)aName
+                      value:(NSString*)aValue
+                       path:(NSString*)aPath
+                     domain:(NSString*)aDomain
+                    expires:(NSDate*)anExpireDate
+                   isSecure:(BOOL)isSecureFlag;
+-(id)initWithName:(NSString*)aName
+            value:(NSString*)aValue
+             path:(NSString*)aPath
+           domain:(NSString*)aDomain
+          expires:(NSDate*)anExpireDate
+         isSecure:(BOOL)isSecureFlag;
 -(NSString*)description;
 -(NSString*)name;
--(void)setName:(NSString*)name_;
+-(void)setName:(NSString*)aName;
 -(NSString*)value;
--(void)setValue:(NSString*)value_;
+-(void)setValue:(NSString*)aValue;
 -(NSString*)domain;
--(void)setDomain:(NSString*)domain_;
+-(void)setDomain:(NSString*)aDomain;
 -(NSString*)path;
--(void)setPath:(NSString*)path_;
+-(void)setPath:(NSString*)aPath;
 -(NSDate*)expires;
--(void)setExpires:(NSDate*)expireDate_;
+-(void)setExpires:(NSDate*)anExpireDate;
 -(BOOL)isSecure;
--(void)setIsSecure:(BOOL)isSecure_;
+-(void)setIsSecure:(BOOL)isSecureFlag;
 -(NSString*)headerString;
 -(NSString*)headerKey;
 -(NSString*)headerValue;

@@ -1,11 +1,16 @@
-/* GSWContext.h - GSWeb: Class GSWContext
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWContext.h - <title>GSWeb: Class GSWContext</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,29 +37,29 @@
 @interface GSWContext : NSObject <NSCopying>
 {
 @private
-  unsigned contextID;
- NSString* senderID;
- NSString* requestSessionID;
- GSWElementIDString* elementID;
- GSWSession* session;
- GSWRequest* request;
- GSWResponse* response;
- GSWElement* pageElement;
- GSWComponent* pageComponent;
- GSWComponent* currentComponent;
- GSWDynamicURLString* url;
- NSMutableArray* awakePageComponents;
- int urlApplicationNumber;
- int isClientComponentRequest;
- BOOL distributionEnabled;
- BOOL pageChanged;
- BOOL pageReplaced;
- BOOL generateCompleteURLs;
- BOOL isInForm;
- BOOL actionInvoked;
- BOOL formSubmitted;
- BOOL isMultipleSubmitForm;
- BOOL isValidate;
+  unsigned _contextID;
+ NSString* _senderID;
+ NSString* _requestSessionID;
+ GSWElementIDString* _elementID;
+ GSWSession* _session;
+ GSWRequest* _request;
+ GSWResponse* _response;
+ GSWElement* _pageElement;
+ GSWComponent* _pageComponent;
+ GSWComponent* _currentComponent;
+ GSWDynamicURLString* _url;
+ NSMutableArray* _awakePageComponents;
+ int _urlApplicationNumber;
+ int _isClientComponentRequest;
+ BOOL _distributionEnabled;
+ BOOL _pageChanged;
+ BOOL _pageReplaced;
+ BOOL _generateCompleteURLs;
+ BOOL _isInForm;
+ BOOL _actionInvoked;
+ BOOL _formSubmitted;
+ BOOL _isMultipleSubmitForm;
+ BOOL _isValidate;
 #ifndef NDEBUG
  int _loopLevel; //ForDebugging purpose: each repetition increment and next decrement it
  NSMutableString* _docStructure; //ForDebugging purpose: array of all objects if the document during appendResponse, takeValues, invokeAction
@@ -63,11 +69,11 @@
 
 -(id)init;
 -(void)dealloc;
-+(GSWContext*)contextWithRequest:(GSWRequest*)request_;
++(GSWContext*)contextWithRequest:(GSWRequest*)aRequest;
 
--(id)copyWithZone:(NSZone*)zone_;
+-(id)copyWithZone:(NSZone*)zone;
 
--(void)setInForm:(BOOL)_flag;
+-(void)setInForm:(BOOL)flag;
 -(BOOL)isInForm;
 -(GSWElementIDString*)elementID;
 -(GSWComponent*)component;
@@ -78,7 +84,7 @@
 -(BOOL)hasSession;
 -(NSString*)senderID;
 -(NSString*)contextID;
--(id)initWithRequest:(GSWRequest*)_request;
+-(id)initWithRequest:(GSWRequest*)aRequest;
 
 #ifndef NDEBUG
 -(void)incrementLoopLevel; //ForDebugging purpose: each repetition increment and next decrement it
@@ -92,62 +98,62 @@
 
 //====================================================================
 @interface GSWContext (GSWURLGeneration)
--(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName_
-									 queryDictionary:(NSDictionary*)queryDictionary_;
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary;
 -(GSWDynamicURLString*)componentActionURL;
--(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey_
-										   path:(NSString*)requestHandlerPath_
-									queryString:(NSString*)queryString_;
+-(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString;
 //NDFN
--(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey_
-												   path:(NSString*)requestHandlerPath_
-											queryString:(NSString*)queryString_;
--(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey_
-												   path:(NSString*)requestHandlerPath_
-											queryString:(NSString*)queryString_
-											   isSecure:(BOOL)isSecure_
-												   port:(int)port_;
+-(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                                   path:(NSString*)requestHandlerPath
+                                            queryString:(NSString*)queryString;
+-(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                                   path:(NSString*)requestHandlerPath
+                                            queryString:(NSString*)queryString
+                                               isSecure:(BOOL)isSecure
+                                                   port:(int)port;
 @end
 
 //====================================================================
 @interface GSWContext (GSWContextA)
--(id)_initWithContextID:(unsigned int)context_ID;
+-(id)_initWithContextID:(unsigned int)contextID;
 @end
 
 //====================================================================
 @interface GSWContext (GSWContextB)
 -(BOOL)_isMultipleSubmitForm;
--(void)_setIsMultipleSubmitForm:(BOOL)_flag;
+-(void)_setIsMultipleSubmitForm:(BOOL)flag;
 -(BOOL)_wasActionInvoked;
--(void)_setActionInvoked:(BOOL)_flag;
+-(void)_setActionInvoked:(BOOL)flag;
 -(BOOL)_wasFormSubmitted;
--(void)_setFormSubmitted:(BOOL)_flag;
+-(void)_setFormSubmitted:(BOOL)flag;
 -(void)_putAwakeComponentsToSleep;
 -(void)_generateCompleteURLs;
--(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)_actionName
-									 queryDictionary:(NSDictionary*)_dict
-												 url:(id)_url;
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                                  url:(id)url;
 -(NSArray*)languages;
 -(GSWComponent*)_pageComponent;
 -(GSWElement*)_pageElement;
--(void)_setPageElement:(GSWElement*)_element;
--(void)_setPageComponent:(GSWComponent*)_component;
--(void)_setResponse:(GSWResponse*)response_;
--(void)_setRequest:(GSWRequest*)_request;
--(void)_setSession:(GSWSession*)_session;
--(void)_setSenderID:(NSString*)_senderID;
+-(void)_setPageElement:(GSWElement*)element;
+-(void)_setPageComponent:(GSWComponent*)component;
+-(void)_setResponse:(GSWResponse*)aResponse;
+-(void)_setRequest:(GSWRequest*)aRequest;
+-(void)_setSession:(GSWSession*)aSession;
+-(void)_setSenderID:(NSString*)aSenderID;
 -(void)_synchronizeForDistribution;
 -(void)_incrementContextID;
 -(GSWSession*)existingSession;
--(void)_setCurrentComponent:(GSWComponent*)_component;
--(void)_setPageReplaced:(BOOL)_flag;
+-(void)_setCurrentComponent:(GSWComponent*)aComponent;
+-(void)_setPageReplaced:(BOOL)flag;
 -(BOOL)_pageReplaced; 
--(void)_setPageChanged:(BOOL)_flag;
+-(void)_setPageChanged:(BOOL)flag;
 -(BOOL)_pageChanged; 
--(void)_setRequestSessionID:(NSString*)_sessionID;
+-(void)_setRequestSessionID:(NSString*)sessionID;
 -(NSString*)_requestSessionID;
--(void)_takeAwakeComponentsFromArray:(id)_unknwon;
--(void)_takeAwakeComponent:(GSWComponent*)_component;
+-(void)_takeAwakeComponentsFromArray:(id)unknwon;
+-(void)_takeAwakeComponent:(GSWComponent*)aComponent;
 
 @end
 
@@ -156,7 +162,7 @@
 -(void)deleteAllElementIDComponents;
 -(void)deleteLastElementIDComponent;
 -(void)incrementLastElementIDComponent;
--(void)appendElementIDComponent:(NSString*)string_;
+-(void)appendElementIDComponent:(NSString*)string;
 -(void)appendZeroElementIDComponent;
 @end
 
@@ -165,14 +171,14 @@
 -(NSString*)url;
 -(NSString*)urlSessionPrefix;
 -(GSWApplication*)application;
--(void)setDistributionEnabled:(BOOL)flag_;
+-(void)setDistributionEnabled:(BOOL)flag;
 -(BOOL)isDistributionEnabled;
 @end
 
 //====================================================================
 @interface GSWContext (GSWContextGSWeb)
 -(BOOL)isValidate;
--(void)setValidate:(BOOL)isValidate_;
+-(void)setValidate:(BOOL)isValidate;
 @end
 
 #endif //_GSWContext_h__

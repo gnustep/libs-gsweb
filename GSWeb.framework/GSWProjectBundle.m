@@ -41,10 +41,11 @@ static char rcsId[] = "$Id$";
 -(id)initWithPath:(NSString*)path_
 {
   LOGObjectFnStart();
+  NSDebugMLLog(@"bundles",@"path_=%@",path_);
   if ((self=[super initWithPath:path_]))
-	{
-	  //TODO
-	};
+    {
+      //TODO
+    };
   LOGObjectFnStop();
   return nil;
 };

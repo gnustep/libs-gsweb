@@ -1,11 +1,16 @@
-/* GSWContext.m - GSWeb: Class GSWContext
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWContext.m - <title>GSWeb: Class GSWContext</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -37,9 +43,9 @@ static int dontTraceComponentActionURL=0;
   //OK
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  [self _initWithContextID:(unsigned int)-1];
-	};
+    {
+      [self _initWithContextID:(unsigned int)-1];
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -50,31 +56,31 @@ static int dontTraceComponentActionURL=0;
   GSWLogAssertGood(self);
   NSDebugFLog(@"Dealloc GSWContext %p",(void*)self);
   NSDebugFLog0(@"Release GSWContext senderID");
-  DESTROY(senderID);
+  DESTROY(_senderID);
   NSDebugFLog0(@"Release GSWContext requestSessionID");
-  DESTROY(requestSessionID);
+  DESTROY(_requestSessionID);
   NSDebugFLog0(@"Release GSWContext elementID");
-  DESTROY(elementID);
-  if (session)
+  DESTROY(_elementID);
+  if (_session)
 	{
-	  NSDebugFLog(@"sessionCount=%u",[session retainCount]);
+	  NSDebugFLog(@"sessionCount=%u",[_session retainCount]);
 	};
   NSDebugFLog0(@"Release GSWContext session");
-  DESTROY(session);
+  DESTROY(_session);
   NSDebugFLog0(@"Release GSWContext request");
-  DESTROY(request);
+  DESTROY(_request);
   NSDebugFLog0(@"Release GSWContext Response");
-  DESTROY(response);
+  DESTROY(_response);
   NSDebugFLog0(@"Release GSWContext pageElement");
-  DESTROY(pageElement);
+  DESTROY(_pageElement);
   NSDebugFLog0(@"Release GSWContext pageComponent");
-  DESTROY(pageComponent);
+  DESTROY(_pageComponent);
   NSDebugFLog0(@"Release GSWContext currentComponent");
-  DESTROY(currentComponent);
+  DESTROY(_currentComponent);
   NSDebugFLog0(@"Release GSWContext url");
-  DESTROY(url);
+  DESTROY(_url);
   NSDebugFLog0(@"Release GSWContext awakePageComponents");
-  DESTROY(awakePageComponents);
+  DESTROY(_awakePageComponents);
 #ifndef NDEBUG
   DESTROY(_docStructure);
   DESTROY(_docStructureElements);
@@ -85,60 +91,60 @@ static int dontTraceComponentActionURL=0;
 }
 
 //--------------------------------------------------------------------
--(id)initWithRequest:(GSWRequest*)_request;
+-(id)initWithRequest:(GSWRequest*)aRequest
 {
   //OK
   LOGObjectFnStart();
   if ((self=[self init]))
-	{
-	  [self _setRequest:_request];
-	};
+    {
+      [self _setRequest:aRequest];
+    };
   LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
-+(GSWContext*)contextWithRequest:(GSWRequest*)request_
++(GSWContext*)contextWithRequest:(GSWRequest*)aRequest
 {
   //OK
-  GSWContext* _context=nil;
+  GSWContext* context=nil;
   LOGObjectFnStart();
-  _context=[[[GSWContext alloc]
-			  initWithRequest:request_]
-			 autorelease];
+  context=[[[GSWContext alloc]
+             initWithRequest:aRequest]
+            autorelease];
   LOGObjectFnStop();
-  return _context;
+  return context;
 };
 
 //--------------------------------------------------------------------
--(id)copyWithZone:(NSZone*)zone_
+-(id)copyWithZone:(NSZone*)zone
 {
-  GSWContext* clone = [[isa allocWithZone:zone_] init];
+  GSWContext* clone = [[isa allocWithZone:zone] init];
   if (clone)
-	{
-	  clone->contextID=contextID;
-	  ASSIGNCOPY(clone->senderID,senderID);
-	  ASSIGNCOPY(clone->requestSessionID,requestSessionID);
-	  ASSIGNCOPY(clone->elementID,elementID);
-	  ASSIGN(clone->session,session); //TODOV
-	  ASSIGN(clone->request,request); //TODOV
-	  ASSIGN(clone->response,response); //TODOV
-	  ASSIGN(clone->pageElement,pageElement);
-	  ASSIGN(clone->pageComponent,pageComponent);
-	  ASSIGN(clone->currentComponent,currentComponent);
-	  ASSIGNCOPY(clone->url,url);
-	  ASSIGNCOPY(clone->awakePageComponents,awakePageComponents);
-	  clone->urlApplicationNumber=urlApplicationNumber;
-	  clone->isClientComponentRequest=isClientComponentRequest;
-	  clone->distributionEnabled=distributionEnabled;
-	  clone->pageChanged=pageChanged;
-	  clone->pageReplaced=pageReplaced;
-	  clone->generateCompleteURLs=generateCompleteURLs;
-	  clone->isInForm=isInForm;
-	  clone->actionInvoked=actionInvoked;
-	  clone->formSubmitted=formSubmitted;
-	  clone->isMultipleSubmitForm=isMultipleSubmitForm;
-	};
+    {
+      clone->_contextID=_contextID;
+      ASSIGNCOPY(clone->_senderID,_senderID);
+      ASSIGNCOPY(clone->_requestSessionID,_requestSessionID);
+      ASSIGNCOPY(clone->_elementID,_elementID);
+      ASSIGN(clone->_session,_session); //TODOV
+      ASSIGN(clone->_request,_request); //TODOV
+      ASSIGN(clone->_response,_response); //TODOV
+      ASSIGN(clone->_pageElement,_pageElement);
+      ASSIGN(clone->_pageComponent,_pageComponent);
+      ASSIGN(clone->_currentComponent,_currentComponent);
+      ASSIGNCOPY(clone->_url,_url);
+      ASSIGNCOPY(clone->_awakePageComponents,_awakePageComponents);
+      clone->_urlApplicationNumber=_urlApplicationNumber;
+      clone->_isClientComponentRequest=_isClientComponentRequest;
+      clone->_distributionEnabled=_distributionEnabled;
+      clone->_pageChanged=_pageChanged;
+      clone->_pageReplaced=_pageReplaced;
+      clone->_generateCompleteURLs=_generateCompleteURLs;
+      clone->_isInForm=_isInForm;
+      clone->_actionInvoked=_actionInvoked;
+      clone->_formSubmitted=_formSubmitted;
+      clone->_isMultipleSubmitForm=_isMultipleSubmitForm;
+    };
   return clone;
 };
 
@@ -146,116 +152,116 @@ static int dontTraceComponentActionURL=0;
 -(NSString*)description
 {
   //OK
-  NSString* _desc=nil;
+  NSString* desc=nil;
   dontTraceComponentActionURL++;
- _desc= [NSString stringWithFormat:
-					@"%s: %p contextID=%@ senderID=%@ elementID=%@ session=%p request=%p response=%p pageElement=%p pageComponent=%p currentComponent=%p url=%@ urlApplicationNumber=%d isClientComponentRequest=%s distributionEnabled=%s pageChanged=%s pageReplaced=%s",
-				   object_get_class_name(self),
-				   (void*)self,
-				   [self contextID],
-				   [self senderID],
-				   [self elementID],
-				   (void*)[self existingSession],
-				   (void*)[self request],
-				   (void*)[self response],
-				   (void*)pageElement,
-				   (void*)pageComponent,
-				   (void*)currentComponent,
-				   url,
-				   urlApplicationNumber,
-				   isClientComponentRequest ? "YES" : "NO",
-				   distributionEnabled ? "YES" : "NO",
-				   pageChanged ? "YES" : "NO",
-				   pageReplaced ? "YES" : "NO"];
+  desc= [NSString stringWithFormat:
+                    @"%s: %p contextID=%@ senderID=%@ elementID=%@ session=%p request=%p response=%p pageElement=%p pageComponent=%p currentComponent=%p url=%@ urlApplicationNumber=%d isClientComponentRequest=%s distributionEnabled=%s pageChanged=%s pageReplaced=%s",
+                  object_get_class_name(self),
+                  (void*)self,
+                  [self contextID],
+                  [self senderID],
+                  [self elementID],
+                  (void*)[self existingSession],
+                  (void*)[self request],
+                  (void*)[self response],
+                  (void*)_pageElement,
+                  (void*)_pageComponent,
+                  (void*)_currentComponent,
+                  _url,
+                  _urlApplicationNumber,
+                  _isClientComponentRequest ? "YES" : "NO",
+                  _distributionEnabled ? "YES" : "NO",
+                  _pageChanged ? "YES" : "NO",
+                  _pageReplaced ? "YES" : "NO"];
   dontTraceComponentActionURL--;
-  return _desc;
+  return desc;
 };
 
 //--------------------------------------------------------------------
--(void)setInForm:(BOOL)_flag
+-(void)setInForm:(BOOL)flag
 {
-  isInForm=_flag;
+  _isInForm=flag;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)isInForm
 {
-  return isInForm;
+  return _isInForm;
 };
 
 //--------------------------------------------------------------------
 //	elementID
 -(GSWElementIDString*)elementID 
 {
-  return elementID;
+  return _elementID;
 };
 
 //--------------------------------------------------------------------
 -(GSWComponent*)component
 {
-  GSWComponent* _component=nil;
+  GSWComponent* component=nil;
 //  LOGObjectFnStart();
-  _component=currentComponent;
+  component=_currentComponent;
 //  LOGObjectFnStop();
-  return _component;
+  return component;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)contextID
 {
   //OK
-  if (contextID==(unsigned int)-1)
-	return nil;
+  if (_contextID==(unsigned int)-1)
+    return nil;
   else
-	return [NSString stringWithFormat:@"%u",contextID];
+    return [NSString stringWithFormat:@"%u",_contextID];
 };
 
 //--------------------------------------------------------------------
 -(GSWComponent*)page
 {
-  if ([pageComponent _isPage]) //TODOV
-	return pageComponent;
+  if ([_pageComponent _isPage]) //TODOV
+    return _pageComponent;
   else
-	return nil;//TODOV
+    return nil;//TODOV
 };
 
 //--------------------------------------------------------------------
 -(GSWRequest*)request
 {
-  return request;
+  return _request;
 };
 
 //--------------------------------------------------------------------
 -(GSWResponse*)response
 { 
-  return response;
+  return _response;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)hasSession
 {
-  return (session!=nil);
+  return (_session!=nil);
 };
 
 //--------------------------------------------------------------------
 -(GSWSession*)session
 {
-  GSWSession* _session=nil;
+  GSWSession* session=nil;
   LOGObjectFnStart();
-  if (session)
-	_session=session;
+  if (_session)
+    session=_session;
   else
-	{
-	  _session=[GSWApp _initializeSessionInContext:self];
-	};
+    {
+      session=[GSWApp _initializeSessionInContext:self];
+    };
   LOGObjectFnStop();
-  return _session;
+  return session;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)senderID
 {
-  return senderID;
+  return _senderID;
 };
 
 #ifndef NDEBUG
@@ -267,6 +273,7 @@ static int dontTraceComponentActionURL=0;
 {
   _loopLevel--;
 };
+
 -(BOOL)isInLoop
 {
   return _loopLevel>0;
@@ -326,178 +333,178 @@ static int dontTraceComponentActionURL=0;
 @implementation GSWContext (GSWURLGeneration)
 
 //--------------------------------------------------------------------
--(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName_
-									 queryDictionary:(NSDictionary*)queryDictionary_
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary
 {
   //OK
-  GSWSession* _session=nil;
-  GSWDynamicURLString* _url=nil;
+  GSWSession* session=nil;
+  GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
-  _session=[self existingSession];
+  session=[self existingSession];
   NSDebugMLog(@"url=%@",url);
-  _url=[self _directActionURLForActionNamed:actionName_
-			 queryDictionary:queryDictionary_
-			 url:url];
+  url=[self _directActionURLForActionNamed:actionName
+            queryDictionary:queryDictionary
+            url:url];
   LOGObjectFnStop();
-  return _url;
+  return url;
 };
 
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)componentActionURL
 {
   //OK
-  BOOL _storesIDsInURLs=NO;
-  GSWDynamicURLString* _url=nil;
-  GSWSession* _session=nil;
-  NSString* _elementID=nil;
-  NSString* _componentRequestHandlerKey=nil;
-  NSString* _requestHandlerKey=nil;
-  NSString* _requestHandlerPath=nil;
+  BOOL storesIDsInURLs=NO;
+  GSWDynamicURLString* url=nil;
+  GSWSession* session=nil;
+  NSString* elementID=nil;
+  NSString* componentRequestHandlerKey=nil;
+  NSString* requestHandlerKey=nil;
+  NSString* requestHandlerPath=nil;
   LOGObjectFnStartCond(dontTraceComponentActionURL==0);
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"contextID=%u",contextID);
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"contextID=%u",_contextID);
 /*
-  _url=[[url copy] autorelease];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_url=%@",_url);
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"urlApplicationNumber=%d",urlApplicationNumber);
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"[_url urlApplicationNumber]=%d",[_url urlApplicationNumber]);
-  _session=[self session]; //OK
-  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"_session=%@",_session);
-  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"_sessionID=%@",[_session sessionID]);
-  _elementID=[self elementID];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_elementID=%@",_elementID);
-  _componentRequestHandlerKey=[GSWApplication componentRequestHandlerKey];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_componentRequestHandlerKey=%@",_componentRequestHandlerKey);
-  [_url setURLRequestHandlerKey:_componentRequestHandlerKey];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_url=%@",_url);
+  url=[[url copy] autorelease];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"url=%@",url);
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"urlApplicationNumber=%d",_urlApplicationNumber);
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"[url urlApplicationNumber]=%d",[url urlApplicationNumber]);
+  session=[self session]; //OK
+  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"session=%@",session);
+  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"sessionID=%@",[session sessionID]);
+  elementID=[self elementID];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"elementID=%@",elementID);
+  componentRequestHandlerKey=[GSWApplication componentRequestHandlerKey];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"componentRequestHandlerKey=%@",componentRequestHandlerKey);
+  [url setURLRequestHandlerKey:componentRequestHandlerKey];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"url=%@",url);
   //call application pageCacheSize
-  _storesIDsInURLs=[_session storesIDsInURLs];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_storesIDsInURLs=%s",(_storesIDsInURLs ? "YES" : "NO"));
-  if (_storesIDsInURLs)
+  storesIDsInURLs=[session storesIDsInURLs];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"storesIDsInURLs=%s",(storesIDsInURLs ? "YES" : "NO"));
+  if (storesIDsInURLs)
 	{
-	  NSString* _sessionID=[_session sessionID];
-	  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_sessionID=%@",_sessionID);
-	  [_url setURLRequestHandlerPath:[NSString stringWithFormat:@"%@/%u.%@",
-											  _sessionID,
-											  contextID,
-											  _elementID]];
-	  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_url=%@",_url);
+	  NSString* sessionID=[session sessionID];
+	  NSDebugMLogCond(dontTraceComponentActionURL==0,@"sessionID=%@",sessionID);
+	  [url setURLRequestHandlerPath:[NSString stringWithFormat:@"%@/%u.%@",
+          sessionID,
+          contextID,
+          elementID]];
+	  NSDebugMLogCond(dontTraceComponentActionURL==0,@"url=%@",url);
 	}
   else
 	{
-	  [_url setURLRequestHandlerPath:[NSString stringWithFormat:@"/%u.%@", //??
-											   contextID,
-											   _elementID]];
-	  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_url=%@",_url);
+	  [url setURLRequestHandlerPath:[NSString stringWithFormat:@"/%u.%@", //??
+											   _contextID,
+											   elementID]];
+	  NSDebugMLogCond(dontTraceComponentActionURL==0,@"url=%@",url);
 	};
-  [_url setURLQueryString:nil]; //???
+  [url setURLQueryString:nil]; //???
 */
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"urlApplicationNumber=%d",urlApplicationNumber);
-  _session=[self session]; //OK
-  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"_session=%@",_session);
-  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"_sessionID=%@",[_session sessionID]);
-  _elementID=[self elementID];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_elementID=%@",_elementID);
-  _componentRequestHandlerKey=[GSWApplication componentRequestHandlerKey];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_componentRequestHandlerKey=%@",_componentRequestHandlerKey);
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"urlApplicationNumber=%d",_urlApplicationNumber);
+  session=[self session]; //OK
+  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"session=%@",session);
+  NSDebugMLLogCond(dontTraceComponentActionURL==0,@"sessions",@"sessionID=%@",[session sessionID]);
+  elementID=[self elementID];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"elementID=%@",elementID);
+  componentRequestHandlerKey=[GSWApplication componentRequestHandlerKey];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"componentRequestHandlerKey=%@",componentRequestHandlerKey);
   
-  _requestHandlerKey=_componentRequestHandlerKey;
-  _storesIDsInURLs=[_session storesIDsInURLs];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_storesIDsInURLs=%s",(_storesIDsInURLs ? "YES" : "NO"));
-  if (_storesIDsInURLs)
-	{
-	  NSString* _sessionID=[_session sessionID];
-	  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_sessionID=%@",_sessionID);
-	  _requestHandlerPath=[NSString stringWithFormat:@"%@/%u.%@",
-									_sessionID,
-									contextID,
-									_elementID];
-	}
+  requestHandlerKey=componentRequestHandlerKey;
+  storesIDsInURLs=[session storesIDsInURLs];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"storesIDsInURLs=%s",(storesIDsInURLs ? "YES" : "NO"));
+  if (storesIDsInURLs)
+    {
+      NSString* sessionID=[_session sessionID];
+      NSDebugMLogCond(dontTraceComponentActionURL==0,@"sessionID=%@",sessionID);
+      requestHandlerPath=[NSString stringWithFormat:@"%@/%u.%@",
+                                   sessionID,
+                                   _contextID,
+                                   elementID];
+    }
   else
-	_requestHandlerPath=[NSString stringWithFormat:@"/%u.%@", //??
-								  contextID,
-								  _elementID];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_requestHandlerPath=%@",_requestHandlerPath);
-  _url=[self urlWithRequestHandlerKey:_requestHandlerKey
-			 path:_requestHandlerPath
-			 queryString:nil];
-  NSDebugMLogCond(dontTraceComponentActionURL==0,@"_url=%@",_url);
+    requestHandlerPath=[NSString stringWithFormat:@"/%u.%@", //??
+                                 _contextID,
+                                 elementID];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"requestHandlerPath=%@",requestHandlerPath);
+  url=[self urlWithRequestHandlerKey:requestHandlerKey
+            path:requestHandlerPath
+            queryString:nil];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,@"url=%@",url);
   LOGObjectFnStopCond(dontTraceComponentActionURL==0);
-  return _url;
+  return url;
 };
 
 //--------------------------------------------------------------------
--(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey_
-										  path:(NSString*)requestHandlerPath_
-								   queryString:(NSString*)queryString_
+-(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
 {
   //OK
-  GSWDynamicURLString* _url=nil;
-  GSWRequest* _request=[self request];
+  GSWDynamicURLString* url=nil;
+  GSWRequest* request=[self request];
   LOGObjectFnStartCond(dontTraceComponentActionURL==0);
   NSDebugMLogCond(dontTraceComponentActionURL==0,
                   @"generateCompleteURLs=%s",
-                  (generateCompleteURLs ? "YES" : "NO"));
-  if (generateCompleteURLs)
-	_url=[self completeURLWithRequestHandlerKey:requestHandlerKey_
-			   path:requestHandlerPath_
-			   queryString:queryString_];
+                  (_generateCompleteURLs ? "YES" : "NO"));
+  if (_generateCompleteURLs)
+    url=[self completeURLWithRequestHandlerKey:requestHandlerKey
+              path:requestHandlerPath
+              queryString:queryString];
   else
-	_url=[_request _urlWithRequestHandlerKey:requestHandlerKey_
-				   path:requestHandlerPath_
-				   queryString:queryString_];
+    url=[request _urlWithRequestHandlerKey:requestHandlerKey
+                 path:requestHandlerPath
+                 queryString:queryString];
   NSDebugMLogCond(dontTraceComponentActionURL==0,
-                  @"url=%@",_url);
+                  @"url=%@",url);
   LOGObjectFnStopCond(dontTraceComponentActionURL==0);
-  return _url;
+  return url;
 };
 
 //--------------------------------------------------------------------
 //NDFN
--(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey_
-												   path:(NSString*)requestHandlerPath_
-											queryString:(NSString*)queryString_
+-(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                                   path:(NSString*)requestHandlerPath
+                                            queryString:(NSString*)queryString
 {
-  GSWRequest* _request=nil;
-  _request=[self request];
-  return [self completeURLWithRequestHandlerKey:requestHandlerKey_
-			   path:requestHandlerPath_
-			   queryString:queryString_
-			   isSecure:[_request isSecure]
-			   port:[_request urlPort]];
+  GSWRequest* request=nil;
+  request=[self request];
+  return [self completeURLWithRequestHandlerKey:requestHandlerKey
+               path:requestHandlerPath
+               queryString:queryString
+               isSecure:[request isSecure]
+               port:[request urlPort]];
 };
 
 
 //--------------------------------------------------------------------
--(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey_
-												   path:(NSString*)requestHandlerPath_
-											queryString:(NSString*)queryString_
-											   isSecure:(BOOL)isSecure_
-												   port:(int)port_
+-(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                                   path:(NSString*)requestHandlerPath
+                                            queryString:(NSString*)queryString
+                                               isSecure:(BOOL)isSecure
+                                                   port:(int)port
 {
   NSString* host=nil;
-  GSWDynamicURLString* _url=nil;
-  GSWRequest* _request=nil;
+  GSWDynamicURLString* url=nil;
+  GSWRequest* request=nil;
   LOGObjectFnStart();
-  _request=[self request];
-  _url=[_request _urlWithRequestHandlerKey:requestHandlerKey_
-				 path:requestHandlerPath_
-				 queryString:queryString_];
-  NSDebugMLLog(@"low",@"_url=%@",_url);
-  if (isSecure_)
-	[_url setURLProtocol:GSWProtocol_HTTPS];
+  request=[self request];
+  url=[_request _urlWithRequestHandlerKey:requestHandlerKey
+                path:requestHandlerPath
+                queryString:queryString];
+  NSDebugMLLog(@"low",@"url=%@",url);
+  if (isSecure)
+    [url setURLProtocol:GSWProtocol_HTTPS];
   else
-	[_url setURLProtocol:GSWProtocol_HTTP];
+    [url setURLProtocol:GSWProtocol_HTTP];
   
-  if (port_)
-	[_url setURLPort:port_];
-  NSDebugMLLog(@"low",@"_url=%@",_url);
-  host=[_request urlHost];
+  if (port)
+    [url setURLPort:port];
+  NSDebugMLLog(@"low",@"url=%@",url);
+  host=[request urlHost];
   NSAssert(host,@"No host !");
   NSDebugMLLog(@"low",@"host=%@",host);
-  [_url setURLHost:host];
-  NSDebugMLLog(@"low",@"_url=%@",_url);
+  [url setURLHost:host];
+  NSDebugMLLog(@"low",@"url=%@",url);
   LOGObjectFnStop();
-  return _url;
+  return url;
 };
 
 @end
@@ -506,16 +513,16 @@ static int dontTraceComponentActionURL=0;
 @implementation GSWContext (GSWContextA)
 
 //--------------------------------------------------------------------
--(id)_initWithContextID:(unsigned int)_contextID
+-(id)_initWithContextID:(unsigned int)contextID
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"_contextID=%u",_contextID);
-  contextID=_contextID;
-  DESTROY(url);
-  url=[GSWDynamicURLString new];
-  DESTROY(awakePageComponents);
-  awakePageComponents=[NSMutableArray new];
-  urlApplicationNumber=-1;
+  NSDebugMLLog(@"low",@"contextID=%u",contextID);
+  _contextID=contextID;
+  DESTROY(_url);
+  _url=[GSWDynamicURLString new];
+  DESTROY(_awakePageComponents);
+  _awakePageComponents=[NSMutableArray new];
+  _urlApplicationNumber=-1;
   LOGObjectFnStop();
   return self;
 };
@@ -528,37 +535,37 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 -(BOOL)_isMultipleSubmitForm
 {
-  return isMultipleSubmitForm;
+  return _isMultipleSubmitForm;
 };
 
 //--------------------------------------------------------------------
--(void)_setIsMultipleSubmitForm:(BOOL)_flag
+-(void)_setIsMultipleSubmitForm:(BOOL)flag
 {
-  isMultipleSubmitForm=_flag;
+  _isMultipleSubmitForm=flag;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)_wasActionInvoked
 {
-  return actionInvoked;
+  return _actionInvoked;
 };
 
 //--------------------------------------------------------------------
--(void)_setActionInvoked:(BOOL)_flag
+-(void)_setActionInvoked:(BOOL)flag
 {
-  actionInvoked=_flag;
+  _actionInvoked=flag;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)_wasFormSubmitted
 {
-  return formSubmitted;
+  return _formSubmitted;
 };
 
 //--------------------------------------------------------------------
--(void)_setFormSubmitted:(BOOL)_flag
+-(void)_setFormSubmitted:(BOOL)flag
 {
-  formSubmitted=_flag;
+  _formSubmitted=flag;
 };
 
 //--------------------------------------------------------------------
@@ -566,170 +573,170 @@ static int dontTraceComponentActionURL=0;
 {
   //OK TODOV
   int i=0;
-  GSWComponent* _component=nil;
+  GSWComponent* component=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"awakePageComponents=%@",awakePageComponents);
-  for(i=0;i<[awakePageComponents count];i++)
-	{
-	  _component=[awakePageComponents objectAtIndex:i];
-	  [_component sleepInContext:self];
-	};
+  NSDebugMLLog(@"low",@"awakePageComponents=%@",_awakePageComponents);
+  for(i=0;i<[_awakePageComponents count];i++)
+    {
+      component=[_awakePageComponents objectAtIndex:i];
+      [component sleepInContext:self];
+    };
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)_generateCompleteURLs
 {
-  generateCompleteURLs=YES;
+  _generateCompleteURLs=YES;
 };
 
 //--------------------------------------------------------------------
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
--(id)_directActionURLForActionNamed:(NSString*)_actionName
-					queryDictionary:(NSDictionary*)_dict
-								url:(id)_url
+-(id)_directActionURLForActionNamed:(NSString*)actionName
+                    queryDictionary:(NSDictionary*)dict
+                                url:(id)anURL
 {
   //OK
-  NSString* _queryString=nil;
-  NSEnumerator* _enumerator =nil;
-  id _key=nil;
+  NSString* queryString=nil;
+  NSEnumerator* enumerator =nil;
+  id key=nil;
   LOGObjectFnStart();
   NSDebugMLogCond(dontTraceComponentActionURL==0,
-                  @"url=%@",_url);
+                  @"anURL=%@",anURL);
 //  _url=[[_url copy] autorelease];
   //TODOV
-  _enumerator = [_dict keyEnumerator];
-  while ((_key = [_enumerator nextObject]))
-	{
-	  if (!_queryString)
-		_queryString=[[NSString new] autorelease];
-	  else
-		_queryString=[_queryString stringByAppendingString:@"&"];
-	  _queryString=[_queryString stringByAppendingFormat:@"%@=%@",
-								 _key,
-								 [_dict objectForKey:_key]];
-	};
+  enumerator = [dict keyEnumerator];
+  while ((key = [enumerator nextObject]))
+    {
+      if (!queryString)
+        queryString=[[NSString new] autorelease];
+      else
+        queryString=[queryString stringByAppendingString:@"&"];
+      queryString=[queryString stringByAppendingFormat:@"%@=%@",
+                               key,
+                               [dict objectForKey:key]];
+    };
   /*
-  [_url setURLRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]];
-  [_url setURLRequestHandlerPath:_actionName];
-  [_url setURLQueryString:_queryString];
+    [anURL setURLRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]];
+  [anURL setURLRequestHandlerPath:actionName];
+  [anURL setURLQueryString:queryString];
 */
-  _url=[self completeURLWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
-			 path:_actionName
-			 queryString:_queryString];
+  anURL=[self completeURLWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
+			 path:actionName
+              queryString:queryString];
   NSDebugMLogCond(dontTraceComponentActionURL==0,
-                  @"url=%@",_url);
+                  @"url=%@",anURL);
   LOGObjectFnStop();
-  return _url;
+  return anURL;
 };
 
 //--------------------------------------------------------------------
 -(NSArray*)languages
 {
-  NSArray* _languages=nil;
-  if (request)
-	{
-	  _languages=[request browserLanguages];
-	  if (!_languages)
-		{
-		  LOGError0(@"No languages in request");
-		};
-	};
-  if (!_languages && session)
-	{
-	  _languages=[session languages];
-	  if (!_languages)
-		{
-		  LOGError0(@"No languages in session");
-		};
-	};
+  NSArray* languages=nil;
+  if (_request)
+    {
+      languages=[_request browserLanguages];
+      if (!languages)
+        {
+          LOGError0(@"No languages in request");
+        };
+    };
+  if (!languages && _session)
+    {
+      languages=[_session languages];
+      if (!languages)
+        {
+          LOGError0(@"No languages in session");
+        };
+    };
   //Not WO: It enable application languages filtering
-  _languages=[GSWApp filterLanguages:_languages];
-  return _languages;
+  languages=[GSWApp filterLanguages:languages];
+  return languages;
 };
 
 //--------------------------------------------------------------------
 -(GSWComponent*)_pageComponent
 {
-  return pageComponent;
+  return _pageComponent;
 };
 
 //--------------------------------------------------------------------
 -(GSWElement*)_pageElement
 {
-  return pageElement;
+  return _pageElement;
 };
 
 //--------------------------------------------------------------------
--(void)_setPageElement:(GSWElement*)_element
+-(void)_setPageElement:(GSWElement*)element
 {
   LOGObjectFnStart();
-  ASSIGN(pageElement,_element);
+  ASSIGN(_pageElement,element);
   //TODOV
-  [self _setPageComponent:(GSWComponent*)_element];
+  [self _setPageComponent:(GSWComponent*)element];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_setPageComponent:(GSWComponent*)_component
+-(void)_setPageComponent:(GSWComponent*)component
 {
   LOGObjectFnStart();
-  ASSIGN(pageComponent,_component);
-  if (_component)
-	[self _takeAwakeComponent:_component];
+  ASSIGN(_pageComponent,component);
+  if (component)
+    [self _takeAwakeComponent:component];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_setResponse:(GSWResponse*)_response;
-{
-  //OK
-  LOGObjectFnStart();
-  ASSIGN(response,_response);
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)_setRequest:(GSWRequest*)_request;
+-(void)_setResponse:(GSWResponse*)aResponse
 {
   //OK
-  NSString* _adaptorPrefix=nil;
-  NSString* _applicationName=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"_request=%@",_request);
-  NSDebugMLLog(@"low",@"url=%@",url);
-  _adaptorPrefix=[_request adaptorPrefix];
-  NSDebugMLLog(@"low",@"_adaptorPrefix=%@",_adaptorPrefix);
-  [url setURLPrefix:_adaptorPrefix];
-  NSDebugMLLog(@"low",@"url=%@",url);
-  _applicationName=[_request applicationName];
-  NSDebugMLLog(@"low",@"_applicationName=%@",_applicationName);
-  [url setURLApplicationName:_applicationName];
-  NSDebugMLLog(@"low",@"url=%@",url);
-  ASSIGN(request,_request);
+  ASSIGN(_response,aResponse);
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(void)_setRequest:(GSWRequest*)aRequest
+{
+  //OK
+  NSString* adaptorPrefix=nil;
+  NSString* applicationName=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"low",@"aRequest=%@",aRequest);
+  NSDebugMLLog(@"low",@"url=%@",_url);
+  adaptorPrefix=[aRequest adaptorPrefix];
+  NSDebugMLLog(@"low",@"adaptorPrefix=%@",adaptorPrefix);
+  [_url setURLPrefix:adaptorPrefix];
+  NSDebugMLLog(@"low",@"url=%@",_url);
+  applicationName=[aRequest applicationName];
+  NSDebugMLLog(@"low",@"applicationName=%@",applicationName);
+  [_url setURLApplicationName:applicationName];
+  NSDebugMLLog(@"low",@"url=%@",_url);
+  ASSIGN(_request,aRequest);
   [self _synchronizeForDistribution];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_setSession:(GSWSession*)_session
+-(void)_setSession:(GSWSession*)aSession
 {
   //OK
   LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"_session ID:%@",[_session sessionID]);
-  ASSIGN(session,_session);
+  NSDebugMLLog(@"sessions",@"aSession ID:%@",[aSession sessionID]);
+  ASSIGN(_session,aSession);
   [self _synchronizeForDistribution];
-  NSDebugMLLog(@"low",@"contextID=%u",contextID);
-  contextID=[session _contextCounter];
-  NSDebugMLLog(@"low",@"contextID=%u",contextID);
+  NSDebugMLLog(@"low",@"contextID=%u",_contextID);
+  _contextID=[_session _contextCounter];
+  NSDebugMLLog(@"low",@"contextID=%u",_contextID);
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_setSenderID:(NSString*)_senderID
+-(void)_setSenderID:(NSString*)aSenderID
 {
   LOGObjectFnStart();
-  ASSIGNCOPY(senderID,_senderID);
+  ASSIGNCOPY(_senderID,aSenderID);
   LOGObjectFnStop();
 };
 
@@ -738,91 +745,91 @@ static int dontTraceComponentActionURL=0;
 {
   //OK
   LOGObjectFnStart();
-  if (session)
-	{
-	  //call  session storesIDsInURLs [ret 1]
-	  //call session isDistributionEnabled [ret 0]
-	  [url setURLApplicationNumber:[request applicationNumber]];//OK
-	}
+  if (_session)
+    {
+      //call  session storesIDsInURLs [ret 1]
+      //call session isDistributionEnabled [ret 0]
+      [_url setURLApplicationNumber:[_request applicationNumber]];//OK
+    }
   else
-	[url setURLApplicationNumber:-1];//OK
+    [_url setURLApplicationNumber:-1];//OK
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)_incrementContextID
 {
-  [session _contextDidIncrementContextID];
+  [_session _contextDidIncrementContextID];
 };
 
 //--------------------------------------------------------------------
 //oldname= _session
 -(GSWSession*)existingSession
 {
-  return session;
+  return _session;
 };
 
 //--------------------------------------------------------------------
--(void)_setCurrentComponent:(GSWComponent*)_component
+-(void)_setCurrentComponent:(GSWComponent*)component
 {
   //OK
   LOGObjectFnStart();
-  ASSIGN(currentComponent,_component);
+  ASSIGN(_currentComponent,component);
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_setPageReplaced:(BOOL)_flag
+-(void)_setPageReplaced:(BOOL)flag
 {
-  pageReplaced=_flag;
+  _pageReplaced=flag;
 };
   
 //--------------------------------------------------------------------
 -(BOOL)_pageReplaced
 {
-  return pageReplaced;
+  return _pageReplaced;
 };
 
 //--------------------------------------------------------------------
--(void)_setPageChanged:(BOOL)_flag
+-(void)_setPageChanged:(BOOL)flag
 {
-  pageChanged=_flag;
+  _pageChanged=flag;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)_pageChanged
 {
-  return pageChanged;
+  return _pageChanged;
 };
 
 //--------------------------------------------------------------------
--(void)_setRequestSessionID:(NSString*)_sessionID
+-(void)_setRequestSessionID:(NSString*)aSessionID
 {
   LOGObjectFnStart();
-  ASSIGNCOPY(requestSessionID,_sessionID);
+  ASSIGNCOPY(_requestSessionID,aSessionID);
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(NSString*)_requestSessionID
 {
-  return requestSessionID;
+  return _requestSessionID;
 };
 
 //--------------------------------------------------------------------
--(void)_takeAwakeComponentsFromArray:(id)_unknwon
+-(void)_takeAwakeComponentsFromArray:(id)unknwon
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)_takeAwakeComponent:(GSWComponent*)_component
+-(void)_takeAwakeComponent:(GSWComponent*)component
 {
   //OK
   LOGObjectFnStart();
-  if (!awakePageComponents)
-	awakePageComponents=[NSMutableArray new];
-  [awakePageComponents addObject:_component];
+  if (!_awakePageComponents)
+    _awakePageComponents=[NSMutableArray new];
+  [_awakePageComponents addObject:component];
   LOGObjectFnStop();
 };
 
@@ -836,9 +843,9 @@ static int dontTraceComponentActionURL=0;
 -(void)incrementLastElementIDComponent 
 {
 //  LOGObjectFnStart();
-  if (!elementID)
-	elementID=[GSWElementIDString new];
-  [elementID incrementLastElementIDComponent];
+  if (!_elementID)
+    _elementID=[GSWElementIDString new];
+  [_elementID incrementLastElementIDComponent];
 //  LOGObjectFnStop();
 };
 
@@ -846,12 +853,12 @@ static int dontTraceComponentActionURL=0;
 
 //--------------------------------------------------------------------
 //	appendElementIDComponent:
--(void)appendElementIDComponent:(NSString*)string_ 
+-(void)appendElementIDComponent:(NSString*)string
 {
 //  LOGObjectFnStart();
-  if (!elementID)
-	elementID=[GSWElementIDString new];
-  [elementID appendElementIDComponent:string_];
+  if (!_elementID)
+    _elementID=[GSWElementIDString new];
+  [_elementID appendElementIDComponent:string];
 //  LOGObjectFnStop();
 };
 
@@ -860,9 +867,9 @@ static int dontTraceComponentActionURL=0;
 -(void)appendZeroElementIDComponent 
 {
 //  LOGObjectFnStart();
-  if (!elementID)
-	elementID=[GSWElementIDString new];
-  [elementID appendZeroElementIDComponent];
+  if (!_elementID)
+    _elementID=[GSWElementIDString new];
+  [_elementID appendZeroElementIDComponent];
 //  LOGObjectFnStop();
 };
 
@@ -871,7 +878,7 @@ static int dontTraceComponentActionURL=0;
 -(void)deleteAllElementIDComponents 
 {
 //  LOGObjectFnStart();
-  [elementID deleteAllElementIDComponents];
+  [_elementID deleteAllElementIDComponents];
 //  LOGObjectFnStop();
 };
 
@@ -880,9 +887,9 @@ static int dontTraceComponentActionURL=0;
 -(void)deleteLastElementIDComponent 
 {
 //  LOGObjectFnStart();
-  if (!elementID)
-	elementID=[GSWElementIDString new];
-  [elementID deleteLastElementIDComponent];
+  if (!_elementID)
+    _elementID=[GSWElementIDString new];
+  [_elementID deleteLastElementIDComponent];
 //  LOGObjectFnStop();
 };
 
@@ -894,11 +901,11 @@ static int dontTraceComponentActionURL=0;
 -(NSString*)url
 {
   //OK
-  GSWDynamicURLString* _componentActionURL=nil;
+  GSWDynamicURLString* componentActionURL=nil;
   LOGObjectFnStart();
-  _componentActionURL=[self componentActionURL];
+  componentActionURL=[self componentActionURL];
   LOGObjectFnStop();
-  return (NSString*)_componentActionURL;
+  return (NSString*)componentActionURL;
 };
 
 //--------------------------------------------------------------------
@@ -908,16 +915,16 @@ static int dontTraceComponentActionURL=0;
 -(NSString*)urlSessionPrefix 
 {
   LOGObjectFnNotImplemented();	//TODOFN
-  NSDebugMLLog(@"low",@"[request urlProtocolHorstPort]=%@",[request urlProtocolHostPort]);
-  NSDebugMLLog(@"low",@"[request adaptorPrefix]=%@",[request adaptorPrefix]);
-  NSDebugMLLog(@"low",@"[request applicationName]=%@",[request applicationName]);
-  NSDebugMLLog(@"low",@"[session sessionID]=%@",[session sessionID]);
+  NSDebugMLLog(@"low",@"[request urlProtocolHorstPort]=%@",[_request urlProtocolHostPort]);
+  NSDebugMLLog(@"low",@"[request adaptorPrefix]=%@",[_request adaptorPrefix]);
+  NSDebugMLLog(@"low",@"[request applicationName]=%@",[_request applicationName]);
+  NSDebugMLLog(@"low",@"[session sessionID]=%@",[_session sessionID]);
   return [NSString stringWithFormat:@"%@%@/%@.%@/%@",
-				   [request urlProtocolHostPort],
-				   [request adaptorPrefix],
-				   [request applicationName],
+				   [_request urlProtocolHostPort],
+				   [_request adaptorPrefix],
+				   [_request applicationName],
 				   GSWApplicationSuffix[GSWebNamingConv],
-				   [session sessionID]];
+				   [_session sessionID]];
 };
 
 //--------------------------------------------------------------------
@@ -931,15 +938,15 @@ static int dontTraceComponentActionURL=0;
 
 -(BOOL)isDistributionEnabled 
 {
-  return distributionEnabled;
+  return _distributionEnabled;
 };
 
 //--------------------------------------------------------------------
 //	setDistributionEnabled:
 
--(void)setDistributionEnabled:(BOOL)isDistributionEnabled_
+-(void)setDistributionEnabled:(BOOL)isDistributionEnabled
 {
-  distributionEnabled=isDistributionEnabled_;
+  _distributionEnabled=isDistributionEnabled;
 };
 @end
 
@@ -947,13 +954,13 @@ static int dontTraceComponentActionURL=0;
 @implementation GSWContext (GSWContextGSWeb)
 -(BOOL)isValidate
 {
-  return isValidate;
+  return _isValidate;
 };
 
 //--------------------------------------------------------------------
--(void)setValidate:(BOOL)isValidate_
+-(void)setValidate:(BOOL)isValidate
 {
-  isValidate = isValidate_;
-  NSDebugMLLog(@"low",@"isValidate_=%d\n",(int)isValidate_);
+  _isValidate = isValidate;
+  NSDebugMLLog(@"low",@"isValidate=%d\n",(int)isValidate);
 };
 @end

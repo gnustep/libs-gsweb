@@ -291,6 +291,7 @@ id selectedValue__Key = @"selectedValue";
 id noSelectionString__Key = @"noSelectionString";
 id displayString__Key = @"displayString";
 id filePath__Key = @"filePath";
+id language__Key= @"language";
 
 //GSWeb additions
 id redirectURL__Key = @"redirectURL";

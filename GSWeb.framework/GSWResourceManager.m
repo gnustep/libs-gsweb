@@ -60,6 +60,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
           //NSDebugMLLog(@"resmanager",@"mainBundle:%@",mainBundle);
           bundlePath=[mainBundle  bundlePath];
           //NSDebugMLLog(@"resmanager",@"bundlePath:%@",bundlePath);
+          printf("bundlePath:%s",[bundlePath lossyCString]);
           deployedBundle=[GSWDeployedBundle bundleWithPath:bundlePath];
           //NSDebugMLLog(@"resmanager",@"deployedBundle:%@",deployedBundle);
 	  
@@ -1594,6 +1595,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       NSDebugMLLog(@"resmanager",@"wrapperName=%@",wrapperName);
       baseURL=[applicationBaseURL stringByAppendingFormat:@"/%@",wrapperName];
       NSDebugMLLog(@"resmanager",@"baseURL=%@",baseURL);
+      NSDebugMLLog(@"resmanager",@"[globalAppProjectBundle bundlePath]=%@",[globalAppProjectBundle bundlePath]);
       globalAppGSWBundle=[[GSWBundle alloc]initWithPath:[globalAppProjectBundle bundlePath]
                                            baseURL:baseURL];
       NSDebugMLLog(@"resmanager",@"globalAppGSWBundle=%@",globalAppGSWBundle);
