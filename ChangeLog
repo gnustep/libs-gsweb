@@ -1,4 +1,20 @@
 2003-11-25   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWeb.h:
+		o included GSWActionURL.h
+	* GSWExtensions.framework/GSWKeyValueConditional.*:
+		o added (come from Dave Lopper)
+	* GSWExtensions.framework/GNUmakefile
+		o added GSWKeyValueConditional.*
+	* GSWeb.framework/GNUmakefile
+		o added GSWActionURL.h and GSWActionURL.m
+	* GSWeb.framework/GSWActionURL.m:
+		o set to notImplemented.
+	* GSWExtensions.framework/Makefile.preamble:
+		o fix for debug/non debug libraries
+	* GSWExtensionsGSW.framework/Makefile.preamble:
+		o fix for debug/non debug libraries
+
+2003-11-25   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWInputStreamData.m/.h:
 		o added
 
