@@ -30,6 +30,10 @@
 extern "C" {
 #endif //_cplusplus
 
+#if defined(Apache2)
+#define Apache
+#endif
+
 #define CONST const
 #define DEBUG
 
@@ -103,10 +107,8 @@ extern "C" {
 #endif
 
 #if defined(Apache)
-#pragma message(Apache)
 #define	SERVER	"Apache"
 #elif defined(Netscape)
-#pragma message(NSAPI)
 #define	SERVER	"NSAPI"
 #endif
 

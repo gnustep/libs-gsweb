@@ -1,7 +1,7 @@
 /* GSWUtil.c - GSWeb: Util
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jully 1999
    
    This file is part of the GNUstep Web Library.
@@ -35,11 +35,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "config.h"
 #include "GSWLock.h"
 
 #if defined(Netscape)
 #include <frame/log.h>
-#elif	(Apache)
+#elif defined(Apache)
 #include <httpd.h>
 #include <http_log.h>
 #endif
@@ -86,9 +87,15 @@ void VGSWLogSizedIntern(char* file,
   log_error(0,"GSWeb",NULL,NULL,szBuffer);
 #endif
 #if defined(Apache)
+#if defined(Apache2)
+  ap_log_error(APLOG_MARK,p_iLevel,0,
+			   (server_rec*)p_pLogServerData,
+			   "%s",szBuffer);
+#else
   ap_log_error(APLOG_MARK,p_iLevel,
 			   (server_rec*)p_pLogServerData,
 			   "%s",szBuffer);
+#endif
 #endif 
 };
 

@@ -1,8 +1,9 @@
-#	Makefile for Apache GNUstepWeb module
-#   Copyright (C) 1999 Free Software Foundation, Inc.
+#	Makefile for Apache 2.x GNUstepWeb module
+#   Copyright (C) 1999-2002 Free Software Foundation, Inc.
 #   
-#   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-#   Date: 		Jully 1999
+#   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+#   Date: 	Jully 1999
+#		Dec 2002
 #   
 #   This file is part of the GNUstep Web Library.
 #   
@@ -42,41 +43,58 @@ else
 	endif
 endif
 
-APACHEHEADERS := -I/usr/apache/include -I/usr/include/apache -I/usr/local/include/apache -I/usr/lib/apache/include -I/usr/local/include  -I/usr/local/apache/include
-
-APXS := $(APXS) -lPropList -L/usr/local/lib -L/usr/pkg/lib -L/usr/X11R6/lib
+APACHE_LIBEXECDIR := $(shell apxs -q LIBEXECDIR)
+APACHEHEADERS := -I$(shell apxs -q INCLUDEDIR)
+APACHE_CFLAGS := $(shell apxs -q CFLAGS)
+APACHE_CC := $(shell apxs -q CC)
 
 SRCROOT = ..
 DSTROOT = .
 OBJROOT = .
 
 # Directory
-SERVERAPI = Apache
+SERVERAPI = Apache2
+SERVERAPIROOT = Apache
 
 ADAPTOR = $(DSTROOT)/mod_gsweb.so
 
 LOADBALANCING = roundrobin
-ADAPTORLIB = $(OBJROOT)/libAdaptor.a
 COMMON = $(SRCROOT)/common
 
-INCLUDE = -I$(COMMON) $(APACHEHEADERS) -I/usr/X11R6/include
+INCLUDE = -I. -I$(COMMON) $(APACHEHEADERS) -I/usr/X11R6/include
 
-CFLAGS = -O2 $(RC_CFLAGS) $(INCLUDE) -D$(SERVERAPI) -DREENTRANT -DEAPI
+CFLAGS = $(APACHE_CFLAGS) -fpic $(RC_CFLAGS) $(INCLUDE) -D$(SERVERAPI) -DREENTRANT -DEAPI
+
+include $(COMMON)/common.make
+OFILES = $(COMMONOBJS) $(OBJROOT)/mod_gsweb.o
+
+CC = $(APACHE_CC)
+AR = ar
+LD = $(CC)
+RANLIB = ranlib
+
+LDFLAGS = -rdynamic
+LIBS = -ldl -lcrypt -lm -lPropList
+LDSHARED = $(LD) -shared  $(CFLAGS)
+INSTALL = /usr/bin/install -c
+INSTALL_PROGRAM = $(INSTALL)
+
+
+
+$(ADAPTOR): $(OFILES)
+	$(LDSHARED)  -o $(ADAPTOR) $(OFILES) \
+		 $(LIBGSWEBARG) $(LIBS)
+
+$(OBJROOT)/mod_gsweb.o: $(SRCROOT)/$(SERVERAPIROOT)/mod_gsweb.c
 
 all:: $(ADAPTOR)
 
-include $(COMMON)/common.make
-
-OFILES = $(COMMONOBJS) $(OBJROOT)/mod_gsweb.o
-
-install: $(ADAPTOR)
-	-cp -f $(ADAPTOR) $(DSTROOT)
-
-$(ADAPTOR):: $(OFILES)
-	$(APXS) -c $(OTHER_LDFLAGS) -o $@ $(OFILES)
-
-$(OBJROOT)/mod_gsweb.o: $(SRCROOT)/$(SERVERAPI)/mod_gsweb.c
-	$(CC) $(CFLAGS) -c -o $*.o $<
-
 clean:
 	rm -f $(COMMONOBJS) $(OFILES) $(ADAPTOR) $(ADAPTORLIB) core
+
+
+
+
+
+
+
