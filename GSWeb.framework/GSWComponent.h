@@ -1,5 +1,6 @@
 /** GSWComponent.h - <title>GSWeb: Class GSWComponent</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -101,7 +102,7 @@ associationsKeys:(NSArray*)associationsKeys
 -(GSWElement*)_template;
 -(GSWComponentDefinition*)_componentDefinition;
 -(NSString*)_templateName;
--(NSString*)definitionName;
+-(NSString*)declarationName;
 -(BOOL)_isPage;
 -(void)_setIsPage:(BOOL)isPage;
 -(void)_setContext:(GSWContext*)aContext;

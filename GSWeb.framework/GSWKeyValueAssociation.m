@@ -97,6 +97,12 @@ RCS_ID("$Id$")
     {
       NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([aValue class]));
     }
+  if ([_keyPath length]==0)
+    {
+      [NSException raise:NSInvalidArgumentException 
+                   format:@"No key path when setting value %@ in object of class %@ for association %@",
+                   aValue,NSStringFromClass(object),self];
+    }
   /*Not Here because self is not a string key !
   //TODO (return something!)
   [object validateValue:&aValue

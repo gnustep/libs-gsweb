@@ -39,6 +39,8 @@
   BOOL _allowsContentInputStream;
 };
 
+-(BOOL)defaultDisplayExceptionPages;
+
 -(GSWResponse*)generateNullResponse;
 -(GSWResponse*)generateRequestRefusalResponseForRequest:(GSWRequest*)aRequest;
 -(GSWResponse*)generateErrorResponseWithException:(NSException*)exception
