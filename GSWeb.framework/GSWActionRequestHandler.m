@@ -219,11 +219,15 @@ RCS_ID("$Id$")
       {
         NSString* testActionName=[path objectAtIndex:0];
         NSDebugMLog(@"testActionName=%@",testActionName);
+
         if ([GSWAction _isActionNamed:testActionName
                        actionOfClass:*actionClassPtr])
           {
             NSDebugMLog(@"_actionClassName=%@",_actionClassName);
-            NSDebugMLog(@"_actionClassClass=%@",_actionClassClass);
+            if(!_actionClassClass) {
+               _actionClassClass = NSClassFromString(_actionClassName);
+            }
+            NSDebugMLog(@"_actionClassClass=%@",_actionClassClass); //nil here?? dave
             NSDebugMLog(@"testActionName=%@",testActionName);      
             *actionClassNamePtr = _actionClassName;
             *actionClassPtr = _actionClassClass;
@@ -251,8 +255,7 @@ RCS_ID("$Id$")
               }
           }
         /*
-        NSString* tmpActionName=[NSString stringWithFormat:@"%@Action",
-                                          ];
+        NSString* tmpActionName=[NSString stringWithFormat:@"%@Action",];
         SEL tmpActionSel=NSSelectorFromString(tmpActionName);
         Class aClass = NSClassFromString(@"DirectAction");
         NSDebugMLLog(@"requests",@"tmpActionName=%@",
@@ -338,7 +341,6 @@ RCS_ID("$Id$")
             classInto:&actionClass
             nameInto:&actionName
             forPath:requestHandlerPathArray];
-
       NSDebugMLLog(@"requests",@"className=%@",actionClassName);
       NSDebugMLLog(@"requests",@"actionClass=%@",actionClass);
       NSDebugMLLog(@"requests",@"actionName=%@",actionName);
@@ -348,6 +350,7 @@ RCS_ID("$Id$")
           GSWResourceManager* resourceManager=nil;
           GSWDeployedBundle* appBundle=nil;
           id<GSWActionResults> actionResult=nil;
+
           resourceManager=[application resourceManager];
           appBundle=[resourceManager _appProjectBundle];
           [resourceManager _allFrameworkProjectBundles];//So what ?
@@ -356,36 +359,40 @@ RCS_ID("$Id$")
           GSWAction* action=[self getActionInstanceOfClass:actionClass
                                   withRequest:aRequest];
 
-
           NSAssert1(action,@"Direct action of class named %@ can't be created",
                     actionClassName);
           
           actionResult=[action performActionNamed:actionName];
-          
+ 
           response=[actionResult generateResponse];
           
           context=[action _context];
           
+
           [[NSNotificationCenter defaultCenter]postNotificationName:@"DidHandleRequestNotification"
                                                object:context];
           [self _setRecordingHeadersToResponse:response
                 forRequest:aRequest
                 inContext:context];
-          
         }
       else
         {
           NSException* exception=nil;
+
           if ([actionClassName length]>0)
             {
+
               exception=[NSException exceptionWithName:NSInvalidArgumentException//TODO better name
                                      reason:[NSString stringWithFormat:@"Can't find action class named '%@'",actionClassName]
                                      userInfo:nil];
+
             }
-          else
+          else {
             exception=[NSException exceptionWithName:NSInvalidArgumentException//TODO better name
                                    reason:[NSString stringWithFormat:@"Can't execute action with path: '%@'",requestHandlerPathArray]
                                    userInfo:nil];
+          }
+
           [exception raise];
         };
       if ([application isCachingEnabled])
@@ -399,6 +406,7 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
+
       LOGException(@"%@ (%@)",localException,[localException reason]);
       if (!context)
         context=[GSWApp _context];
