@@ -1,6 +1,6 @@
 /** GSWImageButton.m - <title>GSWeb: Class GSWImageButton</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -52,6 +52,8 @@ RCS_ID("$Id$")
     {
       [tmpAssociations removeObjectForKey:imageMapString__Key];
       [tmpAssociations removeObjectForKey:imageMapRegions__Key];
+      [tmpAssociations removeObjectForKey:cidStore__Key];
+      [tmpAssociations removeObjectForKey:cidKey__Key];
     };
   [tmpAssociations removeObjectForKey:action__Key];
   [tmpAssociations removeObjectForKey:actionClass__Key];
@@ -101,6 +103,14 @@ RCS_ID("$Id$")
                              imageMapString__Key,
                              imageMapRegions__Key);
             };
+
+          _cidStore = [[associations objectForKey:cidStore__Key
+                                     withDefaultObject:[_cidStore autorelease]] retain];
+          NSDebugMLLog(@"gswdync",@"cidStore=%@",_cidStore);
+          
+          _cidKey = [[associations objectForKey:cidKey__Key
+                                   withDefaultObject:[_cidKey autorelease]] retain];
+          NSDebugMLLog(@"gswdync",@"cidKey=%@",_cidKey);
         };
       _actionClass = [[associations objectForKey:actionClass__Key
                                     withDefaultObject:[_actionClass autorelease]] retain];
@@ -145,6 +155,8 @@ RCS_ID("$Id$")
   DESTROY(_imageMapFileName);
   DESTROY(_imageMapString);//GSWeb only
   DESTROY(_imageMapRegions);//GSWeb Only
+  DESTROY(_cidStore);//GSWeb only
+  DESTROY(_cidKey);//GSWeb only
   DESTROY(_action);
   DESTROY(_actionClass);
   DESTROY(_directActionName);
@@ -207,25 +219,55 @@ RCS_ID("$Id$")
   GSWResourceManager* resourceManager=nil;
   GSWURLValuedElementData* dataValue=nil;
   NSString* keyValue=nil;
+  id cidStoreValue=nil;
+
   LOGObjectFnStart();
+
   disabledInContext=[self disabledInContext:context];
+
   [response _appendContentAsciiString:@" type=image"];
+
   name=[self nameInContext:context];
   NSDebugMLLog(@"gswdync",@"definition name=%@ name=%@",
                [self definitionName],name);
   [response _appendContentAsciiString:@" name=\""];
+
   [response appendContentHTMLAttributeValue:name];
   [response appendContentCharacter:'"'];
+
   component=[context component];
+
+  cidStoreValue=[_cidStore valueInComponent:component];
+  NSDebugMLLog(@"gswdync",@"cidStoreValue=%@",cidStoreValue);
+
   resourceManager=[[GSWApplication application]resourceManager];
+
   if (_src)
-    urlValue=[_src valueInComponent:component];
+    {
+      urlValue=[_src valueInComponent:component];
+      if (cidStoreValue)
+        {
+          urlValue=[self addURL:urlValue
+                         forCIDKeyAssociation:_cidKey
+                         CIDStoreAssociation:_cidStore
+                         inContext:context];
+          NSDebugMLLog(@"gswdync",@"urlValue=%@",urlValue);
+        };
+    }
   else
     {
       if (_key)
         {
           keyValue=[_key valueInComponent:component];
           dataValue=[resourceManager _cachedDataForKey:keyValue];
+          if (cidStoreValue && dataValue)
+            {
+              urlValue=[self addURLValuedElementData:dataValue
+                             forCIDKeyAssociation:_cidKey
+                             CIDStoreAssociation:_cidStore
+                             inContext:context];
+              NSDebugMLLog(@"gswdync",@"urlValue=%@",urlValue);
+            }
         };
       if (!dataValue && _data)
         {
@@ -235,6 +277,14 @@ RCS_ID("$Id$")
                                                       mimeType:mimeTypeValue
                                                       key:keyValue] autorelease];
           [resourceManager setURLValuedElementData:dataValue];
+          if (cidStoreValue && dataValue)
+            {
+              urlValue=[self addURLValuedElementData:dataValue
+                             forCIDKeyAssociation:_cidKey
+                             CIDStoreAssociation:_cidStore
+                             inContext:context];
+              NSDebugMLLog(@"gswdync",@"urlValue=%@",urlValue);
+            }
         }
       else if (_filename)
         {
@@ -249,10 +299,24 @@ RCS_ID("$Id$")
           NSDebugMLLog(@"gswdync",@"frameworkValue=%@",frameworkValue);
           request=[context request];
           languages=[context languages];
-          urlValue=[resourceManager urlForResourceNamed:filenameValue
-                                    inFramework:frameworkValue
-                                    languages:languages
-                                    request:request];
+          if (cidStoreValue)
+            {
+              NSString* path=[resourceManager pathForResourceNamed:filenameValue
+                                              inFramework:frameworkValue
+                                              languages:languages];
+              urlValue=[self addPath:path
+                             forCIDKeyAssociation:_cidKey
+                             CIDStoreAssociation:_cidStore
+                             inContext:context];
+              NSDebugMLLog(@"gswdync",@"urlValue=%@",urlValue);
+            }
+          else
+            {
+              urlValue=[resourceManager urlForResourceNamed:filenameValue
+                                        inFramework:frameworkValue
+                                        languages:languages
+                                        request:request];
+            };
         };
     };
 
@@ -265,8 +329,11 @@ RCS_ID("$Id$")
     {
       if (_key || _data)
         {
-          [dataValue appendDataURLToResponse:response
-                     inContext:context];
+          if (cidStoreValue)
+            [response appendContentString:urlValue];
+          else
+            [dataValue appendDataURLToResponse:response
+                       inContext:context];
         }
       else if (_filename)
         {

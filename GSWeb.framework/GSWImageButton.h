@@ -1,9 +1,9 @@
 /** GSWImageButton.h - <title>GSWeb: Class GSWImageButton</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -40,6 +40,8 @@
 //GSWeb Additions {
   GSWAssociation* _imageMapString;
   GSWAssociation* _imageMapRegions;
+  GSWAssociation* _cidStore;
+  GSWAssociation* _cidKey;
 // }
   GSWAssociation* _action;
   GSWAssociation* _actionClass;
