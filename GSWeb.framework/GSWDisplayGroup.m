@@ -743,7 +743,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
     batchCount=1;
   else
     {
-      unsigned count = [_allObjects count];
+      unsigned count = [_displayedObjects count];
       if(count==0)
         batchCount=1;
       else
