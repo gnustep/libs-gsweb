@@ -84,6 +84,7 @@ BOOL boolValueFor(id anObject)
 //--------------------------------------------------------------------
 BOOL boolValueWithDefaultFor(id anObject,BOOL defaultValue)
 {
+int length=0;
   if (anObject)
     {
       if (/*anObject==BNYES ||*/ anObject==NSTYES)
@@ -91,8 +92,17 @@ BOOL boolValueWithDefaultFor(id anObject,BOOL defaultValue)
       else if (/*anObject==BNNO ||*/ anObject==NSTNO)
         return NO;
       //@protocol NSString
-      else if (/*[anObject conformsTo:@protocol(NSString)]*/ [anObject isKindOfClass:[NSString class]] && [anObject length]>0)
-        return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
+	  if ([anObject isKindOfClass:[NSString class]]) {
+		length=[anObject length];
+		if (length>0) {
+			if (length<4) { 	  // YES / NO?
+				return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
+			}
+			if (length<6) { // true / false
+				return ([anObject caseInsensitiveCompare: @"false"]!=NSOrderedSame);
+			}
+		}
+	  }
       else if ([anObject respondsToSelector:@selector(boolValue)])
         return ([anObject boolValue]!=NO);
       else if ([anObject respondsToSelector:@selector(intValue)])
