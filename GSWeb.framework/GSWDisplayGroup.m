@@ -78,8 +78,8 @@ static char rcsId[] = "$Id$";
 {
 /*
 Description: <EOKeyValueUnarchiver: 0x1a84d20>
-																						--[1] Dumping object 0x1a84d20 of Class EOKeyValueUnarchiver
-																					_propertyList=NSDictionary * object:0x1057850 Description:{
+  --[1] Dumping object 0x1a84d20 of Class EOKeyValueUnarchiver
+  _propertyList=NSDictionary * object:0x1057850 Description:{
     class = WODisplayGroup; 
     dataSource = {
         class = EODatabaseDataSource; 
@@ -90,12 +90,12 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     _numberOfObjectsPerBatch = 10; 
     selectsFirstObjectAfterFetch = YES; 
 }
-																					_parent=id object:0x0 Description:*nil*
-																					_nextParent=id object:0x0 Description:*nil*
-																					_allUnarchivedObjects=NSMutableArray * object:0x1a85920 Description:()
-																					_delegate=id object:0x1a84ff0 Description:<WOBundleUnarchiverDelegate: 0x1a84ff0>
-																					_awakenedObjects=struct ? {...} * PTR
-																					isa=Class Class:EOKeyValueUnarchiver
+  _parent=id object:0x0 Description:*nil*
+  _nextParent=id object:0x0 Description:*nil*
+  _allUnarchivedObjects=NSMutableArray * object:0x1a85920 Description:()
+  _delegate=id object:0x1a84ff0 Description:<WOBundleUnarchiverDelegate: 0x1a84ff0>
+  _awakenedObjects=struct ? {...} * PTR
+  isa=Class Class:EOKeyValueUnarchiver
 
 */
   if ((self=[self init]))
@@ -751,17 +751,21 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 - (id)fetch
 {
   BOOL fetch = YES;
+
   LOGObjectFnStart();
 
   if(_delegateRespondsTo.shouldFetchObjects == YES)
     fetch = [delegate displayGroupShouldFetch:self];
+
   NSDebugMLog(@"fetch=%d",(int)fetch);
 
   if(fetch)
     {
-      NSArray* objects=nil;
+      NSArray *objects=nil;
+
       NSDebugMLog(@"_dataSource=%@",_dataSource);
-      objects=[_dataSource fetchObjects];
+
+      objects = [_dataSource fetchObjects];
       NSDebugMLog(@"objects=%@",objects);
       [self setObjectArray:objects];
 
@@ -770,6 +774,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
                   didFetchObjects:_allObjects];
     };
   LOGObjectFnStop();
+
   return nil;//FIXME
 }
 
@@ -894,6 +899,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 	     atIndex:(unsigned)index
 {
   BOOL insert = YES;
+
   LOGObjectFnStart();
   if(_delegateRespondsTo.shouldInsertObject == YES)
     insert = [delegate displayGroup:self
@@ -1419,9 +1425,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       if(index_ > batchCount)
         index_ = 1;
       
-      if(!_numberOfObjectsPerBatch)
-        num = [_allObjects count];
-      else
+      num = [_allObjects count];
+
+      if(_numberOfObjectsPerBatch && _numberOfObjectsPerBatch < num)
         num = _numberOfObjectsPerBatch;
       
       if(num)
