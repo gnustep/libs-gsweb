@@ -1,9 +1,9 @@
 # -*-makefile-*-
 # Makefile.preamble - GSWeb: Makefile.preamble
-#   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+#   Copyright (C) 1999-2004 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-#   Date: 		Jan 1999
+#   Date: 	Jan 1999
 #   
 #   This file is part of the GNUstep Web Library.
 #   
@@ -64,7 +64,7 @@ ADDITIONAL_CFLAGS =  -DUSE_BUILTIN
 ADDITIONAL_INCLUDE_DIRS = -I./$(GNUSTEP_TARGET_DIR) @XML_CFLAGS@
 
 # Additional LDFLAGS to pass to the linker
-LIBRARIES_DEPEND_UPON += -lGSANTLR @AUX_LIBS@
+LIBRARIES_DEPEND_UPON += @AUX_LIBS@
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
