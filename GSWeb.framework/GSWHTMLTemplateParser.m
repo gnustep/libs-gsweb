@@ -61,15 +61,27 @@ RCS_ID("$Id$")
     {
       GSWHTMLRawParser* htmlRawParser = [GSWHTMLRawParser parserWithDelegate:self
                                                           htmlString:_string];
-      [htmlRawParser parseHTML];
-      
-      NSDebugMLog(@"_currentElement=%@",_currentElement);
+
+      NS_DURING
+        {
+          [htmlRawParser parseHTML];
+        }
+      NS_HANDLER
+        {
+          [[[localException class] 
+             exceptionWithName:[localException name]
+             reason:[NSString stringWithFormat:@"In template named %@: %@",
+                             _templateName,[localException reason]]
+             userInfo:[localException userInfo]]raise];
+        }
+      NS_ENDHANDLER;
 
       if ([_currentElement parentElement])
         {
+          NSDebugMLog(@"_currentElement=%@",_currentElement);
           [NSException raise:NSInvalidArgumentException 
-                       format:@"Missing dynamic tag end after reaching end of template. Tag name is '%@'. templateInfo: %@",
-                       [_currentElement name],[_currentElement templateInfo]];
+                       format:@"In template named %@: Missing dynamic tag end after reaching end of template. Tag name is '%@'. templateInfo: %@",
+                       _templateName,[_currentElement name],[_currentElement templateInfo]];
         }
       else
         template=[_currentElement template];
@@ -90,6 +102,17 @@ RCS_ID("$Id$")
   [self parseDeclarations];
   _currentElement = [GSWTemporaryElement temporaryElement];
   template=[self parseHTML];
+
+  // If we've found error raise exception
+  NSDebugMLog(@"_errorMessages=%@",_errorMessages);
+  if ([[self errorMessages]count]>0)
+    {
+      NSDebugMLog(@"declarationsFilePath=%@",_declarationsFilePath);
+      NSDebugMLog(@"errorMessages=%@",[self errorMessages]);
+      ExceptionRaise(@"GSWHTMLTemplateParser",@"%@\nDefinitionFiles: %@",
+                     [self errorMessagesAsText],
+                     _processedDeclarationsFilePaths);
+    };
 
   LOGObjectFnStop();
 
@@ -174,14 +197,37 @@ Creates a dynamic element from current temporary element element
     } 
   else
     {
-      GSWElement* element = nil;
-      element = [_currentElement dynamicElementWithDeclarations:_declarations
-                                 languages:_languages];
-      NSDebugMLog(@"element=%@",element);
+      NS_DURING
+        {
+          GSWElement* element = nil;
+          element = [_currentElement dynamicElementWithDeclarations:_declarations
+                                     languages:_languages];
+          NSDebugMLog(@"element=%@",element);
+          
+          NSAssert2(element,@"No element for %@ with declarations %@",_currentElement,_declarations);
+          
+          [parent addChildElement:element];
+        }
+      NS_HANDLER
+        {
+          NSDebugMLog(@"Exception: %@",localException);
+          if ([localException isKindOfClass:[GSWDeclarationFormatException class]]
+              && [(GSWDeclarationFormatException*)localException canDelay])
+            {
+              [self addErrorMessageFormat:@"In template named %@: %@",
+                    _templateName,[localException description]];
+            }
+          else
+            {
+              [[[localException class] 
+                 exceptionWithName:[localException name]
+                 reason:[NSString stringWithFormat:@"In template named %@: %@",
+                                  _templateName,[localException reason]]
+                 userInfo:[localException userInfo]]raise];
+            };
+        }
+      NS_ENDHANDLER;
 
-      NSAssert2(element,@"No element for %@ with declarations %@",_currentElement,_declarations);
-
-      [parent addChildElement:element];
       _currentElement = parent;
 
       NSDebugMLog(@"New (Parent) _currentElement=%@",_currentElement);
