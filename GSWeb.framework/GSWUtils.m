@@ -127,20 +127,33 @@ BOOL SBIsValueEqual(id id1,id id2)
 {
   BOOL _equal=SBIsEqual(id1,id2);
   if (!_equal
-	  && [id1 class]!=[id2 class])
-	{
-	  if ([id1 isKindOfClass:[NSString class]])
-		{
-		  NSString* _id2String=[NSString stringWithObject:id2];
-		  _equal=[id1 isEqualToString:_id2String];
-		}
-	  else if ([id2 isKindOfClass:[NSString class]])
-		{
-		  NSString* _id1String=[NSString stringWithObject:id1];
-		  _equal=[id2 isEqualToString:_id1String];
-		};
-	};
+      && [id1 class]!=[id2 class])
+    {
+      if ([id1 isKindOfClass:[NSString class]])
+        {
+          NSString* _id2String=[NSString stringWithObject:id2];
+          _equal=[id1 isEqualToString:_id2String];
+        }
+      else if ([id2 isKindOfClass:[NSString class]])
+        {
+          NSString* _id1String=[NSString stringWithObject:id1];
+          _equal=[id2 isEqualToString:_id1String];
+        };
+    };
   return _equal;
+};
+
+//--------------------------------------------------------------------
+BOOL SBIsValueIsIn(id id1,id id2)
+{
+  int i=0;
+  int count=[id2 count];
+  for(i=0;i<count;i++)
+    {
+      if (SBIsValueEqual(id1,[id2 objectAtIndex:i]))
+        return YES;
+    };
+  return NO;
 };
 
 //--------------------------------------------------------------------
@@ -1980,7 +1993,7 @@ NSData* HexStringToData(NSString* _string)
 };
 @end
 
-
+/*
 //====================================================================
 @implementation NSNumberFormatter
 
@@ -2106,3 +2119,4 @@ NSData* HexStringToData(NSString* _string)
 };
 
 @end
+*/

@@ -392,10 +392,12 @@ id filePath__Key = @"filePath";
 	id pageSetVar__Prefix__Key=@"pageSetVar_";
 	id pageSetVars__Key=@"pageSetVars";
 	id selectionValue__Key=@"selectionValue";
+	id selectionValues__Key=@"selectionValues";
 	id enabled__Key=@"enabled";
 	id convertHTML__Key=@"convertHTML";
 	id convertHTMLEntities__Key=@"convertHTMLEntities";
 	id imageMapString__Key = @"imageMapString";
 	id imageMapRegions__Key = @"imageMapRegions";
 	id handleValidationException__Key = @"handleValidationException";
+	id selectedValues__Key = @"selectedValues";
 #endif

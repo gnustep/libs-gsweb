@@ -102,6 +102,7 @@ extern BOOL boolValueWithDefaultFor(id id_,BOOL default_);
 extern BOOL isHeaderKeysEqual(NSString* headerKey,NSString* testKey);
 extern BOOL SBIsEqual(id id1,id id2);
 extern BOOL SBIsValueEqual(id id1,id id2);
+extern BOOL SBIsValueIsIn(id id1,id id2);
 
 extern id GetTmpName(NSString* dir,NSString* prefix);
 extern NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv);
@@ -417,7 +418,7 @@ extern NSData* HexStringToData(NSString* _string);
 -(void)deleteFirstBytesCount:(unsigned int)bytesCount_;
 -(void)deleteLastBytesCount:(unsigned int)bytesCount_;
 @end
-
+/*
 //====================================================================
 typedef enum _NSNumFmtType
 {
@@ -437,5 +438,5 @@ typedef enum _NSNumFmtType
 			forString:(NSString*)string
 	 errorDescription:(NSString**)error;
 @end
-
+*/
 #endif // _GSWebUtils_h__

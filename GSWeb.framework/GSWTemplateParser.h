@@ -26,69 +26,71 @@
 #ifndef _GSWTemplateParser_h__
 	#define _GSWTemplateParser_h__
 
-#include <gsantlr/ANTLRCommon.h>
-#include <gsantlr/ANTLRTextStreams.h>
-#include "GSWHTMLTokenTypes.h"
-#include "GSWPageDefLexer.h"
-#include "GSWPageDefParser.h"
-#include "GSWPageDefParserExt.h"
-#include "GSWHTMLAttrLexer.h"
-#include "GSWHTMLAttrParser.h"
-#include "GSWHTMLAttrParserExt.h"
-
-
 //====================================================================
 @interface GSWTemplateParser : NSObject
+{
+  NSString*		_templateName;
+  NSString*		_frameworkName;
+  NSString*		_string;
+  NSStringEncoding _stringEncoding;
+  NSString*	   _stringPath;
+  NSString*	   _definitionsString;
+  NSArray*	   _languages;
+  NSString*	   _definitionsPath;
+  GSWElement*   _template;
+  NSDictionary* _definitions;
+}
+
 +(GSWElement*)templateNamed:(NSString*)name_
-		   inFrameworkNamed:(NSString*)frameworkName_
-			 withHTMLString:(NSString*)HTMLString
-				   htmlPath:(NSString*)HTMLPath
-		  declarationString:(NSString*)pageDefString
-				  languages:(NSArray*)languages_
-			declarationPath:(NSString*)declarationPath_;
-+(BOOL)parseTag:(ANTLRDefAST)_AST
-//  withTagStream:(ANTLRTextInputStreamString*)_tagStream
-//	withTagParser:(GSWHTMLAttrParser*)_tagParser
-  withTagsNames:(NSMutableDictionary*)tagsNames
-  withTagsAttrs:(NSMutableDictionary*)tagsAttrs;
-+(NSString*)getTagNameFor:(ANTLRDefAST)_AST
-//			withTagStream:(ANTLRTextInputStreamString*)_tagStream
-//			withTagParser:(GSWHTMLAttrParser*)_tagParser
-			withTagsNames:(NSMutableDictionary*)tagsNames
-			withTagsAttrs:(NSMutableDictionary*)tagsAttrs;
-+(NSDictionary*)getTagAttrsFor:(ANTLRDefAST)_AST
-//				 withTagStream:(ANTLRTextInputStreamString*)_tagStream
-//				 withTagParser:(GSWHTMLAttrParser*)_tagParser
-				 withTagsNames:(NSMutableDictionary*)tagsNames
-				 withTagsAttrs:(NSMutableDictionary*)tagsAttrs;
-+(GSWElement*)createElementsStartingWithAST:(ANTLRDefAST*)_AST
-							stopOnTagNamed:(NSString*)_stopTagName
-						   withDefinitions:(NSDictionary*)pageDefElements
-							 withLanguages:(NSArray*)languages_
-//							 withTagStream:(ANTLRTextInputStreamString*)_tagStream
-//							 withTagParser:(GSWHTMLAttrParser*)_tagParser
-							 withTagsNames:(NSMutableDictionary*)tagsNames
-							  withTagsAttr:(NSMutableDictionary*)tagsAttrs
-							  templateNamed:(NSString*)templateName_;
+           inFrameworkNamed:(NSString*)frameworkName_
+        withParserClassName:(NSString*)parserClassName
+                 withString:(NSString*)HTMLString
+                   encoding:(NSStringEncoding)encoding
+                   fromPath:(NSString*)HTMLPath
+          definitionsString:(NSString*)pageDefString
+                  languages:(NSArray*)languages_
+             definitionPath:(NSString*)definitionPath_;
++(GSWElement*)templateNamed:(NSString*)name_
+           inFrameworkNamed:(NSString*)frameworkName_
+            withParserClass:(Class)parserClass
+                 withString:(NSString*)HTMLString
+                   encoding:(NSStringEncoding)encoding
+                   fromPath:(NSString*)HTMLPath
+          definitionsString:(NSString*)pageDefString
+                  languages:(NSArray*)languages_
+             definitionPath:(NSString*)definitionPath_;
++(void)setDefaultParserClassName:(NSString*)parserClassName;
++(NSString*)defaultParserClassName;
++(Class)defaultParserClass;
+-(id)initWithTemplateName:(NSString*)name_
+          inFrameworkName:(NSString*)frameworkName_
+               withString:(NSString*)HTMLString
+                 encoding:(NSStringEncoding)encoding_
+                 fromPath:(NSString*)HTMLPath
+    withDefinitionsString:(NSString*)pageDefString
+                 fromPath:(NSString*)definitionPath_
+             forLanguages:(NSArray*)languages_;
+-(void)dealloc;
+-(NSString*)logPrefix;
+-(GSWElement*)template;
+-(NSArray*)templateElements;
+-(NSDictionary*)definitions;
 
+-(NSDictionary*)parseDefinitionsString:(NSString*)localDefinitionstring_
+                                 named:(NSString*)localDefinitionName_
+                      inFrameworkNamed:(NSString*)localFrameworkName_
+                              fromPath:(NSString*)localDefinitionPath_;
 
-+(BOOL)parseDeclarationInclude:(NSString*)includeName_
-			fromFrameworkNamed:(NSString*)fromFrameworkName_
-			   declarationPath:(NSString*)declarationPath_
-					 languages:(NSArray*)languages_
-						  into:(NSMutableDictionary*)pageDefElements_;
-+(BOOL)parseDeclarationString:(NSString*)pageDefString
-					languages:(NSArray*)languages_
-						named:(NSString*)name_
-			 inFrameworkNamed:(NSString*)frameworkName_
-			  declarationPath:(NSString*)declarationPath_
-						 into:(NSMutableDictionary*)pageDefElements_;
-+(BOOL)processIncludes:(NSArray*)pageDefIncludes_
-			 languages:(NSArray*)languages_
-				 named:(NSString*)name_
-	  inFrameworkNamed:(NSString*)frameworkName_
-	   declarationPath:(NSString*)declarationPath_
-				  into:(NSMutableDictionary*)pageDefElements_;
+-(NSDictionary*)parseDefinitionInclude:(NSString*)includeName_
+                    fromFrameworkNamed:(NSString*)fromFrameworkName_
+                        definitionPath:(NSString*)localDefinitionPath_;
+
+-(NSDictionary*)processIncludes:(NSArray*)definitionsIncludes_
+                          named:(NSString*)localDefinitionsName_
+               inFrameworkNamed:(NSString*)localFrameworkName_
+                 definitionPath:(NSString*)localDefinitionPath_;
+
 @end
 
 #endif //_GSWTemplateParser_h__
+

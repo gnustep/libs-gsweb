@@ -65,25 +65,25 @@
      Array of selection indexes 
 
 */
-  EODataSource *dataSource;
-  NSMutableArray *allObjects;
-  NSMutableArray *displayedObjects;
-  NSMutableArray *selectedObjects;
-  NSArray *selection;
-  NSArray *sortOrdering;
-  EOQualifier *qualifier;
-  NSArray *localKeys;
-  NSDictionary *insertedObjectDefaultValues;
-  NSMutableArray *savedAllObjects;
-  NSMutableDictionary *queryMatch;
-  NSMutableDictionary *queryMin;
-  NSMutableDictionary *queryMax;
-  NSMutableDictionary *queryOperator;
-  NSString        *defaultStringMatchOperator;
-  NSString        *defaultStringMatchFormat;
-  NSMutableDictionary *queryBindings;
-  unsigned numberOfObjectsPerBatch;
-  unsigned batchIndex;
+  EODataSource* _dataSource;
+  NSMutableArray* _allObjects;
+  NSMutableArray* _displayedObjects;
+  NSMutableArray* _selectedObjects;
+  NSArray* _selection;
+  NSArray* _sortOrdering;
+  EOQualifier* _qualifier;
+  NSArray* _localKeys;
+  NSDictionary* _insertedObjectDefaultValues;
+  NSMutableArray* _savedAllObjects;
+  NSMutableDictionary* _queryMatch;
+  NSMutableDictionary* _queryMin;
+  NSMutableDictionary*_queryMax;
+  NSMutableDictionary*_queryOperator;
+  NSString* _defaultStringMatchOperator;
+  NSString* _defaultStringMatchFormat;
+  NSMutableDictionary*_queryBindings;
+  unsigned _numberOfObjectsPerBatch;
+  unsigned _batchIndex;
   struct {
     unsigned int selectFirstObject:1;
     unsigned int autoFetch:1;
@@ -91,7 +91,7 @@
     unsigned int queryMode:1;
     unsigned int fetchAll:1;
     unsigned int _reserved:27;
-  } flags;
+  } _flags;
   struct {
     unsigned int didChangeDataSource:1;
     unsigned int displayArrayForObjects:1;
@@ -110,7 +110,7 @@
     unsigned int shouldRedisplay:1;
     unsigned int shouldRefetchObjects:1;
     unsigned int _reserved:16;
-  } delegateRespondsTo;
+  } _delegateRespondsTo;
 };
 
 - (NSArray *)allObjects;
@@ -140,8 +140,11 @@
 - (unsigned)indexOfFirstDisplayedObject;
 - (unsigned)indexOfLastDisplayedObject;
 - (id)init;
+-(void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object_;
 - (NSMutableDictionary *)inputObjectForQualifier;
 - (BOOL)inQueryMode;
+-(void)editingContext:(id)editingContext_
+  presentErrorMessage:(id)msg;
 - (id)insert;
 - (NSDictionary *)insertedObjectDefaultValues;
 - (void)insertObject:object_
@@ -192,9 +195,9 @@
 - (void)setQualifier:(EOQualifier *)qualifier_;
 - (BOOL)setSelectionIndexes:(NSArray *)selection;
 - (void)setSelectsFirstObjectAfterFetch:(BOOL)flag;
-- (void)setSortOrdering:(NSArray *)orderings;
+- (void)setSortOrderings:(NSArray *)orderings;
 - (void)setValidatesChangesImmediately:(BOOL)flag;
-- (NSArray *)sortOrdering;
+- (NSArray *)sortOrderings;
 - (void)updateDisplayedObjects;
 - (BOOL)validatesChangesImmediately;
 

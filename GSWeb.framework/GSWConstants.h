@@ -285,6 +285,7 @@ extern id filePath__Key;
 	extern id pageSetVar__Prefix__Key;
 	extern id pageSetVars__Key;
 	extern id selectionValue__Key;
+	extern id selectionValues__Key;
 	extern id enabled__Key;
 	extern id convertHTML__Key;
 	extern id convertHTMLEntities__Key;
@@ -293,6 +294,7 @@ extern id filePath__Key;
 	extern id imageMapString__Key;
 	extern id imageMapRegions__Key;
 	extern id handleValidationException__Key;
+	extern id selectedValues__Key;
 #endif
 
 

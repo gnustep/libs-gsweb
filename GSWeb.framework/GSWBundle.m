@@ -25,6 +25,45 @@ static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
 
+
+//====================================================================
+@interface GSWBundleUnarchiverDelegate : NSObject
+{
+  id _object;
+}
+- (id) unarchiver:(EOKeyValueUnarchiver*)unarchiver
+objectForReference:(NSString*)keyPath;
+- (id) initWithObject:(id)object;
+@end
+
+//====================================================================
+@implementation GSWBundleUnarchiverDelegate
+
+//--------------------------------------------------------------------
+- (void) dealloc
+{
+  [super dealloc];
+};
+
+//--------------------------------------------------------------------
+- (id) unarchiver:(EOKeyValueUnarchiver*)unarchiver
+objectForReference:(NSString*)keyPath
+{
+  return [_object valueForKeyPath:keyPath];
+};
+
+//--------------------------------------------------------------------
+- (id) initWithObject:(id)object
+{
+  if ((self=[super init]))
+    {
+      _object=object;
+    };
+  return self;
+};
+
+@end
+
 //====================================================================
 @implementation GSWBundle
 
@@ -268,7 +307,7 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(void)initializeObject:(id)object_
-	   fromArchiveNamed:(NSString*)name_
+       fromArchiveNamed:(NSString*)name_
 {
   //OK
   NSDictionary* _archive=nil;
@@ -278,53 +317,90 @@ static char rcsId[] = "$Id$";
   //call application _isDynamicLoadingEnabled
   //call -- isTerminating
   //call -- isCachingEnabled
+  //call -- isPageRefreshOnBacktrackEnabled//0
   _archive=[self archiveNamed:name_];
   //Verify
+  NSDebugMLLog(@"bundles",@"_archive:%@",_archive);
   if (_archive)
-	[self initializeObject:object_
-		  fromArchive:_archive];
+    [self initializeObject:object_
+          fromArchive:_archive];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)initializeObject:(id)object_
-			fromArchive:(NSDictionary*)archive_
+            fromArchive:(NSDictionary*)archive_
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"object_:%@",object_);
   NSDebugMLLog(@"bundles",@"archive_:%@",archive_);
   [self lock];
   NS_DURING
-	{
+    {
 #if !GSWEB_STRICT
-	  {
-		NSDictionary* _userDictionary=[archive_ objectForKey:@"userDictionary"];
-		NSDictionary* _userAssociations=[archive_ objectForKey:@"userAssociations"];		
-		NSDictionary* _defaultAssociations=[archive_ objectForKey:@"defaultAssociations"];
-		NSDebugMLLog(@"bundles",@"_userDictionary:%@",_userDictionary);
-		NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
-		NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
-		_userAssociations=[_userAssociations dictionaryByReplacingStringsWithAssociations];
-		NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
-		_defaultAssociations=[_defaultAssociations dictionaryByReplacingStringsWithAssociations];
-		NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
-		if (_userDictionary && [object_ respondsToSelector:@selector(setUserDictionary:)])
-		  [object_ setUserDictionary:_userDictionary];
-		if (_userAssociations && [object_ respondsToSelector:@selector(setUserAssociations:)])
-		  [object_ setUserAssociations:_userAssociations];
-		if (_defaultAssociations && [object_ respondsToSelector:@selector(setDefaultAssociations:)])
-		  [object_ setDefaultAssociations:_defaultAssociations];
-	  };
+      {
+        NSDictionary* _userDictionary=[archive_ objectForKey:@"userDictionary"];
+        NSDictionary* _userAssociations=[archive_ objectForKey:@"userAssociations"];		
+        NSDictionary* _defaultAssociations=[archive_ objectForKey:@"defaultAssociations"];
+        NSDebugMLLog(@"bundles",@"_userDictionary:%@",_userDictionary);
+        NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
+        NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
+        _userAssociations=[_userAssociations dictionaryByReplacingStringsWithAssociations];
+        NSDebugMLLog(@"bundles",@"_userAssociations:%@",_userAssociations);
+        _defaultAssociations=[_defaultAssociations dictionaryByReplacingStringsWithAssociations];
+        NSDebugMLLog(@"bundles",@"_defaultAssociations:%@",_defaultAssociations);
+        if (_userDictionary && [object_ respondsToSelector:@selector(setUserDictionary:)])
+          [object_ setUserDictionary:_userDictionary];
+        if (_userAssociations && [object_ respondsToSelector:@selector(setUserAssociations:)])
+          [object_ setUserAssociations:_userAssociations];
+        if (_defaultAssociations && [object_ respondsToSelector:@selector(setDefaultAssociations:)])
+          [object_ setDefaultAssociations:_defaultAssociations];
+      };
 #endif
-	  LOGObjectFnNotImplemented();	//TODOFN
-	}
+#if GDL2 // GDL2 implementation
+      {
+        EOKeyValueUnarchiver* unarchiver=nil;
+        GSWBundleUnarchiverDelegate* bundleDelegate=nil;
+        NSDictionary* variables=nil;
+        NSEnumerator* variablesEnum=nil;
+        id variableName=nil;
+        NSDebugMLLog(@"bundles",@"archive_:%@",archive_);
+        unarchiver=[[[EOKeyValueUnarchiver alloc] initWithDictionary:archive_]
+                     autorelease];
+        NSDebugMLLog(@"bundles",@"unarchiver:%@",unarchiver);
+        bundleDelegate=[[[GSWBundleUnarchiverDelegate alloc] initWithObject:object_]
+                         autorelease];
+        NSDebugMLLog(@"bundles",@"bundleDelegate:%@",bundleDelegate);
+        [unarchiver setDelegate:bundleDelegate];
+        NSDebugMLLog(@"bundles",@"decodevar");
+        variables=[unarchiver decodeObjectForKey:@"variables"];
+        NSDebugMLLog(@"bundles",@"variables:%@",variables);
+        [unarchiver finishInitializationOfObjects];
+        [unarchiver awakeObjects];
+        variablesEnum=[variables keyEnumerator];
+        while ((variableName = [variablesEnum nextObject]))
+          {
+            id variableValue=[variables objectForKey:variableName];
+            NSDebugMLLog(@"bundles",@"variableName:%@ variableValue:%@",variableName,variableValue);
+            [object_ takeValue:variableValue
+                     forKey:variableName];
+          };
+      };
+#else
+      LOGObjectFnNotImplemented();
+#endif
+    }
   NS_HANDLER
-	{
-	  NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	};
+    {
+      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
+                   localException,
+                   [localException reason],
+                   __FILE__,
+                   __LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    };
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -478,26 +554,36 @@ static char rcsId[] = "$Id$";
 			  if (_absoluteDefinitionPath)
 				{
 				  //TODO use encoding !
-				  NSDebugMLLog(@"bundles",@"_absoluteDefinitionPath=%@",_absoluteDefinitionPath);
+				  NSDebugMLLog(@"bundles",@"_absoluteDefinitionPath=%@",
+                                               _absoluteDefinitionPath);
 				  _pageDefString=[NSString stringWithContentsOfFile:_absoluteDefinitionPath];
 				};
 #ifndef NDEBUG
 			  NS_DURING
 #endif
 				{
-				  _template=[GSWTemplateParser templateNamed:name_
-											   inFrameworkNamed:[self frameworkName]
-											   withHTMLString:_htmlString
-											   htmlPath:_absoluteTemplatePath
-											   declarationString:_pageDefString
-											   languages:languages_
-											   declarationPath:_absoluteDefinitionPath];
+				  NSDebugMLLog(@"bundles",@"GSWTemplateParser on template named %@",
+                                               name_);
+				  _template=[GSWTemplateParserXML templateNamed:name_
+                                                                  inFrameworkNamed:[self frameworkName]
+                                                                  withParserClassName:nil
+                                                                  withString:_htmlString
+                                                                  encoding:encoding
+                                                                  fromPath:_absoluteTemplatePath
+                                                                  definitionsString:_pageDefString
+                                                                  languages:languages_
+                                                                  definitionPath:_absoluteDefinitionPath];
 				}
 #ifndef NDEBUG
 			  NS_HANDLER
 				{
-				  NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-				  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In template Parsing");
+				  NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
+                                               localException,
+                                               [localException reason],
+                                               __FILE__,
+                                               __LINE__);
+				  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                                           @"In template Parsing");
 				  [localException raise];
 				};
 			  NS_ENDHANDLER;

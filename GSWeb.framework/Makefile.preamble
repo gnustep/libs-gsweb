@@ -38,7 +38,11 @@ ADDITIONAL_CPPFLAGS =
 
 # Additional flags to pass to the Objective-C compiler
 #new
-ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN
+ifeq ($(GDL2), yes)
+	ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN -DGDL2
+else
+	ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN
+endif
 
 # Additional flags to pass to the C compiler
 #new
@@ -49,9 +53,9 @@ ADDITIONAL_INCLUDE_DIRS =  -I. -I$(GNUSTEP_SYSTEM_ROOT)/db -I../..
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS = -lFoundationExt_d
+	ADDITIONAL_LDFLAGS = -lFoundationExt_d -lxml -lz
 else
-	ADDITIONAL_LDFLAGS = -lFoundationExt
+	ADDITIONAL_LDFLAGS = -lFoundationExt -lxml -lz
 endif
 
 # Additional library directories the linker should search

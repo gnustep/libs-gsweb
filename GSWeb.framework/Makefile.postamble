@@ -58,7 +58,13 @@ gsdocs:
 	cd ..; )
 
 # Things to do after installing
-# after-install::
+after-install::
+	@if [ ! -f $(dstDTDDir) ]; then \
+	  $(MKDIRS) $(dstDTDDir); \
+	fi; \
+	for file in $(DTD_FILES); do \
+	  $(INSTALL_DATA) $(srcDTDDir)/$$file $(dstDTDDir)/$$file; \
+	done;
 
 # Things to do before uninstalling
 # before-uninstall::

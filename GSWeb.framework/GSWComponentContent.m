@@ -70,8 +70,11 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
   _component=[context_ component];
+  NSDebugMLLog(@"gswdync",@"_component=%@",_component);
   _childTemplate=[_component _childTemplate];
+  NSDebugMLLog(@"gswdync",@"_childTemplate=%@",_childTemplate);
   _parent=[_component parent];
+  NSDebugMLLog(@"gswdync",@"_parent=%@",_parent);
   [context_ _setCurrentComponent:_parent];
   _element=[_childTemplate invokeActionForRequest:request_
 						   inContext:context_];

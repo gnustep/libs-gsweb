@@ -35,6 +35,18 @@ srcdir = .
 # The Bundle to be compiled
 GSWBUNDLE_NAME=GSWeb
 
+# DTDs to install
+srcDTDDir = DTDs
+dstDTDDir = $(GNUSTEP_RESOURCES)/DTDs
+DTD_FILES = \
+xhtml-lat1.ent \
+xhtml-symbol.ent \
+xhtml-special.ent \
+xhtml1-strict.dtd \
+xhtml1-frameset.dtd \
+xhtml1-transitional.dtd
+
+
 # The bundle resource files and directories
 GSWeb_RESOURCE_FILES = \
 Resources/MIME.plist \
@@ -76,18 +88,20 @@ GSWSessionTimeOut.m \
 GSWStats.m \
 NSNonBlockingFileHandle.m \
 GSWTransactionRecord.m \
-GSWHTMLParser.m \
-GSWHTMLParserExt.m \
-GSWHTMLLexer.m \
-GSWHTMLAttrLexer.m \
-GSWHTMLAttrParser.m \
-GSWHTMLAttrParserExt.m \
 GSWeb.m \
 GSWBundle.m \
 NSObject+IVarAccess+PerformSel.m \
 NSString+Trimming.m \
 NSString+HTML.m \
 GSWTemplateParser.m \
+GSWTemplateParserANTLR.m \
+GSWTemplateParserXML.m \
+GSWHTMLParser.m \
+GSWHTMLParserExt.m \
+GSWHTMLLexer.m \
+GSWHTMLAttrLexer.m \
+GSWHTMLAttrParser.m \
+GSWHTMLAttrParserExt.m \
 GSWApplication.m \
 GSWAssociation.m \
 GSWComponent.m \
@@ -218,19 +232,11 @@ GSWForm.h \
 GSWFrame.h \
 GSWGenericContainer.h \
 GSWGenericElement.h \
-GSWHTMLAttrLexer.h \
-GSWHTMLAttrParser.h \
-GSWHTMLAttrParserExt.h \
-GSWHTMLAttrTokenTypes.h \
 GSWHTMLBareString.h \
 GSWHTMLComment.h \
 GSWHTMLDynamicElement.h \
-GSWHTMLLexer.h \
-GSWHTMLParser.h \
-GSWHTMLParserExt.h \
 GSWHTMLStaticElement.h \
 GSWHTMLStaticGroup.h \
-GSWHTMLTokenTypes.h \
 GSWHTMLURLValuedElement.h \
 GSWHiddenField.h \
 GSWHyperlink.h \
@@ -271,6 +277,16 @@ GSWString.h \
 GSWSubmitButton.h \
 GSWSwitchComponent.h \
 GSWTemplateParser.h \
+GSWTemplateParserANTLR.h \
+GSWTemplateParserXML.h \
+GSWHTMLAttrLexer.h \
+GSWHTMLAttrParser.h \
+GSWHTMLAttrParserExt.h \
+GSWHTMLAttrTokenTypes.h \
+GSWHTMLLexer.h \
+GSWHTMLParser.h \
+GSWHTMLParserExt.h \
+GSWHTMLTokenTypes.h \
 GSWText.h \
 GSWTextField.h \
 GSWToggle.h \

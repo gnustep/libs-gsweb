@@ -60,6 +60,7 @@
 #include <Foundation/NSConcreteNumber.h>
 #include <Foundation/NSGArray.h>
 #include <Foundation/NSFormatter.h>
+#include <Foundation/GSXML.h>
 #include "GSCache.h"
 
 
@@ -260,6 +261,8 @@
 #include <gsweb/GSWeb.framework/GSWProjectBundle.h>
 #include <gsweb/GSWeb.framework/GSWMultiKeyDictionary.h>
 #include <gsweb/GSWeb.framework/GSWTemplateParser.h>
+#include <gsweb/GSWeb.framework/GSWTemplateParserXML.h>
+#include <gsweb/GSWeb.framework/GSWTemplateParserANTLR.h>
 #include <gsweb/GSWeb.framework/GSWDynamicURLString.h>
 #include <gsweb/GSWeb.framework/GSWBindingNameAssociation.h>
 #include <gsweb/GSWeb.framework/GSWURLValuedElementData.h>

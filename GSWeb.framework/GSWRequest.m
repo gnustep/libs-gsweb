@@ -254,9 +254,10 @@ static char rcsId[] = "$Id$";
 -(NSArray*)browserLanguages
 {
   //OK
+  LOGObjectFnStart();
   if (!browserLanguages)
 	{
-	  NSArray* _browserLanguages=nil;
+	  NSMutableArray* _browserLanguages=nil;
 	  NSString* header=[self headerForKey:GSWHTTPHeader_AcceptLanguage];
 	  NSDebugMLLog(@"requests",@"lang header:%@",header);
 	  if (header)
@@ -289,7 +290,25 @@ static char rcsId[] = "$Id$";
 	  else
 		_browserLanguages=[[NSArray new]autorelease];
 */
-		  _browserLanguages=[GSWResourceManager GSLanguagesFromISOLanguages:_languages];
+		  _browserLanguages=(NSMutableArray*)[GSWResourceManager GSLanguagesFromISOLanguages:_languages];
+		  NSDebugMLLog(@"requests",@"browserLanguages:%@",browserLanguages);
+		  if (_browserLanguages)
+			{
+			  //Remove Duplicates
+			  int i=0;
+			  _browserLanguages=[_browserLanguages mutableCopy];
+			  for(i=0;i<[_browserLanguages count];i++)
+				{
+				  int j=0;
+				  NSString* language=[_browserLanguages objectAtIndex:i];
+				  for(j=[_browserLanguages count]-1;j>i;j--)
+					{
+					  NSString* language2=[_browserLanguages objectAtIndex:j];
+					  if ([language2 isEqual:language])
+						[_browserLanguages removeObjectAtIndex:j];
+					};
+				};
+			};
 		}
 	  else
 		{
@@ -299,11 +318,12 @@ static char rcsId[] = "$Id$";
 	  if (!_browserLanguages)
 		{
 		  LOGError0(@"No known languages");
-		  _browserLanguages=[NSArray array];
+		  _browserLanguages=(NSMutableArray*)[NSArray array];
 		};
 	  ASSIGN(browserLanguages,_browserLanguages);
+	  NSDebugMLLog(@"requests",@"browserLanguages:%@",browserLanguages);
 	};
-//  NSDebugMLLog(@"requests",@"browserLanguages:%@",browserLanguages);
+  LOGObjectFnStop();
   return browserLanguages;
 };
 

@@ -33,10 +33,14 @@
   GSWAssociation* item;
   GSWAssociation* displayString;
   GSWAssociation* selections;
+#if !GSWEB_STRICT
+  GSWAssociation* selectionValues;
+#endif
   GSWAssociation* selectedValues;
   GSWAssociation* size;
   GSWAssociation* multiple;
   GSWAssociation* escapeHTML;
+  BOOL autoValue;//??
 };
 -(void)dealloc;
 

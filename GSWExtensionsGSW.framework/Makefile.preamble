@@ -36,7 +36,11 @@
 ADDITIONAL_CPPFLAGS = 
 
 # Additional flags to pass to the Objective-C compiler
-ADDITIONAL_OBJCFLAGS =  
+ifeq ($(GDL2), yes)
+	ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN -DGDL2
+else
+	ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN
+endif
 
 # Additional flags to pass to the C compiler
 ADDITIONAL_CFLAGS =  

@@ -30,705 +30,298 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWDisplayGroup
 
-#if !GDL2
-//--------------------------------------------------------------------
-//	init
-
--(id)init
-{
-  self=[super init];
-  delegate=nil;
-    LOGObjectFnNotImplemented();	//TODOFN
-  return self;
-};
-
-//--------------------------------------------------------------------
--(void)dealloc
-{
-  delegate=nil; //NO retain !!
-  [super dealloc];
-}
-
-//--------------------------------------------------------------------
-//	allObjects
-
--(NSArray*)allObjects
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	allQualifierOperators
-
--(NSArray*)allQualifierOperators
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	batchCount
-
--(unsigned)batchCount
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	buildsQualifierFromInput
-
--(BOOL)buildsQualifierFromInput
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	clearSelection
-
--(BOOL)clearSelection
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	currentBatchIndex
-
--(unsigned)currentBatchIndex
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	dataSource
-
--(EODataSource*)dataSource
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setDataSource:
-
--(void)setDataSource:(EODataSource*)dataSource_
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	defaultStringMatchFormat
-
--(NSString*)defaultStringMatchFormat
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	defaultStringMatchOperator
-
--(NSString*)defaultStringMatchOperator
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	delegate
-
--(id)delegate
-{
-  return delegate;
-};
-
-//--------------------------------------------------------------------
-//	setDelegate:
-
--(void)setDelegate:(id)object_
-{
-  delegate=object_;//NO Retain !
-};
-
-//--------------------------------------------------------------------
-//	delete
-
--(id)delete
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	deleteObjectAtIndex:
-
--(BOOL)deleteObjectAtIndex:(unsigned)index
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	deleteSelection
-
--(BOOL)deleteSelection
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	detailKey
-
--(NSString*)detailKey
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	displayBatchContainingSelectedObject
-
--(id)displayBatchContainingSelectedObject
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	displayedObjects
-
--(NSArray*)displayedObjects
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	displayNextBatch
-
--(id)displayNextBatch
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	displayPreviousBatch
-
--(id)displayPreviousBatch
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	endEditing
-
--(BOOL)endEditing
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	executeQuery
-
--(id)executeQuery
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	fetch
-
--(id)fetch
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	fetchesOnLoad
-
--(BOOL)fetchesOnLoad
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	hasDetailDataSource
-
--(BOOL)hasDetailDataSource
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	hasMultipleBatches
-
--(BOOL) hasMultipleBatches
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	inputObjectForQualifier
-
--(NSMutableDictionary*)inputObjectForQualifier
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	inQueryMode
-
--(BOOL)inQueryMode
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	insert
-
--(id)insert
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	insertedObjectDefaultValues
-
--(NSDictionary*)insertedObjectDefaultValues
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	insertObject:atIndex:
-
--(void)insertObject:anObject
-			atIndex:(unsigned)index_
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	insertObjectAtIndex:
-
--(id)insertObjectAtIndex:(unsigned)index_
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	lastQualifierFromInputValues
-
--(EOQualifier*)lastQualifierFromInputValues
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	localKeys
-
--(NSArray*)localKeys
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	masterObject
-
--(id)masterObject
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	numberOfObjectsPerBatch
-
--(unsigned)numberOfObjectsPerBatch
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	qualifier
-
--(EOQualifier*)qualifier
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	qualifierFromInputValues
-
--(EOQualifier*)qualifierFromInputValues
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	qualifierFromQueryValues
-
--(EOQualifier*)qualifierFromQueryValues
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	qualifyDataSource
-
--(void)qualifyDataSource
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	qualifyDisplayGroup
-
--(void)qualifyDisplayGroup
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	queryMatch
-
--(NSMutableDictionary*)queryMatch
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	queryMax
-
--(NSMutableDictionary*)queryMax
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	queryMin
-
--(NSMutableDictionary*)queryMin
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	queryOperator
-
--(NSMutableDictionary*)queryOperator
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	redisplay
-
--(void)redisplay
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	relationalQualifierOperators
-
--(void)relationalQualifierOperators
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	secondObjectForQualifier
-
--(NSMutableDictionary*)secondObjectForQualifier
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectedObject
-
--(id)selectedObject
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectedObjects
-
--(NSArray*)selectedObjects
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectionIndexes
-
--(NSArray*)selectionIndexes
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectNext
-
--(id)selectNext
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectObject:
-
--(BOOL)selectObject:(id)object
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectObjectsIdenticalTo:
-
--(BOOL)selectObjectsIdenticalTo:(NSArray*)objects
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectObjectsIdenticalTo:selectFirstOnNoMatch:
-
--(BOOL)selectObjectsIdenticalTo:(NSArray*)objects
-		   selectFirstOnNoMatch:(BOOL)flag
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectPrevious
-
--(id)selectPrevious
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	selectsFirstObjectAfterFetch
-
--(BOOL)selectsFirstObjectAfterFetch
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setBuildsQualifierFromInput:
-
--(void)setBuildsQualifierFromInput:(BOOL)flag
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setCurrentBatchIndex:
-
--(void)setCurrentBatchIndex:(unsigned)index_
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-
-//--------------------------------------------------------------------
-//	setDefaultStringMatchFormat:
-
--(void)setDefaultStringMatchFormat:(NSString*)format
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setDefaultStringMatchOperator:
-
--(void)setDefaultStringMatchOperator:(NSString*)operator
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-
-//--------------------------------------------------------------------
-//	setDetailKey:
-
--(void)setDetailKey:(NSString*)detailKey
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setFetchesOnLoad:
-
--(void)setFetchesOnLoad:(BOOL)flag
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setInQueryMode:
-
--(void)setInQueryMode:(BOOL)flag
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setInsertedObjectDefaultValues:
-
--(void)setInsertedObjectDefaultValues:(NSDictionary*)defaultValues
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setLocalKeys:
-
--(void)setLocalKeys:(NSArray*)keys
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setMasterObject:
-
--(void)setMasterObject:(id)masterObject
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setNumberOfObjectsPerBatch:
-
--(void)setNumberOfObjectsPerBatch:(unsigned)count
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setObjectArray:
-
--(void)setObjectArray:(NSArray*)objects
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setQualifier:
-
--(void)setQualifier:(EOQualifier*)qualifier_
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setSelectionIndexes:
-
--(BOOL)setSelectionIndexes:(NSArray*)selection
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setSelectsFirstObjectAfterFetch:
-
--(void)setSelectsFirstObjectAfterFetch:(BOOL)flag
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setSortOrdering:
-
--(void)setSortOrdering:(NSArray*)orderings
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	setValidatesChangesImmediately:
-
--(void)setValidatesChangesImmediately:(BOOL)flag
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	sortOrdering
-
--(NSArray*)sortOrdering
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	updateDisplayedObjects
-
--(void)updateDisplayedObjects
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-//	validatesChangesImmediately
-
--(BOOL)validatesChangesImmediately
-{
-    LOGObjectFnNotImplemented();	//TODOFN
-};
-
-#else /* GDL2 implementation */
+#if GDL2 // GDL2 implementation
 
 //--------------------------------------------------------------------
 //	init
 
 - init
 {
-  self = [super init];
+  if ((self = [super init]))
+    {
+      _allObjects = [[NSMutableArray alloc] initWithCapacity:16];
+      _displayedObjects = [[NSMutableArray alloc] initWithCapacity:16];
+      _selectedObjects = [[NSMutableArray alloc] initWithCapacity:8];
 
-  allObjects = [[NSMutableArray alloc] initWithCapacity:16];
-  displayedObjects = [[NSMutableArray alloc] initWithCapacity:16];
-  selectedObjects = [[NSMutableArray alloc] initWithCapacity:8];
+      _queryMatch    = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryMin      = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryMax      = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
 
-  queryMatch    = [[NSMutableDictionary alloc] initWithCapacity:8];
-  queryMin      = [[NSMutableDictionary alloc] initWithCapacity:8];
-  queryMax      = [[NSMutableDictionary alloc] initWithCapacity:8];
-  queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryBindings = [[NSMutableDictionary alloc] initWithCapacity:8];
 
-  queryBindings = [[NSMutableDictionary alloc] initWithCapacity:8];
+      //  _selection = 1; //????
 
-  batchIndex = 1;
+      [[NSNotificationCenter defaultCenter]
+        addObserver:self
+        selector:@selector(_changedInEditingContext:)
+        name:EOObjectsChangedInEditingContextNotification
+        object:nil];
 
-  [[NSNotificationCenter defaultCenter]
-    addObserver:self
-    selector:@selector(_changedInEditingContext:)
-    name:EOObjectsChangedInEditingContextNotification
-    object:nil];
+      [[NSNotificationCenter defaultCenter]
+        addObserver:self
+        selector:@selector(_invalidatedAllObjectsInStore:)
+        name:EOInvalidatedAllObjectsInStoreNotification
+        object:nil];
 
-  [[NSNotificationCenter defaultCenter]
-    addObserver:self
-    selector:@selector(_invalidatedAllObjectsInStore:)
-    name:EOInvalidatedAllObjectsInStoreNotification
-    object:nil];
+      //_selection=NSArray * object:0xf78b80 Description:()
+      //_insertedObjectDefaultValues=NSDictionary * object:0xf78b60 Description:{}
+      ASSIGN(_defaultStringMatchOperator,@"caseInsensitiveLike");
+      ASSIGN(_defaultStringMatchFormat,@"%@");
 
+      [self setSelectsFirstObjectAfterFetch:YES];
+    };
   return self;
-}
+};
 
-- _changedInEditingContext:(NSNotification *)notification
+-(id)initWithKeyValueUnarchiver:(EOKeyValueUnarchiver*)unarchiver
+{
+/*
+Description: <EOKeyValueUnarchiver: 0x1a84d20>
+																						--[1] Dumping object 0x1a84d20 of Class EOKeyValueUnarchiver
+																					_propertyList=NSDictionary * object:0x1057850 Description:{
+    class = WODisplayGroup; 
+    dataSource = {
+        class = EODatabaseDataSource; 
+        editingContext = session.defaultEditingContext; 
+        fetchSpecification = {class = EOFetchSpecification; entityName = MovieMedia; isDeep = YES; }; 
+    }; 
+    formatForLikeQualifier = "%@*"; 
+    _numberOfObjectsPerBatch = 10; 
+    selectsFirstObjectAfterFetch = YES; 
+}
+																					_parent=id object:0x0 Description:*nil*
+																					_nextParent=id object:0x0 Description:*nil*
+																					_allUnarchivedObjects=NSMutableArray * object:0x1a85920 Description:()
+																					_delegate=id object:0x1a84ff0 Description:<WOBundleUnarchiverDelegate: 0x1a84ff0>
+																					_awakenedObjects=struct ? {...} * PTR
+																					isa=Class Class:EOKeyValueUnarchiver
+
+*/
+  if ((self=[self init]))
+    {
+      LOGObjectFnStop();
+      [self setNumberOfObjectsPerBatch:
+              [unarchiver decodeIntForKey:@"numberOfObjectsPerBatch"]];
+      [self setFetchesOnLoad:
+              [unarchiver decodeBoolForKey:@"fetchesOnLoad"]];
+      [self setValidatesChangesImmediately:
+              [unarchiver decodeBoolForKey:@"validatesChangesImmediately"]];
+      [self setSelectsFirstObjectAfterFetch:
+              [unarchiver decodeBoolForKey:@"selectsFirstObjectAfterFetch"]];
+      [self setLocalKeys:
+              [unarchiver decodeObjectForKey:@"localKeys"]];
+      //Don't call setDataSource: because we're not ready !
+      ASSIGN(_dataSource,[unarchiver decodeObjectForKey:@"dataSource"]);        
+      [self setSortOrderings:
+              [unarchiver decodeObjectForKey:@"sortOrderings"]];
+      [self setQualifier:
+              [unarchiver decodeObjectForKey:@"qualifier"]];
+      [self setDefaultStringMatchFormat:
+              [unarchiver decodeObjectForKey:@"formatForLikeQualifier"]];
+      [self setInsertedObjectDefaultValues:
+              [unarchiver decodeObjectForKey:@"insertedObjectDefaultValues"]];
+
+      [self finishInitialization];
+      LOGObjectFnStop();
+    };
+  return self;
+};
+
+
+-(void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)unarchiver
+{
+  LOGObjectFnStart();
+  if (_dataSource)
+    [unarchiver ensureObjectAwake:_dataSource];
+  if ([self fetchesOnLoad])
+    {
+//      [self fetch];//?? NO: fetch "each time it is loaded in web browser"
+    };
+  LOGObjectFnStop();
+};
+
+
+-(void)finishInitialization
+{
+  LOGObjectFnStart();
+  [self _setUpForNewDataSource];
+  //Finished ?
+  LOGObjectFnStop();
+};
+
+-(void)_setUpForNewDataSource
+{
+  LOGObjectFnStart();
+  // call [_dataSource editingContext];
+  //Finished ?
+  LOGObjectFnStop();
+};
+	
+-(void)encodeWithKeyValueArchiver:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+-(void)_presentAlertWithTitle:(id)title
+                      message:(id)msg
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+-(void)_addQualifiersToArray:(id)array_
+                   forValues:(id)values_
+            operatorSelector:(SEL)selector_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+-(id)_qualifierForKey:(id)key
+                value:(id)value
+     operatorSelector:(SEL)selector_
+{
+  LOGObjectFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+-(BOOL)_deleteObjectsAtIndexes:(id)indexes_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return NO;
+};
+
+
+-(BOOL)_deleteObject:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return NO;
+};
+
+-(int)_selectionIndex
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return 0;
+};
+
+
+-(void)_lastObserverNotified:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+
+-(void)_beginObserverNotification:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+-(void)_notifySelectionChanged
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+
+
+-(void)_notifyRowChanged:(int)row_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+
+
+-(id)_notify:(SEL)selector_
+        with:(id)object1
+        with:(id)object2
+
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
+};
+
+
+-(id)_notify:(SEL)selector_
+        with:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
+};
+
+
+-(id)undoManager
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
+};
+
+-(void)objectsInvalidatedInEditingContext:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+
+-(void)objectsChangedInEditingContext:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+
+-(void)_changedInEditingContext:(NSNotification *)notification
 {
   BOOL redisplay = YES;
+  LOGObjectFnStart();
 
-  if(delegateRespondsTo.shouldRedisplay == YES)
+  if(_delegateRespondsTo.shouldRedisplay == YES)
     redisplay = [self displayGroup:self
 		      shouldRedisplayForEditingContextChangeNotification:notification];
 
   if(redisplay == YES)
     [self redisplay];
+  LOGObjectFnStop();
 }
 
-- _invalidatedAllObjectsInStore:(NSNotification *)notification
+-(void)_invalidatedAllObjectsInStore:(NSNotification *)notification
 {
   BOOL refetch = YES;
+  LOGObjectFnStart();
 
-  if(delegateRespondsTo.shouldRefetchObjects == YES)
+  if(_delegateRespondsTo.shouldRefetchObjects == YES)
     refetch = [self displayGroup:self
 		    shouldRefetchForInvalidatedAllObjectsNotification:
 		      notification];
 
   if(refetch == YES)
     [self fetch];
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -738,28 +331,28 @@ static char rcsId[] = "$Id$";
 
   delegate = nil;
 
-  DESTROY(dataSource);
+  DESTROY(_dataSource);
 
-  DESTROY(allObjects);
-  DESTROY(displayedObjects);
-  DESTROY(selection);
-  DESTROY(selectedObjects);
-  DESTROY(sortOrdering);
-  DESTROY(qualifier);
-  DESTROY(localKeys);
+  DESTROY(_allObjects);
+  DESTROY(_displayedObjects);
+  DESTROY(_selection);
+  DESTROY(_selectedObjects);
+  DESTROY(_sortOrdering);
+  DESTROY(_qualifier);
+  DESTROY(_localKeys);
 
-  DESTROY(insertedObjectDefaultValues);
-  DESTROY(savedAllObjects);
+  DESTROY(_insertedObjectDefaultValues);
+  DESTROY(_savedAllObjects);
 
-  DESTROY(queryMatch);
-  DESTROY(queryMin);
-  DESTROY(queryMax);
-  DESTROY(queryOperator);
+  DESTROY(_queryMatch);
+  DESTROY(_queryMin);
+  DESTROY(_queryMax);
+  DESTROY(_queryOperator);
 
-  DESTROY(defaultStringMatchOperator);
-  DESTROY(defaultStringMatchFormat);
+  DESTROY(_defaultStringMatchOperator);
+  DESTROY(_defaultStringMatchFormat);
 
-  DESTROY(queryBindings);
+  DESTROY(_queryBindings);
 
   [super dealloc];
 }
@@ -769,7 +362,7 @@ static char rcsId[] = "$Id$";
 
 - (NSArray *)allObjects
 {
-  return allObjects;
+  return _allObjects;
 }
 
 //--------------------------------------------------------------------
@@ -785,18 +378,23 @@ static char rcsId[] = "$Id$";
 
 - (unsigned)batchCount
 {
-  unsigned count;
+  unsigned batchCount=0;
+  unsigned count=0;
+  LOGObjectFnStart();
 
-  if(!numberOfObjectsPerBatch)
-    return 1;
-
-  count = [allObjects count];
-
-  if(!count)
-    return 1;
-
-  return (count / numberOfObjectsPerBatch) +
-    (count % numberOfObjectsPerBatch ? 1 : 0);
+  if(!_numberOfObjectsPerBatch)
+    batchCount=1;
+  else
+    {
+      count = [_allObjects count];
+      if(!count)
+        batchCount=1;
+      else
+        batchCount=(count / _numberOfObjectsPerBatch) +
+          (count % _numberOfObjectsPerBatch ? 1 : 0);
+    };
+  LOGObjectFnStop();
+  return batchCount;
 }
 
 //--------------------------------------------------------------------
@@ -804,7 +402,10 @@ static char rcsId[] = "$Id$";
 
 -(BOOL)buildsQualifierFromInput
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return NO;
 };
 
 //--------------------------------------------------------------------
@@ -812,7 +413,11 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)clearSelection
 {
-  return [self setSelectionIndexes:[NSArray array]];
+  BOOL result=NO;
+  LOGObjectFnStart();
+  result=[self setSelectionIndexes:[NSArray array]];
+  LOGObjectFnStop();
+  return result;
 }
 
 //--------------------------------------------------------------------
@@ -820,7 +425,7 @@ static char rcsId[] = "$Id$";
 
 - (unsigned)currentBatchIndex
 {
-  return batchIndex;
+  return _batchIndex;
 }
 
 //--------------------------------------------------------------------
@@ -828,7 +433,7 @@ static char rcsId[] = "$Id$";
 
 - (EODataSource *)dataSource
 {
-  return dataSource;
+  return _dataSource;
 }
 
 //--------------------------------------------------------------------
@@ -836,27 +441,29 @@ static char rcsId[] = "$Id$";
 
 - (void)setDataSource:(EODataSource *)dataSource_
 {
-  EOEditingContext *context;
+  EOEditingContext *context=nil;
+  LOGObjectFnStart();
 
-  if(dataSource)
+  if(_dataSource)
     {
-      context = [dataSource editingContext];
+      context = [_dataSource editingContext];
       [context removeEditor:self];
       if([self isEqual:[context messageHandler]] == YES)
 	[context setMessageHandler:nil];
     }
 
-  ASSIGN(dataSource, dataSource_);
+  ASSIGN(_dataSource, dataSource_);
 
-  context = [dataSource editingContext];
+  context = [_dataSource editingContext];
   [context addEditor:self];
   if([context messageHandler] == nil)
     [context setMessageHandler:self];
 
-  [displayedObjects removeAllObjects];
+  [_displayedObjects removeAllObjects];
 
-  if(delegateRespondsTo.didChangeDataSource == YES)
+  if(_delegateRespondsTo.didChangeDataSource == YES)
     [delegate displayGroupDidChangeDataSource:self];
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -864,7 +471,7 @@ static char rcsId[] = "$Id$";
 
 - (NSString *)defaultStringMatchFormat
 {
-  return defaultStringMatchFormat;
+  return _defaultStringMatchFormat;
 }
 
 //--------------------------------------------------------------------
@@ -872,7 +479,7 @@ static char rcsId[] = "$Id$";
 
 - (NSString *)defaultStringMatchOperator
 {
-  return defaultStringMatchOperator;
+  return _defaultStringMatchOperator;
 }
 
 //--------------------------------------------------------------------
@@ -888,38 +495,40 @@ static char rcsId[] = "$Id$";
 
 - (void)setDelegate:(id)delegate_
 {
+  LOGObjectFnStart();
   delegate = delegate_;
 
-  delegateRespondsTo.createObjectFailed = 
+  _delegateRespondsTo.createObjectFailed = 
     [delegate respondsToSelector:@selector(displayGroup:createObjectFailedForDataSource:)];
-  delegateRespondsTo.didDeleteObject = 
+  _delegateRespondsTo.didDeleteObject = 
     [delegate respondsToSelector:@selector(displayGroup:didDeleteObject:)];
-  delegateRespondsTo.didFetchObjects = 
+  _delegateRespondsTo.didFetchObjects = 
     [delegate respondsToSelector:@selector(displayGroup:didFetchObjects:)];
-  delegateRespondsTo.didInsertObject = 
+  _delegateRespondsTo.didInsertObject = 
     [delegate respondsToSelector:@selector(displayGroup:didInsertObject:)];
-  delegateRespondsTo.didSetValueForObject = 
+  _delegateRespondsTo.didSetValueForObject = 
     [delegate respondsToSelector:@selector(displayGroup:didSetValue:forObject:key:)];
-  delegateRespondsTo.displayArrayForObjects = 
+  _delegateRespondsTo.displayArrayForObjects = 
     [delegate respondsToSelector:@selector(displayGroup:displayArrayForObjects:)];
-  delegateRespondsTo.shouldChangeSelection = 
+  _delegateRespondsTo.shouldChangeSelection = 
     [delegate respondsToSelector:@selector(displayGroup:shouldChangeSelectionToIndexes:)];
-  delegateRespondsTo.shouldInsertObject = 
+  _delegateRespondsTo.shouldInsertObject = 
     [delegate respondsToSelector:@selector(displayGroup:shouldInsertObject:atIndex:)];
-  delegateRespondsTo.shouldDeleteObject = 
+  _delegateRespondsTo.shouldDeleteObject = 
     [delegate respondsToSelector:@selector(displayGroup:shouldDeleteObject:)];
-  delegateRespondsTo.shouldRedisplay = 
+  _delegateRespondsTo.shouldRedisplay = 
     [delegate respondsToSelector:@selector(displayGroup:shouldRedisplayForEditingContextChangeNotification:)];
-  delegateRespondsTo.shouldRefetchObjects = 
+  _delegateRespondsTo.shouldRefetchObjects = 
     [delegate respondsToSelector:@selector(displayGroup:shouldRefetchForInvalidatedAllObjectsNotification:)];
-  delegateRespondsTo.didChangeDataSource = 
+  _delegateRespondsTo.didChangeDataSource = 
     [delegate respondsToSelector:@selector(displayGroupDidChangeDataSource:)];
-  delegateRespondsTo.didChangeSelectedObjects = 
+  _delegateRespondsTo.didChangeSelectedObjects = 
     [delegate respondsToSelector:@selector(displayGroupDidChangeSelectedObjects:)];
-  delegateRespondsTo.didChangeSelection = 
+  _delegateRespondsTo.didChangeSelection = 
     [delegate respondsToSelector:@selector(displayGroupDidChangeSelection:)];
-  delegateRespondsTo.shouldFetchObjects = 
+  _delegateRespondsTo.shouldFetchObjects = 
     [delegate respondsToSelector:@selector(displayGroupShouldFetch:)];
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -927,8 +536,10 @@ static char rcsId[] = "$Id$";
 
 - (id)delete
 {
+  LOGObjectFnStart();
   [self deleteSelection];
-  return nil;
+  LOGObjectFnStop();
+  return nil;//FIXME
 }
 
 //--------------------------------------------------------------------
@@ -937,24 +548,25 @@ static char rcsId[] = "$Id$";
 - (BOOL)deleteObjectAtIndex:(unsigned)index
 {
   BOOL delete = YES;
-  id object;
+  id object=nil;
+  LOGObjectFnStart();
 
-  object = [allObjects objectAtIndex:index];
+  object = [_allObjects objectAtIndex:index];
 
-  if(delegateRespondsTo.shouldDeleteObject == YES)
+  if(_delegateRespondsTo.shouldDeleteObject == YES)
     delete = [delegate displayGroup:self
 		       shouldDeleteObject:object];
 
-  if(delete == NO)
-    return NO;
-
-  [dataSource deleteObject:object];
-
-  if(delegateRespondsTo.didDeleteObject == YES)
-    [delegate displayGroup:self
-	      didDeleteObject:object];
-
-  return YES;
+  if(delete)
+    {
+      [_dataSource deleteObject:object];
+      
+      if(_delegateRespondsTo.didDeleteObject == YES)
+        [delegate displayGroup:self
+                  didDeleteObject:object];
+    };
+  LOGObjectFnStop();
+  return delete;
 }
 
 //--------------------------------------------------------------------
@@ -962,32 +574,37 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)deleteSelection
 {
+  BOOL result=YES;
   BOOL delete = YES;
-  NSEnumerator *enumerator;
-  id object;
+  NSEnumerator *enumerator=nil;
+  id object=nil;
+  LOGObjectFnStart();
 
-  enumerator = [selectedObjects objectEnumerator];
+  enumerator = [_selectedObjects objectEnumerator];
   while((object = [enumerator nextObject]))
     {
-      if(delegateRespondsTo.shouldDeleteObject == YES)
+      if(_delegateRespondsTo.shouldDeleteObject == YES)
 	delete = [delegate displayGroup:self
 			   shouldDeleteObject:object];
 
       if(delete == NO)
-	return NO;
+	result=NO;
     }
-
-  enumerator = [selectedObjects objectEnumerator];
-  while((object = [enumerator nextObject]))
+  if (result)
     {
-      [dataSource deleteObject:object];
+      enumerator = [_selectedObjects objectEnumerator];
+      while((object = [enumerator nextObject]))
+        {
+          [_dataSource deleteObject:object];
+          
+          if(_delegateRespondsTo.didDeleteObject == YES)
+            [delegate displayGroup:self
+                      didDeleteObject:object];
+        }
+    };
 
-      if(delegateRespondsTo.didDeleteObject == YES)
-	[delegate displayGroup:self
-		  didDeleteObject:object];
-    }
-
-  return YES;
+  LOGObjectFnStop();
+  return result;
 }
 
 //--------------------------------------------------------------------
@@ -995,10 +612,14 @@ static char rcsId[] = "$Id$";
 
 - (NSString *)detailKey
 {
-  if([self hasDetailDataSource] == YES)
-    return [(EODetailDataSource *)dataSource detailKey];
+  NSString* detailKey=nil;
+  LOGObjectFnStart();
 
-  return nil;
+  if([self hasDetailDataSource] == YES)
+    detailKey= [(EODetailDataSource *)_dataSource detailKey];
+
+  LOGObjectFnStop();
+  return detailKey;
 }
 
 //--------------------------------------------------------------------
@@ -1006,7 +627,10 @@ static char rcsId[] = "$Id$";
 
 -(id)displayBatchContainingSelectedObject
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
 };
 
 //--------------------------------------------------------------------
@@ -1014,7 +638,7 @@ static char rcsId[] = "$Id$";
 
 - (NSArray *)displayedObjects
 {
-  return displayedObjects;
+  return _displayedObjects;
 }
 
 //--------------------------------------------------------------------
@@ -1022,39 +646,41 @@ static char rcsId[] = "$Id$";
 
 - (id)displayNextBatch
 {
-  int count = [allObjects count];
+  int count = [_allObjects count];
   NSRange range;
+  LOGObjectFnStart();
 
-  [displayedObjects removeAllObjects];
+  [_displayedObjects removeAllObjects];
 
-  if(!numberOfObjectsPerBatch || count <= numberOfObjectsPerBatch)
+  if(!_numberOfObjectsPerBatch || count <= _numberOfObjectsPerBatch)
     {
-      batchIndex = 1;
-      [displayedObjects addObjectsFromArray:allObjects];
+      _batchIndex = 1;
+      [_displayedObjects addObjectsFromArray:_allObjects];
     }
   else
     {
-      if(batchIndex >= [self batchCount])
+      if(_batchIndex >= [self batchCount])
 	{
-	  batchIndex = 1;
+	  _batchIndex = 1;
 	  range.location = 0;
-	  range.length = numberOfObjectsPerBatch;
+	  range.length = _numberOfObjectsPerBatch;
 	}
       else
 	{
-	  range.location = batchIndex * numberOfObjectsPerBatch;
-	  range.length = (range.location + numberOfObjectsPerBatch > count ?
-			  count - range.location : numberOfObjectsPerBatch);
-	  batchIndex++;
+	  range.location = _batchIndex * _numberOfObjectsPerBatch;
+	  range.length = (range.location + _numberOfObjectsPerBatch > count ?
+			  count - range.location : _numberOfObjectsPerBatch);
+	  _batchIndex++;
 	}
 
-      [displayedObjects addObjectsFromArray:[allObjects
+      [_displayedObjects addObjectsFromArray:[_allObjects
 					      subarrayWithRange:range]];
     }
 
   [self clearSelection];
 
-  return nil;
+  LOGObjectFnStop();
+  return nil;//FIXME
 }
 
 //--------------------------------------------------------------------
@@ -1062,40 +688,42 @@ static char rcsId[] = "$Id$";
 
 - (id)displayPreviousBatch
 {
-  int count = [allObjects count];
+  int count = [_allObjects count];
   NSRange range;
+  LOGObjectFnStart();
 
-  [displayedObjects removeAllObjects];
+  [_displayedObjects removeAllObjects];
 
-  if(!numberOfObjectsPerBatch || count <= numberOfObjectsPerBatch)
+  if(!_numberOfObjectsPerBatch || count <= _numberOfObjectsPerBatch)
     {
-      batchIndex = 1;
-      [displayedObjects addObjectsFromArray:allObjects];
+      _batchIndex = 1;
+      [_displayedObjects addObjectsFromArray:_allObjects];
     }
   else
     {
-      if(batchIndex == 1)
+      if(_batchIndex == 1)
 	{
-	  batchIndex = [self batchCount];
-	  range.location = (batchIndex-1) * numberOfObjectsPerBatch;
+	  _batchIndex = [self batchCount];
+	  range.location = (_batchIndex-1) * _numberOfObjectsPerBatch;
 
-	  range.length = (range.location + numberOfObjectsPerBatch > count ?
-			  count - range.location : numberOfObjectsPerBatch);
+	  range.length = (range.location + _numberOfObjectsPerBatch > count ?
+			  count - range.location : _numberOfObjectsPerBatch);
 	}
       else
 	{
-	  batchIndex--;
-	  range.location = (batchIndex-1) *  numberOfObjectsPerBatch;
-	  range.length = numberOfObjectsPerBatch;
+	  _batchIndex--;
+	  range.location = (_batchIndex-1) *  _numberOfObjectsPerBatch;
+	  range.length = _numberOfObjectsPerBatch;
 	}
 
-      [displayedObjects addObjectsFromArray:[allObjects
+      [_displayedObjects addObjectsFromArray:[_allObjects
 					      subarrayWithRange:range]];
     }
 
   [self clearSelection];
 
-  return nil;
+  LOGObjectFnStop();
+  return nil;//FIXME
 }
 
 //--------------------------------------------------------------------
@@ -1111,7 +739,10 @@ static char rcsId[] = "$Id$";
 
 -(id)executeQuery
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
 };
 
 //--------------------------------------------------------------------
@@ -1120,20 +751,26 @@ static char rcsId[] = "$Id$";
 - (id)fetch
 {
   BOOL fetch = YES;
+  LOGObjectFnStart();
 
-  if(delegateRespondsTo.shouldFetchObjects == YES)
+  if(_delegateRespondsTo.shouldFetchObjects == YES)
     fetch = [delegate displayGroupShouldFetch:self];
+  NSDebugMLog(@"fetch=%d",(int)fetch);
 
-  if(fetch == NO)
-    return nil;
+  if(fetch)
+    {
+      NSArray* objects=nil;
+      NSDebugMLog(@"_dataSource=%@",_dataSource);
+      objects=[_dataSource fetchObjects];
+      NSDebugMLog(@"objects=%@",objects);
+      [self setObjectArray:objects];
 
-  [self setObjectArray:[dataSource fetchObjects]];
-
-  if(delegateRespondsTo.didFetchObjects == YES)
-    [delegate displayGroup:self
-	      didFetchObjects:allObjects];
-
-  return nil;
+      if(_delegateRespondsTo.didFetchObjects == YES)
+        [delegate displayGroup:self
+                  didFetchObjects:_allObjects];
+    };
+  LOGObjectFnStop();
+  return nil;//FIXME
 }
 
 //--------------------------------------------------------------------
@@ -1141,7 +778,7 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)fetchesOnLoad
 {
-  return flags.autoFetch;
+  return _flags.autoFetch;
 }
 
 //--------------------------------------------------------------------
@@ -1149,7 +786,7 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)hasDetailDataSource
 {
-  return [dataSource isKindOfClass:[EODetailDataSource class]];
+  return [_dataSource isKindOfClass:[EODetailDataSource class]];
 }
 
 //--------------------------------------------------------------------
@@ -1157,7 +794,7 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)hasMultipleBatches
 {
-  return !flags.fetchAll;
+  return !_flags.fetchAll;
 }
 
 //--------------------------------------------------------------------
@@ -1165,7 +802,10 @@ static char rcsId[] = "$Id$";
 
 -(NSMutableDictionary*)inputObjectForQualifier
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
 };
 
 //--------------------------------------------------------------------
@@ -1173,9 +813,15 @@ static char rcsId[] = "$Id$";
 
 - (unsigned)indexOfFirstDisplayedObject
 {
-  int batch = [self currentBatchIndex];
+  int indexOfFirstDisplayedObject=0;
+  int batch = 0;
+  LOGObjectFnStart();
 
-  return ((batch-1) * numberOfObjectsPerBatch);
+  batch=[self currentBatchIndex];
+  indexOfFirstDisplayedObject=((batch-1) * _numberOfObjectsPerBatch);
+
+  LOGObjectFnStop();
+  return indexOfFirstDisplayedObject;
 }
 
 //--------------------------------------------------------------------
@@ -1183,9 +829,14 @@ static char rcsId[] = "$Id$";
 
 - (unsigned)indexOfLastDisplayedObject
 {
-  int batch = [self currentBatchIndex];
+  int indexOfLastDisplayedObject=0;
+  int batch = 0;
+  LOGObjectFnStart();
+  batch=[self currentBatchIndex];
 
-  return ((batch-1) * numberOfObjectsPerBatch) + [displayedObjects count];
+  indexOfLastDisplayedObject=((batch-1) * _numberOfObjectsPerBatch) + [_displayedObjects count];
+  LOGObjectFnStop();
+  return indexOfLastDisplayedObject;
 }
 
 //--------------------------------------------------------------------
@@ -1193,20 +844,29 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)inQueryMode
 {
-  return flags.queryMode;
+  return _flags.queryMode;
 }
+
+//--------------------------------------------------------------------
+-(void)editingContext:(id)editingContext_
+  presentErrorMessage:(id)msg
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
 
 //--------------------------------------------------------------------
 //	insert
 
 - (id)insert
 {
-  unsigned index=0, count;
+  unsigned index=0, count=0;
+  LOGObjectFnStart();
+  count = [_allObjects count];
 
-  count = [allObjects count];
-
-  if([selection count])
-    index = [[selection objectAtIndex:0] unsignedIntValue]+1;
+  if([_selection count])
+    index = [[_selection objectAtIndex:0] unsignedIntValue]+1;
 
   if(!count)
     index = 0;
@@ -1215,7 +875,8 @@ static char rcsId[] = "$Id$";
 
   [self insertObjectAtIndex:index];
 
-  return nil;
+  LOGObjectFnStop();
+  return nil;//FIXME
 }
 
 //--------------------------------------------------------------------
@@ -1223,7 +884,7 @@ static char rcsId[] = "$Id$";
 
 - (NSDictionary *)insertedObjectDefaultValues
 {
-  return insertedObjectDefaultValues;
+  return _insertedObjectDefaultValues;
 }
 
 //--------------------------------------------------------------------
@@ -1233,26 +894,26 @@ static char rcsId[] = "$Id$";
 	     atIndex:(unsigned)index
 {
   BOOL insert = YES;
-
-  if(delegateRespondsTo.shouldInsertObject == YES)
+  LOGObjectFnStart();
+  if(_delegateRespondsTo.shouldInsertObject == YES)
     insert = [delegate displayGroup:self
 		       shouldInsertObject:anObject
 		       atIndex:index];
 
-  if(insert == NO)
-    return;
+  if(insert)
+    {
+      [_dataSource insertObject:anObject];
+      
+      [_allObjects insertObject:anObject atIndex:index];
+      [self setCurrentBatchIndex:_batchIndex];
+      
+      if(_delegateRespondsTo.didInsertObject == YES)
+        [delegate displayGroup:self
+                  didInsertObject:anObject];
 
-  [dataSource insertObject:anObject];
-
-  [allObjects insertObject:anObject atIndex:index];
-  [self setCurrentBatchIndex:batchIndex];
-
-  if(delegateRespondsTo.didInsertObject == YES)
-    [delegate displayGroup:self
-	      didInsertObject:anObject];
-
-  [self setSelectionIndexes:
-	  [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:index]]];
+      [self setSelectionIndexes:
+              [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:index]]];
+    };
 }
 
 //--------------------------------------------------------------------
@@ -1260,22 +921,22 @@ static char rcsId[] = "$Id$";
 
 - (id)insertObjectAtIndex:(unsigned)index
 {
-  id object;
+  id object=nil;
+  LOGObjectFnStart();
 
-  object = [dataSource createObject];
+  object = [_dataSource createObject];
   if(object == nil)
     {
-      if(delegateRespondsTo.createObjectFailed == YES)
+      if(_delegateRespondsTo.createObjectFailed == YES)
 	[delegate displayGroup:self
-		  createObjectFailedForDataSource:dataSource];
-
-      return nil;
+		  createObjectFailedForDataSource:_dataSource];
     }
-
-  [object takeValuesFromDictionary:[self insertedObjectDefaultValues]];
-
-  [self insertObject:object atIndex:index];
-
+  else
+    {
+      [object takeValuesFromDictionary:[self _insertedObjectDefaultValues]];
+      [self insertObject:object atIndex:index];
+    };
+  LOGObjectFnStop();
   return object;
 }
 
@@ -1284,7 +945,10 @@ static char rcsId[] = "$Id$";
 
 -(EOQualifier*)lastQualifierFromInputValues
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
 };
 
 //--------------------------------------------------------------------
@@ -1292,18 +956,47 @@ static char rcsId[] = "$Id$";
 
 - (NSArray *)localKeys
 {
-  return localKeys;
+  return _localKeys;
 }
+
+-(BOOL)usesOptimisticRefresh
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return NO;
+};
+
+
+
+-(void)setUsesOptimisticRefresh:(id)object_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+-(void)awakeFromNib
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
 
 //--------------------------------------------------------------------
 //	masterObject
 
 - (id)masterObject
 {
-  if([self hasDetailDataSource] == YES)
-    return [(EODetailDataSource *)dataSource masterObject];
+  id obj=nil;
+  LOGObjectFnStart();
 
-  return nil;
+  if([self hasDetailDataSource] == YES)
+    obj=[(EODetailDataSource *)_dataSource masterObject];
+
+  LOGObjectFnStop();
+  return obj;
 }
 
 //--------------------------------------------------------------------
@@ -1311,7 +1004,7 @@ static char rcsId[] = "$Id$";
 
 - (unsigned)numberOfObjectsPerBatch
 {
-  return numberOfObjectsPerBatch;
+  return _numberOfObjectsPerBatch;
 }
 
 //--------------------------------------------------------------------
@@ -1319,7 +1012,7 @@ static char rcsId[] = "$Id$";
 
 - (EOQualifier *)qualifier
 {
-  return qualifier;
+  return _qualifier;
 }
 
 //--------------------------------------------------------------------
@@ -1327,7 +1020,10 @@ static char rcsId[] = "$Id$";
 
 -(EOQualifier*)qualifierFromInputValues
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
 };
 
 //--------------------------------------------------------------------
@@ -1335,17 +1031,20 @@ static char rcsId[] = "$Id$";
 
 - (EOQualifier *)qualifierFromQueryValues
 {
-  NSMutableArray *array;
-  NSEnumerator *enumerator;
-  NSString *key, *op;
-  SEL operatorSelector;
+  EOQualifier* resultQualifier=nil;
+  NSMutableArray *array=nil;
+  NSEnumerator *enumerator=nil;
+  NSString *key=nil;
+  NSString *op=nil;
+  SEL operatorSelector=nil;
+  LOGObjectFnStart();
 
   array = [NSMutableArray arrayWithCapacity:8];
 
-  enumerator = [queryMatch keyEnumerator];
+  enumerator = [_queryMatch keyEnumerator];
   while((key = [enumerator nextObject]))
     {
-      op = [queryOperator objectForKey:key];
+      op = [_queryOperator objectForKey:key];
 
       if(op == nil)
 	operatorSelector = EOQualifierOperatorEqual;
@@ -1355,28 +1054,29 @@ static char rcsId[] = "$Id$";
       [array addObject:[[[EOKeyValueQualifier alloc]
 			  initWithKey:key
 			  operatorSelector:operatorSelector
-			  value:[queryMatch objectForKey:key]] autorelease]];
+			  value:[_queryMatch objectForKey:key]] autorelease]];
     }
 
-  enumerator = [queryMax keyEnumerator];
+  enumerator = [_queryMax keyEnumerator];
   while((key = [enumerator nextObject]))
     {
       [array addObject:[[[EOKeyValueQualifier alloc]
 			  initWithKey:key
 			  operatorSelector:EOQualifierOperatorLessThan
-			  value:[queryMax objectForKey:key]] autorelease]];
+			  value:[_queryMax objectForKey:key]] autorelease]];
     }
 
-  enumerator = [queryMin keyEnumerator];
+  enumerator = [_queryMin keyEnumerator];
   while((key = [enumerator nextObject]))
     {
       [array addObject:[[[EOKeyValueQualifier alloc]
 			  initWithKey:key
 			  operatorSelector:EOQualifierOperatorGreaterThan
-			  value:[queryMin objectForKey:key]] autorelease]];
+			  value:[_queryMin objectForKey:key]] autorelease]];
     }
-
-  return [[[EOAndQualifier alloc] initWithQualifierArray:array] autorelease];
+  resultQualifier=[[[EOAndQualifier alloc] initWithQualifierArray:array] autorelease];
+  LOGObjectFnStop();
+  return resultQualifier;
 }
 
 //--------------------------------------------------------------------
@@ -1384,12 +1084,14 @@ static char rcsId[] = "$Id$";
 
 - (void)qualifyDataSource
 {
-  [dataSource setQualifier:[self qualifierFromQueryValues]];
+  LOGObjectFnStart();
+  [_dataSource setQualifier:[self qualifierFromQueryValues]];
 
-  flags.queryMode = NO;
+  _flags.queryMode = NO;
   [self fetch];
 
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1397,10 +1099,12 @@ static char rcsId[] = "$Id$";
 
 - (void)qualifyDisplayGroup
 {
+  LOGObjectFnStart();
   [self setQualifier:[self qualifierFromQueryValues]];
 
   [self updateDisplayedObjects];
-  flags.queryMode = NO;
+  _flags.queryMode = NO;
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1408,7 +1112,7 @@ static char rcsId[] = "$Id$";
 
 - (NSMutableDictionary *)queryBindings
 {
-  return queryBindings;
+  return _queryBindings;
 }
 
 //--------------------------------------------------------------------
@@ -1416,7 +1120,7 @@ static char rcsId[] = "$Id$";
 
 - (NSMutableDictionary *)queryMatch
 {
-  return queryMatch;
+  return _queryMatch;
 }
 
 //--------------------------------------------------------------------
@@ -1424,7 +1128,7 @@ static char rcsId[] = "$Id$";
 
 - (NSMutableDictionary *)queryMax
 {
-  return queryMax;
+  return _queryMax;
 }
 
 //--------------------------------------------------------------------
@@ -1432,7 +1136,7 @@ static char rcsId[] = "$Id$";
 
 - (NSMutableDictionary *)queryMin
 {
-  return queryMin;
+  return _queryMin;
 }
 
 //--------------------------------------------------------------------
@@ -1440,7 +1144,7 @@ static char rcsId[] = "$Id$";
 
 - (NSMutableDictionary *)queryOperator
 {
-  return queryOperator;
+  return _queryOperator;
 }
 
 //--------------------------------------------------------------------
@@ -1448,7 +1152,9 @@ static char rcsId[] = "$Id$";
 
 -(void)redisplay
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1464,7 +1170,10 @@ static char rcsId[] = "$Id$";
 
 -(NSMutableDictionary*)secondObjectForQualifier
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return nil;
 };
 
 //--------------------------------------------------------------------
@@ -1472,10 +1181,13 @@ static char rcsId[] = "$Id$";
 
 - (id)selectedObject
 {
-  if([selectedObjects count])
-    return [selectedObjects objectAtIndex:0];
+  id obj=nil;
+  LOGObjectFnStart();
+  if([_selectedObjects count])
+    obj=[_selectedObjects objectAtIndex:0];
 
-  return nil;
+  LOGObjectFnStop();
+  return obj;
 }
 
 //--------------------------------------------------------------------
@@ -1483,7 +1195,7 @@ static char rcsId[] = "$Id$";
 
 - (NSArray *)selectedObjects
 {
-  return selectedObjects;
+  return _selectedObjects;
 }
 
 //--------------------------------------------------------------------
@@ -1491,7 +1203,7 @@ static char rcsId[] = "$Id$";
 
 - (NSArray *)selectionIndexes
 {
-  return selection;
+  return _selection;
 }
 
 //--------------------------------------------------------------------
@@ -1499,42 +1211,43 @@ static char rcsId[] = "$Id$";
 
 - (id)selectNext
 {
-  unsigned index;
-  id obj;
+  unsigned index=0;
+  id obj=nil;
+  LOGObjectFnStart();
 
-  if(![allObjects count])
-    return nil;
-
-  if(![selectedObjects count])
-    [self setSelectionIndexes:
-	    [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
-  else
+  if([_allObjects count]>0)
     {
-      obj = [selectedObjects objectAtIndex:0];
-
-      if([obj isEqual:[displayedObjects lastObject]] == YES)
-	{
-	  index = [allObjects indexOfObject:[displayedObjects
-					      objectAtIndex:0]];
-
-	  [self setSelectionIndexes:
-		  [NSArray arrayWithObject:
-			     [NSNumber numberWithUnsignedInt:index]]];
-	}
+      if(![_selectedObjects count])
+        [self setSelectionIndexes:
+                [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
       else
-	{
-	  index = [allObjects indexOfObject:obj]+1;
-
-	  if(index >= [allObjects count])
-	    index = 0;
-
-	  [self setSelectionIndexes:
-		  [NSArray arrayWithObject:
-			     [NSNumber numberWithUnsignedInt:index]]];
-	}
-    }
-
-  return nil;
+        {
+          obj = [_selectedObjects objectAtIndex:0];
+          
+          if([obj isEqual:[_displayedObjects lastObject]] == YES)
+            {
+              index = [_allObjects indexOfObject:[_displayedObjects
+                                                   objectAtIndex:0]];
+              
+              [self setSelectionIndexes:
+                      [NSArray arrayWithObject:
+                                 [NSNumber numberWithUnsignedInt:index]]];
+            }
+          else
+            {
+              index = [_allObjects indexOfObject:obj]+1;
+              
+              if(index >= [_allObjects count])
+                index = 0;
+              
+              [self setSelectionIndexes:
+                      [NSArray arrayWithObject:
+                                 [NSNumber numberWithUnsignedInt:index]]];
+            };
+        };
+    };
+  LOGObjectFnStop();
+  return nil;//FIXME
 }
 
 //--------------------------------------------------------------------
@@ -1542,14 +1255,18 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)selectObject:(id)object
 {
-  if([allObjects containsObject:object] == NO)
-    return NO;
-
-  return [self setSelectionIndexes:
-		 [NSArray arrayWithObject:
-			    [NSNumber numberWithUnsignedInt:
-					[allObjects
-					  indexOfObject:object]]]];
+  BOOL result=NO;
+  LOGObjectFnStart();
+  if([_allObjects containsObject:object] == NO)
+    result=NO;
+  else
+    result=[self setSelectionIndexes:
+                   [NSArray arrayWithObject:
+                              [NSNumber numberWithUnsignedInt:
+                                          [_allObjects
+                                            indexOfObject:object]]]];
+  LOGObjectFnStop();
+  return result;
 }
 
 //--------------------------------------------------------------------
@@ -1557,34 +1274,39 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)selectObjectsIdenticalTo:(NSArray *)objects
 {
-  NSMutableArray *array;
-  NSEnumerator *objsEnum, *dispEnum;
-  id object, dispObj;
+  BOOL result=NO;
+  NSMutableArray *array=nil;
+  NSEnumerator *objsEnum=nil;
+  NSEnumerator *dispEnum=nil;
+  id object=nil;
+  id dispObj=nil;
+  LOGObjectFnStart();
 
   array = [NSMutableArray arrayWithCapacity:8];
 
   objsEnum = [objects objectEnumerator];
   while((object = [objsEnum nextObject]))
     {
-      dispEnum = [displayedObjects objectEnumerator];
+      dispEnum = [_displayedObjects objectEnumerator];
       while((dispObj = [dispEnum nextObject]))
 	{
 	  if(dispObj == object)
 	    {
 	      [array addObject:[NSNumber numberWithUnsignedInt:
-					   [allObjects indexOfObject:object]]];
+					   [_allObjects indexOfObject:object]]];
 	      break;
-	    }
-	}
+	    };
+	};
 
       if(dispObj == nil)
 	{
 	  [array removeAllObjects];
 	  break;
-	}
-    }
-
-  return [self setSelectionIndexes:array];
+	};
+    };
+  result=[self setSelectionIndexes:array];
+  LOGObjectFnStop();
+  return result;
 }
 
 //--------------------------------------------------------------------
@@ -1593,26 +1315,28 @@ static char rcsId[] = "$Id$";
 - (BOOL)selectObjectsIdenticalTo:(NSArray *)objects
 	    selectFirstOnNoMatch:(BOOL)flag
 {
-  unsigned index;
-
+  BOOL result=NO;
+  unsigned index=0;
+  LOGObjectFnStart();
   if([self selectObjectsIdenticalTo:objects] == NO && flag == YES)
     {
-      if(![selectedObjects count] &&
-	 [displayedObjects count])
+      if(![_selectedObjects count] &&
+	 [_displayedObjects count])
 	{
-	  index = [allObjects indexOfObject:[displayedObjects
+	  index = [_allObjects indexOfObject:[_displayedObjects
 					      objectAtIndex:0]];
 	  [self setSelectionIndexes:
 		  [NSArray arrayWithObject:[NSNumber
 					     numberWithUnsignedInt:index]]];
-
-	  return YES;
+	  result=YES;
 	}
-
-      return NO;
+      else
+        result=NO;
     }
-
-  return YES;
+  else
+    result=YES;
+  LOGObjectFnStop();
+  return result;
 }
 
 //--------------------------------------------------------------------
@@ -1620,40 +1344,41 @@ static char rcsId[] = "$Id$";
 
 - (id)selectPrevious
 {
-  unsigned index;
-  id obj;
+  unsigned index=0;
+  id obj=nil;
+  LOGObjectFnStart();
 
-  if(![allObjects count])
-    return nil;
-
-  if(![selectedObjects count])
-    [self setSelectionIndexes:
-	    [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
-  else
+  if([_allObjects count]>0)
     {
-      obj = [selectedObjects objectAtIndex:0];
-
-      if([obj isEqual:[displayedObjects objectAtIndex:0]] == YES)
-	{
-	  index = [allObjects indexOfObject:[displayedObjects lastObject]];
-
-	  [self setSelectionIndexes:
-		  [NSArray arrayWithObject:
-			     [NSNumber numberWithUnsignedInt:index]]];
-	}
+      if(![_selectedObjects count])
+        [self setSelectionIndexes:
+                [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
       else
-	{
-	  index = [allObjects indexOfObject:obj]-1;
-
-	  if(!index || index >= [allObjects count])
-	    index = [allObjects count] - 1;
-
-	  [self setSelectionIndexes:
-		  [NSArray arrayWithObject:
-			     [NSNumber numberWithUnsignedInt:index]]];
-	}
-    }
-
+        {
+          obj = [_selectedObjects objectAtIndex:0];
+          
+          if([obj isEqual:[_displayedObjects objectAtIndex:0]] == YES)
+            {
+              index = [_allObjects indexOfObject:[_displayedObjects lastObject]];
+              
+              [self setSelectionIndexes:
+                      [NSArray arrayWithObject:
+                                 [NSNumber numberWithUnsignedInt:index]]];
+            }
+          else
+            {
+              index = [_allObjects indexOfObject:obj]-1;
+              
+              if(!index || index >= [_allObjects count])
+                index = [_allObjects count] - 1;
+              
+              [self setSelectionIndexes:
+                      [NSArray arrayWithObject:
+                                 [NSNumber numberWithUnsignedInt:index]]];
+            };
+        };
+    };
+  LOGObjectFnStop();
   return nil;
 }
 
@@ -1662,7 +1387,9 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)selectsFirstObjectAfterFetch
 {
-  return flags.selectFirstObject;
+  LOGObjectFnStart();
+  return _flags.selectFirstObject;
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1670,7 +1397,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setBuildsQualifierFromInput:(BOOL)flag
 {
-    LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1678,41 +1407,57 @@ static char rcsId[] = "$Id$";
 
 - (void)setCurrentBatchIndex:(unsigned)index_
 {
-  unsigned batchCount, num, count;
+  unsigned batchCount, num;
   int i;
+  LOGObjectFnStart();
 
-  if(!index_)
-    return;
-
-  [displayedObjects removeAllObjects];
-
-  batchCount = [self batchCount];
-  if(index_ > batchCount)
-    index_ = 1;
-
-  count = [allObjects count];
-
-  if(!numberOfObjectsPerBatch)
-    num = count;
-  else
-    num = numberOfObjectsPerBatch;
-
-  if(!num)
-    return;
-
-  for( i = (index_-1) * num;
-       (i < index_ * num) && (i < index_ * count);
-       i++)
-    [displayedObjects addObject:[allObjects objectAtIndex:i]];
-
-  if(flags.selectFirstObject == YES && [selection count])
-    [self setSelectionIndexes:
-	    [NSArray arrayWithObject:
-		       [NSNumber numberWithUnsignedInt:
-				   [allObjects
-				     indexOfObject:
-				       [displayedObjects objectAtIndex:0]]]]];
+  if(index_)
+    {
+      [_displayedObjects removeAllObjects];
+      
+      batchCount = [self batchCount];
+      if(index_ > batchCount)
+        index_ = 1;
+      
+      if(!_numberOfObjectsPerBatch)
+        num = [_allObjects count];
+      else
+        num = _numberOfObjectsPerBatch;
+      
+      if(num)
+        {
+          for( i = (index_-1) * num;
+               i < index_ * num;
+               i++)
+            [_displayedObjects addObject:[_allObjects objectAtIndex:i]];
+          
+          if(_flags.selectFirstObject == YES && [_selection count])
+            [self setSelectionIndexes:
+                    [NSArray arrayWithObject:
+                               [NSNumber numberWithUnsignedInt:
+                                           [_allObjects
+                                             indexOfObject:
+                                               [_displayedObjects objectAtIndex:0]]]]];
+        };
+    };
+  LOGObjectFnStop();
 }
+
+-(void)_checkSelectedBatchConsistency
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+
+-(BOOL)_allowsNullForKey:(id)key_
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+  return NO;
+};
 
 
 //--------------------------------------------------------------------
@@ -1720,7 +1465,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setDefaultStringMatchFormat:(NSString *)format
 {
-  ASSIGN(defaultStringMatchFormat, format);
+  LOGObjectFnStart();
+  ASSIGN(_defaultStringMatchFormat, format);
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1728,7 +1475,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setDefaultStringMatchOperator:(NSString *)operator
 {
-  ASSIGN(defaultStringMatchOperator, operator);
+  LOGObjectFnStart();
+  ASSIGN(_defaultStringMatchOperator, operator);
+  LOGObjectFnStop();
 }
 
 
@@ -1737,14 +1486,16 @@ static char rcsId[] = "$Id$";
 
 - (void)setDetailKey:(NSString *)detailKey
 {
-  EODetailDataSource *source;
+  EODetailDataSource *source=nil;
+  LOGObjectFnStart();
 
   if([self hasDetailDataSource] == YES)
     {
-      source = (EODetailDataSource *)dataSource;
+      source = (EODetailDataSource *)_dataSource;
       [source qualifyWithRelationshipKey:detailKey
 	      ofObject:[source masterObject]];
     }
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1752,7 +1503,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setFetchesOnLoad:(BOOL)flag
 {
-  flags.autoFetch = flag;
+  LOGObjectFnStart();
+  _flags.autoFetch = flag;
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1760,7 +1513,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setInQueryMode:(BOOL)flag
 {
-  flags.queryMode = flag;
+  LOGObjectFnStart();
+  _flags.queryMode = flag;
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1768,7 +1523,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setInsertedObjectDefaultValues:(NSDictionary *)defaultValues
 {
-  ASSIGN(insertedObjectDefaultValues, defaultValues);
+  LOGObjectFnStart();
+  ASSIGN(_insertedObjectDefaultValues, defaultValues);
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1776,7 +1533,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setLocalKeys:(NSArray *)keys
 {
-  ASSIGN(localKeys, keys);
+  LOGObjectFnStart();
+  ASSIGN(_localKeys, keys);
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1784,14 +1543,16 @@ static char rcsId[] = "$Id$";
 
 - (void)setMasterObject:(id)masterObject
 {
-  EODetailDataSource *source;
+  EODetailDataSource *source=nil;
+  LOGObjectFnStart();
 
   if([self hasDetailDataSource] == YES)
     {
-      source = (EODetailDataSource *)dataSource;
-      [dataSource qualifyWithRelationshipKey:[source detailKey]
+      source = (EODetailDataSource *)_dataSource;
+      [_dataSource qualifyWithRelationshipKey:[source detailKey]
 		  ofObject:masterObject];
     }
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1799,7 +1560,12 @@ static char rcsId[] = "$Id$";
 
 - (void)setNumberOfObjectsPerBatch:(unsigned)count
 {
-  numberOfObjectsPerBatch = count;
+  LOGObjectFnStart();
+//FIXME  call clearSelection
+
+  _numberOfObjectsPerBatch = count;
+  _batchIndex=max(1,_batchIndex);
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1807,12 +1573,15 @@ static char rcsId[] = "$Id$";
 
 - (void)setObjectArray:(NSArray *)objects
 {
-  [allObjects removeAllObjects];
-  [allObjects addObjectsFromArray:objects];
+  LOGObjectFnStart();
+  NSDebugMLog(@"objects=%@",objects);
+  [_allObjects removeAllObjects];
+  [_allObjects addObjectsFromArray:objects];
 
   [self updateDisplayedObjects];
 
   // TODO selection
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1820,7 +1589,9 @@ static char rcsId[] = "$Id$";
 
 - (void)setQualifier:(EOQualifier *)qualifier_
 {
-  ASSIGN(qualifier, qualifier_);
+  LOGObjectFnStart();
+  ASSIGN(_qualifier, qualifier_);
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1828,9 +1599,20 @@ static char rcsId[] = "$Id$";
 
 - (void)setSelectedObject:(id)object
 {
+  LOGObjectFnStart();
   [self selectObject:object];
+  LOGObjectFnStop();
 }
 
+//--------------------------------------------------------------------
+//	setSelectedObjects:
+
+- (void)setSelectedObjects:(id)object
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+}
 //--------------------------------------------------------------------
 //	setSelectionIndexes:
 
@@ -1838,8 +1620,9 @@ static char rcsId[] = "$Id$";
 {
   NSEnumerator *objsEnum;
   NSNumber *number;
+  LOGObjectFnStart();
 
-  if(delegateRespondsTo.shouldChangeSelection == YES)
+  if(_delegateRespondsTo.shouldChangeSelection == YES)
     if([delegate displayGroup:self
 		 shouldChangeSelectionToIndexes:selection_] == NO)
       return NO;
@@ -1848,29 +1631,30 @@ static char rcsId[] = "$Id$";
   while((number = [objsEnum nextObject]))
     {
       NS_DURING
-	[allObjects objectAtIndex:[number unsignedIntValue]];
+	[_allObjects objectAtIndex:[number unsignedIntValue]];
       NS_HANDLER
 	return NO;
       NS_ENDHANDLER;
     }
 
-  [selectedObjects removeAllObjects];
+  [_selectedObjects removeAllObjects];
 
   objsEnum = [selection_ objectEnumerator];
   while((number = [objsEnum nextObject]))
     {
-      [selectedObjects
-	addObject:[allObjects objectAtIndex:[number unsignedIntValue]]];
+      [_selectedObjects
+	addObject:[_allObjects objectAtIndex:[number unsignedIntValue]]];
     }
 
-  ASSIGN(selection, selection_);
+  ASSIGN(_selection, selection_);
 
-  if(delegateRespondsTo.didChangeSelection == YES)
+  if(_delegateRespondsTo.didChangeSelection == YES)
     [delegate displayGroupDidChangeSelection:self];
 
-  if(delegateRespondsTo.didChangeSelectedObjects == YES)
+  if(_delegateRespondsTo.didChangeSelectedObjects == YES)
     [delegate displayGroupDidChangeSelectedObjects:self];
 
+  LOGObjectFnStop();
   return YES;
 }
 
@@ -1879,15 +1663,19 @@ static char rcsId[] = "$Id$";
 
 - (void)setSelectsFirstObjectAfterFetch:(BOOL)flag
 {
-  flags.selectFirstObject = flag;
+  LOGObjectFnStart();
+  _flags.selectFirstObject = flag;
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 //	setSortOrdering:
 
-- (void)setSortOrdering:(NSArray *)orderings
+- (void)setSortOrderings:(NSArray *)orderings
 {
-  ASSIGN(sortOrdering, orderings);
+  LOGObjectFnStart();
+  ASSIGN(_sortOrdering, orderings);
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1895,15 +1683,19 @@ static char rcsId[] = "$Id$";
 
 - (void)setValidatesChangesImmediately:(BOOL)flag
 {
-  flags.validateImmediately = flag;
+  LOGObjectFnStart();
+  _flags.validateImmediately = flag;
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 //	sortOrdering
 
-- (NSArray *)sortOrdering
+- (NSArray *)sortOrderings
 {
-  return sortOrdering;
+  LOGObjectFnStart();
+  LOGObjectFnStop();
+  return _sortOrdering;
 }
 
 //--------------------------------------------------------------------
@@ -1911,37 +1703,39 @@ static char rcsId[] = "$Id$";
 
 - (void)updateDisplayedObjects
 {
-  NSEnumerator *objsEnum;
-  id object;
+  NSEnumerator *objsEnum=nil;
+  id object=nil;
+  LOGObjectFnStart();
 
-  [displayedObjects removeAllObjects];
+  [_displayedObjects removeAllObjects];
 
-  if(delegateRespondsTo.displayArrayForObjects == YES)
+  if(_delegateRespondsTo.displayArrayForObjects == YES)
     {
-      [displayedObjects
+      [_displayedObjects
 	addObjectsFromArray:[delegate displayGroup:self
-				      displayArrayForObjects:allObjects]];
+				      displayArrayForObjects:_allObjects]];
 
       return;
     }
 
-  if(qualifier)
+  if(_qualifier)
     {
-      objsEnum = [allObjects objectEnumerator];
+      objsEnum = [_allObjects objectEnumerator];
       while((object = [objsEnum nextObject]))
 	{
-	  if([qualifier evaluateWithObject:object] == YES)
-	    [displayedObjects addObject:object];
+	  if([_qualifier evaluateWithObject:object] == YES)
+	    [_displayedObjects addObject:object];
 	}
     }
   else
     {
-      batchIndex = [self batchCount];
+      _batchIndex = [self batchCount];
       [self displayNextBatch];
     }
 
-  if(sortOrdering)
-    [displayedObjects sortUsingKeyOrderArray:sortOrdering];
+  if(_sortOrdering)
+    [_displayedObjects sortUsingKeyOrderArray:_sortOrdering];
+  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -1949,18 +1743,24 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)validatesChangesImmediately
 {
-  return flags.validateImmediately;
+  LOGObjectFnStart();
+  LOGObjectFnStop();
+  return _flags.validateImmediately;
 }
 
 - (id)initWithCoder:(NSCoder *)coder
 {
+  LOGObjectFnStart();
   [self notImplemented:_cmd];
+  LOGObjectFnStop();
   return nil;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
+  LOGObjectFnStart();
   [self notImplemented:_cmd];
+  LOGObjectFnStop();
 }
 
 #endif

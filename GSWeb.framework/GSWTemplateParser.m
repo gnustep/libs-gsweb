@@ -24,792 +24,519 @@
 static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
+#include <gsantlr/ANTLRCommon.h>
+#include <gsantlr/ANTLRTextStreams.h>
+#include "GSWPageDefLexer.h"
+#include "GSWPageDefParser.h"
+#include "GSWPageDefParserExt.h"
 
+Class GSWTemplateParser_DefaultParserClass=Nil;
 //====================================================================
 @implementation GSWTemplateParser
 
++(void)initialize
+{
+  if (self == [GSWTemplateParser class])
+    {
+      GSWTemplateParser_DefaultParserClass=NSClassFromString(GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME);
+      NSAssert(GSWTemplateParser_DefaultParserClass,@"Bad GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME");
+    };
+};
+
+//--------------------------------------------------------------------
++(void)setDefaultParserClassName:(NSString*)parserClassName
+{
+  NSAssert(parserClassName,@"No defaultParser Class Name");
+  GSWTemplateParser_DefaultParserClass=NSClassFromString(parserClassName);
+  NSAssert1(GSWTemplateParser_DefaultParserClass,@"No class named %@",parserClassName);
+};
+
+//--------------------------------------------------------------------
++(Class)defaultParserClass
+{
+  return GSWTemplateParser_DefaultParserClass;
+};
+
+//--------------------------------------------------------------------
++(NSString*)defaultParserClassName
+{
+  return [NSString stringWithCString:[GSWTemplateParser_DefaultParserClass name]];
+};
+
 //--------------------------------------------------------------------
 +(GSWElement*)templateNamed:(NSString*)name_
-		   inFrameworkNamed:(NSString*)frameworkName_
-			 withHTMLString:(NSString*)HTMLString
-				   htmlPath:(NSString*)HTMLPath
-		  declarationString:(NSString*)pageDefString
-				  languages:(NSArray*)languages_
-			declarationPath:(NSString*)declarationPath_
+           inFrameworkNamed:(NSString*)frameworkName_
+        withParserClassName:(NSString*)parserClassName
+                 withString:(NSString*)HTMLString
+                   encoding:(NSStringEncoding)encoding_
+                   fromPath:(NSString*)HTMLPath
+          definitionsString:(NSString*)pageDefString
+                  languages:(NSArray*)languages_
+             definitionPath:(NSString*)definitionPath_
 {
-  GSWElement* _template=nil;
-  NSAutoreleasePool* arp = nil;
-  NSMutableDictionary* pageDefElements=nil;
-  BOOL pageDefParseOK=NO;
+  GSWElement* resultTemplate=nil;
+  Class parserClass=Nil;
   LOGClassFnStart();
-  arp=[NSAutoreleasePool new];
-  NSDebugMLLog(@"low",@"template named:%@ frameworkName:%@ pageDefString=%@",name_,frameworkName_,pageDefString);
-  
-  //TODO remove
-/*
-  [ANTLRCharBuffer setTraceFlag_LA:YES];
-  [ANTLRCharScanner setTraceFlag_LA:YES];
-  [ANTLRLLkParser setTraceFlag_LA:YES];
-  [ANTLRTokenBuffer setTraceFlag_LA:YES];
-*/
-  if (pageDefString && [pageDefString length]>0)
-	{
-	  pageDefElements=[NSMutableDictionary dictionary];
-	  pageDefParseOK=[self parseDeclarationString:pageDefString
-						   languages:languages_
-						   named:name_
-						   inFrameworkNamed:frameworkName_
-						   declarationPath:declarationPath_
-						   into:pageDefElements];
-	}
-  else
-	pageDefParseOK=YES;
-  NSDebugMLLog(@"low",@"template named:%@ pageDefElements=%@",name_,pageDefElements);
-  if (pageDefParseOK)
-	{
-	  id<NSObject,ANTLRAST> htmlAST=nil;
-	  NSMutableArray* _classes=[NSMutableArray array];
-	  BOOL createClassesOk=NO;
-	  NSEnumerator* _enum = [pageDefElements objectEnumerator];
-	  id _obj=nil;
-	  NSString* _className=nil;
-	  NSDebugMLLog(@"low",@"template named:%@ pageDefElements=%@",name_,pageDefElements);
-	  while ((_obj = [_enum nextObject]))
-		{
-		  _className=[_obj className];
-		  if (_className)
-			[_classes addObject:_className];
-		};
-	  createClassesOk=YES;/*[GSWApplication createUnknownComponentClasses:_classes
-									  superClassName:@"GSWComponent"];*/
-	  if (createClassesOk)
-		{
-		  NSAutoreleasePool* arpParse=nil;
-		  ANTLRTextInputStreamString* htmlStream=[[ANTLRTextInputStreamString newWithString:HTMLString]
-												   autorelease];
-		  GSWHTMLLexer* htmlLexer=[[[GSWHTMLLexer alloc]initWithTextStream:htmlStream]
-									autorelease];
-		  ANTLRTokenBuffer* htmlTokenBuffer=[ANTLRTokenBuffer tokenBufferWithTokenizer:htmlLexer];
-		  GSWHTMLParser* htmlParser=[[[GSWHTMLParser alloc] initWithTokenBuffer:htmlTokenBuffer]
-									  autorelease];
-		  NSDebugMLLog(@"low",@"template named:%@ HTMLString=%@",name_,HTMLString);
-		  arpParse=[NSAutoreleasePool new];
-		  NS_DURING
-			{
-			  [htmlParser document];
-			  if ([htmlParser isError])
-				{
-				  LOGError(@"Parser Errors : %@",[htmlParser errors]);
-				  ExceptionRaise(@"GSWTemplateParser",
-								 @"GSWTemlateParser: Errors in HTML parsing template named %@: %@\nAST:\n%@",
-								 name_,
-								 [htmlParser errors],
-								 [htmlParser AST]);
-				};
-			  htmlAST=[htmlParser AST];
-			  NSDebugMLLog0(@"low",@"HTML Parse OK!");
-			}
-		  NS_HANDLER
-			{
-			  LOGError(@"template named:%@ HTML Parse failed!",name_);
-			  localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,@"In [htmlParser document]... template named:%@ HTML Parse failed!",name_);
-			  [localException retain];
-			  DESTROY(arpParse);
-			  [localException autorelease];
-			  [localException raise];
-			}
-		  NS_ENDHANDLER;
-		  NSDebugMLLog0(@"low",@"arpParse infos:\n");
-#ifndef NDEBUG
-		  if ([NSThread currentThread])
-			{
-			  NSDebugMLLog(@"low",@"thread current_pool=%@",
-					 [NSThread currentThread]->_autorelease_vars.current_pool);
-			  NSDebugMLLog(@"low",@"thread current_pool _parentAutoreleasePool=%@",
-					 [[NSThread currentThread]->_autorelease_vars.current_pool _parentAutoreleasePool]);
-			};
-#endif
-		  NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
-		  [htmlAST retain];
-		  DESTROY(arpParse);
-		  [htmlAST autorelease];
-		  NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
-		};
-	  if (htmlAST)
-		{
-		  /*		  ANTLRTextInputStreamString* elementStream=[[ANTLRTextInputStreamString new]autorelease];
-					  GSWHTMLAttrLexer* htmlAttrLexer=[[[GSWHTMLAttrLexer alloc]initWithTextStream:elementStream]autorelease];
-					  ANTLRTokenBuffer* htmlAttrTokenBuffer=[ANTLRTokenBuffer tokenBufferWithTokenizer:htmlAttrLexer];
-					  GSWHTMLAttrParser* htmlAttrParser=[[[GSWHTMLAttrParser alloc] initWithTokenBuffer:htmlAttrTokenBuffer]autorelease];*/
-		  NSMutableDictionary* tagsNames=[NSMutableDictionary dictionary];
-		  NSMutableDictionary* tagsAttrs=[NSMutableDictionary dictionary];
-		  NSDebugMLLog(@"low",@"pageDefElements=%@",pageDefElements);
-		  NS_DURING
-			{
-			  _template=[self createElementsStartingWithAST:&htmlAST
-							  stopOnTagNamed:nil
-							  withDefinitions:pageDefElements
-							  withLanguages:languages_
-							  /*						  withTagStream:elementStream
-														  withTagParser:htmlAttrParser*/
-							  withTagsNames:tagsNames
-							  withTagsAttr:tagsAttrs
-							  templateNamed:name_];
-			  NSDebugMLLog(@"low",@"template named:%@ _template=%@",name_,_template);
-			}
-		  NS_HANDLER
-			{
-			  LOGSeriousError(@"template named:%@ createElements failed!",name_);
-			  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In createElementsStartingWithAST...");
-			  [localException raise];
-			}
-		  NS_ENDHANDLER;
-		};
-	}
-  else
-	{
-	  LOGError(@"Template named:%@ componentDefinition parse failed :%@",
-			   name_,
-			   pageDefString);
-	};
-  NSDebugMLLog0(@"low",@"ARP infos:\n");
-#ifndef NDEBUG
-  if ([NSThread currentThread])
-	{
-	  NSDebugMLLog(@"low",@"thread current_pool=%@",
-			 [NSThread currentThread]->_autorelease_vars.current_pool);
-	  NSDebugMLLog(@"low",@"thread current_pool _parentAutoreleasePool=%@",
-			 [[NSThread currentThread]->_autorelease_vars.current_pool _parentAutoreleasePool]);
-	};
-#endif
-  [_template retain];
-  NSDebugMLLog0(@"low",@"DESTROY(arp)\n");
-  DESTROY(arp);
-  NSDebugMLLog0(@"low",@"DESTROYED(arp)\n");
-  [_template autorelease];
-  NSDebugMLLog0(@"low",@"Display Template\n");
-  NSDebugMLLog(@"low",@"template named:%@ _template=%@",name_,_template);
+  if (parserClassName)
+    {
+      parserClass=NSClassFromString(parserClassName);
+      NSAssert1(parserClass,@"No Parser class named %@",parserClassName);
+    };
+  resultTemplate=[self templateNamed:name_
+                       inFrameworkNamed:frameworkName_
+                       withParserClass:parserClass
+                       withString:HTMLString
+                       encoding:encoding_
+                       fromPath:HTMLPath
+                       definitionsString:pageDefString
+                       languages:languages_
+                       definitionPath:definitionPath_];
   LOGClassFnStop();
+  return resultTemplate;
+};
+
+//--------------------------------------------------------------------
++(GSWElement*)templateNamed:(NSString*)name_
+           inFrameworkNamed:(NSString*)frameworkName_
+            withParserClass:(Class)parserClass
+                 withString:(NSString*)HTMLString
+                   encoding:(NSStringEncoding)encoding_
+                   fromPath:(NSString*)HTMLPath
+          definitionsString:(NSString*)pageDefString
+                  languages:(NSArray*)languages_
+             definitionPath:(NSString*)definitionPath_
+{
+  GSWElement* resultTemplate=nil;
+  GSWTemplateParser* templateParser=nil;
+  LOGClassFnStart();
+  NSDebugMLLog(@"low",@"template named:%@ frameworkName:%@ pageDefString=%@",name_,frameworkName_,pageDefString);
+  if (!parserClass)
+    {
+      parserClass=[self defaultParserClass];
+      NSAssert(parserClass,@"No defaultParser Class");
+    };
+  templateParser=[[[parserClass alloc] initWithTemplateName:name_
+                                       inFrameworkName:frameworkName_
+                                       withString:HTMLString
+                                       encoding:encoding_
+                                       fromPath:HTMLPath
+                                       withDefinitionsString:pageDefString
+                                       fromPath:definitionPath_
+                                       forLanguages:languages_] autorelease];
+  if (templateParser)
+    resultTemplate=[templateParser template];
+  LOGClassFnStop();
+  return resultTemplate;
+};
+
+//--------------------------------------------------------------------
+-(id)initWithTemplateName:(NSString*)name_
+          inFrameworkName:(NSString*)frameworkName_
+               withString:(NSString*)HTMLString
+                 encoding:(NSStringEncoding)encoding_
+                 fromPath:(NSString*)HTMLPath
+    withDefinitionsString:(NSString*)pageDefString
+                 fromPath:(NSString*)definitionPath_
+             forLanguages:(NSArray*)languages_
+{
+  if ((self=[self init]))
+    {
+      ASSIGN(_templateName,name_);
+      ASSIGN(_frameworkName,frameworkName_);
+      ASSIGN(_string,HTMLString);
+      _stringEncoding=encoding_;
+      ASSIGN(_stringPath,HTMLPath);
+      ASSIGN(_definitionsString,pageDefString);
+      ASSIGN(_languages,languages_);
+      ASSIGN(_definitionsPath,languages_);
+    };
+  return self;
+};
+
+//--------------------------------------------------------------------
+-(void)dealloc
+{
+  DESTROY(_templateName);
+  DESTROY(_frameworkName);
+  DESTROY(_string);
+  DESTROY(_stringPath);
+  DESTROY(_definitionsString);
+  DESTROY(_languages);
+  DESTROY(_definitionsPath);
+  DESTROY(_template);
+  DESTROY(_definitions);
+  [super dealloc];
+};
+
+//--------------------------------------------------------------------
+-(NSString*)logPrefix
+{
+  return [NSString stringWithFormat:@"Template Parser for template named %@ in framework %@ at %@ - ",
+                   _templateName,
+                   _frameworkName,
+                   _stringPath];
+};
+
+//--------------------------------------------------------------------
+-(GSWElement*)template
+{
+  LOGObjectFnStart();
+  if (!_template)
+    {
+      NSArray* elements=nil;
+      NSDictionary* definitions=nil;
+      definitions=[self definitions];
+      if (!definitions)
+        {
+          ExceptionRaise(@"GSWTemplateParser",
+                         @"%@ Can't get definitions",
+                         [self logPrefix]);
+        }
+      else
+        {
+          /*
+            NSMutableArray* _classes=[NSMutableArray array];
+            BOOL createClassesOk=NO;
+            NSEnumerator* _enum = [definitionsElements objectEnumerator];
+            id _obj=nil;
+            NSString* _className=nil;
+            NSDebugMLLog(@"low",@"template named:%@ definitionsElements=%@",name_,definitionsElements);
+            while ((_obj = [_enum nextObject]))
+            {
+            _className=[_obj className];
+            if (_className)
+            [_classes addObject:_className];
+            };
+            createClassesOk=YES;/[GSWApplication createUnknownComponentClasses:_classes superClassName:@"GSWComponent"];
+            if (createClassesOk)
+            {
+          */  
+          NS_DURING
+            {
+              elements=[self templateElements];
+            }
+          NS_HANDLER
+            {
+              LOGError(@"%@ Parse failed! Exception:%@",
+                       [self logPrefix],
+                       localException);
+              localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                                      @"%@ - In [htmlParser document] Parse failed!",
+                                                                      [self logPrefix]);
+              [localException retain];
+              [localException autorelease];
+              [localException raise];
+            }
+          NS_ENDHANDLER;
+          if (elements)
+            {
+              _template=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
+            };
+        };
+    };
+  LOGObjectFnStop();
   return _template;
 };
 
 //--------------------------------------------------------------------
-+(BOOL)parseTag:(ANTLRDefAST)_AST
-/*  withTagStream:(ANTLRTextInputStreamString*)_tagStream
-  withTagParser:(GSWHTMLAttrParser*)_tagParser*/
-  withTagsNames:(NSMutableDictionary*)tagsNames
-  withTagsAttrs:(NSMutableDictionary*)tagsAttrs
+-(NSArray*)templateElements
 {
-  BOOL htmlAttrParseOK=YES;
-  NSString* tagName=[tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
-  LOGClassFnStart();
-  if (!tagName && ([_AST tokenType]==GSWHTMLTokenType_OPENTAG || [_AST tokenType]==GSWHTMLTokenType_CLOSETAG))
-	{
-	  NSAutoreleasePool* arpParse=nil;
-	  ANTLRTextInputStreamString* _tagStream=[[[ANTLRTextInputStreamString alloc] 
-												initWithString:[_AST text]]
-											   autorelease];
-	  GSWHTMLAttrLexer* htmlAttrLexer=[[[GSWHTMLAttrLexer alloc]
-										initWithTextStream:_tagStream]
-									   autorelease];
-	  ANTLRTokenBuffer* htmlAttrTokenBuffer=[ANTLRTokenBuffer tokenBufferWithTokenizer:htmlAttrLexer];
-	  GSWHTMLAttrParser* _tagParser=[[[GSWHTMLAttrParser alloc] initWithTokenBuffer:htmlAttrTokenBuffer]
-									 autorelease];
-	  NSString* tagName=nil;
-	  NSDictionary* tagAttrs=nil;
-	  //[_tagStream setString:[_AST text]];
-	  NSDebugMLLog(@"low",@"PARSE:[%@]",[_AST text]);
-	  NSDebugMLLog(@"low",@"stream:[%@]",_tagStream);
-	  htmlAttrParseOK=NO;
-	  
-	  arpParse=[NSAutoreleasePool new];
-	  NS_DURING
-		{
-		  [_tagParser tag];
-		  if ([_tagParser isError])
-			{
-			  LOGError(@"Parser Errors : %@",[_tagParser errors]);
-			  ExceptionRaise(@"GSWTemplateParser",
-							 @"GSWTemlateParser: Errors in HTML Tag parsing: %@",
-							 [_tagParser errors]);
-			};
-		  tagName=[_tagParser tagName];
-		  tagAttrs=[_tagParser attributes];
-		  NSDebugMLLog(@"low",@"tagName=%@ tagAttrs=%@",tagName,tagAttrs);
-		  htmlAttrParseOK=YES;
-		}
-	  NS_HANDLER
-		{
-		  htmlAttrParseOK=NO;
-		  LOGError(@"PARSE PB:[%@]",[_AST text]);//TODO
-		  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In [_tagParser tag]...");
-		  [localException raise];
-		}
-	  NS_ENDHANDLER;
-	  NSDebugMLLog0(@"low",@"arpParse infos:\n");
-#ifndef NDEBUG
-	  if ([NSThread currentThread])
-		{
-		  NSDebugMLLog(@"low",@"thread current_pool=%@",
-				 [NSThread currentThread]->_autorelease_vars.current_pool);
-		  NSDebugMLLog(@"low",@"thread current_pool _parentAutoreleasePool=%@",
-				 [[NSThread currentThread]->_autorelease_vars.current_pool _parentAutoreleasePool]);
-		};
-#endif
-	  NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
-	  DESTROY(arpParse);
-	  NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
-
-	  NSDebugMLLog(@"low",@"END PARSE:[%@]",[_AST text]);
-	  
-	  if (htmlAttrParseOK && tagName)
-		{
-		  NSDebugMLLog(@"low",@"tagName:[%@]",tagName);
-		  if ([tagName hasPrefix:@"\""] && [tagName hasSuffix:@"\""])
-			tagName=[[tagName stringWithoutPrefix:@"\""]stringWithoutSuffix:@"\""];
-		  NSDebugMLLog(@"low",@"Add tagName:[%@]",tagName);
-		  [tagsNames setObject:tagName
-					 forKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
-		  NSDebugMLLog(@"low",@"Verify tagName=%@",[tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]); //TODO bad hack
-		  NSDebugMLLog(@"low",@"Add tagsAttrs:[%@]",tagAttrs);
-		  if (tagAttrs)
-			{
-			  [tagsAttrs setObject:tagAttrs
-						 forKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
-			  NSDebugMLLog(@"low",@"Verify tagAttrs=%@",[tagsAttrs objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]); //TODO bad hack
-			};
-		};
-	};
-  LOGClassFnStop();
-  return htmlAttrParseOK;
+  [self subclassResponsibility: _cmd];
+  return nil;
 };
 
 //--------------------------------------------------------------------
-+(NSString*)getTagNameFor:(ANTLRDefAST)_AST
-/*			withTagStream:(ANTLRTextInputStreamString*)_tagStream
-			withTagParser:(GSWHTMLAttrParser*)_tagParser*/
-			withTagsNames:(NSMutableDictionary*)tagsNames
-			withTagsAttrs:(NSMutableDictionary*)tagsAttrs
+-(NSDictionary*)definitions
 {
-  NSString* tagName=[tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
-  LOGClassFnStart();
-  NSDebugMLLog(@"low",@"[%@]",[_AST text]);
-  if (!tagName)
-	{
-	  BOOL htmlAttrParseOK=[self parseTag:_AST
-								 /*withTagStream:_tagStream
-								 withTagParser:_tagParser*/
-								 withTagsNames:tagsNames
-								 withTagsAttrs:tagsAttrs];
-	  if (htmlAttrParseOK)
-		tagName=[tagsNames objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
-	};
-  NSDebugMLLog(@"low",@"tagName:[%@]",tagName);
-  LOGClassFnStop();
-  return tagName;
+  LOGObjectFnStart();
+  if (!_definitions)
+    {
+      if ([_definitionsString length]==0)
+        {
+          ASSIGN(_definitions,[NSDictionary dictionary]);
+        }
+      else
+        {
+          NSDictionary* tmpDefinitions=[self parseDefinitionsString:_definitionsString
+                                             named:_templateName
+                                             inFrameworkNamed:_frameworkName
+                                             fromPath:_definitionsPath];
+          if (tmpDefinitions)
+            ASSIGN(_definitions,[NSDictionary dictionaryWithDictionary:tmpDefinitions]);
+        };
+    };
+  LOGObjectFnStop();
+  return _definitions;
 };
 
 //--------------------------------------------------------------------
-+(NSDictionary*)getTagAttrsFor:(ANTLRDefAST)_AST
-/*				 withTagStream:(ANTLRTextInputStreamString*)_tagStream
-				 withTagParser:(GSWHTMLAttrParser*)_tagParser*/
-				 withTagsNames:(NSMutableDictionary*)tagsNames
-				 withTagsAttrs:(NSMutableDictionary*)tagsAttrs
+-(NSDictionary*)parseDefinitionsString:(NSString*)localDefinitionstring_
+                                 named:(NSString*)localDefinitionName_
+                      inFrameworkNamed:(NSString*)localFrameworkName_
+                              fromPath:(NSString*)localDefinitionPath_
 {
-  NSDictionary* tagAttrs=[tagsAttrs objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
-  LOGClassFnStart();
-  NSDebugMLLog(@"low",@"[%@]",[_AST text]);
-  if (!tagAttrs)
-	{
-	  BOOL htmlAttrParseOK=[self parseTag:_AST
-/*								 withTagStream:_tagStream
-								 withTagParser:_tagParser*/
-								 withTagsNames:tagsNames
-								 withTagsAttrs:tagsAttrs];
-	  if (htmlAttrParseOK)
-		tagAttrs=[tagsAttrs objectForKey:[NSNumber numberWithUnsignedLong:(unsigned long)_AST]]; //TODO bad hack
-	};
-  NSDebugMLLog(@"low",@"tagAttrs:[%@]",tagAttrs);
-  LOGClassFnStop();
-  return tagAttrs;
+  NSDictionary* returnedLocalDefinitions=nil;
+  NSMutableDictionary* localDefinitions=nil;
+  NSDictionary* tmpDefinitions=nil;
+  NSArray* definitionsIncludes=nil;
+  NSAutoreleasePool* arpParse=nil;
+  ANTLRTextInputStreamString* definitionsStream=nil;
+  GSWPageDefLexer* definitionsLexer=nil;
+  ANTLRTokenBuffer* definitionsTokenBuffer=nil;
+  GSWPageDefParser* definitionsParser=nil;
+  LOGObjectFnStart();
+  arpParse=[NSAutoreleasePool new];
+  definitionsStream=[[ANTLRTextInputStreamString newWithString:localDefinitionstring_]
+                      autorelease];
+  definitionsLexer=[[[GSWPageDefLexer alloc]initWithTextStream:definitionsStream]
+                     autorelease];
+  definitionsTokenBuffer=[ANTLRTokenBuffer tokenBufferWithTokenizer:definitionsLexer];
+  definitionsParser=[[[GSWPageDefParser alloc] initWithTokenBuffer:definitionsTokenBuffer]
+                      autorelease];
+  NSDebugMLLog(@"low",@"name:%@ definitionsString=%@",
+               localDefinitionName_,
+               localDefinitionstring_);
+  NS_DURING
+    {
+      NSDebugMLLog0(@"low",@"Call definitionsParser");
+      [definitionsParser document];
+      if ([definitionsParser isError])
+        {
+          LOGError(@"%@ %@",
+                   [self logPrefix],
+                   [definitionsParser errors]);
+          ExceptionRaise(@"GSWTemplateParser",
+                         @"%@ Errors in Definitions parsing template named %@: %@\nString:\n%@",
+                         [self logPrefix],
+                         localDefinitionName_,
+                         [definitionsParser errors],
+                         localDefinitionstring_);
+        };
+      NSDebugMLLog0(@"low",@"Call [definitionsParser elements]");
+      tmpDefinitions=[[[definitionsParser elements] mutableCopy] autorelease];
+      definitionsIncludes=[definitionsParser includes];
+      NSDebugMLLog0(@"low",@"Definitions Parse OK!");
+      NSDebugMLLog(@"low",@"localDefinitions=%@",tmpDefinitions);
+      NSDebugMLLog(@"low",@"definitionsIncludes=%@",definitionsIncludes);
+    }
+  NS_HANDLER
+    {
+      LOGError(@"%@ name:%@ Definitions Parse failed!",
+               [self logPrefix],
+               localDefinitionName_);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"%@ In [definitionsParser document]...",
+                                                              [self logPrefix]);
+      [localException retain];
+      DESTROY(arpParse);
+      [localException autorelease];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  NSDebugMLLog0(@"low",@"arpParse infos:\n");
+  [tmpDefinitions retain];
+  [definitionsIncludes retain];
+  NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
+  DESTROY(arpParse);
+  NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
+  [tmpDefinitions autorelease];
+  [definitionsIncludes autorelease];
+  
+  if (tmpDefinitions)
+    localDefinitions=[NSMutableDictionary dictionaryWithDictionary:tmpDefinitions];
+  if (localDefinitions)
+    {
+      NSDebugMLLog(@"low",@"definitionsIncludes:%@\n",definitionsIncludes);
+      NSDebugMLLog(@"low",@"localDefinitionName_:%@\n",localDefinitionName_);
+      NSDebugMLLog(@"low",@"localFrameworkName_:%@\n",localFrameworkName_);
+      NSDebugMLLog(@"low",@"localDefinitionPath_:%@\n",localDefinitionPath_);
+      tmpDefinitions=[self processIncludes:definitionsIncludes
+                           named:localDefinitionName_
+                           inFrameworkNamed:localFrameworkName_
+                           definitionPath:localDefinitionPath_];
+      NSDebugMLLog(@"low",@"tmpDefinitions:%@\n",tmpDefinitions);
+      if (tmpDefinitions)
+        [localDefinitions addDefaultEntriesFromDictionary:tmpDefinitions];			  
+      else
+        {
+          localDefinitions=nil;
+          LOGError(@"%@ Template name:%@ componentDefinition parse failed for definitionsIncludes:%@",
+                   [self logPrefix],
+                   localDefinitionName_,
+                   definitionsIncludes);
+        };
+      NSDebugMLLog(@"low",@"localDefinitions:%@\n",localDefinitions);
+    };
+  NSDebugMLLog(@"low",@"localDefinitions:%@\n",localDefinitions);
+  if (localDefinitions)
+    returnedLocalDefinitions=[NSDictionary dictionaryWithDictionary:localDefinitions];
+  LOGObjectFnStop();
+  return returnedLocalDefinitions;
 };
 
 //--------------------------------------------------------------------
-+(GSWElement*)createElementsStartingWithAST:(ANTLRDefAST*)_AST
-							stopOnTagNamed:(NSString*)_stopTagName
-						   withDefinitions:(NSDictionary*)pageDefElements
-							 withLanguages:(NSArray*)languages_
-/*							 withTagStream:(ANTLRTextInputStreamString*)_tagStream
-							 withTagParser:(GSWHTMLAttrParser*)_tagParser*/
-							 withTagsNames:(NSMutableDictionary*)tagsNames
-							  withTagsAttr:(NSMutableDictionary*)tagsAttrs
-							  templateNamed:(NSString*)templateName_
+-(NSDictionary*)parseDefinitionInclude:(NSString*)includeName_
+                    fromFrameworkNamed:(NSString*)fromFrameworkName_
+                        definitionPath:(NSString*)localDefinitionPath_
 {
-  GSWElement* result=nil;
-  NSMutableArray* _elements=[NSMutableArray array];
-  ANTLRDefAST _currentAST=*_AST;
-  BOOL end=NO;
-  BOOL inHTMLBareString=NO;
-  NSMutableString* htmlBareString=nil;
-  LOGClassFnStart();
-  NSDebugMLLog(@"low",@"_stopTagName:[%@]",_stopTagName);
-  while(_currentAST && !end)
-	{
-	  GSWElement* element=nil;
-	  NSString* tagName=nil;
-	  NSDictionary* tagAttrs=nil;
-	  BOOL htmlAttrParseOK=NO;	  
-	  BOOL stopBareString=NO;
-	  NSDebugMLLog(@"low",@"[_currentAST: text=[%@] Type=%d",[_currentAST text],[_currentAST tokenType]);
-	  NSDebugMLLog(@"low",@"end=%s inHTMLBareString=%s stopBareString=%s",
-			end ? "YES" : "NO",
-			inHTMLBareString ? "YES" : "NO",
-			stopBareString ? "YES" : "NO");
-	  if ([_currentAST tokenType]==GSWHTMLTokenType_OPENTAG || [_currentAST tokenType]==GSWHTMLTokenType_CLOSETAG)
-		{
-		  tagName=[self getTagNameFor:_currentAST
-/*						withTagStream:_tagStream
-						withTagParser:_tagParser*/
-						withTagsNames:tagsNames
-						withTagsAttrs:tagsAttrs];
-		  NSDebugMLLog(@"low",@"Result tagName:[%@]",tagName);
-		  if (!tagName)
-			{
-			  LOGError0(@"");//TODO
-			}
-		  else
-			{
-			  NSDebugMLLog(@"low",@"[_currentAST tokenType]=%d",(int)[_currentAST tokenType]);
-			  if ([_currentAST tokenType]==GSWHTMLTokenType_OPENTAG)
-				{
-				  NSDebugMLLog0(@"low",@"Found Open Tag");
-				  tagAttrs=[self getTagAttrsFor:_currentAST
-								 /*						withTagStream:_tagStream
-														withTagParser:_tagParser*/
-								 withTagsNames:tagsNames
-								 withTagsAttrs:tagsAttrs];
-				  NSDebugMLLog(@"low",@"tagAttrs=%@",tagAttrs);
-				  if ([tagName caseInsensitiveCompare:@"gsweb"]==NSOrderedSame
-					  || [tagName caseInsensitiveCompare:@"webobject"]==NSOrderedSame)
-					{
-					  NSDebugMLLog0(@"low",@"Found GSWeb Tag");
-					  NSDebugMLLog(@"low",@"tagAttrs=%@",tagAttrs);
-					  if (inHTMLBareString)
-						{
-						  NSDebugMLLog0(@"low",@"==>Stop BareString");
-						  stopBareString=YES;
-						}
-					  else
-						{
-						  ANTLRDefAST nextAST=[_currentAST nextSibling];
-						  NSString* name=[tagAttrs objectForKey:@"name"];
-						  NSDebugMLLog0(@"low",@"Process GSWeb Tag");
-						  NSDebugMLLog(@"low",@"GSWeb Tag: name:[%@]",name);
-						  if (!name)
-							{
-							  LOGError(@"No name for Element:%@",[_currentAST text]);//TODO
-							  ExceptionRaise(@"GSWTemplateParser",@"GSWTemlateParser: no name for GNUstepWeb tag in template named %@",
-											 templateName_);
-							}
-						  else
-							{
-							  GSWPageDefElement* pageDefElement=[pageDefElements objectForKey:name];
-							  NSDebugMLLog(@"low",@"pageDefElement:[%@]",
-										   pageDefElement);
-							  NSDebugMLLog(@"low",@"GSWeb Tag pageDefElement:[%@]",
-										   pageDefElement);
-							  if (pageDefElement)
-								{
-								  NSDictionary* _associations=[pageDefElement associations];
-								  NSString* className=nil;
-								  className=[pageDefElement className];
-								  NSDebugMLLog(@"low",@"GSWeb Tag className:[%@]",className);
-								  if (className)
-									{
-									  GSWElement* children=nil;
-									  children=[self createElementsStartingWithAST:&nextAST
-													 stopOnTagNamed:tagName
-													 withDefinitions:pageDefElements
-													 withLanguages:languages_
-													 /*withTagStream:_tagStream
-													   withTagParser:_tagParser*/
-													 withTagsNames:tagsNames
-													 withTagsAttr:tagsAttrs
-													 templateNamed:templateName_];
-									  NSDebugMLLog(@"low",@"CREATE Element of Class:%@",className);
-									  NSDebugMLLog(@"low",@"children:%@",children);
-									  NSDebugMLLog(@"low",@"associations:%@",_associations);
-									  {
-										NSEnumerator* _tagAttrsEnum = [tagAttrs keyEnumerator];
-										id _tagAttrKey=nil;
-										id _tagAttrValue=nil;
-										NSMutableDictionary* _addedAssoc=nil;
-										while ((_tagAttrKey = [_tagAttrsEnum nextObject]))
-										  {
-											if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
-											  {
-												if (!_addedAssoc)
-												  _addedAssoc=[NSMutableDictionary dictionary];
-												_tagAttrValue=[tagAttrs objectForKey:_tagAttrKey];
-												[_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
-															 forKey:_tagAttrKey];
-											  };
-										  };
-										if (_addedAssoc)
-										  {
-											_associations=[_associations dictionaryByAddingEntriesFromDictionary:_addedAssoc];
-										  };
-									  };
-									  element=[GSWApp dynamicElementWithName:className
-													  associations:_associations
-													  template:children
-													  languages:languages_];
-									  if (!element)
-										{
-										  ExceptionRaise(@"GSWTemplateParser",
-														 @"GSWTemplateParser: Creation failed for element named:%@ className:%@ in template named %@",
-														 [pageDefElement elementName],
-														 className,
-														 templateName_);
-										};
-									}
-								  else
-									{
-									  ExceptionRaise(@"GSWTemplateParser",
-													 @"GSWTemplateParser: No class name in page definition for tag named:%@ pageDefElement=%@ in template named %@",
-													 name,
-													 pageDefElement,
-													 templateName_);
-									};
-								}
-							  else
-								{
-								  ExceptionRaise(@"GSWTemplateParser",
-												 @"No element definition for tag named:%@ in template named %@",
-												 name,
-												 templateName_);
-								};
-							};
-						  _currentAST=nextAST;
-						};
-					};
-				}
-			  else
-				{				  
-				  if (_stopTagName && [tagName caseInsensitiveCompare:_stopTagName]==NSOrderedSame)
-					{
-					  NSDebugMLLog(@"low",@"_stopTagName found: %@",_stopTagName);
-					  end=YES;
-					  stopBareString=YES;
-					  _currentAST=[_currentAST nextSibling];
-					};
-				};
-			};
-		}
-	  else if ([_currentAST tokenType]==GSWHTMLTokenType_COMMENT)
-		{
-		  stopBareString=YES;
-		  element=[GSWHTMLComment elementWithString:[_currentAST text]];
-		  _currentAST=[_currentAST nextSibling];
-		}
-/*	  else if ([_currentAST tokenType]==GSWHTMLTokenType_INCLUDE)
-		{
-		  stopBareString=YES;
-		  element=[GSWHTMLComment elementWithString:[_currentAST text]];
-		  _currentAST=[_currentAST nextSibling];
-		};*/
-	  NSDebugMLLog(@"low",@"end=%s inHTMLBareString=%s stopBareString=%s",
-			end ? "YES" : "NO",
-			inHTMLBareString ? "YES" : "NO",
-			stopBareString ? "YES" : "NO");
-	  if (!element && !end && !stopBareString)
-		{
-		  NSDebugMLLog0(@"low",@"!element && !end && !stopBareString");
-		  if (!inHTMLBareString)
-			{
-			  NSDebugMLLog0(@"low",@"!inHTMLBareString ==> inHTMLBareString=YES");
-			  inHTMLBareString=YES;
-			  htmlBareString=[[NSMutableString new] autorelease];
-			};
-		  NSDebugMLLog(@"low",@"inHTMLBareString: adding [%@]",[_currentAST text]);
-		  if ([_currentAST tokenType]==GSWHTMLTokenType_OPENTAG)
-			[htmlBareString appendFormat:@"<%@>",[_currentAST text]];
-		  else if ([_currentAST tokenType]==GSWHTMLTokenType_CLOSETAG)
-			[htmlBareString appendFormat:@"</%@>",[_currentAST text]];
-		  else
-			[htmlBareString appendString:[_currentAST text]];
-		  NSDebugMLLog(@"low",@"htmlBareString: ==> [%@]",htmlBareString);
-		  _currentAST=[_currentAST nextSibling];
-		};
-	  if (inHTMLBareString && (stopBareString || !_currentAST))
-		{
-		  NSDebugMLLog0(@"low",@"inHTMLBareString && stopBareString");
-		  NSDebugMLLog(@"low",@"CREATE GSWHTMLBareString:\n%@",htmlBareString);
-		  element=[GSWHTMLBareString elementWithString:htmlBareString];
-		  NSDebugMLLog(@"low",@"element:%@",element);
-		  htmlBareString=nil;
-		  inHTMLBareString=NO;
-		};
-	  if (element)
-		{
-		  NSDebugMLLog(@"low",@"element to add: element=[%@]",element);
-		  [_elements addObject:element];
-		  element=nil;
-		};
-	  NSDebugMLLog(@"low",@"element:%@",element);
-	  NSDebugMLLog(@"low",@"inHTMLBareString:%d",(int)inHTMLBareString);
-	  NSDebugMLLog(@"low",@"htmlBareString:%@",htmlBareString);
-	};
-  *_AST=_currentAST;
-  NSDebugMLLog(@"low",@"_elements]:%@",_elements);
-  result=[[[GSWHTMLStaticGroup alloc]initWithContentElements:_elements]autorelease];
-  NSDebugMLLog(@"low",@"result:%@",result);
-  LOGClassFnStop();
-  return result;
-};
-
-//--------------------------------------------------------------------
-+(BOOL)parseDeclarationInclude:(NSString*)includeName_
-			fromFrameworkNamed:(NSString*)fromFrameworkName_
-			   declarationPath:(NSString*)declarationPath_
-					 languages:(NSArray*)languages_
-						  into:(NSMutableDictionary*)pageDefElements_
-{
-  BOOL pageDefParseOK=NO;
-  NSString* _frameworkName=nil;
-  NSString* _pageDefName=nil;
+  NSDictionary* returnedLocalDefinitions=nil;
+  NSMutableDictionary* localDefinitions=nil;
+  NSDictionary* tmpDefinitions=nil;
+  NSString* localFrameworkName=nil;
+  NSString* localDefinitionName=nil;
   NSString* _language=nil;
   NSString* _resourceName=nil;
-  NSString* _pageDefResourceName=nil;
+  NSString* localDefinitionResourceName=nil;
   GSWResourceManager* _resourceManager=nil;
   NSString* _path=nil;
   int iLanguage=0;
   LOGObjectFnStart();  
   NSDebugMLLog(@"gswcomponents",@"includeName_=%@",includeName_);
   _resourceManager=[GSWApp resourceManager];
-  _pageDefName=[includeName_ lastPathComponent];
-  _frameworkName=[includeName_ stringByDeletingLastPathComponent];
-  NSDebugMLLog(@"gswcomponents",@"_frameworkName=%@",_frameworkName);
+  localDefinitionName=[includeName_ lastPathComponent];
+  localFrameworkName=[includeName_ stringByDeletingLastPathComponent];
+  NSDebugMLLog(@"gswcomponents",@"localFrameworkName=%@",localFrameworkName);
   NSDebugMLLog(@"gswcomponents",@"fromFrameworkName_=%@",fromFrameworkName_);
-  if ([_frameworkName length]==0)
-	_frameworkName=fromFrameworkName_;
-  NSDebugMLLog(@"gswcomponents",@"_frameworkName=%@",_frameworkName);
+  if ([localFrameworkName length]==0)
+    localFrameworkName=fromFrameworkName_;
+  NSDebugMLLog(@"gswcomponents",@"localFrameworkName=%@",localFrameworkName);
 
-  _resourceName=[_pageDefName stringByAppendingString:GSWPagePSuffix];
-  _pageDefResourceName=[_pageDefName stringByAppendingString:GSWComponentDefinitionPSuffix];
+  _resourceName=[localDefinitionName stringByAppendingString:GSWPagePSuffix];
+  localDefinitionResourceName=[localDefinitionName stringByAppendingString:GSWComponentDefinitionPSuffix];
   NSDebugMLLog(@"gswcomponents",@"_resourceName=%@",_resourceName);
 
-
-  for(iLanguage=0;iLanguage<=[languages_ count] && !_path;iLanguage++)
-	{
-	  if (iLanguage<[languages_ count])
-		_language=[languages_ objectAtIndex:iLanguage];
-	  else
-		_language=nil;
-	  _path=[_resourceManager pathForResourceNamed:_resourceName
-							  inFramework:_frameworkName
-							  language:_language];
-	  NSDebugMLLog(@"gswcomponents",@"Search In Page Component: _language=%@ _path=%@ declarationPath=%@",
-				   _language,
-				   _path,
-				   declarationPath_);
-	  if (_path)
-		_path=[_path stringByAppendingPathComponent:_pageDefResourceName];
-	  else
-		{
-		  _path=[_resourceManager pathForResourceNamed:_pageDefResourceName
-								  inFramework:_frameworkName
-								  language:_language];
-		  NSDebugMLLog(@"gswcomponents",@"Search in Component Definition _language=%@ _path=%@ (declarationPath=%@)",
-					   _language,
-					   _path,
-					   declarationPath_);
-		};
-	  if ([_path isEqualToString:declarationPath_])
-		{
-		  _path=nil;
-		  iLanguage=[languages_ count]-1;
-		};
-	};
+  for(iLanguage=0;iLanguage<=[_languages count] && !_path;iLanguage++)
+    {
+      if (iLanguage<[_languages count])
+        _language=[_languages objectAtIndex:iLanguage];
+      else
+        _language=nil;
+      _path=[_resourceManager pathForResourceNamed:_resourceName
+                              inFramework:localFrameworkName
+                              language:_language];
+      NSDebugMLLog(@"gswcomponents",@"Search In Page Component: _language=%@ _path=%@ localDefinitionPath=%@",
+                   _language,
+                   _path,
+                   localDefinitionPath_);
+      if (_path)
+        _path=[_path stringByAppendingPathComponent:localDefinitionResourceName];
+      else
+        {
+          _path=[_resourceManager pathForResourceNamed:localDefinitionResourceName
+                                  inFramework:localFrameworkName
+                                  language:_language];
+          NSDebugMLLog(@"gswcomponents",@"Search in Component Definition _language=%@ _path=%@ (localDefinitionPath=%@)",
+                       _language,
+                       _path,
+                       localDefinitionPath_);
+        };
+      if ([_path isEqualToString:localDefinitionPath_])
+        {
+          _path=nil;
+          iLanguage=[_languages count]-1;
+        };
+    };
   if (_path)
-	{
-	  NSString* _pageDefString=nil;
-	  NSDebugMLLog(@"low",@"_path=%@",_path);
-	  //NSString* pageDefPath=[path stringByAppendingString:_definitionPath];
-	  //TODO use encoding !
-	  _pageDefString=[NSString stringWithContentsOfFile:_path];
-	  if (_pageDefString)
-		{
-		  pageDefParseOK=[self parseDeclarationString:_pageDefString
-							   languages:languages_
-							   named:includeName_
-							   inFrameworkNamed:_frameworkName
-							   declarationPath:_path
-							   into:pageDefElements_];
-		  if (!pageDefParseOK)
-			LOGError(@"Template componentDefinition parse failed for included file:%@ in framework:%@ (declarationPath=%@)",
-					 includeName_,
-					 _frameworkName,
-					 declarationPath_);
-		}
-	  else
-		{
-		  ExceptionRaise(@"GSWTemplateParser",
-						 @"Can't load included component definition named:%@ in framework:%@ (declarationPath=%@)",
-						 includeName_,
-						 _frameworkName,
-						 declarationPath_);
-		};
-	}
+    {
+      NSString* _pageDefString=nil;
+      NSDebugMLLog(@"low",@"_path=%@",_path);
+      //NSString* pageDefPath=[path stringByAppendingString:_definitionPath];
+      //TODO use encoding !
+      _pageDefString=[NSString stringWithContentsOfFile:_path];
+      if (_pageDefString)
+        {
+          tmpDefinitions=[self parseDefinitionsString:_pageDefString
+                               named:includeName_
+                               inFrameworkNamed:localFrameworkName
+                               fromPath:_path];
+          NSDebugMLLog(@"low",@"tmpDefinitions:%@\n",tmpDefinitions);
+          if (tmpDefinitions)
+            localDefinitions=[NSMutableDictionary dictionaryWithDictionary:tmpDefinitions];
+          else
+            {
+              LOGError(@"%@ Template componentDefinition parse failed for included file:%@ in framework:%@ (definitionPath=%@)",
+                       [self logPrefix],
+                       includeName_,
+                       localFrameworkName,
+                       localDefinitionPath_);
+            };
+          NSDebugMLLog(@"low",@"localDefinitions:%@\n",localDefinitions);
+        }
+      else
+        {
+          ExceptionRaise(@"GSWTemplateParser",
+                         @"%@ Can't load included component definition named:%@ in framework:%@ (definitionPath=%@)",
+                         [self logPrefix],
+                         includeName_,
+                         localFrameworkName,
+                         localDefinitionPath_);
+        };
+    }
   else
-	{
-	  ExceptionRaise(@"GSWTemplateParser",
-					 @"Can't find included component definition named:%@ in framework:%@ (declarationPath=%@)",
-					 includeName_,
-					 _frameworkName,
-					 declarationPath_);
-	};
-  return pageDefParseOK;
+    {
+      ExceptionRaise(@"GSWTemplateParser",
+                     @"%@ Can't find included component definition named:%@ in framework:%@ (definitionPath=%@)",
+                     [self logPrefix],
+                     includeName_,
+                     localFrameworkName,
+                     localDefinitionPath_);
+    };
+  NSDebugMLLog(@"low",@"localDefinitions:%@\n",localDefinitions);
+  if (localDefinitions)
+    returnedLocalDefinitions=[NSDictionary dictionaryWithDictionary:localDefinitions];
+  LOGObjectFnStop();
+  return returnedLocalDefinitions;
 };
 
 //--------------------------------------------------------------------
-+(BOOL)parseDeclarationString:(NSString*)pageDefString
-					languages:(NSArray*)languages_
-						named:(NSString*)name_
-			 inFrameworkNamed:(NSString*)frameworkName_
-			  declarationPath:(NSString*)declarationPath_
-						 into:(NSMutableDictionary*)pageDefElements_
+-(NSDictionary*)processIncludes:(NSArray*)definitionsIncludes_
+                          named:(NSString*)localDefinitionsName_
+               inFrameworkNamed:(NSString*)localFrameworkName_
+                 definitionPath:(NSString*)localDefinitionPath_
 {
-  BOOL pageDefParseOK=NO;
-  NSArray* pageDefIncludes=nil;
-  NSMutableDictionary* _pageDefElements=nil;
-  LOGClassFnStart();
-  {
-	NSAutoreleasePool* arpParse=nil;
-	ANTLRTextInputStreamString* pageDefStream=nil;
-	GSWPageDefLexer* pageDefLexer=nil;
-	ANTLRTokenBuffer* pageDefTokenBuffer=nil;
-	GSWPageDefParser* pageDefParser=nil;
-
-	arpParse=[NSAutoreleasePool new];
-	pageDefStream=[[ANTLRTextInputStreamString newWithString:pageDefString]
-					autorelease];
-	pageDefLexer=[[[GSWPageDefLexer alloc]initWithTextStream:pageDefStream]
-				   autorelease];
-	pageDefTokenBuffer=[ANTLRTokenBuffer tokenBufferWithTokenizer:pageDefLexer];
-	pageDefParser=[[[GSWPageDefParser alloc] initWithTokenBuffer:pageDefTokenBuffer]
-					autorelease];
-	NSDebugMLLog(@"low",@"name:%@ pageDefString=%@",name_,pageDefString);
-	NS_DURING
-	  {
-		NSDebugMLLog0(@"low",@"Call pageDefParser");
-		[pageDefParser document];
-		if ([pageDefParser isError])
-		  {
-			LOGError(@"Parser Errors : %@",[pageDefParser errors]);
-			ExceptionRaise(@"GSWTemplateParser",
-						   @"GSWTemlateParser: Errors in PageDef parsing template named %@: %@\nString:\n%@",
-						   name_,
-						   [pageDefParser errors],
-						   pageDefString);
-		  };
-		NSDebugMLLog0(@"low",@"Call [pageDefParser elements]");
-		_pageDefElements=[[[pageDefParser elements] mutableCopy] autorelease];
-		pageDefIncludes=[pageDefParser includes];
-		pageDefParseOK=YES;
-		NSDebugMLLog0(@"low",@"PageDef Parse OK!");
-		NSDebugMLLog(@"low",@"_pageDefElements=%@",_pageDefElements);
-	  }
-	NS_HANDLER
-	  {
-		LOGError(@"name:%@ PageDef Parse failed!",name_);
-		localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In [pageDefParser document]...");
-		[localException retain];
-		DESTROY(arpParse);
-		[localException autorelease];
-		[localException raise];
-	  }
-	NS_ENDHANDLER;
-	NSDebugMLLog0(@"low",@"arpParse infos:\n");
-#ifndef NDEBUG
-	if ([NSThread currentThread])
-	  {
-		NSDebugMLLog(@"low",
-					 @"thread current_pool=%@",
-					 [NSThread currentThread]->_autorelease_vars.current_pool);
-		NSDebugMLLog(@"low",
-					 @"thread current_pool _parentAutoreleasePool=%@",
-					 [[NSThread currentThread]->_autorelease_vars.current_pool _parentAutoreleasePool]);
-	  };
-#endif
-	if (pageDefParseOK)
-	  {
-		[_pageDefElements retain];
-		[pageDefIncludes retain];
-	  };
-	NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
-	DESTROY(arpParse);
-	NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
-	if (pageDefParseOK)
-	  {
-		[_pageDefElements autorelease];
-		[pageDefIncludes autorelease];
-	  }
-	else
-	  {
-		_pageDefElements=nil;
-		pageDefIncludes=nil;
-	  };
-  };
-  if (pageDefParseOK)
-	{
-	  [pageDefElements_ addDefaultEntriesFromDictionary:_pageDefElements];
-	  pageDefParseOK=[self processIncludes:pageDefIncludes
-						   languages:languages_
-						   named:name_
-						   inFrameworkNamed:frameworkName_
-						   declarationPath:declarationPath_
-						   into:pageDefElements_];
-	  if (!pageDefParseOK)
-		LOGError(@"Template name:%@ componentDefinition parse failed for pageDefIncludes:%@",
-				 name_,
-				 pageDefIncludes);
-	};
-  return pageDefParseOK;
-};
-
-//--------------------------------------------------------------------
-+(BOOL)processIncludes:(NSArray*)pageDefIncludes_
-			 languages:(NSArray*)languages_
-				 named:(NSString*)name_
-	  inFrameworkNamed:(NSString*)frameworkName_
-	   declarationPath:(NSString*)declarationPath_
-				  into:(NSMutableDictionary*)pageDefElements_
-{
-  BOOL pageDefParseOK=YES;
   int _count=0;
-  LOGClassFnStart();
-  NSDebugMLLog(@"low",@"name:%@ frameworkName_=%@",name_,frameworkName_);
-  _count=[pageDefIncludes_ count];
-  if (pageDefIncludes_ && _count>0)
-	{
-	  int i=0;
-	  NSString* _includeName=nil;
-	  for(i=0;pageDefParseOK && i<_count;i++)
-		{
-		  _includeName=[pageDefIncludes_ objectAtIndex:i];
-		  pageDefParseOK=[self parseDeclarationInclude:_includeName
-							   fromFrameworkNamed:frameworkName_
-							   declarationPath:declarationPath_
-							   languages:languages_
-							   into:pageDefElements_];
-		  if (!pageDefParseOK)
-			LOGError(@"Template componentDefinition parse failed for _includeName:%@",
-					 _includeName);
-		};
-	};
-  LOGClassFnStop();
-  return pageDefParseOK;
+  NSDictionary* returnedLocalDefinitions=nil;
+  NSMutableDictionary* localDefinitions=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"low",@"name:%@ frameworkName_=%@ definitionsIncludes_=%@",
+               localDefinitionsName_,
+               localFrameworkName_,
+               definitionsIncludes_);
+  localDefinitions=[NSMutableDictionary dictionary];
+  _count=[definitionsIncludes_ count];
+  if (_count>0)
+    {
+      NSDictionary* tmpDefinitions=nil;
+      int i=0;
+      NSString* _includeName=nil;
+      for(i=_count-1;localDefinitions && i>=0;i--)
+        {
+          _includeName=[definitionsIncludes_ objectAtIndex:i];
+          NSDebugMLLog(@"low",@"Template componentDefinition _includeName:%@",
+                       _includeName);
+          tmpDefinitions=[self parseDefinitionInclude:_includeName
+                               fromFrameworkNamed:localFrameworkName_
+                               definitionPath:localDefinitionPath_];
+          NSDebugMLLog(@"low",@"Template componentDefinition _includeName:%@ tmpDefinitions=%@",
+                       _includeName,
+                       tmpDefinitions);
+          if (tmpDefinitions)
+            [localDefinitions addDefaultEntriesFromDictionary:tmpDefinitions];
+          else
+            {
+              localDefinitions=nil;
+              LOGError(@"%@ Template componentDefinition parse failed for _includeName:%@",
+                       [self logPrefix],
+                       _includeName);
+            };
+        };
+    };
+  NSDebugMLLog(@"low",@"localDefinitions:%@\n",localDefinitions);
+  if (localDefinitions)
+    returnedLocalDefinitions=[NSDictionary dictionaryWithDictionary:localDefinitions];
+  LOGObjectFnStop();
+  return returnedLocalDefinitions;
 };
+
 @end
 

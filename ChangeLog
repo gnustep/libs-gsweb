@@ -1,3 +1,27 @@
+2000-10-04  Manuel Guesdon <mguesdon@orange-concept.com>
+
+        * GSWExtensions.framework/Makefile.preamble: added GDL2 FLAG
+        * GSWExtensions.framework/*/*.html: lowercase tags
+        * GSWExtensionsGSW.framework/*/*.html: lowercase tags
+        * GSWeb.framework/GNUmakefile : added DTDs, modified Files list
+        * GSWeb.framework/GSWApplication.m: commented [GSWHTMLParser printsDiagnostics]
+                                            changes for GDL2
+        * GSWeb.framework/GSWBrowser.h/.m: implementation
+        * GSWeb.framework/GSWBundle.m: Parser call modification, handling of .gswi unarchiving
+        * GSWeb.framework/GSWComponentContent.m: Logs
+        * GSWeb.framework/GSWConfig.h: Added GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME
+        * GSWeb.framework/GSWConstants.h/.m: added keys
+        * GSWeb.framework/GSWDisplayGroup.h/.m member variables renamed
+                                                implementation of some missing parts
+        * GSWeb.framework/GSWRequest.m: remove duplicate languages
+        * GSWeb.framework/GSWTemplateParser.h/.m: make it base class for different parsers
+        * GSWeb.framework/GSWTemplateParserXML.h/.m: XML parser
+        * GSWeb.framework/GSWTemplateParserANTLR.h/.m: ANTLR (old) parser
+        * GSWeb.framework/GSWUtils.h/.m: added  SBIsValueIsIn()
+        * GSWeb.framework/GSWeb.h: added includes for parsers
+        * GSWeb.framework/Makefile.postamble: DTDs install
+        * GSWeb.framework/Makefile.preamble:  added GDL2 FLAG
+
 2000-08-26  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWMailDelivery.m/.h: rewritten sendEmail: with execlp() to avoid

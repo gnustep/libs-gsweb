@@ -26,6 +26,9 @@ static char rcsId[] = "$Id$";
 #include <gsweb/GSWeb.framework/GSWeb.h>
 #include <extensions/NGReflection.h>
 #include <extensions/GarbageCollector.h>
+#if GDL2 // GDL2 implementation
+#include <EOAccess/EOModelGroup.h>
+#endif
 #include "stacktrace.h"
 #include "attach.h"
 
@@ -1477,6 +1480,8 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	  NSString* _monitorHost=[self _monitorHost];
 	  NSNumber* _workerThreadCount=[[self class]workerThreadCount];
 	  id _proxy=nil;
+	  NSDebugFLLog(@"monitor",@"monitorHost=%@",_monitorHost);
+	  NSDebugFLLog(@"monitor",@"workerThreadCount=%@",_workerThreadCount);
 	  [NSDistantObject setDebug:YES];
 	  remoteMonitorConnection = [NSConnection connectionWithRegisteredName:GSWMonitorServiceName
 											  host:_monitorHost];
@@ -2673,7 +2678,9 @@ int GSWApplicationMain(NSString* _applicationClassName,
 
 -(BOOL)printsHTMLParserDiagnostics 
 {
-  return [GSWHTMLParser printsDiagnostics];
+  //FIXME
+//  return [GSWHTMLParser printsDiagnostics];
+  return NO;
 };
 
 @end
@@ -3793,12 +3800,13 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(id)defaultModelGroup
 {
+#if GDL2 // GDL2 implementation
   //OK
-  GSWResourceManager* _resourceManager=[[GSWApplication application] resourceManager];
-  GSWDeployedBundle* _appProjectBundle=[_resourceManager _appProjectBundle];
-  NSArray* _allFrameworkProjectBundles=[_resourceManager _allFrameworkProjectBundles];
-  //return <EOModelGroup
+  return [EOModelGroup defaultGroup];
+#else
+  LOGClassFnNotImplemented();
   return nil;
+#endif
 };
 
 //--------------------------------------------------------------------
