@@ -594,15 +594,16 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLLog(@"low",@"empty:%@",empty);
 //	  [responseData appendData:[cl dataUsingEncoding:NSASCIIStringEncoding]];
 	  [responseData appendData:[empty dataUsingEncoding:NSASCIIStringEncoding]];
-		  
+                 
 	  [stream writeData:responseData];
 	  if ([[response content] length]>0)
 		{
 		  [responseData setLength:[[response content] length]];
 		  [responseData setData:[response content]];
-			  
+                         
 		  NSDebugMLLog(@"low",@"[response content]:%@",[response content]);
 		  NSDebugMLLog(@"low",@"[[response content] length]=%d",[[response content] length]);
+		  NSDebugMLLog(@"[[response content] length]=%d",[[response content] length]);
 		  NSDebugMLLog(@"low",@"Response content String NSASCIIStringEncoding:%@",[[[NSString alloc] initWithData:[response content]
 																						encoding:NSASCIIStringEncoding]
 																	   autorelease]);

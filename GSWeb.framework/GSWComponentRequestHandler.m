@@ -168,11 +168,15 @@ static char rcsId[] = "$Id$";
 								 inContext:_context];
 		  if (!_session)
 			{
+			  // check for refuseNewSessions
 			  _errorResponse=[_application handleSessionRestorationErrorInContext:_context];
 			};
 		}
 	  else
-		_session=[_application _initializeSessionInContext:_context];
+		{
+			// check for refuseNewSessions
+			_session=[_application _initializeSessionInContext:_context];
+		}
 	}
   NS_HANDLER
 	{

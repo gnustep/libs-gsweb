@@ -108,11 +108,11 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   GSWLogAssertGood(self);
   GSWLogAssertGood(_string);
-  GSWLogC("_string deallocate");
+  //GSWLogC("_string deallocate");
   DESTROY(_string);
-  GSWLogC("_string deallocated");
+  //GSWLogC("_string deallocated");
   [super dealloc];
-  GSWLogC("GSWElementIDString end of dealloc");
+  //GSWLogC("GSWElementIDString end of dealloc");
 };
 
 -(void)getCString:(char*)buffer

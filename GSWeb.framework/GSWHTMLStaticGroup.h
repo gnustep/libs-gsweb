@@ -28,7 +28,16 @@
 
 //====================================================================
 @interface GSWHTMLStaticGroup: GSWHTMLStaticElement
+{
+  NSString* _documentTypeString;
+}
 -(id)initWithContentElements:(NSArray*)elements_;
+-(void)setDocumentTypeString:(NSString *)documentType_;
+
+-(void)appendToResponse:(GSWResponse*)response_
+              inContext:(GSWContext*)context_;
+
+-(void)dealloc;
 @end
 
 

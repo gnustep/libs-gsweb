@@ -24,8 +24,8 @@
 #ifndef _GSWLoadBalancing_h__
 #define _GSWLoadBalancing_h__
 
-BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
-BOOL GSWLoadBalancing_FindInstance(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
+BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,void* p_pLogServerData, GSWURLComponents* p_pURLComponents);
+BOOL GSWLoadBalancing_FindInstance(GSWAppRequest* p_pAppRequest,void* p_pLogServerData, GSWURLComponents* p_pURLComponents);
 void GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
 void GSWLoadBalancing_StartAppRequest(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
 void GSWLoadBalancing_StopAppRequest(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);

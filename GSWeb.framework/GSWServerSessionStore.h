@@ -44,4 +44,10 @@
 
 @end
 
+//====================================================================
+@interface GSWServerSessionStore (GSWServerSessionStoreInfo)
+-(BOOL)containsSessionID:(NSString*)sessionID_;
+-(NSArray *)allSessionIDs;
+@end
+
 #endif //_GSWServerSessionStore_h__

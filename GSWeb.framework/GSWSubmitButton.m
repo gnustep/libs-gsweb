@@ -148,8 +148,30 @@ static char rcsId[] = "$Id$";
 				  NS_ENDHANDLER;
 				  if (_actionValue)
 					_element=_actionValue;
+				  if (_element)
+                                    {
+                                      if (![_element isKindOfClass:[GSWComponent class]]) //TODO GSWComponent or Element ?
+                                        {
+                                          ExceptionRaise0(@"GSWHyperlink",@"Invoked element return a not GSWComponent element");
+                                        } 
+                                      else 
+                                        {
+                                          // call awakeInContext when _element is sleeping deeply
+                                          [_element ensureAwakeInContext:context_];
+                                          /*
+                                            if (![_element context]) {
+                                            NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
+                                            [_element awakeInContext:context_];
+                                            } else {
+                                            [_element awakeInContext:context_];
+                                            }
+                                          */
+                                        }
+                                    }
+                                  /* ???
 				  if (!_element)
 					_element=[context_ page];
+                                  */
 				};
 			};
 		};

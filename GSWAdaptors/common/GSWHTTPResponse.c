@@ -246,18 +246,23 @@ GSWHTTPResponse* GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,void* p_p
 #endif
 		  if (iReceivedCount!= pHTTPResponse->uContentLength)
 			{
+pHTTPResponse->pContent = pszBuffer;//TODO: Verify this (Turbocat patch)
+
 			  GSWLog(GSW_ERROR,p_pLogServerData,
 					 "Content received doesn't equal to ContentLength. Too bad, same player shoot again !");
+
 			  free(pszBuffer);
 			  pszBuffer=NULL;
 			  GSWHTTPResponse_Free(pHTTPResponse,p_pLogServerData);
 			  pHTTPResponse=NULL;
 			  pHTTPResponse = GSWHTTPResponse_BuildErrorResponse(NULL,"Invalid Response",p_pLogServerData);
+
 			}
 		  else
 			pHTTPResponse->pContent = pszBuffer;
 		}
 #ifdef	DEBUG
+/*
 	  if (pHTTPResponse->pContent)
 		{
 		  char szTraceBuffer[pHTTPResponse->uContentLength+1];
@@ -271,6 +276,7 @@ GSWHTTPResponse* GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,void* p_p
 					  szTraceBuffer);
 //		  GSWLog(GSW_INFO,p_pLogServerData,"\nEND\n");
 		};
+*/
 #endif
 	};
   GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPResponse_GetResponse");

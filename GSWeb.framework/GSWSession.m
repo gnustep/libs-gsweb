@@ -315,6 +315,7 @@ static char rcsId[] = "$Id$";
 
   isTerminating=YES;
   _sessionID=[self sessionID];
+  [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
   [[NSNotificationCenter defaultCenter] postNotificationName:GSWNotification__SessionDidTimeOutNotification[GSWebNamingConv]
                                         object:_sessionID];
   //goto => GSWApp _sessionDidTimeOutNotification:

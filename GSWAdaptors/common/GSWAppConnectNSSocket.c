@@ -25,12 +25,18 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <errno.h>
 
 #include "config.h"
 #include "GSWUtil.h"
 #include "GSWDict.h"
 #include "GSWURLUtil.h"
-#include "GSWAppRequest.h"
+//#include "GSWAppRequest.h"
+#include "GSWAppRequestStruct.h"
 #include "GSWAppConnect.h"
 
 typedef SYS_NETFD AppConnectNSSocketHandle;

@@ -51,6 +51,7 @@ static char rcsId[] = "$Id$";
       _queryBindings = [[NSMutableDictionary alloc] initWithCapacity:8];
 
       //  _selection = 1; //????
+	  _batchIndex = 1;
 
       [[NSNotificationCenter defaultCenter]
         addObserver:self
@@ -100,7 +101,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 */
   if ((self=[self init]))
     {
-      LOGObjectFnStop();
+      LOGObjectFnStart();
       [self setNumberOfObjectsPerBatch:
               [unarchiver decodeIntForKey:@"numberOfObjectsPerBatch"]];
       [self setFetchesOnLoad:
@@ -114,7 +115,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       //Don't call setDataSource: because we're not ready !
       ASSIGN(_dataSource,[unarchiver decodeObjectForKey:@"dataSource"]);        
       [self setSortOrderings:
-              [unarchiver decodeObjectForKey:@"sortOrderings"]];
+              [unarchiver decodeObjectForKey:@"sortOrdering"]];
       [self setQualifier:
               [unarchiver decodeObjectForKey:@"qualifier"]];
       [self setDefaultStringMatchFormat:
@@ -128,6 +129,39 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   return self;
 };
 
+-(NSString*)description
+{
+  NSString* _dscr=nil;
+  GSWLogAssertGood(self);
+  NSDebugMLLog(@"gswdisplaygroup",@"GSWDisplayGroup description Self=%p",self);
+  _dscr=[NSString stringWithFormat:@"<%s %p - \n",
+				  object_get_class_name(self),
+				  (void*)self];
+
+  _dscr=[_dscr stringByAppendingFormat:@"numberOfObjectsPerBatch:[%d]\n",
+			   _numberOfObjectsPerBatch];
+  _dscr=[_dscr stringByAppendingFormat:@"fetchesOnLoad:[%s]\n",
+			   _flags.autoFetch ? "YES" : "NO"];
+  _dscr=[_dscr stringByAppendingFormat:@"validatesChangesImmediately:[%s]\n",
+			   _flags.validateImmediately ? "YES" : "NO"];
+  _dscr=[_dscr stringByAppendingFormat:@"selectsFirstObjectAfterFetch:[%s]\n",
+			   _flags.selectFirstObject ? "YES" : "NO"];
+  _dscr=[_dscr stringByAppendingFormat:@"localKeys:[%@]\n",
+			   _localKeys];
+  _dscr=[_dscr stringByAppendingFormat:@"dataSource:[%@]\n",
+			   _dataSource];
+  _dscr=[_dscr stringByAppendingFormat:@"sortOrdering:[%@]\n",
+			   _sortOrdering];
+  _dscr=[_dscr stringByAppendingFormat:@"qualifier:[%@]\n",
+			   _qualifier];
+  _dscr=[_dscr stringByAppendingFormat:@"formatForLikeQualifier:[%@]\n",
+			   _defaultStringMatchFormat];
+  _dscr=[_dscr stringByAppendingFormat:@"insertedObjectDefaultValues:[%@]\n",
+			   _insertedObjectDefaultValues];
+
+  return _dscr;
+};
+
 
 -(void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)unarchiver
 {
@@ -136,6 +170,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     [unarchiver ensureObjectAwake:_dataSource];
   if ([self fetchesOnLoad])
     {
+		NSLog(@"***** awakeFromKeyValueUnarchiver in GSWDisplayGroup is called *****");
+		[self fetch];
 //      [self fetch];//?? NO: fetch "each time it is loaded in web browser"
     };
   LOGObjectFnStop();
@@ -147,6 +183,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
   [self _setUpForNewDataSource];
   //Finished ?
+
   LOGObjectFnStop();
 };
 
@@ -301,7 +338,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
 
   if(_delegateRespondsTo.shouldRedisplay == YES)
-    redisplay = [self displayGroup:self
+    redisplay = [delegate displayGroup:self
 		      shouldRedisplayForEditingContextChangeNotification:notification];
 
   if(redisplay == YES)
@@ -315,7 +352,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
 
   if(_delegateRespondsTo.shouldRefetchObjects == YES)
-    refetch = [self displayGroup:self
+    refetch = [delegate displayGroup:self
 		    shouldRefetchForInvalidatedAllObjectsNotification:
 		      notification];
 
@@ -554,17 +591,36 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   object = [_allObjects objectAtIndex:index];
 
   if(_delegateRespondsTo.shouldDeleteObject == YES)
-    delete = [delegate displayGroup:self
-		       shouldDeleteObject:object];
+    delete = [delegate displayGroup:self  shouldDeleteObject:object];
 
   if(delete)
     {
-      [_dataSource deleteObject:object];
+	  NS_DURING
+	  {
+      	[_dataSource deleteObject:object];
+
+		[_displayedObjects removeObjectIdenticalTo:object];
+		[_allObjects removeObjectIdenticalTo:object];
       
-      if(_delegateRespondsTo.didDeleteObject == YES)
-        [delegate displayGroup:self
-                  didDeleteObject:object];
+      	if(_delegateRespondsTo.didDeleteObject == YES)
+        	[delegate displayGroup:self  didDeleteObject:object];
+      }
+	  NS_HANDLER
+		{
+		  NSLog(@"GSWDisplayGroup (deleteObjectAtIndex:) Can't delete object at index : %d", index);
+		  NSLog(@"object : %@", object);
+		  NSLog(@"Exception :  %@ %@ Name:%@ Reason:%@\n",
+			localException,
+			[localException description],
+			[localException name],
+			[localException reason]);
+		  delete = NO;
+		}
+	  NS_ENDHANDLER;
     };
+
+  [self clearSelection];
+
   LOGObjectFnStop();
   return delete;
 }
@@ -592,16 +648,36 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     }
   if (result)
     {
-      enumerator = [_selectedObjects objectEnumerator];
-      while((object = [enumerator nextObject]))
-        {
-          [_dataSource deleteObject:object];
+	  NS_DURING
+ 		{
+      		enumerator = [_selectedObjects objectEnumerator];
+      		while((object = [enumerator nextObject]))
+        		{
+          		[_dataSource deleteObject:object];
+
+				[_displayedObjects removeObjectIdenticalTo:object];
+				[_allObjects removeObjectIdenticalTo:object];
           
-          if(_delegateRespondsTo.didDeleteObject == YES)
-            [delegate displayGroup:self
-                      didDeleteObject:object];
-        }
+          		if(_delegateRespondsTo.didDeleteObject == YES)
+            		[delegate displayGroup:self
+                      		didDeleteObject:object];
+        		}
+		}
+	  NS_HANDLER
+		{
+		  NSLog(@"GSWDisplayGroup (deleteSelection:) Can't delete object");
+		  NSLog(@"object : %@", object);
+		  NSLog(@"Exception :  %@ %@ Name:%@ Reason:%@\n",
+			localException,
+			[localException description],
+			[localException name],
+			[localException reason]);
+		  delete = NO;
+		}
+	  NS_ENDHANDLER;
     };
+
+  [self clearSelection];
 
   LOGObjectFnStop();
   return result;
@@ -757,16 +833,11 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   if(_delegateRespondsTo.shouldFetchObjects == YES)
     fetch = [delegate displayGroupShouldFetch:self];
 
-  NSDebugMLog(@"fetch=%d",(int)fetch);
-
   if(fetch)
     {
       NSArray *objects=nil;
 
-      NSDebugMLog(@"_dataSource=%@",_dataSource);
-
       objects = [_dataSource fetchObjects];
-      NSDebugMLog(@"objects=%@",objects);
       [self setObjectArray:objects];
 
       if(_delegateRespondsTo.didFetchObjects == YES)
@@ -875,7 +946,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
   if(!count)
     index = 0;
-  if(count <= index)
+  if((count <= index) && count>0)
     index = count - 1;
 
   [self insertObjectAtIndex:index];
@@ -1422,18 +1493,23 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       [_displayedObjects removeAllObjects];
       
       batchCount = [self batchCount];
+		NSLog(@"setCurrentBatchIndex : [self batchCount] = %d", [self batchCount]);
       if(index_ > batchCount)
         index_ = 1;
       
       num = [_allObjects count];
+		NSLog(@"setCurrentBatchIndex : [_allObjects count] = %d", [_allObjects count]);
 
       if(_numberOfObjectsPerBatch && _numberOfObjectsPerBatch < num)
         num = _numberOfObjectsPerBatch;
       
       if(num)
         {
+		NSLog(@"setCurrentBatchIndex : index_ = %d", index_);
+		NSLog(@"setCurrentBatchIndex : num = %d", num);
+
           for( i = (index_-1) * num;
-               i < index_ * num;
+               ((i < index_ * num) && (i < [_allObjects count]));
                i++)
             [_displayedObjects addObject:[_allObjects objectAtIndex:i]];
           

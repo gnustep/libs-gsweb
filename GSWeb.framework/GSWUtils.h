@@ -24,7 +24,7 @@
 #ifndef _GSWebUtils_h__
 #define _GSWebUtils_h__
 
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/time.h>
 #endif
 

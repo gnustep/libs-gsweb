@@ -45,6 +45,20 @@
 unsigned long glbRequestsNb = 0;
 unsigned long glbResponsesNb = 0;
 
+/*
+
+HTTP/1.0 302 Apple WebObjects
+x-webobjects-refusenewsessions: 900
+Location: /cgi-bin/WebObjects/cancer.woa
+x-webobjects-refusing-redirection: YES
+x-webobjects-loadaverage: 1
+Content-Length: 152
+
+Sorry, your request could not immediately be processed. Please try this URL: <a href="/cgi-bin/WebObjects/cancer.woa">/cgi-bin/WebObjects/cancer.woa</a>
+Connection closed by foreign host.
+
+*/
+
 //--------------------------------------------------------------------
 GSWHTTPResponse* GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest** p_ppHTTPRequest,
 												   GSWURLComponents* p_pURLComponents,
@@ -57,12 +71,15 @@ GSWHTTPResponse* GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest** p_ppHTTPRequ
   BOOL fAppNotResponding=FALSE;
   int iAttemptsRemaining=APP_CONNECT_RETRIES_NB;
   AppConnectHandle hConnect=NULL;
+  char *appName = NULL;
+  int	appInstance = 0;
+
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWAppRequest_SendAppRequestToApp");
 
   if (p_pAppRequest->iInstance>0) //-1 or 0 mean any instance
-	fAppFound = GSWLoadBalancing_FindInstance(p_pAppRequest,p_pLogServerData);
+	fAppFound = GSWLoadBalancing_FindInstance(p_pAppRequest,p_pLogServerData, p_pURLComponents);
   else
-	fAppFound = GSWLoadBalancing_FindApp(p_pAppRequest,p_pLogServerData);
+	fAppFound = GSWLoadBalancing_FindApp(p_pAppRequest,p_pLogServerData, p_pURLComponents);
 
   if (!fAppFound)
 	{
@@ -112,6 +129,9 @@ GSWHTTPResponse* GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest** p_ppHTTPRequ
 					 "Request %s sent, awaiting response",
 					 (*p_ppHTTPRequest)->pszRequest);
 			
+			  appName = strdup(p_pAppRequest->pszName);
+			  appInstance = p_pAppRequest->iInstance;
+
 			  p_pAppRequest->pRequest = NULL;
 			  pHTTPResponse = GSWHTTPResponse_GetResponse(hConnect,p_pLogServerData);
 			  p_pAppRequest->pResponse = pHTTPResponse;
@@ -125,11 +145,21 @@ GSWHTTPResponse* GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest** p_ppHTTPRequ
 			  glbResponsesNb++;
 			  if (pHTTPResponse)
 				{
+			  char *value = GSWDict_ValueForKey(pHTTPResponse->pHeaders,"x-gsweb-refusing-redirection");
+			  if (value && (strncmp(value,"YES",3)==0)) {
+			  	// refuseNewSessions == YES in app
+				GSWLog(GSW_INFO,p_pLogServerData,"### This app (%s / %d) is refusing all new sessions ###", appName, appInstance);
+				GSWAppInfo_Set(appName, appInstance, TRUE);
+			  }
+
 				  GSWLog(GSW_INFO,p_pLogServerData,
 						 "received: %d %s",
 						 pHTTPResponse->uStatus,
 						 pHTTPResponse->pszStatusMessage);
 				};
+			  if (appName) {
+				free(appName); appName = NULL;
+			  }
 			};
 		}
 	  else
@@ -149,7 +179,7 @@ GSWHTTPResponse* GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest** p_ppHTTPRequ
 			{
 			  GSWLoadBalancing_MarkNotRespondingApp(p_pAppRequest,p_pLogServerData);
 			  if (iAttemptsRemaining-->0)
-				fAppFound=GSWLoadBalancing_FindApp(p_pAppRequest,p_pLogServerData);
+				fAppFound=GSWLoadBalancing_FindApp(p_pAppRequest,p_pLogServerData, p_pURLComponents);
 			};
 		};
 	};

@@ -1,288 +1,272 @@
 <html>
-<head><title></title>
+<head>
+	<title></title>
 </head>
 <body BGcolor="#FFFFFF">
-    
-<gsweb name="REFUSED">
-<center>
-<h2><font color="#FF0000">This Request Requires A User Login</font></h2>
-<br>
-<!-- ****
-<gsweb name="Form1">
-<table border="1" cellPadding="2" cellSpacing="0" bgcolor="#f6ffff">
-<table border="0" width="80%">
-    <TR align="CENTER">
-        <td>
-        User
-        </td>
-        <td>
-        <gsweb name="USERNAME"></gsweb>
-        </td>
-        </tr>
-    <TR align="CENTER">
-        <td>
-        Password
-        </td>
-        <td>
-        <gsweb name="PASSWORD"></gsweb>
-        </td>
-        </tr>
-<tr>
-<gsweb name="SUBMIT"></gsweb>
-</tr>
-</table>
-</table>
-<br>
-</gsweb>
-********** -->
-</center>
-</gsweb><gsweb name="ALLOWED"> 
-
-<gsweb name="Form4"><table border="0" width="100%">
-  <tr>
-    <td align="CENTER" COLSPAN="2">
-    <h2>Statistics For <font color="#FF0000">
-        <gsweb name="String2"></gsweb>
-        <gsweb name="Conditional2">
-            #<font color="#FF0000">
-            <gsweb name="String6"></gsweb>
-            </font>
-        </gsweb>
-        </font>On Host <font color="#FF0000">
-        <gsweb name="String11"></gsweb>
-        </font>
-    </h2>
-    </td>
-  </tr>
-  <tr>
-    <td align="CENTER">
-    <gsweb name="REFRESH"></gsweb>
-    </td>
-  </tr>
-</table></gsweb><hr>
-
-<br>
-
-<center>
-    <table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
-    <TR align="CENTER" bgcolor="#b0b0b0">
-        <TD COLSPAN="6"><font SIZE="+1"><b>Application Statistics</b></font>
-    </td>
-    </tr>
-        <tr>
-            <td> &nbsp </td>
-            <td align="CENTER"><font SIZE="-1">Transactions</font></td>
-            <td align="CENTER"><font SIZE="-1">Average Transaction<br>Time</font></td>
-            <td align="CENTER"><font SIZE="-1">Average Idle<br>Time</font></td>
-            <td align="CENTER"><font SIZE="-1">Moving Average*<br>Transaction Time</font></td>
-            <td align="CENTER"><font SIZE="-1">Moving Average*<br>Idle Time</font></td>
-        </tr>
-        <tr>
-            <td>Overall</td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="Transactions"></gsweb></font></td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="AvgTransactionTime"></gsweb></font></td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="AvgIdleTime"></gsweb></font></td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="MovingAvgTransactionTime"></gsweb></font></td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="MovingAvgIdleTime"></gsweb></font></td>
-        </tr>
-        <tr>
-            <td>Component Actions</td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="ComponentActionTransactions"></gsweb></font></td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="AvgComponentActionTransactions"></gsweb></font></td>
-            <td align="CENTER"><font size="-1">NA</font></td>
-            <td align="CENTER"> &nbsp </td>
-            <td align="CENTER"><font size="-1">NA</font></td>
-        </tr>
-        <tr>
-            <td>Direct Actions</td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="DirectActionTransactions"></gsweb></font></td>
-            <td align="CENTER"><font color="#0000FF"><gsweb name="AvgDirectActionTransactions"></gsweb></font></td>
-            <td align="CENTER"><font size="-1">NA</font></td>
-            <td align="CENTER"> &nbsp </td>
-            <td align="CENTER"><font size="-1">NA</font></td>
-        </tr>
-        <tr>
-            <td>Started at</td>
-            <TD COLSPAN="5">
-                <font color="#0000FF"><gsweb name="String21"></gsweb></font>
-            </td>
-        </tr>
-        <tr>
-            <td>Running time</td>
-            <TD COLSPAN="5">
-                <font color="#0000FF"><gsweb name="RunningTime"></gsweb></font>
-            </td>
-        </tr>
-
-    </table>
-    <font SIZE="-1">
-        * The sample size for Moving Averages is <font color="#0000FF"><gsweb name="MovingAvgSampleSize"></gsweb></font> transactions.
-    </font>
-</center>
-
-<hr>
-<center>
-    <table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
-    <TR align="CENTER" bgcolor="#b0b0b0">
-        <TD COLSPAN="2"><font SIZE="+1"><b>Sessions Statistics</b></font></td>
-    </tr>
-        <gsweb name="SessionsRepetition">
-            <tr>
-                <td>
-                    <gsweb name="SessionsKeyCell"></gsweb>
-                </td>
-                <td>
-                    <font color="#0000FF"><gsweb name="SessionsValueCell"></gsweb></font>
-                </td>
-            </tr>
-        </gsweb>
-<gsweb name="ISMAXSESSIONS">
-    <tr>
-        <TD COLSPAN="2">Peak Concurrent Sessions at<br><font color="#0000FF"><gsweb name="MaxSessions"></gsweb></font>
-    </td>
-    </tr>
-</gsweb>
-</table>
-</center>
-<br>
-<center>
-<table border=0 width="100%"> <!-- spacer table - invisible -->
-<tr><td align="CENTER">
-    <table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
-    <TR align="CENTER" bgcolor="#b0b0b0">
-        <TD COLSPAN="2"><b>Memory Usage (bytes)</b>
-    </td>
-    </tr>
-        <gsweb name="MemoryRepetition">
-            <tr>
-                <td>
-                    <gsweb name="MemoryKeyCell"></gsweb>
-                </td>
-                <td align="RIGHT">
-                    <font color="#0000FF"><gsweb name="MemoryValueCell"></gsweb></font>
-                </td>
-            </tr>
-        </gsweb>
-    </table>
-</td><td align="CENTER">
-    <table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
-    <TR align="CENTER" bgcolor="#b0b0b0">
-        <TD COLSPAN="2"><b>Avg. Memory Usage Per Session (bytes)</b>
-    </td>
-    </tr>
-        <gsweb name="SessionMemoryRepetition">
-            <tr>
-                <td>
-                    <gsweb name="SessionMemoryKeyCell">
-                    </gsweb>
-                </td>
-                <td align="RIGHT">
-                    <font color="#0000FF"><gsweb name="SessionMemoryValueCell"></gsweb></font>
-                </td>
-            </tr>
-        </gsweb>
-    </table>
-</td></tr></table>
-</center>
-
-<br>
-
-<gsweb name="ISLASTUSER">
-Response Descriptions For Last User :
-<br>
-<center>
-<table border="2" cellpadding="4" cellspacing="2" bgcolor="#d0d0d0" width="80%">
-    <gsweb name="SessionStatsRepetition">
-        <tr>
-            <td>
-               <font color="#0000FF"><gsweb name="SessionStatsField"></gsweb></font>
-            </td>
-        </tr>
-    </gsweb>
-</table>
-</center>
-</gsweb><hr>
-
-<center>
-<table border="2" cellpadding="4" cellspacing="2" width="80%" bgcolor="#d0d0d0">
-  <tr><TD COLSPAN="5" align="CENTER" BGcolor="#b0b0b0">
-   <font SIZE="+1"><b> Component Action Statistics </b></font>
-  </td></tr>
-    <TR align="CENTER" bgcolor="#d6d8df">
-        <TD WIDTH = "20%">Name</td>
-        <TD WIDTH = "50%">Served</td>
-        <TD WIDTH = "10%">Min</td>
-        <TD WIDTH = "10%">Avg</td>
-        <TD WIDTH = "10%">Max</td>
-    </tr>
-<gsweb name="PagesRepetition">
-    <tr>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="PageName"></gsweb></font></td>
-        <td align=left><gsweb name="PageCountBar"></gsweb></td>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="PageMin"></gsweb></font></td>
-        <td align="CENTER"><font color="#0000FF"><b><gsweb name="PageAvg"></gsweb></b></font></td>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="PageMax"></gsweb></font></td>
-    </tr>
-</gsweb>
-</table>
-</center>
-
-<hr>
-
-<center>
-<table border="2" cellpadding="4" cellspacing="2" width="80%" bgcolor="#d0d0d0">
-  <tr><TD COLSPAN="5" align="CENTER" BGcolor="#b0b0b0">
-   <font SIZE="+1"><b> Direct Action Statistics </b></font>
-  </td></tr>
-    <TR align="CENTER" bgcolor="#d6d8df">
-        <TD width="20%">Name</td>
-        <TD width="50%">Served</td>
-        <TD width="10%">Min</td>
-        <TD width="10%">Avg</td>
-        <TD width="10%">Max</td>
-    </tr>
-    <gsweb name="ActionsRepetition">
-    <tr>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="ActionName"></gsweb></font></td>
-        <td align=left><gsweb name="ActionBar"></gsweb></td>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="ActionMin"></gsweb></font></td>
-        <td align="CENTER"><font color="#0000FF"><b><gsweb name="ActionAvg"></gsweb></b></font></td>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="ActionMax"></gsweb></font></td>
-    </tr>
-    </gsweb>
-</table>
-</center>
-
-<hr>
-
-<center>
-<table border="2" cellPadding="4" cellspacing="2" width="80%" bgcolor="#d0d0d0">
-  <tr><TD COLSPAN="3" align="CENTER" BGcolor="#b0b0b0">
-   <font SIZE="+1"><b>Detailed Statistics</b></font>
-  </td></tr>
-    <TR align="CENTER" bgcolor="#d6d8df">
-        <TD width="40%">Response Description</td>
-        <TD width="50%">Percent Of Total</td>
-        <TD width="10%">Served</td>
-    </tr>
-<gsweb name="DetailsRepetition">
-    <tr>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="DetailName"></gsweb></font></td>
-        <td align=left><gsweb name="BAR_DETAILS"></gsweb></td>
-        <td align="CENTER"><font color="#0000FF"><gsweb name="DetailCount"></gsweb></font></td>
-    </tr>
-</gsweb>
-</table>
-<br>
-<gsweb name="ISLOGPATH">
-<hr>
-<br>
-Statistics Details Saved In Common Log Format In File <font color="#0000FF"><gsweb name="LOGPATH"></gsweb></font></gsweb>
-
-<hr>
-<br>
-<A HREF="http://www.gnustepweb.org"><gsweb name="PoweredByImage"></gsweb></A>
-</center>
-</gsweb>
-</body>
-</html>
+	<gsweb name="REFUSED">
+		<center>
+			<h2><font color="#FF0000">This Request Requires A User Login</font></h2>
+			<br>
+			<!-- **** -->
+			<gsweb name="Form1">
+				<table border="1" cellPadding="2" cellSpacing="0" bgcolor="#f6ffff">
+					<table border="0" width="80%">
+						<TR align="CENTER">
+							<td>
+								User
+							</td>
+							<td>
+								<gsweb name="USERNAME"></gsweb>
+							</td>
+						</tr>
+						<TR align="CENTER">
+							<td>
+								Password
+							</td>
+							<td>
+								<gsweb name="PASSWORD"></gsweb>
+							</td>
+						</tr>
+						<tr>
+							<gsweb name="SUBMIT"></gsweb>
+						</tr>
+					</table>
+				</table>
+				<br>
+			</gsweb>
+			<!-- ********** -->
+		</center>
+	</gsweb><gsweb name="ALLOWED">
+	<gsweb name="Form4"><table border="0" width="100%">
+		<tr>
+			<td align="CENTER" COLSPAN="2">
+				<h2>Statistics For <font color="#FF0000">
+					<gsweb name="String2"></gsweb>
+					<gsweb name="Conditional2">
+						#<font color="#FF0000">
+						<gsweb name="String6"></gsweb> </font>
+					</gsweb> </font>On Host <font color="#FF0000">
+					<gsweb name="String11"></gsweb> </font>
+				</h2>
+			</td>
+		</tr>
+		<tr>
+			<td align="CENTER">
+				<gsweb name="REFRESH"></gsweb>
+			</td>
+		</tr> </table></gsweb>
+	<hr>
+	<br>
+	<center>
+		<table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
+			<TR align="CENTER" bgcolor="#b0b0b0">
+				<TD COLSPAN="6"><font SIZE="+1"><b>Application Statistics</b></font>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					&nbsp
+				</td>
+				<td align="CENTER"><font SIZE="-1">Transactions</font></td>
+				<td align="CENTER"><font SIZE="-1">Average Transaction<br>
+					Time</font></td>
+				<td align="CENTER"><font SIZE="-1">Average Idle<br>
+					Time</font></td>
+				<td align="CENTER"><font SIZE="-1">Moving Average*<br>
+					Transaction Time</font></td>
+				<td align="CENTER"><font SIZE="-1">Moving Average*<br>
+					Idle Time</font></td>
+			</tr>
+			<tr>
+				<td>Overall</td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="Transactions"></gsweb></font></td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="AvgTransactionTime"></gsweb></font></td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="AvgIdleTime"></gsweb></font></td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="MovingAvgTransactionTime"></gsweb></font></td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="MovingAvgIdleTime"></gsweb></font></td>
+			</tr>
+			<tr>
+				<td>Component Actions</td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="ComponentActionTransactions"></gsweb></font></td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="AvgComponentActionTransactions"></gsweb></font></td>
+				<td align="CENTER"><font size="-1">NA</font></td>
+				<td align="CENTER">
+					&nbsp
+				</td>
+				<td align="CENTER"><font size="-1">NA</font></td>
+			</tr>
+			<tr>
+				<td>Direct Actions</td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="DirectActionTransactions"></gsweb></font></td>
+				<td align="CENTER"><font color="#0000FF"><gsweb name="AvgDirectActionTransactions"></gsweb></font></td>
+				<td align="CENTER"><font size="-1">NA</font></td>
+				<td align="CENTER">
+					&nbsp
+				</td>
+				<td align="CENTER"><font size="-1">NA</font></td>
+			</tr>
+			<tr>
+				<td>Started at</td>
+				<TD COLSPAN="5">
+					<font color="#0000FF"><gsweb name="String21"></gsweb></font>
+				</td>
+			</tr>
+			<tr>
+				<td>Running time</td>
+				<TD COLSPAN="5">
+					<font color="#0000FF"><gsweb name="RunningTime"></gsweb></font>
+				</td>
+			</tr>
+		</table>
+		<font SIZE="-1"> * The sample size for Moving Averages is <font color="#0000FF"><gsweb name="MovingAvgSampleSize"></gsweb></font> transactions. </font>
+	</center>
+	<hr>
+	<center>
+		<table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
+			<TR align="CENTER" bgcolor="#b0b0b0">
+				<TD COLSPAN="2"><font SIZE="+1"><b>Sessions Statistics</b></font></td>
+			</tr>
+			<gsweb name="SessionsRepetition">
+				<tr>
+					<td>
+						<gsweb name="SessionsKeyCell"></gsweb>
+					</td>
+					<td>
+						<font color="#0000FF"><gsweb name="SessionsValueCell"></gsweb></font>
+					</td>
+				</tr>
+			</gsweb>
+			<gsweb name="ISMAXSESSIONS">
+				<tr>
+					<TD COLSPAN="2">Peak Concurrent Sessions at<br>
+						<font color="#0000FF"><gsweb name="MaxSessions"></gsweb></font>
+					</td>
+				</tr>
+			</gsweb>
+		</table>
+	</center>
+	<br>
+	<center>
+		<table border=0 width="100%">
+			<!-- spacer table - invisible -->
+			<tr><td align="CENTER">
+				<table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
+					<TR align="CENTER" bgcolor="#b0b0b0">
+						<TD COLSPAN="2"><b>Memory Usage (bytes)</b>
+						</td>
+					</tr>
+					<gsweb name="MemoryRepetition">
+						<tr>
+							<td>
+								<gsweb name="MemoryKeyCell"></gsweb>
+							</td>
+							<td align="RIGHT">
+								<font color="#0000FF"><gsweb name="MemoryValueCell"></gsweb></font>
+							</td>
+						</tr>
+					</gsweb>
+				</table> </td><td align="CENTER">
+				<table border="2" CELLPADDING="4" CELLSPACING="2" bgcolor="#d0d0d0">
+					<TR align="CENTER" bgcolor="#b0b0b0">
+						<TD COLSPAN="2"><b>Avg. Memory Usage Per Session (bytes)</b>
+						</td>
+					</tr>
+					<gsweb name="SessionMemoryRepetition">
+						<tr>
+							<td>
+								<gsweb name="SessionMemoryKeyCell">
+								</gsweb>
+							</td>
+							<td align="RIGHT">
+								<font color="#0000FF"><gsweb name="SessionMemoryValueCell"></gsweb></font>
+							</td>
+						</tr>
+					</gsweb>
+				</table> </td></tr></table>
+	</center>
+	<br>
+	<gsweb name="ISLASTUSER">
+		Response Descriptions For Last User : <br>
+		<center>
+			<table border="2" cellpadding="4" cellspacing="2" bgcolor="#d0d0d0" width="80%">
+				<gsweb name="SessionStatsRepetition">
+					<tr>
+						<td>
+							<font color="#0000FF"><gsweb name="SessionStatsField"></gsweb></font>
+						</td>
+					</tr>
+				</gsweb>
+			</table>
+		</center>
+	</gsweb>
+	<hr>
+	<center>
+		<table border="2" cellpadding="4" cellspacing="2" width="80%" bgcolor="#d0d0d0">
+			<tr><TD COLSPAN="5" align="CENTER" BGcolor="#b0b0b0"> <font SIZE="+1"><b> Component Action Statistics </b></font> </td></tr>
+			<TR align="CENTER" bgcolor="#d6d8df">
+				<TD WIDTH = "20%">Name</td>
+				<TD WIDTH = "50%">Served</td>
+				<TD WIDTH = "10%">Min</td>
+				<TD WIDTH = "10%">Avg</td>
+				<TD WIDTH = "10%">Max</td>
+			</tr>
+			<gsweb name="PagesRepetition">
+				<tr>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="PageName"></gsweb></font></td>
+					<td align=left><gsweb name="PageCountBar"></gsweb></td>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="PageMin"></gsweb></font></td>
+					<td align="CENTER"><font color="#0000FF"><b><gsweb name="PageAvg"></gsweb></b></font></td>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="PageMax"></gsweb></font></td>
+				</tr>
+			</gsweb>
+		</table>
+	</center>
+	<hr>
+	<center>
+		<table border="2" cellpadding="4" cellspacing="2" width="80%" bgcolor="#d0d0d0">
+			<tr><TD COLSPAN="5" align="CENTER" BGcolor="#b0b0b0"> <font SIZE="+1"><b> Direct Action Statistics </b></font> </td></tr>
+			<TR align="CENTER" bgcolor="#d6d8df">
+				<TD width="20%">Name</td>
+				<TD width="50%">Served</td>
+				<TD width="10%">Min</td>
+				<TD width="10%">Avg</td>
+				<TD width="10%">Max</td>
+			</tr>
+			<gsweb name="ActionsRepetition">
+				<tr>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="ActionName"></gsweb></font></td>
+					<td align=left><gsweb name="ActionBar"></gsweb></td>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="ActionMin"></gsweb></font></td>
+					<td align="CENTER"><font color="#0000FF"><b><gsweb name="ActionAvg"></gsweb></b></font></td>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="ActionMax"></gsweb></font></td>
+				</tr>
+			</gsweb>
+		</table>
+	</center>
+	<hr>
+	<center>
+		<table border="2" cellPadding="4" cellspacing="2" width="80%" bgcolor="#d0d0d0">
+			<tr><TD COLSPAN="3" align="CENTER" BGcolor="#b0b0b0"> <font SIZE="+1"><b>Detailed Statistics</b></font> </td></tr>
+			<TR align="CENTER" bgcolor="#d6d8df">
+				<TD width="40%">Response Description</td>
+				<TD width="50%">Percent Of Total</td>
+				<TD width="10%">Served</td>
+			</tr>
+			<gsweb name="DetailsRepetition">
+				<tr>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="DetailName"></gsweb></font></td>
+					<td align=left><gsweb name="BAR_DETAILS"></gsweb></td>
+					<td align="CENTER"><font color="#0000FF"><gsweb name="DetailCount"></gsweb></font></td>
+				</tr>
+			</gsweb>
+		</table>
+		<br>
+		<gsweb name="ISLOGPATH">
+			<hr>
+			<br>
+			Statistics Details Saved In Common Log Format In File <font color="#0000FF"><gsweb name="LOGPATH"></gsweb></font></gsweb>
+		<hr>
+		<br>
+		<A HREF="http://www.gnustepweb.org"><gsweb name="PoweredByImage"></gsweb></A>
+	</center> </gsweb>
+</body> </html>

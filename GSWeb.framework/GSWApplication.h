@@ -75,6 +75,7 @@ extern BOOL WOStrictFlag;
   BOOL terminating;
   BOOL dynamicLoadingEnabled;
   BOOL printsHTMLParserDiagnostics;
+  BOOL refusingNewSessions;
   BOOL shouldDieWhenRefusing;
   BOOL refusingNewClients;
   BOOL refuseThisRequest;

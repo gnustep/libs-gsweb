@@ -467,6 +467,8 @@ int GSWApplicationMain(NSString* applicationClassName,
   permanentPageCacheSize=30;
   pageRecreationEnabled=YES;
   pageRefreshOnBacktrackEnabled=YES;
+  refusingNewSessions = NO;
+  minimumActiveSessionsCount = 0;	// 0 is default
   dynamicLoadingEnabled=YES;
   printsHTMLParserDiagnostics=YES;
   [[self class] _setApplication:self];
@@ -511,6 +513,7 @@ int GSWApplicationMain(NSString* applicationClassName,
                                        name:GSWNotification__SessionDidTimeOutNotification[GSWebNamingConv]
                                        object:nil];
   NSDebugMLLog0(@"low",@"init: addObserver called");
+
   LOGObjectFnStop();
   return self;
 };
@@ -901,6 +904,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 		forKey:_resourceRequestHandlerKey];
   [self registerRequestHandler:_directActionRequestHandler
 		forKey:_directActionRequestHandlerKey];
+  [self registerRequestHandler:_directActionRequestHandler
+		forKey: GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]];
   NSDebugMLLog(@"low",@"requestHandlers:%@",requestHandlers);
   [self setDefaultRequestHandler:_componentRequestHandler];
   LOGObjectFnStop();
@@ -1307,10 +1312,12 @@ int GSWApplicationMain(NSString* applicationClassName,
   NS_DURING
 	{
 	  [self lockedDecrementActiveSessionCount];
+/*
 	  if ([self isRefusingNewSessions])
 		{
 		  //TODO
 		};
+*/
 	}
   NS_HANDLER
 	{
@@ -1358,20 +1365,22 @@ int GSWApplicationMain(NSString* applicationClassName,
   [self lock];
   NS_DURING
 	{
+/*
 	  if ([self isRefusingNewSessions])
 		{
 		  //TODO erreur ?
 		  NSDebugMLLog0(@"low",@"isRefusingNewSessions!");
 		}
 	  else
-		{
+*/
+//		{
 		  [self lockedIncrementActiveSessionCount];
 		  _session=[self createSessionForRequest:[context_ request]];
 		  NSDebugMLLog(@"sessions",@"_session:%@",_session);
 		  NSDebugMLLog(@"sessions",@"_session ID:%@",[_session sessionID]);
 		  [context_ _setSession:_session];
 		  [_session awakeInContext:context_];
-		};
+//		};
 	}
   NS_HANDLER
 	{
@@ -2302,6 +2311,61 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 //====================================================================
 @implementation GSWApplication (GSWRequestHandling)
+
+-(GSWResponse*)checkAppIfRefused:(GSWRequest*)request_
+{
+  NSDictionary* _requestHandlerValues=nil;
+  GSWResponse* _response=nil;
+  NSString* _sessionID=nil;
+  BOOL		_refuseRequest = NO;
+
+  LOGObjectFnStart();
+
+  NS_DURING
+    {
+	NSLog(@"Application : checkAppIfRefused");
+	NSLog(@"Application : allSessionIDs = %@", [sessionStore allSessionIDs]);
+	  _requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:request_];
+	  if (_requestHandlerValues) {
+	NSLog(@"Application : _requestHandlerValues is set");
+
+	  	_sessionID=[_requestHandlerValues objectForKey:GSWKey_SessionID[GSWebNamingConv]];
+		if (!_sessionID) {
+	NSLog(@"Application : _sessionID is nil");
+
+			if ([self isRefusingNewSessions] == YES) {
+				_refuseRequest = YES;
+			}
+		} else {
+	NSLog(@"Application : _sessionID found : %@", _sessionID);
+	NSLog(@"Application : allSessionIDs = %@", [sessionStore allSessionIDs]);
+			// check for existing session ID
+			 if ([sessionStore containsSessionID:_sessionID] == NO) {
+	NSLog(@"Application : sessionStore does not contain _sessionID");
+				if ([self isRefusingNewSessions] == YES) {
+					_refuseRequest = YES;
+				}
+			 }
+		}
+		if (_refuseRequest == YES) {
+	NSLog(@"Application : _refuseRequest == YES ,generate Response");
+			// generate response, to refuse the request
+			_response=[GSWResponse generateRefusingResponseInContext:nil  forRequest:request_];
+			if (_response) {
+				[_response _finalizeInContext:nil]; //DO Call _finalizeInContext: !
+			}
+		}
+      }
+    }
+  NS_HANDLER
+
+  NS_ENDHANDLER;
+
+  LOGObjectFnStop();
+
+   return _response;
+}
+
 -(GSWResponse*)dispatchRequest:(GSWRequest*)request_
 {
   //OK
@@ -2313,29 +2377,34 @@ int GSWApplicationMain(NSString* applicationClassName,
   GSWApplicationDebugSetChange();
   [self unlock];
 #endif
-  NSDebugMLLog(@"requests",@"request_=%@",request_);
-  _requestHandler=[self handlerForRequest:request_];
-  NSDebugMLLog(@"requests",@"_requestHandler=%@",_requestHandler);
-  if (!_requestHandler)
-	_requestHandler=[self defaultRequestHandler];
-  NSDebugMLLog(@"requests",@"_requestHandler=%@",_requestHandler);
-  if (!_requestHandler)
-	{
-	  NSDebugMLLog0(@"low",@"GSWApplication dispatchRequest: no request handler");
-	  //TODO error
-	}
-  else
-	{
-	  NSDebugMLLog(@"requests",@"sessionStore=%@",sessionStore);
-	  _response=[_requestHandler handleRequest:request_];
-	  NSDebugMLLog(@"requests",@"sessionStore=%@",sessionStore);
-	  [self _resetCache];
-	  NSDebugMLLog(@"requests",@"sessionStore=%@",sessionStore);
-	};
-  if (!_response)
-    {
-      //TODO RESPONSE_PB
-    };
+
+  _response = [self checkAppIfRefused:request_];
+  if (_response == nil) {
+
+	  NSDebugMLLog(@"requests",@"request_=%@",request_);
+	  _requestHandler=[self handlerForRequest:request_];
+	  NSDebugMLLog(@"requests",@"_requestHandler=%@",_requestHandler);
+	  if (!_requestHandler)
+		_requestHandler=[self defaultRequestHandler];
+	  NSDebugMLLog(@"requests",@"_requestHandler=%@",_requestHandler);
+	  if (!_requestHandler)
+		{
+		  NSDebugMLLog0(@"low",@"GSWApplication dispatchRequest: no request handler");
+		  //TODO error
+		}
+	  else
+		{
+		  NSDebugMLLog(@"requests",@"sessionStore=%@",sessionStore);
+		  _response=[_requestHandler handleRequest:request_];
+		  NSDebugMLLog(@"requests",@"sessionStore=%@",sessionStore);
+		  [self _resetCache];
+		  NSDebugMLLog(@"requests",@"sessionStore=%@",sessionStore);
+		};
+	  if (!_response)
+	    {
+	      //TODO RESPONSE_PB
+	    }
+  }
   LOGObjectFnStop();
   return _response;
 };
@@ -3287,7 +3356,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 //TODO return (Vv12@0:4i8)
 -(void)setMinimumActiveSessionsCount:(int)count_
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  //LOGObjectFnNotImplemented();	//TODOFN
+  minimumActiveSessionsCount = count_;
 };
 
 //--------------------------------------------------------------------
@@ -3301,8 +3371,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 //isRefusingNewSessions
 -(BOOL)isRefusingNewSessions 
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
+  //LOGObjectFnNotImplemented();	//TODOFN
+  return refusingNewSessions;
 };
 
 //--------------------------------------------------------------------
@@ -3310,7 +3380,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 //TODO return: (Vv9@0:4c8)
 -(void)refuseNewSessions:(BOOL)flag 
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  refusingNewSessions = flag;
+  //LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------

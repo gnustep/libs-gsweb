@@ -179,7 +179,8 @@ static char rcsId[] = "$Id$";
 	  _noSelectionStringValue=[noSelectionString valueInComponent:_component];
 	  if (_escapeHTML)
 		_noSelectionStringValue=[GSWResponse stringByEscapingHTMLString:_noSelectionStringValue];
-	  [response_ appendContentHTMLString:_noSelectionStringValue];
+	  [response_ appendContentString:_noSelectionStringValue];
+	  //[response_ appendContentHTMLString:_noSelectionStringValue];
           // There is no close tag on OPTION
 	  //[response_ _appendContentAsciiString:@"</OPTION>"];
 	};
@@ -244,7 +245,11 @@ static char rcsId[] = "$Id$";
 			  NSDebugMLLog(@"gswdync",@"displayString=%@",displayString);
 			  _displayStringValue=[displayString valueInComponent:_component];
 			  NSDebugMLLog(@"gswdync",@"_displayStringValue=%@",_displayStringValue);
-			};
+			}
+		  else
+			{
+			  _displayStringValue = _itemValue;
+			}
 
 		  if (_displayStringValue)
 			{
@@ -283,7 +288,8 @@ static char rcsId[] = "$Id$";
 				  _displayStringValue=[NSString stringWithFormat:@"%@ --",_displayStringValue];
 				};
 #endif
-			  [response_ appendContentHTMLString:_displayStringValue];
+			  [response_ appendContentString:_displayStringValue];
+			  //[response_ appendContentHTMLString:_displayStringValue];
 			};
 		  if (_valueValue)
 			{

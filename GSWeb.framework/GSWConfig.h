@@ -34,7 +34,7 @@
 #define GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME				@"GSWTemplateParserXMLHTML"
 #define GSWOPTVALUE_ApplicationBaseURL_WO				@"/WebObjects"
 #define GSWOPTVALUE_ApplicationBaseURL_GSWEB				@"/GSWeb"
-#define GSWOPTVALUE_AutoOpenInBrowser					@"YES"
+#define GSWOPTVALUE_AutoOpenInBrowser					@"NO"
 #define GSWOPTVALUE_CGIAdaptorURL_WO					@"/cgi/WebObjects"
 #define GSWOPTVALUE_CGIAdaptorURL_GSWEB					@"/cgi/GSWeb"
 //or					@"http://host.com/cgi/GSWeb"

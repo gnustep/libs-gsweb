@@ -37,7 +37,7 @@ static char rcsId[] = "$Id$";
   GSWApplication* _application=nil;
   LOGObjectFnStart();
   _application=[GSWApplication application];
-  if ([_application isRefusingNewSessions])
+  if (0/*[_application isRefusingNewSessions]*/)
 	{
 	  //TODO
 	}
@@ -61,20 +61,21 @@ static char rcsId[] = "$Id$";
 			{
 			case 0:
 			  _actionName=@"default";
-			  _className=@"GSWDirectAction";
+			  _className=@"DirectAction";
 			  break;
 			case 1:
 			  {
 				NSString* _tmpActionName=[NSString stringWithFormat:@"%@Action",
 												   [_requestHandlerPathArray objectAtIndex:0]];
 				SEL _tmpActionSel=NSSelectorFromString(_tmpActionName);
+				Class _class = NSClassFromString(@"DirectAction");
 				NSDebugMLLog(@"requests",@"_tmpActionName=%@",_tmpActionName);
-				if (_tmpActionSel)
+				if (_tmpActionSel && _class)
 				  {
-					if ([GSWDirectAction instancesRespondToSelector:_tmpActionSel])
+					if ([_class instancesRespondToSelector:_tmpActionSel])
 					  {
 						_actionName=[_requestHandlerPathArray objectAtIndex:0];
-						_className=@"GSWDirectAction";
+						_className=@"DirectAction";
 					  };
 				  };
 				if (!_actionName)

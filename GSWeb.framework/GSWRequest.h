@@ -61,6 +61,7 @@
 -(id)copyWithZone:(NSZone*)zone_;
 
 -(NSData*)content;
+-(NSDictionary*)headers;
 -(NSString*)headerForKey:(NSString*)key_;
 -(NSArray*)headerKeys;
 -(NSArray*)headersForKey:(NSString*)key_;

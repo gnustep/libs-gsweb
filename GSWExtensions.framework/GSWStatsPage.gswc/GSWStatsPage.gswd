@@ -182,7 +182,7 @@ MovingAvgTransactionTime: GSWString
     value = transactions."Moving Avg. Transaction Time";
 }
 
-PASSGSWRD: GSWPasswordField
+PASSWORD: GSWPasswordField
 {
     WIDTH = 12;
     value = password;

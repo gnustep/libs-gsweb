@@ -403,6 +403,22 @@ static char rcsId[] = "$Id$";
 			{
 			  [context_ _setActionInvoked:YES];
 			  _element=[_actionAssociation valueInComponent:_component];
+			  if (_element)
+				{
+				  if (![_element isKindOfClass:[GSWComponent class]]) //TODO GSWComponent or Element ?
+					{
+					  ExceptionRaise0(@"GSWHyperlink",@"Invoked element return a not GSWComponent element");
+					} else {
+						// call awakeInContext when _element is sleeping deeply
+						[_element ensureAwakeInContext:context_];
+/*
+						if (![_element context]) {
+		  					NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
+							[_element awakeInContext:context_];
+						}
+*/
+					}
+				}
 			}
 		  else
 			{

@@ -1,3 +1,72 @@
+2001-10-25  Manuel Guesdon <mguesdon@orange-concept.com>
+	Applied patch from Turbocat (www.turbocat.de): GSWPatch_04-JUL_2001.diff
+		except GSWeb.framework/GSWInput.m/.h one (have to verify coherence of it)
+
+	* GSWAdaptors/common/GSWApp.c/.h: Added GSWAppInfo
+	* GSWAdaptors/common/GSWAppConnectNSSocket.c: Changes on includes
+	* GSWAdaptors/common/GSWLoadBalancing.h: Added parameter to GSWLoadBalancing_Find*
+	* GSWAdaptors/common/GSWLoadBalancing.c: added p_pURLComponents parameter,
+		o management of AppInfo
+	* GSWAdaptors/common/GSWAppRequest.c: managing refused connections
+	* GSWExtensions.framework/GSWStatsPage.gswc/GSWStatsPage.gswd: misspelling correction
+	* GSWExtensions.framework/GSWStatsPage.gswc/GSWStatsPage.html: Various Changes
+	* GSWExtensions.framework/GSWStatsPage.m: changes in login/password validation
+		o -awake added
+	* GSWeb.framework/GSWApplication.m/.h: Manage refusing new sessions
+	* GSWeb.framework/GSWBundle.m: debug traces commented	
+	* GSWeb.framework/GSWComponent.m: implementation of ensureAwakeInContext:
+	* GSWeb.framework/GSWAssociation.m: special case for returned value of type GSMutableArray (Why ?)
+	* GSWeb.framework/GSWComponentRequestHandler.m: comments added
+	* GSWeb.framework/GSWDefaultAdaptorThread.m: added debug traces
+	* GSWeb.framework/GSWDirectActionRequestHandler.m: replaced GSWDirectAction by DirectAction
+	* GSWeb.framework/GSWDisplayGroup.m:  initialize _baseIndex,
+		o correct misspelled names,
+		o added -description,
+		o use delegate in _changedInEditingContext:, _invalidatedAllObjectsInStore:,
+		o changes in -deleteObjectAtIndex:,
+	* GSWeb.framework/GSWFileUpload.m: different handling of _fileDatasCount,
+		handle bug in omniweb-browser
+	* GSWeb.framework/GSWHyperlink.m: added ensureAwakeInContext: call
+	* GSWeb.framework/GSWImageButton.m: added ensureAwakeInContext: call
+	* GSWeb.framework/GSWPopUpButton.m: 
+		o use [response_ appendContentString:_noSelectionStringValue] instead of 
+	  		[response_ appendContentHTMLString:_noSelectionStringValue]
+		o handle no displayString case
+		o use [response_ appendContentString:_displayStringValue] instead of 
+			  [response_ appendContentHTMLString:_displayStringValue]
+	* GSWeb.framework/GSWConfig.h: set GSWOPTVALUE_AutoOpenInBrowser to NO
+	* GSWeb.framework/GSWElementIDString.m: comment some debug traces
+	* GSWeb.framework/GSWHTMLStaticGroup.m/.h: added support of documentType
+	* GSWeb.framework/GSWHTMLURLValuedElement.m: addeded debug trace
+	* GSWeb.framework/GSWKeyValueAssociation.m: use  NSStringFromClass([retValue class]) 
+		instead of [retValue class] for log
+	* GSWeb.framework/GSWRequest.m/.h: added -(NSDictionary*)headers;
+		o added test on _contentType in _contentType
+		o autorelease _dict in -uriElements
+	* GSWeb.framework/GSWResponse.m/.h: added -setHeaders: and -headers
+		o Added GSWResponse (GSWResponseRefused)
+		o return self in -generateResponse
+	* GSWeb.framework/GSWServerSessionStore.m/.h: added @interface GSWServerSessionStore (GSWServerSessionStoreInfo)
+		o added refusing session management
+	* GSWeb.framework/GSWSession.m:
+		o in -terminate  forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
+	* GSWeb.framework/GSWSessionTimeOutManager.m/.h: replace NSMutableOrderedArray* sessionOrderedTimeOuts;
+  			by NSMutableArray* sessionOrderedTimeOuts;
+		o added traces
+		o added  GSWSessionTimeOutManager (GSWSessionRefused)
+	* GSWeb.framework/GSWSubmitButton.m: raise exception if no element is returned
+	* GSWeb.framework/GSWTemplateParser.m: added doctype management
+	* GSWeb.framework/GSWUtils.h: added if defined for __NetBSD__
+	* GSWeb.framework/GSWWOCompatibility.m/.h: added WOGenericContainer, WOImageButton, WOHyperlink
+	* GSWeb.framework/attach.m: added if defined for __NetBSD__
+	* GSWeb.framework/stacktrace.m: added if defined for __NetBSD__
+	* GSWeb.framework/GSWTemplateParserXML.m: traces commented
+		o test XML node content before adding it
+	* GSWeb.framework/NSObject+IVarAccess+PerformSel.m
+		o changes in -getIVarNamed: and in setIVarNamed:withValue: (use of sel+imp, tests on parameters)
+	* GSWAdaptors/common/GSWHTTPResponse.c: change in GSWHTTPResponse_GetResponse()
+		o debug traces removed
+	
 2001-08-28  Adam Fedor  <fedor@gnu.org>
 
 	* GSWExtensions.framework/Makefile.preamble: Add GSWeb framework

@@ -86,5 +86,4 @@
 -(void)_validateAPI;
 @end
 
-
 #endif //_GSWSessionStore_h__

@@ -65,7 +65,7 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"associations",@"retValue=%@ (%p) (class=%@)",
                retValue,
                retValue,
-               [retValue class]);
+               NSStringFromClass([retValue class]));
   [self logTakeValue:retValue];
   LOGObjectFnStop();
   return retValue;
@@ -77,7 +77,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@ (self=%@)",value_,self);
-  NSDebugMLLog(@"associations",@"value_ class:%@",[value_ class]);
+  NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([value_ class]));
   NSDebugMLLog(@"associations",@"value_ String class:%@",NSStringFromClass([value_ class]));
   //TODO (return something!)
   [object_ validateValue:&value_

@@ -1125,7 +1125,18 @@ associationsKeys:(NSArray*)_associationsKeys
 //--------------------------------------------------------------------
 -(void)ensureAwakeInContext:(GSWContext*)context_
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  //LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStart();
+  if (![self context]) {
+	NSDebugMLLog(@"gswcomponents",@"component sleeps, we awake it = %@",self);
+	[self awakeInContext:context_];
+  } else {
+	if ([self context] != context_) { 
+		NSDebugMLLog(@"gswcomponents",@"component is already awaken, but has not the current context, we awake it twice with current context = %@",self);
+		[self awakeInContext:context_];
+	}
+  }
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------

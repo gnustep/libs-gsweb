@@ -33,7 +33,8 @@ static char rcsId[] = "$Id$";
   //OK
   if ((self=[super init]))
 	{
-	  sessionOrderedTimeOuts=[[NSMutableOrderedArray alloc]initWithCompareSelector:@selector(compareTimeOutDate:)];
+	  //sessionOrderedTimeOuts=[[NSMutableOrderedArray alloc]initWithCompareSelector:@selector(compareTimeOutDate:)];
+	  sessionOrderedTimeOuts=[NSMutableArray new];
 	  sessionTimeOuts=[NSMutableDictionary new];
 //	  selfLock=[NSRecursiveLock new];
 	  selfLock=[NSLock new];
@@ -100,6 +101,7 @@ static char rcsId[] = "$Id$";
 			}
 		  NS_HANDLER
 			{
+			NSLog(@"### exception from ... addTimer... %@", [localException reason]);
 			  LOGException(@"%@ (%@)",localException,[localException reason]);
 			  //TODO
 			  [target unlock];
@@ -114,6 +116,7 @@ static char rcsId[] = "$Id$";
 	}
   NS_HANDLER
 	{
+	  NSLog(@"### exception ... %@", [localException reason]);
 	  LOGException(@"%@ (%@)",localException,[localException reason]);
 	  //TODO
 	  [self unlock];
@@ -136,14 +139,24 @@ static char rcsId[] = "$Id$";
 	  [self lock];
 	  NS_DURING
 		{
+		  NSEnumerator	*_sessionTimeOutEnum = nil;
 		  GSWSessionTimeOut* _sessionTimeOut=nil;
 		  NSTimeInterval _now=[NSDate timeIntervalSinceReferenceDate];
 		  NSTimer* _timer=nil;
 		  int _removedNb=0;
+
+/*
 		  if ([sessionOrderedTimeOuts count]>0)
 			_sessionTimeOut=[sessionOrderedTimeOuts objectAtIndex:0];
-		  while (/*_removedNb<20 && */_sessionTimeOut && [_sessionTimeOut timeOutTime]<_now)
+*/
+		
+		  _sessionTimeOutEnum = [sessionOrderedTimeOuts objectEnumerator];
+
+		  while (/*_removedNb<20 && *//*_sessionTimeOut && [_sessionTimeOut timeOutTime]<_now*/
+			_sessionTimeOut = [_sessionTimeOutEnum nextObject])
 			{
+			 if ([_sessionTimeOut timeOutTime]<_now) 
+			  {
 			  id _session=nil;
 			  [target lock];
 			  NS_DURING
@@ -174,16 +187,25 @@ static char rcsId[] = "$Id$";
 				  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
 				  [_session terminate];
 				  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
-				  [sessionOrderedTimeOuts removeObjectAtIndex:0];
+
+				  NSLog(@"GSWSessionTimeOutMananger : removeObject = %@", _sessionTimeOut);
+
+				/*  [sessionOrderedTimeOuts removeObjectAtIndex:0]; */
+				  [sessionOrderedTimeOuts removeObject:_sessionTimeOut];
+		  		  [sessionTimeOuts removeObjectForKey:[_session sessionID]];
+
 				  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
 				  _removedNb++;
+				/*
 				  if ([sessionOrderedTimeOuts count]>0)
 					_sessionTimeOut=[sessionOrderedTimeOuts objectAtIndex:0];
 				  else
 					_sessionTimeOut=nil;
+				*/
 				}
 			  else
 				_sessionTimeOut=nil;
+			 };
 			};
 		  
 		  _timer=[self resetTimer];
@@ -230,20 +252,46 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
 	  if ([sessionOrderedTimeOuts count]>0)
 		{
-		  _sessionTimeOut=[sessionOrderedTimeOuts objectAtIndex:0];
+		  NSEnumerator	* sessionOrderedTimeOutsEnum = [sessionOrderedTimeOuts objectEnumerator];
+		  GSWSessionTimeOut* sessionTimeOutObject=nil;
+		  NSTimeInterval _minTimeOut;
+
+		  _sessionTimeOut = [sessionOrderedTimeOuts objectAtIndex:0];
+		  _minTimeOut = [_sessionTimeOut timeOutTime];
+		  while (sessionTimeOutObject = [sessionOrderedTimeOutsEnum nextObject]) {
+			if ([sessionTimeOutObject timeOutTime] < _minTimeOut) {
+			    _sessionTimeOut = sessionTimeOutObject;
+		  	    _minTimeOut = [_sessionTimeOut timeOutTime];
+			}
+		  }
+
+		  //_sessionTimeOut=[sessionOrderedTimeOuts objectAtIndex:0];
+
+		  // search for minimum timeouts
+
 		  NSDebugMLLog(@"sessions",@"_sessionTimeOut=%@",_sessionTimeOut);
 		  NSDebugMLLog(@"sessions",@"[timer fireDate]=%@",[timer fireDate]);
 		  NSDebugMLLog(@"sessions",@"[old timer isValide]=%s",
 					   [timer isValid] ? "YES" : "NO");
+/*
+		NSLog(@"_sessionTimeOut=%@",_sessionTimeOut);
+		NSLog(@"[old timer isValide]=%s", [timer isValid] ? "YES" : "NO");
+		NSLog(@"[_sessionTimeOut timeOutTime] = %ld",(long)[_sessionTimeOut timeOutTime]);
+		NSLog(@"_timerFireTimeInterval = %ld",(long) _timerFireTimeInterval);
+		NSLog(@"_now = %ld",(long) _now);
+*/
 		  if (_sessionTimeOut
 			  && (![timer isValid]
 				  || [_sessionTimeOut timeOutTime]<_timerFireTimeInterval
 				  || _timerFireTimeInterval<_now))
 		  {
 			NSTimeInterval _timerTimeInterval=[_sessionTimeOut timeOutTime]-_now;
+
+	NSDebugMLLog(@"sessions",@"_timerTimeInterval=%ld",(long)_timerTimeInterval);
+			_timerTimeInterval=max(_timerTimeInterval,1);//20s minimum
 			NSDebugMLLog(@"sessions",@"_timerTimeInterval=%ld",(long)_timerTimeInterval);
-			_timerTimeInterval=max(_timerTimeInterval,10);//20s minimum
-			NSDebugMLLog(@"sessions",@"_timerTimeInterval=%ld",(long)_timerTimeInterval);
+			NSLog(@"new _timerTimeInterval=%ld",(long)_timerTimeInterval);
+
 			_newTimer=[NSTimer timerWithTimeInterval:_timerTimeInterval
 							   target:self
 							   selector:@selector(handleTimer:)
@@ -329,5 +377,169 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"sessions",@"selfLockn=%d",selfLockn);
   LOGObjectFnStop();
 };
+
+@end
+
+//====================================================================
+@implementation GSWSessionTimeOutManager (GSWSessionRefused)
+
+//--------------------------------------------------------------------
+-(void)startHandleTimerRefusingSessions
+{
+	NSTimer* _newTimer = nil;
+
+NSLog(@"---Start startHandleTimerRefusingSessions");
+    //[GSWApplication statusLogWithFormat:@"Start startHandleTimerRefusingSessions"];
+	//LOGObjectFnStart();
+	[self lock];
+/*
+  	_newTimer=[NSTimer timerWithTimeInterval:5	// first time after 5 seconds
+							   target:self
+							   selector:@selector(handleTimerRefusingSessions:)
+							   userInfo:nil
+							   repeats:NO];
+
+	if (_newTimer) {
+		[GSWApp addTimer:_newTimer];
+	}
+*/
+
+        _newTimer = [NSTimer scheduledTimerWithTimeInterval:5 
+                                                           target:self
+                                                         selector:@selector(handleTimerRefusingSessions:)
+                                                         userInfo:nil
+                                                          repeats:NO];
+
+	[self unlock];
+  	//LOGObjectFnStop();
+    //[GSWApplication statusLogWithFormat:@"Stop startHandleTimerRefusingSessions"];
+NSLog(@"---Stop startHandleTimerRefusingSessions");
+}
+
+//--------------------------------------------------------------------
+-(void)handleTimerKillingApplication:(id)timer_
+{
+	NSLog(@"application is shutting down...");
+	[GSWApp lock];
+	[GSWApp lockRequestHandling];
+	[self lock];
+	[GSWApp dealloc];
+	[GSWApplication dealloc];	// call class method , not instance method
+	exit(0);
+}
+
+//--------------------------------------------------------------------
+-(void)handleTimerRefusingSessions:(id)timer_
+{
+  //OK
+//NSLog(@"-Start HandleTimerRefusingSessions");
+  //[GSWApplication statusLogWithFormat:@"-Start HandleTimerRefusingSessions"];
+  //[GSWApp lockRequestHandling];
+  NS_DURING
+	{
+	  [self lock];
+	  NS_DURING
+		{
+		  GSWApplication	*ourApp = [GSWApplication application];
+		  NSTimer				*_timer=nil;
+
+		  if (ourApp && [ourApp isRefusingNewSessions] && ([sessionOrderedTimeOuts count] <= [ourApp minimumActiveSessionsCount])) {
+
+		  // okay , soft-shutdown for all avtive sessions
+
+		  GSWSessionTimeOut 	*_sessionTimeOut=nil;
+
+	      while ([sessionOrderedTimeOuts count] > 0) { 
+
+			_sessionTimeOut = [sessionOrderedTimeOuts lastObject];
+			if (_sessionTimeOut) {
+
+			  id _session=nil;
+			  [target lock];
+			  NS_DURING
+				{
+				  _session=[target performSelector:callback
+								   withObject:[_sessionTimeOut sessionID]];
+				  NSDebugMLLog(@"sessions",@"_session=%@",_session);
+				}
+			  NS_HANDLER
+				{
+				  LOGException(@"%@ (%@)",localException,[localException reason]);
+				  //TODO
+				  [target unlock];
+        		  _timer = [NSTimer scheduledTimerWithTimeInterval:5 
+                                                           target:self
+                                                         selector:@selector(handleTimerRefusingSessions:)
+                                                         userInfo:nil
+                                                          repeats:NO];
+
+				  [self unlock];
+				  //[GSWApp unlockRequestHandling];
+				  [localException raise];
+				}
+			  NS_ENDHANDLER;
+			  [target unlock];
+
+			  if (_session)
+				{
+				  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
+				  [_session terminate];	// ???
+				  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
+
+				  NSLog(@"GSWSessionTimeOutMananger : removeObject = %@", _sessionTimeOut);
+
+				  [sessionOrderedTimeOuts removeObject:_sessionTimeOut];
+		  		  [sessionTimeOuts removeObjectForKey:[_session sessionID]];
+
+				  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
+				}
+
+			}
+		   }
+		   // app terminate
+			NSLog(@"application is preparing to shut down in 10 sec...");
+
+        	_timer = [NSTimer scheduledTimerWithTimeInterval:10 
+                                                           target:self
+                                                         selector:@selector(handleTimerKillingApplication:)
+                                                         userInfo:nil
+                                                          repeats:NO];
+
+		  }	else  
+			{
+		  	// new timer, app does not terminate
+        	_timer = [NSTimer scheduledTimerWithTimeInterval:5 
+                                                           target:self
+                                                         selector:@selector(handleTimerRefusingSessions:)
+                                                         userInfo:nil
+                                                          repeats:NO];
+
+		  }
+		}
+	  NS_HANDLER
+		{
+		  LOGException(@"%@ (%@)",localException,[localException reason]);
+		  //TODO
+		  [self unlock];
+		  //[GSWApp unlockRequestHandling];
+		  [localException raise];
+		};
+	  NS_ENDHANDLER;
+	  NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",sessionOrderedTimeOuts);
+	  [self unlock];
+	}
+  NS_HANDLER
+	{
+	  LOGException(@"%@ (%@)",localException,[localException reason]);
+	  //TODO
+	  //[GSWApp unlockRequestHandling];
+	  [localException raise];
+	};
+  NS_ENDHANDLER;
+  //[GSWApp unlockRequestHandling];
+  //[GSWApplication statusLogWithFormat:@"-Stop HandleTimerRefusingSessions"];
+//NSLog(@"-Stop HandleTimerRefusingSessions");
+};
+
 
 @end

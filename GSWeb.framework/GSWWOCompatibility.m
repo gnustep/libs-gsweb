@@ -229,16 +229,25 @@ static char rcsId[] = "$Id$";
 @implementation WOFrame
 @end
 
+@implementation WOGenericContainer
+@end
+
 @implementation WOGenericElement
 @end
 
 @implementation WOImage
 @end
 
+@implementation WOImageButton
+@end
+
 @implementation WORadioButton
 @end
 
 @implementation WORadioButtonList
+@end
+
+@implementation WOHyperlink
 @end
 
 #endif

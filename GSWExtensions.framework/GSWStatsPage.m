@@ -30,7 +30,8 @@
   GSWStatisticsStore* _statisticsStore = [[self application] statisticsStore];
   if (_statisticsStore)
 	{
-        [_statisticsStore validateLogin:password];
+        //[_statisticsStore validateLogin:password];
+		[[self session] _allowToViewStatistics];
     };
   return self;
 };
@@ -38,6 +39,50 @@
 -(id)host
 {
   return [[NSHost currentHost] name];
+}
+
+- (void) awake
+{
+/*
+  NSString* tmpKey;
+  NSString* tmpItem;
+
+  NSDictionary* detailsDict;
+  NSDictionary* pagesDict;
+  NSDictionary* directActionsDict;
+  NSDictionary* sessionMemoryDict;
+  NSDictionary* transactions;
+  NSDictionary* statsDict;
+  NSDictionary* memoryDict;
+  NSArray* sessionStats;
+  NSMutableDictionary* sessionsDict;
+  NSNumber* maxPageCount;
+  NSNumber* maxActionCount;
+  NSDate* maxSessionsDate;
+  NSString* userName;
+  NSString* password;
+
+*/
+NSLog(@"detailsDict");
+NSLog([detailsDict description]);
+NSLog(@"pagesDict");
+NSLog([pagesDict description]);
+NSLog(@"directActionsDict");
+NSLog([directActionsDict description]);
+NSLog(@"sessionMemoryDict");
+NSLog([sessionMemoryDict description]);
+
+NSLog(@"transactions");
+/*NSLog(transactions);
+NSLog(@"statsDict");
+NSLog(statsDict);
+NSLog(@"memoryDict");
+NSLog(memoryDict);
+NSLog(@"sessionStats");
+NSLog(sessionStats);
+NSLog(@"sessionsDict");
+NSLog(sessionsDict);
+*/
 }
 
 -(id)instance

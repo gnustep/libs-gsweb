@@ -62,6 +62,8 @@
 		  forKey:(NSString*)key_;
 -(void)setHeaders:(NSArray*)headerList_
 		   forKey:(NSString*)key_;
+-(void)setHeaders:(NSDictionary*)headerList_;
+-(NSMutableDictionary*)headers;
 -(void)setHTTPVersion:(NSString*)version_;
 -(void)setStatus:(unsigned int)status_;
 -(void)setUserInfo:(NSDictionary*)userInfo_;
@@ -159,4 +161,16 @@
 			 inContext:(GSWContext*)context_
 			forRequest:(GSWRequest*)request_;
 @end
+
+//====================================================================
+@interface GSWResponse (GSWResponseRefused)
+
+//--------------------------------------------------------------------
+//
+//Refuse Response
++(GSWResponse*)generateRefusingResponseInContext:(GSWContext*)context_
+                                      forRequest:(GSWRequest*)request_;
+@end
+
+
 #endif //_GSWResponse_h__

@@ -125,12 +125,16 @@ static char rcsId[] = "$Id$";
 			  _fileDatas=[request_ formValuesForKey:_nameInContext];
 			  NSDebugMLLog(@"gswdync",@"_value=%@",_fileDatas);
 			  _fileDatasCount=[_fileDatas count];
+/*
 		      if (_fileDatasCount!=1)
 				{
 				  ExceptionRaise(@"GSWFileUpload",
 								 @"GSWFileUpload: File Data Nb != 1 :%d",
 								 _fileDatasCount);
 				};
+*/
+		  if (_fileDatasCount==1) {
+
 			  _data=[_fileDatas objectAtIndex:0];
 			  if (_data)
 				{
@@ -150,10 +154,14 @@ static char rcsId[] = "$Id$";
 						}
 					  else
 						{
+						NSLog(@"content type request : %@",[request_ _contentType]);
+						NSLog(@"data class = %@",NSStringFromClass([_data class]));
+						 /*if (![_data isMemberOfClass:[NSString class]]) {
 						  ExceptionRaise(@"GSWFileUpload",
 										 @"GSWFileUpload: bad data :%@",
 										 _data);
 						  _data=nil;
+						 }*/
 						};
 					};
 				}
@@ -173,6 +181,14 @@ static char rcsId[] = "$Id$";
 						inComponent:_component];
 			  [data setValue:_data
 					inComponent:_component];
+		} else {
+			// bug in omniweb-browser if you click cancel in FileOpenPanel, it transmits incorrect datas
+
+			  [filepath setValue:nil
+						inComponent:_component];
+			  [data setValue:nil
+					inComponent:_component];
+		}
 		    }
 		  NS_HANDLER
 		    {

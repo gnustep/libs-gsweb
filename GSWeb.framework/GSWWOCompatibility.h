@@ -230,16 +230,25 @@
 @interface WOFrame : GSWFrame 
 @end
 
+@interface WOGenericContainer : GSWGenericContainer
+@end
+
 @interface WOGenericElement : GSWGenericElement
 @end
 
 @interface WOImage : GSWImage
 @end
 
+@interface WOImageButton : GSWImageButton
+@end
+
 @interface WORadioButton : GSWRadioButton
 @end
 
 @interface WORadioButtonList : GSWRadioButtonList
+@end
+
+@interface WOHyperlink : GSWHyperlink
 @end
 
 #endif

@@ -172,6 +172,14 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+//	headers
+
+-(NSDictionary*)headers
+{
+  return headers;
+}
+
+//--------------------------------------------------------------------
 //	httpVersion
 
 -(NSString*)httpVersion 
@@ -853,12 +861,15 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   //We can get something like 
   // multipart/form-data; boundary=---------------------------1810101926251
   // In this case, return only multipart/form-data
-  _range=[_contentType rangeOfString:@";"];
-  if (_range.length>0)
-	{
-	  _contentType=[_contentType substringToIndex:_range.location];
-	  NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
-	};
+  if (_contentType) 
+    {
+      _range=[_contentType rangeOfString:@";"];
+      if (_range.length>0)
+        {
+          _contentType=[_contentType substringToIndex:_range.location];
+          NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
+        };
+    };
   LOGObjectFnStop();
   return _contentType;
 };
@@ -1761,7 +1772,7 @@ into
   NSString* _requestHandlerKey=nil;
   int _applicationNumber;
   LOGObjectFnStart();
-  _dict=[NSMutableDictionary new];
+  _dict=[[NSMutableDictionary new] autorelease];
   //NEW//TODO
   _requestHandlerKey=[((GSWDynamicURLString*)[self uri]) urlRequestHandlerKey];
   if (!_requestHandlerKey

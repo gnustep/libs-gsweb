@@ -130,7 +130,7 @@ extern void            externalSubset                  (void *ctx,
   if ((self=[self init]))
     {
       _templateParser=templateParser_;
-      NSLog(@"my sax lib=%p",lib);
+      //NSLog(@"my sax lib=%p",lib);
       if (lib)
         {
           xmlSAXHandlerPtr def=NULL;
@@ -504,7 +504,6 @@ static NSString* TabsForLevel(int level)
           else
             stringToParse=_string;
           stringToParse=[xmlHeader stringByAppendingString:stringToParse];
-          NSLog(@"stringToParse=%@",stringToParse);
           parser=[GSXMLParser parserWithSAXHandler:sax
                                withData:[stringToParse dataUsingEncoding:stringEncoding]];            
         };
@@ -556,6 +555,19 @@ static NSString* TabsForLevel(int level)
             NSDebugMLLog0(@"low",@"_xmlDocument dumped");
           };
 #endif
+/*
+	  if ([node type]==XML_DTD_NODE) {
+			NSLog(@"GSWTemplateParserXML: XML_DTD_NODE is found");
+	  }
+
+      NSLog(@"ROOT node=%p %@ [Type:%@] [%@] ##%s##\n",
+                  node,
+                  [node name],
+                  [node typeDescription],
+                  [node propertiesAsDictionary],
+                  [[node content] lossyCString]);
+*/
+
           /*			  if (node->type!=XML_DTD_NODE)
                                   {
                                   NSLog(@"Bad first node type: %@ instead of %@",
@@ -589,6 +601,14 @@ static NSString* TabsForLevel(int level)
                           (_isHTMLTag ? "YES" : "NO"),
                           (_isBodyTag ? "YES" : "NO"));
                     */
+/*
+      NSLog(@"while1 node=%p %@ [Type:%@] [%@] ##%s##\n",
+                  node,
+                  [node name],
+                  [node typeDescription],
+                  [node propertiesAsDictionary],
+                  [[node content] lossyCString]);
+*/
                     if ((!_isHTMLTag && [nodeName caseInsensitiveCompare:@"html"]==NSOrderedSame)
                         || (!_isBodyTag && [nodeName caseInsensitiveCompare:@"body"]==NSOrderedSame))
                       {
@@ -665,17 +685,27 @@ text [Type:XML_TEXT_NODE] [{}] ####
                   [currentNode name],
                   [currentNode typeDescription],
                   [currentNode propertiesAsDictionary],
+/*				((xmlNodePtr)[currentNode lib])->content,
+                  [currentNode content],*/
                   [[currentNode content] lossyCString]);
+
       switch([currentNode type])
         {
         case XML_TEXT_NODE:
           {
             NSDebugMLog0(@"TEXT");
-            elem=[GSWHTMLBareString elementWithString:
-                                      [NSString stringWithCString:
-                                                  [[[currentNode content]
-                                                     stringByConvertingToHTMLEntities]
-                                                    lossyCString]]];//Because XML Parser decode characters
+
+			if ([currentNode content] && ([[currentNode content] length] > 0) ) {
+
+            	elem=[GSWHTMLBareString elementWithString:
+                  	                    [NSString stringWithCString:
+                 	                                 [[[currentNode content]
+                  	                                   stringByConvertingToHTMLEntities]
+                   	                                 lossyCString]]];//Because XML Parser decode characters
+			} else {
+				elem = nil;
+			}
+
             NSDebugMLog(@"TEXT element=%@",elem);
           };
           break;
@@ -878,7 +908,8 @@ text [Type:XML_TEXT_NODE] [{}] ####
           };
           break;
         };
-      [_elements addObject:elem];
+	  if (elem)
+      	[_elements addObject:elem];
       NSDebugMLog(@"END node=%p %@ [Type:%@] [%@] ##%s##\n",
                   currentNode,
                   [currentNode name],

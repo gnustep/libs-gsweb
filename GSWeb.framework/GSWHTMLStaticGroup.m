@@ -44,4 +44,37 @@ static char rcsId[] = "$Id$";
   return self;
 };
 
+//--------------------------------------------------------------------
+-(void)setDocumentTypeString:(NSString *)documentType_
+{
+	[_documentTypeString release];
+	_documentTypeString = [documentType_ retain];
+}
+
+//--------------------------------------------------------------------
+-(void)appendToResponse:(GSWResponse*)response_
+			  inContext:(GSWContext*)context_
+{
+  if (_documentTypeString)
+	{
+  		NSStringEncoding _encoding=[response_ contentEncoding];
+
+  		NSDebugMLLog(@"gswdync",@"added _documentTypeString = %@", _documentTypeString);
+
+		[response_ appendContentData:[_documentTypeString
+                                                       dataUsingEncoding:_encoding]];
+	};
+
+  [super appendToResponse:response_   inContext:context_];
+};
+
+//--------------------------------------------------------------------
+-(void)dealloc
+{
+	[_documentTypeString release];
+
+	[super dealloc];
+}
+
+
 @end

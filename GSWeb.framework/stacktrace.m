@@ -32,7 +32,7 @@
  ************************************************************************/
 #define USE_BUILTIN
 
-#if defined(unix) || defined(__unix) || defined(__xlC__)
+#if defined(unix) || defined(__unix) || defined(__xlC__) || defined(__NetBSD__)
 # define PLATFORM_UNIX
 #elif defined(WIN32) || defined(_WIN32)
 # define PLATFORM_WIN32

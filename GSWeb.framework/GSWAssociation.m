@@ -25,6 +25,7 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 #include <math.h>
+#include <values.h>
 
 static NSDictionary* localMinMaxDictionary=nil;
 static NSMutableDictionary* associationsHandlerClasses=nil;
@@ -610,6 +611,9 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 		{
 		  _part=[keys objectAtIndex:0];
 		  [keys removeObjectAtIndex:0];
+			if (retValue) {
+		  NSDebugMLLog(@"associations",@"object_get_class_name(retValue object)=%s", object_get_class_name(retValue));
+			}
 		  NSDebugMLLog(@"associations",@"_part=%@",_part);
 		  _handlerClass=[associationsHandlerClasses objectForKey:_part];
 		  NSDebugMLLog(@"associations",@"_handlerClass=%@",_handlerClass);
@@ -651,8 +655,49 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                     }
 		  else
 			{
+				BOOL skipping = NO;
 			  NS_DURING
-			    retValue=[retValue getIVarNamed:_part];
+/*
+				//NSLog(@"#getIVarNamed");
+				if (retValue) {
+					//NSLog(@"class retValue before getIVarNamed : %s", object_get_class_name(retValue));
+					//NSLog(@"description retValue : %@", [retValue description]);
+				}
+
+				if ((retValue) && (strstr(object_get_class_name(retValue),"GSMutableArray") != NULL)) {
+
+					int counter;
+					if ([_part isEqual:@"count"]) {
+						SEL	sel=0;
+						NSMethodSignature	*sig ;
+
+						NSLog(@"### retValue class is GSMutableArray (%@)", NSStringFromClass([retValue class]));
+						sel = NSSelectorFromString(_part);
+  						NSLog(@"### selector = %d", (int)sel);
+  						NSLog(@"### %@", NSStringFromSelector(sel));
+						if ([retValue respondsToSelector: sel] == NO) {
+							NSLog(@"### GSMutableArray does not respond to '%@'", _part);
+						} else {
+							NSLog(@"### GSMutableArray responds to '%@'", _part);
+						}
+      					sig = [retValue methodSignatureForSelector: sel];
+						NSLog(@"### [sig numberOfArguments] = %d", [sig numberOfArguments]);
+
+						counter = [retValue count];
+						NSLog(@"### count = %d", counter);
+						skipping = YES;
+						//retValue = [NSNumber numberWithInt:counter];
+					}
+				}
+
+				//if (!skipping)
+*/
+			    	retValue=[retValue getIVarNamed:_part];
+/*
+				if (retValue) {
+					NSLog(@"class retValue after getIVarNamed : %s", object_get_class_name(retValue));
+				}
+*/
 			  NS_HANDLER
 			    NSLog(@"Attempt to get %@/%@ raised an exception (%@)",[retValue class],_part,localException);
         localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods" format:@"-[%@ %@]",[retValue class],_part];
@@ -663,7 +708,11 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                     retValue=nil;
 		};
 	};
+if (retValue) {
   NSDebugMLLog(@"associations",@"retValue=%@",retValue);
+} else {
+  NSLog(@"retValue=nil");
+}
   LOGClassFnStop();
   return retValue;
 };
@@ -677,6 +726,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@",value_);
   NSDebugMLLog(@"associations",@"value_ class:%@",[value_ class]);
   NSDebugMLLog(@"associations",@"value_ String class:%@",NSStringFromClass([value_ class]));
+  NSDebugMLLog(@"associations",@"object_ String class:%@",NSStringFromClass([object_ class]));
   if (keyPath_)
 	{
 	  NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];
@@ -705,6 +755,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 				  if ([_part isEqualToString:GSASK_Class])
 					{
 					  Class _class=Nil;
+NSLog(@"in GSASK_Class");
 					  NSAssert2([keys count]>0,@"No class name for handler %@ in %@",
 								GSASK_Class,
 								keyPath_);
@@ -721,8 +772,10 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 					  else
 						_object=nil;
 					}
-				  else
+				  else {
+//NSLog(@"before called getIVarNamed with _part = %@",_part);
 					_object=[_object getIVarNamed:_part];
+					}
 				}
 			  else
 				{

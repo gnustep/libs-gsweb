@@ -58,5 +58,21 @@ GSWAppInstance* GSWAppInstance_New(GSWApp* p_pApp);
 void GSWAppInstance_Free(GSWAppInstance* p_pInstance);
 BOOL GSWAppInstance_FreeIFND(GSWAppInstance* p_pInstance);
 
+//---------------------------------------------------------------------
+typedef struct _GSWAppInfo
+{
+  BOOL isRefused;
+  time_t timeNextRetryTime;			// next try to look, if it is not refused
+} GSWAppInfo;
+
+static GSWDict*  _gswAppInfoDict = NULL;
+
+void 		GSWAppInfo_Init();
+GSWAppInfo* 	GSWAppInfo_Find(char* pszName, int iInstance);
+void 		GSWAppInfo_Add(GSWAppInfo* appInfoDict, CONST char* keyName);
+void 		GSWAppInfo_Set(char* pszName, int iInstance, BOOL isRefused);
+void 		GSWAppInfo_Remove(GSWAppInfo* _appInfo);
+
+
 #endif // _GSWApp_h__
 

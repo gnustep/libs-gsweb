@@ -232,7 +232,24 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
           NS_ENDHANDLER;
           if (elements)
             {
+              NSRange docTypeRangeStart=NSMakeRange(NSNotFound,0);
+              NSRange docTypeRangeEnd=NSMakeRange(NSNotFound,0);
+              
               _template=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
+              
+              //NSLog(@"_string = %@", _string);
+              
+              docTypeRangeStart=[_string rangeOfString:@"<!DOCTYPE"];
+              if (docTypeRangeStart.length) {
+                docTypeRangeEnd=[_string rangeOfString:@">"];
+                if (docTypeRangeEnd.length) {
+                  if (docTypeRangeStart.location < docTypeRangeEnd.location) 
+                    {
+                      [_template setDocumentTypeString:[_string substringFromRange:NSMakeRange(docTypeRangeStart.location,
+                                                                                               docTypeRangeEnd.location - docTypeRangeStart.location + 1)]];
+                    }
+                }
+              }
             };
         };
     };

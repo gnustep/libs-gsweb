@@ -37,6 +37,7 @@ static char rcsId[] = "$Id$";
 	  sessions=[NSMutableDictionary new];
 	  [timeOut_manager setCallBack:@selector(removeSessionWithID:)
 					   target:self];
+          [timeOut_manager startHandleTimerRefusingSessions];
 	};
   LOGObjectFnStop();
   return self;
@@ -125,6 +126,28 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStop();
   return _session;
 };
+
+@end
+
+//====================================================================
+@implementation GSWServerSessionStore (GSWServerSessionStoreInfo)
+-(BOOL)containsSessionID:(NSString*)sessionID_
+{
+  BOOL contain = NO;
+  //OK
+  LOGObjectFnStart();
+  if([sessions objectForKey:sessionID_]) 
+    {
+      contain = YES;
+    }
+  LOGObjectFnStop();
+  return contain;
+};
+
+-(NSArray *)allSessionIDs
+{
+  return [sessions allKeys];
+}
 
 @end
 

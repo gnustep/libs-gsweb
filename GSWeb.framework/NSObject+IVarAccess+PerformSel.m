@@ -175,37 +175,64 @@ const char* GSGetInstanceVariableType(id obj,
 #if GDL2
 
 //--------------------------------------------------------------------
+
 - (id)getIVarNamed:(NSString *)name_
 {
   id value;
+  SEL sel = NSSelectorFromString(@"valueForKey:");
+  id	(*imp)(id, SEL, id) = (id (*)(id, SEL, id))[NSObject instanceMethodForSelector: sel];
 
-  NSLog(@"%@", name_);
+  //NSLog(@"%@",name_);
+  //NSLog(@"sel (valueForKey <NSObject>) : %d", (int)sel);
+
   NS_DURING
-    value = [self valueForKey:name_];
+    //value = [self valueForKey:name_];
+	value = (*imp)(self, sel, name_);
   NS_HANDLER
     {
-      if([self respondsToSelector:@selector(objectForKey:)] == YES)
-	value = [self objectForKey:name_];
-      else
-	[localException raise];
+      if([self respondsToSelector:@selector(objectForKey:)] == YES) {
+		if (name_) {
+			value = [self objectForKey:name_];
+		} else {
+			value=nil;
+		}
+	  } else {
+		[localException raise];
+		}
     }
   NS_ENDHANDLER;
 
   return value;
 }
 
+
 //--------------------------------------------------------------------
 - (void)setIVarNamed:(NSString *)name_
 	   withValue:(id)value_
 {
+  SEL sel = NSSelectorFromString(@"takeValue:forKey:");
+  id	(*imp)(id, SEL, id, id) = (id (*)(id, SEL, id, id))[NSObject instanceMethodForSelector: sel];
+
+  //NSLog(@"sel (takeValue:forKey: <NSObject>) : %d", (int)sel);
+
   NS_DURING
-    [self takeValue:value_ forKey:name_];
+//NSLog(@"setIVarNamed : self = %@", NSStringFromClass([self class]));
+//NSLog(@"setIVarNamed : name_ = %@ (%@)", name_, NSStringFromClass([name_ class]));
+//NSLog(@"setIVarNamed : value_ = %@ (%@)", value_, NSStringFromClass([value_ class]));
+    //[self takeValue:value_ forKey:name_];
+	(*imp)(self, sel, value_, name_);
   NS_HANDLER
     {
-      if([self respondsToSelector:@selector(setObject:forKey:)] == YES)
-	[self setObject:value_ forKey:name_];
-      else
-	[localException raise];
+	if (![name_ isEqualToString:@"self"]) {
+
+      	  if([self respondsToSelector:@selector(setObject:forKey:)] == YES) {
+				if (value_ && name_) {
+					[self setObject:value_ forKey:name_];
+				}
+			} else {
+				[localException raise];
+			}
+	}
     }
   NS_ENDHANDLER;
 }
@@ -412,7 +439,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
   Class _class=Nil;
   NSObjectIVarsAccess* _ivarAccess=nil;
   NSMutableDictionary* _classCache=nil;
-//  LOGObjectFnStart();
+  //LOGObjectFnStart();
   NSDebugMLLog(@"low",@"getIVarNamed %@ in %p %@  (superClass:%@)",name_,self,[self class],[self superclass]);
   _class=[self class];
   _classCache=[objectIVarAccessCache_Get objectForKey:_class];

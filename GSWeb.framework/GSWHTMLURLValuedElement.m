@@ -327,6 +327,7 @@ static char rcsId[] = "$Id$";
 		}
 	  else if (filename)
 		{
+                  NSDebugMLLog(@"gswdync",@"_url = %@",_url);
 		  [response_ appendContentString:_url];
 		}
 	  else

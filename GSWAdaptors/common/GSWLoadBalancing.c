@@ -42,10 +42,11 @@
 #include "GSWHTTPHeaders.h"
 #include "GSWLoadBalancing.h"
 #include "GSWLock.h"
+#include "GSWApp.h"
 
 //--------------------------------------------------------------------
 BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,
-							  void* p_pLogServerData)
+							  void* p_pLogServerData, GSWURLComponents* p_pURLComponents)
 {
   BOOL fFound=FALSE;
   GSWApp* pApp=NULL;
@@ -93,14 +94,32 @@ BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,
 				};
 			  if (pAppInstance->timeNextRetryTime==0 && pAppInstance->fValid)
 				{
-				  fFound = TRUE;
-				  strcpy(p_pAppRequest->pszName,pApp->pszName);
-				  p_pAppRequest->iInstance = pAppInstance->iInstance;
-				  p_pAppRequest->pszHost = pAppInstance->pszHostName;
-				  p_pAppRequest->iPort = pAppInstance->iPort;
-				  p_pAppRequest->eType = EAppType_LoadBalanced;
-				  p_pAppRequest->pAppInstance = pAppInstance;
-				  pAppInstance->uOpenedRequestsNb++;
+				  BOOL okay = TRUE;
+				  // check if refused, time to try again ?
+				  if (p_pURLComponents->stRequestHandlerKey.iLength==0 || p_pURLComponents->stRequestHandlerKey.pszStart==NULL) {
+					GSWAppInfo *thisAppInfo = GSWAppInfo_Find(p_pAppRequest->pszName, pAppInstance->iInstance);
+					if (thisAppInfo && thisAppInfo->isRefused) {
+						time_t actTime = (time_t)0;
+						// this instance refuses new sessions
+						time(&actTime);
+						if (actTime > thisAppInfo->timeNextRetryTime) {
+							thisAppInfo->isRefused = FALSE;	// try it again
+						} else {
+							okay = FALSE;	// try an other instance
+						}
+					}
+				  }
+
+			      if (okay == TRUE) {
+				  	fFound = TRUE;
+				  	strcpy(p_pAppRequest->pszName,pApp->pszName);
+				  	p_pAppRequest->iInstance = pAppInstance->iInstance;
+				  	p_pAppRequest->pszHost = pAppInstance->pszHostName;
+				  	p_pAppRequest->iPort = pAppInstance->iPort;
+				  	p_pAppRequest->eType = EAppType_LoadBalanced;
+				  	p_pAppRequest->pAppInstance = pAppInstance;
+				  	pAppInstance->uOpenedRequestsNb++;
+				  }
 				};
 			};
 		};
@@ -122,7 +141,7 @@ BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,
 };
 
 //--------------------------------------------------------------------
-BOOL GSWLoadBalancing_FindInstance(GSWAppRequest *p_pAppRequest,void* p_pLogServerData)
+BOOL GSWLoadBalancing_FindInstance(GSWAppRequest *p_pAppRequest,void* p_pLogServerData, GSWURLComponents* p_pURLComponents)
 {
   BOOL fFound=FALSE;
   GSWApp* pApp=NULL;
@@ -142,14 +161,33 @@ BOOL GSWLoadBalancing_FindInstance(GSWAppRequest *p_pAppRequest,void* p_pLogServ
 		  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance Found");
 		  if (pAppInstance->fValid)
 			{
-			  fFound=TRUE;
-			  p_pAppRequest->iInstance = pAppInstance->iInstance;
-			  p_pAppRequest->pszHost = pAppInstance->pszHostName;
-			  p_pAppRequest->iPort = pAppInstance->iPort;
-			  p_pAppRequest->eType = EAppType_LoadBalanced;
-			  p_pAppRequest->pAppInstance = pAppInstance;
-			  pAppInstance->uOpenedRequestsNb++;		
-			  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is valid");
+				  BOOL okay = TRUE;
+				  // check if refused, time to try again ?
+				  if (p_pURLComponents->stRequestHandlerKey.iLength==0 || p_pURLComponents->stRequestHandlerKey.pszStart==NULL) {
+					GSWAppInfo *thisAppInfo = GSWAppInfo_Find(p_pAppRequest->pszName, pAppInstance->iInstance);
+					if (thisAppInfo && thisAppInfo->isRefused) {
+						time_t actTime = (time_t)0;
+						// this instance refuses new sessions
+						time(&actTime);
+						if (actTime > thisAppInfo->timeNextRetryTime) {
+							thisAppInfo->isRefused = FALSE;	// try it again
+						} else {
+							okay = FALSE;	// try an other instance
+						}
+					}
+				  }
+
+			    if (okay == TRUE) {
+
+			  		fFound=TRUE;
+			  		p_pAppRequest->iInstance = pAppInstance->iInstance;
+			  		p_pAppRequest->pszHost = pAppInstance->pszHostName;
+			  		p_pAppRequest->iPort = pAppInstance->iPort;
+			  		p_pAppRequest->eType = EAppType_LoadBalanced;
+			  		p_pAppRequest->pAppInstance = pAppInstance;
+			  		pAppInstance->uOpenedRequestsNb++;		
+			  		GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is valid");
+				}
 			}
 		  else
 			{

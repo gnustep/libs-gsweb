@@ -191,4 +191,91 @@ void GSWAppInstance_InternClear(GSWDictElem* p_pElem,void* p_pData)
   pInstance->fValid=FALSE;
 };
 
+//--------------------------------------------------------------------
+//--------------------------------------------------------------------
+
+void GSWAppInfo_Init()
+{
+	if (_gswAppInfoDict == NULL) {
+		_gswAppInfoDict = GSWDict_New(50);		// allows 50 different instances of apps
+	}
+}
+
+//--------------------------------------------------------------------
+char* GSWAppInfo_MakeDictKeyName(char* pszName, int iInstance)
+{
+	char	*name = NULL;
+
+    if (name = calloc(1,30)) {
+		if (pszName) {
+			strcpy(name, pszName);
+		}
+		sprintf(name + strlen(name), "%d", iInstance);
+
+	}
+    return name;
+}
+
+//--------------------------------------------------------------------
+GSWAppInfo* GSWAppInfo_Find(char* pszName, int iInstance)
+{
+	char	*name;
+	GSWAppInfo* newInfo = NULL;
+
+	if (_gswAppInfoDict == NULL) {
+		GSWAppInfo_Init();
+		return NULL;
+	}
+
+	name = GSWAppInfo_MakeDictKeyName(pszName, iInstance);
+	if (name) {
+		newInfo = GSWDict_ValueForKey(_gswAppInfoDict, name);
+		free(name); name = NULL;
+	}
+
+	return newInfo;
+}
+
+//--------------------------------------------------------------------
+void GSWAppInfo_Add(GSWAppInfo* appInfoDict, CONST char* keyName)
+{
+    if (appInfoDict) {
+		GSWDict_Add(_gswAppInfoDict, keyName, appInfoDict, TRUE);
+	}
+}
+
+//--------------------------------------------------------------------
+void GSWAppInfo_Set(char* pszName, int iInstance, BOOL isRefused)
+{
+	char	*name;
+	GSWAppInfo* newInfo = GSWAppInfo_Find(pszName, iInstance);
+	time_t curTime = (time_t)0;
+	BOOL	addDict = FALSE;
+
+	if (newInfo == NULL) {
+		newInfo=(GSWAppInfo*)calloc(1,sizeof(GSWAppInfo));
+		addDict = TRUE;
+	}
+
+    if (newInfo && (name = GSWAppInfo_MakeDictKeyName(pszName, iInstance) )) {
+		newInfo->isRefused = isRefused;
+		time(&curTime);
+		newInfo->timeNextRetryTime = curTime + 10;	// + 10 sec
+
+		if (addDict == TRUE) {
+			GSWAppInfo_Add(newInfo, name);
+		}
+		free(name); name = NULL;
+	} else {
+		if (newInfo) {
+			free(newInfo); newInfo = NULL;
+		}
+	}
+}
+
+//--------------------------------------------------------------------
+void GSWAppInfo_Remove(GSWAppInfo* _appInfo)
+{
+}
+
 

@@ -372,24 +372,24 @@ objectForReference:(NSString*)keyPath
         NSDictionary* variables=nil;
         NSEnumerator* variablesEnum=nil;
         id variableName=nil;
-        NSDebugMLLog(@"bundles",@"archive_:%@",archive_);
+        //NSDebugMLLog(@"bundles",@"archive_:%@",archive_);
         unarchiver=[[[EOKeyValueUnarchiver alloc] initWithDictionary:archive_]
                      autorelease];
-        NSDebugMLLog(@"bundles",@"unarchiver:%@",unarchiver);
+        //NSDebugMLLog(@"bundles",@"unarchiver:%@",unarchiver);
         bundleDelegate=[[[GSWBundleUnarchiverDelegate alloc] initWithObject:object_]
                          autorelease];
-        NSDebugMLLog(@"bundles",@"bundleDelegate:%@",bundleDelegate);
+        //NSDebugMLLog(@"bundles",@"bundleDelegate:%@",bundleDelegate);
         [unarchiver setDelegate:bundleDelegate];
-        NSDebugMLLog(@"bundles",@"decodevar");
+        //NSDebugMLLog(@"bundles",@"decodevar");
         variables=[unarchiver decodeObjectForKey:@"variables"];
-        NSDebugMLLog(@"bundles",@"variables:%@",variables);
+        //NSDebugMLLog(@"bundles",@"variables:%@",variables);
         [unarchiver finishInitializationOfObjects];
         [unarchiver awakeObjects];
         variablesEnum=[variables keyEnumerator];
         while ((variableName = [variablesEnum nextObject]))
           {
             id variableValue=[variables objectForKey:variableName];
-            NSDebugMLLog(@"bundles",@"variableName:%@ variableValue:%@",variableName,variableValue);
+            //NSDebugMLLog(@"bundles",@"variableName:%@ variableValue:%@",variableName,variableValue);
             [object_ takeValue:variableValue
                      forKey:variableName];
           };

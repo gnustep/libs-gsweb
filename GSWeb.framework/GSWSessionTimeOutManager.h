@@ -30,7 +30,8 @@
 //====================================================================
 @interface GSWSessionTimeOutManager : NSObject
 {
-  NSMutableOrderedArray* sessionOrderedTimeOuts;
+  //NSMutableOrderedArray* sessionOrderedTimeOuts;
+  NSMutableArray* sessionOrderedTimeOuts;
   NSMutableDictionary* sessionTimeOuts;
   id target;
   SEL callback;
@@ -56,4 +57,12 @@
 -(void)unlock;
 @end
 
+//====================================================================
+@interface GSWSessionTimeOutManager (GSWSessionRefused)
+
+-(void)startHandleTimerRefusingSessions;
+-(void)handleTimerKillingApplication:(id)timer_;
+-(void)handleTimerRefusingSessions:(id)timer_;
+
+@end
 #endif //_GSWSessionTimeOutManager_h__

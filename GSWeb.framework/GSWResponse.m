@@ -202,6 +202,36 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 };
 
 //--------------------------------------------------------------------
+//	setHeaders:
+
+-(void)setHeaders:(NSDictionary*)headerDictionary
+{
+  if (!headers)
+    headers=[NSMutableDictionary new];
+
+  if (headerDictionary) 
+    {
+      NSEnumerator	*keyEnum;
+      id		headerName;
+
+      keyEnum = [headerDictionary keyEnumerator];
+      while (headerName = [keyEnum nextObject]) 
+        {
+          [self setHeaders:[NSArray arrayWithObject:[headerDictionary objectForKey:headerName]] 
+                forKey:headerName];
+	}
+    }
+}
+
+//--------------------------------------------------------------------
+//	headers
+
+-(NSMutableDictionary*)headers
+{
+  return headers;
+}
+
+//--------------------------------------------------------------------
 //	setHTTPVersion:
 
 //sets the http version (like @"HTTP/1.0"). 
@@ -643,8 +673,9 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 //--------------------------------------------------------------------
 -(GSWResponse*)generateResponse
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  //LOGObjectFnNotImplemented();	//TODOFN
+  //return nil;
+  return self;
 };
 
 @end
@@ -694,6 +725,65 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
       _responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
 				[[_response class]stringByEscapingHTMLString:message_]];
       [_response appendContentString:_responseString];
+    };
+  LOGClassFnStop();
+  return _response;
+};
+
+@end
+
+//====================================================================
+@implementation GSWResponse (GSWResponseRefused)
+
+//--------------------------------------------------------------------
+//
+//Refuse Response
++(GSWResponse*)generateRefusingResponseInContext:(GSWContext*)context_
+			forRequest:(GSWRequest*)request_
+{
+  GSWResponse* _response=nil;
+  NSString* _httpVersion=nil;
+  LOGClassFnStart();
+  _response=[[self new]autorelease];
+  if (_response)
+    {
+      NSString* _responseString=nil;
+      NSString* _locationURLString=nil;
+	  NSString* _message=nil;
+
+      if (context_ && [context_ request]) 
+        {
+          request_=[context_ request];
+        }
+      _httpVersion=[request_ httpVersion];
+      if (_httpVersion) 
+        {
+          [_response setHTTPVersion:_httpVersion];
+        }
+
+      [_response setStatus:302];
+      _locationURLString = [NSString stringWithFormat:@"%@/%@.gswa",[request_ adaptorPrefix], [request_ applicationName]];
+      if (_locationURLString) 
+        {
+          [_response setHeader: _locationURLString forKey:@"location"];
+        }
+      [_response setHeader:@"text/html" forKey:@"content-type"];
+      [_response setHeader:@"YES" forKey:@"x-gsweb-refusing-redirection"];
+      
+      if (context_) 
+        {
+          [context_ _setResponse:_response];
+        }
+
+      _message = [NSString stringWithFormat:@"Sorry, your request could not immediately be processed. Please try this URL: <a href=\"%@\">%@</a>\nConnection closed by foreign host.", 
+                           _locationURLString, _locationURLString];
+
+      _responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
+				_message];
+      //[[_response class]stringByEscapingHTMLString:_message]];
+      [_response appendContentString:_responseString];
+      
+      [_response setHeader:[NSString stringWithFormat:@"%d", [[_response content] length]] forKey:@"content-length"];      
     };
   LOGClassFnStop();
   return _response;
