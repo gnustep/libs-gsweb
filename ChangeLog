@@ -1,3 +1,8 @@
+2004-02-04   Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWTemplateParserXML.m: fix to avoid html and 
+		body tag removing for XML (not XMLHTML) parsing.
+
 2004-01-18  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication.h

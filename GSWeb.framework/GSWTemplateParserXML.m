@@ -667,6 +667,7 @@ static NSString* TabsForLevel(int level)
             _isBodyTag=YES;
           parser=[GSHTMLParser parserWithSAXHandler:sax
                                withData:[_string dataUsingEncoding:stringEncoding]];
+          NSDebugMLog(@"_string (%d)=%@",[_string length],_string);
         }
       else
         {
@@ -700,6 +701,8 @@ static NSString* TabsForLevel(int level)
           stringToParse=[xmlHeader stringByAppendingString:stringToParse];
           NSDebugMLog(@"stringToParse (%d)=%@",[stringToParse length],stringToParse);
           dataToParse=[stringToParse dataUsingEncoding:stringEncoding];
+          _isHTMLTag=YES; // Don't remove HTML tags in parsed tree
+          _isBodyTag=YES; // Don't remove BODY tags in parsed tree
           parser=[GSXMLParser parserWithSAXHandler:sax
                               withData:dataToParse];
           [parser keepBlanks:YES];
