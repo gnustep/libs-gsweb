@@ -62,7 +62,7 @@ RCS_ID("$Id$")
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext 
 {
-  _tmpAnchorName=[NSString stringWithString:[[self context] elementID]];
+  _tmpAnchorName=AUTORELEASE([[aContext elementID]copy]);
   [super appendToResponse:aResponse
          inContext:aContext];
   _tmpAnchorName=nil;
@@ -74,15 +74,15 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   NSDebugMLog(@"_isVisibleConditionPassed=%s",(_isVisibleConditionPassed ? "YES" : "NO"));
   if (!_isVisibleConditionPassed)
-	{
-          if ([self hasBinding:@"condition"])
-            _isVisible=boolValueFor([self valueForBinding:@"condition"]);
-          else if ([self hasBinding:@"visibility"])
-            _isVisible=boolValueFor([self valueForBinding:@"visibility"]);
-          else
-            _isVisible=boolValueFor([self valueForBinding:@"condition"]);
-	  _isVisibleConditionPassed=YES;
-	};
+    {
+      if ([self hasBinding:@"condition"])
+        _isVisible=boolValueFor([self valueForBinding:@"condition"]);
+      else if ([self hasBinding:@"visibility"])
+        _isVisible=boolValueFor([self valueForBinding:@"visibility"]);
+      else
+        _isVisible=boolValueFor([self valueForBinding:@"condition"]);
+      _isVisibleConditionPassed=YES;
+    };
   NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
   LOGObjectFnStop();
   return _isVisible;

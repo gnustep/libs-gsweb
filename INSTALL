@@ -6,7 +6,7 @@ This file documents the installation of GNUstepWeb, `gsweb'.  Copyright
 modify it freely as long as you preserve this copyright notice and
 permission notice.
 
-   This is version 1.1.0 of GNUstepWeb.
+   This is version 1.2.0 of GNUstepWeb.
 
    This package contains GNUstepWeb library. You need to install
 GNUstep core, extensions and db libraries, GSWAdaptor and Apache

@@ -33,6 +33,16 @@ GNUstepWeb maintainer: Manuel Guesdon <mguesdon@gnustepweb.org>
 GNUstep discussion list: <discussion@gnustep.org>
 GNUstepWeb hackers list: http://lists.turbocat.net/mailman/listinfo.cgi/gswhackers
 
+Special Note
+=================
+*       On 2004/12/15, we've change GSWElementIDString to GSWElementID 
+                which no more inherit from NSString nor support 
+                NSString protocol.
+                Anyway, this object should be used only internally; 
+                for the developper, elemntID should be view as a NSString as 
+                returned by GSWContext -elementID.
+
+
 Special Thanks
 =================
 *	GNUstep team for their great work

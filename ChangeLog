@@ -1,3 +1,76 @@
+2004-12-15  Manuel Guesdon <mguesdon@orange-concept.com>
+	* README:
+		o added a not on GSWElementIDString/GSWElementID 
+		change
+	* INSTALL:
+		o Changed from 1.1.0 to 1.2.0
+	* Version
+		o Changed from 1.1.0 to 1.2.0
+	* GSWeb.framework/GSWElementID.[hm]
+		o added (replacement for GSWElementIDString)
+	* GSWeb.framework/GSWElementIDString.[hm]
+		o removed (replaced by GSWElementID)
+	* GSWeb.framework/GNUmakefile:
+		o replaced GSWElementIDString by GSWElementID	
+	* GSWeb.framework/GSWContext.[hm]:
+		o changed -elementID type
+		o changed _elementID type 
+		o replaced GSWElementIDString by GSWElementID
+		o replaced _elementID by [_elementID elementIDString] when necessary
+		o added -isParentSenderIDSearchOver
+		o added -isSenderIDSearchOver
+	* GSWeb.framework/GSWeb.h:
+		o replaced GSWElementIDString by GSWElementID
+		o replaced [elementID isSearchOverForSenderID:senderID] by [context isSenderIDSearchOver]
+	* GSWeb.framework/GSWWOCompatibility.h
+		o replaced GSWElementIDString by GSWElementID
+	* GSWeb.framework/GSWComponent.m:
+		o replaced GSWElementIDString by NSString
+		o replaced ..isSearchIsOver... by isParentSenderIDSearchOver call
+	* GSWeb.framework/GSWComponentContent.m:
+		o replaced [(GSWElementIDString*)[aContext elementID]elementsNb]; by [aContext elementIDElementsCount];
+		o use GSWDeclareDebugElementIDsCount,...
+	* GSWeb.framework/GSWComponentReference.m:
+		o replaced [(GSWElementIDString*)[aContext elementID]elementsNb]; by [aContext elementIDElementsCount];
+		o use GSWDeclareDebugElementIDsCount,...
+	* GSWeb.framework/GSWForm.m:
+		o replaced [(GSWElementIDString*)[aContext elementID]elementsNb]; by [aContext elementIDElementsCount];
+		o replaced GSWElementIDString by NSString
+		o use GSWDeclareDebugElementIDsCount,...
+	* GSWeb.framework/GSWHyperlink.m
+		o replaced [(GSWElementIDString*)[aContext elementID]elementsNb]; by [aContext elementIDElementsCount];
+		o use GSWDeclareDebugElementIDsCount,...
+	* GSWeb.framework/GSWRepetition.m
+		o replaced [(GSWElementIDString*)[aContext elementID]elementsNb]; by [aContext elementIDElementsCount];
+		o replaced GSWElementIDString by NSString
+		o use GSWDeclareDebugElementIDsCount,...
+	* GSWeb.framework/GSWSubmitButton.m:
+		o replaced ..isSearchIsOver... by isParentSenderIDSearchOver call
+	* GSWeb.framework/GSWHTMLDynamicElement.m
+		o replaced [elementID isSearchOverForSenderID:senderID] by [context isSenderIDSearchOver]
+		o use IMP for elementID appendZero.../deleteLast...
+	* GSWeb.framework/GSWHTMLStaticElement
+		o replaced [elementID isSearchOverForSenderID:senderID] by [context isSenderIDSearchOver]
+	* GSWeb.framework/GSWGenericElement.m:
+		o replaced  [elementID description] by elementID
+	* GSWeb.framework/GSWElement.h:
+		o declared GSWDeclareDebugElementID to replace NSString* debugElementID=[TheContext elementID]
+		o declared GSWDeclareDebugElementIDsCount to replace int elementsNb=[context elementIDElementsCount];
+		o declared GSWAssertDebugElementIDsCount to replace Assert on elementsIDCount
+		o replaced some NDEBBUG by GSWDEBUG_ELEMENTSIDS		
+	* GSWeb.framework/GSWElement.m:
+		o reformatted some code
+		o replaced some NDEBBUG by GSWDEBUG_ELEMENTSIDS
+	* GSWExtensionsGSW.framework/GSWCacheElement.m:
+		o replaced [(GSWElementIDString*)[aContext elementID]elementsNb]; by [aContext elementIDElementsCount];
+		o use GSWDeclareDebugElementIDsCount,...
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.m
+		o use copy of elementID to avoid string recreation for non mutable string
+	* GSWeb.framework/Makefile.preamble.in
+		o added ifeq GSWDEBUG_ELEMENTSIDS
+	* config.mak.in
+		o added GSWDEBUG_ELEMENTSIDS (default no)
+
 2004-12-14  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWAction.m: 
 		o added NSAssert in pageWithName:

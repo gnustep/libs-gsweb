@@ -215,9 +215,7 @@ Bindings
 {
   GSWComponent* component=nil;
   BOOL isDisabled=NO;
-#ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[aContext elementID]elementsNb];
-#endif
+  GSWDeclareDebugElementIDsCount(aContext);
 
   LOGObjectFnStart();
 
@@ -256,7 +254,7 @@ Bindings
       contextAndElementID=[aContext contextAndElementID];
       NSDebugMLLog(@"GSWCacheElement",@"contextAndElementID=%@",contextAndElementID);
 
-      elementID=[[[aContext elementID] copy]autorelease]; // because elementID is mutable (and varying)
+      elementID=AUTORELEASE([[aContext elementID] copy]); // because elementID is mutable (and varying)
       NSDebugMLLog(@"GSWCacheElement",@"elementID=%@",elementID);
 
       sessionID=[[aContext session] sessionID];
@@ -385,9 +383,7 @@ Bindings
 
       NSLog(@"GSWCacheElement Stop Date=%@",[NSDate date]);
 
-#ifndef NDEBBUG
-      NSAssert(elementsNb==[(GSWElementIDString*)[aContext elementID]elementsNb],@"GSWCacheElement appendToResponse: bad elementID");
-#endif
+      GSWAssertDebugElementIDsCount(aContext);
     }
   NS_HANDLER
     {
