@@ -27,6 +27,7 @@
 #define _GSWDisplayGroup_h__
 
 #if !GDL2
+#ifndef TCSDB
 #include <eoaccess/EOModel.h>
 #include <eoaccess/EOEntity.h>
 #include <eoaccess/EOAttribute.h>
@@ -51,6 +52,10 @@
 @class EOKeyValueUnarchiver;
 
 #define EODataSource EODatabaseDataSource
+#else // TCSDB
+#import <TCSimpleDB/TCSimpleDB.h>
+#import <TCSimpleDB/EODefines.h>
+#endif
 #else
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EODataSource.h>
