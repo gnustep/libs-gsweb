@@ -1,6 +1,6 @@
 /** GSWMultiKeyDictionary.h - <title>GSWeb: Class GSWMultiKeyDictionary</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -42,24 +42,40 @@
 +(id)dictionary;
 -(id)initWithCapacity:(unsigned int)capacity;
 
--(void)removeAllObjects;
 -(void)setObject:(id)object
          forKeys:(id)keys,...;
--(id)objectForKeys:(id)keys,...;
--(void)removeObjectForKeys:(id)keys,...;
-
--(void)setObject:(id)object
-          forKey:(id)key
-         andKeys:(va_list)nextKeys;
--(id)objectForKey:(id)key
-          andKeys:(va_list)nextKeys;
--(void)removeObjectForKey:(id)key
-                  andKeys:(va_list)nextKeys;
 
 -(void)setObject:(id)object
     forKeysArray:(NSArray*)keys;
+
+-(void)setObject:(id)object
+         forKeys:(id*)keys
+           count:(unsigned)count;
+
+
+-(id)objectForKeys:(id)keys,...;
+
 -(id)objectForKeysArray:(NSArray*)keys;
+
+-(id)objectForKeys:(id*)keys
+             count:(unsigned)count;
+
+
+-(void)removeAllObjects;
+
+-(void)removeObjectForKeys:(id)keys,...;
+
 -(void)removeObjectForKeysArray:(NSArray*)keys;
+
+-(void)removeObjectForKeys:(id*)keys
+                     count:(unsigned)count;
+
+-(void)removeAllSubObjectsForKeys:(id)key,...;
+
+-(void)removeAllSubObjectsForKeys:(id*)keys
+                            count:(unsigned)count;
+
+-(void)removeAllSubObjectsForKeysArray:(NSArray*)keysArray;
 
 -(void)makeObjectsPerformSelector:(SEL)selector;
 -(void)makeObjectsPerformSelector:(SEL)selector
@@ -69,6 +85,39 @@
                        withObject:(id)object2;
 -(NSEnumerator*)objectEnumerator;
 -(NSArray*)allValues;
+-(NSArray*)allSubValuesForKeys:(id)keys,...;
+-(NSArray*)allSubValuesForKeysArray:(NSArray*)keys;
+-(NSArray*)allSubValuesForKeys:(id*)keys
+                         count:(unsigned)count;
+@end
+
+#define GSWCacheFlags_expiresOnFirstAccess	0x00000001
+
+@interface GSWCache : GSWMultiKeyDictionary
+{
+  NSTimeInterval _defaultDuration;
+  unsigned int _defaultFlags;
+}
++(GSWCache*)cacheWithDefaultDuration:(NSTimeInterval)defaultDuration
+                        defaultFlags:(unsigned int)defaultFlags;
++(GSWCache*)cache;
+-(id)initWithDefaultDuration:(NSTimeInterval)defaultDuration
+                defaultFlags:(unsigned int)defaultFlags;
+-(void)deleteExpiredEntries;
+
+-(void)setObject:(id)object
+    withDuration:(NSTimeInterval)duration
+          forKey:(id)key;
+
+-(void)setObject:(id)object
+    withDuration:(NSTimeInterval)duration
+         forKeys:(id)key,...;
+
+-(void)setObject:(id)object
+    withDuration:(NSTimeInterval)duration
+         forKeys:(id*)keys
+           count:(unsigned)count;
+
 @end
 
 #endif // _GSWMultiKeyDictionary_h__

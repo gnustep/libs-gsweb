@@ -36,24 +36,84 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <limits.h>
 
 #define DEFAULT_DICTIONARY_CAPACITY 32
+
+// Copied from NSDate.m. We should find a better solution....
+static NSTimeInterval GSWTimeNow(void)
+{
+#if !defined(__MINGW__)
+  NSTimeInterval interval;
+  struct timeval tp;
+
+  gettimeofday (&tp, NULL);
+  interval = -NSTimeIntervalSince1970;
+  interval += tp.tv_sec;
+  interval += (double)tp.tv_usec / 1000000.0;
+  return interval;
+#else
+  SYSTEMTIME sys_time;
+  NSTimeInterval t;
+#if 0
+  NSCalendarDate *d;
+
+  // Get the system time
+  GetLocalTime(&sys_time);
+
+  // Use an NSCalendar object to make it easier
+  d = [NSCalendarDate alloc];
+  [d initWithYear: sys_time.wYear
+     month: sys_time.wMonth
+     day: sys_time.wDay
+     hour: sys_time.wHour
+     minute: sys_time.wMinute
+     second: sys_time.wSecond
+     timeZone: [NSTimeZone localTimeZone]];
+  t = otherTime(d);
+  RELEASE(d);
+#else
+  /*
+   * Get current GMT time, convert to NSTimeInterval since reference date,
+   */
+  GetSystemTime(&sys_time);
+  t = GSTime(sys_time.wDay, sys_time.wMonth, sys_time.wYear, sys_time.wHour,
+    sys_time.wMinute, sys_time.wSecond, sys_time.wMilliseconds); 
+#endif
+  return t;
+#endif /* __MINGW__ */
+}
 
 typedef struct _GSWMapTable GSWMapTable_t;
 typedef struct _GSWMapBase GSWMapBase_t;
 typedef struct _GSWMapBucket GSWMapBucket_t;
 typedef struct _GSWMapNode GSWMapNode_t;
+typedef struct _GSWCacheMapNode GSWCacheMapNode_t;
 
 typedef GSWMapTable_t *GSWMapTable;
 typedef GSWMapBase_t *GSWMapBase;
 typedef GSWMapBucket_t *GSWMapBucket;
 typedef GSWMapNode_t *GSWMapNode;
+typedef GSWCacheMapNode_t *GSWCacheMapNode;
 
 struct	_GSWMapNode {
   GSWMapNode	nextInBucket;	/* Linked list of bucket.	*/
   id		key;
   id		value;
   GSWMapTable   subMap;		/* SubMap */
+};
+
+struct	_GSWCacheMapNode {
+  // Should have same first members as _GSWMapNode
+  GSWMapNode	nextInBucket;	/* Linked list of bucket.	*/
+  id		key;
+  id		value;
+  GSWMapTable   subMap;		/* SubMap */
+
+  NSTimeInterval firstAccessTS;
+  NSTimeInterval lastAccessTS;
+  NSTimeInterval cacheDuration;
+  unsigned int flags;
 };
 
 struct	_GSWMapBucket {
@@ -63,6 +123,7 @@ struct	_GSWMapBucket {
 
 struct	_GSWMapBase {
   NSZone	*zone;
+  unsigned int	nodeSize;	/* Size of a node */
   GSWMapTable	firstTable;
 
   GSWMapTable	freeTables;	/* List of unused tables.	*/
@@ -104,6 +165,11 @@ static GSWMapBucket GSWMapPickBucket(unsigned hash,
 
 static GSWMapBucket GSWMapBucketForKey(GSWMapTable map, id key)
 {
+  /*
+    NSDebugFLLog(@"GSWMultiKeyDictionary",
+    @"map=%p key=%@",
+    map,key);
+  */
   return GSWMapPickBucket([key hash],
                           map->buckets, 
                           map->bucketCount);
@@ -212,6 +278,11 @@ static void GSWMapMoreNodes(GSWMapTable map, unsigned required)
   GSWMapNode	*newArray = NULL;
   size_t	arraySize = (map->base->nodeChunkCount+1)*sizeof(GSWMapNode);
 
+  /*
+    NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p required=%u",
+               map,required);
+  */
 #if	GS_WITH_GC == 1
   /*
    * Our nodes may be allocated from the atomic zone - but we don't want
@@ -227,7 +298,7 @@ static void GSWMapMoreNodes(GSWMapTable map, unsigned required)
   newArray = (GSWMapNode*)NSZoneMalloc(map->base->zone, arraySize);
   if (newArray)
     {
-      GSWMapNode	newNodes = NULL;
+      void*		newNodes = NULL;
       size_t		chunkCount;
       size_t		chunkSize;
 
@@ -253,18 +324,39 @@ static void GSWMapMoreNodes(GSWMapTable map, unsigned required)
 	{
 	  chunkCount = required;
 	}
-      chunkSize = chunkCount * sizeof(GSWMapNode_t);
-      newNodes = (GSWMapNode)NSZoneMalloc(map->base->zone, chunkSize);
+      /*
+      NSDebugFLLog(@"GSWMultiKeyDictionary",
+                   @"map=%p map->base=%p required=%u nodeSize=%u sizeof(GSWMapNode_t)=%u",
+                   map,map->base,required,map->base->nodeSize,sizeof(GSWMapNode_t));
+      */
+      NSCAssert2(map->base->nodeSize>=sizeof(GSWMapNode_t),
+                 @"Bad node size: %u < %u",
+                 map->base->nodeSize,
+                 sizeof(GSWMapNode_t));
+      chunkSize = chunkCount * map->base->nodeSize;
+      newNodes = NSZoneMalloc(map->base->zone, chunkSize);
       if (newNodes)
 	{
           memset(newNodes,0,chunkSize);//I HATE unitialized memory !
 	  map->base->nodeChunks[map->base->nodeChunkCount++] = newNodes;
-	  newNodes[--chunkCount].nextInBucket = map->base->freeNodes;
+          chunkCount--;
+	  ((GSWMapNode)(newNodes+(chunkCount*map->base->nodeSize)))->nextInBucket = map->base->freeNodes;
 	  while (chunkCount--)
 	    {
-	      newNodes[chunkCount].nextInBucket = &newNodes[chunkCount+1];
+	      ((GSWMapNode)(newNodes+(chunkCount*map->base->nodeSize)))->nextInBucket = 
+                (GSWMapNode)(newNodes+((chunkCount+1)*map->base->nodeSize));
+              /*
+              NSDebugFLLog(@"GSWMultiKeyDictionary",
+                           @"newNodes[chunkCount].nextInBucket node=%p",
+                           (GSWMapNode)(newNodes+(chunkCount*map->base->nodeSize)));
+              */
 	    }
 	  map->base->freeNodes = newNodes;
+          /*
+          NSDebugFLLog(@"GSWMultiKeyDictionary",
+                       @"map->base->freeNodes=%p",
+                       map->base->freeNodes);
+          */
 	}
     }
 }
@@ -396,15 +488,32 @@ static void GSWMapMoreTables(GSWMapBase base, unsigned required)
 static GSWMapNode GSWMapNewNode(GSWMapTable map, id key, id value)
 {
   GSWMapNode	node = map->base->freeNodes;
-
+  /*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p base=%p key='%@' value=%p node=%p",
+               map,map->base,key,value,node);
+  */
   if (!node)
     {
       GSWMapMoreNodes(map, 0);
       node = map->base->freeNodes;
+      /*
+      NSDebugFLLog(@"GSWMultiKeyDictionary",
+                   @"map=%p base=%p key='%@' value=%p node=%p",
+                   map,map->base,key,value,node);
+      */
       if (!node)
         return NULL;
-    }
+    };
+  /*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p base=%p key='%@' value=%p node=%p",
+               map,map->base,key,value,node);
 
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p base=%p key='%@' value=%p node=%p node->nextInBucket=%p",
+               map,map->base,key,value,node,node->nextInBucket);
+  */
   map->base->freeNodes = node->nextInBucket;
 
   ASSIGN(node->key,key);
@@ -444,6 +553,11 @@ static GSWMapTable GSWMapNewTableWithCapacity(GSWMapBase base,size_t capacity)
 //--------------------------------------------------------------------
 static void GSWMapFreeNode(GSWMapTable map, GSWMapNode node)
 {
+  /*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p base=%p node=%p",
+               map,map->base,node);
+  */
   DESTROY(node->key);
   DESTROY(node->value);
   if (node->subMap)
@@ -453,7 +567,17 @@ static void GSWMapFreeNode(GSWMapTable map, GSWMapNode node)
     };
 
   node->nextInBucket = map->base->freeNodes;
+  /*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p base=%p node->nextInBucket node=%p",
+               map,map->base,node->nextInBucket);
+  */
   map->base->freeNodes = node;
+  /*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p base=%p map->base->freeNodes node=%p",
+               map,map->base, map->base->freeNodes);
+  */
 }
 
 //--------------------------------------------------------------------
@@ -480,7 +604,11 @@ static GSWMapNode GSWMapNodeForKey(GSWMapTable map, id key)
 {
   GSWMapBucket	bucket = NULL;
   GSWMapNode	node = NULL;
-
+  /*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"map=%p key=%@",
+               map,key);
+  */
   if (map->nodeCount>0)
     {
       bucket = GSWMapBucketForKey(map, key);
@@ -595,13 +723,22 @@ static GSWMapNode GSWMapEnumeratorNextNode(GSWMapEnumerator enumerator)
 static GSWMapNode GSWMapAddPair(GSWMapTable map, id key, id value)
 {
   GSWMapNode node = NULL;
+  /*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"key='%@' value=%p",
+               key,value);
+  */
   node = GSWMapNewNode(map, key, value);
-
+/*
+  NSDebugFLLog(@"GSWMultiKeyDictionary",
+               @"key='%@' value=%p node=%p",
+               key,value,node);
+*/
   if (node)
     {
       GSWMapRightSizeMap(map, map->nodeCount);
       GSWMapAddNodeToMap(map, node);
-    }
+    };
   return node;
 }
 
@@ -691,7 +828,7 @@ static void GSWMapMakeObjectsPerformSelectorWith2Objects(GSWMapTable map,
 };
 
 //--------------------------------------------------------------------
-static void GSWMapAddAllvaluesIntoArray(GSWMapTable map,
+static void GSWMapAddAllValuesIntoArray(GSWMapTable map,
                                         NSMutableArray* array)
 {
   GSWMapEnumerator_t	enumerator = GSWMapEnumeratorForMap(map);
@@ -699,9 +836,10 @@ static void GSWMapAddAllvaluesIntoArray(GSWMapTable map,
 
   while (node)
     {
-      [array addObject:node->value];
+      if (node->value)
+        [array addObject:node->value];
       if (node->subMap)
-        GSWMapAddAllvaluesIntoArray(node->subMap,
+        GSWMapAddAllValuesIntoArray(node->subMap,
                                     array);
       node = GSWMapEnumeratorNextNode(&enumerator);
     }
@@ -745,7 +883,7 @@ static void GSWMapCleanMap(GSWMapTable map)
 	      node = node->nextInBucket;
 	    }
 	  bucket->nodeCount = 0;
-	  bucket->firstNode = 0;
+	  bucket->firstNode = NULL;
 	  bucket++;
 	}
       
@@ -760,14 +898,13 @@ static void GSWMapEmptyMap(GSWMapTable map)
 {
   GSWMapCleanMap(map);
 
-  if (map->buckets != 0)
+  if (map->buckets)
     {
       NSZoneFree(map->base->zone, map->buckets);
-      map->buckets = 0;
+      map->buckets = NULL;
       map->bucketCount = 0;
     }
-  map->nextTable=map->base->freeTables;
-  map->base->freeTables=map;
+  GSWMapFreeTable(map);
 }
 
 //--------------------------------------------------------------------
@@ -831,6 +968,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 }
 
 
+//==============================================================================
 @interface GSWMultiKeyDictionaryObjectEnumerator : NSEnumerator
 {
   GSWMultiKeyDictionary* _dictionary;
@@ -839,19 +977,86 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 @end
 
 //==============================================================================
+@interface GSWMultiKeyDictionary(Private)
++(id)dictionaryWithNodeSize:(unsigned int)nodeSize;
+-(id)initWithNodeSize:(unsigned int)nodeSize;
+-(id)initWithNodeSize:(unsigned int)nodeSize
+             capacity:(unsigned int)capacity;
+
+-(void)setObject:(id)object
+         forKeys:(id*)keys
+           count:(unsigned)count
+     returnsNode:(GSWMapNode*)nodePtr;
+
+-(GSWMapNode)nodeForKey:(id)key
+                andKeys:(va_list)nextKeys;
+
+-(GSWMapNode)nodeForKeys:(id*)keys
+                   count:(unsigned)count;
+@end
+
+//==============================================================================
 @implementation GSWMultiKeyDictionary : NSObject
+
+//------------------------------------------------------------------------------
++(id)dictionaryWithNodeSize:(unsigned int)nodeSize
+{
+  NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
+             @"Bad node size: %u < %u",
+             nodeSize,
+             sizeof(GSWMapNode_t));
+  return [[self alloc]initWithNodeSize:nodeSize];
+};
 
 //------------------------------------------------------------------------------
 +(id)dictionary
 {
-  return [[self alloc]init];
+  return [self dictionaryWithNodeSize:sizeof(GSWMapNode_t)];
+};
+
+//------------------------------------------------------------------------------
+-(id)initWithNodeSize:(unsigned int)nodeSize
+{
+  LOGObjectFnStart();
+  NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
+             @"Bad node size: %u < %u",
+             nodeSize,
+             sizeof(GSWMapNode_t));
+  self=[self initWithNodeSize:nodeSize
+             capacity:DEFAULT_DICTIONARY_CAPACITY];
+  LOGObjectFnStop();
+  return self;
 };
 
 //------------------------------------------------------------------------------
 -(id)init
 {
   LOGObjectFnStart();
-  self=[self initWithCapacity:DEFAULT_DICTIONARY_CAPACITY];
+  self=[self initWithNodeSize:sizeof(GSWMapNode_t)];
+  LOGObjectFnStop();
+  return self;
+};
+
+//------------------------------------------------------------------------------
+-(id)initWithNodeSize:(unsigned int)nodeSize
+             capacity:(unsigned int)capacity
+{
+  LOGObjectFnStart();
+  NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
+             @"Bad node size: %u < %u",
+             nodeSize,
+             sizeof(GSWMapNode_t));
+  if ((self=[super init]))
+    {
+      _mapBase = (GSWMapBase)NSZoneMalloc(GSObjCZone(self),sizeof(GSWMapBase_t));
+      ((GSWMapBase)_mapBase)->nodeSize=nodeSize;
+      /*
+      NSDebugMLLog(@"GSWMultiKeyDictionary",
+                   @"self=%p class=%@ base=%p nodeSize=%u sizeof(GSWMapNode_t)=%u",
+                   self,[self class],_mapBase,nodeSize,sizeof(GSWMapNode_t));
+      */
+      GSWMapBaseInitWithZoneAndCapacity((GSWMapBase)_mapBase, GSObjCZone(self),capacity);
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -860,11 +1065,8 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 -(id)initWithCapacity:(unsigned int)capacity
 {
   LOGObjectFnStart();
-  if ((self=[super init]))
-    {
-      _mapBase = (GSWMapBase)NSZoneMalloc(GSObjCZone(self),sizeof(GSWMapBase_t));
-      GSWMapBaseInitWithZoneAndCapacity((GSWMapBase)_mapBase, GSObjCZone(self),capacity);
-    };
+  [self initWithNodeSize:sizeof(GSWMapNode_t)
+        capacity:capacity];
   LOGObjectFnStop();
   return self;
 };
@@ -892,134 +1094,261 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 };
 
 //------------------------------------------------------------------------------
--(void)removeAllObjects
+-(void)setObject:(id)object
+         forKeys:(id)key,...
 {
-  GSWMapCleanBase((GSWMapBase)_mapBase);
+  GS_USEIDLIST(key,[self setObject:object 
+                         forKeys:__objects
+                         count: __count
+                         returnsNode:NULL]); 
 };
 
 //------------------------------------------------------------------------------
 -(void)setObject:(id)object
-         forKeys:(id)key,...
+    forKeysArray:(NSArray*)keysArray
 {
-  va_list ap=NULL;
-  va_start(ap,key);
-  [self setObject:object
-        forKey:key
-        andKeys:ap];
-  va_end(ap);
+  int keysCount=[keysArray count];
+  if (keysCount==0)
+    {
+      [NSException raise: NSInvalidArgumentException
+		  format: @"Tried to add empty keys array  to dictionary"];
+    }
+  else if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+		  format: @"Tried to add nil value to dictionary"];
+    }
+  else
+    {
+      id keys[keysCount];
+      [keysArray getObjects:keys];
+
+      [self setObject:object
+            forKeys:keys
+            count:keysCount
+            returnsNode:NULL];
+    };
 };
+
+//----------------------------------------------------------------------------------------
+-(void)setObject:(id)object
+         forKeys:(id*)keys
+           count:(unsigned)count
+{
+  [self setObject:object
+        forKeys:keys
+        count:count
+        returnsNode:NULL];
+}
+
+//----------------------------------------------------------------------------------------
+-(void)setObject:(id)object
+         forKeys:(id*)keys
+           count:(unsigned)count
+     returnsNode:(GSWMapNode*)nodePtr
+{
+  if (count==0)
+    {
+      [NSException raise: NSInvalidArgumentException
+		  format: @"Tried to add object to dictionary with no key"];
+    }
+  else if (*keys == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+		  format: @"Tried to add nil key to dictionary"];
+    }
+  else if (object == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+		  format: @"Tried to add nil value to dictionary"];
+    }
+  else
+    {
+      int i=0;
+      GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
+      
+      for(i=0;i<count;i++)
+        {
+          id key=keys[i];
+          BOOL isNextKey=(i<(count-1) && keys[i+1]);
+          GSWMapNode node  = GSWMapNodeForKey(currentMap,key);
+          /*
+          NSDebugMLLog(@"GSWMultiKeyDictionary",
+                       @"key='%@' node=%p node->value=%p isNextKey=%d",
+                       key,node,(node ? node->value : NULL),isNextKey);
+          */
+          if (node)
+            {
+              if (isNextKey)
+                {
+                  if (!node->subMap)
+                    node->subMap=GSWMapNewTableWithCapacity(currentMap->base,DEFAULT_DICTIONARY_CAPACITY);                
+                  currentMap=node->subMap;
+                }
+              else
+                {
+                  ASSIGN(node->value,object);
+                  if (nodePtr)
+                    *nodePtr=node;
+                };
+            }
+          else
+            {
+              if (isNextKey)
+                {
+                  node=GSWMapAddPair(currentMap,key,nil);
+                  node->subMap=GSWMapNewTableWithCapacity(currentMap->base,DEFAULT_DICTIONARY_CAPACITY);
+                  currentMap=node->subMap;
+                }
+              else
+                {
+                  GSWMapNode aNode=GSWMapAddPair(currentMap,key,object);
+                  if (nodePtr)
+                    *nodePtr=aNode;
+                };
+            };
+        };
+    };
+}
 
 //------------------------------------------------------------------------------
 -(id)objectForKeys:(id)key,...
 {
   id object=nil;
-  va_list ap=NULL;
-  va_start(ap,key);
-  [self objectForKey:key
-        andKeys:ap];
-  va_end(ap);
+  /*
+  NSDebugMLLog(@"GSWMultiKeyDictionary",
+               @"self=%p class=%@ key=%@",
+               self,[self class],key);
+  */
+  GS_USEIDLIST(key,object = [self objectForKeys:__objects
+                                  count: __count]); 
   return object;
 };
 
 //------------------------------------------------------------------------------
--(void)removeObjectForKeys:(id)key,...
-{
-  va_list ap=NULL;
-  va_start(ap,key);
-  [self removeObjectForKey:key
-        andKeys:ap];
-  va_end(ap);
-};
-
-
-//----------------------------------------------------------------------------------------
--(void)setObject:(id)object
-          forKey:(id)key
-        andKeys:(va_list)nextKeys
-{
-  if (key == nil)
-    {
-      [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add nil key to dictionary"];
-    }
-  if (object == nil)
-    {
-      [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add nil value to dictionary"];
-    }
-  GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
-  while(key)
-    {
-      id nextKey = va_arg(nextKeys,id);
-      GSWMapNode node  = GSWMapNodeForKey(currentMap,key);
-      if (node)
-	{
-          if (nextKey)
-            {
-              if (!node->subMap)
-                node->subMap=GSWMapNewTableWithCapacity(currentMap->base,DEFAULT_DICTIONARY_CAPACITY);                
-              currentMap=node->subMap;
-            }
-          else
-            {
-              ASSIGN(node->value,object);
-            };
-	}
-      else
-        {
-          if (nextKey)
-            {
-              node=GSWMapAddPair(currentMap,key,nil);
-              node->subMap=GSWMapNewTableWithCapacity(currentMap->base,DEFAULT_DICTIONARY_CAPACITY);
-            }
-          else
-            GSWMapAddPair(currentMap,key,object);
-        }
-      key=nextKey;
-    };
-}
-
-//----------------------------------------------------------------------------------------
--(id)objectForKey:(id)key
-          andKeys:(va_list)nextKeys
+-(id)objectForKeys:(id*)keys
+             count:(unsigned)count
 {
   id object=nil;
 
-  GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
-  while(key)
+  GSWMapNode node=[self nodeForKeys:keys
+                        count:count];
+
+  if (node)
+    object=node->value;
+
+  return object;
+};
+
+//----------------------------------------------------------------------------------------
+-(id)objectForKeysArray:(NSArray*)keysArray
+{
+  id object=nil;
+  int keysCount=[keysArray count];
+  if (keysCount>0)
     {
-      id nextKey = va_arg(nextKeys,id);
-      GSWMapNode node  = GSWMapNodeForKey(currentMap,key);
+      id keys[keysCount];
+      [keysArray getObjects:keys];
+      object=[self objectForKeys:keys
+                   count:keysCount];
+    };
+  return object;
+}
+
+//----------------------------------------------------------------------------------------
+-(GSWMapNode)nodeForKeys:(id*)keys
+                   count:(unsigned)count
+{
+  int i=0;
+  GSWMapNode finalNode=NULL;
+  GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
+  for(i=0;i<count;i++)
+    {
+      id key=keys[i];
+      BOOL isNextKey=(i<(count-1) && keys[i+1]);
+      GSWMapNode node  = NULL;
+
+      /*
+      NSDebugMLLog(@"GSWMultiKeyDictionary",
+                   @"key[%d]='%@' isNextKey=%d",
+                   i,key,isNextKey);
+
+      NSDebugMLLog(@"GSWMultiKeyDictionary",
+                   @"key[%d]=%p isNextKey=%d",
+                   i,key,isNextKey);
+      */
+      node  = GSWMapNodeForKey(currentMap,key);
+      /*
+      NSDebugMLLog(@"GSWMultiKeyDictionary",
+                   @"key[%d]='%@' node=%p node->value=%p isNextKey=%d",
+                   i,key,node,(node ? node->value : NULL),isNextKey);
+      */
       if (node)
 	{
-          if (nextKey)
+          if (isNextKey)
             {
               currentMap=node->subMap;
               if (!currentMap)
                 break;
             }
           else
-            object=node->value;
+            finalNode=node;
 	}
       else
         break;
-      key=nextKey;
     };
-  return object;
+/*
+  NSDebugMLLog(@"GSWMultiKeyDictionary",@"Object node %sfound: %p",
+               (finalNode ? "" : "not "),finalNode);
+*/
+  return finalNode;
 }
 
-//----------------------------------------------------------------------------------------
--(void)removeObjectForKey:(id)key
-                  andKeys:(va_list)nextKeys
+//------------------------------------------------------------------------------
+-(void)removeAllObjects
 {
-  GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
-  while(key)
+  GSWMapCleanBase((GSWMapBase)_mapBase);
+};
+
+//------------------------------------------------------------------------------
+-(void)removeObjectForKeys:(id)key,...
+{
+  GS_USEIDLIST(key,[self removeObjectForKeys:__objects
+                         count: __count]); 
+};
+
+//------------------------------------------------------------------------------
+-(void)removeObjectForKeysArray:(NSArray*)keysArray
+{
+  int keysCount=[keysArray count];
+  if (keysCount>0)
     {
-      id nextKey = va_arg(nextKeys,id);
+      id keys[keysCount];
+      [keysArray getObjects:keys];
+      [self removeObjectForKeys:keys
+            count:keysCount];
+    };
+};
+
+//----------------------------------------------------------------------------------------
+-(void)removeObjectForKeys:(id*)keys
+                     count:(unsigned)count
+{
+  int i=0;
+  GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
+  for(i=0;i<count;i++)
+    {
+      id key=keys[i];
+      BOOL isNextKey=(i<(count-1) && keys[i+1]);
       GSWMapNode node  = GSWMapNodeForKey(currentMap,key);
+      /*
+      NSDebugMLLog(@"GSWMultiKeyDictionary",
+                   @"key='%@' node=%p node->value=%p isNextKey=%d",
+                   key,node,(node ? node->value : NULL),isNextKey);
+*/
       if (node)
 	{
-          if (nextKey)
+          if (isNextKey)
             {
               currentMap=node->subMap;
               if (!currentMap)
@@ -1032,124 +1361,44 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 	}
       else
         break;
-      key=nextKey;
     };
 }
 
 //------------------------------------------------------------------------------
--(void)setObject:(id)object
-    forKeysArray:(NSArray*)keys
+-(void)removeAllSubObjectsForKeys:(id)key,...
 {
-  int keysCount=[keys count];
-  int i=0;
-
-  if (keysCount==0)
-    {
-      [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add empty keys array  to dictionary"];
-    }
-  if (object == nil)
-    {
-      [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add nil value to dictionary"];
-    }
-
-  GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
-  for(i=0;i<keysCount;i++)
-    {
-      id key=[keys objectAtIndex:i];
-      BOOL isNextKey=i<(keysCount-1);
-      GSWMapNode node  = GSWMapNodeForKey(currentMap,key);
-      if (node)
-	{
-          if (isNextKey)
-            {
-              if (!node->subMap)
-                node->subMap=GSWMapNewTableWithCapacity(currentMap->base,DEFAULT_DICTIONARY_CAPACITY);                
-              currentMap=node->subMap;
-            }
-          else
-            {
-              ASSIGN(node->value,object);
-            };
-	}
-      else
-        {
-          if (isNextKey)
-            {
-              node=GSWMapAddPair(currentMap,key,nil);
-              node->subMap=GSWMapNewTableWithCapacity(currentMap->base,DEFAULT_DICTIONARY_CAPACITY);
-            }
-          else
-            GSWMapAddPair(currentMap,key,object);
-        }
-    };
+  GS_USEIDLIST(key,[self removeAllSubObjectsForKeys:__objects
+                         count: __count]); 
 };
 
 //------------------------------------------------------------------------------
--(id)objectForKeysArray:(NSArray*)keys
+-(void)removeAllSubObjectsForKeys:(id*)keys
+                            count:(unsigned)count
 {
-  id object=nil;
-  int keysCount=[keys count];
-  if (keysCount>0)
+  GSWMapNode node=[self nodeForKeys:keys
+                        count:count];
+
+  if (node)
     {
-      int i=0;      
-      GSWMapTable currentMap=((GSWMapBase)_mapBase)->firstTable;
-      for(i=0;i<keysCount;i++)
-        {
-          id key=[keys objectAtIndex:i];
-          BOOL isNextKey=i<(keysCount-1);
-          GSWMapNode node  = GSWMapNodeForKey(currentMap,key);
-          if (node)
-            {
-              if (isNextKey)
-                {
-                  currentMap=node->subMap;
-                  if (!currentMap)
-                    break;
-                }
-              else
-                object=node->value;
-            }
-          else
-            break;
-        };
+      if (node->subMap)
+        GSWMapCleanMap(node->subMap);
+      [self removeObjectForKeys:keys
+            count:count];
     };
-  return object;
-};
+}
 
 //------------------------------------------------------------------------------
--(void)removeObjectForKeysArray:(NSArray*)keys
+-(void)removeAllSubObjectsForKeysArray:(NSArray*)keysArray
 {
-  int keysCount=[keys count];
+  int keysCount=[keysArray count];
   if (keysCount>0)
     {
-      int i=0;
-      GSWMapTable	currentMap=((GSWMapBase)_mapBase)->firstTable;
-      
-      for(i=0;i<keysCount;i++)
-        {
-          id key=[keys objectAtIndex:i];
-          BOOL isNextKey=i<(keysCount-1);
-          GSWMapNode node  = GSWMapNodeForKey(currentMap,key);
-          if (node)
-            {
-              if (isNextKey)
-                {
-                  currentMap=node->subMap;
-                  if (!currentMap)
-                    break;
-                }
-              else
-                {
-                  GSWMapRemoveKey(currentMap,key);
-                };
-            }
-          else
-            break;
-        };
+      id keys[keysCount];
+      [keysArray getObjects:keys];
+      [self removeAllSubObjectsForKeys:keys
+            count:keysCount];
     };
-};
+}
 
 //------------------------------------------------------------------------------
 -(void)makeObjectsPerformSelector:(SEL)selector
@@ -1187,11 +1436,58 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 -(NSArray*)allValues
 {
   NSMutableArray* objects=(NSMutableArray*)[NSMutableArray array];
-  GSWMapAddAllvaluesIntoArray(((GSWMapBase)_mapBase)->firstTable,
+  GSWMapAddAllValuesIntoArray(((GSWMapBase)_mapBase)->firstTable,
                               objects);
   return objects;
 };
 
+//------------------------------------------------------------------------------
+-(NSArray*)allSubValuesForKeys:(id)key,...
+{
+  NSArray* values=nil;
+  /*
+  NSDebugMLLog(@"GSWMultiKeyDictionary",
+               @"self=%p class=%@ key=%@",
+               self,[self class],key);
+  */
+  GS_USEIDLIST(key,values = [self allSubValuesForKeys:__objects
+                                  count: __count]); 
+  return values;
+};
+
+//------------------------------------------------------------------------------
+-(NSArray*)allSubValuesForKeys:(id*)keys
+                     count:(unsigned)count
+{
+  NSMutableArray* objects=nil;
+  GSWMapNode node=[self nodeForKeys:keys
+                        count:count];
+  if (node)
+    {
+      NSMutableArray* objects=(NSMutableArray*)[NSMutableArray array];
+      if (node->value)
+        [objects addObject:node->value];
+      if (node->subMap)
+        GSWMapAddAllValuesIntoArray(node->subMap,
+                                    objects);
+    };
+  return objects;
+}
+
+//------------------------------------------------------------------------------
+-(NSArray*)allSubValuesForKeysArray:(NSArray*)keysArray
+{
+  NSArray* objects=nil;
+  int keysCount=[keysArray count];
+  if (keysCount>0)
+    {
+      id keys[keysCount];
+      [keysArray getObjects:keys];
+      objects=[self allSubValuesForKeys:keys
+                    count:keysCount];
+    };
+  return objects;
+}
 @end
 
 //==============================================================================
@@ -1228,6 +1524,199 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
     };
   return object;
 }
+
+@end
+
+//==============================================================================
+@implementation GSWCache
+
+//------------------------------------------------------------------------------
+static BOOL isNodeExpired(GSWCacheMapNode node)
+{
+  if ((node->flags & GSWCacheFlags_expiresOnFirstAccess)==GSWCacheFlags_expiresOnFirstAccess)
+    {
+      return (node->cacheDuration>0 && (GSWTimeNow()-node->firstAccessTS)>node->cacheDuration);
+    }
+  else
+    {
+      return (node->cacheDuration>0 && (GSWTimeNow()-node->lastAccessTS)>node->cacheDuration);
+    };
+};
+
+//--------------------------------------------------------------------
+static void removeExpiredNodes(GSWMapTable map)
+{
+  GSWMapEnumerator_t	enumerator = GSWMapEnumeratorForMap(map);
+  GSWMapBucket  bucket=GSWMapEnumeratorBucket(&enumerator);
+  GSWCacheMapNode	node = (GSWCacheMapNode)GSWMapEnumeratorNextNode(&enumerator);
+  while (node)
+    {
+      if (isNodeExpired(node))
+        {
+          if (node->subMap && node->subMap->nodeCount>0)
+            {
+              //Only release Value
+              DESTROY(node->value);
+            }
+          else
+            {
+              // Remove Node
+              GSWMapRemoveNodeFromMap(map,bucket, (GSWMapNode)node);
+              GSWMapFreeNode(map, (GSWMapNode)node);
+            };
+        };
+      if (node->subMap)
+        {
+          removeExpiredNodes(node->subMap);
+          if (node->subMap->nodeCount==0)
+            {
+              GSWMapEmptyMap(node->subMap);
+              node->subMap=NULL;
+            };
+        };
+      bucket=GSWMapEnumeratorBucket(&enumerator);
+      node = (GSWCacheMapNode)GSWMapEnumeratorNextNode(&enumerator);
+    }
+  GSWMapEndEnumerator(&enumerator);
+};
+
+//------------------------------------------------------------------------------
+- (id)init
+{
+  if ((self = [self initWithDefaultDuration:-1 //never expires
+                    defaultFlags:0]))
+    {
+    };
+  return self;
+}
+
+//------------------------------------------------------------------------------
+- (id)initWithDefaultDuration:(NSTimeInterval)defaultDuration
+                 defaultFlags:(unsigned int)defaultFlags
+{
+  if ((self = [self initWithNodeSize:sizeof(GSWCacheMapNode_t)]))
+    {
+      _defaultDuration=defaultDuration;
+      _defaultFlags=defaultFlags;
+    };
+  return self;
+}
+
+//------------------------------------------------------------------------------
+- (void) dealloc
+{
+  [super dealloc];
+}
+
+//------------------------------------------------------------------------------
+-(NSString*)description
+{
+  return [super description];  
+};
+
+//------------------------------------------------------------------------------
++(GSWCache*)cache
+{
+  return [[[GSWCache alloc] init] autorelease];
+};
+
+//------------------------------------------------------------------------------
++(GSWCache*)cacheWithDefaultDuration:(NSTimeInterval)defaultDuration
+                        defaultFlags:(unsigned int)defaultFlags
+{
+  return [[[GSWCache alloc] initWithDefaultDuration:defaultDuration
+                               defaultFlags:defaultFlags] autorelease];
+};
+
+//----------------------------------------------------------------------------------------
+-(void)deleteExpiredEntries
+{
+  removeExpiredNodes(((GSWMapBase)_mapBase)->firstTable);
+};
+
+//------------------------------------------------------------------------------
+-(GSWMapNode)nodeForKeys:(id*)keys
+                   count:(unsigned)count
+{
+  GSWCacheMapNode node=(GSWCacheMapNode)[super nodeForKeys:keys
+                                               count:count];
+  if (node)
+    {
+      if (isNodeExpired(node))
+        {
+          NSDebugMLog(@"Node for object %p EXPIRED",node->value);
+          [self removeObjectForKeys:keys
+                count:count];
+        }
+      else
+        {
+          node->lastAccessTS=GSWTimeNow();
+        };      
+    };
+  return (GSWMapNode)node;
+};
+
+//------------------------------------------------------------------------------
+-(void)setObject:(id)object
+         forKeys:(id*)keys
+           count:(unsigned)count
+     returnsNode:(GSWMapNode*)nodePtr
+{
+  GSWCacheMapNode aNode=NULL;
+  [super setObject:object
+         forKeys:keys
+         count:count
+         returnsNode:(GSWMapNode*)&aNode];
+  if (aNode)
+    {
+      aNode->firstAccessTS=GSWTimeNow();
+      aNode->lastAccessTS=aNode->firstAccessTS;
+      aNode->cacheDuration=_defaultDuration;
+      aNode->flags=_defaultFlags;
+    };
+  if (nodePtr)
+    *nodePtr=(GSWMapNode)aNode;
+}
+
+//----------------------------------------------------------------------------------------
+-(void)setObject:(id)object
+    withDuration:(NSTimeInterval)duration
+          forKey:(id)key
+{
+  [self setObject:object
+        withDuration:duration
+        forKeys:&key
+        count:1];
+}
+
+//----------------------------------------------------------------------------------------
+-(void)setObject:(id)object
+    withDuration:(NSTimeInterval)duration
+         forKeys:(id*)keys
+           count:(unsigned)count
+{
+  GSWCacheMapNode aNode=NULL;
+  [self setObject:object
+        forKeys:keys
+        count:count
+        returnsNode:(GSWMapNode*)&aNode];
+  if (aNode)
+    {
+      aNode->cacheDuration=duration;
+    };
+};
+
+//----------------------------------------------------------------------------------------
+-(void)setObject:(id)object
+    withDuration:(NSTimeInterval)duration
+         forKeys:(id)key,...
+{
+  GS_USEIDLIST(key,[self setObject:object 
+                         withDuration:duration
+                         forKeys:__objects
+                         count: __count]); 
+};
+
 
 @end
 
