@@ -22,6 +22,7 @@
 	* GSWeb.framework/GNUmakefile: Depend on GDL2 when applicable.
 	* GSWeb.framework/Makefile.preamble.in: Add dependency on 
 	GSANTLER and -baseadd when applicable.
+	Also add dependancy on GDL2.
 	
 2004-02-26  David Ayers  <d.ayers@inode.at>
 

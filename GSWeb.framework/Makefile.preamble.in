@@ -68,6 +68,9 @@ LIBRARIES_DEPEND_UPON += -lGSANTLR @AUX_LIBS@
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
+ifeq ($(GDL2),yes)
+LIBRARIES_DEPEND_UPON += -lgnustep-db2control -lgnustep-db2
+endif
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = 
