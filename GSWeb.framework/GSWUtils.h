@@ -66,31 +66,35 @@ typedef unsigned int UINT32;
 
 BOOL ClassIsKindOfClass(Class classA,Class classB);
 
-void ExceptionRaiseFn(const char *func, 
-		      const char *file,
-		      int line,
-		      NSString* name_,
-		      NSString* format_,
-		      ...);
-void ExceptionRaiseFn0(const char *func, 
-		       const char *file,
-		       int line,
-		       NSString* name_,
-		       NSString* format_);
+GSWEB_EXPORT void
+ExceptionRaiseFn(const char *func, 
+		 const char *file,
+		 int line,
+		 NSString* name_,
+		 NSString* format_,
+		 ...);
+GSWEB_EXPORT void
+ExceptionRaiseFn0(const char *func, 
+		  const char *file,
+		  int line,
+		  NSString* name_,
+		  NSString* format_);
 
-void ValidationExceptionRaiseFn(const char *func, 
-				const char *file,
-				int line,
-				NSString* name_,
-				NSString* message_,
-				NSString* format_,
-				...);
-void ValidationExceptionRaiseFn0(const char *func, 
-				 const char *file,
-				 int line,
-				 NSString* name_,
-				 NSString* message_,
-				 NSString* format_);
+GSWEB_EXPORT void
+ValidationExceptionRaiseFn(const char *func, 
+			   const char *file,
+			   int line,
+			   NSString* name_,
+			   NSString* message_,
+			   NSString* format_,
+			   ...);
+GSWEB_EXPORT void
+ValidationExceptionRaiseFn0(const char *func, 
+			    const char *file,
+			    int line,
+			    NSString* name_,
+			    NSString* message_,
+			    NSString* format_);
 
 #define ExceptionRaise(name_, format_, args...) \
   { ExceptionRaiseFn(__PRETTY_FUNCTION__, __FILE__, __LINE__, \
@@ -108,17 +112,17 @@ void ValidationExceptionRaiseFn0(const char *func,
   { ValidationExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__,\
                                 name_,message_,format_); }
 
-extern BOOL boolValueFor(id id_);
-extern BOOL boolValueWithDefaultFor(id id_,BOOL defaultValue);
-//extern BOOLNB boolNbFor(BOOL value_);
-extern BOOL isHeaderKeysEqual(NSString* headerKey,NSString* testKey);
-extern BOOL SBIsEqual(id id1,id id2);
-extern BOOL SBIsValueEqual(id id1,id id2);
-extern BOOL SBIsValueIsIn(id id1,id id2);
+GSWEB_EXPORT BOOL boolValueFor(id id_);
+GSWEB_EXPORT BOOL boolValueWithDefaultFor(id id_,BOOL defaultValue);
+//GSWEB_EXPORT BOOLNB boolNbFor(BOOL value_);
+GSWEB_EXPORT BOOL isHeaderKeysEqual(NSString* headerKey,NSString* testKey);
+GSWEB_EXPORT BOOL SBIsEqual(id id1,id id2);
+GSWEB_EXPORT BOOL SBIsValueEqual(id id1,id id2);
+GSWEB_EXPORT BOOL SBIsValueIsIn(id id1,id id2);
 
-extern id GetTmpName(NSString* dir,NSString* prefix);
-extern NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv);
-extern void NSTimeIntervalSleep(NSTimeInterval ti);
+GSWEB_EXPORT id GetTmpName(NSString* dir,NSString* prefix);
+GSWEB_EXPORT NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv);
+GSWEB_EXPORT void NSTimeIntervalSleep(NSTimeInterval ti);
 /* Basic data structure which holds all information we can get about a process.
  * (unless otherwise specified, fields are read from /proc/#/stat)
  */
@@ -181,12 +185,12 @@ typedef struct proc_s {
     struct proc_s *l,   /* ptrs for building arbitrary linked structs */
                   *r;   /* (i.e. singly/doubly-linked lists and trees */
 } proc_t;
-extern void pidstat(pid_t pid, proc_t* P);
-extern void pidstatm(pid_t pid, proc_t* P);
+GSWEB_EXPORT void pidstat(pid_t pid, proc_t* P);
+GSWEB_EXPORT void pidstatm(pid_t pid, proc_t* P);
 
 
 
-extern NSString* GSWGetDefaultDocRoot();
+GSWEB_EXPORT NSString* GSWGetDefaultDocRoot();
 
 //====================================================================
 @interface NSException (NSBuild)
@@ -320,14 +324,14 @@ extern NSString* GSWGetDefaultDocRoot();
   (loggedUnlockFromFunctionInFileInLine(__lock, \
      __FILE__, __PRETTY_FUNCTION__, __LINE__))
 
-extern BOOL
+GSWEB_EXPORT BOOL
 loggedLockBeforeDateFromFunctionInFileInLine(id self,
 					     BOOL try,
 					     NSDate *limit, 
 					     const char *file,
 					     const char *function,
 					     long line);
-extern void
+GSWEB_EXPORT void
 loggedUnlockFromFunctionInFileInLine(id self,
 				     const char *file,
 				     const char *function,

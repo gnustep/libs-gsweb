@@ -150,6 +150,7 @@
 @class GSWRecording;
 @class GSWInputStreamData;
 
+#include "GSWDefines.h"
 #include "GSWConstants.h"
 #include "GSWUtils.h"
 #include "GSWProcFS.h"

@@ -27,7 +27,7 @@
 #ifndef _GSWDefaultAdaptor_h__
 	#define _GSWDefaultAdaptor_h__
 
-extern int iBlock;
+GSWEB_EXPORT int iBlock;
 //====================================================================
 // GSWDefaultAdaptor
 

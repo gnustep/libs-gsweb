@@ -40,21 +40,21 @@
 @end;
 
 
-extern CONST NSString* GSWHTMLAttrParser___tokenNames[];
+GSWEB_EXPORT CONST NSString* GSWHTMLAttrParser___tokenNames[];
 
-extern CONST unsigned long GSWHTMLAttrParser___tokenSet_0_data_[];
-extern ANTLRBitSet* GSWHTMLAttrParser___tokenSet_0;
-extern CONST unsigned long GSWHTMLAttrParser___tokenSet_1_data_[];
-extern ANTLRBitSet* GSWHTMLAttrParser___tokenSet_1;
-extern CONST unsigned long GSWHTMLAttrParser___tokenSet_2_data_[];
-extern ANTLRBitSet* GSWHTMLAttrParser___tokenSet_2;
-extern CONST unsigned long GSWHTMLAttrParser___tokenSet_3_data_[];
-extern ANTLRBitSet* GSWHTMLAttrParser___tokenSet_3;
-extern CONST unsigned long GSWHTMLAttrParser___tokenSet_4_data_[];
-extern ANTLRBitSet* GSWHTMLAttrParser___tokenSet_4;
-extern CONST unsigned long GSWHTMLAttrParser___tokenSet_5_data_[];
-extern ANTLRBitSet* GSWHTMLAttrParser___tokenSet_5;
-extern CONST unsigned long GSWHTMLAttrParser___tokenSet_6_data_[];
-extern ANTLRBitSet* GSWHTMLAttrParser___tokenSet_6;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrParser___tokenSet_0_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrParser___tokenSet_0;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrParser___tokenSet_1_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrParser___tokenSet_1;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrParser___tokenSet_2_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrParser___tokenSet_2;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrParser___tokenSet_3_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrParser___tokenSet_3;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrParser___tokenSet_4_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrParser___tokenSet_4;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrParser___tokenSet_5_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrParser___tokenSet_5;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrParser___tokenSet_6_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrParser___tokenSet_6;
 
 #endif /*INC_GSWHTMLAttrParser_h_*/

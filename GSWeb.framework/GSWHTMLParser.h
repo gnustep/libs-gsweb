@@ -34,9 +34,9 @@
 @end;
 
 
-extern CONST NSString* GSWHTMLParser___tokenNames[];
+GSWEB_EXPORT CONST NSString* GSWHTMLParser___tokenNames[];
 
-extern CONST unsigned long GSWHTMLParser___tokenSet_0_data_[];
-extern ANTLRBitSet* GSWHTMLParser___tokenSet_0;
+GSWEB_EXPORT CONST unsigned long GSWHTMLParser___tokenSet_0_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLParser___tokenSet_0;
 
 #endif /*INC_GSWHTMLParser_h_*/

@@ -27,21 +27,34 @@
 #define _GSWebDebug_h__
 
 #ifdef DEBUG
-extern NSString* GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSString *fmt);
-extern void GSWLogC_(CONST char* file,int line,CONST char* string);
-extern void GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep);
-extern void GSWLogAssertGoodFn(CONST char* file,int line,id object);
+GSWEB_EXPORT NSString *
+GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSString *fmt);
+
+GSWEB_EXPORT void
+GSWLogC_(CONST char* file,int line,CONST char* string);
+
+GSWEB_EXPORT void
+GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep);
+
+GSWEB_EXPORT void
+GSWLogAssertGoodFn(CONST char* file,int line,id object);
 #endif
 #ifdef GSWDEBUG
 
-#define GSWLogC(cString);				GSWLogC_(__FILE__,__LINE__,cString);
-#define GSWLogDumpObject(object,deep); 	GSWLogDumpObjectFn(__FILE__,__LINE__,object,deep);
-#define GSWLogAssertGood(object); 		GSWLogAssertGoodFn(__FILE__,__LINE__,object);
+#define GSWLogC(cString);	\
+	GSWLogC_(__FILE__, __LINE__, cString);
+#define GSWLogDumpObject(object, deep);	\
+	GSWLogDumpObjectFn(__FILE__, __LINE__, object, deep);
+#define GSWLogAssertGood(object);	\
+	GSWLogAssertGoodFn(__FILE__, __LINE__, object);
 
 //Log Memory Alloc/Dealloc
 #ifdef GSWDEBUG_MEM
-#define GSWLogMemC(cString);				GSWLogC_(__FILE__,__LINE__,cString);
-#define GSWLogMemCF(format, args...);			{ fprintf(stderr,"File %s: %d. ",file,line); fprintf(stderr,format, ## args); };
+#define GSWLogMemC(cString);	\
+	GSWLogC_(__FILE__,__LINE__,cString);
+#define GSWLogMemCF(format, args...);	\
+	{ fprintf(stderr,"File %s: %d. ",file,line);	\
+	  fprintf(stderr,format, ## args); };
 #else
 #define GSWLogMemC(cString);				
 #define GSWLogMemCF(format, args...);
@@ -49,14 +62,16 @@ extern void GSWLogAssertGoodFn(CONST char* file,int line,id object);
 
 //Log Locks
 #ifdef GSWDEBUG_LOCK
-#define GSWLogLockC(cString);				GSWLogC_(__FILE__,__LINE__,cString);
+#define GSWLogLockC(cString);	\
+	GSWLogC_(__FILE__, __LINE__, cString);
 #else
 #define GSWLogLockC(cString);				
 #endif
 
 //Log Locks
 #ifdef GSWDEBUG_DEEP
-#define GSWLogDeepC(cString);				GSWLogC_(__FILE__,__LINE__,cString);
+#define GSWLogDeepC(cString);	\
+	GSWLogC_(__FILE__, __LINE__, cString);
 #else
 #define GSWLogDeepC(cString);				
 #endif
@@ -76,132 +91,160 @@ extern void GSWLogAssertGoodFn(CONST char* file,int line,id object);
 
 #define LOGClassFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGClassFnStop()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,__FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGClassFnStartC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGClassFnStopC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGClassFnStartCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGClassFnStopCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGClassFnStartCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGClassFnStopCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGObjectFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGObjectFnStop()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGObjectFnStartC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGObjectFnStopC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGObjectFnStartCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGObjectFnStopCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGObjectFnStartCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGObjectFnStopCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGObjectFnNotImplemented()	  \
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__,	\
+				      @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGClassFnNotImplemented() 	\
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__,	\
+				       @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGClassFnNotImplemented() 	\
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__,	\
+				       @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGSeriousError(format, args...) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)
 
 #define LOGSeriousError0(format) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGException(format, args...) 	\
   do { /*if (GSDebugSet(@"exception") == YES)*/ { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)
 
 #define LOGException0(format) 	\
   do { /*if (GSDebugSet(@"exception") == YES)*/ { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGError(format, args...) 	\
   do { if (GSDebugSet(@"error") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
     NSLog(fmt2, ## args);}} while (0)
 
 #define LOGError0(format) 	\
   do { if (GSDebugSet(@"error") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
     NSLog(@"%@",fmt2); }} while (0)
 
@@ -278,132 +321,160 @@ extern void GSWLogAssertGoodFn(CONST char* file,int line,id object);
 #if defined(DEBUG) && defined(GSWDEBUG_DEEP)
 #define LOGDEEPClassFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+				       __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPClassFnStop()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,__FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPClassFnStartC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPClassFnStopC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPClassFnStartCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				        __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPClassFnStopCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPClassFnStartCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPClassFnStopCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPObjectFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPObjectFnStop()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPObjectFnStartC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPObjectFnStopC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPObjectFnStartCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPObjectFnStopCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				       __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPObjectFnStartCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPObjectFnStopCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGDEEPObjectFnNotImplemented()	  \
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__,	\
+				      @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPClassFnNotImplemented() 	\
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__,	\
+				       @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPClassFnNotImplemented() 	\
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__,	\
+				       @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGDEEPSeriousError(format, args...) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)
 
 #define LOGDEEPSeriousError0(format) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGDEEPException(format, args...) 	\
   do { if (GSDebugSet(@"exception") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)
 
 #define LOGDEEPException0(format) 	\
   do { if (GSDebugSet(@"exception") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGDEEPError(format, args...) 	\
   do { if (GSDebugSet(@"error") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
     NSLog(fmt2, ## args);}} while (0)
 
 #define LOGDEEPError0(format) 	\
   do { if (GSDebugSet(@"error") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
     NSLog(@"%@",fmt2); }} while (0)
 
@@ -494,132 +565,160 @@ extern void GSWLogAssertGoodFn(CONST char* file,int line,id object);
 #if defined(DEBUG) && (defined(GSWDEBUG_DEEP) || defined (GSWDEBUG_LOCK))
 #define LOGLOCKClassFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKClassFnStop()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,__FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKClassFnStartC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKClassFnStopC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKClassFnStartCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKClassFnStopCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKClassFnStartCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKClassFnStopCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKObjectFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKObjectFnStop()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKObjectFnStartC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKObjectFnStopC(comment)  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKObjectFnStartCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKObjectFnStopCond(cond)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKObjectFnStartCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTART %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTART %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKObjectFnStopCondC(cond,comment)  \
   do { if (cond && GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"FNSTOP %s"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__, @"FNSTOP %s"); \
     NSLog(fmt,comment); }} while (0)
 
 #define LOGLOCKObjectFnNotImplemented()	  \
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSWDebugMethodMsg(self, _cmd, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSWDebugMethodMsg(self, _cmd,	\
+				      __FILE__, __LINE__,	\
+				      @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKClassFnNotImplemented() 	\
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__,	\
+				       @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKClassFnNotImplemented() 	\
   do { if (GSDebugSet(@"dflt") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"NOT IMPLEMENTED"); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__,	\
+				       @"NOT IMPLEMENTED"); \
     NSLog(fmt); }} while (0)
 
 #define LOGLOCKSeriousError(format, args...) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)
 
 #define LOGLOCKSeriousError0(format) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGLOCKException(format, args...) 	\
   do { if (GSDebugSet(@"exception") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)
 
 #define LOGLOCKException0(format) 	\
   do { if (GSDebugSet(@"exception") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGLOCKError(format, args...) 	\
   do { if (GSDebugSet(@"error") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
     NSLog(fmt2, ## args);}} while (0)
 
 #define LOGLOCKError0(format) 	\
   do { if (GSDebugSet(@"error") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,	\
+				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
     NSLog(@"%@",fmt2); }} while (0)
 

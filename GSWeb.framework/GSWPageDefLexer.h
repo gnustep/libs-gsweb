@@ -60,23 +60,23 @@
 
 
 
-extern CONST unsigned long GSWPageDefLexer___tokenSet_0_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_0;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_1_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_1;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_2_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_2;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_3_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_3;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_4_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_4;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_5_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_5;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_6_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_6;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_7_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_7;
-extern CONST unsigned long GSWPageDefLexer___tokenSet_8_data_[];
-extern ANTLRBitSet* GSWPageDefLexer___tokenSet_8;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_0_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_0;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_1_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_1;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_2_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_2;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_3_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_3;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_4_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_4;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_5_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_5;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_6_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_6;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_7_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_7;
+GSWEB_EXPORT CONST unsigned long GSWPageDefLexer___tokenSet_8_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWPageDefLexer___tokenSet_8;
 
 #endif /*INC_GSWPageDefLexer_h_*/

@@ -33,19 +33,28 @@
 #ifndef _GSWApplication_h__
 	#define _GSWApplication_h__
 
-extern void GSWApplicationSetDebugSetOption(NSString* opt);
-extern int WOApplicationMain(NSString* applicationClassName,
-                             int argc,
-                             const char *argv[]);
-extern int GSWApplicationMain(NSString* applicationClassName,
-                              int argc,
-                              const char *argv[]);
-extern NSString* globalApplicationClassName;
-extern int GSWebNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
-#define GSWebNamingConvInversed		(GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX)
-#define GSWebNamingConvForRound(r)	((r)==0 ? GSWebNamingConv : (GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX))
+GSWEB_EXPORT void
+GSWApplicationSetDebugSetOption(NSString* opt);
 
-extern BOOL WOStrictFlag;
+GSWEB_EXPORT int
+WOApplicationMain(NSString* applicationClassName,
+		  int argc, const char *argv[]);
+
+GSWEB_EXPORT int
+GSWApplicationMain(NSString* applicationClassName,
+		   int argc, const char *argv[]);
+
+GSWEB_EXPORT NSString* globalApplicationClassName;
+GSWEB_EXPORT int GSWebNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
+
+#define GSWebNamingConvInversed		\
+	(GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX)
+
+#define GSWebNamingConvForRound(r)	\
+	((r)==0 ? GSWebNamingConv : 	\
+	  (GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX))
+
+GSWEB_EXPORT BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication : NSObject <NSLocking>
 {
@@ -738,5 +747,5 @@ extern BOOL WOStrictFlag;
 								  template:(GSWElement*)templateElement_; //OldFN
 @end
 */
-extern GSWApplication* GSWApp;
+GSWEB_EXPORT GSWApplication* GSWApp;
 #endif //_GSWApplication_h__

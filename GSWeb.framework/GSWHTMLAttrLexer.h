@@ -45,13 +45,13 @@
 
 
 
-extern CONST unsigned long GSWHTMLAttrLexer___tokenSet_0_data_[];
-extern ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_0;
-extern CONST unsigned long GSWHTMLAttrLexer___tokenSet_1_data_[];
-extern ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_1;
-extern CONST unsigned long GSWHTMLAttrLexer___tokenSet_2_data_[];
-extern ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_2;
-extern CONST unsigned long GSWHTMLAttrLexer___tokenSet_3_data_[];
-extern ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_3;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrLexer___tokenSet_0_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_0;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrLexer___tokenSet_1_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_1;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrLexer___tokenSet_2_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_2;
+GSWEB_EXPORT CONST unsigned long GSWHTMLAttrLexer___tokenSet_3_data_[];
+GSWEB_EXPORT ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_3;
 
 #endif /*INC_GSWHTMLAttrLexer_h_*/

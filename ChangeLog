@@ -1,6 +1,25 @@
 2004-05-06  S.J. Chun <chunsj@embian.com>
             David Ayers  <d.ayers@inode.at>
 
+	* GSWeb.framework/GSWDefines.h: New file.
+	* GSWeb.framework/GSWeb.h: Include GSWDefines.h.
+	
+	* GSWeb.framework/GSWApplication.h: Use GSW_EXPORT instead of
+	export.  Fixed some whitespace issues.
+	* GSWeb.framework/GSWBaseParser.h: Ditto.
+	* GSWeb.framework/GSWConstants.h: Ditto.
+	* GSWeb.framework/GSWDebug.h: Ditto.
+	* GSWeb.framework/GSWDefaultAdaptor.h: Ditto.
+	* GSWeb.framework/GSWElement.h: Ditto.
+	* GSWeb.framework/GSWHTMLAttrLexer.h: Ditto.
+	* GSWeb.framework/GSWHTMLAttrParser.h: Ditto.
+	* GSWeb.framework/GSWHTMLLexer.h: Ditto.
+	* GSWeb.framework/GSWHTMLParser.h: Ditto.
+	* GSWeb.framework/GSWPageDefLexer.h: Ditto.
+	* GSWeb.framework/GSWPageDefParser.h: Ditto.
+	* GSWeb.framework/GSWResourceManager.h: Ditto.
+	* GSWeb.framework/GSWUtils.h: Ditto.
+
 	* GSWeb.framework/GSWSession.h/m
 	([GSWSession permanentPageCacheSize], [GSWSession pageCacheSize]):
 	Replace uint with unsigned int.

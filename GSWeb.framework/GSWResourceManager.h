@@ -33,7 +33,7 @@
 #ifndef _GSWResourceManager_h__
 	#define _GSWResourceManager_h__
 
-extern NSDictionary* globalMime;
+GSWEB_EXPORT NSDictionary* globalMime;
 
 //====================================================================
 @interface GSWResourceManager : NSObject <NSLocking>

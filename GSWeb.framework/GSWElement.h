@@ -32,10 +32,10 @@
 #ifndef _GSWElement_h__
 	#define _GSWElement_h__
 
-extern BYTE ElementsMap_htmlBareString;
-extern BYTE ElementsMap_gswebElement;
-extern BYTE ElementsMap_dynamicElement;
-extern BYTE ElementsMap_attributeElement;
+GSWEB_EXPORT BYTE ElementsMap_htmlBareString;
+GSWEB_EXPORT BYTE ElementsMap_gswebElement;
+GSWEB_EXPORT BYTE ElementsMap_dynamicElement;
+GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 
 
 //====================================================================

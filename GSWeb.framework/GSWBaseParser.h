@@ -50,8 +50,12 @@
                          columnIndex:(int*)colIndexPtr;
 @end
 
-extern void _ParserDebugLogBuffer(char* fn,char* file,int line,unichar* uniBuf,int length,int index,int charsCount);
-#define ParserDebugLogBuffer(uniBuf,length,index,charsCount) _ParserDebugLogBuffer(__PRETTY_FUNCTION__,__FILE__,__LINE__,uniBuf,length,index,charsCount)
+void
+_ParserDebugLogBuffer(char* fn, char* file, int line, unichar* uniBuf,
+		      int length, int index, int charsCount);
+#define ParserDebugLogBuffer(uniBuf,length,index,charsCount) \
+	_ParserDebugLogBuffer(__PRETTY_FUNCTION__,	\
+	__FILE__, __LINE__, uniBuf, length, index, charsCount)
 
 static inline BOOL _parserIsDigit(unichar c)
 {
