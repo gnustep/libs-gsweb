@@ -1,3 +1,10 @@
+2002-08-06   David Wetzel <dave@turbocat.de>
+        * GSWeb.framework/GSWImageButton.m
+                o fixed a bug that caused the ImageButton to call the action even if it 
+                  was not klicked.
+        * GSWeb.framework/GSWApplication.m GSWDisplayGroup.h GSWSession.m
+                o added support for NOEXTENSIONS and TCSDB
+
 2002-08-04   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWEmbeddedObject.m
 		o ivar names changes to conform to coding standards
