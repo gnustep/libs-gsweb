@@ -1,7 +1,7 @@
 /* GSWExceptionPage.h - GSWeb: Class GSWExceptionPage
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
    This file is part of the GNUstep Web Library.
@@ -28,20 +28,20 @@
 //==============================================================================
 @interface GSWExceptionPage: GSWComponent
 {
-  NSString* tmpReason;
+  NSString* _tmpReason;
   
-  NSString* tmpUserInfoKey;
-  NSString* tmpUserInfoValue;
+  NSString* _tmpUserInfoKey;
+  NSString* _tmpUserInfoValue;
 
-  NSException* exception;
-  NSArray* reasons;
+  NSException* _exception;
+  NSArray* _reasons;
 };
 
 -(void)dealloc;
 -(NSArray*)getReasons;
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
--(void)setException:(NSException*)exception_;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context;
+-(void)setException:(NSException*)exception;
 @end
 
 #endif // _GSWExceptionPage_h__

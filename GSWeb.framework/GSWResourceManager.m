@@ -1,7 +1,7 @@
 /* GSWResourceManager.m - GSWeb: Class GSWResourceManager
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -36,7 +36,7 @@ NSString* globalMimePListPathName=nil;
 NSDictionary* localGS2ISOLanguages=nil;
 NSDictionary* localISO2GSLanguages=nil;
 NSString* globalLanguagesPListPathName=nil;
-
+NSString* localNotFoundMarker=@"NOTFOUND";
 //--------------------------------------------------------------------
 +(void)initialize
 {
@@ -112,6 +112,8 @@ NSString* globalLanguagesPListPathName=nil;
 	  appPaths=[NSMutableDictionary new];
 	  frameworkPaths=[GSWMultiKeyDictionary new];
 	  urlValuedElementsData=[NSMutableDictionary new];
+          _stringsTablesByFrameworkByLanguageByName=[NSMutableDictionary new];
+          _stringsTableArraysByFrameworkByLanguageByName=[NSMutableDictionary new];
 	  [self  _initFrameworkProjectBundles];
 //	  frameworkPathsToFrameworksNames=[NSMutableDictionary new];
 
@@ -147,6 +149,8 @@ NSString* globalLanguagesPListPathName=nil;
   DESTROY(appPaths);
   DESTROY(frameworkPaths);
   DESTROY(urlValuedElementsData);
+  DESTROY(_stringsTablesByFrameworkByLanguageByName);
+  DESTROY(_stringsTableArraysByFrameworkByLanguageByName);
   DESTROY(frameworkClassPaths);
 //  DESTROY(frameworkPathsToFrameworksNames);
   GSWLogC("Dealloc GSWResourceManager: selfLock");
@@ -363,26 +367,26 @@ NSString* globalLanguagesPListPathName=nil;
 //--------------------------------------------------------------------
 //NDFN
 -(NSDictionary*)stringsTableNamed:(NSString*)tableName_
-					  inFramework:(NSString*)frameworkName_
-						languages:(NSArray*)languages_;
+                      inFramework:(NSString*)frameworkName_
+                        languages:(NSArray*)languages_;
 {
   NSDictionary* _stringsTable=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"tableName=%@ frameworkName=%@",tableName_,frameworkName_);
   [self lock];
   NS_DURING
-	{
-	  _stringsTable=[self lockedStringsTableNamed:tableName_
-						  inFramework:frameworkName_
-						  languages:languages_];
-	}
+    {
+      _stringsTable=[self lockedStringsTableNamed:tableName_
+                          inFramework:frameworkName_
+                          languages:languages_];
+    }
   NS_HANDLER
-	{
-	  NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -392,26 +396,26 @@ NSString* globalLanguagesPListPathName=nil;
 //--------------------------------------------------------------------
 //NDFN
 -(NSArray*)stringsTableArrayNamed:(NSString*)tableName_
-				 inFramework:(NSString*)frameworkName_
-				   languages:(NSArray*)languages_;
+                      inFramework:(NSString*)frameworkName_
+                        languages:(NSArray*)languages_;
 {
   NSArray* _stringsTableArray=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"tableName=%@ frameworkName=%@",tableName_,frameworkName_);
   [self lock];
   NS_DURING
-	{
-	  _stringsTableArray=[self lockedStringsTableArrayNamed:tableName_
-							   inFramework:frameworkName_
-							   languages:languages_];
-	}
+    {
+      _stringsTableArray=[self lockedStringsTableArrayNamed:tableName_
+                               inFramework:frameworkName_
+                               languages:languages_];
+    }
   NS_HANDLER
-	{
-	  NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
-	  //TODO
-	  [self unlock];
-	  [localException raise];
-	}
+    {
+      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
@@ -491,8 +495,8 @@ NSString* globalLanguagesPListPathName=nil;
 //--------------------------------------------------------------------
 //NDFN
 -(NSDictionary*)lockedStringsTableNamed:(NSString*)tableName_
-							inFramework:(NSString*)frameworkName_
-							  languages:(NSArray*)languages_
+                            inFramework:(NSString*)frameworkName_
+                              languages:(NSArray*)languages_
 {
   //OK
   NSDictionary* _stringsTable=nil;
@@ -524,6 +528,11 @@ NSString* globalLanguagesPListPathName=nil;
 							  language:_language];
 		};
 	};
+  NSDebugMLLog(@"resmanager",@"lockedStringsTableNamed:%@ inFramework:%@ languages:%@: %@",
+               tableName_,
+               frameworkName_,
+               languages_,
+               _stringsTable);
   LOGObjectFnStop();
   return _stringsTable;
 };
@@ -570,9 +579,9 @@ NSString* globalLanguagesPListPathName=nil;
 
 //--------------------------------------------------------------------
 -(NSString*)lockedCachedStringForKey:(NSString*)key_
-						inTableNamed:(NSString*)tableName_ 
-						 inFramework:(NSString*)frameworkName_
-							language:(NSString*)language_
+                        inTableNamed:(NSString*)tableName_ 
+                         inFramework:(NSString*)frameworkName_
+                            language:(NSString*)language_
 {
   //OK
   NSString* _string=nil;
@@ -589,15 +598,27 @@ NSString* globalLanguagesPListPathName=nil;
 
 //--------------------------------------------------------------------
 -(NSDictionary*)lockedCachedStringsTableWithName:(NSString*)tableName_ 
-									 inFramework:(NSString*)frameworkName_
-										language:(NSString*)language_
+                                     inFramework:(NSString*)frameworkName_
+                                        language:(NSString*)language_
 {
   //OK
   NSDictionary* _stringsTable=nil;
   LOGObjectFnStart();
-  _stringsTable=[self  lockedStringsTableWithName:tableName_ 
-					   inFramework:frameworkName_
-					   language:language_];
+  _stringsTable=[[[_stringsTablesByFrameworkByLanguageByName objectForKey:frameworkName_]
+                   objectForKey:language_]
+                  objectForKey:tableName_];
+  if (!_stringsTable)
+    _stringsTable=[self  lockedStringsTableWithName:tableName_ 
+                         inFramework:frameworkName_
+                         language:language_];
+  else if (_stringsTable==localNotFoundMarker)
+    _stringsTable=nil;
+
+  NSDebugMLLog(@"resmanager",@"lockedCachedStringsTableNamed:%@ inFramework:%@ language:%@: %@",
+               tableName_,
+               frameworkName_,
+               language_,
+               _stringsTable);
   LOGObjectFnStop();
   return _stringsTable;
 };
@@ -605,23 +626,29 @@ NSString* globalLanguagesPListPathName=nil;
 //--------------------------------------------------------------------
 //NDFN
 -(NSArray*)lockedCachedStringsTableArrayWithName:(NSString*)tableName_ 
-									 inFramework:(NSString*)frameworkName_
-										language:(NSString*)language_
+                                     inFramework:(NSString*)frameworkName_
+                                        language:(NSString*)language_
 {
   //OK
   NSArray* _stringsTableArray=nil;
   LOGObjectFnStart();
-  _stringsTableArray=[self  lockedStringsTableArrayWithName:tableName_ 
-							inFramework:frameworkName_
-							language:language_];
+  _stringsTableArray=[[[_stringsTableArraysByFrameworkByLanguageByName objectForKey:frameworkName_]
+                        objectForKey:language_]
+                       objectForKey:tableName_];
+  if (!_stringsTableArray)
+    _stringsTableArray=[self  lockedStringsTableArrayWithName:tableName_ 
+                              inFramework:frameworkName_
+                              language:language_];
+  else if (_stringsTableArray==localNotFoundMarker)
+    _stringsTableArray=nil;
   LOGObjectFnStop();
   return _stringsTableArray;
 };
 
 //--------------------------------------------------------------------
 -(NSDictionary*)lockedStringsTableWithName:(NSString*)tableName_ 
-							   inFramework:(NSString*)frameworkName_
-								  language:(NSString*)language_
+                               inFramework:(NSString*)frameworkName_
+                                  language:(NSString*)language_
 {
   //OK
   NSDictionary* _stringsTable=nil;
@@ -636,12 +663,12 @@ NSString* globalLanguagesPListPathName=nil;
   NSDebugMLLog(@"resmanager",@"tableName_=%@ frameworkName_=%@ language_=%@",tableName_,frameworkName_,language_);
   _resourceName=[tableName_ stringByAppendingString:GSWStringTablePSuffix];
   if (!WOStrictFlag && [frameworkName_ isEqualToString:GSWFramework_all])
-	{
-	  _frameworks=[frameworkProjectBundlesCache allKeys];
-	  _frameworks=[_frameworks arrayByAddingObject:@""];
-	}
+    {
+      _frameworks=[frameworkProjectBundlesCache allKeys];
+      _frameworks=[_frameworks arrayByAddingObject:@""];
+    }
   else
-	  _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
+    _frameworks=[NSArray arrayWithObject:frameworkName_ ? frameworkName_ : @""];
 
   for(i=0;!_path && i<[_frameworks count];i++)
 	{
@@ -668,7 +695,7 @@ NSString* globalLanguagesPListPathName=nil;
 		{
 //		  NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
 		  _relativePath=[globalAppProjectBundle relativePathForResourceNamed:_resourceName
-												forLanguage:language_];
+                                                        forLanguage:language_];
 //		  NSDebugMLLog(@"resmanager",@"_relativePath=%@",_relativePath);
 		  if (_relativePath)
 			{
@@ -679,18 +706,45 @@ NSString* globalLanguagesPListPathName=nil;
 	};
 //  NSDebugMLLog(@"resmanager",@"_path=%@",_path);
   if (_path)
-	{
-	  //TODO use encoding ??
-	  _stringsTable=[NSDictionary dictionaryWithContentsOfFile:_path];
-	  if (!_stringsTable)
-		{
-		  NSString* _tmpString=[NSString stringWithContentsOfFile:_path];
-		  LOGSeriousError(@"Bad stringTable \n%@\n from file %@",
-						  _tmpString,
-						  _path);
-		};
-	};
-//  NSDebugMLLog(@"resmanager",@"_stringsTable=%@",_stringsTable);
+    {
+      //TODO use encoding ??
+      _stringsTable=[NSDictionary dictionaryWithContentsOfFile:_path];
+      if (!_stringsTable)
+        {
+          NSString* _tmpString=[NSString stringWithContentsOfFile:_path];
+          LOGSeriousError(@"Bad stringTable \n%@\n from file %@",
+                          _tmpString,
+                          _path);
+        };
+    };
+  {
+    NSMutableDictionary* frameworkDict=[_stringsTablesByFrameworkByLanguageByName objectForKey:frameworkName_];
+    NSMutableDictionary* languageDict=nil;
+    if (!frameworkDict)
+      {
+        frameworkDict=[NSMutableDictionary dictionary];
+        [_stringsTablesByFrameworkByLanguageByName setObject:frameworkDict
+                                                  forKey:frameworkName_];
+      };
+    languageDict=[frameworkDict objectForKey:language_];
+    if (!languageDict)
+      {
+        languageDict=[NSMutableDictionary dictionary];
+        [frameworkDict setObject:languageDict
+                       forKey:language_];
+      };
+    if (_stringsTable)
+      [languageDict setObject:_stringsTable
+                    forKey:tableName_];
+    else
+      [languageDict setObject:localNotFoundMarker
+                    forKey:tableName_];
+  }
+  NSDebugMLLog(@"resmanager",@"lockedStringsTableWithName:%@ inFramework:%@ language:%@: %sFOUND",
+               tableName_,
+               frameworkName_,
+               language_,
+               (_stringsTable ? "" : "NOT "));
   LOGObjectFnStop();
   return _stringsTable;
 };
@@ -769,6 +823,29 @@ NSString* globalLanguagesPListPathName=nil;
 						  _path);
 		};
 	};
+  {
+    NSMutableDictionary* frameworkDict=[_stringsTableArraysByFrameworkByLanguageByName objectForKey:frameworkName_];
+    NSMutableDictionary* languageDict=nil;
+    if (!frameworkDict)
+      {
+        frameworkDict=[NSMutableDictionary dictionary];
+        [_stringsTableArraysByFrameworkByLanguageByName setObject:frameworkDict
+                                                  forKey:frameworkName_];
+      };
+    languageDict=[frameworkDict objectForKey:language_];
+    if (!languageDict)
+      {
+        languageDict=[NSMutableDictionary dictionary];
+        [frameworkDict setObject:languageDict
+                       forKey:language_];
+      };
+    if (_stringsTableArray)
+      [languageDict setObject:_stringsTableArray
+                    forKey:tableName_];
+    else
+      [languageDict setObject:localNotFoundMarker
+                    forKey:tableName_];
+  }
   LOGObjectFnStop();
   return _stringsTableArray;
 };

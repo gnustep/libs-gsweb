@@ -301,6 +301,24 @@ GSWWOCompatibility.h
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)
+GSWeb_AUTOGSDOC_HEADERS = $(GSWeb_HEADER_FILES)
+GSWeb_AUTOGSDOC_SOURCE = $(GSWeb_OBJC_FILES)
+DOCUMENT_NAME = GSWeb
+GSWeb_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWeb_AGSDOC_FILES = gsweb.gsdoc $(GSWeb_AUTOGSDOC_HEADERS) 
+#$(GSWeb_AUTOGSDOC_SOURCE)
+GSWeb_AGSDOC_FLAGS = \
+	-Declared Foundation \
+	-Standards YES \
+	-SystemProjects System \
+	-Project gsweb \
+	-WordMap '{\
+	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
+	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
+	GS_EXPORT=extern;GS_DECLARE="";\
+	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
+	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
+	}' -Up gsweb
 
 
 -include Makefile.preamble
@@ -308,5 +326,9 @@ HDRS = $(LIBRARY_NAME:=.h)
 -include GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/framework.make
+# Only build the doc if doc=yes was passed on the command line
+ifeq ($(doc),yes)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+endif
 
 -include Makefile.postamble

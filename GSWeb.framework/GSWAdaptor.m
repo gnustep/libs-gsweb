@@ -1,7 +1,7 @@
 /* GSWAdaptor.m - GSWeb: Class GSWAdaptor
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -32,8 +32,8 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 //	initWithName:arguments:application:
 
--(id)initWithName:(NSString*)name_
-		arguments:(NSDictionary*)arguments_
+-(id)initWithName:(NSString*)name
+        arguments:(NSDictionary*)arguments
 {
   NSDebugMLog(@"Init");
   self=[super init];
@@ -96,9 +96,16 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread_
+-(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread
 {
   [self subclassResponsibility: _cmd];
+};
+
+//--------------------------------------------------------------------
+-(BOOL)isMultiThreadEnabled
+{
+  [self subclassResponsibility: _cmd];
+  return NO;
 };
 
 @end
@@ -107,8 +114,8 @@ static char rcsId[] = "$Id$";
 @implementation GSWAdaptor (GSWAdaptorOldFn)
 
 //--------------------------------------------------------------------
--(void)	registerPort:(int)_port
- forApplicationNamed:(NSString*)_applicationName
+-(void)	registerPort:(int)port
+ forApplicationNamed:(NSString*)applicationName
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };

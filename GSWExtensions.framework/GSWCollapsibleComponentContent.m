@@ -1,11 +1,17 @@
-/* GSWCollapsibleComponentContent.m - GSWeb: Class GSWCollapsibleComponentContent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWCollapsibleComponentContent.m - <title>GSWeb: Class GSWCollapsibleComponentContent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWCollapsibleComponentContent.h"
 
@@ -40,10 +50,10 @@
 {
   GSWLogC("Dealloc GSWCollopsibleComponent");
   GSWLogC("Dealloc GSWCollopsibleComponent Super");
-  DESTROY(openedImageFileName);
-  DESTROY(closedImageFileName);
-  DESTROY(openedHelpString);
-  DESTROY(closedHelpString);
+  DESTROY(_openedImageFileName);
+  DESTROY(_closedImageFileName);
+  DESTROY(_openedHelpString);
+  DESTROY(_closedHelpString);
   [super dealloc];
   GSWLogC("End Dealloc GSWCollopsibleComponent");
 };
@@ -56,26 +66,26 @@
 -(BOOL)isVisible
 {
   LOGObjectFnStart();
-  NSDebugMLog(@"isVisibleConditionPassed=%s",(isVisibleConditionPassed ? "YES" : "NO"));
-  if (!isVisibleConditionPassed)
+  NSDebugMLog(@"_isVisibleConditionPassed=%s",(_isVisibleConditionPassed ? "YES" : "NO"));
+  if (!_isVisibleConditionPassed)
 	{
-	  isVisible=boolValueFor([self valueForBinding:@"condition"]);
-	  isVisibleConditionPassed=YES;
+	  _isVisible=boolValueFor([self valueForBinding:@"condition"]);
+	  _isVisibleConditionPassed=YES;
 	};
-  NSDebugMLog(@"isVisible=%s",(isVisible ? "YES" : "NO"));
+  NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
   LOGObjectFnStop();
-  return isVisible;
+  return _isVisible;
 };
 
 -(GSWComponent*)toggleVisibilityAction
 {
   LOGObjectFnStart();
-  NSDebugMLog(@"isVisible=%s",(isVisible ? "YES" : "NO"));
-  isVisible = ![self isVisible];
-  NSDebugMLog(@"isVisible=%s",(isVisible ? "YES" : "NO"));
+  NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
+  _isVisible = ![self isVisible];
+  NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
   if ([self hasBinding:@"visibility"])
 	{
-	  [self setValue:[NSNumber numberWithBool:isVisible]
+	  [self setValue:[NSNumber numberWithBool:_isVisible]
 							   forBinding:@"visibility"];
 	};
   LOGObjectFnStop();
@@ -88,30 +98,30 @@
   LOGObjectFnStart();
   if ([self isVisible])
 	{
-	  if (!openedImageFileName) 
+	  if (!_openedImageFileName) 
 		{
 		  if ([self hasBinding:@"openedImageFileName"])
-			ASSIGN(openedImageFileName,[self valueForBinding:@"openedImageFileName"]);
+			ASSIGN(_openedImageFileName,[self valueForBinding:@"openedImageFileName"]);
 		  else if ([self hasBinding:@"helpString"])
-			ASSIGN(openedImageFileName,[self valueForBinding:@"helpString"]);
+			ASSIGN(_openedImageFileName,[self valueForBinding:@"helpString"]);
 		  else
-			ASSIGN(openedImageFileName,@"DownTriangle.png");
+			ASSIGN(_openedImageFileName,@"DownTriangle.png");
 		};
-	  _image=openedImageFileName;
+	  _image=_openedImageFileName;
 	}
   else
 	{
-	  NSDebugMLog(@"closedImageFileName=%@",closedImageFileName);
-	  if (!closedImageFileName) 
+	  NSDebugMLog(@"_closedImageFileName=%@",_closedImageFileName);
+	  if (!_closedImageFileName) 
 		{
 		  if ([self hasBinding:@"closedImageFileName"])
-			ASSIGN(closedImageFileName,[self valueForBinding:@"closedImageFileName"]);
+			ASSIGN(_closedImageFileName,[self valueForBinding:@"closedImageFileName"]);
 		  else if ([self hasBinding:@"helpString"])
-			ASSIGN(closedImageFileName,[self valueForBinding:@"helpString"]);
+			ASSIGN(_closedImageFileName,[self valueForBinding:@"helpString"]);
 		  else
-			ASSIGN(closedImageFileName,@"RightTriangle.png");
+			ASSIGN(_closedImageFileName,@"RightTriangle.png");
 		};
-	  _image=closedImageFileName;
+	  _image=_closedImageFileName;
 	};
   NSDebugMLog(@"_image=%@",_image);
   LOGObjectFnStop();
@@ -147,29 +157,29 @@
   LOGObjectFnStart();
   if ([self isVisible])
 	{
-	  if (!openedHelpString)
+	  if (!_openedHelpString)
 		{
 		  if ([self hasBinding:@"openedHelpString"])
-			ASSIGN(openedHelpString,[self valueForBinding:@"openedHelpString"]);
+			ASSIGN(_openedHelpString,[self valueForBinding:@"openedHelpString"]);
 		  else if ([self hasBinding:@"helpString"])
-			ASSIGN(openedHelpString,[self valueForBinding:@"helpString"]);
+			ASSIGN(_openedHelpString,[self valueForBinding:@"helpString"]);
 		  else
-			ASSIGN(openedHelpString,@"Click to collapse");
+			ASSIGN(_openedHelpString,@"Click to collapse");
 		};
-	  _helpString=openedHelpString;
+	  _helpString=_openedHelpString;
 	}
   else
 	{
-	  if (!closedHelpString) 
+	  if (!_closedHelpString) 
 		{
 		  if ([self hasBinding:@"closedHelpString"])
-			ASSIGN(closedHelpString,[self valueForBinding:@"closedHelpString"]);
+			ASSIGN(_closedHelpString,[self valueForBinding:@"closedHelpString"]);
 		  else if ([self hasBinding:@"helpString"])
-			ASSIGN(closedHelpString,[self valueForBinding:@"helpString"]);
+			ASSIGN(_closedHelpString,[self valueForBinding:@"helpString"]);
 		  else
-			ASSIGN(closedHelpString,@"Click to expand");
+			ASSIGN(_closedHelpString,@"Click to expand");
 		};
-	  _helpString=closedHelpString;
+	  _helpString=_closedHelpString;
 	};
   NSDebugMLog(@"_helpString=%@",_helpString);
   LOGObjectFnStop();

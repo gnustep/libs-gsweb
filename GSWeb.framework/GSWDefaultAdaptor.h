@@ -1,9 +1,9 @@
-/* GSWDefaultAdaptor.h - GSWeb: Class GSWDefaultAdaptor
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDefaultAdaptor.h - GSWeb: Class GSWDefaultAdaptor
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
-   
+
    This file is part of the GNUstep Web Library.
    
    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+**/
 
 // $Id$
 
@@ -32,42 +32,45 @@ extern int iBlock;
 
 @interface GSWDefaultAdaptor: GSWAdaptor
 {
-  int port;
-  NSString* host;
-  int instance;
-  int queueSize;
-  int workerThreadCount;
-  BOOL isMultiThreadEnabled;
-  NSFileHandle* fileHandle;
-  NSMutableArray* waitingThreads;
-  NSMutableArray* threads;
-  NSLock* selfLock;
-  BOOL blocked;
-};
+  int _port;
+  NSString* _host;
+  NSString* _adaptorHost;
+  int _instance;
+  int _queueSize;
+  int _workerThreadCount;
+  BOOL _isMultiThreadEnabled;
+  NSFileHandle* _fileHandle;
+  NSMutableArray* _waitingThreads;
+  NSMutableArray* _threads;
+  NSLock* _selfLock;
+  BOOL _blocked;
+}
 
 -(void)dealloc;
--(id)initWithName:(NSString*)name_
-		arguments:(NSDictionary*)arguments;
+-(id)initWithName:(NSString*)name
+        arguments:(NSDictionary*)arguments;
 
 -(void)registerForEvents;
 -(void)unregisterForEvents;
 
--(void)logWithFormat:(NSString*)_format,...;
-+(void)logWithFormat:(NSString*)_format,...;
+-(void)logWithFormat:(NSString*)format,...;
++(void)logWithFormat:(NSString*)format,...;
 
 -(void)runOnce;
 -(BOOL)doesBusyRunOnce;
 -(BOOL)dispatchesRequestsConcurrently;
 -(int)port;
 -(NSString*)host;
--(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread_;
+-(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread;
 -(BOOL)tryLock;
 -(void)unlock;
 
--(void)setWorkerThreadCount:(id)workerThreadCount_;
+-(void)setWorkerThreadCount:(id)workerThreadCount;
 -(id)workerThreadCount;
--(void)setListenQueueSize:(id)listenQueueSize_;
+-(void)setListenQueueSize:(id)listenQueueSize;
 -(BOOL)isMultiThreadEnabled;
+-(BOOL)isConnectionAllowedWithHandle:(NSFileHandle*)handle
+                     returnedMessage:(NSString**)retMessage;
 
 @end
 

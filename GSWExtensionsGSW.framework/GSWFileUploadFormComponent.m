@@ -1,11 +1,17 @@
-/* GSWFileUploadFormComponent.m - GSWeb: Class GSWFileUploadFormComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWFileUploadFormComponent.m - <title>GSWeb: Class GSWFileUploadFormComponent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Dec 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWFileUploadFormComponent.h"
 //====================================================================
@@ -55,7 +65,7 @@
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(fileInfo);
+  DESTROY(_fileInfo);
   [super dealloc];
 };
 
@@ -69,17 +79,17 @@
 -(NSMutableDictionary*)fileInfo
 {
   LOGObjectFnStart();
-  if (!fileInfo)
+  if (!_fileInfo)
 	{
 	  if ([self hasBinding:@"fileInfo"])
 		{
-		  fileInfo=[[self valueForBinding:@"fileInfo"] mutableCopy];
-                  if (!fileInfo)
-                    fileInfo=[NSMutableDictionary new];
+		  _fileInfo=[[self valueForBinding:@"fileInfo"] mutableCopy];
+                  if (!_fileInfo)
+                    _fileInfo=[NSMutableDictionary new];
 		};
 	};
   LOGObjectFnStop();
-  return fileInfo;
+  return _fileInfo;
 };
 
 //--------------------------------------------------------------------
@@ -119,13 +129,13 @@
 {
   GSWComponent* _returnPage=nil;
   LOGObjectFnStart();
-  [self setValue:fileInfo
+  [self setValue:_fileInfo
 		forBinding:@"fileInfo"];
   if ([self hasBinding:@"action"])
 	{
 	  _returnPage=[self valueForBinding:@"action"];
 	};
-  DESTROY(fileInfo);
+  DESTROY(_fileInfo);
   LOGObjectFnStop();
   return _returnPage;
 };
@@ -135,14 +145,14 @@
 {
   GSWComponent* _returnPage=nil;
   LOGObjectFnStart();
-  [fileInfo removeObjectForKey:@"data"];
-  [self setValue:fileInfo
-		forBinding:@"fileInfo"];
+  [_fileInfo removeObjectForKey:@"data"];
+  [self setValue:_fileInfo
+        forBinding:@"fileInfo"];
   if ([self hasBinding:@"action"])
-	{
-	  _returnPage=[self valueForBinding:@"action"];
-	};
-  DESTROY(fileInfo);
+    {
+      _returnPage=[self valueForBinding:@"action"];
+    };
+  DESTROY(_fileInfo);
   LOGObjectFnStop();
   return _returnPage;
 };

@@ -1068,9 +1068,12 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
   if(insert)
     {
+      NSDebugMLLog(@"gswdisplaygroup",@"insertObject:AtIndex: Will [_dataSource insertObject:anObject]");
       [_dataSource insertObject:anObject];
+      NSDebugMLLog(@"gswdisplaygroup",@"insertObject:AtIndex: End [_dataSource insertObject:anObject]");
       
-      [_allObjects insertObject:anObject atIndex:index];
+      [_allObjects insertObject:anObject 
+                   atIndex:index];
       [self setCurrentBatchIndex:_batchIndex];
       
       if(_delegateRespondsTo.didInsertObject == YES)
@@ -1090,7 +1093,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   id object=nil;
   LOGObjectFnStart();
 
+  NSDebugMLLog(@"gswdisplaygroup",@"Will [_dataSource createObject]");
   object = [_dataSource createObject];
+  NSDebugMLLog(@"gswdisplaygroup",@"End [_dataSource createObject]");
   if(object == nil)
     {
       if(_delegateRespondsTo.createObjectFailed == YES)
@@ -1100,7 +1105,10 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   else
     {
       [object takeValuesFromDictionary:[self insertedObjectDefaultValues]];
-      [self insertObject:object atIndex:index];
+      NSDebugMLLog(@"gswdisplaygroup",@"Will insertObject:AtIndex:");
+      [self insertObject:object
+            atIndex:index];
+      NSDebugMLLog(@"gswdisplaygroup",@"End insertObject:AtIndex:");
     };
   LOGObjectFnStop();
   return object;
@@ -1248,6 +1256,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       [self setInQueryMode:NO];
       qualifier=[self qualifierFromQueryValues];//OK
       NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+      NSDebugMLLog(@"gswdisplaygroup",@"_dataSource=%@",_dataSource);
       [_dataSource setAuxiliaryQualifier:qualifier];//OK
       
       NSDebugMLLog0(@"gswdisplaygroup",@"Will fetch");

@@ -1,7 +1,7 @@
 /* GSWSimpleFormComponent.h - GSWeb: Class GSWSimpleFormComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sept 1999
    
    This file is part of the GNUstep Web Library.
@@ -26,7 +26,7 @@
 //====================================================================
 @interface GSWSimpleFormComponent : GSWComponent
 {
-  NSString* tmpErrorMessage;
+  NSString* _tmpErrorMessage;
 };
 -(id)init;
 -(void)dealloc;
@@ -36,21 +36,21 @@
 -(BOOL)isErrorMessage;
 -(GSWComponent*)sendAction;
 -(GSWComponent*)sendFields:(id)fields
-	  withFieldsDscription:(NSDictionary*)fieldsDscription_
-				  byMailTo:(NSString*)to_
-					  from:(NSString*)from_
-			   withSubject:(NSString*)subject_
-			 messagePrefix:(NSString*)messagePrefix_
-			 messageSuffix:(NSString*)messageSuffix_
-			  sentPageName:(NSString*)sentPageName_;
+      withFieldsDscription:(NSDictionary*)fieldsDscription
+                  byMailTo:(NSString*)to
+                      from:(NSString*)from
+               withSubject:(NSString*)subject
+             messagePrefix:(NSString*)messagePrefix
+             messageSuffix:(NSString*)messageSuffix
+              sentPageName:(NSString*)sentPageName;
 -(GSWComponent*)sendFields:(id)fields
-	  withFieldsDscription:(NSDictionary*)fieldsDscription_
-				  byMailTo:(NSString*)to_
-					  from:(NSString*)from_
-			   withSubject:(NSString*)subject_
-			 messagePrefix:(NSString*)messagePrefix_
-			 messageSuffix:(NSString*)messageSuffix_
-			  sentPageName:(NSString*)sentPageName_;
+      withFieldsDscription:(NSDictionary*)fieldsDscription
+                  byMailTo:(NSString*)to
+                      from:(NSString*)from
+               withSubject:(NSString*)subject
+             messagePrefix:(NSString*)messagePrefix
+             messageSuffix:(NSString*)messageSuffix
+              sentPageName:(NSString*)sentPageName;
 @end
 
 

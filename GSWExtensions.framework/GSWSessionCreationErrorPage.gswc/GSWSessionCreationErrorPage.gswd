@@ -1,7 +1,7 @@
 
 ExclamationImage: GSWImage
 {
-    filename = "exclamation.gif";
+    filename = "exclamation.mng";
     framework = "GSWExtensions";
     border = 0;
 }

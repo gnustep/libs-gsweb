@@ -1,11 +1,17 @@
-/* GSWIFrame.m - GSWeb: Class GSWIFrame
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWIFrame.m - <title>GSWeb: Class GSWIFrame</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWIFrame.h"
 
@@ -33,25 +43,25 @@
 
 -(NSString*)srcUrl
 {
-  NSString* _src=nil;
+  NSString* src=nil;
   if ([self hasBinding:@"src"])
-	_src=[self valueForBinding:@"src"];
+    src=[self valueForBinding:@"src"];
   else if ([self hasBinding:@"pageName"] || [self hasBinding:@"value"])
-	_src=[[self context]componentActionURL];
-  return _src;
+    src=[[self context]componentActionURL];
+  return src;
 };
 
 -(GSWElement*)getFrameContent
 {
-  GSWElement* _element=nil;
+  GSWElement* element=nil;
   if ([self hasBinding:@"pageName"])
-	{
-	  NSString* _pageName = [self valueForBinding:@"pageName"];
-	  _element=[self pageWithName:_pageName];
+    {
+      NSString* pageName = [self valueForBinding:@"pageName"];
+      element=[self pageWithName:pageName];
     }
   else
-	_element = [self valueForBinding:@"value"];        
-  return _element;
+    element = [self valueForBinding:@"value"];        
+  return element;
 };
 
 @end

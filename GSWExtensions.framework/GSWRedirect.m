@@ -1,11 +1,17 @@
-/* GSWRedirect.m - GSWeb: Class GSWRedirect
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWRedirect.m - <title>GSWeb: Class GSWRedirect</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,10 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   <*license>
+**/
+
+static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 #include "GSWRedirect.h"
@@ -39,40 +48,40 @@
 
 -(void)dealloc
 {
-  DESTROY(url);
+  DESTROY(_url);
   [super dealloc];
 };
 
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)aContext
 {
 //  [response_ appendContentHTMLAttributeValue:url];
-  [response_  setHeader:url
-			  forKey:@"location"];
-  if (permanent)
-	[response_ setStatus:301];
+  [response  setHeader:_url
+             forKey:@"location"];
+  if (_permanent)
+    [response setStatus:301];
   else
-	[response_ setStatus:302];
+    [response setStatus:302];
 };
 
--(void)setURL:(NSString*)url_
+-(void)setURL:(NSString*)url
 {
-  ASSIGN(url,url_);
+  ASSIGN(_url,url);
 };
 
 -(NSString*)url
 {
-  return url;
+  return _url;
 };
 
--(void)setPermanent:(BOOL)permanent_
+-(void)setPermanent:(BOOL)permanent
 {
-  permanent = permanent_;
+  _permanent = permanent;
 };
 
 -(BOOL)permanent
 {
-  return permanent;
+  return _permanent;
 };
 
 @end

@@ -1,7 +1,7 @@
-/* GSWDefaultAdaptorThread.h - GSWeb: Class GSWDefaultAdaptorThread
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDefaultAdaptorThread.h - GSWeb: Class GSWDefaultAdaptorThread
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
    This file is part of the GNUstep Web Library.
@@ -19,7 +19,7 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+**/
 
 // $Id$
 
@@ -30,46 +30,55 @@
 //==============================================================================
 @interface GSWDefaultAdaptorThread: NSObject
 {
-  GSWApplication* application;
-  GSWAdaptor* adaptor;
-  NSFileHandle* stream;
-  NSAutoreleasePool* pool;
-  BOOL keepAlive;
-  NSRunLoop* currentRunLoop;
-  NSDate* runLoopDate;
-  BOOL isMultiThread;
-  NSDate* creationDate;
-  NSDate* runDate;
-  NSDate* dispatchRequestDate;
-  NSDate* sendResponseDate;
-  int requestNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
+  GSWApplication* _application;
+  GSWAdaptor* _adaptor;
+  NSFileHandle* _stream;
+  NSAutoreleasePool* _pool;
+  BOOL _keepAlive;
+  NSRunLoop* _currentRunLoop;
+  NSDate* _runLoopDate;
+  BOOL _isMultiThread;
+  NSDate* _creationDate;
+  NSDate* _runDate;
+  NSDate* _dispatchRequestDate;
+  NSDate* _sendResponseDate;
+  int _requestNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
 }
 
--(id)initWithApp:(GSWApplication*)_application
-	 withAdaptor:(GSWAdaptor*)_adaptor
-	  withStream:(NSFileHandle*)stream_;
+-(id)initWithApp:(GSWApplication*)application
+     withAdaptor:(GSWAdaptor*)adaptor
+      withStream:(NSFileHandle*)stream;
 
--(void)run:(id)void_;
+-(void)run:(id)nothing;
 
 -(GSWAdaptor*)adaptor;
 -(NSAutoreleasePool*)pool;
--(void)setPool:(NSAutoreleasePool*)pool_
-   destroyLast:(BOOL)destroy_;
+-(void)setPool:(NSAutoreleasePool*)pool
+   destroyLast:(BOOL)destroy;
 
-+(NSMutableArray*)completeLinesWithData:(NSMutableData*)data_
-				  returnedConsumedCount:(int*)consumedCount_
-				 returnedHeadersEndFlag:(BOOL*)headersEndFlag_;
--(BOOL)readRequestReturnedRequestLine:(NSString**)requestLine_
-					  returnedHeaders:(NSDictionary**)headers_
-						 returnedData:(NSData**)data_;
--(GSWRequest*)createRequestFromRequestLine:(NSString*)requestLine_
-								   headers:(NSDictionary*)headers_
-									  data:(NSData*)data_;
++(NSMutableArray*)completeLinesWithData:(NSMutableData*)data
+                  returnedConsumedCount:(int*)consumedCount
+                 returnedHeadersEndFlag:(BOOL*)headersEndFlag;
+
+-(BOOL)readRequestReturnedRequestLine:(NSString**)requestLine
+                      returnedHeaders:(NSDictionary**)headers
+                         returnedData:(NSData**)data;
+-(GSWRequest*)createRequestFromRequestLine:(NSString*)requestLine
+                                   headers:(NSDictionary*)headers
+                                      data:(NSData*)data;
 -(void)sendResponse:(GSWResponse*)response;
 -(void)threadExited;
-+(id)threadExited:(NSNotification*)notif_;
++(id)threadExited:(NSNotification*)notif;
 -(NSDate*)creationDate;
 -(BOOL)isExpired;
+
++(void)sendResponse:(GSWResponse*)response
+           toStream:(NSFileHandle*)aStream
+     withNamingConv:(int)requestNamingConv;
+
++(void)sendRetryLasterResponseToStream:(NSFileHandle*)stream;
++(void)sendConnectionRefusedResponseToStream:(NSFileHandle*)stream
+                                 withMessage:(NSString*)message;
 @end
 
 #endif

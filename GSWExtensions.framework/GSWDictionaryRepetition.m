@@ -1,11 +1,17 @@
-/* GSWDictionaryRepetition.m - GSWeb: Class GSWDictionaryRepetition
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDictionaryRepetition.m - <title>GSWeb: Class GSWDictionaryRepetition</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWDictionaryRepetition.h"
 
@@ -43,8 +53,8 @@
 
 -(void)dealloc
 {
-  DESTROY(keyList);
-  DESTROY(dictionary);
+  DESTROY(_keyList);
+  DESTROY(_dictionary);
   [super dealloc];
 };
 
@@ -55,20 +65,20 @@
 
 -(NSDictionary*)dictionary
 {
-  if (!dictionary)
+  if (!_dictionary)
 	{
-	  ASSIGN(dictionary,[self valueForBinding:@"dictionary"]);
+	  ASSIGN(_dictionary,[self valueForBinding:@"dictionary"]);
 	};
-  return dictionary;
+  return _dictionary;
 };
 
 -(NSArray*)keyList
 {
-  if (!keyList)
+  if (!_keyList)
 	{
-	  ASSIGN(keyList,[[self dictionary] allKeys]);
+	  ASSIGN(_keyList,[[self dictionary] allKeys]);
 	};
-  return keyList;
+  return _keyList;
 };
 
 -(id)currentKey
@@ -76,12 +86,15 @@
   return nil;
 };
 
--(void)setCurrentKey:(id)key_
+-(void)setCurrentKey:(id)key
 {
-  id _value = [[self dictionary] objectForKey:key_];
-  [self setValue:key_
+  id value = nil;
+  NSDebugMLLog(@"gswdync",@"key=%@",key);
+  value=[[self dictionary] objectForKey:key];
+  NSDebugMLLog(@"gswdync",@"value=%@",value);
+  [self setValue:key
 		forBinding:@"key"];
-  [self setValue:_value
+  [self setValue:value
 		forBinding:@"item"];
 };
 

@@ -1,11 +1,17 @@
-/* GSWComponent.m - GSWeb: Class GSWComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWComponent.m - <title>GSWeb: Class GSWComponent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -53,6 +60,7 @@ static char rcsId[] = "$Id$";
 	  [self setCachingEnabled:[GSWApp isCachingEnabled]];
 	  [componentDefinition _finishInitializingComponent:self];
 	  isSynchronized=[self synchronizesVariablesWithBindings];
+	  NSDebugMLLog(@"gswcomponents",@"isSynchronized=%s",(isSynchronized ? "YES" : "NO"));
 	};
   LOGObjectFnStop();
   return self;
@@ -354,6 +362,9 @@ associationsKeys:(NSArray*)_associationsKeys
 -(void)synchronizeComponentToParent
 {
   //OK
+  LOGObjectFnStart();
+  NSDebugMLog(@"Name=%@ - isSynchronized=%s",
+              [self definitionName],(isSynchronized ? "YES" : "NO"));
   if (isSynchronized)
 	{
 	  int i=0;
@@ -383,12 +394,16 @@ associationsKeys:(NSArray*)_associationsKeys
 			};
 		};
 	};
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)synchronizeParentToComponent
 {
   //OK
+  LOGObjectFnStart();
+  NSDebugMLog(@"Name=%@ - isSynchronized=%s",
+              [self definitionName],(isSynchronized ? "YES" : "NO"));
   if (isSynchronized)
 	{
 	  //Synchro Component->SubComponent
@@ -398,7 +413,7 @@ associationsKeys:(NSArray*)_associationsKeys
 	  id _value=nil;
 	  id _logValue=[self valueForBinding:@"GSWDebug"];
 	  BOOL _log=boolValueWithDefaultFor(_logValue,NO);
-	  NSDebugMLog(@"Nme=%@ - Synchro Component->SubComponent",
+	  NSDebugMLog(@"Name=%@ - Synchro Component->SubComponent",
                       [self definitionName]);
 	  for(i=0;i<[associationsKeys count];i++)
 		{
@@ -419,6 +434,7 @@ associationsKeys:(NSArray*)_associationsKeys
 			};
 		};
 	};
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -872,9 +888,12 @@ associationsKeys:(NSArray*)_associationsKeys
 -(BOOL)synchronizesVariablesWithBindings
 {
   //OK
-  NSDictionary* _userDictionary=[self userDictionary];
-  id _synchronizesVariablesWithBindingsValue=[_userDictionary objectForKey:@"synchronizesVariablesWithBindings"];
+  NSDictionary* _userDictionary=nil;
+  id _synchronizesVariablesWithBindingsValue=nil;
   BOOL _synchronizesVariablesWithBindings=YES;
+  LOGObjectFnStart();
+  _userDictionary=[self userDictionary];
+  _synchronizesVariablesWithBindingsValue=[_userDictionary objectForKey:@"synchronizesVariablesWithBindings"];
   NSDebugMLLog(@"gswcomponents",@"defName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
                [self definitionName],
                _synchronizesVariablesWithBindingsValue);
@@ -885,6 +904,7 @@ associationsKeys:(NSArray*)_associationsKeys
           NSDebugMLLog(@"gswcomponents",@"userDictionary _synchronizesVariablesWithBindings=%s",
                        (_synchronizesVariablesWithBindings ? "YES" : "NO"));
 	};
+  LOGObjectFnStop();
   return _synchronizesVariablesWithBindings ;
 };
 
@@ -1538,8 +1558,8 @@ associationsKeys:(NSArray*)_associationsKeys
 */
   LOGObjectFnStart();
   _stringsTable=[GSWApp stringsTableNamed:name_
-						inFramework:[self frameworkName]
-						languages:[self languages]];
+                        inFramework:[self frameworkName]
+                        languages:[self languages]];
   LOGObjectFnStop();
   return _stringsTable;
 };

@@ -1,7 +1,7 @@
 # Makefile.preamble - GSWeb: Makefile.preamble
-#   Copyright (C) 1999 Free Software Foundation, Inc.
+#   Copyright (C) 1999-2002 Free Software Foundation, Inc.
 #   
-#   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+#   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
 #   Date: 		Jan 1999
 #   
 #   This file is part of the GNUstep Web Library.
@@ -34,14 +34,25 @@
 #
 
 # Additional flags to pass to the preprocessor
-ADDITIONAL_CPPFLAGS = 
+ADDITIONAL_CPPFLAGS =  -lwrap 
 
 # Additional flags to pass to the Objective-C compiler
-#new
 ifeq ($(GDL2), yes)
-	ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN -DGDL2
+	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DUSE_BUILTIN -DGDL2
 else
-	ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN
+	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DUSE_BUILTIN
+endif
+
+ifeq ($(GSWDEBUG_MEM), yes)
+	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DGSWDEBUG_MEM
+endif
+
+ifeq ($(GSWDEBUG_LOCK), yes)
+	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DGSWDEBUG_LOCK
+endif
+
+ifeq ($(GSWDEBUG_DEEP), yes)
+	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DGSWDEBUG_DEEP
 endif
 
 # Additional flags to pass to the C compiler
@@ -53,9 +64,14 @@ ADDITIONAL_INCLUDE_DIRS =  -I. -I$(GNUSTEP_SYSTEM_ROOT)/db -I../..
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS = -lFoundationExt_d -lxml -lz
+	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lFoundationExt_d -lxml -lz
 else
-	ADDITIONAL_LDFLAGS = -lFoundationExt -lxml -lz
+	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lFoundationExt -lxml -lz
+endif
+
+ifeq ($(LIBWRAP), yes)
+	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DHAVE_LIBWRAP
+	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lwrap
 endif
 
 # Additional library directories the linker should search

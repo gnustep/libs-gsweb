@@ -1,11 +1,15 @@
-/* GSWApplication.m - GSWeb: Class GSWApplication
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWApplication.m - <title>GSWeb: Class GSWApplication</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:  Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
+
+   $Revision$
+   $Date$
    
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +23,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -252,11 +257,23 @@ int GSWApplicationMainReal(NSString* _applicationClassName,
                   NSDebugFLog(@"GSWOPTVALUE_SMTPHost -> %@",GSWOPTVALUE_SMTPHost);
                   NSDebugFLog(@"GSWOPT_SMTPHost -> %@",GSWOPT_SMTPHost[GSWebNamingConv]);
                   NSDebugFLog(@"GSWOPTVALUE_SessionTimeOut -> %@",GSWOPTVALUE_SessionTimeOut);
-                  NSDebugFLog(@"GSWOPT_SessionTimeOut -> %@",GSWOPT_SessionTimeOut[GSWebNamingConv]);
-                  NSDebugFLog(@"GSWOPTVALUE_WorkerThreadCount -> %@",GSWOPTVALUE_WorkerThreadCount);
-                  NSDebugFLog(@"GSWOPT_WorkerThreadCount -> %@",GSWOPT_WorkerThreadCount[GSWebNamingConv]);
-                  NSDebugFLog(@"GSWOPTVALUE_MultiThreadEnabled -> %@",GSWOPTVALUE_MultiThreadEnabled);
-                  NSDebugFLog(@"GSWOPT_MultiThreadEnabled -> %@",GSWOPT_MultiThreadEnabled);
+                  NSDebugFLog(@"GSWOPT_SessionTimeOut -> %@",
+                              GSWOPT_SessionTimeOut[GSWebNamingConv]);
+
+                  NSDebugFLog(@"GSWOPTVALUE_WorkerThreadCount -> %@",
+                              GSWOPTVALUE_WorkerThreadCount);
+                  NSDebugFLog(@"GSWOPT_WorkerThreadCount -> %@",
+                              GSWOPT_WorkerThreadCount[GSWebNamingConv]);
+
+                  NSDebugFLog(@"GSWOPTVALUE_MultiThreadEnabled -> %@",
+                              GSWOPTVALUE_MultiThreadEnabled);
+                  NSDebugFLog(@"GSWOPT_MultiThreadEnabled -> %@",
+                              GSWOPT_MultiThreadEnabled);
+
+                  NSDebugFLog(@"GSWOPT_AdaptorHost -> %@",
+                              GSWOPT_AdaptorHost[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_AdaptorHost -> %@",
+                              GSWOPTVALUE_AdaptorHost);
 
 		  _defaultsOptions = 
 			[NSDictionary dictionaryWithObjectsAndKeys:
@@ -285,6 +302,7 @@ int GSWApplicationMainReal(NSString* _applicationClassName,
                                       GSWOPTVALUE_SessionTimeOut,			GSWOPT_SessionTimeOut[GSWebNamingConv],
                                       GSWOPTVALUE_WorkerThreadCount,			GSWOPT_WorkerThreadCount[GSWebNamingConv],
                                       GSWOPTVALUE_MultiThreadEnabled,			GSWOPT_MultiThreadEnabled,
+                                      GSWOPTVALUE_AdaptorHost,			        GSWOPT_AdaptorHost[GSWebNamingConv],
                                       nil,										nil];
 		  NSDebugFLog(@"_globalAppDefaultOptions=%@",globalAppDefaultOptions);
 		  globalAppDefaultOptions=[NSDictionary dictionaryWithDictionary:globalAppDefaultOptions
@@ -521,7 +539,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWApplication");
+  GSWLogMemC("Dealloc GSWApplication");
   DESTROY(adaptors);
   DESTROY(sessionStore);
   DESTROY(componentDefinitionCache);
@@ -534,11 +552,11 @@ int GSWApplicationMain(NSString* applicationClassName,
   DESTROY(instanceNumber);
   DESTROY(requestHandlers);
   DESTROY(defaultRequestHandler);
-  GSWLogC("Dealloc GSWApplication: selfLock");
+  GSWLogMemC("Dealloc GSWApplication: selfLock");
   DESTROY(selfLock);
-  GSWLogC("Dealloc GSWApplication: globalLock");
+  GSWLogMemC("Dealloc GSWApplication: globalLock");
   DESTROY(globalLock);
-  GSWLogC("Dealloc GSWApplication: globalAutoreleasePool");
+  GSWLogMemC("Dealloc GSWApplication: globalAutoreleasePool");
   DESTROY(globalAutoreleasePool);
   DESTROY(currentRunLoop);
   DESTROY(runLoopDate);
@@ -548,9 +566,9 @@ int GSWApplicationMain(NSString* applicationClassName,
   if (GSWApp == self)
     GSWApp = nil;
 
-  GSWLogC("Dealloc GSWApplication Super");
+  GSWLogMemC("Dealloc GSWApplication Super");
   [super dealloc];
-  GSWLogC("End Dealloc GSWApplication");
+  GSWLogMemC("End Dealloc GSWApplication");
 };
 
 //--------------------------------------------------------------------
@@ -635,10 +653,10 @@ int GSWApplicationMain(NSString* applicationClassName,
 	  */
 	  NS_DURING
 		{
-                  printf("GLOBALLOCK lock ThreadID=%p\n",(void*)objc_thread_id());
+                  NSDebugLockMLog(@"GLOBALLOCK lock ThreadID=%p\n",(void*)objc_thread_id());
 	//TODO-NOW	  TmpLockBeforeDate(globalLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
                   [globalLock lock];
-                  printf("GLOBALLOCK locked ThreadID=%p\n",(void*)objc_thread_id());
+                  NSDebugLockMLog(@"GLOBALLOCK locked ThreadID=%p\n",(void*)objc_thread_id());
 #ifndef NDEBUG
 		  globalLockn++;
 		  globalLock_thread_id=objc_thread_id();
@@ -651,7 +669,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 	  NS_HANDLER
 		{
 		  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"globalLock tmplockBeforeDate");
-                  printf("%@ (%@)",localException,[localException reason]);
 		  LOGException(@"%@ (%@)",localException,[localException reason]);
 		  [localException raise];
 		};
@@ -681,9 +698,9 @@ int GSWApplicationMain(NSString* applicationClassName,
 				  NSDebugMLLog0(@"application",@"PROBLEM: owner!=thread id");
 				};
 			};
-                  printf("GLOBALLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
+                  NSDebugLockMLog(@"GLOBALLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
 		  TmpUnlock(globalLock);
-                  printf("GLOBALLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
+                  NSDebugLockMLog(@"GLOBALLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
 #ifndef NDEBUG
 		  globalLockn--;
 		  if (globalLockn==0)
@@ -696,7 +713,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 		}
 	  NS_HANDLER
 		{
-                  printf("%@ (%@)",localException,[localException reason]);
 		  NSDebugMLLog(@"application",@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
 					   globalLockn,
 					   (void*)globalLock_thread_id,
@@ -779,33 +795,32 @@ int GSWApplicationMain(NSString* applicationClassName,
 	};
 */
   NS_DURING
-	{
-          printf("SELFLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
-//	  TmpUnlock(selfLock);
-          [selfLock unlock];//NEW
-          printf("SELFLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
+    {
+      NSDebugLockMLog(@"SELFLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
+      //	  TmpUnlock(selfLock);
+      [selfLock unlock];//NEW
+      NSDebugLockMLog(@"SELFLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
 #ifndef NDEBUG
-	  selfLockn--;
-	  if (selfLockn==0)
-		selfLock_thread_id=NULL;
+      selfLockn--;
+      if (selfLockn==0)
+        selfLock_thread_id=NULL;
 #endif
-/*	  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
-				   selfLockn,
-				   (void*)selfLock_thread_id,
-				   (void*)objc_thread_id());
-*/
-	}
+      /*	  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+                  selfLockn,
+                  (void*)selfLock_thread_id,
+                  (void*)objc_thread_id());
+      */
+    }
   NS_HANDLER
-	{
-          printf("%@ (%@)",localException,[localException reason]);
-	  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
-				   selfLockn,
-				   (void*)selfLock_thread_id,
-				   (void*)objc_thread_id());
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"selfLock tmpunlock");
-	  LOGException(@"%@ (%@)",localException,[localException reason]);
-	  [localException raise];
-	};
+    {
+      NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+                   selfLockn,
+                   (void*)selfLock_thread_id,
+                   (void*)objc_thread_id());
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"selfLock tmpunlock");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
   NS_ENDHANDLER;
   LOGObjectFnStop();
 };
@@ -4364,19 +4379,23 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 //NDFN
 -(NSDictionary*)stringsTableNamed:(NSString*)tableName_
-					  inFramework:(NSString*)frameworkName_
-						languages:(NSArray*)languages_
+                      inFramework:(NSString*)frameworkName_
+                        languages:(NSArray*)languages_
 {
-  return [[self resourceManager]stringsTableNamed:tableName_
-								inFramework:frameworkName_
-								languages:languages_];
+  NSDictionary* st=nil;
+  LOGObjectFnStart();
+  st=[[self resourceManager]stringsTableNamed:tableName_
+                                inFramework:frameworkName_
+                                languages:languages_];
+  LOGObjectFnStop();
+  return st;
 };
 
 //--------------------------------------------------------------------
 //NDFN
 -(NSArray*)stringsTableArrayNamed:(NSString*)tableName_
-					  inFramework:(NSString*)frameworkName_
-						languages:(NSArray*)languages_
+                      inFramework:(NSString*)frameworkName_
+                        languages:(NSArray*)languages_
 {
   return [[self resourceManager]stringsTableArrayNamed:tableName_
 								inFramework:frameworkName_
@@ -4596,3 +4615,4 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 @end
 */
+

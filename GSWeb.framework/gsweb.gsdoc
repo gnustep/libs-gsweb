@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 0.6.7//EN" "http://www.gnustep.org/gsdoc-0_6_7.xml">
+<gsdoc base="index">
+  <head>
+    <title>GNUstepWeb</title>
+    <author name="Manuel Guesdon">
+      <email address="mguesdon@orange-concept.com"/>
+        <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
+  </head>
+  <body>
+    <chapter>
+      <heading>GNUstepWeb</heading>
+      <p>
+        GNUstepWeb is a library which was designed to be compatible with WebObjects 4.x (developed by NeXT (now Apple) Inc.).
+        This library is a logic extension of the GNUstep project. I hope it can help Objective-C, OpenStep and WebObject to become standards.
+      </p>
+     <section>
+        <heading>Build Options</heading>
+        <deflist>
+          <term>debug=yes</term>
+          <desc>
+            Activate GNUstep debug features.
+          </desc>
+          <term>GDL2=yes</term>
+          <desc>
+            Use GNUstepWeb with gdl2 library
+          </desc>
+          <term>LIBWRAP=yes</term>
+          <desc>
+            Link with tcpd_libwrap (you know: hosts.deny, hosts.allow and this kind of things)
+          </desc>
+          <term>GSWDEBUG_DEEP=yes</term>
+          <desc>
+            Activate deep debug features (works only if debug=yes is set)
+          </desc>
+          <term>GSWDEBUG_LOCK=yes</term>
+          <desc>
+            Activate lock debug features (works only if debug=yes is set). Also activated by GSWDEBUG_DEEP=yes
+          </desc>
+          <term>GSWDEBUG_MEM=yes</term>
+          <desc>
+            Activate memory allocation/deallocation debug features (works only if debug=yes is set). Also activated by GSWDEBUG_DEEP=yes
+          </desc>
+          <term>doc=yes</term>
+          <desc>
+            Generate documentation
+          </desc>
+        </deflist>
+      </section>
+    </chapter>
+    <back>
+      <index scope="project" type="title" />
+    </back>
+  </body>
+</gsdoc>

@@ -1,7 +1,7 @@
 /* GSWValidationFailureComponent.h - GSWeb: Class GSWValidationFailureComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sept 1999
    
    This file is part of the GNUstep Web Library.
@@ -26,8 +26,8 @@
 //====================================================================
 @interface GSWValidationFailureComponent : GSWComponent
 {
-  NSArray* tmpAllValidationFailureMessagesArray;
-  NSString* tmpValidationFailureMessage;
+  NSArray* _tmpAllValidationFailureMessagesArray;
+  NSString* _tmpValidationFailureMessage;
 };
 
 -(BOOL)synchronizesVariablesWithBindings;
@@ -35,8 +35,8 @@
 -(id)init;
 -(void)awake;
 -(void)sleep;
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context;
 -(BOOL)isValidationFailure;
 -(NSArray*)allValidationFailureMessagesArray;
 @end

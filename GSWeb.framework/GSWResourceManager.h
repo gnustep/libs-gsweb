@@ -38,6 +38,8 @@ extern NSDictionary* globalMime;
   NSMutableDictionary* appPaths;
   GSWMultiKeyDictionary* frameworkPaths;
   NSMutableDictionary* urlValuedElementsData;
+  NSMutableDictionary* _stringsTablesByFrameworkByLanguageByName;//NDFN
+  NSMutableDictionary* _stringsTableArraysByFrameworkByLanguageByName;//NDFN
 //  NSMutableDictionary* frameworkPathsToFrameworksNames;
   NSArray* frameworkClassPaths;
   NSRecursiveLock* selfLock;

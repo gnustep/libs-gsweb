@@ -1,11 +1,17 @@
-/* GSWTabComponent.m - GSWeb: Class GSWTabComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWTabComponent.m - <title>GSWeb: Class GSWTabComponent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWTabComponent.h"
 //====================================================================
@@ -61,115 +71,115 @@
 
 -(NSString*)tabLeftBorderImage
 {
-  NSString* _image=nil;
-  BOOL _isSelected=NO;
+  NSString* image=nil;
+  BOOL isSelected=NO;
   LOGObjectFnStart();
-  _isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
-  if (_isSelected)
-	{
-	  if ([self hasBinding:@"tabLeftBorderSelectedImage"])
-		_image=[self valueForBinding:@"tabLeftBorderSelectedImage"];
-	  else if ([self hasBinding:@"tabLeftBorderImage"])
-		_image=[self valueForBinding:@"tabLeftBorderImage"];
-	  else
-		_image = @"tabLeftBorderSelected.gif";
-	}
+  isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
+  if (isSelected)
+    {
+      if ([self hasBinding:@"tabLeftBorderSelectedImage"])
+        image=[self valueForBinding:@"tabLeftBorderSelectedImage"];
+      else if ([self hasBinding:@"tabLeftBorderImage"])
+        image=[self valueForBinding:@"tabLeftBorderImage"];
+      else
+        image = @"tabLeftBorderSelected.gif";
+    }
   else
-	{
-	  if ([self hasBinding:@"tabLeftBorderNotSelectedImage"])
-		_image=[self valueForBinding:@"tabLeftBorderNotSelectedImage"];
-	  else if ([self hasBinding:@"tabLeftBorderImage"])
-		_image=[self valueForBinding:@"tabLeftBorderImage"];
-	  else
-		_image = @"tabLeftBorderNotSelected.gif";
-	};
-  NSDebugMLog(@"_image=%@",_image);
-  return _image;
+    {
+      if ([self hasBinding:@"tabLeftBorderNotSelectedImage"])
+        image=[self valueForBinding:@"tabLeftBorderNotSelectedImage"];
+      else if ([self hasBinding:@"tabLeftBorderImage"])
+        image=[self valueForBinding:@"tabLeftBorderImage"];
+      else
+        image = @"tabLeftBorderNotSelected.gif";
+    };
+  NSDebugMLog(@"image=%@",image);
+  return image;
 };
 
 -(NSString*)tabRightBorderImage
 {
-  NSString* _image=nil;
-  BOOL _isSelected=NO;
+  NSString* image=nil;
+  BOOL isSelected=NO;
   LOGObjectFnStart();
-  _isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
-  if (_isSelected)
-	{
-	  if ([self hasBinding:@"tabRightBorderSelectedImage"])
-		_image=[self valueForBinding:@"tabRightBorderSelectedImage"];
-	  else if ([self hasBinding:@"tabRightBorderImage"])
-		_image=[self valueForBinding:@"tabRightBorderImage"];
-	  else
-		_image = @"tabRightBorderSelected.gif";
-	}
+  isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
+  if (isSelected)
+    {
+      if ([self hasBinding:@"tabRightBorderSelectedImage"])
+        image=[self valueForBinding:@"tabRightBorderSelectedImage"];
+      else if ([self hasBinding:@"tabRightBorderImage"])
+        image=[self valueForBinding:@"tabRightBorderImage"];
+      else
+        image = @"tabRightBorderSelected.gif";
+    }
   else
-	{
-	  if ([self hasBinding:@"tabRightBorderNotSelectedImage"])
-		_image=[self valueForBinding:@"tabRightBorderNotSelectedImage"];
-	  else if ([self hasBinding:@"tabRightBorderImage"])
-		_image=[self valueForBinding:@"tabRightBorderImage"];
-	  else
-		_image = @"tabRightBorderNotSelected.gif";
-	};
-  NSDebugMLog(@"_image=%@",_image);
-  return _image;
+    {
+      if ([self hasBinding:@"tabRightBorderNotSelectedImage"])
+        image=[self valueForBinding:@"tabRightBorderNotSelectedImage"];
+      else if ([self hasBinding:@"tabRightBorderImage"])
+        image=[self valueForBinding:@"tabRightBorderImage"];
+      else
+        image = @"tabRightBorderNotSelected.gif";
+    };
+  NSDebugMLog(@"image=%@",image);
+  return image;
 };
 -(NSString*)tabImage
 {
-  NSString* _image=nil;
-  BOOL _isSelected=NO;
+  NSString* image=nil;
+  BOOL isSelected=NO;
   LOGObjectFnStart();
-  _isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
-  if (_isSelected)
-	{
-	  if ([self hasBinding:@"tabSelectedImage"])
-		_image=[self valueForBinding:@"tabSelectedImage"];
-	  else if ([self hasBinding:@"tabImage"])
-		_image=[self valueForBinding:@"tabImage"];
-	}
+  isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
+  if (isSelected)
+    {
+      if ([self hasBinding:@"tabSelectedImage"])
+        image=[self valueForBinding:@"tabSelectedImage"];
+      else if ([self hasBinding:@"tabImage"])
+        image=[self valueForBinding:@"tabImage"];
+    }
   else
-	{
-	  if ([self hasBinding:@"tabNotSelectedImage"])
-		_image=[self valueForBinding:@"tabNotSelectedImage"];
-	  else if ([self hasBinding:@"tabImage"])
-		_image=[self valueForBinding:@"tabImage"];
-	};
-  NSDebugMLog(@"_image=%@",_image);
-  return _image;
+    {
+      if ([self hasBinding:@"tabNotSelectedImage"])
+        image=[self valueForBinding:@"tabNotSelectedImage"];
+      else if ([self hasBinding:@"tabImage"])
+        image=[self valueForBinding:@"tabImage"];
+    };
+  NSDebugMLog(@"image=%@",image);
+  return image;
 };
 
 -(NSString*)tabText
 {
-  NSString* _text=nil;
-  BOOL _isSelected=NO;
+  NSString* text=nil;
+  BOOL isSelected=NO;
   LOGObjectFnStart();
-  _isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
-  if (_isSelected)
-	{
-	  if ([self hasBinding:@"tabSelectedText"])
-		_text=[self valueForBinding:@"tabSelectedText"];
-	  else if ([self hasBinding:@"tabText"])
-		_text=[self valueForBinding:@"tabText"];
-	}
+  isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
+  if (isSelected)
+    {
+      if ([self hasBinding:@"tabSelectedText"])
+        text=[self valueForBinding:@"tabSelectedText"];
+      else if ([self hasBinding:@"tabText"])
+        text=[self valueForBinding:@"tabText"];
+    }
   else
-	{
-	  if ([self hasBinding:@"tabNotSelectedText"])
-		_text=[self valueForBinding:@"tabNotSelectedText"];
-	  else if ([self hasBinding:@"tabText"])
-		_text=[self valueForBinding:@"tabText"];
-	};
-  NSDebugMLog(@"_text=%@",_text);
+    {
+      if ([self hasBinding:@"tabNotSelectedText"])
+        text=[self valueForBinding:@"tabNotSelectedText"];
+      else if ([self hasBinding:@"tabText"])
+        text=[self valueForBinding:@"tabText"];
+    };
+  NSDebugMLog(@"text=%@",text);
   LOGObjectFnStop();
-  return _text;
+  return text;
 };
 
 -(GSWComponent*)selectCurrentTab
 {
-  GSWComponent* _page=nil;
+  GSWComponent* page=nil;
   LOGObjectFnStart();
-  _page=[self valueForBinding:@"selectCurrentTab"];
+  page=[self valueForBinding:@"selectCurrentTab"];
   LOGObjectFnStop();
-  return _page;
+  return page;
 };
 @end
 

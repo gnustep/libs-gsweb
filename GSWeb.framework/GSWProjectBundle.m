@@ -1,11 +1,17 @@
-/* GSWProjectBundle.m - GSWeb: Class GSWProjectBundle
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWProjectBundle.m - <title>GSWeb: Class GSWProjectBundle</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Mar 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -151,11 +158,9 @@ static char rcsId[] = "$Id$";
   NSEnumerator* _projectEnum = nil;
   NSEnumerator* _projectSearchPathEnum=nil;
   NSString* _path=nil;
-  NSString* _suffix=isFramework_ ? GSFrameworkPSuffix : GSWApplicationPSuffix[GSWebNamingConv];
   LOGClassFnStart();
   NSDebugMLLog(@"bundles",@"name_:%@",name_);
   NSDebugMLLog(@"bundles",@"isFramework_=%s",(isFramework_ ? "YES" : "NO"));
-  NSDebugMLLog(@"bundles",@"_suffix:%@",_suffix);
     
   _projectSearchPath=[GSWApplication projectSearchPath];	 // ("H:\\Wotests")
   NSDebugMLLog(@"bundles",@"_projectSearchPath:%@",_projectSearchPath);
@@ -199,8 +204,14 @@ static char rcsId[] = "$Id$";
   _projectEnum =[_projectsBundles objectEnumerator];
   while(!_projectBundle && (_aBundle = [_projectEnum nextObject]))
 	{
+          NSString* suffix1=isFramework_ ? GSFrameworkPSuffix : GSWApplicationPSuffix[GSWebNamingConv];
+          NSString* suffix2=isFramework_ ? GSFrameworkPSuffix : GSWApplicationPSuffix[GSWebNamingConvInversed];
+          NSDebugMLLog(@"bundles",@"suffix1:%@ suffix2",suffix1,suffix2);
 	  NSDebugMLLog(@"bundles",@"_aBundle:%@",_aBundle);
-	  if ([[_aBundle bundlePath]hasSuffix:_suffix] || [[_aBundle bundlePath]hasSuffix:@".debug"])
+
+	  if ([[_aBundle bundlePath]hasSuffix:suffix1] 
+              || [[_aBundle bundlePath]hasSuffix:suffix2] 
+              || [[_aBundle bundlePath]hasSuffix:@".debug"])
 		{
 		  NSString* _tmpName=[_aBundle projectName];
 		  NSDebugMLLog(@"bundles",@"_tmpName:%@",_tmpName);

@@ -80,8 +80,25 @@ GSWValidationFailureComponent.h \
 GSWFileUploadFormComponent.h
 
 SRCS = $(LIBRARY_NAME:=.m)
-
 HDRS = $(LIBRARY_NAME:=.h)
+GSWExtensionsGSW_AUTOGSDOC_HEADERS = $(GSWExtensionsGSW_HEADER_FILES)
+GSWExtensionsGSW_AUTOGSDOC_SOURCE = $(GSWExtensionsGSW_OBJC_FILES)
+DOCUMENT_NAME = GSWExtensionsGSW
+GSWExtensionsGSW_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWExtensionsGSW_AGSDOC_FILES = gswextensionsgsw.gsdoc $(GSWExtensionsGSW_AUTOGSDOC_HEADERS) 
+#$(GSWExtensionsGSW_AUTOGSDOC_SOURCE)
+GSWExtensionsGSW_AGSDOC_FLAGS = \
+	-Declared Foundation \
+	-Standards YES \
+	-SystemProjects System \
+	-Project gswextensionsgsw \
+	-WordMap '{\
+	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
+	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
+	GS_EXPORT=extern;GS_DECLARE="";\
+	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
+	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
+	}' -Up gswextensionsgsw
 
 #DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
 
@@ -90,5 +107,8 @@ HDRS = $(LIBRARY_NAME:=.h)
 -include GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/framework.make
+ifeq ($(doc),yes)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+endif
 
 -include Makefile.postamble

@@ -1,7 +1,7 @@
 /* GSWAssociation.h - GSWeb: Class GSWAssociation
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -22,6 +22,33 @@
 */
 
 // $Id$
+
+/**
+The WOAssociation class is a class for objects which represents values of GNUstepWeb attributes specified in declaration files (.gswd).
+
+WOAssociation object get or set value according to values key. For exemple:
+
+MyString1: GSWString 
+{
+value = "aLabel";
+};
+
+MyString2: GSWString
+{
+  value = label;
+};
+
+MyString3: GSWString 
+{
+  value = myMember.label;
+};
+
+
+At runtime, the GNUstepWeb parser scans an HTML template (.html) and it's declarations (.gswd) and creates 3 dynamic element objects of type GSWString. 
+In the case value= "label", the string value will be a constant string "aLabel". 
+In the case value = label, the value came from method "label" or member "label" of the component (by valueForKey: mechanism). 
+In the case value = myMember.label, value came from method "label" or member "label" of the object returned by calling valueForKey:@"myMember" on the component.
+**/
 
 #ifndef _GSWAssociation_h__
 	#define _GSWAssociation_h__

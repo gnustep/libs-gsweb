@@ -141,8 +141,26 @@ GSWStatsPage.h
 #GSWBatchNavigationBar.h
 
 SRCS = $(LIBRARY_NAME:=.m)
-
 HDRS = $(LIBRARY_NAME:=.h)
+GSWExtensions_AUTOGSDOC_HEADERS = $(GSWExtensions_HEADER_FILES)
+GSWExtensions_AUTOGSDOC_SOURCE = $(GSWExtensions_OBJC_FILES)
+DOCUMENT_NAME = GSWExtensions
+GSWExtensions_HEADER_FILES_DIR = $(HEADER_DIR)
+GSWExtensions_AGSDOC_FILES = gswextensions.gsdoc $(GSWExtensions_AUTOGSDOC_HEADERS) 
+#$(GSWExtensions_AUTOGSDOC_SOURCE)
+GSWExtensions_AGSDOC_FLAGS = \
+	-Declared Foundation \
+	-Standards YES \
+	-SystemProjects System \
+	-Project gswextensions \
+	-WordMap '{\
+	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
+	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
+	GS_EXPORT=extern;GS_DECLARE="";\
+	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
+	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
+	}' -Up gswextensions
+
 
 #DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
 
@@ -152,6 +170,9 @@ HDRS = $(LIBRARY_NAME:=.h)
 -include GNUmakefile.local
 
 include $(GNUSTEP_MAKEFILES)/framework.make
+ifeq ($(doc),yes)
+include $(GNUSTEP_MAKEFILES)/documentation.make
+endif
 
 -include Makefile.postamble
 

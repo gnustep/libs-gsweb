@@ -1,7 +1,7 @@
 /* GSWDictionaryRepetition.h - GSWeb: Class GSWDictionaryRepetition
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
    This file is part of the GNUstep Web Library.
@@ -28,8 +28,8 @@
 //====================================================================
 @interface GSWDictionaryRepetition: GSWComponent
 {
-  NSArray* keyList;
-  NSDictionary* dictionary;
+  NSArray* _keyList;
+  NSDictionary* _dictionary;
 };
 
 -(id)init;

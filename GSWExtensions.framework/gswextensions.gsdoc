@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 0.6.7//EN" "http://www.gnustep.org/gsdoc-0_6_7.xml">
+<gsdoc base="index">
+  <head>
+    <title>GNUstepWeb Extensions</title>
+    <author name="Manuel Guesdon">
+    <email address="mguesdon@orange-concept.com"/>
+      <url url="http://www.gnustep.org/developers/whoiswho.html"/></author>
+  </head>
+  <body>
+    <chapter>
+      <heading>GNUstepWeb Extensions</heading>
+    </chapter>
+    <back>
+      <index scope="project" type="title" />
+    </back>
+  </body>
+</gsdoc>

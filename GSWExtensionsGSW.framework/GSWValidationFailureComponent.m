@@ -1,11 +1,17 @@
-/* GSWValidationFailureComponent.m - GSWeb: Class GSWValidationFailureComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWValidationFailureComponent.m - <title>GSWeb: Class GSWValidationFailureComponent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sept 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWValidationFailureComponent.h"
 //====================================================================
@@ -35,64 +45,70 @@
   return self;
 };
 
+//--------------------------------------------------------------------
 -(void)awake
 {
   LOGObjectFnStart();
   [super awake];
-  tmpValidationFailureMessage=nil;
-  tmpAllValidationFailureMessagesArray=nil;
+  _tmpValidationFailureMessage=nil;
+  _tmpAllValidationFailureMessagesArray=nil;
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(void)sleep
 {
   LOGObjectFnStart();
-  tmpValidationFailureMessage=nil;
-  tmpAllValidationFailureMessagesArray=nil;
+  _tmpValidationFailureMessage=nil;
+  _tmpAllValidationFailureMessagesArray=nil;
   [super sleep];
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(void)dealloc
 {
   [super dealloc];
 };
 
+//--------------------------------------------------------------------
 -(BOOL)synchronizesVariablesWithBindings
 {
   return NO;
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)aContext
 {
   LOGObjectFnStart();
-  tmpValidationFailureMessage=nil;
-  tmpAllValidationFailureMessagesArray=nil;  
-  [super appendToResponse:response_
-                          inContext:context_];
+  _tmpValidationFailureMessage=nil;
+  _tmpAllValidationFailureMessagesArray=nil;  
+  [super appendToResponse:response
+         inContext:aContext];
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(BOOL)isValidationFailure
 {
   return [[self allValidationFailureMessagesArray] count]>0;
 };
 
+//--------------------------------------------------------------------
 -(NSArray*)allValidationFailureMessagesArray
 {
   LOGObjectFnStart();
-  if (!tmpAllValidationFailureMessagesArray)
-	{
-	  NSArray* _allValidationFailureMessagesArray=[[self parent]allValidationFailureMessages];
-	  NSDebugMLog(@"_allValidationFailureMessagesArray=%@",_allValidationFailureMessagesArray);
-	  tmpAllValidationFailureMessagesArray=_allValidationFailureMessagesArray;
-	  NSDebugMLog(@"tmpAllValidationFailureMessagesArray=%@",tmpAllValidationFailureMessagesArray);
-	};
-  NSDebugMLog(@"tmpAllValidationFailureMessagesArray=%@",tmpAllValidationFailureMessagesArray);
+  if (!_tmpAllValidationFailureMessagesArray)
+    {
+      NSArray* allValidationFailureMessagesArray=[[self parent]allValidationFailureMessages];
+      NSDebugMLog(@"allValidationFailureMessagesArray=%@",allValidationFailureMessagesArray);
+      _tmpAllValidationFailureMessagesArray=allValidationFailureMessagesArray;
+      NSDebugMLog(@"_tmpAllValidationFailureMessagesArray=%@",_tmpAllValidationFailureMessagesArray);
+    };
+  NSDebugMLog(@"_tmpAllValidationFailureMessagesArray=%@",_tmpAllValidationFailureMessagesArray);
   LOGObjectFnStop();
-  return tmpAllValidationFailureMessagesArray;
+  return _tmpAllValidationFailureMessagesArray;
 };
 
 @end

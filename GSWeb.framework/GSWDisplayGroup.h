@@ -147,7 +147,7 @@
 - (NSMutableDictionary *)inputObjectForQualifier;
 - (BOOL)inQueryMode;
 - (void)editingContext:(id)editingContext_
-  presentErrorMessage:(id)msg;
+   presentErrorMessage:(id)msg;
 - (id)insert;
 - (NSDictionary *)insertedObjectDefaultValues;
 - (void)insertObject:object_

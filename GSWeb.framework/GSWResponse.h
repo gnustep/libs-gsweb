@@ -1,7 +1,7 @@
-/* GSWResponse.h - GSWeb: Class GSWResponse
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWResponse.h - GSWeb: Class GSWResponse
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -19,7 +19,7 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+**/
 
 // $Id$
 
@@ -50,23 +50,23 @@
 
 -(id)init;
 -(void)dealloc;
--(id)copyWithZone:(NSZone*)zone_;
+-(id)copyWithZone:(NSZone*)zone;
 -(NSData*)content;
 -(void)willSend;//NDFN
--(NSString*)headerForKey:(NSString*)key_;
+-(NSString*)headerForKey:(NSString*)key;
 -(NSArray*)headerKeys;
--(NSArray*)headersForKey:(NSString*)key_;
+-(NSArray*)headersForKey:(NSString*)key;
 -(NSString*)httpVersion;
 -(void)setContent:(NSData*)someData;
--(void)setHeader:(NSString*)header_
-		  forKey:(NSString*)key_;
--(void)setHeaders:(NSArray*)headerList_
-		   forKey:(NSString*)key_;
--(void)setHeaders:(NSDictionary*)headerList_;
+-(void)setHeader:(NSString*)header
+		  forKey:(NSString*)key;
+-(void)setHeaders:(NSArray*)headerList
+		   forKey:(NSString*)key;
+-(void)setHeaders:(NSDictionary*)headerList;
 -(NSMutableDictionary*)headers;
--(void)setHTTPVersion:(NSString*)version_;
--(void)setStatus:(unsigned int)status_;
--(void)setUserInfo:(NSDictionary*)userInfo_;
+-(void)setHTTPVersion:(NSString*)version;
+-(void)setStatus:(unsigned int)status;
+-(void)setUserInfo:(NSDictionary*)userInfo;
 -(unsigned int)status;
 -(NSDictionary*)userInfo;
 -(NSString*)description;
@@ -77,12 +77,12 @@
 
 //====================================================================
 @interface GSWResponse (GSWContentConveniences)
--(void)appendContentBytes:(const void*)contentsBytes_
-				   length:(unsigned)length_;
--(void)appendContentCharacter:(char)char_;
--(void)appendContentString:(NSString*)string_;
--(void)appendContentData:(NSData*)contentData_;
--(void)setContentEncoding:(NSStringEncoding)encoding_;
+-(void)appendContentBytes:(const void*)contentsBytes
+                   length:(unsigned)length;
+-(void)appendContentCharacter:(char)aChar;
+-(void)appendContentString:(NSString*)string;
+-(void)appendContentData:(NSData*)contentData;
+-(void)setContentEncoding:(NSStringEncoding)encoding;
 -(NSStringEncoding)contentEncoding;
 
 
@@ -91,22 +91,22 @@
 //====================================================================
 @interface GSWResponse (GSWHTMLConveniences)
 
--(void)appendContentHTMLString:(NSString*)string_;
--(void)appendContentHTMLAttributeValue:(NSString*)string_;
--(void)appendContentHTMLConvertString:(NSString*)string_;
--(void)appendContentHTMLEntitiesConvertString:(NSString*)string_;
-+(NSString*)stringByEscapingHTMLString:(NSString*)string_;
-+(NSString*)stringByEscapingHTMLAttributeValue:(NSString*)string_;
-+(NSString*)stringByConvertingToHTMLEntities:(NSString*)string_;
-+(NSString*)stringByConvertingToHTML:(NSString*)string_;
+-(void)appendContentHTMLString:(NSString*)string;
+-(void)appendContentHTMLAttributeValue:(NSString*)string;
+-(void)appendContentHTMLConvertString:(NSString*)string;
+-(void)appendContentHTMLEntitiesConvertString:(NSString*)string;
++(NSString*)stringByEscapingHTMLString:(NSString*)string;
++(NSString*)stringByEscapingHTMLAttributeValue:(NSString*)string;
++(NSString*)stringByConvertingToHTMLEntities:(NSString*)string;
++(NSString*)stringByConvertingToHTML:(NSString*)string;
 @end
 
 //====================================================================
 @interface GSWResponse (Cookies)
 -(NSString*)_formattedCookiesString;
 -(NSMutableArray*)allocCookiesIFND;
--(void)addCookie:(GSWCookie*)cookie_;
--(void)removeCookie:(GSWCookie*)cookie_;
+-(void)addCookie:(GSWCookie*)cookie;
+-(void)removeCookie:(GSWCookie*)cookie;
 -(NSArray*)cookies;
 -(NSArray*)cookiesHeadersValues;//NDFN
 
@@ -115,16 +115,16 @@
 //====================================================================
 @interface GSWResponse (GSWResponseA)
 -(BOOL)isFinalizeInContextHasBeenCalled;//NDFN
--(void)_finalizeInContext:(GSWContext*)context_;
+-(void)_finalizeInContext:(GSWContext*)context;
 -(void)_initContentData;
--(void)_appendContentAsciiString:(NSString*)_string;
+-(void)_appendContentAsciiString:(NSString*)string;
 
 @end
 
 //====================================================================
 @interface GSWResponse (GSWResponseB)
--(void)_resolveContentFaultsInContext:(GSWContext*)context_;
--(void)_appendContentFault:(id)_unknown;
+-(void)_resolveContentFaultsInContext:(GSWContext*)context;
+-(void)_appendContentFault:(id)unknown;
 
 @end
 
@@ -136,7 +136,7 @@
 
 //====================================================================
 @interface GSWResponse (GSWResponseD)
--(BOOL)_responseIsEqual:(GSWResponse*)response_;
+-(BOOL)_responseIsEqual:(GSWResponse*)response;
 @end
 
 //====================================================================
@@ -148,7 +148,7 @@
 
 //====================================================================
 @interface GSWResponse (GSWResponseDefaultEncoding)
-+(void)setDefaultEncoding:(NSStringEncoding)_encoding;
++(void)setDefaultEncoding:(NSStringEncoding)encoding;
 +(NSStringEncoding)defaultEncoding;
 @end
 
@@ -157,9 +157,14 @@
 
 //NDFN
 //Last cHance Response
-+(GSWResponse*)responseWithMessage:(NSString*)message_
-			 inContext:(GSWContext*)context_
-			forRequest:(GSWRequest*)request_;
++(GSWResponse*)responseWithMessage:(NSString*)message
+			 inContext:(GSWContext*)context
+			forRequest:(GSWRequest*)request;
+
++(GSWResponse*)responseWithMessage:(NSString*)message
+			 inContext:(GSWContext*)context
+			forRequest:(GSWRequest*)request
+                     forceFinalize:(BOOL)forceFinalize;
 @end
 
 //====================================================================
@@ -168,8 +173,8 @@
 //--------------------------------------------------------------------
 //
 //Refuse Response
-+(GSWResponse*)generateRefusingResponseInContext:(GSWContext*)context_
-                                      forRequest:(GSWRequest*)request_;
++(GSWResponse*)generateRefusingResponseInContext:(GSWContext*)context
+                                      forRequest:(GSWRequest*)request;
 @end
 
 

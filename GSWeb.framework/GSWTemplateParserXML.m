@@ -1,11 +1,17 @@
-/* GSWTemplateParserXML.m - GSWeb: Class GSWTemplateParserXML
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWTemplateParserXML.m - <title>GSWeb: Class GSWTemplateParserXML</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Mar 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -381,7 +388,10 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
 {
   NSString* testMessage=[[message lowercaseString] stringByTrimmingSpaces];
   if (![testMessage isEqualToString:@"tag webobject invalid"]
-      && ![testMessage isEqualToString:@"tag gsweb invalid"])
+      && ![testMessage isEqualToString:@"tag gsweb invalid"]
+      && ![testMessage isEqualToString:@"htmlparsestarttag: misplaced <html> tag"]
+      && ![testMessage isEqualToString:@"htmlparsestarttag: misplaced <head> tag"]
+      && ![testMessage isEqualToString:@"unexpected end tag : head"])
     {
       [[GSWApplication application] logErrorWithFormat:@"%@ Error (col %d,line %d): %@",
                                     [_templateParser logPrefix],

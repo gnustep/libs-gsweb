@@ -1,11 +1,17 @@
-/* GSWStatsPage.m - GSWeb: Class GSWStatsPage
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWStatsPage.m - <title>GSWeb: Class GSWStatsPage</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWStatsPage.h"
 
@@ -27,11 +37,11 @@
 @implementation GSWStatsPage
 -(id)submit
 {
-  GSWStatisticsStore* _statisticsStore = [[self application] statisticsStore];
-  if (_statisticsStore)
-	{
-        //[_statisticsStore validateLogin:password];
-		[[self session] _allowToViewStatistics];
+  GSWStatisticsStore* statisticsStore = [[self application] statisticsStore];
+  if (statisticsStore)
+    {
+      //[_statisticsStore validateLogin:password];
+      [[self session] _allowToViewStatistics];
     };
   return self;
 };
@@ -64,88 +74,88 @@
 
 */
 NSLog(@"detailsDict");
-NSLog([detailsDict description]);
+NSLog([_detailsDict description]);
 NSLog(@"pagesDict");
-NSLog([pagesDict description]);
+NSLog([_pagesDict description]);
 NSLog(@"directActionsDict");
-NSLog([directActionsDict description]);
+NSLog([_directActionsDict description]);
 NSLog(@"sessionMemoryDict");
-NSLog([sessionMemoryDict description]);
+NSLog([_sessionMemoryDict description]);
 
 NSLog(@"transactions");
-/*NSLog(transactions);
+/*NSLog(_transactions);
 NSLog(@"statsDict");
-NSLog(statsDict);
+NSLog(_statsDict);
 NSLog(@"memoryDict");
-NSLog(memoryDict);
+NSLog(_memoryDict);
 NSLog(@"sessionStats");
-NSLog(sessionStats);
+NSLog(_sessionStats);
 NSLog(@"sessionsDict");
-NSLog(sessionsDict);
+NSLog(_sessionsDict);
 */
 }
 
 -(id)instance
 {
-  id _instance=nil;
-  NSArray* _commandLineArguments = [[NSProcessInfo processInfo] arguments];
+  id instance=nil;
+  NSArray* commandLineArguments = [[NSProcessInfo processInfo] arguments];
   unsigned int i=0;
-  i = [_commandLineArguments indexOfObject:@"-n"];
-  if (i!=NSNotFound && ([_commandLineArguments count] > i + 1))
-	_instance=[_commandLineArguments objectAtIndex:i+1];
-  return _instance;
+  i = [commandLineArguments indexOfObject:@"-n"];
+  if (i!=NSNotFound && ([commandLineArguments count] > i + 1))
+	instance=[commandLineArguments objectAtIndex:i+1];
+  return instance;
 };
 
 -(NSNumber*)_maxServedForDictionary:(NSDictionary*)aDictionary
 {
-  int _maxServedCount = 0;
-  int _tmpCount=0;
-  NSDictionary* _page = nil;
-  NSEnumerator* _enum = [aDictionary objectEnumerator];
-  while ((_page = [_enum nextObject]))
-	{
-	  _tmpCount = [[_page objectForKey:@"Served"] intValue];
-	  _maxServedCount = max(_maxServedCount,_tmpCount);
+  int maxServedCount = 0;
+  int tmpCount=0;
+  NSDictionary* page = nil;
+  NSEnumerator* anEnum = [aDictionary objectEnumerator];
+  while ((page = [anEnum nextObject]))
+    {
+      tmpCount = [[page objectForKey:@"Served"] intValue];
+      maxServedCount = max(maxServedCount,tmpCount);
     };
-  return [NSNumber numberWithInt:_maxServedCount];
+  return [NSNumber numberWithInt:maxServedCount];
 };
 
 -(id)_initIvars
 {
   id currentCount=nil;
-  statsDict = [[self application] statistics];
-  pagesDict = [statsDict objectForKey:@"Pages"];
-  directActionsDict = [statsDict objectForKey:@"DirectActions"];
-  detailsDict = [statsDict objectForKey:@"Details"];
-  transactions = [statsDict objectForKey:@"Transactions"];
-  memoryDict = [statsDict objectForKey:@"Memory"];
-  sessionsDict = [[[NSMutableDictionary alloc] initWithDictionary:
-												 [statsDict objectForKey:@"Sessions"]]
+  _statsDict = [[self application] statistics];
+  _pagesDict = [_statsDict objectForKey:@"Pages"];
+  _directActionsDict = [_statsDict objectForKey:@"DirectActions"];
+  _detailsDict = [_statsDict objectForKey:@"Details"];
+  _transactions = [_statsDict objectForKey:@"Transactions"];
+  _memoryDict = [_statsDict objectForKey:@"Memory"];
+  _sessionsDict = [[[NSMutableDictionary alloc] initWithDictionary:
+                                                  [_statsDict objectForKey:@"Sessions"]]
 				   autorelease];
-  sessionMemoryDict = [sessionsDict objectForKey:@"Avg. Memory Per Session"];
-  [sessionsDict removeObjectForKey:@"Avg. Memory Per Session"];
+  _sessionMemoryDict = [_sessionsDict objectForKey:@"Avg. Memory Per Session"];
+  [_sessionsDict removeObjectForKey:@"Avg. Memory Per Session"];
   
-  sessionStats = [sessionsDict objectForKey:@"Last Session's Statistics"];
-  [sessionsDict removeObjectForKey:@"Last Session's Statistics"];
+  _sessionStats = [_sessionsDict objectForKey:@"Last Session's Statistics"];
+  [_sessionsDict removeObjectForKey:@"Last Session's Statistics"];
   
-  maxSessionsDate = [sessionsDict objectForKey:@"Peak Active Sessions Date"];
-  [sessionsDict removeObjectForKey:@"Peak Active Sessions Date"];
+  _maxSessionsDate = [_sessionsDict objectForKey:@"Peak Active Sessions Date"];
+  [_sessionsDict removeObjectForKey:@"Peak Active Sessions Date"];
   
-  maxPageCount = 0;
-  maxActionCount = 0;
+  _maxPageCount = 0;
+  _maxActionCount = 0;
   
-  maxPageCount = [self _maxServedForDictionary:pagesDict];
-  maxActionCount = [self _maxServedForDictionary:directActionsDict];
+  _maxPageCount = [self _maxServedForDictionary:_pagesDict];
+  _maxActionCount = [self _maxServedForDictionary:_directActionsDict];
   return nil; //??? //TODO
 };
 
 -(void)appendToResponse:(GSWResponse*)aResponse
-			  inContext:(GSWContext*)aContext
+              inContext:(GSWContext*)aContext
 {
   // ** This should probably be somewhere else.
   [self _initIvars];
   [super appendToResponse:aResponse
-		 inContext:aContext];
+         inContext:aContext];
 };
 
 
@@ -155,24 +165,24 @@ NSLog(sessionsDict);
 
 -(NSNumber*)detailPercent
 {
-  int _detailPercent=0;
-  id aTransactionsCount = [transactions objectForKey:@"Transactions"];
+  int detailPercent=0;
+  id aTransactionsCount = [_transactions objectForKey:@"Transactions"];
   int aDetailCount = [[self detailCount] intValue];
   if (aTransactionsCount > 0)
-	  _detailPercent=(aDetailCount / [aTransactionsCount intValue]) * 100;
-  return [NSNumber numberWithInt:_detailPercent];
+	  detailPercent=(aDetailCount / [aTransactionsCount intValue]) * 100;
+  return [NSNumber numberWithInt:detailPercent];
 };
 
 -(id)runningTime
 {
-  NSTimeInterval aRunningTime = (-1.0 * [[statsDict objectForKey:@"StartedAt"] timeIntervalSinceNow]);
+  NSTimeInterval aRunningTime = (-1.0 * [[_statsDict objectForKey:@"StartedAt"] timeIntervalSinceNow]);
   NSString* aRunningTimeString = [GSWStatisticsStore timeIntervalDescription:aRunningTime];
   return aRunningTimeString;
 }
 
 -(id)detailCount
 {
-  return [detailsDict objectForKey:tmpKey];
+  return [_detailsDict objectForKey:_tmpKey];
 }
 
 

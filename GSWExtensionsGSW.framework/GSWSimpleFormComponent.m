@@ -1,11 +1,17 @@
-/* GSWSimpleFormComponent.m - GSWeb: Class GSWSimpleFormComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWSimpleFormComponent.m - <title>GSWeb: Class GSWSimpleFormComponent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sept 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   </license>
 */
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWSimpleFormComponent.h"
 //====================================================================
@@ -41,7 +51,7 @@
 {
   LOGObjectFnStart();
   [super awake];
-  tmpErrorMessage=nil;
+  _tmpErrorMessage=nil;
   LOGObjectFnStop();
 };
 
@@ -49,7 +59,7 @@
 -(void)sleep
 {
   LOGObjectFnStart();
-  tmpErrorMessage=nil;
+  _tmpErrorMessage=nil;
   [super sleep];
   LOGObjectFnStop();
 };
@@ -68,45 +78,45 @@
 
 //--------------------------------------------------------------------
 -(BOOL)validateFormFields:(id)fields
-	 withFieldsDscription:(NSDictionary*)fieldsDscription_
-	   errorMessagePrefix:(NSString*)errorMessagePrefix_
-	   errorMessageSuffix:(NSString*)errorMessageSuffix_
+     withFieldsDscription:(NSDictionary*)fieldsDscription
+       errorMessagePrefix:(NSString*)errorMessagePrefix
+       errorMessageSuffix:(NSString*)errorMessageSuffix
 {
-  NSEnumerator* _enum=nil;
-  NSMutableString* _missingFields=nil;
-  id _key=nil;
-  NSString* _dscrValue=nil;
-  NSString* _value=nil;
+  NSEnumerator* anEnum=nil;
+  NSMutableString* missingFields=nil;
+  id key=nil;
+  NSString* dscrValue=nil;
+  NSString* value=nil;
   LOGObjectFnStart();
-  _enum=[fieldsDscription_ keyEnumerator];
-  while((_key=[_enum nextObject]))
-	{
-	  _dscrValue=[fieldsDscription_ objectForKey:_key];
-	  _value=[fields  objectForKey:_key];
-	  if (!_value || [_value length]==0)
-		{
-		  if (_missingFields)
-			[_missingFields appendFormat:@", %@",_dscrValue];
-		  else
-			_missingFields=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",_dscrValue];
-		};
-	};
-  if (_missingFields)
-	{
-	  tmpErrorMessage=[NSString stringWithFormat:@"%@ %@ %@",
-								(errorMessagePrefix_ ? errorMessagePrefix_ : @""),
-								_missingFields,
-								(errorMessageSuffix_ ? errorMessageSuffix_ : @"")];
-	  NSDebugMLog(@"tmpErrorMessage=%@",tmpErrorMessage);
-	};
+  anEnum=[fieldsDscription keyEnumerator];
+  while((key=[anEnum nextObject]))
+    {
+      dscrValue=[fieldsDscription objectForKey:key];
+      value=[fields  objectForKey:key];
+      if (!value || [value length]==0)
+        {
+          if (missingFields)
+            [missingFields appendFormat:@", %@",dscrValue];
+          else
+            missingFields=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",dscrValue];
+        };
+    };
+  if (missingFields)
+    {
+      _tmpErrorMessage=[NSString stringWithFormat:@"%@ %@ %@",
+                                 (errorMessagePrefix ? errorMessagePrefix : @""),
+                                 missingFields,
+                                 (errorMessageSuffix ? errorMessageSuffix : @"")];
+      NSDebugMLog(@"_tmpErrorMessage=%@",_tmpErrorMessage);
+    };
   LOGObjectFnStop();
-  return !_missingFields;
+  return !missingFields;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)isErrorMessage
 {
-  return [tmpErrorMessage length]>0;
+  return [_tmpErrorMessage length]>0;
 };
 
 //--------------------------------------------------------------------
@@ -117,54 +127,54 @@
 
 //--------------------------------------------------------------------
 -(GSWComponent*)sendFields:(id)fields
-	  withFieldsDscription:(NSDictionary*)fieldsDscription_
-				  byMailTo:(NSString*)to_
-					  from:(NSString*)from_
-			   withSubject:(NSString*)subject_
-			 messagePrefix:(NSString*)messagePrefix_
-			 messageSuffix:(NSString*)messageSuffix_
-			  sentPageName:(NSString*)sentPageName_
+      withFieldsDscription:(NSDictionary*)fieldsDscription
+                  byMailTo:(NSString*)to
+                      from:(NSString*)from
+               withSubject:(NSString*)subject
+             messagePrefix:(NSString*)messagePrefix
+             messageSuffix:(NSString*)messageSuffix
+              sentPageName:(NSString*)sentPageName
 {
-  NSEnumerator* _enum=nil;
-  GSWComponent* _page=nil;
-  NSMutableString* _mailText=[NSMutableString string];
-  id _key=nil;
-  NSString* _dscrValue=nil;
-  NSString* _value=nil;
-  NSString* _msg=nil;
+  NSEnumerator* anEnum=nil;
+  GSWComponent* page=nil;
+  NSMutableString* mailText=[NSMutableString string];
+  id key=nil;
+  NSString* dscrValue=nil;
+  NSString* value=nil;
+  NSString* msg=nil;
   LOGObjectFnStart();
-  _enum=[fieldsDscription_ keyEnumerator];
-  while((_key=[_enum nextObject]))
-	{
-	  _dscrValue=[fieldsDscription_ objectForKey:_key];
-	  _value=[fields  objectForKey:_key];
-	  [_mailText appendFormat:@"%@:\t%@\n",_dscrValue,_value];
-	};
-  NSDebugMLog(@"to_=%@",to_);
-  NSDebugMLog(@"from_=%@",from_);
-  if (from_ && to_)
-	{
-	  NSString* _text=[NSString stringWithFormat:@"%@%@%@",
-								(messagePrefix_ ? messagePrefix_ : @""),
-								_mailText,
-								(messageSuffix_ ?  messageSuffix_ : @"")];
-	  NSDebugMLog(@"_text=%@",_text);
-	  _msg=[[GSWMailDelivery sharedInstance] composeEmailFrom:from_
-											 to:[NSArray arrayWithObject:to_]
-											 cc:nil
-											 subject:subject_
-											 plainText:_text
-											 send:YES];
-	  NSDebugMLog(@"_msg=%@",_msg);
-	}
+  anEnum=[fieldsDscription keyEnumerator];
+  while((key=[anEnum nextObject]))
+    {
+      dscrValue=[fieldsDscription objectForKey:key];
+      value=[fields  objectForKey:key];
+      [mailText appendFormat:@"%@:\t%@\n",dscrValue,value];
+    };
+  NSDebugMLog(@"to=%@",to);
+  NSDebugMLog(@"from=%@",from);
+  if (from && to)
+    {
+      NSString* text=[NSString stringWithFormat:@"%@%@%@",
+                               (messagePrefix ? messagePrefix : @""),
+                               mailText,
+                               (messageSuffix ?  messageSuffix : @"")];
+      NSDebugMLog(@"text=%@",text);
+      msg=[[GSWMailDelivery sharedInstance] composeEmailFrom:from
+                                            to:[NSArray arrayWithObject:to]
+                                            cc:nil
+                                            subject:subject
+                                            plainText:text
+                                            send:YES];
+      NSDebugMLog(@"msg=%@",msg);
+    }
   else
-	{
-	  //TODO
-	  LOGError(@"No From or To address (from_=%@ , to_=%@)",from_,to_);
-	};
-  _page=[self pageWithName:sentPageName_];
+    {
+      //TODO
+      LOGError(@"No From or To address (from=%@ , to=%@)",from,to);
+    };
+  page=[self pageWithName:sentPageName];
   LOGObjectFnStop();
-  return _page;
+  return page;
 };
 @end
 

@@ -203,6 +203,7 @@ information, not that there is nothing to do !
 	OK. Finished
 
 * GSWResourceManager.m
+        Manage better stringsTable cache (test if files changed...)
 
 * GSWResourceRequestHandler.m
 

@@ -1,7 +1,7 @@
-/* constants.h - constants
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/* GSWConstants.h - constants
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -178,6 +178,7 @@ extern NSString* GSWOPT_WorkerThreadCount[2];
 extern NSString* GSWOPT_ProjectSearchPath;
 extern NSString* GSWOPT_MultiThreadEnabled;
 extern NSString* GSWOPT_DebugSetConfigFilePath;
+extern NSString* GSWOPT_AdaptorHost[2];
 
 
 //====================================================================

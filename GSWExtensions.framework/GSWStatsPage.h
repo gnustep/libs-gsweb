@@ -1,7 +1,7 @@
 /* GSWStatsPage.h - GSWeb: Class GSWStatsPage
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
    This file is part of the GNUstep Web Library.
@@ -28,23 +28,23 @@
 //==============================================================================
 @interface GSWStatsPage: GSWComponent
 {
-  NSString* tmpKey;
-  NSString* tmpItem;
+  NSString* _tmpKey;
+  NSString* _tmpItem;
 
-  NSDictionary* detailsDict;
-  NSDictionary* pagesDict;
-  NSDictionary* directActionsDict;
-  NSDictionary* sessionMemoryDict;
-  NSDictionary* transactions;
-  NSDictionary* statsDict;
-  NSDictionary* memoryDict;
-  NSArray* sessionStats;
-  NSMutableDictionary* sessionsDict;
-  NSNumber* maxPageCount;
-  NSNumber* maxActionCount;
-  NSDate* maxSessionsDate;
-  NSString* userName;
-  NSString* password;
+  NSDictionary* _detailsDict;
+  NSDictionary* _pagesDict;
+  NSDictionary* _directActionsDict;
+  NSDictionary* _sessionMemoryDict;
+  NSDictionary* _transactions;
+  NSDictionary* _statsDict;
+  NSDictionary* _memoryDict;
+  NSArray* _sessionStats;
+  NSMutableDictionary* _sessionsDict;
+  NSNumber* _maxPageCount;
+  NSNumber* _maxActionCount;
+  NSDate* _maxSessionsDate;
+  NSString* _userName;
+  NSString* _password;
 };
 
 -(id)submit;
@@ -53,7 +53,7 @@
 -(NSNumber*)_maxServedForDictionary:(NSDictionary*)aDictionary;
 -(id)_initIvars;
 -(void)appendToResponse:(GSWResponse*)aResponse
-			  inContext:(GSWContext*)aContext;
+              inContext:(GSWContext*)aContext;
 -(void)setDetailPercent:(NSNumber*)aValue;
 -(NSNumber*)detailPercent;
 -(id)runningTime;

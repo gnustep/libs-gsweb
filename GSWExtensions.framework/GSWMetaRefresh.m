@@ -1,11 +1,17 @@
-/* GSWMetaRefresh.m - GSWeb: Class GSWMetaRefresh
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWMetaRefresh.m - <title>GSWeb: Class GSWMetaRefresh</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,11 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
+
+static char rcsId[] = "$Id$";
+
 #include <GSWeb/GSWeb.h>
 #include "GSWMetaRefresh.h"
 
@@ -32,24 +42,24 @@
 
 -(NSString*)contentString
 {
-  NSNumber* _seconds = [self valueForBinding:@"seconds"];
-  NSString* _contentString = [NSString stringWithFormat:@"%@;url=%@",
-									   [_seconds description],
-									   [[self context]componentActionURL]];
-  return _contentString;
+  NSNumber* seconds = [self valueForBinding:@"seconds"];
+  NSString* contentString = [NSString stringWithFormat:@"%@;url=%@",
+                                      [seconds description],
+                                      [[self context]componentActionURL]];
+  return contentString;
 };
 
 -(GSWComponent*)invokeAction
 {
-  GSWComponent* _component = nil;
+  GSWComponent* component = nil;
   if ([self hasBinding:@"pageName"])
-	{
-	  NSString* _pageName = [self valueForBinding:@"pageName"];
-      _component = [self pageWithName:_pageName];
+    {
+      NSString* pageName = [self valueForBinding:@"pageName"];
+      component = [self pageWithName:pageName];
     }
   else
-	_component = [self valueForBinding:@"action"];
-  return _component;
+    component = [self valueForBinding:@"action"];
+  return component;
 };
 
 

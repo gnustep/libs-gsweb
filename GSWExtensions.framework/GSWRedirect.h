@@ -1,7 +1,7 @@
 /* GSWRedirect.h - GSWeb: Class GSWRedirect
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Apr 1999
    
    This file is part of the GNUstep Web Library.
@@ -28,18 +28,18 @@
 //==============================================================================
 @interface GSWRedirect : GSWComponent
 {
-  NSString* url;
-  BOOL permanent;
+  NSString* _url;
+  BOOL _permanent;
 };
 
 -(void)awake;
 -(void)sleep;
 -(void)dealloc;
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
--(void)setURL:(NSString*)url_;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)aContext;
+-(void)setURL:(NSString*)url;
 -(NSString*)url;
--(void)setPermanent:(BOOL)permanent_;
+-(void)setPermanent:(BOOL)permanent;
 -(BOOL)permanent;
 
 @end

@@ -1,3 +1,73 @@
+2002-03-07  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWAdaptor.h/.m: 
+		o added -isMultiThreadEnabled
+		o method parameters names changes to conform to coding standards
+	* GSWeb.framework/GSWResponse.h:
+		o method parameters names changes to conform to coding standards
+		o added missing method declarations
+	* GSWeb.framework/GSWTemplateParserXML.m:
+		o remove some 'error' messages from xml parser
+	* GSWExtensions.framework/Makefile.preamble: 
+		o various changes (debug flags,...)
+	* GSWExtensionsGSW.framework/Makefile.preamble: 
+		o various changes (debug flags,...)
+	* GSWeb.framework/Makefile.preamble: 
+		o various changes (debug flags,libwrap,...)
+	* GSWeb.framework/GSWDebug.h: 
+		o debug flags changes
+	* GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.gswd: 
+		o change .gif to .mng
+	* GSWExtensions.framework/GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.gswd:
+		o change .gif to .mng
+	* GSWExtensions.framework/GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.gswd:
+		o change .gif to .mng
+	* GSWeb.framework/GSWConfig.h: added GSWOPTVALUE_AdaptorHost
+	* GSWeb.framework/GSWConstants.h/.m: added GSWOPT_AdaptorHost
+	* GSWeb.framework/GSWApplication.m: added GSWOPT_AdaptorHost default value
+	* GSWeb.framework/GSWDefaultAdaptor.h/.m: 
+		o adding connection refuse feature
+		o added ivar adaptorHost
+		o added host and port in "Waiting for connections" message
+		o ivar names changes to conform to coding standards	
+	* GSWeb.framework/GSWDefaultAdaptorThread.m: 
+		o adding connection refuse feature
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWComponent.m:
+		o logs
+	* GSWeb.framework/GSWDeployedBundle.m: 
+		o Search WebServer resources in Resources/WebServer/ instead of WebServerResources
+	* GSWeb.framework/GSWProjectBundle.m
+		o bug fix for wonames
+	* GSWExtensions.framework/GSWDictionaryRepetition.h/m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.h/.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWExceptionPage.h/.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWIFrame.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWMetaRefresh.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWPageRestorationErrorPage.h/.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWRedirect.h/.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.h/.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWSessionCreationErrorPage.h/.m: 
+		o ivar names changes to conform to coding standards
+	* GSWExtensions.framework/GSWStatsPage.h/.m:
+		o ivar names changes to conform to coding standards
+	* GSWExtensionsGSW.framework/GSWFileUploadFormComponent.h/.m:
+		o ivar names changes to conform to coding standards
+	* GSWExtensionsGSW.framework/GSWSimpleFormComponent.h/.m:
+		o ivar names changes to conform to coding standards
+	* GSWExtensionsGSW.framework/GSWTabComponent.m:
+		o ivar names changes to conform to coding standards
+	* GSWExtensionsGSW.framework/GSWValidationFailureComponent.h/.m:
+		o ivar names changes to conform to coding standards
+
 2002-02-22  Adam Fedor  <fedor@gnu.org>
 
 	* GSWExtensions.framework/WebServerResources/error.gif: Change to

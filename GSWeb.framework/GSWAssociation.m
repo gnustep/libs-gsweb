@@ -607,7 +607,28 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath_=%@ object_=%p",keyPath_,(void*)object_);
   if (keyPath_ && object_ && object_!=EONullNull)
-	{
+    {
+#if GDL2
+      NS_DURING
+        {
+          retValue=[object_ valueForKeyPath:keyPath_];
+        }
+      NS_HANDLER
+        {
+          NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
+                [object_ class],
+                keyPath_,
+                localException);
+          localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods" 
+                                           format:@"-[%@ %@]",
+                                           [object_ class],
+                                           keyPath_];
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+      if (retValue==EONullNull)
+        retValue=nil;
+#else
 	  NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];
 	  id _part=nil;
 	  Class _handlerClass=Nil;
@@ -620,6 +641,25 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 			if (retValue) {
 		  NSDebugMLLog(@"associations",@"object_get_class_name(retValue object)=%s", object_get_class_name(retValue));
 			}
+		  NSDebugMLLog(@"associations",@"_part=%@",_part);
+		  NSDebugMLLog(@"associations",@"_part class=%@",NSStringFromClass([_part class]));
+                  if ([_part hasPrefix:@"\""])
+                    {
+                      _part=[_part stringWithoutPrefix:@"\""];
+                      while([keys count]>0)
+                        {
+                          id tmpPart=[keys objectAtIndex:0];
+                          [keys removeObjectAtIndex:0];
+                          if ([tmpPart hasSuffix:@"\""])
+                            {
+                              tmpPart=[tmpPart stringWithoutSuffix:@"\""];
+                              _part=[_part stringByAppendingFormat:@".%@",tmpPart];
+                              break;
+                            }
+                          else
+                            _part=[_part stringByAppendingFormat:@".%@",tmpPart];
+                        }                        
+                    }
 		  NSDebugMLLog(@"associations",@"_part=%@",_part);
 		  _handlerClass=[associationsHandlerClasses objectForKey:_part];
 		  NSDebugMLLog(@"associations",@"_handlerClass=%@",_handlerClass);
@@ -685,12 +725,16 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                   if (retValue==EONullNull)
                     retValue=nil;
 		};
+#endif
 	};
-if (retValue) {
-  NSDebugMLLog(@"associations",@"retValue=%@",retValue);
-} else {
-  NSDebugMLLog(@"associations",@"retValue=nil");
-}
+  if (retValue) 
+    {
+      NSDebugMLLog(@"associations",@"retValue=%@",retValue);
+    } 
+  else 
+    {
+      NSDebugMLLog(@"associations",@"retValue=nil");
+    }
   LOGClassFnStop();
   return retValue;
 };
@@ -705,9 +749,14 @@ if (retValue) {
   NSDebugMLLog(@"associations",@"value_ class:%@",[value_ class]);
   NSDebugMLLog(@"associations",@"value_ String class:%@",NSStringFromClass([value_ class]));
   NSDebugMLLog(@"associations",@"object_ String class:%@",NSStringFromClass([object_ class]));
+  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath_:%@",keyPath_);
   if (keyPath_)
-	{
-	  NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];
+    {
+#if GDL2
+      [object_ takeValue:value_
+               forKeyPath:keyPath_];
+#else
+  NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];
 	  id _part=nil;
 	  id _object=object_;
 	  Class _handlerClass=Nil;
@@ -718,6 +767,25 @@ if (retValue) {
 		  [keys removeObjectAtIndex:0];
 		  NSDebugMLLog(@"associations",@"_part=%@",_part);
 		  NSDebugMLLog(@"associations",@"_part class=%@",NSStringFromClass([_part class]));
+                  if ([_part hasPrefix:@"\""])
+                    {
+                      _part=[_part stringWithoutPrefix:@"\""];
+                      while([keys count]>0)
+                        {
+                          id tmpPart=[keys objectAtIndex:0];
+                          [keys removeObjectAtIndex:0];
+                          if ([tmpPart hasSuffix:@"\""])
+                            {
+                              tmpPart=[tmpPart stringWithoutSuffix:@"\""];
+                              _part=[_part stringByAppendingFormat:@".%@",tmpPart];
+                              break;
+                            }
+                          else
+                            _part=[_part stringByAppendingFormat:@".%@",tmpPart];
+                        }                        
+                    }
+		  NSDebugMLLog(@"associations",@"_part=%@",_part);
+                  
 		  _handlerClass=[associationsHandlerClasses objectForKey:_part];
 		  NSDebugMLLog(@"associations",@"_handlerClass=%@",_handlerClass);
 		  if (_handlerClass)
@@ -759,8 +827,8 @@ if (retValue) {
 			  else
 				{
 				  GSWLogAssertGood(_object);
-				  /* //MGNEW [_object setIVarNamed:_part
-						  withValue:value_];*/
+				   //MGNEW [_object setIVarNamed:_part
+					//	  withValue:value_];
                                   [_object takeValue:value_
                                            forKey:_part];//MGNEW 
 #ifdef GDL2
@@ -790,6 +858,7 @@ if (retValue) {
 				};
 			};
 		};	  
+#endif
 	}
   else
 	{

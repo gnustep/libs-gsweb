@@ -1,7 +1,7 @@
-/* config.h - config
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWConfig.h - config
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -19,7 +19,7 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+**/
 
 // $Id$
 
@@ -52,5 +52,6 @@
 #define GSWOPTVALUE_SessionTimeOut		 		@"3600"
 #define GSWOPTVALUE_WorkerThreadCount		 	   	@"8"
 #define GSWOPTVALUE_MultiThreadEnabled				@"YES"
+#define GSWOPTVALUE_AdaptorHost					@""
 
 #endif // _GSWebConfig_h__

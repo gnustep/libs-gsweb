@@ -1,7 +1,7 @@
 /* GSWAdaptor.h - GSWeb: Class GSWAdaptor
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -31,8 +31,8 @@
 // GSWAdaptor
 
 @interface GSWAdaptor: NSObject
--(id)initWithName:(NSString*)name_
-		arguments:(NSDictionary*)arguments;
+-(id)initWithName:(NSString*)name
+        arguments:(NSDictionary*)arguments;
 -(void)registerForEvents;
 -(void)unregisterForEvents;
 -(void)runOnce;
@@ -40,13 +40,14 @@
 -(BOOL)dispatchesRequestsConcurrently;
 -(int)port;
 -(id)workerThreadCount;
--(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread_;
+-(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread;
+-(BOOL)isMultiThreadEnabled;
 @end
 
 //====================================================================
 @interface GSWAdaptor (GSWAdaptorOldFn)
--(void)	registerPort:(int)_port
- forApplicationNamed:(NSString*)_applicationName;
+-(void)	registerPort:(int)port
+ forApplicationNamed:(NSString*)applicationName;
 @end
 
 #endif //_GSWAdaptor_h__
