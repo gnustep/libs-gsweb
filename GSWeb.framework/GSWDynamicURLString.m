@@ -261,14 +261,20 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 - (unsigned) length
 {
-  [self _compose];
+  if (!_composed)
+  {
+    [self _compose];
+  }
   return [_url length];
 };
 
 //--------------------------------------------------------------------
 - (unichar) characterAtIndex: (unsigned)index
 {
-  [self _compose];
+  if (!_composed)
+  {
+    [self _compose];
+  }
   return [_url characterAtIndex:index];
 };
 
@@ -277,7 +283,10 @@ RCS_ID("$Id$")
 		       withString: (NSString*)aString
 {
   LOGObjectFnStart();
-  [self _compose];
+  if (!_composed)
+  {
+    [self _compose];
+  }
   [_url replaceCharactersInRange:range
         withString:aString];
   LOGObjectFnStop();
@@ -342,6 +351,7 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWDynamicURLString (GSWDynamicURLStringParsing)
+
 -(void)_compose
 {
   if (!_composed)
@@ -358,32 +368,60 @@ RCS_ID("$Id$")
       if (_protocol)
         {
           if (_host)
-            [_url appendFormat:@"%@://",_protocol];
+            {
+              [_url appendString:_protocol];
+              [_url appendString:@"://"];
+            }
           else if (_port)
-            [_url appendFormat:@"%@://localhost",_protocol];
+            {
+              [_url appendString:_protocol];
+              [_url appendString:@"://localhost"];
+            }
           else if (_prefix)
-            [_url appendFormat:@"%@:/",_protocol];
+            {
+              [_url appendString:_protocol];
+              [_url appendString:@":/"];
+            }
           else
-            [_url appendFormat:@"%@://",_protocol];
+            {
+              [_url appendString:_protocol];
+              [_url appendString:@"://"];
+            }
         };
       if (_host)
         [_url appendString:_host];
       if (_port)
-        [_url appendFormat:@":%d",_port];
+        {
+          [_url appendFormat:@":%d",_port];
+        };
       if (_prefix)
-        [_url appendFormat:@"%@/",_prefix];
+        {
+          [_url appendString:_prefix];
+          [_url appendString:@"/"];
+        };
       if (_applicationName)
-        [_url  appendFormat:@"%@.%@/",
-               _applicationName,
-               GSWApplicationSuffix[GSWebNamingConv]];
+        {
+          [_url  appendString:_applicationName];
+          [_url  appendString:@"."];
+          [_url  appendString:GSWApplicationSuffix[GSWebNamingConv]];
+          [_url  appendString:@"/"];
+        };
       if (_applicationNumber>=0)
         [_url  appendFormat:@"%d/",_applicationNumber];
       if (_requestHandlerKey)
-        [_url  appendFormat:@"%@/",_requestHandlerKey];
+        {
+          [_url  appendString:_requestHandlerKey];
+          [_url  appendString:@"/"];
+        };
       if (_requestHandlerPath)
-        [_url  appendFormat:@"%@",_requestHandlerPath];
+        {
+          [_url  appendString:_requestHandlerPath];
+        };
       if (_queryString)
-        [_url  appendFormat:@"?%@",_queryString];
+        {
+          [_url  appendString:@"?"];
+          [_url  appendString:_queryString];
+        };
       NSDebugMLLog(@"low",@"url %@ class=%@",_url,[_url class]);
     };
 };
