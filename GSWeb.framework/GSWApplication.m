@@ -84,6 +84,7 @@ void GSWApplicationDebugSetChange()
 
   NSDebugFLog(@"debugSet=%@", debugSet);
   NSDebugFLog(@"newStateString=%@", newStateString);
+  NSDebugFLog(@"prevStateString=%@", prevStateString);
 
   if (newStateString)
     change =! [newStateString isEqualToString: prevStateString];
@@ -104,7 +105,6 @@ void GSWApplicationDebugSetChange()
             {
               [debugSet addObject:[pList objectAtIndex:i]];
             };
-          NSLog(@"debugSet=%@",debugSet);
         };
       ASSIGN(prevStateString,newStateString);
     };
@@ -244,6 +244,10 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                        GSWOPT_Adaptor[GSWebNamingConv]);
           NSDebugFLLog(@"options",@"GSWOPT_AdditionalAdaptors -> %@",
                        GSWOPT_AdditionalAdaptors[GSWebNamingConv]);
+          NSDebugFLLog(@"options",@"GSWClassName_DefaultContext -> %@",
+                       GSWClassName_DefaultContext[GSWebNamingConv]);
+          NSDebugFLLog(@"options",@"GSWOPT_Context -> %@",
+                       GSWOPT_Context[GSWebNamingConv]);
           NSDebugFLLog(@"options",@"GSWOPTVALUE_ApplicationBaseURL_WO -> %@",
                        GSWOPTVALUE_ApplicationBaseURL_WO);
           NSDebugFLLog(@"options",@"GSWOPTVALUE_ApplicationBaseURL_GSWEB -> %@",
@@ -346,8 +350,9 @@ int GSWApplicationMainReal(NSString* applicationClassName,
             [NSDictionary dictionaryWithObjectsAndKeys:
                             GSWClassName_DefaultAdaptor[GSWebNamingConv],   GSWOPT_Adaptor[GSWebNamingConv],
                           [NSArray array],					GSWOPT_AdditionalAdaptors[GSWebNamingConv],
-                          (GSWebNamingConv==WONAMES_INDEX ? GSWOPTVALUE_ApplicationBaseURL_WO : GSWOPTVALUE_ApplicationBaseURL_GSWEB),
-                          GSWOPT_ApplicationBaseURL[GSWebNamingConv],
+                          (GSWebNamingConv==WONAMES_INDEX ? GSWOPTVALUE_ApplicationBaseURL_WO : GSWOPTVALUE_ApplicationBaseURL_GSWEB), GSWOPT_ApplicationBaseURL[GSWebNamingConv],
+                          GSWClassName_DefaultContext[GSWebNamingConv],   GSWOPT_Context[GSWebNamingConv],
+                          
                           GSWOPTVALUE_AutoOpenInBrowser,			GSWOPT_AutoOpenInBrowser[GSWebNamingConv],
                           (GSWebNamingConv==WONAMES_INDEX ? GSWOPTVALUE_CGIAdaptorURL_WO : GSWOPTVALUE_CGIAdaptorURL_GSWEB),
                           GSWOPT_CGIAdaptorURL[GSWebNamingConv],
@@ -1210,6 +1215,10 @@ selfLockn,
   GSWComponentDefinition* componentDefinition=nil;
   NSString* language=nil;
   int iLanguage=0;
+#ifdef DEBUG
+  NSDate* startDate=[NSDate date];
+  NSDate* stopDate=nil;
+#endif
   LOGObjectFnStart();
   NSDebugMLLog(@"application",@"aName %p=%@",aName,aName);
   for(iLanguage=0;iLanguage<[languages count] && !componentDefinition;iLanguage++)
@@ -1280,20 +1289,33 @@ selfLockn,
                      aName,
                      languages);
     };
+#ifdef DEBUG
+  stopDate=[NSDate date];
+#endif
   if (componentDefinition)
     {
+#ifdef DEBUG
+      [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached) search time: %.3f s",
+            aName,
+            (language ? "" : "no"),
+            (language ? language : @""),
+            (isCachedComponent ? "" : "Not "),
+            [stopDate timeIntervalSinceDate:startDate]];
+#else
       [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached)",
             aName,
             (language ? "" : "no"),
             (language ? language : @""),
             (isCachedComponent ? "" : "Not ")];
+#endif
     };
-  NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s",
+  NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s. search time: %.3f s",
                (componentDefinition ? "FOUND" : "NOTFOUND"),
                componentDefinition,
                aName,
                (componentDefinition ? [[componentDefinition class] description]: @""),
-               (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""));
+               (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""),
+               [stopDate timeIntervalSinceDate:startDate]);
   LOGObjectFnStop();
   return componentDefinition;
 };
@@ -1428,6 +1450,37 @@ selfLockn,
 
 //====================================================================
 @implementation GSWApplication (GSWApplicationE)
+
+-(void)setContextClassName:(NSString*)className
+{
+  NSAssert(NO,@"TODO");
+}
+
+-(NSString*)contextClassName
+{
+  NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
+  NSString* contextClassName=[userDefaults objectForKey:GSWOPT_Context[GSWebNamingConv]];
+  NSAssert([contextClassName length]>0,@"No contextClassName");
+  return contextClassName;
+}
+
+-(GSWContext*)createContextForRequest:(GSWRequest*)aRequest
+{
+  GSWContext* context=nil;
+  NSString* contextClassName=[self contextClassName];
+  Class contextClass=NSClassFromString(contextClassName);
+  NSAssert1(contextClass,@"No contextClass named '%@'",contextClassName);
+  if (contextClass)
+    {
+      context=[contextClass contextWithRequest:aRequest];
+    }
+  if (!context)
+    {
+      //TODO: throw cleaner exception
+      NSAssert(NO,@"Can't create context");
+    };
+  return context;
+}
 
 -(GSWResponse*)createResponseInContext:(GSWContext*)aContext
 {
@@ -1926,6 +1979,7 @@ selfLockn,
   GSWSession* session=nil;
   //OK
   LOGObjectFnStart();
+  NSDebugMLLog(@"sessions",@"Start Restore Session. sessionID=%@",sessionID);
   [aContext _setRequestSessionID:sessionID];
   NSDebugMLLog(@"sessions",@"sessionID=%@",sessionID);
   NSDebugMLLog(@"sessions",@"_sessionStore=%@",_sessionStore);
@@ -1933,6 +1987,7 @@ selfLockn,
                 inContext:aContext];
   [aContext _setRequestSessionID:nil]; //ATTN: pass nil for unkwon reason
   NSDebugMLLog(@"sessions",@"session=%@",session);
+  NSDebugMLLog(@"sessions",@"Stop Restore Session. sessionID=%@",sessionID);
   LOGObjectFnStop();
   return session;
 };
@@ -2174,8 +2229,11 @@ selfLockn,
       if ([aName length]<=0)
         aName=GSWMainPageName;
 
+      NSDebugMLLog(@"info",@"aName=%@",aName);
+
       // Retrieve context languages
       languages=[aContext languages];
+      NSDebugMLLog(@"info",@"languages=%@",languages);
 
       // Find component definition for pageName and languages
       componentDefinition=[self lockedComponentDefinitionWithName:aName

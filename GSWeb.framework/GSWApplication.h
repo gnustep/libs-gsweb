@@ -169,6 +169,10 @@ extern BOOL WOStrictFlag;
 
 //====================================================================
 @interface GSWApplication (GSWApplicationE)
+-(void)setContextClassName:(NSString*)className;
+-(NSString*)contextClassName;
+-(GSWContext*)createContextForRequest:(GSWRequest*)aRequest;
+
 -(GSWResponse*)createResponseInContext:(GSWContext*)aContext;
 -(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
                                   uri:(NSString*)anURL
@@ -176,6 +180,7 @@ extern BOOL WOStrictFlag;
                               headers:(NSDictionary*)headers
                               content:(NSData*)content
                              userInfo:(NSDictionary*)userInfo;
+
 -(GSWResourceManager*)createResourceManager;
 -(void)_discountTerminatedSession;
 -(void)_finishInitializingSession:(GSWSession*)aSession;
