@@ -197,6 +197,7 @@ GSWLifebeatThread.m \
 GSWStaticResourceRequestHandler.m \
 GSWRecording.m \
 GSWInputStreamData.m \
+GSWActionURL.m \
 
 #For next Version:
 #GSWAdminAction.m \
@@ -331,6 +332,7 @@ GSWLifebeatThread.h \
 GSWStaticResourceRequestHandler.h \
 GSWRecording.h \
 GSWInputStreamData.h \
+GSWActionURL.h \
 
 #For next Version:
 #GSWAdminAction.h \
