@@ -1,6 +1,4 @@
-ChangeLog
-
-2004-06-16 David Wetzel <dave@turbocat.de>
+2004-06-16  David Wetzel  <dave@turbocat.de>
 
         * GSWeb.framework/GSWDynamicURLString.m
         A bit optimized based on Manuel's code.
@@ -19,22 +17,21 @@ ChangeLog
         in appendContentString: append string only if not nil 
         (patch from Philip Moetteli)
 
-// DATE WRONG?? 
 2004-05-18  David Ayers  <d.ayers@inode.at>
 
-        * GSWeb.framework/GSUtils.m (boolValueWithDefaultFor): Do not
-        reimplement defaults bool evaluation semantics differently from
-        -base / Foundation.
-        * GSWeb.framework/GSWDeclarationParser.m (-[tryParseBoolean]):
-        Make more robust and allow upper and lower case variants and
-        single letter variants of both YES/NO and true/false.
+	* GSWeb.framework/GSUtils.m (boolValueWithDefaultFor): Do not
+	reimplement defaults bool evaluation semantics differently from
+	-base / Foundation.
+	* GSWeb.framework/GSWDeclarationParser.m (-[tryParseBoolean]):
+	Make more robust and allow upper and lower case variants and
+	single letter variants of both YES/NO and true/false.
 
 2004-06-01  David Wetzel  <dave@turbocat.de>
 
 	* GSWeb.framework/GSWDeclarationParser.m:
 	supports 'true' and 'false' now. Will be transformed into YES and NO
 
-2004-05-18  David Ayers  <d.ayers@inode.at>
+2004-06-15  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWUtils.h/m: (struct proc_s, proc_t): Removed.
 	(pidstat, pidstatm, pidproccontent): Removed.
