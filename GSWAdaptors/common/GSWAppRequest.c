@@ -96,112 +96,118 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
   while (!pHTTPResponse && fAppFound && iAttemptsRemaining-->0)
     {
       fAppNotResponding=FALSE;
-      GSWLog(GSW_INFO,p_pLogServerData,"Trying to contact %s:%d on %s(%d)",
+      GSWLog(GSW_INFO,p_pLogServerData,"Attempt# %d: Trying to contact %s:%d on %s(%d)",
+             (int)(APP_CONNECT_RETRIES_NB-iAttemptsRemaining),
 	     p_pAppRequest->pszName,
 	     p_pAppRequest->iInstance,
 	     p_pAppRequest->pszHost,
 	     p_pAppRequest->iPort);
       
       hConnect = GSWApp_Open(p_pAppRequest,p_pLogServerData);
-	  if (hConnect)
-	    {
-	      if (p_pAppRequest->eType==EAppType_LoadBalanced)
-		GSWLoadBalancing_StartAppRequest(p_pAppRequest,
-						 p_pLogServerData);
-		  
-	      GSWLog(GSW_INFO,p_pLogServerData,"%s:%d on %s(%d) connected",
-		     p_pAppRequest->pszName,
-		     p_pAppRequest->iInstance,
-		     p_pAppRequest->pszHost,
-		     p_pAppRequest->iPort);
-		  
-	      GSWHTTPRequest_HTTPToAppRequest(*p_ppHTTPRequest,
-					      p_pAppRequest,
+      if (hConnect)
+        {
+          if (p_pAppRequest->eType==EAppType_LoadBalanced)
+            GSWLoadBalancing_StartAppRequest(p_pAppRequest,
+                                             p_pLogServerData);
+          
+          GSWLog(GSW_INFO,p_pLogServerData,"%s:%d on %s(%d) connected",
+                 p_pAppRequest->pszName,
+                 p_pAppRequest->iInstance,
+                 p_pAppRequest->pszHost,
+                 p_pAppRequest->iPort);
+          
+          GSWHTTPRequest_HTTPToAppRequest(*p_ppHTTPRequest,
+                                          p_pAppRequest,
 					      p_pURLComponents,
-					      p_pszHTTPVersion,
-					      p_pLogServerData);
-	      if (GSWHTTPRequest_SendRequest(*p_ppHTTPRequest,
-					     hConnect,
-					     p_pLogServerData) != 0)
-		{
-		  GSWLog(GSW_ERROR,p_pLogServerData,"Failed to send request");
-		  GSWApp_Close(hConnect,p_pLogServerData);
-		  hConnect=NULL;
-		  fAppNotResponding=TRUE;
-		}
-	      else
-		{
-		  GSWLog(GSW_INFO,p_pLogServerData,
-			 "Request %s sent, awaiting response",
-			 (*p_ppHTTPRequest)->pszRequest);
-		  
-		  appName = strdup(p_pAppRequest->pszName);
-		  appInstance = p_pAppRequest->iInstance;
-		  
-		  p_pAppRequest->pRequest = NULL;
-		  pHTTPResponse = GSWHTTPResponse_GetResponse(hConnect,
-							     p_pLogServerData);
-		  p_pAppRequest->pResponse = pHTTPResponse;
-			  
-		  if (p_pAppRequest->eType == EAppType_LoadBalanced)
-		    GSWLoadBalancing_StopAppRequest(p_pAppRequest,
-						    p_pLogServerData);
-		  
-		  GSWApp_Close(hConnect,p_pLogServerData);
-		  hConnect=NULL;
-		  
-		  glbResponsesNb++;
-		  if (pHTTPResponse)
-		    {
-		      char *value =
-			GSWDict_ValueForKey(pHTTPResponse->pHeaders,
-					    "x-gsweb-refusing-redirection");
-		      if (value && (strncmp(value,"YES",3)==0))
+                                          p_pszHTTPVersion,
+                                          p_pLogServerData);
+          if (GSWHTTPRequest_SendRequest(*p_ppHTTPRequest,
+                                         hConnect,
+                                         p_pLogServerData) != 0)
+            {
+              GSWLog(GSW_ERROR,p_pLogServerData,"Failed to send request to application %s:%d on %s(%d)",
+                     p_pAppRequest->pszName,
+                     p_pAppRequest->iInstance,
+                     p_pAppRequest->pszHost,
+                     p_pAppRequest->iPort);
+              
+              GSWApp_Close(hConnect,p_pLogServerData);
+              hConnect=NULL;
+              fAppNotResponding=TRUE;
+            }
+          else
+            {
+              GSWLog(GSW_INFO,p_pLogServerData,
+                     "Request %s sent, awaiting response",
+                     (*p_ppHTTPRequest)->pszRequest);
+              
+              appName = strdup(p_pAppRequest->pszName);
+              appInstance = p_pAppRequest->iInstance;
+              
+              p_pAppRequest->pRequest = NULL;
+              pHTTPResponse = GSWHTTPResponse_GetResponse(hConnect,
+                                                          p_pLogServerData);
+              p_pAppRequest->pResponse = pHTTPResponse;
+              
+              if (p_pAppRequest->eType == EAppType_LoadBalanced)
+                GSWLoadBalancing_StopAppRequest(p_pAppRequest,
+                                                p_pLogServerData);
+              
+              GSWApp_Close(hConnect,p_pLogServerData);
+              hConnect=NULL;
+              
+              glbResponsesNb++;
+              if (pHTTPResponse)
+                {
+                  char *value =
+                    GSWDict_ValueForKey(pHTTPResponse->pHeaders,
+                                        "x-gsweb-refusing-redirection");
+                  if (value && (strncmp(value,"YES",3)==0))
 			{
 			  // refuseNewSessions == YES in app
 			  GSWLog(GSW_INFO,p_pLogServerData,
-		   "### This app (%s / %d) is refusing all new sessions ###",
+                                 "### This app (%s / %d) is refusing all new sessions ###",
 				 appName, appInstance);
 			  GSWAppInfo_Set(appName, appInstance, TRUE);
 			}
-		      
-		      GSWLog(GSW_INFO,p_pLogServerData,
-			     "received: %d %s",
-			     pHTTPResponse->uStatus,
-			     pHTTPResponse->pszStatusMessage);
-		    };
-		  if (appName)
-		    {
-		      free(appName);
-		      appName = NULL;
-		    }
-		};
-	    }
-	  else
-	    {
-	      fAppNotResponding=TRUE;
-	      GSWLog(GSW_WARNING,p_pLogServerData,
-		     "%s:%d NOT LISTENING on %s:%d",
-		     p_pAppRequest->pszName,
-		     p_pAppRequest->iInstance,
-		     p_pAppRequest->pszHost,
-		     p_pAppRequest->iPort);
-	      //TODO
-	      /*
-		if (p_pAppRequest->eType == EAppType_Auto)
-		  GSWLoadBalancing_MarkNotRespondingApp(p_pAppRequest,
-							p_pLogServerData);
+                  
+                  GSWLog(GSW_INFO,p_pLogServerData,
+                         "received: %d %s",
+                         pHTTPResponse->uStatus,
+                         pHTTPResponse->pszStatusMessage);
+                };
+              if (appName)
+                {
+                  free(appName);
+                  appName = NULL;
+                }
+            };
+        }
+      else
+        {
+          fAppNotResponding=TRUE;
+          GSWLog(GSW_WARNING,p_pLogServerData,
+                 "%s:%d NOT LISTENING on %s:%d",
+                 p_pAppRequest->pszName,
+                 p_pAppRequest->iInstance,
+                 p_pAppRequest->pszHost,
+                 p_pAppRequest->iPort);
+          //TODO
+          /*
+            if (p_pAppRequest->eType == EAppType_Auto)
+            GSWLoadBalancing_MarkNotRespondingApp(p_pAppRequest,
+            p_pLogServerData);
 
-		else*/ if (p_pAppRequest->eType==EAppType_LoadBalanced)
-		  {
-		    GSWLoadBalancing_MarkNotRespondingApp(p_pAppRequest,
-							  p_pLogServerData);
-		    if (iAttemptsRemaining-->0)
-		      fAppFound=GSWLoadBalancing_FindApp(p_pAppRequest,
-							 p_pLogServerData,
-							 p_pURLComponents);
-		  };
-	    };
+            else*/ if (p_pAppRequest->eType==EAppType_LoadBalanced)
+              {
+                GSWLoadBalancing_MarkNotRespondingApp(p_pAppRequest,
+                                                      p_pLogServerData);
+                if (iAttemptsRemaining-->0)
+                  fAppFound=GSWLoadBalancing_FindApp(p_pAppRequest,
+                                                     p_pLogServerData,
+                                                     p_pURLComponents);
+              };
+        };
     };
   if (fAppNotResponding)
     {
@@ -236,6 +242,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
     };
   GSWHTTPRequest_Free(*p_ppHTTPRequest,p_pLogServerData);
   *p_ppHTTPRequest=NULL;
+
   GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWAppRequest_SendAppRequestToApp");
   return pHTTPResponse;
 };
@@ -301,17 +308,25 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 	      GSWLog(GSW_DEBUG,p_pLogServerData,"Get Request Instance Number");
 	      
 	      // in URL  ?
+              GSWLog(GSW_DEBUG,p_pLogServerData,
+                     "Cookie %s",
+                     p_pURLComponents->stAppNumber);
 	      if (p_pURLComponents->stAppNumber.iLength>0 &&
 		  p_pURLComponents->stAppNumber.pszStart)
-		stAppRequest.iInstance =
-		  atoi(p_pURLComponents->stAppNumber.pszStart);
-			  
+                {
+                  stAppRequest.iInstance =
+                    atoi(p_pURLComponents->stAppNumber.pszStart);
+                }  
 	      // In Cookie ?
 	      else
 		{
 		  CONST char *pszCookie=
 		    GSWHTTPRequest_HeaderForKey(*p_ppHTTPRequest,
 						g_szHeader_Cookie);
+                  GSWLog(GSW_DEBUG,p_pLogServerData,
+                         "Cookie Instance %s: %s",
+                         g_szHeader_Cookie,
+                         pszCookie);
 		  if (pszCookie)
 		    {
 		      CONST char *pszInstanceCookie =

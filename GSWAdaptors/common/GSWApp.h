@@ -28,12 +28,12 @@ typedef struct _GSWApp
 {
   int     iUsageCounter;
   char   *pszName;
-  int     iIndex;//Current Instance Index
   GSWDict stInstancesDict;
   GSWDict stHeadersDict;
   char   *pszGSWExtensionsFrameworkWebServerResources;
   BOOL    fCanDump;
   char   *pszAdaptorTemplatesPath;
+  int     iLastInstanceIndex;//Last Instance Index
 } GSWApp;
 
 typedef struct _GSWAppInstance
@@ -44,6 +44,8 @@ typedef struct _GSWAppInstance
   int          iPort;
   time_t       timeNextRetryTime;	// Timer
   unsigned int uOpenedRequestsNb;
+  unsigned int uHandledRequestsNb;
+  unsigned int uNotRespondingRequestsNb;
   BOOL         fValid;
 } GSWAppInstance;
 

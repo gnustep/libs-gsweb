@@ -137,12 +137,13 @@ GSWeb_GetServerConfig(server_rec *p_pServerRec)
 static int GSWeb_PostConfig(apr_pool_t *p, apr_pool_t *plog,
                             apr_pool_t *ptemp, server_rec *s)
 {
-    ap_add_version_component(p, 
-                             "mod_gsweb/" 
-                             GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING 
-                             "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING
-                             "-" moduleRevision);
-    return OK;
+  char buffer[256]="mod_gsweb/" 
+    GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING 
+    "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING
+    "rev";
+  RevisionStringToRevisionValue(buffer+strlen(buffer),moduleRevision);
+  ap_add_version_component(p, buffer);
+  return OK;
 }
 #endif
 //--------------------------------------------------------------------

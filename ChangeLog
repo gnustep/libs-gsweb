@@ -1,4 +1,19 @@
 2003-04-09   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/common/GSWUtils.c:
+		o prefix logs with GSWeb[pid]
+	* GSWAdaptors/common/GSWAppRequest.c:
+		o improved logs
+	* GSWApp.c/.h:
+		o add instance handled request count and no response count
+	* GSWConfig.c:
+		o remove "GSWeb:" prefix in logs
+		o initialize 
+	* GSWApp.h:
+		o renamed instance index
+	* GSWLoadBalancing.c:
+		o logs
+	
+2003-04-09   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWSessionTimeOut.m:
 		o fix in -description
 	* GSWeb.framework/GSWApplication.m:

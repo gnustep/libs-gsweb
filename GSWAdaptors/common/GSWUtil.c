@@ -87,17 +87,18 @@ VGSWLogSizedIntern(char       *file,
   szBuffer[p_iBufferSize+511] = 0;
 
 #if	defined(Netscape)
-  log_error(0,"GSWeb",NULL,NULL,szBuffer);
+  log_error(0,"GSWeb: ",NULL,NULL,szBuffer);
 #endif
+
 #if defined(Apache)
 #if defined(Apache2)
   ap_log_error(APLOG_MARK,p_iLevel,0,
 	       (server_rec *)p_pLogServerData,
-	       "%s",szBuffer);
+	       "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
 #else
   ap_log_error(APLOG_MARK,p_iLevel,
 	       (server_rec *)p_pLogServerData,
-	       "%s",szBuffer);
+	       "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
 #endif
 #endif 
 };
@@ -534,6 +535,31 @@ GSWUtil_HostLookup(CONST char *p_pszHost,
   if (pHost)
     pHost=GSWUtil_CopyHostent(pHost);
   return pHost;
+};
+
+// buffer should be at leat 20 characters
+// [dollar]Revision: 1.12 [dollar] ==> 1.12
+char* RevisionStringToRevisionValue(char* buffer,const char* revisionString)
+{
+  char* dstBuffer=buffer;
+  while(*revisionString && *revisionString!=':')
+    revisionString++;
+  if (*revisionString==':')
+    {
+      while(*revisionString && !isdigit(*revisionString))
+        revisionString++;
+      if (isdigit(*revisionString))
+        {
+          while(*revisionString && (isdigit(*revisionString) || *revisionString=='.') && (dstBuffer-buffer)<20)
+            {
+              *dstBuffer=*revisionString;
+              revisionString++;
+              dstBuffer++;
+            };
+        };
+    };
+  *dstBuffer=0;
+  return buffer;
 };
 
 #ifdef Apache2

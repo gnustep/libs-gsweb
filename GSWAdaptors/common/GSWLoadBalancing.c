@@ -52,8 +52,8 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
 {
   BOOL fFound=FALSE;
   GSWApp *pApp=NULL;
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWLoadBalancing_FindApp");
-  GSWLog(GSW_INFO,p_pLogServerData,"LoadBalance: looking for %s",
+  GSWLog(GSW_DEBUG,p_pLogServerData,"LoadBalancing: Start GSWLoadBalancing_FindApp");
+  GSWLog(GSW_INFO,p_pLogServerData,"LoadBalancing: looking for %s",
 		   p_pAppRequest->pszName);
   GSWConfig_LoadConfiguration(p_pLogServerData);
   GSWLock_Lock(g_lockAppList);
@@ -68,10 +68,13 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
 	  
       while (!fFound && iTries-->0)
 	{
-	  pApp->iIndex = (pApp->iIndex+1) % uInstancesCount;
+	  pApp->iLastInstanceIndex = (pApp->iLastInstanceIndex+1) % uInstancesCount;
+          GSWLog(GSW_DEBUG,p_pLogServerData,"LoadBalancing: Will try instance %d (instances count=%d).",
+                 pApp->iLastInstanceIndex,uInstancesCount);
 	  pAppInstance =
 	    (GSWAppInstance *)GSWDict_ValueForKey(&pApp->stInstancesDict,
-			  GSWList_ElementAtIndex(pInstancesList,pApp->iIndex));
+                                                  GSWList_ElementAtIndex(pInstancesList,
+                                                                         pApp->iLastInstanceIndex));
 	  if (pAppInstance)
 	    {
 	      if (!pAppInstance->pApp)
@@ -86,9 +89,9 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
 		    time(&curTime);
 		  if (pAppInstance->timeNextRetryTime<curTime)
 		    {
-		      GSWLog(GSW_CRITICAL,
+		      GSWLog(GSW_WARNING,
 			     p_pLogServerData,
-  "LoadBalance: Instance %s:%d was marked dead for %d secs. Now resurecting !",
+                             "LoadBalance: Instance %s:%d was marked dead for %d secs. Now resurecting !",
 			     p_pAppRequest->pszName, 
 			     pAppInstance->iInstance,
 			     APP_CONNECT_RETRY_DELAY);
@@ -138,10 +141,10 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
       GSWList_Free(pInstancesList,FALSE);
     };
   GSWLock_Unlock(g_lockAppList);
-  
+
   if (fFound)
     GSWLog(GSW_INFO,p_pLogServerData,
-	   "LoadBalance: looking for %s, fFound instance %d on %s:%d",
+	   "LoadBalance: looking for %s, found instance %d on %s:%d",
 	   p_pAppRequest->pszName,
 	   p_pAppRequest->iInstance,
 	   p_pAppRequest->pszHost,
@@ -236,9 +239,13 @@ GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest *p_pAppRequest,
   time(&now);
   pAppInstance = p_pAppRequest->pAppInstance;
   pAppInstance->uOpenedRequestsNb--;
+  pAppInstance->uNotRespondingRequestsNb++;
   pAppInstance->timeNextRetryTime=now+APP_CONNECT_RETRY_DELAY;
-  GSWLog(GSW_WARNING,p_pLogServerData,"Marking %s unresponsive",
-	 p_pAppRequest->pszName);
+  GSWLog(GSW_WARNING,p_pLogServerData,
+         "Marking %s unresponsive for %d s. notResonding count: %u handled count: %u",
+	 p_pAppRequest->pszName,(int)APP_CONNECT_RETRY_DELAY,
+         pAppInstance->uNotRespondingRequestsNb,
+         pAppInstance->uHandledRequestsNb);
   if (!pAppInstance->fValid)
     {
       if (GSWAppInstance_FreeIFND(pAppInstance))
@@ -268,6 +275,7 @@ GSWLoadBalancing_StopAppRequest(GSWAppRequest *p_pAppRequest,
   GSWAppInstance *pAppInstance=p_pAppRequest->pAppInstance;
   GSWLock_Lock(g_lockAppList);
   pAppInstance->uOpenedRequestsNb--;
+  pAppInstance->uHandledRequestsNb++;
   if (!pAppInstance->fValid)
     {
       if (GSWAppInstance_FreeIFND(pAppInstance))

@@ -122,7 +122,7 @@ GSWConfig_Init(GSWDict *p_pDict,
       GSWConfig_SetConfigFilePath(pszPath);
     };
   GSWLog(GSW_INFO,p_pLogServerData,
-		 "GSWeb: GSWConfig_Init: %s %s path: %s",
+		 "GSWConfig_Init: %s %s path: %s",
 		 g_szServerStringInfo,g_szAdaptorStringInfo,pszPath);
   GSWLock_Init(g_lockAppList);
 };
@@ -165,7 +165,7 @@ GSWConfig_SetConfigFilePath(CONST char *p_pszConfigFilePath)
   else
     {
       GSWLog(GSW_CRITICAL,NULL,
-        "GSWeb: No path for config file. Add a %s directive in your web server configuration",
+        "No path for config file. Add a %s directive in your web server configuration",
          g_szGSWeb_Conf_ConfigFilePath);
     };
 };
@@ -234,11 +234,12 @@ GSWConfig_ReadIFND(CONST char *p_pszConfigPath,
   EGSWConfigResult eResult=EGSWConfigResult__Ok;
   p_pLogServerData=NULL;//General Log
   GSWLog(GSW_DEBUG,p_pLogServerData,
-		 "GSWeb: GSWConfig_ReadIFND: %s",
+		 "GSWConfig_ReadIFND: %s",
 		 p_pszConfigPath);
+
   if (!p_pszConfigPath)
     {
-      GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWeb: No path for config file.");
+      GSWLog(GSW_CRITICAL,p_pLogServerData,"No path for config file.");
       eResult=EGSWConfigResult__Error;
     }
   else
@@ -250,7 +251,7 @@ GSWConfig_ReadIFND(CONST char *p_pszConfigPath,
       if (timeNow-timePrevious<CONFIG_FILE_STAT_INTERVAL)
         {
 	  GSWLog(GSW_INFO,p_pLogServerData,
-		 "GSWeb: GSWConfig_ReadIFND: Not Reading : Less than %d sec since last read config file.",
+		 "GSWConfig_ReadIFND: Not Reading : Less than %d sec since last read config file.",
 		 (int)CONFIG_FILE_STAT_INTERVAL);
 	  eResult=EGSWConfigResult__NotChanged;
         }
@@ -264,14 +265,14 @@ GSWConfig_ReadIFND(CONST char *p_pszConfigPath,
 	      if (stStat.st_mtime>timePrevious) 
 	        {
 		  GSWLog(GSW_INFO,p_pLogServerData,
-		"GSWeb: GSWConfig_ReadIFND: Reading new configuration from %s",
+		"GSWConfig_ReadIFND: Reading new configuration from %s",
 			 p_pszConfigPath);
 
 		  *p_ppPropList=PLGetProplistWithPath(p_pszConfigPath);
 		  if (*p_ppPropList)
 		    {
 		      GSWLog(GSW_WARNING,p_pLogServerData,
-		 "GSWeb: GSWConfig_ReadIFND: New configuration from %s readen",
+		 "GSWConfig_ReadIFND: New configuration from %s readen",
 			     p_pszConfigPath);
 		    }
 		  else
@@ -284,20 +285,20 @@ GSWConfig_ReadIFND(CONST char *p_pszConfigPath,
 	      else
 	        {
 		  GSWLog(GSW_INFO,p_pLogServerData,
-			 "GSWeb: GSWConfig_ReadIFND: Not Reading : config file not modified since last read.");
+			 "GSWConfig_ReadIFND: Not Reading : config file not modified since last read.");
 		  eResult=EGSWConfigResult__NotChanged;
 		}
 	    }
 	  else
 	    {
 	      GSWLog(GSW_CRITICAL,p_pLogServerData,
-		   "GSWeb: GSWConfig_ReadIFND: config file %s does not exist.",
+		   "GSWConfig_ReadIFND: config file %s does not exist.",
 		     p_pszConfigPath);
 	      eResult=EGSWConfigResult__Error;
 	    };
 	};
     };
-  GSWLog(GSW_INFO,p_pLogServerData,"GSWeb: GSWConfig_ReadIFND: result= %d",
+  GSWLog(GSW_INFO,p_pLogServerData,"GSWConfig_ReadIFND: result= %d",
 	 (int)eResult);
   return eResult;
 };
@@ -668,8 +669,17 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
 	  };
       };
   };
+
   //Remove Not Valid Instances
   GSWApp_FreeNotValidInstances(p_pApp);
+
+  //Initialize first instance index
+  {
+    unsigned int instanceCount=GSWDict_Count(&p_pApp->stInstancesDict);
+    //use also pid because mutiple server can be initialized at the same time
+    srand(time(NULL)+getpid());
+    p_pApp->iLastInstanceIndex=(int)(((float)instanceCount)*rand()/(RAND_MAX+1.0));
+  };
   return fOk;
 };
 
@@ -681,7 +691,7 @@ GSWConfig_LoadConfiguration(void *p_pLogServerData)
   proplist_t propListConfig=NULL;
   p_pLogServerData=NULL;
   GSWLog(GSW_DEBUG,p_pLogServerData,
-	 "GSWeb: GSWConfig_LoadConfiguration");
+	 "GSWConfig_LoadConfiguration");
 
   GSWLock_Lock(g_lockAppList);
 
