@@ -43,6 +43,7 @@
   GSWAssociation* _pageSetVarAssociationsDynamic;
   GSWAssociation* _cidStore;
   GSWAssociation* _cidKey;
+  NSDictionary* _otherPathQueryAssociations;
 // }
   GSWAssociation* _filename;
   GSWAssociation* _framework;
@@ -58,11 +59,9 @@
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;
--(void)dealloc;
 
 -(NSString*)valueAttributeName;
 -(NSString*)urlAttributeName;
--(NSString*)description;
 @end
 
 @interface GSWHTMLURLValuedElement (GSWHTMLURLValuedElementA)

@@ -139,6 +139,14 @@ RCS_ID("$Id$")
                                                     removePrefix:YES]));
       if ([_otherQueryAssociations count]==0)
         DESTROY(_otherQueryAssociations);
+
+      if (!WOStrictFlag)
+        {
+          ASSIGN(_otherPathQueryAssociations,([associations extractObjectsForKeysWithPrefix:@"!"
+                                                            removePrefix:YES]));
+          if ([_otherPathQueryAssociations count]==0)
+            DESTROY(_otherPathQueryAssociations);
+        };
     };
 
   if ((self=[super initWithName:[self elementName]//NEW
@@ -167,6 +175,7 @@ RCS_ID("$Id$")
   DESTROY(_directActionName);
   DESTROY(_queryDictionary);
   DESTROY(_otherQueryAssociations);
+  DESTROY(_otherPathQueryAssociations);
   DESTROY(_cidStore);//GSWeb only
   DESTROY(_cidKey);//GSWeb only
   [super dealloc];
@@ -510,6 +519,7 @@ NS_DURING
   LOGObjectFnStart();
   actionString=[self computeActionStringWithActionClassAssociation:_actionClass
                      directActionNameAssociation:_directActionName
+                     otherPathQueryAssociations:_otherPathQueryAssociations
                      inContext:aContext];
   LOGObjectFnStop();
   return actionString;
@@ -550,7 +560,7 @@ NS_DURING
 
 -(NSString*)addCIDElement:(NSDictionary*)cidElement
                    forKey:(NSString*)cidKeyValue
-                forCIDStore:(GSWAssociation*)cidStore
+              forCIDStore:(GSWAssociation*)cidStore
                 inContext:(GSWContext*)aContext
 {
   NSString* newURL=nil;
