@@ -290,6 +290,7 @@ If none, try request languages
 @interface GSWContext (GSWContextD)
 -(NSString*)url;
 -(NSString*)urlSessionPrefix;
+-(int)urlApplicationNumber;
 -(GSWApplication*)application;
 -(void)setDistributionEnabled:(BOOL)flag;
 -(BOOL)isDistributionEnabled;
