@@ -52,6 +52,10 @@
                       inClass:(Class)class;
 -(SEL)_selectorForActionNamed:(NSString*)actionName;
 -(id <GSWActionResults>)performActionNamed:(NSString*)actionName;
+
+/** Returns YES if self reponds to actionName **/
+-(BOOL)isActionNamed:(NSString*)actionName;
+
 -(id)existingSession;
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest;
 -(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext;

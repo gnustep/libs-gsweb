@@ -246,6 +246,18 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+/** Returns YES if self reponds to actionName **/
+-(BOOL)isActionNamed:(NSString*)actionName
+{
+  NSString* actionSelName=nil;
+  SEL actionSel=[self _selectorForActionNamed:actionName];
+  if (actionSel)
+    return [self respondsToSelector:actionSel];
+  else
+    return NO;
+}
+
+//--------------------------------------------------------------------
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest
 {
   return [self subclassResponsibility: _cmd];
