@@ -366,12 +366,13 @@ static int dontTraceComponentActionURL=0;
 
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
                                      queryDictionary:(NSDictionary*)queryDictionary
 {
-  //OK
   GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
   url=[self directActionURLForActionNamed:actionName
+            urlPrefix:urlPrefix
             queryDictionary:queryDictionary
             isSecure:NO];
   LOGObjectFnStop();
@@ -381,12 +382,22 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
+{
+  return [self directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:queryDictionary];
+};
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
+                                     queryDictionary:(NSDictionary*)queryDictionary
                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
 {
-  //OK
   GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
   url=[self directActionURLForActionNamed:actionName
+            urlPrefix:urlPrefix
             queryDictionary:queryDictionary
             pathQueryDictionary:pathQueryDictionary];
   LOGObjectFnStop();
@@ -396,12 +407,24 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+{
+  return [self directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:queryDictionary
+               pathQueryDictionary:pathQueryDictionary];
+};
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
+                                     queryDictionary:(NSDictionary*)queryDictionary
                                             isSecure:(BOOL)isSecure
 {
-  //OK
   GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
   url=[self directActionURLForActionNamed:actionName
+            urlPrefix:urlPrefix
             queryDictionary:queryDictionary
             pathQueryDictionary:nil
             isSecure:NO];
@@ -412,13 +435,25 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
+                                            isSecure:(BOOL)isSecure
+{
+  return [self directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:queryDictionary
+               isSecure:isSecure];
+}
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
+                                     queryDictionary:(NSDictionary*)queryDictionary
                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                             isSecure:(BOOL)isSecure
 {
-  //OK
   GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
   url=[self _directActionURLForActionNamed:actionName
+            urlPrefix:(NSString*)urlPrefix
             queryDictionary:queryDictionary
             pathQueryDictionary:pathQueryDictionary
             isSecure:isSecure
@@ -427,6 +462,19 @@ static int dontTraceComponentActionURL=0;
   LOGObjectFnStop();
   return url;
 };
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                            isSecure:(BOOL)isSecure
+{
+  return [self directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:queryDictionary
+               pathQueryDictionary:pathQueryDictionary
+               isSecure:isSecure];
+}
 
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)componentActionURL
@@ -438,6 +486,7 @@ static int dontTraceComponentActionURL=0;
   return url;
 };
 
+//--------------------------------------------------------------------
 -(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure
 {
   //TODO: use isSecure
@@ -521,13 +570,13 @@ static int dontTraceComponentActionURL=0;
 };
 
 //--------------------------------------------------------------------
--(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
-                                           path:(NSString*)requestHandlerPath
-                                    queryString:(NSString*)queryString
-                                       isSecure:(BOOL)isSecure
-                                           port:(int)port
+-(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
+                      requestHandlerKey:(NSString*)requestHandlerKey
+                                   path:(NSString*)requestHandlerPath
+                            queryString:(NSString*)queryString
+                               isSecure:(BOOL)isSecure
+                                   port:(int)port
 {
-  //OK
   GSWDynamicURLString* url=nil;
   GSWRequest* request=[self request];
   LOGObjectFnStartCond(dontTraceComponentActionURL==0);
@@ -539,13 +588,15 @@ static int dontTraceComponentActionURL=0;
   if (_generateCompleteURLs
       || (isSecure!=[request isSecure])
       || (port!=0 && port!=[request urlPort]))
-    url=[self completeURLWithRequestHandlerKey:requestHandlerKey
+    url=[self completeURLWithURLPrefix:urlPrefix
+              requestHandlerKey:requestHandlerKey
               path:requestHandlerPath
               queryString:queryString
               isSecure:isSecure
               port:port];
   else    
-    url=[request _urlWithRequestHandlerKey:requestHandlerKey
+    url=[request _urlWithURLPrefix:urlPrefix
+                 requestHandlerKey:requestHandlerKey
                  path:requestHandlerPath
                  queryString:queryString];
   NSDebugMLogCond(dontTraceComponentActionURL==0,
@@ -558,8 +609,23 @@ static int dontTraceComponentActionURL=0;
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString
+                                       isSecure:(BOOL)isSecure
+                                           port:(int)port
 {
-  //OK
+  return [self urlWithURLPrefix:nil
+               requestHandlerKey:requestHandlerKey
+               path:requestHandlerPath
+               queryString:queryString
+               isSecure:isSecure
+               port:port];
+}
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
+                      RequestHandlerKey:(NSString*)requestHandlerKey
+                                   path:(NSString*)requestHandlerPath
+                            queryString:(NSString*)queryString
+{
   GSWDynamicURLString* url=nil;
   GSWRequest* request=[self request];
   LOGObjectFnStartCond(dontTraceComponentActionURL==0);
@@ -581,27 +647,55 @@ static int dontTraceComponentActionURL=0;
 };
 
 //--------------------------------------------------------------------
+-(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
+{
+  return [self urlWithURLPrefix:nil
+               RequestHandlerKey:requestHandlerKey
+               path:requestHandlerPath
+               queryString:queryString];
+};
+
+
+
+//--------------------------------------------------------------------
 //NDFN
--(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
-                                                   path:(NSString*)requestHandlerPath
-                                            queryString:(NSString*)queryString
+-(GSWDynamicURLString*)completeURLWithURLPrefix:(NSString*)urlPrefix
+                              requestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
 {
   GSWRequest* request=nil;
   request=[self request];
-  return [self completeURLWithRequestHandlerKey:requestHandlerKey
+  return [self completeURLWithURLPrefix:urlPrefix
+               requestHandlerKey:requestHandlerKey
                path:requestHandlerPath
                queryString:queryString
                isSecure:[request isSecure]
                port:[request urlPort]];
 };
 
-
 //--------------------------------------------------------------------
+//NDFN
 -(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
                                                    path:(NSString*)requestHandlerPath
                                             queryString:(NSString*)queryString
-                                               isSecure:(BOOL)isSecure
-                                                   port:(int)port
+{
+  return [self completeURLWithURLPrefix:nil
+               requestHandlerKey:requestHandlerKey
+               path:requestHandlerPath
+               queryString:queryString];
+};
+
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)completeURLWithURLPrefix:(NSString*)urlPrefix
+                              requestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
+                                       isSecure:(BOOL)isSecure
+                                           port:(int)port
 {
   NSString* host=nil;
   GSWDynamicURLString* url=nil;
@@ -629,6 +723,20 @@ static int dontTraceComponentActionURL=0;
   return url;
 };
 
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                                   path:(NSString*)requestHandlerPath
+                                            queryString:(NSString*)queryString
+                                               isSecure:(BOOL)isSecure
+                                                   port:(int)port
+{
+  return [self completeURLWithURLPrefix:nil
+               requestHandlerKey:requestHandlerKey
+               path:requestHandlerPath
+               queryString:queryString
+               isSecure:isSecure
+               port:port];
+};
 @end
 
 //====================================================================
@@ -722,14 +830,17 @@ static int dontTraceComponentActionURL=0;
   return previousState;
 };
 
+
 //--------------------------------------------------------------------
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
                                       queryDictionary:(NSDictionary*)dict
                                                   url:(id)anURL
 {
   LOGObjectFnStart();
   anURL=[self _directActionURLForActionNamed:actionName
+              urlPrefix:urlPrefix
               queryDictionary:dict
               pathQueryDictionary:nil
               url:anURL];
@@ -741,11 +852,25 @@ static int dontTraceComponentActionURL=0;
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
                                       queryDictionary:(NSDictionary*)dict
+                                                  url:(id)anURL
+{
+  return [self _directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:dict
+               url:anURL];
+};
+
+//--------------------------------------------------------------------
+//_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
+                                      queryDictionary:(NSDictionary*)dict
                                   pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                                   url:(id)anURL
 {
   LOGObjectFnStart();
   anURL=[self _directActionURLForActionNamed:actionName
+              urlPrefix:urlPrefix
               queryDictionary:dict
               pathQueryDictionary:pathQueryDictionary
               isSecure:NO
@@ -758,11 +883,27 @@ static int dontTraceComponentActionURL=0;
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
                                       queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                                  url:(id)anURL
+{
+  return [self _directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:dict
+               pathQueryDictionary:pathQueryDictionary
+               url:anURL];
+};
+
+//--------------------------------------------------------------------
+//_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
+                                      queryDictionary:(NSDictionary*)dict
                                              isSecure:(BOOL)isSecure
                                                   url:(id)anURL
 {
   LOGObjectFnStart();
   anURL=[self _directActionURLForActionNamed:actionName
+              urlPrefix:urlPrefix
               queryDictionary:dict
               pathQueryDictionary:nil
               isSecure:isSecure
@@ -774,6 +915,21 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL
+{
+  return [self _directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:dict
+               isSecure:isSecure
+               url:anURL];
+};
+
+//--------------------------------------------------------------------
+//_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
                                       queryDictionary:(NSDictionary*)dict
                                   pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                              isSecure:(BOOL)isSecure
@@ -836,16 +992,40 @@ static int dontTraceComponentActionURL=0;
                      value];
         };
     };
-  anURL=[self urlWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
-              path:path
-              queryString:queryString
-              isSecure:isSecure
-              port:0];
+  if (urlPrefix)
+    anURL=[self urlWithURLPrefix:urlPrefix
+                requestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
+                path:path
+                queryString:queryString
+                isSecure:isSecure
+                port:0];
+  else
+    anURL=[self urlWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
+                path:path
+                queryString:queryString
+                isSecure:isSecure
+                port:0];
   NSDebugMLogCond(dontTraceComponentActionURL==0,
                   @"url=%@",anURL);
   LOGObjectFnStop();
   return anURL;
 };
+
+//--------------------------------------------------------------------
+//_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL
+{
+  return [self _directActionURLForActionNamed:actionName
+               urlPrefix:nil
+               queryDictionary:dict
+               pathQueryDictionary:pathQueryDictionary
+               isSecure:isSecure
+               url:anURL];
+}
 
 //--------------------------------------------------------------------
 /** Returns array of languages 

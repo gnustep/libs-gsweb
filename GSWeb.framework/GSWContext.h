@@ -102,31 +102,81 @@
 //====================================================================
 @interface GSWContext (GSWURLGeneration)
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
                                      queryDictionary:(NSDictionary*)queryDictionary;
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary;
+
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary;
+
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary;
+
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                            isSecure:(BOOL)isSecure;
+
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
                                             isSecure:(BOOL)isSecure;
+
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                           urlPrefix:(NSString*)urlPrefix
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                            isSecure:(BOOL)isSecure;
+
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                             isSecure:(BOOL)isSecure;
 -(GSWDynamicURLString*)componentActionURL;
 -(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure;
+
+-(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
+                      requestHandlerKey:(NSString*)requestHandlerKey
+                                   path:(NSString*)requestHandlerPath
+                            queryString:(NSString*)queryString
+                               isSecure:(BOOL)isSecure
+                                   port:(int)port;
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString
                                        isSecure:(BOOL)isSecure
                                            port:(int)port;
+
+-(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
+                      RequestHandlerKey:(NSString*)requestHandlerKey
+                                   path:(NSString*)requestHandlerPath
+                            queryString:(NSString*)queryString;
+
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString;
+
+//NDFN
+-(GSWDynamicURLString*)completeURLWithURLPrefix:(NSString*)urlPrefix
+                              requestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString;
+
 //NDFN
 -(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
                                                    path:(NSString*)requestHandlerPath
                                             queryString:(NSString*)queryString;
+
+-(GSWDynamicURLString*)completeURLWithURLPrefix:(NSString*)urlPrefix
+                              requestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
+                                       isSecure:(BOOL)isSecure
+                                           port:(int)port;
+
 -(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey
                                                    path:(NSString*)requestHandlerPath
                                             queryString:(NSString*)queryString
@@ -151,9 +201,34 @@
 -(BOOL)_generateCompleteURLs;
 -(BOOL)_generateRelativeURLs;
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
+                                      queryDictionary:(NSDictionary*)dict
+                                                  url:(id)anURL;
+
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
                                       queryDictionary:(NSDictionary*)dict
                                              isSecure:(BOOL)isSecure
                                                   url:(id)anURL;
+
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
+                                      queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                                  url:(id)anURL;
+
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
+                                      queryDictionary:(NSDictionary*)dict
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL;
+
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                            urlPrefix:(NSString*)urlPrefix
+                                      queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL;
+
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
                                       queryDictionary:(NSDictionary*)dict
                                   pathQueryDictionary:(NSDictionary*)pathQueryDictionary
