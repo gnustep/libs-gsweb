@@ -333,12 +333,12 @@ copyHeaders(request_rec    *p_pRequestRec,
     {
       if (headers[i].key)
         {
-          GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
-                                   headers[i].key,headers[i].val);
 #ifdef	DEBUG
           GSWLog(GSW_DEBUG,pServerRec,"key=%s value=%s",
                  headers[i].key,headers[i].val);
 #endif
+          GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
+                                   headers[i].key,headers[i].val);
         };
     };
 
@@ -656,8 +656,8 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		  CONST char *pszDocRoot=NULL;	
 		  char* applicationName=NULL;
                   if (stURLComponents.stAppName.pszStart)
-                    applicationName=strndup(stURLComponents.stAppName.pszStart,
-                                            stURLComponents.stAppName.iLength);//We'll need to release it
+                    applicationName=gsw_strndup(stURLComponents.stAppName.pszStart,
+                                                stURLComponents.stAppName.iLength);//We'll need to release it
 
 		  // copy headers
 		  copyHeaders(p_pRequestRec,pRequest);
