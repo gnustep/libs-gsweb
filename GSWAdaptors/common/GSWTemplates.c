@@ -142,11 +142,18 @@ GSWTemplate_GetTemplate(BOOL        p_fHTML,
     {
       FILE *fd=NULL;
       GSWConfig *gswConfig=GSWConfig_GetConfig();
-      int applen=strlen(pApp->pszAdaptorTemplatesPath)+
-	strlen(p_pszTemplateName);
-      int globallen=strlen(gswConfig->pszAdaptorTemplatesPath)+
-	strlen(p_pszTemplateName);
-      int maxlen=(applen > globallen ? applen : globallen)+20;
+      int applen = 0;
+      int globallen = 0;
+      int maxlen = 0;
+
+      applen = strlen(pApp->pszAdaptorTemplatesPath) 
+	+ strlen(p_pszTemplateName);
+
+      if (gswConfig->pszAdaptorTemplatesPath)
+	globallen = strlen(gswConfig->pszAdaptorTemplatesPath) 
+	  + strlen(p_pszTemplateName);
+
+      maxlen = (applen > globallen ? applen : globallen) + 20;
       {
         char *pathName=malloc(maxlen);
         memset(pathName,0,maxlen);

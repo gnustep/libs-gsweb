@@ -1,3 +1,9 @@
+2004-03-26  David Ayers  <d.ayers@inode.at>
+
+	* GSWAdaptors/common/GSWTemplates.c (GSWTemplate_GetTemplate):
+	Don't call strlen(0) as that may segfault.  Reported by
+	Matt Rice <ratmice@yahoo.com>.
+
 2004-03-26   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWAction.m/.h:
 		o added -isActionNamed:
