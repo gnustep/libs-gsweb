@@ -52,6 +52,7 @@ saved_CFLAGS="$CFLAGS"
 AM_PATH_XML(2.3.0, enable_libxml=yes, enable_libxml=no)
 if test $enable_libxml = yes; then
   CPPFLAGS="$CPPFLAGS $XML_CFLAGS"
+  AUX_INCS="$AUX_INCS $XML_CFLAGS"
   LIBS="$LIBS $XML_LIBS"
   HAVE_LIBXML=1
   AC_DEFINE(HAVE_LIBXML,1,
@@ -77,6 +78,7 @@ AC_SUBST(MINOR_VERSION)
 AC_SUBST(SUBMINOR_VERSION)
 AC_SUBST(GCC_VERSION)
 
+AC_SUBST(AUX_INCS)
 AC_SUBST(AUX_LIBS)
 
 #--------------------------------------------------------------------
