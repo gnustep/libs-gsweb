@@ -340,9 +340,6 @@ GSWActionURL.h \
 #GSWMonitorXMLCoder.h \
 #GSWMonitorXMLDecoder.h \
 
-# The framework installed WO header files
-WebObjects_HEADER_FILES = $(GSWeb_HEADER_FILES)
-
 WO_HEADER_FILES = \
 	WOAdaptor.h \
 	WOApplication.h \
@@ -365,6 +362,8 @@ WO_HEADER_FILES = \
 
 # WebObjects.h not needed as it gets copied explicitly
 
+# The framework installed WO header files
+WebObjects_HEADER_FILES = $(GSWeb_HEADER_FILES) WebObjects.h $(WO_HEADER_FILES)
 
 GSWeb_HEADER_FILES_DIR = $(HEADER_DIR)
 WebObjects_HEADER_FILES_DIR = $(HEADER_DIR)

@@ -43,9 +43,7 @@ endif
 # before-install::
 
 # Things to do after installing
-ifneq ($(gswnames),gsw)
-after-install:: WO-install-headers
-endif
+# after-install::
 
 # Things to do before uninstalling
 # before-uninstall::
@@ -127,17 +125,11 @@ $(WOExtensions_COMPONENTS) $(WO_LOCALIZED_COMPONENTS): GSWWOReplaceScript.sed
 	    fi ; \
 	  done ) ;$(END_ECHO)
 
-WO-install-headers : 
-	$(ECHO_NOTHING)$(INSTALL_DATA) ./WOExtensions.h \
-	    $(GNUSTEP_HEADERS)/WOExtensions/WOExtensions.h ; \
-	cd $(GNUSTEP_HEADERS)/WOExtensions ; \
-	for file in $(WO_HEADER_FILES) ; do \
-	  $(LN_S) -f WOExtensions.h $$file; \
-	done;$(END_ECHO)
-
 WO-components-clean:
 	$(ECHO_NOTHING)rm -rf $(WOExtensions_COMPONENTS) ; \
 	rm -rf $(WO_LOCALIZED_COMPONENTS) ; \
 	rm -f GSWWOReplaceScript.sed ;$(END_ECHO)
 
+$(WO_HEADER_FILES): WOExtenstions.h
+        $(ECHO_NOTHING)$(LN_S) WOExtenstions.h $@;$(END_ECHO)
 

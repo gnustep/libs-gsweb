@@ -182,13 +182,15 @@ GSWKeyValueConditional.h \
 #GSWSimpleArrayDisplay.h
 #GSWSimpleArrayDisplay2.h
 #GSWBatchNavigationBar.h
-WOExtensions_HEADER_FILES = $(GSWExtensions_HEADER_FILES)
 
 WO_HEADER_FILES = \
 	WOLongResponsePage.h \
 	WORedirect.h
 
 # WOExtensions.h not needed as it gets copied explicitly
+
+WOExtensions_HEADER_FILES = $(GSWExtensions_HEADER_FILES) \
+				WOExtensions.h $(WO_HEADER_FILES)
 
 GSWExtensions_HEADER_FILES_DIR = $(HEADER_DIR)
 WOExtensions_HEADER_FILES_DIR = $(HEADER_DIR)

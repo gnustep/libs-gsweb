@@ -43,10 +43,10 @@ before-all:: $(GNUSTEP_TARGET_DIR)/config.h
 # after-all::
 
 # Things to do before installing
-# before-install:: 
+# before-install::
 
 # Things to do after installing
-after-install:: install-WO-headers
+after-install::
 	@if [ ! -f $(dstDTDDir) ]; then \
 	  $(MKDIRS) $(dstDTDDir); \
 	fi; \
@@ -85,15 +85,9 @@ $(GNUSTEP_TARGET_DIR)/config.h: ../config.status
 	-mv ../config.h $(GNUSTEP_TARGET_DIR)
 	-touch $(GNUSTEP_TARGET_DIR)/config.h
 
-ifneq ($(gswnames),gsw)
-install-WO-headers : 
-	$(EC)$(INSTALL_DATA) ./WebObjects/WebObjects.h \
-	    $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/WebObjects/WebObjects.h ; \
-	cd $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/WebObjects ; \
-	for file in $(WO_HEADER_FILES) ; do \
-	  $(LN_S) -f WebObjects.h $$file; \
-	done;$(ECHO_END)
-else
-install-WO-headers: ;
-endif
+WebObjects.h: WebObjects/WebObjects.h
+	$(ECHO_NOTHING)cp WebObjects/WebObjects.h .;$(END_ECHO)
+
+$(WO_HEADER_FILES): WebObjects.h
+	$(ECHO_NOTHING)$(LN_S) WebObjects.h $@;$(END_ECHO)
 

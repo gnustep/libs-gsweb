@@ -1,3 +1,12 @@
+2004-03-10  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GNUmakefile: Make WO_HEADER_FILES real
+	public headers.
+	* GSWExtensions.framework/GNUmakefile: Ditto.
+	* GSWeb.framework/Makefile.postamble: Simplify rules for
+	installing WO_HEADER_FILES.
+	* GSWExtensions.framework/Makefile.postamble: Ditto.
+	
 2004-03-04  David Ayers  <d.ayers@inode.at>
 
 	* config.mak.in: Added EOCONTROL_LIBRARY_NAME, 
