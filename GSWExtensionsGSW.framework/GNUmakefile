@@ -111,6 +111,8 @@ GSWExtensionsGSW_AGSDOC_FLAGS = \
 
 -include GNUmakefile.local
 
+include ../gsweb.make
+
 include $(GNUSTEP_MAKEFILES)/framework.make
 ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make
