@@ -1,12 +1,19 @@
-/* GSWConstants.h - constants
+/** GSWConstants.h - <title>constants</title>
 
    Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
+   $Revision$
+   $Date$
+   $Id$
+   
+   <abstract></abstract>
+
    This file is part of the GNUstep Web Library.
-   
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -20,7 +27,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -52,6 +60,8 @@ extern NSString* GSWScriptPSuffix[2];
 extern NSString* GSWResourceRequestHandlerKey[2];
 extern NSString* GSWComponentRequestHandlerKey[2];
 extern NSString* GSWDirectActionRequestHandlerKey[2];
+extern NSString* GSWPingActionRequestHandlerKey[2];
+extern NSString* GSWStaticResourceRequestHandlerKey[2];
 extern NSString* GSWComponentTemplateSuffix;
 extern NSString* GSWComponentTemplatePSuffix;
 extern NSString* GSWComponentDefinitionSuffix[2];
@@ -83,6 +93,9 @@ extern NSString* GSWClassName_Session;
 extern NSString* GSWClassName_Application;
 extern NSString* GSWClassName_DefaultAdaptor[2];
 extern NSString* GSWClassName_DefaultContext[2];
+extern NSString* GSWClassName_DefaultResponse[2];
+extern NSString* GSWClassName_DefaultRequest[2];
+extern NSString* GSWClassName_DefaultRecording[2];
 
 //====================================================================
 // Keys
@@ -99,6 +112,7 @@ extern NSString* GSWKey_IsmapCoords[2];
 //====================================================================
 // HTTP Headers
 extern NSString* GSWHTTPHeader_Cookie;
+extern NSString* GSWHTTPHeader_CookieStupidIIS;
 extern NSString* GSWHTTPHeader_SetCookie;
 extern NSString* GSWHTTPHeader_AdaptorVersion[2];
 extern NSString* GSWHTTPHeader_RequestMethod[2];
@@ -120,6 +134,10 @@ extern NSString* GSWHTTPHeader_Protocol[2];
 extern NSString* GSWHTTPHeader_ProtocolNum[2];
 extern NSString* GSWHTTPHeader_RequestScheme[2];
 extern NSString* GSWHTTPHeader_ApplicationName[2];
+extern NSString* GSWHTTPHeader_RecordingSessionID[2];
+extern NSString* GSWHTTPHeader_RecordingIDsURL[2];
+extern NSString* GSWHTTPHeader_RecordingIDsCookie[2];
+extern NSString* GSWHTTPHeader_RecordingApplicationNumber[2];
 
 extern NSString* GSWHTTPHeader_Method[2];
 extern NSString* GSWHTTPHeader_MethodPost;
@@ -132,6 +150,7 @@ extern NSString* GSWHTTPHeader_MultipartFormData;
 extern NSString* GSWHTTPHeader_ContentLength;
 extern NSString* GSWHTTPHeader_MimeType_TextPlain;
 extern NSString* GSWHTTPHeader_UserAgent;
+extern NSString* GSWHTTPHeader_Referer;
 
 extern NSString* GSWHTTPHeader_Response_OK;
 extern NSString* GSWHTTPHeader_Response_HeaderLineEnd[2];
@@ -162,6 +181,8 @@ extern NSString* GSWProtocol_HTTPS;
 
 extern NSString* GSWOPT_Adaptor[2];
 extern NSString* GSWOPT_Context[2];
+extern NSString* GSWOPT_Response[2];
+extern NSString* GSWOPT_Request[2];
 extern NSString* GSWOPT_AdditionalAdaptors[2];
 extern NSString* GSWOPT_ApplicationBaseURL[2];
 extern NSString* GSWOPT_AutoOpenInBrowser[2];
@@ -173,23 +194,40 @@ extern NSString* GSWOPT_StatusDebuggingEnabled[2];
 extern NSString* GSWOPT_DirectActionRequestHandlerKey[2];
 extern NSString* GSWOPT_DirectConnectEnabled[2];
 extern NSString* GSWOPT_FrameworksBaseURL[2];
+extern NSString* GSWOPT_OutputPath[2];
 extern NSString* GSWOPT_IncludeCommentsInResponse[2];
 extern NSString* GSWOPT_ListenQueueSize[2];
 extern NSString* GSWOPT_LoadFrameworks[2];
+extern NSString* GSWOPT_LifebeatEnabled[2];
+extern NSString* GSWOPT_LifebeatDestinationHost[2];
+extern NSString* GSWOPT_LifebeatDestinationPort[2];
+extern NSString* GSWOPT_LifebeatInterval[2];
 extern NSString* GSWOPT_MonitorEnabled[2];
 extern NSString* GSWOPT_MonitorHost[2];
 extern NSString* GSWOPT_Port[2];
 extern NSString* GSWOPT_Host[2];
 extern NSString* GSWOPT_ResourceRequestHandlerKey[2];
+extern NSString* GSWOPT_StreamActionRequestHandlerKey[2];
+extern NSString* GSWOPT_PingActionRequestHandlerKey[2];
+extern NSString* GSWOPT_StaticResourceRequestHandlerKey[2];
 extern NSString* GSWOPT_SMTPHost[2];
 extern NSString* GSWOPT_SessionTimeOut[2];
+extern NSString* GSWOPT_DefaultUndoStackLimit[2];
+extern NSString* GSWOPT_LockDefaultEditingContext[2];
 extern NSString* GSWOPT_WorkerThreadCount[2];
+extern NSString* GSWOPT_WorkerThreadCountMin[2];
+extern NSString* GSWOPT_WorkerThreadCountMax[2];
 extern NSString* GSWOPT_ProjectSearchPath;
 extern NSString* GSWOPT_MultiThreadEnabled;
 extern NSString* GSWOPT_DebugSetConfigFilePath;
 extern NSString* GSWOPT_AdaptorHost[2];
-extern NSString* GSWOPT_SaveResponsesPath[2];
+extern NSString* GSWOPT_RecordingPath[2];
 extern NSString* GSWOPT_DefaultTemplateParser[2];
+extern NSString* GSWOPT_AcceptedContentEncoding[2];
+extern NSString* GSWOPT_SessionStoreClassName[2];
+extern NSString* GSWOPT_ResourceManagerClassName[2];
+extern NSString* GSWOPT_StatisticsStoreClassName[2];
+extern NSString* GSWOPT_RecordingClassName[2];
 
 //====================================================================
 // Option Values
@@ -198,6 +236,13 @@ extern NSString* GSWOPTValue_DefaultTemplateParser_XMLHTML;
 extern NSString* GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags;
 extern NSString* GSWOPTValue_DefaultTemplateParser_XML;
 extern NSString* GSWOPTValue_DefaultTemplateParser_ANTLR;
+extern NSString* GSWOPTValue_ComponentRequestHandlerKey[2];
+extern NSString* GSWOPTValue_ResourceRequestHandlerKey[2];
+extern NSString* GSWOPTValue_DirectActionRequestHandlerKey[2];
+extern NSString* GSWOPTValue_StreamActionRequestHandlerKey[2];
+extern NSString* GSWOPTValue_PingActionRequestHandlerKey[2];
+extern NSString* GSWOPTValue_StaticResourceRequestHandlerKey[2];
+extern NSString* GSWOPTValue_SessionStoreClassName[2];
 
 //====================================================================
 // Cache Marker
@@ -218,6 +263,7 @@ extern NSString* GSASK_Language;
 // Page names
 
 extern NSString* GSWSessionRestorationErrorPageName[2];
+extern NSString* GSWSessionCreationErrorPageName[2];
 extern NSString* GSWExceptionPageName[2];
 extern NSString* GSWPageRestorationErrorPageName[2];
 
@@ -329,6 +375,7 @@ extern id startIndex__Key;
 extern id stopIndex__Key;
 extern id cidStore__Key;
 extern id cidKey__Key;
+extern id isDisplayStringBefore__Key;
 
 #endif // _GSWebConstants_h__
 

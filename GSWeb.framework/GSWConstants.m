@@ -59,6 +59,7 @@ NSString* GSWScriptPSuffix[2]={ @".gsws", @".wos" };
 NSString* GSWResourceRequestHandlerKey[2]={ @"rr", @"wr" };
 NSString* GSWComponentRequestHandlerKey[2]={ @"cr", @"wo" };
 NSString* GSWDirectActionRequestHandlerKey[2]={ @"dr", @"wa" };
+NSString* GSWPingActionRequestHandlerKey[2]={ @"lb", @"wlb" };
 NSString* GSWComponentDefinitionSuffix[2]={ @"gswd", @"wod" };
 NSString* GSWComponentDefinitionPSuffix[2]={ @".gswd", @".wod" };
 NSString* GSWArchiveSuffix[2]={ @"gswi", @"woo" };
@@ -88,6 +89,9 @@ NSString* GSWClassName_Session=@"Session";
 NSString* GSWClassName_Application=@"Application";
 NSString* GSWClassName_DefaultAdaptor[2]={ @"GSWDefaultAdaptor", @"WODefaultAdaptor" };
 NSString* GSWClassName_DefaultContext[2]={ @"GSWContext", @"WOContext" };
+NSString* GSWClassName_DefaultResponse[2]={ @"GSWResponse", @"WOResponse" };
+NSString* GSWClassName_DefaultRequest[2]={ @"GSWRequest", @"WORequest" };
+NSString* GSWClassName_DefaultRecording[2]={ @"GSWRecording", @"WORecording" };
 
 //====================================================================
 // Keys
@@ -104,6 +108,7 @@ NSString* GSWKey_IsmapCoords[2]={ @"GSWIsmapCoords", @"WOIsmapCoords" };
 //====================================================================
 // HTTP Headers
 NSString* GSWHTTPHeader_Cookie=@"cookie";
+NSString* GSWHTTPHeader_CookieStupidIIS=@"http_cookie";
 NSString* GSWHTTPHeader_SetCookie=@"set-cookie";
 
 NSString* GSWHTTPHeader_AdaptorVersion[2]={ @"x-gsweb-adaptor-version", @"x-webobjects-adaptor-version" };
@@ -128,6 +133,10 @@ NSString* GSWHTTPHeader_Protocol[2]={ @"x-gsweb-server-protocol", @"x-webobjects
 NSString* GSWHTTPHeader_ProtocolNum[2]={ @"x-gsweb-server-protocol-num", @"x-webobjects-server-protocol-num" };
 NSString* GSWHTTPHeader_RequestScheme[2]={ @"x-gsweb-request-scheme", @"x-webobjects-request-scheme" };
 NSString* GSWHTTPHeader_ApplicationName[2]={ @"x-gsweb-application-name", @"x-webobjects-application-name" };
+NSString* GSWHTTPHeader_RecordingSessionID[2]={ @"x-gsweb-session-id", @"x-webobjects-session-id" };
+NSString* GSWHTTPHeader_RecordingIDsURL[2]={ @"x-gsweb-ids-url", @"x-webobjects-ids-url" };
+NSString* GSWHTTPHeader_RecordingIDsCookie[2]={ @"x-gsweb-ids-url", @"x-webobjects-ids-cookie" };
+NSString* GSWHTTPHeader_RecordingApplicationNumber[2]={ @"x-gsweb-application-number", @"x-webobjects-application-number" };
 
 NSString* GSWHTTPHeader_MethodPost=@"POST";
 NSString* GSWHTTPHeader_MethodGet=@"GET";
@@ -137,7 +146,8 @@ NSString* GSWHTTPHeader_ContentType=@"content-type";
 NSString* GSWHTTPHeader_FormURLEncoded=@"application/x-www-form-urlencoded";
 NSString* GSWHTTPHeader_MultipartFormData=@"multipart/form-data";
 NSString* GSWHTTPHeader_MimeType_TextPlain=@"text/plain";
-NSString* GSWHTTPHeader_UserAgent=@"User-Agent";
+NSString* GSWHTTPHeader_UserAgent=@"user-agent";
+NSString* GSWHTTPHeader_Referer=@"referer";
 
 NSString* GSWHTTPHeader_ContentLength=@"content-length";
 
@@ -170,6 +180,8 @@ NSString* GSWProtocol_HTTPS=@"https";
 
 NSString* GSWOPT_Adaptor[2]={ @"GSWAdaptor", @"WOAdaptor" };
 NSString* GSWOPT_Context[2]={ @"GSWContext", @"WOContext" };
+NSString* GSWOPT_Response[2]={ @"GSWResponse", @"WOResponse" };
+NSString* GSWOPT_Request[2]={ @"GSWRequest", @"WORequest" };
 NSString* GSWOPT_AdditionalAdaptors[2]={ @"GSWAdditionalAdaptors", @"WOAdditionalAdaptors" };
 NSString* GSWOPT_ApplicationBaseURL[2]={ @"GSWApplicationBaseURL", @"WOApplicationBaseURL" };
 NSString* GSWOPT_AutoOpenInBrowser[2]={ @"GSWAutoOpenInBrowser", @"WOAutoOpenInBrowser" };
@@ -179,25 +191,42 @@ NSString* GSWOPT_ComponentRequestHandlerKey[2]={ @"GSWComponentRequestHandlerKey
 NSString* GSWOPT_DebuggingEnabled[2]={ @"GSWDebuggingEnabled", @"WODebuggingEnabled" };
 NSString* GSWOPT_StatusDebuggingEnabled[2]={ @"GSWStatusDebuggingEnabled", @"WOStatusDebuggingEnabled" };//NDFN
 NSString* GSWOPT_DirectActionRequestHandlerKey[2]={ @"GSWDirectActionRequestHandlerKey", @"WODirectActionRequestHandlerKey" };
+NSString* GSWOPT_PingActionRequestHandlerKey[2]={ @"GSWPingActionRequestHandlerKey", @"WOPingActionRequestHandlerKey" };
+NSString* GSWOPT_StaticResourceRequestHandlerKey[2]={ @"GSWStaticResourceRequestHandlerKey", @"WOStaticResourceRequestHandlerKey" };
 NSString* GSWOPT_DirectConnectEnabled[2]={ @"GSWDirectConnectEnabled", @"WODirectConnectEnabled" };
 NSString* GSWOPT_FrameworksBaseURL[2]={ @"GSWFrameworksBaseURL", @"WOFrameworksBaseURL" };
+NSString* GSWOPT_OutputPath[2]={ @"GSWOutputPath", @"WOOutputPath" };
 NSString* GSWOPT_IncludeCommentsInResponse[2]={ @"GSWIncludeCommentsInResponse", @"WOIncludeCommentsInResponse" };
 NSString* GSWOPT_ListenQueueSize[2]={ @"GSWListenQueueSize", @"WOListenQueueSize" };
 NSString* GSWOPT_LoadFrameworks[2]={ @"GSWLoadFrameworks", @"WOLoadFrameworks" };
+NSString* GSWOPT_LifebeatEnabled[2]={ @"GSWLifebeatEnabled", @"WOLifebeatEnabled" };
+NSString* GSWOPT_LifebeatDestinationHost[2]={ @"GSWLifebeatDestinationHost", @"WOLifebeatDestinationHost" };
+NSString* GSWOPT_LifebeatDestinationPort[2]={ @"GSWLifebeatDestinationPort", @"WOLifebeatDestinationPort" };
+NSString* GSWOPT_LifebeatInterval[2]={ @"GSWLifebeatInterval", @"WOLifebeatInterval" };
 NSString* GSWOPT_MonitorEnabled[2]={ @"GSWMonitorEnabled", @"WOMonitorEnabled" };
 NSString* GSWOPT_MonitorHost[2]={ @"GSWMonitorHost", @"WOMonitorHost" };
 NSString* GSWOPT_Port[2]={ @"GSWPort", @"WOPort" };
 NSString* GSWOPT_Host[2]={ @"GSWHost", @"WOHost" };
 NSString* GSWOPT_ResourceRequestHandlerKey[2]={ @"GSWResourceRequestHandlerKey", @"WOResourceRequestHandlerKey" };
+NSString* GSWOPT_StreamActionRequestHandlerKey[2]={ @"GSWStreamActionRequestHandlerKey", @"WOStreamActionRequestHandlerKey" };
 NSString* GSWOPT_SMTPHost[2]={ @"GSWSMTPHost", @"WOSMTPHost" };
 NSString* GSWOPT_SessionTimeOut[2]={ @"GSWSessionTimeOut", @"WOSessionTimeOut" };
+NSString* GSWOPT_DefaultUndoStackLimit[2]={ @"GSWDefaultUndoStackLimit", @"WODefaultUndoStackLimit" };
+NSString* GSWOPT_LockDefaultEditingContext[2]={ @"GSWLockDefaultEditingContext", @"WOLockDefaultEditingContext" };
 NSString* GSWOPT_WorkerThreadCount[2]={ @"GSWWorkerThreadCount", @"WOWorkerThreadCount" };
+NSString* GSWOPT_WorkerThreadCountMin[2]={ @"GSWWorkerThreadCountMin", @"WOWorkerThreadCountMin" };
+NSString* GSWOPT_WorkerThreadCountMax[2]={ @"GSWWorkerThreadCountMax", @"WOWorkerThreadCountMax" };
 NSString* GSWOPT_ProjectSearchPath=@"NSProjectSearchPath";
 NSString* GSWOPT_MultiThreadEnabled=@"GSWMTEnabled";
 NSString* GSWOPT_DebugSetConfigFilePath=@"GSWDebugSetConfigFilePath";
 NSString* GSWOPT_AdaptorHost[2]={ @"GSWAdaptorHost", @"WOAdaptorHost" };
-NSString* GSWOPT_SaveResponsesPath[2]={ @"GSWSaveResponsePath", @"WOSaveResponsePath" };
+NSString* GSWOPT_RecordingPath[2]={ @"GSWRecordingPath", @"WORecordingPath" };
 NSString* GSWOPT_DefaultTemplateParser[2]= { @"GSWDefaultTemplateParser", @"WODefaultTemplateParser" };
+NSString* GSWOPT_AcceptedContentEncoding[2]= { @"GSWAcceptedContentEncoding", @"WOAcceptedContentEncoding" };
+NSString* GSWOPT_SessionStoreClassName[2]= { @"GSWSessionStoreClassName", @"WOSessionStoreClassName" };
+NSString* GSWOPT_ResourceManagerClassName[2]= { @"GSWResourceManagerClassName", @"WOResourceManagerClassName" };
+NSString* GSWOPT_StatisticsStoreClassName[2]= { @"GSWStatisticsStoreClassName", @"WOStatisticsStoreClassName" };
+NSString* GSWOPT_RecordingClassName[2]= { @"GSWRecordingClassName", @"WORecordingClassName" };
 
 //====================================================================
 // Option Values
@@ -206,6 +235,13 @@ NSString* GSWOPTValue_DefaultTemplateParser_XMLHTML = @"XMLHTML";
 NSString* GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags  = @"XMLHTMLNoOmittedTags";
 NSString* GSWOPTValue_DefaultTemplateParser_XML = @"XML";
 NSString* GSWOPTValue_DefaultTemplateParser_ANTLR = @"ANTLR";
+NSString* GSWOPTValue_ComponentRequestHandlerKey[2]={ @"cr", @"wo" };
+NSString* GSWOPTValue_ResourceRequestHandlerKey[2]={ @"rr", @"wr" };
+NSString* GSWOPTValue_DirectActionRequestHandlerKey[2]={ @"dr", @"wa" };
+NSString* GSWOPTValue_StreamActionRequestHandlerKey[2]={ @"sr", @"wis" };
+NSString* GSWOPTValue_PingActionRequestHandlerKey[2]={ @"lb", @"wlb" };
+NSString* GSWOPTValue_StaticResourceRequestHandlerKey[2]={ @"_rr_", @"_wr_" };
+NSString* GSWOPTValue_SessionStoreClassName[2]={ @"GSWServerSessionStore", @"WOServerSessionStore" };
 
 //====================================================================
 // Cache Marker
@@ -225,6 +261,7 @@ NSString* GSASK_Language = @"GSLanguage";
 // Page names
 
 NSString* GSWSessionRestorationErrorPageName[2]={ @"GSWSessionRestorationErrorPage", @"WOSessionRestorationErrorPage" };
+NSString* GSWSessionCreationErrorPageName[2]={ @"GSWSessionCreationErrorPage", @"WOSessionCreationError" };
 NSString* GSWExceptionPageName[2]={ @"GSWExceptionPage", @"WOExceptionPage" };
 NSString* GSWPageRestorationErrorPageName[2]={ @"GSWPageRestorationErrorPage", @"WOPageRestorationErrorPage" };
 
@@ -335,4 +372,4 @@ id startIndex__Key = @"startIndex";
 id stopIndex__Key = @"stopIndex";
 id cidStore__Key = @"cidStore";
 id cidKey__Key = @"cidKey";
-
+id isDisplayStringBefore__Key = @"isDisplayStringBefore";
