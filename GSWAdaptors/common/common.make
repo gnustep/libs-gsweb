@@ -24,7 +24,8 @@ COMMONFILES = $(COMMON)/GSWHTTPHeaders.c \
 	$(COMMON)/GSWTemplates.c $(COMMON)/GSWApp.c \
 	$(COMMON)/GSWURLUtil.c $(COMMON)/GSWDict.c \
 	$(COMMON)/GSWHTTPRequest.c $(COMMON)/GSWHTTPResponse.c \
-	$(COMMON)/GSWAppConnectSocket.c $(COMMON)/GSWUtil.c $(COMMON)/GSWAppRequest.c \
+	$(COMMON)/GSWAppConnectSocket.c $(COMMON)/GSWUtil.c \
+	$(COMMON)/GSWAppRequest.c \
 	$(COMMON)/GSWLoadBalancing.c $(COMMON)/GSWList.c  \
 	$(COMMON)/GSWString.c
 
@@ -34,7 +35,8 @@ COMMONOBJS = $(OBJROOT)/GSWHTTPHeaders.o \
 	$(OBJROOT)/GSWTemplates.o $(OBJROOT)/GSWApp.o \
 	$(OBJROOT)/GSWURLUtil.o $(OBJROOT)/GSWDict.o \
 	$(OBJROOT)/GSWHTTPRequest.o $(OBJROOT)/GSWHTTPResponse.o \
-	$(OBJROOT)/GSWAppConnectSocket.o $(OBJROOT)/GSWUtil.o $(OBJROOT)/GSWAppRequest.o \
+	$(OBJROOT)/GSWAppConnectSocket.o $(OBJROOT)/GSWUtil.o \
+	$(OBJROOT)/GSWAppRequest.o \
 	$(OBJROOT)/GSWLoadBalancing.o $(OBJROOT)/GSWList.o \
 	$(OBJROOT)/GSWString.o
 

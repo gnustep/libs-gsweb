@@ -1,6 +1,7 @@
 2004-05-06  David Ayers  <d.ayers@inode.at>
 
 	* INSTALL: Update prerequisites.
+	* GSWAdaptors/common/common.make: Whitespace update.
 	
 2004-04-22  S.J. Chun <chunsj@embian.com>
 
