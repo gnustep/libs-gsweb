@@ -164,7 +164,7 @@ RCS_ID("$Id$")
               NSString* path=nil;
               resourceManager=[GSWApp resourceManager];
               path=[resourceManager pathForResourceNamed:scriptFileName
-                                    ofType:nil
+                                    inFramework:nil
                                     languages:[aContext languages]];
               if (path)
                 {
