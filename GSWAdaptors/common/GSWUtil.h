@@ -128,6 +128,12 @@ void GSWLog_Init(GSWDict *p_pDict, int p_iLevel);
   void FormatAPRTime(char *date_str, apr_time_t t); // 2003/04/05 10:12:25.123
 #endif
 
+#ifdef __USE_GNU
+#define gsw_strndup(a,b) strndup((a),(b))
+#else
+  extern char* gsw_strndup(const char *s, size_t len);
+#endif
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

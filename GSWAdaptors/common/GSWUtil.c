@@ -606,3 +606,25 @@ void FormatAPRTime(char *date_str, apr_time_t t)
 }
 
 #endif
+
+#ifndef __USE_GNU
+char* gsw_strndup(const char *s, size_t len)
+{
+  char *dups=NULL;
+
+  // search end of string
+  const char *end = memchr(s, '\0', len);
+  
+  if (end)
+     len=end-s;
+  
+  dups = malloc(len+1); // +1 for \0
+
+  if (len>0)
+        memcpy(dups,s,len);
+
+  dups[len]='\0';
+  return dups;
+}
+#endif
+
