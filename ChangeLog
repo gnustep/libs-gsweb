@@ -1,3 +1,21 @@
+2002-12-11   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWAdaptors/common/GSWUtil.h
+		o changes to handle Apache 2.x
+	* GSWeb/GSWAdaptors/common/config.h
+		o changes to handle Apache 2.x
+	* GSWeb/GSWAdaptors/common/GSWConfig.h
+		o changes to handle Apache 2.x
+	* GSWeb/GSWAdaptors/common/GSWUtil.c
+		o changes to handle Apache 2.x
+	* GSWeb/GSWAdaptors/Apache/GNUmakefile-Apache1x
+		o new name of Apache 1.x GNUmakfile
+	* GSWeb/GSWAdaptors/Apache/GNUmakefile-Apache2x
+		o New Apache 2.x makefile
+	* GSWeb/GSWAdaptors/Apache/INSTALL
+		o changes to handle Apache 2.x
+	* GSWeb/GSWAdaptors/Apache/mod_gsweb.c
+		o changes to handle Apache 2.x
+
 2002-12-06   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWApplication.m
 		o don't use NSClassFromString to support GSW & WO namespaces
