@@ -11,7 +11,7 @@
  */
 
 
-#include "GSWeb.h"
+#include <GSWeb/GSWeb.h>
 
 #include "gsantlr/ANTLRCommon.h"
 #include "gsantlr/ANTLRTokenizer.h"
@@ -61,5 +61,7 @@ extern CONST unsigned long GSWPageDefParser___tokenSet_4_data_[];
 extern ANTLRBitSet* GSWPageDefParser___tokenSet_4;
 extern CONST unsigned long GSWPageDefParser___tokenSet_5_data_[];
 extern ANTLRBitSet* GSWPageDefParser___tokenSet_5;
+extern CONST unsigned long GSWPageDefParser___tokenSet_6_data_[];
+extern ANTLRBitSet* GSWPageDefParser___tokenSet_6;
 
 #endif /*INC_GSWPageDefParser_h_*/

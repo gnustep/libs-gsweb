@@ -11,7 +11,7 @@
  */
 
 
-#include "GSWeb.h"
+#include <GSWeb/GSWeb.h>
 
 enum GSWPageDefParserTokenTypes {
 	GSWPageDefParserTokenType_EOF_ = 1,
@@ -26,23 +26,24 @@ enum GSWPageDefParserTokenTypes {
 	GSWPageDefParserTokenType_SEMI = 11,
 	GSWPageDefParserTokenType_ASSIGN = 12,
 	GSWPageDefParserTokenType_QUESTIONMARK = 13,
-	GSWPageDefParserTokenType_INT = 14,
-	GSWPageDefParserTokenType_YES = 15,
-	GSWPageDefParserTokenType_NO = 16,
-	GSWPageDefParserTokenType_HEXNUM = 17,
-	GSWPageDefParserTokenType_CIRC = 18,
-	GSWPageDefParserTokenType_TILDE = 19,
-	GSWPageDefParserTokenType_IDENTREF = 20,
-	GSWPageDefParserTokenType_PIDENT = 21,
-	GSWPageDefParserTokenType_PIDENTREF = 22,
-	GSWPageDefParserTokenType_SL_COMMENT = 23,
-	GSWPageDefParserTokenType_ML_COMMENT = 24,
-	GSWPageDefParserTokenType_POINT = 25,
-	GSWPageDefParserTokenType_ESC = 26,
-	GSWPageDefParserTokenType_HEXINT = 27,
-	GSWPageDefParserTokenType_DIGIT = 28,
-	GSWPageDefParserTokenType_HEXDIGIT = 29,
-	GSWPageDefParserTokenType_LCLETTER = 30,
-	GSWPageDefParserTokenType_LETTER = 31,
+	GSWPageDefParserTokenType_EXCLAMATIONMARK = 14,
+	GSWPageDefParserTokenType_INT = 15,
+	GSWPageDefParserTokenType_YES = 16,
+	GSWPageDefParserTokenType_NO = 17,
+	GSWPageDefParserTokenType_HEXNUM = 18,
+	GSWPageDefParserTokenType_CIRC = 19,
+	GSWPageDefParserTokenType_TILDE = 20,
+	GSWPageDefParserTokenType_IDENTREF = 21,
+	GSWPageDefParserTokenType_PIDENT = 22,
+	GSWPageDefParserTokenType_PIDENTREF = 23,
+	GSWPageDefParserTokenType_SL_COMMENT = 24,
+	GSWPageDefParserTokenType_ML_COMMENT = 25,
+	GSWPageDefParserTokenType_POINT = 26,
+	GSWPageDefParserTokenType_ESC = 27,
+	GSWPageDefParserTokenType_HEXINT = 28,
+	GSWPageDefParserTokenType_DIGIT = 29,
+	GSWPageDefParserTokenType_HEXDIGIT = 30,
+	GSWPageDefParserTokenType_LCLETTER = 31,
+	GSWPageDefParserTokenType_LETTER = 32,
 };
 #endif /*INC_GSWPageDefParserTokenTypes_h_*/

@@ -11,7 +11,7 @@
  */
 
 
-#include "GSWeb.h"
+#include <GSWeb/GSWeb.h>
 
 
 #include "gsantlr/ANTLRCommon.h"
@@ -49,6 +49,7 @@
 	/*public: */-(void) mCOLUMNWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mASSIGNWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mQUESTIONMARKWithCreateToken:(BOOL)_createToken ;
+	/*public: */-(void) mEXCLAMATIONMARKWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mWSWithCreateToken:(BOOL)_createToken ;
 	/*protected: */-(void) mESCWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mHEXNUMWithCreateToken:(BOOL)_createToken ;

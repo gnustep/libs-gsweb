@@ -8,7 +8,7 @@
  */
 
 
-#include "GSWeb.h"
+#include <GSWeb/GSWeb.h>
 
 #include "gsantlr/ANTLRCommon.h"
 #include "gsantlr/ANTLRException.h"
@@ -120,6 +120,12 @@
 			case ((unichar)('?')):
 			{
 				[self mQUESTIONMARKWithCreateToken:YES];
+				_rettoken=_returnToken;
+				break;
+			}
+			case ((unichar)('!')):
+			{
+				[self mEXCLAMATIONMARKWithCreateToken:YES];
 				_rettoken=_returnToken;
 				break;
 			}
@@ -735,11 +741,11 @@ int _begin=[text length];
 				}
 				default:
 				{
-					goto _loop70;
+					goto _loop71;
 				}
 				}
 			} while (YES);
-			_loop70:;
+			_loop71:;
 		}
 		[self matchCharacter:'\''];
 		break;
@@ -828,11 +834,11 @@ int _begin=[text length];
 				}
 				default:
 				{
-					goto _loop73;
+					goto _loop74;
 				}
 				}
 			} while (YES);
-			_loop73:;
+			_loop74:;
 		}
 		[self matchCharacter:'"'];
 		break;
@@ -1014,7 +1020,7 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt77=0;
+		int _cnt78=0;
 		do
 		{
 			if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))))
@@ -1023,12 +1029,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt77>=1 ) { goto _loop77; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt78>=1 ) { goto _loop78; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt77++;
+			_cnt78++;
 		} while (YES);
-		_loop77:;
+		_loop78:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -1221,6 +1227,24 @@ int _begin=[text length];
 	//LOGObjectFnStop();
 }
 
+-(void) mEXCLAMATIONMARKWithCreateToken:(BOOL)_createToken 
+{
+	ANTLRDefToken _token=nil;
+int _begin=[text length];
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_EXCLAMATIONMARK;
+	int _saveIndex;
+	
+	//LOGObjectFnStart();
+	[self matchCharacter:'!'];
+	if ( _createToken && _token==0 )
+	{
+		   _token = [self makeToken:_ttype];
+		   [_token setText:[text substringFromIndex:_begin]];
+	}
+	ASSIGN(_returnToken,_token);
+	//LOGObjectFnStop();
+}
+
 -(void) mWSWithCreateToken:(BOOL)_createToken 
 {
 	ANTLRDefToken _token=nil;
@@ -1330,7 +1354,7 @@ int _begin=[text length];
 		case ((unichar)('u')):
 		{
 			{
-				int _cnt82=0;
+				int _cnt83=0;
 				do
 				{
 					if (([self LA:1]==((unichar)('u'))))
@@ -1339,12 +1363,12 @@ int _begin=[text length];
 					}
 					else
 					{
-						if ( _cnt82>=1 ) { goto _loop82; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+						if ( _cnt83>=1 ) { goto _loop83; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 					}
 					
-					_cnt82++;
+					_cnt83++;
 				} while (YES);
-				_loop82:;
+				_loop83:;
 			}
 			[self mHEXDIGITWithCreateToken:NO];
 			[self mHEXDIGITWithCreateToken:NO];
@@ -1455,7 +1479,7 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt92=0;
+		int _cnt93=0;
 		do
 		{
 			if (([GSWPageDefLexer___tokenSet_2 isMember:[self LA:1]]))
@@ -1464,12 +1488,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt92>=1 ) { goto _loop92; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt93>=1 ) { goto _loop93; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt92++;
+			_cnt93++;
 		} while (YES);
-		_loop92:;
+		_loop93:;
 	}
 	if ( _createToken && _token==0 )
 	{
