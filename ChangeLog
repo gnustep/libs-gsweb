@@ -1,5 +1,8 @@
 2004-05-18  David Ayers  <d.ayers@inode.at>
 
+	* GSWeb.framework/GSWUtils.h/m: (struct proc_s, proc_t): Removed.
+	(pidstat, pidstatm, pidproccontent): Removed.
+
 	* GSWeb.framework/GSWProcFS.h/m: Make class more portable.
 	Replace all system dependent types with standard types.  Replace
 	usage of NSDebugFLog with NSDebugMLog in methods.

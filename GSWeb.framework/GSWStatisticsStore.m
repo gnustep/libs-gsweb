@@ -890,12 +890,6 @@ RCS_ID("$Id$")
           NSDebugMLog(@"ru_nivcsw=%ld",rusageStruct.ru_nivcsw);          /* involuntary context switches */	  
         };
     };
-  {
-    proc_t P;
-    memset(&P,0,sizeof(proc_t));
-    pidstat(getpid(),&P);
-    pidstatm(getpid(),&P);
-  };
   NSDebugMLog(@"ProcInfo:%@",[GSWProcFSProcInfo filledProcInfo]);
   
   //{Committed = 14184448; Reserved = 19025920; }
