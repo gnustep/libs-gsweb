@@ -1,5 +1,9 @@
 2000-11-01  Manuel Guesdon <mguesdon@orange-concept.com>
 
+	* GSWeb.framework/GSWTemplateParserXML.m: remove setExternalEntityLoader: call
+
+2000-11-01  Manuel Guesdon <mguesdon@orange-concept.com>
+
 	* GSWeb.framework/GSWTemplateParserXML.m: remove xml-error.h include
 
 2000-11-01  Manuel Guesdon <mguesdon@orange-concept.com>

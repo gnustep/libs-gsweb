@@ -177,19 +177,18 @@ extern void            externalSubset                  (void *ctx,
   return self;
 };
 
+/*
 xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemId,
                                                              const char *publicId,
                                                              xmlParserCtxtPtr context)
 {
-/*
-  NSCAssert(context,@"No Parser Context");
-  NSCAssert(context->_private,@"No GSSAXHandler reference in Parser Context");
-  return [(GSSAXHandler*)(context->_private)resolveEntity:[NSString stringWithCString:publicId]
-                         systemID:[NSString stringWithCString:systemId]];
-*/
+//  NSCAssert(context,@"No Parser Context");
+//  NSCAssert(context->_private,@"No GSSAXHandler reference in Parser Context");
+//  return [(GSSAXHandler*)(context->_private)resolveEntity:[NSString stringWithCString:publicId]
+//                         systemID:[NSString stringWithCString:systemId]];
   return NULL;
 }
-
+*/
 
 //--------------------------------------------------------------------
 //exemple:
@@ -486,7 +485,7 @@ static NSString* TabsForLevel(int level)
         };
       [parser doValidityChecking:YES];
       [parser getWarnings:YES];
-      [parser setExternalEntityLoader:GSWTemplateParserSAXHandler_ExternalLoader];
+      //[parser setExternalEntityLoader:GSWTemplateParserSAXHandler_ExternalLoader];
       NS_DURING
         {
           parseOk=[parser parse];
