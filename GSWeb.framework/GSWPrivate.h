@@ -37,7 +37,7 @@
 If *impPtr is NULL, the method assign it **/
 static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* impPtr,NSString* string)
 {
-  if (object)
+  if (object && string)
     {
       if (!*impPtr)
         *impPtr=[object methodForSelector:@selector(appendString:)];

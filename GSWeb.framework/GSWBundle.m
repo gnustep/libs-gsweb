@@ -257,6 +257,9 @@ objectForReference:(NSString*)keyPath
 
 //====================================================================
 @implementation GSWBundle (GSWBundleA)
+
+// returned relativePath won't have "/" prefix
+
 -(id)lockedResourceNamed:(NSString*)aName
                   ofType:(NSString*)aType
            withLanguages:(NSArray*)someLanguages
@@ -281,24 +284,24 @@ objectForReference:(NSString*)keyPath
   fileManager=[NSFileManager defaultManager];
   NSAssert(fileManager,@"No fileManager");
 
-  fileName=[NSString stringWithFormat:@"%@.%@",aName,aType];
+  fileName=[aName stringByAppendingPathExtension:aType];
   NSDebugMLLog(@"bundles",@"fileName=%@",fileName);
+
   for(languageIndex=0;!resource && !path && languageIndex<=languagesNb;languageIndex++)
     {
       language=nil;
       if (languageIndex==languagesNb)
-        relativePath=[@"/" stringByAppendingString:fileName];
+        relativePath=fileName;
       else
         {
           language=[someLanguages objectAtIndex:languageIndex];
-          relativePath=[NSString stringWithFormat:@"/%@.%@/%@",
-                                 language,
-                                 GSLanguageSuffix,
-                                 fileName];
+          // format like: language.languageSuffix/fileName
+          relativePath=[language stringByAppendingPathExtension:GSLanguageSuffix];
+          relativePath=[relativePath stringByAppendingPathComponent:fileName];
         };
       NSDebugMLLog(@"bundles",@"language=%@",language);
       NSDebugMLLog(@"bundles",@"relativePath=%@",relativePath);
-      absolutePath=[_path stringByAppendingString:relativePath];
+      absolutePath=[_path stringByAppendingPathComponent:relativePath];
       NSDebugMLLog(@"bundles",@"absolutePath=%@",absolutePath);
       if ([[GSWApplication application] isCachingEnabled])
         resource=[aCache objectForKey:relativePath];
@@ -322,12 +325,15 @@ objectForReference:(NSString*)keyPath
               absolutePath=nil;
             };
         };
-	};
+    };
+
   if (aRelativePath)
-    *aRelativePath=relativePath;
+    *aRelativePath=(([relativePath length]>0) ? relativePath : nil);
   if (anAbsolutePath)
-    *anAbsolutePath=absolutePath;
+    *anAbsolutePath=(([absolutePath length]>0) ? absolutePath : nil);
+
   LOGObjectFnStop();
+
   return resource;
 };
 @end
@@ -579,6 +585,10 @@ objectForReference:(NSString*)keyPath
                  usingCache:_templateCache
                  relativePath:&relativeTemplatePath
                  absolutePath:&absoluteTemplatePath];
+
+  NSDebugMLLog(@"bundles",@"relativeTemplatePath=%@",relativeTemplatePath);
+  NSDebugMLLog(@"bundles",@"absoluteTemplatePath=%@",absoluteTemplatePath);
+
   if (!template)
     {
       if (!relativeTemplatePath)
@@ -848,7 +858,10 @@ objectForReference:(NSString*)keyPath
       NSString* relativePath=nil;
       NSString* absolutePath=nil;
       NSString* baseURL=nil;
+
       LOGObjectFnStart();
+
+      // baseURL have / prefix, relativePath don't
       baseURL=[self lockedResourceNamed:aName
                     ofType:aType
                     withLanguages:someLanguages
@@ -859,11 +872,11 @@ objectForReference:(NSString*)keyPath
         {
           if (relativePath)
             {
-              baseURL=relativePath;
+              baseURL=[relativePath stringByAppendingString:@"/"];
               if ([[GSWApplication application] isCachingEnabled])
                 {
                   [_pathCache setObject:baseURL
-                             forKey:relativePath];
+                              forKey:relativePath];
                 };
             };
         };

@@ -1,4 +1,34 @@
 2005-04-05  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWContext.m:
+		o add contextAndElementID caching and optimizations
+		o use GSWIntToNSString instead of -stringWithFormat:
+		o fix for https in 
+		-directActionURLForActionNamed:urlPrefix:queryDictionary:
+		-directActionURLForActionNamed:urlPrefix:queryDictionary:pathQueryDictionary:
+		-componentActionURL
+		-urlWithURLPrefix:requestHandlerKey:path:queryString:
+		-urlWithRequestHandlerKey:path:queryString:
+		-_directActionURLForActionNamed:urlPrefix:queryDictionary:pathQueryDictionary:url:
+		o avoid stringWithFormat int -componentActionURLIsSecure:
+		o optimization in 
+		_directActionURLForActionNamed:urlPrefix:queryDictionary:pathQueryDictionary:isSecure:
+		o fix in -languages session addressing
+		o added -isSessionDisabled, -setIsSessionDisabled: methods 
+		and _isSessionDisabled ivar to disable session creation/restoration
+	* GSWeb.framework/GSWContext.h:
+		o added _contextAndElementIDIMP in GSWContextIMPs
+		o added GSWContext_contextAndElementID()
+	* GSWeb.framework/GSWAction.m:
+		o handle context isSessionDisabled
+		o avoid string formatting
+	* GSWeb.framework/GSWBundle.m:
+		o use standard methods to build pathes and file names
+	* GSWeb.framework/GSWActionRequestHandler.m:
+		o avoid string formatting
+	* GSWeb.framework/GSWPrivate.h:
+		o avoid calling method if string parameter is nil
+
+2005-04-05  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWExtensions.framework/Makefile.preamble:
 		o handle GSWDEBUG in Makefile.preamble
 	* GSWExtensionsGSW.framework/Makefile.preamble:

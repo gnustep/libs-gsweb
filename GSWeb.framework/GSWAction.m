@@ -1,6 +1,6 @@
 /** GSWAction.m - <title>GSWeb: Class GSWAction</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -70,34 +70,41 @@ RCS_ID("$Id$")
   //OK
   GSWSession* session=nil;
   BOOL hasSession=NO;
+
   LOGObjectFnStart();
-  hasSession=[_context hasSession];
-  if (hasSession)
-    session=[_context existingSession];
-  if (!session)
+
+  if (![_context isSessionDisabled])
     {
-      NSString* sessionID=nil;
-      sessionID=[[self request] sessionID];
-      if (sessionID)
+      hasSession=[_context hasSession];
+      if (hasSession)
+        session=[_context existingSession];
+      if (!session)
         {
-          NS_DURING
+          NSString* sessionID=nil;
+          sessionID=[[self request] sessionID];
+          if (sessionID)
             {
-              NSDebugMLLog(@"requests",@"sessionID=%@",sessionID);
-              session=[GSWApp restoreSessionWithID:sessionID
-                              inContext:_context];
-              //No Exception if session can't be restored !
-            }
-          NS_HANDLER
-            {
-              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-              LOGException(@"exception=%@",localException);
-              //No Exception if session can't be restored !
-              session=nil;
-            }
-          NS_ENDHANDLER;
+              NS_DURING
+                {
+                  NSDebugMLLog(@"requests",@"sessionID=%@",sessionID);
+                  session=[GSWApp restoreSessionWithID:sessionID
+                                  inContext:_context];
+                  //No Exception if session can't be restored !
+                }
+              NS_HANDLER
+                {
+                  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
+                  LOGException(@"exception=%@",localException);
+                  //No Exception if session can't be restored !
+                  session=nil;
+                }
+              NS_ENDHANDLER;
+            };
         };
     };
+
   LOGObjectFnStop();
+
   return session;
 };
 
@@ -107,32 +114,39 @@ RCS_ID("$Id$")
   //OK
   GSWSession* session=nil;
   BOOL hasSession=NO;
+
   LOGObjectFnStart();
-  hasSession=[_context hasSession];
-  if (hasSession)
-    session=[_context existingSession];
-  if (!session)
+
+  if (![_context isSessionDisabled])
     {
-      if (aSessionID)
+      hasSession=[_context hasSession];
+      if (hasSession)
+        session=[_context existingSession];
+      if (!session)
         {
-          NS_DURING
+          if (aSessionID)
             {
-              NSDebugMLLog(@"requests",@"aSessionID=%@",aSessionID);
-              session=[GSWApp restoreSessionWithID:aSessionID
-                              inContext:_context];
-              //No Exception if session can't be restored !
-            }
-          NS_HANDLER
-            {
-              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-              LOGException(@"exception=%@",localException);
-              //No Exception if session can't be restored !
-              session=nil;
-            }
-          NS_ENDHANDLER;
+              NS_DURING
+                {
+                  NSDebugMLLog(@"requests",@"aSessionID=%@",aSessionID);
+                  session=[GSWApp restoreSessionWithID:aSessionID
+                                  inContext:_context];
+                  //No Exception if session can't be restored !
+                }
+              NS_HANDLER
+                {
+                  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
+                  LOGException(@"exception=%@",localException);
+                  //No Exception if session can't be restored !
+                  session=nil;
+                }
+              NS_ENDHANDLER;
+            };
         };
     };
+
   LOGObjectFnStop();
+
   return session;
 };
 
@@ -141,42 +155,49 @@ RCS_ID("$Id$")
 {
   BOOL hasSession=NO;
   GSWSession* session=nil;
+
   LOGObjectFnStart();
-  hasSession=[_context hasSession];
-  if (hasSession)
-    session=[_context existingSession];
-  if (!session)
+
+  if (![_context isSessionDisabled])
     {
-      NSString* sessionID=nil;
-      sessionID=[[self request] sessionID];
-      if (sessionID)
+      hasSession=[_context hasSession];
+      if (hasSession)
+        session=[_context existingSession];
+      if (!session)
         {
-          NS_DURING
+          NSString* sessionID=nil;
+          sessionID=[[self request] sessionID];
+          if (sessionID)
             {
-              session=[GSWApp restoreSessionWithID:sessionID
-                              inContext:_context];
+              NS_DURING
+                {
+                  session=[GSWApp restoreSessionWithID:sessionID
+                                  inContext:_context];
+                }
+              NS_HANDLER
+                {
+                  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
+                  LOGException(@"exception=%@",localException);
+                  [localException raise];
+                };
+              NS_ENDHANDLER;
+              if (!session)
+                {
+                  ExceptionRaise(@"GSWAction",
+                                 @"Unable to restore sessionID %@.",
+                                 sessionID);
+                };
             }
-          NS_HANDLER
+          else
             {
-              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-              LOGException(@"exception=%@",localException);
-              [localException raise];
+              // No Session ID: Create a new Session
+              session=[_context session];
             };
-          NS_ENDHANDLER;
-          if (!session)
-            {
-              ExceptionRaise(@"GSWAction",
-                             @"Unable to restore sessionID %@.",
-                             sessionID);
-            };
-        }
-      else
-        {
-          // No Session ID: Create a new Session
-          session=[_context session];
         };
     };
+
   LOGObjectFnStop();
+
   return session;
 };
 
@@ -227,7 +248,7 @@ RCS_ID("$Id$")
 {
   NSString* actionSelName=nil;
   SEL actionSel=NULL;
-  actionSelName=[NSString stringWithFormat:@"%@Action",actionName];
+  actionSelName=[actionName stringByAppendingString:@"Action"];
   NSDebugMLLog(@"requests",@"actionSelName=%@",actionSelName);
   actionSel=NSSelectorFromString(actionSelName);
   return actionSel;
@@ -332,7 +353,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)logWithString:(NSString*)string
 {
-  [GSWApplication logWithFormat:@"%@",string];
+  [GSWApplication logString:string];
 };
 
 //--------------------------------------------------------------------

@@ -269,8 +269,7 @@ RCS_ID("$Id$")
     default:
       {
         *actionClassNamePtr=[path objectAtIndex:0];
-        *actionNamePtr=[NSString stringWithFormat:@"%@",
-                                 [path objectAtIndex:1]];
+        *actionNamePtr=NSStringWithObject([path objectAtIndex:1]);
         NSDebugMLog(@"*actionClassNamePtr=%@",*actionClassNamePtr);
         NSDebugMLog(@"*actionNamePtr=%@",*actionNamePtr);
         if ([*actionNamePtr isEqual:*actionClassNamePtr])

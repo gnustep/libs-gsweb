@@ -1,6 +1,6 @@
 /** GSWContext.h - <title>GSWeb: Class GSWContext</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -44,6 +44,7 @@ typedef struct _GSWContextIMPs
   IMP _elementIDIMP;
   IMP _componentIMP;
   IMP _senderIDIMP;
+  IMP _contextAndElementIDIMP;
   GSWIMP_BOOL _isParentSenderIDSearchOverIMP;
   GSWIMP_BOOL _isSenderIDSearchOverIMP;
 } GSWContextIMPs;
@@ -60,6 +61,7 @@ GSWEB_EXPORT void GSWContext_deleteLastElementIDComponent(GSWContext* aContext);
 GSWEB_EXPORT NSString* GSWContext_elementID(GSWContext* aContext);
 GSWEB_EXPORT GSWComponent* GSWContext_component(GSWContext* aContext);
 GSWEB_EXPORT NSString* GSWContext_senderID(GSWContext* aContext);
+GSWEB_EXPORT NSString* GSWContext_contextAndElementID(GSWContext* aContext);
 GSWEB_EXPORT BOOL GSWContext_isParentSenderIDSearchOver(GSWContext* aContext);
 GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 
@@ -100,6 +102,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
  NSMutableDictionary* _userInfo;
  NSArray* _languages;
  BOOL _isRefusingThisRequest;
+ BOOL _isSessionDisabled;
  
  // IMPs for elementID manipulations
  // As there's not many GSWContext objects, using some extra memory is not a problem
@@ -127,6 +130,13 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 -(GSWSession*)_session;
 -(GSWSession*)session;
 -(BOOL)hasSession;
+
+/** return YES is session creation|restoration is disabled **/
+-(BOOL)isSessionDisabled;
+
+/** pass YES as argument to disable  session creation|restoration **/
+-(void)setIsSessionDisabled:(BOOL)yn;
+
 -(NSString*)senderID;
 -(NSString*)contextID;
 -(id)initWithRequest:(GSWRequest*)aRequest;

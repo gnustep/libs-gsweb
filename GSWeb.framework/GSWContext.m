@@ -33,12 +33,14 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 static int dontTraceComponentActionURL=0;
 
 static SEL componentSEL=NULL;
 static SEL elementIDSEL=NULL;
 static SEL senderIDSEL=NULL;
+static SEL contextAndElementIDSEL=NULL;
 static SEL isParentSenderIDSearchOverSEL=NULL;
 static SEL isSenderIDSearchOverSEL=NULL;
 
@@ -83,6 +85,9 @@ void GetGSWContextIMPs(GSWContextIMPs* impsPtr,GSWContext* context)
 
       impsPtr->_senderIDIMP = 
         [context methodForSelector:senderIDSEL];
+
+      impsPtr->_contextAndElementIDIMP =
+        [context methodForSelector:contextAndElementIDSEL];
 
       impsPtr->_isParentSenderIDSearchOverIMP = 
         (GSWIMP_BOOL)[context methodForSelector:isParentSenderIDSearchOverSEL];
@@ -156,6 +161,16 @@ NSString* GSWContext_senderID(GSWContext* aContext)
 };
 
 //--------------------------------------------------------------------
+NSString* GSWContext_contextAndElementID(GSWContext* aContext)
+{
+  if (aContext)
+    return (*(aContext->_selfIMPs._contextAndElementIDIMP))
+      (aContext,contextAndElementIDSEL);
+  else
+    return nil;
+};
+
+//--------------------------------------------------------------------
 GSWComponent* GSWContext_component(GSWContext* aContext)
 {
   if (aContext)
@@ -196,6 +211,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       componentSEL=@selector(component);
       elementIDSEL=@selector(elementID);
       senderIDSEL=@selector(senderID);
+      contextAndElementIDSEL=@selector(contextAndElementID);
       isParentSenderIDSearchOverSEL=@selector(isParentSenderIDSearchOver);
       isSenderIDSearchOverSEL=@selector(isSenderIDSearchOver);
       [self setStandardClass:[GSWContext class]];
@@ -235,6 +251,9 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 
   standardContextIMPs._senderIDIMP = 
     [self instanceMethodForSelector:senderIDSEL];
+
+  standardContextIMPs._contextAndElementIDIMP = 
+    [self instanceMethodForSelector:contextAndElementIDSEL];
 
   standardContextIMPs._componentIMP = 
     [self instanceMethodForSelector:componentSEL];
@@ -378,6 +397,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       clone->_actionInvoked=_actionInvoked;
       clone->_formSubmitted=_formSubmitted;
       clone->_isMultipleSubmitForm=_isMultipleSubmitForm;
+      clone->_isSessionDisabled=_isSessionDisabled;
     };
   return clone;
 };
@@ -389,7 +409,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   NSString* desc=nil;
   dontTraceComponentActionURL++;
   desc= [NSString stringWithFormat:
-                    @"%s: %p contextID=%@ senderID=%@ elementID=%@ session=%p request=%p response=%p pageElement=%p pageComponent=%p currentComponent=%p url=%@ urlApplicationNumber=%d isClientComponentRequest=%s distributionEnabled=%s pageChanged=%s pageReplaced=%s",
+                    @"%s: %p contextID=%@ senderID=%@ elementID=%@ session=%p request=%p response=%p pageElement=%p pageComponent=%p currentComponent=%p url=%@ urlApplicationNumber=%d isClientComponentRequest=%s distributionEnabled=%s isSessionDisabled=%s pageChanged=%s pageReplaced=%s",
                   object_get_class_name(self),
                   (void*)self,
                   [self contextID],
@@ -405,6 +425,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
                   _urlApplicationNumber,
                   _isClientComponentRequest ? "YES" : "NO",
                   _distributionEnabled ? "YES" : "NO",
+                  _isSessionDisabled ? "YES" : "NO",
                   _pageChanged ? "YES" : "NO",
                   _pageReplaced ? "YES" : "NO"];
   dontTraceComponentActionURL--;
@@ -475,9 +496,34 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //	returns contextID.ElementID
 -(NSString*)contextAndElementID 
 {
-  return [NSString stringWithFormat:@"%u.%@",
-                   _contextID,
-                   [_elementID elementIDString]];
+  static NSString* preBuiltNumPlusDot[] = {
+    @"0.", @"1.", @"2.", @"3.", @"4.", @"5.", @"6.", @"7.", @"8.", @"9.", 
+    @"10.", @"11.", @"12.", @"13.", @"14.", @"15.", @"16.", @"17.", @"18.", @"19.", 
+    @"20.", @"21.", @"22.", @"23.", @"24.", @"25.", @"26.", @"27.", @"28.", @"29.", 
+    @"30.", @"31.", @"32.", @"33.", @"34.", @"35.", @"36.", @"37.", @"38.", @"39.", 
+    @"40.", @"41.", @"42.", @"43.", @"44.", @"45.", @"46.", @"47.", @"48.", @"49.", 
+    @"50.", @"51.", @"52.", @"53.", @"54.", @"55.", @"56.", @"57.", @"58.", @"59.", 
+    @"60.", @"61.", @"62.", @"63.", @"64.", @"65.", @"66.", @"67.", @"68.", @"69." };
+  static int preBuiltNumPlusDotCount = sizeof(preBuiltNumPlusDot)/sizeof(NSString*);
+  if (_contextID>=0 && _contextID<preBuiltNumPlusDotCount)
+    {
+      if (_elementID)
+        return [preBuiltNumPlusDot[_contextID] stringByAppendingString:
+                                    (*_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL)];
+      else
+        return preBuiltNumPlusDot[_contextID];
+    }
+  else
+    {      
+      if (_elementID)
+        return [NSString stringWithFormat:@"%u.%@",
+                         _contextID,
+                         (*_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL)];
+      else
+        return [NSString stringWithFormat:@"%u.%@",
+                         _contextID,
+                         GSWContext_elementID(self)];
+    };
 };
 
 //--------------------------------------------------------------------
@@ -489,11 +535,10 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //--------------------------------------------------------------------
 -(NSString*)contextID
 {
-  //OK
   if (_contextID==(unsigned int)-1)
     return nil;
   else
-    return [NSString stringWithFormat:@"%u",_contextID];
+    return GSWIntToNSString((int)_contextID);
 };
 
 //--------------------------------------------------------------------
@@ -524,30 +569,62 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 };
 
 //--------------------------------------------------------------------
+/** return YES is session creation|restoration is disabled **/
+-(BOOL)isSessionDisabled
+{
+  return _isSessionDisabled;
+}
+
+//--------------------------------------------------------------------
+/** pass YES as argument to disable  session creation|restoration **/
+-(void)setIsSessionDisabled:(BOOL)yn
+{
+  LOGObjectFnStart();
+
+  _isSessionDisabled=yn;
+  NSDebugMLLog(@"sessions",@"_isSessionDisabled=%d",_isSessionDisabled);
+
+  LOGObjectFnStop();
+}
+
+//--------------------------------------------------------------------
 -(GSWSession*)_session
 {
-  return _session;
+  if ([self isSessionDisabled])
+    return nil;
+  else
+    return _session;
 };
 
 //--------------------------------------------------------------------
 -(GSWSession*)session
 {
+  GSWSession* session=nil;
+
   LOGObjectFnStart();
 
-  if (!_session)
+  if (![self isSessionDisabled])
     {
-      NSDebugMLLog(@"sessions",@"_requestSessionID=%@",_requestSessionID);
-      if (_requestSessionID)
-        [GSWApp restoreSessionWithID:_requestSessionID
-                inContext:self];//Application call context _setSession
-    };
-  if (!_session)
-    [GSWApp _initializeSessionInContext:self]; //Application call context _setSession
+      if (!_session)
+        {
+          NSString* requestSessionID=[self _requestSessionID];
+          NSDebugMLLog(@"sessions",@"requestSessionID=%@",requestSessionID);
+          if (requestSessionID)
+            [GSWApp restoreSessionWithID:requestSessionID
+                    inContext:self];//Application call context _setSession
+        };
+      if (!_session)
+        [GSWApp _initializeSessionInContext:self]; //Application call context _setSession
 
-  NSAssert(_session,@"Unable to create new session");
+      NSAssert(_session,@"Unable to create new session");
+
+      session=_session;
+    };
+  NSDebugMLLog(@"sessions",@"session=%p",session);
 
   LOGObjectFnStop();
-  return _session;
+
+  return session;
 };
 
 //--------------------------------------------------------------------
@@ -643,7 +720,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   url=[self directActionURLForActionNamed:actionName
             urlPrefix:urlPrefix
             queryDictionary:queryDictionary
-            isSecure:NO];
+            isSecure:[[self request]isSecure]];
 
   LOGObjectFnStop();
 
@@ -681,7 +758,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
             urlPrefix:urlPrefix
             queryDictionary:queryDictionary
             pathQueryDictionary:pathQueryDictionary
-            isSecure:NO];
+            isSecure:[[self request]isSecure]];
 
   LOGObjectFnStop();
 
@@ -792,7 +869,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 
   LOGObjectFnStartCond(dontTraceComponentActionURL==0);
 
-  url=[self componentActionURLIsSecure:NO];
+  url=[self componentActionURLIsSecure:[[self request]isSecure]];
 
   LOGObjectFnStopCond(dontTraceComponentActionURL==0);
 
@@ -859,19 +936,28 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   requestHandlerKey=componentRequestHandlerKey;
   storesIDsInURLs=[session storesIDsInURLs];
   NSDebugMLogCond(dontTraceComponentActionURL==0,@"storesIDsInURLs=%s",(storesIDsInURLs ? "YES" : "NO"));
+
   if (storesIDsInURLs)
     {
       NSString* sessionID=[_session sessionID];
       NSDebugMLogCond(dontTraceComponentActionURL==0,@"sessionID=%@",sessionID);
-      requestHandlerPath=[NSString stringWithFormat:@"%@/%u.%@",
-                                   sessionID,
-                                   _contextID,
-                                   elementID];
+      // requestHandlerPath as sessionID/_contextID.elementID
+      if (sessionID)
+        {
+          requestHandlerPath=[[sessionID stringByAppendingString:@"/"]
+                               stringByAppendingString:GSWContext_contextAndElementID(self)];
+        }
+      else
+        {
+          requestHandlerPath=[@"/" stringByAppendingString:GSWContext_contextAndElementID(self)];
+        };
     }
   else
-    requestHandlerPath=[NSString stringWithFormat:@"/%u.%@", //??
-                                 _contextID,
-                                 elementID];
+    {
+      // requestHandlerPath as /_contextID.elementID
+      requestHandlerPath=[@"/" stringByAppendingString:GSWContext_contextAndElementID(self)];
+    };
+
   NSDebugMLogCond(dontTraceComponentActionURL==0,@"requestHandlerPath=%@",requestHandlerPath);
   url=[self urlWithRequestHandlerKey:requestHandlerKey
             path:requestHandlerPath
@@ -957,7 +1043,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
               requestHandlerKey:requestHandlerKey
               path:requestHandlerPath
               queryString:queryString
-              isSecure:NO];
+              isSecure:[[self request]isSecure]];
   LOGObjectFnStopCond(dontTraceComponentActionURL==0);
 
   return url;
@@ -1005,7 +1091,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
                requestHandlerKey:requestHandlerKey
                path:requestHandlerPath
                queryString:queryString
-               isSecure:NO];
+               isSecure:[[self request]isSecure]];
 };
 
 //--------------------------------------------------------------------
@@ -1310,7 +1396,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
             urlPrefix:urlPrefix
             queryDictionary:dict
             pathQueryDictionary:pathQueryDictionary
-            isSecure:NO
+            isSecure:[[self request]isSecure]
             url:anURL];
 
   LOGObjectFnStop();
@@ -1395,10 +1481,11 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
                                              isSecure:(BOOL)isSecure
                                                   url:(id)anURL
 {
-  NSString* queryString=nil;
+  NSMutableString* queryString=nil;
   NSEnumerator* enumerator =nil;
   id key=nil;
   NSString* path=nil;
+  IMP queryString_appendStringIMP=NULL;
 
   LOGObjectFnStart();
 
@@ -1415,15 +1502,26 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //  _url=[[_url copy] autorelease];
   //TODOV
   enumerator = [dict keyEnumerator];
+  // Build queryString as key=value[&key=value]..
   while ((key = [enumerator nextObject]))
     {
       if (!queryString)
-        queryString=[[NSString new] autorelease];
+        queryString=(NSMutableString*)[NSMutableString string];
       else
-        queryString=[queryString stringByAppendingString:@"&"];
-      queryString=[queryString stringByAppendingFormat:@"%@=%@",
-                               key,
-                               [dict objectForKey:key]];
+        {
+          GSWeb_appendStringWithImpPtr(queryString,
+                                       &queryString_appendStringIMP,
+                                       @"&");
+        }
+      GSWeb_appendStringWithImpPtr(queryString,
+                                   &queryString_appendStringIMP,
+                                   NSStringWithObject(key));
+      GSWeb_appendStringWithImpPtr(queryString,
+                                   &queryString_appendStringIMP,
+                                   @"=");
+      GSWeb_appendStringWithImpPtr(queryString,
+                                   &queryString_appendStringIMP,
+                                   NSStringWithObject([dict objectForKey:key]));
     };
   /*
     [anURL setURLRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]];
@@ -1437,14 +1535,17 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
               isSecure:isSecure
               port:0];
 */
-  path=actionName;
   if ([pathQueryDictionary count]>0)
     {
+      IMP tmpPath_appendStringIMP=NULL;
+      NSMutableString* tmpPath=(NSMutableString*)[NSMutableString stringWithString:actionName];
       // We sort keys so URL are always the same for same parameters
       NSArray* keys=[[pathQueryDictionary allKeys]sortedArrayUsingSelector:@selector(compare:)];
       int count=[keys count];
       int i=0;
       NSDebugMLLog(@"gswdync",@"pathQueryDictionary=%@",pathQueryDictionary);
+
+      // append each key/value pair as /key=value
       for(i=0;i<count;i++)
         {
           id key = [keys objectAtIndex:i];
@@ -1453,11 +1554,19 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
           NSDebugMLLog(@"gswdync",@"value=%@",value);
           if (!value)
             value=[NSString string];
-          path=[path stringByAppendingFormat:@"/%@=%@",
-                     key,
-                     value];
+          GSWeb_appendStringWithImpPtr(tmpPath,&tmpPath_appendStringIMP,
+                                       @"/");
+          GSWeb_appendStringWithImpPtr(tmpPath,&tmpPath_appendStringIMP,
+                                       NSStringWithObject(key));
+          GSWeb_appendStringWithImpPtr(tmpPath,&tmpPath_appendStringIMP,
+                                       @"=");
+          GSWeb_appendStringWithImpPtr(tmpPath,&tmpPath_appendStringIMP,
+                                       NSStringWithObject(value));
         };
-    };
+      path=tmpPath;
+    }
+  else
+    path=actionName;
 
   if (urlPrefix)
     anURL=[self urlWithURLPrefix:urlPrefix
@@ -1508,7 +1617,7 @@ If none, try request languages
 
   LOGObjectFnStart();
   
-  languages=[_session languages];
+  languages=[[self _session] languages];
   NSDebugMLLog(@"GSWContext",@"_session %p languages=%@",_session,languages);
 
   if ([languages count]==0)
@@ -1668,18 +1777,25 @@ If none, try request languages
       BOOL storesIDsInURLs=NO;
       BOOL isDistributionEnabled=NO;
       NSString* sessionID=nil;
-      
-      storesIDsInURLs=[_session storesIDsInURLs];
-      isDistributionEnabled=[_session isDistributionEnabled];
-      
-      NSDebugMLLog(@"GSWContext",@"storesIDsInURLs=%d",storesIDsInURLs);
-      NSDebugMLLog(@"GSWContext",@"isDistributionEnabled=%d",isDistributionEnabled);
-      
-      NSDebugMLLog(@"GSWContext",@"_session=%p",_session);
-      NSDebugMLLog(@"GSWContext",@"_request=%p",_request);
-      
+      GSWSession* session=nil;
+
+      if (![self isSessionDisabled])
+        {
+          session=[self _session];
+
+          storesIDsInURLs=[session storesIDsInURLs];
+          isDistributionEnabled=[session isDistributionEnabled];
+          
+          NSDebugMLLog(@"GSWContext",@"storesIDsInURLs=%d",storesIDsInURLs);
+          NSDebugMLLog(@"GSWContext",@"isDistributionEnabled=%d",isDistributionEnabled);
+          
+          NSDebugMLLog(@"GSWContext",@"_session=%p",_session);
+          NSDebugMLLog(@"GSWContext",@"_request=%p",_request);
+          
+          sessionID=[_request sessionID];
+        };
+
       instance=[_request applicationNumber];
-      sessionID=[_request sessionID];
 
       NSDebugMLLog(@"GSWContext",@"instance=%d",instance);
       NSDebugMLLog(@"GSWContext",@"sessionID=%@",sessionID);
@@ -1688,7 +1804,7 @@ If none, try request languages
       // if we don't store IDs in URLs and distribution is enabled
       // or if we don't have session nor session id
       if ((isDistributionEnabled && !storesIDsInURLs)
-          || (!_session && !sessionID))
+          || (!session && !sessionID))
         instance=-1;
     };
 
@@ -1710,7 +1826,10 @@ If none, try request languages
 //--------------------------------------------------------------------
 -(GSWSession*)existingSession
 {
-  return _session;
+  if ([self isSessionDisabled])
+    return nil;
+  else
+    return _session;
 };
 
 //--------------------------------------------------------------------
@@ -1974,13 +2093,13 @@ If none, try request languages
   NSDebugMLLog(@"low",@"[request urlProtocolHorstPort]=%@",[_request urlProtocolHostPort]);
   NSDebugMLLog(@"low",@"[request adaptorPrefix]=%@",[_request adaptorPrefix]);
   NSDebugMLLog(@"low",@"[request applicationName]=%@",[_request applicationName]);
-  NSDebugMLLog(@"low",@"[session sessionID]=%@",[_session sessionID]);
+  NSDebugMLLog(@"low",@"[session sessionID]=%@",[[self _session] sessionID]);
   return [NSString stringWithFormat:@"%@%@/%@.%@/%@",
 				   [_request urlProtocolHostPort],
 				   [_request adaptorPrefix],
 				   [_request applicationName],
 				   GSWApplicationSuffix[GSWebNamingConv],
-				   [_session sessionID]];
+				   [[self _session] sessionID]];
 };
 
 
