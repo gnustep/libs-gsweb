@@ -112,8 +112,8 @@ RCS_ID("$Id$")
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext
 {
-  return [_element takeValuesFromRequest:aRequest 
-                   inContext:aContext];
+  [_element takeValuesFromRequest:aRequest 
+	    inContext:aContext];
 };
 
 //-------------------------------------------------------------------- 

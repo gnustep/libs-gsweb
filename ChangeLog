@@ -1,3 +1,19 @@
+2004-02-27  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWUtils.h (NSTimeIntervalSleep): Declare.
+	* GSWeb.framework/GSWGenericContainer.m
+	([GSWGenericContainer takeValuesFromRequest:inContext:]): Don't
+	try to return value in method returning void.
+	* GSWeb.framework/GSWHyperlink.m
+	([GSWHyperlink invokeActionForRequest:inContext:]): Add cast
+	to silence compiler on OS X.
+	* GSWeb.framework/GSWResourceManager.m
+	([GSWResourceManager _applicationGSWBundle]): Remove obsolete 
+	logging.
+	* GSWeb.framework/NSData+Compress.m ([NSData deflate]):
+	Remove dependancy on GNUstep extenstions.
+	* GSWeb.framework/stacktrace.m: Add test for __MACH__.
+	
 2004-02-26  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWDefaultAdaptorThread.m

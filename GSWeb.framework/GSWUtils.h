@@ -118,6 +118,7 @@ extern BOOL SBIsValueIsIn(id id1,id id2);
 
 extern id GetTmpName(NSString* dir,NSString* prefix);
 extern NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv);
+extern void NSTimeIntervalSleep(NSTimeInterval ti);
 /* Basic data structure which holds all information we can get about a process.
  * (unless otherwise specified, fields are read from /proc/#/stat)
  */

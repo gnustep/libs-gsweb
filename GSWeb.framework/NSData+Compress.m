@@ -52,9 +52,9 @@ static int gzHeaderSize=10;
 //====================================================================
 @implementation NSData (GSWZLib)
 
--(NSData*)deflate
+- (NSData *)deflate
 {
-  NSMutableData* outData=nil;
+  NSMutableData *outData=nil;
   z_stream c_stream; // compression stream
   int err=Z_OK;
   unsigned int selfLength=[self length];
@@ -76,34 +76,38 @@ static int gzHeaderSize=10;
   else
     {
       const void* inBytes=[self bytes];
-      NSMutableData* outTempData=[NSMutableData dataWithCapacity:max(1024,selfLength/10)];
-      void* outTempBytes=[outTempData bytes];
+      unsigned int capacity = max(1024, selfLength/10);
+      NSMutableData* outTempData
+	= [NSMutableData dataWithCapacity: capacity];
+      void* outTempBytes=[outTempData mutableBytes];
       void* outBytes=NULL;
       uLong crc = crc32(0L, Z_NULL, 0);
       unsigned flushedData=0;
+
       crc = crc32(crc,inBytes,selfLength);//calculate crc
-      outData=[NSMutableData dataWithCapacity:gzHeaderSize];
-      
+      outData = [NSMutableData dataWithCapacity: gzHeaderSize];
+
           // gzip nead header !                      
-      [outData setLength:gzHeaderSize];
-      outBytes=[outData bytes];
-      ((unsigned char*)outBytes)[0]=gzMagic[0];
-      ((unsigned char*)outBytes)[1]=gzMagic[1];
-      ((unsigned char*)outBytes)[2]=Z_DEFLATED;
-      ((unsigned char*)outBytes)[3]=0; //flags
-      ((unsigned char*)outBytes)[4]=0; //time
-      ((unsigned char*)outBytes)[5]=0;//time
-      ((unsigned char*)outBytes)[6]=0;//time
-      ((unsigned char*)outBytes)[7]=0;//time
-      ((unsigned char*)outBytes)[8]=2;//binary        
-      ((unsigned char*)outBytes)[9]=0x3;//OS
-      
-      c_stream.next_in = inBytes;
+      [outData setLength: gzHeaderSize];
+      outBytes = [outData mutableBytes];
+
+      ((unsigned char*)outBytes)[0] = gzMagic[0];
+      ((unsigned char*)outBytes)[1] = gzMagic[1];
+      ((unsigned char*)outBytes)[2] = Z_DEFLATED;
+      ((unsigned char*)outBytes)[3] = 0; //flags
+      ((unsigned char*)outBytes)[4] = 0; //time
+      ((unsigned char*)outBytes)[5] = 0;//time
+      ((unsigned char*)outBytes)[6] = 0;//time
+      ((unsigned char*)outBytes)[7] = 0;//time
+      ((unsigned char*)outBytes)[8] = 2;//binary        
+      ((unsigned char*)outBytes)[9] = 0x3;//OS
+
+      c_stream.next_in = (Bytef *)inBytes;
       c_stream.avail_in = (uInt)selfLength;
       
-      [outTempData setLength:[outTempData capacity]];
+      [outTempData setLength: capacity];
       c_stream.next_out = outTempBytes;
-      c_stream.avail_out = (uInt)[outTempData capacity];
+      c_stream.avail_out = (uInt)[outTempData length];
       do
         {
           err = deflate(&c_stream, Z_NO_FLUSH);
@@ -119,13 +123,11 @@ static int gzHeaderSize=10;
                   flushedData+=[outTempData length];
 
                   c_stream.next_out = outTempBytes;
-                  c_stream.avail_out = (uInt)[outTempData capacity];
-                  [outTempData setLength:[outTempData capacity]];
+                  c_stream.avail_out = (uInt)[outTempData length];
                 };
             };
         }
       while (c_stream.avail_in>0 && err==Z_OK);
-      
       if (err==Z_OK)
         {
           do 
@@ -138,8 +140,7 @@ static int gzHeaderSize=10;
                   flushedData+=[outTempData length];
                   
                   c_stream.next_out = outTempBytes;
-                  c_stream.avail_out = (uInt)[outTempData capacity];
-                  [outTempData setLength:[outTempData capacity]];
+                  c_stream.avail_out = (uInt)[outTempData length];
                 }
               else
                 {

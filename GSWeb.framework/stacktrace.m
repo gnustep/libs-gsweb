@@ -54,6 +54,8 @@
 # if defined(__SVR4) || defined(__svr4__)
 #  define PLATFORM_SOLARIS
 # endif
+#elif defined(__MACH__)
+# define PLATFORM_MACH
 #endif
 
 /* ANSI C includes */
@@ -64,7 +66,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <signal.h>
-#if defined(PLATFORM_UNIX)
+#if defined(PLATFORM_UNIX) || defined(PLATFORM_MACH)
 # include <unistd.h>
 # include <sys/types.h>
 # include <sys/wait.h>

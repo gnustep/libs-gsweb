@@ -759,7 +759,7 @@ RCS_ID("$Id$")
           NSString* anUrl=[_redirectURL valueInComponent:component];
           id redirectComponent = [GSWApp pageWithName:@"GSWRedirect"
                                          inContext:context];
-          [redirectComponent setURL:anUrl];
+          [redirectComponent setURL: (id)anUrl];
           element=redirectComponent;
         }
       else if (_href)
