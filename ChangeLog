@@ -1,3 +1,7 @@
+2004-11-26  David Wetzel <dave@turbocat.de>
+        * GSWeb.framework/GSWDynamicURLString.m
+        added some speed enhancements
+
 2004-11-22  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication+Defaults.m (TAKEVALUEFORKEY):
