@@ -1,3 +1,12 @@
+2003-04-19   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/Apache/mod_gsweb.c:
+		o added debug logs
+	* GSWAdaptors/common/GSWConfig.c:
+		o added debug logs, removed duplicate 
+			pszParent string build
+	* GSWAdaptors/common/GSWHTTPRequest.c:
+		o logs
+
 2003-04-09   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/common/GSWUtils.c:
 		o prefix logs with GSWeb[pid]
