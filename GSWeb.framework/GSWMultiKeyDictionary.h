@@ -111,6 +111,11 @@
 
 -(void)setObject:(id)object
     withDuration:(NSTimeInterval)duration
+          forKey:(id)key
+         andKeys:(va_list)keys;
+
+-(void)setObject:(id)object
+    withDuration:(NSTimeInterval)duration
          forKeys:(id)key,...;
 
 -(void)setObject:(id)object
