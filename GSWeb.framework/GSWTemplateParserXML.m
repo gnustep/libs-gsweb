@@ -1,6 +1,6 @@
 /** GSWTemplateParserXML.m - <title>GSWeb: Class GSWTemplateParserXML</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -842,10 +842,10 @@ static NSString* TabsForLevel(int level)
                   NSDebugMLog(@"_errorMessages=%@",_errorMessages);
                   if ([[self errorMessages]count]>0)
                     {
-                      NSDebugMLog(@"definitionFilePath=%@",_definitionFilePath);
+                      NSDebugMLog(@"declarationsFilePath=%@",_declarationsFilePath);
                       ExceptionRaise(@"GSWTemplateParser",@"%@\nDefinitionFiles: %@",
                                      [self errorMessagesAsText],
-                                     _processedDefinitionFilePaths);
+                                     _processedDeclarationsFilePaths);
                     };
                 }
               NS_HANDLER
@@ -982,23 +982,23 @@ text [Type:XML_TEXT_NODE] [{}] ####
                   if ([nodeName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
                       ||[nodeName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
                     {
-                      GSWPageDefElement* definitionsElement=nil;
+                      GSWDeclaration* declaration=nil;
                       if (!nodeNameAttribute)
                         {
                           // allow null name tags
-                          elem=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
+                          elem=[GSWHTMLStaticGroup elementWithContentElements:children];
                         }
                       else
                         {
                           NSDictionary* _associations=nil;
                           NSString* className=nil;
                           GSWHTMLStaticGroup* aStaticGroup=nil;
-                          definitionsElement=[_definitions objectForKey:nodeNameAttribute];
-                          NSDebugMLLog(@"GSWTemplateParser",@"definitionsElement:[%@]",
-                                       definitionsElement);
-                          NSDebugMLLog(@"GSWTemplateParser",@"GSWeb Tag definitionsElement:[%@]",
-                                       definitionsElement);
-                          if (!definitionsElement)
+                          declaration=[_declarations objectForKey:nodeNameAttribute];
+                          NSDebugMLLog(@"GSWTemplateParser",@"declaration:[%@]",
+                                       declaration);
+                          NSDebugMLLog(@"GSWTemplateParser",@"GSWeb Tag declaration:[%@]",
+                                       declaration);
+                          if (!declaration)
                             {
                               // We don't raise exception know because it's better for developper to collect and report all errors before :-)
                               [self addErrorMessageFormat:@"No element definition for tag named:%@ [#%d,#%d]",
@@ -1008,15 +1008,15 @@ text [Type:XML_TEXT_NODE] [{}] ####
                             }
                           else
                             {
-                              _associations=[definitionsElement associations];
-                              className=[definitionsElement className];
+                              _associations=[declaration associations];
+                              className=[declaration type];
                               NSDebugMLLog(@"GSWTemplateParser",@"node=%p GSWeb Tag className:[%@]",currentNode,className);
                               if (!className)
                                 {
                                   // We don't raise exception know because it's better for developper to collect and report all errors before :-)
-                                  [self addErrorMessageFormat:@"No class name in page definition for tag named:%@ definitionsElement=%@ [#%d,#%d]",
+                                  [self addErrorMessageFormat:@"No class name in page definition for tag named:%@ declaration=%@ [#%d,#%d]",
                                         nodeNameAttribute,
-                                        definitionsElement,
+                                        declaration,
                                         currentGSWebTagN,
                                         currentTagN];
                                 };
@@ -1063,12 +1063,12 @@ text [Type:XML_TEXT_NODE] [{}] ####
                                            languages:_languages];
                               NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@ StaticGroup %p=%@",currentNode,elem,aStaticGroup,aStaticGroup);
                               if (elem)
-                                [elem setDefinitionName:[definitionsElement elementName]];
+                                [elem setDeclarationName:[declaration name]];
                               else
                                 {
                                   // We don't raise exception know because it's better for developper to collect and report all errors before :-)
                                   [self addErrorMessageFormat:@"Creation failed for element named:%@ className:%@",
-                                        [definitionsElement elementName],
+                                        [declaration name],
                                         className];
                                 };
                             };
