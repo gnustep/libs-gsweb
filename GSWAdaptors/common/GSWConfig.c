@@ -108,8 +108,10 @@ static GSWConfig g_gswConfig;
 static char g_szServerStringInfo[1024]="";
 static char g_szAdaptorStringInfo[1024]="";
 //--------------------------------------------------------------------
-void GSWConfig_Init(GSWDict* p_pDict)
+void GSWConfig_Init(GSWDict* p_pDict,
+					void* p_pLogServerData
 {
+  CONST char* pszPath=NULL;
   memset(&g_gswConfig,0,sizeof(g_gswConfig));
   sprintf(g_szServerStringInfo,"%s v %s built %s",
 		  g_szGSWeb_Server,
@@ -120,9 +122,12 @@ void GSWConfig_Init(GSWDict* p_pDict)
 		  g_szAdaptorBuilt);
   if (p_pDict)
 	{
-	  CONST char* pszPath=GSWDict_ValueForKey(p_pDict,g_szGSWeb_Conf_ConfigFilePath);
+	  pszPath=GSWDict_ValueForKey(p_pDict,g_szGSWeb_Conf_ConfigFilePath);
 	  GSWConfig_SetConfigFilePath(pszPath);
 	};
+  GSWLog(GSW_INFO,p_pLogServerData,
+		 "GSWeb: GSWConfig_Init: %s %s path: %s",
+		 g_szServerStringInfo,g_szAdaptorStringInfo,pszPath);
   GSWLock_Init(g_lockAppList);
 };
 
@@ -223,6 +228,9 @@ EGSWConfigResult GSWConfig_ReadIFND(CONST char* p_pszConfigPath,
 {
   EGSWConfigResult eResult=EGSWConfigResult__Ok;
   p_pLogServerData=NULL;//General Log
+  GSWLog(GSW_DEBUG,p_pLogServerData,
+		 "GSWeb: GSWConfig_ReadIFND: %s",
+		 p_pszConfigPath);
   if (!p_pszConfigPath)
 	{
 	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWeb: No path for config file.");
@@ -607,6 +615,8 @@ BOOL GSWConfig_LoadConfiguration(void* p_pLogServerData)
   BOOL fOk=TRUE;
   proplist_t propListConfig=NULL;
   p_pLogServerData=NULL;
+  GSWLog(GSW_DEBUG,p_pLogServerData,
+		 "GSWeb: GSWConfig_LoadConfiguration");
   GSWLock_Lock(g_lockAppList);
   if (!g_pAppDict) 
 	g_pAppDict = GSWDict_New(16);

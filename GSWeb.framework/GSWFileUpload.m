@@ -117,53 +117,70 @@ static char rcsId[] = "$Id$";
 		  NSString* _fileName=nil;
 		  NSData* _data=nil;
 		  int _fileDatasCount=0;
-		  _component=[context_ component];
-		  _nameInContext=[self nameInContext:context_];
-		  NSDebugMLLog(@"gswdync",@"_nameInContext=%@",_nameInContext);
-		  _fileDatas=[request_ formValuesForKey:_nameInContext];
-		  NSDebugMLLog(@"gswdync",@"_value=%@",_fileDatas);
-		  _fileDatasCount=[_fileDatas count];
-		  NSAssert1(_fileDatasCount==1,@"File Data Nb != 1 :%d",_fileDatasCount);
-		  _data=[_fileDatas objectAtIndex:0];
-		  if (_data)
-			{
-			  if ([_data isKindOfClass:[NSData class]])
+		  NS_DURING
+		    {
+			  _component=[context_ component];
+			  _nameInContext=[self nameInContext:context_];
+			  NSDebugMLLog(@"gswdync",@"_nameInContext=%@",_nameInContext);
+			  _fileDatas=[request_ formValuesForKey:_nameInContext];
+			  NSDebugMLLog(@"gswdync",@"_value=%@",_fileDatas);
+			  _fileDatasCount=[_fileDatas count];
+		      if (_fileDatasCount!=1)
 				{
-				  if ([_data length]==0)
+				  ExceptionRaise(@"GSWFileUpload",
+								 @"GSWFileUpload: File Data Nb != 1 :%d",
+								 _fileDatasCount);
+				};
+			  _data=[_fileDatas objectAtIndex:0];
+			  if (_data)
+				{
+				  if ([_data isKindOfClass:[NSData class]])
 					{
-					  LOGError(@"Empty Data: %@",_data);					  
+					  if ([_data length]==0)
+						{
+						  LOGError(@"Empty Data: %@",_data);					  
+						};
+					}
+				  else
+					{
+					  if ([_data isKindOfClass:[NSString class]] && [_data length]==0)
+						{
+						  LOGError(@"No Data: %@",_data);
+						  _data=nil;
+						}
+					  else
+						{
+						  ExceptionRaise(@"GSWFileUpload",
+										 @"GSWFileUpload: bad data :%@",
+										 _data);
+						  _data=nil;
+						};
 					};
 				}
 			  else
 				{
-				  if ([_data isKindOfClass:[NSString class]] && [_data length]==0)
-					{
-					  LOGError(@"No Data: %@",_data);
-					  _data=nil;
-					}
-				  else
-					{
-					  NSAssert1(NO,@"Bad Data:%@",_data);
-					  _data=nil;
-					};
+				  LOGError0(@"No Data:");
 				};
-			}
-		  else
-			{
-			  LOGError0(@"No Data:");
-			};
-		  fileNameFormValueName=[NSString stringWithFormat:@"%@.filename",_nameInContext];
-		  NSDebugMLLog(@"gswdync",@"fileNameFormValueName=%@",fileNameFormValueName);
-		  _fileName=[request_ formValueForKey:fileNameFormValueName];
-		  NSDebugMLLog(@"gswdync",@"_fileName=%@",_fileName);
-		  if (!_fileName || [_fileName length]==0)
-			{
-			  LOGError(@"No fileName: %@",_fileName);
-			};
-		  [filepath setValue:_fileName
+			  fileNameFormValueName=[NSString stringWithFormat:@"%@.filename",_nameInContext];
+			  NSDebugMLLog(@"gswdync",@"fileNameFormValueName=%@",fileNameFormValueName);
+			  _fileName=[request_ formValueForKey:fileNameFormValueName];
+			  NSDebugMLLog(@"gswdync",@"_fileName=%@",_fileName);
+			  if (!_fileName || [_fileName length]==0)
+				{
+				  LOGError(@"No fileName: %@",_fileName);
+				};
+			  [filepath setValue:_fileName
+						inComponent:_component];
+			  [data setValue:_data
 					inComponent:_component];
-		  [data setValue:_data
-				inComponent:_component];
+		    }
+		  NS_HANDLER
+		    {
+		      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWFileUpload in takeValuesFromRequest");
+		      LOGException(@"%@ (%@)",localException,[localException reason]);
+		      [localException raise];
+		    };
+		  NS_ENDHANDLER;
 		};
 	};
   LOGObjectFnStopC("GSWFileUpload");

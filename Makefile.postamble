@@ -1,7 +1,7 @@
 # Makefile.postamble - GSWeb: Makefile.postamble
 #   Copyright (C) 1999 Free Software Foundation, Inc.
 #   
-#   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+#   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
 #   Date: 		Jul 1999
 #   
 #   This file is part of the GNUstep Web Library.
@@ -29,6 +29,11 @@
 #   The double colons (::) are important, do not make them single colons
 #   otherwise the normal makefile rules will not be performed.
 #
+
+gsdocs:
+	@(cd Doc; \
+	gsdoc --verbose=1 --makeRefs --makeIndex --makeIndexTemplate=/usr/GNUstep/System/Libraries/Resources/DocTemplates/indextemplate.gsdoc  --projectName="GSWeb" --refs=../../ --define-version=1.0 --location="/usr/local/doc/dev/test/gsweb/"  --define-stylesheeturl="http://www.orange-concept.com/styles/default.css" --define-basetitle="GNUstepWeb - " --define-dtd-url="http://www.gnustep.org/gsdoc-0_6_6.xml" --define-authorName="Manuel Guesdon" --define-author-email="mguesdon@orange-concept.com" --define-authorDesc="Developer" --define-authorURL="http://www.gnustep.org/developers/whoiswho.html" --define-copyright="Copyright (C) 1999-2000 Free Software Foundation, Inc." --define-date="" --define-up="../index" "*.gsdoc" ; \
+	cd ..; )
 
 # Things to do before compiling
 # before-all::

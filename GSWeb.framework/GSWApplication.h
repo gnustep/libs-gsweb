@@ -422,7 +422,7 @@ extern NSString* globalApplicationClassName;
 //====================================================================
 @interface GSWApplication (GSWStatisticsSupport)
 -(void)setStatisticsStore:(GSWStatisticsStore*)statisticsStore_;
--(/*bycopy*/NSDictionary*)statistics;
+-(NSDictionary*)statistics;//bycopy
 -(GSWStatisticsStore*)statisticsStore;
 @end
 

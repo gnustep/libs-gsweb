@@ -1,0 +1,193 @@
+<?xml version="1.0"?>
+<!DOCTYPE gsdoc PUBLIC "-//GNUstep//DTD gsdoc 0.6.6//EN" "http://www.gnustep.org/gsdoc-0_6_6.xml">
+<gsdoc base="howto">
+  <head>
+    <title>GNUstepWeb HOWTO</title>
+    <author name="Mirko Viviani">
+      <email address="mirko.viviani@rccr.cremona.it"/>
+      <url url="http://www.gnustep.org/developers/whoiswho.html"/>
+      <desc></desc>
+    </author>
+    <version>0.1</version>
+    <date>5 february, 2000</date>
+    <abstract>This document explains how to build and manage GNUstepWeb applications.</abstract>
+    <copy>2000 Free Software Foundation, Inc.</copy>
+  </head>
+
+  <body>
+    <front>
+      <contents/>
+
+		<chapter>
+		  <heading>Introduction</heading>
+		  <p>This document explains how to build GNUstepWeb applications, explain differences from Apple WebObjects and known bug of these libraries.</p>
+		</chapter>
+    </front>
+		
+		<chapter>
+		  <heading>Project wrapper</heading>
+		  <p>Follow these guidelines to maintain your GSWeb application wrapper.</p>
+	  <example>
+   MyApp/                     Application wrapper
+     Main.gswc/               First page requested by GSWeb
+       Main.html
+       Main.gswd
+
+     MyApp_main.m             main() function
+     Main.m                   Your Main class code
+     Main.h                   Your Main class interface
+     
+     GNUmakefile
+     Makefile.preamble
+     Makefile.postamble
+
+     Main.gswa/               Compiled application
+     Main.debug/              Compiled application with debug support
+		</example>
+	</chapter>
+
+
+	<chapter>
+	  <heading>Makefiles</heading>
+	  <p> </p>
+	</chapter>
+	
+	<chapter>
+	  <heading>Debug</heading>
+	  <p>In order to debug your application compile it with "gmake debug=yes" and
+		install with "gmake install debug=yes". You'll find your application in
+		GNUSTEP_SYSTEM_ROOT/GSWApps/MyApp.debug</p>
+	  <p>Now you can enable debug starting your app with -GSWebDebug=&#60;option&#62;</p>
+	  <example>
+   Options
+   -------------
+   dflt
+   GSWebFn
+   seriousError
+   exception
+   error
+   gswdync
+   low
+   gswcomponents
+   associations
+   sessions
+   bundles
+   requests
+   resmanager
+   options
+   info
+		  </example>
+		<p>There are two special options: all and most. The following table explain
+which options enable.</p>
+		<example>
+   Options          all    most
+   -------------    ---    ----
+   dflt              x      x
+   GSWebFn           x
+   seriousError      x      x
+   exception         x      x
+   error             x      x
+   gswdync           x      x
+   low               x
+   gswcomponents     x      x
+   associations      x      x
+   sessions          x
+   bundles           x
+   requests          x      x
+   resmanager        x
+   options           x
+   info              x      x
+		  </example>
+		<p>
+		  NOTE: GSWeb will search componentes first in GNUSTEP_SYSTEM_ROOT/GSWApps/Myapp.gswa
+		  so before start your debug app remove or update MyApp.gswa wrapper
+		  with "gmake install".</p>
+	  </chapter>
+	  
+	  <chapter>
+		<heading>Threaded applications</heading>
+		<p>By default GSWeb will start your application in Multi Thread mode.
+In order to use this facility your libobjc.a must be compiled with thread
+support, else you app won't work.</p>
+		<p>If you don't have ObjC thread support start your app with -GSWMTEnabled NO</p>
+		</chapter>
+
+	  <chapter>
+		<heading>WebObjects compatibility</heading>
+		<p>WebScript is not implemented yet, you can only use compiled components.</p>
+<p>You must use Objective-C code, at the moment there aren't equivalent Java classes.</p>
+		<p>The following table explain suffix differences:</p>
+	  <example>
+
+   Name                        WebObjects    GSWeb
+   ----                        ----------    -----
+   Application                 woa           gswa
+   Component                   wo            gswc
+   Component definition        wod           gswd
+   Script                      wos           gsws
+   Archive                     woo           gswi
+   Library                     woso          gswso
+   URL Prefix                  /WebObjects   /GSWeb
+   Resource request handler    wr            rr
+   Component request handler   wo            cr
+   Direct request handler      wa            dr
+   ObjC classes prefix         WO            GSW
+</example>
+   <p>If you need WO name space compatibility set to 1 GSWEB_NAMES in
+GSWeb.framework/GSWConfig.h and recompile all the libraries.</p>
+
+	  </chapter>
+	  
+	  <chapter>
+		<heading>Known bugs</heading>
+
+		<p>In order to make your application working you can follow these guidelines:</p>
+		<p>1. Always create an Application and Session class also if you don't use them.</p>
+<p>
+			<code>
+   @interface Session:GSWSession
+   {
+   }
+
+   @end
+
+   @interface Application:GSWApplication
+   {
+   }
+
+   @end
+
+   @implementation Session
+   @end
+
+   @implementation Application
+   @end
+			</code></p>
+		<p>2. Start your application with -GSWHost hostname else it will crash.</p>
+		
+		<p>4. The HTML parser has some problems with percentage fields, eg:</p>
+   <p>
+   &#60;TABLE WIDTH&#61;100&#37; BORDER&#61;&#34;0&#34;&#62;       This does NOT work
+   &#60;TABLE WIDTH&#61;&#34;100&#37;&#34; BORDER&#61;&#34;0&#34;&#62;     This work
+		</p>
+	  </chapter>
+
+	  <chapter>
+		<heading>Documentation</heading>
+		<p>You can find WebObjects documentation and good tutorials <uref url="http://developer.apple.com/techpubs/enterprise/WebObjects/">here</uref></p>
+	  </chapter>
+
+	  <chapter>
+		<heading>Trademarks</heading>
+	  <p>WebObjects is a trademark of Apple Computer, Inc.</p>
+	</chapter>
+    <back>
+<!--
+      <chapter>
+	<heading>Afterward</heading>
+      </chapter>
+-->
+      <index type="label"/>
+    </back>
+  </body>
+</gsdoc>

@@ -1,3 +1,35 @@
+2000-08-14  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWApplication.m: added "exit" in terminate
+		generate simple response in -handleException:inContext:
+		be sure to have a context in -_handleException:inContext:
+		generate simple response in  -_handleException:inContext:
+		generate simple response in  -handlePageRestorationErrorInContext:
+		be sure to have a context in -_handlePageRestorationErrorInContext:
+		generate simple response in  -_handlePageRestorationErrorInContext:
+		generate simple response in  -handleSessionCreationErrorInContext:
+		generate simple response in  -handleSessionRestorationErrorInContext:
+		be sure to have a context in -_handleSessionRestorationErrorInContext:
+		generate simple response in  -_handleSessionRestorationErrorInContext:
+	* GSWeb.framework/GSWComponentRequestHandler.m: added default response when we catch exceptions,...
+		handle more exceptions
+	* GSWeb.framework/GSWConstants.h/.m: added GSWHTTPHeader_UserAgent
+	* GSWeb.framework/GSWDefaultAdaptor.m: terminate application if it is locked
+	* GSWeb.framework/GSWDefaultAdaptorThread.m: Added default response to handle exceptions and various errors
+		Correct bug in request data reading (request datas were sometimes not complely readen)
+	* GSWeb.framework/GSWFileUpload.m: Added Exception handling
+	* GSWeb.framework/GSWRequest.m: add exception handling
+	* GSWeb.framework/GSWResponse.h/.m: added  GSWResponse (GSWResponseError)
+	* GSWAdaptor/Apache/GNUmakefile: added -DEAPI
+	* GSWAdaptor/Apache/mod_gsweb.c: added debug traces
+	* GSWAdaptor/common/GSWConfig.c/.h: added debug traces, added init parameter
+	* Makefile.postamble: added docs generation
+	* Doc/GNUstepWeb-HOWTO moved to howto.gsdoc
+	* Doc/gsweb.gsdoc: new file
+	* GSWeb.framework/Makefile.postamble: added docs generation
+	* GSWExtensions.framework/Makefile.postamble: added docs generation
+	* GSWExtensionsGSW.framework/Makefile.postamble: added docs generation
+		
 2000-08-13  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWDisplayGroup.m: fixed display next and previous batch.

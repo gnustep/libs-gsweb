@@ -401,6 +401,7 @@ static char rcsId[] = "$Id$";
 			{
 			  pool=[NSAutoreleasePool new];
 			  LOGSeriousError0(@"Application RequestHandling is LOCKED !!!");
+			  [[GSWApplication application] terminate];
 			  DESTROY(pool);
 			};
 		};

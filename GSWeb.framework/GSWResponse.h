@@ -150,4 +150,13 @@
 +(NSStringEncoding)defaultEncoding;
 @end
 
+//====================================================================
+@interface GSWResponse (GSWResponseError)
+
+//NDFN
+//Last cHance Response
++(GSWResponse*)responseWithMessage:(NSString*)message_
+			 inContext:(GSWContext*)context_
+			forRequest:(GSWRequest*)request_;
+@end
 #endif //_GSWResponse_h__

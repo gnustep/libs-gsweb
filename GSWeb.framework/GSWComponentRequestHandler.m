@@ -37,6 +37,13 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   [_application lockRequestHandling];
   _response=[self lockedHandleRequest:request_];
+  if (!_response)
+    {
+      _response=[GSWResponse responseWithMessage:@"Component Handle request failed"
+			     inContext:nil
+			     forRequest:request_];
+      [_response _finalizeInContext:nil]; //DO Call _finalizeInContext: !
+    };
   [_application unlockRequestHandling];
   NSDebugMLLog(@"requests",@"_response=%@",_response);
   LOGObjectFnStop();
@@ -53,57 +60,84 @@ static char rcsId[] = "$Id$";
   GSWResponse* _response=nil;
   NSDictionary* _requestHandlerValues=nil;
   NSString* _senderID=nil;
+  BOOL _exceptionRaised=NO;
   LOGObjectFnStart();
-  _requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:request_];
-  NSDebugMLLog(@"requests",@"_requestHandlerValues=%@",_requestHandlerValues);
-  _statisticsStore=[[GSWApplication application]statisticsStore];
-  NSDebugMLLog(@"requests",@"_statisticsStore=%@",_statisticsStore);
-  [_statisticsStore _applicationWillHandleComponentActionRequest];
-  _context=[GSWContext contextWithRequest:request_];
-  _senderID=[_requestHandlerValues objectForKey:GSWKey_ElementID];
-  NSDebugMLLog(@"requests",@"AA _senderID=%@",_senderID);
-  [_context _setSenderID:_senderID];
-  [_application _setContext:_context];
   NS_DURING
-	{
-	  [_application awake];
-	  _response=[self lockedDispatchWithPreparedApplication:_application
-					  inContext:_context
-					  elements:_requestHandlerValues];
-	}
+    {
+	  _requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:request_];
+    }
   NS_HANDLER
-	{
-	  LOGException(@"%@ (%@)",
-				   localException,
-				   [localException reason]);
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In lockedDispatchWithPreparedApplication");
-	  LOGException(@"exception=%@",localException);
-	  _response=[_application handleException:localException
-							  inContext:_context];
-	  [_application sleep];
-//	  [_response _finalizeInContext:_context];
-	  NSAssert(!_response || [_response isFinalizeInContextHasBeenCalled],@"_finalizeInContext not called for GSWResponse");
-	};
+    {
+      _exceptionRaised=YES;
+      LOGException(@"%@ (%@)",
+		   localException,
+		   [localException reason]);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In -lockedHandleRequest:");
+      LOGException(@"exception=%@",localException);
+      [_application awake];
+      _response=[_application handleException:localException
+			      inContext:nil];
+      [_application sleep];
+      [_response _finalizeInContext:_context];//DO Call _finalizeInContext: !
+      NSAssert(!_response || [_response isFinalizeInContextHasBeenCalled],@"_finalizeInContext not called for GSWResponse");
+    };
   NS_ENDHANDLER;
-  NS_DURING
-	{
-	  [_application sleep];
-	  [_response _finalizeInContext:_context];
-	}
-  NS_HANDLER
-	{
-	  LOGException(@"%@ (%@)",
-				   localException,
-				   [localException reason]);
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-															   @"In [application sleep] or [_response _finalizeInContext:_context]");
-	  LOGException(@"exception=%@",localException);
-	  _response=[_application handleException:localException
-							  inContext:nil];
-//	  [_response _finalizeInContext:_context];
-	  NSAssert(!_response || [_response isFinalizeInContextHasBeenCalled],@"_finalizeInContext not called for GSWResponse");
+  if (!_exceptionRaised)
+    {
+	  NSDebugMLLog(@"requests",@"_requestHandlerValues=%@",_requestHandlerValues);
+	  _statisticsStore=[[GSWApplication application]statisticsStore];
+	  NSDebugMLLog(@"requests",@"_statisticsStore=%@",_statisticsStore);
+	  [_statisticsStore _applicationWillHandleComponentActionRequest];
+	  _context=[GSWContext contextWithRequest:request_];
+	  _senderID=[_requestHandlerValues objectForKey:GSWKey_ElementID];
+	  NSDebugMLLog(@"requests",@"AA _senderID=%@",_senderID);
+	  [_context _setSenderID:_senderID];
+	  [_application _setContext:_context];
+	  NS_DURING
+		{
+		  [_application awake];
+		  _response=[self lockedDispatchWithPreparedApplication:_application
+						  inContext:_context
+						  elements:_requestHandlerValues];
+		}
+	  NS_HANDLER
+		{
+		  _exceptionRaised=YES;
+		  LOGException(@"%@ (%@)",
+					   localException,
+					   [localException reason]);
+		  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In lockedDispatchWithPreparedApplication");
+		  LOGException(@"exception=%@",localException);
+		  _response=[_application handleException:localException
+								  inContext:_context];
+		  [_application sleep];
+		  [_response _finalizeInContext:_context]; //DO Call _finalizeInContext: !
+		  NSAssert(!_response || [_response isFinalizeInContextHasBeenCalled],@"_finalizeInContext not called for GSWResponse");
+		};
+	  NS_ENDHANDLER;
+      if (!_exceptionRaised)
+		{
+		  NS_DURING
+			{
+			  [_application sleep];
+			  [_response _finalizeInContext:_context];
+			}
+		  NS_HANDLER
+			{
+			  LOGException(@"%@ (%@)",
+						   localException,
+						   [localException reason]);
+			  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+																	   @"In [application sleep] or [_response _finalizeInContext:_context]");
+			  LOGException(@"exception=%@",localException);
+			  _response=[_application handleException:localException
+									  inContext:nil];
+			  [_response _finalizeInContext:_context]; //DO Call _finalizeInContext: !
+			  NSAssert(!_response || [_response isFinalizeInContextHasBeenCalled],@"_finalizeInContext not called for GSWResponse");
+			};
+		  NS_ENDHANDLER;
+		};
 	};
-  NS_ENDHANDLER;
   [_application _setContext:nil];
   _statisticsStore=[[GSWApplication application] statisticsStore];
   [_statisticsStore _applicationDidHandleComponentActionRequest];
@@ -460,7 +494,20 @@ static char rcsId[] = "$Id$";
   //OK
   NSDictionary* _values=nil;
   LOGClassFnStart();
-  _values=[request_ uriOrFormOrCookiesElements];
+  NS_DURING
+    {
+      _values=[request_ uriOrFormOrCookiesElements];
+    }
+  NS_HANDLER
+    {
+      LOGException(@"%@ (%@)",
+		   localException,
+		   [localException reason]);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In +_requestHandlerValuesForRequest:");
+      LOGException(@"exception=%@",localException);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
   LOGClassFnStop();
   return _values;
 };

@@ -48,6 +48,20 @@
 # Things to do after uninstalling
 # after-uninstall::
 
+autodocs: 
+	echo $($(LIBRARY_NAME)_HEADER_FILES)
+	mkdir -p Doc/tmp
+	rm -f Doc/tmp/*
+	autodoc -allclasses -format html -template /usr/GNUstep/System/Libraries/Resources/DocTemplates/AutoDocTemplate.gsdoc -destination Doc/tmp/ -copyright "Copyright (C) 1999-200 Free Software Foundation, Inc." -define-author-name "Manuel Guesdon" -define-author-email "mguesdon@orange-concept.com" -define-author-desc "Developer" -define-author-url "http://www.gnustep.org/developers/whoiswho.html" -define-dtd-ref "/usr/GNUstep/System/Libraries/Resources/DTDs/gsdoc-0_6_6.dtd" -define-stylesheeturl "http://www.orange-concept.com/styles/default.css" -define-basetitle "GNUstepWeb - GSWExtensions" -define-dtd-url "http://www.gnustep.org/gsdoc-0_6_6.xml" -define-next "[[next]]" -define-prev "[[prev]]" -define-up "[[up]]" $($(LIBRARY_NAME)_HEADER_FILES)
+	mmv "Doc/tmp/*.html" "Doc/tmp/#1.gsdoc"
+	mv -f Doc/tmp/*.gsdoc Doc/
+
+gsdocs:
+	@(cd Doc; \
+	gsdoc --verbose=1 --makeRefs --makeIndex --makeIndexTemplate=/usr/GNUstep/System/Libraries/Resources/DocTemplates/indextemplate.gsdoc  --projectName="GSWExtensions" --refs=../../../ --refs=/usr/local/doc/dev/ --define-version=1.0 --location="/usr/local/doc/dev/test/gsweb/GSWExtensions"  --define-stylesheeturl="http://www.orange-concept.com/styles/default.css" --define-basetitle="GNUstepWeb - GSWeb" --define-dtd-url="http://www.gnustep.org/gsdoc-0_6_6.xml" --define-authorName="Manuel Guesdon" --define-author-email="mguesdon@orange-concept.com" --define-authorDesc="Developer" --define-authorURL="http://www.gnustep.org/developers/whoiswho.html" --define-copyright="Copyright (C) 1999-2000 Free Software Foundation, Inc." --define-date="" --define-up="../index" "*.gsdoc" ; \
+	cd ..; )
+
+
 # Things to do before cleaning
 # before-clean::
 

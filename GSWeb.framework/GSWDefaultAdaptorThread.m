@@ -182,7 +182,10 @@ static char rcsId[] = "$Id$";
 		  NS_ENDHANDLER;
 		  if (!response)
 			{
-			  //TODO
+			  response=[GSWResponse responseWithMessage:@"Application returned no response"
+						inContext:nil
+						forRequest:request];
+			  [response _finalizeInContext:nil]; //DO Call _finalizeInContext: !
 			};
 		  if (response)
 			{
@@ -324,6 +327,9 @@ static char rcsId[] = "$Id$";
 	}
   else
 	{
+#define REQUEST_METHOD__UNKNOWN	0
+#define REQUEST_METHOD__GET	1
+#define REQUEST_METHOD__POST	2
 	  NSMutableData* _pendingData=nil;
 	  NSDate* maxDate=[NSDate dateWithTimeIntervalSinceNow:360]; //360s
 	  NSData* dataBlock=nil;
@@ -333,11 +339,14 @@ static char rcsId[] = "$Id$";
 	  int dataBytesNb=0;
 	  int dataBlockLength=0;
 	  int contentLength=-1;
+	  int _requestMethod=REQUEST_METHOD__UNKNOWN;
 	  BOOL _isRequestLineSetted=NO;
 	  BOOL _isDataStep=NO;
 	  BOOL _isAllDataReaden=NO;
 	  BOOL _isElapsed=NO;
 	  NSMutableDictionary* _headers=nil;
+	  NSString* _userAgent=nil;
+	  NSString* _remoteAddr=nil;
 	  NSDebugMLog0(@"dataBlock try reading");
 	  do
 		{
@@ -404,6 +413,21 @@ static char rcsId[] = "$Id$";
 								};
 							  if ([_key isEqualToString:GSWHTTPHeader_ContentLength])
 								contentLength=[_value intValue];
+							  else if ([_key isEqualToString:GSWHTTPHeader_Method])
+							    {
+							      if ([_value isEqualToString:GSWHTTPHeader_MethodPost])
+								_requestMethod=REQUEST_METHOD__POST;
+							      else if ([_value isEqualToString:GSWHTTPHeader_MethodGet])
+								_requestMethod=REQUEST_METHOD__GET;
+							      else
+								{
+								  NSAssert1(NO,@"Unknwon method %@",_value);
+								};
+							    }
+							  else if ([_key isEqualToString:GSWHTTPHeader_UserAgent])
+							    _userAgent=_value;
+							  else if ([_key isEqualToString:GSWHTTPHeader_RemoteAddress])
+							    _remoteAddr=_value;
 							  _prevValue=[_headers objectForKey:_key];
 							  NSDebugMLLog(@"low",@"_prevValue:%@",_prevValue);
 							  if (_prevValue)
@@ -419,9 +443,15 @@ static char rcsId[] = "$Id$";
 					};
 				};
 			};
-		  if (_isDataStep && (contentLength<0 || readenBytesNb>=contentLength))
-			_isAllDataReaden=YES;
-		  else
+		  dataBytesNb=[_pendingData length];
+		  if (_isDataStep)
+		    {
+		      if (_requestMethod==REQUEST_METHOD__GET)
+				_isAllDataReaden=YES;
+		      else if (_requestMethod==REQUEST_METHOD__POST)
+				_isAllDataReaden=(dataBytesNb>=contentLength);
+		    };
+		  if (!_isAllDataReaden)
 			{
 			  _isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
 			  if (!_isElapsed)
@@ -431,13 +461,15 @@ static char rcsId[] = "$Id$";
 				};
 			};
 		} while (!_isAllDataReaden && !_isElapsed);
-	  NSDebugMLLog(@"info",@"GSWDefaultAdaptor: _isAllDataReaden=%s _isElapsed=%s readenBytesNb=%d contentLength=%d dataBytesNb=%d headersBytesNb=%d",
-				   _isAllDataReaden ? "YES" : "NO",
-				   _isElapsed ? "YES" : "NO",
-				   readenBytesNb,
-				   contentLength,
-				   dataBytesNb,
-				   headersBytesNb);
+	  NSDebugMLog(@"GSWDefaultAdaptor: _userAgent=%@ _remoteAddr=%@ _isAllDataReaden=%s _isElapsed=%s readenBytesNb=%d contentLength=%d dataBytesNb=%d headersBytesNb=%d",
+				  _userAgent,
+				  _remoteAddr,
+				  _isAllDataReaden ? "YES" : "NO",
+				  _isElapsed ? "YES" : "NO",
+				  readenBytesNb,
+				  contentLength,
+				  dataBytesNb,
+				  headersBytesNb);
 	  ok=_isAllDataReaden;
 	  if (_isAllDataReaden)
 		{

@@ -1510,6 +1510,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 -(void)_terminateFromMonitor
 {
   LOGObjectFnNotImplemented();	//TODOFN
+  exit;
 };
 
 @end
@@ -2233,6 +2234,10 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	  [self _resetCache];
 	  NSDebugMLLog(@"requests",@"sessionStore=%@",sessionStore);
 	};
+  if (!_response)
+    {
+      //TODO RESPONSE_PB
+    };
   LOGObjectFnStop();
   return _response;
 };
@@ -2341,11 +2346,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	{
 	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In _handleException:inContext:");
 	  LOGException(@"exception=%@",localException);
-	  //TODO
-	  //Generate simple response !
+	  _response=[GSWResponse responseWithMessage:@"Exception Handling failed"
+				 inContext:context_
+				 forRequest:nil];
 	}
   NS_ENDHANDLER;
-
+  NSAssert(![_response isFinalizeInContextHasBeenCalled],@"GSWApplication handleException: _finalizeInContext called for GSWResponse");
   LOGObjectFnStop();
   return _response;
 };
@@ -2368,7 +2374,13 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	{
 	  LOGError0(@"No context !");
 	  _context=[GSWContext contextWithRequest:nil];	  
+	  LOGError0(@"Really can't get context !");
 	};
+  //TODO Hack: verify that there is an application context otherswise, it failed in component Creation
+  if (![self _context])
+    {
+      [self _setContext:_context];
+    };
   _resourceManager=[self resourceManager];
   if ([_resourceManager pathForResourceNamed:_exceptionPage
 						inFramework:GSWFramework_extensions
@@ -2402,8 +2414,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	}
   else
 	{
-	  //TODO can't find exception page !
+	  LOGError0(@"Can't find exception page");
+	  _response=[GSWResponse responseWithMessage:@"Exception Handling failed. Can't find Exception Page"
+				 inContext:_context
+				 forRequest:nil];
 	};
+  NSAssert(![_response isFinalizeInContextHasBeenCalled],@"GSWApplication _handleException: _finalizeInContext called for GSWResponse");
   LOGObjectFnStop();
   return _response;
 };
@@ -2422,10 +2438,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	{
 	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In _handlePageRestorationErrorInContext:");
 	  LOGException(@"exception=%@",localException);
-	  //TODO
-	  //Generate simple response !
+	  _response=[GSWResponse responseWithMessage:@"Exception Handling failed. Can't find Page Restoration Error Page"
+				 inContext:context_
+				 forRequest:nil];
 	}
   NS_ENDHANDLER;
+  NSAssert(![_response isFinalizeInContextHasBeenCalled],@"GSWApplication handlePageRestorationErrorInContext: _finalizeInContext called for GSWResponse");
   LOGObjectFnStop();
   return _response;
 };
@@ -2448,7 +2466,13 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	{
 	  LOGError0(@"No context !");
 	  _context=[GSWContext contextWithRequest:nil];	  
+	  LOGError0(@"Really can't get context !");
 	};
+  //TODO Hack: verify that there is an application context otherswise, it failed in component Creation
+  if (![self _context])
+    {
+      [self _setContext:_context];
+    };
   _resourceManager=[self resourceManager];
   NSDebugMLLog0(@"low",@"GSWComponentRequestHandler _dispatchWithPreparedSession no page");
   if ([_resourceManager pathForResourceNamed:_restorationErrorPage
@@ -2475,8 +2499,11 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	_response=[_errorPage generateResponse];
   else
 	{
-	  //TODO
+	  _response=[GSWResponse responseWithMessage:@"Exception Handling failed. Can't find Page Restoration Error Page"
+				 inContext:_context
+				 forRequest:nil];
 	};
+  NSAssert(![_response isFinalizeInContextHasBeenCalled],@"GSWApplication _handlePageRestorationErrorInContext: _finalizeInContext called for GSWResponse");
   LOGObjectFnStop();
   return _response;
 };
@@ -2495,10 +2522,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	{
 	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In _handleSessionCreationErrorInContext:");
 	  LOGException(@"exception=%@",localException);
-	  //TODO
-	  //Generate simple response !
+	  _response=[GSWResponse responseWithMessage:@"Session Creation Error Handling failed."
+				 inContext:context_
+				 forRequest:nil];
 	}
   NS_ENDHANDLER;
+  NSAssert(![_response isFinalizeInContextHasBeenCalled],@"GSWApplication handleSessionCreationErrorInContext: _finalizeInContext called for GSWResponse");
   LOGObjectFnStop();
   return _response;
 };
@@ -2526,10 +2555,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	{
 	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In _handleSessionRestorationErrorInContext:");
 	  LOGException(@"exception=%@",localException);
-	  //TODO
-	  //Generate simple response !
+	  _response=[GSWResponse responseWithMessage:@"Session Restoration Error Handling failed."
+				 inContext:context_
+				 forRequest:nil];
 	}
   NS_ENDHANDLER;
+  NSAssert(![_response isFinalizeInContextHasBeenCalled],@"GSWApplication handleSessionRestorationErrorInContext: _finalizeInContext called for GSWResponse");
   LOGObjectFnStop();
   return _response;
 };
@@ -2553,7 +2584,13 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	{
 	  LOGError0(@"No context !");
 	  _context=[GSWContext contextWithRequest:nil];	  
+	  LOGError0(@"Really can't get context !");
 	};
+  //TODO Hack: verify that there is an application context otherswise, it failed in component Creation
+  if (![self _context])
+    {
+      [self _setContext:_context];
+    };
   _resourceManager=[self resourceManager];
   if ([_resourceManager pathForResourceNamed:_sessionRestorationErrorPage
 						inFramework:GSWFramework_extensions
@@ -2579,8 +2616,11 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	_response=[_errorPage generateResponse];
   else
 	{
-	  //TODO
+	  _response=[GSWResponse responseWithMessage:@"Session Restoration Error Handling failed."
+				 inContext:_context
+				 forRequest:nil];
 	};
+  NSAssert(![_response isFinalizeInContextHasBeenCalled],@"GSWApplication _handleSessionRestorationErrorInContext: _finalizeInContext called for GSWResponse");
   LOGObjectFnStart();
   return _response;
 };
@@ -2721,7 +2761,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)format_,...
 {
-  va_list ap;
+  va_list ap=NULL;
   va_start(ap,format_);
   [self debugWithFormat:format_
 		  arguments:ap];
@@ -2731,7 +2771,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)debugWithFormat:(NSString*)format_,...
 {
-  va_list ap;
+  va_list ap=NULL;
   va_start(ap,format_);
   [GSWApp debugWithFormat:format_
 		  arguments:ap];
@@ -2749,7 +2789,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)logWithFormat:(NSString*)format_,...
 {
-  va_list ap;
+  va_list ap=NULL;
   va_start(ap,format_);
   [self logWithFormat:format_
 		arguments:ap];
@@ -2759,7 +2799,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)logWithFormat:(NSString*)format_,...
 {
-  va_list ap;
+  va_list ap=NULL;
   va_start(ap,format_);
   [GSWApp logWithFormat:format_
 		  arguments:ap];
@@ -2780,7 +2820,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 -(void)logErrorWithFormat:(NSString*)format_,...
 {
-  va_list ap;
+  va_list ap=NULL;
   va_start(ap,format_);
   [self logErrorWithFormat:format_
 		arguments:ap];
@@ -2790,7 +2830,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //--------------------------------------------------------------------
 +(void)logErrorWithFormat:(NSString*)format_,...
 {
-  va_list ap;
+  va_list ap=NULL;
   va_start(ap,format_);
   [GSWApp logErrorWithFormat:format_
 		  arguments:ap];

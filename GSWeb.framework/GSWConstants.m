@@ -179,6 +179,7 @@ NSString* GSWHTTPHeader_ContentType=@"content-type";
 NSString* GSWHTTPHeader_FormURLEncoded=@"application/x-www-form-urlencoded";
 NSString* GSWHTTPHeader_MultipartFormData=@"multipart/form-data";
 NSString* GSWHTTPHeader_MimeType_TextPlain=@"text/plain";
+NSString* GSWHTTPHeader_UserAgent=@"User-Agent";
 
 NSString* GSWHTTPHeader_ContentLength=@"content-length";
 

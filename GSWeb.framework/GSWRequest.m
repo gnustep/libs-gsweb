@@ -401,7 +401,17 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   NSDictionary* _formValues=nil;
   NSArray* _formValueKeys=nil;
   LOGObjectFnStart();
-  _formValues=[self _formValues];
+  NS_DURING
+    {
+	  _formValues=[self _formValues];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest _formValues");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
   _formValueKeys=[_formValues allKeys];
   LOGObjectFnStop();
   return _formValueKeys;
@@ -415,7 +425,17 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   NSArray* _formValuesForKey=nil;
   NSDictionary* _formValues=nil;
   LOGObjectFnStart();
-  _formValues=[self _formValues];
+  NS_DURING
+    {
+      _formValues=[self _formValues];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest _formValues");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
   _formValuesForKey=[_formValues objectForKey:key_];
   LOGObjectFnStop();
   return _formValuesForKey;
@@ -447,7 +467,17 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 {
   NSDictionary* _formValues=nil;
   LOGObjectFnStart();
-  _formValues=[self _formValues];
+  NS_DURING
+    {
+      _formValues=[self _formValues];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest _formValues");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
   LOGObjectFnStop();
   return _formValues;
 };
@@ -982,124 +1012,143 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   _contentTypeCount=[_contentTypes count];
   NSDebugMLLog(@"requests",@"_contentTypes=%@",_contentTypes);
   _content=[self content];
-  for(_contentTypeIndex=0;_contentTypeIndex<_contentTypeCount;_contentTypeIndex++)
-	{
-	  NSDictionary* _parsedContentType=nil;
-	  NSString* _boundary=nil;
-	  NSArray* _decodedParts=nil;
-	  int _decodedPartIndex=0;
-	  int _decodedPartCount=0;
-
-	  // get "multipart/form-data; boundary=---------------------------1810101926251"
-	  _contentType=[_contentTypes objectAtIndex:_contentTypeIndex];
-	  NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
-	  // convert it into
-	  //	{
-	  //		boundary = "---------------------------1810101926251";
-	  //		"multipart/form-data" = "multipart/form-data"; 
-	  //	}
-	  _parsedContentType=[self _parseOneHeader:_contentType];
-	  NSDebugMLLog(@"requests",@"_parsedContentType=%@",_parsedContentType);
-	  _boundary=[_parsedContentType objectForKey:@"boundary"];
-	  NSDebugMLLog(@"requests",@"_boundary=%@",_boundary);
-	  NSAssert1(_boundary,@"No boundary in %@",_parsedContentType);
-	  NSDebugMLLog(@"requests",@"_content=%@",_content);
-	  _decodedParts=[self _decodeMultipartBody:_content
-								   boundary:_boundary];
-	  NSDebugMLLog(@"requests",@"_decodedParts=%@",_decodedParts);
-	  _decodedPartIndex=0;
-	  _decodedPartCount=[_decodedParts count];
-	  for(_decodedPartIndex=0;_decodedPartIndex<_decodedPartCount;_decodedPartIndex++)
+  NS_DURING
+    {
+	  for(_contentTypeIndex=0;_contentTypeIndex<_contentTypeCount;_contentTypeIndex++)
 		{
-		  NSData* _decodedPart=nil;
-		  NSArray* _parsedParts=nil;
-		  int _parsedPartsCount=0;
-
-		  _decodedPart=[_decodedParts objectAtIndex:_decodedPartIndex];
-		  NSDebugMLLog(@"requests",@"_decodedPart=%@",_decodedPart);
-		  _parsedParts=[self _parseData:_decodedPart];
-		  NSDebugMLLog(@"requests",@"_parsedParts=%@",_parsedParts);
-		  //return :
-		  //	(
-		  //		{
-		  //			"content-disposition" = "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\""; 
-		  //			"content-type" = text/plain; 
-		  //	    },
-		  //		<41514541 41415177 4d444179 666f3054 6c4e2b58 58684357 69314b50 51635159 73573677 426d336f 52617247 36584633 4c7a6455 5637664e 39654b6b 764b4a43 71715059 67417250 59374863 78397944 36506b66 774a7550 465a4141 2f303463 446c5072 48525670 537a4135 67664738 62364572 44314158 372b7067 734c5075 304b4d77 0d0a0d0a >
-		  //	)
-		  _parsedPartsCount=[_parsedParts count];
-		  if (_parsedPartsCount==0)
+		  NSDictionary* _parsedContentType=nil;
+		  NSString* _boundary=nil;
+		  NSArray* _decodedParts=nil;
+		  int _decodedPartIndex=0;
+		  int _decodedPartCount=0;
+		  
+		  // get "multipart/form-data; boundary=---------------------------1810101926251"
+		  _contentType=[_contentTypes objectAtIndex:_contentTypeIndex];
+		  NSDebugMLLog(@"requests",@"_contentType=%@",_contentType);
+		  // convert it into
+		  //	{
+		  //		boundary = "---------------------------1810101926251";
+		  //		"multipart/form-data" = "multipart/form-data"; 
+		  //	}
+		  _parsedContentType=[self _parseOneHeader:_contentType];
+		  NSDebugMLLog(@"requests",@"_parsedContentType=%@",_parsedContentType);
+		  _boundary=[_parsedContentType objectForKey:@"boundary"];
+		  NSDebugMLLog(@"requests",@"_boundary=%@",_boundary);
+		  NSAssert1(_boundary,@"No boundary in %@",_parsedContentType);
+		  NSDebugMLLog(@"requests",@"_content=%@",_content);
+		  _decodedParts=[self _decodeMultipartBody:_content
+							  boundary:_boundary];
+		  NSDebugMLLog(@"requests",@"_decodedParts=%@",_decodedParts);
+		  _decodedPartIndex=0;
+		  _decodedPartCount=[_decodedParts count];
+		  for(_decodedPartIndex=0;_decodedPartIndex<_decodedPartCount;_decodedPartIndex++)
 			{
-			  //TODO error
-			}
-		  else
-			{
-			  NSDictionary* _partInfo=nil;
-			  NSString* _parsedPartsContentType=nil;
-			  NSString* _parsedPartsContentDisposition=nil;
-			  NSDictionary* _parsedContentDispositionOfParsedPart=nil;
-			  NSEnumerator* _enum=nil;
-			  NSString* _name=nil;
-			  NSString* _dscrKey=nil;
-			  id _descrValue=nil;
+			  NSData* _decodedPart=nil;
+			  NSArray* _parsedParts=nil;
+			  int _parsedPartsCount=0;
 
-			  _partInfo=[_parsedParts objectAtIndex:0];
-			  NSDebugMLLog(@"requests",@"_partInfo=%@",_partInfo);
-			  NSAssert1([_partInfo isKindOfClass:[NSDictionary class]],@"partInfo %@ is not a dictionary",_partInfo);
-			  _parsedPartsContentType=[[_partInfo objectForKey:GSWHTTPHeader_ContentType] lowercaseString];
-			  NSDebugMLLog(@"requests",@"_parsedPartsContentType=%@",_parsedPartsContentType);
-			  _parsedPartsContentDisposition=[_partInfo objectForKey:@"content-disposition"];
-			  NSDebugMLLog(@"requests",@"_parsedPartsContentDisposition=%@",_parsedPartsContentDisposition);
-			  //Convert: "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\"";
-			  // into: {filename = "C:\\TEMP\\zahn.txt"; "form-data" = "form-data"; name = 9.1; }
-			  _parsedContentDispositionOfParsedPart=[self _parseOneHeader:_parsedPartsContentDisposition];
-			  NSDebugMLLog(@"requests",@"_parsedContentDispositionOfParsedPart=%@",_parsedContentDispositionOfParsedPart);
-			  _enum=[_parsedContentDispositionOfParsedPart keyEnumerator];
-			  _name=[_parsedContentDispositionOfParsedPart objectForKey:@"name"];
-			  NSDebugMLLog(@"requests",@"_name=%@",_name);
-			  NSAssert1(_name,@"No name in %@",_parsedContentDispositionOfParsedPart);
-			  while((_dscrKey=[_enum nextObject]))
+			  _decodedPart=[_decodedParts objectAtIndex:_decodedPartIndex];
+			  NSDebugMLLog(@"requests",@"_decodedPart=%@",_decodedPart);
+			  _parsedParts=[self _parseData:_decodedPart];
+			  NSDebugMLLog(@"requests",@"_parsedParts=%@",_parsedParts);
+			  //return :
+			  //	(
+			  //		{
+			  //			"content-disposition" = "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\""; 
+			  //			"content-type" = text/plain; 
+			  //	    },
+			  //		<41514541 41415177 4d444179 666f3054 6c4e2b58 58684357 69314b50 51635159 73573677 426d336f 52617247 36584633 4c7a6455 5637664e 39654b6b 764b4a43 71715059 67417250 59374863 78397944 36506b66 774a7550 465a4141 2f303463 446c5072 48525670 537a4135 67664738 62364572 44314158 372b7067 734c5075 304b4d77 0d0a0d0a >
+			  //	)
+			  _parsedPartsCount=[_parsedParts count];
+			  if (_parsedPartsCount==0)
 				{
-				  NSDebugMLLog(@"requests",@"_dscrKey=%@",_dscrKey);
-				  if (![_dscrKey isEqualToString:@"name"] && ![_dscrKey isEqualToString:@"form-data"])
-					{
-					  NSString* _key=nil;
-					  _descrValue=[_parsedContentDispositionOfParsedPart objectForKey:_dscrKey];
-					  NSDebugMLLog(@"requests",@"_descrValue=%@",_descrValue);
-					  _key=[NSString stringWithFormat:@"%@.%@",_name,_dscrKey];
-					  NSDebugMLLog(@"requests",@"_key=%@",_key);
-					  [_formValues setObject:[NSArray arrayWithObject:_descrValue]
-								   forKey:_key];
-					};
-				};
-			  if (_parsedPartsCount>1)
+				  LOGError(@"_parsedPartsCount==0 _decodedPart=%@",_decodedPart);
+				  //TODO error
+				}
+			  else
 				{
-				  NSArray* _values=[_parsedParts subarrayWithRange:NSMakeRange(1,[_parsedParts count]-1)];
-				  NSMutableArray* _valuesNew=[NSMutableArray array];
-				  NSDebugMLLog(@"requests",@"_values=%@",_values);
+				  NSDictionary* _partInfo=nil;
+				  NSString* _parsedPartsContentType=nil;
+				  NSString* _parsedPartsContentDisposition=nil;
+				  NSDictionary* _parsedContentDispositionOfParsedPart=nil;
+				  NSEnumerator* _enum=nil;
+				  NSString* _name=nil;
+				  NSString* _dscrKey=nil;
+				  id _descrValue=nil;
+
+				  _partInfo=[_parsedParts objectAtIndex:0];
+				  NSDebugMLLog(@"requests",@"_partInfo=%@",_partInfo);
+				  NSAssert1([_partInfo isKindOfClass:[NSDictionary class]],@"partInfo %@ is not a dictionary",_partInfo);
+				  _parsedPartsContentType=[[_partInfo objectForKey:GSWHTTPHeader_ContentType] lowercaseString];
 				  NSDebugMLLog(@"requests",@"_parsedPartsContentType=%@",_parsedPartsContentType);
-				  if (!_parsedPartsContentType || [_parsedPartsContentType isEqualToString:GSWHTTPHeader_MimeType_TextPlain])
+				  _parsedPartsContentDisposition=[_partInfo objectForKey:@"content-disposition"];
+				  NSDebugMLLog(@"requests",@"_parsedPartsContentDisposition=%@",_parsedPartsContentDisposition);
+				  //Convert: "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\"";
+				  // into: {filename = "C:\\TEMP\\zahn.txt"; "form-data" = "form-data"; name = 9.1; }
+				  _parsedContentDispositionOfParsedPart=[self _parseOneHeader:_parsedPartsContentDisposition];
+				  NSDebugMLLog(@"requests",@"_parsedContentDispositionOfParsedPart=%@",_parsedContentDispositionOfParsedPart);
+				  _enum=[_parsedContentDispositionOfParsedPart keyEnumerator];
+				  _name=[_parsedContentDispositionOfParsedPart objectForKey:@"name"];
+				  NSDebugMLLog(@"requests",@"_name=%@",_name);
+				  if (!_name)
 					{
-					  int _valueIndex=0;
-					  int _valuesCount=[_values count];
-					  id _value=nil;
-					  for(_valueIndex=0;_valueIndex<_valuesCount;_valueIndex++)
-						{
-						  _value=[_values objectAtIndex:_valueIndex];
-						  NSDebugMLLog(@"requests",@"_value=%@",_value);
-						  _value=[[[NSString alloc]initWithData:_value
-												   encoding:NSISOLatin1StringEncoding]autorelease];
-						  [_valuesNew addObject:_value];
-						};
-					  _values=[NSArray arrayWithArray:_valuesNew];
+					  ExceptionRaise(@"GSWRequest",
+									 @"GSWRequest: No name \n%@\n",
+									 _parsedContentDispositionOfParsedPart);
 					};
-				  [_formValues setObject:_values
-							   forKey:_name];
+				  while((_dscrKey=[_enum nextObject]))
+					{
+					  NSDebugMLLog(@"requests",@"_dscrKey=%@",_dscrKey);
+					  if (![_dscrKey isEqualToString:@"name"] && ![_dscrKey isEqualToString:@"form-data"])
+						{
+						  NSString* _key=nil;
+						  _descrValue=[_parsedContentDispositionOfParsedPart objectForKey:_dscrKey];
+						  NSDebugMLLog(@"requests",@"_descrValue=%@",_descrValue);
+						  _key=[NSString stringWithFormat:@"%@.%@",_name,_dscrKey];
+						  NSDebugMLLog(@"requests",@"_key=%@",_key);
+						  [_formValues setObject:[NSArray arrayWithObject:_descrValue]
+									   forKey:_key];
+						};
+					};
+				  if (_parsedPartsCount>1)
+					{
+					  NSArray* _values=[_parsedParts subarrayWithRange:NSMakeRange(1,[_parsedParts count]-1)];
+					  NSMutableArray* _valuesNew=[NSMutableArray array];
+					  NSDebugMLLog(@"requests",@"_values=%@",_values);
+					  NSDebugMLLog(@"requests",@"_parsedPartsContentType=%@",_parsedPartsContentType);
+					  if (!_parsedPartsContentType || [_parsedPartsContentType isEqualToString:GSWHTTPHeader_MimeType_TextPlain])
+						{
+						  int _valueIndex=0;
+						  int _valuesCount=[_values count];
+						  id _value=nil;
+						  for(_valueIndex=0;_valueIndex<_valuesCount;_valueIndex++)
+							{
+							  _value=[_values objectAtIndex:_valueIndex];
+							  NSDebugMLLog(@"requests",@"_value=%@",_value);
+							  _value=[[[NSString alloc]initWithData:_value
+													   encoding:NSISOLatin1StringEncoding]autorelease];
+							  [_valuesNew addObject:_value];
+							};
+						  _values=[NSArray arrayWithArray:_valuesNew];
+						};
+					  [_formValues setObject:_values
+								   forKey:_name];
+					};
 				};
 			};
 		};
-	};
-				  
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest in _getFormValuesFromMultipartFormData");
+      LOGException(@"%@ (%@) \n_contentTypes=%@\n_content=%@",
+				   localException,
+				   [localException reason],
+				   _contentTypes,
+				   _content);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
   NSDebugMLLog(@"requests",@"_formValues=%@",_formValues);
   ASSIGN(formValues,_formValues);
   //

@@ -90,7 +90,11 @@ static void GSWeb_Init(server_rec* p_pServerRec, pool *p)
   pConfig=(GSWeb_Config*)ap_get_module_config(p_pServerRec->module_config,
 											  &GSWeb_Module);
   GSWLog_Init(NULL,GSW_INFO);
-  GSWLog(GSW_INFO,p_pServerRec,"GSWeb Init Start Config" GSWEB_HANDLER);
+  GSWLog(GSW_INFO,p_pServerRec,
+		 "GSWeb Init Start Config. Handler: " GSWEB_HANDLER);
+  GSWLog(GSW_DEBUG,p_pServerRec,
+		 "GSWeb_Init: pConfig->pszGSWeb=%s",
+		 pConfig->pszGSWeb);
 	
   if (pConfig && pConfig->pszConfigPath)
 	GSWDict_AddStringDup(pDict,
@@ -100,10 +104,12 @@ static void GSWeb_Init(server_rec* p_pServerRec, pool *p)
 	  GSWDict_AddStringDup(pDict,
 	  g_szGSWeb_Conf_DocRoot,
 	  pConfig->pszRoot);*/
-  GSWLog(GSW_INFO,p_pServerRec,"GSWeb Init LB Init" GSWEB_HANDLER);
-  GSWConfig_Init(pDict);
+  GSWLog(GSW_INFO,p_pServerRec,
+		 "GSWeb Init LB Init. Handler: " GSWEB_HANDLER);
+  GSWConfig_Init(pDict,p_pServerRec);
 	
-  GSWLog(GSW_INFO,p_pServerRec,"GSWeb Init" GSWEB_HANDLER);
+  GSWLog(GSW_INFO,p_pServerRec,
+		 "GSWeb Init. Handler: " GSWEB_HANDLER);
   GSWDict_Free(pDict);
 };
 
@@ -114,6 +120,8 @@ static void* GSWeb_CreateConfig(pool* p_pPool,
 {
   GSWeb_Config *pConfig = (GSWeb_Config*)ap_palloc(p_pPool,sizeof(GSWeb_Config));
   pConfig->pszGSWeb = g_szGSWeb_Prefix;
+  GSWLog(GSW_DEBUG,p_pServerRec,"GSWeb_CreateConfig: pConfig->pszGSWeb=%s",
+		 pConfig->pszGSWeb);
   pConfig->pszConfigPath = NULL;
 //  pConfig->pszRoot = NULL;
   return pConfig;
@@ -203,7 +211,9 @@ int GSWeb_Translation(request_rec* p_pRequestRec)
 	  GSWLog(GSW_DEBUG,p_pRequestRec->server,"GSWeb_Translation Decliend");
 	  iRetValue=DECLINED;
 	};
-  GSWLog(GSW_DEBUG,p_pRequestRec->server,"Stop GSWeb_Translation");
+  GSWLog(GSW_DEBUG,p_pRequestRec->server,
+		 "Stop GSWeb_Translation return %d",
+		 iRetValue);
   return iRetValue;
 };
 

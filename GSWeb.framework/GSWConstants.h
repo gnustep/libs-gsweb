@@ -120,6 +120,7 @@ extern NSString* GSWHTTPHeader_FormURLEncoded;
 extern NSString* GSWHTTPHeader_MultipartFormData;
 extern NSString* GSWHTTPHeader_ContentLength;
 extern NSString* GSWHTTPHeader_MimeType_TextPlain;
+extern NSString* GSWHTTPHeader_UserAgent;
 
 extern NSString* GSWHTTPHeader_Response_OK;
 extern NSString* GSWHTTPHeader_Response_HeaderLineEnd;

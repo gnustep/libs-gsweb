@@ -649,3 +649,38 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 
 @end
 
+//====================================================================
+@implementation GSWResponse (GSWResponseError)
+
+//--------------------------------------------------------------------
+//NDFN
+//Last cHance Response
++(GSWResponse*)responseWithMessage:(NSString*)message_
+			 inContext:(GSWContext*)context_
+			forRequest:(GSWRequest*)request_
+{
+  GSWResponse* _response=nil;
+  NSString* _httpVersion=nil;
+  LOGClassFnStart();
+  _response=[[self new]autorelease];
+  if (_response)
+    {
+      NSString* _responseString=nil;
+      if (context_ && [context_ request])
+	request_=[context_ request];
+      _httpVersion=[request_ httpVersion];
+      if (_httpVersion)
+	[_response setHTTPVersion:_httpVersion];
+      [_response setHeader:@"text/html"
+		 forKey:@"content-type"];
+      [context_ _setResponse:_response];
+      _responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
+				[[_response class]stringByEscapingHTMLString:message_]];
+      [_response appendContentString:_responseString];
+    };
+  LOGClassFnStop();
+  return _response;
+};
+
+@end
+

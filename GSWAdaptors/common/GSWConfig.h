@@ -122,6 +122,8 @@ GSWString* GSWConfig_DumpGSWApps(const char* p_pszReqApp,
 								 BOOL p_fForceDump,
 								 BOOL p_fHTML,
 								 void* p_pLogServerData);
+void GSWConfig_Init(GSWDict* p_pDict,
+					void* p_pLogServerData);
 GSWApp* GSWConfig_GetApp(CONST char* p_pszAppName);
 CONST char* GSWConfig_AdaptorBuilt();
 CONST char* GSWConfig_ServerStringInfo();
