@@ -1,3 +1,8 @@
+2004-11-29  David Wetzel <dave@turbocat.de>
+        * GSWeb.framework/GSWMessage.h
+        * GSWeb.framework/GSWMessage.m
+        uses NSMutableData now. 3.74 % faster than previous version
+
 2004-11-26  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWDisplayGroup.m 
