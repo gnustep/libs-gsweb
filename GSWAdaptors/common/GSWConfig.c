@@ -435,6 +435,7 @@ GSWConfig_PropListInstanceToInstance(GSWAppInstance *p_pInstance,
 	  p_pInstance->iPort=atoi(pszPort);
 	};
     };
+
   GSWLog(GSW_INFO,p_pLogServerData,
  "Config: App=%p %s instance %d host %s port %d Valid:%s timeNextRetryTime %d",
 	 p_pApp,
@@ -459,6 +460,7 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
   BOOL fOk=TRUE;
   char pszParents[4096]="";
   proplist_t pValueCanDump=NULL;  
+  proplist_t pValueSwitchToKnownInstance=NULL;  
   proplist_t pValueAdaptorTemplatesPath=NULL;
 
   if (p_pApp->pszName)
@@ -483,6 +485,22 @@ GSWConfig_PropListApplicationToApplication(GSWApp     *p_pApp,
       CONST char *pszCanDump=PLGetString(pValueCanDump);//Do Not Free It
       p_pApp->fCanDump=(strcasecmp(pszCanDump,"YES")==0);
     };
+
+  // SwitchToKnownInstance
+  pValueSwitchToKnownInstance=GSWPropList_GetDictionaryEntry(p_propListApp,
+                                                             "switchToKnownInstance",
+                                                             pszParents,
+                                                             FALSE,//No Error If Not Exists
+                                                             GSWPropList_TestString,
+                                                             p_pLogServerData);
+  
+  p_pApp->fSwitchToKnownInstance=YES;
+  if (pValueSwitchToKnownInstance)
+    {
+      CONST char *pszSwitchToKnownInstance=PLGetString(pValueSwitchToKnownInstance);//Do Not Free It
+      p_pApp->fSwitchToKnownInstance=!(strcasecmp(pszSwitchToKnownInstance,"NO")==0);
+    };
+
 
   //adaptorTemplates
   pValueAdaptorTemplatesPath =
@@ -825,6 +843,7 @@ GSWConfig_LoadConfiguration(void *p_pLogServerData)
       //      );
       //    };
       //    MyApp3 = {
+      //      switchToKnownInstance = NO;
       //      canDump = YES;
       //      instances = (
       //        {
