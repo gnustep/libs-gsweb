@@ -1,3 +1,8 @@
+2004-06-01 David Wetzel <dave@turbocat.de>
+
+	* GSWeb.framework/GSWDeclarationParser.m:
+	supports 'true' and 'false' now. Will be transformed into YES and NO
+
 2004-05-18  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWUtils.h/m: (struct proc_s, proc_t): Removed.
@@ -50,6 +55,7 @@
 	* GSWeb.framework/GSWTemplateParser.m: Do not initialize va_list
 	with NULL.
 
+>>>>>>> 1.170
 2004-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWHTMLTemplateParser.m:
