@@ -52,6 +52,9 @@
 +(NSString*)cachedDTDContentForKey:(NSString*)url;
 +(void)setCachedDTDContent:(NSString*)externalContent
                     forKey:(NSString*)url;
++(NSString*)cachedDTDFilePathForKey:(NSString*)url;
++(void)setCachedDTDFilePath:(NSString*)filePath
+                     forKey:(NSString*)url;
 +(id)handlerWithTemplateParser:(GSWTemplateParser*)templateParser;
 -(id)initWithTemplateParser:(GSWTemplateParser*)templateParser;
 -(id)init;
@@ -86,6 +89,8 @@
 @interface GSWTemplateParserXMLHTML : GSWTemplateParserXML
 {
 };
+/** call htmlHandleOmittedElem(0) if YES, htmlHandleOmittedElem(1) if NO; **/
+-(void)setNoOmittedTags:(BOOL)yn;
 
 @end
 
