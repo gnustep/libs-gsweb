@@ -39,7 +39,12 @@
 @interface GSWDeployedBundle : NSObject
 {
   NSString* _bundlePath;
+  NSString* _wrapperName;
+  NSString* _projectName;
+  BOOL _isFramework;
   GSWMultiKeyDictionary* _relativePathsCache;
+  NSMutableDictionary* _absolutePathsCache;
+  NSMutableDictionary* _urlsCache;
   NSRecursiveLock* _selfLock;
 #ifndef NDEBUG
   int _selfLockn;
@@ -48,33 +53,50 @@
 #endif
 };
 
--(void)dealloc;
--(NSString*)description;
 -(id)initWithPath:(NSString*)aPath;
 -(GSWProjectBundle*)projectBundle;
 -(BOOL)isFramework;
 -(NSString*)wrapperName;
 -(NSString*)projectName;
 -(NSString*)bundlePath;
+-(NSString*)bundleURLPrefix;
 -(NSArray*)pathsForResourcesOfType:(NSString*)aType;
 -(NSArray*)lockedPathsForResourcesOfType:(NSString*)aType;
 -(NSString*)relativePathForResourceNamed:(NSString*)aName
-                             forLanguage:(NSString*)aLanguage;
+                                language:(NSString*)aLanguage;
 -(NSString*)relativePathForResourceNamed:(NSString*)aName
-                            forLanguages:(NSArray*)someLanguages;
+                               languages:(NSArray*)someLanguages;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                   forLanguage:(NSString*)aLanguage;
+                                      language:(NSString*)aLanguage;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                  forLanguages:(NSArray*)someLanguages;
+                                     languages:(NSArray*)someLanguages;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
                                    inDirectory:(NSString*)aDirectory
-                                  forLanguages:(NSArray*)someLanguages;
+                                     languages:(NSArray*)someLanguages;
 -(NSString*)lockedCachedRelativePathForResourceNamed:(NSString*)aName
                                          inDirectory:(NSString*)aDirectory
-                                         forLanguage:(NSString*)aLanguage;
+                                            language:(NSString*)aLanguage;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
                                    inDirectory:(NSString*)aDirectory
-                                   forLanguage:(NSString*)aLanguage;
+                                      language:(NSString*)aLanguage;
+
+/** Returns url for resource named aName for languages someLanguages **/
+-(NSString*)urlForResourceNamed:(NSString*)aName
+                      languages:(NSArray*)someLanguages;
+
+/** Returns the url (cached or not) for relativePath. Put it in the cache 
+if it was not cached **/
+-(NSString*)lockedCachedURLForRelativePath:(NSString*)relativePath;
+
+/** Returns the absolute path (cached or not) for relativePath. Put it in the cache 
+if it was not cached **/
+-(NSString*)lockedCachedAbsolutePathForRelativePath:(NSString*)relativePath;
+
+-(NSString*)absolutePathForRelativePath:(NSString*)relativePath;
+
+-(NSString*)absolutePathForResourceNamed:(NSString*)aName
+                               languages:(NSArray*)someLanguages;
+
 -(void)lock;
 -(void)unlock;
 

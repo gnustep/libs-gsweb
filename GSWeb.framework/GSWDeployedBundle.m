@@ -45,22 +45,25 @@ RCS_ID("$Id$")
   if ((self=[super init]))
     {
       NSDebugMLLog(@"bundles",@"aPath=%@",aPath);
+
       ASSIGN(_bundlePath,[aPath stringGoodPath]);
       NSDebugMLLog(@"bundles",@"_bundlePath=%@",_bundlePath);
+
+      ASSIGN(_wrapperName,([_bundlePath lastPathComponent]));
+      NSDebugMLLog(@"bundles",@"_wrapperName=%@",_wrapperName);
+      
+      ASSIGN(_projectName,([_wrapperName stringByDeletingPathExtension]));
+      NSDebugMLLog(@"bundles",@"_projectName=%@",_projectName);
+
+      _isFramework=[_bundlePath hasSuffix:GSFrameworkSuffix];//Ok ?
+
       _relativePathsCache=[GSWMultiKeyDictionary new];
+      _absolutePathsCache=[NSMutableDictionary new];
+      _urlsCache=[NSMutableDictionary new];
 #ifndef NDEBUG
       _creation_thread_id=objc_thread_id();
 #endif
       _selfLock=[NSRecursiveLock new];
-/*
-  NSDebugMLog(@"selfLock->mutex=%p",(void*)selfLock->mutex);
-  NSDebugMLog(@"selfLock->mutex backend=%p",(void*)((pthread_mutex_t*)(selfLock->mutex->backend)));
-  NSDebugMLog(@"selfLock->mutex backend m_owner=%p",
-  (void*)(((pthread_mutex_t*)(selfLock->mutex->backend))->m_owner));
-  NSDebugMLog(@"selfLock->mutex backend m_count=%p",(void*)(((pthread_mutex_t*)(selfLock->mutex->backend))->m_count));
-  NSDebugMLog(@"selfLock->mutex backend m_kind=%p",(void*)(((pthread_mutex_t*)(selfLock->mutex->backend))->m_kind));
-  NSDebugMLog(@"selfLock->mutex backend m_spinlock=%p",(void*)(((pthread_mutex_t*)(selfLock->mutex->backend))->m_spinlock));
-*/
     };
   LOGObjectFnStop();
   return self;
@@ -71,7 +74,11 @@ RCS_ID("$Id$")
 {
   NSDebugFLog(@"Dealloc GSWDeployedBundle %p",(void*)self);
   DESTROY(_bundlePath);
+  DESTROY(_wrapperName);
+  DESTROY(_projectName);
   DESTROY(_relativePathsCache);
+  DESTROY(_absolutePathsCache);
+  DESTROY(_urlsCache);
   GSWLogC("Dealloc GSWDeployedBundle: selfLock");
   NSDebugFLog(@"selfLock=%p selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p creation_thread_id=%p",
               (void*)_selfLock,
@@ -126,49 +133,55 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(BOOL)isFramework
 {
-  //OK ??
-  return [_bundlePath hasSuffix:GSFrameworkSuffix];
+  return _isFramework;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)wrapperName
 {
-  //OK ?
-  NSString* projectName=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"_bundlePath=%@",_bundlePath);
-  projectName=[_bundlePath lastPathComponent];
-  NSDebugMLLog(@"bundles",@"projectName=%@",projectName);
-  projectName=[projectName stringByDeletingPathExtension];
-  NSDebugMLLog(@"bundles",@"projectName=%@",projectName);
   LOGObjectFnStop();
-  return projectName;
+  return _wrapperName;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)projectName
 {
-  // H:\Wotests\ObjCTest3\ObjCTest3.gswa ==> ObjCTest3
-  //OK ?
-  NSString* projectName=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"_gnustep_target_cpu=%@",[NSBundle _gnustep_target_cpu]);
-  NSDebugMLLog(@"bundles",@"_gnustep_target_dir=%@",[NSBundle _gnustep_target_dir]);
-  NSDebugMLLog(@"bundles",@"_gnustep_target_os=%@",[NSBundle _gnustep_target_os]);
-  NSDebugMLLog(@"bundles",@"_library_combo=%@",[NSBundle _library_combo]);
-  NSDebugMLLog(@"bundles",@"_bundlePath=%@",_bundlePath);
-  projectName=[_bundlePath lastPathComponent];
-  NSDebugMLLog(@"bundles",@"projectName=%@",projectName);
-  projectName=[projectName stringByDeletingPathExtension];
-  NSDebugMLLog(@"bundles",@"projectName=%@",projectName);
   LOGObjectFnStop();
-  return projectName;
+  return _projectName;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)bundlePath
 {
   return _bundlePath;
+};
+
+//--------------------------------------------------------------------
+-(NSString*)bundleURLPrefix
+{  
+  NSString* urlPrefix=nil;
+  NSString* wrapperName=nil;
+
+  if ([self isFramework]) // get framework prefix ?
+    urlPrefix = [GSWApplication frameworksBaseURL];
+  else
+    urlPrefix = [GSWApplication applicationBaseURL];
+
+  NSDebugMLLog(@"bundles",@"urlPrefix=%@",urlPrefix);
+  NSAssert([urlPrefix length]>0,@"No urlPrefix");
+  
+  wrapperName=[self wrapperName];
+  NSDebugMLLog(@"bundles",@"wrapperName=%@",wrapperName);
+  NSAssert([wrapperName length]>0,@"No wrapperName");
+  
+  if (urlPrefix && wrapperName)
+    {
+      urlPrefix=[urlPrefix stringByAppendingPathComponent:wrapperName];
+      NSDebugMLLog(@"bundles",@"urlPrefix=%@",urlPrefix);
+    };
+  return urlPrefix;
 };
 
 //--------------------------------------------------------------------
@@ -206,7 +219,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(NSString*)relativePathForResourceNamed:(NSString*)aName
-                             forLanguage:(NSString*)aLanguage
+                             language:(NSString*)aLanguage
 {
   //OK
   NSString* path=nil;
@@ -216,7 +229,7 @@ RCS_ID("$Id$")
   NS_DURING
     {
       path=[self lockedRelativePathForResourceNamed:aName
-                 forLanguage:aLanguage];
+                 language:aLanguage];
       NSDebugMLLog(@"bundles",@"path=%@",path);
     }
   NS_HANDLER
@@ -234,7 +247,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(NSString*)relativePathForResourceNamed:(NSString*)aName
-                            forLanguages:(NSArray*)someLanguages
+                            languages:(NSArray*)someLanguages
 {
   NSString* path=nil;
   LOGObjectFnStart();
@@ -243,7 +256,7 @@ RCS_ID("$Id$")
   NS_DURING
     {
       path=[self lockedRelativePathForResourceNamed:aName
-                 forLanguages:someLanguages];
+                 languages:someLanguages];
       //NSDebugMLLog(@"bundles",@"path=%@",path);
     }
   NS_HANDLER
@@ -262,7 +275,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                   forLanguage:(NSString*)aLanguage
+                                   language:(NSString*)aLanguage
 {
   //OK
   NSString* path=nil;
@@ -271,21 +284,21 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying Resources/WebServer",_bundlePath);
   path=[self lockedRelativePathForResourceNamed:aName
              inDirectory:@"Resources/WebServer"
-             forLanguage:aLanguage];
+             language:aLanguage];
   NSDebugMLLog(@"bundles",@"path=%@",path);
   if (!path)
     {
       NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying Resources",_bundlePath);
       path=[self lockedRelativePathForResourceNamed:aName
                  inDirectory:@"Resources"
-                 forLanguage:aLanguage];
+                 language:aLanguage];
       NSDebugMLLog(@"bundles",@"path=%@",path);
       if (!path)
         {
           NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying .",_bundlePath);
           path=[self lockedRelativePathForResourceNamed:aName
                      inDirectory:@"."
-                     forLanguage:aLanguage];
+                     language:aLanguage];
           NSDebugMLLog(@"bundles",@"path=%@",path);
         };
     };
@@ -295,7 +308,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                  forLanguages:(NSArray*)someLanguages
+                                  languages:(NSArray*)someLanguages
 {
   //OK
   NSString* path=nil;
@@ -304,21 +317,21 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying Resources/WebServer",_bundlePath);
   path=[self lockedRelativePathForResourceNamed:aName
              inDirectory:@"Resources/WebServer"
-             forLanguages:someLanguages];
+             languages:someLanguages];
   NSDebugMLLog(@"bundles",@"path=%@",path);
   if (!path)
     {
       NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying Resources",_bundlePath);
       path=[self lockedRelativePathForResourceNamed:aName
                  inDirectory:@"Resources"
-                 forLanguages:someLanguages];
+                 languages:someLanguages];
       NSDebugMLLog(@"bundles",@"path=%@",path);
       if (!path)
         {
           NSDebugMLLog(@"bundles",@"bundlePath=%@ Trying .",_bundlePath);
           path=[self lockedRelativePathForResourceNamed:aName
                      inDirectory:@"."
-                     forLanguages:someLanguages];
+                     languages:someLanguages];
           NSDebugMLLog(@"bundles",@"path=%@",path);
         };
     };
@@ -329,7 +342,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
                                    inDirectory:(id)aDirectory
-                                  forLanguages:(NSArray*)someLanguages
+                                  languages:(NSArray*)someLanguages
 {
   //OK
   NSString* path=nil;
@@ -342,14 +355,14 @@ RCS_ID("$Id$")
         {
           path=[self lockedCachedRelativePathForResourceNamed:aName
                      inDirectory:aDirectory
-                     forLanguage:[someLanguages objectAtIndex:i]];
+                     language:[someLanguages objectAtIndex:i]];
           NSDebugMLLog(@"bundles",@"path=%@",path);
         };
     };
   if (!path)
     path=[self lockedCachedRelativePathForResourceNamed:aName
                inDirectory:aDirectory
-               forLanguage:nil];
+               language:nil];
   NSDebugMLLog(@"bundles",@"path=%@",path);
   LOGObjectFnStop();
   return path;
@@ -358,7 +371,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)lockedCachedRelativePathForResourceNamed:(NSString*)aName
                                          inDirectory:(NSString*)aDirectory
-                                         forLanguage:(NSString*)aLanguage
+                                         language:(NSString*)aLanguage
 {
   //OK
   NSString* path=nil;
@@ -392,7 +405,7 @@ RCS_ID("$Id$")
             path=nil;
           else if (!path)
             {
-              //call again _relativePathForResourceNamed:inDirectory:forLanguage:
+              //call again _relativePathForResourceNamed:inDirectory:language:
               NSString* completePathTest=nil;
               BOOL exists=NO;
               NSFileManager* fileManager=nil;
@@ -425,7 +438,7 @@ RCS_ID("$Id$")
       NS_HANDLER
         {
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"lockedCachedRelativePathForResourceNamed:inDirectory:forLanguage:");
+                                                                   @"lockedCachedRelativePathForResourceNamed:inDirectory:language:");
           LOGException(@"%@ (%@)",localException,[localException reason]);
           RETAIN(localException);
           DESTROY(arp);
@@ -445,7 +458,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
                                    inDirectory:(NSString*)aDirectory
-                                   forLanguage:(NSString*)aLanguage
+                                   language:(NSString*)aLanguage
 {
   //OK
   NSString* path=nil;
@@ -454,9 +467,141 @@ RCS_ID("$Id$")
                aName,aDirectory,aLanguage);
   path=[self lockedCachedRelativePathForResourceNamed:aName
              inDirectory:aDirectory
-             forLanguage:aLanguage];
+             language:aLanguage];
   LOGObjectFnStop();
   return path;
+};
+
+//--------------------------------------------------------------------
+/** Returns url for resource anmed aName for languages someLanguages **/
+-(NSString*)urlForResourceNamed:(NSString*)aName
+                   languages:(NSArray*)someLanguages
+{
+  NSString* url=nil;
+
+  LOGObjectFnStart();
+
+  NSDebugMLLog(@"bundles",@"aName=%@ someLanguages=%@",aName,someLanguages);
+
+  [self lock];
+  NS_DURING
+    {
+      NSString* relativePath=[self lockedRelativePathForResourceNamed:aName
+                                   languages:someLanguages];
+      NSDebugMLLog(@"bundles",@"relativePath=%@",relativePath);
+      url=[self lockedCachedURLForRelativePath:relativePath];
+      NSDebugMLLog(@"bundles",@"url=%@",url);
+    }
+  NS_HANDLER
+    {
+      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@)",
+                   localException,[localException reason]);
+      //TODO
+      [self unlock];
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  [self unlock];
+
+  LOGObjectFnStop();
+
+  return url;
+};
+
+/** Returns the absolute path (cached or not) for relativePath. Put it in the cache 
+if it was not cached **/
+-(NSString*)lockedCachedAbsolutePathForRelativePath:(NSString*)relativePath
+{
+  NSString* path=nil;
+
+  LOGObjectFnStart();
+
+  if (relativePath)
+    {
+      // Test if already cached
+      path = [_absolutePathsCache objectForKey:relativePath];
+
+      // If not, build it
+      if (!path)
+        {
+          path=[[self bundlePath] stringByAppendingPathComponent:relativePath];
+          [_absolutePathsCache setObject:path
+                               forKey:relativePath];
+        }
+    }
+
+  LOGObjectFnStop();
+
+  return path;
+};
+
+//--------------------------------------------------------------------
+-(NSString*)absolutePathForRelativePath:(NSString*)relativePath
+{
+  NSString* path=nil;
+
+  LOGObjectFnStart();
+
+  [self lock];
+  NS_DURING
+    {
+      path=[self lockedCachedAbsolutePathForRelativePath:relativePath];
+      NSDebugMLLog(@"bundles",@"path=%@",path);
+    }
+  NS_HANDLER
+    {
+      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@)",
+                   localException,[localException reason]);
+      //TODO
+      [self unlock];
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  [self unlock];
+
+  LOGObjectFnStop();
+
+  return path;
+}
+
+//--------------------------------------------------------------------
+-(NSString*)absolutePathForResourceNamed:(NSString*)aName
+                            languages:(NSArray*)someLanguages
+{
+  NSString* relativePath = [self relativePathForResourceNamed:aName
+                                 languages:someLanguages];
+  return [self absolutePathForRelativePath:relativePath];
+}
+
+//--------------------------------------------------------------------
+/** Returns the url (cached or not) for relativePath. Put it in the cache 
+if it was not cached **/
+-(NSString*)lockedCachedURLForRelativePath:(NSString*)relativePath
+{
+  NSString* url=nil;
+
+  LOGObjectFnStart();
+
+  if (relativePath)
+    {
+      // Test if already cached
+      url = [_urlsCache objectForKey:relativePath];
+
+      // If not, build it
+      if (!url)
+        {
+          NSString* urlPrefix=[self bundleURLPrefix];
+          NSDebugMLLog(@"bundles",@"urlPrefix=%@",urlPrefix);
+
+          url=[urlPrefix stringByAppendingPathComponent:relativePath];
+          NSDebugMLLog(@"bundles",@"url=%@",url);
+
+          [_urlsCache setObject:url
+                      forKey:relativePath];
+        };
+    }
+  LOGObjectFnStop();
+  return url;
 };
 
 //--------------------------------------------------------------------
