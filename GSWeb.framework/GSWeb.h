@@ -1,6 +1,6 @@
 /** GSWeb.h -  <title>GSWeb</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -121,7 +121,7 @@
 @class GSWTemporaryElement;
 @class GSWBaseParser;
 @class GSWDeclaration;
-@class GSWGSWDeclarationParser;
+@class GSWDeclarationParser;
 @class GSWBundle;
 @class GSWSessionTimeOutManager;
 @class GSWServerSessionStore;
@@ -159,9 +159,6 @@
 #include "GSWElementIDString.h"
 #include "GSWMessage.h"
 #include "GSWResponse.h"
-#include "GSWHTMLLexer.h"
-#include "GSWHTMLParser.h"
-#include "GSWHTMLParserExt.h"
 #include "GSWBaseParser.h"
 #include "GSWDeclaration.h"
 #include "GSWDeclarationParser.h"
