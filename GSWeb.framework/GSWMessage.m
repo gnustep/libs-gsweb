@@ -510,14 +510,16 @@ static NSString* globalDefaultURLEncoding=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"low",@"string:%@",string);
   NSAssert2([_contentData length]==0,
-            @"Try to append string but content is data. \nString: '%@'\nData: '%@'",
+            @"Try to append string but content is data. \n"
+	    @"String: '%@'\nData: '%@'",
             string,
             [[[NSString alloc]initWithData:_contentData
                               encoding:[self contentEncoding]]
               autorelease]);
-  if(string) {
-	  [_contentString appendString:string];
-  }
+  if (string)
+    {
+      [_contentString appendString:string];
+    }
 #ifndef NO_GNUSTEP
   if (_cachesStack)
     [self _cacheAppendString:string];
