@@ -76,114 +76,21 @@ application unlock
 - (void)_setPool:(NSAutoreleasePool *)pool;
 @end
 
+/* GSWApplication+Defaults.m */
+/* These functions should actually be static inline to limit thier scope
+   but that would mean that they have to be part of this transalation unit.  */
+void GSWeb_ApplicationDebugSetChange(void);
+void GSWeb_AdjustVolatileNSArgumentDomain(void);
+void GSWeb_InitializeGlobalAppDefaultOptions(void);
+void GSWeb_InitializeDebugOptions(void);
+void GSWeb_DestroyGlobalAppDefaultOptions(void);
+
 //====================================================================
 GSWApplication* GSWApp=nil;
-NSDictionary* globalAppDefaultOptions = nil;
 NSString* globalApplicationClassName=nil;
 NSMutableDictionary* localDynCreateClassNames=nil;
 int GSWebNamingConv=GSWNAMES_INDEX;
-BOOL WOStrictFlag=NO;
 NSString* GSWPageNotFoundException=@"GSWPageNotFoundException";
-
-#ifndef NDEBUG
-void GSWApplicationDebugSetChange()
-{
-  static NSString* prevStateString=nil;
-  NSProcessInfo* processInfo=[NSProcessInfo processInfo];
-  NSMutableSet* debugSet=[processInfo debugSet];
-  NSString* debugSetConfigFilePath=nil;
-  NSString* newStateString=nil;
-  BOOL change=NO;
-
-  debugSetConfigFilePath = [GSWApplication debugSetConfigFilePath];
-  NSDebugFLog(@"debugSetConfigFilePath=%@", debugSetConfigFilePath);
-
-  if (debugSetConfigFilePath)
-    newStateString = [NSString stringWithContentsOfFile:
-				 [GSWApplication debugSetConfigFilePath]];
-
-  NSDebugFLog(@"debugSet=%@", debugSet);
-  NSDebugFLog(@"newStateString=%@", newStateString);
-  NSDebugFLog(@"prevStateString=%@", prevStateString);
-
-  if (newStateString)
-    change =! [newStateString isEqualToString: prevStateString];
-  else if (prevStateString)
-    change =! [prevStateString isEqualToString: newStateString];
-
-  NSDebugFLog(@"change=%d",change);
-  
-  if (change)
-    {		
-      NSArray* pList=[newStateString propertyList];
-      [debugSet removeAllObjects];
-      if (pList && [pList isKindOfClass:[NSArray class]])
-        {
-          int count=[pList count];
-          int i=0;
-          for(i=0;i<count;i++)
-            {
-              [debugSet addObject:[pList objectAtIndex:i]];
-            };
-        };
-      ASSIGN(prevStateString,newStateString);
-    };
-};
-#endif
-void GSWApplicationSetDebugSetOption(NSString* opt)
-{
-  NSProcessInfo* processInfo=nil;
-  processInfo=[NSProcessInfo processInfo];
-  if ([opt isEqualToString:@"all"])
-    {
-      NSDebugFLog(@"Adding All DebugOptions");
-      [[processInfo debugSet] addObject:@"dflt"];
-      [[processInfo debugSet] addObject:@"GSWebFn"];
-      [[processInfo debugSet] addObject:@"seriousError"];
-      [[processInfo debugSet] addObject:@"exception"];
-      [[processInfo debugSet] addObject:@"error"];
-      [[processInfo debugSet] addObject:@"gswdync"];
-      [[processInfo debugSet] addObject:@"low"];
-      [[processInfo debugSet] addObject:@"gswcomponents"];
-      [[processInfo debugSet] addObject:@"associations"];
-      [[processInfo debugSet] addObject:@"sessions"];
-      [[processInfo debugSet] addObject:@"bundles"];
-      [[processInfo debugSet] addObject:@"requests"];
-      [[processInfo debugSet] addObject:@"resmanager"];
-      [[processInfo debugSet] addObject:@"options"];
-      [[processInfo debugSet] addObject:@"info"];
-      [[processInfo debugSet] addObject:@"trace"];
-      /*
-      //[NSObject enableDoubleReleaseCheck:YES];
-      [NSPort setDebug:255];
-      behavior_set_debug(1);
-      */
-    }
-  else if ([opt isEqualToString:@"most"])
-    {
-      NSDebugFLog(@"Adding Most DebugOptions");
-      [[processInfo debugSet] addObject:@"dflt"];
-      //	  [[processInfo debugSet] addObject:@"GSWebFn"];
-      [[processInfo debugSet] addObject:@"seriousError"];
-      [[processInfo debugSet] addObject:@"exception"];
-      [[processInfo debugSet] addObject:@"error"];
-      [[processInfo debugSet] addObject:@"gswdync"];
-      //	  [[processInfo debugSet] addObject:@"low"];
-      [[processInfo debugSet] addObject:@"gswcomponents"];
-      
-      [[processInfo debugSet] addObject:@"associations"];
-      //	  [[processInfo debugSet] addObject:@"sessions"];
-      //	  [[processInfo debugSet] addObject:@"bundles"];
-      [[processInfo debugSet] addObject:@"requests"];
-      //	  [[processInfo debugSet] addObject:@"resmanager"];
-      //	  [[processInfo debugSet] addObject:@"options"];
-      [[processInfo debugSet] addObject:@"info"];
-    }
-  else
-    {
-      [[processInfo debugSet] addObject:opt];
-    };
-};
 
 // Main function
 int GSWApplicationMainReal(NSString* applicationClassName,
@@ -192,7 +99,6 @@ int GSWApplicationMainReal(NSString* applicationClassName,
 {
   Class applicationClass=Nil;
   int result=0;
-  NSArray* args=nil;
 //call NSBundle Start:_usesFastJavaBundleSetup
 //call :NSBundle Start:_setUsesFastJavaBundleSetup:YES
 //call NSBundle mainBundle
@@ -221,386 +127,17 @@ int GSWApplicationMainReal(NSString* applicationClassName,
     };
   if (result>=0)
     {
-      NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-      if (defaults)
-        {
-          NSDictionary* args=[defaults volatileDomainForName:NSArgumentDomain];
-          if (args && [args count]>0)
-            {
-              NSMutableDictionary* newArgs=[NSMutableDictionary dictionary];
-              NSEnumerator* argEnum=nil;
-              NSString* argKey=nil;
-              id argValue=nil;
-              argEnum=[args keyEnumerator];
-              while ((argKey = [argEnum nextObject]))
-                {
-                  argValue=[args objectForKey:argKey];
-                  if ([argKey hasPrefix:@"-GSW"])
-                    argKey = [argKey substringFromIndex:1];
-                  [newArgs setObject:argValue
-                           forKey:argKey];
-                };
-              NSDebugFLog(@"NSArgumentDomain: %@ Args: %@",NSArgumentDomain,newArgs);
-              [defaults removeVolatileDomainForName:NSArgumentDomain];
-              [defaults setVolatileDomain:newArgs
-                        forName:NSArgumentDomain];
-            };
-        };
+      GSWeb_AdjustVolatileNSArgumentDomain();
+
       if (!localDynCreateClassNames)
         localDynCreateClassNames=[NSMutableDictionary new];
-      if (!globalAppDefaultOptions)
-        {
-          NSDictionary* defaultsOptions=nil;
-          globalAppDefaultOptions=[[GSWApplication bundleInfo] objectForKey:@"defaults"];
-          NSDebugFLLog(@"options",@"globalAppDefaultOptions=%@",globalAppDefaultOptions);
 
-          NSDebugFLLog(@"options",@"GSWebNamingConv=%d",GSWebNamingConv);
-          NSCAssert1((GSWebNamingConv==WONAMES_INDEX || GSWebNamingConv==GSWNAMES_INDEX),
-                     @"GSWebNamingConv=%d",GSWebNamingConv);
-          
-          NSDebugFLLog(@"options",@"GSWClassName_DefaultAdaptor -> %@",
-                       GSWClassName_DefaultAdaptor[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_Adaptor -> %@",
-                       GSWOPT_Adaptor[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_AdditionalAdaptors -> %@",
-                       GSWOPT_AdditionalAdaptors[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWClassName_DefaultContext -> %@",
-                       GSWClassName_DefaultContext[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPT_Context -> %@",
-                       GSWOPT_Context[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPT_Response -> %@",
-                       GSWOPT_Response[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPT_Request -> %@",
-                       GSWOPT_Request[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_ApplicationBaseURL_WO -> %@",
-                       GSWOPTVALUE_ApplicationBaseURL_WO);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_ApplicationBaseURL_GSWEB -> %@",
-                       GSWOPTVALUE_ApplicationBaseURL_GSWEB);
-          NSDebugFLLog(@"options",@"GSWOPT_ApplicationBaseURL -> %@",
-                       GSWOPT_ApplicationBaseURL[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_AutoOpenInBrowser -> %@",
-                       GSWOPTVALUE_AutoOpenInBrowser);
-          NSDebugFLLog(@"options",@"GSWOPT_AutoOpenInBrowser -> %@",
-                       GSWOPT_AutoOpenInBrowser[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_CGIAdaptorURL_WO -> %@",
-                       GSWOPTVALUE_CGIAdaptorURL_WO);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_CGIAdaptorURL_GSWEB -> %@",
-                       GSWOPTVALUE_CGIAdaptorURL_GSWEB);
-          NSDebugFLLog(@"options",@"GSWOPT_CGIAdaptorURL -> %@",
-                       GSWOPT_CGIAdaptorURL[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_CachingEnabled -> %@",
-                       GSWOPTVALUE_CachingEnabled);
-          NSDebugFLLog(@"options",@"GSWOPT_CachingEnabled -> %@",
-                       GSWOPT_CachingEnabled[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWComponentRequestHandlerKey -> %@",
-                       GSWComponentRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_ComponentRequestHandlerKey -> %@",
-                       GSWOPT_ComponentRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_DebuggingEnabled -> %@",
-                       GSWOPTVALUE_DebuggingEnabled);
-          NSDebugFLLog(@"options",@"GSWOPT_DebuggingEnabled -> %@",
-                       GSWOPT_DebuggingEnabled[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_StatusDebuggingEnabled -> %@",
-                       GSWOPTVALUE_StatusDebuggingEnabled);
-          NSDebugFLLog(@"options",@"GSWOPT_StatusDebuggingEnabled -> %@",
-                       GSWOPT_StatusDebuggingEnabled[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTValue_DirectActionRequestHandlerKey -> %@",
-                       GSWOPTValue_DirectActionRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_DirectActionRequestHandlerKey -> %@",
-                       GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTValue_PingActionRequestHandlerKey -> %@",
-                       GSWOPTValue_PingActionRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_PingActionRequestHandlerKey -> %@",
-                       GSWOPT_PingActionRequestHandlerKey[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPT_StreamActionRequestHandlerKey -> %@",
-                       GSWOPT_StreamActionRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_StreamActionRequestHandlerKey -> %@",
-                       GSWOPT_StreamActionRequestHandlerKey[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTValue_StaticResourceRequestHandlerKey -> %@",
-                       GSWOPTValue_StaticResourceRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_StaticResourceRequestHandlerKey -> %@",
-                       GSWOPT_StaticResourceRequestHandlerKey[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTValue_SessionStoreClassName -> %@",
-                       GSWOPTValue_SessionStoreClassName[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_SessionStoreClassName -> %@",
-                       GSWOPT_SessionStoreClassName[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_DirectConnectEnabled -> %@",
-                       GSWOPTVALUE_DirectConnectEnabled);
-          NSDebugFLLog(@"options",@"GSWOPT_DirectConnectEnabled -> %@",
-                       GSWOPT_DirectConnectEnabled[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_FrameworksBaseURL -> %@",
-                       GSWOPTVALUE_FrameworksBaseURL);
-          NSDebugFLLog(@"options",@"GSWOPT_FrameworksBaseURL -> %@",
-                       GSWOPT_FrameworksBaseURL[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_IncludeCommentsInResponse -> %@",
-                       GSWOPTVALUE_IncludeCommentsInResponse);
-          NSDebugFLLog(@"options",@"GSWOPT_IncludeCommentsInResponse -> %@",
-                       GSWOPT_IncludeCommentsInResponse[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_ListenQueueSize -> %@",
-                       GSWOPTVALUE_ListenQueueSize);
-          NSDebugFLLog(@"options",@"GSWOPT_ListenQueueSize -> %@",
-                       GSWOPT_ListenQueueSize[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_LoadFrameworks -> %@",
-                       GSWOPT_LoadFrameworks[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatEnabled -> %@",
-                       GSWOPTVALUE_LifebeatEnabled);
-          NSDebugFLLog(@"options",@"GSWOPT_LifebeatEnabled -> %@",
-                       GSWOPT_LifebeatEnabled[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatDestinationHost -> %@",
-                       GSWOPTVALUE_LifebeatDestinationHost);
-          NSDebugFLLog(@"options",@"GSWOPT_LifebeatDestinationHost -> %@",
-                       GSWOPT_LifebeatDestinationHost[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatDestinationPort -> %@",
-                       GSWOPTVALUE_LifebeatDestinationPort);
-          NSDebugFLLog(@"options",@"GSWOPT_LifebeatDestinationPort -> %@",
-                       GSWOPT_LifebeatDestinationPort[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatInterval -> %@",
-                       GSWOPTVALUE_LifebeatInterval);
-          NSDebugFLLog(@"options",@"GSWOPT_LifebeatInterval -> %@",
-                       GSWOPT_LifebeatInterval[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_MonitorEnabled -> %@",
-                       GSWOPTVALUE_MonitorEnabled);
-          NSDebugFLLog(@"options",@"GSWOPT_MonitorEnabled -> %@",
-                       GSWOPT_MonitorEnabled[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_MonitorHost -> %@",
-                       GSWOPTVALUE_MonitorHost);
-          NSDebugFLLog(@"options",@"GSWOPT_MonitorHost -> %@",
-                       GSWOPT_MonitorHost[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_Port -> %@",
-                       GSWOPTVALUE_Port);
-          NSDebugFLLog(@"options",@"GSWOPT_Port -> %@",
-                       GSWOPT_Port[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWResourceRequestHandlerKey -> %@",
-                       GSWResourceRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPT_ResourceRequestHandlerKey -> %@",
-                       GSWOPT_ResourceRequestHandlerKey[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_SMTPHost -> %@",
-                       GSWOPTVALUE_SMTPHost);
-          NSDebugFLLog(@"options",@"GSWOPT_SMTPHost -> %@",
-                       GSWOPT_SMTPHost[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_SessionTimeOut -> %@",
-                       GSWOPTVALUE_SessionTimeOut);
-          NSDebugFLLog(@"options",@"GSWOPT_SessionTimeOut -> %@",
-                       GSWOPT_SessionTimeOut[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_DefaultUndoStackLimit -> %@",
-                       GSWOPTVALUE_DefaultUndoStackLimit);
-          NSDebugFLLog(@"options",@"GSWOPT_DefaultUndoStackLimit -> %@",
-                       GSWOPT_DefaultUndoStackLimit[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_LockDefaultEditingContext -> %@",
-                       GSWOPTVALUE_LockDefaultEditingContext);
-          NSDebugFLLog(@"options",@"GSWOPT_LockDefaultEditingContext -> %@",
-                       GSWOPT_LockDefaultEditingContext[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_WorkerThreadCount -> %@",
-                       GSWOPTVALUE_WorkerThreadCount);
-          NSDebugFLLog(@"options",@"GSWOPT_WorkerThreadCount -> %@",
-                       GSWOPT_WorkerThreadCount[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_WorkerThreadCountMin -> %@",
-                       GSWOPTVALUE_WorkerThreadCountMin);
-          NSDebugFLLog(@"options",@"GSWOPT_WorkerThreadCountMin -> %@",
-                       GSWOPT_WorkerThreadCountMin[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_WorkerThreadCountMax -> %@",
-                       GSWOPTVALUE_WorkerThreadCountMax);
-          NSDebugFLLog(@"options",@"GSWOPT_WorkerThreadCountMax -> %@",
-                       GSWOPT_WorkerThreadCountMax[GSWebNamingConv]);
-
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_MultiThreadEnabled -> %@",
-                       GSWOPTVALUE_MultiThreadEnabled);
-          NSDebugFLLog(@"options",@"GSWOPT_MultiThreadEnabled -> %@",
-                       GSWOPT_MultiThreadEnabled);
-
-          NSDebugFLLog(@"options",@"GSWOPT_AdaptorHost -> %@",
-                       GSWOPT_AdaptorHost[GSWebNamingConv]);
-          NSDebugFLLog(@"options",@"GSWOPTVALUE_AdaptorHost -> %@",
-                       GSWOPTVALUE_AdaptorHost);
-          NSDebugFLLog(@"options",@"DefaultTemplateParser -> %@",
-                       GSWOPTVALUE_DefaultTemplateParser);
-          NSDebugFLLog(@"options",@"AcceptedContentEncoding -> %@",
-                       GSWOPTVALUE_AcceptedContentEncoding);
-          NSDebugFLLog(@"options",@"DisplayExceptionPages -> %@",
-                       GSWOPTVALUE_DisplayExceptionPages);
-          NSDebugFLLog(@"options",@"DisplayExceptionPages -> %@",
-                       GSWOPTVALUE_AllowsCacheControlHeader);
-
-          defaultsOptions = 
-            [NSDictionary dictionaryWithObjectsAndKeys:
-                            GSWClassName_DefaultAdaptor[GSWebNamingConv],   
-                          GSWOPT_Adaptor[GSWebNamingConv],
-
-                          [NSArray array],					
-                          GSWOPT_AdditionalAdaptors[GSWebNamingConv],
-                          
-                          (GSWebNamingConv==WONAMES_INDEX ? GSWOPTVALUE_ApplicationBaseURL_WO : GSWOPTVALUE_ApplicationBaseURL_GSWEB), 
-                          GSWOPT_ApplicationBaseURL[GSWebNamingConv],
-
-                          GSWClassName_DefaultContext[GSWebNamingConv],   
-                          GSWOPT_Context[GSWebNamingConv],
-
-                          GSWClassName_DefaultResponse[GSWebNamingConv],   
-                          GSWOPT_Response[GSWebNamingConv],
-
-                          GSWClassName_DefaultRequest[GSWebNamingConv],   
-                          GSWOPT_Request[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_AutoOpenInBrowser,			
-                          GSWOPT_AutoOpenInBrowser[GSWebNamingConv],
-                          
-                          (GSWebNamingConv==WONAMES_INDEX ? GSWOPTVALUE_CGIAdaptorURL_WO : GSWOPTVALUE_CGIAdaptorURL_GSWEB),
-                          GSWOPT_CGIAdaptorURL[GSWebNamingConv],
-
-                          GSWOPTVALUE_CachingEnabled,	    			
-                          GSWOPT_CachingEnabled[GSWebNamingConv],
-                          
-                          GSWOPTValue_ComponentRequestHandlerKey[GSWebNamingConv],	
-                          GSWOPT_ComponentRequestHandlerKey[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_DebuggingEnabled,
-                          GSWOPT_DebuggingEnabled[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_StatusDebuggingEnabled,
-                          GSWOPT_StatusDebuggingEnabled[GSWebNamingConv],
-                          
-                          GSWOPTValue_DirectActionRequestHandlerKey[GSWebNamingConv],
-                          GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv],
-
-                          GSWOPTValue_StreamActionRequestHandlerKey[GSWebNamingConv],
-                          GSWOPT_StreamActionRequestHandlerKey[GSWebNamingConv],
-
-                          GSWOPTValue_PingActionRequestHandlerKey[GSWebNamingConv],
-                          GSWOPT_PingActionRequestHandlerKey[GSWebNamingConv],
-
-                          GSWOPTValue_StaticResourceRequestHandlerKey[GSWebNamingConv],
-                          GSWOPT_StaticResourceRequestHandlerKey[GSWebNamingConv],
-
-                          GSWOPTValue_SessionStoreClassName[GSWebNamingConv],
-                          GSWOPT_SessionStoreClassName[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_DirectConnectEnabled,
-                          GSWOPT_DirectConnectEnabled[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_FrameworksBaseURL,
-                          GSWOPT_FrameworksBaseURL[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_IncludeCommentsInResponse,
-                          GSWOPT_IncludeCommentsInResponse[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_ListenQueueSize,
-                          GSWOPT_ListenQueueSize[GSWebNamingConv],
-                          
-                          [NSArray array],
-                          GSWOPT_LoadFrameworks[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_LifebeatEnabled,
-                          GSWOPT_LifebeatEnabled[GSWebNamingConv],
-
-                          GSWOPTVALUE_LifebeatDestinationHost,
-                          GSWOPT_LifebeatDestinationHost[GSWebNamingConv],
-
-                          GSWOPTVALUE_LifebeatDestinationPort,
-                          GSWOPT_LifebeatDestinationPort[GSWebNamingConv],
-
-                          GSWOPTVALUE_LifebeatInterval,
-                          GSWOPT_LifebeatInterval[GSWebNamingConv],
-
-                          GSWOPTVALUE_MonitorEnabled,
-                          GSWOPT_MonitorEnabled[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_MonitorHost,
-                          GSWOPT_MonitorHost[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_Port,
-                          GSWOPT_Port[GSWebNamingConv],
-                          
-                          GSWOPTValue_ResourceRequestHandlerKey[GSWebNamingConv],
-                          GSWOPT_ResourceRequestHandlerKey[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_SMTPHost,
-                          GSWOPT_SMTPHost[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_SessionTimeOut,
-                          GSWOPT_SessionTimeOut[GSWebNamingConv],
-
-                          GSWOPTVALUE_DefaultUndoStackLimit,
-                          GSWOPT_DefaultUndoStackLimit[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_LockDefaultEditingContext,
-                          GSWOPT_LockDefaultEditingContext[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_WorkerThreadCount,
-                          GSWOPT_WorkerThreadCount[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_WorkerThreadCountMin,
-                          GSWOPT_WorkerThreadCountMin[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_WorkerThreadCountMax,
-                          GSWOPT_WorkerThreadCountMax[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_MultiThreadEnabled,
-                          GSWOPT_MultiThreadEnabled,
-                          
-                          GSWOPTVALUE_AdaptorHost,
-                          GSWOPT_AdaptorHost[GSWebNamingConv],
-                          
-                          GSWOPTVALUE_DefaultTemplateParser,			
-                          GSWOPT_DefaultTemplateParser[GSWebNamingConv],
-
-                          GSWOPTVALUE_AcceptedContentEncoding,			
-                          GSWOPT_AcceptedContentEncoding[GSWebNamingConv],
-
-                          GSWOPTVALUE_DisplayExceptionPages,			
-                          GSWOPT_DisplayExceptionPages[GSWebNamingConv],
-
-                          GSWOPTVALUE_AllowsCacheControlHeader,			
-                          GSWOPT_AllowsCacheControlHeader[GSWebNamingConv],
-                          
-                          nil];
-          NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",globalAppDefaultOptions);
-          globalAppDefaultOptions=[NSDictionary dictionaryWithDictionary:globalAppDefaultOptions
-                                                andDefaultEntriesFromDictionary:defaultsOptions];
-          NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",globalAppDefaultOptions);
-        };
-      [defaults registerDefaults:globalAppDefaultOptions];
-      
-      args=[processInfo arguments];
-      {
-        int i=0;
-        int count=[args count];
-        NSString* opt=nil;
-        NSString* debugOpt=nil;
-        for(i=0;i<count;i++)
-          {
-            debugOpt=nil;
-            opt=[args objectAtIndex:i];
-            if ([opt hasPrefix:@"--GSWebDebug="])
-              debugOpt=[opt stringByDeletingPrefix:@"--GSWebDebug="];
-            else if  ([opt hasPrefix:@"-GSWebDebug="])
-              debugOpt=[opt stringByDeletingPrefix:@"-GSWebDebug="];
-            else if  ([opt hasPrefix:@"GSWebDebug="])
-              debugOpt=[opt stringByDeletingPrefix:@"GSWebDebug="];
-            if (debugOpt)
-              GSWApplicationSetDebugSetOption(debugOpt);
-          };
-      };
+      GSWeb_InitializeGlobalAppDefaultOptions();
+      GSWeb_InitializeDebugOptions();
       //TODO
       if (applicationClassName && [applicationClassName length]>0)
         ASSIGNCOPY(globalApplicationClassName,applicationClassName);
-      GSWApplicationDebugSetChange();
+      GSWeb_ApplicationDebugSetChange();
       applicationClass=[GSWApplication _applicationClass];
       NSDebugFLog(@"=======");
       NSDebugFLog(@"applicationClass: %@",applicationClass);
@@ -631,13 +168,17 @@ int GSWApplicationMainReal(NSString* applicationClassName,
               NSString* bundlePath=[frameworks objectAtIndex:i];
               NSDebugFLLog(@"bundles",@"bundlePath=%@",bundlePath);
               //TODO
-              NSDebugFLLog(@"bundles",@"GSFrameworkPSuffix=%@",GSFrameworkPSuffix);
-              bundlePath=[NSString stringWithFormat:@"%@/Library/Frameworks/%@%@",GNUstepRoot,bundlePath,GSFrameworkPSuffix];
+              NSDebugFLLog(@"bundles",@"GSFrameworkPSuffix=%@",
+			   GSFrameworkPSuffix);
+              bundlePath
+		= [NSString stringWithFormat: @"%@/Library/Frameworks/%@%@",
+			    GNUstepRoot, bundlePath, GSFrameworkPSuffix];
               NSDebugFLLog(@"bundles",@"bundlePath=%@",bundlePath);
               bundle=[NSBundle bundleWithPath:bundlePath];
               NSDebugFLLog(@"bundles",@"bundle=%@",bundle);
               loadResult=[bundle load];
-              NSDebugFLog(@"_bundlePath %@ loadResult=%s",bundlePath,(loadResult ? "YES" : "NO"));
+              NSDebugFLog(@"_bundlePath %@ loadResult=%s",
+			  bundlePath,(loadResult ? "YES" : "NO"));
               if (!loadResult)
                 {
                   result=-1;
@@ -646,8 +187,10 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                 };
             };
         };	  
-      NSDebugFLLog(@"bundles",@"[NSBundle allBundles] pathes=%@",[[NSBundle allBundles] valueForKey:@"resourcePath"]);
-      NSDebugFLLog(@"bundles",@"[NSBundle allFrameworks] pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
+      NSDebugFLLog(@"bundles",@"[NSBundle allBundles] pathes=%@",
+		   [[NSBundle allBundles] valueForKey:@"resourcePath"]);
+      NSDebugFLLog(@"bundles",@"[NSBundle allFrameworks] pathes=%@",
+		   [[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
     };
   if (result>=0)
     {
@@ -730,7 +273,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   [GSWAssociation removeLogHandlerClasse:[self class]];
   DESTROY(localDynCreateClassNames);
-  DESTROY(globalAppDefaultOptions);
+  GSWeb_DestroyGlobalAppDefaultOptions();
   [[self superclass]dealloc];
 };
 
@@ -1174,18 +717,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
-+(void)_initRegistrationDomainDefaults
-{
-  LOGClassFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-+(void)_initUserDefaultsKeys
-{
-  LOGClassFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
 -(BOOL)isTaskDaemon
 {
   return [[self name]isEqual:@"gswtaskd"];
@@ -1369,64 +900,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   LOGObjectFnStop();
 };
 
-//--------------------------------------------------------------------
--(void)_initAdaptorsWithUserDefaults:(NSUserDefaults*)userDefaults
-{
-  GSWAdaptor* adaptor=nil;
-  NSDictionary* args=nil;
-  NSString* adaptorName=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"options",@"userDefault=%@",userDefaults);
-  args=[self _argsDictionaryWithUserDefaults:userDefaults];
-  NSDebugMLLog(@"options",@"args=%@",args);
-  adaptorName=[userDefaults objectForKey:GSWOPT_Adaptor[GSWebNamingConv]];
-  NSAssert([adaptorName length]>0,@"No adaptor name");
-  adaptor=[self adaptorWithName:adaptorName
-                arguments:args];
-  if (_adaptors)
-    ASSIGN(_adaptors,[_adaptors arrayByAddingObject:adaptor]);
-  else
-    ASSIGN(_adaptors,[NSArray arrayWithObject:adaptor]);
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(NSDictionary*)_argsDictionaryWithUserDefaults:(NSUserDefaults*)userDefault
-{
-  //VERIFY
-  //OK
-  NSNumber* port=nil;
-  NSString* host=nil;
-  NSString* adaptor=nil;
-  NSNumber* workerThreadCount=nil;
-  NSNumber* listenQueueSize=nil;
-  NSMutableDictionary* argsDict=nil;
-  LOGObjectFnStart();
-  port=[(GSWAppClassDummy*)[self class] port];
-  host=[(GSWAppClassDummy*)[self class] host];
-  adaptor=[(GSWAppClassDummy*)[self class] adaptor];
-  workerThreadCount=[[self class] workerThreadCount];
-  listenQueueSize=[[self class] listenQueueSize];
-  argsDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-  [argsDict addEntriesFromDictionary:[userDefault dictionaryRepresentation]];
-  if (port)
-    [argsDict setObject:port
-              forKey:GSWOPT_Port[GSWebNamingConv]];
-  if (host)
-    [argsDict setObject:host
-              forKey:GSWOPT_Host[GSWebNamingConv]];
-  if (adaptor)
-    [argsDict setObject:adaptor
-              forKey:GSWOPT_Adaptor[GSWebNamingConv]];
-  if (workerThreadCount)
-    [argsDict setObject:workerThreadCount
-              forKey:GSWOPT_WorkerThreadCount[GSWebNamingConv]];
-  if (listenQueueSize)
-    [argsDict setObject:listenQueueSize
-              forKey:GSWOPT_ListenQueueSize[GSWebNamingConv]];
-  LOGObjectFnStop();
-  return argsDict;
-};
 
 @end
 
@@ -1841,7 +1314,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSMutableArray* array=nil;
   int i=0;
   NSBundle* bundle=nil;
-  NSDictionary* bundleInfo=nil;
+  // NSDictionary* bundleInfo=nil;
   // This makes only trouble and saves not so much time dave@turbocat.de
   // id hasGSWComponents=nil;
   LOGObjectFnStart();
@@ -1874,21 +1347,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 @implementation GSWApplication (GSWApplicationE)
 
 //--------------------------------------------------------------------
--(void)setContextClassName:(NSString*)className
-{
-  NSAssert(NO,@"TODO");
-}
-
-//--------------------------------------------------------------------
--(NSString*)contextClassName
-{
-  NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
-  NSString* contextClassName=[userDefaults objectForKey:GSWOPT_Context[GSWebNamingConv]];
-  NSAssert([contextClassName length]>0,@"No contextClassName");
-  return contextClassName;
-}
-
-//--------------------------------------------------------------------
 -(GSWContext*)createContextForRequest:(GSWRequest*)aRequest
 {
   GSWContext* context=nil;
@@ -1905,21 +1363,6 @@ int GSWApplicationMain(NSString* applicationClassName,
       NSAssert(NO,@"Can't create context");
     };
   return context;
-}
-
-//--------------------------------------------------------------------
--(void)setResponseClassName:(NSString*)className
-{
-  NSAssert(NO,@"TODO");
-}
-
-//--------------------------------------------------------------------
--(NSString*)responseClassName
-{
-  NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
-  NSString* responseClassName=[userDefaults objectForKey:GSWOPT_Response[GSWebNamingConv]];
-  NSAssert([responseClassName length]>0,@"No responseClassName");
-  return responseClassName;
 }
 
 //--------------------------------------------------------------------
@@ -1940,21 +1383,6 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
   return response;
 };
-
-//--------------------------------------------------------------------
--(void)setRequestClassName:(NSString*)className
-{
-  NSAssert(NO,@"TODO");
-}
-
-//--------------------------------------------------------------------
--(NSString*)requestClassName
-{
-  NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
-  NSString* requestClassName=[userDefaults objectForKey:GSWOPT_Request[GSWebNamingConv]];
-  NSAssert([requestClassName length]>0,@"No requestClassName");
-  return requestClassName;
-}
 
 //--------------------------------------------------------------------
 -(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
@@ -3256,7 +2684,7 @@ to another instance **/
   LOGObjectFnStart();
 #ifndef NDEBUG
   [self lock];
-  GSWApplicationDebugSetChange();
+  GSWeb_ApplicationDebugSetChange();
   [self unlock];
 #endif
 
@@ -4526,6 +3954,1260 @@ to another instance **/
 @end
 
 //====================================================================
+@implementation GSWApplication (GSWApplicationInternals)
+
+//--------------------------------------------------------------------
++(NSDictionary*)_webServerConfigDictionary
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+//--------------------------------------------------------------------
++(Class)_applicationClass
+{
+  LOGObjectFnStart();
+  [[GSWResourceManager _applicationGSWBundle] 
+    scriptedClassWithName:GSWClassName_Application//TODO
+    superclassName:GSWClassName_Application]; //retirune nil //TODO
+  LOGObjectFnStop();
+  return NSClassFromString(globalApplicationClassName);
+};
+
+//--------------------------------------------------------------------
++(Class)_compiledApplicationClass
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+//--------------------------------------------------------------------
++(GSWRequestHandler*)_componentRequestHandler
+{
+  return (GSWRequestHandler*)[GSWComponentRequestHandler handler];
+};
+
+@end
+
+//====================================================================
+@implementation GSWApplication (GSWApplicationClassB)
+
+//--------------------------------------------------------------------
++(id)defaultModelGroup
+{
+#if HAVE_GDL2 // GDL2 implementation
+  //OK
+  return [EOModelGroup defaultGroup];
+#else
+#ifdef TCSDB
+  return [DBModelGroup defaultGroup];
+#else
+  LOGClassFnNotImplemented();
+  return nil;
+#endif
+#endif
+};
+
+//--------------------------------------------------------------------
++(id)_modelGroupFromBundles:(id)bundles
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+@end
+
+//====================================================================
+@implementation GSWApplication (GSWApplicationClassC)
+
+//--------------------------------------------------------------------
+-(NSDictionary*)mainBundleInfoDictionary
+{
+  return [[self class] mainBundleInfoDictionary];
+};
+
+//--------------------------------------------------------------------
++(NSDictionary*)mainBundleInfoDictionary
+{
+  return [[self mainBundle]infoDictionary];
+};
+
+//--------------------------------------------------------------------
+-(NSDictionary*)bundleInfo
+{
+  return [[self class] bundleInfo];
+};
+
+//--------------------------------------------------------------------
++(NSDictionary*)bundleInfo
+{
+  return [[self mainBundle]infoDictionary];
+};
+
+//--------------------------------------------------------------------
+-(NSBundle*)mainBundle
+{
+  return [[self class] mainBundle];
+};
+//--------------------------------------------------------------------
++(NSBundle*)mainBundle
+{
+  NSBundle* mainBundle=nil;
+//  LOGClassFnNotImplemented();	//TODOFN
+  mainBundle=[NSBundle mainBundle];
+  NSDebugMLog(@"[mainBundle  bundlePath]:%@",[mainBundle  bundlePath]);
+  return mainBundle;
+
+/*
+			_flags=unsigned int UINT:104005633
+				_infoDictionary=id object:11365312 Description:{
+    NSBundleExecutablePath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa\\ObjCTest3.exe"; 
+    NSBundleInitialPath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa"; 
+    NSBundleLanguagesList = (); 
+    NSBundleResolvedPath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa"; 
+    NSBundleResourcePath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa\\Resources"; 
+    NSExecutable = ObjCTest3; 
+    NSJavaRootClient = WebServerResources/Java; 
+    NSJavaUserPath = (); 
+}
+				_reserved5=void * PTR
+				_principalClass=Class Class:*nil*
+				_tmp1=void * PTR
+				_tmp2=void * PTR
+				_reserved1=void * PTR
+				_reserved0=void * PTR
+*/
+};
+
+@end
+
+//====================================================================
+@implementation GSWApplication (GSWApplicationClassD)
+
+//--------------------------------------------------------------------
++(int)_garbageCollectionRepeatCount
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return 1;
+};
+
+//--------------------------------------------------------------------
++(BOOL)_lockDefaultEditingContext
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return YES;
+};
+
+//--------------------------------------------------------------------
++(void)_setLockDefaultEditingContext:(BOOL)flag
+{
+  LOGClassFnNotImplemented();	//TODOFN
+};
+
+//--------------------------------------------------------------------
++(id)_allowsConcurrentRequestHandling
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+//--------------------------------------------------------------------
++(void)_setAllowsConcurrentRequestHandling:(id)unknown
+{
+  LOGClassFnNotImplemented();	//TODOFN
+};
+
+@end
+
+//====================================================================
+@implementation GSWApplication (GSWApplicationClassE)
+
+//--------------------------------------------------------------------
++(int)_requestLimit
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return 1;
+};
+
+//--------------------------------------------------------------------
++(int)_requestWindow
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return 1;
+};
+
+//--------------------------------------------------------------------
++(BOOL)_multipleThreads
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return YES;
+};
+
+//--------------------------------------------------------------------
++(BOOL)_multipleInstances
+{
+  LOGClassFnNotImplemented();	//TODOFN
+  return NO;
+};
+
+//--------------------------------------------------------------------
++(void)_readLicenseParameters
+{
+  NSLog(@"LGPL'ed software don't have license parameters. To find License Parameters, please try proprietary softwares");
+};
+
+@end
+
+//====================================================================
+@implementation GSWApplication (NDFN)
+
+//--------------------------------------------------------------------
+//NDFN
+-(id)propListWithResourceNamed:(NSString*)aName
+                        ofType:(NSString*)type
+                   inFramework:(NSString*)aFrameworkName
+                     languages:(NSArray*)languages
+{
+  id propList=nil;
+  GSWResourceManager* resourceManager=nil;
+  NSString* pathName=nil;
+  LOGObjectFnStart();
+  resourceManager=[self resourceManager];
+  pathName=[resourceManager pathForResourceNamed:[NSString stringWithFormat:@"%@.%@",aName,type]
+                            inFramework:aFrameworkName
+                            languages:languages];
+  NSDebugMLLog(@"application",@"pathName:%@",pathName);
+  if (pathName)
+    {
+      NSString* propListString=[NSString stringWithContentsOfFile:pathName];
+      propList=[propListString propertyList];
+      if (!propList)
+        {
+          LOGSeriousError(@"Bad propertyList \n%@\n from file %@",
+                          propListString,
+                          pathName);
+        };
+    };
+  LOGObjectFnStop();
+  return propList;
+};
+
+//--------------------------------------------------------------------
++(BOOL)createUnknownComponentClasses:(NSArray*)classes
+                      superClassName:(NSString*)aSuperClassName
+{
+#ifdef NOEXTENSIONS
+  ExceptionRaise(@"GSWApplication",
+                 @"GSWApplication: createUnknownComponentClasses: %@ superClassName: %@\n works only when you do not define NOEXTENSIONS while compiling GSWeb",
+                 classes, aSuperClassName);
+
+  return NO;
+
+#else
+  BOOL ok=YES;
+  LOGClassFnStart();
+  if ([classes count]>0)
+    {
+      int i=0;
+      NSString* aClassName=nil;
+      NSMutableArray* newClasses=nil;
+      for(i=0;i<[classes count];i++)
+        {
+          aClassName=[classes objectAtIndex:i];
+          NSDebugMLLog(@"application",@"aClassName:%@",aClassName);
+          if (!NSClassFromString(aClassName))
+            {
+              NSString* superClassName=nil;
+              superClassName=[localDynCreateClassNames objectForKey:aClassName];
+              NSDebugMLLog(@"application",@"superClassName=%p",(void*)superClassName);
+              if (!superClassName)
+                {
+                  superClassName=aSuperClassName;
+                  if (!superClassName)
+                    {
+                      ExceptionRaise(@"GSWApplication",
+                                     @"GSWApplication: no superclass for class named: %@",
+                                     aClassName);
+                    };
+                };
+              NSDebugMLLog(@"application",@"Create Unknown Class: %@ (superclass: %@)",
+                           aClassName,
+                           superClassName);
+              if (superClassName)
+                {
+                  NSValue* aClassPtr=GSObjCMakeClass(aClassName,superClassName,nil);
+                  if (aClassPtr)
+                    {
+                      if (!newClasses)
+                        newClasses=[NSMutableArray array];
+                      [newClasses addObject:aClassPtr];
+                    }
+                  else
+                    {    
+                      LOGError(@"Can't create one of these classes %@ (super class: %@)",
+                               aClassName,superClassName);
+                    };
+                };
+            };
+        };
+      if ([newClasses count]>0)
+        {
+          GSObjCAddClasses(newClasses);
+        };
+    };
+  LOGClassFnStop();
+  return ok;
+#endif
+};
+
+//--------------------------------------------------------------------
++(void)addDynCreateClassName:(NSString*)className
+              superClassName:(NSString*)superClassName
+{
+  LOGClassFnStart();
+  NSDebugMLLog(@"gswdync",@"ClassName:%@ superClassName:%@",
+	       className, superClassName);
+  [localDynCreateClassNames setObject:superClassName
+                            forKey:className];
+  LOGClassFnStop();
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)pathForResourceNamed:(NSString*)name
+                     inFramework:(NSString*)aFrameworkName
+                       languages:(NSArray*)languages
+{
+  return [[self resourceManager]pathForResourceNamed:name
+                                inFramework:aFrameworkName
+                                languages:languages];
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)type
+                     inFramework:(NSString*)aFrameworkName
+                       languages:(NSArray*)languages
+{
+  return [[self resourceManager]pathForResourceNamed:(type ? [NSString stringWithFormat:@"%@.%@",aName,type] : aName)
+                                inFramework:aFrameworkName
+                                languages:languages];
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)urlForResourceNamed:(NSString*)aName
+                    inFramework:(NSString*)aFrameworkName
+                      languages:(NSArray*)languages
+                        request:(GSWRequest*)aRequest
+{
+  return [[self resourceManager]urlForResourceNamed:aName
+                                inFramework:aFrameworkName
+                                languages:languages
+                                request:aRequest];
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)stringForKey:(NSString*)aKey
+            inTableNamed:(NSString*)aTableName
+        withDefaultValue:(NSString*)defaultValue
+             inFramework:(NSString*)aFrameworkName
+               languages:(NSArray*)languages
+{
+  return [[self resourceManager]stringForKey:aKey
+                                inTableNamed:aTableName
+                                withDefaultValue:defaultValue
+                                inFramework:aFrameworkName
+                                languages:languages];
+};
+
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSDictionary*)stringsTableNamed:(NSString*)aTableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages
+{
+  NSDictionary* st=nil;
+  LOGObjectFnStart();
+  st=[[self resourceManager]stringsTableNamed:aTableName
+                            inFramework:aFrameworkName
+                            languages:languages];
+  LOGObjectFnStop();
+  return st;
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages
+{
+  return [[self resourceManager]stringsTableArrayNamed:aTableName
+                                inFramework:aFrameworkName
+                                languages:languages];
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSArray*)filterLanguages:(NSArray*)languages
+{
+  return languages;
+};
+
+@end
+/*
+//====================================================================
+@implementation GSWApplication (GSWDeprecatedAPI)
+
+//--------------------------------------------------------------------
+//pageWithName:
+//OldFn
+-(GSWComponent*)pageWithName:(NSString*)name_
+{
+  GSWComponent* component=nil;
+  Class aClass=nil;
+  NSDebugMLLog(@"application",@"Page with Name:%@",name_);
+  //No Name ==> "Main"
+  if (!name_ || [name_ length]==0)
+	name_=GSWMainPageName;
+  NSDebugMLLog(@"gswcomponents",@"Page with Name:%@",name_);
+  aClass=NSClassFromString(name_);
+  //If not found, search for library
+  if (!aClass)
+	{
+	  NSString* pagePath=[self pathForResourceNamed:name_
+							   ofType:nil];
+	  Class _principalClass=[self libraryClassWithPath:pagePath];
+	  NSDebugMLLog(@"gswcomponents",@"_principalClass=%@",_principalClass);
+	  if (_principalClass)
+		{
+		  aClass=NSClassFromString(name_);
+		  NSDebugMLLog(@"gswcomponents",@"aClass=%@",aClass);
+		};
+	};
+  if (!aClass)
+	{
+	  //TODO Load Scripted (PageName.gsws)
+	};
+
+  if (!aClass)
+	{
+	  //TODO exception
+	  NSDebugMLLog0(@"application",@"No component class");
+	}
+  else
+	{
+	  Class GSWComponentClass=[GSWComponent class]);
+	  if (!ClassIsKindOfClass(aClass,GSWComponentClass))
+	    {
+	      NSDebugMLLog0(@"application",
+	                    @"component class is not a kind of GSWComponent");
+	      //TODO exception
+	    }
+	  else
+	    {
+	      //TODOV
+	      NSDebugMLLog0(@"application",@"Create Componnent");
+	      component=[[aClass new] autorelease];
+	      if (!component)
+	        {
+		  //TODO exception
+		};
+	    };
+	};
+
+  return component;
+};
+
+//--------------------------------------------------------------------
+//restorePageForContextID:
+-(GSWComponent*)restorePageForContextID:(NSString*)contextID
+{
+  return [[self session] restorePageForContextID:contextID];
+};
+
+//--------------------------------------------------------------------
+//savePage:
+-(void)savePage:(GSWComponent*)page_
+{
+  [[self session] savePage:page_];
+};
+
+//--------------------------------------------------------------------
+//session
+-(GSWSession*)session 
+{
+  return [[self context] session];
+};
+
+//--------------------------------------------------------------------
+//context
+//Remove !!
+-(GSWContext*)context 
+{
+  GSWContext* _context=nil;
+  NSMutableDictionary* _threadDictionary=nil;
+  LOGObjectFnStart();
+  _threadDictionary=GSCurrentThreadDictionary();
+  _context=[_threadDictionary objectForKey:GSWThreadKey_Context];
+  LOGObjectFnStop();
+  return _context;
+};
+
+//--------------------------------------------------------------------
+//restoreSession
+-(GSWSession*)restoreSession
+{
+  NSAssert(sessionStore,@"No SessionStore Object");
+  return [self restoreSessionWithID:[[self session]sessionID]
+				inContext:[self context]];
+};
+
+//--------------------------------------------------------------------
+//saveSession:
+-(void)saveSession:(GSWSession*)session_ 
+{
+  NSAssert(sessionStore,@"No SessionStore Object");
+  [self saveSessionForContext:[self context]];
+};
+
+//--------------------------------------------------------------------
+//createSession
+-(GSWSession*)createSession 
+{
+  LOGObjectFnNotImplemented();	//TODOFN 3.5
+  return nil;
+};
+
+//--------------------------------------------------------------------
+//urlForResourceNamed:ofType:
+-(NSString*)urlForResourceNamed:(NSString*)name_
+						 ofType:(NSString*)type_ 
+{
+  LOGObjectFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+//--------------------------------------------------------------------
+//pathForResourceNamed:ofType:
+
+-(NSString*)pathForResourceNamed:(NSString*)name_
+						  ofType:(NSString*)type_ 
+{
+  //TODOV
+  NSBundle* bundle=[NSBundle mainBundle];
+  NSString* path=[bundle pathForResource:name_
+						 ofType:type_];
+  return path;
+};
+
+//--------------------------------------------------------------------
+//stringForKey:inTableNamed:withDefaultValue:
+
+-(NSString*)stringForKey:(NSString*)aKey
+			inTableNamed:(NSString*)aTableName
+		withDefaultValue:(NSString*)defaultValue
+{
+  LOGObjectFnNotImplemented();	//TODOFN
+  return nil;
+};
+
+//--------------------------------------------------------------------
+//handleRequest:
+//Olf Fn
+-(GSWResponse*)handleRequest:(GSWRequest*)aRequest 
+{
+  return [self dispatchRequest:aRequest];//??
+};
+
+//--------------------------------------------------------------------
+//dynamicElementWithName:associations:template:
+//OldFn
+-(GSWDynamicElement*)dynamicElementWithName:(NSString*)name_
+			       associations:(NSDictionary*)someAssociations
+				   template:(GSWElement*)templateElement_
+{
+  GSWDynamicElement* element=nil;
+  //  NSString* elementName=[_XMLElement attributeForKey:@"NAME"];
+  Class aClass=NSClassFromString(name_);
+  LOGObjectFnNotImplemented();	//TODOFN
+  NSDebugMLLog0(@"application",
+		@"Begin GSWApplication:dynamicElementWithName");
+  if (!aClass)
+    {
+      ExceptionRaise(@"GSWApplication",
+		     @"GSWApplication: No class named '%@' for "
+		     @"creating dynamic element",
+		     name_);
+    }
+  else
+    {
+      Class GSWElementClass=[GSWElement class];
+      if (!ClassIsKindOfClass(aClass,GSWElementClass))
+	{
+	  ExceptionRaise(@"GSWApplication",
+			 @"GSWApplication: element '%@' is not kind of "
+			 @"GSWElement",
+			 name_);
+	}
+      else
+	{
+	  NSDebugMLLog(@"application",
+		       @"Creating DynamicElement of Class:%@",aClass);
+	  element=[[[aClass alloc] initWithName:name_
+				   associations:someAssociations
+				   template:templateElement_] autorelease];
+	  NSDebugMLLog(@"application",@"Creating DynamicElement:%@",element);
+	};
+    };
+  return element;
+};
+
+@end
+*/
+
+/* Prepare split for GSWApplication+Defaults.m */
+
+NSDictionary* globalAppDefaultOptions = nil;
+BOOL WOStrictFlag=NO;
+
+#ifndef NDEBUG
+void GSWeb_ApplicationDebugSetChange()
+{
+  static NSString* prevStateString=nil;
+  NSProcessInfo* processInfo=[NSProcessInfo processInfo];
+  NSMutableSet* debugSet=[processInfo debugSet];
+  NSString* debugSetConfigFilePath=nil;
+  NSString* newStateString=nil;
+  BOOL change=NO;
+
+  debugSetConfigFilePath = [GSWApplication debugSetConfigFilePath];
+  NSDebugFLog(@"debugSetConfigFilePath=%@", debugSetConfigFilePath);
+
+  if (debugSetConfigFilePath)
+    newStateString = [NSString stringWithContentsOfFile:
+				 [GSWApplication debugSetConfigFilePath]];
+
+  NSDebugFLog(@"debugSet=%@", debugSet);
+  NSDebugFLog(@"newStateString=%@", newStateString);
+  NSDebugFLog(@"prevStateString=%@", prevStateString);
+
+  if (newStateString)
+    change =! [newStateString isEqualToString: prevStateString];
+  else if (prevStateString)
+    change =! [prevStateString isEqualToString: newStateString];
+
+  NSDebugFLog(@"change=%d",change);
+  
+  if (change)
+    {		
+      NSArray* pList=[newStateString propertyList];
+      [debugSet removeAllObjects];
+      if (pList && [pList isKindOfClass:[NSArray class]])
+        {
+          int count=[pList count];
+          int i=0;
+          for(i=0;i<count;i++)
+            {
+              [debugSet addObject:[pList objectAtIndex:i]];
+            };
+        };
+      ASSIGN(prevStateString,newStateString);
+    };
+};
+#endif
+void GSWApplicationSetDebugSetOption(NSString* opt)
+{
+  NSProcessInfo* processInfo=nil;
+  processInfo=[NSProcessInfo processInfo];
+  if ([opt isEqualToString:@"all"])
+    {
+      NSDebugFLog(@"Adding All DebugOptions");
+      [[processInfo debugSet] addObject:@"dflt"];
+      [[processInfo debugSet] addObject:@"GSWebFn"];
+      [[processInfo debugSet] addObject:@"seriousError"];
+      [[processInfo debugSet] addObject:@"exception"];
+      [[processInfo debugSet] addObject:@"error"];
+      [[processInfo debugSet] addObject:@"gswdync"];
+      [[processInfo debugSet] addObject:@"low"];
+      [[processInfo debugSet] addObject:@"gswcomponents"];
+      [[processInfo debugSet] addObject:@"associations"];
+      [[processInfo debugSet] addObject:@"sessions"];
+      [[processInfo debugSet] addObject:@"bundles"];
+      [[processInfo debugSet] addObject:@"requests"];
+      [[processInfo debugSet] addObject:@"resmanager"];
+      [[processInfo debugSet] addObject:@"options"];
+      [[processInfo debugSet] addObject:@"info"];
+      [[processInfo debugSet] addObject:@"trace"];
+      /*
+      //[NSObject enableDoubleReleaseCheck:YES];
+      [NSPort setDebug:255];
+      behavior_set_debug(1);
+      */
+    }
+  else if ([opt isEqualToString:@"most"])
+    {
+      NSDebugFLog(@"Adding Most DebugOptions");
+      [[processInfo debugSet] addObject:@"dflt"];
+      //	  [[processInfo debugSet] addObject:@"GSWebFn"];
+      [[processInfo debugSet] addObject:@"seriousError"];
+      [[processInfo debugSet] addObject:@"exception"];
+      [[processInfo debugSet] addObject:@"error"];
+      [[processInfo debugSet] addObject:@"gswdync"];
+      //	  [[processInfo debugSet] addObject:@"low"];
+      [[processInfo debugSet] addObject:@"gswcomponents"];
+      
+      [[processInfo debugSet] addObject:@"associations"];
+      //	  [[processInfo debugSet] addObject:@"sessions"];
+      //	  [[processInfo debugSet] addObject:@"bundles"];
+      [[processInfo debugSet] addObject:@"requests"];
+      //	  [[processInfo debugSet] addObject:@"resmanager"];
+      //	  [[processInfo debugSet] addObject:@"options"];
+      [[processInfo debugSet] addObject:@"info"];
+    }
+  else
+    {
+      [[processInfo debugSet] addObject:opt];
+    };
+};
+
+void
+GSWeb_AdjustVolatileNSArgumentDomain(void)
+{
+  NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+
+  if (defaults)
+    {
+      NSDictionary* args = [defaults volatileDomainForName: NSArgumentDomain];
+      if (args && [args count]>0)
+	{
+	  NSMutableDictionary* newArgs = [NSMutableDictionary dictionary];
+	  NSEnumerator* argEnum = nil;
+	  NSString* argKey = nil;
+	  id argValue = nil;
+
+	  argEnum=[args keyEnumerator];
+	  while ((argKey = [argEnum nextObject]))
+	    {
+	      argValue=[args objectForKey:argKey];
+	      if ([argKey hasPrefix:@"-GSW"])
+		argKey = [argKey substringFromIndex:1];
+	      [newArgs setObject: argValue
+		       forKey: argKey];
+	    }
+
+	  NSDebugFLog(@"NSArgumentDomain: %@ Args: %@",
+		      NSArgumentDomain, newArgs);
+
+	  [defaults removeVolatileDomainForName: NSArgumentDomain];
+	  [defaults setVolatileDomain: newArgs
+		    forName: NSArgumentDomain];
+	}
+    }
+}
+
+void
+GSWeb_InitializeGlobalAppDefaultOptions(void)
+{
+  NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
+
+  if (!globalAppDefaultOptions)
+    {
+      NSDictionary* defaultsOptions = nil;
+      globalAppDefaultOptions
+	= [[GSWApplication bundleInfo] objectForKey:@"defaults"];
+      NSDebugFLLog(@"options",
+		   @"globalAppDefaultOptions=%@", globalAppDefaultOptions);
+
+      NSDebugFLLog(@"options",@"GSWebNamingConv=%d",GSWebNamingConv);
+      NSCAssert1((GSWebNamingConv==WONAMES_INDEX 
+		  || GSWebNamingConv==GSWNAMES_INDEX),
+		 @"GSWebNamingConv=%d",GSWebNamingConv);
+          
+      NSDebugFLLog(@"options", @"GSWClassName_DefaultAdaptor -> %@",
+		   GSWClassName_DefaultAdaptor[GSWebNamingConv]);
+      NSDebugFLLog(@"options", @"GSWOPT_Adaptor -> %@",
+		   GSWOPT_Adaptor[GSWebNamingConv]);
+      NSDebugFLLog(@"options", @"GSWOPT_AdditionalAdaptors -> %@",
+		   GSWOPT_AdditionalAdaptors[GSWebNamingConv]);
+      NSDebugFLLog(@"options", @"GSWClassName_DefaultContext -> %@",
+		   GSWClassName_DefaultContext[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPT_Context -> %@",
+		   GSWOPT_Context[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPT_Response -> %@",
+		   GSWOPT_Response[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPT_Request -> %@",
+		   GSWOPT_Request[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_ApplicationBaseURL_WO -> %@",
+		   GSWOPTVALUE_ApplicationBaseURL_WO);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_ApplicationBaseURL_GSWEB -> %@",
+		   GSWOPTVALUE_ApplicationBaseURL_GSWEB);
+      NSDebugFLLog(@"options",@"GSWOPT_ApplicationBaseURL -> %@",
+		   GSWOPT_ApplicationBaseURL[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_AutoOpenInBrowser -> %@",
+		   GSWOPTVALUE_AutoOpenInBrowser);
+      NSDebugFLLog(@"options",@"GSWOPT_AutoOpenInBrowser -> %@",
+		   GSWOPT_AutoOpenInBrowser[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_CGIAdaptorURL_WO -> %@",
+		   GSWOPTVALUE_CGIAdaptorURL_WO);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_CGIAdaptorURL_GSWEB -> %@",
+		   GSWOPTVALUE_CGIAdaptorURL_GSWEB);
+      NSDebugFLLog(@"options",@"GSWOPT_CGIAdaptorURL -> %@",
+		   GSWOPT_CGIAdaptorURL[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_CachingEnabled -> %@",
+		   GSWOPTVALUE_CachingEnabled);
+      NSDebugFLLog(@"options",@"GSWOPT_CachingEnabled -> %@",
+		   GSWOPT_CachingEnabled[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWComponentRequestHandlerKey -> %@",
+		   GSWComponentRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_ComponentRequestHandlerKey -> %@",
+		   GSWOPT_ComponentRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_DebuggingEnabled -> %@",
+		   GSWOPTVALUE_DebuggingEnabled);
+      NSDebugFLLog(@"options",@"GSWOPT_DebuggingEnabled -> %@",
+		   GSWOPT_DebuggingEnabled[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_StatusDebuggingEnabled -> %@",
+		   GSWOPTVALUE_StatusDebuggingEnabled);
+      NSDebugFLLog(@"options",@"GSWOPT_StatusDebuggingEnabled -> %@",
+		   GSWOPT_StatusDebuggingEnabled[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTValue_DirectActionRequestHandlerKey -> %@",
+		   GSWOPTValue_DirectActionRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_DirectActionRequestHandlerKey -> %@",
+		   GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTValue_PingActionRequestHandlerKey -> %@",
+		   GSWOPTValue_PingActionRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_PingActionRequestHandlerKey -> %@",
+		   GSWOPT_PingActionRequestHandlerKey[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPT_StreamActionRequestHandlerKey -> %@",
+		   GSWOPT_StreamActionRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_StreamActionRequestHandlerKey -> %@",
+		   GSWOPT_StreamActionRequestHandlerKey[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTValue_StaticResourceRequestHandlerKey -> %@",
+		   GSWOPTValue_StaticResourceRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_StaticResourceRequestHandlerKey -> %@",
+		   GSWOPT_StaticResourceRequestHandlerKey[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTValue_SessionStoreClassName -> %@",
+		   GSWOPTValue_SessionStoreClassName[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_SessionStoreClassName -> %@",
+		   GSWOPT_SessionStoreClassName[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_DirectConnectEnabled -> %@",
+		   GSWOPTVALUE_DirectConnectEnabled);
+      NSDebugFLLog(@"options",@"GSWOPT_DirectConnectEnabled -> %@",
+		   GSWOPT_DirectConnectEnabled[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_FrameworksBaseURL -> %@",
+		   GSWOPTVALUE_FrameworksBaseURL);
+      NSDebugFLLog(@"options",@"GSWOPT_FrameworksBaseURL -> %@",
+		   GSWOPT_FrameworksBaseURL[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_IncludeCommentsInResponse -> %@",
+		   GSWOPTVALUE_IncludeCommentsInResponse);
+      NSDebugFLLog(@"options",@"GSWOPT_IncludeCommentsInResponse -> %@",
+		   GSWOPT_IncludeCommentsInResponse[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_ListenQueueSize -> %@",
+		   GSWOPTVALUE_ListenQueueSize);
+      NSDebugFLLog(@"options",@"GSWOPT_ListenQueueSize -> %@",
+		   GSWOPT_ListenQueueSize[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_LoadFrameworks -> %@",
+		   GSWOPT_LoadFrameworks[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatEnabled -> %@",
+		   GSWOPTVALUE_LifebeatEnabled);
+      NSDebugFLLog(@"options",@"GSWOPT_LifebeatEnabled -> %@",
+		   GSWOPT_LifebeatEnabled[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatDestinationHost -> %@",
+		   GSWOPTVALUE_LifebeatDestinationHost);
+      NSDebugFLLog(@"options",@"GSWOPT_LifebeatDestinationHost -> %@",
+		   GSWOPT_LifebeatDestinationHost[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatDestinationPort -> %@",
+		   GSWOPTVALUE_LifebeatDestinationPort);
+      NSDebugFLLog(@"options",@"GSWOPT_LifebeatDestinationPort -> %@",
+		   GSWOPT_LifebeatDestinationPort[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_LifebeatInterval -> %@",
+		   GSWOPTVALUE_LifebeatInterval);
+      NSDebugFLLog(@"options",@"GSWOPT_LifebeatInterval -> %@",
+		   GSWOPT_LifebeatInterval[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_MonitorEnabled -> %@",
+		   GSWOPTVALUE_MonitorEnabled);
+      NSDebugFLLog(@"options",@"GSWOPT_MonitorEnabled -> %@",
+		   GSWOPT_MonitorEnabled[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_MonitorHost -> %@",
+		   GSWOPTVALUE_MonitorHost);
+      NSDebugFLLog(@"options",@"GSWOPT_MonitorHost -> %@",
+		   GSWOPT_MonitorHost[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_Port -> %@",
+		   GSWOPTVALUE_Port);
+      NSDebugFLLog(@"options",@"GSWOPT_Port -> %@",
+		   GSWOPT_Port[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWResourceRequestHandlerKey -> %@",
+		   GSWResourceRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPT_ResourceRequestHandlerKey -> %@",
+		   GSWOPT_ResourceRequestHandlerKey[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_SMTPHost -> %@",
+		   GSWOPTVALUE_SMTPHost);
+      NSDebugFLLog(@"options",@"GSWOPT_SMTPHost -> %@",
+		   GSWOPT_SMTPHost[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_SessionTimeOut -> %@",
+		   GSWOPTVALUE_SessionTimeOut);
+      NSDebugFLLog(@"options",@"GSWOPT_SessionTimeOut -> %@",
+		   GSWOPT_SessionTimeOut[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_DefaultUndoStackLimit -> %@",
+		   GSWOPTVALUE_DefaultUndoStackLimit);
+      NSDebugFLLog(@"options",@"GSWOPT_DefaultUndoStackLimit -> %@",
+		   GSWOPT_DefaultUndoStackLimit[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_LockDefaultEditingContext -> %@",
+		   GSWOPTVALUE_LockDefaultEditingContext);
+      NSDebugFLLog(@"options",@"GSWOPT_LockDefaultEditingContext -> %@",
+		   GSWOPT_LockDefaultEditingContext[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_WorkerThreadCount -> %@",
+		   GSWOPTVALUE_WorkerThreadCount);
+      NSDebugFLLog(@"options",@"GSWOPT_WorkerThreadCount -> %@",
+		   GSWOPT_WorkerThreadCount[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_WorkerThreadCountMin -> %@",
+		   GSWOPTVALUE_WorkerThreadCountMin);
+      NSDebugFLLog(@"options",@"GSWOPT_WorkerThreadCountMin -> %@",
+		   GSWOPT_WorkerThreadCountMin[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_WorkerThreadCountMax -> %@",
+		   GSWOPTVALUE_WorkerThreadCountMax);
+      NSDebugFLLog(@"options",@"GSWOPT_WorkerThreadCountMax -> %@",
+		   GSWOPT_WorkerThreadCountMax[GSWebNamingConv]);
+
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_MultiThreadEnabled -> %@",
+		   GSWOPTVALUE_MultiThreadEnabled);
+      NSDebugFLLog(@"options",@"GSWOPT_MultiThreadEnabled -> %@",
+		   GSWOPT_MultiThreadEnabled);
+
+      NSDebugFLLog(@"options",@"GSWOPT_AdaptorHost -> %@",
+		   GSWOPT_AdaptorHost[GSWebNamingConv]);
+      NSDebugFLLog(@"options",@"GSWOPTVALUE_AdaptorHost -> %@",
+		   GSWOPTVALUE_AdaptorHost);
+      NSDebugFLLog(@"options",@"DefaultTemplateParser -> %@",
+		   GSWOPTVALUE_DefaultTemplateParser);
+      NSDebugFLLog(@"options",@"AcceptedContentEncoding -> %@",
+		   GSWOPTVALUE_AcceptedContentEncoding);
+      NSDebugFLLog(@"options",@"DisplayExceptionPages -> %@",
+		   GSWOPTVALUE_DisplayExceptionPages);
+      NSDebugFLLog(@"options",@"DisplayExceptionPages -> %@",
+		   GSWOPTVALUE_AllowsCacheControlHeader);
+
+      defaultsOptions = 
+	[NSDictionary dictionaryWithObjectsAndKeys:
+			GSWClassName_DefaultAdaptor[GSWebNamingConv],   
+		      GSWOPT_Adaptor[GSWebNamingConv],
+		      
+		      [NSArray array],					
+		      GSWOPT_AdditionalAdaptors[GSWebNamingConv],
+		      
+		      (GSWebNamingConv==WONAMES_INDEX 
+		       ? GSWOPTVALUE_ApplicationBaseURL_WO 
+		       : GSWOPTVALUE_ApplicationBaseURL_GSWEB), 
+		      GSWOPT_ApplicationBaseURL[GSWebNamingConv],
+		      
+		      GSWClassName_DefaultContext[GSWebNamingConv],   
+		      GSWOPT_Context[GSWebNamingConv],
+		      
+		      GSWClassName_DefaultResponse[GSWebNamingConv],   
+		      GSWOPT_Response[GSWebNamingConv],
+		      
+		      GSWClassName_DefaultRequest[GSWebNamingConv],   
+		      GSWOPT_Request[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_AutoOpenInBrowser,			
+		      GSWOPT_AutoOpenInBrowser[GSWebNamingConv],
+		      
+		      (GSWebNamingConv==WONAMES_INDEX 
+		       ? GSWOPTVALUE_CGIAdaptorURL_WO 
+		       : GSWOPTVALUE_CGIAdaptorURL_GSWEB),
+		      GSWOPT_CGIAdaptorURL[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_CachingEnabled,
+		      GSWOPT_CachingEnabled[GSWebNamingConv],
+		      
+		      GSWOPTValue_ComponentRequestHandlerKey[GSWebNamingConv],
+		      GSWOPT_ComponentRequestHandlerKey[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_DebuggingEnabled,
+		      GSWOPT_DebuggingEnabled[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_StatusDebuggingEnabled,
+		      GSWOPT_StatusDebuggingEnabled[GSWebNamingConv],
+		      
+		      GSWOPTValue_DirectActionRequestHandlerKey[GSWebNamingConv],
+		      GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv],
+		      
+		      GSWOPTValue_StreamActionRequestHandlerKey[GSWebNamingConv],
+		      GSWOPT_StreamActionRequestHandlerKey[GSWebNamingConv],
+		      
+		      GSWOPTValue_PingActionRequestHandlerKey[GSWebNamingConv],
+		      GSWOPT_PingActionRequestHandlerKey[GSWebNamingConv],
+		      
+		      GSWOPTValue_StaticResourceRequestHandlerKey[GSWebNamingConv],
+		      GSWOPT_StaticResourceRequestHandlerKey[GSWebNamingConv],
+		      
+		      GSWOPTValue_SessionStoreClassName[GSWebNamingConv],
+		      GSWOPT_SessionStoreClassName[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_DirectConnectEnabled,
+		      GSWOPT_DirectConnectEnabled[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_FrameworksBaseURL,
+		      GSWOPT_FrameworksBaseURL[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_IncludeCommentsInResponse,
+		      GSWOPT_IncludeCommentsInResponse[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_ListenQueueSize,
+		      GSWOPT_ListenQueueSize[GSWebNamingConv],
+		      
+		      [NSArray array],
+		      GSWOPT_LoadFrameworks[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_LifebeatEnabled,
+		      GSWOPT_LifebeatEnabled[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_LifebeatDestinationHost,
+		      GSWOPT_LifebeatDestinationHost[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_LifebeatDestinationPort,
+		      GSWOPT_LifebeatDestinationPort[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_LifebeatInterval,
+		      GSWOPT_LifebeatInterval[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_MonitorEnabled,
+		      GSWOPT_MonitorEnabled[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_MonitorHost,
+		      GSWOPT_MonitorHost[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_Port,
+		      GSWOPT_Port[GSWebNamingConv],
+		      
+		      GSWOPTValue_ResourceRequestHandlerKey[GSWebNamingConv],
+		      GSWOPT_ResourceRequestHandlerKey[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_SMTPHost,
+		      GSWOPT_SMTPHost[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_SessionTimeOut,
+		      GSWOPT_SessionTimeOut[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_DefaultUndoStackLimit,
+		      GSWOPT_DefaultUndoStackLimit[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_LockDefaultEditingContext,
+		      GSWOPT_LockDefaultEditingContext[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_WorkerThreadCount,
+		      GSWOPT_WorkerThreadCount[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_WorkerThreadCountMin,
+		      GSWOPT_WorkerThreadCountMin[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_WorkerThreadCountMax,
+		      GSWOPT_WorkerThreadCountMax[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_MultiThreadEnabled,
+		      GSWOPT_MultiThreadEnabled,
+		      
+		      GSWOPTVALUE_AdaptorHost,
+		      GSWOPT_AdaptorHost[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_DefaultTemplateParser,
+		      GSWOPT_DefaultTemplateParser[GSWebNamingConv],
+
+		      GSWOPTVALUE_AcceptedContentEncoding,
+		      GSWOPT_AcceptedContentEncoding[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_DisplayExceptionPages,
+		      GSWOPT_DisplayExceptionPages[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_AllowsCacheControlHeader,
+		      GSWOPT_AllowsCacheControlHeader[GSWebNamingConv],
+		      
+		      nil];
+      NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",
+		   globalAppDefaultOptions);
+      globalAppDefaultOptions
+	= [NSDictionary dictionaryWithDictionary: globalAppDefaultOptions
+			andDefaultEntriesFromDictionary: defaultsOptions];
+      NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",
+		   globalAppDefaultOptions);
+    }
+
+  [defaults registerDefaults:globalAppDefaultOptions];
+      
+}
+
+void
+GSWeb_InitializeDebugOptions(void)
+{
+  NSArray *args = [[NSProcessInfo processInfo] arguments];
+  int i=0;
+  int count=[args count];
+  NSString* opt=nil;
+  NSString* debugOpt=nil;
+  for(i=0;i<count;i++)
+    {
+      debugOpt=nil;
+      opt=[args objectAtIndex:i];
+      if ([opt hasPrefix:@"--GSWebDebug="])
+	debugOpt=[opt stringByDeletingPrefix:@"--GSWebDebug="];
+      else if  ([opt hasPrefix:@"-GSWebDebug="])
+	debugOpt=[opt stringByDeletingPrefix:@"-GSWebDebug="];
+      else if  ([opt hasPrefix:@"GSWebDebug="])
+	debugOpt=[opt stringByDeletingPrefix:@"GSWebDebug="];
+      if (debugOpt)
+	GSWApplicationSetDebugSetOption(debugOpt);
+    }
+}
+	      
+void
+GSWeb_DestroyGlobalAppDefaultOptions(void)
+{
+  DESTROY(globalAppDefaultOptions);
+}
+
+
+@implementation GSWApplication (GSWApplicationDefaults)
+//--------------------------------------------------------------------
++(void)_initRegistrationDomainDefaults
+{
+  LOGClassFnNotImplemented();	//TODOFN
+};
+
+//--------------------------------------------------------------------
++(void)_initUserDefaultsKeys
+{
+  LOGClassFnNotImplemented();	//TODOFN
+};
+
+//--------------------------------------------------------------------
+-(void)_initAdaptorsWithUserDefaults:(NSUserDefaults*)userDefaults
+{
+  GSWAdaptor* adaptor=nil;
+  NSDictionary* args=nil;
+  NSString* adaptorName=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"options",@"userDefault=%@",userDefaults);
+  args=[self _argsDictionaryWithUserDefaults:userDefaults];
+  NSDebugMLLog(@"options",@"args=%@",args);
+  adaptorName=[userDefaults objectForKey:GSWOPT_Adaptor[GSWebNamingConv]];
+  NSAssert([adaptorName length]>0,@"No adaptor name");
+  adaptor=[self adaptorWithName:adaptorName
+                arguments:args];
+  if (_adaptors)
+    ASSIGN(_adaptors,[_adaptors arrayByAddingObject:adaptor]);
+  else
+    ASSIGN(_adaptors,[NSArray arrayWithObject:adaptor]);
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(NSDictionary*)_argsDictionaryWithUserDefaults:(NSUserDefaults*)userDefault
+{
+  //VERIFY
+  //OK
+  NSNumber* port=nil;
+  NSString* host=nil;
+  NSString* adaptor=nil;
+  NSNumber* workerThreadCount=nil;
+  NSNumber* listenQueueSize=nil;
+  NSMutableDictionary* argsDict=nil;
+  LOGObjectFnStart();
+  port=[(GSWAppClassDummy*)[self class] port];
+  host=[(GSWAppClassDummy*)[self class] host];
+  adaptor=[(GSWAppClassDummy*)[self class] adaptor];
+  workerThreadCount=[[self class] workerThreadCount];
+  listenQueueSize=[[self class] listenQueueSize];
+  argsDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+  [argsDict addEntriesFromDictionary:[userDefault dictionaryRepresentation]];
+  if (port)
+    [argsDict setObject:port
+              forKey:GSWOPT_Port[GSWebNamingConv]];
+  if (host)
+    [argsDict setObject:host
+              forKey:GSWOPT_Host[GSWebNamingConv]];
+  if (adaptor)
+    [argsDict setObject:adaptor
+              forKey:GSWOPT_Adaptor[GSWebNamingConv]];
+  if (workerThreadCount)
+    [argsDict setObject:workerThreadCount
+              forKey:GSWOPT_WorkerThreadCount[GSWebNamingConv]];
+  if (listenQueueSize)
+    [argsDict setObject:listenQueueSize
+              forKey:GSWOPT_ListenQueueSize[GSWebNamingConv]];
+  LOGObjectFnStop();
+  return argsDict;
+};
+
+//--------------------------------------------------------------------
+-(void)setContextClassName:(NSString*)className
+{
+  NSAssert(NO,@"TODO");
+}
+
+//--------------------------------------------------------------------
+-(NSString*)contextClassName
+{
+  NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+  NSString* contextClassName
+    = [userDefaults objectForKey:GSWOPT_Context[GSWebNamingConv]];
+  NSAssert([contextClassName length]>0,@"No contextClassName");
+  return contextClassName;
+}
+
+//--------------------------------------------------------------------
+-(void)setResponseClassName:(NSString*)className
+{
+  NSAssert(NO,@"TODO");
+}
+
+//--------------------------------------------------------------------
+-(NSString*)responseClassName
+{
+  NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
+  NSString* responseClassName=[userDefaults objectForKey:GSWOPT_Response[GSWebNamingConv]];
+  NSAssert([responseClassName length]>0,@"No responseClassName");
+  return responseClassName;
+}
+
+ //--------------------------------------------------------------------
+-(void)setRequestClassName:(NSString*)className
+{
+  NSAssert(NO,@"TODO");
+}
+
+//--------------------------------------------------------------------
+-(NSString*)requestClassName
+{
+  NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
+  NSString* requestClassName=[userDefaults objectForKey:GSWOPT_Request[GSWebNamingConv]];
+  NSAssert([requestClassName length]>0,@"No requestClassName");
+  return requestClassName;
+}
+
+@end
+
+
+//====================================================================
 @implementation GSWApplication (UserDefaults)
 
 //--------------------------------------------------------------------
@@ -5393,621 +6075,3 @@ to another instance **/
 };
 
 @end
-
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationInternals)
-
-//--------------------------------------------------------------------
-+(NSDictionary*)_webServerConfigDictionary
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-+(Class)_applicationClass
-{
-  LOGObjectFnStart();
-  [[GSWResourceManager _applicationGSWBundle] 
-    scriptedClassWithName:GSWClassName_Application//TODO
-    superclassName:GSWClassName_Application]; //retirune nil //TODO
-  LOGObjectFnStop();
-  return NSClassFromString(globalApplicationClassName);
-};
-
-//--------------------------------------------------------------------
-+(Class)_compiledApplicationClass
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-+(GSWRequestHandler*)_componentRequestHandler
-{
-  return (GSWRequestHandler*)[GSWComponentRequestHandler handler];
-};
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassB)
-
-//--------------------------------------------------------------------
-+(id)defaultModelGroup
-{
-#if HAVE_GDL2 // GDL2 implementation
-  //OK
-  return [EOModelGroup defaultGroup];
-#else
-#ifdef TCSDB
-  return [DBModelGroup defaultGroup];
-#else
-  LOGClassFnNotImplemented();
-  return nil;
-#endif
-#endif
-};
-
-//--------------------------------------------------------------------
-+(id)_modelGroupFromBundles:(id)bundles
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassC)
-
-//--------------------------------------------------------------------
--(NSDictionary*)mainBundleInfoDictionary
-{
-  return [[self class] mainBundleInfoDictionary];
-};
-
-//--------------------------------------------------------------------
-+(NSDictionary*)mainBundleInfoDictionary
-{
-  return [[self mainBundle]infoDictionary];
-};
-
-//--------------------------------------------------------------------
--(NSDictionary*)bundleInfo
-{
-  return [[self class] bundleInfo];
-};
-
-//--------------------------------------------------------------------
-+(NSDictionary*)bundleInfo
-{
-  return [[self mainBundle]infoDictionary];
-};
-
-//--------------------------------------------------------------------
--(NSBundle*)mainBundle
-{
-  return [[self class] mainBundle];
-};
-//--------------------------------------------------------------------
-+(NSBundle*)mainBundle
-{
-  NSBundle* mainBundle=nil;
-//  LOGClassFnNotImplemented();	//TODOFN
-  mainBundle=[NSBundle mainBundle];
-  NSDebugMLog(@"[mainBundle  bundlePath]:%@",[mainBundle  bundlePath]);
-  return mainBundle;
-
-/*
-			_flags=unsigned int UINT:104005633
-				_infoDictionary=id object:11365312 Description:{
-    NSBundleExecutablePath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa\\ObjCTest3.exe"; 
-    NSBundleInitialPath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa"; 
-    NSBundleLanguagesList = (); 
-    NSBundleResolvedPath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa"; 
-    NSBundleResourcePath = "H:\\Wotests\\ObjCTest3\\ObjCTest3.gswa\\Resources"; 
-    NSExecutable = ObjCTest3; 
-    NSJavaRootClient = WebServerResources/Java; 
-    NSJavaUserPath = (); 
-}
-				_reserved5=void * PTR
-				_principalClass=Class Class:*nil*
-				_tmp1=void * PTR
-				_tmp2=void * PTR
-				_reserved1=void * PTR
-				_reserved0=void * PTR
-*/
-};
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassD)
-
-//--------------------------------------------------------------------
-+(int)_garbageCollectionRepeatCount
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return 1;
-};
-
-//--------------------------------------------------------------------
-+(BOOL)_lockDefaultEditingContext
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return YES;
-};
-
-//--------------------------------------------------------------------
-+(void)_setLockDefaultEditingContext:(BOOL)flag
-{
-  LOGClassFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-+(id)_allowsConcurrentRequestHandling
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-+(void)_setAllowsConcurrentRequestHandling:(id)unknown
-{
-  LOGClassFnNotImplemented();	//TODOFN
-};
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassE)
-
-//--------------------------------------------------------------------
-+(int)_requestLimit
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return 1;
-};
-
-//--------------------------------------------------------------------
-+(int)_requestWindow
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return 1;
-};
-
-//--------------------------------------------------------------------
-+(BOOL)_multipleThreads
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return YES;
-};
-
-//--------------------------------------------------------------------
-+(BOOL)_multipleInstances
-{
-  LOGClassFnNotImplemented();	//TODOFN
-  return NO;
-};
-
-//--------------------------------------------------------------------
-+(void)_readLicenseParameters
-{
-  NSLog(@"LGPL'ed software don't have license parameters. To find License Parameters, please try proprietary softwares");
-};
-
-@end
-
-//====================================================================
-@implementation GSWApplication (NDFN)
-
-//--------------------------------------------------------------------
-//NDFN
--(id)propListWithResourceNamed:(NSString*)aName
-                        ofType:(NSString*)type
-                   inFramework:(NSString*)aFrameworkName
-                     languages:(NSArray*)languages
-{
-  id propList=nil;
-  GSWResourceManager* resourceManager=nil;
-  NSString* pathName=nil;
-  LOGObjectFnStart();
-  resourceManager=[self resourceManager];
-  pathName=[resourceManager pathForResourceNamed:[NSString stringWithFormat:@"%@.%@",aName,type]
-                            inFramework:aFrameworkName
-                            languages:languages];
-  NSDebugMLLog(@"application",@"pathName:%@",pathName);
-  if (pathName)
-    {
-      NSString* propListString=[NSString stringWithContentsOfFile:pathName];
-      propList=[propListString propertyList];
-      if (!propList)
-        {
-          LOGSeriousError(@"Bad propertyList \n%@\n from file %@",
-                          propListString,
-                          pathName);
-        };
-    };
-  LOGObjectFnStop();
-  return propList;
-};
-
-//--------------------------------------------------------------------
-+(BOOL)createUnknownComponentClasses:(NSArray*)classes
-                      superClassName:(NSString*)aSuperClassName
-{
-#ifdef NOEXTENSIONS
-  ExceptionRaise(@"GSWApplication",
-                 @"GSWApplication: createUnknownComponentClasses: %@ superClassName: %@\n works only when you do not define NOEXTENSIONS while compiling GSWeb",
-                 classes, aSuperClassName);
-
-  return NO;
-
-#else
-  BOOL ok=YES;
-  LOGClassFnStart();
-  if ([classes count]>0)
-    {
-      int i=0;
-      NSString* aClassName=nil;
-      NSMutableArray* newClasses=nil;
-      for(i=0;i<[classes count];i++)
-        {
-          aClassName=[classes objectAtIndex:i];
-          NSDebugMLLog(@"application",@"aClassName:%@",aClassName);
-          if (!NSClassFromString(aClassName))
-            {
-              NSString* superClassName=nil;
-              superClassName=[localDynCreateClassNames objectForKey:aClassName];
-              NSDebugMLLog(@"application",@"superClassName=%p",(void*)superClassName);
-              if (!superClassName)
-                {
-                  superClassName=aSuperClassName;
-                  if (!superClassName)
-                    {
-                      ExceptionRaise(@"GSWApplication",
-                                     @"GSWApplication: no superclass for class named: %@",
-                                     aClassName);
-                    };
-                };
-              NSDebugMLLog(@"application",@"Create Unknown Class: %@ (superclass: %@)",
-                           aClassName,
-                           superClassName);
-              if (superClassName)
-                {
-                  NSValue* aClassPtr=GSObjCMakeClass(aClassName,superClassName,nil);
-                  if (aClassPtr)
-                    {
-                      if (!newClasses)
-                        newClasses=[NSMutableArray array];
-                      [newClasses addObject:aClassPtr];
-                    }
-                  else
-                    {    
-                      LOGError(@"Can't create one of these classes %@ (super class: %@)",
-                               aClassName,superClassName);
-                    };
-                };
-            };
-        };
-      if ([newClasses count]>0)
-        {
-          GSObjCAddClasses(newClasses);
-        };
-    };
-  LOGClassFnStop();
-  return ok;
-#endif
-};
-
-//--------------------------------------------------------------------
-+(void)addDynCreateClassName:(NSString*)className
-              superClassName:(NSString*)superClassName
-{
-  LOGClassFnStart();
-  NSDebugMLLog(@"gswdync",@"ClassName:%@ superClassName:%@",
-	       className, superClassName);
-  [localDynCreateClassNames setObject:superClassName
-                            forKey:className];
-  LOGClassFnStop();
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)pathForResourceNamed:(NSString*)name
-                     inFramework:(NSString*)aFrameworkName
-                       languages:(NSArray*)languages
-{
-  return [[self resourceManager]pathForResourceNamed:name
-                                inFramework:aFrameworkName
-                                languages:languages];
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)type
-                     inFramework:(NSString*)aFrameworkName
-                       languages:(NSArray*)languages
-{
-  return [[self resourceManager]pathForResourceNamed:(type ? [NSString stringWithFormat:@"%@.%@",aName,type] : aName)
-                                inFramework:aFrameworkName
-                                languages:languages];
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)urlForResourceNamed:(NSString*)aName
-                    inFramework:(NSString*)aFrameworkName
-                      languages:(NSArray*)languages
-                        request:(GSWRequest*)aRequest
-{
-  return [[self resourceManager]urlForResourceNamed:aName
-                                inFramework:aFrameworkName
-                                languages:languages
-                                request:aRequest];
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)stringForKey:(NSString*)aKey
-            inTableNamed:(NSString*)aTableName
-        withDefaultValue:(NSString*)defaultValue
-             inFramework:(NSString*)aFrameworkName
-               languages:(NSArray*)languages
-{
-  return [[self resourceManager]stringForKey:aKey
-                                inTableNamed:aTableName
-                                withDefaultValue:defaultValue
-                                inFramework:aFrameworkName
-                                languages:languages];
-};
-
-
-//--------------------------------------------------------------------
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages
-{
-  NSDictionary* st=nil;
-  LOGObjectFnStart();
-  st=[[self resourceManager]stringsTableNamed:aTableName
-                            inFramework:aFrameworkName
-                            languages:languages];
-  LOGObjectFnStop();
-  return st;
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages
-{
-  return [[self resourceManager]stringsTableArrayNamed:aTableName
-                                inFramework:aFrameworkName
-                                languages:languages];
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSArray*)filterLanguages:(NSArray*)languages
-{
-  return languages;
-};
-
-@end
-/*
-//====================================================================
-@implementation GSWApplication (GSWDeprecatedAPI)
-
-//--------------------------------------------------------------------
-//pageWithName:
-//OldFn
--(GSWComponent*)pageWithName:(NSString*)name_
-{
-  GSWComponent* component=nil;
-  Class aClass=nil;
-  NSDebugMLLog(@"application",@"Page with Name:%@",name_);
-  //No Name ==> "Main"
-  if (!name_ || [name_ length]==0)
-	name_=GSWMainPageName;
-  NSDebugMLLog(@"gswcomponents",@"Page with Name:%@",name_);
-  aClass=NSClassFromString(name_);
-  //If not found, search for library
-  if (!aClass)
-	{
-	  NSString* pagePath=[self pathForResourceNamed:name_
-							   ofType:nil];
-	  Class _principalClass=[self libraryClassWithPath:pagePath];
-	  NSDebugMLLog(@"gswcomponents",@"_principalClass=%@",_principalClass);
-	  if (_principalClass)
-		{
-		  aClass=NSClassFromString(name_);
-		  NSDebugMLLog(@"gswcomponents",@"aClass=%@",aClass);
-		};
-	};
-  if (!aClass)
-	{
-	  //TODO Load Scripted (PageName.gsws)
-	};
-
-  if (!aClass)
-	{
-	  //TODO exception
-	  NSDebugMLLog0(@"application",@"No component class");
-	}
-  else
-	{
-	  Class GSWComponentClass=[GSWComponent class]);
-	  if (!ClassIsKindOfClass(aClass,GSWComponentClass))
-	    {
-	      NSDebugMLLog0(@"application",
-	                    @"component class is not a kind of GSWComponent");
-	      //TODO exception
-	    }
-	  else
-	    {
-	      //TODOV
-	      NSDebugMLLog0(@"application",@"Create Componnent");
-	      component=[[aClass new] autorelease];
-	      if (!component)
-	        {
-		  //TODO exception
-		};
-	    };
-	};
-
-  return component;
-};
-
-//--------------------------------------------------------------------
-//restorePageForContextID:
--(GSWComponent*)restorePageForContextID:(NSString*)contextID
-{
-  return [[self session] restorePageForContextID:contextID];
-};
-
-//--------------------------------------------------------------------
-//savePage:
--(void)savePage:(GSWComponent*)page_
-{
-  [[self session] savePage:page_];
-};
-
-//--------------------------------------------------------------------
-//session
--(GSWSession*)session 
-{
-  return [[self context] session];
-};
-
-//--------------------------------------------------------------------
-//context
-//Remove !!
--(GSWContext*)context 
-{
-  GSWContext* _context=nil;
-  NSMutableDictionary* _threadDictionary=nil;
-  LOGObjectFnStart();
-  _threadDictionary=GSCurrentThreadDictionary();
-  _context=[_threadDictionary objectForKey:GSWThreadKey_Context];
-  LOGObjectFnStop();
-  return _context;
-};
-
-//--------------------------------------------------------------------
-//restoreSession
--(GSWSession*)restoreSession
-{
-  NSAssert(sessionStore,@"No SessionStore Object");
-  return [self restoreSessionWithID:[[self session]sessionID]
-				inContext:[self context]];
-};
-
-//--------------------------------------------------------------------
-//saveSession:
--(void)saveSession:(GSWSession*)session_ 
-{
-  NSAssert(sessionStore,@"No SessionStore Object");
-  [self saveSessionForContext:[self context]];
-};
-
-//--------------------------------------------------------------------
-//createSession
--(GSWSession*)createSession 
-{
-  LOGObjectFnNotImplemented();	//TODOFN 3.5
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//urlForResourceNamed:ofType:
--(NSString*)urlForResourceNamed:(NSString*)name_
-						 ofType:(NSString*)type_ 
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//pathForResourceNamed:ofType:
-
--(NSString*)pathForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)type_ 
-{
-  //TODOV
-  NSBundle* bundle=[NSBundle mainBundle];
-  NSString* path=[bundle pathForResource:name_
-						 ofType:type_];
-  return path;
-};
-
-//--------------------------------------------------------------------
-//stringForKey:inTableNamed:withDefaultValue:
-
--(NSString*)stringForKey:(NSString*)aKey
-			inTableNamed:(NSString*)aTableName
-		withDefaultValue:(NSString*)defaultValue
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//handleRequest:
-//Olf Fn
--(GSWResponse*)handleRequest:(GSWRequest*)aRequest 
-{
-  return [self dispatchRequest:aRequest];//??
-};
-
-//--------------------------------------------------------------------
-//dynamicElementWithName:associations:template:
-//OldFn
--(GSWDynamicElement*)dynamicElementWithName:(NSString*)name_
-			       associations:(NSDictionary*)someAssociations
-				   template:(GSWElement*)templateElement_
-{
-  GSWDynamicElement* element=nil;
-  //  NSString* elementName=[_XMLElement attributeForKey:@"NAME"];
-  Class aClass=NSClassFromString(name_);
-  LOGObjectFnNotImplemented();	//TODOFN
-  NSDebugMLLog0(@"application",
-		@"Begin GSWApplication:dynamicElementWithName");
-  if (!aClass)
-    {
-      ExceptionRaise(@"GSWApplication",
-		     @"GSWApplication: No class named '%@' for "
-		     @"creating dynamic element",
-		     name_);
-    }
-  else
-    {
-      Class GSWElementClass=[GSWElement class];
-      if (!ClassIsKindOfClass(aClass,GSWElementClass))
-	{
-	  ExceptionRaise(@"GSWApplication",
-			 @"GSWApplication: element '%@' is not kind of "
-			 @"GSWElement",
-			 name_);
-	}
-      else
-	{
-	  NSDebugMLLog(@"application",
-		       @"Creating DynamicElement of Class:%@",aClass);
-	  element=[[[aClass alloc] initWithName:name_
-				   associations:someAssociations
-				   template:templateElement_] autorelease];
-	  NSDebugMLLog(@"application",@"Creating DynamicElement:%@",element);
-	};
-    };
-  return element;
-};
-
-@end
-*/
-

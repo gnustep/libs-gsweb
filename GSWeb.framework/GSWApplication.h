@@ -139,15 +139,11 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(void)setPageRefreshOnBacktrackEnabled:(BOOL)flag;
 
 -(void)registerRequestHandlers;
--(void)_initAdaptorsWithUserDefaults:(NSUserDefaults*)userDefault;
--(NSDictionary*)_argsDictionaryWithUserDefaults:(NSUserDefaults*)userDefault;
 -(void)unlock;
 -(void)lock;
 -(void)unlockRequestHandling;
 -(void)lockRequestHandling;
 
-+(void)_initRegistrationDomainDefaults;
-+(void)_initUserDefaultsKeys;
 @end
 
 //====================================================================
@@ -184,16 +180,10 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 //====================================================================
 @interface GSWApplication (GSWApplicationE)
--(void)setContextClassName:(NSString*)className;
--(NSString*)contextClassName;
 -(GSWContext*)createContextForRequest:(GSWRequest*)aRequest;
 
--(void)setResponseClassName:(NSString*)className;
--(NSString*)responseClassName;
 -(GSWResponse*)createResponseInContext:(GSWContext*)aContext;
 
--(void)setRequestClassName:(NSString*)className;
--(NSString*)requestClassName;
 -(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
                                   uri:(NSString*)anURL
                           httpVersion:(NSString*)aVersion
@@ -525,6 +515,22 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(GSWRequestHandler*)requestHandlerForKey:(NSString*)aKey;
 
 -(GSWRequestHandler*)handlerForRequest:(GSWRequest*)aRequest;
+@end
+
+//====================================================================
+@interface GSWApplication (GSWApplicationDefaults)
++(void)_initRegistrationDomainDefaults;
++(void)_initUserDefaultsKeys;
+
+-(void)_initAdaptorsWithUserDefaults:(NSUserDefaults*)userDefault;
+-(NSDictionary*)_argsDictionaryWithUserDefaults:(NSUserDefaults*)userDefault;
+
+-(void)setContextClassName:(NSString*)className;
+-(NSString*)contextClassName;
+-(void)setResponseClassName:(NSString*)className;
+-(NSString*)responseClassName;
+-(void)setRequestClassName:(NSString*)className;
+-(NSString*)requestClassName;
 @end
 
 //====================================================================

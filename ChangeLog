@@ -1,3 +1,33 @@
+2004-08-28  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication.h
+	* GSWeb.framework/GSWApplication.m: Prepare split off of
+	GSWApplication+Defaults.m.
+	(_initAdaptorsWithUserDefaults:, _argsDictionaryWithUserDefaults:)
+	(_initRegistrationDomainDefaults, _initUserDefaultsKeys)
+	Move from main method list to GSWApplicationDefaults category.
+	(setContextClassName:, contextClassName, setResponseClassName:)
+	(responseClassName, setRequestClassName:, requestClassName)
+	Move from GSWApplicationE to GSWApplicationDefaults category.
+	(GSWApplicationSetDebugSetOption): Move to bottom.
+	(GSWeb_ApplicationDebugSetChange): Rename from
+	GSWebApplicationDebugSetChange and move to bottom.
+	(GSWeb_AdjustVolatileNSArgumentDomain)
+	(GSWeb_InitializeGlobalAppDefaultOptions)
+	(GSWeb_InitializeDebugOptions)
+	(GSWeb_DestroyGlobalAppDefaultOptions): New private functiions by
+	extracting old code.
+	(GSWApplicationMainReal): Use new extracted functions.  Minor
+	reformatting.
+	([+dealloc]): Use new extracted functions.
+	([-createRequestWithMethod:uri:httpVersion:]) Use new name for
+	GSWeb_ApplicationDebugSetChange.
+	((UserDefaults)): Move entire Category to the bottom.
+
+	([-lockedInitComponentBearingFrameworksFromBundleArray]): Comment
+	unused variable to avoid warning.
+	
+	
 2004-06-16  David Wetzel  <dave@turbocat.de>
 
         * GSWeb.framework/GSWDynamicURLString.m
