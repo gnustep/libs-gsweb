@@ -1,3 +1,7 @@
+2004-05-16  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GNUmakefile: Make GSWDefines.h a public header.
+	
 2004-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWHTMLTemplateParser.m:

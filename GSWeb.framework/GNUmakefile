@@ -315,6 +315,7 @@ GSWStaticResourceRequestHandler.h \
 GSWRecording.h \
 GSWInputStreamData.h \
 GSWActionURL.h \
+GSWDefines.h \
 
 #For next Version:
 #GSWAdminAction.h \
