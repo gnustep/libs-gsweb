@@ -1,4 +1,4 @@
 {
-	encoding = NSISOLatin1StringEncoding;
+	encoding = NSUTF8StringEncoding;
 	variables = {};
 }

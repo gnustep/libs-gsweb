@@ -102,8 +102,6 @@ int GSWApplicationMainReal(NSString* applicationClassName,
 //call NSBundle Start:_usesFastJavaBundleSetup
 //call :NSBundle Start:_setUsesFastJavaBundleSetup:YES
 //call NSBundle mainBundle
-  NSProcessInfo* processInfo=nil;
-  NSString* envGNUstepStringEncoding=nil;
   NSAutoreleasePool *appAutoreleasePool=nil;
 
   appAutoreleasePool = [NSAutoreleasePool new];
@@ -113,18 +111,6 @@ int GSWApplicationMainReal(NSString* applicationClassName,
   DebugInstall("/dvlp/projects/app/Source/app.gswa/shared_debug_obj/ix86/linux-gnu/gnu-gnu-gnu-xgps/app_server");
   DebugEnableBreakpoints();
   */
-  processInfo=[NSProcessInfo processInfo];
-  envGNUstepStringEncoding=[[processInfo environment]
-                             objectForKey:@"GNUSTEP_STRING_ENCODING"];
-  NSCAssert(envGNUstepStringEncoding,
-            @"GNUSTEP_STRING_ENCODING environement variable is not defined !");
-  NSCAssert([NSString defaultCStringEncoding]!=NSASCIIStringEncoding,
-            @"NSString defaultCStringEncoding is NSASCIIStringEncoding. Please define GNUSTEP_STRING_ENCODING environement variable to better one !");
-  if (!envGNUstepStringEncoding
-      || [NSString defaultCStringEncoding]==NSASCIIStringEncoding)
-    {
-      result=-1;
-    };
   if (result>=0)
     {
       GSWeb_AdjustVolatileNSArgumentDomain();

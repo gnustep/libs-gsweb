@@ -1,3 +1,56 @@
+2004-11-12  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication.m (GSWApplicationMainReal):
+	Remove assertion for defined GNUSTEP_STRING_ENCODING.
+	* GSWeb.framework/GSWDefaultAdaptorThread.m ([+sendResponse:toStream:
+	withNamingConv:withAdditionalHeaderLines:withRemoteAddress:]):
+	Use contentEncoding of response instead of
+	NSISOLatin1StringEncoding.
+	* GSWeb.framework/GSWHTMLComment.m ([-init]): Use 
+	+[GSWMessage defaultEncoding] instead of
+	NSISOLatin1StringEncoding.
+	* GSWeb.framework/GSWHTMLDynamicElement.m
+	([-addURL:forCIDKeyAssociation:CIDStoreAssociation:inContext:]):
+	Use NSUnicodeStringEncoding instead NSISOLatin1StringEncoding for
+	hash value.
+	* GSWeb.framework/GSWMessage.m ([+initialize]): Set
+	globalDefaultEncoding to NSISOLatin1StringEncoding only if
+	WOStrictFlag default flag is set.  Otherwise default to
+	GetDefEncoding().
+	* GSWeb.framework/GSWRequest.m
+	([-_formValueEncodingFromFormData:]): Use +[GSWMessage
+	defaultEncoding] instead of NSISOLatin1StringEncoding.
+	([-_formData], [-_getFormValuesFromMultipartFormDataOld]): Ditto.
+	([-_getFormValuesFromMultipartFormData]): Ditto.
+	([-_decodeMultipartBody:boundary:], -[_parseData:]): Ditto.
+	* GSWeb.framework/GSWTemplateParserXML.m ([-templateElements]): Ditto.
+	* GSWeb.framework/NSString+HTML.m (-[decodeURL]): Ditto.
+
+	* INSTALL: Remove reference to GNUSTEP_STRING_ENCODING.
+	* Examples/hello/HelloPage.gswc/HelloPage.gswi,
+	* GSWExtensions.framework/French.lproj/
+	GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.gswi,
+	GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.gswi
+	* GSWExtensions.framework/
+	GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.gswi
+	GSWDictionaryRepetition.gswc/GSWDictionaryRepetition.gswi,
+	GSWIFrame.gswc/GSWIFrame.gswi,
+	GSWMetaRefresh.gswc/GSWMetaRefresh.gswi,
+	GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.gswi,
+	GSWRedirect.gswc/GSWRedirect.gswi,
+	GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.gswi,
+	GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.gswi
+	GSWStatsPage.gswc/GSWStatsPage.gswi,
+	GSWTable.gswc/GSWTable.gswi,
+	GSWTableString.gswc/GSWTableString.gswi,
+	Correct encoding declaration.
+
+	* GSWExtensions.framework/
+	GSWKeyValueConditional.gswc/GSWKeyValueConditional.gswd,
+	GSWKeyValueConditional.gswc/GSWKeyValueConditional.gswi,
+	GSWKeyValueConditional.gswc/GSWKeyValueConditional.html:
+	Correct encoding declaration and line terminators.
+	
 2004-11-08  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/Apache/mod_gsweb.c: change in 
 		GSWHTTPResponse_BuildErrorResponse call for templates

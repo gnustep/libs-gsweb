@@ -32,10 +32,12 @@
 
 RCS_ID("$Id$")
 
+#include <GNUstepBase/Unicode.h>
 #include "GSWeb.h"
 #include "NSData+Compress.h"
 
-static NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
+
+static NSStringEncoding globalDefaultEncoding=GSUndefinedEncoding;
 static NSString* globalDefaultURLEncoding=nil;
 
 static SEL appendStringSel = NULL;
@@ -72,6 +74,8 @@ static SEL appendDataSel = NULL;
     {
       appendStringSel = @selector(appendString:);
       appendDataSel = @selector(appendData:);
+      globalDefaultEncoding = WOStrictFlag 
+	? NSISOLatin1StringEncoding : GetDefEncoding() ;
     };
 };
 

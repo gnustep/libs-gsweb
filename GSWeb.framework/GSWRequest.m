@@ -1353,7 +1353,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSStringEncoding)_formValueEncodingFromFormData:(NSData*)aFormData
 {
-  return NSISOLatin1StringEncoding; //TODO
+  return [[self class] defaultEncoding]; //TODO
 };
 
 //--------------------------------------------------------------------
@@ -1367,7 +1367,7 @@ RCS_ID("$Id$")
   if ([_method isEqualToString:GSWHTTPHeader_MethodGet])
     {
       NSString* urlQueryString=[self _urlQueryString];
-      data=[urlQueryString dataUsingEncoding:NSISOLatin1StringEncoding];//??
+      data=[urlQueryString dataUsingEncoding: [self formValueEncoding]];//??
       NSDebugMLLog(@"requests",@"data=%@",data);
     }
   else if ([_method isEqualToString:GSWHTTPHeader_MethodPost])
@@ -1747,7 +1747,7 @@ RCS_ID("$Id$")
                               value=[values objectAtIndex:valueIndex];
                               NSDebugMLLog(@"requests",@"value=%@",value);
                               value=[[[NSString alloc]initWithData:value
-                                                      encoding:NSISOLatin1StringEncoding]autorelease];
+                                                      encoding:[self formValueEncoding]]autorelease];
                               [valuesNew addObject:value];
                             };
                           values=[NSArray arrayWithArray:valuesNew];
@@ -1820,7 +1820,7 @@ RCS_ID("$Id$")
   [headersString appendString:@"\n"];
   NSDebugMLLog(@"requests",@"headersString=[\n%@\n]",headersString);
 
-  headersData=[headersString dataUsingEncoding:NSISOLatin1StringEncoding];
+  headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
   [parser expectNoHeaders];
@@ -1960,12 +1960,12 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"requests",@"aBoundary=%@",aBoundary);
   boundaryString=[NSString stringWithFormat:@"--%@\r\n",aBoundary];//Add "--" and "\r\n"
   NSDebugMLLog(@"requests",@"aBoundary=%@",aBoundary);
-  dataBoundary=[boundaryString dataUsingEncoding:NSISOLatin1StringEncoding];//TODO
+  dataBoundary=[boundaryString dataUsingEncoding:[self formValueEncoding]];//TODO
   NSDebugMLLog(@"requests",@"dataBoundary=%@",dataBoundary);
 /*  {
 	NSString* _dataString=nil;
 	_dataString=[[[NSString alloc]initWithData:_body
-								  encoding:NSISOLatin1StringEncoding]autorelease];
+					  encoding:[self formValueEncoding]]autorelease];
 	NSDebugMLLog(@"requests",@"_bodyString=%@",_dataString);
   }
 */
@@ -1980,7 +1980,7 @@ RCS_ID("$Id$")
           {
             NSString* _dataString=nil;
             _dataString=[[[NSString alloc]initWithData:tmpData
-                                          encoding:NSISOLatin1StringEncoding]autorelease];
+                                          encoding:[self formValueEncoding]]autorelease];
             NSDebugMLLog(@"requests",@"_tmpDataString=[\n%@\n]",_dataString);
           }
         else
@@ -2004,7 +2004,7 @@ RCS_ID("$Id$")
           //Delete the last \r\nseparator--\r\n
           boundaryString=[NSString stringWithFormat:@"\r\n%@--\r\n",aBoundary];
           NSDebugMLLog(@"requests",@"aBoundary=%@",aBoundary);
-          dataBoundary=[boundaryString dataUsingEncoding:NSISOLatin1StringEncoding];//TODO
+          dataBoundary=[boundaryString dataUsingEncoding:[self formValueEncoding]];//TODO
           NSDebugMLLog(@"requests",@"tmpData_=%@",tmpData);
           tmpData=[tmpData dataByDeletingLastBytesCount:[dataBoundary length]];
           NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
@@ -2024,7 +2024,7 @@ RCS_ID("$Id$")
           {
             NSString* dataString=nil;
             dataString=[[[NSString alloc]initWithData:tmpData
-                                         encoding:NSISOLatin1StringEncoding]autorelease];
+                                         encoding:[self formValueEncoding]]autorelease];
             NSDebugMLLog(@"requests",@"tmpDataString=[\n%@\n]",dataString);
 			
           }
@@ -2086,7 +2086,7 @@ RCS_ID("$Id$")
                   NSString* value=@"";
                   NSData* headerData=[aData subdataWithRange:NSMakeRange(start,i-start)];
                   NSString* tmpHeaderString=[[[NSString alloc]initWithData:headerData
-                                                              encoding:NSISOLatin1StringEncoding]autorelease];
+                                                              encoding:[self formValueEncoding]]autorelease];
                   NSDebugMLLog(@"requests",@"i=%d",i);
                   NSDebugMLLog(@"requests",@"start=%d",start);
                   NSDebugMLLog(@"requests",@"headerData=%@",headerData);

@@ -33,7 +33,10 @@ include ./config.mak
 #
 # The list of subproject directories
 #
-SUBPROJECTS = GSWeb.framework GSWExtensions.framework GSWExtensionsGSW.framework 
+SUBPROJECTS = GSWeb.framework \
+	GSWExtensions.framework \
+	GSWExtensionsGSW.framework \
+
 #GSWAdaptors
 
 -include Makefile.preamble

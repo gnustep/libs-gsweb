@@ -1027,7 +1027,7 @@ CIDStoreAssociation:(GSWAssociation*)cidStore
         {
           // We calculate cidKeyValue by computing md5 on url
           // so there will be no duplicate elements with different keys
-	  NSData* data = [url dataUsingEncoding: NSISOLatin1StringEncoding];
+	  NSData* data = [url dataUsingEncoding: NSUnicodeStringEncoding];
 	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
         };
       newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:url
@@ -1091,7 +1091,7 @@ CIDStoreAssociation:(GSWAssociation*)cidStore
         {
           // We calculate cidKeyValue by computing md5 on path
           // so there will be no duplicate elements with different keys
-	  NSData* data = [path dataUsingEncoding: NSISOLatin1StringEncoding];
+	  NSData* data = [path dataUsingEncoding: NSUnicodeStringEncoding];
 	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
         };
 

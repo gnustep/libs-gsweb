@@ -41,7 +41,7 @@ RCS_ID("$Id$")
 {
   if ((self=[super init]))
     {
-      _encoding=NSISOLatin1StringEncoding;
+      _encoding = [GSWMessage defaultEncoding];
     };
   return self;
 };

@@ -756,7 +756,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
                              autorelease]);
           NSDebugDeepMLLog(@"low",@"Response content String :%@",
                            [[[NSString alloc] initWithData:[response content]
-                                              encoding:NSISOLatin1StringEncoding]
+                                              encoding:[response contentEncoding]]
                              autorelease]);
 
           NS_DURING

@@ -649,7 +649,7 @@ static NSString* TabsForLevel(int level)
       NSStringEncoding stringEncoding=_stringEncoding;
 
       if (stringEncoding==GSUndefinedEncoding)
-        stringEncoding=NSISOLatin1StringEncoding;
+        stringEncoding=[GSWMessage defaultEncoding];
         
       sax=[GSWTemplateParserSAXHandler handlerWithTemplateParser:self];
       if ([self isKindOfClass:[GSWTemplateParserXMLHTML class]])

@@ -53,9 +53,6 @@ Installing `gsweb'
 
 At this point everything is done, still remains the Apache configuration:
 
-You have to export the following env var:
-export GNUSTEP_STRING_ENCODING=NSISOLatin1StringEncoding
-
 If you do not want the extensions you can compile with 
 ADDITIONAL_OBJCFLAGS += -DNOEXTENSIONS
 in config.mak

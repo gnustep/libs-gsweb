@@ -262,7 +262,8 @@ initHtmlChars()
   temp=[NSString stringWithCharacters:unichars
                  length:uniCharsIndex];
   NSDebugMLLog(@"low",@"temp=%@",temp);
-  NSDebugMLLog(@"low",@"temp data=%@",[temp dataUsingEncoding:NSISOLatin1StringEncoding]);
+  NSDebugMLLog(@"low",@"temp data=%@",
+	       [temp dataUsingEncoding: [GSWMessage defaultEncoding]]);
   return temp;
 };
 
