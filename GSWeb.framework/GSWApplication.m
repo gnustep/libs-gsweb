@@ -461,6 +461,10 @@ int GSWApplicationMain(NSString* _applicationClassName,
   DESTROY(runLoopDate);
   DESTROY(initialTimer);
   DESTROY(activeSessionsCountLock);
+
+  if (GSWApp == self)
+    GSWApp = nil;
+
   GSWLogC("Dealloc GSWApplication Super");
   [super dealloc];
   GSWLogC("End Dealloc GSWApplication");

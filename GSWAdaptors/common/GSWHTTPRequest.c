@@ -267,6 +267,8 @@ BOOL GSWHTTPRequest_SendRequest(GSWHTTPRequest* p_pHTTPRequest,AppConnectHandle 
 	  pszTmp+=iContentLength;
 	};
 
+  *pszTmp = '\0';
+
   GSWLog(GSW_INFO,p_pLogServerData,
 		 "Sending AppRequest Content: %s\n(%d Bytes)",
 		 p_pHTTPRequest->pszRequest,

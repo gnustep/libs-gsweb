@@ -1,3 +1,14 @@
+2001-02-23  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWApplication.m ([GSWApplication -dealloc]): reset
+	GSWApp.
+	* GSWeb.framework/GSWStatisticsStore.m ([GSWStatisticsStore -init]):
+	retain startDate.
+	* GSWAdaptors/common/GSWUtil.c: use vsnprintf to prevent buffer
+	overflow.
+	* GSWAdaptors/common/GSWHTTPRequest.c (GSWHTTPRequest_SendRequest):
+	terminate buffer.
+
 2001-01-29  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWApplication.m (GSWApplicationMain): use NSLog to

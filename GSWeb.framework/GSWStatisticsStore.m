@@ -35,13 +35,13 @@ static char rcsId[] = "$Id$";
 {
   //OK
   if ((self=[super init]))
-	{
-	  transactionMovingAverageSampleCount=100;
-	  sessionMovingAverageSampleCount=10;
-	  startDate=[NSDate date];
-	  ASSIGN(initializationMemory,[self _memoryUsage]);
-	  selfLock=[NSRecursiveLock new];
-	};
+    {
+      transactionMovingAverageSampleCount = 100;
+      sessionMovingAverageSampleCount = 10;
+      ASSIGN(startDate, [NSDate date]);
+      ASSIGN(initializationMemory, [self _memoryUsage]);
+      selfLock = [NSRecursiveLock new];
+    };
   return self;
 };
 

@@ -76,10 +76,12 @@ void VGSWLogSizedIntern(char* file,
 {
   FILE* pLog = NULL;
   char szBuffer[p_iBufferSize+512];
-  szBuffer[0]=0;
-  errno=0;//Because Apache use it in ap_log_error to display the message.
-  vsprintf(szBuffer,p_pszFormat,ap);
-	  
+
+  szBuffer[0] = 0;
+  errno = 0;//Because Apache use it in ap_log_error to display the message.
+  vsnprintf(szBuffer, p_iBufferSize+511, p_pszFormat, ap);
+  szBuffer[p_iBufferSize+511] = 0;
+
 #if	defined(Netscape)
   log_error(0,"GSWeb",NULL,NULL,szBuffer);
 #endif
