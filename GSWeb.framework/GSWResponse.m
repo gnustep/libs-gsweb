@@ -1,12 +1,13 @@
 /** GSWResponse.m - <title>GSWeb: Class GSWResponse</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,15 +28,35 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
-
 
 //====================================================================
 @implementation GSWResponse
 
 NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
+static NSString* disabledCacheDateString=nil;
+static NSArray* cacheControlHeaderValues=nil;
+
+
+//--------------------------------------------------------------------
++(void)initialize
+{
+  if (self==[GSWResponse class])
+    {
+      // So cache date stamp will be set to earlier date
+      ASSIGN(disabledCacheDateString,[[NSCalendarDate date] htmlDescription]);
+
+      // Other cache control headers
+      ASSIGN(cacheControlHeaderValues,([NSArray arrayWithObjects:@"private",
+                                                @"no-cache",
+                                                @"no-store",
+                                                @"must-revalidate",
+                                                @"max-age=0",
+                                                nil]));
+    };
+};
 
 //--------------------------------------------------------------------
 //	init
@@ -189,7 +210,10 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
           forKey:(NSString*)key
 {
   //OK
-  id object=[_headers objectForKey:key];
+  id object=nil;
+  NSAssert(header,@"No header");
+  NSAssert(key,@"No header key");
+  object=[_headers objectForKey:key];
   if (object)
     [self setHeaders:[object arrayByAddingObject:header]
           forKey:key];
@@ -205,6 +229,8 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
            forKey:(NSString*)key
 {
   //OK
+  NSAssert(headers,@"No headers");
+  NSAssert(key,@"No header key");
   if (!_headers)
     _headers=[NSMutableDictionary new];
   [_headers setObject:headers
@@ -227,7 +253,8 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
       keyEnum = [headerDictionary keyEnumerator];
       while ((headerName = [keyEnum nextObject]))
         {
-          [self setHeaders:[NSArray arrayWithObject:[headerDictionary objectForKey:headerName]] forKey:headerName];
+          [self setHeaders:[NSArray arrayWithObject:[headerDictionary objectForKey:headerName]] 
+                forKey:headerName];
  	};
     };
 };
@@ -287,22 +314,22 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 -(void)disableClientCaching
 {
   //OK
-  NSString* dateString=nil;
   LOGObjectFnStart();
   if (!_isClientCachingDisabled)
     {
-      dateString=[[NSCalendarDate date] htmlDescription];
-      NSDebugMLLog(@"low",@"dateString:%@",dateString);
-      [self setHeader:dateString 
+      [self setHeader:disabledCacheDateString 
             forKey:@"date"];
-      [self setHeader:dateString
+      [self setHeader:disabledCacheDateString
             forKey:@"expires"];
       [self setHeader:@"no-cache"
             forKey:@"pragma"];
       
-      [self setHeaders:[NSArray arrayWithObjects:@"private",@"no-cache",@"max-age=0",nil]
-            forKey:@"cache-control"];
-  
+      //TODO later
+      /*
+      if([GSWApp _allowsCacheControlHeader])
+        [self setHeaders:cacheControlHeaderValues
+              forKey:@"cache-control"];
+      */
       _isClientCachingDisabled=YES;
     };
   LOGObjectFnStop();
@@ -389,7 +416,7 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
       newData=[string dataUsingEncoding:_contentEncoding];
       NSAssert3(newData,@"Can't create data from %@ \"%s\" using encoding %d",
                [string class],
-               ([string isKindOfClass:[NSString class]] ? [string lossyCString] : @"**Not a string**"),
+               ([string isKindOfClass:[NSString class]] ? [string lossyCString] : "**Not a string**"),
                (int)_contentEncoding);
       NSDebugMLLog(@"low",@"newData=%@",newData);
       [_contentData appendData:newData];
@@ -403,7 +430,8 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 -(void)appendDebugCommentContentString:(NSString*)aString
 {
 #ifndef NDEBUG
-  [self appendContentString:[NSString stringWithFormat:@"\n<!-- %@ -->\n",aString]];
+  if (GSDebugSet(@"debugComments") == YES)
+    [self appendContentString:[NSString stringWithFormat:@"\n<!-- %@ -->\n",aString]];
 #endif
 };
 
@@ -522,7 +550,8 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
   NSMutableArray* cookies=nil;
   LOGObjectFnStart();
   cookies=[self allocCookiesIFND];
-  [cookies addObject:cookie];
+  if (cookie)
+    [cookies addObject:cookie];
   LOGObjectFnStop();
 };
 
@@ -532,7 +561,8 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
   NSMutableArray* cookies=nil;
   LOGObjectFnStart();
   cookies=[self allocCookiesIFND];
-  [cookies removeObject:cookie];
+  if (cookie)
+    [cookies removeObject:cookie];
   LOGObjectFnStop();
 };
 
@@ -560,6 +590,7 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
         {
           cookie=[cookies objectAtIndex:i];
           cookieString=[cookie headerValue];
+          NSAssert(cookieString,@"No cookie HeaderValue");
           [strings addObject:cookieString];
         };
     };
@@ -660,6 +691,20 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
   LOGObjectFnStop();
 };
 
+-(void)_appendTagAttribute:(NSString*)attributeName
+                     value:(id)value
+escapingHTMLAttributeValue:(BOOL)escape
+{
+  [self appendContentCharacter:' '];
+  [self _appendContentAsciiString:attributeName];
+  [self _appendContentAsciiString:@"=\""];
+  if (escape)
+    [self _appendContentAsciiString:[[self class]stringByEscapingHTMLAttributeValue:value]];
+  else
+    [self _appendContentAsciiString:value];
+  [self appendContentCharacter:'"'];
+};
+
 @end
 
 //====================================================================
@@ -711,8 +756,6 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 //--------------------------------------------------------------------
 -(GSWResponse*)generateResponse
 {
-  //LOGObjectFnNotImplemented();	//TODOFN
-  //return nil;
   return self;
 };
 
@@ -813,23 +856,9 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
           [response setHTTPVersion:httpVersion];
         }
 
-      [response setStatus:302];
       locationURLString = [NSString stringWithFormat:@"%@/%@.gswa",
                                     [aRequest adaptorPrefix], 
                                     [aRequest applicationName]];
-      if (locationURLString) 
-          [response setHeader:locationURLString 
-                    forKey:@"location"];
-
-      [response setHeader:@"text/html" 
-                forKey:@"content-type"];
-      [response setHeader:@"YES"
-                forKey:@"x-gsweb-refusing-redirection"];
-      
-      if (aContext) 
-        {
-          [aContext _setResponse:response];
-        }
 
       message = [NSString stringWithFormat:@"Sorry, your request could not immediately be processed. Please try this URL: <a href=\"%@\">%@</a>\nConnection closed by foreign host.", 
                           locationURLString, 
@@ -837,15 +866,141 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 
       responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
                                message];
-      //[[response class]stringByEscapingHTMLString:message]];
-      [response appendContentString:responseString];
       
-      [response setHeader:[NSString stringWithFormat:@"%d",[[response content] length]] 
-                forKey:@"content-length"];      
+      [response _generateRedirectResponseWithMessage:responseString
+                location:locationURLString
+                isDefinitive:NO];
+      
+      if (aContext) 
+        {
+          [aContext _setResponse:response];
+        }
     };
   LOGClassFnStop();
   return response;
 };
 
 @end
+
+//====================================================================
+@implementation GSWResponse (GSWResponseRedirected)
+
+
+-(void)_generateRedirectResponseWithMessage:(NSString*)message
+                                   location:(NSString*)location
+                               isDefinitive:(BOOL)isDefinitive
+{
+  if (message)
+    {
+      [self appendContentString:message];
+      
+      [self setHeader:[NSString stringWithFormat:@"%d",[[self content] length]] 
+            forKey:@"content-length"];
+    };
+  if (isDefinitive)
+    [self setStatus:301]; // redirect definitive !
+  else
+    [self setStatus:302]; // redirect temporary !
+  [self setHeader:location
+        forKey:@"Location"];
+  [self setHeader:@"text/html" 
+        forKey:@"content-type"];
+  [self setHeader:@"YES"
+        forKey:@"x-gsweb-refusing-redirection"];
+}
+
+//--------------------------------------------------------------------
+//
+//Redirect Response
++(GSWResponse*)generateRedirectResponseWithMessage:(NSString*)message
+                                          location:(NSString*)location
+                                      isDefinitive:(BOOL)isDefinitive
+                                         inContext:(GSWContext*)aContext
+                                        forRequest:(GSWRequest*)aRequest
+{
+  GSWResponse* response=nil;
+  NSString* httpVersion=nil;
+  LOGClassFnStart();
+  response=[[self new]autorelease];
+  if (response)
+    {
+      if (aContext && [aContext request]) 
+        {
+          aRequest=[aContext request];
+        }
+      httpVersion=[aRequest httpVersion];
+      if (httpVersion) 
+        {
+          [response setHTTPVersion:httpVersion];
+        }
+
+      [response _generateRedirectResponseWithMessage:message
+                location:location
+                isDefinitive:isDefinitive];
+      
+      if (aContext)
+        {
+          [aContext _setResponse:response];
+        }
+    };
+  LOGClassFnStop();
+  return response;
+};
+
+//--------------------------------------------------------------------
+//
+//Redirect Response
++(GSWResponse*)generateRedirectResponseWithMessage:(NSString*)message
+                                          location:(NSString*)location
+                                      isDefinitive:(BOOL)isDefinitive
+{
+  GSWResponse* response=nil;
+  LOGClassFnStart();
+  response=[self generateRedirectResponseWithMessage:message
+                 location:location
+                 isDefinitive:isDefinitive
+                 inContext:nil
+                 forRequest:nil];
+  LOGClassFnStop();
+  return response;
+};
+
+//--------------------------------------------------------------------
++(GSWResponse*)generateRedirectDefaultResponseWithLocation:(NSString*)location
+                                              isDefinitive:(BOOL)isDefinitive
+                                                 inContext:(GSWContext*)aContext
+                                                forRequest:(GSWRequest*)aRequest
+{
+  NSString* message=nil;
+  GSWResponse* response=nil;
+  LOGClassFnStart();
+  message=[NSString stringWithFormat:@"This page has been moved%s to <a HREF=\"%@\">%@</a>",
+                    (isDefinitive ? "" : " temporarily"),
+                    location,
+                    location];
+  response=[self generateRedirectResponseWithMessage:message
+                 location:location
+                 isDefinitive:isDefinitive
+                 inContext:aContext
+                 forRequest:aRequest];
+  LOGClassFnStop();
+  return response;
+};
+
+//--------------------------------------------------------------------
++(GSWResponse*)generateRedirectDefaultResponseWithLocation:(NSString*)location
+                                              isDefinitive:(BOOL)isDefinitive
+{
+  GSWResponse* response=nil;
+  LOGClassFnStart();
+  response=[self generateRedirectDefaultResponseWithLocation:location
+                 isDefinitive:isDefinitive
+                 inContext:nil
+                 forRequest:nil];
+  LOGClassFnStop();
+  return response;
+};
+
+@end
+
 

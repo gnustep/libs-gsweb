@@ -1,6 +1,6 @@
 /** GSWResponse.h - <title>GSWeb: Class GSWResponse</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -59,6 +59,7 @@
 -(id)copyWithZone:(NSZone*)zone;
 -(NSData*)content;
 -(void)willSend;//NDFN
+-(void)forceFinalizeInContext;
 -(NSString*)headerForKey:(NSString*)key;
 -(NSArray*)headerKeys;
 -(NSArray*)headersForKey:(NSString*)key;
@@ -125,6 +126,9 @@
 -(void)_finalizeInContext:(GSWContext*)context;
 -(void)_initContentData;
 -(void)_appendContentAsciiString:(NSString*)string;
+-(void)_appendTagAttribute:(NSString*)attributeName
+                     value:(id)value
+escapingHTMLAttributeValue:(BOOL)escape;
 
 @end
 
@@ -183,6 +187,34 @@
 +(GSWResponse*)generateRefusingResponseInContext:(GSWContext*)context
                                       forRequest:(GSWRequest*)request;
 @end
+
+//====================================================================
+@interface GSWResponse (GSWResponseRedirected)
+
+-(void)_generateRedirectResponseWithMessage:(NSString*)message
+                                   location:(NSString*)location
+                               isDefinitive:(BOOL)isDefinitive;
+
++(GSWResponse*)generateRedirectResponseWithMessage:(NSString*)message
+                                          location:(NSString*)location
+                                      isDefinitive:(BOOL)isDefinitive
+                                         inContext:(GSWContext*)aContext
+                                        forRequest:(GSWRequest*)aRequest;
+
++(GSWResponse*)generateRedirectResponseWithMessage:(NSString*)message
+                                          location:(NSString*)location
+                                      isDefinitive:(BOOL)isDefinitive;
+
++(GSWResponse*)generateRedirectDefaultResponseWithLocation:(NSString*)location
+                                              isDefinitive:(BOOL)isDefinitive
+                                                 inContext:(GSWContext*)aContext
+                                                forRequest:(GSWRequest*)aRequest;
+
++(GSWResponse*)generateRedirectDefaultResponseWithLocation:(NSString*)location
+                                              isDefinitive:(BOOL)isDefinitive;
+@end
+
+
 
 
 #endif //_GSWResponse_h__

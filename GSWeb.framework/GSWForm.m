@@ -1,6 +1,6 @@
 /** GSWForm.m - <title>GSWeb: Class GSWForm</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -27,7 +27,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -105,6 +105,16 @@ static char rcsId[] = "$Id$";
                                     withDefaultObject:[_queryDictionary autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"GSWForm: queryDictionary=%@",_queryDictionary);
 
+  if ([tmpAssociations count]>0)
+    {
+      ASSIGN(_otherQueryAssociations,([tmpAssociations extractObjectsForKeysWithPrefix:@"?"
+                                                       removePrefix:YES]));
+      if ([_otherQueryAssociations count]==0)
+        DESTROY(_otherQueryAssociations);
+    };
+
+  NSDebugMLLog(@"gswdync",@"_otherQueryAssociations=%@",_otherQueryAssociations);
+
   if ((self=[super initWithName:aName
                    attributeAssociations:tmpAssociations
                    contentElements:elements]))
@@ -172,34 +182,53 @@ static char rcsId[] = "$Id$";
 -(void)_appendHiddenFieldsToResponse:(GSWResponse*)response
                            inContext:(GSWContext*)context
 {
-  //OK
-  NSDictionary* hiddenFields=nil;
-  GSWRequest* request=nil;
-  NSString* gswsid=nil;
+  NSDictionary* hiddenFields = nil;
+  LOGObjectFnStart();
 
-  hiddenFields=[self computeQueryDictionaryInContext:context];
-  if (hiddenFields)
+  hiddenFields = [self computeQueryDictionaryInContext:context];
+  if([hiddenFields count]>0)
     {
-      //TODO
+      NSEnumerator* enumerator=[hiddenFields keyEnumerator];
+      id key=nil;
+      while((key=[enumerator nextObject]))
+        {
+          id value=[hiddenFields objectForKey:key];
+          [response _appendContentAsciiString:@"<input type=hidden"];
+          [response _appendTagAttribute:@"name"
+                    value:key
+                    escapingHTMLAttributeValue:NO];//Don't escape name
+          [response _appendTagAttribute:@"value"
+                    value:value
+                    escapingHTMLAttributeValue:NO];//Don't escape value (should be escaped before !)
+        };
     };
-  request=[context request];
-  gswsid=[request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-  if (gswsid)
-    {
-      //TODO
-    };
-  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context
 {
-  //OK
-  //GSWComponent* component=[context component];
-  //GSWSession* session=[context existingSession];
-  //NSString* sessionID=[session sessionID];
-  LOGObjectFnNotImplemented();	//TODOFN
-  return [[NSDictionary new] autorelease];
+  NSDictionary* queryDictionary=nil;
+  LOGObjectFnStart();
+  queryDictionary=[self computeQueryDictionaryWithActionClassAssociation:_actionClass
+                        directActionNameAssociation:_directActionName
+                        queryDictionaryAssociation:_queryDictionary
+                        otherQueryAssociations:_otherQueryAssociations
+                        inContext:context];
+  LOGObjectFnStop();
+  return queryDictionary;
+};
+
+//--------------------------------------------------------------------
+-(NSString*)computeActionStringInContext:(GSWContext*)context
+{
+  NSString* actionString=nil;
+  LOGObjectFnStart();
+  actionString=[self computeActionStringWithActionClassAssociation:_actionClass
+                     directActionNameAssociation:_directActionName
+                     inContext:context];
+  LOGObjectFnStop();
+  return actionString;
 };
 
 //--------------------------------------------------------------------
@@ -259,7 +288,6 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   BOOL multipleSubmitValue=NO;
-  int i=0;
   LOGObjectFnStartC("GSWForm");
   GSWStartElement(context);
   senderID=[context senderID];
@@ -270,7 +298,6 @@ static char rcsId[] = "$Id$";
       GSWAssertCorrectElementID(context);// Debug Only
       if ([self prefixMatchSenderIDInContext:context]) //Avoid trying to find action if we are not the good component
         {
-          BOOL searchIsOver=NO;
           isFormSubmited=[elementID isEqualToString:senderID];
           NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ \n      id=%@ \nsenderId=%@ \nisFormSubmited=%s",
                        [self class],
@@ -312,18 +339,33 @@ static char rcsId[] = "$Id$";
               [context incrementLastElementIDComponent];
             };
 */
+
+          NSDebugMLLog(@"gswdync",@"isFormSubmited=%d",isFormSubmited);
+
           element=[super invokeActionForRequest:request
                          inContext:context];
+
+          NSDebugMLLog(@"gswdync",@"isFormSubmited=%d",isFormSubmited);
+          NSDebugMLLog(@"gswdync",@"[context _wasActionInvoked]=%d",[context _wasActionInvoked]);
+
           if (isFormSubmited)
             {
-              if ([context _wasActionInvoked])
-                [context _setIsMultipleSubmitForm:NO];
-              else
+              NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ \n      id=%@ \nsenderId=%@ \nmultipleSubmit=%s \n[context _wasActionInvoked]=%d",
+                           [self class],
+                           [self definitionName],
+                           elementID,                           
+                           senderID,
+                           (multipleSubmitValue ? "YES" : "NO"),
+                           [context _wasActionInvoked]);
+              if (_action && ![context _wasActionInvoked])
                 {
-                  NSDebugMLLog0(@"gswdync",@"formSubmitted but no action was invoked!");
+                  GSWComponent* component=[context component];
+                    element = (GSWElement*)[_action valueInComponent:component];
+                    [context _setActionInvoked:YES];
                 };
               [context setInForm:NO];
               [context _setFormSubmitted:NO];
+              [context _setIsMultipleSubmitForm:NO];
             };
           elementID=[context elementID];
           GSWStopElement(context);
@@ -367,7 +409,6 @@ static char rcsId[] = "$Id$";
   NSString* senderID=nil;
   NSString* elementID=nil;
   BOOL isFormSubmited=NO;
-  int i=0;
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
@@ -420,7 +461,6 @@ static char rcsId[] = "$Id$";
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
                                       inContext:(GSWContext*)context
 {
-  //OK//TODOV
   BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWForm");
   if (!WOStrictFlag)
@@ -431,17 +471,26 @@ static char rcsId[] = "$Id$";
   if (!disabledInContext)
     {
       GSWComponent* component=[context component];
-      id actionValue=nil;
       if (_href)
-        actionValue=[_href valueInComponent:component];
+        {
+          id actionValue=[_href valueInComponent:component];
+          //TODO emit a warning !
+          [response _appendTagAttribute:@"action"
+                    value:actionValue
+                    escapingHTMLAttributeValue:NO];
+        }
+      else if (_directActionName || _actionClass)
+        {
+          [self _appendCGIActionToResponse:response
+                inContext:context];
+        }
       else
-        actionValue=[context componentActionURL];
-      [response appendContentCharacter:' '];
-      [response _appendContentAsciiString:@"action"];
-      [response appendContentCharacter:'='];
-      [response appendContentCharacter:'"'];
-      [response appendContentString:actionValue];
-      [response appendContentCharacter:'"'];
+        {
+          id actionValue=[context componentActionURL];
+          [response _appendTagAttribute:@"action"
+                    value:actionValue
+                    escapingHTMLAttributeValue:NO];
+        };
     };
   LOGObjectFnStopC("GSWForm");
 };
@@ -450,7 +499,23 @@ static char rcsId[] = "$Id$";
 -(void)_appendCGIActionToResponse:(GSWResponse*)response
                         inContext:(GSWContext*)context
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  NSString* actionString=nil;
+  NSString* anUrl=nil;
+  LOGObjectFnStartC("GSWForm");
+
+  actionString=[self computeActionStringInContext:context];
+  NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);
+
+  anUrl=(NSString*)[context directActionURLForActionNamed:actionString
+                            queryDictionary:nil
+                            isSecure:NO];
+  NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
+
+  [response _appendTagAttribute:@"action"
+            value:anUrl
+            escapingHTMLAttributeValue:NO];
+
+  LOGObjectFnStopC("GSWForm");
 };
 
 @end

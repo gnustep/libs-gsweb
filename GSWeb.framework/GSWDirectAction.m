@@ -1,12 +1,13 @@
 /** GSWDirectAction.m - <title>GSWeb: Class GSWDirectAction</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -259,21 +260,34 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+-(NSString*)sessionIDForRequest:(GSWRequest*)aRequest
+{
+  NSString* sessionID = nil;
+  NSDebugMLog(@"aRequest=%@",aRequest);
+  if(aRequest)
+    sessionID = [aRequest sessionIDFromValuesOrCookieByLookingForCookieFirst:NO];
+  NSDebugMLog(@"sessionID=%@",sessionID);
+  return sessionID;
+}
+
+//--------------------------------------------------------------------
 -(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext
 {
-  //OK
   GSWRequest* request=nil;
-  NSString* gswsid=nil;
+  NSString* sessionID=nil;
   LOGObjectFnStart();
   request=[aContext request];
-  gswsid=[request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-  if (!gswsid)
+  NSDebugMLog(@"request=%@",request);
+  sessionID=[request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+  NSDebugMLog(@"sessionID=%@",sessionID);
+  if (!sessionID)
     {
-      gswsid=[request cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+      sessionID=[request cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+      NSDebugMLog(@"sessionID=%@",sessionID);
     };
-  if (gswsid)
+  if (sessionID)
     {
-      //TODO
+      [aContext _setRequestSessionID:sessionID];
     };
   LOGObjectFnStop();
 };

@@ -1,12 +1,13 @@
 /** GSWHTMLURLValuedElement.m - <title>GSWeb: Class GSWHTMLURLValuedElement</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,9 +28,10 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
+#include <gscrypt/GSMD5.h>
 
 //====================================================================
 @implementation GSWHTMLURLValuedElement
@@ -48,47 +50,47 @@ static char rcsId[] = "$Id$";
 
   associations=[NSMutableDictionary dictionaryWithDictionary:inAssociations];
 
-  _src = [[inAssociations objectForKey:src__Key
+  _src = [[associations objectForKey:src__Key
                           withDefaultObject:[_src autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"src=%@",_src);
 
-  _value = [[inAssociations objectForKey:value__Key
+  _value = [[associations objectForKey:value__Key
                             withDefaultObject:[_value autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"value=%@",_value);
 
-  _pageName = [[inAssociations objectForKey:pageName__Key
+  _pageName = [[associations objectForKey:pageName__Key
                                withDefaultObject:[_pageName autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"pageName=%@",_pageName);
 
-  _filename = [[inAssociations objectForKey:filename__Key
+  _filename = [[associations objectForKey:filename__Key
                                withDefaultObject:[_filename autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
 
-  _framework = [[inAssociations objectForKey:framework__Key
+  _framework = [[associations objectForKey:framework__Key
                                 withDefaultObject:[_framework autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"framework=%@",_framework);
 
-  _data = [[inAssociations objectForKey:data__Key
+  _data = [[associations objectForKey:data__Key
                            withDefaultObject:[_data autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"data=%@",_data);
 
-  _mimeType = [[inAssociations objectForKey:mimeType__Key
+  _mimeType = [[associations objectForKey:mimeType__Key
                                withDefaultObject:[_mimeType autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"mimeType=%@",_mimeType);
 
-  _key = [[inAssociations objectForKey:key__Key
+  _key = [[associations objectForKey:key__Key
                           withDefaultObject:[_key autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"key=%@",_key);
 
-  _actionClass = [[inAssociations objectForKey:actionClass__Key
+  _actionClass = [[associations objectForKey:actionClass__Key
                                   withDefaultObject:[_actionClass autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"actionClass=%@",_actionClass);
 
-  _directActionName = [[inAssociations objectForKey:directActionName__Key
+  _directActionName = [[associations objectForKey:directActionName__Key
                                        withDefaultObject:[_directActionName autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"directActionName=%@",_directActionName);
 
-  _queryDictionary = [[inAssociations objectForKey:queryDictionary__Key
+  _queryDictionary = [[associations objectForKey:queryDictionary__Key
                                       withDefaultObject:[_queryDictionary autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",_queryDictionary);
 
@@ -106,17 +108,38 @@ static char rcsId[] = "$Id$";
   if (!WOStrictFlag)
     {
   //pageSetVarAssociations//GNUstepWeb only      
-      NSDictionary* pageSetVarAssociations=[inAssociations associationsWithoutPrefix:pageSetVar__Prefix__Key
+      NSDictionary* pageSetVarAssociations=[associations associationsWithoutPrefix:pageSetVar__Prefix__Key
                                                            removeFrom:associations];
 	if ([pageSetVarAssociations count]>0)
           {
             ASSIGN(_pageSetVarAssociations,pageSetVarAssociations);
           };
-	_pageSetVarAssociationsDynamic=[[inAssociations objectForKey:pageSetVars__Key
+	_pageSetVarAssociationsDynamic=[[associations objectForKey:pageSetVars__Key
                                                         withDefaultObject:[_pageSetVarAssociationsDynamic autorelease]] retain];
 	NSDebugMLLog(@"gswdync",@"_pageSetVarAssociationsDynamic=%@",_pageSetVarAssociationsDynamic);
+
+        _cidStore = [[associations objectForKey:cidStore__Key
+                                   withDefaultObject:[_cidStore autorelease]] retain];
+        NSDebugMLLog(@"gswdync",@"cidStore=%@",_cidStore);
+  
+        _cidKey = [[associations objectForKey:cidKey__Key
+                                 withDefaultObject:[_cidKey autorelease]] retain];
+        NSDebugMLLog(@"gswdync",@"cidKey=%@",_cidKey);
+  
+
 	[associations removeObjectForKey:pageSetVars__Key];
+	[associations removeObjectForKey:cidStore__Key];
+	[associations removeObjectForKey:cidKey__Key];
     };
+
+  if ([associations count]>0)
+    {
+      ASSIGN(_otherQueryAssociations,([associations extractObjectsForKeysWithPrefix:@"?"
+                                                    removePrefix:YES]));
+      if ([_otherQueryAssociations count]==0)
+        DESTROY(_otherQueryAssociations);
+    };
+
   if ((self=[super initWithName:[self elementName]//NEW
                    attributeAssociations:associations
                    contentElements:elements]))
@@ -143,6 +166,8 @@ static char rcsId[] = "$Id$";
   DESTROY(_directActionName);
   DESTROY(_queryDictionary);
   DESTROY(_otherQueryAssociations);
+  DESTROY(_cidStore);//GSWeb only
+  DESTROY(_cidKey);//GSWeb only
   [super dealloc];
 }
 
@@ -262,25 +287,59 @@ static char rcsId[] = "$Id$";
   NSString* keyValue=nil;
   id data=nil;
   id mimeTypeValue=nil;
+  id cidStoreValue=nil;
   GSWURLValuedElementData* dataValue=nil;
   GSWResourceManager* resourceManager=nil;
-  LOGObjectFnStartC("GSWHTMLURLValuedElement");
+
+  LOGObjectFnStartC("GSWHTMLURLValuedElement");  
+NS_DURING
+  {
   NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
   component=[aContext component];
   NSDebugMLLog(@"gswdync",@"data=%@",_data);
   NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
   NSDebugMLLog(@"gswdync",@"pageName=%@",_pageName);
+
+  cidStoreValue=[_cidStore valueInComponent:component];
+  NSDebugMLLog(@"gswdync",@"cidStoreValue=%@",cidStoreValue);
+
   resourceManager=[[GSWApplication application]resourceManager];
+
   if (_src)
-    url=[_src valueInComponent:component];
+    {
+      url=[_src valueInComponent:component];      
+      NSDebugMLLog(@"gswdync",@"url=%@",url);
+      if (cidStoreValue)
+        {
+          url=[self addURL:url
+                    forCIDStore:_cidStore
+                    inContext:aContext];
+          NSDebugMLLog(@"gswdync",@"url=%@",url);
+        };
+    }
+  else if (_actionClass || _directActionName)
+    {
+      url=(NSString*)[aContext componentActionURL];
+      NSDebugMLLog(@"gswdync",@"url=%@",url);
+      if (cidStoreValue)
+        {
+          url=[self addURL:url
+                    forCIDStore:_cidStore
+                    inContext:aContext];
+          NSDebugMLLog(@"gswdync",@"url=%@",url);
+        };
+    }
   else
     {
+      BOOL processed=NO;
       if (_key)
         {
           keyValue=[_key valueInComponent:component];
+          NSDebugMLLog(@"gswdync",@"keyValue=%@",keyValue);
           dataValue=[resourceManager _cachedDataForKey:keyValue];
+          NSDebugMLLog(@"gswdync",@"dataValue=%@",dataValue);
         };
-      if (!dataValue && _data)
+      if (_data && !dataValue)
         {
           data=[_data valueInComponent:component];  
           NSDebugMLLog(@"gswdync",@"_data=%@",data);
@@ -292,8 +351,16 @@ static char rcsId[] = "$Id$";
                                                       key:nil] autorelease];
           NSDebugMLLog(@"gswdync",@"dataValue=%@",dataValue);
           [resourceManager setURLValuedElementData:dataValue];
+          processed=YES;
         }
-      else if (_filename)
+      if (cidStoreValue && dataValue)
+        {
+          url=[self addURLValuedElementData:dataValue
+                    forCIDStore:_cidStore
+                    inContext:aContext];
+          NSDebugMLLog(@"gswdync",@"url=%@",url);
+        }
+      if (!processed && _filename)
         {
           //Exemple: Body with filename
           id filenameValue=nil;
@@ -307,10 +374,24 @@ static char rcsId[] = "$Id$";
           NSDebugMLLog(@"gswdync",@"frameworkValue=%@",frameworkValue);
           request=[aContext request];
           languages=[aContext languages];
-          url=[resourceManager urlForResourceNamed:filenameValue
-                               inFramework:frameworkValue
-                               languages:languages
-                               request:request];
+          if (cidStoreValue)
+            {
+              NSString* path=[resourceManager pathForResourceNamed:filenameValue
+                                              inFramework:frameworkValue
+                                              languages:languages];
+              url=[self addPath:path
+                        forCIDStore:_cidStore
+                        inContext:aContext];
+              NSDebugMLLog(@"gswdync",@"url=%@",url);
+            }
+          else
+            {
+              url=[resourceManager urlForResourceNamed:filenameValue
+                                   inFramework:frameworkValue
+                                   languages:languages
+                                   request:request];
+              NSDebugMLLog(@"gswdync",@"url=%@",url);
+            };
         };
     };
   [aResponse appendContentCharacter:' '];
@@ -324,28 +405,40 @@ static char rcsId[] = "$Id$";
     {
       [aResponse appendContentString:url];
     }
+  else if (_actionClass || _directActionName)
+    {
+      [aResponse appendContentString:url];
+    }
   else
     {	
       if (_key || _data)
         {
-          [dataValue appendDataURLToResponse:aResponse
-                     inContext:aContext];
+          if (cidStoreValue)
+            [aResponse appendContentString:url];
+          else
+            [dataValue appendDataURLToResponse:aResponse
+                       inContext:aContext];
         }
       else if (_filename)
         {
           NSDebugMLLog(@"gswdync",@"url = %@",url);
           [aResponse appendContentString:url];
-        }
-      else
-        {
-          GSWDynamicURLString* componentActionURL=[aContext componentActionURL];
-          NSDebugMLLog(@"gswdync",@"componentActionURL=%@",componentActionURL);
-          [aResponse appendContentString:(NSString*)componentActionURL];
         };
     };
   if (urlAttributeName)
     [aResponse appendContentCharacter:'"'];
   NSDebugMLLog(@"gswdync",@"_elementID=%@",[aContext elementID]);
+    }
+  NS_HANDLER
+    {
+      LOGException0(@"exception in GSWHTMLURLValuedElement appendToResponse:inContext");
+      LOGException(@"exception=%@",localException);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"In GSWHTMLURLValuedElement appendToResponse:inContext");
+      LOGException(@"exception=%@",localException);
+      [localException raise];
+    }
+  NS_ENDHANDLER;
   LOGObjectFnStopC("GSWHTMLURLValuedElement");
 };
 
@@ -364,21 +457,51 @@ static char rcsId[] = "$Id$";
 -(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
                            inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  //OK
+  NSString* actionString=nil;
+  NSDictionary* queryDictionary=nil;
+  NSString* anUrl=nil;
+  LOGObjectFnStart();
+
+  actionString=[self computeActionStringInContext:aContext];
+  NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);
+
+  queryDictionary=[self computeQueryDictionaryInContext:aContext];
+  NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);
+
+  anUrl=(NSString*)[aContext directActionURLForActionNamed:actionString
+                             queryDictionary:queryDictionary];
+  NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
+
+  [aResponse appendContentString:anUrl];
+
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(id)computeActionStringInContext:(GSWContext*)aContext
+-(NSString*)computeActionStringInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  NSString* actionString=nil;
+  LOGObjectFnStart();
+  actionString=[self computeActionStringWithActionClassAssociation:_actionClass
+                     directActionNameAssociation:_directActionName
+                     inContext:aContext];
+  LOGObjectFnStop();
+  return actionString;
 };
 
 //--------------------------------------------------------------------
--(id)computeQueryDictionaryInContext:(GSWContext*)aContext
+-(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  NSDictionary* queryDictionary=nil;
+  LOGObjectFnStart();
+  queryDictionary=[self computeQueryDictionaryWithActionClassAssociation:_actionClass
+                        directActionNameAssociation:_directActionName
+                        queryDictionaryAssociation:_queryDictionary
+                        otherQueryAssociations:_otherQueryAssociations
+                        inContext:aContext];
+  LOGObjectFnStop();
+  return queryDictionary;
 };
 
 //--------------------------------------------------------------------
@@ -394,4 +517,140 @@ static char rcsId[] = "$Id$";
     frameworkName=[component frameworkName];
   return frameworkName;
 };
+@end
+
+//====================================================================
+@implementation GSWHTMLURLValuedElement (GSWHTMLURLValuedElementCID)
+
+
+-(NSString*)addCIDElement:(NSDictionary*)cidElement
+                   forKey:(NSString*)cidKeyValue
+                forCIDStore:(GSWAssociation*)cidStore
+                inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  NSDebugMLog(@"cidElement=%@",cidElement);
+  NSDebugMLog(@"cidKeyValue=%@",cidKeyValue);
+  NSDebugMLog(@"cidStore=%@",cidStore);
+  if (cidElement && cidStore)
+    {
+      id cidObject=nil;
+      GSWComponent* component=[aContext component];
+      cidObject=[_cidStore valueInComponent:component];
+      NSDebugMLog(@"cidObject=%@",cidObject);
+/*      if (!cidObject)
+        {
+          cidObject=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+          [_cidStore setValue:cidObject
+                   inComponent:component];
+        };
+*/
+      if (cidObject)
+        {
+          if (![cidObject valueForKey:cidKeyValue])
+            [cidObject takeValue:cidElement
+                       forKey:cidKeyValue];
+          newURL=[NSString stringWithFormat:@"cid:%@",
+                           cidKeyValue];
+        };
+      NSDebugMLog(@"newURL=%@",newURL);
+    };
+  LOGObjectFnStop();
+  return newURL;
+};
+
+//--------------------------------------------------------------------
+-(NSString*)addURL:(NSString*)url
+         forCIDStore:(GSWAssociation*)cidStore
+         inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  if (url && cidStore)
+    {
+      NSString* cidKeyValue=nil;
+      GSWComponent* component=[aContext component];
+      cidKeyValue=(NSString*)[_cidKey valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
+      if (!cidKeyValue)
+        {
+          // We calculate cidKeyValue by computing md5 on path
+          // so there will be no duplicate elements with different keys
+          cidKeyValue=DataToHexString([GSMD5 digestOfString:url
+                                             usingEncoding:NSISOLatin1StringEncoding]);
+        };
+      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:url
+                                               forKey:@"url"]
+                   forKey:cidKeyValue
+                   forCIDStore:cidStore
+                   inContext:aContext];
+    }
+  LOGObjectFnStop();
+  return newURL;
+};
+
+
+//--------------------------------------------------------------------
+-(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
+                        forCIDStore:(GSWAssociation*)cidStore
+                          inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  if (data && cidStore)
+    {
+      NSString* cidKeyValue=nil;
+      GSWComponent* component=[aContext component];
+      cidKeyValue=(NSString*)[_cidKey valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
+      if (!cidKeyValue)
+        {
+          // We calculate cidKeyValue by computing md5 on path
+          // so there will be no duplicate elements with different keys
+          //NSString* cidKeyValue=DataToHexString([GSMD5 digestOfData:data]);
+          cidKeyValue=[data key];
+        };
+      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:data
+                                               forKey:@"data"]
+                   forKey:cidKeyValue
+                   forCIDStore:cidStore
+                   inContext:aContext];
+    }
+  LOGObjectFnStop();
+  return newURL;
+};
+
+
+//--------------------------------------------------------------------
+-(NSString*)addPath:(NSString*)path
+        forCIDStore:(GSWAssociation*)cidStore
+          inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  if (path && cidStore)
+    {
+      NSString* cidKeyValue=nil;
+      GSWComponent* component=[aContext component];
+      cidKeyValue=(NSString*)[_cidKey valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
+      if (!cidKeyValue)
+        {
+          // We calculate cidKeyValue by computing md5 on path
+          // so there will be no duplicate elements with different keys
+          cidKeyValue=DataToHexString([GSMD5 digestOfString:path
+                                             usingEncoding:NSISOLatin1StringEncoding]);
+        };
+
+      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:path
+                                               forKey:@"filePath"]
+                   forKey:cidKeyValue
+                   forCIDStore:cidStore
+                   inContext:aContext];
+    }
+  LOGObjectFnStop();
+  return newURL;
+};
+
 @end

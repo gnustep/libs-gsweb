@@ -111,4 +111,15 @@ attributeAssociations:(NSDictionary*)attributeAssociations
 +(BOOL)hasGSWebObjectsAssociations;
 @end
 
+//====================================================================
+@interface GSWHTMLDynamicElement (GSWHTMLDynamicElementD)
+-(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
+                              directActionNameAssociation:(GSWAssociation*)directActionName
+                                                inContext:(GSWContext*)context;
+-(NSDictionary*)computeQueryDictionaryWithActionClassAssociation:(GSWAssociation*)actionClass
+                                     directActionNameAssociation:(GSWAssociation*)directActionName
+                                      queryDictionaryAssociation:(GSWAssociation*)queryDictionary
+                                          otherQueryAssociations:(NSDictionary*)otherQueryAssociations
+                                                       inContext:(GSWContext*)context;
+@end
 #endif

@@ -1,6 +1,6 @@
 /** GSWApplication.m - <title>GSWeb: Class GSWApplication</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:  Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -27,6 +27,8 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
+
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
 #if GDL2 // GDL2 implementation
@@ -398,6 +400,8 @@ int GSWApplicationMainReal(NSString* applicationClassName,
         ASSIGNCOPY(globalApplicationClassName,applicationClassName);
       GSWApplicationDebugSetChange();
       applicationClass=[GSWApplication _applicationClass];
+      NSDebugFLog(@"=======");
+      NSDebugFLog(@"applicationClass: %@",applicationClass);
       if (!applicationClass)
         {
           NSCAssert(NO,@"!applicationClass");
@@ -500,15 +504,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 //====================================================================
 @implementation GSWApplication
-
-//--------------------------------------------------------------------
-+(void)initialize
-{
-  if (self==[GSWApplication class])
-    {
-      //Moved In GSWApplicationMainReal
-    };
-};
 
 //--------------------------------------------------------------------
 - (void)_setPool:(NSAutoreleasePool *)pool
@@ -2641,12 +2636,29 @@ selfLockn,
   GSWRequest* request=nil;
   GSWSession* session=nil;
   LOGObjectFnStart();
-  request=[aContext request];
-  session=[aContext existingSession];
-  [session appendToResponse:aResponse
-           inContext:aContext];
-  //call request headerForKey:@"x-gsweb-recording"
-  //call applic recordingPath
+  NS_DURING
+    {
+      request=[aContext request];
+      NSDebugMLog(@"request=%p",request);
+      session=[aContext existingSession];
+      NSDebugMLog(@"session=%p",session);
+      [session appendToResponse:aResponse
+               inContext:aContext];
+      //call request headerForKey:@"x-gsweb-recording"
+      //call applic recordingPath
+    }
+  NS_HANDLER
+    {
+      LOGException(@"exception in %@ appendToResponse:inContext",
+                   [self class]);
+      LOGException(@"exception=%@",localException);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"In %@ appendToResponse:inContext",
+                                                              [self class]);
+      LOGException(@"exception=%@",localException);
+      [localException raise];
+    }
+  NS_ENDHANDLER;
   LOGObjectFnStop();
 };
 

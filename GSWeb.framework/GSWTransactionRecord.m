@@ -1,6 +1,6 @@
 /** GSWTransactionRecord.m - <title>GSWeb: Class GSWTransactionRecord</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        Apr 1999
@@ -27,7 +27,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -46,7 +46,7 @@ static char rcsId[] = "$Id$";
       NSString* requestSignature=nil;
       [self setResponsePage:aResponsePage];
       NSDebugMLLog(@"low",@"responsePage=%@",_responsePage);
-      contextID=[aContext contextID];//Really from here ?
+      contextID=[aContext contextID];//Really from here ? Use aContext _requestContextID instead ? //TODO
       NSDebugMLLog(@"low",@"contextID=%@",contextID);
       senderID=[aContext senderID];
       NSDebugMLLog(@"low",@"senderID=%@",senderID);

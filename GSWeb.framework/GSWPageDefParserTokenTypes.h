@@ -2,7 +2,7 @@
 #define INC_GSWPageDefParserTokenTypes_h_
 
 /*
- * ANTLR-generated file resulting from grammar PageDef.g
+ * ANTLR-generated file resulting from grammar /tmp/PageDef.g
  * 
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
@@ -25,23 +25,24 @@ enum GSWPageDefParserTokenTypes {
 	GSWPageDefParserTokenType_RCURLY = 10,
 	GSWPageDefParserTokenType_SEMI = 11,
 	GSWPageDefParserTokenType_ASSIGN = 12,
-	GSWPageDefParserTokenType_INT = 13,
-	GSWPageDefParserTokenType_YES = 14,
-	GSWPageDefParserTokenType_NO = 15,
-	GSWPageDefParserTokenType_HEXNUM = 16,
-	GSWPageDefParserTokenType_CIRC = 17,
-	GSWPageDefParserTokenType_TILDE = 18,
-	GSWPageDefParserTokenType_IDENTREF = 19,
-	GSWPageDefParserTokenType_PIDENT = 20,
-	GSWPageDefParserTokenType_PIDENTREF = 21,
-	GSWPageDefParserTokenType_SL_COMMENT = 22,
-	GSWPageDefParserTokenType_ML_COMMENT = 23,
-	GSWPageDefParserTokenType_POINT = 24,
-	GSWPageDefParserTokenType_ESC = 25,
-	GSWPageDefParserTokenType_HEXINT = 26,
-	GSWPageDefParserTokenType_DIGIT = 27,
-	GSWPageDefParserTokenType_HEXDIGIT = 28,
-	GSWPageDefParserTokenType_LCLETTER = 29,
-	GSWPageDefParserTokenType_LETTER = 30,
+	GSWPageDefParserTokenType_QUESTIONMARK = 13,
+	GSWPageDefParserTokenType_INT = 14,
+	GSWPageDefParserTokenType_YES = 15,
+	GSWPageDefParserTokenType_NO = 16,
+	GSWPageDefParserTokenType_HEXNUM = 17,
+	GSWPageDefParserTokenType_CIRC = 18,
+	GSWPageDefParserTokenType_TILDE = 19,
+	GSWPageDefParserTokenType_IDENTREF = 20,
+	GSWPageDefParserTokenType_PIDENT = 21,
+	GSWPageDefParserTokenType_PIDENTREF = 22,
+	GSWPageDefParserTokenType_SL_COMMENT = 23,
+	GSWPageDefParserTokenType_ML_COMMENT = 24,
+	GSWPageDefParserTokenType_POINT = 25,
+	GSWPageDefParserTokenType_ESC = 26,
+	GSWPageDefParserTokenType_HEXINT = 27,
+	GSWPageDefParserTokenType_DIGIT = 28,
+	GSWPageDefParserTokenType_HEXDIGIT = 29,
+	GSWPageDefParserTokenType_LCLETTER = 30,
+	GSWPageDefParserTokenType_LETTER = 31,
 };
 #endif /*INC_GSWPageDefParserTokenTypes_h_*/

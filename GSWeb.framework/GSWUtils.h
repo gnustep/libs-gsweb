@@ -1,6 +1,6 @@
 /** GSWUtils.m - <title>GSWeb: Utilities</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -234,11 +234,11 @@ extern NSData* HexStringToData(NSString* _string);
 @interface NSDictionary (SBDictionary)
 -(id)		objectForKey:(id)key
 	   withDefaultObject:(id)defaultObject;
-+(id)	dictionaryWithDictionary:(NSDictionary*)dictionary
- andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults;
--(id)dictionaryBySettingObject:(id)object
-                        forKey:(id)key;
--(id)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary;
++(NSDictionary*)dictionaryWithDictionary:(NSDictionary*)dictionary
+         andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults;
+-(NSDictionary*)dictionaryBySettingObject:(id)object
+                                   forKey:(id)key;
+-(NSDictionary*)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary;
 @end
 
 //====================================================================
@@ -246,6 +246,8 @@ extern NSData* HexStringToData(NSString* _string);
 -(void)setDefaultObject:(id)object
                  forKey:(id)key;
 -(void)addDefaultEntriesFromDictionary:(NSDictionary*)dictionary;
+-(NSDictionary*)extractObjectsForKeysWithPrefix:(NSString*)prefix
+                                   removePrefix:(BOOL)removePrefix;
 @end
 
 //====================================================================

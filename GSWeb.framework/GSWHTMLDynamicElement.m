@@ -1,12 +1,13 @@
 /** GSWHTMLDynamicElement.m - <title>GSWeb: Class GSWHTMLDynamicElement</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -29,7 +30,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -111,7 +112,11 @@ attributeAssociations:(NSDictionary*)attributeAssociations
               [htmlBareStrings addObject:[NSString stringWithString:@"="]];
               [elementsMap appendBytes:&ElementsMap_htmlBareString
                            length:1];
-              [htmlBareStrings addObject:[NSString stringWithFormat:@"%@",associationValue]];
+              associationValue=[NSString stringWithFormat:@"%@",associationValue];
+              // Parser remove "";
+              if ([associationValue hasPrefix:@"\""])
+                associationValue=[NSString stringWithFormat:@"\"%@\"",associationValue];
+              [htmlBareStrings addObject:associationValue];
               [elementsMap appendBytes:&ElementsMap_htmlBareString
                            length:1];
             }
@@ -738,3 +743,128 @@ attributeAssociations:(NSDictionary*)attributeAssociations
 @end
 
 
+//====================================================================
+//@implementation GSWHTMLDynamicElement (GSWHTMLDynamicElementD)
+// move it to GSWHTMLDynamicElement later !!!!
+
+@implementation GSWDynamicElement (GSWHTMLDynamicElementD)
+//--------------------------------------------------------------------
+-(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
+                              directActionNameAssociation:(GSWAssociation*)directActionName
+                                                inContext:(GSWContext*)context
+{
+  //OK
+  GSWComponent* component=nil;
+  id tmpDirectActionString=nil;
+  id directActionNameValue=nil;
+  id actionClassValue=nil;
+  LOGObjectFnStart();
+  component=[context component];
+  if (directActionName)
+    directActionNameValue=[directActionName valueInComponent:component];
+  if (actionClass)
+    actionClassValue=[actionClass valueInComponent:component];
+
+  if (actionClassValue)
+    {
+      if (directActionNameValue)
+        tmpDirectActionString=[NSString stringWithFormat:@"%@/%@",
+                                        actionClassValue,
+                                        directActionNameValue];
+      else
+        tmpDirectActionString=actionClassValue;
+    }
+  else if (directActionNameValue)
+    tmpDirectActionString=directActionNameValue;
+  else
+    {
+      LOGSeriousError(@"No actionClass (for %@) and no directActionName (for %@)",
+                      actionClass,
+                      directActionName);
+    };
+
+  NSDebugMLLog(@"gswdync",@"tmpDirectActionString=%@",tmpDirectActionString);
+  LOGObjectFnStop();
+  return tmpDirectActionString;
+};
+
+//--------------------------------------------------------------------
+-(NSDictionary*)computeQueryDictionaryWithActionClassAssociation:(GSWAssociation*)actionClass
+                                     directActionNameAssociation:(GSWAssociation*)directActionName
+                                      queryDictionaryAssociation:(GSWAssociation*)queryDictionary
+                                          otherQueryAssociations:(NSDictionary*)otherQueryAssociations
+                                                       inContext:(GSWContext*)context
+{
+  //OK
+  NSMutableDictionary* finalQueryDictionary=nil;
+  GSWComponent* component=nil;
+  GSWSession* session=nil;
+  NSString* sessionID=nil;
+  LOGObjectFnStart();
+
+  NSDebugMLLog(@"gswdync",@"actionClass=%@",actionClass);
+  NSDebugMLLog(@"gswdync",@"directActionName=%@",directActionName);
+  NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);
+  NSDebugMLLog(@"gswdync",@"otherQueryAssociations=%@",otherQueryAssociations);
+
+  component=[context component];
+  session=[context existingSession];
+  NSDebugMLog(@"session=%@",session);
+  
+  if (queryDictionary)
+    {
+      NSDictionary* queryDictionaryValue=[queryDictionary valueInComponent:component];
+      if (queryDictionaryValue)
+        {
+          if ([queryDictionaryValue isKindOfClass:[NSMutableDictionary class]])
+            finalQueryDictionary=(NSMutableDictionary*)queryDictionaryValue;
+          else
+            {
+              NSAssert3([queryDictionaryValue isKindOfClass:[NSDictionary class]],
+                        @"queryDictionary value is not a dictionary but a %@. association was: %@. queryDictionaryValue is:",
+                        [queryDictionaryValue class],
+                        queryDictionary,
+                        queryDictionaryValue);
+              finalQueryDictionary=[[queryDictionaryValue mutableCopy] autorelease];
+            };
+        };
+    };
+  if (!finalQueryDictionary)
+    finalQueryDictionary=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+
+  if (session)
+    sessionID=[session sessionID];
+  NSDebugMLog(@"sessionID=%@",sessionID);
+/*
+in GSWHyperlink, it was
+       if (!_action && !_pageName
+          && (WOStrictFlag || (!WOStrictFlag && !_redirectURL))) //??
+*/
+  if(sessionID
+     && (directActionName || actionClass) 
+     && (!session || ![session storesIDsInCookies] || [session storesIDsInURLs]))
+    [finalQueryDictionary setObject:sessionID
+                          forKey:GSWKey_SessionID[GSWebNamingConv]];
+
+  if (otherQueryAssociations)
+    {
+      NSEnumerator *enumerator = [otherQueryAssociations keyEnumerator];
+      id associationKey=nil;
+      while ((associationKey = [enumerator nextObject]))
+        {
+          id association = [otherQueryAssociations valueForKey:associationKey];
+          id associationValue=[association valueInComponent:component];
+          NSDebugMLLog(@"gswdync",@"associationKey=%@",associationKey);
+          NSDebugMLLog(@"gswdync",@"association=%@",association);
+          NSDebugMLLog(@"gswdync",@"associationValue=%@",associationValue);
+          if (!associationValue)
+            associationValue=[NSString string];
+          [finalQueryDictionary setObject:associationValue
+                                forKey:associationKey];
+        };
+    };
+
+  LOGObjectFnStop();
+  return finalQueryDictionary;
+};
+@end

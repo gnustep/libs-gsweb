@@ -1,6 +1,6 @@
-/** GSWSessionStore.m - <title>GSWeb: Class GSWSessionStore</title>
+/** GSWSessionStore.h - <title>GSWeb: Class GSWSessionStore</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -37,6 +37,7 @@
 {
   NSMutableSet* _usedIDs;
   NSRecursiveLock* _lock;
+  GSWSessionTimeOutManager* _timeOutManager;
 #ifndef NDEBUG
   int _lockn;
 #endif
@@ -46,6 +47,7 @@
 -(void)dealloc;
 -(id)init;
 
+-(GSWSession*)removeSessionWithID:(NSString*)aSessionID;
 -(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
                            request:(GSWRequest*)aRequest;
 -(void)saveSessionForContext:(GSWContext*)aContext;
@@ -63,12 +65,12 @@
 -(void)lock;
 
 @end
-/*
+
 //====================================================================
 @interface GSWSessionStore (GSWSessionStoreCreation)
 +(GSWSessionStore*)serverSessionStore;
 @end
-
+/*
 //====================================================================
 @interface GSWSessionStore (GSWSessionStoreOldFn)
 +(GSWSessionStore*)cookieSessionStoreWithDistributionDomain:(NSString*)aDomain

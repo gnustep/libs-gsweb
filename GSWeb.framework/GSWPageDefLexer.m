@@ -1,5 +1,5 @@
 /*
- * ANTLR-generated file resulting from grammar PageDef.g
+ * ANTLR-generated file resulting from grammar /tmp/PageDef.g
  * 
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
@@ -67,6 +67,14 @@
 				_rettoken=_returnToken;
 				break;
 			}
+			case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+			case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+			case ((unichar)('8')):  case ((unichar)('9')):
+			{
+				[self mINTWithCreateToken:YES];
+				_rettoken=_returnToken;
+				break;
+			}
 			case ((unichar)('{')):
 			{
 				[self mLCURLYWithCreateToken:YES];
@@ -109,17 +117,15 @@
 				_rettoken=_returnToken;
 				break;
 			}
-			case ((unichar)('\t')):  case ((unichar)('\n')):  case ((unichar)('\r')):  case ((unichar)(' ')):
+			case ((unichar)('?')):
 			{
-				[self mWSWithCreateToken:YES];
+				[self mQUESTIONMARKWithCreateToken:YES];
 				_rettoken=_returnToken;
 				break;
 			}
-			case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
-			case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
-			case ((unichar)('8')):  case ((unichar)('9')):
+			case ((unichar)('\t')):  case ((unichar)('\n')):  case ((unichar)('\r')):  case ((unichar)(' ')):
 			{
-				[self mINTWithCreateToken:YES];
+				[self mWSWithCreateToken:YES];
 				_rettoken=_returnToken;
 				break;
 			}
@@ -224,11 +230,11 @@ int _begin=[text length];
 			}
 			else
 			{
-				goto _loop32;
+				goto _loop35;
 			}
 			
 		} while (YES);
-		_loop32:;
+		_loop35:;
 	}
 	{
 		switch ( [self LA:1])
@@ -376,11 +382,11 @@ int _begin=[text length];
 				}
 			else
 			{
-				goto _loop38;
+				goto _loop41;
 			}
 			}
 		} while (YES);
-		_loop38:;
+		_loop41:;
 	}
 	[self matchString:@"*/"];
 	_ttype = ANTLRToken_SKIP;
@@ -486,11 +492,11 @@ int _begin=[text length];
 			}
 			default:
 			{
-				goto _loop43;
+				goto _loop46;
 			}
 			}
 		} while (YES);
-		_loop43:;
+		_loop46:;
 	}
 	_ttype = [self testLiteralsTable:_ttype];
 	if ( _createToken && _token==0 )
@@ -729,11 +735,11 @@ int _begin=[text length];
 				}
 				default:
 				{
-					goto _loop66;
+					goto _loop70;
 				}
 				}
 			} while (YES);
-			_loop66:;
+			_loop70:;
 		}
 		[self matchCharacter:'\''];
 		break;
@@ -822,11 +828,11 @@ int _begin=[text length];
 				}
 				default:
 				{
-					goto _loop69;
+					goto _loop73;
 				}
 				}
 			} while (YES);
-			_loop69:;
+			_loop73:;
 		}
 		[self matchCharacter:'"'];
 		break;
@@ -925,11 +931,11 @@ int _begin=[text length];
 			}
 			default:
 			{
-				goto _loop49;
+				goto _loop52;
 			}
 			}
 		} while (YES);
-		_loop49:;
+		_loop52:;
 	}
 	_ttype = [self testLiteralsTable:_ttype];
 	if ( _createToken && _token==0 )
@@ -971,6 +977,13 @@ int _begin=[text length];
 			[self mIDENTREFWithCreateToken:NO];
 			break;
 		}
+		case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+		case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+		case ((unichar)('8')):  case ((unichar)('9')):
+		{
+			[self mINTWithCreateToken:NO];
+			break;
+		}
 		case ((unichar)('"')):  case ((unichar)('\'')):
 		{
 			[self mSTRINGWithCreateToken:NO];
@@ -983,6 +996,40 @@ int _begin=[text length];
 		}
 	}
 	_ttype = [self testLiteralsTable:_ttype];
+	if ( _createToken && _token==0 )
+	{
+		   _token = [self makeToken:_ttype];
+		   [_token setText:[text substringFromIndex:_begin]];
+	}
+	ASSIGN(_returnToken,_token);
+	//LOGObjectFnStop();
+}
+
+-(void) mINTWithCreateToken:(BOOL)_createToken 
+{
+	ANTLRDefToken _token=nil;
+int _begin=[text length];
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_INT;
+	int _saveIndex;
+	
+	//LOGObjectFnStart();
+	{
+		int _cnt77=0;
+		do
+		{
+			if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))))
+			{
+				[self mDIGITWithCreateToken:NO];
+			}
+			else
+			{
+				if ( _cnt77>=1 ) { goto _loop77; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+			}
+			
+			_cnt77++;
+		} while (YES);
+		_loop77:;
+	}
 	if ( _createToken && _token==0 )
 	{
 		   _token = [self makeToken:_ttype];
@@ -1156,6 +1203,24 @@ int _begin=[text length];
 	//LOGObjectFnStop();
 }
 
+-(void) mQUESTIONMARKWithCreateToken:(BOOL)_createToken 
+{
+	ANTLRDefToken _token=nil;
+int _begin=[text length];
+	ANTLRTokenType _ttype = GSWPageDefParserTokenType_QUESTIONMARK;
+	int _saveIndex;
+	
+	//LOGObjectFnStart();
+	[self matchCharacter:'?'];
+	if ( _createToken && _token==0 )
+	{
+		   _token = [self makeToken:_ttype];
+		   [_token setText:[text substringFromIndex:_begin]];
+	}
+	ASSIGN(_returnToken,_token);
+	//LOGObjectFnStop();
+}
+
 -(void) mWSWithCreateToken:(BOOL)_createToken 
 {
 	ANTLRDefToken _token=nil;
@@ -1265,7 +1330,7 @@ int _begin=[text length];
 		case ((unichar)('u')):
 		{
 			{
-				int _cnt78=0;
+				int _cnt82=0;
 				do
 				{
 					if (([self LA:1]==((unichar)('u'))))
@@ -1274,12 +1339,12 @@ int _begin=[text length];
 					}
 					else
 					{
-						if ( _cnt78>=1 ) { goto _loop78; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+						if ( _cnt82>=1 ) { goto _loop82; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 					}
 					
-					_cnt78++;
+					_cnt82++;
 				} while (YES);
-				_loop78:;
+				_loop82:;
 			}
 			[self mHEXDIGITWithCreateToken:NO];
 			[self mHEXDIGITWithCreateToken:NO];
@@ -1362,40 +1427,6 @@ int _begin=[text length];
 	//LOGObjectFnStop();
 }
 
--(void) mINTWithCreateToken:(BOOL)_createToken 
-{
-	ANTLRDefToken _token=nil;
-int _begin=[text length];
-	ANTLRTokenType _ttype = GSWPageDefParserTokenType_INT;
-	int _saveIndex;
-	
-	//LOGObjectFnStart();
-	{
-		int _cnt73=0;
-		do
-		{
-			if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))))
-			{
-				[self mDIGITWithCreateToken:NO];
-			}
-			else
-			{
-				if ( _cnt73>=1 ) { goto _loop73; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
-			}
-			
-			_cnt73++;
-		} while (YES);
-		_loop73:;
-	}
-	if ( _createToken && _token==0 )
-	{
-		   _token = [self makeToken:_ttype];
-		   [_token setText:[text substringFromIndex:_begin]];
-	}
-	ASSIGN(_returnToken,_token);
-	//LOGObjectFnStop();
-}
-
 -(void) mHEXNUMWithCreateToken:(BOOL)_createToken 
 {
 	ANTLRDefToken _token=nil;
@@ -1424,7 +1455,7 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt88=0;
+		int _cnt92=0;
 		do
 		{
 			if (([GSWPageDefLexer___tokenSet_2 isMember:[self LA:1]]))
@@ -1433,12 +1464,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt88>=1 ) { goto _loop88; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt92>=1 ) { goto _loop92; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt88++;
+			_cnt92++;
 		} while (YES);
-		_loop88:;
+		_loop92:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -1515,7 +1546,7 @@ int _begin=[text length];
 
 CONST unsigned long GSWPageDefLexer___tokenSet_0_data_[] = { 0UL, 132UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_0=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_1_data_[] = { 0UL, 132UL, 2281701375UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_1_data_[] = { 0UL, 67043460UL, 2281701375UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_1=nil;
 CONST unsigned long GSWPageDefLexer___tokenSet_2_data_[] = { 0UL, 67043328UL, 126UL, 126UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_2=nil;

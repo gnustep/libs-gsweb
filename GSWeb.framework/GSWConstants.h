@@ -1,5 +1,6 @@
 /* GSWConstants.h - constants
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -268,6 +269,7 @@ extern id negate__Key;
 extern id pageName__Key;
 extern id elementName__Key;
 extern id fragmentIdentifier__Key;
+extern id secure__Key;
 extern id string__Key;
 extern id scriptFile__Key;
 extern id scriptString__Key;
@@ -317,7 +319,8 @@ extern id handleValidationException__Key;
 extern id selectedValues__Key;
 extern id startIndex__Key;
 extern id stopIndex__Key;
-
+extern id cidStore__Key;
+extern id cidKey__Key;
 
 #endif // _GSWebConstants_h__
 

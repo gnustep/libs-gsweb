@@ -1,12 +1,13 @@
 /** NSString+Trimming.m - <title>GSWeb: Class NSString with Trimming </title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,9 +28,10 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
+#include <time.h>
 
 //====================================================================
 @implementation NSString (SBString)
@@ -163,25 +165,33 @@ static char rcsId[] = "$Id$";
 {
   int i=0;
   NSTimeInterval ti=[[NSDate date]timeIntervalSinceReferenceDate];
-  int size=0;
   NSMutableData* data=nil;
   void* pData=NULL;
-  NSString* dataHex=nil;
-  int intLength=(length/sizeof(int))-sizeof(ti);
-  if (intLength<0)
-    intLength=0;
-  size=sizeof(ti)+intLength*sizeof(int);
-  data=[NSMutableData dataWithLength:size];
+  NSString* dataHex=nil;  
+  
+  NSAssert1(length>=sizeof(ti),@"Too short length: %d",length);
+
+  data=[NSMutableData dataWithLength:length];
+  NSAssert(data,@"no data");
+
   pData=[data mutableBytes];
-  dataHex=nil;
-  *((NSTimeInterval*)pData)=ti;//TODO: NSSwapHostLongToBig(ti);
+  NSAssert(pData,@"no pData");
+  NSDebugMLog(@"pData=%p",pData);
+
+  *((NSTimeInterval*)pData)=ti;
   pData+=sizeof(ti);
-  for(i=0;i<intLength;i++)
+  length-=sizeof(ti);
+
+  srand(time(NULL));
+  for(i=0;i<length;i++)
     {
-      *((int*)pData)=rand(); //TODO: NSSwapHostIntToBig(rand());
-      pData+=sizeof(int);
+      *((unsigned char*)pData)=(unsigned char)(256*rand()/(RAND_MAX+1.0));
+      pData++;
     };
+  NSDebugMLog(@"pData=%p",pData);
+
   dataHex=DataToHexString(data);
+  NSDebugMLog(@"dataHex %p=%@",dataHex,dataHex);
   return dataHex;
 };
 

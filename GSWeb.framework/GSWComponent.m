@@ -1,12 +1,13 @@
 /** GSWComponent.m - <title>GSWeb: Class GSWComponent</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -29,7 +30,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -1086,10 +1087,12 @@ associationsKeys:(NSArray*)associationsKeys
     }
   NS_HANDLER
     {
-      LOGException0(@"exception in GSWComponent invokeActionForRequest:inContext");
+      LOGException(@"exception in %@ appendToResponse:inContext",
+                   [self class]);
       LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In GSWComponent invokeActionForRequest:inContext");
+                                                              @"In %@ appendToResponse:inContext",
+                                                              [self class]);
       LOGException(@"exception=%@",localException);
       [localException raise];
     }
@@ -1104,10 +1107,12 @@ associationsKeys:(NSArray*)associationsKeys
                        [self class],debugElementID,[aContext elementID]);	  
 	};
 #endif
-  if(GSDebugSet(@"gswcomponents") == YES)
-    [aResponse appendContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ -->\n",
-                                             [self _templateName]]];//TODO enlever
 
+#ifndef NDEBUG
+  if(GSDebugSet(@"gswcomponents") == YES)
+    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ -->\n",
+                                                         [self _templateName]]];//TODO enlever
+#endif
   GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
 };
@@ -1137,10 +1142,12 @@ associationsKeys:(NSArray*)associationsKeys
     }
   NS_HANDLER
     {
-      LOGException0(@"exception in GSWComponent invokeActionForRequest:inContext");
+      LOGException(@"exception in %@ invokeActionForRequest:inContext",
+                   [self class]);
       LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In GSWComponent invokeActionForRequest:inContext");
+                                                              @"In %@ invokeActionForRequest:inContext",
+                                                              [self class]);
       LOGException(@"exception=%@",localException);
       [localException raise];
     }
@@ -1156,7 +1163,7 @@ associationsKeys:(NSArray*)associationsKeys
 #endif
 //  if (![aContext _wasActionInvoked] && [[[aContext elementID] parentElementIDString] compare:[aContext senderID]]==NSOrderedDescending)
   if (![aContext _wasActionInvoked]
-      && [[[aContext elementID] parentElementIDString] isSearchOverForSenderID:[aContext senderID]])
+      && [(GSWElementIDString*)[[aContext elementID] parentElementIDString] isSearchOverForSenderID:[aContext senderID]])
     {
       LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
                [self class],
@@ -1565,49 +1572,81 @@ associationsKeys:(NSArray*)associationsKeys
   GSWElement* pageElement=nil;
   BOOL pageChanged=NO;
   LOGObjectFnStart();
-  response=[[GSWResponse new]autorelease];
-  session=[aContext existingSession];
-  NSDebugMLLog(@"GSWComponent",@"session=%@",session);
-  if (session)
+  NSAssert(aContext,@"No context");
+  NS_DURING
     {
-      //TODO
+      response=[[GSWResponse new]autorelease];
+
+      [aContext deleteAllElementIDComponents];
+      request=[aContext request];
+      NSDebugMLLog(@"GSWComponent",@"request=%@",request);
+      httpVersion=(request ? [request httpVersion] : @"HTTP/1.0");
+      [response setHTTPVersion:httpVersion];
+      [response setHeader:@"text/html"
+                forKey:@"content-type"];
+      NSDebugMLLog(@"GSWComponent",@"response=%@",response);
+      [aContext _setResponse:response];
+
+      pageElement=[aContext _pageElement];
+      NSDebugMLLog(@"GSWComponent",@"pageElement=%@",pageElement);
+
+      pageChanged=(self!=(GSWComponent*)pageElement);
+      NSDebugMLLog(@"GSWComponent",@"pageChanged=%d",pageChanged);
+      [aContext _setPageChanged:pageChanged];
+
+      if (pageChanged)
+        [aContext _setPageElement:self];
+
+      [aContext _setCurrentComponent:self];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"in GSWComponent -_generateResponseInContext:");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
     };
-  [aContext deleteAllElementIDComponents];
-  request=[aContext request];
-  httpVersion=[request httpVersion];
-  [response setHTTPVersion:httpVersion];
-  [response setHeader:@"text/html"
-            forKey:@"content-type"];
-  [aContext _setResponse:response];
-//====>
-  pageElement=[aContext _pageElement];
-  pageChanged=(self!=(GSWComponent*)pageElement);
-  [aContext _setPageChanged:pageChanged];
-//====>
-  if (pageChanged)
-    [aContext _setPageElement:self];
-  [aContext _setCurrentComponent:self];
-//====>
-
-  [self appendToResponse:response
-        inContext:aContext];
-
-//----------------
-//==>10
-  session=[aContext session];
-  NSDebugMLLog(@"GSWComponent",@"session=%@",session);
-  NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
-  [session appendCookieToResponse:response];
-//==>11
-  NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
-  [session _saveCurrentPage];
-  [aContext _incrementContextID];
-  [aContext deleteAllElementIDComponents];
-  [aContext _setPageChanged:pageChanged];
-  [aContext _setPageReplaced:NO];
-  NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
-
-//<==========
+  NS_ENDHANDLER;
+  
+  NS_DURING
+    {
+      [self appendToResponse:response
+            inContext:aContext];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"in GSWComponent -_generateResponseInContext:");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  
+  NS_DURING
+    {
+      session=[aContext _session];
+      NSDebugMLLog(@"GSWComponent",@"session=%@",session);
+      if (session)
+        {
+          NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
+          [session appendCookieToResponse:response];
+          NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
+          [session _saveCurrentPage];
+        };
+      [aContext _incrementContextID];
+      [aContext deleteAllElementIDComponents];
+      [aContext _setPageChanged:YES];
+      //[aContext _setPageReplaced:NO];
+      NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"in GSWComponent -_generateResponseInContext:");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
   LOGObjectFnStop();
   return response;
 };

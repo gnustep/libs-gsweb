@@ -1,6 +1,6 @@
 /** GSWSessionStore.m - <title>GSWeb: Class GSWSessionStore</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -28,8 +28,9 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+static const char rcsId[]="$Id$";
 
+#include <GSWeb/GSWeb.h>
 
 //====================================================================
 @implementation GSWSessionStore
@@ -42,6 +43,10 @@
     {
       _usedIDs=[NSMutableSet new];
       _lock=[NSRecursiveLock new];
+      _timeOutManager=[GSWSessionTimeOutManager new];
+      [_timeOutManager setCallBack:@selector(removeSessionWithID:)
+                       target:self];
+      [_timeOutManager startHandleTimerRefusingSessions];
       [self _validateAPI];
     };
   LOGObjectFnStop();
@@ -56,23 +61,35 @@
   DESTROY(_usedIDs);
   GSWLogC("Dealloc GSWSessionStore: lock");
   DESTROY(_lock);
+  GSWLogC("Dealloc GSWSessionStore: timeOutManager");
+  DESTROY(_timeOutManager);
   GSWLogC("Dealloc GSWSessionStore Super");
   [super dealloc];
   GSWLogC("End Dealloc GSWSessionStore");
 };
 
 //--------------------------------------------------------------------
--(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
-                           request:(GSWRequest*)aRequest
+/** Abstract **/
+-(GSWSession*)removeSessionWithID:(NSString*)aSessionID
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self subclassResponsibility: _cmd];
   return nil;
 };
 
 //--------------------------------------------------------------------
+/** Abstract **/
+-(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
+                           request:(GSWRequest*)aRequest
+{
+  [self subclassResponsibility: _cmd];
+  return nil;
+};
+
+//--------------------------------------------------------------------
+/** Abstract **/
 -(void)saveSessionForContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self subclassResponsibility: _cmd];
 };
 
 //--------------------------------------------------------------------
@@ -92,7 +109,6 @@
   NSDebugMLLog(@"sessions",@"[[NSDate date]compare:limit]==NSOrderedAscending=%d",
                (int)([[NSDate date]compare:limit]==NSOrderedAscending));
   
-
   while(!session && sessionUsed && [[NSDate date]compare:limit]==NSOrderedAscending)
     {
       BOOL tmpUsed=NO;
@@ -153,62 +169,110 @@
 };
 
 //--------------------------------------------------------------------
+/** Should be Locked **/
 -(void)_checkInSessionForContext:(GSWContext*)aContext
 {
-  //OK
-  NSString* sessionID=nil;
   GSWSession* session=nil;
   LOGObjectFnStart();
   session=[aContext existingSession];
-  GSWLogAssertGood(session);
   NSDebugMLLog(@"sessions",@"session=%@",session);
-  NS_DURING
+  if (!session)
     {
-      [self saveSessionForContext:aContext];
+      [NSException raise:@"IllegalStateException"
+                   format:@"Current context has no existing session. Can't save session"];
     }
-  NS_HANDLER
+  else
     {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In saveSessionForContext:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  GSWLogAssertGood(session);
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  NS_DURING
-    {
-      [session _releaseAutoreleasePool];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In [_session _releaseAutoreleasePool]");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  GSWLogAssertGood(session);
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  sessionID=[session sessionID];
-  GSWLogAssertGood(session);
-  NSDebugMLLog(@"sessions",@"sessionID=%@",sessionID);
-  NS_DURING
-    {
-      [self _checkinSessionID:sessionID];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In _checkinSessionID");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    }
-  NS_ENDHANDLER;
+      NSString* sessionID=nil;
+      BOOL sessionIsTerminating=NO;
+      NSTimeInterval sessionTimeOut=0;
+          
+
+      sessionID=[session sessionID];
+
+      NSAssert(sessionID,@"No _sessionID!");
+      NSDebugMLLog(@"sessions",@"_sessionID=%@",sessionID);
+
+      GSWLogAssertGood(session);
+
+      sessionIsTerminating=[session isTerminating];
+      
+      [session setDistributionEnabled:sessionIsTerminating];
+
+      if (sessionIsTerminating)
+        {
+          NS_DURING
+            {
+              [self removeSessionWithID:sessionID];
+            }
+          NS_HANDLER
+            {
+              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                       @"In removeSessionWithID:");
+              LOGException(@"%@ (%@)",localException,[localException reason]);
+              [localException raise];
+            }
+          NS_ENDHANDLER;
+        }
+      else
+        {
+          NS_DURING
+            {
+              [self saveSessionForContext:aContext];
+            }
+          NS_HANDLER
+            {
+              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                       @"In saveSessionForContext:");
+              LOGException(@"%@ (%@)",localException,[localException reason]);
+              [localException raise];
+            }
+          NS_ENDHANDLER;
+        };
+
+      sessionTimeOut=[session timeOut];
+      NSDebugMLLog(@"sessions",@"sessionTimeOut=%ld",(long)sessionTimeOut);
+
+      [_timeOutManager updateTimeOutForSessionWithID:sessionID
+                       timeOut:sessionTimeOut];
+
+      GSWLogAssertGood(session);
+      NSDebugMLLog(@"sessions",@"session=%@",session);
+      NS_DURING
+        {
+          [session _releaseAutoreleasePool];
+        }
+      NS_HANDLER
+        {
+          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                   @"In [_session _releaseAutoreleasePool]");
+          LOGException(@"%@ (%@)",localException,[localException reason]);
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+      GSWLogAssertGood(session);
+      NSDebugMLLog(@"sessions",@"session=%@",session);
+      sessionID=[session sessionID];
+      GSWLogAssertGood(session);
+      NSDebugMLLog(@"sessions",@"sessionID=%@",sessionID);
+      NS_DURING
+        {
+          [self _checkinSessionID:sessionID];
+        }
+      NS_HANDLER
+        {
+          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                   @"In _checkinSessionID");
+          LOGException(@"%@ (%@)",localException,[localException reason]);
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+    };
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
+/** Should be Locked **/
 -(GSWSession*)_checkOutSessionWithID:(NSString*)aSessionID
                              request:(GSWRequest*)aRequest
 {
@@ -216,7 +280,7 @@
   LOGObjectFnStart();
   NSDebugMLLog(@"sessions",@"aSessionID=%@",aSessionID);
   NSDebugMLLog(@"sessions",@"self=%@",self);
-  //OK
+
   NSDebugMLog0(@"starting:_checkoutSessionID");
   [self _checkoutSessionID:aSessionID];
   NSDebugMLog0(@"end of:_checkoutSessionID");
@@ -227,8 +291,7 @@
   if (session)
     [session _createAutoreleasePool];
   else
-//    [self checkinSessionID:aSessionID];
-	[self _checkinSessionID:aSessionID];
+    [self _checkinSessionID:aSessionID];
 
   NSDebugMLLog(@"sessions",@"session=%@",session);
   LOGObjectFnStop();
@@ -236,22 +299,16 @@
 };
 
 //--------------------------------------------------------------------
+/** Should be Locked **/
 -(void)_checkinSessionID:(NSString*)aSessionID
 {
   LOGObjectFnStart();
-  //OK
-  /*  if (![usedIDs containsObject:aSessionID])
-      {
-      NSDebugMLLog(@"sessions",@"SessionID=%@ not is use",aSessionID);
-      }
-      else
-      {*/
   [_usedIDs removeObject:aSessionID];
-  //	};
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
+/** Should be Locked **/
 -(void)_checkoutSessionID:(NSString*)aSessionID
 {
   //OK
@@ -314,7 +371,7 @@
 };
 
 @end
-//*
+
 //====================================================================
 @implementation GSWSessionStore (GSWSessionStoreCreation)
 

@@ -1,6 +1,6 @@
 /** GSWServerSessionStore.h - <title>GSWeb: Class GSWServerSessionStore</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -35,12 +35,8 @@
 @interface GSWServerSessionStore : GSWSessionStore
 {
   NSMutableDictionary* _sessions;
-  GSWSessionTimeOutManager* _timeOutManager;
 };
 
--(id)init;
--(void)dealloc;
--(id)description;
 -(void)saveSessionForContext:(GSWContext*)aContext;
 -(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
                            request:(GSWRequest*)aRequest;

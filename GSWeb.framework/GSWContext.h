@@ -1,6 +1,6 @@
 /** GSWContext.h - <title>GSWeb: Class GSWContext</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -40,6 +40,7 @@
   unsigned _contextID;
  NSString* _senderID;
  NSString* _requestSessionID;
+ NSString* _requestContextID;
  GSWElementIDString* _elementID;
  GSWSession* _session;
  GSWRequest* _request;
@@ -65,6 +66,7 @@
  NSMutableString* _docStructure; //ForDebugging purpose: array of all objects if the document during appendResponse, takeValues, invokeAction
   NSMutableSet* _docStructureElements;
 #endif
+  NSMutableDictionary* _userInfo;
 };
 
 -(id)init;
@@ -80,6 +82,7 @@
 -(GSWComponent*)page;
 -(GSWResponse*)response;
 -(GSWRequest*)request;
+-(GSWSession*)_session;
 -(GSWSession*)session;
 -(BOOL)hasSession;
 -(NSString*)senderID;
@@ -100,7 +103,11 @@
 @interface GSWContext (GSWURLGeneration)
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary;
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                            isSecure:(BOOL)isSecure;
 -(GSWDynamicURLString*)componentActionURL;
+-(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure;
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString;
@@ -129,7 +136,12 @@
 -(BOOL)_wasFormSubmitted;
 -(void)_setFormSubmitted:(BOOL)flag;
 -(void)_putAwakeComponentsToSleep;
--(void)_generateCompleteURLs;
+-(BOOL)_generateCompleteURLs;
+-(BOOL)_generateRelativeURLs;
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL;
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
                                       queryDictionary:(NSDictionary*)dict
                                                   url:(id)url;
@@ -150,11 +162,15 @@
 -(BOOL)_pageReplaced; 
 -(void)_setPageChanged:(BOOL)flag;
 -(BOOL)_pageChanged; 
+-(void)_setRequestContextID:(NSString*)contextID;
+-(NSString*)_requestContextID;
 -(void)_setRequestSessionID:(NSString*)sessionID;
 -(NSString*)_requestSessionID;
--(void)_takeAwakeComponentsFromArray:(id)unknwon;
+-(void)_takeAwakeComponentsFromArray:(NSArray*)components;
 -(void)_takeAwakeComponent:(GSWComponent*)aComponent;
-
+-(NSMutableDictionary*)userInfo;
+-(NSMutableDictionary*)_userInfo;
+-(void)_setUserInfo:(NSMutableDictionary*)userInfo;
 @end
 
 //====================================================================

@@ -1,11 +1,12 @@
 /** GSWDefaultAdaptorThread.m - <title>GSWeb: Class GSWDefaultAdaptorThread</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
 
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -28,7 +29,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 #include <unistd.h>
@@ -178,6 +179,7 @@ static char rcsId[] = "$Id$";
         }
       NS_HANDLER
         {
+          NSDebugMLog(@"localException=%@",localException);
           LOGException(@"GSWDefaultAdaptorThread: createRequestFromData Exception:%@ (%@)",
                        localException,[localException reason]);
         }
@@ -567,8 +569,10 @@ static char rcsId[] = "$Id$";
   if ([requestLineArray count]!=3)
     {
       ExceptionRaise(@"GSWDefaultAdaptorThread",
-                     @"bad request first line (elements count %d != 3)",
-                     [requestLineArray count]);
+                     @"bad request first line (elements count %d != 3).\nrequestLine: %@\nrequestLineArray: %@",
+                     [requestLineArray count],
+                     requestLine,
+                     requestLineArray);
     }
   else
     {

@@ -1,12 +1,13 @@
 /** GSWRequest.m - <title>GSWeb: Class GSWRequest</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,10 +28,10 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
-
+#include <Foundation/GSMime.h>
 
 //====================================================================
 @implementation GSWRequest
@@ -102,6 +103,8 @@ static char rcsId[] = "$Id$";
   DESTROY(_userInfo);
   NSDebugFLog0(@"Release GSWRequest formValues");
   DESTROY(_formValues);
+  NSDebugFLog0(@"Release GSWRequest uriElements");
+  DESTROY(_uriElements);
   NSDebugFLog0(@"Release GSWRequest cookie");
   DESTROY(_cookie);
   NSDebugFLog0(@"Release GSWRequest applicationURLPrefix");
@@ -129,6 +132,7 @@ static char rcsId[] = "$Id$";
       clone->_defaultFormValueEncoding=_defaultFormValueEncoding;
       clone->_formValueEncoding=_formValueEncoding;
       ASSIGNCOPY(clone->_formValues,_formValues);
+      ASSIGNCOPY(clone->_uriElements,_uriElements);
       ASSIGNCOPY(clone->_cookie,_cookie);
       ASSIGNCOPY(clone->_applicationURLPrefix,_applicationURLPrefix);
       ASSIGNCOPY(clone->_requestHandlerPathArray,_requestHandlerPathArray);
@@ -140,6 +144,18 @@ static char rcsId[] = "$Id$";
     };
   return clone;
 };
+
+//--------------------------------------------------------------------
+-(GSWContext*)_context
+{
+  return _context;
+}
+
+//--------------------------------------------------------------------
+-(void)_setContext:(GSWContext*)context
+{
+  _context = context;//Don't retain because request is retained by context
+}
 
 //--------------------------------------------------------------------
 //	content
@@ -370,7 +386,7 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - 
-method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultFormValueEncoding=%u, formValueEncoding=%u, formValues=%@, cookie=%@, applicationURLPrefix=%@, requestHandlerPathArray=%@, browserLanguages=%@, requestType=%d, isUsingWebServer=%s, formValueEncodingDetectionEnabled=%s, applicationNumber=%d",
+method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultFormValueEncoding=%u, formValueEncoding=%u, formValues=%@, uriElements=%@, cookie=%@, applicationURLPrefix=%@, requestHandlerPathArray=%@, browserLanguages=%@, requestType=%d, isUsingWebServer=%s, formValueEncodingDetectionEnabled=%s, applicationNumber=%d",
                    object_get_class_name(self),
                    (void*)self,
                    _method,
@@ -382,6 +398,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                    _defaultFormValueEncoding,
                    _formValueEncoding,
                    _formValues,
+                   _uriElements,
                    _cookie,
                    _applicationURLPrefix,
                    _requestHandlerPathArray,
@@ -522,6 +539,81 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   NS_ENDHANDLER;
   LOGObjectFnStop();
   return formValues;
+};
+
+@end
+
+//====================================================================
+@implementation GSWRequest (GSWURIElementReporting)
+
+//--------------------------------------------------------------------
+//	uriValueKeys
+
+-(NSArray*)uriElementKeys
+{
+  NSDictionary* uriElements=nil;
+  NSArray* uriElementKeys=nil;
+  LOGObjectFnStart();
+  NS_DURING
+    {
+      uriElements=[self _uriElements];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"GSWRequest uriElementKeys");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  uriElementKeys=[uriElements allKeys];
+  LOGObjectFnStop();
+  return uriElementKeys;
+};
+
+//--------------------------------------------------------------------
+//	uriElementForKey:
+-(NSString*)uriElementForKey:(NSString*)key
+{
+  NSArray* uriElement=nil;
+  NSDictionary* uriElements=nil;
+  LOGObjectFnStart();
+  NS_DURING
+    {
+      uriElements=[self _uriElements];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest uriElementForKey:");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  uriElement=[uriElements objectForKey:key];
+  LOGObjectFnStop();
+  return uriElement;
+};
+
+//--------------------------------------------------------------------
+//	uriElements
+-(NSDictionary*)uriElements
+{
+  NSDictionary* uriElements=nil;
+  LOGObjectFnStart();
+  NS_DURING
+    {
+      uriElements=[self _uriElements];
+    }
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"GSWRequest uriElements");
+      LOGException(@"%@ (%@)",localException,[localException reason]);
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  LOGObjectFnStop();
+  return uriElements;
 };
 
 @end
@@ -710,20 +802,34 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 @implementation GSWRequest (GSWRequestA)
 
 //--------------------------------------------------------------------
+-(NSString*)sessionIDFromValuesOrCookie
+{
+  return [self sessionIDFromValuesOrCookieByLookingForCookieFirst:[[self class]_lookForIDsInCookiesFirst]];
+};
+
+//--------------------------------------------------------------------
+-(NSString*)sessionIDFromValuesOrCookieByLookingForCookieFirst:(BOOL)lookCookieFirst
+{
+  NSString* sessionID=nil;
+  LOGObjectFnStart();
+  sessionID=[self uriOrFormOrCookiesElementForKey:GSWKey_SessionID[GSWebNamingConv]
+                  byLookingForCookieFirst:lookCookieFirst];
+  if (!sessionID)
+    {
+      sessionID=[self uriOrFormOrCookiesElementForKey:GSWKey_SessionID[GSWebNamingConvInversed]
+                      byLookingForCookieFirst:lookCookieFirst];
+    };
+  LOGObjectFnStop();
+  return sessionID;
+};
+
+//--------------------------------------------------------------------
 //	sessionID
 // nil if first request of session
 
 -(NSString*)sessionID 
 {
-  NSString* sessionID=nil;
-  NSDictionary* uriElements=nil;
-  LOGObjectFnStart();
-  uriElements=[self uriOrFormOrCookiesElements];
-  sessionID=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
-  if (!sessionID)
-    sessionID=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
-  LOGObjectFnStop();
-  return sessionID;
+  return [self sessionIDFromValuesOrCookie];
 };
 
 //--------------------------------------------------------------------
@@ -888,20 +994,10 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 {
   //OK
   NSString* urlQueryString=nil;
-//  NSArray* url=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"requests",@"uri=%@",_uri);
   NSDebugMLLog(@"requests",@"uri class=%@",[_uri class]);
   urlQueryString=[_uri urlQueryString];
-/*
-  url=[_uri componentsSeparatedByString:@"?"];
-  NSDebugMLLog(@"requests",@"url=%@",url);
-  if ([url count]>1)
-  urlQueryString=[[url subarrayWithRange:NSMakeRange(1,[url count])]
-  componentsJoinedByString:@"?"];
-  else
-  urlQueryString=[NSString string];
-*/
   LOGObjectFnStop();
   return urlQueryString;
 };
@@ -1001,7 +1097,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 {
   //OK
   LOGObjectFnStart();
-  if(!_formValues)
+  if (!_formValues || !_finishedParsingMultipartFormData)
     {
       NSString* contentType=[self _contentType];
       if (!contentType || [contentType isEqualToString:GSWHTTPHeader_FormURLEncoded])
@@ -1010,16 +1106,14 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
         }
       else if ([contentType isEqualToString:GSWHTTPHeader_MultipartFormData])
         {
-        //NSLog(@"will call _getFormValuesFromMultipartFormData");
-
           [self _getFormValuesFromMultipartFormData];
         }
       else
         {
           NSDebugMLLog(@"requests",@"contentType=%@",contentType);
-          LOGObjectFnNotImplemented(); //TODO
         };
       NSDebugMLLog(@"requests",@"formValues=%@",_formValues);
+      _finishedParsingMultipartFormData=YES;
     };
   LOGObjectFnStop();
   return _formValues;
@@ -1046,6 +1140,11 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   LOGObjectFnStop();
 };
 
++(BOOL)_lookForIDsInCookiesFirst
+{
+  return NO;
+}
+
 //--------------------------------------------------------------------
 -(BOOL)_hasFormValues
 {
@@ -1054,14 +1153,13 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   return [formValues count]>0;
 };
 
-
 @end
 
 //====================================================================
 @implementation GSWRequest (GSWRequestH)
 
 //--------------------------------------------------------------------
--(void)_getFormValuesFromMultipartFormData
+-(void)_getFormValuesFromMultipartFormDataOld
 {
   NSMutableDictionary* formValues=nil;
   NSArray* contentTypes=nil;
@@ -1210,7 +1308,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                           values=[NSArray arrayWithArray:valuesNew];
                         };
                       //NSLog(@"getFormValues 2... values=%@ key=%@",values,aName);
-                      if (addedValues = [formValues objectForKey:aName]) {
+                      if ((addedValues = [formValues objectForKey:aName])) {
                         addedValues = [NSMutableArray arrayWithArray:addedValues];
                         [addedValues addObjectsFromArray:values];
                         [formValues setObject:addedValues
@@ -1247,6 +1345,137 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   //		9.1.filename = ("C:\\TEMP\\zahn.txt"); 
   //		9.3 = (submit);
   //	}
+  LOGObjectFnStop();
+};
+
+-(void)_getFormValuesFromMultipartFormData
+{
+  NSMutableDictionary* formValues=nil;
+  GSMimeParser* parser=nil;
+  id key=nil;
+  NSData* headersData=nil;
+  NSMutableString* headersString=[NSMutableString string];
+  NSDictionary* headers=nil;
+  NSEnumerator* enumerator=nil;
+  LOGObjectFnStart();
+
+  formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+
+  headers=[self headers];
+  enumerator=[headers keyEnumerator];
+  while((key=[enumerator nextObject]))
+    {
+      NSArray* value=[headers objectForKey:key];
+      int i=0;
+      int count=[value count];
+      for(i=0;i<count;i++)
+        [headersString appendFormat:@"%@: %@\n",
+                       key,[value objectAtIndex:i]];
+    };
+  [headersString appendString:@"\n"];
+  NSDebugMLog(@"headersString=%@",headersString);
+  headersData=[headersString dataUsingEncoding:NSISOLatin1StringEncoding];
+  parser=[GSMimeParser mimeParser];
+  [parser parse:headersData];
+  if ([parser parse:_content])
+    [parser parse:nil];
+  NSDebugMLog(@"[parser isComplete]=%d",[parser isComplete]);
+  if ([parser isComplete] == NO)
+    {
+          //TODO
+    }
+  else
+    {      
+      GSMimeDocument* document = [parser mimeDocument];
+      NSArray* content=[document content];
+      NSString* contentSubType=[document contentSubType];
+      NSDebugMLog(@"document=%@",document);
+      NSDebugMLog(@"contentType=%@",[document contentType]);
+      NSDebugMLog(@"contentSubType=%@",[document contentSubType]);
+
+      if ([contentSubType isEqual:@"form-data"])
+        {
+          NSDebugMLog(@"contentID=%@",[document contentID]);
+          NSDebugMLog(@"[document allHeaders]=%@",[document allHeaders]);
+          NSDebugMLog(@"[document content]=%@",[document content]);
+          NSDebugMLog(@"[document content] class=%@",[[document content] class]);
+          NSDebugMLog(@"[document content]=%@",[document content]);
+
+          if (![content isKindOfClass:[NSArray class]])
+            {
+              //TODO
+            }
+          else
+            {
+              int i=0;
+              int count=[content count];
+              for(i=0;i<count;i++)
+                {
+                  GSMimeDocument* aDoc=[content objectAtIndex:i];
+                  GSMimeHeader* contentDispositionHeader=nil;
+                  NSString* contentDispositionValue=nil;
+                  NSDictionary* contentDispositionParams=nil;
+                  id aDocContent=nil;
+                  NSAssert2([aDoc isKindOfClass:[GSMimeDocument class]],
+                            @"Document is not a GSMimeDocument but a %@:\n%@",
+                            [aDoc class],aDoc);
+                  NSDebugMLog(@"aDoc=%@",aDoc);
+                  aDocContent=[aDoc content];
+                  NSDebugMLog(@"aDocContent=%@",aDocContent);
+                  NSDebugMLog(@"contentType=%@",[aDoc contentType]);
+                  NSDebugMLog(@"contentSubType=%@",[aDoc contentSubType]);
+                  NSDebugMLog(@"contentID=%@",[aDoc contentID]);
+                  contentDispositionHeader=[aDoc headerNamed:@"content-disposition"];
+                  NSDebugMLog(@"contentDispositionHeader=%@",contentDispositionHeader);
+                  contentDispositionValue=[contentDispositionHeader value];
+                  contentDispositionParams=[contentDispositionHeader parameters];
+                  NSDebugMLog(@"contentDispositionValue=%@",contentDispositionValue);
+                  NSDebugMLog(@"contentDispositionParams=%@",contentDispositionParams);
+                  NSDebugMLog(@"aDoc allHeaders=%@",[aDoc allHeaders]);
+                  NSDebugMLog(@"aDocContent class=%@",[aDocContent class]);
+                  if ([contentDispositionValue isEqual:@"form-data"])
+                    {
+                      NSString* formDataName=[contentDispositionParams objectForKey:@"name"];
+                      NSDebugMLLog(@"requests",@"formDataName=%@",
+                                   formDataName);
+                      if (!formDataName)
+                        {
+                          ExceptionRaise(@"GSWRequest",
+                                         @"GSWRequest: No name \n%@\n",
+                                         aDoc);
+                        }
+                      else
+                        {
+                          NSString* paramName=nil;
+                          NSEnumerator* paramNamesEnumerator=[contentDispositionParams keyEnumerator];
+                          while((paramName=[paramNamesEnumerator nextObject]))
+                            {
+                              NSDebugMLLog(@"requests",@"paramName=%@",paramName);
+                              if (![paramName isEqualToString:@"name"])
+                                {
+                                  NSString* paramFormValueName=nil;
+                                  id paramValue=nil;
+                                  paramValue=[contentDispositionParams objectForKey:paramName];
+                                  NSDebugMLLog(@"requests",@"paramValue=%@",paramValue);
+                                  paramFormValueName=[NSString stringWithFormat:@"%@.%@",formDataName,paramName];
+                                  NSDebugMLLog(@"requests",@"paramFormValueName=%@",paramFormValueName);
+                                  [formValues setObject:[NSArray arrayWithObject:paramValue]
+                                              forKey:paramFormValueName];
+                                };
+                            };
+                          if (aDocContent)
+                            {
+                              [formValues setObject:[NSArray arrayWithObject:aDocContent]
+                                          forKey:formDataName];
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+  ASSIGN(_formValues,formValues);
+  NSDebugMLog(@"_formValues=%@",_formValues);
   LOGObjectFnStop();
 };
 
@@ -1293,7 +1522,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
             NSString* _dataString=nil;
             _dataString=[[[NSString alloc]initWithData:tmpData
                                           encoding:NSISOLatin1StringEncoding]autorelease];
-            NSDebugMLLog(@"requests",@"_tmpDataString=%@",_dataString);
+            NSDebugMLLog(@"requests",@"_tmpDataString=[\n%@\n]",_dataString);
           }
         else
           {
@@ -1337,7 +1566,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
             NSString* dataString=nil;
             dataString=[[[NSString alloc]initWithData:tmpData
                                          encoding:NSISOLatin1StringEncoding]autorelease];
-            NSDebugMLLog(@"requests",@"tmpDataString=%@",dataString);
+            NSDebugMLLog(@"requests",@"tmpDataString=[\n%@\n]",dataString);
 			
           }
         else
@@ -1630,6 +1859,8 @@ into
   pageName=[uriElements objectForKey:GSWKey_PageName[GSWebNamingConv]];
   if (!pageName)
     pageName=[uriElements objectForKey:GSWKey_PageName[GSWebNamingConvInversed]];
+  NSDebugMLLog(@"requests",@"request %p: pageName=%@",
+               self,pageName);
   return pageName;
 };
 
@@ -1665,220 +1896,213 @@ into
 //NDFN
 -(NSDictionary*)uriOrFormOrCookiesElements
 {
-  NSString* tmpString=nil;
-  NSMutableDictionary* uriElements=nil;
-  LOGObjectFnStart();
-  uriElements=[self uriElements];
-  NSDebugMLLog(@"requests",@"uriElements=%@",uriElements);
-  if (![uriElements objectForKey:GSWKey_SessionID[GSWebNamingConv]])
-    {
-      tmpString=[uriElements objectForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
-      if (!tmpString)
-        {
-          tmpString=[self formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-          if (!tmpString)
-            {
-              tmpString=[self formValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
-              if (!tmpString)
-                {
-                  tmpString=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-                  if (!tmpString)
-                    {
-                      tmpString=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConvInversed]];
-                    };
-                };
-                };
-        };
-      if (tmpString)
-        [uriElements setObject:tmpString
-                     forKey:GSWKey_SessionID[GSWebNamingConv]];
-    };
-  if (![uriElements objectForKey:GSWKey_ContextID[GSWebNamingConv]])
-    {
-      tmpString=[uriElements objectForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
-      if (!tmpString)
-        {
-          tmpString=[self formValueForKey:GSWKey_ContextID[GSWebNamingConv]];
-          if (!tmpString)
-            {
-              tmpString=[self formValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
-              if (!tmpString)
-                {
-                  tmpString=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConv]];
-                  if (!tmpString)
-                    {
-                      tmpString=[self cookieValueForKey:GSWKey_ContextID[GSWebNamingConvInversed]];
-                    };
-                };
-            };
-        };
-      if (tmpString)
-        [uriElements setObject:tmpString
-                     forKey:GSWKey_ContextID[GSWebNamingConv]];
-    };
-  if (![uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
-    {
-      tmpString=[uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-      if (!tmpString)
-        {
-          tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-          if (!tmpString)
-            {
-              tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-              if (!tmpString)
-                {
-                  tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-                  if (!tmpString)
-                    {
-                      tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-                    };
-                };
-            };
-        };
-      if (tmpString)
-        [uriElements setObject:tmpString
-                     forKey:GSWKey_ContextID[GSWebNamingConv]];
-    };
-  
-  if (![uriElements objectForKey:GSWKey_ElementID[GSWebNamingConv]])
-    {
-      tmpString=[uriElements objectForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-      if (!tmpString)
-        {
-          tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-          if (!tmpString)
-            {
-              tmpString=[self formValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-              if (!tmpString)
-                {
-                  tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConv]];
-                  if (!tmpString)
-                    {
-                      tmpString=[self cookieValueForKey:GSWKey_ElementID[GSWebNamingConvInversed]];
-                    };
-                };
-            };
-        };
-      if (tmpString)
-        [uriElements setObject:tmpString
-                     forKey:GSWKey_ContextID[GSWebNamingConv]];
-    };
-  if (![uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConv]])
-    {
-      tmpString=[uriElements objectForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-      if (!tmpString)
-        {
-          tmpString=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
-          if (!tmpString)
-            {
-              tmpString=[self formValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-              if (!tmpString)
-                {
-                  tmpString=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
-                  if (!tmpString)
-                    {
-                      tmpString=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-                    };
-                };
-            };
-        };
-      if (tmpString)
-        [uriElements setObject:tmpString
-                     forKey:GSWKey_InstanceID[GSWebNamingConv]];
-    };
-  if (![uriElements objectForKey:GSWKey_Data[GSWebNamingConv]])
-    {
-      tmpString=[uriElements objectForKey:GSWKey_Data[GSWebNamingConvInversed]];
-      if (!tmpString)
-        {
-          tmpString=[self formValueForKey:GSWKey_Data[GSWebNamingConv]];
-          if (!tmpString)
-            {
-              tmpString=[self formValueForKey:GSWKey_Data[GSWebNamingConvInversed]];
-            };
-        };
-      if (tmpString)
-        [uriElements setObject:tmpString
-                     forKey:GSWKey_Data[GSWebNamingConv]];
-    };
-  NSDebugMLLog(@"requests",@"uriElements=%@",uriElements);
-  LOGObjectFnStop();
-  return uriElements;
+  return [self uriOrFormOrCookiesElementsByLookingForCookieFirst:[[self class]_lookForIDsInCookiesFirst]];
 };
+
 //--------------------------------------------------------------------
 //NDFN
--(NSMutableDictionary*)uriElements
+-(id)uriOrFormOrCookiesElementForKey:(NSString*)key
+             byLookingForCookieFirst:(BOOL)lookCookieFirst
+{
+  id element=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"requests",@"request %p: key=%@",
+               self,key);
+  if (lookCookieFirst)
+    element=[self cookieValueForKey:key];
+
+  if (!element)
+    {
+      element=[self uriElementForKey:key];
+      if (!element)
+        {
+          element=[self formValueForKey:key];
+          if (!element && !lookCookieFirst)
+            element=[self cookieValueForKey:key];
+        };
+    };
+  NSDebugMLLog(@"requests",@"request %p: key=%@ element=%@",
+               self,key,element);
+  LOGObjectFnStop();
+  return element;
+}
+//--------------------------------------------------------------------
+//NDFN
+-(NSDictionary*)uriOrFormOrCookiesElementsByLookingForCookieFirst:(BOOL)lookCookieFirst
+{
+  NSMutableDictionary* elements=nil;
+  NSString* tmpString=nil;
+  LOGObjectFnStart();
+  elements=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+
+  //SessionID
+  tmpString=[self sessionIDFromValuesOrCookieByLookingForCookieFirst:lookCookieFirst];
+  if (tmpString)
+    [elements setObject:tmpString
+              forKey:GSWKey_SessionID[GSWebNamingConv]];
+
+  //PageName
+  tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_PageName[GSWebNamingConv]
+                  byLookingForCookieFirst:lookCookieFirst];
+  if (!tmpString)
+    {
+      tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_PageName[GSWebNamingConvInversed]
+                      byLookingForCookieFirst:lookCookieFirst];
+    };
+  if (tmpString)
+    [elements setObject:tmpString
+              forKey:GSWKey_PageName[GSWebNamingConv]];
+
+  //ContextID
+  tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_ContextID[GSWebNamingConv]
+                  byLookingForCookieFirst:lookCookieFirst];
+  if (!tmpString)
+    {
+      tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_ContextID[GSWebNamingConvInversed]
+                      byLookingForCookieFirst:lookCookieFirst];
+    };
+  if (tmpString)
+    [elements setObject:tmpString
+              forKey:GSWKey_ContextID[GSWebNamingConv]];
+
+  //ElementID
+  tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_ElementID[GSWebNamingConv]
+                  byLookingForCookieFirst:lookCookieFirst];
+  if (!tmpString)
+    {
+      tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_ElementID[GSWebNamingConvInversed]
+                      byLookingForCookieFirst:lookCookieFirst];
+    };
+  if (tmpString)
+    [elements setObject:tmpString
+              forKey:GSWKey_ElementID[GSWebNamingConv]];
+
+  //InstanceID
+  tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_InstanceID[GSWebNamingConv]
+                  byLookingForCookieFirst:lookCookieFirst];
+  if (!tmpString)
+    {
+      tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_InstanceID[GSWebNamingConvInversed]
+                      byLookingForCookieFirst:lookCookieFirst];
+    };
+  if (tmpString)
+    [elements setObject:tmpString
+              forKey:GSWKey_InstanceID[GSWebNamingConv]];
+
+  //DataID
+  tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_Data[GSWebNamingConv]
+                  byLookingForCookieFirst:lookCookieFirst];
+  if (!tmpString)
+    {
+      tmpString=[self uriOrFormOrCookiesElementForKey:GSWKey_Data[GSWebNamingConvInversed]
+                      byLookingForCookieFirst:lookCookieFirst];
+    };
+  if (tmpString)
+    [elements setObject:tmpString
+              forKey:GSWKey_Data[GSWebNamingConv]];
+
+  NSDebugMLLog(@"requests",@"elements=%@",elements);
+  LOGObjectFnStop();
+  return elements;
+};
+
+//--------------------------------------------------------------------
+-(NSDictionary*)_uriElements
 {
   //OK
-  NSMutableDictionary* dict=nil;
-  NSArray* requestHandlerPathArray=nil;
-  int index=0;
-  NSString* tmpString=nil;
-  NSString* gswpage=nil;
-  NSString* gswsid=nil;
-  NSString* gswcid=nil;
-  NSString* gsweid=nil;
-  NSString* gswinst=nil;
-  NSString* requestHandlerKey=nil;
-  int applicationNumber;
   LOGObjectFnStart();
-  dict=[[NSMutableDictionary new] autorelease];
-  //NEW//TODO
-  requestHandlerKey=[((GSWDynamicURLString*)[self uri]) urlRequestHandlerKey];
-  NSDebugMLLog(@"requests",@"requestHandlerKey=%@",requestHandlerKey);
-  if (!requestHandlerKey
-      || (![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConv]]
-          &&![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]]))
+  if (!_uriElements)
     {
-      requestHandlerPathArray=[self requestHandlerPathArray];
-      NSDebugMLLog(@"requests",@"requestHandlerPathArray=%@",requestHandlerPathArray);
-      if ([requestHandlerPathArray count]>index)
+      NSMutableDictionary* dict=nil;
+      NSArray* requestHandlerPathArray=nil;
+      int index=0;
+      NSString* tmpString=nil;
+      NSString* gswpage=nil;
+      NSString* gswsid=nil;
+      NSString* gswcid=nil;
+      NSString* gsweid=nil;
+      NSString* gswinst=nil;
+      NSString* requestHandlerKey=nil;
+      int applicationNumber;
+      dict=[[NSMutableDictionary new] autorelease];
+
+      NSDebugMLLog(@"requests",@"request %@",self);
+
+      requestHandlerKey=[((GSWDynamicURLString*)[self uri]) urlRequestHandlerKey];
+      NSDebugMLLog(@"requests",@"request %p: requestHandlerKey=%@",
+                   self,requestHandlerKey);
+
+      if (!requestHandlerKey
+          || (![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConv]]
+              &&![requestHandlerKey isEqualToString:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]]))
         {
-          tmpString=[requestHandlerPathArray objectAtIndex:index];
-          NSDebugMLLog(@"requests",@"tmpString=%@",tmpString);
-          if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConv]])
-            {
-              gswpage=[tmpString stringByDeletingSuffix:GSWPagePSuffix[GSWebNamingConv]];
-              NSDebugMLLog(@"requests",@"gswpage=%@",gswpage);
-              index++;
-            }
-          else if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConvInversed]])
-            {
-              gswpage=[tmpString stringByDeletingSuffix:GSWPagePSuffix[GSWebNamingConvInversed]];
-              NSDebugMLLog(@"requests",@"gswpage=%@",gswpage);
-              index++;
-            };
+          requestHandlerPathArray=[self requestHandlerPathArray];
+          NSDebugMLLog(@"requests",@"request %p: requestHandlerPathArray=%@",
+                       self,requestHandlerPathArray);
+
           if ([requestHandlerPathArray count]>index)
             {
-              gswsid=[requestHandlerPathArray objectAtIndex:index];
-              NSDebugMLLog(@"requests",@"gswsid=%@",gswsid);
-              index++;
+              tmpString=[requestHandlerPathArray objectAtIndex:index];
+              NSDebugMLLog(@"requests",@"rquest %p: tmpString=%@",
+                           self,tmpString);
+
+              if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConv]])
+                {
+                  gswpage=[tmpString stringByDeletingSuffix:GSWPagePSuffix[GSWebNamingConv]];
+                  NSDebugMLLog(@"requests",@"request %p: gswpage=%@",
+                               self,gswpage);
+                  index++;
+                }
+              else if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConvInversed]])
+                {
+                  gswpage=[tmpString stringByDeletingSuffix:GSWPagePSuffix[GSWebNamingConvInversed]];
+                  NSDebugMLLog(@"requests",@"request %p: gswpage=%@",
+                               self,gswpage);
+                  index++;
+                };
+
               if ([requestHandlerPathArray count]>index)
                 {
-                  NSString* senderID=[requestHandlerPathArray objectAtIndex:index];
-                  NSDebugMLLog(@"requests",@"senderID=%@",senderID);
+                  gswsid=[requestHandlerPathArray objectAtIndex:index];
+                  NSDebugMLLog(@"requests",@"request %p: gswsid=%@",
+                               self,gswsid);
                   index++;
-                  if (senderID && [senderID length]>0)
+
+                  if ([requestHandlerPathArray count]>index)
                     {
-                      NSArray* senderIDParts=[senderID componentsSeparatedByString:@"."];
-                      NSDebugMLLog(@"requests",@"senderIDParts=%@",senderIDParts);
-                      if ([senderIDParts count]>0)
+                      NSString* senderID=[requestHandlerPathArray objectAtIndex:index];
+                      NSDebugMLLog(@"requests",@"senderID=%@",senderID);
+                      index++;
+
+                      if (senderID && [senderID length]>0)
                         {
-                          tmpString=[senderIDParts objectAtIndex:0];
-                          NSDebugMLLog(@"requests",@"tmpString=%@",tmpString);
-                          if (tmpString && [tmpString length]>0)
-                            gswcid=tmpString;
-                          
-                          if ([senderIDParts count]>1)
+                          NSArray* senderIDParts=[senderID componentsSeparatedByString:@"."];
+                          NSDebugMLLog(@"requests",@"request %p: senderIDParts=%@",
+                                       self,senderIDParts);
+
+                          if ([senderIDParts count]>0)
                             {
-                              tmpString=[[senderIDParts subarrayWithRange:
-                                                          NSMakeRange(1,[senderIDParts count]-1)]
-                                          componentsJoinedByString:@"."];
-                              NSDebugMLLog(@"requests",@"tmpString=%@",tmpString);
+                              tmpString=[senderIDParts objectAtIndex:0];
+                              NSDebugMLLog(@"requests",@"request %p: tmpString=%@",
+                                           self,tmpString);
+
                               if (tmpString && [tmpString length]>0)
+                                gswcid=tmpString;
+                          
+                              if ([senderIDParts count]>1)
                                 {
-                                  gsweid=tmpString;
-                                  NSDebugMLLog(@"requests",@"gsweid=%@",gsweid);
+                                  tmpString=[[senderIDParts subarrayWithRange:
+                                                              NSMakeRange(1,[senderIDParts count]-1)]
+                                              componentsJoinedByString:@"."];
+                                  NSDebugMLLog(@"requests",@"request %p: tmpString=%@",
+                                               self,tmpString);
+
+                                  if (tmpString && [tmpString length]>0)
+                                    {
+                                      gsweid=tmpString;
+                                      NSDebugMLLog(@"requests",@"request %p: gsweid=%@",
+                                                   self,gsweid);
+                                    };
                                 };
                             };
                         };
@@ -1886,40 +2110,42 @@ into
                 };
             };
         };
-    };
   
-  if (gswpage)
-    [dict setObject:gswpage
-          forKey:GSWKey_PageName[GSWebNamingConv]];
+      if (gswpage)
+        [dict setObject:gswpage
+              forKey:GSWKey_PageName[GSWebNamingConv]];
   
-  if (gswsid)
-    [dict setObject:gswsid
-          forKey:GSWKey_SessionID[GSWebNamingConv]];
+      if (gswsid)
+        [dict setObject:gswsid
+              forKey:GSWKey_SessionID[GSWebNamingConv]];
 
-  if (gswcid)
-    [dict setObject:gswcid
-          forKey:GSWKey_ContextID[GSWebNamingConv]];
+      if (gswcid)
+        [dict setObject:gswcid
+              forKey:GSWKey_ContextID[GSWebNamingConv]];
   
-  if (gsweid)
-    [dict setObject:gsweid
-          forKey:GSWKey_ElementID[GSWebNamingConv]];
+      if (gsweid)
+        [dict setObject:gsweid
+              forKey:GSWKey_ElementID[GSWebNamingConv]];
   
-  applicationNumber=[_uri urlApplicationNumber];
-  if (applicationNumber<0)
-    {
-      NSString* tmpString2=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
-      if (!tmpString2)
-        tmpString2=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
-      if (tmpString2)
-        applicationNumber=[gswinst intValue];
+      applicationNumber=[_uri urlApplicationNumber];
+      if (applicationNumber<0)
+        {
+          NSString* tmpString2=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConv]];
+          if (!tmpString2)
+            tmpString2=[self cookieValueForKey:GSWKey_InstanceID[GSWebNamingConvInversed]];
+          if (tmpString2)
+            applicationNumber=[gswinst intValue];
+        };
+      if (applicationNumber>=0)
+        [dict setObject:[NSString stringWithFormat:@"%d",applicationNumber]
+              forKey:GSWKey_InstanceID[GSWebNamingConv]];
+  
+      ASSIGN(_uriElements,[NSDictionary dictionaryWithDictionary:dict]);
+      NSDebugMLLog(@"requests",@"request %@: _uriElements=%@",
+                   self,_uriElements);
     };
-  if (applicationNumber>=0)
-    [dict setObject:[NSString stringWithFormat:@"%d",applicationNumber]
-          forKey:GSWKey_InstanceID[GSWebNamingConv]];
-  
-  NSDebugMLLog(@"requests",@"AA dict=%@",dict);
   LOGObjectFnStop();
-  return dict;
+  return _uriElements;
 };
 @end
 

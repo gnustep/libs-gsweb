@@ -98,7 +98,6 @@ In the case value = myMember.label, value came from method "label" or member "la
 +(GSWAssociation*)associationWithKeyPath:(NSString*)keyPath;
 //NDFN
 +(GSWAssociation*)associationFromString:(NSString*)string;
-
 @end
 /*
 //====================================================================

@@ -1,12 +1,13 @@
 /** GSWUtils.m - <title>GSWeb: Utilities</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -526,6 +527,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSMutableDictionary* userInfo=nil;
   NSArray* frameInfoArray=nil;
   LOGObjectFnStart();
+  NSAssert(frameInfo,@"No frameInfo");
   userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   frameInfoArray=[userInfo objectForKey:@"FrameInfo"];
   if (frameInfoArray)
@@ -1588,7 +1590,8 @@ NSString* GSWGetDefaultDocRoot()
 //--------------------------------------------------------------------
 NSString* DataToHexString(NSData* data)
 {
-  unsigned int size=[data length];
+  unsigned int size=0;
+  size=[data length];
   if (size)
     {
       const unsigned char* pData=(const unsigned char*)[data bytes];
@@ -1623,7 +1626,7 @@ NSData* HexStringToData(NSString* string)
               if (pString[i*2]>='0' && pString[i*2]<='9')
                 pData[i]=(pString[i*2]-'0') << 4;
               else if (pString[i*2]>='A' && pString[i*2]<='F')
-                pData[i]=(pString[i*2]-'A') << 4;
+                pData[i]=(pString[i*2]-'A'+10) << 4;
               else
                 {
                   NSCAssert(NO,@"Bad hex String");
@@ -1631,7 +1634,7 @@ NSData* HexStringToData(NSString* string)
               if (pString[i*2+1]>='0' && pString[i*2+1]<='9')
                 pData[i]=pData[i]|(pString[i*2+1]-'0');
               else if (pString[i*2+1]>='A' && pString[i*2+1]<='F')
-                pData[i]=pData[i]|(pString[i*2+1]-'A');
+                pData[i]=pData[i]|(pString[i*2+1]-'A'+10);
               else
                 {
                   NSCAssert(NO,@"Bad hex String");
@@ -1658,8 +1661,8 @@ NSData* HexStringToData(NSString* string)
 };
 
 //--------------------------------------------------------------------
-+(id)	dictionaryWithDictionary:(NSDictionary*)dictionary
- andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults
++(NSDictionary*)dictionaryWithDictionary:(NSDictionary*)dictionary
+         andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults
 {
   NSMutableDictionary* dict=nil;
   if (dictionary)
@@ -1678,8 +1681,8 @@ NSData* HexStringToData(NSString* string)
 };
 
 //--------------------------------------------------------------------
--(id)dictionaryBySettingObject:(id)object
-                        forKey:(id)key
+-(NSDictionary*)dictionaryBySettingObject:(id)object
+                                   forKey:(id)key
 {
   NSMutableDictionary* dict=[[self mutableCopy]autorelease];
   [dict setObject:object
@@ -1689,7 +1692,7 @@ NSData* HexStringToData(NSString* string)
 };
 
 //--------------------------------------------------------------------
--(id)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary
+-(NSDictionary*)dictionaryByAddingEntriesFromDictionary:(NSDictionary*)dictionary
 {
   NSMutableDictionary* dict=[[self mutableCopy]autorelease];
   [dict addEntriesFromDictionary:dictionary];
@@ -1720,6 +1723,40 @@ NSData* HexStringToData(NSString* string)
     [self setDefaultObject:[dictionary objectForKey:key]
           forKey:key];
 };
+
+//--------------------------------------------------------------------
+-(NSDictionary*)extractObjectsForKeysWithPrefix:(NSString*)prefix
+                                   removePrefix:(BOOL)removePrefix
+{
+  NSMutableDictionary* newDictionary=nil;
+  NSEnumerator *enumerator = nil;
+  NSString* key=nil;
+  NSString* newKey=nil;
+  id value=nil;
+  LOGObjectFnStart();
+  newDictionary=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+  enumerator = [self keyEnumerator];
+  while ((key = [enumerator nextObject]))
+    {
+      NSDebugMLLog(@"associations",@"key=%@",key);
+      if ([key hasPrefix:prefix])
+        {
+          value=[self objectForKey:key];
+          NSDebugMLLog(@"associations",@"value=%@",value);
+          if (removePrefix)
+            newKey=[key stringByDeletingPrefix:prefix];
+          else
+            newKey=key;
+          [newDictionary setObject:value
+                          forKey:newKey];
+          [self removeObjectForKey:key];
+        };
+    };
+  newDictionary=[NSDictionary dictionaryWithDictionary:newDictionary];
+  LOGObjectFnStop();
+  return newDictionary;
+};
+
 
 @end
 
@@ -1789,7 +1826,7 @@ NSData* HexStringToData(NSString* string)
 //--------------------------------------------------------------------
 +(id)dictionaryWithArray:(NSArray*)array
               onSelector:(SEL)sel
-              withObject:(id)object
+              withObject:(id)anObject
 {
   NSMutableDictionary* dict=[NSMutableDictionary dictionary];
   int count=[array count];
@@ -1801,7 +1838,7 @@ NSData* HexStringToData(NSString* string)
       //TODO optimiser
       object=[array objectAtIndex:i];
       key=[object performSelector:sel
-                  withObject:object];
+                  withObject:anObject];
       NSAssert1(key,@"NSDictionary dictionaryWithArray: no key for object:%@",object);
       [dict setObject:object
             forKey:key];
@@ -2000,8 +2037,8 @@ NSData* HexStringToData(NSString* string)
       NSRange current;
       current = NSMakeRange (search.location,
                              found.location-search.location);
-	  NSDebugFLog(@"current=(%u,%u)",current.location,current.length);
-	  tmpData=[self subdataWithRange:current];
+      NSDebugFLog(@"current=(%u,%u)",current.location,current.length);
+      tmpData=[self subdataWithRange:current];
       [array addObject:tmpData];
       search = NSMakeRange (found.location + found.length,
                             complete.length - found.location - found.length);

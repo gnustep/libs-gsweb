@@ -1,12 +1,13 @@
 /** GSWLongResponsePage.m - <title>GSWeb: Class GSWLongResponsePage</title>
 
-   Copyright (C) 2002 Free Software Foundation, Inc.
+   Copyright (C) 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sep 2002
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -29,10 +30,18 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
 #include <GSWExtensions/GSWLongResponsePage.h>
+
+@interface GSWLongResponsePage (Private)
+-(void) _setCancelled:(BOOL)cancelled;
+-(void) _setResult:(id)result;
+-(id)_result;
+-(void)_setException:(NSException*)exception;
+-(NSException*)_exception;
+@end
 
 //===================================================================================
 @implementation GSWLongResponsePage
@@ -83,9 +92,9 @@ static char rcsId[] = "$Id$";
       NSString *url=nil;
       NSString *header=nil;
 
-      url=[aContext urlWithRequestHandlerKey:@"cr"
-                path:nil 
-                queryString:nil];
+      url=(NSString*)[aContext urlWithRequestHandlerKey:@"cr"
+                               path:nil 
+                               queryString:nil];
       NSDebugMLog(@"url=%@",url);
       header=[NSString stringWithFormat:@"%d;url=%@%@/%@.GSWMetaRefresh",
                        (int)_refreshInterval,
@@ -276,9 +285,11 @@ Don't override it
 {
   //??
   GSWComponent *page=nil;
+  id status=nil;
+  status=[self _status];
   LOGObjectFnStartC("GSWLongResponsePage");
   [self _setCancelled:YES];
-  page=[self cancelPage];
+  page=[self cancelPageForStatus:status];
   LOGObjectFnStopC("GSWLongResponsePage");
   return page;
 };

@@ -1,6 +1,6 @@
 /** GSWHyperlink.h - <title>GSWeb: Class GSWHyperlink</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -41,6 +41,7 @@
   GSWAssociation* _href;
   GSWAssociation* _disabled;
   GSWAssociation* _fragmentIdentifier;
+  GSWAssociation* _secure;
   GSWAssociation* _queryDictionary;
   GSWAssociation* _actionClass;
   GSWAssociation* _directActionName;
@@ -72,24 +73,26 @@
 @end
 
 @interface GSWHyperlink (GSWHyperlinkA)
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
 #if !GSWEB_STRICT
--(NSString*)frameworkNameInContext:(GSWContext*)context;
+-(NSString*)frameworkNameInContext:(GSWContext*)aContext;
 #endif
--(void)_appendCGIActionURLToResponse:(GSWResponse*)response
-                           inContext:(GSWContext*)context;
--(id)computeActionStringInContext:(GSWContext*)context;
--(void)_appendQueryStringToResponse:(GSWResponse*)response
-                          inContext:(GSWContext*)context;
--(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context;
--(NSString*)hrefInContext:(GSWContext*)context; //NDFN
+-(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
+                           inContext:(GSWContext*)aContext;
+-(NSString*)computeActionStringInContext:(GSWContext*)aContext;
+-(void)_appendQueryStringToResponse:(GSWResponse*)aResponse
+                          inContext:(GSWContext*)aContext;
+-(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)aContext;
+-(void)_appendFragmentToResponse:(GSWResponse*)aResponse
+                       inContext:(GSWContext*)aContext;
+-(NSString*)hrefInContext:(GSWContext*)aContext; //NDFN
 
 @end
 
 @interface GSWHyperlink (GSWHyperlinkB)
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 @end
 
 #endif //_GSWHyperlink_h__

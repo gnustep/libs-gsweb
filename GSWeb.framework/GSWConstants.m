@@ -1,11 +1,13 @@
 /** GSWConstants.m - <title>constants</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -28,7 +30,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -274,6 +276,7 @@ id negate__Key = @"negate";
 id pageName__Key = @"pageName";
 id elementName__Key = @"elementName";
 id fragmentIdentifier__Key = @"fragmentIdentifier";
+id secure__Key = @"secure";
 id string__Key = @"string";
 id scriptFile__Key = @"scriptFile";
 id scriptString__Key = @"scriptString";
@@ -321,4 +324,6 @@ id handleValidationException__Key = @"handleValidationException";
 id selectedValues__Key = @"selectedValues";
 id startIndex__Key = @"startIndex";
 id stopIndex__Key = @"stopIndex";
+id cidStore__Key = @"cidStore";
+id cidKey__Key = @"cidKey";
 

@@ -1,0 +1,7 @@
+To generate Parser classes:
+
+export CPA="/usr/lib/kaffe:/usr/share/kaffe/Klasses.jar:/usr/share/kaffe/pjava.jar:/usr/share/kaffe/tools.jar:${JNDI_LIB}:${NETSCAPE_LIB}:./plugins:."
+
+and in antlr directory:
+
+java -classpath "$CPA" antlr.Tool  /PathTo/PageDef.g

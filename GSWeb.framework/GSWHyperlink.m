@@ -1,12 +1,13 @@
 /** GSWHyperlink.m - <title>GSWeb: Class GSWHyperlink</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[]="$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -67,6 +68,10 @@ static char rcsId[] = "$Id$";
                                              withDefaultObject:[_fragmentIdentifier autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"fragmentIdentifier=%@",_fragmentIdentifier);
 
+  _secure = [[anAssociationsDict objectForKey:secure__Key
+                                             withDefaultObject:[_secure autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"secure=%@",_secure);
+
   _queryDictionary = [[anAssociationsDict objectForKey:queryDictionary__Key
                                           withDefaultObject:[_queryDictionary autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",_queryDictionary);
@@ -97,7 +102,7 @@ static char rcsId[] = "$Id$";
       _redirectURL = [[anAssociationsDict objectForKey:redirectURL__Key
                                           withDefaultObject:[_redirectURL autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"redirectURL=%@",_redirectURL);
-  
+
       _filename = [[anAssociationsDict objectForKey:filename__Key
                                        withDefaultObject:[_filename autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"filename=%@",_filename);
@@ -119,6 +124,7 @@ static char rcsId[] = "$Id$";
       NSDebugMLLog(@"gswdync",@"key=%@",_key);
     };
 
+
   tmpOtherAssociations=[NSMutableDictionary dictionaryWithDictionary:anAssociationsDict];
   [tmpOtherAssociations removeObjectForKey:action__Key];
   [tmpOtherAssociations removeObjectForKey:string__Key];
@@ -126,6 +132,7 @@ static char rcsId[] = "$Id$";
   [tmpOtherAssociations removeObjectForKey:href__Key];
   [tmpOtherAssociations removeObjectForKey:disabled__Key];
   [tmpOtherAssociations removeObjectForKey:fragmentIdentifier__Key];
+  [tmpOtherAssociations removeObjectForKey:secure__Key];
   [tmpOtherAssociations removeObjectForKey:queryDictionary__Key];
   [tmpOtherAssociations removeObjectForKey:actionClass__Key];
   [tmpOtherAssociations removeObjectForKey:directActionName__Key];
@@ -133,7 +140,7 @@ static char rcsId[] = "$Id$";
     {
       [tmpOtherAssociations removeObjectForKey:enabled__Key];
       [tmpOtherAssociations removeObjectForKey:redirectURL__Key];
-    
+
       [tmpOtherAssociations removeObjectForKey:filename__Key];
       [tmpOtherAssociations removeObjectForKey:framework__Key];
       [tmpOtherAssociations removeObjectForKey:data__Key];
@@ -157,10 +164,39 @@ static char rcsId[] = "$Id$";
     };
 
   if ([tmpOtherAssociations count]>0)
-    _otherAssociations=[[NSDictionary dictionaryWithDictionary:tmpOtherAssociations] retain];
+    {
+      ASSIGN(_otherQueryAssociations,([tmpOtherAssociations extractObjectsForKeysWithPrefix:@"?"
+                                                            removePrefix:YES]));
+      if ([_otherQueryAssociations count]==0)
+        DESTROY(_otherQueryAssociations);
+    };
+  NSDebugMLLog(@"gswdync",@"_otherQueryAssociations=%@",_otherQueryAssociations);
 
+  ASSIGN(_otherAssociations,tmpOtherAssociations);
   NSDebugMLLog(@"gswdync",@"_otherAssociations=%@",_otherAssociations);
-  //TODO NSDictionary* otherQueryAssociations;
+
+  if (!_action
+      && !_href
+      && !_pageName
+      && !_directActionName
+      && !_actionClass
+      && !_redirectURL
+      && !_filename
+      && !_data)
+    {
+      NSString* parametersList=@"'action' or 'href' or 'pageName' or 'directActionName' or 'actionClass'";
+      if (!WOStrictFlag)
+        parametersList=[parametersList stringByAppendingFormat:@"'redirectURL' or 'filename' or 'data'"];
+      ExceptionRaise(@"GSWHyperlink",
+                     @"You need to specify at least %@ parameter",
+                     parametersList);
+    };
+
+  if ([_action isValueConstant])
+    {
+      ExceptionRaise0(@"GSWHyperlink",
+                     @"'action' parameter can't be a constant");
+    };
 
   if ((self=[super initWithName:aName
                    associations:nil
@@ -180,6 +216,7 @@ static char rcsId[] = "$Id$";
   DESTROY(_href);
   DESTROY(_disabled);
   DESTROY(_fragmentIdentifier);
+  DESTROY(_secure);
   DESTROY(_queryDictionary);
   DESTROY(_actionClass);
   DESTROY(_directActionName);
@@ -224,6 +261,8 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
+  NS_DURING
+    {
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
   if (_disabled)
@@ -244,21 +283,8 @@ static char rcsId[] = "$Id$";
       [response _appendContentAsciiString:@"href"];
       [response appendContentCharacter:'='];
       [response appendContentCharacter:'"'];
-      if (_directActionName)
-        {
-          //OK
-          [self _appendCGIActionURLToResponse:response
-                inContext:context];
-        }
-      else if (_action || _pageName || _redirectURL)
-        {
-          NSString* anUrl=(NSString*)[context componentActionURL];
-          NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
-          [response appendContentString:anUrl];
-          [self _appendQueryStringToResponse:response
-                inContext:context];
-        }
-      else if (_href)
+
+      if (_href)
         {
           NSString* hrefValue=[self hrefInContext:context];
           [response appendContentString:hrefValue];
@@ -268,6 +294,36 @@ static char rcsId[] = "$Id$";
             };
           NSDebugMLLog(@"gswdync",@"href=%@",_href);
           NSDebugMLLog(@"gswdync",@"hrefValue=%@",hrefValue);
+          [self _appendQueryStringToResponse:response
+                inContext:context];
+          [self _appendFragmentToResponse:response
+                inContext:context];
+        }
+      else if (_actionClass || _directActionName)
+        {
+          //OK
+          [self _appendCGIActionURLToResponse:response
+                inContext:context];
+        }
+      else if (_action || _pageName || _redirectURL)
+        {
+          //OK
+          NSString* anUrl=nil;
+          BOOL completeUrlsPreviousState=NO;
+          BOOL isSecure=[self evaluateCondition:_secure
+                              inContext:context];
+          // Force complete URLs
+          if (isSecure)
+            completeUrlsPreviousState=[context _generateCompleteURLs];
+          anUrl=(NSString*)[context componentActionURLIsSecure:isSecure];
+          NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
+          [response appendContentString:anUrl];
+          [self _appendQueryStringToResponse:response
+                inContext:context];
+          [self _appendFragmentToResponse:response
+                inContext:context];
+          if (isSecure && !completeUrlsPreviousState)
+            [context _generateRelativeURLs];
         }
       else if (!WOStrictFlag && (_filename || _data))
         {
@@ -326,7 +382,10 @@ static char rcsId[] = "$Id$";
         }
       else
         {		  
-          LOGObjectFnNotImplemented();	//TODOFN
+          [self _appendQueryStringToResponse:response
+                inContext:context];
+          [self _appendFragmentToResponse:response
+                inContext:context];
         };
       [response appendContentCharacter:'"'];
       NSDebugMLLog(@"gswdync",@"otherAssociations=%@",_otherAssociations);
@@ -361,6 +420,7 @@ static char rcsId[] = "$Id$";
           if (stringValue)
             [response appendContentHTMLString:stringValue];
         };
+      NSDebugMLLog(@"gswdync",@"_children=%p",_children);
       if (_children)
         {
           [context appendZeroElementIDComponent];
@@ -377,6 +437,17 @@ static char rcsId[] = "$Id$";
 #ifndef NDEBBUG
   NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWHyperlink appendToResponse: bad elementID");
 #endif
+    }
+  NS_HANDLER
+    {
+      LOGException0(@"exception in GSWHyperlink appendToResponse:inContext");
+      LOGException(@"exception=%@",localException);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"In GSWForm appendToResponse:inContext");
+      LOGException(@"exception=%@",localException);
+      [localException raise];
+    }
+  NS_ENDHANDLER;
   LOGObjectFnStop();
 };
 
@@ -403,54 +474,47 @@ static char rcsId[] = "$Id$";
   NSString* actionString=nil;
   NSDictionary* queryDictionary=nil;
   NSString* anUrl=nil;
+  BOOL completeUrlsPreviousState=NO;
+  BOOL isSecure=NO;
   LOGObjectFnStart();
+
   actionString=[self computeActionStringInContext:context];
   NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);
+
   queryDictionary=[self computeQueryDictionaryInContext:context];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);
+
+  isSecure=[self evaluateCondition:_secure
+                 inContext:context];
+  // Force complete URLs
+  if (isSecure)
+    completeUrlsPreviousState=[context _generateCompleteURLs];
+
   anUrl=(NSString*)[context directActionURLForActionNamed:actionString
-                            queryDictionary:queryDictionary];
+                            queryDictionary:queryDictionary
+                            isSecure:isSecure];
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
+
+  if (isSecure && !completeUrlsPreviousState)
+    [context _generateRelativeURLs];
+
   [response appendContentString:anUrl];
+
+  [self _appendFragmentToResponse:response
+        inContext:context];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(id)computeActionStringInContext:(GSWContext*)context
+-(NSString*)computeActionStringInContext:(GSWContext*)context
 {
-  //OK
-  GSWComponent* component=nil;
-  id tmpDirectActionString=nil;
-  id directActionNameValue=nil;
-  id actionClassValue=nil;
+  NSString* actionString=nil;
   LOGObjectFnStart();
-  component=[context component];
-  if (_directActionName)
-    directActionNameValue=[_directActionName valueInComponent:component];
-  if (_actionClass)
-    actionClassValue=[_actionClass valueInComponent:component];
-
-  if (actionClassValue)
-    {
-      if (directActionNameValue)
-        tmpDirectActionString=[NSString stringWithFormat:@"%@/%@",
-                                        actionClassValue,
-                                        directActionNameValue];
-      else
-        tmpDirectActionString=actionClassValue;
-    }
-  else if (directActionNameValue)
-    tmpDirectActionString=directActionNameValue;
-  else
-    {
-      LOGSeriousError(@"No actionClass (for %@) and no directActionName (for %@)",
-                      actionClass,
-                      directActionName);
-    };
-
-  NSDebugMLLog(@"gswdync",@"tmpDirectActionString=%@",tmpDirectActionString);
+  actionString=[self computeActionStringWithActionClassAssociation:_actionClass
+                     directActionNameAssociation:_directActionName
+                     inContext:context];
   LOGObjectFnStop();
-  return tmpDirectActionString;
+  return actionString;
 };
 
 //--------------------------------------------------------------------
@@ -492,64 +556,35 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context
 {
-  //OK
-  NSMutableDictionary* queryDictionary=nil;
-  GSWComponent* component=nil;
-  GSWSession* session=nil;
+  NSDictionary* queryDictionary=nil;
   LOGObjectFnStart();
-  queryDictionary=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-  component=[context component];
-  session=[context existingSession];
-  if (session)
-    {
-      if (!_action && !_pageName
-          && (WOStrictFlag || (!WOStrictFlag && !_redirectURL))) //??
-        {
-          NSString* sessionID=[session sessionID];
-          [queryDictionary setObject:sessionID
-                           forKey:GSWKey_SessionID[GSWebNamingConv]];
-        };
-    };
-  //TODOV
-  if (_otherQueryAssociations)
-    {
-      NSEnumerator *enumerator = [_otherQueryAssociations keyEnumerator];
-      id oaKey=nil;
-      while ((oaKey = [enumerator nextObject]))
-        {
-          id oaValue=[[_otherQueryAssociations objectForKey:oaKey] valueInComponent:component];
-          if (!oaValue)
-            oaValue=[NSString string];
-          [queryDictionary setObject:oaValue
-                           forKey:oaKey];
-        };
-    };
-  if (_queryDictionary)
-    {
-      NSEnumerator *enumerator = nil;
-      NSDictionary* queryDictionaryValue=[_queryDictionary valueInComponent:component];
-      id oaKey;
-
-      NSAssert3(!queryDictionaryValue || [queryDictionaryValue isKindOfClass:[NSDictionary class]],
-                @"queryDictionary value is not a dictionary but a %@. association was: %@. queryDictionaryValue is:",
-                [queryDictionaryValue class],
-                _queryDictionary,
-                queryDictionaryValue);
-
-      enumerator = [queryDictionaryValue keyEnumerator];
-
-      while ((oaKey = [enumerator nextObject]))
-        {
-          id oaValue=[queryDictionaryValue objectForKey:oaKey];
-          if (!oaValue)
-            oaValue=@"";
-          [queryDictionary setObject:oaValue
-                           forKey:oaKey];
-        };
-    };
-  //TODO finished ??
+  queryDictionary=[self computeQueryDictionaryWithActionClassAssociation:_actionClass
+                        directActionNameAssociation:_directActionName
+                        queryDictionaryAssociation:_queryDictionary
+                        otherQueryAssociations:_otherQueryAssociations
+                        inContext:context];
   LOGObjectFnStop();
   return queryDictionary;
+};
+
+//--------------------------------------------------------------------
+-(void)_appendFragmentToResponse:(GSWResponse*)response
+                       inContext:(GSWContext*)context
+{
+  //OK
+  LOGObjectFnStart();
+  NSDebugMLLog(@"gswdync",@"_fragmentIdentifier=%@",_fragmentIdentifier);
+  if (_fragmentIdentifier)
+    {
+      id fragment=[_fragmentIdentifier valueInComponent:[context component]];
+      NSDebugMLLog(@"gswdync",@"fragment=%@",fragment);
+      if (fragment)
+        {
+          [response appendContentCharacter:'#'];
+          [response appendContentString:fragment];
+        };
+    };
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------

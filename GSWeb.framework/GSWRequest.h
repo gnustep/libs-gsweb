@@ -1,6 +1,6 @@
 /** GSWRequest.h - <title>GSWeb: Class GSWRequest</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -46,7 +46,9 @@
   NSStringEncoding _defaultFormValueEncoding;
   NSStringEncoding _formValueEncoding;
   NSDictionary* _formValues;
+  NSDictionary* _uriElements;
   NSDictionary* _cookie;
+  BOOL _finishedParsingMultipartFormData;
   NSString* _applicationURLPrefix;
   NSArray* _requestHandlerPathArray;
   NSArray* _browserLanguages;
@@ -54,6 +56,7 @@
   BOOL _isUsingWebServer;
   BOOL _formValueEncodingDetectionEnabled;
   int _applicationNumber;
+  GSWContext* _context;//Don't retain/release because request is retained by context
 };
 
 -(id)initWithMethod:(NSString*)aMethod
@@ -66,6 +69,8 @@
 -(void)dealloc;
 -(id)copyWithZone:(NSZone*)zone;
 
+-(GSWContext*)_context;
+-(void)_setContext:(GSWContext*)context;
 -(NSData*)content;
 -(NSDictionary*)headers;
 -(NSString*)headerForKey:(NSString*)key;
@@ -103,6 +108,14 @@
 
 -(NSDictionary*)formValues;
 @end
+
+//====================================================================
+@interface GSWRequest (GSWURIElementReporting)
+-(NSArray*)uriElementKeys;
+-(NSString*)uriElementForKey:(NSString*)key;
+-(NSDictionary*)uriElements;
+@end
+
 //====================================================================
 @interface GSWRequest (GSWRequestTypeReporting)
 -(BOOL)isFromClientComponent;
@@ -125,6 +138,7 @@
 //====================================================================
 @interface GSWRequest (GSWRequestA)
 
+-(NSString*)sessionIDFromValuesOrCookieByLookingForCookieFirst:(BOOL)lookCookieFirst;
 -(NSString*)sessionID;
 -(NSString*)requestHandlerPath;
 -(NSString*)adaptorPrefix;
@@ -164,6 +178,7 @@
 -(GSWDynamicURLString*)_applicationURLPrefix;
 -(NSDictionary*)_formValues;
 -(void)_getFormValuesFromURLEncoding;
++(BOOL)_lookForIDsInCookiesFirst;
 -(BOOL)_hasFormValues; 
 
 @end
@@ -198,8 +213,9 @@
 -(NSString*)contextID;
 -(NSString*)senderID;
 //NDFN
+-(NSDictionary*)uriOrFormOrCookiesElementsByLookingForCookieFirst:(BOOL)lookCookieFirst;
 -(NSMutableDictionary*)uriOrFormOrCookiesElements;
--(NSMutableDictionary*)uriElements;
+-(NSMutableDictionary*)_uriElements;
 @end
 //====================================================================
 @interface GSWRequest (GSWRequestL)

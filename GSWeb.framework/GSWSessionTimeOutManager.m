@@ -138,6 +138,7 @@ static char rcsId[] = "$Id$";
 {
   //OK
   [GSWApplication statusLogWithFormat:@"Start HandleTimer"];
+  NSDebugMLog(@"Start HandleTimer");
 //  LOGObjectFnStart();
   [GSWApp lockRequestHandling];
   NS_DURING
@@ -241,6 +242,7 @@ static char rcsId[] = "$Id$";
   [GSWApp unlockRequestHandling];
 //  LOGObjectFnStop();
   [GSWApplication statusLogWithFormat:@"Stop HandleTimer"];
+  NSDebugMLog(@"Stop HandleTimer");
 };
 
 //--------------------------------------------------------------------

@@ -1071,7 +1071,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       NSDebugMLLog(@"associations",@"key=%@",key);
       if ([key hasPrefix:prefix])
         {
-          [removeFrom removeObjectForKey:key];
           value=[self objectForKey:key];
           NSDebugMLLog(@"associations",@"value=%@",value);
           varKey=[key stringByDeletingPrefix:prefix];
@@ -1080,6 +1079,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           NSDebugMLLog(@"associations",@"varKeyAssociation=%@",varKeyAssociation);
           [newAssociation setObject:value
                           forKey:varKeyAssociation];
+          [removeFrom removeObjectForKey:key];
         };
     };
   newAssociation=[NSDictionary dictionaryWithDictionary:newAssociation];

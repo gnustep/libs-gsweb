@@ -1,6 +1,6 @@
 /** GSWTemplateParserXML.m - <title>GSWeb: Class GSWTemplateParserXML</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -29,6 +29,8 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
+
+static const char rcsId[]="$Id$";
 
 #include "GSWeb.h"
 #include "GSWTemplateParserXML.h"
@@ -890,7 +892,9 @@ text [Type:XML_TEXT_NODE] [{}] ####
   GSXMLNode* currentNode=node;
   NSMutableArray* _elements=nil;
   NSAutoreleasePool* arp = nil;
+  BOOL includesComment = NO;
   LOGObjectFnStart();
+  includesComment=[GSWApplication includeCommentsInResponses];
   _elements=[NSMutableArray array];
   arp=[NSAutoreleasePool new];
   while(currentNode)
@@ -936,8 +940,11 @@ text [Type:XML_TEXT_NODE] [{}] ####
         case XML_COMMENT_NODE:
           {
             NSDebugMLog0(@"COMMENT");
-            elem=[GSWHTMLBareString elementWithString:[NSString stringWithFormat:@"<!-- %s -->",[[currentNode content] lossyCString]]];
-            NSDebugMLLog(@"GSWTemplateParser",@"COMMENT element=%@",elem);
+            if (includesComment)
+              {
+                elem=[GSWHTMLBareString elementWithString:[NSString stringWithFormat:@"<!-- %s -->",[[currentNode content] lossyCString]]];
+                NSDebugMLLog(@"GSWTemplateParser",@"COMMENT element=%@",elem);
+              };
           };
           break;
         default:

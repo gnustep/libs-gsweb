@@ -1,6 +1,6 @@
 /** NSString+HTML.h - <title>GSWeb: NSString / HTML</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -42,6 +42,10 @@
 -(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
                           withSep2:(NSString*)sep2
                 withOptionUnescape:(BOOL)unescape;
+-(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
+                          withSep2:(NSString*)sep2
+                withOptionUnescape:(BOOL)unescape
+                        forceArray:(BOOL)forceArray;
 -(BOOL)ismapCoordx:(int*)x
                  y:(int*)y;
 -(NSString*)stringByEscapingHTMLString;

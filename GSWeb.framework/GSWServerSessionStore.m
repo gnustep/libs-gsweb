@@ -1,6 +1,6 @@
 /** GSWServerSessionStore.m - <title>GSWeb: Class GSWServerSessionStore</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -27,7 +27,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -39,11 +39,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      _timeOutManager=[GSWSessionTimeOutManager new];
       _sessions=[NSMutableDictionary new];
-      [_timeOutManager setCallBack:@selector(removeSessionWithID:)
-                       target:self];
-      [_timeOutManager startHandleTimerRefusingSessions];
     };
   LOGObjectFnStop();
   return self;
@@ -53,7 +49,6 @@ static char rcsId[] = "$Id$";
 -(void)dealloc
 {
   DESTROY(_sessions);
-  DESTROY(_timeOutManager);
   [super dealloc];
 };
 
@@ -68,33 +63,34 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+/** Should be Locked **/
 -(void)saveSessionForContext:(GSWContext*)aContext
 {
   //OK
   GSWSession* session=nil;
   NSString* sessionID=nil;
-  NSTimeInterval sessionTimeOut=0;
-  BOOL sessionIsTerminating=NO;
   LOGObjectFnStart();
   session=[aContext existingSession];
-  NSAssert(session,@"No session!");
   NSDebugMLLog(@"sessions",@"session=%@",session);
-  sessionIsTerminating=[session isTerminating]; //TODO
-  [session setDistributionEnabled:NO];
+  if (!session)
+    {
+      [NSException raise:@"IllegalStateException"
+                   format:@"Current context has no existing session. Can't save session"];
+    };
+
   sessionID=[session sessionID];
   NSAssert(sessionID,@"No _sessionID!");
   NSDebugMLLog(@"sessions",@"_sessionID=%@",sessionID);
-  sessionTimeOut=[session timeOut];
+
   [_sessions setObject:session
              forKey:sessionID];
+
   NSDebugMLLog(@"sessions",@"session=%@",session);
-  NSDebugMLLog(@"sessions",@"sessionTimeOut=%ld",(long)sessionTimeOut);
-  [_timeOutManager updateTimeOutForSessionWithID:sessionID
-                   timeOut:sessionTimeOut];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
+/** Should be Locked **/
 -(id)restoreSessionWithID:(NSString*)aSessionID
                   request:(GSWRequest*)aRequest
 {
@@ -110,6 +106,7 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+/** Should be Locked **/
 -(GSWSession*)removeSessionWithID:(NSString*)aSessionID
 {
   //OK

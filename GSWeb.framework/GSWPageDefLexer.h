@@ -2,7 +2,7 @@
 #define INC_GSWPageDefLexer_h_
 
 /*
- * ANTLR-generated file resulting from grammar PageDef.g
+ * ANTLR-generated file resulting from grammar /tmp/PageDef.g
  * 
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
@@ -38,6 +38,7 @@
 	/*public: */-(void) mSTRINGWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mIDENTREFWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mPIDENTREFWithCreateToken:(BOOL)_createToken ;
+	/*public: */-(void) mINTWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mYESWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mNOWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mLCURLYWithCreateToken:(BOOL)_createToken ;
@@ -47,9 +48,9 @@
 	/*public: */-(void) mTILDEWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mCOLUMNWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mASSIGNWithCreateToken:(BOOL)_createToken ;
+	/*public: */-(void) mQUESTIONMARKWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mWSWithCreateToken:(BOOL)_createToken ;
 	/*protected: */-(void) mESCWithCreateToken:(BOOL)_createToken ;
-	/*public: */-(void) mINTWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mHEXNUMWithCreateToken:(BOOL)_createToken ;
 	/*protected: */-(void) mHEXINTWithCreateToken:(BOOL)_createToken ;
 	/*protected: */-(void) mHEXDIGITWithCreateToken:(BOOL)_createToken ;

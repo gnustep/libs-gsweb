@@ -1,5 +1,5 @@
 /*
- * ANTLR-generated file resulting from grammar PageDef.g
+ * ANTLR-generated file resulting from grammar /tmp/PageDef.g
  * 
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
@@ -242,7 +242,7 @@
 		{
 			do
 			{
-				if (([self LA:1]==GSWPageDefParserTokenType_IDENT))
+				if (([self LA:1]==GSWPageDefParserTokenType_IDENT||[self LA:1]==GSWPageDefParserTokenType_QUESTIONMARK))
 				{
 					[self member];
 					[astFactory addASTChild:returnAST in:currentAST];
@@ -336,20 +336,16 @@
 	
 	ANTLRASTPair* currentAST=[[ANTLRASTPair new] autorelease];
 	ANTLRDefAST member_AST = ANTLRnullAST;
-	ANTLRDefToken  memberName = nil;
 	ANTLRDefAST memberName_AST = ANTLRnullAST;
 	
 	//LOGObjectFnStart();
 	ASSIGN(returnAST,ANTLRnullAST);
 	NS_DURING      // for error handling
 	{
-		memberName = [self LT:1];
-		{
-			memberName_AST = [astFactory create:memberName];
-			[astFactory makeASTRoot:memberName_AST in:currentAST];
-		}
-		[self matchTokenType:GSWPageDefParserTokenType_IDENT];
-		ASSIGN(currentMemberName,[memberName text]);
+		[self mname];
+		memberName_AST = returnAST;
+		[astFactory addASTChild:returnAST in:currentAST];
+		ASSIGN(currentMemberName,([memberName_AST toStringListWithSiblingSeparator:@"" openSeparator:@"" closeSeparator:@""]));
 		{
 			ANTLRDefAST tmp7_AST = ANTLRnullAST;
 			tmp7_AST = [astFactory create:[self LT:1]];
@@ -390,6 +386,60 @@
 	}
 	NS_ENDHANDLER;
 	ASSIGN(returnAST,member_AST);
+	//LOGObjectFnStop();
+}
+
+-(void) mname
+{
+	
+	ANTLRASTPair* currentAST=[[ANTLRASTPair new] autorelease];
+	ANTLRDefAST mname_AST = ANTLRnullAST;
+	
+	//LOGObjectFnStart();
+	ASSIGN(returnAST,ANTLRnullAST);
+	NS_DURING      // for error handling
+	{
+		{
+			switch ( [self LA:1])
+			{
+			case GSWPageDefParserTokenType_QUESTIONMARK:
+			{
+				{
+					ANTLRDefAST tmp9_AST = ANTLRnullAST;
+					tmp9_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp9_AST in:currentAST];
+				}
+				[self matchTokenType:GSWPageDefParserTokenType_QUESTIONMARK];
+				break;
+			}
+			case GSWPageDefParserTokenType_IDENT:
+			{
+				break;
+			}
+			default:
+			{
+				[ANTLRNoViableAltException raiseWithToken:[self LT:1]];
+			}
+			}
+		}
+		{
+			{
+				ANTLRDefAST tmp10_AST = ANTLRnullAST;
+				tmp10_AST = [astFactory create:[self LT:1]];
+				[astFactory addASTChild:tmp10_AST in:currentAST];
+			}
+			[self matchTokenType:GSWPageDefParserTokenType_IDENT];
+		}
+		mname_AST = [currentAST root];
+	}
+	NS_HANDLER
+	{
+		[self reportErrorWithException:localException];
+		[self consume];
+		[self consumeUntilTokenBitSet:GSWPageDefParser___tokenSet_4];
+	}
+	NS_ENDHANDLER;
+	ASSIGN(returnAST,mname_AST);
 	//LOGObjectFnStop();
 }
 
@@ -440,9 +490,9 @@
 			case GSWPageDefParserTokenType_YES:
 			{
 				{
-					ANTLRDefAST tmp9_AST = ANTLRnullAST;
-					tmp9_AST = [astFactory create:[self LT:1]];
-					[astFactory addASTChild:tmp9_AST in:currentAST];
+					ANTLRDefAST tmp11_AST = ANTLRnullAST;
+					tmp11_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp11_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefParserTokenType_YES];
 				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber numberWithBool:YES]];
@@ -452,9 +502,9 @@
 			case GSWPageDefParserTokenType_NO:
 			{
 				{
-					ANTLRDefAST tmp10_AST = ANTLRnullAST;
-					tmp10_AST = [astFactory create:[self LT:1]];
-					[astFactory addASTChild:tmp10_AST in:currentAST];
+					ANTLRDefAST tmp12_AST = ANTLRnullAST;
+					tmp12_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp12_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefParserTokenType_NO];
 				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber numberWithBool:NO]];
@@ -497,7 +547,7 @@
 	{
 		[self reportErrorWithException:localException];
 		[self consume];
-		[self consumeUntilTokenBitSet:GSWPageDefParser___tokenSet_4];
+		[self consumeUntilTokenBitSet:GSWPageDefParser___tokenSet_5];
 	}
 	NS_ENDHANDLER;
 	ASSIGN(returnAST,mvalue_AST);
@@ -520,9 +570,9 @@
 			case GSWPageDefParserTokenType_CIRC:
 			{
 				{
-					ANTLRDefAST tmp11_AST = ANTLRnullAST;
-					tmp11_AST = [astFactory create:[self LT:1]];
-					[astFactory addASTChild:tmp11_AST in:currentAST];
+					ANTLRDefAST tmp13_AST = ANTLRnullAST;
+					tmp13_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp13_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefParserTokenType_CIRC];
 				break;
@@ -530,9 +580,9 @@
 			case GSWPageDefParserTokenType_TILDE:
 			{
 				{
-					ANTLRDefAST tmp12_AST = ANTLRnullAST;
-					tmp12_AST = [astFactory create:[self LT:1]];
-					[astFactory addASTChild:tmp12_AST in:currentAST];
+					ANTLRDefAST tmp14_AST = ANTLRnullAST;
+					tmp14_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp14_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefParserTokenType_TILDE];
 				break;
@@ -554,9 +604,9 @@
 			case GSWPageDefParserTokenType_IDENT:
 			{
 				{
-					ANTLRDefAST tmp13_AST = ANTLRnullAST;
-					tmp13_AST = [astFactory create:[self LT:1]];
-					[astFactory addASTChild:tmp13_AST in:currentAST];
+					ANTLRDefAST tmp15_AST = ANTLRnullAST;
+					tmp15_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp15_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefParserTokenType_IDENT];
 				break;
@@ -564,9 +614,9 @@
 			case GSWPageDefParserTokenType_IDENTREF:
 			{
 				{
-					ANTLRDefAST tmp14_AST = ANTLRnullAST;
-					tmp14_AST = [astFactory create:[self LT:1]];
-					[astFactory addASTChild:tmp14_AST in:currentAST];
+					ANTLRDefAST tmp16_AST = ANTLRnullAST;
+					tmp16_AST = [astFactory create:[self LT:1]];
+					[astFactory addASTChild:tmp16_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefParserTokenType_IDENTREF];
 				break;
@@ -585,9 +635,9 @@
 				case GSWPageDefParserTokenType_PIDENT:
 				{
 					{
-						ANTLRDefAST tmp15_AST = ANTLRnullAST;
-						tmp15_AST = [astFactory create:[self LT:1]];
-						[astFactory addASTChild:tmp15_AST in:currentAST];
+						ANTLRDefAST tmp17_AST = ANTLRnullAST;
+						tmp17_AST = [astFactory create:[self LT:1]];
+						[astFactory addASTChild:tmp17_AST in:currentAST];
 					}
 					[self matchTokenType:GSWPageDefParserTokenType_PIDENT];
 					break;
@@ -595,20 +645,20 @@
 				case GSWPageDefParserTokenType_PIDENTREF:
 				{
 					{
-						ANTLRDefAST tmp16_AST = ANTLRnullAST;
-						tmp16_AST = [astFactory create:[self LT:1]];
-						[astFactory addASTChild:tmp16_AST in:currentAST];
+						ANTLRDefAST tmp18_AST = ANTLRnullAST;
+						tmp18_AST = [astFactory create:[self LT:1]];
+						[astFactory addASTChild:tmp18_AST in:currentAST];
 					}
 					[self matchTokenType:GSWPageDefParserTokenType_PIDENTREF];
 					break;
 				}
 				default:
 				{
-					goto _loop28;
+					goto _loop31;
 				}
 				}
 			} while (YES);
-			_loop28:;
+			_loop31:;
 		}
 		idref_AST = [currentAST root];
 	}
@@ -616,7 +666,7 @@
 	{
 		[self reportErrorWithException:localException];
 		[self consume];
-		[self consumeUntilTokenBitSet:GSWPageDefParser___tokenSet_4];
+		[self consumeUntilTokenBitSet:GSWPageDefParser___tokenSet_5];
 	}
 	NS_ENDHANDLER;
 	ASSIGN(returnAST,idref_AST);
@@ -637,6 +687,7 @@ static CONST NSString* GSWPageDefParser___tokenNames[] = {
 	@"RCURLY",
 	@"SEMI",
 	@"ASSIGN",
+	@"QUESTIONMARK",
 	@"INT",
 	@"YES",
 	@"NO",
@@ -664,10 +715,12 @@ CONST unsigned long GSWPageDefParser___tokenSet_1_data_[] = { 146UL, 0UL, 0UL, 0
 static ANTLRBitSet* GSWPageDefParser___tokenSet_1=nil;
 CONST unsigned long GSWPageDefParser___tokenSet_2_data_[] = { 512UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefParser___tokenSet_2=nil;
-CONST unsigned long GSWPageDefParser___tokenSet_3_data_[] = { 1152UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefParser___tokenSet_3_data_[] = { 9344UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefParser___tokenSet_3=nil;
-CONST unsigned long GSWPageDefParser___tokenSet_4_data_[] = { 3200UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefParser___tokenSet_4_data_[] = { 4096UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefParser___tokenSet_4=nil;
+CONST unsigned long GSWPageDefParser___tokenSet_5_data_[] = { 11392UL, 0UL, 0UL, 0UL };
+static ANTLRBitSet* GSWPageDefParser___tokenSet_5=nil;
 +(void)initialize
 {
 	if (!GSWPageDefParser___tokenSet_0)
@@ -680,6 +733,8 @@ static ANTLRBitSet* GSWPageDefParser___tokenSet_4=nil;
 		GSWPageDefParser___tokenSet_3=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefParser___tokenSet_3_data_ length:8] retain];
 	if (!GSWPageDefParser___tokenSet_4)
 		GSWPageDefParser___tokenSet_4=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefParser___tokenSet_4_data_ length:8] retain];
+	if (!GSWPageDefParser___tokenSet_5)
+		GSWPageDefParser___tokenSet_5=[[ANTLRBitSet bitSetWithULongBits:GSWPageDefParser___tokenSet_5_data_ length:8] retain];
 }
 +(void)dealloc
 {
@@ -688,6 +743,7 @@ static ANTLRBitSet* GSWPageDefParser___tokenSet_4=nil;
 	DESTROY(GSWPageDefParser___tokenSet_2);
 	DESTROY(GSWPageDefParser___tokenSet_3);
 	DESTROY(GSWPageDefParser___tokenSet_4);
+	DESTROY(GSWPageDefParser___tokenSet_5);
 	[[self superclass] dealloc];
 }
 @end

@@ -1,6 +1,6 @@
 /** GSWImage.h - <title>GSWeb: Class GSWImage</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -34,7 +34,10 @@
 
 
 @interface GSWImage: GSWHTMLURLValuedElement
-
+{
+  GSWAssociation* _width;
+  GSWAssociation* _height;
+}
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;

@@ -1,12 +1,13 @@
 /** GSWBundle.m -  <title>GSWeb: Class GSWBundle</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -29,7 +30,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -999,7 +1000,7 @@ objectForReference:(NSString*)keyPath
               templateParserTypeObject=[archive objectForKey:@"templateParserType"];
               if (templateParserTypeObject)
                 {
-                  templateParserTypeObject=[NSNumber valueWithInt:[GSWTemplateParser templateParserTypeFromString:templateParserTypeObject]];
+                  templateParserTypeObject=[NSNumber numberWithInt:[GSWTemplateParser templateParserTypeFromString:templateParserTypeObject]];
                   [_templateParserTypeCache setObject:templateParserTypeObject
                                   forKey:aName];
                 };

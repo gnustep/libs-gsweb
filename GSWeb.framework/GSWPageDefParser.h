@@ -2,7 +2,7 @@
 #define INC_GSWPageDefParser_h_
 
 /*
- * ANTLR-generated file resulting from grammar PageDef.g
+ * ANTLR-generated file resulting from grammar /tmp/PageDef.g
  * 
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
@@ -41,6 +41,7 @@
 	/*public: */-(void) definition;
 	/*public: */-(void) classname;
 	/*public: */-(void) member;
+	/*public: */-(void) mname;
 	/*public: */-(void) mvalue;
 	/*public: */-(void) idref;
 @end;
@@ -58,5 +59,7 @@ extern CONST unsigned long GSWPageDefParser___tokenSet_3_data_[];
 extern ANTLRBitSet* GSWPageDefParser___tokenSet_3;
 extern CONST unsigned long GSWPageDefParser___tokenSet_4_data_[];
 extern ANTLRBitSet* GSWPageDefParser___tokenSet_4;
+extern CONST unsigned long GSWPageDefParser___tokenSet_5_data_[];
+extern ANTLRBitSet* GSWPageDefParser___tokenSet_5;
 
 #endif /*INC_GSWPageDefParser_h_*/

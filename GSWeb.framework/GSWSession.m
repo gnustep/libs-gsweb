@@ -1,12 +1,13 @@
 /** GSWSession.m - <title>GSWeb: Class GSWSession</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,14 +28,23 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
+#include <gscrypt/GSMD5.h>
+#include <time.h>
+#if __linux__
+#include <linux/kernel.h>
+#include <linux/sys.h>
+#include <sys/sysinfo.h>
+#endif
+
+/*
 #ifdef NOEXTENSIONS
 #else
 #include <extensions/GarbageCollector.h>
 #endif
-
+*/
 //====================================================================
 
 @implementation GSWSession
@@ -49,7 +59,7 @@ static char rcsId[] = "$Id$";
       NSTimeInterval sessionTimeOut=[GSWApplication sessionTimeOutValue];
       NSDebugMLLog(@"sessions",@"sessionTimeOut=%ld",(long)sessionTimeOut);
       [self setTimeOut:sessionTimeOut];
-      [self _initWithSessionID:[NSString stringUniqueIdWithLength:8]]; //TODO
+      [self _initWithSessionID:[[self class]createSessionID]];
     };
   LOGObjectFnStop();
   return self;
@@ -70,6 +80,136 @@ static char rcsId[] = "$Id$";
   return clone;
 };
 
++(NSString*)createSessionID
+{
+  // The idea is to have uniq sessionID generated.
+  // Parts are:
+  // o a modified TimeStamp (modified because we don't want to give 
+  //  information on server exact time which can be always a security 
+  // problem), so we can remember this sessionID for long time without conflict
+  // o a md5 sum of various elements
+
+  // The generated session ID is a sizeof(time_t)+16 bytes string
+  
+  NSString* sessionID=nil;
+  NSMutableData* data=nil;
+  NSMutableData* md5Data=nil;
+  NSData* md5Sum=nil;
+  void* pMd5Data=NULL;
+  time_t ts=time(NULL);
+  int sizeToFill=64;
+
+  md5Data=[NSMutableData dataWithLength:64];
+  pMd5Data=[md5Data mutableBytes];
+
+  // initialize random generator 
+  // We xor time stamp with a pointer so 2 sessions created at the same 
+  // time won't have the same random generator initializer
+  srand(((unsigned long int)ts) ^ ((unsigned long int)md5Data)); 
+  
+  // We randomize on 60s
+  ts=ts+(int)(60*rand()/(RAND_MAX+1.0));
+  
+  data=[NSMutableData dataWithBytes:&ts
+                      length:sizeof(ts)];
+
+  // Now, use some system related chnaging info (
+#if __linux__
+  {
+    struct sysinfo info;
+    if ((sysinfo(&info)) == 0)
+      {
+        unsigned int rnd;
+
+        // >0 test is to ignore not changing elements
+
+        if (sizeToFill>=sizeof(unsigned int) && info.uptime>0)
+          {
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            NSDebugMLog(@"UPTIME %ld",(long)info.uptime);
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.uptime)) ^ rnd);
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);
+          };
+
+        if (sizeToFill>=sizeof(unsigned int) && info.loads[0]>0)
+          {
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            NSDebugMLog(@"loads[0] %ld",(long)info.loads[0]);
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[0] >> 4)) ^ rnd);
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);
+          };
+
+        if (sizeToFill>=sizeof(unsigned int) && info.loads[1]>0)
+          {
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            NSDebugMLog(@"loads[1] %ld",(long)info.loads[1]);
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[1] >> 4)) ^ rnd);
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);
+          };
+
+        if (sizeToFill>=sizeof(unsigned int) && info.loads[2]>0)
+          {
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            NSDebugMLog(@"loads[2] %ld",(long)info.loads[2]);
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[2] >> 4)) ^ rnd);
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);
+          };
+
+        if (sizeToFill>=sizeof(unsigned int) && info.freeram>0)
+          {
+            NSDebugMLog(@"freeram %ld",(unsigned long)info.freeram);
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeram >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);
+          };
+        
+        if (sizeToFill>=sizeof(unsigned int) && info.sharedram>0)
+          {
+            NSDebugMLog(@"sharedram %ld",(unsigned long)info.sharedram);
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.sharedram >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);
+          };
+        
+        if (sizeToFill>=sizeof(unsigned int) && info.freeswap>0)
+          {
+            NSDebugMLog(@"freeswap %ld",(unsigned long)info.freeswap);
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeswap >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);
+          };
+        
+        if (sizeToFill>=sizeof(unsigned int) && info.bufferram>0)
+          {
+            NSDebugMLog(@"bufferram %ld",(unsigned long)info.bufferram);
+            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            *((unsigned int*)pMd5Data)=(((unsigned int)(info.bufferram >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(unsigned int);
+            pMd5Data+=sizeof(unsigned int);                            
+          };
+      };
+  };
+#endif
+  NSDebugMLog(@"sizeToFill %d",sizeToFill);
+  while(sizeToFill>0)
+    {
+      *((unsigned char*)pMd5Data)=(unsigned char)(256*rand()/(RAND_MAX+1.0));
+      sizeToFill--;
+      pMd5Data++;
+    };
+  //Now do md5 on bytes after sizeof(ts)
+  md5Sum=[GSMD5 digestOfData:md5Data];
+  [data appendData:md5Sum];
+  sessionID=DataToHexString(data);
+  return sessionID;
+};
 //--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)coder
 {
@@ -464,6 +604,7 @@ static char rcsId[] = "$Id$";
           if (stackIndex!=([_contextArrayStack count]-1))
             {
               [_contextArrayStack addObject:contextArray];
+              NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[_contextArrayStack objectAtIndex:stackIndex]);
               [_contextArrayStack removeObjectAtIndex:stackIndex];
               //TODO faire pareil avec _contextArray ?
             };
@@ -511,13 +652,15 @@ static char rcsId[] = "$Id$";
                    [_permanentContextIDArray objectAtIndex:0]);
       NSDebugMLLog(@"sessions",@"[permanentContextIDArray objectAtIndex:0] retainCount=%d",
                    (int)[[_permanentContextIDArray objectAtIndex:0] retainCount]);
+      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[_permanentContextIDArray objectAtIndex:0]);
       [_permanentContextIDArray removeObjectAtIndex:0];
       deletePage=[_contextRecords objectForKey:deleteContextID];
       GSWLogAssertGood(deletePage);
       [GSWApplication statusLogWithFormat:@"delete page of class=%@",
                       [deletePage class]];
+      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[permanentPageCache objectForKey:deleteContextID]);
       [permanentPageCache removeObjectForKey:deleteContextID];
-	};
+    };
   contextID=[context contextID];
   NSAssert(contextID,@"No contextID");
 
@@ -526,6 +669,7 @@ static char rcsId[] = "$Id$";
       LOGSeriousError(@"page of class %@ contextID %@ already in permanent cache stack",
                       [page class],
                       contextID);
+      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",contextID);
       [_permanentContextIDArray removeObject:contextID];
       if (![permanentPageCache objectForKey:contextID])
         {
@@ -539,6 +683,7 @@ static char rcsId[] = "$Id$";
                       contextID);
     };
 
+  NSDebugMLLog(@"sessions",@"SESSION REPLACE: %p",[permanentPageCache objectForKey:contextID]);
   [permanentPageCache setObject:page
                       forKey:contextID];
   [_permanentContextIDArray addObject:contextID];
@@ -825,12 +970,14 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
                    [_contextArrayStack objectAtIndex:0]);
       NSDebugMLLog(@"sessions",@"[contextArrayStack objectAtIndex:0] retainCount=%d",
                    (int)[[_contextArrayStack objectAtIndex:0] retainCount]);
+      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[_contextArrayStack objectAtIndex:0]);
       [_contextArrayStack removeObjectAtIndex:0];
       deleteRecord=[_contextRecords objectForKey:deleteContextID];
       GSWLogAssertGood(deleteRecord);
       GSWLogAssertGood([deleteRecord responsePage]);
       [GSWApplication statusLogWithFormat:@"delete page of class=%@",
                       [[deleteRecord responsePage] class]];
+      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[_contextRecords objectForKey:deleteContextID]);
       [_contextRecords removeObjectForKey:deleteContextID];
     };
 
@@ -848,6 +995,7 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
       LOGSeriousError(@"page of class %@ contextID %@ already in cache stack",
                       [page class],
                       contextID);
+      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",contextID);
       [_contextArrayStack removeObject:contextID];
       if (![_contextRecords objectForKey:contextID])
         {
@@ -864,6 +1012,7 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   [_contextArrayStack addObject:contextID];
 
   // Add the record for this contextID in contextRecords
+  NSDebugMLLog(@"sessions",@"SESSION REPLACE: %p",[_contextRecords objectForKey:contextID]);
   [_contextRecords setObject:transactionRecord
                    forKey:contextID];
   NSDebugMLLog(@"sessions",@"contextArrayStack=%@",_contextArrayStack);
@@ -894,19 +1043,26 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 -(void)_saveCurrentPage
 {
   //OK
-  GSWComponent* component=nil;
-  unsigned int pageCacheSize=0;
   LOGObjectFnStart();
-  LOGObjectFnStart();
-  NSAssert(_currentContext,@"currentContext");
-  component=[_currentContext _pageComponent];
-  NSAssert(component,@"No component");
-  pageCacheSize=[self pageCacheSize];
-  if (pageCacheSize>0)
+  if (_currentContext)
     {
+      GSWComponent* component=[_currentContext _pageComponent];
       if ([component _isPage])
         {
-          [self savePage:component];
+          GSWComponent* testComponent=[self _permanentPageWithContextID:[_currentContext contextID]];
+          if (testComponent!=component)
+            {
+              testComponent=[self _permanentPageWithContextID:[_currentContext _requestContextID]];
+              if (testComponent && [self permanentPageCacheSize]>0)
+                {
+                  [self savePageInPermanentCache:component];
+                }
+              else
+                {
+                  if ([self pageCacheSize]>0)
+                    [self savePage:component];
+                };
+            };
         };
     };
   LOGObjectFnStop();
@@ -1179,8 +1335,23 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   [aContext addDocStructureStep:@"Append To Response"];
 #endif
   [aContext _setCurrentComponent:pageComponent]; //_pageElement ??
-  [pageComponent appendToResponse:aResponse
-                 inContext:aContext]; //_pageComponent??
+  NS_DURING
+    {
+      [pageComponent appendToResponse:aResponse
+                     inContext:aContext]; //_pageComponent??
+    }
+  NS_HANDLER
+    {
+      LOGException(@"exception in %@ appendToResponse:inContext",
+                   [self class]);
+      LOGException(@"exception=%@",localException);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"In %@ appendToResponse:inContext",
+                                                              [self class]);
+      LOGException(@"exception=%@",localException);
+      [localException raise];
+    }
+  NS_ENDHANDLER;
   [aContext _setCurrentComponent:nil];
   session=[aContext existingSession];
   [session appendCookieToResponse:aResponse];

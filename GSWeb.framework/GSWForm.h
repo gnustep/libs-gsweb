@@ -1,6 +1,6 @@
 /** GSWForm.h - <title>GSWeb: Class GSWForm</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -70,6 +70,7 @@
                            inContext:(GSWContext*)context;
 
 -(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context;
+-(NSString*)computeActionStringInContext:(GSWContext*)context;
 
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context;

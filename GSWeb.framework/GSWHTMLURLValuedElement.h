@@ -1,6 +1,6 @@
 /** GSWHTMLURLValuedElement.m - <title>GSWeb: Class GSWHTMLURLValuedElement</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
@@ -41,6 +41,8 @@
 //GSWeb Additions {
   NSDictionary* _pageSetVarAssociations;
   GSWAssociation* _pageSetVarAssociationsDynamic;
+  GSWAssociation* _cidStore;
+  GSWAssociation* _cidKey;
 // }
   GSWAssociation* _filename;
   GSWAssociation* _framework;
@@ -76,9 +78,27 @@
                                       inContext:(GSWContext*)aContext; 
 -(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
                            inContext:(GSWContext*)aContext; 
--(id)computeActionStringInContext:(GSWContext*)aContext; 
--(id)computeQueryDictionaryInContext:(GSWContext*)aContext; 
+-(NSString*)computeActionStringInContext:(GSWContext*)aContext; 
+-(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)aContext; 
 -(NSString*)frameworkNameInContext:(GSWContext*)aContext;
+@end
+
+//====================================================================
+@interface GSWHTMLURLValuedElement (GSWHTMLURLValuedElementCID)
+
+-(NSString*)addCIDElement:(NSDictionary*)cidElement
+                   forKey:(NSString*)cidKeyValue
+              forCIDStore:(GSWAssociation*)cidStore
+                inContext:(GSWContext*)aContext;
+-(NSString*)addURL:(NSString*)url
+       forCIDStore:(GSWAssociation*)cidStore
+         inContext:(GSWContext*)aContext;
+-(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
+                        forCIDStore:(GSWAssociation*)cidStore
+                          inContext:(GSWContext*)aContext;
+-(NSString*)addPath:(NSString*)path
+        forCIDStore:(GSWAssociation*)cidStore
+          inContext:(GSWContext*)aContext;
 @end
 
 #endif // _GSWHTMLURLValuedElement_h__

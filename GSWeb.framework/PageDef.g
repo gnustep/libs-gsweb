@@ -66,10 +66,14 @@ classname:
 	;
 
 member:
-	memberName:IDENT^ { ASSIGN(currentMemberName,[memberName text]); }
+	memberName:mname { ASSIGN(currentMemberName,([memberName_AST toStringListWithSiblingSeparator:@"" openSeparator:@"" closeSeparator:@""])); }
 	ASSIGN ( mvalue )
 	(SEMI)*!
 	;
+
+mname: 
+        (QUESTIONMARK)? (IDENT)
+        ;
 
 //TODO unescapedString
 mvalue:
@@ -162,7 +166,7 @@ IDENTREF
 
 PIDENTREF
 	options { testLiterals = true; }
-	:       POINT (IDENTREF | STRING)
+	:       POINT (IDENTREF | INT | STRING)
 	;
 
 YES
@@ -196,6 +200,9 @@ COLUMN:   ':'
 ASSIGN:	'='
 	;
  
+QUESTIONMARK:	'?'	
+	;
+
 WS:
 	( ' '
 	| '\t'

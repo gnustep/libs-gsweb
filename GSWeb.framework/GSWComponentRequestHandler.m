@@ -1,6 +1,6 @@
 /** GSWComponentRequestHandler.m - <title>GSWeb: Class GSWComponentRequestHandler</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -27,7 +27,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -102,7 +102,7 @@ static char rcsId[] = "$Id$";
 //      NSDebugMLLog(@"requests",@"statisticsStore=%@",statisticsStore);
       //[statisticsStore _applicationWillHandleComponentActionRequest];
       aContext=[GSWContext contextWithRequest:aRequest];
-      NSDebugMLLog(@"aContext",@"aContext=%@",aContext);
+      NSDebugMLLog(@"requests",@"aContext=%@",aContext);
       senderID=[requestHandlerValues objectForKey:GSWKey_ElementID[GSWebNamingConv]];
       NSDebugMLLog(@"requests",@"AA senderID=%@",senderID);
       [aContext _setSenderID:senderID];
@@ -266,7 +266,7 @@ static char rcsId[] = "$Id$";
   storesIDsInCookies=[aSession storesIDsInCookies]; //For What ?
   NSDebugMLLog(@"requests",@"storesIDsInCookies=%s",(storesIDsInCookies ? "YES" : "NO"));
 
-  contextID=[elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
+  contextID=[elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];//use aContext requestContextID instead ?
   NSDebugMLLog(@"requests",@"contextID=%@",contextID);
 
   if (contextID) // ??
@@ -547,6 +547,7 @@ static char rcsId[] = "$Id$";
   NS_DURING
     {
       values=[aRequest uriOrFormOrCookiesElements];
+      NSDebugMLLog(@"requests",@"values=%@",values);
     }
   NS_HANDLER
     {

@@ -1,3 +1,103 @@
+2003-01-19   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWApplication.m
+		o removed unused +initialize
+	* GSWeb/GSWDefaultAdaptorThread.m: 
+		o more information on "bad request first line" exception
+	* GSWeb/GSWHTMLDynamicElement.m
+		o in -initWithName:attributeAssociations:contentElements:
+			add "" to association values because XML parser romove them.
+		o added -computeActionStringWithActionClassAssociation:
+				directActionNameAssociation:inContext:
+		o added -computeQueryDictionaryWithActionClassAssociation:
+				directActionNameAssociation:queryDictionaryAssociation:
+				otherQueryAssociations:inContext:
+	* GSWeb/GSWResponse.m:
+		o don't append debugcomment if !GSDebugSet(@"debugComments")
+		o fixed bug in appendContentString: in NSAssert3 params
+		o adedd -_appendTagAttribute:value:escapingHTMLAttributeValue:
+		o added GSWResponse (GSWResponseRedirected)
+	* GSWeb/GSWResponse.h:
+		o added -forceFinalizeInContext
+		o added GSWResponse (GSWResponseRedirected)
+	* GSWeb/GSWTemplateParserXML.m:
+		o only include comments if [GSWApplication includeCommentsInResponses]
+	* GSWExtensions.framework/GSWLongResponsePage.m:
+		o in -cancel call cancelPageForStatus: instead of cancelPage
+		o declare private interface
+	* GSWeb/GSWComponent.m:
+		o don't output end of component commend if !DEBUG && !GSDebugSet(@"gswcomponents")
+		o fixes in _generateResponseInContext:
+	* GSWeb/GSWContext.[hm]:
+		o added _userInfo to enable developper context specific 
+			temporary information storage
+		o added -userInfo
+		o added -_generateRelativeURLs
+		o make -_generateCompleteURLs returning previous state.
+		o added -directActionURLForActionNamed:queryDictionary:isSecure:
+		o added -_directActionURLForActionNamed:queryDictionary:isSecure:url:
+		o added -componentActionURLIsSecure:
+		o modified -session
+		o modified -_takeAwakeComponent: to not add already added component 
+		o implemented _takeAwakeComponentsFromArray;
+		o fixed -_incrementContextID
+		o added _session
+		o fixes in -copyWithZone to keep mutable objects mutables.
+		o added _requestContextID
+		o added -_setRequestContextID: and -_requestContextID;
+	* GSWeb/GSWHyperlink.[hm]:
+		o added _secure
+		o added binding validation tests
+		o fixes in -appendToResponse:inContext:
+		o handle correctly otherQueryAssociations (bindings starting with '?')
+	* GSWeb/GSWConstants.[hm]:
+		o added cidStore__Key for GSWHTMLURLValuedElement
+		o added cidKey__Key for GSWHTMLURLValuedElement
+	* GSWeb/GSWImage.[hm]:
+		o added _width, _height
+	* GSWeb/GSWHTMLURLValuedElement.[hm]
+		o implemented -_appendCGIActionURLToResponse:inContext:
+		o implemented -computeActionStringInContext:
+		o implemented -computeQueryDictionaryInContext:
+		o handle otherQueryAssociations (bindings starting with '?')
+		o handle cidStore and cidKey
+	* GSWeb/GSWRequest.[hm]:
+		o added _context
+		o changes for compilation warnings
+		o added -sessionIDFromValuesOrCookieByLookingForCookieFirst:
+		o added +_lookForIDsInCookiesFirst
+		o rewrite form/uri/cookie values retrieving (for sessionID,...)
+		o new use GSMimeParser for formData parsing
+	* Doc/antlr.txt added
+	* GSWeb/GSWPageDefParser.[hm] regenerated to handle (bindings starting with '?')
+	* GSWeb/GSWPageDefParserTokenTypes.txt regenerated to handle (bindings starting with '?')
+	* GSWeb/GSWPageDefParserTokenTypes.h regenerated to handle (bindings starting with '?')
+	* GSWeb/GSWPageDefLexer.[hm]  regenerated to handle (bindings starting with '?')
+	* GSWeb/GSWUtils.[hm]:
+		o added -extractObjectsForKeysWithPrefix:removePrefix:
+		o fixed bug in HexStringToData
+		o fixed bug in NSDictionary +dictionaryWithArray:onSelector:withObject:
+	* GSWeb/GSWForm.[hm]
+		o handle otherQueryAssociations (bindings starting with '?')
+		o implemented -computeQueryDictionaryInContext:
+		o implemented/fixed -_appendHiddenFieldsToResponse:inContext:
+		o implemented -_appendCGIActionToResponse:inContext:
+		o fix -appendGSWebObjectsAssociationsToResponse:inContext: for directAction 
+		o added -computeActionStringInContext:
+		o fixed -invokeActionForRequest:inContext: to invoke action when to element is invoked
+	* GSWeb/GSWDirectAction.m:
+		o fixed -_initializeRequestSessionIDInContext:
+		o added -sessionIDForRequest:
+	* GSWeb/NSString+HTML.[hm]:
+		o added -dictionaryWithSep1:withSep2:withOptionUnescape:forceArray:
+	* GSWeb/NSString+Trimming.m:
+		o fix in +stringUniqueIdWithLength: initialize random generator
+	* GSWeb/GSWSession.[hm]:
+		o added createSessionID which create better sessionID 
+			(uniq in time and larger to give better security)
+		o fixes in _saveCurrentPage
+	* GSWeb/GSWBundle.m:
+		o fix compiler warning
+
 2002-12-11   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWAdaptors/common/GSWUtil.h
 		o changes to handle Apache 2.x

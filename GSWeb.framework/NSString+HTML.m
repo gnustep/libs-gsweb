@@ -1,12 +1,13 @@
 /** NSString+HTML.m - <title>GSWeb: NSString / HTML</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -297,13 +298,25 @@ void initHtmlChars()
 {
   return [self dictionaryWithSep1:@"&"
                withSep2:@"="
-               withOptionUnescape:YES];
+               withOptionUnescape:YES
+               forceArray:YES];
 };
 
 //--------------------------------------------------------------------
 -(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
                           withSep2:(NSString*)sep2
                 withOptionUnescape:(BOOL)unescape
+{
+  return [self dictionaryWithSep1:sep1
+               withSep2:sep2
+               withOptionUnescape:unescape
+               forceArray:NO];
+};
+//--------------------------------------------------------------------
+-(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
+                          withSep2:(NSString*)sep2
+                withOptionUnescape:(BOOL)unescape
+                        forceArray:(BOOL)forceArray// Put value in array even if there's only one value
 {
   NSMutableDictionary*  pDico=nil;
   if	([self length]>0)
@@ -341,9 +354,19 @@ void initHtmlChars()
                   if (!value)
                     value=[NSString string];
                   if (prevValue)
-                    newValue=[prevValue arrayByAddingObject:value];
+                    {
+                      if (!forceArray || [prevValue isKindOfClass:[NSArray class]])
+                        newValue=[prevValue arrayByAddingObject:value];
+                      else
+                        newValue=[NSArray arrayWithObjects:prevValue,value,nil];
+                    }
                   else
-                    newValue=[NSArray arrayWithObject:value];
+                    {
+                      if (forceArray)
+                        newValue=[NSArray arrayWithObject:value];
+                      else
+                        newValue=value;
+                    };
                   [pDico setObject:newValue
                          forKey: key];
                 };

@@ -226,6 +226,8 @@ static void GCC_DumpStack(void)
   char *pname;
   char name[MAX_BUFFER_SIZE];
   int number;
+  write(global_output,
+	"GCC_DumpStack-001\n", strlen("GCC_DumpStack-001\n"));
 
   for (i = 0; p; i++)
     {
@@ -315,19 +317,27 @@ static void GCC_DumpStack(void)
 	}
     } /* for */
   
+  write(global_output,
+	"GCC_DumpStack-002\n", strlen("GCC_DumpStack-002\n"));
 
   /* First find out if we are using GNU or vendor nm */
   number = 0;
   strcpy(buffer, "nm -V 2>/dev/null | grep GNU | wc -l");
+  write(global_output,
+	"GCC_DumpStack-002b\n", strlen("GCC_DumpStack-002b\n"));
   fd = my_popen(buffer, &pid);
   if (SYS_ERROR != fd)
     {
+  write(global_output,
+	"GCC_DumpStack-002c\n", strlen("GCC_DumpStack-002c\n"));
       if (my_getline(fd, buffer, sizeof(buffer)))
 	{
 	  sscanf(buffer, "%d", &number);
 	}
       my_pclose(fd, pid);
     }
+  write(global_output,
+	"GCC_DumpStack-002d\n", strlen("GCC_DumpStack-002d\n"));
   if (number == 0) /* vendor nm */
     {
 # if defined(PLATFORM_SOLARIS) || defined(PLATFORM_SCO) || defined(PLATFORM_HPUX)
@@ -340,7 +350,11 @@ static void GCC_DumpStack(void)
     }
   else /* GNU nm */
     strcpy(buffer, "nm -B ");
+  write(global_output,
+	"GCC_DumpStack-002e\n", strlen("GCC_DumpStack-002e\n"));
   strcat(buffer, global_progname);
+  write(global_output,
+	"GCC_DumpStack-003\n", strlen("GCC_DumpStack-003\n"));
   
   lowestAddress = ULONG_MAX;
   highestAddress = 0;
@@ -397,6 +411,8 @@ static void GCC_DumpStack(void)
 	  write(global_output, buffer, strlen(buffer));
 	}
     }
+  write(global_output,
+	"GCC_DumpStack-004\n", strlen("GCC_DumpStack-004\n"));
 }
 #endif
 
@@ -424,10 +440,15 @@ static int DumpStack(char *format, ...)
   va_start(args, format);
   vsprintf(cmd, format, args);
   va_end(args);
-
+//MG
+  write(global_output,
+	"EEE\n", strlen("EEE\n"));
   fd = my_popen(cmd, &pid);
   if (SYS_ERROR != fd)
     {
+//MG
+  write(global_output,
+	"FFF\n", strlen("FFF\n"));
       /*
        * Wait for the child to exit. This must be done
        * to make the debugger attach successfully.
@@ -441,9 +462,15 @@ static int DumpStack(char *format, ...)
 	  rc = waitpid(pid, &status, 0);
 	}
       while ((SYS_ERROR == rc) && (EINTR == errno));
+//MG
+  write(global_output,
+	"GGG\n", strlen("GGG\n"));
 
       if ((WIFEXITED(status)) && (WEXITSTATUS(status) == EXIT_SUCCESS))
 	{
+//MG
+  write(global_output,
+	"III\n", strlen("III\n"));
 	  while (my_getline(fd, buf, sizeof(buf)))
 	    {
 	      buffer = buf;
@@ -464,8 +491,14 @@ static int DumpStack(char *format, ...)
 	      write(global_output, "\n", strlen("\n"));
 	    }
 	}
+//MG
+  write(global_output,
+	"JJJ\n", strlen("JJJ\n"));
       my_pclose(fd, pid);
     }
+//MG
+  write(global_output,
+	"HHH\n", strlen("HHH\n"));
   return gotSomething;
 }
 #endif /* PLATFORM_UNIX */
@@ -751,6 +784,10 @@ void StackTrace(void)
   write(global_output,
 	"GCC_DumpStack\n", strlen("GCC_DumpStack\n"));
   GCC_DumpStack();
+
+//MG
+  write(global_output,
+	"GCC_DumpStack AAA\n", strlen("GCC_DumpStack AAA\n"));
 
 # endif
   
