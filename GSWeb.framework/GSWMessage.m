@@ -1,6 +1,6 @@
 /** GSWMessage.m - <title>GSWeb: Class GSWMessage</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -37,6 +37,18 @@ RCS_ID("$Id$")
 
 static NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 static NSString* globalDefaultURLEncoding=nil;
+
+//====================================================================
+#ifndef NO_GNUSTEP
+
+@interface GSWMessage (GSWMessageCachePrivate)
+-(void)_cacheAppendString:(NSString*)string;
+-(void)_cacheAppendData:(NSData*)data;
+-(void)_cacheAppendBytes:(const void*)aBuffer
+                  length:(unsigned int)bufferSize;
+@end
+
+#endif
 
 //====================================================================
 @implementation GSWMessage
@@ -76,6 +88,9 @@ static NSString* globalDefaultURLEncoding=nil;
   //NSDebugFLog0(@"Release Message cookies");
   DESTROY(_cookies);
 //  NSDebugFLog0(@"Release Message");
+#ifndef NO_GNUSTEP
+  DESTROY(_cachesStack);
+#endif
   [super dealloc];
 };
 
@@ -99,6 +114,11 @@ static NSString* globalDefaultURLEncoding=nil;
 
       DESTROY(clone->_contentData);
       clone->_contentData=[_contentData mutableCopyWithZone:zone];
+
+#ifndef NO_GNUSTEP
+      DESTROY(clone->_cachesStack);
+      clone->_cachesStack=[_cachesStack mutableCopyWithZone:zone];
+#endif
     };
   return clone;
 };
@@ -326,9 +346,8 @@ static NSString* globalDefaultURLEncoding=nil;
 
 
 //--------------------------------------------------------------------
-//	setContent:
-
-//Set content with contentData_
+/** Set content with contentData
+**/
 -(void)setContent:(NSData*)contentData
 {
   LOGObjectFnStart();
@@ -337,7 +356,9 @@ static NSString* globalDefaultURLEncoding=nil;
   LOGObjectFnStop();
 };
 
-//Set content with contentString
+//--------------------------------------------------------------------
+/** Set content with contentString
+**/
 -(void)setContentString:(NSString*)contentString
 {
   LOGObjectFnStart();
@@ -405,6 +426,11 @@ static NSString* globalDefaultURLEncoding=nil;
                                       encoding:[self contentEncoding]]
                       autorelease];
           [_contentString appendString:tmpString];
+
+#ifndef NO_GNUSTEP
+          if (_cachesStack)
+            [self _cacheAppendString:tmpString];
+#endif
         }
       else // No actual content or data one
         {
@@ -416,6 +442,11 @@ static NSString* globalDefaultURLEncoding=nil;
             {
               _contentData = (NSMutableData*)[contentData mutableCopy];
             };
+
+#ifndef NO_GNUSTEP
+          if (_cachesStack)
+            [self _cacheAppendData:contentData];
+#endif
         };
     };
   LOGObjectFnStop();
@@ -432,10 +463,17 @@ static NSString* globalDefaultURLEncoding=nil;
             [[[NSString alloc]initWithData:_contentData
                               encoding:[self contentEncoding]]
               autorelease]);
+
   NSDebugMLLog(@"low",@"aString:%@",aString);
   string=[NSString stringWithObject:aString];
+
   NSDebugMLLog(@"low",@"string:%@",string);
   [_contentString appendString:string];
+
+#ifndef NO_GNUSTEP
+  if (_cachesStack)
+    [self _cacheAppendString:string];
+#endif
   LOGObjectFnStop();
 };
 
@@ -444,6 +482,7 @@ static NSString* globalDefaultURLEncoding=nil;
 
 -(void)_appendContentCharacter:(char)aChar
 {
+  NSString* string=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"low",@"aChar:%c",aChar);
   NSAssert2([_contentData length]==0,
@@ -451,11 +490,21 @@ static NSString* globalDefaultURLEncoding=nil;
             aChar,
             [[[NSString alloc]initWithData:_contentData
                               encoding:[self contentEncoding]]
-              autorelease]);
-  [_contentString appendFormat:@"%c",aChar];
+              autorelease]);  
+
+  string=[NSString stringWithFormat:@"%c",aChar];
+
+  [_contentString appendString:string];
+
+#ifndef NO_GNUSTEP
+  if (_cachesStack)
+    [self _cacheAppendString:string];
+#endif
+
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(void)appendContentString:(NSString*)string
 {
   LOGObjectFnStart();
@@ -467,9 +516,16 @@ static NSString* globalDefaultURLEncoding=nil;
                               encoding:[self contentEncoding]]
               autorelease]);
   [_contentString appendString:string];
+
+#ifndef NO_GNUSTEP
+  if (_cachesStack)
+    [self _cacheAppendString:string];
+#endif
+
   LOGObjectFnStop();
 }
 
+//--------------------------------------------------------------------
 -(int)_contentLength
 {
   int contentLength=[_contentString length];
@@ -512,6 +568,12 @@ static NSString* globalDefaultURLEncoding=nil;
     {
       [_contentData appendBytes:bytes
                     length:length];
+
+#ifndef NO_GNUSTEP
+      if (_cachesStack)
+        [self _cacheAppendBytes:bytes
+              length:length];
+#endif
     };
   LOGObjectFnStop();
 };
@@ -579,6 +641,7 @@ static NSString* globalDefaultURLEncoding=nil;
   LOGObjectFnStop();
 };
 */
+
 //--------------------------------------------------------------------
 //	appendDebugCommentContentString:
 
@@ -590,6 +653,7 @@ static NSString* globalDefaultURLEncoding=nil;
 #endif
 };
 
+//--------------------------------------------------------------------
 -(void)replaceContentString:(NSString*)replaceString
                    byString:(NSString*)byString
 {
@@ -627,6 +691,7 @@ static NSString* globalDefaultURLEncoding=nil;
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(void)replaceContentData:(NSData*)replaceData
                    byData:(NSData*)byData
 {
@@ -832,6 +897,7 @@ static NSString* globalDefaultURLEncoding=nil;
   return (strings ? [NSArray arrayWithArray:strings] : nil);
 };
 
+//--------------------------------------------------------------------
 -(void)_finalizeCookiesInContext:(GSWContext*)aContext
 {
   NSArray* cookieHeader=nil;
@@ -908,36 +974,250 @@ static NSString* globalDefaultURLEncoding=nil;
 @end
 
 
+//====================================================================
+#ifndef NO_GNUSTEP
 
+@implementation GSWMessage (GSWMessageCache)
 
+//--------------------------------------------------------------------
+-(int)startCache
+{
+  int index=0;
+  LOGObjectFnStart();
 
+  if (!_cachesStack)
+    {
+      _cachesStack=[NSMutableArray new];
+    };
+  if (_contentData)
+    [_cachesStack addObject:[NSMutableData data]];
+  else
+    [_cachesStack addObject:[NSMutableString string]];
 
+  index=[_cachesStack count]-1;
 
+  LOGObjectFnStop();
+  return index;
+};
 
+-(id)appendCacheData:(id)fromCacheData
+         toCacheData:(id)toCacheData
+{
+  LOGObjectFnStart();
+  if ([fromCacheData length]>0)
+    {
+      if ([fromCacheData isKindOfClass:[NSString class]])
+        {
+          if ([toCacheData isKindOfClass:[NSString class]]) // String+String
+            {
+              [toCacheData appendString:(NSString*)fromCacheData];
+            }
+          else if ([toCacheData length]==0)
+            { // Empty Data+String
+              toCacheData=[NSMutableString stringWithString:fromCacheData];
+            }
+          else                           
+            {
+              // Empty String
+              NSAssert(NO,
+                       @"Try to append cache string to cache");
+            };
+        }
+      else // ??+Data
+        {
+          if ([toCacheData isKindOfClass:[NSData class]]) // Data+Data
+            {
+              [toCacheData appendData:fromCacheData];
+            }
+          else // String+Data
+            {
+              // Convert fromCacheData data to append into toCacheData string
+              NSString* fromCacheDataString=nil;
+              NSDebugMLog(@"Converting appending Data To String");
+              fromCacheDataString=[[[NSString alloc]initWithData:(NSData*)fromCacheData
+                                          encoding:[self contentEncoding]]
+                          autorelease];
+              [toCacheData appendString:fromCacheDataString];
+            };
+        };
+    };
+  LOGObjectFnStop();
+  return toCacheData;
+}
+//--------------------------------------------------------------------
+-(id)stopCacheOfIndex:(int)cacheIndex
+{
+  id cachedData=nil;
+  int cacheStackCount=0;
 
+  LOGObjectFnStart();
 
+  NSDebugMLLog(@"GSWCacheElement",@"cacheIndex=%d",cacheIndex);
 
+  cacheStackCount=[_cachesStack count];
 
+  NSDebugMLLog(@"GSWCacheElement",@"cacheStackCount=%d",cacheStackCount);
 
+  if (cacheIndex<cacheStackCount)
+    {
+      cachedData=[_cachesStack objectAtIndex:cacheIndex];
+      AUTORELEASE(RETAIN(cachedData));
 
+      NSDebugMLLog(@"GSWCacheElement",@"cachedData=%@",cachedData);
 
+      // Last one ? (normal case)
+      if (cacheIndex==(cacheStackCount-1))
+        {
+          [_cachesStack removeObjectAtIndex:cacheIndex];          
+        }
+      else
+        {
+          // Strange case: may be an exception which avoided component to retrieve their cache ?
+          cacheIndex++;
+          while(cacheIndex<cacheStackCount)
+            {
+              id tmp=[_cachesStack objectAtIndex:cacheIndex];
+              NSDebugMLLog(@"GSWCacheElement",@"tmp=%@",tmp);
+              cachedData=[self appendCacheData:tmp
+                               toCacheData:cachedData];
+              [_cachesStack removeObjectAtIndex:cacheIndex];
+            };
+        };
+      cacheStackCount=[_cachesStack count];
 
+      //Add cachedData to previous cache item data
+      if (cacheStackCount>0 && [cachedData length]>0)
+        {
+          id previous=[_cachesStack objectAtIndex:cacheStackCount-1];
+          id newPrevious=[self appendCacheData:cachedData
+                               toCacheData:previous];
+          if (newPrevious!=previous)
+            [_cachesStack replaceObjectAtIndex:cacheStackCount-1
+                          withObject:newPrevious];
+        };
+    };
 
+  NSDebugMLLog(@"GSWCacheElement",@"cachedData=%@",cachedData);
 
+  LOGObjectFnStop();
+  
+  return cachedData;
+}
 
+@end
 
+@implementation GSWMessage (GSWMessageCachePrivate)
 
+//--------------------------------------------------------------------
+-(void)_cacheAppendString:(NSString*)string
+{
+  LOGObjectFnStart();
 
+  if ([string length]>0)
+    {
+      int index=0;
+      index=[_cachesStack count]-1;
+      if (index>=0)
+        {
+          id cachedData=[_cachesStack  objectAtIndex:index];
+          if ([cachedData isKindOfClass:[NSData class]])
+            {
+              if ([cachedData length]>0)
+                {
+                  NSAssert2(NO,
+                            @"Try to append string to cache but content is data. \nString: '%@'\nData: '%@'",
+                            string,
+                            [[[NSString alloc]initWithData:_contentData
+                                              encoding:[self contentEncoding]]
+                              autorelease]);
+                }
+              else
+                [_cachesStack replaceObjectAtIndex:index
+                              withObject:[NSMutableString stringWithString:string]];
+            }
+          else
+            [cachedData appendString:string];
+        };
+    };
+  LOGObjectFnStop();
+}
 
+//--------------------------------------------------------------------
+-(void)_cacheAppendData:(NSData*)data
+{
+  LOGObjectFnStart();
 
+  if ([data length]>0)
+    {
+      int index=0;
+      index=[_cachesStack count]-1;
+      if (index>=0)
+        {
+          id cachedData=[_cachesStack  objectAtIndex:index];
+          if ([cachedData isKindOfClass:[NSString class]])
+            {
+              if ([cachedData length]>0)
+                {
+                  // Convert contentData to append into string and append it to _contentString
+                  NSString* tmpString=nil;
+                  NSDebugMLog(@"Converting appending Data To String");
+                  tmpString=[[[NSString alloc]initWithData:data
+                                              encoding:[self contentEncoding]]
+                              autorelease];
+                  [cachedData appendString:tmpString];
+                }
+              else
+                [_cachesStack  replaceObjectAtIndex:index
+                               withObject:[NSMutableData dataWithData:data]];
+            }
+          else
+            [cachedData appendData:data];
+        };
+    };
+  
+  LOGObjectFnStop();
+}
 
+//--------------------------------------------------------------------
+-(void)_cacheAppendBytes:(const void*)aBuffer
+              length: (unsigned int)bufferSize
+{
+  LOGObjectFnStart();
+  if (bufferSize>0)
+    {
+      int index=0;
+      index=[_cachesStack count]-1;
+      if (index>=0)
+        {
+          id cachedData=[_cachesStack  objectAtIndex:index];
+          if ([cachedData isKindOfClass:[NSString class]])
+            {
+              if ([cachedData length]>0)
+                {
+                  // Convert contentData to append into string and append it to _contentString
+                  NSString* tmpString=nil;
+                  NSData* tmpData=nil;
+                  NSDebugMLog(@"Converting appending Data To String");
+                  tmpData=[NSData dataWithBytes:aBuffer
+                                  length:bufferSize];
+                  tmpString=[[[NSString alloc]initWithData:tmpData
+                                              encoding:[self contentEncoding]]
+                              autorelease];
+                  [cachedData appendString:tmpString];
+                }
+              else
+                [_cachesStack  replaceObjectAtIndex:index
+                               withObject:[NSMutableData dataWithBytes:aBuffer
+                                                         length:bufferSize]];
+            }
+          else
+            [cachedData appendBytes:aBuffer
+                        length:bufferSize];
+        };
+    };
+  LOGObjectFnStop();
+};
+@end
 
-
-
-
-
-
-
-
-
+#endif
 

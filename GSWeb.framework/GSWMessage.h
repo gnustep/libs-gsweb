@@ -1,6 +1,6 @@
 /** GSWMessage.h - <title>GSWeb: Class GSWMessage</title>
 
-   Copyright (C) 2003 Free Software Foundation, Inc.
+   Copyright (C) 2003-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Aug 2003
@@ -42,6 +42,9 @@
   NSDictionary* _userInfo;
   NSMutableString* _contentString;
   NSMutableData* _contentData;
+#ifndef NO_GNUSTEP
+  NSMutableArray* _cachesStack; // Cache Stacks
+#endif
 };
 
 -(void)setHTTPVersion:(NSString*)version;
@@ -130,6 +133,15 @@
 +(NSStringEncoding)defaultEncoding;
 @end
 
+//====================================================================
+#ifndef NO_GNUSTEP
+
+@interface GSWMessage (GSWMessageCache)
+-(int)startCache;
+-(id)stopCacheOfIndex:(int)cacheIndex;
+@end
+
+#endif
 
 
 #endif //_GSWMessage_h__
