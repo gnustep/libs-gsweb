@@ -298,13 +298,13 @@ int GSWApplicationMain(NSString* _applicationClassName,
 		}
 	  NS_ENDHANDLER;
 	};
-  DESTROY(appAutoreleasePool);
   if (result>=0 && GSWApp)
 	{
 	  [GSWApp _setPool:[NSAutoreleasePool new]];
 	  [GSWApp run];
 	  DESTROY(GSWApp);
 	};
+  DESTROY(appAutoreleasePool);
   return result;
 };
 
