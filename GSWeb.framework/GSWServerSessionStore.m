@@ -113,21 +113,17 @@ RCS_ID("$Id$")
 {
   //OK
   GSWSession* session=nil;
-  BOOL isSessionIDCheckedOut=NO;
   LOGObjectFnStart();
   NSDebugMLLog(@"sessions",@"aSessionID=%@",aSessionID);
-  NSDebugMLLog(@"sessions",@"_usedIDs=%@",_usedIDs);
-  isSessionIDCheckedOut=[self _isSessionIDCheckedOut:aSessionID];
-  if (!isSessionIDCheckedOut)
-    {
-      NSDebugMLLog(@"sessions",@"_sessions=%@",_sessions);
-      session=[_sessions objectForKey:aSessionID];
-      NSDebugMLLog(@"sessions",@"session=%@",session);
-      [session retain]; //to avoid discarding it now
-      [session autorelease]; //discard it 'later'
-      [_sessions removeObjectForKey:aSessionID];
-      NSDebugMLLog(@"sessions",@"_sessions=%@",_sessions);
-    };
+
+  NSDebugMLLog(@"sessions",@"_sessions=%@",_sessions);
+  session=[_sessions objectForKey:aSessionID];
+  NSDebugMLLog(@"sessions",@"session=%@",session);
+  RETAIN(session); //to avoid discarding it now
+  [_sessions removeObjectForKey:aSessionID];
+  NSDebugMLLog(@"sessions",@"_sessions=%@",_sessions);
+  AUTORELEASE(session); //discard it 'later'
+
   LOGObjectFnStop();
   return session;
 };
