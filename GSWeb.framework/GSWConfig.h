@@ -31,7 +31,6 @@
 #define GSWEB_STRICT	0
 #define GSWEB_WONAMES	0
 
-#define GSWEB_DEFAULT_HTML_PARSER_CLASS_NAME			@"GSWTemplateParserXMLHTML"
 #define GSWOPTVALUE_ApplicationBaseURL_WO			@"/WebObjects"
 #define GSWOPTVALUE_ApplicationBaseURL_GSWEB			@"/GSWeb"
 #define GSWOPTVALUE_AutoOpenInBrowser				@"NO"
@@ -54,5 +53,6 @@
 #define GSWOPTVALUE_MultiThreadEnabled				@"YES"
 #define GSWOPTVALUE_AdaptorHost					@""
 #define GSWOPTVALUE_SaveResponsesPath				nil
+#define GSWOPTVALUE_DefaultTemplateParser      			@"XMLHTML"
 
 #endif // _GSWebConfig_h__
