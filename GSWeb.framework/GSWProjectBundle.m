@@ -54,7 +54,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(_projectName);
   DESTROY(_subprojects);
   DESTROY(_pbProjectDictionary);
   [super dealloc];
@@ -89,20 +88,20 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                   forLanguage:(NSString*)aLanguage
+                                      language:(NSString*)aLanguage
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return [super lockedRelativePathForResourceNamed:aName
-                forLanguage:aLanguage];
+                language:aLanguage];
 };
 
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                  forLanguages:(NSArray*)someLanguages
+                                     languages:(NSArray*)someLanguages
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return [super lockedRelativePathForResourceNamed:aName
-                forLanguages:someLanguages];
+                languages:someLanguages];
 };
 
 //--------------------------------------------------------------------
@@ -130,12 +129,6 @@ RCS_ID("$Id$")
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
-
-//--------------------------------------------------------------------
--(NSString*)projectName
-{
-  return _projectName;
 };
 
 //--------------------------------------------------------------------

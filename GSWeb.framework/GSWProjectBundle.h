@@ -36,25 +36,21 @@
 //====================================================================
 @interface GSWProjectBundle : GSWDeployedBundle
 {
-  NSString* _projectName;
   NSDictionary* _subprojects;
   NSDictionary* _pbProjectDictionary;
 };
 
 -(id)initWithPath:(NSString*)aPath;
--(void)dealloc;
--(NSString*)description;
 -(NSArray*)lockedPathsForResourcesOfType:(id)aType;
 -(NSArray*)lockedPathsForResourcesInSubprojectsOfType:(id)aType;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                   forLanguage:(NSString*)aLanguage;
+                                      language:(NSString*)aLanguage;
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                  forLanguages:(NSArray*)someLanguages;
+                                     languages:(NSArray*)someLanguages;
 -(NSDictionary*)subprojects;
 -(BOOL)isFramework;
 -(GSWDeployedBundle*)projectBundle;
 -(NSString*)projectPath;
--(NSString*)projectName;
 -(NSDictionary*)_pbProjectDictionary;
 @end
 
