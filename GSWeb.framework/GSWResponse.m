@@ -38,7 +38,6 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWResponse
 
-NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 static NSString* disabledCacheDateString=nil;
 static NSArray* cacheControlHeaderValues=nil;
 
@@ -69,11 +68,7 @@ static NSArray* cacheControlHeaderValues=nil;
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      _httpVersion=@"HTTP/1.0";
       _status=200;
-      _headers=[NSMutableDictionary new];
-      [self _initContentData];
-      _contentEncoding=NSISOLatin1StringEncoding;
     };
   LOGObjectFnStop();
   return self;
@@ -84,19 +79,11 @@ static NSArray* cacheControlHeaderValues=nil;
 {
 //  GSWLogAssertGood(self);
 //  NSDebugFLog(@"dealloc Response %p",self);
-//  NSDebugFLog0(@"Release Response httpVersion");
-  DESTROY(_httpVersion);
-//  NSDebugFLog0(@"Release Response headers");
-  DESTROY(_headers);
 //  NSDebugFLog0(@"Release Response contentFaults");
   DESTROY(_contentFaults);
 //  NSDebugFLog0(@"Release Response contentData");
-  DESTROY(_contentData);
+  DESTROY(_contentStreamFileHandle);
   DESTROY(_acceptedEncodings);
-//  NSDebugFLog0(@"Release Response userInfo");
-  DESTROY(_userInfo);
-  //NSDebugFLog0(@"Release Response cookies");
-  DESTROY(_cookies);
 //  NSDebugFLog0(@"Release Response");
   [super dealloc];
 };
@@ -104,31 +91,16 @@ static NSArray* cacheControlHeaderValues=nil;
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
-  GSWResponse* clone = [[isa allocWithZone:zone] init];
+  GSWResponse* clone = (GSWResponse*)[super copyWithZone:zone];
   if (clone)
     {
-      ASSIGNCOPY(clone->_httpVersion,_httpVersion);
       clone->_status=_status;
-      ASSIGNCOPY(clone->_headers,_headers);
       ASSIGNCOPY(clone->_contentFaults,_contentFaults);
-      ASSIGNCOPY(clone->_contentData,_contentData);
-      clone->_contentEncoding=_contentEncoding;
       ASSIGNCOPY(clone->_acceptedEncodings,_acceptedEncodings);
-      ASSIGNCOPY(clone->_userInfo,_userInfo);
-      ASSIGNCOPY(clone->_cookies,_cookies);
       clone->_isClientCachingDisabled=_isClientCachingDisabled;
       clone->_contentFaultsHaveBeenResolved=_contentFaultsHaveBeenResolved;
     };
   return clone;
-};
-
-//--------------------------------------------------------------------
-//	content
-
--(NSData*)content
-{
-  //TODO exception..
-  return _contentData;
 };
 
 //--------------------------------------------------------------------
@@ -139,153 +111,16 @@ static NSArray* cacheControlHeaderValues=nil;
   NSAssert(_isFinalizeInContextHasBeenCalled,@"GSWResponse _finalizeInContext: not called");
 };
 
+//--------------------------------------------------------------------
 -(void)forceFinalizeInContext
 {
   _isFinalizeInContextHasBeenCalled=YES;
 };
 
 //--------------------------------------------------------------------
-//	headerForKey:
-
-//  return:
-//  	nil: if no header for key_
-//	1st header: if multiple headers for key_
-//	header: otherwise
-
--(NSString*)headerForKey:(NSString*)key
-{
-  id object=[_headers objectForKey:key];
-  if (object && [object isKindOfClass:[NSArray class]])
-    return [object objectAtIndex:0];
-  else
-    return (NSString*)object;
-};
-
-//--------------------------------------------------------------------
-//	headerKeys
-
-// return array of header keys or nil if no header
--(NSArray*)headerKeys 
-{
-  return [_headers allKeys];
-};
-
-//--------------------------------------------------------------------
-//	headersForKey:
-
-//return array of headers of key_
--(NSArray*)headersForKey:(NSString*)key
-{
-  id object=[_headers objectForKey:key];
-  if (!object || [object isKindOfClass:[NSArray class]])
-    return (NSArray*)object;
-  else
-    return [NSArray arrayWithObject:object];
-};
-
-//--------------------------------------------------------------------
-//	httpVersion
-
-//return http version like @"HTTP/1.0"
-
--(NSString*)httpVersion
-{
-  return _httpVersion;
-};
-
-//--------------------------------------------------------------------
 -(NSArray*)acceptedEncodings
 {
   return _acceptedEncodings;
-};
-
-//--------------------------------------------------------------------
-//	setContent:
-
-//Set content with contentData_
--(void)setContent:(NSData*)contentData
-{
-  if (contentData)
-    {
-      NSMutableData* aData=[[NSMutableData new]autorelease];
-      [aData appendData:contentData];
-      contentData=aData;
-    };
-  ASSIGN(_contentData,(NSMutableData*)contentData);
-};
-
-//--------------------------------------------------------------------
-//	setHeader:forKey:
-
--(void)setHeader:(NSString*)header
-          forKey:(NSString*)key
-{
-  //OK
-  id object=nil;
-  NSAssert(header,@"No header");
-  NSAssert(key,@"No header key");
-  object=[_headers objectForKey:key];
-  if (object)
-    [self setHeaders:[object arrayByAddingObject:header]
-          forKey:key];
-  else
-    [self setHeaders:[NSArray arrayWithObject:header]
-          forKey:key];
-};
-
-//--------------------------------------------------------------------
-//	setHeaders:forKey:
-
--(void)setHeaders:(NSArray*)headers
-           forKey:(NSString*)key
-{
-  //OK
-  NSAssert(headers,@"No headers");
-  NSAssert(key,@"No header key");
-  if (!_headers)
-    _headers=[NSMutableDictionary new];
-  [_headers setObject:headers
-            forKey:key];
-};
-
-//--------------------------------------------------------------------
-//	setHeaders:
- 
--(void)setHeaders:(NSDictionary*)headerDictionary
-{
-  if (!_headers)
-    _headers=[NSMutableDictionary new];
-  
-  if (headerDictionary)
-    {
-      NSEnumerator* keyEnum=nil;
-      id	    headerName=nil;
-    
-      keyEnum = [headerDictionary keyEnumerator];
-      while ((headerName = [keyEnum nextObject]))
-        {
-          [self setHeaders:[NSArray arrayWithObject:[headerDictionary objectForKey:headerName]] 
-                forKey:headerName];
- 	};
-    };
-};
- 
-//--------------------------------------------------------------------
-//	headers
-
--(NSMutableDictionary*)headers
-{
-  return _headers;
-};
-
-//--------------------------------------------------------------------
-//	setHTTPVersion:
-
-//sets the http version (like @"HTTP/1.0"). 
--(void)setHTTPVersion:(NSString*)version
-{
-  //OK
-  ASSIGN(_httpVersion,version);
 };
 
 //--------------------------------------------------------------------
@@ -304,27 +139,11 @@ static NSArray* cacheControlHeaderValues=nil;
 };
 
 //--------------------------------------------------------------------
-//	setUserInfo:
-
--(void)setUserInfo:(NSDictionary*)userInfo
-{
-  ASSIGN(_userInfo,userInfo);
-};
-
-//--------------------------------------------------------------------
 //	status
 
 -(unsigned int)status
 {
   return _status;
-};
-
-//--------------------------------------------------------------------
-//	userInfo
-
--(NSDictionary*)userInfo 
-{
-  return _userInfo;
 };
 
 //--------------------------------------------------------------------
@@ -374,257 +193,6 @@ static NSArray* cacheControlHeaderValues=nil;
 @end
 
 //====================================================================
-@implementation GSWResponse (GSWContentConveniences)
-
-//--------------------------------------------------------------------
-//	appendContentBytes:length:
-
--(void)appendContentBytes:(const void*)bytes
-                   length:(unsigned)length
-{
-  LOGObjectFnStart();
-  if (length>0)
-    {
-      [_contentData appendBytes:bytes
-                    length:length];
-    };
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
-//	appendContentCharacter:
-
--(void)appendContentCharacter:(char)aChar
-{
-  LOGObjectFnStart();
-  [self appendContentBytes:&aChar
-        length:1];
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
-//	appendContentData:
-
--(void)appendContentData:(NSData*)dataObject
-{
-  const void* bytes=NULL;
-  unsigned int length=0;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"response=%p dataObject:%@",self,dataObject);
-  bytes=[dataObject bytes];
-  length=[dataObject length];
-  [self appendContentBytes:bytes
-        length:length];
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
-//	appendContentString:
-
--(void)appendContentString:(NSString*)aString
-{
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"response=%p contentEncoding=%d",self,(int)_contentEncoding);
-  if (aString)
-    {
-      NSData* newData=nil;
-      NSString* string=nil;
-      string=[NSString stringWithObject:aString];
-      NSAssert(string,@"Can't get string from object");
-#ifndef NDEBUG
-      NSAssert3(![string isKindOfClass:[NSString class]] || [string canBeConvertedToEncoding:_contentEncoding],
-                @"string %s (of class %@) can't be converted to encoding %d",
-                [string lossyCString],
-                [string class],
-                _contentEncoding);
-#endif
-      newData=[string dataUsingEncoding:_contentEncoding];
-      NSAssert3(newData,@"Can't create data from %@ \"%s\" using encoding %d",
-               [string class],
-               ([string isKindOfClass:[NSString class]] ? [string lossyCString] : "**Not a string**"),
-               (int)_contentEncoding);
-      NSDebugMLLog(@"low",@"newData=%@",newData);
-      [_contentData appendData:newData];
-    };
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
-//	appendDebugCommentContentString:
-
--(void)appendDebugCommentContentString:(NSString*)aString
-{
-#ifndef NDEBUG
-  if (GSDebugSet(@"debugComments") == YES)
-    [self appendContentString:[NSString stringWithFormat:@"\n<!-- %@ -->\n",aString]];
-#endif
-};
-
-//--------------------------------------------------------------------
-//	contentEncoding
-
--(NSStringEncoding)contentEncoding 
-{
-  return _contentEncoding;
-};
-
-//--------------------------------------------------------------------
-//	setContentEncoding:
-
--(void)setContentEncoding:(NSStringEncoding)encoding
-{
-  NSDebugMLLog(@"low",@"setContentEncoding:%d",(int)encoding);
-  _contentEncoding=encoding;
-};
-
-
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWHTMLConveniences)
-
-//--------------------------------------------------------------------
-//	appendContentHTMLAttributeValue:
-
--(void)appendContentHTMLAttributeValue:(NSString*)value
-{
-  NSString* string=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"response=%p value=%@",self,value);
-  string=[NSString stringWithObject:value];
-  [self appendContentString:[[self class]stringByEscapingHTMLAttributeValue:string]];
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
-//	appendContentHTMLString:
-
--(void)appendContentHTMLString:(NSString*)aString
-{
-  NSString* string=[NSString stringWithObject:aString];
-  [self appendContentString:[[self class]stringByEscapingHTMLString:string]];
-};
-
-//--------------------------------------------------------------------
--(void)appendContentHTMLConvertString:(NSString*)aString
-{
-  NSString* string=[NSString stringWithObject:aString];
-  [self appendContentString:[[self class]stringByConvertingToHTML:string]];
-};
-
-//--------------------------------------------------------------------
--(void)appendContentHTMLEntitiesConvertString:(NSString*)aString
-{
-  NSString* string=[NSString stringWithObject:aString];
-  [self appendContentString:[[self class]stringByConvertingToHTMLEntities:string]];
-};
-
-//--------------------------------------------------------------------
-+(NSString*)stringByEscapingHTMLString:(NSString*)aString
-{
-  NSString* string=[NSString stringWithObject:aString];
-  return [string stringByEscapingHTMLString];
-};
-
-//--------------------------------------------------------------------
-+(NSString*)stringByEscapingHTMLAttributeValue:(NSString*)aString
-{
-  NSString* string=[NSString stringWithObject:aString];
-  return [string stringByEscapingHTMLAttributeValue];
-};
-
-//--------------------------------------------------------------------
-+(NSString*)stringByConvertingToHTMLEntities:(NSString*)aString
-{
-  NSString* string=[NSString stringWithObject:aString];
-  return [string stringByConvertingToHTMLEntities];
-};
-
-//--------------------------------------------------------------------
-+(NSString*)stringByConvertingToHTML:(NSString*)aString
-{
-  NSString* string=[NSString stringWithObject:aString];
-  return [string stringByConvertingToHTML];
-};
-
-@end
-
-//====================================================================
-@implementation GSWResponse (Cookies)
-
-//--------------------------------------------------------------------
--(NSString*)_formattedCookiesString
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
--(NSArray*)allocCookiesIFND
-{
-  //OK
-  if (!_cookies)
-    _cookies=[NSMutableArray new];
-  return _cookies;
-};
-
-//--------------------------------------------------------------------
--(void)addCookie:(GSWCookie*)cookie
-{
-  //OK
-  NSMutableArray* cookies=nil;
-  LOGObjectFnStart();
-  cookies=[self allocCookiesIFND];
-  if (cookie)
-    [cookies addObject:cookie];
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)removeCookie:(GSWCookie*)cookie
-{
-  NSMutableArray* cookies=nil;
-  LOGObjectFnStart();
-  cookies=[self allocCookiesIFND];
-  if (cookie)
-    [cookies removeObject:cookie];
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(NSArray*)cookies
-{
-  NSMutableArray* cookies=[self allocCookiesIFND];
-  return cookies;
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSArray*)cookiesHeadersValues
-{
-  NSMutableArray* strings=nil;
-  NSArray* cookies=[self cookies];
-  if ([cookies count]>0)
-    {
-      int i=0;
-      int count=[cookies count];
-      GSWCookie* cookie=nil;
-      NSString* cookieString=nil;
-      strings=[NSMutableArray array];
-      for(i=0;i<count;i++)
-        {
-          cookie=[cookies objectAtIndex:i];
-          cookieString=[cookie headerValue];
-          NSAssert(cookieString,@"No cookie HeaderValue");
-          [strings addObject:cookieString];
-        };
-    };
-  return (strings ? [NSArray arrayWithArray:strings] : nil);
-};
-
-@end
-
-//====================================================================
 @implementation GSWResponse (GSWResponseA)
 
 //--------------------------------------------------------------------
@@ -635,16 +203,73 @@ static NSArray* cacheControlHeaderValues=nil;
 };
 
 //--------------------------------------------------------------------
+-(void)_finalizeContentEncodingInContext:(GSWContext*)aContext
+{
+  int dataLength=0;
+
+  LOGObjectFnStart();
+
+#ifdef HAVE_ZLIB
+  dataLength=[self _contentLength];
+  NSDebugMLog(@"dataLength=%d",dataLength);
+  // Now we see if we can gzip the content
+  if (dataLength>1024) // min length: 1024
+    {
+      // we could do better by having parameters for types
+      NSArray* appAcceptedContentEncodingArray=[GSWApplication acceptedContentEncodingArray];
+      NSDebugMLog(@"appAcceptedContentEncodingArray=%@",appAcceptedContentEncodingArray);
+      if ([appAcceptedContentEncodingArray count]>0)
+        {
+          NSString* contentType=[self headerForKey:@"content-type"];
+          if ([contentType isEqualTo:@"text/html"])
+            {
+              NSString* contentEncoding=[self headerForKey:@"content-encoding"];
+              // we could do better by handling compress,...
+              if ([contentEncoding length]==0 // Not already encoded
+                  && [_acceptedEncodings containsObject:@"gzip"]
+                  && [appAcceptedContentEncodingArray containsObject:@"gzip"])
+                {
+                  NSDate* compressStartDate=[NSDate date];
+                  NSData* content=[self content];
+                  NSData* compressedData=[content deflate];
+                  NSDebugMLog(@"compressedData=%@",compressedData);
+                  if (compressedData)
+                    {
+#ifdef DEBUG
+                      NSDate* compressStopDate=[NSDate date];
+                      NSString* sizeInfoHeader=[NSString stringWithFormat:@"deflate from %d to %d in %0.3f s",
+                                                         dataLength,
+                                                         [compressedData length],
+                                                     [compressStopDate timeIntervalSinceDate:compressStartDate]];
+                      [self setHeader:sizeInfoHeader
+                            forKey:@"deflate-info"];
+#endif
+                      [self setContent:compressedData];
+                      dataLength=[self _contentLength];
+                      [self setHeader:@"gzip"
+                            forKey:@"content-encoding"];
+                    };
+                };
+            };
+        };
+    };
+#endif
+
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
 -(void)_finalizeInContext:(GSWContext*)aContext
 {
   //OK
-  NSArray* setCookieHeader=nil;
-  NSArray* cookies=nil;
   GSWRequest* request=nil;
   int applicationNumber=-1;
   int dataLength=0;
   NSString* dataLengthString=nil;
+  NSData* content=nil;
+
   LOGObjectFnStart();
+
   NSAssert(!_isFinalizeInContextHasBeenCalled,@"GSWResponse _finalizeInContext: already called");
 
 #ifndef NDEBUG
@@ -652,7 +277,7 @@ static NSArray* cacheControlHeaderValues=nil;
     {
       NSString* docStructure=[aContext docStructure];
       if (docStructure)
-        [self appendDebugCommentContentString:docStructure];
+        [self appendContentString:[NSString stringWithFormat:@"\n<!-- %@ -->\n",docStructure]];
     }
 #endif
 
@@ -661,21 +286,8 @@ static NSArray* cacheControlHeaderValues=nil;
     [self disableClientCaching];
 
   [self _resolveContentFaultsInContext:aContext];
-  setCookieHeader=[self headersForKey:GSWHTTPHeader_SetCookie];
-  if (setCookieHeader)
-    {
-      ExceptionRaise(@"GSWResponse",
-                     @"%@ header already exists",
-                     GSWHTTPHeader_SetCookie);
-    };
-  cookies=[self cookies];
-  if ([cookies count]>0)
-    {
-      id cookiesHeadersValues=[self cookiesHeadersValues];
-      NSDebugMLLog(@"low",@"cookiesHeadersValues=%@",cookiesHeadersValues);
-      [self setHeaders:cookiesHeadersValues
-            forKey:GSWHTTPHeader_SetCookie];
-    };
+
+  [self _finalizeCookiesInContext:aContext];
   request=[aContext request];
   applicationNumber=[request applicationNumber];
   NSDebugMLLog(@"low",@"applicationNumber=%d",applicationNumber);
@@ -685,74 +297,25 @@ static NSArray* cacheControlHeaderValues=nil;
 	  LOGError(); //TODO
           }; */
 
-  dataLength=[_contentData length];
-#ifdef HAVE_ZLIB
-  // Now we see if we can gzip the content
-  if (dataLength>1024) // min length: 1024
-    {
-      // we could do better by having parameters for types
-      NSString* contentType=[self headerForKey:@"content-type"];
-      if ([contentType isEqualTo:@"text/html"])
-        {
-          NSString* contentEncoding=[self headerForKey:@"content-encoding"];
-          // we could do better by handling compress,...
-          if ([contentEncoding length]==0 // Not already encoded
-              && [_acceptedEncodings containsObject:@"gzip"])
-            {
-              NSDate* compressStartDate=[NSDate date];
-              NSData* compressedData=[_contentData deflate];
-              NSDebugMLog(@"compressedData=%@",compressedData);
-              if (compressedData)
-                {
-#ifdef DEBUG
-                  NSDate* compressStopDate=[NSDate date];
-                  NSString* sizeInfoHeader=[NSString stringWithFormat:@"deflate from %d to %d in %0.3f s",
-                                                     dataLength,
-                                                     [compressedData length],
-                                                     [compressStopDate timeIntervalSinceDate:compressStartDate]];
-                  [self setHeader:sizeInfoHeader
-                        forKey:@"deflate-info"];
-#endif
-                  ASSIGN(_contentData,compressedData);
-                  dataLength=[_contentData length];
-                  [self setHeader:@"gzip"
-                        forKey:@"content-encoding"];
-                };
-            };
-        };
-    };
-#endif
+  [self _finalizeContentEncodingInContext:aContext];
+
+  content=[self content];
+  dataLength=[self _contentLength];
+  NSDebugMLog(@"dataLength=%d",dataLength);
+
   dataLengthString=[NSString stringWithFormat:@"%d",
                              dataLength];
+
   [self setHeader:dataLengthString
 		forKey:GSWHTTPHeader_ContentLength];
   NSDebugMLLog(@"low",@"headers:%@",_headers);
+
   _isFinalizeInContextHasBeenCalled=YES;
+
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)_initContentData
-{
-  //OK
-  DESTROY(_contentData);
-  _contentData=[NSMutableData new];
-};
-
-//--------------------------------------------------------------------
--(void)_appendContentAsciiString:(NSString*)aString
-{
-  NSData* newData=nil;
-  NSString* string=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"aString:%@",aString);
-  string=[NSString stringWithObject:aString];
-  NSDebugMLLog(@"low",@"_string:%@",string);
-  newData=[string dataUsingEncoding:_contentEncoding];
-  [self appendContentData:newData];
-  LOGObjectFnStop();
-};
-
 -(void)_appendTagAttribute:(NSString*)attributeName
                      value:(id)value
 escapingHTMLAttributeValue:(BOOL)escape
@@ -824,20 +387,18 @@ escapingHTMLAttributeValue:(BOOL)escape
 @end
 
 //====================================================================
-@implementation GSWResponse (GSWResponseDefaultEncoding)
-
-//--------------------------------------------------------------------
-+(void)setDefaultEncoding:(NSStringEncoding)encoding
+@implementation GSWResponse (Stream)
+-(void)setContentStreamFileHandle:(NSFileHandle*)fileHandle
+                       bufferSize:(unsigned int)bufferSize
+                           length:(unsigned long)length
 {
-  globalDefaultEncoding=encoding;
+  ASSIGN(_contentStreamFileHandle,fileHandle);
+  if (bufferSize==0)
+    _contentStreamBufferSize=4096;
+  else
+    _contentStreamBufferSize=bufferSize;
+  _contentStreamBufferLength=length;
 };
-
-//--------------------------------------------------------------------
-+(NSStringEncoding)defaultEncoding;
-{
-  return globalDefaultEncoding;
-};
-
 @end
 
 //====================================================================
@@ -947,7 +508,7 @@ escapingHTMLAttributeValue:(BOOL)escape
 //====================================================================
 @implementation GSWResponse (GSWResponseRedirected)
 
-
+//--------------------------------------------------------------------
 -(void)_generateRedirectResponseWithMessage:(NSString*)message
                                    location:(NSString*)location
                                isDefinitive:(BOOL)isDefinitive

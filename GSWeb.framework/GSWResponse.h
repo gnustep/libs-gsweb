@@ -38,47 +38,26 @@
 @end
 
 //====================================================================
-@interface GSWResponse : NSObject <NSCopying>
+@interface GSWResponse : GSWMessage
 {
 @private
-    NSString* _httpVersion;
-    unsigned int _status;
-    NSMutableDictionary* _headers;
-    NSMutableArray* _contentFaults;
-    NSMutableData* _contentData;
-    NSStringEncoding _contentEncoding;
-    NSArray* _acceptedEncodings;
-    NSDictionary* _userInfo;
-    NSMutableArray* _cookies;
-    BOOL _isClientCachingDisabled;
-    BOOL _contentFaultsHaveBeenResolved;
-    BOOL _isFinalizeInContextHasBeenCalled;
+  unsigned int _status;
+  NSMutableArray* _contentFaults;
+  NSFileHandle* _contentStreamFileHandle;
+  unsigned int _contentStreamBufferSize;
+  unsigned long _contentStreamBufferLength;
+  NSArray* _acceptedEncodings;
+  BOOL _isClientCachingDisabled;
+  BOOL _contentFaultsHaveBeenResolved;
+  BOOL _isFinalizeInContextHasBeenCalled;
 };
 
--(id)init;
--(void)dealloc;
--(id)copyWithZone:(NSZone*)zone;
--(NSData*)content;
 -(void)willSend;//NDFN
 -(void)forceFinalizeInContext;
--(NSString*)headerForKey:(NSString*)key;
--(NSArray*)headerKeys;
--(NSArray*)headersForKey:(NSString*)key;
--(NSString*)httpVersion;
--(NSArray*)acceptedEncodings;
--(void)setContent:(NSData*)someData;
--(void)setHeader:(NSString*)header
-          forKey:(NSString*)key;
--(void)setHeaders:(NSArray*)headerList
-           forKey:(NSString*)key;
--(void)setHeaders:(NSDictionary*)headerList;
--(NSMutableDictionary*)headers;
--(void)setHTTPVersion:(NSString*)version;
 -(void)setStatus:(unsigned int)status;
--(void)setUserInfo:(NSDictionary*)userInfo;
 -(void)setAcceptedEncodings:(NSArray*)acceptedEncodings;
+-(NSArray*)acceptedEncodings;
 -(unsigned int)status;
--(NSDictionary*)userInfo;
 -(NSString*)description;
 
 -(void)disableClientCaching;
@@ -86,49 +65,9 @@
 @end
 
 //====================================================================
-@interface GSWResponse (GSWContentConveniences)
--(void)appendContentBytes:(const void*)contentsBytes
-                   length:(unsigned)length;
--(void)appendContentCharacter:(char)aChar;
--(void)appendContentString:(NSString*)string;
--(void)appendDebugCommentContentString:(NSString*)string;
--(void)appendContentData:(NSData*)contentData;
--(void)setContentEncoding:(NSStringEncoding)encoding;
--(NSStringEncoding)contentEncoding;
-
-
-@end
-
-//====================================================================
-@interface GSWResponse (GSWHTMLConveniences)
-
--(void)appendContentHTMLString:(NSString*)string;
--(void)appendContentHTMLAttributeValue:(NSString*)string;
--(void)appendContentHTMLConvertString:(NSString*)string;
--(void)appendContentHTMLEntitiesConvertString:(NSString*)string;
-+(NSString*)stringByEscapingHTMLString:(NSString*)string;
-+(NSString*)stringByEscapingHTMLAttributeValue:(NSString*)string;
-+(NSString*)stringByConvertingToHTMLEntities:(NSString*)string;
-+(NSString*)stringByConvertingToHTML:(NSString*)string;
-@end
-
-//====================================================================
-@interface GSWResponse (Cookies)
--(NSString*)_formattedCookiesString;
--(NSMutableArray*)allocCookiesIFND;
--(void)addCookie:(GSWCookie*)cookie;
--(void)removeCookie:(GSWCookie*)cookie;
--(NSArray*)cookies;
--(NSArray*)cookiesHeadersValues;//NDFN
-
-@end
-
-//====================================================================
 @interface GSWResponse (GSWResponseA)
 -(BOOL)isFinalizeInContextHasBeenCalled;//NDFN
 -(void)_finalizeInContext:(GSWContext*)context;
--(void)_initContentData;
--(void)_appendContentAsciiString:(NSString*)string;
 -(void)_appendTagAttribute:(NSString*)attributeName
                      value:(id)value
 escapingHTMLAttributeValue:(BOOL)escape;
@@ -161,9 +100,10 @@ escapingHTMLAttributeValue:(BOOL)escape;
 @end
 
 //====================================================================
-@interface GSWResponse (GSWResponseDefaultEncoding)
-+(void)setDefaultEncoding:(NSStringEncoding)encoding;
-+(NSStringEncoding)defaultEncoding;
+@interface GSWResponse (Stream)
+-(void)setContentStreamFileHandle:(NSFileHandle*)fileHandle
+                       bufferSize:(unsigned int)bufferSize
+                           length:(unsigned long)length;
 @end
 
 //====================================================================
