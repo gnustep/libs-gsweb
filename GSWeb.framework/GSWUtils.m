@@ -1325,7 +1325,7 @@ NSString* GSWGetDefaultDocRoot()
 
 //====================================================================
 //TODO
-#ifndef NeXT_Foundation_LIBRARY
+#ifdef GNUSTEP
 @implementation NSUserDefaults (Description)
 
 //--------------------------------------------------------------------

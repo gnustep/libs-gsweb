@@ -1,5 +1,11 @@
 2004-03-10  David Ayers  <d.ayers@inode.at>
 
+	* GSWeb.framework/GSWUtils.m: Use GNUSTEP in favor of 
+	NeXT_Foundation_LIBRARY as requested by Marcus Mueller
+	<znek@mulle-kybernetik.com>.
+	
+2004-03-10  David Ayers  <d.ayers@inode.at>
+
 	* GSWeb.framework/GNUmakefile: Make WO_HEADER_FILES real
 	public headers.
 	* GSWExtensions.framework/GNUmakefile: Ditto.
