@@ -1725,7 +1725,7 @@ NSString* GSWGetDefaultDocRoot()
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n tickingTimer:\n%@\n>",
+  return [NSString stringWithFormat:@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n>",
                    object_get_class_name(self),
                    (void*)self,
                    _searchList,
@@ -1733,8 +1733,7 @@ NSString* GSWGetDefaultDocRoot()
                    _tempDomains,
                    _changedDomains,
                    _dictionaryRep,
-                   _defaultsDatabase,
-                   _tickingTimer];
+                   _defaultsDatabase];
 };
 
 @end

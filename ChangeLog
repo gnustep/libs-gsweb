@@ -1,3 +1,9 @@
+2003-05-29  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWUtils.m ([NSUserDefaults -description]):
+	Remove reference to instance variable, that has been removed from
+	-base.
+
 2003-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWRequest.h/.m:
 		o added ivar _browserAcceptedEncodings
