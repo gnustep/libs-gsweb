@@ -297,10 +297,10 @@ GSWHeaderTranslationTable_Init()
   GSWHeaderTranslationTable[i].pszHTTP=g_szServerInfo_RequestScheme;
   GSWHeaderTranslationTable[i++].pszGSWeb=g_szHeader_GSWeb_RequestScheme;
 
+  GSWHeaderTranslationTableItemsNb=i;//Before null elements !
+
   GSWHeaderTranslationTable[i].pszHTTP=NULL;
   GSWHeaderTranslationTable[i++].pszGSWeb=NULL;
-
-  GSWHeaderTranslationTableItemsNb=i;
 
   // Because bsearch require sorted array
   qsort(GSWHeaderTranslationTable,GSWHeaderTranslationTableItemsNb,sizeof(GSWHeaderTranslationItem),
@@ -309,7 +309,7 @@ GSWHeaderTranslationTable_Init()
 /*  
   GSWLog(GSW_ERROR,LOGSD,"GSWHeaderTranslationTableItemsNb=%d",
 	 GSWHeaderTranslationTableItemsNb);
-  for(i=0;i<GSWHeaderTranslationTableItemsNb-1;i++)
+  for(i=0;i<GSWHeaderTranslationTableItemsNb;i++)
     {
       GSWLog(GSW_ERROR,LOGSD,"GSWHeaderTranslationTable[%d].pszHTTP=%s",
 	     i,GSWHeaderTranslationTable[i].pszHTTP);
