@@ -386,10 +386,14 @@ static NSCharacterSet* nonNumericSet=nil;
 //--------------------------------------------------------------------
 -(void)deleteLastElementIDComponent
 {
-  NSArray* ids=nil;
+  //  NSArray* ids=nil;
+  int length=0;
   LOGObjectFnStart();
-  if ([self length]>0)
+
+  length=[self length];
+  if (length>0)
     {
+/*
       ids=[self componentsSeparatedByString:@"."];
       NSAssert([ids count]>0,@"PROBLEM");
       if ([ids count]==1)
@@ -399,6 +403,16 @@ static NSCharacterSet* nonNumericSet=nil;
           [self setString:[[ids subarrayWithRange:NSMakeRange(0,[ids count]-1)]
                             componentsJoinedByString:@"."]];
         };
+*/
+      NSRange dotRange=[self rangeOfString:@"."
+                             options:NSBackwardsSearch];
+      if (dotRange.length>0)
+        {
+          [self deleteCharactersInRange:
+                  NSMakeRange(dotRange.location,length-dotRange.location)];
+        }
+      else
+        [self setString:@""];        
     }
   else
     {
@@ -410,6 +424,7 @@ static NSCharacterSet* nonNumericSet=nil;
 //--------------------------------------------------------------------
 -(void)incrementLastElementIDComponent
 {
+/*
   NSArray* ids=nil;
   int idsCount=0;
   LOGObjectFnStart();
@@ -447,7 +462,7 @@ static NSCharacterSet* nonNumericSet=nil;
           else
             {
               // it's a number 
-              lastPart=[NSString  stringWithFormat:@"%d",([lastPart intValue]+1)];
+              lastPart=GSWIntToNSString([lastPart intValue]+1);
             };
           if (idsCount>1)
             [self setString:[[[ids subarrayWithRange:NSMakeRange(0,idsCount-1)]
@@ -455,6 +470,71 @@ static NSCharacterSet* nonNumericSet=nil;
                               stringByAppendingFormat:@".%@",lastPart]];
           else
             [self setString:lastPart];
+        };
+    };
+  LOGObjectFnStop();
+*/
+  int length=0;
+  LOGObjectFnStart();
+  length=[self length];
+  if (length>0)
+    {
+      NSString* lastPart=nil;
+      NSRange dotRange=[self rangeOfString:@"."
+                             options:NSBackwardsSearch];
+      if (dotRange.length>0)
+        {
+          if (dotRange.location+1<length)
+            lastPart=[self substringFromIndex:dotRange.location+1];
+          else
+            lastPart=@"";
+        }
+      else
+        lastPart=self;
+      if ([lastPart length]==0) // not possible ?
+        {
+          // add a '1' at the end
+          [self appendString:@"1"];
+        }
+      else
+        {
+          // find last 'number'         
+          // search for last non '0'-'9' char
+          NSRange range=[lastPart rangeOfCharacterFromSet:nonNumericSet
+                                  options:NSBackwardsSearch];
+          if (range.length>0) // a string and (may be) a number
+            {
+              if ((range.location+range.length)==[lastPart length]) // no number
+                {
+                  lastPart=[lastPart stringByAppendingString:@"1"]; // add '1' at the end
+                }
+              else
+                {
+                  NSString* numberString=[lastPart substringFromIndex:range.location+range.length];
+                  NSString* nonNumberString=[lastPart substringToIndex:range.location+range.length];
+                  lastPart=[NSString  stringWithFormat:@"%@%d",
+                                      nonNumberString,
+                                      [numberString intValue]+1];
+                };
+            }
+          else
+            {
+              // it's a number 
+              lastPart=GSWIntToNSString([lastPart intValue]+1);
+            };
+          if (dotRange.length>0)
+            {
+              //Remove after last dot
+              [self deleteCharactersInRange:
+                      NSMakeRange(dotRange.location+1,length-(dotRange.location+1))];
+              //Append lastPart
+              [self appendString:lastPart];
+            }
+          else
+            {
+              // Set last Part
+              [self setString:lastPart];
+            };
         };
     };
   LOGObjectFnStop();
@@ -477,7 +557,10 @@ static NSCharacterSet* nonNumericSet=nil;
   NSRange range;
   LOGObjectFnStart();
   if (self && [self length]>0)
-    [self appendFormat:@".%@",element];
+    {
+      [self appendString:@"."];
+      [self appendString:element];
+    }
   else
     [self setString:element];
   range=[self rangeOfCharacterFromSet:nonNumericSet
@@ -504,10 +587,26 @@ static NSCharacterSet* nonNumericSet=nil;
 #ifndef NDEBBUG
 -(int)elementsNb
 {
-  if ([self length]==0)
+  int length=[self length];
+  if (length==0)
     return 0;
   else
-    return [[self componentsSeparatedByString:@"."] count];
+    {
+      int count=1;
+      NSRange dotRange=[self rangeOfString:@"."];
+      while(dotRange.length>0)
+        {
+          count++;
+          dotRange.location++;
+          dotRange.length=length-dotRange.location;
+          if (dotRange.location>=length)
+            break;
+          dotRange=[self rangeOfString:@"."
+                         options:0
+                         range:dotRange];
+        };
+      return count;
+    }
 };
 #endif
 
