@@ -25,9 +25,10 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
+#undef GSWElementIDString
+/*
 //====================================================================
 @implementation GSWElementIDString
-
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
@@ -39,10 +40,11 @@ static char rcsId[] = "$Id$";
 {
   return [[[self class] allocWithZone: zone] initWithString: self];
 };
-@end
 
+@end
+*/
 //====================================================================
-@implementation GSWElementIDString  (GSWElementIDStringGSW)
+@implementation NSMutableString  (GSWElementIDStringGSW)
 
 //--------------------------------------------------------------------
 -(void)deleteAllElementIDComponents

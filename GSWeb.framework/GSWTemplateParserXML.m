@@ -643,7 +643,7 @@ text [Type:XML_TEXT_NODE] [{}] ####
               };
             //if (currentNode->type==XML_ELEMENT_NODE)
             {
-              nodeAttributes=[currentNode propertiesAsDictionary];
+              nodeAttributes=[currentNode propertiesAsDictionaryWithKeyTransformationSel:@selector(lowercaseString)];
               nodeNameAttribute=[nodeAttributes objectForKey:@"name"];
               NSDebugMLog(@"node=%p nodeAttributes=%@",currentNode,nodeAttributes);
               NSDebugMLog(@"node=%p nodeNameAttribute=%@",currentNode,nodeNameAttribute);

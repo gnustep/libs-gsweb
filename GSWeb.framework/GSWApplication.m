@@ -769,7 +769,6 @@ int GSWApplicationMain(NSString* _applicationClassName,
   NSString* _path=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"[GSWResourceManager _applicationGSWBundle]:%@",[GSWResourceManager _applicationGSWBundle]);
-  GSWLogDumpObject([GSWResourceManager _applicationGSWBundle],2);
   _path=[[GSWResourceManager _applicationGSWBundle] path]; //return :  H:\Wotests\ObjCTest3
   NSDebugMLLog(@"low",@"_path:%@",_path);
   LOGObjectFnStop();

@@ -26,13 +26,16 @@
 #ifndef _GSWElementIDString_h__
 	#define _GSWElementIDString_h__
 
-
+/*
 //====================================================================
 @interface GSWElementIDString : NSMutableString
 @end
-
+*/
 //====================================================================
+/*
 @interface GSWElementIDString (GSWElementIDStringGSW)
+*/
+@interface NSMutableString (GSWElementIDStringGSW)
 -(void)deleteAllElementIDComponents;
 -(void)deleteLastElementIDComponent;
 -(void)incrementLastElementIDComponent;
@@ -43,6 +46,8 @@
 -(int)elementsNb;
 #endif
 @end
+
+#define GSWElementIDString NSMutableString
 
 #endif //_GSWElementIDString_h__
 
