@@ -378,8 +378,6 @@ GSWeb_AGSDOC_FLAGS = \
 	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
 	}' -Up gsweb
 
-GSWeb_AGSDOC_FLAGS = $(GSWeb_AGSDOC_FLAGS)
-
 -include Makefile.preamble
 
 -include GNUmakefile.local

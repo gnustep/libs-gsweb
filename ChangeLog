@@ -1,3 +1,14 @@
+2004-11-03  David Ayers  <d.ayers@inode.at>
+
+	* Doc/GNUmakefile: New file.
+	* Doc/gsweb.gsdoc: Update DTD reference.  Minor reformatting.
+	Add references to subprojects.  Add myself as coauthor.
+	* GSWeb.framework/GNUmakefile: Remove duplicate definition of
+	GSWeb_AGSDOC_FLAGS.
+
+	* GSWeb.framework/GSWDebug.h (LOGDEEPClassFnStart)
+	(LOGDEEPError0, LOGLOCKException0): Insert missing backslash.
+	
 2004-09-02  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication+Defaults.m

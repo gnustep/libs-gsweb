@@ -321,7 +321,7 @@ GSWLogAssertGoodFn(CONST char* file,int line,id object);
 #if defined(DEBUG) && defined(GSWDEBUG_DEEP)
 #define LOGDEEPClassFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, \
 				       __FILE__, __LINE__, @"FNSTART"); \
     NSLog(fmt); }} while (0)
 
@@ -473,7 +473,7 @@ GSWLogAssertGoodFn(CONST char* file,int line,id object);
 
 #define LOGDEEPError0(format) 	\
   do { if (GSDebugSet(@"error") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, \
 				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
     NSLog(@"%@",fmt2); }} while (0)
@@ -703,7 +703,7 @@ GSWLogAssertGoodFn(CONST char* file,int line,id object);
 
 #define LOGLOCKException0(format) 	\
   do { if (GSDebugSet(@"exception") == YES) { \
-    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__,
+    NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, \
 				       __FILE__, __LINE__, format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
