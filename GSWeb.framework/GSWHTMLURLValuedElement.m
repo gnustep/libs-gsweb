@@ -449,7 +449,7 @@ NS_DURING
     }
   else
     {	
-      if (_key || _data)
+      if (dataValue)//_key || _data)
         {
           if (cidStoreValue)
             [aResponse appendContentString:url];
