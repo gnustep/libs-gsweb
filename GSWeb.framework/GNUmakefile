@@ -1,7 +1,8 @@
 # GNUmakefile - GSWeb: GNUmakefile
-#   Copyright (C) 1999 Free Software Foundation, Inc.
+#
+#   Copyright (C) 1999-2002 Free Software Foundation, Inc.
 #   
-#   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+#   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
 #   Date: 		Jan 1999
 #   
 #   This file is part of the GNUstep Web Library.
@@ -298,6 +299,18 @@ GSWResourceURL.h \
 GSWProcFS.h \
 GSWWOCompatibility.h
 
+# The framework installed WO header files
+GSWeb_WO_HEADER_FILES = \
+WebObjects.h \
+WOApplication.h \
+WOComponent.h \
+WOContext.h \
+WODirectAction.h \
+WORequest.h \
+WOSession.h \
+
+WO_HEADERS_DSTDIR = $(GNUSTEP_HEADERS)/WebObjects
+WO_HEADERS_SRCDIR = WebObjects
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)

@@ -51,7 +51,14 @@ after-install::
 	fi; \
 	for file in $(DTD_FILES); do \
 	  $(INSTALL_DATA) $(srcDTDDir)/$$file $(dstDTDDir)/$$file; \
-	done;
+	done; \
+	if [ ! -f $(WO_HEADERS_DSTDIR) ]; then \
+	  $(MKDIRS) $(WO_HEADERS_DSTDIR); \
+	fi; \
+	for file in $(GSWeb_WO_HEADER_FILES); do \
+	  $(INSTALL_DATA) $(WO_HEADERS_SRCDIR)/$$file $(WO_HEADERS_DSTDIR)/$$file; \
+	done; 
+
 
 # Things to do before uninstalling
 # before-uninstall::

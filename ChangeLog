@@ -1,4 +1,12 @@
 2002-07-28   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/WebObjects:
+		o added WebObjects headers (suggested by David Wetzel <dave@turbocat.de>)
+	* GSWeb.framework/GNUmakefile:
+		o added WebObjects headers (suggested by David Wetzel <dave@turbocat.de>)
+	* GSWeb.framework/makefile.postamble:
+		o added copy of WebObjects headers (suggested by David Wetzel <dave@turbocat.de>)
+
+2002-07-28   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWJavaScript.h/.m:
 		o implementation
 	* GSWeb.framework/GSWClientSideScript.h/.m:
