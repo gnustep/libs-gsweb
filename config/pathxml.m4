@@ -2,11 +2,11 @@ dnl Code shamelessly stolen from glib-config by Sebastian Rittau
 dnl AM_PATH_XML([MINIMUM-VERSION [, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]]])
 AC_DEFUN(AM_PATH_XML,[
 AC_ARG_WITH(xml-prefix,
-            [  --with-xml-prefix=PFX    Prefix where libxml is installed (optional)],
-            xml_config_prefix="$withval", xml_config_prefix="")
+  [  --with-xml-prefix=PFX   Prefix where libxml is installed (optional)],
+  xml_config_prefix="$withval", xml_config_prefix="")
 AC_ARG_ENABLE(xmltest,
-              [  --disable-xmltest        Do not try to compile and run a test XML program],,
-              enable_xmltest=yes)
+  [  --disable-xmltest       Do not try to compile and run a test XML program],,
+  enable_xmltest=yes)
 
   if test x$xml_config_prefix != x ; then
     xml_config_args="$xml_config_args --prefix=$xml_config_prefix"
@@ -60,32 +60,39 @@ main()
   system("touch conf.xmltest");
 
   tmp_version = xmlStrdup("$min_xml_version");
-  if(sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3) {
-    printf("%s, bad version string\n", "$min_xml_version");
-    exit(1);
-  }
+  if(sscanf(tmp_version, "%d.%d.%d", &major, &minor, &micro) != 3)
+    {
+      printf("%s, bad version string\n", "$min_xml_version");
+      exit(1);
+    }
 
   tmp_version = xmlStrdup(LIBXML_DOTTED_VERSION);
-  if(sscanf(tmp_version, "%d.%d.%d", &xml_major_version, &xml_minor_version, &xml_micro_version) != 3) {
-    printf("%s, bad version string\n", "$min_xml_version");
-    exit(1);
-  }
+  if(sscanf(tmp_version, "%d.%d.%d",
+            &xml_major_version, &xml_minor_version, &xml_micro_version) != 3)
+    {
+      printf("%s, bad version string\n", "$min_xml_version");
+      exit(1);
+    }
 
   if((xml_major_version != $xml_config_major_version) ||
      (xml_minor_version != $xml_config_minor_version) ||
      (xml_micro_version != $xml_config_micro_version))
     {
-      printf("\n*** 'xml-config --version' returned %d.%d.%d, but libxml (%d.%d.%d)\n", 
-             $xml_config_major_version, $xml_config_minor_version, $xml_config_micro_version,
+      printf("\n*** 'xml-config --version' returned %d.%d.%d, \n");
+      printf("\n*** but libxml (%d.%d.%d)\n", 
+             $xml_config_major_version, $xml_config_minor_version,
+             $xml_config_micro_version,
              xml_major_version, xml_minor_version, xml_micro_version);
       printf("*** was found! If xml-config was correct, then it is best\n");
-      printf("*** to remove the old version of libxml. You may also be able to fix the error\n");
-      printf("*** by modifying your LD_LIBRARY_PATH enviroment variable, or by editing\n");
-      printf("*** /etc/ld.so.conf. Make sure you have run ldconfig if that is\n");
-      printf("*** required on your system.\n");
-      printf("*** If xml-config was wrong, set the environment variable XML_CONFIG\n");
-      printf("*** to point to the correct copy of xml-config, and remove the file config.cache\n");
-      printf("*** before re-running configure\n");
+      printf("*** to remove the old version of libxml. You may also be \n");
+      printf("*** able to fix the error by modifying your LD_LIBRARY_PATH \n");
+      printf("*** enviroment variable, or by editing /etc/ld.so.conf.\n");
+      printf("*** Make sure you have run ldconfig if that is required on\n");
+      printf("*** your system.\n");
+      printf("*** If xml-config was wrong, set the environment variable \n");
+      printf("*** XML_CONFIG to point to the correct copy of xml-config,\n");
+      printf("*** and remove the file config.cache before re-running \n");
+      printf("*** configure\n");
     }
   else
     {
@@ -100,17 +107,21 @@ main()
         {
           printf("\n*** An old version of libxml (%d.%d.%d) was found.\n",
             xml_major_version, xml_minor_version, xml_micro_version);
-          printf("*** You need a version of libxml newer than %d.%d.%d. The latest version of\n",
+          printf("*** You need a version of libxml newer than %d.%d.%d. \n",
             major, minor, micro);
-          printf("*** libxml is always available from ftp://ftp.gnome.org.\n");
+          printf("*** The latest version of libxml is available from \n");
+          printf("*** ftp://ftp.gnome.org.\n");
           printf("***\n");
-          printf("*** If you have already installed a sufficiently new version, this error\n");
-          printf("*** probably means that the wrong copy of the xml-config shell script is\n");
-          printf("*** being found. The easiest way to fix this is to remove the old version\n");
-          printf("*** of libxml, but you can also set the XML_CONFIG environment to point to the\n");
-          printf("*** correct copy of xml-config. (In this case, you will have to\n");
-          printf("*** modify your LD_LIBRARY_PATH enviroment variable, or edit /etc/ld.so.conf\n");
-          printf("*** so that the correct libraries are found at run-time))\n");
+          printf("*** If you have already installed a sufficiently new \n");
+          printf("*** version, this error probably means that the wrong \n");
+          printf("*** copy of the xml-config shell script is being found. \n");
+          printf("*** The easiest way to fix this is to remove the old \n");
+          printf("*** version of libxml, but you can also set the \n");
+          printf("*** XML_CONFIG environment to point to the correct copy \n");
+          printf("*** of xml-config. (In this case, you will have to \n");
+          printf("*** modify your LD_LIBRARY_PATH enviroment variable, \n");
+          printf("*** or edit /etc/ld.so.conf so that the correct  \n");
+          printf("*** libraries are found at run-time))\n");
         }
     }
   return 1;
