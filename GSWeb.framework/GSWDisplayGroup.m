@@ -968,7 +968,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
   selectionIndex=[self _selectionIndex];
 
-  if ([self batchCount]>0)
+  if ([self batchCount]>0 && _numberOfObjectsPerBatch != 0)
     newBatchIndex = selectionIndex / _numberOfObjectsPerBatch + 1;
 
   if(newBatchIndex!=_batchIndex)

@@ -1,4 +1,11 @@
+2004-11-26  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWDisplayGroup.m 
+	(-displayBatchContainingSelectedObject): Test
+	_numberOfObjectsPerBatch to be non-zero before dividing.
+	
 2004-11-26  David Wetzel <dave@turbocat.de>
+	
         * GSWeb.framework/GSWDynamicURLString.m
         added some speed enhancements
 
