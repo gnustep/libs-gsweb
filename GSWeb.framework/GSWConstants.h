@@ -82,6 +82,7 @@ extern NSString* GSWAPIPSuffix;
 extern NSString* GSWClassName_Session;
 extern NSString* GSWClassName_Application;
 extern NSString* GSWClassName_DefaultAdaptor[2];
+extern NSString* GSWClassName_DefaultContext[2];
 
 //====================================================================
 // Keys
@@ -118,6 +119,7 @@ extern NSString* GSWHTTPHeader_GatewayInterface[2];
 extern NSString* GSWHTTPHeader_Protocol[2];
 extern NSString* GSWHTTPHeader_ProtocolNum[2];
 extern NSString* GSWHTTPHeader_RequestScheme[2];
+extern NSString* GSWHTTPHeader_ApplicationName[2];
 
 extern NSString* GSWHTTPHeader_Method[2];
 extern NSString* GSWHTTPHeader_MethodPost;
@@ -159,6 +161,7 @@ extern NSString* GSWProtocol_HTTPS;
 // Option Names
 
 extern NSString* GSWOPT_Adaptor[2];
+extern NSString* GSWOPT_Context[2];
 extern NSString* GSWOPT_AdditionalAdaptors[2];
 extern NSString* GSWOPT_ApplicationBaseURL[2];
 extern NSString* GSWOPT_AutoOpenInBrowser[2];

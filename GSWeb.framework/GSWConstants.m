@@ -87,6 +87,7 @@ NSString* GSWMainPageName=@"Main";
 NSString* GSWClassName_Session=@"Session";
 NSString* GSWClassName_Application=@"Application";
 NSString* GSWClassName_DefaultAdaptor[2]={ @"GSWDefaultAdaptor", @"WODefaultAdaptor" };
+NSString* GSWClassName_DefaultContext[2]={ @"GSWContext", @"WOContext" };
 
 //====================================================================
 // Keys
@@ -126,6 +127,7 @@ NSString* GSWHTTPHeader_GatewayInterface[2]={ @"x-gsweb-gateway-interface", @"x-
 NSString* GSWHTTPHeader_Protocol[2]={ @"x-gsweb-server-protocol", @"x-webobjects-server-protocol" };
 NSString* GSWHTTPHeader_ProtocolNum[2]={ @"x-gsweb-server-protocol-num", @"x-webobjects-server-protocol-num" };
 NSString* GSWHTTPHeader_RequestScheme[2]={ @"x-gsweb-request-scheme", @"x-webobjects-request-scheme" };
+NSString* GSWHTTPHeader_ApplicationName[2]={ @"x-gsweb-application-name", @"x-webobjects-application-name" };
 
 NSString* GSWHTTPHeader_MethodPost=@"POST";
 NSString* GSWHTTPHeader_MethodGet=@"GET";
@@ -167,6 +169,7 @@ NSString* GSWProtocol_HTTPS=@"https";
 // Option Names
 
 NSString* GSWOPT_Adaptor[2]={ @"GSWAdaptor", @"WOAdaptor" };
+NSString* GSWOPT_Context[2]={ @"GSWContext", @"WOContext" };
 NSString* GSWOPT_AdditionalAdaptors[2]={ @"GSWAdditionalAdaptors", @"WOAdditionalAdaptors" };
 NSString* GSWOPT_ApplicationBaseURL[2]={ @"GSWApplicationBaseURL", @"WOApplicationBaseURL" };
 NSString* GSWOPT_AutoOpenInBrowser[2]={ @"GSWAutoOpenInBrowser", @"WOAutoOpenInBrowser" };

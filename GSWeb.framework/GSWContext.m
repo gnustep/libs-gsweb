@@ -116,7 +116,7 @@ static int dontTraceComponentActionURL=0;
   //OK
   GSWContext* context=nil;
   LOGObjectFnStart();
-  context=[[[GSWContext alloc]
+  context=[[[self alloc]
              initWithRequest:aRequest]
             autorelease];
   LOGObjectFnStop();
