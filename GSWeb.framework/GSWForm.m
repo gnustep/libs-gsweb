@@ -1,6 +1,6 @@
 /** GSWForm.m - <title>GSWeb: Class GSWForm</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -101,6 +101,12 @@ RCS_ID("$Id$")
 	  ExceptionRaise(@"GSWForm",@"You can't specify 'disabled' and 'enabled' together. componentAssociations:%@",
                          associations);
 	};
+
+      _fragmentIdentifier = [[associations objectForKey:fragmentIdentifier__Key
+                                           withDefaultObject:[_fragmentIdentifier autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"fragmentIdentifier=%@",_fragmentIdentifier);
+
+      [tmpAssociations removeObjectForKey:fragmentIdentifier__Key];
     };
 
   _queryDictionary = [[associations objectForKey:queryDictionary__Key
@@ -145,6 +151,7 @@ RCS_ID("$Id$")
   DESTROY(_queryDictionary);
   DESTROY(_disabled);
   DESTROY(_enabled);
+  DESTROY(_fragmentIdentifier);
   DESTROY(_otherQueryAssociations);
   DESTROY(_otherPathQueryAssociations);
   [super dealloc];
@@ -301,11 +308,14 @@ RCS_ID("$Id$")
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   BOOL multipleSubmitValue=NO;
+
   LOGObjectFnStartC("GSWForm");
+
   GSWStartElement(context);
   senderID=[context senderID];
   elementID=[context elementID];
   NSDebugMLLog(@"gswdync",@"senderId=%@",senderID);
+
   NS_DURING
     {
       GSWAssertCorrectElementID(context);// Debug Only
@@ -335,24 +345,6 @@ RCS_ID("$Id$")
                            (multipleSubmitValue ? "YES" : "NO"));
               [context _setIsMultipleSubmitForm:multipleSubmitValue];
             };
-/*
-          for(i=0;!element && !searchIsOver && i<[_dynamicChildren count];i++)
-            {
-              NSDebugMLLog(@"gswdync",@"i=%d",i);
-              element=[[_dynamicChildren objectAtIndex:i] invokeActionForRequest:request
-                                                          inContext:context];
-
-//              if (![context _wasFormSubmitted] && [[context elementID] compare:senderID]==NSOrderedDescending)
-              if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
-                {
-                  NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
-                               [context elementID],
-                               senderID);
-                  searchIsOver=YES;
-                };
-              [context incrementLastElementIDComponent];
-            };
-*/
 
           NSDebugMLLog(@"gswdync",@"isFormSubmited=%d",isFormSubmited);
 
@@ -404,9 +396,10 @@ RCS_ID("$Id$")
       [localException raise];
     }
   NS_ENDHANDLER;
+
   senderID=[context senderID];
   elementID=[context elementID];
-  //if (![context _wasActionInvoked] && [_elementID compare:senderID]!=NSOrderedAscending)
+
   if (![context _wasActionInvoked] && [elementID isSearchOverForSenderID:senderID])
     {
       LOGError(@"Action not invoked at the end of %@ (def name=%@) (id=%@) senderId=%@",
@@ -415,7 +408,9 @@ RCS_ID("$Id$")
                elementID,
                senderID);
     };
+
   LOGObjectFnStopC("GSWForm");
+
   return element; 
 };
 
@@ -492,6 +487,15 @@ RCS_ID("$Id$")
       if (_href)
         {
           id actionValue=[_href valueInComponent:component];
+          if (_fragmentIdentifier)
+            {
+              id fragment=[_fragmentIdentifier valueInComponent:component];
+              NSDebugMLLog(@"gswdync",@"fragment=%@",fragment);
+              if (fragment)
+                actionValue=[NSString stringWithFormat:@"%@#%@",
+                                      actionValue,fragment];
+            };
+          NSDebugMLLog(@"gswdync",@"actionValue=%@",actionValue);
           //TODO emit a warning !
           [response _appendTagAttribute:@"action"
                     value:actionValue
@@ -505,6 +509,15 @@ RCS_ID("$Id$")
       else
         {
           id actionValue=[context componentActionURL];
+          if (_fragmentIdentifier)
+            {
+              id fragment=[_fragmentIdentifier valueInComponent:component];
+              NSDebugMLLog(@"gswdync",@"fragment=%@",fragment);
+              if (fragment)
+                actionValue=[NSString stringWithFormat:@"%@#%@",
+                                      actionValue,fragment];
+            };
+          NSDebugMLLog(@"gswdync",@"actionValue=%@",actionValue);
           [response _appendTagAttribute:@"action"
                     value:actionValue
                     escapingHTMLAttributeValue:NO];
@@ -527,6 +540,16 @@ RCS_ID("$Id$")
   anUrl=(NSString*)[context directActionURLForActionNamed:actionString
                             queryDictionary:nil
                             isSecure:NO];
+  NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
+
+  if (_fragmentIdentifier)
+    {
+      id fragment=[_fragmentIdentifier valueInComponent:[context component]];
+      NSDebugMLLog(@"gswdync",@"fragment=%@",fragment);
+      if (fragment)
+        anUrl=[NSString stringWithFormat:@"%@#%@",
+                        anUrl,fragment];
+    };
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
 
   [response _appendTagAttribute:@"action"
