@@ -314,8 +314,6 @@ RCS_ID("$Id$")
 	  elementsFromIndex:(unsigned int)fromIndex
                 toIndex:(unsigned int)toIndex
 {
-  //OK
-  NSStringEncoding encoding=[response contentEncoding];
   NSArray* aDynamicChildrensArray=[self dynamicChildren];//call dynamicChildren //GSWTextField: nil
   int elementN=0;
   const BYTE* elements=[_elementsMap bytes];
@@ -334,8 +332,7 @@ RCS_ID("$Id$")
       if (element==ElementsMap_htmlBareString)
         {
           if (elementN>=fromIndex)
-            [response appendContentData:[[_htmlBareStrings objectAtIndex:elementsN[0]]
-                                          dataUsingEncoding:encoding]];
+            [response appendContentString:[_htmlBareStrings objectAtIndex:elementsN[0]]];
           elementsN[0]++;
         }
       else if (element==ElementsMap_dynamicElement)
