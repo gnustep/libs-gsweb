@@ -64,23 +64,27 @@ ADDITIONAL_INCLUDE_DIRS = \
 	-I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
-ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lGSANTLR_d
-else
-        ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lGSANTLR 
-endif
+ADDITIONAL_LDFLAGS = 
 
-GSWExtensions_ADDITIONAL_LDFLAGS = GSWeb
-GSWExtensions_wo_ADDITIONAL_LDFLAGS = GSWeb_wo
+# These variables should only be needed on windows
+# but they aren't set yet.
 
-#-lgnustep-xraw
+LIBRARIES_DEPEND_UPON += 
+#	-l$(FOUNDATION_LIBRARY_NAME) \
+#	-l$(EOCONTROL_LIBRARY_NAME) \
+#	-l$(EOACCESS_LIBRARY_NAME) \
+
+
+GSWExtentions_LIBRARIES_DEPEND_UPON += -lGSWeb
+WOExtentions_LIBRARIES_DEPEND_UPON += -lWebObjects
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = 
 GSWExtentions_ADDITIONAL_LIB_DIRS = \
-        -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb
-GSWExtentions_wo_ADDITIONAL_LIB_DIRS = \
-        -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb_wo
+	-L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb
+WOExtentions_ADDITIONAL_LIB_DIRS = \
+	-L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/WebObjects
+
 
 #
 # Flags dealing with installing and uninstalling

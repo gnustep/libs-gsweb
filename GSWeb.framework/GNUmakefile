@@ -39,10 +39,10 @@ ifeq ($(gswnames), gsw)
 FRAMEWORK_NAME = GSWeb
 endif
 ifeq ($(gswnames), wo)
-FRAMEWORK_NAME = GSWeb_wo
+FRAMEWORK_NAME = WebObjects
 endif
 ifeq ($(gswnames), all)
-FRAMEWORK_NAME = GSWeb GSWeb_wo
+FRAMEWORK_NAME = GSWeb WebObjects
 endif
 
 # Ensure that each framework uses its own GNUSTEP_OBJ_DIR_NAME & DERIVED_SRC
@@ -51,7 +51,7 @@ GNUSTEP_OBJ_DIR_NAME := $(GNUSTEP_OBJ_DIR_NAME)/$(GNUSTEP_INSTANCE)
 DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
 endif
 
-GSWeb_wo_CPPFLAGS = -DGSWEB_WONAMES
+WebObjects_CPPFLAGS = -DGSWEB_WONAMES
 
 # DTDs to install
 srcDTDDir = DTDs
@@ -70,10 +70,10 @@ GSWeb_RESOURCE_FILES = \
 Resources/MIME.plist \
 Resources/languages.plist \
 DTDs
-GSWeb_wo_RESOURCE_FILES = $(GSWeb_RESOURCE_FILES)
+WebObjects_RESOURCE_FILES = $(GSWeb_RESOURCE_FILES)
 
 GSWeb_RESOURCE_DIRS = DTDs
-GSWeb_wo_RESOURCE_DIRS = $(GSWeb_RESOURCE_DIRS)
+WebObjects_RESOURCE_DIRS = $(GSWeb_RESOURCE_DIRS)
 
 # The framework libraries to link against
 #GSWeb_GSWBUNDLE_LIBS = 
@@ -206,7 +206,7 @@ GSWActionURL.m \
 #GSWMonitorXMLCoder.m \
 #GSWMonitorXMLDecoder.m \
 
-GSWeb_wo_OBJC_FILES = $(GSWeb_OBJC_FILES)
+WebObjects_OBJC_FILES = $(GSWeb_OBJC_FILES)
 
 
 # The framework installed header files
@@ -342,7 +342,7 @@ GSWActionURL.h \
 #GSWMonitorXMLDecoder.h \
 
 # The framework installed WO header files
-GSWeb_wo_HEADER_FILES = $(GSWeb_HEADER_FILES)
+WebObjects_HEADER_FILES = $(GSWeb_HEADER_FILES)
 
 WO_HEADER_FILES = \
 	WOAdaptor.h \
@@ -368,8 +368,7 @@ WO_HEADER_FILES = \
 
 
 GSWeb_HEADER_FILES_DIR = $(HEADER_DIR)
-GSWeb_wo_HEADER_FILES_DIR = $(HEADER_DIR)
-GSWeb_wo_HEADER_FILES_INSTALL_DIR = WebObjects
+WebObjects_HEADER_FILES_DIR = $(HEADER_DIR)
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)

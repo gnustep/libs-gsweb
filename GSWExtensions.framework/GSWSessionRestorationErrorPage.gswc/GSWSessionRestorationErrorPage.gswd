@@ -1,1 +1,17 @@
-#include "GSWSessionRestorationErrorPage"
+ExclamationImage: GSWImage
+{
+    filename = "exclamation.mng";
+    framework = "GSWExtensions";
+    border = 0;
+}
+
+ApplicationNameString: GSWString
+{
+    value = application.name;
+}
+
+ReenterHyperlink: GSWHyperlink
+{
+    pageName = "";
+    target = "_top";
+}

@@ -88,7 +88,6 @@ RCS_ID("$Id$")
 -(void)setException:(NSException*)exception
 {
   ASSIGN(_exception,exception);
-  NSDebugMLog(@"_exception=%@",_exception);
   NSDebugMLog(@"_exception name=%@",[_exception name]);
   NSDebugMLog(@"_exception reason=%@",[_exception reason]);
   NSDebugMLog(@"_exception userInfo=%@",[_exception userInfo]);

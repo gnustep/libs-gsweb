@@ -141,6 +141,7 @@
 #define GSWDictionaryRepetition         WODictionaryRepetition
 #define GSWEventDisplayPage             WOEventDisplayPage
 #define GSWEventSetupPage               WOEventSetupPage
+#define GSWExceptionPage                WOExceptionPage
 #define GSWIFrame                       WOIFrame
 #define GSWKeyValueConditional          WOKeyValueConditional
 #define GSWLongResponsePage             WOLongResponsePage

@@ -64,22 +64,19 @@ ADDITIONAL_INCLUDE_DIRS += \
 	-I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
-ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lGSANTLR_d
-else
-        ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lGSANTLR 
-endif
-
-GSWExtensionsGSW_ADDITIONAL_LDFLAGS = -lGSWeb
-GSWExtensionsGSW_wo_ADDITIONAL_LDFLAGS = -lGSWeb_wo
+ADDITIONAL_LDFLAGS = 
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = 
-GSWExtensionsGSW_ADDITIONAL_LIB_DIRS = \
-        -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb
-GSWExtensionsGSW_wo_ADDITIONAL_LIB_DIRS = \
-        -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb_wo
+GSWExtensionsGSW_ADDITIONAL_LIB_DIRS += \
+	-L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb
+WOExtensionsGSW_ADDITIONAL_LIB_DIRS += \
+	-L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/WebObjects
 
+
+LIBRARIES_DEPEND_UPON = 
+GSWExtentions_LIBRARIES_DEPEND_UPON += -lGSWeb
+WOExtentions_LIBRARIES_DEPEND_UPON += -lWebObjects
 
 #
 # Flags dealing with installing and uninstalling

@@ -39,10 +39,10 @@ ifeq ($(gswnames), gsw)
 FRAMEWORK_NAME = GSWExtensions
 endif
 ifeq ($(gswnames), wo)
-FRAMEWORK_NAME = GSWExtensions_wo
+FRAMEWORK_NAME = WOExtensions
 endif
 ifeq ($(gswnames), all)
-FRAMEWORK_NAME = GSWExtensions GSWExtensions_wo
+FRAMEWORK_NAME = GSWExtensions WOExtensions
 endif
 
 # Ensure that each framework uses its own GNUSTEP_OBJ_DIR_NAME & DERIVED_SRC
@@ -51,49 +51,71 @@ GNUSTEP_OBJ_DIR_NAME := $(GNUSTEP_OBJ_DIR_NAME)/$(GNUSTEP_INSTANCE)
 DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
 endif
 
-GSWExtensions_wo_CPPFLAGS = -DGSWEB_WONAMES
+WOExtensions_CPPFLAGS = -DGSWEB_WONAMES
 
 # The framework resource files and directories
 GSWExtensions_RESOURCE_FILES = \
 Resources/Info-gnustep.plist \
-GSWSessionRestorationErrorPage.gswd
-GSWExtensions_wo_RESOURCE_FILES = $(GSWExtensions_RESOURCE_FILES)
 
-GSWExtensions_COMPONENTS = \
-GSWSessionCreationErrorPage.gswc \
-GSWSessionRestorationErrorPage.gswc \
-GSWCollapsibleComponentContent.gswc \
-GSWPageRestorationErrorPage.gswc \
-GSWStatsPage.gswc \
-GSWDictionaryRepetition.gswc \
-GSWTable.gswc \
-GSWExceptionPage.gswc \
-GSWTableString.gswc \
-GSWIFrame.gswc \
-GSWMetaRefresh.gswc \
-GSWRedirect.gswc \
-GSWKeyValueConditional.gswc \
+WOExtensions_RESOURCE_FILES = $(GSWExtensions_RESOURCE_FILES)
 
-#GSWCompletionBar.gswc 
-#GSWAnyField.gswc 
-#GSWSimpleArrayDisplay.gswc 
-#GSWAppleScript.gswc 
-#GSWSimpleArrayDisplay2.gswc 
-#GSWBatchNavigationBar.gswc 
-#GSWSortOrder.gswc 
-#GSWSortOrderManyKey.gswc 
-#GSWThresholdColoredNumber.gswc 
-#GSWToManyRelationship.gswc 
-#GSWPageRestorationErrorPage.gswc 
-#GSWToOneRelationship.gswc 
-GSWExtensions_wo_COMPONENTS = $(GSWExtensions_COMPONENTS)
+Extensions_COMPONENTS = \
+SessionCreationErrorPage \
+SessionRestorationErrorPage \
+CollapsibleComponentContent \
+PageRestorationErrorPage \
+StatsPage \
+DictionaryRepetition \
+Table \
+ExceptionPage \
+TableString \
+IFrame \
+MetaRefresh \
+Redirect \
+KeyValueConditional \
+
+#CompletionBar 
+#AnyField 
+#SimpleArrayDisplay 
+#AppleScript 
+#SimpleArrayDisplay2 
+#BatchNavigationBar 
+#SortOrder 
+#SortOrderManyKey 
+#ThresholdColoredNumber 
+#ToManyRelationship 
+#PageRestorationErrorPage 
+#ToOneRelationship 
+
+Extensions_LOCALIZED_RESOURCE_FILES = \
+ExceptionPage \
+PageRestorationErrorPage \
+SessionCreationErrorPage \
+SessionRestorationErrorPage
+
+GSWExtensions_COMPONENTS = $(addprefix GSW, \
+			     $(addsuffix .gswc, $(Extensions_COMPONENTS)))
+GSWExtensions_COMPONENTS += GSWRedirect.gswc
+
+WOExtensions_COMPONENTS =  $(addprefix WO, \
+			     $(addsuffix .wo, $(Extensions_COMPONENTS)))
 
 GSWExtensions_LANGUAGES = \
 French
-GSWExtensions_wo_LANGUAGES = $(GSWExtensions_LANGUAGES)
+
+GSWExtensions_LOCALIZED_RESOURCE_FILES = $(addprefix GSW, \
+		$(addsuffix .gswc, $(Extensions_LOCALIZED_RESOURCE_FILES)))
+
+WOExtensions_LOCALIZED_RESOURCE_FILES = $(addprefix WO, \
+		$(addsuffix .wo, $(Extensions_LOCALIZED_RESOURCE_FILES)))
+
+WOExtensions_LANGUAGES = $(GSWExtensions_LANGUAGES)
+
+WO_LOCALIZED_COMPONENTS = \
+	$(addprefix French.lproj/, $(WOExtensions_LOCALIZED_RESOURCE_FILES))
 
 GSWExtensions_RESOURCE_DIRS = 
-GSWExtensions_wo_RESOURCE_DIRS = $(GSWExtensions_RESOURCE_DIRS)
+WOExtensions_RESOURCE_DIRS = $(GSWExtensions_RESOURCE_DIRS)
 
 GSWExtensions_WEBSERVER_RESOURCE_FILES = \
 Ascending.png \
@@ -116,7 +138,8 @@ gswapp.png \
 gswappsrv.png \
 warning.mng \
 error.mng
-GSWExtensions_wo_WEBSERVER_RESOURCE_FILES = $(GSWExtensions_WEBSERVER_RESOURCE_FILES)
+WOExtensions_WEBSERVER_RESOURCE_FILES = \
+	$(GSWExtensions_WEBSERVER_RESOURCE_FILES)
 
 # The Objective-C source files to be compiled
 GSWExtensions_OBJC_FILES = \
@@ -133,7 +156,7 @@ GSWLongResponsePage.m \
 GSWKeyValueConditional.m \
 
 #GSWCompletionBar.m
-GSWExtensions_wo_OBJC_FILES = $(GSWExtensions_OBJC_FILES)
+WOExtensions_OBJC_FILES = $(GSWExtensions_OBJC_FILES)
 
 # The header files to be installed
 GSWExtensions_HEADER_FILES = \
@@ -159,7 +182,7 @@ GSWKeyValueConditional.h \
 #GSWSimpleArrayDisplay.h
 #GSWSimpleArrayDisplay2.h
 #GSWBatchNavigationBar.h
-GSWExtensions_wo_HEADER_FILES = $(GSWExtensions_HEADER_FILES)
+WOExtensions_HEADER_FILES = $(GSWExtensions_HEADER_FILES)
 
 WO_HEADER_FILES = \
 	WOLongResponsePage.h \
@@ -168,8 +191,7 @@ WO_HEADER_FILES = \
 # WOExtensions.h not needed as it gets copied explicitly
 
 GSWExtensions_HEADER_FILES_DIR = $(HEADER_DIR)
-GSWExtensions_wo_HEADER_FILES_DIR = $(HEADER_DIR)
-GSWExtensions_wo_HEADER_FILES_INSTALL_DIR = WOExtensions
+WOExtensions_HEADER_FILES_DIR = $(HEADER_DIR)
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)
@@ -177,7 +199,8 @@ HDRS = $(LIBRARY_NAME:=.h)
 GSWExtensions_AUTOGSDOC_HEADERS = $(GSWExtensions_HEADER_FILES)
 GSWExtensions_AUTOGSDOC_SOURCE = $(GSWExtensions_OBJC_FILES)
 DOCUMENT_NAME = GSWExtensions
-GSWExtensions_AGSDOC_FILES = gswextensions.gsdoc $(GSWExtensions_AUTOGSDOC_HEADERS) 
+GSWExtensions_AGSDOC_FILES = gswextensions.gsdoc \
+	$(GSWExtensions_AUTOGSDOC_HEADERS) 
 #$(GSWExtensions_AUTOGSDOC_SOURCE)
 GSWExtensions_AGSDOC_FLAGS = \
 	-Declared Foundation \

@@ -39,10 +39,10 @@ ifeq ($(gswnames), gsw)
 FRAMEWORK_NAME = GSWExtensionsGSW
 endif
 ifeq ($(gswnames), wo)
-FRAMEWORK_NAME = GSWExtensionsGSW_wo
+FRAMEWORK_NAME = WOExtensionsGSW
 endif
 ifeq ($(gswnames), all)
-FRAMEWORK_NAME = GSWExtensionsGSW GSWExtensionsGSW_wo
+FRAMEWORK_NAME = GSWExtensionsGSW WOExtensionsGSW
 endif
 
 # Ensure that each framework uses its own GNUSTEP_OBJ_DIR_NAME & DERIVED_SRC
@@ -51,31 +51,37 @@ GNUSTEP_OBJ_DIR_NAME := $(GNUSTEP_OBJ_DIR_NAME)/$(GNUSTEP_INSTANCE)
 DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
 endif
 
-GSWExtensionsGSW_wo_CPPFLAGS = -DGSWEB_WONAMES
+WOExtensionsGSW_CPPFLAGS = -DGSWEB_WONAMES
 
 # The framework resource files and directories
 GSWExtensionsGSW_RESOURCE_FILES = \
 Resources/Info-gnustep.plist
-GSWExtensionsGSW_wo_RESOURCE_FILES = $(GSWExtensionsGSW_RESOURCE_FILES)
+WOExtensionsGSW_RESOURCE_FILES = $(GSWExtensionsGSW_RESOURCE_FILES)
 
-GSWExtensionsGSW_COMPONENTS= \
-GSWTabComponent.gswc \
-GSWValidationFailureComponent.gswc \
-GSWLogin.gswc \
-GSWSimpleFormComponent.gswc \
-GSWFileUploadFormComponent.gswc \
-GSWFileUploadComponent.gswc
-GSWExtensionsGSW_wo_COMPONENTS = $(GSWExtensionsGSW_COMPONENTS)
+ExtensionsGSW_COMPONENTS= \
+TabComponent \
+ValidationFailureComponent \
+Login \
+SimpleFormComponent \
+FileUploadFormComponent \
+FileUploadComponent
+
+GSWExtensionsGSW_COMPONENTS = $(addprefix GSW, \
+			       $(addsuffix .gswc, $(ExtensionsGSW_COMPONENTS)))
+
+WOExtensionsGSW_COMPONENTS =  $(addprefix WO, \
+			       $(addsuffix .wo, $(ExtensionsGSW_COMPONENTS)))
 
 GSWExtensionsGSW_LANGUAGES= \
 French
-GSWExtensionsGSW_wo_LANGUAGES = $(GSWExtensionsGSW_LANGUAGES)
+WOExtensionsGSW_LANGUAGES = $(GSWExtensionsGSW_LANGUAGES)
 
 GSWExtensionsGSW_RESOURCE_DIRS = 
-GSWExtensionsGSW_wo_RESOURCE_DIRS = $(GSWExtensionsGSW_RESOURCE_DIRS)
+WOExtensionsGSW_RESOURCE_DIRS = $(GSWExtensionsGSW_RESOURCE_DIRS)
 
 GSWExtensionsGSW_WEBSERVER_RESOURCE_FILES = 
-GSWExtensionsGSW_wo_WEBSERVER_RESOURCE_FILES = $(GSWExtensionsGSW_WEBSERVER_RESOURCE_FILES)
+WOExtensionsGSW_WEBSERVER_RESOURCE_FILES = \
+	$(GSWExtensionsGSW_WEBSERVER_RESOURCE_FILES)
 
 # The Objective-C source files to be compiled
 GSWExtensionsGSW_OBJC_FILES = \
@@ -85,7 +91,7 @@ GSWValidationFailureComponent.m \
 GSWSimpleFormComponent.m \
 GSWFileUploadFormComponent.m \
 GSWFileUploadComponent.m 
-GSWExtensionsGSW_wo_OBJC_FILES = $(GSWExtensionsGSW_OBJC_FILES)
+WOExtensionsGSW_OBJC_FILES = $(GSWExtensionsGSW_OBJC_FILES)
 
 # The header files to be installed
 GSWExtensionsGSW_HEADER_FILES = \
@@ -95,10 +101,10 @@ GSWTabComponent.h \
 GSWValidationFailureComponent.h \
 GSWFileUploadFormComponent.h \
 GSWFileUploadComponent.h
-GSWExtensionsGSW_wo_HEADER_FILES = $(GSWExtensionsGSW_HEADER_FILES)
+WOExtensionsGSW_HEADER_FILES = $(GSWExtensionsGSW_HEADER_FILES)
 
 GSWExtensionsGSW_HEADER_FILES_DIR = $(HEADER_DIR)
-GSWExtensionsGSW_wo_HEADER_FILES_DIR = $(GSWExtensionsGSW_HEADER_FILES_DIR)
+WOExtensionsGSW_HEADER_FILES_DIR = $(GSWExtensionsGSW_HEADER_FILES_DIR)
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)
@@ -107,7 +113,9 @@ GSWExtensionsGSW_AUTOGSDOC_HEADERS = $(GSWExtensionsGSW_HEADER_FILES)
 GSWExtensionsGSW_AUTOGSDOC_SOURCE = $(GSWExtensionsGSW_OBJC_FILES)
 DOCUMENT_NAME = GSWExtensionsGSW
 
-GSWExtensionsGSW_AGSDOC_FILES = gswextensionsgsw.gsdoc $(GSWExtensionsGSW_AUTOGSDOC_HEADERS) 
+GSWExtensionsGSW_AGSDOC_FILES = \
+	gswextensionsgsw.gsdoc $(GSWExtensionsGSW_AUTOGSDOC_HEADERS) 
+
 #$(GSWExtensionsGSW_AUTOGSDOC_SOURCE)
 GSWExtensionsGSW_AGSDOC_FLAGS = \
 	-Declared Foundation \

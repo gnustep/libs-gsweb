@@ -1155,7 +1155,7 @@ bundle if none is found
   NS_HANDLER
     {
       NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
+		   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];

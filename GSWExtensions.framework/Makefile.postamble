@@ -32,7 +32,9 @@
 #
 
 # Things to do before compiling
-# before-all::
+ifneq ($(gswnames),gsw)
+before-all:: $(WOExtensions_COMPONENTS) $(WO_LOCALIZED_COMPONENTS)
+endif
 
 # Things to do after compiling
 # after-all::
@@ -41,7 +43,9 @@
 # before-install::
 
 # Things to do after installing
-after-install:: install-WO-headers
+ifneq ($(gswnames),gsw)
+after-install:: WO-install-headers
+endif
 
 # Things to do before uninstalling
 # before-uninstall::
@@ -67,7 +71,9 @@ gsdocs:
 # before-clean::
 
 # Things to do after cleaning
-# after-clean::
+ifneq ($(gswnames),gsw)
+after-clean:: WO-components-clean
+endif
 
 # Things to do before distcleaning
 # before-distclean::
@@ -81,16 +87,57 @@ gsdocs:
 # Things to do after checking
 # after-check::
 
-ifneq ($(gswnames),gsw)
-install-WO-headers : 
-	$(MKDIRS) $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR);
-	$(EC)$(INSTALL_DATA) ./WOExtensions.h \
-	    $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR)/WOExtensions.h; \
-	cd $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR); \
-	pwd;\
+# An sed script to convert the classes refered to in .gswd files
+# from their GSW- to their WO-representations based on the mappings
+# contained in the GSWWOCompatibility.h header.
+# Currently this script is rather aggresive as it doesn't identify
+# whole words but merely patterns.
+GSWWOReplaceScript.sed: ../GSWeb.framework/GSWWOCompatibility.h
+	$(ECHO_NOTHING)grep "^#define[[:space:]]*GSW.*[[:space:]]*WO.*" \
+	    ../GSWeb.framework/GSWWOCompatibility.h | \
+	  sed -e 's/#define /s\//' \
+	      -e 's/[[:space:]*]/\//' \
+	      -e 's/[[:space:]*]//g' \
+	      -e 's/$$/\//' > $@ ; \
+	echo "s/GSWExtensions/WOExtensions/g" >> $@ ;$(END_ECHO)
+
+# The script is copied instead of referenced as the relative path
+# from the $@ directory is unknown.  Keep this rule in sync with
+# GSWExtensionsGSW.framework/Makefile.postamble
+$(WOExtensions_COMPONENTS) $(WO_LOCALIZED_COMPONENTS): GSWWOReplaceScript.sed
+	$(ECHO_NOTHING)cp -r $(subst .wo,.gswc,$(subst WO,GSW, $@)) $@ && \
+	cp GSWWOReplaceScript.sed $@ && \
+	cd $@ && ( \
+	  for I in *.gswd __done ; do \
+	    if [ $$I != __done ] ; then \
+	      sed -f GSWWOReplaceScript.sed $$I > \
+	        `echo $$I | sed "s/gswd$$/wod/"` \
+	        && rm -f $$I ; \
+	    fi ; \
+	  done ; \
+	  rm -rf CVS GSWWOReplaceScript.sed ; \
+	  for I in *.gswi __done ; do \
+	    if [ $$I != __done ] ; then \
+	      mv $$I `echo $$I | sed "s/gswi$$/woo/"` ; \
+	    fi ; \
+	  done ; \
+	  for I in GSW* __done ; do \
+	    if [ $$I != __done ] ; then \
+	      mv $$I `echo $$I | sed "s/^GSW/WO/"` ; \
+	    fi ; \
+	  done ) ;$(END_ECHO)
+
+WO-install-headers : 
+	$(ECHO_NOTHING)$(INSTALL_DATA) ./WOExtensions.h \
+	    $(GNUSTEP_HEADERS)/WOExtensions/WOExtensions.h ; \
+	cd $(GNUSTEP_HEADERS)/WOExtensions ; \
 	for file in $(WO_HEADER_FILES) ; do \
 	  $(LN_S) -f WOExtensions.h $$file; \
-	done;$(ECHO_END)
-else
-install-WO-headers: ;
-endif
+	done;$(END_ECHO)
+
+WO-components-clean:
+	$(ECHO_NOTHING)rm -rf $(WOExtensions_COMPONENTS) ; \
+	rm -rf $(WO_LOCALIZED_COMPONENTS) ; \
+	rm -f GSWWOReplaceScript.sed ;$(END_ECHO)
+
+

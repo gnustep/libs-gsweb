@@ -88,8 +88,8 @@ $(GNUSTEP_TARGET_DIR)/config.h: ../config.status
 ifneq ($(gswnames),gsw)
 install-WO-headers : 
 	$(EC)$(INSTALL_DATA) ./WebObjects/WebObjects.h \
-	    $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/$(GSWeb_wo_HEADER_FILES_INSTALL_DIR)/WebObjects.h; \
-	cd $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/$(GSWeb_wo_HEADER_FILES_INSTALL_DIR); \
+	    $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/WebObjects/WebObjects.h ; \
+	cd $(INSTALL_ROOT_DIR)$(GNUSTEP_HEADERS)/WebObjects ; \
 	for file in $(WO_HEADER_FILES) ; do \
 	  $(LN_S) -f WebObjects.h $$file; \
 	done;$(ECHO_END)

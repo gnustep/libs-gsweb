@@ -3506,17 +3506,10 @@ to another instance **/
   NSDebugMLog(@"EXCEPTION=%@",anException);
   NS_DURING
     {
-//
-//      response=[self _handleErrorWithPageNamed:GSWExceptionPageName[GSWebNamingConv]
-//                     exception:anException
-//                     inContext:aContext];
-// we have only GSWExceptionPage until now
-
-      response=[self _handleErrorWithPageNamed:GSWExceptionPageName[0]
-                     exception:anException
-                     inContext:aContext];
-
-
+      response = 
+	[self _handleErrorWithPageNamed: GSWExceptionPageName[GSWebNamingConv]
+	      exception: anException
+	      inContext: aContext];
     }
   NS_HANDLER
     {

@@ -1,3 +1,34 @@
+2004-01-12  David Ayers  <d.ayers@inode.at>
+
+	* gsweb.make.in: Change 'WO' framework names to WobObjects,
+	WOExtensions and WOExtensionsGSW.
+	* GSWeb.framework/GNUmakefile: Ditto.
+	* GSWeb.framework/Makefile.postamble. Ditto.
+	* GSWExtensions.framework/Makefile.preamble: Ditto.
+	* GSWExtensionsGSW.framework/Makefile.preamble: Ditto.
+	* GSWExtensionsGSW.framework/GNUmakefile: Ditto.
+	* GSWExtensions.framework/GNUmakefile: Ditto.  Move top level
+	GSWSessionRestorationErrorPage.gswd into
+	GSWSessionRestorationErrorPage.gswc.
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.gswd
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.gswc/
+	  GSWSessionRestorationErrorPage.gswd
+	Moved contents into component.
+	* GSWExtensions.framework/Makefile.postamble: Install components
+	for 'WO' names correctly.
+	* GSWExtensionsGSW.framework/Makefile.postamble: Ditto.
+
+	* GSWExtensions.framework/French.lproj/
+	  GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.gswd:
+	Use correct #include syntax.
+
+	* GSWeb.framework/GSWWOCompatibility.h: Add WOExceptionPage.
+	* GSWeb.framework/GSWApplication.m
+	([GSWApplication handleException:inContext:]): Remove temporary
+	hack to load 'GSW' exception page for 'WO' names.
+	* GSWExtensions.framework/GSWExceptionPage.m
+	([GSWExceptionPage setException:]): Remove excess exception log.
+
 2004-01-09   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWExtensionsGSW.framework/GSWLogin.m:
