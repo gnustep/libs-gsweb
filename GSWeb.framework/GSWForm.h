@@ -44,13 +44,12 @@
 //GSWeb Additions {
   GSWAssociation* _disabled;
   GSWAssociation* _enabled;
+  NSDictionary* _otherPathQueryAssociations;
 // }
   NSDictionary* _otherQueryAssociations;
 };
 
--(id)description;
 -(id)elementName;
--(void)dealloc;
 
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations

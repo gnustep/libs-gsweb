@@ -61,6 +61,7 @@
   GSWAssociation* _data;
   GSWAssociation* _mimeType;
   GSWAssociation* _key;
+  NSDictionary* _otherPathQueryAssociations;
 // }
   GSWElement* _children;
 };
@@ -68,8 +69,6 @@
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement;
--(void)dealloc;
--(NSString*)description;
 @end
 
 @interface GSWHyperlink (GSWHyperlinkA)

@@ -113,9 +113,18 @@ RCS_ID("$Id$")
                                                        removePrefix:YES]));
       if ([_otherQueryAssociations count]==0)
         DESTROY(_otherQueryAssociations);
+
+      if (!WOStrictFlag)
+        {
+          ASSIGN(_otherPathQueryAssociations,([tmpAssociations extractObjectsForKeysWithPrefix:@"!"
+                                                               removePrefix:YES]));
+          if ([_otherPathQueryAssociations count]==0)
+            DESTROY(_otherPathQueryAssociations);
+        };
     };
 
   NSDebugMLLog(@"gswdync",@"_otherQueryAssociations=%@",_otherQueryAssociations);
+  NSDebugMLLog(@"gswdync",@"_otherPathQueryAssociations=%@",_otherPathQueryAssociations);
 
   if ((self=[super initWithName:aName
                    attributeAssociations:tmpAssociations
@@ -137,6 +146,7 @@ RCS_ID("$Id$")
   DESTROY(_disabled);
   DESTROY(_enabled);
   DESTROY(_otherQueryAssociations);
+  DESTROY(_otherPathQueryAssociations);
   [super dealloc];
 };
 
@@ -228,6 +238,7 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   actionString=[self computeActionStringWithActionClassAssociation:_actionClass
                      directActionNameAssociation:_directActionName
+                     otherPathQueryAssociations:_otherPathQueryAssociations
                      inContext:context];
   LOGObjectFnStop();
   return actionString;

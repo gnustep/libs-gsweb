@@ -171,8 +171,17 @@ RCS_ID("$Id$")
                                                             removePrefix:YES]));
       if ([_otherQueryAssociations count]==0)
         DESTROY(_otherQueryAssociations);
+
+      if (!WOStrictFlag)
+        {
+          ASSIGN(_otherPathQueryAssociations,([tmpOtherAssociations extractObjectsForKeysWithPrefix:@"!"
+                                                                    removePrefix:YES]));
+          if ([_otherPathQueryAssociations count]==0)
+            DESTROY(_otherPathQueryAssociations);
+        };
     };
   NSDebugMLLog(@"gswdync",@"_otherQueryAssociations=%@",_otherQueryAssociations);
+  NSDebugMLLog(@"gswdync",@"_otherPathQueryAssociations=%@",_otherPathQueryAssociations);
 
   ASSIGN(_otherAssociations,tmpOtherAssociations);
   NSDebugMLLog(@"gswdync",@"_otherAssociations=%@",_otherAssociations);
@@ -228,6 +237,7 @@ RCS_ID("$Id$")
   DESTROY(_pageSetVarAssociations);//GNUstepWeb only
   DESTROY(_pageSetVarAssociationsDynamic);
   DESTROY(_otherQueryAssociations);
+  DESTROY(_otherPathQueryAssociations);
   DESTROY(_otherAssociations);
   DESTROY(_filename);
   DESTROY(_framework);
@@ -525,9 +535,13 @@ RCS_ID("$Id$")
 {
   NSString* actionString=nil;
   LOGObjectFnStart();
+  NSDebugMLLog(@"gswdync",@"_actionClass=%@",_actionClass);  
+  NSDebugMLLog(@"gswdync",@"_directActionName=%@",_directActionName);  
   actionString=[(GSWHTMLDynamicElement*)self computeActionStringWithActionClassAssociation:_actionClass
                                         directActionNameAssociation:_directActionName
+                                        otherPathQueryAssociations:_otherPathQueryAssociations
                                         inContext:context];
+  NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);  
   LOGObjectFnStop();
   return actionString;
 };
@@ -536,13 +550,13 @@ RCS_ID("$Id$")
 -(void)_appendQueryStringToResponse:(GSWResponse*)response
                           inContext:(GSWContext*)context
 {
-  //OK
   NSDictionary* queryDictionary=nil;
   LOGObjectFnStart();
   queryDictionary=[self computeQueryDictionaryInContext:context];
+  NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);  
 
   //TODOV
-  if (queryDictionary && [queryDictionary count]>0)
+  if ([queryDictionary count]>0)
     {
       NSEnumerator* _enumerator = [queryDictionary keyEnumerator];
       id aKey=nil;
@@ -551,13 +565,16 @@ RCS_ID("$Id$")
       [response appendContentCharacter:'?'];
       while ((aKey = [_enumerator nextObject]))
         {
+          NSDebugMLLog(@"gswdync",@"aKey=%@",aKey);  
           if (first)
             first=NO;
           else
             [response appendContentCharacter:'&'];
           [response appendContentHTMLString:aKey];
           value=[queryDictionary objectForKey:aKey];
+          NSDebugMLLog(@"gswdync",@"value=%@",value);  
           value=[value description];
+          NSDebugMLLog(@"gswdync",@"value=%@",value);  
           if ([value length]>0)
             {
               [response appendContentCharacter:'='];
@@ -573,11 +590,16 @@ RCS_ID("$Id$")
 {
   NSDictionary* queryDictionary=nil;
   LOGObjectFnStart();
+  NSDebugMLLog(@"gswdync",@"_actionClass=%@",_actionClass);  
+  NSDebugMLLog(@"gswdync",@"_directActionName=%@",_directActionName);  
+  NSDebugMLLog(@"gswdync",@"_queryDictionary=%@",_queryDictionary);  
+  NSDebugMLLog(@"gswdync",@"_otherQueryAssociations=%@",_otherQueryAssociations);
   queryDictionary=[(GSWHTMLDynamicElement*)self computeQueryDictionaryWithActionClassAssociation:_actionClass
                                            directActionNameAssociation:_directActionName
                                            queryDictionaryAssociation:_queryDictionary
                                            otherQueryAssociations:_otherQueryAssociations
                                            inContext:context];
+  NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);  
   LOGObjectFnStop();
   return queryDictionary;
 };
@@ -704,7 +726,7 @@ RCS_ID("$Id$")
         }
       else if (_href)
         {
-          LOGSeriousError(@"We shouldn't come here (href=%@)",href);
+          LOGSeriousError(@"We shouldn't come here (_href=%@)",_href);
         }
       else
         {
