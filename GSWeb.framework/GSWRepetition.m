@@ -472,18 +472,27 @@ static char rcsId[] = "$Id$";
     {
       component=[context component];
       NSDebugMLLog(@"gswdync",@"_item=%@",_item);
-      if (_list && _item)
-        [_item setValue:[list objectAtIndex:currentIndex]
-               inComponent:component];
+
+      if (_list && _item) {
+	if ([list count]>currentIndex) { 
+          [_item setValue:[list objectAtIndex:currentIndex]
+              inComponent:component];
+	} else {
+	//NSLog(@"startOneIterationWithIndex SKIPPING setValue:inComponent index=%d list.count=%d",currentIndex, [list count]);
+	}
+      }
+
       NSDebugMLLog(@"gswdync",@"currentIndex=%d",currentIndex);
       NSDebugMLLog(@"gswdync",@"_index=%@",_index);
-      if (_index)
+      if (_index) {
         [_index setValue:[NSNumber numberWithShort:currentIndex]
-                inComponent:component];
-      if (currentIndex==0)
+             inComponent:component];
+      }
+      if (currentIndex==0) {
         [context appendZeroElementIDComponent];
-      else
+      } else {
         [context incrementLastElementIDComponent];
+      }     
     }
   NS_HANDLER
     {
