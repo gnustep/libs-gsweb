@@ -78,35 +78,9 @@ RCS_ID("$Id$")
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  if (_value && [_value isValueSettable])
-    {
-      GSWComponent* component=[context component];
-      id formValue=[request formValueForKey:[context elementID]];
-      NS_DURING
-        {
-          [_value setValue:formValue
-                  inComponent:component];
-        }
-      NS_HANDLER
-        {
-          LOGException(@"GSWText _value=%@ resultValue=%@ exception=%@",
-                       _value,resultValue,localException);
-          if (WOStrictFlag)
-            {
-              [localException raise];
-            }
-          else
-            {
-              [self handleValidationException:localException
-                    inContext:context];
-            };
-        }
-      NS_ENDHANDLER;
-    };
   [super takeValuesFromRequest:request
          inContext:context];
 };
-
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
@@ -127,9 +101,13 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+// Replace \r\n by \n
 -(NSString*)_filterSoftReturnsFromString:(NSString*)string
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  NSRange range=[string rangeOfString:@"\r\n"];
+  if (range.length>0)
+    string=[string stringByReplacingString:@"\r\n"
+                   withString:@"n"];
   return string;
 };
 
