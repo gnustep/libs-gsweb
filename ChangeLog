@@ -1,3 +1,45 @@
+2004-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWHTMLTemplateParser.m:
+		o fixed exception format/arguments in 
+		-parser:didParseClosingDynamicTagOfType:withTemplateInfo:
+		o added templateInfo in -parseHTML Exception
+	* GSWeb.framework/GSWActionRequestHandler.m:
+		o fix for defaultActionClass
+	* GSWeb.framework/GSWBundle.m:
+		o fix for .strings loading
+	* GSWeb.framework/GSWResourceManager.m:
+		o fix for .strings loading
+	* GSWExtensions.framework/GSWMetaRefresh.m:
+		o logs
+	* GSWExtensions.framework/GSWMetaRefresh.gswc/GSWMetaRefresh.gswd/html:
+		o moved http-equiv
+	* GSWeb.framework/GSWAssociation.m:
+		o fixed -isImplementedForComponent
+	* GSWeb.framework/GSWConstants.h/.m:
+		o added dateFormat__AltKey
+		o added numberFormat__AltKey
+	* GSWeb.framework/GSWContext.h:
+		o added -urlApplicationNumber
+	* GSWeb.framework/GSWContext.m:
+		o logs
+		o urlPrefix fix
+		o application instance fix for distribution
+		o fix in -_synchronizeForDistribution
+	* GSWeb.framework/GSWGenericElement.m:
+		o logs
+		o fixes in -invokeActionForRequest:inContext:
+	* GSWeb.framework/GSWRequest.m:
+		o logs
+	* GSWeb.framework/GSWSession.m:
+		o logs
+	* GSWeb.framework/GSWTemplateParser.m:
+		o fix typo
+	* GSWeb.framework/GSWTextField.h:
+		o cleaned
+	* GSWeb.framework/GSWTextField.m:
+		o handle dateFormat and numberFormat Alt Keys
+
 2004-05-06  S.J. Chun <chunsj@embian.com>
             David Ayers  <d.ayers@inode.at>
 
