@@ -242,7 +242,7 @@ nil if none is found
 };
 
 //--------------------------------------------------------------------
-/** Returns real dynamic element usinf declarations to find element type 
+/** Returns real dynamic element using declarations to find element type 
 Raise an exception if element name is not found or if no declaration is 
 found for that element
 **/
@@ -270,9 +270,9 @@ found for that element
 
   if (!name)
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"No element name for dynamic tag %@. %@",
-                   self,_templateInfo];
+      [GSWDeclarationFormatException raise:GSWDFEMissingElementName
+                                     format:@"No element name for dynamic tag %@. %@",
+                                     self,_templateInfo];
     }
   else
     {
@@ -281,9 +281,9 @@ found for that element
       
       if (!elementDeclaration)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"No declaration for element named '%@'. Declarations: %@. %@",
-                       name,declarations,_templateInfo];
+          [GSWDeclarationFormatException raise:GSWDFEMissingDeclarationForElement
+                                         format:@"No declaration for element named '%@'. Declarations: %@. %@",
+                                         name,[declarations allKeys],_templateInfo];
         }
       else
         {
@@ -322,9 +322,9 @@ May raise exception if element can't be created
 
   if (!declaration)
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"No declaration for element named '%@'. %@",
-                   name,_templateInfo];
+      [GSWDeclarationFormatException raise:GSWDFEMissingDeclarationForElement
+                                     format:@"No declaration for element named '%@'. %@",
+                                     name,_templateInfo];
     }
   else
     {
@@ -333,14 +333,14 @@ May raise exception if element can't be created
 
       if ([elementType length]==0)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"No class name for named '%@' with declaration: %@. %@",
-                       name,declaration,_templateInfo];
+          [GSWDeclarationFormatException raise:GSWDFEMissingClassNameForElement
+                                         format:@"No class name for element named '%@' with declaration: %@. %@",
+                                         name,declaration,_templateInfo];
         }
       else
         {
           Class elementClass = NSClassFromString(elementType);
-          NSDictionary* associations;
+          NSDictionary* associations = nil;
 
           NSDebugMLog(@"elementClass=%@",elementClass);
 
@@ -379,9 +379,9 @@ May raise exception if element can't be created
             [element setDeclarationName:[declaration name]];
           else
             {
-              [NSException raise:NSInvalidArgumentException 
-                           format:@"Can't create element named '%@' with declaration: %@. %@",
-                           name,declaration,_templateInfo];
+              [GSWDeclarationFormatException raise:GSWDFEElementCreationFailed
+                                             format:@"Can't create element named '%@' with declaration: %@. %@",
+                                             name,declaration,_templateInfo];
             };
         };
     };
