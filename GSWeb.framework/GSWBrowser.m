@@ -258,7 +258,7 @@ Bindings
       NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
 
       if (_index)
-        [_index setValue:[NSNumber numberWithShort:i]
+        [_index setValue:GSWIntToNSString(i)
                 inComponent:component];
       
       if (itemValue)
@@ -268,7 +268,7 @@ Bindings
           if (_value)  	// Binded Value          
             valueValue = [_value valueInComponent:component];
           else		// Auto Value
-            valueValue = [NSNumber numberWithInt:i];
+            valueValue = GSWIntToNSString(i);
           NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
 
           if (valueValue)
@@ -457,14 +457,15 @@ Bindings
                            inComponent:component];
 
                   if (_index)
-                    [_index setValue:[NSNumber numberWithShort:i]
+                    [_index setValue:GSWIntToNSString(i)
                             inComponent:component];
 
                   NSDebugMLLog(@"gswdync",@"value=%@",_value);
                   if (_value)  	// Binded Value          
                     valueValue = [_value valueInComponent:component];
                   else		// Auto Value
-                    valueValue = [NSNumber numberWithInt:i]; 
+                    valueValue = GSWIntToNSString(i);
+                 #warning XXX SPEED UP THIS 
                   valueValueString=[NSString stringWithFormat:@"%@",valueValue];
                   NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
                   
@@ -566,11 +567,15 @@ Bindings
 
   component=[context component];
 
-  if (_size)
+  if (_size) 
+  {
     sizeValue=[_size valueInComponent:component];
-  else
+    // this will give us <WOConstantValueAssociation 0x1576680 - value=5 (class: NSCFNumber)>
+    sizeValue=GSWIntToNSString([sizeValue intValue]);
+  } else {
     sizeValue=@"5"; //Default is 5
-
+  }
+  
   [response _appendContentAsciiString:@" SIZE="];
   [response _appendContentAsciiString:sizeValue];
 
