@@ -1,6 +1,6 @@
 /** GSWUtils.h - <title>GSWeb: Utilities</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -63,6 +63,9 @@ typedef unsigned int UINT32;
 #endif
 
 #define GSW_LOCK_LIMIT [NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]
+
+GSWEB_EXPORT char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int* resultLength);
+GSWEB_EXPORT NSString* GSWIntToNSString(int value);
 
 BOOL ClassIsKindOfClass(Class classA,Class classB);
 

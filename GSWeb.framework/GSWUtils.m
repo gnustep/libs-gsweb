@@ -1,6 +1,6 @@
 /** GSWUtils.m - <title>GSWeb: Utilities</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -42,6 +42,54 @@ RCS_ID("$Id$")
 #endif
 #include "stacktrace.h"
 #include "attach.h"
+
+
+char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int* resultLength)
+{
+  int origValue=value;
+  int i=bufferSize-1;
+  int j=0;
+  if (value<0)
+    value=-value;
+  do
+    {
+      NSCAssert2(i>0,@"Buffer not large (%d) enough for %d",bufferSize,origValue);//>0 for null term
+      buffer[i--]='0'+(value%10);
+      value=value/10;
+    }
+  while(value);
+  i++;
+
+  j=0;
+  if (origValue<0)
+    {
+      NSCAssert2(i>0,@"Buffer not large (%d) enough for %d",bufferSize,origValue);
+      buffer[j++]='-';
+    };
+  do
+    {
+      buffer[j++]=buffer[i++];
+    }
+  while(i<bufferSize);
+  if (resultLength)
+    *resultLength=j;
+  buffer[j++]='\0';
+  //NSDebugFLog(@"origValue=%d ==> %s",origValue,buffer);
+  return buffer;
+};
+
+NSString* GSWIntToNSString(int value)
+{
+  NSString* s=nil;
+  char buffer[20];
+  unsigned int resultLength=0;
+  GSWIntToString(buffer,20,value,&resultLength);
+  s=[NSString stringWithCString:buffer
+              length:resultLength];
+  //NSDebugFLog(@"value=%d [%d]==> %s ==> %@",value,resultLength,buffer,s);
+  return s;
+};
+
 //--------------------------------------------------------------------
 BOOL ClassIsKindOfClass(Class classA,Class classB)
 {
@@ -84,13 +132,14 @@ BOOL boolValueFor(id anObject)
 //--------------------------------------------------------------------
 BOOL boolValueWithDefaultFor(id anObject,BOOL defaultValue)
 {
-  int length=0;
   if (anObject)
     {
       if (/*anObject==BNYES ||*/ anObject==NSTYES)
         return YES;
       else if (/*anObject==BNNO ||*/ anObject==NSTNO)
         return NO;
+      else if ([anObject isKindOfClass:[NSString class]] && [anObject length]>0)
+        return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
       else if ([anObject respondsToSelector:@selector(boolValue)])
         return ([anObject boolValue]!=NO);
       else if ([anObject respondsToSelector:@selector(intValue)])
@@ -1555,22 +1604,22 @@ NSString* GSWGetDefaultDocRoot()
           if ([anObject isKindOfClass:[NSNumber class]])
             {
               int value=[anObject intValue];
-              string=[NSString stringWithFormat:@"%d",value];
+              string=GSWIntToNSString(value);
             }
           else if ([anObject respondsToSelector:@selector(intValue)])
             {
               int value=[anObject intValue];
-              string=[NSString stringWithFormat:@"%d",value];
+              string=GSWIntToNSString(value);
             }
           else if ([anObject respondsToSelector:@selector(floatValue)])
             {
               int value=(int)[anObject floatValue];
-              string=[NSString stringWithFormat:@"%d",value];
+              string=GSWIntToNSString(value);
             }
           else if ([anObject respondsToSelector:@selector(doubleValue)])
             {
               int value=(int)[anObject doubleValue];
-              string=[NSString stringWithFormat:@"%d",value];
+              string=GSWIntToNSString(value);
             }
           else
             {
