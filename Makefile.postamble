@@ -54,15 +54,13 @@ before-install:: $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Additional
 	   $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Additional/gsweb.make
 
 # Things to do after installing
-after-install::
-#	$(INSTALL_DATA) gdl.make $(GNUSTEP_MAKEFILES)
+#after-install::
 
 # Things to do before uninstalling
 # before-uninstall::
 
 # Things to do after uninstalling
-after-uninstall::
-#	rm $(GNUSTEP_MAKEFILES)/gdl.make
+#after-uninstall::
 
 # Things to do before cleaning
 # before-clean::
