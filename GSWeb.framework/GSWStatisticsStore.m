@@ -265,127 +265,30 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)_updatePagesStatisticsForPage:(id)aPage
-                        timeInterval:(NSTimeInterval)aTimeInterval
-{
-  //OK
-  NSMutableDictionary* pageStats=nil;
-  NSNumber* AvgRespTime=nil;
-  NSNumber* MinRespTime=nil;
-  NSNumber* MaxRespTime=nil;
-  NSNumber* Served=nil;
-  double AvgRespTimeValue=0;
-  double MinRespTimeValue=0;
-  double MaxRespTimeValue=0;
-  int ServedValue=0;
-  LOGObjectFnStart();
-  [self lock];
-  NS_DURING
-    {
-      NSDebugMLog(@"aPage=%@",aPage);
-      if (!_pagesStatistics)
-        _pagesStatistics=[NSMutableDictionary new];
-      else
-        pageStats=[_pagesStatistics objectForKey:aPage];
-      NSDebugMLog(@"pagesStatistics=%@",_pagesStatistics);
-      NSDebugMLog(@"pageStats=%@",pageStats);
-      if (pageStats)
-        {
-          AvgRespTime=[pageStats objectForKey:@"Avg Resp. Time"];
-          MinRespTime=[pageStats objectForKey:@"Min Resp. Time"];
-          MaxRespTime=[pageStats objectForKey:@"Max Resp. Time"];
-          Served=[pageStats objectForKey:@"Served"];
-		  
-          ServedValue=[Served intValue];
-          if (MinRespTime)
-            {
-              MinRespTimeValue=[MinRespTime doubleValue];
-              MinRespTimeValue=min(MinRespTimeValue,aTimeInterval);
-            }
-          else
-            MinRespTimeValue=aTimeInterval;
-          if (MaxRespTime)
-            {
-              MaxRespTimeValue=[MaxRespTime doubleValue];
-              MaxRespTimeValue=max(MaxRespTimeValue,aTimeInterval);
-            }
-          else
-            MaxRespTimeValue=aTimeInterval;
-          if (AvgRespTime)
-            {
-              AvgRespTimeValue=[AvgRespTime doubleValue];
-              AvgRespTimeValue=((AvgRespTimeValue*ServedValue)+aTimeInterval)/(ServedValue+1);
-            }
-          else
-            AvgRespTimeValue=aTimeInterval;
-          ServedValue++;
-        }
-      else
-        {
-          pageStats=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-          [_pagesStatistics setObject:pageStats
-                           forKey:aPage];
-          AvgRespTimeValue=aTimeInterval;
-          MinRespTimeValue=aTimeInterval;
-          MaxRespTimeValue=aTimeInterval;
-          ServedValue=1;
-        };
-      AvgRespTime=[NSNumber numberWithDouble:AvgRespTimeValue];
-      MinRespTime=[NSNumber numberWithDouble:MinRespTimeValue];
-      MaxRespTime=[NSNumber numberWithDouble:MaxRespTimeValue];
-      Served=[NSNumber numberWithInt:ServedValue];
-      NSDebugMLog(@"AvgRespTime=%@",AvgRespTime);
-      NSDebugMLog(@"MinRespTime=%@",MinRespTime);
-      NSDebugMLog(@"MaxRespTime=%@",MaxRespTime);
-      NSDebugMLog(@"Served=%@",Served);
-      [pageStats setObject:AvgRespTime
-                 forKey:@"Avg Resp. Time"];
-      [pageStats setObject:MinRespTime
-                 forKey:@"Min Resp. Time"];
-      [pageStats setObject:MaxRespTime
-                 forKey:@"Max Resp. Time"];
-      [pageStats setObject:Served
-                 forKey:@"Served"];
-    }
-  NS_HANDLER
-    {
-      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
-                  localException,[localException reason],
-                  __FILE__,__LINE__);
-      //TODO
-      [self unlock];
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  [self unlock];
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)_updateDAStatisticsForActionNamed:(id)aName
-                            timeInterval:(NSTimeInterval)aTimeInterval
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
 -(void)_sessionTerminating:(GSWSession*)aSession
 {
   //OK
   LOGObjectFnStart();
+  int activeSessionsCount=[GSWApp _activeSessionsCount];
+  NSArray* statistics=[aSession statistics];
+  NSDate* sessionBirthDate=nil;
+  NSTimeInterval sessionTimeOut=0;
+  int sessionRequestCounter=0;
+  [self _updatePathsStatisticsWithPaths:statistics];
+  sessionBirthDate=[aSession _birthDate];
+  sessionTimeOut=[aSession timeOut];
+  sessionRequestCounter=[aSession _requestCounter];
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(void)sessionTerminating:(GSWSession*)aSession
+{
+  LOGObjectFnStart();
   [self lock];
   NS_DURING
     {
-      int activeSessionsCount=[GSWApp _activeSessionsCount];
-      NSArray* statistics=[aSession statistics];
-      NSDate* sessionBirthDate=nil;
-      NSTimeInterval sessionTimeOut=0;
-      int sessionRequestCounter=0;
-      [self _updatePathsStatisticsWithPaths:statistics];
-      sessionBirthDate=[aSession _birthDate];
-      sessionTimeOut=[aSession timeOut];
-      sessionRequestCounter=[aSession _requestCounter];
-      //TODOFN
+      [self _sessionTerminating:aSession];
     }
   NS_HANDLER
     {
@@ -430,91 +333,34 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)_applicationDidHandleComponentActionRequest
+-(void)_applicationWillHandleRequest
 {
-  //OK
-  double timeInterval=0;
-  LOGObjectFnStart();
-  [self lock];
-  NS_DURING
+  NSTimeInterval idleTimeInterval = 0;
+  NSDate* currentDate=nil;
+  
+  currentDate=[NSDate date];
+
+  _transactionsCount++;
+
+  _lastWillHandleRequestTimeInterval = [currentDate timeIntervalSinceDate:_startDate];
+
+  idleTimeInterval = _lastWillHandleRequestTimeInterval - _lastDidHandleRequestTimeInterval;
+  _totalIdleTimeInterval += idleTimeInterval;
+  if (_transactionMovingAverageSampleCount>0)
     {
-      timeInterval=[self _applicationDidHandleRequest];
-      NSDebugMLog(@"currentPage=%@",_currentPage);
-      if (_currentPage) {  //TODO no current page if no session (error page,...)
-        NSLog(@"GSWStatisticsStore timeInterval=%f",timeInterval);
-        [self _updatePagesStatisticsForPage:_currentPage
-              timeInterval:timeInterval];
-      }
-    }
-  NS_HANDLER
-    {
-      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
-                  localException,[localException reason],
-                  __FILE__,__LINE__);
-      //TODO
-      [self unlock];
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  [self unlock];
-  LOGObjectFnStop();
+      _movingAverageTransactionsCount++;
+      _movingIdleTimeInterval += idleTimeInterval;
+      if(_movingAverageTransactionsCount > _transactionMovingAverageSampleCount)
+        {
+          _movingIdleTimeInterval -= 
+            _movingIdleTimeInterval / (double)_transactionMovingAverageSampleCount;
+        };
+    };
 };
 
 //--------------------------------------------------------------------
--(void)_applicationDidHandleComponentActionRequestInTimeInterval:(double)timeInterval
+-(void)applicationWillHandleDirectActionRequest
 {
-  //OK
-//  double timeInterval=0;
-  LOGObjectFnStart();
-  [self lock];
-  NS_DURING
-    {
-  //    timeInterval=[self _applicationDidHandleRequest];
-      NSDebugMLog(@"currentPage=%@",_currentPage);
-      if (_currentPage) {  //TODO no current page if no session (error page,...)
-        NSLog(@"GSWStatisticsStore timeInterval=%f",timeInterval);
-        [self _updatePagesStatisticsForPage:_currentPage
-              timeInterval:timeInterval];
-        DESTROY(_currentPage);					// otherwise a reload of the statistics page will change this page's stats
-
-      }
-    }
-  NS_HANDLER
-    {
-      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
-                  localException,[localException reason],
-                  __FILE__,__LINE__);
-      //TODO
-      [self unlock];
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  [self unlock];
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)_applicationDidHandleDirectActionRequestWithActionNamed:(id)aName
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
--(double)_applicationDidHandleRequest
-{
-  //OK
-  LOGObjectFnNotImplemented();	//TODOFN
-  //_lastDidHandleRequestTimeInterval=115.005370  (ancien=53.516954)
-  //_totalTransactionTimeInterval=double DOUBLE:61.488416 (ancien=0)
-  //_movingTransactionTimeInterval=double DOUBLE:61.488416 (ancien=0)
-
-  return _movingTransactionTimeInterval; //??? 61.488416: ou _totalTransactionTimeInterval - precedent
-};
-
-//--------------------------------------------------------------------
--(void)_applicationWillHandleDirectActionRequest
-{
-  //OK
   LOGObjectFnStart();
   [self lock];
   NS_DURING
@@ -537,9 +383,32 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)_applicationWillHandleComponentActionRequest
+-(void)applicationWillHandleWebServiceRequest
 {
-  //OK
+  LOGObjectFnStart();
+  [self lock];
+  NS_DURING
+    {
+      _webServiceTransactionsCount++;
+      [self _applicationWillHandleRequest];
+    }
+  NS_HANDLER
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  [self unlock];
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(void)applicationWillHandleComponentActionRequest
+{
   LOGObjectFnStart();
   [self lock];
   NS_DURING
@@ -561,19 +430,209 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
+-(void)_updateHandlerStatistics:(NSMutableDictionary*)statistics
+                        withKey:(NSString*)aKey
+           handlingTimeInterval:(NSTimeInterval)handlingTimeInterval
+{
+  LOGObjectFnStart();
+  if (aKey)
+    {
+      NSNumber* AvgRespTime=nil;
+      NSNumber* MinRespTime=nil;
+      NSNumber* MaxRespTime=nil;
+      NSNumber* Served=nil;
+      double AvgRespTimeValue=0;
+      double MinRespTimeValue=0;
+      double MaxRespTimeValue=0;
+      int ServedValue=0;
+      NSMutableDictionary* statsForKey=[statistics objectForKey:aKey];
+
+      NSDebugMLog(@"statsForKey=%@",statsForKey);
+      if (statsForKey)
+        {
+          AvgRespTime=[statsForKey objectForKey:@"Avg Resp. Time"];
+          MinRespTime=[statsForKey objectForKey:@"Min Resp. Time"];
+          MaxRespTime=[statsForKey objectForKey:@"Max Resp. Time"];
+          Served=[statsForKey objectForKey:@"Served"];
+          
+          ServedValue=[Served intValue];
+          if (MinRespTime)
+            {
+              MinRespTimeValue=[MinRespTime doubleValue];
+              MinRespTimeValue=min(MinRespTimeValue,handlingTimeInterval);
+            }
+          else
+            MinRespTimeValue=handlingTimeInterval;
+          if (MaxRespTime)
+            {
+              MaxRespTimeValue=[MaxRespTime doubleValue];
+                  MaxRespTimeValue=max(MaxRespTimeValue,handlingTimeInterval);
+            }
+          else
+            MaxRespTimeValue=handlingTimeInterval;
+          if (AvgRespTime)
+            {
+              AvgRespTimeValue=[AvgRespTime doubleValue];
+              AvgRespTimeValue=((AvgRespTimeValue*ServedValue)+handlingTimeInterval)/(ServedValue+1);
+            }
+          else
+            AvgRespTimeValue=handlingTimeInterval;
+          ServedValue++;
+        }
+      else
+        {
+          statsForKey=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+          [statistics setObject:statsForKey
+                      forKey:aKey];
+          AvgRespTimeValue=handlingTimeInterval;
+          MinRespTimeValue=handlingTimeInterval;
+          MaxRespTimeValue=handlingTimeInterval;
+          ServedValue=1;
+        };
+      AvgRespTime=[NSNumber numberWithDouble:AvgRespTimeValue];
+      MinRespTime=[NSNumber numberWithDouble:MinRespTimeValue];
+      MaxRespTime=[NSNumber numberWithDouble:MaxRespTimeValue];
+      Served=[NSNumber numberWithInt:ServedValue];
+      NSDebugMLog(@"AvgRespTime=%@",AvgRespTime);
+      NSDebugMLog(@"MinRespTime=%@",MinRespTime);
+      NSDebugMLog(@"MaxRespTime=%@",MaxRespTime);
+      NSDebugMLog(@"Served=%@",Served);
+      [statsForKey setObject:AvgRespTime
+                   forKey:@"Avg Resp. Time"];
+      [statsForKey setObject:MinRespTime
+                   forKey:@"Min Resp. Time"];
+      [statsForKey setObject:MaxRespTime
+                   forKey:@"Max Resp. Time"];
+      [statsForKey setObject:Served
+                       forKey:@"Served"];
+    };
+  LOGObjectFnStop();
+};
+
 //--------------------------------------------------------------------
--(void)_applicationWillHandleRequest
+-(NSTimeInterval)_applicationDidHandleRequest
+{
+  NSTimeInterval handlingTimeInterval=0;
+  NSDate* currentDate=nil;
+
+  currentDate=[NSDate date];
+
+  _lastDidHandleRequestTimeInterval = [currentDate timeIntervalSinceDate:_startDate];
+  handlingTimeInterval = _lastDidHandleRequestTimeInterval - _lastWillHandleRequestTimeInterval;
+
+  _totalTransactionTimeInterval += handlingTimeInterval;
+  if (_transactionMovingAverageSampleCount>0)
+    {
+      _movingTransactionTimeInterval += handlingTimeInterval;
+      if (_movingAverageTransactionsCount>_transactionMovingAverageSampleCount)
+        {
+          _movingTransactionTimeInterval -= 
+            _movingTransactionTimeInterval / (NSTimeInterval)_transactionMovingAverageSampleCount;
+        };
+    }
+  return handlingTimeInterval;
+};
+
+//--------------------------------------------------------------------
+-(void)_applicationDidHandleComponentActionRequest
+{
+  NSTimeInterval handlingTimeInterval=[self _applicationDidHandleRequest];
+  _totalCATransactionTimeInterval += handlingTimeInterval;
+  [self _updateHandlerStatistics:_pagesStatistics
+        withKey:_currentPage
+        handlingTimeInterval:handlingTimeInterval];
+};
+
+//--------------------------------------------------------------------
+-(void)_applicationDidHandleDirectActionRequestWithActionNamed:(NSString*)actionName
+{
+  NSTimeInterval handlingTimeInterval=[self _applicationDidHandleRequest];
+  _totalDATransactionTimeInterval += handlingTimeInterval;
+  [self _updateHandlerStatistics:_directActionStatistics
+        withKey:actionName
+        handlingTimeInterval:handlingTimeInterval];
+};
+
+//--------------------------------------------------------------------
+-(void)_applicationDidHandleWebServiceRequestWithActionNamed:(NSString*)actionName
+{
+  NSTimeInterval handlingTimeInterval=[self _applicationDidHandleRequest];
+  _totalWSTransactionTimeInterval += handlingTimeInterval;
+  [self _updateHandlerStatistics:_webServiceStatistics
+        withKey:actionName
+        handlingTimeInterval:handlingTimeInterval];
+};
+
+//--------------------------------------------------------------------
+-(void)applicationDidHandleComponentActionRequestWithPageNamed:(NSString*)pageName
+{
+  LOGObjectFnStart();
+  [self lock];
+  NS_DURING
+    {
+      [self _applicationDidHandleComponentActionRequest];
+    }
+  NS_HANDLER
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  [self unlock];
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(void)applicationDidHandleDirectActionRequestWithActionNamed:(NSString*)actionName
 {
   //OK
-  LOGObjectFnNotImplemented();	//TODOFN
-  _transactionsCount++;
-  /*
-	lastWillHandleRequestTimeInterval=double DOUBLE:53.516954 [RC=4294967295]
-	totalIdleTimeInterval=double DOUBLE:53.516954 [RC=4294967295]
-	movingIdleTimeInterval=double DOUBLE:53.516954 [RC=4294967295]
-  */
-  _movingAverageTransactionsCount++;
+  LOGObjectFnStart();
+  [self lock];
+  NS_DURING
+    {
+      [self _applicationDidHandleDirectActionRequestWithActionNamed:actionName];
+    }
+  NS_HANDLER
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  [self unlock];
+  LOGObjectFnStop();
 };
+
+//--------------------------------------------------------------------
+-(void)applicationDidHandleWebServiceRequestWithActionNamed:(NSString*)actionName
+{
+  LOGObjectFnStart();
+  [self lock];
+  NS_DURING
+    {
+      [self _applicationDidHandleWebServiceRequestWithActionNamed:actionName];
+    }
+  NS_HANDLER
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  [self unlock];
+  LOGObjectFnStop();
+};
+
 
 @end
 
@@ -699,12 +758,57 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(id)formatDescription:(id)description
-           forResponse:(GSWResponse*)aResponse
-             inContext:(GSWContext*)aContext
++(NSString*)formatDescription:(NSString*)description
+                  forResponse:(GSWResponse*)aResponse
+                    inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  NSString* formattedDescr=nil;
+//  public String formatDescription(String s, WOResponse woresponse, WOContext wocontext)
+  if (description)
+    {
+      GSWRequest* request = [aContext request];
+      NSString* remoteHost=nil;
+      NSString* remoteUser=nil;
+      NSString* requestMethod=nil;
+      NSString* httpVersion=nil;
+      if (request)
+        {
+          remoteHost=[request headerForKey:GSWHTTPHeader_RemoteHost[GSWebNamingConv]];
+          if ([remoteHost length]==0)
+            {
+              remoteHost=[request headerForKey:GSWHTTPHeader_RemoteAddress[GSWebNamingConv]];
+              if ([remoteHost length]==0)
+                remoteHost=@"-";
+            };
+          remoteUser=[request headerForKey:GSWHTTPHeader_RemoteUser[GSWebNamingConv]];
+          if ([remoteHost length]==0)
+            {
+              remoteUser=@"-";
+            };
+          requestMethod=[request method];
+          httpVersion=[request httpVersion];
+        }
+      else
+        {
+          remoteHost=@"?";
+          remoteUser=@"?";
+          requestMethod=@"?";
+          httpVersion=@"?";
+        };
+      description = [description stringByReplacingString:@" "
+                                 withString:@"_"];
+      formattedDescr=[NSString stringWithFormat:@"%@ - %@ [%@] \"%@ %@/%@ %@\" %u %u\n",
+                               remoteHost,
+                               remoteUser,
+                               [NSDate date],
+                               requestMethod,
+                               [[GSWApplication application]name],
+                               description,
+                               httpVersion,
+                               (unsigned int)[aResponse status],
+                               (unsigned int)[aResponse _contentDataLength]];
+    };
+  return formattedDescr;
 };
 
 @end

@@ -42,37 +42,40 @@
   int _transactionsCount;
   int _lastStatsTransactionsCount;
   int _directActionTransactionsCount;
+  int _webServiceTransactionsCount;
   int _componentActionTransactionsCount;
   int _sessionsCount;
   int _lastStatsSessionsCount;
   int _maxActiveSessionsCount;
   NSDate* _maxActiveSessionsDate;
   float _averageRequestsPerSession;
-  double _averageSessionLife;
+  NSTimeInterval _averageSessionLife;
   NSArray* _lastSessionStatistics;
-  double _movingAverageSessionLife;
+  NSTimeInterval _movingAverageSessionLife;
   float _movingAverageRequestsPerSession;
   int _movingAverageSessionsCount;
   NSDate* _startDate;
   NSDate* _lastStatsDate;
-  double _lastWillHandleRequestTimeInterval;
-  double _lastDidHandleRequestTimeInterval;
-  double _totalIdleTimeInterval;
-  double _totalTransactionTimeInterval;
-  double _totalDATransactionTimeInterval;
-  double _totalCATransactionTimeInterval;
-  double _movingIdleTimeInterval;
-  double _movingTransactionTimeInterval;
+  NSTimeInterval _lastWillHandleRequestTimeInterval;
+  NSTimeInterval _lastDidHandleRequestTimeInterval;
+  NSTimeInterval _totalIdleTimeInterval;
+  NSTimeInterval _totalTransactionTimeInterval;
+  NSTimeInterval _totalDATransactionTimeInterval;
+  NSTimeInterval _totalWSTransactionTimeInterval;
+  NSTimeInterval _totalCATransactionTimeInterval;
+  NSTimeInterval _movingIdleTimeInterval;
+  NSTimeInterval _movingTransactionTimeInterval;
   int _movingAverageTransactionsCount;
   NSDictionary* _initializationMemory;
   NSMutableDictionary* _pagesStatistics;
   NSString* _currentPage;
   NSMutableDictionary* _pathsStatistics;
   NSString* _logPath;
-  double _logRotation;
+  NSTimeInterval _logRotation;
   NSDate* _logCreationDate;
   NSString* _password;
   NSMutableDictionary* _directActionStatistics;
+  NSMutableDictionary* _webServiceStatistics;
 };
 
 -(id)init;
@@ -90,19 +93,17 @@
 @interface GSWStatisticsStore (GSWStatisticsStoreA)
 -(void)_purgePathsStatistics;
 -(void)_updatePathsStatisticsWithPaths:(id)paths;
--(void)_updatePagesStatisticsForPage:(id)page
-                        timeInterval:(NSTimeInterval)timeInterval;
--(void)_updateDAStatisticsForActionNamed:(id)name
-                            timeInterval:(NSTimeInterval)timeInterval;
+-(void)sessionTerminating:(GSWSession*)session;
 -(void)_sessionTerminating:(GSWSession*)session;
 -(void)_applicationCreatedSession:(GSWSession*)session;
--(void)_applicationDidHandleComponentActionRequest;
--(void)_applicationDidHandleComponentActionRequestInTimeInterval:(double)timeInterval;
--(void)_applicationDidHandleDirectActionRequestWithActionNamed:(id)name;
--(double)_applicationDidHandleRequest;
--(void)_applicationWillHandleDirectActionRequest;
--(void)_applicationWillHandleComponentActionRequest;
--(void)_applicationWillHandleRequest;
+
+-(void)applicationWillHandleDirectActionRequest;
+-(void)applicationWillHandleWebServiceRequest;
+-(void)applicationWillHandleComponentActionRequest;
+
+-(void)applicationDidHandleComponentActionRequestWithPageNamed:(NSString*)pageName;
+-(void)applicationDidHandleDirectActionRequestWithActionNamed:(NSString*)actionName;
+-(void)applicationDidHandleWebServiceRequestWithActionNamed:(NSString*)actionName;
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreB)
@@ -115,13 +116,13 @@
 
 @interface GSWStatisticsStore (GSWStatisticsStoreC)
 -(void)logString:(id)string;
--(double)logFileRotationFrequencyInDays;
+-(NSTimeInterval)logFileRotationFrequencyInDays;
 -(NSString*)logFile;
 -(void)			setLogFile:(NSString*)logFile
-   rotationFrequencyInDays:(double)rotationFrequency;
--(id)formatDescription:(id)description
-           forResponse:(GSWResponse*)aResponse
-             inContext:(GSWContext*)aContext;
+   rotationFrequencyInDays:(NSTimeInterval)rotationFrequency;
++(NSString*)formatDescription:(NSString*)description
+                  forResponse:(GSWResponse*)aResponse
+                    inContext:(GSWContext*)aContext;
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreD)
@@ -131,19 +132,19 @@
 -(id)_lastSessionStatistics;
 -(NSDictionary*)_memoryUsage;
 -(id)_averageSessionMemory;
--(double)_movingAverageSessionLife;
--(double)_averageSessionLife;
+-(NSTimeInterval)_movingAverageSessionLife;
+-(NSTimeInterval)_averageSessionLife;
 -(float)_movingAverageRequestsPerSession;
 -(float)_averageRequestsPerSession;
 -(NSDate*)_maxActiveSessionsDate;
 -(int)_maxActiveSessionsCount;
 -(int)_sessionsCount;
--(double)_movingAverageTransactionTime;
--(double)_movingAverageIdleTime;
--(double)_averageCATransactionTime;
--(double)_averageDATransactionTime;
--(double)_averageTransactionTime;
--(double)_averageIdleTime;
+-(NSTimeInterval)_movingAverageTransactionTime;
+-(NSTimeInterval)_movingAverageIdleTime;
+-(NSTimeInterval)_averageCATransactionTime;
+-(NSTimeInterval)_averageDATransactionTime;
+-(NSTimeInterval)_averageTransactionTime;
+-(NSTimeInterval)_averageIdleTime;
 -(int)_directActionTransactionsCount;
 -(int)_componentActionTransactionsCount;
 -(int)_transactionsCount;
@@ -167,6 +168,6 @@
 @end
 
 @interface GSWStatisticsStore (GSWStatisticsStoreH)
-+(id)timeIntervalDescription:(double)timeInterval;
++(id)timeIntervalDescription:(NSTimeInterval)timeInterval;
 @end
 #endif //_GSWStatisticsStore_h__
