@@ -361,6 +361,21 @@ static NSCharacterSet* nonNumericSet=nil;
 //====================================================================
 @implementation GSWElementIDString  (GSWElementIDStringGSW)
 
+- (void)setString:(NSString *)aString 
+{
+  if (!aString)
+    {
+    aString=@"";
+    }
+	if (!_string) 
+    {
+    _string = [[NSMutableString alloc] initWithString:aString];
+    } 
+  else
+    {
+    [_string setString:aString];
+    }
+}
 //--------------------------------------------------------------------
 -(void)deleteAllElementIDComponents
 {
