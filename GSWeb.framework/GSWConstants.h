@@ -386,6 +386,7 @@ extern id cidStore__Key;
 extern id cidKey__Key;
 extern id isDisplayStringBefore__Key;
 extern id urlPrefix__Key;
+extern id pathQueryDictionary__Key;
 
 #endif // _GSWebConstants_h__
 
