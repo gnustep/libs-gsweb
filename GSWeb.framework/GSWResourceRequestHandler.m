@@ -95,8 +95,8 @@ RCS_ID("$Id$")
           inContext:nil];
   else
     {
-      LOGSeriousError(@"No data for _key %@",
-                      key);
+      LOGSeriousError(@"No data for key '%@'",
+                      aKey);
       //TODO
     };
   LOGObjectFnStop();

@@ -42,20 +42,25 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 @implementation GSWElement
 
 #ifndef NDEBBUG
+//--------------------------------------------------------------------
 -(void)saveAppendToResponseElementIDInContext:(id)context
 {
-  NSString* elementID=nil;
-  LOGObjectFnStartC("GSWElement");
-  elementID=[context elementID];
-/*  if ([elementID length]==0)
-    elementID=@"MARKER";*/
-  NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ elementID=%@ %p",self,[self definitionName],elementID,elementID);
-  ASSIGNCOPY(_appendToResponseElementID,elementID);
-  NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p",self,[self definitionName],_appendToResponseElementID,_appendToResponseElementID);
-  GSWAssertIsElementID(context);
-  LOGObjectFnStopC("GSWElement");
+  if(GSDebugSet(@"saveAppendToResponseElementID"))
+    {
+      NSString* elementID=nil;
+      LOGObjectFnStartC("GSWElement");
+      elementID=[context elementID];
+      /*  if ([elementID length]==0)
+          elementID=@"MARKER";*/
+      NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ elementID=%@ %p",self,[self definitionName],elementID,elementID);
+      ASSIGNCOPY(_appendToResponseElementID,elementID);
+      NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p",self,[self definitionName],_appendToResponseElementID,_appendToResponseElementID);
+      GSWAssertIsElementID(context);
+      LOGObjectFnStopC("GSWElement");
+    };
 };
 
+//--------------------------------------------------------------------
 -(void)assertCorrectElementIDInContext:(id)context
                                 method:(SEL)method
                                   file:(const char*)file
@@ -100,6 +105,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
   LOGObjectFnStopC("GSWElement");
 };
 
+//--------------------------------------------------------------------
 -(void)assertIsElementIDInContext:(id)context
                            method:(SEL)method
                              file:(const char*)file
@@ -127,6 +133,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
   LOGObjectFnStopC("GSWElement");
 };
 
+//--------------------------------------------------------------------
 -(void)logElementInContext:(id)context
                     method:(SEL)method
                       file:(const char*)file
@@ -163,11 +170,13 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
   GSWLogC("End Dealloc GSWElement");
 }
 
+//--------------------------------------------------------------------
 -(NSString*)definitionName
 {
   return _definitionName;
 };
 
+//--------------------------------------------------------------------
 -(void)setDefinitionName:(NSString*)definitionName
 {
   NSDebugMLLog(@"gswdync",@"setDefinitionName1 in %p: %p %@",

@@ -182,13 +182,13 @@ extern void GSWLogAssertGoodFn(CONST char* file,int line,NSObject* object);
 	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGException(format, args...) 	\
-  do { if (GSDebugSet(@"exception") == YES) { \
+  do { /*if (GSDebugSet(@"exception") == YES)*/ { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
     NSLog(fmt2, ## args); }} while (0)
 
 #define LOGException0(format) 	\
-  do { if (GSDebugSet(@"exception") == YES) { \
+  do { /*if (GSDebugSet(@"exception") == YES)*/ { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
 	NSLog(@"%@",fmt2); }} while (0)
