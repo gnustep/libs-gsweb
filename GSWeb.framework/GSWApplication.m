@@ -1523,7 +1523,7 @@ int GSWApplicationMain(NSString* applicationClassName,
     }
   NS_HANDLER
     {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In clearCache");
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In Application _resetCache");
       LOGException(@"%@ (%@)",localException,[localException reason]);
       [self unlock];
       [localException raise];
