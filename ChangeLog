@@ -1,3 +1,18 @@
+2004-08-29  David Ayers  <d.ayers@inode.at>
+	
+	* GSWeb.framework/GSWApplication+Defaults.m
+	(GSWeb_InitializeGlobalAppDefaultOptions): Shorten and make more
+	readable via local LOGOPT and LOGOPT_NC macro.
+	(NSUSERDEFAULTS, INIT_DFLT_OBJ, INIT_DFLT_BOOL, INIT_DFLT_INT)
+	(INIT_DFLT_FLT): New macros.
+	(globalAppDefaultOptions): Make static.
+	(_userDefaults): New static local.
+	(GSWeb_ApplicationDebugSetChange): Remove NDEBUG conditional
+	compile.
+	(_dflt_*, _dflt_init_*): New static variables to cache default
+	values.
+	(set/getDefaultValues): Use new macros and static variables.
+	
 2004-08-28  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication.h
@@ -38,7 +53,7 @@
 	(GSWeb_DestroyGlobalAppDefaultOptions)
 	((GSWApplicationDefaults), (UserDefaults)): Move from here to...
 	* GSWeb.framework/GSWApplication+Defaults.m: ... here.
-	
+
 2004-06-16  David Wetzel  <dave@turbocat.de>
 
         * GSWeb.framework/GSWDynamicURLString.m
