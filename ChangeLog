@@ -1,3 +1,24 @@
+2001-10-27  Manuel Guesdon <mguesdon@orange-concept.com>
+	Applied patch from Turbocat (www.turbocat.de): gsw_26_oct_2001.patch
+		except 
+			o GDL2 ifdef in GSWDisplayGroup.h
+			o Turbocat additions in GSWTextField.m
+	* GSWAdaptors/Apache/GNUmakefile: changes in APXS
+	* GSWAdaptors/common/GSWApp.c: in GSWAppInfo_MakeDictKeyName, take care of buffer overflow
+	* GSWeb.framework/GSWComponent.m: implement validationFailedWithException:value:keyPath:
+	* GSWeb.framework/GSWDeployedBundle.m: commented #include <pthread.h>
+	* GSWeb.framework/GSWDisplayGroup.m: select after fetch in -fetch
+		various changes
+	* GSWeb.framework/GSWKeyValueAssociation.m: traces
+	* GSWeb.framework/GSWApplication.m: Traces
+	* GSWeb.framework/GSWAssociation: GDL2 changes
+		o removed special case for returned value of type GSMutableArray
+		o GDL2 value validation
+	* GSWeb.framework/GSWImageButton.m: rewrite of invokeActionForRequest:inContext:
+	* GSWeb.framework/GSWDefaultAdaptorThread.m: traces
+	* GSWeb.framework/GSWTemplateParserXML.m: traces
+	* GSWeb.framework/NSString+Trimming.m: Handle EONull/NSNull 
+	
 2001-10-25  Manuel Guesdon <mguesdon@orange-concept.com>
 	Applied patch from Turbocat (www.turbocat.de): GSWPatch_04-JUL_2001.diff
 		except GSWeb.framework/GSWInput.m/.h one (have to verify coherence of it)

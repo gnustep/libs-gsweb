@@ -25,7 +25,7 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
-
+#ifdef GDL2
 //====================================================================
 @interface GSWBundleUnarchiverDelegate : NSObject
 {
@@ -63,7 +63,7 @@ objectForReference:(NSString*)keyPath
 };
 
 @end
-
+#endif // GDL2
 //====================================================================
 @implementation GSWBundle
 

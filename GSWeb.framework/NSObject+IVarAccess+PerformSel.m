@@ -439,7 +439,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
   Class _class=Nil;
   NSObjectIVarsAccess* _ivarAccess=nil;
   NSMutableDictionary* _classCache=nil;
-  //LOGObjectFnStart();
+  LOGObjectFnStart();
   NSDebugMLLog(@"low",@"getIVarNamed %@ in %p %@  (superClass:%@)",name_,self,[self class],[self superclass]);
   _class=[self class];
   _classCache=[objectIVarAccessCache_Get objectForKey:_class];

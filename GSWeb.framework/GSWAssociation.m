@@ -597,7 +597,11 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 		forKeyPath:(NSString*)keyPath_
 {
   id retValue=nil;
+#ifdef GDL2
   id EONullNull=[EONull null];
+#else
+  id EONullNull=[NSNull null];
+#endif
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath_=%@ object_=%p",keyPath_,(void*)object_);
   if (keyPath_ && object_ && object_!=EONullNull)
@@ -657,47 +661,9 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 			{
 				BOOL skipping = NO;
 			  NS_DURING
-/*
-				//NSLog(@"#getIVarNamed");
-				if (retValue) {
-					//NSLog(@"class retValue before getIVarNamed : %s", object_get_class_name(retValue));
-					//NSLog(@"description retValue : %@", [retValue description]);
-				}
 
-				if ((retValue) && (strstr(object_get_class_name(retValue),"GSMutableArray") != NULL)) {
-
-					int counter;
-					if ([_part isEqual:@"count"]) {
-						SEL	sel=0;
-						NSMethodSignature	*sig ;
-
-						NSLog(@"### retValue class is GSMutableArray (%@)", NSStringFromClass([retValue class]));
-						sel = NSSelectorFromString(_part);
-  						NSLog(@"### selector = %d", (int)sel);
-  						NSLog(@"### %@", NSStringFromSelector(sel));
-						if ([retValue respondsToSelector: sel] == NO) {
-							NSLog(@"### GSMutableArray does not respond to '%@'", _part);
-						} else {
-							NSLog(@"### GSMutableArray responds to '%@'", _part);
-						}
-      					sig = [retValue methodSignatureForSelector: sel];
-						NSLog(@"### [sig numberOfArguments] = %d", [sig numberOfArguments]);
-
-						counter = [retValue count];
-						NSLog(@"### count = %d", counter);
-						skipping = YES;
-						//retValue = [NSNumber numberWithInt:counter];
-					}
-				}
-
-				//if (!skipping)
-*/
 			    	retValue=[retValue getIVarNamed:_part];
-/*
-				if (retValue) {
-					NSLog(@"class retValue after getIVarNamed : %s", object_get_class_name(retValue));
-				}
-*/
+
 			  NS_HANDLER
 			    NSLog(@"Attempt to get %@/%@ raised an exception (%@)",[retValue class],_part,localException);
         localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods" format:@"-[%@ %@]",[retValue class],_part];
@@ -711,7 +677,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 if (retValue) {
   NSDebugMLLog(@"associations",@"retValue=%@",retValue);
 } else {
-  NSLog(@"retValue=nil");
+  NSDebugMLLog(@"associations",@"retValue=nil");
 }
   LOGClassFnStop();
   return retValue;
@@ -755,7 +721,7 @@ if (retValue) {
 				  if ([_part isEqualToString:GSASK_Class])
 					{
 					  Class _class=Nil;
-NSLog(@"in GSASK_Class");
+
 					  NSAssert2([keys count]>0,@"No class name for handler %@ in %@",
 								GSASK_Class,
 								keyPath_);
@@ -773,7 +739,6 @@ NSLog(@"in GSASK_Class");
 						_object=nil;
 					}
 				  else {
-//NSLog(@"before called getIVarNamed with _part = %@",_part);
 					_object=[_object getIVarNamed:_part];
 					}
 				}
@@ -782,6 +747,27 @@ NSLog(@"in GSASK_Class");
 				  GSWLogAssertGood(_object);
 				  [_object setIVarNamed:_part
 						  withValue:value_];
+#ifdef GDL2
+					// Turbocat
+					if (object_ && [object_ isKindOfClass:[GSWComponent class]]) {
+					  	NSException* _exp = [_object validateValue:&value_ forKey:_part];
+
+						if (_exp) {
+					  		NSException* _exception=nil;
+
+					  		_exception=[NSException exceptionWithName:@"EOValidationException"
+											  reason:[_exp reason]
+											  userInfo:[NSDictionary 
+														 dictionaryWithObjectsAndKeys:
+														   (value_ ? value_ : @"nil"),@"EOValidatedObjectUserInfoKey",
+														   keyPath_,@"EOValidatedPropertyUserInfoKey",
+														 nil,nil]];
+					  		[object_ validationFailedWithException:_exception
+								  value:value_
+								  keyPath:keyPath_];
+						}
+					}
+#endif
 				  _object=nil;
 				};
 			};

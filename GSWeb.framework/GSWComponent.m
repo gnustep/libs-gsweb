@@ -1320,11 +1320,18 @@ associationsKeys:(NSArray*)_associationsKeys
 
 //====================================================================
 @implementation GSWComponent (GSWLogging)
+//--------------------------------------------------------------------
+//Called when an Enterprise Object or formatter failed validation during an
+//assignment. 
+//The default implementation ignores the error. Subclassers can override to
+// record the error and possibly return a different page for the current action.
 -(void)validationFailedWithException:(NSException*)_exception
 							   value:(id)_value
 							 keyPath:(id)_keyPath
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  // Does nothing
+  LOGObjectFnStart();
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------

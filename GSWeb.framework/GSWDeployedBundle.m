@@ -24,7 +24,7 @@
 static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
-#include <pthread.h>
+//#include <pthread.h>
 
 //====================================================================
 @implementation GSWDeployedBundle

@@ -107,9 +107,13 @@ static char rcsId[] = "$Id$";
   ASSIGN(runDate,[NSDate date]);
   DESTROY(dispatchRequestDate);
   DESTROY(sendResponseDate);
+#ifdef DEBUG
   [GSWApplication statusLogWithFormat:@"Thread run START"];
+#endif
   pool=[NSAutoreleasePool new];
+#ifdef DEBUG
   [GSWApplication logWithFormat:@"pool allocated!"];
+#endif
   if (isMultiThread)
 	{
 	  _threadDictionary=GSCurrentThreadDictionary();
@@ -209,9 +213,13 @@ static char rcsId[] = "$Id$";
   NSDebugMLog0(@"GSWDefaultAdaptorThread: run end");
   NSDebugMLLog(@"low",@"application:%@",application);
   LOGObjectFnStop();
+#ifdef DEBUG
   [GSWApplication statusLogWithFormat:@"threadWillExit START"];
+#endif
   [application threadWillExit];
+#ifdef DEBUG
   [GSWApplication statusLogWithFormat:@"threadWillExit STOP"];
+#endif
   if (isMultiThread)
 	{
 	  NSAssert([NSThread isMultiThreaded],@"No MultiThread !");
@@ -219,7 +227,9 @@ static char rcsId[] = "$Id$";
 	}
   else
 	[self threadExited];
+#ifdef DEBUG
   [GSWApplication statusLogWithFormat:@"run STOP"];
+#endif
 };
 
 //--------------------------------------------------------------------

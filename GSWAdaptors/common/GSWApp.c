@@ -206,9 +206,10 @@ char* GSWAppInfo_MakeDictKeyName(char* pszName, int iInstance)
 {
 	char	*name = NULL;
 
-    if (name = calloc(1,30)) {
+    if (name = calloc(1,50)) {
 		if (pszName) {
-			strcpy(name, pszName);
+			strncpy(name, pszName,45);
+                        name[45]=0;
 		}
 		sprintf(name + strlen(name), "%d", iInstance);
 

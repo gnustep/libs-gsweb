@@ -123,6 +123,12 @@ static char rcsId[] = "$Id$";
 				_resultValue=_value;
 			};
 		  NSDebugMLLog(@"gswdync",@"_resultValue=%@",_resultValue);
+
+		  // Turbocat
+		  if ([self _isFormattedValueInComponent:_component  equalToFormattedValue:_value]) {
+			// does nothing, old formatted values are equal
+		  } else {
+
                   if (!WOStrictFlag)
                     {
                       NS_DURING
@@ -140,7 +146,7 @@ static char rcsId[] = "$Id$";
                   else
                     [value setValue:_resultValue
                            inComponent:_component];		  
-
+		  }
 		};
 	};
   LOGObjectFnStopC("GSWTextField");
@@ -225,3 +231,36 @@ static char rcsId[] = "$Id$";
 
 @end
 
+//====================================================================
+@implementation GSWTextField (TurbocatAdditions)
+
+//--------------------------------------------------------------------
+- (BOOL)_isFormattedValueInComponent:(GSWComponent *)_component  equalToFormattedValue:(NSString *)newFormattedValue 
+{
+  id _valueValue=nil;
+  id _formattedValue=nil;
+  NSFormatter* _formatter=nil;
+
+  if (!newFormattedValue) {
+	return NO;
+  }
+
+  // get own value
+  _valueValue=[value valueInComponent:_component];
+  _formatter=[self formatterForComponent:_component];
+  if (!_formatter)
+	{
+	  //NSLog(@"No Formatter in _isFormattedValueInComponent");
+	  _formattedValue=_valueValue;
+	}
+  else
+	{
+	  _formattedValue=[_formatter stringForObjectValue:_valueValue];
+	};
+
+  if (_formattedValue && [newFormattedValue isEqualToString:_formattedValue]) {
+    NSLog(@"### GSWTextField : are EQUAL ###");
+	return YES;
+  }
+  return NO;
+}

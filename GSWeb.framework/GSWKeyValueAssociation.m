@@ -59,7 +59,8 @@ static char rcsId[] = "$Id$";
 {
   id retValue=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"keyPath=%@ object_=%p",keyPath,(void*)object_);
+  NSDebugMLLog(@"associations",@"keyPath=%@ ",keyPath);
+  NSDebugMLLog(@"associations",@"object_=%@ ", object_);
   retValue=[GSWAssociation valueInObject:object_
                            forKeyPath:keyPath];
   NSDebugMLLog(@"associations",@"retValue=%@ (%p) (class=%@)",
@@ -76,9 +77,11 @@ static char rcsId[] = "$Id$";
 	   inObject:(id)object_
 {
   LOGObjectFnStart();
+  NSDebugMLLog(@"associations",@"keyPath=%@ ",keyPath);
   NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@ (self=%@)",value_,self);
-  NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([value_ class]));
-  NSDebugMLLog(@"associations",@"value_ String class:%@",NSStringFromClass([value_ class]));
+  if (value_) {
+    NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([value_ class]));
+  }
   //TODO (return something!)
   [object_ validateValue:&value_
 			  forKey:self];

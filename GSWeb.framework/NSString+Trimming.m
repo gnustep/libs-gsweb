@@ -190,8 +190,13 @@ static char rcsId[] = "$Id$";
 	{
 	  if ([object_ isKindOfClass:[NSString class]])
 		_string=[[object_ copy] autorelease];
+#ifdef GDL2
 	  else if ([object_ isKindOfClass:[EONull class]])
 		_string=@"";
+#else
+	  else if ([object_ isKindOfClass:[NSNull class]])
+		_string=@"";
+#endif
 	  else if ([object_ respondsToSelector:@selector(stringValue)])
 		_string=[object_ stringValue];
 	  else if ([object_ respondsToSelector:@selector(description)])

@@ -314,7 +314,181 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStop();
 };
 
+
+
+
 //--------------------------------------------------------------------
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
+						  inContext:(GSWContext*)context_
+{
+  GSWElement* _element=nil;
+  NSString* _senderID=nil;
+  NSString* _elementID=nil;
+  BOOL _disabledInContext=NO;
+  BOOL _isInForm=NO;
+  BOOL _XYValues=NO;
+  BOOL _thisOne=NO;
+  GSWComponent* _component=nil;
+  int _x=0;
+  int _y=0;
+  LOGObjectFnStart();
+  _component=[context_ component];
+  [context_ appendZeroElementIDComponent];
+  _senderID=[context_ senderID];
+  NSDebugMLog(@"_senderID=%@",_senderID);
+  _elementID=[context_ elementID];
+  NSDebugMLog(@"_elementID=%@",_elementID);
+  if ([_elementID isEqualToString:_senderID])
+	{
+	  //TODO
+	};
+  [context_ deleteLastElementIDComponent];
+  _disabledInContext=[self disabledInContext:context_];
+  if (!_disabledInContext)
+	{
+	  _isInForm=[context_ isInForm];
+	  if (_isInForm)
+		{
+		  BOOL _wasFormSubmitted=[context_ _wasFormSubmitted];
+		  if (_wasFormSubmitted)
+			{
+			  NSString* _nameInContext=[self nameInContext:context_];
+			  NSString* _formValueX=[request_ formValueForKey:[NSString stringWithFormat:@"%@.x",
+																		_nameInContext]];
+			  NSString* _formValueY=[request_ formValueForKey:[NSString stringWithFormat:@"%@.y",
+																		_nameInContext]];
+			  NSDebugMLLog(@"gswdync",@"_formValueX=%@",_formValueX);
+			  NSDebugMLLog(@"gswdync",@"_formValueY=%@",_formValueY);
+			  if (_formValueX && _formValueY)
+				{
+				  _x=[_formValueX intValue];
+				  _y=[_formValueY intValue];
+				  _XYValues=YES;
+				  _thisOne=YES;
+				}
+			  else
+				{
+				  //TODO
+				};
+			};
+		}
+	  else
+		{
+		  _elementID=[context_ elementID];
+		  NSDebugMLog(@"_elementID=%@",_elementID);
+		  if ([_elementID isEqualToString:_senderID])
+			{
+			  id _param=[request_ formValueForKey:GSWKey_IsmapCoords[GSWebNamingConv]];
+			  NSDebugMLLog(@"gswdync",@"_param=%@",_param);
+			  if (_param)
+				{
+				  if ([_param ismapCoordx:&_x
+							  y:&_y])
+					_XYValues=YES;
+				  else
+					{
+					  //TODO
+					};
+				};
+			  _thisOne=YES;
+			};
+		};
+	  if (_thisOne)
+		{
+		  GSWAssociation* _actionAssociation=nil;
+		  NSArray* _regions=nil;
+		  if (imageMapFileName)
+			{
+			  id _imageMapFileNameValue=[imageMapFileName valueInComponent:_component];
+			  NSString* _imageMapFilePath=[[context_ component]
+											pathForResourceNamed:_imageMapFileNameValue
+											ofType:nil];
+			  if (!_imageMapFilePath)
+				{
+				  GSWResourceManager* _resourceManager=[[GSWApplication application]resourceManager];
+				  NSArray* _languages=[context_ languages];
+				  _imageMapFilePath=[_resourceManager pathForResourceNamed:_imageMapFileNameValue
+													  inFramework:nil
+													  languages:_languages];
+			  
+				};
+			  if (_imageMapFilePath)
+				_regions=[GSWGeometricRegion geometricRegionsWithFile:_imageMapFilePath];
+			  else
+				{
+				  NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
+				};
+			}
+		  else if (!WOStrictFlag && imageMapString)
+			{
+			  id _imageMapValue=[imageMapString valueInComponent:_component];
+			  _regions=[GSWGeometricRegion geometricRegionsWithString:_imageMapValue];
+			}
+		  else if (!WOStrictFlag && imageMapRegions)
+			{
+			  _regions=[imageMapRegions valueInComponent:_component];
+			};
+		  if (xAssoc)
+			[xAssoc setValue:[NSNumber numberWithInt:_x]
+					inComponent:_component];
+		  if (yAssoc)
+			[yAssoc setValue:[NSNumber numberWithInt:_y]
+					inComponent:_component];
+	  
+		  _actionAssociation=[self hitTestX:_x
+								   y:_y
+								   inRegions:_regions];
+		  if (_actionAssociation)
+			{
+			  [context_ _setActionInvoked:YES];
+			  _element=[_actionAssociation valueInComponent:_component];
+
+			  if (_element && [_element isKindOfClass:[GSWComponent class]])
+				{
+					// call awakeInContext when _element is sleeping deeply
+					[_element ensureAwakeInContext:context_];
+				}
+			}
+		  else
+			{
+/*			  if (href)
+				{
+				  [context_ _setActionInvoked:YES];
+				  //TODO redirect to href
+				}
+			  else*/ if (action)
+				{
+				  [context_ _setActionInvoked:YES];
+				  _element=[action valueInComponent:_component];
+
+			  		if (_element && [_element isKindOfClass:[GSWComponent class]])
+						{
+							// call awakeInContext when _element is sleeping deeply
+							[_element ensureAwakeInContext:context_];
+						}
+				}
+			  else
+				{				
+				  NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
+				};
+			};
+		  if (!_element)
+			_element=[context_ page];
+		}
+	  else
+		_element=[super invokeActionForRequest:request_
+						inContext:context_];
+	}
+  else
+	_element=[super invokeActionForRequest:request_
+					inContext:context_];
+  LOGObjectFnStop();
+  return _element;
+};
+
+
+//--------------------------------------------------------------------
+/*
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
 						   inContext:(GSWContext*)context_
 {
@@ -411,12 +585,12 @@ static char rcsId[] = "$Id$";
 					} else {
 						// call awakeInContext when _element is sleeping deeply
 						[_element ensureAwakeInContext:context_];
-/*
-						if (![_element context]) {
-		  					NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
-							[_element awakeInContext:context_];
-						}
-*/
+//
+//						if (![_element context]) {
+//		  					NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
+//							[_element awakeInContext:context_];
+//						}
+
 					}
 				}
 			}
@@ -437,7 +611,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStop();
   return _element;
 };
-
+*/
 //--------------------------------------------------------------------
 -(NSString*)frameworkNameInContext:(GSWContext*)context_
 {

@@ -215,7 +215,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
   NSString* externalContent=nil;
   xmlParserInputPtr	result = 0;
   LOGObjectFnStart();
-  NSLog(@"resolveEntity:%@ systemID:%@ inParserContext:%p\n",
+  NSDebugMLog(@"resolveEntity:%@ systemID:%@ inParserContext:%p\n",
         publicIdEntity,
         systemIdEntity,
         lib);
@@ -234,7 +234,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
 		       pathForResource:resourceName
 		       ofType:@"dtd"
 		       inDirectory:@"DTDs"];
-          NSLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,resourceName);
+          NSDebugMLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,resourceName);
           if (fileName)
             {
               externalContent=[NSString stringWithContentsOfFile:fileName];
@@ -247,7 +247,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
   %attrs;
   >\n";
               //  name       NMTOKEN;       #IMPLIED
-              NSLog(@"gswebTag=\n%@",gswebTag);
+              NSDebugMLog(@"gswebTag=\n%@",gswebTag);
               externalContent=[externalContent stringByAppendingString:gswebTag];
 
               [[self class] setCachedDTDContent:externalContent
@@ -283,7 +283,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
                         resourceName=@"xhtml1-frameset.dtd";
                       else
                         {
-                          NSLog(@"Unknown DTD: %@. Choose default: xhtml1-transitional.dtd",publicIdEntity);
+                          NSDebugMLog(@"Unknown DTD: %@. Choose default: xhtml1-transitional.dtd",publicIdEntity);
                           resourceName=@"xhtml1-transitional.dtd"; // guess
                         };
                       if (resourceName)
@@ -294,7 +294,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
 				       pathForResource:resourceName
 				       ofType:@"dtd"
 				       inDirectory:@"DTDs"];
-                          NSLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,publicIdEntity);
+                          NSDebugMLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,publicIdEntity);
                           if (fileName)
                             {
                               externalContent=[NSString stringWithContentsOfFile:fileName];
@@ -313,7 +313,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
                         resourceName=@"xhtml-lat1.ent";
                       else
                         {
-                          NSLog(@"Unknown ENTITIES: %@",publicIdEntity);
+                          NSDebugMLog(@"Unknown ENTITIES: %@",publicIdEntity);
                         };
                       if (resourceName)
                         {
@@ -323,7 +323,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
 				       pathForResource:resourceName
 				       ofType:@"ent"
 				       inDirectory:@"DTDs"];
-                          NSLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,publicIdEntity);
+                          NSDebugMLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,publicIdEntity);
                           if (fileName)
                             {
                               externalContent=[NSString stringWithContentsOfFile:fileName];
@@ -332,17 +332,17 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
                     }
                   else
                     {
-                      NSLog(@"Unknown publicIdEntity %@",publicIdEntity);
+                      NSDebugMLog(@"Unknown publicIdEntity %@",publicIdEntity);
                     };
                 }
               else
                 {
-                  NSLog(@"Don't know how to parse publicIdEntity %@",publicIdEntity);
+                  NSDebugMLog(@"Don't know how to parse publicIdEntity %@",publicIdEntity);
                 };
             }
           else
             {
-              NSLog(@"Don't know what to do with publicIdEntity %@",publicIdEntity);
+              NSDebugMLog(@"Don't know what to do with publicIdEntity %@",publicIdEntity);
             };
           if (externalContent)
             [[self class] setCachedDTDContent:externalContent
@@ -354,7 +354,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
       result=xmlNewStringInputStream(lib,[externalContent cString]);
     };
   NSAssert2(result,@"Can't load external (publicIdEntity:%@ systemIdEntity:%@)",publicIdEntity,systemIdEntity);
-  NSLog(@"LOADED: resolveEntity:%@ systemID:%@ inParserContext:%p\n",
+  NSDebugMLog(@"LOADED: resolveEntity:%@ systemID:%@ inParserContext:%p\n",
         publicIdEntity,
         systemIdEntity,
         lib);

@@ -843,6 +843,10 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       if(_delegateRespondsTo.didFetchObjects == YES)
         [delegate displayGroup:self
                   didFetchObjects:_allObjects];
+      // selection
+      if ([self selectsFirstObjectAfterFetch] == YES) {
+        [self setCurrentBatchIndex:1];
+      }
     };
   LOGObjectFnStop();
 
@@ -1513,7 +1517,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
                i++)
             [_displayedObjects addObject:[_allObjects objectAtIndex:i]];
           
-          if(_flags.selectFirstObject == YES && [_selection count])
+          //if(_flags.selectFirstObject == YES && [_selection count])
+          if ((_flags.selectFirstObject == YES) && [_displayedObjects count])
             [self setSelectionIndexes:
                     [NSArray arrayWithObject:
                                [NSNumber numberWithUnsignedInt:
@@ -1718,6 +1723,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 {
   NSEnumerator *objsEnum;
   NSNumber *number;
+  BOOL	stop = NO;
   LOGObjectFnStart();
 
   if(_delegateRespondsTo.shouldChangeSelection == YES)
@@ -1729,19 +1735,28 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   while((number = [objsEnum nextObject]))
     {
       NS_DURING
-	[_allObjects objectAtIndex:[number unsignedIntValue]];
+        {
+          // check for objects
+          [_allObjects objectAtIndex:[number unsignedIntValue]];
+        }
       NS_HANDLER
+        {
+          //return NO;
+          stop = YES;
+        }
 	return NO;
       NS_ENDHANDLER;
     }
 
+  if (stop) {
+    return NO;
+  }
   [_selectedObjects removeAllObjects];
 
   objsEnum = [selection_ objectEnumerator];
   while((number = [objsEnum nextObject]))
     {
-      [_selectedObjects
-	addObject:[_allObjects objectAtIndex:[number unsignedIntValue]]];
+      [_selectedObjects   addObject:[_allObjects objectAtIndex:[number unsignedIntValue]]];
     }
 
   ASSIGN(_selection, selection_);
