@@ -76,17 +76,22 @@ GSWEB_EXPORT NSString* baseStringByConvertingFromHTML(NSString* string,
 //====================================================================
 @interface NSString (HTMLString)
 -(NSString*)htmlPlus2Space;
--(NSString*)decodeURL;
+-(NSString*)decodeURLEncoding:(NSStringEncoding) encoding;
 -(NSString*)encodeURL;
 -(NSString*)encodeURLWithValid:(NSString*)valid;
--(NSDictionary*)dictionaryQueryString;
+
+-(NSDictionary*)dictionaryQueryStringWithEncoding: (NSStringEncoding) encoding;
+
 -(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
                           withSep2:(NSString*)sep2
                 withOptionUnescape:(BOOL)unescape;
+
 -(NSDictionary*)dictionaryWithSep1:(NSString*)sep1
                           withSep2:(NSString*)sep2
                 withOptionUnescape:(BOOL)unescape
-                        forceArray:(BOOL)forceArray;
+                        forceArray:(BOOL)forceArray
+                          encoding:(NSStringEncoding) encoding;
+
 -(BOOL)ismapCoordx:(int*)x
                  y:(int*)y;
 -(NSString*)stringByEscapingHTMLString;

@@ -598,54 +598,49 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
 //   escape character is '%' and is followed by 2 hex digits
 //   representing the octet.
 //
--(NSString*)decodeURL
+-(NSString*) decodeURLEncoding:(NSStringEncoding) encoding
 {
-  //TODO speed
-  unichar* unichars=NULL;
-  unichar uniChar=0;
-  NSString* voidString=nil;
-  NSString* temp=nil;
-  const char* p=NULL;
-  int uniCharsIndex=0;
-  NSDebugMLLog(@"low",@"self=%@",self);
-  voidString=[self htmlPlus2Space];  
-  NSDebugMLLog(@"low",@"voidString=%@",voidString);
-  unichars=GSAutoreleasedBuffer(sizeof(unichar)*([voidString length]+1));
-  NSDebugMLLog(@"low",@"[voidString cString]=%s",[voidString cString]);
-  for (p=[voidString cString];p && *p;p++)
+  unsigned orglen = [self length];
+  NSMutableData *new = [NSMutableData dataWithLength: orglen];
+  const unsigned char *read;
+  unsigned char *write;
+  unsigned i,n,l;
+
+  read  = [self UTF8String];
+  write = [new mutableBytes];
+  for (l=0,i=0,n=orglen;i<n;i++,l++)
     {
-      if (*p == '%')
-        {
-          //
-          // 2 hex digits follow...
-          //
-          int i=0;
-          uniChar=0;
-          for (i=0;p[1] && i<2;i++)
-            {
-              p++;
-              NSDebugMLLog(@"low",@"*p=%c %u",(char)*p,(unsigned int)*p);
-              uniChar <<= 4;
-              NSDebugMLLog(@"low",@"uniChar=%x",(unsigned int)uniChar);
-              if (isdigit(*p))
-                uniChar+=*p-'0';
-              else
-                uniChar+=toupper(*p)-'A'+10;
-              NSDebugMLLog(@"low",@"uniChar=%x",(unsigned int)uniChar);
-            };
-        }
-      else
-        uniChar=(unsigned char)*p;
-      unichars[uniCharsIndex]=uniChar;
-      uniCharsIndex++;
-    };
-  temp=[NSString stringWithCharacters:unichars
-                 length:uniCharsIndex];
-  NSDebugMLLog(@"low",@"temp=%@",temp);
-  NSDebugMLLog(@"low",@"temp data=%@",
-	       [temp dataUsingEncoding: [GSWMessage defaultEncoding]]);
-  return temp;
-};
+      switch (read[i])
+    	{
+    	    case '%':
+   	      {
+         		unsigned char chh, chl;
+         
+         		chh = read[++i];
+         		chh = isdigit(chh) ? chh - '0' : (toupper(chh) - 'A') + 10;
+                     
+         		chl = read[++i];
+         		chl = isdigit(chl) ? chl - '0' : (toupper(chl) - 'A') + 10;
+         
+         		*write++ = (chh << 4)|chl;
+         		break;
+   	      }
+    	    case '+':
+    	      {
+          		*write++ = ' ';
+          		break;
+    	      }
+    	    default:
+    	      {
+          		*write++ = read[i];
+    	      }
+    	}
+    }
+  [new setLength: l];
+
+  return AUTORELEASE([[NSString alloc] initWithData: new 
+                                           encoding: encoding]);
+}
 
 
 //--------------------------------------------------------------------
@@ -678,12 +673,13 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
 }
 
 //--------------------------------------------------------------------
--(NSDictionary*)dictionaryQueryString
+-(NSDictionary*) dictionaryQueryStringWithEncoding: (NSStringEncoding) encoding
 {
   return [self dictionaryWithSep1:@"&"
                withSep2:@"="
                withOptionUnescape:YES
-               forceArray:YES];
+               forceArray:YES
+               encoding: encoding];
 };
 
 //--------------------------------------------------------------------
@@ -694,7 +690,8 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
   return [self dictionaryWithSep1:sep1
                withSep2:sep2
                withOptionUnescape:unescape
-               forceArray:NO];
+               forceArray:NO
+               encoding:[GSWMessage defaultEncoding]];
 };
 
 //--------------------------------------------------------------------
@@ -702,6 +699,7 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
                           withSep2:(NSString*)sep2
                 withOptionUnescape:(BOOL)unescape
                         forceArray:(BOOL)forceArray// Put value in array even if there's only one value
+                          encoding:(NSStringEncoding) encoding
 {
   NSMutableDictionary*  pDico=nil;
   if ([self length]>0)
@@ -723,7 +721,7 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
                 {
                   key=[listParam objectAtIndex:0];
                   if (unescape)
-                    key=[key decodeURL];
+                    key=[key decodeURLEncoding: encoding];
                 }
               else if ([listParam count]==2)
                 {
@@ -731,8 +729,8 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
                   value=[listParam objectAtIndex:1];
                   if (unescape)
                     {
-                      key=[key decodeURL];
-                      value=[value decodeURL];
+                      key=[key decodeURLEncoding: encoding];
+                      value= [value decodeURLEncoding: encoding];
                     };
                 };
               if (key)

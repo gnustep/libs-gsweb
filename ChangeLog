@@ -1,3 +1,10 @@
+2005-03-10  David Wetzel <dave@turbocat.de>
+        * GSWeb.framework/GSWRequest.m
+        * GSWeb.framework/NSString+HTML.?
+                o replaced dictionaryQueryString by dictionaryQueryStringWithEncoding:
+                o replaced decodeURL by decodeURLEncoding:
+                debugging and coding together with David Ayers
+
 2005-01-19  David Wetzel <dave@turbocat.de>
         * GSWeb.framework/GSWElementID.m:
                 o set static SEL to NULL first

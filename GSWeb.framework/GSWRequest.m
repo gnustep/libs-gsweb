@@ -1329,11 +1329,19 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"requests",@"aFormData=%@",aFormData);
   NSDebugMLLog(@"requests",@"encoding=%ld",(long)encoding);
 
+#warning we should use ACSII encoding here? dave@turbocat.de
+// according to the the standard http://www.w3.org/International/O-URL-code.html,
+// URIs are encoded in NSASCIIStringEncoding with escape sequences cooresponding
+// to the hexadecimal value of the UTF-8 encoding.  Therefore the encoding should
+// only be relevant for -dictionaryQueryString and not for formString.
+// Yet it seems that browsers do not use UTF-8 consistently but the encoding 
+// specified by the response.
+
   formString=[[[NSString alloc]initWithData:aFormData
                                encoding:encoding] autorelease];
   NSDebugMLLog(@"requests",@"formString=%@",formString);
 
-  tmpFormData=[formString dictionaryQueryString];
+  tmpFormData=[formString dictionaryQueryStringWithEncoding: encoding];
   NSDebugMLLog(@"requests",@"tmpFormData=%@",tmpFormData);
 
   allKeys=[tmpFormData allKeys];
@@ -1594,6 +1602,7 @@ RCS_ID("$Id$")
   NSData* formData=nil;
   LOGObjectFnStart();
   formData=[self _formData];
+
   NSDebugMLLog(@"requests",@"formData=%@",formData);
   if (formData)
     {
