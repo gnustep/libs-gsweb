@@ -244,7 +244,7 @@ RCS_ID("$Id$")
                   };
                   
                   _uri=[[GSWDynamicURLString alloc]initWithCString:[anURL cString]
-                                               length:[anURL length]];
+                                               length:[anURL cStringLength]];
                   NSDebugMLLog(@"requests",@"uri=%@",_uri);
                   [_uri checkURL];
 

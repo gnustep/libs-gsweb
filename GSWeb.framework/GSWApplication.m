@@ -955,7 +955,7 @@ int GSWApplicationMain(NSString* applicationClassName,
           GSWAdaptor* firstAdaptor=[adaptors objectAtIndex:0];
           int port=[firstAdaptor port];
           GSWDynamicURLString* anURL=[[GSWDynamicURLString alloc]initWithCString:[cgiAdaptorURL cString]
-                                                        length:[cgiAdaptorURL length]];
+                                                        length:[cgiAdaptorURL cStringLength]];
           NSDebugMLog(@"anURL=%@",anURL);
           [anURL setURLPort:port];
           NSDebugMLog(@"anURL=%@",anURL);
