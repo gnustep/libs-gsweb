@@ -1,3 +1,9 @@
+2000-02-05  Mirko Viviani <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb/Application.m: in GSWApplicationMain() created an autorelease pool,
+	  released GSWApp when it exits from the run loop
+	* Doc/GNUstepWeb-HOWTO: updated
+
 2000-01-29  Manuel Guesdon <mguesdon@sbuilders.com>
 	
 	* GSWeb/GSWConfig.h: changed GSWOPTVALUE_FrameworksBaseURL to

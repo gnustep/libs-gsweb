@@ -37,6 +37,11 @@ application unlock
 
 
 */
+
+@interface GSWApplication (GSWApplicationPrivate)
+- (void)_setPool:(NSAutoreleasePool *)pool;
+@end
+
 //====================================================================
 GSWApplication* GSWApp=nil;
 NSDictionary* globalAppDefaultOptions = nil;
@@ -185,6 +190,9 @@ int GSWApplicationMain(NSString* _applicationClassName,
 //call NSBundle mainBundle
   NSProcessInfo* _processInfo=nil;
   NSString* envGNUstepStringEncoding=nil;
+  NSAutoreleasePool *appAutoreleasePool;
+
+  appAutoreleasePool = [NSAutoreleasePool new];
   /*
   //TODO
   DebugInstall("/dvlp/projects/app/Source/app.gswa/shared_debug_obj/ix86/linux-gnu/gnu-gnu-gnu-xgps/app_server");
@@ -290,9 +298,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 		}
 	  NS_ENDHANDLER;
 	};
+  DESTROY(appAutoreleasePool);
   if (result>=0 && GSWApp)
 	{
+	  [GSWApp _setPool:[NSAutoreleasePool new]];
 	  [GSWApp run];
+	  DESTROY(GSWApp);
 	};
   return result;
 };
@@ -369,6 +380,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	  [defaults registerDefaults:globalAppDefaultOptions];
 	};
 };
+
+//--------------------------------------------------------------------
+- (void)_setPool:(NSAutoreleasePool *)pool
+{
+	globalAutoreleasePool = pool;
+}
 
 //--------------------------------------------------------------------
 +(id)init
