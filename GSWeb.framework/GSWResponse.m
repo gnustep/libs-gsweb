@@ -149,7 +149,6 @@ static NSArray* cacheControlHeaderValues=nil;
 //--------------------------------------------------------------------
 -(void)disableClientCaching
 {
-  //OK
   LOGObjectFnStart();
   if (!_isClientCachingDisabled)
     {
@@ -160,12 +159,9 @@ static NSArray* cacheControlHeaderValues=nil;
       [self setHeader:@"no-cache"
             forKey:@"pragma"];
       
-      //TODO later
-      /*
-      if([GSWApp _allowsCacheControlHeader])
+      if([[GSWApp class] _allowsCacheControlHeader])
         [self setHeaders:cacheControlHeaderValues
               forKey:@"cache-control"];
-      */
       _isClientCachingDisabled=YES;
     };
   LOGObjectFnStop();
@@ -261,7 +257,6 @@ static NSArray* cacheControlHeaderValues=nil;
 //--------------------------------------------------------------------
 -(void)_finalizeInContext:(GSWContext*)aContext
 {
-  //OK
   GSWRequest* request=nil;
   int applicationNumber=-1;
   int dataLength=0;
@@ -287,15 +282,19 @@ static NSArray* cacheControlHeaderValues=nil;
 
   [self _resolveContentFaultsInContext:aContext];
 
+  // Finalize cookies
   [self _finalizeCookiesInContext:aContext];
-  request=[aContext request];
-  applicationNumber=[request applicationNumber];
-  NSDebugMLLog(@"low",@"applicationNumber=%d",applicationNumber);
-  //TODO
-  /*  if (_applicationNumber>=0)
-      {
-	  LOGError(); //TODO
-          }; */
+
+  // Add load info to headers
+  if (![self headersForKey:GSWHTTPHeader_LoadAverage[GSWebNamingConv]])
+    [self setHeader:[NSString stringWithFormat:@"%d",[GSWApp activeSessionsCount]]
+          forKey:GSWHTTPHeader_LoadAverage[GSWebNamingConv]];
+
+  // Add refusing new sessions info to headers
+  if ([GSWApp isRefusingNewSessions]
+      && ![self headersForKey:GSWHTTPHeader_RefuseSessions[GSWebNamingConv]])
+    [self setHeader:[NSString stringWithFormat:@"%d",(int)[GSWApp _refuseNewSessionsTimeInterval]]
+          forKey:GSWHTTPHeader_RefuseSessions[GSWebNamingConv]];
 
   [self _finalizeContentEncodingInContext:aContext];
 
