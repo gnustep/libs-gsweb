@@ -344,6 +344,11 @@ Bindings
 
               if (isEqual == NO && _selectedValue)
                 {
+                  NSDebugMLLog(@"gswdync",@"selectedValueValue [%@]=%@",
+                               [selectedValueValue class],selectedValueValue);
+                  NSDebugMLLog(@"gswdync",@"valueValue [%@]=%@",
+                               [valueValue class],valueValue);
+
                   // selected values is selections but on valueValue not itemValue
                   isEqual=SBIsValueEqual(valueValue,selectedValueValue);
 
