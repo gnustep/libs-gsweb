@@ -1,5 +1,6 @@
-/** GSWDefaultAdaptorThread.h - GSWeb: Class GSWDefaultAdaptorThread
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+/** GSWDefaultAdaptorThread.h - <title>GSWeb: Class GSWDefaultAdaptorThread</title>
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
@@ -82,9 +83,6 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
 +(void)sendRetryLasterResponseToStream:(NSFileHandle*)stream;
 +(void)sendConnectionRefusedResponseToStream:(NSFileHandle*)stream
                                  withMessage:(NSString*)message;
-+(void)saveResponse:(GSWResponse*)response
-               data:(NSData*)allResponseData
-      remoteAddress:(NSString*)remoteAddress;
 @end
 
 #endif

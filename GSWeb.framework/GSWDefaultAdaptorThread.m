@@ -377,7 +377,7 @@ RCS_ID("$Id$")
       NSMutableData* pendingData=nil;
       NSDate* maxDate=[NSDate dateWithTimeIntervalSinceNow:360]; //360s
       NSData* dataBlock=nil;
-      int sleepTime=250; //250ms
+      double sleepTime=0.250; //250ms
       int readenBytesNb=0;
       int headersBytesNb=0;
       int dataBytesNb=0;
@@ -524,7 +524,7 @@ RCS_ID("$Id$")
               isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
               if (!isElapsed)
                 {
-                  usleep(sleepTime);//Is this the good method ? //TODOV
+                  NSTimeIntervalSleep(sleepTime);//Is this the good method ? //TODOV
                   isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
                 };
             };
@@ -575,7 +575,7 @@ RCS_ID("$Id$")
   if ([requestLineArray count]!=3)
     {
       ExceptionRaise(@"GSWDefaultAdaptorThread",
-                     @"bad request first line (elements count %d != 3).\nrequestLine: %@\nrequestLineArray: %@",
+                     @"bad request first line (elements count %d != 3). requestLine: '%@'.RequestLineArray: %@",
                      [requestLineArray count],
                      requestLine,
                      requestLineArray);
@@ -692,9 +692,6 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
                                GSWHTTPHeader_Response_OK,
                                GSWHTTPHeader_Response_HeaderLineEnd[requestNamingConv]];
       NSString* empty=[NSString stringWithString:@"\n"];
-      NSDebugDeepMLLog(@"low",@"[GSWApplication saveResponsesPath]:%@",[GSWApplication saveResponsesPath]);
-      if ([GSWApplication saveResponsesPath])
-        allResponseData=(NSMutableData*)[NSMutableData data];
 
       NSDebugDeepMLLog(@"low",@"head:%@",head);
       NSDebugDeepMLLog(@"low",@"responseData:%@",responseData);
@@ -724,7 +721,6 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
       [responseData appendData:[empty dataUsingEncoding:NSASCIIStringEncoding]];
       NSDebugDeepMLLog(@"low",@"responseData:%@",responseData);
       
-      [allResponseData appendData:responseData];
       NS_DURING
         {
           [aStream writeData:responseData];
@@ -755,7 +751,6 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
                                               encoding:NSISOLatin1StringEncoding]
                              autorelease]);
 
-          [allResponseData appendData:responseData];
           NS_DURING
             {
               [aStream writeData:responseData];
@@ -773,10 +768,6 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
           NS_ENDHANDLER;
           NSDebugDeepMLLog0(@"info",@"Response content Written");
         };
-      if (allResponseData)
-        [self saveResponse:response
-              data:allResponseData
-              remoteAddress:remoteAddress];
     };
   [aStream closeFile];
   LOGObjectFnStop();
@@ -851,47 +842,5 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
   GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
   DESTROY(pool);
 };
-
-+(NSString*)savedResponseFilenameWithResponse:(GSWResponse*)response
-                                remoteAddress:(NSString*)remoteAddress
-{
-  NSString* dateString=[[NSCalendarDate calendarDate] descriptionWithCalendarFormat:@"%Y-%m-%d_%H-%M-%S.%F"];
-  return [NSString stringWithFormat:@"GSWeb-%@-Response-%@-%@-%p",
-                   [[GSWApplication application]name],
-                   dateString,
-                   (remoteAddress ? remoteAddress : @"unknown"),
-                   response];
-};
-
-+(void)saveResponse:(GSWResponse*)response
-               data:(NSData*)allResponseData
-      remoteAddress:(NSString*)remoteAddress
-{
-  NSString* path=nil;
-  LOGObjectFnStart();
-  path=[GSWApplication saveResponsesPath];
-  if (path)
-    {
-      path=[path stringByAppendingPathComponent:[self savedResponseFilenameWithResponse:response
-                                                      remoteAddress:remoteAddress]];
-      NSDebugDeepMLog(@"path=%@:",path);
-      NS_DURING
-        {
-          NSString* str=[[[NSString alloc]initWithData:allResponseData        
-                                          encoding:NSASCIIStringEncoding]autorelease];
-          [str writeToFile:path
-               atomically:NO];
-        }
-      NS_HANDLER
-        {
-          LOGException(@"GSWDefaultAdaptorThread: Exception:%@ (%@)",
-                       localException,[localException reason]);
-          NSDebugMLog(@"EXCEPTION GSWDefaultAdaptorThread: Exception:%@ (%@)",
-                      localException,[localException reason]);
-        }
-      NS_ENDHANDLER;
-    }
-  LOGObjectFnStop();
-}
 
 @end
