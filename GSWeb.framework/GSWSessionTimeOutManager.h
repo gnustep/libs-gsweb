@@ -48,8 +48,6 @@
 #endif
 };
 
--(id)init;
--(void)dealloc;
 -(void)updateTimeOutForSessionWithID:(NSString*)sessionID
                              timeOut:(NSTimeInterval)timeOut;
 -(void)handleTimer:(NSTimer*)timer;
@@ -60,6 +58,8 @@
             target:(id)target;
 -(void)lock;
 -(void)unlock;
+// Must not be locked
+-(GSWSessionTimeOut*)sessionTimeOutForSessionID:(NSString*)sessionID;
 @end
 
 //====================================================================
