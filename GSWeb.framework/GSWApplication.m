@@ -810,9 +810,12 @@ int GSWApplicationMain(NSString* applicationClassName,
                                             lifebeatPort:[[self class]lifebeatDestinationPort]
                                             interval:lifebeatInterval]);
           NSDebugMLLog(@"application",@"_lifebeatThread=%@",_lifebeatThread);
+#warning go only multi-thread if we want this!
+
           [NSThread detachNewThreadSelector:@selector(run:)
                     toTarget:_lifebeatThread
                     withObject:nil];
+
         };
     };
   LOGObjectFnStop();
@@ -3503,9 +3506,17 @@ to another instance **/
   NSDebugMLog(@"EXCEPTION=%@",anException);
   NS_DURING
     {
-      response=[self _handleErrorWithPageNamed:GSWExceptionPageName[GSWebNamingConv]
+//
+//      response=[self _handleErrorWithPageNamed:GSWExceptionPageName[GSWebNamingConv]
+//                     exception:anException
+//                     inContext:aContext];
+// we have only GSWExceptionPage until now
+
+      response=[self _handleErrorWithPageNamed:GSWExceptionPageName[0]
                      exception:anException
                      inContext:aContext];
+
+
     }
   NS_HANDLER
     {
