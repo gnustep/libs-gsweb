@@ -1,3 +1,7 @@
+2000-05-01  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWDebug.m: commented code for the new NSThread implementation.
+
 2000-04-20  Karl Kraft <karl@nfox.com>
         *   Removed assignments to va_list because they don't work on PPC
 
