@@ -41,7 +41,7 @@
   GSWAssociation* _formValue;
   GSWAssociation* _formValues;
   GSWAssociation* _invokeAction;
-  GSWAssociation* _elementId;
+  GSWAssociation* _elementID;
   GSWAssociation* _otherTagString;
   NSDictionary* _otherAssociations;
   BOOL _hasFormValues;
@@ -63,8 +63,8 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
 
--(id)_elementNameAppenedToResponse:(GSWResponse*)response
-                         inContext:(GSWContext*)context;
+-(id)_elementNameAppendToResponse:(GSWResponse*)response
+                        inContext:(GSWContext*)context;
 
 -(void)_appendTagWithName:(NSString*)name
                toResponse:(GSWResponse*)response

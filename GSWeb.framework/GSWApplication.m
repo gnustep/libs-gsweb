@@ -1622,6 +1622,40 @@ selfLockn,
             };
         };
     };
+
+  if (!componentDefinition)
+    {
+      static Class gswCClass = nil;
+      Class cClass = NSClassFromString([aName lastPathComponent]);
+      
+      if (gswCClass == nil)
+	{
+	  gswCClass = [GSWComponent class];
+	}
+
+      if (cClass != 0 && [cClass isSubclassOfClass: gswCClass])
+	{
+	  NSString *baseURL
+	    = @"/ERROR/RelativeUrlsNotSupportedWhenCompenentHasNoWrapper";
+	  NSString *bundlePath
+	    = [[NSBundle bundleForClass: cClass] bundlePath];
+	  NSString *frameworkName
+	    = [[bundlePath lastPathComponent] stringByDeletingPathExtension];
+
+	  componentDefinition
+	    = AUTORELEASE([[GSWComponentDefinition alloc]
+			    initWithName: aName
+			    path: bundlePath
+			    baseURL: baseURL
+			    frameworkName: frameworkName]);
+          if ([self isCachingEnabled])
+	    {
+	      [_componentDefinitionCache setObject: componentDefinition
+					 forKeys: aName, nil];
+	    }
+	}
+    }
+
   if (!componentDefinition)
     {
       NSLog(@"EXCEPTION: allFrameworks pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);

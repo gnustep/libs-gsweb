@@ -57,7 +57,7 @@ RCS_ID("$Id$")
       else
         {
           _temporaryKey=YES;
-          ASSIGN(_key,[NSString stringUniqueIdWithLength:4]);
+          ASSIGN(_key,[NSString stringUniqueIdWithLength:MAX(4,sizeof(NSTimeInterval))]);
         };
       NSDebugMLog(@"key=%@",_key);
     };

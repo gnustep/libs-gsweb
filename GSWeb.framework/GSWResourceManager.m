@@ -1146,22 +1146,27 @@ bundle if none is found
 -(void)setURLValuedElementData:(GSWURLValuedElementData*)aData
 {
   LOGObjectFnStart();
-  [self lock];
   NSDebugMLLog(@"resmanager",@"aData=%@",aData);
-  NS_DURING
+  if ([aData data])
     {
-      [self lockedCacheData:aData];
-    }
-  NS_HANDLER
-    {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-		   localException,[localException reason],__FILE__,__LINE__);
-      //TODO
+      [self lock];
+
+      NS_DURING
+	{
+	  [self lockedCacheData:aData];
+	}
+      NS_HANDLER
+	{
+	  NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
+		       localException,[localException reason],
+		       __FILE__,__LINE__);
+	  //TODO
+	  [self unlock];
+	  [localException raise];
+	}
+      NS_ENDHANDLER
       [self unlock];
-      [localException raise];
     }
-  NS_ENDHANDLER;
-  [self unlock];
   LOGObjectFnStop();
 };
 

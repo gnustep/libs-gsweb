@@ -354,6 +354,12 @@ id noSelectionString__Key = @"noSelectionString";
 id displayString__Key = @"displayString";
 id filePath__Key = @"filePath";
 id language__Key= @"language";
+id omitTags__Key = @"omitTag";
+id formValue__Key = @"formValue";
+id formValues__Key = @"formValues";
+id invokeAction__Key = @"invokeAction";
+id elementID__Key = @"elementID";
+id otherTagString__Key = @"otherTagString";
 
 //GSWeb additions
 id redirectURL__Key = @"redirectURL";

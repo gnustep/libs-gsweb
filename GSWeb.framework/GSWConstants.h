@@ -355,6 +355,12 @@ extern id noSelectionString__Key;
 extern id displayString__Key;
 extern id filePath__Key;
 extern id language__Key;
+extern id omitTags__Key;
+extern id formValue__Key;
+extern id formValues__Key;
+extern id invokeAction__Key;
+extern id elementID__Key;
+extern id otherTagString__Key;
 
 //GSWeb Additions
 extern id redirectURL__Key;

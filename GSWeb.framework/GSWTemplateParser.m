@@ -76,6 +76,70 @@ RCS_ID("$Id$")
 }
 
 //--------------------------------------------------------------------
++(GSWElement*)templateWithHTMLString:(NSString *)HTMLString
+                 declarationString:(NSString *)pageDefString
+                          languages:(NSArray *)languages
+{
+  return [self templateNamed: nil
+              inFrameworkNamed: nil
+              withParserType: [self defaultTemplateParserType]
+              parserClassName: nil
+              withString: HTMLString
+              encoding: NSISOLatin1StringEncoding
+              fromPath: nil
+              definitionsString: pageDefString
+              languages: languages
+              definitionPath: nil];
+
+  /*
+  GSWTemplateParserType parserType;
+  GSWElement   *rootElement;
+  NSDictionary *declarations;
+
+  declarations = [GSWDeclarationParser declarationsWithString: pageDefString];
+  parserType=[self defaultTemplateParserType];
+
+  switch(parserType)
+    {
+      case GSWTemplateParserType_XMLHTML:
+      case GSWTemplateParserType_XMLHTMLNoOmittedTags:
+       {
+         rootElement
+           = [GSWTemplateParserXMLHTML templateWithHTMLString: HTMLString
+                                       declarations: declarations
+                                       languages: languages];
+         break;
+       }
+      case GSWTemplateParserType_XML:
+       {
+         rootElement
+           = [GSWTemplateParserXML templateWithHTMLString: HTMLString
+                                   declarations: declarations
+                                   languages: languages];
+          break;
+       }
+      case GSWTemplateParserType_ANTLR:
+       {
+         rootElement
+           = [GSWTemplateParserANTLR templateWithHTMLString: HTMLString
+                                   declarations: declarations
+                                   languages: languages];
+          break;
+       }
+      default:
+       {
+         rootElement
+           = [GSWTemplateParserXMLHTML templateWithHTMLString: HTMLString
+                                       declarations: declarations
+                                       languages: languages];
+          break;
+       }
+    };
+
+  return rootElement;
+  */
+}
+
 +(GSWElement*)templateNamed:(NSString*)aName
            inFrameworkNamed:(NSString*)aFrameworkName
              withParserType:(GSWTemplateParserType)parserType

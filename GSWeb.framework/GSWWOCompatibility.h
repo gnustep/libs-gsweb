@@ -114,7 +114,7 @@
 #define GSWHyperlink                    WOHyperlink
 #define GSWImage                        WOImage
 #define GSWImageButton                  WOImageButton
-#define GSWJavaScript                   WOJaveScript
+#define GSWJavaScript                   WOJavaScript
 #define GSWNestedList                   WONestedList
 #define GSWParam                        WOParam
 #define GSWPasswordField                WOPasswordField
