@@ -945,6 +945,13 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
+// calls the class because on MacOSX KVC does not support "application.class.isDebuggingEnabled"
+- (BOOL)isDebuggingEnabled
+{
+  return [[self class] isDebuggingEnabled];
+};
+
+//--------------------------------------------------------------------
 //	lockRequestHandling
 -(BOOL)isRequestHandlingLocked
 {
@@ -1798,7 +1805,8 @@ int GSWApplicationMain(NSString* applicationClassName,
                            request:nil];
       NSDebugMLLog(@"gswcomponents",@"url=%@",url);
       NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-      NSDebugMLog(!@"Component %@ Found at=%@",aName,path);
+      //NSDebugMLog(!@"Component %@ Found at=%@",aName,path);
+
       componentDefinition=[[[GSWComponentDefinition alloc] initWithName:aName
                                                            path:path
                                                            baseURL:url
