@@ -375,9 +375,12 @@ static Class standardClass = Nil;
               // Force complete URLs
               if (isSecure!=requestIsSecure)
                 completeUrlsPreviousState=[aContext _generateCompleteURLs];
-              anUrl=(NSString*)[aContext componentActionURLIsSecure:isSecure];
+              // GSWDynamicURLString does not behave like a NSString that is why we *need*
+              // description as a workaround until GSWDynamicURLString is fixed
+              #warning check this! dave@turbocat.de
+              anUrl=[[aContext componentActionURLIsSecure:isSecure] description];
               NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
-              GSWResponse_appendContentString(aResponse,anUrl);
+              GSWResponse_appendContentString(aResponse,anUrl); 
               [self _appendQueryStringToResponse:aResponse
                     inContext:aContext];
               [self _appendFragmentToResponse:aResponse
