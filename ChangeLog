@@ -1,12 +1,14 @@
-2004-05-18  David Ayers  <d.ayers@inode.at>
+ChangeLog
 
-	* GSWeb.framework/GSUtils.m (boolValueWithDefaultFor): Do not
-	reimplement defaults bool evaluation semantics differently from
-	-base / Foundation.
-	* GSWeb.framework/GSWDeclarationParser.m (-[tryParseBoolean]):
-	Make more robust and allow upper and lower case variants and
-	single letter variants of both YES/NO and true/false.
-	
+2004-06-16 David Wetzel <dave@turbocat.de>
+
+        * GSWeb.framework/GSWDynamicURLString.m
+        A bit optimized based on Manuel's code.
+        * GSWeb.framework/GSWApplication.m
+        added -(BOOL)isDebuggingEnabled
+        * GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.gswd
+        Fixed for MacOSX KVC. condition = application.isDebuggingEnabled
+
 2004-06-14  David Wetzel  <dave@turbocat.de>
 	
         * GSWeb.framework/GSWElementIDString.m
@@ -16,6 +18,16 @@
         * GSWeb.framework/GSWMessage.m
         in appendContentString: append string only if not nil 
         (patch from Philip Moetteli)
+
+// DATE WRONG?? 
+2004-05-18  David Ayers  <d.ayers@inode.at>
+
+        * GSWeb.framework/GSUtils.m (boolValueWithDefaultFor): Do not
+        reimplement defaults bool evaluation semantics differently from
+        -base / Foundation.
+        * GSWeb.framework/GSWDeclarationParser.m (-[tryParseBoolean]):
+        Make more robust and allow upper and lower case variants and
+        single letter variants of both YES/NO and true/false.
 
 2004-06-01  David Wetzel  <dave@turbocat.de>
 
