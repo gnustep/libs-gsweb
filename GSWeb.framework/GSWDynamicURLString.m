@@ -1,6 +1,6 @@
 /** GSWDynamicURLString.m - <title>GSWeb: Class GSWDynamicURLString</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -33,18 +33,29 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static SEL appendStringSel = NULL;
+
 //====================================================================
 @implementation GSWDynamicURLString
+
++ (void) initialize
+{
+  if (self == [GSWDynamicURLString class])
+    {
+      appendStringSel = @selector(appendString:);
+    };
+};
 
 //--------------------------------------------------------------------
 -(id)init
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   if ((self=[super init]))
     {
       _url=[NSMutableString new];
-      NSDebugMLLog(@"low",@"url class=%@",[_url class]);
+      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
     };
   LOGObjectFnStop();
   return self;
@@ -57,6 +68,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCharactersNoCopy:chars
@@ -76,6 +88,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCharacters:chars
@@ -94,6 +107,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCStringNoCopy:byteString
@@ -112,16 +126,17 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithCString:byteString
                                    length:length];
-      NSDebugMLLog(@"low",@"url=%@",_url);
-      NSDebugMLLog(@"low",@"url class=%@",[_url class]);
+      //NSDebugMLLog(@"low",@"url=%@",_url);
+      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
       if (byteString)
         [self _parse];
-      NSDebugMLLog(@"low",@"url=%@",_url);
-      NSDebugMLLog(@"low",@"url class=%@",[_url class]);
+      //NSDebugMLLog(@"low",@"url=%@",_url);
+      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
     };
   LOGObjectFnStop();
   return self;
@@ -132,14 +147,15 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
-      NSDebugMLLog(@"low",@"byteString=%s",byteString);
+      //NSDebugMLLog(@"low",@"byteString=%s",byteString);
       _url=[[NSMutableString alloc]initWithCString:byteString];
       if (byteString)
         [self _parse];
-      NSDebugMLLog(@"low",@"url=%@",_url);
-      NSDebugMLLog(@"low",@"url class=%@",[_url class]);
+      //NSDebugMLLog(@"low",@"url=%@",_url);
+      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
     };
   LOGObjectFnStop();
   return self;
@@ -150,6 +166,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithString:string];
@@ -165,6 +182,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       va_list ap;
@@ -184,6 +202,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithFormat:format
@@ -200,6 +219,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithData:data
@@ -216,6 +236,7 @@ RCS_ID("$Id$")
 {
   //OK
   LOGObjectFnStart();
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self=[super init]))
     {
       _url=[[NSMutableString alloc]initWithContentsOfFile:path];
@@ -228,6 +249,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
+  DESTROY(_urlBeginning);
   DESTROY(_url);
   DESTROY(_prefix);
   DESTROY(_applicationName);
@@ -241,11 +263,13 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithCoder:(NSCoder*)coder
 {
+  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   //We are a primitive ! if ((self = [self init]))
     {
       [coder decodeValueOfObjCType:@encode(id)
              at:&_url];
-      _composed=YES;
+      _urlASImp=NULL;
+      _flags.composed=YES;
       [self _parse];
     };
   return self;
@@ -261,7 +285,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 - (unsigned) length
 {
-  if (!_composed)
+  if (!_flags.composed)
   {
     [self _compose];
   }
@@ -271,7 +295,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 - (unichar) characterAtIndex: (unsigned)index
 {
-  if (!_composed)
+  if (!_flags.composed)
   {
     [self _compose];
   }
@@ -283,7 +307,7 @@ RCS_ID("$Id$")
 		       withString: (NSString*)aString
 {
   LOGObjectFnStart();
-  if (!_composed)
+  if (!_flags.composed)
   {
     [self _compose];
   }
@@ -297,13 +321,18 @@ RCS_ID("$Id$")
 {
   GSWDynamicURLString* clone = nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"url class=%@",[_url class]);
+  //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
   clone=[[isa allocWithZone:zone] init];
+  //NSDebugMLLog(@"low",@"new clone GSWDynamicURLString %p => %p",self,clone);
   if (clone)
     {
+      DESTROY(_urlBeginning);
+      clone->_urlBeginning=[_urlBeginning mutableCopyWithZone:zone];
+      clone->_urlBeginningASImp=NULL;
       DESTROY(clone->_url);
       clone->_url=[_url mutableCopyWithZone:zone];
-      NSDebugMLLog(@"low",@"clone->_url class=%@",[clone->_url class]);
+      clone->_urlASImp=NULL;
+      //NSDebugMLLog(@"low",@"clone->_url class=%@",[clone->_url class]);
       ASSIGNCOPY(clone->_protocol,_protocol);
       ASSIGNCOPY(clone->_host,_host);
       clone->_port=_port;
@@ -314,7 +343,8 @@ RCS_ID("$Id$")
       ASSIGNCOPY(clone->_queryString,_queryString);
       ASSIGNCOPY(clone->_requestHandlerPath,_requestHandlerPath);
       clone->_applicationNumber=_applicationNumber;
-      clone->_composed=_composed;
+      clone->_flags.composed=_flags.composed;
+      clone->_flags.beginningComposed=_flags.beginningComposed;
     };
   LOGObjectFnStop();
   return clone;
@@ -332,7 +362,7 @@ RCS_ID("$Id$")
 -(void)forwardInvocation:(NSInvocation*)invocation
 {
   NSString* urlBackup=nil;
-  if (!_composed)
+  if (!_flags.composed)
     [self _compose];
   urlBackup=[_url copy];
   [invocation invokeWithTarget:_url];
@@ -354,75 +384,108 @@ RCS_ID("$Id$")
 
 -(void)_compose
 {
-  if (!_composed)
+  if (!_flags.composed)
     {
       if (_url)
         {
           int length=[_url length];
-          NSDebugMLLog(@"low",@"url %@ class=%@",_url,[_url class]);
+          //NSDebugMLLog(@"low",@"url %p %@ class=%@",_url,_url,[_url class]);
           if (length>0)
             [_url deleteCharactersInRange:NSMakeRange(0,length)];
         }
       else
-        _url=[NSMutableString new];
-      if (_protocol)
         {
-          if (_host)
+          _url=[NSMutableString new];
+          _urlASImp=NULL;
+        };
+
+      if (!_flags.beginningComposed)
+        {
+          if (_urlBeginning)
             {
-              [_url appendString:_protocol];
-              [_url appendString:@"://"];
-            }
-          else if (_port)
-            {
-              [_url appendString:_protocol];
-              [_url appendString:@"://localhost"];
-            }
-          else if (_prefix)
-            {
-              [_url appendString:_protocol];
-              [_url appendString:@":/"];
+              int length=[_urlBeginning length];
+              if (length>0)
+                [_urlBeginning deleteCharactersInRange:NSMakeRange(0,length)];
             }
           else
             {
-              [_url appendString:_protocol];
-              [_url appendString:@"://"];
-            }
+              _urlBeginning=[NSMutableString new];
+              _urlBeginningASImp=NULL;
+            };
+
+          if (!_urlBeginningASImp)
+            _urlBeginningASImp = [_urlBeginning methodForSelector:appendStringSel];
+          if (_protocol)
+            {
+              if (_host)
+                {
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://");
+                }
+              else if (_port)
+                {
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://localhost");
+                }
+              else if (_prefix)
+                {
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@":/");
+                }
+              else
+                {
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://");
+                }
+            };
+          if (_host)
+            (*_urlBeginningASImp)(_urlBeginning,appendStringSel,_host);
+          if (_port)
+            {
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@":");
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWIntToNSString(_port));
+              //[_urlBeginning appendFormat:@":%d",_port];              
+            };
+          if (_prefix)
+            {
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,_prefix);
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
+            };
+          if (_applicationName)
+            {
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,_applicationName);
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@".");
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWApplicationSuffix[GSWebNamingConv]);
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
+            };
+          if (_applicationNumber>=0)
+            {
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWIntToNSString(_applicationNumber));
+              (*_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
+              //[_urlBeginning  appendFormat:@"%d/",_applicationNumber];          
+            };
         };
-      if (_host)
-        [_url appendString:_host];
-      if (_port)
-        {
-          [_url appendFormat:@":%d",_port];
-        };
-      if (_prefix)
-        {
-          [_url appendString:_prefix];
-          [_url appendString:@"/"];
-        };
-      if (_applicationName)
-        {
-          [_url  appendString:_applicationName];
-          [_url  appendString:@"."];
-          [_url  appendString:GSWApplicationSuffix[GSWebNamingConv]];
-          [_url  appendString:@"/"];
-        };
-      if (_applicationNumber>=0)
-        [_url  appendFormat:@"%d/",_applicationNumber];
+
+      if (!_urlASImp)
+        _urlASImp = [_url methodForSelector:appendStringSel];
+
+      (*_urlASImp)(_url,appendStringSel,_urlBeginning);
+
       if (_requestHandlerKey)
         {
-          [_url  appendString:_requestHandlerKey];
-          [_url  appendString:@"/"];
+          (*_urlASImp)(_url,appendStringSel,_requestHandlerKey);
+          (*_urlASImp)(_url,appendStringSel,@"/");
         };
       if (_requestHandlerPath)
         {
-          [_url  appendString:_requestHandlerPath];
+          (*_urlASImp)(_url,appendStringSel,_requestHandlerPath);
         };
       if (_queryString)
         {
-          [_url  appendString:@"?"];
-          [_url  appendString:_queryString];
+          (*_urlASImp)(_url,appendStringSel,@"?");
+          (*_urlASImp)(_url,appendStringSel,_queryString);
         };
-      NSDebugMLLog(@"low",@"url %@ class=%@",_url,[_url class]);
+      //NSDebugMLLog(@"low",@"url %@ class=%@",_url,[_url class]);
     };
 };
 
@@ -435,8 +498,11 @@ RCS_ID("$Id$")
   DESTROY(_requestHandlerKey);
   DESTROY(_queryString);
   DESTROY(_requestHandlerPath);
+
   _applicationNumber=-1;
-  _composed=NO; //??
+  _flags.composed=NO; //??
+  _flags.beginningComposed=NO;
+
   if (_url)
     {
       NSArray* components=nil;
@@ -453,20 +519,20 @@ RCS_ID("$Id$")
             };
           Left=[Left substringToIndex:queryStringStartRange.location];
         };
-      NSDebugMLLog(@"low",@"Left [%@]",Left);
-      NSDebugMLLog(@"low",@"queryString [%@]",_queryString);
+      //NSDebugMLLog(@"low",@"Left [%@]",Left);
+      //NSDebugMLLog(@"low",@"queryString [%@]",_queryString);
       
       //Protocol
       protocolEndRange=[Left rangeOfString:@"://"];
       if (protocolEndRange.length>0)
         {
           ASSIGN(_protocol,[Left substringToIndex:protocolEndRange.location]);
-          NSDebugMLLog(@"low",@"protocol [%@]",_protocol);
+          //NSDebugMLLog(@"low",@"protocol [%@]",_protocol);
           if (protocolEndRange.location+protocolEndRange.length<[Left length])
             Left=[Left substringFromIndex:protocolEndRange.location+protocolEndRange.length];
           else
             Left=nil;
-          NSDebugMLLog(@"low",@"Left [%@]",Left);
+          //NSDebugMLLog(@"low",@"Left [%@]",Left);
           //Host
           if ([Left length]>0)
             {
@@ -474,33 +540,33 @@ RCS_ID("$Id$")
               if (hostEndRangePort.length>0)
                 {
                   ASSIGN(_host,[Left substringToIndex:hostEndRangePort.location]);
-                  NSDebugMLLog(@"low",@"host [%@]",_host);
+                  //NSDebugMLLog(@"low",@"host [%@]",_host);
                   if (hostEndRangePort.location+hostEndRangePort.length<[Left length])
                     Left=[Left substringFromIndex:hostEndRangePort.location+hostEndRangePort.length];
                   else
                     Left=nil;
-                  NSDebugMLLog(@"low",@"Left [%@]",Left);
+                  //NSDebugMLLog(@"low",@"Left [%@]",Left);
                   if (Left)
                     {
                       NSRange portEndRange=[Left rangeOfString:@"/"];
                       if (portEndRange.length>0)
                         {
                           NSString* portString=[Left substringToIndex:portEndRange.location];
-                          NSDebugMLLog(@"low",@"portString [%@]",Left);
+                          //NSDebugMLLog(@"low",@"portString [%@]",Left);
                           _port=[portString intValue];
-                          NSDebugMLLog(@"low",@"port [%d]",_port);
+                          //NSDebugMLLog(@"low",@"port [%d]",_port);
                           if (portEndRange.location+portEndRange.length<[Left length])
                             Left=[Left substringFromIndex:portEndRange.location+portEndRange.length-1]; //Keep the '/'
                           else
                             Left=nil;
-                          NSDebugMLLog(@"low",@"Left [%@]",Left);
+                          //NSDebugMLLog(@"low",@"Left [%@]",Left);
                         }
                       else
                         {
                           _port=[Left intValue];
-                          NSDebugMLLog(@"low",@"port [%d]",_port);
+                          //NSDebugMLLog(@"low",@"port [%d]",_port);
                           Left=nil;
-                          NSDebugMLLog(@"low",@"Left [%@]",Left);
+                          //NSDebugMLLog(@"low",@"Left [%@]",Left);
                         };
                     };
                 }
@@ -510,27 +576,27 @@ RCS_ID("$Id$")
                   if (hostEndRangeSlash.length>0)
                     {
                       ASSIGN(_host,[Left substringToIndex:hostEndRangeSlash.location]);
-                      NSDebugMLLog(@"low",@"host [%@]",_host);
+                      //NSDebugMLLog(@"low",@"host [%@]",_host);
                       if (hostEndRangeSlash.location+hostEndRangeSlash.length<[Left length])
                         Left=[Left substringFromIndex:hostEndRangeSlash.location+hostEndRangeSlash.length-1];//Keep the '/'
                       else
                         Left=nil;
-                      NSDebugMLLog(@"low",@"Left [%@]",Left);
+                      //NSDebugMLLog(@"low",@"Left [%@]",Left);
                     }
                   else
                     {
                       ASSIGN(_host,Left);
-                      NSDebugMLLog(@"low",@"host [%@]",_host);
+                      //NSDebugMLLog(@"low",@"host [%@]",_host);
                       Left=nil;
-                      NSDebugMLLog(@"low",@"Left [%@]",Left);
+                      //NSDebugMLLog(@"low",@"Left [%@]",Left);
                     };
                 };
             };
         };
       
-      NSDebugMLLog(@"low",@"Left [%@]",Left);
+      //NSDebugMLLog(@"low",@"Left [%@]",Left);
       //prefix
-      NSDebugMLLog(@"low",@"prefix: components [%@]",components);
+      //NSDebugMLLog(@"low",@"prefix: components [%@]",components);
       components=[Left componentsSeparatedByString:@"/"];
       for(tmpIndex=index;!_prefix && tmpIndex<[components count];tmpIndex++)
         {
@@ -548,7 +614,7 @@ RCS_ID("$Id$")
       if (!_prefix)
         {
           //TODO Erreur
-          NSDebugMLLog(@"low",@"No prefix in [%@]",_url);
+          //NSDebugMLLog(@"low",@"No prefix in [%@]",_url);
         }
       else
         {
@@ -556,12 +622,13 @@ RCS_ID("$Id$")
           if (index>=[components count])
             {
               //TODO Erreur
-              NSDebugMLLog(@"low",@"No applicationName in [%@]",_url);
+              //NSDebugMLLog(@"low",@"No applicationName in [%@]",_url);
             }
           else
             {
-              NSDebugMLLog(@"low",@"applicationName: components [%@]",
-                           [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+              /*NSDebugMLLog(@"low",@"applicationName: components [%@]",
+              [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+              */
               for(tmpIndex=index;!_applicationName && tmpIndex<[components count];tmpIndex++)
                 {
                   NSString* tmp=[components objectAtIndex:tmpIndex];
@@ -593,23 +660,26 @@ RCS_ID("$Id$")
               //Application Number
               if (index<[components count])
                 {
-                  NSDebugMLLog(@"low",@"applicationNumber: components [%@]",
-                               [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);                  
+                  /*NSDebugMLLog(@"low",@"applicationNumber: components [%@]",
+                    [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                  */
                   ASSIGN(_applicationNumberString,[components objectAtIndex:index]);
                   _applicationNumber=[_applicationNumberString intValue];
                   index++;
                   //requestHandlerKey
                   if (index<[components count])
                     {
-                      NSDebugMLLog(@"low",@"requestHandlerKey: _components [%@]",
-                                   [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                      /*NSDebugMLLog(@"low",@"requestHandlerKey: _components [%@]",
+                        [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                      */
                       ASSIGN(_requestHandlerKey,[components objectAtIndex:index]);
                       index++;
                       //requestHandlerPath
                       if (index<[components count])
                         {
-                          NSDebugMLLog(@"low",@"requestHandlerPath: components [%@]",
-                                       [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                          /* NSDebugMLLog(@"low",@"requestHandlerPath: components [%@]",
+                             [components subarrayWithRange:NSMakeRange(index,[components count]-index)]);
+                          */
                           ASSIGN(_requestHandlerPath,[[components subarrayWithRange:NSMakeRange(index,[components count]-index)]componentsJoinedByString:@"/"]);
                           index++;
                         };
@@ -618,13 +688,13 @@ RCS_ID("$Id$")
             };
         };
     };
-  NSDebugMLLog(@"low",@"url=%@",_url);
-  NSDebugMLLog(@"low",@"prefix=%@",_prefix);
-  NSDebugMLLog(@"low",@"applicationName=%@",_applicationName);
-  NSDebugMLLog(@"low",@"applicationNumberString=%@",_applicationNumberString);
-  NSDebugMLLog(@"low",@"requestHandlerKey=%@",_requestHandlerKey);
-  NSDebugMLLog(@"low",@"queryString=%@",_queryString);
-  NSDebugMLLog(@"low",@"requestHandlerPath=%@",_requestHandlerPath);
+  //NSDebugMLLog(@"low",@"url=%@",_url);
+  //NSDebugMLLog(@"low",@"prefix=%@",_prefix);
+  //NSDebugMLLog(@"low",@"applicationName=%@",_applicationName);
+  //NSDebugMLLog(@"low",@"applicationNumberString=%@",_applicationNumberString);
+  //NSDebugMLLog(@"low",@"requestHandlerKey=%@",_requestHandlerKey);
+  //NSDebugMLLog(@"low",@"queryString=%@",_queryString);
+  //NSDebugMLLog(@"low",@"requestHandlerPath=%@",_requestHandlerPath);
 };
 
 @end
@@ -699,7 +769,7 @@ RCS_ID("$Id$")
 //NDFN
 -(NSString*)urlPortString
 {
-  return [NSString stringWithFormat:@"%d",_port];
+  return GSWIntToNSString(_port);
 };
 
 //--------------------------------------------------------------------
@@ -714,19 +784,39 @@ RCS_ID("$Id$")
 -(NSString*)urlProtocolHostPort
 {
   NSMutableString* url=[NSMutableString string];
+  IMP imp=[url methodForSelector:appendStringSel];
+
   if (_protocol)
     {
       if (_host)
-        [url appendFormat:@"%@://",_protocol];
+        {
+          (*imp)(url,appendStringSel,_protocol);
+          (*imp)(url,appendStringSel,@"://");
+        }
       else if (_port)
-        [url appendFormat:@"%@://localhost",_protocol];
+        {
+          (*imp)(url,appendStringSel,_protocol);
+          (*imp)(url,appendStringSel,@"://localhost");
+        }
+      else if (_prefix)
+        {
+          (*imp)(url,appendStringSel,_protocol);
+          (*imp)(url,appendStringSel,@":/");
+        }
       else
-        [url appendFormat:@"%@://",_protocol];
+        {
+          (*imp)(url,appendStringSel,_protocol);
+          (*imp)(url,appendStringSel,@"://");
+        }
     };
   if (_host)
-    [url appendString:_host];
+    (*imp)(url,appendStringSel,_host);
   if (_port)
-    [url appendFormat:@":%d",_port];
+    {
+      (*imp)(url,appendStringSel,@":");
+      (*imp)(url,appendStringSel,GSWIntToNSString(_port));
+    };
+
   return [NSString stringWithString:url];
 };
 
@@ -738,7 +828,7 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   ASSIGN(_requestHandlerPath,aString);
-  _composed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -747,7 +837,7 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   ASSIGN(_queryString,aString);
-  _composed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -756,7 +846,7 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   ASSIGN(_requestHandlerKey,aString);
-  _composed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -765,7 +855,8 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   _applicationNumber=applicationNumber;
-  _composed=NO;
+  _flags.beginningComposed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -774,7 +865,8 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   ASSIGN(_applicationName,aString);
-  _composed=NO;
+  _flags.beginningComposed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -783,7 +875,8 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   ASSIGN(_prefix,aString);
-  _composed=NO;
+  _flags.beginningComposed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -793,7 +886,8 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   ASSIGN(_protocol,aString);
-  _composed=NO;
+  _flags.beginningComposed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -803,7 +897,8 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   ASSIGN(_host,aString);
-  _composed=NO;
+  _flags.beginningComposed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -813,7 +908,8 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   _port=[aString intValue];
-  _composed=NO;
+  _flags.beginningComposed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
@@ -823,7 +919,8 @@ RCS_ID("$Id$")
 {
   LOGObjectFnStart();
   _port=port;
-  _composed=NO;
+  _flags.beginningComposed=NO;
+  _flags.composed=NO;
   LOGObjectFnStop();
 };
 
