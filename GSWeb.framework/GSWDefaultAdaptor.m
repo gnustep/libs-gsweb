@@ -411,7 +411,8 @@ int allow_severity = LOG_INFO;
                                        @"[waitingThreads count]=%d [threads count]=%d",
                                        [_waitingThreads count],
                                        [_threads count]);
-                      if ([_threads count]<_workerThreadCount)
+                      if ([_threads count]<_workerThreadCount 
+			  || _isMultiThreadEnabled == NO)
                         {
                           [_threads addObject:newThread];
                           NSDebugLockMLLog(@"trace",@"isMultiThreadEnabled=%d",

@@ -602,7 +602,8 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   if (!_declarations)
     {
-      NSDebugMLLog(@"GSWTemplateParser",@"_declarationsFilePath=%@",_declarationsFilePath);
+      NSDebugMLLog(@"GSWTemplateParser",@"_declarationsFilePath=%@",
+		   _declarationsFilePath);
       if ([_declarationsString length]==0)
         {
           ASSIGN(_declarations,[NSDictionary dictionary]);
@@ -612,9 +613,14 @@ RCS_ID("$Id$")
 	  NSDictionary* declarations=nil;
 
           DESTROY(_processedDeclarationsFilePaths);
-          ASSIGN(_processedDeclarationsFilePaths,[NSMutableSet setWithObject:_declarationsFilePath]);
+          ASSIGN(_processedDeclarationsFilePaths, 
+		 (_declarationsFilePath 
+		  ? [NSMutableSet setWithObject:_declarationsFilePath]
+		  : [NSMutableSet set]));
 
-          NSDebugMLLog(@"GSWTemplateParser",@"ParseDeclarations path=%@: declarationsString:%@\n",_declarationsFilePath,_declarationsString);
+          NSDebugMLLog(@"GSWTemplateParser",
+		       @"ParseDeclarations path=%@: declarationsString:%@\n",
+		       _declarationsFilePath,_declarationsString);
           declarations = [self parseDeclarationsString:_declarationsString
                                named:_templateName
                                inFrameworkNamed:_frameworkName];

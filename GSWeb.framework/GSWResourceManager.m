@@ -1591,8 +1591,7 @@ bundle if none is found
       NSDebugMLLog(@"resmanager",@"globalAppGSWBundle=%@",globalAppGSWBundle);
       //???
       {
-        NSBundle* resourceManagerBundle=[NSBundle bundleForClass:
-                                                    NSClassFromString(@"GSWResourceManager")];
+        NSBundle* resourceManagerBundle = [NSBundle bundleForClass: self];
         NSDebugMLLog(@"resmanager",@"resourceManagerBundle bundlePath=%@",[resourceManagerBundle bundlePath]);
         globalMimePListPathName=[resourceManagerBundle pathForResource:@"MIME"
                                                        ofType:@"plist"]; //TODO should return /usr/GNUstep/Libraries/GNUstepWeb/GSWeb.framework/Resources/MIME.plist

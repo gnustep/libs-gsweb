@@ -1,3 +1,22 @@
+2004-04-02  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWHTMLRawParser.m
+	([GSWHTMLRawParser _skipQuotedStringWithQuote:index:stopIndex:]):
+	Use decimal instead of object format specifier.  Reformat.
+
+	* GSWeb.framework/GSWTemplateParser.m:
+	([GSWTemplateParser parseDeclarations]): Test
+	_declarationsFilePath before inserting it into a mutable set.
+	Reformat.
+
+	* GSWeb.framework/GSWDefaultAdaptor.m
+	([GSWDefaultAdaptor announceNewConnection:]):  Fix for
+	WorkerThreadCount 0.
+
+	* GSWeb.framework/GSWResourceManager.m
+	([GSWResourceManager _applicationGSWBundle]): Use self instead of
+	NSClassFromString to obtain correct class for WO namespace.
+	
 2004-03-26  David Ayers  <d.ayers@inode.at>
 
 	* GSWAdaptors/common/GSWTemplates.c (GSWTemplate_GetTemplate):

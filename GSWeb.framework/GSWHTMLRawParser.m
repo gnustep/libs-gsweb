@@ -285,11 +285,13 @@ An exception is raised if the end quote is not found,...
     {
       if (*indexPtr>stopIndex)
         [NSException raise:NSInvalidArgumentException 
-                     format:@"Found end of string before end quote when skipping quoted string starting at %@.",
+                     format:@"Found end of string before end quote when "
+		     @"skipping quoted string starting at %d.",
                      [self currentLineIndex]];
       else
         [NSException raise:NSInvalidArgumentException 
-                     format:@"Didn't found end quote when skipping quoted string starting at %@. Found '%c' instead",
+                     format:@"Didn't find end quote when skipping quoted "
+		     @"string starting at %d. Found '%c' instead",
                      [self currentLineIndex],(char)_uniBuf[_index]];
     };
 
