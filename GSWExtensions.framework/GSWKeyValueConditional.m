@@ -39,21 +39,37 @@ RCS_ID("$Id$")
 //===================================================================================
 @implementation GSWKeyValueConditional
 
+//--------------------------------------------------------------------
 - (BOOL) synchronizesVariablesWithBindings
 {
     return NO;
 }
 
+//--------------------------------------------------------------------
 - (BOOL) condition
 {
-    id	key = [self valueForBinding:@"key"];
-    id	parentValue = (key ? [[self parent] valueForKeyPath:key]:nil);
-    id	value = [self valueForBinding:@"value"];
+  BOOL condition = NO;
 
-    if(parentValue == nil)
-        return value == nil;
-    else
-        return [parentValue isEqual:value];    
+  LOGObjectFnStart();
+
+//    id	key = [self valueForBinding:@"key"];
+//    id	parentValue = (key ? [[self parent] valueForKeyPath:key]:nil);
+  id parentValue = [self valueForBinding:@"key"];
+  id value = [self valueForBinding:@"value"];
+
+  NSDebugMLLog(@"GSWComponent",@"parentValue=%@",parentValue);
+  NSDebugMLLog(@"GSWComponent",@"value=%@",value);
+
+  if(parentValue == nil)
+    condition = (value == nil);
+  else
+    condition = [parentValue isEqual:value];
+
+  NSDebugMLLog(@"GSWComponent",@"condition=%d",condition);
+
+  LOGObjectFnStop();
+
+  return condition;
 }
 
 @end
