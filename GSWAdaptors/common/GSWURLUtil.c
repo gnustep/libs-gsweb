@@ -207,9 +207,9 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
     }
   else
     {
-      GSWLog(GSW_DEBUG,p_pLogServerData,
-	     "pURLCPrefix=%.*s",
-	     pURLCPrefix->iLength,pURLCPrefix->pszStart);
+      GSWDebugLog(p_pLogServerData,
+                  "pURLCPrefix=%.*s",
+                  pURLCPrefix->iLength,pURLCPrefix->pszStart);
       if (!pURLCAppName->pszStart || pURLCAppName->iLength<=0)
 	{
 	  eError=GSWURLError_InvalidAppName;
@@ -218,7 +218,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
 	}
       else
 	{
-	  GSWLog(GSW_DEBUG,p_pLogServerData,
+	  GSWDebugLog(p_pLogServerData,
 		 "pURLCAppName=%.*s",
 		 pURLCAppName->iLength,pURLCAppName->pszStart);
 	  if (!pURLCAppNum->pszStart)
@@ -229,7 +229,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
 	    }
 	  else
 	    {
-	      GSWLog(GSW_DEBUG,p_pLogServerData,
+	      GSWDebugLog(p_pLogServerData,
 		     "pURLCAppNum=%.*s",
 		     pURLCAppNum->iLength,pURLCAppNum->pszStart);
 	      if ((!pURLCReqHandlerKey->pszStart ||
@@ -242,7 +242,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
 		}
 	      else
 		{
-		  GSWLog(GSW_DEBUG,p_pLogServerData,
+		  GSWDebugLog(p_pLogServerData,
 			 "pURLCReqHandlerPath=%.*s",
 			 pURLCReqHandlerPath->iLength,
 			 pURLCReqHandlerPath->pszStart);
@@ -258,7 +258,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
 	    };
 	};
     };
-  GSWLog(GSW_DEBUG,p_pLogServerData,"End ParseURL eError=%d",eError);
+  GSWDebugLog(p_pLogServerData,"End ParseURL eError=%d",eError);
   return eError;
 };
 

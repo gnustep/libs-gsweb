@@ -294,14 +294,15 @@ void GSWDict_AddStringDupFromDict(GSWDict *p_pDictDst,GSWDict *p_pDictSrc)
 static void GSWDict_LogStringElem(GSWDictElem *p_pElem,
                                   void        *p_pLogServerData)
 {
-  GSWLog(GSW_DEBUG,p_pLogServerData,"%s=%s",p_pElem->pszKey,p_pElem->pValue);  
+  GSWDebugLog(p_pLogServerData,"%s=%s",p_pElem->pszKey,p_pElem->pValue);  
 };
 
 void GSWDict_Log(GSWDict *p_pDict,
                  void    *p_pLogServerData)
 {
-  GSWDict_PerformForAllElem(p_pDict,
-			    GSWDict_LogStringElem,
-			    p_pLogServerData);
+  if (p_pDict)
+    GSWDict_PerformForAllElem(p_pDict,
+                              GSWDict_LogStringElem,
+                              p_pLogServerData);
 };
 

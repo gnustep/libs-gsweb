@@ -51,7 +51,15 @@ GSWApp_Open(GSWAppRequest *p_pAppRequest,
     }
   else
     {
-      struct hostent *pHost=hl_find(p_pAppRequest->pszHost);
+      struct hostent *pHost=NULL;
+
+      //Stats
+      if (!p_pAppRequest->pStats->_tryContactingAppInstanceTS)
+        p_pAppRequest->pStats->_tryContactingAppInstanceTS=GSWTime_now();
+
+      p_pAppRequest->pStats->_tryContactingAppInstanceCount++;
+
+      pHost=hl_find(p_pAppRequest->pszHost);
       if (!pHost)
 	{
 	  GSWLog(GSW_ERROR, p_pLogServerData,

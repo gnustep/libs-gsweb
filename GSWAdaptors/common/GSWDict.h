@@ -79,6 +79,12 @@ GSWList* GSWDict_AllKeys(GSWDict *p_pDict);
 
 void GSWDict_Log(GSWDict *p_pDict,
                  void    *p_pLogServerData);
+#ifdef DEBUG
+#define GSWDict_DebugLog(p_pDict,p_pLogServerData); \
+	GSWDict_Log(p_pDict,p_pLogServerData);
+#else
+#define GSWDict_DebugLog(p_pDict,p_pLogServerData); 
+#endif
 
 #ifdef __cplusplus
 } // end of C header

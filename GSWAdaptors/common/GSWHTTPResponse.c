@@ -29,6 +29,7 @@
 
 #include "config.h"
 #include "GSWUtil.h"
+#include "GSWStats.h"
 #include "GSWDict.h"
 #include "GSWString.h"
 #include "GSWURLUtil.h"
@@ -49,15 +50,15 @@ static char *g_pszLocalHostName = NULL;
 
 //--------------------------------------------------------------------
 GSWHTTPResponse *
-GSWHTTPResponse_New(CONST char *p_pszStatus,
+GSWHTTPResponse_New(GSWTimeStats   *p_pStats,
+                    CONST char *p_pszStatus,                    
 		    void       *p_pLogServerData)
 {
   GSWHTTPResponse *pHTTPResponse=NULL;
   BOOL fOk=FALSE;
   // Accept "HTTP/1.0 200 OK GSWeb..." and "HTTP/1.0 200 OK GNUstep GSWeb..."
-#ifdef	DEBUG
-  GSWLog(GSW_INFO,p_pLogServerData,"p_pszStatus=%s",p_pszStatus);
-#endif
+  GSWDebugLog(p_pLogServerData,"p_pszStatus=%s",p_pszStatus);
+
   if (strncmp(p_pszStatus,HTTP_SLASH,strlen(HTTP_SLASH))==0)
     {
       // Status Code
@@ -68,14 +69,12 @@ GSWHTTPResponse_New(CONST char *p_pszStatus,
 	  fOk=TRUE;
 	  pszSpace++;
 	  uStatus=atoi(pszSpace);
-#ifdef	DEBUG
-	  GSWLog(GSW_INFO,p_pLogServerData,"uStatus=%u",uStatus);
-#endif
+	  GSWDebugLog(p_pLogServerData,"uStatus=%u",uStatus);
 	  for(;fOk && *pszSpace && !isspace(*pszSpace);pszSpace++)
 	    fOk=isdigit(*pszSpace);
-#ifdef	DEBUG
-	  GSWLog(GSW_INFO,p_pLogServerData,"fOk=%d",(int)fOk);
-#endif
+
+	  GSWDebugLog(p_pLogServerData,"fOk=%d",(int)fOk);
+
 	  if (fOk)
 	    {
 	      pHTTPResponse = calloc(1,sizeof(GSWHTTPResponse));
@@ -88,6 +87,7 @@ GSWHTTPResponse_New(CONST char *p_pszStatus,
 		  if (pszSpace)
 		    pHTTPResponse->pszStatusMessage=strdup(pszSpace+1);
 		};
+              pHTTPResponse->pStats=p_pStats;
 	    };
 	};
     };
@@ -99,6 +99,7 @@ GSWHTTPResponse_New(CONST char *p_pszStatus,
 //--------------------------------------------------------------------
 GSWHTTPResponse * 
 GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
+                                   GSWTimeStats   *p_pStats,
                                    unsigned int  p_uStatus,
                                    GSWDict	 *p_pHeaders,
                                    GSWTemplate_FN pTemplateFN,
@@ -112,27 +113,30 @@ GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
   GSWHTTPResponse *pHTTPResponse=calloc(1,sizeof(GSWHTTPResponse));
   char            *pszString=NULL;
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,
-	 "Start GSWHTTPResponse_BuildErrorResponse");
+  GSWDebugLog(p_pLogServerData,
+              "Start GSWHTTPResponse_BuildErrorResponse");
 
-#ifdef	DEBUG
-  GSWLog(GSW_INFO,p_pLogServerData,
-	 "Build Error Response [%s] p_pAppRequest=%p p_pAppRequest->pAppInstance=%p pApp=%p",
-         p_pszMessage,p_pAppRequest,
-         ((p_pAppRequest) ? p_pAppRequest->pAppInstance : NULL),
-         ((p_pAppRequest && p_pAppRequest->pAppInstance) ? p_pAppRequest->pAppInstance->pApp : NULL));
-#endif
+  GSWDebugLog(p_pLogServerData,
+              "Build Error Response [%s] p_pAppRequest=%p p_pAppRequest->pAppInstance=%p pApp=%p",
+              p_pszMessage,p_pAppRequest,
+              ((p_pAppRequest) ? p_pAppRequest->pAppInstance : NULL),
+              ((p_pAppRequest && p_pAppRequest->pAppInstance) ? p_pAppRequest->pAppInstance->pApp : NULL));
 
   if (p_pAppRequest && p_pAppRequest->pAppInstance)
     pApp=p_pAppRequest->pAppInstance->pApp;
 
+
+  GSWAssert(p_pStats,p_pLogServerData,"No p_pStats");
+  pHTTPResponse->pStats=p_pStats;
   pHTTPResponse->uStatus = p_uStatus;
   pHTTPResponse->pszStatusMessage = strdup(g_szOKGSWeb[GSWNAMES_INDEX]);
   pHTTPResponse->pHeaders = GSWDict_New(2);
+
   GSWDict_Add(pHTTPResponse->pHeaders,
 	      g_szHeader_ContentType,
 	      g_szContentType_TextHtml,
 	      FALSE);
+
   if (p_pHeaders)
     GSWDict_AddStringDupFromDict(pHTTPResponse->pHeaders,p_pHeaders);
 
@@ -150,7 +154,7 @@ GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
       GSWString_SearchReplace(pBufferMessage,"##APP_PORT##",szBuffer);
     };
 
-  GSWTemplate_ReplaceStd(pBufferMessage,pApp);
+  GSWTemplate_ReplaceStd(pBufferMessage,pApp,p_pLogServerData);
 
   if (pTemplateFN)
     {
@@ -163,7 +167,7 @@ GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
   else
     GSWString_Append(pBuffer,pBufferMessage->pszData);
 
-  GSWTemplate_ReplaceStd(pBuffer,pApp);
+  GSWTemplate_ReplaceStd(pBuffer,pApp,p_pLogServerData);
   
   pHTTPResponse->uContentLength = GSWString_Len(pBuffer);
   pHTTPResponse->pContent = pBuffer->pszData;
@@ -176,26 +180,29 @@ GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
   sprintf(szBuffer,"%d",pHTTPResponse->uContentLength);
   GSWDict_AddStringDup(pHTTPResponse->pHeaders,
 		       g_szHeader_ContentLength,szBuffer);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPResponse_BuildErrorResponse");
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPResponse_BuildErrorResponse");
 
   return pHTTPResponse;
 };
 
 //--------------------------------------------------------------------
 GSWHTTPResponse *
-GSWHTTPResponse_BuildRedirectedResponse(CONST char *p_pszRedirectPath,
+GSWHTTPResponse_BuildRedirectedResponse(GSWTimeStats   *p_pStats,
+                                        CONST char *p_pszRedirectPath,
 					void       *p_pLogServerData)
 {
   GSWHTTPResponse *pHTTPResponse=calloc(1,sizeof(GSWHTTPResponse));
-  GSWLog(GSW_DEBUG,p_pLogServerData,
+  GSWDebugLog(p_pLogServerData,
 	 "Start GSWHTTPResponse_BuildRedirectedResponse");
+  pHTTPResponse->pStats=p_pStats;
   pHTTPResponse->uStatus = 302;
   pHTTPResponse->pszStatusMessage = strdup(g_szOKGSWeb[GSWNAMES_INDEX]);
   pHTTPResponse->pHeaders=GSWDict_New(2);
   GSWDict_Add(pHTTPResponse->pHeaders, g_szHeader_ContentType,
 	      g_szContentType_TextHtml,FALSE);
   GSWDict_AddStringDup(pHTTPResponse->pHeaders,"location",p_pszRedirectPath);
-  GSWLog(GSW_DEBUG,p_pLogServerData,
+  GSWDebugLog(p_pLogServerData,
 	 "Stop GSWHTTPResponse_BuildRedirectedResponse");
   return pHTTPResponse;
 };
@@ -203,6 +210,7 @@ GSWHTTPResponse_BuildRedirectedResponse(CONST char *p_pszRedirectPath,
 //--------------------------------------------------------------------
 GSWHTTPResponse *
 GSWHTTPResponse_BuildServiceUnavailableResponse(GSWAppRequest *p_pAppRequest,
+                                                GSWTimeStats   *p_pStats,
                                                 time_t     unavailableUntil,
                                                 void       *p_pLogServerData)
 {
@@ -213,7 +221,7 @@ GSWHTTPResponse_BuildServiceUnavailableResponse(GSWAppRequest *p_pAppRequest,
   char       *pszString=NULL;
   GSWApp          *pApp=NULL;
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,
+  GSWDebugLog(p_pLogServerData,
 	 "Start GSWHTTPResponse_BuildServiceUnavailableResponse");
 
   if (p_pAppRequest && p_pAppRequest->pAppInstance)
@@ -245,6 +253,7 @@ GSWHTTPResponse_BuildServiceUnavailableResponse(GSWAppRequest *p_pAppRequest,
   GSWString_SearchReplace(pContent,"##UNAVAILABLE_UNTIL##",szUnavailableUntil);
 
   pHTTPResponse=GSWHTTPResponse_BuildErrorResponse(p_pAppRequest,
+                                                   p_pStats,
                                                    503, // Status
                                                    pHeaders, // Headers
                                                    NULL, // Template
@@ -262,7 +271,7 @@ GSWHTTPResponse_BuildServiceUnavailableResponse(GSWAppRequest *p_pAppRequest,
       pHeaders=NULL;
     };
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,
+  GSWDebugLog(p_pLogServerData,
 	 "Stop GSWHTTPResponse_BuildServiceUnavailableResponse");
   return pHTTPResponse;
 };
@@ -272,28 +281,32 @@ void
 GSWHTTPResponse_Free(GSWHTTPResponse *p_pHTTPResponse,
 		     void            *p_pLogServerData)
 {
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPResponse_Free");
+  GSWDebugLog(p_pLogServerData,"Start GSWHTTPResponse_Free");
   if (p_pHTTPResponse)
     {
+  GSWDebugLog(p_pLogServerData,"Free Headers");
       if (p_pHTTPResponse->pHeaders)
 	{
 	  GSWDict_Free(p_pHTTPResponse->pHeaders);
 	  p_pHTTPResponse->pHeaders=NULL;
 	};
+  GSWDebugLog(p_pLogServerData,"Free pszStatusMessage");
       if (p_pHTTPResponse->pszStatusMessage)
 	{
 	  free(p_pHTTPResponse->pszStatusMessage);
 	  p_pHTTPResponse->pszStatusMessage=NULL;
 	};
+  GSWDebugLog(p_pLogServerData,"Free pContent");
       if (p_pHTTPResponse->pContent)
 	{
 	  free(p_pHTTPResponse->pContent);
 	  p_pHTTPResponse->pContent=NULL;
 	};
+  GSWDebugLog(p_pLogServerData,"Free respo");
       free(p_pHTTPResponse);
       p_pHTTPResponse=NULL;
     };
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPResponse_Free");
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPResponse_Free");
 };
 
 //--------------------------------------------------------------------
@@ -328,24 +341,31 @@ GSWHTTPResponse_AddHeader(GSWHTTPResponse *p_pHTTPResponse,
 
 //--------------------------------------------------------------------
 GSWHTTPResponse *
-GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
+GSWHTTPResponse_GetResponse(GSWTimeStats   *p_pStats,
+                            AppConnectHandle p_socket,
 			    void            *p_pLogServerData)
 {
   GSWHTTPResponse *pHTTPResponse=NULL;
   char szResponseBuffer[RESPONSE__LINE_MAX_SIZE];
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPResponse_GetResponse");
+  GSWTime getResponseTS=GSWTime_now();
+  GSWTime endGetResponseReceiveFirstLineTS=0;
+
+  GSWDebugLog(p_pLogServerData,"Start GSWHTTPResponse_GetResponse");
 	
   // Get the 1st Line
   GSWApp_ReceiveLine(p_socket,szResponseBuffer,
 		     RESPONSE__LINE_MAX_SIZE,p_pLogServerData);
-  pHTTPResponse = GSWHTTPResponse_New(szResponseBuffer,p_pLogServerData);
-#ifdef	DEBUG
-  GSWLog(GSW_INFO,p_pLogServerData,"Response receive first line:\t\t[%s]",
+
+  endGetResponseReceiveFirstLineTS=GSWTime_now();
+
+  pHTTPResponse = GSWHTTPResponse_New(p_pStats,szResponseBuffer,p_pLogServerData);
+
+  GSWDebugLog(p_pLogServerData,"Response receive first line:\t\t[%s]",
 	 szResponseBuffer);
-#endif
 	
   if (!pHTTPResponse) //Error
     pHTTPResponse=GSWHTTPResponse_BuildErrorResponse(NULL,
+                                                     p_pStats,
                                                      200, 	// Status
                                                      NULL,	// Headers
                                                      &GSWTemplate_ErrorResponse,	// Template
@@ -353,66 +373,92 @@ GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
 						     p_pLogServerData);
   else
     {
+      static const char* statHeaders[2]={ "x-gsweb-adaptorstats: ", "x-webobjects-adaptorstats: " };
+      static int statsHeaderLen[2]={0,0};
       int iHeader=0;
+      int lineLen=0;
+      
+      pHTTPResponse->pStats->_beginGetResponseTS=getResponseTS;
+      pHTTPResponse->pStats->_endGetResponseReceiveFirstLineTS=endGetResponseReceiveFirstLineTS;
+
+      if (!statsHeaderLen[0])
+        {
+          statsHeaderLen[0]=strlen(statHeaders[0]);
+          statsHeaderLen[1]=strlen(statHeaders[1]);
+        };
+
       // Headers
-      while (GSWApp_ReceiveLine(p_socket,szResponseBuffer,
-				RESPONSE__LINE_MAX_SIZE,p_pLogServerData)>0
-	     && szResponseBuffer[0])
+      while ((lineLen=GSWApp_ReceiveLine(p_socket,szResponseBuffer,
+                                         RESPONSE__LINE_MAX_SIZE,p_pLogServerData))>0
+             && szResponseBuffer[0])
 	{
-#ifdef	DEBUG
-	  GSWLog(GSW_INFO,p_pLogServerData,"Header %d=\t\t[%s]",
-		 iHeader,szResponseBuffer);
-#endif
-	  GSWHTTPResponse_AddHeader(pHTTPResponse,szResponseBuffer);
+	  GSWDebugLog(p_pLogServerData,"Header %d (len=%d)=\t\t[%s]",
+                 iHeader,lineLen,szResponseBuffer);
+
+	  GSWDebugLog(p_pLogServerData,"statHeaders[0]=%s len=%d",
+                 statHeaders[0],statsHeaderLen[0]);
+          if (strncmp(szResponseBuffer,statHeaders[0],statsHeaderLen[0])==0)
+            {
+              if (lineLen>statsHeaderLen[0])
+                GSWStats_setApplicationStats(pHTTPResponse->pStats,
+                                             &szResponseBuffer[statsHeaderLen[0]],
+                                             p_pLogServerData);
+            }
+          else if (strncmp(szResponseBuffer,statHeaders[1],statsHeaderLen[1])==0)
+            {
+              if (lineLen>statsHeaderLen[1])
+                GSWStats_setApplicationStats(pHTTPResponse->pStats,
+                                             &szResponseBuffer[statsHeaderLen[1]],
+                                             p_pLogServerData);
+            }
+          else
+            GSWHTTPResponse_AddHeader(pHTTPResponse,szResponseBuffer);
 	};
 
-	  // Content
+      pHTTPResponse->pStats->_endGetResponseReceiveLinesTS=GSWTime_now();
+
+      // Content
       if (pHTTPResponse->uContentLength)
 	{
-	  char *pszBuffer= malloc(pHTTPResponse->uContentLength);
-	  int iReceivedCount=GSWApp_ReceiveBlock(p_socket,pszBuffer,
+	  pHTTPResponse->pContent=malloc(pHTTPResponse->uContentLength);
+	  int iReceivedCount=GSWApp_ReceiveBlock(p_socket,pHTTPResponse->pContent,
 						 pHTTPResponse->uContentLength,
 						 p_pLogServerData);
-#ifdef	DEBUG
-	  GSWLog(GSW_INFO,p_pLogServerData,"iReceivedCount=%d",iReceivedCount);
-#endif
+	  GSWDebugLog(p_pLogServerData,"iReceivedCount=%d",iReceivedCount);
 	  if (iReceivedCount!= pHTTPResponse->uContentLength)
 	    {
-	      pHTTPResponse->pContent = pszBuffer;//TODO: Verify this (Turbocat patch)
-	      
 	      GSWLog(GSW_ERROR,p_pLogServerData,
-		     "Content received doesn't equal to ContentLength. Too bad, same player shoot again !");
+		     "Content received (%i) doesn't equal to ContentLength (%u). Too bad, same player shoot again !",
+                     iReceivedCount,
+                     pHTTPResponse->uContentLength);
 
-	      free(pszBuffer);
-	      pszBuffer=NULL;
 	      GSWHTTPResponse_Free(pHTTPResponse,p_pLogServerData);
 	      pHTTPResponse=NULL;
 	      pHTTPResponse = GSWHTTPResponse_BuildErrorResponse(NULL,
+                                                                 p_pStats,
                                                                  200,	// Status
                                                                  NULL,	// Headers
                                                                  &GSWTemplate_ErrorResponse,	// Template
                                                                  "Invalid Response",	// Message
                                                                  p_pLogServerData);
 
-	    }
-	  else
-	    pHTTPResponse->pContent = pszBuffer;
-
-#ifdef Apache2
+	    };
+/*
           if (GSWConfig_AddTimeHeaders())
             {
               char *pszBuffer= malloc(100);
               strcpy(pszBuffer,"gswadaptor-receivedresponsedate: ");            
-              FormatAPRTime(pszBuffer+strlen(pszBuffer),apr_time_now());
+              GSWTime_format(pszBuffer+strlen(pszBuffer),GSWTime_now());
               GSWHTTPResponse_AddHeader(pHTTPResponse,
                                         pszBuffer);
               free(pszBuffer);
               pszBuffer=NULL;
             };
-#endif
+*/
 	}
-#ifdef	DEBUG
+
 /*
+#ifdef	DEBUG
       if (pHTTPResponse->pContent)
         {
 	  char szTraceBuffer[pHTTPResponse->uContentLength+1];
@@ -428,10 +474,12 @@ GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
 		      szTraceBuffer);
 //	  GSWLog(GSW_INFO,p_pLogServerData,"\nEND\n");
 	};
-*/
 #endif
+*/
+
+      pHTTPResponse->pStats->_endGetResponseTS=GSWTime_now();
     };
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPResponse_GetResponse");
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPResponse_GetResponse");
   return pHTTPResponse;
 };
 
@@ -510,7 +558,9 @@ GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest *p_pHTTPRequest,
 				    void           *p_pLogServerData)
 {
   GSWHTTPResponse *pHTTPResponse=
-    GSWHTTPResponse_New(g_szOKStatus[GSWNAMES_INDEX],p_pLogServerData);
+    GSWHTTPResponse_New(p_pHTTPRequest->pStats,
+                        g_szOKStatus[GSWNAMES_INDEX],
+                        p_pLogServerData);
   GSWDict    *pRequestHeaders=NULL;
   GSWString  *pContent=GSWString_New();
   GSWString  *pHeadersBuffer=GSWString_New();
@@ -518,7 +568,7 @@ GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest *p_pHTTPRequest,
   const char *pszRemoteHost=NULL;
   char       *pszString=NULL;
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,
+  GSWDebugLog(p_pLogServerData,
 	 "Start GSWHTTPResponse_BuildStatusResponse");
   GSWLog(GSW_INFO,p_pLogServerData,"Build Status Page.");
   GSWConfig_LoadConfiguration(p_pLogServerData);
@@ -553,7 +603,7 @@ GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest *p_pHTTPRequest,
 			  g_szGSWeb_AdaptorStringInfo());  
   GSWString_SearchReplace(pContent,"##ADAPTOR_URL##",g_szGSWeb_AdaptorURL());  
   GSWString_SearchReplace(pContent,"##HEADERS##",pHeadersBuffer->pszData);  
-  GSWTemplate_ReplaceStd(pContent,NULL);
+  GSWTemplate_ReplaceStd(pContent,NULL,p_pLogServerData);
   GSWString_Free(pHeadersBuffer);  
   pHeadersBuffer=NULL;
   
@@ -561,14 +611,15 @@ GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest *p_pHTTPRequest,
   pHTTPResponse->pContent = pContent->pszData;
   GSWString_Detach(pContent);
   GSWString_Free(pContent);
-  GSWLog(GSW_DEBUG,p_pLogServerData,
+  GSWDebugLog(p_pLogServerData,
 	 "Stop GSWHTTPResponse_BuildStatusResponse");
   return pHTTPResponse;
 };
 
 //--------------------------------------------------------------------
 GSWHTTPResponse *
-GSWDumpConfigFile(GSWURLComponents *p_pURLComponents,
+GSWDumpConfigFile(GSWTimeStats   *p_pStats,
+                  GSWURLComponents *p_pURLComponents,
 		  void             *p_pLogServerData)
 {
   GSWHTTPResponse *pHTTPResponse=NULL;  
@@ -576,7 +627,7 @@ GSWDumpConfigFile(GSWURLComponents *p_pURLComponents,
   char             pszPrefix[MAXPATHLEN]="";
   char             szReqAppName[MAXPATHLEN]="Unknown";
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWDumpConfigFile");
+  GSWDebugLog(p_pLogServerData,"Start GSWDumpConfigFile");
   GSWLog(GSW_INFO,p_pLogServerData,"Creating Applications Page.");
   if (!g_pszLocalHostName)
     {
@@ -585,12 +636,15 @@ GSWDumpConfigFile(GSWURLComponents *p_pURLComponents,
       g_pszLocalHostName= strdup(szHostName);
     };
 	  
-  pHTTPResponse = GSWHTTPResponse_New(g_szOKStatus[GSWNAMES_INDEX],
+  pHTTPResponse = GSWHTTPResponse_New(p_pStats,
+                                      g_szOKStatus[GSWNAMES_INDEX],
 				      p_pLogServerData);
+
   GSWDict_AddString(pHTTPResponse->pHeaders,
 		    g_szHeader_ContentType,
 		    g_szContentType_TextHtml,
 		    FALSE);
+
   if (p_pURLComponents->stAppName.iLength>0 &&
       p_pURLComponents->stAppName.pszStart)
     {
@@ -606,11 +660,11 @@ GSWDumpConfigFile(GSWURLComponents *p_pURLComponents,
   GSWConfig_LoadConfiguration(p_pLogServerData);
   pContent=GSWConfig_DumpGSWApps(szReqAppName,pszPrefix,FALSE,TRUE,
 				 p_pLogServerData);
-  GSWTemplate_ReplaceStd(pContent,NULL);
+  GSWTemplate_ReplaceStd(pContent,NULL,p_pLogServerData);
   pHTTPResponse->uContentLength = pContent->iLen;
   pHTTPResponse->pContent = pContent->pszData;
   GSWString_Detach(pContent);
   GSWString_Free(pContent);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWDumpConfigFile");
+  GSWDebugLog(p_pLogServerData,"Stop GSWDumpConfigFile");
   return pHTTPResponse;	
 };

@@ -32,6 +32,7 @@
 
 
 #include "GSWUtil.h"
+#include "GSWStats.h"
 #include "GSWDict.h"
 #include "GSWString.h"
 #include "GSWConfig.h"
@@ -165,7 +166,7 @@ GSWeb_Init(server_rec *p_pServerRec,
   GSWLog_Init(NULL,GSW_INFO);
   GSWLog(GSW_INFO,p_pServerRec,
 	 "GSWeb Init Start Config. Handler: " GSWEB_HANDLER);
-  GSWLog(GSW_DEBUG,p_pServerRec,
+  GSWDebugLog(p_pServerRec,
 	 "GSWeb_Init: pConfig->pszGSWeb=%s",
 	 pConfig->pszGSWeb);
 	
@@ -198,7 +199,7 @@ GSWeb_CreateServerConfig(pool       *p_pPool,
 						    sizeof(GSWeb_Config));
 
   pConfig->pszGSWeb = g_szGSWeb_Prefix;
-  GSWLog(GSW_DEBUG,p_pServerRec,
+  GSWDebugLog(p_pServerRec,
 	 "GSWeb_CreateServerConfig: pConfig->pszGSWeb=%s",
          pConfig->pszGSWeb);
   pConfig->pszConfigPath = NULL;
@@ -216,11 +217,11 @@ GSWeb_SetDocRoot(cmd_parms *p_pCmdParams,
   server_rec   *pServerRec = p_pCmdParams->server;
   GSWeb_Config *pConfig = NULL;
 
-  GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetDocRoot");
+  GSWDebugLog(pServerRec,"Start GSWeb_SetDocRoot");
   pConfig=(GSWeb_Config *)ap_get_module_config(pServerRec->module_config,
 					       &GSWeb_Module);
   pConfig->pszRoot = p_pszArg;
-  GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetDocRoot");
+  GSWDebugLog(pServerRec,"Start GSWeb_SetDocRoot");
   return NULL;
 };
 */
@@ -233,10 +234,10 @@ GSWeb_SetScriptAlias(cmd_parms *p_pCmdParams,
 {
   server_rec   *pServerRec = p_pCmdParams->server;
   GSWeb_Config *pConfig = NULL;
-  GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetScriptAlias");
+  GSWDebugLog(pServerRec,"Start GSWeb_SetScriptAlias");
   pConfig=GSWeb_GetServerConfig(pServerRec);
   pConfig->pszGSWeb = p_pszArg;
-  GSWLog(GSW_DEBUG,pServerRec,"Stop GSWeb_SetScriptAlias");
+  GSWDebugLog(pServerRec,"Stop GSWeb_SetScriptAlias");
   return NULL;
 };
 
@@ -250,12 +251,12 @@ GSWeb_SetConfig(cmd_parms *p_pCmdParams,
   server_rec   *pServerRec = p_pCmdParams->server;
   GSWeb_Config *pConfig = NULL;
 
-  GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetConfig");
+  GSWDebugLog(pServerRec,"Start GSWeb_SetConfig");
   pConfig=GSWeb_GetServerConfig(pServerRec);
-  GSWLog(GSW_DEBUG,pServerRec,"pConfig=%p",pConfig);
-  GSWLog(GSW_DEBUG,pServerRec,"p_pszArg=%s",p_pszArg);
+  GSWDebugLog(pServerRec,"pConfig=%p",pConfig);
+  GSWDebugLog(pServerRec,"p_pszArg=%s",p_pszArg);
   pConfig->pszConfigPath = p_pszArg;
-  GSWLog(GSW_DEBUG,pServerRec,"Stop GSWeb_SetConfig");
+  GSWDebugLog(pServerRec,"Stop GSWeb_SetConfig");
   return NULL;
 };
 
@@ -270,7 +271,7 @@ GSWeb_Translation(request_rec *p_pRequestRec)
   GSWURLComponents  stURL;
 
   memset(&stURL,0,sizeof(stURL));
-  GSWLog(GSW_DEBUG,p_pRequestRec->server,"Start GSWeb_Translation");
+  GSWDebugLog(p_pRequestRec->server,"Start GSWeb_Translation");
   pConfig=GSWeb_GetServerConfig(p_pRequestRec->server);
 
   // Is this for us ?
@@ -288,7 +289,7 @@ GSWeb_Translation(request_rec *p_pRequestRec)
 	}
       else
 	{
-	  GSWLog(GSW_DEBUG,
+	  GSWDebugLog(
 		 p_pRequestRec->server,
 		 "GSWeb_Translation Handler p_pRequestRec->handler=%s pool=%p handler=%s pConfig->pszGSWeb=%s",
 		 p_pRequestRec->handler,
@@ -302,10 +303,10 @@ GSWeb_Translation(request_rec *p_pRequestRec)
     }
   else
     {
-      GSWLog(GSW_DEBUG,p_pRequestRec->server,"GSWeb_Translation Declined");
+      GSWDebugLog(p_pRequestRec->server,"GSWeb_Translation Declined");
       iRetValue=DECLINED;
     };
-  GSWLog(GSW_DEBUG,p_pRequestRec->server,
+  GSWDebugLog(p_pRequestRec->server,
 	 "Stop GSWeb_Translation return %d",
 	 iRetValue);
   return iRetValue;
@@ -325,7 +326,7 @@ copyHeaders(request_rec    *p_pRequestRec,
   int i=0;
   char		     *pszPort=NULL;
   CONST char         *pszRemoteLogName=NULL;
-  GSWLog(GSW_DEBUG,pServerRec,"Start copyHeaders");
+  GSWDebugLog(pServerRec,"Start copyHeaders");
 
   // copy p_pRequestRec headers
   headers =  (table_entry *) headers_arr->elts;
@@ -333,10 +334,8 @@ copyHeaders(request_rec    *p_pRequestRec,
     {
       if (headers[i].key)
         {
-#ifdef	DEBUG
-          GSWLog(GSW_DEBUG,pServerRec,"key=%s value=%s",
-                 headers[i].key,headers[i].val);
-#endif
+          GSWDebugLog(pServerRec,"key=%s value=%s",
+                      headers[i].key,headers[i].val);
           GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
                                    headers[i].key,headers[i].val);
         };
@@ -440,7 +439,7 @@ copyHeaders(request_rec    *p_pRequestRec,
     GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			     g_szServerInfo_RemoteIdent,
 			     pszRemoteLogName);
-  GSWLog(GSW_DEBUG,pServerRec,"Stop copyHeaders");
+  GSWDebugLog(pServerRec,"Stop copyHeaders");
 };
 
 //--------------------------------------------------------------------
@@ -451,10 +450,10 @@ getHeader(GSWDictElem *p_pElem,
 {
   request_rec *pRequestRec = (request_rec *)p_pRequestRec;
   server_rec *pServerRec = pRequestRec->server;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,pServerRec,"Start getHeader key=%s value=%s headers_out=%p",
-         p_pElem->pszKey,(char *)p_pElem->pValue,pRequestRec->headers_out);
-#endif	
+
+  GSWDebugLog(pServerRec,"Start getHeader key=%s value=%s headers_out=%p",
+              p_pElem->pszKey,(char *)p_pElem->pValue,pRequestRec->headers_out);
+
   if (!pRequestRec->content_type &&
       strcasecmp(p_pElem->pszKey,g_szHeader_ContentType)==0)
     {
@@ -467,9 +466,8 @@ getHeader(GSWDictElem *p_pElem,
   else
     ap_table_add(pRequestRec->headers_out,p_pElem->pszKey,
 		 (char *)p_pElem->pValue);
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,pServerRec,"Stop getHeader");
-#endif
+
+  GSWDebugLog(pServerRec,"Stop getHeader");
 };
 
 //--------------------------------------------------------------------
@@ -480,41 +478,58 @@ sendResponse(request_rec     *p_pRequestRec,
 	     GSWHTTPResponse *p_pHTTPResponse)
 {
   server_rec *pServerRec = p_pRequestRec->server;
-  GSWLog(GSW_DEBUG,pServerRec,"Start sendResponse");
+
+  GSWDebugLog(pServerRec,"Start sendResponse");
+
+  p_pHTTPResponse->pStats->_responseLength=p_pHTTPResponse->uContentLength;
+  p_pHTTPResponse->pStats->_responseStatus=p_pHTTPResponse->uStatus;
+  
+  p_pHTTPResponse->pStats->_prepareSendResponseTS=GSWTime_now();
 	
   // Add Headers for processing time information
 #ifdef Apache2
   if (GSWConfig_AddTimeHeaders())
     {
+      GSWDebugLog(pServerRec,"Start addTimeHeaders");
+/*
       char *pszBuffer= malloc(100);
-      apr_time_t tnow=apr_time_now();
-      apr_time_t duration=apr_time_as_msec(tnow-p_pRequestRec->request_time); // ms
+      GSWTime newTS=GSWTime_now();
+      GSWTime requestTS=GSWTime_makeFromAPRTime(p_pRequestRec->request_time);
+      long duration=newTS-requestTS;
       strcpy(pszBuffer,"gswadaptor-requestdate: ");            
-      FormatAPRTime(pszBuffer+strlen(pszBuffer),p_pRequestRec->request_time);
+      GSWTime_format(pszBuffer+strlen(pszBuffer),requestTS);
       GSWHTTPResponse_AddHeader(p_pHTTPResponse,
                                 pszBuffer);
       strcpy(pszBuffer,"gswadaptor-sendresponsedate: ");            
-      FormatAPRTime(pszBuffer+strlen(pszBuffer),tnow);
+      GSWTime_format(pszBuffer+strlen(pszBuffer),newTS);
       GSWHTTPResponse_AddHeader(p_pHTTPResponse,
                                 pszBuffer);
-      sprintf(pszBuffer,"gswadaptor-processduration: %d.%d s",
-              (int)(duration/1000),(int)(duration%1000));
+      sprintf(pszBuffer,"gswadaptor-processduration: %0.3fs",
+              GSWTime_floatSec(duration));
+      free(pszBuffer);
+      pszBuffer=NULL;
+*/
+      // caller should free the returned string
+      char* pszBuffer=GSWStats_formatStats(p_pHTTPResponse->pStats,
+                                           "gswadaptor-stats: ",
+                                           pServerRec);
+      
       GSWHTTPResponse_AddHeader(p_pHTTPResponse,
                                 pszBuffer);
       free(pszBuffer);
-      pszBuffer=NULL;
+      GSWDebugLog(pServerRec,"Stop addTimeHeaders");
   };
 #endif
   // Process Headers
   GSWDict_PerformForAllElem(p_pHTTPResponse->pHeaders,getHeader,p_pRequestRec);
 	
-  GSWLog(GSW_DEBUG,pServerRec,"status message=[%s]",p_pHTTPResponse->pszStatusMessage);
+  GSWDebugLog(pServerRec,"status message=[%s]",p_pHTTPResponse->pszStatusMessage);
   p_pRequestRec->status_line = APR_PSPRINTF(p_pRequestRec->pool,"%u %s",
                                             p_pHTTPResponse->uStatus,
                                             p_pHTTPResponse->pszStatusMessage);
 
   p_pRequestRec->status = p_pHTTPResponse->uStatus;
-  GSWLog(GSW_DEBUG,pServerRec,"p_pRequestRec->status_line=[%s]",p_pRequestRec->status_line);
+  GSWDebugLog(pServerRec,"p_pRequestRec->status_line=[%s]",p_pRequestRec->status_line);
 
   // Set content type if none
   if (!p_pRequestRec->content_type)
@@ -524,12 +539,14 @@ sendResponse(request_rec     *p_pRequestRec,
       ap_set_content_type(p_pRequestRec, g_szContentType_TextHtml);
 #endif
     };
-  GSWLog(GSW_DEBUG,pServerRec,"p_pRequestRec->content_type=%s",p_pRequestRec->content_type);
+  GSWDebugLog(pServerRec,"p_pRequestRec->content_type=%s",p_pRequestRec->content_type);
 	
   // Set content length
   ap_set_content_length(p_pRequestRec, p_pHTTPResponse->uContentLength);
 
   // Now Send response...
+
+  p_pHTTPResponse->pStats->_beginSendResponseTS=GSWTime_now();
 
   // send Headers
 #ifndef Apache2 // No more needed in Apache2 (?)
@@ -544,24 +561,28 @@ sendResponse(request_rec     *p_pRequestRec,
 		p_pRequestRec);
       ap_kill_timeout(p_pRequestRec);
     };
-  GSWLog(GSW_DEBUG,pServerRec,"Stop sendResponse");
+
+  p_pHTTPResponse->pStats->_endSendResponseTS=GSWTime_now();
+
+  GSWDebugLog(pServerRec,"Stop sendResponse");
 };
 
 //--------------------------------------------------------------------
 // die/send response
 static int
 dieSendResponse(request_rec       *p_pRequestRec,
+                GSWTimeStats      *p_pStats,
 		GSWHTTPResponse  **p_ppHTTPResponse,
 		BOOL               p_fDecline)
 {
   server_rec *pServerRec = p_pRequestRec->server;
   void       *pLogServerData=pServerRec;
 
-  GSWLog(GSW_DEBUG,pLogServerData,"Start dieSendResponse");
+  GSWDebugLog(pLogServerData,"Start dieSendResponse");
   sendResponse(p_pRequestRec,*p_ppHTTPResponse);
   GSWHTTPResponse_Free(*p_ppHTTPResponse,pLogServerData);
   *p_ppHTTPResponse=NULL;
-  GSWLog(GSW_DEBUG,pLogServerData,"Start dieSendResponse");
+  GSWDebugLog(pLogServerData,"Start dieSendResponse");
   return p_fDecline ? DECLINED : OK;
 };
 
@@ -569,6 +590,7 @@ dieSendResponse(request_rec       *p_pRequestRec,
 // die with a message
 static int
 dieWithMessage(request_rec *p_pRequestRec,
+               GSWTimeStats *p_pStats,
 	       CONST char  *p_pszMessage,
 	       BOOL         p_fDecline)
 {
@@ -576,16 +598,21 @@ dieWithMessage(request_rec *p_pRequestRec,
   GSWHTTPResponse *pResponse=NULL;	
   server_rec      *pServerRec = p_pRequestRec->server;
 
-  GSWLog(GSW_DEBUG,pServerRec,"Start dieWithMessage");
+  GSWDebugLog(pServerRec,"Start dieWithMessage");
   GSWLog(GSW_ERROR,pServerRec,"Send Error Response: %s",p_pszMessage);
+
   pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,
+                                                 p_pStats,
                                                  200,	// Status
                                                  NULL,	// Headers
                                                  &GSWTemplate_ErrorResponse,	// Template
                                                  p_pszMessage, // Message
 						 p_pRequestRec->server);
-  iReturn=dieSendResponse(p_pRequestRec,&pResponse,p_fDecline);
-  GSWLog(GSW_DEBUG,pServerRec,"Stop dieWithMessage");
+
+  iReturn=dieSendResponse(p_pRequestRec,p_pStats,
+                          &pResponse,p_fDecline);
+
+  GSWDebugLog(pServerRec,"Stop dieWithMessage");
   return iReturn;
 };
 
@@ -602,9 +629,23 @@ GSWeb_Handler(request_rec *p_pRequestRec)
   server_rec       *pServerRec = p_pRequestRec->server;
   void             *pLogServerData=pServerRec;
   GSWeb_Config     *pConfig=NULL;
+  GSWTimeStats	   stStats;
 
+  memset(&stStats,0,sizeof(stStats));
+
+  // The request time stamp
+  stStats._requestTS=GSWTime_makeFromAPRTime(p_pRequestRec->request_time);
+
+  // Handling start time stamp
+  stStats._beginHandleRequestTS=GSWTime_now();
+ 
   memset(&stURLComponents,0,sizeof(stURLComponents));
-  GSWLog(GSW_DEBUG,pLogServerData,"Start GSWeb_Handler");
+
+  // We'll load config soon to set debug flag
+  if (!GSWConfig_IsReaden())
+    GSWConfig_LoadConfiguration(pLogServerData);
+
+  GSWDebugLog(pLogServerData,"Start GSWeb_Handler");
 
   pConfig=GSWeb_GetServerConfig(p_pRequestRec->server);
 
@@ -620,7 +661,8 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 	      strlen(pConfig->pszGSWeb))==0) 
     {
       // Parse the uri
-      eError=GSWParseURL(&stURLComponents,p_pRequestRec->uri,
+      eError=GSWParseURL(&stURLComponents,
+                         p_pRequestRec->uri,
 			 pLogServerData);
       if (eError!=GSWURLError_OK)
 	{
@@ -629,12 +671,16 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 	  GSWLog(GSW_INFO,pLogServerData,"URL Parsing Error: %s", pszURLError);
 	  if (eError==GSWURLError_InvalidAppName)
 	    {
-	      pResponse = GSWDumpConfigFile(&stURLComponents,
+	      pResponse = GSWDumpConfigFile(&stStats,
+                                            &stURLComponents,
 					    p_pRequestRec->server);
-	      iRetVal=dieSendResponse(p_pRequestRec,&pResponse,NO);
+	      iRetVal=dieSendResponse(p_pRequestRec,&stStats,
+                                      &pResponse,NO);
 	    }
 	  else
-	    iRetVal=dieWithMessage(p_pRequestRec,pszURLError,NO);
+	    iRetVal=dieWithMessage(p_pRequestRec,
+                                   &stStats,
+                                   pszURLError,NO);
 	}
       else
 	{
@@ -645,7 +691,9 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 	      GSWHTTPRequest *pRequest=NULL;
 	      CONST char     *pszRequestError=NULL;
 	      
-	      pRequest=GSWHTTPRequest_New(p_pRequestRec->method,NULL,
+	      pRequest=GSWHTTPRequest_New(p_pRequestRec->method,
+                                          NULL,
+                                          &stStats,
 					  pLogServerData);
 	      
 	      // validate the method
@@ -653,7 +701,8 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 							    pLogServerData);
 	      if (pszRequestError)
 		{
-		  iRetVal=dieWithMessage(p_pRequestRec,pszRequestError,NO);
+		  iRetVal=dieWithMessage(p_pRequestRec,&stStats,
+                                         pszRequestError,NO);
 		}
 	      else
 		{
@@ -739,10 +788,16 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		};
 	    };
 	};
+      stStats._endHandleRequestTS=GSWTime_now();
+      GSWStats_logStats(&stStats,pLogServerData);
+      GSWStats_freeVars(&stStats);
     }
   else
     iRetVal = DECLINED;
-  GSWLog(GSW_DEBUG,pLogServerData,"Stop GSWeb_Handler");
+
+
+  GSWDebugLog(pLogServerData,"Stop GSWeb_Handler");
+
   return iRetVal;
 };
 

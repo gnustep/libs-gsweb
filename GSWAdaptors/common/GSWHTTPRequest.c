@@ -1,5 +1,5 @@
 /* GSWHTTPRequest.c - GSWeb: Adaptors: HTTP Request
-   Copyright (C) 1999, 2000, 2001, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2001, 2003-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 	July 1999
@@ -28,6 +28,7 @@
 
 #include "config.h"
 #include "GSWUtil.h"
+#include "GSWStats.h"
 #include "GSWDict.h"
 #include "GSWURLUtil.h"
 #include "GSWAppRequestStruct.h"
@@ -42,19 +43,21 @@ static char *GSWHTTPRequest_PackageHeaders(GSWHTTPRequest *p_pHTTPRequest,
 					   char           *pszBuffer,
 					   int             p_iBufferSize);
 static void GSWHTTPRequest_AddHeaderElem(GSWDictElem *p_pElem,
-                                         GSWHTTPRequest *p_pHTTPRequest);
+                                         void* p_pHTTPRequest); //GSWHTTPRequest *
 
 //--------------------------------------------------------------------
 GSWHTTPRequest *
 GSWHTTPRequest_New(CONST char *p_pszMethod,
 		   char       *p_pszURI,
+                   GSWTimeStats   *p_pStats,
 		   void       *p_pLogServerData)
 {
   GSWHTTPRequest *pHTTPRequest=calloc(1,sizeof(GSWHTTPRequest));
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_New");
+  GSWDebugLog(p_pLogServerData,"Start GSWHTTPRequest_New");
   pHTTPRequest->eMethod = GetHTTPRequestMethod(p_pszMethod);
   pHTTPRequest->pszRequest = p_pszURI;		// It will be freed
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_New");
+  pHTTPRequest->pStats=p_pStats;
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPRequest_New");
   return pHTTPRequest;
 };
 
@@ -63,7 +66,7 @@ void
 GSWHTTPRequest_Free(GSWHTTPRequest *p_pHTTPRequest,
 		    void           *p_pLogServerData)
 {
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_Free");
+  GSWDebugLog(p_pLogServerData,"Start GSWHTTPRequest_Free");
   if (p_pHTTPRequest)
     {
       if (p_pHTTPRequest->pHeaders)
@@ -84,7 +87,7 @@ GSWHTTPRequest_Free(GSWHTTPRequest *p_pHTTPRequest,
       free(p_pHTTPRequest);
       p_pHTTPRequest=NULL;
     };
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_Free");
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPRequest_Free");
 };
 
 //--------------------------------------------------------------------
@@ -93,7 +96,7 @@ GSWHTTPRequest_ValidateMethod(GSWHTTPRequest *p_pHTTPRequest,
 			      void           *p_pLogServerData)
 {
   CONST char *pszMsg=NULL;
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_ValidateMethod");
+  GSWDebugLog(p_pLogServerData,"Start GSWHTTPRequest_ValidateMethod");
   if (!p_pHTTPRequest)
     {
       GSWLog(GSW_CRITICAL,p_pLogServerData,
@@ -118,7 +121,7 @@ GSWHTTPRequest_ValidateMethod(GSWHTTPRequest *p_pHTTPRequest,
 	    pszMsg=NULL;
 	};
     };
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_ValidateMethod");
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPRequest_ValidateMethod");
   return pszMsg;
 };
 
@@ -132,15 +135,19 @@ GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest   *p_pHTTPRequest,
 {
   char szInstanceBuffer[65]="";
   char *pszDefaultHTTPVersion = "HTTP/1.0";
-  int iHTTPVersionLength = p_pszHTTPVersion ?
-    strlen(p_pszHTTPVersion) : strlen(pszDefaultHTTPVersion);
+  int iHTTPVersionLength = 0;
   GSWApp* pApp=p_pAppRequest->pAppInstance->pApp;
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_HTTPToAppRequest");
+  GSWDebugLog(p_pLogServerData,"Start GSWHTTPRequest_HTTPToAppRequest");
 
+  iHTTPVersionLength = (p_pszHTTPVersion ?
+                        strlen(p_pszHTTPVersion) : strlen(pszDefaultHTTPVersion));
+
+  GSWAssert(p_pAppRequest,p_pLogServerData,"No p_pAppRequest");
   if (p_pAppRequest->iInstance > 0)	/* should be -1 !!! */
     sprintf(szInstanceBuffer,"%d",p_pAppRequest->iInstance);
 
+  GSWAssert(p_pURLComponents,p_pLogServerData,"No p_pURLComponents");
   p_pURLComponents->stAppName.pszStart = p_pAppRequest->pszName;
   p_pURLComponents->stAppName.iLength = strlen(p_pAppRequest->pszName);
   p_pURLComponents->stAppNumber.pszStart = szInstanceBuffer;		
@@ -148,6 +155,7 @@ GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest   *p_pHTTPRequest,
   p_pURLComponents->stAppHost.pszStart = p_pAppRequest->pszHost;
   p_pURLComponents->stAppHost.iLength = strlen(p_pAppRequest->pszHost);
   
+  GSWAssert(p_pHTTPRequest,p_pLogServerData,"No p_pHTTPRequest");
   if (p_pHTTPRequest->pszRequest)
     {
       free(p_pHTTPRequest->pszRequest);
@@ -181,30 +189,28 @@ GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest   *p_pHTTPRequest,
   strcat(p_pHTTPRequest->pszRequest,"\n");
   
   // Add Application Headers
-#ifdef DEBUG
-  GSWLog(GSW_INFO,p_pLogServerData,"App Specific Headers");
-  GSWDict_Log(&pApp->stHeadersDict,p_pLogServerData);
-#endif
+  GSWDebugLog(p_pLogServerData,"App Specific Headers");
+  GSWDict_DebugLog(&pApp->stHeadersDict,p_pLogServerData);
+
   GSWDict_PerformForAllElem(&pApp->stHeadersDict,
 			    GSWHTTPRequest_AddHeaderElem,
 			    (void*)p_pHTTPRequest);
-#ifdef DEBUG
-  if (p_pHTTPRequest->pHeaders)
-    {
-      GSWLog(GSW_INFO,p_pLogServerData,"HTTP Request Headers");
-      GSWDict_Log(p_pHTTPRequest->pHeaders,p_pLogServerData);
-    };
-#endif
+
+  GSWDebugLogCond(p_pHTTPRequest->pHeaders,
+                  p_pLogServerData,"HTTP Request Headers");
+  
+  GSWDict_Log(p_pHTTPRequest->pHeaders,p_pLogServerData);
 
   GSWLog(GSW_INFO,p_pLogServerData,"App Request: %s",
 	 p_pHTTPRequest->pszRequest);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_HTTPToAppRequest");
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPRequest_HTTPToAppRequest");
 };
 
 //--------------------------------------------------------------------
 static void
 GSWHTTPRequest_AddHeaderElem(GSWDictElem *p_pElem,
-                             GSWHTTPRequest *p_pHTTPRequest)
+                             void* p_pHTTPRequest) //GSWHTTPRequest *
 {
   GSWHTTPRequest_AddHeader(p_pHTTPRequest,
                            p_pElem->pszKey,
@@ -282,23 +288,26 @@ GSWHTTPRequest_SendRequest(GSWHTTPRequest   *p_pHTTPRequest,
   int iHeaderLength = 0;
   int iRequestLength = 0;
   int iContentLength = 0;
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_SendRequest");
+
+  GSWDebugLog(p_pLogServerData,"Start GSWHTTPRequest_SendRequest");
+
+  p_pHTTPRequest->pStats->_prepareToSendRequestTS=GSWTime_now();
+
   iRequestLength = strlen(p_pHTTPRequest->pszRequest);
   iContentLength = p_pHTTPRequest->uContentLength;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Request:%s",p_pHTTPRequest->pszRequest);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"iContentLength:%d",iContentLength);
-#endif
+
+  GSWDebugLog(p_pLogServerData,"Request:%s",p_pHTTPRequest->pszRequest);
+  GSWDebugLog(p_pLogServerData,"iContentLength:%d",iContentLength);
+
     
   GSWDict_PerformForAllElem(p_pHTTPRequest->pHeaders,
 			    GetHeaderLength,
 			    &iHeaderLength);
   iHeaderLength++;   // Last /n
   iLength=iRequestLength+iHeaderLength+iContentLength;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"iHeaderLength:%d",iHeaderLength);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"iLength:%d",iLength);
-#endif
+
+  GSWDebugLog(p_pLogServerData,"iHeaderLength:%d",iHeaderLength);
+  GSWDebugLog(p_pLogServerData,"iLength:%d",iLength);
 
   pszBuffer = malloc(iLength+1);
 
@@ -320,20 +329,27 @@ GSWHTTPRequest_SendRequest(GSWHTTPRequest   *p_pHTTPRequest,
 
   *pszTmp = '\0';
 
-  GSWLog(GSW_INFO,p_pLogServerData,
-	 "Sending AppRequest Content: %s\n(%d Bytes)",
-	 p_pHTTPRequest->pszRequest,
-	 iContentLength);
+  GSWDebugLog(p_pLogServerData,
+              "Sending AppRequest Content: %s\n(%d Bytes)",
+              p_pHTTPRequest->pszRequest,
+              iContentLength);
   // Just To be sure of the length
   iLength = pszTmp - pszBuffer;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"pszBuffer:%s",pszBuffer);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"iLength:%d",iLength);
-#endif
+
+  GSWDebugLog(p_pLogServerData,"pszBuffer:%s",pszBuffer);
+  GSWDebugLog(p_pLogServerData,"iLength:%d",iLength);
+
+  p_pHTTPRequest->pStats->_beginSendRequestTS=GSWTime_now();
+
   fOk = GSWApp_SendBlock(p_socket,pszBuffer,iLength,p_pLogServerData);
+
+  p_pHTTPRequest->pStats->_endSendRequestTS=GSWTime_now();
+
   free(pszBuffer);
   pszBuffer=NULL;
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_SendRequest");
+
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWHTTPRequest_SendRequest");
   return fOk;
 }
 

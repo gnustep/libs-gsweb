@@ -37,19 +37,23 @@ typedef struct _GSWHTTPResponse
   GSWDict     *pHeaders;
   unsigned int uContentLength;
   void        *pContent;
+  GSWTimeStats   *pStats;		// Statistics (don't free !)
 } GSWHTTPResponse;
 
-GSWHTTPResponse *GSWHTTPResponse_New(CONST char *p_pszStatus,
+GSWHTTPResponse *GSWHTTPResponse_New(GSWTimeStats   *p_pStats,
+                                     CONST char *p_pszStatus,                                     
 				     void       *p_pLogServerData);
 void GSWHTTPResponse_Free(GSWHTTPResponse *p_pHTTPResponse,
 			  void            *p_pLogServerData);
 
 // Get The response from Application
-GSWHTTPResponse *GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
+GSWHTTPResponse *GSWHTTPResponse_GetResponse(GSWTimeStats   *p_pStats,
+                                             AppConnectHandle p_socket,
 					     void           *p_pLogServerData);
 
 // Build an error response
 GSWHTTPResponse *GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
+                                                    GSWTimeStats   *p_pStats,
                                                     unsigned int  p_uStatus,
                                                     GSWDict	 *p_pHeaders,
                                                     GSWTemplate_FN pTemplateFN,
@@ -57,11 +61,13 @@ GSWHTTPResponse *GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest
 						    void *p_pLogServerData);
 
 // Redirect Response
-GSWHTTPResponse *GSWHTTPResponse_BuildRedirectedResponse(CONST char *p_pszRedirectPath,
-						       void *p_pLogServerData);
+GSWHTTPResponse *GSWHTTPResponse_BuildRedirectedResponse(GSWTimeStats   *p_pStats,
+                                                         CONST char *p_pszRedirectPath,
+                                                         void *p_pLogServerData);
 
 // Service Unavailabel Response
 GSWHTTPResponse *GSWHTTPResponse_BuildServiceUnavailableResponse(GSWAppRequest *p_pAppRequest,
+                                                                 GSWTimeStats   *p_pStats,
                                                                  time_t     unavailableUntil,
                                                                  void       *p_pLogServerData);
 
@@ -75,7 +81,8 @@ char *p_pszGSWHTTPResponse_PackageHeaders(GSWHTTPResponse *p_pHTTPResponse,
 
 GSWHTTPResponse *GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest *p_pHTTPRequest,
 						     void *p_pLogServerData);
-GSWHTTPResponse* GSWDumpConfigFile(GSWURLComponents *p_pURLComponents,
+GSWHTTPResponse* GSWDumpConfigFile(GSWTimeStats   *p_pStats,
+                                   GSWURLComponents *p_pURLComponents,
 				   void             *p_pLogServerData);
 
 #ifdef __cplusplus

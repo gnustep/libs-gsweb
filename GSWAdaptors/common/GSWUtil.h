@@ -59,7 +59,41 @@ extern "C" {
 
 #define max(x, y)               ((x) > (y) ? (x) : (y))
 #define min(x, y)               ((x) < (y) ? (x) : (y))
+
+//====================================================================
+// Time Functions
+
+typedef long long GSWTime; // usec since Epoch
+
+#define USEC_PER_SEC	((GSWTime)1000000)
+#define GSWTime_makeTimeFromSecAndUSec(sec,usec)	((GSWTime)(sec)*USEC_PER_SEC+(GSWTime)(usec))
+
+GSWTime GSWTime_now();
+char* GSWTime_format(char *date_str,GSWTime t); // yyyy/mm/dd hh:mm:ss.msec
+time_t GSWTime_secPart(GSWTime t);
+long GSWTime_usecPart(GSWTime t);
+long GSWTime_msecPart(GSWTime t);
+
+#define GSWTime_floatSec(t) ((double)(((double)GSWTime_secPart(t))+((double)GSWTime_usecPart(t))/USEC_PER_SEC))
+
+#ifdef Apache
+#define GSWTime_makeFromAPRTime(aprtime) ((GSWTime)(aprtime))
+#endif
   
+//====================================================================
+// Asserts
+#define GSWAssert(condition,p_pLogServerData,p_pszFormat, args...); \
+	{ if (!(condition)) \
+		{ \
+                  GSWLog(GSW_CRITICAL,p_pLogServerData,"ARGHH"); \
+                  char* format=malloc(strlen(p_pszFormat)+strlen(__FILE__)+101); \
+  		  sprintf(format,"In %s (%d): %s",__FILE__,__LINE__,p_pszFormat); \
+                  GSWLog(GSW_CRITICAL,p_pLogServerData,format,  ## args); \
+		  free(format); \
+                 }} while (0);
+
+//====================================================================
+// Log Functions
 void GSWLog(int p_iLevel,
 #if	defined(Apache)
 	    server_rec *p_pLogServerData,
@@ -68,14 +102,19 @@ void GSWLog(int p_iLevel,
 #endif
 	    CONST char *p_pszFormat, ...);
 
-  void GSWLogSized(int p_iLevel,
+#define GSWDebugLog(p_pLogServerData,p_pszFormat, args...); \
+			GSWLog(GSW_DEBUG,p_pLogServerData,p_pszFormat,  ## args);
+#define GSWDebugLogCond(condition,p_pLogServerData,p_pszFormat, args...); \
+			{ if ((condition)) GSWLog(GSW_DEBUG,p_pLogServerData,p_pszFormat,  ## args);};
+
+void GSWLogSized(int p_iLevel,
 #if	defined(Apache)
 		   server_rec *p_pLogServerData,
 #else
-				   void *p_pLogServerData,
+                   void *p_pLogServerData,
 #endif
-				   int p_iBufferSize,
-				   CONST char *p_pszFormat, ...);
+                   int p_iBufferSize,
+                   CONST char *p_pszFormat, ...);
 
 void GSWLogIntern(char       *file,
 		  int         line,
@@ -101,6 +140,9 @@ void GSWLogSizedIntern(char       *file,
 		       int         p_iBufferSize,
 		       CONST char *p_pszFormat, ...);
 
+//====================================================================
+// Misc String Functions
+
 // return new len
 int DeleteTrailingCRNL(char *p_pszString);
 int DeleteTrailingSlash(char *p_pszString);
@@ -110,7 +152,14 @@ int SafeStrlen(CONST char *p_pszString);
 char *SafeStrdup(CONST char *p_pszString);
 char *strcasestr(CONST char *p_pszString, CONST char *p_pszSearchedString);
 
+#ifdef __USE_GNU
+#define gsw_strndup(a,b) strndup((a),(b))
+#else
+  extern char* gsw_strndup(const char *s, size_t len);
+#endif
 
+//====================================================================
+// Host lookup Functions
 //#include <netdb.h>
 typedef	struct hostent *PSTHostent;
 
@@ -118,21 +167,12 @@ PSTHostent GSWUtil_HostLookup(CONST char *p_pszHost, void *p_pLogServerData);
 void GSWUtil_ClearHostCache();
 PSTHostent GSWUtil_FindHost(CONST char *p_pszHost, void *p_pLogServerData);
 
+//====================================================================
 #include "GSWDict.h"
 
 void GSWLog_Init(GSWDict *p_pDict, int p_iLevel);
 
-  char* RevisionStringToRevisionValue(char* buffer,const char* revisionString);
-
-#ifdef Apache2
-  void FormatAPRTime(char *date_str, apr_time_t t); // 2003/04/05 10:12:25.123
-#endif
-
-#ifdef __USE_GNU
-#define gsw_strndup(a,b) strndup((a),(b))
-#else
-  extern char* gsw_strndup(const char *s, size_t len);
-#endif
+char* RevisionStringToRevisionValue(char* buffer,const char* revisionString);
 
 #ifdef __cplusplus
 }

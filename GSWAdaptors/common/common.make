@@ -27,7 +27,7 @@ COMMONFILES = $(COMMON)/GSWHTTPHeaders.c \
 	$(COMMON)/GSWAppConnectSocket.c $(COMMON)/GSWUtil.c \
 	$(COMMON)/GSWAppRequest.c \
 	$(COMMON)/GSWLoadBalancing.c $(COMMON)/GSWList.c  \
-	$(COMMON)/GSWString.c
+	$(COMMON)/GSWString.c $(COMMON)/GSWStats.c
 
 
 COMMONOBJS = $(OBJROOT)/GSWHTTPHeaders.o \
@@ -38,7 +38,7 @@ COMMONOBJS = $(OBJROOT)/GSWHTTPHeaders.o \
 	$(OBJROOT)/GSWAppConnectSocket.o $(OBJROOT)/GSWUtil.o \
 	$(OBJROOT)/GSWAppRequest.o \
 	$(OBJROOT)/GSWLoadBalancing.o $(OBJROOT)/GSWList.o \
-	$(OBJROOT)/GSWString.o
+	$(OBJROOT)/GSWString.o $(COMMON)/GSWStats.o
 
 $(ADAPTORLIB):: $(COMMONOBJS)
 #	libtool -static $(ARCH) -o $(ADAPTORLIB) $(COMMONOBJS)

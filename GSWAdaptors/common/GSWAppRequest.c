@@ -29,6 +29,7 @@
 
 #include "config.h"
 #include "GSWUtil.h"
+#include "GSWStats.h"
 #include "GSWDict.h"
 #include "GSWString.h"
 #include "GSWConfig.h"
@@ -41,6 +42,7 @@
 #include "GSWHTTPHeaders.h"
 #include "GSWLoadBalancing.h"
 #include "GSWTemplates.h"
+#include "GSWStats.h"
 
 unsigned long glbRequestsNb = 0;
 unsigned long glbResponsesNb = 0;
@@ -75,7 +77,9 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
   char            *appName = NULL;
   int              appInstance = 0;
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWAppRequest_SendAppRequestToApp");
+  GSWDebugLog(p_pLogServerData,"Start GSWAppRequest_SendAppRequestToApp");
+
+  (*p_ppHTTPRequest)->pStats->_beginSearchAppInstanceTS=GSWTime_now();
 
   if (p_pAppRequest->iInstance>0) //-1 or 0 mean any instance
     fAppFound = GSWLoadBalancing_FindInstance(p_pAppRequest,
@@ -95,6 +99,8 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
       // Call AppStart daemon
     };
 
+  (*p_ppHTTPRequest)->pStats->_endSearchAppInstanceTS=GSWTime_now();
+
   // Check if application is unavailable
   if (fAppFound
       && p_pAppRequest->pAppInstance
@@ -103,6 +109,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
       && p_pAppRequest->pAppInstance->pApp->unavailableUntil>time(NULL))
     {
       pHTTPResponse=GSWHTTPResponse_BuildServiceUnavailableResponse(p_pAppRequest,
+                                                                    p_pAppRequest->pStats,
                                                                     p_pAppRequest->pAppInstance->pApp->unavailableUntil,
                                                                     p_pLogServerData);
     }
@@ -111,25 +118,37 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
       while (!pHTTPResponse && fAppFound && iAttemptsRemaining-->0)
         {
           fAppNotResponding=FALSE;
-          GSWLog(GSW_INFO,p_pLogServerData,"Attempt# %d: Trying to contact %s:%d on %s(%d)",
+          GSWLog(GSW_INFO,p_pLogServerData,"Attempt# %d: Trying to contact %s:%d on %s:%d",
                  (int)(APP_CONNECT_RETRIES_NB-iAttemptsRemaining),
                  p_pAppRequest->pszName,
                  p_pAppRequest->iInstance,
                  p_pAppRequest->pszHost,
                  p_pAppRequest->iPort);
       
+          if (p_pAppRequest->pStats->_pszRequestedAppName)
+            free(p_pAppRequest->pStats->_pszRequestedAppName);
+          p_pAppRequest->pStats->_pszRequestedAppName=strdup(p_pAppRequest->pszName);
+          p_pAppRequest->pStats->_iRequestedAppInstance=p_pAppRequest->iInstance;
+
           hConnect = GSWApp_Open(p_pAppRequest,p_pLogServerData);
           if (hConnect)
             {
+              GSWAssert(p_pAppRequest->pStats,p_pLogServerData,"No p_pAppRequest->pStats");
+              p_pAppRequest->pStats->_beginAppRequestTS=GSWTime_now();
               if (p_pAppRequest->eType==EAppType_LoadBalanced)
                 GSWLoadBalancing_StartAppRequest(p_pAppRequest,
                                                  p_pLogServerData);
           
-              GSWLog(GSW_INFO,p_pLogServerData,"%s:%d on %s(%d) connected",
-                     p_pAppRequest->pszName,
-                     p_pAppRequest->iInstance,
-                     p_pAppRequest->pszHost,
-                     p_pAppRequest->iPort);
+              GSWDebugLog(p_pLogServerData,"%s:%d on %s:%d connected",
+                          p_pAppRequest->pszName,
+                          p_pAppRequest->iInstance,
+                          p_pAppRequest->pszHost,
+                          p_pAppRequest->iPort);
+
+              if (p_pAppRequest->pStats->_pszHost)
+                free(p_pAppRequest->pStats->_pszHost);
+              p_pAppRequest->pStats->_pszHost=strdup(p_pAppRequest->pszHost);
+              p_pAppRequest->pStats->_iPort=p_pAppRequest->iPort;
           
               GSWHTTPRequest_HTTPToAppRequest(*p_ppHTTPRequest,
                                               p_pAppRequest,
@@ -140,7 +159,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
                                              hConnect,
                                              p_pLogServerData) != 0)
                 {
-                  GSWLog(GSW_ERROR,p_pLogServerData,"Failed to send request to application %s:%d on %s(%d)",
+                  GSWLog(GSW_ERROR,p_pLogServerData,"Failed to send request to application %s:%d on %s:%d",
                          p_pAppRequest->pszName,
                          p_pAppRequest->iInstance,
                          p_pAppRequest->pszHost,
@@ -152,15 +171,21 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
                 }
               else
                 {
-                  GSWLog(GSW_INFO,p_pLogServerData,
-                         "Request %s sent, awaiting response",
-                         (*p_ppHTTPRequest)->pszRequest);
+                  GSWDebugLog(p_pLogServerData,
+                              "Request %s sent, awaiting response",
+                              (*p_ppHTTPRequest)->pszRequest);
               
                   appName = strdup(p_pAppRequest->pszName);
                   appInstance = p_pAppRequest->iInstance;
+
+                  if (p_pAppRequest->pStats->_pszFinalAppName)
+                    free(p_pAppRequest->pStats->_pszFinalAppName);
+                  p_pAppRequest->pStats->_pszFinalAppName=strdup(p_pAppRequest->pszName);
+                  p_pAppRequest->pStats->_iFinalAppInstance=appInstance;
               
                   p_pAppRequest->pRequest = NULL;
-                  pHTTPResponse = GSWHTTPResponse_GetResponse(hConnect,
+                  pHTTPResponse = GSWHTTPResponse_GetResponse(p_pAppRequest->pStats,
+                                                              hConnect,
                                                               p_pLogServerData);
                   p_pAppRequest->pResponse = pHTTPResponse;
               
@@ -186,10 +211,9 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
 			  GSWAppInfo_Set(appName, appInstance, TRUE);
 			}
                   
-                      GSWLog(GSW_INFO,p_pLogServerData,
-                             "received: %d %s",
-                             pHTTPResponse->uStatus,
-                             pHTTPResponse->pszStatusMessage);
+                      GSWDebugLog(p_pLogServerData,"received: %d %s",
+                                  pHTTPResponse->uStatus,
+                                  pHTTPResponse->pszStatusMessage);
                     };
                   if (appName)
                     {
@@ -197,6 +221,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
                       appName = NULL;
                     }
                 };
+              p_pAppRequest->pStats->_endAppRequestTS=GSWTime_now();
             }
           else
             {
@@ -231,6 +256,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
                          p_pAppRequest->pAppInstance->pApp : NULL) : NULL);
           char *pszString=GSWTemplate_ErrorNoResponseIncludedMessage(TRUE,pApp);
           pHTTPResponse = GSWHTTPResponse_BuildErrorResponse(p_pAppRequest,
+                                                             p_pAppRequest->pStats,
                                                              200,	// Status
                                                              NULL,	// Headers
                                                              &GSWTemplate_ErrorNoResponse,	// Template
@@ -244,10 +270,13 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
           GSWLog(GSW_WARNING,p_pLogServerData,
                  "Application %s not found or not responding",
                  p_pAppRequest->pszName);
-          pHTTPResponse = GSWDumpConfigFile(p_pURLComponents,p_pLogServerData);
+          pHTTPResponse = GSWDumpConfigFile(p_pAppRequest->pStats,
+                                            p_pURLComponents,
+                                            p_pLogServerData);
           if (!pHTTPResponse)
             {
               pHTTPResponse = GSWHTTPResponse_BuildErrorResponse(p_pAppRequest,
+                                                                 p_pAppRequest->pStats,
                                                                  200,	// Status
                                                                  NULL,	// Headers
                                                                  &GSWTemplate_ErrorResponse,	// Template
@@ -266,7 +295,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
   GSWHTTPRequest_Free(*p_ppHTTPRequest,p_pLogServerData);
   *p_ppHTTPRequest=NULL;
 
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWAppRequest_SendAppRequestToApp");
+  GSWDebugLog(p_pLogServerData,"Stop GSWAppRequest_SendAppRequestToApp");
   return pHTTPResponse;
 };
 
@@ -280,8 +309,13 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 			    void             *p_pLogServerData)
 {
   GSWHTTPResponse *pHTTPResponse=NULL;
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWAppRequest_HandleRequest");
+
+  GSWDebugLog(p_pLogServerData,"Start GSWAppRequest_HandleRequest");
+
+  (*p_ppHTTPRequest)->pStats->_beginHandleAppRequestTS=GSWTime_now();
+
   glbRequestsNb++;
+
   if (!p_pURLComponents)
     {
       GSWLog(GSW_CRITICAL,p_pLogServerData,
@@ -293,6 +327,7 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 	  || !p_pURLComponents->stAppName.pszStart)
 	{
 	  pHTTPResponse=GSWHTTPResponse_BuildErrorResponse(NULL,
+                                                           (*p_ppHTTPRequest)->pStats,
                                                            200,		// Status
                                                            NULL,	// Headers
                                                            &GSWTemplate_ErrorResponse,	// Template
@@ -305,8 +340,9 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 	  char szHost[MAXHOSTNAMELEN+1]="";
 	  GSWAppRequest stAppRequest;
 	  memset(&stAppRequest,0,sizeof(stAppRequest));
+          stAppRequest.pStats=(*p_ppHTTPRequest)->pStats;
 
-	  GSWLog(GSW_DEBUG,p_pLogServerData,"Copy AppName");
+	  GSWDebugLog(p_pLogServerData,"Copy AppName");
 	  // Get App Name
 	  strncpy(szAppName,
 		  p_pURLComponents->stAppName.pszStart,
@@ -319,7 +355,7 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 							     p_pLogServerData);
 	  else
 	    {
-	      GSWLog(GSW_DEBUG,p_pLogServerData,"Get HostByName");
+	      GSWDebugLog(p_pLogServerData,"Get HostByName");
 	      // Get Host Name
 	      if (p_pURLComponents->stAppHost.iLength>0 &&
 		  p_pURLComponents->stAppHost.pszStart)
@@ -331,10 +367,10 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 		};
 		  
 	      // Get Request Instance Number
-	      GSWLog(GSW_DEBUG,p_pLogServerData,"Get Request Instance Number");
+	      GSWDebugLog(p_pLogServerData,"Get Request Instance Number");
 	      
 	      // in URL  ?
-              GSWLog(GSW_DEBUG,p_pLogServerData,
+              GSWDebugLog(p_pLogServerData,
                      "Cookie %s",
                      p_pURLComponents->stAppNumber);
 	      if (p_pURLComponents->stAppNumber.iLength>0 &&
@@ -349,7 +385,7 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 		  CONST char *pszCookie=
 		    GSWHTTPRequest_HeaderForKey(*p_ppHTTPRequest,
 						g_szHeader_Cookie);
-                  GSWLog(GSW_DEBUG,p_pLogServerData,
+                  GSWDebugLog(p_pLogServerData,
                          "Cookie Instance %s: %s",
                          g_szHeader_Cookie,
                          pszCookie);
@@ -393,11 +429,11 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 		atoi(p_pURLComponents->stVersion.pszStart) :
 		GSWEB_VERSION_MAJOR;
 		  
-	      GSWLog(GSW_DEBUG,p_pLogServerData,"Add Header");
+	      GSWDebugLog(p_pLogServerData,"Add Header");
 	      GSWHTTPRequest_AddHeader(*p_ppHTTPRequest,
 				       g_szHeader_GSWeb_ServerAdaptor,
 				       g_szGSWeb_ServerAndAdaptorVersion);
-	      GSWLog(GSW_DEBUG,p_pLogServerData,"SendAppRequestToApp");
+	      GSWDebugLog(p_pLogServerData,"SendAppRequestToApp");
 	      pHTTPResponse =
 		GSWAppRequest_SendAppRequestToApp(p_ppHTTPRequest,
 						  p_pURLComponents,
@@ -407,7 +443,11 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 	    };
 	};
     };
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWAppRequest_HandleRequest");
+  if (pHTTPResponse)
+    pHTTPResponse->pStats->_endHandleAppRequestTS=GSWTime_now();
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWAppRequest_HandleRequest");
+
   return pHTTPResponse;
 };
 

@@ -33,6 +33,7 @@
 
 #include "config.h"
 #include "GSWUtil.h"
+#include "GSWStats.h"
 #include "GSWDict.h"
 #include "GSWURLUtil.h"
 #include "GSWAppRequestStruct.h"
@@ -51,145 +52,151 @@ typedef STAppConnectSocket* AppConnectSocketHandle;
 AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData)
 {
   AppConnectHandle handle=NULL;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_Open");
-#endif
+
+  GSWDebugLog(p_pLogServerData,"Start GSWApp_Open");
+
   if (!p_pAppRequest)
-	{
-	  GSWLog(GSW_CRITICAL,p_pLogServerData,
-				 "No AppRequest !");
-	  //TODO
-	}
+    {
+      GSWLog(GSW_CRITICAL,p_pLogServerData,
+             "No AppRequest !");
+      //TODO
+    }
   else
-	{
-	  PSTHostent pHost = GSWUtil_FindHost(p_pAppRequest->pszHost,p_pLogServerData);
-	  if (!pHost)
-		{
-		  GSWLog(GSW_ERROR,p_pLogServerData,
-				 "gethostbyname(%s) returns no host",
-				 p_pAppRequest->pszHost);
-		}
-	  else
-		{
-		  int iSocketDescr = 0;
-		  struct sockaddr_in sin;
-		  memset(&sin,0,sizeof(sin));
-		  sin.sin_family = pHost->h_addrtype;
-		  sin.sin_port = htons(p_pAppRequest->iPort);
-		  memcpy(&sin.sin_addr,pHost->h_addr_list[0],pHost->h_length);
-		  GSWLog(GSW_INFO,
-				 p_pLogServerData,
-				 "Try contacting %s on port %d...",
-				 p_pAppRequest->pszHost,
-				 p_pAppRequest->iPort);
-		  iSocketDescr=socket(pHost->h_addrtype,SOCK_STREAM, 0);
-		  if (iSocketDescr<0)
-			{
-			  GSWLog(GSW_ERROR,
-					 p_pLogServerData,
-					 "Can't Create socket to %s:%d. Error=%d (%s)",
-					 p_pAppRequest->pszHost,
-					 p_pAppRequest->iPort,
-					 errno,
-					 strerror(errno));
-			}
-		  else
-			{
-			  if (connect(iSocketDescr,(struct sockaddr*)&sin,sizeof(sin))<0)
-				{
-				  GSWLog(GSW_ERROR,
-						 p_pLogServerData,
-						 "Can't connect to %s:%d. Error=%d (%s)",
-						 p_pAppRequest->pszHost,
-						 p_pAppRequest->iPort,
-						 errno,
-						 strerror(errno));
-				  close(iSocketDescr);
-				  iSocketDescr=0;
-				}
-			  else
-				{
-				  FILE* pFileRead=fdopen(iSocketDescr,"r");
-				  if (!pFileRead)
-					{
-					  GSWLog(GSW_ERROR,
-							 p_pLogServerData,
-							 "Can't open for reading. Error=%d (%s)",
-							 errno,
-							 strerror(errno));
-					  close(iSocketDescr);
-					  iSocketDescr=0;
-					}
-				  else
-					{
-					  FILE* pFileWrite=fdopen(iSocketDescr,"w");
-					  if (!pFileWrite)
-						{
-						  GSWLog(GSW_ERROR,
-								 p_pLogServerData,
-								 "Can't open for writing. Error=%d (%s)",
-								 errno,
-								 strerror(errno));
-						  fclose(pFileRead);
-						  pFileRead=NULL;
-						  close(iSocketDescr);
-						  iSocketDescr=0;
-						}
-					  else
-						{
-						  handle = calloc(1, sizeof(STAppConnectSocket));
-						  ((AppConnectSocketHandle)handle)->iSocketDescr = iSocketDescr;
-						  ((AppConnectSocketHandle)handle)->pFileRead = pFileRead;
-						  ((AppConnectSocketHandle)handle)->pFileWrite = pFileWrite;
-						};
-					};
-				};
-			};
-		};
-	};
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWApp_Open");
-#endif
+    {
+      PSTHostent pHost = NULL;
+
+      //Stats
+      GSWAssert(p_pAppRequest->pStats,p_pLogServerData,"No p_pAppRequest->pStats");
+      if (!p_pAppRequest->pStats->_tryContactingAppInstanceTS)
+        p_pAppRequest->pStats->_tryContactingAppInstanceTS=GSWTime_now();
+
+      p_pAppRequest->pStats->_tryContactingAppInstanceCount++;
+      
+      pHost=GSWUtil_FindHost(p_pAppRequest->pszHost,p_pLogServerData);
+      if (!pHost)
+        {
+          GSWLog(GSW_ERROR,p_pLogServerData,
+                 "gethostbyname(%s) returns no host",
+                 p_pAppRequest->pszHost);
+        }
+      else
+        {
+          int iSocketDescr = 0;
+          struct sockaddr_in sin;
+          memset(&sin,0,sizeof(sin));
+          sin.sin_family = pHost->h_addrtype;
+          sin.sin_port = htons(p_pAppRequest->iPort);
+          memcpy(&sin.sin_addr,pHost->h_addr_list[0],pHost->h_length);
+          GSWDebugLog(p_pLogServerData,
+                      "Try contacting %s on port %d...",
+                      p_pAppRequest->pszHost,
+                      p_pAppRequest->iPort);
+          iSocketDescr=socket(pHost->h_addrtype,SOCK_STREAM, 0);
+          if (iSocketDescr<0)
+            {
+              GSWLog(GSW_ERROR,
+                     p_pLogServerData,
+                     "Can't Create socket to %s:%d. Error=%d (%s)",
+                     p_pAppRequest->pszHost,
+                     p_pAppRequest->iPort,
+                     errno,
+                     strerror(errno));
+            }
+          else
+            {
+              if (connect(iSocketDescr,(struct sockaddr*)&sin,sizeof(sin))<0)
+                {
+                  GSWLog(GSW_ERROR,
+                         p_pLogServerData,
+                         "Can't connect to %s:%d. Error=%d (%s)",
+                         p_pAppRequest->pszHost,
+                         p_pAppRequest->iPort,
+                         errno,
+                         strerror(errno));
+                  close(iSocketDescr);
+                  iSocketDescr=0;
+                }
+              else
+                {
+                  FILE* pFileRead=fdopen(iSocketDescr,"r");
+                  if (!pFileRead)
+                    {
+                      GSWLog(GSW_ERROR,
+                             p_pLogServerData,
+                             "Can't open for reading. Error=%d (%s)",
+                             errno,
+                             strerror(errno));
+                      close(iSocketDescr);
+                      iSocketDescr=0;
+                    }
+                  else
+                    {
+                      FILE* pFileWrite=fdopen(iSocketDescr,"w");
+                      if (!pFileWrite)
+                        {
+                          GSWLog(GSW_ERROR,
+                                 p_pLogServerData,
+                                 "Can't open for writing. Error=%d (%s)",
+                                 errno,
+                                 strerror(errno));
+                          fclose(pFileRead);
+                          pFileRead=NULL;
+                          close(iSocketDescr);
+                          iSocketDescr=0;
+                        }
+                      else
+                        {
+                          handle = calloc(1, sizeof(STAppConnectSocket));
+                          ((AppConnectSocketHandle)handle)->iSocketDescr = iSocketDescr;
+                          ((AppConnectSocketHandle)handle)->pFileRead = pFileRead;
+                          ((AppConnectSocketHandle)handle)->pFileWrite = pFileWrite;
+                        };
+                    };
+                };
+            };
+        };
+    };
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWApp_Open");
+
   return handle;
 };
 
 //--------------------------------------------------------------------
 void GSWApp_Close(AppConnectHandle p_handle,void* p_pLogServerData)
 {
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_Close ");
-#endif
+  GSWDebugLog(p_pLogServerData,"Start GSWApp_Close ");
+
   if (!p_handle)
-	{
-	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no Handle !");
-	}
+    {
+      GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no Handle !");
+    }
   else
-	{
-	  AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
-	  if (!handle->iSocketDescr)
-		{
-		  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no socket desc !");
-		}
-	  else
-		{
-		  close(handle->iSocketDescr);
-		  fclose(handle->pFileRead);
-		  fclose(handle->pFileWrite);
-		};
-	  free(handle);
-	};
-#ifdef	DEBUG
-  GSWLog(GSW_ERROR,p_pLogServerData,"Stop GSWApp_Close");
-#endif
+    {
+      AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
+      if (!handle->iSocketDescr)
+        {
+          GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no socket desc !");
+        }
+      else
+        {
+          close(handle->iSocketDescr);
+          fclose(handle->pFileRead);
+          fclose(handle->pFileWrite);
+        };
+      free(handle);
+    };
+  
+  GSWDebugLog(p_pLogServerData,"Stop GSWApp_Close");
 };
 
 //--------------------------------------------------------------------
 int GSWApp_SendLine(AppConnectHandle p_handle, CONST char* p_pszBuffer,void* p_pLogServerData)
 {
   int iRetValue=-1;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_SendLine");
-#endif
+
+  GSWDebugLog(p_pLogServerData,"Start GSWApp_SendLine");
+
   if (!p_handle)
 	{
 	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_SendLine: no Handle !");
@@ -218,24 +225,24 @@ int GSWApp_SendLine(AppConnectHandle p_handle, CONST char* p_pszBuffer,void* p_p
 			};
 		};
 	};
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWApp_SendLine");
-#endif
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWApp_SendLine");
+
   return iRetValue;
 };
 
 
 //--------------------------------------------------------------------
 int GSWApp_SendBlock(AppConnectHandle p_handle,
-					 CONST char* p_pszBuffer,
-					 int p_iSize,
-					 void* p_pLogServerData)
+                     CONST char* p_pszBuffer,
+                     int p_iSize,
+                     void* p_pLogServerData)
 {
   int iRetValue=-1;
   int iBytesSent=0;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_SendBlock");
-#endif
+
+  GSWDebugLog(p_pLogServerData,"Start GSWApp_SendBlock");
+
   if (!p_handle)
 	{
 	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_SendBlock: no Handle !");
@@ -263,81 +270,85 @@ int GSWApp_SendBlock(AppConnectHandle p_handle,
 			iRetValue=0;
 		};
 	};
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWApp_SendBlock");
-#endif
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWApp_SendBlock");
+
   return iRetValue;
 };
 
 //--------------------------------------------------------------------
 int GSWApp_ReceiveLine(AppConnectHandle p_handle,
-					   char* p_pszBuffer,
-					   int p_iBufferSize,
-					   void* p_pLogServerData)
+                       char* p_pszBuffer,
+                       int p_iBufferSize,
+                       void* p_pLogServerData)
 {
   int iRetValue=-1;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_ReceiveLine p_iBufferSize=%d",p_iBufferSize);
-#endif
+
+  GSWDebugLog(p_pLogServerData,"Start GSWApp_ReceiveLine p_iBufferSize=%d",p_iBufferSize);
+
   *p_pszBuffer=0;
   if (!p_handle)
-	{
-	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no Handle !");
-	}
+    {
+      GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no Handle !");
+    }
   else
-	{
-	  AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
-	  if (!handle->pFileRead)
-		{
-		  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no read file handle !");
-		}
-	  else
-		{
-		  char* pszLine=fgets(p_pszBuffer,p_iBufferSize,handle->pFileRead);
-		  if (pszLine)
-			{
-			  iRetValue=DeleteTrailingCRNL(p_pszBuffer);
-			}
-		  else
-			*p_pszBuffer=0;
-		};
-	};
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"GSWApp_ReceiveLine line=[%s]",p_pszBuffer);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWApp_ReceiveLine");
-#endif
+    {
+      AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
+      if (!handle->pFileRead)
+        {
+          GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no read file handle !");
+        }
+      else
+        {
+          char* pszLine=fgets(p_pszBuffer,p_iBufferSize,handle->pFileRead);
+          if (pszLine)
+            {
+              iRetValue=DeleteTrailingCRNL(p_pszBuffer);
+            }
+          else
+            *p_pszBuffer=0;
+        };
+    };
+  
+  GSWDebugLog(p_pLogServerData,"GSWApp_ReceiveLine line=[%s]",p_pszBuffer);
+  GSWDebugLog(p_pLogServerData,"Stop GSWApp_ReceiveLine");
+
   return iRetValue;
 };
 
 //--------------------------------------------------------------------
 int GSWApp_ReceiveBlock(AppConnectHandle p_handle,
-						char* p_pszBuffer,
-						int p_iBufferSize,
-						void* p_pLogServerData) 
+                        char* p_pszBuffer,
+                        int p_iBufferSize,
+                        void* p_pLogServerData) 
 {
   int iRetValue=-1;
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_ReceiveBlock");
-#endif
+
+  GSWDebugLog(p_pLogServerData,
+              "Start GSWApp_ReceiveBlock of in %d bytes buffer",
+              p_iBufferSize);
+
   if (!p_handle)
-	{
-	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no Handle !");
-	}
+    {
+      GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no Handle !");
+    }
   else
-	{
-	  AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
-	  if (!handle->pFileRead)
-		{
-		  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no read file handle !");
-		}
-	  else
-		{
-		  iRetValue=fread(p_pszBuffer,sizeof(char),p_iBufferSize,handle->pFileRead); 
-		};
-	};
-#ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWApp_ReceiveBlock");
-#endif
+    {
+      AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
+      if (!handle->pFileRead)
+        {
+          GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no read file handle !");
+        }
+      else
+        {
+          iRetValue=fread(p_pszBuffer,sizeof(char),p_iBufferSize,handle->pFileRead); 
+        };
+    };
+
+  GSWDebugLog(p_pLogServerData,
+              "Stop GSWApp_ReceiveBlock (received %d bytes)",
+              iRetValue);
+
   return iRetValue;
 };
 

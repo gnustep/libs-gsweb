@@ -1,5 +1,5 @@
 /* GSWLoadBalancing.c - GSWeb: Adaptors: Load Balancing
-   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 	July 1999
@@ -29,6 +29,7 @@
 
 #include "config.h"
 #include "GSWUtil.h"
+#include "GSWStats.h"
 #include "GSWDict.h"
 #include "GSWList.h"
 #include "GSWString.h"
@@ -52,11 +53,15 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
 {
   BOOL fFound=FALSE;
   GSWApp *pApp=NULL;
-  GSWLog(GSW_DEBUG,p_pLogServerData,"LoadBalancing: Start GSWLoadBalancing_FindApp");
-  GSWLog(GSW_INFO,p_pLogServerData,"LoadBalancing: looking for %s",
-		   p_pAppRequest->pszName);
+
+  GSWDebugLog(p_pLogServerData,"LoadBalancing: Start GSWLoadBalancing_FindApp");
+  GSWDebugLog(p_pLogServerData,"LoadBalancing: looking for %s",
+              p_pAppRequest->pszName);
+
   GSWConfig_LoadConfiguration(p_pLogServerData);
+
   GSWLock_Lock(g_lockAppList);
+
   pApp = GSWConfig_GetApp(p_pAppRequest->pszName);
   if (pApp)
     {
@@ -69,7 +74,7 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
       while (!fFound && iTries-->0)
 	{
 	  pApp->iLastInstanceIndex = (pApp->iLastInstanceIndex+1) % uInstancesCount;
-          GSWLog(GSW_DEBUG,p_pLogServerData,"LoadBalancing: Will try instance %d (instances count=%d).",
+          GSWDebugLog(p_pLogServerData,"LoadBalancing: Will try instance %d (instances count=%d).",
                  pApp->iLastInstanceIndex,uInstancesCount);
 	  pAppInstance =
 	    (GSWAppInstance *)GSWDict_ValueForKey(&pApp->stInstancesDict,
@@ -143,16 +148,20 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
   GSWLock_Unlock(g_lockAppList);
 
   if (fFound)
-    GSWLog(GSW_INFO,p_pLogServerData,
-	   "LoadBalance: looking for %s, found instance %d on %s:%d",
-	   p_pAppRequest->pszName,
-	   p_pAppRequest->iInstance,
-	   p_pAppRequest->pszHost,
-	   p_pAppRequest->iPort);
+    {
+      GSWDebugLog(p_pLogServerData,
+                  "LoadBalance: looking for %s, found instance %d on %s:%d",
+                  p_pAppRequest->pszName,
+                  p_pAppRequest->iInstance,
+                  p_pAppRequest->pszHost,
+                  p_pAppRequest->iPort);
+    }
   else
-    GSWLog(GSW_INFO,p_pLogServerData,"LoadBalance: looking for %s, Not Found",
-	   p_pAppRequest->pszName);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWLoadBalancing_FindApp");
+    {
+      GSWDebugLog(p_pLogServerData,"LoadBalance: looking for %s, Not Found",
+                  p_pAppRequest->pszName);
+    };
+  GSWDebugLog(p_pLogServerData,"Stop GSWLoadBalancing_FindApp");
   return fFound;
 };
 
@@ -165,9 +174,12 @@ GSWLoadBalancing_FindInstance(GSWAppRequest    *p_pAppRequest,
   BOOL fFound=FALSE;
   GSWApp *pApp=NULL;
   int i=0;
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWLoadBalancing_FindInstance");
+
+  GSWDebugLog(p_pLogServerData,"Start GSWLoadBalancing_FindInstance");
+
   GSWConfig_LoadConfiguration(p_pLogServerData);
   GSWLock_Lock(g_lockAppList);
+
   pApp = (GSWApp *)GSWConfig_GetApp(p_pAppRequest->pszName);
   if (pApp)
     {
@@ -189,7 +201,7 @@ GSWLoadBalancing_FindInstance(GSWAppRequest    *p_pAppRequest,
         }
       else
 	{
-	  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance Found");
+	  GSWDebugLog(p_pLogServerData,"Instance Found");
 	  if (pAppInstance->fValid)
 	    {
 	      BOOL okay = TRUE;
@@ -225,17 +237,20 @@ GSWLoadBalancing_FindInstance(GSWAppRequest    *p_pAppRequest,
 		  p_pAppRequest->eType = EAppType_LoadBalanced;
 		  p_pAppRequest->pAppInstance = pAppInstance;
 		  pAppInstance->uOpenedRequestsNb++;		
-		  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is valid");
+		  GSWDebugLog(p_pLogServerData,"Instance is valid");
 		}
 	    }
 	  else
 	    {
-	      GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is not valid");
+	      GSWDebugLog(p_pLogServerData,"Instance is not valid");
 	    };
 	};
     };
+
   GSWLock_Unlock(g_lockAppList);
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWLoadBalancing_FindInstance");
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWLoadBalancing_FindInstance");
+
   return fFound;
 };
 
@@ -256,6 +271,7 @@ GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest *p_pAppRequest,
 	 p_pAppRequest->pszName,(int)APP_CONNECT_RETRY_DELAY,
          pAppInstance->uNotRespondingRequestsNb,
          pAppInstance->uHandledRequestsNb);
+
   if (!pAppInstance->fValid)
     {
       if (GSWAppInstance_FreeIFND(pAppInstance))

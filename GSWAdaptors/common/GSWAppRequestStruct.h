@@ -52,6 +52,7 @@ typedef struct _GSWAppRequest
   void           *pRequest;	// HTTPRequest
   void           *pResponse;	// HTTPResponse
   GSWAppInstance *pAppInstance;
+  GSWTimeStats   *pStats;		// Statistics (don't free !)
 } GSWAppRequest;
 
 

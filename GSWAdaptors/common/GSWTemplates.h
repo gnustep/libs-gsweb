@@ -40,6 +40,6 @@ char *GSWTemplate_GetDumpHead(BOOL p_fHTML);
 char *GSWTemplate_GetDumpFoot(BOOL p_fHTML);
 char *GSWTemplate_GetDumpApp(BOOL p_fHTML);
 char *GSWTemplate_GetDumpAppInstance(BOOL p_fHTML);
-void GSWTemplate_ReplaceStd(GSWString *p_pString, GSWApp *p_pApp);
+void GSWTemplate_ReplaceStd(GSWString *p_pString, GSWApp *p_pApp,void *p_pLogServerData);
 
 #endif //_GSWTemplates_h__

@@ -1,5 +1,5 @@
 /* GNUstepNetscape.c - GSWeb: Netscape NSAPI Interface
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999,2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 		Jully 1999
@@ -34,6 +34,7 @@
 #include <netsite.h>
 
 #include "GSWUtil.h"
+#include "GSWStats.h"
 #include "GSWDict.h"
 #include "GSWConfig.h"
 #include "GSWURLUtil.h"
@@ -168,8 +169,8 @@ int GSWeb_NameTrans(pblock *p_pBlock, Session *sn, Request *p_pRequest)
 //	GNUstepWeb Request Handler
 
 NSAPI_PUBLIC int GSWeb_RequestHandler(pblock* p_pBlock,
-									  Session* p_pSession,
-									  Request* p_pRequest)
+                                      Session* p_pSession,
+                                      Request* p_pRequest)
 {
   int iRetVal=REQ_PROCEED;
   GSWHTTPResponse* pResponse = NULL;
@@ -177,6 +178,16 @@ NSAPI_PUBLIC int GSWeb_RequestHandler(pblock* p_pBlock,
   const char* pszURLError=NULL;
   char* pszURI=NULL;
   GSWURLComponents stURLComponents;
+  GSWTimeStats	   stStats;
+
+  memset(&stStats,0,sizeof(stStats));
+
+  // The request time stamp
+  stStats._requestTS=GSWTime_now();//TODO: should be real request TS
+
+  // Handling start time stamp
+  stStats._beginHandleRequestTS=GSWTime_now();
+
   memset(&stURLComponents,0,sizeof(stURLComponents));
 
   NSDebugLog(p_pSession->client,"Session Client");
@@ -197,101 +208,110 @@ NSAPI_PUBLIC int GSWeb_RequestHandler(pblock* p_pBlock,
   // Parse the uri
   eError=GSWParseURL(&stURLComponents,pszURI);
   if (eError!=GSWURLError_OK)
-	{
-	  pszURLError=GSWURLErrorMessage(eError);
-	  // Log the error
-	  GSWLog(GSW_INFO,NULL,"URL Parsing Error: %s", pszURLError);
-	  if (eError==GSWURLError_InvalidAppName)
-		{
-		  pResponse = GSWDumpConfigFile(NULL,&stURLComponents);
-		  iRetVal=dieSendResponse(p_pSession,p_pRequest,&pResponse);
-		}
-	  else
-		iRetVal=dieWithMessage(p_pSession,p_pRequest,pszURLError);
-	}
+    {
+      pszURLError=GSWURLErrorMessage(eError);
+      // Log the error
+      GSWLog(GSW_INFO,NULL,"URL Parsing Error: %s", pszURLError);
+      if (eError==GSWURLError_InvalidAppName)
+        {
+          pResponse = GSWDumpConfigFile(&stStats,NULL,&stURLComponents);
+          iRetVal=dieSendResponse(p_pSession,p_pRequest,&pResponse);
+        }
+      else
+        iRetVal=dieWithMessage(p_pSession,p_pRequest,&stStats,pszURLError);
+    }
   else
-	{
-	  // Build the GSWHTTPRequest with the method
-	  GSWHTTPRequest* pRequest= GSWHTTPRequest_New(pblock_findval("method", p_pRequest->reqpb), NULL);
+    {
+      // Build the GSWHTTPRequest with the method
+      GSWHTTPRequest* pRequest= GSWHTTPRequest_New(pblock_findval("method", p_pRequest->reqpb),
+                                                   NULL,&stStats);
+      
+      // validate the method
+      const char* pszRequestError= GSWHTTPRequest_ValidateMethod(pRequest);
+      
+      if (pszRequestError)
+        {
+          GSWHTTPRequest_Free(pRequest);
+          iRetVal=dieWithMessage(p_pSession,p_pRequest,&stStats,pszRequestError);
+        }
+      else
+        {
+          // Copy Headers
+          copyHeaders(p_pBlock, p_pSession, p_pRequest, pRequest);
+          
+          // Get Form data
+          
+          // POST Method
+          if ((pRequest->eMethod==ERequestMethod_Post) && (pRequest->uContentLength>0))
+            {
+              char* pszBuffer = malloc(pRequest->uContentLength);
+              char* pszData = pszBuffer;
+              int c;
+              int i=0;
+              for(i=0;i<pRequest->uContentLength;i++)//TODOV
+                {
+                  // Get a character
+                  c = netbuf_getc(p_pSession->inbuf);
+                  if (c == IO_ERROR)
+                    {
+                      log_error(0,"GNUstepWeb",
+                                p_pSession,
+                                p_pRequest,
+                                "Error reading form data (Post Method)");
+                      free(pszBuffer);
+                      pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,
+                                                                     &stStats,
+                                                                     "Bad mojo",
+                                                                     NULL); // TODO
+                    };
+                  // Add Data
+                  *pszData++ = c;
+                }
+              pRequest->pContent = pszBuffer;
+            }
+          // GET Method
+          else if (pRequest->eMethod==ERequestMethod_Get)
+            {
+              // Get the QueryString
+              const char* pQueryString = pblock_findval("query", p_pRequest->reqpb);
+              stURLComponents.stQueryString.pszStart = pQueryString;
+              stURLComponents.stQueryString.iLength = pQueryString ? strlen(pQueryString) : 0;
+            };
+          
+          // So far, so good...
+          if (!pResponse)
+            {
+              // Now we call the Application !
+              
+              // get the document root
+              const char* pszDocRoot=getDocumentRoot(p_pRequest);	
+              pRequest->pServerHandle = p_pRequest;
+              
+              // Build the response (Beware: tr_handleRequest free pRequest)
+              pResponse=GSWAppRequest_HandleRequest(&pRequest,
+                                                    &stURLComponents,
+                                                    pblock_findval("protocol",p_pRequest->reqpb),
+                                                    pszDocRoot,
+                                                    g_szGSWeb_StatusResponseAppName, //AppTest name
+                                                    NULL);
+            };
+          
+          // Send the response (if any)
+          if (pResponse)
+            {
+              iRetVal = sendResponse(p_pSession, p_pRequest, 
+                                     &stStats, pResponse);
+              GSWHTTPResponse_Free(pResponse);
+            }
+          else 
+            // No Application Response !
+            iRetVal = REQ_EXIT;		
+        };
+    };
 
-	  // validate the method
-	  const char* pszRequestError= GSWHTTPRequest_ValidateMethod(pRequest);
-	
-	  if (pszRequestError)
-		{
-		  GSWHTTPRequest_Free(pRequest);
-		  iRetVal=dieWithMessage(p_pSession,p_pRequest,pszRequestError);
-		}
-	  else
-		{
-		  // Copy Headers
-		  copyHeaders(p_pBlock, p_pSession, p_pRequest, pRequest);
-
-		  // Get Form data
-
-		  // POST Method
-		  if ((pRequest->eMethod==ERequestMethod_Post) && (pRequest->uContentLength>0))
-			{
-			  char* pszBuffer = malloc(pRequest->uContentLength);
-			  char* pszData = pszBuffer;
-			  int c;
-			  int i=0;
-			  for(i=0;i<pRequest->uContentLength;i++)//TODOV
-				{
-				  // Get a character
-				  c = netbuf_getc(p_pSession->inbuf);
-				  if (c == IO_ERROR)
-					{
-					  log_error(0,"GNUstepWeb",
-								p_pSession,
-								p_pRequest,
-								"Error reading form data (Post Method)");
-					  free(pszBuffer);
-					  pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,"Bad mojo",NULL); // TODO
-					};
-				  // Add Data
-				  *pszData++ = c;
-				}
-			  pRequest->pContent = pszBuffer;
-			}
-		  // GET Method
-		  else if (pRequest->eMethod==ERequestMethod_Get)
-			{
-			  // Get the QueryString
-			  const char* pQueryString = pblock_findval("query", p_pRequest->reqpb);
-			  stURLComponents.stQueryString.pszStart = pQueryString;
-			  stURLComponents.stQueryString.iLength = pQueryString ? strlen(pQueryString) : 0;
-			};
-
-   		  // So far, so good...
-		  if (!pResponse)
-			{
-			  // Now we call the Application !
-
-			  // get the document root
-			  const char* pszDocRoot=getDocumentRoot(p_pRequest);	
-			  pRequest->pServerHandle = p_pRequest;
-
-			  // Build the response (Beware: tr_handleRequest free pRequest)
-			  pResponse=GSWAppRequest_HandleRequest(&pRequest,
-													&stURLComponents,
-													pblock_findval("protocol",p_pRequest->reqpb),
-													pszDocRoot,
-													g_szGSWeb_StatusResponseAppName, //AppTest name
-													NULL);
-			};
-		
-		  // Send the response (if any)
-		  if (pResponse)
-			{
-			  iRetVal = sendResponse(p_pSession, p_pRequest, pResponse);
-			  GSWHTTPResponse_Free(pResponse);
-			}
-		  else 
-			// No Application Response !
-			iRetVal = REQ_EXIT;		
-		};
-	};
+  stStats._endHandleRequestTS=GSWTime_now();
+  GSWStats_logStats(stStats,NULL);
+  GSWStats_freeVars(&stStats);
   return iRetVal;
 };
 
@@ -341,24 +361,24 @@ static const char *getDocumentRoot(Request* p_pRequest)
 // Copy A Header headers into p_pGSWHTTPRequest
 
 static void copyAHeader(const char* p_pszHeaderKey,
-						pblock* p_pBlock,
-						GSWHTTPRequest* p_pGSWHTTPRequest,
-						const char* p_pszGSWebKey)
+                        pblock* p_pBlock,
+                        GSWHTTPRequest* p_pGSWHTTPRequest,
+                        const char* p_pszGSWebKey)
 {
   const char* p_pszValue = pblock_findval(p_pszHeaderKey,p_pBlock);
   if (p_pszValue)
-	GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
-				  (p_pszGSWebKey ? p_pszGSWebKey : p_pszHeaderKey),
-				  p_pszValue);
+    GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
+                             (p_pszGSWebKey ? p_pszGSWebKey : p_pszHeaderKey),
+                             p_pszValue);
 };
 
 //--------------------------------------------------------------------
 // Copy headers into p_pGSWHTTPRequest
 
 static void copyHeaders(pblock* p_pBlock,
-						Session* p_pSession,
-						Request* p_pRequest,
-						GSWHTTPRequest* p_pGSWHTTPRequest)
+                        Session* p_pSession,
+                        Request* p_pRequest,
+                        GSWHTTPRequest* p_pGSWHTTPRequest)
 {
   int i=0;
   const char* pszHeaderValue=NULL;
@@ -475,18 +495,24 @@ static void copyHeaders(pblock* p_pBlock,
 static void getHeader(GSWDictElem* p_pElem,Request* p_pRequest)
 {
   pblock_nvinsert(p_pElem->pszKey,
-				  p_pElem->pValue,
-				  ((Request*)p_pRequest)->srvhdrs);
+                  p_pElem->pValue,
+                  ((Request*)p_pRequest)->srvhdrs);
 };
 
 //--------------------------------------------------------------------
 // send response
 
 static int sendResponse(Session* p_pSession,
-						Request* p_pRequest,
-						GSWHTTPResponse* p_pResponse)
+                        Request* p_pRequest,
+                        GSWHTTPResponse* p_pResponse)
 {
   int iRetVal=REQ_PROCEED;
+
+  p_pResponse->pStats->_responseLength=p_pResponse->uContentLength;
+  p_pResponse->pStats->_responseStatus=p_pResponse->uStatus;
+
+  p_pResponse->pStats->_beginSendResponseTS=GSWTime_now();
+
   // Process Headers
   pblock_remove(g_szHeader_ContentType,p_pRequest->srvhdrs);
   GSWDict_PerformForAllElem(p_pResponse->pHeaders,getHeader,p_pRequest);
@@ -517,35 +543,42 @@ static int sendResponse(Session* p_pSession,
 		  iRetVal=REQ_EXIT;
 	  };
 	};
-	return iRetVal;
+
+  p_pResponse->pStats->_endSendResponseTS=GSWTime_now();
+
+  return iRetVal;
 };
 
 //--------------------------------------------------------------------
 // die/send response
 static int dieSendResponse(Session* p_pSession,
-						   Request* p_pRequest,
-						   GSWHTTPResponse** p_ppResponse)
+                           Request* p_pRequest,
+                           GSWTimeStats *p_pStats,
+                           GSWHTTPResponse** p_ppResponse)
 {
     sendResponse(p_pSession,
-				 p_pRequest,
-				 *p_ppResponse);
+                 p_pRequest,
+                 p_pStats,
+                 *p_ppResponse);
     GSWHTTPResponse_Free(*p_ppResponse);
-	*p_ppResponse=NULL;
+    *p_ppResponse=NULL;
     return REQ_PROCEED;
 };
 
 //--------------------------------------------------------------------
 // die with a message
 static int dieWithMessage(Session* p_pSession,
-						  Request* p_pRequest,
-						  const char* p_pszMessage)
+                          Request* p_pRequest,
+                          GSWTimeStats *p_pStats,
+                          const char* p_pszMessage)
 {
-	GSWHTTPResponse* pResponse=NULL;
-	log_error(0,"GNUstepWeb",NULL,NULL,"Aborting request - %s",p_pszMessage);
-	pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,p_pszMessage,NULL);
-	return dieSendResponse(p_pSession,
-						   p_pRequest,
-						   &pResponse);
+  GSWHTTPResponse* pResponse=NULL;
+  log_error(0,"GNUstepWeb",NULL,NULL,"Aborting request - %s",p_pszMessage);
+  pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,p_pszMessage,NULL);
+  return dieSendResponse(p_pSession,
+                         p_pRequest,
+                         p_pStats,
+                         &pResponse);
 };
 
 

@@ -109,6 +109,7 @@ GSWConfig_Init(GSWDict *p_pDict,
 {
   CONST char *pszPath=NULL;
   memset(&g_gswConfig,0,sizeof(g_gswConfig));
+  g_gswConfig.fDebug=YES; // Debug mode until loading configuration
   sprintf(g_szServerStringInfo,"%s v %s built %s",
 		  g_szGSWeb_Server,
 		  GSWServerVersion,		  
@@ -146,6 +147,20 @@ BOOL
 GSWConfig_AddTimeHeaders()
 {
   return g_gswConfig.fAddTimeHeaders;
+};
+
+//--------------------------------------------------------------------
+BOOL
+GSWConfig_IsDebug()
+{
+  return g_gswConfig.fDebug;
+};
+
+//--------------------------------------------------------------------
+BOOL
+GSWConfig_IsReaden()
+{
+  return (config_mtime!=0);
 };
 
 //--------------------------------------------------------------------
@@ -233,7 +248,7 @@ GSWConfig_ReadIFND(CONST char *p_pszConfigPath,
 {
   EGSWConfigResult eResult=EGSWConfigResult__Ok;
   p_pLogServerData=NULL;//General Log
-  GSWLog(GSW_DEBUG,p_pLogServerData,
+  GSWDebugLog(p_pLogServerData,
 		 "GSWConfig_ReadIFND: %s",
 		 p_pszConfigPath);
 
@@ -811,9 +826,8 @@ GSWConfig_LoadConfiguration(void *p_pLogServerData)
   BOOL fOk=TRUE;
   proplist_t propListConfig=NULL;
   p_pLogServerData=NULL;
-  GSWLog(GSW_DEBUG,p_pLogServerData,
-	 "GSWConfig_LoadConfiguration");
 
+  GSWDebugLog(p_pLogServerData,"GSWConfig_LoadConfiguration");
   GSWLock_Lock(g_lockAppList);
 
   if (!g_pAppDict)
@@ -829,6 +843,25 @@ GSWConfig_LoadConfiguration(void *p_pLogServerData)
       proplist_t propListApps=NULL;
       GSWApp_AppsClearInstances(g_pAppDict);
 	  
+      //Debug Mode
+      {
+	proplist_t pValueDebug=NULL;
+	g_gswConfig.fDebug=NO;
+	pValueDebug =
+	    GSWPropList_GetDictionaryEntry(propListConfig,
+					   "isDebug",
+					   NULL,
+					   FALSE,//No Error If Not Exists
+					   GSWPropList_TestString,
+					   p_pLogServerData);
+	if (pValueDebug)
+	  {
+	    CONST char *pszDebug=PLGetString(pValueDebug);
+	                                 //Do Not Free It
+	    g_gswConfig.fDebug=(strcasecmp(pszDebug,"YES")==0);
+	  };
+      };
+
       //CanDumpStatus
       {
 	proplist_t pValueCanDumpStatus=NULL;
@@ -866,7 +899,7 @@ GSWConfig_LoadConfiguration(void *p_pLogServerData)
 	    g_gswConfig.fAddTimeHeaders=(strcasecmp(pszAddTimeHeaders,"YES")==0);
 	  };
       };
-      
+
       //adaptorTemplates
       {
 	proplist_t pValueAdaptorTemplatesPath=NULL;
@@ -1119,7 +1152,7 @@ GSWConfig_DumpGSWAppInstanceIntern(GSWDictElem *p_pElem,
   //InstanceHeader
   //TODO
 
-  GSWTemplate_ReplaceStd(pBuffer,pAppInstance->pApp);
+  GSWTemplate_ReplaceStd(pBuffer,pAppInstance->pApp,pParams->pLogServerData);
   //Append !
   GSWString_Append(pParams->pBuffer,pBuffer->pszData);
   GSWString_Free(pBuffer);  
@@ -1172,7 +1205,7 @@ GSWConfig_DumpGSWAppIntern(GSWDictElem *p_pElem,
 	pParams->pApp=NULL;
       };
 	  
-      GSWTemplate_ReplaceStd(pBuffer,pApp);
+      GSWTemplate_ReplaceStd(pBuffer,pApp,pParams->pLogServerData);
 	  
       //Append !
       GSWString_Append(pParams->pBuffer,pBuffer->pszData);
@@ -1208,7 +1241,7 @@ GSWConfig_DumpGSWApps(const char *p_pszReqApp,
   free(pszString);
   GSWString_SearchReplace(pBuffer,"##APP_NAME##",p_pszReqApp);
 
-  GSWTemplate_ReplaceStd(pBuffer,NULL);
+  GSWTemplate_ReplaceStd(pBuffer,NULL,p_pLogServerData);
   
   GSWString_Append(stParams.pBuffer,pBuffer->pszData);
   GSWString_Free(pBuffer);  
@@ -1222,7 +1255,7 @@ GSWConfig_DumpGSWApps(const char *p_pszReqApp,
   pszString=GSWTemplate_GetDumpFoot(p_fHTML);
   GSWString_Append(pBuffer,pszString);
   free(pszString);
-  GSWTemplate_ReplaceStd(pBuffer,NULL);
+  GSWTemplate_ReplaceStd(pBuffer,NULL,p_pLogServerData);
   GSWString_Append(stParams.pBuffer,pBuffer->pszData);
   GSWString_Free(pBuffer);  
   pBuffer=NULL;

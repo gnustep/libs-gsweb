@@ -56,6 +56,73 @@
 static GSWDict *g_pHostCache = NULL;
 
 
+GSWTime GSWTime_now()
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return GSWTime_makeTimeFromSecAndUSec(tv.tv_sec,tv.tv_usec);
+}
+
+time_t GSWTime_secPart(GSWTime t)
+{
+  return (time_t)(t/USEC_PER_SEC);
+};
+
+long GSWTime_usecPart(GSWTime t)
+{
+  return (time_t)(t%USEC_PER_SEC);
+};
+
+long GSWTime_msecPart(GSWTime t)
+{
+  return ((time_t)(t%USEC_PER_SEC))/1000;
+};
+
+// 2003/12/24 22:12:25.123
+// date_str should be at least 24 characters (including \0)
+char* GSWTime_format(char *date_str,GSWTime t)
+{
+  struct tm stTM;
+  time_t timeSecPart=GSWTime_secPart(t);
+  long timeMSecPart=GSWTime_msecPart(t);
+  int real_year;
+
+  localtime_r(&timeSecPart,&stTM);
+  real_year = 1900 + stTM.tm_year;
+  
+  date_str[0] = real_year / 1000 + '0';
+  date_str[1] = (real_year % 1000) / 100 + '0';
+  date_str[2] = (real_year % 100) / 10 + '0';
+  date_str[3] = real_year % 10 + '0';
+
+  date_str[4] = '/';
+
+  date_str[5] = (stTM.tm_mon+1) / 10 + '0';
+  date_str[6] = (stTM.tm_mon+1) % 10 + '0';
+
+  date_str[7] = '/';
+
+  date_str[8] = stTM.tm_mday / 10 + '0';
+  date_str[9] = stTM.tm_mday % 10 + '0';
+  
+  date_str[10] = ' ';
+  date_str[11] = stTM.tm_hour / 10 + '0';
+  date_str[12] = stTM.tm_hour % 10 + '0';
+  date_str[13] = ':';
+  date_str[14] = stTM.tm_min / 10 + '0';
+  date_str[15] = stTM.tm_min % 10 + '0';
+  date_str[16] = ':';
+  date_str[17] = stTM.tm_sec / 10 + '0';
+  date_str[18] = stTM.tm_sec % 10 + '0';
+  date_str[19] = '.';
+  date_str[20] = (timeMSecPart/1000) / 100 + '0';
+  date_str[21] = ((timeMSecPart/1000) % 100) / 10 + '0';
+  date_str[22] = (timeMSecPart/1000) % 10 + '0';
+
+  date_str[23] = 0;
+  return date_str;
+}
+
 //--------------------------------------------------------------------
 void
 GSWLog_Init(GSWDict *p_pDict,
@@ -78,30 +145,34 @@ VGSWLogSizedIntern(char       *file,
 		   CONST char *p_pszFormat,
 		   va_list     ap)
 {
-  FILE *pLog = NULL;
-  char szBuffer[p_iBufferSize+512];
-
-  szBuffer[0] = 0;
-  errno = 0;//Because Apache use it in ap_log_error to display the message.
-  vsnprintf(szBuffer, p_iBufferSize+511, p_pszFormat, ap);
-  szBuffer[p_iBufferSize+511] = 0;
-
+  if (p_iLevel!=GSW_DEBUG
+      || GSWConfig_IsDebug())
+    {
+      FILE *pLog = NULL;
+      char szBuffer[p_iBufferSize+512];
+      
+      szBuffer[0] = 0;
+      errno = 0;//Because Apache use it in ap_log_error to display the message.
+      vsnprintf(szBuffer, p_iBufferSize+511, p_pszFormat, ap);
+      szBuffer[p_iBufferSize+511] = 0;
+      
 #if	defined(Netscape)
-  log_error(0,"GSWeb: ",NULL,NULL,szBuffer);
+      log_error(0,"GSWeb: ",NULL,NULL,szBuffer);
 #endif
-
+      
 #if defined(Apache)
 #if defined(Apache2)
-  ap_log_error(APLOG_MARK,p_iLevel,0,
-	       (server_rec *)p_pLogServerData,
-	       "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
+      ap_log_error(APLOG_MARK,p_iLevel,0,
+                   (server_rec *)p_pLogServerData,
+                   "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
 #else
-  ap_log_error(APLOG_MARK,p_iLevel,
-	       (server_rec *)p_pLogServerData,
-	       "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
+      ap_log_error(APLOG_MARK,p_iLevel,
+                   (server_rec *)p_pLogServerData,
+                   "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
 #endif
 #endif 
-};
+    };
+}
 
 //--------------------------------------------------------------------
 void
@@ -328,7 +399,7 @@ GSWUtil_FindHost(CONST char *p_pszHost,
 	  if (!g_pHostCache)
 	    g_pHostCache = GSWDict_New(32);
 	  GSWDict_Add(g_pHostCache,p_pszHost,pHost,TRUE);
-	  GSWLog(GSW_INFO,p_pLogServerData,"Caching hostent for %s",p_pszHost);
+	  GSWDebugLog(p_pLogServerData,"Caching hostent for %s",p_pszHost);
 	};
     };
   return pHost;
@@ -562,50 +633,6 @@ char* RevisionStringToRevisionValue(char* buffer,const char* revisionString)
   return buffer;
 };
 
-#ifdef Apache2
-// 2003/04/05 10:12:25.123
-void FormatAPRTime(char *date_str, apr_time_t t)
-{
-  apr_time_exp_t xt;
-  const char *s=NULL;
-  int real_year;
-
-  apr_time_exp_gmt(&xt, t);
-  real_year = 1900 + xt.tm_year;
-  
-  *date_str++ = real_year / 1000 + '0';
-  *date_str++ = (real_year % 1000) / 100 + '0';
-  *date_str++ = (real_year % 100) / 10 + '0';
-  *date_str++ = real_year % 10 + '0';
-
-  *date_str++ = '/';
-
-  *date_str++ = (xt.tm_mon+1) / 10 + '0';
-  *date_str++ = (xt.tm_mon+1) % 10 + '0';
-
-  *date_str++ = '/';
-
-  *date_str++ = xt.tm_mday / 10 + '0';
-  *date_str++ = xt.tm_mday % 10 + '0';
-  
-  *date_str++ = ' ';
-  *date_str++ = xt.tm_hour / 10 + '0';
-  *date_str++ = xt.tm_hour % 10 + '0';
-  *date_str++ = ':';
-  *date_str++ = xt.tm_min / 10 + '0';
-  *date_str++ = xt.tm_min % 10 + '0';
-  *date_str++ = ':';
-  *date_str++ = xt.tm_sec / 10 + '0';
-  *date_str++ = xt.tm_sec % 10 + '0';
-  *date_str++ = '.';
-  *date_str++ = (xt.tm_usec/1000) / 100 + '0';
-  *date_str++ = ((xt.tm_usec/1000) % 100) / 10 + '0';
-  *date_str++ = (xt.tm_usec/1000) % 10 + '0';
-
-  *date_str++ = 0;
-}
-
-#endif
 
 #ifndef __USE_GNU
 char* gsw_strndup(const char *s, size_t len)

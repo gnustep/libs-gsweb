@@ -1,5 +1,5 @@
 /* GSWAppRequest.h - GSWeb: GSWeb App Request
-   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 	July 1999
@@ -28,10 +28,8 @@
 extern "C" {
 #endif // __cplusplus
 
-#define	GSWAppRequest_INITIALIZER	{NULL,NULL,NULL,0,0,AT_NONE,3,NULL,NULL,NULL,NULL}
-
 GSWHTTPResponse *GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
-					    GSWURLComponents *p_pURLComponents,
+                                             GSWURLComponents *p_pURLComponents,
 					     CONST char      *p_pszHTTPVersion,
 					     CONST char      *p_pszDocRoot,
 					     CONST char      *p_pszTestAppName,

@@ -49,11 +49,13 @@ typedef struct _GSWHTTPRequest
   void           *pServerHandle;	// Server Handle
   unsigned        uContentLength;	// Content Length
   void           *pContent;		// Content
+  GSWTimeStats   *pStats;		// Statistics (don't free !)
 } GSWHTTPRequest;
 
 
 GSWHTTPRequest *GSWHTTPRequest_New(CONST char *pszMethod,
 				   char       *p_pszURI,
+                                   GSWTimeStats   *p_pStats,
 				   void       *p_pLogServerData);
 void GSWHTTPRequest_Free(GSWHTTPRequest *p_pHTTPRequest,
 			 void           *p_pLogServerData);

@@ -169,8 +169,12 @@ GSWTemplate_GetTemplate(BOOL        p_fHTML,
       int globallen = 0;
       int maxlen = 0;
 
-      applen = strlen(pApp->pszAdaptorTemplatesPath) 
-	+ strlen(p_pszTemplateName);
+      if (pApp
+          && pApp->pszAdaptorTemplatesPath)
+        {
+          applen = strlen(pApp->pszAdaptorTemplatesPath) 
+            + strlen(p_pszTemplateName);
+        };
 
       if (gswConfig->pszAdaptorTemplatesPath)
 	globallen = strlen(gswConfig->pszAdaptorTemplatesPath) 
@@ -180,24 +184,30 @@ GSWTemplate_GetTemplate(BOOL        p_fHTML,
       {
         char *pathName=malloc(maxlen);
         memset(pathName,0,maxlen);
-        if (p_fHTML)
-          sprintf(pathName,"%s/%s.html",pApp->pszAdaptorTemplatesPath,
-		  p_pszTemplateName);
-        else
-          sprintf(pathName,"%s/%s.txt",pApp->pszAdaptorTemplatesPath,
-		  p_pszTemplateName);
-
+        if (pApp
+            && pApp->pszAdaptorTemplatesPath)
+          {
+            if (p_fHTML)
+              sprintf(pathName,"%s/%s.html",pApp->pszAdaptorTemplatesPath,
+                      p_pszTemplateName);
+            else
+              sprintf(pathName,"%s/%s.txt",pApp->pszAdaptorTemplatesPath,
+                      p_pszTemplateName);
+          };
         fd=fopen(pathName,"r");
         if (!fd)
           {
-            if (p_fHTML)
-              sprintf(pathName,"%s/%s.html",
-		      gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
-            else
-              sprintf(pathName,"%s/%s.txt",
-		      gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
-
-            fd=fopen(pathName,"r");
+            if (gswConfig->pszAdaptorTemplatesPath)
+              {
+                if (p_fHTML)
+                  sprintf(pathName,"%s/%s.html",
+                          gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
+                else
+                  sprintf(pathName,"%s/%s.txt",
+                          gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
+                
+                fd=fopen(pathName,"r");
+              };
           };
 
         if (fd)
@@ -341,18 +351,24 @@ GSWTemplate_GetDumpAppInstance(BOOL p_fHTML)
 //--------------------------------------------------------------------
 void
 GSWTemplate_ReplaceStd(GSWString *p_pString,
-		       GSWApp    *p_pApp)
+		       GSWApp    *p_pApp,
+                       void       *p_pLogServerData)
 {
+  GSWDebugLog(p_pLogServerData,"Start GSWTemplate_ReplaceStd");
+
   GSWString_SearchReplace(p_pString,"##CONF_FILE##",
 			  GSWConfig_GetConfigFilePath());
   if (p_pApp)
     {
       GSWString_SearchReplace(p_pString,"##APP_NAME##",p_pApp->pszName);
     };
+
   if (p_pApp && p_pApp->pszGSWExtensionsFrameworkWebServerResources)
     GSWString_SearchReplace(p_pString,"##GSWEXTFWKWSR##",
-	   p_pApp->pszGSWExtensionsFrameworkWebServerResources);
+                            p_pApp->pszGSWExtensionsFrameworkWebServerResources);
   else
     GSWString_SearchReplace(p_pString,"##GSWEXTFWKWSR##",
-	   GSWConfig_GetConfig()->pszGSWExtensionsFrameworkWebServerResources);
+                            GSWConfig_GetConfig()->pszGSWExtensionsFrameworkWebServerResources);
+
+  GSWDebugLog(p_pLogServerData,"Stop GSWTemplate_ReplaceStd");
 };
