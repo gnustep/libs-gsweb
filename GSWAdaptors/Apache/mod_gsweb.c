@@ -431,9 +431,16 @@ sendResponse(request_rec     *p_pRequestRec,
   GSWDict_PerformForAllElem(p_pHTTPResponse->pHeaders,getHeader,p_pRequestRec);
 	
   GSWLog(GSW_DEBUG,pServerRec,"status message=[%s]",p_pHTTPResponse->pszStatusMessage);
+#ifdef APACHE2
+
   p_pRequestRec->status_line = apr_psprintf(p_pRequestRec->pool,"%u %s",
                                             p_pHTTPResponse->uStatus,
                                             p_pHTTPResponse->pszStatusMessage);
+#else
+  p_pRequestRec->status_line = ap_psprintf(p_pRequestRec->pool,"%u %s",
+                                            p_pHTTPResponse->uStatus,
+                                            p_pHTTPResponse->pszStatusMessage);
+#endif
   p_pRequestRec->status = p_pHTTPResponse->uStatus;
   GSWLog(GSW_DEBUG,pServerRec,"p_pRequestRec->status_line=[%s]",p_pRequestRec->status_line);
 
