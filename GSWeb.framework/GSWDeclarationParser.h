@@ -33,6 +33,36 @@
 	#define _GSWDeclarationParser_h__
 
 
+GS_EXPORT NSString* const GSWDFEMissingDeclarationForElement;
+GS_EXPORT NSString* const GSWDFEMissingElementName;
+GS_EXPORT NSString* const GSWDFEMissingClassNameForElement;
+GS_EXPORT NSString* const GSWDFEElementCreationFailed;
+GS_EXPORT NSString* const GSWDFEMissingIdentifier;
+GS_EXPORT NSString* const GSWDFEMissingPragmaDelegate;
+GS_EXPORT NSString* const GSWDFEUnknownPragmaDirective;
+GS_EXPORT NSString* const GSWDFEMissingQuotedStringEnd;
+GS_EXPORT NSString* const GSWDFEMissingHexStringDataEnd;
+GS_EXPORT NSString* const GSWDFEMissingQuotedKeyPathEnd;
+GS_EXPORT NSString* const GSWDFEWrongKeyPathFormat;
+GS_EXPORT NSString* const GSWDFEEmptyKeyPath;
+GS_EXPORT NSString* const GSWDFEWrongNumberFormat;
+GS_EXPORT NSString* const GSWDFEWrongHexNumberFormat;
+GS_EXPORT NSString* const GSWDFEUnexpectedBufferEnd;
+GS_EXPORT NSString* const GSWDFEMissingValue;
+GS_EXPORT NSString* const GSWDFEMissingSeparator;
+GS_EXPORT NSString* const GSWDFEDictionaryParsingError;
+GS_EXPORT NSString* const GSWDFEArrayParsingError;
+GS_EXPORT NSString* const GSWDFEUnexpectedCharacter;
+GS_EXPORT NSString* const GSWDFEMissingAliasedDeclaration;
+
+
+//====================================================================
+@interface GSWDeclarationFormatException : NSException
+/** Returns YES if we can delay exception reporting (so all errors are 
+accumulated instead of blocking on first error) **/
+-(BOOL)canDelay;
+@end
+
 //====================================================================
 @protocol GSWDeclarationParserPragmaDelegate
 -(NSDictionary*)includedDeclarationsFromFilePath:(NSString*)file

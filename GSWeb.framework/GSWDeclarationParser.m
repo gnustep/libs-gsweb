@@ -38,6 +38,7 @@ RCS_ID("$Id$")
 
 #include "GSWDeclarationParser.h"
 #include <GNUstepBase/Unicode.h>
+#include <gscrypt/GSMD5.h>
 
 static inline BOOL _parserIsIdentifierChar(unichar c)
 {
@@ -67,9 +68,84 @@ static inline BOOL _parserIsIdentifierChar(unichar c)
     };
 };
 
+NSString* const GSWDFEMissingDeclarationForElement = @"GSWDFEMissingDeclarationForElement";
+NSString* const GSWDFEMissingElementName = @"GSWDFEMissingElementName";
+NSString* const GSWDFEMissingClassNameForElement = @"GSWDFEMissingClassNameForElement";
+NSString* const GSWDFEElementCreationFailed = @"GSWDFEElementCreationFailed";
+NSString* const GSWDFEMissingIdentifier = @"GSWDFEMissingIdentifier";
+NSString* const GSWDFEMissingPragmaDelegate = @"GSWDFEMissingPragmaDelegate";
+NSString* const GSWDFEUnknownPragmaDirective = @"GSWDFEUnknownPragmaDirective";
+NSString* const GSWDFEMissingQuotedStringEnd = @"GSWDFEMissingQuotedStringEnd";
+NSString* const GSWDFEMissingHexStringDataEnd = @"GSWDFEMissingHexStringDataEnd";
+NSString* const GSWDFEMissingQuotedKeyPathEnd = @"GSWDFEMissingQuotedKeyPathEnd";
+NSString* const GSWDFEWrongKeyPathFormat = @"GSWDFEWrongKeyPathFormat";
+NSString* const GSWDFEEmptyKeyPath = @"GSWDFEEmptyKeyPath";
+NSString* const GSWDFEWrongNumberFormat = @"GSWDFEWrongNumberFormat";
+NSString* const GSWDFEWrongHexNumberFormat = @"GSWDFEWrongHexNumberFormat";
+NSString* const GSWDFEUnexpectedBufferEnd = @"GSWDFEUnexpectedBufferEnd";
+NSString* const GSWDFEMissingValue = @"GSWDFEMissingValue";
+NSString* const GSWDFEMissingSeparator = @"GSWDFEMissingSeparator";
+NSString* const GSWDFEDictionaryParsingError = @"GSWDFEDictionaryParsingError";
+NSString* const GSWDFEArrayParsingError = @"GSWDFEArrayParsingError";
+NSString* const GSWDFEUnexpectedCharacter = @"GSWDFEUnexpectedCharacter";
+NSString* const GSWDFEMissingAliasedDeclaration = @"GSWDFEMissingAliasedDeclaration";
+
+static NSSet* delayedDeclarationFormatExceptionNames = nil;
+static NSMutableDictionary* declarationsCache=nil;
+//====================================================================
+@implementation GSWDeclarationFormatException
+
++ (void) initialize
+{
+  if (self == [GSWDeclarationFormatException class])
+    {
+      ASSIGN(delayedDeclarationFormatExceptionNames,
+             ([NSSet setWithObjects:
+                       GSWDFEMissingDeclarationForElement,
+                     GSWDFEMissingElementName,
+                     GSWDFEMissingClassNameForElement,
+                     GSWDFEElementCreationFailed,
+                     GSWDFEMissingIdentifier,
+                     GSWDFEMissingPragmaDelegate,
+                     GSWDFEUnknownPragmaDirective,
+                     GSWDFEMissingQuotedStringEnd,
+                     GSWDFEMissingHexStringDataEnd,
+                     GSWDFEMissingQuotedKeyPathEnd,
+                     GSWDFEWrongKeyPathFormat,
+                     GSWDFEEmptyKeyPath,
+                     GSWDFEWrongNumberFormat,
+                     GSWDFEWrongHexNumberFormat,
+                     GSWDFEUnexpectedBufferEnd,
+                     GSWDFEMissingValue,
+                     GSWDFEMissingSeparator,
+                     GSWDFEDictionaryParsingError,
+                     GSWDFEArrayParsingError,
+                     GSWDFEUnexpectedCharacter,
+                     nil]));
+    };  
+};
+
+//--------------------------------------------------------------------
+/** Returns YES if we can delay exception reporting (so all errors are 
+accumulated instead of blocking on first error) **/
+-(BOOL)canDelay
+{
+  return [delayedDeclarationFormatExceptionNames containsObject:[self name]];
+};
+
+
+@end
 
 //====================================================================
 @implementation GSWDeclarationParser
+
++ (void) initialize
+{
+  if (self == [GSWDeclarationParser class])
+    {
+      declarationsCache=[NSMutableDictionary new];
+    };
+};
 
 //--------------------------------------------------------------------
 +(GSWDeclarationParser*)declarationParserWithPragmaDelegate:(id<GSWDeclarationParserPragmaDelegate>)pragmaDelegate
@@ -104,12 +180,12 @@ static inline BOOL _parserIsIdentifierChar(unichar c)
                                  named:(NSString*)declarationFileName
                       inFrameworkNamed:(NSString*)declarationFrameworkName
 {
+  NSData* md5=nil;
+  NSDictionary* declarations=nil;
   LOGObjectFnStart();
 
   if (_declarations)
     [_declarations removeAllObjects];
-  else
-    _declarations=(NSMutableDictionary*)[NSMutableDictionary new];
 
   ASSIGN(_string,declarationString);
   ASSIGN(_fileName,declarationFileName);
@@ -118,60 +194,79 @@ static inline BOOL _parserIsIdentifierChar(unichar c)
   NSDebugMLog(@"declarationString=%@",declarationString);
   _length=[_string length];
 
-  _uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
-  NS_DURING
+  if ([_string rangeOfString:@"#include"].length==0)
     {
-      [_string getCharacters:_uniBuf];
-      
-      NSDebugMLog(@"index=%d length=%d",index,_length);
-      //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
-
-      while(_index<_length)
-        {      
-          //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-          [self skipBlanksAndComments];
-          //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-          if (_index<_length)
-            {
-              if (_uniBuf[_index]=='#')
-                {
-                  [self parsePragma];
-                  NSDebugMLog(@"index=%d _length=%d",_index,20);
-                }
-              else if (_parserIsIdentifierChar(_uniBuf[_index]))
-                {
-                  GSWDeclaration* declaration=[self parseDeclaration];
-                  NSDebugMLog(@"declaration=%@",declaration);
-                  [_declarations setObject:declaration
-                                 forKey:[declaration name]];
-                  NSDebugMLog(@"index=%d _length=%d",_index,20);
-                }
-              else
-                {
-                  [NSException raise:NSInvalidArgumentException 
-                               format:@"No identifier %@",
-                               [self currentLineAndColumnIndexesString]];
-                };
-            };
-        }
-      //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+      md5=[GSMD5 digestOfString:_string
+                 usingEncoding:NSUnicodeStringEncoding];
+      declarations=[declarationsCache objectForKey:md5];
+      NSDebugMLog(@"declaration (%@) is %scached",declarationFileName,(declarations ? "" : "not "));
     }
-  NS_HANDLER
-    {
-      if (_uniBuf)
-        {
-          objc_free(_uniBuf);
-          _uniBuf=NULL;
-        };
-      [localException raise];
-    };
-  NS_ENDHANDLER;
 
-  NSDebugMLog(@"_declarations=%@",_declarations);
+  if (!declarations)
+    {
+      if (!_declarations)
+        _declarations=(NSMutableDictionary*)[NSMutableDictionary new];
+      
+      _uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
+      NS_DURING
+        {
+          [_string getCharacters:_uniBuf];
+      
+          NSDebugMLog(@"index=%d length=%d",index,_length);
+          //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
+          
+          while(_index<_length)
+            {      
+              //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+              [self skipBlanksAndComments];
+              //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+              if (_index<_length)
+                {
+                  if (_uniBuf[_index]=='#')
+                    {
+                      [self parsePragma];
+                      NSDebugMLog(@"index=%d _length=%d",_index,20);
+                    }
+                  else if (_parserIsIdentifierChar(_uniBuf[_index]))
+                    {
+                      GSWDeclaration* declaration=[self parseDeclaration];
+                      NSDebugMLog(@"declaration=%@",declaration);
+                      [_declarations setObject:declaration
+                                     forKey:[declaration name]];
+                      NSDebugMLog(@"index=%d _length=%d",_index,20);
+                    }
+                  else
+                    {
+                      [GSWDeclarationFormatException raise:GSWDFEMissingIdentifier
+                                                 format:@"In %@ %@: No identifier %@",
+                                                     _frameworkName,_fileName,
+                                                     [self currentLineAndColumnIndexesString]];
+                    };
+                };
+            }
+          //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+        }
+      NS_HANDLER
+        {
+          if (_uniBuf)
+            {
+              objc_free(_uniBuf);
+              _uniBuf=NULL;
+            };
+          [localException raise];
+        };
+      NS_ENDHANDLER;
+      
+      NSDebugMLog(@"_declarations=%@",_declarations);
+      declarations=[NSDictionary dictionaryWithDictionary:_declarations];
+      if (md5)
+        [declarationsCache setObject:declarations
+                           forKey:md5];
+    };
 
   LOGObjectFnStop();
 
-  return _declarations;
+  return declarations;
 }
 
 //--------------------------------------------------------------------
@@ -301,8 +396,10 @@ static inline BOOL _parserIsIdentifierChar(unichar c)
     {
       if (!_pragmaDelegate)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"No pragma delegate for pragma directive '%@'"];
+          [GSWDeclarationFormatException 
+            raise:GSWDFEMissingPragmaDelegate
+            format:@"In %@ %@: No pragma delegate for pragma directive '%@'",
+            _frameworkName,_fileName];
         }
       else
         {
@@ -325,9 +422,11 @@ static inline BOOL _parserIsIdentifierChar(unichar c)
     }
   else
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"unknown pragma directive '%@' at line %@",
-                   [self lineIndexFromIndex:startIndex]];
+      [GSWDeclarationFormatException 
+        raise:GSWDFEUnknownPragmaDirective
+        format:@"In %@ %@: Unknown pragma directive '%@' at line %@",
+        _frameworkName,_fileName,
+        [self lineIndexFromIndex:startIndex]];
     };
   //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
 };
@@ -353,9 +452,11 @@ Returns a NSString
 
   if (index-startIndex==0)
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"No identifier %@",
-                   [self currentLineAndColumnIndexesString]];
+      [GSWDeclarationFormatException 
+        raise:GSWDFEMissingIdentifier
+        format:@"IN %@ %@: No identifier %@",
+        _frameworkName,_fileName,
+        [self currentLineAndColumnIndexesString]];
     }
   else
     {
@@ -402,9 +503,11 @@ Returns a NSString without '"' pefix and suffix
     _index++;
   else
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"No end '\"' for quoted string starting at line %d",
-                   [self lineIndexFromIndex:startIndex]];
+      [GSWDeclarationFormatException 
+        raise:GSWDFEMissingQuotedStringEnd
+        format:@"In %@ %@: No end '\"' for quoted string starting at line %d",
+        _frameworkName,_fileName,
+        [self lineIndexFromIndex:startIndex]];
     };  
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
   string=[NSString stringWithCharacters:_uniBuf+startIndex+1
@@ -437,9 +540,11 @@ Returns a NSData
     _index++;
   else
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"No end '>' for data starting at line %d",
-                   [self lineIndexFromIndex:startIndex]];
+      [GSWDeclarationFormatException 
+        raise:GSWDFEMissingHexStringDataEnd
+        format:@"In %@ %@: No end '>' for data starting at line %d",
+        _frameworkName,_fileName,
+        [self lineIndexFromIndex:startIndex]];
     };  
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
   string=[NSString stringWithCharacters:_uniBuf+startIndex+1
@@ -479,9 +584,11 @@ Returns a NSString
             _index++;
           else
             {
-              [NSException raise:NSInvalidArgumentException 
-                           format:@"No end '\'' for keyPath starting at line %d",
-                           [self lineIndexFromIndex:startIndex]];
+              [GSWDeclarationFormatException 
+                raise:GSWDFEMissingQuotedKeyPathEnd
+                format:@"In %@ %@: No end '\'' for keyPath starting at line %d",
+                _frameworkName,_fileName,
+                [self lineIndexFromIndex:startIndex]];
             };
           //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
           break;
@@ -496,18 +603,22 @@ Returns a NSString
             _index++;
           else
             {
-              [NSException raise:NSInvalidArgumentException 
-                           format:@"No end '\"' for keyPath starting at line %d",
-                           [self lineIndexFromIndex:startIndex]];
+              [GSWDeclarationFormatException 
+                raise:GSWDFEMissingQuotedKeyPathEnd
+                format:@"In %@ %@:No end '\"' for keyPath starting at line %d",
+                _frameworkName,_fileName,
+                [self lineIndexFromIndex:startIndex]];
             };
           //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
           break;
         case '.':
           if (_index==startIndex)
             {
-              [NSException raise:NSInvalidArgumentException 
-                           format:@"keyPath can't begin with '.' line %d",
-                           [self lineIndexFromIndex:startIndex]];
+              [GSWDeclarationFormatException 
+                raise:GSWDFEWrongKeyPathFormat
+                format:@"In %@ %@: keyPath can't begin with '.' line %d",
+                _frameworkName,_fileName,
+                [self lineIndexFromIndex:startIndex]];
             }
           else
             _index++;
@@ -523,9 +634,11 @@ Returns a NSString
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
   if ((index-startIndex)==0)
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"Empty keyPath  at line %d",
-                   [self lineIndexFromIndex:startIndex]];
+      [GSWDeclarationFormatException 
+        raise:GSWDFEEmptyKeyPath
+        format:@"In %@ %@: Empty keyPath  at line %d",
+        _frameworkName,_fileName,
+        [self lineIndexFromIndex:startIndex]];
     }
   else
     {
@@ -655,9 +768,11 @@ Returns a NSNumber
       _index++;
       if (_index>=_length)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"Bad number line %d",
-                       [self lineIndexFromIndex:startIndex]];
+          [GSWDeclarationFormatException 
+            raise:GSWDFEWrongNumberFormat
+            format:@"In %@ %@: Bad number line %d",
+            _frameworkName,_fileName,
+            [self lineIndexFromIndex:startIndex]];
         };
     };
   while(!end && _index<_length)
@@ -668,9 +783,11 @@ Returns a NSNumber
         {
           if (seenDot)
             {
-              [NSException raise:NSInvalidArgumentException 
-                           format:@"2 dots in a number line %d",
-                           [self lineIndexFromIndex:startIndex]];
+              [GSWDeclarationFormatException 
+                raise:GSWDFEWrongNumberFormat
+                format:@"In %@ %@: 2 dots in a number line %d",
+                _frameworkName,_fileName,
+                [self lineIndexFromIndex:startIndex]];
             }
           else
             {
@@ -727,9 +844,11 @@ Returns a NSNumber
       NSDebugMLog(@"cString='%s' endPtr='%s'",cString,endPtr);
       if (endPtr && *endPtr)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"Bad hex number line %d",
-                       [self lineIndexFromIndex:startIndex]];
+          [GSWDeclarationFormatException 
+            raise:GSWDFEWrongHexNumberFormat
+            format:@"In %@ %@: Bad hex number line %d",
+            _frameworkName,_fileName,
+            [self lineIndexFromIndex:startIndex]];
         };
       value=[NSNumber numberWithInt:intValue];
     };
@@ -856,9 +975,11 @@ Returns a NSString
               //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
               if (_index>=_length)
                 {
-                  [NSException raise:NSInvalidArgumentException 
-                               format:@"Reached buffer end while trying to parse value of a dictionary entry",
-                               [self lineIndexFromIndex:keyStartIndex]];
+                  [GSWDeclarationFormatException 
+                    raise:GSWDFEUnexpectedBufferEnd
+                    format:@"In %@ %@: Reached buffer end while trying to parse value of a dictionary entry",
+                    _frameworkName,_fileName,
+                    [self lineIndexFromIndex:keyStartIndex]];
                 }
               else if (_uniBuf[_index]=='=')
                 {
@@ -869,9 +990,11 @@ Returns a NSString
 
                   if (_index>=_length)
                     {
-                      [NSException raise:NSInvalidArgumentException 
-                                   format:@"Reached buffer end while trying to parse value of a dictionary entry",
-                                   [self lineIndexFromIndex:keyStartIndex]];
+                      [GSWDeclarationFormatException 
+                        raise:GSWDFEUnexpectedBufferEnd
+                        format:@"In %@ %@: Reached buffer end while trying to parse value of a dictionary entry",
+                        _frameworkName,_fileName,
+                        [self lineIndexFromIndex:keyStartIndex]];
                     }
                   else
                     {
@@ -884,8 +1007,10 @@ Returns a NSString
                                     forKey:key];
                       else
                         {
-                          [NSException raise:NSInvalidArgumentException 
-                                       format:@"No value for key '%@' at line %d",
+                          [GSWDeclarationFormatException 
+                            raise:GSWDFEMissingValue
+                                       format:@"In %@ %@: No value for key '%@' at line %d",
+                                       _frameworkName,_fileName,
                                        key,[self lineIndexFromIndex:keyStartIndex]];
                         };
                       
@@ -893,9 +1018,11 @@ Returns a NSString
                       //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
                       if (_index>=_length)
                         {
-                          [NSException raise:NSInvalidArgumentException 
-                                       format:@"Reached buffer end while parse dictionary starting at %d",
-                                       [self lineIndexFromIndex:keyStartIndex]];
+                          [GSWDeclarationFormatException 
+                            raise:GSWDFEUnexpectedBufferEnd
+                            format:@"In %@ %@: Reached buffer end while parse dictionary starting at %d",
+                            _frameworkName,_fileName,
+                            [self lineIndexFromIndex:keyStartIndex]];
                         }
                       else if (_uniBuf[_index]==';')
                         {
@@ -905,23 +1032,29 @@ Returns a NSString
                 }
               else
                 {
-                  [NSException raise:NSInvalidArgumentException 
-                               format:@"No '=' sign when parsing dictionary entry (key = '%@') at line %d but '%c'",
-                               key,[self lineIndexFromIndex:keyStartIndex],(char)_uniBuf[_index]];
+                  [GSWDeclarationFormatException 
+                    raise:GSWDFEMissingSeparator
+                    format:@"In %@ %@: No '=' sign when parsing dictionary entry (key = '%@') at line %d but '%c'",
+                    _frameworkName,_fileName,
+                    key,[self lineIndexFromIndex:keyStartIndex],(char)_uniBuf[_index]];
                 };
             };
         }
       else
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"Reached buffer end while trying to parse dictionary started at line %d",
-                       [self lineIndexFromIndex:startIndex]];
+          [GSWDeclarationFormatException 
+            raise:GSWDFEUnexpectedBufferEnd
+            format:@"In %@ %@: Reached buffer end while trying to parse dictionary started at line %d",
+            _frameworkName,_fileName,
+            [self lineIndexFromIndex:startIndex]];
         };
       if (_index==startIndex)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"Found nothing  when parsing dictionary  at line %d",
-                       [self lineIndexFromIndex:startIndex]];
+          [GSWDeclarationFormatException 
+            raise:GSWDFEDictionaryParsingError
+            format:@"In %@ %@: Found nothing  when parsing dictionary  at line %d",
+            _frameworkName,_fileName,
+            [self lineIndexFromIndex:startIndex]];
         };
     }
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
@@ -970,18 +1103,22 @@ Returns a NSString
                 [array addObject:value];
               else
                 {
-                  [NSException raise:NSInvalidArgumentException 
-                               format:@"No value at line %d",
-                               [self lineIndexFromIndex:valueStartIndex]];
+                  [GSWDeclarationFormatException 
+                    raise:GSWDFEMissingValue
+                    format:@"IN %@ %@: No value at line %d",
+                    _frameworkName,_fileName,
+                    [self lineIndexFromIndex:valueStartIndex]];
                 };
               
               [self skipBlanksAndComments];
               //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
               if (_index>=_length)
                 {
-                  [NSException raise:NSInvalidArgumentException 
-                               format:@"Reached buffer end parsing array line %d",
-                               [self lineIndexFromIndex:startIndex]];
+                  [GSWDeclarationFormatException 
+                    raise:GSWDFEUnexpectedBufferEnd
+                    format:@"In %@ %@: Reached buffer end parsing array line %d",
+                    _frameworkName,_fileName,
+                    [self lineIndexFromIndex:startIndex]];
                 }
               else if (_uniBuf[_index]==',')
                 {
@@ -990,24 +1127,30 @@ Returns a NSString
                 }
               else
                 {
-                  [NSException raise:NSInvalidArgumentException 
-                               format:@"Bad character '%c' parsing array line %d",
-                               (char)_uniBuf[_index],[self lineIndexFromIndex:startIndex]];
+                  [GSWDeclarationFormatException 
+                    raise:GSWDFEUnexpectedCharacter
+                    format:@"In %@ %@: Bad character '%c' parsing array line %d",
+                    _frameworkName,_fileName,
+                    (char)_uniBuf[_index],[self lineIndexFromIndex:startIndex]];
                 };
             }
         }
       else
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"Reached buffer end while trying to parse array started at line %d",
-                       [self lineIndexFromIndex:startIndex]];
+          [GSWDeclarationFormatException 
+            raise:GSWDFEUnexpectedBufferEnd
+            format:@"In %@ %@: Reached buffer end while trying to parse array started at line %d",
+            _frameworkName,_fileName,
+            [self lineIndexFromIndex:startIndex]];
         };
       
       if (_index==valueStartIndex)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"Found nothing  when parsing array  at line %d",
-                       [self lineIndexFromIndex:startIndex]];
+          [GSWDeclarationFormatException 
+            raise:GSWDFEArrayParsingError
+            format:@"In %@ %@: Found nothing when parsing array at line %d",
+            _frameworkName,_fileName,
+            [self lineIndexFromIndex:startIndex]];
         };
     }
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
@@ -1035,9 +1178,11 @@ Returns a GSWDeclaration.
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
   if (_index>=_length)
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"End of buffer before getting declaration type for '%@' line %d",
-                   identifier,[self currentLineIndex]];
+      [GSWDeclarationFormatException 
+        raise:GSWDFEUnexpectedBufferEnd
+        format:@"In %@ %@: End of buffer before getting declaration type for '%@' line %d",
+        _frameworkName,_fileName,
+        identifier,[self currentLineIndex]];
     }
   else if (_uniBuf[_index]==':')
     {
@@ -1050,8 +1195,10 @@ Returns a GSWDeclaration.
       [self skipBlanksAndComments];
       if (_index>=_length)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"End of buffer before getting declaration bindings for '%@' (type '%@') line %d",
+          [GSWDeclarationFormatException 
+            raise:GSWDFEUnexpectedBufferEnd
+                       format:@"In %@ %@: End of buffer before getting declaration bindings for '%@' (type '%@') line %d",
+                       _frameworkName,_fileName,
                        identifier,type,[self currentLineIndex]];
         }
       else if (_uniBuf[_index]=='{')
@@ -1072,15 +1219,53 @@ Returns a GSWDeclaration.
                                       associations:associations];
         }
       else
-        [NSException raise:NSInvalidArgumentException 
-                     format:@"don't know whet do do with '%c' line %d.",
-                     (char)_uniBuf[_index],[self currentLineIndex]];
+        [GSWDeclarationFormatException 
+          raise:GSWDFEUnexpectedCharacter
+          format:@"In %@ %@: Don't know what do do with '%c' line %d.",
+          _frameworkName,_fileName,
+          (char)_uniBuf[_index],[self currentLineIndex]];
+    }
+  else if (_uniBuf[_index]=='=') // Alias like Identifier1=Identifier2;
+    {
+      NSString* aliasedIdentifier=nil;
+      GSWDeclaration* aliasedDeclaration=nil;
+      _index++;
+      [self skipBlanksAndComments];
+      //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+      aliasedIdentifier=[self parseIdentifier];
+      [self skipBlanksAndComments];
+      if (_index<_length)
+        {
+          if (_uniBuf[_index]==';')
+            {
+              _index++;
+            };
+        };
+      NSDebugMLog(@"aliasedIdentifier=%@",aliasedIdentifier);
+      aliasedDeclaration=[_declarations objectForKey:aliasedIdentifier];
+      if (aliasedDeclaration)
+        {
+          declaration=[GSWDeclaration declarationWithName:identifier
+                                      type:[aliasedDeclaration type]
+                                      associations:[aliasedDeclaration associations]];
+        }
+      else
+        {
+          [GSWDeclarationFormatException 
+            raise:GSWDFEMissingAliasedDeclaration
+            format:@"In %@ %@: Can't find declaration named '%@' to be aliased as '%@'. line %d.",
+            _frameworkName,_fileName,
+            aliasedIdentifier,identifier,
+            [self currentLineIndex]];
+        };
     }
   else
     {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"No ':' delimiter while parsing declaration for '%@' line %d. Found '%c'",
-                   identifier,[self currentLineIndex],(char)_uniBuf[_index]];
+      [GSWDeclarationFormatException 
+        raise:GSWDFEMissingSeparator
+        format:@"In %@ %@: No ':' delimiter while parsing declaration for '%@' line %d. Found '%c'",
+        _frameworkName,_fileName,
+        identifier,[self currentLineIndex],(char)_uniBuf[_index]];
     };
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
   return declaration;
