@@ -1,4 +1,11 @@
-2004-06-14 David Wetzel <dave@turbocat.de>
+2004-05-18  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSUtils.m (boolValueWithDefaultFor): Do not
+	reimplement defaults bool evaluation semantics differently from
+	-base / Foundation.
+	
+2004-06-14  David Wetzel  <dave@turbocat.de>
+	
         * GSWeb.framework/GSWElementIDString.m
         added setString: (original code from Philip Moetteli, 
         debugged with David Ayers)
@@ -7,7 +14,8 @@
         in appendContentString: append string only if not nil 
         (patch from Philip Moetteli)
 
-2004-06-01 David Wetzel <dave@turbocat.de>
+2004-06-01  David Wetzel  2004-05-18  David Ayers  <d.ayers@inode.at>
+<dave@turbocat.de>
 
 	* GSWeb.framework/GSWDeclarationParser.m:
 	supports 'true' and 'false' now. Will be transformed into YES and NO
