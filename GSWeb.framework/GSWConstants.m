@@ -1,6 +1,6 @@
 /** GSWConstants.m - <title>constants</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -60,8 +60,8 @@ NSString* GSWResourceRequestHandlerKey[2]={ @"rr", @"wr" };
 NSString* GSWComponentRequestHandlerKey[2]={ @"cr", @"wo" };
 NSString* GSWDirectActionRequestHandlerKey[2]={ @"dr", @"wa" };
 NSString* GSWPingActionRequestHandlerKey[2]={ @"lb", @"wlb" };
-NSString* GSWComponentDefinitionSuffix[2]={ @"gswd", @"wod" };
-NSString* GSWComponentDefinitionPSuffix[2]={ @".gswd", @".wod" };
+NSString* GSWComponentDeclarationsSuffix[2]={ @"gswd", @"wod" };
+NSString* GSWComponentDeclarationsPSuffix[2]={ @".gswd", @".wod" };
 NSString* GSWArchiveSuffix[2]={ @"gswi", @"woo" };
 NSString* GSWArchivePSuffix[2]={ @".gswi", @".woo" };
 NSString* GSWURLPrefix[2]={ @"GSWeb", @"WebObjects" };
@@ -230,6 +230,8 @@ NSString* GSWOPT_SessionStoreClassName[2]= { @"GSWSessionStoreClassName", @"WOSe
 NSString* GSWOPT_ResourceManagerClassName[2]= { @"GSWResourceManagerClassName", @"WOResourceManagerClassName" };
 NSString* GSWOPT_StatisticsStoreClassName[2]= { @"GSWStatisticsStoreClassName", @"WOStatisticsStoreClassName" };
 NSString* GSWOPT_RecordingClassName[2]= { @"GSWRecordingClassName", @"WORecordingClassName" };
+NSString* GSWOPT_DisplayExceptionPages[2]= { @"GSWDisplayExceptionPages", @"WODisplayExceptionPages" };
+
 
 //====================================================================
 // Option Values
@@ -238,6 +240,7 @@ NSString* GSWOPTValue_DefaultTemplateParser_XMLHTML = @"XMLHTML";
 NSString* GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags  = @"XMLHTMLNoOmittedTags";
 NSString* GSWOPTValue_DefaultTemplateParser_XML = @"XML";
 NSString* GSWOPTValue_DefaultTemplateParser_ANTLR = @"ANTLR";
+NSString* GSWOPTValue_DefaultTemplateParser_RawHTML = @"RawHTML";
 NSString* GSWOPTValue_ComponentRequestHandlerKey[2]={ @"cr", @"wo" };
 NSString* GSWOPTValue_ResourceRequestHandlerKey[2]={ @"rr", @"wr" };
 NSString* GSWOPTValue_DirectActionRequestHandlerKey[2]={ @"dr", @"wa" };

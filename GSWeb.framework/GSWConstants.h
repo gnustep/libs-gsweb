@@ -1,6 +1,6 @@
 /** GSWConstants.h - <title>constants</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -64,8 +64,8 @@ extern NSString* GSWPingActionRequestHandlerKey[2];
 extern NSString* GSWStaticResourceRequestHandlerKey[2];
 extern NSString* GSWComponentTemplateSuffix;
 extern NSString* GSWComponentTemplatePSuffix;
-extern NSString* GSWComponentDefinitionSuffix[2];
-extern NSString* GSWComponentDefinitionPSuffix[2];
+extern NSString* GSWComponentDeclarationsSuffix[2];
+extern NSString* GSWComponentDeclarationsPSuffix[2];
 extern NSString* GSWLibrarySuffix[2];
 extern NSString* GSWLibraryPSuffix[2];
 extern NSString* GSWArchiveSuffix[2];
@@ -231,6 +231,8 @@ extern NSString* GSWOPT_SessionStoreClassName[2];
 extern NSString* GSWOPT_ResourceManagerClassName[2];
 extern NSString* GSWOPT_StatisticsStoreClassName[2];
 extern NSString* GSWOPT_RecordingClassName[2];
+extern NSString* GSWOPT_DisplayExceptionPages[2];
+
 
 //====================================================================
 // Option Values
@@ -239,6 +241,7 @@ extern NSString* GSWOPTValue_DefaultTemplateParser_XMLHTML;
 extern NSString* GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags;
 extern NSString* GSWOPTValue_DefaultTemplateParser_XML;
 extern NSString* GSWOPTValue_DefaultTemplateParser_ANTLR;
+extern NSString* GSWOPTValue_DefaultTemplateParser_RawHTML;
 extern NSString* GSWOPTValue_ComponentRequestHandlerKey[2];
 extern NSString* GSWOPTValue_ResourceRequestHandlerKey[2];
 extern NSString* GSWOPTValue_DirectActionRequestHandlerKey[2];
