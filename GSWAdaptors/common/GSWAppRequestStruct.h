@@ -1,8 +1,8 @@
 /* GSWAppRequestStruct.h - GSWeb: GSWeb App Request Struct
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -32,26 +32,26 @@ extern "C" {
 
 // Application Type
 typedef	enum {
-	EAppType_Unknown,
-	EAppType_Auto,			// autolaunched/co-hosted
-	EAppType_LoadBalanced
+  EAppType_Unknown,
+  EAppType_Auto,		// autolaunched/co-hosted
+  EAppType_LoadBalanced
 } EAppType;
 	
 
 // AppRequest
 typedef struct _GSWAppRequest
 {
-  char* pszName;				//	App Name relative to Prefix
-  char* pszHost;				//	App Host
-  void* pHostent;				//	App Host hostent
-  int iPort;					//	AppPort
-  int iInstance;				//	App Instance
-  EAppType eType;				//	AppType
-  unsigned char	uURLVersion;	//	URL Version
-  CONST char* pszDocRoot; 		// Doc Root
-  void* pRequest;				//	HTTPRequest
-  void* pResponse;				//	HTTPResponse
-  GSWAppInstance* pAppInstance;
+  char           *pszName;	// App Name relative to Prefix
+  char           *pszHost;	// App Host
+  void           *pHostent;	// App Host hostent
+  int             iPort;	// AppPort
+  int             iInstance;	// App Instance
+  EAppType        eType;	// AppType
+  unsigned char	  uURLVersion;	// URL Version
+  CONST char     *pszDocRoot; 	// Doc Root
+  void           *pRequest;	// HTTPRequest
+  void           *pResponse;	// HTTPResponse
+  GSWAppInstance *pAppInstance;
 } GSWAppRequest;
 
 

@@ -2,7 +2,7 @@
    Copyright (C) 1999 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -59,9 +59,9 @@ module GSWeb_Module;
 
 typedef struct _GSWeb_Config
 {
-  const char* pszGSWeb;				// default = GSWeb
-  const char* pszConfigPath;			// path to GSWeb.conf
-//  const char* pszRoot;				// normally htdocs/GSWeb
+  const char *pszGSWeb;      // default = GSWeb
+  const char *pszConfigPath; // path to GSWeb.conf
+//  const char *pszRoot;       // normally htdocs/GSWeb
 } GSWeb_Config;
 
 #ifdef Apache2
@@ -89,10 +89,10 @@ typedef apr_table_entry_t table_entry;
 struct table
 {
   /* This has to be first to promote backwards compatibility with
-     * older modules which cast a table * to an array_header *...
-     * they should use the table_elts() function for most of the
-     * cases they do this for.
-     */
+   * older modules which cast a table * to an array_header *...
+   * they should use the table_elts() function for most of the
+   * cases they do this for.
+   */
     array_header a;
 #ifdef MAKE_TABLE_PROFILE
     void *creator;
@@ -100,63 +100,84 @@ struct table
 };  
 #endif
 
-//static CONST char* GSWeb_SetDocRoot(cmd_parms* p_pCmdParams,void* p_pUnused,char *p_pszArg);
-static CONST char* GSWeb_SetScriptAlias(cmd_parms *p_pCmdParams, void *p_pUnused, char *p_pszArg);
-static CONST char *GSWeb_SetConfig(cmd_parms *p_pCmdParams, void *p_pUnused, char *p_pszArg);
-static int GSWeb_Handler(request_rec* p_pRequestRec);
+/*
+static CONST char *GSWeb_SetDocRoot(cmd_parms *p_pCmdParams,
+				    void      *p_pUnused,
+				    char      *p_pszArg);
+*/
+static CONST char *GSWeb_SetScriptAlias(cmd_parms *p_pCmdParams,
+					void      *p_pUnused,
+					char      *p_pszArg);
+static CONST char *GSWeb_SetConfig(cmd_parms *p_pCmdParams,
+				   void      *p_pUnused,
+				   char      *p_pszArg);
+static int GSWeb_Handler(request_rec *p_pRequestRec);
 
 /*
  * Locate our server configuration record for the current request.
  */
-static GSWeb_Config *GSWeb_GetServerConfig(server_rec* p_pServerRec)
+static GSWeb_Config *
+GSWeb_GetServerConfig(server_rec *p_pServerRec)
 {
-    return (GSWeb_Config*) ap_get_module_config(p_pServerRec->module_config, &GSWeb_Module);
+  return (GSWeb_Config *)ap_get_module_config(p_pServerRec->module_config,
+					      &GSWeb_Module);
 }
 
 
 //--------------------------------------------------------------------
 // Init
 #ifdef Apache2
-static void GSWeb_ChildInit(apr_pool_t *p,server_rec* p_pServerRec)
+static void
+GSWeb_ChildInit(apr_pool_t *p,
+		server_rec *p_pServerRec)
 #else
-static void GSWeb_Init(server_rec* p_pServerRec, pool *p) 
+static void
+GSWeb_Init(server_rec *p_pServerRec,
+	   pool       *p) 
 #endif
 {
-  GSWDict* pDict=GSWDict_New(0);
-  GSWeb_Config* pConfig=NULL;
+  GSWDict      *pDict=GSWDict_New(0);
+  GSWeb_Config *pConfig=NULL;
+
   pConfig=GSWeb_GetServerConfig(p_pServerRec);
   GSWLog_Init(NULL,GSW_INFO);
   GSWLog(GSW_INFO,p_pServerRec,
-		 "GSWeb Init Start Config. Handler: " GSWEB_HANDLER);
+	 "GSWeb Init Start Config. Handler: " GSWEB_HANDLER);
   GSWLog(GSW_DEBUG,p_pServerRec,
-		 "GSWeb_Init: pConfig->pszGSWeb=%s",
-		 pConfig->pszGSWeb);
+	 "GSWeb_Init: pConfig->pszGSWeb=%s",
+	 pConfig->pszGSWeb);
 	
   if (pConfig && pConfig->pszConfigPath)
-	GSWDict_AddStringDup(pDict,
-						 g_szGSWeb_Conf_ConfigFilePath,
-						 pConfig->pszConfigPath);
-  /*  if (pConfig && pConfig->pszRoot)
-	  GSWDict_AddStringDup(pDict,
-	  g_szGSWeb_Conf_DocRoot,
-	  pConfig->pszRoot);*/
+    GSWDict_AddStringDup(pDict,
+			 g_szGSWeb_Conf_ConfigFilePath,
+			 pConfig->pszConfigPath);
+/*
+  if (pConfig && pConfig->pszRoot)
+    GSWDict_AddStringDup(pDict,
+			 g_szGSWeb_Conf_DocRoot,
+			 pConfig->pszRoot);
+*/
   GSWLog(GSW_INFO,p_pServerRec,
-		 "GSWeb Init LB Init. Handler: " GSWEB_HANDLER);
+	 "GSWeb Init LB Init. Handler: " GSWEB_HANDLER);
   GSWConfig_Init(pDict,p_pServerRec);
 	
   GSWLog(GSW_INFO,p_pServerRec,
-		 "GSWeb Init. Handler: " GSWEB_HANDLER);
+	 "GSWeb Init. Handler: " GSWEB_HANDLER);
   GSWDict_Free(pDict);
 };
 
 //--------------------------------------------------------------------
 // Create Config
-static void* GSWeb_CreateServerConfig(pool* p_pPool,
-				      server_rec* p_pServerRec)
+static void *
+GSWeb_CreateServerConfig(pool       *p_pPool,
+			 server_rec *p_pServerRec)
 {
-  GSWeb_Config *pConfig = (GSWeb_Config*)ap_palloc(p_pPool,sizeof(GSWeb_Config));
+  GSWeb_Config *pConfig = (GSWeb_Config *)ap_palloc(p_pPool,
+						    sizeof(GSWeb_Config));
+
   pConfig->pszGSWeb = g_szGSWeb_Prefix;
-  GSWLog(GSW_DEBUG,p_pServerRec,"GSWeb_CreateServerConfig: pConfig->pszGSWeb=%s",
+  GSWLog(GSW_DEBUG,p_pServerRec,
+	 "GSWeb_CreateServerConfig: pConfig->pszGSWeb=%s",
          pConfig->pszGSWeb);
   pConfig->pszConfigPath = NULL;
 //  pConfig->pszRoot = NULL;
@@ -165,24 +186,31 @@ static void* GSWeb_CreateServerConfig(pool* p_pPool,
 /*
 //--------------------------------------------------------------------
 // Set Param: DocRoot
-static CONST char* GSWeb_SetDocRoot(cmd_parms* p_pCmdParams,void* p_pUnused,char *p_pszArg)
+static CONST char *
+GSWeb_SetDocRoot(cmd_parms *p_pCmdParams,
+		 void      *p_pUnused,
+		 char      *p_pszArg)
 {
-server_rec* pServerRec = p_pCmdParams->server;
-GSWeb_Config* pConfig = NULL;
-GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetDocRoot");
-pConfig=(GSWeb_Config *)ap_get_module_config(pServerRec->module_config,
-&GSWeb_Module);
-pConfig->pszRoot = p_pszArg;
+  server_rec   *pServerRec = p_pCmdParams->server;
+  GSWeb_Config *pConfig = NULL;
+
   GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetDocRoot");
-return NULL;
+  pConfig=(GSWeb_Config *)ap_get_module_config(pServerRec->module_config,
+					       &GSWeb_Module);
+  pConfig->pszRoot = p_pszArg;
+  GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetDocRoot");
+  return NULL;
 };
 */
 //--------------------------------------------------------------------
 // Set Param: ScriptAlias
-static CONST char* GSWeb_SetScriptAlias(cmd_parms *p_pCmdParams, void *p_pUnused, char *p_pszArg)
+static CONST char *
+GSWeb_SetScriptAlias(cmd_parms *p_pCmdParams,
+		     void      *p_pUnused,
+		     char      *p_pszArg)
 {
-  server_rec* pServerRec = p_pCmdParams->server;
-  GSWeb_Config* pConfig = NULL;
+  server_rec   *pServerRec = p_pCmdParams->server;
+  GSWeb_Config *pConfig = NULL;
   GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetScriptAlias");
   pConfig=GSWeb_GetServerConfig(pServerRec);
   pConfig->pszGSWeb = p_pszArg;
@@ -192,10 +220,14 @@ static CONST char* GSWeb_SetScriptAlias(cmd_parms *p_pCmdParams, void *p_pUnused
 
 //--------------------------------------------------------------------
 // Set Param: ConfigFile
-static CONST char *GSWeb_SetConfig(cmd_parms *p_pCmdParams, void *p_pUnused, char *p_pszArg)
+static CONST char *
+GSWeb_SetConfig(cmd_parms *p_pCmdParams,
+		void      *p_pUnused,
+		char      *p_pszArg)
 {
-  server_rec* pServerRec = p_pCmdParams->server;
-  GSWeb_Config* pConfig = NULL;
+  server_rec   *pServerRec = p_pCmdParams->server;
+  GSWeb_Config *pConfig = NULL;
+
   GSWLog(GSW_DEBUG,pServerRec,"Start GSWeb_SetConfig");
   pConfig=GSWeb_GetServerConfig(pServerRec);
   GSWLog(GSW_DEBUG,pServerRec,"pConfig=%p",pConfig);
@@ -208,61 +240,67 @@ static CONST char *GSWeb_SetConfig(cmd_parms *p_pCmdParams, void *p_pUnused, cha
 
 //--------------------------------------------------------------------
 // Translate
-int GSWeb_Translation(request_rec* p_pRequestRec)
+int
+GSWeb_Translation(request_rec *p_pRequestRec)
 {
-  int iRetValue=OK;
-  GSWeb_Config* pConfig=NULL;
-  GSWURLComponents stURL;
+  int               iRetValue=OK;
+  GSWeb_Config     *pConfig=NULL;
+  GSWURLComponents  stURL;
+
   memset(&stURL,0,sizeof(stURL));
   GSWLog(GSW_DEBUG,p_pRequestRec->server,"Start GSWeb_Translation");
   pConfig=GSWeb_GetServerConfig(p_pRequestRec->server);
 
   // Is this for us ?
   if (strncmp(pConfig->pszGSWeb,
-			  p_pRequestRec->uri,
-			  strlen(pConfig->pszGSWeb))==0) 
+	      p_pRequestRec->uri,
+	      strlen(pConfig->pszGSWeb))==0) 
+    {
+      GSWURLError eError=GSWParseURL(&stURL,p_pRequestRec->uri,
+				     p_pRequestRec->server);
+      if (eError!=GSWURLError_OK)
 	{
-	  GSWURLError eError=GSWParseURL(&stURL,p_pRequestRec->uri,
-									 p_pRequestRec->server);
-	  if (eError!=GSWURLError_OK)
-		{
-		  GSWLog(GSW_ERROR,p_pRequestRec->server,"GSWeb_Translation Declined (Error %d)",(int)eError);
-		  iRetValue=DECLINED;
-		}
-	  else
-		{
-		  GSWLog(GSW_DEBUG,
-				 p_pRequestRec->server,
-				 "GSWeb_Translation Handler p_pRequestRec->handler=%s pool=%p handler=%s pConfig->pszGSWeb=%s",
-				 p_pRequestRec->handler,
-				 p_pRequestRec->pool,
-				 g_szGSWeb_Handler,
-				 pConfig->pszGSWeb);
-		  p_pRequestRec->handler=(char*)ap_pstrdup(p_pRequestRec->pool,g_szGSWeb_Handler);
-		  iRetValue=OK;
-		};
-	}
-  else
-	{
-	  GSWLog(GSW_DEBUG,p_pRequestRec->server,"GSWeb_Translation Declined");
+	  GSWLog(GSW_ERROR,p_pRequestRec->server,
+		 "GSWeb_Translation Declined (Error %d)",(int)eError);
 	  iRetValue=DECLINED;
+	}
+      else
+	{
+	  GSWLog(GSW_DEBUG,
+		 p_pRequestRec->server,
+		 "GSWeb_Translation Handler p_pRequestRec->handler=%s pool=%p handler=%s pConfig->pszGSWeb=%s",
+		 p_pRequestRec->handler,
+		 p_pRequestRec->pool,
+		 g_szGSWeb_Handler,
+		 pConfig->pszGSWeb);
+	  p_pRequestRec->handler=(char *)ap_pstrdup(p_pRequestRec->pool,
+						    g_szGSWeb_Handler);
+	  iRetValue=OK;
 	};
+    }
+  else
+    {
+      GSWLog(GSW_DEBUG,p_pRequestRec->server,"GSWeb_Translation Declined");
+      iRetValue=DECLINED;
+    };
   GSWLog(GSW_DEBUG,p_pRequestRec->server,
-		 "Stop GSWeb_Translation return %d",
-		 iRetValue);
+	 "Stop GSWeb_Translation return %d",
+	 iRetValue);
   return iRetValue;
 };
 
 //--------------------------------------------------------------------
-static void copyHeaders(request_rec* p_pRequestRec,GSWHTTPRequest* p_pGSWHTTPRequest)
+static void
+copyHeaders(request_rec    *p_pRequestRec,
+	    GSWHTTPRequest *p_pGSWHTTPRequest)
 {
-  server_rec* pServerRec = p_pRequestRec->server;
-  conn_rec* pConnection = p_pRequestRec->connection;
+  server_rec         *pServerRec = p_pRequestRec->server;
+  conn_rec           *pConnection = p_pRequestRec->connection;
   const array_header *headers_arr=ap_table_elts(p_pRequestRec->headers_in);
-  table_entry *headers=NULL;
+  table_entry        *headers=NULL;
   int i;
-  char szPort[40]="";
-  CONST char* pszRemoteLogName=NULL;
+  char                szPort[40]="";
+  CONST char         *pszRemoteLogName=NULL;
   GSWLog(GSW_DEBUG,pServerRec,"Start copyHeaders");
   
   // copy p_pRequestRec headers
@@ -270,7 +308,8 @@ static void copyHeaders(request_rec* p_pRequestRec,GSWHTTPRequest* p_pGSWHTTPReq
   for (i=0;i<headers_arr->nelts;i++)
     {
       if (headers[i].key)
-	GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,headers[i].key,headers[i].val);
+	GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
+				 headers[i].key,headers[i].val);
     };
 						
   // Add server headers
@@ -296,18 +335,22 @@ static void copyHeaders(request_rec* p_pRequestRec,GSWHTTPRequest* p_pGSWHTTPReq
 #ifdef Apache2
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemoteHost,
-			   (CONST char*)ap_get_remote_host(pConnection,p_pRequestRec->per_dir_config,REMOTE_NAME,NULL));
+			   (CONST char *)ap_get_remote_host(pConnection,
+					        p_pRequestRec->per_dir_config,
+						REMOTE_NAME,NULL));
 #else /* Apache 1.x */
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemoteHost,
-			   (CONST char*)ap_get_remote_host(pConnection,p_pRequestRec->per_dir_config,REMOTE_NAME));
+			   (CONST char *)ap_get_remote_host(pConnection,
+						p_pRequestRec->per_dir_config,
+						REMOTE_NAME));
 #endif
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemoteAddress,
 			   pConnection->remote_ip);
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_DocumentRoot,
-			   (char*)ap_document_root(p_pRequestRec));
+			   (char *)ap_document_root(p_pRequestRec));
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ServerAdmin,
 			   pServerRec->server_admin);
@@ -339,7 +382,7 @@ static void copyHeaders(request_rec* p_pRequestRec,GSWHTTPRequest* p_pGSWHTTPReq
 			     g_szServerInfo_AuthType,//"auth_type",
 			     pConnection->ap_auth_type);
 #endif
-  pszRemoteLogName = (char*)ap_get_remote_logname(p_pRequestRec);
+  pszRemoteLogName = (char *)ap_get_remote_logname(p_pRequestRec);
   if (pszRemoteLogName)
     GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			     g_szServerInfo_RemoteIdent,
@@ -349,40 +392,47 @@ static void copyHeaders(request_rec* p_pRequestRec,GSWHTTPRequest* p_pGSWHTTPReq
 
 //--------------------------------------------------------------------
 // callback finction to copy an header into p_pRequest
-static void getHeader(GSWDictElem* p_pElem,void* p_pRequestRec)
+static void
+getHeader(GSWDictElem *p_pElem,
+	  void        *p_pRequestRec)
 {
-  request_rec* pRequestRec = (request_rec*)p_pRequestRec;
+  request_rec *pRequestRec = (request_rec *)p_pRequestRec;
 	
-  if (!pRequestRec->content_type && strcasecmp(p_pElem->pszKey,g_szHeader_ContentType)==0)
-	pRequestRec->content_type = (char*)ap_pstrdup(pRequestRec->pool,(char*)p_pElem->pValue);
+  if (!pRequestRec->content_type &&
+      strcasecmp(p_pElem->pszKey,g_szHeader_ContentType)==0)
+    pRequestRec->content_type = (char *)ap_pstrdup(pRequestRec->pool,
+						   (char *)p_pElem->pValue);
   else
-	ap_table_add(pRequestRec->headers_out,p_pElem->pszKey,(char*)p_pElem->pValue);
+    ap_table_add(pRequestRec->headers_out,p_pElem->pszKey,
+		 (char *)p_pElem->pValue);
 };
 
 //--------------------------------------------------------------------
 // send response
 
-static void sendResponse(request_rec* p_pRequestRec,GSWHTTPResponse* p_pHTTPResponse)
+static void
+sendResponse(request_rec     *p_pRequestRec,
+	     GSWHTTPResponse *p_pHTTPResponse)
 {
-  char szStatusBuffer[512]="";
-  server_rec* pServerRec = p_pRequestRec->server;
+  char        szStatusBuffer[512]="";
+  server_rec *pServerRec = p_pRequestRec->server;
   GSWLog(GSW_DEBUG,pServerRec,"Start sendResponse");
 	
   // Process Headers
   GSWDict_PerformForAllElem(p_pHTTPResponse->pHeaders,getHeader,p_pRequestRec);
 	
   ap_snprintf(szStatusBuffer,sizeof(szStatusBuffer),"%u %s",
-			  p_pHTTPResponse->uStatus,
-			  p_pHTTPResponse->pszStatusMessage);
+	      p_pHTTPResponse->uStatus,
+	      p_pHTTPResponse->pszStatusMessage);
   p_pRequestRec->status_line = szStatusBuffer;
   p_pRequestRec->status = p_pHTTPResponse->uStatus;
 
   // Set content type if none
   if (!p_pRequestRec->content_type)
-	p_pRequestRec->content_type = g_szContentType_TextHtml;
+    p_pRequestRec->content_type = g_szContentType_TextHtml;
 	
   // Set content length
-  ap_set_content_length(p_pRequestRec, p_pHTTPResponse->uContentLength);
+  ap_set_content_length(p_pRequestRec, (uintmax_t)p_pHTTPResponse->uContentLength);
 
   // Now Send response...
 
@@ -391,20 +441,25 @@ static void sendResponse(request_rec* p_pRequestRec,GSWHTTPResponse* p_pHTTPResp
 
   // If not headers only
   if (!p_pRequestRec->header_only)
-	{
-	  ap_soft_timeout("Send GSWeb response",p_pRequestRec);
-	  ap_rwrite(p_pHTTPResponse->pContent,p_pHTTPResponse->uContentLength,p_pRequestRec);
-	  ap_kill_timeout(p_pRequestRec);
-	};
+    {
+      ap_soft_timeout("Send GSWeb response",p_pRequestRec);
+      ap_rwrite(p_pHTTPResponse->pContent,p_pHTTPResponse->uContentLength,
+		p_pRequestRec);
+      ap_kill_timeout(p_pRequestRec);
+    };
   GSWLog(GSW_DEBUG,pServerRec,"Stop sendResponse");
 };
 
 //--------------------------------------------------------------------
 // die/send response
-static int dieSendResponse(request_rec* p_pRequestRec,GSWHTTPResponse** p_ppHTTPResponse,BOOL p_fDecline)
+static int
+dieSendResponse(request_rec       *p_pRequestRec,
+		GSWHTTPResponse  **p_ppHTTPResponse,
+		BOOL               p_fDecline)
 {
-  server_rec* pServerRec = p_pRequestRec->server;
-  void* pLogServerData=pServerRec;
+  server_rec *pServerRec = p_pRequestRec->server;
+  void       *pLogServerData=pServerRec;
+
   GSWLog(GSW_DEBUG,pLogServerData,"Start dieSendResponse");
   sendResponse(p_pRequestRec,*p_ppHTTPResponse);
   GSWHTTPResponse_Free(*p_ppHTTPResponse,pLogServerData);
@@ -415,14 +470,19 @@ static int dieSendResponse(request_rec* p_pRequestRec,GSWHTTPResponse** p_ppHTTP
 
 //--------------------------------------------------------------------
 // die with a message
-static int dieWithMessage(request_rec* p_pRequestRec,CONST char* p_pszMessage,BOOL p_fDecline)
+static int
+dieWithMessage(request_rec *p_pRequestRec,
+	       CONST char  *p_pszMessage,
+	       BOOL         p_fDecline)
 {
   int iReturn=0;
-  GSWHTTPResponse* pResponse=NULL;	
-  server_rec* pServerRec = p_pRequestRec->server;
+  GSWHTTPResponse *pResponse=NULL;	
+  server_rec      *pServerRec = p_pRequestRec->server;
+
   GSWLog(GSW_DEBUG,pServerRec,"Start dieWithMessage");
   GSWLog(GSW_ERROR,pServerRec,"Send Error Response: %s",p_pszMessage);
-  pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,p_pszMessage,p_pRequestRec->server);
+  pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,p_pszMessage,
+						 p_pRequestRec->server);
   iReturn=dieSendResponse(p_pRequestRec,&pResponse,p_fDecline);
   GSWLog(GSW_DEBUG,pServerRec,"Stop dieWithMessage");
   return iReturn;
@@ -430,16 +490,17 @@ static int dieWithMessage(request_rec* p_pRequestRec,CONST char* p_pszMessage,BO
 
 //--------------------------------------------------------------------
 //	GSWeb Request Handler
-static int GSWeb_Handler(request_rec* p_pRequestRec)
+static int
+GSWeb_Handler(request_rec *p_pRequestRec)
 {
-  int iRetVal=OK;
-  GSWURLComponents stURLComponents;
-  GSWHTTPResponse* pResponse = NULL;
-  GSWURLError eError=GSWURLError_OK;
-  CONST char* pszURLError=NULL;
-  server_rec* pServerRec = p_pRequestRec->server;
-  void* pLogServerData=pServerRec;
-  GSWeb_Config* pConfig=NULL;
+  int               iRetVal=OK;
+  GSWURLComponents  stURLComponents;
+  GSWHTTPResponse  *pResponse = NULL;
+  GSWURLError       eError=GSWURLError_OK;
+  CONST char       *pszURLError=NULL;
+  server_rec       *pServerRec = p_pRequestRec->server;
+  void             *pLogServerData=pServerRec;
+  GSWeb_Config     *pConfig=NULL;
 
   memset(&stURLComponents,0,sizeof(stURLComponents));
   GSWLog(GSW_DEBUG,pLogServerData,"Start GSWeb_Handler");
@@ -448,9 +509,9 @@ static int GSWeb_Handler(request_rec* p_pRequestRec)
 
   // Log the request
   GSWLog(GSW_INFO,
-		 pLogServerData,
-		 "GNUstepWeb New request: %s",
-		 p_pRequestRec->uri);
+	 pLogServerData,
+	 "GNUstepWeb New request: %s",
+	 p_pRequestRec->uri);
 
   // Is this for us ?
   if (strncmp(pConfig->pszGSWeb,
@@ -480,20 +541,22 @@ static int GSWeb_Handler(request_rec* p_pRequestRec)
 	  if (iRetVal==0) // OK Continue
 	    {
 	      // Build the GSWHTTPRequest with the method
-	      GSWHTTPRequest* pRequest=NULL;
-	      CONST char* pszRequestError=NULL;
+	      GSWHTTPRequest *pRequest=NULL;
+	      CONST char     *pszRequestError=NULL;
 	      
-	      pRequest=GSWHTTPRequest_New(p_pRequestRec->method,NULL,pLogServerData);
+	      pRequest=GSWHTTPRequest_New(p_pRequestRec->method,NULL,
+					  pLogServerData);
 	      
 	      // validate the method
-	      pszRequestError=GSWHTTPRequest_ValidateMethod(pRequest,pLogServerData);
+	      pszRequestError=GSWHTTPRequest_ValidateMethod(pRequest,
+							    pLogServerData);
 	      if (pszRequestError)
 		{
 		  iRetVal=dieWithMessage(p_pRequestRec,pszRequestError,NO);
 		}
 	      else
 		{
-		  CONST char* pszDocRoot=NULL;	
+		  CONST char *pszDocRoot=NULL;	
 		  
 		  // copy headers
 		  copyHeaders(p_pRequestRec,pRequest);
@@ -506,19 +569,22 @@ static int GSWeb_Handler(request_rec* p_pRequestRec)
 		    {
 		      int iReadLength=0;
 		      int iRemainingLength = pRequest->uContentLength;
-		      char* pszBuffer = malloc(pRequest->uContentLength);
-		      char* pszData = pszBuffer;
+		      char *pszBuffer = malloc(pRequest->uContentLength);
+		      char *pszData = pszBuffer;
 		      
 		      while (iRemainingLength>0)
 			{
-			  ap_soft_timeout("reading GSWeb request",p_pRequestRec);
-			  iReadLength=ap_get_client_block(p_pRequestRec,pszData,iRemainingLength);
+			  ap_soft_timeout("reading GSWeb request",
+					  p_pRequestRec);
+			  iReadLength=ap_get_client_block(p_pRequestRec,
+							  pszData,
+							  iRemainingLength);
 			  ap_kill_timeout(p_pRequestRec);
 			  pszData += iReadLength;
 			  iRemainingLength-=iReadLength;
 			};
 		      GSWLog(GSW_INFO,pLogServerData,"pszBuffer(%p)=%.*s",
-			     (void*)pszBuffer,
+			     (void *)pszBuffer,
 			     (int)pRequest->uContentLength,
 			     pszBuffer);
 		      pRequest->pContent = pszBuffer;
@@ -526,25 +592,28 @@ static int GSWeb_Handler(request_rec* p_pRequestRec)
 		  else if (pRequest->eMethod==ERequestMethod_Get)
 		    {
 		      // Get the QueryString
-		      stURLComponents.stQueryString.pszStart = p_pRequestRec->args;
-		      stURLComponents.stQueryString.iLength = p_pRequestRec->args ? strlen(p_pRequestRec->args) : 0;
+		      stURLComponents.stQueryString.pszStart =
+			p_pRequestRec->args;
+		      stURLComponents.stQueryString.iLength =
+			p_pRequestRec->args ? strlen(p_pRequestRec->args) : 0;
 		    };
 		  
 		  // get the document root
 		  /*  if (pConfig && pConfig->pszRoot)
 		      pszDocRoot = pConfig->pszRoot;
 		      else*/
-		  pszDocRoot=(char*)ap_document_root(p_pRequestRec);
+		  pszDocRoot=(char *)ap_document_root(p_pRequestRec);
 		  
-		  // Build the response (Beware: tr_handleRequest free pRequest)
+		  // Build the response 
+		  // (Beware: tr_handleRequest free pRequest)
 		  ap_soft_timeout("Call GSWeb Application",p_pRequestRec);
 		  pRequest->pServerHandle = p_pRequestRec;
 		  pResponse=GSWAppRequest_HandleRequest(&pRequest,
-							&stURLComponents,
-							p_pRequestRec->protocol,
-							pszDocRoot,
-							g_szGSWeb_StatusResponseAppName, //AppTest name
-							pLogServerData);
+				&stURLComponents,
+				p_pRequestRec->protocol,
+				pszDocRoot,
+				g_szGSWeb_StatusResponseAppName, //AppTest name
+				pLogServerData);
 		  ap_kill_timeout(p_pRequestRec);
 		  
 		  // Send the response (if any)
@@ -602,7 +671,8 @@ static int GSWeb_Handler(request_rec* p_pRequestRec)
  * The actual delivery of content to the browser [9] is not handled by
  * a hook; see the handler declarations below.
  */
-static void GSWeb_register_hooks(apr_pool_t *p)
+static void
+GSWeb_register_hooks(apr_pool_t *p)
 {
 /*    ap_hook_pre_config(GSWeb_PreConfig, NULL, NULL, APR_HOOK_MIDDLE);
     ap_hook_post_config(GSWeb_PostConfig, NULL, NULL, APR_HOOK_MIDDLE);
@@ -645,21 +715,23 @@ static void GSWeb_register_hooks(apr_pool_t *p)
  */
 static const command_rec GSWeb_Commands[] =
 {
-    AP_INIT_TAKE1(
-        GSWEB_CONF__ALIAS,                          /* directive name */
-        GSWeb_SetScriptAlias,                        /* config action routine */
-        NULL,                               /* argument to include in call */
-        RSRC_CONF,                         /* where available */
-        "ScriptAlias for GSWeb"  /* directive description */
-    ),
-    AP_INIT_TAKE1(
-        GSWEB_CONF__CONFIG_FILE_PATH,                          /* directive name */
-	GSWeb_SetConfig,                        /* config action routine */
-        NULL,                               /* argument to include in call */
-        RSRC_CONF,                         /* where available */
-        "Configuration File Path for GSWeb"  /* directive description */
-    ),
-    {NULL}
+  AP_INIT_TAKE1
+  (
+   GSWEB_CONF__ALIAS,       /* directive name */
+   GSWeb_SetScriptAlias,    /* config action routine */
+   NULL,                    /* argument to include in call */
+   RSRC_CONF,               /* where available */
+   "ScriptAlias for GSWeb"  /* directive description */
+   );
+  AP_INIT_TAKE1
+  (
+   GSWEB_CONF__CONFIG_FILE_PATH,        /* directive name */
+   GSWeb_SetConfig,                     /* config action routine */
+   NULL,                                /* argument to include in call */
+   RSRC_CONF,                           /* where available */
+   "Configuration File Path for GSWeb"  /* directive description */
+   ),
+  {NULL}
 };
 
 module AP_MODULE_DECLARE_DATA GSWeb_Module =
@@ -667,10 +739,10 @@ module AP_MODULE_DECLARE_DATA GSWeb_Module =
     STANDARD20_MODULE_STUFF,
     NULL,//x_create_dir_config,    /* per-directory config creator */
     NULL,//x_merge_dir_config,     /* dir config merger */
-    GSWeb_CreateServerConfig, /* server config creator */
+    GSWeb_CreateServerConfig,      /* server config creator */
     NULL,//x_merge_server_config,  /* server config merger */
-    GSWeb_Commands,                 /* command table */
-    GSWeb_register_hooks,       /* set up other request processing hooks */
+    GSWeb_Commands,                /* command table */
+    GSWeb_register_hooks,          /* set up other request processing hooks */
 };
 
 #else
@@ -682,23 +754,23 @@ module AP_MODULE_DECLARE_DATA GSWeb_Module =
 static command_rec GSWeb_Commands[] =
 {
   {
-	GSWEB_CONF__ALIAS,		   	// Command keyword
-	GSWeb_SetScriptAlias,			// Function
-	NULL,							// Fixed Arg
-	RSRC_CONF,						// Type
-	TAKE1,							// Args Descr
-	"ScriptAlias for GSWeb"
+    GSWEB_CONF__ALIAS,    // Command keyword
+    GSWeb_SetScriptAlias, // Function
+    NULL,                 // Fixed Arg
+    RSRC_CONF,            // Type
+    TAKE1,                // Args Descr
+    "ScriptAlias for GSWeb"
   },
   {
-	GSWEB_CONF__CONFIG_FILE_PATH, 	// Command keyword
-	GSWeb_SetConfig,				// Function
-	NULL,							// Fixed Arg
-	RSRC_CONF,						// Type
-	TAKE1,							// Args Descr
-	"Configuration File Path for GSWeb"
+    GSWEB_CONF__CONFIG_FILE_PATH, // Command keyword
+    GSWeb_SetConfig,              // Function
+    NULL,                         // Fixed Arg
+    RSRC_CONF,                    // Type
+    TAKE1,                        // Args Descr
+    "Configuration File Path for GSWeb"
   },
   {
-	NULL
+    NULL
   }
 };
 
@@ -723,14 +795,14 @@ handler_rec GSWeb_Handlers[] =
 module GSWeb_Module =
 {
   STANDARD_MODULE_STUFF,
-  GSWeb_Init,			// Init
-  NULL,					// Create DirectoryConfig
-  NULL,					// Merge DirectoryConfig
-  GSWeb_CreateServerConfig,	// Create ServerConfig
-  NULL,					// Merge ServerConfig
-  GSWeb_Commands,		// Commands List
-  GSWeb_Handlers,		// Handlers List
-  GSWeb_Translation,	// Fn to Translatie Filename/URI
+  GSWeb_Init,               // Init
+  NULL,                     // Create DirectoryConfig
+  NULL,                     // Merge DirectoryConfig
+  GSWeb_CreateServerConfig, // Create ServerConfig
+  NULL,                     // Merge ServerConfig
+  GSWeb_Commands,           // Commands List
+  GSWeb_Handlers,           // Handlers List
+  GSWeb_Translation,        // Fn to Translatie Filename/URI
   NULL,					
   NULL,					
   NULL,					

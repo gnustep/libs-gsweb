@@ -1,8 +1,8 @@
 /* GSWTemplates.h - GSWeb: GSWTemplates
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2001, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		March 2000
+   Date: 	March 2000
    
    This file is part of the GNUstep Web Library.
    
@@ -27,14 +27,14 @@
 #include "GSWApp.h"
 
 //You need to free returned char
-char* GSWTemplate_ErrorResponseText(BOOL p_fHTML,GSWApp* pApp);
-char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML,GSWApp* pApp);
-char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML,GSWApp* pApp);
-char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML,GSWApp* pApp);
-char* GSWTemplate_GetDumpHead(BOOL p_fHTML);
-char* GSWTemplate_GetDumpFoot(BOOL p_fHTML);
-char* GSWTemplate_GetDumpApp(BOOL p_fHTML);
-char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML);
-void GSWTemplate_ReplaceStd(GSWString* p_pString,GSWApp* p_pApp);
+char *GSWTemplate_ErrorResponseText(BOOL p_fHTML, GSWApp *pApp);
+char *GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML, GSWApp *pApp);
+char *GSWTemplate_StatusAllowedResponse(BOOL p_fHTML, GSWApp *pApp);
+char *GSWTemplate_StatusDeniedResponse(BOOL p_fHTML, GSWApp *pApp);
+char *GSWTemplate_GetDumpHead(BOOL p_fHTML);
+char *GSWTemplate_GetDumpFoot(BOOL p_fHTML);
+char *GSWTemplate_GetDumpApp(BOOL p_fHTML);
+char *GSWTemplate_GetDumpAppInstance(BOOL p_fHTML);
+void GSWTemplate_ReplaceStd(GSWString *p_pString, GSWApp *p_pApp);
 
 #endif //_GSWTemplates_h__

@@ -1,8 +1,8 @@
 /* config.h - GSWeb: Adaptors: Config
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    

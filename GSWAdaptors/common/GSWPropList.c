@@ -1,8 +1,8 @@
 /* GSWPropList.c - GSWeb: Adaptors: GSWPropList
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		March 2000
+   Date: 	March 2000
    
    This file is part of the GNUstep Web Library.
    
@@ -39,232 +39,249 @@
 #include "GSWPropList.h"
 
 //--------------------------------------------------------------------
-CONST char* PLGetType(proplist_t pl)
+CONST char *
+PLGetType(proplist_t pl)
 {
   if (!pl)
-	return "NULL";
+    return "NULL";
   else if (PLIsDictionary(pl))
-	return "Dictionary";
+    return "Dictionary";
   else if (PLIsArray(pl))
-	return "Array";
+    return "Array";
   else if (PLIsString(pl))
-	return "String";
+    return "String";
   else if (PLIsData(pl))
-	return "Data";
+    return "Data";
   else if (PLIsSimple(pl))
-	return "Simple";
+    return "Simple";
   else if (PLIsCompound(pl))
-	return "Compound";
+    return "Compound";
   else
-	return "Unknown";	
+    return "Unknown";	
 };
 
 //--------------------------------------------------------------------
-BOOL GSWPropList_TestDictionary(proplist_t pl,
-								BOOL p_fErrorIfNotExists,
-								CONST char* p_pszKey,
-								CONST char* p_pszParents,
-								void* p_pLogServerData)
+BOOL
+GSWPropList_TestDictionary(proplist_t  pl,
+			   BOOL        p_fErrorIfNotExists,
+			   CONST char *p_pszKey,
+			   CONST char *p_pszParents,
+			   void       *p_pLogServerData)
 {
-  char* pszMsgInfo0=NULL;
-  char* pszMsgInfo1=NULL;
+  char *pszMsgInfo0=NULL;
+  char *pszMsgInfo1=NULL;
   BOOL fOk=TRUE;
   if (pl)
+    {
+      if (!PLIsDictionary(pl))
 	{
-	  if (!PLIsDictionary(pl))
-		{
-		  CONST char* pszType=PLGetType(pl);
-		  pszMsgInfo0=calloc(256+SafeStrlen(pszType),sizeof(char));
-		  sprintf(pszMsgInfo0,"is not a dictionary its a %s:",pszType);
-		  pszMsgInfo1=PLGetDescription(pl);//We have to free it
-		  fOk=FALSE;
-		};
-	}
+	  CONST char *pszType=PLGetType(pl);
+	  pszMsgInfo0=calloc(256+SafeStrlen(pszType),sizeof(char));
+	  sprintf(pszMsgInfo0,"is not a dictionary its a %s:",pszType);
+	  pszMsgInfo1=PLGetDescription(pl);//We have to free it
+	  fOk=FALSE;
+	};
+    }
   else
+    {
+      if (p_fErrorIfNotExists)
 	{
-	  if (p_fErrorIfNotExists)
-		{
-		  pszMsgInfo0=strdup("not found");
-		  fOk=FALSE;
-		};
+	  pszMsgInfo0=strdup("not found");
+	  fOk=FALSE;
 	};
+    };
   if (!fOk)
-	{
-	  GSWLogSized(GSW_CRITICAL,
-				  p_pLogServerData,
-				  256+SafeStrlen(p_pszParents)+SafeStrlen(p_pszKey)+SafeStrlen(pszMsgInfo0)+SafeStrlen(pszMsgInfo1),
-				  "%s/%s %s %s",
-				  (p_pszParents ? p_pszParents : ""),
-				  (p_pszKey ? p_pszKey : ""),
-				  (pszMsgInfo0 ? pszMsgInfo0 : ""),
-				  (pszMsgInfo1 ? pszMsgInfo1 : ""));
-	  if (pszMsgInfo0)
-		free(pszMsgInfo0);
-	  if (pszMsgInfo1)
-		free(pszMsgInfo1);
-	};
+    {
+      GSWLogSized(GSW_CRITICAL,
+		  p_pLogServerData,
+		  256+SafeStrlen(p_pszParents)+SafeStrlen(p_pszKey)+
+		  SafeStrlen(pszMsgInfo0)+SafeStrlen(pszMsgInfo1),
+		  "%s/%s %s %s",
+		  (p_pszParents ? p_pszParents : ""),
+		  (p_pszKey ? p_pszKey : ""),
+		  (pszMsgInfo0 ? pszMsgInfo0 : ""),
+		  (pszMsgInfo1 ? pszMsgInfo1 : ""));
+      if (pszMsgInfo0)
+	free(pszMsgInfo0);
+      if (pszMsgInfo1)
+	free(pszMsgInfo1);
+    };
   return fOk;
 };
 
 //--------------------------------------------------------------------
-BOOL GSWPropList_TestArray(proplist_t pl,
-						   BOOL p_fErrorIfNotExists,
-						   CONST char* p_pszKey,
-						   CONST char* p_pszParents,
-						   void* p_pLogServerData)
+BOOL
+GSWPropList_TestArray(proplist_t  pl,
+		      BOOL        p_fErrorIfNotExists,
+		      CONST char *p_pszKey,
+		      CONST char *p_pszParents,
+		      void       *p_pLogServerData)
 {
-  char* pszMsgInfo0=NULL;
-  char* pszMsgInfo1=NULL;
+  char *pszMsgInfo0=NULL;
+  char *pszMsgInfo1=NULL;
   BOOL fOk=TRUE;
   if (pl)
+    {
+      if (!PLIsArray(pl))
 	{
-	  if (!PLIsArray(pl))
-		{
-		  CONST char* pszType=PLGetType(pl);
-		  pszMsgInfo0=calloc(256+SafeStrlen(pszType),sizeof(char));
-		  sprintf(pszMsgInfo0,"is not an array its a %s:",pszType);
-		  pszMsgInfo1=PLGetDescription(pl);//We have to free it
-		  fOk=FALSE;
-		};
-	}
+	  CONST char *pszType=PLGetType(pl);
+	  pszMsgInfo0=calloc(256+SafeStrlen(pszType),sizeof(char));
+	  sprintf(pszMsgInfo0,"is not an array its a %s:",pszType);
+	  pszMsgInfo1=PLGetDescription(pl);//We have to free it
+	  fOk=FALSE;
+	};
+    }
   else
+    {
+      if (p_fErrorIfNotExists)
 	{
-	  if (p_fErrorIfNotExists)
-		{
-		  pszMsgInfo0="not found";
-		  fOk=FALSE;
-		};
+	  pszMsgInfo0="not found";
+	  fOk=FALSE;
 	};
+    };
   if (!fOk)
-	{
-	  GSWLogSized(GSW_CRITICAL,
-				  p_pLogServerData,
-				  256+SafeStrlen(p_pszParents)+SafeStrlen(p_pszKey)+SafeStrlen(pszMsgInfo0)+SafeStrlen(pszMsgInfo1),
-				  "%s/%s %s %s",
-				  (p_pszParents ? p_pszParents : ""),
-				  (p_pszKey ? p_pszKey : ""),
-				  (pszMsgInfo0 ? pszMsgInfo0 : ""),
-				  (pszMsgInfo1 ? pszMsgInfo1 : ""));
-	  if (pszMsgInfo0)
-		free(pszMsgInfo0);
-	  if (pszMsgInfo1)
-		free(pszMsgInfo1);
-	};
+    {
+      GSWLogSized(GSW_CRITICAL,
+		  p_pLogServerData,
+		  256+SafeStrlen(p_pszParents)+SafeStrlen(p_pszKey)+
+		  SafeStrlen(pszMsgInfo0)+SafeStrlen(pszMsgInfo1),
+		  "%s/%s %s %s",
+		  (p_pszParents ? p_pszParents : ""),
+		  (p_pszKey ? p_pszKey : ""),
+		  (pszMsgInfo0 ? pszMsgInfo0 : ""),
+		  (pszMsgInfo1 ? pszMsgInfo1 : ""));
+      if (pszMsgInfo0)
+	free(pszMsgInfo0);
+      if (pszMsgInfo1)
+	free(pszMsgInfo1);
+    };
   return fOk;
 };
 
 //--------------------------------------------------------------------
-BOOL GSWPropList_TestString(proplist_t pl,
-							BOOL p_fErrorIfNotExists,
-							CONST char* p_pszKey,
-							CONST char* p_pszParents,
-							void* p_pLogServerData)
+BOOL
+GSWPropList_TestString(proplist_t  pl,
+		       BOOL        p_fErrorIfNotExists,
+		       CONST char *p_pszKey,
+		       CONST char *p_pszParents,
+		       void       *p_pLogServerData)
 {
-  char* pszMsgInfo0=NULL;
-  char* pszMsgInfo1=NULL;
+  char *pszMsgInfo0=NULL;
+  char *pszMsgInfo1=NULL;
   BOOL fOk=TRUE;
   if (pl)
+    {
+      if (!PLIsString(pl))
 	{
-	  if (!PLIsString(pl))
-		{
-		  CONST char* pszType=PLGetType(pl);
-		  pszMsgInfo0=calloc(256+SafeStrlen(pszType),sizeof(char));
-		  sprintf(pszMsgInfo0,"is not a string its a %s:",pszType);
-		  pszMsgInfo1=PLGetDescription(pl);//We have to free it
-		  fOk=FALSE;
-		};
-	}
+	  CONST char *pszType=PLGetType(pl);
+	  pszMsgInfo0=calloc(256+SafeStrlen(pszType),sizeof(char));
+	  sprintf(pszMsgInfo0,"is not a string its a %s:",pszType);
+	  pszMsgInfo1=PLGetDescription(pl);//We have to free it
+	  fOk=FALSE;
+	};
+    }
   else
+    {
+      if (p_fErrorIfNotExists)
 	{
-	  if (p_fErrorIfNotExists)
-		{
-		  pszMsgInfo0="not found";
-		  fOk=FALSE;
-		};
+	  pszMsgInfo0="not found";
+	  fOk=FALSE;
 	};
+    };
   if (!fOk)
-	{
-	  GSWLogSized(GSW_CRITICAL,
-				  p_pLogServerData,
-				  256+SafeStrlen(p_pszParents)+SafeStrlen(p_pszKey)+SafeStrlen(pszMsgInfo0)+SafeStrlen(pszMsgInfo1),
-				  "%s/%s %s %s",
-				  (p_pszParents ? p_pszParents : ""),
-				  (p_pszKey ? p_pszKey : ""),
-				  (pszMsgInfo0 ? pszMsgInfo0 : ""),
-				  (pszMsgInfo1 ? pszMsgInfo1 : ""));
-	  if (pszMsgInfo0)
-		free(pszMsgInfo0);
-	  if (pszMsgInfo1)
-		free(pszMsgInfo1);
-	};
+    {
+      GSWLogSized(GSW_CRITICAL,
+		  p_pLogServerData,
+		  256+SafeStrlen(p_pszParents)+SafeStrlen(p_pszKey)+
+		  SafeStrlen(pszMsgInfo0)+SafeStrlen(pszMsgInfo1),
+		  "%s/%s %s %s",
+		  (p_pszParents ? p_pszParents : ""),
+		  (p_pszKey ? p_pszKey : ""),
+		  (pszMsgInfo0 ? pszMsgInfo0 : ""),
+		  (pszMsgInfo1 ? pszMsgInfo1 : ""));
+      if (pszMsgInfo0)
+	free(pszMsgInfo0);
+      if (pszMsgInfo1)
+	free(pszMsgInfo1);
+    };
   return fOk;
 };
 
 //--------------------------------------------------------------------
 //Do not destroy the returned proplist !
-proplist_t GSWPropList_GetDictionaryEntry(proplist_t p_propListDictionary,
-										  CONST char* p_pszKey,
-										  CONST char* p_pszParents,
-										  BOOL p_fErrorIfNotExists,
-										  PLTypeTestFn p_pTestFn,
-										  void* p_pLogServerData)
+proplist_t
+GSWPropList_GetDictionaryEntry(proplist_t   p_propListDictionary,
+			       CONST char  *p_pszKey,
+			       CONST char  *p_pszParents,
+			       BOOL         p_fErrorIfNotExists,
+			       PLTypeTestFn p_pTestFn,
+			       void        *p_pLogServerData)
 {
-  proplist_t propListKey=PLMakeString((char*)p_pszKey);
+  proplist_t propListKey=PLMakeString((char *)p_pszKey);
   proplist_t propList=NULL;
-  if (GSWPropList_TestDictionary(p_propListDictionary,TRUE,NULL,p_pszParents,p_pLogServerData))
+  if (GSWPropList_TestDictionary(p_propListDictionary,TRUE,NULL,
+				 p_pszParents,p_pLogServerData))
+    {
+      propList=PLGetDictionaryEntry(p_propListDictionary,propListKey);
+      if (p_pTestFn)
 	{
-	  propList=PLGetDictionaryEntry(p_propListDictionary,propListKey);
-	  if (p_pTestFn)
-		{
-		  if (!(*p_pTestFn)(propList,p_fErrorIfNotExists,p_pszKey,p_pszParents,p_pLogServerData))
-			propList=NULL;
-		};
+	  if (!(*p_pTestFn)(propList,p_fErrorIfNotExists,
+			    p_pszKey,p_pszParents,p_pLogServerData))
+	    propList=NULL;
 	};
+    };
   PLRelease(propListKey);
   return propList;
 };
 
 //--------------------------------------------------------------------
 //Do not destroy the returned proplist !
-proplist_t GSWPropList_GetArrayElement(proplist_t p_propListArray,
-											 int p_iIndex,
-											 CONST char* p_pszParents,
-											 BOOL p_fErrorIfNotExists,
-											 PLTypeTestFn p_pTestFn,
-											 void* p_pLogServerData)
+proplist_t
+GSWPropList_GetArrayElement(proplist_t   p_propListArray,
+			    int          p_iIndex,
+			    CONST char  *p_pszParents,
+			    BOOL         p_fErrorIfNotExists,
+			    PLTypeTestFn p_pTestFn,
+			    void        *p_pLogServerData)
 {
   proplist_t propList=NULL;
-  if (GSWPropList_TestArray(p_propListArray,TRUE,NULL,p_pszParents,p_pLogServerData))
+  if (GSWPropList_TestArray(p_propListArray,TRUE,NULL,
+			    p_pszParents,p_pLogServerData))
+    {
+      propList=PLGetArrayElement(p_propListArray,p_iIndex);
+      if (p_pTestFn)
 	{
-	  propList=PLGetArrayElement(p_propListArray,p_iIndex);
-	  if (p_pTestFn)
-		{
-		  char szKey[120]="";
-		  sprintf(szKey,"index: %d",p_iIndex);
-		  if (!(*p_pTestFn)(propList,p_fErrorIfNotExists,szKey,p_pszParents,p_pLogServerData))
-			propList=NULL;
-		};
+	  char szKey[120]="";
+	  sprintf(szKey,"index: %d",p_iIndex);
+	  if (!(*p_pTestFn)(propList,p_fErrorIfNotExists,szKey,
+			    p_pszParents,p_pLogServerData))
+	    propList=NULL;
 	};
+    };
   return propList;
 };
 
 //--------------------------------------------------------------------
 //You have to free the returned proplist !
-proplist_t GSWPropList_GetAllDictionaryKeys(proplist_t p_propListDictionary,
-												  CONST char* p_pszParents,
-												  BOOL p_fErrorIfNotExists,
-												  PLTypeTestFn p_pTestFn,
-												  void* p_pLogServerData)
+proplist_t
+GSWPropList_GetAllDictionaryKeys(proplist_t   p_propListDictionary,
+				 CONST char  *p_pszParents,
+				 BOOL         p_fErrorIfNotExists,
+				 PLTypeTestFn p_pTestFn,
+				 void        *p_pLogServerData)
 {
   proplist_t propList=NULL;
-  if (GSWPropList_TestDictionary(p_propListDictionary,TRUE,NULL,p_pszParents,p_pLogServerData))
+  if (GSWPropList_TestDictionary(p_propListDictionary,TRUE,NULL,
+				 p_pszParents,p_pLogServerData))
+    {
+      propList=PLGetAllDictionaryKeys(p_propListDictionary);
+      if (p_pTestFn)
 	{
-	  propList=PLGetAllDictionaryKeys(p_propListDictionary);
-	  if (p_pTestFn)
-		{
-		  if (!(*p_pTestFn)(propList,p_fErrorIfNotExists,NULL,p_pszParents,p_pLogServerData))
-			propList=NULL;
-		};
+	  if (!(*p_pTestFn)(propList,p_fErrorIfNotExists,NULL,
+			    p_pszParents,p_pLogServerData))
+	    propList=NULL;
 	};
+    };
   return propList;
 };
+

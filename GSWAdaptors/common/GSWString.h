@@ -1,8 +1,8 @@
 /* GSWString.h - GSWeb: String
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -30,20 +30,20 @@ extern "C" {
 
 typedef struct _GSWString
 {
-  int iSize;
-  int iLen;
-  char* pszData;
+  int   iSize;
+  int   iLen;
+  char *pszData;
 } GSWString;
 
-GSWString* GSWString_New();
-int GSWString_Len(GSWString* p_pString);
-void GSWString_Free(GSWString* p_pString);
-void GSWString_Detach(GSWString* p_pString);
-void GSWString_Append(GSWString* p_pString,
-					  CONST char* p_pszString);
-void GSWString_SearchReplace(GSWString* p_pString,
-							 CONST char* p_pszSearch,
-							 CONST char* p_pszReplace);
+GSWString *GSWString_New();
+int GSWString_Len(GSWString *p_pString);
+void GSWString_Free(GSWString *p_pString);
+void GSWString_Detach(GSWString *p_pString);
+void GSWString_Append(GSWString  *p_pString,
+		      CONST char *p_pszString);
+void GSWString_SearchReplace(GSWString  *p_pString,
+			     CONST char *p_pszSearch,
+			     CONST char *p_pszReplace);
 #ifdef __cplusplus
 } // end of C header
 #endif //_cplusplus

@@ -1,96 +1,102 @@
 <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
-  <head>
-    <title>Adaptor Configuration File</title>
-  </head>
+<head>
+  <title>Adaptor Configuration File</title>
+</head>
 
-  <body>
+<body>
     Configuration file path is specified with Apache directive (/etc/httpd/conf/gsweb.conf is an exemple): <br>
-	<PRE>GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf</PRE><br>
-	
+<PRE>GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf</PRE><br>
+
 
 	The format is GNUstep/OpenStep property list.<br>
 	Here is an exemple with all the possible options:<br>
 
 <PRE>
-	
-	{
-		//Global Parameters
-		canDumpStatus=YES;	//YES if server can display status (URL: /GSWeb/status)
-		GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources";	//URL of GSWExtensions Framework WebServerResources directory
+{
+  //Global Parameters
+  canDumpStatus = YES;  //YES if server can display status (URL: /GSWeb/status)
+  GSWExtensionsFrameworkWebServerResources =
+    "/GSW/GSWExtensions/WebServerResources";  // URL of GSWExtensions
+                                              // Framework
+                                              // WebServerResources directory
 
-		//List of applications
-		applications=	{
-				//The 1st application: MyApp
-				MyApp = {
-						//List of its instances
-						instances = 	{
-								//First Instance
-								1 = {
-									host=145.146.147.20;	//Host of this instance
-									port=9001;		//Port of this instance
-									parameters=	{ 	//Unused
-											transport=socket;
-											};		
-									};
-								};
-					};
-	
-				//The 2nd application: AnotherOne
-				AnotherOne = 	{
-		                                        //URL of GSWExtensions Framework WebServerResources directory. It overides Global parameter
-		                                        GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources";
-							//YES to say that this application can be listed when the adaptor don't find an application
-							canDump = YES;
-							//Unused for the moment
-							applicationHeaders = 	{
-										header1=1264;
-										header2=4567;
-										};
-							//Instances
-							instances = 	{
-										//1st instance
-										1 = {
-										host=145.146.147.20;
-										port=9002;
-										parameters=	{ 
-												transport=socket;
-												};
-										};
-									};
-						};
-				MyAppVoid =	{
-						//Here we have 3 instances
-						instances = 	{
-									1 = {
-										host=145.146.147.20;
-										port=9001;
-										parameters=	{ 
-												transport=socket;
-											};		
-									};
-									2 = {
-										host=145.146.147.21;
-										port=9002;
-										parameters=	{ 
-												transport=socket;
-											};		
-									};
-									5 ={
-										host=145.146.147.22;
-										port=9003;
-										parameters=	{ 
-												transport=socket;
-											};		
-									};
-						};
-				};
-	
-			};
-	
-	};
+  //List of applications
+  applications = {
+    //The 1st application: MyApp
+    MyApp = {
+      //List of its instances
+      instances = {
+        //First Instance
+        1 = {
+          host = 145.146.147.20;  //Host of this instance
+          port = 9001;            //Port of this instance
+          parameters = {          //Unused
+            transport=socket;
+          };
+        };
+      };
+    };
+
+    //The 2nd application: AnotherOne
+    AnotherOne = {
+
+      // URL of GSWExtensions Framework WebServerResources directory.
+      // It overides Global parameter
+      GSWExtensionsFrameworkWebServerResources =
+        "/GSW/GSWExtensions/WebServerResources";
+
+      // YES to say that this application can be listed when the
+      // adaptor don't find an application
+      canDump = YES;
+
+      //Unused for the moment
+      applicationHeaders = {
+        header1 = 1264;
+        header2 = 4567;
+      };
+
+      //Instances
+      instances = {
+        //1st instance
+        1 = {
+          host = 145.146.147.20;
+          port = 9002;
+          parameters = { 
+            transport = socket;
+          };
+        };
+      };
+    };
+    MyAppVoid = {
+      // Here we have 3 instances
+      instances = {
+        1 = {
+          host = 145.146.147.20;
+          port = 9001;
+          parameters = { 
+            transport = socket;
+          };
+        };
+        2 = {
+          host = 145.146.147.21;
+          port = 9002;
+          parameters = { 
+            transport=socket;
+          };
+        };
+        5 = {
+          host = 145.146.147.22;
+          port = 9003;
+          parameters = { 
+            transport=socket;
+          };
+        };
+      };
+    };
+  };
+};
 
 </PRE>
-
-  </body>
+</body>
 </html>

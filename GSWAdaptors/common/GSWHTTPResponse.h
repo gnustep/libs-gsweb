@@ -1,8 +1,8 @@
 /* GSWHTTPResponse.h - GSWeb: GSWeb Request
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -31,34 +31,42 @@ extern "C" {
 typedef struct _GSWHTTPResponse
 {
   unsigned int uStatus;
-  char* pszStatusMessage;
-  GSWDict* pHeaders;
+  char        *pszStatusMessage;
+  GSWDict     *pHeaders;
   unsigned int uContentLength;
-  void* pContent;
+  void        *pContent;
 } GSWHTTPResponse;
 
-GSWHTTPResponse* GSWHTTPResponse_New(CONST char* p_pszStatus,void* p_pLogServerData);
-void GSWHTTPResponse_Free(GSWHTTPResponse* p_pHTTPResponse,void* p_pLogServerData);
+GSWHTTPResponse *GSWHTTPResponse_New(CONST char *p_pszStatus,
+				     void       *p_pLogServerData);
+void GSWHTTPResponse_Free(GSWHTTPResponse *p_pHTTPResponse,
+			  void            *p_pLogServerData);
 
 // Get The response from Application
-GSWHTTPResponse* GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,void* p_pLogServerData);
+GSWHTTPResponse *GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,
+					     void           *p_pLogServerData);
 
 // Build an error response
-GSWHTTPResponse *GSWHTTPResponse_BuildErrorResponse(GSWAppRequest* p_pAppRequest,CONST char* p_pszMessage,void* p_pLogServerData);
+GSWHTTPResponse *GSWHTTPResponse_BuildErrorResponse(GSWAppRequest *p_pAppRequest,
+						    CONST char *p_pszMessage,
+						    void *p_pLogServerData);
 
 // Redirect Response
-GSWHTTPResponse* GSWHTTPResponse_BuildRedirectedResponse(CONST char* p_pszRedirectPath,void* p_pLogServerData);
+GSWHTTPResponse *GSWHTTPResponse_BuildRedirectedResponse(CONST char *p_pszRedirectPath,
+						       void *p_pLogServerData);
 
 // Add Header
-void GSWHTTPResponse_AddHeader(GSWHTTPResponse* p_pHTTPResponse,
-							   char* p_pszHeader);
+void GSWHTTPResponse_AddHeader(GSWHTTPResponse *p_pHTTPResponse,
+			       char            *p_pszHeader);
 
-char* p_pszGSWHTTPResponse_PackageHeaders(GSWHTTPResponse* p_pHTTPResponse,
-										  char* p_pszBuffer,
-										  int iBufferSize);
+char *p_pszGSWHTTPResponse_PackageHeaders(GSWHTTPResponse *p_pHTTPResponse,
+					  char            *p_pszBuffer,
+					  int              iBufferSize);
 
-GSWHTTPResponse* GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest* p_pHTTPRequest,void* p_pLogServerData);
-GSWHTTPResponse* GSWDumpConfigFile(GSWURLComponents* p_pURLComponents,void* p_pLogServerData);
+GSWHTTPResponse *GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest *p_pHTTPRequest,
+						     void *p_pLogServerData);
+GSWHTTPResponse* GSWDumpConfigFile(GSWURLComponents *p_pURLComponents,
+				   void             *p_pLogServerData);
 
 #ifdef __cplusplus
 }

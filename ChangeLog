@@ -1,3 +1,34 @@
+2003-02-28  David Ayers  <d.ayers@inode.at>
+
+	* GSWAdaptors/Apache/mod_gsweb.c (sendResponse): Add cast.
+	* GSWAdaptors/Apache/GNUmakefile-Apache1x: Update copyright and
+	correct ADAPTOR variable.  
+	* GSWAdaptors/Doc/ConfigurationFile.html: Updated formatting.
+	* GSWAdaptors/common/GSWAppConnectNSSocket.c (GSWApp_Open,
+	GSWAppSendBlock, GSWApp_ReceiveLine, GSWApp_ReceiveBlock): Correct
+	usage of GSWLog by addeding requiered parameter.
+	* GSWAdaptors/common/GSWApp.[hc]: Updated copyright notice and
+	applied some formatting.  
+	* GSWAdaptors/common/GSWAppConnect.h: Ditto.
+	* GSWAdaptors/common/GSWAppConnectNSSocket.c: Ditto.
+	* GSWAdaptors/common/GSWAppConnectSocket.c: Ditto.
+	* GSWAdaptors/common/GSWAppRequest.[hc]: Ditto.
+	* GSWAdaptors/common/GSWAppRequestStruct.h: Ditto.
+	* GSWAdaptors/common/GSWConfig.[hc]: Ditto.
+	* GSWAdaptors/common/GSWDict.[hc]: Ditto.
+	* GSWAdaptors/common/GSWHTTPHeaders.[hc]: Ditto.
+	* GSWAdaptors/common/GSWHTTPRequest.[hc]: Ditto.
+	* GSWAdaptors/common/GSWHTTPResponse.[hc]: Ditto.
+	* GSWAdaptors/common/GSWList.[hc]: Ditto.
+	* GSWAdaptors/common/GSWLoadBalancing.[hc]: Ditto.
+	* GSWAdaptors/common/GSWPropList.[hc]: Ditto.
+	* GSWAdaptors/common/GSWString.[hc]: Ditto.
+	* GSWAdaptors/common/GSWTemplates.[hc]: Ditto.
+	* GSWAdaptors/common/GSWURLUtils.[hc]: Ditto.
+	* GSWAdaptors/common/GSWUtils.[hc]: Ditto.
+	* GSWAdaptors/common/common.make: Ditto.
+	* GSWAdaptors/common/config.[hc]: Ditto.
+	
 2003-02-20  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWAdaptors/common/GSWUtil.c|.h (strcasestr): removed CONST from

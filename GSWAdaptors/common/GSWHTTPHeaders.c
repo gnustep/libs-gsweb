@@ -1,8 +1,8 @@
 /* GSWHTTPHeaders.c - GSWeb: GSWeb HTTP Headers
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -41,111 +41,112 @@
 #include "GSWConfig.h"
 #include "GSWHTTPHeaders.h"
 
-const char* g_szHeader_GSWeb_ServerAdaptor="x-gsweb-adaptor-version";
-const char* g_szHeader_GSWeb_RequestMethod="x-gsweb-request-method";
-const char* g_szHeader_GSWeb_Recording="x-gsweb-recording";
-const char* g_szHeader_GSWeb_QueryString="x-gsweb-query-string";
-const char* g_szHeader_GSWeb_RemoteAddress="x-gsweb-remote-addr";
-const char* g_szHeader_GSWeb_RemoteHost="x-gsweb-remote-host";
-const char* g_szHeader_GSWeb_RemoteIdent="x-gsweb-remote-ident";
-const char* g_szHeader_GSWeb_RemoteUser="x-gsweb-remote-user";
-const char* g_szHeader_GSWeb_ServerName="x-gsweb-server-name";
-const char* g_szHeader_GSWeb_ServerPort="x-gsweb-server-port";
-const char* g_szHeader_GSWeb_ServerSoftware="x-gsweb-server-software";
-const char* g_szHeader_GSWeb_AnnotationServer="x-gsweb-annotation-server";
-const char* g_szHeader_GSWeb_AuthPass="x-gsweb-auth-pass";
-const char* g_szHeader_GSWeb_AuthType="x-gsweb-auth-type";
-const char* g_szHeader_GSWeb_DocumentRoot="x-gsweb-documentroot";
-const char* g_szHeader_GSWeb_GatewayInterface="x-gsweb-gateway-interface";
+const char *g_szHeader_GSWeb_ServerAdaptor="x-gsweb-adaptor-version";
+const char *g_szHeader_GSWeb_RequestMethod="x-gsweb-request-method";
+const char *g_szHeader_GSWeb_Recording="x-gsweb-recording";
+const char *g_szHeader_GSWeb_QueryString="x-gsweb-query-string";
+const char *g_szHeader_GSWeb_RemoteAddress="x-gsweb-remote-addr";
+const char *g_szHeader_GSWeb_RemoteHost="x-gsweb-remote-host";
+const char *g_szHeader_GSWeb_RemoteIdent="x-gsweb-remote-ident";
+const char *g_szHeader_GSWeb_RemoteUser="x-gsweb-remote-user";
+const char *g_szHeader_GSWeb_ServerName="x-gsweb-server-name";
+const char *g_szHeader_GSWeb_ServerPort="x-gsweb-server-port";
+const char *g_szHeader_GSWeb_ServerSoftware="x-gsweb-server-software";
+const char *g_szHeader_GSWeb_AnnotationServer="x-gsweb-annotation-server";
+const char *g_szHeader_GSWeb_AuthPass="x-gsweb-auth-pass";
+const char *g_szHeader_GSWeb_AuthType="x-gsweb-auth-type";
+const char *g_szHeader_GSWeb_DocumentRoot="x-gsweb-documentroot";
+const char *g_szHeader_GSWeb_GatewayInterface="x-gsweb-gateway-interface";
 
-const char* g_szHeader_Accept="accept";
-const char* g_szHeader_AcceptEncoding="accept-encoding";
-const char* g_szHeader_AcceptLanguage="accept-language";
-const char* g_szHeader_Allow="allow";
-const char* g_szHeader_Authorization="authorization";
-const char* g_szHeader_AuthUser="auth-user";
-const char* g_szHeader_Cookie="cookie";
-const char* g_szHeader_ContentLength="content-length";
-const char* g_szHeader_ContentType="content-type";
-const char* g_szHeader_IfModifiedSince="if-modified-since";
-const char* g_szHeader_LastModified="last-modified";
-const char* g_szHeader_Method="method";
-const char* g_szHeader_PathInfo="path-info";
-const char* g_szHeader_Pragma="pragma";
-const char* g_szHeader_Protocol="protocol";
-const char* g_szHeader_Referer="referer";
-const char* g_szHeader_UserAgent="user-agent";
-const char* g_szHeader_Date="date";
-const char* g_szHeader_Expires="expires";
-const char* g_szHeader_From="from";
-const char* g_szHeader_MimeVersion="mime-version";
-const char* g_szHeader_ContentEncoding="content-encoding";
+const char *g_szHeader_Accept="accept";
+const char *g_szHeader_AcceptEncoding="accept-encoding";
+const char *g_szHeader_AcceptLanguage="accept-language";
+const char *g_szHeader_Allow="allow";
+const char *g_szHeader_Authorization="authorization";
+const char *g_szHeader_AuthUser="auth-user";
+const char *g_szHeader_Cookie="cookie";
+const char *g_szHeader_ContentLength="content-length";
+const char *g_szHeader_ContentType="content-type";
+const char *g_szHeader_IfModifiedSince="if-modified-since";
+const char *g_szHeader_LastModified="last-modified";
+const char *g_szHeader_Method="method";
+const char *g_szHeader_PathInfo="path-info";
+const char *g_szHeader_Pragma="pragma";
+const char *g_szHeader_Protocol="protocol";
+const char *g_szHeader_Referer="referer";
+const char *g_szHeader_UserAgent="user-agent";
+const char *g_szHeader_Date="date";
+const char *g_szHeader_Expires="expires";
+const char *g_szHeader_From="from";
+const char *g_szHeader_MimeVersion="mime-version";
+const char *g_szHeader_ContentEncoding="content-encoding";
 
 
 
-const char* g_szServerInfo_DocumentRoot="DOCUMENT_ROOT";
-const char* g_szServerInfo_HTTPAccept="HTTP_ACCEPT";
-const char* g_szServerInfo_HTTPAcceptEncoding="HTTP_ACCEPT_ENCODING";
-const char* g_szServerInfo_HTTPAllow="HTTP_ALLOW";
-const char* g_szServerInfo_HTTPDate="HTTP_DATE";
-const char* g_szServerInfo_HTTPExpires="HTTP_EXPIRES";
-const char* g_szServerInfo_HTTPFrom="HTTP_FROM";
-const char* g_szServerInfo_HTTPIfModifiedSince="HTTP_IF_MODIFIED_SINCE";
-const char* g_szServerInfo_HTTPLastModified="HTTP_LAST_MODIFIED";
-const char* g_szServerInfo_HTTPMimeVersion="HTTP_MIME_VERSION";
-const char* g_szServerInfo_HTTPPragma="HTTP_PRAGMA";
-const char* g_szServerInfo_HTTPReferer="HTTP_REFERER";
-const char* g_szServerInfo_RemoteIdent="REMOTE_IDENT";
-const char* g_szServerInfo_RequestMethod="REQUEST_METHOD";
+const char *g_szServerInfo_DocumentRoot="DOCUMENT_ROOT";
+const char *g_szServerInfo_HTTPAccept="HTTP_ACCEPT";
+const char *g_szServerInfo_HTTPAcceptEncoding="HTTP_ACCEPT_ENCODING";
+const char *g_szServerInfo_HTTPAllow="HTTP_ALLOW";
+const char *g_szServerInfo_HTTPDate="HTTP_DATE";
+const char *g_szServerInfo_HTTPExpires="HTTP_EXPIRES";
+const char *g_szServerInfo_HTTPFrom="HTTP_FROM";
+const char *g_szServerInfo_HTTPIfModifiedSince="HTTP_IF_MODIFIED_SINCE";
+const char *g_szServerInfo_HTTPLastModified="HTTP_LAST_MODIFIED";
+const char *g_szServerInfo_HTTPMimeVersion="HTTP_MIME_VERSION";
+const char *g_szServerInfo_HTTPPragma="HTTP_PRAGMA";
+const char *g_szServerInfo_HTTPReferer="HTTP_REFERER";
+const char *g_szServerInfo_RemoteIdent="REMOTE_IDENT";
+const char *g_szServerInfo_RequestMethod="REQUEST_METHOD";
 
-const char* g_szServerInfo_AnnotationServer="ANNOTATION_SERVER";
-const char* g_szServerInfo_AuthPass="AUTH_PASS";
-const char* g_szServerInfo_AuthType="AUTH_TYPE";
-const char* g_szServerInfo_AuthUser="AUTH_USER";
-const char* g_szServerInfo_ClientCert="CLIENT_CERT";
-const char* g_szServerInfo_ContentEncoding="CONTENT_ENCODING";
-const char* g_szServerInfo_ContentLength="CONTENT_LENGTH";
-const char* g_szServerInfo_ContentType="CONTENT_TYPE";
-const char* g_szServerInfo_GatewayInterface="GATEWAY_INTERFACE";
-const char* g_szServerInfo_Host="HOST";
-const char* g_szServerInfo_HTTPAcceptLanguage="HTTP_ACCEPT_LANGUAGE";
-const char* g_szServerInfo_HTTPAuthorization="HTTP_AUTHORIZATION";
-const char* g_szServerInfo_HTTPCookie="HTTP_COOKIE";
-const char* g_szServerInfo_HTTPUserAgent="HTTP_USER_AGENT";
-const char* g_szServerInfo_HTTPS="HTTPS";
-const char* g_szServerInfo_HTTPSKeySize="HTTPS_KEYSIZE";
-const char* g_szServerInfo_HTTPSSecretKeySize="HTTPS_SECRETKEYSIZE";
-const char* g_szServerInfo_PathInfo="PATH_INFO";
-const char* g_szServerInfo_PathTranslated="PATH_TRANSLATED";
-const char* g_szServerInfo_Query="QUERY";
-const char* g_szServerInfo_QueryString="QUERY_STRING";
-const char* g_szServerInfo_RemoteAddress="REMOTE_ADDR";
-const char* g_szServerInfo_RemoteHost="REMOTE_HOST";
-const char* g_szServerInfo_RemoteUser="REMOTE_USER";
-const char* g_szServerInfo_ScriptName="SCRIPT_NAME";
-const char* g_szServerInfo_ServerID="SERVER_ID";
-const char* g_szServerInfo_ServerName="SERVER_NAME";
-const char* g_szServerInfo_ServerPort="SERVER_PORT";
-const char* g_szServerInfo_ServerProtocol="SERVER_PROTOCOL";
-const char* g_szServerInfo_ServerSoftware="SERVER_SOFTWARE";
-const char* g_szServerInfo_HTTPGSWebRecording="HTTP_X_GSWEB_RECORDING";
-const char* g_szServerInfo_ServerAdmin="SERVER_ADMIN";
-const char* g_szServerInfo_ScriptFileName="SCRIPT_FILENAME";
-const char* g_szServerInfo_RemotePort="REMOTE_PORT";
+const char *g_szServerInfo_AnnotationServer="ANNOTATION_SERVER";
+const char *g_szServerInfo_AuthPass="AUTH_PASS";
+const char *g_szServerInfo_AuthType="AUTH_TYPE";
+const char *g_szServerInfo_AuthUser="AUTH_USER";
+const char *g_szServerInfo_ClientCert="CLIENT_CERT";
+const char *g_szServerInfo_ContentEncoding="CONTENT_ENCODING";
+const char *g_szServerInfo_ContentLength="CONTENT_LENGTH";
+const char *g_szServerInfo_ContentType="CONTENT_TYPE";
+const char *g_szServerInfo_GatewayInterface="GATEWAY_INTERFACE";
+const char *g_szServerInfo_Host="HOST";
+const char *g_szServerInfo_HTTPAcceptLanguage="HTTP_ACCEPT_LANGUAGE";
+const char *g_szServerInfo_HTTPAuthorization="HTTP_AUTHORIZATION";
+const char *g_szServerInfo_HTTPCookie="HTTP_COOKIE";
+const char *g_szServerInfo_HTTPUserAgent="HTTP_USER_AGENT";
+const char *g_szServerInfo_HTTPS="HTTPS";
+const char *g_szServerInfo_HTTPSKeySize="HTTPS_KEYSIZE";
+const char *g_szServerInfo_HTTPSSecretKeySize="HTTPS_SECRETKEYSIZE";
+const char *g_szServerInfo_PathInfo="PATH_INFO";
+const char *g_szServerInfo_PathTranslated="PATH_TRANSLATED";
+const char *g_szServerInfo_Query="QUERY";
+const char *g_szServerInfo_QueryString="QUERY_STRING";
+const char *g_szServerInfo_RemoteAddress="REMOTE_ADDR";
+const char *g_szServerInfo_RemoteHost="REMOTE_HOST";
+const char *g_szServerInfo_RemoteUser="REMOTE_USER";
+const char *g_szServerInfo_ScriptName="SCRIPT_NAME";
+const char *g_szServerInfo_ServerID="SERVER_ID";
+const char *g_szServerInfo_ServerName="SERVER_NAME";
+const char *g_szServerInfo_ServerPort="SERVER_PORT";
+const char *g_szServerInfo_ServerProtocol="SERVER_PROTOCOL";
+const char *g_szServerInfo_ServerSoftware="SERVER_SOFTWARE";
+const char *g_szServerInfo_HTTPGSWebRecording="HTTP_X_GSWEB_RECORDING";
+const char *g_szServerInfo_ServerAdmin="SERVER_ADMIN";
+const char *g_szServerInfo_ScriptFileName="SCRIPT_FILENAME";
+const char *g_szServerInfo_RemotePort="REMOTE_PORT";
 
-const char* g_szMethod_Get="GET";
-const char* g_szMethod_Post="POST";
-const char* g_szMethod_Head="HEAD";
-const char* g_szMethod_Put="PUT";
+const char *g_szMethod_Get="GET";
+const char *g_szMethod_Post="POST";
+const char *g_szMethod_Head="HEAD";
+const char *g_szMethod_Put="PUT";
 
-const char* g_szContentType_TextHtml="text/html";
+const char *g_szContentType_TextHtml="text/html";
 
 
 /*const*/ GSWHeaderTranslationItem GSWHeaderTranslationTable[50];
 int GSWHeaderTranslationTableItemsNb=0;
 
 //--------------------------------------------------------------------
-void GSWHeaderTranslationTable_Init()
+void
+GSWHeaderTranslationTable_Init()
 {
   int i=0;
   GSWHeaderTranslationTable[i].pszHTTP=g_szServerInfo_AnnotationServer;
@@ -251,12 +252,17 @@ void GSWHeaderTranslationTable_Init()
   GSWHeaderTranslationTable[i++].pszGSWeb=NULL;
 
   GSWHeaderTranslationTableItemsNb=i;
-  /*GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTableItemsNb=%d",GSWHeaderTranslationTableItemsNb);
-	for(i=0;i<GSWHeaderTranslationTableItemsNb-1;i++)
-	{
-	GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTable[i].pszHTTP=%s",GSWHeaderTranslationTable[i].pszHTTP);
-	GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTable[i].pszGSWeb=%s",GSWHeaderTranslationTable[i].pszGSWeb);
-	};*/
+  /*
+  GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTableItemsNb=%d",
+	 GSWHeaderTranslationTableItemsNb);
+  for(i=0;i<GSWHeaderTranslationTableItemsNb-1;i++)
+    {
+      GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTable[i].pszHTTP=%s",
+	     GSWHeaderTranslationTable[i].pszHTTP);
+      GSWLog(GSW_ERROR,NULL,"GSWHeaderTranslationTable[i].pszGSWeb=%s",
+	     GSWHeaderTranslationTable[i].pszGSWeb);
+    };
+  */
 };
 
 

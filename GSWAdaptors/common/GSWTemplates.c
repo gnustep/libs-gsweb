@@ -1,8 +1,8 @@
 /* GSWTemplates.c - GSWeb: GSWTemplates
-   Copyright (C) 2000 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		March 2000
+   Date: 	March 2000
    
    This file is part of the GNUstep Web Library.
    
@@ -34,7 +34,7 @@
 #include "GSWTemplates.h"
 
 //--------------------------------------------------------------------
-const char* g_szErrorResponseTextTemplate[2]={
+const char *g_szErrorResponseTextTemplate[2]={
 "##TEXT##",
 "<HTML><BODY BGCOLOR=\"#FFFFFF\">\n"
 "<CENTER><H1>##TEXT##</H1></CENTER>\n"
@@ -43,12 +43,12 @@ const char* g_szErrorResponseTextTemplate[2]={
 "</BODY></HTML>\n"};
 
 //--------------------------------------------------------------------
-const char* g_szErrorNoResponseMessageTemplate[2]={
+const char *g_szErrorNoResponseMessageTemplate[2]={
 "##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't repond",
 "##APP_NAME##:##APP_INSTANCE## (##APP_HOST##:##APP_PORT##) doesn't repond"};
 
 //--------------------------------------------------------------------
-const char* g_szStatusResponseAllowedTemplate[2]={
+const char *g_szStatusResponseAllowedTemplate[2]={
   "Server Status\n"
   "##SERVER_INFO## ##SERVER_URL##\n"
   "##ADAPTOR_INFO## ##ADAPTOR_URL##\n"
@@ -66,7 +66,7 @@ const char* g_szStatusResponseAllowedTemplate[2]={
   "</BODY></HTML>\n"};
 
 //--------------------------------------------------------------------
-const char* g_szStatusResponseDeniedTemplate[2]={
+const char *g_szStatusResponseDeniedTemplate[2]={
   "Don't play with me ##REMOTE_ADDR## ##REMOTE_HOST##, I'll win!\n",
 
   "<HTML><HEAD><TITLE>Server Status</TITLE></HEAD>\n"
@@ -77,7 +77,7 @@ const char* g_szStatusResponseDeniedTemplate[2]={
   "</BODY></HTML>\n"};
 
 //--------------------------------------------------------------------
-const char* g_szDump_HeadTemplate[2]={
+const char *g_szDump_HeadTemplate[2]={
 "GNUstepWeb Application\n",
 "<HTML><HEAD><TITLE>Index of GNUstepWeb Applications</TITLE></HEAD>\n"
 "<BODY BGCOLOR=\"#FFFFFF\">"
@@ -96,7 +96,7 @@ const char* g_szDump_HeadTemplate[2]={
 "</tr>\n"};
 
 //--------------------------------------------------------------------
-const char* g_szDump_FootTemplate[2]={
+const char *g_szDump_FootTemplate[2]={
 "",
 "</table></CENTER>\n"
 "<BR>\n"
@@ -104,7 +104,7 @@ const char* g_szDump_FootTemplate[2]={
 "</BODY></HTML>"};
 
 //--------------------------------------------------------------------
-char* g_szDump_AppTemplate[2]={
+char *g_szDump_AppTemplate[2]={
   "AppName: ##NAME##\n"
   "URL: ##URL##\n"
   "Instances:\n"
@@ -119,7 +119,7 @@ char* g_szDump_AppTemplate[2]={
   "</TR>\n"};
 
 //--------------------------------------------------------------------
-char* g_szDump_AppInstanceTemplate[2]={
+char *g_szDump_AppInstanceTemplate[2]={
   "Instance ##NUM##\n"
   "URL: ##URL##\n"
   "HOST: ##HOST##\n"
@@ -132,36 +132,45 @@ char* g_szDump_AppInstanceTemplate[2]={
   "</TR>"};
 
 //--------------------------------------------------------------------
-char* GSWTemplate_GetTemplate(BOOL p_fHTML,GSWApp* pApp,CONST char* p_pszTemplateName)
+char *
+GSWTemplate_GetTemplate(BOOL        p_fHTML,
+			GSWApp     *pApp,
+			CONST char *p_pszTemplateName)
 {
-  char* pszTemplate=NULL;
+  char *pszTemplate=NULL;
   if (pApp && pApp->pszAdaptorTemplatesPath && p_pszTemplateName)
     {
-      FILE* fd=NULL;
-      GSWConfig* gswConfig=GSWConfig_GetConfig();
-      int applen=strlen(pApp->pszAdaptorTemplatesPath)+strlen(p_pszTemplateName);
-      int globallen=strlen(gswConfig->pszAdaptorTemplatesPath)+strlen(p_pszTemplateName);
+      FILE *fd=NULL;
+      GSWConfig *gswConfig=GSWConfig_GetConfig();
+      int applen=strlen(pApp->pszAdaptorTemplatesPath)+
+	strlen(p_pszTemplateName);
+      int globallen=strlen(gswConfig->pszAdaptorTemplatesPath)+
+	strlen(p_pszTemplateName);
       int maxlen=(applen > globallen ? applen : globallen)+20;
       {
-        char* pathName=malloc(maxlen);
+        char *pathName=malloc(maxlen);
         memset(pathName,0,maxlen);
         if (p_fHTML)
-          sprintf(pathName,"%s/%s.html",pApp->pszAdaptorTemplatesPath,p_pszTemplateName);
+          sprintf(pathName,"%s/%s.html",pApp->pszAdaptorTemplatesPath,
+		  p_pszTemplateName);
         else
-          sprintf(pathName,"%s/%s.txt",pApp->pszAdaptorTemplatesPath,p_pszTemplateName);
+          sprintf(pathName,"%s/%s.txt",pApp->pszAdaptorTemplatesPath,
+		  p_pszTemplateName);
         fd=fopen(pathName,"r");
         if (!fd)
           {
             if (p_fHTML)
-              sprintf(pathName,"%s/%s.html",gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
+              sprintf(pathName,"%s/%s.html",
+		      gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
             else
-              sprintf(pathName,"%s/%s.txt",gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
+              sprintf(pathName,"%s/%s.txt",
+		      gswConfig->pszAdaptorTemplatesPath,p_pszTemplateName);
             fd=fopen(pathName,"r");
           }
         if (fd)
           {
             char buff[4096]="";
-            GSWString* pBuffer=GSWString_New();
+            GSWString *pBuffer=GSWString_New();
             while(fgets(buff,4096,fd))
               {
                 GSWString_Append(pBuffer,buff);
@@ -180,9 +189,11 @@ char* GSWTemplate_GetTemplate(BOOL p_fHTML,GSWApp* pApp,CONST char* p_pszTemplat
 
 
 //--------------------------------------------------------------------
-char* GSWTemplate_ErrorResponseText(BOOL p_fHTML,GSWApp* pApp)
+char *
+GSWTemplate_ErrorResponseText(BOOL    p_fHTML,
+			      GSWApp *pApp)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
   pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorResponseText");
   if (!pszString)
     pszString=strdup(g_szErrorResponseTextTemplate[p_fHTML ? 1 : 0]);
@@ -190,9 +201,11 @@ char* GSWTemplate_ErrorResponseText(BOOL p_fHTML,GSWApp* pApp)
 };
 
 //--------------------------------------------------------------------
-char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML,GSWApp* pApp)
+char *
+GSWTemplate_ErrorNoResponseMessage(BOOL    p_fHTML,
+				   GSWApp *pApp)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
   pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"ErrorNoResponse");
   if (!pszString)
     pszString=strdup(g_szErrorNoResponseMessageTemplate[p_fHTML ? 1 : 0]);
@@ -200,9 +213,11 @@ char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML,GSWApp* pApp)
 };
 
 //--------------------------------------------------------------------
-char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML,GSWApp* pApp)
+char *
+GSWTemplate_StatusAllowedResponse(BOOL    p_fHTML,
+				  GSWApp *pApp)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
   pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"StatusAllowedResponse");
   if (!pszString)
     pszString=strdup(g_szStatusResponseAllowedTemplate[p_fHTML ? 1 : 0]);
@@ -210,9 +225,11 @@ char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML,GSWApp* pApp)
 };
 
 //--------------------------------------------------------------------
-char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML,GSWApp* pApp)
+char *
+GSWTemplate_StatusDeniedResponse(BOOL    p_fHTML,
+				 GSWApp *pApp)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
   pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"StatusDeniedResponse");
   if (!pszString)
     pszString=strdup(g_szStatusResponseDeniedTemplate[p_fHTML ? 1 : 0]);
@@ -220,9 +237,10 @@ char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML,GSWApp* pApp)
 };
 
 //--------------------------------------------------------------------
-char* GSWTemplate_GetDumpHead(BOOL p_fHTML)
+char *
+GSWTemplate_GetDumpHead(BOOL p_fHTML)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
 /*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpHead");
   if (!pszString)*/
     pszString=strdup(g_szDump_HeadTemplate[p_fHTML ? 1 : 0]);
@@ -230,9 +248,10 @@ char* GSWTemplate_GetDumpHead(BOOL p_fHTML)
 };
 
 //--------------------------------------------------------------------
-char* GSWTemplate_GetDumpFoot(BOOL p_fHTML)
+char *
+GSWTemplate_GetDumpFoot(BOOL p_fHTML)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
 /*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpFoot");
   if (!pszString)*/
     pszString=strdup(g_szDump_FootTemplate[p_fHTML ? 1 : 0]);
@@ -240,9 +259,10 @@ char* GSWTemplate_GetDumpFoot(BOOL p_fHTML)
 };
 
 //--------------------------------------------------------------------
-char* GSWTemplate_GetDumpApp(BOOL p_fHTML)
+char *
+GSWTemplate_GetDumpApp(BOOL p_fHTML)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
 /*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpApp");
   if (!pszString)*/
     pszString=strdup(g_szDump_AppTemplate[p_fHTML ? 1 : 0]);
@@ -250,9 +270,10 @@ char* GSWTemplate_GetDumpApp(BOOL p_fHTML)
 };
 
 //--------------------------------------------------------------------
-char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML)
+char *
+GSWTemplate_GetDumpAppInstance(BOOL p_fHTML)
 {
-  char* pszString=NULL;
+  char *pszString=NULL;
 /*  pszString=GSWTemplate_GetTemplate(p_fHTML,pApp,"DumpAppInstance");
   if (!pszString)*/
     pszString=strdup(g_szDump_AppInstanceTemplate[p_fHTML ? 1 : 0]);
@@ -260,17 +281,20 @@ char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML)
 };
 
 //--------------------------------------------------------------------
-void GSWTemplate_ReplaceStd(GSWString* p_pString,GSWApp* p_pApp)
+void
+GSWTemplate_ReplaceStd(GSWString *p_pString,
+		       GSWApp    *p_pApp)
 {
-  GSWString_SearchReplace(p_pString,"##CONF_FILE##",GSWConfig_GetConfigFilePath());
+  GSWString_SearchReplace(p_pString,"##CONF_FILE##",
+			  GSWConfig_GetConfigFilePath());
   if (p_pApp)
-	{
-	  GSWString_SearchReplace(p_pString,"##APP_NAME##",p_pApp->pszName);
-	};
+    {
+      GSWString_SearchReplace(p_pString,"##APP_NAME##",p_pApp->pszName);
+    };
   if (p_pApp && p_pApp->pszGSWExtensionsFrameworkWebServerResources)
-	GSWString_SearchReplace(p_pString,"##GSWEXTFWKWSR##",
-							p_pApp->pszGSWExtensionsFrameworkWebServerResources);
+    GSWString_SearchReplace(p_pString,"##GSWEXTFWKWSR##",
+	   p_pApp->pszGSWExtensionsFrameworkWebServerResources);
   else
-	GSWString_SearchReplace(p_pString,"##GSWEXTFWKWSR##",
-							GSWConfig_GetConfig()->pszGSWExtensionsFrameworkWebServerResources);
+    GSWString_SearchReplace(p_pString,"##GSWEXTFWKWSR##",
+	   GSWConfig_GetConfig()->pszGSWExtensionsFrameworkWebServerResources);
 };

@@ -1,8 +1,8 @@
 /* GSWPropList.h - GSWeb: PropList
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		March 2000
+   Date: 	March 2000
    
    This file is part of the GNUstep Web Library.
    
@@ -28,44 +28,48 @@
 #include <time.h>
 #include "GSWList.h"
 
-typedef BOOL (*PLTypeTestFn)(proplist_t pl,BOOL p_fErrorIfNotExists,CONST char* p_pszKey,CONST char* p_pszParents,void* p_pLogServerData);
+typedef BOOL (*PLTypeTestFn)(proplist_t  pl,
+			     BOOL        p_fErrorIfNotExists,
+			     CONST char *p_pszKey,
+			     CONST char *p_pszParents,
+			     void       *p_pLogServerData);
 
-CONST char* PLGetType(proplist_t pl);
-BOOL GSWPropList_TestDictionary(proplist_t pl,
-								BOOL p_fErrorIfNotExists,
-								CONST char* p_pszKey,
-								CONST char* p_pszParents,
-								void* p_pLogServerData);
-BOOL GSWPropList_TestArray(proplist_t pl,
-						   BOOL p_fErrorIfNotExists,
-						   CONST char* p_pszKey,
-						   CONST char* p_pszParents,
-						   void* p_pLogServerData);
-BOOL GSWPropList_TestString(proplist_t pl,
-							BOOL p_fErrorIfNotExists,
-							CONST char* p_pszKey,
-							CONST char* p_pszParents,
-							void* p_pLogServerData);
+CONST char *PLGetType(proplist_t pl);
+BOOL GSWPropList_TestDictionary(proplist_t  pl,
+				BOOL        p_fErrorIfNotExists,
+				CONST char *p_pszKey,
+				CONST char *p_pszParents,
+				void       *p_pLogServerData);
+BOOL GSWPropList_TestArray(proplist_t  pl,
+			   BOOL        p_fErrorIfNotExists,
+			   CONST char *p_pszKey,
+			   CONST char *p_pszParents,
+			   void       *p_pLogServerData);
+BOOL GSWPropList_TestString(proplist_t  pl,
+			    BOOL        p_fErrorIfNotExists,
+			    CONST char *p_pszKey,
+			    CONST char *p_pszParents,
+			    void       *p_pLogServerData);
 
 //Do not destroy the returned proplist !
-proplist_t GSWPropList_GetDictionaryEntry(proplist_t p_propListDictionary,
-										  CONST char* p_pszKey,
-										  CONST char* p_pszParents,
-										  BOOL p_fErrorIfNotExists,
-										  PLTypeTestFn p_pTestFn,
-										  void* p_pLogServerData);
+proplist_t GSWPropList_GetDictionaryEntry(proplist_t   p_propListDictionary,
+					  CONST char  *p_pszKey,
+					  CONST char  *p_pszParents,
+					  BOOL         p_fErrorIfNotExists,
+					  PLTypeTestFn p_pTestFn,
+					  void        *p_pLogServerData);
 //Do not destroy the returned proplist !
-proplist_t GSWPropList_GetArrayElement(proplist_t p_propListArray,
-									   int p_iIndex,
-									   CONST char* p_pszParents,
-									   BOOL p_fErrorIfNotExists,
-									   PLTypeTestFn p_pTestFn,
-									   void* p_pLogServerData);
+proplist_t GSWPropList_GetArrayElement(proplist_t   p_propListArray,
+				       int          p_iIndex,
+				       CONST char  *p_pszParents,
+				       BOOL         p_fErrorIfNotExists,
+				       PLTypeTestFn p_pTestFn,
+				       void        *p_pLogServerData);
 //You have to free the returned proplist !
-proplist_t GSWPropList_GetAllDictionaryKeys(proplist_t p_propListDictionary,
-											CONST char* p_pszParents,
-											BOOL p_fErrorIfNotExists,
-											PLTypeTestFn p_pTestFn,
-											void* p_pLogServerData);
+proplist_t GSWPropList_GetAllDictionaryKeys(proplist_t  p_propListDictionary,
+					    CONST char  *p_pszParents,
+					    BOOL         p_fErrorIfNotExists,
+					    PLTypeTestFn p_pTestFn,
+					    void        *p_pLogServerData);
 
 #endif //_GSWPropList_h__

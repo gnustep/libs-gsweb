@@ -1,8 +1,8 @@
-#	Makefile for Apache 1.x GNUstepWeb module
-#   Copyright (C) 1999 Free Software Foundation, Inc.
+#   Makefile for Apache 1.x GNUstepWeb module
+#   Copyright (C) 1999, 2002, 2003 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-#   Date: 		Jully 1999
+#   Date: 	July 1999
 #   
 #   This file is part of the GNUstep Web Library.
 #   
@@ -53,7 +53,7 @@ OBJROOT = .
 # Directory
 SERVERAPI = Apache
 
-ADAPTOR = $(DSTROOT)/mod_gsweb.so
+ADAPTOR = mod_gsweb.so
 
 LOADBALANCING = roundrobin
 ADAPTORLIB = $(OBJROOT)/libAdaptor.a

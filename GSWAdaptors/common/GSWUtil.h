@@ -1,8 +1,8 @@
 /* GSWUtil.h - GSWeb: Adaptors: Util
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -62,65 +62,65 @@ extern "C" {
   
 void GSWLog(int p_iLevel,
 #if	defined(Apache)
-			server_rec* p_pLogServerData,
+	    server_rec *p_pLogServerData,
 #else
-			void* p_pLogServerData,
+	    void *p_pLogServerData,
 #endif
-			CONST char *p_pszFormat, ...);
+	    CONST char *p_pszFormat, ...);
 
   void GSWLogSized(int p_iLevel,
 #if	defined(Apache)
-				   server_rec* p_pLogServerData,
+		   server_rec *p_pLogServerData,
 #else
-				   void* p_pLogServerData,
+				   void *p_pLogServerData,
 #endif
 				   int p_iBufferSize,
 				   CONST char *p_pszFormat, ...);
 
-void GSWLogIntern(char* file,
-			int line,
-			char* fn,
-			int p_iLevel,
+void GSWLogIntern(char       *file,
+		  int         line,
+		  char       *fn,
+		  int         p_iLevel,
 #if	defined(Apache)
-			server_rec* p_pLogServerData,
+		  server_rec *p_pLogServerData,
 #else
-			void* p_pLogServerData,
+		  void       *p_pLogServerData,
 #endif
-			CONST char *p_pszFormat, ...);
+		  CONST char *p_pszFormat, ...);
   
 
-void GSWLogSizedIntern(char* file,
-				 int line,
-				 char* fn,
-				 int p_iLevel,
+void GSWLogSizedIntern(char       *file,
+		       int         line,
+		       char       *fn,
+		       int         p_iLevel,
 #if	defined(Apache)
-				 server_rec* p_pLogServerData,
+		       server_rec *p_pLogServerData,
 #else
-				 void* p_pLogServerData,
+		       void       *p_pLogServerData,
 #endif
-				 int p_iBufferSize,
-				 CONST char *p_pszFormat, ...);
+		       int         p_iBufferSize,
+		       CONST char *p_pszFormat, ...);
 
 // return new len
-int DeleteTrailingCRNL(char* p_pszString);
-int DeleteTrailingSlash(char* p_pszString);
-int DeleteTrailingSpaces(char* p_pszString);
+int DeleteTrailingCRNL(char *p_pszString);
+int DeleteTrailingSlash(char *p_pszString);
+int DeleteTrailingSpaces(char *p_pszString);
 
-int SafeStrlen(CONST char* p_pszString);
-char* SafeStrdup(CONST char* p_pszString);
-char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString);
+int SafeStrlen(CONST char *p_pszString);
+char *SafeStrdup(CONST char *p_pszString);
+char *strcasestr(CONST char *p_pszString, CONST char *p_pszSearchedString);
 
 
 //#include <netdb.h>
-typedef	struct hostent* PSTHostent;
+typedef	struct hostent *PSTHostent;
 
-PSTHostent GSWUtil_HostLookup(CONST char* p_pszHost,void* p_pLogServerData);
+PSTHostent GSWUtil_HostLookup(CONST char *p_pszHost, void *p_pLogServerData);
 void GSWUtil_ClearHostCache();
-PSTHostent GSWUtil_FindHost(CONST char* p_pszHost,void* p_pLogServerData);
+PSTHostent GSWUtil_FindHost(CONST char *p_pszHost, void *p_pLogServerData);
 
 #include "GSWDict.h"
 
-void GSWLog_Init(GSWDict* p_pDict,int p_iLevel);
+void GSWLog_Init(GSWDict *p_pDict, int p_iLevel);
 
 
 #ifdef __cplusplus

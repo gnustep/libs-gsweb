@@ -1,8 +1,8 @@
 /* GSWURLUtil.h - GSWeb: Adaptors: URL Utils
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -30,8 +30,8 @@ extern "C" {
 
 typedef struct _GSWURLComponent
 {
-  CONST char* pszStart;
-  int iLength;
+  CONST char *pszStart;
+  int         iLength;
 } GSWURLComponent;
 
 typedef struct _GSWURLComponents
@@ -69,10 +69,20 @@ typedef enum
   GSWURLError_InvalidSuffix
 } GSWURLError;
 
-GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL,void* p_pLogServerData);
-void GSWComposeURL(char* p_pszURL,GSWURLComponents* p_pURLComponents,void* p_pLogServerData);
-int GSWComposeURLLen(GSWURLComponents* p_pURLComponents,void* p_pLogServerData);
-CONST char* GSWURLErrorMessage(GSWURLError p_eError,void* p_pLogServerData);
+GSWURLError GSWParseURL(GSWURLComponents *p_pURLComponents,
+			CONST char       *p_pszURL,
+			void             *p_pLogServerData);
+
+void GSWComposeURL(char             *p_pszURL,
+		   GSWURLComponents *p_pURLComponents,
+		   void             *p_pLogServerData);
+
+int GSWComposeURLLen(GSWURLComponents *p_pURLComponents,
+		     void             *p_pLogServerData);
+
+CONST char *GSWURLErrorMessage(GSWURLError p_eError,
+			       void      *p_pLogServerData);
+
 #ifdef __cplusplus
 }
 #endif //_cplusplus

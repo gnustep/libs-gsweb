@@ -1,8 +1,8 @@
 /* GSWAppRequest.h - GSWeb: GSWeb App Request
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -30,12 +30,12 @@ extern "C" {
 
 #define	GSWAppRequest_INITIALIZER	{NULL,NULL,NULL,0,0,AT_NONE,3,NULL,NULL,NULL,NULL}
 
-GSWHTTPResponse* GSWAppRequest_HandleRequest(GSWHTTPRequest** p_ppHTTPRequest,
-											 GSWURLComponents* p_pURLComponents,
-											 CONST char* p_pszHTTPVersion,
-											 CONST char* p_pszDocRoot,
-											 CONST char* p_pszTestAppName,
-											 void* p_pLogServerData);
+GSWHTTPResponse *GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
+					    GSWURLComponents *p_pURLComponents,
+					     CONST char      *p_pszHTTPVersion,
+					     CONST char      *p_pszDocRoot,
+					     CONST char      *p_pszTestAppName,
+					     void           *p_pLogServerData);
 
 #endif //_GSWAppRequest_h__
 

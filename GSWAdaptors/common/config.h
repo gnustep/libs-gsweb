@@ -1,8 +1,8 @@
 /* config.h - GSWeb: Adaptors: Config
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -37,10 +37,10 @@ extern "C" {
 #define CONST const
 #define DEBUG
 
-#define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR	1
-#define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING	"1"
-#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR	1
-#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING	"1"
+#define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR         1
+#define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING "1"
+#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR         1
+#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING "1"
 
 #define	GSWEB_VERSION_MAJOR	1
 #define GSWEB_VERSION_MINOR	0
@@ -58,13 +58,13 @@ extern "C" {
 #define GSWAPP_EXTENSION_GSW ".gswa"
 
 // Time Outs ...
-#define	APP_CONNECT_TIMEOUT			300
+#define	APP_CONNECT_TIMEOUT		300
 #define	RESPONSE__LINE_MAX_SIZE		8192
 #define	APP_CONNECT_RETRY_DELAY		3
 #define	APP_CONNECT_RETRIES_NB		10
 
 
-#define	HITS_PER_SECOND				80
+#define	HITS_PER_SECOND			80
 #define	CONFIG_FILE_STAT_INTERVAL 	10
 
 
@@ -77,19 +77,19 @@ extern "C" {
 // Config File Keywords
 
 // All
-//#define GSWEB_CONF__DOC_ROOT				"GSWeb_DocumentRoot"
-#define GSWEB_CONF__CONFIG_FILE_PATH   		"GSWeb_ConfigFilePath"
+//#define GSWEB_CONF__DOC_ROOT		"GSWeb_DocumentRoot"
+#define GSWEB_CONF__CONFIG_FILE_PATH	"GSWeb_ConfigFilePath"
 
 // Aapche
 #if defined(Apache)
-#define GSWEB_CONF__ALIAS					"GSWeb_Alias"
+#define GSWEB_CONF__ALIAS	"GSWeb_Alias"
 #endif
 
 // Netscape
 #if	defined(Netscape)
 #define	GSWEB_CONF__PATH_TRANS	"from"			// NameTrans
 #define	GSWEB_CONF__APP_ROOT	"dir"			// NameTrans
-#define	GSWEB_CONF__NAME		"name"			// NameTrans, Object 
+#define	GSWEB_CONF__NAME	"name"			// NameTrans, Object 
 #endif
 
 

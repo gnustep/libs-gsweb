@@ -1,8 +1,8 @@
 /* GSWLoadBalancing.c - GSWeb: Adaptors: Load Balancing
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -45,11 +45,13 @@
 #include "GSWApp.h"
 
 //--------------------------------------------------------------------
-BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,
-							  void* p_pLogServerData, GSWURLComponents* p_pURLComponents)
+BOOL
+GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
+			 void             *p_pLogServerData,
+			 GSWURLComponents *p_pURLComponents)
 {
   BOOL fFound=FALSE;
-  GSWApp* pApp=NULL;
+  GSWApp *pApp=NULL;
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWLoadBalancing_FindApp");
   GSWLog(GSW_INFO,p_pLogServerData,"LoadBalance: looking for %s",
 		   p_pAppRequest->pszName);
@@ -57,191 +59,220 @@ BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,
   GSWLock_Lock(g_lockAppList);
   pApp = GSWConfig_GetApp(p_pAppRequest->pszName);
   if (pApp)
-	{
-	  GSWList* pInstancesList=GSWDict_AllKeys(&pApp->stInstancesDict);
-	  unsigned int uInstancesCount=GSWList_Count(pInstancesList);
-	  int iTries=uInstancesCount;
-	  GSWAppInstance* pAppInstance=NULL;
-	  time_t curTime = (time_t)0;
+    {
+      GSWList *pInstancesList=GSWDict_AllKeys(&pApp->stInstancesDict);
+      unsigned int uInstancesCount=GSWList_Count(pInstancesList);
+      int iTries=uInstancesCount;
+      GSWAppInstance *pAppInstance=NULL;
+      time_t curTime = (time_t)0;
 	  
-	  while (!fFound && iTries-->0)
+      while (!fFound && iTries-->0)
+	{
+	  pApp->iIndex = (pApp->iIndex+1) % uInstancesCount;
+	  pAppInstance =
+	    (GSWAppInstance *)GSWDict_ValueForKey(&pApp->stInstancesDict,
+			  GSWList_ElementAtIndex(pInstancesList,pApp->iIndex));
+	  if (pAppInstance)
+	    {
+	      if (!pAppInstance->pApp)
 		{
-		  pApp->iIndex = (pApp->iIndex+1) % uInstancesCount;
-		  pAppInstance=(GSWAppInstance*)GSWDict_ValueForKey(&pApp->stInstancesDict,
-															GSWList_ElementAtIndex(pInstancesList,pApp->iIndex));
-		  if (pAppInstance)
-			{
-			  if (!pAppInstance->pApp)
-				{
-				  GSWLog(GSW_CRITICAL,p_pLogServerData,
-						 "AppInstance pApp is null pAppInstance=%p",
-						 pAppInstance);
-				};
-			  if (pAppInstance->timeNextRetryTime!=0)
-				{
-				  if (!curTime)
-					time(&curTime);
-				  if (pAppInstance->timeNextRetryTime<curTime)
-					{
-					  GSWLog(GSW_CRITICAL,
-							 p_pLogServerData,
-							 "LoadBalance: Instance %s:%d was marked dead for %d secs. Now resurecting !",
-							 p_pAppRequest->pszName, 
-							 pAppInstance->iInstance,
-							 APP_CONNECT_RETRY_DELAY);
-					  pAppInstance->timeNextRetryTime=0;
-					};
-				};
-			  if (pAppInstance->timeNextRetryTime==0 && pAppInstance->fValid)
-				{
-				  BOOL okay = TRUE;
-				  // check if refused, time to try again ?
-				  if (p_pURLComponents->stRequestHandlerKey.iLength==0 || p_pURLComponents->stRequestHandlerKey.pszStart==NULL) {
-					GSWAppInfo *thisAppInfo = GSWAppInfo_Find(p_pAppRequest->pszName, pAppInstance->iInstance);
-					if (thisAppInfo && thisAppInfo->isRefused) {
-						time_t actTime = (time_t)0;
-						// this instance refuses new sessions
-						time(&actTime);
-						if (actTime > thisAppInfo->timeNextRetryTime) {
-							thisAppInfo->isRefused = FALSE;	// try it again
-						} else {
-							okay = FALSE;	// try an other instance
-						}
-					}
-				  }
-
-			      if (okay == TRUE) {
-				  	fFound = TRUE;
-				  	strcpy(p_pAppRequest->pszName,pApp->pszName);
-				  	p_pAppRequest->iInstance = pAppInstance->iInstance;
-				  	p_pAppRequest->pszHost = pAppInstance->pszHostName;
-				  	p_pAppRequest->iPort = pAppInstance->iPort;
-				  	p_pAppRequest->eType = EAppType_LoadBalanced;
-				  	p_pAppRequest->pAppInstance = pAppInstance;
-				  	pAppInstance->uOpenedRequestsNb++;
-				  }
-				};
-			};
+		  GSWLog(GSW_CRITICAL,p_pLogServerData,
+			 "AppInstance pApp is null pAppInstance=%p",
+			 pAppInstance);
 		};
-	  GSWList_Free(pInstancesList,FALSE);
+	      if (pAppInstance->timeNextRetryTime!=0)
+		{
+		  if (!curTime)
+		    time(&curTime);
+		  if (pAppInstance->timeNextRetryTime<curTime)
+		    {
+		      GSWLog(GSW_CRITICAL,
+			     p_pLogServerData,
+  "LoadBalance: Instance %s:%d was marked dead for %d secs. Now resurecting !",
+			     p_pAppRequest->pszName, 
+			     pAppInstance->iInstance,
+			     APP_CONNECT_RETRY_DELAY);
+		      pAppInstance->timeNextRetryTime=0;
+		    };
+		};
+	      if (pAppInstance->timeNextRetryTime==0 && pAppInstance->fValid)
+		{
+		  BOOL okay = TRUE;
+		  // check if refused, time to try again ?
+		  if (p_pURLComponents->stRequestHandlerKey.iLength==0 ||
+		      p_pURLComponents->stRequestHandlerKey.pszStart==NULL)
+		    {
+		      GSWAppInfo *thisAppInfo = 
+			GSWAppInfo_Find(p_pAppRequest->pszName,
+					pAppInstance->iInstance);
+		      if (thisAppInfo && thisAppInfo->isRefused)
+			{
+			  time_t actTime = (time_t)0;
+			  // this instance refuses new sessions
+			  time(&actTime);
+			  if (actTime > thisAppInfo->timeNextRetryTime)
+			    {
+			      thisAppInfo->isRefused = FALSE;	// try it again
+			    }
+			  else
+			    {
+			      okay = FALSE;	// try an other instance
+			    }
+			}
+		    }
+		  
+		  if (okay == TRUE)
+		    {
+		      fFound = TRUE;
+		      strcpy(p_pAppRequest->pszName,pApp->pszName);
+		      p_pAppRequest->iInstance = pAppInstance->iInstance;
+		      p_pAppRequest->pszHost = pAppInstance->pszHostName;
+		      p_pAppRequest->iPort = pAppInstance->iPort;
+		      p_pAppRequest->eType = EAppType_LoadBalanced;
+		      p_pAppRequest->pAppInstance = pAppInstance;
+		      pAppInstance->uOpenedRequestsNb++;
+		    }
+		};
+	    };
 	};
+      GSWList_Free(pInstancesList,FALSE);
+    };
   GSWLock_Unlock(g_lockAppList);
   
   if (fFound)
-	GSWLog(GSW_INFO,p_pLogServerData,"LoadBalance: looking for %s, fFound instance %d on %s:%d",
-		   p_pAppRequest->pszName,
-		   p_pAppRequest->iInstance,
-		   p_pAppRequest->pszHost,
-		   p_pAppRequest->iPort);
+    GSWLog(GSW_INFO,p_pLogServerData,
+	   "LoadBalance: looking for %s, fFound instance %d on %s:%d",
+	   p_pAppRequest->pszName,
+	   p_pAppRequest->iInstance,
+	   p_pAppRequest->pszHost,
+	   p_pAppRequest->iPort);
   else
-	GSWLog(GSW_INFO,p_pLogServerData,"LoadBalance: looking for %s, Not Found",
-		   p_pAppRequest->pszName);
+    GSWLog(GSW_INFO,p_pLogServerData,"LoadBalance: looking for %s, Not Found",
+	   p_pAppRequest->pszName);
   GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWLoadBalancing_FindApp");
   return fFound;
 };
 
 //--------------------------------------------------------------------
-BOOL GSWLoadBalancing_FindInstance(GSWAppRequest *p_pAppRequest,void* p_pLogServerData, GSWURLComponents* p_pURLComponents)
+BOOL
+GSWLoadBalancing_FindInstance(GSWAppRequest    *p_pAppRequest,
+			      void             *p_pLogServerData,
+			      GSWURLComponents *p_pURLComponents)
 {
   BOOL fFound=FALSE;
-  GSWApp* pApp=NULL;
+  GSWApp *pApp=NULL;
   int i=0;
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWLoadBalancing_FindInstance");
   GSWConfig_LoadConfiguration(p_pLogServerData);
   GSWLock_Lock(g_lockAppList);
-  pApp = (GSWApp*)GSWConfig_GetApp(p_pAppRequest->pszName);
+  pApp = (GSWApp *)GSWConfig_GetApp(p_pAppRequest->pszName);
   if (pApp)
+    {
+      GSWAppInstance *pAppInstance=NULL;
+      char szInstanceNum[50]="";
+      sprintf(szInstanceNum,"%d",p_pAppRequest->iInstance);
+      pAppInstance =
+	(GSWAppInstance *)GSWDict_ValueForKey(&pApp->stInstancesDict,
+					      szInstanceNum);
+      if (pAppInstance)
 	{
-	  GSWAppInstance* pAppInstance=NULL;
-	  char szInstanceNum[50]="";
-	  sprintf(szInstanceNum,"%d",p_pAppRequest->iInstance);
-	  pAppInstance=(GSWAppInstance*)GSWDict_ValueForKey(&pApp->stInstancesDict,szInstanceNum);
-	  if (pAppInstance)
+	  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance Found");
+	  if (pAppInstance->fValid)
+	    {
+	      BOOL okay = TRUE;
+	      // check if refused, time to try again ?
+	      if (p_pURLComponents->stRequestHandlerKey.iLength==0 ||
+		  p_pURLComponents->stRequestHandlerKey.pszStart==NULL)
 		{
-		  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance Found");
-		  if (pAppInstance->fValid)
+		  GSWAppInfo *thisAppInfo =
+		    GSWAppInfo_Find(p_pAppRequest->pszName,
+				    pAppInstance->iInstance);
+		  if (thisAppInfo && thisAppInfo->isRefused)
+		    {
+		      time_t actTime = (time_t)0;
+		      // this instance refuses new sessions
+		      time(&actTime);
+		      if (actTime > thisAppInfo->timeNextRetryTime)
 			{
-				  BOOL okay = TRUE;
-				  // check if refused, time to try again ?
-				  if (p_pURLComponents->stRequestHandlerKey.iLength==0 || p_pURLComponents->stRequestHandlerKey.pszStart==NULL) {
-					GSWAppInfo *thisAppInfo = GSWAppInfo_Find(p_pAppRequest->pszName, pAppInstance->iInstance);
-					if (thisAppInfo && thisAppInfo->isRefused) {
-						time_t actTime = (time_t)0;
-						// this instance refuses new sessions
-						time(&actTime);
-						if (actTime > thisAppInfo->timeNextRetryTime) {
-							thisAppInfo->isRefused = FALSE;	// try it again
-						} else {
-							okay = FALSE;	// try an other instance
-						}
-					}
-				  }
-
-			    if (okay == TRUE) {
-
-			  		fFound=TRUE;
-			  		p_pAppRequest->iInstance = pAppInstance->iInstance;
-			  		p_pAppRequest->pszHost = pAppInstance->pszHostName;
-			  		p_pAppRequest->iPort = pAppInstance->iPort;
-			  		p_pAppRequest->eType = EAppType_LoadBalanced;
-			  		p_pAppRequest->pAppInstance = pAppInstance;
-			  		pAppInstance->uOpenedRequestsNb++;		
-			  		GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is valid");
-				}
+			  thisAppInfo->isRefused = FALSE;	// try it again
 			}
-		  else
+		      else
 			{
-			  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is not valid");
-			};
-		};
+			  okay = FALSE;	// try an other instance
+			}
+		    }
+		}
+	      
+	      if (okay == TRUE)
+		{
+		  fFound=TRUE;
+		  p_pAppRequest->iInstance = pAppInstance->iInstance;
+		  p_pAppRequest->pszHost = pAppInstance->pszHostName;
+		  p_pAppRequest->iPort = pAppInstance->iPort;
+		  p_pAppRequest->eType = EAppType_LoadBalanced;
+		  p_pAppRequest->pAppInstance = pAppInstance;
+		  pAppInstance->uOpenedRequestsNb++;		
+		  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is valid");
+		}
+	    }
+	  else
+	    {
+	      GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is not valid");
+	    };
 	};
+    };
   GSWLock_Unlock(g_lockAppList);
   GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWLoadBalancing_FindInstance");
   return fFound;
 };
 
 //--------------------------------------------------------------------
-void GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest* p_pAppRequest,
-										   void* p_pLogServerData)
+void
+GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest *p_pAppRequest,
+				      void          *p_pLogServerData)
 {
-  GSWAppInstance* pAppInstance;
+  GSWAppInstance *pAppInstance;
   time_t now;
   time(&now);
-  pAppInstance =p_pAppRequest->pAppInstance;
+  pAppInstance = p_pAppRequest->pAppInstance;
   pAppInstance->uOpenedRequestsNb--;
   pAppInstance->timeNextRetryTime=now+APP_CONNECT_RETRY_DELAY;
-  GSWLog(GSW_WARNING,p_pLogServerData,"Marking %s unresponsive",p_pAppRequest->pszName);
+  GSWLog(GSW_WARNING,p_pLogServerData,"Marking %s unresponsive",
+	 p_pAppRequest->pszName);
   if (!pAppInstance->fValid)
-	{
-	  if (GSWAppInstance_FreeIFND(pAppInstance))
-		pAppInstance=NULL;
-	};
+    {
+      if (GSWAppInstance_FreeIFND(pAppInstance))
+	pAppInstance=NULL;
+    };
 };
 
 //--------------------------------------------------------------------
-void GSWLoadBalancing_StartAppRequest(GSWAppRequest* p_pAppRequest,
-									  void* p_pLogServerData)
+void
+GSWLoadBalancing_StartAppRequest(GSWAppRequest *p_pAppRequest,
+				 void          *p_pLogServerData)
 {
-  GSWAppInstance* pAppInstance=p_pAppRequest->pAppInstance;
+  GSWAppInstance *pAppInstance=p_pAppRequest->pAppInstance;
   if (pAppInstance->timeNextRetryTime!=0)
-	{
-	  pAppInstance->timeNextRetryTime=0;
-	  GSWLog(GSW_WARNING,p_pLogServerData,"Marking %s as alive",p_pAppRequest->pszName);
-	};
+    {
+      pAppInstance->timeNextRetryTime=0;
+      GSWLog(GSW_WARNING,p_pLogServerData,
+	     "Marking %s as alive",p_pAppRequest->pszName);
+    };
 }
 
 //--------------------------------------------------------------------
-void GSWLoadBalancing_StopAppRequest(GSWAppRequest *p_pAppRequest,
-									 void* p_pLogServerData)
+void
+GSWLoadBalancing_StopAppRequest(GSWAppRequest *p_pAppRequest,
+				void          *p_pLogServerData)
 {
-  GSWAppInstance* pAppInstance=p_pAppRequest->pAppInstance;
+  GSWAppInstance *pAppInstance=p_pAppRequest->pAppInstance;
   GSWLock_Lock(g_lockAppList);
   pAppInstance->uOpenedRequestsNb--;
   if (!pAppInstance->fValid)
-	{
-	  if (GSWAppInstance_FreeIFND(pAppInstance))
-		pAppInstance=NULL;
-	};
+    {
+      if (GSWAppInstance_FreeIFND(pAppInstance))
+	pAppInstance=NULL;
+    };
   GSWLock_Unlock(g_lockAppList);
   p_pAppRequest->pAppInstance = NULL;
 };

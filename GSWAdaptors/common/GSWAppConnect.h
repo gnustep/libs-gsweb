@@ -1,8 +1,8 @@
 /* GSWAppConnect.h - GSWeb: GSWeb App Connect
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -26,33 +26,33 @@
 
 typedef struct _STAppConnectHandle
 {
-  void* foo;
+  void *foo;
 } STAppConnectHandle;
 
-typedef STAppConnectHandle* AppConnectHandle;
+typedef STAppConnectHandle *AppConnectHandle;
 
 
-AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,
-							 void* p_pLogServerData);
+AppConnectHandle GSWApp_Open(GSWAppRequest *p_pAppRequest,
+			     void          *p_pLogServerData);
 void GSWApp_Close(AppConnectHandle p_handle,
-				  void* p_pLogServerData);
+		  void            *p_pLogServerData);
 
 int GSWApp_SendBlock(AppConnectHandle p_handle,
-					 CONST char* p_pszBuffer,
-					 int p_iSize,
-					 void* p_pLogServerData);
+		     CONST char      *p_pszBuffer,
+		     int              p_iSize,
+		     void            *p_pLogServerData);
 int GSWApp_ReceiveBlock(AppConnectHandle p_handle,
-						char* p_pszBuffer,
-						int p_iBufferSize,
-						void* p_pLogServerData);
+			char            *p_pszBuffer,
+			int              p_iBufferSize,
+			void            *p_pLogServerData);
 
 int GSWApp_SendLine(AppConnectHandle p_handle,
-					CONST char* p_pszBuffer,
-					void* p_pLogServerData);
+		    CONST char      *p_pszBuffer,
+		    void            *p_pLogServerData);
 int GSWApp_ReceiveLine(AppConnectHandle p_handle,
-					   char* p_pszBuffer,
-					   int p_iBufferSize,
-					   void* p_pLogServerData);
+		       char            *p_pszBuffer,
+		       int              p_iBufferSize,
+		       void            *p_pLogServerData);
 
 
 #endif // _GSWAppConnect_h__

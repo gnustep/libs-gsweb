@@ -1,8 +1,8 @@
 /* GSWLoadBalancing.h - GSWeb: GSWeb Load Balancing
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2001, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Jully 1999
+   Date: 	July 1999
    
    This file is part of the GNUstep Web Library.
    
@@ -24,11 +24,18 @@
 #ifndef _GSWLoadBalancing_h__
 #define _GSWLoadBalancing_h__
 
-BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,void* p_pLogServerData, GSWURLComponents* p_pURLComponents);
-BOOL GSWLoadBalancing_FindInstance(GSWAppRequest* p_pAppRequest,void* p_pLogServerData, GSWURLComponents* p_pURLComponents);
-void GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
-void GSWLoadBalancing_StartAppRequest(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
-void GSWLoadBalancing_StopAppRequest(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
+BOOL GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
+			      void             *p_pLogServerData,
+			      GSWURLComponents *p_pURLComponents);
+BOOL GSWLoadBalancing_FindInstance(GSWAppRequest    *p_pAppRequest,
+				   void             *p_pLogServerData,
+				   GSWURLComponents *p_pURLComponents);
+void GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest *p_pAppRequest,
+					   void          *p_pLogServerData);
+void GSWLoadBalancing_StartAppRequest(GSWAppRequest *p_pAppRequest,
+				      void          *p_pLogServerData);
+void GSWLoadBalancing_StopAppRequest(GSWAppRequest *p_pAppRequest,
+				     void          *p_pLogServerData);
 
 #endif // GSWLoadBalancing
 

@@ -1,8 +1,8 @@
 /* GSWApp.h - GSWeb: Adaptors: GSWApp & GSWAppInstance
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 2000, 2001, 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		March 2000
+   Date: 	March 2000
    
    This file is part of the GNUstep Web Library.
    
@@ -26,38 +26,40 @@
 
 typedef struct _GSWApp
 {
-  int iUsageCounter;
-  char* pszName;
-  int iIndex;//Current Instance Index
+  int     iUsageCounter;
+  char   *pszName;
+  int     iIndex;//Current Instance Index
   GSWDict stInstancesDict;
   GSWDict stHeadersDict;
-  char* pszGSWExtensionsFrameworkWebServerResources;
-  BOOL fCanDump;
-  char* pszAdaptorTemplatesPath;
+  char   *pszGSWExtensionsFrameworkWebServerResources;
+  BOOL    fCanDump;
+  char   *pszAdaptorTemplatesPath;
 } GSWApp;
 
 typedef struct _GSWAppInstance
 {
-  GSWApp* pApp;
-  int iInstance;
-  char* pszHostName;
-  int iPort;
-  time_t timeNextRetryTime;			// Timer
+  GSWApp      *pApp;
+  int          iInstance;
+  char        *pszHostName;
+  int          iPort;
+  time_t       timeNextRetryTime;	// Timer
   unsigned int uOpenedRequestsNb;
-  BOOL fValid;
+  BOOL         fValid;
 } GSWAppInstance;
 
 //--------------------------------------------------------------------
-GSWApp* GSWApp_New();
-void GSWApp_Free(GSWApp* p_pApp);
-void GSWApp_FreeNotValidInstances(GSWApp* p_pApp);
-void GSWApp_AppsClearInstances(GSWDict* p_pAppsDict);
-void GSWApp_AddInstance(GSWApp* p_pApp,CONST char* p_pszInstanceNum,GSWAppInstance* p_pInstance);
+GSWApp *GSWApp_New();
+void    GSWApp_Free(GSWApp *p_pApp);
+void    GSWApp_FreeNotValidInstances(GSWApp *p_pApp);
+void    GSWApp_AppsClearInstances(GSWDict *p_pAppsDict);
+void    GSWApp_AddInstance(GSWApp         *p_pApp,
+			   CONST char     *p_pszInstanceNum,
+			   GSWAppInstance *p_pInstance);
 
 //--------------------------------------------------------------------
-GSWAppInstance* GSWAppInstance_New(GSWApp* p_pApp);
-void GSWAppInstance_Free(GSWAppInstance* p_pInstance);
-BOOL GSWAppInstance_FreeIFND(GSWAppInstance* p_pInstance);
+GSWAppInstance *GSWAppInstance_New(GSWApp *p_pApp);
+void            GSWAppInstance_Free(GSWAppInstance *p_pInstance);
+BOOL            GSWAppInstance_FreeIFND(GSWAppInstance *p_pInstance);
 
 //---------------------------------------------------------------------
 typedef struct _GSWAppInfo
@@ -66,13 +68,13 @@ typedef struct _GSWAppInfo
   time_t timeNextRetryTime;			// next try to look, if it is not refused
 } GSWAppInfo;
 
-static GSWDict*  _gswAppInfoDict = NULL;
+static GSWDict *_gswAppInfoDict = NULL;
 
 void 		GSWAppInfo_Init();
-GSWAppInfo* 	GSWAppInfo_Find(char* pszName, int iInstance);
-void 		GSWAppInfo_Add(GSWAppInfo* appInfoDict, CONST char* keyName);
-void 		GSWAppInfo_Set(char* pszName, int iInstance, BOOL isRefused);
-void 		GSWAppInfo_Remove(GSWAppInfo* _appInfo);
+GSWAppInfo     *GSWAppInfo_Find(char *pszName,int iInstance);
+void 		GSWAppInfo_Add(GSWAppInfo *appInfoDict, CONST char *keyName);
+void 		GSWAppInfo_Set(char *pszName, int iInstance, BOOL isRefused);
+void 		GSWAppInfo_Remove(GSWAppInfo *_appInfo);
 
 
 #endif // _GSWApp_h__
