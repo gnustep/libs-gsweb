@@ -39,6 +39,7 @@ extern xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt,
 
 static NSLock* GSXMLParserLock=nil;
 static NSMutableDictionary* DTDCache=nil;
+static NSMutableDictionary* DTDFilePathCache=nil;
 
 //====================================================================
 @implementation GSWTemplateParserSAXHandler
@@ -51,6 +52,8 @@ static NSMutableDictionary* DTDCache=nil;
     {
       if (!DTDCache)
         DTDCache=[NSMutableDictionary new];
+      if (!DTDFilePathCache)
+        DTDFilePathCache=[NSMutableDictionary new];
       if (!GSXMLParserLock)
         GSXMLParserLock=[NSRecursiveLock new];
     };
@@ -63,6 +66,7 @@ static NSMutableDictionary* DTDCache=nil;
   if (self==[GSWTemplateParserSAXHandler class])
     {
       DESTROY(DTDCache);
+      DESTROY(DTDFilePathCache);
       DESTROY(GSXMLParserLock);
     };
 };
@@ -100,7 +104,7 @@ static NSMutableDictionary* DTDCache=nil;
 };
 
 //--------------------------------------------------------------------
-/*"Find cached DTD Content for Key url"*/
+/** Find cached DTD Content for Key url **/
 +(NSString*)cachedDTDContentForKey:(NSString*)url
 {
   NSString* content=nil;
@@ -111,13 +115,35 @@ static NSMutableDictionary* DTDCache=nil;
 };
 
 //--------------------------------------------------------------------
-/*"Cache DTD Content externalContent for Key url"*/
+/** Cache DTD Content externalContent for Key url **/
 +(void)setCachedDTDContent:(NSString*)externalContent
                     forKey:(NSString*)url
 {
   [self lock];
   [DTDCache setObject:externalContent
             forKey:url];
+  [self unlock];
+};
+
+//--------------------------------------------------------------------
+/** Find cached DTD FilePath for Key url **/
++(NSString*)cachedDTDFilePathForKey:(NSString*)url
+{
+  NSString* filePath=nil;
+  [self lock];
+  filePath=[DTDFilePathCache objectForKey:url];
+  [self unlock];
+  return filePath;
+};
+
+//--------------------------------------------------------------------
+/** Cache DTD FilePath for Key url **/
++(void)setCachedDTDFilePath:(NSString*)filePath
+                    forKey:(NSString*)url
+{
+  [self lock];
+  [DTDFilePathCache setObject:filePath
+                    forKey:url];
   [self unlock];
 };
 
@@ -184,6 +210,144 @@ extern void            externalSubset                  (void *ctx,
     };
   return self;
 };
+
++ (NSString*) loadEntity: (NSString*)publicId
+                      at: (NSString*)location
+{
+  NSDebugMLog(@"+LOAD ENTITY pid=%@ l=%@",publicId,location);
+  return nil;
+}
+
+/** Should return a file path
+    publicId: for exemple: -//W3C//DTD XHTML 1.0 Transitional//EN
+    location: for exemple: xhtml1-transitional.dtd
+**/
+- (NSString*) loadEntity: (NSString*)publicId
+                      at: (NSString*)location
+{  
+  NSString* filePath=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"GSWTemplateParser",@"loadEntity:%@ at:%@\n",
+               publicId,
+               location);
+  NSAssert(publicId || location,
+           @"resolveEntity: publicId and location are both nil");
+  if (location)
+    {
+      NSString* resourceName=location;
+      if ([[resourceName pathExtension] isEqual:@"dtd"])
+        resourceName=[resourceName stringByDeletingPathExtension];
+      filePath = [[NSBundle bundleForClass: [self class]]
+                   pathForResource:resourceName
+                   ofType:@"dtd"
+                   inDirectory:@"DTDs"];
+      NSDebugMLLog(@"GSWTemplateParser",@"location: fileName=%@ for Resource:%@",filePath,resourceName);
+    };
+  if (!filePath && publicId)
+    {
+      filePath=[[self class] cachedDTDFilePathForKey:publicId];
+      if (!filePath)
+        {
+          //Well Known DTDs / Entities
+          if ([publicId hasPrefix:@"-//"])
+            {
+              // 0: -
+              // 1: W3C or IETF
+              // 2: DTD ... or ENTITIES ...
+              // 3: EN or ... (language)
+              NSArray* parts=[publicId componentsSeparatedByString:@"//"];
+              if ([parts count]>=2)
+                {
+                  NSString* whatPart=[parts objectAtIndex:2];
+                  if ([whatPart hasPrefix:@"DTD"])
+                    {
+                      NSString* resourceName=nil;
+                      if ([whatPart rangeOfString:@"Transitional"].length>0)
+                        resourceName=@"xhtml1-transitional.dtd";
+                      else if ([whatPart rangeOfString:@"Strict"].length>0)
+                        resourceName=@"xhtml1-strict.dtd";
+                      else if ([whatPart rangeOfString:@"Frameset"].length>0)
+                        resourceName=@"xhtml1-frameset.dtd";
+                      else
+                        {
+                          NSDebugMLog(@"Unknown DTD: %@. Choose default: xhtml1-transitional.dtd",publicId);
+                          resourceName=@"xhtml1-transitional.dtd"; // guess
+                        };
+                      if (resourceName)
+                        {
+                          if ([[resourceName pathExtension] isEqual:@"dtd"])
+                            resourceName=[resourceName stringByDeletingPathExtension];
+                          filePath = [[NSBundle bundleForClass: [self class]]
+				       pathForResource:resourceName
+				       ofType:@"dtd"
+				       inDirectory:@"DTDs"];
+                          NSDebugMLLog(@"GSWTemplateParser",@"fileName=%@ for Resource:%@",filePath,publicId);
+                        };
+                    }
+                  else if ([whatPart hasPrefix:@"ENTITIES"])
+                    {
+                      NSString* resourceName=nil;
+                      if ([whatPart rangeOfString:@"Symbols"].length>0)
+                        resourceName=@"xhtml-symbol.ent";
+                      else if ([whatPart rangeOfString:@"Special"].length>0)
+                        resourceName=@"xhtml-special.ent";
+                      else if ([whatPart rangeOfString:@"Latin 1"].length>0)
+                        resourceName=@"xhtml-lat1.ent";
+                      else
+                        {
+                          NSDebugMLog(@"Unknown ENTITIES: %@",publicId);
+                        };
+                      if (resourceName)
+                        {
+                          if ([[resourceName pathExtension] isEqual:@"ent"])
+                            resourceName=[resourceName stringByDeletingPathExtension];
+                          filePath = [[NSBundle bundleForClass: [self class]]
+				       pathForResource:resourceName
+				       ofType:@"ent"
+				       inDirectory:@"DTDs"];
+                          NSDebugMLLog(@"GSWTemplateParser",@"fileName=%@ for Resource:%@",filePath,publicId);
+                        };
+                    }
+                  else
+                    {
+                      NSDebugMLog(@"Unknown publicId %@",publicId);
+                    };
+                }
+              else
+                {
+                  NSDebugMLog(@"Don't know how to parse publicId %@",publicId);
+                };
+            }
+          else
+            {
+              NSDebugMLog(@"Don't know what to do with publicId %@",publicId);
+            };
+          if (filePath)
+            [[self class] setCachedDTDFilePath:filePath
+                          forKey:publicId];
+        };
+    };
+  if (!filePath)
+    {
+      NSDebugMLog(@"Can't load external (publicId:%@ location:%@)",publicId,location);
+    }
+  else
+    {
+      NSDebugMLLog(@"GSWTemplateParser",@"LOADED: resolveEntity:%@ location:%@ filePath:%@\n",
+                   publicId,
+                   location,
+                   filePath);
+    };
+  LOGObjectFnStop();
+  return filePath;
+               
+}
+
+- (void*) getEntity: (NSString*)name
+{
+  NSDebugMLog(@"-GET ENTITY %@",name);
+  return 0;
+}
 
 /*
 xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemId,
@@ -497,6 +661,7 @@ static NSString* TabsForLevel(int level)
         }
       else
         {
+          NSData* dataToParse=nil;
           NSString* xmlHeader=nil;
           NSRange docTypeRange=NSMakeRange(NSNotFound,0);
           NSString* stringToParse=nil;
@@ -506,17 +671,29 @@ static NSString* TabsForLevel(int level)
             encodingString=[NSString stringWithFormat:@" encoding=\"%@\"",encodingString];
           else
             encodingString=@"";
+          
+          stringToParse=_string;
+
+          // Add a <gsweb> null tag around the code because libxml parser doesn't support <tag>..</tag><tag>..</tag>...
+          stringToParse=[NSString stringWithFormat:@"<gsweb>\n%@\n</gsweb>\n",stringToParse];
+
+          // Build the header
           xmlHeader=[NSString stringWithFormat:@"<?xml version=\"%@\"%@?>\n",
                               @"1.0",
                               encodingString];
-          docTypeRange=[_string rangeOfString:@"<!DOCTYPE"];
-          if (docTypeRange.length==0)
-            stringToParse=[@"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"xhtml1-transitional.dtd\">\n" stringByAppendingString:_string];
-          else
-            stringToParse=_string;
+
+          /* Don't care about DOCTYPE !
+            docTypeRange=[stringToParse rangeOfString:@"<!DOCTYPE"];
+            if (docTypeRange.length==0)
+            stringToParse=[@"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"xhtml1-transitional.dtd\">\n" 
+            stringByAppendingString:stringToParse];
+          */
           stringToParse=[xmlHeader stringByAppendingString:stringToParse];
+          NSDebugMLog(@"stringToParse (%d)=%@",[stringToParse length],stringToParse);
+          dataToParse=[stringToParse dataUsingEncoding:stringEncoding];
           parser=[GSXMLParser parserWithSAXHandler:sax
-                               withData:[stringToParse dataUsingEncoding:stringEncoding]];            
+                              withData:dataToParse];
+          [parser keepBlanks:YES];
         };
       [parser doValidityChecking:YES];
       [parser getWarnings:YES];
@@ -540,9 +717,20 @@ static NSString* TabsForLevel(int level)
       NS_ENDHANDLER;
       if (!parseOk)
         {
-          NSDebugMLLog(@"GSWTemplateParser",@"######Parse FAILED errNo=%d [parser document]=%p",
-                       [parser errNo],
-                       [parser document]);
+          int errNo=[parser errNo];
+          // We point out only deep error
+          switch(errNo)
+            {
+            case XML_ERR_NO_DTD:
+              NSDebugMLLog(@"GSWTemplateParser",@"%@ - Warning: No DTD",
+                           [self logPrefix]);
+              break;
+            default:              
+              NSDebugMLLog(@"GSWTemplateParser",@"######Parse FAILED errNo=%d [parser document]=%p",
+                           [parser errNo],
+                           [parser document]);
+              break;
+            };
           // May be validity errors only (like no HTML root)
           if ([parser document])
             parseOk=YES;
@@ -768,12 +956,15 @@ text [Type:XML_TEXT_NODE] [{}] ####
                   GSWPageDefElement* definitionsElement=nil;
                   if (!nodeNameAttribute)
                     {
-                      ExceptionRaise(@"GSWTemplateParser",
+                      // allow null name tags
+                      elem=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
+/*                      ExceptionRaise(@"GSWTemplateParser",
                                      @"%@ No element name for gsweb tag (%@) [#%d,#%d]",
                                      [self logPrefix],
                                      nodeName,
                                      currentGSWebTagN,
                                      currentTagN);
+*/
                     }
                   else
                     {
@@ -923,7 +1114,7 @@ text [Type:XML_TEXT_NODE] [{}] ####
           };
           break;
         };
-	  if (elem)
+      if (elem)
       	[_elements addObject:elem];
       NSDebugMLLog(@"GSWTemplateParser",@"END node=%p %@ [Type:%@] [%@] ##%s##\n",
                   currentNode,
@@ -945,6 +1136,12 @@ text [Type:XML_TEXT_NODE] [{}] ####
 //====================================================================
 // used only for XML/XMLHTML differences
 @implementation GSWTemplateParserXMLHTML
+
+/** call htmlHandleOmittedElem(0) if YES, htmlHandleOmittedElem(1) if NO; **/
+-(void)setNoOmittedTags:(BOOL)yn
+{
+  htmlHandleOmittedElem(yn ? 0 : 1);
+};
 
 @end
 
