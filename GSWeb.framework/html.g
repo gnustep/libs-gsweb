@@ -47,7 +47,7 @@
 
 */
 header {
-#include <gsweb/GSWeb.h>
+#include <gsweb/GSWeb.framework/GSWeb.h>
 }
 
 options {
@@ -109,13 +109,14 @@ ATTR
 ignore=WS;
 }*/
 /*	:	WORD ('=' (WORD ('%')? | ('-')? INT | STRING | HEXNUM))?*/
-	:	WORD ('=' (WORD | ('-')? INT ('%')? | STRING | HEXNUM))?
+	:	WORD ( (WS)* '=' (WS)* (WORD | ('-')? INT ('%')? | STRING | HEXNUM))?
 	;
 
 /*MISC STUFF*/
 
 TEXT
-	:	(WS | ~('<'|'\n'|'\r'|'"'|'>'))+ 
+/*	:	(WS | ~('<'|'\n'|'\r'|'"'|'>'))+ */
+	:	(WS | ~('<'|'\n'|'\r'|'>'))+
 	;
 
 /*	:	(

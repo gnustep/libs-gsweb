@@ -1,0 +1,196 @@
+GNUstepWeb HOWTO
+****************
+
+   GNUstepWeb-HOWTO
+   
+   Last Update: 22 January 2000
+   
+   This document explains how to build and manage GNUstepWeb applications.
+
+   Copyright (C) 2000 Free Software Foundation, Inc.
+
+   Author:  Mirko Viviani <mirko.viviani@rccr.cremona.it>
+
+   This file is part of GNUstepWeb.
+
+Introduction
+============
+
+   This document explains how to build GNUstepWeb applications, explain
+differences from Apple WebObjects and known bug of these libraries.
+
+
+Project wrapper
+===============
+
+   Follow these guidelines to maintain your GSWeb application wrapper.
+
+   MyApp/                     Application wrapper
+     Main.gswc/               First page requested by GSWeb
+       Main.html
+       Main.gswd
+
+     MyApp_main.m             main() function
+     Main.m                   Your Main class code
+     Main.h                   Your Main class interface
+     
+     GNUmakefile
+     Makefile.preamble
+     Makefile.postamble
+
+     Main.gswa/               Compiled application
+     Main.debug/              Compiled application with debug support
+
+
+Makefiles
+=========
+
+
+Debug
+=====
+
+   In order to debug your application compile it with "gmake debug=yes" and
+install with "gmake install debug=yes". You'll find your application in
+GNUSTEP_SYSTEM_ROOT/GSWApps/MyApp.debug
+
+   Now you can enable debug starting your app with -GSWebDebug=<option>
+   
+   Options
+   -------------
+   dflt
+   GSWebFn
+   seriousError
+   exception
+   error
+   gswdync
+   low
+   gswcomponents
+   associations
+   sessions
+   bundles
+   requests
+   resmanager
+   options
+   info
+   
+
+   There are two special options: all and most. The following table explain
+which options enable.
+
+   Options          all    most
+   -------------    ---    ----
+   dflt              x      x
+   GSWebFn           x
+   seriousError      x      x
+   exception         x      x
+   error             x      x
+   gswdync           x      x
+   low               x
+   gswcomponents     x      x
+   associations      x      x
+   sessions          x
+   bundles           x
+   requests          x      x
+   resmanager        x
+   options           x
+   info              x      x
+
+
+NOTE: GSWeb will search componentes first in GNUSTEP_SYSTEM_ROOT/GSWApps/Myapp.gswa
+      so before start your debug app remove or update MyApp.gswa wrapper
+      with "gmake install".
+
+
+Threaded applications
+=====================
+
+   By default GSWeb will start your application in Multi Thread mode.
+In order to use this facility your libobjc.a must be compiled with thread
+support, else you app won't work.
+
+   If you don't have ObjC thread support start your app with -GSWMTEnabled NO
+
+
+WebObjects compatibility
+========================
+
+   WebScript is not implemented yet, you can only use compiled components.
+You must use Objective-C code, at the moment there aren't equivalent
+Java classes.
+
+   The following table explain suffix differences:
+
+   Name                        WebObjects    GSWeb
+   ----                        ----------    -----
+   Application                 woa           gswa
+   Component                   wo            gswc
+   Component definition        wod           gswd
+   Script                      wos           gsws
+   Archive                     woo           gswi
+   Library                     woso          gswso
+   URL Prefix                  /WebObjects   /GSWeb
+   Resource request handler    wr            rr
+   Component request handler   wo            cr
+   Direct request handler      wa            dr
+   ObjC classes prefix         WO            GSW
+
+   If you need WO name space compatibility set to 1 GSWEB_NAMES in
+GSWeb.framework/GSWConfig.h and recompile all the libraries.
+
+
+Known bugs
+==========
+
+   In order to make your application working you can follow these guidelines:
+   
+1. In main() always create an autorelease pool before invoking
+   GSWApplicationMain(), eg:
+
+   int main(int argc, const char *argv[])
+   {
+     int ret = 0;
+     NSAutoreleasePool *arp = [NSAutoreleasePool new];
+
+     ret = GSWApplicationMain(@"Application", argc, argv);
+     [arp release];
+     return ret;
+   }
+
+2. Always create an Application and Session class also if you don't use them.
+
+   @interface Session:GSWSession
+   {
+   }
+
+   @end
+
+   @interface Application:GSWApplication
+   {
+   }
+
+   @end
+
+   @implementation Session
+   @end
+
+   @implementation Application
+   @end
+
+3. Start your application with -GSWHost hostname else it will crash.
+
+4. In your component definition file (gswd or wod) don't use spaces between
+   GSWeb NAME and component name, eg:
+   
+   <GSWEB NAME = "NAME_FIELD"></GSWEB>   This does NOT work
+   <GSWEB NAME="NAME_FIELD"></GSWEB>     This work
+
+
+Documentation
+=============
+
+   You can find WebObjects documentation and good tutorials at
+http://developer.apple.com/techpubs/enterprise/WebObjects
+
+
+----------
+WebObjects is a trademark of Apple Computer, Inc.

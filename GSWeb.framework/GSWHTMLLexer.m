@@ -243,7 +243,7 @@ int _begin=[text length];
 		}
 	}
 	{
-		int _cnt37=0;
+		int _cnt41=0;
 		do
 		{
 			switch ( [self LA:1])
@@ -275,12 +275,12 @@ int _begin=[text length];
 				}
 			else
 			{
-				if ( _cnt37>=1 ) { goto _loop37; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt41>=1 ) { goto _loop41; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			}
-			_cnt37++;
+			_cnt41++;
 		} while (YES);
-		_loop37:;
+		_loop41:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -346,7 +346,7 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt33=0;
+		int _cnt37=0;
 		do
 		{
 			if (([self LA:1]==((unichar)('\r'))) && ([self LA:2]==((unichar)('\n'))))
@@ -374,12 +374,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt33>=1 ) { goto _loop33; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt37>=1 ) { goto _loop37; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt33++;
+			_cnt37++;
 		} while (YES);
-		_loop33:;
+		_loop37:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -400,11 +400,39 @@ int _begin=[text length];
 	//LOGObjectFnStart();
 	[self mWORDWithCreateToken:NO];
 	{
-		switch ( [self LA:1])
+		if (([GSWHTMLLexer___tokenSet_8 isMember:[self LA:1]]) && ([GSWHTMLLexer___tokenSet_9 isMember:[self LA:2]]) && (([self LA:3] >= ((unichar)(0x3)) && [self LA:3] <= ((unichar)(0xff)))))
 		{
-		case ((unichar)('=')):
-		{
+			{
+				do
+				{
+					if (([GSWHTMLLexer___tokenSet_6 isMember:[self LA:1]]))
+					{
+						[self mWSWithCreateToken:NO];
+					}
+					else
+					{
+						goto _loop19;
+					}
+					
+				} while (YES);
+				_loop19:;
+			}
 			[self matchCharacter:'='];
+			{
+				do
+				{
+					if (([GSWHTMLLexer___tokenSet_6 isMember:[self LA:1]]))
+					{
+						[self mWSWithCreateToken:NO];
+					}
+					else
+					{
+						goto _loop21;
+					}
+					
+				} while (YES);
+				_loop21:;
+			}
 			{
 				switch ( [self LA:1])
 				{
@@ -501,31 +529,15 @@ int _begin=[text length];
 				}
 				}
 			}
-			break;
 		}
-		case ((unichar)('\t')):  case ((unichar)('\n')):  case ((unichar)('\r')):  case ((unichar)(' ')):
-		case ((unichar)('.')):  case ((unichar)('>')):  case ((unichar)('A')):  case ((unichar)('B')):
-		case ((unichar)('C')):  case ((unichar)('D')):  case ((unichar)('E')):  case ((unichar)('F')):
-		case ((unichar)('G')):  case ((unichar)('H')):  case ((unichar)('I')):  case ((unichar)('J')):
-		case ((unichar)('K')):  case ((unichar)('L')):  case ((unichar)('M')):  case ((unichar)('N')):
-		case ((unichar)('O')):  case ((unichar)('P')):  case ((unichar)('Q')):  case ((unichar)('R')):
-		case ((unichar)('S')):  case ((unichar)('T')):  case ((unichar)('U')):  case ((unichar)('V')):
-		case ((unichar)('W')):  case ((unichar)('X')):  case ((unichar)('Y')):  case ((unichar)('Z')):
-		case ((unichar)('_')):  case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):
-		case ((unichar)('d')):  case ((unichar)('e')):  case ((unichar)('f')):  case ((unichar)('g')):
-		case ((unichar)('h')):  case ((unichar)('i')):  case ((unichar)('j')):  case ((unichar)('k')):
-		case ((unichar)('l')):  case ((unichar)('m')):  case ((unichar)('n')):  case ((unichar)('o')):
-		case ((unichar)('p')):  case ((unichar)('q')):  case ((unichar)('r')):  case ((unichar)('s')):
-		case ((unichar)('t')):  case ((unichar)('u')):  case ((unichar)('v')):  case ((unichar)('w')):
-		case ((unichar)('x')):  case ((unichar)('y')):  case ((unichar)('z')):
+		else if (([GSWHTMLLexer___tokenSet_5 isMember:[self LA:1]]))
 		{
-			break;
 		}
-		default:
+		else
 		{
 			[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
 		}
-		}
+		
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -579,7 +591,7 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt48=0;
+		int _cnt52=0;
 		do
 		{
 			if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))))
@@ -588,12 +600,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt48>=1 ) { goto _loop48; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt52>=1 ) { goto _loop52; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt48++;
+			_cnt52++;
 		} while (YES);
-		_loop48:;
+		_loop52:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -620,17 +632,17 @@ int _begin=[text length];
 		{
 			do
 			{
-				if (([GSWHTMLLexer___tokenSet_8 isMember:[self LA:1]]))
+				if (([GSWHTMLLexer___tokenSet_10 isMember:[self LA:1]]))
 				{
 					[self matchNotCharacter:'"'];
 				}
 				else
 				{
-					goto _loop40;
+					goto _loop44;
 				}
 				
 			} while (YES);
-			_loop40:;
+			_loop44:;
 		}
 		[self matchCharacter:'"'];
 		break;
@@ -641,17 +653,17 @@ int _begin=[text length];
 		{
 			do
 			{
-				if (([GSWHTMLLexer___tokenSet_9 isMember:[self LA:1]]))
+				if (([GSWHTMLLexer___tokenSet_11 isMember:[self LA:1]]))
 				{
 					[self matchNotCharacter:'\''];
 				}
 				else
 				{
-					goto _loop42;
+					goto _loop46;
 				}
 				
 			} while (YES);
-			_loop42:;
+			_loop46:;
 		}
 		[self matchCharacter:'\''];
 		break;
@@ -698,27 +710,27 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt24=0;
+		int _cnt28=0;
 		do
 		{
 			if (([GSWHTMLLexer___tokenSet_6 isMember:[self LA:1]]))
 			{
 				[self mWSWithCreateToken:NO];
 			}
-			else if (([GSWHTMLLexer___tokenSet_10 isMember:[self LA:1]]))
+			else if (([GSWHTMLLexer___tokenSet_12 isMember:[self LA:1]]))
 			{
 				{
-					[self matchCharSet:GSWHTMLLexer___tokenSet_10];
+					[self matchCharSet:GSWHTMLLexer___tokenSet_12];
 				}
 			}
 			else
 			{
-				if ( _cnt24>=1 ) { goto _loop24; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt28>=1 ) { goto _loop28; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt24++;
+			_cnt28++;
 		} while (YES);
-		_loop24:;
+		_loop28:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -846,7 +858,7 @@ int _begin=[text length];
 			case ((unichar)(0xfe)):  case ((unichar)(0xff)):
 			{
 				{
-					[self matchCharSet:GSWHTMLLexer___tokenSet_11];
+					[self matchCharSet:GSWHTMLLexer___tokenSet_13];
 				}
 				break;
 			}
@@ -868,11 +880,11 @@ int _begin=[text length];
 				}
 			else
 			{
-				goto _loop30;
+				goto _loop34;
 			}
 			}
 		} while (YES);
-		_loop30:;
+		_loop34:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -990,21 +1002,21 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt51=0;
+		int _cnt55=0;
 		do
 		{
-			if (([GSWHTMLLexer___tokenSet_12 isMember:[self LA:1]]) && ([GSWHTMLLexer___tokenSet_13 isMember:[self LA:2]]))
+			if (([GSWHTMLLexer___tokenSet_14 isMember:[self LA:1]]) && ([GSWHTMLLexer___tokenSet_15 isMember:[self LA:2]]))
 			{
 				[self mHEXDIGITWithCreateToken:NO];
 			}
 			else
 			{
-				if ( _cnt51>=1 ) { goto _loop51; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt55>=1 ) { goto _loop55; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt51++;
+			_cnt55++;
 		} while (YES);
-		_loop51:;
+		_loop55:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -1110,17 +1122,17 @@ int _begin=[text length];
 		{
 			do
 			{
-				if (([GSWHTMLLexer___tokenSet_14 isMember:[self LA:1]]))
+				if (([GSWHTMLLexer___tokenSet_16 isMember:[self LA:1]]))
 				{
 					[self matchNotCharacter:'>'];
 				}
 				else
 				{
-					goto _loop59;
+					goto _loop63;
 				}
 				
 			} while (YES);
-			_loop59:;
+			_loop63:;
 		}
 		[self matchCharacter:'>'];
 		{
@@ -1151,11 +1163,11 @@ int _begin=[text length];
 				}
 				else
 				{
-					goto _loop62;
+					goto _loop66;
 				}
 				
 			} while (YES);
-			_loop62:;
+			_loop66:;
 		}
 		NSLog(@"invalid tag: %@",[self text]);
 		break;
@@ -1268,7 +1280,7 @@ int _begin=[text length];
 
 CONST unsigned long GSWHTMLLexer___tokenSet_0_data_[] = { 0UL, 16384UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_0=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_1_data_[] = { 4294967288UL, 2952790011UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_1_data_[] = { 4294967288UL, 2952790015UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_1=nil;
 CONST unsigned long GSWHTMLLexer___tokenSet_2_data_[] = { 0UL, 67067904UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_2=nil;
@@ -1282,20 +1294,24 @@ CONST unsigned long GSWHTMLLexer___tokenSet_6_data_[] = { 9728UL, 1UL, 0UL, 0UL,
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_6=nil;
 CONST unsigned long GSWHTMLLexer___tokenSet_7_data_[] = { 9728UL, 1677680641UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_7=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_8_data_[] = { 4294967288UL, 4294967291UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_8_data_[] = { 9728UL, 536870913UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_8=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_9_data_[] = { 4294967288UL, 4294967167UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_9_data_[] = { 9728UL, 603938957UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_9=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_10_data_[] = { 4294958072UL, 2952790011UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_10_data_[] = { 4294967288UL, 4294967291UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_10=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_11_data_[] = { 4294958072UL, 4294959103UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_11_data_[] = { 4294967288UL, 4294967167UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_11=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_12_data_[] = { 0UL, 67043328UL, 126UL, 126UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_12_data_[] = { 4294958072UL, 2952790015UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_12=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_13_data_[] = { 9728UL, 1140801537UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_13_data_[] = { 4294958072UL, 4294959103UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_13=nil;
-CONST unsigned long GSWHTMLLexer___tokenSet_14_data_[] = { 4294967288UL, 3221225471UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLLexer___tokenSet_14_data_[] = { 0UL, 67043328UL, 126UL, 126UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLLexer___tokenSet_14=nil;
+CONST unsigned long GSWHTMLLexer___tokenSet_15_data_[] = { 9728UL, 1140801537UL, 2281701374UL, 134217726UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+static ANTLRBitSet* GSWHTMLLexer___tokenSet_15=nil;
+CONST unsigned long GSWHTMLLexer___tokenSet_16_data_[] = { 4294967288UL, 3221225471UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+static ANTLRBitSet* GSWHTMLLexer___tokenSet_16=nil;
 +(void)initialize
 {
 	if (!GSWHTMLLexer___tokenSet_0)
@@ -1315,19 +1331,23 @@ static ANTLRBitSet* GSWHTMLLexer___tokenSet_14=nil;
 	if (!GSWHTMLLexer___tokenSet_7)
 		GSWHTMLLexer___tokenSet_7=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_7_data_ length:20] retain];
 	if (!GSWHTMLLexer___tokenSet_8)
-		GSWHTMLLexer___tokenSet_8=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_8_data_ length:32] retain];
+		GSWHTMLLexer___tokenSet_8=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_8_data_ length:20] retain];
 	if (!GSWHTMLLexer___tokenSet_9)
-		GSWHTMLLexer___tokenSet_9=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_9_data_ length:32] retain];
+		GSWHTMLLexer___tokenSet_9=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_9_data_ length:20] retain];
 	if (!GSWHTMLLexer___tokenSet_10)
 		GSWHTMLLexer___tokenSet_10=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_10_data_ length:32] retain];
 	if (!GSWHTMLLexer___tokenSet_11)
 		GSWHTMLLexer___tokenSet_11=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_11_data_ length:32] retain];
 	if (!GSWHTMLLexer___tokenSet_12)
-		GSWHTMLLexer___tokenSet_12=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_12_data_ length:20] retain];
+		GSWHTMLLexer___tokenSet_12=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_12_data_ length:32] retain];
 	if (!GSWHTMLLexer___tokenSet_13)
-		GSWHTMLLexer___tokenSet_13=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_13_data_ length:20] retain];
+		GSWHTMLLexer___tokenSet_13=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_13_data_ length:32] retain];
 	if (!GSWHTMLLexer___tokenSet_14)
-		GSWHTMLLexer___tokenSet_14=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_14_data_ length:32] retain];
+		GSWHTMLLexer___tokenSet_14=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_14_data_ length:20] retain];
+	if (!GSWHTMLLexer___tokenSet_15)
+		GSWHTMLLexer___tokenSet_15=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_15_data_ length:20] retain];
+	if (!GSWHTMLLexer___tokenSet_16)
+		GSWHTMLLexer___tokenSet_16=[[ANTLRBitSet bitSetWithULongBits:GSWHTMLLexer___tokenSet_16_data_ length:32] retain];
 }
 +(void)dealloc
 {
@@ -1346,6 +1366,8 @@ static ANTLRBitSet* GSWHTMLLexer___tokenSet_14=nil;
 	DESTROY(GSWHTMLLexer___tokenSet_12);
 	DESTROY(GSWHTMLLexer___tokenSet_13);
 	DESTROY(GSWHTMLLexer___tokenSet_14);
+	DESTROY(GSWHTMLLexer___tokenSet_15);
+	DESTROY(GSWHTMLLexer___tokenSet_16);
 	[[self superclass] dealloc];
 }
 @end

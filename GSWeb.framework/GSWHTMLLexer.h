@@ -81,5 +81,9 @@ extern CONST unsigned long GSWHTMLLexer___tokenSet_13_data_[];
 extern ANTLRBitSet* GSWHTMLLexer___tokenSet_13;
 extern CONST unsigned long GSWHTMLLexer___tokenSet_14_data_[];
 extern ANTLRBitSet* GSWHTMLLexer___tokenSet_14;
+extern CONST unsigned long GSWHTMLLexer___tokenSet_15_data_[];
+extern ANTLRBitSet* GSWHTMLLexer___tokenSet_15;
+extern CONST unsigned long GSWHTMLLexer___tokenSet_16_data_[];
+extern ANTLRBitSet* GSWHTMLLexer___tokenSet_16;
 
 #endif /*INC_GSWHTMLLexer_h_*/

@@ -1,5 +1,17 @@
 2000-01-23  Manuel Guesdon <mguesdon@sbuilders.com>
 
+	* Added Mirko Viviani's GNUstepWeb-HOWTO
+	
+2000-01-23  Manuel Guesdon <mguesdon@sbuilders.com>
+
+        * GSWeb.framework/html.g: modified Include 
+        * GSWeb.framework/PageDef.g: modified Include 
+        * GSWeb.framework/htmltag.g: modified Include 
+        * GSWeb.framework/html.g: modified TEXT rule for " in PCDATA
+        * GSWeb.framework/html.g: modified ATTR rule for spaces around =
+	
+2000-01-23  Manuel Guesdon <mguesdon@sbuilders.com>
+
         * GSWeb.framework/GSWApplication.m: tests added in GSWApplication _argsDictionaryWithUserDefaults:
 
 	
