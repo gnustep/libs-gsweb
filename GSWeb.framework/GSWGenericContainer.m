@@ -90,8 +90,10 @@ static char rcsId[] = "$Id$";
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
 						  inContext:(GSWContext*)context_
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+//  LOGObjectFnNotImplemented();	//TODOFN
+
+    return [element invokeActionForRequest:request_ inContext:context_];
+
 };
 
 //--------------------------------------------------------------------
@@ -99,7 +101,10 @@ static char rcsId[] = "$Id$";
 -(void)takeValuesFromRequest:(GSWRequest*)request_
 				   inContext:(GSWContext*)context_
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+ // LOGObjectFnNotImplemented();	//TODOFN
+
+    return [element takeValuesFromRequest:request_ inContext:context_];
+
 };
 
 //-------------------------------------------------------------------- 
