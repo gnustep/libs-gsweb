@@ -1,4 +1,7 @@
 2003-01-22   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/WebObjects: removed WO*
+
+2003-01-22   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/Makefile.postamble: 
 		o use $(LN_S) -f in install-WO-headers
 		o added $(MKDIRS) $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR);
