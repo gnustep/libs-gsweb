@@ -54,8 +54,6 @@ typedef unsigned int UINT32;
 #define UINTs_DEFINED
 #endif
 
-#define allFrameworks 	tmpAllFrameworks
-
 BOOL ClassIsKindOfClass(Class classA,Class classB);
 
 void ExceptionRaiseFn(const char *func, 
@@ -283,7 +281,6 @@ extern NSData* HexStringToData(NSString* _string);
 
 //====================================================================
 @interface NSBundle (NSBundleAllFrameworks)
-+(NSArray*)tmpAllFrameworks;
 -(NSString*)bundleName;
 @end
 

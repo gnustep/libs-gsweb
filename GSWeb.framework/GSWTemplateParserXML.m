@@ -23,7 +23,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 #include <libxml/SAX.h>
 #include <libxml/xml-error.h>
 
@@ -232,9 +232,10 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
           NSString* resourceName=systemIdEntity;
           if ([[resourceName pathExtension] isEqual:@"dtd"])
             resourceName=[resourceName stringByDeletingPathExtension];
-          fileName=[NSBundle pathForGNUstepResource:resourceName
-                             ofType:@"dtd"
-                             inDirectory:@"DTDs"];
+          fileName = [[NSBundle bundleForClass: [self class]]
+		       pathForResource:resourceName
+		       ofType:@"dtd"
+		       inDirectory:@"DTDs"];
           NSLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,resourceName);
           if (fileName)
             {
@@ -291,9 +292,10 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
                         {
                           if ([[resourceName pathExtension] isEqual:@"dtd"])
                             resourceName=[resourceName stringByDeletingPathExtension];
-                          fileName=[NSBundle pathForGNUstepResource:resourceName
-                                             ofType:@"dtd"
-                                             inDirectory:@"DTDs"];
+                          fileName = [[NSBundle bundleForClass: [self class]]
+				       pathForResource:resourceName
+				       ofType:@"dtd"
+				       inDirectory:@"DTDs"];
                           NSLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,publicIdEntity);
                           if (fileName)
                             {
@@ -319,9 +321,10 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
                         {
                           if ([[resourceName pathExtension] isEqual:@"ent"])
                             resourceName=[resourceName stringByDeletingPathExtension];
-                          fileName=[NSBundle pathForGNUstepResource:resourceName
-                                             ofType:@"ent"
-                                             inDirectory:@"DTDs"];
+                          fileName = [[NSBundle bundleForClass: [self class]]
+				       pathForResource:resourceName
+				       ofType:@"ent"
+				       inDirectory:@"DTDs"];
                           NSLog(@"systemIdEntity: fileName=%@ for Resource:%@",fileName,publicIdEntity);
                           if (fileName)
                             {

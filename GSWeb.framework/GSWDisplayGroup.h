@@ -24,7 +24,7 @@
 // $Id$
 
 #ifndef _GSWDisplayGroup_h__
-	#define _GSWDisplayGroup_h__
+#define _GSWDisplayGroup_h__
 
 #if !GDL2
 #include <eoaccess/EOModel.h>
@@ -48,11 +48,14 @@
 #include <eoaccess/EONull.h>
 #include <eoaccess/EOSQLExpression.h>
 
+@class EOKeyValueUnarchiver;
+
 #define EODataSource EODatabaseDataSource
 #else
 #import <EOControl/EOQualifier.h>
 #import <EOControl/EODataSource.h>
 #import <EOControl/EODetailDataSource.h>
+#import <EOControl/EOKeyValueArchiver.h>
 #import <EOAccess/EODatabaseDataSource.h>
 #endif
 
@@ -140,10 +143,10 @@
 - (unsigned)indexOfFirstDisplayedObject;
 - (unsigned)indexOfLastDisplayedObject;
 - (id)init;
--(void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object_;
+- (void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object_;
 - (NSMutableDictionary *)inputObjectForQualifier;
 - (BOOL)inQueryMode;
--(void)editingContext:(id)editingContext_
+- (void)editingContext:(id)editingContext_
   presentErrorMessage:(id)msg;
 - (id)insert;
 - (NSDictionary *)insertedObjectDefaultValues;

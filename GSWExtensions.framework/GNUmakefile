@@ -32,15 +32,14 @@ include ../config.mak
 
 srcdir = .
 
-# The library to be compiled
-GSWBUNDLE_NAME=GSWExtensions
-GSWExtensions_HAS_GSWCOMPONENTS=YES
+# The framework to be compiled
+FRAMEWORK_NAME = GSWExtensions
 
-# The bundle resource files and directories
+# The framework resource files and directories
 GSWExtensions_RESOURCE_FILES = \
 Resources/Info-gnustep.plist
 
-GSWExtensions_COMPONENTS= \
+GSWExtensions_COMPONENTS = \
 GSWSessionCreationErrorPage.gswc \
 GSWSessionRestorationErrorPage.gswc \
 GSWCollapsibleComponentContent.gswc \
@@ -66,7 +65,7 @@ GSWRedirect.gswc
 #GSWPageRestorationErrorPage.gswc 
 #GSWToOneRelationship.gswc 
 
-GSWExtensions_LANGUAGES= \
+GSWExtensions_LANGUAGES = \
 French
 
 GSWExtensions_RESOURCE_DIRS = 
@@ -92,23 +91,16 @@ gswapp.gif \
 gswappsrv.gif
 
 
-# The bundles libraries to link against
-#GSWExtensions_BUNDLE_LIBS = 
-
-# The bundles to be installed
-GSWBUNDLE_INSTALL = $(BUNDLE_NAME)
-GSWBUNDLE_INSTALL_DIR = $(GNUSTEP_LIBRARIES_ROOT)/gsweb
-
 # Determine the bundle directory extension
-ifeq ($(profile), yes)
-  GSWBUNDLE_EXTENSION = .frameworkp
-else
-  ifeq ($(debug), yes)
-    GSWBUNDLE_EXTENSION = .frameworkd
-  else
-    GSWBUNDLE_EXTENSION = .framework
-  endif
-endif
+#ifeq ($(profile), yes)
+#  GSWBUNDLE_EXTENSION = .frameworkp
+#else
+#  ifeq ($(debug), yes)
+#    GSWBUNDLE_EXTENSION = .frameworkd
+#  else
+#    GSWBUNDLE_EXTENSION = .framework
+#  endif
+#endif
 
 # The Objective-C source files to be compiled
 GSWExtensions_OBJC_FILES = \
@@ -124,16 +116,8 @@ GSWMetaRefresh.m
 
 #GSWCompletionBar.m
 
-# The library to be compiled
-LIBRARY_NAME=libGSWExtensions
-
-# The bundle Objective-C source files to be compiled
-libGSWExtensions_OBJC_FILES = $(GSWExtensions_OBJC_FILES)
-
-libGSWExtensions_HEADER_FILES_DIR = .
-libGSWExtensions_HEADER_FILES_INSTALL_DIR = /gsweb/GSWExtensions.framework
-
-libGSWExtensions_HEADER_FILES = \
+# The header files to be installed
+GSWExtensions_HEADER_FILES = \
 GSWCollapsibleComponentContent.h \
 GSWDictionaryRepetition.h \
 GSWExceptionPage.h \
@@ -164,8 +148,7 @@ HDRS = $(LIBRARY_NAME:=.h)
 
 -include GNUmakefile.local
 
-include $(GNUSTEP_MAKEFILES)/gswbundle.make
-include $(GNUSTEP_MAKEFILES)/library.make
+include $(GNUSTEP_MAKEFILES)/framework.make
 
 -include Makefile.postamble
 

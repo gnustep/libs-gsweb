@@ -20,7 +20,7 @@
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 #include "GSWMetaRefresh.h"
 
 //===================================================================================

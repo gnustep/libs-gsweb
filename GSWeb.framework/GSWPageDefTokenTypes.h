@@ -11,7 +11,7 @@
  */
 
 
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 
 enum GSWPageDefTokenTypes {
 	GSWPageDefTokenType_EOF_ = 1,

@@ -8,7 +8,7 @@
  */
 
 
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 
 #include "gsantlr/ANTLRCommon.h"
 #include "GSWHTMLParser.h"

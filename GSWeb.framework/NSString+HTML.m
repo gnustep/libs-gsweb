@@ -23,7 +23,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 
 static NSArray* normalChars=nil;
 static NSArray* htmlChars=nil;

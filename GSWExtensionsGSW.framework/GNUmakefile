@@ -32,11 +32,10 @@ include ../config.mak
 
 srcdir = .
 
-# The library to be compiled
-GSWBUNDLE_NAME=GSWExtensionsGSW
-GSWExtensionsGSW_HAS_GSWCOMPONENTS=YES
+# The framework to be compiled
+FRAMEWORK_NAME = GSWExtensionsGSW
 
-# The bundle resource files and directories
+# The framework resource files and directories
 GSWExtensionsGSW_RESOURCE_FILES = \
 Resources/Info-gnustep.plist \
 
@@ -54,23 +53,16 @@ GSWExtensionsGSW_RESOURCE_DIRS =
 
 GSWExtensionsGSW_WEBSERVER_RESOURCE_FILES = 
 
-# The bundles libraries to link against
-#GNUstepWeb_BUNDLE_LIBS = 
-
-# The bundles to be installed
-GSWBUNDLE_INSTALL = $(BUNDLE_NAME)
-GSWBUNDLE_INSTALL_DIR = $(GNUSTEP_LIBRARIES_ROOT)/gsweb
-
 # Determine the bundle directory extension
-ifeq ($(profile), yes)
-  GSWBUNDLE_EXTENSION = .frameworkp
-else
-  ifeq ($(debug), yes)
-    GSWBUNDLE_EXTENSION = .frameworkd
-  else
-    GSWBUNDLE_EXTENSION = .framework
-  endif
-endif
+#ifeq ($(profile), yes)
+#  GSWBUNDLE_EXTENSION = .frameworkp
+#else
+#  ifeq ($(debug), yes)
+#    GSWBUNDLE_EXTENSION = .frameworkd
+#  else
+#    GSWBUNDLE_EXTENSION = .framework
+#  endif
+#endif
 
 # The Objective-C source files to be compiled
 GSWExtensionsGSW_OBJC_FILES = \
@@ -80,16 +72,8 @@ GSWValidationFailureComponent.m \
 GSWSimpleFormComponent.m \
 GSWFileUploadFormComponent.m 
 
-# The library to be compiled
-LIBRARY_NAME=libGSWExtensionsGSW
-
-# The bundle Objective-C source files to be compiled
-libGSWExtensionsGSW_OBJC_FILES = $(GSWExtensionsGSW_OBJC_FILES)
-
-libGSWExtensionsGSW_HEADER_FILES_DIR = .
-libGSWExtensionsGSW_HEADER_FILES_INSTALL_DIR = /gsweb/GSWExtensionsGSW.framework
-
-libGSWExtensionsGSW_HEADER_FILES = \
+# The header files to be installed
+GSWExtensionsGSW_HEADER_FILES = \
 GSWLogin.h \
 GSWTabComponent.h \
 GSWValidationFailureComponent.h \
@@ -105,7 +89,6 @@ HDRS = $(LIBRARY_NAME:=.h)
 
 -include GNUmakefile.local
 
-include $(GNUSTEP_MAKEFILES)/gswbundle.make
-include $(GNUSTEP_MAKEFILES)/library.make
+include $(GNUSTEP_MAKEFILES)/framework.make
 
 -include Makefile.postamble

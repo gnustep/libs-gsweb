@@ -23,7 +23,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -681,31 +681,6 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 //====================================================================
 @implementation NSBundle (NSBundleAllFrameworks)
-//--------------------------------------------------------------------
-+(NSArray*)tmpAllFrameworks
-{
-  NSMutableArray* _allFrameworks=nil;
-  NSArray* _allBundles=nil;
-  int i=0;
-  NSString* _bundlePath=nil;
-  NSBundle* _bundle=nil;
-  LOGObjectFnStart();
-  _allFrameworks=[NSMutableArray array];
-  _allBundles=[[self class] allBundles];
-  for(i=0;i<[_allBundles count];i++)
-	{
-	  _bundle=[_allBundles objectAtIndex:i];
-	  _bundlePath=[_bundle bundlePath];
-	  NSDebugMLLog(@"low",@"_bundlePath=%@",_bundlePath);
-	  _bundlePath=[_bundlePath stringGoodPath];
-	  NSDebugMLLog(@"low",@"_bundlePath=%@",_bundlePath);
-	  if ([_bundlePath hasSuffix:GSFrameworkSuffix])
-		[_allFrameworks addObject:_bundle];
-	};
-  LOGObjectFnStop();
-  return _allFrameworks;
-};
-
 //--------------------------------------------------------------------
 -(NSString*)bundleName
 {

@@ -1,3 +1,15 @@
+2000-10-30  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWExtensions.framework/GNUmakefile: rewrite using framework.make
+	* GSWExtensions.framework/*.(h|m): changed gsweb include dir from
+	gsweb/GSWeb.framework/ to GSWeb/
+
+	* GSWeb.framework/GNUmakefile: rewrite using framework.make
+	* GSWeb.framework/*.(h|m): changed gsweb include dir from
+	gsweb/GSWeb.framework/ to GSWeb/
+	* GSWeb.framework/GSWConstants.m: removed the frameworkd suffix.
+	* GSWeb.framework/GSWUtils.m ([NSBundle +tmpAllFrameworks]): removed.
+
 2000-10-29  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWElementIDString.h: use NSMutableString instead of

@@ -32,8 +32,8 @@ include ../config.mak
 
 srcdir = .
 
-# The Bundle to be compiled
-GSWBUNDLE_NAME=GSWeb
+# The framework to be compiled
+FRAMEWORK_NAME = GSWeb
 
 # DTDs to install
 srcDTDDir = DTDs
@@ -47,30 +47,27 @@ xhtml1-frameset.dtd \
 xhtml1-transitional.dtd
 
 
-# The bundle resource files and directories
+# The framework resource files and directories
 GSWeb_RESOURCE_FILES = \
 Resources/MIME.plist \
-Resources/languages.plist
+Resources/languages.plist \
+DTDs
 
-GSWeb_RESOURCE_DIRS =
+GSWeb_RESOURCE_DIRS = DTDs
 
-# The bundles libraries to link against
+# The framework libraries to link against
 GSWeb_GSWBUNDLE_LIBS = 
 
-# The bundles to be installed
-GSWBUNDLE_INSTALL = $(BUNDLE_NAME)
-GSWBUNDLE_INSTALL_DIR = $(GNUSTEP_LIBRARIES_ROOT)/gsweb
-
 # Determine the bundle directory extension
-ifeq ($(profile), yes)
-  GSWBUNDLE_EXTENSION = .frameworkp
-else
-  ifeq ($(debug), yes)
-    GSWBUNDLE_EXTENSION = .frameworkd
-  else
-    GSWBUNDLE_EXTENSION = .framework
-  endif
-endif
+#ifeq ($(profile), yes)
+#  GSWBUNDLE_EXTENSION = .frameworkp
+#else
+#  ifeq ($(debug), yes)
+#    GSWBUNDLE_EXTENSION = .frameworkd
+#  else
+#    GSWBUNDLE_EXTENSION = .framework
+#  endif
+#endif
 
 # The Bundle Objective-C source files to be compiled
 GSWeb_OBJC_FILES = \
@@ -185,16 +182,8 @@ stacktrace.m \
 attach.m
 
 
-# The library to be compiled
-LIBRARY_NAME=libGSWeb
-
-# The bundle Objective-C source files to be compiled
-libGSWeb_OBJC_FILES = $(GSWeb_OBJC_FILES)
-
-libGSWeb_HEADER_FILES_DIR = .
-libGSWeb_HEADER_FILES_INSTALL_DIR = /gsweb/GSWeb.framework
-
-libGSWeb_HEADER_FILES = \
+# The framework installed header files
+GSWeb_HEADER_FILES = \
 GSCache.h  \
 GSWActiveImage.h \
 GSWAdaptor.h \
@@ -312,13 +301,10 @@ SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)
 
 
-#DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
-
 -include Makefile.preamble
 
 -include GNUmakefile.local
 
-include $(GNUSTEP_MAKEFILES)/gswbundle.make
-include $(GNUSTEP_MAKEFILES)/library.make
+include $(GNUSTEP_MAKEFILES)/framework.make
 
 -include Makefile.postamble

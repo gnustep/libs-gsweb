@@ -23,7 +23,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 #include <extensions/NGReflection.h>
 #include <extensions/GarbageCollector.h>
 #if GDL2 // GDL2 implementation

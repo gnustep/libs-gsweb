@@ -23,7 +23,7 @@
 
 static char rcsId[] = "$Id$";
 
-#include <gsweb/GSWeb.framework/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 #include <gsantlr/ANTLRCommon.h>
 #include <gsantlr/ANTLRTextStreams.h>
 #include "GSWPageDefLexer.h"
