@@ -1613,10 +1613,26 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 //--------------------------------------------------------------------
 //	setSelectedObjects:
 
-- (void)setSelectedObjects:(id)object
+- (void)setSelectedObjects:(NSArray *)objects
 {
+  NSMutableArray *indexArray;
+  NSEnumerator   *enumerator;
+  id              object;
+
   LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
+
+  indexArray = [NSMutableArray arrayWithCapacity:16];
+
+  enumerator = [objects objectEnumerator];
+  while((object = [enumerator nextObject]))
+    {
+      if([_allObjects containsObject:object] == YES)
+	[indexArray addObject:[NSNumber numberWithUnsignedInt:
+					  [_allObjects indexOfObject:object]]];
+    }
+
+  [self setSelectionIndexes:indexArray];
+
   LOGObjectFnStop();
 }
 //--------------------------------------------------------------------

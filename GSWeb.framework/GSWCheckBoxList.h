@@ -39,6 +39,7 @@
   GSWAssociation* escapeHTML;
   GSWAssociation* itemDisabled;
   BOOL defaultEscapeHTML;
+  BOOL autoValue;
 };
 
 -(id)initWithName:(NSString*)name_

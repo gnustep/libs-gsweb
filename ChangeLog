@@ -1,3 +1,12 @@
+2000-12-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWDisplayGroup.m ([GSWDisplayGroup
+	-setSelectedObjects:]): implemented.
+	* GSWeb.framework/GSWCheckBoxList.m ([GSWCheckBoxList
+	-_slowTakeValuesFromRequest:inContext:]): implemented auto value
+	attribute. Fixed object selections.
+	([GSWCheckBoxList -appendToResponse:inContext:]): likewise.
+
 2000-12-03  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWComponentRequestHandler.m
