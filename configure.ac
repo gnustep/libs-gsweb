@@ -43,7 +43,15 @@ else
 fi
 AC_MSG_RESULT($GSWNAMES)
 AC_SUBST(GSWNAMES)
-
+ 
+#--------------------------------------------------------------------
+# Check for GDL2
+#--------------------------------------------------------------------
+AC_CHECK_FILE($GNUSTEP_MAKEFILES/Auxiliary/gdl2.make, GDL2=yes, GDL2=no)
+if test "$GDL2" = yes; then
+  AC_DEFINE(HAVE_GDL2)
+fi
+AC_SUBST(GDL2)
 
 #--------------------------------------------------------------------
 # Check for libwrap

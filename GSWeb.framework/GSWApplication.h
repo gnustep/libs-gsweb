@@ -1,12 +1,13 @@
 /** GSWApplication.h - <title>GSWeb: Class GSWApplication</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -168,6 +169,14 @@ extern BOOL WOStrictFlag;
 
 //====================================================================
 @interface GSWApplication (GSWApplicationE)
+-(GSWResponse*)createResponseInContext:(GSWContext*)aContext;
+-(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
+                                  uri:(NSString*)anURL
+                          httpVersion:(NSString*)aVersion
+                              headers:(NSDictionary*)headers
+                              content:(NSData*)content
+                             userInfo:(NSDictionary*)userInfo;
+-(GSWResourceManager*)createResourceManager;
 -(void)_discountTerminatedSession;
 -(void)_finishInitializingSession:(GSWSession*)aSession;
 -(GSWSession*)_initializeSessionInContext:(GSWContext*)aContext;

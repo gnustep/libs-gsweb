@@ -3,7 +3,7 @@
 #
 #   Makefile flags and configs to build with the base library.
 #
-#   Copyright (C) 2002 Free Software Foundation, Inc.
+#   Copyright (C) 2002-2003 Free Software Foundation, Inc.
 #
 #   Author: Mirko Viviani <mirko.viviani@rccr.cremona.it>
 #   Based on code originally in the gnustep make package
@@ -35,7 +35,12 @@ endif
 AUXILIARY_GSW_LIBS += -lGSWeb$(GSWEXT) -lGSWExtensions$(GSWEXT) -lGSWExtensionsGSW$(GSWEXT)
 
 AUXILIARY_INCLUDE_DIRS += @AUX_INCS@
-AUXILIARY_INCLUDE_LIBS += @AUX_LIBS@ -lGSANTLR
+AUXILIARY_TOOL_LIBS += @AUX_LIBS@ -lGSANTLR
+
+GDL2=@GDL2@
+ifeq ($(GDL2),yes)
+ADDITIONAL_OBJCFLAGS += -DGDL2=1
+endif
 
 endif # GSWEB_MAKE_LOADED
 

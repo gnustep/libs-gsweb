@@ -1,12 +1,13 @@
 /** GSWDirectActionRequestHandler.m - <title>GSWeb: Class GSWDirectActionRequestHandler</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
 
@@ -181,7 +182,7 @@ static char rcsId[] = "$Id$";
   //OK
   GSWResponse* response=nil;
   LOGObjectFnStart();
-  response=[[GSWResponse new]autorelease];
+  response=[GSWApp createResponseInContext:nil];
   [response appendContentString:@"<HTML><HEAD><TITLE>DirectAction Error</TITLE></HEAD><BODY>The result of a direct action returned nothing.</BODY></HTML>"];
   LOGObjectFnStop();
   return response;

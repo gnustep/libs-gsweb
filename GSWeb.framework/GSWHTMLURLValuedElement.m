@@ -31,7 +31,7 @@
 static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
-#include <gscrypt/GSMD5.h>
+#include <gnustep/base/GSCategories.h>
 
 //====================================================================
 @implementation GSWHTMLURLValuedElement
@@ -271,6 +271,7 @@ static const char rcsId[] = "$Id$";
   return element;
 };
 
+@end
 
 //====================================================================
 @implementation GSWHTMLURLValuedElement (GSWHTMLURLValuedElementB)
@@ -575,10 +576,10 @@ NS_DURING
       NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
       if (!cidKeyValue)
         {
-          // We calculate cidKeyValue by computing md5 on path
+          // We calculate cidKeyValue by computing md5 on url
           // so there will be no duplicate elements with different keys
-          cidKeyValue=DataToHexString([GSMD5 digestOfString:url
-                                             usingEncoding:NSISOLatin1StringEncoding]);
+	  NSData* data = [url dataUsingEncoding: NSISOLatin1StringEncoding];
+	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
         };
       newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:url
                                                forKey:@"url"]
@@ -608,7 +609,7 @@ NS_DURING
         {
           // We calculate cidKeyValue by computing md5 on path
           // so there will be no duplicate elements with different keys
-          //NSString* cidKeyValue=DataToHexString([GSMD5 digestOfData:data]);
+          //NSString* cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
           cidKeyValue=[data key];
         };
       newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:data
@@ -639,8 +640,8 @@ NS_DURING
         {
           // We calculate cidKeyValue by computing md5 on path
           // so there will be no duplicate elements with different keys
-          cidKeyValue=DataToHexString([GSMD5 digestOfString:path
-                                             usingEncoding:NSISOLatin1StringEncoding]);
+	  NSData* data = [path dataUsingEncoding: NSISOLatin1StringEncoding];
+	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
         };
 
       newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:path

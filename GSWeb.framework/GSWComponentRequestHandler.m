@@ -364,7 +364,7 @@ static const char rcsId[] = "$Id$";
   contextID=[elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
   NSDebugMLLog(@"requests",@"contextID=%@",contextID);
 
-  response=[[GSWResponse new]autorelease];
+  response=[GSWApp createResponseInContext:aContext];
   NSDebugMLLog(@"requests",@"response=%@",response);
   NSDebugMLLog(@"requests",@"aSession=%@",aSession);
   NSDebugMLLog(@"requests",@"aContext=%@",aContext);

@@ -31,7 +31,8 @@
 static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
-#include <gscrypt/GSMD5.h>
+#include <gnustep/base/GSCategories.h>
+
 #include <time.h>
 #if __linux__
 #include <linux/kernel.h>
@@ -39,12 +40,6 @@ static const char rcsId[] = "$Id$";
 #include <sys/sysinfo.h>
 #endif
 
-/*
-#ifdef NOEXTENSIONS
-#else
-#include <extensions/GarbageCollector.h>
-#endif
-*/
 //====================================================================
 
 @implementation GSWSession
@@ -125,7 +120,7 @@ static const char rcsId[] = "$Id$";
 
         if (sizeToFill>=sizeof(unsigned int) && info.uptime>0)
           {
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             NSDebugMLog(@"UPTIME %ld",(long)info.uptime);
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.uptime)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
@@ -134,7 +129,7 @@ static const char rcsId[] = "$Id$";
 
         if (sizeToFill>=sizeof(unsigned int) && info.loads[0]>0)
           {
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             NSDebugMLog(@"loads[0] %ld",(long)info.loads[0]);
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[0] >> 4)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
@@ -143,7 +138,7 @@ static const char rcsId[] = "$Id$";
 
         if (sizeToFill>=sizeof(unsigned int) && info.loads[1]>0)
           {
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             NSDebugMLog(@"loads[1] %ld",(long)info.loads[1]);
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[1] >> 4)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
@@ -152,7 +147,7 @@ static const char rcsId[] = "$Id$";
 
         if (sizeToFill>=sizeof(unsigned int) && info.loads[2]>0)
           {
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             NSDebugMLog(@"loads[2] %ld",(long)info.loads[2]);
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[2] >> 4)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
@@ -162,7 +157,7 @@ static const char rcsId[] = "$Id$";
         if (sizeToFill>=sizeof(unsigned int) && info.freeram>0)
           {
             NSDebugMLog(@"freeram %ld",(unsigned long)info.freeram);
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeram >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
@@ -171,7 +166,7 @@ static const char rcsId[] = "$Id$";
         if (sizeToFill>=sizeof(unsigned int) && info.sharedram>0)
           {
             NSDebugMLog(@"sharedram %ld",(unsigned long)info.sharedram);
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.sharedram >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
@@ -180,7 +175,7 @@ static const char rcsId[] = "$Id$";
         if (sizeToFill>=sizeof(unsigned int) && info.freeswap>0)
           {
             NSDebugMLog(@"freeswap %ld",(unsigned long)info.freeswap);
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeswap >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
@@ -189,7 +184,7 @@ static const char rcsId[] = "$Id$";
         if (sizeToFill>=sizeof(unsigned int) && info.bufferram>0)
           {
             NSDebugMLog(@"bufferram %ld",(unsigned long)info.bufferram);
-            rnd=(unsigned)(UINT_MAX*rand()/(RAND_MAX+1.0));
+            rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.bufferram >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);                            
@@ -200,14 +195,14 @@ static const char rcsId[] = "$Id$";
   NSDebugMLog(@"sizeToFill %d",sizeToFill);
   while(sizeToFill>0)
     {
-      *((unsigned char*)pMd5Data)=(unsigned char)(256*rand()/(RAND_MAX+1.0));
+      *((unsigned char*)pMd5Data)=(unsigned char)(256.0*rand()/(RAND_MAX+1.0));
       sizeToFill--;
       pMd5Data++;
     };
   //Now do md5 on bytes after sizeof(ts)
-  md5Sum=[GSMD5 digestOfData:md5Data];
+  md5Sum=[md5Data md5Digest];
   [data appendData:md5Sum];
-  sessionID=DataToHexString(data);
+  sessionID=[data hexadecimalRepresentation];
   return sessionID;
 };
 //--------------------------------------------------------------------
@@ -243,10 +238,11 @@ static const char rcsId[] = "$Id$";
 -(void)dealloc
 {
   GSWLogAssertGood(self);
-  NSDebugFLog0(@"Dealloc GSWSession");
+  NSDebugFLog(@"Dealloc GSWSession %p. ThreadID=%p",(void*)self,(void*)objc_thread_id());
   NSDebugFLog0(@"Dealloc GSWSession: sessionID");
   DESTROY(_sessionID);
   NSDebugFLog0(@"Dealloc GSWSession:autoreleasePool ");
+  GSWLogMemCF("Destroy NSAutoreleasePool: %p. ThreadID=%p",_autoreleasePool,(void*)objc_thread_id());
   DESTROY(_autoreleasePool);
   NSDebugFLog0(@"Dealloc GSWSession: contextArrayStack");
   DESTROY(_contextArrayStack);
@@ -794,7 +790,10 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   //OK
   LOGObjectFnStart();
   if (!_autoreleasePool)
-    _autoreleasePool=[NSAutoreleasePool new];
+    {
+      _autoreleasePool=[NSAutoreleasePool new];
+      GSWLogMemCF("New NSAutoreleasePool: %p",_autoreleasePool);
+    }
   LOGObjectFnStop();
 };
 

@@ -1,3 +1,77 @@
+2003-02-01   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/NSString+Trimming.m:
+		o Replaced DataToHexString with -[NSData
+		 hexadecimalRepresentation]. (David Ayers <d.ayers@inode.at>)
+	* GSWeb/GSWHTMLURLValuesElement.m:
+		o Replaced GSMD5 class with md5Digest of NSData category.  
+		 (David Ayers <d.ayers@inode.at>)
+		o Replaced DataToHexString with -[NSData
+		 hexadecimalRepresentation].  (David Ayers <d.ayers@inode.at>)
+	* Examples/hello/GNUmakefile:
+		o Use gsweb.make.
+	* gsweb.make.in:
+		o Change AUXILIARY_INCLUDE_LIBS to AUXILIARY_TOOL_LIB.
+		 (David Ayers <d.ayers@inode.at>)
+		o Handle GDL2 with ADDITIONAL_OBJCFLAGS.
+		 (David Ayers <d.ayers@inode.at>)
+	* configure.ac:
+		o Check for GDL2 to set config.h correctly.
+	* configure:
+		o Regenerated. (David Ayers <d.ayers@inode.at>)
+	* config.mak.in:
+		o Set GDL2 as determined by configure. (David Ayers <d.ayers@inode.at>)
+	* GSWeb.framework/GSWComponent.m:
+		o use GSWApp -createResponseInContext: instead of creating 
+			GSWResponse instance directly
+		o added -_appendPageToResponse:inContext:
+	* GSWeb.framework/GSWApplication.[hm]:
+		o added -createResponseInContext:
+		o added -createRequestWithMethod:uri:httpVersion:headers:content:userInfo:
+		o added -createResourceManager
+		o used createResourceManager instead of creating it directly
+		o added NSAutoreleasePool debug traces
+		o exception log changed
+	* GSWeb.framework/GSWDefaultAdaptorThread.m:
+		o use application -createRequestWithMethod:uri:httpVersion:headers:content:userInfo:
+			instead of directly creating GSWRequest instance directly
+		o added NSAutoreleasePool debug traces
+	 	o add thread_id trace in log
+	* GSWeb.framework/GSWDefaultAdaptor.m:
+		o added NSAutoreleasePool debug traces
+	* GSWeb.framework/GSWComponentRequestHandler.m:
+		o use GSWApp -createResponseInContext: instead of creating 
+			GSWResponse instance directly
+	* GSWeb.framework/GSWResourceRequestHandler.m:
+		o use GSWApp -createResponseInContext: instead of creating 
+			GSWResponse instance directly
+	* GSWeb.framework/GSWDirectActionRequestHandler.m:
+		o use GSWApp -createResponseInContext: instead of creating 
+			GSWResponse instance directly
+	* GSWeb.framework/GSWResponse.m:
+		o use GSWApp -createResponseInContext: instead of creating 
+			GSWResponse instance directly
+	* GSWeb.framework/GSWTemplateParserXML.m: 
+		o added exception handling
+		o added NSAutoreleasePool debug traces
+	* GSWeb.framework/GSWTemplateParser.m: 
+		o added NSAutoreleasePool debug traces
+	* GSWeb.framework/GSWSession.m
+		o added NSAutoreleasePool debug traces
+		o Fix in rand() use
+		o NSString+Trimming
+		o Fix in rand() use
+	 	o add thread_id trace in log
+		o Replaced GSMD5 class with md5Digest of NSData category.
+		  (David Ayers <d.ayers@inode.at>)
+		o Replaced DataToHexString with -[NSData
+		hexadecimalRepresentation].  (David Ayers <d.ayers@inode.at>)
+	* GSWeb.framework/GSWContext.m
+		o add thread_id trace in log
+	* GSWeb/GSWUtils.[hm]:
+		o Removed DataToHexString() and HexStringToData().
+		  (David Ayers <d.ayers@inode.at>)
+
+
 2003-01-22   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/WebObjects: removed WO*
 

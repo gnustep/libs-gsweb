@@ -1,4 +1,5 @@
 /** GSWDefaultAdaptorThread.m - <title>GSWeb: Class GSWDefaultAdaptorThread</title>
+
    Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
@@ -105,6 +106,7 @@ static const char rcsId[] = "$Id$";
   if (destroy)
     {
       GSWLogMemC("dealloc pool\n");
+      GSWLogMemCF("Destroy NSAutoreleasePool: %p. ThreadID=%p",_pool,(void*)objc_thread_id());
       DESTROY(_pool);
       GSWLogMemC("end dealloc pool\n");
     };
@@ -126,6 +128,7 @@ static const char rcsId[] = "$Id$";
   [GSWApplication statusLogWithFormat:@"Thread run START"];
 #endif
   _pool=[NSAutoreleasePool new];
+  GSWLogMemCF("New NSAutoreleasePool: %p",_pool);
 #ifdef GSWDEBUG_DEEP
   [GSWApplication logWithFormat:@"pool allocated!"];
 #endif
@@ -263,6 +266,7 @@ static const char rcsId[] = "$Id$";
 //  NSDebugMLLog(@"low",@"[_defaultAdaptorThread retainCount=%d",
 //			   (int)[self retainCount]);
   [_adaptor adaptorThreadExited:self];
+  GSWLogMemCF("Will Destroy NSAutoreleasePool: %p",_pool);
   [self setPool:nil
         destroyLast:YES];
 //  LOGObjectFnStop();
@@ -594,13 +598,12 @@ static const char rcsId[] = "$Id$";
           /*		  if (isHeaderKeysEqual(method,GSWHTTPHeader_MethodPost))
                           {
           */
-          request=[[[GSWRequest alloc] initWithMethod:method
-                                        uri:url
-                                        httpVersion:httpVersion
-                                        headers:headers
-                                        content:data
-                                        userInfo:nil]
-                     autorelease];
+          request=[_application createRequestWithMethod:method
+                                uri:url
+                                httpVersion:httpVersion
+                                headers:headers
+                                content:data
+                                userInfo:nil];
           /*			};*/
         };
     };
@@ -805,6 +808,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
   GSWResponse* response=nil;
   NSAutoreleasePool* pool=nil;
   pool=[NSAutoreleasePool new];
+  GSWLogMemCF("New NSAutoreleasePool: %p",pool);
   LOGDEEPClassFnStart();
   response=[GSWResponse responseWithMessage:@"Temporary unavailable"
                         inContext:nil
@@ -818,6 +822,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
         withAdditionalHeaderLines:nil
         withRemoteAddress:nil];
   LOGDEEPClassFnStop();
+  GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
   DESTROY(pool);
 };
 
@@ -827,6 +832,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
   GSWResponse* response=nil;
   NSAutoreleasePool* pool=nil;
   pool=[NSAutoreleasePool new];
+  GSWLogMemCF("New NSAutoreleasePool: %p",pool);
   LOGDEEPClassFnStart();
   response=[GSWResponse responseWithMessage:message
                         inContext:nil
@@ -840,6 +846,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
         withAdditionalHeaderLines:nil
         withRemoteAddress:nil];
   LOGDEEPClassFnStop();
+  GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
   DESTROY(pool);
 };
 

@@ -366,8 +366,11 @@ static NSArray* cacheControlHeaderValues=nil;
                    length:(unsigned)length
 {
   LOGObjectFnStart();
-  [_contentData appendBytes:bytes
-               length:length];
+  if (length>0)
+    {
+      [_contentData appendBytes:bytes
+                    length:length];
+    };
   LOGObjectFnStop();
 };
 
@@ -377,8 +380,8 @@ static NSArray* cacheControlHeaderValues=nil;
 -(void)appendContentCharacter:(char)aChar
 {
   LOGObjectFnStart();
-  [_contentData appendBytes:&aChar
-                length:1];
+  [self appendContentBytes:&aChar
+        length:1];
   LOGObjectFnStop();
 };
 
@@ -387,9 +390,14 @@ static NSArray* cacheControlHeaderValues=nil;
 
 -(void)appendContentData:(NSData*)dataObject
 {
+  unsigned char* bytes=NULL;
+  unsigned int length=0;
   LOGObjectFnStart();
   NSDebugMLLog(@"low",@"response=%p dataObject:%@",self,dataObject);
-  [_contentData appendData:dataObject];
+  bytes=[dataObject bytes];
+  length=[dataObject length];
+  [self appendContentBytes:bytes
+        length:length];
   LOGObjectFnStop();
 };
 
@@ -687,7 +695,7 @@ static NSArray* cacheControlHeaderValues=nil;
   string=[NSString stringWithObject:aString];
   NSDebugMLLog(@"low",@"_string:%@",string);
   newData=[string dataUsingEncoding:_contentEncoding];
-  [_contentData appendData:newData];
+  [self appendContentData:newData];
   LOGObjectFnStop();
 };
 
@@ -803,7 +811,7 @@ escapingHTMLAttributeValue:(BOOL)escape
   GSWResponse* response=nil;
   NSString* httpVersion=nil;
   LOGClassFnStart();
-  response=[[self new]autorelease];
+  response=[GSWApp createResponseInContext:aContext];
   if (response)
     {
       NSString* responseString=nil;
@@ -839,7 +847,7 @@ escapingHTMLAttributeValue:(BOOL)escape
   GSWResponse* response=nil;
   NSString* httpVersion=nil;
   LOGClassFnStart();
-  response=[[self new]autorelease];
+  response=[GSWApp createResponseInContext:aContext];
   if (response)
     {
       NSString* responseString=nil;
@@ -921,7 +929,7 @@ escapingHTMLAttributeValue:(BOOL)escape
   GSWResponse* response=nil;
   NSString* httpVersion=nil;
   LOGClassFnStart();
-  response=[[self new]autorelease];
+  response=[GSWApp createResponseInContext:aContext];
   if (response)
     {
       if (aContext && [aContext request]) 

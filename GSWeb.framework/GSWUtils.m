@@ -1583,68 +1583,6 @@ NSString* GSWGetDefaultDocRoot()
     rootDoc=[NSString stringWithString:@"/home/httpd/gsweb"];
   return rootDoc;
 };
-  
-//--------------------------------------------------------------------
-//To Move
-
-//--------------------------------------------------------------------
-NSString* DataToHexString(NSData* data)
-{
-  unsigned int size=0;
-  size=[data length];
-  if (size)
-    {
-      const unsigned char* pData=(const unsigned char*)[data bytes];
-      if (pData)
-        {
-          NSMutableString* string=[[NSMutableString new] autorelease];
-          int i=0;
-          for(i=0;i<size;i++)
-            {
-              [string appendFormat:@"%02x",(unsigned int)pData[i]];
-            };
-          return string;
-        };
-    };
-  return nil;
-};
-
-//--------------------------------------------------------------------
-NSData* HexStringToData(NSString* string)
-{
-  int size=[string length];
-  if (size>0)
-    {
-      const char* pString=(const char*)[[string uppercaseString]cString];
-      if (pString)
-        {
-          NSMutableData* data=[NSMutableData dataWithLength:size/2];
-          unsigned char* pData=(unsigned char*)[data bytes];
-          int i=0;
-          for(i=0;i<size/2;i++)
-            {
-              if (pString[i*2]>='0' && pString[i*2]<='9')
-                pData[i]=(pString[i*2]-'0') << 4;
-              else if (pString[i*2]>='A' && pString[i*2]<='F')
-                pData[i]=(pString[i*2]-'A'+10) << 4;
-              else
-                {
-                  NSCAssert(NO,@"Bad hex String");
-                };
-              if (pString[i*2+1]>='0' && pString[i*2+1]<='9')
-                pData[i]=pData[i]|(pString[i*2+1]-'0');
-              else if (pString[i*2+1]>='A' && pString[i*2+1]<='F')
-                pData[i]=pData[i]|(pString[i*2+1]-'A'+10);
-              else
-                {
-                  NSCAssert(NO,@"Bad hex String");
-                };
-            };
-          return data;
-        };
-    };
-  return nil;
-};
 
 //===================================================================================
 @implementation NSDictionary (SBDictionary)

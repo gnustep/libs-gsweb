@@ -1,6 +1,6 @@
 /** GSWTemplateParser.m - <title>GSWeb: Class GSWTemplateParser</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -29,6 +29,8 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
+
+static const char rcsId[]="$Id$";
 
 #include "GSWeb.h"
 
@@ -401,6 +403,7 @@
   GSWPageDefParser* definitionsParser=nil;
   LOGObjectFnStart();
   arpParse=[NSAutoreleasePool new];
+  GSWLogMemCF("New NSAutoreleasePool: %p",arpParse);
   definitionsStream=[[ANTLRTextInputStreamString newWithString:aLocalDefinitionString]
                       autorelease];
   definitionsLexer=[[[GSWPageDefLexer alloc]initWithTextStream:definitionsStream]
@@ -444,6 +447,7 @@
                                                               @"%@ In [definitionsParser document]...",
                                                               [self logPrefix]);
       [localException retain];
+      GSWLogMemCF("Destroy NSAutoreleasePool: %p",arpParse);
       DESTROY(arpParse);
       [localException autorelease];
       [localException raise];
@@ -453,6 +457,7 @@
   [tmpDefinitions retain];
   [definitionsIncludes retain];
   NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
+  GSWLogMemCF("Destroy NSAutoreleasePool: %p",arpParse);
   DESTROY(arpParse);
   NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
   [tmpDefinitions autorelease];

@@ -1173,8 +1173,41 @@ fi
 echo "$as_me:$LINENO: result: $GSWNAMES" >&5
 echo "${ECHO_T}$GSWNAMES" >&6
 
+#--------------------------------------------------------------------
+# Check for GDL2
+#--------------------------------------------------------------------
+as_ac_File=`echo "ac_cv_file_$GNUSTEP_MAKEFILES/Auxiliary/gdl2.make" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for $GNUSTEP_MAKEFILES/Auxiliary/gdl2.make" >&5
+echo $ECHO_N "checking for $GNUSTEP_MAKEFILES/Auxiliary/gdl2.make... $ECHO_C" >&6
+if eval "test \"\${$as_ac_File+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "$GNUSTEP_MAKEFILES/Auxiliary/gdl2.make"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  GDL2=yes
+else
+  GDL2=no
+fi
 
+if test "$GDL2" = yes; then
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_GDL2 1
+_ACEOF
 
+fi
+
+ 
 #--------------------------------------------------------------------
 # Check for libwrap
 #--------------------------------------------------------------------
@@ -2874,6 +2907,7 @@ s,@ECHO_N@,$ECHO_N,;t t
 s,@ECHO_T@,$ECHO_T,;t t
 s,@LIBS@,$LIBS,;t t
 s,@GSWNAMES@,$GSWNAMES,;t t
+s,@GDL2@,$GDL2,;t t
 s,@CC@,$CC,;t t
 s,@CFLAGS@,$CFLAGS,;t t
 s,@LDFLAGS@,$LDFLAGS,;t t

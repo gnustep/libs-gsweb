@@ -178,6 +178,7 @@ int GSWApplicationMainReal(NSString* applicationClassName,
   NSAutoreleasePool *appAutoreleasePool=nil;
 
   appAutoreleasePool = [NSAutoreleasePool new];
+  GSWLogMemCF("New NSAutoreleasePool: %p",appAutoreleasePool);
   /*
   //TODO
   DebugInstall("/dvlp/projects/app/Source/app.gswa/shared_debug_obj/ix86/linux-gnu/gnu-gnu-gnu-xgps/app_server");
@@ -479,6 +480,7 @@ int GSWApplicationMainReal(NSString* applicationClassName,
       [GSWApp run];
       DESTROY(GSWApp);
     };
+  GSWLogMemCF("Destroy NSAutoreleasePool: %p",appAutoreleasePool);
   DESTROY(appAutoreleasePool);
   return result;
 };
@@ -571,7 +573,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       //call adaptorsDispatchRequestsConcurrently
       _activeSessionsCountLock=[NSLock new];
       _componentDefinitionCache=[GSWMultiKeyDictionary new];
-      [self setResourceManager:[[GSWResourceManager new]autorelease]];
+      [self setResourceManager:[self createResourceManager]];
       [self setStatisticsStore:[[GSWStatisticsStore new]autorelease]];
       if ([[self class]isMonitorEnabled])
 	{
@@ -777,10 +779,10 @@ int GSWApplicationMain(NSString* applicationClassName,
         }
       NS_HANDLER
         {
-          NSDebugMLLog(@"application",@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
-                       _globalLockn,
-                       (void*)_globalLock_thread_id,
-                       (void*)objc_thread_id());
+          NSDebugMLog(@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
+                      _globalLockn,
+                      (void*)_globalLock_thread_id,
+                      (void*)objc_thread_id());
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"globalLock tmpunlock");
           LOGException(@"%@ (%@)",localException,[localException reason]);
@@ -1408,6 +1410,31 @@ selfLockn,
 
 //====================================================================
 @implementation GSWApplication (GSWApplicationE)
+
+-(GSWResponse*)createResponseInContext:(GSWContext*)aContext
+{
+  return [[GSWResponse new]autorelease];
+};
+
+-(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
+                                  uri:(NSString*)anURL
+                          httpVersion:(NSString*)aVersion
+                              headers:(NSDictionary*)headers
+                              content:(NSData*)content
+                             userInfo:(NSDictionary*)userInfo
+{
+  return [[[GSWRequest alloc]initWithMethod:aMethod
+                             uri:anURL
+                             httpVersion:aVersion
+                             headers:headers
+                             content:content
+                             userInfo:userInfo]autorelease];
+};
+
+-(GSWResourceManager*)createResourceManager
+{
+  return [[GSWResourceManager new]autorelease];
+};
 
 //--------------------------------------------------------------------
 -(void)_discountTerminatedSession

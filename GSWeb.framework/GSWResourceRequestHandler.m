@@ -1,12 +1,13 @@
 /** GSWResourceRequestHandler.m - <title>GSWeb: Class GSWResourceRequestHandler</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
 
@@ -83,7 +84,7 @@ static char rcsId[] = "$Id$";
   GSWURLValuedElementData* data=nil;
   LOGObjectFnStart();
   NSDebugMLog(@"aKey=%@",aKey);
-  response=[[GSWResponse new]autorelease];
+  response=[GSWApp createResponseInContext:nil];
   resourceManager=[[GSWApplication application] resourceManager];
   data=[resourceManager _cachedDataForKey:aKey];
   NSDebugMLog(@"data=%@",data);

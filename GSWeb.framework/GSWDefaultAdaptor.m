@@ -1,11 +1,13 @@
 /** GSWDefaultAdaptor.m - <title>GSWeb: Class GSWDefaultAdaptor</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
 
    $Revision$
    $Date$
+   $Id$
 
    <abstract></abstract>
 
@@ -28,7 +30,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
 //#include <gnustep/base/UnixFileHandle.h>
@@ -297,11 +299,11 @@ int allow_severity = LOG_INFO;
       NSDebugDeepMLLog(@"ThreadID=%p - A1 readInProgress=%d\n",
                        (void*)objc_thread_id(),
                        (int)[_fileHandle readInProgress]);
-      NSDebugDeepMLog(@"NEW CONN APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
-                       (int)([GSWApplication application]->selfLockn),
-                       (void*)([GSWApplication application]->selfLock_thread_id),
-                       (int)([GSWApplication application]->globalLockn),
-                       (void*)([GSWApplication application]->globalLock_thread_id),
+      NSDebugDeepMLog(@"NEW CONN APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
+                       (int)([GSWApplication application]->_selfLockn),
+                       (void*)([GSWApplication application]->_selfLock_thread_id),
+                       (int)([GSWApplication application]->_globalLockn),
+                       (void*)([GSWApplication application]->_globalLock_thread_id),
                        [_threads count],
                        [_waitingThreads count],
                        _blocked);
@@ -481,11 +483,11 @@ int allow_severity = LOG_INFO;
       [self unlock];
     };
   NSDebugLockMLLog(@"trace",@"end announceNewConnection");
-  NSDebugDeepMLog(@"END NEWCONN APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d acceptOK\n",
-                   (int)([GSWApplication application]->selfLockn),
-                   (void*)([GSWApplication application]->selfLock_thread_id),
-                   (int)([GSWApplication application]->globalLockn),
-                   (void*)([GSWApplication application]->globalLock_thread_id),
+  NSDebugDeepMLog(@"END NEWCONN APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d acceptOK\n",
+                   (int)([GSWApplication application]->_selfLockn),
+                   (void*)([GSWApplication application]->_selfLock_thread_id),
+                   (int)([GSWApplication application]->_globalLockn),
+                   (void*)([GSWApplication application]->_globalLock_thread_id),
                    [_threads count],
                    [_waitingThreads count],
                    _blocked);
@@ -499,11 +501,11 @@ int allow_severity = LOG_INFO;
   LOGObjectFnStart();
 //  NSDebugMLLog(@"trace",@"adaptorThreadExited");
   NSDebugDeepMLog0(@"adaptorThreadExited\n");
-  NSDebugDeepMLog(@"EXIT APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
-                   (int)([GSWApplication application]->selfLockn),
-                   (void*)([GSWApplication application]->selfLock_thread_id),
-                   (int)([GSWApplication application]->globalLockn),
-                   (void*)([GSWApplication application]->globalLock_thread_id),
+  NSDebugDeepMLog(@"EXIT APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
+                   (int)([GSWApplication application]->_selfLockn),
+                   (void*)([GSWApplication application]->_selfLock_thread_id),
+                   (int)([GSWApplication application]->_globalLockn),
+                   (void*)([GSWApplication application]->_globalLock_thread_id),
                    [_threads count],
                    [_waitingThreads count],
                    _blocked);
@@ -513,9 +515,11 @@ int allow_severity = LOG_INFO;
       NSAutoreleasePool* pool=nil;
 #ifndef NDEBUG
       pool=[NSAutoreleasePool new];
+      GSWLogMemCF("New NSAutoreleasePool: %p",pool);
       NSDebugLockMLLog(@"low",
                        @"remove thread %p",
                        (void*)adaptorThread);
+      GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
       DESTROY(pool);
 #endif
       NS_DURING
@@ -527,9 +531,11 @@ int allow_severity = LOG_INFO;
       NS_HANDLER
         {
           pool=[NSAutoreleasePool new];
+          GSWLogMemCF("New NSAutoreleasePool: %p",pool);
           LOGException(@"%@ (%@)",
                        localException,
                        [localException reason]);
+          GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
           DESTROY(pool);
           //TODO
           //		  [self unlock];
@@ -538,10 +544,12 @@ int allow_severity = LOG_INFO;
       NS_ENDHANDLER;
 #ifndef NDEBUG
       pool=[NSAutoreleasePool new];
+      GSWLogMemCF("New NSAutoreleasePool: %p",pool);
       NSDebugLockMLLog(@"low",
                        @"[waitingThreads count]=%d [threads count]=%d",
                        [_waitingThreads count],
                        [_threads count]);
+      GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
       DESTROY(pool);
 #endif
       if ([_threads count]==0)
@@ -550,9 +558,11 @@ int allow_severity = LOG_INFO;
           if (isApplicationRequestHandlingLocked)
             {
               pool=[NSAutoreleasePool new];
+              GSWLogMemCF("New NSAutoreleasePool: %p",pool);
               LOGSeriousError0(@"Application RequestHandling is LOCKED !!!");
               NSAssert(NO,@"Application RequestHandling is LOCKED !!!");//TODO-NOW
               [[GSWApplication application] terminate];
+              GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
               DESTROY(pool);
             };
         };
@@ -577,10 +587,12 @@ int allow_severity = LOG_INFO;
                 {
 #ifndef NDEBUG
                   pool=[NSAutoreleasePool new];
+                  GSWLogMemCF("New NSAutoreleasePool: %p",pool);
                   [GSWApplication statusLogWithFormat:@"Lauch waiting Thread"];
                   NSDebugLockMLLog(@"info",
                                    @"Lauch waiting Thread %p",
                                    (void*)thread);
+                  GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
                   DESTROY(pool);
 #endif
                   if (_isMultiThreadEnabled)
@@ -594,9 +606,11 @@ int allow_severity = LOG_INFO;
           NS_HANDLER
             {
               pool=[NSAutoreleasePool new];
+              GSWLogMemCF("New NSAutoreleasePool: %p",pool);
               LOGException(@"%@ (%@)",
                            localException,
                            [localException reason]);
+              GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
               DESTROY(pool);
               //TODO
               //			  [self unlock];
@@ -619,9 +633,11 @@ int allow_severity = LOG_INFO;
       NS_HANDLER
         {
           pool=[NSAutoreleasePool new];
+          GSWLogMemCF("New NSAutoreleasePool: %p",pool);
           LOGException(@"%@ (%@)",
                        localException,
                        [localException reason]);
+          GSWLogMemCF("Destroy NSAutoreleasePool: %p",pool);
           DESTROY(pool);
           //TODO
           //		  [self unlock];
@@ -631,11 +647,11 @@ int allow_severity = LOG_INFO;
       
       [self unlock];
     };
-  NSDebugDeepMLog(@"END EXIT APP selfLockn=%d selfLock_thread_id=%p globalLockn=%d globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
-                   (int)([GSWApplication application]->selfLockn),
-                   (void*)([GSWApplication application]->selfLock_thread_id),
-                   (int)([GSWApplication application]->globalLockn),
-                   (void*)([GSWApplication application]->globalLock_thread_id),
+  NSDebugDeepMLog(@"END EXIT APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
+                   (int)([GSWApplication application]->_selfLockn),
+                   (void*)([GSWApplication application]->_selfLock_thread_id),
+                   (int)([GSWApplication application]->_globalLockn),
+                   (void*)([GSWApplication application]->_globalLock_thread_id),
                    [_threads count],
                    [_waitingThreads count],
                    _blocked);

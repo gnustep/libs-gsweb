@@ -180,9 +180,6 @@ extern void pidstatm(pid_t pid, proc_t* P);
 
 
 extern NSString* GSWGetDefaultDocRoot();
-//To Move
-extern NSString* DataToHexString(NSData* data);
-extern NSData* HexStringToData(NSString* _string);
 
 //====================================================================
 @interface NSException (NSBuild)

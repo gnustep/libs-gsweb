@@ -1564,8 +1564,20 @@ associationsKeys:(NSArray*)associationsKeys
 //--------------------------------------------------------------------
 -(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext
 {
-  //OK
   GSWResponse* response=nil;
+  LOGObjectFnStart();
+  NSAssert(aContext,@"No context");
+  response=[GSWApp createResponseInContext:aContext];
+  [self _appendPageToResponse:response
+        inContext:aContext];
+  return response;
+};
+
+//--------------------------------------------------------------------
+-(void)_appendPageToResponse:(GSWResponse*)response
+                   inContext:(GSWContext*)aContext
+{
+  //OK
   GSWSession* session=nil;
   GSWRequest* request=nil;
   NSString* httpVersion=nil;
@@ -1575,8 +1587,6 @@ associationsKeys:(NSArray*)associationsKeys
   NSAssert(aContext,@"No context");
   NS_DURING
     {
-      response=[[GSWResponse new]autorelease];
-
       [aContext deleteAllElementIDComponents];
       request=[aContext request];
       NSDebugMLLog(@"GSWComponent",@"request=%@",request);
@@ -1648,7 +1658,6 @@ associationsKeys:(NSArray*)associationsKeys
     };
   NS_ENDHANDLER;
   LOGObjectFnStop();
-  return response;
 };
 
 //--------------------------------------------------------------------

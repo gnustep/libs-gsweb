@@ -897,250 +897,269 @@ text [Type:XML_TEXT_NODE] [{}] ####
   includesComment=[GSWApplication includeCommentsInResponses];
   _elements=[NSMutableArray array];
   arp=[NSAutoreleasePool new];
-  while(currentNode)
+  GSWLogMemCF("New NSAutoreleasePool: %p",arp);
+  NS_DURING
     {
-      GSWElement* elem=nil;
-      NSDebugMLLog(@"GSWTemplateParser",@"BEGIN node=%p %@ [Type:%@] [%@] ##%s##\n",
-                  currentNode,
-                  [currentNode name],
-                  [currentNode typeDescription],
-                  [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
-/*				((xmlNodePtr)[currentNode lib])->content,
-                  [currentNode content],*/
-                  [[currentNode content] lossyCString]);
-
-      switch([currentNode type])
+      while(currentNode)
         {
-        case XML_TEXT_NODE:
-          {
-            NSDebugMLog0(@"TEXT");
+          GSWElement* elem=nil;
+          NSDebugMLLog(@"GSWTemplateParser",@"BEGIN node=%p %@ [Type:%@] [%@] ##%s##\n",
+                       currentNode,
+                       [currentNode name],
+                       [currentNode typeDescription],
+                       [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
+                       /*				((xmlNodePtr)[currentNode lib])->content,
+                                                        [currentNode content],*/
+                       [[currentNode content] lossyCString]);
 
-			if ([currentNode content] && ([[currentNode content] length] > 0) ) {
-
-            	elem=[GSWHTMLBareString elementWithString:
-                  	                    [NSString stringWithCString:
-                 	                                 [[[currentNode content]
-                  	                                   stringByConvertingToHTMLEntities]
-                   	                                 lossyCString]]];//Because XML Parser decode characters
-			} else {
-				elem = nil;
-			}
-
-            NSDebugMLLog(@"GSWTemplateParser",@"TEXT element=%@",elem);
-          };
-          break;
-        case XML_CDATA_SECTION_NODE:
-          {
-            NSDebugMLog0(@"CDATA_SECTION");
-            NSDebugMLLog(@"GSWTemplateParser",@"CDATA_SECTION content=%s",[[currentNode content] lossyCString]);
-            elem=[GSWHTMLBareString elementWithString:[currentNode content]];
-            NSDebugMLLog(@"GSWTemplateParser",@"CDATA_SECTION element=%@",elem);
-          };
-          break;
-        case XML_COMMENT_NODE:
-          {
-            NSDebugMLog0(@"COMMENT");
-            if (includesComment)
-              {
-                elem=[GSWHTMLBareString elementWithString:[NSString stringWithFormat:@"<!-- %s -->",[[currentNode content] lossyCString]]];
-                NSDebugMLLog(@"GSWTemplateParser",@"COMMENT element=%@",elem);
-              };
-          };
-          break;
-        default:
-          {
-            int currentGSWebTagN=0;
-            int currentTagN=0;
-            NSArray* children=nil;
-            NSDictionary* nodeAttributes=nil;
-            NSString* nodeName=nil;
-            NSString* nodeNameAttribute=nil;
-            nodeName=[currentNode name];
-            NSDebugMLLog(@"GSWTemplateParser",@"DEFAULT (name=%@ type=%@)",nodeName,[currentNode typeDescription]);
-            //if (currentNode->type==XML_ELEMENT_NODE)
+          switch([currentNode type])
             {
-              nodeAttributes=[currentNode propertiesAsDictionaryWithKeyTransformationSel:@selector(lowercaseString)];              
-              nodeNameAttribute=[nodeAttributes objectForKey:@"name"];
-              NSDebugMLLog(@"GSWTemplateParser",@"node=%p nodeAttributes=%@",currentNode,nodeAttributes);
-              NSDebugMLLog(@"GSWTemplateParser",@"node=%p nodeNameAttribute=%@",currentNode,nodeNameAttribute); 
-              tagN++;
-              if ([nodeName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
-                  ||[nodeName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
-                gswebTagN++;
-              currentGSWebTagN=gswebTagN;
-              currentTagN=tagN;
-              if ([currentNode firstChild])
+            case XML_TEXT_NODE:
+              {
+                NSDebugMLog0(@"TEXT");
+
+                if ([currentNode content] && ([[currentNode content] length] > 0) ) {
+
+                  elem=[GSWHTMLBareString elementWithString:
+                  	                    [NSString stringWithCString:
+                                                        [[[currentNode content]
+                  	                                   stringByConvertingToHTMLEntities]
+                                                          lossyCString]]];//Because XML Parser decode characters
+                } else {
+                  elem = nil;
+                }
+
+                NSDebugMLLog(@"GSWTemplateParser",@"TEXT element=%@",elem);
+              };
+              break;
+            case XML_CDATA_SECTION_NODE:
+              {
+                NSDebugMLog0(@"CDATA_SECTION");
+                NSDebugMLLog(@"GSWTemplateParser",@"CDATA_SECTION content=%s",[[currentNode content] lossyCString]);
+                elem=[GSWHTMLBareString elementWithString:[currentNode content]];
+                NSDebugMLLog(@"GSWTemplateParser",@"CDATA_SECTION element=%@",elem);
+              };
+              break;
+            case XML_COMMENT_NODE:
+              {
+                NSDebugMLog0(@"COMMENT");
+                if (includesComment)
+                  {
+                    elem=[GSWHTMLBareString elementWithString:[NSString stringWithFormat:@"<!-- %s -->",[[currentNode content] lossyCString]]];
+                    NSDebugMLLog(@"GSWTemplateParser",@"COMMENT element=%@",elem);
+                  };
+              };
+              break;
+            default:
+              {
+                int currentGSWebTagN=0;
+                int currentTagN=0;
+                NSArray* children=nil;
+                NSDictionary* nodeAttributes=nil;
+                NSString* nodeName=nil;
+                NSString* nodeNameAttribute=nil;
+                nodeName=[currentNode name];
+                NSDebugMLLog(@"GSWTemplateParser",@"DEFAULT (name=%@ type=%@)",nodeName,[currentNode typeDescription]);
+                //if (currentNode->type==XML_ELEMENT_NODE)
                 {
-                  children=[self createElementsFromNode:[currentNode firstChild]];
-                  NSDebugMLLog(@"GSWTemplateParser",@"node=%p children=%@",currentNode,children);
-                };
-              if ([nodeName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
-                  ||[nodeName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
-                {
-                  GSWPageDefElement* definitionsElement=nil;
-                  if (!nodeNameAttribute)
+                  nodeAttributes=[currentNode propertiesAsDictionaryWithKeyTransformationSel:@selector(lowercaseString)];              
+                  nodeNameAttribute=[nodeAttributes objectForKey:@"name"];
+                  NSDebugMLLog(@"GSWTemplateParser",@"node=%p nodeAttributes=%@",currentNode,nodeAttributes);
+                  NSDebugMLLog(@"GSWTemplateParser",@"node=%p nodeNameAttribute=%@",currentNode,nodeNameAttribute); 
+                  tagN++;
+                  if ([nodeName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
+                      ||[nodeName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
+                    gswebTagN++;
+                  currentGSWebTagN=gswebTagN;
+                  currentTagN=tagN;
+                  if ([currentNode firstChild])
                     {
-                      // allow null name tags
-                      elem=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
-                    }
-                  else
+                      children=[self createElementsFromNode:[currentNode firstChild]];
+                      NSDebugMLLog(@"GSWTemplateParser",@"node=%p children=%@",currentNode,children);
+                    };
+                  if ([nodeName caseInsensitiveCompare:GSWTag_Name[GSWNAMES_INDEX]]==NSOrderedSame
+                      ||[nodeName caseInsensitiveCompare:GSWTag_Name[WONAMES_INDEX]]==NSOrderedSame)
                     {
-                      NSDictionary* _associations=nil;
-                      NSString* className=nil;
-                      GSWHTMLStaticGroup* aStaticGroup=nil;
-                      definitionsElement=[_definitions objectForKey:nodeNameAttribute];
-                      NSDebugMLLog(@"GSWTemplateParser",@"definitionsElement:[%@]",
-                                   definitionsElement);
-                      NSDebugMLLog(@"GSWTemplateParser",@"GSWeb Tag definitionsElement:[%@]",
-                                   definitionsElement);
-                      if (!definitionsElement)
+                      GSWPageDefElement* definitionsElement=nil;
+                      if (!nodeNameAttribute)
                         {
-                          // We don't raise exception know because it's better for developper to collect and report all errors before :-)
-                          [self addErrorMessageFormat:@"No element definition for tag named:%@ [#%d,#%d]",
-                                nodeNameAttribute,
-                                currentGSWebTagN,
-                                currentTagN];
+                          // allow null name tags
+                          elem=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
                         }
                       else
                         {
-                          _associations=[definitionsElement associations];
-                          className=[definitionsElement className];
-                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p GSWeb Tag className:[%@]",currentNode,className);
-                          if (!className)
+                          NSDictionary* _associations=nil;
+                          NSString* className=nil;
+                          GSWHTMLStaticGroup* aStaticGroup=nil;
+                          definitionsElement=[_definitions objectForKey:nodeNameAttribute];
+                          NSDebugMLLog(@"GSWTemplateParser",@"definitionsElement:[%@]",
+                                       definitionsElement);
+                          NSDebugMLLog(@"GSWTemplateParser",@"GSWeb Tag definitionsElement:[%@]",
+                                       definitionsElement);
+                          if (!definitionsElement)
                             {
                               // We don't raise exception know because it's better for developper to collect and report all errors before :-)
-                              [self addErrorMessageFormat:@"No class name in page definition for tag named:%@ definitionsElement=%@ [#%d,#%d]",
+                              [self addErrorMessageFormat:@"No element definition for tag named:%@ [#%d,#%d]",
                                     nodeNameAttribute,
-                                    definitionsElement,
                                     currentGSWebTagN,
                                     currentTagN];
-                            };
-                        };
-                      // No class name mean we'll raise an exception after so don't care about this part...
-                      if (className) //
-                        {
-                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p associations:%@",currentNode,_associations);
-                          {
-                            NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
-                            id _tagAttrKey=nil;
-                            id _tagAttrValue=nil;
-                            NSMutableDictionary* _addedAssoc=nil;
-                            while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
-                              {
-                                if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
-                                  {
-                                    if (!_addedAssoc)
-                                      _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-                                    _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
-                                        [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
-                                                     forKey:_tagAttrKey];
-                                  };
-                              };
-                            if (_addedAssoc)
-                              {
-                                _associations=[_associations dictionaryByAddingEntriesFromDictionary:_addedAssoc];
-                              };
-                          };
-                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p gsweb name=%@ dynamicElementWithName: children=%@",
-                                       currentNode,
-                                       nodeNameAttribute,
-                                       children);
-                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p %@ [Type:%@] [%@] ##%s##\n",
-                                       currentNode,
-                                       [currentNode name],
-                                       [currentNode typeDescription],
-                                       [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
-                                       [[currentNode content] lossyCString]);
-                          aStaticGroup=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
-                          elem=[GSWApp dynamicElementWithName:className
-                                       associations:_associations
-                                       template:aStaticGroup
-                                       languages:_languages];
-                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@ StaticGroup %p=%@",currentNode,elem,aStaticGroup,aStaticGroup);
-                          if (elem)
-                            [elem setDefinitionName:[definitionsElement elementName]];
+                            }
                           else
                             {
-                              // We don't raise exception know because it's better for developper to collect and report all errors before :-)
-                              [self addErrorMessageFormat:@"Creation failed for element named:%@ className:%@",
-                                    [definitionsElement elementName],
-                                    className];
+                              _associations=[definitionsElement associations];
+                              className=[definitionsElement className];
+                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p GSWeb Tag className:[%@]",currentNode,className);
+                              if (!className)
+                                {
+                                  // We don't raise exception know because it's better for developper to collect and report all errors before :-)
+                                  [self addErrorMessageFormat:@"No class name in page definition for tag named:%@ definitionsElement=%@ [#%d,#%d]",
+                                        nodeNameAttribute,
+                                        definitionsElement,
+                                        currentGSWebTagN,
+                                        currentTagN];
+                                };
+                            };
+                          // No class name mean we'll raise an exception after so don't care about this part...
+                          if (className) //
+                            {
+                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p associations:%@",currentNode,_associations);
+                              {
+                                NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
+                                id _tagAttrKey=nil;
+                                id _tagAttrValue=nil;
+                                NSMutableDictionary* _addedAssoc=nil;
+                                while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
+                                  {
+                                    if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
+                                      {
+                                        if (!_addedAssoc)
+                                          _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+                                        _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
+                                        [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
+                                                     forKey:_tagAttrKey];
+                                      };
+                                  };
+                                if (_addedAssoc)
+                                  {
+                                    _associations=[_associations dictionaryByAddingEntriesFromDictionary:_addedAssoc];
+                                  };
+                              };
+                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p gsweb name=%@ dynamicElementWithName: children=%@",
+                                           currentNode,
+                                           nodeNameAttribute,
+                                           children);
+                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p %@ [Type:%@] [%@] ##%s##\n",
+                                           currentNode,
+                                           [currentNode name],
+                                           [currentNode typeDescription],
+                                           [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
+                                           [[currentNode content] lossyCString]);
+                              aStaticGroup=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
+                              elem=[GSWApp dynamicElementWithName:className
+                                           associations:_associations
+                                           template:aStaticGroup
+                                           languages:_languages];
+                              NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@ StaticGroup %p=%@",currentNode,elem,aStaticGroup,aStaticGroup);
+                              if (elem)
+                                [elem setDefinitionName:[definitionsElement elementName]];
+                              else
+                                {
+                                  // We don't raise exception know because it's better for developper to collect and report all errors before :-)
+                                  [self addErrorMessageFormat:@"Creation failed for element named:%@ className:%@",
+                                        [definitionsElement elementName],
+                                        className];
+                                };
                             };
                         };
-                    };
-                }
-              else
-                {
-                  //It's a hack to remove html & body elements where there's not in the template (HTML parser add them when there are missing)
-                  if ((!_isHTMLTag
-                      && [nodeName caseInsensitiveCompare:@"html"]==NSOrderedSame
-                      && [nodeAttributes count]==0)
-                      || (!_isBodyTag
-                          && [nodeName caseInsensitiveCompare:@"body"]==NSOrderedSame
-                          && [nodeAttributes count]==0))
-                    {
-                      NSDebugMLLog(@"GSWTemplateParser",@"node=%p StaticElement: children=%@",currentNode,children);
-                      elem=[[[GSWHTMLStaticElement alloc]initWithName:nil
-                                                         attributeDictionary:nil
-                                                         contentElements:children]autorelease];
-                      NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@",currentNode,elem);
                     }
                   else
                     {
-                      NSDictionary* _associations=nil;
-                      NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
-                      id _tagAttrKey=nil;
-                      id _tagAttrValue=nil;
-                      NSMutableDictionary* _addedAssoc=nil;
-                      NSDebugMLLog(@"GSWTemplateParser",@"node=%p Create nodeName=%@",currentNode,nodeName);
-                      while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
+                      //It's a hack to remove html & body elements where there's not in the template (HTML parser add them when there are missing)
+                      if ((!_isHTMLTag
+                           && [nodeName caseInsensitiveCompare:@"html"]==NSOrderedSame
+                           && [nodeAttributes count]==0)
+                          || (!_isBodyTag
+                              && [nodeName caseInsensitiveCompare:@"body"]==NSOrderedSame
+                              && [nodeAttributes count]==0))
                         {
-                          if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p StaticElement: children=%@",currentNode,children);
+                          elem=[[[GSWHTMLStaticElement alloc]initWithName:nil
+                                                             attributeDictionary:nil
+                                                             contentElements:children]autorelease];
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@",currentNode,elem);
+                        }
+                      else
+                        {
+                          NSDictionary* _associations=nil;
+                          NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
+                          id _tagAttrKey=nil;
+                          id _tagAttrValue=nil;
+                          NSMutableDictionary* _addedAssoc=nil;
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p Create nodeName=%@",currentNode,nodeName);
+                          while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
                             {
-                              if (!_addedAssoc)
-                                _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-                              _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
-                              [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
-                                           forKey:_tagAttrKey];
+                              if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
+                                {
+                                  if (!_addedAssoc)
+                                    _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+                                  _tagAttrValue=[nodeAttributes objectForKey:_tagAttrKey];
+                                  [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
+                                               forKey:_tagAttrKey];
+                                };
                             };
-                        };
-                      if (_addedAssoc)
-                        {
-                          _associations=[NSDictionary dictionaryWithDictionary:_addedAssoc];
-                        };
-                      //To know if it's an autoclose tag
-                      if (!children && [self isKindOfClass:[GSWTemplateParserXMLHTML class]])
-                        {
-                          htmlElemDescPtr elemDscr=NULL;                          
-                          elemDscr=htmlTagLookup([nodeName lossyCString]);
-                          if (elemDscr
-                              && elemDscr->endTag!=2 //Forbidden End Tag
-                              && elemDscr->endTag!=1) //End can be omitted
+                          if (_addedAssoc)
                             {
-                              children=[NSArray array];
+                              _associations=[NSDictionary dictionaryWithDictionary:_addedAssoc];
                             };
+                          //To know if it's an autoclose tag
+                          if (!children && [self isKindOfClass:[GSWTemplateParserXMLHTML class]])
+                            {
+                              htmlElemDescPtr elemDscr=NULL;                          
+                              elemDscr=htmlTagLookup([nodeName lossyCString]);
+                              if (elemDscr
+                                  && elemDscr->endTag!=2 //Forbidden End Tag
+                                  && elemDscr->endTag!=1) //End can be omitted
+                                {
+                                  children=[NSArray array];
+                                };
+                            };
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p StaticElement: children=%@",currentNode,children);
+                          elem=[[[GSWHTMLStaticElement alloc]initWithName:nodeName
+                                                             attributeDictionary:_associations
+                                                             contentElements:children]autorelease];
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@",currentNode,elem);
                         };
-                      NSDebugMLLog(@"GSWTemplateParser",@"node=%p StaticElement: children=%@",currentNode,children);
-                      elem=[[[GSWHTMLStaticElement alloc]initWithName:nodeName
-                                                         attributeDictionary:_associations
-                                                         contentElements:children]autorelease];
-                      NSDebugMLLog(@"GSWTemplateParser",@"node=%p element=%@",currentNode,elem);
                     };
                 };
+              };
+              break;
             };
-          };
-          break;
+          if (elem)
+            [_elements addObject:elem];
+          NSDebugMLLog(@"GSWTemplateParser",@"END node=%p %@ [Type:%@] [%@] ##%s##\n",
+                       currentNode,
+                       [currentNode name],
+                       [currentNode typeDescription],
+                       [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
+                       [[currentNode content] lossyCString]);
+          currentNode=[currentNode next];
         };
-      if (elem)
-      	[_elements addObject:elem];
-      NSDebugMLLog(@"GSWTemplateParser",@"END node=%p %@ [Type:%@] [%@] ##%s##\n",
-                  currentNode,
-                  [currentNode name],
-                  [currentNode typeDescription],
-                  [currentNode propertiesAsDictionaryWithKeyTransformationSel:NULL],
-                  [[currentNode content] lossyCString]);
-      currentNode=[currentNode next];
-    };
+    }
+  NS_HANDLER
+    {
+      LOGError(@"%@ createElementsFromNode: Exception",
+               [self logPrefix]);
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"%@ In [GSWTemplateParserXML createElementsFromNode:]...",
+                                                              [self logPrefix]);
+      [localException retain];
+      GSWLogMemCF("Destroy NSAutoreleasePool: %p",arp);
+      DESTROY(arp);
+      [localException autorelease];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  GSWLogMemCF("Destroy NSAutoreleasePool: %p",arp);
   DESTROY(arp);
   LOGObjectFnStop();
   NSDebugMLLog(@"GSWTemplateParser",@"_elements=%@",_elements);

@@ -31,6 +31,7 @@
 static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
+#include <gnustep/base/GSCategories.h>
 #include <time.h>
 
 //====================================================================
@@ -176,7 +177,7 @@ static const char rcsId[] = "$Id$";
 
   pData=[data mutableBytes];
   NSAssert(pData,@"no pData");
-  NSDebugMLog(@"pData=%p",pData);
+  //NSDebugMLog(@"pData=%p",pData);
 
   *((NSTimeInterval*)pData)=ti;
   pData+=sizeof(ti);
@@ -185,13 +186,16 @@ static const char rcsId[] = "$Id$";
   srand(time(NULL));
   for(i=0;i<length;i++)
     {
-      *((unsigned char*)pData)=(unsigned char)(256*rand()/(RAND_MAX+1.0));
+      int c=rand();
+      *((unsigned char*)pData)=(unsigned char)(256.0*c/(RAND_MAX+1.0));
+      //NSDebugMLog(@"i=%d c=%i max=%d c=%u",i,c,(int)RAND_MAX,(unsigned int)(*((unsigned char*)pData)));
       pData++;
     };
-  NSDebugMLog(@"pData=%p",pData);
+  //NSDebugMLog(@"pData=%p",pData);
+  //NSDebugMLog(@"pData length=%d",(int)(pData-[data mutableBytes]));
 
-  dataHex=DataToHexString(data);
-  NSDebugMLog(@"dataHex %p=%@",dataHex,dataHex);
+  dataHex=[data hexadecimalRepresentation];
+  //NSDebugMLog(@"dataHex %p=%@",dataHex,dataHex);
   return dataHex;
 };
 

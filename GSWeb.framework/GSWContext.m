@@ -55,7 +55,7 @@ static int dontTraceComponentActionURL=0;
 -(void)dealloc
 {
   GSWLogAssertGood(self);
-  NSDebugFLog(@"Dealloc GSWContext %p",(void*)self);
+  NSDebugFLog(@"Dealloc GSWContext %p. ThreadID=%p",(void*)self,(void*)objc_thread_id());
   NSDebugFLog0(@"Release GSWContext senderID");
   DESTROY(_senderID);
   NSDebugFLog0(@"Release GSWContext requestSessionID");
