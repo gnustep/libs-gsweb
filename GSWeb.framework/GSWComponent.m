@@ -399,7 +399,7 @@ associationsKeys:(NSArray*)associationsKeys
               && ![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
             {
               aValue=[self valueForKey:aKey];
-              NSDebugMLLog(@"GSWComponent",@"aValue=%@",aValue);
+              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@",aKey,aValue);
               if (doLog)
                 [anAssociation logSynchronizeComponentToParentForValue:aValue
                                inComponent:_parent];
@@ -437,7 +437,7 @@ associationsKeys:(NSArray*)associationsKeys
           if (![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
             {
               aValue=[anAssociation valueInComponent:_parent];
-              NSDebugMLLog(@"GSWComponent",@"aValue=%@",aValue);
+              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@",aKey,aValue);
               if (doLog)
                 [anAssociation logSynchronizeParentToComponentForValue:aValue
                                inComponent:self];
