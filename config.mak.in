@@ -5,6 +5,9 @@ DYNAMIC_LINKER=simple
 GDL2=@GDL2@
 LIBWRAP=@LIBWRAP@
 
+#Log
+GSWDEBUG=no
+
 #Log Memory Alloc/Dealloc
 GSWDEBUG_MEM=no
 
