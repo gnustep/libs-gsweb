@@ -358,8 +358,6 @@ extern BOOL WOStrictFlag;
 @interface GSWApplication (GSWErrorHandling)
 -(GSWResponse*)handleException:(NSException*)exception
                      inContext:(GSWContext*)aContext;
--(GSWResponse*)_handleException:(NSException*)exception
-                      inContext:(GSWContext*)aContext;
 -(GSWResponse*)handlePageRestorationErrorInContext:(GSWContext*)aContext;
 -(GSWResponse*)_handlePageRestorationErrorInContext:(GSWContext*)aContext;
 -(GSWResponse*)handleSessionCreationErrorInContext:(GSWContext*)aContext;

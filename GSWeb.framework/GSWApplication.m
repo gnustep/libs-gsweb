@@ -54,6 +54,24 @@ application unlock
 
 */
 
+/* 
+   The following class does not exist.  The declaration is merely used
+   to aid the compiler to find the correct signatures for messages
+   sent to the class and to avoid polluting the compiler output with
+   superfluous warnings.
+*/
+@interface GSWAppClassDummy : NSObject
+- (NSString *)adaptor;
+- (NSString *)host;
+- (NSNumber *)port;
+@end
+
+#ifdef GNUSTEP
+@interface NSDistantObject (GNUstepPrivate)
++ (void) setDebug: (int)val;
+@end
+#endif
+
 @interface GSWApplication (GSWApplicationPrivate)
 - (void)_setPool:(NSAutoreleasePool *)pool;
 @end
@@ -801,14 +819,15 @@ int GSWApplicationMain(NSString* applicationClassName,
           if (lifebeatInterval<1)
             lifebeatInterval=30; //30s
           NSDebugMLLog(@"application",@"lifebeatInterval=%f",lifebeatInterval);
-          
-          ASSIGN(_lifebeatThread,[GSWLifebeatThread lifebeatThreadWithApplication:self
-                                                    name:[self name]
-                                                    host:[[self class] host]
-                                                    port:[[self class] intPort]
-                                            lifebeatHost:[[self class]lifebeatDestinationHost]
-                                            lifebeatPort:[[self class]lifebeatDestinationPort]
-                                            interval:lifebeatInterval]);
+
+          ASSIGN(_lifebeatThread,
+		 [GSWLifebeatThread lifebeatThreadWithApplication:self
+				    name:[self name]
+				    host:[(GSWAppClassDummy*)[self class] host]
+				    port:[[self class] intPort]
+				    lifebeatHost:[[self class] lifebeatDestinationHost]
+				    lifebeatPort:[[self class] lifebeatDestinationPort]
+				    interval:lifebeatInterval]);
           NSDebugMLLog(@"application",@"_lifebeatThread=%@",_lifebeatThread);
 #warning go only multi-thread if we want this!
 
@@ -1347,9 +1366,9 @@ selfLockn,
   NSNumber* listenQueueSize=nil;
   NSMutableDictionary* argsDict=nil;
   LOGObjectFnStart();
-  port=[[self class] port];
-  host=[[self class] host];
-  adaptor=(NSString*)[[self class] adaptor];
+  port=[(GSWAppClassDummy*)[self class] port];
+  host=[(GSWAppClassDummy*)[self class] host];
+  adaptor=[(GSWAppClassDummy*)[self class] adaptor];
   workerThreadCount=[[self class] workerThreadCount];
   listenQueueSize=[[self class] listenQueueSize];
   argsDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
@@ -2175,7 +2194,7 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
-//appellé quand le moteur est fermé 
+//called when deamon is shutdown
 -(void)_connectionDidDie:(id)unknown
 {
   LOGObjectFnNotImplemented();	//TODOFN
@@ -2227,11 +2246,14 @@ to another instance **/
       id proxy=nil;
       NSDebugFLLog(@"monitor",@"monitorHost=%@",monitorHost);
       NSDebugFLLog(@"monitor",@"workerThreadCount=%@",workerThreadCount);
-      [NSDistantObject setDebug:YES];
+      if ([[NSDistantObject class] respondsToSelector:@selector(setDebug:)])
+	{
+	  [NSDistantObject setDebug:YES];
+	}
       _remoteMonitorConnection = [NSConnection connectionWithRegisteredName:GSWMonitorServiceName
                                                host:monitorHost];
       proxy=[_remoteMonitorConnection rootProxy];
-      _remoteMonitor=[proxy targetForProxy];
+      _remoteMonitor=[proxy performSelector:@selector(targetForProxy)];
       [self _synchronizeInstanceSettingsWithMonitor:_remoteMonitor];
     };
   LOGObjectFnStop();
@@ -2248,7 +2270,7 @@ to another instance **/
 -(NSString*)_monitorApplicationName
 {
   NSString* name=[self name];
-  NSNumber* port=[[self class]port];
+  NSNumber* port=[(GSWAppClassDummy*)[self class] port];
   NSString* monitorApplicationName=[NSString stringWithFormat:@"%@-%@",
                                              name,
                                              port];
@@ -4176,7 +4198,7 @@ to another instance **/
 //monitoringEnabled [deprecated]
 -(BOOL)monitoringEnabled 
 {
-  return [self isMonitorEnabled];
+  return [[self class] isMonitorEnabled];
 };
 
 //--------------------------------------------------------------------

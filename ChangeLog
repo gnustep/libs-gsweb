@@ -1,3 +1,25 @@
+2004-01-18  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication.h
+	([GSWApplication _handleException:inContext:]): Remove obsolete
+	declaration.
+	* GSWeb.framework/GSWApplication.m: Added GSWAppClassDummy class
+	declarations to avoid compiler warnings genrerated for messages
+	sent to 'Class'.
+	([NSDistantObject setDebug:]): Added declaration to avoid compiler
+	warning.
+	([GSWApplication init]): Use GSWAppClassDummy to avoid compiler
+	warnings.
+	([GSWApplication _argsDictionaryWithUserDefaults:]): Ditto.
+	([GSWApplication _monitorApplicationName]): Ditto.
+	([GSWApplication _connectionDidDie:]): Translated comment to allow
+	ascii encoding.
+	([GSWApplication _remoteMonitor]): Test whether NSDistantObject
+	responds to setDebug: before dispatching the method.  Use
+	performSelector: to send undeclared targetForProxy method.
+	([GSWApplication monitoringEnabled]): Forward isMonitorEnabled to
+	class.
+
 2004-01-13  David Ayers  <d.ayers@inode.at>
 
 	* config/pathxml.m4: Whitespace fixes for coding standards.
