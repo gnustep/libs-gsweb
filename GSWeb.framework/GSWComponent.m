@@ -1176,7 +1176,6 @@ associationsKeys:(NSArray*)_associationsKeys
   id _ret=nil;
 
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents", @"parentBindingName_=%@", parentBindingName_);
   NSDebugMLLog(@"gswcomponents", @"parent=%p", (void*)parent);
   if (parent)
     {

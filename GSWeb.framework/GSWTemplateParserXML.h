@@ -28,10 +28,10 @@
 
 #include "GSWTemplateParser.h"
 #include <Foundation/GSXML.h>
-#include <libxml/parser.h>
-#include <libxml/parserInternals.h>
-#include <libxml/SAX.h>
-#include <libxml/HTMLparser.h>
+#include <parser.h>
+#include <parserInternals.h>
+#include <SAX.h>
+#include <HTMLparser.h>
 
 
 @class GSWTemplateParser;

@@ -241,8 +241,9 @@ extern NSData* HexStringToData(NSString* _string);
 @end
 
 //====================================================================
-@interface NSMutableOrderedArray: NSGMutableArray
+@interface NSMutableOrderedArray: NSMutableArray
 {
+  NSMutableArray *array;
   SEL compareSelector;
 };
 -(id)initWithCompareSelector:(SEL)compareSelector;

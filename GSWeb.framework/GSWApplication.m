@@ -256,12 +256,12 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	  // Make sure we pass all exceptions back to the requestor.
 	  NS_HANDLER
 		{
-		  NSDebugFLog(@"Can't create Application (Class:%@)- %@ %@ Name:%@ Reason:%@\n",
-				applicationClass,
-				localException,
-				[localException description],
-				[localException name],
-				[localException reason]);
+		  NSLog(@"Can't create Application (Class:%@)- %@ %@ Name:%@ Reason:%@\n",
+			applicationClass,
+			localException,
+			[localException description],
+			[localException name],
+			[localException reason]);
 		  result=-1;
 		}
 	  NS_ENDHANDLER;

@@ -97,13 +97,23 @@ static char rcsId[] = "$Id$";
 {
   NSMutableArray* array=nil;
   va_list ap;
+  id tmpId;
+
+  array = [NSMutableArray array];
+
   va_start(ap, keys_);
-  array=[[[NSMutableArray alloc]initWithObjects:keys_
-							   rest:ap]
-		  autorelease];
+
+  tmpId = keys_;
+  do {
+    [array addObject:tmpId];
+    tmpId = va_arg(ap,id);
+  }
+  while ( tmpId );
+
   va_end(ap);
+
   [self setObject:object_
-		forKeysArray:array];
+	forKeysArray:array];
 };
 
 //------------------------------------------------------------------------------
@@ -111,11 +121,20 @@ static char rcsId[] = "$Id$";
 {
   NSMutableArray* array=nil;
   va_list ap;
+  id tmpId;
+
+  array = [NSMutableArray array];
   va_start(ap, keys_);
-  array=[[[NSMutableArray alloc]initWithObjects:keys_
-							   rest:ap]
-		  autorelease];
+
+  tmpId = keys_;
+  do {
+    [array addObject:tmpId];
+    tmpId = va_arg(ap,id);
+  }
+  while ( tmpId );
+
   va_end(ap);
+
   return [self objectForKeysArray:array];
 };
 

@@ -24,7 +24,7 @@
 static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
-#include <libxml/SAX.h>
+#include <SAX.h>
 
 extern xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt,
                                                  const xmlChar *buffer);

@@ -81,7 +81,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(id)initWithCoder:(NSCoder*)coder_
 {
-  if ((self = [super initWithCoder:coder_]))
+  if ((self = [super init]))
 	{
 	  [coder_ decodeValueOfObjCType:@encode(id)
 			  at:&name];
@@ -108,7 +108,6 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)coder_
 {
-  [super encodeWithCoder: coder_];
   [coder_ encodeObject:name];
   [coder_ encodeObject:bundle];
   [coder_ encodeObject:observers]; //TODOV

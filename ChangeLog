@@ -1,3 +1,23 @@
+2001-01-29  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWApplication.m (GSWApplicationMain): use NSLog to
+	print the exception.
+	* GSWeb.framework/GSWTransactionRecord.m ([GSWTransactionRecord
+	-initWithCoder:]), ([GSWTransactionRecord -encodeWithCoder:]): NSObject
+	does not support NSCoding. Fixed.
+	* GSWeb.framework/GSWPageDefElement.m ([GSWPageDefElement
+	-initWithCoder:]), ([GSWPageDefElement -encodeWithCoder:]): likewise.
+	* GSWeb.framework/GSWComponentDefinition.m ([GSWComponentDefinition
+	-initWithCoder:]), ([GSWComponentDefinition -encodeWithCoder:]):
+	likewise.
+	* GSWeb.framework/GSWTemplateParserXML.h|m: fixed libxml includes.
+
+	(patches by Sungjin Chun <ninja@linuxone.co.kr>)
+	* GSWeb.framework/GSWUtils.m: changed implementation of
+	NSMutableOrderedArray that now inherits from NSMutableArray.
+	* GSWeb.framework/GSWUtils.h (NSMutableArray): added ivar.
+	* GSWeb.framework/GSWMultiKeyDictionary.m: fixes.
+
 2000-12-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWDisplayGroup.m ([GSWDisplayGroup

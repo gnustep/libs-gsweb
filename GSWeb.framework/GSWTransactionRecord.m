@@ -67,7 +67,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(id)initWithCoder:(NSCoder*)coder_
 {
-  if ((self = [super initWithCoder:coder_]))
+  if ((self = [super init]))
 	{
 	  [coder_ decodeValueOfObjCType:@encode(id)
 			  at:&responsePage];
@@ -80,7 +80,6 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)coder_
 {
-  [super encodeWithCoder: coder_];
   [coder_ encodeObject:responsePage];
   [coder_ encodeObject:requestSignature];
 };

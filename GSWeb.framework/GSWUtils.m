@@ -594,17 +594,49 @@ void ValidationExceptionRaiseFn0(const char *func,
 @end
 
 //====================================================================
-@implementation NSMutableOrderedArray: NSGMutableArray
+@implementation NSMutableOrderedArray: NSMutableArray
 
 //--------------------------------------------------------------------
--(id)initWithCompareSelector:(SEL)compareSelector_
+- (id)initWithCompareSelector:(SEL)compareSelector_
 {
   if ((self=[super init]))
-	{
-	  compareSelector=compareSelector_;
-	};
+    {
+      array = [[NSMutableArray array] retain];
+      compareSelector=compareSelector_;
+    }
+
   return self;
 };
+
+- (id)initWithCapacity:(unsigned)cap
+{
+  array = [[NSMutableArray array] retain];
+  compareSelector=NULL;
+
+  return self;
+}
+
+- (unsigned)count
+{
+  return [array count];
+}
+
+- (id)objectAtIndex:(unsigned)i
+{
+  return [array objectAtIndex:i];
+}
+
+- (void)removeObjectAtIndex:(unsigned)i
+{
+  [array removeObjectAtIndex:i];
+}
+
+- (void)release
+{
+  [array release];
+  compareSelector=NULL;
+  [super dealloc];
+}
 
 //--------------------------------------------------------------------
 -(void)addObject:(id)object_
@@ -612,53 +644,60 @@ void ValidationExceptionRaiseFn0(const char *func,
   //TODO better method
   int i=0;
   NSComparisonResult _result=NSOrderedSame;
-  for(i=0;_result!=NSOrderedDescending && i<[self count];i++)
-	{
-	  _result=(NSComparisonResult)[object_ performSelector:compareSelector
-										   withObject:[self objectAtIndex:i]];
-	  if (_result==NSOrderedDescending)
-		[super insertObject:object_
-			   atIndex:i];
-	};
+
+  for(i=0;_result!=NSOrderedDescending && i<[array count];i++)
+    {
+      _result=(NSComparisonResult)[object_ performSelector:compareSelector
+					   withObject:[array objectAtIndex:i]];
+
+      if (_result==NSOrderedDescending)
+	[array insertObject:object_
+	       atIndex:i];
+    };
+
   if (_result!=NSOrderedDescending)
-		[super addObject:object_];
+    [array addObject:object_];
 };
 
 //--------------------------------------------------------------------
 -(void)addObjectsFromArray:(NSArray*)array_
 {
   int i;
+
   for(i=0;i<[array_ count];i++)
-	{
-	  [self addObject:[array_ objectAtIndex:i]];
-	};
+    {
+      [array addObject:[array_ objectAtIndex:i]];
+    };
 };
 
 //--------------------------------------------------------------------
 -(void)insertObject:(id)object_
 			atIndex:(unsigned int)index_
 {
-   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
-   [NSException raise:@"NSMutableOrderedArray"
-				format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
+
+  [NSException raise:@"NSMutableOrderedArray"
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
 };
 
 //--------------------------------------------------------------------
 -(void)replaceObjectAtIndex:(unsigned int)index_
 				 withObject:(id)object_
 {
-   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
-   [NSException raise:@"NSMutableOrderedArray"
-				format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
+
+  [NSException raise:@"NSMutableOrderedArray"
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
 };
 
 //--------------------------------------------------------------------
 -(void)replaceObjectsInRange:(NSRange)range_
 		withObjectsFromArray:(NSArray*)array_
 {
-   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
-   [NSException raise:@"NSMutableOrderedArray"
-				format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
+
+  [NSException raise:@"NSMutableOrderedArray"
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
 };
 
 //--------------------------------------------------------------------
@@ -666,15 +705,16 @@ void ValidationExceptionRaiseFn0(const char *func,
 		withObjectsFromArray:(NSArray*)array_
 					   range:(NSRange)arrayRange_
 {
-   LOGException0(@"NSMutableOrderedArray doesn't support this fn");
-   [NSException raise:@"NSMutableOrderedArray"
-				format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
+
+  [NSException raise:@"NSMutableOrderedArray"
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
 };
 
 //--------------------------------------------------------------------
 -(void)setArray:(NSArray*)array_
 {
-  [super setArray:[array_ sortedArrayUsingSelector:compareSelector]];
+  [array setArray:[array_ sortedArrayUsingSelector:compareSelector]];
 };
 
 @end
