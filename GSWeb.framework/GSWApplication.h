@@ -489,6 +489,7 @@ extern BOOL WOStrictFlag;
 -(void)setMinimumActiveSessionsCount:(int)aCount;
 -(BOOL)isRefusingNewSessions;
 -(void)refuseNewSessions:(BOOL)flag;
+-(NSTimeInterval)_refuseNewSessionsTimeInterval;
 -(void)logToMonitorWithFormat:(NSString*)aFormat;
 -(void)terminateAfterTimeInterval:(NSTimeInterval)aTimeInterval;
 @end
@@ -617,6 +618,8 @@ extern BOOL WOStrictFlag;
 +(void)setDefaultTemplateParser:(NSString*)defaultTemplateParser;//NDFN
 +(BOOL)defaultDisplayExceptionPages;//NDFN
 +(void)setDefaultDisplayExceptionPages:(BOOL)flag;//NDFN
++(void)_setAllowsCacheControlHeader:(BOOL)flag;
++(BOOL)_allowsCacheControlHeader;
 @end
 
 //====================================================================

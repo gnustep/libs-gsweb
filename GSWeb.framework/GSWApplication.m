@@ -435,6 +435,8 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                        GSWOPTVALUE_AcceptedContentEncoding);
           NSDebugFLLog(@"options",@"DisplayExceptionPages -> %@",
                        GSWOPTVALUE_DisplayExceptionPages);
+          NSDebugFLLog(@"options",@"DisplayExceptionPages -> %@",
+                       GSWOPTVALUE_AllowsCacheControlHeader);
 
           defaultsOptions = 
             [NSDictionary dictionaryWithObjectsAndKeys:
@@ -563,6 +565,9 @@ int GSWApplicationMainReal(NSString* applicationClassName,
 
                           GSWOPTVALUE_DisplayExceptionPages,			
                           GSWOPT_DisplayExceptionPages[GSWebNamingConv],
+
+                          GSWOPTVALUE_AllowsCacheControlHeader,			
+                          GSWOPT_AllowsCacheControlHeader[GSWebNamingConv],
                           
                           nil];
           NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",globalAppDefaultOptions);
@@ -4328,6 +4333,34 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
+-(NSTimeInterval)_refuseNewSessionsTimeInterval
+{
+  NSTimeInterval ti=0;
+  NSTimeInterval sessionTimeOut=0;
+  int activeSessionsCount=0;
+
+  LOGObjectFnStart();
+
+  sessionTimeOut=[[self class]sessionTimeOutValue];
+  activeSessionsCount=[self activeSessionsCount];
+  
+  if (activeSessionsCount>0) // Is there active sessions ?
+    {
+      // Wait for 1/4 of session time out
+      ti = sessionTimeOut / 4;
+    };
+  if (ti<15)
+    ti = 15;
+
+  NSDebugMLog(@"activeSessionsCount=%d sessionTimeOut=%f ==> refuseNewSessionsTimeInterval=%f",
+              activeSessionsCount,sessionTimeOut,ti);
+
+  LOGObjectFnStop();
+
+  return ti;
+}
+
+//--------------------------------------------------------------------
 //logToMonitorWithFormat:
 -(void)logToMonitorWithFormat:(NSString*)aFormat 
 {
@@ -5204,6 +5237,7 @@ to another instance **/
   LOGClassFnStop();
 };
 
+//--------------------------------------------------------------------
 +(NSTimeInterval)sessionTimeOutValue
 {
   id sessionTimeOut=nil;
@@ -5332,6 +5366,21 @@ to another instance **/
   [[NSUserDefaults standardUserDefaults] 
     setObject:[NSNumber numberWithBool:flag]
     forKey:GSWOPT_DisplayExceptionPages[GSWebNamingConv]];
+};
+
+//--------------------------------------------------------------------
++(BOOL)_allowsCacheControlHeader
+{
+  return [[[NSUserDefaults standardUserDefaults] 
+            objectForKey:GSWOPT_AllowsCacheControlHeader[GSWebNamingConv]] boolValue];
+};
+
+//--------------------------------------------------------------------
++(void)_setAllowsCacheControlHeader:(BOOL)flag
+{
+  [[NSUserDefaults standardUserDefaults] 
+    setObject:[NSNumber numberWithBool:flag]
+    forKey:GSWOPT_AllowsCacheControlHeader[GSWebNamingConv]];
 };
 
 @end
