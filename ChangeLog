@@ -1,3 +1,59 @@
+2004-01-09   Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWExtensionsGSW.framework/GSWLogin.m:
+		o removed date stuff
+	* GSWExtensionsGSW.framework/GSWLogin.h:
+		o removed date stuff
+		o cleaned
+	* GSWeb.framework/GSWMultiKeyDictionary.h/.m:
+		o rewritten to avoid creation of temporary arrays,...
+	* GSWeb.framework/GSWConstants.h/.m:
+		o added urlPrefix__Key
+	* GSWeb.framework/GSWContext.h/.m:
+		manage urlPrefix
+		o added -urlWithURLPrefix:requestHandlerKey:
+			path:queryString:isSecure:port:
+		o added -urlWithURLPrefix:RequestHandlerKey:
+			path:queryString:
+		o added -completeURLWithURLPrefix:requestHandlerKey:
+        		path:queryString:isSecure:port:
+		o added -directActionURLForActionNamed:urlPrefix:
+			queryDictionary:
+		o added -directActionURLForActionNamed:urlPrefix:
+			queryDictionary:pathQueryDictionary:
+		o added -directActionURLForActionNamed:urlPrefix:
+			queryDictionary:isSecure:
+		o added -directActionURLForActionNamed:urlPrefix:
+			queryDictionary:pathQueryDictionary:isSecure:
+		o added -_directActionURLForActionNamed:urlPrefix:
+			queryDictionary:url:
+		o added -_directActionURLForActionNamed:urlPrefix:
+			queryDictionary:pathQueryDictionary:url:
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o fix in batchCount to use _displayedObjects instead of 
+			_allObjects
+	* GSWeb.framework/GSWDeployedBundle.m:
+		o modified use of GSWMultiKeyDictionary to avoid creation of 
+			temporary arrays
+	* GSWeb.framework/GSWDynamicURLString.h:
+		o inherit from NSMutableString
+	* GSWeb.framework/GSWDynamicURLString.m:
+		o added primitives
+	* GSWeb.framework/GSWElementIDString.m:
+		o added primitive -setString
+		o changes for MOSX compatibility
+	* GSWeb.framework/GSWHyperlink.m:
+		o added -_appendContentStringToResponse:inContext:
+		o added -_appendChildrenToResponse:inContext:
+		o change in -appendToResponse:inContext: to call _appendChildrenToResponse:inContext:
+		o added _urlPrefix
+	* GSWeb.framework/GSWHyperlink.h:
+		o added _urlPrefix
+	* GSWeb.framework/GSWRecording.m:
+		o fix in -_wildcardedResponse:
+	* GSWeb.framework/GSWRequest.h/.m:
+		o added -_urlWithURLPrefix:requestHandlerKey:path:queryString:
+
 2004-01-07  David Ayers  <d.ayers@inode.at>
 
 	* GSWExtensions.framework/Makefile.preamble: Correct
