@@ -39,6 +39,7 @@
   GSWAssociation* selectedValue;
   GSWAssociation* noSelectionString;
   GSWAssociation* escapeHTML;
+  BOOL autoValue;
 };
 
 -(void)dealloc;

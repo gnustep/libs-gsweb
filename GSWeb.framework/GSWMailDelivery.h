@@ -30,6 +30,7 @@
 //====================================================================
 @interface GSWMailDelivery : NSObject
 {
+  NSString *sender;
 };
 
 +(GSWMailDelivery*)sharedInstance;

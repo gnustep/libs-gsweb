@@ -122,6 +122,41 @@ static char rcsId[] = "$Id$";
   return _name;
 };
 
+static int countAutoValue = 0;
+
+//--------------------------------------------------------------------
+- (NSString *)valueInContext:(GSWContext *)_context
+{
+  //OK
+  GSWComponent *_component=nil;
+  NSString *_value=nil;
+
+  LOGObjectFnStartC("GSWInput");
+  countAutoValue++;
+  if(value)
+    {
+      _component=[_context component];
+      _value=[value valueInComponent:_component];
+    }
+  else
+    {
+      _value=[NSString stringWithFormat:@"%@.%d", [_context elementID], countAutoValue];
+      NSDebugMLLog(@"gswdync",@"_elementID=%@ _countAutoValue",[_context elementID], countAutoValue);
+    }
+  LOGObjectFnStopC("GSWInput");
+  return _value;
+}
+
+//--------------------------------------------------------------------
+- (void)resetAutoValue
+{
+  LOGObjectFnStartC("GSWInput");
+
+  countAutoValue = 0;
+
+  LOGObjectFnStopC("GSWInput");
+}
+
 //--------------------------------------------------------------------
 -(BOOL)disabledInContext:(GSWContext*)_context
 {

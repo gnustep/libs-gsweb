@@ -1019,6 +1019,13 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(EOEditingContext*)defaultEditingContext
 {
+#if GDL2
+  if(editingContext == nil)
+    {
+      ASSIGN(editingContext, [[[EOEditingContext alloc] init] autorelease]);
+    }
+#endif
+
   return editingContext;
 };
 

@@ -38,6 +38,7 @@
   GSWAssociation* displayString;
   GSWAssociation* escapeHTML;
   BOOL defaultEscapeHTML;
+  BOOL autoValue;
 };
 
 -(id)initWithName:(NSString*)name_

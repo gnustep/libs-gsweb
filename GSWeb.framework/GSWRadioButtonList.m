@@ -134,6 +134,8 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL _disabledInContext=NO;
   LOGObjectFnStart();
+
+  [self resetAutoValue];
   _disabledInContext=[self disabledInContext:context_];
   if (!_disabledInContext)
 	{
@@ -169,22 +171,23 @@ static char rcsId[] = "$Id$";
 				[index setValue:[NSNumber numberWithShort:i]
 					   inComponent:_component];
 			  NSDebugMLLog(@"gswdync",@"value=%@",value);
-			  if (value)
-				{
+
 				  //TODOV
-				  _valueValue=[value valueInComponent:_component];
-				  NSDebugMLLog(@"gswdync",@"_valueValue=%@",_valueValue);
-				  if (_valueValue)
-					{
-					  BOOL _isEqual=SBIsValueEqual(_valueValue,_formValue);
-					  NSDebugMLLog(@"gswdync",@"_isEqual=%s",(_isEqual ? "YES" : "NO"));
-					  if (_isEqual)
-						{
-						  _valueToSet=_valueValue;
-						  _foundIndex=i;
-						};
-					};
+			  _valueValue=[self valueInContext:context_];
+			  NSDebugMLLog(@"gswdync",@"_valueValue=%@",_valueValue);
+			  if (_valueValue)
+			    {
+			      BOOL _isEqual=SBIsValueEqual(_valueValue,_formValue);
+			      NSDebugMLLog(@"gswdync",@"_isEqual=%s",(_isEqual ? "YES" : "NO"));
+			      if (_isEqual)
+				{
+				  if(autoValue == NO)
+				    _valueToSet=_valueValue;
+				  else
+				    _valueToSet=[_listValue objectAtIndex:i];
+				  _foundIndex=i;
 				};
+			    };
 			};
 		  NSDebugMLLog(@"gswdync",@"_component=%@",_component);
 		  NSDebugMLLog(@"gswdync",@"_foundIndex=%d",_foundIndex);
@@ -194,7 +197,7 @@ static char rcsId[] = "$Id$";
 		  NS_DURING
 			{
 			  if (_foundIndex>=0)
-				[selection setValue:_valueValue
+				[selection setValue:_valueToSet
 						   inComponent:_component];
 			  else
 				[selection setValue:nil
@@ -208,7 +211,7 @@ static char rcsId[] = "$Id$";
 		  NS_ENDHANDLER;
 #else
 		  if (_foundIndex>=0)
-			[selection setValue:_valueValue
+			[selection setValue:_valueToSet
 					   inComponent:_component];
 		  else
 			[selection setValue:nil
@@ -246,6 +249,8 @@ static char rcsId[] = "$Id$";
   id _valueValue=nil;
   BOOL _isEqual=NO;
   LOGObjectFnStart();
+  [self resetAutoValue];
+  autoValue = NO;
   _request=[context_ request];
   _isFromClientComponent=[_request isFromClientComponent];
   _name=[self nameInContext:context_];
@@ -269,11 +274,17 @@ static char rcsId[] = "$Id$";
 	  [response_ appendContentString:@"<INPUT NAME=\""];
 	  [response_ appendContentString:_name];
 	  [response_ appendContentString:@"\" TYPE=radio VALUE=\""];
-	  _valueValue=[value valueInComponent:_component];
+	  _valueValue=[self valueInContext:context_];
 	  [response_ appendContentHTMLAttributeValue:_valueValue];
 	  [response_ appendContentCharacter:'"'];
 	  //TODOV
-	  _isEqual=SBIsValueEqual(_valueValue,_selectionValue);
+	  if(value)
+	    _isEqual=SBIsValueEqual(_valueValue,_selectionValue);
+	  else
+	    {
+	      _isEqual=SBIsValueEqual([_listValue objectAtIndex:i],_selectionValue);
+	      autoValue = YES;
+	    }
 	  if (_isEqual)
 		[response_ appendContentString:@"\" CHECKED"];
 	  [response_ appendContentCharacter:'>'];

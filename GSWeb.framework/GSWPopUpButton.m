@@ -143,6 +143,8 @@ static char rcsId[] = "$Id$";
   BOOL _optGroupLabel=NO;
 #endif
   LOGObjectFnStartC("GSWPopUpButton");
+  [self resetAutoValue];
+  autoValue = NO;
   _request=[context_ request];
   _isFromClientComponent=[_request isFromClientComponent];
   _component=[context_ component];
@@ -193,34 +195,51 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLLog(@"gswdync",@"_itemValue=%@",_itemValue);
 	  if (_itemValue)
 		{
-		  _valueValue=nil;
 		  NSDebugMLLog(@"gswdync",@"value=%@",value);
-		  if (value)
+		  _valueValue=[self valueInContext:context_];
+		  NSDebugMLLog(@"gswdync",@"_valueValue=%@",_valueValue);
+		  if (_valueValue)
+		    {
+		      BOOL _isEqual;
+
+		      NSDebugMLLog0(@"gswdync",@"Adding OPTION");
+		      [response_ _appendContentAsciiString:@"\n<OPTION"];
+		      if (selection)
 			{
-			  _valueValue=[value valueInComponent:_component];
-			  NSDebugMLLog(@"gswdync",@"_valueValue=%@",_valueValue);
-			  if (_valueValue)
-				{
-				  NSDebugMLLog0(@"gswdync",@"Adding OPTION");
-				  [response_ _appendContentAsciiString:@"\n<OPTION"];
-				  if (selectedValue)
-					{
-					  BOOL _isEqual=SBIsValueEqual(_valueValue,_selectedValueValue);
-					  if (_isEqual)
-						{
-						  [response_ appendContentCharacter:' '];
-						  [response_ _appendContentAsciiString:@"selected"];
-						};
-					};
-				  if (value)
-					{
-					  [response_ _appendContentAsciiString:@" value=\""];
-					  [response_ _appendContentAsciiString:_valueValue];
-					  [response_ appendContentCharacter:'"'];
-					};
-				  [response_ appendContentCharacter:'>'];
-				};
+			  if(value)
+			    _isEqual=SBIsValueEqual(_valueValue,_selectionValue);
+			  else
+			    _isEqual=SBIsValueEqual(_itemValue,_selectionValue);
+
+			  if (_isEqual)
+			    {
+			      [response_ appendContentCharacter:' '];
+			      [response_ _appendContentAsciiString:@"selected"];
+			    };
 			};
+		      if (_isEqual == NO && selectedValue)
+			{
+			  if(value)
+			    _isEqual=SBIsValueEqual(_valueValue,_selectedValueValue);
+			  else
+			    _isEqual=SBIsValueEqual(_itemValue,_selectedValueValue);
+
+			  if (_isEqual)
+			    {
+			      [response_ appendContentCharacter:' '];
+			      [response_ _appendContentAsciiString:@"selected"];
+			    };
+			};
+		      if (value == nil)
+			autoValue = YES;
+		      if (_valueValue)
+			{
+			  [response_ _appendContentAsciiString:@" value=\""];
+			  [response_ _appendContentAsciiString:_valueValue];
+			  [response_ appendContentCharacter:'"'];
+			};
+		      [response_ appendContentCharacter:'>'];
+		    };
 		  _displayStringValue=nil;
 		  if (displayString)
 			{
@@ -330,6 +349,7 @@ static char rcsId[] = "$Id$";
   BOOL _disabled=NO;
   BOOL _wasFormSubmitted=NO;
   LOGObjectFnStartC("GSWPopUpButton");
+  [self resetAutoValue];
   _disabled=[self disabledInContext:context_];
   if (!_disabled)
 	{
@@ -370,14 +390,16 @@ static char rcsId[] = "$Id$";
 					[item setValue:_itemValue
 						  inComponent:_component];
 				  NSDebugMLLog(@"gswdync",@"value=%@",value);
-				  if (value)
-					_valueValue=[value valueInComponent:_component];
+				  _valueValue=[self valueInContext:context_];
 				  NSDebugMLLog(@"gswdync",@"_valueValue=%@ [class=%@] _formValue=%@ [class=%@]",
 						 _valueValue,[_valueValue class],
 						 _formValue,[_formValue class]);
 				  _isEqual=SBIsValueEqual(_valueValue,_formValue);
 				  if (_isEqual)
 					{
+					  if(autoValue == NO)
+					    _itemValue = _valueValue;
+
 					  NSDebugMLLog(@"gswdync",@"selection=%@",selection);
 					  if (selection)
 						{

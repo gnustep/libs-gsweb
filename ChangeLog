@@ -1,3 +1,19 @@
+2000-07-27  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWInput.m/.h: implemented (-valueInContext:) and (-resetAutoValue) to manage auto value attribute
+	* GSWRadioButtonList.m/.h: fix to use the correct variable to set the selection binding.
+	  Implemented auto value attribute
+	* GSWPopUpButton.m/.h: fix to select object in the selection binding.
+	  Implemented auto value attribute
+	* GSWMailDelivery.m/.h: use the real sender in the sendmail command line
+	  The following are changes made to support GDL2. Compile with -DGDL2
+	* GSWSession.m: (-defaultEditingContext) create the default EOEditingContext
+	* GSWComponent.m: (-setValue:forBinding:) if the parent doesn't provide the bindingName, attempts to set the value in the current component using takeValue:forKey:
+	  (-valueForKeyBinding:) if the parent doesn't provide the bindingName, attempts to get the value from the current component using valueForKey:
+	* GSWDisplayGroup.m/.h: implemented
+	* NSObject+IVarAccess+PerfomSel.m: implemented (-getIVarNamed:) and (-setIVarNamed:withValue:) using EOKeyValueCoding protocol.
+	  Now components have the responsibility to release its bindings.
+
 2000-07-08  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/Apache/GNUmakefile: added -I/usr/include/apache in APACHEHEADERS
 	* GSWAdaptors/common/GSWConfig.c: added directive name in GSWConfig_SetConfigFilePath errore message

@@ -166,6 +166,46 @@ const char* GSGetInstanceVariableType(id obj, NSString *iVarName)
   return selector;
 };
 
+#if GDL2
+
+//--------------------------------------------------------------------
+- (id)getIVarNamed:(NSString *)name_
+{
+  id value;
+
+  NSLog(@"%@", name_);
+  NS_DURING
+    value = [self valueForKey:name_];
+  NS_HANDLER
+    {
+      if([self respondsToSelector:@selector(objectForKey:)] == YES)
+	value = [self objectForKey:name_];
+      else
+	[localException raise];
+    }
+  NS_ENDHANDLER;
+
+  return value;
+}
+
+//--------------------------------------------------------------------
+- (void)setIVarNamed:(NSString *)name_
+	   withValue:(id)value_
+{
+  NS_DURING
+    [self takeValue:value_ forKey:name_];
+  NS_HANDLER
+    {
+      if([self respondsToSelector:@selector(setObject:forKey:)] == YES)
+	[self setObject:value_ forKey:name_];
+      else
+	[localException raise];
+    }
+  NS_ENDHANDLER;
+}
+
+#else
+
 //--------------------------------------------------------------------
 id PDataToId(const char* retType,void* pdata)
 {
@@ -744,7 +784,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		  withCacheObject:_ivarAccess];
 //  LOGObjectFnStop();
 };
-
+#endif
 
 
 

@@ -52,6 +52,8 @@
 //====================================================================
 @interface GSWInput (GSWInputA)
 -(NSString*)nameInContext:(GSWContext*)context_;
+-(NSString*)valueInContext:(GSWContext*)context_;
+-(void)resetAutoValue;
 -(BOOL)disabledInContext:(GSWContext*)context_;
 @end
 

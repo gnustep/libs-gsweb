@@ -28,11 +28,23 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWMailDelivery
 
+static GSWMailDelivery *sharedInstance;
+
+
++ (void)initialize
+{
+  sharedInstance = [GSWMailDelivery new];
+}
+
 +(GSWMailDelivery*)sharedInstance
 {
-  LOGClassFnNotImplemented();	//TODOFN
-  return [[GSWMailDelivery new] autorelease];
+  return sharedInstance;
 };
+
+- (void)dealloc
+{
+  DESTROY(sender);
+}
 
 -(NSString*)composeEmailFrom:(NSString*)sender_
 						  to:(NSArray*)to_
@@ -88,6 +100,7 @@ static char rcsId[] = "$Id$";
   NSDebugMLog(@"subject_=%@",subject_);
   NSDebugMLog(@"plainTextMessage_=%@",plainTextMessage_);
   NSDebugMLog(@"sendNow_=%d",(int)sendNow_);
+  ASSIGN(sender, sender_);
   for(i=0;i<_count;i++)
 	{
 	  if (!_to)
@@ -157,7 +170,7 @@ static char rcsId[] = "$Id$";
   _emailString=[emailString_ stringByReplacingString:@"&"
 							 withString:@"\\&"];
   NSDebugMLog(@"_emailString=%@",_emailString);
-  _command=[NSString stringWithFormat:@"echo \"%@\" | /usr/sbin/sendmail manu@sbuilders.com",_emailString];
+  _command=[NSString stringWithFormat:@"echo \"%@\" | /usr/sbin/sendmail \"%@\"",_emailString, sender];
   system([_command cString]);
 };
 

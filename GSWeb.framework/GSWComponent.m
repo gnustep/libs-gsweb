@@ -832,8 +832,18 @@ associationsKeys:(NSArray*)_associationsKeys
 	{
 	  _assoc=[self _associationWithName:parentBindingName_];
 	  NSDebugMLLog(@"gswcomponents",@"_assoc=%@",_assoc);
-	  [_assoc setValue:value_
-			  inComponent:parent];
+	  if(_assoc)
+	    [_assoc setValue:value_
+		    inComponent:parent];
+#if GDL2
+	  else
+	    {
+	      NS_DURING
+		[self takeValue:value_ forKey:parentBindingName_];
+	      NS_HANDLER;
+	      NS_ENDHANDLER;
+	    }
+#endif
 	};
   LOGObjectFnStop();
 };
@@ -851,7 +861,17 @@ associationsKeys:(NSArray*)_associationsKeys
 	{
 	  _assoc=[self _associationWithName:parentBindingName_];
 	  NSDebugMLLog(@"gswcomponents",@"_assoc=%@",_assoc);
-	  _value=[_assoc valueInComponent:parent];
+	  if(_assoc)
+	    _value=[_assoc valueInComponent:parent];
+#if GDL2
+	  else
+	    {
+	      NS_DURING
+		_value = [self valueForKey:parentBindingName_];
+	      NS_HANDLER;
+	      NS_ENDHANDLER;
+	    }
+#endif
 	  NSDebugMLLog(@"gswcomponents",@"_value=%@",_value);
 	};
   LOGObjectFnStop();
