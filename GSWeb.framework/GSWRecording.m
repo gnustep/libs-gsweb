@@ -194,7 +194,7 @@ RCS_ID("$Id$")
                      range:NSMakeRange(0,[contentString length])];
     };
 
-  applicationURLPrefix=[NSString stringWithString:(NSString*)[_request _applicationURLPrefix]];
+  applicationURLPrefix=[_request _applicationURLPrefix];
   NSDebugMLLog(@"GSWRecording",@"applicationURLPrefix=%@",
                applicationURLPrefix);
   NSAssert(applicationURLPrefix,@"No applicationURLPrefix");
