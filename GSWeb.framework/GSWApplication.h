@@ -53,6 +53,8 @@ extern BOOL WOStrictFlag;
   GSWSessionStore* _sessionStore;
   GSWMultiKeyDictionary* _componentDefinitionCache;
   NSTimeInterval _timeOut;
+  NSDate* _startDate;
+  NSDate* _lastAccessDate;
   NSTimer* _timer;
 //  GSWContext* context;        // being deprecated
   GSWStatisticsStore* _statisticsStore;
@@ -99,6 +101,9 @@ extern BOOL WOStrictFlag;
   NSDate* _runLoopDate;
   NSTimer* _initialTimer;
   NSLock* _activeSessionsCountLock;
+
+  GSWLifebeatThread* _lifebeatThread;
+  id _recorder;
 }
 
 -(void)dealloc;
@@ -119,6 +124,7 @@ extern BOOL WOStrictFlag;
 
 -(NSString*)number;
 -(NSString*)path;
+-(BOOL)isTaskDaemon;
 -(NSString*)name;
 -(NSString*)description;
 -(void)setPageRefreshOnBacktrackEnabled:(BOOL)flag;
@@ -142,9 +148,9 @@ extern BOOL WOStrictFlag;
 
 //====================================================================
 @interface GSWApplication (GSWApplicationB)
--(id)_webserverConnectURL;
+-(NSString*)_webserverConnectURL;
 -(NSString*)_directConnectURL;
--(id)_applicationExtension;
+-(NSString*)_applicationExtension;
 @end
 
 //====================================================================
@@ -173,7 +179,12 @@ extern BOOL WOStrictFlag;
 -(NSString*)contextClassName;
 -(GSWContext*)createContextForRequest:(GSWRequest*)aRequest;
 
+-(void)setResponseClassName:(NSString*)className;
+-(NSString*)responseClassName;
 -(GSWResponse*)createResponseInContext:(GSWContext*)aContext;
+
+-(void)setRequestClassName:(NSString*)className;
+-(NSString*)requestClassName;
 -(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
                                   uri:(NSString*)anURL
                           httpVersion:(NSString*)aVersion
@@ -182,6 +193,8 @@ extern BOOL WOStrictFlag;
                              userInfo:(NSDictionary*)userInfo;
 
 -(GSWResourceManager*)createResourceManager;
+-(GSWStatisticsStore*)createStatisticsStore;
+-(GSWSessionStore*)createSessionStore;
 -(void)_discountTerminatedSession;
 -(void)_finishInitializingSession:(GSWSession*)aSession;
 -(GSWSession*)_initializeSessionInContext:(GSWContext*)aContext;
@@ -218,7 +231,7 @@ extern BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication (GSWApplicationJ)
 
--(id)_newLocationForRequest:(GSWRequest*)aRequest;
+-(NSString*)_newLocationForRequest:(GSWRequest*)aRequest;
 -(void)_connectionDidDie:(id)unknown;
 -(BOOL)_shouldKill;
 -(void)_setShouldKill:(BOOL)flag;
@@ -260,6 +273,7 @@ extern BOOL WOStrictFlag;
 -(GSWSession*)createSessionForRequest:(GSWRequest*)aRequest;
 -(GSWSession*)_createSessionForRequest:(GSWRequest*)aRequest;
 -(Class)_sessionClass;
+-(Class)sessionClass;//NDFN
 -(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
                          inContext:(GSWContext*)aContext;
 -(GSWSession*)_restoreSessionWithID:(NSString*)aSessionID
@@ -311,9 +325,12 @@ extern BOOL WOStrictFlag;
 -(BOOL)isTerminating;
 
 -(void)_scheduleApplicationTimerForTimeInterval:(NSTimeInterval)aTimeInterval;
+
+-(NSDate*)lastAccessDate;//NDFN
+-(NSDate*)startDate;//NDFN
+
+-(void)lockedAddTimer:(NSTimer*)aTimer;//NDFN
 -(void)addTimer:(NSTimer*)aTimer;//NDFN
--(void)cancelInitialTimer;
--(void)handleInitialTimer;
 -(void)_setNextCollectionCount:(int)_count;
 -(void)_sessionDidTimeOutNotification:(NSNotification*)notification_;
 -(void)_openInitialURL;
@@ -331,6 +348,9 @@ extern BOOL WOStrictFlag;
 
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext;
+-(void)_setRecordingHeadersToResponse:(GSWResponse*)aResponse
+                           forRequest:(GSWRequest*)aRequest
+                            inContext:(GSWContext*)aContext;
 -(void)sleep;
 @end
 
@@ -502,8 +522,8 @@ extern BOOL WOStrictFlag;
 +(void)setStatusDebuggingEnabled:(BOOL)flag;//NDFN
 +(BOOL)autoOpenInBrowser;
 +(void)setAutoOpenInBrowser:(BOOL)flag;
-+(BOOL)isDirectConnectEnabled;
-+(void)setDirectConnectEnabled:(BOOL)flag;
+-(BOOL)isDirectConnectEnabled;
+-(void)setDirectConnectEnabled:(BOOL)flag;
 +(NSString*)cgiAdaptorURL;
 +(void)setCGIAdaptorURL:(NSString*)url;
 +(BOOL)isCachingEnabled;
@@ -514,8 +534,18 @@ extern BOOL WOStrictFlag;
 +(void)setFrameworksBaseURL:(NSString*)baseURL;
 +(NSString*)recordingPath;
 +(void)setRecordingPath:(NSString*)path;
++(NSString*)outputPath;
++(void)setOutputPath:(NSString*)path;
 +(NSArray*)projectSearchPath;
 +(void)setProjectSearchPath:(NSArray*)pathArray;
++(BOOL)isLifebeatEnabled;
++(void)setLifebeatEnabled:(BOOL)flag;
++(NSString*)lifebeatDestinationHost;
++(void)setLifebeatDestinationHost:(NSString*)host;
++(int)lifebeatDestinationPort;
++(void)setLifebeatDestinationPort:(int)port;
++(NSTimeInterval)lifebeatInterval;
++(void)setLifebeatInterval:(NSTimeInterval)interval;
 +(BOOL)isMonitorEnabled;
 +(void)setMonitorEnabled:(BOOL)flag;
 +(NSString*)monitorHost;
@@ -524,14 +554,20 @@ extern BOOL WOStrictFlag;
 +(void)setSMTPHost:(NSString*)hostName;
 +(NSString*)adaptor;
 +(void)setAdaptor:(NSString*)adaptorName;
-+(id)port;
-+(void)setPort:(id)port;
-+(id)host;
-+(void)setHost:(id)host;
++(NSNumber*)port;
++(void)setPort:(NSNumber*)port;
++(int)intPort;
++(void)setIntPort:(int)port;
++(NSString*)host;
++(void)setHost:(NSString*)host;
 +(id)listenQueueSize;
 +(void)setListenQueueSize:(id)aSize;
 +(id)workerThreadCount;
 +(void)setWorkerThreadCount:(id)workerThreadCount;
++(id)workerThreadCountMin;
++(void)setWorkerThreadCountMin:(id)workerThreadCount;
++(id)workerThreadCountMax;
++(void)setWorkerThreadCountMax:(id)workerThreadCount;
 +(NSArray*)additionalAdaptors;
 +(void)setAdditionalAdaptors:(NSArray*)adaptorList;
 +(BOOL)includeCommentsInResponses;
@@ -540,16 +576,38 @@ extern BOOL WOStrictFlag;
 +(void)setComponentRequestHandlerKey:(NSString*)aKey;
 +(NSString*)directActionRequestHandlerKey;
 +(void)setDirectActionRequestHandlerKey:(NSString*)aKey;
++(NSString*)streamActionRequestHandlerKey;
++(void)setStreamActionRequestHandlerKey:(NSString*)aKey;
 +(NSString*)resourceRequestHandlerKey;
 +(void)setResourceRequestHandlerKey:(NSString*)aKey;
++(NSString*)pingActionRequestHandlerKey;
++(void)setPingActionRequestHandlerKey:(NSString*)aKey;
++(NSString*)staticResourceRequestHandlerKey;
++(void)setStaticResourceRequestHandlerKey:(NSString*)aKey;
+-(NSString*)defaultRequestHandlerClassName;
+-(Class)defaultRequestHandlerClass;
++(NSString*)resourceManagerClassName;
++(void)setResourceManagerClassName:(NSString*)name;
++(NSString*)statisticsStoreClassName;
++(void)setStatisticsStoreClassName:(NSString*)name;
++(NSString*)sessionStoreClassName;
++(void)setSessionStoreClassName:(NSString*)name;
++(NSString*)recordingClassName;
++(void)setRecordingClassName:(NSString*)name;
++(Class)recordingClass;
 +(void)setSessionTimeOut:(NSNumber*)aTimeOut;
 +(NSNumber*)sessionTimeOut;
 +(void)setSessionTimeOutValue:(NSTimeInterval)aTimeOutValue;
 +(NSTimeInterval)sessionTimeOutValue;
 +(NSString*)debugSetConfigFilePath;//NDFN
++(void)setDefaultUndoStackLimit:(int)limit;
++(int)defaultUndoStackLimit;
++(BOOL)_lockDefaultEditingContext;
++(void)_setLockDefaultEditingContext:(BOOL)flag;
 +(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath;//NDFN
-+(NSString*)saveResponsesPath;//NDFN
-+(void)setSaveResponsesPath:(NSString*)saveResponsesPath;//NDFN
++(NSString*)acceptedContentEncoding;
++(NSArray*)acceptedContentEncodingArray;
++(void)setAcceptedContentEncoding:(NSString*)acceptedContentEncoding;
 +(NSString*)defaultTemplateParser;//NDFN
 +(void)setDefaultTemplateParser:(NSString*)defaultTemplateParser;//NDFN
 @end
