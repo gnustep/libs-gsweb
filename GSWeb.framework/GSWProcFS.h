@@ -44,13 +44,13 @@ typedef enum _GSWProcState
   NSString* _ttyc;		// string representation of controlling tty device [/proc/#/stat]
   NSArray* _environ;		// environment string vector (/proc/#/environ) 
   NSArray* _commandLine;		// command line string vector (/proc/#/cmdline) 
-  uid_t _uid;            // user id 
-  pid_t _pid;            // process id [/proc/#/stat]
-  pid_t _ppid;           // pid of parent process [/proc/#/stat]
-  pid_t _pgrp;           // process group id [/proc/#/stat]
+  int _uid;            // user id 
+  int _pid;            // process id [/proc/#/stat]
+  int _ppid;           // pid of parent process [/proc/#/stat]
+  int _pgrp;           // process group id [/proc/#/stat]
   int _session;        // session id [/proc/#/stat]
   int _tty;            // full device number of controlling terminal [/proc/#/stat]
-  pid_t _tpgid;          // terminal process group id [/proc/#/stat]
+  int _tpgid;          // terminal process group id [/proc/#/stat]
   int _priority;       // kernel scheduling priority [/proc/#/stat]
   int _nice;           // standard unix nice level of process [/proc/#/stat]
   long long _signal;         // mask of pending signals [/proc/#/stat]
@@ -89,8 +89,8 @@ typedef enum _GSWProcState
 };
 
 +(GSWProcFSProcInfo*)filledProcInfo;
-+(GSWProcFSProcInfo*)filledProcInfoWithPID:(pid_t)pid_;
--(id)initFilledWithPID:(pid_t)pid_;
++(GSWProcFSProcInfo*)filledProcInfoWithPID: (int)processID;
+-(id)initFilledWithPID: (int)processID;
 -(void)dealloc;
 -(BOOL)fill;
 +(NSString*)contentOfProcFile:(NSString*)procFile;

@@ -37,43 +37,46 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#include <unistd.h>
-#include <sys/time.h>
 
 NSString* formattedByteSizeValue(unsigned int value)
 {
   if (value<1024)
     return [NSString stringWithFormat:@"%lu b",value];
   else if (value<1024L*1024L)
-    return [NSString stringWithFormat:@"%.3f Kb",(((double)value)/1024)];
+    return [NSString stringWithFormat:@"%.3f Kb",
+		     (((double)value)/1024)];
   else if (value<1024L*1024L*1024L)
-    return [NSString stringWithFormat:@"%.3f Mb",(((double)value)/(1024L*1024L))];
+    return [NSString stringWithFormat:@"%.3f Mb",
+		     (((double)value)/(1024L*1024L))];
   else
-    return [NSString stringWithFormat:@"%.3f Gb",(((double)value)/(1024L*1024L*1024L))];
+    return [NSString stringWithFormat:@"%.3f Gb",
+		     (((double)value)/(1024L*1024L*1024L))];
 };
 
 @implementation GSWProcFSProcInfo
 
-+(GSWProcFSProcInfo*)filledProcInfo
++ (GSWProcFSProcInfo *)filledProcInfo
 {
-  return [self filledProcInfoWithPID:getpid()];
-};
+  int processID = [[NSProcessInfo processInfo] processIdentifier];
+  return [self filledProcInfoWithPID: processID];
+}
 
-+(GSWProcFSProcInfo*)filledProcInfoWithPID:(pid_t)pid_
++ (GSWProcFSProcInfo *)filledProcInfoWithPID: (int)processID
 {
-  GSWProcFSProcInfo* obj=[[[self alloc] initFilledWithPID:pid_]autorelease];
+  GSWProcFSProcInfo *obj
+    = AUTORELEASE([[self alloc] initFilledWithPID: processID]);
   return obj;
-};
+}
 
--(id)initFilledWithPID:(pid_t)pid
+- (id)initFilledWithPID: (int)processID
 {
-  if ((self=[super init]))
-	{
-	  _pid=pid;
-	  [self fill];
-	};
+  if ((self = [super init]))
+    {
+      _pid = processID;
+      [self fill];
+    };
   return self;
-};
+}
 
 -(void)dealloc
 {
@@ -88,7 +91,7 @@ NSString* formattedByteSizeValue(unsigned int value)
 -(NSString*)description
 {
   NSString* dscr=nil;
-  size_t pageSize=getpagesize();
+  unsigned int pageSize=NSPageSize();
   char* stateCString=NULL;
   switch(_state)
     {
@@ -120,13 +123,13 @@ NSString* formattedByteSizeValue(unsigned int value)
                  _environ,
                  _commandLine];
   dscr=[dscr stringByAppendingFormat:@"uid: %d\npid: %d\nppid: %d\npgrp: %d\nsession: %d\ntty: %d\ntpgid: %d\npriority: %d\nnice: %d\nsignal: %LX\nblocked: %LX\nsigIgnore: %LX\nsigCache: %LX\n",
-             (int)_uid,
-             (int)_pid,
-             (int)_ppid,
-             (int)_pgrp,
+             _uid,
+             _pid,
+             _ppid,
+             _pgrp,
              _session,
              _tty,
-             (int)_tpgid,
+             _tpgid,
              _priority,
              _nice,
              _signal,
@@ -179,49 +182,31 @@ NSString* formattedByteSizeValue(unsigned int value)
   return YES;
 };
 
-+(NSString*)contentOfProcFile:(NSString*)procFile
++ (NSString *)contentOfProcFile: (NSString *)procFile
 {
-  NSString* content=nil;
-  char      thePath[BUFSIZ*2];
-  FILE      *theFile = NULL;
-  NSString* path=[NSString stringWithFormat:@"/proc/%@",procFile];
-  if ([path getFileSystemRepresentation:thePath
-            maxLength:sizeof(thePath)-1] == NO)
+  NSString *path;
+  NSString *content;
+
+  path = [NSString stringWithFormat: @"/proc/%@", procFile];
+  content = [NSString stringWithContentsOfFile: path];
+
+  if ([content length] == 0)
     {
-      LOGSeriousError(@"Open (%@) attempt failed - bad path",
-					  path);
+      LOGSeriousError(@"Read (%@) attempt failed", path);
     }
-  else
-    {
-      theFile = fopen(thePath, "r");
-      if (theFile == NULL)          // We failed to open the file.
-        {
-          LOGSeriousError(@"Open (%s) attempt failed - %s", thePath, strerror(errno));
-        }
-      else
-        {
-          char buff[1024]="";
-          if (!fgets(buff,1024,theFile))
-            {
-              LOGSeriousError(@"Read (%s) attempt failed",thePath);
-            }
-          else
-            {
-              content=[NSString stringWithCString:buff];
-              NSDebugMLog(@"content=%@",content);
-            };
-          fclose(theFile);
-        };
-    };
+
   return content;
-  
-};
+}
 
 -(NSString*)contentOfPIDFile:(NSString*)pidFile
 {
   NSString* content=nil;
-  NSString* path=[NSString stringWithFormat:@"%d/%@",(int)(_pid ? _pid : getpid()),pidFile];
-  content=[[self class] contentOfProcFile:path];
+  NSString* path
+    = [NSString stringWithFormat:@"%d/%@",
+		(_pid ? _pid 
+		 : [[NSProcessInfo processInfo] processIdentifier]),
+		pidFile];
+  content=[[self class] contentOfProcFile: path];
   return content;
 };
 
@@ -229,11 +214,11 @@ NSString* formattedByteSizeValue(unsigned int value)
 {
   BOOL ok=NO;
   NSString* pidstat=[self contentOfPIDFile:@"statm"];
-  NSDebugFLog(@"pidstat=%@",pidstat);
+  NSDebugMLog(@"pidstat=%@",pidstat);
   if (pidstat)
     {
       const char* statsChars=[pidstat cString];
-      NSDebugFLog(@"pidstat=%@",pidstat);
+      NSDebugMLog(@"pidstat=%@",pidstat);
       if (sscanf(statsChars, "%ld %ld %ld %ld %ld %ld %ld",
                  &_pagesNb,//size
                  &_residentPagesNb,//resident
@@ -251,15 +236,16 @@ NSString* formattedByteSizeValue(unsigned int value)
 -(BOOL)fillStat
 {
   BOOL ok=NO;
-  NSString* pidstat=[self contentOfPIDFile:@"stat"];
-  NSDebugFLog(@"pidstat=%@",pidstat);
+  NSString* pidstat = [self contentOfPIDFile: @"stat"];
+
+  NSDebugMLog(@"pidstat=%@",pidstat);
   if (pidstat)
     {
       NSRange cmdEnd=[pidstat rangeOfString:@") "];
       if (cmdEnd.length>0)
         {
           NSString* pid_cmd=[pidstat substringToIndex:cmdEnd.location];
-          NSDebugFLog(@"pid_cmd=%@",pid_cmd);
+          NSDebugMLog(@"pid_cmd=%@",pid_cmd);
           if (cmdEnd.location+cmdEnd.length<[pidstat length])
             {
               NSString* stats=[pidstat substringFromIndex:cmdEnd.location+cmdEnd.length];
@@ -278,7 +264,7 @@ NSString* formattedByteSizeValue(unsigned int value)
               long cstime;
               long startTime;
               
-              NSDebugFLog(@"stats=%@",stats);
+              NSDebugMLog(@"stats=%@",stats);
               if (sscanf(statsChars,
                          "%c %d %d %d %d %d %lu %lu %lu %lu %lu %ld %ld %ld %ld %d "
                          "%d %lu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %LX %LX %LX %LX %lu",
@@ -355,7 +341,7 @@ NSString* formattedByteSizeValue(unsigned int value)
                                           if (linux_version_code < LINUX_VERSION(1,1,30) && P->tty != -1)
                                           P->tty = 4*0x100 + P->tty;              // when tty wasn't full devno 
                   */
-                  NSDebugFLog(@"residentMemorySize=%lu",_residentMemorySize);
+                  NSDebugMLog(@"residentMemorySize=%lu",_residentMemorySize);
                 };
             };
         };
@@ -365,13 +351,13 @@ NSString* formattedByteSizeValue(unsigned int value)
 
 -(unsigned int)residentMemory
 {
-  size_t pageSize=getpagesize();
+  unsigned int pageSize=NSPageSize();
  return (unsigned int)(_residentPagesNb*pageSize);  
 };
 
 -(unsigned int)sharedMemory
 {
-  size_t pageSize=getpagesize();
+  unsigned int pageSize=NSPageSize();
  return (unsigned int)(_sharedPagesNb*pageSize);
 };
 

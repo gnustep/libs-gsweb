@@ -1,3 +1,22 @@
+2004-05-18  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWProcFS.h/m: Make class more portable.
+	Replace all system dependent types with standard types.  Replace
+	usage of NSDebugFLog with NSDebugMLog in methods.
+	([GSWProcFSProcInfo filledProcInfo]): Use -processIdentifier
+	instead of getpid.
+	([GSWProcFSProcInfo filledProcInfoWithPID:]): Update types. Use
+	standard GC macro.
+	([GSWProcFSProcInfo initFilledWithPID:]): Update types.
+	([GSWProcFSProcInfo description]): Use NSPageSize instead of
+	getpagesize.  Remove obsolete casts.
+	([GSWProcFSProcInfo contentOfProcFile:]): Use standard NSString
+	API to read the file.
+	([GSWProcFSProcInfo contentOfPIDFile:]): Adapt to new types and
+	reformat.
+	([GSWProcFSProcInfo residentMemory]),
+	([GSWProcFSProcInfo sharedMemory]): Adapt to new types.
+	
 2004-05-16  David Wetzel <dave@turbocat.de>
 
 	* GSWeb.framework/GSWApplication.m ([GSWApplication
