@@ -951,14 +951,14 @@ extern id gcObjectsToBeVisited;
 {
   //OK
   LOGObjectFnStart();
-  printf("session %p _releaseAutoreleasePool START\n",self);
-  fprintf(stderr,"session %p _releaseAutoreleasePool START\n",self);
+//  printf("session %p _releaseAutoreleasePool START\n",self);
+//  fprintf(stderr,"session %p _releaseAutoreleasePool START\n",self);
 //TODO-NOW remettre  [GarbageCollector collectGarbages];
-  printf("session %p _releaseAutoreleasePool after garbage",self);
-  fprintf(stderr,"session %p _releaseAutoreleasePool after garbage\n",self);
+//  printf("session %p _releaseAutoreleasePool after garbage",self);
+//  fprintf(stderr,"session %p _releaseAutoreleasePool after garbage\n",self);
   DESTROY(_autoreleasePool);
-  printf("session %p _releaseAutoreleasePool STOP\n",self);
-  fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
+//  printf("session %p _releaseAutoreleasePool STOP\n",self);
+//  fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   LOGObjectFnStop();
 };
 
