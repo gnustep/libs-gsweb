@@ -1,3 +1,10 @@
+2005-03-22  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/common/GSWUtil.c:
+	o fix in GSWTime_format
+	* GSWAdaptors/common/GSWAppRequest.c:
+	o fix in GSWAppRequest_HandleRequest for instance 
+	search in URL/cookie
+
 2005-03-31  David Ayers  <d.ayers@inode.at>
 
 	* GSWAdaptors/common/GSWHTTPResponse.c

@@ -1,5 +1,5 @@
 /* GSWAppRequest.c - GSWeb: Adaptors: App Request
-   Copyright (C) 1999, 2000, 2001, 2003-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999, 2000, 2001, 2003-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	July 1999
@@ -378,9 +378,11 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
                 {
                   stAppRequest.iInstance =
                     atoi(p_pURLComponents->stAppNumber.pszStart);
-                }  
-	      // In Cookie ?
-	      else
+                };
+
+              // Any instance or not yet found instance ?
+              // Search in cookie
+              if (stAppRequest.iInstance<=0) 
 		{
 		  CONST char *pszCookie=
 		    GSWHTTPRequest_HeaderForKey(*p_ppHTTPRequest,

@@ -115,9 +115,9 @@ char* GSWTime_format(char *date_str,GSWTime t)
   date_str[17] = stTM.tm_sec / 10 + '0';
   date_str[18] = stTM.tm_sec % 10 + '0';
   date_str[19] = '.';
-  date_str[20] = (timeMSecPart/1000) / 100 + '0';
-  date_str[21] = ((timeMSecPart/1000) % 100) / 10 + '0';
-  date_str[22] = (timeMSecPart/1000) % 10 + '0';
+  date_str[20] = timeMSecPart / 100 + '0';
+  date_str[21] = (timeMSecPart % 100) / 10 + '0';
+  date_str[22] = timeMSecPart % 10 + '0';
 
   date_str[23] = 0;
   return date_str;
