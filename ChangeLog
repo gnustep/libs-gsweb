@@ -1,3 +1,6 @@
+2000-03-31  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/Apache/GNUmakefile: added -I/usr/include/apache in APACHEHEADERS
+	
 2000-06-20  Karl Kraft <karl@nfox.com> 
   *  GSWCheckBoxList.m  Added support for the disabled key.
 
