@@ -49,7 +49,7 @@ static char rcsId[] = "$Id$";
   [_associations removeObjectForKey:href__Key];
   [_associations removeObjectForKey:multipleSubmit__Key];
   [_associations removeObjectForKey:actionClass__Key];
-  [_associations removeObjectForKey:directActionName];
+  if (directActionName) [_associations removeObjectForKey:directActionName];
 #if !GSWEB_STRICT
   [_associations removeObjectForKey:disabled__Key];
   [_associations removeObjectForKey:enabled__Key];

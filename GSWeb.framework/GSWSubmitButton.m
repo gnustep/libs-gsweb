@@ -40,7 +40,7 @@ static char rcsId[] = "$Id$";
 				 forKey:@"type"];
   [_associations removeObjectForKey:action__Key];
   [_associations removeObjectForKey:actionClass__Key];
-  [_associations removeObjectForKey:directActionName];
+  if (directActionName) [_associations removeObjectForKey:directActionName];
 
   if (![_associations objectForKey:value__Key])
 	[_associations setObject:[GSWAssociation associationWithValue:@"submit"]

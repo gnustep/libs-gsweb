@@ -1,3 +1,6 @@
+2000-04-06   Karl Kraft <karl@nfox.com>
+	* Added two checks for non-nil key before calling removeObjectForKey:
+
 2000-03-31  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWResourceManager.m: Added Debug Error Traces
