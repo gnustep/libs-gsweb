@@ -791,7 +791,11 @@ static char rcsId[] = "$Id$";
     return 1;
 
   count = [allObjects count];
-  return count / numberOfObjectsPerBatch +
+
+  if(!count)
+    return 1;
+
+  return (count / numberOfObjectsPerBatch) +
     (count % numberOfObjectsPerBatch ? 1 : 0);
 }
 
@@ -1021,22 +1025,32 @@ static char rcsId[] = "$Id$";
   int count = [allObjects count];
   NSRange range;
 
-  if(batchIndex >= [self batchCount])
+  [displayedObjects removeAllObjects];
+
+  if(!numberOfObjectsPerBatch || count <= numberOfObjectsPerBatch)
     {
       batchIndex = 1;
-      range.location = 0;
-      range.length = numberOfObjectsPerBatch;
+      [displayedObjects addObjectsFromArray:allObjects];
     }
   else
     {
-      batchIndex++;
-      range.location = (batchIndex-1) * numberOfObjectsPerBatch;
-      range.length = numberOfObjectsPerBatch;
-    }
+      if(batchIndex >= [self batchCount])
+	{
+	  batchIndex = 1;
+	  range.location = 0;
+	  range.length = numberOfObjectsPerBatch;
+	}
+      else
+	{
+	  range.location = batchIndex * numberOfObjectsPerBatch;
+	  range.length = (range.location + numberOfObjectsPerBatch > count ?
+			  count - range.location : numberOfObjectsPerBatch);
+	  batchIndex++;
+	}
 
-  [displayedObjects removeAllObjects];
-  [displayedObjects addObjectsFromArray:[allObjects
-					  subarrayWithRange:range]];
+      [displayedObjects addObjectsFromArray:[allObjects
+					      subarrayWithRange:range]];
+    }
 
   [self clearSelection];
 
@@ -1051,22 +1065,33 @@ static char rcsId[] = "$Id$";
   int count = [allObjects count];
   NSRange range;
 
-  if(batchIndex == 1)
+  [displayedObjects removeAllObjects];
+
+  if(!numberOfObjectsPerBatch || count <= numberOfObjectsPerBatch)
     {
-      batchIndex = [self batchCount];
-      range.location = (batchIndex-1) * numberOfObjectsPerBatch;
-      range.length = numberOfObjectsPerBatch;
+      batchIndex = 1;
+      [displayedObjects addObjectsFromArray:allObjects];
     }
   else
     {
-      batchIndex--;
-      range.location = (batchIndex-1) *  numberOfObjectsPerBatch;
-      range.length = numberOfObjectsPerBatch;
-    }
+      if(batchIndex == 1)
+	{
+	  batchIndex = [self batchCount];
+	  range.location = (batchIndex-1) * numberOfObjectsPerBatch;
 
-  [displayedObjects removeAllObjects];
-  [displayedObjects addObjectsFromArray:[allObjects
-					  subarrayWithRange:range]];
+	  range.length = (range.location + numberOfObjectsPerBatch > count ?
+			  count - range.location : numberOfObjectsPerBatch);
+	}
+      else
+	{
+	  batchIndex--;
+	  range.location = (batchIndex-1) *  numberOfObjectsPerBatch;
+	  range.length = numberOfObjectsPerBatch;
+	}
+
+      [displayedObjects addObjectsFromArray:[allObjects
+					      subarrayWithRange:range]];
+    }
 
   [self clearSelection];
 
@@ -1908,7 +1933,10 @@ static char rcsId[] = "$Id$";
 	}
     }
   else
-    [displayedObjects addObjectsFromArray:allObjects];
+    {
+      batchIndex = [self batchCount];
+      [self displayNextBatch];
+    }
 
   if(sortOrdering)
     [displayedObjects sortUsingKeyOrderArray:sortOrdering];
