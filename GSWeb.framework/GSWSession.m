@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <gnustep/base/GSCategories.h>
@@ -465,7 +467,6 @@ static const char rcsId[] = "$Id$";
 {
   //OK
   NSString* sessionID=nil;
-  NSNotification* notification=nil;
   LOGObjectFnStart();
 
   _isTerminating=YES;
@@ -1321,9 +1322,6 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   GSWStatisticsStore* statisticsStore=nil;
   NSString* logFile=nil;
   GSWSession* session=nil;
-  GSWComponent* page=nil;
-  NSString* pageName=nil;
-  NSString* description=nil;
   GSWElement* pageElement=nil;
   GSWComponent* pageComponent=nil;
   LOGObjectFnStart();

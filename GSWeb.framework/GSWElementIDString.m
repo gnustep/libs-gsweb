@@ -1,6 +1,6 @@
 /** GSWElementIDString.m - <title>GSWeb: Class GSWElementIDString</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -27,7 +27,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -113,9 +115,9 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   GSWLogAssertGood(self);
   GSWLogAssertGood(_string);
-  GSWLogMemC("_string deallocate");
+  GSWLogMemCF("_string deallocate %p",self);
   DESTROY(_string);
-  GSWLogMemC("_string deallocated");
+  GSWLogMemCF("_string deallocated %p",self);
   [super dealloc];
   GSWLogMemC("GSWElementIDString end of dealloc");
 };
@@ -151,6 +153,7 @@ static char rcsId[] = "$Id$";
   DESTROY(_string);
   [decoder decodeValueOfObjCType:@encode(id)
           at:&_string];
+  RETAIN(_string);
   return self;
 };
 

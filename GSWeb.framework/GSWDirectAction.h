@@ -61,6 +61,7 @@
 @end
 //====================================================================
 @interface GSWDirectAction (GSWTakeValuesConvenience)
+-(NSArray*)additionalRequestPathArray;
 -(void)takeFormValueArraysForKeyArray:(NSArray*)keys;
 -(void)takeFormValuesForKeyArray:(NSArray*)keys;
 -(void)takeFormValueArraysForKeys:(NSString*)firstKey,...;

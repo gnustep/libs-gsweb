@@ -1,5 +1,6 @@
 /** GSWActiveImage.m - <title>GSWeb: Class GSWActiveImage</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -28,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -331,6 +334,12 @@ static char rcsId[] = "$Id$";
             {
               [aContext _setActionInvoked:YES];
               element=[actionAssociation valueInComponent:component];
+              NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
+                        @"actionAssociation=%@, component=%@ Element is a %@ not a GSWElement: %@",
+                        actionAssociation,
+                        component,
+                        [element class],
+                        element);
             }
           else
             {
@@ -343,6 +352,12 @@ static char rcsId[] = "$Id$";
                 {
                   [aContext _setActionInvoked:YES];
                   element=[_action valueInComponent:component];
+                  NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
+                            @"_action=%@, component=%@ Element is a %@ not a GSWElement: %@",
+                            _action,
+                            component,
+                            [element class],
+                            element);
                 }
               else
                 {				
@@ -350,15 +365,33 @@ static char rcsId[] = "$Id$";
                 };
             };
           if (!element)
-            element=[aContext page];
+            {
+              element=[aContext page];
+              NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+                        @"Element is a %@ not a GSWElement: %@",
+                        [element class],
+                        element);
+            };
         }
       else
-        element=[super invokeActionForRequest:request
-                       inContext:aContext];
+        {
+          element=[super invokeActionForRequest:request
+                         inContext:aContext];
+          NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+                    @"Element is a %@ not a GSWElement: %@",
+                    [element class],
+                    element);
+        };
     }
   else
-    element=[super invokeActionForRequest:request
-                   inContext:aContext];
+    {
+      element=[super invokeActionForRequest:request
+                     inContext:aContext];
+      NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+                @"Element is a %@ not a GSWElement: %@",
+                [element class],
+                element);
+    };
   LOGObjectFnStop();
   return element;
 };
@@ -368,8 +401,8 @@ static char rcsId[] = "$Id$";
               inContext:(GSWContext*)aContext
 {
   //OK
-  GSWRequest* _request=[aContext request];
-  BOOL isFromClientComponent=[_request isFromClientComponent];
+  //GSWRequest* _request=[aContext request];
+  //Unused now BOOL isFromClientComponent=[_request isFromClientComponent];
   BOOL disabledInContext=[self disabledInContext:aContext];
   BOOL isInForm=NO;
   isInForm=[aContext isInForm]; //TODO

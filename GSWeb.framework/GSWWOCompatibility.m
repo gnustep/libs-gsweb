@@ -27,7 +27,10 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID($Id$")
+
 #include <GSWeb/GSWeb.h>
 #include <GSWeb/GSWWOCompatibility.h>
 

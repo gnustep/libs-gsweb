@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include "GSWSessionTimeOut.h"

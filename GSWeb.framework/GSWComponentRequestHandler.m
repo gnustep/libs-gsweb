@@ -27,7 +27,9 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -349,8 +351,8 @@ static const char rcsId[] = "$Id$";
   NSString* senderID=nil;
   NSString* contextID=nil;
   NSString* httpVersion=nil;
-  GSWElement* page=nil;
-  GSWElement* responsePage=nil;
+  GSWComponent* page=nil;
+  GSWComponent* responsePage=nil;
   BOOL isFromClientComponent=NO;
   BOOL hasFormValues=NO;
   GSWContext* responseContext=nil;
@@ -424,8 +426,8 @@ static const char rcsId[] = "$Id$";
       // Exception catching here ?
       NS_DURING
         {
-          responsePage=[[GSWApplication application] invokeActionForRequest:request
-                                                     inContext:aContext];
+          responsePage=(GSWComponent*)[[GSWApplication application] invokeActionForRequest:request
+                                                                    inContext:aContext];
           NSDebugMLLog(@"requests",@"After invokeAction [aContext elementID]=%@",[aContext elementID]);
           NSAssert([[aContext elementID] length]==0,@"4 lockedDispatchWithPreparedPage elementID length>0");
         }
@@ -462,7 +464,7 @@ static const char rcsId[] = "$Id$";
           responseContext=[(GSWComponent*)responsePage context];//So what ?
           NSDebugMLLog(@"requests",@"responseContext=%@",responseContext);
           [responseContext _setPageReplaced:NO];
-          responsePageElement=[responseContext _pageElement];
+          responsePageElement=(GSWComponent*)[responseContext _pageElement];
           NSDebugMLLog(@"requests",@"responsePageElement=%@",responsePageElement);
           pageChanged=(responsePage!=responsePageElement);
           [responseContext _setPageChanged:pageChanged];//??
@@ -498,7 +500,7 @@ static const char rcsId[] = "$Id$";
           NSAssert([[aContext elementID] length]==0,
                    @"6 lockedDispatchWithPreparedPage elementID length>0");
           responseRequest=[responseContext request];//SoWhat ?
-          [responseRequest isFromClientComponent];//SoWhat
+          //Not used [responseRequest isFromClientComponent];//SoWhat
         }
       NS_HANDLER
         {

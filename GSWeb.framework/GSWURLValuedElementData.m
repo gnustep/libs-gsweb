@@ -1,9 +1,9 @@
 /** GSWURLValuedElementData.m - <title>GSWeb: Class GSWURLValuedElementData</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -29,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -96,8 +98,8 @@ static char rcsId[] = "$Id$";
   //OK
   NSData* data=_data;
   LOGObjectFnStart();
-  GSWStartElement(context);
-  GSWSaveAppendToResponseElementID(context);
+//  GSWStartElement(context);
+//  GSWSaveAppendToResponseElementID(context);
   NSDebugMLog(@"data=%@",data);
   if (!data)
     {

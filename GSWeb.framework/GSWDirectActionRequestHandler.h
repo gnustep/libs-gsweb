@@ -41,6 +41,7 @@
 -(GSWResponse*)_nilResponse;
 -(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext;
 -(id)submitButtonsActionPathFromRequest:(GSWRequest*)aRequest;
++(NSArray*)additionalRequestPathArrayFromRequest:(GSWRequest*)aRequest;
 @end
 
 //====================================================================

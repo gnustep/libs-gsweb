@@ -86,7 +86,7 @@ GSWHTTPResponse_New(CONST char *p_pszStatus,
 		{
 		  pszSpace=strchr(pszSpace,' ');
 		  if (pszSpace)
-		    pHTTPResponse->pszStatusMessage=strdup(pszSpace);
+		    pHTTPResponse->pszStatusMessage=strdup(pszSpace+1);
 		};
 	    };
 	};

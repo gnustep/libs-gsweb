@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -230,7 +232,7 @@ static const char rcsId[] = "$Id$";
           NSDebugMLLog(@"requests",
                        @"_actionResult=%@ class=%@",
                        actionResult,
-                       [actionResult class]);
+                       [(id)actionResult class]);
         }
       NS_HANDLER
         {
@@ -312,6 +314,13 @@ static const char rcsId[] = "$Id$";
 @end
 //====================================================================
 @implementation GSWDirectAction (GSWTakeValuesConvenience)
+
+//NDFN: return additional path elements
+-(NSArray*)additionalRequestPathArray
+{
+  return [GSWDirectActionRequestHandler 
+           additionalRequestPathArrayFromRequest:[self request]];
+};
 
 //--------------------------------------------------------------------
 -(void)takeFormValueArraysForKeyArray:(NSArray*)keyArray

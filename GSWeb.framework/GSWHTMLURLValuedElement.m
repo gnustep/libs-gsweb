@@ -28,10 +28,11 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#include <gnustep/base/GSCategories.h>
 
 //====================================================================
 @implementation GSWHTMLURLValuedElement
@@ -217,12 +218,25 @@ static const char rcsId[] = "$Id$";
     {
       GSWComponent* component=[aContext component];
       if (_value)
-        element=[_value valueInComponent:component];
+        {
+          element=[_value valueInComponent:component];
+          NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
+                    @"_value: %@ component: %@ Element is a %@ not a GSWElement: %@",
+                    _value,
+                    component,
+                    [element class],
+                    element);
+        }
       else if (_pageName)
         {
           NSString* pageNameValue=[_pageName valueInComponent:component];
           element=[GSWApp pageWithName:pageNameValue
                           inContext:aContext];
+          NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
+                    @"pageNameValue: %@ Element is a %@ not a GSWElement: %@",
+                    pageNameValue,
+                    [element class],
+                    element);
           if (!WOStrictFlag && element)//GNUstepWeb only
             {
               if (_pageSetVarAssociations)
@@ -256,12 +270,22 @@ static const char rcsId[] = "$Id$";
       //the end ?
       //TODOV
       if (!element)
-        element=[aContext page];
+        {
+          element=[aContext page];
+          NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+                    @"Element is a %@ not a GSWElement: %@",
+                    [element class],
+                    element);
+        };
     }
   else
     {
       element=[super invokeActionForRequest:aRequest
                      inContext:aContext];
+      NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+                @"Element is a %@ not a GSWElement: %@",
+                [element class],
+                element);
     };
   NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke element=%@",element);
   NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);

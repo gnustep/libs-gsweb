@@ -30,7 +30,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -567,6 +569,11 @@ attributeAssociations:(NSDictionary*)attributeAssociations
             {
               element=[[dynamicChildren objectAtIndex:elementsN[2]] invokeActionForRequest:aRequest
                                                                     inContext:aContext];
+              NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
+                        @"From: %@ Element is a %@ not a GSWElement: %@",
+                        [dynamicChildren objectAtIndex:elementsN[2]],
+                        [element class],
+                        element);
               if (![aContext _wasFormSubmitted] && [[aContext elementID] isSearchOverForSenderID:senderID])
                 {
                   NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",

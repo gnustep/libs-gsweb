@@ -1,5 +1,6 @@
 /** GSWFileUploadComponent.m - <title>GSWeb: Class GSWFileUploadComponent</title>
-   Copyright (C) 2002 Free Software Foundation, Inc.
+
+   Copyright (C) 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		May 2002
@@ -28,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWExtGSWWOCompatibility.h"
 #include "GSWFileUploadComponent.h"
@@ -40,8 +43,8 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	};
+    {
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -80,10 +83,15 @@ static char rcsId[] = "$Id$";
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
+  LOGObjectFnStart();
+  _tmpFileInfo=nil;
   [aResponse appendDebugCommentContentString:[[self fileInfo]description]];
+  NSDebugMLog(@"fileInfo %@",_tmpFileInfo);
   [super appendToResponse:aResponse
          inContext:aContext];
   _tmpFileInfo=nil;
+  NSDebugMLog(@"fileInfo %@",_tmpFileInfo);
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -91,7 +99,8 @@ static char rcsId[] = "$Id$";
                    inContext:(GSWContext*)aContext
 {
   LOGObjectFnStart();
-  NSDebugMLog(@"fileInfo %@",_tmpFileInfo);
+  _tmpFileInfo=nil;
+  NSDebugMLog(@"fileInfo %@",[self fileInfo]);
   [super takeValuesFromRequest:aRequest
          inContext:aContext];
   NSDebugMLog(@"fileInfo.fileURL %@",[_tmpFileInfo valueForKey:@"fileURL"]);

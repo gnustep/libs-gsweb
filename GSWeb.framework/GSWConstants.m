@@ -30,7 +30,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -105,7 +107,7 @@ NSString* GSWHTTPHeader_SetCookie=@"set-cookie";
 
 NSString* GSWHTTPHeader_AdaptorVersion[2]={ @"x-gsweb-adaptor-version", @"x-webobjects-adaptor-version" };
 NSString* GSWHTTPHeader_Method[2]={ @"x-gsweb-request-method", @"x-webobjects-request-method" };
-NSString* GSWHTTPHeader_Response_HeaderLineEnd[2]={ @" GNUstep GSWeb", @" NeXT WebObjects" };
+NSString* GSWHTTPHeader_Response_HeaderLineEnd[2]={ @"GNUstep GSWeb", @"NeXT WebObjects" };
 NSString* GSWHTTPHeader_RequestMethod[2]={ @"x-gsweb-request-method", @"x-webobjects-request-method" };
 NSString* GSWHTTPHeader_Recording[2]={ @"x-gsweb-recording", @"x-webobjects-recording" };
 NSString* GSWHTTPHeader_QueryString[2]={ @"x-gsweb-query-string", @"x-webobjects-query-string" };

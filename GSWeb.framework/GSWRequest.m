@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <Foundation/GSMime.h>
@@ -385,8 +387,7 @@ static const char rcsId[]="$Id$";
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - 
-method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultFormValueEncoding=%u, formValueEncoding=%u, formValues=%@, uriElements=%@, cookie=%@, applicationURLPrefix=%@, requestHandlerPathArray=%@, browserLanguages=%@, requestType=%d, isUsingWebServer=%s, formValueEncodingDetectionEnabled=%s, applicationNumber=%d",
+  return [NSString stringWithFormat:@"<%s %p - method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultFormValueEncoding=%u, formValueEncoding=%u, formValues=%@, uriElements=%@, cookie=%@, applicationURLPrefix=%@, requestHandlerPathArray=%@, browserLanguages=%@, requestType=%d, isUsingWebServer=%s, formValueEncodingDetectionEnabled=%s, applicationNumber=%d",
                    object_get_class_name(self),
                    (void*)self,
                    _method,
@@ -575,7 +576,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
 //	uriElementForKey:
 -(NSString*)uriElementForKey:(NSString*)key
 {
-  NSArray* uriElement=nil;
+  NSString* uriElement=nil;
   NSDictionary* uriElements=nil;
   LOGObjectFnStart();
   NS_DURING
@@ -1373,13 +1374,15 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                        key,[value objectAtIndex:i]];
     };
   [headersString appendString:@"\n"];
-  NSDebugMLog(@"headersString=%@",headersString);
+  NSDebugMLLog(@"requests",@"headersString=%@",headersString);
+  NSDebugMLLog(@"requests",@"content=%@",[[[NSString alloc]initWithData:_content
+                                              encoding:NSISOLatin1StringEncoding]autorelease]);
   headersData=[headersString dataUsingEncoding:NSISOLatin1StringEncoding];
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
   if ([parser parse:_content])
     [parser parse:nil];
-  NSDebugMLog(@"[parser isComplete]=%d",[parser isComplete]);
+  NSDebugMLLog(@"requests",@"[parser isComplete]=%d",[parser isComplete]);
   if ([parser isComplete] == NO)
     {
           //TODO
@@ -1389,18 +1392,18 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
       GSMimeDocument* document = [parser mimeDocument];
       NSArray* content=nil;
       NSString* contentSubtype=nil;
-      NSDebugMLog(@"document=%@",document);
+      NSDebugMLLog(@"requests",@"document=%@",document);
       content=[document content];
-      NSDebugMLog(@"contentType=%@",[document contentType]);
+      NSDebugMLLog(@"requests",@"contentType=%@",[document contentType]);
       contentSubtype=[document contentSubtype];
-      NSDebugMLog(@"contentSubtype=%@",contentSubtype);
+      NSDebugMLLog(@"requests",@"contentSubtype=%@",contentSubtype);
 
       if ([contentSubtype isEqual:@"form-data"])
         {
-          NSDebugMLog(@"contentID=%@",[document contentID]);
-          NSDebugMLog(@"[document allHeaders]=%@",[document allHeaders]);
-          NSDebugMLog(@"[document content]=%@",content);
-          NSDebugMLog(@"[document content] class=%@",[content class]);
+          NSDebugMLLog(@"requests",@"contentID=%@",[document contentID]);
+          NSDebugMLLog(@"requests",@"[document allHeaders]=%@",[document allHeaders]);
+          NSDebugMLLog(@"requests",@"[document content]=%@",content);
+          NSDebugMLLog(@"requests",@"[document content] class=%@",[content class]);
 
           if (![content isKindOfClass:[NSArray class]])
             {
@@ -1420,20 +1423,20 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                   NSAssert2([aDoc isKindOfClass:[GSMimeDocument class]],
                             @"Document is not a GSMimeDocument but a %@:\n%@",
                             [aDoc class],aDoc);
-                  NSDebugMLog(@"aDoc=%@",aDoc);
+                  NSDebugMLLog(@"requests",@"aDoc=%@",aDoc);
                   aDocContent=[aDoc content];
-                  NSDebugMLog(@"aDocContent=%@",aDocContent);
-                  NSDebugMLog(@"contentType=%@",[aDoc contentType]);
-                  NSDebugMLog(@"contentSubtype=%@",[aDoc contentSubtype]);
-                  NSDebugMLog(@"contentID=%@",[aDoc contentID]);
+                  NSDebugMLLog(@"requests",@"aDocContent=%@",aDocContent);
+                  NSDebugMLLog(@"requests",@"contentType=%@",[aDoc contentType]);
+                  NSDebugMLLog(@"requests",@"contentSubtype=%@",[aDoc contentSubtype]);
+                  NSDebugMLLog(@"requests",@"contentID=%@",[aDoc contentID]);
                   contentDispositionHeader=[aDoc headerNamed:@"content-disposition"];
-                  NSDebugMLog(@"contentDispositionHeader=%@",contentDispositionHeader);
+                  NSDebugMLLog(@"requests",@"contentDispositionHeader=%@",contentDispositionHeader);
                   contentDispositionValue=[contentDispositionHeader value];
                   contentDispositionParams=[contentDispositionHeader parameters];
-                  NSDebugMLog(@"contentDispositionValue=%@",contentDispositionValue);
-                  NSDebugMLog(@"contentDispositionParams=%@",contentDispositionParams);
-                  NSDebugMLog(@"aDoc allHeaders=%@",[aDoc allHeaders]);
-                  NSDebugMLog(@"aDocContent class=%@",[aDocContent class]);
+                  NSDebugMLLog(@"requests",@"contentDispositionValue=%@",contentDispositionValue);
+                  NSDebugMLLog(@"requests",@"contentDispositionParams=%@",contentDispositionParams);
+                  NSDebugMLLog(@"requests",@"aDoc allHeaders=%@",[aDoc allHeaders]);
+                  NSDebugMLLog(@"requests",@"aDocContent class=%@",[aDocContent class]);
                   if ([contentDispositionValue isEqual:@"form-data"])
                     {
                       NSString* formDataName=[contentDispositionParams objectForKey:@"name"];
@@ -1454,20 +1457,31 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                               NSDebugMLLog(@"requests",@"paramName=%@",paramName);
                               if (![paramName isEqualToString:@"name"])
                                 {
+                                  NSArray* previous=nil;
                                   NSString* paramFormValueName=nil;
                                   id paramValue=nil;
                                   paramValue=[contentDispositionParams objectForKey:paramName];
                                   NSDebugMLLog(@"requests",@"paramValue=%@",paramValue);
                                   paramFormValueName=[NSString stringWithFormat:@"%@.%@",formDataName,paramName];
                                   NSDebugMLLog(@"requests",@"paramFormValueName=%@",paramFormValueName);
-                                  [formValues setObject:[NSArray arrayWithObject:paramValue]
-                                              forKey:paramFormValueName];
+                                  previous=[formValues objectForKey:paramFormValueName];
+                                  if (previous)
+                                    [formValues setObject:[previous arrayByAddingObject:paramValue]
+                                                forKey:paramFormValueName];                                  
+                                  else
+                                    [formValues setObject:[NSArray arrayWithObject:paramValue]
+                                                forKey:paramFormValueName];
                                 };
                             };
                           if (aDocContent)
                             {
-                              [formValues setObject:[NSArray arrayWithObject:aDocContent]
-                                          forKey:formDataName];
+                              NSArray* previous=[formValues objectForKey:formDataName];
+                              if (previous)
+                                [formValues setObject:[previous arrayByAddingObject:aDocContent]
+                                            forKey:formDataName];                                  
+                              else
+                                [formValues setObject:[NSArray arrayWithObject:aDocContent]
+                                            forKey:formDataName];
                             };
                         };
                     };
@@ -1476,7 +1490,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
         };
     };
   ASSIGN(_formValues,formValues);
-  NSDebugMLog(@"_formValues=%@",_formValues);
+  NSDebugMLLog(@"requests",@"_formValues=%@",_formValues);
   LOGObjectFnStop();
 };
 

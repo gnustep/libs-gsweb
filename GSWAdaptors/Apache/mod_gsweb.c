@@ -391,20 +391,32 @@ copyHeaders(request_rec    *p_pRequestRec,
 };
 
 //--------------------------------------------------------------------
-// callback finction to copy an header into p_pRequest
+// callback fonction to copy an header into p_pRequest
 static void
 getHeader(GSWDictElem *p_pElem,
 	  void        *p_pRequestRec)
 {
   request_rec *pRequestRec = (request_rec *)p_pRequestRec;
-	
+  server_rec *pServerRec = pRequestRec->server;
+#ifdef	DEBUG
+  GSWLog(GSW_DEBUG,pServerRec,"Start getHeader key=%s value=%s headers_out=%p",
+         p_pElem->pszKey,(char *)p_pElem->pValue,pRequestRec->headers_out);
+#endif	
   if (!pRequestRec->content_type &&
       strcasecmp(p_pElem->pszKey,g_szHeader_ContentType)==0)
-    pRequestRec->content_type = (char *)ap_pstrdup(pRequestRec->pool,
-						   (char *)p_pElem->pValue);
+    {
+      pRequestRec->content_type = (char *)ap_pstrdup(pRequestRec->pool,
+                                                     (char *)p_pElem->pValue);//TODOVERIFY: strdup or not ?
+#ifdef APACHE2
+      ap_set_content_type(pRequestRec, (char *)p_pElem->pValue);
+#endif
+    }
   else
     ap_table_add(pRequestRec->headers_out,p_pElem->pszKey,
 		 (char *)p_pElem->pValue);
+#ifdef	DEBUG
+  GSWLog(GSW_DEBUG,pServerRec,"Stop getHeader");
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -414,22 +426,28 @@ static void
 sendResponse(request_rec     *p_pRequestRec,
 	     GSWHTTPResponse *p_pHTTPResponse)
 {
-  char        szStatusBuffer[512]="";
   server_rec *pServerRec = p_pRequestRec->server;
   GSWLog(GSW_DEBUG,pServerRec,"Start sendResponse");
 	
   // Process Headers
   GSWDict_PerformForAllElem(p_pHTTPResponse->pHeaders,getHeader,p_pRequestRec);
 	
-  ap_snprintf(szStatusBuffer,sizeof(szStatusBuffer),"%u %s",
-	      p_pHTTPResponse->uStatus,
-	      p_pHTTPResponse->pszStatusMessage);
-  p_pRequestRec->status_line = szStatusBuffer;
+  GSWLog(GSW_DEBUG,pServerRec,"status message=[%s]",p_pHTTPResponse->pszStatusMessage);
+  p_pRequestRec->status_line = apr_psprintf(p_pRequestRec->pool,"%u %s",
+                                            p_pHTTPResponse->uStatus,
+                                            p_pHTTPResponse->pszStatusMessage);
   p_pRequestRec->status = p_pHTTPResponse->uStatus;
+  GSWLog(GSW_DEBUG,pServerRec,"p_pRequestRec->status_line=[%s]",p_pRequestRec->status_line);
 
   // Set content type if none
   if (!p_pRequestRec->content_type)
-    p_pRequestRec->content_type = g_szContentType_TextHtml;
+    {
+      p_pRequestRec->content_type = g_szContentType_TextHtml;
+#ifdef APACHE2
+      ap_set_content_type(p_pRequestRec, g_szContentType_TextHtml);
+#endif
+    };
+  GSWLog(GSW_DEBUG,pServerRec,"p_pRequestRec->content_type=%s",p_pRequestRec->content_type);
 	
   // Set content length
   ap_set_content_length(p_pRequestRec, (uintmax_t)p_pHTTPResponse->uContentLength);
@@ -437,7 +455,9 @@ sendResponse(request_rec     *p_pRequestRec,
   // Now Send response...
 
   // send Headers
+#ifndef APACHE2 // No more needed in Apache2 (?)
   ap_send_http_header(p_pRequestRec);	
+#endif
 
   // If not headers only
   if (!p_pRequestRec->header_only)

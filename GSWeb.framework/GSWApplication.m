@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -61,6 +63,7 @@ NSString* globalApplicationClassName=nil;
 NSMutableDictionary* localDynCreateClassNames=nil;
 int GSWebNamingConv=GSWNAMES_INDEX;
 BOOL WOStrictFlag=NO;
+NSString* GSWPageNotFoundException=@"GSWPageNotFoundException";
 
 #ifndef NDEBUG
 void GSWApplicationDebugSetChange()
@@ -1259,7 +1262,7 @@ selfLockn,
     };
   if (!componentDefinition)
     {
-      ExceptionRaise(@"GSWApplication",
+      ExceptionRaise(GSWPageNotFoundException,
                      @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
                      aName,
                      languages);
@@ -2701,6 +2704,62 @@ selfLockn,
 //====================================================================
 @implementation GSWApplication (GSWErrorHandling)
 
+//Not used now. For future exception handling rewrite
+-(GSWResponse*)_invokeDefaultException:(NSException*)exception
+                                 named:(NSString*)name
+                             inContext:(GSWContext*)aContext
+{
+  //TODO
+  GSWResponse* response=nil;
+  LOGObjectFnStart();
+  response=[GSWResponse responseWithMessage:@"Exception Handling failed"
+                        inContext:aContext
+                        forRequest:nil];
+  LOGObjectFnStop();
+  return response;
+};
+
+//Not used now. For future exception handling rewrite
+-(GSWResponse*)_handleErrorWithPageNamed:(NSString*)pageName
+                               exception:(NSException*)anException
+                               inContext:(GSWContext*)aContext
+{
+  GSWResponse* response=nil;
+  LOGObjectFnStart();
+  NS_DURING
+    {
+      GSWComponent* page=[self pageWithName:pageName
+                               inContext:aContext];
+      if (anException)
+        [page takeValue:anException
+              forKey:@"exception"];
+      response=[page generateResponse];
+    }
+  NS_HANDLER
+    {
+      // My God ! Exception on exception !
+      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                               @"In _handleException:inContext:");
+      LOGException(@"exception=%@",localException);
+      if ([[localException name]isEqualToString:GSWPageNotFoundException])
+        response=[self _invokeDefaultException:localException
+                       named:pageName
+                       inContext:aContext];
+      else
+        {
+          //TODO: better exception text...
+          NSException* exception=[NSException exceptionWithName:@"Exception"
+                                              reason:[NSString stringWithFormat:@"Cant handle exception %@",localException]
+                                              userInfo:nil];
+          response=[self _invokeDefaultException:exception
+                         named:pageName
+                         inContext:aContext];
+        };
+    }
+  NS_ENDHANDLER;
+  return response;
+};
+
 //--------------------------------------------------------------------
 -(GSWResponse*)handleException:(NSException*)anException
                      inContext:(GSWContext*)aContext
@@ -2764,6 +2823,7 @@ selfLockn,
                            inFramework:GSWFramework_extensions[GSWebNamingConvForRound(iName)]
                            languages:nil])
 	{
+          NSDebugMLog(@"exceptionPage=%@ found",exceptionPage);
 	  NS_DURING
             {
               page=[self pageWithName:GSWExceptionPageName[GSWebNamingConvForRound(iName)]
@@ -2777,6 +2837,10 @@ selfLockn,
               //TODO
             }
 	  NS_ENDHANDLER;
+        }
+      else
+        {
+          LOGError(@"exceptionPage=%@ Not found",exceptionPage);
         };
     };
   if (page)

@@ -1,8 +1,9 @@
 /* GSWFileUploadComponent.h - GSWeb: Class GSWFileUploadComponent
-   Copyright (C) 2002 Free Software Foundation, Inc.
+
+   Copyright (C) 2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		May 2002
+   Date:        May 2002
    
    This file is part of the GNUstep Web Library.
    
@@ -28,11 +29,11 @@
 {
   NSMutableDictionary* _tmpFileInfo;
 };
--(id)init;
--(void)dealloc;
--(void)awake;
--(void)sleep;
--(BOOL)synchronizesVariablesWithBindings;
+
+-(NSMutableDictionary*)fileInfo;
+-(BOOL)isViewEnabled;
+-(BOOL)isDeleteEnabled;
+
 @end
 
 

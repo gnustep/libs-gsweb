@@ -1,9 +1,9 @@
 /** GSWConditional.m - <title>GSWeb: Class GSWConditional</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date:        Jan 1999
    
    $Revision$
    $Date$
@@ -29,6 +29,10 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
+
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -185,8 +189,8 @@ Bindings
                (doIt ? "YES" : "NO"));
   if (doIt)
     {
-      GSWRequest* _request=[aContext request];
-      BOOL isFromClientComponent=[_request isFromClientComponent];
+      //GSWRequest* _request=[aContext request];
+      //Deprecated  BOOL isFromClientComponent=[_request isFromClientComponent];
       [aContext appendZeroElementIDComponent];
       [_childrenGroup takeValuesFromRequest:aRequest
                      inContext:aContext];
@@ -238,13 +242,17 @@ Bindings
                (doIt ? "YES" : "NO"));
   if (doIt)
     {
-      GSWRequest* request=[aContext request];
-      BOOL isFromClientComponent=[request isFromClientComponent];
+      //GSWRequest* request=[aContext request];
+      //Deprecated  BOOL isFromClientComponent=[request isFromClientComponent];
       [aContext appendZeroElementIDComponent];
       NSDebugMLLog(@"gswdync",@"childrenGroup=%@",_childrenGroup);
       element=[_childrenGroup invokeActionForRequest:aRequest
                              inContext:aContext];
       NSDebugMLLog(@"gswdync",@"element=%@",element);
+      NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+                @"Element is a %@ not a GSWElement: %@",
+                [element class],
+                element);
       [aContext deleteLastElementIDComponent];
     };
   GSWStopElement(aContext);
@@ -295,8 +303,8 @@ Bindings
                (doIt ? "YES" : "NO"));
   if (doIt)
     {
-      GSWRequest* request=[aContext request];
-      BOOL isFromClientComponent=[request isFromClientComponent];
+      //GSWRequest* request=[aContext request];
+      //Deprecated  BOOL isFromClientComponent=[request isFromClientComponent];
       [aContext appendZeroElementIDComponent];
       [_childrenGroup appendToResponse:aResponse
                       inContext:aContext];

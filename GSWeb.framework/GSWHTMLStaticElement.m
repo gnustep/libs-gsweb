@@ -1,9 +1,9 @@
 /** GSWHTMLStaticElement.m - <title>GSWeb: Class GSWHTMLStaticElement</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Feb 1999
+   Date: 	Feb 1999
    
    $Revision$
    $Date$
@@ -27,7 +27,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -291,8 +293,8 @@ static char rcsId[] = "$Id$";
               inContext:(GSWContext*)context
 {
   //OK
-  GSWRequest* request=[context request];
-  BOOL isFromClientComponent=[request isFromClientComponent]; //bis repetitam
+  //GSWRequest* request=[context request];
+  //not used BOOL isFromClientComponent=[request isFromClientComponent]; //bis repetitam
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
   if ([_elementsMap length]>0)
@@ -382,6 +384,11 @@ static char rcsId[] = "$Id$";
             {
               element=[[aDynamicChildrensArray objectAtIndex:elementsN[1]] invokeActionForRequest:request
                                                                            inContext:context];
+              NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
+                        @"From: %@, Element is a %@ not a GSWElement: %@",
+                        [aDynamicChildrensArray objectAtIndex:elementsN[1]],
+                        [element class],
+                        element);
               if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
                 {
                   searchIsOver=YES;

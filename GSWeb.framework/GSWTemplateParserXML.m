@@ -30,7 +30,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include "GSWTemplateParserXML.h"
@@ -424,10 +426,7 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
           externalContent=[NSString stringWithContentsOfFile:fileName];
           if (externalContent)
             {
-              NSString* gswebTag=@"\n<!ELEMENT gsweb %Flow;>
-<!ATTLIST gsweb
-  %attrs;
-  >\n";
+              NSString* gswebTag=@"\n<!ELEMENT gsweb %Flow;>\n<!ATTLIST gsweb\n  %attrs;\n  >\n";
               //  name       NMTOKEN;       #IMPLIED
               NSDebugMLLog(@"GSWTemplateParser",@"gswebTag=\n%@",gswebTag);
               externalContent=[externalContent stringByAppendingString:gswebTag];
@@ -673,7 +672,7 @@ static NSString* TabsForLevel(int level)
         {
           NSData* dataToParse=nil;
           NSString* xmlHeader=nil;
-          NSRange docTypeRange=NSMakeRange(NSNotFound,0);
+          //NSRange docTypeRange=NSMakeRange(NSNotFound,0);
           NSString* stringToParse=nil;
           NSString* encodingString=nil;
           encodingString=[GSXMLParser xmlEncodingStringForStringEncoding:stringEncoding];
@@ -1114,8 +1113,7 @@ text [Type:XML_TEXT_NODE] [{}] ####
                           //To know if it's an autoclose tag
                           if (!children && [self isKindOfClass:[GSWTemplateParserXMLHTML class]])
                             {
-                              htmlElemDescPtr elemDscr=NULL;                          
-                              elemDscr=htmlTagLookup([nodeName lossyCString]);
+                              const htmlElemDesc* elemDscr=htmlTagLookup([nodeName lossyCString]);
                               if (elemDscr
                                   && elemDscr->endTag!=2 //Forbidden End Tag
                                   && elemDscr->endTag!=1) //End can be omitted

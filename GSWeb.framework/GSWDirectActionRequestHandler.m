@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -98,12 +100,10 @@ static const char rcsId[] = "$Id$";
                   };
                   break;
                 case 2:
+                default:
                   className=[requestHandlerPathArray objectAtIndex:0];
                   actionName=[NSString stringWithFormat:@"%@",
                                        [requestHandlerPathArray objectAtIndex:1]];
-                  break;
-                default:
-                  ExceptionRaise0(@"GSWDirectActionRequestHandler",@"bad parameters count");
                   break;
                 };
               NSDebugMLLog(@"requests",@"className=%@",className);
@@ -211,6 +211,18 @@ static const char rcsId[] = "$Id$";
   return nil;
 };
 
+//NDFN: return additional path elements
++(NSArray*)additionalRequestPathArrayFromRequest:(GSWRequest*)aRequest
+{
+  NSArray* requestHandlerPathArray=nil;
+  NSArray* additionalRequestPathArray=nil;
+  LOGObjectFnStart();
+  requestHandlerPathArray=[aRequest requestHandlerPathArray];
+  if ([requestHandlerPathArray count]>2)
+    additionalRequestPathArray=[requestHandlerPathArray subarrayWithRange:NSMakeRange(2,[requestHandlerPathArray count]-2)];
+  LOGObjectFnStart();
+  return additionalRequestPathArray;
+};
 @end
 
 //====================================================================

@@ -94,7 +94,7 @@
                         timeInterval:(NSTimeInterval)timeInterval;
 -(void)_updateDAStatisticsForActionNamed:(id)name
                             timeInterval:(NSTimeInterval)timeInterval;
--(void)_sessionTerminating:(id)session;
+-(void)_sessionTerminating:(GSWSession*)session;
 -(void)_applicationCreatedSession:(GSWSession*)session;
 -(void)_applicationDidHandleComponentActionRequest;
 -(void)_applicationDidHandleComponentActionRequestInTimeInterval:(double)timeInterval;

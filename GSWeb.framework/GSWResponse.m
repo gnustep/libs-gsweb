@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -390,7 +392,7 @@ static NSArray* cacheControlHeaderValues=nil;
 
 -(void)appendContentData:(NSData*)dataObject
 {
-  unsigned char* bytes=NULL;
+  const void* bytes=NULL;
   unsigned int length=0;
   LOGObjectFnStart();
   NSDebugMLLog(@"low",@"response=%p dataObject:%@",self,dataObject);

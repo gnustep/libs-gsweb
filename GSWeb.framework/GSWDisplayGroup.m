@@ -29,12 +29,17 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 @class EOUndoManager;
 
 #if GDL2 // GDL2 implementation
+#include <EOControl/EOUndoManager.h>
+#include <EOControl/EOSortOrdering.h>
+#include <EOControl/EOClassDescription.h>
 
 //====================================================================
 @interface GSWDisplayGroup (Private)
@@ -333,7 +338,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 {
   EOUndoManager* undoManager=nil;
   LOGObjectFnStart();
-  undoManager=[[_dataSource editingContext] undoManager];
+  undoManager=(EOUndoManager*)[[_dataSource editingContext] undoManager];
   LOGObjectFnStop();
   return undoManager;
 };
@@ -1240,7 +1245,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       qualifier=[self qualifierFromQueryValues];//OK
       NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
       NSDebugMLLog(@"gswdisplaygroup",@"_dataSource=%@",_dataSource);
-      [_dataSource setAuxiliaryQualifier:qualifier];//OK
+      [(EODatabaseDataSource*)_dataSource setAuxiliaryQualifier:qualifier];//OK
 
       NSDebugMLLog0(@"gswdisplaygroup",@"Will fetch");
       [self fetch];//OK use ret Value ?
@@ -2151,7 +2156,7 @@ STOP ?
                (void*)sel,
                NSStringFromSelector(sel));
   cd=[_dataSource classDescriptionForObjects];// //ret [EOEntityClassDescription]: <EOEntityClassDescription: 0x1a3c7b0>
-  validateException=[cd validateValue:value
+  validateException=[cd validateValue:&value
                         forKey:key];
   NSDebugMLLog(@"gswdisplaygroup",@"validateException=%@",validateException);
   if (validateException)

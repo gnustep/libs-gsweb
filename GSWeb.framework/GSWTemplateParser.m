@@ -30,7 +30,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -336,8 +338,10 @@ static const char rcsId[]="$Id$";
                 if (docTypeRangeEnd.length) {
                   if (docTypeRangeStart.location < docTypeRangeEnd.location) 
                     {
-                      [_template setDocumentTypeString:[_string substringFromRange:NSMakeRange(docTypeRangeStart.location,
-                                                                                               docTypeRangeEnd.location - docTypeRangeStart.location + 1)]];
+                      [(GSWHTMLStaticGroup*)_template setDocumentTypeString:
+                                              [_string substringFromRange:
+                                                         NSMakeRange(docTypeRangeStart.location,
+                                                                     docTypeRangeEnd.location - docTypeRangeStart.location + 1)]];
                     }
                 }
               }

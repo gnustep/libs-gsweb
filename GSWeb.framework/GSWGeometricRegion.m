@@ -1,9 +1,9 @@
 /** GSWGeometricRegion.m - <title>GSWeb: Class GSWRequest</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Sept 1999
+   Date: 	Sept 1999
    
    $Revision$
    $Date$
@@ -27,7 +27,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <math.h>
@@ -326,15 +328,15 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(BOOL)hitTest:(NSPoint*)point
 {
   if (point)
-    return [self hitTestX:(unsigned int)point->x
-                 y:(unsigned int)point->y];
+    return [self hitTestX:(int)point->x
+                 y:(int)point->y];
   else
     return NO;
 };
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y
+-(BOOL)hitTestX:(int)x
+              y:(int)y
 {
   [self subclassResponsibility: _cmd];
   return NO;
@@ -521,8 +523,8 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 };
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y
+-(BOOL)hitTestX:(int)x
+              y:(int)y
 {
   BOOL hitOk=NO;
   NSPoint test=NSMakePoint(x,y);
@@ -911,8 +913,8 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 };
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y
+-(BOOL)hitTestX:(int)x
+              y:(int)y
 {
   BOOL hitOk=NO;
   LOGObjectFnStart();
@@ -1009,8 +1011,8 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y
+-(BOOL)hitTestX:(int)x
+              y:(int)y
 {
   BOOL hitOk=NO;
   int i=0;

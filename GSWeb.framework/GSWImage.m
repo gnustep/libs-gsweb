@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -47,11 +49,10 @@ static const char rcsId[]="$Id$";
 
   _width = [[inAssociations objectForKey:width__Key
                           withDefaultObject:[_width autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"width=%@",_width);
-
+  NSDebugMLLog(@"gswdync",@"_width=%@",_width);
   _height = [[inAssociations objectForKey:height__Key
                           withDefaultObject:[_height autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"height=%@",_height);
+  NSDebugMLLog(@"gswdync",@"_height=%@",_height);
 
   [associations removeObjectForKey:width__Key];
   [associations removeObjectForKey:height__Key];
@@ -110,25 +111,36 @@ static const char rcsId[]="$Id$";
                                       inContext:(GSWContext*)context
 {
   //OK
-  GSWComponent* component=nil;
   LOGObjectFnStartC("GSWImage");
   [super appendGSWebObjectsAssociationsToResponse:response
          inContext:context];
+  NSDebugMLLog(@"gswdync",@"_width=%@",_width);
+  NSDebugMLLog(@"gswdync",@"_height=%@",_height);
+
   if (_width || _height)
     {
+      GSWComponent* component=[context component];
       if (_width)
         {
           id width=[_width valueInComponent:component];
-          [response _appendContentAsciiString:@" width=\""];
-          [response appendContentHTMLString:width];
-          [response appendContentCharacter:'"'];
+          NSDebugMLLog(@"gswdync",@"width=%@",width);
+          if (width)
+            {
+              [response _appendContentAsciiString:@" width=\""];
+              [response appendContentHTMLString:width];
+              [response appendContentCharacter:'"'];
+            };
         };
       if (_height)
         {
           id height=[_height valueInComponent:component];
-          [response _appendContentAsciiString:@" height=\""];
-          [response appendContentHTMLString:height];
-          [response appendContentCharacter:'"'];
+          NSDebugMLLog(@"gswdync",@"height=%@",height);
+          if (height)
+            {
+              [response _appendContentAsciiString:@" height=\""];
+              [response appendContentHTMLString:height];
+              [response appendContentCharacter:'"'];
+            };
         };
     };
   LOGObjectFnStopC("GSWImage");

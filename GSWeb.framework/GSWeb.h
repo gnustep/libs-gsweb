@@ -1,6 +1,6 @@
 /** GSWeb.h -  <title>GSWeb</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -69,7 +69,7 @@
 #include <Foundation/NSConcreteNumber.h>
 #include <Foundation/NSFormatter.h>
 #include <Foundation/GSXML.h>
-
+#include <base/GSCategories.h>
 #include "GSCache.h"
 #include "GSWConfig.h"
 

@@ -3,7 +3,7 @@
    Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Feb 1999
+   Date:        Feb 1999
 
    $Revision$
    $Date$
@@ -30,7 +30,9 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <unistd.h>
@@ -684,7 +686,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
       NSArray* headersForKey=nil;
       NSString* key=nil;
       NSString* anHeader=nil;
-      NSString* head=[NSString stringWithFormat:@"HTTP/%@ %d %@%@\n",
+      NSString* head=[NSString stringWithFormat:@"HTTP/%@ %d %@ %@\n",
                                [response httpVersion],
                                [response status],
                                GSWHTTPHeader_Response_OK,

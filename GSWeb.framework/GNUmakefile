@@ -1,9 +1,9 @@
 # GNUmakefile - GSWeb: GNUmakefile
 #
-#   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+#   Copyright (C) 1999-2003 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-#   Date: 		Jan 1999
+#   Date: 	Jan 1999
 #   
 #   This file is part of the GNUstep Web Library.
 #   
@@ -97,7 +97,6 @@ GSWStats.m \
 NSNonBlockingFileHandle.m \
 GSWTransactionRecord.m \
 GSWBundle.m \
-NSObject+IVarAccess+PerformSel.m \
 NSString+Trimming.m \
 NSString+HTML.m \
 GSWTemplateParser.m \
@@ -295,7 +294,6 @@ GSWTransactionRecord.h \
 GSWURLValuedElementData.h \
 GSWVBScript.h \
 NSNonBlockingFileHandle.h \
-NSObject+IVarAccess+PerformSel.h \
 NSString+HTML.h \
 NSString+Trimming.h \
 GSWConfig.h \

@@ -1,6 +1,6 @@
 /** GSWSubmitButton.m - <title>GSWeb: Class GSWSubmitButton</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -27,7 +27,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -169,7 +171,7 @@ static char rcsId[] = "$Id$";
                       else 
                         {
                           // call awakeInContext when _element is sleeping deeply
-                          [element ensureAwakeInContext:context];
+                          [(GSWComponent*)element ensureAwakeInContext:context];
                           /*
                             if (![_element context]) {
                             NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
@@ -199,7 +201,7 @@ static char rcsId[] = "$Id$";
     }
   NS_ENDHANDLER;
   //if (![context _wasActionInvoked] && [[[context elementID] parentElementIDString] compare:[context senderID]]!=NSOrderedAscending)
-  if (![context _wasActionInvoked] && [[[context elementID] parentElementIDString] isSearchOverForSenderID:[context senderID]])
+  if (![context _wasActionInvoked] && [(GSWElementIDString*)[[context elementID] parentElementIDString] isSearchOverForSenderID:[context senderID]])
     {
       LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
                [self class],

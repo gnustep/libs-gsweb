@@ -28,7 +28,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -510,9 +512,9 @@ static const char rcsId[]="$Id$";
 {
   NSString* actionString=nil;
   LOGObjectFnStart();
-  actionString=[self computeActionStringWithActionClassAssociation:_actionClass
-                     directActionNameAssociation:_directActionName
-                     inContext:context];
+  actionString=[(GSWHTMLDynamicElement*)self computeActionStringWithActionClassAssociation:_actionClass
+                                        directActionNameAssociation:_directActionName
+                                        inContext:context];
   LOGObjectFnStop();
   return actionString;
 };
@@ -558,11 +560,11 @@ static const char rcsId[]="$Id$";
 {
   NSDictionary* queryDictionary=nil;
   LOGObjectFnStart();
-  queryDictionary=[self computeQueryDictionaryWithActionClassAssociation:_actionClass
-                        directActionNameAssociation:_directActionName
-                        queryDictionaryAssociation:_queryDictionary
-                        otherQueryAssociations:_otherQueryAssociations
-                        inContext:context];
+  queryDictionary=[(GSWHTMLDynamicElement*)self computeQueryDictionaryWithActionClassAssociation:_actionClass
+                                           directActionNameAssociation:_directActionName
+                                           queryDictionaryAssociation:_queryDictionary
+                                           otherQueryAssociations:_otherQueryAssociations
+                                           inContext:context];
   LOGObjectFnStop();
   return queryDictionary;
 };
@@ -633,7 +635,7 @@ static const char rcsId[]="$Id$";
               else 
                 {
                   // call awakeInContext when _element is sleeping deeply
-                  [element ensureAwakeInContext:context];
+                  [(GSWComponent*)element ensureAwakeInContext:context];
                   /*
                     if (![_element context]) {
                     NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);

@@ -1,6 +1,6 @@
 /** GSWRepetition.m - <title>GSWeb: Class GSWRepetition</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -29,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -413,6 +415,11 @@ static char rcsId[] = "$Id$";
       [context appendZeroElementIDComponent];
       element=[_childrenGroup invokeActionForRequest:request
                              inContext:context];
+      NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
+                @"_childrenGroup=%@ Element is a %@ not a GSWElement: %@",
+                _childrenGroup,
+                [element class],
+                element);
       [context deleteLastElementIDComponent];
       [self stopOneIterationWithIndex:i
             stopIndex:stopIndexValue

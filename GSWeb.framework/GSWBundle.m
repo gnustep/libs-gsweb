@@ -30,11 +30,15 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
 #ifdef GDL2
+#include <EOControl/EOKeyValueCoding.h>
+
 //====================================================================
 @interface GSWBundleUnarchiverDelegate : NSObject
 {
@@ -268,7 +272,7 @@ objectForReference:(NSString*)keyPath
   id resource=nil;
   NSString* path=nil;
   NSFileManager* fileManager=nil;
-  int languagesNb=nil;
+  int languagesNb=0;
   BOOL exists=NO;
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"type=%@",aType);
@@ -730,9 +734,8 @@ objectForReference:(NSString*)keyPath
               stringsTable=[NSDictionary dictionaryWithContentsOfFile:absolutePath];
               if (!stringsTable)
                 {
-                  NSString* tmpString=[NSString stringWithContentsOfFile:absolutePath];
                   LOGSeriousError(@"Bad stringTable \n%@\n from file %@",
-                                  tmpString,
+                                  [NSString stringWithContentsOfFile:absolutePath],
                                   absolutePath);
                 };
               if ([[GSWApplication application] isCachingEnabled])
@@ -790,9 +793,8 @@ objectForReference:(NSString*)keyPath
               stringsTableArray=[NSArray arrayWithContentsOfFile:absolutePath];
               if (!stringsTableArray)
                 {
-                  NSString* tmpString=[NSString stringWithContentsOfFile:absolutePath];
                   LOGSeriousError(@"Bad stringTableArray \n%@\n from file %@",
-                                  tmpString,
+                                  [NSString stringWithContentsOfFile:absolutePath],
                                   absolutePath);
                 };
               if ([[GSWApplication application] isCachingEnabled])
@@ -1058,7 +1060,6 @@ objectForReference:(NSString*)keyPath
   NSDictionary* archive=nil;
   NSString* relativePath=nil;
   NSString* absolutePath=nil;
-  BOOL isCachingEnabled=NO;
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"search=%@.%@",aName,GSWArchiveSuffix[GSWebNamingConv]);
   archive=[self lockedResourceNamed:aName
@@ -1135,7 +1136,6 @@ objectForReference:(NSString*)keyPath
   NSDictionary* api=nil;
   NSString* relativePath=nil;
   NSString* absolutePath=nil;
-  BOOL isCachingEnabled=NO;
   LOGObjectFnStart();
   api=[self lockedResourceNamed:aName
             ofType:GSWAPISuffix

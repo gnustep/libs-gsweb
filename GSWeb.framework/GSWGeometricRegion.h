@@ -1,8 +1,9 @@
 /** GSWGeometricRegion.h - <title>GSWeb: Class GSWRequest</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Sept 1999
+   Date: 	Sept 1999
    
    $Revision$
    $Date$
@@ -62,8 +63,8 @@
 -(NSString*)userDefinedString;
 -(id)userDefinedValue;
 -(BOOL)hitTest:(NSPoint*)point;
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y;
+-(BOOL)hitTestX:(int)x
+              y:(int)y;
 +(GSWGeometricRegion*)hitTestX:(int)x
                              y:(int)y
                      inRegions:(NSArray*)regions;
@@ -124,8 +125,8 @@
 
 -(NSString*)description;
 -(id)copyWithZone:(NSZone*)zone;
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y;
+-(BOOL)hitTestX:(int)x
+              y:(int)y;
 
 @end 
 
@@ -236,8 +237,8 @@
  userDefinedString:(NSString*)userDefinedString
   userDefinedValue:(id)userDefinedValue;
 -(NSString*)description;
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y;
+-(BOOL)hitTestX:(int)x
+              y:(int)y;
 
 
 
@@ -266,8 +267,8 @@
  userDefinedString:(NSString*)userDefinedString
   userDefinedValue:(id)userDefinedValue;
 -(NSString*)description;
--(BOOL)hitTestX:(unsigned int)x
-              y:(unsigned int)y;
+-(BOOL)hitTestX:(int)x
+              y:(int)y;
 
 @end 
 

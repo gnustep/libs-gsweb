@@ -27,7 +27,9 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -328,6 +330,7 @@ static const char rcsId[] = "$Id$";
               NSDebugMLLog(@"gswdync",@"i=%d",i);
               element=[[_dynamicChildren objectAtIndex:i] invokeActionForRequest:request
                                                           inContext:context];
+
 //              if (![context _wasFormSubmitted] && [[context elementID] compare:senderID]==NSOrderedDescending)
               if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
                 {
@@ -344,6 +347,10 @@ static const char rcsId[] = "$Id$";
 
           element=[super invokeActionForRequest:request
                          inContext:context];
+          NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+                    @"Element is a %@ not a GSWElement: %@",
+                    [element class],
+                    element);
 
           NSDebugMLLog(@"gswdync",@"isFormSubmited=%d",isFormSubmited);
           NSDebugMLLog(@"gswdync",@"[context _wasActionInvoked]=%d",[context _wasActionInvoked]);

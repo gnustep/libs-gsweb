@@ -214,6 +214,8 @@
 -(NSString*)senderID;
 //NDFN
 -(NSDictionary*)uriOrFormOrCookiesElementsByLookingForCookieFirst:(BOOL)lookCookieFirst;
+-(id)uriOrFormOrCookiesElementForKey:(NSString*)key
+             byLookingForCookieFirst:(BOOL)lookCookieFirst;
 -(NSMutableDictionary*)uriOrFormOrCookiesElements;
 -(NSMutableDictionary*)_uriElements;
 @end

@@ -1,8 +1,9 @@
 /** GSWDefaultAdaptor.h - GSWeb: Class GSWDefaultAdaptor
+
    Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
 
    This file is part of the GNUstep Web Library.
    

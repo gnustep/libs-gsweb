@@ -3,7 +3,7 @@
    Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -30,10 +30,14 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
-
+#ifdef GDL2
+#include <EOControl/EOKeyValueCoding.h>
+#endif
 //====================================================================
 @implementation GSWComponent
 
@@ -266,7 +270,7 @@ static const char rcsId[]="$Id$";
   //OK
   NSString* aTemplateName=nil;
   LOGObjectFnStart();
-  aTemplateName=[NSString stringWithCString:[aClass name]];
+  aTemplateName=[NSString stringWithCString:class_get_class_name(aClass)];
   LOGObjectFnStop();
   return aTemplateName;
 };
@@ -651,7 +655,7 @@ associationsKeys:(NSArray*)associationsKeys
 -(id)makeAParentPerformSelectorIfPossible:(SEL)aSelector
 {
   id retValue=nil;
-  id obj=[self parent];
+  GSWComponent* obj=[self parent];
   LOGObjectFnStart();
   while(obj)
     {
@@ -673,7 +677,7 @@ associationsKeys:(NSArray*)associationsKeys
                                withObject:(id)object
 {
   id retValue=nil;
-  id obj=[self parent];
+  GSWComponent* obj=[self parent];
   LOGObjectFnStart();
   while(obj)
     {
@@ -697,7 +701,7 @@ associationsKeys:(NSArray*)associationsKeys
                                withObject:(id)object2
 {
   id retValue=nil;
-  id obj=[self parent];
+  GSWComponent* obj=[self parent];
   LOGObjectFnStart();
   while(obj)
     {
@@ -720,7 +724,7 @@ associationsKeys:(NSArray*)associationsKeys
 -(void)makeSubComponentsPerformSelectorIfPossible:(SEL)aSelector
 {
   NSEnumerator* enumerator=nil;
-  id component=nil;
+  GSWComponent* component=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
   enumerator= [_subComponents objectEnumerator];    
@@ -738,7 +742,7 @@ associationsKeys:(NSArray*)associationsKeys
                                        withObject:(id)object
 {
   NSEnumerator* enumerator=nil;
-  id component=nil;
+  GSWComponent* component=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
   enumerator= [_subComponents objectEnumerator];    
@@ -759,7 +763,7 @@ associationsKeys:(NSArray*)associationsKeys
                                        withObject:(id)object2
 {
   NSEnumerator* enumerator=nil;
-  id component=nil;
+  GSWComponent* component=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
   enumerator= [_subComponents objectEnumerator];    
@@ -1562,18 +1566,6 @@ associationsKeys:(NSArray*)associationsKeys
 @implementation GSWComponent (GSWComponentK)
 
 //--------------------------------------------------------------------
--(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext
-{
-  GSWResponse* response=nil;
-  LOGObjectFnStart();
-  NSAssert(aContext,@"No context");
-  response=[GSWApp createResponseInContext:aContext];
-  [self _appendPageToResponse:response
-        inContext:aContext];
-  return response;
-};
-
-//--------------------------------------------------------------------
 -(void)_appendPageToResponse:(GSWResponse*)response
                    inContext:(GSWContext*)aContext
 {
@@ -1658,6 +1650,18 @@ associationsKeys:(NSArray*)associationsKeys
     };
   NS_ENDHANDLER;
   LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext
+{
+  GSWResponse* response=nil;
+  LOGObjectFnStart();
+  NSAssert(aContext,@"No context");
+  response=[GSWApp createResponseInContext:aContext];
+  [self _appendPageToResponse:response
+        inContext:aContext];
+  return response;
 };
 
 //--------------------------------------------------------------------
@@ -1989,7 +1993,7 @@ associationsKeys:(NSArray*)associationsKeys
   if (api)
     {
       NSArray* required=[api objectForKey:@"Required"];
-      NSArray* optional=[api objectForKey:@"Optional"];
+      //TODO useit NSArray* optional=[api objectForKey:@"Optional"];
       int i=0;
       int count=[required count];
       id aName=nil;

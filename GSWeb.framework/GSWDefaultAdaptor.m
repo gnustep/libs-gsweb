@@ -30,12 +30,12 @@
    </license>
 **/
 
-static const char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
-//#include <gnustep/base/UnixFileHandle.h>
 #include <gnustep/base/GSFileHandle.h>
-#include "config.h"
 
 #if HAVE_LIBWRAP
 #include <tcpd.h>
@@ -259,7 +259,7 @@ int allow_severity = LOG_INFO;
 
 //--------------------------------------------------------------------
 //NDFN
--(id)announceNewConnection:(id)notification
+-(id)announceNewConnection:(NSNotification*)notification
 {
   GSWDefaultAdaptorThread* newThread=nil;
   NSFileHandle* listenHandle=nil;

@@ -1,8 +1,9 @@
 /** GSWResourceManager.m - <title>GSWeb: Class GSWResourceManager</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -28,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -52,7 +55,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       NSBundle* mainBundle=nil;
       GSWDeployedBundle* deployedBundle=nil;
       GSWLogC("Start GSWResourceManager +initialize");
-      if ((self=[[super superclass] initialize]))
+      //if ((self=[[super superclass] initialize]))
         {
           NSString* bundlePath=nil;
           mainBundle=[GSWApplication mainBundle];
@@ -61,7 +64,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
           bundlePath=[mainBundle  bundlePath];
           //NSDebugMLLog(@"resmanager",@"bundlePath:%@",bundlePath);
           printf("bundlePath:%s",[bundlePath lossyCString]);
-          deployedBundle=[GSWDeployedBundle bundleWithPath:bundlePath];
+          deployedBundle=(GSWDeployedBundle*)[GSWDeployedBundle bundleWithPath:bundlePath];
           //NSDebugMLLog(@"resmanager",@"deployedBundle:%@",deployedBundle);
 	  
           globalAppProjectBundle=[[deployedBundle projectBundle] retain];
@@ -96,8 +99,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      //TODO
-      NSBundle* mainBundle=[NSBundle mainBundle];
+      //TODO NSBundle* mainBundle=[NSBundle mainBundle];
       NSArray* allFrameworks=[NSBundle allFrameworks];
       int i=0;
       NSString* bundlePath=nil;
@@ -625,7 +627,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     stringsTable=[self  lockedStringsTableWithName:aTableName 
                          inFramework:aFrameworkName
                          language:aLanguage];
-  else if (stringsTable==localNotFoundMarker)
+  else if ((id)stringsTable==(id)localNotFoundMarker)
     stringsTable=nil;
 
   NSDebugMLLog(@"resmanager",@"lockedCachedStringsTableNamed:%@ inFramework:%@ language:%@: %@",
@@ -653,7 +655,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     stringsTableArray=[self  lockedStringsTableArrayWithName:aTableName 
                               inFramework:aFrameworkName
                               language:aLanguage];
-  else if (stringsTableArray==localNotFoundMarker)
+  else if ((id)stringsTableArray==(id)localNotFoundMarker)
     stringsTableArray=nil;
   LOGObjectFnStop();
   return stringsTableArray;
@@ -726,9 +728,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       stringsTable=[NSDictionary dictionaryWithContentsOfFile:path];
       if (!stringsTable)
         {
-          NSString* tmpString=[NSString stringWithContentsOfFile:path];
           LOGSeriousError(@"Bad stringTable \n%@\n from file %@",
-                          tmpString,
+                          [NSString stringWithContentsOfFile:path],
                           path);
         };
     };
@@ -737,7 +738,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     NSMutableDictionary* languageDict=nil;
     if (!frameworkDict)
       {
-        frameworkDict=[NSMutableDictionary dictionary];
+        frameworkDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aFrameworkName)
           aFrameworkName=@"";//Global
         [_stringsTablesByFrameworkByLanguageByName setObject:frameworkDict
@@ -746,7 +747,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     languageDict=[frameworkDict objectForKey:aLanguage];
     if (!languageDict)
       {
-        languageDict=[NSMutableDictionary dictionary];
+        languageDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aLanguage)
           aLanguage=@"";
         [frameworkDict setObject:languageDict
@@ -837,9 +838,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       stringsTableArray=[NSArray arrayWithContentsOfFile:path];
       if (!stringsTableArray)
         {
-          NSString* tmpString=[NSString stringWithContentsOfFile:path];
           LOGSeriousError(@"Bad stringTableArray \n%@\n from file %@",
-                          tmpString,
+                          [NSString stringWithContentsOfFile:path],
                           path);
         };
     };
@@ -848,7 +848,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     NSMutableDictionary* languageDict=nil;
     if (!frameworkDict)
       {
-        frameworkDict=[NSMutableDictionary dictionary];
+        frameworkDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aFrameworkName)
           aFrameworkName=@"";//Global
         [_stringsTableArraysByFrameworkByLanguageByName setObject:frameworkDict
@@ -857,7 +857,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     languageDict=[frameworkDict objectForKey:aLanguage];
     if (!languageDict)
       {
-        languageDict=[NSMutableDictionary dictionary];
+        languageDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aLanguage)
           aLanguage=@"";
         [frameworkDict setObject:languageDict
@@ -918,12 +918,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         path=[NSString stringWithFormat:@"ERROR_NOT_FOUND_framework_*%@*_filename_%@",
                        aFrameworkName,
                        resourceName];
-      url=[request _urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
-                   path:nil
-                   queryString:[NSString stringWithFormat:
-                                           @"%@=%@",
-                                         GSWKey_Data[GSWebNamingConv],
-                                         path]];//TODO Escape
+      url=(NSString*)[request _urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
+                              path:nil
+                              queryString:[NSString stringWithFormat:
+                                                      @"%@=%@",
+                                                    GSWKey_Data[GSWebNamingConv],
+                                                    path]];//TODO Escape
     };
   //  NSDebugMLLog(@"resmanager",@"[_frameworkProjectBundlesCache count]=%d",[_frameworkProjectBundlesCache count]);
   //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
@@ -1099,9 +1099,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       int i=0;
       NSString* bundlePath=nil;
       NSBundle* tmpBundle=nil;
-      NSDictionary* infoDict=nil;
       NSString* frameworkName=nil;
-      GSWDeployedBundle* projectBundle=nil;
 
       [allFrameworks addObjectsFromArray:[NSBundle allBundles]];
       [allFrameworks autorelease];
@@ -1118,7 +1116,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
           // NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
           if ([frameworkName isEqualToString:resourceName])
             {
-              bundle=[GSWDeployedBundle bundleWithPath:bundlePath];
+              bundle=(GSWDeployedBundle*)[GSWDeployedBundle bundleWithPath:bundlePath];
               NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
               /*projectBundle=[GSWProjectBundle projectBundleForProjectNamed:resourceName
                 isFramework:YES];
@@ -1443,8 +1441,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   //OK
   NSString* type=nil;
   NSString* extension=nil;
-  NSDictionary* tmpMimeTypes=nil;
-  NSMutableDictionary* mimeTypes=[NSMutableDictionary dictionary];
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"path=%@",path);
   extension=[path pathExtension];
@@ -1630,7 +1626,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         NSAssert(globalMimePListPathName,@"No resource MIME.plist");
         {
           NSDictionary* tmpMimeTypes=nil;
-          NSMutableDictionary* mimeTypes=[NSMutableDictionary dictionary];
+          NSMutableDictionary* mimeTypes=(NSMutableDictionary*)[NSMutableDictionary dictionary];
           LOGObjectFnStart();
           tmpMimeTypes=[NSDictionary  dictionaryWithContentsOfFile:globalMimePListPathName];
           // NSDebugMLLog(@"resmanager",@"tmpMimeTypes=%@",tmpMimeTypes);
@@ -1664,8 +1660,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         NSAssert(globalLanguagesPListPathName,@"No resource languages.plist");
         {
           NSDictionary* tmpLanguages=nil;
-          NSMutableDictionary* ISO2GS=[NSMutableDictionary dictionary];
-          NSMutableDictionary* GS2ISO=[NSMutableDictionary dictionary];
+          NSMutableDictionary* ISO2GS=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+          NSMutableDictionary* GS2ISO=(NSMutableDictionary*)[NSMutableDictionary dictionary];
           LOGObjectFnStart();
           tmpLanguages=[NSDictionary  dictionaryWithContentsOfFile:globalLanguagesPListPathName];
           NSDebugMLLog(@"resmanager",@"tmpLanguages=%@",tmpLanguages);

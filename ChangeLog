@@ -1,3 +1,251 @@
+2003-03-21   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWGNUmakefile:
+		o removed NSObject+IVarAccess+PerformSel.*
+	* GSWeb.framework/GSWConstants.m:
+		o fix GSWHTTPHeader_Response_HeaderLineEnd: remove space at the begining
+		o use RCS_ID
+	* GSWeb.framework/Adaptors/common/GSWHTTPResponse.c:
+		o fix status in GSWHTTPResponse_New()
+	* GSWAdaptors/Apache/mod_gsweb.c:
+		o fixes bad returned status
+		o traces
+	* GSWeb.framework/GSWTemplateParserANTLR.m:
+		o removed logs
+		o fixes for warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWApplication.m:
+		o use RCS_ID
+		o added logs
+		o new method to begin rewrite exception handling
+	* GSWeb.framework/GSWRequest.m:
+		o logs
+		o fix in -_getFormValuesFromMultipartFormData to handle more than one value per name
+		o use RCS_ID
+		o -fix bad types in uriElementForKey:
+	* GSWeb.framework/GSWConditional.m:
+		o added asserts
+		o use RCS_ID
+	* GSWeb.framework/GSWHTMLStaticElement.m:
+		o added asserts
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWComponentReference.m:
+		o added asserts
+		o use RCS_ID
+	* GSWeb.framework/GSWActiveImage.m:
+		o added asserts
+	* GSWeb.framework/GSWComponentContent.m:
+		o added asserts
+		o use RCS_ID
+	* GSWeb.framework/GSWForm.m:
+		o added asserts
+		o use RCS_ID
+	* GSWeb.framework/GSWHTMLDynamicElement.m:
+		o added asserts
+		o use RCS_ID
+	* GSWeb.framework/GSWHTMLURLValuedElement.m:
+		o use RCS_ID
+		o added asserts
+	* GSWeb.framework/GSWRepetition.m:
+		o added asserts
+		o use RCS_ID
+	* GSWeb.framework/GSWExtensions.framework/GNUmakefile:
+		o added GSWPageRestorationErrorPage.gswc
+	* GSWeb.framework/GSWFileUploadComponent.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWImage.m:
+		o Don't output nil height/width
+		o fix: get component before using !
+		o use RCS_ID
+	* GSWeb.framework/GSWElementIDString.m:
+		o in -initWithCoder: retain _string
+		o use RCS_ID
+	* GSWeb.framework/GSWElementIDString.h:
+		o cleaned
+	* config.h.in:
+		o define RCS_ID like in GDL2
+	* GSWeb.framework/GSWDirectActionRequestHandler.[hm]:
+		o added +additionalRequestPathArrayFromRequest:
+		o enable directAction with additional path components
+		o use RCS_ID
+	* GSWeb.framework/GSWDirectAction.[hm]:
+		o added -additionalRequestPathArray
+		o use RCS_ID
+	* GSWeb.framework/GSWeb.h:
+		o include GSCategories.h
+	* GSWeb.framework/GSWDebug.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWPageDefParserExt.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWPageDefElement.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWDeployedBundle.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWProjectBundle.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWStats.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWBundle.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWTemplateParser.m::
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWTemplateParserXML.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWComponent.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o clean warnings
+		o fix -validateValue:forKey: call
+		o use RCS_ID
+	* GSWeb.framework/GSWHTMLParserExt.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWAssociation.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWResourceManager.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWSession.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWMultiKeyDictionary.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWResponse.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWStatisticsStore.m:
+		o clean warnings
+	* GSWeb.framework/GSWAdaptor.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWGeometricRegion.[hm]:
+		o types change
+		o use RCS_ID
+	* GSWeb.framework/GSWActiveImage.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWBody.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWTextField.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWSubmitButton.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWHTMLBareString.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWHTMLComment.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWApplet.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWBrowser.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWCheckBoxList.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWEmbeddedObject.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWFrame.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWGenericContainer.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWGenericElement.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWHyperlink.m:
+		o use RCS_ID
+		o clean warnings
+	* GSWeb.framework/GSWImageButton.m:	
+		o use RCS_ID
+		o clean warnings
+	* GSWeb.framework/GSWJavaScript.m: 
+		o use RCS_ID
+	* GSWeb.framework/GSWNestedList.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWParam.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWPasswordField.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWPopUpButton.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWRadioButtonList.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWResetButton.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWSwitchComponent.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWVBScript.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWString.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWText.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWCookie.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWRequestHandler.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWMailDelivery.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWComponentRequestHandler.m:
+		o use RCS_ID
+		o clean warnings
+	* GSWeb.framework/GSWKeyValueAssociation.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWHTMLStaticGroup.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWConstantValueAssociation.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWDynamicURLString.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWBindingNameAssociation.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWBindingNameAssociation.[hm]
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWURLValuedElementData.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWeb.framework/GSWToggle.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWFileUpload.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWResourceURL.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWProcFS.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWActionURL.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWContext.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWDefaultAdaptorThread.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWDynamicElement.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWeb.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWElement.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWResourceRequestHandler.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWServerSessionStore.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWSessionStore.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWSessionTimeOut.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWSessionTimeOutManager.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWTransactionRecord.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWUtils.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWWOCompatibility.m:
+		o use RCS_ID
+	* GSWeb.framework/NSString+HTML.m:
+		o use RCS_ID
+	* GSWeb.framework/NSString+Trimming.m:
+		o use RCS_ID
+
 2003-03-04  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb/NSString+HTML.m ([NSString -decodeURL]): Updated function

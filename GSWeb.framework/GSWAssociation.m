@@ -1,9 +1,9 @@
 /** GSWAssociation.m - <title>GSWeb: Class GSWAssociation</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date:        Jan 1999
    
    $Revision$
    $Date$
@@ -27,7 +27,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <math.h>
@@ -36,6 +38,9 @@ static char rcsId[] = "$Id$";
 #endif
 #ifdef TCSDB
 #include <TCSimpleDB/TCSimpleDB.h>
+#endif
+#ifdef GDL2
+#include <EOControl/EOKeyValueCoding.h>
 #endif
 
 static NSDictionary* localMinMaxDictionary=nil;
@@ -304,7 +309,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         {
           NSString* numberString=[trimmedString stringByDeletingPrefix:@"#"];
           //char* cString=[numberString lossyCString];//TODO
-          char* cString=[numberString cString];//TODO
+          const char* cString=[numberString cString];//TODO
           char* endPtr=NULL;
           int value=strtol(cString,&endPtr,16);
           NSDebugMLLog(@"associations",@"value=[%d]",value);
@@ -341,7 +346,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
               else
                 {
                   //char* cString=[trimmedString lossyCString];//TODO
-                  char* cString=[trimmedString cString];//TODO
+                  const char* cString=[trimmedString cString];//TODO
                   char* endPtr=NULL;
                   int value=strtol(cString,&endPtr,10);
                   NSDebugMLLog(@"associations",@"value=[%d]",value);
@@ -542,7 +547,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           int i=0;
           Class class=Nil;
           int handlerCount=[associationsLogsHandlerClasses count];
-          NSString* debugDescription=[self debugDescription];
           for(i=0;i<handlerCount;i++)
             {
               class=[associationsLogsHandlerClasses objectAtIndex:i];

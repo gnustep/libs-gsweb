@@ -1,6 +1,6 @@
-/** GSWTemplateParserANTLR.h - <title>GSWeb: Class GSWTemplateParserANTLR</title>
+/** GSWTemplateParserANTLR.m - <title>GSWeb: Class GSWTemplateParserANTLR</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:       Mar 1999
@@ -27,6 +27,10 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
+
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include "GSWTemplateParserANTLR.h"
@@ -90,28 +94,18 @@
     {
       LOGError(@"template named:%@ HTML Parse failed!",_templateName);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,@"In [htmlParser document]... template named:%@ HTML Parse failed!",_templateName);
-      [localException retain];
+      RETAIN(localException);
       DESTROY(arpParse);
-      [localException autorelease];
+      AUTORELEASE(localException);
       [localException raise];
     }
   NS_ENDHANDLER;
-  NSDebugMLLog0(@"low",@"arpParse infos:\n");
-#ifndef NDEBUG
-  if ([NSThread currentThread])
-    {
-      NSDebugMLLog(@"low",@"thread current_pool=%@",
-                   [NSThread currentThread]->_autorelease_vars.current_pool);
-      NSDebugMLLog(@"low",@"thread current_pool _parentAutoreleasePool=%@",
-                   [[NSThread currentThread]->_autorelease_vars.current_pool _parentAutoreleasePool]);
-    };
-#endif
-  NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
+
   [htmlAST retain];
   DESTROY(arpParse);
   arpParse=[NSAutoreleasePool new];
   [htmlAST autorelease];
-  NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
+
   if (htmlAST)
     {
       _tagsNames=[[NSMutableDictionary dictionary] retain];
@@ -130,25 +124,18 @@
                           _templateName);
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"In createElementsStartingWithAST...");
+          RETAIN(localException);
+          DESTROY(arpParse);
+          AUTORELEASE(localException);
           [localException raise];
         }
       NS_ENDHANDLER;
     };
-  NSDebugMLLog0(@"low",@"ARP infos:\n");
-#ifndef NDEBUG
-  if ([NSThread currentThread])
-    {
-      NSDebugMLLog(@"low",@"thread current_pool=%@",
-                   [NSThread currentThread]->_autorelease_vars.current_pool);
-      NSDebugMLLog(@"low",@"thread current_pool _parentAutoreleasePool=%@",
-                   [[NSThread currentThread]->_autorelease_vars.current_pool _parentAutoreleasePool]);
-    };
-#endif
+
   [elements retain];
-  NSDebugMLLog0(@"low",@"DESTROY(arp)\n");
   DESTROY(arpParse);
-  NSDebugMLLog0(@"low",@"DESTROYED(arp)\n");
   [elements autorelease];
+
   NSDebugMLLog0(@"low",@"Display Template\n");
   NSDebugMLLog(@"low",@"template named:%@ elements=%@",
                _templateName,
@@ -206,22 +193,14 @@
           LOGError(@"PARSE PB:[%@]",[anAST text]);//TODO
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"In [_tagParser tag]...");
+          RETAIN(localException);
+          DESTROY(arpParse);
+          AUTORELEASE(localException);
           [localException raise];
         }
       NS_ENDHANDLER;
-      NSDebugMLLog0(@"low",@"arpParse infos:\n");
-#ifndef NDEBUG
-      if ([NSThread currentThread])
-        {
-          NSDebugMLLog(@"low",@"thread current_pool=%@",
-                       [NSThread currentThread]->_autorelease_vars.current_pool);
-          NSDebugMLLog(@"low",@"thread current_pool _parentAutoreleasePool=%@",
-                       [[NSThread currentThread]->_autorelease_vars.current_pool _parentAutoreleasePool]);
-        };
-#endif
-      NSDebugMLLog0(@"low",@"DESTROY(arpParse)\n");
+
       DESTROY(arpParse);
-      NSDebugMLLog0(@"low",@"DESTROYED(arpParse)\n");
 
       NSDebugMLLog(@"low",@"END PARSE:[%@]",[anAST text]);
 	  
@@ -390,7 +369,7 @@
                                                 && ![_associations objectForKey:_tagAttrKey])
                                               {
                                                 if (!_addedAssoc)
-                                                  _addedAssoc=[NSMutableDictionary dictionary];
+                                                  _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
                                                 _tagAttrValue=[tagAttrs objectForKey:_tagAttrKey];
                                                 [_addedAssoc setObject:[GSWAssociation associationWithValue:_tagAttrValue]
                                                              forKey:_tagAttrKey];

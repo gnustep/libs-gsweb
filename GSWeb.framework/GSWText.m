@@ -1,9 +1,9 @@
 /** GSWText.m - <title>GSWeb: Class GSWText</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -27,7 +27,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -111,10 +113,10 @@ static char rcsId[] = "$Id$";
               inContext:(GSWContext*)context
 {
   //OK
-  GSWRequest* request=[context request];
+  //GSWRequest* request=[context request];
   NSString* valueValue=nil;
   NSString* valueValueFiltered=nil;
-  BOOL isFromClientComponent=[request isFromClientComponent];
+  //not used BOOL isFromClientComponent=[request isFromClientComponent];
   GSWComponent* component=[context component];
   [super appendToResponse:response
 		 inContext:context];

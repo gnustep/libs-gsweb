@@ -1,9 +1,9 @@
 /* GSWComponentReference.m - <title>GSWeb: Class GSWComponentReference</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Jan 1999
+   Date: 	Jan 1999
    
    $Revision$
    $Date$
@@ -29,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
@@ -258,6 +260,12 @@ static char rcsId[] = "$Id$";
           component=[context component];
           element=[component invokeActionForRequest:request
                               inContext:context];
+          NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
+                    @"Name= %@, from: %@, Element is a %@ not a GSWElement: %@",
+                    _name,
+                    component,
+                    [element class],
+                    element);
         };
       [self popRefComponentInContext:context];
     }

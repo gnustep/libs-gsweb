@@ -63,6 +63,7 @@ GSWExtensions_COMPONENTS = \
 GSWSessionCreationErrorPage.gswc \
 GSWSessionRestorationErrorPage.gswc \
 GSWCollapsibleComponentContent.gswc \
+GSWPageRestorationErrorPage.gswc \
 GSWStatsPage.gswc \
 GSWDictionaryRepetition.gswc \
 GSWTable.gswc \
