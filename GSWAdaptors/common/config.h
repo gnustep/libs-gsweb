@@ -52,7 +52,7 @@ extern "C" {
 #define	GSWEB_STATUS_RESPONSE_APP_NAME	"status"
 
 #if GSWEB_WONAMES
-#define GSWAPP_EXTENSION ".wa"
+#define GSWAPP_EXTENSION ".woa"
 #else
 #define GSWAPP_EXTENSION ".gswa"
 #endif

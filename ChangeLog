@@ -1,3 +1,7 @@
+2000-03-23  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWAdaptor/common/config.h: changed GSWAPP_EXTENSION from wa to woa.
+
 2000-03-20  Manuel Guesdon <mguesdon@sbuilders.com>
 
 	* GSWDebug.h: remove unused functions
