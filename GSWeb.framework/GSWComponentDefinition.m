@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -26,8 +27,6 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
-
-static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -425,7 +424,7 @@ languages:(NSArray*)languages
       // If we haven't found a superclass, use GSWComponent as the superclass
       if (!superClassName)
         superClassName=@"GSWComponent";
-      NSDebugMLLog(@"gswcomponents",@"superClassName=%@",superClassName);
+      NSDebugMLLog(@"gswcomponents",@"_name=%@ superClassName=%@",_name,superClassName);
 
       // Create class
       createClassesOk=[GSWApplication createUnknownComponentClasses:[NSArray arrayWithObject:_name]

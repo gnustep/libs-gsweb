@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -26,8 +27,6 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
-
-static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -322,8 +321,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 +(GSWSessionStore*)serverSessionStore
 {
-  LOGClassFnNotImplemented();	//TODOFN
-  return nil;
+  return [[GSWServerSessionStore new] autorelease];
 };
 
 @end
@@ -349,13 +347,6 @@ static char rcsId[] = "$Id$";
   return [[GSWSessionStorePage new] autorelease];
 };
 
-//--------------------------------------------------------------------
-//	serverSessionStore
-
-+(GSWSessionStore*)serverSessionStore 
-{
-  return [[GSWSessionStoreServer new] autorelease];
-};
 */
 //--------------------------------------------------------------------
 //	restoreSession
@@ -399,5 +390,20 @@ static char rcsId[] = "$Id$";
 
 @end
 
+
+//====================================================================
+@implementation GSWSessionStore (GSWSessionStoreInfo)
+
+-(BOOL)containsSessionID:(NSString*)aSessionID
+{
+  return NO;
+};
+
+-(NSArray *)allSessionIDs
+{
+  return nil;
+}
+
+@end
 
 

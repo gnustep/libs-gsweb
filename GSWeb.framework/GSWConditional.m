@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -29,9 +30,21 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
-
 #include <GSWeb/GSWeb.h>
+
+/**
+Bindings
+
+	condition	if evaluated to YES (or NO if negate evaluted to YES), the enclosed code is emitted/used
+
+        value		if evaluated value is equal to conditionValue evaluated value, the enclosed code is 
+        			emitted/used (or not equal if negate evaluated to YES);
+
+        conditionValue	if evaluated value is equal to conditionValue evaluated value, the enclosed code is 
+        			emitted/used (or not equal if negate evaluated to YES);
+
+        negate		If evaluated to yes, negate the condition (defaut=NO)
+**/
 
 //====================================================================
 @implementation GSWConditional
@@ -66,8 +79,31 @@ static char rcsId[] = "$Id$";
         _childrenGroup=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
 
       _condition = [[associations objectForKey:condition__Key
-                                 withDefaultObject:[_condition autorelease]] retain];
+                                  withDefaultObject:[_condition autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"GSWConditional condition=%@",_condition);
+
+      if (!WOStrictFlag)
+        {
+          _value = [[associations objectForKey:value__Key
+                                  withDefaultObject:[_value autorelease]] retain];
+          NSDebugMLLog(@"gswdync",@"GSWConditional value=%@",_value);
+          
+          _conditionValue  = [[associations objectForKey:conditionValue__Key
+                                            withDefaultObject:[_conditionValue autorelease]] retain];
+          NSDebugMLLog(@"gswdync",@"GSWConditional conditionValue=%@",_conditionValue);
+          
+          if (_conditionValue && !_value)
+            ExceptionRaise0(@"GSWConditional",
+                            @"'conditionValue' parameter need 'value' parameter");
+          
+          if (_value && !_conditionValue)
+            ExceptionRaise0(@"GSWConditional",
+                            @"'value' parameter need 'conditionValue' parameter");
+          
+          if (_conditionValue && _condition)
+            ExceptionRaise0(@"GSWConditional",
+                            @"You can't have 'condition' parameter with 'value' and 'conditionValue' parameters");
+        };
       _negate = [[associations objectForKey:negate__Key
                                withDefaultObject:[_negate autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"GSWConditional negate=%@",_negate);
@@ -80,7 +116,11 @@ static char rcsId[] = "$Id$";
 -(void)dealloc
 {
   DESTROY(_condition);
+  DESTROY(_value);
+//GSWeb Additions {
+  DESTROY(_conditionValue);
   DESTROY(_negate);
+// }
   DESTROY(_childrenGroup);
   [super dealloc];
 }
@@ -115,8 +155,21 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
-  condition=[self evaluateCondition:_condition
-                  inContext:aContext];
+  if (!WOStrictFlag && _conditionValue)
+    {
+      GSWComponent* component=[aContext component];
+      id conditionValueValue=[_conditionValue valueInComponent:component];
+      id valueValue=[_value valueInComponent:component];
+      NSDebugMLog(@"_conditionValue=%@ conditionValueValue=%@",
+                  _conditionValue,conditionValueValue);
+      NSDebugMLog(@"_value=%@ valueValue=%@",
+                  _value,valueValue);
+      condition=SBIsValueEqual(conditionValueValue,valueValue);
+    }
+  else    
+    condition=[self evaluateCondition:_condition
+                    inContext:aContext];
+
   negate=[self evaluateCondition:_negate
                inContext:aContext];
   doIt=condition;
@@ -156,8 +209,21 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
-  condition=[self evaluateCondition:_condition
-                  inContext:aContext];
+  if (!WOStrictFlag && _conditionValue)
+    {
+      GSWComponent* component=[aContext component];
+      id conditionValueValue=[_conditionValue valueInComponent:component];
+      id valueValue=[_value valueInComponent:component];
+      NSDebugMLog(@"_conditionValue=%@ conditionValueValue=%@",
+                  _conditionValue,conditionValueValue);
+      NSDebugMLog(@"_value=%@ valueValue=%@",
+                  _value,valueValue);
+      condition=SBIsValueEqual(conditionValueValue,valueValue);
+    }
+  else    
+    condition=[self evaluateCondition:_condition
+                    inContext:aContext];
+
   negate=[self evaluateCondition:_negate
                inContext:aContext];
   doIt=condition;
@@ -198,8 +264,21 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);
-  condition=[self evaluateCondition:_condition
-                  inContext:aContext];
+
+  if (!WOStrictFlag && _conditionValue)
+    {
+      GSWComponent* component=[aContext component];
+      id conditionValueValue=[_conditionValue valueInComponent:component];
+      id valueValue=[_value valueInComponent:component];
+      NSDebugMLog(@"_conditionValue=%@ conditionValueValue=%@",
+                  _conditionValue,conditionValueValue);
+      NSDebugMLog(@"_value=%@ valueValue=%@",
+                  _value,valueValue);
+      condition=SBIsValueEqual(conditionValueValue,valueValue);
+    }
+  else    
+    condition=[self evaluateCondition:_condition
+                    inContext:aContext];
   NSDebugMLLog(@"gswdync",@"condition=%s",condition ? "YES" : "NO");
   negate=[self evaluateCondition:_negate
                inContext:aContext];

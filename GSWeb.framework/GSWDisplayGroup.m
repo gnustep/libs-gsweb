@@ -8,6 +8,7 @@
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,8 +28,6 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
-
-static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 @class EOUndoManager;
@@ -128,7 +127,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       [self setQualifier:
               [unarchiver decodeObjectForKey:@"qualifier"]];
       [self setDefaultStringMatchFormat:
-              [unarchiver decodeObjectForKey:@"formatForLikeQualifier"]];
+              [unarchiver decodeObjectForKey:@"defaultStringMatchFormat"]];
       [self setInsertedObjectDefaultValues:
               [unarchiver decodeObjectForKey:@"insertedObjectDefaultValues"]];
       [self setQueryOperator:[unarchiver decodeObjectForKey:@"queryOperator"]];

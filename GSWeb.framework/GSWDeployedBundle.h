@@ -81,7 +81,7 @@
 @end
 
 @interface GSWDeployedBundle (GSWDeployedBundleA)
-+(GSWDeployedBundle*)bundleWithPath:(NSString*)aPath;
++(id)bundleWithPath:(NSString*)aPath;
 @end
 
 #endif //_GSWDeployedBundle_h__

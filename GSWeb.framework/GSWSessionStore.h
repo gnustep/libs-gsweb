@@ -92,4 +92,11 @@ secure:(BOOL)flag;
 -(void)_validateAPI;
 @end
 
+//====================================================================
+@interface GSWSessionStore (GSWSessionStoreInfo)
+-(BOOL)containsSessionID:(NSString*)aSessionID;
+-(NSArray *)allSessionIDs;
+@end
+
+
 #endif //_GSWSessionStore_h__

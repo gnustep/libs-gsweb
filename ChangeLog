@@ -1,3 +1,32 @@
+2002-11-27   Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb/GSWApplication.m:
+		o added \n in logs
+		o added removeVolatileDomainForName: before setting it
+		o remove rcsId
+		o changed class creation to avoid libFoundationExt dependency
+		o reduced compilation  warnings
+	* GSWeb/GSWDisplayGroup.m:
+		o fixed bug in -initWithKeyValueUnarchiver: for defaultStringMatchFormat
+		o remove rcsId
+	* GSWeb/GSWConditional.[hm]
+		o added _value and _conditionValue (see doc)
+		o documentation
+		o remove rcsId
+	* GSWeb/GSWConstants.[hm]
+		o added conditionValue
+	* config.mak
+		o switched to gdl2	
+	* GSWeb/GSWDeployedBundle.h:
+		o changed bundleWithPath: return path to avoid warning
+	* GSWeb/GSWSessionStore.[hm]:
+		o added containsSessionID: and allSessionIDs;
+		o implemented +serverSessionStore
+		o remove rcsId
+	* GSWeb/GSWComponentDefinition.m:
+		o logs
+		o remove rcsId	
+	
 2002-11-23   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWExtensions.framework/GSWLongResponsePage.h:
 		o fixed WO* to GSW*

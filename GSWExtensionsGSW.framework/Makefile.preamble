@@ -62,10 +62,10 @@ ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db  -I../.. -I../GSWeb.frame
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS = -lFoundationExt_d -lGSWeb_d -lGSANTLR_d 
+	ADDITIONAL_LDFLAGS = -lGSWeb_d -lGSANTLR_d 
 #-lGSWExtensions_d 
 else
-	ADDITIONAL_LDFLAGS = -lFoundationExt -lGSWeb -lGSANTLR 
+	ADDITIONAL_LDFLAGS = -lGSWeb -lGSANTLR 
 #-lGSWExtensions
 endif
 

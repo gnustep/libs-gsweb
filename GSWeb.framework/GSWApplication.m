@@ -7,6 +7,7 @@
 
    $Revision$
    $Date$
+   $Id$
    
    This file is part of the GNUstep Web Library.
    
@@ -27,14 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
-
 #include <GSWeb/GSWeb.h>
-#ifdef NOEXTENSIONS
-#else
-#include <extensions/NGReflection.h>
-#include <extensions/GarbageCollector.h>
-#endif
 #if GDL2 // GDL2 implementation
 #include <EOAccess/EOModelGroup.h>
 #endif
@@ -212,6 +206,8 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                   [newArgs setObject:argValue
                            forKey:argKey];
                 };
+              NSDebugFLog(@"NSArgumentDomain: %@ Args: %@",NSArgumentDomain,newArgs);
+              [defaults removeVolatileDomainForName:NSArgumentDomain];
               [defaults setVolatileDomain:newArgs
                         forName:NSArgumentDomain];
             };
@@ -1095,8 +1091,8 @@ selfLockn,
 -(NSString*)_directConnectURL
 {
   NSString* directConnectURL=nil;
-  NSString* cgiAdaptorURL=[[self class]cgiAdaptorURL]; //return http://titi.toto.com/cgi/GSWeb.exe
-  NSArray* adaptor=[self adaptors];
+  //Not used yet NSString* cgiAdaptorURL=[[self class]cgiAdaptorURL]; //return http://titi.toto.com/cgi/GSWeb.exe
+  //Not used yet NSArray* adaptor=[self adaptors];
   //(call name)
   LOGObjectFnNotImplemented();	//TODOFN
   return directConnectURL; //return http://titi.toto.com:1436/cgi/GSWeb.exe/ObjCTest3
@@ -1610,7 +1606,7 @@ selfLockn,
       allFrameworks=[NSBundle allFrameworks];
       for(frameworkN=0;frameworkN<[allFrameworks count];frameworkN++)
         {
-          NSDictionary* infoDictionary=[[allFrameworks objectAtIndex:frameworkN] infoDictionary];
+          //Not used yet NSDictionary* infoDictionary=[[allFrameworks objectAtIndex:frameworkN] infoDictionary];
           //TODO what ???
         };
     }
@@ -2321,10 +2317,10 @@ selfLockn,
 -(void)threadWillExit
 {
 //  GSWLogC("GC** GarbageCollector collectGarbages START");
-  printf("GC** GarbageCollector collectGarbages START");
+  printf("GC** GarbageCollector collectGarbages START\n");
 //TODO-NOW  [GarbageCollector collectGarbages];//LAST //CLEAN
 //  GSWLogC("GC** GarbageCollector collectGarbages STOP");
-  printf("GC** GarbageCollector collectGarbages STOP");
+  printf("GC** GarbageCollector collectGarbages STOP\n");
 };
 
 //--------------------------------------------------------------------
@@ -2745,7 +2741,7 @@ selfLockn,
       monitor=[self _remoteMonitor];
       if (monitor)
         {
-          NSString* monitorApplicationName=[self _monitorApplicationName];
+          //Not used yet NSString* monitorApplicationName=[self _monitorApplicationName];
           //TODO
         };
     }
@@ -3003,7 +2999,7 @@ selfLockn,
               [application name]);
   GSWApp=application;
 #if !GSWEB_WONAMES
-  WOApp=application;
+  WOApp=(WOApplication*)application;
 #endif
 };
 
@@ -4482,17 +4478,12 @@ selfLockn,
     {
       int i=0;
       NSString* aClassName=nil;
-      Class aClass=nil;
-      int newClassIndex=0;
-      Class* newClasses=(Class*)objc_malloc(sizeof(Class)*([classes count]+1));
-      memset(newClasses,0,sizeof(Class)*([classes count]+1));
+      NSMutableArray* newClasses=nil;
       for(i=0;i<[classes count];i++)
         {
           aClassName=[classes objectAtIndex:i];
           NSDebugMLLog(@"application",@"aClassName:%@",aClassName);
-          aClass=NSClassFromString(aClassName);
-          NSDebugMLLog(@"application",@"aClass:%@",aClass);
-          if (!aClass)
+          if (!NSClassFromString(aClassName))
             {
               NSString* superClassName=nil;
               superClassName=[localDynCreateClassNames objectForKey:aClassName];
@@ -4512,38 +4503,25 @@ selfLockn,
                            superClassName);
               if (superClassName)
                 {
-                  aClass=[NGObjCClass createClassWithName:aClassName
-                                      superClassName:superClassName
-                                      iVars:nil];
-                  NSDebugMLLog(@"application",@"aClass:%p",aClass);
-                  if (aClass)
+                  NSValue* aClassPtr=GSObjCMakeClass(aClassName,superClassName,nil);
+                  if (aClassPtr)
                     {
-                      newClasses[newClassIndex]=aClass;
-                      newClassIndex++;
+                      if (!newClasses)
+                        newClasses=[NSMutableArray array];
+                      [newClasses addObject:aClassPtr];
+                    }
+                  else
+                    {    
+                      LOGError(@"Can't create one of these classes %@ (super class: %@)",
+                               aClassName,superClassName);
                     };
                 };
             };
         };
-      if (newClassIndex>0)
+      if ([newClasses count]>0)
         {
-          NSString* moduleName=[NSString stringUniqueIdWithLength:4];//TODO
-          NGObjCModule* module=[NGObjCModule moduleWithName:moduleName];
-          ok=[module executeWithClassArray:newClasses];
-          NSDebugMLLog(@"application",@"ok:%d",(int)ok);
-          if (!ok)
-            {
-              //TODO
-              LOGError(@"Can't create one of these classes %@",classes);
-            }
-          else
-            {
-              /*			  infoClassNewClass=[NGObjCClass infoForClass:aNewClass];
-                                          [infoClassNewClass addMethods:[infoClass methods]];
-                                          [infoClassNewClass addClassMethods:[infoClass classMethods]];
-              */
-            };
+          GSObjCAddClasses(newClasses);
         };
-      objc_free(newClasses);
     };
   LOGClassFnStop();
   return ok;

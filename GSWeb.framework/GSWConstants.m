@@ -269,6 +269,7 @@ id size__Key = @"size";
 id selection__Key = @"selection";
 id checked__Key = @"checked";
 id condition__Key = @"condition";
+id conditionValue__Key = @"conditionValue";
 id negate__Key = @"negate";
 id pageName__Key = @"pageName";
 id elementName__Key = @"elementName";

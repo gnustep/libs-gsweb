@@ -39,6 +39,10 @@
 @interface GSWConditional: GSWDynamicElement
 {
   GSWAssociation* _condition;
+//GSWeb Additions {
+  GSWAssociation* _value;
+  GSWAssociation* _conditionValue;
+// }
   GSWAssociation* _negate;
   GSWHTMLStaticGroup* _childrenGroup;
 };

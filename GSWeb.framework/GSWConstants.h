@@ -263,6 +263,7 @@ extern id size__Key;
 extern id selection__Key;
 extern id checked__Key;
 extern id condition__Key;
+extern id conditionValue__Key;
 extern id negate__Key;
 extern id pageName__Key;
 extern id elementName__Key;

@@ -2,7 +2,7 @@
 #
 #
 DYNAMIC_LINKER=simple
-GDL2=no
+GDL2=yes
 LIBWRAP=yes
 
 #Log Memory Alloc/Dealloc

@@ -64,9 +64,9 @@ ADDITIONAL_INCLUDE_DIRS =  -I. -I../.. @XML_CFLAGS@
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
-	LIBRARIES_DEPENP_UPON += -lFoundationExt_d @AUX_LIBS@
+	LIBRARIES_DEPENP_UPON += @AUX_LIBS@
 else
-	LIBRARIES_DEPEND_UPON += -lFoundationExt @AUX_LIBS@
+	LIBRARIES_DEPEND_UPON += @AUX_LIBS@
 endif
 
 # Additional library directories the linker should search
