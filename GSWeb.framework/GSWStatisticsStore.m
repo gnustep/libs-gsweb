@@ -472,6 +472,8 @@ static char rcsId[] = "$Id$";
         NSLog(@"GSWStatisticsStore timeInterval=%f",timeInterval);
         [self _updatePagesStatisticsForPage:_currentPage
               timeInterval:timeInterval];
+        DESTROY(_currentPage);					// otherwise a reload of the statistics page will change this page's stats
+
       }
     }
   NS_HANDLER
