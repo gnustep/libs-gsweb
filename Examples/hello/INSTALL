@@ -1,0 +1,23 @@
+To install this little application:
+ o install GNUstep, GNUstepWeb (including apache module),..
+ o do a make install in this directory
+ o add entry for this application in your apache module configuration file:
+            hello = {
+                    adaptorTemplatesPath = "/home/httpd/GSWAdaptorTemplates";
+                    GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources";
+                    canDump = YES;
+                    instances =     {
+                                1 = {
+                                    host=YourHostName;
+                                    port=9001;
+                                    parameters=     {
+                                                transport=socket;
+                                            };
+                                    };
+                            };
+                };
+
+ o cd /usr/GNUstep/System/GSWApps/Hello.gswa
+ o run ./ix86/linux-gnu/gnu-gnu-gnu/Hello
+ o open your browser a goto: http://YourHostName/GSWeb/hello
+

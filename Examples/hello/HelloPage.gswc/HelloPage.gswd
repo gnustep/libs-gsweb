@@ -1,0 +1,16 @@
+/*
+ * Hello.wod
+ *
+ * You may freely copy, distribute and reuse the code in this example.
+ * NeXT disclaims any warranty of any kind, expressed or implied, as to
+ * its fitness for any particular use.
+ *
+ * This example was written with a Beta version of WebObjects. 
+ *
+ * Written by WebObjects Development Team
+ *
+ * This is the declarations file for the second page (Hello) of the
+ * HelloWorldObjC application.
+ */
+
+BODY_NAME_STRING:GSWString {value = nameString}

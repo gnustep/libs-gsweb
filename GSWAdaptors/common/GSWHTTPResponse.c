@@ -53,6 +53,9 @@ GSWHTTPResponse* GSWHTTPResponse_New(CONST char* p_pszStatus,void* p_pLogServerD
   GSWHTTPResponse* pHTTPResponse=NULL;
   BOOL fOk=FALSE;
   // Accept "HTTP/1.0 200 OK GSWeb..." and "HTTP/1.0 200 OK GNUstep GSWeb..."
+#ifdef	DEBUG
+  GSWLog(GSW_INFO,p_pLogServerData,"p_pszStatus=%s",p_pszStatus);
+#endif
   if (strncmp(p_pszStatus,HTTP_SLASH,strlen(HTTP_SLASH))==0)
 	{
 	  // Status Code
@@ -63,8 +66,14 @@ GSWHTTPResponse* GSWHTTPResponse_New(CONST char* p_pszStatus,void* p_pLogServerD
 		  fOk=TRUE;
 		  pszSpace++;
 		  uStatus=atoi(pszSpace);
+#ifdef	DEBUG
+                  GSWLog(GSW_INFO,p_pLogServerData,"uStatus=%u",uStatus);
+#endif
 		  for(;fOk && *pszSpace && !isspace(*pszSpace);pszSpace++)
 			fOk=isdigit(*pszSpace);
+#ifdef	DEBUG
+                  GSWLog(GSW_INFO,p_pLogServerData,"fOk=%d",(int)fOk);
+#endif
 		  if (fOk)
 			{
 			  pHTTPResponse = calloc(1,sizeof(GSWHTTPResponse));

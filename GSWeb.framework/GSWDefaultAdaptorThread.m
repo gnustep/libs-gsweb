@@ -344,188 +344,200 @@ printf("dealloc GSWDefaultAdaptorThread end");
 
 //--------------------------------------------------------------------
 -(BOOL)readRequestReturnedRequestLine:(NSString**)requestLine_
-					  returnedHeaders:(NSDictionary**)headers_
-						 returnedData:(NSData**)data_
+                      returnedHeaders:(NSDictionary**)headers_
+                         returnedData:(NSData**)data_
 {
   BOOL ok=NO;
   LOGObjectFnStart();
   if (!stream)
-	{
-	  ExceptionRaise0(@"GSWDefaultAdaptorThread",@"no stream");
-	}
+    {
+      ExceptionRaise0(@"GSWDefaultAdaptorThread",@"no stream");
+    }
   else
-	{
+    {
 #define REQUEST_METHOD__UNKNOWN	0
 #define REQUEST_METHOD__GET	1
 #define REQUEST_METHOD__POST	2
-	  NSMutableData* _pendingData=nil;
-	  NSDate* maxDate=[NSDate dateWithTimeIntervalSinceNow:360]; //360s
-	  NSData* dataBlock=nil;
-	  int sleepTime=250; //250ms
-	  int readenBytesNb=0;
-	  int headersBytesNb=0;
-	  int dataBytesNb=0;
-	  int dataBlockLength=0;
-	  int contentLength=-1;
-	  int _requestMethod=REQUEST_METHOD__UNKNOWN;
-	  BOOL _isRequestLineSetted=NO;
-	  BOOL _isDataStep=NO;
-	  BOOL _isAllDataReaden=NO;
-	  BOOL _isElapsed=NO;
-	  NSMutableDictionary* _headers=nil;
-	  NSString* _userAgent=nil;
-	  NSString* _remoteAddr=nil;
-	  NSDebugMLog0(@"dataBlock try reading");
-	  do
-		{
-		  dataBlock=[stream availableDataNonBlocking];
-		  dataBlockLength=[dataBlock length];
-                  NSDebugMLog(@"dataBlockLength=%i",dataBlockLength);
-		  if (dataBlockLength>0)
-			{
-			  readenBytesNb+=dataBlockLength;
-			  if (!_pendingData)
-				_pendingData=(NSMutableData*)[NSMutableData data];
-			  [_pendingData appendData:dataBlock];
-			  if (_isDataStep)
-				dataBytesNb=[_pendingData length];
-			  else
-				{
-				  int _newBytesCount=0;
-				  NSMutableArray* _newLines=[GSWDefaultAdaptorThread completeLinesWithData:_pendingData
-																	 returnedConsumedCount:&_newBytesCount
-																	 returnedHeadersEndFlag:&_isDataStep];
-				  NSDebugMLLog(@"low",@"newLines=%@ isDataStep=%s newBytesCount=%d",
-							   _newLines,
-							   _isDataStep ? "YES" : "NO",
-							   _newBytesCount);
-				  headersBytesNb+=_newBytesCount;
-				  if (_newLines)
-					{
-					  int i=0;
-					  for(i=0;i<[_newLines count];i++)
-						{
-						  NSString* _line=[_newLines objectAtIndex:i];
-						  NSDebugMLLog(@"low",@"Line:%@",_line);
-						  NSAssert([_line length]>0,@"No line length");
-						  if (!_isRequestLineSetted)
-							{
-							  *requestLine_=_line;
-							  _isRequestLineSetted=YES;
-							}
-						  else
-							{
-							  NSString* _key=nil;
-							  NSString* _value=nil;
-							  NSArray* _newValue=nil;
-							  NSArray* _prevValue=nil;
-							  NSRange _keyRange=[_line rangeOfString:@":"];
-							  if (_keyRange.length<=0)
-								{
-								  _key=_line;
-								  NSDebugMLLog(@"low",@"key:%@",_key);
-								  _value=[NSString string];
-								}
-							  else
-								{
-								  _key=[_line substringToIndex:_keyRange.location];
-								  NSDebugMLLog(@"low",@"key:%@",_key);
-								  _key=[[_key stringByTrimmingSpaces] lowercaseString];
-								  if (_keyRange.location+1<[_line length])
-									{
-									  _value=[_line substringFromIndex:_keyRange.location+1];
-									  _value=[_value stringByTrimmingSpaces];
-									}
-								  else
-									_value=[NSString string];
-								  NSDebugMLLog(@"low",@"_value:%@",_value);
-								};
-                                                          NSDebugMLLog(@"low",@"key:%@ value:%@",_key,_value);
-							  if ([_key isEqualToString:GSWHTTPHeader_ContentLength])
-								contentLength=[_value intValue];
-							  else if ([_key isEqualToString:GSWHTTPHeader_Method[GSWNAMES_INDEX]]
-                                                                   || [_key isEqualToString:GSWHTTPHeader_Method[WONAMES_INDEX]])
-							    {
-							      if ([_value isEqualToString:GSWHTTPHeader_MethodPost])
-								_requestMethod=REQUEST_METHOD__POST;
-							      else if ([_value isEqualToString:GSWHTTPHeader_MethodGet])
-								_requestMethod=REQUEST_METHOD__GET;
-							      else
-								{
-								  NSAssert1(NO,@"Unknown method %@",_value);
-								};
-							    }
-							  else if ([_key isEqualToString:GSWHTTPHeader_UserAgent])
-							    _userAgent=_value;
-							  else if ([_key isEqualToString:GSWHTTPHeader_RemoteAddress[GSWNAMES_INDEX]]
-                                                                   ||[_key isEqualToString:GSWHTTPHeader_RemoteAddress[WONAMES_INDEX]])
-							    _remoteAddr=_value;
-                                                          if ([_key isEqualToString:GSWHTTPHeader_AdaptorVersion[GSWNAMES_INDEX]]
-                                                              || [_key isEqualToString:GSWHTTPHeader_ServerName[GSWNAMES_INDEX]])
-                                                              requestNamingConv=GSWNAMES_INDEX;
-                                                          else if ([_key isEqualToString:GSWHTTPHeader_AdaptorVersion[WONAMES_INDEX]]
-                                                                   || [_key isEqualToString:GSWHTTPHeader_ServerName[WONAMES_INDEX]])
-                                                            requestNamingConv=WONAMES_INDEX;
-
-							  _prevValue=[_headers objectForKey:_key];
-							  NSDebugMLLog(@"low",@"_prevValue:%@",_prevValue);
-							  if (_prevValue)
-								_newValue=[_prevValue arrayByAddingObject:_value];
-							  else
-								_newValue=[NSArray arrayWithObject:_value];
-							  if (!_headers)
-								_headers=[NSMutableDictionary dictionary];
-							  [_headers setObject:_newValue
-										forKey:_key];
-							};
-						};
-					};
-				};
-			};
-                  NSDebugMLog(@"_requestMethod=%d",_requestMethod);
-		  dataBytesNb=[_pendingData length];
-		  if (_isDataStep)
-		    {
-		      if (_requestMethod==REQUEST_METHOD__GET)
-				_isAllDataReaden=YES;
-		      else if (_requestMethod==REQUEST_METHOD__POST)
-				_isAllDataReaden=(dataBytesNb>=contentLength);
-		    };
-		  if (!_isAllDataReaden)
-			{
-			  _isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
-			  if (!_isElapsed)
-				{
-				  usleep(sleepTime);//Is this the good method ? //TODOV
-				  _isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
-				};
-			};
-		} while (!_isAllDataReaden && !_isElapsed);
-	  NSDebugMLog(@"GSWDefaultAdaptor: _userAgent=%@ _remoteAddr=%@ _isAllDataReaden=%s _isElapsed=%s readenBytesNb=%d contentLength=%d dataBytesNb=%d headersBytesNb=%d",
-				  _userAgent,
-				  _remoteAddr,
-				  _isAllDataReaden ? "YES" : "NO",
-				  _isElapsed ? "YES" : "NO",
-				  readenBytesNb,
-				  contentLength,
-				  dataBytesNb,
-				  headersBytesNb);
-	  ok=_isAllDataReaden;
-	  if (_isAllDataReaden)
-		{
-		  *headers_=[[_headers copy] autorelease];
-		  if ([_pendingData length]>0)
-			*data_=[_pendingData copy];
-		  else
-			*data_=nil;			
-		}
-	  else
-		{
-		  *requestLine_=nil;
-		  *headers_=nil;
-		  *data_=nil;
-		};
-	}
+      NSMutableData* _pendingData=nil;
+      NSDate* maxDate=[NSDate dateWithTimeIntervalSinceNow:360]; //360s
+      NSData* dataBlock=nil;
+      int sleepTime=250; //250ms
+      int readenBytesNb=0;
+      int headersBytesNb=0;
+      int dataBytesNb=0;
+      int dataBlockLength=0;
+      int contentLength=-1;
+      int _requestMethod=REQUEST_METHOD__UNKNOWN;
+      BOOL _isRequestLineSetted=NO;
+      BOOL _isDataStep=NO;
+      BOOL _isAllDataReaden=NO;
+      BOOL _isElapsed=NO;
+      NSMutableDictionary* _headers=nil;
+      NSString* _userAgent=nil;
+      NSString* _remoteAddr=nil;
+      NSDebugMLog0(@"dataBlock try reading");
+      do
+        {
+          dataBlock=[stream availableDataNonBlocking];
+          dataBlockLength=[dataBlock length];
+          NSDebugMLog(@"dataBlockLength=%i",dataBlockLength);
+          if (dataBlockLength>0)
+            {
+              readenBytesNb+=dataBlockLength;
+              if (!_pendingData)
+                _pendingData=(NSMutableData*)[NSMutableData data];
+              [_pendingData appendData:dataBlock];
+              if (_isDataStep)
+                dataBytesNb=[_pendingData length];
+              else
+                {
+                  int _newBytesCount=0;
+                  NSMutableArray* _newLines=[GSWDefaultAdaptorThread completeLinesWithData:_pendingData
+                                                                     returnedConsumedCount:&_newBytesCount
+                                                                     returnedHeadersEndFlag:&_isDataStep];
+                  NSDebugMLLog(@"low",@"newLines=%p",_newLines);
+                  NSDebugMLLog(@"low",@"newLines=%@",_newLines);
+                  NSDebugMLLog(@"low",@"isDataStep=%s newBytesCount=%d",
+                               _isDataStep ? "YES" : "NO",
+                               _newBytesCount);
+                  headersBytesNb+=_newBytesCount;
+                  if (_newLines)
+                    {
+                      int i=0;
+                      for(i=0;i<[_newLines count];i++)
+                        {
+                          NSString* _line=[_newLines objectAtIndex:i];
+                          NSDebugMLLog(@"low",@"Line=%@",_line);
+                          NSAssert([_line length]>0,@"No line length");
+                          if (!_isRequestLineSetted)
+                            {
+                              *requestLine_=_line;
+                              _isRequestLineSetted=YES;
+                            }
+                          else
+                            {
+                              NSString* _key=nil;
+                              NSString* _value=nil;
+                              NSArray* _newValue=nil;
+                              NSArray* _prevValue=nil;
+                              NSRange _keyRange=[_line rangeOfString:@":"];
+                              if (_keyRange.length<=0)
+                                {
+                                  _key=_line;
+                                  NSDebugMLLog(@"low",@"key=%@",_key);
+                                  _value=[NSString string];
+                                }
+                              else
+                                {
+                                  _key=[_line substringToIndex:_keyRange.location];
+                                  NSDebugMLLog(@"low",@"location=%d key=%@",
+                                               _keyRange.location,
+                                               _key);
+                                  _key=[[_key stringByTrimmingSpaces] lowercaseString];
+                                  NSDebugMLLog(@"low",@"location=%d line length=%d key=%@",
+                                               _keyRange.location,
+                                               [_line length],
+                                               _key);
+                                  if (_keyRange.location+1<[_line length])
+                                    {
+                                      _value=[_line substringFromIndex:_keyRange.location+1];
+                                      NSDebugMLLog(@"low",@"value lengt=%d value=*%@*",
+                                                   [_value length],
+                                                   _value);
+                                      _value=[_value stringByTrimmingSpaces];
+                                      NSDebugMLLog(@"low",@"value=%@",
+                                                   _value);
+                                    }
+                                  else
+                                    _value=[NSString string];
+                                  NSDebugMLLog(@"low",@"_value:%@",_value);
+                                };
+                              NSDebugMLLog(@"low",@"key:%@ value:%@",_key,_value);
+                              if ([_key isEqualToString:GSWHTTPHeader_ContentLength])
+                                contentLength=[_value intValue];
+                              else if ([_key isEqualToString:GSWHTTPHeader_Method[GSWNAMES_INDEX]]
+                                       || [_key isEqualToString:GSWHTTPHeader_Method[WONAMES_INDEX]])
+                                {
+                                  if ([_value isEqualToString:GSWHTTPHeader_MethodPost])
+                                    _requestMethod=REQUEST_METHOD__POST;
+                                  else if ([_value isEqualToString:GSWHTTPHeader_MethodGet])
+                                    _requestMethod=REQUEST_METHOD__GET;
+                                  else
+                                    {
+                                      NSAssert1(NO,@"Unknown method %@",_value);
+                                    };
+                                }
+                              else if ([_key isEqualToString:GSWHTTPHeader_UserAgent])
+                                _userAgent=_value;
+                              else if ([_key isEqualToString:GSWHTTPHeader_RemoteAddress[GSWNAMES_INDEX]]
+                                       ||[_key isEqualToString:GSWHTTPHeader_RemoteAddress[WONAMES_INDEX]])
+                                _remoteAddr=_value;
+                              if ([_key isEqualToString:GSWHTTPHeader_AdaptorVersion[GSWNAMES_INDEX]]
+                                  || [_key isEqualToString:GSWHTTPHeader_ServerName[GSWNAMES_INDEX]])
+                                requestNamingConv=GSWNAMES_INDEX;
+                              else if ([_key isEqualToString:GSWHTTPHeader_AdaptorVersion[WONAMES_INDEX]]
+                                       || [_key isEqualToString:GSWHTTPHeader_ServerName[WONAMES_INDEX]])
+                                requestNamingConv=WONAMES_INDEX;
+                                  
+                              _prevValue=[_headers objectForKey:_key];
+                              NSDebugMLLog(@"low",@"_prevValue:%@",_prevValue);
+                              if (_prevValue)
+                                _newValue=[_prevValue arrayByAddingObject:_value];
+                              else
+                                _newValue=[NSArray arrayWithObject:_value];
+                              if (!_headers)
+                                _headers=[NSMutableDictionary dictionary];
+                              [_headers setObject:_newValue
+                                        forKey:_key];
+                            };
+                        };
+                    };
+                };
+            };
+          NSDebugMLog(@"_requestMethod=%d",_requestMethod);
+          dataBytesNb=[_pendingData length];
+          if (_isDataStep)
+            {
+              if (_requestMethod==REQUEST_METHOD__GET)
+                _isAllDataReaden=YES;
+              else if (_requestMethod==REQUEST_METHOD__POST)
+                _isAllDataReaden=(dataBytesNb>=contentLength);
+            };
+          if (!_isAllDataReaden)
+            {
+              _isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
+              if (!_isElapsed)
+                {
+                  usleep(sleepTime);//Is this the good method ? //TODOV
+                  _isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
+                };
+            };
+        } while (!_isAllDataReaden && !_isElapsed);
+      NSDebugMLog(@"GSWDefaultAdaptor: _userAgent=%@ _remoteAddr=%@ _isAllDataReaden=%s _isElapsed=%s readenBytesNb=%d contentLength=%d dataBytesNb=%d headersBytesNb=%d",
+                  _userAgent,
+                  _remoteAddr,
+                  _isAllDataReaden ? "YES" : "NO",
+                  _isElapsed ? "YES" : "NO",
+                  readenBytesNb,
+                  contentLength,
+                  dataBytesNb,
+                  headersBytesNb);
+      ok=_isAllDataReaden;
+      if (_isAllDataReaden)
+        {
+          *headers_=[[_headers copy] autorelease];
+          if ([_pendingData length]>0)
+            *data_=[_pendingData copy];
+          else
+            *data_=nil;			
+        }
+      else
+        {
+          *requestLine_=nil;
+          *headers_=nil;
+          *data_=nil;
+        };
+    }
   LOGObjectFnStop();
   return ok;
 };
@@ -596,6 +608,7 @@ printf("dealloc GSWDefaultAdaptorThread end");
   BOOL ok=YES;
   LOGObjectFnStart();
   printf("class sendResponse: START\n");
+  NSDebugMLLog(@"low",@"response:%p",response);
   [response willSend];
   if (response)
     {
@@ -617,7 +630,9 @@ printf("dealloc GSWDefaultAdaptorThread end");
 */
 	  NSString* empty=[NSString stringWithString:@"\n"];
 	  NSDebugMLLog(@"low",@"head:%@",head);
+	  NSDebugMLLog(@"low",@"responseData:%@",responseData);
 	  [responseData appendData:[head dataUsingEncoding:NSASCIIStringEncoding]];
+	  NSDebugMLLog(@"low",@"responseData:%@",responseData);
 	  for(headerN=0;headerN<[headerKeys count];headerN++)
 		{
 		  key=[headerKeys objectAtIndex:headerN];
@@ -629,16 +644,19 @@ printf("dealloc GSWDefaultAdaptorThread end");
 								 [headersForKey  objectAtIndex:headerNForKey]];
 			  [responseData appendData:[anHeader dataUsingEncoding:NSASCIIStringEncoding]];
 			  NSDebugMLLog(@"low",@"anHeader:%@",anHeader);
+                          NSDebugMLLog(@"low",@"responseData:%@",responseData);
 			};
 		};
 //	  NSDebugMLLog(@"low",@"cl:%@",cl);
 	  NSDebugMLLog(@"low",@"empty:%@",empty);
 //	  [responseData appendData:[cl dataUsingEncoding:NSASCIIStringEncoding]];
+	  NSDebugMLLog(@"low",@"responseData:%@",responseData);
 	  [responseData appendData:[empty dataUsingEncoding:NSASCIIStringEncoding]];
+	  NSDebugMLLog(@"low",@"responseData:%@",responseData);
                  
           NS_DURING
             {
-              [stream writeData:responseData];
+              [aStream writeData:responseData];
             }
           NS_HANDLER
             {

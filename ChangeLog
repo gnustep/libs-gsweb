@@ -1,3 +1,12 @@
+2001-12-11  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWResourceManager.m: logs
+	* GSWeb.framework/GSWDefaultAdaptorThread.m: logs
+		corrected bug in response writing
+	* GSWeb.framework/GSWApplication.m: logs
+	* GSWAdaptors/common/GSWHTTPResponse.c: logs
+	* added Example/hello 'application'
+	
 2001-11-07  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWExtensions.framework/Makefile.preamble:

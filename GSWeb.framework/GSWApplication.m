@@ -71,6 +71,7 @@ void GSWApplicationDebugSetChange()
 	_change=![_newStateString isEqualToString:_prevStateString];
   else if (_prevStateString)
 	_change=![_prevStateString isEqualToString:_newStateString];
+  NSDebugFLog(@"_change=%d",_change);
 
   if (_change)
 	{		
@@ -4080,7 +4081,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 +(NSBundle*)mainBundle
 {
-  LOGClassFnNotImplemented();	//TODOFN
+//  LOGClassFnNotImplemented();	//TODOFN
   return [NSBundle mainBundle];
 /*
 			_flags=unsigned int UINT:104005633

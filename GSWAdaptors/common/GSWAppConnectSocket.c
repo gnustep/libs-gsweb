@@ -277,7 +277,7 @@ int GSWApp_ReceiveLine(AppConnectHandle p_handle,
 {
   int iRetValue=-1;
 #ifdef	DEBUG
-  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_ReceiveLine");
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWApp_ReceiveLine p_iBufferSize=%d",p_iBufferSize);
 #endif
   *p_pszBuffer=0;
   if (!p_handle)
