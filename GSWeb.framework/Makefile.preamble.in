@@ -64,7 +64,6 @@ ADDITIONAL_CFLAGS =  -DUSE_BUILTIN
 ADDITIONAL_INCLUDE_DIRS = -I./$(GNUSTEP_TARGET_DIR) @XML_CFLAGS@
 
 # Additional LDFLAGS to pass to the linker
-LIBRARIES_DEPEND_UPON += @AUX_LIBS@
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
 endif
@@ -73,6 +72,9 @@ LIBRARIES_DEPEND_UPON += \
 	-l$(EOCONTROL_LIBRARY_NAME) \
 	-l$(EOACCESS_LIBRARY_NAME)
 endif
+# This entry is last so that -lwrap (libwrap.a static library) will not
+# be the first entry (which causes problems with the Darwin linker).
+LIBRARIES_DEPEND_UPON += @AUX_LIBS@
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = 

@@ -32,7 +32,6 @@
 #ifndef _GSWKeyValueConditional_h__
 #define _GSWKeyValueConditional_h__
 
-#include <GSWeb/GSWComponent.h>
 
 //==============================================================================
 @interface GSWKeyValueConditional : GSWComponent

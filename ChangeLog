@@ -1,3 +1,17 @@
+2004-04-14  David Ayers  <d.ayers@inode.at>
+
+	* gsweb.make.in: Remove GSANTLR dependency.
+	* GSWExtensions.framework/Makefile.preamble: Ditto.
+	* GSWExtensionsGSW.framework/Makefile.preamble: Ditto.
+	
+	* GSWeb.framework/Makefile.preamble.in: Move AUX_LIBS to the
+	bottom so that the linker on Darwin can deal with the static
+	library.
+
+	* GSWExtensions.framework/GSWKeyValueConditional.h: Remove
+	include currently redundant for the include mechanism and
+	causing warnings to gswnames=wo.
+	
 2004-04-06   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWHTMLRawParser.m:

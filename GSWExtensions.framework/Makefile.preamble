@@ -69,7 +69,7 @@ ADDITIONAL_LDFLAGS =
 # These variables should only be needed on windows
 # but they aren't set yet.
 
-LIBRARIES_DEPEND_UPON += -lGSANTLR
+LIBRARIES_DEPEND_UPON +=
 
 ifneq ($(FOUNDATION_LIB),gnu)
 LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
