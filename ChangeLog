@@ -1,3 +1,57 @@
+2003-03-24   Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWRequest.m:
+		o fix in -_getFormValuesFromMultipartFormData: 
+		   add [parser expectNoHeaders] to force body parsing as 
+			otherwise it fail in some context (navigator/form values)
+  	* GSWExtensions.framework/GSWCollapsibleComponentContent.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWExceptionPage.m:
+		o logs
+		o use RCS_ID
+	* GSWExtensions.framework/GSWDictionaryRepetition.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWIFrame.m:
+		o clean warnings
+		o use RCS_ID
+	* GSWExtensions.framework/GSWLongResponsePage.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWMetaRefresh.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWPageRestorationErrorPage.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWRedirect.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWSessionCreationErrorPage.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.m:
+		o use RCS_ID
+	* GSWExtensions.framework/GSWStatsPage.m:
+		o use RCS_ID
+	* GSWExtensionsGSW.framework/GSWLogin.m:
+		o use RCS_ID
+	* GSWExtensionsGSW.framework/GSWSimpleFormComponent.m:
+		o use RCS_ID
+	* GSWExtensionsGSW.framework/GSWTabComponent.m:
+		o use RCS_ID
+	* GSWExtensionsGSW.framework/GSWValidationFailureComponent.m:
+		o use RCS_ID
+	* GSWeb.framework/GSWApplication.m:
+		o change setIVar... by takeValue:forKey:
+	* GSWeb.framework/GSWElement.m:
+		o logs
+	* GSWeb.framework/GSWeb.h:
+		o removed NSObject+IVarAccess+PerformSel.h inclusion
+	* GSWeb.framework/GSWAssociation.m:
+		o removed commented set/getIVar
+	* GSWeb.framework/GSWComponent.m:
+		o removed commented set/getIVar
+	* GSWeb.framework/GSWSession.m:
+		o retain/release deleteContextID in -savePageInPermanentCache 
+			(from Stéphane Corthésy <stephane@sente.ch>)
+		o retain/release deleteContextID in -_savePage:forChange
+			(from Stéphane Corthésy <stephane@sente.ch>)
+	
 2003-03-23  David Ayers  <d.ayers@inode.at>
 
 	* GSWAdaptors/Apache/mod_gsweb.c : Include http_protocol.h

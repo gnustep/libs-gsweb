@@ -1,8 +1,9 @@
 /** GSWIFrame.m - <title>GSWeb: Class GSWIFrame</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Apr 1999
+   Date: 	Apr 1999
    
    $Revision$
    $Date$
@@ -28,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWExtWOCompatibility.h"
 #include "GSWIFrame.h"
@@ -47,7 +50,7 @@ static char rcsId[] = "$Id$";
   if ([self hasBinding:@"src"])
     src=[self valueForBinding:@"src"];
   else if ([self hasBinding:@"pageName"] || [self hasBinding:@"value"])
-    src=[[self context]componentActionURL];
+    src=(NSString*)[[self context]componentActionURL];
   return src;
 };
 

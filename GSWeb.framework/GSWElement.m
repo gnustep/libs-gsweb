@@ -62,37 +62,23 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                                   line:(int)line
 {
   LOGObjectFnStartC("GSWElement");  
-/*  NSDebugMLLog(@"GSWElement",@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
-              self,
-              [self class],
-              [self definitionName],
-              _appendToResponseElementID,[_appendToResponseElementID length]);
-*/
   [self assertIsElementIDInContext:context
         method:method
         file:file
         line:line];
-/*  NSDebugMLLog(@"GSWElement",@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
-              self,
-              [self class],
-              [self definitionName],
-              _appendToResponseElementID,[_appendToResponseElementID length]);
-*/
   if ([_appendToResponseElementID length]>0)
     {
       NSString* elementID=[context elementID];
       BOOL appendToResponseElementIDIsFirst=NO;
       BOOL elementIDIsFirst=NO;
       BOOL OK=YES;
-/*      if ([elementID length]==0)
-        elementID=@"MARKER";*/
       appendToResponseElementIDIsFirst=([_appendToResponseElementID length]==0 || [_appendToResponseElementID isEqualToString:@"0"]);
       elementIDIsFirst=([elementID length]==0 || [elementID isEqualToString:@"0"]);
       if (!appendToResponseElementIDIsFirst || appendToResponseElementIDIsFirst!=elementIDIsFirst)
         {
           OK=[_appendToResponseElementID isEqualToString:elementID];
-          NSDebugMLog(@"[context elementID]=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d OK=%d [context isInLoop]=%d",
-                      [context elementID],_appendToResponseElementID,[_appendToResponseElementID length],OK,[context isInLoop]);
+          NSDebugMLLog(@"GSWElement",@"[context elementID]=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d OK=%d [context isInLoop]=%d",
+                       [context elementID],_appendToResponseElementID,[_appendToResponseElementID length],OK,[context isInLoop]);
         };
       if (!OK && ![context isInLoop])
         {
@@ -151,7 +137,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
   NSString* senderID=[context senderID];
   if (start)
     [context addToDocStructureElement:self];
-  NSDebugMLLog(@"gswdync",@"%s:.%d - %@ %s ELEMENT self=%p class=%@ defName=%@ id=%@ appendID:%@ %s%@",
+  NSDebugMLLog(@"GSWElement",@"%s:.%d - %@ %s ELEMENT self=%p class=%@ defName=%@ id=%@ appendID:%@ %s%@",
                file,line,NSStringFromSelector(method),
                (start ? "START" : (stop ? "STOP" : "")),
                self,

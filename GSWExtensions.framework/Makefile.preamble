@@ -1,8 +1,8 @@
 #   -*-makefile-*-
-#   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+#   Copyright (C) 1999-2003 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-#   Date: 		Jan 1999
+#   Date: 	Jan 1999
 #   
 #   This file is part of the GNUstep Web Library.
 #   
@@ -59,7 +59,7 @@ endif
 ADDITIONAL_CFLAGS =  
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I../.. -I../GSWeb.framework/derived_src
+ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I.. -I../.. -I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
 ADDITIONAL_LDFLAGS = -lGSANTLR 

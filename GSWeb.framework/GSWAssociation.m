@@ -740,7 +740,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
               for(i=0;!v && i<count;i++)
                 {
                   id language=[languages objectAtIndex:i];
-                  //MGNEW v=[retValue getIVarNamed:language];
                   v=[retValue valueForKey:language];
                 };
               retValue=v;
@@ -753,7 +752,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                            part);
               NS_DURING
                 {
-                  //MGNEW retValue=[retValue getIVarNamed:part];
                   retValue=[retValue valueForKey:part];
                 }
               NS_HANDLER
@@ -843,7 +841,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         [object validationFailedWithException:exception
                                         value:value
                                       keyPath:keyPath];
-      } else {
+      } else 
+        {
         // no exception, set the value
 
         [tmpObject takeValue:value
@@ -934,18 +933,16 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                       else
                         tmpObject=nil;
                     }
-                  else {
-                    //MGNEW tmpObject=[tmpObject getIVarNamed:part];
-                    tmpObject=[tmpObject valueForKey:part];//MGNEW
-                  }
+                  else 
+                    {
+                      tmpObject=[tmpObject valueForKey:part];
+                    }
                 }
               else
                 {
                   GSWLogAssertGood(tmpObject);
-                  //MGNEW [tmpObject setIVarNamed:part
-                  //	  withValue:value_];
                   [tmpObject takeValue:value
-                             forKey:part];//MGNEW 
+                             forKey:part];
 #ifdef GDL2
                   NSDebugMLLog(@"associations",@"object class=%@",[object class]);
                   NSDebugMLLog(@"associations",@"tmpObject class=%@",[tmpObject class]);

@@ -1,9 +1,9 @@
 /** GSWLongResponsePage.m - <title>GSWeb: Class GSWLongResponsePage</title>
 
-   Copyright (C) 2003 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Sep 2002
+   Date: 	Sep 2002
    
    $Revision$
    $Date$
@@ -30,7 +30,9 @@
    </license>
 **/
 
-static const char rcsId[]="$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWExtWOCompatibility.h"
 #include "GSWLongResponsePage.h"

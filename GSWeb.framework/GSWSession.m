@@ -641,6 +641,7 @@ RCS_ID("$Id$")
       [GSWApplication statusLogWithFormat:@"Deleting permanent cached Page"];
       deleteContextID=[_permanentContextIDArray objectAtIndex:0];
       GSWLogAssertGood(deleteContextID);
+      RETAIN(deleteContextID); // We'll remove it from array
       [GSWApplication statusLogWithFormat:@"permanentContextIDArray=%@",
                       _permanentContextIDArray];
       [GSWApplication statusLogWithFormat:@"contextID=%@",deleteContextID];
@@ -657,6 +658,7 @@ RCS_ID("$Id$")
                       [deletePage class]];
       NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[permanentPageCache objectForKey:deleteContextID]);
       [permanentPageCache removeObjectForKey:deleteContextID];
+      RELEASE(deleteContextID);
     };
   contextID=[context contextID];
   NSAssert(contextID,@"No contextID");
@@ -917,7 +919,7 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 
 //--------------------------------------------------------------------
 -(void)_savePage:(GSWComponent*)page
-	   forChange:(BOOL)forChange
+       forChange:(BOOL)forChange
 {
   //OK
   GSWResponse* response=nil;
@@ -925,7 +927,9 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   GSWTransactionRecord* transactionRecord=nil;
   unsigned int pageCacheSize=0;
   NSString* contextID=nil;
+
   LOGObjectFnStart();
+
   NSAssert(page,@"No Page");
   if ([_contextArrayStack count]>0) // && _forChange!=NO ??
     [self _rearrangeContextArrayStack];
@@ -933,6 +937,7 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   // Get the response
   response=[_currentContext response];//currentContext??
   NSDebugMLLog(@"sessions",@"response=%@",response);
+
   isClientCachingDisabled=[response _isClientCachingDisabled]; //So what
   NSDebugMLLog(@"sessions",@"currentContext=%@",_currentContext);
 
@@ -950,8 +955,10 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   // Create contextArrayStack and contextRecords if not already created
   if (!_contextArrayStack)
     _contextArrayStack=[NSMutableArray new];
+
   if (!_contextRecords)
     _contextRecords=[NSMutableDictionary new];
+
   NSDebugMLLog(@"sessions",@"contextArrayStack=%@",_contextArrayStack);
   NSDebugMLLog(@"sessions",@"contextRecords=%@",_contextRecords);
 
@@ -960,25 +967,35 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
     {
       id deleteRecord=nil;
       NSString* deleteContextID=nil;
+
       [GSWApplication statusLogWithFormat:@"Deleting cached Page"];
+
       deleteContextID=[_contextArrayStack objectAtIndex:0];
       GSWLogAssertGood(deleteContextID);
+      RETAIN(deleteContextID); // We'll remove it from array
+
       [GSWApplication statusLogWithFormat:@"contextArrayStack=%@",_contextArrayStack];
       [GSWApplication statusLogWithFormat:@"contextID=%@",deleteContextID];
+
       NSDebugMLLog(@"sessions",@"_deleteContextID=%@",deleteContextID);
       NSDebugMLLog(@"sessions",@"[contextArrayStack objectAtIndex:0]=%@",
                    [_contextArrayStack objectAtIndex:0]);
       NSDebugMLLog(@"sessions",@"[contextArrayStack objectAtIndex:0] retainCount=%d",
                    (int)[[_contextArrayStack objectAtIndex:0] retainCount]);
       NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[_contextArrayStack objectAtIndex:0]);
+
       [_contextArrayStack removeObjectAtIndex:0];
       deleteRecord=[_contextRecords objectForKey:deleteContextID];
+
       GSWLogAssertGood(deleteRecord);
       GSWLogAssertGood([deleteRecord responsePage]);
       [GSWApplication statusLogWithFormat:@"delete page of class=%@",
                       [[deleteRecord responsePage] class]];
       NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[_contextRecords objectForKey:deleteContextID]);
+
       [_contextRecords removeObjectForKey:deleteContextID];
+
+      RELEASE(deleteContextID);
     };
 
   GSWLogC("display page");

@@ -1,8 +1,9 @@
 /** GSWExceptionPage.m - <title>GSWeb: Class GSWExceptionPage</title>
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Apr 1999
+   Date: 	Apr 1999
    
    $Revision$
    $Date$
@@ -28,7 +29,9 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+#include "config.h"
+
+RCS_ID("$Id$")
 
 #include "GSWExtWOCompatibility.h"
 #include "GSWExceptionPage.h"
@@ -66,9 +69,10 @@ static char rcsId[] = "$Id$";
 -(NSArray*)getReasons
 {
   if (!_reasons)
-	{
-	  ASSIGN(_reasons,[[_exception reason] componentsSeparatedByString:@"\n"]);
-	};
+    {
+      ASSIGN(_reasons,[[_exception reason] componentsSeparatedByString:@"\n"]);
+      NSDebugMLog(@"_reasons=%@",_reasons);
+    };
   return _reasons;
 };
 
@@ -83,13 +87,14 @@ static char rcsId[] = "$Id$";
 -(void)setException:(NSException*)exception
 {
   ASSIGN(_exception,exception);
+  NSDebugMLog(@"_exception=%@",_exception);
 };
 
 -(id)getTmpUserInfoValue
 {
   //If array, print it nicely
   if ([_tmpUserInfoValue  isKindOfClass:[NSArray class]])
-      return [(NSArray*)_tmpUserInfoValue componentsJoinedByString:@"\n"];
+    return [(NSArray*)_tmpUserInfoValue componentsJoinedByString:@"\n"];
   else
     return _tmpUserInfoValue;
 }

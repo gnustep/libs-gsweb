@@ -1,9 +1,9 @@
 /** GSWFileUploadComponent.m - <title>GSWeb: Class GSWFileUploadComponent</title>
 
-   Copyright (C) 2003 Free Software Foundation, Inc.
+   Copyright (C) 2002-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		May 2002
+   Date: 	May 2002
    
    $Revision$
    $Date$

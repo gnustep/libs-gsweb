@@ -133,7 +133,6 @@
 #include "GSWDebug.h"
 #include "NSString+Trimming.h"
 #include "NSString+HTML.h"
-#include "NSObject+IVarAccess+PerformSel.h"
 #include "GSWElementIDString.h"
 #include "GSWResponse.h"
 #include "GSWHTMLLexer.h"

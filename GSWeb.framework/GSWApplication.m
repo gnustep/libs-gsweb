@@ -2800,6 +2800,7 @@ selfLockn,
   int iName=0;
   GSWComponent* page=nil;
   LOGObjectFnStart();
+  NSLog(@"EXCEPTION: %@",anException);
   NSDebugMLLog(@"application",@"context=%@",context);
   if (context)
     [context _putAwakeComponentsToSleep];
@@ -2828,8 +2829,8 @@ selfLockn,
             {
               page=[self pageWithName:GSWExceptionPageName[GSWebNamingConvForRound(iName)]
                          inContext:context];
-              [page setIVarNamed:@"exception"
-                    withValue:anException]; 
+              [page takeValue:anException
+                    forKey:@"exception"]; 
             }
 	  NS_HANDLER
             {

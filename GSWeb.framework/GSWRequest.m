@@ -1374,12 +1374,13 @@ RCS_ID("$Id$")
                        key,[value objectAtIndex:i]];
     };
   [headersString appendString:@"\n"];
-  NSDebugMLLog(@"requests",@"headersString=%@",headersString);
-  NSDebugMLLog(@"requests",@"content=%@",[[[NSString alloc]initWithData:_content
-                                              encoding:NSISOLatin1StringEncoding]autorelease]);
+  NSDebugMLLog(@"requests",@"headersString=[\n%@\n]",headersString);
+  NSDebugMLLog(@"requests",@"content=[\n%@\n]",[[[NSString alloc]initWithData:_content
+                                                                 encoding:NSISOLatin1StringEncoding]autorelease]);
   headersData=[headersString dataUsingEncoding:NSISOLatin1StringEncoding];
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
+  [parser expectNoHeaders];
   if ([parser parse:_content])
     [parser parse:nil];
   NSDebugMLLog(@"requests",@"[parser isComplete]=%d",[parser isComplete]);

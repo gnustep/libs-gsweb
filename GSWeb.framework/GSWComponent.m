@@ -398,8 +398,7 @@ associationsKeys:(NSArray*)associationsKeys
           if ([anAssociation isValueSettable]
               && ![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
             {
-              //MGNEW aValue=[self getIVarNamed:aKey];
-              aValue=[self valueForKey:aKey];//MGNEW 
+              aValue=[self valueForKey:aKey];
               NSDebugMLLog(@"GSWComponent",@"aValue=%@",aValue);
               if (doLog)
                 [anAssociation logSynchronizeComponentToParentForValue:aValue
@@ -442,8 +441,6 @@ associationsKeys:(NSArray*)associationsKeys
               if (doLog)
                 [anAssociation logSynchronizeParentToComponentForValue:aValue
                                inComponent:self];
-              /*//MGNEW [self setIVarNamed:aKey
-                withValue:aValue];*/
 #if GDL2 // GDL2 implementation
               [self smartTakeValue:aValue
                     forKey:aKey];
