@@ -1,3 +1,9 @@
+2004-09-02  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication+Defaults.m
+	(cgiAdaptorURL, setCGIAdaptorURL): Fix naming to conform to key
+	value coding methods.
+	
 2004-09-01  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWDeclarationParser.m:

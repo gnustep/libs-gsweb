@@ -767,24 +767,24 @@ static BOOL _dflt_directConnectEnabled = NO;
 };
 
 //--------------------------------------------------------------------
-static BOOL _dflt_init_cgiAdaptorURL = NO;
-static NSString *_dflt_cgiAdaptorURL = nil;
+static BOOL _dflt_init_CGIAdaptorURL = NO;
+static NSString *_dflt_CGIAdaptorURL = nil;
 +(NSString*)cgiAdaptorURL
 {
-  INIT_DFLT_OBJ(cgiAdaptorURL,
+  INIT_DFLT_OBJ(CGIAdaptorURL,
 		GSWOPT_CGIAdaptorURL[GSWebNamingConv]);
-  if ([_dflt_cgiAdaptorURL length] == 0)
+  if ([_dflt_CGIAdaptorURL length] == 0)
     {
       [self setCGIAdaptorURL: @"http://localhost/cgi-bin/GSWeb"];
     }
-  return _dflt_cgiAdaptorURL;
+  return _dflt_CGIAdaptorURL;
 };
 
 //--------------------------------------------------------------------
 +(void)setCGIAdaptorURL:(NSString*)url
 {
-  ASSIGNCOPY(_dflt_cgiAdaptorURL, url);
-  _dflt_init_cgiAdaptorURL = YES;
+  ASSIGNCOPY(_dflt_CGIAdaptorURL, url);
+  _dflt_init_CGIAdaptorURL = YES;
 };
 
 //--------------------------------------------------------------------
