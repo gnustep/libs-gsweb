@@ -25,8 +25,8 @@ static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
 
-#include <gnustep/base/md5.h>
 #include <sys/time.h>
+#include <unistd.h>
 #include "stacktrace.h"
 #include "attach.h"
 //--------------------------------------------------------------------
@@ -144,20 +144,6 @@ BOOL SBIsValueEqual(id id1,id id2)
 };
 
 //--------------------------------------------------------------------
-NSString* MD5HexDigest(NSString* str)
-{
-  int i=0;
-  NSMutableString* digest=[NSMutableString stringWithCapacity:32];
-  unsigned char digestNb[16];
-  md5_buffer([str cString],[str length],digestNb);
-  for(i=0;i<16;i++)
-	{
-	  [digest appendFormat:@"%02x",(unsigned int)digestNb[i]];
-	};
-  return digest;
-};
-
-//--------------------------------------------------------------------
 id GetTmpName(NSString* dir,NSString* prefix)
 {
   id result=nil;
@@ -257,7 +243,7 @@ void pidstat(pid_t pid, proc_t* P)
 				memset(P->cmd, 0, sizeof P->cmd);   // clear even though *P xcalloc'd ?! 
 				sscanf(S, "%d (%39c", &P->pid, P->cmd);
 			  */
-			  char* _statsChars=[_stats cString];
+			  const char* _statsChars=[_stats cString];
 			  NSDebugFLog(@"_stats=%@",_stats);
 			  sscanf(_statsChars,
 					 "%c %d %d %d %d %d %lu %lu %lu %lu %lu %ld %ld %ld %ld %d "
@@ -295,7 +281,7 @@ void pidstatm(pid_t pid, proc_t* P)
   NSDebugFLog(@"pid=%d",(int)pid);
   if (pidstat)
 	{
-	  char* _statsChars=[pidstat cString];
+	  const char* _statsChars=[pidstat cString];
 	  NSDebugFLog(@"pidstat=%@",pidstat);
 	  sscanf(_statsChars, "%ld %ld %ld %ld %ld %ld %ld",
 			 &P->size, &P->resident, &P->share,

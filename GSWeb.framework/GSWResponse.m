@@ -52,7 +52,7 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   NSDebugFLog(@"dealloc Response %p",self);
   NSDebugFLog0(@"Release Response httpVersion");
   DESTROY(httpVersion);

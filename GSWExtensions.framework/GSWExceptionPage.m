@@ -28,16 +28,12 @@
 
 -(void)dealloc
 {
-  GSWLogCStdOut("Dealloc GSWExceptionPage\n");
   GSWLogC("Dealloc GSWExceptionPage\n");  
   DESTROY(exception);
-  GSWLogCStdOut("Dealloc GSWExceptionPage reasons\n");
   GSWLogC("Dealloc GSWExceptionPage reasons\n");  
   DESTROY(reasons);
-  GSWLogCStdOut("Dealloc GSWExceptionPage super\n");
   GSWLogC("Dealloc GSWExceptionPage super\n");  
   [super dealloc];
-  GSWLogCStdOut("Dealloc GSWExceptionPage end\n");
   GSWLogC("Dealloc GSWExceptionPage end\n");  
 };
 

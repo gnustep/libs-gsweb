@@ -137,15 +137,24 @@ BOOL GSWLoadBalancing_FindInstance(GSWAppRequest *p_pAppRequest,void* p_pLogServ
 	  char szInstanceNum[50]="";
 	  sprintf(szInstanceNum,"%d",p_pAppRequest->iInstance);
 	  pAppInstance=(GSWAppInstance*)GSWDict_ValueForKey(&pApp->stInstancesDict,szInstanceNum);
-	  if (pAppInstance && pAppInstance->fValid)
+	  if (pAppInstance)
 		{
-		  fFound=TRUE;
-		  p_pAppRequest->iInstance = pAppInstance->iInstance;
-		  p_pAppRequest->pszHost = pAppInstance->pszHostName;
-		  p_pAppRequest->iPort = pAppInstance->iPort;
-		  p_pAppRequest->eType = EAppType_LoadBalanced;
-		  p_pAppRequest->pAppInstance = pAppInstance;
-		  pAppInstance->uOpenedRequestsNb++;		
+		  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance Found");
+		  if (pAppInstance->fValid)
+			{
+			  fFound=TRUE;
+			  p_pAppRequest->iInstance = pAppInstance->iInstance;
+			  p_pAppRequest->pszHost = pAppInstance->pszHostName;
+			  p_pAppRequest->iPort = pAppInstance->iPort;
+			  p_pAppRequest->eType = EAppType_LoadBalanced;
+			  p_pAppRequest->pAppInstance = pAppInstance;
+			  pAppInstance->uOpenedRequestsNb++;		
+			  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is valid");
+			}
+		  else
+			{
+			  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance is not valid");
+			};
 		};
 	};
   GSWLock_Unlock(g_lockAppList);

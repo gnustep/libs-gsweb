@@ -59,7 +59,7 @@ GSWHTTPResponse* GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest** p_ppHTTPRequ
   AppConnectHandle hConnect=NULL;
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWAppRequest_SendAppRequestToApp");
 
-  if (p_pAppRequest->iInstance)
+  if (p_pAppRequest->iInstance>0) //-1 or 0 mean any instance
 	fAppFound = GSWLoadBalancing_FindInstance(p_pAppRequest,p_pLogServerData);
   else
 	fAppFound = GSWLoadBalancing_FindApp(p_pAppRequest,p_pLogServerData);

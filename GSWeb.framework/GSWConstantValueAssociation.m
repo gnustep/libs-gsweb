@@ -94,10 +94,10 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   NSString* _dscr=nil;
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   if (value)
 	{
-	  LOGAssertGood(value);
+	  GSWLogAssertGood(value);
 	};
   _dscr=[NSString stringWithFormat:@"<%s %p - value=%@",
 				  object_get_class_name(self),

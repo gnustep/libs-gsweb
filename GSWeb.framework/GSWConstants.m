@@ -225,6 +225,7 @@ NSString* GSWOPT_CGIAdaptorURL=@"WOCGIAdaptorURL";
 NSString* GSWOPT_CachingEnabled=@"WOCachingEnabled";
 NSString* GSWOPT_ComponentRequestHandlerKey=@"WOComponentRequestHandlerKey";
 NSString* GSWOPT_DebuggingEnabled=@"WODebuggingEnabled";
+NSString* GSWOPT_StatusDebuggingEnabled=@"WOStatusDebuggingEnabled";//NDFN
 NSString* GSWOPT_DirectActionRequestHandlerKey=@"WODirectActionRequestHandlerKey";
 NSString* GSWOPT_DirectConnectEnabled=@"WODirectConnectEnabled";
 NSString* GSWOPT_FrameworksBaseURL=@"WOFrameworksBaseURL";
@@ -249,6 +250,7 @@ NSString* GSWOPT_CGIAdaptorURL=@"GSWCGIAdaptorURL";
 NSString* GSWOPT_CachingEnabled=@"GSWCachingEnabled";
 NSString* GSWOPT_ComponentRequestHandlerKey=@"GSWComponentRequestHandlerKey";
 NSString* GSWOPT_DebuggingEnabled=@"GSWDebuggingEnabled";
+NSString* GSWOPT_StatusDebuggingEnabled=@"GSWStatusDebuggingEnabled";//NDFN
 NSString* GSWOPT_DirectActionRequestHandlerKey=@"GSWDirectActionRequestHandlerKey";
 NSString* GSWOPT_DirectConnectEnabled=@"GSWDirectConnectEnabled";
 NSString* GSWOPT_FrameworksBaseURL=@"GSWFrameworksBaseURL";
@@ -266,6 +268,8 @@ NSString* GSWOPT_WorkerThreadCount=@"GSWWorkerThreadCount";
 NSString* GSWOPT_ProjectSearchPath=@"NSProjectSearchPath";
 #endif
 NSString* GSWOPT_MultiThreadEnabled=@"GSWMTEnabled";
+NSString* GSWOPT_DebugSetConfigFilePath=@"GSWDebugSetConfigFilePath";
+
 //====================================================================
 // Cache Marker
 NSString* GSNotFoundMarker=@"NotFoundMarker";

@@ -42,7 +42,17 @@
 #define VOID_RCSID	\
 static void VoidUseRCSId() { rcsId[0]=0; };
 
+#ifndef BYTE_DEFINED
 typedef unsigned char BYTE;
+#define BYTE_DEFINED
+#endif
+#ifndef UINTs_DEFINED
+typedef unsigned int UINT;
+typedef unsigned char UINT8;
+typedef unsigned short UINT16;
+typedef unsigned int UINT32;
+#define UINTs_DEFINED
+#endif
 
 #define allFrameworks 	tmpAllFrameworks
 
@@ -166,7 +176,6 @@ extern NSString* GSWGetDefaultDocRoot();
 //To Move
 extern NSString* DataToHexString(NSData* data);
 extern NSData* HexStringToData(NSString* _string);
-extern NSString* MD5HexDigest(NSString* str);
 
 //====================================================================
 @interface NSException (NSBuild)

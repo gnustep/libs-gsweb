@@ -49,9 +49,9 @@ ADDITIONAL_INCLUDE_DIRS =  -I. -I$(GNUSTEP_SYSTEM_ROOT)/db -I../..
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS = -lFoundationExt_d -lNGReflection_d
+	ADDITIONAL_LDFLAGS = -lFoundationExt_d
 else
-	ADDITIONAL_LDFLAGS = -lFoundationExt -lNGReflection
+	ADDITIONAL_LDFLAGS = -lFoundationExt
 endif
 
 # Additional library directories the linker should search

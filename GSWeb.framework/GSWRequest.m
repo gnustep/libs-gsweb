@@ -78,7 +78,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   NSDebugFLog0(@"dealloc GSWRequest");
   NSDebugFLog0(@"Release GSWRequest method");
   DESTROY(method);

@@ -115,7 +115,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(GSWComponent*)responsePage
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   return responsePage;
 };
 

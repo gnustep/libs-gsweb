@@ -153,7 +153,7 @@ static char rcsId[] = "$Id$";
   GSWSession* _session=nil;
   LOGObjectFnStart();
   _session=[context_ existingSession];
-  LOGAssertGood(_session);
+  GSWLogAssertGood(_session);
   NSDebugMLLog(@"sessions",@"_session=%@",_session);
   NS_DURING
 	{
@@ -166,7 +166,7 @@ static char rcsId[] = "$Id$";
 	  [localException raise];
 	}
   NS_ENDHANDLER;
-  LOGAssertGood(_session);
+  GSWLogAssertGood(_session);
   NSDebugMLLog(@"sessions",@"_session=%@",_session);
   NS_DURING
 	{
@@ -179,10 +179,10 @@ static char rcsId[] = "$Id$";
 	  [localException raise];
 	}
   NS_ENDHANDLER;
-  LOGAssertGood(_session);
+  GSWLogAssertGood(_session);
   NSDebugMLLog(@"sessions",@"_session=%@",_session);
   _sessionID=[_session sessionID];
-  LOGAssertGood(_session);
+  GSWLogAssertGood(_session);
   NSDebugMLLog(@"sessions",@"_sessionID=%@",_sessionID);
   NS_DURING
 	{

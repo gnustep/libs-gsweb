@@ -93,7 +93,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   NSDebugFLog0(@"Dealloc GSWSession");
   NSDebugFLog0(@"Dealloc GSWSession: sessionID");
   DESTROY(sessionID);
@@ -130,7 +130,7 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   NSString* dscr=nil;
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   /*
   NSDebugMLLog(@"sessions",@"selfCount=%u",(unsigned int)[self retainCount]);
   NSDebugMLLog(@"sessions",@"sessionIDCount=%u",(unsigned int)[sessionID retainCount]);
@@ -411,7 +411,7 @@ static char rcsId[] = "$Id$";
   unsigned int _stackIndex=0;
   unsigned int _contextArrayIndex=0;
   LOGObjectFnStart();
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   NSAssert(contextID_,@"No contextID");
   NSAssert([contextID_ length]>0,@"contextID empty");
   NSDebugMLLog(@"sessions",@"contextID=%@",contextID_);
@@ -428,7 +428,7 @@ static char rcsId[] = "$Id$";
 		{
 		  NSDebugMLLog(@"sessions",@"_transactionRecord2=%@",_transactionRecord);
 		  _page=[_transactionRecord responsePage];
-		  LOGAssertGood(_page);
+		  GSWLogAssertGood(_page);
 		};
 	  NSDebugMLLog(@"sessions",@"_transactionRecord3=%@",_transactionRecord);
 	  NSDebugMLLog(@"sessions",@"_page 1=%@",_page);
@@ -477,22 +477,18 @@ static char rcsId[] = "$Id$";
 	{
 	  id _deletePage=nil;
 	  NSString* _deleteContextID=nil;
-	  GSWLogCStdOut("Deleting permanent cached Page\n");
-	  GSWLogC("Deleting permanent cached Page\n");
+	  [GSWApplication statusLogWithFormat:@"Deleting permanent cached Page"];
 	  _deleteContextID=[permanentContextIDArray objectAtIndex:0];
-	  LOGAssertGood(_deleteContextID);
-	  GSWLogStdOut([NSString stringWithFormat:@"permanentContextIDArray=%@",permanentContextIDArray]);
-	  GSWLog([NSString stringWithFormat:@"permanentContextIDArray=%@",permanentContextIDArray]);
-	  GSWLogStdOut([NSString stringWithFormat:@"contextID=%@",_deleteContextID]);
-	  GSWLog([NSString stringWithFormat:@"contextID=%@",_deleteContextID]);
+	  GSWLogAssertGood(_deleteContextID);
+	  [GSWApplication statusLogWithFormat:@"permanentContextIDArray=%@",permanentContextIDArray];
+	  [GSWApplication statusLogWithFormat:@"contextID=%@",_deleteContextID];
 	  NSDebugMLLog(@"sessions",@"_deleteContextID=%@",_deleteContextID);
 	  NSDebugMLLog(@"sessions",@"[permanentContextIDArray objectAtIndex:0]=%@",[permanentContextIDArray objectAtIndex:0]);
 	  NSDebugMLLog(@"sessions",@"[permanentContextIDArray objectAtIndex:0] retainCount=%d",(int)[[permanentContextIDArray objectAtIndex:0] retainCount]);
 	  [permanentContextIDArray removeObjectAtIndex:0];
 	  _deletePage=[contextRecords objectForKey:_deleteContextID];
-	  LOGAssertGood(_deletePage);
-	  GSWLogStdOut([NSString stringWithFormat:@"delete page of class=%@",[_deletePage class]]);
-	  GSWLog([NSString stringWithFormat:@"delete page of class=%@",[_deletePage class]]);
+	  GSWLogAssertGood(_deletePage);
+	  [GSWApplication statusLogWithFormat:@"delete page of class=%@",[_deletePage class]];
 	  [_permanentPageCache removeObjectForKey:_deleteContextID];
 	};
   _contextID=[_context contextID];
@@ -528,8 +524,7 @@ static char rcsId[] = "$Id$";
 	  {
 		__contextID=[permanentContextIDArray objectAtIndex:i];
 		__object=[_permanentPageCache objectForKey:__contextID];
-		GSWLogStdOut([NSString stringWithFormat:@"%d contextID=%@ page class=%@",i,__contextID,[__object class]]);
-		GSWLog([NSString stringWithFormat:@"%d contextID=%@ page class=%@",i,__contextID,[__object class]]);		
+		[GSWApplication statusLogWithFormat:@"%d contextID=%@ page class=%@",i,__contextID,[__object class]];
 	  };
   };
   if ([permanentContextIDArray count]!=[_permanentPageCache count])
@@ -787,23 +782,19 @@ static char rcsId[] = "$Id$";
 	{
 	  id _deleteRecord=nil;
 	  NSString* _deleteContextID=nil;
-	  GSWLogCStdOut("Deleting cached Page\n");
-	  GSWLogC("Deleting cached Page\n");
+	  [GSWApplication statusLogWithFormat:@"Deleting cached Page"];
 	  _deleteContextID=[contextArrayStack objectAtIndex:0];
-	  LOGAssertGood(_deleteContextID);
-	  GSWLogStdOut([NSString stringWithFormat:@"contextArrayStack=%@",contextArrayStack]);
-	  GSWLog([NSString stringWithFormat:@"contextArrayStack=%@",contextArrayStack]);
-	  GSWLogStdOut([NSString stringWithFormat:@"contextID=%@",_deleteContextID]);
-	  GSWLog([NSString stringWithFormat:@"contextID=%@",_deleteContextID]);
+	  GSWLogAssertGood(_deleteContextID);
+	  [GSWApplication statusLogWithFormat:@"contextArrayStack=%@",contextArrayStack];
+	  [GSWApplication statusLogWithFormat:@"contextID=%@",_deleteContextID];
 	  NSDebugMLLog(@"sessions",@"_deleteContextID=%@",_deleteContextID);
 	  NSDebugMLLog(@"sessions",@"[contextArrayStack objectAtIndex:0]=%@",[contextArrayStack objectAtIndex:0]);
 	  NSDebugMLLog(@"sessions",@"[contextArrayStack objectAtIndex:0] retainCount=%d",(int)[[contextArrayStack objectAtIndex:0] retainCount]);
 	  [contextArrayStack removeObjectAtIndex:0];
 	  _deleteRecord=[contextRecords objectForKey:_deleteContextID];
-	  LOGAssertGood(_deleteRecord);
-	  LOGAssertGood([_deleteRecord responsePage]);
-	  GSWLogStdOut([NSString stringWithFormat:@"delete page of class=%@",[[_deleteRecord responsePage] class]]);
-	  GSWLog([NSString stringWithFormat:@"delete page of class=%@",[[_deleteRecord responsePage] class]]);
+	  GSWLogAssertGood(_deleteRecord);
+	  GSWLogAssertGood([_deleteRecord responsePage]);
+	  [GSWApplication statusLogWithFormat:@"delete page of class=%@",[[_deleteRecord responsePage] class]];
 	  [contextRecords removeObjectForKey:_deleteContextID];
 	};
 
@@ -849,8 +840,7 @@ static char rcsId[] = "$Id$";
 	  {
 		__contextID=[contextArrayStack objectAtIndex:i];
 		__trecord=[contextRecords objectForKey:__contextID];
-		GSWLogStdOut([NSString stringWithFormat:@"%d contextID=%@ page class=%@",i,__contextID,[[__trecord responsePage] class]]);
-		GSWLog([NSString stringWithFormat:@"%d contextID=%@ page class=%@",i,__contextID,[[__trecord responsePage] class]]);		
+		[GSWApplication statusLogWithFormat:@"%d contextID=%@ page class=%@",i,__contextID,[[__trecord responsePage] class]];
 	  };
   };
   if ([contextArrayStack count]!=[contextRecords count])

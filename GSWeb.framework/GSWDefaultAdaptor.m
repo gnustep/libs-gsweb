@@ -93,8 +93,7 @@ static char rcsId[] = "$Id$";
     object:fileHandle];
 */
   [fileHandle acceptConnectionInBackgroundAndNotify];
-  GSWLogCStdOut("Waiting for connections.\n");
-  GSWLogC("Waiting for connections.\n");
+  [GSWApplication statusLogWithFormat:@"Waiting for connections."];
 };
 
 //--------------------------------------------------------------------
@@ -232,8 +231,7 @@ static char rcsId[] = "$Id$";
   _listenHandle=[notification object];
   requestDate=[NSCalendarDate calendarDate];
   requestDateString=[NSString stringWithFormat:@"New Request %@",requestDate];
-  GSWLogCStdOut([requestDateString cString]);
-  GSWLogC([requestDateString cString]);
+  [GSWApplication statusLogWithFormat:@"%@",requestDateString];
   NSDebugMLLog(@"info",@"_listenHandle=%p",(void*)_listenHandle);
   inStream = [[notification userInfo]objectForKey:@"NSFileHandleNotificationFileHandleItem"];
   NSDebugMLLog(@"info",@"announceNewConnection notification=%@\n",notification);
@@ -268,8 +266,7 @@ static char rcsId[] = "$Id$";
 						{
 						  requestDate=[NSCalendarDate calendarDate];
 						  requestDateString=[NSString stringWithFormat:@"Lauch Thread (Multi) %@",requestDate];
-						  GSWLogCStdOut([requestDateString cString]);
-						  GSWLogC([requestDateString cString]);
+						  [GSWApplication statusLogWithFormat:@"%@",requestDateString];
 						  NSDebugMLLog(@"info",
 									   @"Lauch Thread (Multi) %p",
 									   (void*)_newThread);
@@ -282,7 +279,7 @@ static char rcsId[] = "$Id$";
 						{
 						  //Runit after
 /*
-						  GSWLogCStdOut("Lauch Thread (Mono)");
+						  [GSWApplication statusLogWithFormat:@"Lauch Thread (Mono)"];
 						  NSDebugMLLog(@"info",
 									   @"Lauch Thread (Mono) %p",
 									   (void*)_newThread);
@@ -292,7 +289,7 @@ static char rcsId[] = "$Id$";
 					}
 				  else
 					{
-					  GSWLogCStdOut("Set Thread to wait");
+					  [GSWApplication statusLogWithFormat:@"Set Thread to wait"];
 					  NSDebugMLLog(@"info",
 								   @"Set Thread to wait %p",
 								   (void*)_newThread);
@@ -320,7 +317,7 @@ static char rcsId[] = "$Id$";
 		{
 		  requestDate=[NSCalendarDate calendarDate];
 		  requestDateString=[NSString stringWithFormat:@"Lauch Thread (Mono) %@",requestDate];
-		  GSWLogCStdOut([requestDateString cString]);
+		  [GSWApplication statusLogWithFormat:@"%@",requestDateString];
 		  NSDebugMLLog(@"info",
 					   @"%@ %p",
 					   requestDateString,
@@ -329,7 +326,7 @@ static char rcsId[] = "$Id$";
 		  DESTROY(_newThread);
 		  requestDate=[NSCalendarDate calendarDate];
 		  requestDateString=[NSString stringWithFormat:@"Stop Thread (Mono) %@",requestDate];
-		  GSWLogCStdOut([requestDateString cString]);
+		  [GSWApplication statusLogWithFormat:@"%@",requestDateString];
 		  NSDebugMLLog0(@"info",
 						requestDateString);
 		};
@@ -416,7 +413,7 @@ static char rcsId[] = "$Id$";
 			  [waitingThreads removeObjectAtIndex:0];
 #ifndef NDEBUG
 			  pool=[NSAutoreleasePool new];
-			  GSWLogCStdOut("Lauch waiting Thread");
+			  [GSWApplication statusLogWithFormat:@"Lauch waiting Thread"];
 			  NSDebugMLLog(@"info",
 						   @"Lauch waiting Thread %p",
 						   (void*)_thread);

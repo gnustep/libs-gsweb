@@ -30,7 +30,6 @@ static char rcsId[] = "$Id$";
 
 #define USTART	NSAutoreleasePool* arp=[NSAutoreleasePool new];
 #define USTOP	DESTROY(arp);
-#define DOTRACE 1
 
 @interface NSObject (GSISA)
 -(Class)isa;
@@ -43,91 +42,10 @@ static char rcsId[] = "$Id$";
 };
 @end
 
-void GSWAssertGood(NSObject* object,CONST char* file,int line)
-{
-  if (object)
-	{
 #ifdef DEBUG
-	  if ([object isa]==((Class)0xdeadface))
-		{
-		  char buffer[1024]="";
-		  sprintf(buffer,"DEAD FACE: object %p isa=%p in %s at %d\n",
-				  (void*)object,
-				  (void*)[object isa],
-				  file,
-				  line);
-		  GSWLogCStdOut(buffer);
-		  GSWLogC(buffer);
-		  NSCParameterAssert([object isa]==(Class)0xdeadface);
-		};
-#else
-	  NSCAssert2([object isa]!=((Class)0xdeadface),@"Dead face object %s %d",file, line);
-#endif
-	}
-  else
-	{
-#ifdef DEBUG
-	  char buffer[1024]="";
-	  sprintf(buffer,"NULL: object %p in %s at %d\n",
-			  (void*)object,
-			  file,
-			  line);
-	  GSWLogCStdOut(buffer);
-	  GSWLogC(buffer);
-	  NSCParameterAssert(object);
-#else
-	  NSCAssert2(object,@"Nil object %s %d",file, line);
-#endif
-	};
-};
-
-void GSWLogExceptionF(CONST char* file,int line,NSString* format,...)
-{
-  NSString* string=nil;
-  va_list ap;
-  USTART
-  va_start (ap, format);
-  string=[NSString stringWithFormat:format
-				   arguments: ap];
-  va_end (ap);
-#if DOTRACE
-  GSWLogCStdOut("EXCEPTION:");
-  GSWLogC("EXCEPTION:");
-  GSWLogStdOut(string);
-  GSWLog(string);
-#endif
-  USTOP  
-};
-void GSWLogException(CONST char* comment,CONST char* file,int line)
-{
-  char buff[25];
-  fputs ("EXCEPTION (", stderr);
-  fputs ("EXCEPTION (", stdout);
-  fputs (file, stderr);
-  fputs (file, stdout);
-  fputs (" ", stderr);
-  fputs (" ", stdout);
-  sprintf(buff,"%d",line);
-  fputs (buff, stderr);
-  fputs (buff, stdout);
-  fputs ("):", stderr);
-  fputs ("):", stdout);
-  if (comment)
-	{
-	  fputs (comment, stderr);
-	  fputs (comment, stdout);
-	};
-  fputs ("\n", stderr);
-  fputs ("\n", stdout);
-  fflush(stderr);
-  fflush(stdout);
-};
-
 //--------------------------------------------------------------------
-void GSWLogC(CONST char* string)
+void GSWLogC_(CONST char* file,int line,CONST char* string)
 {
-#ifdef DEBUG
-#if DOTRACE
   int len=0;
   if ([NSThread isMultiThreaded])
 	{
@@ -141,214 +59,16 @@ void GSWLogC(CONST char* string)
 		  fprintf(stderr,"%p [%ld] (%d) ",tid,(long)tid,(int)getpid());
 		};
 	};
+  fprintf(stderr,"File %s: %d. ",file,line);
   fprintf(stderr,string);
   len=strlen(string);
   if (len<=0 || string[len-1]!='\n')
 	fprintf(stderr,"\n");
   fflush(stderr);
-#endif
-#endif
 };
+#endif
 
-//--------------------------------------------------------------------
-void GSWLogCStdOut(CONST char* string)
-{
 #ifdef DEBUG
-#if DOTRACE
-  int len=0;
-  if ([NSThread isMultiThreaded])
-	{
-	  NSThread* t = [NSThread currentThread];
-	  fprintf(stdout,"TID=");
-	  if (t && t->_thread_id)
-		  fprintf(stdout,"%p [%ld] (%d) ",(void*)t->_thread_id,(long)t->_thread_id,(int)getpid());
-	  else
-		{
-		  void* tid=(void*)objc_thread_id();
-		  fprintf(stdout,"%p [%ld] (%d) ",tid,(long)tid,(int)getpid());
-		};
-	};
-  fprintf(stdout,string);
-  len=strlen(string);
-  if (len<=0 || string[len-1]!='\n')
-	fprintf(stdout,"\n");
-  fflush(stdout);
-#endif
-#endif
-};
-
-//--------------------------------------------------------------------
-void _GSWLog(NSString* string)
-{
-#ifdef DEBUG
-#if DOTRACE
-  USTART
-  GSWLogC([string cString]);
-  USTOP
-#endif
-#endif
-};
-
-//--------------------------------------------------------------------
-void _GSWLogStdOut(NSString* string)
-{
-#ifdef DEBUG
-#if DOTRACE
-  USTART
-  GSWLogCStdOut([string cString]);
-  USTOP
-#endif
-#endif
-};
-/*
-//--------------------------------------------------------------------
-void _NSDebugMLog(NSString* format,...)
-{
-  NSString* string=nil;
-  va_list ap;
-  USTART
-  va_start (ap, format);
-  string=[NSString stringWithFormat:format
-				   arguments: ap];
-  va_end (ap);
-#if DOTRACE
-  _GSWLog(string);
-#endif
-  USTOP
-};
-
-//--------------------------------------------------------------------
-void _NSDebugMLog(NSString* format,...)
-{
-  NSString* string=nil;
-  va_list ap;
-  USTART
-  va_start (ap, format);
-  string=[NSString stringWithFormat:format
-				   arguments: ap];
-  va_end (ap);
-#if DOTRACE
-  _GSWLogStdOut(string);
-  _GSWLog(string);
-#endif
-  USTOP
-};
-*/
-//--------------------------------------------------------------------
-void GSWLogError(CONST char* file,int line)
-{
-#ifdef DEBUG
-  USTART
-	{
-	  NSString* string=[NSString stringWithFormat:@"ERROR ! file %s line %d\n",
-								 (file && isalpha(*file) && line>=0 && line<=50000) ? file :"",
-								 line];
-	  _GSWLog(string);
-#if DOTRACE
-	  _GSWLogStdOut(string);
-#endif
-	};
-  USTOP
-#endif
-};
-
-//--------------------------------------------------------------------
-void GSWLogErrorF(CONST char* file,int line,NSString* format,...)
-{
-#ifdef DEBUG
-  NSString* string=nil;
-  NSString* stringError=nil;
-  va_list ap;
-  USTART
-  va_start (ap, format);
-  string=[NSString stringWithFormat:format
-				   arguments: ap];
-  stringError=[NSString stringWithFormat:@"ERROR ! file %s line %d: %@\n",
-						(file && isalpha(*file) && line>=0 && line<=50000) ? file :"",
-						line,
-						string];
-  _GSWLog(stringError);
-#if DOTRACE
-  _GSWLogStdOut(stringError);
-#endif
-  va_end (ap);
-  USTOP  
-#endif
-};
-/*
-//--------------------------------------------------------------------
-void NSDebugMLogCond(BOOL cond,NSString* format,...)
-{
-  if (cond)
-	{
-	  NSString* string=nil;
-	  va_list ap;
-	  USTART
-	  va_start (ap, format);
-	  string=[NSString stringWithFormat:format
-					   arguments: ap];
-	  va_end (ap);
-#if DOTRACE
-	  _GSWLog(string);
-#endif
-	  USTOP
-	};
-};
-*/
-
-//--------------------------------------------------------------------
-void GSWLog(NSString* string)
-{
-#ifdef DEBUG
-#if DOTRACE
-  NSDebugFLog(@"%@",string);
-#endif
-#endif
-};
-
-//--------------------------------------------------------------------
-void GSWLogStdOut(NSString* string)
-{
-#ifdef DEBUG
-#if DOTRACE
-  GSWLogCStdOut([string cString]);
-#endif
-#endif
-};
-
-/*
-//--------------------------------------------------------------------
-void NSDebugMLog(NSString* format,...)
-{
-  NSString* string=nil;
-  va_list ap;
-  USTART
-  va_start (ap, format);
-  string=[NSString stringWithFormat:format
-				   arguments: ap];
-  va_end(ap);
-#if DOTRACE
-  GSWLog(string);
-#endif
-  USTOP
-};
-
-//--------------------------------------------------------------------
-void NSDebugMLog(NSString* format,...)
-{
-  NSString* string=nil;
-  va_list ap;
-  USTART
-  va_start (ap, format);
-  string=[NSString stringWithFormat:format
-				   arguments: ap];
-  va_end(ap);
-#if DOTRACE
-  GSWLogStdOut(string);
-#endif
-  USTOP
-};
-*/
 //--------------------------------------------------------------------
 NSString* objectDescription(id object)
 {
@@ -362,137 +82,9 @@ NSString* objectDescription(id object)
 	};
   return description;
 };
-/*
-//--------------------------------------------------------------------
-void logObjectFnNotImplemented(CONST char* file,int line,id obj,SEL cmd)
-{
-#if DOTRACE
-  USTART
-  if (!(file && isalpha(*file) && line>=0 && line<=20000))
-	NSDebugMLog(@"Not Implemented Object Function %s",
-		  sel_get_name(cmd));
-  else
-	{
-	  BOOL dumpClass=YES;
-	  if (!CLS_ISINITIALIZED(object_get_class(obj)))
-		dumpClass=NO;
-	  
-	  NSDebugMLog(@"%s %d - Not Implemented Object Function %s (Class %s)\n",
-			(file && isalpha(*file) && line>=0 && line<=20000) ? file :"",
-			line,
-			sel_get_name(cmd),
-			((dumpClass) ? object_get_class_name(obj) : "***"));
-	};
-  USTOP
-#endif
-};
 
 //--------------------------------------------------------------------
-void logClassFnNotImplemented(CONST char* file,int line,Class class,SEL cmd)
-{
-#if DOTRACE
-  USTART
-  if (!(file && isalpha(*file) && line>=0 && line<=20000))
-	NSDebugMLog(@"Not Implemented Class Function %s",
-		  sel_get_name(cmd));
-  else
-	{
-	  BOOL dumpClass=YES;
-	  if (!CLS_ISINITIALIZED(class))
-		dumpClass=NO;
-	  NSDebugMLog(@"%s %d - Not Implemented Class Function %s (Class %s)\n",
-			(file && isalpha(*file) && line>=0 && line<=20000) ? file :"",
-			line,
-			sel_get_name(cmd),
-			((dumpClass && class) ? class->name : "***"));
-	};
-  USTOP
-#endif
-};
-
-//--------------------------------------------------------------------
-void logObjectFnStart(CONST char* file,int line,id obj,SEL cmd,CONST char* comment,BOOL dumpClass)
-{
-#if DOTRACE
-  USTART
-  iFnLevel++;
-  if (!CLS_ISINITIALIZED(object_get_class(obj)))
-	dumpClass=NO;
-  _NSDebugMLog(@"%s %s %d - Obj:%p Start:%s (Class %s [%s])\n",
-		  getOpenSign(),
-		  ((file && isalpha(*file) && line>=0 && line<=20000) ? file :""),
-		  line,
-		  (void*)obj,
-		  sel_get_name(cmd),
-		  ((dumpClass) ? object_get_class_name(obj) : "***"),
-		  comment ? comment : "");
-  USTOP
-#endif
-};
-
-//--------------------------------------------------------------------
-void logObjectFnStop(CONST char* file,int line,id obj,SEL cmd,CONST char* comment)
-{
-#if DOTRACE
-  BOOL dumpClass=YES;
-  USTART
-  if (!obj || !CLS_ISINITIALIZED(object_get_class(obj)))
-	dumpClass=NO;
-  _NSDebugMLog(@"%s %s %d - Obj:%p Stop:%s (Class %s [%s])\n",
-		  getCloseSign(),
-		  (file && isalpha(*file) && line>=0 && line<=20000) ? file :"",
-		  line,
-		  (void*)obj,
-		  sel_get_name(cmd),
-		  ((dumpClass) ? object_get_class_name(obj) : "***"),
-		  comment ? comment : "");
-  iFnLevel--;
-  USTOP
-#endif
-};
-
-//--------------------------------------------------------------------
-void logClassFnStart(CONST char* file,int line,Class class,SEL cmd,CONST char* comment)
-{
-#if DOTRACE
-  BOOL dumpClass=YES;
-  USTART
-  iFnLevel++;
-  if (!CLS_ISINITIALIZED(class))
-	dumpClass=NO;
-  _NSDebugMLog(@"%s %s %d - Class Start:%s (Class %s [%s])\n",
-		getOpenSign(),
-		(file && isalpha(*file) && line>=0 && line<=20000) ? file :"",
-		line,
-		sel_get_name(cmd),
-		((dumpClass && class) ? class->name : "***"),
-		comment ? comment : "");
-  USTOP
-#endif
-};
-
-//--------------------------------------------------------------------
-void logClassFnStop(CONST char* file,int line,Class class,SEL cmd,CONST char* comment)
-{
-#if DOTRACE
-  BOOL dumpClass=YES;
-  USTART
-  if (!CLS_ISINITIALIZED(class))
-	dumpClass=NO;
-  _NSDebugMLog(@"%s %s %d - Class Stop:%s (Class %s [%s])\n",
-		getCloseSign(),
-		(file && isalpha(*file) && line>=0 && line<=20000) ? file :"",
-		line,
-		sel_get_name(cmd),
-		((dumpClass && class) ? class->name : "***"),
-		comment ? comment : "");
-  iFnLevel--;
-  USTOP
-#endif
-};
-*/
-//--------------------------------------------------------------------
-NSString* IVarInString(CONST char*_type,void* _value)
+NSString* IVarInString(const char* _type,void* _value)
 {
   if (_type && _value)
 	{
@@ -624,7 +216,7 @@ NSString* IVarInString(CONST char*_type,void* _value)
 };
 
 //--------------------------------------------------------------------
-NSString* TypeToNSString(CONST char*_type)
+NSString* TypeToNSString(const char* _type)
 {
   if (_type)
 	{
@@ -632,10 +224,10 @@ NSString* TypeToNSString(CONST char*_type)
 		{
 		case _C_ID:
 		  { // '@'
-			CONST char *t = _type + 1;
+			const char *t = _type + 1;
 			if (*t == '"')
 			  {
-				CONST char *start = t + 1;
+				const char *start = t + 1;
 				do
 				  {
 					t++;
@@ -673,13 +265,13 @@ NSString* TypeToNSString(CONST char*_type)
 		case _C_STRUCT_B:
 		  {
 			NSString *structName = nil;
-			CONST char *t = _type + 1;
+			const char *t = _type + 1;
 		
 			if (*t == '?')
 			  structName = @"?";
 			else
 			  {
-				CONST char *beg = t;
+				const char *beg = t;
 				while ((*t != '=') && (*t != '\0') && (*t != _C_STRUCT_E))
 				  t++;
 				structName = [NSString stringWithCString:beg length:(t - beg)];
@@ -697,10 +289,9 @@ NSString* TypeToNSString(CONST char*_type)
 };
 
 //--------------------------------------------------------------------
-void DumpIVar(id object,struct objc_ivar* ivar,int level)
+void DumpIVar(id object,struct objc_ivar* ivar,int deep)
 {
-#ifdef DEBUG
-  if (ivar && object && level>=0)
+  if (ivar && object && deep>=0)
 	{
 	  void* pValue=((void*)object) + ivar->ivar_offset;
 	  NSString* pType=TypeToNSString(ivar->ivar_type);
@@ -709,20 +300,19 @@ void DumpIVar(id object,struct objc_ivar* ivar,int level)
 			ivar->ivar_name,
 			pType,
 			pIVar);
-	  if (level>0 && ivar->ivar_type && *ivar->ivar_type==_C_ID && pValue)
+	  if (deep>0 && ivar->ivar_type && *ivar->ivar_type==_C_ID && pValue)
 		{
-		  DumpObject(NULL,0,*((id*)pValue),level);
+		  GSWLogDumpObject_(NULL,0,*((id*)pValue),deep);
 		};
 	};
-#endif
 };
 
 //--------------------------------------------------------------------
-void DumpObject(CONST char* file,int line,id object,int level)
+//Dump object 
+void GSWLogDumpObject_(CONST char* file,int line,id object,int deep)
 {
-#ifdef DEBUG
   USTART
-  if (object && level>0)
+  if (object && deep>0)
 	{
 	  struct objc_ivar_list *ivars=NULL;
 	  Class class = [object class];
@@ -731,7 +321,7 @@ void DumpObject(CONST char* file,int line,id object,int level)
 		  NSDebugFLog(@"--%s %d [%d] Dumping object %p of Class %s Description:%@\n",
 				(file && isalpha(*file) && line>=0 && line<=20000) ? file :"",
 				line,
-				level,
+				deep,
 				(void*)object,
 				class->name,
 				objectDescription(object));
@@ -744,13 +334,37 @@ void DumpObject(CONST char* file,int line,id object,int level)
 				  int   i;
 				  for (i = 0; i < ivars->ivar_count; i++)
 					{
-					  DumpIVar(object,&ivars->ivar_list[i],level-1);
+					  DumpIVar(object,&ivars->ivar_list[i],deep-1);
 					};
 				}
 			};
         };
     };
   USTOP
-#endif
 };
 
+//--------------------------------------------------------------------
+void GSWLogAssertGood_(CONST char* file,int line,NSObject* object)
+{
+  if (object)
+	{
+	  if ([object isa]==((Class)0xdeadface))
+		{
+		  [GSWApp statusDebugWithFormat:@"DEAD FACE: object %p isa=%p in %s at %d\n",
+				  (void*)object,
+				  (void*)[object isa],
+				  file,
+				  line];
+		  NSCParameterAssert([object isa]==(Class)0xdeadface);
+		};
+	}
+  else
+	{
+	  [GSWApp statusDebugWithFormat:@"NULL: object %p in %s at %d\n",
+			  (void*)object,
+			  file,
+			  line];
+	  NSCParameterAssert(object);
+	};
+};
+#endif

@@ -24,6 +24,7 @@
 static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
+#include <unistd.h>
 #include "NSNonBlockingFileHandle.h"
 //====================================================================
 @implementation GSWDefaultAdaptorThread
@@ -105,10 +106,9 @@ static char rcsId[] = "$Id$";
   ASSIGN(runDate,[NSDate date]);
   DESTROY(dispatchRequestDate);
   DESTROY(sendResponseDate);
-  GSWLogCStdOut("Thread run START");
-  GSWLogC("Thread run START");
+  [GSWApplication statusLogWithFormat:@"Thread run START"];
   pool=[NSAutoreleasePool new];
-  GSWLogC("pool allocated!");
+  [GSWApplication logWithFormat:@"pool allocated!"];
   if (isMultiThread)
 	{
 	  _threadDictionary=GSCurrentThreadDictionary();
@@ -205,11 +205,9 @@ static char rcsId[] = "$Id$";
   NSDebugMLog0(@"GSWDefaultAdaptorThread: run end");
   NSDebugMLLog(@"low",@"application:%@",application);
   LOGObjectFnStop();
-  GSWLogCStdOut("threadWillExit START");
-  GSWLogC("threadWillExit START");
+  [GSWApplication statusLogWithFormat:@"threadWillExit START"];
   [application threadWillExit];
-  GSWLogCStdOut("threadWillExit STOP");
-  GSWLogC("threadWillExit STOP");
+  [GSWApplication statusLogWithFormat:@"threadWillExit STOP"];
   if (isMultiThread)
 	{
 	  NSAssert([NSThread isMultiThreaded],@"No MultiThread !");
@@ -217,8 +215,7 @@ static char rcsId[] = "$Id$";
 	}
   else
 	[self threadExited];
-  GSWLogCStdOut("run STOP");
-  GSWLogC("run STOP");
+  [GSWApplication statusLogWithFormat:@"run STOP"];
 };
 
 //--------------------------------------------------------------------

@@ -311,7 +311,7 @@ static char rcsId[] = "$Id$";
   NSStringEncoding _encoding=[response_ contentEncoding];
   NSArray* _dynamicChildren=[self dynamicChildren];//call dynamicChildren //GSWTextField: nil
   int elementN=0;
-  CONST BYTE* elements=[elementsMap bytes];
+  const BYTE* elements=[elementsMap bytes];
   BYTE element=0;
   int elementsN[3]={0,0,0};
   NSAssert2(_fromIndex<[elementsMap length],@"_fromIndex out of range:%u (length=%d)",_fromIndex,[elementsMap length]);
@@ -353,7 +353,7 @@ static char rcsId[] = "$Id$";
   GSWElement* _element=nil;
   int elementN=0;
   NSArray* _dynamicChildren=[self dynamicChildren];
-  CONST BYTE* elements=[elementsMap bytes];
+  const BYTE* elements=[elementsMap bytes];
   BYTE element=0;
   int elementsN[3]={0,0,0};
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
@@ -387,7 +387,7 @@ static char rcsId[] = "$Id$";
   //OK
   int elementN=0;
   NSArray* _dynamicChildren=[self dynamicChildren];
-  CONST BYTE* elements=[elementsMap bytes];
+  const BYTE* elements=[elementsMap bytes];
   BYTE element=0;
   int elementsN[3]={0,0,0};
   LOGObjectFnStart();

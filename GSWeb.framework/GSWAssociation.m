@@ -118,7 +118,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   LOGObjectFnNotImplemented();	//TODOFN
   return [super description];
 };
@@ -707,7 +707,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 				}
 			  else
 				{
-				  LOGAssertGood(_object);
+				  GSWLogAssertGood(_object);
 				  [_object setIVarNamed:_part
 						  withValue:value_];
 				  _object=nil;

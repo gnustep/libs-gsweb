@@ -233,13 +233,20 @@ BOOL GSWHTTPRequest_SendRequest(GSWHTTPRequest* p_pHTTPRequest,AppConnectHandle 
   GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_SendRequest");
   iRequestLength = strlen(p_pHTTPRequest->pszRequest);
   iContentLength = p_pHTTPRequest->uContentLength;
+#ifdef	DEBUG
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Request:%s",p_pHTTPRequest->pszRequest);
+  GSWLog(GSW_DEBUG,p_pLogServerData,"iContentLength:%d",iContentLength);
+#endif
     
   GSWDict_PerformForAllElem(p_pHTTPRequest->pHeaders,
 							GetHeaderLength,
 							&iHeaderLength);
   iHeaderLength++;   // Last /n
-
   iLength=iRequestLength+iHeaderLength+iContentLength;
+#ifdef	DEBUG
+  GSWLog(GSW_DEBUG,p_pLogServerData,"iHeaderLength:%d",iHeaderLength);
+  GSWLog(GSW_DEBUG,p_pLogServerData,"iLength:%d",iLength);
+#endif
 
   pszBuffer = malloc(iLength+1);
 
@@ -261,11 +268,15 @@ BOOL GSWHTTPRequest_SendRequest(GSWHTTPRequest* p_pHTTPRequest,AppConnectHandle 
 	};
 
   GSWLog(GSW_INFO,p_pLogServerData,
-		 "Sending AppRequest Content: %s\n(iContentLength Bytes)",
+		 "Sending AppRequest Content: %s\n(%d Bytes)",
 		 p_pHTTPRequest->pszRequest,
 		 iContentLength);
   // Just To be sure of the length
   iLength = pszTmp - pszBuffer;
+#ifdef	DEBUG
+  GSWLog(GSW_DEBUG,p_pLogServerData,"pszBuffer:%s",pszBuffer);
+  GSWLog(GSW_DEBUG,p_pLogServerData,"iLength:%d",iLength);
+#endif
   fOk = GSWApp_SendBlock(p_socket,pszBuffer,iLength,p_pLogServerData);
   free(pszBuffer);
   pszBuffer=NULL;

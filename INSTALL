@@ -6,10 +6,10 @@ This file documents the installation of GNUstepWeb, `gsweb'.  Copyright
 modify it freely as long as you preserve this copyright notice and
 permission notice.
 
-   This is version 1.0.0 of GNUstepWeb.
+   This is version 1.1.0 of GNUstepWeb.
 
    This package contains GNUstepWeb library. You need to install
-GNUstep core and db libraries, GSWAdaptor and Apache
+GNUstep core, extensions and db libraries, GSWAdaptor and Apache
 Please download last up to date cvs version of GNUstep (some bugs
 have been corrected).
 
@@ -26,7 +26,6 @@ Installing `gsweb'
 	core/		GNUstep core
 	db/			GNUstep database
 	extensions/	Extensions
-        You also need NGReflection
 
  The GNUStepWeb package:
  -----------------------
@@ -41,11 +40,9 @@ Installing `gsweb'
  ------------------
 
 1) core
-   After the compilation ok, and the 'make install', copy core/base/Sources/md5.h on your GNUstep's Header folder: 
-    /usr/GNUstep/Headers/gnustep/base/md5.h
  
 2) extensions
-   It adds the Header exceptions folders (both in Foundation an extensions)
+   It adds the Header exceptions folders (both in Foundation and extensions)
 
 3) db
 4) gsantlr
@@ -53,17 +50,12 @@ Installing `gsweb'
    Extract and compile
 
 6) gsgd
-7) NGReflection
-     you can find it on ftp://ftp.gnustep.org/pub/gnustep/contrib/MOF2-fd-1999-11-03.tgz.
-     Remark that this archive contains many extension. GNUstepWeb only needs the Reflections objects.
-     So after the untar, go to MOF2/Foundation/NGReflection. Type make, them make install.
-     You can install the others but some are not in phase with GNUstep present libraries.
 
 8) GNUstepWeb
-     Go in the GNUStepWeb folder. make and make install.
+     Go in the GNUstepWeb folder. make and make install.
 
-9) Apaches modules for GNUStepWeb
-    Still in the GNUStepWeb folder there is a GSWAdaptors/Apache folder, go in and make. There no make install. Instead     You must copy the mod_gsweb.so module in you Apache libexec directory (something like usr/apache/libexec).
+9) Apaches modules for GNUstepWeb
+    Still in the GNUstepWeb folder there is a GSWAdaptors/Apache folder, go in and make. There no make install. Instead you must copy the mod_gsweb.so module in you Apache libexec directory (something like /usr/apache/libexec).
 
 At this point everything is done, still remains the Apache configuration:
 
@@ -78,33 +70,42 @@ Configurating Apache:
 	LoadModule GSWeb_Module  libexec/mod_gsweb.so
 	AddModule mod_gsweb.c
 
+	And this one to specify the configuration file (for exemple /etc/httpd/conf/gsweb.conf)
 
- If you use virtual hosts (Apache in localhost doiues not requiered them), add the following lines:
+	GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf
+
+
+ If you use virtual hosts (Apache in localhost does not requiered them), add the following lines:
 
 	<Location /GSWeb*>
 		SetHandler GSWeb
 	</Location>
 
- Next if /etc/httpd/conf folders does not exist, you have to create them.
- In this folder create an file file named gsweb-log (that will be GNUStepWeb reports file)
- Then, create the file /etc/httpd/conf/gsweb.conf which contains parameters for GNUstepWeb Applications: 
+ Then, create the file configuration file (for exemple /etc/httpd/conf/gsweb.conf) which contains parameters for GNUstepWeb Applications: 
 
  The format is(there is an example for values below):
 
-The format is (there is an example for values below):
 {
+	canDumpStatus=YES;	//YES if server can display status (URL: /GSWeb/status)
+	GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources";	//URL of GSWExtensions Framework WebServerResources directory
+
 	applications=    {
 				ApplicationName =  {
-							instances =      (
- 												{
-													instanceNum= InstanceNumber;
+		                    //URL of GSWExtensions Framework WebServerResources directory. It overides Global parameter
+		                    GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources";
+
+							//YES to say that this application can be listed when the adaptor don't find an application
+							canDump = YES;
+
+							instances =	{
+ 											InstanceNumber =	{
 													host= IPAdressOfTheComputerOnWhichRunTheApplication;
 													port= ThePortListenByTheApplication;
 													parameters=      {
 																		transport= socket;
 																		};
 												 }
-								       		);
+								       		};
 									};
 						};
 }
@@ -112,18 +113,20 @@ The format is (there is an example for values below):
 
 exemple values for a localhost use: 
 {
+	canDumpStatus=YES;
+	GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources";
 	applications=    {
 				MyApp =  {
-						instances =      (
-				{
-					instanceNum= 1;
-					host= 127.0.0.1;
-					port= 9001;
-					parameters=      {
-										transport= socket;
-									};
-				}
-								      );
+						canDump = YES;
+						instances =      {
+											1 = {
+													host= 127.0.0.1;
+													port= 9001;
+													parameters=      {
+																		transport= socket;
+																	};
+												}
+								      };
 						};
 					};
 }

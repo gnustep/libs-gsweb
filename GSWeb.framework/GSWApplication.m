@@ -24,7 +24,7 @@
 static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
-#include <NGReflection/NGReflection.h>
+#include <extensions/NGReflection.h>
 #include <extensions/GarbageCollector.h>
 #include "stacktrace.h"
 #include "attach.h"
@@ -50,52 +50,16 @@ NSMutableDictionary* localDynCreateClassNames=nil;
 
 #ifndef NDEBUG
 void GSWApplicationDebugSetChange()
-{/*
-  static int state=-1;
-  static NSSet* _mySet=nil;
-  NSProcessInfo* _processInfo=[NSProcessInfo processInfo];
-  NSMutableSet* _debugSet=[_processInfo debugSet];
-  NSString* _newStateString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/tmp/%@.logstate",
-																		 globalApplicationClassName]];
-  NSDebugFLog(@"_debugSet=%@",_debugSet);
-  NSDebugFLog(@"_newStateString=%@",_newStateString);
-  if (_newStateString)
-	{
-	  int _newState=[_newStateString intValue];
-	  NSDebugFLog(@"_newState=%d state=%d",_newState,state);
-	  if (_newState!=state)
-		{
-		  if (_newState==0)
-			{
-			  NSMutableSet* _newSet=[NSMutableSet setWithObjects:
-													@"dflt",
-												  @"error",
-												  nil];
-			  DESTROY(_mySet);
-			  _mySet=[_debugSet copy];
-			  NSDebugFLog(@"_mySet=%@",_mySet);
-			  [_newSet intersectSet:_mySet];
-			  [_debugSet removeAllObjects];
-			  [_debugSet unionSet:_newSet];
-			  [_debugSet addObject:@"seriousError"];
-			  [_debugSet addObject:@"exception"];
-			  NSDebugFLog(@"_debugSet=%@",_debugSet);
-			}
-		  else
-			{
-			  NSDebugFLog(@"_mySet=%@",_mySet);
-			  [_debugSet unionSet:_mySet];
-			  NSDebugFLog(@"_debugSet=%@",_debugSet);
-			};
-		  state=_newState;
-		};
-	};*/
+{
   static NSString* _prevStateString=nil;
   NSProcessInfo* _processInfo=[NSProcessInfo processInfo];
   NSMutableSet* _debugSet=[_processInfo debugSet];
-  NSString* _newStateString=[NSString stringWithContentsOfFile:[NSString stringWithFormat:@"/etc/gsweb/%@.logstate",
-																		 globalApplicationClassName]];
+  NSString* _debugSetConfigFilePath=nil;
+  NSString* _newStateString=nil;
   BOOL _change=NO;
+  _debugSetConfigFilePath=[GSWApplication debugSetConfigFilePath];
+  NSLog(@"_debugSetConfigFilePath=%@",_debugSetConfigFilePath);
+  _newStateString=[NSString stringWithContentsOfFile:[GSWApplication debugSetConfigFilePath]];
   NSLog(@"_debugSet=%@",_debugSet);
   NSDebugFLog(@"_debugSet=%@",_debugSet);
   NSLog(@"_newStateString=%@",_newStateString);
@@ -357,6 +321,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 						  GSWOPTVALUE_CachingEnabled,	    		GSWOPT_CachingEnabled,
 						  GSWComponentRequestHandlerKey,			GSWOPT_ComponentRequestHandlerKey,
 						  GSWOPTVALUE_DebuggingEnabled,				GSWOPT_DebuggingEnabled,
+						  GSWOPTVALUE_StatusDebuggingEnabled,		GSWOPT_StatusDebuggingEnabled,
 						  GSWDirectActionRequestHandlerKey, 		GSWOPT_DirectActionRequestHandlerKey,
 						  GSWOPTVALUE_DirectConnectEnabled,	   		GSWOPT_DirectConnectEnabled,
 						  GSWOPTVALUE_FrameworksBaseURL,			GSWOPT_FrameworksBaseURL,
@@ -800,7 +765,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
   NSString* _path=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",@"[GSWResourceManager _applicationGSWBundle]:%@",[GSWResourceManager _applicationGSWBundle]);
-  LOGDumpObject([GSWResourceManager _applicationGSWBundle],2);
+  GSWLogDumpObject([GSWResourceManager _applicationGSWBundle],2);
   _path=[[GSWResourceManager _applicationGSWBundle] path]; //return :  H:\Wotests\ObjCTest3
   NSDebugMLLog(@"low",@"_path:%@",_path);
   LOGObjectFnStop();
@@ -1104,18 +1069,16 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	};
   if (_componentDefinition)
 	{
-	  NSString* _log=[NSString stringWithFormat:@"Component %@ %s language %@ (%sCached)",
-							   _name,
-							   (_language ? "" : "no"),
-							   (_language ? _language : @""),
-							   (isCachedComponent ? "" : "Not ")];
-	  GSWLogStdOut(_log);
-	  GSWLog(_log);
+	  [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached)",
+			_name,
+			(_language ? "" : "no"),
+			(_language ? _language : @""),
+			(isCachedComponent ? "" : "Not ")];
 	};
   NSDebugMLLog(@"low",@"%s componentDefinition for %@ class=%@ %s",
 			   (_componentDefinition ? "FOUND" : "NOTFOUND"),
 			   _name,
-			   (_componentDefinition ? [_componentDefinition class] : @""),
+			   (_componentDefinition ? [[_componentDefinition class] description]: @""),
 			   (_componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""));
   LOGObjectFnStop();
   return _componentDefinition;
@@ -3000,6 +2963,119 @@ int GSWApplicationMain(NSString* _applicationClassName,
 @end
 
 //====================================================================
+//Same as GSWDebugging but it print messages on stdout AND call GSWDebugging methods
+@implementation GSWApplication (GSWDebuggingStatus)
+
+//--------------------------------------------------------------------
+-(void)statusDebugWithString:(NSString*)string_
+{
+  if ([[self class]isStatusDebuggingEnabled])
+	{
+	  fputs([string_ cString],stdout);
+	  fputs("\n",stdout);
+	  fflush(stdout);
+	  [self debugWithString:string_];
+	};
+};
+
+//--------------------------------------------------------------------
+-(void)statusDebugWithFormat:(NSString*)format_
+				   arguments:(va_list)arguments_
+{
+  NSString* _string=[NSString stringWithFormat:format_
+							  arguments:arguments_];
+  [self statusDebugWithString:_string];
+};
+
+//--------------------------------------------------------------------
+-(void)statusDebugWithFormat:(NSString*)format_,...
+{
+  va_list ap=NULL;
+  va_start(ap,format_);
+  [self statusDebugWithFormat:format_
+		arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
++(void)statusDebugWithFormat:(NSString*)format_,...
+{
+  va_list ap=NULL;
+  va_start(ap,format_);
+  [GSWApp statusDebugWithFormat:format_
+		  arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
+-(void)statusLogWithFormat:(NSString*)format_,...
+{
+  va_list ap=NULL;
+  va_start(ap,format_);
+  [self statusLogWithFormat:format_
+		arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
++(void)statusLogWithFormat:(NSString*)format_,...
+{
+  va_list ap=NULL;
+  va_start(ap,format_);
+  [GSWApp statusLogWithFormat:format_
+		  arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
+-(void)statusLogWithFormat:(NSString*)format_
+				 arguments:(va_list)arguments_
+{
+  NSString* string=[NSString stringWithFormat:format_
+							 arguments:arguments_];
+  fputs([string cString],stdout);
+  fputs("\n",stdout);
+  fflush(stdout);
+  [self logWithFormat:@"%@",string];
+};
+
+//--------------------------------------------------------------------
+-(void)statusLogErrorWithFormat:(NSString*)format_,...
+{
+  va_list ap=NULL;
+  va_start(ap,format_);
+  [self statusLogErrorWithFormat:format_
+		arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
++(void)statusLogErrorWithFormat:(NSString*)format_,...
+{
+  va_list ap=NULL;
+  va_start(ap,format_);
+  [GSWApp statusLogErrorWithFormat:format_
+		  arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
+-(void)statusLogErrorWithFormat:(NSString*)format_
+					  arguments:(va_list)arguments_
+{
+  const char* cString=NULL;
+  NSString* string=[NSString stringWithFormat:format_
+							 arguments:arguments_];
+  cString=[string cString];
+  fputs(cString,stdout);
+  fputs("\n",stdout);
+  fflush(stdout);
+  [self logErrorWithFormat:@"%@",string];
+};
+
+@end
+
+//====================================================================
 @implementation GSWApplication (GSWStatisticsSupport)
 //--------------------------------------------------------------------
 //statistics
@@ -3261,6 +3337,21 @@ int GSWApplicationMain(NSString* _applicationClassName,
 {
   [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:flag_]
 										 forKey:GSWOPT_DebuggingEnabled];
+};
+
+//--------------------------------------------------------------------
+//NDFN
++(BOOL)isStatusDebuggingEnabled
+{
+  return [[[NSUserDefaults standardUserDefaults] objectForKey:GSWOPT_StatusDebuggingEnabled] boolValue];
+};
+
+//--------------------------------------------------------------------
+//NDFN
++(void)setStatusDebuggingEnabled:(BOOL)flag_
+{
+  [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:flag_]
+										 forKey:GSWOPT_StatusDebuggingEnabled];
 };
 
 //--------------------------------------------------------------------
@@ -3603,6 +3694,20 @@ int GSWApplicationMain(NSString* _applicationClassName,
   return _sessionTimeOut;
 };
 
+//--------------------------------------------------------------------
+//NDFN
++(NSString*)debugSetConfigFilePath
+{
+  return [[NSUserDefaults standardUserDefaults] objectForKey:GSWOPT_DebugSetConfigFilePath];
+};
+
+//--------------------------------------------------------------------
++(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath_
+{
+  [[NSUserDefaults standardUserDefaults] setObject:debugSetConfigFilePath_
+										 forKey:GSWOPT_DebugSetConfigFilePath];
+};
+
 @end
 
 
@@ -3891,7 +3996,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 		{
 		  NSString* _moduleName=[NSString stringUniqueIdWithLength:4];//TODO
 		  NGObjCModule* module=[NGObjCModule moduleWithName:_moduleName];
-		  _ok=[module executeWithClasses:_newClasses];
+		  _ok=[module executeWithClassArray:_newClasses];
 		  NSDebugMLLog(@"low",@"_ok:%d",(int)_ok);
 		  if (!_ok)
 			{
@@ -4204,4 +4309,3 @@ int GSWApplicationMain(NSString* _applicationClassName,
 
 @end
 */
-

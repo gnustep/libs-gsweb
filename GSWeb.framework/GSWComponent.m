@@ -61,7 +61,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   GSWLogC("Dealloc GSWComponent");
   GSWLogC("Dealloc GSWComponent: name");
   DESTROY(name);
@@ -259,7 +259,7 @@ static char rcsId[] = "$Id$";
 {
   //TODO
   NSString* _dscr=nil;
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
 //  GSWLogC("GSWComponent description A");
   NSDebugMLLog(@"gswcomponents",@"GSWComponent description Self=%p",self);
   _dscr=[NSString stringWithFormat:@"<%s %p - ",

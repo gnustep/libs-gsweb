@@ -57,7 +57,7 @@
   int _tmpCount=0;
   NSDictionary* _page = nil;
   NSEnumerator* _enum = [aDictionary objectEnumerator];
-  while (_page = [_enum nextObject])
+  while ((_page = [_enum nextObject]))
 	{
 	  _tmpCount = [[_page objectForKey:@"Served"] intValue];
 	  _maxServedCount = max(_maxServedCount,_tmpCount);
@@ -67,7 +67,7 @@
 
 -(id)_initIvars
 {
-  id currentCount, i;
+  id currentCount=nil;
   statsDict = [[self application] statistics];
   pagesDict = [statsDict objectForKey:@"Pages"];
   directActionsDict = [statsDict objectForKey:@"DirectActions"];
@@ -91,6 +91,7 @@
   
   maxPageCount = [self _maxServedForDictionary:pagesDict];
   maxActionCount = [self _maxServedForDictionary:directActionsDict];
+  return nil; //??? //TODO
 };
 
 -(void)appendToResponse:(GSWResponse*)aResponse

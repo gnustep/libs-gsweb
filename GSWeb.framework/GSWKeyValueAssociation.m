@@ -101,7 +101,7 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   return [NSString stringWithFormat:@"<%s %p - keyPath=%@>",
 				   object_get_class_name(self),
 				   (void*)self,

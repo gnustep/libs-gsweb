@@ -31,7 +31,7 @@ extern "C" {
 #endif //_cplusplus
 
 #define CONST const
-#define DEBUG 1
+#define DEBUG
 
 #define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR	1
 #define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING	"1"

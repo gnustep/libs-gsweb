@@ -346,6 +346,7 @@ extern NSString* globalApplicationClassName;
 -(Class)libraryClassWithPath:(NSString*)path_;//NDFN
 @end
 
+//====================================================================
 @interface GSWApplication (GSWDebugging)
 -(void)debugWithString:(NSString*)_string;
 -(void)debugWithFormat:(NSString*)_format
@@ -399,6 +400,26 @@ extern NSString* globalApplicationClassName;
 @end
 
 //====================================================================
+//NDFN
+//Same as GSWDebugging but it print messages on stdout AND call GSWDebugging methods
+@interface GSWApplication (GSWDebuggingStatus)
+
+-(void)statusDebugWithString:(NSString*)string_;
+-(void)statusDebugWithFormat:(NSString*)format_
+				   arguments:(va_list)arguments_;
+-(void)statusDebugWithFormat:(NSString*)format_,...;
++(void)statusDebugWithFormat:(NSString*)format_,...;
+-(void)statusLogWithFormat:(NSString*)format_,...;
++(void)statusLogWithFormat:(NSString*)format_,...;
+-(void)statusLogWithFormat:(NSString*)format_
+				 arguments:(va_list)arguments_;
+-(void)statusLogErrorWithFormat:(NSString*)format_,...;
++(void)statusLogErrorWithFormat:(NSString*)format_,...;
+-(void)statusLogErrorWithFormat:(NSString*)format_
+					  arguments:(va_list)arguments_;
+@end
+
+//====================================================================
 @interface GSWApplication (GSWStatisticsSupport)
 -(void)setStatisticsStore:(GSWStatisticsStore*)statisticsStore_;
 -(/*bycopy*/NSDictionary*)statistics;
@@ -447,6 +468,8 @@ extern NSString* globalApplicationClassName;
 +(void)setLoadFrameworks:(NSArray*)frameworks_;
 +(BOOL)isDebuggingEnabled;
 +(void)setDebuggingEnabled:(BOOL)flag_;
++(BOOL)isStatusDebuggingEnabled;//NDFN
++(void)setStatusDebuggingEnabled:(BOOL)flag_;//NDFN
 +(BOOL)autoOpenInBrowser;
 +(void)setAutoOpenInBrowser:(BOOL)flag_;
 +(BOOL)isDirectConnectEnabled;
@@ -491,6 +514,8 @@ extern NSString* globalApplicationClassName;
 +(void)setResourceRequestHandlerKey:(NSString*)key_;
 +(void)setSessionTimeOut:(id)timeOut_;
 +(id)sessionTimeOut;
++(NSString*)debugSetConfigFilePath;//NDFN
++(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath_;//NDFN
 @end
 
 //====================================================================

@@ -156,6 +156,7 @@ extern NSString* GSWOPT_CGIAdaptorURL;
 extern NSString* GSWOPT_CachingEnabled;
 extern NSString* GSWOPT_ComponentRequestHandlerKey;
 extern NSString* GSWOPT_DebuggingEnabled;
+extern NSString* GSWOPT_StatusDebuggingEnabled;
 extern NSString* GSWOPT_DirectActionRequestHandlerKey;
 extern NSString* GSWOPT_DirectConnectEnabled;
 extern NSString* GSWOPT_FrameworksBaseURL;
@@ -172,6 +173,7 @@ extern NSString* GSWOPT_SessionTimeOut;
 extern NSString* GSWOPT_WorkerThreadCount;
 extern NSString* GSWOPT_ProjectSearchPath;
 extern NSString* GSWOPT_MultiThreadEnabled;
+extern NSString* GSWOPT_DebugSetConfigFilePath;
 
 
 //====================================================================

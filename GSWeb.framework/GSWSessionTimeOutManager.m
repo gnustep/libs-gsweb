@@ -92,7 +92,7 @@ static char rcsId[] = "$Id$";
 	  NSDebugMLLog(@"sessions",@"_timer=%@",_timer);
 	  if (_timer)
 		{
-		  GSWLog(@"lock Target...");
+		  [GSWApplication logWithFormat:@"lock Target..."];
 		  [target lock];
 		  NS_DURING
 			{
@@ -108,7 +108,7 @@ static char rcsId[] = "$Id$";
 			}
 		  NS_ENDHANDLER;
 
-		  GSWLog(@"unlock Target...");
+		  [GSWApplication logWithFormat:@"unlock Target..."];
 		  [target unlock];
 		};
 	}
@@ -128,8 +128,7 @@ static char rcsId[] = "$Id$";
 -(void)handleTimer:(id)timer_
 {
   //OK
-  GSWLogCStdOut("Start HandleTimer");
-  GSWLogC("Start HandleTimer");
+  [GSWApplication statusLogWithFormat:@"Start HandleTimer"];
 //  LOGObjectFnStart();
   [GSWApp lockRequestHandling];
   NS_DURING
@@ -213,8 +212,7 @@ static char rcsId[] = "$Id$";
   NS_ENDHANDLER;
   [GSWApp unlockRequestHandling];
 //  LOGObjectFnStop();
-  GSWLogCStdOut("Stop HandleTimer");
-  GSWLogC("Stop HandleTimer");
+  [GSWApplication statusLogWithFormat:@"Stop HandleTimer"];
 };
 
 //--------------------------------------------------------------------

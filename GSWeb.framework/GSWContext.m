@@ -47,7 +47,7 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  LOGAssertGood(self);
+  GSWLogAssertGood(self);
   NSDebugFLog(@"Dealloc GSWContext %p",(void*)self);
   NSDebugFLog0(@"Release GSWContext senderID");
   DESTROY(senderID);

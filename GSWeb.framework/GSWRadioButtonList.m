@@ -189,7 +189,7 @@ static char rcsId[] = "$Id$";
 		  NSDebugMLLog(@"gswdync",@"_component=%@",_component);
 		  NSDebugMLLog(@"gswdync",@"_foundIndex=%d",_foundIndex);
 		  NSDebugMLLog(@"gswdync",@"selection=%@",selection);
-		  LOGAssertGood(_component);
+		  GSWLogAssertGood(_component);
 #if !GSWEB_STRICT
 		  NS_DURING
 			{

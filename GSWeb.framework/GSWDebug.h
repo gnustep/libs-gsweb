@@ -26,31 +26,21 @@
 #ifndef _GSWebDebug_h__
 #define _GSWebDebug_h__
 
-//extern void logObjectFnNotImplemented(CONST char* file,int line,id obj,SEL cmd);
-//extern void logClassFnNotImplemented(CONST char* file,int line,Class class,SEL cmd);
-//extern void logObjectFnStart(CONST char* file,int line,id obj,SEL cmd,CONST char* comment,BOOL dumpClass);
-//extern void logObjectFnStop(CONST char* file,int line,id obj,SEL cmd,CONST char* comment);
-//extern void logClassFnStart(CONST char* file,int line,Class class,SEL cmd,CONST char* comment);
-//extern void logClassFnStop(CONST char* file,int line,Class class,SEL cmd,CONST char* comment);
-extern void DumpObject(CONST char* file,int line,id object,int level);
-extern void GSWLog(NSString* string);
-extern void GSWLogStdOut(NSString* string);
-extern void GSWLogCStdOut(CONST char* string);
-extern void GSWLog(NSString* string);
-extern void GSWLogC(CONST char* string);
-extern void GSWLogF(NSString* format,...);
-//extern void GSWLogFStdOut(NSString* format,...);
-//extern void GSWLogFCond(BOOL cond,NSString* format,...);
-//extern void GSWLogError(CONST char* file,int line);
-//extern void GSWLogException(CONST char* comment,CONST char* file,int line);
-//extern void GSWLogExceptionF(CONST char* file,int line,NSString* format,...);
-//extern void GSWLogErrorF(CONST char* file,int line,NSString* format,...);
-extern void GSWAssertGood(NSObject* object,CONST char* file,int line);
 
-#define LOGDumpObject(object,level)	DumpObject(__FILE__,__LINE__,object,level)
-//#define LOGError();					GSWLogError(__FILE__,__LINE__);
-//#define LOGException(comment);	    GSWLogException(comment,__FILE__,__LINE__);
-#define LOGAssertGood(object);		GSWAssertGood(object,__FILE__,__LINE__);
+#ifdef DEBUG
+extern void GSWLogC_(CONST char* file,int line,CONST char* string);
+extern void GSWLogDumpObject_(CONST char* file,int line,id object,int deep);
+extern void GSWLogAssertGood_(CONST char* file,int line,NSObject* object);
+
+#define GSWLogC(cString);				GSWLogC_(__FILE__,__LINE__,cString);
+#define GSWLogDumpObject(object,deep); 	GSWLogDumpObject_(__FILE__,__LINE__,object,deep);
+#define GSWLogAssertGood(object); 		GSWLogAssertGood_(__FILE__,__LINE__,object);
+#else
+#define GSWLogC(cString);				
+#define GSWLogDumpObject(object,deep);
+#define GSWLogAssertGood(object);
+#endif
+
 
 #ifdef DEBUG
 #define LOGClassFnStart()  \
@@ -153,43 +143,37 @@ extern void GSWAssertGood(NSObject* object,CONST char* file,int line);
   do { if (GSDebugSet(@"seriousError") == YES) { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
-    /*NSLog(fmt2,## args);*/ \
-    [GSWApp logErrorWithFormat:fmt2, ## args];}} while (0)
+    NSLog(fmt2, ## args); }} while (0)
 
 #define LOGSeriousError0(format) 	\
   do { if (GSDebugSet(@"seriousError") == YES) { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*SERIOUS ERROR*: %@",fmt]; \
-    /*NSLog(fmt2);*/ \
-    [GSWApp logErrorWithFormat:@"%@",fmt2]; }} while (0)
+	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGException(format, args...) 	\
   do { if (GSDebugSet(@"exception") == YES) { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
-    /*NSLog(fmt2,## args);*/ \
-    [GSWApp logErrorWithFormat:fmt2, ## args]; }} while (0)
+    NSLog(fmt2, ## args); }} while (0)
 
 #define LOGException0(format) 	\
   do { if (GSDebugSet(@"exception") == YES) { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*EXCEPTION*: %@",fmt]; \
-    /*NSLog(fmt2);*/ \
-	[GSWApp logErrorWithFormat:@"%@",fmt2]; }} while (0)
+	NSLog(@"%@",fmt2); }} while (0)
 
 #define LOGError(format, args...) 	\
   do { if (GSDebugSet(@"error") == YES) { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
-    /*NSLog(fmt2,## args);*/ \
-    [GSWApp logErrorWithFormat:fmt2, ## args];}} while (0)
+    NSLog(fmt2, ## args);}} while (0)
 
 #define LOGError0(format) 	\
   do { if (GSDebugSet(@"error") == YES) { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,format); \
     NSString *fmt2 = [NSString stringWithFormat:@"*ERROR*: %@",fmt]; \
-    /*NSLog(fmt2);*/ \
-    [GSWApp logErrorWithFormat:@"%@",fmt2]; }} while (0)
+    NSLog(@"%@",fmt2); }} while (0)
 
 #define NSDebugMLLogCond(cond, level, format, args...) \
   do { if (cond && GSDebugSet(level) == YES) { \

@@ -1,3 +1,48 @@
+2000-03-20  Manuel Guesdon <mguesdon@sbuilders.com>
+
+	* GSWDebug.h: remove unused functions
+	* GSWApplication.h/.m:Added:
+		GSWDebuggingStatus category
+		+isStatusDebuggingEnabled
+		+setStatusDebuggingEnabled:
+		+debugSetConfigFilePath
+		+setDebugSetConfigFilePath:
+	* GSWApplication.h/.m:	replaced GSWDebugStdLog by [GSWApp statusDebug...]
+		replaced executeWithClasses: with executeWithClassArray:
+		corrections for different warnings
+		change in GSWApplicationDebugSetChange() to use GSWDebugSetConfigFilePath option
+	* GSWConfig.h: added GSWOPTVALUE_StatusDebuggingEnabled
+	* GSWConstants.h/.m: added GSWOPT_StatusDebuggingEnabled
+		added GSWOPT_DebugSetConfigFilePath
+	* INSTALL: reflect changes of adaptors,...
+	* GSWUtil.h/.m: corrections for different warnings
+		removed MD5HexDigest()
+	* GSWCheckBoxListm: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWRadioButtonList.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWDefaultAdaptorThread.m: replaced GSWLogCStdOut by +statusLogWithFormat:
+		corrections for different warnings
+	* GSWDefaultAdaptor.m: replaced GSWLogCStdOut by +statusLogWithFormat:
+	* GSWSessionTimeOutManager.m: replaced GSWLogCStdOut by +statusLogWithFormat:
+	* GSWKeyValueAssociation.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWHTMLStaticElement.m: corrections for different warnings
+	* GSWConstantValueAssociation.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWHTMLDynamicElement.m: corrections for different warnings
+	* GSWStatsPage.m: corrections for different warnings
+	* GSWExceptionPage.m: removed GSWLogCStdOut calls
+	* GSWSession.m: replaced GSWLogCStdOut by +statusLogWithFormat:
+		replaced LOGAssertGood by GSWLogAssertGood
+	* GSWAssociation.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWComponent.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWContext.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWRequest.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWResponse.m: replaced LOGAssertGood by GSWLogAssertGood
+	* GSWSessionStore.m: replaced LOGAssertGood by GSWLogAssertGood
+	* Adator GSWAppRequest.c: test on instance in GSWAppRequest_SendAppRequestToApp
+	* Adator GSWLoadBalancing.c: added debug messages
+	* Adaptor GSWHTTPRequest.c: corrected bug in GSWHTTPRequest_SendRequest
+	* Adaptor: GSWAppConnectSocket.c: added debug messages
+	* GSWeb.framework/Makefile.preamble: removed -lNGReflection
+	
 2000-03-16  Manuel Guesdon <mguesdon@sbuilders.com>
 
 	* All Files in GSWAdaptors: Clean code, changes in config file,...
