@@ -256,6 +256,8 @@ static char rcsId[] = "$Id$";
 @implementation WOHyperlink
 @end
 
+WOApplication *WOApp=nil;
+
 #endif
 
 

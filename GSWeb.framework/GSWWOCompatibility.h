@@ -257,6 +257,8 @@
 @interface WOHyperlink : GSWHyperlink
 @end
 
+extern WOApplication *WOApp;
+
 #endif
 
 #endif // _GSWWOCompatibility_h__

@@ -626,7 +626,12 @@ int GSWApplicationMain(NSString* applicationClassName,
   DESTROY(_activeSessionsCountLock);
 
   if (GSWApp == self)
+  {
     GSWApp = nil;
+#if !GSWEB_WONAMES
+    WOApp = nil;
+#endif
+   }
 
   GSWLogMemC("Dealloc GSWApplication Super");
   [super dealloc];
@@ -2975,6 +2980,9 @@ selfLockn,
               [application class],
               [application name]);
   GSWApp=application;
+#if !GSWEB_WONAMES
+  WOApp=application;
+#endif
 };
 
 @end

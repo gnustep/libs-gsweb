@@ -76,6 +76,7 @@
 
 #if GSWEB_WONAMES
 #define GSWAdaptor						WOAdaptor
+#define GSWDefaultAdaptor				WODefaultAdaptor
 #define GSWApplication					WOApplication
 #define GSWAssociation					WOAssociation
 #define GSWComponent					WOComponent
