@@ -42,7 +42,7 @@
 #endif
 
 #ifndef GNUSTEP
-#include <gnustep/base/GNUstep.h>
+#include <GNUstepBase/GNUstep.h>
 #endif
 
 #include <Foundation/Foundation.h>
@@ -73,8 +73,8 @@
 #include <Foundation/NSThread.h>
 #include <Foundation/NSConcreteNumber.h>
 #include <Foundation/NSFormatter.h>
-#include <Foundation/GSXML.h>
-#include <base/GSCategories.h>
+#include <GNUstepBase/GSXML.h>
+#include <GNUstepBase/GSCategories.h>
 #include "GSCache.h"
 #include "GSWConfig.h"
 

@@ -33,7 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#include <Foundation/GSMime.h>
+#include <GNUstepBase/GSMime.h>
 
 //====================================================================
 @implementation GSWValueQualityHeaderPart

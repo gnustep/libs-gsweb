@@ -33,7 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#include <gnustep/base/GSCategories.h>
+#include <GNUstepBase/GSCategories.h>
 
 #include <time.h>
 #if __linux__

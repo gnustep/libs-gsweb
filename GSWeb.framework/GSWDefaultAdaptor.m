@@ -35,7 +35,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#include <gnustep/base/GSFileHandle.h>
+#include <GNUstepBase/GSFileHandle.h>
 
 #if HAVE_LIBWRAP
 #include <tcpd.h>

@@ -33,7 +33,7 @@
 	#define _GSWTemplateParserXML_h__
 
 #include "GSWTemplateParser.h"
-#include <Foundation/GSXML.h>
+#include <GNUstepBase/GSXML.h>
 
 
 @class GSWTemplateParser;

@@ -35,7 +35,7 @@
 #define _GSWExtGSWWOCompatibility_h__
 
 #ifndef GNUSTEP
-#include <gnustep/base/GNUstep.h>
+#include <GNUstepBase/GNUstep.h>
 #endif
 
 #ifndef GSWEB_WONAMES
