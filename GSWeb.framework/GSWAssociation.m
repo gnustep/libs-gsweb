@@ -34,6 +34,9 @@ static char rcsId[] = "$Id$";
 #if !defined(__NetBSD__)
 #include <values.h>
 #endif
+#ifdef TCSDB
+#include <TCSimpleDB/TCSimpleDB.h>
+#endif
 
 static NSDictionary* localMinMaxDictionary=nil;
 static NSMutableDictionary* associationsHandlerClasses=nil;
@@ -605,10 +608,14 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         forKeyPath:(NSString*)keyPath
 {
   id retValue=nil;
-#ifdef GDL2
+#ifdef GDL2 
   id EONullNull=[EONull null];
 #else
+#ifdef TCSDB
+  id EONullNull=[DBNull null];
+#else
   id EONullNull=[NSNull null];
+#endif
 #endif
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@)",
@@ -636,6 +643,31 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       if (retValue==EONullNull)
         retValue=nil;
 #else
+#ifdef TCSDB
+      // the same as on GDL2
+      NS_DURING
+        {
+         // NSLog(@"GSWAssociation valueInObject:%@ forKeyPath:%@", object, keyPath);
+
+          retValue=[object valueForKeyPath:keyPath];
+        }
+      NS_HANDLER
+        {
+          NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
+                [object class],
+                keyPath,
+                localException);
+          localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods"
+                                           format:@"-[%@ %@]",
+                                           [object class],
+                                           keyPath];
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+      if (retValue==EONullNull)
+        retValue=nil;
+
+#else // NO TCSDB and NO GDL2
       NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
       id part=nil;
       Class handlerClass=Nil;
@@ -735,6 +767,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           if (retValue==EONullNull)
             retValue=nil;
         };
+#endif
 #endif
     };
   if (retValue) 
