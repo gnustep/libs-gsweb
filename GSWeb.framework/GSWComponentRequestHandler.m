@@ -40,6 +40,7 @@ RCS_ID("$Id$")
 /** Handle request aRequest and return the response 
     This lock application
 **/
+
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
   //OK
@@ -65,6 +66,7 @@ RCS_ID("$Id$")
 /** Handle request aRequest and return the response 
     Application should be locked before this
 **/
+
 -(GSWResponse*)lockedHandleRequest:(GSWRequest*)aRequest
 {
   //OK
@@ -73,7 +75,6 @@ RCS_ID("$Id$")
   GSWContext* aContext=nil;
   GSWResponse* response=nil;
   NSDictionary* requestHandlerValues=nil;
-  NSString* senderID=nil;
   BOOL exceptionRaised=NO;
   LOGObjectFnStart();
   NS_DURING
@@ -99,15 +100,25 @@ RCS_ID("$Id$")
   NS_ENDHANDLER;
   if (!exceptionRaised)
     {
+      NSString* senderID=nil;
+      NSString* requestContextID=nil;
+
       NSDebugMLLog(@"requests",@"requestHandlerValues=%@",requestHandlerValues);
       //statisticsStore=[[GSWApplication application]statisticsStore];
 //      NSDebugMLLog(@"requests",@"statisticsStore=%@",statisticsStore);
       //[statisticsStore _applicationWillHandleComponentActionRequest];
-      aContext=[GSWContext contextWithRequest:aRequest];
+
+      aContext=[[GSWApplication application]createContextForRequest:aRequest];
       NSDebugMLLog(@"requests",@"aContext=%@",aContext);
+
       senderID=[requestHandlerValues objectForKey:GSWKey_ElementID[GSWebNamingConv]];
       NSDebugMLLog(@"requests",@"AA senderID=%@",senderID);
       [aContext _setSenderID:senderID];
+
+      requestContextID=[requestHandlerValues objectForKey:GSWKey_ContextID[GSWebNamingConv]];
+      NSDebugMLLog(@"requests",@"AA requestContextID=%@",requestContextID);
+      [aContext _setRequestContextID:requestContextID];
+
       [application _setContext:aContext];
       //====>
       NS_DURING
@@ -358,6 +369,7 @@ RCS_ID("$Id$")
   GSWContext* responseContext=nil;
   GSWComponent* responsePageElement=nil;
   GSWRequest* responseRequest=nil;
+  NSString* matchingContextID=nil;
 
   LOGObjectFnStart();
   NSDebugMLLog(@"requests",@"aComponent=%@",aComponent);
@@ -373,148 +385,162 @@ RCS_ID("$Id$")
 
   senderID=[aContext senderID];
   NSDebugMLLog(@"requests",@"AA senderID=%@",senderID);
-  //TODO
-  {
-    GSWContext* matchedContext=[aSession _contextIDMatchingContextID:contextID
-                                         requestSenderID:senderID];
-  }
+  NSDebugMLLog(@"requests",@"AA request=%@",request);
+
+  matchingContextID=[aSession _contextIDMatchingIDsInContext:aContext];
+  NSDebugMLLog(@"requests",@"matchingContextID=%@",matchingContextID);
+
   httpVersion=[request httpVersion];
   [response setHTTPVersion:httpVersion];
   [response setAcceptedEncodings:[request browserAcceptedEncodings]];
   [response setHeader:@"text/html"
             forKey:@"content-type"];
   [aContext _setResponse:response];
-  page=[aContext page];
-  if (contextID)//??
+
+  if (matchingContextID)
     {
-      hasFormValues=[request _hasFormValues];
+      page = [self lockedRestorePageForContextID:matchingContextID
+                   inSession:aSession];
+      [aContext _setPageElement:page];
+      [[GSWApplication application] appendToResponse:response
+                                    inContext:aContext];
+      NSDebugMLLog(@"requests",@"After appendToResponse [aContext elementID]=%@",
+                   [aContext elementID]);
     }
   else
     {
-      [aContext _setPageChanged:NO];
-      isFromClientComponent=[request isFromClientComponent];
-      //??
-      [aContext _setPageReplaced:NO];
-      isFromClientComponent=[request isFromClientComponent];
-    };
-  if (hasFormValues)
-    {
-      NSDebugMLLog(@"requests",@"Before takeValues [aContext elementID]=%@",
-                   [aContext elementID]);
-      NSAssert([[aContext elementID] length]==0,
-               @"1 lockedDispatchWithPreparedPage elementID length>0");
-      [[GSWApplication application] takeValuesFromRequest:request
-                                    inContext:aContext];
-      NSDebugMLLog(@"requests",@"After takeValues[aContext elementID]=%@",
-                   [aContext elementID]);
-      if (![[aContext elementID] length]==0)
+      page=[aContext page];
+      if (contextID)//??
         {
-          LOGSeriousError0(@"2 lockedDispatchWithPreparedPage elementID length>0");
-          [aContext deleteAllElementIDComponents];//NDFN
-        };
-      [aContext _setPageChanged:NO];//???
-      isFromClientComponent=[request isFromClientComponent];
-      [aContext _setPageReplaced:NO];
-    };
-  if (senderID) //??
-    {
-      BOOL pageChanged=NO;
-      NSException* exception=nil;
-      NSDebugMLLog(@"requests",@"Before invokeAction [aContext elementID]=%@",
-                   [aContext elementID]);
-      NSAssert([[aContext elementID] length]==0,
-               @"3 lockedDispatchWithPreparedPage elementID length>0");
-      // Exception catching here ?
-      NS_DURING
-        {
-          responsePage=(GSWComponent*)[[GSWApplication application] invokeActionForRequest:request
-                                                                    inContext:aContext];
-          NSDebugMLLog(@"requests",@"After invokeAction [aContext elementID]=%@",[aContext elementID]);
-          NSAssert([[aContext elementID] length]==0,@"4 lockedDispatchWithPreparedPage elementID length>0");
-        }
-      NS_HANDLER
-        {
-          LOGException0(@"exception in invokeActionForRequest");
-          LOGException(@"exception=%@",localException);
-          localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                                  @"In invokeActionForRequest component=%@ of Class %@",
-                                                                  [aComponent name],
-                                                                  [aComponent class]);
-          LOGException(@"exception=%@",localException);
-          ASSIGN(exception,localException);
-          if (!responsePage)
-            {
-              errorResponse=[[GSWApplication application] handleException:exception
-                                                          inContext:aContext];
-            };
-          DESTROY(exception);
-        }
-      NS_ENDHANDLER;
-      //	  [aContext deleteAllElementIDComponents];//NDFN
-      NSDebugMLLog(@"requests",@"responsePage=%@",responsePage);
-      if (errorResponse)
-        {
-          response=errorResponse;
-          responseContext=aContext;
+          hasFormValues=[request _hasFormValues];
         }
       else
         {
-          if (!responsePage)
-            responsePage=page;
-          
-          responseContext=[(GSWComponent*)responsePage context];//So what ?
-          NSDebugMLLog(@"requests",@"responseContext=%@",responseContext);
-          [responseContext _setPageReplaced:NO];
-          responsePageElement=(GSWComponent*)[responseContext _pageElement];
-          NSDebugMLLog(@"requests",@"responsePageElement=%@",responsePageElement);
-          pageChanged=(responsePage!=responsePageElement);
-          [responseContext _setPageChanged:pageChanged];//??
-          if (pageChanged)
-            {
-              [responseContext _setPageElement:responsePage];
-            };
-          responseRequest=[responseContext request];//SoWhat ?
-          [responseRequest isFromClientComponent];//SoWhat
+          [aContext _setPageChanged:NO];
+          isFromClientComponent=[request isFromClientComponent];
+          //??
+          [aContext _setPageReplaced:NO];
+          isFromClientComponent=[request isFromClientComponent];
         };
-    }
-  else
-    {
-      responseContext=aContext;
-      responsePageElement=page;
-      responsePage=aComponent;
-      responseRequest=request;
-    };
-  if (!errorResponse)
-    {
-      NS_DURING
+      if (hasFormValues)
         {
-          NSDebugMLLog(@"requests",@"response before appendToResponse=%@",response);
-          NSDebugMLLog(@"requests",@"responseContext=%@",responseContext);
-          NSAssert([[aContext elementID] length]==0,
-                   @"5 lockedDispatchWithPreparedPage elementID length>0");
-          NSDebugMLLog(@"requests",@"Before appendToResponse [aContext elementID]=%@",
-                       [aContext elementID]);
-          [[GSWApplication application] appendToResponse:response
-                                        inContext:responseContext];
-          NSDebugMLLog(@"requests",@"After appendToResponse [aContext elementID]=%@",
+          NSDebugMLLog(@"requests",@"Before takeValues [aContext elementID]=%@",
                        [aContext elementID]);
           NSAssert([[aContext elementID] length]==0,
-                   @"6 lockedDispatchWithPreparedPage elementID length>0");
-          responseRequest=[responseContext request];//SoWhat ?
-          //Not used [responseRequest isFromClientComponent];//SoWhat
-        }
-      NS_HANDLER
+                   @"1 lockedDispatchWithPreparedPage elementID length>0");
+          [[GSWApplication application] takeValuesFromRequest:request
+                                        inContext:aContext];
+          NSDebugMLLog(@"requests",@"After takeValues[aContext elementID]=%@",
+                       [aContext elementID]);
+          if (![[aContext elementID] length]==0)
+            {
+              LOGSeriousError0(@"2 lockedDispatchWithPreparedPage elementID length>0");
+              [aContext deleteAllElementIDComponents];//NDFN
+            };
+          [aContext _setPageChanged:NO];//???
+          isFromClientComponent=[request isFromClientComponent];
+          [aContext _setPageReplaced:NO];
+        };
+      if (senderID) //??
         {
-          localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                                  @"In appendToResponse page=%@ of Class %@",
-                                                                  [page name],
-                                                                  [page class]);
-          LOGException(@"exception=%@",localException);
-          NSDebugMLLog(@"requests",@"context=%@",aContext);
-          errorResponse=[[GSWApplication application] handleException:localException
-                                                      inContext:aContext];
+          BOOL pageChanged=NO;
+          NSException* exception=nil;
+          NSDebugMLLog(@"requests",@"Before invokeAction [aContext elementID]=%@",
+                       [aContext elementID]);
+          NSAssert([[aContext elementID] length]==0,
+                   @"3 lockedDispatchWithPreparedPage elementID length>0");
+          // Exception catching here ?
+          NS_DURING
+            {
+              responsePage=(GSWComponent*)[[GSWApplication application] invokeActionForRequest:request
+                                                                        inContext:aContext];
+              NSDebugMLLog(@"requests",@"After invokeAction [aContext elementID]=%@",[aContext elementID]);
+              NSAssert([[aContext elementID] length]==0,@"4 lockedDispatchWithPreparedPage elementID length>0");
+            }
+          NS_HANDLER
+            {
+              LOGException0(@"exception in invokeActionForRequest");
+              LOGException(@"exception=%@",localException);
+              localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                                      @"In invokeActionForRequest component=%@ of Class %@",
+                                                                      [aComponent name],
+                                                                      [aComponent class]);
+              LOGException(@"exception=%@",localException);
+              ASSIGN(exception,localException);
+              if (!responsePage)
+                {
+                  errorResponse=[[GSWApplication application] handleException:exception
+                                                              inContext:aContext];
+                };
+              DESTROY(exception);
+            }
+          NS_ENDHANDLER;
+          //	  [aContext deleteAllElementIDComponents];//NDFN
+          NSDebugMLLog(@"requests",@"responsePage=%@",responsePage);
+          if (errorResponse)
+            {
+              response=errorResponse;
+              responseContext=aContext;
+            }
+          else
+            {
+              if (!responsePage)
+                responsePage=page;
+              
+              responseContext=[(GSWComponent*)responsePage context];//So what ?
+              NSDebugMLLog(@"requests",@"responseContext=%@",responseContext);
+              [responseContext _setPageReplaced:NO];
+              responsePageElement=(GSWComponent*)[responseContext _pageElement];
+              NSDebugMLLog(@"requests",@"responsePageElement=%@",responsePageElement);
+              pageChanged=(responsePage!=responsePageElement);
+              [responseContext _setPageChanged:pageChanged];//??
+              if (pageChanged)
+                {
+                  [responseContext _setPageElement:responsePage];
+                };
+              responseRequest=[responseContext request];//SoWhat ?
+              [responseRequest isFromClientComponent];//SoWhat
+            };
         }
-      NS_ENDHANDLER;
+      else
+        {
+          responseContext=aContext;
+          responsePageElement=page;
+          responsePage=aComponent;
+          responseRequest=request;
+        };
+      if (!errorResponse)
+        {
+          NS_DURING
+            {
+              NSDebugMLLog(@"requests",@"response before appendToResponse=%@",response);
+              NSDebugMLLog(@"requests",@"responseContext=%@",responseContext);
+              NSAssert([[aContext elementID] length]==0,
+                       @"5 lockedDispatchWithPreparedPage elementID length>0");
+              NSDebugMLLog(@"requests",@"Before appendToResponse [aContext elementID]=%@",
+                       [aContext elementID]);
+              [[GSWApplication application] appendToResponse:response
+                                            inContext:responseContext];
+              NSDebugMLLog(@"requests",@"After appendToResponse [aContext elementID]=%@",
+                           [aContext elementID]);
+              NSAssert([[aContext elementID] length]==0,
+                       @"6 lockedDispatchWithPreparedPage elementID length>0");
+              responseRequest=[responseContext request];//SoWhat ?
+              //Not used [responseRequest isFromClientComponent];//SoWhat
+            }
+          NS_HANDLER
+            {
+              localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                                      @"In appendToResponse page=%@ of Class %@",
+                                                                      [page name],
+                                                                      [page class]);
+              LOGException(@"exception=%@",localException);
+              NSDebugMLLog(@"requests",@"context=%@",aContext);
+              errorResponse=[[GSWApplication application] handleException:localException
+                                                          inContext:aContext];
+            }
+          NS_ENDHANDLER;
+        };
     };
   NSDebugMLLog(@"requests",@"response=%@",response);
   LOGObjectFnStop();
