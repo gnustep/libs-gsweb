@@ -1,3 +1,6 @@
+2000-04-11  Karl Kraft <karl@nfox.com>
+        *   Fixed a strcpy into a short malloc buffer in GSWAdaptors/common/GSWHTTPResponse.c
+
 2000-04-06   Karl Kraft <karl@nfox.com>
 	* Added two checks for non-nil key before calling removeObjectForKey:
 

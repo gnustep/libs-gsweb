@@ -123,11 +123,14 @@ GSWHTTPResponse* GSWHTTPResponse_BuildErrorResponse(GSWAppRequest* p_pAppRequest
   GSWString_Append(pBuffer,GSWTemplate_ErrorResponseText(TRUE));
   GSWString_SearchReplace(pBuffer,"##TEXT##",pBufferMessage->pszData);  
   GSWTemplate_ReplaceStd(pBuffer,pApp);
+  
   pHTTPResponse->uContentLength = GSWString_Len(pBuffer);
-  pHTTPResponse->pContent = malloc(pHTTPResponse->uContentLength);
-  strcpy(pHTTPResponse->pContent,pBuffer->pszData);
+  pHTTPResponse->pContent = pBuffer->pszData;
+  GSWString_Detach(pBuffer);
   GSWString_Free(pBuffer);
   pBuffer=NULL;
+
+
   GSWString_Free(pBufferMessage);
   pBufferMessage=NULL;
   sprintf(szBuffer,"%d",pHTTPResponse->uContentLength);
