@@ -1,3 +1,8 @@
+2005-04-04  David Wetzel <dave@turbocat.de>
+        * GSWeb.framework/GSWApplication.m
+        * GSWeb.framework/GSWRequest.m
+        Use cStringLength in place of length
+
 2005-03-22  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/common/GSWUtil.c:
 	o fix in GSWTime_format
