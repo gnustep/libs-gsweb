@@ -588,25 +588,33 @@ int _begin=[text length];
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
-	switch ( [self LA:1])
 	{
-	case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
-	case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
-	case ((unichar)('8')):  case ((unichar)('9')):
-	{
-		[self matchRange:'0' :'9'];
-		break;
-	}
-	case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):  case ((unichar)('d')):
-	case ((unichar)('e')):  case ((unichar)('f')):
-	{
-		[self matchRange:'a' :'f'];
-		break;
-	}
-	default:
-	{
-		[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
-	}
+		switch ( [self LA:1])
+		{
+		case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+		case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+		case ((unichar)('8')):  case ((unichar)('9')):
+		{
+			[self matchRange:'0' :'9'];
+			break;
+		}
+		case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):  case ((unichar)('D')):
+		case ((unichar)('E')):  case ((unichar)('F')):
+		{
+			[self matchRange:'A' :'F'];
+			break;
+		}
+		case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):  case ((unichar)('d')):
+		case ((unichar)('e')):  case ((unichar)('f')):
+		{
+			[self matchRange:'a' :'f'];
+			break;
+		}
+		default:
+		{
+			[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+		}
+		}
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -642,7 +650,7 @@ CONST unsigned long GSWHTMLAttrLexer___tokenSet_1_data_[] = { 4294967288UL, 4294
 static ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_1=nil;
 CONST unsigned long GSWHTMLAttrLexer___tokenSet_2_data_[] = { 4294967288UL, 4294967167UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_2=nil;
-CONST unsigned long GSWHTMLAttrLexer___tokenSet_3_data_[] = { 0UL, 67043328UL, 0UL, 126UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWHTMLAttrLexer___tokenSet_3_data_[] = { 0UL, 67043328UL, 126UL, 126UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWHTMLAttrLexer___tokenSet_3=nil;
 +(void)initialize
 {

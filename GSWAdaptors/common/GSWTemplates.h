@@ -1,9 +1,8 @@
-/* GSWPageDefParserExt.h - GSWeb: Class GSWPageElementParser: Categories
-
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/* GSWTemplates.h - GSWeb: GSWTemplates
+   Copyright (C) 2000 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
-   Date: 		Mar 1999
+   Date: 		March 2000
    
    This file is part of the GNUstep Web Library.
    
@@ -22,24 +21,19 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-// $Id$
+#ifndef _GSWTemplates_h__
+#define _GSWTemplates_h__
 
-#ifndef _GSWPageDefParserExt_h__
-	#define _GSWPageDefParserExt_h__
+#include "GSWApp.h"
 
+CONST char* GSWTemplate_ErrorResponseText(BOOL p_fHTML);
+CONST char* GSWTemplate_ErrorNoResponseMessage(BOOL p_fHTML);
+CONST char* GSWTemplate_StatusAllowedResponse(BOOL p_fHTML);
+CONST char* GSWTemplate_StatusDeniedResponse(BOOL p_fHTML);
+CONST char* GSWTemplate_GetDumpHead(BOOL p_fHTML);
+CONST char* GSWTemplate_GetDumpFoot(BOOL p_fHTML);
+CONST char* GSWTemplate_GetDumpApp(BOOL p_fHTML);
+CONST char* GSWTemplate_GetDumpAppInstance(BOOL p_fHTML);
+void GSWTemplate_ReplaceStd(GSWString* p_pString,GSWApp* p_pApp);
 
-@interface GSWPageDefParser (GSWPageDefParserExt)
--(NSDictionary*)elements;
--(NSArray*)includes;
--(void)dealloc;
--(void)reportErrorWithException:(NSException*)_exception;
--(void)reportError:(NSString*)_text;
--(void)reportWarning:(NSString*)_text;
--(BOOL)isError;
--(BOOL)isWarning;
--(NSArray*)errors;
--(NSArray*)warnings;
--(NSString*)unescapedString:(NSString*)string_;
-@end
-
-#endif //_GSWPageDefParserExt_h__
+#endif //_GSWTemplates_h__

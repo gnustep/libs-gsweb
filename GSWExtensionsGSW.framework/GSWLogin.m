@@ -43,6 +43,7 @@
   message=nil;
   user=nil;
   password=nil;
+  currentDate=nil;
   LOGObjectFnStop();
 };
 
@@ -52,6 +53,7 @@
   message=nil;
   user=nil;
   password=nil;
+  currentDate=nil;
   [super sleep];
   LOGObjectFnStop();
 };
@@ -105,6 +107,21 @@
   NSDebugMLog(@"message=%@",message);
   LOGObjectFnStop();
   return _nextPage;
+};
+
+-(NSString*)currentDate
+{
+  return @"--";
+};
+
+-(void)setCurrentDate:(NSString*)date_
+{
+  NSDebugMLog(@"FDdate_=%@",date_);
+};
+
+-(NSString*)onClickString
+{
+  return @"d=Date(); this.form.currentDate.value=Date.UTC(d.getYear(),d.getMonth(),d.getDay(),d.getHours(),d.getMinutes(),d.getSeconds())";
 };
 
 @end

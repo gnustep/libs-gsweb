@@ -46,6 +46,7 @@
 	/*public: */-(void) mCOLUMNWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mASSIGNWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mWSWithCreateToken:(BOOL)_createToken ;
+	/*protected: */-(void) mESCWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mINTWithCreateToken:(BOOL)_createToken ;
 	/*public: */-(void) mHEXNUMWithCreateToken:(BOOL)_createToken ;
 	/*protected: */-(void) mHEXINTWithCreateToken:(BOOL)_createToken ;

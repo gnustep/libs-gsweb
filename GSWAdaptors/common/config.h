@@ -35,16 +35,27 @@ extern "C" {
 
 #define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR	1
 #define	GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING	"1"
-#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR	0
-#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING	"0"
+#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR	1
+#define	GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING	"1"
 
 #define	GSWEB_VERSION_MAJOR	1
 #define GSWEB_VERSION_MINOR	0
 
+#if GSWEB_WONAMES
+#define	GSWEB_PREFIX	"/WebObjects"
+#define	GSWEB_HANDLER	"WebObjects"
+#else
 #define	GSWEB_PREFIX	"/GSWeb"
 #define	GSWEB_HANDLER	"GSWeb"
+#endif
 
+#define	GSWEB_STATUS_RESPONSE_APP_NAME	"status"
+
+#if GSWEB_WONAMES
+#define GSWAPP_EXTENSION ".wa"
+#else
 #define GSWAPP_EXTENSION ".gswa"
+#endif
 
 // Time Outs ...
 #define	APP_CONNECT_TIMEOUT			300
@@ -54,44 +65,40 @@ extern "C" {
 
 
 #define	HITS_PER_SECOND				80
-#define	LOG_FILE_STAT_COUNTER		(HITS_PER_SECOND*20)
-#define	DUMP_FILE_STAT_COUNTER		(1)
 #define	CONFIG_FILE_STAT_INTERVAL 	10
 
 
 // Configuration Strings
+#if GSWEB_WONAMES
+#define	GSWEB__MIME_TYPE		"application/x-httpd-webobjects"
+#else
 #define	GSWEB__MIME_TYPE		"application/x-httpd-gsweb"
-
+#endif
 
 // Config File Keywords
 
 // All
-#define GSWEB_CONF__DOC_ROOT			"GSWeb_DocumentRoot"
+//#define GSWEB_CONF__DOC_ROOT				"GSWeb_DocumentRoot"
 #define GSWEB_CONF__CONFIG_FILE_PATH   		"GSWeb_ConfigFilePath"
-#define GSWEB_CONF__LOG_FILE_PATH   		"GSWeb_LogFilePath"
-#define GSWEB_CONF__LOG_FLAG_FILE_PATH   	"GSWeb_LogFlagFilePath"
-#define GSWEB_CONF__DUMP_FLAG_FILE_PATH   	"GSWeb_DumpFlagFilePath"
-
 
 // Aapche
-#define GSWEB_CONF__ALIAS				"GSWeb_Alias"
+#if defined(Apache)
+#define GSWEB_CONF__ALIAS					"GSWeb_Alias"
+#endif
 
 // Netscape
+#if	defined(Netscape)
 #define	GSWEB_CONF__PATH_TRANS	"from"			// NameTrans
 #define	GSWEB_CONF__APP_ROOT	"dir"			// NameTrans
 #define	GSWEB_CONF__NAME		"name"			// NameTrans, Object 
+#endif
 
 
-#define DEFAULT_CONFIG_FILE_PATH 	"/etc/httpd/conf/gsweb.conf"
-#define DEFAULT_LOG_FILE_PATH 		"/var/log/httpd/gsweb.log"
-#define DEFAULT_LOG_FLAG_PATH 		"/etc/httpd/conf/gsweb-log"
-#define DEFAULT_DUMP_FLAG_PATH 		"/etc/httpd/conf/gsweb-dump"
-
-#define	DEFAULT_GSWEXTENSIONS_FRAMEWORK_WEB_SERVER_RESOURCES "/GSWeb/Frameworks/WOExtensions.framework/WebServerResources"
-
-
+#if GSWEB_WONAMES
+#define	GSWEB_INSTANCE_COOKIE	"woinst="
+#else
 #define	GSWEB_INSTANCE_COOKIE	"gswinst="
-
+#endif
 
 /*
  *	operating specific things regarding gethostbyname()
@@ -107,24 +114,12 @@ extern "C" {
 #pragma message(Apache)
 #define	SERVER	"Apache"
 #elif defined(Netscape)
-#if	defined(WAI)
-#pragma message(WAI)
-#define	SERVER	"WAI"
-#else
 #pragma message(NSAPI)
 #define	SERVER	"NSAPI"
 #endif
-#elif defined(CGI)
-#pragma message(CGI)
-#define	SERVER	"CGI"
-#else
-#pragma message(Unknwon)
-#define	SERVER	"Unknown"
-#endif 
-
 
 #ifndef	MAXHOSTNAMELEN
-#define	MAXHOSTNAMELEN	256	/* reasonable default */
+#define	MAXHOSTNAMELEN	256
 #endif
 
 

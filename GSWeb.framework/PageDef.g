@@ -43,10 +43,10 @@ document
 : 	((object { [elements setObject:currentElement forKey:[currentElement elementName]]; } )
 	| (include))+
 	;
-
+//TODO unescapedString
 include:
 	(INCLUDE (WS)*)	
-	includeObj:STRING { [includes addObject:[[[includeObj  text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]; }
+	includeObj:STRING { [includes addObject:[self unescapedString:[[[includeObj  text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]]; }
         ;
 
 object:
@@ -71,6 +71,7 @@ member:
 	(SEMI)*!
 	;
 
+//TODO unescapedString
 mvalue:
 	(	assocKeyPath:idref
 			{ { GSWAssociation* assoc=[GSWAssociation associationWithKeyPath:[assocKeyPath_AST toStringListWithSiblingSeparator:@"" openSeparator:@"" closeSeparator:@""]];
@@ -85,7 +86,7 @@ mvalue:
 			{ { GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber numberWithBool:NO]];
 				 ASSIGN(currentAssociation,assoc); }; }
 	|	assocConstantString:STRING
-			{  { GSWAssociation* assoc=[GSWAssociation associationWithValue:[[[assocConstantString text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]];
+			{  { GSWAssociation* assoc=[GSWAssociation associationWithValue:[self unescapedString:[[[assocConstantString text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
 				ASSIGN(currentAssociation,assoc); }; }
 	|	assocConstantHexNum:HEXNUM
 			{ { GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber valueFromString:[assocConstantHexNum text]]];
@@ -195,8 +196,10 @@ WS:
 	;
 
 STRING
-	:	'"' (~'"')* '"'
-	|	'\'' (~'\'')* '\''
+//	:	'"' (~'"')* '"'
+//	|	'\'' (~'\'')* '\''
+	:	'\'' ( ESC |~('\''|'\\'))* '\''
+	|	'"' ( ESC |~('"'|'\\'))* '"'
 	;
 
 POINT:	'.';
@@ -208,6 +211,48 @@ HEXNUM
 	:	'#' HEXINT
 	;
 
+// escape sequence -- note that this is protected; it can only be called
+//   from another lexer rule -- it will not ever directly return a token to
+//   the parser
+// There are various ambiguities hushed in this rule.  The optional
+// '0'...'9' digit matches should be matched here rather than letting
+// them go back to STRING_LITERAL to be matched.  ANTLR does the
+// right thing by matching immediately; hence, it's ok to shut off
+// the FOLLOW ambig warnings.
+protected
+ESC
+	:     '\\'
+                (       'n'
+                |       'r'
+                |       't'
+                |       'b'
+                |       'f'
+                |       '"'
+                |       '\''	
+                |       '\\'	
+                |       ('u')+ HEXDIGIT HEXDIGIT HEXDIGIT HEXDIGIT 
+                |       ('0'..'3')
+                        (
+                                options {
+                                        warnWhenFollowAmbig = false;
+                                }
+                        :       ('0'..'9')
+                                (       
+                                        options {
+                                                warnWhenFollowAmbig = false;
+                                        }
+                                :       '0'..'9'
+                                )?
+                        )?
+                |       ('4'..'7')
+                        (
+                                options {
+                                        warnWhenFollowAmbig = false;
+                                }
+                        :       ('0'..'9')
+                        )?
+                )
+        ;
 protected
 HEXINT
 	:	(
@@ -232,9 +277,7 @@ DIGIT
 
 protected
 HEXDIGIT
-	:	'0'..'9'
-	|	'a'..'f'
-	|	'A'..'F'
+	:	('0'..'9'|'A'..'F'|'a'..'f')
 	;
 
 protected

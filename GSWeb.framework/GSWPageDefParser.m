@@ -205,7 +205,7 @@
 			[astFactory addASTChild:includeObj_AST in:currentAST];
 		}
 		[self matchTokenType:GSWPageDefTokenType_STRING];
-		[includes addObject:[[[includeObj  text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]];
+		[includes addObject:[self unescapedString:[[[includeObj  text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
 		include_AST = [currentAST root];
 	}
 	NS_HANDLER
@@ -468,7 +468,7 @@
 					[astFactory addASTChild:assocConstantString_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefTokenType_STRING];
-				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[[[assocConstantString text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]];
+				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[self unescapedString:[[[assocConstantString text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
 								ASSIGN(currentAssociation,assoc); };
 				break;
 			}
@@ -611,6 +611,7 @@ static CONST NSString* GSWPageDefParser___tokenNames[] = {
 	@"SL_COMMENT",
 	@"ML_COMMENT",
 	@"POINT",
+	@"ESC",
 	@"HEXINT",
 	@"DIGIT",
 	@"HEXDIGIT",

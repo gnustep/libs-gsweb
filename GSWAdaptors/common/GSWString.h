@@ -36,11 +36,14 @@ typedef struct _GSWString
 } GSWString;
 
 GSWString* GSWString_New();
+int GSWString_Len(GSWString* p_pString);
 void GSWString_Free(GSWString* p_pString);
 void GSWString_Detach(GSWString* p_pString);
 void GSWString_Append(GSWString* p_pString,
 					  CONST char* p_pszString);
-
+void GSWString_SearchReplace(GSWString* p_pString,
+							 CONST char* p_pszSearch,
+							 CONST char* p_pszReplace);
 #ifdef __cplusplus
 } // end of C header
 #endif //_cplusplus

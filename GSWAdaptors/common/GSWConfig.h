@@ -21,65 +21,61 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+// $Id$
+
 #ifndef _GSWConfig_h__
 #define _GSWConfig_h__
 
 #include <proplist.h>
 #include <time.h>
 #include "GSWList.h"
+#include "GSWDict.h"
+#include "GSWLock.h"
+#include "GSWString.h"
+#include "GSWApp.h"
 
-// AppName=Instance@Hostname:Port[ Key=Value]*
+extern GSWLock g_lockAppList;
+extern GSWDict* g_pAppDict;
+extern time_t config_mtime;
+
 
 extern const char* g_szGSWeb_AdaptorVersion;
 
 extern const char* g_szGSWeb_Prefix;
 extern const char* g_szGSWeb_Handler;
+extern const char* g_szGSWeb_StatusResponseAppName;
+
+
 extern const char* g_szGSWeb_AppExtention;
 
 extern const char* g_szGSWeb_MimeType;
-extern const char* g_szGSWeb_Conf_DocRoot;
+//extern const char* g_szGSWeb_Conf_DocRoot;
 extern const char* g_szGSWeb_Conf_ConfigFilePath;
 
-
 // Apache
+#if defined(Apache)
 extern const char* g_szGSWeb_Conf_Alias;
+#endif
 
 // Netscape
+#if	defined(Netscape)
 extern const char* g_szGSWeb_Conf_PathTrans;
 extern const char* g_szGSWeb_Conf_AppRoot;
 extern const char* g_szGSWeb_Conf_Name;
+#endif
 
-
-extern const char* g_szGSWeb_DefaultConfigFilePath;
-extern const char* g_szGSWeb_DefaultLogFilePath;
-extern const char* g_szGSWeb_DefaultLogFlagPath;
-extern const char* g_szGSWeb_DefaultDumpFlagPath;
-
-
-extern const char* g_szGSWeb_DefaultGSWExtensionsFrameworkWebServerResources;
 
 extern const char* g_szGSWeb_InstanceCookie;
 
 extern const char* g_szGSWeb_Server;
 extern const char* g_szGSWeb_ServerAndAdaptorVersion;
 
-extern const char* g_szDumpConfFile_Head;
-extern const char* g_szDumpConfFile_Foot;
 
 extern const char* const g_szGNUstep;
 extern const char* const g_szOKGSWeb;
 extern const char* const g_szOKStatus;
 
-extern const char* g_szErrorResponseHTMLTextTpl;
 
-typedef struct _STGSWConfigEntry
-{
-  const char* pszAppName;
-  int iInstance;
-  const char* pszHostName;
-  int iPort;
-  GSWDict* pParams;
-} STGSWConfigEntry;
 
 typedef enum
 {
@@ -94,49 +90,44 @@ typedef enum
   EGSWConfigResult__Add = 1
 } EGSWConfigCallType;
 
-typedef struct _GSWApp
+typedef struct _GSWConfig
 {
-  char* pszName;
-  int iIndex;
-  GSWList stInstances;
-} GSWApp;
+  char* pszConfigFilePath;
+  char* pszGSWExtensionsFrameworkWebServerResources;
+  BOOL fCanDumpStatus;
+} GSWConfig;
 
-typedef struct _GSWAppInstance
-{
-  int iInstance;
-  char* pszHost;
-  int iPort;
-  time_t timeNextRetryTime;			// Timer
-  unsigned int uOpenedRequestsNb;
-  BOOL fValid;
-} GSWAppInstance;
-
-extern proplist_t configKey__Applications;
-extern proplist_t configKey__InstanceNum;
-extern proplist_t configKey__Host;
-extern proplist_t configKey__Port;
-extern proplist_t configKey__Parameters;
 
 EGSWConfigResult GSWConfig_ReadIFND(CONST char* p_pszConfigPath,
 									time_t* p_pLastReadTime,
-									proplist_t* p_ppPropList,
+									proplist_t* p_ppPropList,//Please, PLRelease it after used !
 									void* p_pLogServerData);
 
-proplist_t GSWConfig_GetApplicationsFromConfig(proplist_t p_propListConfig);
+proplist_t GSWConfig_GetApplicationsFromConfig(proplist_t p_propListConfig,void* p_pLogServerData);
 proplist_t GSWConfig_ApplicationKeyFromApplicationsKey(proplist_t p_propListApplicationsKeys,
-													   int p_iIndex);
-proplist_t GSWConfig_InstancesFromApplication(proplist_t p_propListApplication);
+													   int p_iIndex,
+													   void* p_pLogServerData);
+proplist_t GSWConfig_InstancesFromApplication(proplist_t p_propListApplication,void* p_pLogServerData);
 proplist_t GSWConfig_ApplicationFromApplications(proplist_t p_propListApplications,
-												 proplist_t p_propListApplicationKey);
-proplist_t GSWConfig_ApplicationsKeysFromApplications(proplist_t p_propListApplications);
-proplist_t GSWConfig_ApplicationsKeysFromConfig(proplist_t p_propListConfig);
-BOOL GSWConfig_PropListInstanceToInstanceEntry(STGSWConfigEntry* p_pInstanceEntry,
-											   proplist_t p_propListInstance,
-											   CONST char* p_pszAppName);
+												 proplist_t p_propListApplicationKey,void* p_pLogServerData);
+proplist_t GSWConfig_ApplicationsKeysFromApplications(proplist_t p_propListApplications,void* p_pLogServerData);
+proplist_t GSWConfig_ApplicationsKeysFromConfig(proplist_t p_propListConfig,void* p_pLogServerData);
 
+GSWConfig* GSWConfig_GetConfig();
+BOOL GSWConfig_CanDumpStatus();
 CONST char* GSWConfig_GetConfigFilePath();
 void GSWConfig_SetConfigFilePath(CONST char* p_pszConfigFilePath);
-
+GSWString* GSWConfig_DumpGSWApps(const char* p_pszReqApp,
+								 const char* p_pszPrefix,
+								 BOOL p_fForceDump,
+								 BOOL p_fHTML,
+								 void* p_pLogServerData);
+GSWApp* GSWConfig_GetApp(CONST char* p_pszAppName);
+CONST char* GSWConfig_AdaptorBuilt();
+CONST char* GSWConfig_ServerStringInfo();
+CONST char* g_szGSWeb_AdaptorStringInfo();
+CONST char* GSWConfig_ServerURL();
+CONST char* g_szGSWeb_AdaptorURL();
 
 #endif // _GSWConfig_h__
 

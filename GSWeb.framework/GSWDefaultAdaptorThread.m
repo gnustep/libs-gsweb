@@ -28,17 +28,30 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWDefaultAdaptorThread
 
+//--------------------------------------------------------------------
+-(id)init
+{
+  if ((self=[super init]))
+	{
+	  ASSIGN(creationDate,[NSDate date]);
+	};
+  return self;
+};
+
+//--------------------------------------------------------------------
 -(id)initWithApp:(GSWApplication*)application_
 	 withAdaptor:(GSWAdaptor*)adaptor_
 	  withStream:(NSFileHandle*)stream_
 {
-  self=[super init];
-  application=application_;
-  adaptor=adaptor_;
-  ASSIGN(stream,stream_);
-  keepAlive=NO;
-  isMultiThread=[adaptor isMultiThreadEnabled];
-  NSDebugMLLog(@"info",@"isMultiThread=%d",(int)isMultiThread);
+  if ((self=[self init]))
+	{
+	  application=application_;
+	  adaptor=adaptor_;
+	  ASSIGN(stream,stream_);
+	  keepAlive=NO;
+	  isMultiThread=[adaptor isMultiThreadEnabled];
+	  NSDebugMLLog(@"info",@"isMultiThread=%d",(int)isMultiThread);
+	};
   return self;
 };
 
@@ -47,6 +60,11 @@ static char rcsId[] = "$Id$";
 {
   GSWLogC("dealloc GSWDefaultAdaptorThread");
   DESTROY(stream);
+  GSWLogC("release dates");
+  DESTROY(creationDate);
+  DESTROY(runDate);
+  DESTROY(dispatchRequestDate);
+  DESTROY(sendResponseDate);
   GSWLogC("release pool");
 //  DESTROY(pool);
   [super dealloc];
@@ -84,6 +102,9 @@ static char rcsId[] = "$Id$";
   NSString* _requestLine=nil;
   NSDictionary* _headers=nil;
   NSData* _data=nil;
+  ASSIGN(runDate,[NSDate date]);
+  DESTROY(dispatchRequestDate);
+  DESTROY(sendResponseDate);
   GSWLogCStdOut("Thread run START");
   GSWLogC("Thread run START");
   pool=[NSAutoreleasePool new];
@@ -145,6 +166,7 @@ static char rcsId[] = "$Id$";
 		  //call  application resourceRequestHandlerKey (retourne wr)
 		  //call requets requestHandlerKey (retorune nil)
 		  NSDebugMLLog(@"info",@"GSWDefaultAdaptorThread: run handleRequest:%@",request);
+		  ASSIGN(dispatchRequestDate,[NSDate date]);
 		  NS_DURING
 			{
 			  response=[application dispatchRequest:request];
@@ -165,6 +187,7 @@ static char rcsId[] = "$Id$";
 		  if (response)
 			{
 			  RETAIN(response);
+			  ASSIGN(sendResponseDate,[NSDate date]);
 			  NS_DURING
 				{
 				  [self sendResponse:response];

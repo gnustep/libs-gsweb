@@ -1,3 +1,16 @@
+2000-03-16  Manuel Guesdon <mguesdon@sbuilders.com>
+
+	* All Files in GSWAdaptors: Clean code, changes in config file,...
+		Netscap Adaptor hasn't been re-tested.
+	
+2000-03-16  Manuel Guesdon <mguesdon@sbuilders.com>
+
+	* PageDef.g: handle escaped characters in strings
+	* GSWPageDefParser.h: handle escaped characters in strings
+	* GSWPageDefParser.m: handle escaped characters in strings
+	* htmltag.g: changes on HEXDIGIT
+	* html.g: changes on HEXDIGIT
+		
 2000-03-09  Karl Kraft <karl@nfox.com>
 	Change to GSWPopUpButton
         * the <option> tag should not have a </option> closing tag.

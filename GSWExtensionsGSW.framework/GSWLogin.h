@@ -29,6 +29,7 @@
   NSString* message;
   NSString* user;
   NSString* password;
+  NSCalendarDate* currentDate;
 };
 
 -(BOOL)synchronizesVariablesWithBindings;
@@ -37,7 +38,8 @@
 -(void)awake;
 -(void)sleep;
 -(GSWComponent*)login;
-
+-(NSString*)currentDate;
+-(void)setCurrentDate:(NSString*)date_;
 @end
 
 

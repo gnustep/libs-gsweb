@@ -37,17 +37,17 @@ typedef struct _GSWHTTPResponse
   void* pContent;
 } GSWHTTPResponse;
 
-GSWHTTPResponse* GSWHTTPResponse_New(void* p_pLogServerData,CONST char* p_pszStatus);
-void GSWHTTPResponse_Free(GSWHTTPResponse* p_pHTTPResponse);
+GSWHTTPResponse* GSWHTTPResponse_New(CONST char* p_pszStatus,void* p_pLogServerData);
+void GSWHTTPResponse_Free(GSWHTTPResponse* p_pHTTPResponse,void* p_pLogServerData);
 
 // Get The response from Application
-GSWHTTPResponse* GSWHTTPResponse_GetResponse(void* p_pLogServerData,AppConnectHandle p_socket);
+GSWHTTPResponse* GSWHTTPResponse_GetResponse(AppConnectHandle p_socket,void* p_pLogServerData);
 
 // Build an error response
-GSWHTTPResponse *GSWHTTPResponse_BuildErrorResponse(CONST char* p_pszMessage);
+GSWHTTPResponse *GSWHTTPResponse_BuildErrorResponse(GSWAppRequest* p_pAppRequest,CONST char* p_pszMessage,void* p_pLogServerData);
 
 // Redirect Response
-GSWHTTPResponse* GSWHTTPResponse_BuildRedirectedResponse(CONST char* p_pszRedirectPath);
+GSWHTTPResponse* GSWHTTPResponse_BuildRedirectedResponse(CONST char* p_pszRedirectPath,void* p_pLogServerData);
 
 // Add Header
 void GSWHTTPResponse_AddHeader(GSWHTTPResponse* p_pHTTPResponse,
@@ -57,10 +57,8 @@ char* p_pszGSWHTTPResponse_PackageHeaders(GSWHTTPResponse* p_pHTTPResponse,
 										  char* p_pszBuffer,
 										  int iBufferSize);
 
-GSWHTTPResponse* GSWHTTPResponse_BuildTestResponse(void* p_pLogServerData,GSWHTTPRequest* p_pHTTPRequest);
-
-BOOL GSWDumpConfigFile_CanDump();
-GSWHTTPResponse* GSWDumpConfigFile(void* p_pLogServerData,GSWURLComponents* p_pURLComponents);
+GSWHTTPResponse* GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest* p_pHTTPRequest,void* p_pLogServerData);
+GSWHTTPResponse* GSWDumpConfigFile(GSWURLComponents* p_pURLComponents,void* p_pLogServerData);
 
 #ifdef __cplusplus
 }

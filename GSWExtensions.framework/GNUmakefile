@@ -76,6 +76,7 @@ Ascending.gif \
 Descending.gif \
 DownTriangle.gif \
 PoweredByGNUstep.gif \
+PoweredByGNUstepWeb.gif \
 RightTriangle.gif \
 Unsorted.gif \
 appOff.gif \

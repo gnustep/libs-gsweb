@@ -31,10 +31,12 @@
 #include "config.h"
 #include "GSWUtil.h"
 #include "GSWDict.h"
+#include "GSWString.h"
 #include "GSWConfig.h"
 #include "GSWURLUtil.h"
 
-GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL)
+//--------------------------------------------------------------------
+GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL,void* p_pLogServerData)
 {
   GSWURLError eError=GSWURLError_OK;
   GSWURLComponent* pURLCPrefix=&p_pURLComponents->stPrefix;
@@ -183,35 +185,60 @@ GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL)
   if (!pURLCPrefix->pszStart || pURLCPrefix->iLength<=0)
 	{
 	  eError=GSWURLError_InvalidPrefix;
-	  GSWLog(GSW_ERROR,NULL,"ParseURL GSWURLError_InvalidPrefix");
+	  GSWLog(GSW_ERROR,p_pLogServerData,"ParseURL GSWURLError_InvalidPrefix");
 	}
-  else if (!pURLCAppName->pszStart || pURLCAppName->iLength<=0)
+  else
 	{
-	  eError=GSWURLError_InvalidAppName;
-	  GSWLog(GSW_ERROR,NULL,"ParseURL GSWURLError_InvalidAppName");
-	}
-  else if (!pURLCAppNum->pszStart)
-	{
-	  eError=GSWURLError_InvalidAppNumber;
-	  GSWLog(GSW_ERROR,NULL,"ParseURL GSWURLError_InvalidAppNumber");
-	}
-  else if ((!pURLCReqHandlerKey->pszStart || pURLCReqHandlerKey->iLength<=0)
-		   && pURLCReqHandlerPath->iLength>0)
-	{
-	  eError=GSWURLError_InvalidRequestHandlerKey;
-	  GSWLog(GSW_ERROR,NULL,"ParseURL GSWURLError_InvalidRequestHandlerKey");
-	}
-  /*
-	else if (!pURLCReqHandlerPath->pszStart || pURLCReqHandlerPath->iLength<=0)
-	eError=GSWURLError_InvalidRequestHandlerPath;
-	else if (!pURLCQueryString->pszStart || pURLCQueryString->iLength<=0)
-	eError=GSWURLError_InvalidQueryString;
-  */
-  GSWLog(GSW_INFO,NULL,"End ParseURL eError=%d",eError);
+	  GSWLog(GSW_DEBUG,p_pLogServerData,
+			 "pURLCPrefix=%.*s",
+			 pURLCPrefix->iLength,pURLCPrefix->pszStart);
+	  if (!pURLCAppName->pszStart || pURLCAppName->iLength<=0)
+		{
+		  eError=GSWURLError_InvalidAppName;
+		  GSWLog(GSW_ERROR,p_pLogServerData,"ParseURL GSWURLError_InvalidAppName");
+		}
+	  else
+		{
+		  GSWLog(GSW_DEBUG,p_pLogServerData,
+				 "pURLCAppName=%.*s",
+				 pURLCAppName->iLength,pURLCAppName->pszStart);
+		  if (!pURLCAppNum->pszStart)
+			{
+			  eError=GSWURLError_InvalidAppNumber;
+			  GSWLog(GSW_ERROR,p_pLogServerData,"ParseURL GSWURLError_InvalidAppNumber");
+			}
+		  else
+			{
+			  GSWLog(GSW_DEBUG,p_pLogServerData,
+					 "pURLCAppNum=%.*s",
+					 pURLCAppNum->iLength,pURLCAppNum->pszStart);
+			  if ((!pURLCReqHandlerKey->pszStart || pURLCReqHandlerKey->iLength<=0)
+				  && pURLCReqHandlerPath->iLength>0)
+				{
+				  eError=GSWURLError_InvalidRequestHandlerKey;
+				  GSWLog(GSW_ERROR,p_pLogServerData,"ParseURL GSWURLError_InvalidRequestHandlerKey");
+				}
+			  else
+				{
+				  GSWLog(GSW_DEBUG,p_pLogServerData,
+						 "pURLCReqHandlerPath=%.*s",
+						 pURLCReqHandlerPath->iLength,pURLCReqHandlerPath->pszStart);
+				  /*
+					if (!pURLCReqHandlerPath->pszStart || pURLCReqHandlerPath->iLength<=0)
+					eError=GSWURLError_InvalidRequestHandlerPath;
+					else if (!pURLCQueryString->pszStart || pURLCQueryString->iLength<=0)
+					eError=GSWURLError_InvalidQueryString;
+				  */
+				};
+			};
+		};
+	};
+  GSWLog(GSW_DEBUG,p_pLogServerData,"End ParseURL eError=%d",eError);
   return eError;
 };
 
-void GSWComposeURL(char* p_pszURL,GSWURLComponents* p_pURLComponents)
+//--------------------------------------------------------------------
+void GSWComposeURL(char* p_pszURL,GSWURLComponents* p_pURLComponents,void* p_pLogServerData)
 {
   GSWURLComponent* pURLCPrefix=&p_pURLComponents->stPrefix;
   GSWURLComponent* pURLCAppName=&p_pURLComponents->stAppName;
@@ -259,7 +286,8 @@ void GSWComposeURL(char* p_pszURL,GSWURLComponents* p_pURLComponents)
     *p_pszURL=0;
 };
 
-int GSWComposeURLLen(GSWURLComponents* p_pURLComponents)
+//--------------------------------------------------------------------
+int GSWComposeURLLen(GSWURLComponents* p_pURLComponents,void* p_pLogServerData)
 {
   int iLength=0;
   GSWURLComponent* pURLCPrefix=&p_pURLComponents->stPrefix;
@@ -283,6 +311,7 @@ int GSWComposeURLLen(GSWURLComponents* p_pURLComponents)
   return iLength;
 };
 
+//--------------------------------------------------------------------
 CONST char* szGSWURLErrorMessage[]=
 {
   "",											//	GSWURLError_OK
@@ -301,7 +330,7 @@ CONST char* szGSWURLErrorMessage[]=
   "Invalid suffix in URL"						//	GSWURLError_InvalidSuffix
 };
 
-CONST char* GSWURLErrorMessage(GSWURLError p_eError)
+CONST char* GSWURLErrorMessage(GSWURLError p_eError,void* p_pLogServerData)
 {
   if (p_eError>=0 && p_eError<sizeof(szGSWURLErrorMessage)/sizeof(szGSWURLErrorMessage[0]))
 	return szGSWURLErrorMessage[p_eError];

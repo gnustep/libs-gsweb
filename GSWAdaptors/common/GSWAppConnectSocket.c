@@ -38,6 +38,7 @@
 #include "GSWAppRequestStruct.h"
 #include "GSWAppConnect.h"
 
+//--------------------------------------------------------------------
 typedef	struct _STAppConnectSocket
 {
   int	iSocketDescr;
@@ -46,16 +47,19 @@ typedef	struct _STAppConnectSocket
 } STAppConnectSocket;
 typedef STAppConnectSocket* AppConnectSocketHandle;
 
-AppConnectHandle GSWApp_Open(void* p_pLogServerData,GSWAppRequest* p_pAppRequest)
+//--------------------------------------------------------------------
+AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData)
 {
   AppConnectHandle handle=NULL;
   if (!p_pAppRequest)
 	{
+	  GSWLog(GSW_CRITICAL,p_pLogServerData,
+				 "No AppRequest !");
 	  //TODO
 	}
   else
 	{
-	  PSTHostent pHost = GSWUtil_FindHost(p_pLogServerData,p_pAppRequest->pszHost);
+	  PSTHostent pHost = GSWUtil_FindHost(p_pAppRequest->pszHost,p_pLogServerData);
 	  if (!pHost)
 		{
 		  GSWLog(GSW_ERROR,p_pLogServerData,
@@ -143,7 +147,8 @@ AppConnectHandle GSWApp_Open(void* p_pLogServerData,GSWAppRequest* p_pAppRequest
   return handle;
 };
 
-void GSWApp_Close(void* p_pLogServerData,AppConnectHandle p_handle)
+//--------------------------------------------------------------------
+void GSWApp_Close(AppConnectHandle p_handle,void* p_pLogServerData)
 {
 /*
 #ifdef	DEBUG
@@ -168,7 +173,8 @@ void GSWApp_Close(void* p_pLogServerData,AppConnectHandle p_handle)
 */
 };
 
-int GSWApp_SendLine(void* p_pLogServerData,AppConnectHandle p_handle, CONST char* p_pszBuffer)
+//--------------------------------------------------------------------
+int GSWApp_SendLine(AppConnectHandle p_handle, CONST char* p_pszBuffer,void* p_pLogServerData)
 {
   int iRetValue=-1;
   if (p_handle)
@@ -190,13 +196,14 @@ int GSWApp_SendLine(void* p_pLogServerData,AppConnectHandle p_handle, CONST char
 		};
 	};
   return iRetValue;
-}
+};
 
 
-int GSWApp_SendBlock(void* p_pLogServerData,
-					 AppConnectHandle p_handle,
+//--------------------------------------------------------------------
+int GSWApp_SendBlock(AppConnectHandle p_handle,
 					 CONST char* p_pszBuffer,
-					 int p_iSize)
+					 int p_iSize,
+					 void* p_pLogServerData)
 {
   int iRetValue=-1;
   int iBytesSent=0;
@@ -221,11 +228,11 @@ int GSWApp_SendBlock(void* p_pLogServerData,
   return iRetValue;
 };
 
-
-int GSWApp_ReceiveLine(void* p_pLogServerData,
-					   AppConnectHandle p_handle,
+//--------------------------------------------------------------------
+int GSWApp_ReceiveLine(AppConnectHandle p_handle,
 					   char* p_pszBuffer,
-					   int p_iBufferSize)
+					   int p_iBufferSize,
+					   void* p_pLogServerData)
 {
   int iRetValue=-1;
   if (p_handle)
@@ -245,10 +252,11 @@ int GSWApp_ReceiveLine(void* p_pLogServerData,
   return iRetValue;
 };
 
-int GSWApp_ReceiveBlock(void* p_pLogServerData,
-						AppConnectHandle p_handle,
+//--------------------------------------------------------------------
+int GSWApp_ReceiveBlock(AppConnectHandle p_handle,
 						char* p_pszBuffer,
-						int p_iBufferSize) 
+						int p_iBufferSize,
+						void* p_pLogServerData) 
 {
   int iRetValue=-1;
   if (p_handle)

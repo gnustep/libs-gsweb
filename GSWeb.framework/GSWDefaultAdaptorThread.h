@@ -38,6 +38,10 @@
   NSRunLoop* currentRunLoop;
   NSDate* runLoopDate;
   BOOL isMultiThread;
+  NSDate* creationDate;
+  NSDate* runDate;
+  NSDate* dispatchRequestDate;
+  NSDate* sendResponseDate;
 }
 
 -(id)initWithApp:(GSWApplication*)_application

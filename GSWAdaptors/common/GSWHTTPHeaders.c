@@ -35,6 +35,7 @@
 #include "config.h"
 #include "GSWUtil.h"
 #include "GSWDict.h"
+#include "GSWString.h"
 #include "GSWURLUtil.h"
 #include "GSWUtil.h"
 #include "GSWConfig.h"
@@ -143,6 +144,7 @@ const char* g_szContentType_TextHtml="text/html";
 /*const*/ GSWHeaderTranslationItem GSWHeaderTranslationTable[50];
 int GSWHeaderTranslationTableItemsNb=0;
 
+//--------------------------------------------------------------------
 void GSWHeaderTranslationTable_Init()
 {
   int i=0;

@@ -11,7 +11,14 @@ Message : GSWString
 Form: GSWForm
 {
 	target = ^target;
+	name = "loginForm";
 }
+
+CurrentDate: GSWHiddenField
+{
+	value = currentDate;
+	name = "currentDate";
+};
 
 User: GSWTextField
 {
@@ -27,6 +34,7 @@ Submit: GSWSubmitButton
 {
     action = login;
     value = "Envoyer";
+	onClick = onClickString;
 }
 
 Reset: GSWResetButton

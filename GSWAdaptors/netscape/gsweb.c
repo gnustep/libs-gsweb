@@ -89,7 +89,6 @@ int GSWeb_Init(pblock* p_pBlock,
   GSWDict* pDict=NULL;
   const char* pDocRoot=NULL;
   int i=0;
-  GSWConfig_Init();
 
   pDict=GSWDict_New(16);
 
@@ -106,7 +105,7 @@ int GSWeb_Init(pblock* p_pBlock,
 		};
 	};
   GSWLog_Init(pDict,GSW_INFO);
-  GSWLoadBalancing_Init(pDict);
+  GSWConfig_Init(pDict);
   
   // Get The Document Root
   pDocRoot = GSWDict_ValueForKey(pDict,g_szGSWeb_Conf_DocRoot);
@@ -202,7 +201,7 @@ NSAPI_PUBLIC int GSWeb_RequestHandler(pblock* p_pBlock,
 	  pszURLError=GSWURLErrorMessage(eError);
 	  // Log the error
 	  GSWLog(GSW_INFO,NULL,"URL Parsing Error: %s", pszURLError);
-	  if (eError==GSWURLError_InvalidAppName && GSWDumpConfigFile_CanDump())
+	  if (eError==GSWURLError_InvalidAppName)
 		{
 		  pResponse = GSWDumpConfigFile(NULL,&stURLComponents);
 		  iRetVal=dieSendResponse(p_pSession,p_pRequest,&pResponse);
@@ -248,7 +247,7 @@ NSAPI_PUBLIC int GSWeb_RequestHandler(pblock* p_pBlock,
 								p_pRequest,
 								"Error reading form data (Post Method)");
 					  free(pszBuffer);
-					  pResponse = GSWHTTPResponse_BuildErrorResponse("Bad mojo"); // TODO
+					  pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,"Bad mojo",NULL); // TODO
 					};
 				  // Add Data
 				  *pszData++ = c;
@@ -264,8 +263,7 @@ NSAPI_PUBLIC int GSWeb_RequestHandler(pblock* p_pBlock,
 			  stURLComponents.stQueryString.iLength = pQueryString ? strlen(pQueryString) : 0;
 			};
 
-	
-		  // So far, so good...
+   		  // So far, so good...
 		  if (!pResponse)
 			{
 			  // Now we call the Application !
@@ -279,7 +277,7 @@ NSAPI_PUBLIC int GSWeb_RequestHandler(pblock* p_pBlock,
 													&stURLComponents,
 													pblock_findval("protocol",p_pRequest->reqpb),
 													pszDocRoot,
-													"SB", // TODO AppTest name
+													g_szGSWeb_StatusResponseAppName, //AppTest name
 													NULL);
 			};
 		
@@ -544,7 +542,7 @@ static int dieWithMessage(Session* p_pSession,
 {
 	GSWHTTPResponse* pResponse=NULL;
 	log_error(0,"GNUstepWeb",NULL,NULL,"Aborting request - %s",p_pszMessage);
-	pResponse = GSWHTTPResponse_BuildErrorResponse(p_pszMessage);
+	pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,p_pszMessage,NULL);
 	return dieSendResponse(p_pSession,
 						   p_pRequest,
 						   &pResponse);

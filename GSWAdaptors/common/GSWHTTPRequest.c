@@ -44,16 +44,21 @@ static char* GSWHTTPRequest_PackageHeaders(GSWHTTPRequest* p_pHTTPRequest,
 										   int p_iBufferSize);
 
 
-GSWHTTPRequest* GSWHTTPRequest_New(CONST char* p_pszMethod,char* p_pszURI)
+//--------------------------------------------------------------------
+GSWHTTPRequest* GSWHTTPRequest_New(CONST char* p_pszMethod,char* p_pszURI,void* p_pLogServerData)
 {
   GSWHTTPRequest* pHTTPRequest=calloc(1,sizeof(GSWHTTPRequest));
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_New");
   pHTTPRequest->eMethod = GetHTTPRequestMethod(p_pszMethod);
   pHTTPRequest->pszRequest = p_pszURI;		// It will be freed
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_New");
   return pHTTPRequest;
 };
 
-void GSWHTTPRequest_Free(GSWHTTPRequest* p_pHTTPRequest)
+//--------------------------------------------------------------------
+void GSWHTTPRequest_Free(GSWHTTPRequest* p_pHTTPRequest,void* p_pLogServerData)
 {
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_Free");
   if (p_pHTTPRequest)
 	{
 	  if (p_pHTTPRequest->pHeaders)
@@ -74,36 +79,52 @@ void GSWHTTPRequest_Free(GSWHTTPRequest* p_pHTTPRequest)
 	  free(p_pHTTPRequest);
 	  p_pHTTPRequest=NULL;
 	};
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_Free");
 };
 
-
-CONST char* GSWHTTPRequest_ValidateMethod(GSWHTTPRequest* p_pHTTPRequest)
+//--------------------------------------------------------------------
+CONST char* GSWHTTPRequest_ValidateMethod(GSWHTTPRequest* p_pHTTPRequest,void* p_pLogServerData)
 {
-  switch(p_pHTTPRequest->eMethod)
+  CONST char* pszMsg=NULL;
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_ValidateMethod");
+  if (!p_pHTTPRequest)
 	{
-	case ERequestMethod_None:
-	  return "GSWeb Application must be launched by HTTP Server";
-	  break;
-	case ERequestMethod_Unknown:
-	case ERequestMethod_Head:
-	case ERequestMethod_Put:
-		return "Invalid Method";
+	  GSWLog(GSW_CRITICAL,p_pLogServerData,"No Request in GSWHTTPRequest_ValidateMethod");
+	  pszMsg="No Request in GSWHTTPRequest_ValidateMethod";
+	}
+  else
+	{
+	  switch(p_pHTTPRequest->eMethod)
+		{
+		case ERequestMethod_None:
+		  pszMsg="GSWeb Application must be launched by HTTP Server";
+		  break;
+		case ERequestMethod_Unknown:
+		case ERequestMethod_Head:
+		case ERequestMethod_Put:
+		  pszMsg="Invalid Method";
 		break;
-	case ERequestMethod_Get:
-	case ERequestMethod_Post:
-	default:
-	  return NULL;
+		case ERequestMethod_Get:
+		case ERequestMethod_Post:
+		default:
+		  pszMsg=NULL;
+		};
 	};
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_ValidateMethod");
+  return pszMsg;
 };
 
+//--------------------------------------------------------------------
 void GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest* p_pHTTPRequest,
 									 GSWAppRequest* p_pAppRequest,
 									 GSWURLComponents* p_pURLComponents,
-									 CONST char* p_pszHTTPVersion)
+									 CONST char* p_pszHTTPVersion,
+									 void* p_pLogServerData)
 {
   char szInstanceBuffer[65]="";
   char* pszDefaultHTTPVersion = "HTTP/1.0";
   int iHTTPVersionLength = p_pszHTTPVersion ? strlen(p_pszHTTPVersion) : strlen(pszDefaultHTTPVersion);
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_HTTPToAppRequest");
   if (p_pAppRequest->iInstance > 0)	/* should be -1 !!! */
 	sprintf(szInstanceBuffer,"%d",p_pAppRequest->iInstance);
   p_pURLComponents->stAppName.pszStart = p_pAppRequest->pszName;
@@ -119,8 +140,9 @@ void GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest* p_pHTTPRequest,
 	  p_pHTTPRequest->pszRequest=NULL;
 	};
 		
-  p_pHTTPRequest->pszRequest = malloc(8 + (GSWComposeURLLen(p_pURLComponents)+1) + iHTTPVersionLength);
-
+  p_pHTTPRequest->pszRequest=malloc(8
+									+(GSWComposeURLLen(p_pURLComponents,p_pLogServerData)+1)
+									+iHTTPVersionLength);
   if (p_pHTTPRequest->uContentLength>0)
 	{
 	  strcpy(p_pHTTPRequest->pszRequest,"POST ");
@@ -131,7 +153,9 @@ void GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest* p_pHTTPRequest,
 	  strcpy(p_pHTTPRequest->pszRequest,"GET ");
 	  GSWHTTPRequest_AddHeader(p_pHTTPRequest,g_szHeader_GSWeb_RequestMethod,"GET");
 	};
-  GSWComposeURL(p_pHTTPRequest->pszRequest+strlen(p_pHTTPRequest->pszRequest),p_pURLComponents);
+  GSWComposeURL(p_pHTTPRequest->pszRequest+strlen(p_pHTTPRequest->pszRequest),
+				p_pURLComponents,
+				p_pLogServerData);
   strcat(p_pHTTPRequest->pszRequest," ");
   if (p_pszHTTPVersion)
 	  strcat(p_pHTTPRequest->pszRequest,p_pszHTTPVersion);
@@ -139,9 +163,11 @@ void GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest* p_pHTTPRequest,
 	strcat(p_pHTTPRequest->pszRequest,pszDefaultHTTPVersion);
   strcat(p_pHTTPRequest->pszRequest,"\n");
 	
-  GSWLog(GSW_INFO,NULL,"App Request: %s",p_pHTTPRequest->pszRequest);
+  GSWLog(GSW_INFO,p_pLogServerData,"App Request: %s",p_pHTTPRequest->pszRequest);
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_HTTPToAppRequest");
 };
 
+//--------------------------------------------------------------------
 void GSWHTTPRequest_AddHeader(GSWHTTPRequest* p_pHTTPRequest,
 							  CONST char* p_pszKey,
 							  CONST char* p_pszValue)
@@ -161,6 +187,7 @@ void GSWHTTPRequest_AddHeader(GSWHTTPRequest* p_pHTTPRequest,
   GSWDict_AddString(p_pHTTPRequest->pHeaders,pszHeaderKey,p_pszValue,FALSE);
 };
 
+//--------------------------------------------------------------------
 CONST char* GSWHTTPRequest_HeaderForKey(GSWHTTPRequest* p_pHTTPRequest,CONST char* p_pszKey)
 {
   if (p_pHTTPRequest->pHeaders) 
@@ -169,6 +196,7 @@ CONST char* GSWHTTPRequest_HeaderForKey(GSWHTTPRequest* p_pHTTPRequest,CONST cha
 	return NULL;
 };
 
+//--------------------------------------------------------------------
 static void GetHeaderLength(GSWDictElem* p_pElem,
 							void* p_piAddTo)
 {
@@ -178,6 +206,7 @@ static void GetHeaderLength(GSWDictElem* p_pElem,
   (*piAddTo)+=strlen(p_pElem->pszKey)+strlen((char*)(p_pElem->pValue))+2+1+1;
 }
 
+//--------------------------------------------------------------------
 static void FormatHeader(GSWDictElem* p_pElem,
 						 void* p_ppszBuffer)
 {
@@ -190,17 +219,20 @@ static void FormatHeader(GSWDictElem* p_pElem,
   (*ppszBuffer)++;
 };
 
+//--------------------------------------------------------------------
 // Handle Request (send it to Application)
-
-BOOL GSWHTTPRequest_SendRequest(void* p_pLogServerData,GSWHTTPRequest* p_pHTTPRequest,AppConnectHandle p_socket)
+BOOL GSWHTTPRequest_SendRequest(GSWHTTPRequest* p_pHTTPRequest,AppConnectHandle p_socket,void* p_pLogServerData)
 {
   BOOL fOk = TRUE;
   char* pszBuffer=NULL;
   char* pszTmp=NULL;
   int iLength = 0;
   int iHeaderLength = 0;
-  int iRequestLength = strlen(p_pHTTPRequest->pszRequest);
-  int iContentLength = p_pHTTPRequest->uContentLength;
+  int iRequestLength = 0;
+  int iContentLength = 0;
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Start GSWHTTPRequest_SendRequest");
+  iRequestLength = strlen(p_pHTTPRequest->pszRequest);
+  iContentLength = p_pHTTPRequest->uContentLength;
     
   GSWDict_PerformForAllElem(p_pHTTPRequest->pHeaders,
 							GetHeaderLength,
@@ -234,12 +266,14 @@ BOOL GSWHTTPRequest_SendRequest(void* p_pLogServerData,GSWHTTPRequest* p_pHTTPRe
 		 iContentLength);
   // Just To be sure of the length
   iLength = pszTmp - pszBuffer;
-  fOk = GSWApp_SendBlock(p_pLogServerData,p_socket,pszBuffer,iLength);
+  fOk = GSWApp_SendBlock(p_socket,pszBuffer,iLength,p_pLogServerData);
   free(pszBuffer);
   pszBuffer=NULL;
+  GSWLog(GSW_DEBUG,p_pLogServerData,"Stop GSWHTTPRequest_SendRequest");
   return fOk;
 }
 
+//--------------------------------------------------------------------
 static char* GSWHTTPRequest_PackageHeaders(GSWHTTPRequest* p_pHTTPRequest,
 										   char* p_pszBuffer,
 										   int p_iBufferSize)
@@ -260,7 +294,7 @@ static char* GSWHTTPRequest_PackageHeaders(GSWHTTPRequest* p_pHTTPRequest,
   return pszBuffer;
 };
 
-
+//--------------------------------------------------------------------
 static ERequestMethod GetHTTPRequestMethod(CONST char* pszMethod)
 {
   if (pszMethod)
@@ -280,8 +314,7 @@ static ERequestMethod GetHTTPRequestMethod(CONST char* pszMethod)
 	return ERequestMethod_None;
 };
 
-
-
+//--------------------------------------------------------------------
 static int compareHeader(CONST void* p_pKey0,CONST void* p_pKey1)
 {
   CONST char* pKey1=((GSWHeaderTranslationItem*)p_pKey1)->pszHTTP;
@@ -301,8 +334,9 @@ static int compareHeader(CONST void* p_pKey0,CONST void* p_pKey1)
 	return 0;
   else
 	return 1;
-}
+};
 
+//--------------------------------------------------------------------
 static CONST char* GSWebHeaderForHTTPHeader(CONST char* p_pszHTTPHeader)
 {
   GSWHeaderTranslationItem* pItem=NULL;

@@ -28,6 +28,8 @@
 extern "C" {
 #endif // __cplusplus
 
+#include "GSWList.h"
+
 typedef struct _GSWDictElem
 {
   CONST char *pszKey;
@@ -47,15 +49,20 @@ typedef struct _GSWDict
 GSWDict	*GSWDict_New(unsigned int p_uCapacity);
 
 void GSWDict_Free(GSWDict* p_pDict);
+void GSWDict_FreeElements(GSWDict* p_pDict);
 void GSWDict_Add(GSWDict* p_pDict,CONST char* p_pszKey,CONST void* p_pValue,BOOL p_fValueOwner);
 void GSWDict_AddString(GSWDict* p_pDict,CONST char* p_pszKey,CONST char* p_pValue,BOOL p_fValueOwner);
 void GSWDict_AddStringDup(GSWDict* p_pDict,CONST char* p_pszKey,CONST char* p_pValue);
 void GSWDict_RemoveKey(GSWDict* p_pDict, CONST char* p_pszKey);
 CONST void* GSWDict_ValueForKey(GSWDict* p_pDict, CONST char* p_pszKey);
+unsigned int GSWDict_Count(GSWDict* p_pDict);
 
 void GSWDict_PerformForAllElem(GSWDict* p_pDict,
 							   void (*pFN)(GSWDictElem* p_pElem,void* p_pData),
 							   void* p_pData);
+
+//Free the list but Do Not Free Elements
+GSWList* GSWDict_AllKeys(GSWDict* p_pDict);
 
 #ifdef __cplusplus
 } // end of C header

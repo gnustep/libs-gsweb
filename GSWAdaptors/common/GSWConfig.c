@@ -21,6 +21,8 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+static char rcsId[] = "$Id$";
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -34,302 +36,194 @@
 #include "config.h"
 #include "GSWUtil.h"
 #include "GSWDict.h"
+#include "GSWString.h"
 #include "GSWURLUtil.h"
 #include "GSWUtil.h"
 #include "GSWConfig.h"
+#include "GSWPropList.h"
+#include "GSWTemplates.h"
 
-#define MAX_LENGTH_CONF_LINE 1024
+#if defined(__DATE__) && defined(__TIME__)
+static const char g_szAdaptorBuilt[] = __DATE__ " " __TIME__;
+#else
+static const char g_szAdaptorBuilt[] = "unknown";
+#endif
 
-static const int timeIntervalBetweenStats = CONFIG_FILE_STAT_INTERVAL;
-
+ 
 const char* g_szGSWeb_AdaptorVersion=GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING;
 
 const char* g_szGSWeb_Prefix=GSWEB_PREFIX;
 const char* g_szGSWeb_Handler=GSWEB_HANDLER;
+const char* g_szGSWeb_StatusResponseAppName=GSWEB_STATUS_RESPONSE_APP_NAME;
 const char* g_szGSWeb_AppExtention=GSWAPP_EXTENSION;
 
 const char* g_szGSWeb_MimeType=GSWEB__MIME_TYPE;
-const char* g_szGSWeb_Conf_DocRoot=GSWEB_CONF__DOC_ROOT;
+//const char* g_szGSWeb_Conf_DocRoot=GSWEB_CONF__DOC_ROOT;
 const char* g_szGSWeb_Conf_ConfigFilePath=GSWEB_CONF__CONFIG_FILE_PATH;
 
 
 // Apache
+#if defined(Apache)
 const char* g_szGSWeb_Conf_Alias=GSWEB_CONF__ALIAS;
+#endif
 
 // Netscape
+#if	defined(Netscape)
 const char* g_szGSWeb_Conf_PathTrans=GSWEB_CONF__PATH_TRANS;
 const char* g_szGSWeb_Conf_AppRoot=GSWEB_CONF__APP_ROOT;
 const char* g_szGSWeb_Conf_Name=GSWEB_CONF__NAME;
-
-
-
-
-const char* g_szGSWeb_DefaultConfigFilePath=DEFAULT_CONFIG_FILE_PATH;
-const char* g_szGSWeb_DefaultLogFilePath=DEFAULT_LOG_FILE_PATH;
-const char* g_szGSWeb_DefaultLogFlagPath=DEFAULT_LOG_FLAG_PATH;
-const char* g_szGSWeb_DefaultDumpFlagPath=DEFAULT_DUMP_FLAG_PATH;
-
-const char* g_szGSWeb_DefaultGSWExtensionsFrameworkWebServerResources=DEFAULT_GSWEXTENSIONS_FRAMEWORK_WEB_SERVER_RESOURCES;
-
+#endif
 
 const char* g_szGSWeb_InstanceCookie=GSWEB_INSTANCE_COOKIE;
 
 const char* g_szGSWeb_Server=SERVER;
 const char* g_szGSWeb_ServerAndAdaptorVersion=SERVER "/" GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING;
 
-const char* g_szDumpConfFile_Head="<HTML><HEAD><TITLE>Index of GNUstepWeb Applications</TITLE></HEAD>\n"
-"<BODY BGCOLOR=\"#FFFFFF\">"
-"<CENTER><H3>Could not find the application specified in the URL (%s).</H3>\n"
-"<H4>Index of GNUstepWeb Applications in %s (some applications may be down)</H4>\n"
-"<table border=1>"
-"<tr>\n"
-"<td align=center rowspan=2>Name</td>"
-"<td align=center rowspan=2>Application Access</td>"
-"<td align=center colspan=3>Instances</td>"
-"</tr>\n"
-"<tr>\n"
-"<td align=center>#</td>"
-"<td align=center>Host</td>"
-"<td align=center>Port</td>"
-"</tr>\n";
-
-const char* g_szDumpConfFile_Foot="</table></CENTER>\n"
-"<BR>\n"
-"<CENTER><A HREF=\"http://www.gnustep.org\"><IMG SRC=\"%s/PoweredByGNUstepWeb.gif\" ALT=\"Powered By GNUstepWeb\" BORDER=0></A></CENTER>\n"
-"</BODY></HTML>";
-
 
 const char* const g_szGNUstep = "GNUstep";
+
+#if GSWEB_WONAMES
+const char* const g_szOKGSWeb = "OK Apple";
+const char* const g_szOKStatus = "HTTP/1.0 200 OK Apple GSWeb";
+#else
 const char* const g_szOKGSWeb = "OK GSWeb";
 const char* const g_szOKStatus = "HTTP/1.0 200 OK GNUstep GSWeb";
+#endif
 
+#if	defined(Apache)
+#define GSWServerVersion		ap_get_server_version()
+#define GSWServerBuilt			ap_get_server_built()
+#define GSWServerURL			"http://www.apache.org"
+#else
+#define GSWServerVersion		"Unknown"
+#define GSWServerBuilt			"Unknown"
+#define GSWServerURL			"http://www.gnustepweb.org"
+#endif
 
-const char* g_szErrorResponseHTMLTextTpl = "<HTML><BODY BGCOLOR=\"#FFFFFF\"><CENTER><H1>%s</H1></CENTER></BODY></HTML>\n";
-
-static char *g_pszConfigFilePath = NULL;
-
-proplist_t configKey__Applications=NULL;
-proplist_t configKey__Instances=NULL;
-proplist_t configKey__InstanceNum=NULL;
-proplist_t configKey__Host=NULL;
-proplist_t configKey__Port=NULL;
-proplist_t configKey__Parameters=NULL;
-
-
-void GSWConfig_Init()
+//====================================================================
+GSWLock g_lockAppList=NULL;
+static GSWDict* g_pAppDict = NULL;
+static time_t config_mtime = (time_t)0;
+static GSWConfig g_gswConfig;
+static char g_szServerStringInfo[1024]="";
+static char g_szAdaptorStringInfo[1024]="";
+//--------------------------------------------------------------------
+void GSWConfig_Init(GSWDict* p_pDict)
 {
-  if (!configKey__Applications)
+  memset(&g_gswConfig,0,sizeof(g_gswConfig));
+  sprintf(g_szServerStringInfo,"%s v %s built %s",
+		  g_szGSWeb_Server,
+		  GSWServerVersion,		  
+		  GSWServerBuilt);
+  sprintf(g_szAdaptorStringInfo,"GNUstepWeb v %s built %s",
+		  g_szGSWeb_AdaptorVersion,
+		  g_szAdaptorBuilt);
+  if (p_pDict)
 	{
-	  configKey__Applications=PLMakeString("applications");
-	  configKey__Instances=PLMakeString("instances");
-	  configKey__InstanceNum=PLMakeString("instanceNum");
-	  configKey__Host=PLMakeString("host");
-	  configKey__Port=PLMakeString("port");
-	  configKey__Parameters=PLMakeString("parameters");  
+	  CONST char* pszPath=GSWDict_ValueForKey(p_pDict,g_szGSWeb_Conf_ConfigFilePath);
+	  GSWConfig_SetConfigFilePath(pszPath);
+	};
+  GSWLock_Init(g_lockAppList);
+};
+
+//--------------------------------------------------------------------
+GSWConfig* GSWConfig_GetConfig()
+{
+  return &g_gswConfig;
+};
+
+//--------------------------------------------------------------------
+BOOL GSWConfig_CanDumpStatus()
+{
+  return g_gswConfig.fCanDumpStatus;
+};
+
+//--------------------------------------------------------------------
+void GSWConfig_SetConfigFilePath(CONST char* p_pszConfigFilePath)
+{
+  if (g_gswConfig.pszConfigFilePath)
+	{
+	  free(g_gswConfig.pszConfigFilePath);
+	  g_gswConfig.pszConfigFilePath=NULL;
+	};
+  if (p_pszConfigFilePath)
+	g_gswConfig.pszConfigFilePath=strdup(p_pszConfigFilePath);
+  else
+	{
+	  GSWLog(GSW_CRITICAL,NULL,"GSWeb: No path for config file.");
 	};
 };
 
-/*
- *	parse: <appname>=[-]<instance_number>@<hostname>:<port> [<key>=<Value>]*
- */
-static EGSWConfigResult GSWConfig_GetEntryComponentsFromLine(char* p_pszLine,char** p_ppszComponents)
+//--------------------------------------------------------------------
+CONST char* GSWConfig_GetConfigFilePath()
 {
-  EGSWConfigResult eResult=EGSWConfigResult__Ok;
+  return g_gswConfig.pszConfigFilePath;
+};
 
-  // Skip Spaces
-  while (*p_pszLine && isspace(*p_pszLine))
-	p_pszLine++;
 
-  if (!*p_pszLine)
-	eResult=EGSWConfigResult__Error;
-  else
-	{
-	  // AppName
-	  p_ppszComponents[0] = p_pszLine;
-	  while (*p_pszLine && *p_pszLine!='=')
-		p_pszLine++;
-	  // Found End of AppName ?
-	  if (*p_pszLine!='=')
-		eResult=EGSWConfigResult__Error;
-	  else
-		{
-		  *p_pszLine++=0;
-		  DeleteTrailingSpaces(p_ppszComponents[0]);
-
-		  // Skip Spaces
-		  while (*p_pszLine && isspace(*p_pszLine))
-			p_pszLine++;
-		  if (!*p_pszLine)
-			eResult=EGSWConfigResult__Error;
-		  else
-			{
-			  p_ppszComponents[1]=p_pszLine;
-			  if (*p_pszLine=='-')
-				p_pszLine++;
-			  while (*p_pszLine && isdigit(*p_pszLine))
-				p_pszLine++;
-
-			  if (!*p_pszLine)
-				eResult=EGSWConfigResult__Error;
-			  else
-				{
-				  // End of Instance
-				  *p_pszLine++ = '\0';
-				  while (*p_pszLine && isspace(*p_pszLine))
-					p_pszLine++;
-				  
-				  if (*p_pszLine!='@')
-					eResult=EGSWConfigResult__Error;
-				  else
-					{
-					  // Host
-					  p_ppszComponents[2]=p_pszLine;
-					  while (*p_pszLine && !isspace(*p_pszLine) && *p_pszLine!=':')
-						p_pszLine++;
-					  if (!*p_pszLine)
-						eResult=EGSWConfigResult__Error;
-					  else
-						{
-						  // End of host
-						  *p_pszLine++ = '\0';
-						};
-					  // Skip Spaces
-					  while (*p_pszLine && isspace(*p_pszLine))
-						p_pszLine++;
-
-					  if (*p_pszLine!=':')
-						eResult=EGSWConfigResult__Error;
-					  else
-						{
-						  p_pszLine++; // Skip :
-
-						  // Port Number
-						  if (*p_pszLine && isdigit(*p_pszLine))
-							{
-							  p_ppszComponents[3]=p_pszLine;
-							  while (*p_pszLine && isdigit(*p_pszLine))
-								p_pszLine++;
-							  if (*p_pszLine)
-								{
-								  *p_pszLine=0;
-								  p_pszLine++;
-
-								  // Skip Spaces
-								  while (*p_pszLine && isspace(*p_pszLine))
-									p_pszLine++;
-
-								  if (*p_pszLine)
-									p_ppszComponents[4] = p_pszLine;
-								  else
-									p_ppszComponents[4] = NULL;
+/*{
+    canDumpStatus=NO;
+    GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources"
+	applications=	{
+				MyApp1 = {
+				        GSWExtensionsFrameworkWebServerResources="/GSW/GSWExtensions/WebServerResources"
+						instances = 	{
+									1 = {
+										host=12.13.14.15;
+										port=9001;
+										parameters=	{ 
+													transport=socket;
+												};			
+									};
+									2 = {
+										host=12.13.14.21;
+										port=9001;
+										parameters=	{ 
+													transport=socket;
+												};			
+									}
 								};
-							};
-						};
 					};
-				};
-			};
-		};
-	};
-  return eResult;
-};
-
-static int GSWConfig_ReadLine(FILE* p_pFile,char* p_pszBuffer,int p_iBufferSize)
-{
-  int iReaden=0;
-  if (fgets(p_pszBuffer,p_iBufferSize,p_pFile))
-	{
-	  iReaden = strlen(p_pszBuffer);
-	  while (iReaden && isspace(p_pszBuffer[iReaden]))
-		iReaden--;
-	  if (p_pszBuffer[iReaden] == '\\') // Continued ?
-		iReaden+=GSWConfig_ReadLine(p_pFile,p_pszBuffer+iReaden,p_iBufferSize-iReaden);
-	};
-  return iReaden;
-};
-
-static EGSWConfigResult GSWConfig_ReadEntries(CONST char* p_pszConfigPath,
-											  EGSWConfigResult (*p_pFNConfigEntry)(EGSWConfigCallType p_eCallType,
-																				   STGSWConfigEntry* p_pConfigEntry,
-																				   void* p_pLogServerData),
-											  void* p_pLogServerData)
-{
-  EGSWConfigResult eResult=EGSWConfigResult__Ok;
-  if (!p_pszConfigPath)
-	{
-	  eResult=EGSWConfigResult__Error;
-	}
-  else
-	{
-	  FILE* pFile=fopen(p_pszConfigPath,"r");
-	  if (!pFile)
-		{
-		  GSWLog(GSW_ERROR,p_pLogServerData,
-				 "Can't open configuration file %s. Error=%d (%s)",
-				 p_pszConfigPath,
-				 errno,
-				 strerror(errno));
-		  eResult=EGSWConfigResult__Error;
-		}
-	  else
-		{
-		  eResult=p_pFNConfigEntry(EGSWConfigResult__Clear,NULL,p_pLogServerData);
-		  if (eResult==EGSWConfigResult__Ok)
-			{
-			  STGSWConfigEntry stEntry;
-			  char* szComponents[5]={ "","","","",""};
-			  char szLine[MAX_LENGTH_CONF_LINE+1]="";
-			  int iLine = 0;
-			  while (GSWConfig_ReadLine(pFile,szLine,MAX_LENGTH_CONF_LINE)>0 && eResult==EGSWConfigResult__Ok)
-				{
-				  memset(&stEntry,0,sizeof(stEntry));
-				  memset(szComponents,0,sizeof(szComponents)); //??
-				  memset(szLine,0,sizeof(szLine)); //??
-				  iLine++;
-				  if (szLine[0]!='#' && szLine[0] != '\n')
-					{
-					  if (GSWConfig_GetEntryComponentsFromLine(szLine,szComponents)!=EGSWConfigResult__Ok)
-						{
-						  GSWLog(GSW_ERROR,p_pLogServerData,
-								 "Invalid entry in configuration at line %d: (%s)",
-								 iLine,
-								 szLine);
-						}
-					  else
-						{
-						  stEntry.pszAppName = szComponents[0];
-						  stEntry.iInstance = atoi(szComponents[1]);
-						  stEntry.pszHostName = szComponents[2];
-						  stEntry.iPort = atoi(szComponents[3]);
-						  if (szComponents[4])
-							{
-							  // TODO
-							  GSWLog(GSW_WARNING,p_pLogServerData,
-									 "Parameter at line %d ignored. (%s)",
-									 iLine,
-									 szComponents[4]);
-							};
-						  eResult=p_pFNConfigEntry(EGSWConfigResult__Add,
-												   &stEntry,
-												   p_pLogServerData);
-						};
+				MyApp2 = {
+						instances = 	{
+									1 = {
+										host=12.13.14.15;
+										port=9001;
+										parameters=	{ 
+													transport=socket;
+												};			
+									};
+								};
 					};
-				};
-			};
-		};
-	  fclose(pFile);
+				MyApp3 = {
+						canDump = YES;
+						instances = 	{
+									1 = {
+										host=12.13.14.15;
+										port=9002;
+										parameters=	{ 
+													transport=socket;
+												};
+									};
+								};
+					};
 	};
-	return eResult;
-}
+};
+*/
 
+//--------------------------------------------------------------------
+//Read configuration from p_pszConfigPath if the file changed since p_pLastReadTime 
+//	and return the config into p_ppPropList
 EGSWConfigResult GSWConfig_ReadIFND(CONST char* p_pszConfigPath,
 									time_t* p_pLastReadTime,
-									proplist_t* p_ppPropList,
+									proplist_t* p_ppPropList,//Please, PLRelease it after used !
 									void* p_pLogServerData)
 {
   EGSWConfigResult eResult=EGSWConfigResult__Ok;
+  p_pLogServerData=NULL;//General Log
   if (!p_pszConfigPath)
 	{
-	  GSWLog(GSW_ERROR,p_pLogServerData,"GSWeb: No path for config file.");
+	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWeb: No path for config file.");
 	  eResult=EGSWConfigResult__Error;
 	}
   else
@@ -337,13 +231,12 @@ EGSWConfigResult GSWConfig_ReadIFND(CONST char* p_pszConfigPath,
 	  time_t timeNow=(time_t)0;
 	  time_t timePrevious=*p_pLastReadTime;	  
 	  time(&timeNow);
-	  GSWLog(GSW_ERROR,p_pLogServerData,"config file");
 
-	  if (timeNow-timePrevious<timeIntervalBetweenStats)
+	  if (timeNow-timePrevious<CONFIG_FILE_STAT_INTERVAL)
 		{
 		  GSWLog(GSW_INFO,p_pLogServerData,
 				 "GSWeb: GSWConfig_ReadIFND: Not Reading : Less than %d sec since last read config file.",
-				 timeIntervalBetweenStats);
+				 (int)CONFIG_FILE_STAT_INTERVAL);
 		  eResult=EGSWConfigResult__NotChanged;
         }
 	  else
@@ -360,9 +253,15 @@ EGSWConfigResult GSWConfig_ReadIFND(CONST char* p_pszConfigPath,
 						 p_pszConfigPath);
 
 				  *p_ppPropList=PLGetProplistWithPath(p_pszConfigPath);
-				  if (!*p_ppPropList)
+				  if (*p_ppPropList)
+					{
+					  GSWLog(GSW_WARNING,p_pLogServerData,
+							 "GSWeb: GSWConfig_ReadIFND: New configuration from %s readen",
+							 p_pszConfigPath);
+					}
+				  else
 				    {
-				      GSWLog(GSW_ERROR,p_pLogServerData,
+				      GSWLog(GSW_CRITICAL,p_pLogServerData,
 					     "Can't read configuration file %s (PLGetProplistWithPath).",
 					     p_pszConfigPath);
 				    };
@@ -376,193 +275,715 @@ EGSWConfigResult GSWConfig_ReadIFND(CONST char* p_pszConfigPath,
 			}
 		  else
 			{
-			  GSWLog(GSW_INFO,p_pLogServerData,
+			  GSWLog(GSW_CRITICAL,p_pLogServerData,
 					 "GSWeb: GSWConfig_ReadIFND: config file %s does not exist.",
 					 p_pszConfigPath);
 			  eResult=EGSWConfigResult__Error;
 			};
 		};
 	};
+  GSWLog(GSW_INFO,p_pLogServerData,"GSWeb: GSWConfig_ReadIFND: result= %d",(int)eResult);
   return eResult;
 };
 
-proplist_t GSWConfig_GetApplicationsFromConfig(proplist_t p_propListConfig)
-{
-  proplist_t propListApps=PLGetDictionaryEntry(p_propListConfig,configKey__Applications);
-  if (!propListApps)
-	{
-	  GSWLog(GSW_ERROR,NULL,"No propListApps");
-	  //TODO
-	}
-  else if (!PLIsDictionary(propListApps))
-	{
-	  GSWLog(GSW_ERROR,NULL,"propListApps is not a dictionary");
-	  propListApps=NULL;
-	  //TODO
-	};
-  return propListApps;  
-};
-
-proplist_t GSWConfig_ApplicationKeyFromApplicationsKey(proplist_t p_propListApplicationsKeys,int p_iIndex)
-{
-  proplist_t propListAppKey=PLGetArrayElement(p_propListApplicationsKeys,p_iIndex);
-  if (!propListAppKey)
-	{
-	  //TODO
-	}
-  else if (!PLIsString(propListAppKey))
-	{
-	  //TODO
-	  propListAppKey=NULL;
-	};
-  return propListAppKey;
-};
-
-proplist_t GSWConfig_InstancesFromApplication(proplist_t p_propListApplication)
-{
-  proplist_t propListInstances=PLGetDictionaryEntry(p_propListApplication,configKey__Instances);
-  if (!propListInstances)
-	{
-	  GSWLog(GSW_ERROR,NULL,"no propListInstances");
-	  //TODO
-	}
-  else if (!PLIsArray(propListInstances))
-	{
-	  GSWLog(GSW_ERROR,NULL,"propListInstances is not an array");
-	  propListInstances=NULL;
-	};
-  return propListInstances;
-};
-
-proplist_t GSWConfig_ApplicationFromApplications(proplist_t p_propListApplications,proplist_t p_propListApplicationKey)
-{
-  proplist_t propListApp=PLGetDictionaryEntry(p_propListApplications,p_propListApplicationKey);
-  if (!propListApp)
-	{
-	  //TODO
-	}
-  else if (!PLIsDictionary(propListApp))
-	{
-	  //TODO
-	  propListApp=NULL;
-	};
-  return propListApp;
-};
-
-proplist_t GSWConfig_ApplicationsKeysFromApplications(proplist_t p_propListApplications)
-{
-  proplist_t propListAppsNames=NULL;
-  if (p_propListApplications)
-	{
-	  propListAppsNames=PLGetAllDictionaryKeys(p_propListApplications);		  
-	};
-  return propListAppsNames;
-};
-proplist_t GSWConfig_ApplicationsKeysFromConfig(proplist_t p_propListConfig)
-{
-  proplist_t propListApps=GSWConfig_GetApplicationsFromConfig(p_propListConfig);
-  proplist_t propListAppsNames=NULL;
-  GSWLog(GSW_INFO,NULL,"propListApps=%p",(void*)propListApps);
-  if (!propListApps)
-	{
-	  GSWLog(GSW_ERROR,NULL,"No propListApps");
-	  //TODO
-	}
-  else
-	{
-	  propListAppsNames=GSWConfig_ApplicationsKeysFromApplications(propListApps);
-	};
-  return propListAppsNames;  
-};
-
-BOOL GSWConfig_PropListInstanceToInstanceEntry(STGSWConfigEntry* p_pInstanceEntry,
-											   proplist_t p_propListInstance,
-											   CONST char* p_pszAppName)
+//--------------------------------------------------------------------
+BOOL GSWConfig_PropListHeadersToHeaders(GSWDict* p_pHeaders,
+										proplist_t p_propListHeaders,
+										CONST char* p_pszParents,
+										void* p_pLogServerData)
 {
   BOOL fOk=TRUE;
-  proplist_t pValue=NULL;
-  memset(p_pInstanceEntry,0,sizeof(STGSWConfigEntry));
-  p_pInstanceEntry->pszAppName=p_pszAppName;
-  GSWLog(GSW_INFO,NULL,"AppName=%s",p_pszAppName);
-
-  // Instance Num
-  pValue=PLGetDictionaryEntry(p_propListInstance,configKey__InstanceNum);
-  p_pInstanceEntry->iInstance=-1;
-  if (!pValue)
+  char pszParents[4096]="";
+  //Headers
+  //	{
+  //		header1=1234;
+  //		header2=4567;
+  //	};
+  if (p_propListHeaders)
 	{
-	  fOk=FALSE;
-	  //TODO
-	}
-  else if (!PLIsString(pValue))
-	{
-	  fOk=FALSE;
-	  //TODO
-	}
-  else
-	{
-	  char* pszInstanceNum=PLGetString(pValue);
-	  if (pszInstanceNum)
+	  int iHeaderIndex=0;
+	  proplist_t propListHeadersNames=NULL;
+	  unsigned int uHeaderNb=0;
+	  sprintf(pszParents,"%s",p_pszParents);
+	  //Next get Array Of Headers Names
+	  //header1,header2
+	  //We'll have to destroy propListHeadersNames
+	  propListHeadersNames=GSWPropList_GetAllDictionaryKeys(p_propListHeaders,
+																  pszParents,
+																  TRUE,
+																  GSWPropList_TestArray,
+																  p_pLogServerData);
+	  //Nb Of Headers
+	  uHeaderNb=PLGetNumberOfElements(propListHeadersNames);
+	  //For Each Header
+	  for(iHeaderIndex=0;iHeaderIndex<uHeaderNb;iHeaderIndex++)
 		{
-		  p_pInstanceEntry->iInstance=atoi(pszInstanceNum);
+		  //Get Header Name Key
+		  proplist_t propListHeaderKey=GSWPropList_GetArrayElement(propListHeadersNames,
+																		 iHeaderIndex,
+																		 pszParents,
+																		 TRUE,
+																		 GSWPropList_TestString,
+																		 p_pLogServerData);
+		  if (!propListHeaderKey)
+			{
+			  //TODO
+			}
+		  else
+			{
+			  //Get Headerlication Name (MyHeader1)
+			  CONST char* pszHeaderName=PLGetString(propListHeaderKey);//Do Not Free It
+			  proplist_t propListHeader=GSWPropList_GetDictionaryEntry(p_propListHeaders,
+																			 pszHeaderName,
+																			 pszParents,
+																			 TRUE,//Error If Not Exists
+																			 GSWPropList_TestString,
+																			 p_pLogServerData);
+			  if (propListHeader)
+				{
+				  //Get Header Value (1234)
+				  CONST char* pszHeaderValue=PLGetString(propListHeader);//Do Not Free It
+				  GSWDict_AddStringDup(p_pHeaders,pszHeaderName,pszHeaderValue);
+				};
+			};
 		};
+	  PLRelease(propListHeadersNames);//Because it's a newly created proplist
 	};
-  GSWLog(GSW_INFO,NULL,"instance=%d",p_pInstanceEntry->iInstance);
-						  
-						  // Host Name
-  pValue=PLGetDictionaryEntry(p_propListInstance,configKey__Host);						  
-  if (!pValue)
-	{
-	  fOk=FALSE;
-	  //TODO
-	}
-  else if (!PLIsString(pValue))
-	{
-	  fOk=FALSE;
-	  //TODO
-	}
-  else
-	p_pInstanceEntry->pszHostName=PLGetString(pValue);
-  GSWLog(GSW_INFO,NULL,"HostName=%s",
-		 p_pInstanceEntry->pszHostName);
-
-  // Port
-  pValue=PLGetDictionaryEntry(p_propListInstance,configKey__Port);
-  if (!pValue)
-	{
-	  fOk=FALSE;
-	  //TODO
-	}
-  else if (!PLIsString(pValue))
-	{
-	  fOk=FALSE;
-	  //TODO
-	}
-  else
-	{
-	  char* pszPort=PLGetString(pValue);
-	  if (pszPort)
-		{
-		  p_pInstanceEntry->iPort=atoi(pszPort);
-		};
-	};
-  GSWLog(GSW_INFO,NULL,"Port=%d",p_pInstanceEntry->iPort);
   return fOk;
 };
 
-void GSWConfig_SetConfigFilePath(CONST char* p_pszConfigFilePath)
+//--------------------------------------------------------------------
+BOOL GSWConfig_PropListInstanceToInstance(GSWAppInstance* p_pInstance,
+										  proplist_t p_propListInstance,
+										  GSWApp* p_pApp,
+										  int p_iInstanceNum,
+										  CONST char* p_pszParents,
+										  void* p_pLogServerData)
 {
-  if (g_pszConfigFilePath)
-	{
-	  free(g_pszConfigFilePath);
-	  g_pszConfigFilePath=NULL;
-	};
-  if (!p_pszConfigFilePath)
-	p_pszConfigFilePath=g_szGSWeb_DefaultConfigFilePath;
-  g_pszConfigFilePath=strdup(p_pszConfigFilePath);
-}
+  BOOL fOk=TRUE;
+  proplist_t pValue=NULL;
+  char pszParents[4096]="";
+  p_pInstance->fValid=TRUE;
+  p_pInstance->timeNextRetryTime=0;
 
-CONST char* GSWConfig_GetConfigFilePath()
-{
-  return g_pszConfigFilePath;
+  // Instance Num
+  sprintf(pszParents,"%s",p_pszParents);
+  p_pInstance->iInstance=p_iInstanceNum;
+						  
+  // Host Name
+  sprintf(pszParents,"%s",p_pszParents);
+  pValue=GSWPropList_GetDictionaryEntry(p_propListInstance,
+										"host",
+										pszParents,
+										TRUE,//Error If Not Exists
+										GSWPropList_TestString,
+										p_pLogServerData);
+  if (pValue)
+	{
+	  if (p_pInstance->pszHostName)
+		free(p_pInstance->pszHostName);
+	  p_pInstance->pszHostName=SafeStrdup(PLGetString(pValue));//Do Not Free It PLGetStringValue, so strdup it
+	};
+
+  // Port
+  sprintf(pszParents,"%s",p_pszParents);
+  pValue=GSWPropList_GetDictionaryEntry(p_propListInstance,
+											  "port",
+											  pszParents,
+											  TRUE,//Error If Not Exists
+											  GSWPropList_TestString,
+											  p_pLogServerData);
+  if (pValue)
+	{
+	  char* pszPort=PLGetString(pValue);//Do Not Free It
+	  if (pszPort)
+		{
+		  p_pInstance->iPort=atoi(pszPort);
+		};
+	};
+  GSWLog(GSW_INFO,p_pLogServerData,
+		 "Config: App=%p %s instance %d host %s port %d Valid:%s timeNextRetryTime %d",
+		 p_pApp,
+		 p_pApp->pszName,
+		 p_pInstance->iInstance,
+		 p_pInstance->pszHostName,
+		 p_pInstance->iPort,
+		 (p_pInstance->fValid ? "YES" : "NO"),
+		 (int)p_pInstance->timeNextRetryTime);
+
+  return fOk;
 };
 
+//--------------------------------------------------------------------
+BOOL GSWConfig_PropListApplicationToApplication(GSWApp* p_pApp,
+												proplist_t p_propListApp,
+												CONST char* p_pszAppName,
+												CONST char* p_pszParents,
+												void* p_pLogServerData)
+{
+  BOOL fOk=TRUE;
+  char pszParents[4096]="";
+  proplist_t pValueCanDump=NULL;
+  if (p_pApp->pszName)
+	free(p_pApp->pszName);
+  p_pApp->pszName=SafeStrdup(p_pszAppName);//We'll own the AppName
+  // CanDump
+  sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+  pValueCanDump=GSWPropList_GetDictionaryEntry(p_propListApp,
+													 "canDump",
+													 pszParents,
+													 FALSE,//No Error If Not Exists
+													 GSWPropList_TestString,
+													 p_pLogServerData);
+  p_pApp->fCanDump=NO;
+  if (pValueCanDump)
+	{
+	  CONST char* pszCanDump=PLGetString(pValueCanDump);//Do Not Free It
+	  p_pApp->fCanDump=(strcasecmp(pszCanDump,"YES")==0);
+	};
+  //GSWExtensionsFrameworkWebServerResources
+  {
+	proplist_t pValuePath=NULL;
+	if (p_pApp->pszGSWExtensionsFrameworkWebServerResources)
+	  {
+		free(p_pApp->pszGSWExtensionsFrameworkWebServerResources);
+		p_pApp->pszGSWExtensionsFrameworkWebServerResources=NULL;
+	  };
+	pValuePath=GSWPropList_GetDictionaryEntry(p_propListApp,
+											  "GSWExtensionsFrameworkWebServerResources",
+											  NULL,
+											  FALSE,//No Error If Not Exists
+											  GSWPropList_TestString,
+											  p_pLogServerData);
+	if (pValuePath)
+	  {
+		CONST char* pszPath=PLGetString(pValuePath);//Do Not Free It
+		p_pApp->pszGSWExtensionsFrameworkWebServerResources=SafeStrdup(pszPath);
+	  };
+  };
+/*  // LogFilePath
+  sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+  pValueLogFilePath=GSWPropList_GetDictionaryEntry(p_propListApp,
+														 "logFilePath",
+														 pszParents,
+														 FALSE,//No Error If Not Exists
+														 GSWPropList_TestString,
+														 p_pLogServerData);
+  if (pValueLogFilePath)
+	{
+	  p_pApp->pszLogFilePath=PLGetString(pValueLogFilePath);//Do Not Free It
+	};
+*/
+  //Headers
+  //	{
+  //		header1=1234;
+  //		header2=4567;
+  //	};
+  
+  {
+	proplist_t propListHeaders=NULL;
+	sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+	propListHeaders=GSWPropList_GetDictionaryEntry(p_propListApp,
+														 "headers",
+														 pszParents,
+														 FALSE,//No Error If Not Exists
+														 GSWPropList_TestDictionary,
+														 p_pLogServerData);
+	sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+	fOk=GSWConfig_PropListHeadersToHeaders(&p_pApp->stHeadersDict,
+										   propListHeaders,
+										   pszParents,
+										   p_pLogServerData);
+  };
+
+  //Instances
+  //	{
+  //		1 = {
+  //			host=12.13.14.15;
+  //			port=9001;
+  //			parameters=	{ 
+  //							transport=socket;
+  //						};			
+  //		};
+  //		2 = {
+  //			host=12.13.14.21;
+  //			port=9001;
+  //			parameters=	{ 
+  //							transport=socket;
+  //						};			
+  //		}
+  //	};
+
+  {
+	proplist_t propListInstances=NULL;
+	sprintf(pszParents,"%s/%s",p_pszParents,p_pszAppName);
+	propListInstances=GSWPropList_GetDictionaryEntry(p_propListApp,
+														   "instances",
+														   pszParents,
+														   TRUE,//Error If Not Exists
+														   GSWPropList_TestDictionary,
+														   p_pLogServerData);
+	if (propListInstances)
+	  {
+		int iInstanceIndex=0;
+		//Next get Array Of Instances Names
+		//1,3,5
+		//We'll have to destroy propListInstancesNums
+		proplist_t propListInstancesNums=GSWPropList_GetAllDictionaryKeys(propListInstances,
+																				pszParents,//Parents
+																				TRUE,//Error If Not Exists
+																				GSWPropList_TestArray,//TestFn
+																				p_pLogServerData);
+		if (propListInstancesNums)
+		  {
+			//Nb Of Instances
+			unsigned int uInstancesNb=PLGetNumberOfElements(propListInstancesNums);
+			//For Each Instance
+			for(iInstanceIndex=0;iInstanceIndex<uInstancesNb;iInstanceIndex++)
+			  {
+				//Get Instance Num Key
+				proplist_t propListInstanceNumKey=GSWPropList_GetArrayElement(propListInstancesNums,
+																					iInstanceIndex,
+																					pszParents,
+																					TRUE,
+																					GSWPropList_TestString,//TestFn
+																					p_pLogServerData);
+				if (propListInstanceNumKey)
+				  {
+					//Get Instance Num (1)
+					CONST char* pszInstanceNum=PLGetString(propListInstanceNumKey);//Do Not Free It
+					proplist_t propListInstance=NULL;
+					
+					//Get Instance PropList
+					//							{
+					//								host=12.13.14.15;
+					//								port=9001;
+					//								parameters=	{ 
+					//												transport=socket;
+					//											};			
+					//							};
+					propListInstance=GSWPropList_GetDictionaryEntry(propListInstances,
+																	pszInstanceNum,
+																	pszParents,
+																	TRUE,
+																	GSWPropList_TestDictionary,
+																	p_pLogServerData);
+					
+					if (propListInstance)
+					  {
+						BOOL fNew=NO;
+						GSWAppInstance* pInstance=(GSWAppInstance*)GSWDict_ValueForKey(&p_pApp->stInstancesDict,
+																					   pszInstanceNum);
+						if (!pInstance)
+							{
+							  fNew=YES;
+							  pInstance=GSWAppInstance_New(p_pApp);
+							};
+						GSWConfig_PropListInstanceToInstance(pInstance,
+															 propListInstance,
+															 p_pApp,
+															 atoi(pszInstanceNum),
+															 pszParents,
+															 p_pLogServerData);
+						if (fNew)
+						  GSWApp_AddInstance(p_pApp,pszInstanceNum,pInstance);
+					  };
+				  };
+			  };
+			PLRelease(propListInstancesNums);//Because it's a newly created proplist
+		  };
+	  };
+  };
+  //Remove Not Valid Instances
+  GSWApp_FreeNotValidInstances(p_pApp);
+  return fOk;
+};
+
+//--------------------------------------------------------------------
+BOOL GSWConfig_LoadConfiguration(void* p_pLogServerData)
+{
+  BOOL fOk=TRUE;
+  proplist_t propListConfig=NULL;
+  p_pLogServerData=NULL;
+  GSWLock_Lock(g_lockAppList);
+  if (!g_pAppDict) 
+	g_pAppDict = GSWDict_New(16);
+  
+  if (GSWConfig_ReadIFND(GSWConfig_GetConfigFilePath(),
+						 &config_mtime,
+						 &propListConfig,//We'll have to PLRelease it
+						 p_pLogServerData)==EGSWConfigResult__Ok)
+	{
+	  proplist_t propListApps=NULL;
+	  GSWApp_AppsClearInstances(g_pAppDict);
+	  
+	  //CanDumpStatus
+	  {
+		proplist_t pValueCanDumpStatus=NULL;
+		g_gswConfig.fCanDumpStatus=NO;
+		pValueCanDumpStatus=GSWPropList_GetDictionaryEntry(propListConfig,
+														   "canDumpStatus",
+														   NULL,
+														   FALSE,//No Error If Not Exists
+														   GSWPropList_TestString,
+														   p_pLogServerData);
+		if (pValueCanDumpStatus)
+		  {
+			CONST char* pszCanDumpStatus=PLGetString(pValueCanDumpStatus);//Do Not Free It
+			g_gswConfig.fCanDumpStatus=(strcasecmp(pszCanDumpStatus,"YES")==0);
+		  };
+	  };
+
+	  //GSWExtensionsFrameworkWebServerResources
+	  {
+		proplist_t pValuePath=NULL;
+		if (g_gswConfig.pszGSWExtensionsFrameworkWebServerResources)
+		  {
+			free(g_gswConfig.pszGSWExtensionsFrameworkWebServerResources);
+			g_gswConfig.pszGSWExtensionsFrameworkWebServerResources=NULL;
+		  };
+		pValuePath=GSWPropList_GetDictionaryEntry(propListConfig,
+												  "GSWExtensionsFrameworkWebServerResources",
+												  NULL,
+												  FALSE,//No Error If Not Exists
+												  GSWPropList_TestString,
+												  p_pLogServerData);
+		if (pValuePath)
+		  {
+			CONST char* pszPath=PLGetString(pValuePath);//Do Not Free It
+			g_gswConfig.pszGSWExtensionsFrameworkWebServerResources=SafeStrdup(pszPath);
+		  };
+	  };
+
+
+	  //Get Dictionary Of Applications
+	  //           {
+	  //				MyApp1 = {
+	  //						instances = 	(
+	  //									{
+	  //										instanceNum=1;
+	  //										host=12.13.14.15;
+	  //										port=9001;
+	  //										parameters=	{ 
+	  //													transport=socket;
+	  //												};			
+	  //									},
+	  //									{
+	  //										instanceNum=2;
+	  //										host=12.13.14.21;
+	  //										port=9001;
+	  //										parameters=	{ 
+	  //													transport=socket;
+	  //												};			
+	  //									}
+	  //								);
+	  //					};
+	  //				MyApp2 = {
+	  //						instances = 	(
+	  //									{
+	  //										instanceNum=1;
+	  //										host=12.13.14.15;
+	  //										port=9001;
+	  //										parameters=	{ 
+	  //													transport=socket;
+	  //												};			
+	  //									}
+	  //								);
+	  //					};
+	  //				MyApp3 = {
+	  //						canDump = YES;
+	  //						instances = 	(
+	  //									{
+	  //										instanceNum=1;
+	  //										host=12.13.14.15;
+	  //										port=9002;
+	  //										parameters=	{ 
+	  //													transport=socket;
+	  //												};
+	  //									}
+	  //								);
+	  //			};
+	  propListApps=GSWPropList_GetDictionaryEntry(propListConfig,//Dictionary
+														"applications",//Key
+														NULL,//No Parents
+														TRUE,//Error If Not Exists
+														GSWPropList_TestDictionary, // Test Fn
+														p_pLogServerData);
+	  if (propListApps)
+		{
+		  int iAppIndex=0;
+		  //Next get Array Of App Names
+		  //MyApp1,MyApp2,MyApp3
+		  //We'll have to destroy propListAppsNames
+		  proplist_t propListAppsNames=GSWPropList_GetAllDictionaryKeys(propListApps,
+																			  "applications",//Parents
+																			  TRUE,//Error If Not Exists
+																			  GSWPropList_TestArray,//TestFn
+																			  p_pLogServerData);
+		  if (propListAppsNames)
+			{
+			  //Nb Of App
+			  unsigned int uAppNb=PLGetNumberOfElements(propListAppsNames);
+			  //For Each Application
+			  for(iAppIndex=0;iAppIndex<uAppNb;iAppIndex++)
+				{
+				  //Get Application Name Key
+				  proplist_t propListAppKey=GSWPropList_GetArrayElement(propListAppsNames,
+																			  iAppIndex,
+																			  "applications",
+																			  TRUE,
+																			  GSWPropList_TestString,//TestFn
+																			  p_pLogServerData);
+				  if (propListAppKey)
+					{
+					  //Get Application Name (MyApp1)
+					  CONST char* pszAppName=PLGetString(propListAppKey);//Do Not Free It
+					  proplist_t propListApp=NULL;
+
+					  //Get Application PropList
+					  //	{
+					  //		instances = 	(
+					  //							{
+					  //								instanceNum=1;
+					  //								host=12.13.14.15;
+					  //								port=9001;
+					  //								parameters=	{ 
+					  //												transport=socket;
+					  //											};			
+					  //							},
+					  //							{
+					  //								instanceNum=2;
+					  //								host=12.13.14.21;
+					  //								port=9001;
+					  //								parameters=	{ 
+					  //												transport=socket;
+					  //											};			
+					  //							}
+					  //						);
+					  //	};				  
+					  propListApp=GSWPropList_GetDictionaryEntry(propListApps,
+																	   pszAppName,
+																	   "applications",
+																	   TRUE,
+																	   GSWPropList_TestDictionary,
+																	   p_pLogServerData);
+					  if (propListApp)
+						{
+						  BOOL fNew=NO;
+						  GSWApp* pApp=(GSWApp*)GSWDict_ValueForKey(g_pAppDict,pszAppName);
+						  if (!pApp)
+							{
+							  fNew=YES;
+							  pApp=GSWApp_New();
+							};
+						  GSWConfig_PropListApplicationToApplication(pApp,
+																	 propListApp,
+																	 pszAppName,
+																	 "applications",
+																	 p_pLogServerData);
+						  if (GSWDict_Count(&pApp->stInstancesDict)==0)
+							{
+							  if (!fNew)
+								GSWDict_RemoveKey(g_pAppDict,pApp->pszName);
+							  GSWApp_Free(pApp);
+							  pApp=NULL;
+							}
+						  else 
+							{
+							  if (fNew)
+								GSWDict_Add(g_pAppDict,pApp->pszName,pApp,FALSE);//NotOwner
+							};
+						};
+					};
+				};
+			  PLRelease(propListAppsNames);//Because it's a newly created proplist			  
+			};
+		};
+	};
+  if (propListConfig)
+	PLRelease(propListConfig);
+  {
+	GSWString* pString=GSWConfig_DumpGSWApps(NULL,g_szGSWeb_Prefix,TRUE,FALSE,p_pLogServerData);
+	GSWLogSized(GSW_INFO,p_pLogServerData,SafeStrlen(pString->pszData),"Config: %s",pString->pszData);
+	GSWString_Free(pString);
+  };
+  GSWLock_Unlock(g_lockAppList);
+  return fOk;
+};
+
+//--------------------------------------------------------------------
+typedef struct _GSWDumpParams
+{
+  GSWString* pBuffer;
+  GSWApp* pApp;
+  CONST char* pszPrefix;
+  BOOL fForceDump;
+  BOOL fHTML;
+  void* pLogServerData;
+} GSWDumpParams;
+
+
+//--------------------------------------------------------------------
+void GSWConfig_DumpGSWAppInstanceIntern(GSWDictElem* p_pElem,void* p_pData)
+{  
+  GSWString* pBuffer=GSWString_New();
+  char szBuffer[4096]="";
+  GSWAppInstance* pAppInstance=(GSWAppInstance*)p_pElem->pValue;
+  GSWDumpParams* pParams=(GSWDumpParams*)p_pData;
+  //Template
+  GSWString_Append(pBuffer,GSWTemplate_GetDumpAppInstance(pParams->fHTML));
+  
+  //NUM
+  sprintf(szBuffer,"%d",
+		  pAppInstance->iInstance);
+  GSWString_SearchReplace(pBuffer,"##NUM##",szBuffer);
+  
+  //URL
+  sprintf(szBuffer,"%s/%s/%d",
+		  pParams->pszPrefix,
+		  pParams->pApp->pszName,
+		  pAppInstance->iInstance);
+  GSWString_SearchReplace(pBuffer,"##URL##",szBuffer);
+
+  //Host
+  GSWString_SearchReplace(pBuffer,"##HOST##",pAppInstance->pszHostName);
+
+  //Host
+  sprintf(szBuffer,"%d",pAppInstance->iPort);
+  GSWString_SearchReplace(pBuffer,"##PORT##",szBuffer);
+
+  //InstanceHeader
+  //TODO
+  
+  GSWTemplate_ReplaceStd(pBuffer,pAppInstance->pApp);
+  //Append !
+  GSWString_Append(pParams->pBuffer,pBuffer->pszData);
+  GSWString_Free(pBuffer);  
+  pBuffer=NULL;
+};
+
+//--------------------------------------------------------------------
+void GSWConfig_DumpGSWAppIntern(GSWDictElem* p_pElem,void* p_pData)
+{
+  GSWApp* pApp=(GSWApp*)(p_pElem->pValue);
+  GSWDumpParams* pParams=(GSWDumpParams*)p_pData;
+  if (pParams->fForceDump || pApp->fCanDump)
+	{
+	  GSWString* pBuffer=GSWString_New();
+	  char szBuffer[4096]="";
+	  	  
+	  //Template
+	  GSWString_Append(pBuffer,GSWTemplate_GetDumpApp(pParams->fHTML));
+	  
+	  //AppName
+	  GSWString_SearchReplace(pBuffer,"##NAME##",pApp->pszName);
+	  
+	  //AppURL
+	  sprintf(szBuffer,"%s/%s",pParams->pszPrefix,pApp->pszName);
+	  GSWString_SearchReplace(pBuffer,"##URL##",szBuffer);
+	  	  
+	  //AppHeader
+	  //TODO
+	  
+	  //AppInstances
+	  {
+		GSWString* pInstancesBuffer=GSWString_New();
+		GSWString* pParamsBuffer=pParams->pBuffer;
+		pParams->pBuffer=pInstancesBuffer;
+		pParams->pApp=pApp;  
+		GSWDict_PerformForAllElem(&pApp->stInstancesDict,
+								  GSWConfig_DumpGSWAppInstanceIntern,
+								  pParams);
+		GSWString_SearchReplace(pBuffer,"##INSTANCES##",pInstancesBuffer->pszData);
+		pParams->pBuffer=pParamsBuffer;
+		GSWString_Free(pInstancesBuffer);
+		pInstancesBuffer=NULL;
+		pParams->pApp=NULL;
+	  };
+	  
+	  GSWTemplate_ReplaceStd(pBuffer,pApp);
+	  
+	  //Append !
+	  GSWString_Append(pParams->pBuffer,pBuffer->pszData);
+	  GSWString_Free(pBuffer);  
+	  pBuffer=NULL;
+	};
+};
+
+//--------------------------------------------------------------------
+GSWString* GSWConfig_DumpGSWApps(const char* p_pszReqApp,
+								 const char* p_pszPrefix,
+								 BOOL p_fForceDump,
+								 BOOL p_fHTML,
+								 void* p_pLogServerData)
+{
+  GSWString* pBuffer=GSWString_New();
+  GSWDumpParams stParams;
+  GSWLock_Lock(g_lockAppList);
+
+  stParams.pBuffer=GSWString_New();
+  stParams.pApp=NULL;
+  stParams.pszPrefix=p_pszPrefix;
+  stParams.fForceDump=p_fForceDump;
+  stParams.fHTML=p_fHTML;
+  stParams.pLogServerData=p_pLogServerData;
+
+  //Template Head
+  GSWString_Append(pBuffer,GSWTemplate_GetDumpHead(p_fHTML));
+  GSWString_SearchReplace(pBuffer,"##APP_NAME##",p_pszReqApp);
+
+  GSWTemplate_ReplaceStd(pBuffer,NULL);
+  
+  GSWString_Append(stParams.pBuffer,pBuffer->pszData);
+  GSWString_Free(pBuffer);  
+  pBuffer=NULL;
+
+  GSWDict_PerformForAllElem(g_pAppDict,
+							GSWConfig_DumpGSWAppIntern,
+							&stParams);
+  //Template Foot
+  pBuffer=GSWString_New();
+  GSWString_Append(pBuffer,GSWTemplate_GetDumpFoot(p_fHTML));
+  GSWTemplate_ReplaceStd(pBuffer,NULL);
+  GSWString_Append(stParams.pBuffer,pBuffer->pszData);
+  GSWString_Free(pBuffer);  
+  pBuffer=NULL;
+  GSWLock_Unlock(g_lockAppList);
+  return stParams.pBuffer;
+};
+
+//--------------------------------------------------------------------
+GSWApp* GSWConfig_GetApp(CONST char* p_pszAppName)
+{
+  return (GSWApp*)GSWDict_ValueForKey(g_pAppDict,p_pszAppName);
+};
+
+//--------------------------------------------------------------------
+CONST char* GSWConfig_AdaptorBuilt()
+{
+  return g_szAdaptorBuilt;
+};
+
+//--------------------------------------------------------------------
+CONST char* GSWConfig_ServerStringInfo()
+{
+  return g_szServerStringInfo;
+};
+
+//--------------------------------------------------------------------
+CONST char* g_szGSWeb_AdaptorStringInfo()
+{
+  return g_szAdaptorStringInfo;
+};
+
+//--------------------------------------------------------------------
+CONST char* GSWConfig_ServerURL()
+{
+  return GSWServerURL;
+};
+
+//--------------------------------------------------------------------
+CONST char* g_szGSWeb_AdaptorURL()
+{
+  return "http://www.gnustepweb.org";
+};

@@ -229,9 +229,9 @@ int GSWApplicationMain(NSString* _applicationClassName,
 		  };
 	  };
 	  //TODO
-	  GSWApplicationDebugSetChange();
 	  if (_applicationClassName && [_applicationClassName length]>0)
 		ASSIGNCOPY(globalApplicationClassName,_applicationClassName);
+	  GSWApplicationDebugSetChange();
 	  applicationClass=[GSWApplication _applicationClass];
 	  if (!applicationClass)
 		{
@@ -1029,6 +1029,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 												  languages:(NSArray*)_languages
 {
   //OK
+  BOOL isCachedComponent=NO;
   GSWComponentDefinition* _componentDefinition=nil;
   NSString* _language=nil;
   int iLanguage=0;
@@ -1044,32 +1045,20 @@ int GSWApplicationMain(NSString* _applicationClassName,
 		  if ([self isCachingEnabled])
 			{
 			  _componentDefinition=[componentDefinitionCache objectForKeys:_name,_language,nil];
-			  NSDebugMLLog(@"gswcomponents",@"A _componentDefinition=%@",_componentDefinition);
 			  if (_componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
 				_componentDefinition=nil;
-			  else
-				{
-				  GSWLogStdOut([NSString stringWithFormat:@"cachedComponent %@ language",_name,_language]);
-				  GSWLog([NSString stringWithFormat:@"cachedComponent %@ language",_name,_language]);
-				};
+			  else if (_componentDefinition)
+				isCachedComponent=YES;
 			};
 		  if (!_componentDefinition)
 			{
 			  _componentDefinition=[self lockedLoadComponentDefinitionWithName:_name
 										 language:_language];
-			  NSDebugMLLog(@"gswcomponents",@"B _componentDefinition=%p",(void*)_componentDefinition);
-			  if (_componentDefinition)
-				{
-				  GSWLogStdOut([NSString stringWithFormat:@"not cachedComponent %@ language",_name,_language]);
-				  GSWLog([NSString stringWithFormat:@"not cachedComponent %@ language",_name,_language]);
-				};
 			  if ([self isCachingEnabled])
 				{
 				  if (_componentDefinition)
-					{
-					  [componentDefinitionCache setObject:_componentDefinition
-												forKeys:_name,_language,nil];
-					}
+					[componentDefinitionCache setObject:_componentDefinition
+											  forKeys:_name,_language,nil];
 				  else
 					[componentDefinitionCache setObject:GSNotFoundMarker
 											  forKeys:_name,_language,nil];
@@ -1079,25 +1068,22 @@ int GSWApplicationMain(NSString* _applicationClassName,
 	};
   if (!_componentDefinition)
 	{
+	  _language=nil;
 	  NSDebugMLLog0(@"low",@"trying no language");
 	  NSDebugMLLog(@"gswcomponents",@"[self isCachingEnabled]=%s",([self isCachingEnabled] ? "YES" : "NO"));
 	  if ([self isCachingEnabled])
 		{
 		  _componentDefinition=[componentDefinitionCache objectForKeys:_name,nil];
-		  NSDebugMLLog(@"gswcomponents",@"C _componentDefinition=%@",_componentDefinition);
 		  if (_componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
 			_componentDefinition=nil;
+		  else if (_componentDefinition)
+			isCachedComponent=YES;
 		};
 	  NSDebugMLLog(@"gswcomponents",@"D componentDefinition for %@ %s cached",_name,(_componentDefinition ? "" : "NOT"));
 	  if (!_componentDefinition)
 		{
 		  _componentDefinition=[self lockedLoadComponentDefinitionWithName:_name
-									 language:nil];
-		  if (_componentDefinition)
-			{
-			  GSWLogStdOut([NSString stringWithFormat:@"not cachedComponent %@ language",_name,_language]);
-			  GSWLog([NSString stringWithFormat:@"not cachedComponent %@ language",_name,_language]);
-			};
+									 language:_language];
 		  if ([self isCachingEnabled])
 			{
 			  if (_componentDefinition)
@@ -1116,12 +1102,21 @@ int GSWApplicationMain(NSString* _applicationClassName,
 					 _name,
 					 _languages);
 	};
-  NSDebugMLLog(@"gswcomponents",@"E _componentDefinition=%@",_componentDefinition);
-  NSDebugMLLog(@"gswcomponents",@"F componentDefinitionCache=%@",componentDefinitionCache);
-  NSDebugMLLog(@"low",@"%s componentDefinition for %@ class=%@",
+  if (_componentDefinition)
+	{
+	  NSString* _log=[NSString stringWithFormat:@"Component %@ %s language %@ (%sCached)",
+							   _name,
+							   (_language ? "" : "no"),
+							   (_language ? _language : @""),
+							   (isCachedComponent ? "" : "Not ")];
+	  GSWLogStdOut(_log);
+	  GSWLog(_log);
+	};
+  NSDebugMLLog(@"low",@"%s componentDefinition for %@ class=%@ %s",
 			   (_componentDefinition ? "FOUND" : "NOTFOUND"),
 			   _name,
-			   (_componentDefinition ? [_componentDefinition class] : @""));
+			   (_componentDefinition ? [_componentDefinition class] : @""),
+			   (_componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""));
   LOGObjectFnStop();
   return _componentDefinition;
 };

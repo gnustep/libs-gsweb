@@ -13,64 +13,85 @@ GNUstep core and db libraries, GSWAdaptor and Apache
 Please download last up to date cvs version of GNUstep (some bugs
 have been corrected).
 
+Remark: We suppose that the GNUstep folder is on /usr/GNUstep, please check all the paths below with your configuration
+
 Installing `gsweb'
 ====================
 
-Libraries:
-gsantlr/	GSANTLR (Parser classes,...)
-gsgd/		Objective-C/GD Interface
-core/		GNUstep core
-db/			GNUstep database
-extensions/	Extensions
-GNUstepWeb/	GNUstepWeb Root
-GNUstepWeb/GSWeb.framework		GNUstepWeb Main Part
+ Libraries requiered :
+ ---------------------
 
-GNUstepWeb/GSWExtensions.framework	GNUstepWeb 'standard' Extensions
+	gsantlr/	GSANTLR (Parser classes,...)
+	gsgd/		Objective-C/GD Interface
+	core/		GNUstep core
+	db/			GNUstep database
+	extensions/	Extensions
+        You also need NGReflection
 
-GNUstepWeb/GSWExtensionsGSW.framework	GNUstepWeb Extensions
+ The GNUStepWeb package:
+ -----------------------
+	* GNUstepWeb/				----->	GNUstepWeb Root
+	* GNUstepWeb/GSWeb.framework		----->	GNUstepWeb Main Part
+	* GNUstepWeb/GSWExtensions.framework    ----->	GNUstepWeb 'standard' Extensions
+	* GNUstepWeb/GSWExtensionsGSW.framework	----->	GNUstepWeb Extensions
 
 
-You also need NGReflection
 
-Compilation Order:
+ Compilation Order:
+ ------------------
+
 1) core
+   After the compilation ok, and the 'make install', copy core/base/Sources/md5.h on your GNUstep's Header folder: 
+    /usr/GNUstep/Headers/gnustep/base/md5.h
+ 
 2) extensions
+   It adds the Header exceptions folders (both in Foundation an extensions)
+
 3) db
 4) gsantlr
-5) gsgd
-6) MNGReflection (ftp://ftp.gnustep.org/pub/gnustep/contrib/MOF2-fd-1999-11-03.tgz)
-7) GNUstepWeb
+5) the 'gd' libraries. You must have a /usr/include/gd.h file. If not take sources on http://www.boutell.com/gd
+   Extract and compile
 
+6) gsgd
+7) NGReflection
+     you can find it on ftp://ftp.gnustep.org/pub/gnustep/contrib/MOF2-fd-1999-11-03.tgz.
+     Remark that this archive contains many extension. GNUstepWeb only needs the Reflections objects.
+     So after the untar, go to MOF2/Foundation/NGReflection. Type make, them make install.
+     You can install the others but some are not in phase with GNUstep present libraries.
+
+8) GNUstepWeb
+     Go in the GNUStepWeb folder. make and make install.
+
+9) Apaches modules for GNUStepWeb
+    Still in the GNUStepWeb folder there is a GSWAdaptors/Apache folder, go in and make. There no make install. Instead     You must copy the mod_gsweb.so module in you Apache libexec directory (something like usr/apache/libexec).
+
+At this point everything is done, still remains the Apache configuration:
 
 You have to export the following env var:
 export GNUSTEP_STRING_ENCODING=NSISOLatin1StringEncoding
 
+Configurating Apache:
+=====================
 
-GNUstepWeb Apache Adaptor:
-Goto GNUstepWeb/GSWAdaptors/Apache/
-Do make
-Copy mod_gsweb.so into libexec directory of Apache
+	In Apache httpd.conf file, add thoses lines:
 
-
-Add in Apache httpd.conf file
 	LoadModule GSWeb_Module  libexec/mod_gsweb.so
 	AddModule mod_gsweb.c
 
 
-	Add the following lines for a virtual host (or all hosts)
+ If you use virtual hosts (Apache in localhost doiues not requiered them), add the following lines:
+
 	<Location /GSWeb*>
 		SetHandler GSWeb
 	</Location>
-	<Location /GSWeb/xyzzy>
-                order deny,allow
-                #deny from all
-                allow from all
-	</Location>
 
+ Next if /etc/httpd/conf folders does not exist, you have to create them.
+ In this folder create an file file named gsweb-log (that will be GNUStepWeb reports file)
+ Then, create the file /etc/httpd/conf/gsweb.conf which contains parameters for GNUstepWeb Applications: 
 
-Next, create the file /etc/httpd/conf/gsweb.conf which will countain parameters for GNUstepWeb Applications 
+ The format is(there is an example for values below):
 
-The format is:
+The format is (there is an example for values below):
 {
 	applications=    {
 				ApplicationName =  {
@@ -89,14 +110,14 @@ The format is:
 }
 
 
-exemple:
+exemple values for a localhost use: 
 {
 	applications=    {
 				MyApp =  {
 						instances =      (
 				{
 					instanceNum= 1;
-					host= 200.13.12.48;
+					host= 127.0.0.1;
 					port= 9001;
 					parameters=      {
 										transport= socket;

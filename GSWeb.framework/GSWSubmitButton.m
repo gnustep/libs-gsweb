@@ -103,6 +103,7 @@ static char rcsId[] = "$Id$";
 	{
 	  GSWAssertCorrectElementID(context_);// Debug Only
 	  _disabled=[self disabledInContext:context_];
+	  NSDebugMLLog(@"gswdync",@"_disabled=%s",(_disabled ? "YES" : "NO"));
 	  if (!_disabled)
 		{
 		  BOOL _wasFormSubmitted=[context_ _wasFormSubmitted];
@@ -132,6 +133,7 @@ static char rcsId[] = "$Id$";
 				  [context_ _setActionInvoked:1];
 				  NS_DURING
 					{
+					  NSDebugMLLog(@"gswdync",@"Invoked Object Found: action=%@",action);
 					  _actionValue=[action valueInComponent:_component];
 					}
 				  NS_HANDLER

@@ -24,6 +24,8 @@
 #ifndef _GSWAppRequestStruct_h__
 #define _GSWAppRequestStruct_h__
 
+#include "GSWApp.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -49,7 +51,7 @@ typedef struct _GSWAppRequest
   CONST char* pszDocRoot; 		// Doc Root
   void* pRequest;				//	HTTPRequest
   void* pResponse;				//	HTTPResponse
-  void* pLoadBalancingData;		//	Load Balancing Data
+  GSWAppInstance* pAppInstance;
 } GSWAppRequest;
 
 

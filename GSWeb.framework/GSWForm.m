@@ -245,19 +245,19 @@ static char rcsId[] = "$Id$";
   BOOL _multipleSubmit=NO;
   int i=0;
   LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
+  _senderID=[context_ senderID];
+  _elementID=[context_ elementID];
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],_elementID,_senderID);
   NS_DURING
 	{
 	  GSWAssertCorrectElementID(context_);// Debug Only
-	  _senderID=[context_ senderID];
-	  _elementID=[context_ elementID];
 	  if ([self prefixMatchSenderIDInContext:context_]) //Avoid trying to find action if we are not the good component
 		{
 		  _isFormSubmited=[_elementID isEqualToString:_senderID];
 		  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@ _isFormSubmited=%s",
 					   [self class],
-					   [context_ elementID],
-					   [context_ senderID],
+					   _elementID,
+					   _senderID,
 					   (_isFormSubmited ? "YES" : "NO"));
 #if !GSWEB_STRICT
 		  if (_isFormSubmited && [self disabledInContext:context_])
@@ -271,8 +271,8 @@ static char rcsId[] = "$Id$";
 									inContext:context_];
 			  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@ _multipleSubmit=%s",
 						   [self class],
-						   [context_ elementID],
-						   [context_ senderID],
+						   _elementID,
+						   _senderID,
 						   (_multipleSubmit ? "YES" : "NO"));
 			  [context_ _setIsMultipleSubmitForm:_multipleSubmit];
 			};
@@ -288,9 +288,7 @@ static char rcsId[] = "$Id$";
 		  if (_isFormSubmited)
 			{
 			  if ([context_ _wasActionInvoked])
-				{
 				  [context_ _setIsMultipleSubmitForm:NO];
-				}
 			  else
 				{
 				  NSDebugMLLog0(@"gswdync",@"formSubmitted but no action was invoked!");
@@ -298,9 +296,10 @@ static char rcsId[] = "$Id$";
 			  [context_ setInForm:NO];
 			  [context_ _setFormSubmitted:NO];
 			};
-		  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+		  _elementID=[context_ elementID];
+		  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],_elementID);
 #ifndef NDEBBUG
-		  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWForm invokeActionForRequest: bad elementID");
+		  NSAssert(elementsNb==[(GSWElementIDString*)_elementID elementsNb],@"GSWForm invokeActionForRequest: bad elementID");
 #endif
 		};
 	}
@@ -314,12 +313,14 @@ static char rcsId[] = "$Id$";
 	  [localException raise];
 	}
   NS_ENDHANDLER;
-  if (![context_ _wasActionInvoked] && [[context_ elementID] compare:[context_ senderID]]!=NSOrderedAscending)
+  _senderID=[context_ senderID];
+  _elementID=[context_ elementID];
+  if (![context_ _wasActionInvoked] && [_elementID compare:_senderID]!=NSOrderedAscending)
 	{
 	  LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
 			   [self class],
-			   [context_ elementID],
-			   [context_ senderID]);
+			   _elementID,
+			   _senderID);
 	};
   LOGObjectFnStopC("GSWForm");
   return _element; 

@@ -114,6 +114,27 @@ static char rcsId[] = "$Id$";
   return warnings;
 };
 
+//--------------------------------------------------------------------
+-(NSString*)unescapedString:(NSString*)string_
+{
+  //TODO
+  string_=[string_ stringByReplacingString:@"\\n"
+				   withString:@"\n"];
+  string_=[string_ stringByReplacingString:@"\\r"
+				   withString:@"\r"];
+  string_=[string_ stringByReplacingString:@"\\t"
+				   withString:@"\t"];
+  string_=[string_ stringByReplacingString:@"\\b"
+				   withString:@"\b"];
+  string_=[string_ stringByReplacingString:@"\\f"
+				   withString:@"\f"];
+  string_=[string_ stringByReplacingString:@"\\\""
+				   withString:@"\""];
+  string_=[string_ stringByReplacingString:@"\\\'"
+				   withString:@"\'"];
+  return string_;
+};
+
 @end
 
 

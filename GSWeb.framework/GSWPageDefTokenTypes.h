@@ -35,10 +35,11 @@ enum GSWPageDefTokenTypes {
 	GSWPageDefTokenType_SL_COMMENT = 20,
 	GSWPageDefTokenType_ML_COMMENT = 21,
 	GSWPageDefTokenType_POINT = 22,
-	GSWPageDefTokenType_HEXINT = 23,
-	GSWPageDefTokenType_DIGIT = 24,
-	GSWPageDefTokenType_HEXDIGIT = 25,
-	GSWPageDefTokenType_LCLETTER = 26,
-	GSWPageDefTokenType_LETTER = 27,
+	GSWPageDefTokenType_ESC = 23,
+	GSWPageDefTokenType_HEXINT = 24,
+	GSWPageDefTokenType_DIGIT = 25,
+	GSWPageDefTokenType_HEXDIGIT = 26,
+	GSWPageDefTokenType_LCLETTER = 27,
+	GSWPageDefTokenType_LETTER = 28,
 };
 #endif /*INC_GSWPageDefTokenTypes_h_*/

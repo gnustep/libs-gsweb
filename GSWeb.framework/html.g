@@ -287,9 +287,7 @@ DIGIT
 
 protected
 HEXDIGIT
-	:	'0'..'9'
-	|	'a'..'f'
-	|	'A'..'F'
+	:	('0'..'9'|'A'..'F'|'a'..'f')
 	;
 
 protected

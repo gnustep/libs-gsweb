@@ -32,27 +32,27 @@ typedef struct _STAppConnectHandle
 typedef STAppConnectHandle* AppConnectHandle;
 
 
-AppConnectHandle GSWApp_Open(void* p_pLogServerData,
-							 GSWAppRequest* p_pAppRequest);
-void GSWApp_Close(void* p_pLogServerData,
-				  AppConnectHandle p_handle);
+AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,
+							 void* p_pLogServerData);
+void GSWApp_Close(AppConnectHandle p_handle,
+				  void* p_pLogServerData);
 
-int GSWApp_SendBlock(void* p_pLogServerData,
-					 AppConnectHandle p_handle,
+int GSWApp_SendBlock(AppConnectHandle p_handle,
 					 CONST char* p_pszBuffer,
-					 int p_iSize);
-int GSWApp_ReceiveBlock(void* p_pLogServerData,
-						AppConnectHandle p_handle,
+					 int p_iSize,
+					 void* p_pLogServerData);
+int GSWApp_ReceiveBlock(AppConnectHandle p_handle,
 						char* p_pszBuffer,
-						int p_iBufferSize);
+						int p_iBufferSize,
+						void* p_pLogServerData);
 
-int GSWApp_SendLine(void* p_pLogServerData,
-					AppConnectHandle p_handle,
-					CONST char* p_pszBuffer);
-int GSWApp_ReceiveLine(void* p_pLogServerData,
-					   AppConnectHandle p_handle,
+int GSWApp_SendLine(AppConnectHandle p_handle,
+					CONST char* p_pszBuffer,
+					void* p_pLogServerData);
+int GSWApp_ReceiveLine(AppConnectHandle p_handle,
 					   char* p_pszBuffer,
-					   int p_iBufferSize);
+					   int p_iBufferSize,
+					   void* p_pLogServerData);
 
 
 #endif // _GSWAppConnect_h__

@@ -18,8 +18,7 @@ Initial reading
 How can you help?
 =================
 
-	* Provide feedback on the already written code (I'm not yet an 
-		expert in ObjC, GNUstep and WO, so some parts may be badly 
+	* Provide feedback on the already written code (some parts may be badly 
 		coded or concepts may be misunderstood)
 
 	* Check the TODO file and write GSWDynamicElements
@@ -41,6 +40,12 @@ Special Thanks
 		"MDlink online service center" (http://www.mdlink.de) for the 
 		explanation of some WO concepts and dark WO documentation.
 		I hope we'll work together someday :-)
+
+*	Mirko Viviani <mirko.viviani@rccr.cremona.it> for testing and 
+		documenting GNUstepWeb
+
+*	Jocelyn Richard <bille2@free.fr> for testing and 
+		documenting GNUstepWeb
 
 *	Catherine Biscourp <cbiscourp@sbuilders.com> for the 
 		GNUstepWeb logos and some other things...

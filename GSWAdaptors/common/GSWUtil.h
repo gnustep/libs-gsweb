@@ -39,14 +39,27 @@ extern "C" {
 
 #if	defined(Apache)
 #include "httpd.h"
+#include "http_log.h"
+//#define APLOG_EMERG     LOG_EMERG     /* system is unusable */
+//#define APLOG_ALERT     LOG_ALERT     /* action must be taken immediately */
+#define GSW_CRITICAL 	APLOG_CRIT      /* critical conditions */
+#define GSW_ERROR		APLOG_ERR		/* error conditions */
+#define GSW_WARNING		APLOG_WARNING	/* warning conditions */
+//#define APLOG_NOTICE    LOG_NOTICE    /* normal but significant condition */
+#define	GSW_INFO	  	APLOG_INFO		/* informational */
+#define	GSW_DEBUG		APLOG_DEBUG     /* debug-level messages */
+#else
+#define	GSW_DEBUG	0
+#define	GSW_INFO    1
+#define	GSW_WARNING 2
+#define	GSW_ERROR  3
+#define GSW_CRITICAL 4
 #endif
 
-#define	GSW_INFO    0
-#define	GSW_WARNING 1
-#define	GSW_ERROR	2
+
 #define max(x, y)               ((x) > (y) ? (x) : (y))
 #define min(x, y)               ((x) < (y) ? (x) : (y))
-
+  
 void GSWLog(int p_iLevel,
 #if	defined(Apache)
 			server_rec* p_pLogServerData,
@@ -55,33 +68,59 @@ void GSWLog(int p_iLevel,
 #endif
 			CONST char *p_pszFormat, ...);
 
-void GSWLogSized(int p_iLevel,
+  void GSWLogSized(int p_iLevel,
+#if	defined(Apache)
+				   server_rec* p_pLogServerData,
+#else
+				   void* p_pLogServerData,
+#endif
+				   int p_iBufferSize,
+				   CONST char *p_pszFormat, ...);
+
+void GSWLogIntern(char* file,
+			int line,
+			char* fn,
+			int p_iLevel,
 #if	defined(Apache)
 			server_rec* p_pLogServerData,
 #else
 			void* p_pLogServerData,
 #endif
-			int p_iBufferSize,
 			CONST char *p_pszFormat, ...);
+  
+
+void GSWLogSizedIntern(char* file,
+				 int line,
+				 char* fn,
+				 int p_iLevel,
+#if	defined(Apache)
+				 server_rec* p_pLogServerData,
+#else
+				 void* p_pLogServerData,
+#endif
+				 int p_iBufferSize,
+				 CONST char *p_pszFormat, ...);
 
 // return new len
 int DeleteTrailingCRNL(char* p_pszString);
 int DeleteTrailingSlash(char* p_pszString);
 int DeleteTrailingSpaces(char* p_pszString);
+
+int SafeStrlen(CONST char* p_pszString);
+char* SafeStrdup(CONST char* p_pszString);
 CONST char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString);
 
 
 //#include <netdb.h>
 typedef	struct hostent* PSTHostent;
 
-PSTHostent GSWUtil_HostLookup(void* p_pLogServerData,CONST char* p_pszHost);
+PSTHostent GSWUtil_HostLookup(CONST char* p_pszHost,void* p_pLogServerData);
 void GSWUtil_ClearHostCache();
-PSTHostent GSWUtil_FindHost(void* p_pLogServerData,CONST char* p_pszHost);
+PSTHostent GSWUtil_FindHost(CONST char* p_pszHost,void* p_pLogServerData);
 
 #include "GSWDict.h"
 
 void GSWLog_Init(GSWDict* p_pDict,int p_iLevel);
-BOOL GSWDumpConfigFile_CanDump();
 
 
 #ifdef __cplusplus

@@ -20,18 +20,22 @@
 #   59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 COMMONFILES = $(COMMON)/GSWHTTPHeaders.c \
-	$(COMMON)/config.c $(COMMON)/GSWURLUtil.c $(COMMON)/GSWDict.c \
+	$(COMMON)/config.c $(COMMON)/GSWConfig.c $(COMMON)/GSWPropList.c \
+	$(COMMON)/GSWTemplates.c $(COMMON)/GSWApp.c \
+	$(COMMON)/GSWURLUtil.c $(COMMON)/GSWDict.c \
 	$(COMMON)/GSWHTTPRequest.c $(COMMON)/GSWHTTPResponse.c \
 	$(COMMON)/GSWAppConnectSocket.c $(COMMON)/GSWUtil.c $(COMMON)/GSWAppRequest.c \
-	$(COMMON)/GSWLoadBalancing.c $(COMMON)/GSWList.c $(COMMON)/GSWConfig.c \
+	$(COMMON)/GSWLoadBalancing.c $(COMMON)/GSWList.c  \
 	$(COMMON)/GSWString.c
 
 
 COMMONOBJS = $(OBJROOT)/GSWHTTPHeaders.o \
-	$(OBJROOT)/config.o $(OBJROOT)/GSWURLUtil.o $(OBJROOT)/GSWDict.o \
+	$(OBJROOT)/config.o $(OBJROOT)/GSWConfig.o $(OBJROOT)/GSWPropList.o \
+	$(OBJROOT)/GSWTemplates.o $(OBJROOT)/GSWApp.o \
+	$(OBJROOT)/GSWURLUtil.o $(OBJROOT)/GSWDict.o \
 	$(OBJROOT)/GSWHTTPRequest.o $(OBJROOT)/GSWHTTPResponse.o \
 	$(OBJROOT)/GSWAppConnectSocket.o $(OBJROOT)/GSWUtil.o $(OBJROOT)/GSWAppRequest.o \
-	$(OBJROOT)/GSWLoadBalancing.o $(OBJROOT)/GSWList.o $(OBJROOT)/GSWConfig.o \
+	$(OBJROOT)/GSWLoadBalancing.o $(OBJROOT)/GSWList.o \
 	$(OBJROOT)/GSWString.o
 
 $(ADAPTORLIB):: $(COMMONOBJS)
@@ -41,6 +45,15 @@ $(ADAPTORLIB):: $(COMMONOBJS)
 
 
 $(OBJROOT)/GSWHTTPHeaders.o: $(COMMON)/GSWHTTPHeaders.c
+	$(CC) $(CFLAGS) -c -o $*.o $<
+
+$(OBJROOT)/GSWPropList.o: $(COMMON)/GSWPropList.c
+	$(CC) $(CFLAGS) -c -o $*.o $<
+
+$(OBJROOT)/GSWTemplates.o: $(COMMON)/GSWTemplates.c
+	$(CC) $(CFLAGS) -c -o $*.o $<
+
+$(OBJROOT)/GSWApp.o: $(COMMON)/GSWApp.c
 	$(CC) $(CFLAGS) -c -o $*.o $<
 
 $(OBJROOT)/GSWConfig.o: $(COMMON)/GSWConfig.c

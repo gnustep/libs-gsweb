@@ -635,46 +635,190 @@ int _begin=[text length];
 	//LOGObjectFnStart();
 	switch ( [self LA:1])
 	{
-	case ((unichar)('"')):
-	{
-		[self matchCharacter:'"'];
-		{
-			do
-			{
-				if (([GSWPageDefLexer___tokenSet_5 isMember:[self LA:1]]))
-				{
-					[self matchNotCharacter:'"'];
-				}
-				else
-				{
-					goto _loop59;
-				}
-				
-			} while (YES);
-			_loop59:;
-		}
-		[self matchCharacter:'"'];
-		break;
-	}
 	case ((unichar)('\'')):
 	{
 		[self matchCharacter:'\''];
 		{
 			do
 			{
-				if (([GSWPageDefLexer___tokenSet_6 isMember:[self LA:1]]))
+				switch ( [self LA:1])
 				{
-					[self matchNotCharacter:'\''];
-				}
-				else
+				case ((unichar)('\\')):
 				{
-					goto _loop61;
+					[self mESCWithCreateToken:NO];
+					break;
 				}
-				
+				case ((unichar)(0x3)):  case ((unichar)(0x4)):  case ((unichar)(0x5)):  case ((unichar)(0x6)):
+				case ((unichar)(0x7)):  case ((unichar)(0x8)):  case ((unichar)('\t')):  case ((unichar)('\n')):
+				case ((unichar)(0xb)):  case ((unichar)(0xc)):  case ((unichar)('\r')):  case ((unichar)(0xe)):
+				case ((unichar)(0xf)):  case ((unichar)(0x10)):  case ((unichar)(0x11)):  case ((unichar)(0x12)):
+				case ((unichar)(0x13)):  case ((unichar)(0x14)):  case ((unichar)(0x15)):  case ((unichar)(0x16)):
+				case ((unichar)(0x17)):  case ((unichar)(0x18)):  case ((unichar)(0x19)):  case ((unichar)(0x1a)):
+				case ((unichar)(0x1b)):  case ((unichar)(0x1c)):  case ((unichar)(0x1d)):  case ((unichar)(0x1e)):
+				case ((unichar)(0x1f)):  case ((unichar)(' ')):  case ((unichar)('!')):  case ((unichar)('"')):
+				case ((unichar)('#')):  case ((unichar)('$')):  case ((unichar)('%')):  case ((unichar)('&')):
+				case ((unichar)('(')):  case ((unichar)(')')):  case ((unichar)('*')):  case ((unichar)('+')):
+				case ((unichar)(',')):  case ((unichar)('-')):  case ((unichar)('.')):  case ((unichar)('/')):
+				case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+				case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+				case ((unichar)('8')):  case ((unichar)('9')):  case ((unichar)(':')):  case ((unichar)(';')):
+				case ((unichar)('<')):  case ((unichar)('=')):  case ((unichar)('>')):  case ((unichar)('?')):
+				case ((unichar)('@')):  case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):
+				case ((unichar)('D')):  case ((unichar)('E')):  case ((unichar)('F')):  case ((unichar)('G')):
+				case ((unichar)('H')):  case ((unichar)('I')):  case ((unichar)('J')):  case ((unichar)('K')):
+				case ((unichar)('L')):  case ((unichar)('M')):  case ((unichar)('N')):  case ((unichar)('O')):
+				case ((unichar)('P')):  case ((unichar)('Q')):  case ((unichar)('R')):  case ((unichar)('S')):
+				case ((unichar)('T')):  case ((unichar)('U')):  case ((unichar)('V')):  case ((unichar)('W')):
+				case ((unichar)('X')):  case ((unichar)('Y')):  case ((unichar)('Z')):  case ((unichar)('[')):
+				case ((unichar)(']')):  case ((unichar)('^')):  case ((unichar)('_')):  case ((unichar)('`')):
+				case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):  case ((unichar)('d')):
+				case ((unichar)('e')):  case ((unichar)('f')):  case ((unichar)('g')):  case ((unichar)('h')):
+				case ((unichar)('i')):  case ((unichar)('j')):  case ((unichar)('k')):  case ((unichar)('l')):
+				case ((unichar)('m')):  case ((unichar)('n')):  case ((unichar)('o')):  case ((unichar)('p')):
+				case ((unichar)('q')):  case ((unichar)('r')):  case ((unichar)('s')):  case ((unichar)('t')):
+				case ((unichar)('u')):  case ((unichar)('v')):  case ((unichar)('w')):  case ((unichar)('x')):
+				case ((unichar)('y')):  case ((unichar)('z')):  case ((unichar)('{')):  case ((unichar)('|')):
+				case ((unichar)('}')):  case ((unichar)('~')):  case ((unichar)(0x7f)):  case ((unichar)(0x80)):
+				case ((unichar)(0x81)):  case ((unichar)(0x82)):  case ((unichar)(0x83)):  case ((unichar)(0x84)):
+				case ((unichar)(0x85)):  case ((unichar)(0x86)):  case ((unichar)(0x87)):  case ((unichar)(0x88)):
+				case ((unichar)(0x89)):  case ((unichar)(0x8a)):  case ((unichar)(0x8b)):  case ((unichar)(0x8c)):
+				case ((unichar)(0x8d)):  case ((unichar)(0x8e)):  case ((unichar)(0x8f)):  case ((unichar)(0x90)):
+				case ((unichar)(0x91)):  case ((unichar)(0x92)):  case ((unichar)(0x93)):  case ((unichar)(0x94)):
+				case ((unichar)(0x95)):  case ((unichar)(0x96)):  case ((unichar)(0x97)):  case ((unichar)(0x98)):
+				case ((unichar)(0x99)):  case ((unichar)(0x9a)):  case ((unichar)(0x9b)):  case ((unichar)(0x9c)):
+				case ((unichar)(0x9d)):  case ((unichar)(0x9e)):  case ((unichar)(0x9f)):  case ((unichar)(0xa0)):
+				case ((unichar)(0xa1)):  case ((unichar)(0xa2)):  case ((unichar)(0xa3)):  case ((unichar)(0xa4)):
+				case ((unichar)(0xa5)):  case ((unichar)(0xa6)):  case ((unichar)(0xa7)):  case ((unichar)(0xa8)):
+				case ((unichar)(0xa9)):  case ((unichar)(0xaa)):  case ((unichar)(0xab)):  case ((unichar)(0xac)):
+				case ((unichar)(0xad)):  case ((unichar)(0xae)):  case ((unichar)(0xaf)):  case ((unichar)(0xb0)):
+				case ((unichar)(0xb1)):  case ((unichar)(0xb2)):  case ((unichar)(0xb3)):  case ((unichar)(0xb4)):
+				case ((unichar)(0xb5)):  case ((unichar)(0xb6)):  case ((unichar)(0xb7)):  case ((unichar)(0xb8)):
+				case ((unichar)(0xb9)):  case ((unichar)(0xba)):  case ((unichar)(0xbb)):  case ((unichar)(0xbc)):
+				case ((unichar)(0xbd)):  case ((unichar)(0xbe)):  case ((unichar)(0xbf)):  case ((unichar)(0xc0)):
+				case ((unichar)(0xc1)):  case ((unichar)(0xc2)):  case ((unichar)(0xc3)):  case ((unichar)(0xc4)):
+				case ((unichar)(0xc5)):  case ((unichar)(0xc6)):  case ((unichar)(0xc7)):  case ((unichar)(0xc8)):
+				case ((unichar)(0xc9)):  case ((unichar)(0xca)):  case ((unichar)(0xcb)):  case ((unichar)(0xcc)):
+				case ((unichar)(0xcd)):  case ((unichar)(0xce)):  case ((unichar)(0xcf)):  case ((unichar)(0xd0)):
+				case ((unichar)(0xd1)):  case ((unichar)(0xd2)):  case ((unichar)(0xd3)):  case ((unichar)(0xd4)):
+				case ((unichar)(0xd5)):  case ((unichar)(0xd6)):  case ((unichar)(0xd7)):  case ((unichar)(0xd8)):
+				case ((unichar)(0xd9)):  case ((unichar)(0xda)):  case ((unichar)(0xdb)):  case ((unichar)(0xdc)):
+				case ((unichar)(0xdd)):  case ((unichar)(0xde)):  case ((unichar)(0xdf)):  case ((unichar)(0xe0)):
+				case ((unichar)(0xe1)):  case ((unichar)(0xe2)):  case ((unichar)(0xe3)):  case ((unichar)(0xe4)):
+				case ((unichar)(0xe5)):  case ((unichar)(0xe6)):  case ((unichar)(0xe7)):  case ((unichar)(0xe8)):
+				case ((unichar)(0xe9)):  case ((unichar)(0xea)):  case ((unichar)(0xeb)):  case ((unichar)(0xec)):
+				case ((unichar)(0xed)):  case ((unichar)(0xee)):  case ((unichar)(0xef)):  case ((unichar)(0xf0)):
+				case ((unichar)(0xf1)):  case ((unichar)(0xf2)):  case ((unichar)(0xf3)):  case ((unichar)(0xf4)):
+				case ((unichar)(0xf5)):  case ((unichar)(0xf6)):  case ((unichar)(0xf7)):  case ((unichar)(0xf8)):
+				case ((unichar)(0xf9)):  case ((unichar)(0xfa)):  case ((unichar)(0xfb)):  case ((unichar)(0xfc)):
+				case ((unichar)(0xfd)):  case ((unichar)(0xfe)):  case ((unichar)(0xff)):
+				{
+					{
+						[self matchCharSet:GSWPageDefLexer___tokenSet_5];
+					}
+					break;
+				}
+				default:
+				{
+					goto _loop60;
+				}
+				}
 			} while (YES);
-			_loop61:;
+			_loop60:;
 		}
 		[self matchCharacter:'\''];
+		break;
+	}
+	case ((unichar)('"')):
+	{
+		[self matchCharacter:'"'];
+		{
+			do
+			{
+				switch ( [self LA:1])
+				{
+				case ((unichar)('\\')):
+				{
+					[self mESCWithCreateToken:NO];
+					break;
+				}
+				case ((unichar)(0x3)):  case ((unichar)(0x4)):  case ((unichar)(0x5)):  case ((unichar)(0x6)):
+				case ((unichar)(0x7)):  case ((unichar)(0x8)):  case ((unichar)('\t')):  case ((unichar)('\n')):
+				case ((unichar)(0xb)):  case ((unichar)(0xc)):  case ((unichar)('\r')):  case ((unichar)(0xe)):
+				case ((unichar)(0xf)):  case ((unichar)(0x10)):  case ((unichar)(0x11)):  case ((unichar)(0x12)):
+				case ((unichar)(0x13)):  case ((unichar)(0x14)):  case ((unichar)(0x15)):  case ((unichar)(0x16)):
+				case ((unichar)(0x17)):  case ((unichar)(0x18)):  case ((unichar)(0x19)):  case ((unichar)(0x1a)):
+				case ((unichar)(0x1b)):  case ((unichar)(0x1c)):  case ((unichar)(0x1d)):  case ((unichar)(0x1e)):
+				case ((unichar)(0x1f)):  case ((unichar)(' ')):  case ((unichar)('!')):  case ((unichar)('#')):
+				case ((unichar)('$')):  case ((unichar)('%')):  case ((unichar)('&')):  case ((unichar)('\'')):
+				case ((unichar)('(')):  case ((unichar)(')')):  case ((unichar)('*')):  case ((unichar)('+')):
+				case ((unichar)(',')):  case ((unichar)('-')):  case ((unichar)('.')):  case ((unichar)('/')):
+				case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+				case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+				case ((unichar)('8')):  case ((unichar)('9')):  case ((unichar)(':')):  case ((unichar)(';')):
+				case ((unichar)('<')):  case ((unichar)('=')):  case ((unichar)('>')):  case ((unichar)('?')):
+				case ((unichar)('@')):  case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):
+				case ((unichar)('D')):  case ((unichar)('E')):  case ((unichar)('F')):  case ((unichar)('G')):
+				case ((unichar)('H')):  case ((unichar)('I')):  case ((unichar)('J')):  case ((unichar)('K')):
+				case ((unichar)('L')):  case ((unichar)('M')):  case ((unichar)('N')):  case ((unichar)('O')):
+				case ((unichar)('P')):  case ((unichar)('Q')):  case ((unichar)('R')):  case ((unichar)('S')):
+				case ((unichar)('T')):  case ((unichar)('U')):  case ((unichar)('V')):  case ((unichar)('W')):
+				case ((unichar)('X')):  case ((unichar)('Y')):  case ((unichar)('Z')):  case ((unichar)('[')):
+				case ((unichar)(']')):  case ((unichar)('^')):  case ((unichar)('_')):  case ((unichar)('`')):
+				case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):  case ((unichar)('d')):
+				case ((unichar)('e')):  case ((unichar)('f')):  case ((unichar)('g')):  case ((unichar)('h')):
+				case ((unichar)('i')):  case ((unichar)('j')):  case ((unichar)('k')):  case ((unichar)('l')):
+				case ((unichar)('m')):  case ((unichar)('n')):  case ((unichar)('o')):  case ((unichar)('p')):
+				case ((unichar)('q')):  case ((unichar)('r')):  case ((unichar)('s')):  case ((unichar)('t')):
+				case ((unichar)('u')):  case ((unichar)('v')):  case ((unichar)('w')):  case ((unichar)('x')):
+				case ((unichar)('y')):  case ((unichar)('z')):  case ((unichar)('{')):  case ((unichar)('|')):
+				case ((unichar)('}')):  case ((unichar)('~')):  case ((unichar)(0x7f)):  case ((unichar)(0x80)):
+				case ((unichar)(0x81)):  case ((unichar)(0x82)):  case ((unichar)(0x83)):  case ((unichar)(0x84)):
+				case ((unichar)(0x85)):  case ((unichar)(0x86)):  case ((unichar)(0x87)):  case ((unichar)(0x88)):
+				case ((unichar)(0x89)):  case ((unichar)(0x8a)):  case ((unichar)(0x8b)):  case ((unichar)(0x8c)):
+				case ((unichar)(0x8d)):  case ((unichar)(0x8e)):  case ((unichar)(0x8f)):  case ((unichar)(0x90)):
+				case ((unichar)(0x91)):  case ((unichar)(0x92)):  case ((unichar)(0x93)):  case ((unichar)(0x94)):
+				case ((unichar)(0x95)):  case ((unichar)(0x96)):  case ((unichar)(0x97)):  case ((unichar)(0x98)):
+				case ((unichar)(0x99)):  case ((unichar)(0x9a)):  case ((unichar)(0x9b)):  case ((unichar)(0x9c)):
+				case ((unichar)(0x9d)):  case ((unichar)(0x9e)):  case ((unichar)(0x9f)):  case ((unichar)(0xa0)):
+				case ((unichar)(0xa1)):  case ((unichar)(0xa2)):  case ((unichar)(0xa3)):  case ((unichar)(0xa4)):
+				case ((unichar)(0xa5)):  case ((unichar)(0xa6)):  case ((unichar)(0xa7)):  case ((unichar)(0xa8)):
+				case ((unichar)(0xa9)):  case ((unichar)(0xaa)):  case ((unichar)(0xab)):  case ((unichar)(0xac)):
+				case ((unichar)(0xad)):  case ((unichar)(0xae)):  case ((unichar)(0xaf)):  case ((unichar)(0xb0)):
+				case ((unichar)(0xb1)):  case ((unichar)(0xb2)):  case ((unichar)(0xb3)):  case ((unichar)(0xb4)):
+				case ((unichar)(0xb5)):  case ((unichar)(0xb6)):  case ((unichar)(0xb7)):  case ((unichar)(0xb8)):
+				case ((unichar)(0xb9)):  case ((unichar)(0xba)):  case ((unichar)(0xbb)):  case ((unichar)(0xbc)):
+				case ((unichar)(0xbd)):  case ((unichar)(0xbe)):  case ((unichar)(0xbf)):  case ((unichar)(0xc0)):
+				case ((unichar)(0xc1)):  case ((unichar)(0xc2)):  case ((unichar)(0xc3)):  case ((unichar)(0xc4)):
+				case ((unichar)(0xc5)):  case ((unichar)(0xc6)):  case ((unichar)(0xc7)):  case ((unichar)(0xc8)):
+				case ((unichar)(0xc9)):  case ((unichar)(0xca)):  case ((unichar)(0xcb)):  case ((unichar)(0xcc)):
+				case ((unichar)(0xcd)):  case ((unichar)(0xce)):  case ((unichar)(0xcf)):  case ((unichar)(0xd0)):
+				case ((unichar)(0xd1)):  case ((unichar)(0xd2)):  case ((unichar)(0xd3)):  case ((unichar)(0xd4)):
+				case ((unichar)(0xd5)):  case ((unichar)(0xd6)):  case ((unichar)(0xd7)):  case ((unichar)(0xd8)):
+				case ((unichar)(0xd9)):  case ((unichar)(0xda)):  case ((unichar)(0xdb)):  case ((unichar)(0xdc)):
+				case ((unichar)(0xdd)):  case ((unichar)(0xde)):  case ((unichar)(0xdf)):  case ((unichar)(0xe0)):
+				case ((unichar)(0xe1)):  case ((unichar)(0xe2)):  case ((unichar)(0xe3)):  case ((unichar)(0xe4)):
+				case ((unichar)(0xe5)):  case ((unichar)(0xe6)):  case ((unichar)(0xe7)):  case ((unichar)(0xe8)):
+				case ((unichar)(0xe9)):  case ((unichar)(0xea)):  case ((unichar)(0xeb)):  case ((unichar)(0xec)):
+				case ((unichar)(0xed)):  case ((unichar)(0xee)):  case ((unichar)(0xef)):  case ((unichar)(0xf0)):
+				case ((unichar)(0xf1)):  case ((unichar)(0xf2)):  case ((unichar)(0xf3)):  case ((unichar)(0xf4)):
+				case ((unichar)(0xf5)):  case ((unichar)(0xf6)):  case ((unichar)(0xf7)):  case ((unichar)(0xf8)):
+				case ((unichar)(0xf9)):  case ((unichar)(0xfa)):  case ((unichar)(0xfb)):  case ((unichar)(0xfc)):
+				case ((unichar)(0xfd)):  case ((unichar)(0xfe)):  case ((unichar)(0xff)):
+				{
+					{
+						[self matchCharSet:GSWPageDefLexer___tokenSet_6];
+					}
+					break;
+				}
+				default:
+				{
+					goto _loop63;
+				}
+				}
+			} while (YES);
+			_loop63:;
+		}
+		[self matchCharacter:'"'];
 		break;
 	}
 	default:
@@ -909,6 +1053,158 @@ int _begin=[text length];
 	//LOGObjectFnStop();
 }
 
+-(void) mESCWithCreateToken:(BOOL)_createToken 
+{
+	ANTLRDefToken _token=nil;
+int _begin=[text length];
+	ANTLRTokenType _ttype = GSWPageDefTokenType_ESC;
+	int _saveIndex;
+	
+	//LOGObjectFnStart();
+	[self matchCharacter:'\\'];
+	{
+		switch ( [self LA:1])
+		{
+		case ((unichar)('n')):
+		{
+			[self matchCharacter:'n'];
+			break;
+		}
+		case ((unichar)('r')):
+		{
+			[self matchCharacter:'r'];
+			break;
+		}
+		case ((unichar)('t')):
+		{
+			[self matchCharacter:'t'];
+			break;
+		}
+		case ((unichar)('b')):
+		{
+			[self matchCharacter:'b'];
+			break;
+		}
+		case ((unichar)('f')):
+		{
+			[self matchCharacter:'f'];
+			break;
+		}
+		case ((unichar)('"')):
+		{
+			[self matchCharacter:'"'];
+			break;
+		}
+		case ((unichar)('\'')):
+		{
+			[self matchCharacter:'\''];
+			break;
+		}
+		case ((unichar)('\\')):
+		{
+			[self matchCharacter:'\\'];
+			break;
+		}
+		case ((unichar)('u')):
+		{
+			{
+				int _cnt72=0;
+				do
+				{
+					if (([self LA:1]==((unichar)('u'))))
+					{
+						[self matchCharacter:'u'];
+					}
+					else
+					{
+						if ( _cnt72>=1 ) { goto _loop72; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+					}
+					
+					_cnt72++;
+				} while (YES);
+				_loop72:;
+			}
+			[self mHEXDIGITWithCreateToken:NO];
+			[self mHEXDIGITWithCreateToken:NO];
+			[self mHEXDIGITWithCreateToken:NO];
+			[self mHEXDIGITWithCreateToken:NO];
+			break;
+		}
+		case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+		{
+			{
+				[self matchRange:'0' :'3'];
+			}
+			{
+				if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))) && (([self LA:2] >= ((unichar)(0x3)) && [self LA:2] <= ((unichar)(0xff)))))
+				{
+					{
+						[self matchRange:'0' :'9'];
+					}
+					{
+						if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))) && (([self LA:2] >= ((unichar)(0x3)) && [self LA:2] <= ((unichar)(0xff)))))
+						{
+							[self matchRange:'0' :'9'];
+						}
+						else if ((([self LA:1] >= ((unichar)(0x3)) && [self LA:1] <= ((unichar)(0xff)))))
+						{
+						}
+						else
+						{
+							[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+						}
+						
+					}
+				}
+				else if ((([self LA:1] >= ((unichar)(0x3)) && [self LA:1] <= ((unichar)(0xff)))))
+				{
+				}
+				else
+				{
+					[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+				}
+				
+			}
+			break;
+		}
+		case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+		{
+			{
+				[self matchRange:'4' :'7'];
+			}
+			{
+				if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))) && (([self LA:2] >= ((unichar)(0x3)) && [self LA:2] <= ((unichar)(0xff)))))
+				{
+					{
+						[self matchRange:'0' :'9'];
+					}
+				}
+				else if ((([self LA:1] >= ((unichar)(0x3)) && [self LA:1] <= ((unichar)(0xff)))))
+				{
+				}
+				else
+				{
+					[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+				}
+				
+			}
+			break;
+		}
+		default:
+		{
+			[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+		}
+		}
+	}
+	if ( _createToken && _token==0 )
+	{
+		   _token = [self makeToken:_ttype];
+		   [_token setText:[text substringFromIndex:_begin]];
+	}
+	ASSIGN(_returnToken,_token);
+	//LOGObjectFnStop();
+}
+
 -(void) mINTWithCreateToken:(BOOL)_createToken 
 {
 	ANTLRDefToken _token=nil;
@@ -918,7 +1214,7 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt65=0;
+		int _cnt67=0;
 		do
 		{
 			if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))))
@@ -927,12 +1223,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt65>=1 ) { goto _loop65; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt67>=1 ) { goto _loop67; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt65++;
+			_cnt67++;
 		} while (YES);
-		_loop65:;
+		_loop67:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -971,7 +1267,7 @@ int _begin=[text length];
 	
 	//LOGObjectFnStart();
 	{
-		int _cnt69=0;
+		int _cnt82=0;
 		do
 		{
 			if (([GSWPageDefLexer___tokenSet_1 isMember:[self LA:1]]))
@@ -980,12 +1276,12 @@ int _begin=[text length];
 			}
 			else
 			{
-				if ( _cnt69>=1 ) { goto _loop69; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
+				if ( _cnt82>=1 ) { goto _loop82; } else {[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];}
 			}
 			
-			_cnt69++;
+			_cnt82++;
 		} while (YES);
-		_loop69:;
+		_loop82:;
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -1004,31 +1300,33 @@ int _begin=[text length];
 	int _saveIndex;
 	
 	//LOGObjectFnStart();
-	switch ( [self LA:1])
 	{
-	case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
-	case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
-	case ((unichar)('8')):  case ((unichar)('9')):
-	{
-		[self matchRange:'0' :'9'];
-		break;
-	}
-	case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):  case ((unichar)('d')):
-	case ((unichar)('e')):  case ((unichar)('f')):
-	{
-		[self matchRange:'a' :'f'];
-		break;
-	}
-	case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):  case ((unichar)('D')):
-	case ((unichar)('E')):  case ((unichar)('F')):
-	{
-		[self matchRange:'A' :'F'];
-		break;
-	}
-	default:
-	{
-		[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
-	}
+		switch ( [self LA:1])
+		{
+		case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
+		case ((unichar)('4')):  case ((unichar)('5')):  case ((unichar)('6')):  case ((unichar)('7')):
+		case ((unichar)('8')):  case ((unichar)('9')):
+		{
+			[self matchRange:'0' :'9'];
+			break;
+		}
+		case ((unichar)('A')):  case ((unichar)('B')):  case ((unichar)('C')):  case ((unichar)('D')):
+		case ((unichar)('E')):  case ((unichar)('F')):
+		{
+			[self matchRange:'A' :'F'];
+			break;
+		}
+		case ((unichar)('a')):  case ((unichar)('b')):  case ((unichar)('c')):  case ((unichar)('d')):
+		case ((unichar)('e')):  case ((unichar)('f')):
+		{
+			[self matchRange:'a' :'f'];
+			break;
+		}
+		default:
+		{
+			[ANTLRScannerException raiseWithReason:[NSString stringWithFormat:@"no viable alt for char: %@",[ANTLRCharScanner charName:[self LA:1]]] line:[self line]];
+		}
+		}
 	}
 	if ( _createToken && _token==0 )
 	{
@@ -1068,9 +1366,9 @@ CONST unsigned long GSWPageDefLexer___tokenSet_3_data_[] = { 4294958072UL, 42949
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_3=nil;
 CONST unsigned long GSWPageDefLexer___tokenSet_4_data_[] = { 4294958072UL, 4294966271UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_4=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_5_data_[] = { 4294967288UL, 4294967291UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_5_data_[] = { 4294967288UL, 4294967167UL, 4026531839UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_5=nil;
-CONST unsigned long GSWPageDefLexer___tokenSet_6_data_[] = { 4294967288UL, 4294967167UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
+CONST unsigned long GSWPageDefLexer___tokenSet_6_data_[] = { 4294967288UL, 4294967291UL, 4026531839UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 4294967295UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL, 0UL };
 static ANTLRBitSet* GSWPageDefLexer___tokenSet_6=nil;
 +(void)initialize
 {

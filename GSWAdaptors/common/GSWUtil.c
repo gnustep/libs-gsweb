@@ -47,188 +47,147 @@
 #include "config.h"
 #include "GSWUtil.h"
 #include "GSWDict.h"
+#include "GSWString.h"
 #include "GSWConfig.h"
 
-
-static BOOL fLogInitialized = FALSE;
-static const char* pszLogPath = NULL;
-static const char* pszLogFlagPath = NULL;
-static const char* pszDumpFlagPath = NULL;
-
-static GSWLock  g_lockLog=NULL;
-
-const char* const pszLogLevels[] = {"Info", "Warn",  "Error", "" };
-
-#define	MINLEVEL GSW_INFO
-#define	MAXLEVEL GSW_ERROR
-
-static int iLogMinLevel = MINLEVEL;
 
 // Hosts Cache
 static GSWDict* g_pHostCache = NULL;
 
 
+//--------------------------------------------------------------------
 void GSWLog_Init(GSWDict* p_pDict,int p_iLevel)
 {
-  char szPath[MAXPATHLEN];
-  GSWLock_Init(g_lockLog);
-
-  if (p_pDict)
-	{
-	  pszLogFlagPath=GSWDict_ValueForKey(p_pDict,GSWEB_CONF__LOG_FLAG_FILE_PATH);
-	  pszLogPath=GSWDict_ValueForKey(p_pDict,GSWEB_CONF__LOG_FILE_PATH);
-	  pszDumpFlagPath=GSWDict_ValueForKey(p_pDict,GSWEB_CONF__DUMP_FLAG_FILE_PATH);
-	};
-  if (pszLogFlagPath)
-	pszLogFlagPath = strdup(pszLogFlagPath);
-  else
-	pszLogFlagPath = strdup(g_szGSWeb_DefaultLogFlagPath);
-  
-  if (pszLogPath)
-	pszLogPath = strdup(pszLogPath);
-  else
-	pszLogPath = strdup(g_szGSWeb_DefaultLogFilePath);
-  
-  if (pszDumpFlagPath)
-	pszDumpFlagPath = strdup(pszDumpFlagPath);
-  else
-	pszDumpFlagPath = strdup(g_szGSWeb_DefaultDumpFlagPath);
- 
-  {
-	int fd;
-	fd = open(pszLogPath, O_WRONLY, 0666);
-	close(fd);
-	chmod(pszLogPath, 0666);
-  };
-  iLogMinLevel = p_iLevel;
-  fLogInitialized = 1;
-  GSWLog(GSW_INFO,NULL,"GSWebLog init");
-  GSWLog(GSW_INFO,NULL,"pszLogFlagPath=%s",pszLogFlagPath);
-  GSWLog(GSW_INFO,NULL,"pszDumpFlagPath=%s",pszDumpFlagPath);
-  GSWLog(GSW_INFO,NULL,"pszLogPath=%s",pszLogPath);
 };
 
-static BOOL isLoggingEnabled()
-{
-  static BOOL fLog=FALSE;
-  static int iStatCounter=0;
-  if (iStatCounter==0)
-	{
-	  struct stat stStat;
-	  iStatCounter = LOG_FILE_STAT_COUNTER;		// reset counter
-	  fLog = ( (stat(pszLogFlagPath,&stStat) == 0) && (stStat.st_uid == 0));
-	}
-  else
-	iStatCounter--;
-  return fLog;
-};
-
-BOOL GSWDumpConfigFile_CanDump() 
-{
-  static BOOL fDump=FALSE;
-  static int iDumpStatCounter=0;
-  if (iDumpStatCounter==0)
-	{
-	  struct stat stStat;
-	  iDumpStatCounter = DUMP_FILE_STAT_COUNTER;		// reset counter
-	  fDump = ( (stat(pszDumpFlagPath,&stStat) == 0) && (stStat.st_uid == 0));
-	}
-  else
-	iDumpStatCounter--;
-  return fDump;
-};
-
-void VGSWLogSized(int p_iLevel,
+//--------------------------------------------------------------------
+void VGSWLogSizedIntern(char* file,
+						int line,
+						char* fn,
+						int p_iLevel,
 #if	defined(Apache)
-			server_rec* p_pLogServerData,
+						server_rec* p_pLogServerData,
 #else
-			void* p_pLogServerData,
+						void* p_pLogServerData,
 #endif
-			int p_iBufferSize,
-			CONST char* p_pszFormat,
-			va_list ap)
+						int p_iBufferSize,
+						CONST char* p_pszFormat,
+						va_list ap)
 {
   FILE* pLog = NULL;
-  char szBuffer[p_iBufferSize+128];
-	
-  if (p_iLevel>=iLogMinLevel)
-	{
-	  BOOL fIsLoggingEnabled=FALSE;
-	  if (!fLogInitialized)
-        GSWLog_Init(NULL,iLogMinLevel);
-
-	  GSWLock_Lock(g_lockLog);
-	  fIsLoggingEnabled=isLoggingEnabled();
-	  if (fIsLoggingEnabled
-#if	defined(Netscape) || defined(Apache)
-		  || p_iLevel == GSW_ERROR
-#endif
-		  )
-		{
-		  vsprintf(szBuffer,p_pszFormat,ap);
-		  pLog=fopen(pszLogPath,"a+");
-		  if (pLog)
-			{
-			  fprintf(pLog,"%s: %s\n",pszLogLevels[p_iLevel],szBuffer);
-			  fclose(pLog);
-            };
-		};
-	  GSWLock_Unlock(g_lockLog);
-	
-#if	defined(Netscape) || defined(Apache)
-	  if (p_iLevel == GSW_ERROR)
-		{
+  char szBuffer[p_iBufferSize+512];
+  szBuffer[0]=0;
+  errno=0;//Because Apache use it in ap_log_error to display the message.
+  vsprintf(szBuffer,p_pszFormat,ap);
+	  
 #if	defined(Netscape)
-            log_error(0,"GSWeb",NULL,NULL,szBuffer);
+  log_error(0,"GSWeb",NULL,NULL,szBuffer);
 #endif
 #if defined(Apache)
-			ap_log_error(APLOG_MARK,APLOG_EMERG,
-						 NULL/*(server_rec*)p_pLogServerData*/,"%s",szBuffer);
-			  //log_error(szBuffer,(server_rec*)p_pLogServerData);
+  ap_log_error(APLOG_MARK,p_iLevel,
+			   (server_rec*)p_pLogServerData,
+			   "%s",szBuffer);
 #endif 
-		};
-#endif 
-	};
 };
 
+//--------------------------------------------------------------------
 void GSWLog(int p_iLevel,
 #if	defined(Apache)
 			server_rec* p_pLogServerData,
 #else
 			void* p_pLogServerData,
 #endif
-			CONST char* p_pszFormat,...)
+			CONST char *p_pszFormat, ...)
 {
   va_list ap;
   va_start(ap,p_pszFormat);
-  VGSWLogSized(p_iLevel,
-			   p_pLogServerData,
-			   4096,
-			   p_pszFormat,
-			   ap);
+  VGSWLogSizedIntern(NULL,
+					 0,
+					 NULL,
+					 p_iLevel,
+					 p_pLogServerData,
+					 4096,
+					 p_pszFormat,
+					 ap);
   va_end(ap);
 };
 
+//--------------------------------------------------------------------
 void GSWLogSized(int p_iLevel,
 #if	defined(Apache)
-			server_rec* p_pLogServerData,
+				 server_rec* p_pLogServerData,
 #else
-			void* p_pLogServerData,
+				 void* p_pLogServerData,
 #endif
-			int p_iBufferSize,
-			CONST char* p_pszFormat,...)
+				 int p_iBufferSize,
+				 CONST char *p_pszFormat, ...)
 {
   va_list ap;
   va_start(ap,p_pszFormat);
-  VGSWLogSized(p_iLevel,
-		 p_pLogServerData,
-		 p_iBufferSize,
-		 p_pszFormat,
-		 ap);
+  VGSWLogSizedIntern(NULL,
+					 0,
+					 NULL,
+					 p_iLevel,
+					 p_pLogServerData,
+					 p_iBufferSize,
+					 p_pszFormat,
+					 ap);
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
+void GSWLogIntern(char* file,
+				  int line,
+				  char* fn,
+				  int p_iLevel,
+#if	defined(Apache)
+				  server_rec* p_pLogServerData,
+#else
+				  void* p_pLogServerData,
+#endif
+				  CONST char* p_pszFormat,...)
+{
+  va_list ap;
+  va_start(ap,p_pszFormat);
+  VGSWLogSizedIntern(file,
+					 line,
+					 fn,
+					 p_iLevel,
+					 p_pLogServerData,
+					 4096,
+					 p_pszFormat,
+					 ap);
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
+void GSWLogSizedIntern(char* file,
+					   int line,
+					   char* fn,
+					   int p_iLevel,
+#if	defined(Apache)
+					   server_rec* p_pLogServerData,
+#else
+					   void* p_pLogServerData,
+#endif
+					   int p_iBufferSize,
+					   CONST char* p_pszFormat,...)
+{
+  va_list ap;
+  va_start(ap,p_pszFormat);
+  VGSWLogSizedIntern(file,
+					 line,
+					 fn,
+					 p_iLevel,
+					 p_pLogServerData,
+					 p_iBufferSize,
+					 p_pszFormat,
+					 ap);
   va_end(ap);
 };
 
 
+//--------------------------------------------------------------------
 // return new len
 int DeleteTrailingCRNL(char* p_pszString) 
 {
@@ -243,6 +202,7 @@ int DeleteTrailingCRNL(char* p_pszString)
   return i;
 }
 
+//--------------------------------------------------------------------
 int DeleteTrailingSlash(char* p_pszString)
 {
   int i=0;
@@ -256,6 +216,7 @@ int DeleteTrailingSlash(char* p_pszString)
   return i;
 }
 
+//--------------------------------------------------------------------
 int DeleteTrailingSpaces(char* p_pszString)
 {
   int i=0;
@@ -268,6 +229,18 @@ int DeleteTrailingSpaces(char* p_pszString)
 	};
   return i;
 }
+
+//--------------------------------------------------------------------
+int SafeStrlen(CONST char* p_pszString)
+{
+  return (p_pszString ? strlen(p_pszString) : 0);
+};
+
+//--------------------------------------------------------------------
+char* SafeStrdup(CONST char* p_pszString)
+{
+  return (p_pszString ? strdup(p_pszString) : NULL);
+};
 
 CONST char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString)
 {
@@ -300,10 +273,7 @@ CONST char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString)
 #define _REENTRANT	/* needs to be defined so proper structs get included */
 #endif
 
-
-
-
-
+//--------------------------------------------------------------------
 void GSWUtil_ClearHostCache()
 {
   if (g_pHostCache)
@@ -313,7 +283,8 @@ void GSWUtil_ClearHostCache()
 	};
 };
 
-PSTHostent GSWUtil_FindHost(void* p_pLogServerData,CONST char* p_pszHost)
+//--------------------------------------------------------------------
+PSTHostent GSWUtil_FindHost(CONST char* p_pszHost,void* p_pLogServerData)
 {
   PSTHostent pHost=NULL;
   if (!p_pszHost) 
@@ -322,7 +293,7 @@ PSTHostent GSWUtil_FindHost(void* p_pLogServerData,CONST char* p_pszHost)
   pHost = (g_pHostCache) ? (PSTHostent)GSWDict_ValueForKey(g_pHostCache,p_pszHost) : NULL;
   if (!pHost)
 	{
-	  pHost = GSWUtil_HostLookup(p_pLogServerData,p_pszHost);
+	  pHost = GSWUtil_HostLookup(p_pszHost,p_pLogServerData);
 	  if (pHost)
 		{
 		  if (!g_pHostCache)
@@ -344,27 +315,29 @@ PSTHostent GSWUtil_FindHost(void* p_pLogServerData,CONST char* p_pszHost)
 #define	NETDB_SUCCESS 0
 #endif
 
-CONST char *hstrerror(int herr)
+//--------------------------------------------------------------------
+CONST char* hstrerror(int herr)
 {
-  if (herr == -1)				/* see errno */
+  if (herr == -1)				// see errno 
 	return strerror(errno);
   else if (herr == HOST_NOT_FOUND)
 	return "Host not found";
   else if (herr == TRY_AGAIN)
-	return "Try again";				/* ? */
+	return "Try again";				// ? 
   else if (herr == NO_RECOVERY)
 	return "Non recoverable error";
   else if (herr == NO_DATA)
 	return "No data";
   else if (herr == NO_ADDRESS)
-	return "No address";			/* same as no data */
+	return "No address";			// same as no data
   else if (herr == NETDB_SUCCESS)		
-	return "No error";				/* strange */
+	return "No error";				// Gag !
   else
 	return "unknown error";
 }
 #endif
 
+//--------------------------------------------------------------------
 static PSTHostent GSWUtil_CopyHostent(PSTHostent p_pHost)
 {
   PSTHostent pNewHost=NULL;
@@ -434,7 +407,8 @@ static PSTHostent GSWUtil_CopyHostent(PSTHostent p_pHost)
   return pNewHost;
 };
 
-PSTHostent GSWUtil_HostLookup(void* p_pLogServerData,CONST char *p_pszHost)
+//--------------------------------------------------------------------
+PSTHostent GSWUtil_HostLookup(CONST char *p_pszHost,void* p_pLogServerData)
 {
   PSTHostent pHost=NULL;
   struct in_addr hostaddr;

@@ -69,10 +69,10 @@ typedef enum
   GSWURLError_InvalidSuffix
 } GSWURLError;
 
-GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL);
-void GSWComposeURL(char* p_pszURL,GSWURLComponents* p_pURLComponents);
-int GSWComposeURLLen(GSWURLComponents* p_pURLComponents);
-CONST char* GSWURLErrorMessage(GSWURLError p_eError);
+GSWURLError GSWParseURL(GSWURLComponents* p_pURLComponents,CONST char* p_pszURL,void* p_pLogServerData);
+void GSWComposeURL(char* p_pszURL,GSWURLComponents* p_pURLComponents,void* p_pLogServerData);
+int GSWComposeURLLen(GSWURLComponents* p_pURLComponents,void* p_pLogServerData);
+CONST char* GSWURLErrorMessage(GSWURLError p_eError,void* p_pLogServerData);
 #ifdef __cplusplus
 }
 #endif //_cplusplus

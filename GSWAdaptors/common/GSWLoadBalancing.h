@@ -24,12 +24,11 @@
 #ifndef _GSWLoadBalancing_h__
 #define _GSWLoadBalancing_h__
 
-void GSWLoadBalancing_Init(GSWDict *dict);
-BOOL GSWLoadBalancing_FindApp(void* p_pLogServerData,GSWAppRequest *app);
-BOOL GSWLoadBalancing_FindInstance(void* p_pLogServerData,GSWAppRequest *app);
-void GSWLoadBalancing_MarkNotRespondingApp(void* p_pLogServerData,GSWAppRequest *app);
-void GSWLoadBalancing_StartAppRequest(void* p_pLogServerData,GSWAppRequest *app);
-void GSWLoadBalancing_StopAppRequest(void* p_pLogServerData,GSWAppRequest *app);
+BOOL GSWLoadBalancing_FindApp(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
+BOOL GSWLoadBalancing_FindInstance(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
+void GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
+void GSWLoadBalancing_StartAppRequest(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
+void GSWLoadBalancing_StopAppRequest(GSWAppRequest* p_pAppRequest,void* p_pLogServerData);
 
 #endif // GSWLoadBalancing
 

@@ -127,8 +127,7 @@ DIGIT
 
 protected
 HEXDIGIT
-	:	'0'..'9'
-	|	'a'..'f'
+	:	('0'..'9'|'A'..'F'|'a'..'f')
 	;
 
 protected

@@ -35,8 +35,8 @@
 
 typedef SYS_NETFD AppConnectNSSocketHandle;
 
-AppConnectHandle GSWApp_Open(void* p_pLogServerData,
-							 GSWAppRequest* p_pAppRequest)
+AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,
+							 void* p_pLogServerData)
 {
   AppConnectHandle handle=NULL;
   if (!p_pAppRequest)
@@ -92,8 +92,8 @@ AppConnectHandle GSWApp_Open(void* p_pLogServerData,
   return handle;
 };
 
-void GSWApp_Close(void* p_pLogServerData,
-				  AppConnectHandle p_handle)
+void GSWApp_Close(AppConnectHandle p_handle,
+				  void* p_pLogServerData)
 {
   if (p_handle)
 	{
@@ -103,9 +103,9 @@ void GSWApp_Close(void* p_pLogServerData,
 	};
 };
 
-int GSWApp_SendLine(void* p_pLogServerData,
-					AppConnectHandle p_handle,
-					CONST char* p_pszBuffer)
+int GSWApp_SendLine(AppConnectHandle p_handle,
+					CONST char* p_pszBuffer,
+					void* p_pLogServerData)
 {
   int iRetValue=-1;
   if (p_handle)
@@ -113,10 +113,10 @@ int GSWApp_SendLine(void* p_pLogServerData,
   return iRetValue;
 }
 
-int GSWApp_SendBlock(void* p_pLogServerData,
-					 AppConnectHandle p_handle,
+int GSWApp_SendBlock(AppConnectHandle p_handle,
 					 CONST char* p_pszBuffer,
-					 int p_iSize)
+					 int p_iSize,
+					 void* p_pLogServerData)
 {
   int iRetValue=-1;
   if (p_handle)
@@ -142,10 +142,10 @@ int GSWApp_SendBlock(void* p_pLogServerData,
   return iRetValue;
 }
 
-int GSWApp_ReceiveLine(void* p_pLogServerData,
-					   AppConnectHandle p_handle,
+int GSWApp_ReceiveLine(AppConnectHandle p_handle,
 					   char* p_pszBuffer,
-					   int p_iBufferSize)
+					   int p_iBufferSize,
+					   void* p_pLogServerData)
 {
   int iRetValue=-1;
   if (p_handle)
@@ -180,10 +180,10 @@ int GSWApp_ReceiveLine(void* p_pLogServerData,
   return iRetValue;
 };
 
-int GSWApp_ReceiveBlock(void* p_pLogServerData,
-						AppConnectHandle p_handle,
+int GSWApp_ReceiveBlock(AppConnectHandle p_handle,
 						char* p_pszBuffer,
-						int p_iBufferSize) 
+						int p_iBufferSize,
+						void* p_pLogServerData) 
 {
   int iRetValue=-1;
   if (p_handle)

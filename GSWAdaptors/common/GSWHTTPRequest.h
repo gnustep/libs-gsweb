@@ -52,17 +52,22 @@ typedef struct _GSWHTTPRequest
 } GSWHTTPRequest;
 
 
-GSWHTTPRequest* GSWHTTPRequest_New(CONST char* pszMethod,char* p_pszURI);
-void GSWHTTPRequest_Free(GSWHTTPRequest* p_pHTTPRequest);
+GSWHTTPRequest* GSWHTTPRequest_New(CONST char* pszMethod,
+								   char* p_pszURI,
+								   void* p_pLogServerData);
+void GSWHTTPRequest_Free(GSWHTTPRequest* p_pHTTPRequest,
+						 void* p_pLogServerData);
 
 // Return error message (NULL if ok)
-CONST char*GSWHTTPRequest_ValidateMethod(GSWHTTPRequest* p_pHTTPRequest);
+CONST char*GSWHTTPRequest_ValidateMethod(GSWHTTPRequest* p_pHTTPRequest,
+										 void* p_pLogServerData);
 
 // HTTP Request -> GSWeb App Request
 void GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest* p_pHTTPRequest,
 									 GSWAppRequest* p_pAppRequest,
 									 GSWURLComponents* p_pURLComponents,
-									 CONST char* p_pszHTTPVersion);
+									 CONST char* p_pszHTTPVersion,
+									 void* p_pLogServerData);
 
 // Add Header
 void GSWHTTPRequest_AddHeader(GSWHTTPRequest* p_pHTTPRequest,
@@ -74,7 +79,9 @@ CONST char* GSWHTTPRequest_HeaderForKey(GSWHTTPRequest* p_pHTTPRequest,
 										CONST char* p_pszKey);
 
 // Handle Request (send it to Application)
-BOOL GSWHTTPRequest_SendRequest(void* p_pLogServerData,GSWHTTPRequest* p_pHTTPRequest,AppConnectHandle p_socket);
+BOOL GSWHTTPRequest_SendRequest(GSWHTTPRequest* p_pHTTPRequest,
+								AppConnectHandle p_socket,
+								void* p_pLogServerData);
 
 #ifdef __cplusplus
 }

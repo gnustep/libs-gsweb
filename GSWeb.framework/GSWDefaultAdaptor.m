@@ -226,10 +226,14 @@ static char rcsId[] = "$Id$";
   GSWDefaultAdaptorThread* _newThread=nil;
   NSFileHandle* _listenHandle=nil;
   NSFileHandle* inStream = nil;
+  NSCalendarDate* requestDate=nil;
+  NSString* requestDateString=nil;
   LOGObjectFnStart();
   _listenHandle=[notification object];
-  GSWLogCStdOut("New Request");
-  GSWLogC("New Request");
+  requestDate=[NSCalendarDate calendarDate];
+  requestDateString=[NSString stringWithFormat:@"New Request %@",requestDate];
+  GSWLogCStdOut([requestDateString cString]);
+  GSWLogC([requestDateString cString]);
   NSDebugMLLog(@"info",@"_listenHandle=%p",(void*)_listenHandle);
   inStream = [[notification userInfo]objectForKey:@"NSFileHandleNotificationFileHandleItem"];
   NSDebugMLLog(@"info",@"announceNewConnection notification=%@\n",notification);
@@ -262,8 +266,10 @@ static char rcsId[] = "$Id$";
 					  [threads addObject:_newThread];
 					  if (isMultiThreadEnabled)
 						{
-						  GSWLogCStdOut("Lauch Thread (Multi)");
-						  GSWLogC("Lauch Thread (Multi)");
+						  requestDate=[NSCalendarDate calendarDate];
+						  requestDateString=[NSString stringWithFormat:@"Lauch Thread (Multi) %@",requestDate];
+						  GSWLogCStdOut([requestDateString cString]);
+						  GSWLogC([requestDateString cString]);
 						  NSDebugMLLog(@"info",
 									   @"Lauch Thread (Multi) %p",
 									   (void*)_newThread);
@@ -312,15 +318,20 @@ static char rcsId[] = "$Id$";
 		};
 	  if (!isMultiThreadEnabled && _newThread)
 		{
-		  GSWLogCStdOut("Lauch Thread (Mono)");
+		  requestDate=[NSCalendarDate calendarDate];
+		  requestDateString=[NSString stringWithFormat:@"Lauch Thread (Mono) %@",requestDate];
+		  GSWLogCStdOut([requestDateString cString]);
 		  NSDebugMLLog(@"info",
-					   @"Lauch Thread (Mono) %p",
-				   (void*)_newThread);
+					   @"%@ %p",
+					   requestDateString,
+					   (void*)_newThread);
 		  [_newThread run:nil];
 		  DESTROY(_newThread);
-		  GSWLogCStdOut("Stop Thread (Mono)");
+		  requestDate=[NSCalendarDate calendarDate];
+		  requestDateString=[NSString stringWithFormat:@"Stop Thread (Mono) %@",requestDate];
+		  GSWLogCStdOut([requestDateString cString]);
 		  NSDebugMLLog0(@"info",
-					   @"Stop Thread (Mono)");
+						requestDateString);
 		};
 	  if ([self tryLock])
 		{
