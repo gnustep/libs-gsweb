@@ -295,22 +295,34 @@ void NSStringHTML_Initialize()
 #define GSWMemMove(dst,src,size);		\
 {						\
 int __size=(size);				\
+unsigned char* __src=((char*)(src));		\
 unsigned char* __dst=((char*)(dst));		\
-unsigned char* __pDst=__dst+__size;		\
-unsigned char* __pSrc=((char*)(src))+__size;	\
-while(__pDst>=__dst) *__pDst--=*__pSrc--;	\
+unsigned char* __pDst=__dst+__size-1;		\
+unsigned char* __pSrc=__src+__size-1;		\
+if (__dst>__src)				\
+   while(__pDst>=__dst) { *__pDst--=*__pSrc--; }	\
+else							\
+   while(__pDst>=__dst) { *__dst++=*__src++; };		\
 };
+
+#define HTML_TEST_STRINGS @"(\"\", \
+                        \"ABCDEF\", \
+                        \"&12\\U00E9\", \
+                        \"&\n1\", \
+                        \"&\r\n2\\U00E8\", \
+                        \"<ee>\")"
 
 void testStringByConvertingHTML()
 {
-  NSString* strings[] = { @"", @"ABCDEF", @"&12é" , @"&\n1", @"&\r\n2è", @"Relation \"eoseq_display_component\" does not exist" };
+  NSArray* testStrings=[HTML_TEST_STRINGS propertyList];
   int i=0;
-  for(i=0;i<(sizeof(strings)/sizeof(NSString*));i++)
+  for(i=0;i<[testStrings count];i++)
     {
-      NSString* result=[strings[i] stringByConvertingToHTML];
+      NSString* string=[testStrings objectAtIndex:i];
+      NSString* result=[string stringByConvertingToHTML];
       NSString* reverse=[result stringByConvertingFromHTML];
-      NSDebugFLog(@"RESULT: %d: '%@' => '%@'",i,strings[i],result);
-      NSDebugFLog(@"Reverce RESULT: %d: '%@' => '%@'",i,result,reverse);
+      NSDebugFLog(@"RESULT: %d: '%@' => '%@'",i,string,result);
+      NSDebugFLog(@"Reverse RESULT: %d: '%@' => '%@'",i,result,reverse);
     };
 };
 
@@ -408,14 +420,16 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
                 allocOrReallocUnicharString(&pString,&capacity,length,capacity+allocMargin);
               NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
                                                length:length]);
+              NSDebugFLog(@"Copy %d characters from pos %d to pos %d",(length-i-srcLen),i+srcLen,i+dstLen);
               GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
               NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
                                                length:length+dstLen-srcLen]);
+              NSDebugFLog(@"Copy %d characters to pos %d",dstLen,i);
               GSWMemMove(pString+i,dstChars,sizeof(unichar)*dstLen);
               i+=dstLen;
               length+=dstLen-srcLen;
-              NSDebugFLog(@"2==> i=%d %@",i,[NSString stringWithCharacters:pString
-                                                      length:length]);
+              NSDebugFLog(@"2==> i=%d length=%d %@",i,length,[NSString stringWithCharacters:pString
+                                                                       length:length]);
               
             }
           else
@@ -555,9 +569,11 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
                                                 length:length]);
               NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
                                                length:length]);
+              NSDebugFLog(@"Copy %d characters from pos %d to pos %d",(length-i-srcLen),i+srcLen,i+dstLen);
               GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
               NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
                                                length:length+dstLen-srcLen]);
+              NSDebugFLog(@"Copy %d characters to pos %d",dstLen,i);
               GSWMemMove(pString+i,&dstUnichar,sizeof(unichar)*dstLen);
               i+=dstLen;
               length+=dstLen-srcLen;
