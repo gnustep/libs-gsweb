@@ -390,7 +390,7 @@ RCS_ID("$Id$")
           //NSDebugMLLog(@"bundles",@"_path=%@",_path);
           if (path==GSNotFoundMarker)
             path=nil;
-          if (!path)
+          else if (!path)
             {
               //call again _relativePathForResourceNamed:inDirectory:forLanguage:
               NSString* completePathTest=nil;
@@ -420,7 +420,7 @@ RCS_ID("$Id$")
               else
                 [_relativePathsCache setObject:GSNotFoundMarker
                                      forKeysArray:keys];
-            };
+            }
         }
       NS_HANDLER
         {

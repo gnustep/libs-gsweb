@@ -41,8 +41,6 @@
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)template;
--(NSString*)definitionName;
--(void)setDefinitionName:(NSString*)definitionName;
 @end
 
 //====================================================================

@@ -43,7 +43,7 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      _context=[GSWContext contextWithRequest:aRequest];
+      _context=[[GSWApplication application]createContextForRequest:aRequest];
       [GSWApp _setContext:_context]; //NDFN
       [self _initializeRequestSessionIDInContext:_context];
     };

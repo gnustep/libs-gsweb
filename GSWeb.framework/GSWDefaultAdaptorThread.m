@@ -585,7 +585,7 @@ RCS_ID("$Id$")
       NSString* method=[requestLineArray objectAtIndex:0];
       NSString* url=[requestLineArray objectAtIndex:1];
       NSArray* http=[[requestLineArray objectAtIndex:2] componentsSeparatedByString:@"/"];
-      [GSWApplication statusLogWithFormat:@"Request uri=%@",url];
+      [GSWApplication statusLogWithFormat:@"RemoteAddress=%@ Request uri=%@",_remoteAddress,url];
 
       NSDebugDeepMLLog(@"info",@"method=%@",method);
       NSDebugDeepMLLog(@"info",@"url=%@",url);
