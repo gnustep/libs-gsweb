@@ -222,6 +222,15 @@ static int dontTraceComponentActionURL=0;
 };
 
 //--------------------------------------------------------------------
+//	returns contextID.ElementID
+-(NSString*)contextAndElementID 
+{
+  return [NSString stringWithFormat:@"%u.%@",
+                   _contextID,
+                   _elementID];
+};
+
+//--------------------------------------------------------------------
 -(GSWComponent*)component
 {
   return _currentComponent;
