@@ -78,7 +78,6 @@
 #include <Foundation/NSFormatter.h>
 #include <GNUstepBase/GSXML.h>
 #include <GNUstepBase/GSCategories.h>
-#include "GSCache.h"
 #include "GSWConfig.h"
 
 @class EOEditingContext;
