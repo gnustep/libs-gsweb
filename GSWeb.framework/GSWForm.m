@@ -243,43 +243,59 @@ static char rcsId[] = "$Id$";
   int i=0;
   LOGObjectFnStartC("GSWForm");
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _senderID=[context_ senderID];
-  _elementID=[context_ elementID];
-  _isFormSubmited=[_elementID isEqualToString:_senderID];
-#if !GSWEB_STRICT
-  if (_isFormSubmited && [self disabledInContext:context_])
-	_isFormSubmited=NO;
-#endif
-  if (_isFormSubmited)
+  NS_DURING
 	{
-	  [context_ setInForm:YES];
-	  [context_ _setFormSubmitted:YES];
-	  _multipleSubmit=[self evaluateCondition:multipleSubmit
-						  inContext:context_];
-	  [context_ _setIsMultipleSubmitForm:_multipleSubmit];
-	};
-  [context_ appendZeroElementIDComponent];
-  for(i=0;!_element && i<[dynamicChildren count];i++)
-	{
-	  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[dynamicChildren objectAtIndex:i] class],[context_ elementID]);
-	  _element=[[dynamicChildren objectAtIndex:i] invokeActionForRequest:request_
-												  inContext:context_];
-	  [context_ incrementLastElementIDComponent];
-	};
-  [context_ deleteLastElementIDComponent];
-  if (_isFormSubmited)
-	{
-	  if ([context_ _wasActionInvoked])
+	  _senderID=[context_ senderID];
+	  _elementID=[context_ elementID];
+	  if ([_senderID hasPrefix:_elementID]) //Avoid trying to find action if we are not the good form
 		{
-		  [context_ _setIsMultipleSubmitForm:NO];
-		};
-	  [context_ setInForm:NO];
-	  [context_ _setFormSubmitted:NO];
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
-#ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWForm invokeActionForRequest: bad elementID");
+		  _isFormSubmited=[_elementID isEqualToString:_senderID];
+#if !GSWEB_STRICT
+		  if (_isFormSubmited && [self disabledInContext:context_])
+			_isFormSubmited=NO;
 #endif
+		  if (_isFormSubmited)
+			{
+			  [context_ setInForm:YES];
+			  [context_ _setFormSubmitted:YES];
+			  _multipleSubmit=[self evaluateCondition:multipleSubmit
+									inContext:context_];
+			  [context_ _setIsMultipleSubmitForm:_multipleSubmit];
+			};
+		  [context_ appendZeroElementIDComponent];
+		  for(i=0;!_element && i<[dynamicChildren count];i++)
+			{
+			  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[dynamicChildren objectAtIndex:i] class],[context_ elementID]);
+			  _element=[[dynamicChildren objectAtIndex:i] invokeActionForRequest:request_
+														  inContext:context_];
+			  [context_ incrementLastElementIDComponent];
+			};
+		  [context_ deleteLastElementIDComponent];
+		  if (_isFormSubmited)
+			{
+			  if ([context_ _wasActionInvoked])
+				{
+				  [context_ _setIsMultipleSubmitForm:NO];
+				};
+			  [context_ setInForm:NO];
+			  [context_ _setFormSubmitted:NO];
+			};
+		  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+#ifndef NDEBBUG
+		  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWForm invokeActionForRequest: bad elementID");
+#endif
+		};
+	}
+  NS_HANDLER
+	{
+	  LOGException0(@"exception in GSWForm invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+															  @"In GSWForm invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  [localException raise];
+	}
+  NS_ENDHANDLER;
   LOGObjectFnStopC("GSWForm");
   return _element; 
 };
@@ -302,35 +318,38 @@ static char rcsId[] = "$Id$";
   _elementID=[context_ elementID];
   NSDebugMLLog(@"gswdync",@"_senderID=%@",_senderID);
   NSDebugMLLog(@"gswdync",@"_elementID=%@",_elementID);
-  _isFormSubmited=[_elementID isEqualToString:_senderID];
-  NSDebugMLLog(@"gswdync",@"_isFormSubmited=%d",(int)_isFormSubmited);
+  if ([_senderID hasPrefix:_elementID]) //Avoid taking values if we are not the good form
+	{
+	  _isFormSubmited=[_elementID isEqualToString:_senderID];
+	  NSDebugMLLog(@"gswdync",@"_isFormSubmited=%d",(int)_isFormSubmited);
 #if !GSWEB_STRICT
-  if (_isFormSubmited && [self disabledInContext:context_])
-	_isFormSubmited=NO;
+	  if (_isFormSubmited && [self disabledInContext:context_])
+		_isFormSubmited=NO;
 #endif
-
-  NSDebugMLLog(@"gswdync",@"Starting GSWForm TV ET=%@ id=%@",[self class],[context_ elementID]);
-  if (_isFormSubmited)
-	{
-	  [context_ setInForm:YES];
-	  [context_ _setFormSubmitted:YES];
-	};
-  [context_ appendZeroElementIDComponent];
-  NSDebugMLLog(@"gswdync",@"\n\ndynamicChildren=%@",dynamicChildren);
-  NSDebugMLLog(@"gswdync",@"[dynamicChildren count]=%d",[dynamicChildren count]);
-  for(i=0;i<[dynamicChildren count];i++)
-	{
-	  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[dynamicChildren objectAtIndex:i] class],[context_ elementID]);
-	  NSDebugMLLog(@"gswdync",@"\n[dynamicChildren objectAtIndex:i]=%@",[dynamicChildren objectAtIndex:i]);
-	  [[dynamicChildren objectAtIndex:i] takeValuesFromRequest:request_
-										 inContext:context_];
-	  [context_ incrementLastElementIDComponent];
-	};
-  [context_ deleteLastElementIDComponent];
-  if (_isFormSubmited)
-	{
-	  [context_ setInForm:NO];
-	  [context_ _setFormSubmitted:NO];
+	  
+	  NSDebugMLLog(@"gswdync",@"Starting GSWForm TV ET=%@ id=%@",[self class],[context_ elementID]);
+	  if (_isFormSubmited)
+		{
+		  [context_ setInForm:YES];
+		  [context_ _setFormSubmitted:YES];
+		};
+	  [context_ appendZeroElementIDComponent];
+	  NSDebugMLLog(@"gswdync",@"\n\ndynamicChildren=%@",dynamicChildren);
+	  NSDebugMLLog(@"gswdync",@"[dynamicChildren count]=%d",[dynamicChildren count]);
+	  for(i=0;i<[dynamicChildren count];i++)
+		{
+		  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[dynamicChildren objectAtIndex:i] class],[context_ elementID]);
+		  NSDebugMLLog(@"gswdync",@"\n[dynamicChildren objectAtIndex:i]=%@",[dynamicChildren objectAtIndex:i]);
+		  [[dynamicChildren objectAtIndex:i] takeValuesFromRequest:request_
+											 inContext:context_];
+		  [context_ incrementLastElementIDComponent];
+		};
+	  [context_ deleteLastElementIDComponent];
+	  if (_isFormSubmited)
+		{
+		  [context_ setInForm:NO];
+		  [context_ _setFormSubmitted:NO];
+		};
 	};
   NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
 #ifndef NDEBBUG

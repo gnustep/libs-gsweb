@@ -97,38 +97,64 @@ static char rcsId[] = "$Id$";
   GSWElement* _element=nil;
   BOOL _disabled=NO;
   LOGObjectFnStart();
-  _disabled=[self disabledInContext:context_];
-  if (!_disabled)
+  NS_DURING
 	{
-	  BOOL _wasFormSubmitted=[context_ _wasFormSubmitted];
-	  if (_wasFormSubmitted)
+	  _disabled=[self disabledInContext:context_];
+	  if (!_disabled)
 		{
-		  BOOL _invoked=NO;
-		  GSWComponent* _component=[context_ component];
-		  BOOL _isMultipleSubmitForm=[context_ _isMultipleSubmitForm];
-		  if (_isMultipleSubmitForm)
+		  BOOL _wasFormSubmitted=[context_ _wasFormSubmitted];
+		  if (_wasFormSubmitted)
 			{
-			  NSString* _nameInContext=[self nameInContext:context_];
-			  NSString* _formValue=[request_ formValueForKey:_nameInContext];
-			  NSDebugMLLog(@"gswdync",@"_formValue=%@",_formValue);
-			  if (_formValue)
+			  BOOL _invoked=NO;
+			  GSWComponent* _component=[context_ component];
+			  BOOL _isMultipleSubmitForm=[context_ _isMultipleSubmitForm];
+			  if (_isMultipleSubmitForm)
+				{
+				  NSString* _nameInContext=[self nameInContext:context_];
+				  NSString* _formValue=[request_ formValueForKey:_nameInContext];
+				  NSDebugMLLog(@"gswdync",@"_formValue=%@",_formValue);
+				  if (_formValue)
+					_invoked=YES;
+				}
+			  else
 				_invoked=YES;
-			}
-		  else
-			_invoked=YES;
-		  if (_invoked)
-			{
-			  id _actionValue=nil;
-			  NSDebugMLLog0(@"gswdync",@"Invoked Object Found !!");
-			  [context_ _setActionInvoked:1];
-			  _actionValue=[action valueInComponent:_component];
-			  if (_actionValue)
-				  _element=_actionValue;
-			  if (!_element)
-				_element=[context_ page];
+			  if (_invoked)
+				{
+				  id _actionValue=nil;
+				  NSDebugMLLog0(@"gswdync",@"Invoked Object Found !!");
+				  [context_ _setActionInvoked:1];
+				  NS_DURING
+					{
+					  _actionValue=[action valueInComponent:_component];
+					}
+				  NS_HANDLER
+					{
+					  LOGException0(@"exception in GSWSubmitButton invokeActionForRequest:inContext action");
+					  LOGException(@"exception=%@",localException);
+					  localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+																			  @"In GSWSubmitButton invokeActionForRequest:inContext action %@",action);
+					  LOGException(@"exception=%@",localException);
+					  [localException raise];
+					}
+				  NS_ENDHANDLER;
+				  if (_actionValue)
+					_element=_actionValue;
+				  if (!_element)
+					_element=[context_ page];
+				};
 			};
 		};
-	};
+	}
+  NS_HANDLER
+	{
+	  LOGException0(@"exception in GSWSubmitButton invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+															  @"In GSWSubmitButton invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  [localException raise];
+	}
+  NS_ENDHANDLER;
   LOGObjectFnStop();
   return _element;
 };

@@ -237,9 +237,18 @@ static char rcsId[] = "$Id$";
   [self pushRefComponentInContext:context_];
   if ([context_ component])
 	{
-	  _component=[context_ component];
-	  _element=[_component invokeActionForRequest:request_
-						   inContext:context_];
+	  NSString* _senderID=nil;
+	  NSString* _elementID=nil;
+	  _senderID=[context_ senderID];
+	  _elementID=[context_ elementID];
+	  NSDebugMLLog(@"gswdync",@"_senderID=%@",_senderID);
+	  NSDebugMLLog(@"gswdync",@"_elementID=%@",_elementID);
+	  if ([_senderID hasPrefix:_elementID]) //Avoid trying to find action if we are not the good component
+		{
+		  _component=[context_ component];
+		  _element=[_component invokeActionForRequest:request_
+							   inContext:context_];
+		};
 	  [self popRefComponentInContext:context_];
 	}
   else

@@ -1093,14 +1093,27 @@ static char rcsId[] = "$Id$";
   GSWElement* _pageElement=nil;
   GSWComponent* _pageComponent=nil;
   LOGObjectFnStart();
-  _pageElement=[context_ _pageElement];
-  _pageComponent=[context_ _pageComponent];
-  [context_ _setCurrentComponent:_pageComponent]; //_pageElement ??
-  _element=[_pageComponent invokeActionForRequest:request_
-						   inContext:context_]; //_pageComponent
-  [context_ _setCurrentComponent:nil];
-  if (!_element)
-	_element=[context_ page]; //??
+  NS_DURING
+	{
+	  _pageElement=[context_ _pageElement];
+	  _pageComponent=[context_ _pageComponent];
+	  [context_ _setCurrentComponent:_pageComponent]; //_pageElement ??
+	  _element=[_pageComponent invokeActionForRequest:request_
+							   inContext:context_]; //_pageComponent
+	  [context_ _setCurrentComponent:nil];
+	  if (!_element)
+		_element=[context_ page]; //??
+	}
+  NS_HANDLER
+	{
+	  LOGException0(@"exception in GSWSession invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+															  @"In GSWSession invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  [localException raise];
+	}
+  NS_ENDHANDLER;
   LOGObjectFnStop();
   return _element;
 };

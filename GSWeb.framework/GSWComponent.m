@@ -965,11 +965,24 @@ associationsKeys:(NSArray*)_associationsKeys
 #endif
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _template=[self _template];
-  [context_ appendZeroElementIDComponent];
-  element=[[self _template] invokeActionForRequest:request_
-							inContext:context_];
-  [context_ deleteLastElementIDComponent];
+  NS_DURING
+	{
+	  _template=[self _template];
+	  [context_ appendZeroElementIDComponent];
+	  element=[[self _template] invokeActionForRequest:request_
+								inContext:context_];
+	  [context_ deleteLastElementIDComponent];
+	}
+  NS_HANDLER
+	{
+	  LOGException0(@"exception in GSWComponent invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+															  @"In GSWComponent invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  [localException raise];
+	}
+  NS_ENDHANDLER;
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[context_ elementID]])

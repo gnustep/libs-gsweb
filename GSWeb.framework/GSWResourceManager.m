@@ -1500,7 +1500,7 @@ NSString* globalLanguagesPListPathName=nil;
 	  int i=0;
 	  for(i=0;i<[ISOLanguages_ count];i++)
 		{
-		  _ISOLanguage=[[ISOLanguages_ objectAtIndex:i] lowercaseString];
+		  _ISOLanguage=[[[ISOLanguages_ objectAtIndex:i] stringByTrimmingSpaces] lowercaseString];
 		  _GSLanguage=[self GSLanguageFromISOLanguage:_ISOLanguage];
 		  if (_GSLanguage)
 			[_array addObject:_GSLanguage];
@@ -1534,7 +1534,7 @@ NSString* globalLanguagesPListPathName=nil;
 	  int i=0;
 	  for(i=0;i<[GSLanguages_ count];i++)
 		{
-		  _GSLanguage=[[GSLanguages_ objectAtIndex:i] lowercaseString];
+		  _GSLanguage=[[[GSLanguages_ objectAtIndex:i] stringByTrimmingSpaces] lowercaseString];
 		  _ISOLanguage=[self ISOLanguageFromGSLanguage:_GSLanguage];
 		  [_array addObject:_ISOLanguage];
 		};

@@ -2314,9 +2314,22 @@ int GSWApplicationMain(NSString* _applicationClassName,
   GSWElement* element=nil;
   GSWSession* _session=nil;
   LOGObjectFnStart();
-  _session=[context_ existingSession];
-  element=[_session invokeActionForRequest:request_
-					inContext:context_];
+  NS_DURING
+	{
+	  _session=[context_ existingSession];
+	  element=[_session invokeActionForRequest:request_
+						inContext:context_];
+	}
+  NS_HANDLER
+	{
+	  LOGException0(@"exception in GSWApplication invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+															  @"In GSWApplication invokeActionForRequest:inContext");
+	  LOGException(@"exception=%@",localException);
+	  [localException raise];
+	}
+  NS_ENDHANDLER;
   LOGObjectFnStop();
   return element;
 };

@@ -357,6 +357,7 @@ static char rcsId[] = "$Id$";
 																  @"In invokeActionForRequest component=%@ of Class %@",
 																  [_component name],
 																  [_component class]);
+		  LOGException(@"exception=%@",localException);
 		  ASSIGN(_exception,localException);
 		  if (!_responsePage)
 			{
