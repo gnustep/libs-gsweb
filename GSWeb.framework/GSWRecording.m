@@ -175,6 +175,7 @@ RCS_ID("$Id$")
   NSString* sessionID = nil;
   NSMutableString* contentString = nil;
   int contentLength=0;
+  NSString* applicationURLPrefix=nil;
 
   LOGObjectFnStart();
 
@@ -193,10 +194,12 @@ RCS_ID("$Id$")
                      range:NSMakeRange(0,[contentString length])];
     };
 
-  NSDebugMLLog(@"GSWRecording",@"[_request _applicationURLPrefix]=%@",
-               [_request _applicationURLPrefix]);
-  NSAssert([_request _applicationURLPrefix],@"[_request _applicationURLPrefix]");
-  [contentString replaceOccurrencesOfString:(NSString*)[_request _applicationURLPrefix]
+  applicationURLPrefix=[NSString stringWithString:(NSString*)[_request _applicationURLPrefix]];
+  NSDebugMLLog(@"GSWRecording",@"applicationURLPrefix=%@",
+               applicationURLPrefix);
+  NSAssert(applicationURLPrefix,@"No applicationURLPrefix");
+
+  [contentString replaceOccurrencesOfString:applicationURLPrefix
                  withString:@"##GSWAPPURLPREFIX##"
                  options:0
                  range:NSMakeRange(0,[contentString length])];
