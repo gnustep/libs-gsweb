@@ -1835,6 +1835,7 @@ RCS_ID("$Id$")
   NSDictionary* headers=nil;
   NSEnumerator* enumerator=nil;
   LOGObjectFnStart();
+  NSStringEncoding e;
 
   formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
 
@@ -1857,7 +1858,18 @@ RCS_ID("$Id$")
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
   [parser expectNoHeaders];
-  [parser setDefaultEncoding:[self formValueEncoding]];
+  if ((e = [self formValueEncoding]) != NSISOLatin1StringEncoding)
+    {
+      if (e == NSUTF8StringEncoding)
+	{
+	  [parser setDefaultCharset: @"utf-8"];
+	}
+      else
+	{
+	  [parser setDefaultCharset:
+	    [GSObjCClass(parser) charsetFromEncoding: e]];
+	}
+    }
   if ([parser parse:_contentData])
     [parser parse:nil];
   NSDebugMLLog(@"requests",@"[parser isComplete]=%d",[parser isComplete]);
