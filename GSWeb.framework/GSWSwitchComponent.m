@@ -197,8 +197,9 @@ if the component has already been created, it get it from the cache; otherwise, 
                self,[self definitionName],_componentName,[component parent]);
   if ([aName length]==0)
     {      
-      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName is null ! componentName key: %@",
-                     _componentName);
+      ExceptionRaise(@"GSWSwitchComponent",
+                     @"ComponentName is null. componentNameKey='%@' definitionName=%@ currentComponentName=%@",
+                     _componentName,[self definitionName],[component name]);
     }
   else
     {
