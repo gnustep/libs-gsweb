@@ -1,3 +1,8 @@
+2000-11-28  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWDisplayGroup.m ([GSWDisplayGroup
+	-insertObjectAtIndex:]): fixed missing method call.
+
 2000-11-24  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWDisplayGroup.m ([GSWDisplayGroup

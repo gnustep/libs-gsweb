@@ -939,7 +939,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     }
   else
     {
-      [object takeValuesFromDictionary:[self _insertedObjectDefaultValues]];
+      [object takeValuesFromDictionary:[self insertedObjectDefaultValues]];
       [self insertObject:object atIndex:index];
     };
   LOGObjectFnStop();
