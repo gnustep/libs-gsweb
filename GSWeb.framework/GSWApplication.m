@@ -1834,7 +1834,8 @@ int GSWApplicationMain(NSString* applicationClassName,
   int i=0;
   NSBundle* bundle=nil;
   NSDictionary* bundleInfo=nil;
-  id hasGSWComponents=nil;
+  // This makes only trouble and saves not so much time dave@turbocat.de
+  // id hasGSWComponents=nil;
   LOGObjectFnStart();
   array=[NSMutableArray array];
   for(i=0;i<[bundles count];i++)
@@ -1842,16 +1843,16 @@ int GSWApplicationMain(NSString* applicationClassName,
       bundle=[bundles objectAtIndex:i];
       //NSDebugMLLog(@"gswcomponents",@"bundle=%@",bundle);
       //NSDebugMLLog(@"gswcomponents",@"bundle resourcePath=%@",[bundle resourcePath]);
-      bundleInfo=[bundle infoDictionary];
+      ///bundleInfo=[bundle infoDictionary];
       //NSDebugMLLog(@"gswcomponents",@"bundleInfo=%@",bundleInfo);
-      hasGSWComponents=[bundleInfo objectForKey:@"HasGSWComponents"];
+      ///hasGSWComponents=[bundleInfo objectForKey:@"HasGSWComponents"];
       //NSDebugMLLog(@"gswcomponents",@"hasGSWComponents=%@",hasGSWComponents);
       //NSDebugMLLog(@"gswcomponents",@"hasGSWComponents class=%@",[hasGSWComponents class]);
-      if (boolValueFor(hasGSWComponents))
-        {
+      //if (boolValueFor(hasGSWComponents))
+      //  {
           [array addObject:bundle];
           NSDebugMLLog(@"gswcomponents",@"Add %@",[bundle bundleName]);
-        };
+      //  };
     };
   //  NSDebugMLLog(@"gswcomponents",@"_array=%@",_array);
   LOGObjectFnStop();
