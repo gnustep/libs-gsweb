@@ -71,6 +71,8 @@ int allow_severity = LOG_INFO;
       //  [self setInstance:_instance];
       _queueSize=[[arguments objectForKey:GSWOPT_ListenQueueSize[GSWebNamingConv]] intValue];
       _workerThreadCount=[[arguments objectForKey:GSWOPT_WorkerThreadCount[GSWebNamingConv]] intValue];
+      _workerThreadCountMin=[[arguments objectForKey:GSWOPT_WorkerThreadCountMin[GSWebNamingConv]] intValue];
+      _workerThreadCountMax=[[arguments objectForKey:GSWOPT_WorkerThreadCountMax[GSWebNamingConv]] intValue];
       _isMultiThreadEnabled=[[arguments objectForKey:GSWOPT_MultiThreadEnabled] boolValue];
       ASSIGN(_adaptorHost,[arguments objectForKey:GSWOPT_AdaptorHost[GSWebNamingConv]]);
     };
@@ -193,15 +195,15 @@ int allow_severity = LOG_INFO;
 
 
 //--------------------------------------------------------------------
--(void)setWorkerThreadCount:(id)workerThreadCount
+-(void)setWorkerThreadCountMin:(id)workerThreadCount
 {
   if ([self tryLock])
     {
       NS_DURING
         {
-          _workerThreadCount=[workerThreadCount intValue];
-          if (_workerThreadCount<1)
-            _workerThreadCount=1;
+          _workerThreadCountMin=[workerThreadCount intValue];
+          if (_workerThreadCountMin<1)
+            _workerThreadCountMin=1;
         }
       NS_HANDLER
         {
@@ -219,9 +221,41 @@ int allow_severity = LOG_INFO;
 };
 
 //--------------------------------------------------------------------
--(id)workerThreadCount
+-(id)workerThreadCountMin
 {
-  return [NSNumber numberWithInt:_workerThreadCount];
+  return [NSNumber numberWithInt:_workerThreadCountMin];
+};
+
+//--------------------------------------------------------------------
+-(void)setWorkerThreadCountMax:(id)workerThreadCount
+{
+  if ([self tryLock])
+    {
+      NS_DURING
+        {
+          _workerThreadCountMax=[workerThreadCount intValue];
+          if (_workerThreadCountMax<1)
+            _workerThreadCountMax=1;
+        }
+      NS_HANDLER
+        {
+          LOGException(@"%@ (%@)",
+                       localException,
+                       [localException reason]);
+        }
+      NS_ENDHANDLER;
+      [self unlock];
+    }
+  else
+    {
+      //TODO
+    };
+};
+
+//--------------------------------------------------------------------
+-(id)workerThreadCountMax
+{
+  return [NSNumber numberWithInt:_workerThreadCountMax];
 };
 
 //--------------------------------------------------------------------

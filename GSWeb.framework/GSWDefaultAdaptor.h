@@ -39,6 +39,8 @@ extern int iBlock;
   int _instance;
   int _queueSize;
   int _workerThreadCount;
+  int _workerThreadCountMin;
+  int _workerThreadCountMax;
   BOOL _isMultiThreadEnabled;
   NSFileHandle* _fileHandle;
   NSMutableArray* _waitingThreads;
@@ -47,7 +49,6 @@ extern int iBlock;
   BOOL _blocked;
 }
 
--(void)dealloc;
 -(id)initWithName:(NSString*)name
         arguments:(NSDictionary*)arguments;
 
@@ -68,6 +69,10 @@ extern int iBlock;
 
 -(void)setWorkerThreadCount:(id)workerThreadCount;
 -(id)workerThreadCount;
+-(void)setWorkerThreadCountMin:(id)workerThreadCount;
+-(id)workerThreadCountMin;
+-(void)setWorkerThreadCountMax:(id)workerThreadCount;
+-(id)workerThreadCountMax;
 -(void)setListenQueueSize:(id)listenQueueSize;
 -(BOOL)isMultiThreadEnabled;
 -(BOOL)isConnectionAllowedWithHandle:(NSFileHandle*)handle
