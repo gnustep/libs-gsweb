@@ -19,6 +19,8 @@
 	performSelector: to send undeclared targetForProxy method.
 	([GSWApplication monitoringEnabled]): Forward isMonitorEnabled to
 	class.
+	* GSWeb.framework/GSWConfig.h: Turn GSW/WOLifebeatEnabled off by
+	default.
 
 2004-01-13  David Ayers  <d.ayers@inode.at>
 

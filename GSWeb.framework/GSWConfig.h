@@ -56,7 +56,7 @@
 #define GSWOPTVALUE_MultiThreadEnabled				@"YES"
 #define GSWOPTVALUE_AdaptorHost					@""
 #define GSWOPTVALUE_DefaultTemplateParser      			@"XMLHTML"
-#define GSWOPTVALUE_LifebeatEnabled				@"YES"
+#define GSWOPTVALUE_LifebeatEnabled				@"NO"
 #define GSWOPTVALUE_LifebeatDestinationHost			@"localhost"
 #define GSWOPTVALUE_LifebeatDestinationPort			@"1085"
 #define GSWOPTVALUE_LifebeatInterval				@"30"
