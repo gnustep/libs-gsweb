@@ -601,6 +601,7 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(void)_terminateByTimeout
 {
   _wasTimedOut = YES;
@@ -639,9 +640,13 @@ RCS_ID("$Id$")
 @implementation GSWSession (GSWSessionDebugging)
 
 //--------------------------------------------------------------------
--(void)debugWithFormat:(NSString*)format,...
+-(void)debugWithFormat:(NSString*)aFormat,...
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  va_list ap=NULL;
+  va_start(ap,aFormat);
+  [GSWApp debugWithFormat:aFormat
+          arguments:ap];
+  va_end(ap);
 };
 
 @end
@@ -652,7 +657,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)_debugWithString:(NSString*)string
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [GSWApp debugWithString:string];
 };
 
 @end
@@ -880,15 +885,23 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)appendCookieToResponse:(GSWResponse*)aResponse
 {
-  //OK
   LOGObjectFnStart();
   if ([self storesIDsInCookies])
     {
-      //TODO VERIFY
       NSString* domainForIDCookies=[self domainForIDCookies];
-      NSString* sessionID=[self sessionID];
+      NSString* sessionID=nil;
       int instance=-1;
-      NSDate* anExpireDate=[self expirationDateForIDCookies];
+      NSDate* anExpireDate=nil;
+      if ([self isTerminating])
+        {
+          sessionID=@"";
+          anExpireDate=[NSDate date]; //expire now !
+        }
+      else
+        {
+          sessionID=[self sessionID];
+          anExpireDate=[self expirationDateForIDCookies];
+        };
 
       // SessionID cookie
       [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
