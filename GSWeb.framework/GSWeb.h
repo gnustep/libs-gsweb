@@ -218,6 +218,7 @@
 #include "GSWSwitchComponent.h"
 #include "GSWVBScript.h"
 #include "GSWString.h"
+#include "GSWActionURL.h"
 #include "GSWText.h"
 #include "GSWCookie.h"
 #include "GSWRequestHandler.h"
