@@ -1,6 +1,6 @@
 /** GSWGenericElement.m - <title>GSWeb: Class GSWGenericElement</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -36,16 +36,20 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWGenericElement
 
+//-----------------------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
+  LOGObjectFnStart();
+
   if ((self=[super initWithName: name
 		   associations: associations
 		   template: templateElement]))
     {
-      NSMutableDictionary *dict;
+      NSMutableDictionary *dict=nil;
 
+      ASSIGN(_elementName, [associations objectForKey: elementName__Key]);
       ASSIGN(_name, [associations objectForKey: name__Key]);
       ASSIGN(_omitTags, [associations objectForKey: omitTags__Key]);
       ASSIGN(_formValue, [associations objectForKey: formValue__Key]);
@@ -70,6 +74,7 @@ RCS_ID("$Id$")
 
       dict = AUTORELEASE([associations mutableCopy]);
 
+      [dict removeObjectForKey: elementName__Key];
       [dict removeObjectForKey: name__Key];
       [dict removeObjectForKey: omitTags__Key];
       [dict removeObjectForKey: formValue__Key];
@@ -80,6 +85,8 @@ RCS_ID("$Id$")
 
       ASSIGNCOPY(_otherAssociations, dict);
     }
+
+  LOGObjectFnStop();
 
   return self;
 };
@@ -106,109 +113,109 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  [self _elementNameAppendToResponse: response inContext: context];
+  LOGObjectFnStart();
+
+  [self _elementNameAppendToResponse: response 
+        inContext: context];
+
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
-
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
 {
-  GSWElement *element;
-  GSWComponent *comp;
+  GSWElement *element = nil;
+  GSWComponent *component = nil;
 
-  element = nil;
-  comp = [context component];
+  LOGObjectFnStart();
+
+  component = [context component];
+
   if (_invokeAction != nil
-      && [_invokeAction isImplementedForComponent: comp])
+      && [_invokeAction isImplementedForComponent:component])
     {
-      NSString *elementID;
-      NSString *senderID;
+      NSString *elementID = [context elementID];
+      NSString *senderID = [context senderID];
 
-      elementID = [context elementID];
-      senderID = [context senderID];
+      NSDebugMLog(@"elementID=%@ senderID=%@",
+                  elementID,senderID);
 
       if ([elementID isEqualToString: senderID])
 	{
-	  id nameValue;
-	  id formValue;
+          if (_elementID != nil)
+              [_elementID setValue: [elementID description]
+                          inComponent: component];
 
-	  /* This implicitly also tests _hasFormValues 
-	     as then we must have a _name,
-	     but since we need the _name anyway,
-	     we can skip the extra test. */
-	  if (_name == nil)
-	    {
-	      return element;
-	    }
+          element = [_invokeAction valueInComponent:component];
+          if (!element)
+            element = [context page];
+        }
+      else if (_name)
+        {
+          id nameValue = [_name valueInComponent:component];
+          id formValue = [request stringFormValueForKey:nameValue];
 
-	  nameValue = [_name valueInComponent: comp];
-	  formValue = [request formValueForKey: nameValue];
+          if (formValue)
+            {
+              if(_elementID)
+                [_elementID setValue: [elementID description]
+                            inComponent:component];
 
-	  if (formValue == nil)
-	    {
-	      return element;
-	    }
-	}
-
-      if (_elementID != nil)
-	{
-	  [_elementID setValue: [elementID description]
-		      inComponent: comp];
-	}
-      element = [_invokeAction valueInComponent: comp];
-      if (element != nil)
-	{
-	  return element;
-	}
-      element = [context page];
+              element = [_invokeAction valueInComponent: component];
+              if (!element)
+                element = [context page];
+            };
+        };
     }
+
+  LOGObjectFnStop();
 
   return element;
 };
 
 //--------------------------------------------------------------------
-
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
+  LOGObjectFnStart();
+
   if (_hasFormValues)
     {
-      GSWComponent *comp;
-      NSString *elementID;
-      id nameValue;
+      GSWComponent *component = [context component];
+      NSString *elementID = [context elementID];
+      id nameValue = [_name valueInComponent: component];
 
-      comp = [context component];
-      elementID = [context elementID];
-      nameValue = [_name valueInComponent: comp];
       if (_elementID != nil)
 	{
 	  [_elementID setValue: [elementID description]
-		      inComponent: comp];
+		      inComponent: component];
 	}
       if (_formValue != nil)
 	{ 
-	  [_formValue setValue: [request formValueForKey: nameValue]
-		      inComponent: comp];
+	  [_formValue setValue: [request stringFormValueForKey: nameValue]
+		      inComponent: component];
 	}
       if (_formValues != nil)
 	{
 	  [_formValue setValue: [request formValuesForKey: nameValue]
-		      inComponent: comp];
+		      inComponent: component];
 	}
     }
+
+  LOGObjectFnStop();
 };
 
 //-------------------------------------------------------------------- 
-
 -(id)_elementNameAppendToResponse:(GSWResponse*)response
 			inContext:(GSWContext*)context
 {
-  NSString *elementName;
+  NSString *elementName = nil;
+
+  LOGObjectFnStart();
 
   if (_elementID != nil)
     {
@@ -217,6 +224,7 @@ RCS_ID("$Id$")
     }
 
   elementName = [self _elementNameInContext: context];
+  NSDebugMLog(@"elementName=%@",elementName);
 
   if (elementName != nil)
     {
@@ -224,6 +232,8 @@ RCS_ID("$Id$")
 	    toResponse: response 
 	    inContext: context];
     }
+
+  LOGObjectFnStop();
 
   return elementName;
 };
@@ -233,7 +243,9 @@ RCS_ID("$Id$")
                toResponse:(GSWResponse*)response
                 inContext:(GSWContext*)context
 {
-  GSWComponent *comp;
+  GSWComponent *comp = nil;
+
+  LOGObjectFnStart();
 
   comp = [context component];
   [response appendContentCharacter:'<'];
@@ -261,15 +273,18 @@ RCS_ID("$Id$")
     }
   [response appendContentCharacter: '>'];
 
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)_appendOtherAttributesToResponse:(GSWResponse*)response
                               inContext:(GSWContext*)context
 {
-  GSWComponent *comp;
-  NSEnumerator *keyEnum;
-  NSString *key;
+  GSWComponent *comp = nil;
+  NSEnumerator *keyEnum = nil;
+  NSString *key = nil;
+
+  LOGObjectFnStart();
 
   comp = [context component];
   keyEnum = [_otherAssociations keyEnumerator];
@@ -291,11 +306,18 @@ RCS_ID("$Id$")
 	}
     }
   
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(NSString*)_elementNameInContext:(GSWContext*)context
 {
+  NSString* elementName = nil;
+
+  LOGObjectFnStart();
+
+  NSDebugMLog(@"_elementName=%@",_elementName);
+
    if (_elementName)
     {
       BOOL omit = NO;
@@ -307,10 +329,15 @@ RCS_ID("$Id$")
 
       if (omit == NO)
 	{
-	  return [_elementName valueInComponent: [context component]];
+	  elementName=[_elementName valueInComponent: [context component]];
 	}
     }
-  return nil;
+
+  NSDebugMLog(@"elementName=%@",elementName);
+
+  LOGObjectFnStop();
+
+  return elementName;
 };
 
 //--------------------------------------------------------------------
