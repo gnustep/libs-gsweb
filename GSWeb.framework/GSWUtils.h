@@ -449,4 +449,42 @@ typedef enum _NSNumFmtType
      errorDescription:(NSString**)error;
 @end
 
+//====================================================================
+@interface NSData (Base64)
+/**
+ * Returns an NSString object containing an ASCII base64 representation
+ * of the receiver. <br />
+ * If you need the hexadecimal representation as raw byte data, use code
+ * like -
+ * <example>
+ *   hexData = [[sourceData base64Representation]
+ *     dataUsingEncoding: NSASCIIStringEncoding];
+ * </example>
+ */
+- (NSString*) base64Representation;
+
+/**
+ * Initialises the receiver with the supplied string data which contains
+ * a base64 coding of the bytes.  The parsing of the string is
+ * fairly tolerant, ignoring whitespace.<br />
+ * If the string does not contain one or more valid base64 characters
+ * then an exception is raised. 
+ */
+- (id) initWithBase64Representation: (NSString*)string;
+
+@end
+
+//====================================================================
+@interface NSData (Search)
+- (NSRange) rangeOfData: (NSData *)data
+                  range: (NSRange)aRange;
+@end
+
+//====================================================================
+@interface NSMutableData (Replace)
+- (unsigned int) replaceOccurrencesOfData: (NSData*)replace
+                                 withData: (NSData*)by
+                                    range: (NSRange)searchRange;
+@end
+
 #endif // _GSWebUtils_h__

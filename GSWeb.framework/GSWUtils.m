@@ -35,6 +35,7 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 #include "stacktrace.h"
 #include "attach.h"
@@ -201,6 +202,21 @@ NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv)
   /* There seems to be a problem with bad double arithmetic... */
   NSCAssert(interval < 0, NSInternalInconsistencyException);
   return interval;
+};
+
+void NSTimeIntervalSleep(NSTimeInterval ti)
+{
+  struct timespec ts;  
+  struct timespec remaining;
+  ts.tv_sec=(time_t)ti;
+  ts.tv_nsec=(long)((ti-ts.tv_sec)*100000000.0);
+  remaining.tv_sec=0;
+  remaining.tv_nsec=0;
+  NSDebugFLog(@"ts.tv_sec=%ld ts.tv_nsec=%ld",(long)ts.tv_sec,ts.tv_nsec);
+  if (nanosleep(&ts,&remaining)==-1)
+    {
+      NSDebugFLog(@"remaining tv_sec=%ld tv_nsec=%ld",(long)remaining.tv_sec,remaining.tv_nsec);
+    };
 };
 
 NSString* pidproccontent(NSString* path)
@@ -855,6 +871,28 @@ extern struct PTHREAD_HANDLE* nub_get_active_thread(void);
 
 NSString *NSLockException = @"NSLockException";
 
+NSString* MessageForMutexLockError(int errorNo)
+{
+  NSDebugFLog(@"errorNo=%d",errorNo);
+  switch(errorNo)
+    {
+    case EINVAL:
+      return @"EINVAL the mutex has not been properly initialized.";
+      break;
+    case EDEADLK:
+      return @"EDEADLK the  mutex  is  already  locked  by  the  calling  thread";
+      break;
+    case EBUSY:
+      return @"the mutex could not be acquired or destroyed because it was currently locked.";
+      break;
+    case EPERM:
+      return @"EPERM  the calling thread does not own the mutex";
+      break;
+    default:
+      return [NSString stringWithFormat:@"Unknown %d",errorNo];
+      break;
+    };
+};
 //====================================================================
 @implementation NSLock (NSLockBD)
 
@@ -869,6 +907,15 @@ NSString *NSLockException = @"NSLockException";
 -(BOOL)isLocked
 {
   BOOL isLocked=YES;
+  if (!_mutex->owner)
+    isLocked=NO;
+  else
+    {
+      NSDebugMLog(@"Locked by _mutex->owner=%p _mutex->depth=%d (this thread=%p)",
+                  (void*)_mutex->owner,(int)_mutex->depth,
+                  (void*)objc_thread_id());
+    };
+/*
   if ([self tmptryLock])
     {
       isLocked=NO;
@@ -876,10 +923,11 @@ NSString *NSLockException = @"NSLockException";
     }
   else
     {
-      NSDebugMLog(@"Locked by _mutex->owner=%p (our ThreadID=%p)",
-                  (void*)_mutex->owner,
+      NSDebugMLog(@"Locked by _mutex->owner=%p _mutex->depth=%d (this thread=%p)",
+                  (void*)_mutex->owner,(int)_mutex->depth,
                   (void*)objc_thread_id());
     };
+*/
   return isLocked;
 };
 
@@ -900,18 +948,21 @@ NSString *NSLockException = @"NSLockException";
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-  result=objc_mutex_trylock(_mutex);
-//  NSDebugMLLog(@"low",@"result=%d",result);
-  if (result != 0 && result!=1)
-    locked=NO;
-  else
-    locked=YES;
-
+  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
+               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
+  if (!_mutex->owner)
+    {
+      result=objc_mutex_trylock(_mutex);
+      //  NSDebugMLLog(@"low",@"result=%d",result);
+      if (result != 0 && result!=1)
+        locked=NO;
+      else
+        locked=YES;
+    };
 //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
     {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
     }
   else
     {
@@ -945,14 +996,17 @@ NSString *NSLockException = @"NSLockException";
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-  result=objc_mutex_trylock(_mutex);
-//  NSDebugMLLog(@"low",@"result=%d",result);
-  if (result != 0 && result!=1)
-    locked=NO;
-  else
-    locked=YES;
-//  LOGObjectFnStop();
+//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
+  if (!_mutex->owner)
+    {
+      result=objc_mutex_trylock(_mutex);
+      //  NSDebugMLLog(@"low",@"result=%d",result);
+      if (result != 0 && result!=1)
+        locked=NO;
+      else
+        locked=YES;
+      //  LOGObjectFnStop();
+    };
   return locked;
 };
 
@@ -975,36 +1029,50 @@ NSString *NSLockException = @"NSLockException";
   int result=0;
   int tryCount=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-  result=objc_mutex_trylock(_mutex);
-//  NSDebugMLLog(@"low",@"result=%d",result);
-  if (result != 0 && result!=1)
-    locked=NO;
-  else
-    locked=YES;
-  
+  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
+               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
+  if (!_mutex->owner)
+    {
+      result=objc_mutex_trylock(_mutex);
+      //  NSDebugMLLog(@"low",@"result=%d",result);
+      if (result != 0 && result!=1)
+        locked=NO;
+      else
+        locked=YES;
+    };
   //  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
     {
       tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      usleep(100);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-      result=objc_mutex_trylock(_mutex);
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result != 0 && result!=1)
+      NSTimeIntervalSleep(0.010);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
+      if (!_mutex->owner)
         {
-          if (tryCount%10==0)
-            NSLog(@"Try lock for %d micro-secondes",100*tryCount);
-          locked=NO;
+          result=objc_mutex_trylock(_mutex);
+          //NSDebugMLLog(@"low",@"result=%d",result);
+          if (result != 0 && result!=1)
+            {
+              if (tryCount%10==0)
+                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
+                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
+              locked=NO;
+            }
+          else
+            locked=YES;
         }
       else
-        locked=YES;
+        {
+          if (tryCount%10==0)
+            NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
+                  10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
+          locked=NO;
+        }
     }; 
   //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
     {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
     }
   else
     {
@@ -1037,36 +1105,51 @@ NSString *NSLockException = @"NSLockException";
   int result=0;
   int tryCount=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-  result=objc_mutex_trylock(_mutex);
-//  NSDebugMLLog(@"low",@"result=%d",result);
-  if (result != 0 && result!=1)
-    locked=NO;
-  else
-    locked=YES;
+  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
+               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
+  if (!_mutex->owner)
+    {
+      result=objc_mutex_trylock(_mutex);
+      //  NSDebugMLLog(@"low",@"result=%d",result);
+      if (result != 0 && result!=1)
+        locked=NO;
+      else
+        locked=YES;
+    };
 
 //  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
     {
       tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      usleep(100);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-      result=objc_mutex_trylock(_mutex);
-      //NSDebugMLLog(@"low",@"result=%d",result);
-      if (result != 0 && result!=1)
+      NSTimeIntervalSleep(0.010);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
+      if (!_mutex->owner)
         {
-          if (tryCount%10==0)
-            NSLog(@"Try lock for %d micro-secondes",100*tryCount);
-          locked=NO;
+          result=objc_mutex_trylock(_mutex);
+          //NSDebugMLLog(@"low",@"result=%d",result);
+          if (result != 0 && result!=1)
+            {
+              if (tryCount%10==0)
+                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
+                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
+              locked=NO;
+            }
+          else
+            locked=YES;
         }
       else
-        locked=YES;
+        {
+          if (tryCount%10==0)
+            NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
+                  10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
+          locked=NO;
+        };
     }; 
   //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
     {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
     }
   else
     {
@@ -1101,8 +1184,21 @@ NSString *NSLockException = @"NSLockException";
 {
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
-  if (_mutex->owner!=objc_thread_id())
+  NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
+               self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
+  if (!_mutex->owner)
+    {
+      LOGException(@"NSLockException unlock: failed to unlock mutex (not locked). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line);
+      [NSException raise:NSLockException
+                   format:@"unlock: failed to lock mutex (not locked). Called from %s in %s %d",
+                   fn ? fn : "Unknown",
+                   file ? file : "Unknown",
+                   line];
+    }
+  else if (_mutex->owner!=objc_thread_id())
     {
       LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
                    fn ? fn : "Unknown",
@@ -1117,17 +1213,23 @@ NSString *NSLockException = @"NSLockException";
   else
     {
       result=objc_mutex_unlock(_mutex);
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
       //NSDebugMLLog(@"low",@"result=%d",result);
       if (result != 0)
         {
+          NSDebugMLLog(@"low",@"AFT self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
+                       self,(void*)_mutex,(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
           //NSDebugMLLog(@"low",@"UNLOCK PROBLEM");
-          LOGException(@"NSLockException unlock: failed to unlock mutex (result!=0). Called from %s in %s %d",
+          LOGException(@"NSLockException unlock: failed to unlock mutex (result %d!=0).%@. Called from %s in %s %d",
+                       result,
+                       MessageForMutexLockError(result),
                        fn ? fn : "Unknown",
                        file ? file : "Unknown",
-					   line);
+                       line);
           [NSException raise:NSLockException
-                       format:@"unlock: failed to lock mutex (result!=0). Called from %s in %s %d",
+                       format:@"unlock: failed to unlock mutex (result %d!=0).%@. Called from %s in %s %d",
+                       result,
+                       MessageForMutexLockError(result),
                        fn ? fn : "Unknown",
                        file ? file : "Unknown",
                        line];
@@ -1178,7 +1280,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
     {
       result=objc_mutex_trylock(_mutex);
@@ -1199,7 +1301,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
       else
         {
           locked=YES;
-          //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+          //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
         };
     }
   else
@@ -1236,7 +1338,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
     {
       result=objc_mutex_trylock(_mutex);
@@ -1275,7 +1377,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   int tryCount=0;
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
     {
       tryCount++;
@@ -1293,8 +1395,8 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
     {
       tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      usleep(100);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      NSTimeIntervalSleep(0.010);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
       if (!_mutex->owner || _mutex->owner==objc_thread_id())
         {
           notOwner=NO;
@@ -1303,7 +1405,8 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
           if (result == -1)
             {
               if (tryCount%10==0)
-                NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
+                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
               locked=NO;
             }
           else
@@ -1315,7 +1418,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
     {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
     }
   else
     {
@@ -1350,7 +1453,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   int tryCount=0;
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
     {
       tryCount++;
@@ -1360,7 +1463,8 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
       if (result == -1)
         {
           if (tryCount%10==0)
-            NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+            NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
+                  10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
           locked=NO;
         }
       else
@@ -1373,8 +1477,8 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
     {
       tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
-      usleep(100);
-      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      NSTimeIntervalSleep(0.010);
+      //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
       if (!_mutex->owner || _mutex->owner==objc_thread_id())
         {
           notOwner=NO;
@@ -1383,7 +1487,8 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
           if (result == -1)
             {
               if (tryCount%10==0)
-                NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+                NSLog(@"Try lock for %d ms. lock current owner=%p this thread=%p",
+                      10*tryCount,(void*)_mutex->owner,(void*)objc_thread_id());
               locked=NO;
             }
           else
@@ -1395,7 +1500,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   if (locked)
     {
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
     }
   else
     {
@@ -1432,7 +1537,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 {
   int result=0;
 //  LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+//  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
   if (_mutex->owner!=objc_thread_id())
     {
       LOGException(@"NSLockException unlock: failed to unlock mutex (not owner). Called from %s in %s %d",
@@ -1448,7 +1553,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   else
     {
       result=objc_mutex_unlock(_mutex);
-      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
+      //NSDebugMLLog(@"low",@"AFT _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
       //NSDebugMLLog(@"low",@"result=%d",result);
       if (result == -1)
         {
@@ -2152,7 +2257,7 @@ NSString* GSWGetDefaultDocRoot()
         case NSNumFmtType__Unknown:
         default:
           LOGSeriousError(@"Unknown type %d to convert %@ to string",
-                          (int)type,
+                          (int)_type,
                           anObject);
           string=@"***";
           break;
@@ -2164,7 +2269,7 @@ NSString* GSWGetDefaultDocRoot()
 //--------------------------------------------------------------------
 -(BOOL)getObjectValue:(id*)anObject
             forString:(NSString*)string
-	 errorDescription:(NSString**)error
+     errorDescription:(NSString**)error
 {
   BOOL ok=NO;
   NSAssert(anObject,@"No value* to return");
@@ -2194,3 +2299,107 @@ NSString* GSWGetDefaultDocRoot()
 
 @end
 
+#include <Foundation/GSMime.h>
+
+@implementation NSData (Base64)
+
+- (NSString*) base64Representation
+{
+  return [[[NSString alloc]initWithData:[GSMimeDocument encodeBase64:self]
+                   encoding:NSASCIIStringEncoding] autorelease];
+};
+
+- (id) initWithBase64Representation: (NSString*)string
+{
+  return [self initWithData:[GSMimeDocument decodeBase64:[string dataUsingEncoding: NSASCIIStringEncoding]]];
+};
+
+@end
+
+@implementation NSData (Search)
+- (NSRange) rangeOfData: (NSData *)data
+                  range: (NSRange)aRange
+{
+  NSRange range=NSMakeRange(0,0);
+  if (data == nil)
+    [NSException raise: NSInvalidArgumentException format: @"range of nil"];
+  else
+    {
+      int selfLength=[self length];
+      int searchedLength=[data length];
+      if (aRange.location<0)
+        {
+        }
+      else if (aRange.location+aRange.length>selfLength)
+        {
+        }
+      else if (selfLength>0 && searchedLength>0)
+        {
+          const unsigned char* bytes=(const unsigned char*)[self bytes];
+          const unsigned char* searchedBytes=(const unsigned char*)[data bytes];
+
+          int searchIndex=0;
+          for(searchIndex=aRange.location;
+              searchIndex<(selfLength-searchedLength) && range.length==0;
+              searchIndex++)
+            {
+              int i=0;
+              if (bytes[searchIndex]==searchedBytes[0])
+                {
+                  for(i=1;i<searchedLength && bytes[searchIndex+i]==searchedBytes[i];i++);
+                  if (i==searchedLength)
+                    range=NSMakeRange(searchIndex,searchedLength);
+                };
+            };
+        };
+    };
+  return range;
+}
+@end
+
+@implementation NSMutableData (Replace)
+- (unsigned int) replaceOccurrencesOfData: (NSData*)replace
+                                 withData: (NSData*)by
+                                    range: (NSRange)searchRange
+{
+  NSRange       range;
+  unsigned int  count = 0;
+
+  if (replace == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+                  format: @"%@ nil search string", NSStringFromSelector(_cmd)];
+    }
+  if (by == nil)
+    {
+      [NSException raise: NSInvalidArgumentException
+                  format: @"%@ nil replace string", NSStringFromSelector(_cmd)];
+    }
+  range = [self rangeOfData: replace 
+                range: searchRange];
+
+  if (range.length > 0)
+    {
+      unsigned  byLen = [by length];
+      const void* byBytes=[by bytes];
+
+      do
+        {
+          unsigned int      newEnd;
+          count++;
+          [self replaceBytesInRange:range
+                withBytes:byBytes
+                length:byLen];
+
+          newEnd = NSMaxRange(searchRange) + byLen - range.length;
+          searchRange.location = range.location + byLen;
+          searchRange.length = newEnd - searchRange.location;
+
+          range = [self rangeOfData: replace 
+                        range: searchRange];
+        }
+      while (range.length > 0);
+    }
+  return count;
+}
+@end
