@@ -1,6 +1,6 @@
 /** GSWLogin.m - <title>GSWeb: Class GSWLogin</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
@@ -38,6 +38,7 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWLogin
 
+//--------------------------------------------------------------------
 -(id)init
 {
   LOGObjectFnStart();
@@ -48,6 +49,7 @@ RCS_ID("$Id$")
   return self;
 };
 
+//--------------------------------------------------------------------
 -(void)awake
 {
   LOGObjectFnStart();
@@ -58,6 +60,7 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(void)sleep
 {
   LOGObjectFnStart();
@@ -68,16 +71,19 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 -(void)dealloc
 {
   [super dealloc];
 };
 
+//--------------------------------------------------------------------
 -(BOOL)synchronizesVariablesWithBindings
 {
   return NO;
 };
 
+//--------------------------------------------------------------------
 -(GSWComponent*)login
 {
   GSWComponent* _nextPage=nil;
@@ -116,6 +122,7 @@ RCS_ID("$Id$")
 	  message=[self valueForBinding:@"message"];
 	};
       NSDebugMLog(@"message=%@",message);
+      _tryCount++;
     }
   NS_HANDLER
     {
@@ -131,5 +138,12 @@ RCS_ID("$Id$")
   return _nextPage;
 };
 
+//--------------------------------------------------------------------
+-(NSNumber*)computeIsTryCountGreaterThanForKey:(NSString*)count
+{
+  NSDebugMLog(@"_tryCount=%d",_tryCount);
+  NSDebugMLog(@"count=%@ countIntValue=%d",count,[count intValue]);
+  return [NSNumber numberWithBool:(_tryCount>[count intValue] ? YES : NO)];
+};
 @end
 
