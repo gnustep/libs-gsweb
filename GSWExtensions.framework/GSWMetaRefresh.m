@@ -1,6 +1,6 @@
 /** GSWMetaRefresh.m - <title>GSWeb: Class GSWMetaRefresh</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
@@ -38,23 +38,38 @@ RCS_ID("$Id$")
 
 //===================================================================================
 @implementation GSWMetaRefresh
+
+//-----------------------------------------------------------------------------------
 -(BOOL)synchronizesVariablesWithBindings
 {
   return NO;
 };
 
+//-----------------------------------------------------------------------------------
 -(NSString*)contentString
 {
-  NSNumber* seconds = [self valueForBinding:@"seconds"];
-  NSString* contentString = [NSString stringWithFormat:@"%@;url=%@",
-                                      [seconds description],
-                                      [[self context]componentActionURL]];
+  NSNumber* seconds = nil;
+  NSString* contentString = nil;
+
+  LOGObjectFnStart();
+
+  seconds = [self valueForBinding:@"seconds"];
+  contentString = [NSString stringWithFormat:@"%@;url=%@",
+                            [seconds description],
+                            [[self context]componentActionURL]];
+
+  LOGObjectFnStop();
+
   return contentString;
 };
 
+//-----------------------------------------------------------------------------------
 -(GSWComponent*)invokeAction
 {
   GSWComponent* component = nil;
+
+  LOGObjectFnStart();
+
   if ([self hasBinding:@"pageName"])
     {
       NSString* pageName = [self valueForBinding:@"pageName"];
@@ -62,6 +77,9 @@ RCS_ID("$Id$")
     }
   else
     component = [self valueForBinding:@"action"];
+
+  LOGObjectFnStop();
+
   return component;
 };
 
