@@ -1,6 +1,6 @@
 /** GSWRepetition.m - <title>GSWeb: Class GSWRepetition</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -121,11 +121,11 @@ RCS_ID("$Id$")
 }
 
 //--------------------------------------------------------------------
--(void)setDefinitionName:(NSString*)definitionName
+-(void)setDeclarationName:(NSString*)declarationName
 {
-  [super setDefinitionName:definitionName];
-  if (definitionName && _childrenGroup)
-    [_childrenGroup setDefinitionName:[NSString stringWithFormat:@"%@-StaticGroup",definitionName]];
+  [super setDeclarationName:declarationName];
+  if (declarationName && _childrenGroup)
+    [_childrenGroup setDeclarationName:[NSString stringWithFormat:@"%@-StaticGroup",declarationName]];
 };
 
 //--------------------------------------------------------------------

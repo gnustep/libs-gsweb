@@ -1,6 +1,6 @@
 /** GSWConditional.m - <title>GSWeb: Class GSWConditional</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date:        Jan 1999
@@ -130,11 +130,11 @@ Bindings
 }
 
 //--------------------------------------------------------------------
--(void)setDefinitionName:(NSString*)definitionName
+-(void)setDeclarationName:(NSString*)declarationName
 {
-  [super setDefinitionName:definitionName];
-  if (definitionName && _childrenGroup)
-    [_childrenGroup setDefinitionName:[NSString stringWithFormat:@"%@-StaticGroup",definitionName]];
+  [super setDeclarationName:declarationName];
+  if (declarationName && _childrenGroup)
+    [_childrenGroup setDeclarationName:[NSString stringWithFormat:@"%@-StaticGroup",declarationName]];
 };
 
 //--------------------------------------------------------------------
@@ -180,8 +180,8 @@ Bindings
   NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
   if (negate)
     doIt=!doIt;
-  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
-               [self definitionName],
+  NSDebugMLLog(@"gswdync",@"declarationName=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
+               [self declarationName],
                _condition,
                _negate,
                (condition ? "YES" : "NO"),
@@ -233,8 +233,8 @@ Bindings
   doIt=condition;
   if (negate)
     doIt=!doIt;
-  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
-               [self definitionName],
+  NSDebugMLLog(@"gswdync",@"declarationName=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
+               [self declarationName],
                _condition,
                _negate,
                (condition ? "YES" : "NO"),
@@ -294,8 +294,8 @@ Bindings
   doIt=condition;
   if (negate)
     doIt=!doIt;
-  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
-               [self definitionName],
+  NSDebugMLLog(@"gswdync",@"declarationName=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
+               [self declarationName],
                _condition,
                _negate,
                (condition ? "YES" : "NO"),
