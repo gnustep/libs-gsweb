@@ -1,3 +1,14 @@
+2000-06-20  Karl Kraft <karl@nfox.com>
+  This is a series of minor bug fixes that I've been meaning to check in for some time.
+  *  GSWAssociations.m  Added some exception handling when getting an ivar so that when this raises an exception the name of the ivar causing the exception can be recorded and reported.  The exception is then re-raised
+  *  GSWPopupButton.m <option> tag should not have a </option> closing tag.
+  *  GSWRepetition.m If a repetition had no list, it would iterate from 0 to INT_MAX.
+  *  GSWUtils.m Added another category method to NSException that would allow you to modify and extend the userInfo key.  
+  *  GSWCheckBoxList.m The selectionList would consists of the descriptions of the selected objects.  It has been fixed to contain the selected objects as per the spec.  Also the TYPE=check in the html has been changed to TYPE=checkbox.   
+  
+
+
+  
 2000-05-01  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWDebug.m: commented code for the new NSThread implementation.
