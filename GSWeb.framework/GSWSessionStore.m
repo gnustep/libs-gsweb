@@ -228,7 +228,9 @@ static char rcsId[] = "$Id$";
   if (session)
     [session _createAutoreleasePool];
   else
-    [self checkinSessionID:aSessionID];
+//    [self checkinSessionID:aSessionID];
+	[self _checkinSessionID:aSessionID];
+
   NSDebugMLLog(@"sessions",@"session=%@",session);
   LOGObjectFnStop();
   return session;
