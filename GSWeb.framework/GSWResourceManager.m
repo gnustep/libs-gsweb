@@ -1569,9 +1569,10 @@ NSString* globalLanguagesPListPathName=nil;
 														ofType:@"plist"]; //TODO should return /usr/GNUstep/Libraries/GNUstepWeb/GSWeb.framework/Resources/MIME.plist
 		NSDebugMLLog(@"resmanager",@"globalMimePListPathName=%@",globalMimePListPathName);
 		if (!globalMimePListPathName)
-		  globalMimePListPathName=[NSBundle pathForGNUstepResource:@"MIME"
-											ofType:@"plist"
-											inDirectory:@"gsweb/GSWeb.framework/Resources"];
+		  globalMimePListPathName = [[NSBundle bundleForClass: self]
+					      pathForResource:@"MIME"
+					      ofType:@"plist"];
+
 		NSDebugMLLog(@"resmanager",@"globalMimePListPathName=%@",globalMimePListPathName);
 #ifdef DEBUG
 		if (!globalMimePListPathName)
@@ -1611,9 +1612,10 @@ NSString* globalLanguagesPListPathName=nil;
 															 ofType:@"plist"];
 		NSDebugMLLog(@"resmanager",@"globalLanguagesPListPathName=%@",globalLanguagesPListPathName);
 		if (!globalLanguagesPListPathName)
-		  globalLanguagesPListPathName=[NSBundle pathForGNUstepResource:@"languages"
-												 ofType:@"plist"
-												 inDirectory:@"gsweb/GSWeb.framework/Resources"];
+		  globalLanguagesPListPathName=[[NSBundle bundleForClass: self]
+						 pathForResource:@"languages"
+						 ofType:@"plist"];
+
 		NSDebugMLLog(@"resmanager",@"globalLanguagesPListPathName=%@",globalLanguagesPListPathName);
 		NSAssert(globalLanguagesPListPathName,@"No resource languages.plist");
 		{

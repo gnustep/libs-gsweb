@@ -1,5 +1,14 @@
 2000-10-30  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
+	* GSWeb.framework/htmltag.g: changed gsweb include dir from
+	gsweb/GSWeb.framework/ to GSWeb/
+	* GSWeb.framework/html.g: likewise.
+	* GSWeb.framework/PageDef.g: likewise.
+	* GSWeb.framework/GSWResourceManager.m ([GSWResourceManager
+	+_applicationGSWBundle]): fix location of MIME.plist and language.plist
+
+2000-10-30  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
 	* GSWExtensions.framework/GNUmakefile: rewrite using framework.make
 	* GSWExtensions.framework/*.(h|m): changed gsweb include dir from
 	gsweb/GSWeb.framework/ to GSWeb/
