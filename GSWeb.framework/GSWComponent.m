@@ -850,7 +850,7 @@ associationsKeys:(NSArray*)_associationsKeys
   GSWAssociation* _assoc=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswcomponents",@"parentBindingName_=%@",parentBindingName_);
-  NSDebugMLLog(@"gswcomponents",@"parent=%p",(void*)parent);
+  NSDebugMLLog(@"gswcomponents",@"parent=%p of class %@",(void*)parent,[parent class]);
   if (parent)
 	{
 	  _assoc=[self _associationWithName:parentBindingName_];
@@ -879,10 +879,13 @@ associationsKeys:(NSArray*)_associationsKeys
   NSDictionary* _userDictionary=[self userDictionary];
   id _synchronizesVariablesWithBindingsValue=[_userDictionary objectForKey:@"synchronizesVariablesWithBindings"];
   BOOL _synchronizesVariablesWithBindings=YES;
+  NSDebugMLLog(@"gswcomponents",@"userDictionary _synchronizesVariablesWithBindingsValue=%@",_synchronizesVariablesWithBindingsValue);
   //NDFN
   if (_synchronizesVariablesWithBindingsValue)
 	{
 	  _synchronizesVariablesWithBindings=[_synchronizesVariablesWithBindingsValue boolValue];
+          NSDebugMLLog(@"gswcomponents",@"userDictionary _synchronizesVariablesWithBindings=%s",
+                       (_synchronizesVariablesWithBindings ? "YES" : "NO"));
 	};
   return _synchronizesVariablesWithBindings ;
 };

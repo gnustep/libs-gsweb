@@ -1,3 +1,15 @@
+2001-03-14  Manuel Guesdon <mguesdon@orange-concept.com>
+
+        * GSWeb.framework/GSWComponent.m: Traces
+        * GSWeb.framework/GSWConstants.m/.h: new GSWAssociation special keys: GSLanguage
+        * GSWeb.framework/GSWAssociations.m: Handle special keys: GSLanguage, handle EONull
+        * GSWeb.framework/GSWBundle.m: traces, fix cached not found path in 
+                lockedResourceNamed:ofType:withLanguages:usingCache:relativePath:absolutePath:
+        * GSWeb.framework/GSWResourceManager.m: traces, fix bugs poblems in ISO/GS Languages (trim spaces and lowercase
+        * GSWeb.framework/GSWeb.h: removed #include <Foundation/NSGArray.h> (thanks Sungjin Chun <ninja@linuxone.co.kr>)
+        * GSWExtensions.framework: re-added GSWSessionRestorationErrorPage.gswd
+        * INSTALL: minor changes (directory name,...)
+        
 2001-03-12  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWTemplateParserXML.m: fix for autoclose tags

@@ -596,9 +596,10 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 		forKeyPath:(NSString*)keyPath_
 {
   id retValue=nil;
+  id EONullNull=[EONull null];
   LOGClassFnStart();
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath_=%@ object_=%p",keyPath_,(void*)object_);
-  if (keyPath_ && object_)
+  if (keyPath_ && object_ && object_!=EONullNull)
 	{
 	  NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];
 	  id _part=nil;
@@ -635,6 +636,19 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 			  else
 				retValue=nil;
 			}
+                  else if ([_part isEqualToString:GSASK_Language])
+                    {
+                      NSArray* languages=[[GSWApp _context] languages];
+                      int count=[languages count];
+                      id v=nil;
+                      int i=0;
+                      for(i=0;!v && i<count;i++)
+                        {
+                          id language=[languages objectAtIndex:i];
+                          v=[retValue getIVarNamed:language];
+                        };
+                      retValue=v;
+                    }
 		  else
 			{
 			  NS_DURING
@@ -645,6 +659,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         [localException raise];
 			  NS_ENDHANDLER
 			};
+                  if (retValue==EONullNull)
+                    retValue=nil;
 		};
 	};
   NSDebugMLLog(@"associations",@"retValue=%@",retValue);

@@ -283,7 +283,11 @@ objectForReference:(NSString*)keyPath
 	  if ([[GSWApplication application] isCachingEnabled])
 		_resource=[cache_ objectForKey:_relativePath];
 	  if (_resource==GSNotFoundMarker)
+            {
 		_resource=nil;
+                _absolutePath=nil;
+                _relativePath=nil;
+            }
 	  else if (!_resource)
 		{
 		  _exists=[_fileManager fileExistsAtPath:_absolutePath];
@@ -964,20 +968,24 @@ objectForReference:(NSString*)keyPath
   NSString* _absolutePath=nil;
   BOOL _isCachingEnabled=NO;
   LOGObjectFnStart();
+  NSDebugMLLog(@"bundles",@"search=%@.%@",name_,GSWArchiveSuffix[GSWebNamingConv]);
   _archive=[self lockedResourceNamed:name_
 				 ofType:GSWArchiveSuffix[GSWebNamingConv]
 				 withLanguages:nil
 				 usingCache:archiveCache
 				 relativePath:&_relativePath
 				 absolutePath:&_absolutePath];
+  NSDebugMLLog(@"bundles",@"_archive=%p _absolutePath=%@",_archive,_absolutePath);
   if (!_archive && !_absolutePath)
     {
+      NSDebugMLLog(@"bundles",@"search=%@.%@",name_,GSWArchiveSuffix[GSWebNamingConvInversed]);
       _archive=[self lockedResourceNamed:name_
                      ofType:GSWArchiveSuffix[GSWebNamingConvInversed]
                      withLanguages:nil
                      usingCache:archiveCache
                      relativePath:&_relativePath
                      absolutePath:&_absolutePath];
+      NSDebugMLLog(@"bundles",@"_archive=%p _absolutePath=%@",_archive,_absolutePath);
     };
   if (!_archive)
 	{

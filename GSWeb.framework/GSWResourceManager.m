@@ -1405,7 +1405,7 @@ NSString* globalLanguagesPListPathName=nil;
 //NDFN
 +(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage_
 {
-  return [localISO2GSLanguages objectForKey:ISOLanguage_];
+  return [localISO2GSLanguages objectForKey:[[ISOLanguage_ stringByTrimmingSpaces] lowercaseString]];
 };
 
 //--------------------------------------------------------------------
@@ -1421,7 +1421,7 @@ NSString* globalLanguagesPListPathName=nil;
 	  int i=0;
 	  for(i=0;i<[ISOLanguages_ count];i++)
 		{
-		  _ISOLanguage=[[[ISOLanguages_ objectAtIndex:i] stringByTrimmingSpaces] lowercaseString];
+		  _ISOLanguage=[ISOLanguages_ objectAtIndex:i];
 		  _GSLanguage=[self GSLanguageFromISOLanguage:_ISOLanguage];
 		  if (_GSLanguage)
 			[_array addObject:_GSLanguage];
@@ -1439,7 +1439,7 @@ NSString* globalLanguagesPListPathName=nil;
 //NDFN
 +(NSString*)ISOLanguageFromGSLanguage:(NSString*)GSLanguage_
 {
-  return [localGS2ISOLanguages objectForKey:GSLanguage_];
+  return [localGS2ISOLanguages objectForKey:[[GSLanguage_  stringByTrimmingSpaces] lowercaseString]];
 };
 
 //--------------------------------------------------------------------
@@ -1455,7 +1455,7 @@ NSString* globalLanguagesPListPathName=nil;
 	  int i=0;
 	  for(i=0;i<[GSLanguages_ count];i++)
 		{
-		  _GSLanguage=[[[GSLanguages_ objectAtIndex:i] stringByTrimmingSpaces] lowercaseString];
+		  _GSLanguage=[GSLanguages_ objectAtIndex:i];
 		  _ISOLanguage=[self ISOLanguageFromGSLanguage:_GSLanguage];
 		  [_array addObject:_ISOLanguage];
 		};
@@ -1545,7 +1545,7 @@ NSString* globalLanguagesPListPathName=nil;
 		  NSMutableDictionary* _GS2ISO=[NSMutableDictionary dictionary];
 		  LOGObjectFnStart();
 		  _tmpLanguages=[NSDictionary  dictionaryWithContentsOfFile:globalLanguagesPListPathName];
-//		  NSDebugMLLog(@"resmanager",@"_tmpLanguages=%@",_tmpLanguages);
+		  NSDebugMLLog(@"resmanager",@"_tmpLanguages=%@",_tmpLanguages);
 		  if (_tmpLanguages)
 			{
 			  NSEnumerator* enumerator = [_tmpLanguages keyEnumerator];
@@ -1562,8 +1562,8 @@ NSString* globalLanguagesPListPathName=nil;
 							   forKey:[_gs lowercaseString]];
 					};
 				};
-//			  NSDebugMLLog(@"resmanager",@"_ISO2GS=%@",_ISO2GS);
-//			  NSDebugMLLog(@"resmanager",@"_GS2ISO=%@",_ISO2GS);
+			  NSDebugMLLog(@"resmanager",@"_ISO2GS=%@",_ISO2GS);
+			  NSDebugMLLog(@"resmanager",@"_GS2ISO=%@",_GS2ISO);
 			};
 		  ASSIGN(localISO2GSLanguages,[NSDictionary dictionaryWithDictionary:_ISO2GS]);
 		  ASSIGN(localGS2ISOLanguages,[NSDictionary dictionaryWithDictionary:_GS2ISO]);

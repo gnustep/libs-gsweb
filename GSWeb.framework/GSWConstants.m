@@ -190,6 +190,7 @@ NSString* GSASK_Field=@"GSField";
 NSString* GSASK_FieldValidate=@"GSFieldValidate";
 NSString* GSASK_FieldTitle=@"GSFieldTitle";
 NSString* GSASK_Class = @"GSClass";
+NSString* GSASK_Language = @"GSLanguage";
 
 //====================================================================
 // Page names

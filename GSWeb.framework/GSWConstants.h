@@ -193,6 +193,7 @@ extern NSString* GSASK_Field;
 extern NSString* GSASK_FieldValidate;
 extern NSString* GSASK_FieldTitle;
 extern NSString* GSASK_Class;
+extern NSString* GSASK_Language;
 
 //====================================================================
 // Page names

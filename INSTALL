@@ -2,7 +2,7 @@ Installation
 ************
 
 This file documents the installation of GNUstepWeb, `gsweb'.  Copyright
-(C) 1999-2000 Free Software Foundation, Inc.  You may copy, distribute, and
+(C) 1999-2001 Free Software Foundation, Inc.  You may copy, distribute, and
 modify it freely as long as you preserve this copyright notice and
 permission notice.
 
@@ -52,10 +52,10 @@ Installing `gsweb'
 6) gsgd
 
 8) GNUstepWeb
-     Go in the GNUstepWeb folder. make and make install.
+     Go in the gsweb folder. make and make install.
 
 9) Apaches modules for GNUstepWeb
-    Still in the GNUstepWeb folder there is a GSWAdaptors/Apache folder, go in and make. There no make install. Instead you must copy the mod_gsweb.so module in you Apache libexec directory (something like /usr/apache/libexec).
+    Still in the gsweb folder there is a GSWAdaptors/Apache folder, go in and make. There no make install. Instead you must copy the mod_gsweb.so module in you Apache libexec directory (something like /usr/apache/libexec).
 
 At this point everything is done, still remains the Apache configuration:
 
