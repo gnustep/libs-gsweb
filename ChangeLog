@@ -1,3 +1,10 @@
+2000-03-08  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	Added patches by Karl Kraft:
+	* GSWGenericContainer.m/h: implemented
+	* GSWConstants.m: changed dateFormat__Key to @"dateformat"
+	and numberFormat__Key to @"numberformat"
+
 2000-02-13  Manuel Guesdon <mguesdon@sbuilders.com>
 
 	* GSWStatisticsStore.m: added comment

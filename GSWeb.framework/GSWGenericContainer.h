@@ -31,6 +31,8 @@
 @interface GSWGenericContainer: GSWDynamicElement
 {
   GSWAssociation* children;
+  NSDictionary *associations;
+  GSWElement* element;
 };
 
 -(id)initWithName:(NSString*)name_

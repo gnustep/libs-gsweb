@@ -32,21 +32,25 @@ static char rcsId[] = "$Id$";
 	 associations:(NSDictionary*)associations_
 		 template:(GSWElement*)templateElement_
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+	self = [super init];
+	associations=[associations_ retain];
+	element=[templateElement_ retain];
+    return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+    [associations release];
+    [element release];
+    [super dealloc];
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+//TODOFN
+  return [super description];
 };
 
 //--------------------------------------------------------------------
@@ -54,7 +58,25 @@ static char rcsId[] = "$Id$";
 -(void)appendToResponse:(GSWResponse*)response_
 			  inContext:(GSWContext*)context_
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+	id component = [context_ page];
+//	id pageElement = [context_ pageElement];
+	id tag = [[associations objectForKey:@"elementName"] valueInComponent:component];
+    //NSLog(@"elmentName/tag\n%@/%@\n",[associations objectForKey:@"elementName"],tag);
+    [response_ appendContentString:[NSString stringWithFormat:@"<%@",tag]];
+    {
+        id theList = [associations allKeys];
+        int x;
+        x= [theList count];
+        while (x--) {
+            id theKey = [theList objectAtIndex:x];
+            id theValue = [[associations objectForKey:theKey] valueInComponent:component];
+            if ([theKey isEqualToString:@"elementName"]) continue;
+            [response_ appendContentString:[NSString stringWithFormat:@" %@=\"%@\"",theKey,theValue]];
+        }
+    }
+    [response_ appendContentString:@">"];
+    [element appendToResponse:response_ inContext:context_];
+	[response_ appendContentString:[NSString stringWithFormat:@"</%@>",tag]];
 };
 
 //--------------------------------------------------------------------
