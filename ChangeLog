@@ -1,3 +1,8 @@
+2004-12-01  David Wetzel <dave@turbocat.de>
+
+        * GSWeb.framework/GSWBrowser.m
+        replaced +NSNumber numberWithXXX with GSWIntToNSString()
+
 2004-11-30  David Wetzel <dave@turbocat.de>
 
         * GSWeb.framework/GSWPopUpButton.m
