@@ -1,5 +1,10 @@
 2000-02-12  Manuel Guesdon <mguesdon@sbuilders.com>
 
+	* GSWApplication.m: move DESTROY(appAutoreleasePool); 
+		at the end of GSWApplicationMain to avoid bundle release.
+
+2000-02-12  Manuel Guesdon <mguesdon@sbuilders.com>
+
 	* GSWForm.m: Added senderId test in -invokeActionForRequest:inContext:
 		and -takeValuesFromRequest:inContext:
 	* GSWComponentReference.m: Added senderId test in 
