@@ -222,6 +222,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 			  NSString* _bundlePath=[_frameworks objectAtIndex:i];
 			  NSDebugFLLog(@"bundles",@"_bundlePath=%@",_bundlePath);
 			  //TODO
+			  NSDebugFLLog(@"bundles",@"GSFrameworkPSuffix=%@",GSFrameworkPSuffix);
 			  _bundlePath=[NSString stringWithFormat:@"%@/Libraries/%@%@",GNUstepRoot,_bundlePath,GSFrameworkPSuffix];
 			  NSDebugFLLog(@"bundles",@"_bundlePath=%@",_bundlePath);
 			  _bundle=[NSBundle bundleWithPath:_bundlePath];

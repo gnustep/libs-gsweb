@@ -61,8 +61,16 @@ GSWExtensionsGSW_WEBSERVER_RESOURCE_FILES =
 GSWBUNDLE_INSTALL = $(BUNDLE_NAME)
 GSWBUNDLE_INSTALL_DIR = $(GNUSTEP_LIBRARIES_ROOT)/gsweb
 
-# Use .gdladaptor as the bundle extension
-GSWBUNDLE_EXTENSION = .framework
+# Determine the bundle directory extension
+ifeq ($(profile), yes)
+  GSWBUNDLE_EXTENSION = .frameworkp
+else
+  ifeq ($(debug), yes)
+    GSWBUNDLE_EXTENSION = .frameworkd
+  else
+    GSWBUNDLE_EXTENSION = .framework
+  endif
+endif
 
 # The Objective-C source files to be compiled
 GSWExtensionsGSW_OBJC_FILES = \

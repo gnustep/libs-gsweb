@@ -75,8 +75,13 @@ NSString* GSWMonitorServiceName=@"gsweb-monitor";
 	NSString* GSWLibraryPSuffix=@".gswso";
 #endif
 
+#ifdef DEBUG
+NSString* GSFrameworkSuffix=@"frameworkd";
+NSString* GSFrameworkPSuffix=@".frameworkd";
+#else
 NSString* GSFrameworkSuffix=@"framework";
 NSString* GSFrameworkPSuffix=@".framework";
+#endif
 NSString* GSLanguageSuffix=@"lproj";
 NSString* GSLanguagePSuffix=@".lproj";
 NSString* GSWComponentTemplateSuffix=@"html";

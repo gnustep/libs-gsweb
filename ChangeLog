@@ -1,3 +1,11 @@
+2000-03-31  Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWResourceManager.m: Added Debug Error Traces
+	* GSWConstants.m: change frameworks extensions in debug mode
+	* GSWeb.framework/GNUmakefile: changed GSWBUNDLE_EXTENSION for debug/non debug
+	* GSWExtensions.framework/GNUmakefile: changed GSWBUNDLE_EXTENSION for debug/non debug
+	* GSWExtensionsGSW.framework/GNUmakefile: changed GSWBUNDLE_EXTENSION for debug/non debug
+	
 2000-03-23  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWAdaptor/common/config.h: changed GSWAPP_EXTENSION from wa to woa.

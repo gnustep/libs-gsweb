@@ -1573,6 +1573,16 @@ NSString* globalLanguagesPListPathName=nil;
 											ofType:@"plist"
 											inDirectory:@"gsweb/GSWeb.framework/Resources"];
 		NSDebugMLLog(@"resmanager",@"globalMimePListPathName=%@",globalMimePListPathName);
+#ifdef DEBUG
+		if (!globalMimePListPathName)
+		  {
+			NSDictionary* env=[[NSProcessInfo processInfo] environment];
+
+			NSDebugMLLog(@"error",@"GNUSTEP_USER_ROOT=%@",[env objectForKey: @"GNUSTEP_USER_ROOT"]);
+			NSDebugMLLog(@"error",@"GNUSTEP_LOCAL_ROOT=%@",[env objectForKey: @"GNUSTEP_LOCAL_ROOT"]);
+			NSDebugMLLog(@"error",@"gnustepBundle resourcePath=%@",[[NSBundle gnustepBundle]resourcePath]);
+		  };
+#endif
 		NSAssert(globalMimePListPathName,@"No resource MIME.plist");
 		{
 		  NSDictionary* _tmpMimeTypes=nil;
