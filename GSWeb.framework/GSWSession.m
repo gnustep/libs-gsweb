@@ -364,15 +364,14 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(BOOL)storesIDsInURLs
 {
-  //OK
   return _storesIDsInURLs;
 };
 
 //--------------------------------------------------------------------
 -(void)setStoresIDsInURLs:(BOOL)flag
 {
-  //OK
-  _storesIDsInURLs=flag;
+  if (flag!=_storesIDsInURLs)
+    _storesIDsInURLs=flag;
 };
 
 //--------------------------------------------------------------------
@@ -390,31 +389,49 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(BOOL)storesIDsInCookies
 {
-  //OK
   return _storesIDsInCookies;
 };
 
 //--------------------------------------------------------------------
 -(void)setStoresIDsInCookies:(BOOL)flag
 {
-  //OK
   LOGObjectFnStart();
   NSDebugMLLog(@"sessions",@"newflag=%d",(int)flag);
-  _storesIDsInCookies=flag;
+  if (flag!=_storesIDsInCookies)
+    {
+      _storesIDsInCookies=flag;
+      [_currentContext _synchronizeForDistribution];
+    };      
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
+/** Returns NO if URLs contains application number so requests are 
+	directed to the specific application instance.
+    Resturns YES if  URLs doesn't contain application number so requests 
+    	can be directed to any instance (load balancing)
+    Default value is NO
+**/
 -(BOOL)isDistributionEnabled
 {
   return _isDistributionEnabled;
 };
 
 //--------------------------------------------------------------------
+/** Enables or disables application instance number in URLs.
+    If flag is NO, URLs contains application number so requests are directed 
+	to the specific application instance.
+    If flag is YES, URLs doesn't contain application number so requests can 
+	be directed to any instance (load balancing)
+**/
 -(void)setDistributionEnabled:(BOOL)flag
 {
   LOGObjectFnStart();
-  _isDistributionEnabled=flag;
+  if (flag!=_isDistributionEnabled)
+    {
+      _isDistributionEnabled=flag;
+      [_currentContext _synchronizeForDistribution];
+    };
   LOGObjectFnStop();
 };
 
@@ -444,7 +461,7 @@ RCS_ID("$Id$")
   application=[GSWApplication application];
   //applic statisticsStore
   //applic _activeSessionsCount
-  ASSIGN(_birthDate,[NSDate date]);
+  [self _setBirthDate:[NSDate date]];
   ASSIGN(_statistics,[NSMutableArray array]);
   _storesIDsInURLs=YES;
   [application _finishInitializingSession:self];
@@ -471,22 +488,37 @@ RCS_ID("$Id$")
 //	terminate
 -(void)terminate 
 {
-  //OK
-  NSString* sessionID=nil;
   LOGObjectFnStart();
 
-  _isTerminating=YES;
-  sessionID=[self sessionID];
-  [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
-  [[NSNotificationCenter defaultCenter] postNotificationName:GSWNotification__SessionDidTimeOutNotification[GSWebNamingConv]
-                                        object:sessionID];
-  //TODO: VERIFY
-  [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
-  //goto => GSWApp _sessionDidTimeOutNotification:
-  //call GSWApp _discountTerminatedSession
-  //call GSWApp statisticsStore
-  //call statstore _sessionTerminating:self
-  [[GSWApp statisticsStore] _sessionTerminating:self];
+  if (!_isTerminating) // don't do it multiple times !
+    {
+      GSWApplication* application=[GSWApplication application];
+      NSString* sessionID=[self sessionID];
+
+      _isTerminating=YES;
+
+      [[NSNotificationCenter defaultCenter] 
+        postNotificationName:GSWNotification__SessionDidTimeOutNotification[GSWebNamingConv]
+        object:sessionID];
+
+      [application _discountTerminatedSession];
+      [[application statisticsStore] _sessionTerminating:self];
+
+      if (_editingContext)
+        {
+          if (_hasSessionLockedEditingContext)
+            {
+              [_editingContext unlock];
+              _hasSessionLockedEditingContext = NO;
+            };
+          DESTROY(_editingContext);
+        };
+      /*
+        [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
+        //TODO: VERIFY
+        [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
+      */
+    };
   LOGObjectFnStop();
 };
 
@@ -516,7 +548,10 @@ RCS_ID("$Id$")
 -(void)setTimeOut:(NSTimeInterval)timeOut
 {
   NSDebugMLLog(@"sessions",@"timeOut=%ld",(long)timeOut);
-  _timeOut=timeOut;
+  if (timeOut==0)
+    _timeOut=[[NSDate distantFuture]timeIntervalSinceDate:_birthDate];
+  else
+    _timeOut=timeOut;  
 };
 
 @end
@@ -656,6 +691,8 @@ RCS_ID("$Id$")
   context=[self context];
   permanentPageCache=[self _permanentPageCache];
   permanentPageCacheSize=[self permanentPageCacheSize];
+
+  // first we'll remove excessive cached pages.
   while([_permanentContextIDArray count]>0 && [_permanentContextIDArray count]>=permanentPageCacheSize)
     {
       id deletePage=nil;
@@ -708,7 +745,7 @@ RCS_ID("$Id$")
   [permanentPageCache setObject:page
                       forKey:contextID];
   [_permanentContextIDArray addObject:contextID];
-  //TODO
+  /*
   {
     int i=0;
     id anObject=nil;
@@ -720,6 +757,7 @@ RCS_ID("$Id$")
         [GSWApplication statusLogWithFormat:@"%d contextID=%@ page class=%@",i,anotherContextID,[anObject class]];
       };
   };
+  */
   if ([_permanentContextIDArray count]!=[permanentPageCache count])
     {
       LOGSeriousError(@"[permanentContextIDArray count] %d != [permanentPageCache count] %d",
@@ -831,7 +869,6 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(void)_createAutoreleasePool
 {
-  //OK
   LOGObjectFnStart();
   if (!_autoreleasePool)
     {
@@ -844,7 +881,6 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(GSWComponent*)_permanentPageWithContextID:(NSString*)aContextID
 {
-  //OK
   GSWComponent* page=nil;
   LOGObjectFnStart();
   page=[_permanentPageCache objectForKey:aContextID];
@@ -855,7 +891,6 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(NSMutableDictionary*)_permanentPageCache
 {
-  //OK
   LOGObjectFnStart();
   if (!_permanentPageCache)
     _permanentPageCache=[NSMutableDictionary new];
@@ -1164,7 +1199,8 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   //OK
   LOGObjectFnStart();
   NSDebugMLLog(@"sessions",@"aContext=%p",(void*)aContext);
-  _currentContext=aContext;
+  if (aContext!=_currentContext)
+    _currentContext=aContext;
   LOGObjectFnStop();
 };
 
@@ -1174,6 +1210,11 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   //OK
   LOGObjectFnStart();
   [self sleep];
+  if (_hasSessionLockedEditingContext)
+    {
+      [_editingContext unlock];
+      _hasSessionLockedEditingContext = NO;
+    }
   [self _setContext:nil];
   LOGObjectFnStop();
 };
@@ -1181,7 +1222,6 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(void)awakeInContext:(GSWContext*)aContext
 {
-  //OK
   LOGObjectFnStart();
   [self _setContext:aContext];
   NSDebugMLLog(@"sessions",@"contextCounter=%i",_contextCounter);
@@ -1194,6 +1234,13 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
         };
     };
   NSDebugMLLog(@"sessions",@"contextCounter=%i",_contextCounter);
+  if (_editingContext 
+      && !_hasSessionLockedEditingContext
+      && [GSWApplication _lockDefaultEditingContext])
+    {
+      [_editingContext lock];
+      _hasSessionLockedEditingContext=YES;
+    };
   [self awake];
   LOGObjectFnStop();
 };
@@ -1206,25 +1253,116 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(void)setLanguages:(NSArray*)someLanguages
 {
-  //OK
+  LOGObjectFnStart();
+
+  NSDebugMLLog(@"sessions",@"someLanguages=%@",someLanguages);
+
   if (!someLanguages)
     {
       LOGError0(@"No languages");
     };
   ASSIGN(_languages,someLanguages);
+
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+/** GSWeb specific
+Insert language language at the begining of session languages array 
+**/
+-(void)insertLanguage:(NSString*)language
+{
+  NSArray* languages=nil;
+  LOGObjectFnStart();
+  if ([language length]>0)
+    {
+      languages=[self languages];
+      if ([languages count]>0)
+        {
+          if (![language isEqualToString:[languages objectAtIndex:0]])
+            {
+              NSMutableArray* mutableLanguages=[[languages mutableCopy]autorelease];
+              [mutableLanguages removeObject:language];//Remove language if it exists in languages
+              [mutableLanguages insertObject:language
+                                atIndex:0];
+              [self setLanguages:mutableLanguages];
+            };
+        }
+      else
+        [self setLanguages:[NSArray arrayWithObject:language]];
+    };
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+/** GSWeb specific
+Add language language at the end of session languages array if language 
+is not present
+**/
+-(void)addLanguage:(NSString*)language
+{
+  NSArray* languages=nil;
+  LOGObjectFnStart();
+  if ([language length]>0)
+    {
+      languages=[self languages];
+      if ([languages count]>0)
+        {
+          if (![languages containsObject:language])
+            [self setLanguages:[languages arrayByAddingObject:language]];
+        }
+      else
+        [self setLanguages:[NSArray arrayWithObject:language]];
+    };
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+/** GSWeb specific
+Returns first element of languages or nil if languages is empty
+**/
+-(NSString*)firstLanguage
+{
+  NSArray* languages=nil;
+  NSString* firstLanguage=nil;
+  LOGObjectFnStart();
+
+  languages=[self languages];
+  if ([languages count]>0)
+    firstLanguage=[languages objectAtIndex:0];
+
+  LOGObjectFnStop();
+
+  return firstLanguage;
 };
 
 //--------------------------------------------------------------------
 -(NSArray*)languages
 {
-  //OK
+  LOGObjectFnStart();
+
+  NSDebugMLLog(@"sessions",@"_languages=%@",_languages);
+
   if (!_languages)
     {
       GSWContext* aContext=[self context];
       GSWRequest* request=[aContext request];
       NSArray* languages=[request browserLanguages];
       [self setLanguages:languages];
+      NSDebugMLLog(@"sessions",@"_languages=%@",_languages);
     };
+
+  LOGObjectFnStop();
+
+  return _languages;
+};
+
+//--------------------------------------------------------------------
+-(NSArray*)_languages
+{
+  LOGObjectFnStart();
+  LOGObjectFnStop();
+
   return _languages;
 };
 
@@ -1282,10 +1420,16 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(EOEditingContext*)defaultEditingContext
 {
-#if GDL2
+#if HAVE_GDL2
   if(!_editingContext)
     {
       ASSIGN(_editingContext,[[[EOEditingContext alloc] init] autorelease]);
+      [_editingContext setLevelsOfUndo:[GSWApplication defaultUndoStackLimit]];
+      if ([GSWApplication _lockDefaultEditingContext])
+        {
+          [_editingContext lock];
+          _hasSessionLockedEditingContext=YES;
+        };
     }
 #endif
 
@@ -1295,7 +1439,22 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(void)setDefaultEditingContext:(EOEditingContext*)editingContext
 {
-  ASSIGN(_editingContext,editingContext);
+  if (_editingContext)
+    {
+      // We can't set the editing context if one has already been created
+      [NSException raise:NSInvalidArgumentException 
+                   format:@"%s Can't set a defautEditingContext when one already exists",
+                   object_get_class_name(self)];
+    }
+  else
+    {
+      ASSIGN(_editingContext,editingContext);
+      if ([GSWApplication _lockDefaultEditingContext])
+        {
+          [_editingContext lock];
+          _hasSessionLockedEditingContext=YES;
+        };
+    };
 };
 
 @end
@@ -1330,7 +1489,6 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext 
 {
-  //OK
   GSWElement* pageElement=nil;
   GSWComponent* pageComponent=nil;
   LOGObjectFnStart();
@@ -1339,9 +1497,9 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 #ifndef NDEBUG
   [aContext addDocStructureStep:@"Take Values From Request"];
 #endif
-  [aContext _setCurrentComponent:pageComponent]; //_pageElement ??
-  [pageComponent takeValuesFromRequest:aRequest
-                 inContext:aContext]; //_pageComponent ??
+  [aContext _setCurrentComponent:pageComponent];
+  [pageElement takeValuesFromRequest:aRequest
+               inContext:aContext];
   [aContext _setCurrentComponent:nil];
   LOGObjectFnStop();
 };
@@ -1362,9 +1520,9 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 #ifndef NDEBUG
       [aContext addDocStructureStep:@"Invoke Action For Request"];
 #endif
-      [aContext _setCurrentComponent:pageComponent]; //_pageElement ??
-      element=[pageComponent invokeActionForRequest:aRequest
-                             inContext:aContext]; //_pageComponent
+      [aContext _setCurrentComponent:pageComponent];
+      element=[pageElement invokeActionForRequest:aRequest
+                           inContext:aContext];
       [aContext _setCurrentComponent:nil];
       if (!element)
         element=[aContext page]; //??
@@ -1386,26 +1544,29 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 //	appendToResponse:inContext:
 -(void)appendToResponse:(GSWResponse*)aResponse
-			  inContext:(GSWContext*)aContext 
+              inContext:(GSWContext*)aContext
 {
-  //OK
   GSWStatisticsStore* statisticsStore=nil;
   NSString* logFile=nil;
-  GSWSession* session=nil;
   GSWElement* pageElement=nil;
   GSWComponent* pageComponent=nil;
+
   LOGObjectFnStart();
+
   statisticsStore=[[GSWApplication application] statisticsStore];
+
   pageElement=[aContext _pageElement];
   pageComponent=[aContext _pageComponent];
+
 #ifndef NDEBUG
   [aContext addDocStructureStep:@"Append To Response"];
 #endif
-  [aContext _setCurrentComponent:pageComponent]; //_pageElement ??
+
+  [aContext _setCurrentComponent:pageComponent];
   NS_DURING
     {
-      [pageComponent appendToResponse:aResponse
-                     inContext:aContext]; //_pageComponent??
+      [pageElement appendToResponse:aResponse
+                   inContext:aContext];
     }
   NS_HANDLER
     {
@@ -1419,18 +1580,35 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
       [localException raise];
     }
   NS_ENDHANDLER;
+
   [aContext _setCurrentComponent:nil];
-  session=[aContext existingSession];
-  [session appendCookieToResponse:aResponse];
-  [statisticsStore recordStatisticsForResponse:aResponse
-                   inContext:aContext];
-  [statisticsStore descriptionForResponse:aResponse
-                    inContext:aContext];
-  logFile=[statisticsStore logFile];
-  if (logFile)
-    {
-      //TODO
-    };
+
+  [self appendCookieToResponse:aResponse];
+
+  {
+    NSString* descr=nil;
+    [statisticsStore recordStatisticsForResponse:aResponse
+                     inContext:aContext];
+    descr=[statisticsStore descriptionForResponse:aResponse
+                           inContext:aContext];
+    if (descr)
+      {
+        [_statistics addObject:descr];
+        logFile=[statisticsStore logFile];
+        if (logFile)
+          {
+            NSString* formattedDescr=[GSWStatisticsStore formatDescription:descr
+                                                         forResponse:aResponse
+                                                         inContext:aContext];
+            if (formattedDescr)
+              {
+                if (!_formattedStatistics)
+                  _formattedStatistics = [NSMutableString new];
+                [_formattedStatistics appendString:formattedDescr];
+              }
+          };
+      };
+  };
   LOGObjectFnStop();
 };
 
@@ -1443,15 +1621,8 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 //--------------------------------------------------------------------
 -(NSArray*)statistics
 {
-  //return (Main, DisksList, DisksList, DisksList) (page dans l'ordre des context)
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  return _statistics;
 };
-
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionM)
 
 //--------------------------------------------------------------------
 -(BOOL)_allowedToViewStatistics
@@ -1466,10 +1637,29 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 };
 
 //--------------------------------------------------------------------
--(id)_formattedStatistics
+-(void)_setAllowedToViewStatistics:(BOOL)flag
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  _isAllowedToViewStatistics=flag;
+};
+
+//--------------------------------------------------------------------
+-(BOOL)validateStatisticsLogin:(NSString*)login
+                  withPassword:(NSString*)password
+{
+  GSWStatisticsStore* statsStore = [[GSWApplication application]statisticsStore];
+  if (statsStore)
+    {
+      NSString* statsStorePassword=[statsStore _password];
+      if ([statsStorePassword isEqual:password])
+        [self _allowToViewStatistics];
+    }
+  return [self _allowedToViewStatistics];
+}
+
+//--------------------------------------------------------------------
+-(NSString*)_formattedStatistics
+{
+  return [NSString stringWithString:_formattedStatistics];
 };
 
 //--------------------------------------------------------------------
@@ -1477,6 +1667,47 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 {
   return _birthDate;
 };
+
+//--------------------------------------------------------------------
+-(void)_setBirthDate:(NSDate*)birthDate
+{
+  ASSIGN(_birthDate,birthDate);
+};
+@end
+
+//====================================================================
+@implementation GSWSession (GSWEvents)
+
+//--------------------------------------------------------------------
+-(BOOL)_allowedToViewEvents
+{
+  return _isAllowedToViewEvents;
+};
+
+//--------------------------------------------------------------------
+-(void)_allowToViewEvents
+{
+  _isAllowedToViewEvents=YES;
+};
+
+//--------------------------------------------------------------------
+-(void)_setAllowedToViewEvents:(BOOL)flag
+{
+  _isAllowedToViewEvents=flag;
+};
+
+//--------------------------------------------------------------------
+-(BOOL)validateEventsLogin:(NSString*)login
+              withPassword:(NSString*)password
+{
+//TODO wait for gdl2 implementation
+/*
+  NSString* eventCenterPassword=[EOEventCenter password];
+  if ([eventCenterPassword isEqual:password])
+    [self _allowToViewEvents];
+*/
+  return [self _allowedToViewEvents];
+}
 
 @end
 
