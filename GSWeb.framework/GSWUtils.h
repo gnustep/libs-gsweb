@@ -202,6 +202,8 @@ extern NSData* HexStringToData(NSString* _string);
 -(NSException*)exceptionByAddingUserInfo:(NSDictionary*)userInfo_;
 -(NSException*)exceptionByAddingUserInfoKey:(id)key_
 									 format:(NSString*)format_,...;
+-(NSException*)exceptionByAddingToUserInfoKey:(id)key_
+									 format:(NSString*)format_,...;
 -(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo_;
 -(NSException*)exceptionByAddingUserInfoFrameInfoFormat:(NSString*)format_,...;
 -(NSException*)exceptionByAddingUserInfoFrameInfoObject:(id)obj_

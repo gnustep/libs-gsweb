@@ -439,6 +439,36 @@ void ValidationExceptionRaiseFn0(const char *func,
 					  userInfo:_userInfo];
 };
 
+-(NSException*)exceptionByAddingToUserInfoKey:(id)key_
+									 format:(NSString*)format_,...
+{
+  NSString* _userInfoString=nil;
+  NSMutableDictionary* _userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  va_list args;
+  va_start(args,format_);
+  _userInfoString = [NSString stringWithFormat:format_
+							  arguments:args];
+  va_end(args);
+  {
+    id curArray = [_userInfo objectForKey:key_];
+    id newArray=[NSMutableArray arrayWithObject:_userInfoString];
+    if (!curArray) {
+      curArray = [NSMutableArray array];
+    }
+    if (![curArray isKindOf:[NSMutableArray class]]) {
+      id tempObject = curArray;
+      curArray = [NSMutableArray array];
+      [curArray addObject:tempObject];
+    }
+    [newArray addObjectsFromArray:curArray];
+    [_userInfo setObject:newArray forKey:key_];
+  }
+  return [[self class]exceptionWithName:[self name]
+					  reason:[self reason]
+					  userInfo:_userInfo];
+};
+
+
 -(NSException*)exceptionByAddingUserInfoKey:(id)key_
 									 format:(NSString*)format_,...
 {
