@@ -1,3 +1,59 @@
+2004-09-01   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.m: 
+		o removed unused methods
+		o added -isDisabled
+		o added -shouldDisplay
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.gswd: 
+		o added ShouldDisplay
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.html: 
+		o added ShouldDisplay
+	* GSWExtensionsGSW.framework/GSWCacheElement.m: 
+		o fix keys array end
+	* GSWeb.framework/GSWApplication.m:
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWComponent.m:
+		o logs
+	* GSWeb.framework/GSWDeclarationParser.h:
+		o added exception names constants
+		o added GSWDeclarationFormatException
+	* GSWeb.framework/GSWDeclarationParser.m:
+		o added exception names constants
+		o added GSWDeclarationFormatException
+		o added declaration caching (work in progress)
+		o use GSWDeclarationFormatException instead of NSException
+	* GSWeb.framework/GSWDefaultAdaptor.m:	
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWDisplayGroup.h/.m:
+		o added -addQueryOperator:forKey:
+	* GSWeb.framework/GSWDynamicURLString.h/.m:
+		o chnages to use IMPs and buffers
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWElementIDString.m:
+		o rewritten -deleteLastElementIDComponent and 
+			-incrementLastElementIDComponent for speed 
+			and memory usage improvement
+	* GSWeb.framework/GSWHTMLTemplateParser.m:
+		o improved exceptions handling
+	* GSWeb.framework/GSWMessage.h/.m:
+		o use of IMPs for speed
+	* GSWeb.framework/GSWRecording.m:
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWRequest.m
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWResponse.m
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWSession.m
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWStatisticsStore.m
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWTemporaryElement.m
+		o use GSWDeclarationFormatException instead of NSException
+	* GSWeb.framework/GSWUtils.h/.m:
+		o added GSWIntToString and GSWIntToNSString
+		o use GSWIntToNSString instead of string formatting
+	* GSWeb.framework/GSWRequestHandler.m:
+		o implemented -handleRequest
+
 2004-08-29  David Ayers  <d.ayers@inode.at>
 	
 	* GSWeb.framework/GSWApplication+Defaults.m
@@ -139,7 +195,6 @@
 	* GSWeb.framework/GSWTemplateParser.m: Do not initialize va_list
 	with NULL.
 
->>>>>>> 1.170
 2004-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWHTMLTemplateParser.m:
