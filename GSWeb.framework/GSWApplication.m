@@ -97,10 +97,10 @@ void GSWApplicationSetDebugSetOption(NSString* opt_)
   _processInfo=[NSProcessInfo processInfo];
   if ([opt_ isEqualToString:@"all"])
 	{
-	  [[_processInfo debugSet] addObject:@"dflt"];
+          NSDebugFLog(@"Adding All DebugOptions");
+          [[_processInfo debugSet] addObject:@"dflt"];
 	  [[_processInfo debugSet] addObject:@"GSWebFn"];
 	  [[_processInfo debugSet] addObject:@"seriousError"];
-	  [[_processInfo debugSet] addObject:@"exception"];
 	  [[_processInfo debugSet] addObject:@"exception"];
 	  [[_processInfo debugSet] addObject:@"error"];
 	  [[_processInfo debugSet] addObject:@"gswdync"];
@@ -113,6 +113,7 @@ void GSWApplicationSetDebugSetOption(NSString* opt_)
 	  [[_processInfo debugSet] addObject:@"resmanager"];
 	  [[_processInfo debugSet] addObject:@"options"];
 	  [[_processInfo debugSet] addObject:@"info"];
+	  [[_processInfo debugSet] addObject:@"trace"];
 /*
   //[NSObject enableDoubleReleaseCheck:YES];
   [NSPort setDebug:255];
@@ -121,10 +122,10 @@ void GSWApplicationSetDebugSetOption(NSString* opt_)
 	}
   else if ([opt_ isEqualToString:@"most"])
 	{
+          NSDebugFLog(@"Adding Most DebugOptions");
 	  [[_processInfo debugSet] addObject:@"dflt"];
 //	  [[_processInfo debugSet] addObject:@"GSWebFn"];
 	  [[_processInfo debugSet] addObject:@"seriousError"];
-	  [[_processInfo debugSet] addObject:@"exception"];
 	  [[_processInfo debugSet] addObject:@"exception"];
 	  [[_processInfo debugSet] addObject:@"error"];
 	  [[_processInfo debugSet] addObject:@"gswdync"];
@@ -210,54 +211,52 @@ int GSWApplicationMainReal(NSString* _applicationClassName,
 		  NSDebugFLog(@"GSWebNamingConv=%d",GSWebNamingConv);
                   NSCAssert1((GSWebNamingConv==WONAMES_INDEX || GSWebNamingConv==GSWNAMES_INDEX),@"GSWebNamingConv=%d",GSWebNamingConv);
 
-
-                  NSDebugFLog(@"X->%@",GSWClassName_DefaultAdaptor[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPT_Adaptor[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPT_AdditionalAdaptors[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_ApplicationBaseURL_WO);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_ApplicationBaseURL_GSWEB);
-                    NSDebugFLog(@"X->%@",GSWOPT_ApplicationBaseURL[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_AutoOpenInBrowser);
-                    NSDebugFLog(@"X->%@",GSWOPT_AutoOpenInBrowser[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_CGIAdaptorURL_WO);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_CGIAdaptorURL_GSWEB);
-                    NSDebugFLog(@"X->%@",GSWOPT_CGIAdaptorURL[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_CachingEnabled);
-                    NSDebugFLog(@"X->%@",GSWOPT_CachingEnabled[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWComponentRequestHandlerKey[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPT_ComponentRequestHandlerKey[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_DebuggingEnabled);
-                    NSDebugFLog(@"X->%@",GSWOPT_DebuggingEnabled[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_StatusDebuggingEnabled);
-                    NSDebugFLog(@"X->%@",GSWOPT_StatusDebuggingEnabled[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWDirectActionRequestHandlerKey[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_DirectConnectEnabled);
-                    NSDebugFLog(@"X->%@",GSWOPT_DirectConnectEnabled[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_FrameworksBaseURL);
-                    NSDebugFLog(@"X->%@",GSWOPT_FrameworksBaseURL[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_IncludeCommentsInResponse);
-                    NSDebugFLog(@"X->%@",GSWOPT_IncludeCommentsInResponse[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_ListenQueueSize);
-                    NSDebugFLog(@"X->%@",GSWOPT_ListenQueueSize[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPT_LoadFrameworks[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_MonitorEnabled);
-                    NSDebugFLog(@"X->%@",GSWOPT_MonitorEnabled[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_MonitorHost);
-                    NSDebugFLog(@"X->%@",GSWOPT_MonitorHost[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_Port);
-                    NSDebugFLog(@"X->%@",GSWOPT_Port[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWResourceRequestHandlerKey[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPT_ResourceRequestHandlerKey[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_SMTPHost);
-                    NSDebugFLog(@"X->%@",GSWOPT_SMTPHost[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_SessionTimeOut);
-                    NSDebugFLog(@"X->%@",GSWOPT_SessionTimeOut[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_WorkerThreadCount);
-                    NSDebugFLog(@"X->%@",GSWOPT_WorkerThreadCount[GSWebNamingConv]);
-                    NSDebugFLog(@"X->%@",GSWOPTVALUE_MultiThreadEnabled);
-                    NSDebugFLog(@"X->%@",GSWOPT_MultiThreadEnabled);
-
+                  NSDebugFLog(@"GSWClassName_DefaultAdaptor -> %@",GSWClassName_DefaultAdaptor[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPT_Adaptor -> %@",GSWOPT_Adaptor[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPT_AdditionalAdaptors -> %@",GSWOPT_AdditionalAdaptors[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_ApplicationBaseURL_WO -> %@",GSWOPTVALUE_ApplicationBaseURL_WO);
+                  NSDebugFLog(@"GSWOPTVALUE_ApplicationBaseURL_GSWEB -> %@",GSWOPTVALUE_ApplicationBaseURL_GSWEB);
+                  NSDebugFLog(@"GSWOPT_ApplicationBaseURL -> %@",GSWOPT_ApplicationBaseURL[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_AutoOpenInBrowser -> %@",GSWOPTVALUE_AutoOpenInBrowser);
+                  NSDebugFLog(@"GSWOPT_AutoOpenInBrowser -> %@",GSWOPT_AutoOpenInBrowser[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_CGIAdaptorURL_WO -> %@",GSWOPTVALUE_CGIAdaptorURL_WO);
+                  NSDebugFLog(@"GSWOPTVALUE_CGIAdaptorURL_GSWEB -> %@",GSWOPTVALUE_CGIAdaptorURL_GSWEB);
+                  NSDebugFLog(@"GSWOPT_CGIAdaptorURL -> %@",GSWOPT_CGIAdaptorURL[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_CachingEnabled -> %@",GSWOPTVALUE_CachingEnabled);
+                  NSDebugFLog(@"GSWOPT_CachingEnabled -> %@",GSWOPT_CachingEnabled[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWComponentRequestHandlerKey -> %@",GSWComponentRequestHandlerKey[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPT_ComponentRequestHandlerKey -> %@",GSWOPT_ComponentRequestHandlerKey[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_DebuggingEnabled -> %@",GSWOPTVALUE_DebuggingEnabled);
+                  NSDebugFLog(@"GSWOPT_DebuggingEnabled -> %@",GSWOPT_DebuggingEnabled[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_StatusDebuggingEnabled -> %@",GSWOPTVALUE_StatusDebuggingEnabled);
+                  NSDebugFLog(@"GSWOPT_StatusDebuggingEnabled -> %@",GSWOPT_StatusDebuggingEnabled[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWDirectActionRequestHandlerKey -> %@",GSWDirectActionRequestHandlerKey[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPT_DirectActionRequestHandlerKey -> %@",GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_DirectConnectEnabled -> %@",GSWOPTVALUE_DirectConnectEnabled);
+                  NSDebugFLog(@"GSWOPT_DirectConnectEnabled -> %@",GSWOPT_DirectConnectEnabled[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_FrameworksBaseURL -> %@",GSWOPTVALUE_FrameworksBaseURL);
+                  NSDebugFLog(@"GSWOPT_FrameworksBaseURL -> %@",GSWOPT_FrameworksBaseURL[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_IncludeCommentsInResponse -> %@",GSWOPTVALUE_IncludeCommentsInResponse);
+                  NSDebugFLog(@"GSWOPT_IncludeCommentsInResponse -> %@",GSWOPT_IncludeCommentsInResponse[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_ListenQueueSize -> %@",GSWOPTVALUE_ListenQueueSize);
+                  NSDebugFLog(@"GSWOPT_ListenQueueSize -> %@",GSWOPT_ListenQueueSize[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPT_LoadFrameworks -> %@",GSWOPT_LoadFrameworks[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_MonitorEnabled -> %@",GSWOPTVALUE_MonitorEnabled);
+                  NSDebugFLog(@"GSWOPT_MonitorEnabled -> %@",GSWOPT_MonitorEnabled[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_MonitorHost -> %@",GSWOPTVALUE_MonitorHost);
+                  NSDebugFLog(@"GSWOPT_MonitorHost -> %@",GSWOPT_MonitorHost[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_Port -> %@",GSWOPTVALUE_Port);
+                  NSDebugFLog(@"GSWOPT_Port -> %@",GSWOPT_Port[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWResourceRequestHandlerKey -> %@",GSWResourceRequestHandlerKey[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPT_ResourceRequestHandlerKey -> %@",GSWOPT_ResourceRequestHandlerKey[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_SMTPHost -> %@",GSWOPTVALUE_SMTPHost);
+                  NSDebugFLog(@"GSWOPT_SMTPHost -> %@",GSWOPT_SMTPHost[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_SessionTimeOut -> %@",GSWOPTVALUE_SessionTimeOut);
+                  NSDebugFLog(@"GSWOPT_SessionTimeOut -> %@",GSWOPT_SessionTimeOut[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_WorkerThreadCount -> %@",GSWOPTVALUE_WorkerThreadCount);
+                  NSDebugFLog(@"GSWOPT_WorkerThreadCount -> %@",GSWOPT_WorkerThreadCount[GSWebNamingConv]);
+                  NSDebugFLog(@"GSWOPTVALUE_MultiThreadEnabled -> %@",GSWOPTVALUE_MultiThreadEnabled);
+                  NSDebugFLog(@"GSWOPT_MultiThreadEnabled -> %@",GSWOPT_MultiThreadEnabled);
 
 		  _defaultsOptions = 
 			[NSDictionary dictionaryWithObjectsAndKeys:
