@@ -227,7 +227,7 @@ void initHtmlChars()
   NSDebugMLLog(@"low",@"self=%@",self);
   voidString=[self htmlPlus2Space];  
   NSDebugMLLog(@"low",@"voidString=%@",voidString);
-  unichars=_fastMallocBuffer(sizeof(unichar)*([voidString length]+1));
+  unichars=GSAutoreleasedBuffer(sizeof(unichar)*([voidString length]+1));
   NSDebugMLLog(@"low",@"[voidString cString]=%s",[voidString cString]);
   for (p=[voidString cString];p && *p;p++)
     {

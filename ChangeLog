@@ -1,3 +1,8 @@
+2003-03-04  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb/NSString+HTML.m ([NSString -decodeURL]): Updated function
+	name.
+	
 2003-03-04   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWInput.m:
 		o logs
