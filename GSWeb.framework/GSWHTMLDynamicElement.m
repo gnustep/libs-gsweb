@@ -765,9 +765,24 @@ attributeAssociations:(NSDictionary*)attributeAssociations
                otherPathQueryAssociations:nil
                inContext:context];
 };
+
 //--------------------------------------------------------------------
 -(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
                               directActionNameAssociation:(GSWAssociation*)directActionName
+                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
+                                                inContext:(GSWContext*)context
+{
+  return [self computeActionStringWithActionClassAssociation:actionClass
+               directActionNameAssociation:directActionName
+               pathQueryDictionaryAssociation:nil
+               otherPathQueryAssociations:nil
+               inContext:context];
+};
+
+//--------------------------------------------------------------------
+-(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
+                              directActionNameAssociation:(GSWAssociation*)directActionName
+                           pathQueryDictionaryAssociation:(GSWAssociation*)pathQueryDictionaryAssociation
                                otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
                                                 inContext:(GSWContext*)context
 {
@@ -801,26 +816,63 @@ attributeAssociations:(NSDictionary*)attributeAssociations
                       directActionName);
     };
 
-  if (tmpDirectActionString && [otherPathQueryAssociations count]>0)
+  if (tmpDirectActionString)
     {
-      // We sort keys so URL are always the same for same parameters
-      NSArray* keys=[[otherPathQueryAssociations allKeys]sortedArrayUsingSelector:@selector(compare:)];
-      int count=[keys count];
-      int i=0;
-      NSDebugMLLog(@"gswdync",@"otherPathQueryAssociations=%@",otherPathQueryAssociations);
-      for(i=0;i<count;i++)
+      NSDictionary* pathQueryDictionary=nil;
+      if (pathQueryDictionaryAssociation)
         {
-          id associationKey = [keys objectAtIndex:i];
-          id association = [otherPathQueryAssociations valueForKey:associationKey];
-          id associationValue=[association valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"associationKey=%@",associationKey);
-          NSDebugMLLog(@"gswdync",@"association=%@",association);
-          NSDebugMLLog(@"gswdync",@"associationValue=%@",associationValue);
-          if (!associationValue)
-            associationValue=[NSString string];
-          tmpDirectActionString=[tmpDirectActionString stringByAppendingFormat:@"/%@=%@",
-                                                       associationKey,
-                                                       associationValue];
+          NSDebugMLLog(@"gswdync",@"pathQueryDictionaryAssociation=%@",
+                       pathQueryDictionaryAssociation);
+
+          pathQueryDictionary=[pathQueryDictionaryAssociation 
+                                valueInComponent:component];
+
+          NSDebugMLLog(@"gswdync",@"pathQueryDictionary=%@",
+                       pathQueryDictionary);
+        };
+      if ([pathQueryDictionary count]>0 || [otherPathQueryAssociations count]>0)
+        {
+          NSMutableDictionary* pathKV=nil;
+          if ([otherPathQueryAssociations count]>0)
+            {              
+              NSEnumerator* enumerator = [otherPathQueryAssociations keyEnumerator];
+              id key=nil;
+              pathKV=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+              while ((key = [enumerator nextObject]))
+                {
+                  id association = [otherPathQueryAssociations valueForKey:key];
+                  id associationValue=[association valueInComponent:component];
+                  NSDebugMLLog(@"gswdync",@"key=%@",key);
+                  NSDebugMLLog(@"gswdync",@"association=%@",association);
+                  NSDebugMLLog(@"gswdync",@"associationValue=%@",associationValue);
+                  if (!associationValue)
+                    associationValue=[NSString string];
+                  [pathKV setObject:associationValue
+                          forKey:key];
+                };
+              if ([pathQueryDictionary count]>0)
+                [pathKV addEntriesFromDictionary:pathQueryDictionary];
+            }
+          else
+            pathKV=(NSMutableDictionary*)pathQueryDictionary;
+
+          NSDebugMLLog(@"gswdync",@"pathKV=%@",pathKV);
+
+          // We sort keys so URL are always the same for same parameters
+          NSArray* keys=[[pathKV allKeys]sortedArrayUsingSelector:@selector(compare:)];
+          int count=[keys count];
+          int i=0;
+          NSDebugMLLog(@"gswdync",@"pathKV=%@",pathKV);
+          for(i=0;i<count;i++)
+            {
+              id key = [keys objectAtIndex:i];
+              id value = [pathKV valueForKey:key];
+              NSDebugMLLog(@"gswdync",@"key=%@",key);
+              NSDebugMLLog(@"gswdync",@"value=%@",value);
+              tmpDirectActionString=[tmpDirectActionString stringByAppendingFormat:@"/%@=%@",
+                                                           key,
+                                                           value];
+            };
         };
     };
 
@@ -908,4 +960,143 @@ in GSWHyperlink, it was
   LOGObjectFnStop();
   return finalQueryDictionary;
 };
+@end
+
+//====================================================================
+@implementation GSWHTMLDynamicElement (GSWHTMLDynamicElementCID)
+
+
+-(NSString*)addCIDElement:(NSDictionary*)cidElement
+                   forKey:(NSString*)cidKeyValue
+   forCIDStoreAssociation:(GSWAssociation*)cidStore
+                inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  NSDebugMLog(@"cidElement=%@",cidElement);
+  NSDebugMLog(@"cidKeyValue=%@",cidKeyValue);
+  NSDebugMLog(@"cidStore=%@",cidStore);
+  if (cidElement && cidStore)
+    {
+      id cidObject=nil;
+      GSWComponent* component=[aContext component];
+      cidObject=[cidStore valueInComponent:component];
+      NSDebugMLog(@"cidObject=%@",cidObject);
+/*      if (!cidObject)
+        {
+          cidObject=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+          [_cidStore setValue:cidObject
+                   inComponent:component];
+        };
+*/
+      if (cidObject)
+        {
+          if (![cidObject valueForKey:cidKeyValue])
+            [cidObject takeValue:cidElement
+                       forKey:cidKeyValue];
+          newURL=[NSString stringWithFormat:@"cid:%@",
+                           cidKeyValue];
+        };
+      NSDebugMLog(@"newURL=%@",newURL);
+    };
+  LOGObjectFnStop();
+  return newURL;
+};
+
+//--------------------------------------------------------------------
+-(NSString*)addURL:(NSString*)url
+forCIDKeyAssociation:(GSWAssociation*)cidKey
+CIDStoreAssociation:(GSWAssociation*)cidStore
+         inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  if (url && cidStore)
+    {
+      NSString* cidKeyValue=nil;
+      GSWComponent* component=[aContext component];
+      cidKeyValue=(NSString*)[cidKey valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
+      if (!cidKeyValue)
+        {
+          // We calculate cidKeyValue by computing md5 on url
+          // so there will be no duplicate elements with different keys
+	  NSData* data = [url dataUsingEncoding: NSISOLatin1StringEncoding];
+	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
+        };
+      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:url
+                                               forKey:@"url"]
+                   forKey:cidKeyValue
+                   forCIDStoreAssociation:cidStore
+                   inContext:aContext];
+    }
+  LOGObjectFnStop();
+  return newURL;
+};
+
+
+//--------------------------------------------------------------------
+-(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
+               forCIDKeyAssociation:(GSWAssociation*)cidKey
+                CIDStoreAssociation:(GSWAssociation*)cidStore
+                          inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  if (data && cidStore)
+    {
+      NSString* cidKeyValue=nil;
+      GSWComponent* component=[aContext component];
+      cidKeyValue=(NSString*)[cidKey valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
+      if (!cidKeyValue)
+        {
+          // We calculate cidKeyValue by computing md5 on path
+          // so there will be no duplicate elements with different keys
+          //NSString* cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
+          cidKeyValue=[data key];
+        };
+      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:data
+                                               forKey:@"data"]
+                   forKey:cidKeyValue
+                   forCIDStoreAssociation:cidStore
+                   inContext:aContext];
+    }
+  LOGObjectFnStop();
+  return newURL;
+};
+
+
+//--------------------------------------------------------------------
+-(NSString*)addPath:(NSString*)path
+forCIDKeyAssociation:(GSWAssociation*)cidKey
+CIDStoreAssociation:(GSWAssociation*)cidStore
+          inContext:(GSWContext*)aContext
+{
+  NSString* newURL=nil;
+  LOGObjectFnStart();
+  if (path && cidStore)
+    {
+      NSString* cidKeyValue=nil;
+      GSWComponent* component=[aContext component];
+      cidKeyValue=(NSString*)[cidKey valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
+      if (!cidKeyValue)
+        {
+          // We calculate cidKeyValue by computing md5 on path
+          // so there will be no duplicate elements with different keys
+	  NSData* data = [path dataUsingEncoding: NSISOLatin1StringEncoding];
+	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
+        };
+
+      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:path
+                                               forKey:@"filePath"]
+                   forKey:cidKeyValue
+                   forCIDStoreAssociation:cidStore
+                   inContext:aContext];
+    }
+  LOGObjectFnStop();
+  return newURL;
+};
+
 @end

@@ -120,10 +120,38 @@ attributeAssociations:(NSDictionary*)attributeAssociations
                               directActionNameAssociation:(GSWAssociation*)directActionName
                                otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
                                                 inContext:(GSWContext*)context;
+-(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
+                              directActionNameAssociation:(GSWAssociation*)directActionName
+                           pathQueryDictionaryAssociation:(GSWAssociation*)pathQueryDictionaryAssociation
+                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
+                                                inContext:(GSWContext*)context;
 -(NSDictionary*)computeQueryDictionaryWithActionClassAssociation:(GSWAssociation*)actionClass
                                      directActionNameAssociation:(GSWAssociation*)directActionName
                                       queryDictionaryAssociation:(GSWAssociation*)queryDictionary
                                           otherQueryAssociations:(NSDictionary*)otherQueryAssociations
                                                        inContext:(GSWContext*)context;
+@end
+
+//====================================================================
+@interface GSWHTMLDynamicElement (GSWHTMLDynamicElementCID)
+
+-(NSString*)addCIDElement:(NSDictionary*)cidElement
+                   forKey:(NSString*)cidKeyValue
+   forCIDStoreAssociation:(GSWAssociation*)cidStore
+                inContext:(GSWContext*)aContext;
+
+-(NSString*)addURL:(NSString*)url
+forCIDKeyAssociation:(GSWAssociation*)cidKey
+CIDStoreAssociation:(GSWAssociation*)cidStore
+         inContext:(GSWContext*)aContext;
+
+-(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
+               forCIDKeyAssociation:(GSWAssociation*)cidKey
+                CIDStoreAssociation:(GSWAssociation*)cidStore
+                          inContext:(GSWContext*)aContext;
+-(NSString*)addPath:(NSString*)path
+forCIDKeyAssociation:(GSWAssociation*)cidKey
+CIDStoreAssociation:(GSWAssociation*)cidStore
+          inContext:(GSWContext*)aContext;
 @end
 #endif
