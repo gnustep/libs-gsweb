@@ -362,9 +362,20 @@ copyHeaders(request_rec    *p_pRequestRec,
 			   g_szServerInfo_ServerName,
 			   pServerRec->server_hostname);
 
-  pszPort = APR_PSPRINTF(p_pRequestRec->pool,
-                         "%u",
-                         pServerRec->port);
+  {
+    unsigned int serverPort=(unsigned)ap_get_server_port(p_pRequestRec);
+    if (serverPort==0)
+      {
+        if (p_pRequestRec->parsed_uri.port_str && p_pRequestRec->parsed_uri.port!=0)
+          serverPort=(unsigned)p_pRequestRec->parsed_uri.port;
+        else
+          serverPort=(unsigned)pServerRec->port;
+      };
+    pszPort = APR_PSPRINTF(p_pRequestRec->pool,
+                           "%u",
+                           (unsigned int)serverPort);
+  };
+
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ServerPort,
 			   pszPort);

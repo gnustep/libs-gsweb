@@ -110,6 +110,11 @@
 -(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure;
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
+                                       isSecure:(BOOL)isSecure
+                                           port:(int)port;
+-(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString;
 //NDFN
 -(GSWDynamicURLString*)completeURLWithRequestHandlerKey:(NSString*)requestHandlerKey

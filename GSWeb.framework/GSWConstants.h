@@ -115,6 +115,10 @@ extern NSString* GSWHTTPHeader_AuthPass[2];
 extern NSString* GSWHTTPHeader_AuthType[2];
 extern NSString* GSWHTTPHeader_DocumentRoot[2];
 extern NSString* GSWHTTPHeader_GatewayInterface[2];
+extern NSString* GSWHTTPHeader_Protocol[2];
+extern NSString* GSWHTTPHeader_ProtocolNum[2];
+extern NSString* GSWHTTPHeader_RequestScheme[2];
+
 extern NSString* GSWHTTPHeader_Method[2];
 extern NSString* GSWHTTPHeader_MethodPost;
 extern NSString* GSWHTTPHeader_MethodGet;

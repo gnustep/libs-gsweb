@@ -123,6 +123,9 @@ NSString* GSWHTTPHeader_AuthPass[2]={ @"x-gsweb-auth-pass", @"x-webobjects-auth-
 NSString* GSWHTTPHeader_AuthType[2]={ @"x-gsweb-auth-type", @"x-webobjects-auth-type" };
 NSString* GSWHTTPHeader_DocumentRoot[2]={ @"x-gsweb-documentroot", @"x-webobjects-documentroot" };
 NSString* GSWHTTPHeader_GatewayInterface[2]={ @"x-gsweb-gateway-interface", @"x-webobjects-gateway-interface" };
+NSString* GSWHTTPHeader_Protocol[2]={ @"x-gsweb-server-protocol", @"x-webobjects-server-protocol" };
+NSString* GSWHTTPHeader_ProtocolNum[2]={ @"x-gsweb-server-protocol-num", @"x-webobjects-server-protocol-num" };
+NSString* GSWHTTPHeader_RequestScheme[2]={ @"x-gsweb-request-scheme", @"x-webobjects-request-scheme" };
 
 NSString* GSWHTTPHeader_MethodPost=@"POST";
 NSString* GSWHTTPHeader_MethodGet=@"GET";

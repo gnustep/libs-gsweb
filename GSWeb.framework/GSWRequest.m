@@ -56,6 +56,7 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"requests",@"method=%@",_method);
       ASSIGNCOPY(_httpVersion,aVersion);
       ASSIGNCOPY(_headers,headers);
+      //NSLog(@"HEADERS=%@",_headers);
       _defaultFormValueEncoding=NSISOLatin1StringEncoding;
       _formValueEncoding=NSISOLatin1StringEncoding;
       [self _initCookieDictionary];//NDFN
@@ -231,10 +232,17 @@ RCS_ID("$Id$")
 //NDFN
 -(NSString*)urlProtocol
 {
-  //TODO
   NSString* urlProtocol=[_uri urlProtocol];
   if (!urlProtocol)
-    urlProtocol=GSWProtocol_HTTP;
+    {
+      urlProtocol=[self headerForKey:GSWHTTPHeader_RequestScheme[GSWebNamingConv]];
+      if (!urlProtocol)
+        {
+          urlProtocol=[self headerForKey:GSWHTTPHeader_RequestScheme[GSWebNamingConvInversed]];
+          if (!urlProtocol)      
+            urlProtocol=GSWProtocol_HTTP;
+        };
+    };
   return urlProtocol;
 };
 
@@ -244,9 +252,11 @@ RCS_ID("$Id$")
 {
   NSString* urlHost=[_uri urlHost];
   if (!urlHost)
-    urlHost=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConv]];
-  if (!urlHost)
-    urlHost=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConvInversed]];
+    {
+      urlHost=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConv]];
+      if (!urlHost)
+        urlHost=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConvInversed]];
+    };
   return urlHost;
 };
 
@@ -256,9 +266,11 @@ RCS_ID("$Id$")
 {
   NSString* urlPortString=[_uri urlPortString];
   if (!urlPortString)
-    urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]];
-  if (!urlPortString)
-    urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConvInversed]];
+    {
+      urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]];
+      if (!urlPortString)
+        urlPortString=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConvInversed]];
+    };
   return urlPortString;
 };
 
@@ -268,9 +280,11 @@ RCS_ID("$Id$")
 {
   int port=[_uri urlPort];
   if (!port)
-    port=[[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]]intValue];
-  if (!port)
-    port=[[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConvInversed]]intValue];
+    {
+      port=[[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]]intValue];
+      if (!port)
+        port=[[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConvInversed]]intValue];
+    };
   return port;
 };
 
@@ -285,7 +299,7 @@ RCS_ID("$Id$")
 //NDFN
 -(BOOL)isSecure
 {
-  return [[self urlProtocol] isEqualToString:GSWProtocol_HTTPS];
+  return ([[self urlProtocol] caseInsensitiveCompare:GSWProtocol_HTTPS]==NSOrderedSame);
 };
 
 //--------------------------------------------------------------------

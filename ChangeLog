@@ -1,3 +1,28 @@
+2003-04-09   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWSessionTimeOut.m:
+		o fix in -description
+	* GSWeb.framework/GSWApplication.m:
+		o build currentRunLop before calling -run
+		o log allFrameworks when a component is not found
+	* GSWeb.framework/GSWHyperlink.m:
+		o better handling of isSecure (regarding current request secure state)
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.gswd:
+		o use "" pageName so application may choose the main page
+	* GSWExtensions.framework/GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.gswd:
+		o use "" pageName so application may choose the main page
+	* GSWeb.framework/GSWConstants.m/.h:
+		o added GSWHTTPHeader_Protocol, GSWHTTPHeader_ProtocolNum, 
+			GSWHTTPHeader_RequestScheme
+	* GSWeb.framework/GSWContext.m/.h:
+		o fix in -_synchronizeForDistribution
+		o try to avoid complete URL when we can use relative one
+	* GSWeb.framework/GSWRequest.m:
+		o fix to retrieve protocol & port from adaptor headers
+	* GSWeb.framework/GSWSession.m:
+		o fix in -appendCookieToResponse:
+	* GSAdaptors/Apache/mod_gsweb.c:
+		o fix for server port header
+	
 2003-04-05   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/common/config.h:
 		o change minor version

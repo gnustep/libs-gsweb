@@ -476,6 +476,40 @@ static int dontTraceComponentActionURL=0;
 -(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
                                            path:(NSString*)requestHandlerPath
                                     queryString:(NSString*)queryString
+                                       isSecure:(BOOL)isSecure
+                                           port:(int)port
+{
+  //OK
+  GSWDynamicURLString* url=nil;
+  GSWRequest* request=[self request];
+  LOGObjectFnStartCond(dontTraceComponentActionURL==0);
+  NSDebugMLogCond(dontTraceComponentActionURL==0,
+                  @"generateCompleteURLs=%s",
+                  (_generateCompleteURLs ? "YES" : "NO"));
+
+  // Try to avoid complete URLs
+  if (_generateCompleteURLs
+      || (isSecure!=[request isSecure])
+      || (port!=0 && port!=[request urlPort]))
+    url=[self completeURLWithRequestHandlerKey:requestHandlerKey
+              path:requestHandlerPath
+              queryString:queryString
+              isSecure:isSecure
+              port:port];
+  else    
+    url=[request _urlWithRequestHandlerKey:requestHandlerKey
+                 path:requestHandlerPath
+                 queryString:queryString];
+  NSDebugMLogCond(dontTraceComponentActionURL==0,
+                  @"url=%@",url);
+  LOGObjectFnStopCond(dontTraceComponentActionURL==0);
+  return url;
+};
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)urlWithRequestHandlerKey:(NSString*)requestHandlerKey
+                                           path:(NSString*)requestHandlerPath
+                                    queryString:(NSString*)queryString
 {
   //OK
   GSWDynamicURLString* url=nil;
@@ -539,7 +573,7 @@ static int dontTraceComponentActionURL=0;
     [url setURLPort:port];
   NSDebugMLLog(@"low",@"url=%@",url);
   host=[request urlHost];
-  NSAssert(host,@"No host !");
+  NSAssert1(host,@"No host in request %@",request);
   NSDebugMLLog(@"low",@"host=%@",host);
   [url setURLHost:host];
   NSDebugMLLog(@"low",@"url=%@",url);
@@ -688,7 +722,14 @@ static int dontTraceComponentActionURL=0;
   [anURL setURLRequestHandlerPath:actionName];
   [anURL setURLQueryString:queryString];
 */
-  anURL=[self completeURLWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
+
+/*  anURL=[self completeURLWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
+              path:actionName
+              queryString:queryString
+              isSecure:isSecure
+              port:0];
+*/
+  anURL=[self urlWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
               path:actionName
               queryString:queryString
               isSecure:isSecure
@@ -837,16 +878,26 @@ static int dontTraceComponentActionURL=0;
 //--------------------------------------------------------------------
 -(void)_synchronizeForDistribution
 {
-  //OK
+  int instance=-1;
+  NSString* sessionID=nil;
+  BOOL storesIDsInURLs=NO;
+  BOOL isDistributionEnabled=NO;
   LOGObjectFnStart();
-  if (_session)
+  storesIDsInURLs=[_session storesIDsInURLs];
+  isDistributionEnabled=[_session isDistributionEnabled];
+  if (_request)
     {
-      //call  session storesIDsInURLs [ret 1]
-      //call session isDistributionEnabled [ret 0]
-      [_url setURLApplicationNumber:[_request applicationNumber]];//OK
-    }
+      instance=[_request applicationNumber];
+      sessionID=[_request sessionID];
+    };
+  if (instance<-1
+      || (storesIDsInURLs && ! isDistributionEnabled)
+      || (sessionID && instance>=0))
+    instance=[_request applicationNumber];
   else
-    [_url setURLApplicationNumber:-1];//OK
+    instance=-1;
+  _urlApplicationNumber = instance;
+  [_url setURLApplicationNumber:instance];
   LOGObjectFnStop();
 };
 

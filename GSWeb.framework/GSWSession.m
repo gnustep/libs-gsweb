@@ -717,20 +717,22 @@ RCS_ID("$Id$")
 {
   NSString* domainForIDCookies=nil;
   NSString* sessionID=nil;
+  NSDate* anExpireDate=nil;
   LOGObjectFnStart();
   domainForIDCookies=[self domainForIDCookies];
   sessionID=[self sessionID];
+  anExpireDate=[NSDate date]; // Expire now
   [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
                                   value:sessionID
                                   path:domainForIDCookies
                                   domain:nil
-                                  expires:[self expirationDateForIDCookies]
+                                  expires:anExpireDate
                                   isSecure:NO]];
   [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
-                                  value:@"-1" //TODO
+                                  value:@"-1"
                                   path:domainForIDCookies
                                   domain:nil
-                                  expires:[self expirationDateForIDCookies]
+                                  expires:anExpireDate
                                   isSecure:NO]];
 
   LOGObjectFnStop();
@@ -744,22 +746,39 @@ RCS_ID("$Id$")
   if ([self storesIDsInCookies])
     {
       //TODO VERIFY
-      NSString* domainForIDCookies=nil;
-      NSString* sessionID=nil;
-      domainForIDCookies=[self domainForIDCookies];
-      sessionID=[self sessionID];
+      NSString* domainForIDCookies=[self domainForIDCookies];
+      NSString* sessionID=[self sessionID];
+      int instance=-1;
+      NSDate* anExpireDate=[self expirationDateForIDCookies];
+
+      // SessionID cookie
       [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
                                       value:sessionID
                                       path:domainForIDCookies
                                       domain:nil
-                                      expires:[self expirationDateForIDCookies]
+                                      expires:anExpireDate
                                       isSecure:NO]];
-      
+
+      // Instance Cookie
+      // No Instance if distribution enabled or this session is terminating
+      if ([self isDistributionEnabled] || [self isTerminating])
+        {
+          instance=-1;
+          anExpireDate=[NSDate date]; //expire now !
+        }
+      else
+        {
+          GSWRequest* request = [_currentContext request];
+          if (request)
+            instance=[request applicationNumber]; // use the request instance number
+          else
+          instance=-1;
+        };
       [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
-                                      value:@"1" //TODO
+                                      value:[NSString stringWithFormat:@"%d",instance]
                                       path:domainForIDCookies
                                       domain:nil
-                                      expires:[self expirationDateForIDCookies]
+                                      expires:anExpireDate
                                       isSecure:NO]];
 
     };

@@ -80,7 +80,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - sessionID=%@ timeOutTime=%f lastAccessTime=%f timeOut=%ld",
+  return [NSString stringWithFormat:@"<%s %p - sessionID=%@ timeOutTime=%@ lastAccessTime=%@ timeOut=%ld",
                    object_get_class_name(self),
                    (void*)self,
                    _sessionID,

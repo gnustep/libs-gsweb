@@ -12,6 +12,6 @@ ApplicationNameString: GSWString
 
 ReenterHyperlink: GSWHyperlink
 {
-    pageName = "Main";
+    pageName = "";
     target = "_top";
 }

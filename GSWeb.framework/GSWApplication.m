@@ -449,8 +449,8 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                 };
             };
         };	  
-      NSDebugFLLog(@"bundles",@"[NSBundle allBundles]=%@",[NSBundle allBundles]);
-      NSDebugFLLog(@"bundles",@"[NSBundle allFrameworks]=%@",[NSBundle allFrameworks]);
+      NSDebugFLLog(@"bundles",@"[NSBundle allBundles] pathes=%@",[[NSBundle allBundles] valueForKey:@"resourcePath"]);
+      NSDebugFLLog(@"bundles",@"[NSBundle allFrameworks] pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
     };
   if (result>=0)
     {
@@ -480,7 +480,9 @@ int GSWApplicationMainReal(NSString* applicationClassName,
   if (result>=0 && GSWApp)
     {
       [GSWApp _setPool:[NSAutoreleasePool new]];
+
       [GSWApp run];
+
       DESTROY(GSWApp);
     };
   GSWLogMemCF("Destroy NSAutoreleasePool: %p",appAutoreleasePool);
@@ -547,6 +549,13 @@ int GSWApplicationMain(NSString* applicationClassName,
       //  context=nil;//deprecated
       _selfLock=[NSRecursiveLock new];
       _globalLock=[NSLock new];
+
+      NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",GSCurrentThreadDictionary());
+
+      //Do it before run so application can addTimer,... in -run
+      NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",[NSRunLoop currentRunLoop]);
+      ASSIGN(_currentRunLoop,[NSRunLoop currentRunLoop]); 
+
       _pageCacheSize=30;
       _permanentPageCacheSize=30;
       _pageRecreationEnabled=YES;
@@ -1262,6 +1271,7 @@ selfLockn,
     };
   if (!componentDefinition)
     {
+      NSLog(@"EXCEPTION: allFrameworks pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
       ExceptionRaise(GSWPageNotFoundException,
                      @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
                      aName,
@@ -1369,7 +1379,8 @@ selfLockn,
   LOGObjectFnStart();
   allFrameworks=[[NSBundle allFrameworks] mutableCopy];
   [allFrameworks addObjectsFromArray:[NSBundle allBundles]];
-  //  NSDebugMLLog(@"gswcomponents",@"_allFrameworks=%@",_allFrameworks);
+  //NSDebugMLLog(@"gswcomponents",@"allFrameworks=%@",allFrameworks);
+  //NSDebugFLLog(@"gswcomponents",@"allFrameworks pathes=%@",[allFrameworks valueForKey:@"resourcePath"]);
   array=[self lockedInitComponentBearingFrameworksFromBundleArray:allFrameworks];
   NSDebugMLLog(@"gswcomponents",@"array=%@",array);
   [allFrameworks release];
@@ -1391,12 +1402,13 @@ selfLockn,
   for(i=0;i<[bundles count];i++)
     {
       bundle=[bundles objectAtIndex:i];
-      //	  NSDebugMLLog(@"gswcomponents",@"_bundle=%@",_bundle);
+      //NSDebugMLLog(@"gswcomponents",@"bundle=%@",bundle);
+      //NSDebugMLLog(@"gswcomponents",@"bundle resourcePath=%@",[bundle resourcePath]);
       bundleInfo=[bundle infoDictionary];
-      //	  NSDebugMLLog(@"gswcomponents",@"_bundleInfo=%@",_bundleInfo);
+      //NSDebugMLLog(@"gswcomponents",@"bundleInfo=%@",bundleInfo);
       hasGSWComponents=[bundleInfo objectForKey:@"HasGSWComponents"];
-      //	  NSDebugMLLog(@"gswcomponents",@"_hasGSWComponents=%@",_hasGSWComponents);
-      //	  NSDebugMLLog(@"gswcomponents",@"_hasGSWComponents class=%@",[_hasGSWComponents class]);
+      //NSDebugMLLog(@"gswcomponents",@"hasGSWComponents=%@",hasGSWComponents);
+      //NSDebugMLLog(@"gswcomponents",@"hasGSWComponents class=%@",[hasGSWComponents class]);
       if (boolValueFor(hasGSWComponents))
         {
           [array addObject:bundle];
@@ -2324,9 +2336,9 @@ selfLockn,
 	  //call self _openInitialURL
   NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",GSCurrentThreadDictionary());
   NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",[NSRunLoop currentRunLoop]);
-  ASSIGN(_currentRunLoop,[NSRunLoop currentRunLoop]);
-  NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",GSCurrentThreadDictionary());
-  [[NSRunLoop currentRunLoop] run];
+  NSAssert(_currentRunLoop,@"No runLoop");
+
+  [_currentRunLoop run];
   
   NSDebugMLLog0(@"application",@"NSRunLoop end run");
   [_adaptors makeObjectsPerformSelector:unregisterForEventsSEL];
@@ -2339,7 +2351,7 @@ selfLockn,
 
 -(NSRunLoop*)runLoop 
 {
-  return _currentRunLoop;//[NSRunLoop currentRunLoop];
+  return _currentRunLoop;
 };
 
 //--------------------------------------------------------------------

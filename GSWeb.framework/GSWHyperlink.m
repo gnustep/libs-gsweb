@@ -312,10 +312,17 @@ RCS_ID("$Id$")
           //OK
           NSString* anUrl=nil;
           BOOL completeUrlsPreviousState=NO;
-          BOOL isSecure=[self evaluateCondition:_secure
-                              inContext:context];
+          BOOL isSecure=NO;
+          BOOL requestIsSecure=[[context request]isSecure];
+
+          if (_secure)
+            isSecure=[self evaluateCondition:_secure
+                           inContext:context];
+          else
+            isSecure=requestIsSecure;
+
           // Force complete URLs
-          if (isSecure)
+          if (isSecure!=requestIsSecure)
             completeUrlsPreviousState=[context _generateCompleteURLs];
           anUrl=(NSString*)[context componentActionURLIsSecure:isSecure];
           NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
@@ -324,7 +331,7 @@ RCS_ID("$Id$")
                 inContext:context];
           [self _appendFragmentToResponse:response
                 inContext:context];
-          if (isSecure && !completeUrlsPreviousState)
+          if (isSecure!=requestIsSecure && !completeUrlsPreviousState)
             [context _generateRelativeURLs];
         }
       else if (!WOStrictFlag && (_filename || _data))
@@ -478,6 +485,7 @@ RCS_ID("$Id$")
   NSString* anUrl=nil;
   BOOL completeUrlsPreviousState=NO;
   BOOL isSecure=NO;
+  BOOL requestIsSecure=NO;
   LOGObjectFnStart();
 
   actionString=[self computeActionStringInContext:context];
@@ -486,10 +494,15 @@ RCS_ID("$Id$")
   queryDictionary=[self computeQueryDictionaryInContext:context];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);
 
-  isSecure=[self evaluateCondition:_secure
-                 inContext:context];
-  // Force complete URLs
-  if (isSecure)
+  requestIsSecure=[[context request]isSecure];
+  if (_secure)
+    isSecure=[self evaluateCondition:_secure
+                   inContext:context];
+  else
+    isSecure=requestIsSecure;
+
+  // Force complete URLs is secure mode is not the same
+  if (isSecure!=requestIsSecure)
     completeUrlsPreviousState=[context _generateCompleteURLs];
 
   anUrl=(NSString*)[context directActionURLForActionNamed:actionString
@@ -497,7 +510,7 @@ RCS_ID("$Id$")
                             isSecure:isSecure];
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
 
-  if (isSecure && !completeUrlsPreviousState)
+  if (isSecure!=requestIsSecure && !completeUrlsPreviousState)
     [context _generateRelativeURLs];
 
   [response appendContentString:anUrl];
