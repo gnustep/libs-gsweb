@@ -60,6 +60,8 @@ const char *g_szHeader_GSWeb_GatewayInterface="x-gsweb-gateway-interface";
 const char *g_szHeader_GSWeb_Protocol="x-gsweb-server-protocol";
 const char *g_szHeader_GSWeb_ProtocolNum="x-gsweb-server-protocol-num";
 const char *g_szHeader_GSWeb_RequestScheme="x-gsweb-request-scheme";
+const char *g_szHeader_GSWeb_ApplicationName="x-gsweb-application-name";
+
 
 const char *g_szHeader_Accept="accept";
 const char *g_szHeader_AcceptEncoding="accept-encoding";

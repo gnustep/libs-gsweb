@@ -43,6 +43,7 @@ extern const char *g_szHeader_GSWeb_GatewayInterface;
 extern const char *g_szHeader_GSWeb_Protocol;
 extern const char *g_szHeader_GSWeb_ProtocolNum;
 extern const char *g_szHeader_GSWeb_HTTPMethod;
+extern const char *g_szHeader_GSWeb_ApplicationName;
 
 extern const char *g_szHeader_Accept;
 extern const char *g_szHeader_AcceptEncoding;

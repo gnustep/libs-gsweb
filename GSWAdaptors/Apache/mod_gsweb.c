@@ -654,10 +654,18 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 	      else
 		{
 		  CONST char *pszDocRoot=NULL;	
-		  
+		  char* applicationName=NULL;
+                  if (stURLComponents.stAppName.pszStart)
+                    applicationName=strndup(stURLComponents.stAppName.pszStart,
+                                            stURLComponents.stAppName.iLength);//We'll need to release it
+
 		  // copy headers
 		  copyHeaders(p_pRequestRec,pRequest);
-		  
+
+                  if (applicationName)
+                    GSWHTTPRequest_AddHeader(pRequest,
+                                             g_szHeader_GSWeb_ApplicationName,
+                                             applicationName);
 		  // Get Form data if any
 		  // POST Method
 		  if (pRequest->eMethod==ERequestMethod_Post
@@ -706,11 +714,11 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		  ap_soft_timeout("Call GSWeb Application",p_pRequestRec);
 		  pRequest->pServerHandle = p_pRequestRec;
 		  pResponse=GSWAppRequest_HandleRequest(&pRequest,
-				&stURLComponents,
-				p_pRequestRec->protocol,
-				pszDocRoot,
-				g_szGSWeb_StatusResponseAppName, //AppTest name
-				pLogServerData);
+                                                        &stURLComponents,
+                                                        p_pRequestRec->protocol,
+                                                        pszDocRoot,
+                                                        g_szGSWeb_StatusResponseAppName, //AppTest name
+                                                        pLogServerData);
 		  ap_kill_timeout(p_pRequestRec);
 		  
 		  // Send the response (if any)
@@ -722,6 +730,8 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		    }
 		  else 
 		    iRetVal = DECLINED;
+                  if (applicationName)
+                    free(applicationName);
 		};
 	    };
 	};
