@@ -68,8 +68,8 @@ RCS_ID("$Id$")
       if ([_currentElement parentElement])
         {
           [NSException raise:NSInvalidArgumentException 
-                       format:@"Missing dynamic tag end after reaching end of template. Tag name is '%@'.",
-                       [_currentElement name]];
+                       format:@"Missing dynamic tag end after reaching end of template. Tag name is '%@'. templateInfo: %@",
+                       [_currentElement name],[_currentElement templateInfo]];
         }
       else
         template=[_currentElement template];
@@ -135,9 +135,9 @@ Creates a GSWTemporaryElement element, waiting for tag end
 {
   LOGObjectFnStart();
 
-  NSDebugMLog(@"tagProperties=%@",tagProperties);
-  NSDebugMLog(@"templateInfo=%@",templateInfo);
-  NSDebugMLog(@"Old (Parent) _currentElement=%@",_currentElement);
+  NSDebugMLog(@"Opening element: tagProperties=%@",tagProperties);
+  NSDebugMLog(@"Opening element: templateInfo=%@",templateInfo);
+  NSDebugMLog(@"Opening element: parent=%@",_currentElement);
 
   _currentElement = [GSWTemporaryElement temporaryElementOfType:tagType
                                          withProperties:tagProperties
@@ -161,15 +161,15 @@ Creates a dynamic element from current temporary element element
 
   LOGObjectFnStart();
   
-  NSDebugMLog(@"Old (Child) _currentElement=%@",_currentElement);
+  NSDebugMLog(@"Closing element=%@",_currentElement);
 
   parent=[_currentElement parentElement];
-  NSDebugMLog(@"parent=%@",parent);
+  NSDebugMLog(@"Parent element=%@",_currentElement);
 
   if(!parent)
     {
       [NSException raise:NSInvalidArgumentException 
-                   format:@"Unmatched dynamic tag end %@. %@.",
+                   format:@"Unmatched dynamic tag end. %@.",
                    templateInfo];
     } 
   else
@@ -200,7 +200,7 @@ Creates a GSWHTMLComment with the comment text
 
   LOGObjectFnStart();
 
-  NSDebugMLog(@"_currentElement=%@",_currentElement);
+  NSDebugMLog(@"didParseComment child Of element: %@",_currentElement);
   NSDebugMLog(@"string=%@",text);
 
   element = [GSWHTMLComment elementWithString:text];
