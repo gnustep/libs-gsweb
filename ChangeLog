@@ -1,3 +1,9 @@
+2003-12-25   David Wetzel <dave@turbocat.de>
+        * GSWeb.framework: GSWApplication.m GSWConstants.h GSWConstants.m
+          Added GSWClassName_ResourceManager, GSWClassName_StatisticsStore,
+          GSWClassName_ServerSessionStore
+          Joined broken lines with string constants in GSWApplication.m
+
 2003-11-26   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWRecording.m:
 		o fix in -_wildcardedResponse:
