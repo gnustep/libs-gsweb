@@ -62,6 +62,7 @@ Bindings
 
         escapeHTML	If evaluated to yes, escape displayString
 
+        isDisplayStringBefore If evaluated to yes, displayString is displayed before radio button
 **/
 //====================================================================
 @implementation GSWRadioButtonList
@@ -127,6 +128,12 @@ Bindings
                              withDefaultObject:[_suffix autorelease]] retain];
       _displayString=[[associations objectForKey:displayString__Key
                                     withDefaultObject:[_displayString autorelease]] retain];
+
+      if (!WOStrictFlag)
+        {
+          _isDisplayStringBefore=[[associations objectForKey:isDisplayStringBefore__Key
+                                                withDefaultObject:[_isDisplayStringBefore autorelease]] retain];
+        };
       _escapeHTML=[[associations objectForKey:escapeHTML__Key
                                  withDefaultObject:[_escapeHTML autorelease]] retain];
     };
@@ -144,6 +151,7 @@ Bindings
   DESTROY(_prefix);
   DESTROY(_suffix);
   DESTROY(_displayString);
+  DESTROY(_isDisplayStringBefore);//GSWeb Only
   DESTROY(_escapeHTML);
   [super dealloc];
 }
@@ -330,6 +338,7 @@ Bindings
   id selectionValueValue=nil;
   int i=0;
   id displayStringValue=nil;
+  BOOL isDisplayStringBefore=NO;
   id prefixValue=nil;
   id suffixValue=nil;
   id valueValue=nil; // _value value (or auto value)
@@ -366,7 +375,14 @@ Bindings
       [_index setValue:[NSNumber numberWithShort:i]
               inComponent:component];
 
+      if (_isDisplayStringBefore)
+        isDisplayStringBefore=[self evaluateCondition:_isDisplayStringBefore
+                                    inContext:context];
+
       displayStringValue=[_displayString valueInComponent:component];
+
+      if (isDisplayStringBefore)
+        [response appendContentHTMLString:displayStringValue];
 
       [response appendContentString:@"<INPUT NAME=\""];
       [response appendContentString:name];
@@ -412,7 +428,8 @@ Bindings
 
       [response appendContentCharacter:'>'];
       [response appendContentString:prefixValue];
-      [response appendContentHTMLString:displayStringValue];
+      if (!isDisplayStringBefore)
+        [response appendContentHTMLString:displayStringValue];
       [response appendContentString:suffixValue];
     };
   LOGObjectFnStopC("GSWRadioButtonList");

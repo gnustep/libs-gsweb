@@ -61,6 +61,8 @@ Bindings
         disabled	If evaluated to yes, the check box appear inactivated.
 
         escapeHTML	If evaluated to yes, escape displayString
+
+        isDisplayStringBefore If evaluated to no, displayString is displayed after radio button. 
 **/
 
 //====================================================================
@@ -144,6 +146,12 @@ Bindings
       _escapeHTML = [[associations objectForKey:escapeHTML__Key
                                    withDefaultObject:[_escapeHTML autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"escapeHTML=%@",_escapeHTML);
+
+      if (!WOStrictFlag)
+        {
+          _isDisplayStringBefore=[[associations objectForKey:isDisplayStringBefore__Key
+                                                withDefaultObject:[_isDisplayStringBefore autorelease]] retain];
+        };
     };
   LOGObjectFnStop();
   return self;
@@ -162,6 +170,7 @@ Bindings
   DESTROY(_displayString);
   DESTROY(_itemDisabled);
   DESTROY(_escapeHTML);
+  DESTROY(_isDisplayStringBefore);//GSWeb Only
   [super dealloc];
 }
 
@@ -390,6 +399,7 @@ Bindings
           id valueValue=nil;
           id itemValue=nil;
           BOOL disabledInContext=NO;
+          BOOL isDisplayStringBefore=NO;
           NSArray* listValue=[_list valueInComponent:component];
           
           NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
@@ -414,7 +424,14 @@ Bindings
               [_index setValue:[NSNumber numberWithShort:i]
                       inComponent:component];
               
+              if (_isDisplayStringBefore)
+                isDisplayStringBefore=[self evaluateCondition:_isDisplayStringBefore
+                                            inContext:context];
+
               displayStringValue=[_displayString valueInComponent:component];
+
+              if (isDisplayStringBefore)
+                [response appendContentHTMLString:displayStringValue];
               
               [response appendContentString:@"<INPUT NAME=\""];
               [response appendContentString:name];
@@ -462,7 +479,8 @@ Bindings
               
               [response appendContentCharacter:'>'];
               [response appendContentString:prefixValue];
-              [response appendContentHTMLString:displayStringValue];
+              if (!isDisplayStringBefore)
+                [response appendContentHTMLString:displayStringValue];
               [response appendContentString:suffixValue];
             };
         };

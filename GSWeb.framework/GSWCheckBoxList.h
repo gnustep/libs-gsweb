@@ -48,6 +48,9 @@
   GSWAssociation* _escapeHTML;
   GSWAssociation* _itemDisabled;
   BOOL _defaultEscapeHTML;
+//GSWeb Additions {
+  GSWAssociation* _isDisplayStringBefore;
+// }
 };
 
 -(id)initWithName:(NSString*)name
