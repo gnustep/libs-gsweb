@@ -136,7 +136,7 @@ static char rcsId[] = "$Id$";
 //NDFN
 -(NSString*)parentElementIDString
 {
-  GSWElementIDString* _id=[[self copy] autorelease];
+  GSWElementIDString* _id=[[self mutableCopy] autorelease];
   if ([self length]>0)
 	[_id deleteLastElementIDComponent];
   return _id;

@@ -1,3 +1,9 @@
+2000-11-01  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWElementIDString.m ([NSMutableString
+	-parentElementIDString]): create a mutableCopy instead of a copy of
+	the string.
+
 2000-11-01  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWTemplateParserXML.m: remove setExternalEntityLoader: call
