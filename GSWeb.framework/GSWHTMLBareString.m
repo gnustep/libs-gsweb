@@ -1,6 +1,6 @@
 /** GSWHTMLBareString.m - <title>GSWeb: Class GSWHTMLBareString</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -41,7 +41,6 @@ RCS_ID("$Id$")
 {
   if ((self=[super init]))
     {
-      _encoding=NSISOLatin1StringEncoding;
     };
   return self;
 };
@@ -60,17 +59,22 @@ RCS_ID("$Id$")
 -(void)dealloc
 {
   DESTROY(_string);
-  DESTROY(_data);
   [super dealloc];
 }
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - String:[%s]>",
+  return [NSString stringWithFormat:@"<%s %p - String:[%@]>",
                    object_get_class_name(self),
                    (void*)self,
-                   [_string lossyCString]];
+                   _string];
+};
+
+//--------------------------------------------------------------------
+-(NSString*)string
+{
+  return _string;
 };
 
 @end

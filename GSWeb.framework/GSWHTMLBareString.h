@@ -1,6 +1,6 @@
 /** GSWHTMLBareString.h - <title>GSWeb: Class GSWHTMLBareString</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -36,13 +36,10 @@
 @interface GSWHTMLBareString: GSWElement
 {
   NSString* _string;
-  NSData* _data;
-  NSStringEncoding _encoding;
 };
   
 -(id)initWithString:(NSString*)aString;
--(void)dealloc;
--(NSString*)description;
+-(NSString*)string;
 @end
 
 //====================================================================
