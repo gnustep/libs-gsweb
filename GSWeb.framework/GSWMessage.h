@@ -41,7 +41,9 @@
   NSStringEncoding _contentEncoding;
   NSDictionary* _userInfo;
   NSMutableString* _contentString;
+  IMP _contentStringASImp;
   NSMutableData* _contentData;
+  IMP _contentDataADImp;
 #ifndef NO_GNUSTEP
   NSMutableArray* _cachesStack; // Cache Stacks
 #endif

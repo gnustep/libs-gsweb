@@ -38,6 +38,9 @@ RCS_ID("$Id$")
 static NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 static NSString* globalDefaultURLEncoding=nil;
 
+static SEL appendStringSel = NULL;
+static SEL appendDataSel = NULL;
+
 //====================================================================
 #ifndef NO_GNUSTEP
 
@@ -50,8 +53,27 @@ static NSString* globalDefaultURLEncoding=nil;
 
 #endif
 
+#define assertContentStringASImp();		\
+	{ if (!_contentStringASImp) { 		\
+		_contentStringASImp=[_contentString \
+			methodForSelector:appendStringSel]; }; };
+
+#define assertContentDataADImp();		\
+	{ if (!_contentDataADImp) { 		\
+		_contentDataADImp=[_contentData \
+			methodForSelector:appendDataSel]; }; };
+
 //====================================================================
 @implementation GSWMessage
+
++ (void) initialize
+{
+  if (self == [GSWMessage class])
+    {
+      appendStringSel = @selector(appendString:);
+      appendDataSel = @selector(appendData:);
+    };
+};
 
 //--------------------------------------------------------------------
 //	init
@@ -111,9 +133,11 @@ static NSString* globalDefaultURLEncoding=nil;
 
       DESTROY(clone->_contentString);
       clone->_contentString=[_contentString mutableCopyWithZone:zone];
+      clone->_contentStringASImp=NULL;
 
       DESTROY(clone->_contentData);
       clone->_contentData=[_contentData mutableCopyWithZone:zone];
+      clone->_contentDataADImp=NULL;
 
 #ifndef NO_GNUSTEP
       DESTROY(clone->_cachesStack);
@@ -337,10 +361,16 @@ static NSString* globalDefaultURLEncoding=nil;
 -(void)_initContentData
 {
   LOGObjectFnStart();
+
   DESTROY(_contentString);
   DESTROY(_contentData);
+
   _contentString=[NSMutableString new];
+  _contentStringASImp=NULL;
+
   _contentData=[NSMutableData new];
+  _contentDataADImp=NULL;
+
   LOGObjectFnStop();
 };
 
@@ -425,7 +455,8 @@ static NSString* globalDefaultURLEncoding=nil;
           tmpString=[[[NSString alloc]initWithData:contentData
                                       encoding:[self contentEncoding]]
                       autorelease];
-          [_contentString appendString:tmpString];
+          assertContentStringASImp();
+          (*_contentStringASImp)(_contentString,appendStringSel,tmpString);
 
 #ifndef NO_GNUSTEP
           if (_cachesStack)
@@ -436,11 +467,13 @@ static NSString* globalDefaultURLEncoding=nil;
         {
           if ([_contentData length]>0)
             {
-              [_contentData appendData:contentData];
+              assertContentDataADImp();
+              (*_contentDataADImp)(_contentData,appendDataSel,contentData);
             }
           else
             {
               _contentData = (NSMutableData*)[contentData mutableCopy];
+              _contentDataADImp = NULL;
             };
 
 #ifndef NO_GNUSTEP
@@ -456,7 +489,9 @@ static NSString* globalDefaultURLEncoding=nil;
 -(void)_appendContentAsciiString:(NSString*)aString
 {
   NSString* string=nil;
+
   LOGObjectFnStart();
+
   NSAssert2([_contentData length]==0,
             @"Try to append string but content is data. \nString: '%@'\nData: '%@'",
             string,
@@ -468,12 +503,14 @@ static NSString* globalDefaultURLEncoding=nil;
   string=[NSString stringWithObject:aString];
 
   NSDebugMLLog(@"low",@"string:%@",string);
-  [_contentString appendString:string];
+  assertContentStringASImp();
+  (*_contentStringASImp)(_contentString,appendStringSel,string);
 
 #ifndef NO_GNUSTEP
   if (_cachesStack)
     [self _cacheAppendString:string];
 #endif
+
   LOGObjectFnStop();
 };
 
@@ -483,7 +520,9 @@ static NSString* globalDefaultURLEncoding=nil;
 -(void)_appendContentCharacter:(char)aChar
 {
   NSString* string=nil;
+
   LOGObjectFnStart();
+
   NSDebugMLLog(@"low",@"aChar:%c",aChar);
   NSAssert2([_contentData length]==0,
             @"Try to append string but content is data. \naChar: '%c'\nData: '%@'",
@@ -492,9 +531,11 @@ static NSString* globalDefaultURLEncoding=nil;
                               encoding:[self contentEncoding]]
               autorelease]);  
 
-  string=[NSString stringWithFormat:@"%c",aChar];
+  string=[NSString stringWithCString:&aChar
+                   length:1];
 
-  [_contentString appendString:string];
+  assertContentStringASImp();
+  (*_contentStringASImp)(_contentString,appendStringSel,string);
 
 #ifndef NO_GNUSTEP
   if (_cachesStack)
@@ -508,6 +549,7 @@ static NSString* globalDefaultURLEncoding=nil;
 -(void)appendContentString:(NSString*)string
 {
   LOGObjectFnStart();
+
   NSDebugMLLog(@"low",@"string:%@",string);
   NSAssert2([_contentData length]==0,
             @"Try to append string but content is data. \n"
@@ -516,10 +558,10 @@ static NSString* globalDefaultURLEncoding=nil;
             [[[NSString alloc]initWithData:_contentData
                               encoding:[self contentEncoding]]
               autorelease]);
-  if (string)
-    {
-      [_contentString appendString:string];
-    }
+
+  assertContentStringASImp();
+  (*_contentStringASImp)(_contentString,appendStringSel,string);
+
 #ifndef NO_GNUSTEP
   if (_cachesStack)
     [self _cacheAppendString:string];
@@ -652,7 +694,11 @@ static NSString* globalDefaultURLEncoding=nil;
 {
 #ifndef NDEBUG
   if (GSDebugSet(@"debugComments") == YES)
-    [self appendContentString:[NSString stringWithFormat:@"\n<!-- %@ -->\n",aString]];
+    {
+      [self appendContentString:@"\n<!-- "];
+      [self appendContentString:aString];
+      [self appendContentString:@" -->\n"];
+    };
 #endif
 };
 
