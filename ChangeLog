@@ -1,3 +1,8 @@
+2000-01-29  Manuel Guesdon <mguesdon@sbuilders.com>
+	
+	* GSWeb/GSWConfig.h: changed GSWOPTVALUE_FrameworksBaseURL to
+		@"/GSW/Frameworks"
+	
 2000-01-27  Manuel Guesdon <mguesdon@sbuilders.com>
 	
 	* GSWeb/GSWApplication.m removed #include <NGReflection/common.h>

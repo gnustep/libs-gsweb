@@ -38,7 +38,7 @@
 #define GSWOPTVALUE_CachingEnabled						@"YES"
 #define GSWOPTVALUE_DebuggingEnabled					@"YES"
 #define GSWOPTVALUE_DirectConnectEnabled				@"YES"
-#define GSWOPTVALUE_FrameworksBaseURL				    @"/GSWeb/Frameworks"
+#define GSWOPTVALUE_FrameworksBaseURL				    @"/GSW/Frameworks"
 #define GSWOPTVALUE_IncludeCommentsInResponse			@"YES"
 #define GSWOPTVALUE_ListenQueueSize						@"16"
 #define GSWOPTVALUE_MonitorEnabled				   		@"NO"
