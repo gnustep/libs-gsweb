@@ -1,6 +1,6 @@
 /** GSWResourceManager.m - <title>GSWeb: Class GSWResourceManager</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -724,13 +724,18 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (path)
     {
       //TODO use encoding ??
-      stringsTable=[NSDictionary dictionaryWithContentsOfFile:path];
-      if (!stringsTable)
+      NSString* stringsTableContent = [NSString stringWithContentsOfFile:path];
+      NS_DURING
         {
-          LOGSeriousError(@"Bad stringTable \n%@\n from file %@",
-                          [NSString stringWithContentsOfFile:path],
-                          path);
-        };
+          stringsTable = [stringsTableContent propertyListFromStringsFileFormat]; 
+        }
+      NS_HANDLER
+        {
+          LOGSeriousError(@"Failed to parse strings file %@ - %@",
+                          path, localException);
+          stringsTable = nil;
+        }
+      NS_ENDHANDLER
     };
   {
     NSMutableDictionary* frameworkDict=[_stringsTablesByFrameworkByLanguageByName objectForKey:aFrameworkName];

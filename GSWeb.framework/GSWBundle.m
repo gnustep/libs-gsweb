@@ -1,6 +1,6 @@
 /** GSWBundle.m -  <title>GSWeb: Class GSWBundle</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -731,13 +731,18 @@ objectForReference:(NSString*)keyPath
           if (absolutePath)
             {
               //TODO use encoding ??
-              stringsTable=[NSDictionary dictionaryWithContentsOfFile:absolutePath];
-              if (!stringsTable)
+              NSString* stringsTableContent = [NSString stringWithContentsOfFile:absolutePath];
+              NS_DURING
                 {
-                  LOGSeriousError(@"Bad stringTable \n%@\n from file %@",
-                                  [NSString stringWithContentsOfFile:absolutePath],
-                                  absolutePath);
-                };
+                  stringsTable = [stringsTableContent propertyListFromStringsFileFormat]; 
+                }
+              NS_HANDLER
+                {
+                  LOGSeriousError(@"Failed to parse strings file %@ - %@",
+                                  absolutePath, localException);
+                  stringsTable = nil;
+                }
+              NS_ENDHANDLER
               if ([[GSWApplication application] isCachingEnabled])
                 {
                   if (stringsTable)
