@@ -115,7 +115,7 @@ static char rcsId[] = "$Id$";
   GSWComponent* _component=nil;
   NSArray* _listValue=nil;
   int i=0;
-  int _count=INT_MAX;
+  int _count=0;
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
 #endif
@@ -213,7 +213,7 @@ static char rcsId[] = "$Id$";
   GSWComponent* _component=nil;
   NSArray* _listValue=nil;
   int i=0;
-  int _count=INT_MAX;
+  int _count=0;
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
 #endif
@@ -280,7 +280,7 @@ static char rcsId[] = "$Id$";
   GSWComponent* _component=nil;
   NSArray* _listValue=nil;
   int i=0;
-  int _count=INT_MAX;
+  int _count=0;
 #ifndef NDEBBUG
   int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
 #endif
@@ -361,7 +361,7 @@ static char rcsId[] = "$Id$";
 #ifndef NDEBUG
 	  GSWElementIDString* debugElementID=[context_ elementID];
 #endif
-	  int _count=INT_MAX;
+	  int _count=0;
 	  NSArray* _listValue=nil;
 	  int i=0;
 	  GSWComponent* _component=[context_ component];
