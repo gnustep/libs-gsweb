@@ -4,10 +4,18 @@
 	* configure.ac: Ditto.
 	* configure: Regenerate.
 
-	* GSWeb.framework/.cvsignore: New file.
+	* .cvsignore: New file.
+	* GSWeb.framework/.cvsignore: Ditto.
 	* GSWExtensions.framework/.cvsignore: Ditto.
 	* GSWExtensions.framework/French.lproj/.cvsignore: Ditto.
 	* GSWExtensionsGSW.framework/.cvsignore: Ditto.
+
+	* GSWeb.framework/GSWApplication.h/m
+	(-/+[GSWApplication isDirectConnectEnabled])
+	(-/+[GSWApplication setDirectConnectEnabled:]): Make class
+	methods.
+	([GSWApplication registerRequestHandlers]): Call class method.
+	([GSWApplication refuseNewSessions:]): Ditto.
 	
 2004-01-12  David Ayers  <d.ayers@inode.at>
 

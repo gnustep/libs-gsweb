@@ -2,4 +2,5 @@ derived_src
 shared_debug_obj
 GSWWOReplaceScript.sed
 WO*.wo
+GSWExtensionsGSW.framework
 WOExtensionsGSW.framework

@@ -522,8 +522,8 @@ extern BOOL WOStrictFlag;
 +(void)setStatusDebuggingEnabled:(BOOL)flag;//NDFN
 +(BOOL)autoOpenInBrowser;
 +(void)setAutoOpenInBrowser:(BOOL)flag;
--(BOOL)isDirectConnectEnabled;
--(void)setDirectConnectEnabled:(BOOL)flag;
++(BOOL)isDirectConnectEnabled;
++(void)setDirectConnectEnabled:(BOOL)flag;
 +(NSString*)cgiAdaptorURL;
 +(void)setCGIAdaptorURL:(NSString*)url;
 +(BOOL)isCachingEnabled;

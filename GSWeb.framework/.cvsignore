@@ -1,5 +1,6 @@
 derived_src
 shared_debug_obj
+GSWeb.framework
 WebObjects.framework
 config.h
 Makefile.preamble

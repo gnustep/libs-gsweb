@@ -1041,7 +1041,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       /*          printf("SELFLOCK lock ThreadID=%p\n",(void*)objc_thread_id());
                   TmpLockBeforeDate(selfLock,[NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]);
                   printf("SELFLOCK locked ThreadID=%p\n",(void*)objc_thread_id());
-                  #ifndef NDEBUG
+#ifndef NDEBUG
                   selfLockn++;
                   selfLock_thread_id=objc_thread_id();
 #endif
@@ -1301,7 +1301,7 @@ selfLockn,
 
 
   // If direct connect enabled, add static resources handler
-  if ([self isDirectConnectEnabled])
+  if ([[self class] isDirectConnectEnabled])
     {
       GSWStaticResourceRequestHandler* staticResourceRequestHandler = (GSWStaticResourceRequestHandler*)
         [GSWStaticResourceRequestHandler handler];
@@ -4211,7 +4211,7 @@ to another instance **/
 //refuseNewSessions:
 -(void)refuseNewSessions:(BOOL)flag 
 {
-  if (flag && [self isDirectConnectEnabled])
+  if (flag && [[self class] isDirectConnectEnabled])
     {
       [NSException raise:NSInvalidArgumentException 
                    format:@"We can't refuse newSessions if direct connect enabled"];      
@@ -4450,14 +4450,14 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
--(BOOL)isDirectConnectEnabled
++(BOOL)isDirectConnectEnabled
 {
   return [[[NSUserDefaults standardUserDefaults] 
             objectForKey:GSWOPT_DirectConnectEnabled[GSWebNamingConv]] boolValue];
 };
 
 //--------------------------------------------------------------------
--(void)setDirectConnectEnabled:(BOOL)flag
++(void)setDirectConnectEnabled:(BOOL)flag
 {
   [[NSUserDefaults standardUserDefaults] 
     setObject:[NSNumber numberWithBool:flag]
