@@ -1,5 +1,9 @@
 2000-11-01  Manuel Guesdon <mguesdon@orange-concept.com>
 
+	* GSWeb.framework/GSWTemplateParserXML.m: remove xml-error.h include
+
+2000-11-01  Manuel Guesdon <mguesdon@orange-concept.com>
+
 	* GSWeb.framework/GSWApplication.m: removed a trace
 	* GSWeb.framework/GSWTemplateParserXML.m: fix XML 
 		properties key case bug
