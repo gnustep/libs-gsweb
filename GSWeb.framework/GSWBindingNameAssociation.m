@@ -55,7 +55,7 @@ RCS_ID("$Id$")
           else if (!WOStrictFlag && [aKeyPath hasPrefix:@"~"])
             {
               ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"~"]);
-              _isNonMandatory=YES; 
+              _isNonMandatory=YES;
             };
           if ([keys count]>1)
             {
