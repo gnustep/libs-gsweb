@@ -83,10 +83,15 @@ WebObjects_RESOURCE_DIRS = $(GSWeb_RESOURCE_DIRS)
 GSWeb_OBJC_FILES = \
 GSWDebug.m \
 GSWConstants.m \
-GSWPageDefParser.m \
-GSWPageDefParserExt.m \
-GSWPageDefLexer.m \
-GSWPageDefElement.m \
+GSWTemporaryElement.m \
+GSWBaseParser.m \
+GSWHTMLRawParser.m \
+GSWDeclaration.m \
+GSWDeclarationParser.m \
+GSWTemplateParser.m \
+GSWHTMLTemplateParser.m \
+GSWTemplateParserANTLR.m \
+GSWTemplateParserXML.m \
 GSWSessionTimeOutManager.m \
 GSWServerSessionStore.m \
 GSWDeployedBundle.m \
@@ -98,9 +103,6 @@ GSWTransactionRecord.m \
 GSWBundle.m \
 NSString+Trimming.m \
 NSString+HTML.m \
-GSWTemplateParser.m \
-GSWTemplateParserANTLR.m \
-GSWTemplateParserXML.m \
 GSWHTMLParser.m \
 GSWHTMLParserExt.m \
 GSWHTMLLexer.m \
@@ -266,11 +268,11 @@ GSWKeyValueAssociation.h \
 GSWMailDelivery.h \
 GSWMultiKeyDictionary.h \
 GSWNestedList.h \
-GSWPageDefElement.h \
-GSWPageDefLexer.h \
-GSWPageDefParser.h \
-GSWPageDefParserExt.h \
-GSWPageDefTokenTypes.h \
+GSWTemporaryElement.h \
+GSWBaseParser.h \
+GSWHTMLRawParser.h \
+GSWDeclaration.h \
+GSWDeclarationParser.h \
 GSWParam.h \
 GSWPasswordField.h \
 GSWPopUpButton.h \
@@ -296,6 +298,7 @@ GSWString.h \
 GSWSubmitButton.h \
 GSWSwitchComponent.h \
 GSWTemplateParser.h \
+GSWHTMLTemplateParser.h \
 GSWTemplateParserANTLR.h \
 GSWTemplateParserXML.h \
 GSWHTMLAttrLexer.h \
