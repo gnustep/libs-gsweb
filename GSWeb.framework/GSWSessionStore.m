@@ -164,7 +164,7 @@ RCS_ID("$Id$")
           currentTime=(int)time(NULL);
           if (isCheckedOut) // Session already check out. Wait...
             {
-              usleep(10000); // sleep for 10 ms
+              NSTimeIntervalSleep(0.010); // sleep for 10 ms
               if (tryCount%100==0)
                 NSLog(@"Try check out %@ for %d seconds (tryCount=%d)",aSessionID,(currentTime-startTime),tryCount);
             };         
