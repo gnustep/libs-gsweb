@@ -129,9 +129,11 @@ int allow_severity = LOG_INFO;
     object:fileHandle];
 */
   [_fileHandle acceptConnectionInBackgroundAndNotify];
+#ifndef __APPLE__
   NSAssert([_fileHandle readInProgress],@"No [_fileHandle readInProgress]");
   NSDebugDeepMLog(@"%@ - B readInProgress=%d",
 		  GSCurrentThread(),(int)[_fileHandle readInProgress]);
+#endif
   [GSWApplication statusLogWithFormat:
 		    @"Thread %@: Waiting for connections on %@:%d.",
                   GSCurrentThread(),

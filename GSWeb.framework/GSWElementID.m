@@ -111,8 +111,8 @@ static GSWElementIDIMPs standardElementIDIMPs;
 // Internal Selectors
 static SEL deleteElementsFromIndexSelector = NULL;
 static SEL buildElementPartsSelector = NULL;
-static SEL appendStringSelector=@selector(appendString:);
-static SEL setStringSelector=@selector(setString:);
+static SEL appendStringSelector = NULL;
+static SEL setStringSelector = NULL;
 
 // Public Selectors
 SEL appendZeroElementIDComponentSEL=NULL;
