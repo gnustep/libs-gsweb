@@ -78,6 +78,10 @@ RCS_ID("$Id$")
                                           withDefaultObject:[_queryDictionary autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"queryDictionary=%@",_queryDictionary);
 
+  _pathQueryDictionary = [[anAssociationsDict objectForKey:pathQueryDictionary__Key
+                                              withDefaultObject:[_pathQueryDictionary autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"pathQueryDictionary=%@",_pathQueryDictionary);
+
   _actionClass = [[anAssociationsDict objectForKey:actionClass__Key
                                       withDefaultObject:[_actionClass autorelease]] retain];
   NSDebugMLLog(@"gswdync",@"actionClass=%@",_actionClass);
@@ -153,6 +157,7 @@ RCS_ID("$Id$")
       [tmpOtherAssociations removeObjectForKey:mimeType__Key];
       [tmpOtherAssociations removeObjectForKey:key__Key];
       [tmpOtherAssociations removeObjectForKey:urlPrefix__Key];
+      [tmpOtherAssociations removeObjectForKey:pathQueryDictionary__Key];
     };
 
   if (!WOStrictFlag)
@@ -250,6 +255,7 @@ RCS_ID("$Id$")
   DESTROY(_mimeType);
   DESTROY(_key);
   DESTROY(_urlPrefix);
+  DESTROY(_pathQueryDictionary);
   DESTROY(_children);
   [super dealloc];
 }
@@ -542,6 +548,7 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"gswdync",@"_directActionName=%@",_directActionName);  
   actionString=[(GSWHTMLDynamicElement*)self computeActionStringWithActionClassAssociation:_actionClass
                                         directActionNameAssociation:_directActionName
+                                        pathQueryDictionaryAssociation:_pathQueryDictionary
                                         otherPathQueryAssociations:_otherPathQueryAssociations
                                         inContext:context];
   NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);  

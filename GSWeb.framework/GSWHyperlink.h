@@ -63,6 +63,7 @@
   GSWAssociation* _key;
   NSDictionary* _otherPathQueryAssociations;
   GSWAssociation* _urlPrefix;
+  GSWAssociation* _pathQueryDictionary;
 // }
   GSWElement* _children;
 };
