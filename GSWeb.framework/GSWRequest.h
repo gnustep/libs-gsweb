@@ -196,6 +196,13 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
                            queryString:(NSString*)queryString
                               isSecure:(BOOL)isSecure
                                   port:(int)port;
+
+/** urlPrefix will prefix url (before the /GSWeb) **/
+-(GSWDynamicURLString*)_urlWithURLPrefix:(NSString*)urlPrefix
+                       requestHandlerKey:(NSString*)key
+                                    path:(NSString*)path
+                             queryString:(NSString*)queryString;
+
 -(GSWDynamicURLString*)_urlWithRequestHandlerKey:(NSString*)key
                                             path:(NSString*)path
                                      queryString:(NSString*)queryString;

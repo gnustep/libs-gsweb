@@ -1480,12 +1480,16 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(GSWDynamicURLString*)_urlWithRequestHandlerKey:(NSString*)key
-                                            path:(NSString*)path
-                                     queryString:(NSString*)queryString
+/** urlPrefix will prefix url (before the /GSWeb) **/
+-(GSWDynamicURLString*)_urlWithURLPrefix:(NSString*)urlPrefix
+                       requestHandlerKey:(NSString*)key
+                                    path:(NSString*)path
+                             queryString:(NSString*)queryString
 {
-  //OK
   GSWDynamicURLString* url=[self _applicationURLPrefix];
+  if (urlPrefix)
+    [url setURLPrefix:[NSString stringWithFormat:@"%@%@",
+                                urlPrefix,[url urlPrefix]]];
   [url setURLRequestHandlerKey:key];
   [url setURLRequestHandlerPath:path];
   [url setURLQueryString:queryString];
@@ -1493,9 +1497,19 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+-(GSWDynamicURLString*)_urlWithRequestHandlerKey:(NSString*)key
+                                            path:(NSString*)path
+                                     queryString:(NSString*)queryString
+{
+  return [self _urlWithURLPrefix:nil
+               requestHandlerKey:key
+               path:path
+               queryString:queryString];
+};
+
+//--------------------------------------------------------------------
 -(GSWDynamicURLString*)_applicationURLPrefix
 {
-  //OK
   GSWDynamicURLString* applicationURLPrefix=[[_uri copy] autorelease];
   [applicationURLPrefix setURLRequestHandlerKey:nil];
   [applicationURLPrefix setURLRequestHandlerPath:nil];
