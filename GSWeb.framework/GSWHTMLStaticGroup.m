@@ -1,6 +1,6 @@
 /** GSWHTMLStaticGroup.m - <title>GSWeb: Class GSWHTMLStaticGroup</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -35,6 +35,12 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWHTMLStaticGroup
+
++(GSWHTMLStaticGroup*)elementWithContentElements:(NSArray*)elements
+{
+  return [[[self alloc]initWithContentElements:elements]autorelease];
+};
+
 -(id)initWithContentElements:(NSArray*)elements
 {
   //OK

@@ -1,9 +1,9 @@
 /** GSWHTMLStaticGroup.h - <title>GSWeb: Class GSWHTMLStaticGroup</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Feb 1999
+   Date:        Feb 1999
    
    $Revision$
    $Date$
@@ -37,6 +37,7 @@
 {
   NSString* _documentTypeString;
 }
++(GSWHTMLStaticGroup*)elementWithContentElements:(NSArray*)elements;
 -(id)initWithContentElements:(NSArray*)elements;
 -(void)setDocumentTypeString:(NSString *)documentType;
 
@@ -44,6 +45,7 @@
               inContext:(GSWContext*)context;
 
 -(void)dealloc;
+
 @end
 
 
