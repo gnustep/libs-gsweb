@@ -1,3 +1,14 @@
+2000-08-01  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWDisplayGroup.m/.h: implemented (-setSelectedObject) to support
+	  KeyValueCoding mechanism
+	  (-selectObject:) now search object into allObjects array
+	* GSWPopUpButton.m: removed dashes (--) in the label.
+	* GSWActiveImage.m: if image is disabled whitin a FORM it displays its
+	  image as a passive element
+	* GSWComponent.m: displays start/stop comments if gswcomponents debug
+	  is enabled
+
 2000-07-27  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWInput.m/.h: implemented (-valueInContext:) and (-resetAutoValue) to manage auto value attribute

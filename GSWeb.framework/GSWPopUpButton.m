@@ -264,7 +264,12 @@ static char rcsId[] = "$Id$";
 #ifdef ENABLE_OPTGROUP
 				  [response_ _appendContentAsciiString:@"\n<OPTGROUP label=\""];
 #else
+#if 0
 				  [response_ _appendContentAsciiString:@"\n<OPTION>-- "];
+				  _optGroupLabel=YES;
+#else
+				  [response_ _appendContentAsciiString:@"\n<OPTION>"];
+#endif
 				  _optGroupLabel=YES;
 #endif
 				  _inOptGroup=YES;

@@ -369,7 +369,10 @@ static char rcsId[] = "$Id$";
   _isInForm=[context_ isInForm]; //TODO
   if (_isInForm)
 	{
-	  [response_ _appendContentAsciiString:@"<INPUT "];
+	  if (!_disabledInContext)
+	    [response_ _appendContentAsciiString:@"<INPUT "];
+	  else
+	    [response_ _appendContentAsciiString:@"<IMG "];
 	}
   else
 	{
@@ -453,7 +456,10 @@ static char rcsId[] = "$Id$";
   _component=[context_ component];
   _disabledInContext=[self disabledInContext:context_];
   _isInForm=[context_ isInForm];
-  if (_isInForm)
+
+  if (!_disabledInContext)
+    {
+      if (_isInForm)
 	{
 	  NSString* _nameInContext=[self nameInContext:context_];
 	  [response_ _appendContentAsciiString:@" type=image"];
@@ -461,10 +467,11 @@ static char rcsId[] = "$Id$";
 	  [response_ appendContentHTMLAttributeValue:_nameInContext];
 	  [response_ appendContentCharacter:'"'];
 	}
-  else if (!_disabledInContext)
+      else
 	{
 	  [response_ _appendContentAsciiString:@" ismap"];
 	};
+    }
 
   NSDebugMLLog(@"gswdync",@"data=%@",data);
   NSDebugMLLog(@"gswdync",@"filename=%@",filename);

@@ -165,6 +165,7 @@
 - (NSArray *)relationalQualifierOperators;
 - (NSMutableDictionary *)secondObjectForQualifier;
 - (id)selectedObject;
+- (void)setSelectedObject:(id)object;
 - (NSArray *)selectedObjects;
 - (NSArray *)selectionIndexes;
 - (id)selectNext;

@@ -950,7 +950,8 @@ associationsKeys:(NSArray*)_associationsKeys
   NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[context_ elementID]);
   GSWSaveAppendToResponseElementID(context_);//Debug Only
   _template=[self _template];
-  [response_ appendContentString:[NSString stringWithFormat:@"\n<!-- Start %@ -->\n",[self _templateName]]];//TODO enlever
+  if(GSDebugSet(@"gswcomponents") == YES)
+    [response_ appendContentString:[NSString stringWithFormat:@"\n<!-- Start %@ -->\n",[self _templateName]]];//TODO enlever
 
   _request=[context_ request];
   _isFromClientComponent=[_request isFromClientComponent];
@@ -967,7 +968,8 @@ associationsKeys:(NSArray*)_associationsKeys
 	  
 	};
 #endif
-  [response_ appendContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ -->\n",[self _templateName]]];//TODO enlever
+  if(GSDebugSet(@"gswcomponents") == YES)
+    [response_ appendContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ -->\n",[self _templateName]]];//TODO enlever
   LOGObjectFnStop();
 };
 

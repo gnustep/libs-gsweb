@@ -1517,7 +1517,7 @@ static char rcsId[] = "$Id$";
 
 - (BOOL)selectObject:(id)object
 {
-  if([displayedObjects containsObject:object] == NO)
+  if([allObjects containsObject:object] == NO)
     return NO;
 
   return [self setSelectionIndexes:
@@ -1794,6 +1794,14 @@ static char rcsId[] = "$Id$";
 - (void)setQualifier:(EOQualifier *)qualifier_
 {
   ASSIGN(qualifier, qualifier_);
+}
+
+//--------------------------------------------------------------------
+//	setSelectedObject:
+
+- (void)setSelectedObject:(id)object
+{
+  [self selectObject:object];
 }
 
 //--------------------------------------------------------------------
