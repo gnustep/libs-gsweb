@@ -13,6 +13,15 @@
 	* GSWeb.framework/NSData+Compress.m ([NSData deflate]):
 	Remove dependancy on GNUstep extenstions.
 	* GSWeb.framework/stacktrace.m: Add test for __MACH__.
+
+	* GSWExtensions.framework/GSWLongResponsePage.m
+	([GSWLongResponsePage threadExited:]): Replace NSThreadExiting
+	with NSThreadWillExitNotification.
+	([GSWLongResponsePage _perform:]): Ditto.
+
+	* GSWeb.framework/GNUmakefile: Depend on GDL2 when applicable.
+	* GSWeb.framework/Makefile.preamble.in: Add dependency on 
+	GSANTLER and -baseadd when applicable.
 	
 2004-02-26  David Ayers  <d.ayers@inode.at>
 

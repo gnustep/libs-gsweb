@@ -136,7 +136,7 @@ RCS_ID("$Id$")
 //  NSDebugMLLog(@"low",@"adaptorThread=%@",adaptorThread);
 //  [threadDict removeObjectForKey:GSWThreadKey_DefaultAdaptorThread];
   [[NSNotificationCenter defaultCenter] removeObserver:self
-                                        name:NSThreadExiting//NSThreadWillExitNotification
+                                        name:NSThreadWillExitNotification
                                         object:thread];
   LOGObjectFnStopC("GSWLongResponsePage");
   return nil; //??
@@ -150,7 +150,7 @@ RCS_ID("$Id$")
   arp = [NSAutoreleasePool new];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                         selector:@selector(threadExited:)
-                                        name:NSThreadExiting//NSThreadWillExitNotification
+                                        name:NSThreadWillExitNotification
                                         object:[NSThread currentThread]];
   NS_DURING
     {

@@ -28,6 +28,9 @@ GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
 
 GNUSTEP_LOCAL_ADDITIONAL_MAKEFILES=../gsweb.make
 include $(GNUSTEP_MAKEFILES)/common.make
+ifeq ($(GDL2),yes)
+include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
+endif
 
 include ../Version
 include ../config.mak

@@ -64,7 +64,10 @@ ADDITIONAL_CFLAGS =  -DUSE_BUILTIN
 ADDITIONAL_INCLUDE_DIRS = -I./$(GNUSTEP_TARGET_DIR) @XML_CFLAGS@
 
 # Additional LDFLAGS to pass to the linker
-LIBRARIES_DEPEND_UPON += @AUX_LIBS@
+LIBRARIES_DEPEND_UPON += -lGSANTLR @AUX_LIBS@
+ifneq ($(FOUNDATION_LIB),gnu)
+LIBRARIES_DEPEND_UPON += -lgnustep-baseadd
+endif
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = 
