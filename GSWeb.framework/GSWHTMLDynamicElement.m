@@ -835,6 +835,10 @@ attributeAssociations:(NSDictionary*)attributeAssociations
       if ([pathQueryDictionary count]>0 || [otherPathQueryAssociations count]>0)
         {
           NSMutableDictionary* pathKV=nil;
+	  NSArray* keys;
+	  unsigned int count;
+	  unsigned int i;
+
           if ([otherPathQueryAssociations count]>0)
             {              
               NSEnumerator* enumerator = [otherPathQueryAssociations keyEnumerator];
@@ -861,9 +865,9 @@ attributeAssociations:(NSDictionary*)attributeAssociations
           NSDebugMLLog(@"gswdync",@"pathKV=%@",pathKV);
 
           // We sort keys so URL are always the same for same parameters
-          NSArray* keys=[[pathKV allKeys]sortedArrayUsingSelector:@selector(compare:)];
-          int count=[keys count];
-          int i=0;
+          keys=[[pathKV allKeys]sortedArrayUsingSelector:@selector(compare:)];
+          count=[keys count];
+
           NSDebugMLLog(@"gswdync",@"pathKV=%@",pathKV);
           for(i=0;i<count;i++)
             {

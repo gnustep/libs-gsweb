@@ -506,11 +506,12 @@ if it is not the case but you'll have problems later...)
                             forKey:key];
               else if (_uniBuf[index]=='=') // key=value
                 {
+		  NSString *value;
                   index++;
-                  NSString* value=[self _parsePropertiesStringEndingWith:'='
-                                        or:' '
-                                        index:&index
-                                        stopIndex:stopIndex];
+                  value=[self _parsePropertiesStringEndingWith:'='
+			      or:' '
+			      index:&index
+			      stopIndex:stopIndex];
                   NSDebugMLog(@"'value'='%@'",value);
                   NSAssert(value,@"No value");
                   [properties setObject:value
@@ -609,6 +610,8 @@ May raise exception.
                             else 
                               {
                                 NSString* tagPropertiesString=nil;
+				NSDictionary* tagProperties;
+
                                 if (_uniBuf[_index-1]=='/')
                                   {
                                     stopTag=YES;
@@ -618,7 +621,7 @@ May raise exception.
                                 tagPropertiesString=[NSString stringWithCharacters:_uniBuf+tagPropertiesStartIndex
                                                               length:tagPropertiesStopIndex-tagPropertiesStartIndex];
                                 NSDebugMLog(@"tagPropertiesString='%@'",tagPropertiesString);
-                                NSDictionary* tagProperties=[self tagPropertiesForType:tagType
+                                tagProperties=[self tagPropertiesForType:tagType
                                                                   betweenIndex:tagPropertiesStartIndex
                                                                   andIndex:tagPropertiesStopIndex-1];
                                 NSDebugMLog(@"tagProperties='%@'",tagProperties);

@@ -1,3 +1,32 @@
+2004-04-22  S.J. Chun <chunsj@embian.com>
+
+	* GSWExtensions.framework/GSWKeyValueConditional.m
+	([GSWKeyValueConditional condition]): Declare all variables at top
+	of block to be able to compile with gcc 2.95.
+	* GSWeb.framework/GSWBaseParser.m
+	(_ParserDebugLogBuffer):Ditto.
+	* GSWeb.framework/GSWDisplayGroup.m
+	([GSWDisplayGroup _deleteObjects]),
+	([GSWDisplayGroup displayBatchContainingSelectedObject]),
+	([GSWDisplayGroup setDefaultStringMatchFormat:]),
+	([GSWDisplayGroup _setUpForNewDataSource]): Ditto.
+	* GSWeb.framework/GSWHTMLDynamicElement.m
+	([GSWHTMLDynamicElement	computeActionStringWithActionClassAssociation:
+	directActionNameAssociation:pathQueryDictionaryAssociation:
+	otherPathQueryAssociations:inContext:]): Ditto.
+	* GSWeb.framework/GSWHTMLRawParser.m
+	([GSWHTMLRawParser tagPropertiesForType:betweenIndex:andIndex:]),
+	([GSWHTMLRawParser parseHTML]): Ditto.
+	* GSWeb.framework/GSWRequest.m
+	([GSWRequest valuesFromHeaderString:], [GSWRequest initWithString:]),
+	([GSWRequest cookies]): Ditto.
+	* GSWeb.framework/GSWStatisticsStore.m
+	([GSWStatisticsStore _sessionTerminating:]): Ditto.
+	* GSWeb.framework/GSWTemporaryElement.m
+	([GSWTemporaryElement _elementWithDeclaration:name:properties:
+	template:languages:]): Ditto.
+
+
 2004-04-20  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWDisplayGroup.m:

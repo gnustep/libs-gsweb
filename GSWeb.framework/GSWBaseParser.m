@@ -139,8 +139,8 @@ RCS_ID("$Id$")
 
 void _ParserDebugLogBuffer(char* fn,char* file,int line,unichar* uniBuf,int length,int index,int charsCount)
 {
-  printf("In %s (%s %d): length=%d index=%d ==>\n",fn,file,line,length,index);
   int i=0;
+  printf("In %s (%s %d): length=%d index=%d ==>\n",fn,file,line,length,index);
   for(i=index;i<length && i-index<charsCount;i++)
     printf("%c",(char)(uniBuf[i]));
   printf("\n");

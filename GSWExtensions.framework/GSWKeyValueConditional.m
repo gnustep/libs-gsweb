@@ -49,13 +49,15 @@ RCS_ID("$Id$")
 - (BOOL) condition
 {
   BOOL condition = NO;
+  id parentValue;
+  id value;
 
   LOGObjectFnStart();
 
-//    id	key = [self valueForBinding:@"key"];
-//    id	parentValue = (key ? [[self parent] valueForKeyPath:key]:nil);
-  id parentValue = [self valueForBinding:@"key"];
-  id value = [self valueForBinding:@"value"];
+//    key = [self valueForBinding:@"key"];
+//    parentValue = (key ? [[self parent] valueForKeyPath:key]:nil);
+  parentValue = [self valueForBinding:@"key"];
+  value = [self valueForBinding:@"value"];
 
   NSDebugMLLog(@"GSWComponent",@"parentValue=%@",parentValue);
   NSDebugMLLog(@"GSWComponent",@"value=%@",value);

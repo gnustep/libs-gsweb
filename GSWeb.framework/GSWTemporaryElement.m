@@ -340,10 +340,11 @@ May raise exception if element can't be created
       else
         {
           Class elementClass = NSClassFromString(elementType);
+          NSDictionary* associations;
 
           NSDebugMLog(@"elementClass=%@",elementClass);
 
-          NSDictionary* associations=[declaration associations];
+          associations=[declaration associations];
           if ([properties count]>0)
             {
               NSEnumerator* _propertiesEnum = [properties keyEnumerator];

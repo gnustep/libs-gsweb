@@ -267,13 +267,18 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)_sessionTerminating:(GSWSession*)aSession
 {
+  int activeSessionsCount;
+  NSArray* statistics;
+  NSDate* sessionBirthDate;
+  NSTimeInterval sessionTimeOut;
+  int sessionRequestCounter;
   //OK
   LOGObjectFnStart();
-  int activeSessionsCount=[GSWApp _activeSessionsCount];
-  NSArray* statistics=[aSession statistics];
-  NSDate* sessionBirthDate=nil;
-  NSTimeInterval sessionTimeOut=0;
-  int sessionRequestCounter=0;
+  activeSessionsCount=[GSWApp _activeSessionsCount];
+  statistics=[aSession statistics];
+  sessionBirthDate=nil;
+  sessionTimeOut=0;
+  sessionRequestCounter=0;
   [self _updatePathsStatisticsWithPaths:statistics];
   sessionBirthDate=[aSession _birthDate];
   sessionTimeOut=[aSession timeOut];

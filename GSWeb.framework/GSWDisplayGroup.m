@@ -365,8 +365,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   objectsCount = [objects count];
   if (objectsCount>0)
     {
-      result = YES;
       int i=0;
+      result = YES;
       for(i=0;i<objectsCount;i++)
         {
           id object=[objects objectAtIndex:i];
@@ -962,10 +962,11 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 -(id)displayBatchContainingSelectedObject
 {
   int newBatchIndex = 1;
+  int selectionIndex;
 
   LOGObjectFnStart();
 
-  int selectionIndex=[self _selectionIndex];
+  selectionIndex=[self _selectionIndex];
 
   if ([self batchCount]>0)
     newBatchIndex = selectionIndex / _numberOfObjectsPerBatch + 1;
@@ -1945,9 +1946,10 @@ of all Batches, not only the current one.
 
 - (void)setDefaultStringMatchFormat:(NSString *)format
 {
+  NSRange range;
   LOGObjectFnStart();
   // This must contains value format string
-  NSRange range=[format rangeOfString:@"%@"];
+  range=[format rangeOfString:@"%@"];
   if (range.length==0)
     {
       [[NSException exceptionWithName:NSInvalidArgumentException
@@ -2465,11 +2467,12 @@ of all Batches, not only the current one.
   LOGObjectFnStart();
   if(_dataSource)
     {
+      EOEditingContext* editingContext;
       // Set flags to detect customer dataSource
       _flags.isCustomDataSourceClass = [self _isCustomDataSourceClass:[_dataSource class]];
 
       // Add self as observer on dataSource editingContext
-      EOEditingContext* editingContext = [_dataSource editingContext];
+      editingContext = [_dataSource editingContext];
       if(editingContext)
         {
           [[NSNotificationCenter defaultCenter]

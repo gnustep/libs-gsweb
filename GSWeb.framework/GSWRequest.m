@@ -66,11 +66,11 @@ RCS_ID("$Id$")
       count=[qvs count];
       if (count>0)
         {
+          unsigned int i;
           //Sor oon quality desc
           [qvs sortUsingSelector:@selector(compareOnQualityDesc:)];
 
           //Remove Duplicates
-          int i=0;
           for(i=0;i<count;i++)
             {
               int j=0;
@@ -110,8 +110,9 @@ RCS_ID("$Id$")
 {
   NSString* value=nil;
   NSString* qualityString=nil;
+  NSRange qualitySeparatorRange;
   string=[string stringByTrimmingSpaces];
-  NSRange qualitySeparatorRange=[string rangeOfString:@";q="];
+  qualitySeparatorRange=[string rangeOfString:@";q="];
   if (qualitySeparatorRange.length>0)
     {
       if (qualitySeparatorRange.location==0)
@@ -1192,10 +1193,13 @@ RCS_ID("$Id$")
   // build super->cookies
   if (!_cookies)
     {
+      NSDictionary* cookies;
+      NSEnumerator* keysEnum;
+      NSString* key;
       [self _initCookies]; // super cookies init
-      NSDictionary* cookies=[self cookieValues];
-      NSEnumerator* keysEnum=[cookies keyEnumerator];
-      NSString* key=nil;
+      cookies=[self cookieValues];
+      keysEnum=[cookies keyEnumerator];
+      key=nil;
       while((key=[keysEnum nextObject]))
         {
           NSString* value=[cookies objectForKey:key];
