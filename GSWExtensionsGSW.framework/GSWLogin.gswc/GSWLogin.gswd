@@ -14,12 +14,6 @@ Form: GSWForm
 	name = "loginForm";
 }
 
-CurrentDate: GSWHiddenField
-{
-	value = currentDate;
-	name = "currentDate";
-};
-
 User: GSWTextField
 {
     value = user;
@@ -34,7 +28,6 @@ Submit: GSWSubmitButton
 {
     action = login;
     value = "Login";
-	onClick = onClickString;
 }
 
 Reset: GSWResetButton

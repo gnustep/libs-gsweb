@@ -133,20 +133,5 @@ RCS_ID("$Id$")
   return _nextPage;
 };
 
--(NSString*)currentDate
-{
-  return @"--";
-};
-
--(void)setCurrentDate:(NSString*)date_
-{
-  NSDebugMLog(@"FDdate_=%@",date_);
-};
-
--(NSString*)onClickString
-{
-  return @"d=Date(); this.form.currentDate.value=Date.UTC(d.getYear(),d.getMonth(),d.getDay(),d.getHours(),d.getMinutes(),d.getSeconds())";
-};
-
 @end
 
