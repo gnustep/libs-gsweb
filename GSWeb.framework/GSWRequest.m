@@ -1010,6 +1010,8 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
         }
       else if ([contentType isEqualToString:GSWHTTPHeader_MultipartFormData])
         {
+        //NSLog(@"will call _getFormValuesFromMultipartFormData");
+
           [self _getFormValuesFromMultipartFormData];
         }
       else
@@ -1177,6 +1179,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                           NSDebugMLLog(@"requests",@"descrValue=%@",descrValue);
                           _key=[NSString stringWithFormat:@"%@.%@",aName,dscrKey];
                           NSDebugMLLog(@"requests",@"_key=%@",_key);
+                          //NSLog(@"getFormValues... _key=%@ descrValue=%@",_key,descrValue);
                           [formValues setObject:[NSArray arrayWithObject:descrValue]
                                       forKey:_key];
                         };
@@ -1185,6 +1188,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                     {
                       NSArray* values=[parsedParts subarrayWithRange:NSMakeRange(1,[parsedParts count]-1)];
                       NSMutableArray* valuesNew=[NSMutableArray array];
+                      NSMutableArray* addedValues = nil;
                       NSDebugMLLog(@"requests",@"values=%@",
                                    values);
                       NSDebugMLLog(@"requests",@"parsedPartsContentType=%@",
@@ -1205,8 +1209,18 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                             };
                           values=[NSArray arrayWithArray:valuesNew];
                         };
+                      //NSLog(@"getFormValues 2... values=%@ key=%@",values,aName);
+                      if (addedValues = [formValues objectForKey:aName]) {
+                        addedValues = [NSMutableArray arrayWithArray:addedValues];
+                        [addedValues addObjectsFromArray:values];
+                        [formValues setObject:addedValues
+                                    forKey:aName];
+
+                      } else {
+                      
                       [formValues setObject:values
                                   forKey:aName];
+                      }
                     };
                 };
             };
