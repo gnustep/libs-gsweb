@@ -8,6 +8,12 @@
 	* GSWeb.framework/GSWSession.m,
 	* GSWeb.framework/GSWTemplateParser.m: Do not initialize va_list
 	with NULL.
+
+	* config.mak.in: Replace LIBWRAP with AUX_LIBS so that they will
+	be included in gsweb.make makefile fragment.
+	* configure.ac: Fine tune check to test whether we need libnsl.
+	* GSWeb.framework/gsweb.gsdoc: Remove obsolete documentation of
+	libwrap realted build option.
 	
 2004-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
 

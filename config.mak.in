@@ -3,7 +3,7 @@
 #
 DYNAMIC_LINKER=simple
 GDL2=@GDL2@
-LIBWRAP=@LIBWRAP@
+AUX_LIBS=@AUX_LIBS@
 
 #EOControl dependancy
 ifeq ($(GDL2),yes)

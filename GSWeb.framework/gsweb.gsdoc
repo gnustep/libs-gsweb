@@ -25,10 +25,6 @@
           <desc>
             Use GNUstepWeb with gdl2 library
           </desc>
-          <term>LIBWRAP=yes</term>
-          <desc>
-            Link with tcpd_libwrap (you know: hosts.deny, hosts.allow and this kind of things)
-          </desc>
           <term>GSWDEBUG_DEEP=yes</term>
           <desc>
             Activate deep debug features (works only if debug=yes is set)

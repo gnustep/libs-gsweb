@@ -56,13 +56,38 @@ AC_SUBST(GDL2)
 #--------------------------------------------------------------------
 # Check for libwrap
 #--------------------------------------------------------------------
+saved_LIBS="$LIBS"
 AC_CHECK_LIB(wrap, main, wrap_ok=yes, wrap_ok=no)
 if test "$wrap_ok" = yes; then
-  AUX_LIBS="$AUX_LIBS -lwrap"
-  USE_LIBWRAP=1
-  AC_DEFINE(HAVE_LIBWRAP)
+  LIBS="-lwrap"
+  echo -n "checking whether libnsl is needed... "
+  AC_TRY_LINK([#include <tcpd.h>
+	       int allow_severity, deny_severity;],
+	      [struct request_info *request; hosts_access(request);],
+	need_nsl=no, need_nsl=yes)
+  echo $need_nsl
+  if test "$need_nsl" = yes; then
+    LIBS="$LIBS -lnsl";
+    echo -n "checking whether -lwrap and -lnsl work... "
+    AC_TRY_LINK([#include <tcpd.h>
+	         int allow_severity, deny_severity;],
+	        [struct request_info *request; hosts_access(request);],
+	need_nsl=yes,need_nsl=error)
+    if test "$need_nsl" = error; then
+      echo -n " libwrap seems unusable even with libnsl! :"
+      wrap_ok=no
+    fi
+    echo $need_nsl
+  fi
+
+  if test "$wrap_ok" = yes; then
+    AUX_LIBS="$AUX_LIBS $LIBS"
+    HAVE_LIBWRAP=1
+    AC_DEFINE(HAVE_LIBWRAP)
+  fi
 fi
 AC_SUBST(LIBWRAP,$wrap_ok)
+LIBS="$saved_LIBS"
 
 #--------------------------------------------------------------------
 # Check recent libxml for XML parser

@@ -1212,6 +1212,7 @@ fi
 #--------------------------------------------------------------------
 # Check for libwrap
 #--------------------------------------------------------------------
+saved_LIBS="$LIBS"
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -2027,15 +2028,107 @@ else
 fi
 
 if test "$wrap_ok" = yes; then
-  AUX_LIBS="$AUX_LIBS -lwrap"
-  USE_LIBWRAP=1
-  cat >>confdefs.h <<\_ACEOF
+  LIBS="-lwrap"
+  echo -n "checking whether libnsl is needed... "
+  cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#include <tcpd.h>
+	       int allow_severity, deny_severity;
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+struct request_info *request; hosts_access(request);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  need_nsl=no
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+need_nsl=yes
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+  echo $need_nsl
+  if test "$need_nsl" = yes; then
+    LIBS="$LIBS -lnsl";
+    echo -n "checking whether -lwrap and -lnsl work... "
+    cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#include <tcpd.h>
+	         int allow_severity, deny_severity;
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+struct request_info *request; hosts_access(request);
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  need_nsl=yes
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+need_nsl=error
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+    if test "$need_nsl" = error; then
+      echo -n " libwrap seems unusable even with libnsl! :"
+      wrap_ok=no
+    fi
+    echo $need_nsl
+  fi
+
+  if test "$wrap_ok" = yes; then
+    AUX_LIBS="$AUX_LIBS $LIBS"
+    HAVE_LIBWRAP=1
+    cat >>confdefs.h <<\_ACEOF
 #define HAVE_LIBWRAP 1
 _ACEOF
 
+  fi
 fi
 LIBWRAP=$wrap_ok
 
+LIBS="$saved_LIBS"
 
 #--------------------------------------------------------------------
 # Check recent libxml for XML parser
