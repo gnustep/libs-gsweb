@@ -1,5 +1,7 @@
 2003-03-27   David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/common/GSWTemplates.c fixed typo. doesn't repond -> doesn't respond
+	* GSWAdaptors/Apache/mod_gsweb.c made it work on apache 1.x again. 
+	  (use ap_psprintf and not apr_psprintf if apache 1 is used)
 
 2003-03-24   Manuel Guesdon <mguesdon@orange-concept.com>
 
