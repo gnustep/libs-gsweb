@@ -1,3 +1,6 @@
+2003-03-27   David Wetzel <dave@turbocat.de>
+	* GSWAdaptors/common/GSWTemplates.c fixed typo. doesn't repond -> doesn't respond
+
 2003-03-24   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWRequest.m:
