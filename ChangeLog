@@ -1,3 +1,16 @@
+2003-04-04   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/Apache/GNUmakefile-Apache2x:
+		o fix to find apxs2
+	* GSWAdaptors/comon/GSWHTTPHeaders.h/.m:
+		o added g_szHeader_GSWeb_Protocol, g_szHeader_GSWeb_ProtocolNum,
+			g_szServerInfo_Protocol, g_szServerInfo_ProtocolNum,
+	  		g_szServerInfo_RequestScheme, g_szHeader_GSWeb_RequestScheme
+	* GSWAdaptors/Apache/mod_gsweb:
+		o added module version with apache2
+		o 1.x/2.x compatibility macro
+		o fix header port
+		o added protocol, protocol num and request scheme information
+
 2003-03-27   David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/common/GSWTemplates.c fixed typo. doesn't repond -> doesn't respond
 	* GSWAdaptors/Apache/mod_gsweb.c made it work on apache 1.x again. 
