@@ -102,10 +102,81 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+/*
+ should return this:
+
+ 2002-10-26 13:50:19.825 foobarWO[3207] stats=<CFDictionary 0xf6fa0 [0x8016024c]>{count = 5, capacity = 6, pairs = (
+     0 : Pages = <CFDictionary 0xf98f0 [0x8016024c]>{count = 1, capacity = 3, pairs = (
+     1 : Main = <CFDictionary 0xfb040 [0x8016024c]>{count = 4, capacity = 6, pairs = (
+     1 : Min Resp. Time = 0.06496943533420562432
+     2 : Max Resp. Time = 0.4728142097592352768
+     3 : Avg Resp. Time = 0.2195588141679763968
+     7 : Served = 5
+ )}
+ )}
+     3 : StartedAt = 2002-10-26 13:49:05 +0200
+     5 : Transactions = <CFDictionary 0xf82a0 [0x8016024c]>{count = 11, capacity = 11, pairs = (
+     0 : Component Action Transactions = 6
+     2 : Transaction Rate = 0
+     4 : Direct Action Avg. Transaction Time = 0
+     5 : Transactions = 6
+     7 : Avg. Idle Time = 12.154283278932174848
+     9 : Moving Avg. Idle Time = 12.154283278932174848
+     10 : Direct Action Transactions = 0
+     11 : Component Action  Avg. Transaction Time = 0.2195588141679763456
+     12 : Moving Avg. Transaction Time = 0.2195588141679763456
+     13 : Avg. Transaction Time = 0.2195588141679763456
+     15 : Sample Size For Moving Avg. = 100
+ )}
+     6 : Sessions = <CFDictionary 0xfd290 [0x8016024c]>{count = 11, capacity = 11, pairs = (
+     0 : Peak Active Sessions Date = 2002-10-26 13:50:17 +0200
+     1 : Current Active Sessions = 2
+     4 : Peak Active Sessions = 2
+     6 : Avg. Memory Per Session = <CFDictionary 0xf8b00 [0x8016024c]>{count = 2, capacity = 3, pairs = (
+     2 : Virtual = 1388544
+     3 : Resident Set Size = 264192
+ )}
+     9 : Moving Avg. Transactions Per Session = 0
+     10 : Sample Size For Moving Avg. = 10
+     11 : Moving Avg. Session Life = 0
+     12 : Session Rate = 0
+     13 : Avg. Transactions Per Session = 0
+     14 : Avg. Session Life = 0
+     15 : Total Sessions Created = 2
+ )}
+     7 : Memory = <CFDictionary 0xfafe0 [0x8016024c]>{count = 2, capacity = 3, pairs = (
+     2 : Virtual = 541458432
+     3 : Resident Set Size = 1622016
+ )}
+ )}
+ */
+
 -(id)statistics
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  NSMutableDictionary	*statDict = [NSMutableDictionary dictionary];
+  NSMutableDictionary	*sessionsDict = [NSMutableDictionary dictionary];
+
+  [statDict setObject:_startDate
+               forKey:@"StartedAt"];
+
+ // Sessions
+
+  [sessionsDict setObject:[NSString stringWithFormat:@"%d",_sessionsCount]
+                   forKey:@"Current Active Sessions"];
+
+
+  [statDict setObject:sessionsDict
+               forKey:@"Sessions"];
+
+  // Pages
+  if (_pagesStatistics) {
+  [statDict setObject:_pagesStatistics
+               forKey:@"Pages"];
+  }
+  
+  
+//  LOGObjectFnNotImplemented();	//TODOFN
+  return statDict;
 };
 
 //--------------------------------------------------------------------
@@ -244,7 +315,7 @@ static char rcsId[] = "$Id$";
             }
           else
             AvgRespTimeValue=aTimeInterval;
-          Served++;
+          ServedValue++;
         }
       else
         {
@@ -366,9 +437,42 @@ static char rcsId[] = "$Id$";
     {
       timeInterval=[self _applicationDidHandleRequest];
       NSDebugMLog(@"currentPage=%@",_currentPage);
-      if (_currentPage)//TODO no current page if no session (error page,...)
+      if (_currentPage) {  //TODO no current page if no session (error page,...)
+        NSLog(@"GSWStatisticsStore timeInterval=%f",timeInterval);
         [self _updatePagesStatisticsForPage:_currentPage
               timeInterval:timeInterval];
+      }
+    }
+  NS_HANDLER
+    {
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d]",
+                  localException,[localException reason],
+                  __FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  [self unlock];
+  LOGObjectFnStop();
+};
+
+//--------------------------------------------------------------------
+-(void)_applicationDidHandleComponentActionRequestInTimeInterval:(double)timeInterval
+{
+  //OK
+//  double timeInterval=0;
+  LOGObjectFnStart();
+  [self lock];
+  NS_DURING
+    {
+  //    timeInterval=[self _applicationDidHandleRequest];
+      NSDebugMLog(@"currentPage=%@",_currentPage);
+      if (_currentPage) {  //TODO no current page if no session (error page,...)
+        NSLog(@"GSWStatisticsStore timeInterval=%f",timeInterval);
+        [self _updatePagesStatisticsForPage:_currentPage
+              timeInterval:timeInterval];
+      }
     }
   NS_HANDLER
     {

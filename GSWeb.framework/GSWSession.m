@@ -287,7 +287,7 @@ static char rcsId[] = "$Id$";
   GSWApplication* application=nil;
   GSWStatisticsStore* statisticsStore=nil;
   LOGObjectFnStart();
-  statisticsStore=[[GSWApplication application]statisticsStore];
+  statisticsStore=[GSWApp statisticsStore];
   [statisticsStore _applicationCreatedSession:self];
 
   ASSIGNCOPY(_sessionID,aSessionID);
@@ -343,6 +343,7 @@ static char rcsId[] = "$Id$";
   //call GSWApp _discountTerminatedSession
   //call GSWApp statisticsStore
   //call statstore _sessionTerminating:self
+  [[GSWApp statisticsStore] _sessionTerminating:self];
   LOGObjectFnStop();
 };
 // componentDefinition _notifyObserversForDyingComponent:Main component

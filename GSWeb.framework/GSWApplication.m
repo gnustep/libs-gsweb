@@ -1988,6 +1988,7 @@ selfLockn,
   LOGObjectFnStart();
   session=[self _createSessionForRequest:aRequest];
   NSDebugMLLog(@"sessions",@"session:%@",session);
+  [_statisticsStore _applicationCreatedSession:session];
   LOGObjectFnStop();
   return session;
 };
@@ -2512,12 +2513,17 @@ selfLockn,
   //OK
   GSWResponse* response=nil;
   GSWRequestHandler* requestHandler=nil;
+  NSDate*            reqStartDate=nil;
+  NSTimeInterval	timeInterval = 0.0;
+  
   LOGObjectFnStart();
 #ifndef NDEBUG
   [self lock];
   GSWApplicationDebugSetChange();
   [self unlock];
 #endif
+
+  reqStartDate = [NSDate date];
 
   response = [self checkAppIfRefused:aRequest];
   if (!response) 
@@ -2539,6 +2545,11 @@ selfLockn,
           response=[requestHandler handleRequest:aRequest];
           NSDebugMLLog(@"requests",@"sessionStore=%@",_sessionStore);
           [self _resetCache];
+          timeInterval=[reqStartDate timeIntervalSinceNow];
+          // negate to make positive
+          timeInterval = timeInterval*-1.0;
+          [_statisticsStore _applicationDidHandleComponentActionRequestInTimeInterval:timeInterval];
+
           NSDebugMLLog(@"requests",@"sessionStore=%@",_sessionStore);
         };
       if (!response)

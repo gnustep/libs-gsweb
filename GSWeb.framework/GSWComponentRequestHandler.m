@@ -60,7 +60,7 @@ static char rcsId[] = "$Id$";
 -(GSWResponse*)lockedHandleRequest:(GSWRequest*)aRequest
 {
   //OK
-  GSWStatisticsStore* statisticsStore=nil;
+  //GSWStatisticsStore* statisticsStore=nil;
   GSWApplication* application=[GSWApplication application];
   GSWContext* aContext=nil;
   GSWResponse* response=nil;
@@ -92,9 +92,9 @@ static char rcsId[] = "$Id$";
   if (!exceptionRaised)
     {
       NSDebugMLLog(@"requests",@"requestHandlerValues=%@",requestHandlerValues);
-      statisticsStore=[[GSWApplication application]statisticsStore];
-      NSDebugMLLog(@"requests",@"statisticsStore=%@",statisticsStore);
-      [statisticsStore _applicationWillHandleComponentActionRequest];
+      //statisticsStore=[[GSWApplication application]statisticsStore];
+//      NSDebugMLLog(@"requests",@"statisticsStore=%@",statisticsStore);
+      //[statisticsStore _applicationWillHandleComponentActionRequest];
       aContext=[GSWContext contextWithRequest:aRequest];
       NSDebugMLLog(@"aContext",@"aContext=%@",aContext);
       senderID=[requestHandlerValues objectForKey:GSWKey_ElementID[GSWebNamingConv]];
@@ -154,8 +154,8 @@ static char rcsId[] = "$Id$";
     };
   
   [application _setContext:nil];
-  statisticsStore=[[GSWApplication application] statisticsStore];
-  [statisticsStore _applicationDidHandleComponentActionRequest];
+  //statisticsStore=[[GSWApplication application] statisticsStore];
+  //[statisticsStore _applicationDidHandleComponentActionRequest];
   NSDebugMLLog(@"requests",@"response=%@",response);
   LOGObjectFnStop();
   return response;

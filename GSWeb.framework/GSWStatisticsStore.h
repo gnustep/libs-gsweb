@@ -97,6 +97,7 @@
 -(void)_sessionTerminating:(id)session;
 -(void)_applicationCreatedSession:(GSWSession*)session;
 -(void)_applicationDidHandleComponentActionRequest;
+-(void)_applicationDidHandleComponentActionRequestInTimeInterval:(double)timeInterval;
 -(void)_applicationDidHandleDirectActionRequestWithActionNamed:(id)name;
 -(double)_applicationDidHandleRequest;
 -(void)_applicationWillHandleDirectActionRequest;
