@@ -346,7 +346,8 @@ NS_DURING
       if (cidStoreValue)
         {
           url=[self addURL:url
-                    forCIDStore:_cidStore
+                    forCIDKeyAssociation:_cidKey
+                    CIDStoreAssociation:_cidStore
                     inContext:aContext];
           NSDebugMLLog(@"gswdync",@"url=%@",url);
         };
@@ -358,7 +359,8 @@ NS_DURING
       if (cidStoreValue)
         {
           url=[self addURL:url
-                    forCIDStore:_cidStore
+                    forCIDKeyAssociation:_cidKey
+                    CIDStoreAssociation:_cidStore
                     inContext:aContext];
           NSDebugMLLog(@"gswdync",@"url=%@",url);
         };
@@ -390,7 +392,8 @@ NS_DURING
       if (cidStoreValue && dataValue)
         {
           url=[self addURLValuedElementData:dataValue
-                    forCIDStore:_cidStore
+                    forCIDKeyAssociation:_cidKey
+                    CIDStoreAssociation:_cidStore
                     inContext:aContext];
           NSDebugMLLog(@"gswdync",@"url=%@",url);
         }
@@ -414,7 +417,8 @@ NS_DURING
                                               inFramework:frameworkValue
                                               languages:languages];
               url=[self addPath:path
-                        forCIDStore:_cidStore
+                        forCIDKeyAssociation:_cidKey
+                        CIDStoreAssociation:_cidStore
                         inContext:aContext];
               NSDebugMLLog(@"gswdync",@"url=%@",url);
             }
@@ -554,138 +558,3 @@ NS_DURING
 };
 @end
 
-//====================================================================
-@implementation GSWHTMLURLValuedElement (GSWHTMLURLValuedElementCID)
-
-
--(NSString*)addCIDElement:(NSDictionary*)cidElement
-                   forKey:(NSString*)cidKeyValue
-              forCIDStore:(GSWAssociation*)cidStore
-                inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  NSDebugMLog(@"cidElement=%@",cidElement);
-  NSDebugMLog(@"cidKeyValue=%@",cidKeyValue);
-  NSDebugMLog(@"cidStore=%@",cidStore);
-  if (cidElement && cidStore)
-    {
-      id cidObject=nil;
-      GSWComponent* component=[aContext component];
-      cidObject=[_cidStore valueInComponent:component];
-      NSDebugMLog(@"cidObject=%@",cidObject);
-/*      if (!cidObject)
-        {
-          cidObject=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-          [_cidStore setValue:cidObject
-                   inComponent:component];
-        };
-*/
-      if (cidObject)
-        {
-          if (![cidObject valueForKey:cidKeyValue])
-            [cidObject takeValue:cidElement
-                       forKey:cidKeyValue];
-          newURL=[NSString stringWithFormat:@"cid:%@",
-                           cidKeyValue];
-        };
-      NSDebugMLog(@"newURL=%@",newURL);
-    };
-  LOGObjectFnStop();
-  return newURL;
-};
-
-//--------------------------------------------------------------------
--(NSString*)addURL:(NSString*)url
-         forCIDStore:(GSWAssociation*)cidStore
-         inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  if (url && cidStore)
-    {
-      NSString* cidKeyValue=nil;
-      GSWComponent* component=[aContext component];
-      cidKeyValue=(NSString*)[_cidKey valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
-      if (!cidKeyValue)
-        {
-          // We calculate cidKeyValue by computing md5 on url
-          // so there will be no duplicate elements with different keys
-	  NSData* data = [url dataUsingEncoding: NSISOLatin1StringEncoding];
-	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
-        };
-      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:url
-                                               forKey:@"url"]
-                   forKey:cidKeyValue
-                   forCIDStore:cidStore
-                   inContext:aContext];
-    }
-  LOGObjectFnStop();
-  return newURL;
-};
-
-
-//--------------------------------------------------------------------
--(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
-                        forCIDStore:(GSWAssociation*)cidStore
-                          inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  if (data && cidStore)
-    {
-      NSString* cidKeyValue=nil;
-      GSWComponent* component=[aContext component];
-      cidKeyValue=(NSString*)[_cidKey valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
-      if (!cidKeyValue)
-        {
-          // We calculate cidKeyValue by computing md5 on path
-          // so there will be no duplicate elements with different keys
-          //NSString* cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
-          cidKeyValue=[data key];
-        };
-      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:data
-                                               forKey:@"data"]
-                   forKey:cidKeyValue
-                   forCIDStore:cidStore
-                   inContext:aContext];
-    }
-  LOGObjectFnStop();
-  return newURL;
-};
-
-
-//--------------------------------------------------------------------
--(NSString*)addPath:(NSString*)path
-        forCIDStore:(GSWAssociation*)cidStore
-          inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  if (path && cidStore)
-    {
-      NSString* cidKeyValue=nil;
-      GSWComponent* component=[aContext component];
-      cidKeyValue=(NSString*)[_cidKey valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
-      if (!cidKeyValue)
-        {
-          // We calculate cidKeyValue by computing md5 on path
-          // so there will be no duplicate elements with different keys
-	  NSData* data = [path dataUsingEncoding: NSISOLatin1StringEncoding];
-	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
-        };
-
-      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:path
-                                               forKey:@"filePath"]
-                   forKey:cidKeyValue
-                   forCIDStore:cidStore
-                   inContext:aContext];
-    }
-  LOGObjectFnStop();
-  return newURL;
-};
-
-@end

@@ -82,22 +82,4 @@
 -(NSString*)frameworkNameInContext:(GSWContext*)aContext;
 @end
 
-//====================================================================
-@interface GSWHTMLURLValuedElement (GSWHTMLURLValuedElementCID)
-
--(NSString*)addCIDElement:(NSDictionary*)cidElement
-                   forKey:(NSString*)cidKeyValue
-              forCIDStore:(GSWAssociation*)cidStore
-                inContext:(GSWContext*)aContext;
--(NSString*)addURL:(NSString*)url
-       forCIDStore:(GSWAssociation*)cidStore
-         inContext:(GSWContext*)aContext;
--(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
-                        forCIDStore:(GSWAssociation*)cidStore
-                          inContext:(GSWContext*)aContext;
--(NSString*)addPath:(NSString*)path
-        forCIDStore:(GSWAssociation*)cidStore
-          inContext:(GSWContext*)aContext;
-@end
-
 #endif // _GSWHTMLURLValuedElement_h__
