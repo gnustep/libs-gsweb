@@ -35,3 +35,52 @@ Reset: GSWResetButton
     value = "Clear";
 }
 
+TryCount: GSWString
+{
+        value = tryCount;
+}
+
+
+IsTryCountEqualTo0: GSWKeyValueConditional
+{
+        key = tryCount;
+        value = 0;
+}
+
+IsTryCountEqualTo1: GSWKeyValueConditional
+{
+        key = tryCount;
+        value = 1;
+}
+
+IsTryCountEqualTo2: GSWKeyValueConditional
+{
+        key = tryCount;
+        value = 2;
+}
+
+IsTryCountEqualTo3: GSWKeyValueConditional
+{
+        key = tryCount;
+        value = 3;
+}
+
+IsTryCountGreaterThan0: GSWConditional
+{
+        condition = @isTryCountGreaterThan.0;
+}
+
+IsTryCountGreaterThan1: GSWConditional
+{
+        condition = @isTryCountGreaterThan.1;
+}
+
+IsTryCountGreaterThan2: GSWConditional
+{
+        condition = @isTryCountGreaterThan.2;
+}
+
+IsTryCountGreaterThan3: GSWConditional
+{
+        condition = @isTryCountGreaterThan.3;
+}
