@@ -1,3 +1,4 @@
+#   -*-makefile-*-
 #   Copyright (C) 2002 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.Com>
@@ -42,29 +43,13 @@ ADDITIONAL_OBJCFLAGS =
 ADDITIONAL_CFLAGS =  
 
 # Additional flags to pass to the Objective-C compiler
-#new
-ifeq ($(GDL2), yes)
-        ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN -DGDL2
-else
-        ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN
-endif
+ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I../..
+ADDITIONAL_INCLUDE_DIRS =  -I../..
 
 # Additional LDFLAGS to pass to the linker
-ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS = -lGSWeb -lGSANTLR_d -lgnustep-db2_d -lgnustep-db2control_d
-else
-	ADDITIONAL_LDFLAGS = -lGSWeb -lGSANTLR -lgnustep-db2 -lgnustep-db2control
-endif
-
-ifeq ($(LIBWRAP), yes)
-	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DHAVE_LIBWRAP
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lwrap
-endif
-
-#-lgnustep-xraw
+ADDITIONAL_LDFLAGS = 
 
 # Additional library directories the linker should search
 ADDITIONAL_LIB_DIRS = 

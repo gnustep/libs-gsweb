@@ -1,4 +1,4 @@
-#
+#   -*-makefile-*-
 #   gsweb.make
 #
 #   Makefile flags and configs to build with the base library.
@@ -39,7 +39,7 @@ AUXILIARY_TOOL_LIBS += @AUX_LIBS@ -lGSANTLR
 
 GDL2=@GDL2@
 ifeq ($(GDL2),yes)
-ADDITIONAL_OBJCFLAGS += -DGDL2=1
+include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
 endif
 
 endif # GSWEB_MAKE_LOADED

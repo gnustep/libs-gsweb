@@ -27,9 +27,12 @@ GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_SYSTEM_ROOT)
 
 GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
 
+include ../../config.mak
 include $(GNUSTEP_MAKEFILES)/common.make
-include config.mak
-
+include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
+ifeq ($(GDL2),yes)
+include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
+endif
 
 GSWAPP_NAME=DynamicElements
 DynamicElements_HAS_GSWCOMPONENTS=YES

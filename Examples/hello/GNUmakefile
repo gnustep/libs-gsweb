@@ -29,7 +29,6 @@ GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
 
 include $(GNUSTEP_MAKEFILES)/common.make
 include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
-include config.mak
 
 
 GSWAPP_NAME=Hello

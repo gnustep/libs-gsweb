@@ -1,3 +1,19 @@
+2003-06-01  David Ayers  <d.ayers@inode.at>
+
+	* gsweb.make.in
+	* Examples/hello/GNUmakefile
+	* Examples/hello/Makefile.preamble
+	* Testing/DynamicElements/GNUmakefile
+	* Testing/DynamicElements/Makefile.preamble: Rely on
+	Auxiliary/gdl2.make and Auxiliary/gsweb.make to set compiler and
+	linker flags.
+	* Examples/hello/config.mak: Removed.
+
+2003-06-01  Matt Rice  <ratmice@yahoo.com>
+
+	* Testing/DynamicElements/GNUMakefile: Corrected inclusion path of
+	config.make.
+
 2003-05-29  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWUtils.m ([NSUserDefaults -description]):
