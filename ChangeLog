@@ -1,5 +1,8 @@
 2002-12-02  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
+	* GSWeb.framework/GSWApplication.m (GSWApplicationDebugSetChange): read
+	the file only if supplied.
+
 	* configure.ac: export xml includes in gsweb.make
 	* gsweb.make.in (AUXILIARY_INCLUDE_DIRS): added.
 	* Makefile.postamble: moved gsweb.make in Auxiliary/ make dir.

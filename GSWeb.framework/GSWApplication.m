@@ -68,15 +68,22 @@ void GSWApplicationDebugSetChange()
   NSString* debugSetConfigFilePath=nil;
   NSString* newStateString=nil;
   BOOL change=NO;
-  debugSetConfigFilePath=[GSWApplication debugSetConfigFilePath];
-  NSDebugFLog(@"debugSetConfigFilePath=%@",debugSetConfigFilePath);
-  newStateString=[NSString stringWithContentsOfFile:[GSWApplication debugSetConfigFilePath]];
-  NSDebugFLog(@"debugSet=%@",debugSet);
-  NSDebugFLog(@"newStateString=%@",newStateString);
+
+  debugSetConfigFilePath = [GSWApplication debugSetConfigFilePath];
+  NSDebugFLog(@"debugSetConfigFilePath=%@", debugSetConfigFilePath);
+
+  if (debugSetConfigFilePath)
+    newStateString = [NSString stringWithContentsOfFile:
+				 [GSWApplication debugSetConfigFilePath]];
+
+  NSDebugFLog(@"debugSet=%@", debugSet);
+  NSDebugFLog(@"newStateString=%@", newStateString);
+
   if (newStateString)
-    change=![newStateString isEqualToString:prevStateString];
+    change =! [newStateString isEqualToString: prevStateString];
   else if (prevStateString)
-    change=![prevStateString isEqualToString:newStateString];
+    change =! [prevStateString isEqualToString: newStateString];
+
   NSDebugFLog(@"change=%d",change);
   
   if (change)
