@@ -24,7 +24,6 @@
 static char rcsId[] = "$Id$";
 
 #include <gsweb/GSWeb.framework/GSWeb.h>
-#include <NGReflection/common.h>
 #include <NGReflection/NGReflection.h>
 #include <extensions/GarbageCollector.h>
 #include "stacktrace.h"

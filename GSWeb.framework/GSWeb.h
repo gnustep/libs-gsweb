@@ -32,7 +32,6 @@
 #ifdef __FreeBSD__
 #include <float.h>
 #endif
-#include <gnustep/base/Dictionary.h>
 #include <Foundation/NSObject.h>
 #include <Foundation/NSValue.h>
 #include <Foundation/NSString.h>
@@ -50,8 +49,6 @@
 #include <Foundation/NSDistantObject.h>
 #include <Foundation/NSNotification.h>
 #include <Foundation/NSRunLoop.h>
-#include <gnustep/base/Coder.h>
-#include <gnustep/base/BinaryCStream.h>
 #include <Foundation/NSPortNameServer.h>
 #include <Foundation/NSCharacterSet.h>
 #include <Foundation/NSFileHandle.h>
