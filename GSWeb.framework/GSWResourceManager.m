@@ -699,7 +699,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
             {
               // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
               relativePath=[bundle relativePathForResourceNamed:resourceName
-                                   forLanguage:aLanguage];
+                                   language:aLanguage];
               // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
               if (relativePath)
                 {
@@ -711,7 +711,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         {
           // NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
           relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
-                                               forLanguage:aLanguage];
+                                               language:aLanguage];
           // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
           if (relativePath)
             {
@@ -809,7 +809,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
             {
               // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
               relativePath=[bundle relativePathForResourceNamed:resourceName
-                                   forLanguage:aLanguage];
+                                   language:aLanguage];
               // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
               if (relativePath)
                 {
@@ -821,7 +821,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         {
           // NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
           relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
-                                               forLanguage:aLanguage];
+                                               language:aLanguage];
           // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
           if (relativePath)
             {
@@ -932,16 +932,13 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 
 //--------------------------------------------------------------------
 -(NSString*)lockedCachedURLForResourceNamed:(NSString*)resourceName
-								inFramework:(NSString*)aFrameworkName
-								  languages:(NSArray*)languages
+                                inFramework:(NSString*)aFrameworkName
+                                  languages:(NSArray*)languages
 {
   //OK
   NSString* url=nil;
-  NSString* relativePath=nil;
-  GSWDeployedBundle* bundle=nil;
   int i=0;
   NSArray* frameworks=nil;
-  NSString* frameworkName=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@",resourceName,aFrameworkName,languages);
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
@@ -954,49 +951,17 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   
   for(i=0;!url && i<[frameworks count];i++)
     {
-      frameworkName=[frameworks objectAtIndex:i];
+      GSWDeployedBundle* bundle=nil;
+      NSString* frameworkName=[frameworks objectAtIndex:i];
       if ([frameworkName length]==0)
         frameworkName=nil;
       if (frameworkName)
-        {
-          // NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
-          bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
-          if (bundle)
-            {
-              //			  NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
-              relativePath=[bundle relativePathForResourceNamed:resourceName
-                                   forLanguages:languages];
-              //			  NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
-              if (relativePath)
-                {
-                  //TODOV
-                  NSString* applicationBaseURL=[GSWApplication applicationBaseURL];
-                  NSString* wrapperName=[bundle wrapperName];
-                  NSDebugMLLog(@"resmanager",@"applicationBaseURL=%@",applicationBaseURL);
-                  NSDebugMLLog(@"resmanager",@"wrapperName=%@",wrapperName);
-                  url=[applicationBaseURL stringByAppendingPathComponent:wrapperName];
-                  NSDebugMLLog(@"resmanager",@"url=%@",url);
-                  url=[url stringByAppendingPathComponent:relativePath];
-                  NSDebugMLLog(@"resmanager",@"url=%@",url);
-                };
-            };
-        }
+        bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
       else
-        {
-          NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
-          relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
-                                               forLanguages:languages];
-          NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
-          if (relativePath)
-            {
-              NSString* applicationBaseURL=[GSWApplication applicationBaseURL];
-              NSString* wrapperName=[globalAppProjectBundle wrapperName];
-              NSDebugMLLog(@"resmanager",@"applicationBaseURL=%@",applicationBaseURL);
-              NSDebugMLLog(@"resmanager",@"wrapperName=%@",wrapperName);
-              url=[applicationBaseURL stringByAppendingPathComponent:wrapperName];
-              url=[url stringByAppendingPathComponent:relativePath];
-            };
-        };
+        bundle=globalAppProjectBundle;
+      if (bundle)
+        url=[bundle urlForResourceNamed:resourceName
+                    languages:languages];
     };
   if (!url)
     {
@@ -1018,11 +983,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                              languages:(NSArray*)languages
 { 
   NSString* path=nil;
-  NSString* relativePath=nil;
-  GSWDeployedBundle* bundle=nil;
   int i=0;
   NSArray* frameworks=nil;
-  NSString* frameworkName=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@",
                resourceName,aFrameworkName,languages);
@@ -1037,45 +999,57 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 
   for(i=0;!path && i<[frameworks count];i++)
     {
-      frameworkName=[frameworks objectAtIndex:i];
+      GSWDeployedBundle* bundle=nil;
+      NSString* frameworkName=[frameworks objectAtIndex:i];
       if ([frameworkName length]==0)
         frameworkName=nil;
       if (frameworkName)
-        {
-          // NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
-          bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
-          //NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
-          if (bundle)
-            {
-              // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
-              relativePath=[bundle relativePathForResourceNamed:resourceName
-                                   forLanguages:languages];
-              // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
-              if (relativePath)
-                {
-                  path=[[bundle bundlePath] stringByAppendingPathComponent:relativePath];
-                };
-            };
-        }
+        bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
       else
-        {
-          NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
-          relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
-                                               forLanguages:languages];
-          NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
-          if (relativePath)
-            {
-              NSString* applicationPath=[GSWApp path];
-              path=[applicationPath stringByAppendingPathComponent:relativePath];
-            };
-        };
+        bundle=globalAppProjectBundle;
+      path=[bundle absolutePathForResourceNamed:resourceName
+                   languages:languages];
     };
   //  NSDebugMLLog(@"resmanager",@"path=%@",path);
   LOGObjectFnStop();
   return path;
 };
 
+
 //--------------------------------------------------------------------
+/** GSWeb specific
+Returns the bundle for framework named aFrameworkName or application 
+bundle if none is found
+**/
+-(GSWDeployedBundle*)cachedBundleForFrameworkNamed:(NSString*)aFrameworkName
+{
+  GSWDeployedBundle* bundle=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"resmanager",@"frameworkName=%@",aFrameworkName);
+  [self lock];
+  NS_DURING
+    {
+      bundle=[self lockedCachedBundleForFrameworkNamed:aFrameworkName];
+    }
+  NS_HANDLER
+    {
+      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
+                   localException,[localException reason],__FILE__,__LINE__);
+      //TODO
+      [self unlock];
+      [localException raise];
+    }
+  NS_ENDHANDLER;
+  [self unlock];
+  LOGObjectFnStop();
+  return bundle;
+};
+
+//--------------------------------------------------------------------
+/**
+Returns the bundle for framework named aFrameworkName or application 
+bundle if none is found
+**/
 -(GSWDeployedBundle*)lockedCachedBundleForFrameworkNamed:(NSString*)resourceName
 {
   //OK
@@ -1132,6 +1106,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
               //NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
             };
         };
+      if (!bundle)
+        bundle=globalAppProjectBundle;
     };
   //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
   //  NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
@@ -1306,7 +1282,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
             {
               // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
               relativePath=[bundle relativePathForResourceNamed:resourceName
-                                   forLanguage:aLanguage];
+                                   language:aLanguage];
               // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
               if (relativePath)
                 {
@@ -1318,7 +1294,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         {
           NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
           relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
-                                               forLanguage:aLanguage];
+                                               language:aLanguage];
           NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
           if (relativePath)
             {
