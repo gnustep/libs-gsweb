@@ -1,5 +1,5 @@
 /** GSWConfig.h - config
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -55,7 +55,7 @@
 #define GSWOPTVALUE_WorkerThreadCount		 	   	@"8"
 #define GSWOPTVALUE_MultiThreadEnabled				@"YES"
 #define GSWOPTVALUE_AdaptorHost					@""
-#define GSWOPTVALUE_DefaultTemplateParser      			@"XMLHTML"
+#define GSWOPTVALUE_DefaultTemplateParser      			@"RawHTML"
 #define GSWOPTVALUE_LifebeatEnabled				@"NO"
 #define GSWOPTVALUE_LifebeatDestinationHost			@"localhost"
 #define GSWOPTVALUE_LifebeatDestinationPort			@"1085"
@@ -65,5 +65,5 @@
 #define GSWOPTVALUE_WorkerThreadCountMin			@"16"
 #define GSWOPTVALUE_WorkerThreadCountMax			@"256"
 #define GSWOPTVALUE_AcceptedContentEncoding			@"gzip"
-
+#define GSWOPTVALUE_DisplayExceptionPages			@"YES"
 #endif // _GSWebConfig_h__
