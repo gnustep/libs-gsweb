@@ -1,3 +1,19 @@
+2003-10-22  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWAssociation.m: Include limits.h and float.h
+	in favor of deprecated values.h to be more portable.
+	* GSWeb.framework/GSWDefaultAdaptor.m: Do not include
+	GNUstepBase/GSFileHandle.h unnecessarily.  
+	* GSWeb.framework/GSWDirectAction.h: Remove duplicate declaration
+	of -existingSession.
+	* GSWeb.framework/GSWProcFS.h: Remove commented
+	NSTimeIntervalFromTimeVal declaration.
+	* GSWeb.framework/GSWStatisticsStore.m: Do not include sys/time.h
+	unnecessarily.  
+	* GSWeb.framework/GSWUtils.h: Include sys/time.h unconditionally.
+	* GSWeb.framework/GSWeb.h: Do not include private
+	Foundation/NSConcreteNumber.h header.
+
 2003-10-21  David Wetzel <dave@turbocat.de>
         * Include changes for OS X as suggested by Philip Moetteli
           GSWeb.framework/GSWAssociation.m

@@ -33,9 +33,10 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <math.h>
-#if !(__NetBSD__ || NeXT_Foundation_LIBRARY)
-#include <values.h>
-#endif
+
+#include <limits.h>
+#include <float.h>
+
 #ifdef TCSDB
 #include <TCSimpleDB/TCSimpleDB.h>
 #endif

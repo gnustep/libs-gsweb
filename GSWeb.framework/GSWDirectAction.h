@@ -49,7 +49,6 @@
 -(GSWComponent*)pageWithName:(NSString*)pageName;
 -(id <GSWActionResults>)performActionNamed:(NSString*)actionName;
 -(id)defaultAction;
--(id)existingSession;
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest;
 -(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext;
 @end

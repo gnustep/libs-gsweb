@@ -26,8 +26,6 @@
 #ifndef _GSWProcFS_h__
 #define _GSWProcFS_h__
 
-//extern NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv);
-
 typedef enum _GSWProcState
 {
   GSWProcState__Unknown =0,

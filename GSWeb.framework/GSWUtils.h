@@ -1,4 +1,4 @@
-/** GSWUtils.m - <title>GSWeb: Utilities</title>
+/** GSWUtils.h - <title>GSWeb: Utilities</title>
 
    Copyright (C) 1999-2003 Free Software Foundation, Inc.
   
@@ -32,9 +32,7 @@
 #ifndef _GSWebUtils_h__
 #define _GSWebUtils_h__
 
-#if defined(__FreeBSD__) || defined(__NetBSD__)
 #include <sys/time.h>
-#endif
 
 #define CONST
 #ifndef max
