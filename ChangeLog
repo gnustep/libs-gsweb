@@ -2,6 +2,9 @@
 
 	* GSWeb.framework/GSWUtils.h/m: (struct proc_s, proc_t): Removed.
 	(pidstat, pidstatm, pidproccontent): Removed.
+	* GSWeb.framework/GSWStatisticsStore.m
+	([GSWStatisticsStore _memoryUsage]): Remove usage of pidstat and
+	pidstatm.
 
 	* GSWeb.framework/GSWProcFS.h/m: Make class more portable.
 	Replace all system dependent types with standard types.  Replace
