@@ -25,7 +25,9 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 #include <math.h>
+#if !defined(__NetBSD__)
 #include <values.h>
+#endif
 
 static NSDictionary* localMinMaxDictionary=nil;
 static NSMutableDictionary* associationsHandlerClasses=nil;
