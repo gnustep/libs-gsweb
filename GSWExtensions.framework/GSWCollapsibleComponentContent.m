@@ -1,6 +1,6 @@
 /** GSWCollapsibleComponentContent.m - <title>GSWeb: Class GSWCollapsibleComponentContent</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Apr 1999
@@ -39,16 +39,7 @@ RCS_ID("$Id$")
 //===================================================================================
 @implementation GSWCollapsibleComponentContent
 
--(void)awake
-{
-  [super awake];
-};
-
--(void)sleep
-{
-  [super sleep];
-};
-
+//-----------------------------------------------------------------------------------
 -(void)dealloc
 {
   GSWLogC("Dealloc GSWCollopsibleComponent");
@@ -61,11 +52,13 @@ RCS_ID("$Id$")
   GSWLogC("End Dealloc GSWCollopsibleComponent");
 };
 
+//-----------------------------------------------------------------------------------
 -(BOOL)synchronizesVariablesWithBindings
 {
     return NO;
 };
 
+//-----------------------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext 
 {
@@ -75,6 +68,7 @@ RCS_ID("$Id$")
   _tmpAnchorName=nil;
 };
 
+//-----------------------------------------------------------------------------------
 -(BOOL)isVisible
 {
   LOGObjectFnStart();
@@ -89,6 +83,7 @@ RCS_ID("$Id$")
   return _isVisible;
 };
 
+//-----------------------------------------------------------------------------------
 -(GSWComponent*)toggleVisibilityAction
 {
   LOGObjectFnStart();
@@ -104,6 +99,7 @@ RCS_ID("$Id$")
   return nil;
 };
 
+//-----------------------------------------------------------------------------------
 -(NSString*)imageFileName
 {
   NSString* _image=nil;
@@ -140,6 +136,7 @@ RCS_ID("$Id$")
   return _image;
 };
 
+//-----------------------------------------------------------------------------------
 -(NSString*)label
 {
   NSString* _label=nil;
@@ -163,6 +160,7 @@ RCS_ID("$Id$")
   return _label;
 };
 
+//-----------------------------------------------------------------------------------
 -(NSString*)helpString
 {
   NSString* _helpString=nil;
@@ -198,9 +196,47 @@ RCS_ID("$Id$")
   return _helpString;
 };
 
+//-----------------------------------------------------------------------------------
 -(NSString*)anchorName
 {
   return _tmpAnchorName;
+};
+
+//-----------------------------------------------------------------------------------
+-(id)isDisabled
+{
+  id isDisabled=NO;
+
+  LOGObjectFnStart();
+
+  if ([self hasBinding:@"disabled"])
+    isDisabled=[self valueForBinding:@"disabled"];
+  else if ([self hasBinding:@"enabled"])
+    {
+      BOOL isEnabled=boolValueFor([self valueForBinding:@"enabled"]);
+      isDisabled=[NSNumber numberWithBool:(isEnabled ? NO : YES)];
+    };
+
+  LOGObjectFnStop();
+  
+  return isDisabled;
+};
+
+//-----------------------------------------------------------------------------------
+-(BOOL)shouldDisplay
+{
+  BOOL shouldDisplay=YES;
+
+  LOGObjectFnStart();
+
+  if (boolValueFor([self isDisabled])
+      && [self hasBinding:@"displayDisabled"]
+      && !boolValueFor([self valueForBinding:@"displayDisabled"]))
+    shouldDisplay=NO;
+
+  LOGObjectFnStop();
+  
+  return shouldDisplay;
 };
 
 @end
