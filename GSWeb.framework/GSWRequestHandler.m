@@ -39,8 +39,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  return [self subclassResponsibility:_cmd];
 };
 
 //--------------------------------------------------------------------
