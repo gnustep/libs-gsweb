@@ -125,6 +125,7 @@
 #define GSWComponentContent				WOComponentContent
 #define GSWFileUpload					WOFileUpload
 #define GSWResourceURL					WOResourceURL
+#define GSWApp						WOApp
 #endif
 @class EOEditingContext;
 
