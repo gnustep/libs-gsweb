@@ -270,7 +270,7 @@ RCS_ID("$Id$")
   int activeSessionsCount = 0;
   NSArray* statistics = nil;
   NSDate* sessionBirthDate = nil;
-  NSTimeInterval sessionTimeOut = nil;
+  NSTimeInterval sessionTimeOut = 0;
   int sessionRequestCounter = 0;
   //OK
   LOGObjectFnStart();

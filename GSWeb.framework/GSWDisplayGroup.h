@@ -197,7 +197,7 @@
 - (id)masterObject;
 - (unsigned)numberOfObjectsPerBatch;
 - (EOQualifier *)qualifier;
-- (EOQualifier *)auxiliaryQueryQualifier;
+- (EOQualifier *)_auxiliaryQueryQualifier;
 - (EOQualifier *)qualifierFromInputValues;
 - (EOQualifier *)qualifierFromQueryValues;
 - (void)qualifyDataSource;
