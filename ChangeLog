@@ -1,3 +1,12 @@
+2004-06-14 David Wetzel <dave@turbocat.de>
+        * GSWeb.framework/GSWElementIDString.m
+        added setString: (original code from Philip Moetteli, 
+        debugged with David Ayers)
+        tested on MacOSX with Apple Foundation
+        * GSWeb.framework/GSWMessage.m
+        in appendContentString: append string only if not nil 
+        (patch from Philip Moetteli)
+
 2004-06-01 David Wetzel <dave@turbocat.de>
 
 	* GSWeb.framework/GSWDeclarationParser.m:
