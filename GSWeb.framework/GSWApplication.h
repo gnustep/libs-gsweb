@@ -522,8 +522,9 @@ extern BOOL WOStrictFlag;
 +(void)setDirectActionRequestHandlerKey:(NSString*)key_;
 +(NSString*)resourceRequestHandlerKey;
 +(void)setResourceRequestHandlerKey:(NSString*)key_;
-+(void)setSessionTimeOut:(id)timeOut_;
-+(id)sessionTimeOut;
++(void)setSessionTimeOut:(NSNumber*)timeOut_;
++(NSNumber*)sessionTimeOut;
++(void)setSessionTimeOutValue:(NSTimeInterval)timeOutValue_;
 +(NSTimeInterval)sessionTimeOutValue;
 +(NSString*)debugSetConfigFilePath;//NDFN
 +(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath_;//NDFN

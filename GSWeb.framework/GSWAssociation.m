@@ -636,7 +636,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       if (retValue==EONullNull)
         retValue=nil;
 #else
-      NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];
+      NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
       id part=nil;
       Class handlerClass=Nil;
       retValue=object;
@@ -666,7 +666,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                       break;
                     }
                   else
-                    part=[_part stringByAppendingFormat:@".%@",tmpPart];
+                    part=[part stringByAppendingFormat:@".%@",tmpPart];
                 }                        
             }
           NSDebugMLLog(@"associations",@"part=%@",part);
@@ -695,7 +695,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
               else
                 retValue=nil;
             }
-          else if ([_part isEqualToString:GSASK_Language])
+          else if ([part isEqualToString:GSASK_Language])
             {
               NSArray* languages=[[GSWApp _context] languages];
               int count=[languages count];
@@ -717,7 +717,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                            part);
               NS_DURING
                 {
-                  //MGNEW retValue=[retValue getIVarNamed:_part];
+                  //MGNEW retValue=[retValue getIVarNamed:part];
                   retValue=[retValue valueForKey:part];
                 }
               NS_HANDLER
@@ -766,7 +766,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       [object smartTakeValue:value
               forKeyPath:keyPath];
 #else
-      NSMutableArray* keys=[[keyPath_ componentsSeparatedByString:@"."] mutableCopy];
+      NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
       id part=nil;
       id tmpObject=object;
       Class handlerClass=Nil;
@@ -779,7 +779,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           NSDebugMLLog(@"associations",@"part class=%@",NSStringFromClass([part class]));
           if ([part hasPrefix:@"\""])
             {
-              part=[_part stringWithoutPrefix:@"\""];
+              part=[part stringWithoutPrefix:@"\""];
               while([keys count]>0)
                 {
                   id tmpPart=[keys objectAtIndex:0];
@@ -791,7 +791,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                       break;
                     }
                   else
-                    part=[_part stringByAppendingFormat:@".%@",tmpPart];
+                    part=[part stringByAppendingFormat:@".%@",tmpPart];
                 }                        
             }
           NSDebugMLLog(@"associations",@"part=%@",part);
@@ -829,14 +829,14 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                         tmpObject=nil;
                     }
                   else {
-                    //MGNEW tmpObject=[tmpObject getIVarNamed:_part];
+                    //MGNEW tmpObject=[tmpObject getIVarNamed:part];
                     tmpObject=[tmpObject valueForKey:part];//MGNEW
                   }
                 }
               else
                 {
                   GSWLogAssertGood(tmpObject);
-                  //MGNEW [tmpObject setIVarNamed:_part
+                  //MGNEW [tmpObject setIVarNamed:part
                   //	  withValue:value_];
                   [tmpObject takeValue:value
                              forKey:part];//MGNEW 

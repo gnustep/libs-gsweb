@@ -1,11 +1,16 @@
-/* GSWSessionTimeOutManager.h - GSWeb: Class GSWSessionTimeOutManager
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWSessionTimeOutManager.h - <title>GSWeb: Class GSWSessionTimeOutManager</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 		Mar 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,29 +36,28 @@
 //====================================================================
 @interface GSWSessionTimeOutManager : NSObject
 {
-  //NSMutableOrderedArray* sessionOrderedTimeOuts;
-  NSMutableArray* sessionOrderedTimeOuts;
-  NSMutableDictionary* sessionTimeOuts;
-  id target;
-  SEL callback;
-  NSTimer* timer;
-//  NSRecursiveLock* selfLock;
-  NSLock* selfLock;
+  NSMutableArray* _sessionOrderedTimeOuts;
+  NSMutableDictionary* _sessionTimeOuts;
+  id _target;
+  SEL _callback;
+  NSTimer* _timer;
+//  NSRecursiveLock* _selfLock;
+  NSLock* _selfLock;
 #ifndef NDEBUG
-  int selfLockn;
+  int _selfLockn;
 #endif
 };
 
 -(id)init;
 -(void)dealloc;
--(void)updateTimeOutForSessionWithID:(NSString*)sessionID_
-							 timeOut:(NSTimeInterval)timeOut_;
--(void)handleTimer:(NSTimer*)timer_;
+-(void)updateTimeOutForSessionWithID:(NSString*)sessionID
+                             timeOut:(NSTimeInterval)timeOut;
+-(void)handleTimer:(NSTimer*)timer;
 -(NSTimer*)resetTimer;
--(void)addTimer:(id)timer_;
+-(void)addTimer:(id)timer;
 -(void)removeCallBack;
--(void)setCallBack:(SEL)callback_
-			target:(id)target_;
+-(void)setCallBack:(SEL)callback
+            target:(id)target;
 -(void)lock;
 -(void)unlock;
 @end
@@ -61,8 +66,8 @@
 @interface GSWSessionTimeOutManager (GSWSessionRefused)
 
 -(void)startHandleTimerRefusingSessions;
--(void)handleTimerKillingApplication:(id)timer_;
--(void)handleTimerRefusingSessions:(id)timer_;
+-(void)handleTimerKillingApplication:(id)timer;
+-(void)handleTimerRefusingSessions:(id)timer;
 
 @end
 #endif //_GSWSessionTimeOutManager_h__

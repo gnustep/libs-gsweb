@@ -279,11 +279,11 @@ static int dontTraceComponentActionURL=0;
       NSString* string=nil;
       int elementIDNb=[[self elementID] elementsNb];
       NSMutableData* data=[NSMutableData dataWithCapacity:elementIDNb+1];
+      char* ptab=(char*)[data bytes];
       if (!_docStructure)
         _docStructure=[NSMutableString new];
       if (!_docStructureElements)
         _docStructureElements=[NSMutableSet new];
-      char* ptab=(char*)[data bytes];
       memset(ptab,'\t',elementIDNb);
       ptab[elementIDNb]='\0';
       string=[NSString stringWithFormat:@"%s %@ Element %p Class %@ defName=%@\n",

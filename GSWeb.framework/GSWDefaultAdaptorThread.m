@@ -575,6 +575,8 @@ static char rcsId[] = "$Id$";
       NSString* method=[requestLineArray objectAtIndex:0];
       NSString* url=[requestLineArray objectAtIndex:1];
       NSArray* http=[[requestLineArray objectAtIndex:2] componentsSeparatedByString:@"/"];
+      [GSWApplication statusLogWithFormat:@"Request uri=%@",url];
+
       NSDebugDeepMLLog(@"info",@"method=%@",method);
       NSDebugDeepMLLog(@"info",@"url=%@",url);
       NSDebugDeepMLLog(@"info",@"http=%@",http);

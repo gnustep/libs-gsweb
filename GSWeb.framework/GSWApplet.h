@@ -1,11 +1,16 @@
-/* GSWApplet.h - GSWeb: Class GSWApplet
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWApplet.h - <title>GSWeb: Class GSWApplet</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,61 +36,61 @@
 //====================================================================
 @interface GSWApplet: GSWHTMLDynamicElement
 {
-  NSMutableDictionary* clientSideAttributes;
-  NSString* elementID;
-  NSString* url;
-  NSString* contextID;
-  NSMutableDictionary* snapshots;
-  GSWAssociation* archive;
-  GSWAssociation* archiveNames;
-  GSWAssociation* agcArchive;
-  GSWAssociation* agcArchiveNames;
-  GSWAssociation* codeBase;
+  NSMutableDictionary* _clientSideAttributes;
+  NSString* _elementID;
+  NSString* _url;
+  NSString* _contextID;
+  NSMutableDictionary* _snapshots;
+  GSWAssociation* _archive;
+  GSWAssociation* _archiveNames;
+  GSWAssociation* _agcArchive;
+  GSWAssociation* _agcArchiveNames;
+  GSWAssociation* _codeBase;
 };
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_;
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements;
 
 -(void)dealloc;
 
--(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping;
+-(BOOL)appendStringAtRight:(id)unkwnon
+               withMapping:(char*)mapping;
 
--(id)		paramWithName:(id)name_
-					value:(id)value_
-				   target:(id)target_
-					  key:(id)key_
-	treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull_;
+-(id)		paramWithName:(id)name
+                        value:(id)value
+                       target:(id)target
+                          key:(id)key
+       treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull;
 
 -(NSString*)elementName;
 -(id)contextID;
--(void)setContextID:(id)contextID_;
+-(void)setContextID:(id)contextID;
 -(id)url;
--(void)setURL:(id)url_;
+-(void)setURL:(id)url;
 -(NSString*)elementID;
--(void)setElementID:(NSString*)elementID_;
+-(void)setElementID:(NSString*)elementID;
 @end
 
 //====================================================================
 @interface GSWApplet (GSWAppletA)
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_; 
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									  inContext:(GSWContext*)context_;
--(void)_computeAgcArchiveStringInContext:(GSWContext*)context_;
--(id)_agcArchiveURLsListInContext:(GSWContext*)context_;
--(id)_archiveURLsListInContext:(GSWContext*)context_;
--(id)_agcArchiveNamesListInContext:(GSWContext*)context_;
--(id)_archiveNamesListInContext:(GSWContext*)context_;
--(void)_deallocForComponent:(id)component_;
--(void)_awakeForComponent:(id)component_;
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext; 
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext;
+-(void)_computeAgcArchiveStringInContext:(GSWContext*)aContext;
+-(id)_agcArchiveURLsListInContext:(GSWContext*)aContext;
+-(id)_archiveURLsListInContext:(GSWContext*)aContext;
+-(id)_agcArchiveNamesListInContext:(GSWContext*)aContext;
+-(id)_archiveNamesListInContext:(GSWContext*)aContext;
+-(void)_deallocForComponent:(id)component;
+-(void)_awakeForComponent:(id)component;
 
 +(BOOL)hasGSWebObjectsAssociations;
 @end

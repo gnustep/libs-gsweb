@@ -1,11 +1,16 @@
-/* GSWClientSideScript.h - GSWeb: Class GSWClientSideScript
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWClientSideScript.h - <title>GSWeb: Class GSWClientSideScript</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 		Feb 1999
-   
+      
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -28,27 +34,27 @@
 
 //OK
 //====================================================================
-@interface GSWClientSideScript: GSWHTMLDynamicElement
+@interface GSWClientSideScript: GSWDynamicElement
 {
-  GSWAssociation* scriptFile;
-  GSWAssociation* scriptString;
-  GSWAssociation* scriptSource;
-  GSWAssociation* hideInComment;
-  GSWAssociation* language;
-  NSDictionary* otherAttributes;
+  GSWAssociation* _scriptFile;
+  GSWAssociation* _scriptString;
+  GSWAssociation* _scriptSource;
+  GSWAssociation* _hideInComment;
+  GSWAssociation* _language;
+  NSDictionary* _otherAttributes;
 };
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)templateElement_;
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)templateElement;
 -(void)dealloc;
 
 @end
 
 //====================================================================
 @interface GSWClientSideScript (GSWClientSideScriptA)
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
 @end
 
 #endif //GSWClientSideScript

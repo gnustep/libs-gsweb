@@ -4014,17 +4014,17 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
-+(void)setSessionTimeOut:(id)timeOut_
++(void)setSessionTimeOut:(NSNumber*)timeOut_
 {
   LOGClassFnStart();
-  NSDebugMLLog(@"sessions",@"_sessionTimeOut=%@",timeOut_);
+  NSDebugMLLog(@"sessions",@"timeOut_=%@",timeOut_);
   [[NSUserDefaults standardUserDefaults] setObject:timeOut_
                                          forKey:GSWOPT_SessionTimeOut[GSWebNamingConv]];
   LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------
-+(id)sessionTimeOut
++(NSNumber*)sessionTimeOut
 {
   id _sessionTimeOut=nil;
   LOGClassFnStart();
@@ -4032,6 +4032,16 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSDebugMLLog(@"sessions",@"_sessionTimeOut=%@",_sessionTimeOut);
   LOGClassFnStop();
   return _sessionTimeOut;
+};
+
+//--------------------------------------------------------------------
++(void)setSessionTimeOutValue:(NSTimeInterval)timeOutValue_
+{
+  LOGClassFnStart();
+  NSDebugMLLog(@"sessions",@"timeOutValue_=%f",timeOutValue_);
+  [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithDouble:timeOutValue_]
+                                         forKey:GSWOPT_SessionTimeOut[GSWebNamingConv]];
+  LOGClassFnStop();
 };
 
 +(NSTimeInterval)sessionTimeOutValue

@@ -118,9 +118,9 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(id)		initWithName:(NSString*)anElementName
-		 attributeString:(NSString*)attributeString
-		 contentElements:(NSArray*)anElementsArray
+-(id)initWithName:(NSString*)anElementName
+  attributeString:(NSString*)attributeString
+  contentElements:(NSArray*)anElementsArray
 {
   //OK
   LOGObjectFnStart();
@@ -327,7 +327,7 @@ static char rcsId[] = "$Id$";
             fromIndex,toIndex);
   for(elementN=0;elementN<=toIndex;elementN++)
     {
-      NSDebugMLog(@"appendTo self=%p elementN=%d [context elementID]=%@",self,elementN,[context elementID]);
+      NSDebugMLLog(@"GSWElement",@"appendTo self=%p elementN=%d [context elementID]=%@",self,elementN,[context elementID]);
       element=(BYTE)elements[elementN];
       if (element==ElementsMap_htmlBareString)
         {

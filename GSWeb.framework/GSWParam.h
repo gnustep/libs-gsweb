@@ -1,25 +1,31 @@
-/* GSWParam.h - GSWeb: Class GSWParam
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWParam.h - <title>GSWeb: Class GSWParam</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
    Date: 		Jan 1999
-  
+   
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
-  
+   
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-  
+   
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-  
+   
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,23 +36,23 @@
 //====================================================================
 @interface GSWParam: GSWHTMLDynamicElement
 {
-  GSWAssociation* action;
-  GSWAssociation* value;
-  BOOL treatNilValueAsGSWNull;
-  id target;
-  NSString* targetKey;
+  GSWAssociation* _action;
+  GSWAssociation* _value;
+  BOOL _treatNilValueAsGSWNull;
+  id _target;
+  NSString* _targetKey;
 };
 
--(id)		initWithName:(NSString*)name_
-			associations:(NSDictionary*)associations_
-		 contentElements:(NSArray*)elements_
-				  target:(id)target_
-					 key:(NSString*)key_
-   treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull_;
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
+           target:(id)target
+              key:(NSString*)key
+treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull;
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_;
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements;
 
 -(void)dealloc;
 
@@ -57,16 +63,16 @@
 
 //====================================================================
 @interface GSWParam (GSWParamA)
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 @end
 
 //====================================================================
 @interface GSWParam (GSWParamB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									inContext:(GSWContext*)context_;
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext;
 
--(id)valueInComponent:(id)component_;
+-(id)valueInComponent:(id)component;
 @end
 
 //====================================================================

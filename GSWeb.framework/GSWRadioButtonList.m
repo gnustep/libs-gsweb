@@ -282,7 +282,7 @@ static char rcsId[] = "$Id$";
               inComponent:component];
       displayStringValue=[_displayString valueInComponent:component];
       [response appendContentString:@"<INPUT NAME=\""];
-      [response appendContentString:_name];
+      [response appendContentString:name];
       [response appendContentString:@"\" TYPE=radio VALUE=\""];
       valueValue=[self valueInContext:context];
       [response appendContentHTMLAttributeValue:valueValue];

@@ -198,7 +198,8 @@ if the component has already been created, it get it from the cache; otherwise, 
             }
           else
             {
-              ExceptionRaise(@"GSWSwitchComponent %p (defName=%@): Creation failed for element named:%@",
+              ExceptionRaise(@"GSWSwitchComponent",
+                             @"GSWSwitchComponent %p (defName=%@): Creation failed for element named:%@",
                              self,[self definitionName],aName);
             };
         };

@@ -24,6 +24,7 @@
 static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
+#include <GSWeb/GSWDebug.h>
 #include <Foundation/NSThread.h>
 #include <Foundation/NSAutoreleasePool.h>
 #include <unistd.h>
@@ -305,14 +306,14 @@ void DumpIVar(id object,struct objc_ivar* ivar,int deep)
 			pIVar);
 	  if (deep>0 && ivar->ivar_type && *ivar->ivar_type==_C_ID && pValue)
 		{
-		  GSWLogDumpObject_(NULL,0,*((id*)pValue),deep);
+		  GSWLogDumpObjectFn(NULL,0,*((id*)pValue),deep);
 		};
 	};
 };
 
 //--------------------------------------------------------------------
 //Dump object 
-void GSWLogDumpObject_(CONST char* file,int line,id object,int deep)
+void GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep)
 {
   USTART
   if (object && deep>0)
@@ -347,7 +348,7 @@ void GSWLogDumpObject_(CONST char* file,int line,id object,int deep)
 };
 
 //--------------------------------------------------------------------
-void GSWLogAssertGood_(CONST char* file,int line,NSObject* object)
+void GSWLogAssertGoodFn(CONST char* file,int line,NSObject* object)
 {
   if (object)
 	{

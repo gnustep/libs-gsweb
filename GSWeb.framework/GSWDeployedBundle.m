@@ -118,7 +118,7 @@ static char rcsId[] = "$Id$";
 												   isFramework:_isFramework];
   NSDebugMLLog(@"bundles",@"_projectBundle=%@",_projectBundle);
   LOGObjectFnStop();
-  return _projectBundle;
+  return (GSWProjectBundle*)_projectBundle;
 };
 
 //--------------------------------------------------------------------

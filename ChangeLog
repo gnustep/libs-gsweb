@@ -1,3 +1,43 @@
+2002-07-04  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWDefaultAdaptorThread.m
+		o trace request uri
+	* GSWeb.framework/GSWTemplateParserXML.m
+		o Changed NSDebugMLog to NSDebugMLLog
+		o changes to conform to GSXML modifications
+	* GSWeb.framework/GSWTemplateParser.m
+		o Changed NSDebugMLog to NSDebugMLLog
+	* GSWeb.framework/GSWBundle.m
+		o Changed NSDebugMLog to NSDebugMLLog
+	* GSWeb.framework/GSWComponent.m
+		o Changed NSDebugMLog to NSDebugMLLog
+	* GSWeb.framework/GSWElement.m
+		o Changed NSDebugMLog to NSDebugMLLog
+	* GSWeb.framework/GSWHTMLStaticElement.m
+		o Changed NSDebugMLog to NSDebugMLLog
+	* GSWeb.framework/GSWAssociations.m
+		o fixes in !GDL2 variables names (reported by Piter Punk <piterpk@terra.com.br>)
+	* GSWeb.framework/GSWRadioButtonList.m
+		o fix _name/name in appendToResponse:inContext:
+	* GSWeb.framework/GSWSwitchComponent.m:
+		o fix ExceptionRaise call
+	* GSWeb.framework/GSWDebug.m/.h:
+		o fix ifdef and functions defs
+	* GSWeb.framework/GSWSessionTimeOutManager.m/.h:
+		o add parentheses around assignment used as truth value
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWDeployedBundle.m:
+		o cast to avoid compiler warning
+	* GSWeb.framework/GSWJavaScript.h/.m:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWEmbeddedObject.h/.m:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWClientSideScript.h/.m:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWApplet.h/.m:
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWParam.h/.m:
+		o ivar names changes to conform to coding standards
+	
 2002-06-03  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWBundle.m:
 		o use smartTakeValue:forKey: instead of takeValue:forKey:

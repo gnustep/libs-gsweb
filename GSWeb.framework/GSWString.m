@@ -144,7 +144,7 @@ static char rcsId[] = "$Id$";
       else
         {
           formattedValue=[formatter stringForObjectValue:valueValue];
-          NSDebugMLog(@"valueValue=%@ formattedValue=%@",valueValue,formattedValue);
+          NSDebugMLLog(@"gswdync",@"valueValue=%@ formattedValue=%@",valueValue,formattedValue);
         };
 
       if (!WOStrictFlag && _convertHTML)
@@ -208,7 +208,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStartC("GSWString");
   if (_dateFormat)
     {
-      NSDebugMLog0(@"DateFormat");
+      NSDebugMLLog(@"gswdync",@"DateFormat");
       formatValue=[_dateFormat valueInComponent:component];
       if (formatValue)
         formatter=[[[NSDateFormatter alloc]initWithDateFormat:formatValue
@@ -216,7 +216,7 @@ static char rcsId[] = "$Id$";
     }
   else if (_numberFormat)
     {
-      NSDebugMLog0(@"NumberFormat");
+      NSDebugMLLog(@"gswdync",@"NumberFormat");
       formatValue=[_numberFormat valueInComponent:component];
       if (formatValue)
         {
@@ -228,10 +228,10 @@ static char rcsId[] = "$Id$";
     }
   else
     {
-      NSDebugMLog0(@"Formatter");
+      NSDebugMLLog(@"gswdync",@"Formatter");
       formatter=[_formatter valueInComponent:component];
     };
-  NSDebugMLog(@"formatter=%@",formatter);
+  NSDebugMLLog(@"gswdync",@"formatter=%@",formatter);
   LOGObjectFnStopC("GSWString");
   return formatter;
 };

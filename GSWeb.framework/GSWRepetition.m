@@ -160,7 +160,7 @@ static char rcsId[] = "$Id$";
                 tmpCountValue,
                 [tmpCountValue class]);
       tmpCount=[tmpCountValue intValue];
-      NSDebugMLog(@"tmpCount=%d",tmpCount);
+      NSDebugMLLog(@"gswdync",@"tmpCount=%d",tmpCount);
       if (_list)
         countValue=min(tmpCount,countValue);
       else

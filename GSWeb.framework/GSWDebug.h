@@ -26,15 +26,16 @@
 #ifndef _GSWebDebug_h__
 #define _GSWebDebug_h__
 
-
-#ifdef GSWDEBUG
+#ifdef DEBUG
 extern void GSWLogC_(CONST char* file,int line,CONST char* string);
-extern void GSWLogDumpObject_(CONST char* file,int line,id object,int deep);
-extern void GSWLogAssertGood_(CONST char* file,int line,NSObject* object);
+extern void GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep);
+extern void GSWLogAssertGoodFn(CONST char* file,int line,NSObject* object);
+#endif
+#ifdef GSWDEBUG
 
 #define GSWLogC(cString);				GSWLogC_(__FILE__,__LINE__,cString);
-#define GSWLogDumpObject(object,deep); 	GSWLogDumpObject_(__FILE__,__LINE__,object,deep);
-#define GSWLogAssertGood(object); 		GSWLogAssertGood_(__FILE__,__LINE__,object);
+#define GSWLogDumpObject(object,deep); 	GSWLogDumpObjectFn(__FILE__,__LINE__,object,deep);
+#define GSWLogAssertGood(object); 		GSWLogAssertGoodFn(__FILE__,__LINE__,object);
 
 //Log Memory Alloc/Dealloc
 #ifdef GSWDEBUG_MEM

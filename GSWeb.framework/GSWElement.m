@@ -47,9 +47,9 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
   elementID=[context elementID];
 /*  if ([elementID length]==0)
     elementID=@"MARKER";*/
-  NSDebugMLog(@"self=%p definitionName=%@ elementID=%@ %p",self,[self definitionName],elementID,elementID);
+  NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ elementID=%@ %p",self,[self definitionName],elementID,elementID);
   ASSIGNCOPY(_appendToResponseElementID,elementID);
-  NSDebugMLog(@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p",self,[self definitionName],_appendToResponseElementID,_appendToResponseElementID);
+  NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p",self,[self definitionName],_appendToResponseElementID,_appendToResponseElementID);
   GSWAssertIsElementID(context);
   LOGObjectFnStopC("GSWElement");
 };
@@ -60,7 +60,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                                   line:(int)line
 {
   LOGObjectFnStartC("GSWElement");  
-/*  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
+/*  NSDebugMLLog(@"GSWElement",@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
               self,
               [self class],
               [self definitionName],
@@ -70,7 +70,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
         method:method
         file:file
         line:line];
-/*  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
+/*  NSDebugMLLog(@"GSWElement",@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
               self,
               [self class],
               [self definitionName],
@@ -118,7 +118,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                              line:(int)line
 {
   LOGObjectFnStartC("GSWElement");
-/*  NSDebugMLog(@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
+/*  NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
               self,
               [self definitionName],
               _appendToResponseElementID,_appendToResponseElementID,[context elementID]);
