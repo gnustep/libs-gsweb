@@ -1,3 +1,7 @@
+2005-03-22  Manuel Guesdon <mguesdon@orange-concept.com>
+        * GSWeb.framework/GSWBrowser.m
+		o fixed double HTML escaping bug (reported by David Ayers)
+
 2005-03-21  Richard Frith-Macdonald <rfm@gnu.org>
         * GSWeb.framework/GSWRequest.m
                 o cleanup GSMime access and avoid unnecessary setting of

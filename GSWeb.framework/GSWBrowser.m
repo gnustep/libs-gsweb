@@ -369,16 +369,16 @@ static SEL valueInComponentSEL = NULL;
                     };
                   //<OPTGROUP label="PortMaster 3">
                   
-                  if (escapeHTMLBoolValue)
-                    displayStringValue=GSWResponse_stringByEscapingHTMLString(aResponse,displayStringValue);
-                  NSDebugMLLog(@"gswdync",@"displayStringValue=%@",displayStringValue);
 #ifndef ENABLE_OPTGROUP
                   if (optGroupLabel)
                     {
-                      displayStringValue=[NSString stringWithFormat:@"%@ --",displayStringValue];
-                };
+                      displayStringValue=[displayStringValue stringByAppendingString:@" --"];
+                    };
 #endif
-                  GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
+                  if (escapeHTMLBoolValue)
+                    GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
+                  else
+                    GSWResponse_appendContentString(aResponse,displayStringValue);
                 };
               if (valueValue)
                 {
