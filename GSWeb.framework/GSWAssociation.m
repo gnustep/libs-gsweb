@@ -750,6 +750,74 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 };
 
 //--------------------------------------------------------------------
+
+#ifdef TCSDB
++(void)setValue:(id)value
+       inObject:(id)object
+     forKeyPath:(NSString*)keyPath
+{
+
+  id tmpObject = nil;
+  NSString *tmpKey = nil;
+  
+  LOGClassFnStart();
+  NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@",value);
+  NSDebugMLLog(@"associations",@"value class:%@",[value class]);
+  NSDebugMLLog(@"associations",@"value String class:%@",NSStringFromClass([value class]));
+  NSDebugMLLog(@"associations",@"object String class:%@",NSStringFromClass([object class]));
+  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath:%@",keyPath);
+
+ // NSLog(@"GSWAssociation: setValue:%@ inObject:%@ forKeyPath:%@",value,object,keyPath);
+// ... GSWAssociation: setValue:<Color (0x87be648) name=blau nr=1> inObject:<CartListComponent 0x86fa708> forKeyPath:currentCartArticle.color
+
+  if (keyPath) {
+    NSRange       r = [keyPath rangeOfString: @"."];
+
+    if (r.length == 0) {
+      tmpObject = object;
+      tmpKey = keyPath;
+    } else {
+      NSString  *key = [keyPath substringToIndex: r.location];
+     // NSString  *path = [keyPath substringFromIndex: NSMaxRange(r)];
+
+      //[[self valueForKey: key] smartTakeValue: anObject
+  //                                 forKeyPath: path];
+
+      tmpObject = [object valueForKey: key];
+      tmpKey = [keyPath substringFromIndex: NSMaxRange(r)];
+    }
+    //NSLog(@"GSWAssociation: tmpKey:%@ tmpObject:%@",tmpKey,tmpObject);
+
+    if (tmpObject) //&& [object isKindOfClass:[GSWComponent class]]
+    {
+      NSException* exp = [tmpObject validateValue:&value
+                                           forKey:tmpKey];
+      if (exp)
+      {
+        NSException* exception=nil;
+        exception=[NSException exceptionWithName:@"EOValidationException"
+                                          reason:[exp reason]
+                                        userInfo:[NSDictionary
+                                                            dictionaryWithObjectsAndKeys:
+                                          (value ? value : @"nil"),@"EOValidatedObjectUserInfoKey",
+                                          keyPath,@"EOValidatedPropertyUserInfoKey",
+                                          nil,nil]];
+        [object validationFailedWithException:exception
+                                        value:value
+                                      keyPath:keyPath];
+      } else {
+        // no exception, set the value
+
+        [tmpObject takeValue:value
+                     forKey:tmpKey];
+      }
+    }
+  }
+  LOGClassFnStop();
+}
+
+#else // GDL2 or GDL1
+
 +(void)setValue:(id)value
        inObject:(id)object
      forKeyPath:(NSString*)keyPath
@@ -765,7 +833,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 #if GDL2
       [object smartTakeValue:value
               forKeyPath:keyPath];
-#else
+#else // no GDL2
       NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
       id part=nil;
       id tmpObject=object;
@@ -876,6 +944,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
     };
   LOGClassFnStop();
 };
+
+#endif 
 
 @end
 
