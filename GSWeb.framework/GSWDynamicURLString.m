@@ -241,7 +241,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithCoder:(NSCoder*)coder
 {
-  if ((self = [super initWithCoder:coder]))
+  if ((self = [self init]))
     {
       [coder decodeValueOfObjCType:@encode(id)
              at:&_url];
@@ -254,7 +254,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)coder
 {
-  [super encodeWithCoder:coder];
   [self _compose];
   [coder encodeObject:_url];
 };
