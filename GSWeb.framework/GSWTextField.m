@@ -143,8 +143,8 @@ static char rcsId[] = "$Id$";
           NSDebugMLLog(@"gswdync",@"resultValue=%@",resultValue);
 
           // Turbocat
-          if ([self _isFormattedValueInComponent:component
-                    equalToFormattedValue:value]) 
+          if (NO)//([self _isFormattedValueInComponent:component
+             //       equalToFormattedValue:value]) 
             {
               // does nothing, old formatted values are equal
             } 
