@@ -1,3 +1,9 @@
+2002-10-28   David Wetzel <dave@turbocat.de>
+        * a start to make statistics work
+          Modified Files:
+          GSWApplication.m GSWComponentRequestHandler.m GSWSession.m
+          GSWStatisticsStore.h GSWStatisticsStore.m
+
 2002-10-12   Manuel Guesdon <mguesdon@orange-concept.com>
 	== See coments http://wiki.gnustep.org/index.php/GNUstepWeb ==
 	* GSWeb/GSWConstants.h/.m:
