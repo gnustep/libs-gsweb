@@ -1,0 +1,73 @@
+ExclamationImage: GSWImage
+{
+    filename = "exclamation.gif";
+    framework = "GSWExtensions";
+    border = 0;
+}
+
+VisibleConditional: GSWCollapsibleComponentContent
+{
+    condition = application.class.isDebuggingEnabled;
+    closedLabel = "An Exception has Occurred";
+    openedLabel = "Exception Description";
+}
+
+ApplicationNameString: GSWString
+{
+    value = application.name;
+    escapeHTML = NO;
+}
+
+ExceptionNameString: GSWString
+{
+    value = exception.name;
+    escapeHTML = NO;
+}
+
+ReasonRepetition: GSWRepetition
+{
+    list = reasons;
+    item = tmpReason;
+}
+
+ReasonString: GSWString
+{
+    value = tmpReason;
+    escapeHTML = YES;
+}
+
+ReenterHyperlink: GSWHyperlink
+{
+    directActionName = "default";
+    target = "_top";
+}
+
+HasUserInfoConditional: GSWConditional
+{
+    condition = exception.userInfo;
+}
+
+NoUserInfoConditional: GSWConditional
+{
+    condition = exception.userInfo;
+    negate = YES;
+}
+
+UserInfoRowRepetition: GSWDictionaryRepetition
+{
+    dictionary = exception.userInfo;
+    key = tmpUserInfoKey;
+    item = tmpUserInfoValue;
+}
+
+UserInfoKeyString: GSWString
+{
+    value = tmpUserInfoKey;
+    escapeHTML = NO;
+}
+
+UserInfoValueString: GSWString
+{
+    value = tmpUserInfoValue;
+    escapeHTML = YES;
+}

@@ -1,0 +1,4 @@
+{
+    Required = (seconds, pageName, action);
+    Optional = ();
+}

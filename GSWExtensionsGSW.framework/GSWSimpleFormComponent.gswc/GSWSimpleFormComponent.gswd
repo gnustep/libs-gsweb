@@ -1,0 +1,29 @@
+MessageConditional: GSWConditional
+{
+	condition=isErrorMessage;
+};
+
+ErrorMessage: GSWString
+{
+	value= tmpErrorMessage;
+};
+
+Form: GSWForm
+{
+};
+
+Content: GSWComponentContent
+{
+};
+
+Submit: GSWSubmitButton
+{
+    action = sendAction;
+    value = ^submitButtonTitle;
+}
+
+Reset: GSWResetButton
+{
+    value = ^resetButtonTitle;
+}
+

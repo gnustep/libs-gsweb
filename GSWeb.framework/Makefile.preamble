@@ -1,0 +1,66 @@
+# Makefile.preamble - GSWeb: Makefile.preamble
+#   Copyright (C) 1999 Free Software Foundation, Inc.
+#   
+#   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+#   Date: 		Jan 1999
+#   
+#   This file is part of the GNUstep Web Library.
+#   
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Library General Public
+#   License as published by the Free Software Foundation; either
+#   version 2 of the License, or (at your option) any later version.
+#   
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Library General Public License for more details.
+#   
+#   You should have received a copy of the GNU Library General Public
+#   License along with this library; if not, write to the Free
+#   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+#
+#   Makefile.preamble
+#
+#   Project specific makefile variables, and additional
+#
+#   Do not put any Makefile rules in this file, instead they should
+#   be put into Makefile.postamble.
+#
+
+#
+# Flags dealing with compiling and linking
+#
+
+# Additional flags to pass to the preprocessor
+ADDITIONAL_CPPFLAGS = 
+
+# Additional flags to pass to the Objective-C compiler
+#new
+ADDITIONAL_OBJCFLAGS = -DUSE_BUILTIN
+
+# Additional flags to pass to the C compiler
+#new
+ADDITIONAL_CFLAGS =  -DUSE_BUILTIN
+
+# Additional include directories the compiler should search
+ADDITIONAL_INCLUDE_DIRS =  -I. -I$(GNUSTEP_SYSTEM_ROOT)/db -I../..
+
+# Additional LDFLAGS to pass to the linker
+ifeq ($(debug), yes)
+	ADDITIONAL_LDFLAGS = -lFoundationExt_d -lNGReflection_d
+else
+	ADDITIONAL_LDFLAGS = -lFoundationExt -lNGReflection
+endif
+
+# Additional library directories the linker should search
+ADDITIONAL_LIB_DIRS = -L../src/$(GNUSTEP_OBJ_DIR) -L$(GNUSTEP_SYSTEM_ROOT)/lib 
+
+#
+# Flags dealing with installing and uninstalling
+#
+
+# Additional directories to be created during installation
+ADDITIONAL_INSTALL_DIRS = 
+

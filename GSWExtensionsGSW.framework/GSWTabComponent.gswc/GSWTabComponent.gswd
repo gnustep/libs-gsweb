@@ -1,0 +1,65 @@
+TabBarLeftBorder: GSWImage
+{
+    filename = ^tabBarLeftBorderImage;
+    border = "0";
+    align = "ABSTOP";
+}
+
+TabBarRightBorder: GSWImage
+{
+    filename = ^tabBarLeftBorderImage;
+    border = "0";
+    align = "ABSTOP";
+}
+
+Repetition : GSWRepetition
+{
+    list = ^tabArray;
+    item = ^tabItem;
+    index = ^tabIndex;
+};
+
+TabLeftBorder: GSWImage
+{
+    filename = tabLeftBorderImage;
+    border = "0";
+    align = "ABSTOP";
+}
+
+TabRightBorder: GSWImage
+{
+    filename = tabLeftBorderImage;
+    border = "0";
+    align = "ABSTOP";
+}
+
+Tab: GSWHyperlink
+{
+	action = selectCurrentTab;
+	disabled = ^tabDisabled;
+};
+
+TabImageCondition: GSWConditional
+{
+    condition = tabImage;
+}
+
+TabTextCondition: GSWConditional
+{
+    condition = tabImage;
+	negate = YES;
+}
+
+TabImage: GSWImage
+{
+    filename = tabImage;
+    border = "0";
+    align = "ABSTOP";
+	alt = tabText;
+}
+
+TabText: GSWString
+{
+    value = tabText;
+}
+

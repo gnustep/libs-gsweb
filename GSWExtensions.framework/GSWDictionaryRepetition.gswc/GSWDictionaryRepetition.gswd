@@ -1,0 +1,9 @@
+Repetition: GSWRepetition
+{
+    list = keyList;
+    item = currentKey;
+}
+
+Content: GSWComponentContent
+{
+}

@@ -1,0 +1,7 @@
+MetaRefresh: GSWGenericElement
+{
+    elementName = "meta";
+    "http-equiv" = "refresh";
+    content = contentString;
+    invokeAction = invokeAction;
+}

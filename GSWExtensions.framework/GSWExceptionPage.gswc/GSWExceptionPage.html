@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+  <TITLE>GNUstepWeb Error</TITLE>
+</HEAD>
+<BODY bgcolor="white">
+
+<TABLE BORDER=0>
+<TR>
+<TD ALIGN=center VALIGN=TOP>
+    <GSWEB NAME=ExclamationImage></GSWEB><br>
+    Re-enter<br>
+    <GSWEB NAME=ReenterHyperlink>
+        <B><GSWEB NAME=ApplicationNameString></GSWEB></B>
+    </GSWEB>
+</TD>
+<TD ALIGN=LEFT VALIGN=TOP>
+    <GSWEB NAME=VisibleConditional>
+        <HR>
+        <TABLE BORDER=0>
+            <TR>
+                <TD ALIGN=RIGHT VALIGN=TOP>
+                    <B>Application:</B>
+                </TD>
+                <TD ALIGN=LEFT VALIGN=TOP>
+                    <GSWEB NAME=ApplicationNameString></GSWEB>
+                </TD>
+            </TR>
+            <TR>
+                <TD ALIGN=RIGHT VALIGN=TOP>
+                    <B>Error:</B>
+                </TD>
+                <TD ALIGN=LEFT VALIGN=TOP>
+                    <GSWEB NAME=ExceptionNameString></GSWEB>
+                </TD>
+            </TR>
+            <TR>
+                <TD ALIGN=RIGHT VALIGN=TOP>
+                    <B>Reason:</B>
+                </TD>
+                <TD ALIGN=LEFT VALIGN=TOP>
+                    <GSWEB NAME=ReasonRepetition>
+                        <GSWEB NAME=ReasonString></GSWEB><BR>
+                    </GSWEB>
+                </TD>
+            </TR>
+            <TR>
+                <TD colspan=2 ALIGN=LEFT VALIGN=bottom>
+                    <HR>
+                    <B>User Info Dictionary:</B>
+                </TD>
+            </TR>
+            <GSWEB NAME=HasUserInfoConditional>
+                <GSWEB NAME=UserInfoRowRepetition>
+                <TR>
+                    <TD ALIGN=RIGHT VALIGN=TOP>
+                        <B><GSWEB NAME=UserInfoKeyString></GSWEB>:</B>
+                    </TD>
+                    <TD ALIGN=LEFT VALIGN=TOP>
+                        <GSWEB NAME=UserInfoValueString></GSWEB>
+                    </TD>
+                </TR>
+                </GSWEB>
+            </GSWEB>
+            <GSWEB NAME=NoUserInfoConditional>
+                <TR>
+                <TD ALIGN=RIGHT VALIGN=TOP>
+                </TD>
+                <TD ALIGN=LEFT VALIGN=TOP>
+                <B>Exception has no userInfo dictionary</B>
+                </TD>
+                </TR>
+            </GSWEB>
+        </GSWEB>
+        </TABLE>
+</TD>
+</TR>
+</TABLE>
+
+</BODY>
+</HTML>

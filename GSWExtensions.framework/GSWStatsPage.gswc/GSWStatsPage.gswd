@@ -1,0 +1,329 @@
+ALLOWED: GSWConditional
+{
+    condition = session._allowedToViewStatistics;
+}
+
+ActionAvg: GSWString
+{
+    numberformat = "0.000";
+    value = tmpItem."Avg Resp. Time";
+}
+
+ActionBar: GSWCompletionBar
+{
+    align = "RIGHT";
+    numberformat = "0";
+    value = tmpItem.Served;
+    valueMax = maxActionCount;
+}
+
+ActionMax: GSWString
+{
+    numberformat = "0.000";
+    value = tmpItem."Max Resp. Time";
+}
+
+ActionMin: GSWString
+{
+    numberformat = "0.000";
+    value = tmpItem."Min Resp. Time";
+}
+
+ActionName: GSWString
+{
+    value = tmpKey;
+}
+
+ActionsRepetition: GSWDictionaryRepetition
+{
+    dictionary = directActionsDict;
+    key = tmpKey;
+    item = tmpItem;
+}
+
+AvgComponentActionTransactions: GSWString
+{
+    numberformat = "0.000";
+    value = transactions."Component Action  Avg. Transaction Time";
+}
+
+AvgDirectActionTransactions: GSWString
+{
+    numberformat = "0.000";
+    value = transactions."Direct Action Avg. Transaction Time";
+}
+
+AvgIdleTime: GSWString
+{
+    numberformat = "0.000";
+    value = transactions."Avg. Idle Time";
+}
+
+AvgTransactionTime: GSWString
+{
+    numberformat = "0.000";
+    value = transactions."Avg. Transaction Time";
+}
+
+PageCountBar: GSWCompletionBar
+{
+    align = "RIGHT";
+    numberformat = "0";
+    value = tmpItem.Served;
+    valueMax = maxPageCount;
+}
+
+BAR_DETAILS: GSWCompletionBar
+{
+    align = "RIGHT";
+    numberformat = "0%";
+    value = detailPercent;
+}
+
+Conditional2: GSWConditional
+{
+    condition = instance;
+}
+
+ComponentActionTransactions: GSWString
+{
+    value = transactions."Component Action Transactions";
+}
+
+DetailCount: GSWString
+{
+    value = detailCount;
+}
+
+DetailName: GSWString
+{
+    value = tmpKey;
+}
+
+DetailsRepetition: GSWDictionaryRepetition
+{
+    dictionary = detailsDict;
+    key = tmpKey;
+    item = tmpItem;
+}
+
+DirectActionTransactions: GSWString
+{
+    value = transactions."Direct Action Transactions";
+}
+
+Form1: GSWForm
+{
+}
+
+Form4: GSWForm
+{
+    directActionName = "GSWStats";
+}
+
+ISLASTUSER: GSWConditional
+{
+    condition = sessionStats.count;
+}
+
+ISLOGPATH: GSWConditional
+{
+    condition = statsDict.LogFile.length
+}
+
+ISMAXSESSIONS: GSWConditional
+{
+    condition = maxSessionsDate;
+}
+
+LOGPATH: GSWString
+{
+    value = statsDict.LogFile
+}
+
+MaxSessions: GSWString
+{
+    dateformat = "%H:%M:%S (%z %Z) on %a, %b %d %Y";
+    value = maxSessionsDate;
+}
+
+MemoryKeyCell: GSWString
+{
+    value = tmpKey;
+}
+
+MemoryRepetition: GSWDictionaryRepetition
+{
+    dictionary = memoryDict;
+    key = tmpKey;
+    item = tmpItem;
+}
+
+MemoryValueCell: GSWString
+{
+    numberformat = "0,000,000";
+    value = tmpItem;
+}
+
+MovingAvgIdleTime: GSWString
+{
+    numberformat = "0.000";
+    value = transactions."Moving Avg. Idle Time";
+}
+
+MovingAvgSampleSize: GSWString
+{
+    value = transactions."Sample Size For Moving Avg.";
+}
+
+MovingAvgTransactionTime: GSWString
+{
+    numberformat = "0.000";
+    value = transactions."Moving Avg. Transaction Time";
+}
+
+PASSGSWRD: GSWPasswordField
+{
+    WIDTH = 12;
+    value = password;
+}
+
+PageAvg: GSWString
+{
+    numberformat = "0.000";
+    value = tmpItem."Avg Resp. Time";
+}
+
+PageMax: GSWString
+{
+    numberformat = "0.000";
+    value = tmpItem."Max Resp. Time";
+}
+
+PageMin: GSWString
+{
+    numberformat = "0.000";
+    value = tmpItem."Min Resp. Time";
+}
+
+PageName: GSWString
+{
+    value = tmpKey;
+}
+
+PagesRepetition: GSWDictionaryRepetition
+{
+    dictionary = pagesDict;
+    key = tmpKey;
+    item = tmpItem;
+}
+
+PoweredByImage: GSWImage
+{
+    ALT = "Powered By GNUstepWeb";
+    BORDER = 0;
+    HEIGHT = 49;
+    WIDTH = 221;
+    filename = "PoweredByGNUstepWeb.gif";
+}
+
+REFRESH: GSWSubmitButton
+{
+    directActionName = "GSWStats";
+    value = "Refresh Page";
+}
+
+REFUSED: GSWConditional
+{
+    condition = session._allowedToViewStatistics;
+    negate = "1";
+}
+
+RunningTime: GSWString
+{
+    value = runningTime;
+}
+
+SUBMIT: GSWSubmitButton
+{
+    action = submit;
+}
+
+SessionMemoryKeyCell: GSWString
+{
+    value = tmpKey;
+}
+
+SessionMemoryRepetition: GSWDictionaryRepetition
+{
+    dictionary = sessionMemoryDict;
+    key = tmpKey;
+    item = tmpItem;
+}
+
+SessionMemoryValueCell: GSWString
+{
+    numberformat = "000,000";
+    value = tmpItem;
+}
+
+SessionStatsField: GSWString
+{
+    value = tmpItem;
+}
+
+SessionStatsRepetition: GSWRepetition
+{
+    list = sessionStats;
+    item = tmpItem;
+}
+
+SessionsKeyCell: GSWString
+{
+    value = tmpKey;
+}
+
+SessionsRepetition: GSWDictionaryRepetition
+{
+    dictionary = sessionsDict;
+    key = tmpKey;
+    item = tmpItem;
+}
+
+SessionsValueCell: GSWString
+{
+    numberformat = "0.00";
+    value = tmpItem;
+}
+
+String11: GSWString
+{
+    value = host;
+}
+
+String21: GSWString
+{
+    dateformat = "%H:%M:%S (%z %Z) on %a, %b %d %Y";
+    value = statsDict.StartedAt;
+}
+
+String2: GSWString
+{
+    value = application.name;
+}
+
+String6: GSWString
+{
+    value = instance;
+}
+
+Transactions: GSWString
+{
+    value = transactions.Transactions;
+}
+
+USERNAME: GSWTextField
+{
+    WIDTH = 12;
+    value = userName;
+}

@@ -1,0 +1,264 @@
+Todo
+****
+
+We're Looking for Volunteers !
+===============================
+
+Please contact me at <gsweb@sbuilders.com> if you want to help.
+
+Comments
+===============================
+Mean of tags in the code:
+//NDFN: 	function not defined in WO documentation
+//TODOFN:	function to write
+//TODOV:	We have to verify this point
+//TODO:		There some things to do (exception raising,...)
+
+TODO
+===============================
+* WebScript Interpreter
+* Verify dynamic libraries loading (which enable to use dynamic libraries as we 
+	can use WebScripts) and unloading.
+...
+...
+
+
+TODO by Module
+===============================
+When there is no comment for a module, it means that there is no TODO 
+information, not that there is nothing to do !
+
+
+* GSWeb.m
+
+* NSObject+IVarAccess+PerformSel.m
+	#OK
+
+* NSString+HTML.m
+	#
+
+* NSString+Trimming.m
+	#OK
+
+* GSWActiveImage.m
+	#: appendStringAtRight:withMapping:
+	appendStringAtLeft:withMapping:
+	OK near finished
+
+* GSWAdaptor.m
+	#
+
+* GSWApplet.m
+	#!
+	TODO: All
+
+* GSWApplication.m
+
+* GSWAssociation.m
+
+* GSWBody.m
+	OK. Finished
+
+* GSWBrowser.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWCheckBox.m
+	OK
+
+* GSWCheckBoxList.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWComponent.m
+
+* GSWComponentContent.m
+	OK. Finished
+
+* GSWComponentDefinition.m
+
+* GSWComponentReference.m
+	OK.
+
+* GSWConditional.m
+	OK. Finished
+
+* GSWContext.m
+
+* GSWCookie.m
+	OK. Finished
+
+* GSWDefaultAdaptor.m
+
+* GSWDirectAction.m
+
+* GSWDirectActionRequestHandler.m
+
+* GSWDisplayGroup.m
+
+* GSWDynamicElement.m
+	OK. Finished
+
+* GSWElement.m
+	OK. Finished
+
+* GSWElementIDString.m
+	OK. Finished
+
+* GSWEmbeddedObject.m
+	TODO:
+		appendToResponse
+
+* GSWFileUpload.m
+	TODO
+
+* GSWForm.m
+	Verify [Tested: Seems to work]
+
+* GSWFrame.m
+	OK. Finished
+
+* GSWGenericContainer.m
+	TODO:
+		appendToResponse
+
+* GSWGenericElement.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWHTMLElement.m
+
+* GSWHiddenField.m
+	OK. Finished
+
+* GSWHyperlink.m
+	OK. Verify all cases (differents parameters)
+
+* GSWImage.m
+	OK. Finished
+
+* GSWImageButton.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWJavaScript.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWKeyValueAssociation
+
+* GSWMultiKeyDictionary
+	OK. Improvement: do a real dictionary !
+
+* GSWNestedList.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWParam.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWPasswordField.m
+	OK. Finished
+
+* GSWPopUpButton.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWRadioButton.m
+	Verify [Tested: Seems to work]
+
+* GSWRadioButtonList.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWRepetition.m
+	OK. Finished
+
+* GSWRequest.m
+    TODO:
+	Check formValues implementation
+
+* GSWRequestHandler.m
+
+* GSWResetButton.m
+	OK. Finished
+
+* GSWResourceManager.m
+
+* GSWResourceRequestHandler.m
+
+* GSWServerSessionStore.m
+	OK. Finished
+
+* GSWResponse.m
+
+* GSWSession.m
+
+* GSWSessionStore.m
+
+* GSWSessionTimeOut.m
+	OK. Finished
+
+* GSWSessionTimeOutManager.m
+	OK. Finished
+
+* GSWStaticGroup.m
+	OK. Finished
+
+* GSWStatisticsStore.m
+
+* GSWString.m
+	TODO:
+		formatNumber
+
+* GSWSubmitButton.m
+	OK. Finished
+
+* GSWSwitchComponent.m
+	OK. Finished
+
+* GSWTextField.m
+	OK. Finished
+
+* GSWTransactionRecord
+
+* GSWVBScript.m
+	TODO:
+		takeValuesFromRequest
+		invokeActionForRequest
+		appendToResponse
+
+* GSWPageDefElement.m
+	OK. Finished
+
+* GSWPageDefParser.m
+	Generated from wod.g
+
+* GSWWorkerThread.m
+
+* GSWHTMLParser.m
+	OK. Finished
+
+* GSWURLValuedElementData.m
+	OK. Finished
+
+* GSWUtils.m

@@ -1,0 +1,37 @@
+
+TableContainer: GSWGenericContainer {
+    elementName = "table";
+    bgcolor = ^tableBackgroundColor;
+    border = ^border;
+    cellpadding = ^cellpadding;
+    cellspacing = ^cellspacing;
+}
+
+RowRepetition: GSWRepetition {
+    count = rowCount;
+    index = currentRow;
+}
+
+TableRow: GSWGenericContainer {
+    elementName = "tr";
+    bgcolor = ^rowBackgroundColor;
+}
+
+ColRepetition: GSWRepetition {
+    count = colCount;
+    index = currentCol;
+}
+
+PushItem: GSWMethodInvocation {
+    invoke = pushItem;
+}
+
+CellContainer:  GSWGenericContainer {
+    elementName = "td";
+    bgcolor = ^cellBackgroundColor;
+    align = ^cellAlign;
+    valign = ^cellVAlign;
+}
+
+Content: GSWComponentContent {
+}

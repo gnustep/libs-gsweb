@@ -1,0 +1,19 @@
+SomethingDisplayed: GSWConditional
+{
+    condition = valueIsNonNull;
+}
+
+NothingDisplayed: GSWConditional
+{
+    condition = valueIsNonNull;
+    negate=YES;
+}
+
+String : GSWString
+{
+    value = ^value;
+    formatter = formatter;
+    escapeHTML = ^escapeHTML;
+} 
+
+

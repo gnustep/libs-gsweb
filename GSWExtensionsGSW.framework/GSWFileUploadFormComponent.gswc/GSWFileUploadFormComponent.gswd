@@ -1,0 +1,42 @@
+Form: GSWForm
+{
+	enabled=^isUploadEnabled;
+	multipleSubmit = YES;
+	enctype = "multipart/form-data"
+};
+
+ViewCondition: GSWConditional
+{
+	condition = isViewEnabled;
+};
+
+UploadFile: GSWFileUpload
+{
+	data = fileInfo.data;
+	filePath = fileInfo.fileName;
+	enabled=^isUploadEnabled;
+};
+
+FileLink: GSWHyperlink
+{
+	filename=fileInfo.filePath;
+	data=fileInfo.data;
+	mimeType=fileInfo.mimeType;
+	key=fileInfo.filePath;
+	string= ^string;
+	target = ^target;
+};
+
+SubmitButton: GSWSubmitButton
+{
+	enabled=^isUploadEnabled;
+	value= ^submitButtonText;
+	action = updateAction;
+};
+
+DeleteButton: GSWSubmitButton
+{
+	enabled=^isUploadEnabled;
+	value= ^deleteButtonText;
+	action = deleteAction;
+};

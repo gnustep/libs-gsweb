@@ -1,0 +1,300 @@
+# GNUmakefile - GSWeb: GNUmakefile
+#   Copyright (C) 1999 Free Software Foundation, Inc.
+#   
+#   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+#   Date: 		Jan 1999
+#   
+#   This file is part of the GNUstep Web Library.
+#   
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Library General Public
+#   License as published by the Free Software Foundation; either
+#   version 2 of the License, or (at your option) any later version.
+#   
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Library General Public License for more details.
+#   
+#   You should have received a copy of the GNU Library General Public
+#   License along with this library; if not, write to the Free
+#   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+# Install into the system root by default
+GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_SYSTEM_ROOT)
+
+GNUSTEP_MAKEFILES = $(GNUSTEP_SYSTEM_ROOT)/Makefiles
+
+include $(GNUSTEP_MAKEFILES)/common.make
+
+include ../Version
+include ../config.mak
+
+srcdir = .
+
+# The Bundle to be compiled
+GSWBUNDLE_NAME=GSWeb
+
+# The bundle resource files and directories
+GSWeb_RESOURCE_FILES = \
+Resources/MIME.plist \
+Resources/languages.plist
+
+GSWeb_RESOURCE_DIRS =
+
+# The bundles libraries to link against
+GSWeb_GSWBUNDLE_LIBS = 
+
+# The bundles to be installed
+GSWBUNDLE_INSTALL = $(BUNDLE_NAME)
+GSWBUNDLE_INSTALL_DIR = $(GNUSTEP_LIBRARIES_ROOT)/gsweb
+
+# Use .gdladaptor as the bundle extension
+GSWBUNDLE_EXTENSION = .framework
+
+# The Bundle Objective-C source files to be compiled
+GSWeb_OBJC_FILES = \
+GSWDebug.m \
+GSWConstants.m \
+GSWPageDefParser.m \
+GSWPageDefParserExt.m \
+GSWPageDefLexer.m \
+GSWPageDefElement.m \
+GSWSessionTimeOutManager.m \
+GSWServerSessionStore.m \
+GSWDeployedBundle.m \
+GSWProjectBundle.m \
+GSWSessionTimeOut.m \
+GSWStats.m \
+NSNonBlockingFileHandle.m \
+GSWTransactionRecord.m \
+GSWHTMLParser.m \
+GSWHTMLParserExt.m \
+GSWHTMLLexer.m \
+GSWHTMLAttrLexer.m \
+GSWHTMLAttrParser.m \
+GSWHTMLAttrParserExt.m \
+GSWeb.m \
+GSWBundle.m \
+NSObject+IVarAccess+PerformSel.m \
+NSString+Trimming.m \
+NSString+HTML.m \
+GSWTemplateParser.m \
+GSWApplication.m \
+GSWAssociation.m \
+GSWComponent.m \
+GSWContext.m \
+GSWMultiKeyDictionary.m \
+GSWDisplayGroup.m \
+GSWDynamicElement.m \
+GSWElement.m \
+GSWRequest.m \
+GSWResourceManager.m \
+GSWResponse.m \
+GSWSession.m \
+GSWSessionStore.m \
+GSWStatisticsStore.m \
+GSWAdaptor.m \
+GSWDefaultAdaptor.m \
+GSWUtils.m \
+GSCache.m \
+GSWClientSideScript.m \
+GSWActiveImage.m \
+GSWBody.m \
+GSWTextField.m \
+GSWForm.m \
+GSWSubmitButton.m \
+GSWHTMLBareString.m \
+GSWHTMLComment.m \
+GSWApplet.m \
+GSWBrowser.m \
+GSWCheckBox.m \
+GSWCheckBoxList.m \
+GSWConditional.m \
+GSWEmbeddedObject.m \
+GSWFrame.m \
+GSWGenericContainer.m \
+GSWGenericElement.m \
+GSWHiddenField.m \
+GSWHyperlink.m \
+GSWImage.m \
+GSWImageButton.m \
+GSWJavaScript.m \
+GSWNestedList.m \
+GSWParam.m \
+GSWPasswordField.m \
+GSWPopUpButton.m \
+GSWRadioButton.m \
+GSWRadioButtonList.m \
+GSWRepetition.m \
+GSWResetButton.m \
+GSWSwitchComponent.m \
+GSWVBScript.m \
+GSWString.m \
+GSWText.m \
+GSWCookie.m \
+GSWRequestHandler.m \
+GSWComponentDefinition.m \
+GSWDirectAction.m \
+GSWMailDelivery.m \
+GSWComponentRequestHandler.m \
+GSWResourceRequestHandler.m \
+GSWDirectActionRequestHandler.m \
+GSWDefaultAdaptorThread.m \
+GSWKeyValueAssociation.m \
+GSWHTMLStaticElement.m \
+GSWHTMLStaticGroup.m \
+GSWInput.m \
+GSWConstantValueAssociation.m \
+GSWComponentReference.m \
+GSWElementIDString.m \
+GSWHTMLDynamicElement.m \
+GSWDynamicURLString.m \
+GSWBindingNameAssociation.m \
+GSWURLValuedElementData.m \
+GSWHTMLURLValuedElement.m \
+GSWToggle.m \
+GSWComponentContent.m \
+GSWGeometricRegion.m \
+GSWFileUpload.m \
+GSWResourceURL.m \
+GSWProcFS.m \
+stacktrace.m \
+attach.m
+
+
+# The library to be compiled
+LIBRARY_NAME=libGSWeb
+
+# The bundle Objective-C source files to be compiled
+libGSWeb_OBJC_FILES = $(GSWeb_OBJC_FILES)
+
+libGSWeb_HEADER_FILES_DIR = .
+libGSWeb_HEADER_FILES_INSTALL_DIR = /gsweb/GSWeb.framework
+
+libGSWeb_HEADER_FILES = \
+GSCache.h  \
+GSWActiveImage.h \
+GSWAdaptor.h \
+GSWApplet.h \
+GSWApplication.h \
+GSWAssociation.h \
+GSWBindingNameAssociation.h \
+GSWBody.h \
+GSWBrowser.h \
+GSWBundle.h \
+GSWCheckBox.h \
+GSWCheckBoxList.h \
+GSWClientSideScript.h \
+GSWComponent.h \
+GSWComponentContent.h \
+GSWComponentDefinition.h \
+GSWComponentReference.h \
+GSWComponentRequestHandler.h \
+GSWConditional.h \
+GSWConstantValueAssociation.h \
+GSWContext.h \
+GSWCookie.h \
+GSWDefaultAdaptor.h \
+GSWDefaultAdaptorThread.h \
+GSWDeployedBundle.h \
+GSWDirectAction.h \
+GSWDirectActionRequestHandler.h \
+GSWDisplayGroup.h \
+GSWDynamicElement.h \
+GSWDynamicURLString.h \
+GSWElement.h \
+GSWElementIDString.h \
+GSWEmbeddedObject.h \
+GSWForm.h \
+GSWFrame.h \
+GSWGenericContainer.h \
+GSWGenericElement.h \
+GSWHTMLAttrLexer.h \
+GSWHTMLAttrParser.h \
+GSWHTMLAttrParserExt.h \
+GSWHTMLAttrTokenTypes.h \
+GSWHTMLBareString.h \
+GSWHTMLComment.h \
+GSWHTMLDynamicElement.h \
+GSWHTMLLexer.h \
+GSWHTMLParser.h \
+GSWHTMLParserExt.h \
+GSWHTMLStaticElement.h \
+GSWHTMLStaticGroup.h \
+GSWHTMLTokenTypes.h \
+GSWHTMLURLValuedElement.h \
+GSWHiddenField.h \
+GSWHyperlink.h \
+GSWImage.h \
+GSWImageButton.h \
+GSWInput.h \
+GSWJavaScript.h \
+GSWKeyValueAssociation.h \
+GSWMailDelivery.h \
+GSWMultiKeyDictionary.h \
+GSWNestedList.h \
+GSWPageDefElement.h \
+GSWPageDefLexer.h \
+GSWPageDefParser.h \
+GSWPageDefParserExt.h \
+GSWPageDefTokenTypes.h \
+GSWParam.h \
+GSWPasswordField.h \
+GSWPopUpButton.h \
+GSWProjectBundle.h \
+GSWRadioButton.h \
+GSWRadioButtonList.h \
+GSWRepetition.h \
+GSWRequest.h \
+GSWRequestHandler.h \
+GSWResetButton.h \
+GSWResourceManager.h \
+GSWResourceRequestHandler.h \
+GSWResponse.h \
+GSWServerSessionStore.h \
+GSWSession.h \
+GSWSessionStore.h \
+GSWSessionTimeOut.h \
+GSWSessionTimeOutManager.h \
+GSWStatisticsStore.h \
+GSWStats.h \
+GSWString.h \
+GSWSubmitButton.h \
+GSWSwitchComponent.h \
+GSWTemplateParser.h \
+GSWText.h \
+GSWTextField.h \
+GSWToggle.h \
+GSWTransactionRecord.h \
+GSWURLValuedElementData.h \
+GSWVBScript.h \
+GSWeb.h \
+NSNonBlockingFileHandle.h \
+NSObject+IVarAccess+PerformSel.h \
+NSString+HTML.h \
+NSString+Trimming.h \
+GSWConfig.h \
+GSWConstants.h \
+GSWDebug.h \
+GSWUtils.h \
+GSWGeometricRegion.h \
+GSWFileUpload.h \
+GSWResourceURL.h \
+GSWProcFS.h
+
+
+SRCS = $(LIBRARY_NAME:=.m)
+HDRS = $(LIBRARY_NAME:=.h)
+
+
+#DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
+
+-include Makefile.preamble
+
+-include GNUmakefile.local
+
+include $(GNUSTEP_MAKEFILES)/gswbundle.make
+include $(GNUSTEP_MAKEFILES)/library.make
+
+-include Makefile.postamble

@@ -1,0 +1,7 @@
+{
+    /*
+      GSWStats.gswc - GSWExtensions framework
+    */
+    Required = ();
+    Optional = (username, password);
+}

@@ -1,0 +1,16 @@
+ValidationFailureCondition: GSWConditional
+{
+    condition = isValidationFailure;
+}
+
+ValidationFailureRepetition: GSWRepetition
+{
+	list = allValidationFailureMessagesArray;
+    item = tmpValidationFailureMessage;
+
+};
+
+ValidationFailure: GSWString
+{
+	value = tmpValidationFailureMessage;
+};

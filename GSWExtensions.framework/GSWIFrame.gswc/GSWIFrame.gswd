@@ -1,0 +1,20 @@
+IFrameContainer: GSWGenericContainer
+{
+    elementName = "iframe";
+    src = srcUrl;
+    frameborder = ^frameborder;
+    align = ^align;
+    height = ^height;
+    width = ^width;
+    marginheight = ^marginheight;
+    marginwidth = ^marginwidth;
+    name = ^name;
+    scrolling = ^scrolling;
+    longdesc = ^longdesc;
+    invokeAction = getFrameContent;
+}
+
+AltContent: GSWComponentContent
+{
+}
+

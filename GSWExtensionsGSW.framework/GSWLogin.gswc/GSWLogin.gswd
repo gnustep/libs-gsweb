@@ -1,0 +1,36 @@
+MessageConditional : GSWConditional
+{
+    condition = message.length;
+}
+
+Message : GSWString
+{
+    value = message;
+}
+
+Form: GSWForm
+{
+	target=^target;
+}
+
+User: GSWTextField
+{
+    value = user;
+}
+
+Password: GSWPasswordField
+{
+    value = password;
+}
+
+Submit: GSWSubmitButton
+{
+    action = login;
+    value = "Login";
+}
+
+Reset: GSWResetButton
+{
+    value = "Clear";
+}
+

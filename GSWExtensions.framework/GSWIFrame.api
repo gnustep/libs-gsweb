@@ -1,0 +1,4 @@
+{
+    Required = (src, pageName, value);
+    Optional = (frameborder, align, height, width, marginheight, marginwidth, name, scrolling, longdesc);
+}

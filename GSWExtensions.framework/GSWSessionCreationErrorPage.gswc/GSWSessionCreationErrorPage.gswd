@@ -1,0 +1,18 @@
+
+ExclamationImage: GSWImage
+{
+    filename = "exclamation.gif";
+    framework = "GSWExtensions";
+    border = 0;
+}
+
+ApplicationNameString: GSWString
+{
+    value = application.name;
+}
+
+ReenterHyperlink: GSWHyperlink
+{
+    directActionName = "default";
+    target = "_top";
+}

@@ -1,0 +1,4 @@
+{
+    Required = (condition, openedLabel, closedLabel);
+    Optional = (closedImageFileName, openedImageFileName, visibility, );
+}

@@ -1,0 +1,29 @@
+Link: GSWHyperlink
+{
+	action = toggleVisibilityAction;
+    disabled = ^disabled;
+};
+
+Image: GSWImage
+{
+    filename = imageFileName;
+    alt = helpString;
+    name = helpString;
+    border = "0";
+    align = "ABSTOP";
+}
+
+Label: GSWString
+{
+    value = label;
+    escapeHTML = NO;
+}
+
+Condition: GSWConditional
+{
+    condition = isVisible;
+}
+
+Content: GSWComponentContent
+{
+};

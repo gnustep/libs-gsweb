@@ -1,0 +1,114 @@
+Installation
+************
+
+This file documents the installation of GNUstepWeb, `gsweb'.  Copyright
+(C) 1999-2000 Free Software Foundation, Inc.  You may copy, distribute, and
+modify it freely as long as you preserve this copyright notice and
+permission notice.
+
+   This is version 1.0.0 of GNUstepWeb.
+
+   This package contains GNUstepWeb library. You need to install
+GNUstep core and db libraries, GSWAdaptor and Apache
+Please download last up to date cvs version of GNUstep (some bugs
+have been corrected).
+
+Installing `gsweb'
+====================
+
+Libraries:
+gsantlr/	GSANTLR (Parser classes,...)
+gsgd/		Objective-C/GD Interface
+core/		GNUstep core
+db/			GNUstep database
+extensions/	Extensions
+GNUstepWeb/	GNUstepWeb Root
+GNUstepWeb/GSWeb.framework		GNUstepWeb Main Part
+
+GNUstepWeb/GSWExtensions.framework	GNUstepWeb 'standard' Extensions
+
+GNUstepWeb/GSWExtensionsGSW.framework	GNUstepWeb Extensions
+
+
+You also need NGReflection
+
+Compilation Order:
+1) core
+2) extensions
+3) db
+4) gsantlr
+5) gsgd
+6) MNGReflection (ftp://ftp.gnustep.org/pub/gnustep/contrib/MOF2-fd-1999-11-03.tgz)
+7) GNUstepWeb
+
+
+You have to export the following env var:
+export GNUSTEP_STRING_ENCODING=NSISOLatin1StringEncoding
+
+
+GNUstepWeb Apache Adaptor:
+Goto GNUstepWeb/GSWAdaptors/Apache/
+Do make
+Copy mod_gsweb.so into libexec directory of Apache
+
+
+Add in Apache httpd.conf file
+	LoadModule GSWeb_Module  libexec/mod_gsweb.so
+	AddModule mod_gsweb.c
+
+
+	Add the following lines for a virtual host (or all hosts)
+	<Location /GSWeb*>
+		SetHandler GSWeb
+	</Location>
+	<Location /GSWeb/xyzzy>
+                order deny,allow
+                #deny from all
+                allow from all
+	</Location>
+
+
+Next, create the file /etc/httpd/conf/gsweb.conf which will countain parameters for GNUstepWeb Applications 
+
+The format is:
+{
+	applications=    {
+				ApplicationName =  {
+							instances =      (
+ 												{
+													instanceNum= InstanceNumber;
+													host= IPAdressOfTheComputerOnWhichRunTheApplication;
+													port= ThePortListenByTheApplication;
+													parameters=      {
+																		transport= socket;
+																		};
+												 }
+								       		);
+									};
+						};
+}
+
+
+exemple:
+{
+	applications=    {
+				MyApp =  {
+						instances =      (
+				{
+					instanceNum= 1;
+					host= 200.13.12.48;
+					port= 9001;
+					parameters=      {
+										transport= socket;
+									};
+				}
+								      );
+						};
+					};
+}
+
+
+Now, develop an application and runnit !
+
+We'll try to put a sample application soon.
+

@@ -1,0 +1,4 @@
+#
+#
+#
+DYNAMIC_LINKER=simple
