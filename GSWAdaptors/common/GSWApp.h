@@ -32,6 +32,7 @@ typedef struct _GSWApp
   GSWDict stHeadersDict;
   char   *pszGSWExtensionsFrameworkWebServerResources;
   BOOL    fCanDump;
+  BOOL	  fSwitchToKnownInstance;
   char   *pszAdaptorTemplatesPath;
   int     iLastInstanceIndex;//Last Instance Index
 } GSWApp;
