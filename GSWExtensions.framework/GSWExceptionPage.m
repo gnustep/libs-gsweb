@@ -70,6 +70,7 @@ RCS_ID("$Id$")
 {
   if (!_reasons)
     {
+      NSDebugMLog(@"_exception reason=%@",[_exception reason]);
       ASSIGN(_reasons,[[_exception reason] componentsSeparatedByString:@"\n"]);
       NSDebugMLog(@"_reasons=%@",_reasons);
     };
@@ -88,6 +89,9 @@ RCS_ID("$Id$")
 {
   ASSIGN(_exception,exception);
   NSDebugMLog(@"_exception=%@",_exception);
+  NSDebugMLog(@"_exception name=%@",[_exception name]);
+  NSDebugMLog(@"_exception reason=%@",[_exception reason]);
+  NSDebugMLog(@"_exception userInfo=%@",[_exception userInfo]);
 };
 
 -(id)getTmpUserInfoValue

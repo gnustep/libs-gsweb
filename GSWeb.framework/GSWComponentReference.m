@@ -215,9 +215,10 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
-  [response appendDebugCommentContentString:[NSString stringWithFormat:@"defName=%@ ID=%@",
+  [response appendDebugCommentContentString:[NSString stringWithFormat:@"defName=%@ ID=%@ name=%@",
                                                       [self definitionName],
-                                                      [context elementID]]];
+                                                      [context elementID],
+                                                      _name]];
   componentPrev=[context component];
   [self pushRefComponentInContext:context];
   if ([context component])
@@ -250,7 +251,8 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   GSWStartElement(context);
   GSWAssertCorrectElementID(context);
-  NSDebugMLLog(@"gswdync",@"senderId=%@",[context senderID]);
+  NSDebugMLLog(@"gswdync",@"name=%@ senderId=%@",
+               _name,[context senderID]);
   componentPrev=[context component];
   [self pushRefComponentInContext:context];
   if ([context component])

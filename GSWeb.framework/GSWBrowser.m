@@ -508,8 +508,8 @@ Bindings
                 };
               NS_HANDLER
                 {
-                  LOGException(@"GSWBrowser _selections=%@ itemValueToSet=%@ exception=%@",
-                               _selections,itemValueToSet,localException);
+                  LOGException(@"GSWBrowser _selections=%@ selectionsValue=%@ exception=%@",
+                               _selections,selectionsValue,localException);
                   if (WOStrictFlag)
                     {
                       [localException raise];

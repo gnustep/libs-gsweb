@@ -40,7 +40,7 @@ RCS_ID("$Id$")
 #ifdef TCSDB
 #include <TCSimpleDB/TCSimpleDB.h>
 #endif
-#ifdef GDL2
+#if HAVE_GDL2
 #include <EOControl/EOKeyValueCoding.h>
 #endif
 
@@ -614,7 +614,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         forKeyPath:(NSString*)keyPath
 {
   id retValue=nil;
-#ifdef GDL2 
+#ifdef HAVE_GDL2 
   id EONullNull=[EONull null];
 #else
 #ifdef TCSDB
@@ -624,13 +624,15 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 #endif
 #endif
   LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@)",
-               keyPath,object,[object class]);
+  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
+               keyPath,object,[object class],[object superclass]);
   if (keyPath && object && object!=EONullNull)
     {
-#if GDL2
+#if HAVE_GDL2
       NS_DURING
         {
+          NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
+                       keyPath,object,[object class],[object superclass]);
           retValue=[object valueForKeyPath:keyPath];
         }
       NS_HANDLER
@@ -653,8 +655,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       // the same as on GDL2
       NS_DURING
         {
-         // NSLog(@"GSWAssociation valueInObject:%@ forKeyPath:%@", object, keyPath);
-
+          NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
+                       keyPath,object,[object class],[object superclass]);
           retValue=[object valueForKeyPath:keyPath];
         }
       NS_HANDLER
@@ -679,6 +681,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       Class handlerClass=Nil;
       retValue=object;
       NSAssert(retValue,@"No Component");
+      NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
+                   keyPath,object,[object class],[object superclass]);
       while(retValue && [keys count]>0)
         {
           part=[keys objectAtIndex:0];
@@ -802,7 +806,9 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@",value);
   NSDebugMLLog(@"associations",@"value class:%@",[value class]);
   NSDebugMLLog(@"associations",@"value String class:%@",NSStringFromClass([value class]));
-  NSDebugMLLog(@"associations",@"object String class:%@",NSStringFromClass([object class]));
+  NSDebugMLLog(@"associations",@"object String class:%@ superclass=%@",
+               NSStringFromClass([object class]),
+               NSStringFromClass([object superclass]));
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath:%@",keyPath);
 
  // NSLog(@"GSWAssociation: setValue:%@ inObject:%@ forKeyPath:%@",value,object,keyPath);
@@ -865,11 +871,13 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@",value);
   NSDebugMLLog(@"associations",@"value class:%@",[value class]);
   NSDebugMLLog(@"associations",@"value String class:%@",NSStringFromClass([value class]));
-  NSDebugMLLog(@"associations",@"object String class:%@",NSStringFromClass([object class]));
+  NSDebugMLLog(@"associations",@"object String class:%@ superclass=%@",
+               NSStringFromClass([object class]),
+               NSStringFromClass([object superclass]));
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath:%@",keyPath);
   if (keyPath)
     {
-#if GDL2
+#if HAVE_GDL2
       [object smartTakeValue:value
               forKeyPath:keyPath];
 #else // no GDL2
@@ -945,7 +953,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                   GSWLogAssertGood(tmpObject);
                   [tmpObject takeValue:value
                              forKey:part];
-#ifdef GDL2
+#ifdef HAVE_GDL2
                   NSDebugMLLog(@"associations",@"object class=%@",[object class]);
                   NSDebugMLLog(@"associations",@"tmpObject class=%@",[tmpObject class]);
                   // Turbocat
