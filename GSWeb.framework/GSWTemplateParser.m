@@ -363,12 +363,16 @@ static char rcsId[] = "$Id$";
         }
       else
         {
+	  NSDictionary *tmpDefinitions;
+
           DESTROY(_processedDefinitionFilePaths);
           ASSIGN(_processedDefinitionFilePaths,[NSMutableSet setWithObject:_definitionFilePath]);
-          NSDictionary* tmpDefinitions=[self parseDefinitionsString:_definitionsString
-                                             named:_templateName
-                                             inFrameworkNamed:_frameworkName
-                                             processedFiles:_processedDefinitionFilePaths];
+
+          tmpDefinitions = [self parseDefinitionsString:_definitionsString
+				 named:_templateName
+				 inFrameworkNamed:_frameworkName
+				 processedFiles:_processedDefinitionFilePaths];
+
           if (tmpDefinitions)
             ASSIGN(_definitions,[NSDictionary dictionaryWithDictionary:tmpDefinitions]);
         };

@@ -1,3 +1,10 @@
+2002-12-02  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWTemplateParser.m ([GSWTemplateParser
+	-definitions]): compilable with gcc < 3
+	* GSWeb.framework/GSWHyperlink.m ([GSWHyperlink
+	-computeQueryDictionaryInContext:]): likewise.
+
 2002-11-27   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb/GSWApplication.m:

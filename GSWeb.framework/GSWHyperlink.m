@@ -528,13 +528,16 @@ static char rcsId[] = "$Id$";
     {
       NSEnumerator *enumerator = nil;
       NSDictionary* queryDictionaryValue=[_queryDictionary valueInComponent:component];
+      id oaKey;
+
       NSAssert3(!queryDictionaryValue || [queryDictionaryValue isKindOfClass:[NSDictionary class]],
                 @"queryDictionary value is not a dictionary but a %@. association was: %@. queryDictionaryValue is:",
                 [queryDictionaryValue class],
                 _queryDictionary,
                 queryDictionaryValue);
+
       enumerator = [queryDictionaryValue keyEnumerator];
-      id oaKey=nil;
+
       while ((oaKey = [enumerator nextObject]))
         {
           id oaValue=[queryDictionaryValue objectForKey:oaKey];
