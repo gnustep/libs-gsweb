@@ -177,7 +177,17 @@ GSWLoadBalancing_FindInstance(GSWAppRequest    *p_pAppRequest,
       pAppInstance =
 	(GSWAppInstance *)GSWDict_ValueForKey(&pApp->stInstancesDict,
 					      szInstanceNum);
-      if (pAppInstance)
+
+      // Not a known instance
+      if (!pAppInstance)
+	{
+          // but we can switch to a known one ?
+          if (pApp->fSwitchToKnownInstance)
+            fFound=GSWLoadBalancing_FindApp(p_pAppRequest,
+                                            p_pLogServerData,
+                                            p_pURLComponents);
+        }
+      else
 	{
 	  GSWLog(GSW_DEBUG,p_pLogServerData,"Instance Found");
 	  if (pAppInstance->fValid)
