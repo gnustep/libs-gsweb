@@ -646,7 +646,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [GSWApp debugWithFormat:aFormat
           arguments:ap];

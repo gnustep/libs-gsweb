@@ -323,7 +323,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)logWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [GSWApplication logWithFormat:aFormat
                   arguments:ap];
@@ -333,7 +333,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 +(void)logWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [GSWApplication logWithFormat:aFormat
                   arguments:ap];
@@ -349,7 +349,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [[GSWApplication application]debugWithFormat:aFormat
                                arguments:ap];

@@ -294,7 +294,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)addErrorMessageFormat:(NSString*)format,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,format);
   [self addErrorMessageFormat:format
         arguments:ap];

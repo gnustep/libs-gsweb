@@ -3894,7 +3894,7 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [self debugWithFormat:aFormat
         arguments:ap];
@@ -3904,7 +3904,7 @@ to another instance **/
 //--------------------------------------------------------------------
 +(void)debugWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [GSWApp debugWithFormat:aFormat
           arguments:ap];
@@ -3922,7 +3922,7 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)logWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [self logWithFormat:aFormat
         arguments:ap];
@@ -3932,7 +3932,7 @@ to another instance **/
 //--------------------------------------------------------------------
 +(void)logWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [GSWApp logWithFormat:aFormat
           arguments:ap];
@@ -3953,7 +3953,7 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)logErrorWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [self logErrorWithFormat:aFormat
         arguments:ap];
@@ -3963,7 +3963,7 @@ to another instance **/
 //--------------------------------------------------------------------
 +(void)logErrorWithFormat:(NSString*)aFormat,...
 {
-  va_list ap=NULL;
+  va_list ap;
   va_start(ap,aFormat);
   [GSWApp logErrorWithFormat:aFormat
           arguments:ap];

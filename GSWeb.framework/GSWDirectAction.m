@@ -168,7 +168,7 @@ RCS_ID("$Id$")
   GSWRequest* request=[self request];
   if (request)
     {
-      va_list ap=NULL;
+      va_list ap;
       id key=nil;
       va_start(ap, firstKey);
       key = firstKey;
@@ -189,7 +189,7 @@ RCS_ID("$Id$")
   GSWRequest* request=[self request];
   if (request)
     {
-      va_list ap=NULL;
+      va_list ap;
       id key=nil;
       va_start(ap, firstKey);
       key = firstKey;
