@@ -44,7 +44,7 @@ endif
 
 APACHEHEADERS := -I/usr/apache/include -I/usr/include/apache -I/usr/local/include/apache -I/usr/lib/apache/include -I/usr/local/include  -I/usr/local/apache/include
 
-APXS := $(APXS) -lPropList -L/usr/local/lib -L/usr/pkg/lib
+APXS := $(APXS) -lPropList -L/usr/local/lib -L/usr/pkg/lib -L/usr/X11R6/lib
 
 SRCROOT = ..
 DSTROOT = .
@@ -59,7 +59,7 @@ LOADBALANCING = roundrobin
 ADAPTORLIB = $(OBJROOT)/libAdaptor.a
 COMMON = $(SRCROOT)/common
 
-INCLUDE = -I$(COMMON) $(APACHEHEADERS)
+INCLUDE = -I$(COMMON) $(APACHEHEADERS) -I/usr/X11R6/include
 
 CFLAGS = -O2 $(RC_CFLAGS) $(INCLUDE) -D$(SERVERAPI) -DREENTRANT -DEAPI
 

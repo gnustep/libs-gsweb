@@ -31,7 +31,6 @@ static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
-#undef GSWElementIDString
 
 //====================================================================
 @implementation GSWElementIDString
