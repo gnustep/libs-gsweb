@@ -40,8 +40,8 @@ RCS_ID("$Id$")
 
 //strlen("gsweb")
 #define GSWEB_TAG_LENGTH 5   
-//strlen("webobjects")
-#define WO_TAG_LENGTH 10
+//strlen("webobject")
+#define WO_TAG_LENGTH 9
 //strlen("!--")
 #define COMMENT_TAG_LENGTH 3
 
@@ -555,6 +555,9 @@ May raise exception.
             case '<': // tagStart
               {
                 int tagStartIndex=_index;
+
+                //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+
                 // skip '<'
                 _index++;
                 
@@ -570,16 +573,19 @@ May raise exception.
                     BOOL isClosingTag=NO;
                     GSWHTMLRawParserTagType tagType=GetTagType(_uniBuf,_length,&_index,&isClosingTag);
                     int tagPropertiesStartIndex=_index;
-                    BOOL stopTag=NO;
                     _textStopIndex=tagStartIndex-1;
                     NSDebugMLog(@"tagType=%d isClosingTag=%s _textStartIndex=%d",tagType,(isClosingTag ? "YES" : "NO"),_textStartIndex);
                     if (_parserIsDynamicTagType(tagType))
                       {
+                        //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+
                         // Find tag End;
                         while(_index<_length
                               && _uniBuf[_index]!='>')
                           _index++;
+
                         //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
+
                         if (_uniBuf[_index]!='>')
                           {
                             [NSException raise:NSInvalidArgumentException 
@@ -588,6 +594,7 @@ May raise exception.
                           }
                         else
                           {
+                            BOOL stopTag=NO;
                             int tagStopIndex=_index;
                             int tagPropertiesStopIndex=_index;
                             NSDebugMLog(@"tagStartIndex=%d tagStopIndex=%d _textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
@@ -605,6 +612,7 @@ May raise exception.
                                     stopTag=YES;
                                     tagPropertiesStopIndex--;
                                   };
+                                NSDebugMLog(@"stopTag=%d",stopTag);
                                 tagPropertiesString=[NSString stringWithCharacters:_uniBuf+tagPropertiesStartIndex
                                                               length:tagPropertiesStopIndex-tagPropertiesStartIndex];
                                 NSDebugMLog(@"tagPropertiesString='%@'",tagPropertiesString);
@@ -619,7 +627,9 @@ May raise exception.
                                   [self stopDynamicTagOfType:tagType
                                         withTemplateInfo:[self lineAndColumnIndexesStringFromIndex:tagStartIndex]];
                               }
+                            //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
                             _index++;
+                            //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
                             _textStartIndex=_index;
                             NSDebugMLog(@"_textStartIndex=%d _textStopIndex=%d _length=%d _index=%d",
                                         _textStartIndex,_textStopIndex,_length,_index);
