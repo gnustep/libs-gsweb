@@ -92,6 +92,7 @@ static int dontTraceComponentActionURL=0;
 #endif
   NSDebugFLog0(@"Release GSWContext userInfo");
   DESTROY(_userInfo);
+  DESTROY(_languages);
   NSDebugFLog0(@"Dealloc GSWContext super");
   [super dealloc];
   NSDebugFLog0(@"end Dealloc GSWContext");
@@ -187,6 +188,18 @@ static int dontTraceComponentActionURL=0;
   dontTraceComponentActionURL--;
   return desc;
 };
+
+//--------------------------------------------------------------------
+-(BOOL)_isRefusingThisRequest
+{
+  return _isRefusingThisRequest;
+}
+
+//--------------------------------------------------------------------
+-(void)_setIsRefusingThisRequest:(BOOL)yn
+{
+  _isRefusingThisRequest = yn;
+}
 
 //--------------------------------------------------------------------
 -(void)setInForm:(BOOL)flag
@@ -365,6 +378,22 @@ static int dontTraceComponentActionURL=0;
   return url;
 };
 
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+{
+  //OK
+  GSWDynamicURLString* url=nil;
+  LOGObjectFnStart();
+  url=[self directActionURLForActionNamed:actionName
+            queryDictionary:queryDictionary
+            pathQueryDictionary:pathQueryDictionary];
+  LOGObjectFnStop();
+  return url;
+};
+
+//--------------------------------------------------------------------
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
                                             isSecure:(BOOL)isSecure
@@ -372,8 +401,26 @@ static int dontTraceComponentActionURL=0;
   //OK
   GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
+  url=[self directActionURLForActionNamed:actionName
+            queryDictionary:queryDictionary
+            pathQueryDictionary:nil
+            isSecure:NO];
+  LOGObjectFnStop();
+  return url;
+};
+
+//--------------------------------------------------------------------
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                            isSecure:(BOOL)isSecure
+{
+  //OK
+  GSWDynamicURLString* url=nil;
+  LOGObjectFnStart();
   url=[self _directActionURLForActionNamed:actionName
             queryDictionary:queryDictionary
+            pathQueryDictionary:pathQueryDictionary
             isSecure:isSecure
             url:url];
   NSDebugMLog(@"url=%@",url);
@@ -390,6 +437,7 @@ static int dontTraceComponentActionURL=0;
   LOGObjectFnStopCond(dontTraceComponentActionURL==0);
   return url;
 };
+
 -(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure
 {
   //TODO: use isSecure
@@ -676,33 +724,71 @@ static int dontTraceComponentActionURL=0;
 
 //--------------------------------------------------------------------
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
--(id)_directActionURLForActionNamed:(NSString*)actionName
-                    queryDictionary:(NSDictionary*)dict
-                                url:(id)anURL
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                                  url:(id)anURL
 {
   LOGObjectFnStart();
   anURL=[self _directActionURLForActionNamed:actionName
               queryDictionary:dict
+              pathQueryDictionary:nil
+              url:anURL];
+  LOGObjectFnStop();
+  return anURL;
+};
+
+//--------------------------------------------------------------------
+//_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                                  url:(id)anURL
+{
+  LOGObjectFnStart();
+  anURL=[self _directActionURLForActionNamed:actionName
+              queryDictionary:dict
+              pathQueryDictionary:pathQueryDictionary
               isSecure:NO
               url:anURL];
   LOGObjectFnStop();
   return anURL;
 };
+
 //--------------------------------------------------------------------
 //_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
--(id)_directActionURLForActionNamed:(NSString*)actionName
-                    queryDictionary:(NSDictionary*)dict
-                           isSecure:(BOOL)isSecure
-                                url:(id)anURL
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL
+{
+  LOGObjectFnStart();
+  anURL=[self _directActionURLForActionNamed:actionName
+              queryDictionary:dict
+              pathQueryDictionary:nil
+              isSecure:isSecure
+              url:anURL];
+  LOGObjectFnStop();
+  return anURL;
+};
+
+//--------------------------------------------------------------------
+//_url is a semi complete one: line /cgi/WebObjects.exe/ObjCTest3.woa
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL
 {
   //OK
   NSString* queryString=nil;
   NSEnumerator* enumerator =nil;
   id key=nil;
+  NSString* path=nil;
   LOGObjectFnStart();
   NSDebugMLogCond(dontTraceComponentActionURL==0,
                   @"anURL=%@",anURL);
   NSDebugMLog(@"dict=%@",dict);
+  NSDebugMLog(@"pathQueryDictionary=%@",pathQueryDictionary);
 
 //  _url=[[_url copy] autorelease];
   //TODOV
@@ -729,8 +815,29 @@ static int dontTraceComponentActionURL=0;
               isSecure:isSecure
               port:0];
 */
+  path=actionName;
+  if ([pathQueryDictionary count]>0)
+    {
+      // We sort keys so URL are always the same for same parameters
+      NSArray* keys=[[pathQueryDictionary allKeys]sortedArrayUsingSelector:@selector(compare:)];
+      int count=[keys count];
+      int i=0;
+      NSDebugMLLog(@"gswdync",@"pathQueryDictionary=%@",pathQueryDictionary);
+      for(i=0;i<count;i++)
+        {
+          id key = [keys objectAtIndex:i];
+          id value = [pathQueryDictionary valueForKey:key];
+          NSDebugMLLog(@"gswdync",@"key=%@",key);
+          NSDebugMLLog(@"gswdync",@"value=%@",value);
+          if (!value)
+            value=[NSString string];
+          path=[path stringByAppendingFormat:@"/%@=%@",
+                     key,
+                     value];
+        };
+    };
   anURL=[self urlWithRequestHandlerKey:GSWDirectActionRequestHandlerKey[GSWebNamingConv]
-              path:actionName
+              path:path
               queryString:queryString
               isSecure:isSecure
               port:0];
@@ -741,28 +848,52 @@ static int dontTraceComponentActionURL=0;
 };
 
 //--------------------------------------------------------------------
+/** Returns array of languages 
+First try  session languages, if none, try self language
+If none, try request languages
+**/
 -(NSArray*)languages
 {
   NSArray* languages=nil;
-  if (_request)
+
+  LOGObjectFnStart();
+  
+  languages=[_session languages];
+  NSDebugMLog(@"_session %p languages=%@",_session,languages);
+
+  if ([languages count]==0)
     {
-      languages=[_request browserLanguages];
-      if (!languages)
+      languages=_languages;
+      NSDebugMLog(@"context %p languages=%@",self,languages);
+
+      if ([languages count]==0)
         {
-          LOGError0(@"No languages in request");
-        };
+          languages=[[self request]browserLanguages];
+          NSDebugMLog(@"resquest %p browserLanguages=%@",[self request],languages);
+        }
     };
-  if (!languages && _session)
-    {
-      languages=[_session languages];
-      if (!languages)
-        {
-          LOGError0(@"No languages in session");
-        };
-    };
-  //Not WO: It enable application languages filtering
+
+  NSDebugMLog(@"context %p ==> languages=%@",self,languages);
+
+  //GSWeb specific: It enable application languages filtering
   languages=[GSWApp filterLanguages:languages];
+  NSDebugMLog(@"context %p ==> filtered languages=%@",self,languages);
+
+  LOGObjectFnStop();
+
   return languages;
+};
+
+//--------------------------------------------------------------------
+-(void)_setLanguages:(NSArray*)languages
+{
+  LOGObjectFnStart();
+
+  NSDebugMLog(@"languages=%@",languages);
+
+  ASSIGNCOPY(_languages,languages);
+
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -882,22 +1013,36 @@ static int dontTraceComponentActionURL=0;
   NSString* sessionID=nil;
   BOOL storesIDsInURLs=NO;
   BOOL isDistributionEnabled=NO;
+
   LOGObjectFnStart();
+
   storesIDsInURLs=[_session storesIDsInURLs];
   isDistributionEnabled=[_session isDistributionEnabled];
+
+  NSDebugMLog(@"storesIDsInURLs=%d",storesIDsInURLs);
+  NSDebugMLog(@"isDistributionEnabled=%d",isDistributionEnabled);
+
+  NSDebugMLog(@"_request=%p",_request);
+
   if (_request)
     {
       instance=[_request applicationNumber];
       sessionID=[_request sessionID];
+
+      NSDebugMLog(@"instance=%d",instance);
+      NSDebugMLog(@"sessionID=%@",sessionID);
+
+      if (instance>=0
+          && (!storesIDsInURLs || isDistributionEnabled)
+          && (!_session || !sessionID))
+        instance=-1;
     };
-  if (instance<-1
-      || (storesIDsInURLs && ! isDistributionEnabled)
-      || (sessionID && instance>=0))
-    instance=[_request applicationNumber];
-  else
-    instance=-1;
+
+  NSDebugMLog(@"instance=%d",instance);
+
   _urlApplicationNumber = instance;
   [_url setURLApplicationNumber:instance];
+
   LOGObjectFnStop();
 };
 
@@ -1137,6 +1282,7 @@ static int dontTraceComponentActionURL=0;
 {
   _distributionEnabled=isDistributionEnabled;
 };
+
 @end
 
 //====================================================================

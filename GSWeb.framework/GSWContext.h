@@ -67,13 +67,11 @@
   NSMutableSet* _docStructureElements;
 #endif
   NSMutableDictionary* _userInfo;
+  NSArray* _languages;
+  BOOL _isRefusingThisRequest;
 };
 
--(id)init;
--(void)dealloc;
 +(GSWContext*)contextWithRequest:(GSWRequest*)aRequest;
-
--(id)copyWithZone:(NSZone*)zone;
 
 -(void)setInForm:(BOOL)flag;
 -(BOOL)isInForm;
@@ -88,6 +86,8 @@
 -(NSString*)senderID;
 -(NSString*)contextID;
 -(id)initWithRequest:(GSWRequest*)aRequest;
+-(BOOL)_isRefusingThisRequest;
+-(void)_setIsRefusingThisRequest:(BOOL)yn;
 
 #ifndef NDEBUG
 -(void)incrementLoopLevel; //ForDebugging purpose: each repetition increment and next decrement it
@@ -105,6 +105,13 @@
                                      queryDictionary:(NSDictionary*)queryDictionary;
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                      queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary;
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                            isSecure:(BOOL)isSecure;
+-(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
+                                     queryDictionary:(NSDictionary*)queryDictionary
+                                 pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                             isSecure:(BOOL)isSecure;
 -(GSWDynamicURLString*)componentActionURL;
 -(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure;
@@ -149,8 +156,24 @@
                                                   url:(id)anURL;
 -(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
                                       queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                             isSecure:(BOOL)isSecure
+                                                  url:(id)anURL;
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
                                                   url:(id)url;
+-(GSWDynamicURLString*)_directActionURLForActionNamed:(NSString*)actionName
+                                      queryDictionary:(NSDictionary*)dict
+                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
+                                                  url:(id)url;
+/** Returns array of languages 
+First try  session languages, if none, try self language
+If none, try request languages
+**/
 -(NSArray*)languages;
+
+-(void)_setLanguages:(NSArray*)languages;
+
 -(GSWComponent*)_pageComponent;
 -(GSWElement*)_pageElement;
 -(void)_setPageElement:(GSWElement*)element;
