@@ -43,7 +43,17 @@ RCS_ID("$Id$")
 #endif
 
 //====================================================================
+@interface GSWSession (Private)
+-(void)_setContextArrayStack:(NSArray*)contextArrayStack;
+-(void)_setContextRecords:(NSDictionary*)contextRecords;
+-(void)_setComponentState:(NSDictionary*)componentState;
+-(void)_setStatistics:(NSArray*)statistics;
+-(void)_setFormattedStatistics:(NSString*)formattedStatistics;
+-(void)_setContextCounter:(int)contextCounter;
+-(void)_setRequestCounter:(int)requestCounter;
+@end
 
+//====================================================================
 @implementation GSWSession
 
 //--------------------------------------------------------------------
@@ -66,17 +76,33 @@ RCS_ID("$Id$")
 -(id)copyWithZone: (NSZone*)zone
 {
   GSWSession* clone = [[isa allocWithZone: zone] init];
-  LOGObjectFnNotImplemented();	//TODOFN
-  /*
-  [clone setSessionID:sessionID];
-  [clone setLanguages:languages];
-  [clone setTimeOut:timeOut];
-  [clone setVariables:[[variables copy]autorelease]];
-  [clone setPageCache:[[pageCache copy]autorelease]];
-*/
+  [clone setSessionID:_sessionID];
+  [clone setTimeOut:_timeOut];
+  [clone _setContextArrayStack:_contextArrayStack];
+  [clone _setContextRecords:_contextRecords];
+  //_editingContext: no
+  [clone setLanguages:_languages];
+  [clone _setComponentState:_componentState];
+  [clone _setBirthDate:_birthDate];
+    //_wasTimedOut: no
+  [clone _setStatistics:_statistics];
+  [clone _setFormattedStatistics:_formattedStatistics];
+  [clone _setContext:_currentContext];
+  //_permanentPageCache:
+  //_permanentContextIDArray: no
+  [clone _setContextCounter:_contextCounter];
+  [clone _setRequestCounter:_requestCounter];  
+  [clone _setAllowedToViewStatistics:_isAllowedToViewStatistics];
+  [clone _setAllowedToViewEvents:_isAllowedToViewEvents];
+  //_isTerminating: no
+  [clone setDistributionEnabled:_isDistributionEnabled];
+  [clone setStoresIDsInURLs:_storesIDsInURLs];
+  [clone setStoresIDsInCookies:_storesIDsInCookies];  
+  //_hasSessionLockedEditingContext: no
   return clone;
 };
 
+//--------------------------------------------------------------------
 +(NSString*)createSessionID
 {
   // The idea is to have uniq sessionID generated.
@@ -440,7 +466,58 @@ RCS_ID("$Id$")
 @end
 
 //====================================================================
+@implementation GSWSession (Private)
 
+//--------------------------------------------------------------------
+-(void)_setContextArrayStack:(NSArray*)contextArrayStack
+{
+  DESTROY(_contextArrayStack);
+  _contextArrayStack=[contextArrayStack mutableCopy];
+}
+
+//--------------------------------------------------------------------
+-(void)_setContextRecords:(NSDictionary*)contextRecords
+{
+  DESTROY(_contextRecords);
+  _contextRecords=[contextRecords mutableCopy];
+}
+
+//--------------------------------------------------------------------
+-(void)_setComponentState:(NSDictionary*)componentState
+{
+  DESTROY(_componentState);
+  _componentState=[componentState mutableCopy];
+}
+
+//--------------------------------------------------------------------
+-(void)_setStatistics:(NSArray*)statistics
+{
+  DESTROY(_statistics);
+  _statistics=[statistics mutableCopy];
+}
+
+//--------------------------------------------------------------------
+-(void)_setFormattedStatistics:(NSString*)formattedStatistics
+{
+  DESTROY(_formattedStatistics);
+  _formattedStatistics=[formattedStatistics mutableCopy];
+}
+
+//--------------------------------------------------------------------
+-(void)_setContextCounter:(int)contextCounter
+{
+  _contextCounter = contextCounter;
+}
+
+//--------------------------------------------------------------------
+-(void)_setRequestCounter:(int)requestCounter
+{
+  _requestCounter = requestCounter;
+}
+
+@end
+
+//====================================================================
 @implementation GSWSession (GSWSessionA)
 
 //--------------------------------------------------------------------
@@ -1414,6 +1491,7 @@ Returns first element of languages or nil if languages is empty
 {
   return _componentState;
 };
+
 @end
 
 //====================================================================
