@@ -43,16 +43,13 @@ static NSString* globalDefaultURLEncoding=nil;
 static SEL appendStringSel = NULL;
 static SEL appendDataSel = NULL;
 
-#define DEF_CONTENT_SIZE 64000
+#define GSWMESSGAEDATACHESIZE 128
+static id GSWMessageDataCache[GSWMESSGAEDATACHESIZE];
+
+
+#define DEF_CONTENT_SIZE 81920
 
 //====================================================================
-/*
-
-#define assertContentStringASImp();		\
-	{ if (!_contentStringASImp) { 		\
-		_contentStringASImp=[_contentString \
-			methodForSelector:appendStringSel]; }; };
-*/
 
 #define assertContentDataADImp();		\
 	{ if (!_contentDataADImp) { 		\
@@ -60,6 +57,27 @@ static SEL appendDataSel = NULL;
 			methodForSelector:appendDataSel]; }; };
 
 //====================================================================
+
+void initGSWMessageDataCache(void)
+{
+  int i=0;
+  char cstring[2];
+  NSString *myNSString;
+  NSData   *myData;
+  
+  cstring[1] = 0;
+  
+  for (i=0;i<GSWMESSGAEDATACHESIZE;i++) {   
+    cstring[0] = i;
+    myNSString = [NSString stringWithCString:&cstring
+                                      length:1];
+      myData = [myNSString dataUsingEncoding:NSASCIIStringEncoding
+                        allowLossyConversion:YES];
+      [myData retain];
+    GSWMessageDataCache[i] = myData;
+  }
+}
+
 @implementation GSWMessage
 
 static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
@@ -78,8 +96,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
     {
       appendStringSel = @selector(appendString:);
       appendDataSel = @selector(appendData:);
-      globalDefaultEncoding = WOStrictFlag 
-	? NSISOLatin1StringEncoding : GetDefEncoding() ;
+      globalDefaultEncoding = WOStrictFlag ? NSISOLatin1StringEncoding : GetDefEncoding() ;
+    	initGSWMessageDataCache();
     };
 };
 
@@ -417,7 +435,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
     __PRETTY_FUNCTION__, [aValue lossyCString],_contentEncoding];  
   }
 
-//  [self appendContentData: myData];
   _checkBody(self);
   (*_contentDataADImp)(_contentData,appendDataSel,myData);
 
@@ -426,19 +443,25 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 -(void)_appendContentAsciiString:(NSString*) aValue
 {
   NSData *myData = nil;
+  char   *lossyCString = NULL;
+  int    length = 0;
+  int    i,ch;
   
   // checking [aValue length] takes too long!  
   if (!aValue) {
     return;
   }
   
-  myData = [aValue dataUsingEncoding:NSASCIIStringEncoding
-                allowLossyConversion:YES];
-                
-  _checkBody(self);
-//  [self appendContentData: myData];
-  (*_contentDataADImp)(_contentData,appendDataSel,myData);
+  lossyCString = [aValue lossyCString];
+  length = strlen(lossyCString);
 
+  _checkBody(self);
+  
+  for (i=0; i<length;i++) {
+    ch = lossyCString[i];
+    myData=GSWMessageDataCache[ch];
+    (*_contentDataADImp)(_contentData,appendDataSel,myData);
+  }
 }
 //--------------------------------------------------------------------
 -(int)_contentLength
@@ -490,13 +513,22 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 -(void)appendContentCharacter:(char)aChar
 {
   NSString * string = nil;
+  NSData *myData = nil;
+  int i = aChar;
+
   LOGObjectFnStart();
   
-  string=[NSString stringWithCString:&aChar
-                   length:1];
-
-  if (string) {
-    [self appendContentString:string];
+  myData=GSWMessageDataCache[i];
+  
+  if (!myData) {
+    string=[NSString stringWithCString:&aChar
+                                length:1];
+    if (string) {
+      [self appendContentString:string];
+    }
+  } else {
+     _checkBody(self);
+     (*_contentDataADImp)(_contentData,appendDataSel,myData);
   }
 
   LOGObjectFnStop();
