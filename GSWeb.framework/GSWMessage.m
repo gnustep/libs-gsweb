@@ -515,8 +515,9 @@ static NSString* globalDefaultURLEncoding=nil;
             [[[NSString alloc]initWithData:_contentData
                               encoding:[self contentEncoding]]
               autorelease]);
-  [_contentString appendString:string];
-
+  if(string) {
+	  [_contentString appendString:string];
+  }
 #ifndef NO_GNUSTEP
   if (_cachesStack)
     [self _cacheAppendString:string];
@@ -1220,4 +1221,3 @@ static NSString* globalDefaultURLEncoding=nil;
 @end
 
 #endif
-
