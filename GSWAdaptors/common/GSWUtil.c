@@ -251,7 +251,7 @@ char* SafeStrdup(CONST char* p_pszString)
   return (p_pszString ? strdup(p_pszString) : NULL);
 };
 
-CONST char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString)
+char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString)
 {
   if (p_pszString && p_pszSearchedString)
 	{

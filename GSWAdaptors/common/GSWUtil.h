@@ -108,7 +108,7 @@ int DeleteTrailingSpaces(char* p_pszString);
 
 int SafeStrlen(CONST char* p_pszString);
 char* SafeStrdup(CONST char* p_pszString);
-CONST char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString);
+char* strcasestr(CONST char* p_pszString,CONST char* p_pszSearchedString);
 
 
 //#include <netdb.h>

@@ -1,3 +1,8 @@
+2003-02-20  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWAdaptors/common/GSWUtil.c|.h (strcasestr): removed CONST from
+	declaration.
+
 2003-02-19  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWDebug.h: fixed #define.
