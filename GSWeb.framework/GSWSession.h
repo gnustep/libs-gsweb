@@ -53,6 +53,7 @@
   int _contextCounter;
   int _requestCounter;
   BOOL _isAllowedToViewStatistics;
+  BOOL _isAllowedToViewEvents;
   BOOL _isTerminating;
   BOOL _isDistributionEnabled;
   BOOL _storesIDsInCookies;
@@ -69,8 +70,24 @@
 -(NSDate*)expirationDateForIDCookies;
 -(BOOL)storesIDsInCookies;
 -(void)setStoresIDsInCookies:(BOOL)flag;
+
+/** Returns NO if URLs contains application number so requests are 
+	directed to the specific application instance.
+    Resturns YES if  URLs doesn't contain application number so requests 
+    	can be directed to any instance (load balancing)
+    Default value is NO
+**/
 -(BOOL)isDistributionEnabled;
+
+/** Enables or disables application instance number in URLs.
+    If flag is NO, URLs contains application number so requests are directed 
+	to the specific application instance.
+    If flag is YES, URLs doesn't contain application number so requests can 
+	be directed to any instance (load balancing)
+**/
 -(void)setDistributionEnabled:(BOOL)flag;
+
+
 -(NSString*)sessionID;
 -(void)setSessionID:(NSString*)sessionID;
 -(NSString*)description;
@@ -157,7 +174,25 @@
 @interface GSWSession (GSWLocalization)
 
 -(void)setLanguages:(NSArray*)languages;
+
+/** GSWeb specific
+Insert language language at the begining of session languages array 
+**/
+-(void)insertLanguage:(NSString*)language;
+
+/** GSWeb specific
+Add language language at the end of session languages array if language 
+is not present
+**/
+-(void)addLanguage:(NSString*)language;
+
 -(NSArray*)languages;
+-(NSArray*)_languages;
+
+/** GSWeb specific
+Returns first element of languages or nil if languages is empty
+**/
+-(NSString*)firstLanguage;
 
 @end
 
@@ -202,17 +237,24 @@
 @interface GSWSession (GSWStatistics)
 
 -(NSArray*)statistics;
-
+-(BOOL)_allowedToViewStatistics;
+-(void)_allowToViewStatistics;
+-(void)_setAllowedToViewStatistics:(BOOL)flag;
+-(BOOL)validateStatisticsLogin:(NSString*)login
+                  withPassword:(NSString*)password;
+-(NSString*)_formattedStatistics;
+-(NSDate*)_birthDate;
+-(void)_setBirthDate:(NSDate*)birthDate;
 @end
 
 //====================================================================
-@interface GSWSession (GSWSessionM)
+@interface GSWSession (GSWEvents)
 
--(BOOL)_allowedToViewStatistics;
--(void)_allowToViewStatistics;
--(id)_formattedStatistics;
--(NSDate*)_birthDate;
-
+-(BOOL)_allowedToViewEvents;
+-(void)_allowToViewEvents;
+-(void)_setAllowedToViewEvents:(BOOL)flag;
+-(BOOL)validateEventsLogin:(NSString*)login
+              withPassword:(NSString*)password;
 @end
 
 //====================================================================
