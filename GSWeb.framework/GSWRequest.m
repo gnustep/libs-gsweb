@@ -1851,11 +1851,13 @@ RCS_ID("$Id$")
     };
   [headersString appendString:@"\n"];
   NSDebugMLLog(@"requests",@"headersString=[\n%@\n]",headersString);
-
-  headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
+ // headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
+// NSASCIIStringEncoding should be ok dave@turbocat.de
+  headersData=[headersString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
   [parser expectNoHeaders];
+  [parser setDefaultEncoding:[self formValueEncoding]];
   if ([parser parse:_contentData])
     [parser parse:nil];
   NSDebugMLLog(@"requests",@"[parser isComplete]=%d",[parser isComplete]);
