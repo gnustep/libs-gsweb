@@ -1,4 +1,14 @@
 2004-05-16  David Ayers  <d.ayers@inode.at>
+	    Matt Rice  <ratmice@yahoo.com>
+
+	* config.mak.in: Replace LIBWRAP with AUX_LIBS so that they will
+	be included in gsweb.make makefile fragment.
+	* configure.ac: Fine tune check to test whether we need libnsl.
+	* GSWeb.framework/gsweb.gsdoc: Remove obsolete documentation of
+	libwrap realted build option.
+	* configure: Regenerate.
+	
+2004-05-16  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GNUmakefile: Make GSWDefines.h a public header.
 
@@ -9,12 +19,6 @@
 	* GSWeb.framework/GSWTemplateParser.m: Do not initialize va_list
 	with NULL.
 
-	* config.mak.in: Replace LIBWRAP with AUX_LIBS so that they will
-	be included in gsweb.make makefile fragment.
-	* configure.ac: Fine tune check to test whether we need libnsl.
-	* GSWeb.framework/gsweb.gsdoc: Remove obsolete documentation of
-	libwrap realted build option.
-	
 2004-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWeb.framework/GSWHTMLTemplateParser.m:
