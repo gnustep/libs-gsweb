@@ -6,8 +6,8 @@
 			        GSWApplicationBaseURL = "/GSW";
 			        GSWFrameworksBaseURL = "/GSW/frameworks";
 			        GSWLoadFrameworks = (
-								            "gsweb/GSWExtensionsGSW",
-								            "gsweb/GSWExtensions"
+								            "GSWExtensionsGSW",
+								            "GSWExtensions"
 								        );
 			        GSWMonitorAppConfFilePath = "/etc/httpd/conf/GSWebMonitor.conf";
 			        GSWSessionTimeOut = 1200;
