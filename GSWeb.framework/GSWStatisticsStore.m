@@ -32,6 +32,11 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+
+#ifdef NeXT_Foundation_LIBRARY
+#include <sys/time.h>
+#endif
+
 #include <sys/resource.h>
 #include <unistd.h>
 

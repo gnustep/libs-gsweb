@@ -33,7 +33,7 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <math.h>
-#if !defined(__NetBSD__)
+#if !(__NetBSD__ || NeXT_Foundation_LIBRARY)
 #include <values.h>
 #endif
 #ifdef TCSDB

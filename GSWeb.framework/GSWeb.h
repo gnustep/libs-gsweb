@@ -71,7 +71,12 @@
 #include <Foundation/NSURLHandle.h>
 #include <Foundation/NSURL.h>
 #include <Foundation/NSThread.h>
+
+//FIXME is that correct? NSConcreteNumber is a private class! dave@turbocat.de
+#ifndef NeXT_Foundation_LIBRARY
 #include <Foundation/NSConcreteNumber.h>
+#endif
+
 #include <Foundation/NSFormatter.h>
 #include <GNUstepBase/GSXML.h>
 #include <GNUstepBase/GSCategories.h>

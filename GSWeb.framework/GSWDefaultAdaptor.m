@@ -35,7 +35,10 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+
+#ifndef NeXT_Foundation_LIBRARY
 #include <GNUstepBase/GSFileHandle.h>
+#endif
 
 #if HAVE_LIBWRAP
 #include <tcpd.h>
