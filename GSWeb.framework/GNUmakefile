@@ -32,8 +32,6 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 include ../config.mak
 
-srcdir = .
-
 # The framework to be compiled
 
 # Options

@@ -9,7 +9,7 @@
  * page.
  */
 
-#import <GSWeb/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 
 @interface Main:GSWComponent 
 {

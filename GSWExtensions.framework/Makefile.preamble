@@ -59,7 +59,9 @@ endif
 ADDITIONAL_CFLAGS =  
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I.. -I../.. -I../GSWeb.framework/derived_src
+ADDITIONAL_INCLUDE_DIRS = \
+	-I../GSWeb.framework/$(GNUSTEP_TARGET_DIR) \
+	-I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
@@ -74,7 +76,11 @@ GSWExtensions_wo_ADDITIONAL_LDFLAGS = GSWeb_wo
 #-lgnustep-xraw
 
 # Additional library directories the linker should search
-ADDITIONAL_LIB_DIRS = -L../src/$(GNUSTEP_OBJ_DIR) -L$(GNUSTEP_SYSTEM_ROOT)/lib -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)
+ADDITIONAL_LIB_DIRS = 
+GSWExtentions_ADDITIONAL_LIB_DIRS = \
+        -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb
+GSWExtentions_wo_ADDITIONAL_LIB_DIRS = \
+        -L../GSWeb.framework/$(GNUSTEP_OBJ_DIR)/GSWeb_wo
 
 #
 # Flags dealing with installing and uninstalling

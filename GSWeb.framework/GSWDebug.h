@@ -30,7 +30,7 @@
 extern NSString* GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSString *fmt);
 extern void GSWLogC_(CONST char* file,int line,CONST char* string);
 extern void GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep);
-extern void GSWLogAssertGoodFn(CONST char* file,int line,NSObject* object);
+extern void GSWLogAssertGoodFn(CONST char* file,int line,id object);
 #endif
 #ifdef GSWDEBUG
 

@@ -1,7 +1,7 @@
 /*	
 */
 header {
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 }
 
 options {

@@ -36,7 +36,7 @@
 #
 
 # Things to do before compiling
-# before-all::
+before-all:: $(GNUSTEP_TARGET_DIR)/config.h
  
 
 # Things to do after compiling
@@ -80,9 +80,10 @@ after-distclean::
 # Things to do after checking
 # after-check::
 
-regenerate:
-
-copy-dist: $(DIST_FILES)
+$(GNUSTEP_TARGET_DIR)/config.h: ../config.status
+	$(MKDIRS) $(GNUSTEP_TARGET_DIR)
+	-mv ../config.h $(GNUSTEP_TARGET_DIR)
+	-touch $(GNUSTEP_TARGET_DIR)/config.h
 
 ifneq ($(gswnames),gsw)
 install-WO-headers : 

@@ -1,3 +1,56 @@
+2004-01-07  David Ayers  <d.ayers@inode.at>
+
+	* GSWExtensions.framework/Makefile.preamble: Correct
+	ADDITIONAL_INCLUDE_DIRS and ADDITIONAL_LIB_DIRS.
+	* Testing/DynamicElements/Makefile.preamble: Ditto.
+	* GSWExtensionsGSW.framework/Makefile.preamble: Ditto. Also
+	remove comments.
+	* GSWeb.framework/Makefile.preamble.in:  Ditto. Also correct
+	ADDITIONAL_CPPFLAGS
+
+	* Testing/DynamicElements/GNUmakefile: Remove unused variables.
+	* GSWeb.framework/GNUmakefile: Ditto.
+
+	* GSWExtensions.framework/Makefile.postamble: Removed unused
+	targets 'regenerate' and 'copy-dist'.
+	* GSWExtensionsGSW.framework/Makefile.postamble: Ditto.
+	* Testing/DynamicElements/Makefile.postamble: Ditto.
+	* GSWeb.framework/Makefile.postamble: Ditto.  Add rule for
+	GNUSTEP_TARGET_DIR dependent 'config.h'.
+
+	* Testing/DynamicElements/Resources/Info-DynamicElements.plist:
+	Correct spelling.
+
+	* Testing/DynamicElements/DynamicElements.m: Replace #import
+	with #include.
+	* Testing/DynamicElements/DynamicElements_main.m: Ditto.
+	* Testing/DynamicElements/Main.h: Ditto.
+	* Testing/DynamicElements/Main.m: Ditto.
+	* Examples/hello/Hello.m: Ditto.
+	* Examples/hello/HelloPage.h: Ditto.
+	* Examples/hello/HelloPage.m: Ditto.
+	* Examples/hello/Hello_main.m: Ditto.
+	* Examples/hello/Main.h: Ditto.
+	* Examples/hello/Main.m: Ditto.
+	* Examples/hello/Resources/Info-Hello.plist: Reformatted.
+
+	* GSWeb.framework/GSWDebug.h/m (GSWLogAssertGoodFn): Adjust
+	prototype to use id instead of NSObject * and dereference via
+	class_pointer instead of isa.
+	([NSObject isa]): Remove obsolete category.
+
+	* GSWeb.framework/GSWPageDefLexer.h: Use "GSWeb.h" instead of
+	<GSWeb/GSWeb.h> for include.
+	* GSWeb.framework/GSWPageDefLexer.m: Ditto.
+	* GSWeb.framework/GSWPageDefParser.h: Ditto.
+	* GSWeb.framework/GSWPageDefParser.m: Ditto.
+	* GSWeb.framework/GSWPageDefParserTokenTypes.h: Ditto.
+	* GSWeb.framework/PageDef.g: Ditto.
+	* GSWeb.framework/html.g: Ditto.
+	* GSWeb.framework/htmltag.g: Ditto.
+	
+	* GSWeb.framework/GSWWOCompatibility.m: Remove file.
+
 2004-01-02   David Wetzel <dave@turbocat.de>
        * GSWeb.framework: GSWString.m
          do a stringValue on numbers to avoid an exception later.

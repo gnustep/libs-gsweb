@@ -35,7 +35,7 @@
 #
 
 # Additional flags to pass to the preprocessor
-ADDITIONAL_CPPFLAGS = -I..
+ADDITIONAL_CPPFLAGS = 
 
 # Additional flags to pass to the Objective-C compiler
 ifeq ($(GDL2), yes)
@@ -61,13 +61,14 @@ endif
 ADDITIONAL_CFLAGS =  -DUSE_BUILTIN
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS =  -I. -I../.. @XML_CFLAGS@
+ADDITIONAL_INCLUDE_DIRS = -I./$(GNUSTEP_TARGET_DIR) @XML_CFLAGS@
 
 # Additional LDFLAGS to pass to the linker
 LIBRARIES_DEPEND_UPON += @AUX_LIBS@
 
 # Additional library directories the linker should search
-ADDITIONAL_LIB_DIRS = -L../src/$(GNUSTEP_OBJ_DIR) -L$(GNUSTEP_SYSTEM_ROOT)/lib 
+ADDITIONAL_LIB_DIRS = 
+
 
 #
 # Flags dealing with installing and uninstalling

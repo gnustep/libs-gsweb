@@ -2,7 +2,7 @@
 #include <gnsutep/base/GNUstep.h>
 #endif
 
-#import <GSWeb/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 
 int main(int argc, const char *argv[])
 {

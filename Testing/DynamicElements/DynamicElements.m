@@ -1,4 +1,4 @@
-#import <GSWeb/GSWeb.h>
+#include <GSWeb/GSWeb.h>
 #include "DynamicElements.h"
 
 @implementation DynamicElements

@@ -81,12 +81,6 @@ RadioButton1Page.gswc \
 RadioButton2Page.gswc \
 
 
-SRCS = $(GSWAPP_NAME:=.m)
-
-HDRS =
-
-DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
-
 -include Makefile.preamble
 
 include $(GNUSTEP_MAKEFILES)/gswapp.make

@@ -13,7 +13,7 @@
 #include <gnsutep/base/GNUstep.h>
 #endif
 
-#import "HelloPage.h"
+#include "HelloPage.h"
 
 @implementation HelloPage
 

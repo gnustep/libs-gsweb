@@ -13,9 +13,9 @@
 #include <gnsutep/base/GNUstep.h>
 #endif
 
-#import "Main.h"
-#import "Hello.h"
-#import "HelloPage.h"
+#include "Main.h"
+#include "Hello.h"
+#include "HelloPage.h"
 
 @implementation Main
 

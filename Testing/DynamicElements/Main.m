@@ -9,7 +9,7 @@
  * page.
  */
 
-#import "Main.h"
+#include "Main.h"
 
 @implementation Main
 

@@ -81,10 +81,6 @@ gsdocs:
 # Things to do after checking
 # after-check::
 
-regenerate:
-
-copy-dist: $(DIST_FILES)
-
 ifneq ($(gswnames),gsw)
 install-WO-headers : 
 	$(MKDIRS) $(GNUSTEP_HEADERS)/$(GSWExtensions_wo_HEADER_FILES_INSTALL_DIR);

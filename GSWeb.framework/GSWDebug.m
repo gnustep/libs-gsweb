@@ -40,17 +40,6 @@ RCS_ID("$Id$")
 #define USTART	NSAutoreleasePool* arp=[NSAutoreleasePool new];
 #define USTOP	DESTROY(arp);
 
-@interface NSObject (GSISA)
--(Class)isa;
-@end
-
-@implementation NSObject (GSISA)
--(Class)isa
-{
-  return  self->isa;
-};
-@end
-
 #ifdef DEBUG
 NSString* GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSString *fmt)
 {
@@ -376,18 +365,18 @@ void GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep)
     };
 
 //--------------------------------------------------------------------
-void GSWLogAssertGoodFn(CONST char* file,int line,NSObject* object)
+void GSWLogAssertGoodFn(CONST char* file,int line,id object)
 {
   if (object)
     {
-      if ([object isa]==((Class)0xdeadface))
+      if (object->class_pointer==((Class)0xdeadface))
         {
           [GSWApp statusDebugWithFormat:@"DEAD FACE: object %p isa=%p in %s at %d\n",
                   (void*)object,
-                  (void*)[object isa],
+                  (void*)object->class_pointer,
                   file,
                   line];
-          NSCParameterAssert([object isa]==(Class)0xdeadface);
+          NSCParameterAssert(object->class_pointer==(Class)0xdeadface);
         };
     }
   else

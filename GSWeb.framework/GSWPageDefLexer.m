@@ -8,7 +8,7 @@
  */
 
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 
 #include "gsantlr/ANTLRCommon.h"
 #include "gsantlr/ANTLRException.h"
