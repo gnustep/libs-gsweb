@@ -1,0 +1,5 @@
+derived_src
+shared_debug_obj
+GSWWOReplaceScript.sed
+WO*.wo
+WOExtensionsGSW.framework

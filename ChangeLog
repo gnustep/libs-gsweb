@@ -3,6 +3,11 @@
 	* config/pathxml.m4: Whitespace fixes for coding standards.
 	* configure.ac: Ditto.
 	* configure: Regenerate.
+
+	* GSWeb.framework/.cvsignore: New file.
+	* GSWExtensions.framework/.cvsignore: Ditto.
+	* GSWExtensions.framework/French.lproj/.cvsignore: Ditto.
+	* GSWExtensionsGSW.framework/.cvsignore: Ditto.
 	
 2004-01-12  David Ayers  <d.ayers@inode.at>
 
