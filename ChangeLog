@@ -1,3 +1,23 @@
+2003-04-05   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWAdaptors/common/config.h:
+		o change minor version
+	* GSWAdaptors/common/GSWUtil.h/.c:
+		o added FormatAPRTime
+	* GSWAdaptors/common/GSWHTTPResponse.c:
+		o added time headers in response (apache2 only)
+	* GSWAdaptors/common/GSWHTTPRequest.c:
+		o moved GSWebHeaderForHTTPHeader to GSWHTTPHeaders.c
+		o add application headers (defined in gsweb.conf)
+	* GSWAdaptors/common/GSWHTTPHeaders.c:
+		o moved GSWebHeaderForHTTPHeader from GSWHTTPRequest.c
+		o sort GSWHeaderTranslationTable
+	* GSWAdaptors/Apache/mod_gsweb.c:
+		o comments
+		o added time headers in response (apache2 only)
+		o fixed APACHE2/Apache2 ifdef
+	* GSWAdaptors/common/GSWConfig.c/.h:
+		o added addTimeHeaders parameter
+	
 2003-04-04   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/Apache/GNUmakefile-Apache2x:
 		o fix to find apxs2
