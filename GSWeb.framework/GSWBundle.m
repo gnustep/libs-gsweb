@@ -1037,7 +1037,7 @@ objectForReference:(NSString*)keyPath
 -(NSStringEncoding)encodingForResourcesNamed:(NSString*)aName
 {
   NSDictionary* archive=nil;
-  NSStringEncoding encoding=GSUndefinedEncoding;
+  NSStringEncoding encoding=[GSWMessage defaultEncoding]; // safer, because we may not have a .woo file
   id encodingObject=nil;
   LOGObjectFnStart();
   [self lock];
