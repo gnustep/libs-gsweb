@@ -433,6 +433,8 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                        GSWOPTVALUE_DefaultTemplateParser);
           NSDebugFLLog(@"options",@"AcceptedContentEncoding -> %@",
                        GSWOPTVALUE_AcceptedContentEncoding);
+          NSDebugFLLog(@"options",@"DisplayExceptionPages -> %@",
+                       GSWOPTVALUE_DisplayExceptionPages);
 
           defaultsOptions = 
             [NSDictionary dictionaryWithObjectsAndKeys:
@@ -558,6 +560,9 @@ int GSWApplicationMainReal(NSString* applicationClassName,
 
                           GSWOPTVALUE_AcceptedContentEncoding,			
                           GSWOPT_AcceptedContentEncoding[GSWebNamingConv],
+
+                          GSWOPTVALUE_DisplayExceptionPages,			
+                          GSWOPT_DisplayExceptionPages[GSWebNamingConv],
                           
                           nil];
           NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",globalAppDefaultOptions);
@@ -3724,6 +3729,23 @@ to another instance **/
   LOGObjectFnStop();
   return response;
 };
+
+//--------------------------------------------------------------------
+-(GSWResponse*)handleActionRequestErrorWithRequest:(GSWRequest*)aRequest
+                                         exception:(NSException*)exception
+                                            reason:(NSString*)reason
+                                    requestHanlder:(GSWActionRequestHandler*)requestHandler
+                                   actionClassName:(NSString*)actionClassName
+                                        actionName:(NSString*)actionName
+                                       actionClass:(Class)actionClass
+                                      actionObject:(GSWAction*)actionObject
+{
+  LOGObjectFnStart();  
+  //do nothing
+  LOGObjectFnStop();
+  return nil;
+}
+
 @end
 
 //====================================================================
@@ -5295,6 +5317,21 @@ to another instance **/
   [[NSUserDefaults standardUserDefaults] 
     setObject:defaultTemplateParser
     forKey:GSWOPT_DefaultTemplateParser[GSWebNamingConv]];
+};
+
+//--------------------------------------------------------------------
++(BOOL)defaultDisplayExceptionPages
+{
+  return [[[NSUserDefaults standardUserDefaults] 
+            objectForKey:GSWOPT_DisplayExceptionPages[GSWebNamingConv]] boolValue];
+};
+
+//--------------------------------------------------------------------
++(void)setDefaultDisplayExceptionPages:(BOOL)flag
+{
+  [[NSUserDefaults standardUserDefaults] 
+    setObject:[NSNumber numberWithBool:flag]
+    forKey:GSWOPT_DisplayExceptionPages[GSWebNamingConv]];
 };
 
 @end

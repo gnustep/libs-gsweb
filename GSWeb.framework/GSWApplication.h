@@ -364,7 +364,14 @@ extern BOOL WOStrictFlag;
 -(GSWResponse*)_handleSessionCreationErrorInContext:(GSWContext*)aContext;
 -(GSWResponse*)handleSessionRestorationErrorInContext:(GSWContext*)aContext;
 -(GSWResponse*)_handleSessionRestorationErrorInContext:(GSWContext*)aContext;
-
+-(GSWResponse*)handleActionRequestErrorWithRequest:(GSWRequest*)aRequest
+                                         exception:(NSException*)exception
+                                            reason:(NSString*)reason
+                                    requestHanlder:(GSWActionRequestHandler*)requestHandler
+                                   actionClassName:(NSString*)actionClassName
+                                        actionName:(NSString*)actionName
+                                       actionClass:(Class)actionClass
+                                      actionObject:(GSWAction*)actionObject;
 @end
 
 //====================================================================
@@ -608,6 +615,8 @@ extern BOOL WOStrictFlag;
 +(void)setAcceptedContentEncoding:(NSString*)acceptedContentEncoding;
 +(NSString*)defaultTemplateParser;//NDFN
 +(void)setDefaultTemplateParser:(NSString*)defaultTemplateParser;//NDFN
++(BOOL)defaultDisplayExceptionPages;//NDFN
++(void)setDefaultDisplayExceptionPages:(BOOL)flag;//NDFN
 @end
 
 //====================================================================
