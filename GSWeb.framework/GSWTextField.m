@@ -1,6 +1,6 @@
 /** GSWTextField.m - <title>GSWeb: Class GSWTextField</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -38,36 +38,56 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
-	 associations:(NSDictionary*)associations
+     associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements
 {
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
+
   LOGObjectFnStartC("GSWTextField");
+
   NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",aName,associations,elements);
+
   [tmpAssociations setObject:[GSWAssociation associationWithValue:@"text"]
                    forKey:@"type"];
   [tmpAssociations removeObjectForKey:dateFormat__Key];
+  [tmpAssociations removeObjectForKey:dateFormat__AltKey];
   [tmpAssociations removeObjectForKey:numberFormat__Key];
+  [tmpAssociations removeObjectForKey:numberFormat__AltKey];
   [tmpAssociations removeObjectForKey:useDecimalNumber__Key];
   [tmpAssociations removeObjectForKey:formatter__Key];
+
   if ((self=[super initWithName:aName
                    associations:tmpAssociations
                    contentElements:nil])) //No Childs!
     {
       _dateFormat = [[associations objectForKey:dateFormat__Key
                                    withDefaultObject:[_dateFormat autorelease]] retain];
+      if (!_dateFormat)
+        _dateFormat = [[associations objectForKey:dateFormat__AltKey
+                                     withDefaultObject:[_dateFormat autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"GSWTextField: dateFormat=%@",_dateFormat);
+
       _numberFormat = [[associations objectForKey:numberFormat__Key
                                       withDefaultObject:[_numberFormat autorelease]] retain];
+      if (!_numberFormat)
+        _numberFormat = [[associations objectForKey:numberFormat__AltKey
+                                       withDefaultObject:[_numberFormat autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"GSWTextField: numberFormat=%@",_numberFormat);
+
       _useDecimalNumber = [[associations objectForKey:useDecimalNumber__Key
                                          withDefaultObject:[_useDecimalNumber autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"GSWTextField: useDecimalNumber=%@",_useDecimalNumber);
+
       _formatter = [[associations objectForKey:formatter__Key
                                   withDefaultObject:[_formatter autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"GSWTextField: formatter=%@",_formatter);
+
+      if (_dateFormat && _numberFormat)
+        ExceptionRaise0(@"GSWTextField",@"You can't use 'dateFormat' and 'numberFormat' parameters at the same time.");
     };
+
   LOGObjectFnStopC("GSWTextField");
+
   return self;
 };
 
