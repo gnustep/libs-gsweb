@@ -9,6 +9,10 @@
  * page.
  */
 
+#ifndef GNUSTEP
+#include <gnsutep/base/GNUstep.h>
+#endif
+
 #import "HelloPage.h"
 
 @implementation HelloPage

@@ -1309,13 +1309,22 @@ selfLockn,
             (isCachedComponent ? "" : "Not ")];
 #endif
     };
+#ifdef DEBUG
   NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s. search time: %.3f s",
                (componentDefinition ? "FOUND" : "NOTFOUND"),
                componentDefinition,
                aName,
                (componentDefinition ? [[componentDefinition class] description]: @""),
                (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""),
-               [stopDate timeIntervalSinceDate:startDate]);
+	       [stopDate timeIntervalSinceDate:startDate]);
+#else
+  NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s.",
+               (componentDefinition ? "FOUND" : "NOTFOUND"),
+               componentDefinition,
+               aName,
+               (componentDefinition ? [[componentDefinition class] description]: @""),
+               (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""));
+#endif
   LOGObjectFnStop();
   return componentDefinition;
 };

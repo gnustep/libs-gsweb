@@ -40,6 +40,11 @@
 #ifdef __FreeBSD__
 #include <float.h>
 #endif
+
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
+#endif
+
 #include <Foundation/Foundation.h>
 #include <Foundation/NSObject.h>
 #include <Foundation/NSValue.h>

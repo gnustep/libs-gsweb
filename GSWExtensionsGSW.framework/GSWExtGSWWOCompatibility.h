@@ -34,6 +34,10 @@
 #ifndef _GSWExtGSWWOCompatibility_h__
 #define _GSWExtGSWWOCompatibility_h__
 
+#ifndef GNUSTEP
+#include <gnustep/base/GNUstep.h>
+#endif
+
 #ifndef GSWEB_WONAMES
 #include <GSWeb/GSWeb.h>
 #else

@@ -1,3 +1,13 @@
+2003-07-11  David Ayers  <d.ayers@inode.at>
+
+	* INSTALL: Update prerequisits and installation guidelines.
+	* GSWeb.framework/GSWApplication.m: Fix compile with debug=no.
+	* GSWeb.framework/GSWeb.h: Include GNUstep.h if GNUSTEP is not
+	defined for OS X.
+	* GSWExtensions.framework/GSWExtWOCompatibility.h: Ditto.
+	* GSWExtensionsGSW.framework/GSWExtGSWWOCompatibility.h: Ditto.
+	* Examples/hello/*.m: Ditto.
+
 2003-06-26   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWDisplayGroup.h:
 		o include EODeprecated.h instead of EOUndoManager.h
