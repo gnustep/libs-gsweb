@@ -143,6 +143,7 @@
 - (unsigned)indexOfFirstDisplayedObject;
 - (unsigned)indexOfLastDisplayedObject;
 - (id)init;
+- (id)initWithKeyValueUnarchiver:(EOKeyValueUnarchiver*)unarchiver;
 - (void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object_;
 - (NSMutableDictionary *)inputObjectForQualifier;
 - (BOOL)inQueryMode;
@@ -191,6 +192,7 @@
 - (void)setFetchesOnLoad:(BOOL)flag;
 - (void)setInQueryMode:(BOOL)flag;
 - (void)setInsertedObjectDefaultValues:(NSDictionary *)defaultValues;
+-(void)setQueryOperator:(NSDictionary*)qo;
 - (void)setLocalKeys:(NSArray *)keys;
 - (void)setMasterObject:(id)masterObject;
 - (void)setNumberOfObjectsPerBatch:(unsigned)count;

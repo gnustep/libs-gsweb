@@ -605,7 +605,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   id EONullNull=[NSNull null];
 #endif
   LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath_=%@ object_=%p",keyPath_,(void*)object_);
+  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath_=%@ object_=%p (class: %@)",
+               keyPath_,object_,[object_ class]);
   if (keyPath_ && object_ && object_!=EONullNull)
     {
 #if GDL2

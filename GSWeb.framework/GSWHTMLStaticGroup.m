@@ -1,11 +1,16 @@
-/* GSWHTMLStaticGroup.m - GSWeb: Class GSWHTMLStaticGroup
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLStaticGroup.m - <title>GSWeb: Class GSWHTMLStaticGroup</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -27,54 +33,49 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWHTMLStaticGroup
--(id)initWithContentElements:(NSArray*)elements_
+-(id)initWithContentElements:(NSArray*)elements
 {
   //OK
   LOGObjectFnStart();  
-  NSDebugMLLog(@"gswdync",@"elements_:%@",elements_);
-  if ([elements_ count]==1 && [[elements_ objectAtIndex:0] class]==[GSWHTMLStaticGroup class])
-	  self=[super initWithName:nil
-				  attributeDictionary:nil
-				  contentElements:[[elements_ objectAtIndex:0]dynamicChildren]];
+  NSDebugMLLog(@"gswdync",@"elements:%@",elements);
+  if ([elements count]==1 && [[elements objectAtIndex:0] class]==[GSWHTMLStaticGroup class])
+    self=[super initWithName:nil
+                attributeDictionary:nil
+                contentElements:[[elements objectAtIndex:0]dynamicChildren]];
   else
-	  self=[super initWithName:nil
-				  attributeDictionary:nil
-				  contentElements:elements_];
+    self=[super initWithName:nil
+                attributeDictionary:nil
+                contentElements:elements];
   LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
--(void)setDocumentTypeString:(NSString *)documentType_
-{
-	[_documentTypeString release];
-	_documentTypeString = [documentType_ retain];
-}
-
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
-{
-  if (_documentTypeString)
-	{
-  		NSStringEncoding _encoding=[response_ contentEncoding];
-
-  		NSDebugMLLog(@"gswdync",@"added _documentTypeString = %@", _documentTypeString);
-
-		[response_ appendContentData:[_documentTypeString
-                                                       dataUsingEncoding:_encoding]];
-	};
-
-  [super appendToResponse:response_   inContext:context_];
-};
-
-//--------------------------------------------------------------------
 -(void)dealloc
 {
-	[_documentTypeString release];
-
-	[super dealloc];
+  DESTROY(_documentTypeString);
+  [super dealloc];
 }
 
+//--------------------------------------------------------------------
+-(void)setDocumentTypeString:(NSString *)documentType
+{
+  ASSIGN(_documentTypeString,documentType);
+}
+
+//--------------------------------------------------------------------
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
+{
+  if (_documentTypeString)
+    {
+      NSStringEncoding encoding=[response contentEncoding];      
+      NSDebugMLLog(@"gswdync",@"added documentTypeString = %@",_documentTypeString);
+      [response appendContentData:[_documentTypeString dataUsingEncoding:encoding]];
+    };
+  
+  [super appendToResponse:response
+         inContext:context];
+};
 
 @end

@@ -1,11 +1,16 @@
-/* GSWString.m - GSWeb: Class GSWString
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWString.m - <title>GSWeb: Class GSWString</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -30,50 +36,50 @@ static char rcsId[] = "$Id$";
 @implementation GSWString
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)_elements
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
   //OK
   LOGObjectFnStartC("GSWString");
-  NSDebugMLLog(@"gswdync",@"name_=%@ associations_:%@ _elements=%@",name_,associations_,_elements);
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",
+               aName,associations,elements);
   if ((self=[super initWithName:nil
-				   associations:nil
-				   contentElements:nil]))
-	{
-	  value = [[associations_ objectForKey:value__Key
-								 withDefaultObject:[value autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWString: value=%@",value);
+                   associations:nil
+                   contentElements:nil]))
+    {
+      _value = [[associations objectForKey:value__Key
+                               withDefaultObject:[_value autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWString: value=%@",_value);
 
-	  dateFormat = [[associations_ objectForKey:dateFormat__Key
-									  withDefaultObject:[dateFormat autorelease]] retain];
+      _dateFormat = [[associations objectForKey:dateFormat__Key
+                                    withDefaultObject:[_dateFormat autorelease]] retain];
 
-	  NSDebugMLLog(@"gswdync",@"GSWString: dateFormat=%@",dateFormat);
+      NSDebugMLLog(@"gswdync",@"GSWString: dateFormat=%@",_dateFormat);
 
-	  numberFormat = [[associations_ objectForKey:numberFormat__Key
-										withDefaultObject:[numberFormat autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWString: numberFormat=%@",numberFormat);
+      _numberFormat = [[associations objectForKey:numberFormat__Key
+                                     withDefaultObject:[_numberFormat autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWString: numberFormat=%@",_numberFormat);
 
-	  escapeHTML = [[associations_ objectForKey:escapeHTML__Key
-									  withDefaultObject:[escapeHTML autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWString: escapeHTML=%@",escapeHTML);
+      _escapeHTML = [[associations objectForKey:escapeHTML__Key
+                                    withDefaultObject:[_escapeHTML autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWString: escapeHTML=%@",_escapeHTML);
 
-          if (!WOStrictFlag)
-            {
-              convertHTML = [[associations_ objectForKey:convertHTML__Key
-                                            withDefaultObject:[convertHTML autorelease]] retain];
-              NSDebugMLLog(@"gswdync",@"GSWString: convertHTML=%@",convertHTML);
+      if (!WOStrictFlag)
+        {
+          _convertHTML = [[associations objectForKey:convertHTML__Key
+                                         withDefaultObject:[_convertHTML autorelease]] retain];
+          NSDebugMLLog(@"gswdync",@"GSWString: convertHTML=%@",_convertHTML);
               
-              convertHTMLEntities = [[associations_ objectForKey:convertHTMLEntities__Key
-                                                    withDefaultObject:[convertHTMLEntities autorelease]] retain];
-              NSDebugMLLog(@"gswdync",@"GSWString: convertHTMLEntities=%@",convertHTMLEntities);
-            };
-
-	  formatter = [[associations_ objectForKey:formatter__Key
-								  withDefaultObject:[formatter autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWString: formatter=%@",formatter);
-
-	};
+          _convertHTMLEntities = [[associations objectForKey:convertHTMLEntities__Key
+                                                 withDefaultObject:[_convertHTMLEntities autorelease]] retain];
+          NSDebugMLLog(@"gswdync",@"GSWString: convertHTMLEntities=%@",_convertHTMLEntities);
+        };
+      
+      _formatter = [[associations objectForKey:formatter__Key
+                                   withDefaultObject:[_formatter autorelease]] retain];
+	  NSDebugMLLog(@"gswdync",@"GSWString: formatter=%@",_formatter);
+    };
   LOGObjectFnStopC("GSWString");
   return self;
 };
@@ -81,13 +87,13 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(value);
-  DESTROY(dateFormat);
-  DESTROY(numberFormat);
-  DESTROY(escapeHTML);
-  DESTROY(convertHTML); //GSWeb Only
-  DESTROY(convertHTMLEntities); //GSWeb Only
-  DESTROY(formatter);
+  DESTROY(_value);
+  DESTROY(_dateFormat);
+  DESTROY(_numberFormat);
+  DESTROY(_escapeHTML);
+  DESTROY(_convertHTML); //GSWeb Only
+  DESTROY(_convertHTMLEntities); //GSWeb Only
+  DESTROY(_formatter);
   [super dealloc];
 };
 
@@ -95,138 +101,138 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - value=%@ dateFormat=%@ numberFormat=%@ escapeHTML=%@ formatter=%@>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   value,
-				   dateFormat,
-				   numberFormat,
-				   escapeHTML,
-				   formatter];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _value,
+                   _dateFormat,
+                   _numberFormat,
+                   _escapeHTML,
+                   _formatter];
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK
-  NSString* _formattedValue=nil;
-  GSWRequest* _request=nil;
-  BOOL _isFromClientComponent=NO;
-  GSWComponent* _component=nil;
-  id _valueValue = nil;
+  NSString* formattedValue=nil;
+  GSWRequest* request=nil;
+  BOOL isFromClientComponent=NO;
+  GSWComponent* component=nil;
+  id valueValue = nil;
   LOGObjectFnStartC("GSWString");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  _request=[context_ request];
-  _isFromClientComponent=[_request isFromClientComponent];
-  _component=[context_ component];
-  NSDebugMLLog(@"gswdync",@"GSWString: _component=%@",_component);
-  NSDebugMLLog(@"gswdync",@"GSWString: value=%@",value);
-  _valueValue = [value valueInComponent:_component];
-  NSDebugMLLog(@"gswdync",@"GSWString: _valueValue=%@",_valueValue);
-  if (_valueValue)
-	{
-	  BOOL _escapeHTMLValue=YES;
-	  BOOL _convertHTMLValue=NO;
-	  BOOL _convertHTMLEntitiesValue=NO;
-	  NSFormatter* _formatter=[self formatterForComponent:_component
-									value:_valueValue];
-	  if (!_formatter)
-		{
-		  _formattedValue=_valueValue;
-		}
-	  else
-		{
-		  _formattedValue=[_formatter stringForObjectValue:_valueValue];
-                  NSDebugMLog(@"_valueValue=%@ _formattedValue=%@",_valueValue,_formattedValue);
-		};
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  request=[context request];
+  isFromClientComponent=[request isFromClientComponent];
+  component=[context component];
+  NSDebugMLLog(@"gswdync",@"GSWString: component=%@",component);
+  NSDebugMLLog(@"gswdync",@"GSWString: value=%@",_value);
+  valueValue = [_value valueInComponent:component];
+  NSDebugMLLog(@"gswdync",@"GSWString: valueValue=%@",valueValue);
+  if (valueValue)
+    {
+      BOOL escapeHTMLValue=YES;
+      BOOL convertHTMLValue=NO;
+      BOOL convertHTMLEntitiesValue=NO;
+      NSFormatter* formatter=[self formatterForComponent:component
+                                   value:valueValue];
+      if (!formatter)
+        {
+          formattedValue=valueValue;
+        }
+      else
+        {
+          formattedValue=[formatter stringForObjectValue:valueValue];
+          NSDebugMLog(@"valueValue=%@ formattedValue=%@",valueValue,formattedValue);
+        };
 
-	  if (!WOStrictFlag && convertHTML)
-		_convertHTMLValue=[self evaluateCondition:convertHTML
-								inContext:context_];
-	  if (!WOStrictFlag)
+      if (!WOStrictFlag && _convertHTML)
+        convertHTMLValue=[self evaluateCondition:_convertHTML
+                               inContext:context];
+      if (!WOStrictFlag)
+        {
+          if (!convertHTMLValue)
             {
-              if (!_convertHTMLValue)
-		{
-		  if (convertHTMLEntities)
-			_convertHTMLEntitiesValue=[self evaluateCondition:convertHTMLEntities
-											inContext:context_];
-		  if (!_convertHTMLEntitiesValue)
-			{
-			  if (escapeHTML)
-				_escapeHTMLValue=[self evaluateCondition:escapeHTML
-									   inContext:context_];
-			};
-		};
-            }
-          else if (escapeHTML)
-            _escapeHTMLValue=[self evaluateCondition:escapeHTML
-                                   inContext:context_];
+              if (_convertHTMLEntities)
+                convertHTMLEntitiesValue=[self evaluateCondition:_convertHTMLEntities
+                                               inContext:context];
+              if (!convertHTMLEntitiesValue)
+                {
+                  if (_escapeHTML)
+                    escapeHTMLValue=[self evaluateCondition:_escapeHTML
+                                          inContext:context];
+                };
+            };
+        }
+      else if (_escapeHTML)
+        escapeHTMLValue=[self evaluateCondition:_escapeHTML
+                              inContext:context];
 
-	  if (!WOStrictFlag && _convertHTMLValue)
-		[response_ appendContentHTMLConvertString:_formattedValue];
-	  else if (!WOStrictFlag && _convertHTMLEntitiesValue)
-		[response_ appendContentHTMLEntitiesConvertString:_formattedValue];
-	  else if (_escapeHTMLValue)
-            [response_ appendContentHTMLString:_formattedValue];
-          else
-            [response_ appendContentString:_formattedValue];
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+      if (!WOStrictFlag && convertHTMLValue)
+        [response appendContentHTMLConvertString:formattedValue];
+      else if (!WOStrictFlag && convertHTMLEntitiesValue)
+        [response appendContentHTMLEntitiesConvertString:formattedValue];
+      else if (escapeHTMLValue)
+        [response appendContentHTMLString:formattedValue];
+      else
+        [response appendContentString:formattedValue];
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
   LOGObjectFnStopC("GSWString");
 };
 
 //--------------------------------------------------------------------
--(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping
+-(BOOL)appendStringAtRight:(id)unkwnon
+               withMapping:(char*)mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
--(BOOL)appendStringAtLeft:(id)_unkwnon
-			  withMapping:(char*)_mapping
+-(BOOL)appendStringAtLeft:(id)unkwnon
+              withMapping:(char*)mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
--(NSFormatter*)formatterForComponent:(GSWComponent*)_component
-							   value:(id)value_
+-(NSFormatter*)formatterForComponent:(GSWComponent*)component
+                               value:(id)value
 {
   //OK
-  id _formatValue = nil;
-  NSFormatter* _formatter = nil;
+  id formatValue = nil;
+  NSFormatter* formatter = nil;
   LOGObjectFnStartC("GSWString");
-  if (dateFormat)
-	{
-	  NSDebugMLog0(@"DateFormat");
-	  _formatValue=[dateFormat valueInComponent:_component];
-	  if (_formatValue)
-		_formatter=[[[NSDateFormatter alloc]initWithDateFormat:_formatValue
-											allowNaturalLanguage:YES]autorelease];
-	}
-  else if (numberFormat)
-	{
-	  NSDebugMLog0(@"NumberFormat");
-	  _formatValue=[numberFormat valueInComponent:_component];
-	  if (_formatValue)
-		{
-//TODO
-/*		  _formatter=[[NSNumberFormatter new]autorelease];
-		  [_formatter setFormat:_formatValue];
-*/
-		};
-	}
+  if (_dateFormat)
+    {
+      NSDebugMLog0(@"DateFormat");
+      formatValue=[_dateFormat valueInComponent:component];
+      if (formatValue)
+        formatter=[[[NSDateFormatter alloc]initWithDateFormat:formatValue
+                                           allowNaturalLanguage:YES]autorelease];
+    }
+  else if (_numberFormat)
+    {
+      NSDebugMLog0(@"NumberFormat");
+      formatValue=[_numberFormat valueInComponent:component];
+      if (formatValue)
+        {
+          //TODO
+          /*		  _formatter=[[NSNumberFormatter new]autorelease];
+                          [_formatter setFormat:_formatValue];
+          */
+        };
+    }
   else
-	{
-	  NSDebugMLog0(@"Formatter");
-	  _formatter=[formatter valueInComponent:_component];
-	};
-  NSDebugMLog(@"_formatter=%@",_formatter);
+    {
+      NSDebugMLog0(@"Formatter");
+      formatter=[_formatter valueInComponent:component];
+    };
+  NSDebugMLog(@"formatter=%@",formatter);
   LOGObjectFnStopC("GSWString");
-  return _formatter;
+  return formatter;
 };
 
 //--------------------------------------------------------------------

@@ -28,7 +28,7 @@
 
 
 //====================================================================
-@interface GSWDynamicURLString : NSObject <NSCoding,NSCopying,NSMutableString>
+@interface GSWDynamicURLString : NSObject <NSCoding,NSCopying/*,NSMutableString*/>
 {
   NSMutableString* url;
   NSString* protocol;//NDFN

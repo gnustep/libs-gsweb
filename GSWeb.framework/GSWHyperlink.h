@@ -1,11 +1,16 @@
-/* GSWHyperlink.h - GSWeb: Class GSWHyperlink
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHyperlink.h - <title>GSWeb: Class GSWHyperlink</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,55 +35,55 @@
 
 @interface GSWHyperlink: GSWDynamicElement
 {
-  GSWAssociation* action;
-  GSWAssociation* string;
-  GSWAssociation* pageName;
-  GSWAssociation* href;
-  GSWAssociation* disabled;
-  GSWAssociation* fragmentIdentifier;
-  GSWAssociation* queryDictionary;
-  GSWAssociation* actionClass;
-  GSWAssociation* directActionName;
+  GSWAssociation* _action;
+  GSWAssociation* _string;
+  GSWAssociation* _pageName;
+  GSWAssociation* _href;
+  GSWAssociation* _disabled;
+  GSWAssociation* _fragmentIdentifier;
+  GSWAssociation* _queryDictionary;
+  GSWAssociation* _actionClass;
+  GSWAssociation* _directActionName;
 //GSWeb Additions {
-  GSWAssociation* enabled;
-  GSWAssociation* displayDisabled;
-  GSWAssociation* redirectURL;
-  NSDictionary* pageSetVarAssociations;
-  GSWAssociation* pageSetVarAssociationsDynamic;
+  GSWAssociation* _enabled;
+  GSWAssociation* _displayDisabled;
+  GSWAssociation* _redirectURL;
+  NSDictionary* _pageSetVarAssociations;
+  GSWAssociation* _pageSetVarAssociationsDynamic;
 // }
-  NSDictionary* otherQueryAssociations;
-  NSDictionary* otherAssociations;
+  NSDictionary* _otherQueryAssociations;
+  NSDictionary* _otherAssociations;
 
 //GSWeb Additions {
-  GSWAssociation* filename;
-  GSWAssociation* framework;
-  GSWAssociation* data;
-  GSWAssociation* mimeType;
-  GSWAssociation* key;
+  GSWAssociation* _filename;
+  GSWAssociation* _framework;
+  GSWAssociation* _data;
+  GSWAssociation* _mimeType;
+  GSWAssociation* _key;
 // }
-  GSWElement* children;
+  GSWElement* _children;
 };
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)templateElement_;
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)templateElement;
 -(void)dealloc;
 -(NSString*)description;
 @end
 
 @interface GSWHyperlink (GSWHyperlinkA)
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context;
 #if !GSWEB_STRICT
--(NSString*)frameworkNameInContext:(GSWContext*)context_;
+-(NSString*)frameworkNameInContext:(GSWContext*)context;
 #endif
--(void)_appendCGIActionURLToResponse:(GSWResponse*)response_
-						   inContext:(GSWContext*)context_;
--(id)computeActionStringInContext:(GSWContext*)context_;
--(void)_appendQueryStringToResponse:(GSWResponse*)response_
-						   inContext:(GSWContext*)context_;
--(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context_;
--(NSString*)hrefInContext:(GSWContext*)context_; //NDFN
+-(void)_appendCGIActionURLToResponse:(GSWResponse*)response
+                           inContext:(GSWContext*)context;
+-(id)computeActionStringInContext:(GSWContext*)context;
+-(void)_appendQueryStringToResponse:(GSWResponse*)response
+                          inContext:(GSWContext*)context;
+-(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context;
+-(NSString*)hrefInContext:(GSWContext*)context; //NDFN
 
 @end
 

@@ -1,6 +1,6 @@
 ExclamationImage: GSWImage
 {
-    filename = "exclamation.png";
+    filename = "exclamation.mng";
     framework = "GSWExtensions";
     border = 0;
 }

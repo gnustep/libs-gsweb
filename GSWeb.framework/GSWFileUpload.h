@@ -1,11 +1,16 @@
-/* GSWFileUpload.h - GSWeb: Class GSWFileUpload
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWFileUpload.h - <title>GSWeb: Class GSWFileUpload</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sept 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,13 +35,13 @@
 //====================================================================
 @interface GSWFileUpload: GSWInput
 {
-  GSWAssociation* data;
-  GSWAssociation* filepath;
+  GSWAssociation* _data;
+  GSWAssociation* _filepath;
 };
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_;
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements;
 
 -(void)dealloc;
 
@@ -43,12 +49,12 @@
 
 //====================================================================
 @interface GSWFileUpload (GSWFileUploadA)
--(void)appendToResponse:(GSWResponse*)response_
-				   inContext:(GSWContext*)context_;
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						   inContext:(GSWContext*)context_;
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context;
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context;
 @end
 
 #endif // _GSWFileUpload_h__

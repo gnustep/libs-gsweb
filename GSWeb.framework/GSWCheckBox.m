@@ -1,11 +1,16 @@
-/* GSWCheckBox.m - GSWeb: Class GSWCheckBox
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWCheckBox.m - <title>GSWeb: Class GSWCheckBox</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,42 +35,42 @@ static char rcsId[] = "$Id$";
 @implementation GSWCheckBox
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)_elements
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
-  NSMutableDictionary* _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
+  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
   LOGObjectFnStartC("GSWCheckBox");
-  NSDebugMLLog(@"gswdync",@"name_=%@ associations_:%@ _elements=%@",name_,associations_,_elements);
-  [_associations setObject:[GSWAssociation associationWithValue:@"checkbox"]
-				 forKey:@"type"];
-  [_associations removeObjectForKey:selection__Key];
-  [_associations removeObjectForKey:checked__Key];
-  if ((self=[super initWithName:name_
-				   associations:_associations
-				   contentElements:nil]))
-	{
-	  //TODOV
-	  selection=[[associations_ objectForKey:selection__Key
-								   withDefaultObject:[selection autorelease]] retain];
-	  if (selection && ![selection isValueSettable])
-		{
-		  ExceptionRaise0(@"GSWCheckBox",@"'selection' parameter must be settable");
-		};
-	  checked=[[associations_ objectForKey:checked__Key
-								 withDefaultObject:[checked autorelease]] retain];
-	  if (checked && ![checked isValueSettable])
-		{
-		  ExceptionRaise0(@"GSWCheckBox",@"'checked' parameter must be settable");
-		};
-	  if (!checked)
-		{
-		  if (!value || !selection)
-			{
-			  ExceptionRaise0(@"GSWCheckBox",@"If you don't specify 'checked' parameter, you have to specify 'value' and 'selection' parameter");
-			};
-		};
-	};
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ _elements=%@",aName,associations,elements);
+  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"checkbox"]
+                   forKey:@"type"];
+  [tmpAssociations removeObjectForKey:selection__Key];
+  [tmpAssociations removeObjectForKey:checked__Key];
+  if ((self=[super initWithName:aName
+                   associations:tmpAssociations
+                   contentElements:nil]))
+    {
+      //TODOV
+      _selection=[[associations objectForKey:selection__Key
+                                withDefaultObject:[_selection autorelease]] retain];
+      if (_selection && ![_selection isValueSettable])
+        {
+          ExceptionRaise0(@"GSWCheckBox",@"'selection' parameter must be settable");
+        };
+      _checked=[[associations objectForKey:checked__Key
+                              withDefaultObject:[_checked autorelease]] retain];
+      if (_checked && ![_checked isValueSettable])
+        {
+          ExceptionRaise0(@"GSWCheckBox",@"'checked' parameter must be settable");
+        };
+      if (!_checked)
+        {
+          if (!_value || !_selection)
+            {
+              ExceptionRaise0(@"GSWCheckBox",@"If you don't specify 'checked' parameter, you have to specify 'value' and 'selection' parameter");
+            };
+        };
+    };
   LOGObjectFnStopC("GSWCheckBox");
   return self;
 };
@@ -72,8 +78,8 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(checked);
-  DESTROY(selection);
+  DESTROY(_checked);
+  DESTROY(_selection);
   [super dealloc];
 };
 
@@ -81,8 +87,8 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 
@@ -92,37 +98,37 @@ static char rcsId[] = "$Id$";
 @implementation GSWCheckBox (GSWCheckBoxA)
 
 //--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)_response
-									  inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
+                                      inContext:(GSWContext*)context
 {
   //OK
-  GSWComponent* _component=nil;
-  BOOL _disabledInContext=NO;
+  GSWComponent* component=nil;
+  BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWCheckBox");
-  _component=[context_ component];
-  _disabledInContext=[self disabledInContext:context_];
-  if (!_disabledInContext)
-	{
-	  BOOL _checked=NO;
-	  [self appendValueToResponse:_response
-			inContext:context_];
-	  [self appendNameToResponse:_response
-			inContext:context_];
+  component=[context component];
+  disabledInContext=[self disabledInContext:context];
+  if (!disabledInContext)
+    {
+      BOOL checkedValue=NO;
+      [self appendValueToResponse:response
+            inContext:context];
+      [self appendNameToResponse:response
+            inContext:context];
 
-	  if (checked)
-		{
-		  _checked=[self evaluateCondition:checked
-						 inContext:context_];
-		}
-	  else if (value)
-		{
-		  id _valueValue=[value valueInComponent:_component];
-		  id _selectionValue=[selection valueInComponent:_component];
-		  _checked=SBIsValueEqual(_selectionValue,_valueValue);
-		};
-	  if (_checked)
-		[_response _appendContentAsciiString:@" checked"];
-	};
+      if (_checked)
+        {
+          checkedValue=[self evaluateCondition:_checked
+                             inContext:context];
+        }
+      else if (_value)
+        {
+          id valueValue=[_value valueInComponent:component];
+          id selectionValue=[_selection valueInComponent:component];
+          checkedValue=SBIsValueEqual(selectionValue,valueValue);
+        };
+      if (checkedValue)
+        [response _appendContentAsciiString:@" checked"];
+    };
   LOGObjectFnStopC("GSWCheckBox");
 };
 
@@ -132,83 +138,80 @@ static char rcsId[] = "$Id$";
 @implementation GSWCheckBox (GSWCheckBoxB)
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
-  BOOL _disabledInContext=NO;
+  BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWCheckBox");
-  _disabledInContext=[self disabledInContext:context_];
-  if (!_disabledInContext)
-	{
-	  if ([context_ _wasFormSubmitted])
-		{
-		  GSWComponent* _component=[context_ component];
-		  NSString* _name=nil;
-		  NSArray* _formValues=nil;
-//		  GSWElementIDString* _elementID=nil;
-		  BOOL _checkChecked=NO;
-		  _name=[self nameInContext:context_];
-		  NSDebugMLLog(@"gswdync",@"_name=%@",_name);
-		  _formValues=[request_ formValuesForKey:_name];
-//		  _elementID=[[context_ elementID] copy]; //!! when release ?
-		  //???
-		  NSDebugMLLog(@"gswdync",@"_formValues=%@",_formValues);
-		  if (_formValues && [_formValues count])
-			{
-			  NSDebugMLLog(@"gswdync",@"[_formValues objectAtIndex:0]=%@",[_formValues objectAtIndex:0]);
-			  _checkChecked=YES;
-			  if (selection)
-				{
-				  //TODOV
-				  id _valueValue=[value valueInComponent:_component];
-                                  if (!WOStrictFlag)
-                                    {
-                                      NS_DURING
-					{
-					  [selection setValue:_valueValue
-                                                     inComponent:_component];
-					};
-                                      NS_HANDLER
-					{
-					  [self handleValidationException:localException
-                                                inContext:context_];
-					}
-                                      NS_ENDHANDLER;
-                                    }
-                                  else
-                                    {
-                                      [selection setValue:_valueValue
-                                                 inComponent:_component];
-                                    };
-				};
-			};
-		  if (checked)
-			{
-			  id _checkedValue=[NSNumber numberWithBool:_checkChecked];
-			  NSDebugMLLog(@"gswdync",@"_checkedValue=%@",_checkedValue);
-                          if (!WOStrictFlag)
-                            {
-                              NS_DURING
-				{
-				  [checked setValue:_checkedValue
-                                           inComponent:_component];
-				};
-                              NS_HANDLER
-				{
-				  [self handleValidationException:localException
-                                        inContext:context_];
-				}
-                              NS_ENDHANDLER;
-                            }
-                          else
-                            {
-                              [checked setValue:_checkedValue
-                                       inComponent:_component];
-                            };
-			};
-		};
-	};
+  disabledInContext=[self disabledInContext:context];
+  if (!disabledInContext)
+    {
+      if ([context _wasFormSubmitted])
+        {
+          GSWComponent* component=[context component];
+          NSString* name=nil;
+          NSArray* formValues=nil;
+          BOOL checkChecked=NO;
+          name=[self nameInContext:context];
+          NSDebugMLLog(@"gswdync",@"name=%@",name);
+          formValues=[request formValuesForKey:name];
+          NSDebugMLLog(@"gswdync",@"formValues=%@",formValues);
+          if (formValues && [formValues count])
+            {
+              NSDebugMLLog(@"gswdync",@"[formValues objectAtIndex:0]=%@",[formValues objectAtIndex:0]);
+              checkChecked=YES;
+              if (_selection)
+                {
+                  //TODOV
+                  id valueValue=[_value valueInComponent:component];
+                  if (!WOStrictFlag)
+                    {
+                      NS_DURING
+                        {
+                          [_selection setValue:valueValue
+                                      inComponent:component];
+                        };
+                      NS_HANDLER
+                        {
+                          [self handleValidationException:localException
+                                inContext:context];
+                        }
+                      NS_ENDHANDLER;
+                    }
+                  else
+                    {
+                      [_selection setValue:valueValue
+                                  inComponent:component];
+                    };
+                };
+            };
+          if (_checked)
+            {
+              id checkedValue=[NSNumber numberWithBool:checkChecked];
+              NSDebugMLLog(@"gswdync",@"checkedValue=%@",checkedValue);
+              if (!WOStrictFlag)
+                {
+                  NS_DURING
+                    {
+                      [_checked setValue:checkedValue
+                                inComponent:component];
+                    };
+                  NS_HANDLER
+                    {
+                      [self handleValidationException:localException
+                            inContext:context];
+                    }
+                  NS_ENDHANDLER;
+                }
+              else
+                {
+                  [_checked setValue:checkedValue
+                            inComponent:component];
+                };
+            };
+        };
+    };
   LOGObjectFnStopC("GSWCheckBox");
 };
 

@@ -1,3 +1,103 @@
+2002-04-15  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWDynamicURLString.h:
+		o remove NSMutableString protocol
+	* GSWUtils.m
+		o removed NSString and NSMutableString protocol use
+	* GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.gswd: 
+		o change .png to .mng
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.gswd: 
+		o added framework for image
+	* GSWeb.framework/GSWDisplayGroup.h:
+		o aded -setQueryOperator:
+		o added -initWithKeyValueUnarchiver:
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o added -setQueryOperator:
+		o unarchive queryOperator
+		o changed hasMultipleBatches implementation 
+	* GSWeb.framework/GSWBody.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWImage.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWResourceURL.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWFrame.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWElement.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWDynamicElement.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWGenericElement.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWHTMLStaticElement.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWElementIDString.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+		o removed logs
+	* GSWeb.framework/GSWActionURL.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+		o removed logs
+	* GSWeb.framework/GSWHyperlink.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWeb.framework/GSWHTMLStaticGroup.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWInput.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWText.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWTextField.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWFileUpload.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWBrowser.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWCheckBox.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWCheckBoxList.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWPopUpButton.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWRadioButton.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWRadioButtonList.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWSubmitButton.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWHiddenField.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWPasswordField.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWString.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWeb.framework/GSWImageButton.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	
 2002-03-25  Manuel Guesdon <mguesdon@orange-concept.com>
 
 	* GSWAdaptors/common/GSWConfig.c: changed comments

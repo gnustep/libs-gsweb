@@ -1,11 +1,16 @@
-/* GSWCheckBoxList.m - GSWeb: Class GSWCheckBoxList
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWCheckBoxList.m - <title>GSWeb: Class GSWCheckBoxList</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,79 +35,79 @@ static char rcsId[] = "$Id$";
 @implementation GSWCheckBoxList
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements_
 {
-  NSMutableDictionary* _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
+  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"name_=%@ associations_:%@ elements_=%@",name_,associations_,elements_);
-  defaultEscapeHTML=1;
-  [_associations removeObjectForKey:list__Key];
-  [_associations removeObjectForKey:item__Key];
-  [_associations removeObjectForKey:index__Key];
-  [_associations removeObjectForKey:prefix__Key];
-  [_associations removeObjectForKey:suffix__Key];
-  [_associations removeObjectForKey:selections__Key];
-  [_associations removeObjectForKey:displayString__Key];
-  [_associations removeObjectForKey:disabled__Key];
-  [_associations removeObjectForKey:escapeHTML__Key];
-  if ((self=[super initWithName:name_
-				   associations:_associations
-				   contentElements:nil]))
-	{
-	  list = [[associations_ objectForKey:list__Key
-							 withDefaultObject:[list autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"list=%@",list);
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements_=%@",aName,associations,elements_);
+  _defaultEscapeHTML=1;
+  [tmpAssociations removeObjectForKey:list__Key];
+  [tmpAssociations removeObjectForKey:item__Key];
+  [tmpAssociations removeObjectForKey:index__Key];
+  [tmpAssociations removeObjectForKey:prefix__Key];
+  [tmpAssociations removeObjectForKey:suffix__Key];
+  [tmpAssociations removeObjectForKey:selections__Key];
+  [tmpAssociations removeObjectForKey:displayString__Key];
+  [tmpAssociations removeObjectForKey:disabled__Key];
+  [tmpAssociations removeObjectForKey:escapeHTML__Key];
+  if ((self=[super initWithName:aName
+                   associations:tmpAssociations
+                   contentElements:nil]))
+    {
+      _list = [[associations objectForKey:list__Key
+                             withDefaultObject:[_list autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"list=%@",_list);
 
-	  item = [[associations_ objectForKey:item__Key
-							 withDefaultObject:[item autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"item=%@",item);
-	  if (item && ![item isValueSettable])
-		{
-		  ExceptionRaise0(@"GSWCheckBox",@"'item' parameter must be settable");
-		};
+      _item = [[associations objectForKey:item__Key
+                             withDefaultObject:[_item autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"item=%@",_item);
+      if (_item && ![_item isValueSettable])
+        {
+          ExceptionRaise0(@"GSWCheckBox",@"'item' parameter must be settable");
+        };
 
-	  value = [[associations_ objectForKey:value__Key
-							  withDefaultObject:[value autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"value=%@",value);
+      _value = [[associations objectForKey:value__Key
+                              withDefaultObject:[_value autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"value=%@",_value);
 
-	  index = [[associations_ objectForKey:index__Key
-							  withDefaultObject:[index autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"index=%@",index);
-	  if (index && ![index isValueSettable])
-		{
-		  ExceptionRaise0(@"GSWCheckBox",@"'index' parameter must be settable");
-		};
+      _index = [[associations objectForKey:index__Key
+                              withDefaultObject:[_index autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"index=%@",_index);
+      if (_index && ![_index isValueSettable])
+        {
+          ExceptionRaise0(@"GSWCheckBox",@"'index' parameter must be settable");
+        };
 	  
-	  prefix = [[associations_ objectForKey:prefix__Key
-							   withDefaultObject:[prefix autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"prefix=%@",prefix);
+      _prefix = [[associations objectForKey:prefix__Key
+                               withDefaultObject:[_prefix autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"prefix=%@",_prefix);
 
-	  suffix = [[associations_ objectForKey:suffix__Key
-							   withDefaultObject:[suffix autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"suffix=%@",suffix);
+      _suffix = [[associations objectForKey:suffix__Key
+                               withDefaultObject:[_suffix autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"suffix=%@",_suffix);
 
-	  selections = [[associations_ objectForKey:selections__Key
-								   withDefaultObject:[selections autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"selections=%@",selections);
-	  if (![selections isValueSettable])
-		{
-		  ExceptionRaise0(@"GSWCheckBox",@"'selection' parameter must be settable");
-		};
-
-	  displayString = [[associations_ objectForKey:displayString__Key
-									  withDefaultObject:[displayString autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"displayString=%@",displayString);
+      _selections = [[associations objectForKey:selections__Key
+                                   withDefaultObject:[_selections autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"selections=%@",_selections);
+      if (![_selections isValueSettable])
+        {
+          ExceptionRaise0(@"GSWCheckBox",@"'selection' parameter must be settable");
+        };
+      
+      _displayString = [[associations objectForKey:displayString__Key
+                                      withDefaultObject:[_displayString autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"displayString=%@",_displayString);
 	  
-	  itemDisabled = [[associations_ objectForKey:disabled__Key
-								   withDefaultObject:[itemDisabled autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"itemDisabled=%@",itemDisabled);
+      _itemDisabled = [[associations objectForKey:disabled__Key
+                                     withDefaultObject:[_itemDisabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"itemDisabled=%@",_itemDisabled);
 
-	  escapeHTML = [[associations_ objectForKey:escapeHTML__Key
-								   withDefaultObject:[escapeHTML autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"escapeHTML=%@",escapeHTML);
-	};
+      _escapeHTML = [[associations objectForKey:escapeHTML__Key
+                                   withDefaultObject:[_escapeHTML autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"escapeHTML=%@",_escapeHTML);
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -109,15 +115,15 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(list);
-  DESTROY(item);
-  DESTROY(index);
-  DESTROY(selections);
-  DESTROY(prefix);
-  DESTROY(suffix);
-  DESTROY(displayString);
-  DESTROY(itemDisabled);
-  DESTROY(escapeHTML);
+  DESTROY(_list);
+  DESTROY(_item);
+  DESTROY(_index);
+  DESTROY(_selections);
+  DESTROY(_prefix);
+  DESTROY(_suffix);
+  DESTROY(_displayString);
+  DESTROY(_itemDisabled);
+  DESTROY(_escapeHTML);
   [super dealloc];
 }
 
@@ -125,8 +131,8 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 //--------------------------------------------------------------------
@@ -141,106 +147,105 @@ static char rcsId[] = "$Id$";
 @implementation GSWCheckBoxList (GSWCheckBoxListA)
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
   LOGObjectFnStartC("GSWCheckBoxList");
-  [self _slowTakeValuesFromRequest:request_
-		inContext:context_];
+  [self _slowTakeValuesFromRequest:request
+        inContext:context];
   LOGObjectFnStopC("GSWCheckBoxList");
 };
 
 //-----------------------------------------------------------------------------------
--(void)_slowTakeValuesFromRequest:(GSWRequest*)request_
-			inContext:(GSWContext*)context_
+-(void)_slowTakeValuesFromRequest:(GSWRequest*)request
+			inContext:(GSWContext*)context
 {
   //OK
-  BOOL _disabledInContext=NO;
+  BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWCheckBoxList");
 
   [self resetAutoValue];
-  _disabledInContext=[self disabledInContext:context_];
-  if (!_disabledInContext)
+  disabledInContext=[self disabledInContext:context];
+  if (!disabledInContext)
     {
-      if ([context_ _wasFormSubmitted])
+      if ([context _wasFormSubmitted])
 	{
-	  GSWComponent* _component=[context_ component];
-	  NSArray* _listValue=nil;
-	  NSMutableArray* _selections=nil;
-	  NSString* _name=nil;
-	  NSArray* _formValues=nil;
-	  id _valueValue=nil;
+	  GSWComponent* component=[context component];
+	  NSArray* listValue=nil;
+	  NSMutableArray* selectionsValues=nil;
+	  NSString* name=nil;
+	  NSArray* formValues=nil;
+	  id valueValue=nil;
 	  int i=0;
 
-	  _name=[self nameInContext:context_];
-	  NSDebugMLLog(@"gswdync",@"_name=%@",_name);
-	  _formValues=[request_ formValuesForKey:_name];
-	  NSDebugMLLog(@"gswdync",@"_formValues=%@",_formValues);
-	  _listValue=[list valueInComponent:_component];
-	  NSAssert3(!_listValue || [_listValue respondsToSelector:@selector(count)],
+	  name=[self nameInContext:context];
+	  NSDebugMLLog(@"gswdync",@"name=%@",name);
+	  formValues=[request formValuesForKey:name];
+	  NSDebugMLLog(@"gswdync",@"formValues=%@",formValues);
+	  listValue=[_list valueInComponent:component];
+	  NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
 		    @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
-		    list,
-		    _listValue,
-		    [_listValue class]);
-	  NSDebugMLLog(@"gswdync",@"_listValue=%@",_listValue);
+		    _list,
+		    listValue,
+		    [listValue class]);
+	  NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
 
-	  for(i=0;i<[_listValue count];i++)
+	  for(i=0;i<[listValue count];i++)
 	    {
-	      NSDebugMLLog(@"gswdync",@"item=%@",item);
-	      NSDebugMLLog(@"gswdync",@"index=%@",index);
+	      NSDebugMLLog(@"gswdync",@"item=%@",_item);
+	      NSDebugMLLog(@"gswdync",@"index=%@",_index);
 
-	      if (item)
-		[item setValue:[_listValue objectAtIndex:i]
-		      inComponent:_component];
-	      else if (index)
-		[index setValue:[NSNumber numberWithShort:i]
-		       inComponent:_component];
-	      NSDebugMLLog(@"gswdync",@"value=%@",value);
+	      if (_item)
+		[_item setValue:[listValue objectAtIndex:i]
+                       inComponent:component];
+	      else if (_index)
+		[_index setValue:[NSNumber numberWithShort:i]
+                        inComponent:component];
+	      NSDebugMLLog(@"gswdync",@"value=%@",_value);
 
-	      _valueValue=[self valueInContext:context_];
-	      NSDebugMLLog(@"gswdync",@"_valueValue=%@",_valueValue);
+	      valueValue=[self valueInContext:context];
+	      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
 
-	      if (_valueValue)
+	      if (valueValue)
 		{
-		  BOOL _found=[_formValues containsObject:_valueValue];
+		  BOOL found=[formValues containsObject:valueValue];
 
-		  NSDebugMLLog(@"gswdync",@"_found=%s",(_found ? "YES" : "NO"));
-		  if (_found)
+		  NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
+		  if (found)
 		    {
-		      if (!_selections)
-			_selections=[NSMutableArray array];
+		      if (!selectionsValues)
+			selectionsValues=[NSMutableArray array];
 
-		      if(autoValue == NO)
-			[_selections addObject:_valueValue];
+		      if(_autoValue == NO)
+			[selectionsValues addObject:valueValue];
 		      else
-			[_selections
-			  addObject:[_listValue objectAtIndex:i]];
+			[selectionsValues addObject:[listValue objectAtIndex:i]];
 		    };
 		};
 	    };
-	  NSDebugMLLog(@"gswdync",@"_component=%@",_component);
-	  NSDebugMLLog(@"gswdync",@"_selections=%d",_selections);
-	  NSDebugMLLog(@"gswdync",@"selections=%@",selections);
-	  GSWLogAssertGood(_component);
+	  NSDebugMLLog(@"gswdync",@"component=%@",component);
+	  NSDebugMLLog(@"gswdync",@"selectionsValues=%d",selectionsValues);
+	  NSDebugMLLog(@"gswdync",@"selections=%@",_selections);
+	  GSWLogAssertGood(component);
           if (!WOStrictFlag)
             {
               NS_DURING
                 {
-                  [selections setValue:_selections
-                              inComponent:_component];
+                  [_selections setValue:selectionsValues
+                               inComponent:component];
                 };
               NS_HANDLER
                 {
                   [self handleValidationException:localException
-                        inContext:context_];
+                        inContext:context];
                 }
               NS_ENDHANDLER;
             }
           else
             {
-              [selections setValue:_selections
-                          inComponent:_component];
+              [_selections setValue:selectionsValues
+                           inComponent:component];
             };
 	};
     };
@@ -248,96 +253,95 @@ static char rcsId[] = "$Id$";
 };
 
 //-----------------------------------------------------------------------------------
--(void)_fastTakeValuesFromRequest:(GSWRequest*)request_
-						inContext:(GSWContext*)context_
+-(void)_fastTakeValuesFromRequest:(GSWRequest*)request
+                        inContext:(GSWContext*)context
 {
   LOGObjectFnStartC("GSWCheckBoxList");
   LOGObjectFnNotImplemented();	//TODOFN
   LOGObjectFnStopC("GSWCheckBoxList");
 };
 //-----------------------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK
-  GSWRequest* _request=nil;
-  BOOL _isFromClientComponent=NO;
-  NSString* _name=nil;
-  GSWComponent* _component=nil;
-  NSArray* _selectionsValue=nil;
-  BOOL _isEqual=NO;
+  GSWRequest* request=nil;
+  BOOL isFromClientComponent=NO;
+  NSString* name=nil;
+  GSWComponent* component=nil;
+  NSArray* selectionsValue=nil;
+  BOOL isEqual=NO;
 
   LOGObjectFnStartC("GSWCheckBoxList");
 
   [self resetAutoValue];
-  autoValue = NO;
+  _autoValue = NO;
 
-  _request=[context_ request];
-  _isFromClientComponent=[_request isFromClientComponent];
-  _name=[self nameInContext:context_];
-  _component=[context_ component];
-  _selectionsValue=[selections valueInComponent:_component];
-  if (_selectionsValue && ![_selectionsValue isKindOfClass:[NSArray class]])
+  request=[context request];
+  isFromClientComponent=[request isFromClientComponent];
+  name=[self nameInContext:context];
+  component=[context component];
+  selectionsValue=[_selections valueInComponent:component];
+  if (selectionsValue && ![selectionsValue isKindOfClass:[NSArray class]])
     {
       ExceptionRaise(@"GSWCheckBoxList",
 		     @"GSWCheckBoxList: selections is not a NSArray: %@ %@",
-		     _selectionsValue,
-		     [_selectionsValue class]);
+		     selectionsValue,
+		     [selectionsValue class]);
     }
   else
     {
       int i=0;
-      id _displayStringValue=nil;
-      id _prefixValue=nil;
-      id _suffixValue=nil;
-      id _valueValue=nil;
-      BOOL _disableValue=NO;
-      NSArray* _listValue=[list valueInComponent:_component];
+      id displayStringValue=nil;
+      id prefixValue=nil;
+      id suffixValue=nil;
+      id valueValue=nil;
+      BOOL disableValue=NO;
+      NSArray* listValue=[_list valueInComponent:component];
 
-      NSAssert3(!_listValue || [_listValue respondsToSelector:@selector(count)],
+      NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
 		@"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
-		list,
-		_listValue,
-		[_listValue class]);
+		_list,
+		listValue,
+		[listValue class]);
 
-      for(i=0;i<[_listValue count];i++)
+      for(i=0;i<[listValue count];i++)
 	{
-	  [item setValue:[_listValue objectAtIndex:i]
-		inComponent:_component];
-	  _prefixValue=[prefix valueInComponent:_component];
-	  _suffixValue=[suffix valueInComponent:_component];
-	  _disableValue=[itemDisabled valueInComponent:_component];
-	  [index setValue:[NSNumber numberWithShort:i]
-		 inComponent:_component];
-	  _displayStringValue=[displayString valueInComponent:_component];
-	  [response_ appendContentString:@"<INPUT NAME=\""];
-	  [response_ appendContentString:_name];
-	  [response_ appendContentString:@"\" TYPE=checkbox VALUE=\""];
-	  _valueValue = [self valueInContext:context_];
-	  [response_ appendContentHTMLAttributeValue:_valueValue];
-	  [response_ appendContentCharacter:'"'];
+	  [_item setValue:[listValue objectAtIndex:i]
+                 inComponent:component];
+	  prefixValue=[_prefix valueInComponent:component];
+	  suffixValue=[_suffix valueInComponent:component];
+	  disableValue=[_itemDisabled valueInComponent:component];
+	  [_index setValue:[NSNumber numberWithShort:i]
+                  inComponent:component];
+	  displayStringValue=[_displayString valueInComponent:component];
+	  [response appendContentString:@"<INPUT NAME=\""];
+	  [response appendContentString:name];
+	  [response appendContentString:@"\" TYPE=checkbox VALUE=\""];
+	  valueValue = [self valueInContext:context];
+	  [response appendContentHTMLAttributeValue:valueValue];
+	  [response appendContentCharacter:'"'];
 
 	  //TODOV
-	  if(value)
-	    _isEqual = [_selectionsValue containsObject:_valueValue];
+	  if(_value)
+	    isEqual = [selectionsValue containsObject:valueValue];
 	  else
 	    {
-	      _isEqual = [_selectionsValue
-			   containsObject:[_listValue objectAtIndex:i]];
+	      isEqual = [selectionsValue containsObject:[listValue objectAtIndex:i]];
 
-	      autoValue = YES;
+	      _autoValue = YES;
 	    }
 
-	  if(_isEqual)
-	    [response_ appendContentString:@"\" CHECKED"];
+	  if(isEqual)
+	    [response appendContentString:@"\" CHECKED"];
 
-	  if (_disableValue) 
-	    [response_ appendContentString:@"\" DISABLED"];
+	  if (disableValue) 
+	    [response appendContentString:@"\" DISABLED"];
 
-	  [response_ appendContentCharacter:'>'];
-	  [response_ appendContentString:_prefixValue];
-	  [response_ appendContentHTMLString:_displayStringValue];
-	  [response_ appendContentString:_suffixValue];
+	  [response appendContentCharacter:'>'];
+	  [response appendContentString:prefixValue];
+	  [response appendContentHTMLString:displayStringValue];
+	  [response appendContentString:suffixValue];
 	};
     };
   LOGObjectFnStopC("GSWCheckBoxList");
@@ -347,8 +351,8 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWCheckBoxList (GSWCheckBoxListB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
+                                      inContext:(GSWContext*)context
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -358,14 +362,14 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWCheckBoxList (GSWCheckBoxListC)
 -(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping
+               withMapping:(char*)_mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
 -(BOOL)appendStringAtLeft:(id)_unkwnon
-			  withMapping:(char*)_mapping
+              withMapping:(char*)_mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;

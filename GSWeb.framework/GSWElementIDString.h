@@ -1,11 +1,16 @@
-/* GSWElementIDString.h - GSWeb: Class GSWElementIDString
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWElementIDString.h - <title>GSWeb: Class GSWElementIDString</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
-   
+      
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -33,19 +39,19 @@
   NSMutableString* _string;
 };
 
-- (id) init;
-- (id) initWithCharactersNoCopy: (unichar*)chars
-			 length: (unsigned)length
-		   freeWhenDone: (BOOL)flag;
+-(id)init;
+-(id)initWithCharactersNoCopy:(unichar*)chars
+                       length:(unsigned)length
+                 freeWhenDone:(BOOL)flag;
 
-- (id) initWithCStringNoCopy: (char*)byteString
-		      length: (unsigned)length
-		freeWhenDone: (BOOL)flag;
-- (id) initWithCapacity: (unsigned)capacity;
-- (unsigned) length;
-- (unichar) characterAtIndex: (unsigned)index;
-- (void) replaceCharactersInRange: (NSRange)range 
-		       withString: (NSString*)aString;
+-(id)initWithCStringNoCopy:(char*)byteString
+                    length:(unsigned)length
+              freeWhenDone:(BOOL)flag;
+-(id)initWithCapacity:(unsigned)capacity;
+-(unsigned)length;
+-(unichar)characterAtIndex:(unsigned)index;
+-(void)replaceCharactersInRange:(NSRange)range 
+		       withString:(NSString*)aString;
 -(BOOL)canBeConvertedToEncoding:(NSStringEncoding)encoding;
 -(void)dealloc;
 -(void)getCString:(char*)buffer

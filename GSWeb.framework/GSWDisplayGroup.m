@@ -46,7 +46,9 @@ static char rcsId[] = "$Id$";
       _queryMatch    = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMin      = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMax      = [[NSMutableDictionary alloc] initWithCapacity:8];
+      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
       _queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
+      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
 
       _queryBindings = [[NSMutableDictionary alloc] initWithCapacity:8];
 
@@ -123,8 +125,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
               [unarchiver decodeObjectForKey:@"formatForLikeQualifier"]];
       [self setInsertedObjectDefaultValues:
               [unarchiver decodeObjectForKey:@"insertedObjectDefaultValues"]];
-
+      [self setQueryOperator:[unarchiver decodeObjectForKey:@"queryOperator"]];
       [self finishInitialization];
+      NSDebugMLLog(@"gswdisplaygroup",@"GSWDisplayGroup %p : %@",self,self);
       LOGObjectFnStop();
     };
   return self;
@@ -159,6 +162,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 			   _defaultStringMatchFormat];
   _dscr=[_dscr stringByAppendingFormat:@"insertedObjectDefaultValues:[%@]\n",
 			   _insertedObjectDefaultValues];
+  _dscr=[_dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
+			   _queryOperator];
 
   return _dscr;
 };
@@ -269,6 +274,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       NSString* fvalue=value;
       
       //VERIFY!!
+      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
       op = [_queryOperator objectForKey:key];
       NSDebugMLLog(@"gswdisplaygroup",@"op=%@",op);
       if(op)
@@ -281,7 +287,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
       if (_defaultStringMatchFormat)
         fvalue=[NSString stringWithFormat:_defaultStringMatchFormat,
-                         value];//VERIFY !!!
+                         value];//VERIFY !!!      
       NSDebugMLLog(@"gswdisplaygroup",@"fvalue=%@",fvalue);
       qualifier=[[[EOKeyValueQualifier alloc]
                    initWithKey:key
@@ -955,11 +961,12 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 }
 
 //--------------------------------------------------------------------
-//	hasMultipleBatches
+/** returns YES if the displayGroup paginates display (batchCount>1), false otherwise **/
 
 - (BOOL)hasMultipleBatches
 {
-  return !_flags.fetchAll;
+  //return !_flags.fetchAll;
+  return ([self batchCount]>1);
 }
 
 //--------------------------------------------------------------------
@@ -1758,6 +1765,18 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
   ASSIGN(_localKeys, keys);
   LOGObjectFnStop();
 }
+
+//--------------------------------------------------------------------
+/** sets query operators **/
+-(void)setQueryOperator:(NSDictionary*)qo
+{
+  NSAssert1((!qo || [qo isKindOfClass:[NSDictionary class]]),
+            @"queryOperator is not a dictionary but a %@",
+            [qo class]);
+  [_queryOperator removeAllObjects];
+  if (qo)
+    [_queryOperator addEntriesFromDictionary:qo];
+};
 
 //--------------------------------------------------------------------
 //	setMasterObject:

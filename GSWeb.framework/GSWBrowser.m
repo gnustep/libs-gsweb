@@ -1,11 +1,16 @@
-/* GSWBrowser.m - GSWeb: Class GSWBrowser
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWBrowser.m - <title>GSWeb: Class GSWBrowser</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,61 +35,62 @@ static char rcsId[] = "$Id$";
 @implementation GSWBrowser
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-     associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
   //OK
-  NSMutableDictionary* _associations=nil;
+  NSMutableDictionary* tmpAssociations=nil;
   LOGObjectFnStartC("GSWBrowser");
-  NSDebugMLLog(@"gswdync",@"name_=%@ associations_:%@ elements=%@",name_,associations_,elements_);
-  _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
-  [_associations removeObjectForKey:list__Key];
-  [_associations removeObjectForKey:item__Key];
-  [_associations removeObjectForKey:displayString__Key];
-  [_associations removeObjectForKey:selections__Key];
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",
+               aName,associations,elements);
+  tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
+  [tmpAssociations removeObjectForKey:list__Key];
+  [tmpAssociations removeObjectForKey:item__Key];
+  [tmpAssociations removeObjectForKey:displayString__Key];
+  [tmpAssociations removeObjectForKey:selections__Key];
   if (!WOStrictFlag)
-    [_associations removeObjectForKey:selectionValues__Key];
-  [_associations removeObjectForKey:selectedValues__Key];
-  [_associations removeObjectForKey:size__Key];
-  [_associations removeObjectForKey:multiple__Key];
-  [_associations removeObjectForKey:escapeHTML__Key];
+    [tmpAssociations removeObjectForKey:selectionValues__Key];
+  [tmpAssociations removeObjectForKey:selectedValues__Key];
+  [tmpAssociations removeObjectForKey:size__Key];
+  [tmpAssociations removeObjectForKey:multiple__Key];
+  [tmpAssociations removeObjectForKey:escapeHTML__Key];
 
-  if ((self=[super initWithName:name_
-                   associations:_associations
+  if ((self=[super initWithName:aName
+                   associations:tmpAssociations
                    contentElements:nil]))
     {
-      list=[[associations_ objectForKey:list__Key
-                           withDefaultObject:[list autorelease]] retain];
-      item=[[associations_ objectForKey:item__Key
-                           withDefaultObject:[item autorelease]] retain];
-      displayString=[[associations_ objectForKey:displayString__Key
-                                    withDefaultObject:[displayString autorelease]] retain];
-      selections=[[associations_ objectForKey:selection__Key
-                                 withDefaultObject:[selections autorelease]] retain];
-      if (selections && ![selections isValueSettable])
+      _list=[[associations objectForKey:list__Key
+                           withDefaultObject:[_list autorelease]] retain];
+      _item=[[associations objectForKey:item__Key
+                           withDefaultObject:[_item autorelease]] retain];
+      _displayString=[[associations objectForKey:displayString__Key
+                                    withDefaultObject:[_displayString autorelease]] retain];
+      _selections=[[associations objectForKey:selection__Key
+                                 withDefaultObject:[_selections autorelease]] retain];
+      if (_selections && ![_selections isValueSettable])
         {
           //TODO
         };
 
       if (!WOStrictFlag)
         {
-          selectionValues=[[associations_ objectForKey:selectionValue__Key
-                                          withDefaultObject:[selectionValues autorelease]] retain];
-          if (selectionValues && ![selectionValues isValueSettable])
+          _selectionValues=[[associations objectForKey:selectionValue__Key
+                                          withDefaultObject:[_selectionValues autorelease]] retain];
+          if (_selectionValues && ![_selectionValues isValueSettable])
             {
               //TODO
             };
         };
       
-      selectedValues=[[associations_ objectForKey:selectedValues__Key
-                                     withDefaultObject:[selectedValues autorelease]] retain];
-      size=[[associations_ objectForKey:size__Key
-                           withDefaultObject:[size autorelease]] retain];
-      multiple=[[associations_ objectForKey:multiple__Key
-                               withDefaultObject:[multiple autorelease]] retain];
-      escapeHTML=[[associations_ objectForKey:escapeHTML__Key
-                                 withDefaultObject:[escapeHTML autorelease]] retain];
+      _selectedValues=[[associations objectForKey:selectedValues__Key
+                                     withDefaultObject:[_selectedValues autorelease]] retain];
+      _size=[[associations objectForKey:size__Key
+                           withDefaultObject:[_size autorelease]] retain];
+      _multiple=[[associations objectForKey:multiple__Key
+                               withDefaultObject:[_multiple autorelease]] retain];
+      _escapeHTML=[[associations objectForKey:escapeHTML__Key
+                                 withDefaultObject:[_escapeHTML autorelease]] retain];
     };
   LOGObjectFnStopC("GSWBrowser");
   return self;
@@ -92,15 +99,15 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(list);
-  DESTROY(item);
-  DESTROY(displayString);
-  DESTROY(selections);
-  DESTROY(selectionValues);
-  DESTROY(selectedValues);
-  DESTROY(size);
-  DESTROY(multiple);
-  DESTROY(escapeHTML);
+  DESTROY(_list);
+  DESTROY(_item);
+  DESTROY(_displayString);
+  DESTROY(_selections);
+  DESTROY(_selectionValues);
+  DESTROY(_selectedValues);
+  DESTROY(_size);
+  DESTROY(_multiple);
+  DESTROY(_escapeHTML);
   [super dealloc];
 };
 
@@ -123,315 +130,315 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWBrowser (GSWBrowserA)
 
--(void)appendToResponse:(GSWResponse*)response_
-              inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK
-  GSWRequest* _request=nil;
-  BOOL _isFromClientComponent=NO;
-  GSWComponent* _component=nil;
-  NSArray* _listValue=nil;
-  id _selectionsValue=nil;
-  id _selectedValuesValue=nil;
-  id _valueValue=nil;
-  id _itemValue=nil;
-  id _displayStringValue=nil;
-  BOOL _escapeHTML=YES;
-  id _escapeHTMLValue=nil;
-  BOOL _isMultiple=NO;
+  GSWRequest* request=nil;
+  BOOL isFromClientComponent=NO;
+  GSWComponent* component=nil;
+  NSArray* listValue=nil;
+  id selectionsValue=nil;
+  id selectedValuesValue=nil;
+  id valueValue=nil;
+  id itemValue=nil;
+  id displayStringValue=nil;
+  BOOL escapeHTMLBoolValue=YES;
+  id escapeHTMLValue=nil;
+  BOOL isMultiple=NO;
   int i=0;
-  BOOL _inOptGroup=NO;
+  BOOL inOptGroup=NO;
 #ifndef ENABLE_OPTGROUP
-  BOOL _optGroupLabel=NO;
+  BOOL optGroupLabel=NO;
 #endif
   LOGObjectFnStartC("GSWBrowser");
   [self resetAutoValue];
-  autoValue = NO;
-  _request=[context_ request];
-  _isFromClientComponent=[_request isFromClientComponent];
-  _component=[context_ component];
+  _autoValue = NO;
+  request=[context request];
+  isFromClientComponent=[request isFromClientComponent];
+  component=[context component];
 //TODO: multiple
-  [super appendToResponse:response_
-         inContext:context_];
-  _listValue=[list valueInComponent:_component];
-  NSDebugMLLog(@"gswdync",@"_listValue=%@",_listValue);
-  NSAssert3(!_listValue || [_listValue respondsToSelector:@selector(count)],
+  [super appendToResponse:response
+         inContext:context];
+  listValue=[_list valueInComponent:component];
+  NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
+  NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
             @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
-            list,
-            _listValue,
-            [_listValue class]);
-  _selectionsValue=[selections valueInComponent:_component];
-  NSDebugMLLog(@"gswdync",@"selections=%@",selections);
-  NSDebugMLLog(@"gswdync",@"_selectionsValue=%@",_selectionsValue);
-  _selectedValuesValue=[selectedValues valueInComponent:_component];
-  NSDebugMLLog(@"gswdync",@"selectedValues=%@",selectedValues);
-  NSDebugMLLog(@"gswdync",@"_selectedValuesValue=%@",_selectedValuesValue);
-  if (escapeHTML)
+            _list,
+            listValue,
+            [listValue class]);
+  selectionsValue=[_selections valueInComponent:component];
+  NSDebugMLLog(@"gswdync",@"selections=%@",_selections);
+  NSDebugMLLog(@"gswdync",@"selectionsValue=%@",selectionsValue);
+  selectedValuesValue=[_selectedValues valueInComponent:component];
+  NSDebugMLLog(@"gswdync",@"selectedValues=%@",_selectedValues);
+  NSDebugMLLog(@"gswdync",@"selectedValuesValue=%@",selectedValuesValue);
+  if (_escapeHTML)
     {
-      _escapeHTMLValue=[escapeHTML valueInComponent:_component];
-      _escapeHTML=boolValueFor(_escapeHTMLValue);
+      escapeHTMLValue=[_escapeHTML valueInComponent:component];
+      escapeHTMLBoolValue=boolValueFor(escapeHTMLValue);
     };
-  if (multiple)
+  if (_multiple)
     {
-      id _multipleValue=nil;
-      _multipleValue=[multiple valueInComponent:_component];
-      _isMultiple=boolValueFor(_multipleValue);
+      id multipleValue=nil;
+      multipleValue=[_multiple valueInComponent:component];
+      isMultiple=boolValueFor(multipleValue);
     };
-  for(i=0;i<[_listValue count];i++)
+  for(i=0;i<[listValue count];i++)
     {
-      NSDebugMLLog(@"gswdync",@"_inOptGroup=%s",(_inOptGroup ? "YES" : "NO"));
-      _itemValue=[_listValue objectAtIndex:i];
-      if (item)
-        [item setValue:_itemValue
-              inComponent:_component];
-      NSDebugMLLog(@"gswdync",@"_itemValue=%@",_itemValue);
-      if (_itemValue)
+      NSDebugMLLog(@"gswdync",@"inOptGroup=%s",(inOptGroup ? "YES" : "NO"));
+      itemValue=[listValue objectAtIndex:i];
+      if (_item)
+        [_item setValue:itemValue
+               inComponent:component];
+      NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
+      if (itemValue)
         {
-          NSDebugMLLog(@"gswdync",@"value=%@",value);
-          _valueValue=[self valueInContext:context_];
-          NSDebugMLLog(@"gswdync",@"_valueValue=%@",_valueValue);
-          if (_valueValue)
+          NSDebugMLLog(@"gswdync",@"value=%@",_value);
+          valueValue=[self valueInContext:context];
+          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+          if (valueValue)
             {
-              BOOL _isEqual;
+              BOOL isEqual;
 
               NSDebugMLLog0(@"gswdync",@"Adding OPTION");
-              [response_ _appendContentAsciiString:@"\n<OPTION"];
-              if (selections)
+              [response _appendContentAsciiString:@"\n<OPTION"];
+              if (_selections)
                 {
-                  if(value)
-                    _isEqual=SBIsValueIsIn(_valueValue,_selectionsValue);
+                  if(_value)
+                    isEqual=SBIsValueIsIn(valueValue,selectionsValue);
                   else
-                    _isEqual=SBIsValueIsIn(_itemValue,_selectionsValue);
+                    isEqual=SBIsValueIsIn(itemValue,selectionsValue);
 
-                  if (_isEqual)
+                  if (isEqual)
                     {
-                      [response_ appendContentCharacter:' '];
-                      [response_ _appendContentAsciiString:@"selected"];
+                      [response appendContentCharacter:' '];
+                      [response _appendContentAsciiString:@"selected"];
                     };
                 };
-              if (_isEqual == NO && selectedValues)
+              if (isEqual == NO && _selectedValues)
                 {
-                  if(value)
-                    _isEqual=SBIsValueIsIn(_valueValue,_selectedValuesValue);
+                  if(_value)
+                    isEqual=SBIsValueIsIn(valueValue,selectedValuesValue);
                   else
-                    _isEqual=SBIsValueIsIn(_itemValue,_selectedValuesValue);
+                    isEqual=SBIsValueIsIn(itemValue,selectedValuesValue);
 
-                  if (_isEqual)
+                  if (isEqual)
                     {
-                      [response_ appendContentCharacter:' '];
-                      [response_ _appendContentAsciiString:@"selected"];
+                      [response appendContentCharacter:' '];
+                      [response _appendContentAsciiString:@"selected"];
                     };
                 };
-              if (value == nil)
-                autoValue = YES;
-              if (_valueValue)
+              if (_value == nil)
+                _autoValue = YES;
+              if (valueValue)
                 {
-                  [response_ _appendContentAsciiString:@" value=\""];
-                  [response_ _appendContentAsciiString:_valueValue];
-                  [response_ appendContentCharacter:'"'];
+                  [response _appendContentAsciiString:@" value=\""];
+                  [response _appendContentAsciiString:valueValue];
+                  [response appendContentCharacter:'"'];
                 };
-              [response_ appendContentCharacter:'>'];
+              [response appendContentCharacter:'>'];
             };
-          _displayStringValue=nil;
-          if (displayString)
+          displayStringValue=nil;
+          if (_displayString)
             {
-              NSDebugMLLog(@"gswdync",@"displayString=%@",displayString);
-              _displayStringValue=[displayString valueInComponent:_component];
-              NSDebugMLLog(@"gswdync",@"_displayStringValue=%@",_displayStringValue);
+              NSDebugMLLog(@"gswdync",@"displayString=%@",_displayString);
+              displayStringValue=[_displayString valueInComponent:component];
+              NSDebugMLLog(@"gswdync",@"displayStringValue=%@",displayStringValue);
             };
 
-          if (_displayStringValue)
+          if (displayStringValue)
             {
-              if (!_valueValue)
+              if (!valueValue)
                 {
-                  if (_inOptGroup)
+                  if (inOptGroup)
                     {
                       NSDebugMLLog0(@"gswdync",@"Adding /OPTGROUP");
 #ifdef ENABLE_OPTGROUP
-                      [response_ _appendContentAsciiString:@"\n</OPTGROUP>"];
+                      [response _appendContentAsciiString:@"\n</OPTGROUP>"];
 #endif
-                      _inOptGroup=NO;
+                      inOptGroup=NO;
                     };
                   NSDebugMLLog0(@"gswdync",@"Adding OPTGROUP");
 #ifdef ENABLE_OPTGROUP
-                  [response_ _appendContentAsciiString:@"\n<OPTGROUP label=\""];
+                  [response _appendContentAsciiString:@"\n<OPTGROUP label=\""];
 #else
 #if 0
-                  [response_ _appendContentAsciiString:@"\n<OPTION>-- "];
-                  _optGroupLabel=YES;
+                  [response _appendContentAsciiString:@"\n<OPTION>-- "];
+                  optGroupLabel=YES;
 #else
-                  [response_ _appendContentAsciiString:@"\n<OPTION>"];
+                  [response _appendContentAsciiString:@"\n<OPTION>"];
 #endif
-                  _optGroupLabel=YES;
+                  optGroupLabel=YES;
 #endif
-                  _inOptGroup=YES;
+                  inOptGroup=YES;
                 };
               //<OPTGROUP label="PortMaster 3">
               
-              if (_escapeHTML)
-                _displayStringValue=[GSWResponse stringByEscapingHTMLString:_displayStringValue];
-              NSDebugMLLog(@"gswdync",@"_displayStringValue=%@",_displayStringValue);
+              if (escapeHTMLBoolValue)
+                displayStringValue=[GSWResponse stringByEscapingHTMLString:displayStringValue];
+              NSDebugMLLog(@"gswdync",@"displayStringValue=%@",displayStringValue);
 #ifndef ENABLE_OPTGROUP
-              if (_optGroupLabel)
+              if (optGroupLabel)
                 {
-                  _displayStringValue=[NSString stringWithFormat:@"%@ --",_displayStringValue];
+                  displayStringValue=[NSString stringWithFormat:@"%@ --",displayStringValue];
                 };
 #endif
-              [response_ appendContentHTMLString:_displayStringValue];
+              [response appendContentHTMLString:displayStringValue];
             };
-          if (_valueValue)
+          if (valueValue)
             {
               //NSDebugMLLog0(@"gswdync",@"Adding /OPTION");
               // K2- No /OPTION TAG
-              //[response_ _appendContentAsciiString:@"</OPTION>"];
+              //[response _appendContentAsciiString:@"</OPTION>"];
             }
           else
             {
               NSDebugMLLog0(@"gswdync",@"Adding > or </OPTION>");
 #ifdef ENABLE_OPTGROUP
-              [response_ _appendContentAsciiString:@"\">"];
+              [response _appendContentAsciiString:@"\">"];
 #else
-              if (_optGroupLabel)
+              if (optGroupLabel)
                 {
-                  //[response_ _appendContentAsciiString:@"</OPTION>"];
-                  _optGroupLabel=NO;
+                  //[response _appendContentAsciiString:@"</OPTION>"];
+                  optGroupLabel=NO;
                 };
 #endif
             };
         };
     };
-  if (_inOptGroup)
+  if (inOptGroup)
     {
 #ifdef ENABLE_OPTGROUP
       NSDebugMLLog0(@"gswdync",@"Adding /OPTGROUP");
-      [response_ _appendContentAsciiString:@"\n</OPTGROUP>"];
+      [response _appendContentAsciiString:@"\n</OPTGROUP>"];
 #endif
-      _inOptGroup=NO;
+      inOptGroup=NO;
     };
-  [response_ _appendContentAsciiString:@"</SELECT>"];
+  [response _appendContentAsciiString:@"</SELECT>"];
   LOGObjectFnStopC("GSWBrowser");
 };
 
 //-------------------------------------------------------------------- 
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-                   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
   LOGObjectFnStartC("GSWPopUpButton");
-  [self _slowTakeValuesFromRequest:request_
-		inContext:context_];
+  [self _slowTakeValuesFromRequest:request
+		inContext:context];
   LOGObjectFnStopC("GSWPopUpButton");
 };
 
 //-------------------------------------------------------------------- 
--(void)_slowTakeValuesFromRequest:(GSWRequest*)request_
-                        inContext:(GSWContext*)context_
+-(void)_slowTakeValuesFromRequest:(GSWRequest*)request
+                        inContext:(GSWContext*)context
 {
   //OK
-  BOOL _disabled=NO;
-  BOOL _wasFormSubmitted=NO;
+  BOOL disabledValue=NO;
+  BOOL wasFormSubmitted=NO;
   LOGObjectFnStartC("GSWPopUpButton");
   [self resetAutoValue];
-  _disabled=[self disabledInContext:context_];
-  if (!_disabled)
+  disabledValue=[self disabledInContext:context];
+  if (!disabledValue)
     {
-      _wasFormSubmitted=[context_ _wasFormSubmitted];
-      if (_wasFormSubmitted)
+      wasFormSubmitted=[context _wasFormSubmitted];
+      if (wasFormSubmitted)
         {
-          BOOL _isMultiple=NO;
-          NSArray* _foundValues=nil;
-          NSMutableArray* _mutableFoundValues=[NSMutableArray array];
-          GSWComponent* _component=nil;
-          NSArray* _listValue=nil;
-          id _valueValue=nil;
-          id _itemValue=nil;
-          NSString* _name=nil;
-          NSArray* _formValues=nil;
-          id _formValue=nil;
-          BOOL _found=NO;
+          BOOL isMultiple=NO;
+          NSArray* foundValues=nil;
+          NSMutableArray* mutableFoundValues=[NSMutableArray array];
+          GSWComponent* component=nil;
+          NSArray* listValue=nil;
+          id valueValue=nil;
+          id itemValue=nil;
+          NSString* name=nil;
+          NSArray* formValues=nil;
+          id formValue=nil;
+          BOOL found=NO;
           int i=0;
-          _component=[context_ component];
-          _name=[self nameInContext:context_];
-          NSDebugMLLog(@"gswdync",@"_name=%@",_name);
-          if (multiple)
+          component=[context component];
+          name=[self nameInContext:context];
+          NSDebugMLLog(@"gswdync",@"name=%@",name);
+          if (_multiple)
             {
-              id _multipleValue=[multiple valueInComponent:_component];
-              _isMultiple=boolValueFor(_multipleValue);
+              id multipleValue=[_multiple valueInComponent:component];
+              isMultiple=boolValueFor(multipleValue);
             };
-          _formValues=[request_ formValuesForKey:_name];
-          NSDebugMLLog(@"gswdync",@"_formValues=%@",_formValues);
-          if (_formValues && [_formValues count])
+          formValues=[request formValuesForKey:name];
+          NSDebugMLLog(@"gswdync",@"formValues=%@",formValues);
+          if (formValues && [formValues count])
             {
-              BOOL _isEqual=NO;
-              _formValue=[_formValues objectAtIndex:0];
-              NSDebugMLLog(@"gswdync",@"_formValue=%@",_formValue);
-              _listValue=[list valueInComponent:_component];
-              NSAssert3(!_listValue || [_listValue respondsToSelector:@selector(count)],
+              BOOL isEqual=NO;
+              formValue=[formValues objectAtIndex:0];
+              NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
+              listValue=[_list valueInComponent:component];
+              NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
                         @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
-                        list,
-                        _listValue,
-                        [_listValue class]);
-              for(i=0;(!_found || _isMultiple) && i<[_listValue count];i++)
+                        _list,
+                        listValue,
+                        [listValue class]);
+              for(i=0;(!found || isMultiple) && i<[listValue count];i++)
                 {
-                  _itemValue=[_listValue objectAtIndex:i];
-                  NSDebugMLLog(@"gswdync",@"_itemValue=%@",_itemValue);
-                  NSDebugMLLog(@"gswdync",@"item=%@",item);
-                  if (item)
-                    [item setValue:_itemValue
-                          inComponent:_component];
-                  NSDebugMLLog(@"gswdync",@"value=%@",value);
-                  _valueValue=[self valueInContext:context_];
+                  itemValue=[listValue objectAtIndex:i];
+                  NSDebugMLLog(@"gswdync",@"_itemValue=%@",itemValue);
+                  NSDebugMLLog(@"gswdync",@"item=%@",_item);
+                  if (_item)
+                    [_item setValue:itemValue
+                           inComponent:component];
+                  NSDebugMLLog(@"gswdync",@"value=%@",_value);
+                  valueValue=[self valueInContext:context];
                   NSDebugMLLog(@"gswdync",@"_valueValue=%@ [class=%@] _formValue=%@ [class=%@]",
-                               _valueValue,[_valueValue class],
-                               _formValue,[_formValue class]);
-                  _isEqual=SBIsValueIsIn(_valueValue,_formValue);
-                  if (_isEqual)
+                               valueValue,[valueValue class],
+                               formValue,[formValue class]);
+                  isEqual=SBIsValueIsIn(valueValue,formValue);
+                  if (isEqual)
                     {
-                      if(autoValue == NO)
-                        _itemValue = _valueValue;
-                      [_mutableFoundValues addObject:_itemValue];
-                      _found=YES;
+                      if(_autoValue == NO)
+                        itemValue = valueValue;
+                      [mutableFoundValues addObject:itemValue];
+                      found=YES;
                     };
                 };
             };
-          _foundValues=[NSArray arrayWithArray:_mutableFoundValues];
-          NSDebugMLLog(@"gswdync",@"_found=%s",(_found ? "YES" : "NO"));
-          if (selections)
+          foundValues=[NSArray arrayWithArray:mutableFoundValues];
+          NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
+          if (_selections)
             {
               if (!WOStrictFlag)
                 {
                   NS_DURING
                     {
-                      [selections setValue:_foundValues
-                                  inComponent:_component];
+                      [_selections setValue:foundValues
+                                  inComponent:component];
                     };
                   NS_HANDLER
                     {
                       [self handleValidationException:localException
-                            inContext:context_];
+                            inContext:context];
                     }
                   NS_ENDHANDLER;
                 }
               else
                 {
-                  [selections setValue:_foundValues
-                              inComponent:_component];
+                  [_selections setValue:foundValues
+                              inComponent:component];
                 };
                 };
           if (!WOStrictFlag)
             {
-              if (selectionValues)
+              if (_selectionValues)
                 {
                   NS_DURING
                     {
-                      [selectionValues setValue:_foundValues
-                                       inComponent:_component];
+                      [_selectionValues setValue:foundValues
+                                       inComponent:component];
                     };
                   NS_HANDLER
                     {
                       [self handleValidationException:localException
-                            inContext:context_];
+                            inContext:context];
                     }
                   NS_ENDHANDLER;
                 };
@@ -442,8 +449,8 @@ static char rcsId[] = "$Id$";
 };
 
 //-------------------------------------------------------------------- 
--(void)_fastTakeValuesFromRequest:(GSWRequest*)request_
-                        inContext:(GSWContext*)context_
+-(void)_fastTakeValuesFromRequest:(GSWRequest*)request
+                        inContext:(GSWContext*)context
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -453,16 +460,16 @@ static char rcsId[] = "$Id$";
 
 //====================================================================
 @implementation GSWBrowser (GSWBrowserB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-                                      inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
+                                      inContext:(GSWContext*)context
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
 
--(void)appendValueToResponse:(GSWResponse*)response_
-                   inContext:(GSWContext*)context_
+-(void)appendValueToResponse:(GSWResponse*)response
+                   inContext:(GSWContext*)context
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };

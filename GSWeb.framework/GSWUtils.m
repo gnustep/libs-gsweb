@@ -52,7 +52,7 @@ BOOL boolValueFor(id id_)
 		return YES;
 	  else if (/*id_==BNNO ||*/ id_==NSTNO)
 		return NO;
-	  else if ([id_ conformsTo:@protocol(NSString)] && [id_ length]>0)
+	  else if (/*[id_ conformsTo:@protocol(NSString)]*/ [id_ isKindOfClass:[NSString class]] && [id_ length]>0)
 		return ([id_ caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
 	  else if ([id_ respondsToSelector:@selector(boolValue)] && [id_ boolValue])
 		return YES;
@@ -78,7 +78,7 @@ BOOL boolValueWithDefaultFor(id id_,BOOL default_)
 	  else if (/*id_==BNNO ||*/ id_==NSTNO)
 		return NO;
 //@protocol NSString
-	  else if ([id_ conformsTo:@protocol(NSString)] && [id_ length]>0)
+	  else if (/*[id_ conformsTo:@protocol(NSString)]*/ [id_ isKindOfClass:[NSString class]] && [id_ length]>0)
 		return ([id_ caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
 	  else if ([id_ respondsToSelector:@selector(boolValue)])
 		return ([id_ boolValue]!=NO);

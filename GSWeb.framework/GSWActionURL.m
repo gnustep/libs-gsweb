@@ -1,11 +1,16 @@
-/* GSWActionURL.h - GSWeb: Class GSWActionURL
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWActionURL.h - <title>GSWeb: Class GSWActionURL</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sep 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,17 +35,19 @@ static char rcsId[] = "$Id$";
 @implementation GSWActionURL
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)template_
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)template
 {
   IM_StartC("ActionURL");
-  MDumpInputObject(name_);
-  MDumpInputObject(associations_);
-  MDumpInputObject(template_);
-  self=[super initWithName:name_
-			  associations:associations_
-			  template:template_];
+  MDumpInputObject(name);
+  MDumpInputObject(associations);
+  MDumpInputObject(template);
+  if ((self=[super initWithName:name
+                   associations:associations
+                   template:template]))
+    {
+    };
   IM_StopC("ActionURL");
   return self;
 };
@@ -67,14 +75,12 @@ static char rcsId[] = "$Id$";
 @implementation GSWActionURL (GSWActionURLA)
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-				   inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   IM_StartC("ActionURL");
-  MDumpInputObject(response_);
-  MDumpInputObject(context_);
-  [super appendToResponse:response_
-		 inContext:context_];
+  [super appendToResponse:response
+		 inContext:context];
   IM_StopC("ActionURL");
 };
 

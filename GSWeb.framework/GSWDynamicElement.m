@@ -1,11 +1,16 @@
-/* GSWDynamicElement.m - GSWeb: Class GSWDynamicElement
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWDynamicElement.m - <title>GSWeb: Class GSWDynamicElement</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -32,14 +38,14 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 //	initWithName:associations:template:
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)template_
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)template
 {
   //OK
   if ((self=[super init]))
-	{
-	};
+    {
+    };
   return self;
 };
 
@@ -62,9 +68,11 @@ static char rcsId[] = "$Id$";
 
 -(void)setDefinitionName:(NSString*)definitionName
 {
-  NSDebugMLLog(@"gswdync",@"setDefinitionName1 in %p: %p %@",self,definitionName,definitionName);
+  NSDebugMLLog(@"gswdync",@"setDefinitionName1 in %p: %p %@",
+               self,definitionName,definitionName);
   ASSIGN(_definitionName,definitionName);
-  NSDebugMLLog(@"gswdync",@"setDefinitionName2 in %p: %p %@",self,_definitionName,_definitionName);
+  NSDebugMLLog(@"gswdync",@"setDefinitionName2 in %p: %p %@",
+               self,_definitionName,_definitionName);
 };
 
 @end
@@ -72,30 +80,30 @@ static char rcsId[] = "$Id$";
 @implementation GSWDynamicElement (GSWDynamicElement)
 
 //--------------------------------------------------------------------
--(BOOL)evaluateCondition:(id)condition_
-			   inContext:(GSWContext*)_context
+-(BOOL)evaluateCondition:(id)condition
+               inContext:(GSWContext*)context
 {
   //OK
-  BOOL _result=NO;
+  BOOL result=NO;
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"condition_=%@",
-               condition_);
-  if (condition_)
-	{
-	  GSWComponent* _component=[_context component];
-	  id _value=[condition_ valueInComponent:_component];
-	  NSDebugMLLog(@"gswdync",@"_value=%@ class=%@",_value,[_value class]);
+               condition);
+  if (condition)
+    {
+      GSWComponent* component=[context component];
+      id value=[condition valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"_value=%@ class=%@",value,[value class]);
 #ifndef NDEBUG
-	  if ([_value respondsToSelector:@selector(unsignedCharValue)])
-		{
-		  NSDebugMLLog(@"gswdync",@"unsignedCharValue=%d",(int)[_value unsignedCharValue]);
-		};
+      if ([value respondsToSelector:@selector(unsignedCharValue)])
+        {
+          NSDebugMLLog(@"gswdync",@"unsignedCharValue=%d",(int)[value unsignedCharValue]);
+        };
 #endif
-	  _result=boolValueWithDefaultFor(_value,YES);
-	};
+      result=boolValueWithDefaultFor(value,YES);
+    };
   NSDebugMLLog(@"gswdync",@"result=%s",
-               (_result ? "YES" : "NO"));
+               (result ? "YES" : "NO"));
   LOGObjectFnStop();
-  return _result;
+  return result;
 };
 @end

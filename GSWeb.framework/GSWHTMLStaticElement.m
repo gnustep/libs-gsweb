@@ -1,11 +1,16 @@
-/* GSWHTMLStaticElement.m - GSWeb: Class GSWHTMLStaticElement
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLStaticElement.m - <title>GSWeb: Class GSWHTMLStaticElement</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,197 +35,198 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLStaticElement
 
 //--------------------------------------------------------------------
--(id)		initWithName:(NSString*)_elementName
-	 attributeDictionary:(NSDictionary*)attributeAssociations_
-		 contentElements:(NSArray*)_elements
+-(id)		initWithName:(NSString*)anElementName
+	 attributeDictionary:(NSDictionary*)aAttributeAssociationsList
+             contentElements:(NSArray*)anElementsArray
 {
   //OK
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"_elementName=%@ attributeAssociations_:%@ _elements=%@",
-		_elementName,
-		attributeAssociations_,
-		_elements);
+  NSDebugMLLog(@"gswdync",@"anElementName=%@ aAttributeAssociationsList:%@ anElementsArray=%@",
+               anElementName,
+               aAttributeAssociationsList,
+               anElementsArray);
   if ((self=[super init]))
-	{
-	  NSMutableArray* _attributeAssociationsValues=[NSMutableArray array];
-	  NSMutableArray* _htmlBareStrings=[NSMutableArray array];
-	  NSMutableData* _elementsMap=[[NSMutableData new]autorelease];
-	  ASSIGN(elementName,_elementName);//??
+    {
+      NSMutableArray* attributeAssociationsValues=[NSMutableArray array];
+      NSMutableArray* tmpHtmlBareStrings=[NSMutableArray array];
+      NSMutableData* tmpElementsMap=[[NSMutableData new]autorelease];
+      ASSIGN(_elementName,anElementName);//??
+      if (anElementName)
+        {
+          NSEnumerator* attributesKeyEnum=nil;
+          id key=nil;
+          [tmpHtmlBareStrings addObject:[NSString stringWithFormat:@"<%@",
+                                                  anElementName]];
+          [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                          length:1];
 
-	  if (_elementName)
-		{
-		  NSEnumerator* attributesKeyEnum=nil;
-		  id _key=nil;
-		  [_htmlBareStrings addObject:[NSString stringWithFormat:@"<%@",
-												 _elementName]];
-		  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-						 length:1];
-
-		  attributesKeyEnum= [attributeAssociations_ keyEnumerator];
-		  NSDebugMLLog(@"gswdync",@"attributesKeyEnum=%@ attributeAssociations_=%@",attributesKeyEnum,attributeAssociations_);
-		  while ((_key = [attributesKeyEnum nextObject]))
-			{
-			  id _association=[attributeAssociations_ objectForKey:_key];
-			  id _associationValue=[_association valueInComponent:nil];
-			  NSDebugMLLog(@"gswdync",@"_association=%@ _associationValue=%@",_association,_associationValue);
-			  [_htmlBareStrings addObject:[NSString stringWithFormat:@" %@",_key]];
-			  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-							 length:1];
-			  if (_associationValue)
-				{
-				  [_htmlBareStrings addObject:[NSString stringWithString:@"="]];
-				  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-								 length:1];
-				  [_htmlBareStrings addObject:[NSString stringWithFormat:@"\"%@\"",_associationValue]];
-				  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-								 length:1];
-				}
-			  else
-				{
-				  //TODO So what next ?
-				  [_attributeAssociationsValues addObject:_association];
-				  [_elementsMap appendBytes:&ElementsMap_attributeElement
-								length:1];
-				  
-				};
-			};
-		  [_htmlBareStrings addObject:@">"];
-		  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-						 length:1];
-		};
-	  if (_elements)
-		{
-		  int elementsN=[_elements count];
-		  for(;elementsN>0;elementsN--)
-			[_elementsMap appendBytes:&ElementsMap_dynamicElement
-						   length:1];
-                  if (_elementName)
-                    {
-                      [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
-                                                            _elementName]];
-                      [_elementsMap appendBytes:&ElementsMap_htmlBareString
-                                    length:1];
-                    };
+          attributesKeyEnum= [aAttributeAssociationsList keyEnumerator];
+          NSDebugMLLog(@"gswdync",@"attributesKeyEnum=%@ aAttributeAssociationsList=%@",
+                       attributesKeyEnum,aAttributeAssociationsList);
+          while ((key = [attributesKeyEnum nextObject]))
+            {
+              id association=[aAttributeAssociationsList objectForKey:key];
+              id associationValue=[association valueInComponent:nil];
+              NSDebugMLLog(@"gswdync",@"association=%@ associationValue=%@",
+                           association,associationValue);
+              [tmpHtmlBareStrings addObject:[NSString stringWithFormat:@" %@",key]];
+              [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                              length:1];
+              if (associationValue)
+                {
+                  [tmpHtmlBareStrings addObject:[NSString stringWithString:@"="]];
+                  [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                                  length:1];
+                  [tmpHtmlBareStrings addObject:[NSString stringWithFormat:@"\"%@\"",associationValue]];
+                  [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                                  length:1];
+                }
+              else
+                {
+                  //TODO So what next ?
+                  [attributeAssociationsValues addObject:association];
+                  [tmpElementsMap appendBytes:&ElementsMap_attributeElement
+                                  length:1];
+                  
                 };
-		
-	  [self _initWithElementsMap:_elementsMap
-			htmlBareStrings:_htmlBareStrings
-			dynamicChildren:_elements];
-	};
+            };
+          [tmpHtmlBareStrings addObject:@">"];
+          [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                          length:1];
+        };
+      if (anElementsArray)
+        {
+          int elementsN=[anElementsArray count];
+          for(;elementsN>0;elementsN--)
+            [tmpElementsMap appendBytes:&ElementsMap_dynamicElement
+                            length:1];
+          if (anElementName)
+            {
+              [tmpHtmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
+                                                      anElementName]];
+              [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                              length:1];
+            };
+        };
+      
+      [self _initWithElementsMap:tmpElementsMap
+            htmlBareStrings:tmpHtmlBareStrings
+            dynamicChildren:anElementsArray];
+    };
   LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)		initWithName:(NSString*)_elementName
-		 attributeString:(NSString*)_attributeString
-		 contentElements:(NSArray*)_elements
+-(id)		initWithName:(NSString*)anElementName
+		 attributeString:(NSString*)attributeString
+		 contentElements:(NSArray*)anElementsArray
 {
   //OK
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"_elementName=%@ _attributeString:%@ _elements=%@",
-		_elementName,
-		_attributeString,
-		_elements);
+  NSDebugMLLog(@"gswdync",@"anElementName=%@ attributeString:%@ anElementsArray=%@",
+		anElementName,
+		attributeString,
+		anElementsArray);
   if ((self=[super init]))
-	{
-	  NSMutableArray* _htmlBareStrings=[NSMutableArray array];
-	  NSMutableData* _elementsMap=[[NSMutableData new]autorelease];
-	  ASSIGN(elementName,_elementName);//??
+    {
+      NSMutableArray* tmpHtmlBareStrings=[NSMutableArray array];
+      NSMutableData* tmpElementsMap=[[NSMutableData new]autorelease];
+      ASSIGN(_elementName,anElementName);//??
 
-	  if (_elementName)
-		{
-		  [_htmlBareStrings addObject:[NSString stringWithFormat:@"<%@",
-												 _elementName]];
-		  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-						 length:1];
-		  [_htmlBareStrings addObject:_attributeString];
-		  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-						 length:1];
-		  [_htmlBareStrings addObject:@">"];
-		  [_elementsMap appendBytes:&ElementsMap_htmlBareString
-						 length:1];
-		};
-	  if (_elements)
-		{
-		  int elementsN=[_elements count];
-		  for(;elementsN>0;elementsN--)
-			[_elementsMap appendBytes:&ElementsMap_dynamicElement
-						   length:1];
-                  if (_elementName)
-                    {
-                      [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
-                                                            _elementName]];
-                      [_elementsMap appendBytes:&ElementsMap_htmlBareString
-                                    length:1];
-                    };
-                };
-	  [self _initWithElementsMap:_elementsMap
-			htmlBareStrings:_htmlBareStrings
-			dynamicChildren:_elements];	  
-	};
+      if (anElementName)
+        {
+          [tmpHtmlBareStrings addObject:[NSString stringWithFormat:@"<%@",
+                                                  anElementName]];
+          [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                          length:1];
+          [tmpHtmlBareStrings addObject:attributeString];
+          [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                          length:1];
+          [tmpHtmlBareStrings addObject:@">"];
+          [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                          length:1];
+        };
+      if (anElementsArray)
+        {
+          int elementsN=[anElementsArray count];
+          for(;elementsN>0;elementsN--)
+            [tmpElementsMap appendBytes:&ElementsMap_dynamicElement
+                            length:1];
+          if (anElementName)
+            {
+              [tmpHtmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
+                                                      anElementName]];
+              [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                              length:1];
+            };
+        };
+      [self _initWithElementsMap:tmpElementsMap
+            htmlBareStrings:tmpHtmlBareStrings
+            dynamicChildren:anElementsArray];	  
+    };
   LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)_initWithElementsMap:(NSData*)_elementsMap
-		  htmlBareStrings:(NSArray*)_htmlBareStrings
-		   dynamicChildren:(NSArray*)_dynamicChildren
+-(id)_initWithElementsMap:(NSData*)tmpElementsMap
+          htmlBareStrings:(NSArray*)tmpHtmlBareStrings
+          dynamicChildren:(NSArray*)aDynamicChildrensArray
 {
-  BOOL _compactHTMLTags=NO;
+  BOOL compactHTMLTags=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"_elementsMap=%@ _htmlBareStrings:%@ dynamicChildren=%@",
-		_elementsMap,
-		_htmlBareStrings,
-		_dynamicChildren);
-  _compactHTMLTags=[self compactHTMLTags];
+  NSDebugMLLog(@"gswdync",@"tmpElementsMap=%@ tmpHtmlBareStrings:%@ dynamicChildren=%@",
+		tmpElementsMap,
+		tmpHtmlBareStrings,
+		aDynamicChildrensArray);
+  compactHTMLTags=[self compactHTMLTags];
   //OK
-  if (_compactHTMLTags)
-	{
-	  int elementN=0;
-	  while(elementN<[_elementsMap length] && ((BYTE*)[_elementsMap bytes])[elementN]==ElementsMap_htmlBareString)
-		elementN++;
-	  [self _setEndOfHTMLTag:elementN];
-	  if (elementN>0)
-		{
-		  int rmStringN=0;
-		  NSMutableArray* rmStrings=[NSMutableArray array];
-		  NSMutableString* rmString=[[NSMutableString new] autorelease];
-		  NSMutableData* tmpElementsMap=[[NSMutableData new] autorelease];
-		  [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
-						   length:1];
-		  if ([_elementsMap length]>elementN)
-			[tmpElementsMap appendData:
-							   [_elementsMap subdataWithRange:
-												NSMakeRange(elementN,
-															[_elementsMap length]-elementN)]];
-		  _elementsMap=tmpElementsMap;
-		  for(rmStringN=0;rmStringN<elementN;rmStringN++)
-			{
-			  NSDebugMLLog(@"gswdync",@"rmString=[%@]",rmString);
-			  NSDebugMLLog(@"gswdync",@"[_htmlBareStrings objectAtIndex:rmStringN]=[%@]",
-					 [_htmlBareStrings objectAtIndex:rmStringN]);
-			  [rmString appendString:[_htmlBareStrings objectAtIndex:rmStringN]];
-			};
-		  NSDebugMLLog(@"gswdync",@"rmString=[%@]",rmString);
-		  NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
-		  [rmStrings addObject:rmString];
-		  NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
-		  for(rmStringN=elementN;rmStringN<[_htmlBareStrings count];rmStringN++)
-			{
-			  NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
-			  NSDebugMLLog(@"gswdync",@"[_htmlBareStrings objectAtIndex:rmStringN]=[%@]",
-					 [_htmlBareStrings objectAtIndex:rmStringN]);
-			  [rmStrings addObject:[_htmlBareStrings objectAtIndex:rmStringN]];
-			};
-		  NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
-		  _htmlBareStrings=rmStrings;
-		};
-	};
-  ASSIGN(htmlBareStrings,_htmlBareStrings);
-  ASSIGN(elementsMap,_elementsMap);
-  ASSIGN(dynamicChildren,_dynamicChildren);
+  if (compactHTMLTags)
+    {
+      int elementN=0;
+      while(elementN<[tmpElementsMap length] && ((BYTE*)[tmpElementsMap bytes])[elementN]==ElementsMap_htmlBareString)
+        elementN++;
+      [self _setEndOfHTMLTag:elementN];
+      if (elementN>0)
+        {
+          int rmStringN=0;
+          NSMutableArray* rmStrings=[NSMutableArray array];
+          NSMutableString* rmString=[[NSMutableString new] autorelease];
+          NSMutableData* tmpElementsMap=[[NSMutableData new] autorelease];
+          [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
+                          length:1];
+          if ([tmpElementsMap length]>elementN)
+            [tmpElementsMap appendData:
+                              [tmpElementsMap subdataWithRange:
+                                                NSMakeRange(elementN,
+                                                            [tmpElementsMap length]-elementN)]];
+          tmpElementsMap=tmpElementsMap;
+          for(rmStringN=0;rmStringN<elementN;rmStringN++)
+            {
+              NSDebugMLLog(@"gswdync",@"rmString=[%@]",rmString);
+              NSDebugMLLog(@"gswdync",@"[tmpHtmlBareStrings objectAtIndex:rmStringN]=[%@]",
+                           [tmpHtmlBareStrings objectAtIndex:rmStringN]);
+              [rmString appendString:[tmpHtmlBareStrings objectAtIndex:rmStringN]];
+            };
+          NSDebugMLLog(@"gswdync",@"rmString=[%@]",rmString);
+          NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
+          [rmStrings addObject:rmString];
+          NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
+          for(rmStringN=elementN;rmStringN<[tmpHtmlBareStrings count];rmStringN++)
+            {
+              NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
+              NSDebugMLLog(@"gswdync",@"[tmpHtmlBareStrings objectAtIndex:rmStringN]=[%@]",
+                           [tmpHtmlBareStrings objectAtIndex:rmStringN]);
+              [rmStrings addObject:[tmpHtmlBareStrings objectAtIndex:rmStringN]];
+            };
+          NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
+          tmpHtmlBareStrings=rmStrings;
+        };
+    };
+  ASSIGN(_htmlBareStrings,tmpHtmlBareStrings);
+  ASSIGN(_elementsMap,tmpElementsMap);
+  ASSIGN(_dynamicChildren,aDynamicChildrensArray);
 
   LOGObjectFnStop();
   return self;
@@ -228,39 +235,39 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSString*)elementName
 {
-  return elementName;
+  return _elementName;
 };
 
 //--------------------------------------------------------------------
 -(NSArray*)dynamicChildren
 {
-  return dynamicChildren;
+  return _dynamicChildren;
 };
 
 //--------------------------------------------------------------------
 -(NSArray*)htmlBareStrings
 {
-  return htmlBareStrings;
+  return _htmlBareStrings;
 };
 
 //--------------------------------------------------------------------
 -(NSData*)elementsMap
 {
-  return elementsMap;
+  return _elementsMap;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(elementsMap);
-  DESTROY(htmlBareStrings);
-  DESTROY(dynamicChildren);
-  DESTROY(elementName);
+  DESTROY(_elementsMap);
+  DESTROY(_htmlBareStrings);
+  DESTROY(_dynamicChildren);
+  DESTROY(_elementName);
   [super dealloc];
 };
 
 //--------------------------------------------------------------------
--(void)_setEndOfHTMLTag:(unsigned int)_unknown
+-(void)_setEndOfHTMLTag:(unsigned int)unknown
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
@@ -272,10 +279,10 @@ static char rcsId[] = "$Id$";
 /* htmlBareStrings:%@ dynamicChildren:%@ elementName:%@>",*/
 				   [self class],
 				   (void*)self,
-				   elementsMap];
-/*				   htmlBareStrings,
-				   dynamicChildren,
-				   elementName];*/
+				   _elementsMap];
+/*				   _htmlBareStrings,
+				   _dynamicChildren,
+				   _elementName];*/
 };
 
 @end
@@ -284,155 +291,170 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLStaticElement (GSWHTMLStaticElementA)
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK (verifier avec GSWSession appendToR
-  GSWRequest* _request=[context_ request];
-  BOOL _isFromClientComponent=[_request isFromClientComponent]; //bis repetitam
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ self=%p",[self class],[context_ elementID],self);
-  GSWSaveAppendToResponseElementID(context_);//Debug Only
-  if ([elementsMap length]>0)
-	{
-	  [self appendToResponse:response_
-			inContext:context_
-			elementsFromIndex:0
-			toIndex:[elementsMap length]-1];
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@ self=%p",[self class],[context_ elementID],self);
+  GSWRequest* request=[context request];
+  BOOL isFromClientComponent=[request isFromClientComponent]; //bis repetitam
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ self=%p",
+               [self class],[context elementID],self);
+  GSWSaveAppendToResponseElementID(context);//Debug Only
+  if ([_elementsMap length]>0)
+    {
+      [self appendToResponse:response
+            inContext:context
+            elementsFromIndex:0
+            toIndex:[_elementsMap length]-1];
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@ self=%p",
+               [self class],[context elementID],self);
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
-	  elementsFromIndex:(unsigned int)_fromIndex
-				toIndex:(unsigned int)_toIndex
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
+	  elementsFromIndex:(unsigned int)fromIndex
+                toIndex:(unsigned int)toIndex
 {
   //OK
-  NSStringEncoding _encoding=[response_ contentEncoding];
-  NSArray* _dynamicChildren=[self dynamicChildren];//call dynamicChildren //GSWTextField: nil
+  NSStringEncoding encoding=[response contentEncoding];
+  NSArray* aDynamicChildrensArray=[self dynamicChildren];//call dynamicChildren //GSWTextField: nil
   int elementN=0;
-  const BYTE* elements=[elementsMap bytes];
+  const BYTE* elements=[_elementsMap bytes];
   BYTE element=0;
   int elementsN[3]={0,0,0};
-  NSAssert2(_fromIndex<[elementsMap length],@"_fromIndex out of range:%u (length=%d)",_fromIndex,[elementsMap length]);
-  NSAssert2(_toIndex<[elementsMap length],@"_toIndex out of range:%u (length=%d)",_toIndex,[elementsMap length]);
-  NSAssert2(_fromIndex<=_toIndex,@"_fromIndex>_toIndex %u %u ",_fromIndex,_toIndex);
-  for(elementN=0;elementN<=_toIndex;elementN++)
-	{
-	  element=(BYTE)elements[elementN];
-	  if (element==ElementsMap_htmlBareString)
-		{
-                  NSDebugMLLog(@"gswdync",@"%d:htmlBareString : %@",elementN,[htmlBareStrings objectAtIndex:elementsN[0]]);
-		  if (elementN>=_fromIndex)
-			[response_ appendContentData:[[htmlBareStrings objectAtIndex:elementsN[0]]
-                                                       dataUsingEncoding:_encoding]];
-		  elementsN[0]++;
-		}
-	  else if (element==ElementsMap_dynamicElement)
-		{
-		  if (elementN>=_fromIndex)
-			{
-                          NSDebugMLLog(@"gswdync",@"%d:dynamicElement : %@",elementN,[_dynamicChildren objectAtIndex:elementsN[1]]);                  
-			  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
-                                       [[_dynamicChildren objectAtIndex:elementsN[1]] class],
-                                       [context_ elementID]);
-			  [[_dynamicChildren objectAtIndex:elementsN[1]] appendToResponse:response_
-                                                                         inContext:context_];
-			  [context_ incrementLastElementIDComponent];
-			};
-		  elementsN[1]++;
-		}
-	  else if (element==ElementsMap_attributeElement)
-		{
-		  //TODO
-                  NSDebugMLLog(@"gswdync",@"%d:attributeElement",elementN);                  
-		  elementsN[2]++;
-		};
-	};
-};
-
-//--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-                           inContext:(GSWContext*)context_
-{
-  //OK
-  GSWElement* _element=nil;
-  int elementN=0;
-  NSArray* _dynamicChildren=[self dynamicChildren];
-  const BYTE* elements=[elementsMap bytes];
-  BYTE element=0;
-  int elementsN[3]={0,0,0};
-  BOOL searchIsOver=NO;
-  NSString* _senderID=nil;
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
-  GSWAssertCorrectElementID(context_);// Debug Only
-  _senderID=[context_ senderID];
-  for(elementN=0;!_element && !searchIsOver && elementN<[elementsMap length];elementN++)
+  NSAssert2(fromIndex<[_elementsMap length],@"fromIndex out of range:%u (length=%d)",
+            fromIndex,[_elementsMap length]);
+  NSAssert2(toIndex<[_elementsMap length],@"toIndex out of range:%u (length=%d)",
+            toIndex,[_elementsMap length]);
+  NSAssert2(fromIndex<=toIndex,@"fromIndex>toIndex %u %u ",
+            fromIndex,toIndex);
+  for(elementN=0;elementN<=toIndex;elementN++)
     {
       element=(BYTE)elements[elementN];
       if (element==ElementsMap_htmlBareString)
-        elementsN[0]++;
+        {
+          NSDebugMLLog(@"gswdync",@"%d:htmlBareString : %@",
+                       elementN,[_htmlBareStrings objectAtIndex:elementsN[0]]);
+          if (elementN>=fromIndex)
+            [response appendContentData:[[_htmlBareStrings objectAtIndex:elementsN[0]]
+                                          dataUsingEncoding:encoding]];
+          elementsN[0]++;
+        }
       else if (element==ElementsMap_dynamicElement)
         {
-          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[_dynamicChildren objectAtIndex:elementsN[1]] class],[context_ elementID]);
-          _element=[[_dynamicChildren objectAtIndex:elementsN[1]] invokeActionForRequest:request_
-                                                                  inContext:context_];
-//          if (![context_ _wasFormSubmitted] && [[context_ elementID] compare:_senderID]==NSOrderedDescending)
-          if (![context_ _wasFormSubmitted] && [[context_ elementID] isSearchOverForSenderID:_senderID])
+          if (elementN>=fromIndex)
             {
-              NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
-                           [context_ elementID],
-                           _senderID);
-              searchIsOver=YES;
+              NSDebugMLLog(@"gswdync",@"%d:dynamicElement : %@",
+                           elementN,[aDynamicChildrensArray objectAtIndex:elementsN[1]]);                  
+              NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
+                           [[aDynamicChildrensArray objectAtIndex:elementsN[1]] class],
+                           [context elementID]);
+              [[aDynamicChildrensArray objectAtIndex:elementsN[1]] appendToResponse:response
+                                                                   inContext:context];
+              [context incrementLastElementIDComponent];
             };
-          [context_ incrementLastElementIDComponent];
           elementsN[1]++;
         }
       else if (element==ElementsMap_attributeElement)
         {
+          //TODO
+          NSDebugMLLog(@"gswdync",@"%d:attributeElement",elementN);                  
           elementsN[2]++;
         };
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
-  return _element;
 };
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context
+{
+  //OK
+  GSWElement* element=nil;
+  int elementN=0;
+  NSArray* aDynamicChildrensArray=[self dynamicChildren];
+  const BYTE* elements=[_elementsMap bytes];
+  BYTE elementIndic=0;
+  int elementsN[3]={0,0,0};
+  BOOL searchIsOver=NO;
+  NSString* senderID=nil;
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",
+               [self class],[context elementID],[context senderID]);
+  GSWAssertCorrectElementID(context);// Debug Only
+  senderID=[context senderID];
+  for(elementN=0;!element && !searchIsOver && elementN<[_elementsMap length];elementN++)
+    {
+      elementIndic=(BYTE)elements[elementN];
+      if (elementIndic==ElementsMap_htmlBareString)
+        elementsN[0]++;
+      else if (elementIndic==ElementsMap_dynamicElement)
+        {
+          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
+                       [[aDynamicChildrensArray objectAtIndex:elementsN[1]] class],
+                       [context elementID]);
+          element=[[aDynamicChildrensArray objectAtIndex:elementsN[1]] invokeActionForRequest:request
+                                                                       inContext:context];
+          //if (![context_ _wasFormSubmitted] && [[context_ elementID] compare:_senderID]==NSOrderedDescending)
+          if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
+            {
+              NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
+                           [context elementID],
+                           senderID);
+              searchIsOver=YES;
+            };
+          [context incrementLastElementIDComponent];
+          elementsN[1]++;
+        }
+      else if (elementIndic==ElementsMap_attributeElement)
+        {
+          elementsN[2]++;
+        };
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  return element;
+};
+
+//--------------------------------------------------------------------
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
   int elementN=0;
-  NSArray* _dynamicChildren=[self dynamicChildren];
-  const BYTE* elements=[elementsMap bytes];
-  BYTE element=0;
+  NSArray* aDynamicChildrensArray=[self dynamicChildren];
+  const BYTE* elements=[_elementsMap bytes];
+  BYTE elementIndic=0;
   int elementsN[3]={0,0,0};
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  GSWAssertCorrectElementID(context_);// Debug Only
-  for(elementN=0;elementN<[elementsMap length];elementN++)
-	{
-	  NSDebugMLLog(@"gswdync",@"elementN=%d",elementN);
-	  element=(BYTE)elements[elementN];
-	  NSDebugMLLog(@"gswdync",@"element=%x",(unsigned int)element);
-	  if (element==ElementsMap_htmlBareString)
-		  elementsN[0]++;
-	  else if (element==ElementsMap_dynamicElement)
-		{
-		  NSDebugMLLog(@"gswdync",@"\n[_dynamicChildren objectAtIndex:elementsN[1]=%@",[_dynamicChildren objectAtIndex:elementsN[1]]);
-		  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[_dynamicChildren objectAtIndex:elementsN[1]] class],[context_ elementID]);
-		  [[_dynamicChildren objectAtIndex:elementsN[1]] takeValuesFromRequest:request_
-														 inContext:context_];
-		  [context_ incrementLastElementIDComponent];
-		  elementsN[1]++;
-		}
-	  else if (element==ElementsMap_attributeElement)
-		{
-		  elementsN[2]++;
-		};
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
+               [self class],[context elementID]);
+  GSWAssertCorrectElementID(context);// Debug Only
+  for(elementN=0;elementN<[_elementsMap length];elementN++)
+    {
+      NSDebugMLLog(@"gswdync",@"elementN=%d",elementN);
+      elementIndic=(BYTE)elements[elementN];
+      NSDebugMLLog(@"gswdync",@"element=%x",(unsigned int)elementIndic);
+      if (elementIndic==ElementsMap_htmlBareString)
+        elementsN[0]++;
+      else if (elementIndic==ElementsMap_dynamicElement)
+        {
+          NSDebugMLLog(@"gswdync",@"\n[aDynamicChildrensArray objectAtIndex:elementsN[1]=%@",
+                       [aDynamicChildrensArray objectAtIndex:elementsN[1]]);
+          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
+                       [[aDynamicChildrensArray objectAtIndex:elementsN[1]] class],
+                       [context elementID]);
+          [[aDynamicChildrensArray objectAtIndex:elementsN[1]] takeValuesFromRequest:request
+                                                               inContext:context];
+          [context incrementLastElementIDComponent];
+          elementsN[1]++;
+        }
+      else if (elementIndic==ElementsMap_attributeElement)
+        {
+          elementsN[2]++;
+        };
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",
+               [self class],[context elementID]);
   LOGObjectFnStop();
 };
 
@@ -449,16 +471,16 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping
+-(BOOL)appendStringAtRight:(id)unkwnon
+               withMapping:(char*)mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
--(BOOL)appendStringAtLeft:(id)_unkwnon
-			  withMapping:(char*)_mapping
+-(BOOL)appendStringAtLeft:(id)unkwnon
+              withMapping:(char*)mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
@@ -484,14 +506,14 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
-+(void)addURLAttribute:(id)_attribute
-	   forElementNamed:(NSString*)_name
++(void)addURLAttribute:(id)attribute
+       forElementNamed:(NSString*)name
 {
   LOGClassFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
-+(id)urlsForElementNamed:(NSString*)_name
++(id)urlsForElementNamed:(NSString*)name
 {
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
@@ -503,23 +525,23 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLStaticElement (GSWHTMLStaticElementD)
 
 //--------------------------------------------------------------------
-+(NSDictionary*)attributeDictionaryForString:(NSString*)string_
++(NSDictionary*)attributeDictionaryForString:(NSString*)string
 {
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
-+(NSString*)stringForAttributeDictionary:(NSDictionary*)attributeDictionary_
++(NSString*)stringForAttributeDictionary:(NSDictionary*)attributeDictionary
 {
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
-+(GSWElement*)elementWithName:(NSString*)name_
-			 attributeString:(NSString*)attributeString_
-			 contentElements:(NSArray*)elements_
++(GSWElement*)elementWithName:(NSString*)name
+              attributeString:(NSString*)attributeString
+              contentElements:(NSArray*)elements
 {
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
@@ -531,22 +553,22 @@ static char rcsId[] = "$Id$";
 @implementation GSWHTMLStaticElement (GSWHTMLStaticElementE)
 
 //--------------------------------------------------------------------
-+(GSWElement*)elementWithName:(NSString*)name_
-		 attributeDictionary:(NSDictionary*)attributeDictionary_
-			 contentElements:(NSArray*)elements_
++(GSWElement*)elementWithName:(NSString*)name
+          attributeDictionary:(NSDictionary*)attributeDictionary
+              contentElements:(NSArray*)elements
 {
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
 };
 
-+(Class)_elementClassForName:(NSString*)name_
++(Class)_elementClassForName:(NSString*)name
 {
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
 };
 
-+(void)setElementClass:(Class)class_
-			   forName:(NSString*)name_
++(void)setElementClass:(Class)class
+               forName:(NSString*)name
 {
   LOGClassFnNotImplemented();	//TODOFN
 };

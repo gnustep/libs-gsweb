@@ -1,11 +1,16 @@
-/* GSWFileUpload.h - GSWeb: Class GSWFileUpload
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWFileUpload.m - <title>GSWeb: Class GSWFileUpload</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sep 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,39 +35,40 @@ static char rcsId[] = "$Id$";
 @implementation GSWFileUpload
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
-  NSMutableDictionary* _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
+  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
   LOGObjectFnStartC("GSWFileUpload");
-  NSDebugMLLog(@"gswdync",@"name_=%@ associations_:%@ elements_=%@",name_,associations_,elements_);
-  [_associations setObject:[GSWAssociation associationWithValue:@"file"]
-				 forKey:@"type"];
-  [_associations removeObjectForKey:data__Key];
-  [_associations removeObjectForKey:filePath__Key];
-  if ((self=[super initWithName:name_
-				   associations:_associations
-				   contentElements:nil])) //No Childs!
-	{
-	  data = [[associations_ objectForKey:data__Key
-							 withDefaultObject:[data autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWFileUpload: data=%@",data);
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements_=%@",
+               aName,associations,elements);
+  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"file"]
+                   forKey:@"type"];
+  [tmpAssociations removeObjectForKey:data__Key];
+  [tmpAssociations removeObjectForKey:filePath__Key];
+  if ((self=[super initWithName:aName
+                   associations:tmpAssociations
+                   contentElements:nil])) //No Childs!
+    {
+      _data = [[associations objectForKey:data__Key
+                             withDefaultObject:[_data autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWFileUpload: data=%@",_data);
 
-	  if (!data || ![data isValueSettable])
-		{
-		  //TODO
-		};
-
-	  filepath = [[associations_ objectForKey:filePath__Key
-							 withDefaultObject:[filepath autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWFileUpload: filepath=%@",filepath);
-
-	  if (!filepath || ![filepath isValueSettable])
-		{
-		  //TODO
-		};
-	};
+      if (!_data || ![_data isValueSettable])
+        {
+          //TODO
+        };
+      
+      _filepath = [[associations objectForKey:filePath__Key
+                                 withDefaultObject:[_filepath autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWFileUpload: filepath=%@",_filepath);
+      
+      if (!_filepath || ![_filepath isValueSettable])
+        {
+          //TODO
+        };
+    };
   LOGObjectFnStopC("GSWFileUpload");
   return self;
 };
@@ -70,8 +77,8 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(data);
-  DESTROY(filepath);
+  DESTROY(_data);
+  DESTROY(_filepath);
   [super dealloc];
 };
 
@@ -80,126 +87,130 @@ static char rcsId[] = "$Id$";
 @implementation GSWFileUpload (GSWFileUploadA)
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
-  [super appendToResponse:response_
-		 inContext:context_];
+  [super appendToResponse:response
+		 inContext:context];
 };
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						   inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context
 {
-  GSWAssertCorrectElementID(context_);// Debug Only
+  GSWAssertCorrectElementID(context);// Debug Only
   //Bypass GSWInput
   return nil;
 };
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
-  BOOL _disabled=NO;
+  BOOL disabledValue=NO;
   LOGObjectFnStartC("GSWFileUpload");
-  GSWAssertCorrectElementID(context_);// Debug Only
-  _disabled=[self disabledInContext:context_];
-  if (!_disabled)
-	{
-	  BOOL _wasFormSubmitted=[context_ _wasFormSubmitted];
-	  if (_wasFormSubmitted)
-		{
-		  GSWComponent* _component=nil;
-		  NSString* _nameInContext=nil;
-		  NSArray* _fileDatas=nil;
-		  NSString* fileNameFormValueName=nil;
-		  NSString* _fileName=nil;
-		  NSData* _data=nil;
-		  int _fileDatasCount=0;
-		  NS_DURING
-		    {
-			  _component=[context_ component];
-			  _nameInContext=[self nameInContext:context_];
-			  NSDebugMLLog(@"gswdync",@"_nameInContext=%@",_nameInContext);
-			  _fileDatas=[request_ formValuesForKey:_nameInContext];
-			  NSDebugMLLog(@"gswdync",@"_value=%@",_fileDatas);
-			  _fileDatasCount=[_fileDatas count];
-/*
-		      if (_fileDatasCount!=1)
-				{
-				  ExceptionRaise(@"GSWFileUpload",
-								 @"GSWFileUpload: File Data Nb != 1 :%d",
-								 _fileDatasCount);
-				};
-*/
-		  if (_fileDatasCount==1) {
-
-			  _data=[_fileDatas objectAtIndex:0];
-			  NSDebugMLLog(@"gswdync",@"_data (class=%@)=%@",[_data class],_data);
-			  if (_data)
-				{
-				  if ([_data isKindOfClass:[NSData class]])
-					{
-					  if ([_data length]==0)
-						{
-						  LOGError(@"Empty Data: %@",_data);					  
-						};
-					}
-				  else
-					{
-					  if ([_data isKindOfClass:[NSString class]] && [_data length]==0)
-						{
-						  LOGError(@"No Data: %@",_data);
-						  _data=nil;
-						}
-					  else
-						{
-						NSLog(@"content type request : %@",[request_ _contentType]);
-						NSLog(@"data class = %@",NSStringFromClass([_data class]));
-						 /*if (![_data isMemberOfClass:[NSString class]]) {
-						  ExceptionRaise(@"GSWFileUpload",
-										 @"GSWFileUpload: bad data :%@",
-										 _data);
-						  _data=nil;
-						 }*/
-						};
-					};
-				}
-			  else
-				{
-				  LOGError0(@"No Data:");
-				};
-			  fileNameFormValueName=[NSString stringWithFormat:@"%@.filename",_nameInContext];
-			  NSDebugMLLog(@"gswdync",@"fileNameFormValueName=%@",fileNameFormValueName);
-			  _fileName=[request_ formValueForKey:fileNameFormValueName];
-			  NSDebugMLLog(@"gswdync",@"_fileName=%@",_fileName);
-			  if (!_fileName || [_fileName length]==0)
-				{
-				  LOGError(@"No fileName: %@",_fileName);
-				};
-			  [filepath setValue:_fileName
-						inComponent:_component];
-			  [data setValue:_data
-					inComponent:_component];
-		} else {
-			// bug in omniweb-browser if you click cancel in FileOpenPanel, it transmits incorrect datas
-
-			  [filepath setValue:nil
-						inComponent:_component];
-			  [data setValue:nil
-					inComponent:_component];
+  GSWAssertCorrectElementID(context);// Debug Only
+  disabledValue=[self disabledInContext:context];
+  if (!disabledValue)
+    {
+      BOOL wasFormSubmitted=[context _wasFormSubmitted];
+      if (wasFormSubmitted)
+        {
+          GSWComponent* component=nil;
+          NSString* nameInContext=nil;
+          NSArray* fileDatas=nil;
+          NSString* fileNameFormValueName=nil;
+          NSString* fileNameValue=nil;
+          NSData* dataValue=nil;
+          int fileDatasCount=0;
+          NS_DURING
+            {
+              component=[context component];
+              nameInContext=[self nameInContext:context];
+              NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
+              fileDatas=[request formValuesForKey:nameInContext];
+              NSDebugMLLog(@"gswdync",@"value=%@",fileDatas);
+              fileDatasCount=[fileDatas count];
+              /*
+                if (_fileDatasCount!=1)
+                {
+                ExceptionRaise(@"GSWFileUpload",
+                @"GSWFileUpload: File Data Nb != 1 :%d",
+                _fileDatasCount);
+                };
+              */
+              if (fileDatasCount==1) 
+                {
+                  dataValue=[fileDatas objectAtIndex:0];
+                  NSDebugMLLog(@"gswdync",@"dataValue (class=%@)=%@",
+                               [dataValue class],dataValue);
+                  if (dataValue)
+                    {
+                      if ([dataValue isKindOfClass:[NSData class]])
+                        {
+                          if ([dataValue length]==0)
+                            {
+                              LOGError(@"Empty Data: %@",dataValue);					  
+                            };
+                        }
+                      else
+                        {
+                          if ([dataValue isKindOfClass:[NSString class]] && [dataValue length]==0)
+                            {
+                              LOGError(@"No Data: %@",dataValue);
+                              dataValue=nil;
+                            }
+                          else
+                            {
+                              NSLog(@"content type request : %@",[request _contentType]);
+                              NSLog(@"data class = %@",NSStringFromClass([dataValue class]));
+                              /*if (![dataValue isMemberOfClass:[NSString class]]) {
+                                ExceptionRaise(@"GSWFileUpload",
+                                @"GSWFileUpload: bad data :%@",
+                                dataValue);
+                                dataValue=nil;
+                                }*/
+                            };
+                        };
+                    }
+                  else
+                    {
+                      LOGError0(@"No Data:");
+                    };
+                  fileNameFormValueName=[NSString stringWithFormat:@"%@.filename",nameInContext];
+                  NSDebugMLLog(@"gswdync",@"fileNameFormValueName=%@",fileNameFormValueName);
+                  fileNameValue=[request formValueForKey:fileNameFormValueName];
+                  NSDebugMLLog(@"gswdync",@"fileNameValue=%@",fileNameValue);
+                  if (!fileNameValue || [fileNameValue length]==0)
+                    {
+                      LOGError(@"No fileName: %@",fileNameValue);
+                    };
+                  [_filepath setValue:fileNameValue
+                             inComponent:component];
+                  [_data setValue:dataValue
+                         inComponent:component];
+		} 
+              else 
+                {
+                  // bug in omniweb-browser if you click cancel in FileOpenPanel, it transmits incorrect datas
+                  
+                  [_filepath setValue:nil
+                             inComponent:component];
+                  [_data setValue:nil
+                         inComponent:component];
 		}
-		    }
-		  NS_HANDLER
-		    {
-		      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWFileUpload in takeValuesFromRequest");
-		      LOGException(@"%@ (%@)",localException,[localException reason]);
-		      [localException raise];
-		    };
-		  NS_ENDHANDLER;
-		};
-	};
+            }
+          NS_HANDLER
+            {
+              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                       @"GSWFileUpload in takeValuesFromRequest");
+              LOGException(@"%@ (%@)",localException,[localException reason]);
+              [localException raise];
+            };
+          NS_ENDHANDLER;
+        };
+    };
   LOGObjectFnStopC("GSWFileUpload");
 };
 @end

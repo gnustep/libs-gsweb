@@ -1,7 +1,7 @@
 /* GSWResourceManager.h - GSWeb: Class GSWResourceManager
-   Copyright (C) 1999 Free Software Foundation, Inc.
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    This file is part of the GNUstep Web Library.
@@ -32,21 +32,21 @@ extern NSDictionary* globalMime;
 @interface GSWResourceManager : NSObject <NSLocking>
 {
 @private
-  NSMutableDictionary* frameworkProjectBundlesCache;
-  NSMutableDictionary* appURLs;
-  NSMutableDictionary* frameworkURLs;
-  NSMutableDictionary* appPaths;
-  GSWMultiKeyDictionary* frameworkPaths;
-  NSMutableDictionary* urlValuedElementsData;
+  NSMutableDictionary* _frameworkProjectBundlesCache;
+  NSMutableDictionary* _appURLs;
+  NSMutableDictionary* _frameworkURLs;
+  NSMutableDictionary* _appPaths;
+  GSWMultiKeyDictionary* _frameworkPaths;
+  NSMutableDictionary* _urlValuedElementsData;
   NSMutableDictionary* _stringsTablesByFrameworkByLanguageByName;//NDFN
   NSMutableDictionary* _stringsTableArraysByFrameworkByLanguageByName;//NDFN
-//  NSMutableDictionary* frameworkPathsToFrameworksNames;
-  NSArray* frameworkClassPaths;
-  NSRecursiveLock* selfLock;
+//  NSMutableDictionary* _frameworkPathsToFrameworksNames;
+  NSArray* _frameworkClassPaths;
+  NSRecursiveLock* _selfLock;
 #ifndef NDEBUG
-  int selfLockn;
+  int _selfLockn;
 #endif
-  BOOL applicationRequiresJavaVirtualMachine;
+  BOOL _applicationRequiresJavaVirtualMachine;
 };
 
 -(void)dealloc;
@@ -55,84 +55,84 @@ extern NSDictionary* globalMime;
 -(void)_initFrameworkProjectBundles;
 
 //-(NSString*)frameworkNameForPath:(NSString*)path_;
--(NSString*)pathForResourceNamed:(NSString*)name_
-					 inFramework:(NSString*)frameworkName_
-					   languages:(NSArray*)languages_;
--(NSString*)urlForResourceNamed:(NSString*)name_
-					inFramework:(NSString*)frameworkName_
-					  languages:(NSArray*)languages_
-						request:(GSWRequest*)request_;
+-(NSString*)pathForResourceNamed:(NSString*)name
+                     inFramework:(NSString*)frameworkName
+                       languages:(NSArray*)languages;
+-(NSString*)urlForResourceNamed:(NSString*)name
+                    inFramework:(NSString*)frameworkName
+                      languages:(NSArray*)languages
+                        request:(GSWRequest*)request;
 -(NSString*)stringForKey:(NSString*)key_
-			inTableNamed:(NSString*)tableName_
-		withDefaultValue:(NSString*)defaultValue_
-			 inFramework:(NSString*)frameworkName_
-			   languages:(NSArray*)languages_;
+            inTableNamed:(NSString*)tableName
+        withDefaultValue:(NSString*)defaultValue_
+             inFramework:(NSString*)frameworkName
+               languages:(NSArray*)languages;
 
 //NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)tableName_
-					  inFramework:(NSString*)frameworkName_
-						languages:(NSArray*)languages_;
+-(NSDictionary*)stringsTableNamed:(NSString*)tableName
+                      inFramework:(NSString*)frameworkName
+                        languages:(NSArray*)languages;
 
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)tableName_
-					  inFramework:(NSString*)frameworkName_
-						languages:(NSArray*)languages_;
-   
+-(NSArray*)stringsTableArrayNamed:(NSString*)tableName
+                      inFramework:(NSString*)frameworkName
+                        languages:(NSArray*)languages;
+
 -(void)lock;
 
 -(void)unlock;
 
--(NSString*)lockedStringForKey:(NSString*)_key
-				  inTableNamed:(NSString*)_tableName
-				   inFramework:(NSString*)_framework
-					 languages:(NSArray*)languages_;
+-(NSString*)lockedStringForKey:(NSString*)key
+                  inTableNamed:(NSString*)tableName
+                   inFramework:(NSString*)framework
+                     languages:(NSArray*)languages;
 //NDFN
--(NSDictionary*)lockedStringsTableNamed:(NSString*)_tableName
-					   inFramework:(NSString*)_framework
-						 languages:(NSArray*)languages_;
-
-//NDFN
--(NSArray*)lockedStringsTableArrayNamed:(NSString*)_tableName
-							inFramework:(NSString*)_framework
-							  languages:(NSArray*)languages_;
-
--(NSString*)lockedCachedStringForKey:(NSString*)key_
-				   inTableNamed:(NSString*)tableName_
-					inFramework:(NSString*)frameworkName_
-					   language:(NSString*)language_;
-
--(NSDictionary*)lockedCachedStringsTableWithName:(NSString*)tableName_
-									 inFramework:(NSString*)frameworkName_
-										language:(NSString*)language_;
+-(NSDictionary*)lockedStringsTableNamed:(NSString*)tableName
+                            inFramework:(NSString*)framework
+                              languages:(NSArray*)languages;
 
 //NDFN
--(NSArray*)lockedCachedStringsTableArrayWithName:(NSString*)tableName_
-									 inFramework:(NSString*)frameworkName_
-										language:(NSString*)language_;
+-(NSArray*)lockedStringsTableArrayNamed:(NSString*)tableName
+                            inFramework:(NSString*)framework
+                              languages:(NSArray*)languages;
 
--(NSDictionary*)lockedStringsTableWithName:(NSString*)tableName_
-							   inFramework:(NSString*)frameworkName_
-								  language:(NSString*)language_;
+-(NSString*)lockedCachedStringForKey:(NSString*)key
+                        inTableNamed:(NSString*)tableName
+                         inFramework:(NSString*)frameworkName
+                            language:(NSString*)language;
+
+-(NSDictionary*)lockedCachedStringsTableWithName:(NSString*)tableName
+                                     inFramework:(NSString*)frameworkName
+                                        language:(NSString*)language;
 
 //NDFN
--(NSArray*)lockedStringsTableArrayWithName:(NSString*)tableName_
-							   inFramework:(NSString*)frameworkName_
-								  language:(NSString*)language_;
+-(NSArray*)lockedCachedStringsTableArrayWithName:(NSString*)tableName
+                                     inFramework:(NSString*)frameworkName
+                                        language:(NSString*)language;
 
--(NSString*)lockedUrlForResourceNamed:(NSString*)name_
-						  inFramework:(NSString*)frameworkName_
-							languages:(NSArray*)languages_
-							  request:(GSWRequest*)_request;
+-(NSDictionary*)lockedStringsTableWithName:(NSString*)tableName
+                               inFramework:(NSString*)frameworkName
+                                  language:(NSString*)language;
 
--(NSString*)lockedCachedURLForResourceNamed:(NSString*)name_
-								inFramework:(NSString*)frameworkName_
-								  languages:(NSArray*)languages_;
+//NDFN
+-(NSArray*)lockedStringsTableArrayWithName:(NSString*)tableName
+                               inFramework:(NSString*)frameworkName
+                                  language:(NSString*)language;
 
--(NSString*)lockedPathForResourceNamed:(NSString*)name_
-						   inFramework:(NSString*)frameworkName_
-							 languages:(NSArray*)languages_;
+-(NSString*)lockedUrlForResourceNamed:(NSString*)name
+                          inFramework:(NSString*)frameworkName
+                            languages:(NSArray*)languages_
+                              request:(GSWRequest*)request;
 
--(GSWDeployedBundle*)lockedCachedBundleForFrameworkNamed:(NSString*)name_;
+-(NSString*)lockedCachedURLForResourceNamed:(NSString*)name
+                                inFramework:(NSString*)frameworkName
+                                  languages:(NSArray*)languages;
+
+-(NSString*)lockedPathForResourceNamed:(NSString*)name
+                           inFramework:(NSString*)frameworkName
+                             languages:(NSArray*)languages;
+
+-(GSWDeployedBundle*)lockedCachedBundleForFrameworkNamed:(NSString*)name;
 @end
 
 //====================================================================
@@ -142,33 +142,33 @@ extern NSDictionary* globalMime;
 
 -(void)setURLValuedElementData:(GSWURLValuedElementData*)data_;
 
--(void)setData:(NSData*)data_
-		forKey:(NSString*)key_
-	  mimeType:(NSString*)type_
-	   session:(GSWSession*)session_;
+-(void)setData:(NSData*)data
+        forKey:(NSString*)key
+      mimeType:(NSString*)type
+       session:(GSWSession*)session;
 
--(void)removeDataForKey:(NSString*)key_
-				session:(GSWSession*)session_;
+-(void)removeDataForKey:(NSString*)key
+                session:(GSWSession*)session;
 
 @end
 
 
 //====================================================================
 @interface GSWResourceManager (GSWResourceManagerA)
--(NSString*)pathForResourceNamed:(NSString*)name_
-					 inFramework:(NSString*)frameworkName_
-						language:(NSString*)language_;
--(NSString*)lockedPathForResourceNamed:(NSString*)name_
-						   inFramework:(NSString*)frameworkName_
-							  language:(NSString*)language_;
+-(NSString*)pathForResourceNamed:(NSString*)name
+                     inFramework:(NSString*)frameworkName
+                        language:(NSString*)language;
+-(NSString*)lockedPathForResourceNamed:(NSString*)name
+                           inFramework:(NSString*)frameworkName
+                              language:(NSString*)language;
 -(GSWDeployedBundle*)_appProjectBundle;
 -(NSArray*)_allFrameworkProjectBundles;
--(void)lockedRemoveDataForKey:(NSString*)key_;
+-(void)lockedRemoveDataForKey:(NSString*)key;
 -(BOOL)_doesRequireJavaVirualMachine;
--(NSString*)_absolutePathForJavaClassPath:(NSString*)path_;
--(GSWURLValuedElementData*)_cachedDataForKey:(NSString*)key_;
--(void)lockedCacheData:(GSWURLValuedElementData*)data_;
--(NSString*)contentTypeForResourcePath:(NSString*)path_;
+-(NSString*)_absolutePathForJavaClassPath:(NSString*)path;
+-(GSWURLValuedElementData*)_cachedDataForKey:(NSString*)key;
+-(void)lockedCacheData:(GSWURLValuedElementData*)data;
+-(NSString*)contentTypeForResourcePath:(NSString*)path;
 -(NSArray*)_frameworkClassPaths;
 
 @end
@@ -176,10 +176,10 @@ extern NSDictionary* globalMime;
 
 //====================================================================
 @interface GSWResourceManager (GSWResourceManagerOldFn)
--(NSString*)urlForResourceNamed:(NSString*)name_
-					inFramework:(NSString*)frameworkName_;
--(NSString*)pathForResourceNamed:(NSString*)name_
-					 inFramework:(NSString*)frameworkName_;
+-(NSString*)urlForResourceNamed:(NSString*)name
+                    inFramework:(NSString*)frameworkName;
+-(NSString*)pathForResourceNamed:(NSString*)name
+                     inFramework:(NSString*)frameworkName;
 @end
 
 
@@ -190,10 +190,10 @@ extern NSDictionary* globalMime;
 
 //====================================================================
 @interface GSWResourceManager (GSWResourceManagerClassA)
-+(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage_;		//NDFN
-+(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOLanguages_;		//NDFN
-+(NSString*)ISOLanguageFromGSLanguage:(NSString*)GSLanguage_;		//NDFN
-+(NSArray*)ISOLanguagesFromGSLanguages:(NSArray*)GSLanguages_;		//NDFN
++(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage;		//NDFN
++(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOlanguages;		//NDFN
++(NSString*)ISOLanguageFromGSLanguage:(NSString*)GSLanguage;		//NDFN
++(NSArray*)ISOLanguagesFromGSLanguages:(NSArray*)GSlanguages;		//NDFN
 +(GSWBundle*)_applicationGSWBundle;
 @end
 

@@ -1,11 +1,16 @@
-/* GSWHTMLStaticElement.h - GSWeb: Class GSWHTMLStaticElement
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLStaticElement.h - <title>GSWeb: Class GSWHTMLStaticElement</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,10 +36,10 @@
 //====================================================================
 @interface GSWHTMLStaticElement: GSWElement
 {
-  NSData* elementsMap;
-  NSArray* htmlBareStrings;
-  NSArray* dynamicChildren;
-  NSString* elementName;
+  NSData* _elementsMap;
+  NSArray* _htmlBareStrings;
+  NSArray* _dynamicChildren;
+  NSString* _elementName;
 };
 
 -(NSString*)elementName;
@@ -42,20 +48,20 @@
 -(NSData*)elementsMap;
 
 -(id)_initWithElementsMap:(NSData*)_elementsMap
-		  htmlBareStrings:(NSArray*)htmlBareStrings
-		  dynamicChildren:(NSArray*)dynamicChildren;
+          htmlBareStrings:(NSArray*)htmlBareStrings
+          dynamicChildren:(NSArray*)dynamicChildren;
 
--(id)		initWithName:(NSString*)elementName_
-	 attributeDictionary:(NSDictionary*)_attributeDictionary
-		 contentElements:(NSArray*)elements_;
+-(id)		initWithName:(NSString*)elementName
+	 attributeDictionary:(NSDictionary*)attributeDictionary
+             contentElements:(NSArray*)elements;
 
--(id)		initWithName:(NSString*)elementName_
-		 attributeString:(NSString*)_attributeString
-		 contentElements:(NSArray*)elements_;
+-(id)		initWithName:(NSString*)elementName
+		 attributeString:(NSString*)attributeString
+		 contentElements:(NSArray*)elements;
 
 -(void)dealloc;
 
--(void)_setEndOfHTMLTag:(unsigned int)_unknown;
+-(void)_setEndOfHTMLTag:(unsigned int)unknown;
 
 -(NSString*)description;
 
@@ -63,28 +69,29 @@
 
 //====================================================================
 @interface GSWHTMLStaticElement (GSWHTMLStaticElementA)
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
-	  elementsFromIndex:(unsigned int)_fromIndex
-				toIndex:(unsigned int)_toIndex;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
+      elementsFromIndex:(unsigned int)fromIndex
+                toIndex:(unsigned int)toIndex;
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_; 
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context;
+
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context; 
 
 @end
 
 //====================================================================
 @interface GSWHTMLStaticElement (GSWHTMLStaticElementB)
 -(BOOL)compactHTMLTags;
--(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping;
--(BOOL)appendStringAtLeft:(id)_unkwnon
-			  withMapping:(char*)_mapping;
+-(BOOL)appendStringAtRight:(id)unkwnon
+               withMapping:(char*)mapping;
+-(BOOL)appendStringAtLeft:(id)unkwnon
+              withMapping:(char*)mapping;
 -(BOOL)canBeFlattenedAtInitialization;
 
 @end
@@ -92,30 +99,30 @@
 //====================================================================
 @interface GSWHTMLStaticElement (GSWHTMLStaticElementC)
 +(BOOL)charactersNeedingQuotes;
-+(void)addURLAttribute:(id)_attribute
-	   forElementNamed:(NSString*)_name;
-+(id)urlsForElementNamed:(NSString*)_name;
++(void)addURLAttribute:(id)attribute
+	   forElementNamed:(NSString*)name;
++(id)urlsForElementNamed:(NSString*)name;
 @end
 
 //====================================================================
 @interface GSWHTMLStaticElement (GSWHTMLStaticElementD)
-+(NSDictionary*)attributeDictionaryForString:(NSString*)_string;
-+(NSString*)stringForAttributeDictionary:(NSDictionary*)_attributeDictionary;
-+(GSWElement*)elementWithName:(NSString*)_name
-			 attributeString:(NSString*)_attributeString
-			 contentElements:(NSArray*)elements_;
++(NSDictionary*)attributeDictionaryForString:(NSString*)string;
++(NSString*)stringForAttributeDictionary:(NSDictionary*)attributeDictionary;
++(GSWElement*)elementWithName:(NSString*)name
+              attributeString:(NSString*)attributeString
+              contentElements:(NSArray*)elements;
 
 @end
 
 //====================================================================
 @interface GSWHTMLStaticElement (GSWHTMLStaticElementE)
-+(GSWElement*)elementWithName:(NSString*)_name
-		 attributeDictionary:(NSDictionary*)_attributeDictionary
-			 contentElements:(NSArray*)elements_;
++(GSWElement*)elementWithName:(NSString*)name
+          attributeDictionary:(NSDictionary*)attributeDictionary
+              contentElements:(NSArray*)elements;
 
-+(Class)_elementClassForName:(NSString*)_name;
-+(void)setElementClass:(Class)_class
-			   forName:(NSString*)_name;
++(Class)_elementClassForName:(NSString*)name;
++(void)setElementClass:(Class)class
+               forName:(NSString*)name;
 +(GSWElement*)_theEmptyElement;
 
 @end 

@@ -1,11 +1,16 @@
-/* GSWTextField.h - GSWeb: Class GSWTextField
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWTextField.m - <title>GSWeb: Class GSWTextField</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,36 +35,36 @@ static char rcsId[] = "$Id$";
 @implementation GSWTextField
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)aName
+	 associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
-  NSMutableDictionary* _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
+  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
   LOGObjectFnStartC("GSWTextField");
-  NSDebugMLLog(@"gswdync",@"name_=%@ associations_:%@ elements_=%@",name_,associations_,elements_);
-  [_associations setObject:[GSWAssociation associationWithValue:@"text"]
-				 forKey:@"type"];
-  [_associations removeObjectForKey:dateFormat__Key];
-  [_associations removeObjectForKey:numberFormat__Key];
-  [_associations removeObjectForKey:useDecimalNumber__Key];
-  [_associations removeObjectForKey:formatter__Key];
-  if ((self=[super initWithName:name_
-				   associations:_associations
-				   contentElements:nil])) //No Childs!
-	{
-	  dateFormat = [[associations_ objectForKey:dateFormat__Key
-								   withDefaultObject:[dateFormat autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWTextField: dateFormat=%@",dateFormat);
-	  numberFormat = [[associations_ objectForKey:numberFormat__Key
-									  withDefaultObject:[numberFormat autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWTextField: numberFormat=%@",numberFormat);
-	  useDecimalNumber = [[associations_ objectForKey:useDecimalNumber__Key
-									  withDefaultObject:[useDecimalNumber autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWTextField: useDecimalNumber=%@",useDecimalNumber);
-	  formatter = [[associations_ objectForKey:formatter__Key
-									  withDefaultObject:[formatter autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWTextField: formatter=%@",formatter);
-	};
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",aName,associations,elements);
+  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"text"]
+                   forKey:@"type"];
+  [tmpAssociations removeObjectForKey:dateFormat__Key];
+  [tmpAssociations removeObjectForKey:numberFormat__Key];
+  [tmpAssociations removeObjectForKey:useDecimalNumber__Key];
+  [tmpAssociations removeObjectForKey:formatter__Key];
+  if ((self=[super initWithName:aName
+                   associations:tmpAssociations
+                   contentElements:nil])) //No Childs!
+    {
+      _dateFormat = [[associations objectForKey:dateFormat__Key
+                                   withDefaultObject:[_dateFormat autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWTextField: dateFormat=%@",_dateFormat);
+      _numberFormat = [[associations objectForKey:numberFormat__Key
+                                      withDefaultObject:[_numberFormat autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWTextField: numberFormat=%@",_numberFormat);
+      _useDecimalNumber = [[associations objectForKey:useDecimalNumber__Key
+                                         withDefaultObject:[_useDecimalNumber autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWTextField: useDecimalNumber=%@",_useDecimalNumber);
+      _formatter = [[associations objectForKey:formatter__Key
+                                  withDefaultObject:[_formatter autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWTextField: formatter=%@",_formatter);
+    };
   LOGObjectFnStopC("GSWTextField");
   return self;
 };
@@ -66,167 +72,171 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(dateFormat);
-  DESTROY(numberFormat);
-  DESTROY(useDecimalNumber);
-  DESTROY(formatter);
+  DESTROY(_dateFormat);
+  DESTROY(_numberFormat);
+  DESTROY(_useDecimalNumber);
+  DESTROY(_formatter);
   [super dealloc];
 };
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
-  BOOL _disabled=NO;
+  BOOL disabledValue=NO;
   LOGObjectFnStartC("GSWTextField");
-  GSWAssertCorrectElementID(context_);// Debug Only
-  _disabled=[self disabledInContext:context_];
-  if (!_disabled)
-	{
-	  BOOL _wasFormSubmitted=[context_ _wasFormSubmitted];
-	  if (_wasFormSubmitted)
-		{
-		  GSWComponent* _component=[context_ component];
-		  NSString* _nameInContext=[self nameInContext:context_];
-		  NSString* _value=[request_ formValueForKey:_nameInContext];
-		  id _resultValue=nil;
-		  NSDebugMLLog(@"gswdync",@"_nameInContext=%@",_nameInContext);
-		  NSDebugMLLog(@"gswdync",@"_value=%@",_value);
-		  if (_value)
-			{
-			  NSFormatter* _formatter=[self formatterForComponent:_component];
-			  NSDebugMLLog(@"gswdync",@"_formatter=%@",_formatter);
-			  if (_formatter)
-				{
-				  NSString* _errorDscr=nil;
-				  if (![_formatter getObjectValue:&_resultValue
-								   forString:_value
-								   errorDescription:&_errorDscr])
-					{
-					  NSException* _exception=nil;
-					  NSString* _valueKeyPath=[value keyPath];
-					  LOGException(@"EOValidationException _resultValue=%@ _valueKeyPath=%@",_resultValue,_valueKeyPath);
-					  _exception=[NSException exceptionWithName:@"EOValidationException"
-											  reason:_errorDscr /*_exceptionDscr*/
-											  userInfo:[NSDictionary 
-														 dictionaryWithObjectsAndKeys:
-														   (_resultValue ? _resultValue : @"nil"),@"EOValidatedObjectUserInfoKey",
-														 _valueKeyPath,@"EOValidatedPropertyUserInfoKey",
-														 nil,nil]];
-					  [_component validationFailedWithException:_exception
-								  value:_resultValue
-								  keyPath:_valueKeyPath];
-					};
-				}
-			  else
-				_resultValue=_value;
-			};
-		  NSDebugMLLog(@"gswdync",@"_resultValue=%@",_resultValue);
-
-		  // Turbocat
-		  if ([self _isFormattedValueInComponent:_component  equalToFormattedValue:_value]) {
-			// does nothing, old formatted values are equal
-		  } else {
-
-                  if (!WOStrictFlag)
+  GSWAssertCorrectElementID(context);// Debug Only
+  disabledValue=[self disabledInContext:context];
+  if (!disabledValue)
+    {
+      BOOL wasFormSubmitted=[context _wasFormSubmitted];
+      if (wasFormSubmitted)
+        {
+          GSWComponent* component=[context component];
+          NSString* nameInContext=[self nameInContext:context];
+          NSString* value=[request formValueForKey:nameInContext];
+          id resultValue=nil;
+          NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
+          NSDebugMLLog(@"gswdync",@"value=%@",value);
+          if (value)
+            {
+              NSFormatter* formatter=[self formatterForComponent:component];
+              NSDebugMLLog(@"gswdync",@"formatter=%@",formatter);
+              if (formatter)
+                {
+                  NSString* errorDscr=nil;
+                  if (![formatter getObjectValue:&resultValue
+                                  forString:value
+                                  errorDescription:&errorDscr])
                     {
-                      NS_DURING
-			{
-			  [value setValue:_resultValue
-                                 inComponent:_component];
-			};
-                      NS_HANDLER
-			{
-			  [self handleValidationException:localException
-                                inContext:context_];
-			}
-		  NS_ENDHANDLER;
+                      NSException* exception=nil;
+                      NSString* valueKeyPath=[value keyPath];
+                      LOGException(@"EOValidationException resultValue=%@ valueKeyPath=%@",
+                                   resultValue,valueKeyPath);
+                      exception=[NSException exceptionWithName:@"EOValidationException"
+                                             reason:errorDscr /*_exceptionDscr*/
+                                             userInfo:[NSDictionary 
+                                                        dictionaryWithObjectsAndKeys:
+                                                          (resultValue ? resultValue : @"nil"),@"EOValidatedObjectUserInfoKey",
+                                                        valueKeyPath,@"EOValidatedPropertyUserInfoKey",
+                                                        nil,nil]];
+                      [component validationFailedWithException:exception
+                                 value:resultValue
+                                 keyPath:valueKeyPath];
+                    };
+                }
+              else
+                resultValue=value;
+            };
+          NSDebugMLLog(@"gswdync",@"resultValue=%@",resultValue);
+
+          // Turbocat
+          if ([self _isFormattedValueInComponent:component
+                    equalToFormattedValue:value]) 
+            {
+              // does nothing, old formatted values are equal
+            } 
+          else 
+            {              
+              if (!WOStrictFlag)
+                {
+                  NS_DURING
+                    {
+                      [_value setValue:resultValue
+                             inComponent:component];
+                    };
+                  NS_HANDLER
+                    {
+                      [self handleValidationException:localException
+                            inContext:context];
                     }
-                  else
-                    [value setValue:_resultValue
-                           inComponent:_component];		  
-		  }
-		};
-	};
+		  NS_ENDHANDLER;
+                }
+              else
+                [_value setValue:resultValue
+                       inComponent:component];
+            }
+        };
+    };
   LOGObjectFnStopC("GSWTextField");
 };
 
 //--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)_response
-									inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
+                                      inContext:(GSWContext*)context
 {
   //OK
-  id _valueValue=nil;
-  id _formattedValue=nil;
-  NSFormatter* _formatter=nil;
-  GSWComponent* _component=nil;
-  id _valueTmp=nil;
+  id valueValue=nil;
+  id formattedValue=nil;
+  NSFormatter* formatter=nil;
+  GSWComponent* component=nil;
+  id valueTmp=nil;
   LOGObjectFnStartC("GSWTextField");
-  _component=[context_ component];
+  component=[context component];
   //To avoid input value printing (stupid original hack !)
-  _valueTmp=value;
-  value=nil;
-  [super appendGSWebObjectsAssociationsToResponse:_response
-		 inContext:context_];
+  valueTmp=_value;
+  _value=nil;
+  [super appendGSWebObjectsAssociationsToResponse:response
+		 inContext:context];
   //To avoid input value printing (stupid original hack !)
-  value=_valueTmp;
-  _valueTmp=nil;
-  _valueValue=[value valueInComponent:_component];
-  _formatter=[self formatterForComponent:_component];
-  if (!_formatter)
-	{
-	  NSDebugMLog0(@"No Formatter");
-	  _formattedValue=_valueValue;
-	}
+  _value=valueTmp;
+  valueTmp=nil;
+  valueValue=[_value valueInComponent:component];
+  formatter=[self formatterForComponent:component];
+  if (!formatter)
+    {
+      NSDebugMLog0(@"No Formatter");
+      formattedValue=valueValue;
+    }
   else
-	{
-	  _formattedValue=[_formatter stringForObjectValue:_valueValue];
-	};
-  [_response appendContentCharacter:' '];
-  [_response _appendContentAsciiString:@"value"];
-  [_response appendContentCharacter:'='];
-  [_response appendContentCharacter:'"'];
-  [_response appendContentHTMLAttributeValue:_formattedValue];
-  [_response appendContentCharacter:'"'];
+    {
+      formattedValue=[formatter stringForObjectValue:valueValue];
+    };
+  [response appendContentCharacter:' '];
+  [response _appendContentAsciiString:@"value"];
+  [response appendContentCharacter:'='];
+  [response appendContentCharacter:'"'];
+  [response appendContentHTMLAttributeValue:formattedValue];
+  [response appendContentCharacter:'"'];
   LOGObjectFnStopC("GSWTextField");
 };
 
 //--------------------------------------------------------------------
--(NSFormatter*)formatterForComponent:(GSWComponent*)_component
+-(NSFormatter*)formatterForComponent:(GSWComponent*)component
 {
   //OK
-  id _formatValue = nil;
-  id _formatter = nil;
+  id formatValue = nil;
+  id formatter = nil;
   LOGObjectFnStartC("GSWTextField");
-  if (dateFormat)
-	{
-	  NSDebugMLog0(@"DateFormat");
-	  _formatValue=[dateFormat valueInComponent:_component];
-	  if (_formatValue)
-		_formatter=[[[NSDateFormatter alloc]initWithDateFormat:_formatValue
-										   allowNaturalLanguage:YES]autorelease];
-	}
-  else if (numberFormat)
-	{
-	  NSDebugMLog0(@"NumberFormat");
-	  _formatValue=[numberFormat valueInComponent:_component];
-	  if (_formatValue)
-		{
-//TODO
-/*
-		  _formatter=[[NSNumberFormatter new]autorelease];
-		  [_formatter setFormat:_formatValue];
-*/
-		};
-	}
+  if (_dateFormat)
+    {
+      NSDebugMLog0(@"DateFormat");
+      formatValue=[_dateFormat valueInComponent:component];
+      if (formatValue)
+        formatter=[[[NSDateFormatter alloc]initWithDateFormat:formatValue
+                                           allowNaturalLanguage:YES]autorelease];
+    }
+  else if (_numberFormat)
+    {
+      NSDebugMLog0(@"NumberFormat");
+      formatValue=[_numberFormat valueInComponent:component];
+      if (formatValue)
+        {
+          //TODO
+          /*
+            formatter=[[NSNumberFormatter new]autorelease];
+            [formatter setFormat:formatValue];
+          */
+        };
+    }
   else
-	{
-	  NSDebugMLog0(@"Formatter");
-	  _formatter=[formatter valueInComponent:_component];
-	};
+    {
+      NSDebugMLog0(@"Formatter");
+      formatter=[_formatter valueInComponent:component];
+    };
   LOGObjectFnStopC("GSWTextField");
-  return _formatter;
+  return formatter;
 };
 
 @end
@@ -235,32 +245,36 @@ static char rcsId[] = "$Id$";
 @implementation GSWTextField (TurbocatAdditions)
 
 //--------------------------------------------------------------------
-- (BOOL)_isFormattedValueInComponent:(GSWComponent *)_component  equalToFormattedValue:(NSString *)newFormattedValue 
+- (BOOL)_isFormattedValueInComponent:(GSWComponent *)component  
+               equalToFormattedValue:(NSString *)newFormattedValue 
 {
-  id _valueValue=nil;
-  id _formattedValue=nil;
-  NSFormatter* _formatter=nil;
+  id valueValue=nil;
+  id formattedValue=nil;
+  NSFormatter* formatter=nil;
 
-  if (!newFormattedValue) {
-	return NO;
-  }
-
+  if (!newFormattedValue) 
+    {
+      return NO;
+    }
+  
   // get own value
-  _valueValue=[value valueInComponent:_component];
-  _formatter=[self formatterForComponent:_component];
-  if (!_formatter)
-	{
-	  //NSLog(@"No Formatter in _isFormattedValueInComponent");
-	  _formattedValue=_valueValue;
-	}
+  valueValue=[_value valueInComponent:component];
+  formatter=[self formatterForComponent:component];
+  if (!formatter)
+    {
+      formattedValue=valueValue;
+    }
   else
-	{
-	  _formattedValue=[_formatter stringForObjectValue:_valueValue];
-	};
+    {
+      formattedValue=[formatter stringForObjectValue:valueValue];
+    };
 
-  if (_formattedValue && [newFormattedValue isEqualToString:_formattedValue]) {
-    NSLog(@"### GSWTextField : are EQUAL ###");
-	return YES;
-  }
+  if (formattedValue && [newFormattedValue isEqualToString:formattedValue]) 
+    {
+      NSLog(@"### GSWTextField : are EQUAL ###");
+      return YES;
+    }
   return NO;
 }
+
+@end

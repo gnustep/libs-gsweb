@@ -1,11 +1,16 @@
-/* GSWHTMLStaticGroup.h - GSWeb: Class GSWHTMLStaticGroup
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLStaticGroup.h - <title>GSWeb: Class GSWHTMLStaticGroup</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -31,11 +37,11 @@
 {
   NSString* _documentTypeString;
 }
--(id)initWithContentElements:(NSArray*)elements_;
--(void)setDocumentTypeString:(NSString *)documentType_;
+-(id)initWithContentElements:(NSArray*)elements;
+-(void)setDocumentTypeString:(NSString *)documentType;
 
--(void)appendToResponse:(GSWResponse*)response_
-              inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context;
 
 -(void)dealloc;
 @end

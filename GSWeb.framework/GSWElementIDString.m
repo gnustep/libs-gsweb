@@ -1,11 +1,16 @@
-/* GSWElementIDString.m - GSWeb: Class GSWElementIDString
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWElementIDString.m - <title>GSWeb: Class GSWElementIDString</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
-   
+         
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -300,24 +306,22 @@ static char rcsId[] = "$Id$";
 {
   NSArray* ids=nil;
   LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"self:%@",self);  
   if ([self length]>0)
-	{
-	  ids=[self componentsSeparatedByString:@"."];
-	  NSAssert([ids count]>0,@"PROBLEM");
-	  if ([ids count]==1)
-		[self setString:@""];
-	  else
-		{
-		  [self setString:[[ids subarrayWithRange:NSMakeRange(0,[ids count]-1)]
-							componentsJoinedByString:@"."]];
-		};
-	}
+    {
+      ids=[self componentsSeparatedByString:@"."];
+      NSAssert([ids count]>0,@"PROBLEM");
+      if ([ids count]==1)
+        [self setString:@""];
+      else
+        {
+          [self setString:[[ids subarrayWithRange:NSMakeRange(0,[ids count]-1)]
+                            componentsJoinedByString:@"."]];
+        };
+    }
   else
-	{
-	  ExceptionRaise0(@"GSWElementIDString",@"Can't deleteLastElementIDComponent of an empty ElementID String");
-	};
-  NSDebugMLLog(@"low",@"self:%@",self);  
+    {
+      ExceptionRaise0(@"GSWElementIDString",@"Can't deleteLastElementIDComponent of an empty ElementID String");
+    };
   LOGObjectFnStop();
 };
 
@@ -326,25 +330,20 @@ static char rcsId[] = "$Id$";
 {
   NSArray* ids=nil;
   LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"self:%@",self);  
   ids=[self componentsSeparatedByString:@"."];
   if (ids && [ids count]>0)
-	{
-	  NSString* _last=[ids lastObject];
-	  NSString* _new=nil;
-	  NSDebugMLLog(@"low",@"_last:%@",_last);  
-	  _last=[NSString  stringWithFormat:@"%d",([_last intValue]+1)];	  
-	  NSDebugMLLog(@"low",@"_last:%@",_last);  
-	  NSDebugMLLog(@"low",@"ids count:%d",[ids count]);  
-	  if ([ids count]>1)
-		_new=[[[ids subarrayWithRange:NSMakeRange(0,[ids count]-1)]
-				componentsJoinedByString:@"."]
-			   stringByAppendingFormat:@".%@",_last];
-	  else
-		_new=_last;
-	  [self setString:_new];
-	};
-  NSDebugMLLog(@"low",@"self:%@",self);  
+    {
+      NSString* _last=[ids lastObject];
+      NSString* _new=nil;
+      _last=[NSString  stringWithFormat:@"%d",([_last intValue]+1)];	  
+      if ([ids count]>1)
+        _new=[[[ids subarrayWithRange:NSMakeRange(0,[ids count]-1)]
+                componentsJoinedByString:@"."]
+               stringByAppendingFormat:@".%@",_last];
+      else
+        _new=_last;
+      [self setString:_new];
+    };
   LOGObjectFnStop();
 };
 
@@ -352,12 +351,10 @@ static char rcsId[] = "$Id$";
 -(void)appendZeroElementIDComponent
 {
   LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"self:%@",self);  
   if ([self length]>0)
-	  [self appendString:@".0"];
+    [self appendString:@".0"];
   else
-	  [self setString:@"0"];
-  NSDebugMLLog(@"low",@"self:%@",self);  
+    [self setString:@"0"];
   LOGObjectFnStop();
 };
 
@@ -365,13 +362,10 @@ static char rcsId[] = "$Id$";
 -(void)appendElementIDComponent:(id)_element
 {
   LOGObjectFnStart();
-//  NSDebugMLLog(@"low",@"self:%@",self);  
-//  NSDebugMLLog(@"low",@"_element:%@",_element);  
   if (self && [self length]>0)
-	  [self appendFormat:@".%@",_element];
+    [self appendFormat:@".%@",_element];
   else
-	  [self setString:_element];
-  NSDebugMLLog(@"low",@"self:%@",self);  
+    [self setString:_element];
   LOGObjectFnStop();
 };
 
@@ -381,7 +375,7 @@ static char rcsId[] = "$Id$";
 {
   GSWElementIDString* _id=[[self copy] autorelease];
   if ([self length]>0)
-	[_id deleteLastElementIDComponent];
+    [_id deleteLastElementIDComponent];
   return _id;
 };
 //--------------------------------------------------------------------

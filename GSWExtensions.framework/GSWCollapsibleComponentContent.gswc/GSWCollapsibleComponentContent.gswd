@@ -7,6 +7,7 @@ Link: GSWHyperlink
 Image: GSWImage
 {
     filename = imageFileName;
+    framework = "GSWExtensions";
     alt = helpString;
     name = helpString;
     border = "0";

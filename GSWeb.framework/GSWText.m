@@ -1,11 +1,16 @@
-/* GSWText.h - GSWeb: Class GSWText
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWText.m - <title>GSWeb: Class GSWText</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,15 +35,15 @@ static char rcsId[] = "$Id$";
 @implementation GSWText
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
-  if ((self=[super initWithName:name_
-				   associations:associations_
-				   contentElements:nil]))
-	{
-	};
+  if ((self=[super initWithName:name
+                   associations:associations
+                   contentElements:nil]))
+    {
+    };
   return self;
 };
 
@@ -51,8 +57,8 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 //--------------------------------------------------------------------
@@ -67,67 +73,67 @@ static char rcsId[] = "$Id$";
 @implementation GSWText (GSWTextA)
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
-  if (value && [value isValueSettable])
-	{
-	  GSWComponent* _component=[context_ component];
-	  id _formValue=[request_ formValueForKey:[context_ elementID]];
-          if (!WOStrictFlag)
+  if (_value && [_value isValueSettable])
+    {
+      GSWComponent* component=[context component];
+      id formValue=[request formValueForKey:[context elementID]];
+      if (!WOStrictFlag)
+        {
+          NS_DURING
             {
-              NS_DURING
-		{
-		  [value setValue:_formValue
-                         inComponent:_component];
-		};
-              NS_HANDLER
-		{
-		  [self handleValidationException:localException
-                        inContext:context_];
-		}
-              NS_ENDHANDLER;
+              [_value setValue:formValue
+                     inComponent:component];
+            };
+          NS_HANDLER
+            {
+              [self handleValidationException:localException
+                    inContext:context];
             }
-          else
-            [value setValue:_formValue
-                   inComponent:_component];		  
-	};
-  [super takeValuesFromRequest:request_
-		 inContext:context_];
+          NS_ENDHANDLER;
+        }
+      else
+        [_value setValue:formValue
+               inComponent:component];
+    };
+  [super takeValuesFromRequest:request
+         inContext:context];
 };
 
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK
-  GSWRequest* _request=[context_ request];
-  NSString* _valueValue=nil;
-  NSString* _valueValueFiltered=nil;
-  BOOL _isFromClientComponent=[_request isFromClientComponent];
-  GSWComponent* _component=[context_ component];
-  [super appendToResponse:response_
-		 inContext:context_];
-  _valueValue=[value valueInComponent:_component];
-  _valueValueFiltered=[self _filterSoftReturnsFromString:_valueValue];
-  [response_ appendContentHTMLString:_valueValueFiltered];
-  [response_ _appendContentAsciiString:@"</TEXTAREA>"];
+  GSWRequest* request=[context request];
+  NSString* valueValue=nil;
+  NSString* valueValueFiltered=nil;
+  BOOL isFromClientComponent=[request isFromClientComponent];
+  GSWComponent* component=[context component];
+  [super appendToResponse:response
+		 inContext:context];
+  valueValue=[_value valueInComponent:component];
+  valueValueFiltered=[self _filterSoftReturnsFromString:valueValue];
+  [response appendContentHTMLString:valueValueFiltered];
+  [response _appendContentAsciiString:@"</TEXTAREA>"];
 };
 
 //--------------------------------------------------------------------
--(NSString*)_filterSoftReturnsFromString:(NSString*)string_
+-(NSString*)_filterSoftReturnsFromString:(NSString*)string
 {
   LOGObjectFnNotImplemented();	//TODOFN
-  return string_;
+  return string;
 };
 
 @end
 
 //====================================================================
 @implementation GSWText (GSWTextB)
--(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping
+-(BOOL)appendStringAtRight:(id)unkwnon
+               withMapping:(char*)mapping
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return NO;
