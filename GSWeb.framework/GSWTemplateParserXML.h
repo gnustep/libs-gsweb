@@ -33,10 +33,6 @@
 	#define _GSWTemplateParserXML_h__
 
 #include "GSWTemplateParser.h"
-#include <libxml/parser.h>
-#include <libxml/parserInternals.h>
-#include <libxml/SAX.h>
-#include <libxml/HTMLparser.h>
 #include <Foundation/GSXML.h>
 
 
@@ -58,8 +54,6 @@
 +(id)handlerWithTemplateParser:(GSWTemplateParser*)templateParser;
 -(id)initWithTemplateParser:(GSWTemplateParser*)templateParser;
 -(id)init;
--(xmlParserInputPtr)resolveEntity:(NSString*)publicIdEntity
-                         systemID:(NSString*)systemIdEntity;
 -(void)warning:(NSString*)message
      colNumber:(int)colNumber
     lineNumber:(int)lineNumber;

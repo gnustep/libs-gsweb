@@ -1,4 +1,17 @@
 2002-12-06   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWTemplateParserXML.[mh]
+    		o move references to libxml into .m file 
+			(David Ayers <d.ayers@inode.at> patch)
+    		o change parser error message to output lines before columns 
+			(David Ayers <d.ayers@inode.at> patch)
+	* GSWeb.framework/Makefile.preamble.in:
+    		o let gnustep-make figure out whether to link against debug libs or not.  
+			(David Ayers <d.ayers@inode.at> patch)
+	* Makefile.preamble:
+	    	o remove usage of INSTALL_ROOT_DIR as this isn't used consistently
+			(David Ayers <d.ayers@inode.at> patch)
+	
+2002-12-06   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWExtensions.framework/Makefile.preamble: 
 		o added -I/usr/include/libxml2 in ADDITIONAL_INCLUDE_DIRS
 	* GSWExtensionsGSW.framework/Makefile.preamble: 

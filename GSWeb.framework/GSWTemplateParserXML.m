@@ -30,9 +30,12 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include "GSWeb.h"
 #include "GSWTemplateParserXML.h"
+#include <libxml/parser.h>
+#include <libxml/parserInternals.h>
 #include <libxml/SAX.h>
+#include <libxml/HTMLparser.h>
 
 extern xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt,
                                                  const xmlChar *buffer);
@@ -40,6 +43,11 @@ extern xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt,
 static NSLock* GSXMLParserLock=nil;
 static NSMutableDictionary* DTDCache=nil;
 static NSMutableDictionary* DTDFilePathCache=nil;
+
+@interface GSWTemplateParserSAXHandler (Private)
+-(xmlParserInputPtr)resolveEntity:(NSString*)publicIdEntity
+                         systemID:(NSString*)systemIdEntity;
+@end
 
 //====================================================================
 @implementation GSWTemplateParserSAXHandler
@@ -558,10 +566,10 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
       && ![testMessage isEqualToString:@"htmlparsestarttag: misplaced <head> tag"]
       && ![testMessage isEqualToString:@"unexpected end tag : head"])
     {
-      [[GSWApplication application] logErrorWithFormat:@"%@ Error (col %d,line %d): %@",
+      [[GSWApplication application] logErrorWithFormat:@"%@ Error (line %d,col %d): %@",
                                     [_templateParser logPrefix],
-                                    colNumber,
                                     lineNumber,
+                                    colNumber,
                                     message];
     };
 };
@@ -571,10 +579,10 @@ xmlParserInputPtr GSWTemplateParserSAXHandler_ExternalLoader(const char *systemI
      colNumber:(int)colNumber
     lineNumber:(int)lineNumber
 {
-  [[GSWApplication application] logErrorWithFormat:@"%@ Fatal Error (col %d,line %d): %@",
+  [[GSWApplication application] logErrorWithFormat:@"%@ Fatal Error (line %d,col %d): %@",
                                 [_templateParser logPrefix],
-                                colNumber,
                                 lineNumber,
+                                colNumber,
                                 message];
 };
 

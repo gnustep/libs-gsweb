@@ -1,5 +1,6 @@
-# Makefile.postamble - GSWeb: Makefile.postamble
-#   Copyright (C) 1999 Free Software Foundation, Inc.
+#   -*-makefile-*-
+#   Makefile.postamble - GSWeb: Makefile.postamble
+#   Copyright (C) 1999-2002 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
 #   Date: 		Jul 1999
@@ -45,13 +46,14 @@ gsdocs:
 # The following rule is important mainly for packaging, because in that case 
 # you install into a fake system tree, and the directory is not there.
 #
-$(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary:
-	$(MKDIRS) $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary
+$(GNUSTEP_MAKEFILES)/Auxiliary:
+	$(MKINSTALLDIRS) $@
 
 # Things to do before installing
-before-install:: $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary
++before-install:: $(GNUSTEP_MAKEFILES)/Auxiliary
 	$(INSTALL_DATA) gsweb.make \
 	   $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
+	   $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
 
 # Things to do after installing
 #after-install::
@@ -61,7 +63,7 @@ before-install:: $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary
 
 # Things to do after uninstalling
 after-uninstall::
-	rm -f $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
+	rm -f $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
 
 # Things to do before cleaning
 # before-clean::
