@@ -410,8 +410,12 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   myData = [aValue dataUsingEncoding:_contentEncoding
                 allowLossyConversion:NO];
                 
-  NSAssert2(myData,@"(%s): could not convert string non-lossy to encoding %i",
-            __PRETTY_FUNCTION__, _contentEncoding);
+  if (!myData) {
+    NSLog(aValue);
+    [NSException raise:NSInvalidArgumentException 
+    format:@"%s: could not convert '%s' non-lossy to encoding %i",
+    __PRETTY_FUNCTION__, [aValue lossyCString],_contentEncoding];  
+  }
 
 //  [self appendContentData: myData];
   _checkBody(self);
