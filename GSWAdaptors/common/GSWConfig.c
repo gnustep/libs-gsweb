@@ -109,7 +109,7 @@ static char g_szServerStringInfo[1024]="";
 static char g_szAdaptorStringInfo[1024]="";
 //--------------------------------------------------------------------
 void GSWConfig_Init(GSWDict* p_pDict,
-					void* p_pLogServerData
+					void* p_pLogServerData)
 {
   CONST char* pszPath=NULL;
   memset(&g_gswConfig,0,sizeof(g_gswConfig));
