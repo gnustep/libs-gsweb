@@ -1,0 +1,73 @@
+ViewCondition: GSWConditional
+{
+	condition = isViewEnabled;
+};
+
+ViewPathCondition: GSWConditional
+{
+	condition = ^isURLView;
+        negate = YES;
+};
+
+ViewURLCondition: GSWConditional
+{
+	condition = ^isURLView;
+};
+
+LinkViewCondition: GSWConditional
+{
+	condition = ^isImageView;
+        negate = YES;
+};
+
+ImageViewCondition: GSWConditional
+{
+	condition = ^isImageView;
+};
+
+ImageWithPath: GSWImage
+{
+    filename = fileInfo.filePath;
+    border = 0;
+};
+
+ImageWithURL: GSWImage
+{
+    src = fileInfo.fileURL;
+    border = 0;
+};
+
+UploadFile: GSWFileUpload
+{
+	data = fileInfo.data;
+	filePath = fileInfo.fileName;
+	enabled=^isUploadEnabled;
+};
+
+FileLinkWithPath: GSWHyperlink
+{
+	filename=fileInfo.filePath;
+	data=fileInfo.data;
+	mimeType=fileInfo.mimeType;
+	key=fileInfo.filePath;
+	string= ^string;
+	target = ^target;
+};
+
+FileLinkWithURL: GSWHyperlink
+{
+	src=fileInfo.fileURL;
+	string= ^string;
+	target = ^target;
+};
+
+DeleteCondition: GSWConditional
+{
+        condition = isDeleteEnabled;
+};
+
+DeleteCheckBox: GSWCheckBox
+{
+	enabled=isDeleteEnabled;
+	checked= fileInfo.isDeleted;
+};

@@ -1,0 +1,16 @@
+valueForKey:		method "foo", method "_foo"
+			method "getFoo", method "_getFoo"
+			ivar "_foo", ivar "foo"
+
+takeValue:ForKey:	method "setFoo", method "_setFoo"
+			ivar "foo", ivar "_foo"
+
+storedValueForKey: 	method "_getFoo", method "_foo"
+			ivar "_foo", ivar "foo"
+			method "getFoo", method "foo"
+
+takeStoredValueForKey:	method "_setFoo"
+			ivar "_foo", ivar "foo"
+			method "setFoo"
+
+
