@@ -85,7 +85,6 @@ RCS_ID("$Id$")
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  //OK
   BOOL disabledValue=NO;
   LOGObjectFnStartC("GSWTextField");
   GSWStartElement(context);
@@ -98,11 +97,11 @@ RCS_ID("$Id$")
         {
           GSWComponent* component=[context component];
           NSString* nameInContext=[self nameInContext:context];
-          NSString* value=[request formValueForKey:nameInContext];
+          NSString* value=[request stringFormValueForKey:nameInContext];
           id resultValue=nil;
           NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
           NSDebugMLLog(@"gswdync",@"value=%@",value);
-          if (value)
+          if ([value length]>0)
             {
               NSFormatter* formatter=[self formatterForComponent:component];
               NSDebugMLLog(@"gswdync",@"formatter=%@",formatter);
@@ -125,8 +124,8 @@ RCS_ID("$Id$")
                     {
                       NSException* exception=nil;
                       NSString* valueKeyPath=[_value keyPath];
-                      LOGException(@"EOValidationException resultValue=%@ valueKeyPath=%@",
-                                   resultValue,valueKeyPath);
+                      LOGException(@"EOValidationException formatter=%@ value='%@' resultValue='%@' valueKeyPath=%@ error=%@",
+                                   formatter,value,resultValue,valueKeyPath,errorDscr);
                       exception=[NSException exceptionWithName:@"EOValidationException"
                                              reason:errorDscr /*_exceptionDscr*/
                                              userInfo:[NSDictionary 
