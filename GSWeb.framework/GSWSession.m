@@ -759,7 +759,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 //NDFN
--(uint)permanentPageCacheSize
+-(unsigned int)permanentPageCacheSize
 {
   return [GSWApp permanentPageCacheSize];
 };
@@ -1097,7 +1097,7 @@ extern id gcObjectsToBeVisited;
 
 //--------------------------------------------------------------------
 //NDFN
--(uint)pageCacheSize
+-(unsigned int)pageCacheSize
 {
   return [GSWApp pageCacheSize];
 };

@@ -131,7 +131,7 @@
 
 -(void)savePage:(GSWComponent*)page;
 -(GSWComponent*)restorePageForContextID:(NSString*)aContextID;
--(uint)permanentPageCacheSize;
+-(unsigned int)permanentPageCacheSize;
 -(void)savePageInPermanentCache:(GSWComponent*)page;
 
 @end
@@ -159,7 +159,7 @@
 -(void)_replacePage:(GSWComponent*)page;
 -(void)_savePage:(GSWComponent*)page
        forChange:(BOOL)forChange;
--(uint)pageCacheSize;
+-(unsigned int)pageCacheSize;
 -(void)_saveCurrentPage;
 -(int)_requestCounter;
 -(void)_contextDidIncrementContextID;

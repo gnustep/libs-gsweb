@@ -1,3 +1,10 @@
+2004-05-06  S.J. Chun <chunsj@embian.com>
+            David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWSession.h/m
+	([GSWSession permanentPageCacheSize], [GSWSession pageCacheSize]):
+	Replace uint with unsigned int.
+
 2004-05-06  David Ayers  <d.ayers@inode.at>
 
 	* INSTALL: Update prerequisites.
