@@ -62,6 +62,8 @@ RCS_ID("$Id$")
   if ((self=[super init]))
     {
       ASSIGN(_actionClassName,[self defaultActionClassName]);
+      if (_actionClassName)
+        ASSIGN(_actionClassClass,[[self class] _actionClassForName:_actionClassName]);
       ASSIGN(_defaultActionName,[self defaultDefaultActionName]);
       _shouldAddToStatistics=[self defaultShouldAddToStatistics];
     };
@@ -76,6 +78,8 @@ RCS_ID("$Id$")
   if ((self=[self init]))
     {
       ASSIGN(_actionClassName,defaultActionClassName);
+      if (_actionClassName)
+        ASSIGN(_actionClassClass,[[self class]_actionClassForName:_actionClassName]);
       ASSIGN(_defaultActionName,defaultActionName);
       _shouldAddToStatistics=shouldAddToStatistics;
     };
@@ -86,6 +90,7 @@ RCS_ID("$Id$")
 -(void)dealloc
 {
   DESTROY(_actionClassName);
+  DESTROY(_actionClassClass);
   DESTROY(_defaultActionName);
   [super dealloc];
 };
@@ -177,7 +182,7 @@ RCS_ID("$Id$")
   NSDebugMLog(@"[GSWAction class]=%@",[GSWAction class]);
   if (class)
     {
-      NSLog(@"Z6-  class=%@",class);//TODO: does this to force class init. Check this later
+      [class description];//TODO: does this to force class init. Check this later
       if (!GSObjCIsKindOf(class,[GSWAction class]))
         class=Nil;
     };
@@ -229,10 +234,9 @@ RCS_ID("$Id$")
                        actionOfClass:*actionClassPtr])
           {
             NSDebugMLog(@"_actionClassName=%@",_actionClassName);
-            if(!_actionClassClass) {
-               _actionClassClass = NSClassFromString(_actionClassName);
-            }
-            NSDebugMLog(@"_actionClassClass=%@",_actionClassClass); //nil here?? dave
+            if(!_actionClassClass)
+              _actionClassClass = [[self class]_actionClassForName:_actionClassName];           
+            NSDebugMLog(@"_actionClassClass=%@",_actionClassClass);
             NSDebugMLog(@"testActionName=%@",testActionName);      
             *actionClassNamePtr = _actionClassName;
             *actionClassPtr = _actionClassClass;
