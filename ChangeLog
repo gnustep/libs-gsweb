@@ -1,3 +1,7 @@
+2004-01-02   David Wetzel <dave@turbocat.de>
+       * GSWeb.framework: GSWString.m
+         do a stringValue on numbers to avoid an exception later.
+
 2003-12-25   David Wetzel <dave@turbocat.de>
         * GSWeb.framework: GSWApplication.m GSWConstants.h GSWConstants.m
           Added GSWClassName_ResourceManager, GSWClassName_StatisticsStore,

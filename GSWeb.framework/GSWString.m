@@ -142,6 +142,10 @@ RCS_ID("$Id$")
       if (!formatter)
         {
           formattedValue=valueValue;
+          // if we dont do this we get an exception on NSNumbers later. dave at turbocat.de
+          if ([formattedValue isKindOfClass:[NSNumber class]]) {
+            formattedValue = [(id)formattedValue stringValue];
+          } 
         }
       else
         {
