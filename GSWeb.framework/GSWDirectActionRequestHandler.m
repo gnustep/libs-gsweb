@@ -1,6 +1,6 @@
 /** GSWDirectActionRequestHandler.m - <title>GSWeb: Class GSWDirectActionRequestHandler</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -37,6 +37,25 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWDirectActionRequestHandler
 
+//--------------------------------------------------------------------
+-(id)init
+{
+  if ((self=[super init]))
+    {
+      ASSIGN(_actionClassName,[self defaultActionClassName]);
+      ASSIGN(_defaultActionName,[self defaultDefaultActionName]);
+      _displayExceptionPages = [self defaultDisplayExceptionPages];
+    };
+  return self;
+};
+
+//--------------------------------------------------------------------
+-(BOOL)defaultDisplayExceptionPages
+{
+  return [GSWApplication defaultDisplayExceptionPages];
+};
+
+//--------------------------------------------------------------------
 -(NSString*)defaultActionClassName
 {
   return @"DirectAction";
@@ -115,6 +134,29 @@ RCS_ID("$Id$")
   return response;
 };
 
+//--------------------------------------------------------------------
+-(GSWResponse*)generateRequestRefusalResponseForRequest:(GSWRequest*)aRequest
+{
+  GSWResponse* response=nil;
+  LOGObjectFnStart();
+  response=[GSWResponse generateRefusingResponseInContext:nil
+                          forRequest:aRequest];
+  LOGObjectFnStop();
+  return response;
+};
+
+//--------------------------------------------------------------------
+-(GSWResponse*)generateErrorResponseWithException:(NSException*)exception
+                                        inContext:(GSWContext*)aContext
+{
+  GSWResponse* response=nil;
+  LOGObjectFnStart();
+  if (_displayExceptionPages)
+    response=[GSWApp handleException:exception
+                     inContext:aContext];
+  LOGObjectFnStop();
+  return response;
+};
 
 //--------------------------------------------------------------------
 //NDFN: return additional path elements
@@ -130,21 +172,25 @@ RCS_ID("$Id$")
   return additionalRequestPathArray;
 };
 
+//--------------------------------------------------------------------
 -(void)setAllowsContentInputStream:(BOOL)yn
 {
   _allowsContentInputStream = yn;
 };
 
+//--------------------------------------------------------------------
 -(BOOL)allowsContentInputStream
 {
   return _allowsContentInputStream;
 };
 
+//--------------------------------------------------------------------
 -(void)setDisplayExceptionPages:(BOOL)yn
 {
   _displayExceptionPages=yn;
 };
 
+//--------------------------------------------------------------------
 -(BOOL)displayExceptionPages
 {
   return _displayExceptionPages;
@@ -163,6 +209,7 @@ RCS_ID("$Id$")
                shouldAddToStatistics:YES];
 };
 
+//--------------------------------------------------------------------
 +(GSWDirectActionRequestHandler*)handlerWithDefaultActionClassName:(NSString*)defaultActionClassName
                                                  defaultActionName:(NSString*)defaultActionName
                                              displayExceptionPages:(BOOL)displayExceptionPages

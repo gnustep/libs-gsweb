@@ -1,6 +1,6 @@
 /** GSWDirectActionRequestHandler.h - <title>GSWeb: Class GSWDirectActionRequestHandler</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -40,6 +40,9 @@
 };
 
 -(GSWResponse*)generateNullResponse;
+-(GSWResponse*)generateRequestRefusalResponseForRequest:(GSWRequest*)aRequest;
+-(GSWResponse*)generateErrorResponseWithException:(NSException*)exception
+                                        inContext:(GSWContext*)aContext;
 -(id)submitButtonsActionPathFromRequest:(GSWRequest*)aRequest;
 +(NSArray*)additionalRequestPathArrayFromRequest:(GSWRequest*)aRequest;
 -(void)setAllowsContentInputStream:(BOOL)yn;
