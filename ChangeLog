@@ -1,3 +1,7 @@
+2003-02-19  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWDebug.h: fixed #define.
+
 2003-02-01   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/NSString+Trimming.m:
 		o Replaced DataToHexString with -[NSData

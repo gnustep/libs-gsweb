@@ -41,10 +41,10 @@ extern void GSWLogAssertGoodFn(CONST char* file,int line,NSObject* object);
 //Log Memory Alloc/Dealloc
 #ifdef GSWDEBUG_MEM
 #define GSWLogMemC(cString);				GSWLogC_(__FILE__,__LINE__,cString);
-#define GSWLogMemCF(format,...);			{ fprintf(stderr,"File %s: %d. ",file,line); fprintf(stderr,format, ## args); };
+#define GSWLogMemCF(format, args...);			{ fprintf(stderr,"File %s: %d. ",file,line); fprintf(stderr,format, ## args); };
 #else
 #define GSWLogMemC(cString);				
-#define GSWLogMemCF(format,...);
+#define GSWLogMemCF(format, args...);
 #endif
 
 //Log Locks
@@ -66,7 +66,7 @@ extern void GSWLogAssertGoodFn(CONST char* file,int line,NSObject* object);
 #define GSWLogDumpObject(object,deep);		{}
 #define GSWLogAssertGood(object);		{}
 #define GSWLogMemC(cString);			{}	
-#define GSWLogMemCF(cString,...);		{}	
+#define GSWLogMemCF(cString, args...);		{}	
 #define GSWLogLockC(cString);			{}	
 #define GSWLogDeepC(cString);			{}	
 #endif
