@@ -186,6 +186,15 @@ NSString* GSWOPT_MultiThreadEnabled=@"GSWMTEnabled";
 NSString* GSWOPT_DebugSetConfigFilePath=@"GSWDebugSetConfigFilePath";
 NSString* GSWOPT_AdaptorHost[2]={ @"GSWAdaptorHost", @"WOAdaptorHost" };
 NSString* GSWOPT_SaveResponsesPath[2]={ @"GSWSaveResponsePath", @"WOSaveResponsePath" };
+NSString* GSWOPT_DefaultTemplateParser[2]= { @"GSWDefaultTemplateParser", @"WODefaultTemplateParser" };
+
+//====================================================================
+// Option Values
+
+NSString* GSWOPTValue_DefaultTemplateParser_XMLHTML = @"XMLHTML";
+NSString* GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags  = @"XMLHTMLNoOmittedTags";
+NSString* GSWOPTValue_DefaultTemplateParser_XML = @"XML";
+NSString* GSWOPTValue_DefaultTemplateParser_ANTLR = @"ANTLR";
 
 //====================================================================
 // Cache Marker

@@ -180,6 +180,15 @@ extern NSString* GSWOPT_MultiThreadEnabled;
 extern NSString* GSWOPT_DebugSetConfigFilePath;
 extern NSString* GSWOPT_AdaptorHost[2];
 extern NSString* GSWOPT_SaveResponsesPath[2];
+extern NSString* GSWOPT_DefaultTemplateParser[2];
+
+//====================================================================
+// Option Values
+
+extern NSString* GSWOPTValue_DefaultTemplateParser_XMLHTML;
+extern NSString* GSWOPTValue_DefaultTemplateParser_XMLHTMLNoOmittedTags;
+extern NSString* GSWOPTValue_DefaultTemplateParser_XML;
+extern NSString* GSWOPTValue_DefaultTemplateParser_ANTLR;
 
 //====================================================================
 // Cache Marker
