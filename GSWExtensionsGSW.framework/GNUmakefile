@@ -1,5 +1,5 @@
 # GNUmakefile - GSWeb: GNUmakefile
-#   Copyright (C) 1999 Free Software Foundation, Inc.
+#   Copyright (C) 1999-2004 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
 #   Date: 		Jan 1999
@@ -90,7 +90,8 @@ GSWTabComponent.m \
 GSWValidationFailureComponent.m \
 GSWSimpleFormComponent.m \
 GSWFileUploadFormComponent.m \
-GSWFileUploadComponent.m 
+GSWFileUploadComponent.m \
+GSWCacheElement.m 
 WOExtensionsGSW_OBJC_FILES = $(GSWExtensionsGSW_OBJC_FILES)
 
 # The header files to be installed
@@ -100,7 +101,8 @@ GSWLogin.h \
 GSWTabComponent.h \
 GSWValidationFailureComponent.h \
 GSWFileUploadFormComponent.h \
-GSWFileUploadComponent.h
+GSWFileUploadComponent.h \
+GSWCacheElement.h
 WOExtensionsGSW_HEADER_FILES = $(GSWExtensionsGSW_HEADER_FILES)
 
 GSWExtensionsGSW_HEADER_FILES_DIR = $(HEADER_DIR)
