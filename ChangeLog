@@ -1,3 +1,9 @@
+2004-09-01  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWDeclarationParser.m:
+	(parseDeclarationString:named:inFrameworkNamed:): Use -base's
+	version of md5 methods instead of adding gscrypt dependency.
+	
 2004-09-01   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWExtensions.framework/GSWCollapsibleComponentContent.m: 
 		o removed unused methods

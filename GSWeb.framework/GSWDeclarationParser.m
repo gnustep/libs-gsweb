@@ -38,7 +38,7 @@ RCS_ID("$Id$")
 
 #include "GSWDeclarationParser.h"
 #include <GNUstepBase/Unicode.h>
-#include <gscrypt/GSMD5.h>
+#include <GNUstepBase/GSCategories.h>
 
 static inline BOOL _parserIsIdentifierChar(unichar c)
 {
@@ -196,8 +196,8 @@ accumulated instead of blocking on first error) **/
 
   if ([_string rangeOfString:@"#include"].length==0)
     {
-      md5=[GSMD5 digestOfString:_string
-                 usingEncoding:NSUnicodeStringEncoding];
+      md5=[_string dataUsingEncoding: NSUnicodeStringEncoding];
+      md5=[md5 md5Digest];
       declarations=[declarationsCache objectForKey:md5];
       NSDebugMLog(@"declaration (%@) is %scached",declarationFileName,(declarations ? "" : "not "));
     }
