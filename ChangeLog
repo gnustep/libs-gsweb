@@ -26,7 +26,18 @@
 
 	([-lockedInitComponentBearingFrameworksFromBundleArray]): Comment
 	unused variable to avoid warning.
-	
+
+	Part II
+	* GSWeb.framework/GNUmakefile: Add GSWApplication+Defaults.m.
+	* GSWeb.framework/GSWApplication.m:
+	(globalAppDefaultOptions, WOStrictFlag)
+	(GSWeb_ApplicationDebugSetChange, GSWApplicationSetDebugSetOption)
+	(GSWeb_AdjustVolatileNSArgumentDomain)
+	(GSWeb_InitializeGlobalAppDefaultOptions)
+	(GSWeb_InitializeDebugOptions)
+	(GSWeb_DestroyGlobalAppDefaultOptions)
+	((GSWApplicationDefaults), (UserDefaults)): Move from here to...
+	* GSWeb.framework/GSWApplication+Defaults.m: ... here.
 	
 2004-06-16  David Wetzel  <dave@turbocat.de>
 

@@ -102,6 +102,7 @@ GSWBundle.m \
 NSString+Trimming.m \
 NSString+HTML.m \
 GSWApplication.m \
+GSWApplication+Defaults.m \
 GSWAssociation.m \
 GSWComponent.m \
 GSWContext.m \
