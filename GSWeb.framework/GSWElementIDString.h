@@ -28,7 +28,7 @@
 
 
 //====================================================================
-@interface GSWElementIDString : NSGMutableString
+@interface GSWElementIDString : NSMutableString
 @end
 
 //====================================================================
