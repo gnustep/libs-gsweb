@@ -48,8 +48,8 @@
   NSRecursiveLock* _selfLock;
 #ifndef NDEBUG
   int _selfLockn;
-  objc_thread_t _selfLock_thread_id;
-  objc_thread_t _creation_thread_id;
+  NSThread *_selfLock_thread_id;
+  NSThread *_creation_thread_id;
 #endif
 };
 

@@ -72,7 +72,7 @@ after-install:: install-WO-headers
 
 # Things to do after distcleaning
 after-distclean::
-	rm -rf Makefile.preamble
+	rm -f Makefile.preamble $(GNUSTEP_TARGET_DIR)/config.h
 
 # Things to do before checking
 # before-check::

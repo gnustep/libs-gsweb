@@ -68,12 +68,12 @@ extern BOOL WOStrictFlag;
   NSRecursiveLock* _selfLock;
 #ifndef NDEBUG
   int _selfLockn;
-  objc_thread_t _selfLock_thread_id;
+  NSThread *_selfLock_thread_id;
 #endif
   NSLock* _globalLock;
 #ifndef NDEBUG
   int _globalLockn;
-  objc_thread_t _globalLock_thread_id;
+  NSThread *_globalLock_thread_id;
 #endif
   NSAutoreleasePool* _globalAutoreleasePool;
   unsigned _pageCacheSize;

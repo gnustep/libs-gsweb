@@ -1,3 +1,12 @@
+2004-02-25  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication.h
+	* GSWeb.framework/GSWDeployedBundle.h: Replace objc_thread_t
+	with NSThread * for caching the thread in the instance variable.
+
+	* GSWeb.framework/Makefile.postamble: Remove config.h during
+	make distclean.
+
 2004-02-17  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication.m
