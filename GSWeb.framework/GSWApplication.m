@@ -226,7 +226,7 @@ int GSWApplicationMain(NSString* _applicationClassName,
 			  NSDebugFLLog(@"bundles",@"_bundlePath=%@",_bundlePath);
 			  //TODO
 			  NSDebugFLLog(@"bundles",@"GSFrameworkPSuffix=%@",GSFrameworkPSuffix);
-			  _bundlePath=[NSString stringWithFormat:@"%@/Libraries/%@%@",GNUstepRoot,_bundlePath,GSFrameworkPSuffix];
+			  _bundlePath=[NSString stringWithFormat:@"%@/Library/Frameworks/%@%@",GNUstepRoot,_bundlePath,GSFrameworkPSuffix];
 			  NSDebugFLLog(@"bundles",@"_bundlePath=%@",_bundlePath);
 			  _bundle=[NSBundle bundleWithPath:_bundlePath];
 			  NSDebugFLLog(@"bundles",@"_bundle=%@",_bundle);

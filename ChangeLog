@@ -1,3 +1,8 @@
+2000-11-01  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWApplication.m (GSWApplicationMain): fixed path
+	for dynamically loading frameworks.
+
 2000-10-30  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/htmltag.g: changed gsweb include dir from
