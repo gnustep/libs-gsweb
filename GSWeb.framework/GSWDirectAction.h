@@ -34,30 +34,15 @@
 
 
 //====================================================================
-@interface GSWDirectAction : NSObject
+@interface GSWDirectAction : GSWAction
 {
-  @private
-    GSWContext* _context;
 };
--(void)dealloc;
 -(id)initWithRequest:(GSWRequest*)aRequest;
--(GSWRequest*)request;
--(GSWSession*)existingSession;
--(GSWSession*)existingSessionWithSessionID:(NSString*)aSessionID;
--(GSWSession*)session;
--(GSWApplication*)application;//NDFN
--(GSWComponent*)pageWithName:(NSString*)pageName;
 -(id <GSWActionResults>)performActionNamed:(NSString*)actionName;
 -(id)defaultAction;
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest;
--(void)_initializeRequestSessionIDInContext:(GSWContext*)aContext;
 @end
 
-//====================================================================
-@interface GSWDirectAction (GSWDirectActionA)
--(GSWContext*)_context;
--(GSWSession*)_session;
-@end
 //====================================================================
 @interface GSWDirectAction (GSWTakeValuesConvenience)
 -(NSArray*)additionalRequestPathArray;
@@ -67,13 +52,5 @@
 -(void)takeFormValuesForKeys:(NSString*)firstKey,...;
 @end
 
-//====================================================================
-@interface GSWDirectAction (GSWDebugging)
--(void)logWithString:(NSString*)string;
--(void)logWithFormat:(NSString*)format,...;
-+(void)logWithFormat:(NSString*)format,...;
--(void)_debugWithString:(NSString*)string;
--(void)debugWithFormat:(NSString*)format,...;
-@end
-
 #endif //_GSWDirectAction_h__
+
