@@ -2,7 +2,7 @@ Installation
 ************
 
 This file documents the installation of GNUstepWeb, `gsweb'.  Copyright
-(C) 1999-2001 Free Software Foundation, Inc.  You may copy, distribute, and
+(C) 1999-2004 Free Software Foundation, Inc.  You may copy, distribute, and
 modify it freely as long as you preserve this copyright notice and
 permission notice.
 
@@ -13,7 +13,8 @@ GNUstep core, extensions and db libraries, GSWAdaptor and Apache
 Please download last up to date cvs version of GNUstep (some bugs
 have been corrected).
 
-Remark: We suppose that the GNUstep folder is on /usr/GNUstep, please check all the paths below with your configuration
+Remark: We suppose that the GNUstep folder is on /usr/GNUstep, please
+check all the paths below with your configuration
 
 Installing `gsweb'
 ====================
@@ -24,15 +25,13 @@ Installing `gsweb'
 	core/           GNUstep core
         gdl2/           GNUstep Database Library 2
 (or     db/             alternative GNUstep Database Library)
-        gsantlr/        GSANTLR (Parser classes,...)
-        gsgd/           Objective-C/GD Interface
 
  The GNUStepWeb package:
  -----------------------
-	* GNUstepWeb/				----->	GNUstepWeb Root
-	* GNUstepWeb/GSWeb.framework		----->	GNUstepWeb Main Part
-	* GNUstepWeb/GSWExtensions.framework    ----->	GNUstepWeb 'standard' Extensions
-	* GNUstepWeb/GSWExtensionsGSW.framework	----->	GNUstepWeb Extensions
+ * GNUstepWeb/				 --> GNUstepWeb Root
+ * GNUstepWeb/GSWeb.framework		 --> GNUstepWeb Main Part
+ * GNUstepWeb/GSWExtensions.framework	 --> GNUstepWeb 'standard' Extensions
+ * GNUstepWeb/GSWExtensionsGSW.framework --> GNUstepWeb Extensions
 
 
 
@@ -43,25 +42,22 @@ Installing `gsweb'
 
 2) gdl2
 
-3) gsantlr
-
-4) the 'gd' libraries. You must have a /usr/include/gd.h file. If not take sources on http://www.boutell.com/gd
-   Extract and compile
-
-5) gsgd
-
-6) GNUstepWeb
+3) GNUstepWeb
      Go in the gsweb folder. make and make install.
 
-7) Apaches modules for GNUstepWeb
-    Still in the gsweb folder there is a GSWAdaptors/Apache folder, go in and make. There no make install. Instead you must copy the mod_gsweb.so module in you Apache libexec directory (something like /usr/apache/libexec).
+4) Apaches modules for GNUstepWeb
+   Still in the gsweb folder there is a GSWAdaptors/Apache folder.
+   Change to that directory.  'su' to root and make. There's no make
+   install. Instead you must copy the mod_gsweb.so module in you
+   Apache libexec directory (something like /usr/apache/libexec).
 
 At this point everything is done, still remains the Apache configuration:
 
 You have to export the following env var:
 export GNUSTEP_STRING_ENCODING=NSISOLatin1StringEncoding
 
-If you do not want the extensions you can compile with ADDITIONAL_OBJCFLAGS += -DNOEXTENSIONS
+If you do not want the extensions you can compile with 
+ADDITIONAL_OBJCFLAGS += -DNOEXTENSIONS
 in config.mak
 
 Configurating Apache:
@@ -72,18 +68,22 @@ In Apache httpd.conf file, add thoses lines:
    LoadModule GSWeb_Module  libexec/mod_gsweb.so
    AddModule mod_gsweb.c
 
-And this one to specify the configuration file (for exemple /etc/httpd/conf/gsweb.conf)
+And this one to specify the configuration file 
+(for exemple /etc/httpd/conf/gsweb.conf)
 
    GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf
 
 
-If you use virtual hosts (Apache in localhost does not requiered them), add the following lines:
+If you use virtual hosts (Apache in localhost does not requiered them), 
+add the following lines:
 
 	<Location /GSWeb*>
 		SetHandler GSWeb
 	</Location>
 
-Then, create the file configuration file (for exemple /etc/httpd/conf/gsweb.conf) which contains parameters for GNUstepWeb Applications: 
+Then, create the file configuration file 
+(for exemple /etc/httpd/conf/gsweb.conf) 
+which contains parameters for GNUstepWeb Applications: 
 
 The format is(there is an example for values below):
 
