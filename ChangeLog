@@ -1,3 +1,7 @@
+2002-11-23   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWExtensions.framework/GSWLongResponsePage.h:
+		o fixed WO* to GSW*
+
 2002-11-18   Manuel Guesdon <mguesdon@orange-concept.com>
 	I've rewritten AutoValue handling in GSWBrowser,GSWCheckBoxList, 
 		GSWRadioButtonList, GSWPopUpButton to make it coherent 

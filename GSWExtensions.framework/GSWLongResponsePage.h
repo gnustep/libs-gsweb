@@ -78,29 +78,29 @@ It can be manually called (for example if the page does not refresh itself.
 Status value make it call -pageForException:, -pageForResult:, -refreshPageForStatus: or -cancelPageForStatus:
 Don't override it
 **/
-- (WOComponent *)refresh;
+- (GSWComponent *)refresh;
 
 
-- (WOComponent *)cancel;
+- (GSWComponent *)cancel;
 /* TODO the cancel action sets cancel to yes and calls cancelPageForStatus:. DO NOT OVERRIDE */
 
 /** Called when an exception occur in the process thread. Replace -pageForResult: call.
 Default implemnetation raise the exception **/
-- (WOComponent *)pageForException:(NSException *)exception;
+- (GSWComponent *)pageForException:(NSException *)exception;
 
 /** Called when the process thread is done.
 Default implementation stops automatic refresh and returns self.
 You can override this to return a newly created result page
 **/
-- (WOComponent *)pageForResult:(id) result;
+- (GSWComponent *)pageForResult:(id) result;
 
 /** Called on each refresh. Should return self. **/
-- (WOComponent *)refreshPageForStatus:(id) status;
+- (GSWComponent *)refreshPageForStatus:(id) status;
 
 /** Called when the process thread is cancelled. Replace -pageForResult: call.
 Default implementation stops automatic refresh and returns self.
 **/
-- (WOComponent *)cancelPageForStatus:(id) status;
+- (GSWComponent *)cancelPageForStatus:(id) status;
 
 
 @end
