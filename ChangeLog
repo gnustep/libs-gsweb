@@ -1,5 +1,17 @@
+2003-11-26   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWRecording.m:
+		o fix in -_wildcardedResponse:
+	* GSWAdaptors/common/GSWUtil.h/.c:
+		o implement our own function for strndup if not compiled with __USE_GNU.
+			in other parts, we must use gsw_strndup instead of strndup.
+	* GSWAdaptors/Apache/mod_gsweb.c:
+		o use gsw_strndup instead of strndup
+	* GSWAdaptors/common/GSWHTTPHeaders.c:
+		o fixed GSWHeaderTranslationTableItemsNb value to exclude null end items.
+			(bug reported by Philip Moetteli <Philip.Moetteli@tele2.ch>)
+			
 2003-11-25   Manuel Guesdon <mguesdon@orange-concept.com>
-	* GSWeb.framework/GSWUtils.h:
+	* GSWeb.framework/GSWUtils.m:
 		o quick fixes for NeXT_Foundation from Philip Moetteli <Philip.Moetteli@tele2.ch>
 
 2003-11-25   Manuel Guesdon <mguesdon@orange-concept.com>
