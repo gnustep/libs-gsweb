@@ -180,7 +180,8 @@ static char rcsId[] = "$Id$";
 	  if (_escapeHTML)
 		_noSelectionStringValue=[GSWResponse stringByEscapingHTMLString:_noSelectionStringValue];
 	  [response_ appendContentHTMLString:_noSelectionStringValue];
-	  [response_ _appendContentAsciiString:@"</OPTION>"];
+          // There is no close tag on OPTION
+	  //[response_ _appendContentAsciiString:@"</OPTION>"];
 	};
   for(i=0;i<[_listValue count];i++)
 	{
