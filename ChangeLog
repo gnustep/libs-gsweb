@@ -1,3 +1,9 @@
+2004-04-20  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWDisplayGroup.m:
+	([GSWDisplayGroup init]): Set fetchesOnLoad to YES by default.
+	Reported by S.J. Chun <chunsj@embian.com>.
+
 2004-04-14  David Ayers  <d.ayers@inode.at>
 
 	* gsweb.make.in: Remove GSANTLR dependency.

@@ -109,7 +109,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 //--------------------------------------------------------------------
 //	init
 
-- init
+- (id)init
 {
   if ((self = [super init]))
     {
@@ -127,17 +127,23 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
       NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
       _queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
       NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
-      _queryKeyValueQualifierClassName = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryKeyValueQualifierClassName 
+	= [[NSMutableDictionary alloc] initWithCapacity:8];
 
       _queryBindings = [[NSMutableDictionary alloc] initWithCapacity:8];
 
       [self setCurrentBatchIndex:1];
 
-      ASSIGN(_defaultStringMatchOperator,[[self class]globalDefaultStringMatchOperator]);
-      ASSIGN(_defaultStringMatchFormat,[[self class]globalDefaultStringMatchFormat]);
-      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
-      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
+      ASSIGN(_defaultStringMatchOperator,
+	     [[self class]globalDefaultStringMatchOperator]);
+      ASSIGN(_defaultStringMatchFormat,
+	     [[self class]globalDefaultStringMatchFormat]);
+      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@",
+		   _defaultStringMatchOperator);
+      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",
+		   _defaultStringMatchFormat);
 
+      [self setFetchesOnLoad:YES];
       [self setSelectsFirstObjectAfterFetch:YES];
     };
   return self;
