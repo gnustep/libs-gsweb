@@ -26,9 +26,147 @@ static char rcsId[] = "$Id$";
 #include <GSWeb/GSWeb.h>
 
 #undef GSWElementIDString
-/*
+
 //====================================================================
 @implementation GSWElementIDString
+
++ (id) allocWithZone: (NSZone*)z
+{
+  if (self == [GSWElementIDString class])
+    {
+      return NSAllocateObject ([GSWElementIDString class], 0, z);
+    }
+  else
+    {
+      return NSAllocateObject (self, 0, z);
+    }
+}
+
+- (id) initWithCharactersNoCopy: (unichar*)chars
+			 length: (unsigned)length
+		   freeWhenDone: (BOOL)flag
+{
+  LOGObjectFnStart();
+  if (!_string)
+    _string=[[NSMutableString alloc] initWithCharactersNoCopy:chars
+                                     length:length
+                                     freeWhenDone:flag];
+  LOGObjectFnStop();
+  return self;
+};
+
+- (id) initWithCStringNoCopy: (char*)byteString
+		      length: (unsigned)length
+		freeWhenDone: (BOOL)flag
+{
+  LOGObjectFnStart();
+  if (!_string)
+    _string=[[NSMutableString alloc] initWithCStringNoCopy:byteString
+                                     length:length
+                                     freeWhenDone:flag];
+  LOGObjectFnStop();
+  return self;
+};
+
+- (id) initWithCapacity: (unsigned)capacity
+{
+  LOGObjectFnStart();
+  if (!_string)
+    _string=[[NSMutableString alloc] initWithCapacity:capacity];
+  LOGObjectFnStop();
+  return self;
+};
+
+- (unsigned) length
+{
+  return [_string length];
+};
+
+- (unichar) characterAtIndex: (unsigned)index
+{
+  NSAssert(_string,@"No String");
+  return [_string characterAtIndex:index];
+};
+
+- (void) replaceCharactersInRange: (NSRange)range 
+		       withString: (NSString*)aString
+{
+  LOGObjectFnStart();
+  NSAssert(_string,@"No String");
+  [_string replaceCharactersInRange:range
+           withString:aString];
+  LOGObjectFnStop();
+};
+
+-(BOOL)canBeConvertedToEncoding:(NSStringEncoding)encoding
+{
+  return [_string canBeConvertedToEncoding:encoding];
+};
+
+-(void)dealloc
+{
+  LOGObjectFnStart();
+  GSWLogAssertGood(self);
+  GSWLogAssertGood(_string);
+  GSWLogC("_string deallocate");
+  DESTROY(_string);
+  GSWLogC("_string deallocated");
+  [super dealloc];
+  GSWLogC("GSWElementIDString end of dealloc");
+};
+
+-(void)getCString:(char*)buffer
+        maxLength:(unsigned int)maxLength
+            range:(NSRange)aRange
+   remainingRange:(NSRange *)leftoverRange
+{
+  NSAssert(_string,@"No String");
+  return [_string getCString:buffer
+                  maxLength:maxLength
+                  range:aRange
+                  remainingRange:leftoverRange];
+};
+
+-(void)getCString:(char*)buffer
+        maxLength:(unsigned int)maxLength;
+{
+  NSAssert(_string,@"No String");
+  return [_string getCString:buffer
+                  maxLength:maxLength];
+};
+
+-(void)getCString:(char *)buffer;
+{
+  NSAssert(_string,@"No String");
+  return [_string getCString:buffer];
+};
+
+-(id)initWithCoder:(NSCoder*)decoder
+{
+  DESTROY(_string);
+  [decoder decodeValueOfObjCType:@encode(id)
+          at:&_string];
+  return self;
+};
+
+-(void)encodeWithCoder:(NSCoder*)encoder
+{
+  NSAssert(_string,@"No String");
+  [encoder encodeValueOfObjCType:@encode(id)
+          at:&_string];
+};
+
+-(const char*)cString
+{
+  return [_string cString];
+};
+
+-(unsigned int)cStringLength
+{
+  return  [_string cStringLength];
+};
+
+
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
@@ -38,13 +176,14 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(id)mutableCopyWithZone:(NSZone*)zone
 {
-  return [[[self class] allocWithZone: zone] initWithString: self];
+  GSWElementIDString* obj = [[[self class] alloc] initWithString:_string];
+  return obj;
 };
 
 @end
-*/
+
 //====================================================================
-@implementation NSMutableString  (GSWElementIDStringGSW)
+@implementation GSWElementIDString  (GSWElementIDStringGSW)
 
 //--------------------------------------------------------------------
 -(void)deleteAllElementIDComponents
@@ -136,7 +275,7 @@ static char rcsId[] = "$Id$";
 //NDFN
 -(NSString*)parentElementIDString
 {
-  GSWElementIDString* _id=[[self mutableCopy] autorelease];
+  GSWElementIDString* _id=[[self copy] autorelease];
   if ([self length]>0)
 	[_id deleteLastElementIDComponent];
   return _id;
@@ -145,10 +284,10 @@ static char rcsId[] = "$Id$";
 #ifndef NDEBBUG
 -(int)elementsNb
 {
-	if ([self length]==0)
-	  return 0;
-	else
-	  return [[self componentsSeparatedByString:@"."] count];
+  if ([self length]==0)
+    return 0;
+  else
+    return [[self componentsSeparatedByString:@"."] count];
 };
 #endif
 

@@ -26,16 +26,45 @@
 #ifndef _GSWElementIDString_h__
 	#define _GSWElementIDString_h__
 
-/*
+
 //====================================================================
 @interface GSWElementIDString : NSMutableString
+{
+  NSMutableString* _string;
+};
+
+- (id) init;
+- (id) initWithCharactersNoCopy: (unichar*)chars
+			 length: (unsigned)length
+		   freeWhenDone: (BOOL)flag;
+
+- (id) initWithCStringNoCopy: (char*)byteString
+		      length: (unsigned)length
+		freeWhenDone: (BOOL)flag;
+- (id) initWithCapacity: (unsigned)capacity;
+- (unsigned) length;
+- (unichar) characterAtIndex: (unsigned)index;
+- (void) replaceCharactersInRange: (NSRange)range 
+		       withString: (NSString*)aString;
+-(BOOL)canBeConvertedToEncoding:(NSStringEncoding)encoding;
+-(void)dealloc;
+-(void)getCString:(char*)buffer
+        maxLength:(unsigned int)maxLength
+            range:(NSRange)aRange
+   remainingRange:(NSRange *)leftoverRange;
+-(void)getCString:(char*)buffer
+        maxLength:(unsigned int)maxLength;
+-(void)getCString:(char *)buffer; 
+-(id)initWithCoder:(NSCoder*)decoder;
+-(void)encodeWithCoder:(NSCoder*)encoder;
+-(id)copyWithZone:(NSZone *)zone; 
+-(const char*)cString;
+-(unsigned int)cStringLength;
 @end
-*/
+
 //====================================================================
-/*
+
 @interface GSWElementIDString (GSWElementIDStringGSW)
-*/
-@interface NSMutableString (GSWElementIDStringGSW)
 -(void)deleteAllElementIDComponents;
 -(void)deleteLastElementIDComponent;
 -(void)incrementLastElementIDComponent;
@@ -46,8 +75,6 @@
 -(int)elementsNb;
 #endif
 @end
-
-#define GSWElementIDString NSMutableString
 
 #endif //_GSWElementIDString_h__
 
