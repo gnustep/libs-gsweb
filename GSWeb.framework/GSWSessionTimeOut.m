@@ -80,13 +80,14 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - sessionID=%@ timeOutTime=%@ lastAccessTime=%@ timeOut=%ld",
+  return [NSString stringWithFormat:@"<%s %p - sessionID=%@ timeOutTime=%@ lastAccessTime=%@ timeOut=%ld isCheckedOut=%s",
                    object_get_class_name(self),
                    (void*)self,
                    _sessionID,
                    [self timeOutTimeDate],
                    [self lastAccessTimeDate],
-                   (long)_timeOut];
+                   (long)_timeOut,
+                   (_isCheckedOut ? "YES" : "NO")];
 };
 
 //--------------------------------------------------------------------
@@ -153,6 +154,16 @@ RCS_ID("$Id$")
 -(NSDate*)timeOutTimeDate
 {
   return [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime+_timeOut];
+};
+
+-(BOOL)isCheckedOut
+{
+  return _isCheckedOut;
+};
+
+-(void)setIsCheckedOut:(BOOL)isCheckOut
+{
+  _isCheckedOut=isCheckOut;
 };
 
 @end

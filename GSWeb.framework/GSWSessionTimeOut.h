@@ -39,6 +39,7 @@
   NSString* _sessionID;
   NSTimeInterval _lastAccessTime;
   NSTimeInterval _timeOut;
+  BOOL _isCheckedOut;
 };
 
 -(void)dealloc;
@@ -58,6 +59,8 @@
 -(NSDate*)lastAccessTimeDate;
 -(NSTimeInterval)timeOutTime;
 -(NSDate*)timeOutTimeDate;
+-(BOOL)isCheckedOut;
+-(void)setIsCheckedOut:(BOOL)isCheckOut;
 @end
 
 
