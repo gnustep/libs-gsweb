@@ -1,4 +1,14 @@
-2004-11-26  David Ayers  <d.ayers@inode.at>
+2005-03-31  David Ayers  <d.ayers@inode.at>
+
+	* GSWAdaptors/common/GSWHTTPResponse.c
+	(GSWHTTPResponse_GetResponse): Move variable declarations to top
+	of block for older compilers.
+	* GSWAdaptors/common/GSWUtil.h (GSWAssert): Ditto.  Remove bogus
+	call to GSWLog().
+	* GSWAdaptors/common/GSWStats.c (GSWStats_formatStats): Remove
+	statement from variable declations for older compilers.
+	
+2005-03-26  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication+Defaults.m (GSWAppClassDummy):
 	Added method declarations to help various compiler versions

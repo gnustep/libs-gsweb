@@ -420,10 +420,11 @@ GSWHTTPResponse_GetResponse(GSWTimeStats   *p_pStats,
       // Content
       if (pHTTPResponse->uContentLength)
 	{
+	  int iReceivedCount=0;
 	  pHTTPResponse->pContent=malloc(pHTTPResponse->uContentLength);
-	  int iReceivedCount=GSWApp_ReceiveBlock(p_socket,pHTTPResponse->pContent,
-						 pHTTPResponse->uContentLength,
-						 p_pLogServerData);
+	  iReceivedCount=GSWApp_ReceiveBlock(p_socket,pHTTPResponse->pContent,
+					     pHTTPResponse->uContentLength,
+					     p_pLogServerData);
 	  GSWDebugLog(p_pLogServerData,"iReceivedCount=%d",iReceivedCount);
 	  if (iReceivedCount!= pHTTPResponse->uContentLength)
 	    {

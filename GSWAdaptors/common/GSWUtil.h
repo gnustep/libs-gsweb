@@ -85,10 +85,10 @@ long GSWTime_msecPart(GSWTime t);
 #define GSWAssert(condition,p_pLogServerData,p_pszFormat, args...); \
 	{ if (!(condition)) \
 		{ \
+                  char* format=0; \
                   GSWLog(GSW_CRITICAL,p_pLogServerData,"ARGHH"); \
-                  char* format=malloc(strlen(p_pszFormat)+strlen(__FILE__)+101); \
+                  format=malloc(strlen(p_pszFormat)+strlen(__FILE__)+101); \
   		  sprintf(format,"In %s (%d): %s",__FILE__,__LINE__,p_pszFormat); \
-                  GSWLog(GSW_CRITICAL,p_pLogServerData,format,  ## args); \
 		  free(format); \
                  }} while (0);
 
