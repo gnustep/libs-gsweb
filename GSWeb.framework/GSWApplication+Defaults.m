@@ -1502,20 +1502,20 @@ static int _dflt_defaultUndoStackLimit = 0;
 };
 
 //--------------------------------------------------------------------
-static BOOL _dflt_init__lockDefaultEditingContext = NO;
-static BOOL _dflt__lockDefaultEditingContext = NO;
+static BOOL _dflt_init_lockDefaultEditingContext = NO;
+static BOOL _dflt_lockDefaultEditingContext = NO;
 +(BOOL)_lockDefaultEditingContext
 {
-  INIT_DFLT_BOOL(_lockDefaultEditingContext,
+  INIT_DFLT_BOOL(lockDefaultEditingContext,
 		 GSWOPT_LockDefaultEditingContext[GSWebNamingConv]);
-  return _dflt__lockDefaultEditingContext;
+  return _dflt_lockDefaultEditingContext;
 };
 
 //--------------------------------------------------------------------
 +(void)_setLockDefaultEditingContext:(BOOL)flag
 {
-  _dflt__lockDefaultEditingContext = flag;
-  _dflt_init__lockDefaultEditingContext = YES;
+  _dflt_lockDefaultEditingContext = flag;
+  _dflt_init_lockDefaultEditingContext = YES;
 };
 
 //--------------------------------------------------------------------
@@ -1612,20 +1612,20 @@ static BOOL _dflt_defaultDisplayExceptionPages = NO;
 };
 
 //--------------------------------------------------------------------
-static BOOL _dflt_init__allowsCacheControlHeader = NO;
-static BOOL _dflt__allowsCacheControlHeader = NO;
+static BOOL _dflt_init_allowsCacheControlHeader = NO;
+static BOOL _dflt_allowsCacheControlHeader = NO;
 +(BOOL)_allowsCacheControlHeader
 {
-  INIT_DFLT_BOOL(_allowsCacheControlHeader,
+  INIT_DFLT_BOOL(allowsCacheControlHeader,
 		 GSWOPT_AllowsCacheControlHeader[GSWebNamingConv]);
-  return _dflt__allowsCacheControlHeader;
+  return _dflt_allowsCacheControlHeader;
 };
 
 //--------------------------------------------------------------------
 +(void)_setAllowsCacheControlHeader:(BOOL)flag
 {
-  _dflt__allowsCacheControlHeader = flag;
-  _dflt_init__allowsCacheControlHeader = YES;
+  _dflt_allowsCacheControlHeader = flag;
+  _dflt_init_allowsCacheControlHeader = YES;
 };
 
 @end

@@ -3,6 +3,11 @@
 	* GSWeb.framework/GSWDeclarationParser.m:
 	(parseDeclarationString:named:inFrameworkNamed:): Use -base's
 	version of md5 methods instead of adding gscrypt dependency.
+
+	* GSWeb.framework/GSWApplication+Defaults.m
+	(_lockDefaultEditingContext, _setLockDefaultEditingContext)
+	(_allowsCacheControlHeader, _setAllowsCacheControlHeader)
+	Fix naming to conform to key value coding methods.
 	
 2004-09-01   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWExtensions.framework/GSWCollapsibleComponentContent.m: 
