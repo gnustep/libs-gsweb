@@ -1,3 +1,22 @@
+2004-03-26   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWAction.m/.h:
+		o added -isActionNamed:
+	* GSWeb.framework/GSWDirectAction.m
+		o in -performActionNamed:, raise exception if method is not found
+	* GSWExtensions.framework/GSWExceptionPage.gswc/GSWExceptionPage.html:
+		o added meta to avoid error page indexation
+	* GSWExtensions.framework/GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.html:
+		o added meta to avoid error page indexation
+	* GSWExtensions.framework/GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.html:
+		o added meta to avoid error page indexation
+	* GSWExtensions.framework/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.html:
+		o added meta to avoid error page indexation
+	* GSWSession.m/.h:
+		o added private methods 
+		o implemented -copy
+	* GSWHTMLRawParser.m:
+		o fixed WO_TAG_LENGTH	
+
 2004-03-25   Manuel Guesdon <mguesdon@orange-concept.com>
 		
 	* GSWeb.framework/GSWActionRequestHandler.m:

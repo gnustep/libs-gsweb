@@ -137,14 +137,14 @@ Creates a GSWTemporaryElement element, waiting for tag end
 
   NSDebugMLog(@"tagProperties=%@",tagProperties);
   NSDebugMLog(@"templateInfo=%@",templateInfo);
-  NSDebugMLog(@"_currentElement=%@",_currentElement);
+  NSDebugMLog(@"Old (Parent) _currentElement=%@",_currentElement);
 
   _currentElement = [GSWTemporaryElement temporaryElementOfType:tagType
                                          withProperties:tagProperties
                                          templateInfo:templateInfo
                                          parent:_currentElement];
 
-  NSDebugMLog(@"_currentElement=%@",_currentElement);
+  NSDebugMLog(@"New (Child) _currentElement=%@",_currentElement);
 
   LOGObjectFnStop();
 }
@@ -160,8 +160,8 @@ Creates a dynamic element from current temporary element element
   GSWTemporaryElement* parent=nil;
 
   LOGObjectFnStart();
-
-  NSDebugMLog(@"_currentElement=%@",_currentElement);
+  
+  NSDebugMLog(@"Old (Child) _currentElement=%@",_currentElement);
 
   parent=[_currentElement parentElement];
   NSDebugMLog(@"parent=%@",parent);
@@ -184,7 +184,7 @@ Creates a dynamic element from current temporary element element
       [parent addChildElement:element];
       _currentElement = parent;
 
-      NSDebugMLog(@"_currentElement=%@",_currentElement);
+      NSDebugMLog(@"New (Parent) _currentElement=%@",_currentElement);
     }
   LOGObjectFnStop();
 }
