@@ -71,7 +71,6 @@
 		o Removed DataToHexString() and HexStringToData().
 		  (David Ayers <d.ayers@inode.at>)
 
-
 2003-01-22   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/WebObjects: removed WO*
 
