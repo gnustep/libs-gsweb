@@ -2236,7 +2236,7 @@ selfLockn,
   elementClass=NSClassFromString(aName);
   NSDebugMLLog(@"info",@"elementClass %p:%@",elementClass,elementClass);
   NSDebugMLLog(@"info",@"elementClass superClass:%@",[elementClass superClass]);
-  if (elementClass && !ClassIsKindOfClass(elementClass,NSClassFromString(@"GSWComponent")))
+  if (elementClass && !ClassIsKindOfClass(elementClass,[GSWComponent class]))
     {
       NSDebugMLLog(@"info",@"CREATE Element of Class %p:%@",aName,aName);
       element=[[[elementClass alloc] initWithName:aName
@@ -4674,7 +4674,7 @@ selfLockn,
 	}
   else
 	{
-	  Class GSWComponentClass=NSClassFromString(@"GSWComponent");
+	  Class GSWComponentClass=[GSWComponent class]);
 	  if (!ClassIsKindOfClass(aClass,GSWComponentClass))
 		{
 		  NSDebugMLLog0(@"application",@"component class is not a kind of GSWComponent\n");
@@ -4816,7 +4816,7 @@ selfLockn,
 	}
   else
 	{
-	  Class GSWElementClass=NSClassFromString(@"GSWElement");
+	  Class GSWElementClass=[GSWElement class]);
 	  if (!ClassIsKindOfClass(aClass,GSWElementClass))
 		{
 		  ExceptionRaise(@"GSWApplication",

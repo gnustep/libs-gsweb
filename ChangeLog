@@ -1,4 +1,9 @@
 2002-12-06   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWApplication.m
+		o don't use NSClassFromString to support GSW & WO namespaces
+			(David Ayers <d.ayers@inode.at> patch)
+
+2002-12-06   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWTemplateParserXML.[mh]
     		o move references to libxml into .m file 
 			(David Ayers <d.ayers@inode.at> patch)
