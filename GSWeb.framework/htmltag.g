@@ -10,7 +10,7 @@ options {
 
 class GSWHTMLAttrParser extends Parser;
 options {
-	tokenVocabulary=GSWHTMLAttr;
+	exportVocab=GSWHTMLAttr;
     buildAST=true;
 	k = 2;
 }
@@ -65,7 +65,7 @@ mvalue:
 class GSWHTMLAttrLexer extends Lexer;
 options {	
 	k = 8;
-	tokenVocabulary=GSWHTMLAttr;
+	exportVocab=GSWHTMLAttr;
 	charVocabulary = '\3'..'\377';
 	caseSensitive=true;
 	filter=UNDEFINED_TOKEN;

@@ -1,4 +1,5 @@
-GSWHTML    // tokenVocabulary name
+// $ANTLR 2.7.1: html.g -> GSWHTMLTokenTypes.txt$
+GSWHTML    // output token vocab name
 WS=4
 TEXT=5
 OPENTAG=6

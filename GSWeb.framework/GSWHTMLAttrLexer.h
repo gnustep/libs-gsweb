@@ -7,7 +7,7 @@
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
  * and Manuel Guesdon, Software Builders
- * ANTLR Version 2.5.0; 1996,1997,1998,1999
+ * ANTLR Version 2.7.1; 1996,1997,1998,1999,2000
  */
 
 
@@ -19,6 +19,7 @@
 #include "gsantlr/ANTLRCharBuffer.h"
 #include "gsantlr/ANTLRBitSet.h"
 #include "gsantlr/ANTLRCharScanner.h"
+
 @interface GSWHTMLAttrLexer : ANTLRCharScanner
  {
  };

@@ -4,11 +4,12 @@
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
  * and Manuel Guesdon, Software Builders
- * ANTLR Version 2.5.0; 1996,1997,1998,1999
+ * ANTLR Version 2.7.1; 1996,1997,1998,1999,2000
  */
 
 
 #include <GSWeb/GSWeb.h>
+
 
 #include "gsantlr/ANTLRCommon.h"
 #include "gsantlr/ANTLRException.h"
@@ -49,12 +50,12 @@
 
 -(ANTLRDefToken) nextToken
 {
-	ANTLRDefToken _rettoken=nil;
+	ANTLRDefToken theRetToken=nil;
 	BOOL end=NO;
 	//LOGObjectFnStart();
 	for (;!end;)
 	{
-		ANTLRDefToken _rettoken;
+		ANTLRDefToken theRetToken;
 		ANTLRTokenType _ttype = ANTLRToken_INVALID_TYPE;
 		[self resetText];
 		NS_DURING   // for error handling
@@ -77,49 +78,49 @@
 			case ((unichar)('z')):
 			{
 				[self mIDENTWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('=')):
 			{
 				[self mASSIGNWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('\t')):  case ((unichar)('\n')):  case ((unichar)('\r')):  case ((unichar)(' ')):
 			{
 				[self mWSWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('"')):  case ((unichar)('\'')):
 			{
 				[self mSTRINGWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('.')):
 			{
 				[self mPOINTWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('#')):
 			{
 				[self mHEXNUMWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			default:
 				if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))) && ([GSWHTMLAttrLexer___tokenSet_0 isMember:[self LA:2]]))
 				{
 					[self mPCINTWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if ((([self LA:1] >= ((unichar)('0')) && [self LA:1] <= ((unichar)('9')))))
 				{
 					[self mINTWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 			else
 			{

@@ -10,7 +10,7 @@ options {
 
 class GSWPageDefParser extends Parser;
 options {
-	tokenVocabulary=GSWPageDef;
+	exportVocab=GSWPageDef;
     buildAST=true;
 	k = 4;
 }
@@ -101,7 +101,7 @@ idref:
 class GSWPageDefLexer extends Lexer;
 options {	
 	k = 4;
-	tokenVocabulary=GSWPageDef;
+	exportVocab=GSWPageDef;
 	charVocabulary = '\3'..'\377';
 	caseSensitive=true;
 	filter=UNDEFINED_TOKEN;

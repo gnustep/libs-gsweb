@@ -56,7 +56,7 @@ options {
 
 class GSWHTMLParser extends Parser;
 options {
-	tokenVocabulary=GSWHTML;
+	exportVocab=GSWHTML;
     buildAST=true;
 	k = 1;
 }
@@ -84,7 +84,7 @@ document
 class GSWHTMLLexer extends Lexer;
 options {	
 	k = 3;
-	tokenVocabulary=GSWHTML;
+	exportVocab=GSWHTML;
 	charVocabulary = '\3'..'\377';
 	caseSensitive=true;
 	filter=UNDEFINED_TOKEN;

@@ -1,4 +1,5 @@
-GSWPageDef    // tokenVocabulary name
+// $ANTLR 2.7.1: PageDef.g -> GSWPageDefTokenTypes.txt$
+GSWPageDef    // output token vocab name
 INCLUDE=4
 WS=5
 STRING=6

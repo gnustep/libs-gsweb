@@ -1,4 +1,5 @@
-GSWHTMLAttr    // tokenVocabulary name
+// $ANTLR 2.7.1: htmltag.g -> GSWHTMLAttrTokenTypes.txt$
+GSWHTMLAttr    // output token vocab name
 IDENT=4
 WS=5
 ASSIGN=6

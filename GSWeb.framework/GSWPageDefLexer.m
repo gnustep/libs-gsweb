@@ -4,11 +4,12 @@
  * Terence Parr, MageLang Institute
  * with John Lilley, Empathy Software
  * and Manuel Guesdon, Software Builders
- * ANTLR Version 2.5.0; 1996,1997,1998,1999
+ * ANTLR Version 2.7.1; 1996,1997,1998,1999,2000
  */
 
 
 #include <GSWeb/GSWeb.h>
+
 
 #include "gsantlr/ANTLRCommon.h"
 #include "gsantlr/ANTLRException.h"
@@ -49,12 +50,12 @@
 
 -(ANTLRDefToken) nextToken
 {
-	ANTLRDefToken _rettoken=nil;
+	ANTLRDefToken theRetToken=nil;
 	BOOL end=NO;
 	//LOGObjectFnStart();
 	for (;!end;)
 	{
-		ANTLRDefToken _rettoken;
+		ANTLRDefToken theRetToken;
 		ANTLRTokenType _ttype = ANTLRToken_INVALID_TYPE;
 		[self resetText];
 		NS_DURING   // for error handling
@@ -64,55 +65,55 @@
 			case ((unichar)('"')):  case ((unichar)('\'')):
 			{
 				[self mSTRINGWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('{')):
 			{
 				[self mLCURLYWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('}')):
 			{
 				[self mRCURLYWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)(';')):
 			{
 				[self mSEMIWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('^')):
 			{
 				[self mCIRCWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('~')):
 			{
 				[self mTILDEWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)(':')):
 			{
 				[self mCOLUMNWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('=')):
 			{
 				[self mASSIGNWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('\t')):  case ((unichar)('\n')):  case ((unichar)('\r')):  case ((unichar)(' ')):
 			{
 				[self mWSWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			case ((unichar)('0')):  case ((unichar)('1')):  case ((unichar)('2')):  case ((unichar)('3')):
@@ -120,54 +121,54 @@
 			case ((unichar)('8')):  case ((unichar)('9')):
 			{
 				[self mINTWithCreateToken:YES];
-				_rettoken=_returnToken;
+				theRetToken=_returnToken;
 				break;
 			}
 			default:
 				if (([self LA:1]==((unichar)('Y'))) && ([self LA:2]==((unichar)('E'))) && ([self LA:3]==((unichar)('S'))))
 				{
 					[self mYESWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('/'))) && ([self LA:2]==((unichar)('/'))))
 				{
 					[self mSL_COMMENTWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('/'))) && ([self LA:2]==((unichar)('*'))))
 				{
 					[self mML_COMMENTWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('#'))) && ([self LA:2]==((unichar)('i'))))
 				{
 					[self mINCLUDEWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('.'))) && ([GSWPageDefLexer___tokenSet_0 isMember:[self LA:2]]))
 				{
 					[self mPIDENTWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('N'))) && ([self LA:2]==((unichar)('O'))))
 				{
 					[self mNOWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('#'))) && ([GSWPageDefLexer___tokenSet_1 isMember:[self LA:2]]))
 				{
 					[self mHEXNUMWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([GSWPageDefLexer___tokenSet_2 isMember:[self LA:1]]))
 				{
 					[self mIDENTWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 				else if (([self LA:1]==((unichar)('.'))))
 				{
 					[self mPOINTWithCreateToken:YES];
-					_rettoken=_returnToken;
+					theRetToken=_returnToken;
 				}
 			else
 			{
