@@ -378,7 +378,7 @@ static char rcsId[] = "$Id$";
               else
                 {
                   //TODO
-                  thisOne=YES;//??
+                  //thisOne=YES;//??
                 };
             };
         }
