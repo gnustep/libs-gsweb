@@ -536,6 +536,8 @@ extern BOOL WOStrictFlag;
 +(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath;//NDFN
 +(NSString*)saveResponsesPath;//NDFN
 +(void)setSaveResponsesPath:(NSString*)saveResponsesPath;//NDFN
++(NSString*)defaultTemplateParser;//NDFN
++(void)setDefaultTemplateParser:(NSString*)defaultTemplateParser;//NDFN
 @end
 
 //====================================================================

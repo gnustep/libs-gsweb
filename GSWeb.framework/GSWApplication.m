@@ -329,6 +329,8 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                        GSWOPTVALUE_AdaptorHost);
           NSDebugFLLog(@"options",@"GSWOPTVALUE_SaveResponsesPath -> %@",
                        GSWOPTVALUE_SaveResponsesPath);
+          NSDebugFLLog(@"options",@"DefaultTemplateParser -> %@",
+                       GSWOPTVALUE_DefaultTemplateParser);
 
           defaultsOptions = 
             [NSDictionary dictionaryWithObjectsAndKeys:
@@ -359,6 +361,7 @@ int GSWApplicationMainReal(NSString* applicationClassName,
                           GSWOPTVALUE_MultiThreadEnabled,			GSWOPT_MultiThreadEnabled,
                           GSWOPTVALUE_AdaptorHost,			        GSWOPT_AdaptorHost[GSWebNamingConv],
                           GSWOPTVALUE_SaveResponsesPath,			GSWOPT_SaveResponsesPath[GSWebNamingConv],
+                          GSWOPTVALUE_DefaultTemplateParser,			GSWOPT_DefaultTemplateParser[GSWebNamingConv],
                           nil,										nil];
           NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",globalAppDefaultOptions);
           globalAppDefaultOptions=[NSDictionary dictionaryWithDictionary:globalAppDefaultOptions
@@ -4172,6 +4175,21 @@ selfLockn,
   [[NSUserDefaults standardUserDefaults] 
     setObject:saveResponsesPath
     forKey:GSWOPT_SaveResponsesPath[GSWebNamingConv]];
+};
+
+/** Returns the default template parser option **/
++(NSString*)defaultTemplateParser
+{
+  return [[NSUserDefaults standardUserDefaults] 
+           objectForKey:GSWOPT_DefaultTemplateParser[GSWebNamingConv]];
+};
+
+//--------------------------------------------------------------------
++(void)setDefaultTemplateParser:(NSString*)defaultTemplateParser
+{
+  [[NSUserDefaults standardUserDefaults] 
+    setObject:defaultTemplateParser
+    forKey:GSWOPT_DefaultTemplateParser[GSWebNamingConv]];
 };
 
 @end
