@@ -1896,8 +1896,9 @@ selfLockn,
 {
   NSString* resourceManagerClassName=[[self class] resourceManagerClassName];
   Class resourceManagerClass=Nil;
-  if (!resourceManagerClassName)
-    resourceManagerClassName=@"GSWResourceManager";
+  if (!resourceManagerClassName) {
+    resourceManagerClassName=GSWClassName_ResourceManager[GSWebNamingConv];
+  }
   resourceManagerClass=NSClassFromString(resourceManagerClassName);
   NSAssert1(resourceManagerClass,@"No resourceManagerClass named %@",
             resourceManagerClassName);
@@ -1909,8 +1910,9 @@ selfLockn,
 {
   NSString* statisticsStoreClassName=[[self class] statisticsStoreClassName];
   Class statisticsStoreClass=Nil;
-  if (!statisticsStoreClassName)
-    statisticsStoreClassName=@"GSWStatisticsStore";
+  if (!statisticsStoreClassName) {
+    statisticsStoreClassName=GSWClassName_StatisticsStore[GSWebNamingConv];
+  }
   statisticsStoreClass=NSClassFromString(statisticsStoreClassName);
   NSAssert1(statisticsStoreClass,@"No statisticsStoreClass named %@",
             statisticsStoreClassName);
@@ -1922,8 +1924,9 @@ selfLockn,
 {
   NSString* sessionStoreClassName=[[self class] sessionStoreClassName];
   Class sessionStoreClass=Nil;
-  if (!sessionStoreClassName)
-    sessionStoreClassName=@"GSWServerSessionStore";
+  if (!sessionStoreClassName) {
+    sessionStoreClassName=GSWClassName_ServerSessionStore[GSWebNamingConv];
+  }
   sessionStoreClass=NSClassFromString(sessionStoreClassName);
   NSAssert1(sessionStoreClass,@"No sessionStoreClass named %@",
             sessionStoreClassName);
@@ -3507,8 +3510,7 @@ to another instance **/
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In _handleExcep
-tion:inContext:");
+                                                               @"In _handleException:inContext:");
       LOGException(@"exception=%@",localException);
       response=[GSWResponse responseWithMessage:@"Exception Handling failed"
                             inContext:aContext
@@ -3516,8 +3518,7 @@ tion:inContext:");
     }
   NS_ENDHANDLER;
   NSAssert(![response isFinalizeInContextHasBeenCalled],
-           @"GSWApplication handleException: _finalizeInContext called for GSWRe
-sponse");
+           @"GSWApplication handleException: _finalizeInContext called for GSWResponse");
   LOGObjectFnStop();
   return response;
 };

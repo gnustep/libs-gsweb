@@ -91,6 +91,9 @@ extern NSString* GSWAPIPSuffix;
 
 extern NSString* GSWClassName_Session;
 extern NSString* GSWClassName_Application;
+extern NSString* GSWClassName_ResourceManager[2];
+extern NSString* GSWClassName_StatisticsStore[2];
+extern NSString* GSWClassName_ServerSessionStore[2];
 extern NSString* GSWClassName_DefaultAdaptor[2];
 extern NSString* GSWClassName_DefaultContext[2];
 extern NSString* GSWClassName_DefaultResponse[2];
