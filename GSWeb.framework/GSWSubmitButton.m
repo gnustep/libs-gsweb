@@ -2,7 +2,7 @@
 
    Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
    $Revision$
@@ -92,9 +92,11 @@ static char rcsId[] = "$Id$";
 {
   //OK
   LOGObjectFnStart();
-  GSWSaveAppendToResponseElementID(context);//Debug Only
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
   [super appendToResponse:response
 		 inContext:context];
+  GSWStopElement(context);
   LOGObjectFnStop();
 };
 
@@ -106,16 +108,16 @@ static char rcsId[] = "$Id$";
   GSWElement* element=nil;
   BOOL disabledValue=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",
-               [self class],[context elementID],[context senderID]);
+  GSWStartElement(context);
   NS_DURING
     {
-      GSWAssertCorrectElementID(context);// Debug Only
+      GSWAssertCorrectElementID(context);
       disabledValue=[self disabledInContext:context];
       NSDebugMLLog(@"gswdync",@"disabledValue=%s",(disabledValue ? "YES" : "NO"));
       if (!disabledValue)
         {
           BOOL wasFormSubmitted=[context _wasFormSubmitted];
+          NSDebugMLLog(@"gswdync",@"wasFormSubmitted=%s",(wasFormSubmitted ? "YES" : "NO"));
           if (wasFormSubmitted)
             {
               BOOL invoked=NO;
@@ -162,7 +164,7 @@ static char rcsId[] = "$Id$";
                     {
                       if (![element isKindOfClass:[GSWComponent class]]) //TODO GSWComponent or Element ?
                         {
-                          ExceptionRaise0(@"GSWHyperlink",@"Invoked element return a not GSWComponent element");
+                          ExceptionRaise0(@"GSWSubmitButton",@"Invoked element return a not GSWComponent element");
                         } 
                       else 
                         {
@@ -204,6 +206,7 @@ static char rcsId[] = "$Id$";
                [context elementID],
                [context senderID]);
     };
+  GSWStopElement(context);
   LOGObjectFnStop();
   return element;
 };
@@ -213,7 +216,9 @@ static char rcsId[] = "$Id$";
                    inContext:(GSWContext*)context
 {
   //Does Nothing ?
-  GSWAssertCorrectElementID(context);// Debug Only
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
+  GSWStopElement(context);
 };
  
 //--------------------------------------------------------------------

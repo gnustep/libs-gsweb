@@ -81,6 +81,7 @@
                    length:(unsigned)length;
 -(void)appendContentCharacter:(char)aChar;
 -(void)appendContentString:(NSString*)string;
+-(void)appendDebugCommentContentString:(NSString*)string;
 -(void)appendContentData:(NSData*)contentData;
 -(void)setContentEncoding:(NSStringEncoding)encoding;
 -(NSStringEncoding)contentEncoding;

@@ -211,9 +211,11 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
-
-  GSWSaveAppendToResponseElementID(context);//Debug Only
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
+  [response appendDebugCommentContentString:[NSString stringWithFormat:@"defName=%@ ID=%@",
+                                                      [self definitionName],
+                                                      [context elementID]]];
 
   if (!WOStrictFlag)
     {
@@ -227,18 +229,19 @@ static char rcsId[] = "$Id$";
   [self appendToResponse:response
         inContext:context
         elementsFromIndex:0
-        toIndex:[elementsMap length]-2];
+        toIndex:[_elementsMap length]-2];
   [self _appendHiddenFieldsToResponse:response
         inContext:context];
   [self appendToResponse:response
-		inContext:context
-		elementsFromIndex:[elementsMap length]-1
-		toIndex:[elementsMap length]-1];
+        inContext:context
+        elementsFromIndex:[_elementsMap length]-1
+        toIndex:[_elementsMap length]-1];
   [context setInForm:NO];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  GSWStopElement(context);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
-           @"GSWForm appendToResponse: bad elementID");
+  NSAssert3(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
+           @"GSWForm appendToResponse: bad elementID: elementsNb=%d [context elementID]=%@ [(GSWElementIDString*)[context elementID]elementsNb]=%d",
+           elementsNb,[context elementID],[(GSWElementIDString*)[context elementID]elementsNb]);
 #endif
   LOGObjectFnStopC("GSWForm");
 };
@@ -258,10 +261,10 @@ static char rcsId[] = "$Id$";
   BOOL multipleSubmitValue=NO;
   int i=0;
   LOGObjectFnStartC("GSWForm");
+  GSWStartElement(context);
   senderID=[context senderID];
   elementID=[context elementID];
-  NSDebugMLLog(@"gswdync",@"ET=%@ definition name=%@ id=%@ senderId=%@",
-               [self class],[self definitionName],elementID,senderID);
+  NSDebugMLLog(@"gswdync",@"senderId=%@",senderID);
   NS_DURING
     {
       GSWAssertCorrectElementID(context);// Debug Only
@@ -269,9 +272,10 @@ static char rcsId[] = "$Id$";
         {
           BOOL searchIsOver=NO;
           isFormSubmited=[elementID isEqualToString:senderID];
-          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@ _isFormSubmited=%s",
+          NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ \n      id=%@ \nsenderId=%@ \nisFormSubmited=%s",
                        [self class],
-                       elementID,
+                       [self definitionName],
+                       elementID,                           
                        senderID,
                        (isFormSubmited ? "YES" : "NO"));
           if (!WOStrictFlag && isFormSubmited && [self disabledInContext:context])
@@ -283,21 +287,20 @@ static char rcsId[] = "$Id$";
               [context _setFormSubmitted:YES];
               multipleSubmitValue=[self evaluateCondition:_multipleSubmit
                                         inContext:context];
-              NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@ multipleSubmit=%s",
+              NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ \n      id=%@ \nsenderId=%@ \nmultipleSubmit=%s",
                            [self class],
-                           elementID,
+                           [self definitionName],
+                           elementID,                           
                            senderID,
                            (multipleSubmitValue ? "YES" : "NO"));
               [context _setIsMultipleSubmitForm:multipleSubmitValue];
             };
-          [context appendZeroElementIDComponent];
-          for(i=0;!element && !searchIsOver && i<[dynamicChildren count];i++)
+/*
+          for(i=0;!element && !searchIsOver && i<[_dynamicChildren count];i++)
             {
-              NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
-                           [[dynamicChildren objectAtIndex:i] class],
-                           [context elementID]);
-              element=[[dynamicChildren objectAtIndex:i] invokeActionForRequest:request
-                                                         inContext:context];
+              NSDebugMLLog(@"gswdync",@"i=%d",i);
+              element=[[_dynamicChildren objectAtIndex:i] invokeActionForRequest:request
+                                                          inContext:context];
 //              if (![context _wasFormSubmitted] && [[context elementID] compare:senderID]==NSOrderedDescending)
               if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
                 {
@@ -308,7 +311,9 @@ static char rcsId[] = "$Id$";
                 };
               [context incrementLastElementIDComponent];
             };
-          [context deleteLastElementIDComponent];
+*/
+          element=[super invokeActionForRequest:request
+                         inContext:context];
           if (isFormSubmited)
             {
               if ([context _wasActionInvoked])
@@ -321,15 +326,13 @@ static char rcsId[] = "$Id$";
               [context _setFormSubmitted:NO];
             };
           elementID=[context elementID];
-          NSDebugMLLog(@"gswdync",@"END ET=%@ def name=%@ id=%@",
-                       [self class],
-                       [self definitionName],
-                       elementID);
-#ifndef NDEBBUG
-          NSAssert(elementsNb==[(GSWElementIDString*)elementID elementsNb],
-                   @"GSWForm invokeActionForRequest: bad elementID");
-#endif
+          GSWStopElement(context);
         };
+#ifndef NDEBBUG
+      NSAssert3(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
+                @"GSWForm invokeActionForRequest: bad elementID: elementsNb=%d [context elementID]=%@ [(GSWElementIDString*)[context elementID]elementsNb]=%d",
+                elementsNb,[context elementID],[(GSWElementIDString*)[context elementID]elementsNb]);
+#endif
     }
   NS_HANDLER
     {
@@ -369,12 +372,12 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
-  GSWAssertCorrectElementID(context);// Debug Only
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
+
   senderID=[context senderID];
   elementID=[context elementID];
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
-  NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
   if ([self prefixMatchSenderIDInContext:context]) //Avoid taking values if we are not the good form
     {
       isFormSubmited=[elementID isEqualToString:senderID];
@@ -388,25 +391,19 @@ static char rcsId[] = "$Id$";
           [context setInForm:YES];
           [context _setFormSubmitted:YES];
         };
-      [context appendZeroElementIDComponent];
-      NSDebugMLLog(@"gswdync",@"\n\ndynamicChildren=%@",dynamicChildren);
-      NSDebugMLLog(@"gswdync",@"[dynamicChildren count]=%d",[dynamicChildren count]);
-      for(i=0;i<[dynamicChildren count];i++)
-        {
-          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[dynamicChildren objectAtIndex:i] class],[context elementID]);
-          NSDebugMLLog(@"gswdync",@"\n[dynamicChildren objectAtIndex:i]=%@",[dynamicChildren objectAtIndex:i]);
-          [[dynamicChildren objectAtIndex:i] takeValuesFromRequest:request
-                                             inContext:context];
-          [context incrementLastElementIDComponent];
-        };
-      [context deleteLastElementIDComponent];
+      NSDebugMLLog(@"gswdync",@"\n\ndynamicChildren=%@",_dynamicChildren);
+      NSDebugMLLog(@"gswdync",@"[dynamicChildren count]=%d",[_dynamicChildren count]);
+
+      [super takeValuesFromRequest:request
+             inContext:context];
+
       if (isFormSubmited)
         {
           [context setInForm:NO];
           [context _setFormSubmitted:NO];
         };
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  GSWStopElement(context);
 #ifndef NDEBBUG
   NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
            @"GSWForm takeValuesFromRequest: bad elementID");

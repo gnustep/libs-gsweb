@@ -559,6 +559,7 @@ associationsKeys:(NSArray*)associationsKeys
   NSDebugMLLog(@"gswcomponents",@"subComponents=%@",_subComponents);
   subc=[_subComponents objectForKey:elementId];
   NSDebugMLLog(@"gswcomponents",@"subc=%@",subc);
+  NSDebugMLog(@"subComponent %@ for _elementId=%@",[subc class],elementId);  
   LOGObjectFnStop();
   return subc;
 };
@@ -569,6 +570,7 @@ associationsKeys:(NSArray*)associationsKeys
 {
   //OK
   LOGObjectFnStart();
+  NSDebugMLog(@"setSubComponent %@ for _elementId=%@",[component class],elementId);  
   NSDebugMLLog(@"gswcomponents",@"elementId=%@",elementId);
   NSDebugMLLog(@"gswcomponents",@"component=%@",component);
   NSDebugMLLog(@"gswcomponents",@"_subComponents=%@",_subComponents);
@@ -981,13 +983,15 @@ associationsKeys:(NSArray*)associationsKeys
   GSWElementIDString* debugElementID=[aContext elementID];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
-  GSWSaveAppendToResponseElementID(aContext);//Debug Only
+  GSWStartElement(aContext);
+  GSWSaveAppendToResponseElementID(aContext);
 
   template=[self _template];
+
+#ifndef NDEBUG
   if(GSDebugSet(@"gswcomponents") == YES)
-    [aResponse appendContentString:[NSString stringWithFormat:@"\n<!-- Start %@ -->\n",[self _templateName]]];//TODO enlever
+    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"Start %@",[self _templateName]]];
+#endif
 
   request=[aContext request];
   isFromClientComponent=[request isFromClientComponent];
@@ -995,6 +999,8 @@ associationsKeys:(NSArray*)associationsKeys
   [aContext appendZeroElementIDComponent];
   NS_DURING
     {
+      [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"defName=%@ ID=%@",[self definitionName],[aContext elementID]]];
+      NSDebugMLog(@"COMPONENT %p defName=%@ [aContext elementID]=%@",self,[self definitionName],[aContext elementID]);
       [template appendToResponse:aResponse
                  inContext:aContext];
     }
@@ -1010,8 +1016,7 @@ associationsKeys:(NSArray*)associationsKeys
   NS_ENDHANDLER;
   [aContext deleteLastElementIDComponent];
 
-  NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
+  GSWStopElement(aContext);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[aContext elementID]])
 	{
@@ -1023,6 +1028,7 @@ associationsKeys:(NSArray*)associationsKeys
     [aResponse appendContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ -->\n",
                                              [self _templateName]]];//TODO enlever
 
+  GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
 };
 
@@ -1039,11 +1045,10 @@ associationsKeys:(NSArray*)associationsKeys
   GSWElementIDString* debugElementID=[aContext elementID];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
+  GSWStartElement(aContext);
   NS_DURING
     {
-      GSWAssertCorrectElementID(aContext);// Debug Only
+      GSWAssertCorrectElementID(aContext);
       template=[self _template];
       [aContext appendZeroElementIDComponent];
       element=[[self _template] invokeActionForRequest:aRequest
@@ -1060,8 +1065,7 @@ associationsKeys:(NSArray*)associationsKeys
       [localException raise];
     }
   NS_ENDHANDLER;
-  NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
+  GSWStopElement(aContext);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[aContext elementID]])
     {
@@ -1079,6 +1083,7 @@ associationsKeys:(NSArray*)associationsKeys
                [aContext elementID],
                [aContext senderID]);
     };
+  GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
   return element;
 };
@@ -1096,20 +1101,19 @@ associationsKeys:(NSArray*)associationsKeys
   GSWElementIDString* debugElementID=[aContext elementID];
 #endif
   LOGObjectFnStart();
-  GSWAssertCorrectElementID(aContext);// Debug Only
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
 
   [_validationFailureMessages removeAllObjects];
   oldValidateFlag=[aContext isValidate];
   [aContext setValidate:YES];
-  NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
   template=[self _template];
   [aContext appendZeroElementIDComponent];
+  NSDebugMLog(@"COMPONENT %p defName=%@ [aContext elementID]=%@",self,[self definitionName],[aContext elementID]);
   [template takeValuesFromRequest:aRequest
 			 inContext:aContext];
   [aContext deleteLastElementIDComponent];
-  NSDebugMLLog(@"gswcomponents",@"ET=%@ id=%@",[self class],[aContext elementID]);
-  NSDebugMLLog(@"gswcomponents",@"defName=%@",[self definitionName]);
+  GSWStopElement(aContext);
 #ifndef NDEBUG
   if (![debugElementID isEqualToString:[aContext elementID]])
     {
@@ -1119,6 +1123,7 @@ associationsKeys:(NSArray*)associationsKeys
     };
 #endif
   [aContext setValidate:oldValidateFlag];
+  GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
 };
 
@@ -1382,8 +1387,6 @@ associationsKeys:(NSArray*)associationsKeys
 {
   NSArray* languages=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"[self context]=%p",(void*)[self context]);
-  NSDebugMLLog(@"gswcomponents",@"[self context]=%@",[self context]);
   languages=[[self context] languages];
   LOGObjectFnStop();
   return languages;

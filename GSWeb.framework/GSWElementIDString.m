@@ -223,11 +223,12 @@ static char rcsId[] = "$Id$";
           else
             finished=YES;
         };
-      if (!over && !finished)
+/*      if (!over && !finished)
         {
           if (selfElementsCount>senderIDElementsCount)
             over=YES;
         };
+*/
     };
   return over;
 }

@@ -29,9 +29,8 @@
 {
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  NSDebugMLog(@"associationsKeys=%@",associationsKeys);
-	};
+    {
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -74,7 +73,6 @@
   BOOL _bindingOk=NO;
   LOGObjectFnStart();
   NSDebugMLog(@"user=%@ password=%@",user,password);
-  NSDebugMLog(@"associationsKeys=%@",associationsKeys);
   NS_DURING
     {
       if ([self hasBinding:@"password"])

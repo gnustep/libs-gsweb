@@ -43,28 +43,53 @@ extern BYTE ElementsMap_attributeElement;
 #ifndef NDEBBUG
 {
   NSString* _appendToResponseElementID;
+  NSString* _definitionName; // Name of element in def file (.gswd) - Mainly for debugging purpose
 };
 #endif
 
 #ifndef NDEBBUG
 -(void)saveAppendToResponseElementIDInContext:(id)context;
 -(void)assertCorrectElementIDInContext:(id)context
-                               inCLass:(Class)class
                                 method:(SEL)method
                                   file:(const char*)file
                                   line:(int)line;
+-(void)assertIsElementIDInContext:(id)context
+                           method:(SEL)method
+                             file:(const char*)file
+                             line:(int)line;
+-(void)logElementInContext:(id)context
+                    method:(SEL)method
+                      file:(const char*)file
+                      line:(int)line
+                 startFlag:(BOOL)start
+                  stopFlag:(BOOL)stop;
 #endif
 
--(NSString*)definitionName; //return nil (for non dynamic element)
+-(NSString*)definitionName;
 @end
 
 #ifdef NDEBBUG
-#define GSWSaveAppendToResponseElementID(context_);		{};
-#define GSWAssertCorrectElementID(context_); 			{};
+#define GSWSaveAppendToResponseElementID(TheContext);		{};
+#define GSWAssertCorrectElementID(TheContext); 			{};
+#define GSWAssertIsElementID(TheContext); 			{};
+#define GSWStartElement(TheContext); 				{};
+#define GSWStopElement(TheContext); 				{};
+#define GSWAddElementToDocStructure(TheContext); 		{};
 #else
-#define GSWSaveAppendToResponseElementID(context_);		[self saveAppendToResponseElementIDInContext:context_];
-#define GSWAssertCorrectElementID(context_); 			\
-	([self assertCorrectElementIDInContext:context_ inCLass:[self class] method:_cmd file:__FILE__ line:__LINE__]);
+#define GSWSaveAppendToResponseElementID(TheContext);		[self saveAppendToResponseElementIDInContext:TheContext];
+#define GSWAssertCorrectElementID(TheContext); 			\
+	([self assertCorrectElementIDInContext:TheContext method:_cmd file:__FILE__ line:__LINE__]);
+#define GSWAssertIsElementID(TheContext); 			\
+	([self assertIsElementIDInContext:TheContext method:_cmd file:__FILE__ line:__LINE__]);
+#define GSWStartElement(TheContext); 			\
+	([self logElementInContext:TheContext method:_cmd file:__FILE__ line:__LINE__ startFlag:YES stopFlag:NO]);
+#define GSWStopElement(TheContext); 			\
+	([self logElementInContext:TheContext method:_cmd file:__FILE__ line:__LINE__ startFlag:NO stopFlag:YES]);
+#define GSWLogElement(TheContext); 			\
+	([self logElementInContext:TheContext method:_cmd file:__FILE__ line:__LINE__ startFlag:NO stopFlag:NO]);
+#define GSWAddElementToDocStructure(TheContext); 	\
+	([TheContext addToDocStructureElement:self]);
+
 #endif
 
 

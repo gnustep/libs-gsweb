@@ -54,6 +54,11 @@
  BOOL formSubmitted;
  BOOL isMultipleSubmitForm;
  BOOL isValidate;
+#ifndef NDEBUG
+ int _loopLevel; //ForDebugging purpose: each repetition increment and next decrement it
+ NSMutableString* _docStructure; //ForDebugging purpose: array of all objects if the document during appendResponse, takeValues, invokeAction
+  NSMutableSet* _docStructureElements;
+#endif
 };
 
 -(id)init;
@@ -75,6 +80,14 @@
 -(NSString*)contextID;
 -(id)initWithRequest:(GSWRequest*)_request;
 
+#ifndef NDEBUG
+-(void)incrementLoopLevel; //ForDebugging purpose: each repetition increment and next decrement it
+-(void)decrementLoopLevel;
+-(BOOL)isInLoop;
+-(void)addToDocStructureElement:(id)element;
+-(void)addDocStructureStep:(NSString*)stepLabel;
+-(NSString*)docStructure;
+#endif
 @end
 
 //====================================================================

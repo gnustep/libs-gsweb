@@ -55,25 +55,10 @@ static char rcsId[] = "$Id$";
   GSWLogAssertGood(self);
   GSWLogC("Dealloc GSWDynamicElement");
   GSWLogC("Dealloc GSWDynamicElement: name");
-  DESTROY(_definitionName);
   GSWLogC("Dealloc GSWDynamicElement Super");
   [super dealloc];
   GSWLogC("End Dealloc GSWDynamicElement");
 }
-
--(NSString*)definitionName
-{
-  return _definitionName;
-};
-
--(void)setDefinitionName:(NSString*)definitionName
-{
-  NSDebugMLLog(@"gswdync",@"setDefinitionName1 in %p: %p %@",
-               self,definitionName,definitionName);
-  ASSIGN(_definitionName,definitionName);
-  NSDebugMLLog(@"gswdync",@"setDefinitionName2 in %p: %p %@",
-               self,_definitionName,_definitionName);
-};
 
 @end
 //====================================================================

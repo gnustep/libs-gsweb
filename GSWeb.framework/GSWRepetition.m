@@ -1,11 +1,18 @@
-/* GSWRepetition.m - GSWeb: Class GSWRepetition
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWRepetition.m - <title>GSWeb: Class GSWRepetition</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +26,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -97,6 +105,14 @@ static char rcsId[] = "$Id$";
 }
 
 //--------------------------------------------------------------------
+-(void)setDefinitionName:(NSString*)definitionName
+{
+  [super setDefinitionName:definitionName];
+  if (definitionName && _childrenGroup)
+    [_childrenGroup setDefinitionName:[NSString stringWithFormat:@"%@-StaticGroup",definitionName]];
+};
+
+//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
@@ -120,7 +136,8 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
   component=[context component];
   NSDebugMLLog(@"gswdync",@"_list=%@",_list);
   if (_list)
@@ -151,6 +168,7 @@ static char rcsId[] = "$Id$";
     };
   
   NSDebugMLLog(@"gswdync",@"countValue=%d",countValue);
+  [context incrementLoopLevel];
   for(i=0;i<countValue;i++)
     {
 #ifndef NDEBUG
@@ -170,14 +188,17 @@ static char rcsId[] = "$Id$";
 #ifndef NDEBUG
       if (![debugElementID isEqualToString:[context elementID]])
         {
-          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
+          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",
+                       [self class],debugElementID,[context elementID]);
           
         };
 #endif
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  [context decrementLoopLevel];
+  GSWStopElement(context);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion appendToResponse: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
+           @"GSWRepetion appendToResponse: bad elementID");
 #endif
   LOGObjectFnStop();
 };
@@ -193,7 +214,7 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  GSWStartElement(context);
   isInForm=[context isInForm];
   NSDebugMLLog(@"gswdync",@"isInForm=%s",isInForm ? "YES" : "NO");
   if (isInForm)
@@ -203,9 +224,10 @@ static char rcsId[] = "$Id$";
     element=[self _fastInvokeActionForRequest:request
                   inContext:context];
   NSDebugMLLog(@"gswdync",@"element=%@",element);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  GSWStopElement(context);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion invokeActionForRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
+           @"GSWRepetion invokeActionForRequest: bad elementID");
 #endif
   LOGObjectFnStop();
   return element;
@@ -225,7 +247,8 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   component=[context component];
   if (_list)
     {
@@ -250,6 +273,7 @@ static char rcsId[] = "$Id$";
       else
         countValue=tmpCount;
     };
+  [context incrementLoopLevel];
   for(i=0;i<countValue;i++)
     {
 #ifndef NDEBUG
@@ -261,22 +285,25 @@ static char rcsId[] = "$Id$";
       [context appendZeroElementIDComponent];
       [_childrenGroup takeValuesFromRequest:request
                       inContext:context];
-	  [context deleteLastElementIDComponent];
-	  [self stopOneIterationWithIndex:i
-                count:countValue
-                isLastOne:NO
-                inContext:context];
+      [context deleteLastElementIDComponent];
+      [self stopOneIterationWithIndex:i
+            count:countValue
+            isLastOne:NO
+            inContext:context];
 #ifndef NDEBUG
-	  if (![debugElementID isEqualToString:[context elementID]])
-            {
-              NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",[self class],debugElementID,[context elementID]);
-              
-            };
+      if (![debugElementID isEqualToString:[context elementID]])
+        {
+          NSDebugMLLog(@"gswdync",@"class=%@ debugElementID=%@ [context elementID]=%@",
+                       [self class],debugElementID,[context elementID]);
+          
+        };
 #endif
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  [context decrementLoopLevel];
+  GSWStopElement(context);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion takeValuesFromRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
+           @"GSWRepetion takeValuesFromRequest: bad elementID");
 #endif
   LOGObjectFnStop();
 };
@@ -295,7 +322,7 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  GSWStartElement(context);
   component=[context component];
   if (_list)
     {
@@ -320,6 +347,7 @@ static char rcsId[] = "$Id$";
       else
         countValue=tmpCount;
     };
+  [context incrementLoopLevel];
   for(i=0;!element && i<countValue;i++)
     {
 #ifndef NDEBUG
@@ -343,7 +371,8 @@ static char rcsId[] = "$Id$";
         };
 #endif
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  [context decrementLoopLevel];
+  GSWStopElement(context);
 #ifndef NDEBBUG
   NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion _slowInvokeActionForRequest: bad elementID");
 #endif
@@ -363,11 +392,10 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  GSWStartElement(context);
   senderID=[context senderID];
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
   elementID=[context elementID];
-  NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
   if ([senderID hasPrefix:elementID])
     {
 #ifndef NDEBUG
@@ -400,6 +428,7 @@ static char rcsId[] = "$Id$";
           else
             countValue=tmpCount;
         };
+      [context incrementLoopLevel];
       for(i=0;!element && i<countValue;i++)
         {
           [self startOneIterationWithIndex:i
@@ -421,9 +450,9 @@ static char rcsId[] = "$Id$";
             };
 #endif
         };
+      [context decrementLoopLevel];
     };
-  NSDebugMLLog(@"gswdync",@"element=%@",element);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  GSWStopElement(context);
 #ifndef NDEBBUG
   NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWRepetion _fastInvokeActionForRequest: bad elementID");
 #endif

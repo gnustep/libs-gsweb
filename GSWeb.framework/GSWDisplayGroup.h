@@ -150,6 +150,7 @@
 - (void)editingContext:(id)editingContext_
    presentErrorMessage:(id)msg;
 - (id)insert;
+- (id)insertAfterLastObject;
 - (NSDictionary *)insertedObjectDefaultValues;
 - (void)insertObject:object_
 	     atIndex:(unsigned)index;
@@ -175,6 +176,7 @@
 - (void)setSelectedObject:(id)object;
 - (NSArray *)selectedObjects;
 - (NSArray *)selectionIndexes;
+- (id)selectFirst;
 - (id)selectNext;
 - (BOOL)selectObject:(id)object;
 - (BOOL)selectObjectsIdenticalTo:(NSArray *)objects;

@@ -660,7 +660,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
   [self deleteSelection];
   LOGObjectFnStop();
-  return nil;//FIXME
+  return nil;//return nil for direct .gswd actions ==> same page
 }
 
 //--------------------------------------------------------------------
@@ -732,33 +732,33 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     }
   if (result)
     {
-	  NS_DURING
- 		{
-      		enumerator = [_selectedObjects objectEnumerator];
-      		while((object = [enumerator nextObject]))
-        		{
-          		[_dataSource deleteObject:object];
-
-				[_displayedObjects removeObjectIdenticalTo:object];
-				[_allObjects removeObjectIdenticalTo:object];
-          
-          		if(_delegateRespondsTo.didDeleteObject == YES)
-            		[delegate displayGroup:self
-                      		didDeleteObject:object];
-        		}
-		}
-	  NS_HANDLER
-		{
-		  NSLog(@"GSWDisplayGroup (deleteSelection:) Can't delete object");
-		  NSLog(@"object : %@", object);
-		  NSLog(@"Exception :  %@ %@ Name:%@ Reason:%@\n",
-			localException,
-			[localException description],
-			[localException name],
-			[localException reason]);
-		  delete = NO;
-		}
-	  NS_ENDHANDLER;
+      NS_DURING
+        {
+          enumerator = [_selectedObjects objectEnumerator];
+          while((object = [enumerator nextObject]))
+            {
+              [_dataSource deleteObject:object];
+              
+              [_displayedObjects removeObjectIdenticalTo:object];
+              [_allObjects removeObjectIdenticalTo:object];
+              
+              if(_delegateRespondsTo.didDeleteObject == YES)
+                [delegate displayGroup:self
+                          didDeleteObject:object];
+            }
+        }
+      NS_HANDLER
+        {
+          NSLog(@"GSWDisplayGroup (deleteSelection:) Can't delete object");
+          NSLog(@"object : %@", object);
+          NSLog(@"Exception :  %@ %@ Name:%@ Reason:%@\n",
+                localException,
+                [localException description],
+                [localException name],
+                [localException reason]);
+          delete = NO;
+        }
+      NS_ENDHANDLER;
     };
 
   [self clearSelection];
@@ -841,7 +841,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   [self clearSelection];
 
   LOGObjectFnStop();
-  return nil;//FIXME
+  return nil;//return nil for direct .gswd actions ==> same page
 }
 
 //--------------------------------------------------------------------
@@ -884,7 +884,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   [self clearSelection];
 
   LOGObjectFnStop();
-  return nil;//FIXME
+  return nil;//return nil for direct .gswd actions ==> same page
 }
 
 //--------------------------------------------------------------------
@@ -903,7 +903,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
   LOGObjectFnStop();
-  return nil;
+  return nil;//return nil for direct .gswd actions ==> same page
 };
 
 //--------------------------------------------------------------------
@@ -919,9 +919,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   [[NSNotificationCenter defaultCenter] 
     postNotificationName:@"WODisplayGroupWillFetch" //TODO Name
     object:self];
-  undoManager=[self undoManager];//<EOUndoManager: 0x1832190> //WO45P3 
-  [undoManager removeAllActionsWithTarget:self];//WO45P3 
-  [_dataSource setQualifierBindings:_queryBindings];//WO45P3 
+  undoManager=[self undoManager];
+  [undoManager removeAllActionsWithTarget:self];
+  [_dataSource setQualifierBindings:_queryBindings];
 
   if(_delegateRespondsTo.shouldFetchObjects == YES)
     fetch = [delegate displayGroupShouldFetch:self];
@@ -930,7 +930,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     {
       NSArray *objects=nil;
 
-      objects = [_dataSource fetchObjects];//OK WO45P3
+      objects = [_dataSource fetchObjects];
       [self setObjectArray:objects];//OK
       [self _notify:@selector(displayGroup:didFetchObjects:)
             with:self
@@ -941,7 +941,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       */
     };
   LOGObjectFnStop();
-  return nil;//FIXME ??
+  return nil;//return nil for direct .gswd actions ==> same page
 }
 
 //--------------------------------------------------------------------
@@ -1040,15 +1040,22 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   if([_selection count])
     index = [[_selection objectAtIndex:0] unsignedIntValue]+1;
 
-  if(!count)
-    index = 0;
-  if((count <= index) && count>0)
-    index = count - 1;
+  index=max(0,index);
+  index=min(count,index);
 
+  NSDebugMLog(@"INSERT Index=%d",index);
   [self insertObjectAtIndex:index];
 
   LOGObjectFnStop();
-  return nil;//FIXME
+  return nil;//return nil for direct .gswd actions ==> same page
+}
+
+//--------------------------------------------------------------------
+
+- (id)insertAfterLastObject
+{
+  int index= [_allObjects count];
+  return [self insertObjectAtIndex:index];
 }
 
 //--------------------------------------------------------------------
@@ -1087,8 +1094,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
         [delegate displayGroup:self
                   didInsertObject:anObject];
 
-      [self setSelectionIndexes:
-              [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:index]]];
+      [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:index]]];
     };
 }
 
@@ -1266,7 +1272,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
       NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
       NSDebugMLLog(@"gswdisplaygroup",@"_dataSource=%@",_dataSource);
       [_dataSource setAuxiliaryQualifier:qualifier];//OK
-      
+
       NSDebugMLLog0(@"gswdisplaygroup",@"Will fetch");
       [self fetch];//OK use ret Value ?
       NSDebugMLLog0(@"gswdisplaygroup",@"End fetch");
@@ -1401,6 +1407,20 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 }
 
 //--------------------------------------------------------------------
+//	selectFirst
+
+- (id)selectFirst
+{
+  LOGObjectFnStart();
+
+  if([_allObjects count]>0)
+    {
+      [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
+    };
+  return nil;//return nil for direct .gswd actions ==> same page
+};  
+
+//--------------------------------------------------------------------
 //	selectNext
 
 - (id)selectNext
@@ -1412,8 +1432,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   if([_allObjects count]>0)
     {
       if(![_selectedObjects count])
-        [self setSelectionIndexes:
-                [NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
+        [self setSelectionIndexes:[NSArray arrayWithObject:[NSNumber numberWithUnsignedInt:0]]];
       else
         {
           obj = [_selectedObjects objectAtIndex:0];
@@ -1441,7 +1460,7 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
         };
     };
   LOGObjectFnStop();
-  return nil;//FIXME
+  return nil;//return nil for direct .gswd actions ==> same page
 }
 
 //--------------------------------------------------------------------
@@ -1911,7 +1930,7 @@ STOP ?
   BOOL	stop = NO;
   BOOL retValue=NO;
   LOGObjectFnStart();
-//call selectedObjects //0x1a38b78
+//call selectedObjects //
   if(_delegateRespondsTo.shouldChangeSelection == YES 
      && [delegate displayGroup:self
                   shouldChangeSelectionToIndexes:selection_] == NO)
@@ -2006,9 +2025,10 @@ STOP ?
   NSEnumerator *objsEnum=nil;
   id object=nil;
   LOGObjectFnStart();
+
 //TODO
-//self selectedObjects //() 0x1a38b78 
-//self allObjects 0x27cadf8
+//self selectedObjects //() 
+//self allObjects 
 //self selectObjectsIdenticalTo:_selection selectFirstOnNoMatch:0
 //self redisplay
 //STOP
@@ -2016,30 +2036,29 @@ STOP ?
 
   if(_delegateRespondsTo.displayArrayForObjects == YES)
     {
-      [_displayedObjects
-	addObjectsFromArray:[delegate displayGroup:self
-				      displayArrayForObjects:_allObjects]];
-
-      return;
-    }
-
-  if(_qualifier)
-    {
-      objsEnum = [_allObjects objectEnumerator];
-      while((object = [objsEnum nextObject]))
-	{
-	  if([_qualifier evaluateWithObject:object] == YES)
-	    [_displayedObjects addObject:object];
-	}
+      [_displayedObjects addObjectsFromArray:[delegate displayGroup:self
+                                                       displayArrayForObjects:_allObjects]];
     }
   else
     {
-      _batchIndex = [self batchCount];
-      [self displayNextBatch];
-    }
-
-  if(_sortOrdering)
-    [_displayedObjects sortUsingKeyOrderArray:_sortOrdering];
+      if(_qualifier)
+        {
+          objsEnum = [_allObjects objectEnumerator];
+          while((object = [objsEnum nextObject]))
+            {
+              if([_qualifier evaluateWithObject:object] == YES)
+                [_displayedObjects addObject:object];
+            }
+        }
+      else
+        {
+          _batchIndex = [self batchCount];
+          [self displayNextBatch];
+        }
+      
+      if(_sortOrdering)
+        [_displayedObjects sortUsingKeyOrderArray:_sortOrdering];
+    };
   LOGObjectFnStop();
 }
 

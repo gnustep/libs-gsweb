@@ -111,6 +111,8 @@ static char rcsId[] = "$Id$";
   GSWElement* element=nil;
   NSString* elementNameInContext=nil;
   LOGObjectFnStartC("GSWSwitchComponent");
+  GSWStartElement(aContext);
+  GSWSaveAppendToResponseElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
   [aContext appendElementIDComponent:elementNameInContext];
   element=[self _realComponentWithName:elementNameInContext
@@ -129,6 +131,8 @@ static char rcsId[] = "$Id$";
   GSWElement* element=nil;
   NSString* elementNameInContext=nil;
   LOGObjectFnStartC("GSWSwitchComponent");
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
   [aContext appendElementIDComponent:elementNameInContext];
   element=[self _realComponentWithName:elementNameInContext
@@ -141,17 +145,19 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext
 {
   GSWElement* element=nil;
   NSString* elementNameInContext=nil;
   LOGObjectFnStartC("GSWSwitchComponent");
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
   [aContext appendElementIDComponent:elementNameInContext];
   element=[self _realComponentWithName:elementNameInContext
                 inContext:aContext];
-  [element takeValuesFromRequest:request
+  [element takeValuesFromRequest:aRequest
            inContext:aContext];
   [aContext deleteLastElementIDComponent];
   LOGObjectFnStopC("GSWSwitchComponent");

@@ -222,8 +222,8 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
-  GSWSaveAppendToResponseElementID(context);//Debug Only
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
   if (_disabled)
     disabledValue=[self evaluateCondition:_disabled
                         inContext:context];
@@ -553,10 +553,8 @@ static char rcsId[] = "$Id$";
   int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ definition name=%@ id=%@ senderId=%@",
-               [self class],[self definitionName],
-               [context elementID],[context senderID]);
-  GSWAssertCorrectElementID(context);// Debug Only
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   senderID=[context senderID];
   elementID=[context elementID];
   if ([elementID isEqualToString:senderID])

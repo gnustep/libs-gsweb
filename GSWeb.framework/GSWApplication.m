@@ -2605,6 +2605,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   GSWResponse* _response=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"application",@"context=%@",context_);
+  NSDebugMLog(@"EXCEPTION=%@",exception_);
   NS_DURING
 	{
 	  _response=[self _handleException:exception_ 

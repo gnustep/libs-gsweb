@@ -49,6 +49,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ id=%@",
                [self class],[self definitionName],[aContext elementID]);
+  GSWSaveAppendToResponseElementID(aContext);//Debug Only
   component=[aContext component];
   childTemplate=[component _childTemplate];
   parent=[component parent];
@@ -114,6 +115,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ id=%@",
                [self class],[self definitionName],[aContext elementID]);
+  GSWAssertCorrectElementID(aContext);// Debug Only
   component=[aContext component];
   childTemplate=[component _childTemplate];
   parent=[component parent];

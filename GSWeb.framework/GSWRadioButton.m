@@ -136,6 +136,8 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL disabledInContext=NO;
   LOGObjectFnStart();
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   disabledInContext=[self disabledInContext:context];
   if (!disabledInContext)
     {

@@ -36,7 +36,6 @@
 //====================================================================
 @interface GSWDynamicElement : GSWElement
 {
-  NSString* _definitionName; // Name of element in def file (.gswd) - Mainly for debugging purpose
 };
 
 -(id)initWithName:(NSString*)name

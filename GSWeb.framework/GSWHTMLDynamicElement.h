@@ -1,11 +1,18 @@
-/* GSWHTMLDynamicElement.h - GSWeb: Class GSWHTMLDynamicElement
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWHTMLDynamicElement.h - <title>GSWeb: Class GSWHTMLDynamicElement</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +26,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,10 +38,10 @@
 //====================================================================
 @interface GSWHTMLDynamicElement: GSWDynamicElement
 {
-  NSData* elementsMap;
-  NSArray* htmlBareStrings;
-  NSArray* dynamicChildren;
-  NSArray* attributeAssociations;
+  NSData* _elementsMap;
+  NSArray* _htmlBareStrings;
+  NSArray* _dynamicChildren;
+  NSArray* _attributeAssociations;
 };
 -(NSString*)elementName;
 -(NSArray*)dynamicChildren;
@@ -41,64 +49,64 @@
 -(NSData*)elementsMap;
 -(NSArray*)attributeAssociations;
 
--(id)_initWithElementsMap:(NSData*)_elementsMap
-		  htmlBareStrings:(NSArray*)_htmlBareStrings
-		  dynamicChildren:(NSArray*)_dynamicChildren
-	attributeAssociations:(NSArray*)_attributeAssociations;
+-(id)_initWithElementsMap:(NSData*)elementsMap
+          htmlBareStrings:(NSArray*)htmlBareStrings
+          dynamicChildren:(NSArray*)dynamicChildren
+    attributeAssociations:(NSArray*)attributeAssociations;
 
--(id)		initWithName:(NSString*)elementName_
-			associations:(NSDictionary*)associations_
-		 contentElements:(NSArray*)elements_;
+-(id)initWithName:(NSString*)elementName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements;
 
--(id)		initWithName:(NSString*)elementName_
-   attributeAssociations:(NSDictionary*)attributeAssociations_
-		 contentElements:(NSArray*)elements_;
+-(id)initWithName:(NSString*)elementName
+attributeAssociations:(NSDictionary*)attributeAssociations
+  contentElements:(NSArray*)elements;
 
--(id)		initWithName:(NSString*)elementName_
-			associations:(NSDictionary*)associations_
-				template:(GSWElement*)templateElement_;
+-(id)initWithName:(NSString*)elementName
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)templateElement;
 
 -(void)dealloc;
 
--(void)_setEndOfHTMLTag:(unsigned int)_unknown;
+-(void)_setEndOfHTMLTag:(unsigned int)unknown;
 
 -(NSString*)description;
--(void)setHtmlBareStrings:(NSArray*)_htmlBareStrings;
+-(void)setHtmlBareStrings:(NSArray*)htmlBareStrings;
 
 @end
 
 //====================================================================
 @interface GSWHTMLDynamicElement (GSWHTMLDynamicElementA)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-									inContext:(GSWContext*)context_;
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+                                      inContext:(GSWContext*)aContext;
 -(unsigned int)GSWebObjectsAssociationsCount;
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
-	  elementsFromIndex:(unsigned int)_fromIndex
-				toIndex:(unsigned int)_toIndex;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
+      elementsFromIndex:(unsigned int)fromIndex
+                toIndex:(unsigned int)toIndex;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_; 
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext; 
 @end
 
 //====================================================================
 @interface GSWHTMLDynamicElement (GSWHTMLDynamicElementB)
 -(BOOL)compactHTMLTags;
--(BOOL)appendStringAtRight:(id)_unkwnon
-			   withMapping:(char*)_mapping;
--(BOOL)appendStringAtLeft:(id)_unkwnon
-			  withMapping:(char*)_mapping;
+-(BOOL)appendStringAtRight:(id)unkwnon
+               withMapping:(char*)mapping;
+-(BOOL)appendStringAtLeft:(id)unkwnon
+              withMapping:(char*)mapping;
 -(BOOL)canBeFlattenedAtInitialization;
 @end
 
 //====================================================================
 @interface GSWHTMLDynamicElement (GSWHTMLDynamicElementC)
-+(void)setDynamicElementCompaction:(BOOL)_flag;
++(void)setDynamicElementCompaction:(BOOL)flag;
 +(BOOL)escapeHTML;
 +(BOOL)hasGSWebObjectsAssociations;
 @end

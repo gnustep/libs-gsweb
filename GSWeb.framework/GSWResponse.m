@@ -397,7 +397,7 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 -(void)appendDebugCommentContentString:(NSString*)string
 {
 #ifndef NDEBUG
-  [self appendContentString:[NSString stringWithFormat:@"<!-- %@ -->",string]];
+  [self appendContentString:[NSString stringWithFormat:@"\n<!-- %@ -->\n",string]];
 #endif
 };
 
@@ -584,6 +584,16 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
   NSString* _dataLengthString=nil;
   LOGObjectFnStart();
   NSAssert(!isFinalizeInContextHasBeenCalled,@"GSWResponse _finalizeInContext: already called");
+
+#ifndef NDEBUG
+  if(GSDebugSet(@"GSWDocStructure"))
+    {
+      NSString* docStructure=[_context docStructure];
+      if (docStructure)
+        [self appendDebugCommentContentString:docStructure];
+    }
+#endif
+
   //TODOV: if !session in request and session created: no client cache
   if (![self _isClientCachingDisabled] && [_context hasSession] && ![_context _requestSessionID])
 	[self disableClientCaching];

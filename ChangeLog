@@ -1,3 +1,109 @@
+2002-05-xx  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWTextField.m:
+		o added warning in _isFormattedValueInComponent:equalToFormattedValue:		
+		o added warning in takeValuesFromRequest:inContext:
+	* GSWeb.framework/GSWPopUpButton.m
+		o added ElementID debugging methods
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWSwitchComponent.m
+		o added ElementID debugging methods
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWRepetition.m
+		o added ElementID debugging methods
+		o added DocStructure debugging features
+		o param names changes to conform to coding standards
+	* GSWeb.framework/GSWComponentContent.m
+		o added ElementID debugging methods
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWComponentReference.m: 
+		o added ElementID debugging methods
+		o added DocStructure debugging features
+		o ivar names changes to conform to coding standards
+		o logs
+	* GSWeb.framework/GSWElement.m: 
+		o added ElementID debugging methods
+		o added DocStructure debugging features
+		o logs
+	* GSWeb.framework/GSWElement.h
+		o added ElementID debugging
+	* GSWeb.framework/GSWForm.m: 
+		o added ElementID debugging
+		o added DocStructure debugging features
+		o logs
+	* GSWeb.framework/GSWHTMLDynamicElement.m: 
+		o ivar names changes to conform to coding standards
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWConditional.m: 
+		o added ElementID debugging
+		o added DocStructure debugging features
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWConditional.h. 
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWRepetition.h. 
+		o param names changes to conform to coding standards
+	* GSWeb.framework/GSWReset.m: 
+		o ivar names changes to conform to coding standards
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWReset.h. 
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWResponse.h/.m:
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWContext.h/.m:
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWSession.m:
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWTemplateParserXML.m
+		o logs
+	* GSWeb.framework/GSWTemplateParser.m
+		o logs
+	* GSWeb.framework/GSWDisplayGroup.m:
+		o corrected insertion bugs
+		o added -insertAfterLastObject
+		o added -selectFirst
+	* GSWeb.framework/GSWDisplayGroup.h:
+		o added -insertAfterLastObject
+		o added -selectFirst
+	* GSWeb.framework/GSWHTMLStaticElement.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWCheckBox.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWComponent.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWHTMLStaticGroup.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWTextField.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWString.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWSubmitButton.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWURLValuedElementData.m/.h:
+		o added ElementID debugging
+		o added DocStructure debugging features
+		o ivar names changes to conform to coding standards
+	* GSWeb.framework/GSWRadioButton.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWInput.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+		o logs
+	* GSWeb.framework/GSWHyperlink.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	* GSWeb.framework/GSWFileUpload.m
+		o added ElementID debugging
+		o added DocStructure debugging features
+	
 2002-05-14  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWSubmitButton.m:
 		o corrected setActionInvoked into _setActionInvoked
@@ -27,7 +133,7 @@
 	* GSWeb.framework/GSWText.m:
 		o handling exception in takeValue
 	* GSWeb.framework/GSWInput.m:
-		o corrected bug in akeValuesFromRequest:inContext:
+		o corrected bug in takeValuesFromRequest:inContext:
 	* GSWExtensionsGSW.framework:
 		o added GSWFileUploadComponent
 	* GSWExtensionsGSW.framework/GNUmakefile

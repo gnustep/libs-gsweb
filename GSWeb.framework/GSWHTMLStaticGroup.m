@@ -67,6 +67,8 @@ static char rcsId[] = "$Id$";
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
+  LOGObjectFnStart();  
+  GSWStartElement(context);
   if (_documentTypeString)
     {
       NSStringEncoding encoding=[response contentEncoding];      
@@ -76,6 +78,8 @@ static char rcsId[] = "$Id$";
   
   [super appendToResponse:response
          inContext:context];
+  GSWStopElement(context);
+  LOGObjectFnStop();  
 };
 
 @end

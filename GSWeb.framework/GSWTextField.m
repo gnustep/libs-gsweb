@@ -86,7 +86,8 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL disabledValue=NO;
   LOGObjectFnStartC("GSWTextField");
-  GSWAssertCorrectElementID(context);// Debug Only
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   disabledValue=[self disabledInContext:context];
   if (!disabledValue)
     {
@@ -106,9 +107,19 @@ static char rcsId[] = "$Id$";
               if (formatter)
                 {
                   NSString* errorDscr=nil;
-                  if (![formatter getObjectValue:&resultValue
+                  if ([formatter getObjectValue:&resultValue
                                   forString:value
                                   errorDescription:&errorDscr])
+                    {
+                      if (value && !resultValue)
+                        {
+                          NSWarnLog(@"There's a value (%@ of class %@) but no formattedValue with formater %@",
+                                    value,
+                                    [value class],
+                                    formatter);
+                        };
+                    }
+                  else
                     {
                       NSException* exception=nil;
                       NSString* valueKeyPath=[_value keyPath];
@@ -162,6 +173,7 @@ static char rcsId[] = "$Id$";
             };
         };
     };
+  GSWStopElement(context);
   LOGObjectFnStopC("GSWTextField");
 };
 
@@ -265,8 +277,16 @@ static char rcsId[] = "$Id$";
       if (!formatter)
         formattedValue=valueValue;
       else
-        formattedValue=[formatter stringForObjectValue:valueValue];
-      
+        {
+          formattedValue=[formatter stringForObjectValue:valueValue];
+          if (valueValue && !formattedValue)
+            {
+              NSWarnLog(@"There's a value (%@ of class %@) but no formattedValue with formater %@",
+                        valueValue,
+                        [valueValue class],
+                        formatter);
+            };
+        };
       if (formattedValue && [newFormattedValue isEqualToString:formattedValue]) 
         {
           NSLog(@"### GSWTextField : are EQUAL ###");

@@ -1,11 +1,18 @@
-/* GSWConditional.m - GSWeb: Class GSWConditional
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWConditional.m - <title>GSWeb: Class GSWConditional</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
-   This file is part of the GNUstep Web Library.
+   $Revision$
+   $Date$
    
+   <abstract></abstract>
+
+   This file is part of the GNUstep Web Library.
+
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +26,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,38 +37,41 @@ static char rcsId[] = "$Id$";
 @implementation GSWConditional
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)someAssociations
-		 template:(GSWElement*)templateElement_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)someAssociations
+         template:(GSWElement*)templateElement
 {
   //OK
   LOGObjectFnStart();
-  self=[self initWithName:name_
-			 associations:someAssociations
-			 contentElements:templateElement_ ? [NSArray arrayWithObject:templateElement_] : nil];
+  if ((self=[self initWithName:aName
+                  associations:someAssociations
+                  contentElements:templateElement ? [NSArray arrayWithObject:templateElement] : nil]))
+    {
+    };
   LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)_elements
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
   LOGObjectFnStart();
-  if ((self=[super initWithName:name_
-				   associations:nil
-				   template:nil]))
-	{
-	  if (_elements)
-		childrenGroup=[[GSWHTMLStaticGroup alloc]initWithContentElements:_elements];
-	  condition = [[associations_ objectForKey:condition__Key
-									 withDefaultObject:[condition autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWConditional condition=%@",condition);
-	  negate = [[associations_ objectForKey:negate__Key
-								  withDefaultObject:[negate autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWConditional negate=%@",negate);
-	};
+  if ((self=[super initWithName:aName
+                   associations:nil
+                   template:nil]))
+    {
+      if (elements)
+        _childrenGroup=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
+
+      _condition = [[associations objectForKey:condition__Key
+                                 withDefaultObject:[_condition autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWConditional condition=%@",_condition);
+      _negate = [[associations objectForKey:negate__Key
+                               withDefaultObject:[_negate autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWConditional negate=%@",_negate);
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -68,10 +79,19 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(condition);
-  DESTROY(negate);
+  DESTROY(_condition);
+  DESTROY(_negate);
+  DESTROY(_childrenGroup);
   [super dealloc];
 }
+
+//--------------------------------------------------------------------
+-(void)setDefinitionName:(NSString*)definitionName
+{
+  [super setDefinitionName:definitionName];
+  if (definitionName && _childrenGroup)
+    [_childrenGroup setDefinitionName:[NSString stringWithFormat:@"%@-StaticGroup",definitionName]];
+};
 
 //--------------------------------------------------------------------
 -(NSString*)description
@@ -85,123 +105,126 @@ static char rcsId[] = "$Id$";
 @implementation GSWConditional (GSWConditionalA)
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext
 {
   //OK
-  BOOL _condition=NO;
-  BOOL _negate=NO;
-  BOOL _doIt=NO;
+  BOOL condition=NO;
+  BOOL negate=NO;
+  BOOL doIt=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  GSWAssertCorrectElementID(context_);// Debug Only
-  _condition=[self evaluateCondition:condition
-				   inContext:context_];
-  _negate=[self evaluateCondition:negate
-				inContext:context_];
-  _doIt=_condition;
-  NSDebugMLLog(@"gswdync",@"elementID=%@",[context_ elementID]);
-  if (_negate)
-	_doIt=!_doIt;
-  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s _doIt=%s",
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
+  condition=[self evaluateCondition:_condition
+                  inContext:aContext];
+  negate=[self evaluateCondition:_negate
+               inContext:aContext];
+  doIt=condition;
+  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
+  if (negate)
+    doIt=!doIt;
+  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
                [self definitionName],
-               condition,
-               negate,
-               (_condition ? "YES" : "NO"),
-               (_negate ? "YES" : "NO"),
-               (_doIt ? "YES" : "NO"));
-  if (_doIt)
-	{
-	  GSWRequest* _request=[context_ request];
-	  BOOL _isFromClientComponent=[_request isFromClientComponent];
-	  [context_ appendZeroElementIDComponent];
-	  [childrenGroup takeValuesFromRequest:request_
-				   inContext:context_];
-	  [context_ deleteLastElementIDComponent];
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-                           inContext:(GSWContext*)context_
-{
-  //OK
-  GSWElement* _element=nil;
-  BOOL _condition=NO;
-  BOOL _negate=NO;
-  BOOL _doIt=NO;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",[self class],[context_ elementID],[context_ senderID]);
-  GSWAssertCorrectElementID(context_);// Debug Only
-  _condition=[self evaluateCondition:condition
-                   inContext:context_];
-  _negate=[self evaluateCondition:negate
-                inContext:context_];
-  _doIt=_condition;
-  if (_negate)
-    _doIt=!_doIt;
-  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s _doIt=%s",
-               [self definitionName],
-               condition,
-               negate,
-               (_condition ? "YES" : "NO"),
-               (_negate ? "YES" : "NO"),
-               (_doIt ? "YES" : "NO"));
-  if (_doIt)
+               _condition,
+               _negate,
+               (condition ? "YES" : "NO"),
+               (negate ? "YES" : "NO"),
+               (doIt ? "YES" : "NO"));
+  if (doIt)
     {
-      GSWRequest* _request=[context_ request];
-      BOOL _isFromClientComponent=[_request isFromClientComponent];
-      [context_ appendZeroElementIDComponent];
-      NSDebugMLLog(@"gswdync",@"childrenGroup=%@",childrenGroup);
-      _element=[childrenGroup invokeActionForRequest:request_
-                              inContext:context_];
-      NSDebugMLLog(@"gswdync",@"_element=%@",_element);
-      [context_ deleteLastElementIDComponent];
+      GSWRequest* _request=[aContext request];
+      BOOL isFromClientComponent=[_request isFromClientComponent];
+      [aContext appendZeroElementIDComponent];
+      [_childrenGroup takeValuesFromRequest:aRequest
+                     inContext:aContext];
+      [aContext deleteLastElementIDComponent];
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  GSWStopElement(aContext);
+  GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
-  return _element;
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext
 {
   //OK
-  BOOL _condition=NO;
-  BOOL _negate=NO;
-  BOOL _doIt=NO;
+  GSWElement* element=nil;
+  BOOL condition=NO;
+  BOOL negate=NO;
+  BOOL doIt=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  GSWSaveAppendToResponseElementID(context_);//Debug Only
-  _condition=[self evaluateCondition:condition
-						inContext:context_];
-  NSDebugMLLog(@"gswdync",@"_condition=%s",_condition ? "YES" : "NO");
-  _negate=[self evaluateCondition:negate
-					 inContext:context_];
-  NSDebugMLLog(@"gswdync",@"_negate=%s",_negate ? "YES" : "NO");
-  _doIt=_condition;
-  if (_negate)
-	_doIt=!_doIt;
-  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s _doIt=%s",
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
+  condition=[self evaluateCondition:_condition
+                  inContext:aContext];
+  negate=[self evaluateCondition:_negate
+               inContext:aContext];
+  doIt=condition;
+  if (negate)
+    doIt=!doIt;
+  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
                [self definitionName],
-               condition,
-               negate,
-               (_condition ? "YES" : "NO"),
-               (_negate ? "YES" : "NO"),
-               (_doIt ? "YES" : "NO"));
-  if (_doIt)
-	{
-	  GSWRequest* _request=[context_ request];
-	  BOOL _isFromClientComponent=[_request isFromClientComponent];
-	  [context_ appendZeroElementIDComponent];
-	  [childrenGroup appendToResponse:response_
-					 inContext:context_];
-	  [context_ deleteLastElementIDComponent];
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+               _condition,
+               _negate,
+               (condition ? "YES" : "NO"),
+               (negate ? "YES" : "NO"),
+               (doIt ? "YES" : "NO"));
+  if (doIt)
+    {
+      GSWRequest* request=[aContext request];
+      BOOL isFromClientComponent=[request isFromClientComponent];
+      [aContext appendZeroElementIDComponent];
+      NSDebugMLLog(@"gswdync",@"childrenGroup=%@",_childrenGroup);
+      element=[_childrenGroup invokeActionForRequest:aRequest
+                             inContext:aContext];
+      NSDebugMLLog(@"gswdync",@"element=%@",element);
+      [aContext deleteLastElementIDComponent];
+    };
+  GSWStopElement(aContext);
+  GSWAssertIsElementID(aContext);
+  LOGObjectFnStop();
+  return element;
+};
+
+//--------------------------------------------------------------------
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
+{
+  //OK
+  BOOL condition=NO;
+  BOOL negate=NO;
+  BOOL doIt=NO;
+  LOGObjectFnStart();
+  GSWStartElement(aContext);
+  GSWSaveAppendToResponseElementID(aContext);
+  condition=[self evaluateCondition:_condition
+                  inContext:aContext];
+  NSDebugMLLog(@"gswdync",@"condition=%s",condition ? "YES" : "NO");
+  negate=[self evaluateCondition:_negate
+               inContext:aContext];
+  NSDebugMLLog(@"gswdync",@"negate=%s",negate ? "YES" : "NO");
+  doIt=condition;
+  if (negate)
+    doIt=!doIt;
+  NSDebugMLLog(@"gswdync",@"defname=%@ condition=%@ negate=%@ evaluatedCondition=%s evaluatedNegate=%s doIt=%s",
+               [self definitionName],
+               _condition,
+               _negate,
+               (condition ? "YES" : "NO"),
+               (negate ? "YES" : "NO"),
+               (doIt ? "YES" : "NO"));
+  if (doIt)
+    {
+      GSWRequest* request=[aContext request];
+      BOOL isFromClientComponent=[request isFromClientComponent];
+      [aContext appendZeroElementIDComponent];
+      [_childrenGroup appendToResponse:aResponse
+                      inContext:aContext];
+      [aContext deleteLastElementIDComponent];
+    };
+  GSWStopElement(aContext);
+  GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
 };
 

@@ -75,6 +75,10 @@ static int dontTraceComponentActionURL=0;
   DESTROY(url);
   NSDebugFLog0(@"Release GSWContext awakePageComponents");
   DESTROY(awakePageComponents);
+#ifndef NDEBUG
+  DESTROY(_docStructure);
+  DESTROY(_docStructureElements);
+#endif
   NSDebugFLog0(@"Dealloc GSWContext super");
   [super dealloc];
   NSDebugFLog0(@"end Dealloc GSWContext");
@@ -253,6 +257,68 @@ static int dontTraceComponentActionURL=0;
 {
   return senderID;
 };
+
+#ifndef NDEBUG
+-(void)incrementLoopLevel //ForDebugging purpose: each repetition increment and next decrement it
+{
+  _loopLevel++;
+};
+-(void)decrementLoopLevel
+{
+  _loopLevel--;
+};
+-(BOOL)isInLoop
+{
+  return _loopLevel>0;
+};
+
+-(void)addToDocStructureElement:(id)element
+{
+  if(GSDebugSet(@"GSWDocStructure"))
+    {
+      NSString* string=nil;
+      int elementIDNb=[[self elementID] elementsNb];
+      NSMutableData* data=[NSMutableData dataWithCapacity:elementIDNb+1];
+      if (!_docStructure)
+        _docStructure=[NSMutableString new];
+      if (!_docStructureElements)
+        _docStructureElements=[NSMutableSet new];
+      char* ptab=(char*)[data bytes];
+      memset(ptab,'\t',elementIDNb);
+      ptab[elementIDNb]='\0';
+      string=[NSString stringWithFormat:@"%s %@ Element %p Class %@ defName=%@\n",
+                       ptab,
+                       [self elementID],
+                       element,
+                       [element class],
+                       [element definitionName]];
+      if (![_docStructureElements containsObject:string])
+        {
+          [_docStructure appendString:string];
+          [_docStructureElements addObject:string];
+        };
+    };
+}
+
+-(void)addDocStructureStep:(NSString*)stepLabel
+{
+  if(GSDebugSet(@"GSWDocStructure"))
+    {
+      if (!_docStructure)
+        _docStructure=[NSMutableString new];
+      [_docStructureElements removeAllObjects];
+      [_docStructure appendFormat:@"===== %@ =====\n",stepLabel];
+    };
+}
+
+-(NSString*)docStructure
+{
+  if(GSDebugSet(@"GSWDocStructure"))
+    return _docStructure;
+  else
+    return nil;
+}
+#endif
 
 @end
 

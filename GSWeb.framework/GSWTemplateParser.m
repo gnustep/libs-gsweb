@@ -236,7 +236,8 @@ Class GSWTemplateParser_DefaultParserClass=Nil;
               NSRange docTypeRangeEnd=NSMakeRange(NSNotFound,0);
               
               _template=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
-              
+              [_template setDefinitionName:[NSString stringWithFormat:@"Template - %@",_templateName]];
+              NSDebugMLog(@"template %p=%@",_template,_template);
               //NSLog(@"_string = %@", _string);
               
               docTypeRangeStart=[_string rangeOfString:@"<!DOCTYPE"];

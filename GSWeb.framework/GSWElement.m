@@ -42,46 +42,148 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 #ifndef NDEBBUG
 -(void)saveAppendToResponseElementIDInContext:(id)context
 {
-  NSString* elementID=[context elementID];
-  ASSIGN(_appendToResponseElementID,elementID);
+  NSString* elementID=nil;
+  LOGObjectFnStartC("GSWElement");
+  elementID=[context elementID];
+/*  if ([elementID length]==0)
+    elementID=@"MARKER";*/
+  NSDebugMLog(@"self=%p definitionName=%@ elementID=%@ %p",self,[self definitionName],elementID,elementID);
+  ASSIGNCOPY(_appendToResponseElementID,elementID);
+  NSDebugMLog(@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p",self,[self definitionName],_appendToResponseElementID,_appendToResponseElementID);
+  GSWAssertIsElementID(context);
+  LOGObjectFnStopC("GSWElement");
 };
 
 -(void)assertCorrectElementIDInContext:(id)context
-                               inCLass:(Class)class
                                 method:(SEL)method
                                   file:(const char*)file
                                   line:(int)line
 {
+  LOGObjectFnStartC("GSWElement");  
+  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
+              self,
+              [self class],
+              [self definitionName],
+              _appendToResponseElementID,[_appendToResponseElementID length]);
+  [self assertIsElementIDInContext:context
+        method:method
+        file:file
+        line:line];
+  NSDebugMLog(@"In Object %p Class %@ definitionName=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d",
+              self,
+              [self class],
+              [self definitionName],
+              _appendToResponseElementID,[_appendToResponseElementID length]);
   if ([_appendToResponseElementID length]>0)
     {
       NSString* elementID=[context elementID];
       BOOL appendToResponseElementIDIsFirst=NO;
       BOOL elementIDIsFirst=NO;
       BOOL OK=YES;
+/*      if ([elementID length]==0)
+        elementID=@"MARKER";*/
       appendToResponseElementIDIsFirst=([_appendToResponseElementID length]==0 || [_appendToResponseElementID isEqualToString:@"0"]);
       elementIDIsFirst=([elementID length]==0 || [elementID isEqualToString:@"0"]);
-      if (appendToResponseElementIDIsFirst!=elementIDIsFirst)
+      if (!appendToResponseElementIDIsFirst || appendToResponseElementIDIsFirst!=elementIDIsFirst)
         {
           OK=[_appendToResponseElementID isEqualToString:elementID];
+          NSDebugMLog(@"[context elementID]=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d OK=%d [context isInLoop]=%d",
+                      [context elementID],_appendToResponseElementID,[_appendToResponseElementID length],OK,[context isInLoop]);
         };
-      if (!OK)
+      if (!OK && ![context isInLoop])
         {
-          NSString* msg=[NSString stringWithFormat:@"In Class %@ (file %s line %d), id %@ in %@ is not the same than in appendToResponse %@",
-                                  NSStringFromClass(class),
+          NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ definitionName=%@ (file %s line %d), id '%@' (%p) in %@ is not the same than in appendToResponse '%@' (%p)",
+                                  self,
+                                  [self class],
+                                  [self definitionName],
                                   file,
                                   line,
                                   [context elementID],
+                                  [context elementID],
                                   NSStringFromSelector(method),
+                                  _appendToResponseElementID,
                                   _appendToResponseElementID];
-          NSAssert1(OK,@"%@",msg);
+          //No: we may have multiple occurences NSAssert1(OK,@"%@",msg);
+          NSDebugMLog(@"ELEMENT ID WARNING %@",msg);
         };
     };
+  LOGObjectFnStopC("GSWElement");
 };
+
+-(void)assertIsElementIDInContext:(id)context
+                           method:(SEL)method
+                             file:(const char*)file
+                             line:(int)line
+{
+  LOGObjectFnStartC("GSWElement");
+  NSDebugMLog(@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
+              self,
+              [self definitionName],
+              _appendToResponseElementID,_appendToResponseElementID,[context elementID]);
+  if (_appendToResponseElementID && [_appendToResponseElementID length]==0 && [[context elementID] length]>0)
+    {
+      NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ definitionName=%@ (file %s line %d), in %@ _appendToResponseElementID '%@' (%p) is not set",
+                              self,
+                              [self class],
+                              [self definitionName],
+                              file,
+                              line,
+                              NSStringFromSelector(method),
+                              _appendToResponseElementID,
+                              _appendToResponseElementID];
+      NSAssert1(NO,@"%@",msg);
+    };
+  LOGObjectFnStopC("GSWElement");
+};
+
+-(void)logElementInContext:(id)context
+                    method:(SEL)method
+                      file:(const char*)file
+                      line:(int)line
+                 startFlag:(BOOL)start
+                  stopFlag:(BOOL)stop
+{
+  NSString* senderID=[context senderID];
+  if (start)
+    [context addToDocStructureElement:self];
+  NSDebugMLLog(@"gswdync",@"%s:.%d - %@ %s ELEMENT self=%p class=%@ defName=%@ id=%@ appendID:%@ %s%@",
+               file,line,NSStringFromSelector(method),
+               (start ? "START" : (stop ? "STOP" : "")),
+               self,
+               [self class],
+               [self definitionName],
+               [context elementID],
+               _appendToResponseElementID,
+               (senderID ? "senderID:" : ""),
+               (senderID ? senderID : @""));
+};
+
 #endif
+
+//--------------------------------------------------------------------
+-(void)dealloc
+{
+  GSWLogAssertGood(self);
+  GSWLogC("Dealloc GSWElement");
+  GSWLogC("Dealloc GSWElement: name");
+  DESTROY(_definitionName);
+  GSWLogC("Dealloc GSWElement Super");
+  [super dealloc];
+  GSWLogC("End Dealloc GSWElement");
+}
 
 -(NSString*)definitionName
 {
-  return nil; //return nil (for non dynamic element)
+  return _definitionName;
+};
+
+-(void)setDefinitionName:(NSString*)definitionName
+{
+  NSDebugMLLog(@"gswdync",@"setDefinitionName1 in %p: %p %@",
+               self,definitionName,definitionName);
+  ASSIGN(_definitionName,definitionName);
+  NSDebugMLLog(@"gswdync",@"setDefinitionName2 in %p: %p %@",
+               self,_definitionName,_definitionName);
 };
 @end
 
@@ -94,8 +196,11 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
+  GSWStartElement(context);
+  GSWAddElementToDocStructure(context);
   GSWAssertCorrectElementID(context);// Debug Only
   //Does Nothing
+  GSWStopElement(context);
 };
 
 //--------------------------------------------------------------------
@@ -104,10 +209,11 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
 {
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",
-               [self class],[context elementID],[context senderID]);
+  GSWStartElement(context);
+  GSWAddElementToDocStructure(context);
   GSWAssertCorrectElementID(context);// Debug Only
   //Does Nothing
+  GSWStopElement(context);
   return nil;
 };
 
@@ -118,6 +224,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
               inContext:(GSWContext*)context
 {
   GSWSaveAppendToResponseElementID(context);//Debug Only
+  GSWAddElementToDocStructure(context);
   //Does Nothing
 };
 
@@ -125,13 +232,14 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
 //NDFN
 -(BOOL)prefixMatchSenderIDInContext:(GSWContext*)context
 {
+  BOOL match=NO;
   NSString* senderID=[context senderID];
   NSString* elementID=[context elementID];
-  NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
+  NSDebugMLLog(@"gswdync",@" senderID=%@",senderID);
   NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
-  return ([elementID hasPrefix:senderID] || [senderID hasPrefix:elementID]);
+  match=([elementID hasPrefix:senderID] || [senderID hasPrefix:elementID]);
+  NSDebugMLLog(@"gswdync",@"match=%s",(match ? "YES" : "NO"));
+  return match;
 };
 
 @end
-
-

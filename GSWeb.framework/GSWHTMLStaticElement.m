@@ -276,13 +276,9 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%@ %p elementsMap:%@>",
-/* htmlBareStrings:%@ dynamicChildren:%@ elementName:%@>",*/
 				   [self class],
 				   (void*)self,
 				   _elementsMap];
-/*				   _htmlBareStrings,
-				   _dynamicChildren,
-				   _elementName];*/
 };
 
 @end
@@ -294,12 +290,11 @@ static char rcsId[] = "$Id$";
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  //OK (verifier avec GSWSession appendToR
+  //OK
   GSWRequest* request=[context request];
   BOOL isFromClientComponent=[request isFromClientComponent]; //bis repetitam
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ self=%p",
-               [self class],[context elementID],self);
-  GSWSaveAppendToResponseElementID(context);//Debug Only
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
   if ([_elementsMap length]>0)
     {
       [self appendToResponse:response
@@ -307,8 +302,8 @@ static char rcsId[] = "$Id$";
             elementsFromIndex:0
             toIndex:[_elementsMap length]-1];
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@ self=%p",
-               [self class],[context elementID],self);
+  GSWAssertIsElementID(context);
+  GSWStopElement(context);
 };
 
 //--------------------------------------------------------------------
@@ -332,11 +327,10 @@ static char rcsId[] = "$Id$";
             fromIndex,toIndex);
   for(elementN=0;elementN<=toIndex;elementN++)
     {
+      NSDebugMLog(@"appendTo self=%p elementN=%d [context elementID]=%@",self,elementN,[context elementID]);
       element=(BYTE)elements[elementN];
       if (element==ElementsMap_htmlBareString)
         {
-          NSDebugMLLog(@"gswdync",@"%d:htmlBareString : %@",
-                       elementN,[_htmlBareStrings objectAtIndex:elementsN[0]]);
           if (elementN>=fromIndex)
             [response appendContentData:[[_htmlBareStrings objectAtIndex:elementsN[0]]
                                           dataUsingEncoding:encoding]];
@@ -346,11 +340,6 @@ static char rcsId[] = "$Id$";
         {
           if (elementN>=fromIndex)
             {
-              NSDebugMLLog(@"gswdync",@"%d:dynamicElement : %@",
-                           elementN,[aDynamicChildrensArray objectAtIndex:elementsN[1]]);                  
-              NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
-                           [[aDynamicChildrensArray objectAtIndex:elementsN[1]] class],
-                           [context elementID]);
               [[aDynamicChildrensArray objectAtIndex:elementsN[1]] appendToResponse:response
                                                                    inContext:context];
               [context incrementLastElementIDComponent];
@@ -360,10 +349,10 @@ static char rcsId[] = "$Id$";
       else if (element==ElementsMap_attributeElement)
         {
           //TODO
-          NSDebugMLLog(@"gswdync",@"%d:attributeElement",elementN);                  
           elementsN[2]++;
         };
     };
+  GSWStopElement(context);
 };
 
 //--------------------------------------------------------------------
@@ -372,46 +361,42 @@ static char rcsId[] = "$Id$";
 {
   //OK
   GSWElement* element=nil;
-  int elementN=0;
-  NSArray* aDynamicChildrensArray=[self dynamicChildren];
-  const BYTE* elements=[_elementsMap bytes];
-  BYTE elementIndic=0;
-  int elementsN[3]={0,0,0};
   BOOL searchIsOver=NO;
   NSString* senderID=nil;
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@",
-               [self class],[context elementID],[context senderID]);
+  GSWStartElement(context);
   GSWAssertCorrectElementID(context);// Debug Only
   senderID=[context senderID];
-  for(elementN=0;!element && !searchIsOver && elementN<[_elementsMap length];elementN++)
+  if ([_elementsMap length]>0)
     {
-      elementIndic=(BYTE)elements[elementN];
-      if (elementIndic==ElementsMap_htmlBareString)
-        elementsN[0]++;
-      else if (elementIndic==ElementsMap_dynamicElement)
+      NSArray* aDynamicChildrensArray=[self dynamicChildren];
+      const BYTE* elements=[_elementsMap bytes];
+      BYTE elementIndic=0;
+      int elementsN[3]={0,0,0};
+      int elementN=0;
+      for(elementN=0;!element && !searchIsOver && elementN<[_elementsMap length];elementN++)
         {
-          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
-                       [[aDynamicChildrensArray objectAtIndex:elementsN[1]] class],
-                       [context elementID]);
-          element=[[aDynamicChildrensArray objectAtIndex:elementsN[1]] invokeActionForRequest:request
-                                                                       inContext:context];
-          //if (![context_ _wasFormSubmitted] && [[context_ elementID] compare:_senderID]==NSOrderedDescending)
-          if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
+          elementIndic=(BYTE)elements[elementN];
+          if (elementIndic==ElementsMap_htmlBareString)
+            elementsN[0]++;
+          else if (elementIndic==ElementsMap_dynamicElement)
             {
-              NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
-                           [context elementID],
-                           senderID);
-              searchIsOver=YES;
+              element=[[aDynamicChildrensArray objectAtIndex:elementsN[1]] invokeActionForRequest:request
+                                                                           inContext:context];
+              if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
+                {
+                  searchIsOver=YES;
+                };
+              [context incrementLastElementIDComponent];
+              elementsN[1]++;
+            }
+          else if (elementIndic==ElementsMap_attributeElement)
+            {
+              elementsN[2]++;
             };
-          [context incrementLastElementIDComponent];
-          elementsN[1]++;
-        }
-      else if (elementIndic==ElementsMap_attributeElement)
-        {
-          elementsN[2]++;
         };
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  GSWAssertIsElementID(context);
+  GSWStopElement(context);
   return element;
 };
 
@@ -420,41 +405,37 @@ static char rcsId[] = "$Id$";
                    inContext:(GSWContext*)context
 {
   //OK
-  int elementN=0;
-  NSArray* aDynamicChildrensArray=[self dynamicChildren];
-  const BYTE* elements=[_elementsMap bytes];
-  BYTE elementIndic=0;
-  int elementsN[3]={0,0,0};
   LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
-               [self class],[context elementID]);
-  GSWAssertCorrectElementID(context);// Debug Only
-  for(elementN=0;elementN<[_elementsMap length];elementN++)
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
+  if ([_elementsMap length]>0)
     {
-      NSDebugMLLog(@"gswdync",@"elementN=%d",elementN);
-      elementIndic=(BYTE)elements[elementN];
-      NSDebugMLLog(@"gswdync",@"element=%x",(unsigned int)elementIndic);
-      if (elementIndic==ElementsMap_htmlBareString)
-        elementsN[0]++;
-      else if (elementIndic==ElementsMap_dynamicElement)
+      int elementN=0;
+      NSArray* aDynamicChildrensArray=[self dynamicChildren];
+      const BYTE* elements=[_elementsMap bytes];
+      BYTE elementIndic=0;
+      int elementsN[3]={0,0,0};
+
+      for(elementN=0;elementN<[_elementsMap length];elementN++)
         {
-          NSDebugMLLog(@"gswdync",@"\n[aDynamicChildrensArray objectAtIndex:elementsN[1]=%@",
-                       [aDynamicChildrensArray objectAtIndex:elementsN[1]]);
-          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
-                       [[aDynamicChildrensArray objectAtIndex:elementsN[1]] class],
-                       [context elementID]);
-          [[aDynamicChildrensArray objectAtIndex:elementsN[1]] takeValuesFromRequest:request
-                                                               inContext:context];
-          [context incrementLastElementIDComponent];
-          elementsN[1]++;
-        }
-      else if (elementIndic==ElementsMap_attributeElement)
-        {
-          elementsN[2]++;
+          elementIndic=(BYTE)elements[elementN];
+          if (elementIndic==ElementsMap_htmlBareString)
+            elementsN[0]++;
+          else if (elementIndic==ElementsMap_dynamicElement)
+            {
+              [[aDynamicChildrensArray objectAtIndex:elementsN[1]] takeValuesFromRequest:request
+                                                                   inContext:context];
+              [context incrementLastElementIDComponent];
+              elementsN[1]++;
+            }
+          else if (elementIndic==ElementsMap_attributeElement)
+            {
+              elementsN[2]++;
+            };
         };
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",
-               [self class],[context elementID]);
+  GSWAssertIsElementID(context);
+  GSWStopElement(context);
   LOGObjectFnStop();
 };
 

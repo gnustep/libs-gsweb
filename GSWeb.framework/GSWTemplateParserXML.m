@@ -807,6 +807,7 @@ text [Type:XML_TEXT_NODE] [{}] ####
                             }
                           else
                             {
+                              GSWHTMLStaticGroup* aStaticGroup=nil;
                               NSDebugMLLog(@"low",@"node=%p associations:%@",currentNode,_associations);
                               {
                                 NSEnumerator* _nodeAttributesEnum = [nodeAttributes keyEnumerator];
@@ -839,11 +840,12 @@ text [Type:XML_TEXT_NODE] [{}] ####
                                           [currentNode typeDescription],
                                           [currentNode propertiesAsDictionary],
                                           [[currentNode content] lossyCString]);
+                              aStaticGroup=[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease];
                               elem=[GSWApp dynamicElementWithName:className
                                            associations:_associations
-                                           template:[[[GSWHTMLStaticGroup alloc]initWithContentElements:children]autorelease]
+                                           template:aStaticGroup
                                            languages:_languages];
-                              NSDebugMLog(@"node=%p element=%@",currentNode,elem);
+                              NSDebugMLog(@"node=%p element=%@ StaticGroup %p=%@",currentNode,elem,aStaticGroup,aStaticGroup);
                               if (elem)
                                 [elem setDefinitionName:[definitionsElement elementName]];
                               else

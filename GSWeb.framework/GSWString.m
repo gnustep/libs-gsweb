@@ -121,7 +121,8 @@ static char rcsId[] = "$Id$";
   GSWComponent* component=nil;
   id valueValue = nil;
   LOGObjectFnStartC("GSWString");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
   request=[context request];
   isFromClientComponent=[request isFromClientComponent];
   component=[context component];
@@ -177,7 +178,7 @@ static char rcsId[] = "$Id$";
       else
         [response appendContentString:formattedValue];
     };
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
+  GSWStopElement(context);
   LOGObjectFnStopC("GSWString");
 };
 

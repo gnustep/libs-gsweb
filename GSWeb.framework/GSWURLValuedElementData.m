@@ -1,11 +1,18 @@
-/* GSWURLValuedElementData.m - GSWeb: Class GSWURLValuedElementData
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWURLValuedElementData.m - <title>GSWeb: Class GSWURLValuedElementData</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+   
+   <abstract></abstract>
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +26,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -28,29 +36,29 @@ static char rcsId[] = "$Id$";
 //====================================================================
 @implementation GSWURLValuedElementData
 
--(id)initWithData:(NSData*)data_
-		 mimeType:(NSString*)type_
-			  key:(NSString*)key_
+-(id)initWithData:(NSData*)data
+         mimeType:(NSString*)type
+              key:(NSString*)key
 {
   LOGObjectFnStart();
   if ((self=[super init]))
-	{
-	  ASSIGN(data,data_);
-	  NSDebugMLog(@"data=%@",data);
-	  ASSIGN(mimeType,type_);
-	  NSDebugMLog(@"mimeType=%@",mimeType);
-	  NSDebugMLog(@"key_=%@",key_);
-	  if (key_)
-		{
-		  ASSIGN(key,key_);
-		}
-	  else
-		{
-		  temporaryKey=YES;
-		  ASSIGN(key,[NSString stringUniqueIdWithLength:4]);
-		};
-	  NSDebugMLog(@"key=%@",key);
-	};
+    {
+      ASSIGN(_data,data);
+      NSDebugMLog(@"data=%@",_data);
+      ASSIGN(_mimeType,type);
+      NSDebugMLog(@"mimeType=%@",_mimeType);
+      NSDebugMLog(@"key=%@",key);
+      if (key)
+        {
+          ASSIGN(_key,key);
+        }
+      else
+        {
+          _temporaryKey=YES;
+          ASSIGN(_key,[NSString stringUniqueIdWithLength:4]);
+        };
+      NSDebugMLog(@"key=%@",_key);
+    };
   LOGObjectFnStop();
   return self;
 };
@@ -58,50 +66,52 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(data);
-  DESTROY(mimeType);
-  DESTROY(key);
+  DESTROY(_data);
+  DESTROY(_mimeType);
+  DESTROY(_key);
   [super dealloc];
 };
 
 //--------------------------------------------------------------------
--(void)appendDataURLToResponse:(GSWResponse*)response_
-					 inContext:(GSWContext*)context_
+-(void)appendDataURLToResponse:(GSWResponse*)response
+                     inContext:(GSWContext*)context
 {
-  NSString* _queryString=nil;
-  GSWDynamicURLString* _url=nil;
+  NSString* queryString=nil;
+  GSWDynamicURLString* url=nil;
   LOGObjectFnStart();
-  _queryString=[NSString stringWithFormat:@"%@=%@",GSWKey_Data[GSWebNamingConv],[self key]];
-  NSDebugMLog(@"_queryString=%@",_queryString);
-  _url=[context_ urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
-				 path:nil
-				 queryString:_queryString];
-  NSDebugMLog(@"_url=%@",_url);
-  [response_ _appendContentAsciiString:(NSString*)_url];
+  queryString=[NSString stringWithFormat:@"%@=%@",GSWKey_Data[GSWebNamingConv],[self key]];
+  NSDebugMLog(@"queryString=%@",queryString);
+  url=[context urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
+               path:nil
+               queryString:queryString];
+  NSDebugMLog(@"url=%@",url);
+  [response _appendContentAsciiString:(NSString*)url];
   LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK
-  NSData* _data=data;
+  NSData* data=_data;
   LOGObjectFnStart();
-  NSDebugMLog(@"_data=%@",_data);
-  [response_ setHeader:[NSString stringWithFormat:@"%u",[data length]]
-			 forKey:@"content-length"];
-  if (!_data)
-	{
-	  NSDebugMLog(@"key=%@",key);
-	  _data=[NSData dataWithContentsOfFile:key];
-	  NSDebugMLog(@"_data=%@",_data);
-	}
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
+  NSDebugMLog(@"data=%@",data);
+  if (!data)
+    {
+      NSDebugMLog(@"key=%@",_key);
+      data=[NSData dataWithContentsOfFile:_key];
+      NSDebugMLog(@"data=%@",data);
+    }
   else
-	[response_ setContent:_data];
+    [response setContent:data];
+  [response setHeader:[NSString stringWithFormat:@"%u",[data length]]
+            forKey:@"content-length"];
   
-  [response_ setHeader:mimeType
-			 forKey:@"content-type"];
+  [response setHeader:_mimeType
+            forKey:@"content-type"];
   LOGObjectFnStop();
 };
 
@@ -109,8 +119,8 @@ static char rcsId[] = "$Id$";
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 //--------------------------------------------------------------------
@@ -118,7 +128,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return temporaryKey;
+  return _temporaryKey;
 };
 
 //--------------------------------------------------------------------
@@ -126,7 +136,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return data;
+  return _data;
 };
 
 //--------------------------------------------------------------------
@@ -134,7 +144,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return mimeType;
+  return _mimeType;
 };
 
 //--------------------------------------------------------------------
@@ -142,7 +152,7 @@ static char rcsId[] = "$Id$";
 {
   LOGObjectFnStart();
   LOGObjectFnStop();
-  return key;
+  return _key;
 };
 
 @end

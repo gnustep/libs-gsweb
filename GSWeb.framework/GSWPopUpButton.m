@@ -170,6 +170,8 @@ static char rcsId[] = "$Id$";
 #endif
   int countValue=0;
   LOGObjectFnStartC("GSWPopUpButton");
+  GSWStartElement(context);
+  GSWSaveAppendToResponseElementID(context);
   [self resetAutoValue];
   _autoValue = NO;
   request=[context request];
@@ -391,6 +393,8 @@ static char rcsId[] = "$Id$";
       inOptGroup=NO;
     };
   [response _appendContentAsciiString:@"</SELECT>"];
+  GSWStopElement(context);
+  GSWAssertIsElementID(context);
   LOGObjectFnStopC("GSWPopUpButton");
 };
 
@@ -408,8 +412,12 @@ static char rcsId[] = "$Id$";
 {
   //OK
   LOGObjectFnStartC("GSWPopUpButton");
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   [self _slowTakeValuesFromRequest:request
 		inContext:context];
+  GSWAssertIsElementID(context);
+  GSWStopElement(context);
   LOGObjectFnStopC("GSWPopUpButton");
 };
 
@@ -428,6 +436,8 @@ static char rcsId[] = "$Id$";
   BOOL disabledValue=NO;
   BOOL wasFormSubmitted=NO;
   LOGObjectFnStartC("GSWPopUpButton");
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   [self resetAutoValue];
   disabledValue=[self disabledInContext:context];
   if (!disabledValue)
@@ -450,7 +460,7 @@ static char rcsId[] = "$Id$";
           NSDebugMLLog(@"gswdync",@"name=%@",name);
           formValues=[request formValuesForKey:name];
           NSDebugMLLog(@"gswdync",@"formValues=%@",formValues);
-          if (formValues && [formValues count])
+          if (formValues && [formValues count]>0)
             {
               BOOL isEqual=NO;
               formValue=[formValues objectAtIndex:0];
@@ -604,6 +614,8 @@ static char rcsId[] = "$Id$";
             };
         };
     };
+  GSWStopElement(context);
+  GSWAssertIsElementID(context);
   LOGObjectFnStopC("GSWPopUpButton");
 };
 

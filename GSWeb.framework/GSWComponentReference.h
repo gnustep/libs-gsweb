@@ -1,11 +1,18 @@
-/* GSWComponentReference.h - GSWeb: Class GSWComponentReference
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWComponentReference.h - <title>GSWeb: Class GSWComponentReference</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+   
+   <abstract></abstract>
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +26,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -29,39 +37,39 @@
 //====================================================================
 @interface GSWComponentReference: GSWDynamicElement
 {
-  NSString* name;
-  NSArray* associationsKeys;
-  NSArray* associations;
-  GSWElement* contentElement;
+  NSString* _name;
+  NSArray* _associationsKeys;
+  NSArray* _associations;
+  GSWElement* _contentElement;
 };
 
 -(void)dealloc;
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_;
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations;
 
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-		 template:(GSWElement*)template_;
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)template;
 -(NSString*)description;
 
 @end
 
 //====================================================================
 @interface GSWComponentReference (GSWComponentReferenceA)
--(void)popRefComponentInContext:(GSWContext*)context_;
--(void)pushRefComponentInContext:(GSWContext*)context_;
+-(void)popRefComponentInContext:(GSWContext*)aContext;
+-(void)pushRefComponentInContext:(GSWContext*)aContext;
 @end
 
 //====================================================================
 @interface GSWComponentReference (GSWRequestHandling)
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
+-(void)appendToResponse:(GSWResponse*)aResponse
+			  inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_; 
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext; 
 @end
 
 #endif //_GSWComponentReference_h__

@@ -1093,6 +1093,9 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   LOGObjectFnStart();
   _pageElement=[context_ _pageElement];
   _pageComponent=[context_ _pageComponent];
+#ifndef NDEBUG
+  [context_ addDocStructureStep:@"Take Values From Request"];
+#endif
   [context_ _setCurrentComponent:_pageComponent]; //_pageElement ??
   [_pageComponent takeValuesFromRequest:request_
 				  inContext:context_]; //_pageComponent ??
@@ -1113,6 +1116,9 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
 	{
 	  _pageElement=[context_ _pageElement];
 	  _pageComponent=[context_ _pageComponent];
+#ifndef NDEBUG
+          [context_ addDocStructureStep:@"Invoke Action For Request"];
+#endif
 	  [context_ _setCurrentComponent:_pageComponent]; //_pageElement ??
 	  _element=[_pageComponent invokeActionForRequest:request_
 							   inContext:context_]; //_pageComponent
@@ -1152,6 +1158,9 @@ fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   _statisticsStore=[[GSWApplication application] statisticsStore];
   _pageElement=[context_ _pageElement];
   _pageComponent=[context_ _pageComponent];
+#ifndef NDEBUG
+  [context_ addDocStructureStep:@"Append To Response"];
+#endif
   [context_ _setCurrentComponent:_pageComponent]; //_pageElement ??
   [_pageComponent appendToResponse:response_
 				  inContext:context_]; //_pageComponent??

@@ -51,13 +51,13 @@
 @end
 
 @interface GSWSwitchComponent (GSWSwitchComponentA)
--(void)appendToResponse:(GSWResponse*)response
+-(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext;
 
--(void)takeValuesFromRequest:(GSWRequest*)request_
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext; 
 -(GSWElement*)_realComponentWithName:(NSString*)name
                            inContext:(GSWContext*)aContext;

@@ -120,6 +120,7 @@ static char rcsId[] = "$Id$";
   GSWComponent* component=nil;
   NSString* nameValue=nil;
   LOGObjectFnStartC("GSWInput");
+  GSWAssertIsElementID(context);
   if (_name)
     {
       component=[context component];
@@ -130,6 +131,7 @@ static char rcsId[] = "$Id$";
       nameValue=[context elementID];
       NSDebugMLLog(@"gswdync",@"elementID=%@",[context elementID]);
     };
+  GSWAssertIsElementID(context);
   LOGObjectFnStopC("GSWInput");
   return nameValue;
 };
@@ -193,7 +195,8 @@ static int countAutoValue = 0;
   //OK
   BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWInput");
-  GSWAssertCorrectElementID(context);// Debug Only
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   disabledInContext=[self disabledInContext:context]; //return 0
   if (!disabledInContext)
     {
@@ -227,6 +230,7 @@ static int countAutoValue = 0;
           NS_ENDHANDLER;
         };	  
     };
+  GSWAssertIsElementID(context);
   LOGObjectFnStopC("GSWInput");
 };
 
@@ -259,7 +263,6 @@ static int countAutoValue = 0;
   //OK
   GSWComponent* component=nil;
   LOGObjectFnStartC("GSWInput");
-  GSWSaveAppendToResponseElementID(context);//Debug Only
   component=[context component];
   if (_value)
     {

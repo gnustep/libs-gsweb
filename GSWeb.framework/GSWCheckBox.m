@@ -144,6 +144,8 @@ static char rcsId[] = "$Id$";
   //OK
   BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWCheckBox");
+  GSWStartElement(context);
+  GSWAssertCorrectElementID(context);
   disabledInContext=[self disabledInContext:context];
   if (!disabledInContext)
     {
@@ -212,6 +214,8 @@ static char rcsId[] = "$Id$";
             };
         };
     };
+  GSWStopElement(context);
+  GSWAssertIsElementID(context);
   LOGObjectFnStopC("GSWCheckBox");
 };
 
