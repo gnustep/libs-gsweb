@@ -195,7 +195,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 -(void)setValue:(id)value
     inComponent:(GSWComponent*)component
 {
-  //OK
   [self setValue:value
         inObject:component];
 };
@@ -875,118 +874,118 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                NSStringFromClass([object class]),
                NSStringFromClass([object superclass]));
   NSDebugMLLog(@"associations",@"GSWAssociation: keyPath:%@",keyPath);
-  if (keyPath)
+  if ([keyPath length]==0)
     {
+        [NSException raise:NSInvalidArgumentException 
+                     format:@"No key path when setting value %@ in object of class %@",
+                     value,NSStringFromClass(object)];
+    };
+
 #if HAVE_GDL2
-      [object smartTakeValue:value
-              forKeyPath:keyPath];
+  [object smartTakeValue:value
+          forKeyPath:keyPath];
 #else // no GDL2
-      NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
-      id part=nil;
-      id tmpObject=object;
-      Class handlerClass=Nil;
-      NSAssert(tmpObject,@"No Object");
-      while(tmpObject && [keys count]>0)
+  NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
+  id part=nil;
+  id tmpObject=object;
+  Class handlerClass=Nil;
+  NSAssert(tmpObject,@"No Object");
+  while(tmpObject && [keys count]>0)
+    {
+      part=[keys objectAtIndex:0];
+      [keys removeObjectAtIndex:0];
+      NSDebugMLLog(@"associations",@"part=%@",part);
+      NSDebugMLLog(@"associations",@"part class=%@",NSStringFromClass([part class]));
+      if ([part hasPrefix:@"\""])
         {
-          part=[keys objectAtIndex:0];
-          [keys removeObjectAtIndex:0];
-          NSDebugMLLog(@"associations",@"part=%@",part);
-          NSDebugMLLog(@"associations",@"part class=%@",NSStringFromClass([part class]));
-          if ([part hasPrefix:@"\""])
+          part=[part stringByDeletingPrefix:@"\""];
+          while([keys count]>0)
             {
-              part=[part stringByDeletingPrefix:@"\""];
-              while([keys count]>0)
+              id tmpPart=[keys objectAtIndex:0];
+              [keys removeObjectAtIndex:0];
+              if ([tmpPart hasSuffix:@"\""])
                 {
-                  id tmpPart=[keys objectAtIndex:0];
-                  [keys removeObjectAtIndex:0];
-                  if ([tmpPart hasSuffix:@"\""])
-                    {
-                      tmpPart=[tmpPart stringByDeletingSuffix:@"\""];
-                      part=[part stringByAppendingFormat:@".%@",tmpPart];
-                      break;
-                    }
-                  else
-                    part=[part stringByAppendingFormat:@".%@",tmpPart];
-                }                        
-            }
-          NSDebugMLLog(@"associations",@"part=%@",part);
-          
-          handlerClass=[associationsHandlerClasses objectForKey:part];
-          NSDebugMLLog(@"associations",@"handlerClass=%@",handlerClass);
-          if (handlerClass)
+                  tmpPart=[tmpPart stringByDeletingSuffix:@"\""];
+                  part=[part stringByAppendingFormat:@".%@",tmpPart];
+                  break;
+                }
+              else
+                part=[part stringByAppendingFormat:@".%@",tmpPart];
+            }                        
+        }
+      NSDebugMLLog(@"associations",@"part=%@",part);
+      
+      handlerClass=[associationsHandlerClasses objectForKey:part];
+      NSDebugMLLog(@"associations",@"handlerClass=%@",handlerClass);
+      if (handlerClass)
+        {
+          tmpObject=[handlerClass processSetValue:value
+                                  inObject:tmpObject
+                                  forHandler:part
+                                  forKeyPath:keys];
+        }
+      else
+        {
+          if ([keys count]>0)
             {
-              tmpObject=[handlerClass processSetValue:value
-                                      inObject:tmpObject
-                                      forHandler:part
-                                      forKeyPath:keys];
+              if ([part isEqualToString:GSASK_Class])
+                {
+                  Class class=Nil;                      
+                  NSAssert2([keys count]>0,@"No class name for handler %@ in %@",
+                            GSASK_Class,
+                            keyPath);
+                  part=[keys objectAtIndex:0];
+                  [keys removeObjectAtIndex:0];
+                  NSDebugMLLog(@"associations",@"part=%@",part);
+                  class=NSClassFromString(part);
+                  NSAssert3(class>0,@"No class named %@ for handler %@ in %@",
+                            part,
+                            GSASK_Class,
+                            keyPath);
+                  if (class)
+                    tmpObject=class;
+                  else
+                    tmpObject=nil;
+                }
+              else 
+                {
+                  tmpObject=[tmpObject valueForKey:part];
+                }
             }
           else
             {
-              if ([keys count]>0)
+              GSWLogAssertGood(tmpObject);
+              [tmpObject takeValue:value
+                         forKey:part];
+#ifdef HAVE_GDL2
+              NSDebugMLLog(@"associations",@"object class=%@",[object class]);
+              NSDebugMLLog(@"associations",@"tmpObject class=%@",[tmpObject class]);
+              // Turbocat
+              if (tmpObject && [tmpObject isKindOfClass:[GSWComponent class]]) 
                 {
-                  if ([part isEqualToString:GSASK_Class])
+                  NSException* exp = [tmpObject validateValue:&value
+                                                forKey:part];
+                  if (exp) 
                     {
-                      Class class=Nil;                      
-                      NSAssert2([keys count]>0,@"No class name for handler %@ in %@",
-                                GSASK_Class,
-                                keyPath);
-                      part=[keys objectAtIndex:0];
-                      [keys removeObjectAtIndex:0];
-                      NSDebugMLLog(@"associations",@"part=%@",part);
-                      class=NSClassFromString(part);
-                      NSAssert3(class>0,@"No class named %@ for handler %@ in %@",
-                                part,
-                                GSASK_Class,
-                                keyPath);
-                      if (class)
-                        tmpObject=class;
-                      else
-                        tmpObject=nil;
-                    }
-                  else 
-                    {
-                      tmpObject=[tmpObject valueForKey:part];
+                      NSException* exception=nil;                          
+                      exception=[NSException exceptionWithName:@"EOValidationException"
+                                             reason:[exp reason]
+                                             userInfo:[NSDictionary 
+                                                        dictionaryWithObjectsAndKeys:
+                                                          (value ? value : @"nil"),@"EOValidatedObjectUserInfoKey",
+                                                        keyPath,@"EOValidatedPropertyUserInfoKey",
+                                                        nil,nil]];
+                      [object validationFailedWithException:exception
+                              value:value
+                              keyPath:keyPath];
                     }
                 }
-              else
-                {
-                  GSWLogAssertGood(tmpObject);
-                  [tmpObject takeValue:value
-                             forKey:part];
-#ifdef HAVE_GDL2
-                  NSDebugMLLog(@"associations",@"object class=%@",[object class]);
-                  NSDebugMLLog(@"associations",@"tmpObject class=%@",[tmpObject class]);
-                  // Turbocat
-                  if (tmpObject && [tmpObject isKindOfClass:[GSWComponent class]]) 
-                    {
-                      NSException* exp = [tmpObject validateValue:&value
-                                                    forKey:part];
-                      if (exp) 
-                        {
-                          NSException* exception=nil;                          
-                          exception=[NSException exceptionWithName:@"EOValidationException"
-                                                 reason:[exp reason]
-                                                 userInfo:[NSDictionary 
-                                                            dictionaryWithObjectsAndKeys:
-                                                              (value ? value : @"nil"),@"EOValidatedObjectUserInfoKey",
-                                                            keyPath,@"EOValidatedPropertyUserInfoKey",
-                                                            nil,nil]];
-                          [object validationFailedWithException:exception
-                                  value:value
-                                  keyPath:keyPath];
-                        }
-                    }
 #endif
-                  tmpObject=nil;
-                };
+              tmpObject=nil;
             };
-        };	  
+        };
+    };	  
 #endif
-    }
-  else
-    {
-      NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@ : NoKeyPath",value);
-    };
   LOGClassFnStop();
 };
 
