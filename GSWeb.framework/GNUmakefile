@@ -1,6 +1,6 @@
 # GNUmakefile - GSWeb: GNUmakefile
 #
-#   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+#   Copyright (C) 1999-2004 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
 #   Date: 	Jan 1999
@@ -127,7 +127,6 @@ GSWStatisticsStore.m \
 GSWAdaptor.m \
 GSWDefaultAdaptor.m \
 GSWUtils.m \
-GSCache.m \
 GSWClientSideScript.m \
 GSWActiveImage.m \
 GSWBody.m \
@@ -214,7 +213,6 @@ WebObjects_OBJC_FILES = $(GSWeb_OBJC_FILES)
 
 # The framework installed header files
 GSWeb_HEADER_FILES = \
-GSCache.h  \
 GSWeb.h \
 GSWActiveImage.h \
 GSWAdaptor.h \
