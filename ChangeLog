@@ -1,4 +1,37 @@
 2005-04-05  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWActiveImage.m:
+		o avoid string formatting
+	* GSWeb.framework/GSWImageButton.m:
+		o avoid string formatting
+	* GSWeb.framework/GSWForm.m:
+		o avoid string formatting
+		o fix https bug in -_appendCGIActionToResponse:inContext:
+	* GSWeb.framework/GSWGenericContainer.m:
+		o avoid string formatting
+	* GSWeb.framework/GSWHTMLDynamicElement.m:
+		o avoid string formatting
+		o IMPs optimizations
+	* GSWeb.framework/GSWMailDelivery.m:	
+		o avoid string formatting
+	* GSWeb.framework/GSWComponent.h:
+		o added -logString:
+	* GSWeb.framework/GSWComponent.m:
+		o added -logString:
+		o implemented -logWithFormat:
+		o implemented -logWithFormat:arguments:
+		o implemented +logWithFormat:
+	* GSWeb.framework/GSWDefaultAdaptor.m:
+		o removed -logWithFormat: and +logWithFormat:
+		o added -workerThreadCount and -setWorkerThreadCount:
+		o replaced -statusLogWithFormat: calls by -statusLogString: calls
+	* GSWeb.framework/GSWDefaultAdaptor.h:
+		o removed -logWithFormat: and +logWithFormat:
+	* GSWeb.framework/GSWDefaultAdaptorThread.m:
+		o replaced -statusLogWithFormat: calls by -statusLogString: calls
+	* GSWeb.framework/GSWMultiKeyDictionary.m:
+		o better logs
+
+2005-04-05  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWContext.m:
 		o add contextAndElementID caching and optimizations
 		o use GSWIntToNSString instead of -stringWithFormat:

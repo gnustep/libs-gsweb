@@ -55,9 +55,6 @@ GSWEB_EXPORT int iBlock;
 -(void)registerForEvents;
 -(void)unregisterForEvents;
 
--(void)logWithFormat:(NSString*)format,...;
-+(void)logWithFormat:(NSString*)format,...;
-
 -(void)runOnce;
 -(BOOL)doesBusyRunOnce;
 -(BOOL)dispatchesRequestsConcurrently;

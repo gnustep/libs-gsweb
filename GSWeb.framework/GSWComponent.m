@@ -220,20 +220,34 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+//	logString:
+
+-(void)logString:(NSString*)aString
+{
+  [[self application] logString:aString];
+};
+
+//--------------------------------------------------------------------
 //	logWithFormat:
 
--(void)logWithFormat:(NSString*)format,...
+-(void)logWithFormat:(NSString*)aFormat,...
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  va_list ap;
+  va_start(ap,aFormat);
+  [self logWithFormat:aFormat
+        arguments:ap];
+  va_end(ap);
 };
 
 //--------------------------------------------------------------------
 //	logWithFormat:arguments:
 
--(void)logWithFormat:(NSString*)format
+-(void)logWithFormat:(NSString*)aFormat
            arguments:(va_list)arguments
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  NSString* string=[NSString stringWithFormat:aFormat
+                             arguments:arguments];
+  [self logString:string];
 };
 
 //--------------------------------------------------------------------
@@ -1571,28 +1585,44 @@ associationsKeys:(NSArray*)associationsKeys
 };
 
 //--------------------------------------------------------------------
--(void)debugWithFormat:(NSString*)format,...
+-(void)debugWithFormat:(NSString*)aFormat,...
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(void)logWithFormat:(NSString*)format,...
+-(void)logWithFormat:(NSString*)aFormat,...
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  va_list ap;
+  va_start(ap,aFormat);
+  [self logWithFormat:aFormat
+        arguments:ap];
+  va_end(ap);
 };
 
 //--------------------------------------------------------------------
--(void)logWithFormat:(NSString*)format
-           arguments:(va_list)argList
+-(void)logWithFormat:(NSString*)aFormat
+           arguments:(va_list)arguments
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  NSString* string=[NSString stringWithFormat:aFormat
+                             arguments:arguments];
+  [self logString:string];
 };
 
 //--------------------------------------------------------------------
-+(void)logWithFormat:(NSString*)format,...
++(void)logWithFormat:(NSString*)aFormat,...
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  va_list ap;
+  va_start(ap,aFormat);
+  [[GSWApplication application] logWithFormat:aFormat
+                                arguments:ap];
+  va_end(ap);
+};
+
+//--------------------------------------------------------------------
+-(void)logString:(NSString*)aString
+{
+  [[self application] logString:aString];
 };
 
 @end

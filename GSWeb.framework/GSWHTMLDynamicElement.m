@@ -1,6 +1,6 @@
 /** GSWHTMLDynamicElement.m - <title>GSWeb: Class GSWHTMLDynamicElement</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
@@ -35,6 +35,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 static SEL objectAtIndexSEL = NULL;
 
@@ -808,29 +809,39 @@ attributeAssociations:(NSDictionary*)attributeAssociations
 {
   //OK
   GSWComponent* component=nil;
-  id tmpDirectActionString=nil;
+  NSMutableString* tmpDirectActionString=nil;
   id directActionNameValue=nil;
   id actionClassValue=nil;
+  IMP das_appendStringIMP=NULL;
 
   LOGObjectFnStart();
 
   component=GSWContext_component(aContext);
   if (directActionName)
-    directActionNameValue=[directActionName valueInComponent:component];
+    directActionNameValue=NSStringWithObject([directActionName valueInComponent:component]);
   if (actionClass)
-    actionClassValue=[actionClass valueInComponent:component];
+    actionClassValue=NSStringWithObject([actionClass valueInComponent:component]);
 
   if (actionClassValue)
     {
+      tmpDirectActionString=(NSMutableString*)
+        [NSMutableString stringWithString:actionClassValue];
       if (directActionNameValue)
-        tmpDirectActionString=[NSString stringWithFormat:@"%@/%@",
-                                        actionClassValue,
-                                        directActionNameValue];
-      else
-        tmpDirectActionString=actionClassValue;
+        {
+          // append /directActionNameValue
+          GSWeb_appendStringWithImpPtr(tmpDirectActionString,
+                                       &das_appendStringIMP,
+                                       @"/");
+          GSWeb_appendStringWithImpPtr(tmpDirectActionString,
+                                       &das_appendStringIMP,
+                                       directActionNameValue);
+        };
     }
   else if (directActionNameValue)
-    tmpDirectActionString=directActionNameValue;
+    {
+      tmpDirectActionString=(NSMutableString*)
+        [NSMutableString stringWithString:directActionNameValue];
+    }
   else
     {
       LOGSeriousError(@"No actionClass (for %@) and no directActionName (for %@)",
@@ -898,6 +909,7 @@ attributeAssociations:(NSDictionary*)attributeAssociations
 	  NSArray* keys = nil;
 	  unsigned int count = 0;
 	  unsigned int i = 0;
+          
 
           // We sort keys so URL are always the same for same parameters
           keys=[[finalDictionary allKeys]sortedArrayUsingSelector:@selector(compare:)];
@@ -910,9 +922,19 @@ attributeAssociations:(NSDictionary*)attributeAssociations
               id value = [finalDictionary valueForKey:key];
               NSDebugMLLog(@"gswdync",@"key=%@",key);
               NSDebugMLLog(@"gswdync",@"value=%@",value);
-              tmpDirectActionString=[tmpDirectActionString stringByAppendingFormat:@"/%@=%@",
-                                                           key,
-                                                           value];
+              // append /key=value
+              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
+                                           &das_appendStringIMP,
+                                           @"/");
+              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
+                                           &das_appendStringIMP,
+                                           NSStringWithObject(key));
+              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
+                                           &das_appendStringIMP,
+                                           @"=");
+              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
+                                           &das_appendStringIMP,
+                                           NSStringWithObject(value));
             };
         };
     };
@@ -1031,20 +1053,13 @@ in GSWHyperlink, it was
       GSWComponent* component=GSWContext_component(aContext);
       cidObject=[cidStore valueInComponent:component];
       NSDebugMLog(@"cidObject=%@",cidObject);
-/*      if (!cidObject)
-        {
-          cidObject=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-          [_cidStore setValue:cidObject
-                   inComponent:component];
-        };
-*/
+
       if (cidObject)
         {
           if (![cidObject valueForKey:cidKeyValue])
             [cidObject takeValue:cidElement
                        forKey:cidKeyValue];
-          newURL=[NSString stringWithFormat:@"cid:%@",
-                           cidKeyValue];
+          newURL=[@"cid:" stringByAppendingString:NSStringWithObject(cidKeyValue)];
         };
       NSDebugMLog(@"newURL=%@",newURL);
     };

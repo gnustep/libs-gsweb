@@ -131,12 +131,14 @@ RCS_ID("$Id$")
       assocEnumer = [_associations keyEnumerator];
       while ((currentAssocKey = [assocEnumer nextObject])) 
         {
-          theValue = [[_associations objectForKey:currentAssocKey] 
-                       valueInComponent:component];
+          theValue = NSStringWithObject([[_associations objectForKey:currentAssocKey] 
+                                          valueInComponent:component]);
 
-          GSWResponse_appendContentString(aResponse,
-                       ([NSString stringWithFormat:@" %@=\"%@\"",
-                                  currentAssocKey,theValue]));
+          GSWResponse_appendContentCharacter(aResponse,' ');
+          GSWResponse_appendContentString(aResponse,currentAssocKey);
+          GSWResponse_appendContentAsciiString(aResponse,@"=\"");
+          GSWResponse_appendContentString(aResponse,theValue);
+          GSWResponse_appendContentCharacter(aResponse,'"');
         }
 
       GSWResponse_appendContentCharacter(aResponse,'>');

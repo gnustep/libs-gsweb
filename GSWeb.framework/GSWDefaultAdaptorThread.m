@@ -137,7 +137,7 @@ static NSData* lineFeedData=nil;
   _pool=[NSAutoreleasePool new];
   GSWLogMemCF("New NSAutoreleasePool: %p",_pool);
 #ifdef GSWDEBUG_DEEP
-  [GSWApplication logWithFormat:@"pool allocated!"];
+  [GSWApplication logString:@"pool allocated!"];
 #endif
 
   _runTS=GSWTime_now();
@@ -146,7 +146,7 @@ static NSData* lineFeedData=nil;
   _sendResponseTS=GSWTime_zero();
 
 #ifdef GSWDEBUG_DEEP
-  [GSWApplication statusLogWithFormat:@"Thread run START"];
+  [GSWApplication statusLogString:@"Thread run START"];
 #endif
   if (_isMultiThread)
     {
@@ -256,11 +256,11 @@ static NSData* lineFeedData=nil;
                _application);
   LOGObjectFnStop();
 #ifdef DEBUG
-  [GSWApplication statusLogWithFormat:@"threadWillExit START"];
+  [GSWApplication statusLogString:@"threadWillExit START"];
 #endif
   [_application threadWillExit];
 #ifdef DEBUG
-  [GSWApplication statusLogWithFormat:@"threadWillExit STOP"];
+  [GSWApplication statusLogString:@"threadWillExit STOP"];
 #endif
   if (_isMultiThread)
     {
@@ -270,7 +270,7 @@ static NSData* lineFeedData=nil;
   else
     [self threadExited];
 #ifdef DEBUG
-  [GSWApplication statusLogWithFormat:@"run STOP"];
+  [GSWApplication statusLogString:@"run STOP"];
 #endif
 };
 
@@ -785,7 +785,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
                        localException,[localException reason]);
           NSDebugMLog(@"EXCEPTION GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",
                       localException,[localException reason]);
-          [GSWApplication statusLogWithFormat:@"\nException while sending response\n"];
+          [GSWApplication statusLogString:@"\nException while sending response\n"];
         }
       NS_ENDHANDLER;
 
@@ -813,7 +813,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
               NS_DURING
                 {
                   [aStream writeData:responseData];
-                  [GSWApplication statusLogWithFormat:@"\nResponse Sent\n"];
+                  [GSWApplication statusLogString:@"\nResponse Sent\n"];
                 }
               NS_HANDLER
                 {
@@ -822,7 +822,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
                                localException,[localException reason]);
                   NSDebugMLog(@"EXCEPTION GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",
                               localException,[localException reason]);
-                  [GSWApplication statusLogWithFormat:@"\nException while sending response\n"];
+                  [GSWApplication statusLogString:@"\nException while sending response\n"];
                 }
               NS_ENDHANDLER;
               NSDebugDeepMLLog0(@"info",@"Response content Written");

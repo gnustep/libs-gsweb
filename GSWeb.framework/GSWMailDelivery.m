@@ -1,6 +1,6 @@
 /** GSWMailDelivery.m - <title>GSWeb: Class GSWMailDelivery</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -113,7 +113,7 @@ static GSWMailDelivery *sharedInstance;
                    plainText:(NSString*)plainTextMessage
                         send:(BOOL)sendNow
 {
-  NSString* messageString=nil;
+  NSMutableString* messageString=nil;
   NSMutableString* toString=nil;
   int i=0;
   int count=0;
@@ -133,12 +133,26 @@ static GSWMailDelivery *sharedInstance;
   for(i=0;i<count;i++)
     {
       if (!toString)
-        toString=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[to objectAtIndex:i]];
+        toString=(NSMutableString*)[NSMutableString stringWithString:NSStringWithObject([to objectAtIndex:i])];
       else
-        [toString appendFormat:@", %@",[to objectAtIndex:i]];
+        {
+          [toString appendString:@", "];
+          [toString appendString:NSStringWithObject([to objectAtIndex:i])];
+        };
     };
   NSDebugMLog(@"toString=%@",toString);
-  messageString=[NSString stringWithFormat:@"From: %@\nTo: %@\n",sender,toString];
+  messageString=(NSMutableString*)[NSMutableString string];
+
+  // From:
+  [messageString appendString:@"From: "];
+  [messageString appendString:NSStringWithObject(sender)];
+  [messageString appendString:@"\n"];
+
+  // To:
+  [messageString appendString:@"To: "];
+  [messageString appendString:toString];
+  [messageString appendString:@"\n"];
+
   NSDebugMLog(@"messageString=%@",messageString);
   count=[cc count];
   if (count)
@@ -147,12 +161,19 @@ static GSWMailDelivery *sharedInstance;
       for(i=0;i<count;i++)
         {
           if (!ccString)
-            ccString=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[cc objectAtIndex:i]];
+            ccString=(NSMutableString*)[NSMutableString stringWithString:NSStringWithObject([cc objectAtIndex:i])];
           else
-            [ccString appendFormat:@", %@",[cc objectAtIndex:i]];
+            {
+              [ccString appendString:@", "];
+              [ccString appendString:NSStringWithObject([cc objectAtIndex:i])];
+            };
         };
       NSDebugMLog(@"ccString=%@",ccString);
-      messageString=[messageString stringByAppendingFormat:@"Cc: %@\n",ccString];
+
+      // cc:
+      [messageString appendString:@"Cc: "];
+      [messageString appendString:ccString];
+      [messageString appendString:@"\n"];
       NSDebugMLog(@"messageString=%@",messageString);
     };
   count=[bcc count];
@@ -162,16 +183,31 @@ static GSWMailDelivery *sharedInstance;
       for(i=0;i<count;i++)
         {
           if (!bccString)
-            bccString=(NSMutableString*)[NSMutableString stringWithFormat:@"%@",[bcc objectAtIndex:i]];
+            bccString=(NSMutableString*)[NSMutableString stringWithString:NSStringWithObject([bcc objectAtIndex:i])];
           else
-            [bccString appendFormat:@", %@",[bcc objectAtIndex:i]];
+            {
+              [bccString appendString:@", "];
+              [bccString appendString:NSStringWithObject([bcc objectAtIndex:i])];
+            };
         };
       NSDebugMLog(@"bccString=%@",bccString);
-      messageString=[messageString stringByAppendingFormat:@"Bcc: %@\n",bccString];
+
+      // Bcc:
+      [messageString appendString:@"Bcc: "];
+      [messageString appendString:bccString];
+      [messageString appendString:@"\n"];
       NSDebugMLog(@"messageString=%@",messageString);
     };
-  messageString=[messageString stringByAppendingFormat:@"Subject: %@\n\n%@",subject,plainTextMessage];
+
+  //Subject
+  [messageString appendString:@"Subject: "];
+  [messageString appendString:NSStringWithObject(subject)];
+  [messageString appendString:@"\n\n"];
+
+  // plainTextMessage
+  [messageString appendString:NSStringWithObject(plainTextMessage)];
   NSDebugMLog(@"messageString=%@",messageString);
+
   if (sendNow)
     [self sendEmail:messageString];
   LOGObjectFnStop();
@@ -264,7 +300,7 @@ static GSWMailDelivery *sharedInstance;
   NSDebugMLog(@"sendmailPath=%@",sendmailPath);
   // -i When reading a message from standard  input,  don't treat  a line with only a . character as the end of input.
   // -t Extract  recipients  from  message  headers.   This requires  that  no  recipients  be specified on the command line.
-  sendmailCommand=[NSString stringWithFormat:@"%@  -i -t",sendmailPath];
+  sendmailCommand=[sendmailPath stringByAppendingString:@" -i -t"];
   NSDebugMLog(@"sendmailCommand=%@",sendmailCommand);
   sendmailFile=popen([sendmailCommand lossyCString],"w");
   if (sendmailFile)

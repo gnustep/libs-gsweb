@@ -1,6 +1,6 @@
 /** GSWForm.m - <title>GSWeb: Class GSWForm</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -564,8 +564,13 @@ static Class standardClass = Nil;
               id fragment=[_fragmentIdentifier valueInComponent:component];
               NSDebugMLLog(@"gswdync",@"fragment=%@",fragment);
               if (fragment)
-                actionValue=[NSString stringWithFormat:@"%@#%@",
-                                      actionValue,fragment];
+                {
+                  if (actionValue)
+                    actionValue=[NSStringWithObject(actionValue) stringByAppendingString:@"#"];
+                  else
+                    actionValue=@"#";
+                  actionValue=[actionValue stringByAppendingString:NSStringWithObject(fragment)];
+                };
             };
           NSDebugMLLog(@"gswdync",@"actionValue=%@",actionValue);
           //TODO emit a warning !
@@ -612,8 +617,7 @@ static Class standardClass = Nil;
   NSDebugMLLog(@"gswdync",@"actionString=%@",actionString);
 
   anUrl=(NSString*)[aContext directActionURLForActionNamed:actionString
-                             queryDictionary:nil
-                             isSecure:NO];
+                             queryDictionary:nil];
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
 
   if (_fragmentIdentifier)
@@ -621,8 +625,13 @@ static Class standardClass = Nil;
       id fragment=[_fragmentIdentifier valueInComponent:GSWContext_component(aContext)];
       NSDebugMLLog(@"gswdync",@"fragment=%@",fragment);
       if (fragment)
-        anUrl=[NSString stringWithFormat:@"%@#%@",
-                        anUrl,fragment];
+        {
+          if (anUrl)
+            anUrl=[NSStringWithObject(anUrl) stringByAppendingString:@"#"];
+          else
+            anUrl=@"#";
+          anUrl=[anUrl stringByAppendingString:NSStringWithObject(fragment)];
+        };
     };
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
 

@@ -1112,12 +1112,13 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
   if (keysCount==0)
     {
       [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add empty keys array  to dictionary"];
+		  format: @"Tried to add empty keys array to multi-keys dictionary. Object: %@",
+                   object];
     }
   else if (object == nil)
     {
       [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add nil value to dictionary"];
+		  format: @"Tried to add nil value to multi-keys dictionary"];
     }
   else
     {
@@ -1151,17 +1152,20 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
   if (count==0)
     {
       [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add object to dictionary with no key"];
+		  format: @"Tried to add object to multi-keys dictionary with no key. Object: %@",
+                   object];
     }
   else if (*keys == nil)
     {
       [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add nil key to dictionary"];
+		  format: @"Tried to add nil key to multi-keys dictionary. Object: %@",
+                   object];
     }
   else if (object == nil)
     {
       [NSException raise: NSInvalidArgumentException
-		  format: @"Tried to add nil value to dictionary"];
+		  format: @"Tried to add nil value to multi-keys dictionary. First key: %@",
+                   *keys];
     }
   else
     {

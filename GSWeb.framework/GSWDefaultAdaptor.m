@@ -156,18 +156,6 @@ int allow_severity = LOG_INFO;
 };
 
 //--------------------------------------------------------------------
--(void)logWithFormat:(NSString*)format,...
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-+(void)logWithFormat:(NSString*)format,...
-{
-  LOGClassFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
 -(void)runOnce
 {
   //call doesBusyRunOnce
@@ -200,6 +188,36 @@ int allow_severity = LOG_INFO;
   return _host;
 };
 
+
+//--------------------------------------------------------------------
+-(id)workerThreadCount
+{
+  return GSWIntNumber(_workerThreadCount);
+};
+
+//--------------------------------------------------------------------
+-(void)setWorkerThreadCount:(id)workerThreadCount
+{
+  if ([self tryLock])
+    {
+      NS_DURING
+        {
+          _workerThreadCount=[workerThreadCount intValue];
+        }
+      NS_HANDLER
+        {
+          LOGException(@"%@ (%@)",
+                       localException,
+                       [localException reason]);
+        }
+      NS_ENDHANDLER;
+      [self unlock];
+    }
+  else
+    {
+      //TODO
+    };
+};
 
 //--------------------------------------------------------------------
 -(void)setWorkerThreadCountMin:(id)workerThreadCount
@@ -457,7 +475,7 @@ int allow_severity = LOG_INFO;
                         }
                       else
                         {
-                          [GSWApplication statusLogWithFormat:@"Set Thread to wait"];
+                          [GSWApplication statusLogString:@"Set Thread to wait"];
                           NSDebugLockMLLog(@"info",
                                            @"Set Thread to wait %p",
                                            (void*)newThread);
@@ -654,7 +672,7 @@ int allow_severity = LOG_INFO;
 #ifndef NDEBUG
                   pool=[NSAutoreleasePool new];
                   GSWLogMemCF("New NSAutoreleasePool: %p",pool);
-                  [GSWApplication statusLogWithFormat:@"Lauch waiting Thread"];
+                  [GSWApplication statusLogString:@"Lauch waiting Thread"];
                   NSDebugLockMLLog(@"info",
                                    @"Lauch waiting Thread %p",
                                    (void*)thread);

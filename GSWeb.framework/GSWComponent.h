@@ -214,6 +214,7 @@ associationsKeys:(NSArray*)associationsKeys
                              keyPath:(id)_keyPath;
 -(void)_debugWithString:(NSString*)string;
 -(void)debugWithFormat:(NSString*)format,...;
+-(void)logString:(NSString*)aString;
 -(void)logWithFormat:(NSString*)format,...;
 -(void)logWithFormat:(NSString*)format
            arguments:(va_list)argList;

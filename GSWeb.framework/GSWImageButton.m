@@ -432,10 +432,8 @@ RCS_ID("$Id$")
           if (wasFormSubmitted)
             {
               NSString* nameInContext=[self nameInContext:aContext];
-              NSString* formValueX=[request formValueForKey:[NSString stringWithFormat:@"%@.x",
-                                                                      nameInContext]];
-              NSString* formValueY=[request formValueForKey:[NSString stringWithFormat:@"%@.y",
-                                                                      nameInContext]];
+              NSString* formValueX=[request formValueForKey:[nameInContext stringByAppendingString:@".x"]];
+              NSString* formValueY=[request formValueForKey:[nameInContext stringByAppendingString:@".y"]];
               NSDebugMLLog(@"gswdync",@"formValueX=%@",formValueX);
               NSDebugMLLog(@"gswdync",@"formValueY=%@",formValueY);
               if (formValueX && formValueY)
