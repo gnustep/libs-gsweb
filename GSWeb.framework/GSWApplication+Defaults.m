@@ -514,34 +514,42 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
      (_userDefaults ? _userDefaults \
       : (_userDefaults = [NSUserDefaults standardUserDefaults]))
 
+/* FIXME: Once setValue:forKey: is implemented in -base we should use
+   use it unconditionally.  */
+#ifdef GNUSTEP
+#define TAKEVALUEFORKEY [self takeValue: val forKey: key]
+#else
+#define TAKEVALUEFORKEY [self setValue: val forKey: key]
+#endif
+
 /* These two macros are seperate for experimental reasons.  
    They may be merged later.  */
 #define INIT_DFLT_OBJ(name,opt) \
      if (_dflt_init_##name == NO) { \
        id key = [NSString stringWithCString: #name]; \
        id val = [NSUSERDEFAULTS objectForKey: opt]; \
-       [self takeValue: val forKey: key]; }
+       TAKEVALUEFORKEY; }
 
 #define INIT_DFLT_BOOL(name, opt) \
      if (_dflt_init_##name == NO) { \
        id key = [NSString stringWithCString: #name]; \
        BOOL v = [NSUSERDEFAULTS boolForKey: opt]; \
        id val = [NSNumber numberWithBool: v]; \
-       [self takeValue: val forKey: key]; }
+       TAKEVALUEFORKEY; }
 
 #define INIT_DFLT_INT(name, opt) \
      if (_dflt_init_##name == NO) { \
        id key = [NSString stringWithCString: #name]; \
        int  v = [NSUSERDEFAULTS integerForKey: opt]; \
        id val = [NSNumber numberWithInt: v]; \
-       [self takeValue: val forKey: key]; }
+       TAKEVALUEFORKEY; }
 
 #define INIT_DFLT_FLT(name, opt) \
      if (_dflt_init_##name == NO) { \
        id key  = [NSString stringWithCString: #name]; \
        float v = [NSUSERDEFAULTS floatForKey: opt]; \
        id val  = [NSNumber numberWithFloat: v]; \
-       [self takeValue: val forKey: key]; }
+       TAKEVALUEFORKEY; }
 
 @implementation GSWApplication (GSWApplicationDefaults)
 //--------------------------------------------------------------------

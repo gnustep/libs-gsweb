@@ -1,3 +1,9 @@
+2004-11-22  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication+Defaults.m (TAKEVALUEFORKEY):
+	New macro to use new setValue:forKey: instead of takeValue:forKey:
+	on Cocoa systems until it is implemented for GNUstep.
+
 2004-11-12  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication.m (GSWApplicationMainReal):
