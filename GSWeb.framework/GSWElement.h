@@ -1,6 +1,6 @@
 /** GSWElement.h - <title>GSWeb: Class GSWElement</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -43,7 +43,7 @@ extern BYTE ElementsMap_attributeElement;
 #ifndef NDEBBUG
 {
   NSString* _appendToResponseElementID;
-  NSString* _definitionName; // Name of element in def file (.gswd) - Mainly for debugging purpose
+  NSString* _declarationName; // Name of element in def file (.gswd) - Mainly for debugging purpose
 };
 #endif
 
@@ -65,8 +65,8 @@ extern BYTE ElementsMap_attributeElement;
                   stopFlag:(BOOL)stop;
 #endif
 
--(NSString*)definitionName;
--(void)setDefinitionName:(NSString*)definitionName;
+-(NSString*)declarationName;
+-(void)setDeclarationName:(NSString*)declarationName;
 @end
 
 #ifdef NDEBBUG

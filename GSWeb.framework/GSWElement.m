@@ -52,9 +52,9 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
       elementID=[context elementID];
       /*  if ([elementID length]==0)
           elementID=@"MARKER";*/
-      NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ elementID=%@ %p",self,[self definitionName],elementID,elementID);
+      NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ elementID=%@ %p",self,[self declarationName],elementID,elementID);
       ASSIGNCOPY(_appendToResponseElementID,elementID);
-      NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p",self,[self definitionName],_appendToResponseElementID,_appendToResponseElementID);
+      NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p",self,[self declarationName],_appendToResponseElementID,_appendToResponseElementID);
       GSWAssertIsElementID(context);
       LOGObjectFnStopC("GSWElement");
     };
@@ -87,10 +87,10 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
         };
       if (!OK && ![context isInLoop])
         {
-          NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ definitionName=%@ (file %s line %d), id '%@' (%p) in %@ is not the same than in appendToResponse '%@' (%p)",
+          NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ declarationName=%@ (file %s line %d), id '%@' (%p) in %@ is not the same than in appendToResponse '%@' (%p)",
                                   self,
                                   [self class],
-                                  [self definitionName],
+                                  [self declarationName],
                                   file,
                                   line,
                                   [context elementID],
@@ -112,17 +112,17 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                              line:(int)line
 {
   LOGObjectFnStartC("GSWElement");
-/*  NSDebugMLLog(@"GSWElement",@"self=%p definitionName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
+/*  NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p / [context elementID]=%@",
               self,
-              [self definitionName],
+              [self declarationName],
               _appendToResponseElementID,_appendToResponseElementID,[context elementID]);
 */
   if (_appendToResponseElementID && [_appendToResponseElementID length]==0 && [[context elementID] length]>0)
     {
-      NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ definitionName=%@ (file %s line %d), in %@ _appendToResponseElementID '%@' (%p) is not set",
+      NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ declarationName=%@ (file %s line %d), in %@ _appendToResponseElementID '%@' (%p) is not set",
                               self,
                               [self class],
-                              [self definitionName],
+                              [self declarationName],
                               file,
                               line,
                               NSStringFromSelector(method),
@@ -149,7 +149,7 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
                (start ? "START" : (stop ? "STOP" : "")),
                self,
                [self class],
-               [self definitionName],
+               [self declarationName],
                [context elementID],
                _appendToResponseElementID,
                (senderID ? "senderID:" : ""),
@@ -164,26 +164,33 @@ BYTE ElementsMap_attributeElement = (BYTE)0x41;
   GSWLogAssertGood(self);
   GSWLogC("Dealloc GSWElement");
   GSWLogC("Dealloc GSWElement: name");
-  DESTROY(_definitionName);
+  DESTROY(_declarationName);
   GSWLogC("Dealloc GSWElement Super");
   [super dealloc];
   GSWLogC("End Dealloc GSWElement");
 }
 
 //--------------------------------------------------------------------
--(NSString*)definitionName
+-(NSString*)declarationName
 {
-  return _definitionName;
+  return _declarationName;
 };
 
 //--------------------------------------------------------------------
--(void)setDefinitionName:(NSString*)definitionName
+//TODO: obsolete: remove it
+-(NSString*)definitionName
 {
-  NSDebugMLLog(@"gswdync",@"setDefinitionName1 in %p: %p %@",
-               self,definitionName,definitionName);
-  ASSIGN(_definitionName,definitionName);
-  NSDebugMLLog(@"gswdync",@"setDefinitionName2 in %p: %p %@",
-               self,_definitionName,_definitionName);
+  return _declarationName;
+};
+
+//--------------------------------------------------------------------
+-(void)setDeclarationName:(NSString*)declarationName
+{
+  NSDebugMLLog(@"gswdync",@"setDeclarationName1 in %p: %p %@",
+               self,declarationName,declarationName);
+  ASSIGN(_declarationName,declarationName);
+  NSDebugMLLog(@"gswdync",@"setDeclarationName2 in %p: %p %@",
+               self,_declarationName,_declarationName);
 };
 @end
 
