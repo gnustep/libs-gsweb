@@ -794,7 +794,7 @@ RCS_ID("$Id$")
     {
       id deletePage=nil;
       NSString* deleteContextID=nil;
-      [GSWApplication statusLogWithFormat:@"Deleting permanent cached Page"];
+      [GSWApplication statusLogString:@"Deleting permanent cached Page"];
       deleteContextID=[_permanentContextIDArray objectAtIndex:0];
       GSWLogAssertGood(deleteContextID);
       RETAIN(deleteContextID); // We'll remove it from array
@@ -1214,7 +1214,7 @@ extern id gcObjectsToBeVisited;
       RETAIN(deleteContextID);
       GSWLogAssertGood(deleteContextID);
 
-      [GSWApplication statusLogWithFormat:@"Deleting cached Page"];
+      [GSWApplication statusLogString:@"Deleting cached Page"];
 
       //NSLog(@"DD contextArray class=%@",[contextArray class]);
       //NSLog(@"CC contextArray count=%d",[contextArray count]);
@@ -1244,7 +1244,7 @@ extern id gcObjectsToBeVisited;
           RETAIN(deleteContextID);
           GSWLogAssertGood(deleteContextID);
 
-          [GSWApplication statusLogWithFormat:@"Deleting cached Page"];
+          [GSWApplication statusLogString:@"Deleting cached Page"];
 
           //NSLog(@"EE aContextArray class=%@",[aContextArray class]);
           //NSLog(@"EE aContextArray count=%d",[aContextArray count]);

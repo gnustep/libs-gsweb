@@ -133,6 +133,9 @@ static Class standardClass = Nil;
           else if (_cache)
             {
               // Get keys associations
+              static NSString* keysCache[10]={ @"key0", @"key1", @"key2", @"key3", @"key4", 
+                                               @"key5", @"key6", @"key7", @"key8", @"key9" };
+              static int keysCacheCount=10;
               int keyIndex=0;
               NSMutableArray* keysArray=(NSMutableArray*)[NSMutableArray array];
               GSWAssociation* aKeyAssociation=nil;
@@ -143,12 +146,16 @@ static Class standardClass = Nil;
                       aKeyAssociation=[associations objectForKey:@"key"];
                       if (!aKeyAssociation)
                         {
-                          aKeyAssociation=[associations objectForKey:@"key0"];
+                          aKeyAssociation=[associations objectForKey:keysCache[0]];
                         }
+                    }
+                  else if (keyIndex<keysCacheCount)
+                    {
+                      aKeyAssociation=[associations objectForKey:keysCache[keyIndex]];
                     }
                   else
                     {
-                      aKeyAssociation=[associations objectForKey:[NSString stringWithFormat:@"key%d",keyIndex]];
+                      aKeyAssociation=[associations objectForKey:[@"key" stringByAppendingString:GSWIntToNSString(keyIndex)]];
                     };
                   if (aKeyAssociation)
                     [keysArray addObject:aKeyAssociation];
@@ -209,7 +216,7 @@ static Class standardClass = Nil;
 {
   [super setDeclarationName:declarationName];
   if (declarationName && _childrenGroup)
-    [_childrenGroup setDeclarationName:[NSString stringWithFormat:@"%@-StaticGroup",declarationName]];
+    [_childrenGroup setDeclarationName:[declarationName stringByAppendingString:@"-StaticGroup"]];
 };
 
 //--------------------------------------------------------------------
@@ -244,8 +251,8 @@ static Class standardClass = Nil;
       NSString* elementID=nil;
       NSString* uniqID=nil;
       NSString* sessionID=nil;
-      NSString* contextAndElementIDCacheKey=nil;
-      NSString* elementIDCacheKey=nil;
+      NSMutableString* contextAndElementIDCacheKey=nil;
+      NSMutableString* elementIDCacheKey=nil;
       GSWCache* cache=nil;
       int keysCount=[_keys count];
       id keys[keysCount];
@@ -269,10 +276,10 @@ static Class standardClass = Nil;
                                                                _enabled,aContext);
         };
       
-      uniqID=[_uniqID valueInComponent:component];
+      uniqID=NSStringWithObject([_uniqID valueInComponent:component]);
 
       // Append an element to elementID So all children elementIDs will start with the same prefix
-      [aContext appendElementIDComponent:[NSString stringWithFormat:@"CacheElement-%@",uniqID]];
+      [aContext appendElementIDComponent:[@"CacheElement-" stringByAppendingString:uniqID]];
 
       contextAndElementID=[aContext contextAndElementID];
       NSDebugMLLog(@"GSWCacheElement",@"contextAndElementID=%@",contextAndElementID);
@@ -309,13 +316,17 @@ static Class standardClass = Nil;
             };
           NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%p",cachedObject);
 
-          contextAndElementIDCacheKey=[NSString stringWithFormat:@"##CONTEXT_ELEMENT_ID-%@##",
-                                                uniqID];
-          elementIDCacheKey=[NSString stringWithFormat:@"##ELEMENT_ID-%@##",
-                                      uniqID];
+          contextAndElementIDCacheKey=(NSMutableString*)[NSMutableString stringWithString:@"##CONTEXT_ELEMENT_ID-"];
+          [contextAndElementIDCacheKey appendString:uniqID];
+          [contextAndElementIDCacheKey appendString:@"##"];
+
+          elementIDCacheKey=(NSMutableString*)[NSMutableString stringWithString:@"##ELEMENT_ID--"];
+          [elementIDCacheKey appendString:uniqID];
+          [elementIDCacheKey appendString:@"##"];
 
           if (cachedObject)
             {
+              NSData* sessionIDData=nil;
               NSLog(@"GSWCacheElement5: sessionID=%@",sessionID);
               NSLog(@"GSWCacheElement5: elementID=%@",elementID);
               NSLog(@"GSWCacheElement5: contextAndElementID=%@",contextAndElementID);
@@ -329,9 +340,13 @@ static Class standardClass = Nil;
               [cachedObject replaceOccurrencesOfData:[elementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
                             withData:[elementID dataUsingEncoding:[aResponse contentEncoding]]
                                    range:NSMakeRange(0,[cachedObject length])];
-              
+
+              if (sessionID)
+                sessionIDData=[sessionID dataUsingEncoding:[aResponse contentEncoding]];
+              else
+                sessionIDData=[NSData data];
               [cachedObject replaceOccurrencesOfData:[@"##SESSION_ID##" dataUsingEncoding:[aResponse contentEncoding]]
-                            withData:[sessionID dataUsingEncoding:[aResponse contentEncoding]]
+                            withData:sessionIDData
                             range:NSMakeRange(0,[cachedObject length])];
               [aResponse appendContentData:cachedObject];
             }
@@ -367,10 +382,11 @@ static Class standardClass = Nil;
           [cachedObject replaceOccurrencesOfData:[elementID dataUsingEncoding:[aResponse contentEncoding]]
                         withData:[elementIDCacheKey dataUsingEncoding:[aResponse contentEncoding]]
                         range:NSMakeRange(0,[cachedObject length])];
-          
-          [cachedObject replaceOccurrencesOfData:[sessionID dataUsingEncoding:[aResponse contentEncoding]]
-                        withData:[@"##SESSION_ID##" dataUsingEncoding:[aResponse contentEncoding]]
-                        range:NSMakeRange(0,[cachedObject length])];
+
+          if (sessionID)
+            [cachedObject replaceOccurrencesOfData:[sessionID dataUsingEncoding:[aResponse contentEncoding]]
+                          withData:[@"##SESSION_ID##" dataUsingEncoding:[aResponse contentEncoding]]
+                          range:NSMakeRange(0,[cachedObject length])];
           if (_cachedObject)
             [_cachedObject setValue:cachedObject
                            inComponent:component];
@@ -436,10 +452,10 @@ static Class standardClass = Nil;
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
 
-  uniqID=[_uniqID valueInComponent:[aContext component]];
+  uniqID=NSStringWithObject([_uniqID valueInComponent:[aContext component]]);
 
   // Append an element to elementID So all children elementIDs will start with the same prefix
-  [aContext appendElementIDComponent:[NSString stringWithFormat:@"CacheElement-%@",uniqID]];
+  [aContext appendElementIDComponent:[@"CacheElement-" stringByAppendingString:uniqID]];
 
   [_childrenGroup takeValuesFromRequest:aRequest
                   inContext:aContext];
@@ -463,10 +479,10 @@ static Class standardClass = Nil;
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
 
-  uniqID=[_uniqID valueInComponent:[aContext component]];
+  uniqID=NSStringWithObject([_uniqID valueInComponent:[aContext component]]);
 
   // Append an element to elementID So all children elementIDs will start with the same prefix
-  [aContext appendElementIDComponent:[NSString stringWithFormat:@"CacheElement-%@",uniqID]];
+  [aContext appendElementIDComponent:[@"CacheElement-" stringByAppendingString:uniqID]];
 
   element=[_childrenGroup invokeActionForRequest:aRequest
                           inContext:aContext];

@@ -35,6 +35,7 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 #include <GNUstepBase/GSMime.h>
 #include "GSWInputStreamData.h"
+#include "GSWPrivate.h"
 
 //====================================================================
 @implementation GSWValueQualityHeaderPart
@@ -74,10 +75,12 @@ RCS_ID("$Id$")
           for(i=0;i<count;i++)
             {
               int j=0;
-              NSString* value=[[qvs objectAtIndex:i] value];
+              GSWValueQualityHeaderPart* qv=[qvs objectAtIndex:i];
+              NSString* value=[qv value];
               for(j=i+1;j<count;j++)
                 {
-                  NSString* value2=[[qvs objectAtIndex:j] value];
+                  GSWValueQualityHeaderPart* qv2=[qvs objectAtIndex:j];
+                  NSString* value2=[qv2 value];
                   if ([value2 isEqual:value])
                     {
                       [qvs removeObjectAtIndex:j];
@@ -1528,8 +1531,7 @@ RCS_ID("$Id$")
   url=[self _applicationURLPrefix];
 
   if (urlPrefix)
-    [url setURLPrefix:[NSString stringWithFormat:@"%@%@",
-                                urlPrefix,[url urlPrefix]]];
+    [url setURLPrefix:[urlPrefix stringByAppendingString:[url urlPrefix]]];
 
   [url setURLRequestHandlerKey:key];
   [url setURLRequestHandlerPath:path];
@@ -1834,11 +1836,14 @@ RCS_ID("$Id$")
   NSMutableString* headersString=[NSMutableString string];
   NSDictionary* headers=nil;
   NSEnumerator* enumerator=nil;
-  LOGObjectFnStart();
+  IMP headersString_appendStringIMP=NULL;
   NSStringEncoding e;
+
+  LOGObjectFnStart();
 
   formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
 
+  // Append Each Header
   headers=[self headers];
   enumerator=[headers keyEnumerator];
   while((key=[enumerator nextObject]))
@@ -1847,13 +1852,31 @@ RCS_ID("$Id$")
       int i=0;
       int count=[value count];
       for(i=0;i<count;i++)
-        [headersString appendFormat:@"%@: %@\n",
-                       key,[value objectAtIndex:i]];
+        {
+          // append "key: value\n" to headersString
+          GSWeb_appendStringWithImpPtr(headersString,
+                                       &headersString_appendStringIMP,
+                                       key);
+          GSWeb_appendStringWithImpPtr(headersString,
+                                       &headersString_appendStringIMP,
+                                       @": ");
+          GSWeb_appendStringWithImpPtr(headersString,
+                                       &headersString_appendStringIMP,
+                                       [value objectAtIndex:i]);
+          GSWeb_appendStringWithImpPtr(headersString,
+                                       &headersString_appendStringIMP,
+                                       @"\n");
+        };
     };
-  [headersString appendString:@"\n"];
+
+  // Append \n to specify headers end.
+  GSWeb_appendStringWithImpPtr(headersString,
+                               &headersString_appendStringIMP,
+                               @"\n");
+
   NSDebugMLLog(@"requests",@"headersString=[\n%@\n]",headersString);
- // headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
-// NSASCIIStringEncoding should be ok dave@turbocat.de
+  // headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
+  // NSASCIIStringEncoding should be ok dave@turbocat.de
   headersData=[headersString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];

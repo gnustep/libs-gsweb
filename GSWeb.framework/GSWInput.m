@@ -132,7 +132,6 @@ static Class standardClass = Nil;
 //--------------------------------------------------------------------
 -(NSString*)nameInContext:(GSWContext*)context
 {
-  //OK
   GSWComponent* component=nil;
   NSString* nameValue=nil;
   LOGObjectFnStartC("GSWInput");
@@ -140,7 +139,7 @@ static Class standardClass = Nil;
   if (_name)
     {
       component=GSWContext_component(context);
-      nameValue=[_name valueInComponent:component];
+      nameValue=NSStringWithObject([_name valueInComponent:component]);
     }
   else
     {

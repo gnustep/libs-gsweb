@@ -1,3 +1,30 @@
+2005-04-05  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWExtensions.framework/Makefile.preamble:
+		o handle GSWDEBUG in Makefile.preamble
+	* GSWExtensionsGSW.framework/Makefile.preamble:
+		o handle GSWDEBUG in Makefile.preamble
+	* GSWExtensionsGSW.framework/GSWCacheElement.m:
+		o avoid stringWithFormat for simple cases	
+	* GSWeb.framework/GSWPrivate.h:
+		o new (prvate) file
+	* GSWeb.framework/GSWRequest.m:
+		o explicit use of GSWValueQualityHeaderPart to 
+	        avoid compiler warning and make code more readable
+		o avoid using stringWithFormat in 
+		-_urlWithURLPrefix:requestHandlerKey:path:queryString:
+		o avoid appendFormat: and use cached imp appendString: 
+		in _getFormValuesFromMultipartFormData (50% speed gain)
+	* GSWeb.framework/GSWRepetition.m:
+		o avoid stringWithFormat:	
+	* GSWeb.framework/GSWSession.m:
+		o replaced some statusLogWithFormat: by statusLogString:
+	* GSWeb.framework/GSWApplication.h/.m:
+		o added status logs methods with string parameters
+	* GSWeb.framework/GSWConditional.m:
+		o avoid stringWithFormat:	
+	* GSWeb.framework/GSWInput.m:
+		o ensure name binding value is a string
+
 2005-04-04  David Wetzel <dave@turbocat.de>
         * GSWeb.framework/GSWApplication.m
         * GSWeb.framework/GSWRequest.m

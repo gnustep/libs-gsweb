@@ -1066,7 +1066,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   int languagesCount=0;
 #ifdef DEBUG
   GSWTime startTS=GSWTime_now();
-  GSWTime stopTS=nil;
+  GSWTime stopTS=0;
 #endif
 
   LOGObjectFnStart();
@@ -3415,14 +3415,26 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
+-(void)logString:(NSString*)aString
+{
+  fputs([aString lossyCString],stderr);
+  fputs("\n",stderr);
+  fflush(stderr);
+};
+
+//--------------------------------------------------------------------
++(void)logString:(NSString*)aString
+{
+  [GSWApp logString:aString];
+};
+
+//--------------------------------------------------------------------
 -(void)logWithFormat:(NSString*)aFormat
            arguments:(va_list)arguments
 {
   NSString* string=[NSString stringWithFormat:aFormat
                              arguments:arguments];
-  fputs([string cString],stderr);
-  fputs("\n",stderr);
-  fflush(stderr);
+  [self logString:string];
 };
 
 //--------------------------------------------------------------------
@@ -3446,13 +3458,10 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
--(void)logErrorWithFormat:(NSString*)aFormat
-                arguments:(va_list)arguments
+-(void)logErrorString:(NSString*)aString
 {
   const char* cString=NULL;
-  NSString* string=[NSString stringWithFormat:aFormat
-                             arguments:arguments];
-  cString=[string cString];
+  cString=[aString lossyCString];
   fputs(cString,stderr);
   fputs("\n",stderr);
   fflush(stderr);
@@ -3461,6 +3470,21 @@ to another instance **/
   fputs("\n",stdout);
   fflush(stdout);
 #endif
+};
+
+//--------------------------------------------------------------------
++(void)logErrorString:(NSString*)aString
+{
+  [GSWApp logErrorString:aString];
+};
+
+//--------------------------------------------------------------------
+-(void)logErrorWithFormat:(NSString*)aFormat
+                arguments:(va_list)arguments
+{
+  NSString* string=[NSString stringWithFormat:aFormat
+                             arguments:arguments];
+  [self logErrorString:string];
 };
 
 //--------------------------------------------------------------------
@@ -3657,6 +3681,21 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
+-(void)statusLogString:(NSString*)aString
+{
+  fputs([aString lossyCString],stdout);
+  fputs("\n",stdout);
+  fflush(stdout);
+  [self logString:aString];
+};
+
+//--------------------------------------------------------------------
++(void)statusLogString:(NSString*)aString
+{
+  [GSWApp statusLogString:aString];
+};
+
+//--------------------------------------------------------------------
 -(void)statusLogWithFormat:(NSString*)aFormat,...
 {
   va_list ap;
@@ -3682,10 +3721,7 @@ to another instance **/
 {
   NSString* string=[NSString stringWithFormat:aFormat
                              arguments:arguments];
-  fputs([string cString],stdout);
-  fputs("\n",stdout);
-  fflush(stdout);
-  [self logWithFormat:@"%@",string];
+  [self statusLogString:string];
 };
 
 //--------------------------------------------------------------------
@@ -3720,6 +3756,23 @@ to another instance **/
   fputs("\n",stdout);
   fflush(stdout);
   [self logErrorWithFormat:@"%@",string];
+};
+
+//--------------------------------------------------------------------
+-(void)statusLogErrorString:(NSString*)aString
+{
+  const char* cString=NULL;
+  cString=[aString lossyCString];
+  fputs(cString,stdout);
+  fputs("\n",stdout);
+  fflush(stdout);
+  [self logErrorString:aString];
+};
+
+//--------------------------------------------------------------------
++(void)statusLogErrorString:(NSString*)aString
+{
+  [GSWApp statusLogErrorString:aString];
 };
 
 @end

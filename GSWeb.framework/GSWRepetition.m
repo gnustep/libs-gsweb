@@ -140,7 +140,7 @@ static SEL setValueInComponentSEL = NULL;
 {
   [super setDeclarationName:declarationName];
   if (declarationName && _childrenGroup)
-    [_childrenGroup setDeclarationName:[NSString stringWithFormat:@"%@-StaticGroup",declarationName]];
+    [_childrenGroup setDeclarationName:[declarationName stringByAppendingString:@"-StaticGroup"]];
 };
 
 //--------------------------------------------------------------------
