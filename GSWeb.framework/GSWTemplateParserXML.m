@@ -1094,10 +1094,13 @@ text [Type:XML_TEXT_NODE] [{}] ####
                           id _tagAttrKey=nil;
                           id _tagAttrValue=nil;
                           NSMutableDictionary* _addedAssoc=nil;
-                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p Create nodeName=%@",currentNode,nodeName);
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p Create nodeName=%@ nodeAttributes=%@",
+                                       currentNode,nodeName,nodeAttributes);
                           while ((_tagAttrKey = [_nodeAttributesEnum nextObject]))
                             {
-                              if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
+                              //Don't remove name for not gsweb tag
+                              //if (![_tagAttrKey isEqualToString:@"name"] && ![_associations objectForKey:_tagAttrKey])
+                              if (![_associations objectForKey:_tagAttrKey])
                                 {
                                   if (!_addedAssoc)
                                     _addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
@@ -1110,6 +1113,8 @@ text [Type:XML_TEXT_NODE] [{}] ####
                             {
                               _associations=[NSDictionary dictionaryWithDictionary:_addedAssoc];
                             };
+                          NSDebugMLLog(@"GSWTemplateParser",@"node=%p Create nodeName=%@ nodeAttributes=%@ _associations=%@",
+                                       currentNode,nodeName,nodeAttributes,_associations);
                           //To know if it's an autoclose tag
                           if (!children && [self isKindOfClass:[GSWTemplateParserXMLHTML class]])
                             {
