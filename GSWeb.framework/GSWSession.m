@@ -30,7 +30,10 @@
 static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
+#ifdef NOEXTENSIONS
+#else
 #include <extensions/GarbageCollector.h>
+#endif
 
 //====================================================================
 

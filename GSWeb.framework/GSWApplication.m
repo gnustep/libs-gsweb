@@ -30,10 +30,16 @@
 static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
+#ifdef NOEXTENSIONS
+#else
 #include <extensions/NGReflection.h>
 #include <extensions/GarbageCollector.h>
+#endif
 #if GDL2 // GDL2 implementation
 #include <EOAccess/EOModelGroup.h>
+#endif
+#ifdef TCSDB
+#include <TCSimpleDB/TCSimpleDB.h>
 #endif
 #include "stacktrace.h"
 #include "attach.h"
@@ -4214,8 +4220,12 @@ selfLockn,
   //OK
   return [EOModelGroup defaultGroup];
 #else
+#ifdef TCSDB
+  return [DBModelGroup defaultGroup];
+#else
   LOGClassFnNotImplemented();
   return nil;
+#endif
 #endif
 };
 
@@ -4407,6 +4417,14 @@ selfLockn,
 +(BOOL)createUnknownComponentClasses:(NSArray*)classes
                       superClassName:(NSString*)aSuperClassName
 {
+#ifdef NOEXTENSIONS
+  ExceptionRaise(@"GSWApplication",
+                 @"GSWApplication: createUnknownComponentClasses: %@ superClassName: %@\n works only when you do not define NOEXTENSIONS while compiling GSWeb",
+                 classes, aSuperClassName);
+
+  return NO;
+
+#else
   BOOL ok=YES;
   LOGClassFnStart();
   if ([classes count]>0)
@@ -4478,6 +4496,7 @@ selfLockn,
     };
   LOGClassFnStop();
   return ok;
+#endif
 };
 
 //--------------------------------------------------------------------

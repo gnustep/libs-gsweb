@@ -34,7 +34,7 @@
 
 #if !GDL2
    #ifdef TCSDB
-      #import <TCSimpleDB/EODefines.h>
+      #import <TCSimpleDB/TCSimpleDB.h>
       #import <TCSimpleDB/EODefines.h>
    #else // TCSDB
       #include <eoaccess/EOModel.h>
