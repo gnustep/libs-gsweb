@@ -1045,7 +1045,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         {
           // NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
           bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
-          NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
+          //NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
           if (bundle)
             {
               // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
@@ -1095,13 +1095,17 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   //  NSDebugMLLog(@"resmanager",@"bundle %@ %s cached",resourceName,(bundle ? "" : "NOT"));
   if (!bundle)
     {
-      NSArray* allFrameworks=[NSBundle allFrameworks];
+      NSMutableArray* allFrameworks=[[NSBundle allFrameworks] mutableCopy];
       int i=0;
       NSString* bundlePath=nil;
       NSBundle* tmpBundle=nil;
       NSDictionary* infoDict=nil;
       NSString* frameworkName=nil;
       GSWDeployedBundle* projectBundle=nil;
+
+      [allFrameworks addObjectsFromArray:[NSBundle allBundles]];
+      [allFrameworks autorelease];
+      
       for(i=0;!bundle && i<[allFrameworks count];i++)
         {
           tmpBundle=[allFrameworks objectAtIndex:i];
@@ -1290,7 +1294,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
-  
+
   for(i=0;!path && i<[frameworks count];i++)
     {
       frameworkName=[frameworks objectAtIndex:i];
