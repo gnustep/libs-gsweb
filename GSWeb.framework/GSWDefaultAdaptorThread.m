@@ -77,6 +77,7 @@ static char rcsId[] = "$Id$";
   DESTROY(_runDate);
   DESTROY(_dispatchRequestDate);
   DESTROY(_sendResponseDate);
+  DESTROY(_remoteAddress);
   GSWLogMemC("release pool");
 //  DESTROY(_pool);
   GSWLogMemC("super dealloc");
@@ -520,6 +521,7 @@ static char rcsId[] = "$Id$";
                 };
             };
         } while (!isAllDataReaden && !isElapsed);
+      ASSIGN(_remoteAddress,remoteAddr);
       NSDebugDeepMLog(@"GSWDefaultAdaptor: userAgent=%@ remoteAddr=%@ isAllDataReaden=%s isElapsed=%s readenBytesNb=%d contentLength=%d dataBytesNb=%d headersBytesNb=%d",
                   userAgent,
                   remoteAddr,
@@ -604,10 +606,48 @@ static char rcsId[] = "$Id$";
 /** Send response 'response' to current stream using current naming convention **/
 -(void)sendResponse:(GSWResponse*)response
 {
+  NSMutableArray* headers=nil;
+  NSString* anHeader=nil;
+  NSTimeInterval ti=0;
   LOGObjectFnStart();
+  
+#ifndef NDEBUG
+  headers=[NSMutableArray array];
+  anHeader=[NSString stringWithFormat:@"GSWRunDate: %@\n",
+                     [_runDate descriptionWithCalendarFormat:@"%d/%m/%Y %H:%M:%S.%F"
+                               timeZone:nil
+                               locale:nil]];
+  [headers addObject:anHeader];
+  anHeader=[NSString stringWithFormat:@"GSWDispatchRequestDate: %@\n",
+                     [_dispatchRequestDate descriptionWithCalendarFormat:@"%d/%m/%Y %H:%M:%S.%F"
+                                           timeZone:nil
+                                           locale:nil]];
+  [headers addObject:anHeader];
+  anHeader=[NSString stringWithFormat:@"GSWSendResponseDate: %@\n",
+                     [_sendResponseDate descriptionWithCalendarFormat:@"%d/%m/%Y %H:%M:%S.%F"
+                                        timeZone:nil
+                                        locale:nil]];
+  [headers addObject:anHeader];
+  
+  ti=[_dispatchRequestDate timeIntervalSinceDate:_runDate];
+  anHeader=[NSString stringWithFormat:@"GSWDispatchRequestDate-GSWRunDate: %.3f seconds (%.1f minutes)\n",
+                     ti,(double)(ti/60)];
+  
+  [headers addObject:anHeader];
+  ti=[_sendResponseDate timeIntervalSinceDate:_runDate];
+  anHeader=[NSString stringWithFormat:@"GSWSendResponseDate-GSWRunDate: %.3f seconds (%.1f minutes)\n",
+                     ti,(double)(ti/60)];
+  [headers addObject:anHeader];
+  ti=[_sendResponseDate timeIntervalSinceDate:_dispatchRequestDate];
+  anHeader=[NSString stringWithFormat:@"GSWSendResponseDate-GSWDispatchRequestDate: %.3f seconds (%.1f minutes)\n",
+                     ti,(double)(ti/60)];
+  [headers addObject:anHeader];
+#endif
   [[self class]sendResponse:response
                toStream:_stream
-               withNamingConv:_requestNamingConv];
+               withNamingConv:_requestNamingConv
+               withAdditionalHeaderLines:headers
+               withRemoteAddress:_remoteAddress];
   ASSIGN(_stream,nil);
   LOGObjectFnStop();
 };
@@ -618,6 +658,8 @@ Note: the stream is closed at the end of the write
 +(void)sendResponse:(GSWResponse*)response
            toStream:(NSFileHandle*)aStream
      withNamingConv:(int)requestNamingConv
+withAdditionalHeaderLines:(NSArray*)addHeaders
+  withRemoteAddress:(NSString*)remoteAddress
 {
   BOOL ok=YES;
   LOGObjectFnStart();
@@ -627,7 +669,8 @@ Note: the stream is closed at the end of the write
     {
       int headerN=0;
       int headerNForKey=0;
-      NSMutableData* responseData=[[NSMutableData new]autorelease];
+      NSMutableData* allResponseData=nil;//to store response
+      NSMutableData* responseData=(NSMutableData*)[NSMutableData data];
       NSArray* headerKeys=[response headerKeys];
       NSArray* headersForKey=nil;
       NSString* key=nil;
@@ -638,6 +681,10 @@ Note: the stream is closed at the end of the write
                                GSWHTTPHeader_Response_OK,
                                GSWHTTPHeader_Response_HeaderLineEnd[requestNamingConv]];
       NSString* empty=[NSString stringWithString:@"\n"];
+      NSDebugDeepMLLog(@"low",@"[GSWApplication saveResponsesPath]:%@",[GSWApplication saveResponsesPath]);
+      if ([GSWApplication saveResponsesPath])
+        allResponseData=(NSMutableData*)[NSMutableData data];
+
       NSDebugDeepMLLog(@"low",@"head:%@",head);
       NSDebugDeepMLLog(@"low",@"responseData:%@",responseData);
       [responseData appendData:[head dataUsingEncoding:NSASCIIStringEncoding]];
@@ -656,6 +703,9 @@ Note: the stream is closed at the end of the write
               NSDebugDeepMLLog(@"low",@"responseData:%@",responseData);
             };
         };
+      for(headerN=0;headerN<[addHeaders count];headerN++)
+        [responseData appendData:[[addHeaders objectAtIndex:headerN]dataUsingEncoding:NSASCIIStringEncoding]];
+
       //	  NSDebugDeepMLLog(@"low",@"cl:%@",cl);
       NSDebugDeepMLLog(@"low",@"empty:%@",empty);
       //	  [responseData appendData:[cl dataUsingEncoding:NSASCIIStringEncoding]];
@@ -663,6 +713,7 @@ Note: the stream is closed at the end of the write
       [responseData appendData:[empty dataUsingEncoding:NSASCIIStringEncoding]];
       NSDebugDeepMLLog(@"low",@"responseData:%@",responseData);
       
+      [allResponseData appendData:responseData];
       NS_DURING
         {
           [aStream writeData:responseData];
@@ -670,8 +721,11 @@ Note: the stream is closed at the end of the write
       NS_HANDLER
         {
           ok=NO;
-          LOGException(@"GSWDefaultAdaptorThread: readRequestFromStream Exception:%@ (%@)",
+          LOGException(@"GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",
                        localException,[localException reason]);
+          NSDebugMLog(@"EXCEPTION GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",
+                      localException,[localException reason]);
+          [GSWApplication statusLogWithFormat:@"\nException while sending response\n"];
         }
       NS_ENDHANDLER;
       if (ok && [[response content] length]>0)
@@ -689,18 +743,29 @@ Note: the stream is closed at the end of the write
                            [[[NSString alloc] initWithData:[response content]
                                               encoding:NSISOLatin1StringEncoding]
                              autorelease]);
+
+          [allResponseData appendData:responseData];
           NS_DURING
             {
               [aStream writeData:responseData];
+              [GSWApplication statusLogWithFormat:@"\nResponse Sent\n"];
             }
           NS_HANDLER
             {
               ok=NO;
-              LOGException(@"GSWDefaultAdaptorThread: readRequestFromStream Exception:%@ (%@)",localException,[localException reason]);
+              LOGException(@"GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",
+                           localException,[localException reason]);
+              NSDebugMLog(@"EXCEPTION GSWDefaultAdaptorThread: sendResponse Exception:%@ (%@)",
+                          localException,[localException reason]);
+              [GSWApplication statusLogWithFormat:@"\nException while sending response\n"];
             }
           NS_ENDHANDLER;
           NSDebugDeepMLLog0(@"info",@"Response content Written");
         };
+      if (allResponseData)
+        [self saveResponse:response
+              data:allResponseData
+              remoteAddress:remoteAddress];
     };
   [aStream closeFile];
   LOGObjectFnStop();
@@ -743,7 +808,9 @@ Note: the stream is closed at the end of the write
   NSDebugDeepMLog0(@"sendResponse:\n");
   [self sendResponse:response
         toStream:stream
-        withNamingConv:GSWNAMES_INDEX];
+        withNamingConv:GSWNAMES_INDEX
+        withAdditionalHeaderLines:nil
+        withRemoteAddress:nil];
   LOGDEEPClassFnStop();
   DESTROY(pool);
 };
@@ -763,10 +830,53 @@ Note: the stream is closed at the end of the write
   NSDebugDeepMLog0(@"sendResponse:\n");
   [self sendResponse:response
         toStream:stream
-        withNamingConv:GSWNAMES_INDEX];
+        withNamingConv:GSWNAMES_INDEX
+        withAdditionalHeaderLines:nil
+        withRemoteAddress:nil];
   LOGDEEPClassFnStop();
   DESTROY(pool);
 };
 
-@end
++(NSString*)savedResponseFilenameWithResponse:(GSWResponse*)response
+                                remoteAddress:(NSString*)remoteAddress
+{
+  NSString* dateString=[[NSCalendarDate calendarDate] descriptionWithCalendarFormat:@"%Y-%m-%d_%H-%M-%S.%F"];
+  return [NSString stringWithFormat:@"GSWeb-%@-Response-%@-%@-%p",
+                   [[GSWApplication application]name],
+                   dateString,
+                   (remoteAddress ? remoteAddress : @"unknown"),
+                   response];
+};
 
++(void)saveResponse:(GSWResponse*)response
+               data:(NSData*)allResponseData
+      remoteAddress:(NSString*)remoteAddress
+{
+  NSString* path=nil;
+  LOGObjectFnStart();
+  path=[GSWApplication saveResponsesPath];
+  if (path)
+    {
+      path=[path stringByAppendingPathComponent:[self savedResponseFilenameWithResponse:response
+                                                      remoteAddress:remoteAddress]];
+      NSDebugDeepMLog(@"path=%@:",path);
+      NS_DURING
+        {
+          NSString* str=[[[NSString alloc]initWithData:allResponseData        
+                                          encoding:NSASCIIStringEncoding]autorelease];
+          [str writeToFile:path
+               atomically:NO];
+        }
+      NS_HANDLER
+        {
+          LOGException(@"GSWDefaultAdaptorThread: Exception:%@ (%@)",
+                       localException,[localException reason]);
+          NSDebugMLog(@"EXCEPTION GSWDefaultAdaptorThread: Exception:%@ (%@)",
+                      localException,[localException reason]);
+        }
+      NS_ENDHANDLER;
+    }
+  LOGObjectFnStop();
+}
+
+@end

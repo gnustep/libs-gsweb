@@ -97,14 +97,17 @@ static char rcsId[] = "$Id$";
 {
   BOOL isViewEnabled=YES;
   if ([self hasBinding:@"isViewEnabled"])
-	{
-	  id isViewEnabledObject=[self valueForBinding:@"isViewEnabled"];
-	  isViewEnabled=boolValueFor(isViewEnabledObject);
-	};
+    {
+      id isViewEnabledObject=[self valueForBinding:@"isViewEnabled"];
+      isViewEnabled=boolValueFor(isViewEnabledObject);
+    };
   if (isViewEnabled)
-	{
-	  isViewEnabled=([[self fileInfo]objectForKey:@"data"]!=nil);
-	};
+    {
+      NSMutableDictionary* fileInfo=[self fileInfo];
+      isViewEnabled=([fileInfo objectForKey:@"data"]!=nil
+                     || [fileInfo objectForKey:@"filePath"]!=nil
+                     || [fileInfo objectForKey:@"fileURL"]!=nil);
+    };
   return isViewEnabled;
 };
 
@@ -113,14 +116,17 @@ static char rcsId[] = "$Id$";
 {
   BOOL isDeleteEnabled=NO;
   if ([self hasBinding:@"isDeleteEnabled"])
-	{
-	  id isDeleteEnabledObject=[self valueForBinding:@"isDeleteEnabled"];
-	  isDeleteEnabled=boolValueFor(isDeleteEnabledObject);
-	};
+    {
+      id isDeleteEnabledObject=[self valueForBinding:@"isDeleteEnabled"];
+      isDeleteEnabled=boolValueFor(isDeleteEnabledObject);
+    };
   if (isDeleteEnabled)
-	{
-	  isDeleteEnabled=([[self fileInfo]objectForKey:@"data"]!=nil);
-	};
+    {
+      NSMutableDictionary* fileInfo=[self fileInfo];
+      isDeleteEnabled=([fileInfo objectForKey:@"data"]!=nil
+                       || [fileInfo objectForKey:@"filePath"]!=nil
+                       || [fileInfo objectForKey:@"fileURL"]!=nil);
+    };
   return isDeleteEnabled;
 };
 

@@ -1,3 +1,67 @@
+2002-05-14  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWSubmitButton.m:
+		o corrected setActionInvoked into _setActionInvoked
+	* GSWeb.framework/GSWGeometricRegion.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWAssociation.h:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWAssociation.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+		o logs
+	* GSWForm.h,.m:
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc
+	* GSWContext.h:
+		o Changed return type of -elementID and -senderID
+	* GSWContext.m:
+		o Changed return type of -elementID and -senderID
+	* GSWDisplayGroup.m:
+		o logs
+	* GSWeb.framework/GSWPopUpButton.h,.m:
+		o added count & index parameters (like GSWRepetition)
+	* GSWTextField.m:
+		o handling exception in takeValue
+	* GSWText.m:
+		o handling exception in takeValue
+	* GSWInput.m:
+		o corrected bug in akeValuesFromRequest:inContext:
+	* GSWExtensionsGSW.framework:
+		o added GSWFileUploadComponent
+	* GSWExtensionsGSW.framework/GNUmakefile
+		o added GSWFileUploadComponent
+	* GSWComponent.h:
+		o added -definitionName
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWComponent.m:
+		o added -definitionName
+		o added exception handling for debugging purpose
+		o ivar names changes to conform to coding standards
+		o headers changed for gsdoc		
+	* GSWKeyValueAssociation.m:
+		o logs
+	* GSWConstantValueAssociation.m:
+		o logs
+	* GSWApplication.h:
+		o added -saveResponsesPath
+	* GSWApplication.m:
+		o added -saveResponsesPath
+		o added GSWOPT_SaveResponsesPath
+		o added exception handling for debugging purpose
+	* GSWConstants.h/.m:
+		o added GSWOPT_SaveResponsesPath
+	* GSWConfig.h:
+		o added GSWOPTVALUE_SaveResponsesPath
+	* GSWDefaultAdaptorThread.h:
+		o add response saving
+	* GSWDefaultAdaptorThread.m:
+		o add response saving
+	* GSWeb.framework/GSWResponse.m
+		o added -appendDebugCommentContentString:
+	
 2002-04-15  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWDynamicURLString.h:
 		o remove NSMutableString protocol

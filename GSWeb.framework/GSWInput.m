@@ -202,26 +202,29 @@ static int countAutoValue = 0;
         {
           GSWComponent* component=[context component];
           NSString* nameInContext=[self nameInContext:context];
-          NSString* value=[request formValueForKey:nameInContext];
+          NSString* valueValue=[request formValueForKey:nameInContext];
           NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
-          NSDebugMLLog(@"gswdync",@"value=%@",value);
-          if (!WOStrictFlag)
+          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+          NS_DURING
             {
-              NS_DURING
-                {
-                  [value setValue:value
-                         inComponent:component];
-                };
-              NS_HANDLER
+              [_value setValue:valueValue
+                      inComponent:component];
+            };
+          NS_HANDLER
+            {
+              LOGException(@"GSWInput _value=%@ valueValue=%@ exception=%@",
+                           _value,valueValue,localException);
+              if (!WOStrictFlag)
                 {
                   [self handleValidationException:localException
                         inContext:context];
                 }
-              NS_ENDHANDLER;
+              else
+                {
+                  [localException raise];
+                };
             }
-          else
-            [value setValue:value
-                   inComponent:component];
+          NS_ENDHANDLER;
         };	  
     };
   LOGObjectFnStopC("GSWInput");

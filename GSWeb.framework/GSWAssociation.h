@@ -1,11 +1,16 @@
-/* GSWAssociation.h - GSWeb: Class GSWAssociation
+/** GSWAssociation.h - <title>GSWeb: Class GSWAssociation</title>
+
    Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -56,21 +62,21 @@ In the case value = myMember.label, value came from method "label" or member "la
 //====================================================================
 @interface GSWAssociation : NSObject <NSCopying>
 {
-  BOOL debugEnabled;
-  NSString* bindingName;
-  NSString* declarationName;
-  NSString* declarationType;
+  BOOL _debugEnabled;
+  NSString* _bindingName;
+  NSString* _declarationName;
+  NSString* _declarationType;
 };
 
 -(id)init;
 -(id)copyWithZone:(NSZone *)zone;
 
--(id)valueInComponent:(GSWComponent*)component_;
--(id)valueInObject:(id)object_;//NDFN
--(void)setValue:(id)value_
-	inComponent:(GSWComponent*)component_;
--(void)setValue:(id)value_
-	inObject:(id)object_;//NDFN
+-(id)valueInComponent:(GSWComponent*)component;
+-(id)valueInObject:(id)object;//NDFN
+-(void)setValue:(id)value
+    inComponent:(GSWComponent*)component;
+-(void)setValue:(id)value
+       inObject:(id)object;//NDFN
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
 -(NSString*)description;
@@ -81,24 +87,24 @@ In the case value = myMember.label, value came from method "label" or member "la
 
 //====================================================================
 @interface GSWAssociation (GSWAssociationHandlers)
-+(void)setClasse:(Class)class_
-	  forHandler:(NSString*)handler_;
-+(void)addLogHandlerClasse:(Class)class_;
-+(void)removeLogHandlerClasse:(Class)class_;
++(void)setClasse:(Class)class
+      forHandler:(NSString*)handler;
++(void)addLogHandlerClasse:(Class)class;
++(void)removeLogHandlerClasse:(Class)class;
 @end
 //====================================================================
 @interface GSWAssociation (GSWAssociationCreation)
-+(GSWAssociation*)associationWithValue:(id)value_;
-+(GSWAssociation*)associationWithKeyPath:(NSString*)keyPath_;
++(GSWAssociation*)associationWithValue:(id)value;
++(GSWAssociation*)associationWithKeyPath:(NSString*)keyPath;
 //NDFN
-+(GSWAssociation*)associationFromString:(NSString*)string_;
++(GSWAssociation*)associationFromString:(NSString*)string;
 
 @end
 /*
 //====================================================================
 @interface GSWAssociation (GSWAssociationOldFn)
 
--(void)setValue:(id)value_;
+-(void)setValue:(id)value;
 -(id)value;
 
 @end
@@ -106,7 +112,7 @@ In the case value = myMember.label, value came from method "label" or member "la
 //====================================================================
 @interface GSWAssociation (GSWAssociationA)
 
--(BOOL)isImplementedForComponent:(NSObject*)component_;
+-(BOOL)isImplementedForComponent:(NSObject*)component;
 
 @end
 
@@ -114,35 +120,35 @@ In the case value = myMember.label, value came from method "label" or member "la
 @interface GSWAssociation (GSWAssociationB)
 
 -(NSString*)keyPath;
--(void)logSynchronizeComponentToParentForValue:(id)value_
-								   inComponent:(NSObject*)component_;
--(void)logSynchronizeParentToComponentForValue:(id)value_
-								   inComponent:(NSObject*)component_;
--(void)logTakeValue:(id)value_;
--(void)logSetValue:(id)value_;
+-(void)logSynchronizeComponentToParentForValue:(id)value
+                                   inComponent:(NSObject*)component;
+-(void)logSynchronizeParentToComponentForValue:(id)value
+                                   inComponent:(NSObject*)component;
+-(void)logTakeValue:(id)value;
+-(void)logSetValue:(id)value;
 
 -(NSString*)debugDescription;
--(void)setDebugEnabledForBinding:(NSString*)_bindingName
-				 declarationName:(NSString*)_declarationName
-				 declarationType:(NSString*)_declarationType;
+-(void)setDebugEnabledForBinding:(NSString*)bindingName
+                 declarationName:(NSString*)declarationName
+                 declarationType:(NSString*)declarationType;
 
-+(id)valueInObject:(id)object_
-		forKeyPath:(NSString*)keyPath_;
++(id)valueInObject:(id)object
+        forKeyPath:(NSString*)keyPath;
 
-+(void)setValue:(id)value_
-	   inObject:(id)object_
-	 forKeyPath:(NSString*)keyPath_;
++(void)setValue:(id)value
+       inObject:(id)object
+     forKeyPath:(NSString*)keyPath;
 
 @end
 
 //===================================================================================
 @interface NSDictionary (GSWAssociation)
--(BOOL)isAssociationDebugEnabledInComponent:(NSObject*)component_;
+-(BOOL)isAssociationDebugEnabledInComponent:(NSObject*)component;
 -(void)associationsSetDebugEnabled;
--(void)associationsSetValuesFromObject:(id)from_
-							  inObject:(id)to_;
--(NSDictionary*)associationsWithoutPrefix:(NSString*)prefix_
-							   removeFrom:(NSMutableDictionary*)removeFrom_;
+-(void)associationsSetValuesFromObject:(id)from
+                              inObject:(id)to;
+-(NSDictionary*)associationsWithoutPrefix:(NSString*)prefix
+                               removeFrom:(NSMutableDictionary*)removeFrom;
 -(NSDictionary*)dictionaryByReplacingStringsWithAssociations;
 @end
 

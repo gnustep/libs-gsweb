@@ -66,6 +66,7 @@
 -(id)copyWithZone:(NSZone *)zone; 
 -(const char*)cString;
 -(unsigned int)cStringLength;
+-(BOOL)isSearchOverForSenderID:(NSString*)senderID;
 @end
 
 //====================================================================

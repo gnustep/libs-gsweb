@@ -1,11 +1,17 @@
-/* GSWComponent.h - GSWeb: Class GSWComponent
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWComponent.h - <title>GSWeb: Class GSWComponent</title>
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+   
+   <abstract></abstract>
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +25,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 // $Id$
 
@@ -30,43 +37,43 @@
 @interface GSWComponent : GSWElement <NSCoding,NSCopying>
 {
 //TODO ==> private @private
-    NSString* name;
-    NSMutableDictionary* subComponents;
-    NSString* templateName;
-    GSWElement* template;
-    GSWComponentDefinition* componentDefinition;
-    GSWComponent* parent;
-    NSArray* associationsKeys;
-    NSArray* associations;
-    GSWElement* childTemplate;
-    GSWContext* context;
-    GSWSession* session;
+    NSString* _name;
+    NSMutableDictionary* _subComponents;
+    NSString* _templateName;
+    GSWElement* _template;
+    GSWComponentDefinition* _componentDefinition;
+    GSWComponent* _parent;
+    NSArray* _associationsKeys;
+    NSArray* _associations;
+    GSWElement* _childTemplate;
+    GSWContext* _context;
+    GSWSession* _session;
 //GSWeb Additions {
-	NSDictionary* userDictionary;
-	NSDictionary* userAssociations;
-	NSDictionary* defaultAssociations;
-	NSMutableDictionary* validationFailureMessages;
+	NSDictionary* _userDictionary;
+	NSDictionary* _userAssociations;
+	NSDictionary* _defaultAssociations;
+	NSMutableDictionary* _validationFailureMessages;
 // }
-    BOOL isPage;
-    BOOL isCachingEnabled;
-    BOOL isSynchronized;
+    BOOL _isPage;
+    BOOL _isCachingEnabled;
+    BOOL _isSynchronized;
 };
 
 -(id)init;
 -(void)dealloc;
 
--(id)initWithCoder:(NSCoder*)coder_;
--(void)encodeWithCoder:(NSCoder*)coder_;
+-(id)initWithCoder:(NSCoder*)coder;
+-(void)encodeWithCoder:(NSCoder*)coder;
 -(id)copyWithZone:(NSZone*)zone;
 
 -(NSString*)description;
 #if !GSWEB_STRICT
 -(NSDictionary*)userDictionary;
--(void)setUserDictionary:(NSDictionary*)userDictionary_;
+-(void)setUserDictionary:(NSDictionary*)userDictionary;
 -(NSDictionary*)userAssociations;
--(void)setUserAssociations:(NSDictionary*)userAssociations_;
+-(void)setUserAssociations:(NSDictionary*)userAssociations;
 -(NSDictionary*)defaultAssociations;
--(void)setDefaultAssociations:(NSDictionary*)defaultAssociations_;
+-(void)setDefaultAssociations:(NSDictionary*)defaultAssociations;
 #endif
 -(NSString*)frameworkName;
 -(NSString*)baseURL;
@@ -81,17 +88,17 @@
 @interface GSWComponent (GSWCachingPolicy)
 
 -(BOOL)isCachingEnabled;
--(void)setCachingEnabled:(BOOL)flag_;
+-(void)setCachingEnabled:(BOOL)flag;
 
 @end
 
 //====================================================================
 @interface GSWComponent (GSWComponentA)
 
--(void)setParent:(GSWComponent*)_parent
-associationsKeys:(NSArray*)_associationsKeys
-	associations:(NSArray*)_associations
-		template:(GSWElement*)_template;
+-(void)setParent:(GSWComponent*)parent
+associationsKeys:(NSArray*)associationsKeys
+    associations:(NSArray*)associations
+        template:(GSWElement*)template;
 
 -(void)synchronizeComponentToParent;
 -(void)synchronizeParentToComponent;
@@ -99,58 +106,59 @@ associationsKeys:(NSArray*)_associationsKeys
 -(GSWElement*)_template;
 -(GSWComponentDefinition*)_componentDefinition;
 -(NSString*)_templateName;
+-(NSString*)definitionName;
 -(BOOL)_isPage;
--(void)_setIsPage:(BOOL)_isPage;
--(void)_setContext:(GSWContext*)context_;
+-(void)_setIsPage:(BOOL)isPage;
+-(void)_setContext:(GSWContext*)aContext;
 
 @end
 
 //====================================================================
 @interface GSWComponent (GSWResourceManagement)
 
--(GSWElement*)templateWithName:(NSString*)name_;
+-(GSWElement*)templateWithName:(NSString*)aName;
 
 @end
 
 //====================================================================
 @interface GSWComponent (GSWComponentC)
--(GSWComponent*)subComponentForElementID:(NSString*)_elementId;
--(void)setSubComponent:(GSWComponent*)_component
-		  forElementID:(NSString*)_elementId;
+-(GSWComponent*)subComponentForElementID:(NSString*)elementId;
+-(void)setSubComponent:(GSWComponent*)component
+          forElementID:(NSString*)elementId;
 
 //NDFN
 -(void)makeParentsPerformSelectorIfPossible:(SEL)aSelector;
 -(void)makeParentsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)object_;
+                                 withObject:(id)object;
 -(void)makeParentsPerformSelectorIfPossible:(SEL)aSelector
-								 withObject:(id)object1_
-								 withObject:(id)object2_;
+                                 withObject:(id)object1
+                                 withObject:(id)object2;
 -(id)makeAParentPerformSelectorIfPossible:(SEL)aSelector;
 -(id)makeAParentPerformSelectorIfPossible:(SEL)aSelector
-							   withObject:(id)object_;
+                               withObject:(id)object;
 -(id)makeAParentPerformSelectorIfPossible:(SEL)aSelector
-							   withObject:(id)object1_
-							   withObject:(id)object2_;
+                               withObject:(id)object1
+                               withObject:(id)object2;
 -(void)makeSubComponentsPerformSelectorIfPossible:(SEL)aSelector;
 -(void)makeSubComponentsPerformSelectorIfPossible:(SEL)aSelector
-									   withObject:(id)object_;
+                                       withObject:(id)object;
 -(void)makeSubComponentsPerformSelectorIfPossible:(SEL)aSelector
-									   withObject:(id)object1_
-									   withObject:(id)object2_;
+                                       withObject:(id)object1
+                                       withObject:(id)object2;
 
 @end
 
 //====================================================================
 @interface GSWComponent (GSWComponentD)
--(GSWAssociation*)_associationWithName:(NSString*)parentBindingName_;
+-(GSWAssociation*)_associationWithName:(NSString*)parentBindingName;
 @end
 
 //====================================================================
 @interface GSWComponent (GSWSynchronizing)
--(BOOL)hasBinding:(NSString*)parentBindingName_;
--(void)setValue:(id)_value
-	 forBinding:(NSString*)parentBindingName_;
--(id)valueForBinding:(NSString*)parentBindingName_;
+-(BOOL)hasBinding:(NSString*)parentBindingName;
+-(void)setValue:(id)value
+     forBinding:(NSString*)parentBindingName;
+-(id)valueForBinding:(NSString*)parentBindingName;
 -(BOOL)synchronizesVariablesWithBindings;
 -(NSDictionary*)bindingAssociations;
 @end
@@ -158,25 +166,25 @@ associationsKeys:(NSArray*)_associationsKeys
 //====================================================================
 @interface GSWComponent (GSWRequestHandling)
 -(void)sleep;
--(void)sleepInContext:(GSWContext*)context_;
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_;
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-						  inContext:(GSWContext*)context_;
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_;
+-(void)sleepInContext:(GSWContext*)aContext;
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext;
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+                           inContext:(GSWContext*)aContext;
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)aContext;
 #if !GSWEB_STRICT
 -(void)setValidationFailureMessage:(NSString*)message
-						forElement:(GSWDynamicElement*)element_;
--(NSString*)validationFailureMessageForElement:(GSWDynamicElement*)element_;
+                        forElement:(GSWDynamicElement*)element;
+-(NSString*)validationFailureMessageForElement:(GSWDynamicElement*)element;
 -(NSString*)handleValidationExceptionDefault;
 -(BOOL)isValidationFailure;
 -(NSDictionary*)validationFailureMessages;
 -(NSArray*)allValidationFailureMessages;
 #endif
--(void)ensureAwakeInContext:(GSWContext*)context_;
+-(void)ensureAwakeInContext:(GSWContext*)aContext;
 -(void)awake;
--(void)awakeInContext:(GSWContext*)context_;
+-(void)awakeInContext:(GSWContext*)aContext;
 
 @end
 
@@ -191,7 +199,7 @@ associationsKeys:(NSArray*)_associationsKeys
 
 //====================================================================
 @interface GSWComponent (GSWConveniences)
--(GSWComponent*)pageWithName:(NSString*)_name;
+-(GSWComponent*)pageWithName:(NSString*)aName;
 -(GSWSession*)session;
 -(BOOL)hasSession;
 -(GSWContext*)context;
@@ -201,15 +209,15 @@ associationsKeys:(NSArray*)_associationsKeys
 
 //====================================================================
 @interface GSWComponent (GSWLogging)
--(void)validationFailedWithException:(NSException*)_exception
-							   value:(id)_value
-							 keyPath:(id)_keyPath;
--(void)_debugWithString:(NSString*)_string;
--(void)debugWithFormat:(NSString*)_format,...;
--(void)logWithFormat:(NSString*)_format,...;
--(void)logWithFormat:(NSString*)_format
-		   arguments:(va_list)argList;
-+(void)logWithFormat:(NSString*)_format,...;
+-(void)validationFailedWithException:(NSException*)exception
+                               value:(id)_value
+                             keyPath:(id)_keyPath;
+-(void)_debugWithString:(NSString*)string;
+-(void)debugWithFormat:(NSString*)format,...;
+-(void)logWithFormat:(NSString*)format,...;
+-(void)logWithFormat:(NSString*)format
+           arguments:(va_list)argList;
++(void)logWithFormat:(NSString*)format,...;
 
 @end
 
@@ -220,72 +228,72 @@ associationsKeys:(NSArray*)_associationsKeys
 
 //====================================================================
 @interface GSWComponent (GSWComponentK)
--(GSWResponse*)_generateResponseInContext:(GSWContext*)context_;
--(id)validateValue:(id*)valuePtr_
-			forKey:(id)key_;
-+(id)validateValue:(id*)valuePtr_
-			forKey:(id)key_;
+-(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext;
+-(id)validateValue:(id*)valuePtr
+            forKey:(id)key;
++(id)validateValue:(id*)valuePtr
+            forKey:(id)key;
 @end
 
 //====================================================================
 @interface GSWComponent (GSWComponentL)
--(NSString*)stringForKey:(id)key_
-			inTableNamed:(NSString*)name_
-		withDefaultValue:(NSString*)defaultValue_;
+-(NSString*)stringForKey:(id)key
+            inTableNamed:(NSString*)aName
+        withDefaultValue:(NSString*)defaultValue;
 //NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)name_;
+-(NSDictionary*)stringsTableNamed:(NSString*)aName;
 
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)name_;
+-(NSArray*)stringsTableArrayNamed:(NSString*)aName;
 
--(NSString*)urlForResourceNamed:(NSString*)name_
-						 ofType:(NSString*)extension_;
--(NSString*)_urlForResourceNamed:(NSString*)name_
-						 ofType:(NSString*)extension_;
--(NSString*)pathForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)extension_;
+-(NSString*)urlForResourceNamed:(NSString*)aName
+                         ofType:(NSString*)extension;
+-(NSString*)_urlForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)extension;
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)extension;
 //NDFN
--(NSString*)pathForComponentResourceNamed:(NSString*)name_
-								   ofType:(NSString*)type_;
+-(NSString*)pathForComponentResourceNamed:(NSString*)aName
+                                   ofType:(NSString*)type;
 
-
-//NDFN
--(NSString*)stringForKey:(id)key_
-			inTableNamed:(NSString*)name_
-		withDefaultValue:(NSString*)defaultValue_
-			 inFramework:(NSString*)frameworkName_;
 
 //NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)name_
-					  inFramework:(NSString*)frameworkName_;
+-(NSString*)stringForKey:(id)key
+            inTableNamed:(NSString*)aName
+        withDefaultValue:(NSString*)defaultValue
+             inFramework:(NSString*)frameworkName;
 
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)name_
-					  inFramework:(NSString*)frameworkName_;
+-(NSDictionary*)stringsTableNamed:(NSString*)aName
+                      inFramework:(NSString*)frameworkName;
 
 //NDFN
--(NSString*)urlForResourceNamed:(NSString*)name_
-						 ofType:(NSString*)extension_
-					inFramework:(NSString*)frameworkName_;
+-(NSArray*)stringsTableArrayNamed:(NSString*)aName
+                      inFramework:(NSString*)frameworkName;
 
 //NDFN
--(NSString*)pathForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)extension_
-					 inFramework:(NSString*)frameworkName_;
+-(NSString*)urlForResourceNamed:(NSString*)aName
+                         ofType:(NSString*)extension
+                    inFramework:(NSString*)frameworkName;
+
+//NDFN
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)extension
+                     inFramework:(NSString*)frameworkName;
 @end
 
 //====================================================================
 @interface GSWComponent (GSWTemplateParsing)
 
-+(GSWElement*)templateWithHTMLString:(NSString *)htmlString_
-				  declarationString:(NSString *)declarationString_
-						  languages:(NSArray*)languages_;
++(GSWElement*)templateWithHTMLString:(NSString*)htmlString
+                   declarationString:(NSString*)declarationString
+                           languages:(NSArray*)languages;
 
 @end
 //====================================================================
 @interface GSWComponent (GSWTemplateParsingOldFn)
-+(GSWElement*)templateWithHTMLString:(NSString *)htmlString_
-				  declarationString:(NSString*)declarationString_;//old
++(GSWElement*)templateWithHTMLString:(NSString *)htmlString
+                   declarationString:(NSString*)declarationString;//old
 
 @end
 
@@ -298,13 +306,13 @@ associationsKeys:(NSArray*)_associationsKeys
 
 //====================================================================
 @interface GSWComponent (GSWStatistics)
--(NSString*)descriptionForResponse:(GSWResponse*)response_
-						 inContext:(GSWContext*)context_;
+-(NSString*)descriptionForResponse:(GSWResponse*)response
+                         inContext:(GSWContext*)aContext;
 @end
 
 //====================================================================
 @interface GSWComponent (GSWComponentClassA)
-+(void)_registerObserver:(id)_observer;
++(void)_registerObserver:(id)observer;
 @end
 
 //====================================================================

@@ -80,23 +80,26 @@ static char rcsId[] = "$Id$";
     {
       GSWComponent* component=[context component];
       id formValue=[request formValueForKey:[context elementID]];
-      if (!WOStrictFlag)
+      NS_DURING
         {
-          NS_DURING
+          [_value setValue:formValue
+                  inComponent:component];
+        }
+      NS_HANDLER
+        {
+          LOGException(@"GSWText _value=%@ resultValue=%@ exception=%@",
+                       _value,resultValue,localException);
+          if (WOStrictFlag)
             {
-              [_value setValue:formValue
-                     inComponent:component];
-            };
-          NS_HANDLER
+              [localException raise];
+            }
+          else
             {
               [self handleValidationException:localException
                     inContext:context];
-            }
-          NS_ENDHANDLER;
+            };
         }
-      else
-        [_value setValue:formValue
-               inComponent:component];
+      NS_ENDHANDLER;
     };
   [super takeValuesFromRequest:request
          inContext:context];

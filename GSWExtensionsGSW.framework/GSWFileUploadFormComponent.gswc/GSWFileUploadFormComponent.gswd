@@ -10,6 +10,40 @@ ViewCondition: GSWConditional
 	condition = isViewEnabled;
 };
 
+ViewPathCondition: GSWConditional
+{
+	condition = ^isURLView;
+        negate = YES;
+};
+
+ViewURLCondition: GSWConditional
+{
+	condition = ^isURLView;
+};
+
+LinkViewCondition: GSWConditional
+{
+	condition = ^isImageView;
+        negate = YES;
+};
+
+ImageViewCondition: GSWConditional
+{
+	condition = ^isImageView;
+};
+
+ImageWithPath: GSWImage
+{
+    filename = fileInfo.filePath;
+    border = 0;
+};
+
+ImageWithURL: GSWImage
+{
+    src = fileInfo.fileURL;
+    border = 0;
+};
+
 UploadFile: GSWFileUpload
 {
 	data = fileInfo.data;
@@ -17,8 +51,7 @@ UploadFile: GSWFileUpload
 	enabled=^isUploadEnabled;
 };
 
-
-FileLink: GSWHyperlink
+FileLinkWithPath: GSWHyperlink
 {
 	filename=fileInfo.filePath;
 	data=fileInfo.data;
@@ -27,6 +60,14 @@ FileLink: GSWHyperlink
 	string= ^string;
 	target = ^target;
 };
+
+FileLinkWithURL: GSWHyperlink
+{
+	src=fileInfo.fileURL;
+	string= ^string;
+	target = ^target;
+};
+
 
 SubmitButton: GSWSubmitButton
 {
@@ -45,3 +86,4 @@ DeleteButton: GSWSubmitButton
 	value= ^deleteButtonText;
 	action = deleteAction;
 };
+

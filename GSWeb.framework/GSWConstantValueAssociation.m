@@ -61,10 +61,11 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 -(NSString*)debugDescription
 {
-  NSString* _dscr=[NSString stringWithFormat:@"<%s %p - value=%@",
-							object_get_class_name(self),
-							(void*)self,
-							value];
+  NSString* _dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
+                            object_get_class_name(self),
+                            (void*)self,
+                            value,
+                            [value class]];
   return _dscr;
 };
 
@@ -103,10 +104,11 @@ static char rcsId[] = "$Id$";
 	{
 	  GSWLogAssertGood(value);
 	};
-  _dscr=[NSString stringWithFormat:@"<%s %p - value=%@",
-				  object_get_class_name(self),
-				  (void*)self,
-				  value];
+  _dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
+                  object_get_class_name(self),
+                  (void*)self,
+                  value,
+                  [value class]];
   return _dscr;
 };
 

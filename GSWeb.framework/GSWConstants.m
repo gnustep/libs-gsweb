@@ -185,6 +185,7 @@ NSString* GSWOPT_ProjectSearchPath=@"NSProjectSearchPath";
 NSString* GSWOPT_MultiThreadEnabled=@"GSWMTEnabled";
 NSString* GSWOPT_DebugSetConfigFilePath=@"GSWDebugSetConfigFilePath";
 NSString* GSWOPT_AdaptorHost[2]={ @"GSWAdaptorHost", @"WOAdaptorHost" };
+NSString* GSWOPT_SaveResponsesPath[2]={ @"GSWSaveResponsePath", @"WOSaveResponsePath" };
 
 //====================================================================
 // Cache Marker

@@ -63,11 +63,13 @@ static char rcsId[] = "$Id$";
 {
   id retValue=nil;
   LOGObjectFnStart();
+  NSDebugMLLog(@"associations",@"self=%@ ",self);
   NSDebugMLLog(@"associations",@"keyPath=%@ ",keyPath);
   NSDebugMLLog(@"associations",@"object_=%@ ", object_);
   retValue=[GSWAssociation valueInObject:object_
                            forKeyPath:keyPath];
-  NSDebugMLLog(@"associations",@"retValue=%@ (%p) (class=%@)",
+  NSDebugMLLog(@"associations",@"self=%@ retValue=%@ (%p) (class=%@)",
+               self,
                retValue,
                retValue,
                NSStringFromClass([retValue class]));

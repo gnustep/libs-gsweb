@@ -179,7 +179,7 @@ extern NSString* GSWOPT_ProjectSearchPath;
 extern NSString* GSWOPT_MultiThreadEnabled;
 extern NSString* GSWOPT_DebugSetConfigFilePath;
 extern NSString* GSWOPT_AdaptorHost[2];
-
+extern NSString* GSWOPT_SaveResponsesPath[2];
 
 //====================================================================
 // Cache Marker

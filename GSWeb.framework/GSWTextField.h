@@ -51,5 +51,9 @@
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component;
 @end
 
+@interface GSWTextField (TurbocatAdditions)
+- (BOOL)_isFormattedValueInComponent:(GSWComponent *)component  
+               equalToFormattedValue:(NSString *)newFormattedValue ;
+@end
 
 #endif //_GSWTextField_h__

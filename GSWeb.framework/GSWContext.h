@@ -64,7 +64,7 @@
 
 -(void)setInForm:(BOOL)_flag;
 -(BOOL)isInForm;
--(NSString*)elementID;
+-(GSWElementIDString*)elementID;
 -(GSWComponent*)component;
 -(GSWComponent*)page;
 -(GSWResponse*)response;

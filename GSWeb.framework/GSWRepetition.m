@@ -47,7 +47,7 @@ static char rcsId[] = "$Id$";
       NSDebugMLLog(@"gswdync",@"item=%@",_item);
       if (_item && ![_item isValueSettable])
         {
-          ExceptionRaise0(@"GSWCheckBox",@"'item' parameter must be settable");
+          ExceptionRaise0(@"GSWRepetition",@"'item' parameter must be settable");
         };
       _identifier=[[associations objectForKey:identifier__Key
                                   withDefaultObject:[_identifier autorelease]] retain];
@@ -60,7 +60,7 @@ static char rcsId[] = "$Id$";
       NSDebugMLLog(@"gswdync",@"index=%@",_index);
       if (_index && ![_index isValueSettable])
         {
-          ExceptionRaise0(@"GSWCheckBox",@"'index' parameter must be settable");
+          ExceptionRaise0(@"GSWRepetition",@"'index' parameter must be settable");
         };
       if (elements)
         {
@@ -122,6 +122,7 @@ static char rcsId[] = "$Id$";
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
   component=[context component];
+  NSDebugMLLog(@"gswdync",@"_list=%@",_list);
   if (_list)
     {
       listValue=[_list valueInComponent:component];
@@ -131,6 +132,7 @@ static char rcsId[] = "$Id$";
                 [listValue class]);
       countValue=[listValue count];
     };
+  NSDebugMLLog(@"gswdync",@"_count=%@",_count);
   if (_count)
     {
       id tmpCountValue=[_count valueInComponent:component];
@@ -472,9 +474,9 @@ static char rcsId[] = "$Id$";
     {
       component=[context component];
       NSDebugMLLog(@"gswdync",@"_item=%@",_item);
-
       if (_list && _item) {
 	if ([list count]>currentIndex) { 
+          NSDebugMLLog(@"gswdync",@"[list objectAtIndex:currentIndex]=%@",[list objectAtIndex:currentIndex]);
           [_item setValue:[list objectAtIndex:currentIndex]
               inComponent:component];
 	} else {
@@ -484,15 +486,13 @@ static char rcsId[] = "$Id$";
 
       NSDebugMLLog(@"gswdync",@"currentIndex=%d",currentIndex);
       NSDebugMLLog(@"gswdync",@"_index=%@",_index);
-      if (_index) {
+      if (_index)
         [_index setValue:[NSNumber numberWithShort:currentIndex]
-             inComponent:component];
-      }
-      if (currentIndex==0) {
+                inComponent:component];
+      if (currentIndex==0)
         [context appendZeroElementIDComponent];
-      } else {
+      else
         [context incrementLastElementIDComponent];
-      }     
     }
   NS_HANDLER
     {

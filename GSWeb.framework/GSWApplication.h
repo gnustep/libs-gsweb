@@ -527,6 +527,8 @@ extern BOOL WOStrictFlag;
 +(NSTimeInterval)sessionTimeOutValue;
 +(NSString*)debugSetConfigFilePath;//NDFN
 +(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath_;//NDFN
++(NSString*)saveResponsesPath;//NDFN
++(void)setSaveResponsesPath:(NSString*)saveResponsesPath;//NDFN
 @end
 
 //====================================================================

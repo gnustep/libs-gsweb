@@ -618,14 +618,14 @@ extern id gcObjectsToBeVisited;
 {
   //OK
   LOGObjectFnStart();
-  printf("session %p _releaseAutoreleasePool START",self);
-  fprintf(stderr,"session %p _releaseAutoreleasePool START",self);
+  printf("session %p _releaseAutoreleasePool START\n",self);
+  fprintf(stderr,"session %p _releaseAutoreleasePool START\n",self);
 //TODO-NOW remettre  [GarbageCollector collectGarbages];
   printf("session %p _releaseAutoreleasePool after garbage",self);
-fprintf(stderr,"session %p _releaseAutoreleasePool after garbage",self);
+fprintf(stderr,"session %p _releaseAutoreleasePool after garbage\n",self);
   DESTROY(autoreleasePool);
-  printf("session %p _releaseAutoreleasePool STOP",self);
-fprintf(stderr,"session %p _releaseAutoreleasePool STOP",self);
+  printf("session %p _releaseAutoreleasePool STOP\n",self);
+fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   LOGObjectFnStop();
 };
 

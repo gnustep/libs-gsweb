@@ -42,6 +42,7 @@
   NSDate* _runDate;
   NSDate* _dispatchRequestDate;
   NSDate* _sendResponseDate;
+  NSString* _remoteAddress;
   int _requestNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
 }
 
@@ -74,11 +75,16 @@
 
 +(void)sendResponse:(GSWResponse*)response
            toStream:(NSFileHandle*)aStream
-     withNamingConv:(int)requestNamingConv;
+     withNamingConv:(int)requestNamingConv
+withAdditionalHeaderLines:(NSArray*)addHeaders
+  withRemoteAddress:(NSString*)remoteAddress;
 
 +(void)sendRetryLasterResponseToStream:(NSFileHandle*)stream;
 +(void)sendConnectionRefusedResponseToStream:(NSFileHandle*)stream
                                  withMessage:(NSString*)message;
++(void)saveResponse:(GSWResponse*)response
+               data:(NSData*)allResponseData
+      remoteAddress:(NSString*)remoteAddress;
 @end
 
 #endif

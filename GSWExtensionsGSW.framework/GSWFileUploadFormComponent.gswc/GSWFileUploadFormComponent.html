@@ -1,10 +1,26 @@
-<gsweb name="Form">
-  <gsweb name="ViewCondition">
-    <gsweb name="FileLink"></gsweb>
+  <gsweb name="Form">
+    <gsweb name="ViewCondition">   
+      <gsweb name="ViewPathCondition">
+        <gsweb name="LinkViewCondition">
+          <gsweb name="FileLinkWithPath"></gsweb>
+        </gsweb>
+        <gsweb name="ImageViewCondition">
+          <gsweb name="ImageWithPath"></gsweb>
+        </gsweb>
+      </gsweb>
+      <gsweb name="ViewURLCondition">
+        <gsweb name="LinkViewCondition">
+          <gsweb name="FileLinkWithURL"></gsweb>
+        </gsweb>
+        <gsweb name="ImageViewCondition">
+          <gsweb name="ImageWithURL"></gsweb>
+        </gsweb>
+      </gsweb>
+    </gsweb>
+    <gsweb name="UploadFile"></gsweb><br>
+      <gsweb name="SubmitButton"></gsweb>
+      <gsweb name="DeleteCondition">
+        <gsweb name="DeleteButton"></gsweb>
+      </gsweb>
   </gsweb>
-  <gsweb name="UploadFile"></gsweb><br>
-  <gsweb name="SubmitButton"></gsweb>
-  <gsweb name="DeleteCondition">
-    <gsweb name="DeleteButton"></gsweb>
-  </gsweb>
-</gsweb>
+  

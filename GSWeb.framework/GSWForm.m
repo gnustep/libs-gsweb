@@ -1,11 +1,16 @@
-/* GSWForm.m - GSWeb: Class GSWForm
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWForm.m - <title>GSWeb: Class GSWForm</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -29,92 +35,96 @@ static char rcsId[] = "$Id$";
 @implementation GSWForm
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name_
-	 associations:(NSDictionary*)associations_
-  contentElements:(NSArray*)elements_
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+  contentElements:(NSArray*)elements
 {
-  NSMutableDictionary* _associations=[NSMutableDictionary dictionaryWithDictionary:associations_];
+  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
   LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"name_=%@ associations_:%@ elements_=%@",name_,associations_,elements_);
-  if (![_associations objectForKey:@"method"])
-	{
-	  if ([_associations objectForKey:@"get"])
-		[_associations setObject:[GSWAssociation associationWithValue:@"get"]
-					   forKey:@"method"];
-	  else
-		[_associations setObject:[GSWAssociation associationWithValue:@"post"]
-					   forKey:@"method"];
-	};
-  [_associations removeObjectForKey:action__Key];
-  [_associations removeObjectForKey:href__Key];
-  [_associations removeObjectForKey:multipleSubmit__Key];
-  [_associations removeObjectForKey:actionClass__Key];
-  if (directActionName)
-    [_associations removeObjectForKey:directActionName];
+  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",aName,associations,elements);
+  if (![tmpAssociations objectForKey:@"method"])
+    {
+      if ([tmpAssociations objectForKey:@"get"])
+        [tmpAssociations setObject:[GSWAssociation associationWithValue:@"get"]
+                         forKey:@"method"];
+      else
+        [tmpAssociations setObject:[GSWAssociation associationWithValue:@"post"]
+                         forKey:@"method"];
+    };
+  [tmpAssociations removeObjectForKey:action__Key];
+  [tmpAssociations removeObjectForKey:href__Key];
+  [tmpAssociations removeObjectForKey:multipleSubmit__Key];
+  [tmpAssociations removeObjectForKey:actionClass__Key];
+  if (_directActionName)
+    [tmpAssociations removeObjectForKey:_directActionName];
 
   if (!WOStrictFlag)
     {
-      [_associations removeObjectForKey:disabled__Key];
-      [_associations removeObjectForKey:enabled__Key];
+      [tmpAssociations removeObjectForKey:disabled__Key];
+      [tmpAssociations removeObjectForKey:enabled__Key];
     };
-  [_associations removeObjectForKey:queryDictionary__Key];
+  [tmpAssociations removeObjectForKey:queryDictionary__Key];
 
   //call isValueSettable sur value (return YES)
-  action = [[associations_ objectForKey:action__Key
-							  withDefaultObject:[action autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm: action=%@",action);
-  href = [[associations_ objectForKey:href__Key
-							withDefaultObject:[href autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm: href=%@",href);
-  multipleSubmit = [[associations_ objectForKey:multipleSubmit__Key
-									  withDefaultObject:[multipleSubmit autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm: multipleSubmit=%@",multipleSubmit);
-  actionClass = [[associations_ objectForKey:actionClass__Key
-								   withDefaultObject:[actionClass autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm: actionClass=%@",actionClass);
-  directActionName = [[associations_ objectForKey:directActionName__Key
-										withDefaultObject:[directActionName autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm: directActionName=%@",directActionName);
+  _action = [[associations objectForKey:action__Key
+                           withDefaultObject:[_action autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWForm: action=%@",_action);
+
+  _href = [[associations objectForKey:href__Key
+                         withDefaultObject:[_href autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWForm: href=%@",_href);
+
+  _multipleSubmit = [[associations objectForKey:multipleSubmit__Key
+                                   withDefaultObject:[_multipleSubmit autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWForm: multipleSubmit=%@",_multipleSubmit);
+
+  _actionClass = [[associations objectForKey:actionClass__Key
+                                withDefaultObject:[_actionClass autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWForm: actionClass=%@",_actionClass);
+
+  _directActionName = [[associations objectForKey:directActionName__Key
+                                     withDefaultObject:[_directActionName autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWForm: directActionName=%@",_directActionName);
 
   if (!WOStrictFlag)
     {
-      disabled = [[associations_ objectForKey:disabled__Key
-                                 withDefaultObject:[disabled autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWForm disabled=%@",disabled);
-      enabled = [[associations_ objectForKey:enabled__Key
-                                withDefaultObject:[enabled autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWForm enabled=%@",enabled);
-      if (disabled && enabled)
+      _disabled = [[associations objectForKey:disabled__Key
+                                 withDefaultObject:[_disabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWForm disabled=%@",_disabled);
+      _enabled = [[associations objectForKey:enabled__Key
+                                withDefaultObject:[_enabled autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"GSWForm enabled=%@",_enabled);
+      if (_disabled && _enabled)
 	{
 	  ExceptionRaise(@"GSWForm",@"You can't specify 'disabled' and 'enabled' together. componentAssociations:%@",
-                         associations_);
+                         associations);
 	};
     };
 
-  queryDictionary = [[associations_ objectForKey:queryDictionary__Key
-									   withDefaultObject:[queryDictionary autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWForm: queryDictionary=%@",queryDictionary);
+  _queryDictionary = [[associations objectForKey:queryDictionary__Key
+                                    withDefaultObject:[_queryDictionary autorelease]] retain];
+  NSDebugMLLog(@"gswdync",@"GSWForm: queryDictionary=%@",_queryDictionary);
 
-  if ((self=[super initWithName:name_
-				   attributeAssociations:_associations
-				   contentElements:elements_]))
-	{
-	};
+  if ((self=[super initWithName:aName
+                   attributeAssociations:tmpAssociations
+                   contentElements:elements]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(action);
-  DESTROY(href);
-  DESTROY(multipleSubmit);
-  DESTROY(actionClass);
-  DESTROY(directActionName);
-  DESTROY(queryDictionary);
-  DESTROY(disabled);
-  DESTROY(enabled);
-  DESTROY(otherQueryAssociations);
+  DESTROY(_action);
+  DESTROY(_href);
+  DESTROY(_multipleSubmit);
+  DESTROY(_actionClass);
+  DESTROY(_directActionName);
+  DESTROY(_queryDictionary);
+  DESTROY(_disabled);
+  DESTROY(_enabled);
+  DESTROY(_otherQueryAssociations);
   [super dealloc];
 };
 
@@ -122,8 +132,8 @@ static char rcsId[] = "$Id$";
 -(id)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-				   object_get_class_name(self),
-				   (void*)self];
+                   object_get_class_name(self),
+                   (void*)self];
 };
 
 //--------------------------------------------------------------------
@@ -140,15 +150,15 @@ static char rcsId[] = "$Id$";
 
 //GSWeb Additions {
 //--------------------------------------------------------------------
--(BOOL)disabledInContext:(GSWContext*)_context
+-(BOOL)disabledInContext:(GSWContext*)context
 {
   //OK
-  if (enabled)
-	return ![self evaluateCondition:enabled
-				  inContext:_context];
+  if (_enabled)
+    return ![self evaluateCondition:_enabled
+                  inContext:context];
   else
-	return [self evaluateCondition:disabled
-				 inContext:_context];
+    return [self evaluateCondition:_disabled
+                 inContext:context];
 };
 // }
 //--------------------------------------------------------------------
@@ -159,163 +169,164 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
--(void)_appendHiddenFieldsToResponse:(GSWResponse*)response_
-						   inContext:(GSWContext*)context_
+-(void)_appendHiddenFieldsToResponse:(GSWResponse*)response
+                           inContext:(GSWContext*)context
 {
   //OK
-  NSDictionary* _hiddenFields=nil;
-  GSWRequest* _request=nil;
-  NSString* _gswsid=nil;
+  NSDictionary* hiddenFields=nil;
+  GSWRequest* request=nil;
+  NSString* gswsid=nil;
 
-  _hiddenFields=[self computeQueryDictionaryInContext:context_];
-  if (_hiddenFields)
-	{
-	  //TODO
-	};
-  _request=[context_ request];
-  _gswsid=[_request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
-  if (_gswsid)
-	{
-	  //TODO
-	};
+  hiddenFields=[self computeQueryDictionaryInContext:context];
+  if (hiddenFields)
+    {
+      //TODO
+    };
+  request=[context request];
+  gswsid=[request formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
+  if (gswsid)
+    {
+      //TODO
+    };
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
--(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context_
+-(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context
 {
   //OK
-  GSWComponent* _component=[context_ component];
-  GSWSession* _session=[context_ existingSession];
-  NSString* _sessionID=[_session sessionID];
+  //GSWComponent* component=[context component];
+  //GSWSession* session=[context existingSession];
+  //NSString* sessionID=[session sessionID];
   LOGObjectFnNotImplemented();	//TODOFN
   return [[NSDictionary new] autorelease];
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response_
-			  inContext:(GSWContext*)context_
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
   //OK
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
 
-  GSWSaveAppendToResponseElementID(context_);//Debug Only
+  GSWSaveAppendToResponseElementID(context);//Debug Only
 
   if (!WOStrictFlag)
     {
-      BOOL _disabledInContext=NO;
-      _disabledInContext=[self disabledInContext:context_];
-      [context_ setInForm:!_disabledInContext];
+      BOOL disabledInContext=NO;
+      disabledInContext=[self disabledInContext:context];
+      [context setInForm:!disabledInContext];
     }
   else
-    [context_ setInForm:YES];
+    [context setInForm:YES];
 
-  [self appendToResponse:response_
-		inContext:context_
-		elementsFromIndex:0
-		toIndex:[elementsMap length]-2];
-  [self _appendHiddenFieldsToResponse:response_
-		inContext:context_];
-  [self appendToResponse:response_
-		inContext:context_
+  [self appendToResponse:response
+        inContext:context
+        elementsFromIndex:0
+        toIndex:[elementsMap length]-2];
+  [self _appendHiddenFieldsToResponse:response
+        inContext:context];
+  [self appendToResponse:response
+		inContext:context
 		elementsFromIndex:[elementsMap length]-1
 		toIndex:[elementsMap length]-1];
-  [context_ setInForm:NO];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+  [context setInForm:NO];
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWForm appendToResponse: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
+           @"GSWForm appendToResponse: bad elementID");
 #endif
   LOGObjectFnStopC("GSWForm");
 };
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request_
-                           inContext:(GSWContext*)context_
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context
 {
   //OK
-  GSWElement* _element=nil;
-  NSString* _senderID=nil;
-  NSString* _elementID=nil;
-  BOOL _isFormSubmited=NO;
+  GSWElement* element=nil;
+  NSString* senderID=nil;
+  GSWElementIDString* elementID=nil;
+  BOOL isFormSubmited=NO;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
-  BOOL _multipleSubmit=NO;
+  BOOL multipleSubmitValue=NO;
   int i=0;
   LOGObjectFnStartC("GSWForm");
-  _senderID=[context_ senderID];
-  _elementID=[context_ elementID];
+  senderID=[context senderID];
+  elementID=[context elementID];
   NSDebugMLLog(@"gswdync",@"ET=%@ definition name=%@ id=%@ senderId=%@",
-               [self class],[self definitionName],_elementID,_senderID);
+               [self class],[self definitionName],elementID,senderID);
   NS_DURING
     {
-      GSWAssertCorrectElementID(context_);// Debug Only
-      if ([self prefixMatchSenderIDInContext:context_]) //Avoid trying to find action if we are not the good component
+      GSWAssertCorrectElementID(context);// Debug Only
+      if ([self prefixMatchSenderIDInContext:context]) //Avoid trying to find action if we are not the good component
         {
           BOOL searchIsOver=NO;
-          _isFormSubmited=[_elementID isEqualToString:_senderID];
+          isFormSubmited=[elementID isEqualToString:senderID];
           NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@ _isFormSubmited=%s",
                        [self class],
-                       _elementID,
-                       _senderID,
-                       (_isFormSubmited ? "YES" : "NO"));
-          if (!WOStrictFlag && _isFormSubmited && [self disabledInContext:context_])
-            _isFormSubmited=NO;
+                       elementID,
+                       senderID,
+                       (isFormSubmited ? "YES" : "NO"));
+          if (!WOStrictFlag && isFormSubmited && [self disabledInContext:context])
+            isFormSubmited=NO;
           
-          if (_isFormSubmited)
+          if (isFormSubmited)
             {
-              [context_ setInForm:YES];
-              [context_ _setFormSubmitted:YES];
-              _multipleSubmit=[self evaluateCondition:multipleSubmit
-                                    inContext:context_];
-              NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@ _multipleSubmit=%s",
+              [context setInForm:YES];
+              [context _setFormSubmitted:YES];
+              multipleSubmitValue=[self evaluateCondition:_multipleSubmit
+                                        inContext:context];
+              NSDebugMLLog(@"gswdync",@"ET=%@ id=%@ senderId=%@ multipleSubmit=%s",
                            [self class],
-                           _elementID,
-                           _senderID,
-                           (_multipleSubmit ? "YES" : "NO"));
-              [context_ _setIsMultipleSubmitForm:_multipleSubmit];
+                           elementID,
+                           senderID,
+                           (multipleSubmitValue ? "YES" : "NO"));
+              [context _setIsMultipleSubmitForm:multipleSubmitValue];
             };
-          [context_ appendZeroElementIDComponent];
-          for(i=0;!_element && !searchIsOver && i<[dynamicChildren count];i++)
+          [context appendZeroElementIDComponent];
+          for(i=0;!element && !searchIsOver && i<[dynamicChildren count];i++)
             {
               NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",
                            [[dynamicChildren objectAtIndex:i] class],
-                           [context_ elementID]);
-              _element=[[dynamicChildren objectAtIndex:i] invokeActionForRequest:request_
-                                                          inContext:context_];
-//              if (![context_ _wasFormSubmitted] && [[context_ elementID] compare:_senderID]==NSOrderedDescending)
-              if (![context_ _wasFormSubmitted] && [[context_ elementID] isSearchOverForSenderID:_senderID])
+                           [context elementID]);
+              element=[[dynamicChildren objectAtIndex:i] invokeActionForRequest:request
+                                                         inContext:context];
+//              if (![context _wasFormSubmitted] && [[context elementID] compare:senderID]==NSOrderedDescending)
+              if (![context _wasFormSubmitted] && [[context elementID] isSearchOverForSenderID:senderID])
                 {
                   NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
-                               [context_ elementID],
-                               _senderID);
+                               [context elementID],
+                               senderID);
                   searchIsOver=YES;
                 };
-              [context_ incrementLastElementIDComponent];
+              [context incrementLastElementIDComponent];
             };
-          [context_ deleteLastElementIDComponent];
-          if (_isFormSubmited)
+          [context deleteLastElementIDComponent];
+          if (isFormSubmited)
             {
-              if ([context_ _wasActionInvoked])
-                [context_ _setIsMultipleSubmitForm:NO];
+              if ([context _wasActionInvoked])
+                [context _setIsMultipleSubmitForm:NO];
               else
                 {
                   NSDebugMLLog0(@"gswdync",@"formSubmitted but no action was invoked!");
                 };
-              [context_ setInForm:NO];
-              [context_ _setFormSubmitted:NO];
+              [context setInForm:NO];
+              [context _setFormSubmitted:NO];
             };
-          _elementID=[context_ elementID];
+          elementID=[context elementID];
           NSDebugMLLog(@"gswdync",@"END ET=%@ def name=%@ id=%@",
                        [self class],
                        [self definitionName],
-                       _elementID);
+                       elementID);
 #ifndef NDEBBUG
-          NSAssert(elementsNb==[(GSWElementIDString*)_elementID elementsNb],
+          NSAssert(elementsNb==[(GSWElementIDString*)elementID elementsNb],
                    @"GSWForm invokeActionForRequest: bad elementID");
 #endif
         };
@@ -330,74 +341,75 @@ static char rcsId[] = "$Id$";
       [localException raise];
     }
   NS_ENDHANDLER;
-  _senderID=[context_ senderID];
-  _elementID=[context_ elementID];
-  //if (![context_ _wasActionInvoked] && [_elementID compare:_senderID]!=NSOrderedAscending)
-  if (![context_ _wasActionInvoked] && [_elementID isSearchOverForSenderID:_senderID])
+  senderID=[context senderID];
+  elementID=[context elementID];
+  //if (![context _wasActionInvoked] && [_elementID compare:senderID]!=NSOrderedAscending)
+  if (![context _wasActionInvoked] && [elementID isSearchOverForSenderID:senderID])
     {
       LOGError(@"Action not invoked at the end of %@ (def name=%@) (id=%@) senderId=%@",
                [self class],
                [self definitionName],
-               _elementID,
-               _senderID);
+               elementID,
+               senderID);
     };
   LOGObjectFnStopC("GSWForm");
-  return _element; 
+  return element; 
 };
 
 //--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request_
-				   inContext:(GSWContext*)context_
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
   //OK
-  NSString* _senderID=nil;
-  NSString* _elementID=nil;
-  BOOL _isFormSubmited=NO;
+  NSString* senderID=nil;
+  NSString* elementID=nil;
+  BOOL isFormSubmited=NO;
   int i=0;
 #ifndef NDEBBUG
-  int elementsNb=[(GSWElementIDString*)[context_ elementID]elementsNb];
+  int elementsNb=[(GSWElementIDString*)[context elementID]elementsNb];
 #endif
   LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context_ elementID]);
-  GSWAssertCorrectElementID(context_);// Debug Only
-  _senderID=[context_ senderID];
-  _elementID=[context_ elementID];
-  NSDebugMLLog(@"gswdync",@"_senderID=%@",_senderID);
-  NSDebugMLLog(@"gswdync",@"_elementID=%@",_elementID);
-  if ([self prefixMatchSenderIDInContext:context_]) //Avoid taking values if we are not the good form
-	{
-	  _isFormSubmited=[_elementID isEqualToString:_senderID];
-	  NSDebugMLLog(@"gswdync",@"_isFormSubmited=%d",(int)_isFormSubmited);
-	  if (!WOStrictFlag && _isFormSubmited && [self disabledInContext:context_])
-		_isFormSubmited=NO;
+  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],[context elementID]);
+  GSWAssertCorrectElementID(context);// Debug Only
+  senderID=[context senderID];
+  elementID=[context elementID];
+  NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
+  if ([self prefixMatchSenderIDInContext:context]) //Avoid taking values if we are not the good form
+    {
+      isFormSubmited=[elementID isEqualToString:senderID];
+      NSDebugMLLog(@"gswdync",@"isFormSubmited=%d",(int)isFormSubmited);
+      if (!WOStrictFlag && isFormSubmited && [self disabledInContext:context])
+        isFormSubmited=NO;
 	  
-	  NSDebugMLLog(@"gswdync",@"Starting GSWForm TV ET=%@ id=%@",[self class],[context_ elementID]);
-	  if (_isFormSubmited)
-		{
-		  [context_ setInForm:YES];
-		  [context_ _setFormSubmitted:YES];
-		};
-	  [context_ appendZeroElementIDComponent];
-	  NSDebugMLLog(@"gswdync",@"\n\ndynamicChildren=%@",dynamicChildren);
-	  NSDebugMLLog(@"gswdync",@"[dynamicChildren count]=%d",[dynamicChildren count]);
-	  for(i=0;i<[dynamicChildren count];i++)
-		{
-		  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[dynamicChildren objectAtIndex:i] class],[context_ elementID]);
-		  NSDebugMLLog(@"gswdync",@"\n[dynamicChildren objectAtIndex:i]=%@",[dynamicChildren objectAtIndex:i]);
-		  [[dynamicChildren objectAtIndex:i] takeValuesFromRequest:request_
-											 inContext:context_];
-		  [context_ incrementLastElementIDComponent];
-		};
-	  [context_ deleteLastElementIDComponent];
-	  if (_isFormSubmited)
-		{
-		  [context_ setInForm:NO];
-		  [context_ _setFormSubmitted:NO];
-		};
-	};
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context_ elementID]);
+      NSDebugMLLog(@"gswdync",@"Starting GSWForm TV ET=%@ id=%@",[self class],[context elementID]);
+      if (isFormSubmited)
+        {
+          [context setInForm:YES];
+          [context _setFormSubmitted:YES];
+        };
+      [context appendZeroElementIDComponent];
+      NSDebugMLLog(@"gswdync",@"\n\ndynamicChildren=%@",dynamicChildren);
+      NSDebugMLLog(@"gswdync",@"[dynamicChildren count]=%d",[dynamicChildren count]);
+      for(i=0;i<[dynamicChildren count];i++)
+        {
+          NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[[dynamicChildren objectAtIndex:i] class],[context elementID]);
+          NSDebugMLLog(@"gswdync",@"\n[dynamicChildren objectAtIndex:i]=%@",[dynamicChildren objectAtIndex:i]);
+          [[dynamicChildren objectAtIndex:i] takeValuesFromRequest:request
+                                             inContext:context];
+          [context incrementLastElementIDComponent];
+        };
+      [context deleteLastElementIDComponent];
+      if (isFormSubmited)
+        {
+          [context setInForm:NO];
+          [context _setFormSubmitted:NO];
+        };
+    };
+  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],[context elementID]);
 #ifndef NDEBBUG
-  NSAssert(elementsNb==[(GSWElementIDString*)[context_ elementID]elementsNb],@"GSWForm takeValuesFromRequest: bad elementID");
+  NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],
+           @"GSWForm takeValuesFromRequest: bad elementID");
 #endif
   LOGObjectFnStopC("GSWForm");
 };
@@ -408,38 +420,38 @@ static char rcsId[] = "$Id$";
 @implementation GSWForm (GSWFormB)
 
 //--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-						   inContext:(GSWContext*)context_
+-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
+                                      inContext:(GSWContext*)context
 {
   //OK//TODOV
-  BOOL _disabledInContext=NO;
+  BOOL disabledInContext=NO;
   LOGObjectFnStartC("GSWForm");
   if (!WOStrictFlag)
     {
-      _disabledInContext=[self disabledInContext:context_];
-      NSDebugMLLog(@"gswdync",@"_disabledInContext=%s",(_disabledInContext ? "YES" : "NO"));
+      disabledInContext=[self disabledInContext:context];
+      NSDebugMLLog(@"gswdync",@"disabledInContext=%s",(disabledInContext ? "YES" : "NO"));
     };
-  if (!_disabledInContext)
-	{
-	  GSWComponent* _component=[context_ component];
-	  id _actionValue=nil;
-	  if (href)
-		_actionValue=[href valueInComponent:_component];
-	  else
-		_actionValue=[context_ componentActionURL];
-	  [response_ appendContentCharacter:' '];
-	  [response_ _appendContentAsciiString:@"action"];
-	  [response_ appendContentCharacter:'='];
-	  [response_ appendContentCharacter:'"'];
-	  [response_ appendContentString:_actionValue];
-	  [response_ appendContentCharacter:'"'];
-	};
+  if (!disabledInContext)
+    {
+      GSWComponent* component=[context component];
+      id actionValue=nil;
+      if (_href)
+        actionValue=[_href valueInComponent:component];
+      else
+        actionValue=[context componentActionURL];
+      [response appendContentCharacter:' '];
+      [response _appendContentAsciiString:@"action"];
+      [response appendContentCharacter:'='];
+      [response appendContentCharacter:'"'];
+      [response appendContentString:actionValue];
+      [response appendContentCharacter:'"'];
+    };
   LOGObjectFnStopC("GSWForm");
 };
 
 //--------------------------------------------------------------------
--(void)_appendCGIActionToResponse:(GSWResponse*)response_
-						   inContext:(GSWContext*)context_
+-(void)_appendCGIActionToResponse:(GSWResponse*)response
+                        inContext:(GSWContext*)context
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };

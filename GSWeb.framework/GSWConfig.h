@@ -53,5 +53,6 @@
 #define GSWOPTVALUE_WorkerThreadCount		 	   	@"8"
 #define GSWOPTVALUE_MultiThreadEnabled				@"YES"
 #define GSWOPTVALUE_AdaptorHost					@""
+#define GSWOPTVALUE_SaveResponsesPath				nil
 
 #endif // _GSWebConfig_h__

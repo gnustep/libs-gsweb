@@ -176,9 +176,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     [unarchiver ensureObjectAwake:_dataSource];
   if ([self fetchesOnLoad])
     {
-		NSLog(@"***** awakeFromKeyValueUnarchiver in GSWDisplayGroup is called *****");
-		[self fetch];
-//      [self fetch];//?? NO: fetch "each time it is loaded in web browser"
+      NSLog(@"***** awakeFromKeyValueUnarchiver in GSWDisplayGroup is called *****");
+      [self fetch];
+      //      [self fetch];//?? NO: fetch "each time it is loaded in web browser"
     };
   LOGObjectFnStop();
 };
@@ -1102,7 +1102,8 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
   NSDebugMLLog(@"gswdisplaygroup",@"Will [_dataSource createObject]");
   object = [_dataSource createObject];
-  NSDebugMLLog(@"gswdisplaygroup",@"End [_dataSource createObject]");
+  NSDebugMLLog(@"gswdisplaygroup",@"End [_dataSource createObject]. Object %p=%@",
+               object,object);
   if(object == nil)
     {
       if(_delegateRespondsTo.createObjectFailed == YES)
@@ -1783,15 +1784,22 @@ self setSelectionIndexes:indexes of objects in objects? //ret 1
 
 - (void)setMasterObject:(id)masterObject
 {
+  //OK
   EODetailDataSource *source=nil;
   LOGObjectFnStart();
-
+  NSDebugMLLog(@"gswdisplaygroup",@"masterObject=%@",masterObject);
   if([self hasDetailDataSource] == YES)
     {
       source = (EODetailDataSource *)_dataSource;
+      NSDebugMLLog(@"gswdisplaygroup",@"source=%@",source);
+      NSDebugMLLog(@"gswdisplaygroup",@"[source detailKey]=%@",[source detailKey]);
       [_dataSource qualifyWithRelationshipKey:[source detailKey]
 		  ofObject:masterObject];
-    }
+      if ([self fetchesOnLoad])
+        {
+          [self fetch];
+        };
+    };
   LOGObjectFnStop();
 }
 

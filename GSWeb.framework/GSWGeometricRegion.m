@@ -1,11 +1,16 @@
-/* GSWGeometricRegion.m - GSWeb: Class GSWRequest
-   Copyright (C) 1999 Free Software Foundation, Inc.
+/** GSWGeometricRegion.m - <title>GSWeb: Class GSWRequest</title>
+
+   Copyright (C) 1999-2002 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Sept 1999
    
+   $Revision$
+   $Date$
+
    This file is part of the GNUstep Web Library.
    
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
@@ -19,7 +24,8 @@
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+   </license>
+**/
 
 static char rcsId[] = "$Id$";
 
@@ -30,17 +36,17 @@ static char rcsId[] = "$Id$";
 //--------------------------------------------------------------------
 double rad2deg(double rad)
 {
-  double _pi=acos(-1);
-  double _deg=rad*180/_pi;
-  return _deg;
+  double pi=acos(-1);
+  double deg=rad*180/pi;
+  return deg;
 };
 
 //--------------------------------------------------------------------
 double deg2rad(double deg)
 {
-  double _pi=acos(-1);
-  double _rad=deg*_pi/180;
-  return _rad;
+  double pi=acos(-1);
+  double rad=deg*pi/180;
+  return rad;
 };
 
 //--------------------------------------------------------------------
@@ -52,244 +58,244 @@ float distanceBetweenPoints(NSPoint pt1, NSPoint pt2)
 //--------------------------------------------------------------------
 BOOL isOnSegment(NSPoint m,NSPoint a,NSPoint b)
 {
-  BOOL _isOnSegment=(((m.x-a.x)*(b.y-a.y)-(m.y-a.y)*(b.x-a.x))==0);
-  if (_isOnSegment)
-	{
-	  NSPoint a1=NSMakePoint(min(a.x,b.x),min(a.y,b.y));
-	  NSPoint b1=NSMakePoint(max(a.x,b.x),max(a.y,b.y));
-	  _isOnSegment=m.x>=a1.x && m.x<=b1.x && m.y>=a1.y && m.y<=b1.y;
-	};
-  return _isOnSegment;
+  BOOL isOnSegment=(((m.x-a.x)*(b.y-a.y)-(m.y-a.y)*(b.x-a.x))==0);
+  if (isOnSegment)
+    {
+      NSPoint a1=NSMakePoint(min(a.x,b.x),min(a.y,b.y));
+      NSPoint b1=NSMakePoint(max(a.x,b.x),max(a.y,b.y));
+      isOnSegment=m.x>=a1.x && m.x<=b1.x && m.y>=a1.y && m.y<=b1.y;
+    };
+  return isOnSegment;
 };
 
 //--------------------------------------------------------------------
 // Test on UP direction
 BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 {
-  BOOL _canBeOnSegment=YES;
+  BOOL canBeOnSegment=YES;
   float y=0;
   if (a.x==b.x)
-	{
-	  if (m.x==a.x)
-		y=max(a.y,b.y);
-	  else
-		_canBeOnSegment=NO;
-	}
+    {
+      if (m.x==a.x)
+        y=max(a.y,b.y);
+      else
+        canBeOnSegment=NO;
+    }
   else
-	{
-	  y=(float)(a.y*(b.x-a.x)-(b.y-a.y)*(a.x+m.x));
-	  y/=((float)(a.x-b.x));
-	};
-	
-  if (_canBeOnSegment)
-	_canBeOnSegment=m.y<=y;
-  return _canBeOnSegment;
+    {
+      y=(float)(a.y*(b.x-a.x)-(b.y-a.y)*(a.x+m.x));
+      y/=((float)(a.x-b.x));
+    };
+  
+  if (canBeOnSegment)
+    canBeOnSegment=m.y<=y;
+  return canBeOnSegment;
 };
 
 //====================================================================
 @implementation GSWGeometricRegion
 
 //--------------------------------------------------------------------
-+(NSArray*)geometricRegionsWithFile:(NSString*)fileName_
++(NSArray*)geometricRegionsWithFile:(NSString*)fileName
 {
-  NSArray* _regions=nil;
-  NSString* _string=[NSString stringWithContentsOfFile:fileName_];
-  if (!_string)
-	{
-	  ExceptionRaise(@"GSWGeometricRegion: Can't open File '%@'",
-					  fileName_);
-	}
+  NSArray* regions=nil;
+  NSString* string=[NSString stringWithContentsOfFile:fileName];
+  if (!string)
+    {
+      ExceptionRaise(@"GSWGeometricRegion: Can't open File '%@'",
+                     fileName);
+    }
   else
-	_regions=[self geometricRegionsWithString:_string];
-  return _regions;
+    regions=[self geometricRegionsWithString:string];
+  return regions;
 }
 
 //--------------------------------------------------------------------
-+(NSArray*)geometricRegionsWithString:(NSString*)string_
++(NSArray*)geometricRegionsWithString:(NSString*)string
 {
-  NSMutableArray* _regions=[NSMutableArray array];
-  NSArray* _regionsStrings=nil;
-  NSString* _shapeType=nil;
-  NSString* _userDefinedString=nil;
-  NSString* _shape=nil;
-  int _x=0;
-  int _y=0;
+  NSMutableArray* regions=[NSMutableArray array];
+  NSArray* regionsStrings=nil;
+  NSString* shapeType=nil;
+  NSString* userDefinedString=nil;
+  NSString* shape=nil;
+  int x=0;
+  int y=0;
   int i=0;
-  int _regionsCount=0;					  
-  GSWGeometricRegion* _region=nil;
-  string_=[string_ stringByReplacingString:@"\r\n"
-				   withString:@"\n"];
-  _regionsStrings=[string_ componentsSeparatedByString:@"\n"];
-  _regionsCount=[_regionsStrings count];		
-  for(i=0;i<_regionsCount;i++)
-	{
-	  NSString* _regionString=[_regionsStrings objectAtIndex:i];
-	  NSScanner* _scanner=[NSScanner scannerWithString:_shape];
-	  if ([_scanner scanUpToString:@" "
-					intoString:&_shapeType])
-		{
-		  if ([_scanner scanUpToString:@" "
-						intoString:&_userDefinedString])
-			{
-			  NSMutableArray* _coords=[NSMutableArray array];
-			  while (![_scanner isAtEnd])
-				{
-				  if ([_scanner scanInt:&_x]
-					  && [_scanner scanString:@"," intoString:NULL])
-					{
-					  if ([_scanner scanInt:&_y])
-						{
-						  [_coords addObject:[NSValue valueWithPoint:NSMakePoint(_x,_y)]];
-						}
-					  else
-						{
-						  ExceptionRaise(@"GSWGeometricRegion: Can't parse an y coord in line %@",
-										 _regionString);
-						};
-					}
-				  else
-					{
-					  ExceptionRaise(@"GSWGeometricRegion: Can't parse an x coord in line %@",
-									  _regionString);
-					};
-				};
-			  _region=[self regionWithShape:_shapeType
-							coordinates:_coords
-							userDefinedString:_userDefinedString];
-			  if (_region)
-				{
-				  [_regions addObject:_region];
-				}
-			  else
-				{
-				  ExceptionRaise(@"GSWGeometricRegion: Can't make region '%@' whith userDefinedString %@ and coords %@",
-								  _shapeType,
-								  _userDefinedString,
-								  _coords);
-				};
-			}
-		  else
-			{
-			  ExceptionRaise(@"GSWGeometricRegion: Can't parse userDefinedString in line %@",
-							  _regionString);
-			};
-		}
-	  else
-		{
-		  ExceptionRaise(@"GSWGeometricRegion: Can't parse shapeType in line %@",
-						 _regionString);
-		};
-	};  
-  return [NSArray arrayWithArray:_regions];
+  int regionsCount=0;					  
+  GSWGeometricRegion* region=nil;
+  string=[string stringByReplacingString:@"\r\n"
+                 withString:@"\n"];
+  regionsStrings=[string componentsSeparatedByString:@"\n"];
+  regionsCount=[regionsStrings count];		
+  for(i=0;i<regionsCount;i++)
+    {
+      NSString* regionString=[regionsStrings objectAtIndex:i];
+      NSScanner* scanner=[NSScanner scannerWithString:shape];
+      if ([scanner scanUpToString:@" "
+                   intoString:&shapeType])
+        {
+          if ([scanner scanUpToString:@" "
+                       intoString:&userDefinedString])
+            {
+              NSMutableArray* coords=[NSMutableArray array];
+              while (![scanner isAtEnd])
+                {
+                  if ([scanner scanInt:&x]
+                      && [scanner scanString:@"," intoString:NULL])
+                    {
+                      if ([scanner scanInt:&y])
+                        {
+                          [coords addObject:[NSValue valueWithPoint:NSMakePoint(x,y)]];
+                        }
+                      else
+                        {
+                          ExceptionRaise(@"GSWGeometricRegion: Can't parse an y coord in line %@",
+                                         regionString);
+                        };
+                    }
+                  else
+                    {
+                      ExceptionRaise(@"GSWGeometricRegion: Can't parse an x coord in line %@",
+                                     regionString);
+                    };
+                };
+              region=[self regionWithShape:shapeType
+                           coordinates:coords
+                           userDefinedString:userDefinedString];
+              if (region)
+                {
+                  [regions addObject:region];
+                }
+              else
+                {
+                  ExceptionRaise(@"GSWGeometricRegion: Can't make region '%@' whith userDefinedString %@ and coords %@",
+                                 shapeType,
+                                 userDefinedString,
+                                 coords);
+                };
+            }
+          else
+            {
+              ExceptionRaise(@"GSWGeometricRegion: Can't parse userDefinedString in line %@",
+                             regionString);
+            };
+        }
+      else
+        {
+          ExceptionRaise(@"GSWGeometricRegion: Can't parse shapeType in line %@",
+                         regionString);
+        };
+    };  
+  return [NSArray arrayWithArray:regions];
 };
 
 //--------------------------------------------------------------------
-+(GSWGeometricRegion*)regionWithShape:(NSString*)shape_
-						  coordinates:(NSArray*)coords_
-					userDefinedString:(NSString*)userDefinedString_
++(GSWGeometricRegion*)regionWithShape:(NSString*)shape
+                          coordinates:(NSArray*)coords
+                    userDefinedString:(NSString*)userDefinedString
 {
-  return [self regionWithShape:shape_
-			   coordinates:coords_
-			   userDefinedString:userDefinedString_
-			   userDefinedValue:nil];
+  return [self regionWithShape:shape
+               coordinates:coords
+               userDefinedString:userDefinedString
+               userDefinedValue:nil];
 };
 
 //--------------------------------------------------------------------
-+(GSWGeometricRegion*)regionWithShape:(NSString*)shape_
-						  coordinates:(NSArray*)coords_
-					userDefinedString:(NSString*)userDefinedString_
-					 userDefinedValue:(id)userDefinedValue_
++(GSWGeometricRegion*)regionWithShape:(NSString*)shape
+                          coordinates:(NSArray*)coords
+                    userDefinedString:(NSString*)userDefinedString
+                     userDefinedValue:(id)userDefinedValue
 {
-  GSWGeometricRegion* _region=nil;
-  if ([shape_ isEqualToString:@"rect"])
-	{
-	  _region=[[[GSWRectangularRegion alloc]initWithShape:shape_
-											coordinates:coords_
-											userDefinedString:userDefinedString_
-											userDefinedValue:userDefinedValue_]autorelease];
-	}
-  else if ([shape_ isEqualToString:@"circle"])
-	{
-	  _region=[[[GSWCircularRegion alloc]initWithShape:shape_
-										 coordinates:coords_
-										 userDefinedString:userDefinedString_
-											userDefinedValue:userDefinedValue_]autorelease];
-	}
-  else if ([shape_ isEqualToString:@"poly"])
-	{
-	  _region=[[[GSWPolygonRegion alloc]initWithShape:shape_
-										coordinates:coords_
-										userDefinedString:userDefinedString_
-											userDefinedValue:userDefinedValue_]autorelease];
-	}
-  else if ([shape_ isEqualToString:@"ellipse"])
-	{
-	  _region=[[[GSWEllipseRegion alloc]initWithShape:shape_
-										coordinates:coords_
-										userDefinedString:userDefinedString_
-											userDefinedValue:userDefinedValue_]autorelease];
-	}
-  else if ([shape_ isEqualToString:@"arc"])
-	{
-	  _region=[[[GSWArcRegion alloc]initWithShape:shape_
-									coordinates:coords_
-									userDefinedString:userDefinedString_
-											userDefinedValue:userDefinedValue_]autorelease];
-	}
+  GSWGeometricRegion* region=nil;
+  if ([shape isEqualToString:@"rect"])
+    {
+      region=[[[GSWRectangularRegion alloc]initWithShape:shape
+                                           coordinates:coords
+                                           userDefinedString:userDefinedString
+                                           userDefinedValue:userDefinedValue]autorelease];
+    }
+  else if ([shape isEqualToString:@"circle"])
+    {
+      region=[[[GSWCircularRegion alloc]initWithShape:shape
+                                        coordinates:coords
+                                        userDefinedString:userDefinedString
+                                        userDefinedValue:userDefinedValue]autorelease];
+    }
+  else if ([shape isEqualToString:@"poly"])
+    {
+      region=[[[GSWPolygonRegion alloc]initWithShape:shape
+                                       coordinates:coords
+                                       userDefinedString:userDefinedString
+                                       userDefinedValue:userDefinedValue]autorelease];
+    }
+  else if ([shape isEqualToString:@"ellipse"])
+    {
+      region=[[[GSWEllipseRegion alloc]initWithShape:shape
+                                       coordinates:coords
+                                       userDefinedString:userDefinedString
+                                       userDefinedValue:userDefinedValue]autorelease];
+    }
+  else if ([shape isEqualToString:@"arc"])
+    {
+      region=[[[GSWArcRegion alloc]initWithShape:shape
+                                   coordinates:coords
+                                   userDefinedString:userDefinedString
+                                   userDefinedValue:userDefinedValue]autorelease];
+    }
   else
-	{
-	  ExceptionRaise(@"GSWGeometricRegion bad shape %@ (userDefinedString = %@)",
-					 shape_,
-					 userDefinedString_);
-	};
-  return _region;
+    {
+      ExceptionRaise(@"GSWGeometricRegion bad shape %@ (userDefinedString = %@)",
+                     shape,
+                     userDefinedString);
+    };
+  return region;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  coordinates:coords
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  coordinates:coords
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_;
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
   if ((self=[super init]))
-	{
-	  ASSIGN(userDefinedString,userDefinedString_);
-	  ASSIGN(userDefinedValue,userDefinedValue_);
-	};
+    {
+      ASSIGN(_userDefinedString,userDefinedString);
+      ASSIGN(_userDefinedValue,userDefinedValue);
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(userDefinedString);
-  DESTROY(userDefinedValue);
+  DESTROY(_userDefinedString);
+  DESTROY(_userDefinedValue);
   [super dealloc];
 };
 
 //--------------------------------------------------------------------
--(id)copyWithZone:(NSZone*)zone_
+-(id)copyWithZone:(NSZone*)zone
 {
   GSWGeometricRegion* clone = nil;
   LOGObjectFnStart();
-  clone=[[isa allocWithZone:zone_] init];
+  clone=[[isa allocWithZone:zone] init];
   if (clone)
-	{
-	  ASSIGN(clone->userDefinedString,userDefinedString);
-	};
+    {
+      ASSIGN(clone->_userDefinedString,_userDefinedString);
+    };
   LOGObjectFnStop();
   return clone;
 };
@@ -298,62 +304,62 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   userDefinedString,
-				   userDefinedValue];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _userDefinedString,
+                   _userDefinedValue];
 };
 
 //--------------------------------------------------------------------
 -(NSString*)userDefinedString
 {
-  return userDefinedString;
+  return _userDefinedString;
 };
 
 //--------------------------------------------------------------------
 -(id)userDefinedValue
 {
-  return userDefinedValue;
+  return _userDefinedValue;
 };
 
 //--------------------------------------------------------------------
--(BOOL)hitTest:(NSPoint*)point_
+-(BOOL)hitTest:(NSPoint*)point
 {
-  if (point_)
-	return [self hitTestX:(unsigned int)point_->x
-				 y:(unsigned int)point_->y];
+  if (point)
+    return [self hitTestX:(unsigned int)point->x
+                 y:(unsigned int)point->y];
   else
-	return NO;
+    return NO;
 };
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x_
-			  y:(unsigned int)y_
+-(BOOL)hitTestX:(unsigned int)x
+              y:(unsigned int)y
 {
   [self subclassResponsibility: _cmd];
   return NO;
 };
 
 //--------------------------------------------------------------------
-+(GSWGeometricRegion*)hitTestX:(int)x_
-							 y:(int)y_
-					 inRegions:(NSArray*)regions_
++(GSWGeometricRegion*)hitTestX:(int)x
+                             y:(int)y
+                     inRegions:(NSArray*)regions
 {
-  GSWGeometricRegion* _regionFound=nil;
+  GSWGeometricRegion* regionFound=nil;
   int i=0;
-  int _count=[regions_ count];
-  GSWGeometricRegion* _region=nil;
-  for(i=0;!_regionFound && i<_count;i++)
-	{
-	  _region=[regions_ objectAtIndex:i];
-	  if ([_region hitTestX:x_
-				   y:y_])
-		{
-		  _regionFound=_region;
-		};		  
-	};
-  NSDebugMLLog(@"low",@"_regionFound=%@",_regionFound);
-  return _regionFound;
+  int count=[regions count];
+  GSWGeometricRegion* region=nil;
+  for(i=0;!regionFound && i<count;i++)
+    {
+      region=[regions objectAtIndex:i];
+      if ([region hitTestX:x
+                  y:y])
+        {
+          regionFound=region;
+        };		  
+    };
+  NSDebugMLLog(@"low",@"regionFound=%@",regionFound);
+  return regionFound;
 };
 
 @end 
@@ -363,139 +369,139 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 @implementation GSWArcRegion : GSWGeometricRegion
 
 //--------------------------------------------------------------------
-+(id)arcRegionWithShape:(NSString*)shape_
-				 center:(NSPoint)center_
-				   size:(NSSize)size_
-				  start:(int)start_
-				   stop:(int)stop_
-	  userDefinedString:(NSString*)userDefinedString_
++(id)arcRegionWithShape:(NSString*)shape
+                 center:(NSPoint)center
+                   size:(NSSize)size
+                  start:(int)start
+                   stop:(int)stop
+	  userDefinedString:(NSString*)userDefinedString
 {
-  return [self arcRegionWithShape:shape_
-			   center:center_
-			   size:size_
-			   start:start_
-			   stop:stop_
-			   userDefinedString:userDefinedString_
-			   userDefinedValue:nil];
+  return [self arcRegionWithShape:shape
+               center:center
+               size:size
+               start:start
+               stop:stop
+               userDefinedString:userDefinedString
+               userDefinedValue:nil];
 };
 
 //--------------------------------------------------------------------
-+(id)arcRegionWithShape:(NSString*)shape_
-				 center:(NSPoint)center_
-				   size:(NSSize)size_
-				  start:(int)start_
-				   stop:(int)stop_
-	  userDefinedString:(NSString*)userDefinedString_
-	   userDefinedValue:(id)userDefinedValue_
++(id)arcRegionWithShape:(NSString*)shape
+                 center:(NSPoint)center
+                   size:(NSSize)size
+                  start:(int)start
+                   stop:(int)stop
+      userDefinedString:(NSString*)userDefinedString
+       userDefinedValue:(id)userDefinedValue
 {
-  return [[[self alloc]initWithShape:shape_
-					   center:center_
-					   size:size_
-					   start:start_
-					   stop:stop_
-					   userDefinedString:userDefinedString_
-					   userDefinedValue:userDefinedValue_] autorelease];
+  return [[[self alloc]initWithShape:shape
+                       center:center
+                       size:size
+                       start:start
+                       stop:stop
+                       userDefinedString:userDefinedString
+                       userDefinedValue:userDefinedValue] autorelease];
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  coordinates:coords_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  coordinates:coords
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ([coords_ count]!=3)
-	{
-	  ExceptionRaise(@"GSWArcRegion",
-					 @"GSWArcRegion bad number of coordinates (center x,center y width,height start angle,stop angle):%@ [userDefinedString = %@]",
-					 coords_,
-					 userDefinedString_);
-	}
+  if ([coords count]!=3)
+    {
+      ExceptionRaise(@"GSWArcRegion",
+                     @"GSWArcRegion bad number of coordinates (center x,center y width,height start angle,stop angle):%@ [userDefinedString = %@]",
+                     coords,
+                     userDefinedString);
+    }
   else
-	{
-	  if ((self=[super initWithShape:shape_
-					   coordinates:coords_
-					   userDefinedString:userDefinedString_
-					   userDefinedValue:userDefinedValue_]))
-		{
-		  NSPoint _startStop=[[coords_ objectAtIndex:2] pointValue];
-		  NSPoint _size=[[coords_ objectAtIndex:1] pointValue];
-		  center=[[coords_ objectAtIndex:0] pointValue];
-		  size=NSMakeSize(_size.x,_size.y);
-		  start=min(_startStop.x,_startStop.y);
-		  stop=max(_startStop.x,_startStop.y);
-		};
-	};
+    {
+      if ((self=[super initWithShape:shape
+                       coordinates:coords
+                       userDefinedString:userDefinedString
+                       userDefinedValue:userDefinedValue]))
+        {
+          NSPoint startStop=[[coords objectAtIndex:2] pointValue];
+          NSPoint tmpSize=[[coords objectAtIndex:1] pointValue];
+          _center=[[coords objectAtIndex:0] pointValue];
+          _size=NSMakeSize(tmpSize.x,tmpSize.y);
+          _start=min(startStop.x,startStop.y);
+          _stop=max(startStop.x,startStop.y);
+        };
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			center:(NSPoint)center_
-			  size:(NSSize)size_
-			 start:(int)start_
-			  stop:(int)stop_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+            center:(NSPoint)center
+              size:(NSSize)size
+             start:(int)start
+              stop:(int)stop
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  center:center_
-				  size:size_
-				  start:start_
-				  stop:stop_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  center:center
+                  size:size
+                  start:start
+                  stop:stop
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			center:(NSPoint)center_
-			  size:(NSSize)size_
-			 start:(int)start_
-			  stop:(int)stop_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+            center:(NSPoint)center
+              size:(NSSize)size
+             start:(int)start
+              stop:(int)stop
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ((self=[super initWithShape:shape_
-				   coordinates:nil
-				   userDefinedString:userDefinedString_
-				   userDefinedValue:userDefinedValue_]))
-	{
-	  center=center_;
-	  size=size_;
-	  start=start_;
-	  stop=stop_;
-	};
+  if ((self=[super initWithShape:shape
+                   coordinates:nil
+                   userDefinedString:userDefinedString
+                   userDefinedValue:userDefinedValue]))
+    {
+      _center=center;
+      _size=size;
+      _start=start;
+      _stop=stop;
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)copyWithZone:(NSZone*)zone_
+-(id)copyWithZone:(NSZone*)zone
 {
   GSWArcRegion* clone = nil;
   LOGObjectFnStart();
-  clone = [super copyWithZone:zone_];
+  clone = [super copyWithZone:zone];
   if (clone)
-	{
-	  clone->center=center;
-	  clone->size=size;
-	  clone->start=start;
-	  clone->stop=stop;	  
-	};
+    {
+      clone->_center=_center;
+      clone->_size=_size;
+      clone->_start=_start;
+      clone->_stop=_stop;	  
+    };
   LOGObjectFnStop();
   return clone;
 };
@@ -504,64 +510,64 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@ center %@ size %@ start %d stop %d>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   userDefinedString,
-				   userDefinedValue,
-				   NSStringFromPoint(center),
-				   NSStringFromSize(size),
-				   start,
-				   stop];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _userDefinedString,
+                   _userDefinedValue,
+                   NSStringFromPoint(_center),
+                   NSStringFromSize(_size),
+                   _start,
+                   _stop];
 };
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x_
-			  y:(unsigned int)y_
+-(BOOL)hitTestX:(unsigned int)x
+              y:(unsigned int)y
 {
-  BOOL _hitOk=NO;
-  NSPoint _test=NSMakePoint(x_,y_);
+  BOOL hitOk=NO;
+  NSPoint test=NSMakePoint(x,y);
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"self=%@\nx=%u y=%u",self,x_,y_);
-  if (size.width==0)	
-	_hitOk=isOnSegment(_test,
-					   NSMakePoint(center.x,center.x-size.height/2),
-					   NSMakePoint(center.x,center.x+size.height/2));
-  else if (size.height==0)
-	_hitOk=isOnSegment(_test,
-					   NSMakePoint(center.x-size.width/2,center.y),
-					   NSMakePoint(center.x+size.width/2,center.y));
+  NSDebugMLLog(@"low",@"self=%@\nx=%u y=%u",self,x,y);
+  if (_size.width==0)	
+    hitOk=isOnSegment(test,
+                      NSMakePoint(_center.x,_center.x-_size.height/2),
+                      NSMakePoint(_center.x,_center.x+_size.height/2));
+  else if (_size.height==0)
+    hitOk=isOnSegment(test,
+                      NSMakePoint(_center.x-_size.width/2,_center.y),
+                      NSMakePoint(_center.x+_size.width/2,_center.y));
   else
-	{
-	  float _cosWith=(x_-center.x);
-	  NSDebugMLLog(@"low",@"_cosWith=%f",(double)_cosWith);
-	  if (_cosWith>=-size.width/2 && _cosWith<=size.width/2)
-		{
-		  float _sinHeight=(y_-center.y);
-		  NSDebugMLLog(@"low",@"_sinHeight=%f",(double)_sinHeight);
-		  if (_sinHeight>=-size.height/2 && _sinHeight<=size.height/2)
-			{
-			  double _pi=acos(-1);
-			  float _distance=distanceBetweenPoints(center,_test);
-			  float _cos=_cosWith/_distance;
-			  float _sin=_sinHeight/_distance;
-			  float _cosAngleRad=acos(_cos);
-			  float _sinAngleRad=asin(_sin);
-			  float _angleRad=((_sinAngleRad<0) ? (2*_pi-_cosAngleRad) : _cosAngleRad);
-			  float _angleDeg=rad2deg(_angleRad);
-			  NSDebugMLLog(@"low",@"_distance=%f",(double)_distance);
-			  NSDebugMLLog(@"low",@"_cos=%f",(double)_cos);
-			  NSDebugMLLog(@"low",@"_sin=%f",(double)_sin);
-			  NSDebugMLLog(@"low",@"_cosAngleRad=%f",(double)_cosAngleRad);
-			  NSDebugMLLog(@"low",@"_sinAngleRad=%f",(double)_sinAngleRad);
-			  NSDebugMLLog(@"low",@"_angleRad=%f",(double)_angleRad);
-			  NSDebugMLLog(@"low",@"_angleDeg=%f",(double)_angleDeg);
-			  _hitOk=(_angleDeg>=start && _angleDeg<=stop);
-			};
-		};
-	};
-  NSDebugMLLog(@"low",@"_hitOk=%s",(_hitOk ? "YES" : "NO"));
+    {
+      float cosWith=(x-_center.x);
+      NSDebugMLLog(@"low",@"cosWith=%f",(double)cosWith);
+      if (cosWith>=-_size.width/2 && cosWith<=_size.width/2)
+        {
+          float sinHeight=(y-_center.y);
+          NSDebugMLLog(@"low",@"sinHeight=%f",(double)sinHeight);
+          if (sinHeight>=-_size.height/2 && sinHeight<=_size.height/2)
+            {
+              double pi=acos(-1);
+              float distance=distanceBetweenPoints(_center,test);
+              float cos=cosWith/distance;
+              float sin=sinHeight/distance;
+              float cosAngleRad=acos(cos);
+              float sinAngleRad=asin(sin);
+              float angleRad=((sinAngleRad<0) ? (2*pi-cosAngleRad) : cosAngleRad);
+              float angleDeg=rad2deg(angleRad);
+              NSDebugMLLog(@"low",@"distance=%f",(double)distance);
+              NSDebugMLLog(@"low",@"cos=%f",(double)cos);
+              NSDebugMLLog(@"low",@"sin=%f",(double)sin);
+              NSDebugMLLog(@"low",@"cosAngleRad=%f",(double)cosAngleRad);
+              NSDebugMLLog(@"low",@"sinAngleRad=%f",(double)sinAngleRad);
+              NSDebugMLLog(@"low",@"angleRad=%f",(double)angleRad);
+              NSDebugMLLog(@"low",@"angleDeg=%f",(double)angleDeg);
+              hitOk=(angleDeg>=_start && angleDeg<=_stop);
+            };
+        };
+    };
+  NSDebugMLLog(@"low",@"hitOk=%s",(hitOk ? "YES" : "NO"));
   LOGObjectFnStop();
-  return _hitOk;
+  return hitOk;
 };
 
 @end 
@@ -570,107 +576,107 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 @implementation GSWEllipseRegion : GSWArcRegion
 
 //--------------------------------------------------------------------
-+(id)ellipseRegionWithShape:(NSString*)shape_
-					 center:(NSPoint)center_
-					   size:(NSSize)size_
-		  userDefinedString:(NSString*)userDefinedString_
++(id)ellipseRegionWithShape:(NSString*)shape
+                     center:(NSPoint)center
+                       size:(NSSize)size
+          userDefinedString:(NSString*)userDefinedString
 {
-  return [self ellipseRegionWithShape:shape_
-			   center:center_
-			   size:size_
-			   userDefinedString:userDefinedString_
-			   userDefinedValue:nil];
+  return [self ellipseRegionWithShape:shape
+               center:center
+               size:size
+               userDefinedString:userDefinedString
+               userDefinedValue:nil];
 };
 
 //--------------------------------------------------------------------
-+(id)ellipseRegionWithShape:(NSString*)shape_
-					 center:(NSPoint)center_
-					   size:(NSSize)size_
-		  userDefinedString:(NSString*)userDefinedString_
-		   userDefinedValue:(id)userDefinedValue_
++(id)ellipseRegionWithShape:(NSString*)shape
+                     center:(NSPoint)center
+                       size:(NSSize)size
+          userDefinedString:(NSString*)userDefinedString
+           userDefinedValue:(id)userDefinedValue
 {
-  return [[[self alloc]initWithShape:shape_
-					   center:center_
-					   size:size_
-					   userDefinedString:userDefinedString_
-					   userDefinedValue:userDefinedValue_] autorelease];
+  return [[[self alloc]initWithShape:shape
+                       center:center
+                       size:size
+                       userDefinedString:userDefinedString
+                       userDefinedValue:userDefinedValue] autorelease];
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  coordinates:coords_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  coordinates:coords
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ([coords_ count]!=2)
-	{
-	  ExceptionRaise(@"GSWEllipseRegion",
-					 @"GSWEllipseRegion bad number of coordinates (center x,center y width,height):%@ [userDefinedString = %@]",
-					 coords_,
-					 userDefinedString_ );
-	}
+  if ([coords count]!=2)
+    {
+      ExceptionRaise(@"GSWEllipseRegion",
+                     @"GSWEllipseRegion bad number of coordinates (center x,center y width,height):%@ [userDefinedString = %@]",
+                     coords,
+                     userDefinedString);
+    }
   else
-	{
-	  NSPoint _center=[[coords_ objectAtIndex:0] pointValue];
-	  NSPoint _tmpSize=[[coords_ objectAtIndex:1] pointValue];
-	  NSSize _size=NSMakeSize(_tmpSize.x,_tmpSize.y);
-	  if ((self=[self initWithShape:shape_
-					  center:_center
-					  size:_size
-					  userDefinedString:userDefinedString_
-					  userDefinedValue:userDefinedValue_]))
-		{
-		};
-	};
+    {
+      NSPoint center=[[coords objectAtIndex:0] pointValue];
+      NSPoint tmpSize=[[coords objectAtIndex:1] pointValue];
+      NSSize size=NSMakeSize(tmpSize.x,tmpSize.y);
+      if ((self=[self initWithShape:shape
+                      center:center
+                      size:size
+                      userDefinedString:userDefinedString
+                      userDefinedValue:userDefinedValue]))
+        {
+        };
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			center:(NSPoint)center_
-			  size:(NSSize)size_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+            center:(NSPoint)center
+              size:(NSSize)size
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  center:center_
-				  size:size_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  center:center
+                  size:size
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			center:(NSPoint)center_
-			  size:(NSSize)size_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+            center:(NSPoint)center
+              size:(NSSize)size
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ((self=[super initWithShape:shape_
-				   center:center_
-				   size:size_
-				   start:0
-				   stop:360
-				   userDefinedString:userDefinedString_
-				   userDefinedValue:userDefinedValue_]))
-	{
-	};
+  if ((self=[super initWithShape:shape
+                   center:center
+                   size:size
+                   start:0
+                   stop:360
+                   userDefinedString:userDefinedString
+                   userDefinedValue:userDefinedValue]))
+    {
+    };
   return self;
 };
 
@@ -686,104 +692,104 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 @implementation GSWCircularRegion
 
 //--------------------------------------------------------------------
-+(id)circularRegionWithShape:(NSString*)shape_
-					  center:(NSPoint)center_
-					diameter:(int)diameter_
-		  userDefinedString:(NSString*)userDefinedString_
++(id)circularRegionWithShape:(NSString*)shape
+                      center:(NSPoint)center
+                    diameter:(int)diameter
+           userDefinedString:(NSString*)userDefinedString
 {
-  return [self circularRegionWithShape:shape_
-			   center:center_
-			   diameter:diameter_
-			   userDefinedString:userDefinedString_
-			   userDefinedValue:nil];
+  return [self circularRegionWithShape:shape
+               center:center
+               diameter:diameter
+               userDefinedString:userDefinedString
+               userDefinedValue:nil];
 };
 //--------------------------------------------------------------------
-+(id)circularRegionWithShape:(NSString*)shape_
-					  center:(NSPoint)center_
-					diameter:(int)diameter_
-		  userDefinedString:(NSString*)userDefinedString_
-			userDefinedValue:(id)userDefinedValue_
++(id)circularRegionWithShape:(NSString*)shape
+                      center:(NSPoint)center
+                    diameter:(int)diameter
+           userDefinedString:(NSString*)userDefinedString
+            userDefinedValue:(id)userDefinedValue
 {
-  return [[[self alloc]initWithShape:shape_
-					   center:center_
-					   diameter:diameter_
-					   userDefinedString:userDefinedString_
-					   userDefinedValue:userDefinedValue_] autorelease];
+  return [[[self alloc]initWithShape:shape
+                       center:center
+                       diameter:diameter
+                       userDefinedString:userDefinedString
+                       userDefinedValue:userDefinedValue] autorelease];
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  coordinates:coords_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  coordinates:coords
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ([coords_ count]!=2)
-	{
-	  ExceptionRaise(@"GSWCircularRegion",
-					 @"GSWCircularRegion bad number of coordinates (only center and edgePoint are possible):%@ [userDefinedString = %@]",
-					 coords_,
-					 userDefinedString_ );
-	}
+  if ([coords count]!=2)
+    {
+      ExceptionRaise(@"GSWCircularRegion",
+                     @"GSWCircularRegion bad number of coordinates (only center and edgePoint are possible):%@ [userDefinedString = %@]",
+                     coords,
+                     userDefinedString);
+    }
   else
-	{
-	  NSPoint _center=[[coords_ objectAtIndex:0] pointValue];
-	  NSPoint _edgePoint=[[coords_ objectAtIndex:1] pointValue];
-	  int rayon=(int)distanceBetweenPoints(_center,_edgePoint);
-	  if ((self=[self initWithShape:shape_
-					  center:_center
-					  diameter:rayon*2
-					  userDefinedString:userDefinedString_
-					  userDefinedValue:userDefinedValue_]))
-		{
-		};
-	};
+    {
+      NSPoint center=[[coords objectAtIndex:0] pointValue];
+      NSPoint edgePoint=[[coords objectAtIndex:1] pointValue];
+      int rayon=(int)distanceBetweenPoints(center,edgePoint);
+      if ((self=[self initWithShape:shape
+                      center:center
+                      diameter:rayon*2
+                      userDefinedString:userDefinedString
+                      userDefinedValue:userDefinedValue]))
+        {
+        };
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			center:(NSPoint)center_
-		  diameter:(int)diameter_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+            center:(NSPoint)center
+          diameter:(int)diameter
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  center:center_
-				  diameter:diameter_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  center:center
+                  diameter:diameter
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			center:(NSPoint)center_
-		  diameter:(int)diameter_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+            center:(NSPoint)center
+          diameter:(int)diameter
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ((self=[super initWithShape:shape_
-				   center:center_
-				   size:NSMakeSize(diameter_,diameter_)
-				   userDefinedString:userDefinedString_
-				   userDefinedValue:userDefinedValue_]))
-	{
-	};
+  if ((self=[super initWithShape:shape
+                   center:center
+                   size:NSMakeSize(diameter,diameter)
+                   userDefinedString:userDefinedString
+                   userDefinedValue:userDefinedValue]))
+    {
+    };
   return self;
 };
 
@@ -799,97 +805,97 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 @implementation GSWRectangularRegion
 
 //--------------------------------------------------------------------
-+(id)rectangularRegionWithShape:(NSString*)shape_
-						   rect:(NSRect)rect_
-			  userDefinedString:(NSString*)userDefinedString_
++(id)rectangularRegionWithShape:(NSString*)shape
+                           rect:(NSRect)rect
+              userDefinedString:(NSString*)userDefinedString
 {
-  return [self rectangularRegionWithShape:shape_
-			   rect:rect_
-			   userDefinedString:userDefinedString_
-			   userDefinedValue:nil];
+  return [self rectangularRegionWithShape:shape
+               rect:rect
+               userDefinedString:userDefinedString
+               userDefinedValue:nil];
 };
 
 //--------------------------------------------------------------------
-+(id)rectangularRegionWithShape:(NSString*)shape_
-						   rect:(NSRect)rect_
-			  userDefinedString:(NSString*)userDefinedString_
-			   userDefinedValue:(id)userDefinedValue_
++(id)rectangularRegionWithShape:(NSString*)shape
+                           rect:(NSRect)rect
+              userDefinedString:(NSString*)userDefinedString
+               userDefinedValue:(id)userDefinedValue
 {
-  return [[[self alloc]initWithShape:shape_
-					   rect:rect_
-					   userDefinedString:userDefinedString_
-					   userDefinedValue:userDefinedValue_] autorelease];
+  return [[[self alloc]initWithShape:shape
+                       rect:rect
+                       userDefinedString:userDefinedString
+                       userDefinedValue:userDefinedValue] autorelease];
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  coordinates:coords_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  coordinates:coords
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ([coords_ count]!=2)
-	{
-	  ExceptionRaise(@"GSWRectangularRegion",
-					 @"GSWRectangularRegion bad number of coordinates (only x1,y1 and x2,y2 allowed):%@ [userDefinedString = %@]",
-					 coords_,
-					 userDefinedString_ );
-	}
+  if ([coords count]!=2)
+    {
+      ExceptionRaise(@"GSWRectangularRegion",
+                     @"GSWRectangularRegion bad number of coordinates (only x1,y1 and x2,y2 allowed):%@ [userDefinedString = %@]",
+                     coords,
+                     userDefinedString);
+    }
   else
-	{
-	  NSPoint pt0=[[coords_ objectAtIndex:0] pointValue];
-	  NSPoint pt1=[[coords_ objectAtIndex:1] pointValue];
-	  NSRect _rect=NSMakeRect(pt0.x,pt0.y,pt1.x-pt0.x,pt1.y-pt0.y);
-	  if ((self=[self initWithShape:shape_
-					  rect:_rect
-					  userDefinedString:userDefinedString_
-					  userDefinedValue:userDefinedValue_]))
-		{
-		};
-	};
+    {
+      NSPoint pt0=[[coords objectAtIndex:0] pointValue];
+      NSPoint pt1=[[coords objectAtIndex:1] pointValue];
+      NSRect rect=NSMakeRect(pt0.x,pt0.y,pt1.x-pt0.x,pt1.y-pt0.y);
+      if ((self=[self initWithShape:shape
+                      rect:rect
+                      userDefinedString:userDefinedString
+                      userDefinedValue:userDefinedValue]))
+        {
+        };
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			  rect:(NSRect)rect_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+              rect:(NSRect)rect
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  rect:rect_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  rect:rect
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-			  rect:(NSRect)rect_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+              rect:(NSRect)rect
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ((self=[super initWithShape:shape_
-				   coordinates:nil
-				   userDefinedString:userDefinedString_
-				   userDefinedValue:userDefinedValue_]))
-	{
-	  rect=rect_;
-	};
+  if ((self=[super initWithShape:shape
+                   coordinates:nil
+                   userDefinedString:userDefinedString
+                   userDefinedValue:userDefinedValue]))
+    {
+      _rect=rect;
+    };
   return self;
 };
 
@@ -899,21 +905,21 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@ rect %@>",
 				   object_get_class_name(self),
 				   (void*)self,
-				   userDefinedString,
-				   userDefinedValue,
-				   NSStringFromRect(rect)];
+				   _userDefinedString,
+				   _userDefinedValue,
+				   NSStringFromRect(_rect)];
 };
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x_
-			  y:(unsigned int)y_
+-(BOOL)hitTestX:(unsigned int)x
+              y:(unsigned int)y
 {
-  BOOL _hitOk=NO;
+  BOOL hitOk=NO;
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"self=%@\nx=%u y=%u",self,x_,y_);
-  _hitOk=NSPointInRect(NSMakePoint(x_,y_),rect);
+  NSDebugMLLog(@"low",@"self=%@\nx=%u y=%u",self,x,y);
+  hitOk=NSPointInRect(NSMakePoint(x,y),_rect);
   LOGObjectFnStop();
-  return _hitOk;
+  return hitOk;
 };
 
 @end 
@@ -922,124 +928,124 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 @implementation GSWPolygonRegion
 
 //--------------------------------------------------------------------
-+(id)polygonRegionWithShape:(NSString*)shape_
-				coordinates:(NSArray*)coords_
-		  userDefinedString:(NSString*)userDefinedString_
++(id)polygonRegionWithShape:(NSString*)shape
+                coordinates:(NSArray*)coords
+          userDefinedString:(NSString*)userDefinedString
 {
-  return [self polygonRegionWithShape:shape_
-				coordinates:coords_
-		  userDefinedString:userDefinedString_
-			   userDefinedValue:nil];
+  return [self polygonRegionWithShape:shape
+               coordinates:coords
+               userDefinedString:userDefinedString
+               userDefinedValue:nil];
 };
 
 //--------------------------------------------------------------------
-+(id)polygonRegionWithShape:(NSString*)shape_
-				coordinates:(NSArray*)coords_
-		  userDefinedString:(NSString*)userDefinedString_
-		   userDefinedValue:(id)userDefinedValue_
++(id)polygonRegionWithShape:(NSString*)shape
+                coordinates:(NSArray*)coords
+          userDefinedString:(NSString*)userDefinedString
+           userDefinedValue:(id)userDefinedValue
 {
-  return [[[self alloc]initWithShape:shape_
-					   coordinates:coords_
-					   userDefinedString:userDefinedString_
-					   userDefinedValue:userDefinedValue_] autorelease];
+  return [[[self alloc]initWithShape:shape
+                       coordinates:coords
+                       userDefinedString:userDefinedString
+                       userDefinedValue:userDefinedValue] autorelease];
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
 {
-  if ((self=[self initWithShape:shape_
-				  coordinates:coords_
-				  userDefinedString:userDefinedString_
-				  userDefinedValue:nil]))
-	{
-	};
+  if ((self=[self initWithShape:shape
+                  coordinates:coords
+                  userDefinedString:userDefinedString
+                  userDefinedValue:nil]))
+    {
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
--(id)initWithShape:(NSString*)shape_
-	   coordinates:(NSArray*)coords_
- userDefinedString:(NSString*)userDefinedString_
-  userDefinedValue:(id)userDefinedValue_
+-(id)initWithShape:(NSString*)shape
+       coordinates:(NSArray*)coords
+ userDefinedString:(NSString*)userDefinedString
+  userDefinedValue:(id)userDefinedValue
 {
-  if ((self=[super initWithShape:shape_
-				   coordinates:coords_
-				   userDefinedString:userDefinedString_
-				   userDefinedValue:userDefinedValue_]))
-	{
-	  if ([coords_ count]==0)
-		{
-		  ExceptionRaise(@"GSWPolygonRegion",
-						 @"GSWPolygonRegion bad number of coordinates (at least 1 point needed):%@ [userDefinedString = %@]",
-						 coords_,
-						 userDefinedString_ );
-		}
-	  else
-		{
-		  ASSIGN(points,coords_);
-		};
-	};
+  if ((self=[super initWithShape:shape
+                   coordinates:coords
+                   userDefinedString:userDefinedString
+                   userDefinedValue:userDefinedValue]))
+    {
+      if ([coords count]==0)
+        {
+          ExceptionRaise(@"GSWPolygonRegion",
+                         @"GSWPolygonRegion bad number of coordinates (at least 1 point needed):%@ [userDefinedString = %@]",
+                         coords,
+                         userDefinedString);
+        }
+      else
+        {
+          ASSIGN(_points,coords);
+        };
+    };
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(points);
+  DESTROY(_points);
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@ points %@>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   userDefinedString,
-				   userDefinedValue,
-				   points];
+                   object_get_class_name(self),
+                   (void*)self,
+                   _userDefinedString,
+                   _userDefinedValue,
+                   _points];
 };
 
 
 //--------------------------------------------------------------------
--(BOOL)hitTestX:(unsigned int)x_
-			  y:(unsigned int)y_
+-(BOOL)hitTestX:(unsigned int)x
+              y:(unsigned int)y
 {
-  BOOL _hitOk=NO;
+  BOOL hitOk=NO;
   int i=0;
-  int _count=[points count];
-  NSPoint _lastPoint;
-  NSPoint _currentPoint;
-  NSPoint _test=NSMakePoint(x_,y_);
-  if (_count==1)
-	{	  
-	  _currentPoint=[[points objectAtIndex:0] pointValue];
-	  _hitOk=(x_==_currentPoint.x && y_==_currentPoint.y);
-	}
-  else if (_count==2)
-	{	 
-	  _lastPoint=[[points objectAtIndex:0] pointValue];
-	  _currentPoint=[[points objectAtIndex:1] pointValue];
-	  _hitOk=isOnSegment(_test,_lastPoint,_currentPoint);
-	}
+  int count=[_points count];
+  NSPoint lastPoint;
+  NSPoint currentPoint;
+  NSPoint test=NSMakePoint(x,y);
+  if (count==1)
+    {	  
+      currentPoint=[[_points objectAtIndex:0] pointValue];
+      hitOk=(x==currentPoint.x && y==currentPoint.y);
+    }
+  else if (count==2)
+    {	 
+      lastPoint=[[_points objectAtIndex:0] pointValue];
+      currentPoint=[[_points objectAtIndex:1] pointValue];
+      hitOk=isOnSegment(test,lastPoint,currentPoint);
+    }
   else
-	{
-	  int _crossCount=0;
-	  // A point is in the polygon if the line segment starting from the point 
-	  // and going anywhere meete an odd number of polygon segment !
-	  _lastPoint=[[points objectAtIndex:0] pointValue];
-	  for(i=1;i<=_count;i++)
-		{
-		  _currentPoint=[[points objectAtIndex:(i%_count)] pointValue];
-		  // Test on UP direction
-		  if (canBeOnSegment(_test,_lastPoint,_currentPoint))
-			_crossCount++;
-		  _lastPoint=_currentPoint;
-		};
-	  _hitOk=((_crossCount%2)!=0);
-	};
-  return _hitOk;
+    {
+      int crossCount=0;
+      // A point is in the polygon if the line segment starting from the point 
+      // and going anywhere meete an odd number of polygon segment !
+      lastPoint=[[_points objectAtIndex:0] pointValue];
+      for(i=1;i<=count;i++)
+        {
+          currentPoint=[[_points objectAtIndex:(i%count)] pointValue];
+          // Test on UP direction
+          if (canBeOnSegment(test,lastPoint,currentPoint))
+            crossCount++;
+          lastPoint=currentPoint;
+        };
+      hitOk=((crossCount%2)!=0);
+    };
+  return hitOk;
 };
 
 @end 

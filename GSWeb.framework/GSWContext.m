@@ -181,7 +181,7 @@ static int dontTraceComponentActionURL=0;
 
 //--------------------------------------------------------------------
 //	elementID
--(NSString*)elementID 
+-(GSWElementIDString*)elementID 
 {
   return elementID;
 };

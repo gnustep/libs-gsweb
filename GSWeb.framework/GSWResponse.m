@@ -392,6 +392,16 @@ NSStringEncoding globalDefaultEncoding=NSISOLatin1StringEncoding;
 };
 
 //--------------------------------------------------------------------
+//	appendDebugCommentContentString:
+
+-(void)appendDebugCommentContentString:(NSString*)string
+{
+#ifndef NDEBUG
+  [self appendContentString:[NSString stringWithFormat:@"<!-- %@ -->",string]];
+#endif
+};
+
+//--------------------------------------------------------------------
 //	contentEncoding
 
 -(NSStringEncoding)contentEncoding 

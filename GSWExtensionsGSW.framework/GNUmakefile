@@ -44,7 +44,8 @@ GSWTabComponent.gswc \
 GSWValidationFailureComponent.gswc \
 GSWLogin.gswc \
 GSWSimpleFormComponent.gswc \
-GSWFileUploadFormComponent.gswc
+GSWFileUploadFormComponent.gswc \
+GSWFileUploadComponent.gswc
 
 GSWExtensionsGSW_LANGUAGES= \
 French
@@ -70,14 +71,17 @@ GSWLogin.m \
 GSWTabComponent.m \
 GSWValidationFailureComponent.m \
 GSWSimpleFormComponent.m \
-GSWFileUploadFormComponent.m 
+GSWFileUploadFormComponent.m \
+GSWFileUploadComponent.m 
 
 # The header files to be installed
 GSWExtensionsGSW_HEADER_FILES = \
 GSWLogin.h \
 GSWTabComponent.h \
 GSWValidationFailureComponent.h \
-GSWFileUploadFormComponent.h
+GSWFileUploadFormComponent.h \
+GSWFileUploadComponent.h \
+
 
 SRCS = $(LIBRARY_NAME:=.m)
 HDRS = $(LIBRARY_NAME:=.h)

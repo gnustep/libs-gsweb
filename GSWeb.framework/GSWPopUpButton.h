@@ -45,7 +45,11 @@
   GSWAssociation* _selectedValue;
   GSWAssociation* _noSelectionString;
   GSWAssociation* _escapeHTML;
+//GSWeb Additions {
   BOOL _autoValue;
+  GSWAssociation* _count;
+  GSWAssociation* _index;
+// }
 };
 
 -(void)dealloc;

@@ -186,7 +186,7 @@ static char rcsId[] = "$Id$";
   return obj;
 };
 
--(BOOL)isSearchOverForSenderID:senderID
+-(BOOL)isSearchOverForSenderID:(NSString*)senderID
 {
   BOOL over=NO;
   if (senderID == nil)

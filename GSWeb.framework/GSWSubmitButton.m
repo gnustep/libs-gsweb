@@ -139,7 +139,7 @@ static char rcsId[] = "$Id$";
                 {
                   id actionValue=nil;
                   NSDebugMLLog0(@"gswdync",@"Invoked Object Found !!");
-                  [context setActionInvoked:1];
+                  [context _setActionInvoked:1];
                   NS_DURING
                     {
                       NSDebugMLLog(@"gswdync",@"Invoked Object Found: action=%@",_action);

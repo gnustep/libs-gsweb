@@ -111,7 +111,7 @@ static char rcsId[] = "$Id$";
                                   errorDescription:&errorDscr])
                     {
                       NSException* exception=nil;
-                      NSString* valueKeyPath=[value keyPath];
+                      NSString* valueKeyPath=[_value keyPath];
                       LOGException(@"EOValidationException resultValue=%@ valueKeyPath=%@",
                                    resultValue,valueKeyPath);
                       exception=[NSException exceptionWithName:@"EOValidationException"
@@ -139,24 +139,27 @@ static char rcsId[] = "$Id$";
             } 
           else 
             {              
-              if (!WOStrictFlag)
+              NS_DURING
                 {
-                  NS_DURING
+                  [_value setValue:resultValue
+                          inComponent:component];
+                }
+              NS_HANDLER
+                {
+                  LOGException(@"GSWTextField _value=%@ resultValue=%@ exception=%@",
+                               _value,resultValue,localException);
+                  if (WOStrictFlag)
                     {
-                      [_value setValue:resultValue
-                             inComponent:component];
-                    };
-                  NS_HANDLER
+                      [localException raise];
+                    }
+                  else
                     {
                       [self handleValidationException:localException
                             inContext:context];
-                    }
-		  NS_ENDHANDLER;
+                    };
                 }
-              else
-                [_value setValue:resultValue
-                       inComponent:component];
-            }
+              NS_ENDHANDLER;
+            };
         };
     };
   LOGObjectFnStopC("GSWTextField");
@@ -248,33 +251,29 @@ static char rcsId[] = "$Id$";
 - (BOOL)_isFormattedValueInComponent:(GSWComponent *)component  
                equalToFormattedValue:(NSString *)newFormattedValue 
 {
-  id valueValue=nil;
-  id formattedValue=nil;
-  NSFormatter* formatter=nil;
+  BOOL isFormattedValue=NO;
 
-  if (!newFormattedValue) 
+  if (newFormattedValue) 
     {
-      return NO;
-    }
-  
-  // get own value
-  valueValue=[_value valueInComponent:component];
-  formatter=[self formatterForComponent:component];
-  if (!formatter)
-    {
-      formattedValue=valueValue;
-    }
-  else
-    {
-      formattedValue=[formatter stringForObjectValue:valueValue];
+      id valueValue=nil;
+      id formattedValue=nil;
+      NSFormatter* formatter=nil;
+
+      // get own value
+      valueValue=[_value valueInComponent:component];
+      formatter=[self formatterForComponent:component];
+      if (!formatter)
+        formattedValue=valueValue;
+      else
+        formattedValue=[formatter stringForObjectValue:valueValue];
+      
+      if (formattedValue && [newFormattedValue isEqualToString:formattedValue]) 
+        {
+          NSLog(@"### GSWTextField : are EQUAL ###");
+          isFormattedValue=YES;
+        }
     };
-
-  if (formattedValue && [newFormattedValue isEqualToString:formattedValue]) 
-    {
-      NSLog(@"### GSWTextField : are EQUAL ###");
-      return YES;
-    }
-  return NO;
+  return isFormattedValue;
 }
 
 @end
