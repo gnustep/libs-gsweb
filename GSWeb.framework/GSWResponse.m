@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "NSData+Compress.h"
 
 //====================================================================
 @implementation GSWResponse
@@ -91,6 +92,7 @@ static NSArray* cacheControlHeaderValues=nil;
   DESTROY(_contentFaults);
 //  NSDebugFLog0(@"Release Response contentData");
   DESTROY(_contentData);
+  DESTROY(_acceptedEncodings);
 //  NSDebugFLog0(@"Release Response userInfo");
   DESTROY(_userInfo);
   //NSDebugFLog0(@"Release Response cookies");
@@ -111,6 +113,7 @@ static NSArray* cacheControlHeaderValues=nil;
       ASSIGNCOPY(clone->_contentFaults,_contentFaults);
       ASSIGNCOPY(clone->_contentData,_contentData);
       clone->_contentEncoding=_contentEncoding;
+      ASSIGNCOPY(clone->_acceptedEncodings,_acceptedEncodings);
       ASSIGNCOPY(clone->_userInfo,_userInfo);
       ASSIGNCOPY(clone->_cookies,_cookies);
       clone->_isClientCachingDisabled=_isClientCachingDisabled;
@@ -188,6 +191,12 @@ static NSArray* cacheControlHeaderValues=nil;
 -(NSString*)httpVersion
 {
   return _httpVersion;
+};
+
+//--------------------------------------------------------------------
+-(NSArray*)acceptedEncodings
+{
+  return _acceptedEncodings;
 };
 
 //--------------------------------------------------------------------
@@ -277,6 +286,12 @@ static NSArray* cacheControlHeaderValues=nil;
 {
   //OK
   ASSIGN(_httpVersion,version);
+};
+
+//--------------------------------------------------------------------
+-(void)setAcceptedEncodings:(NSArray*)acceptedEncodings
+{
+  ASSIGN(_acceptedEncodings,acceptedEncodings);
 };
 
 //--------------------------------------------------------------------
@@ -669,7 +684,44 @@ static NSArray* cacheControlHeaderValues=nil;
       {
 	  LOGError(); //TODO
           }; */
+
   dataLength=[_contentData length];
+#ifdef HAVE_ZLIB
+  // Now we see if we can gzip the content
+  if (dataLength>1024) // min length: 1024
+    {
+      // we could do better by having parameters for types
+      NSString* contentType=[self headerForKey:@"content-type"];
+      if ([contentType isEqualTo:@"text/html"])
+        {
+          NSString* contentEncoding=[self headerForKey:@"content-encoding"];
+          // we could do better by handling compress,...
+          if ([contentEncoding length]==0 // Not already encoded
+              && [_acceptedEncodings containsObject:@"gzip"])
+            {
+              NSDate* compressStartDate=[NSDate date];
+              NSData* compressedData=[_contentData deflate];
+              NSDebugMLog(@"compressedData=%@",compressedData);
+              if (compressedData)
+                {
+#ifdef DEBUG
+                  NSDate* compressStopDate=[NSDate date];
+                  NSString* sizeInfoHeader=[NSString stringWithFormat:@"deflate from %d to %d in %0.3f s",
+                                                     dataLength,
+                                                     [compressedData length],
+                                                     [compressStopDate timeIntervalSinceDate:compressStartDate]];
+                  [self setHeader:sizeInfoHeader
+                        forKey:@"deflate-info"];
+#endif
+                  ASSIGN(_contentData,compressedData);
+                  dataLength=[_contentData length];
+                  [self setHeader:@"gzip"
+                        forKey:@"content-encoding"];
+                };
+            };
+        };
+    };
+#endif
   dataLengthString=[NSString stringWithFormat:@"%d",
                              dataLength];
   [self setHeader:dataLengthString

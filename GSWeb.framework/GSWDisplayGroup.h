@@ -34,8 +34,8 @@
 
 #if !GDL2
    #ifdef TCSDB
-      #import <TCSimpleDB/TCSimpleDB.h>
-      #import <TCSimpleDB/EODefines.h>
+      #include <TCSimpleDB/TCSimpleDB.h>
+      #include <TCSimpleDB/EODefines.h>
    #else // TCSDB
       #include <eoaccess/EOModel.h>
       #include <eoaccess/EOEntity.h>
@@ -63,13 +63,13 @@
       #define EODataSource EODatabaseDataSource
    #endif
 #else
-   #import <EOControl/EOQualifier.h>
-   #import <EOControl/EOEditingContext.h>
-   #import <EOControl/EODataSource.h>
-   #import <EOControl/EODetailDataSource.h>
-   #import <EOControl/EOKeyValueArchiver.h>
-   #import <EOControl/EONull.h>
-   #import <EOAccess/EODatabaseDataSource.h>
+   #include <EOControl/EOQualifier.h>
+   #include <EOControl/EOEditingContext.h>
+   #include <EOControl/EODataSource.h>
+   #include <EOControl/EODetailDataSource.h>
+   #include <EOControl/EOKeyValueArchiver.h>
+   #include <EOControl/EONull.h>
+   #include <EOAccess/EODatabaseDataSource.h>
 #endif
 
 @interface GSWDisplayGroup : NSObject <NSCoding>

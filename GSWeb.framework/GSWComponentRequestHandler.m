@@ -380,6 +380,7 @@ RCS_ID("$Id$")
   }
   httpVersion=[request httpVersion];
   [response setHTTPVersion:httpVersion];
+  [response setAcceptedEncodings:[request browserAcceptedEncodings]];
   [response setHeader:@"text/html"
             forKey:@"content-type"];
   [aContext _setResponse:response];

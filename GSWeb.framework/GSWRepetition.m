@@ -136,6 +136,8 @@ RCS_ID("$Id$")
                    (void*)self];
 };
 
+@end
+
 //====================================================================
 @implementation GSWRepetition (GSWRepetitionA)
 
@@ -204,10 +206,15 @@ RCS_ID("$Id$")
                 [tmpStopIndexValue class]);
           *stopIndexValuePtr=[tmpStopIndexValue intValue];
           NSDebugMLLog(@"gswdync",@"*stopIndexValuePtr=%d",(*stopIndexValuePtr));
-          if ((*countValuePtr)>((*stopIndexValuePtr)+1))
-            *countValuePtr=(*stopIndexValuePtr)+1;
+          if (_count) // if not count, just take start and stop index
+            {
+              if ((*countValuePtr)>((*stopIndexValuePtr)+1))
+                *countValuePtr=(*stopIndexValuePtr)+1;
+              else
+                *stopIndexValuePtr=(*countValuePtr)-1;
+            }
           else
-            *stopIndexValuePtr=(*countValuePtr)-1;
+            *countValuePtr=(*stopIndexValuePtr)+1;
           NSDebugMLLog(@"gswdync",@"*stopIndexValuePtr=%d",(*stopIndexValuePtr));
           NSDebugMLLog(@"gswdync",@"*countValuePtr=%d",(*countValuePtr));
         }

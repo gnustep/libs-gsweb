@@ -34,6 +34,29 @@
 
 
 //====================================================================
+/** A class to handle value and quality like for Accept-Language or 
+Accept-Encoding 
+Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
+**/
+@interface GSWValueQualityHeaderPart : NSObject
+{
+  NSString* _value;
+  float _quality;
+}
++(NSArray*)valuesFromHeaderString:(NSString*)string;
++(GSWValueQualityHeaderPart*)valueQualityHeaderPartWithString:(NSString*)string;
++(GSWValueQualityHeaderPart*)valueQualityHeaderPartWithValue:(NSString*)value
+                                               qualityString:(NSString*)qualityString;
+-(id)initWithString:(NSString*)string;
+-(id)initWithValue:(NSString*)value
+     qualityString:(NSString*)qualityString;
+-(NSString*)value;
+-(float)quality;
+-(int)compareOnQualityDesc:(GSWValueQualityHeaderPart*)qv;
+@end
+
+//====================================================================
+/** HTTP request class **/
 @interface GSWRequest : NSObject <NSCopying>
 {
 @private
@@ -52,6 +75,7 @@
   NSString* _applicationURLPrefix;
   NSArray* _requestHandlerPathArray;
   NSArray* _browserLanguages;
+  NSArray* _browserAcceptedEncodings;
   int _requestType;
   BOOL _isUsingWebServer;
   BOOL _formValueEncodingDetectionEnabled;
@@ -79,6 +103,7 @@
 -(NSString*)httpVersion;
 -(NSString*)method;
 -(NSArray*)browserLanguages;
+-(NSArray*)browserAcceptedEncodings;
 -(NSArray*)requestHandlerPathArray;
 -(NSString*)uri;
 -(NSString*)urlProtocol;//NDFN

@@ -47,6 +47,7 @@
     NSMutableArray* _contentFaults;
     NSMutableData* _contentData;
     NSStringEncoding _contentEncoding;
+    NSArray* _acceptedEncodings;
     NSDictionary* _userInfo;
     NSMutableArray* _cookies;
     BOOL _isClientCachingDisabled;
@@ -64,6 +65,7 @@
 -(NSArray*)headerKeys;
 -(NSArray*)headersForKey:(NSString*)key;
 -(NSString*)httpVersion;
+-(NSArray*)acceptedEncodings;
 -(void)setContent:(NSData*)someData;
 -(void)setHeader:(NSString*)header
           forKey:(NSString*)key;
@@ -74,6 +76,7 @@
 -(void)setHTTPVersion:(NSString*)version;
 -(void)setStatus:(unsigned int)status;
 -(void)setUserInfo:(NSDictionary*)userInfo;
+-(void)setAcceptedEncodings:(NSArray*)acceptedEncodings;
 -(unsigned int)status;
 -(NSDictionary*)userInfo;
 -(NSString*)description;

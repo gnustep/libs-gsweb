@@ -368,6 +368,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   return assoc;
 };
 
+@end
 //====================================================================
 @implementation GSWAssociation (GSWAssociationHandlers)
 //--------------------------------------------------------------------

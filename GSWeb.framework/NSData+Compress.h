@@ -1,36 +1,42 @@
-/* Machine/OS specific configuration information for GSWeb
+/** NSData+Compress.h - <title>GSWeb: NSData / zlib</title>
 
-   Copyright (C) 2002 Free Software Foundation, Inc.
+   Copyright (C) 2003 Free Software Foundation, Inc.
+  
+   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+   Date: 	May 2003
+   
+   $Revision$
+   $Date$
 
-   Written by: Mirko Viviani <mirko.viviani@rccr.cremona.it>
-
-   This file is part of the GNUstep Base Library.
-
+   This file is part of the GNUstep Web Library.
+   
+   <license>
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-
+   
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-
+   
    You should have received a copy of the GNU Library General Public
    License along with this library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
-   */
+   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   </license>
+**/
 
-#ifndef	included_config_h
-#define	included_config_h
+// $Id$
 
+#ifndef _NSData_Compress_h__
+#define _NSData_Compress_h__
 
-#undef HAVE_LIBWRAP
-#undef HAVE_GDL2
-#define HAVE_ZLIB 1
-
-#define RCS_ID(name) \
-        static const char rcsId[] = name; \
-        static const char *__rcsId_hack() {__rcsId_hack(); return rcsId;}
-
+#ifdef HAVE_ZLIB
+//====================================================================
+@interface NSData (GSWZLib)
+-(NSData*)deflate;
+@end
 #endif
+
+#endif //_NSData_Compress_h__

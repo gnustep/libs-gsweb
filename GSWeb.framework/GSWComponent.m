@@ -1581,6 +1581,8 @@ associationsKeys:(NSArray*)associationsKeys
       NSDebugMLLog(@"GSWComponent",@"request=%@",request);
       httpVersion=(request ? [request httpVersion] : @"HTTP/1.0");
       [response setHTTPVersion:httpVersion];
+      if (request)
+        [response setAcceptedEncodings:[request browserAcceptedEncodings]];
       [response setHeader:@"text/html"
                 forKey:@"content-type"];
       NSDebugMLLog(@"GSWComponent",@"response=%@",response);

@@ -130,6 +130,7 @@ NSString* GSWHTTPHeader_RequestScheme[2]={ @"x-gsweb-request-scheme", @"x-webobj
 NSString* GSWHTTPHeader_MethodPost=@"POST";
 NSString* GSWHTTPHeader_MethodGet=@"GET";
 NSString* GSWHTTPHeader_AcceptLanguage=@"accept-language";
+NSString* GSWHTTPHeader_AcceptEncoding=@"accept-encoding";
 NSString* GSWHTTPHeader_ContentType=@"content-type";
 NSString* GSWHTTPHeader_FormURLEncoded=@"application/x-www-form-urlencoded";
 NSString* GSWHTTPHeader_MultipartFormData=@"multipart/form-data";

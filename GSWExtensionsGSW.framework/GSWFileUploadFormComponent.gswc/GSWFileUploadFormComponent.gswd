@@ -63,7 +63,7 @@ FileLinkWithPath: GSWHyperlink
 
 FileLinkWithURL: GSWHyperlink
 {
-	src=fileInfo.fileURL;
+	href = fileInfo.fileURL;
 	string= ^string;
 	target = ^target;
 };

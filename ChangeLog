@@ -1,4 +1,24 @@
 2003-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWRequest.h/.m:
+		o added ivar _browserAcceptedEncodings
+		o added -browserAcceptedEncodings
+		o modified browserLanguages to use quality indicator
+	* GSWeb.framework/GSWConstants.h/.m:
+		o added GSWHTTPHeader_AcceptEncoding
+	* GSWeb.framework/GSWResponse.h/.m:
+		o added ivar _acceptedEncodings
+		o added -acceptedEncodings
+		o added -setAcceptedEncodings:
+	* GSWeb.framework/GSWComponentRequestHandler.m:
+		o set request  browserAcceptedEncodings to response
+	* GSWeb.framework/GSWComponent.m:
+		o set request  browserAcceptedEncodings to response
+	* GSWeb.framework/NSData+Compress.h/.m:
+		o added	
+	* config.h.in
+		o added HAVE_ZLIB
+
+2003-05-14   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWResourceManager.m:
 		o added warning in ISOLanguagesFromGSLanguages
 		o asserts

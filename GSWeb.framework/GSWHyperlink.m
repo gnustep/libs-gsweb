@@ -188,7 +188,7 @@ RCS_ID("$Id$")
     {
       NSString* parametersList=@"'action' or 'href' or 'pageName' or 'directActionName' or 'actionClass'";
       if (!WOStrictFlag)
-        parametersList=[parametersList stringByAppendingFormat:@"'redirectURL' or 'filename' or 'data'"];
+        parametersList=[parametersList stringByAppendingFormat:@" or 'redirectURL' or 'filename' or 'data'"];
       ExceptionRaise(@"GSWHyperlink",
                      @"You need to specify at least %@ parameter",
                      parametersList);

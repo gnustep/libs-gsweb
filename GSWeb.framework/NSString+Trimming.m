@@ -199,6 +199,7 @@ RCS_ID("$Id$")
   //NSDebugMLog(@"dataHex %p=%@",dataHex,dataHex);
   return dataHex;
 };
+@end
 
 //====================================================================
 @implementation NSString (stringWithObject)

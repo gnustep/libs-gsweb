@@ -144,7 +144,7 @@ Bindings
 				   object_get_class_name(self),
 				   (void*)self];
 };
-
+@end
 //====================================================================
 @implementation GSWConditional (GSWConditionalA)
 

@@ -172,6 +172,7 @@ RCS_ID("$Id$")
                    object_get_class_name(self),
                    (void*)self];
 };
+@end
 
 //====================================================================
 @implementation GSWImageButton (GSWImageButtonA)

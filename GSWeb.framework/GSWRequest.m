@@ -36,6 +36,155 @@ RCS_ID("$Id$")
 #include <Foundation/GSMime.h>
 
 //====================================================================
+@implementation GSWValueQualityHeaderPart
+
+/** Returns an array of values ordered by quality descending **/
++(NSArray*)valuesFromHeaderString:(NSString*)string
+{
+  NSArray* values=nil;
+  NSArray* valuesAndQualities=nil;
+  int count=0;
+  LOGObjectFnStart();
+  valuesAndQualities=[string componentsSeparatedByString:@","];
+  count=[valuesAndQualities count];
+  NSDebugMLog(@"string=%@",string);
+  if (count>0)
+    {
+      int i=0;
+      NSMutableArray* qvs=[NSMutableArray array];
+      for(i=0;i<count;i++)
+        {
+          NSString* string=[valuesAndQualities objectAtIndex:i];
+          GSWValueQualityHeaderPart* qv=[GSWValueQualityHeaderPart 
+                                           valueQualityHeaderPartWithString:string];
+          NSDebugMLog(@"string=%@",string);
+          NSDebugMLog(@"qv=%@",qv);
+          if ([[qv value]length]>0)
+              [qvs addObject:qv];
+        };
+      count=[qvs count];
+      if (count>0)
+        {
+          //Sor oon quality desc
+          [qvs sortUsingSelector:@selector(compareOnQualityDesc:)];
+
+          //Remove Duplicates
+          int i=0;
+          for(i=0;i<count;i++)
+            {
+              int j=0;
+              NSString* value=[[qvs objectAtIndex:i] value];
+              for(j=i+1;j<count;j++)
+                {
+                  NSString* value2=[[qvs objectAtIndex:j] value];
+                  if ([value2 isEqual:value])
+                    {
+                      [qvs removeObjectAtIndex:j];
+                      count--;
+                    };
+                };
+            };
+          //Finally keep only values
+          values=[qvs valueForKey:@"value"];
+        };
+    };
+  NSDebugMLog(@"values=%@",values);
+  LOGObjectFnStop();
+  return values;
+};
+
++(GSWValueQualityHeaderPart*)valueQualityHeaderPartWithString:(NSString*)string
+{
+  return [[[self alloc]initWithString:string]autorelease];
+};
+
++(GSWValueQualityHeaderPart*)valueQualityHeaderPartWithValue:(NSString*)value
+                                               qualityString:(NSString*)qualityString
+{
+  return [[[self alloc]initWithValue:value
+                       qualityString:qualityString]autorelease];
+};
+
+-(id)initWithString:(NSString*)string
+{
+  NSString* value=nil;
+  NSString* qualityString=nil;
+  string=[string stringByTrimmingSpaces];
+  NSRange qualitySeparatorRange=[string rangeOfString:@";q="];
+  if (qualitySeparatorRange.length>0)
+    {
+      if (qualitySeparatorRange.location==0)
+        {
+          LOGError(@"value/quality string: '%@'",string);
+        }
+      else
+        {
+          value=[string substringToIndex:qualitySeparatorRange.location];
+          if (qualitySeparatorRange.location
+              +qualitySeparatorRange.length<[string length])
+            qualityString=[string substringFromIndex:qualitySeparatorRange.location
+                                  +qualitySeparatorRange.length];          
+        };
+    }
+  else
+    value=string;
+  return [self initWithValue:value
+               qualityString:qualityString];
+};
+
+-(id)initWithValue:(NSString*)value
+     qualityString:(NSString*)qualityString
+{
+  if ((self=[self init]))
+    {
+      ASSIGN(_value,value);
+      qualityString=[qualityString stringByTrimmingSpaces];
+      if ([qualityString length]>0)
+        _quality=[qualityString floatValue];
+      else
+        _quality=1;
+    };
+  return self;
+};
+
+-(void)dealloc
+{
+  DESTROY(_value);
+  [super dealloc];
+};
+
+-(NSString*)description
+{
+  return [NSString stringWithFormat: @"<%s %p : %@: %.1f>",
+		   object_get_class_name(self),
+		   (void*)self,
+		   _value,
+                   _quality];
+}
+-(NSString*)value
+{
+  return _value;
+};
+
+-(float)quality
+{
+  return _quality;
+};
+
+-(int)compareOnQualityDesc:(GSWValueQualityHeaderPart*)qv
+{
+  float quality=[self quality];
+  float qvQuality=[qv quality];
+  if (quality>qvQuality)
+    return NSOrderedAscending;
+  else if (quality<qvQuality)
+    return NSOrderedDescending;
+  else
+    return NSOrderedSame;  
+};
+@end
+
+//====================================================================
 @implementation GSWRequest
 
 //--------------------------------------------------------------------
@@ -56,7 +205,6 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"requests",@"method=%@",_method);
       ASSIGNCOPY(_httpVersion,aVersion);
       ASSIGNCOPY(_headers,headers);
-      //NSLog(@"HEADERS=%@",_headers);
       _defaultFormValueEncoding=NSISOLatin1StringEncoding;
       _formValueEncoding=NSISOLatin1StringEncoding;
       [self _initCookieDictionary];//NDFN
@@ -116,6 +264,8 @@ RCS_ID("$Id$")
   DESTROY(_requestHandlerPathArray);
   NSDebugFLog0(@"Release GSWRequest browserLanguages");
   DESTROY(_browserLanguages);
+  NSDebugFLog0(@"Release GSWRequest browserAcceptedEncodings");
+  DESTROY(_browserAcceptedEncodings);
   NSDebugFLog0(@"Release GSWRequest super");
   [super dealloc];
 };
@@ -140,6 +290,7 @@ RCS_ID("$Id$")
       ASSIGNCOPY(clone->_applicationURLPrefix,_applicationURLPrefix);
       ASSIGNCOPY(clone->_requestHandlerPathArray,_requestHandlerPathArray);
       ASSIGNCOPY(clone->_browserLanguages,_browserLanguages);
+      ASSIGNCOPY(clone->_browserAcceptedEncodings,_browserAcceptedEncodings);
       clone->_requestType=_requestType;
       clone->_isUsingWebServer=_isUsingWebServer;
       clone->_formValueEncodingDetectionEnabled=_formValueEncodingDetectionEnabled;
@@ -314,34 +465,11 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"requests",@"lang header:%@",header);
       if (header)
         {
-          NSArray* languages=[header componentsSeparatedByString:@","];
+          NSArray* languages=[GSWValueQualityHeaderPart valuesFromHeaderString:header];
           if (!languages)
             {
               LOGError0(@"No languages");
             };
-          /*
-          //		  NSDebugMLLog(@"requests",@"languages:%@",languages);
-          if ([languages count]>0)
-          {
-          int i=0;
-          NSString* fromLanguage=nil;
-          NSString* toLanguage=nil;
-          browserLanguages=[NSMutableArray array];
-          for(i=0;i<[languages count];i++)
-          {
-          fromLanguage=[[languages objectAtIndex:i] lowercaseString];
-          //				  NSDebugMLLog(@"requests",@"fromLanguage:%@",fromLanguage);
-          toLanguage=[globalLanguages objectForKey:fromLanguage];
-          //				  NSDebugMLLog(@"requests",@"toLanguage:%@",toLanguage);
-          [browserLanguages addObject:toLanguage];
-          };
-          };
-          };
-	  if (browserLanguages)
-		browserLanguages=[NSArray arrayWithArray:browserLanguages];
-	  else
-          browserLanguages=[[NSArray new]autorelease];
-          */
           browserLanguages=(NSMutableArray*)[GSWResourceManager GSLanguagesFromISOLanguages:languages];
           NSDebugMLLog(@"requests",@"browserLanguages:%@",browserLanguages);
           if (browserLanguages)
@@ -377,6 +505,28 @@ RCS_ID("$Id$")
     };
   LOGObjectFnStop();
   return _browserLanguages;
+};
+
+//--------------------------------------------------------------------
+-(NSArray*)browserAcceptedEncodings
+{
+  //OK
+  LOGObjectFnStart();
+  if (!_browserAcceptedEncodings)
+    {
+      NSString* header=[self headerForKey:GSWHTTPHeader_AcceptEncoding];
+      NSDebugMLLog(@"requests",@"accept encoding header:%@",header);
+      if (header)
+        {
+          NSArray* values=[GSWValueQualityHeaderPart valuesFromHeaderString:header];
+          if (!values)
+            values=[NSArray array];
+          ASSIGN(_browserAcceptedEncodings,values);
+        };
+      NSDebugMLLog(@"requests",@"browserAcceptedEncodings:%@",_browserAcceptedEncodings);
+    };
+  LOGObjectFnStop();
+  return _browserAcceptedEncodings;
 };
 
 //--------------------------------------------------------------------

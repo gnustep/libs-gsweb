@@ -178,6 +178,8 @@ RCS_ID("$Id$")
                    (void*)self];
 };
 
+@end
+
 //====================================================================
 @implementation GSWActiveImage (GSWActiveImageA)
 -(GSWAssociation*)hitTestX:(int)x

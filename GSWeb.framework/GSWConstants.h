@@ -123,6 +123,7 @@ extern NSString* GSWHTTPHeader_Method[2];
 extern NSString* GSWHTTPHeader_MethodPost;
 extern NSString* GSWHTTPHeader_MethodGet;
 extern NSString* GSWHTTPHeader_AcceptLanguage;
+extern NSString* GSWHTTPHeader_AcceptEncoding;
 extern NSString* GSWHTTPHeader_ContentType;
 extern NSString* GSWHTTPHeader_FormURLEncoded;
 extern NSString* GSWHTTPHeader_MultipartFormData;

@@ -27,7 +27,7 @@
 #define _GSWebConfig_h__
 
 #ifdef  GSWEB_WONAMES
-#import "GSWWOCompatibility.h"
+#include "GSWWOCompatibility.h"
 #endif
 
 #define GSLOCK_DELAY_S	360

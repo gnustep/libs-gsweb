@@ -187,6 +187,7 @@ GSWGeometricRegion.m \
 GSWFileUpload.m \
 GSWResourceURL.m \
 GSWProcFS.m \
+NSData+Compress.m \
 stacktrace.m \
 attach.m
 GSWeb_wo_OBJC_FILES = $(GSWeb_OBJC_FILES)
@@ -304,6 +305,7 @@ GSWGeometricRegion.h \
 GSWFileUpload.h \
 GSWResourceURL.h \
 GSWProcFS.h \
+NSData+Compress.h \
 GSWWOCompatibility.h
 
 
