@@ -106,7 +106,7 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"requests",@"requestHandlerValues=%@",requestHandlerValues);
       //statisticsStore=[[GSWApplication application]statisticsStore];
 //      NSDebugMLLog(@"requests",@"statisticsStore=%@",statisticsStore);
-      //[statisticsStore _applicationWillHandleComponentActionRequest];
+      //[statisticsStore applicationWillHandleComponentActionRequest];
 
       aContext=[[GSWApplication application]createContextForRequest:aRequest];
       NSDebugMLLog(@"requests",@"aContext=%@",aContext);
@@ -174,7 +174,7 @@ RCS_ID("$Id$")
   
   [application _setContext:nil];
   //statisticsStore=[[GSWApplication application] statisticsStore];
-  //[statisticsStore _applicationDidHandleComponentActionRequest];
+  //[statisticsStore applicationDidHandleComponentActionRequest];
   NSDebugMLLog(@"requests",@"response=%@",response);
   LOGObjectFnStop();
   return response;
