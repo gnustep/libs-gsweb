@@ -78,6 +78,95 @@ objectForReference:(NSString*)keyPath
 @end
 #endif // HAVE_GDL2
 //====================================================================
+
+// this should be in Gnustep base / extensions
+
+@implementation NSString (EncodingDataExt)
+
++ (id)stringWithContentsOfFile:(NSString *)path encoding:(NSStringEncoding)encoding
+{
+  NSData   * tmpData = nil;
+  NSString * tmpString = nil;
+  
+  if (tmpData = [NSData dataWithContentsOfFile: path])
+  {
+    tmpString = [NSString alloc];
+    tmpString = [tmpString initWithData:tmpData 
+                               encoding:encoding];
+    if (!tmpString) {
+        NSLog(@"%s NO STRING for path '%@' encoding:%d", __PRETTY_FUNCTION__, path, encoding);
+            
+        [NSException raise:NSInvalidArgumentException 
+                    format:@"%s: could not open convert file contents '%s' non-lossy to encoding %i",
+                                __PRETTY_FUNCTION__, path, encoding];  
+    
+    }                               
+    [tmpString autorelease];
+  }
+  
+  return tmpString;
+}
+
+#warning XXX TODO Optimize for speed
+
++ (NSStringEncoding) encodingNamed:(NSString*) encodingName
+{
+  if ([encodingName isEqualToString:@"NSISOLatin1StringEncoding"]) 
+  {
+    return NSISOLatin1StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSASCIIStringEncoding"]) 
+  {
+    return NSASCIIStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSISOLatin2StringEncoding"]) 
+  {
+    return NSISOLatin2StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSJapaneseEUCStringEncoding"]) 
+  {
+    return NSJapaneseEUCStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSMacOSRomanStringEncoding"]) 
+  {
+    return NSMacOSRomanStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSNEXTSTEPStringEncoding"]) 
+  {
+    return NSNEXTSTEPStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSNonLossyASCIIStringEncoding"]) 
+  {
+    return NSNonLossyASCIIStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSUTF8StringEncoding"]) 
+  {
+    return NSUTF8StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSUnicodeStringEncoding"]) 
+  {
+    return NSUnicodeStringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSWindowsCP1253StringEncoding"]) 
+  {
+    return NSWindowsCP1253StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSWindowsCP1252StringEncoding"]) 
+  {
+    return NSWindowsCP1252StringEncoding;
+  }
+  if ([encodingName isEqualToString:@"NSWindowsCP1254StringEncoding"]) 
+  {
+    return NSWindowsCP1254StringEncoding;
+  }
+
+      [NSException raise:NSInvalidArgumentException 
+                format:@"%s: does not know about '%s'",
+                            __PRETTY_FUNCTION__, encodingName];  
+  return 0; // to make gcc happy
+}
+
+@end
 @implementation GSWBundle
 
 //--------------------------------------------------------------------
@@ -593,8 +682,9 @@ objectForReference:(NSString*)keyPath
           GSWTemplateParserType templateParserType=[self templateParserTypeForResourcesNamed:aName];
           NSStringEncoding encoding=[self encodingForResourcesNamed:aName];
           NSString* pageDefString=nil;
-          //TODO use encoding !
-          NSString* htmlString=[NSString stringWithContentsOfFile:absoluteTemplatePath];
+          NSString* htmlString=[NSString stringWithContentsOfFile:absoluteTemplatePath 
+                                                         encoding:encoding];
+          //NSString* htmlString=[NSString stringWithContentsOfFile:absoluteTemplatePath];
           NSDebugMLLog(@"bundles",@"htmlPath=%@",absoluteTemplatePath);
           if (!htmlString)
             {
@@ -630,7 +720,10 @@ objectForReference:(NSString*)keyPath
                   //TODO use encoding !
                   NSDebugMLLog(@"bundles",@"absoluteDefinitionPath=%@",
                                absoluteDefinitionPath);
-                  pageDefString=[NSString stringWithContentsOfFile:absoluteDefinitionPath];
+                  //pageDefString=[NSString stringWithContentsOfFile:absoluteDefinitionPath];
+                  pageDefString = [NSString stringWithContentsOfFile:absoluteDefinitionPath 
+                                                            encoding:encoding];
+
                 };
 #ifndef NDEBUG
               NS_DURING
@@ -959,17 +1052,21 @@ objectForReference:(NSString*)keyPath
           archive=[self archiveNamed:aName];
           if (archive)
             {
+            //NSLog(@"archive is '%@'", archive);
               encodingObject=[archive objectForKey:@"encoding"];
               if (encodingObject)
                 {
-                  encodingObject=[NSNumber valueFromString:encodingObject];
+                  //NSLog(@"encodingObject is '%@'", encodingObject);
+                  //encodingObject is 'NSISOLatin1StringEncoding'
+                  //not very cool to make a int into a string and some time later a string..
+                  encodingObject=GSWIntToNSString([NSString encodingNamed: encodingObject]);
                   [_encodingCache setObject:encodingObject
                                   forKey:aName];
                 };
             };
         };
       if (encodingObject)
-        encoding=[encodingObject unsignedIntValue];
+        encoding=[encodingObject intValue];
     }
   NS_HANDLER
     {
