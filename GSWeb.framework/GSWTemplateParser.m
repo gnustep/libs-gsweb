@@ -85,7 +85,7 @@ RCS_ID("$Id$")
               withParserType: [self defaultTemplateParserType]
               parserClassName: nil
               withString: HTMLString
-              encoding: NSISOLatin1StringEncoding
+              encoding: GSUndefinedEncoding
               fromPath: nil
               definitionsString: pageDefString
               languages: languages

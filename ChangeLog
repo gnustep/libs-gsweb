@@ -22,6 +22,45 @@
 	* GSWeb.framework/GSWConfig.h: Turn GSW/WOLifebeatEnabled off by
 	default.
 
+	* GSWeb.framework/GSWResourceManager.m
+	([GSWResourceManager setURLValuedElementData:]): Test contents of
+	data before setting it.
+	
+	* GSWeb.framework/GSWApplication.m
+	([GSWApplication lockedComponentDefinitionWithName:languages:]):
+	Add handling for components without wrappers.
+
+	* GSWeb.framework/GSWGenericElement.h: Corrected names of instance
+	variable and method.
+	* GSWeb.framework/GSWGenericElement.m:
+	([GSWGenericElement initWithName:associations:template:]):
+	Implemented.
+	([GSWGenericElement dealloc]): Ditto.
+	([GSWGenericElement description]): Ditto.
+	([GSWGenericElement appendToResponse:inContext:]): Ditto.
+	([GSWGenericElement invokeActionForRequest:inContext:]): Ditto.
+	([GSWGenericElement takeValuesFromRequest:inContext:]): Ditto.
+	([GSWGenericElement _elementNameAppendToResponse:inContext:]):
+	Ditto.
+	([GSWGenericElement _appendTagWithName:toResponse:inContext:]):
+	Ditto.
+	([GSWGenericElement _appendOtherAttributesToResponse:inContext:]):
+	Ditto.
+	([GSWGenericElement _elementNameInContext:]): Ditto.
+	* GSWeb.framework/GSWConstants.h/m: Added Tags for
+	GSWGenericElement.
+
+	* GSWeb.framework/GSWTemplateParser.m ([GSWTemplateParser
+	templateWithHTMLString:declarationString:languages:]): Added
+	preliminary implementation and commented correct implement.
+
+	* GSWeb.framework/GSWWOCompatibility.h: Fix typo.
+
+	* GSWeb.framework/GSWURLValuedElementData.m
+	([GSWURLValuedElementData initWithData:mimeType:key:]): Call
+	stringUniqueIdWithLength: with minimal allowed length.
+
+
 2004-01-13  David Ayers  <d.ayers@inode.at>
 
 	* config/pathxml.m4: Whitespace fixes for coding standards.
