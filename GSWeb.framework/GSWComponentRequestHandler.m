@@ -287,11 +287,13 @@ static char rcsId[] = "$Id$";
 	  //TODO method adds a header to the HTTP response. This header sets the expiration date for an HTML page to the date and time of the creation of the page. Later, when the browser checks its cache for this page, it finds that the page is no longer valid and so refetches it by resubmitting the request URL to the WebObjects application.
 
 	  [_session _saveCurrentPage];
+#if 0
 	  if (!_contextID) // ??
-		{
-		  if (![_session storesIDsInCookies])//??
-			[_session clearCookieFromResponse:_response];
-		};
+	    {
+	      if (![_session storesIDsInCookies])//??
+		[_session clearCookieFromResponse:_response];
+	    };
+#endif
 	};
   NSDebugMLLog(@"requests",@"_response=%@",_response);
   LOGObjectFnStop();

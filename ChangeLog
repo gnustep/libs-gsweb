@@ -1,3 +1,11 @@
+2000-12-03  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* GSWeb.framework/GSWComponentRequestHandler.m
+	([GSWComponentRequestHandler -lockedDispatchWithPreparedSession:
+	inContext:elements:]): do not 'clear' cookie if not enabled.
+	* GSWeb.framework/GSWComponent.m ([GSWComponent
+	-performParentAction:]): implemented.
+
 2000-11-28  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWDisplayGroup.m ([GSWDisplayGroup

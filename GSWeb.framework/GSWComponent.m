@@ -1170,10 +1170,31 @@ associationsKeys:(NSArray*)_associationsKeys
 //--------------------------------------------------------------------
 //	performParentAction:
 
--(id)performParentAction:(NSString*)attribute
+- (id)performParentAction:(NSString *)attribute
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  GSWAssociation *_assoc=nil;
+  id _ret=nil;
+
+  LOGObjectFnStart();
+  NSDebugMLLog(@"gswcomponents", @"parentBindingName_=%@", parentBindingName_);
+  NSDebugMLLog(@"gswcomponents", @"parent=%p", (void*)parent);
+  if (parent)
+    {
+      _assoc = [self _associationWithName:attribute];
+      NSDebugMLLog(@"gswcomponents", @"_assoc=%@", _assoc);
+
+      if(_assoc && [_assoc isValueConstant] == YES)
+	{
+	  NSString *_value = [_assoc valueInComponent:self];
+
+	  if(_value)
+	    _ret = [parent performSelector:NSSelectorFromString(_value)];
+	}
+    }
+
+  LOGObjectFnStop();
+
+  return _ret;
 };
 
 //--------------------------------------------------------------------
