@@ -62,6 +62,7 @@
   GSWAssociation* _mimeType;
   GSWAssociation* _key;
   NSDictionary* _otherPathQueryAssociations;
+  GSWAssociation* _urlPrefix;
 // }
   GSWElement* _children;
 };
@@ -84,6 +85,10 @@
                           inContext:(GSWContext*)aContext;
 -(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)aContext;
 -(void)_appendFragmentToResponse:(GSWResponse*)aResponse
+                       inContext:(GSWContext*)aContext;
+-(void)_appendContentStringToResponse:(GSWResponse*)aResponse
+                            inContext:(GSWContext*)aContext;
+-(void)_appendChildrenToResponse:(GSWResponse*)aResponse
                        inContext:(GSWContext*)aContext;
 -(NSString*)hrefInContext:(GSWContext*)aContext; //NDFN
 

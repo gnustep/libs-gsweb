@@ -124,6 +124,10 @@ RCS_ID("$Id$")
       _key = [[anAssociationsDict objectForKey:key__Key
                                   withDefaultObject:[_key autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"key=%@",_key);
+
+      _urlPrefix = [[anAssociationsDict objectForKey:urlPrefix__Key
+                                        withDefaultObject:[_urlPrefix autorelease]] retain];
+      NSDebugMLLog(@"gswdync",@"urlPrefix=%@",_urlPrefix);
     };
 
 
@@ -148,6 +152,7 @@ RCS_ID("$Id$")
       [tmpOtherAssociations removeObjectForKey:data__Key];
       [tmpOtherAssociations removeObjectForKey:mimeType__Key];
       [tmpOtherAssociations removeObjectForKey:key__Key];
+      [tmpOtherAssociations removeObjectForKey:urlPrefix__Key];
     };
 
   if (!WOStrictFlag)
@@ -244,6 +249,7 @@ RCS_ID("$Id$")
   DESTROY(_data);
   DESTROY(_mimeType);
   DESTROY(_key);
+  DESTROY(_urlPrefix);
   DESTROY(_children);
   [super dealloc];
 }
@@ -430,23 +436,8 @@ RCS_ID("$Id$")
     };
   if (!disabledValue || displayDisabledValue)
     {
-      if (_string)
-        {
-          id stringValue=nil;
-          NSDebugMLLog(@"gswdync",@"string=%@",_string);
-          stringValue=[_string valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"stringValue=%@",stringValue);
-          if (stringValue)
-            [response appendContentHTMLString:stringValue];
-        };
-      NSDebugMLLog(@"gswdync",@"_children=%p",_children);
-      if (_children)
-        {
-          [context appendZeroElementIDComponent];
-          [_children appendToResponse:response
-                     inContext:context];
-          [context deleteLastElementIDComponent];
-        };
+      [self _appendChildrenToResponse:response
+            inContext:context];
     };
   if (!disabledValue)//??
     {
@@ -496,6 +487,7 @@ RCS_ID("$Id$")
   BOOL completeUrlsPreviousState=NO;
   BOOL isSecure=NO;
   BOOL requestIsSecure=NO;
+  NSString* urlPrefix=nil;
   LOGObjectFnStart();
 
   actionString=[self computeActionStringInContext:context];
@@ -510,14 +502,25 @@ RCS_ID("$Id$")
                    inContext:context];
   else
     isSecure=requestIsSecure;
-
+  
   // Force complete URLs is secure mode is not the same
   if (isSecure!=requestIsSecure)
     completeUrlsPreviousState=[context _generateCompleteURLs];
 
-  anUrl=(NSString*)[context directActionURLForActionNamed:actionString
-                            queryDictionary:queryDictionary
-                            isSecure:isSecure];
+  if (_urlPrefix)
+    {
+      GSWComponent* component=[context component];
+      urlPrefix=[_urlPrefix valueInComponent:component];
+      anUrl=(NSString*)[context directActionURLForActionNamed:actionString
+                                urlPrefix:urlPrefix
+                                queryDictionary:queryDictionary
+                                isSecure:isSecure];
+    }
+  else
+      anUrl=(NSString*)[context directActionURLForActionNamed:actionString
+                                queryDictionary:queryDictionary
+                                isSecure:isSecure];
+
   NSDebugMLLog(@"gswdync",@"anUrl=%@",anUrl);
 
   if (isSecure!=requestIsSecure && !completeUrlsPreviousState)
@@ -623,6 +626,41 @@ RCS_ID("$Id$")
     };
   LOGObjectFnStop();
 };
+
+//--------------------------------------------------------------------
+-(void)_appendContentStringToResponse:(GSWResponse*)aResponse
+                            inContext:(GSWContext*)aContext
+{
+  LOGObjectFnStart();
+  if (_string)
+    {
+      id stringValue=nil;
+      NSDebugMLLog(@"gswdync",@"string=%@",_string);
+      stringValue=[_string valueInComponent:[aContext component]];
+      NSDebugMLLog(@"gswdync",@"stringValue=%@",stringValue);
+      if (stringValue)
+        [aResponse appendContentHTMLString:stringValue];
+    };
+  LOGObjectFnStop();
+}
+
+//--------------------------------------------------------------------
+-(void)_appendChildrenToResponse:(GSWResponse*)aResponse
+                       inContext:(GSWContext*)aContext
+{
+  LOGObjectFnStart();
+  [self _appendContentStringToResponse:aResponse
+        inContext:aContext];
+  NSDebugMLLog(@"gswdync",@"_children=%p",_children);
+  if (_children)
+    {
+      [aContext appendZeroElementIDComponent];
+      [_children appendToResponse:aResponse
+                 inContext:aContext];
+      [aContext deleteLastElementIDComponent];
+    };
+  LOGObjectFnStop();
+}
 
 //--------------------------------------------------------------------
 //NDFN
