@@ -907,6 +907,14 @@ NSString* MessageForMutexLockError(int errorNo)
 -(BOOL)isLocked
 {
   BOOL isLocked=YES;
+  //TODO
+#ifdef NeXT_Foundation_LIBRARY
+  if ([self tmptryLock])
+    {
+      isLocked = NO;
+      [self tmpunlock];
+    }
+#else
   if (!_mutex->owner)
     isLocked=NO;
   else
@@ -928,6 +936,7 @@ NSString* MessageForMutexLockError(int errorNo)
                   (void*)objc_thread_id());
     };
 */
+#endif
   return isLocked;
 };
 
@@ -945,6 +954,10 @@ NSString* MessageForMutexLockError(int errorNo)
                       file:(const char*)file
                       line:(int)line
 {
+//TODO
+#ifdef NeXT_Foundation_LIBRARY
+  return [self tryLock];
+#else
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
@@ -978,6 +991,7 @@ NSString* MessageForMutexLockError(int errorNo)
     };
 //  LOGObjectFnStop();
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -993,6 +1007,10 @@ NSString* MessageForMutexLockError(int errorNo)
                          file:(const char*)file
                          line:(int)line
 {
+//TODO
+#ifdef NeXT_Foundation_LIBRARY
+  return [self tryLock];
+#else
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
@@ -1008,6 +1026,7 @@ NSString* MessageForMutexLockError(int errorNo)
       //  LOGObjectFnStop();
     };
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -1025,6 +1044,10 @@ NSString* MessageForMutexLockError(int errorNo)
                        file:(const char*)file
                        line:(int)line
 {
+  //TODO
+#ifdef NeXT_Foundation_LIBRARY
+  return [self lockBeforeDate:limit];
+#else
   BOOL locked=NO;
   int result=0;
   int tryCount=0;
@@ -1084,6 +1107,7 @@ NSString* MessageForMutexLockError(int errorNo)
     };
   //  LOGObjectFnStop();
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -1101,6 +1125,10 @@ NSString* MessageForMutexLockError(int errorNo)
                     file:(const char*)file
                     line:(int)line
 {
+  //TODO
+#ifdef NeXT_Foundation_LIBRARY
+  return [self lockBeforeDate:limit];
+#else
   BOOL locked=NO;
   int result=0;
   int tryCount=0;
@@ -1167,6 +1195,7 @@ NSString* MessageForMutexLockError(int errorNo)
     };
 //  LOGObjectFnStop();
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -1182,6 +1211,10 @@ NSString* MessageForMutexLockError(int errorNo)
                         file:(const char*)file
                         line:(int)line;
 {
+//TODO
+#ifdef NeXT_Foundation_LIBRARY
+  [self unlock];
+#else
   int result=0;
 //  LOGObjectFnStart();
   NSDebugMLLog(@"low",@"BEF self=%p _mutex=%p _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",
@@ -1236,6 +1269,7 @@ NSString* MessageForMutexLockError(int errorNo)
         };
     };
   //  LOGObjectFnStop();
+#endif
 };
 @end
 
@@ -1277,6 +1311,10 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
                       file:(const char*)file
                       line:(int)line
 {
+//TODO
+#ifdef NeXT_Foundation_LIBRARY
+  return [self tryLock];
+#else
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
@@ -1319,6 +1357,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   //  LOGObjectFnStop();
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -1335,6 +1374,10 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
                          file:(const char*)file
                          line:(int)line
 {
+//TODO
+#ifdef NeXT_Foundation_LIBRARY
+	return [self tryLock];
+#else
   BOOL locked=NO;
   int result=0;
 //  LOGObjectFnStart();
@@ -1355,6 +1398,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   //  NSDebugMLLog(@"low",@"locked=%d",(int)locked);
   //  LOGObjectFnStop();
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -1372,6 +1416,10 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
                        file:(const char*)file
                        line:(int)line
 {
+  //TODO
+#ifdef NeXT_Foundation_LIBRARY
+  return [self lockBeforeDate:limit];
+#else
   BOOL locked=NO;
   BOOL notOwner=NO;
   int tryCount=0;
@@ -1431,6 +1479,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
     };
   //  LOGObjectFnStop();
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -1448,6 +1497,10 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
                     file:(const char*)file
                     line:(int)line
 {
+  //TODO
+#ifdef NeXT_Foundation_LIBRARY
+  return [self lockBeforeDate:limit];
+#else
   BOOL locked=NO;
   BOOL notOwner=NO;
   int tryCount=0;
@@ -1520,6 +1573,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
     };
 //  LOGObjectFnStop();
   return locked;
+#endif
 };
 
 //--------------------------------------------------------------------
@@ -1535,6 +1589,10 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
                         file:(const char*)file
                         line:(int)line;
 {
+  //TODO
+#ifdef NeXT_Foundation_LIBRARY
+  [self unlock];
+#else
   int result=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p _mutex->depth=%d objc_thread_id()=%p",(void*)_mutex->owner,(int)_mutex->depth,(void*)objc_thread_id());
@@ -1569,6 +1627,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
         };
     };
   //  LOGObjectFnStop();
+#endif
 };
 @end
 
@@ -1855,6 +1914,8 @@ NSString* GSWGetDefaultDocRoot()
 @end
 
 //====================================================================
+//TODO
+#ifndef NeXT_Foundation_LIBRARY
 @implementation NSUserDefaults (Description)
 
 //--------------------------------------------------------------------
@@ -1872,6 +1933,7 @@ NSString* GSWGetDefaultDocRoot()
 };
 
 @end
+#endif
 
 //====================================================================
 @implementation NSDictionary (FromNSArray)
@@ -2299,7 +2361,7 @@ NSString* GSWGetDefaultDocRoot()
 
 @end
 
-#include <Foundation/GSMime.h>
+#include <GNUstepBase/GSMime.h>
 
 @implementation NSData (Base64)
 
