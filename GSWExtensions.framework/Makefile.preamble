@@ -62,7 +62,12 @@ ADDITIONAL_CFLAGS =
 ADDITIONAL_INCLUDE_DIRS =  -I$(GNUSTEP_SYSTEM_ROOT)/db -I.. -I../.. -I../GSWeb.framework/derived_src
 
 # Additional LDFLAGS to pass to the linker
-ADDITIONAL_LDFLAGS = -lGSANTLR 
+ifeq ($(debug), yes)
+	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lGSANTLR_d
+else
+        ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lGSANTLR 
+endif
+
 GSWExtensions_ADDITIONAL_LDFLAGS = GSWeb
 GSWExtensions_wo_ADDITIONAL_LDFLAGS = GSWeb_wo
 
