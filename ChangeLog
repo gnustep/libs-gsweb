@@ -1,3 +1,95 @@
+2004-04-06   Manuel Guesdon <mguesdon@orange-concept.com>
+
+	* GSWeb.framework/GSWHTMLRawParser.m:
+		o fixed exception format/arguments problem reported 
+			by David Ayers  <d.ayers@inode.at>
+			in _skipQuotedStringWithQuote:index:stopIndex:
+	* GSWeb.framework/GSWSession.m:
+		o implemented -debugWithFormat:
+		o implemented -_debugWithString:
+		o Manage termination in -appendCookieToResponse:
+	* GSWeb.framework/GSWResponse.m:
+		o finalized -disableClientCaching
+		o in -_finalizeInContext: add load info to headers
+		o in -_finalizeInContext: new session refusing info
+	* GSWeb.framework/GSWAssociation.m:
+		o raise exception if empty keyPath in +setValue:inObject:forKeyPath:
+	* GSWeb.framework/GSWActionRequestHandler.m:
+		o finalize -_handleRequest:
+	* GSWeb.framework/GSWApplication.h/.m:
+		o added -_refuseNewSessionsTimeInterval
+		o added +_setAllowsCacheControlHeader:
+		o added +_allowsCacheControlHeader
+	* GSWeb.framework/GSWConstants.h/.m:
+		o added GSWHTTPHeader_LoadAverage
+		o added GSWHTTPHeader_RefuseSessions
+		o added AllowsCacheControlHeader
+	* GSWeb.framework/GSWConfig.h:
+		o added GSWOPTVALUE_AllowsCacheControlHeader
+	* TODO:
+		o updated
+	* GSWeb.framework/GSWElement.m:
+		o remove -definitionName (use -declarationName now)
+	* GSWeb.framework/GSWForm.m:
+		o replaced -definitionName call by -declarationName
+	* GSWeb.framework/GSWComponent.m/.h:
+		o replaced -definitionName by -declarationName
+	* GSWeb.framework/GSWComponentContent.m:
+		o replaced -definitionName call by -declarationName
+	* GSWeb.framework/GSWComponentReference.m:
+		o replaced -definitionName call by -declarationName
+	* GSWeb.framework/GSWConditional.m:
+		o replaced -definitionName call by -declarationName
+		o replaced -setDefinitionName -setDeclarationName
+	* GSWeb.framework/GSWContext.m:
+		o replaced -definitionName call by -declarationName
+	* GSWeb.framework/GSWHyperlink.m:
+		o replaced -definitionName call by -declarationName
+	* GSWeb.framework/GSWImageButton.m:
+		o replaced -definitionName call by -declarationName
+	* GSWeb.framework/GSWRepetition.m:
+		o replaced -definitionName call by -declarationName
+		o replaced -setDefinitionName -setDeclarationName
+	* GSWeb.framework/GSWSwitchComponent.m:
+		o replaced -definitionName call by -declarationName
+	* GSWeb.framework/GNUmakefile:
+		o removed GSWHTMLParser.m
+		o removed GSWHTMLParserExt.m 
+		o removed GSWHTMLLexer.m 
+		o removed GSWHTMLAttrLexer.m 
+		o removed GSWHTMLAttrParser.m 
+		o removed GSWHTMLAttrParserExt.m 
+		o removed GSWTemplateParserANTLR.m 
+		o removed GSWTemplateParserXML.m 
+		o removed GSWHTMLAttrLexer.h 
+		o removed GSWHTMLAttrParser.h 
+		o removed GSWHTMLAttrParserExt.h 
+		o removed GSWHTMLAttrTokenTypes.h 
+		o removed GSWHTMLLexer.h 
+		o removed GSWHTMLParser.h 
+		o removed GSWHTMLParserExt.h 
+		o removed GSWHTMLTokenTypes.h 
+		o removed GSWTemplateParserANTLR.h 
+		o removed GSWTemplateParserXML.h 
+	* GSWeb.framework/GSWeb.h:
+		o removed #include "GSWHTMLLexer.h"
+		o removed #include "GSWHTMLParser.h"
+		o removed #include "GSWHTMLParserExt.h"
+	* GSWeb.framework/GSWTemplateParser.m:
+		o removed references to ANTLR
+		o removed #include "GSWTemplateParserXML.h"
+		o removed #include "GSWTemplateParserANTLR.h"
+		o removed ANTLR and XML parsers handling in 
+		+templateParserTypeFromString: Emit warning for 
+		ANTLR/XML case
+		o cleaned +templateWithHTMLString:declarationString:languages:
+		o removed ANTLR and XML parsers handling in 
+		+templateNamed:inFrameworkNamed:...
+		Emit warning for ANTLR/XML case
+		o code cleaning
+	* GSWeb.framework/Makefile.preamble.in:
+		o removed GSANTLR dependency
+	
 2004-04-02  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWHTMLRawParser.m
