@@ -43,8 +43,8 @@
   GSWAssociation* _count;
   GSWAssociation* _index;
 //GSWeb Additions {
-  GSWAssociation* _startIndex; /** Don't begin à 0 but at startIndex **/
-  GSWAssociation* _stopIndex;  /** Don't end à count-1 or list count -1  but at stopIndex **/
+  GSWAssociation* _startIndex; /** Don't begin at 0 but at startIndex **/
+  GSWAssociation* _stopIndex;  /** Don't end at count-1 or list count -1  but at stopIndex **/
 //}
   GSWHTMLStaticGroup* _childrenGroup;
 };

@@ -1,5 +1,9 @@
 2004-11-03  David Ayers  <d.ayers@inode.at>
 
+	* GSWeb.framework/GSWRepetition.h: Only use ASCII characters
+	in source files.
+	* GSWeb.framework/NSString+HTML.m (initHtmlChars): Ditto
+	
 	* Doc/GNUmakefile: New file.
 	* Doc/gsweb.gsdoc: Update DTD reference.  Minor reformatting.
 	Add references to subprojects.  Add myself as coauthor.

@@ -143,35 +143,34 @@ static NSArray* htmlChars=nil;
   <!ENTITY yuml   CDATA "&#255;" -- small y, dieresis or umlaut -->
 */
 
+#define NORMAL_CHARS @"(\"&\", \
+                        \">\", \
+                        \"<\", \
+                        \"\\\"\", \
+                        \"\\U00A3\", \
+                        \"|\", \
+                        \"\\U00B0\", \
+                        \"\\U00E9\", \
+                        \"\\U00E7\", \
+                        \"\\U00E0\", \
+                        \"\\U00E2\", \
+                        \"\\U00E3\", \
+                        \"\\U00E8\", \
+                        \"\\U00EA\", \
+                        \"\\U00EC\", \
+                        \"\\U00EE\", \
+                        \"\\U00F1\", \
+                        \"\\U00F4\", \
+                        \"\\U00F5\", \
+                        \"\\U00F9\", \
+                        \"\\U00FB\")"
 
-void initHtmlChars()
+static void
+initHtmlChars()
 {
   if (!normalChars)
     {
-      normalChars=[[NSArray arrayWithObjects:
-                              @"&",
-                            @">",
-                            @"<",
-                            @"\"",
-                            @"£",
-                            @"|",
-                            @"°",
-                            @"é",
-                            @"ç",
-                            @"à",
-                            @"â",
-                            @"ã",
-                            @"è",
-                            @"ê",
-                            @"ì",
-                            @"î",
-                            @"ñ",
-                            @"ô",
-                            @"õ",
-                            @"ù",
-                            @"û",
-                            nil
-                    ] retain];
+      normalChars = [[NORMAL_CHARS  propertyList] retain];
     };
   if (!htmlChars)
     {
