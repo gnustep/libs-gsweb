@@ -142,12 +142,12 @@ RCS_ID("$Id$")
                         forKey:GSWThreadKey_DefaultAdaptorThread];
       [[NSNotificationCenter defaultCenter] addObserver:[self class]
                                             selector:@selector(threadExited:)
-                                            name:NSThreadExiting//NSThreadWillExitNotification
+                                            name:NSThreadWillExitNotification
                                             object:[NSThread currentThread]];
       /*
         [NotificationDispatcher addObserver:[self class]
         selector:@selector(threadExited:)
-        name:NSThreadExiting//NSThreadWillExitNotification
+        name:NSThreadWillExitNotification
         object:[NSThread currentThread]];
       */
     };
@@ -293,10 +293,10 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"low",@"adaptorThread=%@",adaptorThread);
   [threadDict removeObjectForKey:GSWThreadKey_DefaultAdaptorThread];
   [[NSNotificationCenter defaultCenter] removeObserver:self
-                                        name:NSThreadExiting//NSThreadWillExitNotification
+                                        name:NSThreadWillExitNotification
                                         object:thread];
   /*  [NotificationDispatcher removeObserver:self
-      name:NSThreadExiting//NSThreadWillExitNotification
+      name:NSThreadWillExitNotification
       object:_thread];
   */
   [adaptorThread threadExited];
@@ -522,11 +522,15 @@ RCS_ID("$Id$")
             };
           if (!isAllDataReaden)
             {
-              isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
+	      /* Because +date returns (id) we use the variable
+	         to insure the compiler finds the correct signature.  */
+	      NSDate *now = [NSDate date];
+              isElapsed	=[now compare: maxDate]==NSOrderedDescending;
               if (!isElapsed)
                 {
                   NSTimeIntervalSleep(sleepTime);//Is this the good method ? //TODOV
-                  isElapsed=[[NSDate date]compare:maxDate]==NSOrderedDescending;
+		  now = [NSDate date];
+                  isElapsed=[now compare:maxDate]==NSOrderedDescending;
                 };
             };
         } while (!isAllDataReaden && !isElapsed);

@@ -454,18 +454,18 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 //====================================================================
 @implementation NSException (NSBuild)
-+(NSException*)exceptionWithName:(NSString*)name
++(NSException*)exceptionWithName:(NSString*)excptName
                           format:(NSString*)format,...
 {
   NSException* exception=nil;
-  NSString* reason=nil;
+  NSString* excptReason=nil;
   va_list args;
   va_start(args,format);
-  reason=[NSString stringWithFormat:format
-                   arguments:args];
+  excptReason=[NSString stringWithFormat:format
+			arguments:args];
   va_end(args);
-  exception=[self exceptionWithName:name
-                  reason:reason
+  exception=[self exceptionWithName:excptName
+                  reason:excptReason
                   userInfo: nil];
   return exception;
 };
@@ -476,11 +476,12 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 -(NSException*)exceptionByAddingUserInfo:(NSDictionary*)aUserInfo
 {
-  NSMutableDictionary* userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
-  [userInfo addEntriesFromDictionary:aUserInfo];
+  NSMutableDictionary* excptUserInfo
+    = [NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  [excptUserInfo addEntriesFromDictionary:aUserInfo];
   return [[self class]exceptionWithName:[self name]
                       reason:[self reason]
-                      userInfo:userInfo];
+                      userInfo: excptUserInfo];
 };
 
 -(NSException*)exceptionByAddingToUserInfoKey:(id)key
@@ -488,33 +489,33 @@ void ValidationExceptionRaiseFn0(const char *func,
 {
   NSException* exception=nil;
   NSString* userInfoString=nil;
-  NSMutableDictionary* userInfo=nil;
+  NSMutableDictionary* excptUserInfo=nil;
   va_list args;
   LOGObjectFnStart();
-  userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format);
   userInfoString = [NSString stringWithFormat:format
                              arguments:args];
   va_end(args);
   {
-    id curArray = [userInfo objectForKey:key];
+    id curArray = [excptUserInfo objectForKey:key];
     id newArray=[NSMutableArray arrayWithObject:userInfoString];
     if (!curArray)
       {
         curArray = [NSMutableArray array];
       }
-    if (![curArray isKindOf:[NSMutableArray class]])
+    if (![curArray isKindOfClass:[NSMutableArray class]])
       {
         id tempObject = curArray;
         curArray = [NSMutableArray array];
         [curArray addObject:tempObject];
       }
     [newArray addObjectsFromArray:curArray];
-    [userInfo setObject:newArray forKey:key];
+    [excptUserInfo setObject:newArray forKey:key];
   }
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
-                         userInfo:userInfo];
+                         userInfo:excptUserInfo];
   LOGObjectFnStop();
   return exception;
 };
@@ -525,19 +526,19 @@ void ValidationExceptionRaiseFn0(const char *func,
 {
   NSException* exception=nil;
   NSString* userInfoString=nil;
-  NSMutableDictionary* userInfo=nil;
+  NSMutableDictionary* excptUserInfo=nil;
   va_list args;
   LOGObjectFnStart();
-  userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format);
   userInfoString = [NSString stringWithFormat:format
                              arguments:args];
   va_end(args);
-  [userInfo setObject:userInfoString
-            forKey:key];
+  [excptUserInfo setObject:userInfoString
+		 forKey:key];
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
-                         userInfo:userInfo];
+                         userInfo:excptUserInfo];
   LOGObjectFnStop();
   return exception;
 };
@@ -545,21 +546,21 @@ void ValidationExceptionRaiseFn0(const char *func,
 -(NSException*)exceptionByAddingUserInfoFrameInfo:(NSString*)frameInfo
 {
   NSException* exception=nil;
-  NSMutableDictionary* userInfo=nil;
+  NSMutableDictionary* excptUserInfo=nil;
   NSArray* frameInfoArray=nil;
   LOGObjectFnStart();
   NSAssert(frameInfo,@"No frameInfo");
-  userInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
-  frameInfoArray=[userInfo objectForKey:@"FrameInfo"];
+  excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
+  frameInfoArray=[excptUserInfo objectForKey:@"FrameInfo"];
   if (frameInfoArray)
     frameInfoArray=[frameInfoArray arrayByAddingObject:frameInfo];
   else
     frameInfoArray=[NSArray arrayWithObject:frameInfo];
-  [userInfo setObject:frameInfoArray
-            forKey:@"FrameInfo"];
+  [excptUserInfo setObject:frameInfoArray
+		 forKey:@"FrameInfo"];
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
-                         userInfo:userInfo];
+                         userInfo:excptUserInfo];
   LOGObjectFnStop();
   return exception;
 };

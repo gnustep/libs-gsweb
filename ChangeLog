@@ -1,3 +1,19 @@
+2004-02-26  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWDefaultAdaptorThread.m
+	([GSWDefaultAdaptorThread run:]): Replace NSThreadExiting
+	with NSThreadWillExitNotification.
+	([GSWDefaultAdaptorThread threadExited:]): Ditto.
+	([GSWDefaultAdaptorThread readRequestReturnedRequestLine:
+	returnedHeaders:returnedData:]): Assign current date to typed
+	variable to avoid compiler warning on compare:.
+	* GSWeb.framework/GSWUtils.m
+	([NSException exceptionWithName:format:]): Adapt variables name
+	to not clash with instance variable names on Cocoa.
+	([NSException exceptionByAddingUserInfo:]): Ditto.
+	([NSException exceptionByAddingToUserInfoKey:format:]): Ditto.
+	([NSException exceptionByAddingUserInfoKey:format:]): Ditto.
+	
 2004-02-25  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication.h
