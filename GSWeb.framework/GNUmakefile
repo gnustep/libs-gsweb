@@ -47,9 +47,9 @@ ifeq ($(gswnames), all)
 FRAMEWORK_NAME = GSWeb GSWeb_wo
 endif
 
-# Ensure that each framework uses its own GNUSTEP_OBJ_DIR & DERIVED_SRC
+# Ensure that each framework uses its own GNUSTEP_OBJ_DIR_NAME & DERIVED_SRC
 ifneq ($(GNUSTEP_INSTANCE),)
-GNUSTEP_OBJ_DIR := $(GNUSTEP_OBJ_DIR)/$(GNUSTEP_INSTANCE)
+GNUSTEP_OBJ_DIR_NAME := $(GNUSTEP_OBJ_DIR_NAME)/$(GNUSTEP_INSTANCE)
 DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
 endif
 

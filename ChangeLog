@@ -1,3 +1,10 @@
+2003-11-09  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GNUmakefile
+	* GSWExtensions.framework/GNUmakefile
+	* GSWExtensionsGSW.framework/GNUmakefile: Update for
+	GNUSTEP_BUILD_DIR changes in -make.
+
 2003-10-22  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWAssociation.m: Include limits.h and float.h
