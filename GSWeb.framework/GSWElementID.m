@@ -102,8 +102,8 @@ NSString* GSWElementIDPartDescription(GSWElementIDPart* part)
 //====================================================================
 @implementation GSWElementID
 
-static SEL deleteElementsFromIndexSelector=@selector(_deleteElementsFromIndex:);
-static SEL buildElementPartsSelector=@selector(_buildElementParts);
+static SEL deleteElementsFromIndexSelector=NULL;
+static SEL buildElementPartsSelector=NULL;
 
 SEL appendZeroElementIDComponentSEL=NULL;
 SEL deleteLastElementIDComponentSEL=NULL;
@@ -113,6 +113,8 @@ SEL deleteLastElementIDComponentSEL=NULL;
 {
   if (self == [GSWElementID class])
     {
+      deleteElementsFromIndexSelector=@selector(_deleteElementsFromIndex:);
+      buildElementPartsSelector=@selector(_buildElementParts);
       appendZeroElementIDComponentSEL=@selector(appendZeroElementIDComponent);
       deleteLastElementIDComponentSEL=@selector(deleteLastElementIDComponent);
     };
@@ -563,8 +565,9 @@ For better performences, senderID should be an immutable string
 /** Build parts _elementIDString **/
 -(void)_buildElementParts
 {
-  static SEL appendStringSelector=@selector(appendString:);
-  static SEL setStringSelector=@selector(setString:);
+  static SEL appendStringSelector=NULL;
+  static SEL setStringSelector=NULL;
+
   static NSString* preBuiltDotPlusNum[] = {
     @".0", @".1", @".2", @".3", @".4", @".5", @".6", @".7", @".8", @".9", 
     @".10", @".11", @".12", @".13", @".14", @".15", @".16", @".17", @".18", @".19", 
@@ -574,6 +577,11 @@ For better performences, senderID should be an immutable string
     @".50", @".51", @".52", @".53", @".54", @".55", @".56", @".57", @".58", @".59", 
     @".60", @".61", @".62", @".63", @".64", @".65", @".66", @".67", @".68", @".69" };
   static int preBuiltDotPlusNumCount = sizeof(preBuiltDotPlusNum)/sizeof(NSString*);
+
+  // this avoids an cc error, so don't mix with static
+  appendStringSelector=@selector(appendString:);
+  setStringSelector=@selector(setString:);
+
 
   LOGObjectFnStart();
 

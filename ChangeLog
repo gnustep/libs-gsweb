@@ -1,3 +1,7 @@
+2004-12-31  David Wetzel <dave@turbocat.de>
+        * GSWeb.framework/GSWElementID.m
+                o fixed use of static SEL
+
 2004-12-27  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/common/GSWStats[hc]:
 		o added
