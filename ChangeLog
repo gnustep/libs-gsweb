@@ -1,3 +1,27 @@
+2002-09-22  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
+
+	* Makefile.postamble: install gsweb.make
+
+	* GSWeb.framework/GSWDefaultAdaptor.m: added config.h
+
+	* GSWeb.framework/Makefile.preamble.in: new file.
+	* GSWeb.framework/Makefile.preamble: removed.
+	* gsweb.make.in: new file.
+
+	* configure.ac: new file.
+	* config/pathxml.m4: new file.
+	* gsweb.make.in: new file.
+	* config.h.in: new file.
+
+	* GSWeb.framework/GNUmakefile (GNUSTEP_LOCAL_ADDITIONAL_MAKEFILES): 
+	include gsweb.make
+
+	* GSWeb.framework/GSWTemplateParserXML.h|.m: include libxml includes
+	from libxml/ dir.
+
+	* GSWeb.framework/*.m: replaced all occurrencies of stringWithout*: and
+	remove*: with the new methods.
+
 2002-09-15   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWElementIDString.m
 		o Applied David Ayers <d.ayers@inode.at> patch

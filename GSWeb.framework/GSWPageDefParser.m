@@ -205,7 +205,7 @@
 			[astFactory addASTChild:includeObj_AST in:currentAST];
 		}
 		[self matchTokenType:GSWPageDefParserTokenType_STRING];
-		[includes addObject:[self unescapedString:[[[includeObj  text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
+		[includes addObject:[self unescapedString:[[[includeObj  text] stringByDeletingPrefix:@"\""] stringByDeletingSuffix:@"\""]]];
 		include_AST = [currentAST root];
 	}
 	NS_HANDLER
@@ -469,7 +469,7 @@
 					[astFactory addASTChild:assocConstantString_AST in:currentAST];
 				}
 				[self matchTokenType:GSWPageDefParserTokenType_STRING];
-				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[self unescapedString:[[[assocConstantString text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
+				{ GSWAssociation* assoc=[GSWAssociation associationWithValue:[self unescapedString:[[[assocConstantString text] stringByDeletingPrefix:@"\""] stringByDeletingSuffix:@"\""]]];
 								ASSIGN(currentAssociation,assoc); };
 				break;
 			}

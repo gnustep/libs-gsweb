@@ -229,7 +229,7 @@ static char rcsId[] = "$Id$";
         {
           NSDebugMLLog(@"low",@"tagName:[%@]",tagName);
           if ([tagName hasPrefix:@"\""] && [tagName hasSuffix:@"\""])
-            tagName=[[tagName stringWithoutPrefix:@"\""]stringWithoutSuffix:@"\""];
+            tagName=[[tagName stringByDeletingPrefix:@"\""]stringByDeletingSuffix:@"\""];
           NSDebugMLLog(@"low",@"Add tagName:[%@]",
                        tagName);
           [_tagsNames setObject:tagName

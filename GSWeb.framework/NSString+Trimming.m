@@ -264,7 +264,7 @@ static char rcsId[] = "$Id$";
 -(NSString*)stringWithoutPrefix:(NSString*)prefix
                       andSuffix:(NSString*)suffix
 {
-  return [[self stringWithoutPrefix:prefix]stringWithoutSuffix:suffix];
+  return [[self stringByDeletingPrefix:prefix] stringByDeletingSuffix:suffix];
 };
 
 //--------------------------------------------------------------------
@@ -288,8 +288,8 @@ static char rcsId[] = "$Id$";
 -(void)removePrefix:(NSString*)prefix
           andSuffix:(NSString*)suffix
 {
-  [self removePrefix:prefix];
-  [self removeSuffix:suffix];
+  [self deletePrefix:prefix];
+  [self deleteSuffix:suffix];
 };
 
 //--------------------------------------------------------------------

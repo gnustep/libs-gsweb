@@ -1838,13 +1838,13 @@ into
           NSDebugMLLog(@"requests",@"tmpString=%@",tmpString);
           if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConv]])
             {
-              gswpage=[tmpString stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConv]];
+              gswpage=[tmpString stringByDeletingSuffix:GSWPagePSuffix[GSWebNamingConv]];
               NSDebugMLLog(@"requests",@"gswpage=%@",gswpage);
               index++;
             }
           else if ([tmpString hasSuffix:GSWPagePSuffix[GSWebNamingConvInversed]])
             {
-              gswpage=[tmpString stringWithoutSuffix:GSWPagePSuffix[GSWebNamingConvInversed]];
+              gswpage=[tmpString stringByDeletingSuffix:GSWPagePSuffix[GSWebNamingConvInversed]];
               NSDebugMLLog(@"requests",@"gswpage=%@",gswpage);
               index++;
             };

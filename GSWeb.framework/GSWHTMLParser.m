@@ -109,7 +109,7 @@
 						[astFactory addASTChild:ot_AST in:currentAST];
 					}
 					[self matchTokenType:GSWHTMLTokenType_OPENTAG];
-					[ot_AST setText:[[[ot_AST text] stringWithoutPrefix:@"<"] stringWithoutSuffix:@">"]];
+					[ot_AST setText:[[[ot_AST text] stringByDeletingPrefix:@"<"] stringByDeletingSuffix:@">"]];
 					break;
 				}
 				case GSWHTMLTokenType_CLOSETAG:
@@ -120,7 +120,7 @@
 						[astFactory addASTChild:ct_AST in:currentAST];
 					}
 					[self matchTokenType:GSWHTMLTokenType_CLOSETAG];
-					[ct_AST setText:[[[ct_AST text] stringWithoutPrefix:@"</"] stringWithoutSuffix:@">"]];
+					[ct_AST setText:[[[ct_AST text] stringByDeletingPrefix:@"</"] stringByDeletingSuffix:@">"]];
 					break;
 				}
 				case GSWHTMLTokenType_COMMENT:
@@ -131,7 +131,7 @@
 						[astFactory addASTChild:com_AST in:currentAST];
 					}
 					[self matchTokenType:GSWHTMLTokenType_COMMENT];
-					[com_AST setText:[[[com_AST text] stringWithoutPrefix:@"<!--"] stringWithoutSuffix:@"-->"]];
+					[com_AST setText:[[[com_AST text] stringByDeletingPrefix:@"<!--"] stringByDeletingSuffix:@"-->"]];
 					break;
 				}
 				default:

@@ -378,11 +378,11 @@ int GSWApplicationMainReal(NSString* applicationClassName,
             debugOpt=nil;
             opt=[args objectAtIndex:i];
             if ([opt hasPrefix:@"--GSWebDebug="])
-              debugOpt=[opt stringWithoutPrefix:@"--GSWebDebug="];
+              debugOpt=[opt stringByDeletingPrefix:@"--GSWebDebug="];
             else if  ([opt hasPrefix:@"-GSWebDebug="])
-              debugOpt=[opt stringWithoutPrefix:@"-GSWebDebug="];
+              debugOpt=[opt stringByDeletingPrefix:@"-GSWebDebug="];
             else if  ([opt hasPrefix:@"GSWebDebug="])
-              debugOpt=[opt stringWithoutPrefix:@"GSWebDebug="];
+              debugOpt=[opt stringByDeletingPrefix:@"GSWebDebug="];
             if (debugOpt)
               GSWApplicationSetDebugSetOption(debugOpt);
           };
@@ -921,7 +921,7 @@ selfLockn,
   NSDebugMLLog(@"application",@"processName:%@",processName);
   processName=[processName lastPathComponent];
   if ([processName hasSuffix:GSWApplicationPSuffix[GSWebNamingConv]])
-    name=[processName stringWithoutSuffix:GSWApplicationPSuffix[GSWebNamingConv]];
+    name=[processName stringByDeletingSuffix:GSWApplicationPSuffix[GSWebNamingConv]];
   else
     name=processName;
   NSDebugMLLog(@"application",@"_name:%@ %p",name,name);

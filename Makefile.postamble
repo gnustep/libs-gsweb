@@ -41,8 +41,17 @@ gsdocs:
 # Things to do after compiling
 # after-all::
 
+#
+# The following rule is important mainly for packaging, because in that case 
+# you install into a fake system tree, and the directory is not there.
+#
+$(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Additional:
+	$(MKDIRS) $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Additional
+
 # Things to do before installing
-# before-install::
+before-install:: $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Additional
+	$(INSTALL_DATA) gsweb.make \
+	   $(INSTALL_ROOT_DIR)$(GNUSTEP_MAKEFILES)/Additional/gsweb.make
 
 # Things to do after installing
 after-install::
@@ -67,7 +76,10 @@ after-uninstall::
 # Things to do after distcleaning
 after-distclean::
 	rm -rf config.cache config.log config.status
-	rm -rf config.h config.mak
+	rm -rf config.h config.mak gsweb.make
+
+gsweb.make: gsweb.make.in
+	./configure
 
 # Things to do before checking
 # before-check::

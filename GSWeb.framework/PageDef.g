@@ -46,7 +46,7 @@ document
 //TODO unescapedString
 include:
 	(INCLUDE (WS)*)	
-	includeObj:STRING { [includes addObject:[self unescapedString:[[[includeObj  text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]]; }
+	includeObj:STRING { [includes addObject:[self unescapedString:[[[includeObj  text] stringByDeletingPrefix:@"\""] stringByDeletingSuffix:@"\""]]]; }
         ;
 
 object:
@@ -86,7 +86,7 @@ mvalue:
 			{ { GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber numberWithBool:NO]];
 				 ASSIGN(currentAssociation,assoc); }; }
 	|	assocConstantString:STRING
-			{  { GSWAssociation* assoc=[GSWAssociation associationWithValue:[self unescapedString:[[[assocConstantString text] stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]]];
+			{  { GSWAssociation* assoc=[GSWAssociation associationWithValue:[self unescapedString:[[[assocConstantString text] stringByDeletingPrefix:@"\""] stringByDeletingSuffix:@"\""]]];
 				ASSIGN(currentAssociation,assoc); }; }
 	|	assocConstantHexNum:HEXNUM
 			{ { GSWAssociation* assoc=[GSWAssociation associationWithValue:[NSNumber valueFromString:[assocConstantHexNum text]]];

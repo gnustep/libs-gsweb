@@ -48,11 +48,11 @@ static char rcsId[] = "$Id$";
         {
           if (!WOStrictFlag && [aKeyPath hasPrefix:@"^"])
             {
-              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"^"]);
+              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"^"]);
             }
           else if (!WOStrictFlag && [aKeyPath hasPrefix:@"~"])
             {
-              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringWithoutPrefix:@"~"]);
+              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"~"]);
               _isNonMandatory=YES; 
             };
           if ([keys count]>1)

@@ -278,7 +278,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         {
           if ([trimmedString hasSuffix:@"\""])
             {
-              assoc=[self associationWithValue:[[trimmedString stringWithoutPrefix:@"\""] stringWithoutSuffix:@"\""]];
+              assoc=[self associationWithValue:[[trimmedString stringByDeletingPrefix:@"\""] stringByDeletingSuffix:@"\""]];
               NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
             }
           else
@@ -291,7 +291,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         {
           if ([trimmedString hasSuffix:@"\'"])
             {
-              assoc=[self associationWithValue:[[trimmedString stringWithoutPrefix:@"\'"] stringWithoutSuffix:@"\'"]];
+              assoc=[self associationWithValue:[[trimmedString stringByDeletingPrefix:@"\'"] stringByDeletingSuffix:@"\'"]];
               NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
             }
           else
@@ -302,7 +302,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         }
       else if ([trimmedString hasPrefix:@"#"])
         {
-          NSString* numberString=[trimmedString stringWithoutPrefix:@"#"];
+          NSString* numberString=[trimmedString stringByDeletingPrefix:@"#"];
           //char* cString=[numberString lossyCString];//TODO
           char* cString=[numberString cString];//TODO
           char* endPtr=NULL;
@@ -686,14 +686,14 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           NSDebugMLLog(@"associations",@"part class=%@",NSStringFromClass([part class]));
           if ([part hasPrefix:@"\""])
             {
-              part=[part stringWithoutPrefix:@"\""];
+              part=[part stringByDeletingPrefix:@"\""];
               while([keys count]>0)
                 {
                   id tmpPart=[keys objectAtIndex:0];
                   [keys removeObjectAtIndex:0];
                   if ([tmpPart hasSuffix:@"\""])
                     {
-                      tmpPart=[tmpPart stringWithoutSuffix:@"\""];
+                      tmpPart=[tmpPart stringByDeletingSuffix:@"\""];
                       part=[part stringByAppendingFormat:@".%@",tmpPart];
                       break;
                     }
@@ -880,14 +880,14 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           NSDebugMLLog(@"associations",@"part class=%@",NSStringFromClass([part class]));
           if ([part hasPrefix:@"\""])
             {
-              part=[part stringWithoutPrefix:@"\""];
+              part=[part stringByDeletingPrefix:@"\""];
               while([keys count]>0)
                 {
                   id tmpPart=[keys objectAtIndex:0];
                   [keys removeObjectAtIndex:0];
                   if ([tmpPart hasSuffix:@"\""])
                     {
-                      tmpPart=[tmpPart stringWithoutSuffix:@"\""];
+                      tmpPart=[tmpPart stringByDeletingSuffix:@"\""];
                       part=[part stringByAppendingFormat:@".%@",tmpPart];
                       break;
                     }
@@ -1073,7 +1073,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           [removeFrom removeObjectForKey:key];
           value=[self objectForKey:key];
           NSDebugMLLog(@"associations",@"value=%@",value);
-          varKey=[key stringWithoutPrefix:prefix];
+          varKey=[key stringByDeletingPrefix:prefix];
           NSDebugMLLog(@"associations",@"varKey=%@",varKey);
           varKeyAssociation=[GSWAssociation associationWithKeyPath:varKey];
           NSDebugMLLog(@"associations",@"varKeyAssociation=%@",varKeyAssociation);

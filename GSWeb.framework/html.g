@@ -74,10 +74,10 @@ document
 	:	(
 			WS
 			| TEXT
-			| ot:OPENTAG	{ [ot_AST setText:[[[ot_AST text] stringWithoutPrefix:@"<"] stringWithoutSuffix:@">"]]; }
-			| ct:CLOSETAG	{ [ct_AST setText:[[[ct_AST text] stringWithoutPrefix:@"</"] stringWithoutSuffix:@">"]]; }
-			| com:COMMENT	{ [com_AST setText:[[[com_AST text] stringWithoutPrefix:@"<!--"] stringWithoutSuffix:@"-->"]]; }
-/*			| inc:INCLUDE	{ [inc_AST setText:[[[inc_AST text] stringWithoutPrefix:@"<#include "] stringWithoutSuffix:@"#>"]]; }*/
+			| ot:OPENTAG	{ [ot_AST setText:[[[ot_AST text] stringByDeletingPrefix:@"<"] stringByDeletingSuffix:@">"]]; }
+			| ct:CLOSETAG	{ [ct_AST setText:[[[ct_AST text] stringByDeletingPrefix:@"</"] stringbyDeletingSuffix:@">"]]; }
+			| com:COMMENT	{ [com_AST setText:[[[com_AST text] stringByDeletingPrefix:@"<!--"] stringByDeletingSuffix:@"-->"]]; }
+/*			| inc:INCLUDE	{ [inc_AST setText:[[[inc_AST text] stringByDeletingPrefix:@"<#include "] stringByDeletingSuffix:@"#>"]]; }*/
 		)+
 	;
 /*4*/

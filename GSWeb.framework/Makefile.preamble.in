@@ -34,7 +34,7 @@
 #
 
 # Additional flags to pass to the preprocessor
-ADDITIONAL_CPPFLAGS =  -lwrap 
+ADDITIONAL_CPPFLAGS = -I..
 
 # Additional flags to pass to the Objective-C compiler
 ifeq ($(GDL2), yes)
@@ -60,18 +60,13 @@ endif
 ADDITIONAL_CFLAGS =  -DUSE_BUILTIN
 
 # Additional include directories the compiler should search
-ADDITIONAL_INCLUDE_DIRS =  -I. -I$(GNUSTEP_SYSTEM_ROOT)/db -I../..
+ADDITIONAL_INCLUDE_DIRS =  -I. -I../.. @XML_CFLAGS@
 
 # Additional LDFLAGS to pass to the linker
 ifeq ($(debug), yes)
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lFoundationExt_d -lxml -lz
+	LIBRARIES_DEPENP_UPON += -lFoundationExt_d @AUX_LIBS@
 else
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lFoundationExt -lxml -lz
-endif
-
-ifeq ($(LIBWRAP), yes)
-	ADDITIONAL_OBJCFLAGS := $(ADDITIONAL_OBJCFLAGS) -DHAVE_LIBWRAP
-	ADDITIONAL_LDFLAGS := $(ADDITIONAL_LDFLAGS) -lwrap
+	LIBRARIES_DEPEND_UPON += -lFoundationExt @AUX_LIBS@
 endif
 
 # Additional library directories the linker should search

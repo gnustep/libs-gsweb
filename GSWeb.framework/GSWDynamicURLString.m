@@ -510,7 +510,7 @@ static char rcsId[] = "$Id$";
                     {
                       ASSIGN(_applicationName,[[[components subarrayWithRange:NSMakeRange(index,tmpIndex-index+1)] 
                                                  componentsJoinedByString:@"/"]
-                                                stringWithoutSuffix:appSuffix]);
+                                                stringByDeletingSuffix:appSuffix]);
                       index=tmpIndex+1;
                     };
                 };
@@ -519,9 +519,9 @@ static char rcsId[] = "$Id$";
                   NSString* tmp=[[components subarrayWithRange:NSMakeRange(index,[components count]-index)]
                                   componentsJoinedByString:@"/"];
                   if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]])
-                    tmp=[tmp stringWithoutSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]];
+                    tmp=[tmp stringByDeletingSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]];
                   else if ([tmp hasSuffix:GSWApplicationPSuffix[WONAMES_INDEX]])
-                    tmp=[tmp stringWithoutSuffix:GSWApplicationPSuffix[WONAMES_INDEX]];
+                    tmp=[tmp stringByDeletingSuffix:GSWApplicationPSuffix[WONAMES_INDEX]];
                   ASSIGN(_applicationName,tmp);
                   index=[components count];
                 };

@@ -1734,7 +1734,7 @@ NSData* HexStringToData(NSString* string)
   while([good hasSuffix:@"/."])
     {
       if ([good length]>2)
-        good=[good stringWithoutSuffix:@"/."];
+        good=[good stringByDeletingSuffix:@"/."];
       else
         good=[NSString stringWithString:@"/"];
     };
