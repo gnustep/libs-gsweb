@@ -35,17 +35,12 @@
 
 @interface GSWSessionStore : NSObject <NSLocking>
 {
-  NSMutableSet* _usedIDs;
   NSRecursiveLock* _lock;
   GSWSessionTimeOutManager* _timeOutManager;
 #ifndef NDEBUG
   int _lockn;
 #endif
-//TODO  void* sessionCheckedInCondition;
 };
-
--(void)dealloc;
--(id)init;
 
 -(GSWSession*)removeSessionWithID:(NSString*)aSessionID;
 -(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
@@ -56,10 +51,6 @@
 -(void)checkInSessionForContext:(GSWContext*)aContext;
 
 -(void)_checkInSessionForContext:(GSWContext*)aContext;
--(GSWSession*)_checkOutSessionWithID:(NSString*)aSessionID
-                             request:(GSWRequest*)aRequest;
--(void)_checkinSessionID:(NSString*)aSessionID;
--(void)_checkoutSessionID:(NSString*)aSessionID;
 -(void)unlock;
 -(BOOL)tryLock;
 -(void)lock;
@@ -82,13 +73,13 @@ secure:(BOOL)flag;
 -(void)saveSession:(GSWSession*)session;
 @end
 */
-
+/*
 //====================================================================
 @interface GSWSessionStore (GSWSessionStoreA)
 -(BOOL)_isSessionIDCheckedOut:(NSString*)aSessionID;
 
 @end
-
+*/
 //====================================================================
 @interface GSWSessionStore (GSWSessionStoreB)
 -(void)_validateAPI;
