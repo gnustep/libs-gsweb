@@ -1,6 +1,6 @@
 /** GSWRequest.m - <title>GSWeb: Class GSWRequest</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -1193,9 +1193,9 @@ RCS_ID("$Id$")
   // build super->cookies
   if (!_cookies)
     {
-      NSDictionary* cookies;
-      NSEnumerator* keysEnum;
-      NSString* key;
+      NSDictionary* cookies = nil;
+      NSEnumerator* keysEnum = nil;
+      NSString* key = nil;
       [self _initCookies]; // super cookies init
       cookies=[self cookieValues];
       keysEnum=[cookies keyEnumerator];
@@ -1490,13 +1490,22 @@ RCS_ID("$Id$")
                                     path:(NSString*)path
                              queryString:(NSString*)queryString
 {
-  GSWDynamicURLString* url=[self _applicationURLPrefix];
+  GSWDynamicURLString* url=nil;
+
+  LOGObjectFnStart();
+
+  url=[self _applicationURLPrefix];
+
   if (urlPrefix)
     [url setURLPrefix:[NSString stringWithFormat:@"%@%@",
                                 urlPrefix,[url urlPrefix]]];
+
   [url setURLRequestHandlerKey:key];
   [url setURLRequestHandlerPath:path];
   [url setURLQueryString:queryString];
+
+  LOGObjectFnStop();
+
   return url;
 };
 
@@ -1505,10 +1514,18 @@ RCS_ID("$Id$")
                                             path:(NSString*)path
                                      queryString:(NSString*)queryString
 {
-  return [self _urlWithURLPrefix:nil
-               requestHandlerKey:key
-               path:path
-               queryString:queryString];
+  GSWDynamicURLString* url=nil;
+
+  LOGObjectFnStart();
+
+  url=[self _urlWithURLPrefix:nil
+            requestHandlerKey:key
+            path:path
+            queryString:queryString];
+
+  LOGObjectFnStop();
+
+  return url;
 };
 
 //--------------------------------------------------------------------

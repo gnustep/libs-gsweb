@@ -1,6 +1,6 @@
 /** GSWSession.m - <title>GSWeb: Class GSWSession</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -398,8 +398,12 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)setStoresIDsInURLs:(BOOL)flag
 {
+  LOGObjectFnStart();
+
   if (flag!=_storesIDsInURLs)
     _storesIDsInURLs=flag;
+
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
