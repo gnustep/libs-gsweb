@@ -27,7 +27,7 @@
 #define _GSWebDebug_h__
 
 
-#ifdef DEBUG
+#ifdef GSWDEBUG
 extern void GSWLogC_(CONST char* file,int line,CONST char* string);
 extern void GSWLogDumpObject_(CONST char* file,int line,id object,int deep);
 extern void GSWLogAssertGood_(CONST char* file,int line,NSObject* object);
@@ -57,17 +57,17 @@ extern void GSWLogAssertGood_(CONST char* file,int line,NSObject* object);
 #define GSWLogDeepC(cString);				
 #endif
 
-#else
-#define GSWLogC(cString);				
-#define GSWLogDumpObject(object,deep);
-#define GSWLogAssertGood(object);
-#define GSWLogMemC(cString);				
-#define GSWLogLockC(cString);				
-#define GSWLogDeepC(cString);				
+#else // no GSWDEBUG
+#define GSWLogC(cString);			{}	
+#define GSWLogDumpObject(object,deep);		{}
+#define GSWLogAssertGood(object);		{}
+#define GSWLogMemC(cString);			{}	
+#define GSWLogLockC(cString);			{}	
+#define GSWLogDeepC(cString);			{}	
 #endif
 
 // Normal Debug
-#ifdef DEBUG
+#ifdef GSWDEBUG
 #define LOGClassFnStart()  \
   do { if (GSDebugSet(@"GSWebFn") == YES) { \
     NSString *fmt = GSDebugFunctionMsg(__PRETTY_FUNCTION__, __FILE__, __LINE__,@"FNSTART"); \
@@ -235,7 +235,7 @@ extern void GSWLogAssertGood_(CONST char* file,int line,NSObject* object);
         __PRETTY_FUNCTION__, __FILE__, __LINE__, format); \
     NSLog(fmt); }} while (0)
 
-#else
+#else // no GSWDEBUG
 #define LOGClassFnStart()  	{}
 #define LOGClassFnStop()	{}
 #define LOGClassFnStartC(comment)  {}
