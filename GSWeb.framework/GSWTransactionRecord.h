@@ -37,19 +37,20 @@
 @interface GSWTransactionRecord : NSObject
 {
   GSWComponent* _responsePage;
-  NSString* _requestSignature;
+  NSString* _contextID;
+  NSString* _senderID;
+  NSDictionary* _formValues;
 };
 
++(GSWTransactionRecord*)transactionRecordWithResponsePage:(GSWComponent*)aResponsePage
+                                                  context:(GSWContext*)aContext;
 -(id)initWithResponsePage:(GSWComponent*)aResponsePage
                   context:(GSWContext*)aContext;
--(void)dealloc;
 
 -(id)initWithCoder:(NSCoder*)code;
 -(void)encodeWithCoder:(NSCoder*)code;
 
--(NSString*)description;
--(BOOL)isMatchingContextID:(NSString*)aContextID
-           requestSenderID:(NSString*)aRequestSenderID;
+-(BOOL)isMatchingIDsInContext:(GSWContext*)aContext;
 -(void)setResponsePage:(GSWComponent*)aResponsePage;
 -(GSWComponent*)responsePage;
 

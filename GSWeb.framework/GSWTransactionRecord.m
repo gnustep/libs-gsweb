@@ -36,6 +36,13 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWTransactionRecord
 
++(GSWTransactionRecord*)transactionRecordWithResponsePage:(GSWComponent*)aResponsePage
+                                                  context:(GSWContext*)aContext
+{
+  return [[[self alloc]initWithResponsePage:aResponsePage
+                       context:aContext]autorelease];
+};
+
 //--------------------------------------------------------------------
 -(id)initWithResponsePage:(GSWComponent*)aResponsePage
                   context:(GSWContext*)aContext
@@ -43,17 +50,15 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      NSString* contextID=nil;
-      NSString* senderID=nil;
-      NSString* requestSignature=nil;
       [self setResponsePage:aResponsePage];
       NSDebugMLLog(@"low",@"responsePage=%@",_responsePage);
-      contextID=[aContext contextID];//Really from here ? Use aContext _requestContextID instead ? //TODO
-      NSDebugMLLog(@"low",@"contextID=%@",contextID);
-      senderID=[aContext senderID];
-      NSDebugMLLog(@"low",@"senderID=%@",senderID);
-      requestSignature=[NSString stringWithFormat:@"%@.%@",contextID,senderID];
-      ASSIGN(_requestSignature,requestSignature);
+
+      ASSIGN(_contextID,([aContext _requestContextID]));
+      ASSIGN(_senderID,([aContext senderID]));
+      ASSIGN(_formValues,([[aContext request] formValues]));
+
+      NSDebugMLLog(@"low",@"contextID=%@",[aContext _requestContextID]);
+      NSDebugMLLog(@"low",@"senderID=%@",[aContext senderID]);
     };
   LOGObjectFnStop();
   return self;
@@ -65,8 +70,12 @@ RCS_ID("$Id$")
   GSWLogC("Dealloc GSWTransactionRecord");
   GSWLogC("Dealloc GSWTransactionRecord: responsePage");
   DESTROY(_responsePage);
-  GSWLogC("Dealloc GSWTransactionRecord: requestSignature");
-  DESTROY(_requestSignature);
+  GSWLogC("Dealloc GSWTransactionRecord: contextID");
+  DESTROY(_contextID);
+  GSWLogC("Dealloc GSWTransactionRecord: senderID");
+  DESTROY(_senderID);
+  GSWLogC("Dealloc GSWTransactionRecord: formValues");
+  DESTROY(_formValues);
   GSWLogC("Dealloc GSWTransactionRecord super");
   [super dealloc];
   GSWLogC("End Dealloc GSWTransactionRecord");
@@ -80,7 +89,11 @@ RCS_ID("$Id$")
       [coder decodeValueOfObjCType:@encode(id)
              at:&_responsePage];
       [coder decodeValueOfObjCType:@encode(id)
-             at:&_requestSignature];
+             at:&_contextID];
+      [coder decodeValueOfObjCType:@encode(id)
+             at:&_senderID];
+      [coder decodeValueOfObjCType:@encode(id)
+             at:&_formValues];
     };
   return self;
 };
@@ -89,34 +102,48 @@ RCS_ID("$Id$")
 -(void)encodeWithCoder:(NSCoder*)coder
 {
   [coder encodeObject:_responsePage];
-  [coder encodeObject:_requestSignature];
+  [coder encodeObject:_contextID];
+  [coder encodeObject:_senderID];
+  [coder encodeObject:_formValues];
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - responsePage Name=%@ requestSignature=%@>",
-				   object_get_class_name(self),
-				   (void*)self,
-				   [_responsePage name],
-				   _requestSignature];
+  return [NSString stringWithFormat:@"<%s %p - responsePage Name=%@ contextID=%@ senderID=%@>",
+                   object_get_class_name(self),
+                   (void*)self,
+                   [_responsePage name],
+                   _contextID,
+                   _senderID];
 };
 
 //--------------------------------------------------------------------
 -(BOOL)isMatchingContextID:(NSString*)aContextID
            requestSenderID:(NSString*)aRequestSenderID
 {
-  //OK?
-  BOOL matching=NO;
-  NSString* testSignature=[NSString stringWithFormat:@"%@.%@",aContextID,aRequestSenderID];
-  matching=[testSignature isEqualToString:_requestSignature];
-  return matching;
+  NSAssert(NO,@"Deprecated. use isMatchingIDsInContext:");
+  return NO;
 };
 
 //--------------------------------------------------------------------
+-(BOOL)isMatchingIDsInContext:(GSWContext*)aContext
+{
+  BOOL match=NO;
+  if ([_contextID isEqualToString:[aContext _requestContextID]]
+      && [_senderID isEqualToString:[aContext senderID]])
+    {
+      NSDictionary* requestFormValues=[[aContext request] formValues];
+      match=((!_formValues && !requestFormValues)
+             || [_formValues isEqual:requestFormValues]);
+    }
+  return match;
+}
+//--------------------------------------------------------------------
 -(void)setResponsePage:(GSWComponent*)aResponsePage
 {
-  ASSIGN(_responsePage,aResponsePage);
+  if (aResponsePage!=_responsePage)
+    ASSIGN(_responsePage,aResponsePage);
 };
 
 //--------------------------------------------------------------------
