@@ -575,7 +575,7 @@ Method for GSWDeclarationParserPragmaDelegate protocol
                        [self logPrefix],
                        declarationFileName,
                        declarationFrameworkName,
-                       processedFiles);
+                       _processedDeclarationsFilePaths);
             };
           NSDebugMLLog(@"GSWTemplateParser",@"declarations:%@\n",declarations);
         }
