@@ -1,8 +1,16 @@
+2003-03-23  David Ayers  <d.ayers@inode.at>
+
+	* GSWAdaptors/Apache/mod_gsweb.c : Include http_protocol.h
+	unconditionally.
+	(sendResponse): Removed cast which was only valid for custom
+	Apache installations.
+	
 2003-03-21   Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWGNUmakefile:
 		o removed NSObject+IVarAccess+PerformSel.*
 	* GSWeb.framework/GSWConstants.m:
-		o fix GSWHTTPHeader_Response_HeaderLineEnd: remove space at the begining
+		o fix GSWHTTPHeader_Response_HeaderLineEnd: remove space
+		at the begining
 		o use RCS_ID
 	* GSWeb.framework/Adaptors/common/GSWHTTPResponse.c:
 		o fix status in GSWHTTPResponse_New()
@@ -19,7 +27,8 @@
 		o new method to begin rewrite exception handling
 	* GSWeb.framework/GSWRequest.m:
 		o logs
-		o fix in -_getFormValuesFromMultipartFormData to handle more than one value per name
+		o fix in -_getFormValuesFromMultipartFormData to handle
+		more than one value per name
 		o use RCS_ID
 		o -fix bad types in uriElementForKey:
 	* GSWeb.framework/GSWConditional.m:

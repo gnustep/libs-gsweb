@@ -47,9 +47,7 @@
 #include <http_request.h>
 #include <http_core.h>
 
-#ifdef Apache2
 #include <http_protocol.h>
-#endif
 
 // Module Definition:
 
@@ -450,7 +448,7 @@ sendResponse(request_rec     *p_pRequestRec,
   GSWLog(GSW_DEBUG,pServerRec,"p_pRequestRec->content_type=%s",p_pRequestRec->content_type);
 	
   // Set content length
-  ap_set_content_length(p_pRequestRec, (uintmax_t)p_pHTTPResponse->uContentLength);
+  ap_set_content_length(p_pRequestRec, p_pHTTPResponse->uContentLength);
 
   // Now Send response...
 
