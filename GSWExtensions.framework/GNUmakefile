@@ -71,7 +71,8 @@ GSWExceptionPage.gswc \
 GSWTableString.gswc \
 GSWIFrame.gswc \
 GSWMetaRefresh.gswc \
-GSWRedirect.gswc
+GSWRedirect.gswc \
+GSWKeyValueConditional.gswc \
 
 #GSWCompletionBar.gswc 
 #GSWAnyField.gswc 
@@ -129,6 +130,7 @@ GSWRedirect.m \
 GSWIFrame.m \
 GSWMetaRefresh.m \
 GSWLongResponsePage.m \
+GSWKeyValueConditional.m \
 
 #GSWCompletionBar.m
 GSWExtensions_wo_OBJC_FILES = $(GSWExtensions_OBJC_FILES)
@@ -147,7 +149,8 @@ GSWRedirect.h \
 GSWSessionCreationErrorPage.h \
 GSWSessionRestorationErrorPage.h \
 GSWStatsPage.h \
-GSWLongResponsePage.h
+GSWLongResponsePage.h \
+GSWKeyValueConditional.h \
 
 #GSWCompletionBar.h
 #GSWThresholdColoredNumber.h
