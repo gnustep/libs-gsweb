@@ -58,22 +58,28 @@ static char rcsId[] = "$Id$";
 -(void)appendToResponse:(GSWResponse*)response_
 			  inContext:(GSWContext*)context_
 {
-	id component = [context_ page];
-//	id pageElement = [context_ pageElement];
+    NSEnumerator *assocEnumer;
+    id currentAssocKey;
+    id component = [context_ component];
+    id theValue;
+    id otherTag = nil;
 	id tag = [[associations objectForKey:@"elementName"] valueInComponent:component];
-    //NSLog(@"elmentName/tag\n%@/%@\n",[associations objectForKey:@"elementName"],tag);
+
     [response_ appendContentString:[NSString stringWithFormat:@"<%@",tag]];
-    {
-        id theList = [associations allKeys];
-        int x;
-        x= [theList count];
-        while (x--) {
-            id theKey = [theList objectAtIndex:x];
-            id theValue = [[associations objectForKey:theKey] valueInComponent:component];
-            if ([theKey isEqualToString:@"elementName"]) continue;
-            [response_ appendContentString:[NSString stringWithFormat:@" %@=\"%@\"",theKey,theValue]];
+
+    if (otherTag = [[associations objectForKey:@"otherTagString"] valueInComponent:component]) {
+        [response_ appendContentString:[NSString stringWithFormat:@" %@",otherTag]];
+    }
+
+    
+    assocEnumer = [associations keyEnumerator];
+    while (currentAssocKey = [assocEnumer nextObject]) {
+        theValue = [[associations objectForKey:currentAssocKey] valueInComponent:component];
+        if (([currentAssocKey isEqualToString:@"elementName"] == NO) && ([currentAssocKey isEqualToString:@"otherTagString"] == NO)) {
+            [response_ appendContentString:[NSString stringWithFormat:@" %@=\"%@\"",currentAssocKey,theValue]];
         }
     }
+
     [response_ appendContentString:@">"];
     [element appendToResponse:response_ inContext:context_];
 	[response_ appendContentString:[NSString stringWithFormat:@"</%@>",tag]];
