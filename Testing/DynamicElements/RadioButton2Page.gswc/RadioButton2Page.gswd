@@ -1,0 +1,43 @@
+#include "Base"
+
+
+RadioButton1: GSWRadioButton
+{
+        selection = value;
+        checked = isChecked1;
+        name = "RadioButton";
+};
+
+RadioButton2: GSWRadioButton
+{
+        selection = value;
+        checked = isChecked2;
+        name = "RadioButton";
+};
+
+RadioButton3: GSWRadioButton
+{
+        selection = value;
+        checked = isChecked3;
+        name = "RadioButton";
+};
+
+CheckValue: GSWString
+{
+        value = value;
+};
+
+IsCheckedValue1: GSWString
+{
+        value = isChecked1;
+};
+
+IsCheckedValue2: GSWString
+{
+        value = isChecked2;
+};
+
+IsCheckedValue3: GSWString
+{
+        value = isChecked3;
+};

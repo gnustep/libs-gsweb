@@ -266,8 +266,6 @@
 #include <GSWeb/GSWConstantValueAssociation.h>
 #include <GSWeb/GSWPageDefElement.h>
 #include <GSWeb/GSWTemplateParser.h>
-#include <GSWeb/GSWTemplateParserXML.h>
-#include <GSWeb/GSWTemplateParserANTLR.h>
 #include <GSWeb/GSWBundle.h>
 #include <GSWeb/GSWSessionTimeOutManager.h>
 #include <GSWeb/GSWServerSessionStore.h>

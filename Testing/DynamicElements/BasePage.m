@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -26,8 +27,6 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
-
-static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 #include "BasePage.h"

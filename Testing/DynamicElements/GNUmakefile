@@ -56,7 +56,10 @@ Browser2Page.m \
 PopUpButton1Page.m \
 PopUpButton2Page.m \
 TextField1Page.m \
-
+CheckBox1Page.m \
+CheckBox2Page.m \
+RadioButton1Page.m \
+RadioButton2Page.m \
 
 DynamicElements_COMPONENTS = \
 Main.gswc \
@@ -69,6 +72,11 @@ Browser2Page.gswc \
 PopUpButton1Page.gswc \
 PopUpButton2Page.gswc \
 TextField1Page.gswc \
+CheckBox1Page.gswc \
+CheckBox2Page.gswc \
+RadioButton1Page.gswc \
+RadioButton2Page.gswc \
+
 
 SRCS = $(GSWAPP_NAME:=.m)
 

@@ -433,11 +433,14 @@ objectForReference:(NSString*)keyPath
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
+      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d] anObject=%p class=%@ superClass=%@ ",
                    localException,
                    [localException reason],
                    __FILE__,
-                   __LINE__);
+                   __LINE__,
+                  anObject,
+                  [anObject class],
+                  [anObject superclass]);
       //TODO
       [self unlock];
       [localException raise];

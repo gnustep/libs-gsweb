@@ -1,3 +1,59 @@
+2002-12-06   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWExtensions.framework/Makefile.preamble: 
+		o added -I/usr/include/libxml2 in ADDITIONAL_INCLUDE_DIRS
+	* GSWExtensionsGSW.framework/Makefile.preamble: 
+		o added -I/usr/include/libxml2 in ADDITIONAL_INCLUDE_DIRS
+	* GSWeb/GSWeb.h:
+		o removed #include <GSWeb/GSWTemplateParserXML.h>
+	* GSWCheckBox.m:
+		o logs
+		o rewritten some part to match specifications
+		o removed rcsId
+		o documentation
+
+	* GSWeb/GSWRadioButton.m:
+		o logs
+		o rewritten some part to match specifications
+		o removed rcsId
+		o documentation
+
+	* GSWeb/GSWTemplateParser.m
+		o added #include "GSWTemplateParserXML.h"
+		o removed rcsId
+
+	* GSWeb/GSWTemplateParserANTLR.m
+		o added #include "GSWTemplateParserANTLR.h"
+		o removed rcsId
+
+	* GSWeb/GSWTemplateParserXML.m
+		o added #include "GSWTemplateParserXML.h"
+		o removed rcsId
+
+	* GSWeb/GSWHTMLAttrParser.m
+		o added #include "GSWHTMLAttrParser.h"
+		o removed rcsId
+	* GSWeb/GSWRepetition.m:
+		o logs
+	* Testing/DynamicElements/Makefile.preamble
+		o removed -lFoundationExt 
+	* Examples/hello/Makefile.preamble
+		o removed -lFoundationExt 
+	* GSWeb/GSWBundle.m:
+		o logs
+	* GSWeb/GSWInput.[hm]gswinput 
+		o added -valueInContext:context
+		o removed rcsId
+	* Testing/DynamicElements/CheckBox1Page.*
+		o added	
+	*Testing/DynamicElements/CheckBox2Page.*
+		o added	
+	* Testing/DynamicElements/RadioButton1Page.*
+		o added	
+	* Testing/DynamicElements/RadioButton2Page.*
+		o added	
+	* TODO:
+		o updated
+
 2002-12-02  Mirko Viviani  <mirko.viviani@rccr.cremona.it>
 
 	* GSWeb.framework/GSWApplication.m (GSWApplicationDebugSetChange): read

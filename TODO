@@ -4,7 +4,7 @@ Todo
 We're Looking for Volunteers !
 ===============================
 
-Please contact me at <gsweb@sbuilders.com> if you want to help.
+Please contact me at <mguesdon@orange-concept.com> if you want to help.
 
 Comments
 ===============================
@@ -30,9 +30,6 @@ information, not that there is nothing to do !
 
 
 * GSWeb.m
-
-* NSObject+IVarAccess+PerformSel.m
-	#OK
 
 * NSString+HTML.m
 	#
@@ -60,19 +57,13 @@ information, not that there is nothing to do !
 	OK. Finished
 
 * GSWBrowser.m
-	TODO:
-		takeValuesFromRequest
-		invokeActionForRequest
-		appendToResponse
+	OK. Finished
 
 * GSWCheckBox.m
-	OK
+	OK. Finished
 
 * GSWCheckBoxList.m
-	TODO:
-		takeValuesFromRequest
-		invokeActionForRequest
-		appendToResponse
+	OK. Finished
 
 * GSWClientSideScript.m
       	OK. Verify
@@ -176,19 +167,13 @@ information, not that there is nothing to do !
 	OK. Finished
 
 * GSWPopUpButton.m
-	TODO:
-		takeValuesFromRequest
-		invokeActionForRequest
-		appendToResponse
+	OK. Finished
 
 * GSWRadioButton.m
-	Verify [Tested: Seems to work]
+	OK. Finished
 
 * GSWRadioButtonList.m
-	TODO:
-		takeValuesFromRequest
-		invokeActionForRequest
-		appendToResponse
+	OK. Finished
 
 * GSWRepetition.m
 	OK. Finished

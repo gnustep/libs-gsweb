@@ -1,9 +1,9 @@
-/** PopUpButton1Page.m - <title>GSWeb Testing: Class PopUpButton1Page</title>
+/** CheckBox2Page.m - <title>GSWeb Testing: Class CheckBox2Page</title>
 
    Copyright (C) 2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date:        Nov 2002
+   Date:        Dec 2002
    
    $Revision$
    $Date$
@@ -30,10 +30,10 @@
 
 #include <GSWeb/GSWeb.h>
 #include "BasePage.h"
-#include "PopUpButton1Page.h"
+#include "CheckBox2Page.h"
 
 
-@implementation PopUpButton1Page
+@implementation CheckBox2Page
 
 @end
 

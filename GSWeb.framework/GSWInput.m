@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -26,8 +27,6 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
    </license>
 **/
-
-static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
 
@@ -139,6 +138,23 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+/** return the value used in appendValueToResponse:inContext: **/
+-(id)valueInContext:(GSWContext*)context
+{
+  id value=nil;
+  LOGObjectFnStartC("GSWInput");
+  if (_value)
+    {
+      GSWComponent* component=nil;
+      component=[context component];
+      value=[_value valueInComponent:component];
+      NSDebugMLLog(@"gswdync",@"value=%@",value);
+    };
+  LOGObjectFnStopC("GSWInput");
+  return value;
+};
+
+//--------------------------------------------------------------------
 -(BOOL)disabledInContext:(GSWContext*)context
 {
   if (!WOStrictFlag && _enabled)
@@ -227,30 +243,26 @@ static char rcsId[] = "$Id$";
                    inContext:(GSWContext*)context
 {
   //OK
-  GSWComponent* component=nil;
+  id valueValue=nil;
   LOGObjectFnStartC("GSWInput");
-  component=[context component];
-  if (_value)
+  valueValue=[self valueInContext:(GSWContext*)context];
+  NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
+  if (valueValue)
     {
-      id valueValue=[_value valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-      if (valueValue)
+      [response appendContentCharacter:' '];
+      [response _appendContentAsciiString:@"value"];
+      [response appendContentCharacter:'='];
+      [response appendContentCharacter:'"'];
+      if (_tcEscapeHTML && [self evaluateCondition:_tcEscapeHTML 
+                                 inContext:context] == NO)
         {
-          [response appendContentCharacter:' '];
-          [response _appendContentAsciiString:@"value"];
-          [response appendContentCharacter:'='];
-          [response appendContentCharacter:'"'];
-          if (_tcEscapeHTML && [self evaluateCondition:_tcEscapeHTML 
-                                     inContext:context] == NO)
-            {
-              [response appendContentString:valueValue];
-            }
-          else
-            {
-              [response appendContentHTMLAttributeValue:valueValue];
-            };
-          [response appendContentCharacter:'"'];
+          [response appendContentString:valueValue];
+        }
+      else
+        {
+          [response appendContentHTMLAttributeValue:valueValue];
         };
+      [response appendContentCharacter:'"'];
     };
   LOGObjectFnStopC("GSWInput");
 };

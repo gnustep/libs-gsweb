@@ -65,6 +65,10 @@
 If no name is binded, it return the context id **/
 -(NSString*)nameInContext:(GSWContext*)context;
 
+//--------------------------------------------------------------------
+/** return the value used in appendValueToResponse:inContext: **/
+-(id)valueInContext:(GSWContext*)context;
+
 /** Return YES if element is disabled, NO otherwise, 
 depending on disabled/enabled binding
 **/

@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -29,9 +30,8 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
-
 #include <GSWeb/GSWeb.h>
+#include "GSWTemplateParserXML.h"
 #include <libxml/SAX.h>
 
 extern xmlParserInputPtr xmlNewStringInputStream(xmlParserCtxtPtr ctxt,

@@ -58,6 +58,26 @@
                                         pageName = "TextField1Page";
                                         label = "TextField 1";
                                         comment = "GSWTextField Test 1";
+                                },
+                                {
+                                        pageName = "CheckBox1Page";
+                                        label = "CheckBox 1";
+                                        comment = "GSWCheckBox Test 1";
+                                },
+                                {
+                                        pageName = "CheckBox2Page";
+                                        label = "CheckBox 2";
+                                        comment = "GSWCheckBox Test 2";
+                                },
+                                {
+                                        pageName = "RadioButton1Page";
+                                        label = "RadioButton 1";
+                                        comment = "GSWRadioButton Test 1";
+                                },
+                                {
+                                        pageName = "RadioButton2Page";
+                                        label = "RadioButton 2";
+                                        comment = "GSWRadioButton Test 2";
                                 }
                         );
         RadioButtonList = {

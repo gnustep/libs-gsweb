@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,9 +28,8 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
-
 #include <GSWeb/GSWeb.h>
+#include "GSWHTMLAttrParser.h"
 
 //====================================================================
 @implementation GSWHTMLAttrParser (GSWHTMLAttrParserExt)

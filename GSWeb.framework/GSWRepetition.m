@@ -153,6 +153,7 @@ static char rcsId[] = "$Id$";
                 _list,
                 [(*listValuePtr) class]);
       *countValuePtr=[(*listValuePtr) count];
+      NSDebugMLLog(@"gswdync",@"list count=%d",*countValuePtr);
     };
   NSDebugMLLog(@"gswdync",@"_count=%@",_count);
   if (_count)

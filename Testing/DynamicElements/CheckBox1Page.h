@@ -1,9 +1,9 @@
-/** PopUpButton1Page.m - <title>GSWeb Testing: Class PopUpButton1Page</title>
+/** CheckBox1Page.h - <title>GSWeb Testing: Class CheckBox1Page</title>
 
    Copyright (C) 2002 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date:        Nov 2002
+   Date: 	Dec 2002
    
    $Revision$
    $Date$
@@ -28,12 +28,15 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
-#include "BasePage.h"
-#include "PopUpButton1Page.h"
 
+#ifndef _CheckBox1Page_h__
+	#define _CheckBox1Page_h__
 
-@implementation PopUpButton1Page
-
+@interface CheckBox1Page: BasePage
+{
+  id _checkBoxValue;
+  id _isChecked;
+}
 @end
 
+#endif //_CheckBox1Page_h__

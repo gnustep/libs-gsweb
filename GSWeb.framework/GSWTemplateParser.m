@@ -7,6 +7,7 @@
    
    $Revision$
    $Date$
+   $Id$
    
    <abstract></abstract>
 
@@ -29,11 +30,11 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
-
 #include <GSWeb/GSWeb.h>
 #include <gsantlr/ANTLRCommon.h>
 #include <gsantlr/ANTLRTextStreams.h>
+#include "GSWTemplateParserXML.h"
+#include "GSWTemplateParserANTLR.h"
 #include "GSWPageDefLexer.h"
 #include "GSWPageDefParser.h"
 #include "GSWPageDefParserExt.h"
