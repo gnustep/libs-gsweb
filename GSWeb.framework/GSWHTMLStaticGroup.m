@@ -73,9 +73,8 @@ RCS_ID("$Id$")
   GSWStartElement(context);
   if (_documentTypeString)
     {
-      NSStringEncoding encoding=[response contentEncoding];      
       NSDebugMLLog(@"gswdync",@"added documentTypeString = %@",_documentTypeString);
-      [response appendContentData:[_documentTypeString dataUsingEncoding:encoding]];
+      [response appendContentString:_documentTypeString];
     };
   
   [super appendToResponse:response
