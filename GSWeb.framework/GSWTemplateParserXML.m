@@ -854,6 +854,18 @@ text [Type:XML_TEXT_NODE] [{}] ####
                         {
                           _associations=[NSDictionary dictionaryWithDictionary:_addedAssoc];
                         };
+                      //To know if it's an autoclose tag
+                      if (!children && [self isKindOfClass:[GSWTemplateParserXMLHTML class]])
+                        {
+                          htmlElemDescPtr elemDscr=NULL;                          
+                          elemDscr=htmlTagLookup([nodeName lossyCString]);
+                          if (elemDscr
+                              && elemDscr->endTag!=2 //Forbidden End Tag
+                              && elemDscr->endTag!=1) //End can be omitted
+                            {
+                              children=[NSArray array];
+                            };
+                        };
                       NSDebugMLog(@"node=%p StaticElement: children=%@",currentNode,children);
                       elem=[[[GSWHTMLStaticElement alloc]initWithName:nodeName
                                                          attributeDictionary:_associations

@@ -93,15 +93,14 @@ static char rcsId[] = "$Id$";
 		  for(;elementsN>0;elementsN--)
 			[_elementsMap appendBytes:&ElementsMap_dynamicElement
 						   length:1];
+                  if (_elementName)
+                    {
+                      [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
+                                                            _elementName]];
+                      [_elementsMap appendBytes:&ElementsMap_htmlBareString
+                                    length:1];
+                    };
                 };
-          //VERIFY Only if _elements ?
-          if (_elementName)
-            {
-              [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
-                                                    _elementName]];
-              [_elementsMap appendBytes:&ElementsMap_htmlBareString
-                            length:1];
-            };
 		
 	  [self _initWithElementsMap:_elementsMap
 			htmlBareStrings:_htmlBareStrings
@@ -147,15 +146,14 @@ static char rcsId[] = "$Id$";
 		  for(;elementsN>0;elementsN--)
 			[_elementsMap appendBytes:&ElementsMap_dynamicElement
 						   length:1];
+                  if (_elementName)
+                    {
+                      [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
+                                                            _elementName]];
+                      [_elementsMap appendBytes:&ElementsMap_htmlBareString
+                                    length:1];
+                    };
                 };
-          //VERIFY Only if _elements ?
-          if (_elementName)
-            {
-              [_htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
-                                                    _elementName]];
-              [_elementsMap appendBytes:&ElementsMap_htmlBareString
-                            length:1];
-            };
 	  [self _initWithElementsMap:_elementsMap
 			htmlBareStrings:_htmlBareStrings
 			dynamicChildren:_elements];	  
