@@ -57,15 +57,11 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 
 //====================================================================
 /** HTTP request class **/
-@interface GSWRequest : NSObject <NSCopying>
+@interface GSWRequest : GSWMessage
 {
 @private
   NSString* _method;
   GSWDynamicURLString* _uri;
-  NSString* _httpVersion;
-  NSDictionary* _headers;
-  NSData* _content;
-  NSDictionary* _userInfo;
   NSStringEncoding _defaultFormValueEncoding;
   NSStringEncoding _formValueEncoding;
   NSDictionary* _formValues;
@@ -90,17 +86,8 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
             content:(NSData*)content
            userInfo:(NSDictionary*)userInfo;
 
--(void)dealloc;
--(id)copyWithZone:(NSZone*)zone;
-
 -(GSWContext*)_context;
 -(void)_setContext:(GSWContext*)context;
--(NSData*)content;
--(NSDictionary*)headers;
--(NSString*)headerForKey:(NSString*)key;
--(NSArray*)headerKeys;
--(NSArray*)headersForKey:(NSString*)key;
--(NSString*)httpVersion;
 -(NSString*)method;
 -(NSArray*)browserLanguages;
 -(NSArray*)browserAcceptedEncodings;
@@ -112,7 +99,10 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(int)urlPort;//NDFN
 -(NSString*)urlProtocolHostPort;//NDFN
 -(BOOL)isSecure;//NDFN
--(NSDictionary*)userInfo;
+-(NSString*)remoteAddress;
+-(NSString*)remoteHost;
+-(NSString*)userAgent;//NDFN
+-(NSString*)referer;//NDFN
 -(NSString*)description;
 
 @end
@@ -130,8 +120,17 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(NSArray*)formValueKeys;
 -(NSArray*)formValuesForKey:(NSString*)key;
 -(id)formValueForKey:(NSString*)key; // return id because GSWFileUpload
+-(NSString*)stringFormValueForKey:(NSString*)key;
+-(NSNumber*)numberFormValueForKey:(NSString*)key
+                    withFormatter:(NSNumberFormatter*)formatter;
+-(NSCalendarDate*)dateFormValueForKey:(NSString*)key
+                        withFormatter:(NSDateFormatter*)formatter;
 
 -(NSDictionary*)formValues;
+-(void)appendFormValue:(id)value
+                forKey:(NSString*)key;
+-(void)appendFormValues:(NSArray*)values
+                 forKey:(NSString*)key;
 @end
 
 //====================================================================
@@ -189,9 +188,9 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 @end
 //====================================================================
 @interface GSWRequest (GSWRequestG)
--(BOOL)_isSessionIDinRequest;
--(BOOL)_isSessionIDinCookies;
--(BOOL)_isSessionIDinFormValues;
+-(BOOL)_isSessionIDInRequest;
+-(BOOL)_isSessionIDInCookies;
+-(BOOL)_isSessionIDInFormValues;
 -(id)_completeURLWithRequestHandlerKey:(NSString*)key
                                   path:(NSString*)path
                            queryString:(NSString*)queryString

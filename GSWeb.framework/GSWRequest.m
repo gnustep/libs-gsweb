@@ -34,6 +34,7 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <GNUstepBase/GSMime.h>
+#include "GSWInputStreamData.h"
 
 //====================================================================
 @implementation GSWValueQualityHeaderPart
@@ -201,34 +202,61 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      ASSIGNCOPY(_method,aMethod);
-      NSDebugMLLog(@"requests",@"method=%@",_method);
-      ASSIGNCOPY(_httpVersion,aVersion);
-      ASSIGNCOPY(_headers,headers);
-      _defaultFormValueEncoding=NSISOLatin1StringEncoding;
-      _formValueEncoding=NSISOLatin1StringEncoding;
-      [self _initCookieDictionary];//NDFN
-      _applicationNumber=-9999;
-      {
-        NSString* adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConv]];
-        if (!adaptorVersion)
-          adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConvInversed]];
-        NSDebugMLLog(@"requests",@"adaptorVersion=%@",adaptorVersion);
-        [self _setIsUsingWebServer:(adaptorVersion!=nil)];//??
-      };
-      NSDebugMLLog(@"requests",@"anURL=%@",anURL);
-      _uri=[[GSWDynamicURLString alloc]initWithCString:[anURL cString]
-                                      length:[anURL length]];
-      NSDebugMLLog(@"requests",@"uri=%@",_uri);
-      [_uri checkURL];
-      ASSIGNCOPY(_content,content);
-      ASSIGNCOPY(_userInfo,userInfo);
-	  
-      if (!aMethod || !anURL)
+      NSDebugMLLog(@"requests",@"aMethod=%@",aMethod);
+      if ([aMethod length]==0)
         {
-          LOGException0(@"NSGenericException GSWRequest: no method and no url");
-          [NSException raise:NSGenericException
-                       format:@"GSWRequest: no method and no url"];
+          ExceptionRaise(@"GSRequest",@"Empty/Null method during initialization");
+        }
+      else
+        {
+          NSDebugMLLog(@"requests",@"anURL=%@",anURL);
+          if ([anURL length]==0)
+            {
+              ExceptionRaise(@"GSRequest",@"Empty/Null uri during initialization");
+            }
+          else
+            {              
+              NSDebugMLLog(@"requests",@"aVersion=%@",aVersion);
+              if ([aVersion length]==0)
+                {
+                  ExceptionRaise(@"GSRequest",@"Empty/Null http version during initialization");
+                }
+              else
+                {              
+                  ASSIGNCOPY(_method,aMethod);
+                  
+                  [self setHTTPVersion:aVersion];
+
+                  NSDebugMLLog(@"requests",@"headers=%@",headers);
+                  [self setHeaders:headers];
+                  
+                  _defaultFormValueEncoding=[[self class]defaultEncoding];
+                  _formValueEncoding=[[self class]defaultEncoding];
+                  
+                  _applicationNumber=-9999;
+                  {
+                    NSString* adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConv]];
+                    if (!adaptorVersion)
+                      adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConvInversed]];
+                    NSDebugMLLog(@"requests",@"adaptorVersion=%@",adaptorVersion);
+                    [self _setIsUsingWebServer:(adaptorVersion!=nil)];
+                  };
+                  
+                  _uri=[[GSWDynamicURLString alloc]initWithCString:[anURL cString]
+                                               length:[anURL length]];
+                  NSDebugMLLog(@"requests",@"uri=%@",_uri);
+                  [_uri checkURL];
+
+                  if (!content)
+                    content = [NSData data];
+                  if ([content isKindOfClass:[GSWInputStreamData class]])
+                    [self setContent:content];
+                  else
+                    [self appendContentData:content];
+
+                  [self setUserInfo:userInfo];
+                };
+            };
         };
     };
   LOGObjectFnStop();
@@ -244,14 +272,6 @@ RCS_ID("$Id$")
   DESTROY(_method);
   NSDebugFLog0(@"Release GSWRequest uri");
   DESTROY(_uri);
-  NSDebugFLog0(@"Release GSWRequest httpVersion");
-  DESTROY(_httpVersion);
-  NSDebugFLog0(@"Release GSWRequest headers");
-  DESTROY(_headers);
-  NSDebugFLog0(@"Release GSWRequest content");
-  DESTROY(_content);
-  NSDebugFLog0(@"Release GSWRequest userInfo");
-  DESTROY(_userInfo);
   NSDebugFLog0(@"Release GSWRequest formValues");
   DESTROY(_formValues);
   NSDebugFLog0(@"Release GSWRequest uriElements");
@@ -273,15 +293,11 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
-  GSWRequest* clone = [[isa allocWithZone:zone] init];
+  GSWRequest* clone = (GSWRequest*)[super copyWithZone:zone];
   if (clone)
     {
       ASSIGNCOPY(clone->_method,_method);
       ASSIGNCOPY(clone->_uri,_uri);
-      ASSIGNCOPY(clone->_httpVersion,_httpVersion);
-      ASSIGNCOPY(clone->_headers,_headers);
-      ASSIGNCOPY(clone->_content,_content);
-      ASSIGNCOPY(clone->_userInfo,_userInfo);
       clone->_defaultFormValueEncoding=_defaultFormValueEncoding;
       clone->_formValueEncoding=_formValueEncoding;
       ASSIGNCOPY(clone->_formValues,_formValues);
@@ -310,58 +326,6 @@ RCS_ID("$Id$")
 {
   _context = context;//Don't retain because request is retained by context
 }
-
-//--------------------------------------------------------------------
-//	content
-
--(NSData*)content 
-{
-  return _content;
-};
-
-//--------------------------------------------------------------------
-//	headerForKey:
-
--(NSString*)headerForKey:(NSString*)key
-{
-  id value=[self headersForKey:key];
-  if (value && [value count]>0)
-    return [value objectAtIndex:0];
-  else
-    return nil;
-};
-
-//--------------------------------------------------------------------
-//	headerKeys
-
--(NSArray*)headerKeys 
-{
-  return [_headers allKeys];
-};
-
-//--------------------------------------------------------------------
-//	headersForKey:
-
--(NSArray*)headersForKey:(NSString*)key
-{
-  return [_headers objectForKey:key];
-};
-
-//--------------------------------------------------------------------
-//	headers
-
--(NSDictionary*)headers
-{
-  return _headers;
-}
-
-//--------------------------------------------------------------------
-//	httpVersion
-
--(NSString*)httpVersion 
-{
-  return _httpVersion;
-};
 
 //--------------------------------------------------------------------
 //	method
@@ -399,6 +363,82 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 //NDFN
+-(NSString*)_remoteAddress
+{
+  NSString* remoteAddress=nil;
+
+  remoteAddress = [self headerForKey:GSWHTTPHeader_RemoteAddress[GSWebNamingConv]];
+  if (!remoteAddress)
+    {
+      remoteAddress = [self headerForKey:GSWHTTPHeader_RemoteAddress[GSWebNamingConvInversed]];
+      if (!remoteAddress)
+        remoteAddress = [self headerForKey:@"remote_addr"];
+    };
+  return remoteAddress;
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)remoteAddress
+{
+  return [self _remoteAddress];
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)_remoteHost
+{
+  NSString* remoteHost=nil;
+
+  remoteHost = [self headerForKey:GSWHTTPHeader_RemoteHost[GSWebNamingConv]];
+  if (!remoteHost)
+    {
+      remoteHost = [self headerForKey:GSWHTTPHeader_RemoteHost[GSWebNamingConvInversed]];
+      if (!remoteHost)
+        remoteHost = [self headerForKey:@"remote_host"];
+    };
+  return remoteHost;
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)remoteHost
+{
+  return [self _remoteHost];
+};
+
+//--------------------------------------------------------------------
+//NDFN
+-(NSString*)_serverName
+{
+  NSString* serverName=nil;
+  if ([self _isUsingWebServer])
+    {
+      serverName=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConv]];
+      if (!serverName)
+        {
+          serverName=[self headerForKey:GSWHTTPHeader_ServerName[GSWebNamingConvInversed]];
+          if (!serverName)
+            {
+              serverName=[self headerForKey:@"server_name"];
+              if (!serverName)
+                {
+                  serverName=[self headerForKey:@"host"];
+                  if (!serverName)
+                    ExceptionRaise(@"GSWRequest",@"No server name");
+                };
+            };
+        };
+    }
+  else
+    {
+      serverName = [GSWApplication host];
+    }
+  return serverName;
+}
+
+//--------------------------------------------------------------------
+//NDFN
 -(NSString*)urlHost
 {
   NSString* urlHost=[_uri urlHost];
@@ -410,6 +450,25 @@ RCS_ID("$Id$")
     };
   return urlHost;
 };
+
+//--------------------------------------------------------------------
+-(NSString*)_serverPort
+{
+  NSString* serverPort=nil;
+  if ([self _isUsingWebServer])
+    {
+      serverPort = [self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConv]];
+      if (!serverPort)
+        serverPort=[self headerForKey:GSWHTTPHeader_ServerPort[GSWebNamingConvInversed]];
+    } 
+  else
+    {
+      NSArray* adaptors = [[GSWApplication application]adaptors];
+      if ([adaptors count]>0)
+        serverPort = [NSString stringWithFormat:@"%d",[(GSWAdaptor*)[adaptors objectAtIndex:0] port]];
+    }
+  return serverPort;
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -451,6 +510,34 @@ RCS_ID("$Id$")
 -(BOOL)isSecure
 {
   return ([[self urlProtocol] caseInsensitiveCompare:GSWProtocol_HTTPS]==NSOrderedSame);
+};
+
+//--------------------------------------------------------------------
+-(NSString*)userAgent
+{
+  NSString* userAgent=nil;
+
+  LOGObjectFnStart();
+
+  userAgent=[self headerForKey:GSWHTTPHeader_UserAgent];
+
+  LOGObjectFnStop();
+
+  return userAgent;
+};
+
+//--------------------------------------------------------------------
+-(NSString*)referer
+{
+  NSString* referer=nil;
+
+  LOGObjectFnStart();
+
+  referer=[self headerForKey:GSWHTTPHeader_Referer];
+
+  LOGObjectFnStop();
+
+  return referer;
 };
 
 //--------------------------------------------------------------------
@@ -542,13 +629,6 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-//	userInfo
--(NSDictionary*)userInfo 
-{
-  return _userInfo;
-};
-
-//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultFormValueEncoding=%u, formValueEncoding=%u, formValues=%@, uriElements=%@, cookie=%@, applicationURLPrefix=%@, requestHandlerPathArray=%@, browserLanguages=%@, requestType=%d, isUsingWebServer=%s, formValueEncodingDetectionEnabled=%s, applicationNumber=%d",
@@ -558,7 +638,7 @@ RCS_ID("$Id$")
                    _uri,
                    _httpVersion,
                    _headers,
-                   _content,
+                   _contentData,
                    _userInfo,
                    _defaultFormValueEncoding,
                    _formValueEncoding,
@@ -669,7 +749,6 @@ RCS_ID("$Id$")
 // return id because GSWFileUpload
 -(id)formValueForKey:(NSString*)key
 {
-  //OK
   id formValue=nil;
   NSArray* formValuesForKey=nil;
   LOGObjectFnStart();
@@ -683,6 +762,62 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
   return formValue;
 };
+
+//--------------------------------------------------------------------
+-(NSString*)stringFormValueForKey:(NSString*)key
+{
+  id value=nil;
+  LOGObjectFnStart();
+  value=[self formValueForKey:key];
+  if (value && ![value isKindOfClass:[NSString class]])
+    value=[value description];
+  LOGObjectFnStop();
+  return value;
+}
+
+//--------------------------------------------------------------------
+-(NSNumber*)numberFormValueForKey:(NSString*)key
+                    withFormatter:(NSNumberFormatter*)formatter
+{
+  NSNumber* value=nil;
+  NSString* stringValue=nil;
+  LOGObjectFnStart();
+  stringValue=[self stringFormValueForKey:key];
+  if (stringValue && formatter)
+    {
+      NSString* errorDscr=nil;
+      if (![formatter getObjectValue:&value
+                      forString:stringValue
+                      errorDescription:&errorDscr])
+        {
+          NSLog(@"Error: %@",errorDscr);
+        };
+    };
+  LOGObjectFnStop();
+  return value;
+}
+
+//--------------------------------------------------------------------
+-(NSCalendarDate*)dateFormValueForKey:(NSString*)key
+                        withFormatter:(NSDateFormatter*)formatter
+{
+  NSCalendarDate* value=nil;
+  NSString* stringValue=nil;
+  LOGObjectFnStart();
+  stringValue= [self stringFormValueForKey:key];
+  if (stringValue && formatter)
+    {
+      NSString* errorDscr=nil;
+      if (![formatter getObjectValue:&value
+                      forString:stringValue
+                      errorDescription:&errorDscr])
+        {
+          NSLog(@"Error: %@",errorDscr);
+        };
+    };
+  LOGObjectFnStop();
+  return value;
+}
 
 //--------------------------------------------------------------------
 //	formValues
@@ -706,6 +841,91 @@ RCS_ID("$Id$")
   return formValues;
 };
 
+-(void)appendFormValue:(id)value
+                forKey:(NSString*)key
+{
+  LOGObjectFnStart();
+  if (value)
+    {
+      NSMutableDictionary* formValues=nil;
+      NSMutableArray* keyValues=nil;
+      formValues=(NSMutableDictionary*)[self _formValues];
+      if (formValues)
+        {
+          if (![formValues isKindOfClass:[NSMutableDictionary class]])
+            {
+              formValues=[[formValues mutableCopy] autorelease];
+              ASSIGN(_formValues,formValues);
+            };
+        }
+      else
+        {
+          formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+          ASSIGN(_formValues,formValues);
+        };
+      keyValues=[formValues objectForKey:key];
+      if (keyValues)
+        {
+          if (![keyValues isKindOfClass:[NSMutableArray class]])
+            {
+              keyValues=[[formValues mutableCopy] autorelease];
+              [formValues setObject:keyValues
+                          forKey:key];
+            };
+        }
+      else
+        {
+          keyValues=(NSMutableArray*)[NSMutableArray array];
+          [formValues setObject:keyValues
+                      forKey:key];
+        };
+      [keyValues addObject:value];
+    };
+  LOGObjectFnStop();
+};
+
+-(void)appendFormValues:(NSArray*)values
+                 forKey:(NSString*)key
+{
+  LOGObjectFnStart();
+  if (values)
+    {
+      NSMutableDictionary* formValues=nil;
+      NSMutableArray* keyValues=nil;
+      formValues=(NSMutableDictionary*)[self _formValues];
+      if (formValues)
+        {
+          if (![formValues isKindOfClass:[NSMutableDictionary class]])
+            {
+              formValues=[[formValues mutableCopy] autorelease];
+              ASSIGN(_formValues,formValues);
+            };
+        }
+      else
+        {
+          formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+          ASSIGN(_formValues,formValues);
+        };
+      keyValues=[formValues objectForKey:key];
+      if (keyValues)
+        {
+          if (![keyValues isKindOfClass:[NSMutableArray class]])
+            {
+              keyValues=[[formValues mutableCopy] autorelease];
+              [formValues setObject:keyValues
+                          forKey:key];
+            };
+        }
+      else
+        {
+          keyValues=(NSMutableArray*)[NSMutableArray array];
+          [formValues setObject:keyValues
+                      forKey:key];
+        };
+      [keyValues addObjectsFromArray:values];
+    };
+  LOGObjectFnStop();
+};
 @end
 
 //====================================================================
@@ -857,7 +1077,7 @@ RCS_ID("$Id$")
         };
     };
   ASSIGN(_cookie,cookie);
-  NSDebugMLLog(@"requests",@"Cookie: %@",_cookie);
+  NSDebugMLLog(@"requests",@"Cookies: %@",_cookies);
   LOGObjectFnStop();
 };
 
@@ -866,9 +1086,10 @@ RCS_ID("$Id$")
 -(NSArray*)cookieValuesForKey:(NSString*)key
 {
   NSArray* cookieValuesForKey=nil;
+  NSDictionary* cookieValues=nil;
   LOGObjectFnStart();
-  [self _initCookieDictionary];
-  cookieValuesForKey=[_cookie objectForKey:key];
+  cookieValues=[self cookieValues];
+  cookieValuesForKey=[cookieValues objectForKey:key];
   LOGObjectFnStop();
   return cookieValuesForKey;
 };
@@ -877,14 +1098,12 @@ RCS_ID("$Id$")
 //	cookieValueForKey:
 -(NSString*)cookieValueForKey:(NSString*)key
 {
-  id object=nil;
+  NSArray* values=nil;
   NSString* cookieValueForKey=nil;
-  //OK
   LOGObjectFnStart();
-  [self _initCookieDictionary];
-  object=[_cookie objectForKey:key];
-  if (object && [object count]>0)
-    cookieValueForKey=[object objectAtIndex:0];
+  values=[self cookieValuesForKey:key];
+  if ([values count]>0)
+    cookieValueForKey=[values objectAtIndex:0];
   NSDebugMLLog(@"requests",@"cookieValueForKey:%@=%@",key,cookieValueForKey);
   LOGObjectFnStop();
   return cookieValueForKey;
@@ -894,19 +1113,19 @@ RCS_ID("$Id$")
 //	cookieValues
 -(NSDictionary*)cookieValues
 {
-  //OK
+  NSDictionary* cookieValues=nil;
   LOGObjectFnStart();
-  [self _initCookieDictionary];
+  cookieValues=[self _initCookieDictionary];
   LOGObjectFnStop();
-  return _cookie;
+  return cookieValues;
 };
 
 //--------------------------------------------------------------------
+// Dictionary of ccokie name / cookie value
 -(NSDictionary*)_initCookieDictionary
 {
-  //ok
   LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"cookie=%@",_cookie);
+  NSDebugMLLog(@"low",@"cookies=%@",_cookie);
   if (!_cookie)
     {
       NSString* cookieDescription=[self _cookieDescription];
@@ -950,14 +1169,41 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+-(NSDictionary*)_cookieDictionary
+{
+  return [self _initCookieDictionary];
+};
+
+//--------------------------------------------------------------------
 -(NSString*)_cookieDescription
 {
   //OK
   NSString* cookieHeader=nil;
   LOGObjectFnStart();
   cookieHeader=[self headerForKey:GSWHTTPHeader_Cookie];
+  if (!cookieHeader)
+    cookieHeader=[self headerForKey:GSWHTTPHeader_CookieStupidIIS];// God damn it
   LOGObjectFnStop();
   return cookieHeader;
+};
+
+-(NSArray*)cookies
+{
+  // build super->cookies
+  if (!_cookies)
+    {
+      [self _initCookies]; // super cookies init
+      NSDictionary* cookies=[self cookieValues];
+      NSEnumerator* keysEnum=[cookies keyEnumerator];
+      NSString* key=nil;
+      while((key=[keysEnum nextObject]))
+        {
+          NSString* value=[cookies objectForKey:key];
+          [_cookies addObject:[GSWCookie cookieWithName:key
+                                         value:value]];
+        }
+    };
+  return _cookies;
 };
 
 @end
@@ -1113,7 +1359,7 @@ RCS_ID("$Id$")
   NSData* data=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"requests",@"method=%@",_method);
-  NSDebugMLLog(@"requests",@"content=%@",_content);
+  NSDebugMLLog(@"requests",@"contentData=%@",_contentData);
   if ([_method isEqualToString:GSWHTTPHeader_MethodGet])
     {
       NSString* urlQueryString=[self _urlQueryString];
@@ -1122,7 +1368,7 @@ RCS_ID("$Id$")
     }
   else if ([_method isEqualToString:GSWHTTPHeader_MethodPost])
     {
-      data=_content;
+      data=_contentData;
       NSDebugMLLog(@"requests",@"data=%@",data);
     };
   LOGObjectFnStop();
@@ -1192,7 +1438,7 @@ RCS_ID("$Id$")
 @implementation GSWRequest (GSWRequestG)
 
 //--------------------------------------------------------------------
--(BOOL)_isSessionIDinRequest
+-(BOOL)_isSessionIDInRequest
 {
   id ID=nil;
   NSDictionary* uriElements=[self uriElements];
@@ -1203,7 +1449,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(BOOL)_isSessionIDinCookies
+-(BOOL)_isSessionIDInCookies
 {
   id ID=nil;
   ID=[self cookieValueForKey:GSWKey_SessionID[GSWebNamingConv]];
@@ -1213,7 +1459,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(BOOL)_isSessionIDinFormValues
+-(BOOL)_isSessionIDInFormValues
 {
   id ID=nil;
   ID=[self formValueForKey:GSWKey_SessionID[GSWebNamingConv]];
@@ -1287,7 +1533,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)_getFormValuesFromURLEncoding
 {
-  //OK
   NSData* formData=nil;
   LOGObjectFnStart();
   formData=[self _formData];
@@ -1305,6 +1550,7 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
+//--------------------------------------------------------------------
 +(BOOL)_lookForIDsInCookiesFirst
 {
   return NO;
@@ -1313,7 +1559,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(BOOL)_hasFormValues
 {
-  //OK
   NSDictionary* formValues=[self _formValues];
   return [formValues count]>0;
 };
@@ -1539,13 +1784,12 @@ RCS_ID("$Id$")
     };
   [headersString appendString:@"\n"];
   NSDebugMLLog(@"requests",@"headersString=[\n%@\n]",headersString);
-  NSDebugMLLog(@"requests",@"content=[\n%@\n]",[[[NSString alloc]initWithData:_content
-                                                                 encoding:NSISOLatin1StringEncoding]autorelease]);
+
   headersData=[headersString dataUsingEncoding:NSISOLatin1StringEncoding];
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
   [parser expectNoHeaders];
-  if ([parser parse:_content])
+  if ([parser parse:_contentData])
     [parser parse:nil];
   NSDebugMLLog(@"requests",@"[parser isComplete]=%d",[parser isComplete]);
   if ([parser isComplete] == NO)
