@@ -1,6 +1,6 @@
 /** GSWSwitchComponent.m - <title>GSWeb: Class GSWSwitchComponent</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -49,34 +49,34 @@ RCS_ID("$Id$")
                    template:nil]))
     {
       NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): tmpAssociations=%@",
-                   self,[self definitionName],tmpAssociations);
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): GSWComponentName__Key=%@",
-                   self,[self definitionName],GSWComponentName__Key[GSWebNamingConv]);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): tmpAssociations=%@",
+                   self,[self declarationName],tmpAssociations);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): GSWComponentName__Key=%@",
+                   self,[self declarationName],GSWComponentName__Key[GSWebNamingConv]);
       [tmpAssociations removeObjectForKey:GSWComponentName__Key[GSWebNamingConv]];
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentName__Key=%@",
-                   self,[self definitionName],componentName__Key);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName__Key=%@",
+                   self,[self declarationName],componentName__Key);
       [tmpAssociations removeObjectForKey:componentName__Key];
       
       _componentName = [[associations objectForKey:GSWComponentName__Key[GSWebNamingConv]
                                      withDefaultObject:[_componentName autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentName=%@",
-                   self,[self definitionName],_componentName);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@",
+                   self,[self declarationName],_componentName);
       if (!_componentName)
         {
           _componentName = [[associations objectForKey:componentName__Key
                                           withDefaultObject:[_componentName autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentName=%@",
-                       self,[self definitionName],_componentName);
+          NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@",
+                       self,[self declarationName],_componentName);
         }
 
       ASSIGN(_componentAttributes,[NSDictionary dictionaryWithDictionary:tmpAssociations]);
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentAttributes=%@",
-                   self,[self definitionName],_componentAttributes);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentAttributes=%@",
+                   self,[self declarationName],_componentAttributes);
       
       ASSIGN(_template,templateElement);
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): template=%@",
-                   self,[self definitionName],_template);
+      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): template=%@",
+                   self,[self declarationName],_template);
       
       _componentCache=[NSMutableDictionary new];
     };
@@ -193,13 +193,13 @@ if the component has already been created, it get it from the cache; otherwise, 
   GSWComponent* component=nil;
   LOGObjectFnStartC("GSWSwitchComponent");
   component=[aContext component];
-  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentName=%@ parent=%@",
-               self,[self definitionName],_componentName,[component parent]);
+  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@ parent=%@",
+               self,[self declarationName],_componentName,[component parent]);
   if ([aName length]==0)
     {      
       ExceptionRaise(@"GSWSwitchComponent",
-                     @"ComponentName is null. componentNameKey='%@' definitionName=%@ currentComponentName=%@",
-                     _componentName,[self definitionName],[component name]);
+                     @"ComponentName is null. componentNameKey='%@' declarationName=%@ currentComponentName=%@",
+                     _componentName,[self declarationName],[component name]);
     }
   else
     {
@@ -219,8 +219,8 @@ if the component has already been created, it get it from the cache; otherwise, 
           else
             {
               ExceptionRaise(@"GSWSwitchComponent",
-                             @"GSWSwitchComponent %p (defName=%@): Creation failed for element named:%@",
-                             self,[self definitionName],aName);
+                             @"GSWSwitchComponent %p (declarationName=%@): Creation failed for element named:%@",
+                             self,[self declarationName],aName);
             };
         };
     };
@@ -236,11 +236,11 @@ if the component has already been created, it get it from the cache; otherwise, 
   NSString* componentNameValue=nil;
   LOGObjectFnStartC("GSWSwitchComponent");
   component=[aContext component];
-  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentName=%@",
-               self,[self definitionName],_componentName);
+  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@",
+               self,[self declarationName],_componentName);
   componentNameValue=[_componentName valueInComponent:component];
-  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (defName=%@): componentNameValue=%@",
-               self,[self definitionName],componentNameValue);
+  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentNameValue=%@",
+               self,[self declarationName],componentNameValue);
   LOGObjectFnStopC("GSWSwitchComponent");
   return componentNameValue;
 };

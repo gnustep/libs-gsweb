@@ -1,6 +1,6 @@
 /* GSWComponentReference.m - <title>GSWeb: Class GSWComponentReference</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -215,8 +215,8 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
-  [response appendDebugCommentContentString:[NSString stringWithFormat:@"defName=%@ ID=%@ name=%@",
-                                                      [self definitionName],
+  [response appendDebugCommentContentString:[NSString stringWithFormat:@"declarationName=%@ ID=%@ name=%@",
+                                                      [self declarationName],
                                                       [context elementID],
                                                       _name]];
   componentPrev=[context component];

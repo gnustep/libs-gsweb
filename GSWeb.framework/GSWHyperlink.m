@@ -1,6 +1,6 @@
 /** GSWHyperlink.m - <title>GSWeb: Class GSWHyperlink</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -796,8 +796,8 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"gswdync",@"GSWHTMLURLValuedElement invoke element=%@",element);
   NSDebugMLLog(@"gswdync",@"senderID=%@",[context senderID]);
   NSDebugMLLog(@"gswdync",@"elementID=%@",[context elementID]);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ definition name=%@ id=%@",
-               [self class],[self definitionName],[context elementID]);
+  NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
+               [self class],[self declarationName],[context elementID]);
 #ifndef NDEBBUG
   NSAssert(elementsNb==[(GSWElementIDString*)[context elementID]elementsNb],@"GSWHyperlink invokeActionForRequest: bad elementID");
 #endif

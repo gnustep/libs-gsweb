@@ -228,8 +228,8 @@ RCS_ID("$Id$")
   [response _appendContentAsciiString:@" type=image"];
 
   name=[self nameInContext:context];
-  NSDebugMLLog(@"gswdync",@"definition name=%@ name=%@",
-               [self definitionName],name);
+  NSDebugMLLog(@"gswdync",@"declarationName=%@ name=%@",
+               [self declarationName],name);
   [response _appendContentAsciiString:@" name=\""];
 
   [response appendContentHTMLAttributeValue:name];
@@ -415,8 +415,8 @@ RCS_ID("$Id$")
   senderID=[context senderID];
   NSDebugMLog(@"senderID=%@",senderID);
   elementID=[context elementID];
-  NSDebugMLog(@"definition name=%@ elementID=%@",
-              [self definitionName],elementID);
+  NSDebugMLog(@"declarationName=%@ elementID=%@",
+              [self declarationName],elementID);
   if ([elementID isEqualToString:senderID])
     {
       //TODO

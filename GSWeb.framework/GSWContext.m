@@ -1,6 +1,6 @@
 /** GSWContext.m - <title>GSWeb: Class GSWContext</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Jan 1999
@@ -335,12 +335,12 @@ static int dontTraceComponentActionURL=0;
         _docStructureElements=[NSMutableSet new];
       memset(ptab,'\t',elementIDNb);
       ptab[elementIDNb]='\0';
-      string=[NSString stringWithFormat:@"%s %@ Element %p Class %@ defName=%@\n",
+      string=[NSString stringWithFormat:@"%s %@ Element %p Class %@ declarationName=%@\n",
                        ptab,
                        [self elementID],
                        element,
                        [element class],
-                       [element definitionName]];
+                       [element declarationName]];
       if (![_docStructureElements containsObject:string])
         {
           [_docStructure appendString:string];

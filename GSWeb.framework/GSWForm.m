@@ -262,8 +262,8 @@ RCS_ID("$Id$")
   LOGObjectFnStartC("GSWForm");
   GSWStartElement(context);
   GSWSaveAppendToResponseElementID(context);
-  [response appendDebugCommentContentString:[NSString stringWithFormat:@"defName=%@ ID=%@",
-                                                      [self definitionName],
+  [response appendDebugCommentContentString:[NSString stringWithFormat:@"declarationName=%@ ID=%@",
+                                                      [self declarationName],
                                                       [context elementID]]];
 
   if (!WOStrictFlag)
@@ -322,9 +322,9 @@ RCS_ID("$Id$")
       if ([self prefixMatchSenderIDInContext:context]) //Avoid trying to find action if we are not the good component
         {
           isFormSubmited=[elementID isEqualToString:senderID];
-          NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ \n      id=%@ \nsenderId=%@ \nisFormSubmited=%s",
+          NSDebugMLLog(@"gswdync",@"ET=%@ declarationName=%@ \n      id=%@ \nsenderId=%@ \nisFormSubmited=%s",
                        [self class],
-                       [self definitionName],
+                       [self declarationName],
                        elementID,                           
                        senderID,
                        (isFormSubmited ? "YES" : "NO"));
@@ -337,9 +337,9 @@ RCS_ID("$Id$")
               [context _setFormSubmitted:YES];
               multipleSubmitValue=[self evaluateCondition:_multipleSubmit
                                         inContext:context];
-              NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ \n      id=%@ \nsenderId=%@ \nmultipleSubmit=%s",
+              NSDebugMLLog(@"gswdync",@"ET=%@ declarationName=%@ \n      id=%@ \nsenderId=%@ \nmultipleSubmit=%s",
                            [self class],
-                           [self definitionName],
+                           [self declarationName],
                            elementID,                           
                            senderID,
                            (multipleSubmitValue ? "YES" : "NO"));
@@ -360,9 +360,9 @@ RCS_ID("$Id$")
 
           if (isFormSubmited)
             {
-              NSDebugMLLog(@"gswdync",@"ET=%@ defName=%@ \n      id=%@ \nsenderId=%@ \nmultipleSubmit=%s \n[context _wasActionInvoked]=%d",
+              NSDebugMLLog(@"gswdync",@"ET=%@ declarationName=%@ \n      id=%@ \nsenderId=%@ \nmultipleSubmit=%s \n[context _wasActionInvoked]=%d",
                            [self class],
-                           [self definitionName],
+                           [self declarationName],
                            elementID,                           
                            senderID,
                            (multipleSubmitValue ? "YES" : "NO"),
@@ -402,9 +402,9 @@ RCS_ID("$Id$")
 
   if (![context _wasActionInvoked] && [elementID isSearchOverForSenderID:senderID])
     {
-      LOGError(@"Action not invoked at the end of %@ (def name=%@) (id=%@) senderId=%@",
+      LOGError(@"Action not invoked at the end of %@ (declarationName=%@) (id=%@) senderId=%@",
                [self class],
-               [self definitionName],
+               [self declarationName],
                elementID,
                senderID);
     };
