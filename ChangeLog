@@ -1,0 +1,5 @@
+2000-01-23  Manuel Guesdon <mguesdon@sbuilders.com>
+
+        * GSWeb.framework/GSWApplication.m: tests added in GSWApplication _argsDictionaryWithUserDefaults:
+
+	

@@ -873,16 +873,21 @@ int GSWApplicationMain(NSString* _applicationClassName,
   _listenQueueSize=[[self class] listenQueueSize];
   _argsDict=[NSMutableDictionary dictionary];
   [_argsDict addEntriesFromDictionary:[_userDefault dictionaryRepresentation]];
-  [_argsDict setObject:_port
-			 forKey:GSWOPT_Port];
-  [_argsDict setObject:_host
-			 forKey:GSWOPT_Host];
-  [_argsDict setObject:_adaptor
-			 forKey:GSWOPT_Adaptor];
-  [_argsDict setObject:_workerThreadCount
-			 forKey:GSWOPT_WorkerThreadCount];
-  [_argsDict setObject:_listenQueueSize
-			 forKey:GSWOPT_ListenQueueSize];
+  if (_port)
+	[_argsDict setObject:_port
+			   forKey:GSWOPT_Port];
+  if (_host)
+	[_argsDict setObject:_host
+			   forKey:GSWOPT_Host];
+  if (_adaptor)
+	[_argsDict setObject:_adaptor
+			   forKey:GSWOPT_Adaptor];
+  if (_workerThreadCount)
+	[_argsDict setObject:_workerThreadCount
+			   forKey:GSWOPT_WorkerThreadCount];
+  if (_listenQueueSize)
+	[_argsDict setObject:_listenQueueSize
+			   forKey:GSWOPT_ListenQueueSize];
   LOGObjectFnStop();
   return _argsDict;
 };
