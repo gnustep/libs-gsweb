@@ -150,7 +150,9 @@ void GSWConfig_SetConfigFilePath(CONST char* p_pszConfigFilePath)
 	g_gswConfig.pszConfigFilePath=strdup(p_pszConfigFilePath);
   else
 	{
-	  GSWLog(GSW_CRITICAL,NULL,"GSWeb: No path for config file.");
+	  GSWLog(GSW_CRITICAL,NULL,
+			 "GSWeb: No path for config file. Add a %s directive in your web server configuration",
+			 g_szGSWeb_Conf_ConfigFilePath);
 	};
 };
 

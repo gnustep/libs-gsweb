@@ -1,5 +1,6 @@
 2000-07-08  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWAdaptors/Apache/GNUmakefile: added -I/usr/include/apache in APACHEHEADERS
+	* GSWAdaptors/common/GSWConfig.c: added directive name in GSWConfig_SetConfigFilePath errore message
 	
 2000-06-20  Karl Kraft <karl@nfox.com> 
   *  GSWCheckBoxList.m  Added support for the disabled key.
