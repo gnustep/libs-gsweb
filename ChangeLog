@@ -1,3 +1,34 @@
+2003-03-03   Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWSessionTimeOutManager.m:
+		o Better handling of lock during exceptions 
+		(should improve it)
+		o logs
+	* GSWeb/GSWSessionStore.m:
+		o logs
+		o raise exception when a direct GSWSessionStore is allocated
+	* GSWeb/GSWrequest.m:
+		o fixed typo on  contentSubType
+	* GSWeb/GSWDisplayGroup.hm
+		o added _queryMinMatch to enable >= clause
+		o added _queryMaxMatch to enable <= clause
+		o added -queryMinMatch to enable >= clause
+		o added -queryMaxMatch to enable <= clause
+		o declare private methods
+	* GSWeb/GSWDisplayGroup.m:
+		o add NSAutoreleasePool use in -fetch
+	* GSWeb/GSWExtensionsGSW.framework/GSWFileUploadComponent.gswc/GSWFileUploadComponent.gswd
+		o bug fix in GSWHyperlink binding
+	* GSWeb/GSWCheckBoxList.m
+		o settable selections fix
+	* GSWeb/GSWApplication.m:
+		o logs
+	* GSWeb/GSWSessionTimeOut.[hm]
+		o added -lastAccessTimeDate and -timeOutTimeDate
+	* GSWeb/GSWDeployedBundle.m:
+		o add some NSAutoreleasePool use
+	* GSWeb/GSWHyperlink.m:
+		o fix to not display links disabled by !enabled when displayDisabled = NO.
+	
 2003-02-28  David Ayers  <d.ayers@inode.at>
 
 	* GSWAdaptors/Apache/mod_gsweb.c (sendResponse): Add cast.

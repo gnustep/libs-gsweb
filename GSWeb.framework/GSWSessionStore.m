@@ -44,6 +44,7 @@ static const char rcsId[]="$Id$";
       _usedIDs=[NSMutableSet new];
       _lock=[NSRecursiveLock new];
       _timeOutManager=[GSWSessionTimeOutManager new];
+      NSDebugMLLog(@"sessions",@"GSWSessionStore self=%p class=%@",self,[self class]);
       [_timeOutManager setCallBack:@selector(removeSessionWithID:)
                        target:self];
       [_timeOutManager startHandleTimerRefusingSessions];
@@ -72,6 +73,7 @@ static const char rcsId[]="$Id$";
 /** Abstract **/
 -(GSWSession*)removeSessionWithID:(NSString*)aSessionID
 {
+  NSDebugMLLog(@"sessions",@"self=%p class=%@",self,[self class]);
   [self subclassResponsibility: _cmd];
   return nil;
 };
@@ -209,6 +211,7 @@ static const char rcsId[]="$Id$";
             {
               localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                        @"In removeSessionWithID:");
+              NSLog(@"### exception ... %@", [localException reason]);
               LOGException(@"%@ (%@)",localException,[localException reason]);
               [localException raise];
             }
@@ -222,6 +225,7 @@ static const char rcsId[]="$Id$";
             }
           NS_HANDLER
             {
+              NSLog(@"### exception ... %@", [localException reason]);
               localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                        @"In saveSessionForContext:");
               LOGException(@"%@ (%@)",localException,[localException reason]);
@@ -304,6 +308,7 @@ static const char rcsId[]="$Id$";
 {
   LOGObjectFnStart();
   [_usedIDs removeObject:aSessionID];
+  NSDebugMLLog(@"sessions",@"_usedIDs=%@",_usedIDs);
   LOGObjectFnStop();
 };
 
@@ -324,6 +329,7 @@ static const char rcsId[]="$Id$";
   else
     {
       [_usedIDs addObject:aSessionID];
+      NSDebugMLLog(@"sessions",@"_usedIDs=%@",_usedIDs);
     };
   LOGObjectFnStop();
 };
@@ -442,7 +448,14 @@ static const char rcsId[]="$Id$";
 @implementation GSWSessionStore (GSWSessionStoreB)
 -(void)_validateAPI
 {
+  LOGObjectFnStart();
+  if ([self class]==[GSWSessionStore class])
+    {
+      [NSException raise:NSGenericException
+                   format:@"Can't allocate a direct GSWSessionStore instance because some methods need to be implemented by subclasses"];
+    };
   LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
 };
 
 @end

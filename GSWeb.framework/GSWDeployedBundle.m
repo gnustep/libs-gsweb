@@ -294,7 +294,7 @@ static char rcsId[] = "$Id$";
 
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-								  forLanguages:(NSArray*)someLanguages
+                                  forLanguages:(NSArray*)someLanguages
 {
   //OK
   NSString* path=nil;
@@ -365,58 +365,76 @@ static char rcsId[] = "$Id$";
   NSDebugMLLog(@"bundles",@"aName=%@ aDirectory=%@ aLanguage=%@",aName,aDirectory,aLanguage);
   if (aName)
     {
-      NSString* emptyString=[NSString string];
-      NSString* bundlePath=[self bundlePath];
-      NSArray* keys;
-      if ([aDirectory isEqualToString:@"."])
-        aDirectory=nil;
-      if (aLanguage)
-        keys=[NSArray arrayWithObjects:aName,
-                      bundlePath ? bundlePath : emptyString,
-                      aDirectory ? aDirectory : emptyString,
-                      aLanguage ? aLanguage : emptyString,
-                      nil];
-      else
-        keys=[NSArray arrayWithObjects:aName,
-                      bundlePath ? bundlePath : emptyString,
-                      aDirectory ? aDirectory : emptyString,
-                      nil];
-      //NSDebugMLLog(@"bundles",@"_keys=%@",_keys);
-      path=[_relativePathsCache objectForKeysArray:keys];
-      //NSDebugMLLog(@"bundles",@"_path=%@",_path);
-      if (path==GSNotFoundMarker)
-        path=nil;
-      if (!path)
+      NSAutoreleasePool* arp = [NSAutoreleasePool new];
+      NS_DURING
         {
-          //call again _relativePathForResourceNamed:inDirectory:forLanguage:
-          NSString* completePathTest=nil;
-          BOOL exists=NO;
-          NSFileManager* fileManager=nil;
-          NSString* pathTest=[NSString string];
-          if (aDirectory)
-            pathTest=[pathTest stringByAppendingPathComponent:aDirectory];
-          //NSDebugMLLog(@"bundles",@"_pathTest=%@",_pathTest);
+          NSString* emptyString=[NSString string];
+          NSString* bundlePath=[self bundlePath];
+          NSArray* keys;
+          if ([aDirectory isEqualToString:@"."])
+            aDirectory=nil;
           if (aLanguage)
-            pathTest=[pathTest stringByAppendingPathComponent:
-                                 [aLanguage stringByAppendingString:GSLanguagePSuffix]];
-          //NSDebugMLLog(@"bundles",@"pathTest=%@",pathTest);
-          pathTest=[pathTest stringByAppendingPathComponent:aName];
-          NSDebugMLLog(@"bundles",@"pathTest=%@",pathTest);
-          completePathTest=[bundlePath stringByAppendingPathComponent:pathTest];
-          NSDebugMLLog(@"bundles",@"completePathTest=%@",completePathTest);
-          fileManager=[NSFileManager defaultManager];
-          exists=[fileManager fileExistsAtPath:completePathTest];
-          NSDebugMLLog(@"bundles",@"exists=%s",(exists ? "YES" : "NO"));
-          if (exists)
-            {
-              path=pathTest;
-              [_relativePathsCache setObject:path
-                                   forKeysArray:keys];
-            }
+            keys=[NSArray arrayWithObjects:aName,
+                          bundlePath ? bundlePath : emptyString,
+                          aDirectory ? aDirectory : emptyString,
+                          aLanguage ? aLanguage : emptyString,
+                          nil];
           else
-            [_relativePathsCache setObject:GSNotFoundMarker
-                                 forKeysArray:keys];
-        };
+            keys=[NSArray arrayWithObjects:aName,
+                          bundlePath ? bundlePath : emptyString,
+                          aDirectory ? aDirectory : emptyString,
+                          nil];
+          //NSDebugMLLog(@"bundles",@"_keys=%@",_keys);
+          path=[_relativePathsCache objectForKeysArray:keys];
+          //NSDebugMLLog(@"bundles",@"_path=%@",_path);
+          if (path==GSNotFoundMarker)
+            path=nil;
+          if (!path)
+            {
+              //call again _relativePathForResourceNamed:inDirectory:forLanguage:
+              NSString* completePathTest=nil;
+              BOOL exists=NO;
+              NSFileManager* fileManager=nil;
+              NSString* pathTest=[NSString string];
+              if (aDirectory)
+                pathTest=[pathTest stringByAppendingPathComponent:aDirectory];
+              //NSDebugMLLog(@"bundles",@"_pathTest=%@",_pathTest);
+              if (aLanguage)
+                pathTest=[pathTest stringByAppendingPathComponent:
+                                     [aLanguage stringByAppendingString:GSLanguagePSuffix]];
+              //NSDebugMLLog(@"bundles",@"pathTest=%@",pathTest);
+              pathTest=[pathTest stringByAppendingPathComponent:aName];
+              NSDebugMLLog(@"bundles",@"pathTest=%@",pathTest);
+              completePathTest=[bundlePath stringByAppendingPathComponent:pathTest];
+              NSDebugMLLog(@"bundles",@"completePathTest=%@",completePathTest);
+              fileManager=[NSFileManager defaultManager];
+              exists=[fileManager fileExistsAtPath:completePathTest];
+              NSDebugMLLog(@"bundles",@"exists=%s",(exists ? "YES" : "NO"));
+              if (exists)
+                {
+                  path=pathTest;
+                  [_relativePathsCache setObject:path
+                                       forKeysArray:keys];
+                }
+              else
+                [_relativePathsCache setObject:GSNotFoundMarker
+                                     forKeysArray:keys];
+            };
+        }
+      NS_HANDLER
+        {
+          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                   @"lockedCachedRelativePathForResourceNamed:inDirectory:forLanguage:");
+          LOGException(@"%@ (%@)",localException,[localException reason]);
+          RETAIN(localException);
+          DESTROY(arp);
+          AUTORELEASE(localException);
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+      RETAIN(path);
+      DESTROY(arp);
+      AUTORELEASE(path);      
     };
   NSDebugMLLog(@"bundles",@"path=%@",path);
   LOGObjectFnStop();

@@ -272,7 +272,7 @@ static const char rcsId[]="$Id$";
     disabledValue=![self evaluateCondition:_enabled
                          inContext:context];
 
-  if (!WOStrictFlag && _disabled && _displayDisabled)
+  if (!WOStrictFlag && _displayDisabled)
     {
       displayDisabledValue=[self evaluateCondition:_displayDisabled
                                  inContext:context];

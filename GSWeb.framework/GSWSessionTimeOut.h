@@ -55,7 +55,9 @@
 -(NSString*)sessionID;
 -(void)setLastAccessTime:(NSTimeInterval)aTime;
 -(NSTimeInterval)lastAccessTime;
+-(NSDate*)lastAccessTimeDate;
 -(NSTimeInterval)timeOutTime;
+-(NSDate*)timeOutTimeDate;
 @end
 
 

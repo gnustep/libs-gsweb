@@ -1,12 +1,13 @@
 /** GSWSessionTimeOut.m - <title>GSWeb: Class GSWSessionTimeOut</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
 #include "GSWSessionTimeOut.h"
@@ -45,6 +46,8 @@ static char rcsId[] = "$Id$";
       ASSIGN(_sessionID,aSessionID);
       _lastAccessTime=aTime;
       _timeOut=aTimeOutInterval;
+      NSDebugMLog(@"_lastAccessTime=%f",_lastAccessTime);
+      NSDebugMLog(@"_timeOut=%f",_timeOut);
     };
   return self;
 };
@@ -79,8 +82,8 @@ static char rcsId[] = "$Id$";
                    object_get_class_name(self),
                    (void*)self,
                    _sessionID,
-                   [self timeOutTime],
-                   _lastAccessTime,
+                   [self timeOutTimeDate],
+                   [self lastAccessTimeDate],
                    (long)_timeOut];
 };
 
@@ -110,6 +113,7 @@ static char rcsId[] = "$Id$";
 -(void)setSessionTimeOut:(NSTimeInterval)aTimeOutInterval
 {
   _timeOut=aTimeOutInterval;
+  NSDebugMLog(@"_timeOut=%f",_timeOut);
 };
 
 //--------------------------------------------------------------------
@@ -122,6 +126,7 @@ static char rcsId[] = "$Id$";
 -(void)setLastAccessTime:(NSTimeInterval)aTime
 {
   _lastAccessTime=aTime;
+  NSDebugMLog(@"_lastAccessTime=%f",_lastAccessTime);
 };
 
 //--------------------------------------------------------------------
@@ -131,9 +136,21 @@ static char rcsId[] = "$Id$";
 };
 
 //--------------------------------------------------------------------
+-(NSDate*)lastAccessTimeDate
+{
+  return [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime];
+};
+
+//--------------------------------------------------------------------
 -(NSTimeInterval)timeOutTime
 {
   return _lastAccessTime+_timeOut;
+};
+
+//--------------------------------------------------------------------
+-(NSDate*)timeOutTimeDate
+{
+  return [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime+_timeOut];
 };
 
 @end

@@ -1848,6 +1848,7 @@ selfLockn,
 //setSessionStore:
 -(void)setSessionStore:(GSWSessionStore*)sessionStore
 {
+  NSDebugMLog(@"sessionStore %@=%@",[sessionStore class],sessionStore);
   ASSIGN(_sessionStore,sessionStore);
 };
 

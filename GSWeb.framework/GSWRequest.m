@@ -1387,19 +1387,20 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
   else
     {      
       GSMimeDocument* document = [parser mimeDocument];
-      NSArray* content=[document content];
-      NSString* contentSubType=[document contentSubType];
+      NSArray* content=nil;
+      NSString* contentSubtype=nil;
       NSDebugMLog(@"document=%@",document);
+      content=[document content];
       NSDebugMLog(@"contentType=%@",[document contentType]);
-      NSDebugMLog(@"contentSubType=%@",[document contentSubType]);
+      contentSubtype=[document contentSubtype];
+      NSDebugMLog(@"contentSubtype=%@",contentSubtype);
 
-      if ([contentSubType isEqual:@"form-data"])
+      if ([contentSubtype isEqual:@"form-data"])
         {
           NSDebugMLog(@"contentID=%@",[document contentID]);
           NSDebugMLog(@"[document allHeaders]=%@",[document allHeaders]);
-          NSDebugMLog(@"[document content]=%@",[document content]);
-          NSDebugMLog(@"[document content] class=%@",[[document content] class]);
-          NSDebugMLog(@"[document content]=%@",[document content]);
+          NSDebugMLog(@"[document content]=%@",content);
+          NSDebugMLog(@"[document content] class=%@",[content class]);
 
           if (![content isKindOfClass:[NSArray class]])
             {
@@ -1423,7 +1424,7 @@ method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultF
                   aDocContent=[aDoc content];
                   NSDebugMLog(@"aDocContent=%@",aDocContent);
                   NSDebugMLog(@"contentType=%@",[aDoc contentType]);
-                  NSDebugMLog(@"contentSubType=%@",[aDoc contentSubType]);
+                  NSDebugMLog(@"contentSubtype=%@",[aDoc contentSubtype]);
                   NSDebugMLog(@"contentID=%@",[aDoc contentID]);
                   contentDispositionHeader=[aDoc headerNamed:@"content-disposition"];
                   NSDebugMLog(@"contentDispositionHeader=%@",contentDispositionHeader);

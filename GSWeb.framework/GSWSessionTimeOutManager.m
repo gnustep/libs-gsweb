@@ -1,12 +1,13 @@
 /** GSWSessionTimeOutManager.m - <title>GSWeb: Class GSWSessionTimeOutManager</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 		Mar 1999
+   Date: 	Mar 1999
    
    $Revision$
    $Date$
+   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,7 +28,7 @@
    </license>
 **/
 
-static char rcsId[] = "$Id$";
+static const char rcsId[] = "$Id$";
 
 #include "GSWeb.h"
 #include "GSWSessionTimeOut.h"
@@ -40,10 +41,13 @@ static char rcsId[] = "$Id$";
   if ((self=[super init]))
     {
       _sessionOrderedTimeOuts=[NSMutableArray new];
+      NSDebugMLLog(@"sessions",@"INIT self=%p",self);
+      NSDebugMLLog(@"sessions",@"self=%p _sessionOrderedTimeOuts %p=%@",
+                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
       _sessionTimeOuts=[NSMutableDictionary new];
       //	  selfLock=[NSRecursiveLock new];
       _selfLock=[NSLock new];
-	};
+    };
   return self;
 };
 
@@ -63,8 +67,11 @@ static char rcsId[] = "$Id$";
                              timeOut:(NSTimeInterval)timeOut
 {
   //OK
+  BOOL selfLocked=NO;
+  BOOL targetLocked=NO;
   LOGObjectFnStart();
   [self lock];
+  selfLocked=YES;  
   NS_DURING
     {
       NSTimer* timer=nil;
@@ -72,7 +79,8 @@ static char rcsId[] = "$Id$";
       NSDebugMLLog(@"sessions",@"timeOut=%ld",(long)timeOut);
       sessionTimeOut=[_sessionTimeOuts objectForKey:sessionID];
       NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",sessionTimeOut);
-      NSDebugMLLog(@"sessions",@"_sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+      NSDebugMLLog(@"sessions",@"self=%p _sessionOrderedTimeOuts %p=%@",
+                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
       if (sessionTimeOut)
         {
           [sessionTimeOut retain];
@@ -92,7 +100,8 @@ static char rcsId[] = "$Id$";
                             forKey:sessionID];
           [_sessionOrderedTimeOuts addObject:sessionTimeOut];
         };
-      NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+      NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
       NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",sessionTimeOut);
       timer=[self resetTimer];
       NSDebugMLLog(@"sessions",@"timer=%@",timer);
@@ -100,6 +109,7 @@ static char rcsId[] = "$Id$";
         {
           [GSWApplication logWithFormat:@"lock Target..."];
           [_target lock];
+          targetLocked=YES;
           NS_DURING
             {
               [self addTimer:timer];
@@ -110,14 +120,26 @@ static char rcsId[] = "$Id$";
               LOGException(@"%@ (%@)",localException,[localException reason]);
               NSLog(@"### exception ... %@", [localException reason]);
               //TODO
-              [_target unlock];
-              [self unlock];
+              if (targetLocked)
+                {
+                  [_target unlock];
+                  targetLocked=NO;
+                };
+              if (selfLocked)
+                {
+                  [self unlock];
+                  selfLocked=NO;
+                };
               [localException raise];
             }
           NS_ENDHANDLER;
           
           [GSWApplication logWithFormat:@"unlock Target..."];
-          [_target unlock];
+          if (targetLocked)
+            {
+              [_target unlock];
+              targetLocked=NO;
+            };
         };
     }
   NS_HANDLER
@@ -125,11 +147,19 @@ static char rcsId[] = "$Id$";
       NSLog(@"### exception ... %@", [localException reason]);
       LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
-      [self unlock];
+      if (selfLocked)
+        {
+          [self unlock];
+          selfLocked=NO;
+        };
       [localException raise];
     }
   NS_ENDHANDLER;
-  [self unlock];
+  if (selfLocked)
+    {
+      [self unlock];
+      selfLocked=NO;
+    };
   LOGObjectFnStop();
 };
 
@@ -137,13 +167,18 @@ static char rcsId[] = "$Id$";
 -(void)handleTimer:(id)aTimer
 {
   //OK
+  BOOL requestHandlingLocked=NO;
+  BOOL selfLocked=NO;
+  BOOL targetLocked=NO;
   [GSWApplication statusLogWithFormat:@"Start HandleTimer"];
   NSDebugMLog(@"Start HandleTimer");
 //  LOGObjectFnStart();
   [GSWApp lockRequestHandling];
+  requestHandlingLocked=YES;
   NS_DURING
     {
       [self lock];
+      selfLocked=YES;
       NS_DURING
         {
           NSEnumerator *sessionTimeOutEnum = nil;
@@ -156,6 +191,10 @@ static char rcsId[] = "$Id$";
   if ([sessionOrderedTimeOuts count]>0)
   _sessionTimeOut=[sessionOrderedTimeOuts objectAtIndex:0];
 */
+          NSDebugMLLog(@"sessions",@"self=%p aTimer=%p",self,aTimer);
+          NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                       self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
+          NSDebugMLLog(@"sessions",@"now=%f",now);
 		
           sessionTimeOutEnum = [_sessionOrderedTimeOuts objectEnumerator];
 
@@ -166,34 +205,46 @@ static char rcsId[] = "$Id$";
                 {
                   id session=nil;
                   [_target lock];
+                  targetLocked=YES;
                   NS_DURING
                     {
+                      NSDebugMLLog(@"sessions",@"[sessionTimeOut sessionID]=%@",[sessionTimeOut sessionID]);
+                      NSDebugMLLog(@"sessions",@"target [%@]=%@",[_target class],_target);
+                      NSDebugMLLog(@"sessions",@"_callback=%@",NSStringFromSelector(_callback));
                       session=[_target performSelector:_callback
                                        withObject:[sessionTimeOut sessionID]];
                       NSDebugMLLog(@"sessions",@"session=%@",session);
                     }
                   NS_HANDLER
                     {
+                      NSLog(@"### exception ... %@", [localException reason]);
                       LOGException(@"%@ (%@)",localException,[localException reason]);
-                      //TODO
+                      //TODO                      
                       [_target unlock];
+                      targetLocked=NO;
                       
                       timer=[self resetTimer];
                       if (timer)
                         [self addTimer:timer];
                       
                       [self unlock];
+                      selfLocked=NO;
                       [GSWApp unlockRequestHandling];
+                      requestHandlingLocked=NO;
                       [localException raise];
                     }
                   NS_ENDHANDLER;
                   [_target unlock];
+                  targetLocked=NO;
 
+                  NSDebugMLLog(@"sessions",@"session=%@",session);
                   if (session)
                     {
-                      NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+                      NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
                       [session terminate];
-                      NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+                      NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
 
                       NSLog(@"GSWSessionTimeOutMananger : removeObject = %@", sessionTimeOut);
 
@@ -201,7 +252,8 @@ static char rcsId[] = "$Id$";
                       [_sessionOrderedTimeOuts removeObject:sessionTimeOut];
                       [_sessionTimeOuts removeObjectForKey:[session sessionID]];
 
-                      NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+                      NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
                       removedNb++;
                       /*
                         if ([sessionOrderedTimeOuts count]>0)
@@ -223,24 +275,45 @@ static char rcsId[] = "$Id$";
         {
           LOGException(@"%@ (%@)",localException,[localException reason]);
           //TODO
-          [self unlock];
-          [GSWApp unlockRequestHandling];
+          if (selfLocked)
+            {
+              [self unlock];
+              selfLocked=NO;
+            };
+          if (requestHandlingLocked)
+            {
+              [GSWApp unlockRequestHandling];
+              requestHandlingLocked=NO;
+            };
           [localException raise];
         };
       NS_ENDHANDLER;
-      NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
-      [self unlock];
+      NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
+      if (selfLocked)
+        {
+          [self unlock];
+          selfLocked=NO;
+        };
     }
   NS_HANDLER
     {
       LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
-      [GSWApp unlockRequestHandling];
+      if (requestHandlingLocked)
+        {
+          [GSWApp unlockRequestHandling];
+          requestHandlingLocked=NO;
+        };
       [localException raise];
     };
   NS_ENDHANDLER;
-  [GSWApp unlockRequestHandling];
-//  LOGObjectFnStop();
+  if (requestHandlingLocked)
+    {
+      [GSWApp unlockRequestHandling];
+      requestHandlingLocked=NO;
+    };
+  //  LOGObjectFnStop();
   [GSWApplication statusLogWithFormat:@"Stop HandleTimer"];
   NSDebugMLog(@"Stop HandleTimer");
 };
@@ -257,7 +330,8 @@ static char rcsId[] = "$Id$";
       NSTimeInterval now=[NSDate timeIntervalSinceReferenceDate];
       NSTimeInterval timerFireTimeInterval=[[_timer fireDate]timeIntervalSinceReferenceDate];
 
-      NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+      NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
       if ([_sessionOrderedTimeOuts count]>0)
         {
           NSEnumerator* sessionOrderedTimeOutsEnum = [_sessionOrderedTimeOuts objectEnumerator];
@@ -312,6 +386,8 @@ static char rcsId[] = "$Id$";
   [timer invalidate];
 */
               ASSIGN(_timer,newTimer);
+              NSDebugMLLog(@"sessions",@"old timer=%@",_timer);
+              NSDebugMLLog(@"sessions",@"new timer=%@",newTimer);
             };
         }
       else
@@ -319,6 +395,7 @@ static char rcsId[] = "$Id$";
     }
   NS_HANDLER
     {
+      NSLog(@"%@ (%@)",localException,[localException reason]);
       LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       //	  [self unlock];
@@ -351,8 +428,12 @@ static char rcsId[] = "$Id$";
             target:(id)target
 {
   //OK
+  LOGObjectFnStart();
+  NSDebugMLLog(@"sessions",@"target [%@]=%@",[target class],target);
+  NSDebugMLLog(@"sessions",@"callback=%@",NSStringFromSelector(callback));
   _target=target; //Do not retain !
   _callback=callback;
+  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -445,6 +526,9 @@ static char rcsId[] = "$Id$";
           GSWApplication* ourApp = [GSWApplication application];
           NSTimer *timer=nil;
 
+          NSDebugMLLog(@"sessions",@"aTimer=%p",aTimer);
+          NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                       self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
           if (ourApp && [ourApp isRefusingNewSessions] && ([_sessionOrderedTimeOuts count] <= [ourApp minimumActiveSessionsCount])) 
             {              
               // okay , soft-shutdown for all avtive sessions
@@ -460,12 +544,14 @@ static char rcsId[] = "$Id$";
                       [_target lock];
                       NS_DURING
                         {
+                          NSDebugMLLog(@"sessions",@"[sessionTimeOut sessionID]=%@",[sessionTimeOut sessionID]);
                           session=[_target performSelector:_callback
                                            withObject:[sessionTimeOut sessionID]];
                           NSDebugMLLog(@"sessions",@"session=%@",session);
                         }
                       NS_HANDLER
                         {
+                          NSLog(@"### exception ... %@", [localException reason]);
                           LOGException(@"%@ (%@)",localException,[localException reason]);
                           //TODO
                           [_target unlock];
@@ -484,16 +570,19 @@ static char rcsId[] = "$Id$";
 
                       if (session)
                         {
-                          NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+                          NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                                       self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
                           [session terminate];	// ???
-                          NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+                          NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                                       self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
 
                           NSLog(@"GSWSessionTimeOutMananger : removeObject = %@", sessionTimeOut);
 
                           [_sessionOrderedTimeOuts removeObject:sessionTimeOut];
                           [_sessionTimeOuts removeObjectForKey:[session sessionID]];
 
-                          NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+                          NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                                       self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
                         }
                     }
                 }
@@ -527,7 +616,8 @@ static char rcsId[] = "$Id$";
           [localException raise];
         };
       NS_ENDHANDLER;
-      NSDebugMLLog(@"sessions",@"sessionOrderedTimeOuts=%@",_sessionOrderedTimeOuts);
+      NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
+                   self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
       [self unlock];
     }
   NS_HANDLER

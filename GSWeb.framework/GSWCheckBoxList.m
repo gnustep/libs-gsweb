@@ -120,9 +120,9 @@ Bindings
       _selections = [[associations objectForKey:selections__Key
                                    withDefaultObject:[_selections autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"selections=%@",_selections);
-      if (![_selections isValueSettable])
+      if (_selections && ![_selections isValueSettable])
         {
-          ExceptionRaise0(@"GSWCheckBoxList",@"'selection' parameter must be settable");
+          ExceptionRaise0(@"GSWCheckBoxList",@"'selections' parameter must be settable");
         };
       
       if (!WOStrictFlag)

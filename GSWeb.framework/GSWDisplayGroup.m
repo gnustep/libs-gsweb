@@ -1,6 +1,6 @@
 /** GSWDisplayGroup.m - <title>GSWeb: Class GSWDisplayGroup</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2003 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
                 Mirko Viviani <mirko.viviani@rccr.cremona.it>
@@ -29,8 +29,28 @@
    </license>
 **/
 
+static const char rcsId[]="$Id$";
+
 #include "GSWeb.h"
 @class EOUndoManager;
+
+#if GDL2 // GDL2 implementation
+
+//====================================================================
+@interface GSWDisplayGroup (Private)
+-(void)finishInitialization;
+-(void)_setUpForNewDataSource;
+-(void)_presentAlertWithTitle:(id)title
+                      message:(id)msg;
+-(void)_addQualifiersToArray:(NSMutableArray*)array
+                   forValues:(NSDictionary*)values
+            operatorSelector:(SEL)sel;
+-(EOQualifier*)_qualifierForKey:(id)key
+                          value:(id)value
+               operatorSelector:(SEL)sel;
+@end
+
+#endif
 
 //====================================================================
 @implementation GSWDisplayGroup
@@ -50,7 +70,9 @@
 
       _queryMatch    = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMin      = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryMinMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
       _queryMax      = [[NSMutableDictionary alloc] initWithCapacity:8];
+      _queryMaxMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
       NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
       _queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
       NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
@@ -173,8 +195,12 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
                _queryMatch];
   dscr=[dscr stringByAppendingFormat:@"queryMin:[%@]\n",
                _queryMin];
+  dscr=[dscr stringByAppendingFormat:@"queryMin:[%@]\n",
+               _queryMinMatch];
   dscr=[dscr stringByAppendingFormat:@"queryMax:[%@]\n",
                _queryMax];
+  dscr=[dscr stringByAppendingFormat:@"queryMax:[%@]\n",
+               _queryMaxMatch];
   dscr=[dscr stringByAppendingFormat:@"queryOperator:[%@]\n",
                _queryOperator];
   dscr=[dscr stringByAppendingFormat:@"defaultStringMatchOperator:[%@]\n",
@@ -203,118 +229,11 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 };
 
 
--(void)finishInitialization
-{
-  LOGObjectFnStart();
-  [self _setUpForNewDataSource];
-  //Finished ?
-
-  LOGObjectFnStop();
-};
-
--(void)_setUpForNewDataSource
-{
-  LOGObjectFnStart();
-  // call [_dataSource editingContext];
-  //Finished ?
-  LOGObjectFnStop();
-};
-	
 -(void)encodeWithKeyValueArchiver:(id)object_
 {
   LOGObjectFnStart();
   LOGObjectFnNotImplemented();	//TODOFN
   LOGObjectFnStop();
-};
-
--(void)_presentAlertWithTitle:(id)title
-                      message:(id)msg
-{
-  LOGObjectFnStart();
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
-};
-
--(void)_addQualifiersToArray:(NSMutableArray*)array
-                   forValues:(NSDictionary*)values
-            operatorSelector:(SEL)sel
-{
-  //OK
-  NSEnumerator *enumerator=nil;
-  NSString *key=nil;
-  NSString *op=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
-  NSDebugMLLog(@"gswdisplaygroup",@"values=%@",values);
-  NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
-               (void*)sel,
-               NSStringFromSelector(sel));
-  enumerator = [values keyEnumerator];
-  while((key = [enumerator nextObject]))
-    {
-      EOQualifier* qualifier=nil;
-      id value=[values objectForKey:key];
-      NSDebugMLLog(@"gswdisplaygroup",@"key=%@ value=%@",key,value);
-      qualifier=[self _qualifierForKey:key
-                      value:value
-                      operatorSelector:sel];
-      NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
-      if (qualifier)
-        [array addObject:qualifier];
-    };
-  NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
-  LOGObjectFnStop();
-};
-
--(EOQualifier*)_qualifierForKey:(id)key
-                          value:(id)value
-               operatorSelector:(SEL)sel
-{
-  //near OK (see VERIFY)
-  EOClassDescription* cd=nil;
-  EOQualifier* qualifier=nil;
-  NSException* validateException=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdisplaygroup",@"value=%@",value);
-  NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
-               (void*)sel,
-               NSStringFromSelector(sel));
-  cd=[_dataSource classDescriptionForObjects];// //ret [EOEntityClassDescription]: <EOEntityClassDescription: 0x1a3c7b0>
-  validateException=[cd validateValue:value
-                        forKey:key];
-  NSDebugMLLog(@"gswdisplaygroup",@"validateException=%@",validateException);
-  if (validateException)
-    {
-      [validateException raise]; //VERIFY
-    }
-  else
-    {
-      NSString* op=nil;
-      NSString* fvalue=value;
-      
-      //VERIFY!!
-      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
-      op = [_queryOperator objectForKey:key];
-      NSDebugMLLog(@"gswdisplaygroup",@"op=%@",op);
-      if(op)
-	sel = [EOQualifier operatorSelectorForString:op];
-      NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
-                   (void*)sel,
-                   NSStringFromSelector(sel));
-
-      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
-
-      if (_defaultStringMatchFormat)
-        fvalue=[NSString stringWithFormat:_defaultStringMatchFormat,
-                         value];//VERIFY !!!      
-      NSDebugMLLog(@"gswdisplaygroup",@"fvalue=%@",fvalue);
-      qualifier=[[[EOKeyValueQualifier alloc]
-                   initWithKey:key
-                   operatorSelector:sel
-                   value:fvalue] autorelease];
-    };
-  NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
-  return qualifier;
 };
 
 -(BOOL)_deleteObjectsAtIndexes:(id)indexes
@@ -486,7 +405,9 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
   DESTROY(_queryMatch);
   DESTROY(_queryMin);
+  DESTROY(_queryMinMatch);
   DESTROY(_queryMax);
+  DESTROY(_queryMaxMatch);
   DESTROY(_queryOperator);
 
   DESTROY(_defaultStringMatchOperator);
@@ -949,8 +870,23 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
     {
       NSArray *objects=nil;
 
-      objects = [_dataSource fetchObjects];
-      [self setObjectArray:objects];//OK
+      NSAutoreleasePool* arp = [NSAutoreleasePool new];
+      NS_DURING //for trace purpose
+        {
+          objects = [_dataSource fetchObjects];
+          [self setObjectArray:objects];//OK
+        }
+      NS_HANDLER
+        {
+          NSLog(@"%@ (%@)",localException,[localException reason]);
+          LOGException(@"%@ (%@)",localException,[localException reason]);
+          RETAIN(localException);
+          DESTROY(arp);
+          AUTORELEASE(localException);
+          [localException raise];
+        }
+      NS_ENDHANDLER;
+      DESTROY(arp);
       [self _notify:@selector(displayGroup:didFetchObjects:)
             with:self
             with:_allObjects];
@@ -1244,6 +1180,14 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
   LOGObjectFnStart();
   NSDebugMLLog(@"gswdisplaygroup",@"_queryMatch=%@",
                _queryMatch);
+  NSDebugMLLog(@"gswdisplaygroup",@"_queryMin=%@",
+               _queryMin);
+  NSDebugMLLog(@"gswdisplaygroup",@"_queryMax=%@",
+               _queryMax);
+  NSDebugMLLog(@"gswdisplaygroup",@"_queryMinMatch=%@",
+               _queryMinMatch);
+  NSDebugMLLog(@"gswdisplaygroup",@"_queryMaxMatch=%@",
+               _queryMaxMatch);
   NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@ EOQualifier sel:%p",
                _defaultStringMatchOperator,
                (void*)[EOQualifier operatorSelectorForString:_defaultStringMatchOperator]);
@@ -1252,10 +1196,16 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 
   [self _addQualifiersToArray:array
         forValues:_queryMax
-        operatorSelector:EOQualifierOperatorLessThan];//LessThan ??
+        operatorSelector:EOQualifierOperatorLessThan];
+  [self _addQualifiersToArray:array
+        forValues:_queryMaxMatch
+        operatorSelector:EOQualifierOperatorLessThanOrEqualTo];
   [self _addQualifiersToArray:array
         forValues:_queryMin
-        operatorSelector:EOQualifierOperatorGreaterThan];//GreaterThan ??
+        operatorSelector:EOQualifierOperatorGreaterThan];
+  [self _addQualifiersToArray:array
+        forValues:_queryMinMatch
+        operatorSelector:EOQualifierOperatorGreaterThanOrEqualTo];
 
   NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchOperator=%@ EOQualifier sel:%p",
                _defaultStringMatchOperator,
@@ -1348,11 +1298,27 @@ Description: <EOKeyValueUnarchiver: 0x1a84d20>
 }
 
 //--------------------------------------------------------------------
+//	queryMaxMatch
+
+- (NSMutableDictionary *)queryMaxMatch
+{
+  return _queryMaxMatch;
+}
+
+//--------------------------------------------------------------------
 //	queryMin
 
 - (NSMutableDictionary *)queryMin
 {
   return _queryMin;
+}
+
+//--------------------------------------------------------------------
+//	queryMinMatch
+
+- (NSMutableDictionary *)queryMinMatch
+{
+  return _queryMinMatch;
 }
 
 //--------------------------------------------------------------------
@@ -2112,3 +2078,116 @@ STOP ?
 #endif
 
 @end
+
+#if GDL2 // GDL2 implementation
+//====================================================================
+@implementation GSWDisplayGroup (Private)
+-(void)finishInitialization
+{
+  LOGObjectFnStart();
+  [self _setUpForNewDataSource];
+  //Finished ?
+
+  LOGObjectFnStop();
+};
+
+-(void)_setUpForNewDataSource
+{
+  LOGObjectFnStart();
+  // call [_dataSource editingContext];
+  //Finished ?
+  LOGObjectFnStop();
+};
+
+-(void)_presentAlertWithTitle:(id)title
+                      message:(id)msg
+{
+  LOGObjectFnStart();
+  LOGObjectFnNotImplemented();	//TODOFN
+  LOGObjectFnStop();
+};
+
+-(void)_addQualifiersToArray:(NSMutableArray*)array
+                   forValues:(NSDictionary*)values
+            operatorSelector:(SEL)sel
+{
+  //OK
+  NSEnumerator *enumerator=nil;
+  NSString *key=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
+  NSDebugMLLog(@"gswdisplaygroup",@"values=%@",values);
+  NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+               (void*)sel,
+               NSStringFromSelector(sel));
+  enumerator = [values keyEnumerator];
+  while((key = [enumerator nextObject]))
+    {
+      EOQualifier* qualifier=nil;
+      id value=[values objectForKey:key];
+      NSDebugMLLog(@"gswdisplaygroup",@"key=%@ value=%@",key,value);
+      qualifier=[self _qualifierForKey:key
+                      value:value
+                      operatorSelector:sel];
+      NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+      if (qualifier)
+        [array addObject:qualifier];
+    };
+  NSDebugMLLog(@"gswdisplaygroup",@"array=%@",array);
+  LOGObjectFnStop();
+};
+
+-(EOQualifier*)_qualifierForKey:(id)key
+                          value:(id)value
+               operatorSelector:(SEL)sel
+{
+  //near OK (see VERIFY)
+  EOClassDescription* cd=nil;
+  EOQualifier* qualifier=nil;
+  NSException* validateException=nil;
+  LOGObjectFnStart();
+  NSDebugMLLog(@"gswdisplaygroup",@"value=%@",value);
+  NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+               (void*)sel,
+               NSStringFromSelector(sel));
+  cd=[_dataSource classDescriptionForObjects];// //ret [EOEntityClassDescription]: <EOEntityClassDescription: 0x1a3c7b0>
+  validateException=[cd validateValue:value
+                        forKey:key];
+  NSDebugMLLog(@"gswdisplaygroup",@"validateException=%@",validateException);
+  if (validateException)
+    {
+      [validateException raise]; //VERIFY
+    }
+  else
+    {
+      NSString* op=nil;
+      NSString* fvalue=value;
+      
+      //VERIFY!!
+      NSDebugMLLog(@"gswdisplaygroup",@"_queryOperator=%@",_queryOperator);
+      op = [_queryOperator objectForKey:key];
+      NSDebugMLLog(@"gswdisplaygroup",@"op=%@",op);
+      if(op)
+	sel = [EOQualifier operatorSelectorForString:op];
+      NSDebugMLLog(@"gswdisplaygroup",@"operatorSelector=%p: %@",
+                   (void*)sel,
+                   NSStringFromSelector(sel));
+
+      NSDebugMLLog(@"gswdisplaygroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
+
+      if (_defaultStringMatchFormat)
+        fvalue=[NSString stringWithFormat:_defaultStringMatchFormat,
+                         value];//VERIFY !!!      
+      NSDebugMLLog(@"gswdisplaygroup",@"fvalue=%@",fvalue);
+      qualifier=[[[EOKeyValueQualifier alloc]
+                   initWithKey:key
+                   operatorSelector:sel
+                   value:fvalue] autorelease];
+    };
+  NSDebugMLLog(@"gswdisplaygroup",@"qualifier=%@",qualifier);
+  return qualifier;
+};
+	
+@end
+
+#endif

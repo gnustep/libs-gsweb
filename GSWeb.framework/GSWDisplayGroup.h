@@ -93,7 +93,9 @@
   NSMutableArray* _savedAllObjects;
   NSMutableDictionary* _queryMatch;
   NSMutableDictionary* _queryMin;
+  NSMutableDictionary* _queryMinMatch;
   NSMutableDictionary*_queryMax;
+  NSMutableDictionary*_queryMaxMatch;
   NSMutableDictionary*_queryOperator;
   NSString* _defaultStringMatchOperator;
   NSString* _defaultStringMatchFormat;
@@ -180,7 +182,9 @@
 - (NSMutableDictionary*)queryBindings;
 - (NSMutableDictionary*)queryMatch;
 - (NSMutableDictionary*)queryMax;
+- (NSMutableDictionary*)queryMaxMatch;
 - (NSMutableDictionary*)queryMin;
+- (NSMutableDictionary*)queryMinMatch;
 - (NSMutableDictionary*)queryOperator;
 - (void)redisplay;
 - (NSArray *)relationalQualifierOperators;
