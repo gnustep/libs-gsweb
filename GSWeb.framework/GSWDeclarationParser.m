@@ -585,7 +585,19 @@ Returns a NSString
             };
           break;
         };
-    };
+    } 
+  else if (_uniBuf[_index]=='t' || _uniBuf[_index]=='f')  // true/false
+	{
+	  if (((_uniBuf[(_index)]=='t') && (_uniBuf[(_index)+1]=='r')) && 
+		  ((_uniBuf[(_index)+2]=='u') && (_uniBuf[(_index)+3]=='e'))) {
+		  value=[NSNumber numberWithBool:YES];
+		  _index+=4;
+	  } else if ((((_uniBuf[(_index)]=='f') && (_uniBuf[(_index)+1]=='a')) && 
+				 ((_uniBuf[(_index)+2]=='l') && (_uniBuf[(_index)+3]=='s'))) && (_uniBuf[(_index)+3]=='e')) {
+		  value=[NSNumber numberWithBool:NO];
+		  _index+=5;
+	  }
+	}
   NSDebugMLog(@"value=%@",value);
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);  
   return value;
