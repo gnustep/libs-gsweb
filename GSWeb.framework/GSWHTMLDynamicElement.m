@@ -115,8 +115,10 @@ attributeAssociations:(NSDictionary*)attributeAssociations
                            length:1];
               associationValue=[NSString stringWithFormat:@"%@",associationValue];
               // Parser remove "";
-              if ([associationValue hasPrefix:@"\""])
+              if (![associationValue hasPrefix:@"\""])
                 associationValue=[NSString stringWithFormat:@"\"%@\"",associationValue];
+              NSDebugMLLog(@"gswdync",@"'associationValue'='%@'",
+                           associationValue);
               [htmlBareStrings addObject:associationValue];
               [elementsMap appendBytes:&ElementsMap_htmlBareString
                            length:1];
