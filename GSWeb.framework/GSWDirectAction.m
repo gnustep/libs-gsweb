@@ -1,6 +1,6 @@
 /** GSWDirectAction.m - <title>GSWeb: Class GSWDirectAction</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
@@ -57,7 +57,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id <GSWActionResults>)performActionNamed:(NSString*)actionName
 {
-  //OK
   id<GSWActionResults> actionResult=nil;
   SEL actionSel=NULL;
   LOGObjectFnStart();
@@ -65,9 +64,9 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"requests",@"actionSel=%p",(void*)actionSel);
   if (!actionSel)
     {
-      //TODO exception
-      LOGError(@"No selector for action: %@ (%@Action)",actionName,actionName);//TODO
-      actionResult=[self defaultAction];//No ??
+      [NSException raise:NSInvalidArgumentException 
+                   format:@"No such method: %@ in class named %@.",
+                   actionName,[self className]];
     }
   else
     {
@@ -119,6 +118,7 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWDirectAction (GSWTakeValuesConvenience)
 
+//--------------------------------------------------------------------
 //NDFN: return additional path elements
 -(NSArray*)additionalRequestPathArray
 {
