@@ -59,7 +59,6 @@
 #include <Foundation/NSURL.h>
 #include <Foundation/NSThread.h>
 #include <Foundation/NSConcreteNumber.h>
-#include <Foundation/NSGArray.h>
 #include <Foundation/NSFormatter.h>
 #include <Foundation/GSXML.h>
 #include "GSCache.h"
