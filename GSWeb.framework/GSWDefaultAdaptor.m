@@ -31,7 +31,8 @@
 static char rcsId[] = "$Id$";
 
 #include <GSWeb/GSWeb.h>
-#include <gnustep/base/UnixFileHandle.h>
+//#include <gnustep/base/UnixFileHandle.h>
+#include <gnustep/base/GSFileHandle.h>
 #if HAVE_LIBWRAP
 #include <tcpd.h>
 #include <syslog.h>
