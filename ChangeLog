@@ -1,3 +1,47 @@
+2004-02-17  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication.m
+	(GSWApplicationMainReal): Reformat.  Use GSCurrentThread instead
+	of objc_thread_id. Remove \n in NSLog type logs.
+	(GSWApplicationMain): Ditto.
+	([GSWApplication init], [GSWApplication lockRequestHandling],
+	[GSWApplication unlockRequestHandling], [GSWApplication lock],
+	[GSWApplication unlock], [GSWApplication _sessionClass],
+	[GSWApplication run], 
+	[GSWApplication addDynCreateClassName:superClassName:],
+	[GSWApplication pageWithName:],
+	[GSWApplication dynamicElementWithName:associations:template:]):
+	Ditto.
+	* GSWeb.framework/GSWComponent.m
+	([GSWComponent appendToResponse:inContext:], [GSWComponent
+	templateWithHTMLString:declarationString:languages:]): Ditto.
+	* GSWeb.framework/GSWContext.m
+	([GSWContext dealloc], [GSWContext setValidate:]): Ditto.
+	* GSWeb.framework/GSWDebug.m
+	(GSWLogC_, GSWLogDumpObjectFn): Ditto.
+	* GSWeb.framework/GSWDefaultAdaptor.m
+	([GSWDefaultAdaptor registerForEvents],
+	[GSWDefaultAdaptor announceNewConnection:],
+	[GSWDefaultAdaptor adaptorThreadExited:],
+	[GSWDefaultAdaptor tryLock]): Ditto.
+	* GSWeb.framework/GSWDefaultAdaptorThread.m
+	([GSWDefaultAdaptorThread setPool:destroyLast:],
+	[GSWDefaultAdaptorThread run:],
+	[GSWDefaultAdaptorThread threadExited],
+	[GSWDefaultAdaptorThread isExpired],
+	[GSWDefaultAdaptorThread sendRetryLasterResponseToStream:],
+	[GSWDefaultAdaptorThread
+	sendConnectionRefusedResponseToStream:withMessage:]): Ditto.
+	* GSWeb.framework/GSWDeployedBundle.m
+	([GSWDeployedBundle initWithPath:], [GSWDeployedBundle dealloc],
+	[GSWDeployedBundle lock], [GSWDeployedBundle unlock]): Ditto.
+	* GSWeb.framework/GSWLifebeatThread.m
+	([GSWLifebeatThread setPool:destroyLast:],
+	[GSWLifebeatThread threadExited]): Ditto.
+	* GSWeb.framework/GSWSession.m
+	([GSWSession initWithCoder:],
+	[GSWSession _releaseAutoreleasePool]): Ditto.
+
 2004-02-16  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWUtils.h/m

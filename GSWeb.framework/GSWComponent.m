@@ -1116,8 +1116,10 @@ associationsKeys:(NSArray*)associationsKeys
 
 #ifndef NDEBUG
   if(GSDebugSet(@"gswcomponents") == YES)
-    [aResponse appendDebugCommentContentString:[NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
-                                                         [self _templateName],[aContext elementID]]];//TODO enlever
+    [aResponse appendDebugCommentContentString:
+		 [NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
+			   [self _templateName],
+			   [aContext elementID]]];//TODO enlever
 #endif
   GSWAssertIsElementID(aContext);
   LOGObjectFnStop();
@@ -1925,7 +1927,7 @@ associationsKeys:(NSArray*)associationsKeys
                            languages:(NSArray*)languages
 {
   GSWElement* rootElement=nil;
-  NSDebugMLog0(@"Begin GSWComponent:templateWithHTMLString...\n");
+  NSDebugMLog0(@"Begin GSWComponent:templateWithHTMLString...");
   rootElement=[GSWTemplateParser templateWithHTMLString:htmlString
                                  declarationString:pageDefString
                                  languages:languages];

@@ -37,6 +37,7 @@ RCS_ID("$Id$")
 #include <unistd.h>
 #include "GSWeb.h"
 #include "GSWLifebeatThread.h"
+#include <GNUstepBase/GSCategories.h>
 
 //====================================================================
 @implementation GSWLifebeatThread
@@ -141,10 +142,11 @@ RCS_ID("$Id$")
 {
   if (destroy)
     {
-      GSWLogMemC("dealloc pool\n");
-      GSWLogMemCF("Destroy NSAutoreleasePool: %p. ThreadID=%p",_pool,(void*)objc_thread_id());
+      GSWLogMemC("dealloc pool");
+      GSWLogMemCF("Destroy NSAutoreleasePool: %p. %@",
+		  _pool, GSCurrentThread());
       DESTROY(_pool);
-      GSWLogMemC("end dealloc pool\n");
+      GSWLogMemC("end dealloc pool");
     };
   _pool=pool;
 };
@@ -206,7 +208,7 @@ RCS_ID("$Id$")
   [self setPool:nil
         destroyLast:YES];
 //  LOGObjectFnStop();
-  GSWLogDeepC("threadExited\n");
+  GSWLogDeepC("threadExited");
 };
 /*
 //TODO

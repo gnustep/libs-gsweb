@@ -105,7 +105,8 @@ int allow_severity = LOG_INFO;
 //--------------------------------------------------------------------
 -(void)registerForEvents
 {
-  NSDebugDeepMLog(@"START registerForEvents - ThreadID=%p",(void*)objc_thread_id());
+  NSDebugDeepMLog(@"START registerForEvents - %@",
+		  GSCurrentThread());
   NSAssert(!_fileHandle,@"fileHandle already exists");
   NSDebugDeepMLLog(@"info",@"registerForEvents port=%d",_port);
   NSDebugDeepMLLog(@"info",@"registerForEvents host=%@",_host);
@@ -116,7 +117,7 @@ int allow_severity = LOG_INFO;
   _fileHandle=[[NSFileHandle fileHandleAsServerAtAddress:_host
 			    service:[NSString stringWithFormat:@"%d",_port]
 			    protocol:@"tcp"] retain];
-  NSDebugDeepMLLog(@"info",@"fileHandle=%p\n",(void*)_fileHandle);
+  NSDebugDeepMLLog(@"info",@"fileHandle=%p",(void*)_fileHandle);
   [[NSNotificationCenter defaultCenter] addObserver:self
 					selector: @selector(announceNewConnection:)
 					name: NSFileHandleConnectionAcceptedNotification
@@ -127,9 +128,11 @@ int allow_severity = LOG_INFO;
     object:fileHandle];
 */
   [_fileHandle acceptConnectionInBackgroundAndNotify];
-  NSDebugDeepMLog(@"ThreadID=%p - B readInProgress=%d",(void*)objc_thread_id(),(int)[_fileHandle readInProgress]);
-  [GSWApplication statusLogWithFormat:@"ThreadID %p: Waiting for connections on %@:%d.",
-                  (void*)objc_thread_id(),
+  NSDebugDeepMLog(@"%@ - B readInProgress=%d",
+		  GSCurrentThread(),(int)[_fileHandle readInProgress]);
+  [GSWApplication statusLogWithFormat:
+		    @"Thread %@: Waiting for connections on %@:%d.",
+                  GSCurrentThread(),
                   _host,
                   _port];
   NSDebugDeepMLog(@"STOP registerForEvents");
@@ -303,20 +306,23 @@ int allow_severity = LOG_INFO;
   LOGObjectFnStart();
   listenHandle=[notification object];
   requestDate=[NSCalendarDate calendarDate];
-  requestDateString=[NSString stringWithFormat:@"ThreadID=%p: New Request %@",(void*)objc_thread_id(),requestDate];
+  requestDateString=[NSString stringWithFormat:@"%@: New Request %@",
+			      GSCurrentThread(),requestDate];
   [GSWApplication statusLogWithFormat:@"%@",requestDateString];
   NSDebugDeepMLLog(@"info",@"listenHandle=%p",(void*)listenHandle);
   inStream = [[notification userInfo]objectForKey:@"NSFileHandleNotificationFileHandleItem"];
-  NSDebugDeepMLog(@"ThreadID=%p announceNewConnection notification=%@ socketAddress=%@ [notification userInfo]=%p\n",
-                   (void*)objc_thread_id(),
+  NSDebugDeepMLog(@"%@ announceNewConnection notification=%@ "
+		  @"socketAddress=%@ [notification userInfo]=%p",
+                   GSCurrentThread(),
                    notification,
                    [inStream socketAddress],
                    [notification userInfo]);
   if (![self isConnectionAllowedWithHandle:inStream
              returnedMessage:&connRefusedMessage])
     {
-      NSDebugDeepMLog(@"DESTROY the connection: conn refused - ThreadID=%p - A1 readInProgress=%d\n",
-                       (void*)objc_thread_id(),
+      NSDebugDeepMLog(@"DESTROY the connection: conn refused - "
+		      @"%@ - A1 readInProgress=%d",
+                       GSCurrentThread(),
                        (int)[_fileHandle readInProgress]);
       [GSWDefaultAdaptorThread sendConnectionRefusedResponseToStream:inStream
                                withMessage:connRefusedMessage];
@@ -324,23 +330,26 @@ int allow_severity = LOG_INFO;
     }
   else
     {
-      NSDebugDeepMLLog(@"info",@"notification userInfo=%@\n",
+      NSDebugDeepMLLog(@"info",@"notification userInfo=%@",
                        [notification userInfo]);
-      NSDebugDeepMLog(@"ThreadID=%p - A1 readInProgress=%d",
-                      (void*)objc_thread_id(),
+      NSDebugDeepMLog(@"%@ - A1 readInProgress=%d",
+                      GSCurrentThread(),
                       (int)[_fileHandle readInProgress]);
-      NSDebugDeepMLLog(@"ThreadID=%p - A1 readInProgress=%d\n",
-                       (void*)objc_thread_id(),
+      NSDebugDeepMLLog(@"%@ - A1 readInProgress=%d",
+                       GSCurrentThread(),
                        (int)[_fileHandle readInProgress]);
-      NSDebugDeepMLog(@"NEW CONN APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
-                       (int)([GSWApplication application]->_selfLockn),
-                       (void*)([GSWApplication application]->_selfLock_thread_id),
-                       (int)([GSWApplication application]->_globalLockn),
-                       (void*)([GSWApplication application]->_globalLock_thread_id),
-                       [_threads count],
-                       [_waitingThreads count],
-                       _blocked);
-      NSDebugDeepMLog(@"[waitingThreads count]=%d queueSize=%d",[_waitingThreads count],_queueSize);
+      NSDebugDeepMLog(@"NEW CONN APP _selfLockn=%d _selfLock_thread_id=%@ "
+		      @"_globalLockn=%d _globalLock_thread_id=%@ "
+		      @"threads count=%d waitingThreads count=%d blocked=%d",
+		      (int)([GSWApplication application]->_selfLockn),
+		      ([GSWApplication application]->_selfLock_thread_id),
+		      (int)([GSWApplication application]->_globalLockn),
+		      ([GSWApplication application]->_globalLock_thread_id),
+		      [_threads count],
+		      [_waitingThreads count],
+		      _blocked);
+      NSDebugDeepMLog(@"[waitingThreads count]=%d queueSize=%d",
+		      [_waitingThreads count],_queueSize);
       if ([_waitingThreads count]>=_queueSize)
 	{
           //remove expired thread
@@ -377,8 +386,9 @@ int allow_severity = LOG_INFO;
         };                  
       if ([_waitingThreads count]>=_queueSize)
         {
-          NSDebugDeepMLog(@"DESTROY the connection: too many conn - ThreadID=%p - A1 readInProgress=%d\n",
-                           (void*)objc_thread_id(),
+          NSDebugDeepMLog(@"DESTROY the connection: too many conn - "
+			  @"%@ - A1 readInProgress=%d",
+                           GSCurrentThread(),
                            (int)[_fileHandle readInProgress]);
           [GSWDefaultAdaptorThread sendRetryLasterResponseToStream:inStream];
           inStream=nil;
@@ -409,13 +419,17 @@ int allow_severity = LOG_INFO;
                           if (_isMultiThreadEnabled)
                             {
                               requestDate=[NSCalendarDate calendarDate];
-                              requestDateString=[NSString stringWithFormat:@"ThreadID=%p : Lauch Thread (Multi) %@",
-                                                          (void*)objc_thread_id(),
-                                                          requestDate];
-                              [GSWApplication statusLogWithFormat:@"%@",requestDateString];
+                              requestDateString
+				=[NSString stringWithFormat:@"%@ : "
+					   @"Lauch Thread (Multi) %@",
+					   GSCurrentThread(),
+					   requestDate];
+                              [GSWApplication statusLogWithFormat:@"%@",
+					      requestDateString];
                               NSDebugLockMLLog(@"info",
-                                               @"ThreadID=%p : Lauch Thread (Multi) %p",
-                                               (void*)objc_thread_id(),
+                                               @"%@ : "
+					       @"Lauch Thread (Multi) %p",
+                                               GSCurrentThread(),
                                                (void*)newThread);
                               [NSThread detachNewThreadSelector:@selector(run:)
                                         toTarget:newThread
@@ -490,16 +504,19 @@ int allow_severity = LOG_INFO;
             {
               [listenHandle acceptConnectionInBackgroundAndNotify];
               _blocked=NO;
-              NSDebugDeepMLog(@"ACCEPT ThreadID=%p A2 readInProgress=%d\n",
-                               (void*)objc_thread_id(),(int)[_fileHandle readInProgress]);
+              NSDebugDeepMLog(@"ACCEPT %@ A2 readInProgress=%d",
+                               GSCurrentThread(),
+			      (int)[_fileHandle readInProgress]);
             }
           else
             {
-              NSDebugDeepMLog(@"NOT ACCEPT ThreadID=%p A2 readInProgress=%d\n",
-                               (void*)objc_thread_id(),(int)[_fileHandle readInProgress]);
+              NSDebugDeepMLog(@"NOT ACCEPT %@ A2 readInProgress=%d",
+                              GSCurrentThread(),
+			      (int)[_fileHandle readInProgress]);
             };
-          NSDebugLockMLog(@"ThreadID=%p A2 readInProgress=%d",
-                          (void*)objc_thread_id(),(int)[_fileHandle readInProgress]);
+          NSDebugLockMLog(@"%@ A2 readInProgress=%d",
+                          GSCurrentThread(),
+			  (int)[_fileHandle readInProgress]);
         }
       NS_HANDLER
         {
@@ -516,14 +533,17 @@ int allow_severity = LOG_INFO;
       [self unlock];
     };
   NSDebugLockMLLog(@"trace",@"end announceNewConnection");
-  NSDebugDeepMLog(@"END NEWCONN APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d acceptOK\n",
-                   (int)([GSWApplication application]->_selfLockn),
-                   (void*)([GSWApplication application]->_selfLock_thread_id),
-                   (int)([GSWApplication application]->_globalLockn),
-                   (void*)([GSWApplication application]->_globalLock_thread_id),
-                   [_threads count],
-                   [_waitingThreads count],
-                   _blocked);
+  NSDebugDeepMLog(@"END NEWCONN APP _selfLockn=%d _selfLock_thread_id=%@ "
+		  @"_globalLockn=%d _globalLock_thread_id=%@ "
+		  @"threads count=%d waitingThreads count=%d "
+		  @"blocked=%d acceptOK",
+		  (int)([GSWApplication application]->_selfLockn),
+		  ([GSWApplication application]->_selfLock_thread_id),
+		  (int)([GSWApplication application]->_globalLockn),
+		  ([GSWApplication application]->_globalLock_thread_id),
+		  [_threads count],
+		  [_waitingThreads count],
+		  _blocked);
   LOGObjectFnStop();
   return self;
 };
@@ -533,15 +553,17 @@ int allow_severity = LOG_INFO;
 {
   LOGObjectFnStart();
 //  NSDebugMLLog(@"trace",@"adaptorThreadExited");
-  NSDebugDeepMLog0(@"adaptorThreadExited\n");
-  NSDebugDeepMLog(@"EXIT APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
-                   (int)([GSWApplication application]->_selfLockn),
-                   (void*)([GSWApplication application]->_selfLock_thread_id),
-                   (int)([GSWApplication application]->_globalLockn),
-                   (void*)([GSWApplication application]->_globalLock_thread_id),
-                   [_threads count],
-                   [_waitingThreads count],
-                   _blocked);
+  NSDebugDeepMLog0(@"adaptorThreadExited");
+  NSDebugDeepMLog(@"EXIT APP _selfLockn=%d _selfLock_thread_id=%@ "
+		  @"_globalLockn=%d _globalLock_thread_id=%@ "
+		  @"threads count=%d waitingThreads count=%d blocked=%d",
+		  (int)([GSWApplication application]->_selfLockn),
+		  ([GSWApplication application]->_selfLock_thread_id),
+		  (int)([GSWApplication application]->_globalLockn),
+		  ([GSWApplication application]->_globalLock_thread_id),
+		  [_threads count],
+		  [_waitingThreads count],
+		  _blocked);
   
   if ([self tryLock])
     {
@@ -657,8 +679,9 @@ int allow_severity = LOG_INFO;
           BOOL accept=[_waitingThreads count]<_queueSize;
           if (_blocked && accept)
             {
-              NSDebugDeepMLog(@"ACCEPT AGAIN ThreadID=%p A2 readInProgress=%d\n",
-                               (void*)objc_thread_id(),(int)[_fileHandle readInProgress]);
+              NSDebugDeepMLog(@"ACCEPT AGAIN %@ A2 readInProgress=%d",
+                               GSCurrentThread(),
+			      (int)[_fileHandle readInProgress]);
               [_fileHandle acceptConnectionInBackgroundAndNotify];
               _blocked=NO;
             };
@@ -680,17 +703,19 @@ int allow_severity = LOG_INFO;
       
       [self unlock];
     };
-  NSDebugDeepMLog(@"END EXIT APP _selfLockn=%d _selfLock_thread_id=%p _globalLockn=%d _globalLock_thread_id=%p threads count=%d waitingThreads count=%d blocked=%d\n",
-                   (int)([GSWApplication application]->_selfLockn),
-                   (void*)([GSWApplication application]->_selfLock_thread_id),
-                   (int)([GSWApplication application]->_globalLockn),
-                   (void*)([GSWApplication application]->_globalLock_thread_id),
-                   [_threads count],
-                   [_waitingThreads count],
-                   _blocked);
+  NSDebugDeepMLog(@"END EXIT APP _selfLockn=%d _selfLock_thread_id=%@ "
+		  @"_globalLockn=%d _globalLock_thread_id=%@ "
+		  @"threads count=%d waitingThreads count=%d blocked=%d",
+		  (int)([GSWApplication application]->_selfLockn),
+		  ([GSWApplication application]->_selfLock_thread_id),
+		  ([GSWApplication application]->_globalLockn),
+		  ([GSWApplication application]->_globalLock_thread_id),
+		  [_threads count],
+		  [_waitingThreads count],
+		  _blocked);
   //         (int)(((UnixFileHandle*)fileHandle)->acceptOK));
-  NSDebugLockMLog(@"ThreadID=%p B2 readInProgress=%d",
-                  (void*)objc_thread_id(),(int)[_fileHandle readInProgress]);
+  NSDebugLockMLog(@"%@ B2 readInProgress=%d",
+                  GSCurrentThread(),(int)[_fileHandle readInProgress]);
   LOGObjectFnStop();
 };
 
@@ -714,12 +739,12 @@ int allow_severity = LOG_INFO;
 {
   BOOL locked=NO;
   LOGObjectFnStart();
-  NSDebugLockMLog(@"self=%p ThreadID=%p TRYLOCK\n",
-                   self,(void*)objc_thread_id());
+  NSDebugLockMLog(@"self=%p %@ TRYLOCK",
+                   self, GSCurrentThread());
   locked=LoggedTryLockBeforeDate(_selfLock,
 				 [NSDate dateWithTimeIntervalSinceNow:90]);
-  NSDebugLockMLog(@"self=%p ThreadID=%p TRYLOCK LOCKED ?\n",
-                   self,(void*)objc_thread_id());
+  NSDebugLockMLog(@"self=%p %@ TRYLOCK LOCKED ?",
+                   self, GSCurrentThread());
   LOGObjectFnStop();
   return locked;
 };
@@ -729,11 +754,11 @@ int allow_severity = LOG_INFO;
 -(void)unlock
 {
   LOGObjectFnStart();
-  NSDebugLockMLog(@"self=%p ThreadID=%p UNLOCK\n",
-         self,(void*)objc_thread_id());
+  NSDebugLockMLog(@"self=%p %@ UNLOCK",
+         self, GSCurrentThread());
   LoggedUnlock(_selfLock);
-  NSDebugLockMLog(@"self=%p ThreadID=%p UNLOCK UNLOCKED ?\n",
-                   self,(void*)objc_thread_id());
+  NSDebugLockMLog(@"self=%p %@ UNLOCK UNLOCKED ?",
+                   self, GSCurrentThread());
   LOGObjectFnStop();
 };
 

@@ -61,7 +61,7 @@ RCS_ID("$Id$")
       _absolutePathsCache=[NSMutableDictionary new];
       _urlsCache=[NSMutableDictionary new];
 #ifndef NDEBUG
-      _creation_thread_id=objc_thread_id();
+      _creation_thread_id=GSCurrentThread();
 #endif
       _selfLock=[NSRecursiveLock new];
     };
@@ -80,12 +80,13 @@ RCS_ID("$Id$")
   DESTROY(_absolutePathsCache);
   DESTROY(_urlsCache);
   GSWLogC("Dealloc GSWDeployedBundle: selfLock");
-  NSDebugFLog(@"selfLock=%p selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p creation_thread_id=%p",
+  NSDebugFLog(@"selfLock=%p selfLockn=%d selfLock_thread_id=%@ "
+	      @"GSCurrentThread()=%@ creation_thread_id=%@",
               (void*)_selfLock,
               _selfLockn,
-              (void*)_selfLock_thread_id,
-              (void*)objc_thread_id(),
-              (void*)_creation_thread_id);
+              _selfLock_thread_id,
+              GSCurrentThread(),
+              _creation_thread_id);
   fflush(stderr);
   DESTROY(_selfLock);
   GSWLogC("Dealloc GSWDeployedBundle Super");
@@ -644,15 +645,15 @@ if it was not cached **/
 {
   LOGObjectFnStart();
   NSDebugMLLog(@"bundles",
-	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%p "
-	       @"objc_thread_id()=%p",
+	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%@ "
+	       @"GSCurrentThread()=%@",
 	       (void*)_selfLock,
 	       _selfLockn,
-	       (void*)_selfLock_thread_id,
-	       (void*)objc_thread_id());
+	       _selfLock_thread_id,
+	       GSCurrentThread());
   if (_selfLockn>0)
     {
-      if (_selfLock_thread_id!=objc_thread_id())
+      if (_selfLock_thread_id!=GSCurrentThread())
         {
           NSDebugMLog0(@"PROBLEM: owner!=thread id");
         };
@@ -660,15 +661,15 @@ if it was not cached **/
   LoggedLockBeforeDate(_selfLock,GSW_LOCK_LIMIT);
 #ifndef NDEBUG
   _selfLockn++;
-  _selfLock_thread_id=objc_thread_id();
+  _selfLock_thread_id=GSCurrentThread();
 #endif
   NSDebugMLLog(@"bundles",
-	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%p "
-	       @"objc_thread_id()=%p",
+	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%@ "
+	       @"GSCurrentThread()=%@",
                _selfLock,
                _selfLockn,
-               (void*)_selfLock_thread_id,
-               (void*)objc_thread_id());
+               _selfLock_thread_id,
+               GSCurrentThread());
   LOGObjectFnStop();
 };
 
@@ -677,14 +678,16 @@ if it was not cached **/
 -(void)unlock
 {
   LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"selfLock=%p selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+  NSDebugMLLog(@"bundles",
+	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%@ "
+	       @"GSCurrentThread()=%@",
                (void*)_selfLock,
                _selfLockn,
-               (void*)_selfLock_thread_id,
-               (void*)objc_thread_id());
+               _selfLock_thread_id,
+               GSCurrentThread());
   if (_selfLockn>0)
     {
-      if (_selfLock_thread_id!=objc_thread_id())
+      if (_selfLock_thread_id!=GSCurrentThread())
         {
           NSDebugMLog0(@"PROBLEM: owner!=thread id");
         };
@@ -695,11 +698,13 @@ if it was not cached **/
   if (_selfLockn==0)
     _selfLock_thread_id=NULL;
 #endif
-  NSDebugMLLog(@"bundles",@"selfLock=%p selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+  NSDebugMLLog(@"bundles",
+	       @"selfLock=%p selfLockn=%d selfLock_thread_id=%@ "
+	       @"GSCurrentThread()=%@",
                (void*)_selfLock,
                _selfLockn,
-               (void*)_selfLock_thread_id,
-               (void*)objc_thread_id());
+               _selfLock_thread_id,
+               GSCurrentThread());
   LOGObjectFnStop();
 };
 

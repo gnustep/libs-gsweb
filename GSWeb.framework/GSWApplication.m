@@ -652,7 +652,8 @@ int GSWApplicationMainReal(NSString* applicationClassName,
       // Make sure we pass all exceptions back to the requestor.
       NS_HANDLER
         {
-          NSLog(@"Can't create Application (Class:%@)- %@ %@ Name:%@ Reason:%@\n",
+          NSLog(@"Can't create Application (Class:%@)- "
+		@"%@ %@ Name:%@ Reason:%@",
                 applicationClass,
                 localException,
                 [localException description],
@@ -739,7 +740,8 @@ int GSWApplicationMain(NSString* applicationClassName,
       ASSIGN(_lastAccessDate,[NSDate date]);
       [self setTimeOut:0];//No time out
 
-      NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",GSCurrentThreadDictionary());
+      NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",
+		   GSCurrentThreadDictionary());
 
       //Do it before run so application can addTimer,... in -run
       NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",[NSRunLoop currentRunLoop]);
@@ -954,13 +956,15 @@ int GSWApplicationMain(NSString* applicationClassName,
   LOGObjectFnStart();
   if (![self isConcurrentRequestHandlingEnabled])
     {
-      /*  NSDebugMLLog(@"application",@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
+      /* NSDebugMLLog(@"application",
+		   @"globalLockn=%d globalLock_thread_id=%@ "
+		   @"GSCurrentThread()=%@",
           globalLockn,(void*)
           globalLock_thread_id,
-          (void*)objc_thread_id());
+          GSCurrentThread());
           if (globalLockn>0)
           {
-          if (globalLock_thread_id!=objc_thread_id())
+          if (globalLock_thread_id!=GSCurrentThread())
           {
           NSDebugMLLog(@"application",@"PROBLEM: owner!=thread id");
           };
@@ -968,17 +972,18 @@ int GSWApplicationMain(NSString* applicationClassName,
       */
       NS_DURING
         {
-          NSDebugLockMLog(@"GLOBALLOCK lock ThreadID=%p\n",(void*)objc_thread_id());
+          NSDebugLockMLog(@"GLOBALLOCK lock %@", GSCurrentThread());
           LoggedLockBeforeDate(_globalLock,GSW_LOCK_LIMIT);
-          NSDebugLockMLog(@"GLOBALLOCK locked ThreadID=%p\n",(void*)objc_thread_id());
+          NSDebugLockMLog(@"GLOBALLOCK locked %@", GSCurrentThread());
 #ifndef NDEBUG
           _globalLockn++;
-          _globalLock_thread_id=objc_thread_id();
+          _globalLock_thread_id=GSCurrentThread();
 #endif
-          /*		  NSDebugMLLog(@"application",@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
-                          globalLockn,
-                          (void*)globalLock_thread_id,
-                          (void*)objc_thread_id());*/
+          /* NSDebugMLLog(@"application",
+	     @"globalLockn=%d globalLock_thread_id=%@ GSCurrentThread()=%@",
+             globalLockn,
+             globalLock_thread_id,
+             GSCurrentThread());*/
         }
       NS_HANDLER
         {
@@ -1002,36 +1007,39 @@ int GSWApplicationMain(NSString* applicationClassName,
     {
       NS_DURING
         {
-          /*  NSDebugMLLog(@"application",@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
+          /*  NSDebugMLLog(@"application",
+	      @"globalLockn=%d globalLock_thread_id=%@ GSCurrentThread()=%@",
               globalLockn,
-              (void*)globalLock_thread_id,
-              (void*)objc_thread_id());*/
+              globalLock_thread_id,
+              GSCurrentThread());*/
           if (_globalLockn>0)
             {
-              if (_globalLock_thread_id!=objc_thread_id())
+              if (_globalLock_thread_id!=GSCurrentThread())
                 {
                   NSDebugMLLog0(@"application",@"PROBLEM: owner!=thread id");
                 };
             };
-          NSDebugLockMLog(@"GLOBALLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
+          NSDebugLockMLog(@"GLOBALLOCK unlock %@", GSCurrentThread());
           LoggedUnlock(_globalLock);
-          NSDebugLockMLog(@"GLOBALLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
+          NSDebugLockMLog(@"GLOBALLOCK unlocked %@",GSCurrentThread());
 #ifndef NDEBUG
           _globalLockn--;
           if (_globalLockn==0)
             _globalLock_thread_id=NULL;
 #endif
-          /*		  NSDebugMLLog(@"application",@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
-                          globalLockn,
-                          (void*)globalLock_thread_id,
-                          (void*)objc_thread_id());*/
+          /*  NSDebugMLLog(@"application",
+	      @"globalLockn=%d globalLock_thread_id=%@ GSCurrentThread()=%@",
+	      globalLockn,
+	      globalLock_thread_id,
+	      GSCurrentThread());*/
         }
       NS_HANDLER
         {
-          NSDebugMLog(@"globalLockn=%d globalLock_thread_id=%p objc_thread_id()=%p",
+          NSDebugMLog(@"globalLockn=%d globalLock_thread_id=%@ "
+		      @"GSCurrentThread()=%@",
                       _globalLockn,
-                      (void*)_globalLock_thread_id,
-                      (void*)objc_thread_id());
+                      _globalLock_thread_id,
+                      GSCurrentThread());
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"globalLock loggedunlock");
           LOGException(@"%@ (%@)",localException,[localException reason]);
@@ -1049,13 +1057,14 @@ int GSWApplicationMain(NSString* applicationClassName,
   //call adaptorsDispatchRequestsConcurrently
   //OK
   LOGObjectFnStart();
-  /*  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+  /*  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%@ "
+      @"GSCurrentThread()=%@",
       selfLockn,
-      (void*)selfLock_thread_id,
-      (void*)objc_thread_id());
+      selfLock_thread_id,
+      GSCurrentThread());
       if (selfLockn>0)
       {
-      if (selfLock_thread_id!=objc_thread_id())
+      if (selfLock_thread_id!=GSCurrentThread())
       {
       NSDebugMLLog(@"application",@"PROBLEM: owner!=thread id");
       };
@@ -1063,22 +1072,23 @@ int GSWApplicationMain(NSString* applicationClassName,
   */
   NS_DURING
     {
-      /*          printf("SELFLOCK lock ThreadID=%p\n",(void*)objc_thread_id());
-                  LoggedLockBeforeDate(selfLock,GSW_LOCK_LIMIT);
-                  printf("SELFLOCK locked ThreadID=%p\n",(void*)objc_thread_id());
+      /*  printf("SELFLOCK lock %@\n", GSCurrentThread());
+          LoggedLockBeforeDate(selfLock,GSW_LOCK_LIMIT);
+	  printf("SELFLOCK locked %@\n", GSCurrentThread());
 #ifndef NDEBUG
-                  selfLockn++;
-                  selfLock_thread_id=objc_thread_id();
+      selfLockn++;
+      selfLock_thread_id=GSCurrentThread();
 #endif
-NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
-selfLockn,
-(void*)selfLock_thread_id,
-				   (void*)objc_thread_id());
+      NSDebugMLLog(@"application",
+                   @"selfLockn=%d selfLock_thread_id=%@ GSCurrentThread()=%@",
+		   selfLockn,
+		   selfLock_thread_id,
+		   GSCurrentThread());
       */
       [_selfLock lock];//NEW
 #ifndef NDEBUG
       _selfLockn++;
-      _selfLock_thread_id=objc_thread_id();
+      _selfLock_thread_id=GSCurrentThread();
 #endif
     }
   NS_HANDLER
@@ -1099,13 +1109,14 @@ selfLockn,
   //call adaptorsDispatchRequestsConcurrently
   //OK
   LOGObjectFnStart();
-  /*  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+  /*  NSDebugMLLog(@"application",
+      @"selfLockn=%d selfLock_thread_id=%@ GSCurrentThread()=%@",
       selfLockn,
-      (void*)selfLock_thread_id,
-      (void*)objc_thread_id());
+      selfLock_thread_id,
+      GSCurrentThread());
       if (selfLockn>0)
       {
-      if (selfLock_thread_id!=objc_thread_id())
+      if (selfLock_thread_id!=GSCurrentThread())
       {
       NSDebugMLLog(@"application",@"PROBLEM: owner!=thread id");
       };
@@ -1113,27 +1124,29 @@ selfLockn,
   */
   NS_DURING
     {
-      NSDebugLockMLog(@"SELFLOCK unlock ThreadID=%p\n",(void*)objc_thread_id());
+      NSDebugLockMLog(@"SELFLOCK unlock %@", GSCurrentThread());
       //	  LoggedUnlock(selfLock);
       [_selfLock unlock];//NEW
-      NSDebugLockMLog(@"SELFLOCK unlocked ThreadID=%p\n",(void*)objc_thread_id());
+      NSDebugLockMLog(@"SELFLOCK unlocked %@", GSCurrentThread());
 #ifndef NDEBUG
       _selfLockn--;
       if (_selfLockn==0)
         _selfLock_thread_id=NULL;
 #endif
-      /*	  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
-                  selfLockn,
-                  (void*)selfLock_thread_id,
-                  (void*)objc_thread_id());
+      /*  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%@ "
+	  @"GSCurrentThread()=%@",
+	  selfLockn,
+	  selfLock_thread_id,
+	  GSCurrentThread());
       */
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%p objc_thread_id()=%p",
+      NSDebugMLLog(@"application",
+		   @"selfLockn=%d selfLock_thread_id=%@ GSCurrentThread()=%@",
                    _selfLockn,
-                   (void*)_selfLock_thread_id,
-                   (void*)objc_thread_id());
+                   _selfLock_thread_id,
+                   GSCurrentThread());
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"selfLock loggedunlock");
       LOGException(@"%@ (%@)",localException,[localException reason]);
@@ -2572,10 +2585,11 @@ to another instance **/
   else
 	{
 	  if (!ClassIsKindOfClass(_sessionClass,_gswsessionClass))
-		{
-		  //TODO exception
-		  NSDebugMLLog(@"application",@"session class is not a kind of GSWSession\n");
-		}
+	    {
+	      //TODO exception
+	      NSDebugMLLog(@"application",
+	      @"session class is not a kind of GSWSession");
+	    }
 	};
   NSDebugMLLog(@"application",@"_sessionClass:%@",_sessionClass);
 */
@@ -2904,7 +2918,7 @@ to another instance **/
   SEL unregisterForEventsSEL=NULL;
   NSDebugMLLog0(@"application",@"GSWApplication run");
   LOGObjectFnStart();
-  NSDebugMLog(@"ThreadID=%p\n",(void*)objc_thread_id());
+  NSDebugMLog(@"%@", GSCurrentThread());
   registerForEventsSEL=@selector(registerForEvents);
   unregisterForEventsSEL=@selector(unregisterForEvents);
   NSDebugMLLog(@"application",@"adaptors=%@",_adaptors);
@@ -2912,8 +2926,10 @@ to another instance **/
   NSDebugMLLog0(@"application",@"NSRunLoop run");
 	  //call adaptor run
 	  //call self _openInitialURL
-  NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",GSCurrentThreadDictionary());
-  NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",[NSRunLoop currentRunLoop]);
+  NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",
+	       GSCurrentThreadDictionary());
+  NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",
+	       [NSRunLoop currentRunLoop]);
   NSAssert(_currentRunLoop,@"No runLoop");
 
   NS_DURING
@@ -5596,7 +5612,8 @@ to another instance **/
               superClassName:(NSString*)superClassName
 {
   LOGClassFnStart();
-  NSDebugMLLog(@"gswdync",@"ClassName:%@ superClassName:%@\n",className,superClassName);
+  NSDebugMLLog(@"gswdync",@"ClassName:%@ superClassName:%@",
+	       className, superClassName);
   [localDynCreateClassNames setObject:superClassName
                             forKey:className];
   LOGClassFnStop();
@@ -5699,11 +5716,11 @@ to another instance **/
 {
   GSWComponent* component=nil;
   Class aClass=nil;
-  NSDebugMLLog(@"application",@"Page with Name:%@\n",name_);
+  NSDebugMLLog(@"application",@"Page with Name:%@",name_);
   //No Name ==> "Main"
   if (!name_ || [name_ length]==0)
 	name_=GSWMainPageName;
-  NSDebugMLLog(@"gswcomponents",@"Page with Name:%@\n",name_);
+  NSDebugMLLog(@"gswcomponents",@"Page with Name:%@",name_);
   aClass=NSClassFromString(name_);
   //If not found, search for library
   if (!aClass)
@@ -5726,26 +5743,27 @@ to another instance **/
   if (!aClass)
 	{
 	  //TODO exception
-	  NSDebugMLLog0(@"application",@"No component class\n");
+	  NSDebugMLLog0(@"application",@"No component class");
 	}
   else
 	{
 	  Class GSWComponentClass=[GSWComponent class]);
 	  if (!ClassIsKindOfClass(aClass,GSWComponentClass))
-		{
-		  NSDebugMLLog0(@"application",@"component class is not a kind of GSWComponent\n");
-		  //TODO exception
-		}
+	    {
+	      NSDebugMLLog0(@"application",
+	                    @"component class is not a kind of GSWComponent");
+	      //TODO exception
+	    }
 	  else
-		{
-		  //TODOV
-		  NSDebugMLLog0(@"application",@"Create Componnent\n");
-		  component=[[aClass new] autorelease];
-		  if (!component)
-			{
-			  //TODO exception
-			};
+	    {
+	      //TODOV
+	      NSDebugMLLog0(@"application",@"Create Componnent");
+	      component=[[aClass new] autorelease];
+	      if (!component)
+	        {
+		  //TODO exception
 		};
+	    };
 	};
 
   return component;
@@ -5856,38 +5874,42 @@ to another instance **/
 //dynamicElementWithName:associations:template:
 //OldFn
 -(GSWDynamicElement*)dynamicElementWithName:(NSString*)name_
-							  associations:(NSDictionary*)someAssociations
-								  template:(GSWElement*)templateElement_
+			       associations:(NSDictionary*)someAssociations
+				   template:(GSWElement*)templateElement_
 {
   GSWDynamicElement* element=nil;
   //  NSString* elementName=[_XMLElement attributeForKey:@"NAME"];
   Class aClass=NSClassFromString(name_);
   LOGObjectFnNotImplemented();	//TODOFN
-  NSDebugMLLog0(@"application",@"Begin GSWApplication:dynamicElementWithName\n");
+  NSDebugMLLog0(@"application",
+		@"Begin GSWApplication:dynamicElementWithName");
   if (!aClass)
+    {
+      ExceptionRaise(@"GSWApplication",
+		     @"GSWApplication: No class named '%@' for "
+		     @"creating dynamic element",
+		     name_);
+    }
+  else
+    {
+      Class GSWElementClass=[GSWElement class];
+      if (!ClassIsKindOfClass(aClass,GSWElementClass))
 	{
 	  ExceptionRaise(@"GSWApplication",
-					 @"GSWApplication: No class named '%@' for creating dynamic element",
-					  name_);
+			 @"GSWApplication: element '%@' is not kind of "
+			 @"GSWElement",
+			 name_);
 	}
-  else
+      else
 	{
-	  Class GSWElementClass=[GSWElement class];
-	  if (!ClassIsKindOfClass(aClass,GSWElementClass))
-		{
-		  ExceptionRaise(@"GSWApplication",
-						 @"GSWApplication: element '%@' is not kind of GSWElement",
-						 name_);
-		}
-	  else
-		{
-		  NSDebugMLLog(@"application",@"Creating DynamicElement of Class:%@\n",aClass);
-		  element=[[[aClass alloc] initWithName:name_
-								  associations:someAssociations
-								  template:templateElement_] autorelease];
-		  NSDebugMLLog(@"application",@"Creating DynamicElement:%@\n",element);
-		};
+	  NSDebugMLLog(@"application",
+		       @"Creating DynamicElement of Class:%@",aClass);
+	  element=[[[aClass alloc] initWithName:name_
+				   associations:someAssociations
+				   template:templateElement_] autorelease];
+	  NSDebugMLLog(@"application",@"Creating DynamicElement:%@",element);
 	};
+    };
   return element;
 };
 

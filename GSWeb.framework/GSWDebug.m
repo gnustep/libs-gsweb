@@ -61,21 +61,9 @@ NSString* GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSStrin
 void GSWLogC_(CONST char* file,int line,CONST char* string)
 {
   int len=0;
-/*  if ([NSThread isMultiThreaded])
-	{
-	  NSThread* t = [NSThread currentThread];
-	  fprintf(stderr,"TID=");
-#if 0
-	  if (t && t->_thread_id)
-		fprintf(stderr,"%p [%ld] (%d) ",(void*)t->_thread_id,(long)t->_thread_id,(int)getpid());
-	  else
-#endif
-		{
-*/
-		  void* tid=(void*)objc_thread_id();
-		  fprintf(stderr,"%p [%ld] (%d) ",tid,(long)tid,(int)getpid());
-/*		};
-	};*/
+  const char *thread=[[GSCurrentThread() description] cString];
+
+  fprintf(stderr,"%s (%d) ", thread, (int)getpid());
   fprintf(stderr,"File %s: %d. ",file,line);
   fprintf(stderr,string);
   len=strlen(string);
@@ -339,8 +327,10 @@ void GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep)
         Class class = [object class];
         if (class)
           {
-            NSDebugFLog(@"--%s %d [%d] Dumping object %p of Class %s Description:%@\n",
-                        (file && isalpha(*file) && line>=0 && line<=20000) ? file :"",
+            NSDebugFLog(@"--%s %d [%d] Dumping object %p of Class %s "
+			@"Description:%@",
+                        ((file && isalpha(*file) && line>=0 && line<=20000) 
+			 ? file : ""),
                         line,
                         deep,
                         (void*)object,

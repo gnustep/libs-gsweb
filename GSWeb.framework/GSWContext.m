@@ -57,7 +57,8 @@ static int dontTraceComponentActionURL=0;
 -(void)dealloc
 {
   GSWLogAssertGood(self);
-  NSDebugFLog(@"Dealloc GSWContext %p. ThreadID=%p",(void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Dealloc GSWContext %p. %@",
+	      (void*)self, GSCurrentThread());
   NSDebugFLog0(@"Release GSWContext senderID");
   DESTROY(_senderID);
   NSDebugFLog0(@"Release GSWContext requestSessionID");
@@ -1476,7 +1477,7 @@ If none, try request languages
 -(void)setValidate:(BOOL)isValidate
 {
   _isValidate = isValidate;
-  NSDebugMLLog(@"low",@"isValidate=%d\n",(int)isValidate);
+  NSDebugMLLog(@"low",@"isValidate=%d",(int)isValidate);
 };
 
 @end

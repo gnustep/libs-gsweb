@@ -238,11 +238,13 @@ RCS_ID("$Id$")
 -(void)dealloc
 {
   GSWLogAssertGood(self);
-  NSDebugFLog(@"Dealloc GSWSession %p. ThreadID=%p",(void*)self,(void*)objc_thread_id());
+  NSDebugFLog(@"Dealloc GSWSession %p. %@",
+	      (void*)self, GSCurrentThread());
   NSDebugFLog0(@"Dealloc GSWSession: sessionID");
   DESTROY(_sessionID);
   NSDebugFLog0(@"Dealloc GSWSession:autoreleasePool ");
-  GSWLogMemCF("Destroy NSAutoreleasePool: %p. ThreadID=%p",_autoreleasePool,(void*)objc_thread_id());
+  GSWLogMemCF("Destroy NSAutoreleasePool: %p. %@",
+	      _autoreleasePool, GSCurrentThread());
   DESTROY(_autoreleasePool);
   NSDebugFLog0(@"Dealloc GSWSession: contextArrayStack");
   DESTROY(_contextArrayStack);
@@ -859,10 +861,10 @@ extern id gcObjectsToBeVisited;
   fprintf(stderr,"session %p _releaseAutoreleasePool START\n",self);
 //TODO-NOW remettre  [GarbageCollector collectGarbages];
   printf("session %p _releaseAutoreleasePool after garbage",self);
-fprintf(stderr,"session %p _releaseAutoreleasePool after garbage\n",self);
+  fprintf(stderr,"session %p _releaseAutoreleasePool after garbage\n",self);
   DESTROY(_autoreleasePool);
   printf("session %p _releaseAutoreleasePool STOP\n",self);
-fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
+  fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   LOGObjectFnStop();
 };
 

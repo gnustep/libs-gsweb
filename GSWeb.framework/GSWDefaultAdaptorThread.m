@@ -107,10 +107,11 @@ RCS_ID("$Id$")
 {
   if (destroy)
     {
-      GSWLogMemC("dealloc pool\n");
-      GSWLogMemCF("Destroy NSAutoreleasePool: %p. ThreadID=%p",_pool,(void*)objc_thread_id());
+      GSWLogMemC("dealloc pool");
+      GSWLogMemCF("Destroy NSAutoreleasePool: %p. %@",
+		  _pool, GSCurrentThread());
       DESTROY(_pool);
-      GSWLogMemC("end dealloc pool\n");
+      GSWLogMemC("end dealloc pool");
     };
   _pool=pool;
 };
@@ -236,8 +237,8 @@ RCS_ID("$Id$")
             };
         };
     };
-  NSDebugMLog(@"GSWDefaultAdaptorThread: ThreadID=%p run end",
-              (void*)objc_thread_id());
+  NSDebugMLog(@"GSWDefaultAdaptorThread: %@ run end",
+              GSCurrentThread());
   NSDebugMLLog(@"low",@"application:%@",
                _application);
   LOGObjectFnStop();
@@ -272,7 +273,7 @@ RCS_ID("$Id$")
   [self setPool:nil
         destroyLast:YES];
 //  LOGObjectFnStop();
-  GSWLogDeepC("threadExited\n");
+  GSWLogDeepC("threadExited");
 };
 
 //--------------------------------------------------------------------
@@ -783,7 +784,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
 -(BOOL)isExpired
 {
   BOOL isExpired=(fabs([_creationDate timeIntervalSinceNow])>ADAPTOR_THREAD_TIME_OUT);
-  NSDebugDeepMLog(@"EXPIRED %@ %f isExpired=%d\n",//connectOK=%d isExpired=%d\n",
+  NSDebugDeepMLog(@"EXPIRED %@ %f isExpired=%d",//connectOK=%d isExpired=%d",
                   _creationDate,
                   [_creationDate timeIntervalSinceNow],
                   //(int)(((UnixFileHandle*)stream)->connectOK),
@@ -808,7 +809,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
 			forRequest:nil
                         forceFinalize:YES];
   [response setStatus:503];//503=Service Unavailable
-  NSDebugDeepMLog0(@"sendResponse:\n");
+  NSDebugDeepMLog0(@"sendResponse:");
   [self sendResponse:response
         toStream:stream
         withNamingConv:GSWNAMES_INDEX
@@ -832,7 +833,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
 			forRequest:nil
                         forceFinalize:YES];
   [response setStatus:503];//503=Service Unavailable
-  NSDebugDeepMLog0(@"sendResponse:\n");
+  NSDebugDeepMLog0(@"sendResponse:");
   [self sendResponse:response
         toStream:stream
         withNamingConv:GSWNAMES_INDEX
