@@ -973,6 +973,7 @@ NSString *NSLockException = @"NSLockException";
 {
   BOOL locked=NO;
   int result=0;
+  int tryCount=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   result=objc_mutex_trylock(_mutex);
@@ -985,13 +986,18 @@ NSString *NSLockException = @"NSLockException";
   //  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
     {
+      tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
       usleep(100);
       //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
       result=objc_mutex_trylock(_mutex);
       //NSDebugMLLog(@"low",@"result=%d",result);
       if (result != 0 && result!=1)
-        locked=NO;
+        {
+          if (tryCount%10==0)
+            NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+          locked=NO;
+        }
       else
         locked=YES;
     }; 
@@ -1029,6 +1035,7 @@ NSString *NSLockException = @"NSLockException";
 {
   BOOL locked=NO;
   int result=0;
+  int tryCount=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   result=objc_mutex_trylock(_mutex);
@@ -1041,13 +1048,18 @@ NSString *NSLockException = @"NSLockException";
 //  NSDebugMLLog(@"low",@"[NSDate date]=%@ limit=%@",[NSDate date],limit);
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
     {
+      tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
       usleep(100);
       //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
       result=objc_mutex_trylock(_mutex);
       //NSDebugMLLog(@"low",@"result=%d",result);
       if (result != 0 && result!=1)
-        locked=NO;
+        {
+          if (tryCount%10==0)
+            NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+          locked=NO;
+        }
       else
         locked=YES;
     }; 
@@ -1260,11 +1272,13 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 {
   BOOL locked=NO;
   BOOL notOwner=NO;
+  int tryCount=0;
   int result=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
     {
+      tryCount++;
       notOwner=NO;
       result=objc_mutex_trylock(_mutex);
       //NSDebugMLLog(@"low",@"result=%d",result);
@@ -1277,6 +1291,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
     notOwner=YES;
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
     {
+      tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
       usleep(100);
       //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
@@ -1286,7 +1301,11 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
           result=objc_mutex_trylock(_mutex);
           //NSDebugMLLog(@"low",@"result=%d",result);
           if (result == -1)
-            locked=NO;
+            {
+              if (tryCount%10==0)
+                NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+              locked=NO;
+            }
           else
             locked=YES;
         }
@@ -1328,16 +1347,22 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
 {
   BOOL locked=NO;
   BOOL notOwner=NO;
+  int tryCount=0;
   int result=0;
 //  LOGObjectFnStart();
 //  NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
   if (!_mutex->owner || _mutex->owner==objc_thread_id())
     {
+      tryCount++;
       notOwner=NO;
       result=objc_mutex_trylock(_mutex);
       //NSDebugMLLog(@"low",@"result=%d",result);
       if (result == -1)
-        locked=NO;
+        {
+          if (tryCount%10==0)
+            NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+          locked=NO;
+        }
       else
         locked=YES;
     }
@@ -1346,6 +1371,7 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
   
   while (!locked && [[NSDate date]compare:limit]==NSOrderedAscending)
     {
+      tryCount++;
       //NSDebugMLLog(@"low",@"tmplockBeforeDate wait");
       usleep(100);
       //NSDebugMLLog(@"low",@"BEF _mutex->owner=%p objc_thread_id()=%p",(void*)_mutex->owner,(void*)objc_thread_id());
@@ -1355,7 +1381,11 @@ NSString *NSRecursiveLockException = @"NSRecursiveLockException";
           result=objc_mutex_trylock(_mutex);
           //NSDebugMLLog(@"low",@"result=%d",result);
           if (result == -1)
-            locked=NO;
+            {
+              if (tryCount%10==0)
+                NSLog(@"Try lock for %d micro-secondes",100*tryCount);
+              locked=NO;
+            }
           else
             locked=YES;
         }
