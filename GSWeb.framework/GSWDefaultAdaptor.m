@@ -330,9 +330,6 @@ int allow_severity = LOG_INFO;
 
   listenHandle=[notification object];
 
-  [GSWApplication statusLogWithFormat:@"%@: New Request %@",
-                  GSCurrentThread(),GSWTime_format(requestTS)];
-
   NSDebugDeepMLLog(@"info",@"listenHandle=%p",(void*)listenHandle);
 
   inStream = [[notification userInfo]objectForKey:@"NSFileHandleNotificationFileHandleItem"];
@@ -501,22 +498,18 @@ int allow_severity = LOG_INFO;
             };
 	  if (!_isMultiThreadEnabled && newThread)
             {
-              [GSWApplication statusLogWithFormat:@"Launch Thread (Mono) %@",
-                              GSWTime_format(GSWTime_now())];
 
-              NSDebugLockMLLog(@"info",
-                               @"Launch Thread (Mono) %@ %p",
-                               GSWTime_format(GSWTime_now()),
-                               (void*)newThread);
+              //NSDebugLockMLLog(@"info",
+              //                 @"Launch Thread (Mono) %@ %p",
+              //                 GSWTime_format(GSWTime_now()),
+              //                 (void*)newThread);
 
               [newThread run:nil];
 
               DESTROY(newThread);
 
-              [GSWApplication statusLogWithFormat:@"Stop Thread (Mono) %@",
-                              GSWTime_format(GSWTime_now())];
-              NSDebugLockMLLog(@"info",
-                               @"Stop Thread (Mono) %@",GSWTime_format(GSWTime_now()));
+              //NSDebugLockMLLog(@"info",
+              //                 @"Stop Thread (Mono) %@",GSWTime_format(GSWTime_now()));
             };
         };
     };

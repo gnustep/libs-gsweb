@@ -151,7 +151,6 @@ RCS_ID("$Id$")
       NSDebugMLLog(@"sessions",@"timer fireDate=%@",[timer fireDate]);
       if (timer)
         {
-          [GSWApplication logWithFormat:@"lock Target..."];
           [_target lock];
           targetLocked=YES;
           NS_DURING
@@ -166,7 +165,6 @@ RCS_ID("$Id$")
               //TODO
               if (targetLocked)
                 {
-                  [GSWApplication logWithFormat:@"unlock Target..."];
                   [_target unlock];
                   targetLocked=NO;
                 };
@@ -180,7 +178,6 @@ RCS_ID("$Id$")
             }
           NS_ENDHANDLER;
           
-          [GSWApplication logWithFormat:@"unlock Target..."];
           if (targetLocked)
             {
               [_target unlock];

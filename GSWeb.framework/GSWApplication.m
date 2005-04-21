@@ -1189,12 +1189,6 @@ int GSWApplicationMain(NSString* applicationClassName,
             (language ? language : @""),
             (isCachedComponent ? "" : "Not "),
             GSWTime_floatSec(stopTS-startTS)];
-#else
-      [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached)",
-            aName,
-            (language ? "" : "no"),
-            (language ? language : @""),
-            (isCachedComponent ? "" : "Not ")];
 #endif
     };
 #ifdef DEBUG
@@ -1205,13 +1199,6 @@ int GSWApplicationMain(NSString* applicationClassName,
                (componentDefinition ? [[componentDefinition class] description]: @""),
                (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""),
 	       GSWTime_floatSec(stopTS-startTS));
-#else
-  NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s.",
-               (componentDefinition ? "FOUND" : "NOTFOUND"),
-               componentDefinition,
-               aName,
-               (componentDefinition ? [[componentDefinition class] description]: @""),
-               (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""));
 #endif
   LOGObjectFnStop();
   return componentDefinition;
@@ -2448,11 +2435,10 @@ to another instance **/
 //NDFN
 -(void)threadWillExit
 {
-//  GSWLogC("GC** GarbageCollector collectGarbages START");
-  printf("GC** GarbageCollector collectGarbages START\n");
+//printf("GC** GarbageCollector collectGarbages START\n");
 //TODO-NOW  [GarbageCollector collectGarbages];//LAST //CLEAN
-//  GSWLogC("GC** GarbageCollector collectGarbages STOP");
-  printf("GC** GarbageCollector collectGarbages STOP\n");
+//GSWLogC("GC** GarbageCollector collectGarbages STOP");
+//printf("GC** GarbageCollector collectGarbages STOP\n");
 };
 
 //--------------------------------------------------------------------

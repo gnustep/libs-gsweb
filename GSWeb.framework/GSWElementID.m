@@ -171,7 +171,6 @@ void InitializeGSWElementIDSELs()
   static BOOL initialized=NO;
   if (!initialized)
     {
-      NSLog(@"InitializeGSWElementIDSELs");
       incrementLastElementIDComponentSEL = @selector(incrementLastElementIDComponent);
       appendElementIDComponentSEL = @selector(appendElementIDComponent:);
       appendZeroElementIDComponentSEL=@selector(appendZeroElementIDComponent);
@@ -189,8 +188,6 @@ void InitializeGSWElementIDSELs()
 {
   if (self == [GSWElementID class])
     {
-      NSLog(@"Initialize GSWElementID");
-
       deleteElementsFromIndexSelector=@selector(_deleteElementsFromIndex:);
       buildElementPartsSelector=@selector(_buildElementParts);
       appendStringSelector=@selector(appendString:);

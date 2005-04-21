@@ -645,8 +645,8 @@ static NSData* lineFeedData=nil;
               else
                 {
                   NSString* httpVersion=[protocol objectAtIndex:1];
-                  [GSWApplication statusLogWithFormat:@"RemoteAddress=%@ Method=%@ Protocol=%@ httpVersion=%@ uri=%@",
-                                  _remoteAddress,method,protocolString,httpVersion,url];
+                  //[GSWApplication statusLogWithFormat:@"RemoteAddress=%@ Method=%@ Protocol=%@ httpVersion=%@ uri=%@",
+                  //                _remoteAddress,method,protocolString,httpVersion,url];
               
                   /*		  if (isHeaderKeysEqual(method,GSWHTTPHeader_MethodPost))
                                   {
@@ -813,7 +813,7 @@ withAdditionalHeaderLines:(NSArray*)addHeaders
               NS_DURING
                 {
                   [aStream writeData:responseData];
-                  [GSWApplication statusLogString:@"\nResponse Sent\n"];
+                  //[GSWApplication statusLogString:@"\nResponse Sent\n"];
                 }
               NS_HANDLER
                 {

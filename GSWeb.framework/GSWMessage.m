@@ -409,8 +409,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 {
   if (self == [GSWMessage class])
     {
-      NSLog(@"Initialize GSWMessage");
-
       appendDataSel = @selector(appendData:);
       NSAssert(appendDataSel,@"No appendDataSel");
 
