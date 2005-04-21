@@ -1,3 +1,9 @@
+2005-04-21  David Wetzel <dave@turbocat.de>
+        * GSWeb.framework:
+          GSWApplication.m GSWDefaultAdaptor.m GSWDefaultAdaptorThread.m 
+          GSWElementID.m GSWMessage.m GSWSessionTimeOutManager.m
+                o removed some logs
+
 2005-04-06  David Wetzel <dave@turbocat.de>
         * GSWeb.framework/GSWDynamicURLString.m
                 o avoid message call if not needed.
