@@ -215,12 +215,6 @@ RCS_ID("$Id$")
   BOOL requestHandlingLocked=NO;
   BOOL selfLocked=NO;
   BOOL targetLocked=NO;
-  [GSWApplication statusLogWithFormat:@"Start HandleTimer"];
-//  NSDebugMLog(@"Start HandleTimer");
-  NSDebugMLLog(@"sessions",@"timer=%@",aTimer);
-  NSDebugMLLog(@"sessions",@"timer fireDate=%@",[aTimer fireDate]);
-  NSDebugMLLog(@"sessions",@"timer tisn=%f",[[aTimer fireDate]timeIntervalSinceNow]);
-//  LOGObjectFnStart();
   [GSWApp lockRequestHandling];
   requestHandlingLocked=YES;
   NS_DURING
@@ -239,11 +233,6 @@ RCS_ID("$Id$")
   if ([sessionOrderedTimeOuts count]>0)
   _sessionTimeOut=[sessionOrderedTimeOuts objectAtIndex:0];
 */
-          NSDebugMLLog(@"sessions",@"self=%p aTimer=%p",self,aTimer);
-          NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
-                       self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
-          NSDebugMLLog(@"sessions",@"now=%f",now);
-		
           sessionTimeOutEnum = [_sessionOrderedTimeOuts objectEnumerator];
 
           while (/*_removedNb<20 && *//*sessionTimeOut && [sessionTimeOut timeOutTime]<_now*/
@@ -288,8 +277,6 @@ RCS_ID("$Id$")
                   targetLocked=NO;
 
                   NSDebugMLLog(@"sessions",@"session=%p",session);
-                  NSLog(@"%s %d GSWSessionTimeOutMananger : before removeObject sessionID=%@ session = %p",
-                        __FILE__,__LINE__,[sessionTimeOut sessionID],session);
 
                   if (sessionTimeOut)
                     {
@@ -306,14 +293,12 @@ RCS_ID("$Id$")
                   
                   if (session)
                     {
-                      //NSLog(@"%s %d will terminate session",__FILE__,__LINE__);
                       NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
                                    self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
                       [session _terminateByTimeout];
                       NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
                                    self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
 
-                      //NSLog(@"%s %d session terminated",__FILE__,__LINE__);
 
                       /*
                         if ([sessionOrderedTimeOuts count]>0)
@@ -375,9 +360,6 @@ RCS_ID("$Id$")
       [GSWApp unlockRequestHandling];
       requestHandlingLocked=NO;
     };
-  //  LOGObjectFnStop();
-  [GSWApplication statusLogWithFormat:@"Stop HandleTimer"];
-//  NSDebugMLog(@"Stop HandleTimer");
 };
 
 //--------------------------------------------------------------------
