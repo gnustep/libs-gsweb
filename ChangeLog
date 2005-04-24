@@ -1,4 +1,32 @@
 2005-04-24  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWMessage.m:
+		o fixed indentation and double ;;
+	* GSWeb.framework/GSWPopUpButton.m:
+		o fix in comments
+		o fix output in -appendToResponse:inContext: 
+		o avoid string formatting
+	* GSWeb.framework/GSWSessionTimeOut.m:
+		o improved logs
+	* GSWeb.framework/GSWTemplateParser.h
+		o added +templateWithHTMLString:declarationString:languages: 
+		declaration
+	* GSWeb.framework/GSWURLValuedElementData.m:
+		o avoid string formatting
+	* GSWeb.framework/GSWUtils.h:
+		o replaced ClassIsKindOfClass() by GSObjCIsKindOf()
+	* GSWeb.framework/GSWUtils.m:
+		o removed ClassIsKindOfClass
+		o fixed GSWTime_format()
+		o implemented missing methods in NSFooNumberFormatter
+		o avoid string formatting
+	* GSWeb.framework/GSWSessionTimeOutManager.m:
+		o use +logString: instead of +logWithFormat:
+	* GSWeb.framework/NSString+HTML.m:
+		o commented debug logs
+	* GSWeb.framework/GSWResourceManager.m:
+		o fixes for warnings
+	
+2005-04-24  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWHyperlink.m:
 		o removed -hrefInContext:
 		o fix for enabled binding

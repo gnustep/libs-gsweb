@@ -255,20 +255,6 @@ NSNumber* GSWIntNumber(int value)
 };
 
 //--------------------------------------------------------------------
-BOOL ClassIsKindOfClass(Class classA,Class classB)
-{
-  Class class;
-  for (class = classA; 
-       class != Nil;
-       class = class_get_super_class (class))
-    {
-      if (class == classB)
-        return YES;
-    }
-  return NO;
-};
-
-//--------------------------------------------------------------------
 GSWTime GSWTime_now()
 {
     struct timeval tv;
@@ -332,9 +318,9 @@ NSString* GSWTime_format(GSWTime t)
   sDate[17] = stTM.tm_sec / 10 + '0';
   sDate[18] = stTM.tm_sec % 10 + '0';
   sDate[19] = '.';
-  sDate[20] = (timeMSecPart/1000) / 100 + '0';
-  sDate[21] = ((timeMSecPart/1000) % 100) / 10 + '0';
-  sDate[22] = (timeMSecPart/1000) % 10 + '0';
+  sDate[20] = timeMSecPart / 100 + '0';
+  sDate[21] = (timeMSecPart % 100) / 10 + '0';
+  sDate[22] = timeMSecPart % 10 + '0';
 
   sDate[23] = 0;
   return (*nsString_stringWithCString_lengthIMP)(nsStringClass,stringWithCString_lengthSEL,
@@ -1862,6 +1848,34 @@ NSString* GSWGetDefaultDocRoot()
 };
 
 //--------------------------------------------------------------------
+-(id)copyWithZone:(NSZone*)zone
+{
+  NSFooNumberFormatter* clone = [[isa allocWithZone:zone] init];
+  if (clone)
+    {
+      clone->_type=_type;
+    };
+  return clone;
+};
+
+//--------------------------------------------------------------------
+-(void)encodeWithCoder:(NSCoder*)coder
+{
+  [super encodeWithCoder:coder];
+  [coder encodeValueOfObjCType: @encode(int) at: &_type];
+}
+
+//--------------------------------------------------------------------
+-(id)initWithCoder: (NSCoder*)coder
+{
+  if (([super initWithCoder:coder]))
+    {
+      [coder decodeValueOfObjCType: @encode(int) at: &_type];
+    };
+  return self;
+}
+
+//--------------------------------------------------------------------
 -(NSString*)stringForObjectValue:(id)anObject
 {
   NSString* string=nil;
@@ -1909,7 +1923,7 @@ NSString* GSWGetDefaultDocRoot()
           else if ([anObject respondsToSelector:@selector(intValue)])
             {
               int value=[anObject intValue];
-              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%d.00",value);
+              string=[GSWIntToNSString(value) stringByAppendingString:@".00"];
             }
           else if ([anObject respondsToSelector:@selector(floatValue)])
             {

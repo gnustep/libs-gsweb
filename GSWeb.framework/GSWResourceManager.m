@@ -1,6 +1,6 @@
 /** GSWResourceManager.m - <title>GSWeb: Class GSWResourceManager</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -711,12 +711,18 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                                      inFramework:(NSString*)aFrameworkName
                                         language:(NSString*)aLanguage
 {
-  //OK
   NSDictionary* stringsTable=nil;
+  NSDictionary* stringsTablesForFramework=nil;
+  NSDictionary* stringsTablesForFrameworkAndLanguage=nil;
+
   LOGObjectFnStart();
-  stringsTable=[[[_stringsTablesByFrameworkByLanguageByName objectForKey:aFrameworkName]
-                   objectForKey:aLanguage]
-                  objectForKey:aTableName];
+  stringsTablesForFramework=[_stringsTablesByFrameworkByLanguageByName 
+                              objectForKey:aFrameworkName];
+  stringsTablesForFrameworkAndLanguage=[stringsTablesForFramework
+                                         objectForKey:aLanguage];
+  stringsTable=[stringsTablesForFrameworkAndLanguage 
+                 objectForKey:aTableName];
+
   if (!stringsTable)
     stringsTable=[self  lockedStringsTableWithName:aTableName 
                          inFramework:aFrameworkName
@@ -739,12 +745,21 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                                      inFramework:(NSString*)aFrameworkName
                                         language:(NSString*)aLanguage
 {
-  //OK
   NSArray* stringsTableArray=nil;
+  NSDictionary* stringsTableArraysForFramework=nil;
+  NSDictionary* stringsTableArraysForFrameworkAndLanguage=nil;
   LOGObjectFnStart();
-  stringsTableArray=[[[_stringsTableArraysByFrameworkByLanguageByName objectForKey:aFrameworkName]
-                        objectForKey:aLanguage]
-                       objectForKey:aTableName];
+
+  stringsTableArraysForFramework=
+    [_stringsTableArraysByFrameworkByLanguageByName 
+      objectForKey:aFrameworkName];
+
+  stringsTableArraysForFrameworkAndLanguage=
+    [stringsTableArraysForFramework objectForKey:aLanguage];
+
+  stringsTableArray=[stringsTableArraysForFrameworkAndLanguage
+                      objectForKey:aTableName];
+
   if (!stringsTableArray)
     stringsTableArray=[self  lockedStringsTableArrayWithName:aTableName 
                               inFramework:aFrameworkName

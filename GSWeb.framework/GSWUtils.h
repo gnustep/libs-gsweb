@@ -85,7 +85,7 @@ GSWEB_EXPORT char* GSWIntToString(char* buffer,unsigned int bufferSize,int value
 GSWEB_EXPORT NSString* GSWIntToNSString(int value);
 GSWEB_EXPORT NSNumber* GSWIntNumber(int value);
 
-GSWEB_EXPORT BOOL ClassIsKindOfClass(Class classA,Class classB);
+#define ClassIsKindOfClass(classA,classB) GSObjCIsKindOf(classA,classB)
 
 typedef long long GSWTime; // usec since Epoch
 

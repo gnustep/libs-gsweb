@@ -174,6 +174,11 @@ Creates a GSWHTMLComment with the comment text
            declarationsPath:(NSString*)aDeclarationsPath;
 +(GSWTemplateParserType)templateParserTypeFromString:(NSString*)string;
 +(GSWTemplateParserType)defaultTemplateParserType;
+
++(GSWElement*)templateWithHTMLString:(NSString *)HTMLString
+                   declarationString:(NSString *)declarationsString
+                           languages:(NSArray *)languages;
+
 -(id)initWithTemplateName:(NSString*)aName
           inFrameworkName:(NSString*)aFrameworkName
                withString:(NSString*)HTMLString

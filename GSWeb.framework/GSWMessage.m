@@ -910,10 +910,10 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   // checking [aValue length] takes too long!  
   if (aValue)
     {
-NSData* ad=[aValue dataUsingEncoding:NSASCIIStringEncoding
-                   allowLossyConversion:YES];;
+      NSData* ad=[aValue dataUsingEncoding:NSASCIIStringEncoding
+                         allowLossyConversion:YES];
       
-          (*_contentDataADImp)(_contentData,appendDataSel,ad);
+      (*_contentDataADImp)(_contentData,appendDataSel,ad);
 
 #ifndef NO_GNUSTEP
           // Caching management
@@ -929,7 +929,7 @@ NSData* ad=[aValue dataUsingEncoding:NSASCIIStringEncoding
       int    length = 0;
       int    i = 0;
       int    ch = 0;
-********        
+
       lossyCString = [aValue lossyCString];
       length = strlen(lossyCString);
 

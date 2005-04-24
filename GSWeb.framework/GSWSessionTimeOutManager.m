@@ -1,6 +1,6 @@
 /** GSWSessionTimeOutManager.m - <title>GSWeb: Class GSWSessionTimeOutManager</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -130,17 +130,26 @@ RCS_ID("$Id$")
     {
       NSTimer* timer=nil;
       GSWSessionTimeOut* sessionTimeOut=nil;
-      NSDebugMLLog(@"sessions",@"timeOut=%ld",(long)timeOut);
+
+      NSDebugMLLog(@"sessions",@"timeOut=%ld s",
+                   (long)timeOut);
+
       sessionTimeOut=[self _sessionTimeOutForSessionID:sessionID];
+
       NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",sessionTimeOut);
       NSDebugMLLog(@"sessions",@"self=%p _sessionOrderedTimeOuts %p=%@",
                    self,_sessionOrderedTimeOuts,_sessionOrderedTimeOuts);
+
       NSAssert(sessionTimeOut,@"No sessionTimeOut");
 
       [_sessionOrderedTimeOuts removeObject:sessionTimeOut];
-      [sessionTimeOut setLastAccessTime:[NSDate timeIntervalSinceReferenceDate]];
+
+      [sessionTimeOut setLastAccessTime:
+                        [NSDate timeIntervalSinceReferenceDate]];
+
       if (timeOut!=[sessionTimeOut sessionTimeOut])
         [sessionTimeOut setSessionTimeOut:timeOut];
+
       [_sessionOrderedTimeOuts addObject:sessionTimeOut];
 
       NSDebugMLLog(@"sessions",@"self=%p sessionOrderedTimeOuts %p=%@",
@@ -561,7 +570,7 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"sessions",@"Start startHandleTimerRefusingSessions");
 
   //NSLog(@"---Start startHandleTimerRefusingSessions");
-  //[GSWApplication statusLogWithFormat:@"Start startHandleTimerRefusingSessions"];
+  //[GSWApplication statusLogString:@"Start startHandleTimerRefusingSessions"];
   //LOGObjectFnStart();
   [self lock];
   /*
@@ -587,7 +596,7 @@ RCS_ID("$Id$")
   
   [self unlock];
   //LOGObjectFnStop();
-  //[GSWApplication statusLogWithFormat:@"Stop startHandleTimerRefusingSessions"];
+  //[GSWApplication statusLogString:@"Stop startHandleTimerRefusingSessions"];
   //NSLog(@"---Stop startHandleTimerRefusingSessions");
 }
 
@@ -611,7 +620,7 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"sessions",@"timer tisn=%f",[[aTimer fireDate]timeIntervalSinceNow]);
   //OK
   //NSLog(@"-Start HandleTimerRefusingSessions");
-  //[GSWApplication statusLogWithFormat:@"-Start HandleTimerRefusingSessions"];
+  //[GSWApplication statusLogString:@"-Start HandleTimerRefusingSessions"];
   //[GSWApp lockRequestHandling];
   if ([self tryLockBeforeTimeIntervalSinceNow:1])//Try locking before 1s
     {
@@ -739,7 +748,7 @@ RCS_ID("$Id$")
     };
 
   //[GSWApp unlockRequestHandling];
-  //[GSWApplication statusLogWithFormat:@"-Stop HandleTimerRefusingSessions"];
+  //[GSWApplication statusLogString:@"-Stop HandleTimerRefusingSessions"];
   //NSLog(@"-Stop HandleTimerRefusingSessions");
 };
 

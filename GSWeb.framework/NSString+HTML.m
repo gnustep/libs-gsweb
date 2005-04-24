@@ -1,6 +1,6 @@
 /** NSString+HTML.m - <title>GSWeb: NSString / HTML</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -368,12 +368,12 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
       int allocMargin=max(128,length/2);
       allocOrReallocUnicharString(&pString,&capacity,0,length+1+allocMargin);
       [string getCharacters:pString];
-      NSDebugFLog(@"string=%@",string);
+      //NSDebugFLog(@"string=%@",string);
       while(i<length)
         {
           srcLen=0;
           unichar c=pString[i];
-          NSDebugFLog(@"i=%d: c=%c",i,(char)c);
+          //NSDebugFLog(@"i=%d: c=%c",i,(char)c);
           if (includeCRLF && c=='\r')
             {
               if (i<(length-1)
@@ -411,25 +411,25 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
             };
           if (srcLen>0)
             {
-              NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:dstChars
-                                                                                                length:dstLen]);
+              /*NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:dstChars
+                length:dstLen]);*/
               changed=YES;
-              NSDebugFLog(@"-1==> %@",[NSString stringWithCharacters:pString
-                                                length:length]);
+              /*NSDebugFLog(@"-1==> %@",[NSString stringWithCharacters:pString
+                                                length:length]);*/
               if (length+1+dstLen-srcLen>capacity)
                 allocOrReallocUnicharString(&pString,&capacity,length,capacity+allocMargin);
-              NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
+              /*NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
                                                length:length]);
-              NSDebugFLog(@"Copy %d characters from pos %d to pos %d",(length-i-srcLen),i+srcLen,i+dstLen);
+              NSDebugFLog(@"Copy %d characters from pos %d to pos %d",(length-i-srcLen),i+srcLen,i+dstLen);*/
               GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
-              NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
+              /*NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
                                                length:length+dstLen-srcLen]);
-              NSDebugFLog(@"Copy %d characters to pos %d",dstLen,i);
+              NSDebugFLog(@"Copy %d characters to pos %d",dstLen,i);*/
               GSWMemMove(pString+i,dstChars,sizeof(unichar)*dstLen);
               i+=dstLen;
               length+=dstLen-srcLen;
-              NSDebugFLog(@"2==> i=%d length=%d %@",i,length,[NSString stringWithCharacters:pString
-                                                                       length:length]);
+              /*NSDebugFLog(@"2==> i=%d length=%d %@",i,length,[NSString stringWithCharacters:pString
+                length:length]);*/
               
             }
           else
@@ -532,12 +532,12 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
       int i=0;
       int j=0;
       [string getCharacters:pString];
-      NSDebugFLog(@"string=%@",string);
+      //NSDebugFLog(@"string=%@",string);
       while(i<(length-2)) // at least 2 characters for html coded
         {
           srcLen=0;
-          NSDebugFLog(@"i=%d: c=%@",i,[NSString stringWithCharacters:pString+i
-                                                length:length-i]);
+          /*NSDebugFLog(@"i=%d: c=%@",i,[NSString stringWithCharacters:pString+i
+                                                length:length-i]);*/
           if (includeBR
               && length-i>=unicodeBRLen
               && areUnicharEquals(pString+i,unicodeBR,unicodeBRLen))
@@ -562,23 +562,29 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
             };
           if (srcLen>0)
             {
-              NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:&dstUnichar
-                                                                                                length:dstLen]);
+              /*NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:&dstUnichar
+                                                                                                length:dstLen]);*/
               changed=YES;
+              /*
               NSDebugFLog(@"-1==> %@",[NSString stringWithCharacters:pString
                                                 length:length]);
               NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
                                                length:length]);
               NSDebugFLog(@"Copy %d characters from pos %d to pos %d",(length-i-srcLen),i+srcLen,i+dstLen);
+              */
               GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
+              /*
               NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
                                                length:length+dstLen-srcLen]);
               NSDebugFLog(@"Copy %d characters to pos %d",dstLen,i);
+              */
               GSWMemMove(pString+i,&dstUnichar,sizeof(unichar)*dstLen);
               i+=dstLen;
               length+=dstLen-srcLen;
+              /*
               NSDebugFLog(@"2==> i=%d %@",i,[NSString stringWithCharacters:pString
-                                                      length:length]);
+              length:length]);
+              */
             };
           if (srcLen==0)
             i++;

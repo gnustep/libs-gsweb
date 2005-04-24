@@ -1,6 +1,6 @@
 /** GSWSessionTimeOut.m - <title>GSWeb: Class GSWSessionTimeOut</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Mar 1999
@@ -48,8 +48,11 @@ RCS_ID("$Id$")
       ASSIGN(_sessionID,aSessionID);
       _lastAccessTime=aTime;
       _timeOut=aTimeOutInterval;
-      NSDebugMLog(@"_lastAccessTime=%f",_lastAccessTime);
-      NSDebugMLog(@"_timeOut=%f",_timeOut);
+      NSDebugMLLog(@"sessions",@"_lastAccessTime=%f (%@)",
+                   _lastAccessTime,
+                   [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime]);
+      NSDebugMLLog(@"sessions",@"_timeOut=%f s",
+                   _timeOut);
     };
   return self;
 };
@@ -116,7 +119,8 @@ RCS_ID("$Id$")
 -(void)setSessionTimeOut:(NSTimeInterval)aTimeOutInterval
 {
   _timeOut=aTimeOutInterval;
-  NSDebugMLog(@"_timeOut=%f",_timeOut);
+  NSDebugMLLog(@"sessions",@"_timeOut=%f s",
+               _timeOut);
 };
 
 //--------------------------------------------------------------------
@@ -129,7 +133,9 @@ RCS_ID("$Id$")
 -(void)setLastAccessTime:(NSTimeInterval)aTime
 {
   _lastAccessTime=aTime;
-  NSDebugMLog(@"_lastAccessTime=%f",_lastAccessTime);
+  NSDebugMLLog(@"sessions",@"_lastAccessTime=%f (%@)",
+               _lastAccessTime,
+               [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime]);
 };
 
 //--------------------------------------------------------------------
@@ -156,11 +162,13 @@ RCS_ID("$Id$")
   return [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime+_timeOut];
 };
 
+//--------------------------------------------------------------------
 -(BOOL)isCheckedOut
 {
   return _isCheckedOut;
 };
 
+//--------------------------------------------------------------------
 -(void)setIsCheckedOut:(BOOL)isCheckOut
 {
   _isCheckedOut=isCheckOut;

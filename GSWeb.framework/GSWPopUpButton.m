@@ -49,7 +49,10 @@ Bindings
         selection	Selected object (used to pre-select item and modified to reflect user choice)
         			It contains  object from list, not value binding evaluated one !
 
-        selectedValue	Array of pre selected values (not objects !)
+        selectedValue	Pre selected value (not object !)
+
+        selectionValue	Selected value (used to pre-select item and modified to reflect user choice)
+        			It contains  object from list, not value binding evaluated one !
 
         name		Name of the element in the form (should be unique). If not specified, GSWeb assign one.
 
@@ -295,9 +298,9 @@ static SEL valueInComponentSEL = NULL;
         {
           GSWResponse_appendContentAsciiString(aResponse,@"\n<OPTION");
           if (_selectedValue && !selectedValueValue)
-            GSWResponse_appendContentAsciiString(aResponse,@" selected>");//TODO
+            GSWResponse_appendContentAsciiString(aResponse,@" selected value=\"\">");
           else
-            GSWResponse_appendContentCharacter(aResponse,'>');
+            GSWResponse_appendContentAsciiString(aResponse,@" value=\"\">");
           
           if (escapeHTMLBoolValue)
             noSelectionStringValue=GSWResponse_stringByEscapingHTMLString(aResponse,noSelectionStringValue);
@@ -439,7 +442,8 @@ static SEL valueInComponentSEL = NULL;
 #ifndef ENABLE_OPTGROUP
                   if (optGroupLabel)
                     {
-                      displayStringValue=[NSString stringWithFormat:@"%@ --",displayStringValue];
+                      displayStringValue=NSStringWithObject(displayStringValue);
+                      displayStringValue=[displayStringValue stringByAppendingString:@" --"];
                     };
 #endif
                   GSWResponse_appendContentString(aResponse,displayStringValue);

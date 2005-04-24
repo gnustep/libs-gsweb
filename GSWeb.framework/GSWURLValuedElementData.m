@@ -1,6 +1,6 @@
 /** GSWURLValuedElementData.m - <title>GSWeb: Class GSWURLValuedElementData</title>
 
-   Copyright (C) 1999-2003 Free Software Foundation, Inc.
+   Copyright (C) 1999-2005 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
@@ -110,7 +110,7 @@ RCS_ID("$Id$")
     }
   else
     [response setContent:data];
-  [response setHeader:[NSString stringWithFormat:@"%u",[data length]]
+  [response setHeader:GSWIntToNSString((int)[data length])
             forKey:@"content-length"];
   
   [response setHeader:_mimeType
