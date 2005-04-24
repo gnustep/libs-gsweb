@@ -319,7 +319,7 @@ static Class standardClass = Nil;
         }
       else if (_enabled)
         {
-          disabledValue!=GSWDynamicElement_evaluateValueInContext(self,standardClass,
+          disabledValue=!GSWDynamicElement_evaluateValueInContext(self,standardClass,
                                                                   standardEvaluateConditionInContextIMP,
                                                                   _enabled,aContext);
         };
@@ -336,7 +336,7 @@ static Class standardClass = Nil;
           
           if (_href)
             {
-              NSString* hrefValue=[self hrefInContext:aContext];
+              NSString* hrefValue=[_href valueInComponent:component];
               GSWResponse_appendContentString(aResponse,hrefValue);
               if (!hrefValue)
                 {
@@ -718,22 +718,6 @@ static Class standardClass = Nil;
   LOGObjectFnStop();
 }
 
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)hrefInContext:(GSWContext*)aContext
-{
-  GSWComponent* component=nil;
-  NSString* hrefValue=nil;
-
-  LOGObjectFnStart();
-
-  component=GSWContext_component(aContext);
-  hrefValue=[_href valueInComponent:component];
-
-  LOGObjectFnStop();
-
-  return hrefValue;
-};
 @end
 
 //====================================================================

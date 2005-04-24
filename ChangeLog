@@ -1,3 +1,10 @@
+2005-04-24  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb.framework/GSWHyperlink.m:
+		o removed -hrefInContext:
+		o fix for enabled binding
+	* GSWeb.framework/GSWHyperlink.h:
+		o removed -hrefInContext:
+
 2005-04-21  David Wetzel <dave@turbocat.de>
         * GSWeb.framework:
           GSWApplication.m GSWDefaultAdaptor.m GSWDefaultAdaptorThread.m 

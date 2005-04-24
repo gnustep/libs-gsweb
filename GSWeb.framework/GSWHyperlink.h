@@ -92,8 +92,6 @@
                             inContext:(GSWContext*)aContext;
 -(void)_appendChildrenToResponse:(GSWResponse*)aResponse
                        inContext:(GSWContext*)aContext;
--(NSString*)hrefInContext:(GSWContext*)aContext; //NDFN
-
 @end
 
 @interface GSWHyperlink (GSWHyperlinkB)
