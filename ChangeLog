@@ -1,3 +1,11 @@
+2005-05-02  David Ayers <d.ayers@inode.at>
+
+	* GNUmakefile, Examples/hello/GNUmakefile, 
+	GSWExtensions.framework/GNUmakefile,
+	GSWExtensionsGSW.framework/GNUmakefile,
+	Testing/DynamicElements/GNUmakefile: Do not reset
+	GNUSTEP_MAKEFILES to an obsolete location.
+	
 2005-04-24  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb.framework/GSWMessage.m:
 		o fixed indentation and double ;;
