@@ -88,7 +88,7 @@ char* GSWStats_formatStats(GSWTimeStats *p_pStats,
                 {
                   int aLen=0;
                   char* endPtr=NULL;
-                  double val=strtof(++p,&endPtr);
+                  double val=strtod(++p,&endPtr);
                   val=baseFloatSec+val;
                   p=endPtr+1;
                   sprintf(floatBuffer,"%0.3f",val);

@@ -1,3 +1,9 @@
+2005-05-03  David Ayers <d.ayers@inode.at>
+
+	* GSWAdaptors/common/GSWStats.c (GSWStats_formatStats):
+	Use standard strtod instead of the GNU extension strtof
+	which is stored in a double anyway.
+	
 2005-05-02  David Ayers <d.ayers@inode.at>
 
 	* GNUmakefile, Examples/hello/GNUmakefile, 
