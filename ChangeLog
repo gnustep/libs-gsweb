@@ -1,3 +1,8 @@
+2005-05-04  David Ayers <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWUtils.h/m (GetTmpName): Remove unused
+	function which generates warnings about tempnam usage.
+	
 2005-05-03  David Ayers <d.ayers@inode.at>
 
 	* GSWAdaptors/common/GSWStats.c (GSWStats_formatStats):

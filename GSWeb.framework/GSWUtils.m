@@ -444,24 +444,6 @@ BOOL SBIsValueIsIn(id id1,id id2)
   return NO;
 };
 
-//--------------------------------------------------------------------
-id GetTmpName(NSString* dir,NSString* prefix)
-{
-  id result=nil;
-  char *pszTmpFile=tempnam([dir cString],[prefix cString]);
-  if (!pszTmpFile)
-    {
-      //TODO
-      //result=NewError(1,@"Can't get TmpFile",0,0,0);
-    }
-  else
-    {
-      result=[nsStringClass stringWithCString:pszTmpFile];
-      free(pszTmpFile);
-    };
-  return result;
-};
-
 /* The number of seconds between 1/1/2001 and 1/1/1970 = -978307200. */
 /* This number comes from:
 -(((31 years * 365 days) + 8 days for leap years) =total number of days

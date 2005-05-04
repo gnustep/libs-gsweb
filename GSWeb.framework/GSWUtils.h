@@ -156,7 +156,6 @@ GSWEB_EXPORT BOOL SBIsEqual(id id1,id id2);
 GSWEB_EXPORT BOOL SBIsValueEqual(id id1,id id2);
 GSWEB_EXPORT BOOL SBIsValueIsIn(id id1,id id2);
 
-GSWEB_EXPORT id GetTmpName(NSString* dir,NSString* prefix);
 GSWEB_EXPORT NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv);
 GSWEB_EXPORT void NSTimeIntervalSleep(NSTimeInterval ti);
 
