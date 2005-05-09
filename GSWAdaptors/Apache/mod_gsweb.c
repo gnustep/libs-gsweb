@@ -55,7 +55,7 @@
 // Module Definition:
 
 // Declare the module
-module GSWeb_Module;
+module gsweb_module;
 
 
 typedef struct _GSWeb_Config
@@ -71,7 +71,7 @@ typedef struct _GSWeb_Config
  * Declare ourselves so the configuration routines can find and know us.
  * We'll fill it in at the end of the module.
  */
-module AP_MODULE_DECLARE_DATA GSWeb_Module;
+module AP_MODULE_DECLARE_DATA gsweb_module;
 
 #include <ap_compat.h>
 #include <apr_pools.h>
@@ -130,7 +130,7 @@ static GSWeb_Config *
 GSWeb_GetServerConfig(server_rec *p_pServerRec)
 {
   return (GSWeb_Config *)ap_get_module_config(p_pServerRec->module_config,
-					      &GSWeb_Module);
+					      &gsweb_module);
 }
 
 
@@ -219,7 +219,7 @@ GSWeb_SetDocRoot(cmd_parms *p_pCmdParams,
 
   GSWDebugLog(pServerRec,"Start GSWeb_SetDocRoot");
   pConfig=(GSWeb_Config *)ap_get_module_config(pServerRec->module_config,
-					       &GSWeb_Module);
+					       &gsweb_module);
   pConfig->pszRoot = p_pszArg;
   GSWDebugLog(pServerRec,"Start GSWeb_SetDocRoot");
   return NULL;
@@ -902,7 +902,7 @@ static const command_rec GSWeb_Commands[] =
   {NULL}
 };
 
-module AP_MODULE_DECLARE_DATA GSWeb_Module =
+module AP_MODULE_DECLARE_DATA gsweb_module =
 {
     STANDARD20_MODULE_STUFF,
     NULL,//x_create_dir_config,    /* per-directory config creator */
@@ -960,7 +960,7 @@ handler_rec GSWeb_Handlers[] =
  * Module definition for configuration.  If a particular callback is not
  * needed, replace its routine name below with the word NULL.
  */
-module GSWeb_Module =
+module gsweb_module =
 {
   STANDARD_MODULE_STUFF,
   GSWeb_Init,               // Init

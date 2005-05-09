@@ -1,15 +1,31 @@
-2005-05-04  David Ayers <d.ayers@inode.at>
+2005-05-09  David Ayers  <d.ayers@inode.at>
+
+	* GSWAdaptors/Apache/mod_gsweb.c: Rename GSWeb_Module to
+	gsweb_module for apxs integration.
+	* INSTALL: Refer to GSWAdaptors/Apache/INSTALL for Apache
+	specific installation instructions.  Move Apache specific
+	installation instructions to GSWAdaptors/Apache/INSTALL.
+	* GSWAdaptors/Apache/INSTALL: Update to new ./configure
+	usage and new install and httpdconfig make targets.
+	* GSWAdaptors/Apache/GNUmakefile.in: New file to build
+	the adaptor module with apxs and apr-config.
+	* GSWAdaptors/Apache/configure[.ac]: New files
+	* GSWAdaptors/Apache/config.guess: Ditto.
+	* GSWAdaptors/Apache/config.sub: Ditto.
+	* GSWAdaptors/Apache/install-sh: Ditto.
+	
+2005-05-04  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWUtils.h/m (GetTmpName): Remove unused
 	function which generates warnings about tempnam usage.
 	
-2005-05-03  David Ayers <d.ayers@inode.at>
+2005-05-03  David Ayers  <d.ayers@inode.at>
 
 	* GSWAdaptors/common/GSWStats.c (GSWStats_formatStats):
 	Use standard strtod instead of the GNU extension strtof
 	which is stored in a double anyway.
 	
-2005-05-02  David Ayers <d.ayers@inode.at>
+2005-05-02  David Ayers  <d.ayers@inode.at>
 
 	* GNUmakefile, Examples/hello/GNUmakefile, 
 	GSWExtensions.framework/GNUmakefile,

@@ -46,12 +46,7 @@ Installing `gsweb'
      Go in the gsweb folder. make and make install.
 
 4) Apaches modules for GNUstepWeb
-   Still in the gsweb folder there is a GSWAdaptors/Apache folder.
-   Change to that directory.  'su' to root and make. There's no make
-   install. Instead you must copy the mod_gsweb.so module in you
-   Apache libexec directory (something like /usr/apache/libexec).
-
-At this point everything is done, still remains the Apache configuration:
+   Please read GSWAdaptors/Apache/INSTALL
 
 If you do not want the extensions you can compile with 
 ADDITIONAL_OBJCFLAGS += -DNOEXTENSIONS
@@ -60,82 +55,6 @@ in config.mak
 If you want to use TCSimpleDB you have to add
 ADDITIONAL_OBJCFLAGS += -DTCSDB
 in config.mak
-
-Configurating Apache:
-=====================
-
-In Apache httpd.conf file, add thoses lines:
-
-   LoadModule GSWeb_Module  libexec/mod_gsweb.so
-   AddModule mod_gsweb.c
-
-And this one to specify the configuration file 
-(for exemple /etc/httpd/conf/gsweb.conf)
-
-   GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf
-
-
-If you use virtual hosts (Apache in localhost does not requiered them), 
-add the following lines:
-
-	<Location /GSWeb*>
-		SetHandler GSWeb
-	</Location>
-
-Then, create the file configuration file 
-(for exemple /etc/httpd/conf/gsweb.conf) 
-which contains parameters for GNUstepWeb Applications: 
-
-The format is(there is an example for values below):
-
-{
-  canDumpStatus = YES;
-  //YES if server can display status (URL: /GSWeb/status)
-
-  GSWExtensionsFrameworkWebServerResources =
-    "/GSW/GSWExtensions/WebServerResources";
-    //URL of GSWExtensions Framework WebServerResources directory
-
-  applications = {
-    ApplicationName = {
-      //URL of GSWExtensions Framework WebServerResources directory.
-      //It overides Global parameter
-      GSWExtensionsFrameworkWebServerResources =
-        "/GSW/GSWExtensions/WebServerResources";
-
-      //YES to say that this application can be listed when the
-      //adaptor don't find an application
-      canDump = YES;
-
-      instances = {
-        InstanceNumber = {
-          host = IPAdressOfTheComputerOnWhichRunTheApplication;
-          port = ThePortListenByTheApplication;
-          parameters = { transport= socket; };
-        }
-      };
-    };
-  };
-}
-
-Example values for a localhost use: 
-{
-  canDumpStatus = YES;
-  GSWExtensionsFrameworkWebServerResources =
-    "/GSW/GSWExtensions/WebServerResources";
-  applications = {
-    MyApp =  {
-      canDump = YES;
-      instances = {
-        1 = {
-          host = 127.0.0.1;
-          port = 9001;
-          parameters = { transport= socket; };
-        };
-      };
-    };
-  };
-}
 
 
 Now, develop an application and run it !

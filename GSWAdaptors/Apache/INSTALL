@@ -1,3 +1,138 @@
+Installation
+************
+
+Insure that the development packages of the prerequisites
+- libPropList-dev
+- apache(2)-dev) 
+are installed.  This includes the apxs tool and for Apache 2.x
+also the apr-config tool.
+
+The canonical form to build the adaptor is:
+
+./configure
+make
+make install
+
+You may want to use on of the following configure options:
+
+   --with-apxs=[FILE|PATH]
+   ... to find the apxs tool to build the module.  The default is apxs
+   but you may want to specify apxs2 for systems that have multiple
+   verions of apache installed.  Or you may want to explicitly specify
+   the path of the tool.
+
+   --with-server-api=[Apache|Apache2]
+   ... to explicitly specify the API as Apache or Apache2.  The
+   default is determined by the output of running apxs -q TARGET
+   with the -v option.  This output is grepped for "Apache/1"
+   and will set the API to Apache if found otherwise it will
+   assume Apache2.  This option will be replaced dedicated
+   feature tests in the future.
+
+   --with-apr-config=[FILE|PATH]
+   ... to find the apr-config tool for the Apaceh2 API.  This is only
+   evaluated for the Apache2 API.  The apr-config tool is used to
+   determine further compile and linker flags.
+
+Configuration
+*************
+
+To configure your Apache server to use the gsweb module you have the
+following options:
+
+- run 'make httpdconfig' which will:
+  1. use the apxs -a option to edit the httpd.conf file
+     to add the LoadModule and AddModule directives
+  2. append an Include directive to the httpd.conf file
+     which includes the mod_gsweb.conf file generated during the build
+     and installed during module installation into apxs -q SYSCONFDIR.
+
+OR
+
+- Manually configure you httpd.conf (or correponding configure) by
+  adding the following lines in the appropriate places.
+
+LoadModule gsweb_module [Path to APXS -q LIBEXECDIR]/mod_gsweb.so
+AddModule mod_gsweb.c
+
+  Then you should include the mod_gsweb.conf configuration file
+  generated during the build:
+
+Include /etc/httpd/mod_gsweb.conf
+
+  This file should contain the following GSWeb specific declarations:
+
+  GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf
+  # The path to the configuration file used by the module
+
+  GSWeb_Alias /GSWeb
+
+  <Location /GSWeb*>
+    SetHandler GSWeb
+  </Location>
+  # If you use virtual hosts (Apache in localhost does not requiered them), 
+  # you can Include this file within the virtual host definitions.
+
+
+Then, create the file configuration file /etc/httpd/conf/gsweb.conf
+which contains parameters for GNUstepWeb Applications: 
+
+The format is (there is an example for values below):
+
+{
+  canDumpStatus = YES;
+  //YES if server can display status (URL: /GSWeb/status)
+
+  GSWExtensionsFrameworkWebServerResources =
+    "/GSW/GSWExtensions/WebServerResources";
+    //URL of GSWExtensions Framework WebServerResources directory
+
+  applications = {
+    ApplicationName = {
+      //URL of GSWExtensions Framework WebServerResources directory.
+      //It overides Global parameter
+      GSWExtensionsFrameworkWebServerResources =
+        "/GSW/GSWExtensions/WebServerResources";
+
+      //YES to say that this application can be listed when the
+      //adaptor don't find an application
+      canDump = YES;
+
+      instances = {
+        InstanceNumber = {
+          host = IPAdressOfTheComputerOnWhichRunTheApplication;
+          port = ThePortListenByTheApplication;
+          parameters = { transport= socket; };
+        }
+      };
+    };
+  };
+};
+
+Example values for a localhost use: 
+{
+  canDumpStatus = YES;
+  GSWExtensionsFrameworkWebServerResources =
+    "/GSW/GSWExtensions/WebServerResources";
+  applications = {
+    MyApp =  {
+      canDump = YES;
+      instances = {
+        1 = {
+          host = 127.0.0.1;
+          port = 9001;
+          parameters = { transport= socket; };
+        };
+      };
+    };
+  };
+};
+
+
+Now, develop an application and run it !
+
+Deprecated Documentation
+************************
 You have to do:
 
 For Apache 1.x:
