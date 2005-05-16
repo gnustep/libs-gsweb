@@ -42,9 +42,13 @@ esac
 # directories for headers and libraries when available.
 AC_PATH_X
 
-if test "${have_x}" == yes; then
-  CPPFLAGS="$CPPFLAGS -I${ac_x_includes}"
-  LDFLAGS="$LDFLAGS -L${ac_x_libraries}"
+if test x${have_x} == xyes; then
+  if test x${ac_x_includes} != x; then
+    CPPFLAGS="$CPPFLAGS -I${ac_x_includes}"
+  fi
+  if test x${ac_x_libraries} != x; then
+    LDFLAGS="$LDFLAGS -L${ac_x_libraries}"
+  fi
 else
 # We will now really try to just make this work here by testing
 # certain common paths explicitly.
@@ -70,7 +74,7 @@ AC_ARG_WITH(apr-config,
 
 # Set APXS_NAME
 # Default to apxs but remeber in APXS_OPT that no option was given.
-if test "$APXS_OPT" = "default" ; then
+if test x$APXS_OPT = xdefault ; then
   APXS_NAME=apxs
 else
   APXS_NAME="$APXS_OPT"
@@ -82,15 +86,15 @@ if test -x "$APXS_NAME"; then
   APXS=APXS_NAME
 else
   AC_PATH_PROG(APXS, "$APXS_NAME", "no", $BIN_PATH)
-  if test "$APXS_OPT" = "default" ; then
-    if test "$APXS" = "no" -o "$APXS" = "" ; then
+  if test x${APXS_OPT} = xdefault ; then
+    if test x${APXS} = xno -o x${APXS} = x ; then
      AC_PATH_PROG(APXS2, apxs2, "no", $BIN_PATH)
      APXS="$APXS2"
     fi
   fi
 fi
 
-if test "$APXS" = "no" -o "$APXS" = ""; then
+if test x${APXS} = xno -o x${APXS} = x ; then
    AC_MSG_ERROR([ apxs tool not found.  Check path or use --with-apxs and specify a full path to the apxs tool.  ])
 fi
 
@@ -103,7 +107,7 @@ fi
 AC_ARG_WITH(server-api,
 	[[  --with-server-api=[Apache|Apache2] Specify SERVERAPI explicitly.]],
 	server_api="$withval", server_api="no")
-if test ${server_api} != "no"; then
+if test x${server_api} != xno ; then
    SERVERAPI="${server_api}"
 else
    APXS_TARGET=`$APXS -q TARGET`
@@ -119,11 +123,11 @@ fi
 AC_MSG_CHECKING(server API)
 AC_MSG_RESULT($SERVERAPI)
 
-if test "$SERVERAPI" = "unknown"; then
+if test x${SERVERAPI} = xunknown ; then
    AC_MSG_ERROR([ Could not determine Apache API version.  Use --with-server-api and specify either Apache or Apache2.  ])
 fi
 
-if test ${SERVERAPI} == "Apache2"; then
+if test x${SERVERAPI} == xApache2 ; then
    AC_PATH_PROG(APRCONFIG, "$APRCONFIG_NAME", "no", $BIN_PATH)
 fi
 

@@ -1,3 +1,9 @@
+2005-05-16  David Ayers  <d.ayers@inode.at>
+
+	* GSWAdaptors/Apache/configure.ac: Only add to CPPFLAGS if
+	ac_x_includes is set and only add LDFLAGS if ac_x_libraries
+	set.  Refer to variables in consistent form.
+	
 2005-05-09  David Ayers  <d.ayers@inode.at>
 
 	* GSWAdaptors/Apache/mod_gsweb.c: Rename GSWeb_Module to
