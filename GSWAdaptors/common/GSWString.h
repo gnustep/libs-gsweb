@@ -35,7 +35,7 @@ typedef struct _GSWString
   char *pszData;
 } GSWString;
 
-GSWString *GSWString_New();
+GSWString *GSWString_New(void);
 int GSWString_Len(GSWString *p_pString);
 void GSWString_Free(GSWString *p_pString);
 void GSWString_Detach(GSWString *p_pString);

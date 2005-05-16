@@ -68,7 +68,7 @@ typedef long long GSWTime; // usec since Epoch
 #define USEC_PER_SEC	((GSWTime)1000000)
 #define GSWTime_makeTimeFromSecAndUSec(sec,usec)	((GSWTime)(sec)*USEC_PER_SEC+(GSWTime)(usec))
 
-GSWTime GSWTime_now();
+GSWTime GSWTime_now(void);
 char* GSWTime_format(char *date_str,GSWTime t); // yyyy/mm/dd hh:mm:ss.msec
 time_t GSWTime_secPart(GSWTime t);
 long GSWTime_usecPart(GSWTime t);
@@ -164,7 +164,7 @@ char *strcasestr(CONST char *p_pszString, CONST char *p_pszSearchedString);
 typedef	struct hostent *PSTHostent;
 
 PSTHostent GSWUtil_HostLookup(CONST char *p_pszHost, void *p_pLogServerData);
-void GSWUtil_ClearHostCache();
+void GSWUtil_ClearHostCache(void);
 PSTHostent GSWUtil_FindHost(CONST char *p_pszHost, void *p_pLogServerData);
 
 //====================================================================

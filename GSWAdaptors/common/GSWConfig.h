@@ -125,12 +125,12 @@ proplist_t GSWConfig_ApplicationsKeysFromApplications(proplist_t p_propListAppli
 proplist_t GSWConfig_ApplicationsKeysFromConfig(proplist_t p_propListConfig,
 						void      *p_pLogServerData);
 
-GSWConfig *GSWConfig_GetConfig();
-BOOL GSWConfig_CanDumpStatus();
-BOOL GSWConfig_AddTimeHeaders();
-BOOL GSWConfig_IsDebug();
-BOOL GSWConfig_IsReaden();
-CONST char *GSWConfig_GetConfigFilePath();
+GSWConfig *GSWConfig_GetConfig(void);
+BOOL GSWConfig_CanDumpStatus(void);
+BOOL GSWConfig_AddTimeHeaders(void);
+BOOL GSWConfig_IsDebug(void);
+BOOL GSWConfig_IsReaden(void);
+CONST char *GSWConfig_GetConfigFilePath(void);
 void GSWConfig_SetConfigFilePath(CONST char *p_pszConfigFilePath);
 GSWString *GSWConfig_DumpGSWApps(const char *p_pszReqApp,
 				 const char *p_pszPrefix,
@@ -140,11 +140,11 @@ GSWString *GSWConfig_DumpGSWApps(const char *p_pszReqApp,
 void GSWConfig_Init(GSWDict *p_pDict,
 		    void    *p_pLogServerData);
 GSWApp *GSWConfig_GetApp(CONST char *p_pszAppName);
-CONST char *GSWConfig_AdaptorBuilt();
-CONST char *GSWConfig_ServerStringInfo();
-CONST char *g_szGSWeb_AdaptorStringInfo();
-CONST char *GSWConfig_ServerURL();
-CONST char *g_szGSWeb_AdaptorURL();
+CONST char *GSWConfig_AdaptorBuilt(void);
+CONST char *GSWConfig_ServerStringInfo(void);
+CONST char *g_szGSWeb_AdaptorStringInfo(void);
+CONST char *GSWConfig_ServerURL(void);
+CONST char *g_szGSWeb_AdaptorURL(void);
 
 #endif // _GSWConfig_h__
 

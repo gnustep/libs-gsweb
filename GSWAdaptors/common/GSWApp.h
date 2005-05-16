@@ -52,7 +52,7 @@ typedef struct _GSWAppInstance
 } GSWAppInstance;
 
 //--------------------------------------------------------------------
-GSWApp *GSWApp_New();
+GSWApp *GSWApp_New(void);
 void    GSWApp_Free(GSWApp *p_pApp);
 void    GSWApp_FreeNotValidInstances(GSWApp *p_pApp);
 void    GSWApp_AppsClearInstances(GSWDict *p_pAppsDict);
@@ -74,7 +74,7 @@ typedef struct _GSWAppInfo
 
 static GSWDict *_gswAppInfoDict = NULL;
 
-void 		GSWAppInfo_Init();
+void 		GSWAppInfo_Init(void);
 GSWAppInfo     *GSWAppInfo_Find(char *pszName,int iInstance);
 void 		GSWAppInfo_Add(GSWAppInfo *appInfoDict, CONST char *keyName);
 void 		GSWAppInfo_Set(char *pszName, int iInstance, BOOL isRefused);

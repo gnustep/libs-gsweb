@@ -1,5 +1,17 @@
 2005-05-16  David Ayers  <d.ayers@inode.at>
 
+	* GSWAdaptors/common/GSWApp.h (GSWApp_New, GSWAppInfo_Init):
+	Correct prototype.
+	* GSWAdaptors/common/GSWConfig.h (GSWConfig_GetConfig)
+	(GSWConfig_CanDumpStatus, GSWConfig_AddTimeHeaders)
+	(GSWConfig_IsDebug, GSWConfig_IsReaden)
+	(GSWConfig_GetConfigFilePath, GSWConfig_AdaptorBuilt)
+	(GSWConfig_ServerStringInfo, g_szGSWeb_AdaptorStringInfo)
+	(GSWConfig_ServerURL, g_szGSWeb_AdaptorURL): Ditto.
+	* GSWAdaptors/common/GSWString.h (GSWString_New): Ditto.
+	* GSWAdaptors/common/GSWUtil.h (GSWTime_now)
+	(GSWUtil_ClearHostCache): Ditto.
+	
 	* GSWAdaptors/Apache/configure.ac: Only add to CPPFLAGS if
 	ac_x_includes is set and only add LDFLAGS if ac_x_libraries
 	set.  Refer to variables in consistent form.
