@@ -59,16 +59,14 @@ static int gzHeaderSize=10;
   int err=Z_OK;
   unsigned int selfLength=[self length];
 
-  c_stream.zalloc = (alloc_func)0;
-  c_stream.zfree = (free_func)0;
-  c_stream.opaque = (voidpf)0;
+  memset (&c_stream, 0, sizeof(c_stream));
   
-  err = deflateInit2(&c_stream,
-                     Z_BEST_COMPRESSION,
-                     Z_DEFLATED,
-                     -15,
-                     9,
-                     Z_DEFAULT_STRATEGY);
+  err = deflateInit2(&c_stream,           /* z_streamp strm */
+                     4,  /* int level */
+                     Z_DEFLATED,          /* int method */
+                     -15,                  /* int windowBits */
+                     8,                   /* int memLevel */
+                     Z_DEFAULT_STRATEGY); /* int strategy */
   if (err!=Z_OK)
     {
       LOGError(@"deflateInit2 error: %d",err);

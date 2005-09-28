@@ -260,13 +260,17 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
       if ([appAcceptedContentEncodingArray count]>0)
         {
           NSString* contentType=[self headerForKey:@"content-type"];
+          NSString* gzHeader=[self headerForKey:@"gzip"];
+
           if ([contentType isEqualTo:@"text/html"])
             {
               NSString* contentEncoding=[self headerForKey:@"content-encoding"];
               // we could do better by handling compress,...
-              if ([contentEncoding length]==0 // Not already encoded
+              if (([contentEncoding length]==0 // Not already encoded
                   && [_acceptedEncodings containsObject:@"gzip"]
-                  && [appAcceptedContentEncodingArray containsObject:@"gzip"])
+                  && [appAcceptedContentEncodingArray containsObject:@"gzip"]) 
+                  && ((gzHeader == nil) || ([gzHeader isEqual:@"0"])))
+
                 {
                   NSDate* compressStartDate=[NSDate date];
                   NSData* content=[self content];
