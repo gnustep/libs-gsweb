@@ -245,9 +245,7 @@ RCS_ID("$Id$")
                     NSDebugMLLog(@"requests",@"adaptorVersion=%@",adaptorVersion);
                     [self _setIsUsingWebServer:(adaptorVersion!=nil)];
                   };
-                  
-                  _uri=[[GSWDynamicURLString alloc]initWithCString:[anURL cString]
-                                               length:[anURL cStringLength]];
+                  _uri = [[GSWDynamicURLString alloc]initWithString:anURL];
                   NSDebugMLLog(@"requests",@"uri=%@",_uri);
                   [_uri checkURL];
 
