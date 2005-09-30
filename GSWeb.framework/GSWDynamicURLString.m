@@ -261,6 +261,18 @@ static SEL appendStringSel = NULL;
 };
 
 //--------------------------------------------------------------------
+
+- (NSData*) dataUsingEncoding: (NSStringEncoding)encoding allowLossyConversion: (BOOL)flag
+{
+  if (!_flags.composed)
+  {
+    [self _compose];
+  }
+
+  return [_url dataUsingEncoding: encoding allowLossyConversion: flag];
+}
+
+//--------------------------------------------------------------------
 -(id)initWithCoder:(NSCoder*)coder
 {
   //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
