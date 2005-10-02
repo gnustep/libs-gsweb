@@ -103,6 +103,7 @@ RCS_ID("$Id$")
   int lineIndex=0;
   int columnIndex=0;
   int i=0;
+
   if (index>=_length)
     {
       lineIndex=999999;
@@ -110,18 +111,7 @@ RCS_ID("$Id$")
     };
   for(i=0;i<index && i<_length;i++)
     {
-      if (_uniBuf[i]=='\r')
-        {
-          if (i+1<_length
-              && _uniBuf[i+1]=='\n')
-            i++;
-          else
-            {
-              lineIndex++;
-              columnIndex=0;
-            };
-        }
-      else if (_uniBuf[i+1]=='\n')
+      if (_uniBuf[i]=='\n')
         {
           lineIndex++;
           columnIndex=0;

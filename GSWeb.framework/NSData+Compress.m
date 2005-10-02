@@ -62,9 +62,9 @@ static int gzHeaderSize=10;
   memset (&c_stream, 0, sizeof(c_stream));
   
   err = deflateInit2(&c_stream,           /* z_streamp strm */
-                     4,  /* int level */
+                     4,                   /* int level */
                      Z_DEFLATED,          /* int method */
-                     -15,                  /* int windowBits */
+                     -15,                 /* int windowBits */
                      8,                   /* int memLevel */
                      Z_DEFAULT_STRATEGY); /* int strategy */
   if (err!=Z_OK)

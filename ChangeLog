@@ -1,4 +1,12 @@
+2005-10-02  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWBaseParser.m 
+	(-[lineAndColumnIndexesFromIndex:returnsLineIndex:columnIndex:])
+	Treat '\r' as a regualar character when counting lines as '\n'
+	is the actual line break.
+	
 2005-09-30  David Wetzel <dave@turbocat.de>
+	
         * GSWeb.framework/GSWDynamicURLString.m
         added dataUsingEncoding: allowLossyConversion:
         * GSWeb.framework/GSWRequest.m
