@@ -734,8 +734,10 @@ Returns a NSString without '"' pefix and suffix
 **/
 -(id)parseQuotedString
 {
-  NSString* string=nil;
-  int startIndex=_index;
+  NSString *string=nil;
+  unsigned startIndex=_index;
+  BOOL escaped = NO;
+
   NSAssert(_index<_length,@"Reached buffer end parsing an quoted string");
   NSAssert(_uniBuf[_index]=='"',@"First character should be '\"'");
 
@@ -745,6 +747,11 @@ Returns a NSString without '"' pefix and suffix
   while(_index<_length
         && _uniBuf[_index]!='"')
     {
+      if (_uniBuf[_index]=='\\' && (_index+1 < _length))
+        {
+	  escaped=YES;
+	  _index++;
+	}
       _index++;
     };
   if (_index<_length && _uniBuf[_index]=='"')
@@ -758,8 +765,24 @@ Returns a NSString without '"' pefix and suffix
         [self lineIndexFromIndex:startIndex]];
     };  
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-  string=[NSString stringWithCharacters:_uniBuf+startIndex+1
-                   length:_index-startIndex-2]; // don't take '"' prefix and suffix
+  if (escaped)
+    {
+      unsigned i,j,l = _index-startIndex-2; // don't take '"' prefix and suffix
+      unichar *buf = GSAutoreleasedBuffer(sizeof(unichar)*l);
+      memcpy (buf, &_uniBuf[startIndex+1], sizeof(unichar)*l);
+
+      for (i=0,j=0;i<l;i++,j++)
+        {
+	  if (buf[i]=='\\' && (i+1 < l)) i++;
+	  buf[j]=buf[i];
+	}
+      string=[NSString stringWithCharacters:buf length:j];
+    }
+  else
+    {
+      string=[NSString stringWithCharacters:_uniBuf+startIndex+1
+		       length:_index-startIndex-2]; // don't take '"' prefix and suffix
+    }
   return string;
 };
 
@@ -1215,7 +1238,7 @@ Returns a NSString
           else
             {
               NSString* key=nil;
-              key=parseKey(self);
+              key=parseKeyPath(self);
 
               //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
               skipBlanksAndComments(self);
