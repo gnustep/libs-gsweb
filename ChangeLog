@@ -8,6 +8,14 @@
 	* GSWeb.framework/GSWDeclarationParser.m
 	(parseQuotedString): Handle escaped quotes.
 	(parseDictionaryWithValuesAsAssociations:): Handle key path as key.
+
+	* GSWeb.framework/GSWRequest.m:
+	(-[initWithMethod:uri:httpVersion:headers:content:userInfo:]):
+	Leave _formValueEncoding undefined.
+	(-[formValueEncoding]): Return defaultFormValueEncoding if
+	formValueEncoding is undefined.
+	(-[_formValueEncodingFromFormData:): Use formValueEncoding until
+	we have encoding detection mechanisms.
 	
 2005-09-30  David Wetzel <dave@turbocat.de>
 	

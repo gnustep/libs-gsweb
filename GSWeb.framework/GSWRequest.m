@@ -235,7 +235,6 @@ RCS_ID("$Id$")
                   [self setHeaders:headers];
                   
                   _defaultFormValueEncoding=[[self class]defaultEncoding];
-                  _formValueEncoding=[[self class]defaultEncoding];
                   
                   _applicationNumber=-9999;
                   {
@@ -701,7 +700,7 @@ RCS_ID("$Id$")
 
 -(NSStringEncoding)formValueEncoding 
 {
-  return _formValueEncoding;
+  return _formValueEncoding?_formValueEncoding:_defaultFormValueEncoding;
 };
 
 //--------------------------------------------------------------------
@@ -1385,7 +1384,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSStringEncoding)_formValueEncodingFromFormData:(NSData*)aFormData
 {
-  return [[self class] defaultEncoding]; //TODO
+  return [self formValueEncoding]; //TODO
 };
 
 //--------------------------------------------------------------------
