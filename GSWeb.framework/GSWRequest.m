@@ -1878,18 +1878,22 @@ RCS_ID("$Id$")
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
   [parser expectNoHeaders];
-  if ((e = [self formValueEncoding]) != NSISOLatin1StringEncoding)
+
+  e = [self formValueEncoding];
+  switch (e)
     {
-      if (e == NSUTF8StringEncoding)
-	{
-	  [parser setDefaultCharset: @"utf-8"];
-	}
-      else
-	{
-	  [parser setDefaultCharset:
-	    [GSObjCClass(parser) charsetFromEncoding: e]];
-	}
+      case NSISOLatin1StringEncoding:
+	[parser setDefaultCharset: @"iso-8859-1"];
+	break;
+      case NSUTF8StringEncoding:
+	[parser setDefaultCharset: @"utf-8"];
+	break;
+      default:
+	[parser setDefaultCharset: 
+	   [GSObjCClass(parser) charsetFromEncoding: e]];
+	break;
     }
+
   if ([parser parse:_contentData])
     [parser parse:nil];
   NSDebugMLLog(@"requests",@"[parser isComplete]=%d",[parser isComplete]);

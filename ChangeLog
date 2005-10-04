@@ -1,3 +1,10 @@
+2005-10-04  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWRequest.m
+	([_getFormValuesFromMultipartFormData]): Always set the default
+	character set of the mime parser but be efficient for latin-1
+	and utf-8.
+	
 2005-10-02  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWBaseParser.m 
@@ -1377,8 +1384,8 @@
 		o -_handleRequest: partially rewritten for exception handling
 	* GSWeb.framework/GSWHTMLURLValuedElement.m:
 		o fix in -appendURLToResponse:inContext: when we have key and 
-			filename binding (Stéphane Corthésy <stephane@sente.ch> 
-			and Philip Mötteli <Philip.Moetteli@tele2.ch>)
+			filename binding (StÃ©phane CorthÃ©sy <stephane@sente.ch> 
+			and Philip MÃ¶tteli <Philip.Moetteli@tele2.ch>)
 	* GSWeb.framework/GSWApplication.h/.m:
 		o added -handleActionRequestErrorWithRequest:exception:reason:
 			requestHanlder:actionClassName:actionName:actionClass:
@@ -2603,9 +2610,9 @@
 		o removed commented set/getIVar
 	* GSWeb.framework/GSWSession.m:
 		o retain/release deleteContextID in -savePageInPermanentCache 
-			(from Stéphane Corthésy <stephane@sente.ch>)
+			(from StÃ©phane CorthÃ©sy <stephane@sente.ch>)
 		o retain/release deleteContextID in -_savePage:forChange
-			(from Stéphane Corthésy <stephane@sente.ch>)
+			(from StÃ©phane CorthÃ©sy <stephane@sente.ch>)
 	
 2003-03-23  David Ayers  <d.ayers@inode.at>
 
