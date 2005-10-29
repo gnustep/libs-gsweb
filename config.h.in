@@ -27,7 +27,9 @@
 
 #undef HAVE_LIBWRAP
 #undef HAVE_GDL2
-#define HAVE_ZLIB 1
+// enable that to get zlib bugs in gsw
+//#define HAVE_ZLIB 1
+#undef HAVE_ZLIB
 
 #define RCS_ID(name) \
         static const char rcsId[] = name; \

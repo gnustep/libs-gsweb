@@ -52,6 +52,28 @@ static int gzHeaderSize=10;
 //====================================================================
 @implementation NSData (GSWZLib)
 
+/*
+(gdb) p c_stream
+$2 = {next_in = 0x0, avail_in = 0, total_in = 0, next_out = 0x0, 
+  avail_out = 0, total_out = 0, msg = 0x0, state = 0xfffb000, 
+  zalloc = 0x4806ef64 <zcalloc>, zfree = 0x4806ef88 <zcfree>, opaque = 0x0, 
+  data_type = 0, adler = 0, reserved = 0}
+(gdb) bt
+#0  0x485aafeb in kill () from /usr/lib/libc.so.12
+#1  0x4861fa47 in abort () from /usr/lib/libc.so.12
+#2  0x4861e314 in tcgetattr () from /usr/lib/libc.so.12
+#3  0x4861ec4d in tcgetattr () from /usr/lib/libc.so.12
+#4  0x4861ef27 in malloc () from /usr/lib/libc.so.12
+#5  0x4861d1b4 in calloc () from /usr/lib/libc.so.12
+#6  0x4806ef82 in zcalloc () from /usr/lib/libz.so.0
+#7  0x4806d743 in deflateInit2_ () from /usr/lib/libz.so.0
+#8  0x48181f7b in -[NSData(GSWZLib) deflate] (self=0xffa27c8, _cmd=0x481e5e00)
+    at NSData+Compress.m:64
+#9  0x48124737 in -[WOResponse(GSWResponseA) _finalizeContentEncodingInContext:] (self=0xffec608, _cmd=0x481e5e68, aContext=0xfeb8b08) at GSWResponse.m:277
+
+
+*/
+
 - (NSData *)deflate
 {
   NSMutableData *outData=nil;
