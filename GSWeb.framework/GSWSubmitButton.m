@@ -83,10 +83,16 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
-@end
 
-//====================================================================
-@implementation GSWSubmitButton (GSWSubmitButtonA)
+// PRIVATE used within dynamic elements
+- (NSString*) _actionClassAndNameInContext:(GSWContext*) context
+{
+  NSString * s = [self computeActionStringWithActionClassAssociation: _actionClass
+                              directActionNameAssociation: _directActionName
+                                                inContext: context];
+  
+  return s; 
+}
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
@@ -98,6 +104,20 @@ RCS_ID("$Id$")
   GSWSaveAppendToResponseElementID(context);
   [super appendToResponse:response
 		 inContext:context];
+
+  if (_actionClass != nil || _directActionName != nil)
+  {    
+ 
+    GSWResponse_appendContentAsciiString(response,@"<input type=\"hidden\" name=\"");
+    GSWResponse_appendContentAsciiString(response,GSWKey_SubmitAction[GSWebNamingConv]);
+    GSWResponse_appendContentCharacter(response,'"');
+    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                  @"value",
+                                                                  [self _actionClassAndNameInContext:context],
+                                                                  NO);
+    GSWResponse_appendContentCharacter(response,'>');
+  }
+		 
   GSWStopElement(context);
   LOGObjectFnStop();
 };
@@ -224,13 +244,24 @@ RCS_ID("$Id$")
 };
  
 //--------------------------------------------------------------------
+
+// used within dynamic elements
+
 -(void)appendNameToResponse:(GSWResponse*)response
                   inContext:(GSWContext*)aContext
 {
-  //OK
-  //Here we call parent (GSWInput) method instead of doing it by ourself (as GSW)
-  [super appendNameToResponse:response
-         inContext:aContext];
+   if (_actionClass != nil || _directActionName != nil)
+   {
+     GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                   @"name",
+                                                                   [self _actionClassAndNameInContext: aContext],
+                                                                   NO);
+   }
+   else
+   {
+     [super appendNameToResponse:response
+                       inContext:aContext];
+   }
 };
 
 //--------------------------------------------------------------------
