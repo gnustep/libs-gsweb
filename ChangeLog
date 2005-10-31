@@ -1,3 +1,9 @@
+2005-10-31  David Wetzel <dave@turbocat.de>
+
+        * GSWeb.framework/GSWSubmitButton.m
+          added support for Direct Actions
+          removed category
+
 2005-10-04  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWRequest.m
