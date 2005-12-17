@@ -92,7 +92,7 @@ static NSData* lineFeedData=nil;
   GSWLogMemC("release dates");
   DESTROY(_remoteAddress);
   GSWLogMemC("release pool");
-//  DESTROY(_pool);
+  DESTROY(_pool);
   GSWLogMemC("super dealloc");
   [super dealloc];
   GSWLogMemC("dealloc GSWDefaultAdaptorThread end");
@@ -134,6 +134,7 @@ static NSData* lineFeedData=nil;
   NSDictionary* headers=nil;
   NSData* data=nil;
 
+  DESTROY(_pool);
   _pool=[NSAutoreleasePool new];
   GSWLogMemCF("New NSAutoreleasePool: %p",_pool);
 #ifdef GSWDEBUG_DEEP
@@ -285,6 +286,7 @@ static NSData* lineFeedData=nil;
   GSWLogMemCF("Will Destroy NSAutoreleasePool: %p",_pool);
   [self setPool:nil
         destroyLast:YES];
+  [GSWApp debugAdaptorThreadExited];
 //  LOGObjectFnStop();
   GSWLogDeepC("threadExited");
 };

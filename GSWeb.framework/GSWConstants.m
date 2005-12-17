@@ -196,6 +196,7 @@ NSString* GSWOPT_CachingEnabled[2]={ @"GSWCachingEnabled", @"WOCachingEnabled" }
 NSString* GSWOPT_ComponentRequestHandlerKey[2]={ @"GSWComponentRequestHandlerKey", @"WOComponentRequestHandlerKey" };
 NSString* GSWOPT_DebuggingEnabled[2]={ @"GSWDebuggingEnabled", @"WODebuggingEnabled" };
 NSString* GSWOPT_StatusDebuggingEnabled[2]={ @"GSWStatusDebuggingEnabled", @"WOStatusDebuggingEnabled" };//NDFN
+NSString* GSWOPT_StatusLoggingEnabled[2]={ @"GSWStatusLoggingEnabled", @"WOStatusLoggingEnabled" };//NDFN
 NSString* GSWOPT_DirectActionRequestHandlerKey[2]={ @"GSWDirectActionRequestHandlerKey", @"WODirectActionRequestHandlerKey" };
 NSString* GSWOPT_PingActionRequestHandlerKey[2]={ @"GSWPingActionRequestHandlerKey", @"WOPingActionRequestHandlerKey" };
 NSString* GSWOPT_StaticResourceRequestHandlerKey[2]={ @"GSWStaticResourceRequestHandlerKey", @"WOStaticResourceRequestHandlerKey" };

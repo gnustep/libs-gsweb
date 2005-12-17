@@ -76,6 +76,10 @@ application unlock
 - (void)_setPool:(NSAutoreleasePool *)pool;
 @end
 
+#define GSWFPutSL(string, file) \
+  do { fputs([string lossyCString],file); fputs("\n",file); fflush(file); } \
+  while (0)
+
 /* GSWApplication+Defaults.m */
 /* These functions should actually be static inline to limit thier scope
    but that would mean that they have to be part of this transalation unit.  */
@@ -899,6 +903,24 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 
+//--------------------------------------------------------------------
+-(NSString*)defaultRequestHandlerClassName
+{
+  return @"GSWComponentRequestHandle";
+};
+
+//--------------------------------------------------------------------
+-(Class)defaultRequestHandlerClass
+{
+  Class defaultRequestHandlerClass=Nil;
+  NSString* className=[self defaultRequestHandlerClassName];
+  if ([className length]>0)
+    {
+      defaultRequestHandlerClass=NSClassFromString(className);
+    };
+  return defaultRequestHandlerClass;
+};
+
 @end
 
 //====================================================================
@@ -1192,7 +1214,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 #endif
     };
 #ifdef DEBUG
-  NSDebugMLLog(@"application",@"%s componentDefinition (%p) for %@ class=%@ %s. search time: %.3f s",
+  NSDebugMLLog(@"application",
+	       @"%s componentDefinition (%p) for %@ class=%@ %s. search time: %.3f s",
                (componentDefinition ? "FOUND" : "NOTFOUND"),
                componentDefinition,
                aName,
@@ -2335,7 +2358,7 @@ to another instance **/
     [someAssociations associationsSetDebugEnabled];
   elementClass=NSClassFromString(aName);
   NSDebugMLLog(@"info",@"elementClass %p:%@",elementClass,elementClass);
-  NSDebugMLLog(@"info",@"elementClass superClass:%@",[elementClass superClass]);
+  NSDebugMLLog(@"info",@"elementClass superclass:%@",[elementClass superclass]);
   if (elementClass && !ClassIsKindOfClass(elementClass,[GSWComponent class]))
     {
       NSDebugMLLog(@"info",@"CREATE Element of Class %p:%@",aName,aName);
@@ -3337,9 +3360,7 @@ to another instance **/
 {
   if ([[self class]isDebuggingEnabled])
     {
-      fputs([aString cString],stderr);
-      fputs("\n",stderr);
-      fflush(stderr);
+      GSWFPutSL(aString,stderr);
     };
 };
 
@@ -3403,9 +3424,7 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)logString:(NSString*)aString
 {
-  fputs([aString lossyCString],stderr);
-  fputs("\n",stderr);
-  fflush(stderr);
+  GSWFPutSL(aString,stderr);
 };
 
 //--------------------------------------------------------------------
@@ -3446,16 +3465,8 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)logErrorString:(NSString*)aString
 {
-  const char* cString=NULL;
-  cString=[aString lossyCString];
-  fputs(cString,stderr);
-  fputs("\n",stderr);
-  fflush(stderr);
-#ifndef NDEBUG
-  fputs(cString,stdout);
-  fputs("\n",stdout);
-  fflush(stdout);
-#endif
+  GSWFPutSL(aString,stderr);
+  GSWFPutSL(aString,stdout);
 };
 
 //--------------------------------------------------------------------
@@ -3619,6 +3630,17 @@ to another instance **/
 		aValue];
 };
 
+/**
+ * This method is called when a request loop has finished.  You can override
+ * this method to inspect your process (e.g. for memory leaks).  You should
+ * create an NSAutoreleasePool at the beginning of your method and release
+ * it at the end if you plan to use the implementation long running production
+ * envirnment analysis.  This method is a GSWeb extension.  The default
+ * implementation does nothing.
+ */
+-(void)debugAdaptorThreadExited
+{
+}
 @end
 
 //====================================================================
@@ -3630,9 +3652,7 @@ to another instance **/
 {
   if ([[self class]isStatusDebuggingEnabled])
     {
-      fputs([aString cString],stdout);
-      fputs("\n",stdout);
-      fflush(stdout);
+      GSWFPutSL(aString,stdout);
       [self debugWithString:aString];
     };
 };
@@ -3641,124 +3661,153 @@ to another instance **/
 -(void)statusDebugWithFormat:(NSString*)aFormat
                    arguments:(va_list)arguments
 {
-  NSString* string=[NSString stringWithFormat:aFormat
-                              arguments:arguments];
-  [self statusDebugWithString:string];
+  if ([[self class]isStatusDebuggingEnabled])
+    {
+      NSString* string=[NSString stringWithFormat:aFormat
+				 arguments:arguments];
+      [self statusDebugWithString:string];
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)statusDebugWithFormat:(NSString*)aFormat,...
 {
-  va_list ap;
-  va_start(ap,aFormat);
-  [self statusDebugWithFormat:aFormat
-        arguments:ap];
-  va_end(ap);
+  if ([[self class]isStatusDebuggingEnabled])
+    {
+      va_list ap;
+      va_start(ap,aFormat);
+      [self statusDebugWithFormat:aFormat
+	    arguments:ap];
+      va_end(ap);
+    }
 };
 
 //--------------------------------------------------------------------
 +(void)statusDebugWithFormat:(NSString*)aFormat,...
 {
-  va_list ap;
-  va_start(ap,aFormat);
-  [GSWApp statusDebugWithFormat:aFormat
-          arguments:ap];
-  va_end(ap);
+  if ([[self class]isStatusDebuggingEnabled])
+    {
+      va_list ap;
+      va_start(ap,aFormat);
+      [GSWApp statusDebugWithFormat:aFormat
+	      arguments:ap];
+      va_end(ap);
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)statusLogString:(NSString*)aString
 {
-  fputs([aString lossyCString],stdout);
-  fputs("\n",stdout);
-  fflush(stdout);
-  [self logString:aString];
+  if ([[self class]isStatusDebuggingEnabled])
+    {
+      GSWFPutSL(aString,stdout);
+      [self logString:aString];
+    }
 };
 
 //--------------------------------------------------------------------
 +(void)statusLogString:(NSString*)aString
 {
-  [GSWApp statusLogString:aString];
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      [GSWApp statusLogString:aString];
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)statusLogWithFormat:(NSString*)aFormat,...
 {
-  va_list ap;
-  va_start(ap,aFormat);
-  [self statusLogWithFormat:aFormat
-        arguments:ap];
-  va_end(ap);
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      va_list ap;
+      va_start(ap,aFormat);
+      [self statusLogWithFormat:aFormat
+	    arguments:ap];
+      va_end(ap);
+    }
 };
 
 //--------------------------------------------------------------------
 +(void)statusLogWithFormat:(NSString*)aFormat,...
 {
-  va_list ap;
-  va_start(ap,aFormat);
-  [GSWApp statusLogWithFormat:aFormat
-          arguments:ap];
-  va_end(ap);
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      va_list ap;
+      va_start(ap,aFormat);
+      [GSWApp statusLogWithFormat:aFormat
+	      arguments:ap];
+      va_end(ap);
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)statusLogWithFormat:(NSString*)aFormat
                  arguments:(va_list)arguments
 {
-  NSString* string=[NSString stringWithFormat:aFormat
-                             arguments:arguments];
-  [self statusLogString:string];
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      NSString* string=[NSString stringWithFormat:aFormat
+				 arguments:arguments];
+      [self statusLogString:string];
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)statusLogErrorWithFormat:(NSString*)aFormat,...
 {
-  va_list ap;
-  va_start(ap,aFormat);
-  [self statusLogErrorWithFormat:aFormat
-        arguments:ap];
-  va_end(ap);
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      va_list ap;
+      va_start(ap,aFormat);
+      [self statusLogErrorWithFormat:aFormat
+	    arguments:ap];
+      va_end(ap);
+    }
 };
 
 //--------------------------------------------------------------------
 +(void)statusLogErrorWithFormat:(NSString*)aFormat,...
 {
-  va_list ap;
-  va_start(ap,aFormat);
-  [GSWApp statusLogErrorWithFormat:aFormat
-          arguments:ap];
-  va_end(ap);
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      va_list ap;
+      va_start(ap,aFormat);
+      [GSWApp statusLogErrorWithFormat:aFormat
+	      arguments:ap];
+      va_end(ap);
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)statusLogErrorWithFormat:(NSString*)aFormat
                       arguments:(va_list)arguments
 {
-  const char* cString=NULL;
-  NSString* string=[NSString stringWithFormat:aFormat
-                             arguments:arguments];
-  cString=[string cString];
-  fputs(cString,stdout);
-  fputs("\n",stdout);
-  fflush(stdout);
-  [self logErrorWithFormat:@"%@",string];
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      NSString* string=[NSString stringWithFormat:aFormat
+				 arguments:arguments];
+      GSWFPutSL(string,stdout);
+      [self logErrorWithFormat:@"%@",string];
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)statusLogErrorString:(NSString*)aString
 {
-  const char* cString=NULL;
-  cString=[aString lossyCString];
-  fputs(cString,stdout);
-  fputs("\n",stdout);
-  fflush(stdout);
-  [self logErrorString:aString];
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      GSWFPutSL(aString,stdout);
+      [self logErrorString:aString];
+    }
 };
 
 //--------------------------------------------------------------------
 +(void)statusLogErrorString:(NSString*)aString
 {
-  [GSWApp statusLogErrorString:aString];
+  if ([[self class]isStatusLoggingEnabled])
+    {
+      [GSWApp statusLogErrorString:aString];
+    }
 };
 
 @end

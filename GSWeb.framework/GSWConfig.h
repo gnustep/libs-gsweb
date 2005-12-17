@@ -43,6 +43,7 @@
 #define GSWOPTVALUE_CachingEnabled				@"YES"
 #define GSWOPTVALUE_DebuggingEnabled				@"YES"
 #define GSWOPTVALUE_StatusDebuggingEnabled			@"YES"
+#define GSWOPTVALUE_StatusLoggingEnabled			@"YES"
 #define GSWOPTVALUE_DirectConnectEnabled			@"YES"
 #define GSWOPTVALUE_FrameworksBaseURL				@"/GSW/Frameworks"
 #define GSWOPTVALUE_IncludeCommentsInResponse			@"YES"

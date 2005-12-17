@@ -1629,7 +1629,7 @@ bundle if none is found
 //--------------------------------------------------------------------
 -(void)_validateAPI
 {
-  //Verifier que self ne répond pas aux OldFN
+  //Verifier que self ne respond pas aux OldFN
   LOGObjectFnNotImplemented();	//TODOFN
 };
 

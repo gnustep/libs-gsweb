@@ -202,9 +202,8 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
 
   if (!globalAppDefaultOptions)
     {
-      NSDictionary* defaultsOptions = nil;
-      globalAppDefaultOptions
-	= [[GSWApplication bundleInfo] objectForKey:@"defaults"];
+      NSDictionary* gswDefaultsOptions;
+      NSDictionary* standardUserDefaults = [defaults dictionaryRepresentation];
 
 #define LOGOPT_NC(optname) \
       NSDebugFLLog(@"options", @"%s -> %@", \
@@ -252,6 +251,8 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
       LOGOPT_NC(GSWOPT_DebuggingEnabled);
       LOGOPT   (GSWOPTVALUE_StatusDebuggingEnabled);
       LOGOPT_NC(GSWOPT_StatusDebuggingEnabled);
+      LOGOPT   (GSWOPTVALUE_StatusLoggingEnabled);
+      LOGOPT_NC(GSWOPT_StatusLoggingEnabled);
 
       LOGOPT_NC(GSWOPTValue_DirectActionRequestHandlerKey);
       LOGOPT_NC(GSWOPT_DirectActionRequestHandlerKey);
@@ -335,7 +336,7 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
 #undef LOGOPT
 #undef LOGOPT_NC
 
-      defaultsOptions = 
+      gswDefaultsOptions = 
 	[NSDictionary dictionaryWithObjectsAndKeys:
 			GSWClassName_DefaultAdaptor[GSWebNamingConv],   
 		      GSWOPT_Adaptor[GSWebNamingConv],
@@ -376,6 +377,9 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
 		      
 		      GSWOPTVALUE_StatusDebuggingEnabled,
 		      GSWOPT_StatusDebuggingEnabled[GSWebNamingConv],
+		      
+		      GSWOPTVALUE_StatusLoggingEnabled,
+		      GSWOPT_StatusLoggingEnabled[GSWebNamingConv],
 		      
 		      GSWOPTValue_DirectActionRequestHandlerKey[GSWebNamingConv],
 		      GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv],
@@ -475,8 +479,9 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
       NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",
 		   globalAppDefaultOptions);
       globalAppDefaultOptions
-	= [NSDictionary dictionaryWithDictionary: globalAppDefaultOptions
-			andDefaultEntriesFromDictionary: defaultsOptions];
+	= [NSDictionary dictionaryWithDictionary: standardUserDefaults
+			andDefaultEntriesFromDictionary: gswDefaultsOptions];
+      RETAIN(globalAppDefaultOptions);
       NSDebugFLLog(@"options",@"_globalAppDefaultOptions=%@",
 		   globalAppDefaultOptions);
     }
@@ -689,9 +694,7 @@ static NSString *_dflt_requestClassName = nil;
 
 //====================================================================
 @implementation GSWApplication (UserDefaults)
-
 //--------------------------------------------------------------------
-//TODO: take values from application ?
 static BOOL     _dflt_init_loadFrameworks = NO;
 static NSArray *_dflt_loadFrameworks = nil;
 +(NSArray*)loadFrameworks
@@ -723,25 +726,6 @@ static BOOL _dflt_debuggingEnabled = NO;
 {
   _dflt_debuggingEnabled = flag;
   _dflt_init_debuggingEnabled = YES;
-};
-
-//--------------------------------------------------------------------
-//NDFN
-static BOOL _dflt_init_statusDebuggingEnabled = NO;
-static BOOL _dflt_statusDebuggingEnabled = NO;
-+(BOOL)isStatusDebuggingEnabled
-{
-  INIT_DFLT_BOOL(statusDebuggingEnabled,
-		 GSWOPT_StatusDebuggingEnabled[GSWebNamingConv]);
-  return _dflt_statusDebuggingEnabled;
-};
-
-//--------------------------------------------------------------------
-//NDFN
-+(void)setStatusDebuggingEnabled:(BOOL)flag
-{
-  _dflt_statusDebuggingEnabled = flag;
-  _dflt_init_statusDebuggingEnabled = YES;
 };
 
 //--------------------------------------------------------------------
@@ -854,23 +838,6 @@ static NSString *_dflt_frameworksBaseURL = nil;
 };
 
 //--------------------------------------------------------------------
-static BOOL _dflt_init_outputPath = NO;
-static NSString *_dflt_outputPath = nil;
-+(NSString*)outputPath
-{
-  INIT_DFLT_OBJ(outputPath,
-		GSWOPT_OutputPath[GSWebNamingConv]);
-  return _dflt_outputPath;
-};
-
-//--------------------------------------------------------------------
-+(void)setOutputPath:(NSString*)aString
-{
-  ASSIGNCOPY(_dflt_outputPath, aString);
-  _dflt_init_outputPath = YES;
-};
-
-//--------------------------------------------------------------------
 static BOOL _dflt_init_recordingPath = NO;
 static NSString *_dflt_recordingPath = nil;
 +(NSString*)recordingPath
@@ -931,78 +898,6 @@ static NSArray *_dflt_projectSearchPath = nil;
 {
   ASSIGNCOPY(_dflt_projectSearchPath, paths);
   _dflt_init_projectSearchPath = YES;
-};
-
-//--------------------------------------------------------------------
-static BOOL _dflt_init_lifebeatEnabled = NO;
-static BOOL _dflt_lifebeatEnabled = NO;
-+(BOOL)isLifebeatEnabled
-{
-  INIT_DFLT_BOOL(lifebeatEnabled,
-		 GSWOPT_LifebeatEnabled[GSWebNamingConv]);
-  return _dflt_lifebeatEnabled;
-};
-
-//--------------------------------------------------------------------
-+(void)setLifebeatEnabled:(BOOL)flag
-{
-  _dflt_lifebeatEnabled = flag;
-  _dflt_init_lifebeatEnabled = YES;
-};
-
-//--------------------------------------------------------------------
-static BOOL      _dflt_init_lifebeatDestinationHost = NO;
-static NSString *_dflt_lifebeatDestinationHost = nil;
-+(NSString*)lifebeatDestinationHost
-{
-  INIT_DFLT_OBJ(lifebeatDestinationHost,
-		GSWOPT_LifebeatDestinationHost[GSWebNamingConv]);
-  return _dflt_lifebeatDestinationHost;
-};
-
-//--------------------------------------------------------------------
-+(void)setLifebeatDestinationHost:(NSString*)host
-{
-  ASSIGNCOPY(_dflt_lifebeatDestinationHost, host);
-  _dflt_init_lifebeatDestinationHost = YES;
-};
-
-//--------------------------------------------------------------------
-static BOOL _dflt_init_lifebeatDestinationPort = NO;
-static int  _dflt_lifebeatDestinationPort = 0;
-+(int)lifebeatDestinationPort
-{
-  INIT_DFLT_INT(lifebeatDestinationPort,
-		GSWOPT_LifebeatDestinationPort[GSWebNamingConv]);
-  return _dflt_lifebeatDestinationPort;
-};
-
-//--------------------------------------------------------------------
-+(void)setLifebeatDestinationPort:(int)port
-{
-  _dflt_lifebeatDestinationPort = port;
-  _dflt_init_lifebeatDestinationPort = YES;
-};
-
-//--------------------------------------------------------------------
-static BOOL _dflt_init_lifebeatInterval = NO;
-static NSTimeInterval _dflt_lifebeatInterval = 0.0;
-+(NSTimeInterval)lifebeatInterval
-{
-  LOGClassFnStart();
-  INIT_DFLT_FLT(lifebeatInterval,
-		GSWOPT_LifebeatInterval[GSWebNamingConv]);
-  LOGClassFnStop();
-  return _dflt_lifebeatInterval;
-};
-
-//--------------------------------------------------------------------
-+(void)setLifebeatInterval:(NSTimeInterval)interval
-{
-  LOGClassFnStart();
-  _dflt_lifebeatInterval = interval;
-  _dflt_init_lifebeatInterval = YES;
-  LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1096,40 +991,6 @@ static NSNumber *_dflt_port = nil;
 };
 
 //--------------------------------------------------------------------
-+(int)intPort
-{
-  return [[self port]intValue];
-};
-
-//--------------------------------------------------------------------
-+(void)setIntPort:(int)port
-{
-  [self setPort:GSWIntNumber(port)];
-};
-
-//--------------------------------------------------------------------
-static BOOL      _dflt_init_host= NO;
-static NSString *_dflt_host = nil;
-+(NSString*)host
-{
-  INIT_DFLT_OBJ(host,
-		GSWOPT_Host[GSWebNamingConv]);
-  return _dflt_host;
-};
-
-//--------------------------------------------------------------------
-+(void)setHost:(NSString*)host
-{
-  ASSIGNCOPY(_dflt_host, host);
-  _dflt_init_host = YES;
-  //TODO
-  /*
-    [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setHost:)
-	withObject:host_];
-  */
-};
-
-//--------------------------------------------------------------------
 static BOOL _dflt_init_listenQueueSize  = NO;
 static id   _dflt_listenQueueSize = nil;
 +(id)listenQueueSize
@@ -1149,9 +1010,15 @@ static id   _dflt_listenQueueSize = nil;
 };
 
 //--------------------------------------------------------------------
-// [deprecated]
+// [deprecated] - ayers: Needed for WO45 compatibility.
 static BOOL _dflt_init_workerThreadCount  = NO;
 static id   _dflt_workerThreadCount = nil;
+/**
+ * The worker thread count defines the number it threads the
+ * current [-adaptor] will spawn to handle requests.  A value of 0
+ * indicates single thread mode.
+ * This values is determined by the WOWorkerThreadCount NSUserDefault.
+ */
 +(id)workerThreadCount
 {
   INIT_DFLT_OBJ(workerThreadCount,
@@ -1160,50 +1027,18 @@ static id   _dflt_workerThreadCount = nil;
 };
 
 //--------------------------------------------------------------------
-// [deprecated]
+// [deprecated] - ayers: Needed for WO45 compatibility.
+/**
+ * The worker thread count defines the number it threads the
+ * current [-adaptor] will spawn to handle requests.  Set this to 0
+ * to indicate single thread mode.
+ * This method also sets the WOWorkerThreadCount NSUserDefault.
+ */
 +(void)setWorkerThreadCount:(id)workerThreadCount
 {
   ASSIGN(_dflt_workerThreadCount, workerThreadCount);
   _dflt_init_workerThreadCount = YES;
   [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setWorkerThreadCount:)
-                     withObject:workerThreadCount];
-};
-
-//--------------------------------------------------------------------
-static BOOL _dflt_init_workerThreadCountMin = NO;
-static id   _dflt_workerThreadCountMin = nil;
-+(id)workerThreadCountMin
-{
-  INIT_DFLT_OBJ(workerThreadCountMin,
-		GSWOPT_WorkerThreadCountMin[GSWebNamingConv]);
-  return _dflt_workerThreadCountMin;
-};
-
-//--------------------------------------------------------------------
-+(void)setWorkerThreadCountMin:(id)workerThreadCount
-{
-  ASSIGN(_dflt_workerThreadCountMin, workerThreadCount);
-  _dflt_init_workerThreadCountMin = YES;
-  [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setWorkerThreadCountMin:)
-                     withObject:workerThreadCount];
-};
-
-//--------------------------------------------------------------------
-static BOOL _dflt_init_workerThreadCountMax = NO;
-static id   _dflt_workerThreadCountMax = nil;
-+(id)workerThreadCountMax
-{
-  INIT_DFLT_OBJ(workerThreadCountMax,
-		GSWOPT_WorkerThreadCountMax[GSWebNamingConv]);
-  return _dflt_workerThreadCountMax;
-};
-
-//--------------------------------------------------------------------
-+(void)setWorkerThreadCountMax:(id)workerThreadCount
-{
-  ASSIGN(_dflt_workerThreadCountMax, workerThreadCount);
-  _dflt_init_workerThreadCountMax = YES;
-  [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setWorkerThreadCountMax:)
                      withObject:workerThreadCount];
 };
 
@@ -1292,6 +1127,252 @@ static NSString *_dflt_resourceRequestHandlerKey = nil;
 };
 
 //--------------------------------------------------------------------
+static BOOL      _dflt_init_statisticsStoreClassName = NO;
+static NSString *_dflt_statisticsStoreClassName = nil;
++(NSString*)statisticsStoreClassName
+{
+  INIT_DFLT_OBJ(statisticsStoreClassName,
+		GSWOPT_StatisticsStoreClassName[GSWebNamingConv]);
+  return _dflt_statisticsStoreClassName;
+};
+
+//--------------------------------------------------------------------
++(void)setStatisticsStoreClassName:(NSString*)name
+{
+  ASSIGNCOPY(_dflt_statisticsStoreClassName, name);
+  _dflt_init_statisticsStoreClassName = YES;
+};
+
+//--------------------------------------------------------------------
+static BOOL      _dflt_init_sessionTimeOut = NO;
+static NSNumber *_dflt_sessionTimeOut = nil;
++(void)setSessionTimeOut:(NSNumber*)aTimeOut
+{
+  LOGClassFnStart();
+  NSDebugMLLog(@"sessions",@"aTimeOut=%@",aTimeOut);
+  ASSIGNCOPY(_dflt_sessionTimeOut, aTimeOut);
+  _dflt_init_sessionTimeOut = YES;
+  LOGClassFnStop();
+};
+
+//--------------------------------------------------------------------
++(NSNumber*)sessionTimeOut
+{
+  LOGClassFnStart();
+  INIT_DFLT_OBJ(sessionTimeOut,
+		GSWOPT_SessionTimeOut[GSWebNamingConv]);
+  NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",
+	       _dflt_sessionTimeOut);
+  LOGClassFnStop();
+  return _dflt_sessionTimeOut;
+};
+
+@end
+
+
+//====================================================================
+@implementation GSWApplication (GSWUserDefaults)
+
+//--------------------------------------------------------------------
+//NDFN
+static BOOL _dflt_init_statusDebuggingEnabled = NO;
+static BOOL _dflt_statusDebuggingEnabled = NO;
++(BOOL)isStatusDebuggingEnabled
+{
+  INIT_DFLT_BOOL(statusDebuggingEnabled,
+		 GSWOPT_StatusDebuggingEnabled[GSWebNamingConv]);
+  return _dflt_statusDebuggingEnabled;
+};
+
+//--------------------------------------------------------------------
+//NDFN
++(void)setStatusDebuggingEnabled:(BOOL)flag
+{
+  _dflt_statusDebuggingEnabled = flag;
+  _dflt_init_statusDebuggingEnabled = YES;
+};
+
+//--------------------------------------------------------------------
+//NDFN
+static BOOL _dflt_init_statusLoggingEnabled = NO;
+static BOOL _dflt_statusLoggingEnabled = NO;
++(BOOL)isStatusLoggingEnabled
+{
+  INIT_DFLT_BOOL(statusLoggingEnabled,
+		 GSWOPT_StatusLoggingEnabled[GSWebNamingConv]);
+  return _dflt_statusLoggingEnabled;
+};
+
+//--------------------------------------------------------------------
+//NDFN
++(void)setStatusLoggingEnabled:(BOOL)flag
+{
+  _dflt_statusLoggingEnabled = flag;
+  _dflt_init_statusLoggingEnabled = YES;
+};
+
+//--------------------------------------------------------------------
+static BOOL _dflt_init_outputPath = NO;
+static NSString *_dflt_outputPath = nil;
++(NSString*)outputPath
+{
+  INIT_DFLT_OBJ(outputPath,
+		GSWOPT_OutputPath[GSWebNamingConv]);
+  return _dflt_outputPath;
+};
+
+//--------------------------------------------------------------------
++(void)setOutputPath:(NSString*)aString
+{
+  ASSIGNCOPY(_dflt_outputPath, aString);
+  _dflt_init_outputPath = YES;
+};
+
+//--------------------------------------------------------------------
+static BOOL _dflt_init_lifebeatEnabled = NO;
+static BOOL _dflt_lifebeatEnabled = NO;
++(BOOL)isLifebeatEnabled
+{
+  INIT_DFLT_BOOL(lifebeatEnabled,
+		 GSWOPT_LifebeatEnabled[GSWebNamingConv]);
+  return _dflt_lifebeatEnabled;
+};
+
+//--------------------------------------------------------------------
++(void)setLifebeatEnabled:(BOOL)flag
+{
+  _dflt_lifebeatEnabled = flag;
+  _dflt_init_lifebeatEnabled = YES;
+};
+
+//--------------------------------------------------------------------
+static BOOL      _dflt_init_lifebeatDestinationHost = NO;
+static NSString *_dflt_lifebeatDestinationHost = nil;
++(NSString*)lifebeatDestinationHost
+{
+  INIT_DFLT_OBJ(lifebeatDestinationHost,
+		GSWOPT_LifebeatDestinationHost[GSWebNamingConv]);
+  return _dflt_lifebeatDestinationHost;
+};
+
+//--------------------------------------------------------------------
++(void)setLifebeatDestinationHost:(NSString*)host
+{
+  ASSIGNCOPY(_dflt_lifebeatDestinationHost, host);
+  _dflt_init_lifebeatDestinationHost = YES;
+};
+
+//--------------------------------------------------------------------
+static BOOL _dflt_init_lifebeatDestinationPort = NO;
+static int  _dflt_lifebeatDestinationPort = 0;
++(int)lifebeatDestinationPort
+{
+  INIT_DFLT_INT(lifebeatDestinationPort,
+		GSWOPT_LifebeatDestinationPort[GSWebNamingConv]);
+  return _dflt_lifebeatDestinationPort;
+};
+
+//--------------------------------------------------------------------
++(void)setLifebeatDestinationPort:(int)port
+{
+  _dflt_lifebeatDestinationPort = port;
+  _dflt_init_lifebeatDestinationPort = YES;
+};
+
+//--------------------------------------------------------------------
+static BOOL _dflt_init_lifebeatInterval = NO;
+static NSTimeInterval _dflt_lifebeatInterval = 0.0;
++(NSTimeInterval)lifebeatInterval
+{
+  LOGClassFnStart();
+  INIT_DFLT_FLT(lifebeatInterval,
+		GSWOPT_LifebeatInterval[GSWebNamingConv]);
+  LOGClassFnStop();
+  return _dflt_lifebeatInterval;
+};
+
+//--------------------------------------------------------------------
++(void)setLifebeatInterval:(NSTimeInterval)interval
+{
+  LOGClassFnStart();
+  _dflt_lifebeatInterval = interval;
+  _dflt_init_lifebeatInterval = YES;
+  LOGClassFnStop();
+};
+
+//--------------------------------------------------------------------
++(int)intPort
+{
+  return [[self port]intValue];
+};
+
+//--------------------------------------------------------------------
++(void)setIntPort:(int)port
+{
+  [self setPort:GSWIntNumber(port)];
+};
+
+//--------------------------------------------------------------------
+static BOOL      _dflt_init_host= NO;
+static NSString *_dflt_host = nil;
++(NSString*)host
+{
+  INIT_DFLT_OBJ(host,
+		GSWOPT_Host[GSWebNamingConv]);
+  return _dflt_host;
+};
+
+//--------------------------------------------------------------------
++(void)setHost:(NSString*)host
+{
+  ASSIGNCOPY(_dflt_host, host);
+  _dflt_init_host = YES;
+  //TODO
+  /*
+    [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setHost:)
+	withObject:host_];
+  */
+};
+
+//--------------------------------------------------------------------
+static BOOL _dflt_init_workerThreadCountMin = NO;
+static id   _dflt_workerThreadCountMin = nil;
++(id)workerThreadCountMin
+{
+  INIT_DFLT_OBJ(workerThreadCountMin,
+		GSWOPT_WorkerThreadCountMin[GSWebNamingConv]);
+  return _dflt_workerThreadCountMin;
+};
+
+//--------------------------------------------------------------------
++(void)setWorkerThreadCountMin:(id)workerThreadCount
+{
+  ASSIGN(_dflt_workerThreadCountMin, workerThreadCount);
+  _dflt_init_workerThreadCountMin = YES;
+  [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setWorkerThreadCountMin:)
+                     withObject:workerThreadCount];
+};
+
+//--------------------------------------------------------------------
+static BOOL _dflt_init_workerThreadCountMax = NO;
+static id   _dflt_workerThreadCountMax = nil;
++(id)workerThreadCountMax
+{
+  INIT_DFLT_OBJ(workerThreadCountMax,
+		GSWOPT_WorkerThreadCountMax[GSWebNamingConv]);
+  return _dflt_workerThreadCountMax;
+};
+
+//--------------------------------------------------------------------
++(void)setWorkerThreadCountMax:(id)workerThreadCount
+{
+  ASSIGN(_dflt_workerThreadCountMax, workerThreadCount);
+  _dflt_init_workerThreadCountMax = YES;
+  [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setWorkerThreadCountMax:)
+                     withObject:workerThreadCount];
+};
+
+//--------------------------------------------------------------------
 static BOOL      _dflt_init_streamActionRequestHandlerKey = NO;
 static NSString *_dflt_streamActionRequestHandlerKey = nil;
 +(NSString*)streamActionRequestHandlerKey
@@ -1342,23 +1423,6 @@ static NSString *_dflt_staticResourceRequestHandlerKey = nil;
   _dflt_init_staticResourceRequestHandlerKey = YES;
 };
 
-//--------------------------------------------------------------------
--(NSString*)defaultRequestHandlerClassName
-{
-  return @"GSWComponentRequestHandle";
-};
-
-//--------------------------------------------------------------------
--(Class)defaultRequestHandlerClass
-{
-  Class defaultRequestHandlerClass=Nil;
-  NSString* className=[self defaultRequestHandlerClassName];
-  if ([className length]>0)
-    {
-      defaultRequestHandlerClass=NSClassFromString(className);
-    };
-  return defaultRequestHandlerClass;
-};
 
 //--------------------------------------------------------------------
 static BOOL      _dflt_init_resourceManagerClassName = NO;
@@ -1375,23 +1439,6 @@ static NSString *_dflt_resourceManagerClassName = nil;
 {
   ASSIGNCOPY(_dflt_resourceManagerClassName, name);
   _dflt_init_resourceManagerClassName = YES;
-};
-
-//--------------------------------------------------------------------
-static BOOL      _dflt_init_statisticsStoreClassName = NO;
-static NSString *_dflt_statisticsStoreClassName = nil;
-+(NSString*)statisticsStoreClassName
-{
-  INIT_DFLT_OBJ(statisticsStoreClassName,
-		GSWOPT_StatisticsStoreClassName[GSWebNamingConv]);
-  return _dflt_statisticsStoreClassName;
-};
-
-//--------------------------------------------------------------------
-+(void)setStatisticsStoreClassName:(NSString*)name
-{
-  ASSIGNCOPY(_dflt_statisticsStoreClassName, name);
-  _dflt_init_statisticsStoreClassName = YES;
 };
 
 //--------------------------------------------------------------------
@@ -1447,30 +1494,6 @@ static NSString *_dflt_recordingClassName = nil;
   LOGClassFnStop();
 
   return recordingClass;
-};
-
-//--------------------------------------------------------------------
-static BOOL      _dflt_init_sessionTimeOut = NO;
-static NSNumber *_dflt_sessionTimeOut = nil;
-+(void)setSessionTimeOut:(NSNumber*)aTimeOut
-{
-  LOGClassFnStart();
-  NSDebugMLLog(@"sessions",@"aTimeOut=%@",aTimeOut);
-  ASSIGNCOPY(_dflt_sessionTimeOut, aTimeOut);
-  _dflt_init_sessionTimeOut = YES;
-  LOGClassFnStop();
-};
-
-//--------------------------------------------------------------------
-+(NSNumber*)sessionTimeOut
-{
-  LOGClassFnStart();
-  INIT_DFLT_OBJ(sessionTimeOut,
-		GSWOPT_SessionTimeOut[GSWebNamingConv]);
-  NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",
-	       _dflt_sessionTimeOut);
-  LOGClassFnStop();
-  return _dflt_sessionTimeOut;
 };
 
 //--------------------------------------------------------------------

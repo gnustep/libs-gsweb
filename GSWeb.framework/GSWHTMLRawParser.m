@@ -135,6 +135,12 @@ static GSWHTMLRawParserTagType GetTagType(unichar* uniBuf,int length,int* indexP
   return self;
 }
 
+-(void)dealloc
+{
+  DESTROY(_delegate);
+  DESTROY(_string);
+  [super dealloc];
+}
 //--------------------------------------------------------------------
 /** Called when finding a new dynamic tag or a new comment or at the 
 end of the string to record seen text parts

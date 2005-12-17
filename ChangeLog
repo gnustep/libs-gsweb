@@ -1,3 +1,40 @@
+2005-12-17  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWApplication+Defaults.m
+	(GSWeb_InitializeGlobalAppDefaultOptions): Add handling for
+	GSW/WOStatusLoggingEndabled-GSWOPT_StatusLoggingEnabled.
+	Fix handling of user defaults.
+	((UserDefaults/GSWUserDefaults)): Split category in handling
+	WO45 defaults and GSWeb specific defaults.
+	(+is/setStatusLoggingEnabled): New methods and default to
+	control status logging.
+	(-set/defaultRequestHandlerClassName): Move to GSWApplication
+	class implementation as this is not handled via user defaults.
+	* GSWeb.framework/GSWApplication.(h/m)
+	((UserDefaults/GSWUserDefaults)): Split category in handling
+	WO45 defaults and GSWeb specific defaults.
+	(+is/setStatusLoggingEnabled): New methods and default to
+	control status logging.
+	(+set/defaultRequestHandlerClassName): Move to GSWApplication
+	class implementation as this is not handled via user defaults.
+	(GSWFPutSL): New local macro to consistently log NSString's to
+	a stream.  Updated callers to fputs.
+	(+statusDebug...): Guard all calls with +isStatusDebuggingEnabled.
+	(+statusLog...): Guard all calls with +isStatusLoggingEnabled.
+	* GSWeb.framework/GSWConfig.h: Add GSWOPTVALUE_StatusLoggingEnabled.
+	* GSWeb.framework/GSWConstants.h/m: Add GSWOPT_StatusLoggingEnabled.
+
+	* GSWeb.framework/GSWHTMLRawParser.m (dealloc): Implement fixing
+	a potentially major memory leak.
+	* GSWeb.framework/GSWDefaultAdaptorThread.m (dealloc): Destroy
+	pool (which should have been destroyed before, in normal operation).
+	(run:) Destroy pool in case the threads is rerun.
+
+	* GSWeb.framework/GSWApplication.(h/m) (-debugAdaptorThreadExited):
+	New debug utility extension.
+	* GSWeb.framework/GSWDefaultAdaptorThread.m (threadExited): Call new
+	debug convenience method.
+
 2005-10-31  David Wetzel <dave@turbocat.de>
 
         * GSWeb.framework/GSWSubmitButton.m

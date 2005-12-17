@@ -199,6 +199,7 @@ GSWEB_EXPORT NSString* GSWOPT_CachingEnabled[2];
 GSWEB_EXPORT NSString* GSWOPT_ComponentRequestHandlerKey[2];
 GSWEB_EXPORT NSString* GSWOPT_DebuggingEnabled[2];
 GSWEB_EXPORT NSString* GSWOPT_StatusDebuggingEnabled[2];
+GSWEB_EXPORT NSString* GSWOPT_StatusLoggingEnabled[2];
 GSWEB_EXPORT NSString* GSWOPT_DirectActionRequestHandlerKey[2];
 GSWEB_EXPORT NSString* GSWOPT_DirectConnectEnabled[2];
 GSWEB_EXPORT NSString* GSWOPT_FrameworksBaseURL[2];

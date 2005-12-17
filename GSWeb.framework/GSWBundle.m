@@ -682,11 +682,15 @@ objectForReference:(NSString*)keyPath
           if ([[GSWApplication application] isCachingEnabled])
             {
               if (template)
-                [_templateCache setObject:template
-                                forKey:relativeTemplatePath];
+		{
+		  [_templateCache setObject:template
+				  forKey:relativeTemplatePath];
+		}
               else
-                [_templateCache setObject:GSNotFoundMarker
-                                forKey:relativeTemplatePath];
+		{
+		  [_templateCache setObject:GSNotFoundMarker
+				  forKey:relativeTemplatePath];
+		}
             };
         };
     };
