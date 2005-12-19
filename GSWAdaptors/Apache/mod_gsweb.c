@@ -725,12 +725,12 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		      && pRequest->uContentLength>0
 		      && ap_should_client_block(p_pRequestRec))
 		    {
-		      int iReadLength=0;
-		      int iRemainingLength = pRequest->uContentLength;
+		      long iReadLength=1;
+		      long iRemainingLength = pRequest->uContentLength;
 		      char *pszBuffer = malloc(pRequest->uContentLength);
 		      char *pszData = pszBuffer;
 		      
-		      while (iRemainingLength>0)
+		      while (iRemainingLength>0 && iReadLength>0)
 			{
 			  ap_soft_timeout("reading GSWeb request",
 					  p_pRequestRec);
@@ -738,8 +738,26 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 							  pszData,
 							  iRemainingLength);
 			  ap_kill_timeout(p_pRequestRec);
-			  pszData += iReadLength;
-			  iRemainingLength-=iReadLength;
+			  if (iReadLength>0)
+			    {
+			      pszData += iReadLength;
+			      iRemainingLength-=iReadLength;
+			    }
+			  else
+			    {
+			      /* FIXME: I think we should so some better
+				 error handling but we need this so that
+				 we don't endup backtracking the entire
+				 content upon error which will make the
+				 server look like it's in an endless loop.
+				 I'm not sure whether ap_get_client_block
+				 can ever legally return 0 eventhough
+				 iRemainingLength was larger that 0, but
+				 in such a case this will also get us out
+			         of a potential endless loop.  */
+			      memset(pszData,0,iRemainingLength);
+			      iRemainingLength=0;
+			    }
 			};
 		      GSWLog(GSW_INFO,pLogServerData,"pszBuffer(%p)=%.*s",
 			     (void *)pszBuffer,
