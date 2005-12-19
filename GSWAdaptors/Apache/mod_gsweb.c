@@ -725,12 +725,12 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		      && pRequest->uContentLength>0
 		      && ap_should_client_block(p_pRequestRec))
 		    {
-		      long iReadLength=1;
-		      long iRemainingLength = pRequest->uContentLength;
+		      long iReadLength=0;
+		      apr_size_t iRemainingLength = pRequest->uContentLength;
 		      char *pszBuffer = malloc(pRequest->uContentLength);
 		      char *pszData = pszBuffer;
 		      
-		      while (iRemainingLength>0 && iReadLength>0)
+		      while (iRemainingLength>0)
 			{
 			  ap_soft_timeout("reading GSWeb request",
 					  p_pRequestRec);
@@ -745,7 +745,7 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 			    }
 			  else
 			    {
-			      /* FIXME: I think we should so some better
+			      /* FIXME: I think we should do some better
 				 error handling but we need this so that
 				 we don't endup backtracking the entire
 				 content upon error which will make the

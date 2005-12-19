@@ -1,3 +1,8 @@
+2005-12-19  David Ayers  <d.ayers@inode.at>
+
+	* GSWAdaptors/Apache/mod_gsweb.c (GSWeb_Handler): Avoid endless
+	loop when users abort transmission with temporary hack.
+	
 2005-12-17  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWApplication+Defaults.m
