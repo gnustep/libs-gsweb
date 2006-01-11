@@ -43,17 +43,14 @@
 -(id)initWithString:(NSString*)aString;
 -(void)dealloc;
 -(NSString*)description;
-@end
 
 //====================================================================
-@interface GSWHTMLComment (GSWHTMLCommentA)
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext;
-@end
 
 //====================================================================
-@interface GSWHTMLComment (GSWHTMLCommentB)
 +(id)elementWithString:(NSString*)aString;
+
 @end
 
 #endif //_GSWHTMLComment_h__

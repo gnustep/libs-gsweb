@@ -73,28 +73,16 @@ RCS_ID("$Id$")
                    _string];
 };
 
-@end
-
-//====================================================================
-@implementation GSWHTMLComment (GSWHTMLCommentA)
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
   GSWResponse_appendContentAsciiString(aResponse,@"<!--");
   GSWResponse_appendContentAsciiString(aResponse,_string);
   GSWResponse_appendContentAsciiString(aResponse,@"-->");
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
-  LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWHTMLComment (GSWHTMLCommentB)
 
 //--------------------------------------------------------------------
 +(id)elementWithString:(NSString*)aString
