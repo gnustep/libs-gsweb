@@ -1,6 +1,6 @@
 /** GSWActionRequestHandler.m - <title>GSWeb: Class GSWActionRequestHandler</title>
 
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
+   Copyright (C) 1999-2006 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -299,7 +299,7 @@ RCS_ID("$Id$")
 
   LOGObjectFnStart();
 
-  action = (GSWAction*)[[actionClass alloc]initWithRequest:aRequest];
+  action = AUTORELEASE([[actionClass alloc]initWithRequest:aRequest]);
 
   LOGObjectFnStop();
 

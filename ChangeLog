@@ -1,8 +1,16 @@
-2005-01-11  David Wetzel <dave@turbocat.de>
+2006-01-26  David Ayers  <d.ayers@inode.at>
+
+	* GSWeb.framework/GSWAction.m (-[initWithRequest:]): Retain
+	context.
+	* GSWeb.framework/GSWActionRequestHandler.m 
+	(-[getActionInstanceOfClass:withRequest:): Autorelease action.
+	
+2006-01-11  David Wetzel <dave@turbocat.de>
         
         * GSWeb.framework/GSWHTMLComment.h
         * GSWeb.framework/GSWHTMLComment.m
         Removed multiple categories per file.
+
 2005-12-19  David Ayers  <d.ayers@inode.at>
 
 	* GSWAdaptors/Apache/mod_gsweb.c (GSWeb_Handler): Avoid endless

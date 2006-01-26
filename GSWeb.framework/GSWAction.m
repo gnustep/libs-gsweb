@@ -1,6 +1,6 @@
 /** GSWAction.m - <title>GSWeb: Class GSWAction</title>
 
-   Copyright (C) 1999-2005 Free Software Foundation, Inc.
+   Copyright (C) 1999-2006 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Feb 1999
@@ -43,7 +43,7 @@ RCS_ID("$Id$")
   LOGObjectFnStart();
   if ((self=[super init]))
     {
-      _context=[[GSWApplication application]createContextForRequest:aRequest];
+      _context = RETAIN([GSWApp createContextForRequest:aRequest]);
       [GSWApp _setContext:_context]; //NDFN
       [self _initializeRequestSessionIDInContext:_context];
     };
