@@ -297,13 +297,9 @@ RCS_ID("$Id$")
 {
   GSWAction* action=nil;
 
-  LOGObjectFnStart();
-
   action = AUTORELEASE([[actionClass alloc]initWithRequest:aRequest]);
 
-  LOGObjectFnStop();
-
-  return action;
+  return AUTORELEASE(action);
 }
 
 

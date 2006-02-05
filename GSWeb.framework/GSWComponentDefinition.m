@@ -31,121 +31,174 @@
 #include "GSWeb.h"
 
 //====================================================================
+
+/* Static variables */
+
+static NSLock *       ComponentConstructorLock;
+static NSLock *       TemplateLock;
+static GSWContext *   TheTemporaryContext;
+static BOOL _IsEventLoggingEnabled; // needed?
+
 @implementation GSWComponentDefinition
 
++ (void) initialize
+{
+  if (self == [GSWComponentDefinition class]) {
+    ComponentConstructorLock = [[NSLock alloc] init];
+    TemplateLock = [[NSLock alloc] init];
+    TheTemporaryContext = nil; 
+  }
+}
+
+// that Method is used INTERNAL.
++ (GSWContext *) TheTemporaryContext
+{
+  return TheTemporaryContext;
+}
+
 //--------------------------------------------------------------------
+
+#warning CHECKME: missing Languages?
+// we my have a different name and class?
+//  aName StartPage
+//  aPath   /Users/dave/projects/new/PBXBilling/trunk/PBX.gswa/Resources/StartPage.wo
+//  baseURL /WebObjects/PBX.gswa/Resources/StartPage.wo
+
 -(id)initWithName:(NSString*)aName
              path:(NSString*)aPath
           baseURL:(NSString*)baseURL
     frameworkName:(NSString*)aFrameworkName
 {
-  LOGObjectFnStart();
-  if ((self=[super init]))
-    {
-      NSDebugMLLog(@"gswcomponents",@"aName=%@ aFrameworkName=%@",aName,aFrameworkName);
-      ASSIGN(_name,aName);
+  NSString * myBasePath = nil;
+  NSFileManager * defaultFileManager = nil;
+
+  [super init];
+  ASSIGN(_name, [aName stringByDeletingPathExtension]);    // does it ever happen that
+  ASSIGN(_className, aName);                               // those are different? dw.
+  _componentClass = NSClassFromString(_className);  
+  ASSIGN(_path, aPath);   
+  ASSIGN(_url, baseURL);   
+  ASSIGN(_frameworkName, aFrameworkName);   
+  DESTROY(_language);
+  _hasBeenAccessed = NO;
+  _hasContextConstructor = NO;
+  _isStateless = NO;
+  DESTROY(_instancePool);
+  _instancePool = [NSMutableArray new];
+  _lockInstancePool = [GSWApp isConcurrentRequestHandlingEnabled];
+  if ((_name != nil) && (_frameworkName != nil)) {
+//    NSBundle * nsbundle = [NSBundle bundleForName:_frameworkName];
+// HACK! dw
+    NSBundle * nsbundle = [NSBundle bundleForClass:NSClassFromString(_className)];
+    if (nsbundle != nil) {
+      _componentClass = NSClassFromString(_className);
+    }
+    // TODO: what if classname is nil?
+  }
+  myBasePath = [aPath stringByAppendingPathComponent: aName];
+  ASSIGN(_htmlPath,[myBasePath stringByAppendingPathExtension:@"html"]);
+  ASSIGN(_wodPath,[myBasePath stringByAppendingPathExtension:GSWComponentDeclarationsSuffix[GSWebNamingConv]]);
+  ASSIGN(_wooPath,[myBasePath stringByAppendingPathExtension:GSWArchiveSuffix[GSWebNamingConv]]);
+
+  defaultFileManager = [NSFileManager defaultManager];
+
+  if (([defaultFileManager fileExistsAtPath: _htmlPath] == NO) ||
+      ([defaultFileManager fileExistsAtPath: _wodPath] == NO) ||
+      ([defaultFileManager fileExistsAtPath: _wooPath] == NO) ||
+      (_componentClass == Nil)) {
+
+      [NSException raise:NSInvalidArgumentException
+                  format:@"%s: No template found for component named '%@'",
+                         __PRETTY_FUNCTION__, _name];
+  }
+  _archive = nil;
+  _encoding = NSUTF8StringEncoding;
+  _template = nil;
+  [self setCachingEnabled:[[GSWApp class] isCachingEnabled]];
+  _isAwake = NO;
+  if (_frameworkName == nil) {
       _bundle=[[GSWBundle alloc] initWithPath:aPath
                                  baseURL:baseURL
-                                 inFrameworkNamed:aFrameworkName];
-      _observers=nil;
-      ASSIGN(_frameworkName,aFrameworkName);
-      NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",_frameworkName);
-      ASSIGN(_templateName,aName);//TODOV
-      NSDebugMLLog(@"gswcomponents",@"templateName=%@",_templateName);
-      _componentClass=Nil;
-      _isScriptedClass=NO;
-      _isCachingEnabled=NO;
-      _isAwake=NO;
-      [self setCachingEnabled:[GSWApplication isCachingEnabled]];
-    };
-  LOGObjectFnStop();
+                                 inFrameworkNamed: nil];
+  } else {
+      _bundle=[[GSWBundle alloc] initWithPath:aPath
+                                 baseURL:baseURL
+                                 inFrameworkNamed: _frameworkName];
+    if (_bundle == nil)
+    {
+      [NSException raise:NSInvalidArgumentException
+                  format:@"%s: No framework named '%@'",
+                         __PRETTY_FUNCTION__, _frameworkName];
+    }
+  }
+
+  _instancePoolLock = [[NSLock alloc] init];
+  
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWComponentDefinition");
-  GSWLogC("Dealloc GSWComponentDefinition: name");
   DESTROY(_name);
-  GSWLogC("Dealloc GSWComponentDefinition: bundle");
-  DESTROY(_bundle);
-  GSWLogC("Dealloc GSWComponentDefinition: observers");
-  DESTROY(_observers);
-  GSWLogC("Dealloc GSWComponentDefinition: frameworkName");
+  DESTROY(_path);
+  DESTROY(_url);
   DESTROY(_frameworkName);
-  GSWLogC("Dealloc GSWComponentDefinition: templateName");
-  DESTROY(_templateName);
-  GSWLogC("Dealloc GSWComponentDefinition: componentClass");
-  DESTROY(_componentClass);
-  GSWLogC("Dealloc GSWComponentDefinition Super");
+  DESTROY(_language);
+  DESTROY(_className);
+  _componentClass = Nil;
+  DESTROY(_template);
+  DESTROY(_htmlPath);
+  DESTROY(_wodPath);
+  DESTROY(_wooPath);
+  DESTROY(_archive);
+  DESTROY(_bundle);
+  DESTROY(_sharedInstance);
+  DESTROY(_instancePool);
+  
   [super dealloc];
-  GSWLogC("End Dealloc GSWComponentDefinition");
+
 };
 
-//--------------------------------------------------------------------
--(id)initWithCoder:(NSCoder*)coder
-{
-  if ((self = [super init]))
-    {
-      [coder decodeValueOfObjCType:@encode(id)
-             at:&_name];
-      [coder decodeValueOfObjCType:@encode(id)
-             at:&_bundle];
-      [coder decodeValueOfObjCType:@encode(id)
-             at:&_observers]; //TODOV
-      [coder decodeValueOfObjCType:@encode(id)
-             at:&_frameworkName];
-      [coder decodeValueOfObjCType:@encode(id)
-             at:&_templateName];
-      [coder decodeValueOfObjCType:@encode(Class)
-             at:&_componentClass];
-      [coder decodeValueOfObjCType:@encode(BOOL)
-             at:&_isScriptedClass];
-      [coder decodeValueOfObjCType:@encode(BOOL)
-             at:&_isCachingEnabled];
-      [coder decodeValueOfObjCType:@encode(BOOL)
-             at:&_isAwake];
-	};
-  return self;
-};
 
 //--------------------------------------------------------------------
--(void)encodeWithCoder:(NSCoder*)coder
-{
-  [coder encodeObject:_name];
-  [coder encodeObject:_bundle];
-  [coder encodeObject:_observers]; //TODOV
-  [coder encodeObject:_frameworkName];
-  [coder encodeObject:_templateName];
-  [coder encodeValueOfObjCType:@encode(Class)
-         at:&_componentClass];
-  [coder encodeValueOfObjCType:@encode(BOOL)
-         at:&_isScriptedClass];
-  [coder encodeValueOfObjCType:@encode(BOOL)
-         at:&_isCachingEnabled];
-  [coder encodeValueOfObjCType:@encode(BOOL)
-         at:&_isAwake];
-};
 
-//--------------------------------------------------------------------
--(id)copyWithZone:(NSZone*)zone
+- (void) checkInComponentInstance:(GSWComponent*) component
 {
-  GSWComponentDefinition* clone = [[isa allocWithZone:zone] init];
-  if (clone)
-    {
-      ASSIGNCOPY(clone->_name,_name);
-      ASSIGNCOPY(clone->_bundle,_bundle);
-      ASSIGNCOPY(clone->_observers,_observers);
-      ASSIGNCOPY(clone->_frameworkName,_frameworkName);
-      ASSIGNCOPY(clone->_templateName,_templateName);
-      clone->_componentClass=_componentClass;
-      clone->_isScriptedClass=_isScriptedClass;
-      clone->_isCachingEnabled=_isCachingEnabled;
-      clone->_isAwake=_isAwake;
-    };
-  return clone;
-};
+  if (_sharedInstance == nil)
+  {
+    _sharedInstance = component;
+  } else
+  {
+    [_instancePool addObject:component];
+  }
+}
+
+- (void) _checkInComponentInstance:(GSWComponent*) component
+{
+  BOOL locked = NO;
+  
+  if (_lockInstancePool) {
+    NS_DURING
+      [_instancePoolLock lock];
+        locked = YES;
+        [self checkInComponentInstance: component];
+        locked = NO;
+      [_instancePoolLock unlock];    
+
+    NS_HANDLER
+     if (locked) {
+        [_instancePoolLock unlock];     
+     }
+     localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
+                                                                              __PRETTY_FUNCTION__];
+     [localException raise];
+    NS_ENDHANDLER;
+
+  } else {
+      [self checkInComponentInstance: component];
+  }
+}
 
 //--------------------------------------------------------------------
 -(NSString*)frameworkName
@@ -156,13 +209,13 @@
 //--------------------------------------------------------------------
 -(NSString*)baseURL
 {
-  return [_bundle baseURL];
-};
+  return _url;
+}
 
 //--------------------------------------------------------------------
 -(NSString*)path
 {
-  return [_bundle path];
+  return _path;
 };
 
 //--------------------------------------------------------------------
@@ -175,17 +228,14 @@
 -(NSString*)description
 {
   //TODO
-  return [NSString stringWithFormat:@"<%s %p - name:[%@] bundle:[%@] observers=[%@] frameworkName=[%@] templateName=[%@] componentClass=[%@] isScriptedClass=[%s] isCachingEnabled=[%s] isAwake=[%s]>",
+  return [NSString stringWithFormat:@"<%s %p - name:[%@] bundle:[%@] frameworkName=[%@] componentClass=[%@] isCachingEnabled=[%s] isAwake=[%s]>",
 				   object_get_class_name(self),
 				   (void*)self,
 				   _name,
 				   _bundle,
-				   _observers,
 				   _frameworkName,
-				   _templateName,
 				   _componentClass,
-				   _isScriptedClass ? "YES" : "NO",
-				   _isCachingEnabled ? "YES" : "NO",
+				   _caching ? "YES" : "NO",
 				   _isAwake ? "YES" : "NO"];
 };
 
@@ -199,41 +249,30 @@
 };
 
 //--------------------------------------------------------------------
+// dw
 -(void)awake
 {
-  //OK
-  BOOL isCachingEnabled=NO;
-  LOGObjectFnStart();
-  _isAwake=YES;
-  isCachingEnabled=[self isCachingEnabled];
-  if (!isCachingEnabled) //??
-    [self _clearCache];
-  //call self componentClass
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
+  if (!_isAwake) {
+    _isAwake = YES;
+    if (! _caching) {
+      [self componentClass];
+    }
+  }
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponentDefinition (GSWCacheManagement)
 
 //--------------------------------------------------------------------
 -(BOOL)isCachingEnabled
 {
-  return _isCachingEnabled;
+  return _caching;
 };
 
 //--------------------------------------------------------------------
 -(void)setCachingEnabled:(BOOL)flag
 {
-  _isCachingEnabled=flag;
+  _caching = flag;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponentDefinition (GSWComponentDefinitionA)
 
 //--------------------------------------------------------------------
 -(void)_clearCache
@@ -243,11 +282,6 @@
   [_bundle clearCache];
   LOGObjectFnStop();
 };
-
-@end
-
-//====================================================================
-@implementation GSWComponentDefinition (GSWComponentDefinitionB)
 
 //--------------------------------------------------------------------
 -(GSWElement*)templateWithName:(NSString*)aName
@@ -334,72 +368,170 @@ languages:(NSArray*)languages
   return path;
 };
 
-@end
 
-//====================================================================
-@implementation GSWComponentDefinition (GSWComponentDefinitionC)
+#warning CHECKME
+
+-(GSWComponent*) _componentInstanceInContext:(GSWContext*) aContext
+{
+  Class myClass = [self componentClass];
+  GSWComponent * component = nil;
+  IMP           instanceInitIMP = NULL;
+  IMP           componentInitIMP = NULL;
+  GSWComponent * myInstance = nil;
+  BOOL         locked = NO;
+  
+  if ([myClass isKindOfClass: [GSWComponent class]]) {
+    [aContext _setComponentName:_className];
+  }
+  [aContext _setTempComponentDefinition:self];
+
+  NS_DURING
+
+    if (!_hasBeenAccessed) {
+        myInstance = [myClass alloc];
+        instanceInitIMP = [myInstance methodForSelector:@selector(init)];
+        componentInitIMP = [GSWComponent instanceMethodForSelector:@selector(init)];
+  
+        if (instanceInitIMP != componentInitIMP) {
+//          NSLog(@"Class %s should implement initWithContext: and not init", object_get_class_name(myClass));
+          [ComponentConstructorLock lock];
+            locked = YES;
+            TheTemporaryContext = aContext;
+            component = AUTORELEASE([myInstance init]);
+            TheTemporaryContext = nil;          
+            locked = NO;
+            _hasContextConstructor = NO;
+          [ComponentConstructorLock unlock];
+        } else {     
+          component = AUTORELEASE([myInstance initWithContext: aContext]);
+          _hasContextConstructor = YES;
+        }
+    } else {
+    // check if we can use some intelligent caching here. 
+        myInstance = [myClass alloc];
+  
+        if (_hasContextConstructor == NO) {
+          [ComponentConstructorLock lock];
+            locked = YES;
+            TheTemporaryContext = aContext;
+            component = AUTORELEASE([myInstance init]);
+            TheTemporaryContext = nil;          
+            locked = NO;
+          [ComponentConstructorLock unlock];
+        } else {     
+          component = AUTORELEASE([myInstance initWithContext: aContext]);
+        }
+    }
+  NS_HANDLER
+      if (locked) {
+         [ComponentConstructorLock unlock];     
+      }
+      localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
+                                                                            __PRETTY_FUNCTION__];
+      LOGException(@"exception=%@",localException);
+      [localException raise];
+  NS_ENDHANDLER;
+  
+  if ([component context] == nil) {
+      [NSException raise:NSInvalidArgumentException
+                format:@"Component '%@' was not properly initialized. Make sure [super initWithContext:] is called. In %s",
+                        _className,
+                        __PRETTY_FUNCTION__];
+  }
+  return component;
+}
+
+- (BOOL) isStateless
+{
+  return _isStateless;
+}
+
+
+// this is called when we are already holding a lock.
+
+-(GSWComponent*) _sharedInstanceInContext:(GSWContext*)aContext
+{
+  GSWComponent * component = nil;
+  
+  if (_sharedInstance != nil) {
+    component = _sharedInstance;
+    _sharedInstance = nil;
+  } else {
+    if ([_instancePool count] > 0) {
+      component = AUTORELEASE(RETAIN([_instancePool lastObject]));
+      [_instancePool removeLastObject];
+    } else {
+      component = [self _componentInstanceInContext:aContext];
+    }
+  }
+  return component;
+}
+
 
 //--------------------------------------------------------------------
 -(GSWComponent*)componentInstanceInContext:(GSWContext*)aContext
 {
-  //OK
   GSWComponent* component=nil;
-  Class componentClass=nil;
-  NSMutableDictionary* threadDictionary=nil;
-  LOGObjectFnStart();
-  NSAssert(aContext,@"No Context");
-  NSDebugMLLog(@"gswcomponents",@"aContext=%@",aContext);
+  BOOL          locked = NO;
 
-  // Get component class
-  componentClass=[self componentClass];
-  NSAssert1(componentClass,@"No componentClass for:%@",NSStringFromClass([self class]));
-  NSDebugMLLog(@"gswcomponents",@"componentClass=%p",(void*)componentClass);
+  if (aContext == nil) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"Attempt to create component instance without a context. In %s",
+                       __PRETTY_FUNCTION__];
+  }
 
-  // Put the component definition in the thread dictionary because we need it during component initialization
-  threadDictionary=GSCurrentThreadDictionary();
-  [threadDictionary setObject:self
-                    forKey:GSWThreadKey_ComponentDefinition];
   NS_DURING
-    {
-      // Now, create the component by allocation a new instance of the class.
-      component=[[componentClass new] autorelease];
-    }
+
+   if (!_hasBeenAccessed) {
+     component = [self _componentInstanceInContext: aContext];
+     _isStateless = [component isStateless];
+     _hasBeenAccessed = YES;
+   } else {
+     if (_isStateless) {
+       if (_lockInstancePool) {
+        [_instancePoolLock lock];
+           locked = YES;
+           component = [self _sharedInstanceInContext:aContext];
+           locked = NO;        
+        [_instancePoolLock unlock];
+       } else {
+         component = [self _sharedInstanceInContext:aContext];
+       }
+     } else {
+       component = [self _componentInstanceInContext:aContext];
+     }
+   }
+
   NS_HANDLER
-    {
-      LOGException(@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
-      [threadDictionary removeObjectForKey:GSWThreadKey_ComponentDefinition];
-      [localException raise];
-    };
+
+   localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
+                                                                    __PRETTY_FUNCTION__];
+   LOGException(@"exception=%@",localException);
+   if (_lockInstancePool && locked) {
+     [_instancePoolLock unlock];
+   }
+   [localException raise];
+
   NS_ENDHANDLER;
+   
+   return component;
+}
 
-  // Remove the component from the thread dictionary
-  [threadDictionary removeObjectForKey:GSWThreadKey_ComponentDefinition];
-  //  [_component context];//so what ?
-  LOGObjectFnStop();
-  return component;
-};
-
-//--------------------------------------------------------------------
--(Class)componentClass
-{
-  //OK
-  return [self _componentClass];
-};
 
 //--------------------------------------------------------------------
 /** Find the class of the component **/
--(Class)_componentClass
-{
-  //OK To Verify
-  Class componentClass=_componentClass;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"componentClass=%@",componentClass);
-  NSDebugMLLog(@"gswcomponents",@"name=%@",_name);
-  if (!componentClass)
+-(Class) componentClass
+{  
+  Class componentClass = Nil;
+  
+  if (_componentClass) {
+    return _componentClass;
+  }
+  
+  componentClass = _componentClass;
+  if (!componentClass) {
     componentClass=NSClassFromString(_name);//???
-  NSDebugMLLog(@"gswcomponents",@"componentClass=%@",componentClass);
-  NSDebugMLLog(@"gswcomponents",@"componentClass superclass=%@",[componentClass superclass]);  
+  }
   if (!componentClass) // There's no class with that name
     {
       BOOL createClassesOk=NO;
@@ -408,9 +540,7 @@ languages:(NSArray*)languages
         {
           // Search component archive for a superclass (superClassName keyword)
           NSDictionary* archive=[_bundle archiveNamed:_name];
-          NSDebugMLLog(@"gswcomponents",@"archive=%@",archive);
           superClassName=[archive objectForKey:@"superClassName"];
-          NSDebugMLLog(@"gswcomponents",@"superClassName=%@",superClassName);
           if (superClassName)
             {
               if (!NSClassFromString(superClassName))
@@ -424,19 +554,16 @@ languages:(NSArray*)languages
       // If we haven't found a superclass, use GSWComponent as the superclass
       if (!superClassName)
         superClassName=@"GSWComponent";
-      NSDebugMLLog(@"gswcomponents",@"_name=%@ superClassName=%@",_name,superClassName);
-
       // Create class
       createClassesOk=[GSWApplication createUnknownComponentClasses:[NSArray arrayWithObject:_name]
                                       superClassName:superClassName];
 
       // Use it
       componentClass=NSClassFromString(_name);
-      NSDebugMLLog(@"gswcomponents",@"componentClass=%p",(void*)componentClass);
     };
   //call GSWApp isCaching
-  NSDebugMLLog(@"gswcomponents",@"componentClass=%@",componentClass);
-  LOGObjectFnStop();
+  _componentClass=componentClass;
+
   return componentClass;
 };
 
@@ -465,27 +592,17 @@ languages:(NSArray*)languages
   return componentAPI;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponentDefinition (GSWComponentDefinitionD)
 
 //--------------------------------------------------------------------
--(void)_finishInitializingComponent:(GSWComponent*)component
+-(void) finishInitializingComponent:(GSWComponent*)component
 {
   //OK
   NSDictionary* archive=nil;
-  LOGObjectFnStart();
   archive=[_bundle archiveNamed:_name];
   [_bundle initializeObject:component
            fromArchive:archive];
-  LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponentDefinition (GSWComponentDefinitionE)
 
 //--------------------------------------------------------------------
 -(void)_notifyObserversForDyingComponent:(GSWComponent*)aComponent
@@ -522,5 +639,36 @@ languages:(NSArray*)languages
 {
   LOGClassFnNotImplemented();	//TODOFN
 };
+
+// DW
+- (GSWElement *) template
+{
+  BOOL htmlChangedOnDisk = NO;
+  BOOL wodChangedOnDisk = NO;
+  BOOL doCache = [self isCachingEnabled];
+
+  if (doCache == NO) {
+    htmlChangedOnDisk = YES; // todo compare last chage date with load date
+    if (_htmlPath != nil && !htmlChangedOnDisk) {
+      wodChangedOnDisk = YES; // todo compare last chage date with load date
+    }
+  }
+  if (_htmlPath != nil && (_template == nil || htmlChangedOnDisk || wodChangedOnDisk)) {
+  NS_DURING
+    [TemplateLock lock];
+    DESTROY(_template);
+  
+    _template = RETAIN([_bundle templateNamed: _name
+                                    languages:nil]); // _language? array?
+    [TemplateLock unlock];
+  NS_HANDLER
+    DESTROY(_template);
+    [TemplateLock unlock];
+    [localException raise];
+  NS_ENDHANDLER
+
+  }
+  return _template;
+}
 
 @end

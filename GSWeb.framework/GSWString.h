@@ -33,22 +33,20 @@
 	#define _GSWString_h__
 
 
-@interface GSWString: GSWHTMLDynamicElement
+@interface GSWString: GSWDynamicElement
 {
-  GSWAssociation* _value;
-  GSWAssociation* _dateFormat;
-  GSWAssociation* _numberFormat;
-  GSWAssociation* _escapeHTML;
-//GSWeb Additions {
-  GSWAssociation* _convertHTML;
-  GSWAssociation* _convertHTMLEntities;
-// }
-  GSWAssociation* _formatter;
+  GSWAssociation * _dateFormat;
+  GSWAssociation * _numberFormat;
+  GSWAssociation * _formatter;
+  GSWAssociation * _value;
+  GSWAssociation * _escapeHTML;
+  GSWAssociation * _valueWhenEmpty;
+  BOOL             _shouldFormat;
 };
 
 -(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
+     associations:(NSMutableDictionary*)associations
+         template:(GSWElement*)template;
 
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
@@ -61,13 +59,8 @@
 
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component
                                value:(id)value;
--(NSString*)elementName;
 -(NSString*)formattedValueInContext:(GSWContext*)context;
-@end
 
-//====================================================================
-@interface GSWString (GSWInputA)
-+(BOOL)hasGSWebObjectsAssociations;
 @end
 
 #endif //_GSWString_h__

@@ -54,615 +54,288 @@ static SEL setValueInComponentSEL = NULL;
 };
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name
+-(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
-{
-  //OK
-  LOGObjectFnStart();
-  if ((self=[super initWithName:name
-                   associations:nil
-                   template:nil]))
-    {
-      _list=[[associations objectForKey:list__Key
-                           withDefaultObject:[_list autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"list=%@",_list);
-      _item=[[associations objectForKey:item__Key
-                            withDefaultObject:[_item autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"item=%@",_item);
-      if (_item && ![_item isValueSettable])
-        {
-          ExceptionRaise0(@"GSWRepetition",@"'item' parameter must be settable");
-        };
-      _identifier=[[associations objectForKey:identifier__Key
-                                  withDefaultObject:[_identifier autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"identifier=%@",_identifier);
-      _count=[[associations objectForKey:count__Key
-                            withDefaultObject:[_count autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"count=%@",_count);
-      _index=[[associations objectForKey:index__Key
-                            withDefaultObject:[_index autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"index=%@",_index);
-      if (_index && ![_index isValueSettable])
-        {
-          ExceptionRaise0(@"GSWRepetition",@"'index' parameter must be settable");
-        };
+         template:(GSWElement*)template
+{         
+  self = [super initWithName:nil associations:nil template: template];
+  if (!self) {
+    return nil;
+  }  
 
-      if (!WOStrictFlag)
-        {
-          _startIndex=[[associations objectForKey:startIndex__Key
-                                     withDefaultObject:[_startIndex autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"startIndex=%@",_startIndex);
+  ASSIGN(_list, [associations objectForKey: list__Key]);
+  ASSIGN(_item, [associations objectForKey: item__Key]);
+  ASSIGN(_count, [associations objectForKey: count__Key]);
+  ASSIGN(_index, [associations objectForKey: index__Key]);
 
-          _stopIndex=[[associations objectForKey:stopIndex__Key
-                                     withDefaultObject:[_stopIndex autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"stopIndex=%@",_stopIndex);
-        };
+  if (!WOStrictFlag) {
+    ASSIGN(_startIndex, [associations objectForKey: startIndex__Key]);
+    ASSIGN(_stopIndex, [associations objectForKey: stopIndex__Key]);
+  }
 
-      if (elements)
-        {
-          _childrenGroup=[[GSWHTMLStaticGroup alloc]initWithContentElements:elements];
-        };
-    };
-  LOGObjectFnStop();
+  if (_list == nil && _count == nil) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: Missing 'list' or 'count' attribute.",
+                            __PRETTY_FUNCTION__];  
+  }
+  if (_list != nil && _item == nil) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: Missing 'item' attribute with 'list' attribute.",
+                            __PRETTY_FUNCTION__];  
+  }
+  if (_list != nil && _count != nil) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: Illegal use of 'count' attribute with 'list' attribute.",
+                            __PRETTY_FUNCTION__];  
+  }
+  if (_count != nil && (_list != nil || _item != nil)) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: Illegal use of 'list' or 'item' attribute with 'count' attribute.",
+                            __PRETTY_FUNCTION__];    
+  }
+  if (_item != nil && (![_item isValueSettable])) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: The 'item' attribute must be settable.",
+                            __PRETTY_FUNCTION__];    
+  }
+  if (_index != nil && (![_index isValueSettable])) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: The 'index' attribute must be settable.",
+                            __PRETTY_FUNCTION__];    
+  }
+
   return self;
 };
 
-//--------------------------------------------------------------------
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement
-{
-  LOGObjectFnStart();
-  self=[self initWithName:name
-             associations:associations
-             contentElements:templateElement ? [NSArray arrayWithObject:templateElement] : nil];
-  LOGObjectFnStop();
-  return self;
-};
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
   DESTROY(_list);
   DESTROY(_item);
-  DESTROY(_identifier);
   DESTROY(_count);
   DESTROY(_index);
   DESTROY(_startIndex);
   DESTROY(_stopIndex);
-  DESTROY(_childrenGroup);
+
   [super dealloc];
 }
 
-//--------------------------------------------------------------------
--(void)setDeclarationName:(NSString*)declarationName
-{
-  [super setDeclarationName:declarationName];
-  if (declarationName && _childrenGroup)
-    [_childrenGroup setDeclarationName:[declarationName stringByAppendingString:@"-StaticGroup"]];
-};
-
-//--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p>",
+  return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ count:%@ index:%@>",
                    object_get_class_name(self),
-                   (void*)self];
+                   (void*)self,
+                   _list, _item, _count, _index];
 };
 
-@end
 
-//====================================================================
-@implementation GSWRepetition (GSWRepetitionA)
 
--(void)getParameterValuesReturnList:(NSArray**)listValuePtr
-                          listCount:(int*)listCountPtr
-                              count:(int*)countValuePtr
-                         startIndex:(int*)startIndexValuePtr
-                          stopIndex:(int*)stopIndexValuePtr
-                      withComponent:(GSWComponent*)component
+static inline void _prepareForIterationWithIndex(int i, int j, NSArray * array, GSWContext * context, 
+                                     GSWComponent *component, GSWAssociation* item, GSWAssociation* index)
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"_list=%@",_list);
-  if (_list)
-    {
-      *listValuePtr=[_list valueInComponent:component];
-      NSAssert2(!(*listValuePtr) || [(*listValuePtr) respondsToSelector:@selector(count)],
-                @"The list (%@) (of class:%@) doesn't  respond to 'count'",
-                _list,
-                [(*listValuePtr) class]);
-      *listCountPtr=[(*listValuePtr) count];
-      *countValuePtr=*listCountPtr;
-      NSDebugMLLog(@"gswdync",@"list count=%d",*countValuePtr);
-    }
-  else
-    *listCountPtr=0;
-  NSDebugMLLog(@"gswdync",@"_count=%@",_count);
-  if (_count)
-    {
-      id tmpCountValue=[_count valueInComponent:component];
-      int tmpCount=0;
-      NSAssert3(!tmpCountValue || [tmpCountValue respondsToSelector:@selector(intValue)],
-                @"The 'count' (%@) value %@ (of class:%@) doesn't  respond to 'intValue'",
-                _count,
-                tmpCountValue,
-                [tmpCountValue class]);
-      tmpCount=[tmpCountValue intValue];
-      NSDebugMLLog(@"gswdync",@"tmpCount=%d",tmpCount);
-      if (_list)
-        *countValuePtr=min(tmpCount,(*countValuePtr));
-      else
-        *countValuePtr=tmpCount;
-    };
-  if (WOStrictFlag)
-    *stopIndexValuePtr=(*countValuePtr)-1;
-  else
-    {
-      NSDebugMLLog(@"gswdync",@"_startIndex=%@",_startIndex);
-      if (_startIndex)
-        {
-          id tmpStartIndexValue=[_startIndex valueInComponent:component];
-          NSAssert3(!tmpStartIndexValue || [tmpStartIndexValue respondsToSelector:@selector(intValue)],
-                @"The 'startIndex' (%@) value %@ (of class:%@) doesn't  respond to 'intValue'",
-                _count,
-                tmpStartIndexValue,
-                [tmpStartIndexValue class]);
-          *startIndexValuePtr=[tmpStartIndexValue intValue];
-          *startIndexValuePtr=max(0,(*startIndexValuePtr));
-        }
-      else
-        *startIndexValuePtr=0;
-      NSDebugMLLog(@"gswdync",@"*startIndexValuePtr=%d",(*startIndexValuePtr));
-      NSDebugMLLog(@"gswdync",@"_stopIndex=%@",_stopIndex);
-      if (_stopIndex)  
-        {
-          id tmpStopIndexValue=[_stopIndex valueInComponent:component];
-          NSAssert3(!tmpStopIndexValue || [tmpStopIndexValue respondsToSelector:@selector(intValue)],
-                @"The 'startIndex' (%@) value %@ (of class:%@) doesn't  respond to 'intValue'",
-                _count,
-                tmpStopIndexValue,
-                [tmpStopIndexValue class]);
-          *stopIndexValuePtr=[tmpStopIndexValue intValue];
-          NSDebugMLLog(@"gswdync",@"*stopIndexValuePtr=%d",(*stopIndexValuePtr));
-          if (_count) // if not count, just take start and stop index
-            {
-              if ((*countValuePtr)>((*stopIndexValuePtr)+1))
-                *countValuePtr=(*stopIndexValuePtr)+1;
-              else
-                *stopIndexValuePtr=(*countValuePtr)-1;
-            }
-          else
-            *countValuePtr=(*stopIndexValuePtr)+1;
-          NSDebugMLLog(@"gswdync",@"*stopIndexValuePtr=%d",(*stopIndexValuePtr));
-          NSDebugMLLog(@"gswdync",@"*countValuePtr=%d",(*countValuePtr));
-        }
-      else
-        *stopIndexValuePtr=(*countValuePtr)-1;
-      NSDebugMLLog(@"gswdync",@"*stopIndexValuePtr=%d",(*stopIndexValuePtr));
-    };
-  NSDebugMLLog(@"gswdync",@"PARAMETERS: list: %p startIndex: %d stopIndex: %d count: %d",
-               *listValuePtr,
-               *startIndexValuePtr,
-               *stopIndexValuePtr,
-               *countValuePtr);
-  LOGObjectFnStop();
-};
+  if (item != nil) {
+    id obj = [array objectAtIndex:i];
+    [item setValue:obj 
+       inComponent:component];       // _setValueNoValidation?
+  }
+  if (index != nil) {
+    [index setValue:[NSNumber numberWithInt:i] 
+        inComponent:component];       // _setValueNoValidation?
+  }
+  if (i != 0) {
+    [context incrementLastElementIDComponent];
+  } else {
+    [context appendZeroElementIDComponent];  
+  }
+}
 
-//--------------------------------------------------------------------
--(void)_prepareIterationWithIndex:(unsigned int)currentIndex
-                       startIndex:(unsigned int)startIndex
-                        stopIndex:(unsigned int)stopIndex
-                             list:(NSArray*)list
-                        listCount:(unsigned int)listCount
-             listObjectAtIndexIMP:(IMP)oaiIMP
-                  itemSetValueIMP:(IMP)itemSetValueIMP
-                 indexSetValueIMP:(IMP)indexSetValueIMP
-                        component:(GSWComponent*)component
-                        inContext:(GSWContext*)context
+static inline void _cleanupAfterIteration(GSWContext * context, 
+                      GSWComponent * component, int i, GSWAssociation* item, GSWAssociation* index)
 {
-  LOGObjectFnStart();
-  NS_DURING
-    {
-      NSDebugMLLog(@"gswdync",@"currentIndex=%d startIndex=%d stopIndex=%d",
-                   currentIndex,startIndex,stopIndex);
-      NSDebugMLLog(@"gswdync",@"_index=%@",_index);
-      NSDebugMLLog(@"gswdync",@"_item=%@",_item);
-      if (_list && _item)
-        {
-          if (listCount>currentIndex)
-            { 
-              NSDebugMLLog(@"gswdync",@"[list objectAtIndex:%d]=%@",currentIndex,[list objectAtIndex:currentIndex]);
-              (*itemSetValueIMP)(_item,setValueInComponentSEL,
-                                 (*oaiIMP)(list,objectAtIndexSEL,currentIndex),
-                                 component);
-            }
-          else
-            {
-              //NSLog(@"startOneIterationWithIndex SKIPPING setValue:inComponent index=%d list.count=%d",currentIndex, [list count]);
-            };
-        };
+  if (item != nil) {
+    [item setValue:nil 
+       inComponent:component];       // _setValueNoValidation?
+  }
+  if (index != nil) {
+    [index setValue:[NSNumber numberWithInt:i] 
+        inComponent:component];       // _setValueNoValidation?
+  }
+  [context deleteLastElementIDComponent];  
+}
 
-      if (_index)
-        (*indexSetValueIMP)(_index,setValueInComponentSEL,
-                            GSWIntNumber(currentIndex),component);
 
-      if (currentIndex==startIndex)
-        GSWContext_appendZeroElementIDComponent(context);
-      else
-        GSWContext_incrementLastElementIDComponent(context);
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In startOneIterationWithIndex");
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)_cleanupAfterIterationsWithItemSetValueIMP:(IMP)itemSetValueIMP
-                                 indexSetValueIMP:(IMP)indexSetValueIMP
-                                        component:(GSWComponent*)component
-                                        inContext:(GSWContext*)context
-  
-{
-  LOGObjectFnStart();
-
-  NS_DURING
-    {
-      if (_list && _item)
-        (*itemSetValueIMP)(_item,setValueInComponentSEL,
-                           nil,component);
-      if (_index)
-        (*indexSetValueIMP)(_index,setValueInComponentSEL,
-                            GSWIntNumber(0),component);
-      GSWContext_deleteLastElementIDComponent(context);
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In cleanupAfterIterations");
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
-  LOGObjectFnStop();
-};
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  GSWComponent* component=nil;
-  NSArray* listValue=nil;
-  int listCount=0;
-  int i=0;
-  int countValue=0;
-  int startIndexValue = 0;
-  int stopIndexValue = 0;
+  GSWComponent * component = GSWContext_component(context);
+  NSArray      * myArray = nil;
+  NSNumber     * countValue = nil;
+  unsigned int count = 0;
+  unsigned int i = 0;
+  
+  if (_list != nil) {
+    myArray = [_list valueInComponent:component];
+    if (myArray != nil)
+    count = [myArray count];
+  } else {
+    countValue = [_count valueInComponent:component];
+    if (countValue != nil) {
+      count = [countValue intValue];
+    } 
+  }
+  for (i = 0; i < count; i++) {
+    _prepareForIterationWithIndex(i, count, myArray, context, component,_item, _index);
+    [super appendChildrenToResponse:response
+              inContext:context];
+  }
 
-  GSWDeclareDebugElementIDsCount(context);
-  GSWDeclareDebugElementID(context);
+  if (count > 0) {
+    _cleanupAfterIteration(context, component, count, _item, _index);
+  }
+}
 
-  LOGObjectFnStart();
 
-  GSWStartElement(context);
-  GSWSaveAppendToResponseElementID(context);
+static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NSString * elementStr)
+{
+  int elementLen = [elementStr length]+ 1;
+  int senderLen = [senderStr length];
+  
+  NSRange myRange = [senderStr rangeOfString:@"." 
+                                     options:0
+                                       range:NSMakeRange(elementLen, (senderLen - elementLen))];
+                                       
 
-  component=GSWContext_component(context);
+//  NSLog(@"elementLen:%d", elementLen);
+//  NSLog(@"senderLen:%d", senderLen);
 
-  [self getParameterValuesReturnList:&listValue
-        listCount:&listCount
-        count:&countValue
-        startIndex:&startIndexValue
-        stopIndex:&stopIndexValue
-        withComponent:component];
+  if (myRange.location == NSNotFound) {
+    return [senderStr substringFromIndex: elementLen];
+  } else {
+//  NSLog(@"found myRange.location:%d", myRange.location);
+    return [senderStr substringWithRange: NSMakeRange(elementLen, myRange.location-elementLen)];
+  }
+  return nil;
+}
 
-  NSDebugMLLog(@"gswdync",@"countValue=%d",countValue);
 
-  if (startIndexValue<=stopIndexValue)
-    {
-      IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
-      IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
-      IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
-      IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
-
-      [context incrementLoopLevel];
-
-      for(i=startIndexValue;i<=stopIndexValue;i++)
-        {
-          (*prepareIterationIMP)(self,prepareIterationSEL,
-                                 i,startIndexValue,stopIndexValue,
-                                 listValue,listCount,
-                                 listOAIIMP,
-                                 itemSetValueIMP,indexSetValueIMP,
-                                 component,context);
-          
-          GSWContext_appendZeroElementIDComponent(context);
-          
-          [_childrenGroup appendToResponse:response
-                          inContext:context];
-          
-          GSWContext_deleteLastElementIDComponent(context);         
-        };
-      [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
-            indexSetValueIMP:indexSetValueIMP
-            component:component
-            inContext:context];
-
-      [context decrementLoopLevel];
-    };
-
-  GSWStopElement(context);
-  GSWAssertDebugElementIDsCount(context);
-  GSWAssertDebugElementID(context);
-
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
 {
-  //OK
-  GSWElement* element=nil;
-  BOOL isInForm=NO;
-  GSWDeclareDebugElementIDsCount(context);
-  LOGObjectFnStart();
+  GSWComponent * component = GSWContext_component(context);
+  GSWElement   * element   = nil;
+  NSString     * indexStr  = nil;
 
-  GSWStartElement(context);
+  NSString     * senderID     = [context senderID];
+  NSString     * elementID    = [context elementID];
+  NSArray      * arrayValue   = nil;
+  id             currentValue = nil;
+  int            count        = 0;
+  int            k            = 0;
+  
+  if ([senderID hasPrefix:elementID]) {
+    int i = [elementID length];
+    // code taken from http://www.unicode.org/charts/PDF/U0000.pdf
+    // '.'
+    if (([senderID length] > i) && ([senderID characterAtIndex:i] == 0x002e)) {
+      indexStr = _indexStringForSenderAndElement(senderID, elementID);
+//      NSLog(@"indexStr is '%@' senderID:'%@' elementID:'%@'", indexStr, senderID, elementID);
+    }
+  }
 
-  isInForm=[context isInForm];
-  NSDebugMLLog(@"gswdync",@"isInForm=%s",isInForm ? "YES" : "NO");
-  if (isInForm)
-    element=[self _slowInvokeActionForRequest:request
-                  inContext:context];
-  else
-    element=[self _fastInvokeActionForRequest:request
-                  inContext:context];
-  NSDebugMLLog(@"gswdync",@"element=%@",element);
+  if (indexStr != nil) {
+    int i = [indexStr intValue];
+    if (_list != nil) {
+      arrayValue = [_list valueInComponent:component];
 
-  GSWStopElement(context);
-  GSWAssertDebugElementIDsCount(context);
-
-  LOGObjectFnStop();
-
-  return element;
-};
-
-
-//--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context
-{
-  GSWComponent* component=nil;
-  NSArray* listValue=nil;
-  int listCount=0;
-  int i=0;
-  int countValue=0;
-  int startIndexValue = 0;
-  int stopIndexValue = 0;
-
-  GSWDeclareDebugElementIDsCount(context);
-  GSWDeclareDebugElementID(context);
-
-  LOGObjectFnStart();
-
-  GSWStartElement(context);
-  GSWAssertCorrectElementID(context);
-
-  component=GSWContext_component(context);
-
-  [self getParameterValuesReturnList:&listValue
-        listCount:&listCount
-        count:&countValue
-        startIndex:&startIndexValue
-        stopIndex:&stopIndexValue
-        withComponent:component];
-
-  if (startIndexValue<=stopIndexValue)
-    {
-      IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
-      IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
-      IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
-      IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
-
-      [context incrementLoopLevel];
-
-      for(i=startIndexValue;i<=stopIndexValue;i++)
-        {
-          
-          (*prepareIterationIMP)(self,prepareIterationSEL,
-                                 i,startIndexValue,stopIndexValue,
-                                 listValue,listCount,
-                                 listOAIIMP,
-                                 itemSetValueIMP,indexSetValueIMP,
-                                 component,context);
-          
-          GSWContext_appendZeroElementIDComponent(context);
-          
-          [_childrenGroup takeValuesFromRequest:request
-                          inContext:context];
-          
-          GSWContext_deleteLastElementIDComponent(context);
-        };
-      [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
-            indexSetValueIMP:indexSetValueIMP
-            component:component
-            inContext:context];
-
-      [context decrementLoopLevel];
-    };
-
-  GSWStopElement(context);
-  GSWAssertDebugElementIDsCount(context);
-  GSWAssertDebugElementID(context);
-
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(GSWElement*)_slowInvokeActionForRequest:(GSWRequest*)request
-                                inContext:(GSWContext*)context
-{
-  //OK
-  GSWElement* element=nil;
-  GSWComponent* component=nil;
-  NSArray* listValue=nil;
-  int listCount=0;
-  int i=0;
-  int countValue=0;
-  int startIndexValue = 0;
-  int stopIndexValue = 0;
-
-  GSWDeclareDebugElementIDsCount(context);
-  GSWDeclareDebugElementID(context);
-
-  LOGObjectFnStart();
-
-  GSWStartElement(context);
-  component=GSWContext_component(context);
-
-  [self getParameterValuesReturnList:&listValue
-        listCount:&listCount
-        count:&countValue
-        startIndex:&startIndexValue
-        stopIndex:&stopIndexValue
-        withComponent:component];
-
-
-  if (startIndexValue<=stopIndexValue)
-    {
-      IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
-      IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
-      IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
-      IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
-
-      [context incrementLoopLevel];
-
-      for(i=startIndexValue;!element && i<=stopIndexValue;i++)
-        {
-          (*prepareIterationIMP)(self,prepareIterationSEL,
-                                 i,startIndexValue,stopIndexValue,
-                                 listValue,listCount,
-                                 listOAIIMP,
-                                 itemSetValueIMP,indexSetValueIMP,
-                                 component,context);
-          
-          GSWContext_appendZeroElementIDComponent(context);
-          
-          element=[_childrenGroup invokeActionForRequest:request
+      if (arrayValue != nil) {
+          if ((i >= 0) && (i < [arrayValue count])) {
+            currentValue = [arrayValue objectAtIndex:i];
+          }
+        if (_item != nil) {
+          [_item setValue:currentValue
+              inComponent:component];            // speedup? ?
+        }
+      }
+    }
+    if (_index != nil) {
+      [_index setValue:[NSNumber numberWithInt:i]
+           inComponent:component];            // speedup? ?
+    }
+    [context appendElementIDComponent: indexStr];
+    element = [super invokeActionForRequest:request
                                   inContext:context];
-          NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
-                    @"_childrenGroup=%@ Element is a %@ not a GSWElement: %@",
-                    _childrenGroup,
-                    [element class],
-                    element);
-          
-          GSWContext_deleteLastElementIDComponent(context);
-        };
+    [context deleteLastElementIDComponent];
+  } else {
+    count = 0;
 
-      [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
-            indexSetValueIMP:indexSetValueIMP
-            component:component
-            inContext:context];
+    if (_list != nil) {
+      arrayValue = [_list valueInComponent:component];
+      count =  [arrayValue count];
+    } else {
+      id countValue = [_count valueInComponent:component];
+      if (countValue != nil) {
+        count = [countValue intValue];    // or first into a string?
+      } else {
+       NSLog(@"%s:'count' evaluated to nil in component %@. Repetition count reset to zero.",
+             __PRETTY_FUNCTION__, component);
+      }
+    }
+    
+    for (k = 0; k < count && element == nil; k++) {
+      _prepareForIterationWithIndex(k, count, arrayValue, context, component, _item, _index);
+      element = [super invokeActionForRequest:request
+                                    inContext:context];
+      
+    }
 
-      [context decrementLoopLevel];
-    };
-
-
-
-  GSWStopElement(context);
-  GSWAssertDebugElementIDsCount(context);
-  GSWAssertDebugElementID(context);
-
-  LOGObjectFnStop();
-
+    if (count > 0) {
+      _cleanupAfterIteration(context, component, count, _item, _index);
+    }
+  }
   return element;
 };
 
-//--------------------------------------------------------------------
--(GSWElement*)_fastInvokeActionForRequest:(GSWRequest*)request
-                                inContext:(GSWContext*)aContext
+- (void) takeValuesFromRequest:(GSWRequest *) request
+                     inContext:(GSWContext*)context
 {
-  GSWElement* element=nil;
-  NSString* senderID=nil;
-  NSString* elementID=nil;
-  GSWDeclareDebugElementIDsCount(aContext);
-  GSWDeclareDebugElementID(aContext);
+  GSWComponent * component = GSWContext_component(context);
+  NSArray      * arrayValue   = nil;
+  id             countValue   = nil;
+  int            i            = 0;
 
-  LOGObjectFnStart();
+  int count = 0;
 
-  GSWStartElement(aContext);
+  if (_list != nil) {
+    arrayValue = [_list valueInComponent:component];
+    if (arrayValue != nil) {
+      count = [arrayValue count];
+    }
+  } else {
+    countValue = [_count valueInComponent:component];
+    if (countValue != nil) {
+      count = [countValue intValue];    // or first into a string?
+    } else {
+      NSLog(@"%s: 'count' evaluated to nil in %@. Resetting to zero. (%@)",
+                              __PRETTY_FUNCTION__, component, _count);  
+    }
+  }
+  for (i = 0; i < count; i++) {
 
-  senderID=GSWContext_senderID(aContext);
-  NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
+    _prepareForIterationWithIndex(i, count, arrayValue, context, component,_item, _index);
 
-  elementID=GSWContext_elementID(aContext);
+    [super takeValuesFromRequest:request
+                       inContext:context];
+    
+  }
 
-  if ([senderID hasPrefix:elementID])
-    {
-      int countValue=0;
-      NSArray* listValue=nil;
-      int listCount=0;
-      int startIndexValue = 0;
-      int stopIndexValue = 0;
-      int i=0;
-      GSWComponent* component=GSWContext_component(aContext);
-
-      [self getParameterValuesReturnList:&listValue
-            listCount:&listCount
-            count:&countValue
-            startIndex:&startIndexValue
-            stopIndex:&stopIndexValue
-            withComponent:component];
-
-
-      if (startIndexValue<=stopIndexValue)
-        {
-          IMP prepareIterationIMP=[self methodForSelector:prepareIterationSEL];
-          IMP listOAIIMP=[listValue methodForSelector:objectAtIndexSEL];
-          IMP itemSetValueIMP=[_item methodForSelector:setValueInComponentSEL];
-          IMP indexSetValueIMP=[_index methodForSelector:setValueInComponentSEL];
-
-          [aContext incrementLoopLevel];
-
-          for(i=startIndexValue;!element && i<=stopIndexValue;i++)
-            {
-              (*prepareIterationIMP)(self,prepareIterationSEL,
-                                     i,startIndexValue,stopIndexValue,
-                                     listValue,listCount,
-                                     listOAIIMP,
-                                     itemSetValueIMP,indexSetValueIMP,
-                                     component,aContext);
-              
-              GSWContext_appendZeroElementIDComponent(aContext);
-              
-              element=[_childrenGroup invokeActionForRequest:request
-                                      inContext:aContext];
-              NSDebugMLLog(@"gswdync",@"element=%@",element);
-              
-              GSWContext_deleteLastElementIDComponent(aContext);              
-            };
-
-          [self _cleanupAfterIterationsWithItemSetValueIMP:itemSetValueIMP
-                indexSetValueIMP:indexSetValueIMP
-                component:component
-                inContext:aContext];
-          
-          [aContext decrementLoopLevel];
-        };
-    };
-
-  GSWStopElement(aContext);
-  GSWAssertDebugElementIDsCount(aContext);
-  GSWAssertDebugElementID(aContext);
-
-  LOGObjectFnStop();
-
-  return element;
-};
+  if (count > 0)
+  {
+    _cleanupAfterIteration(context, component, count, _item, _index);
+  }
+}
 
 
 

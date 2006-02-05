@@ -360,23 +360,25 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 };
 
 //--------------------------------------------------------------------
+// called _appendTagAttributeAndValue in WO 5
 -(void)_appendTagAttribute:(NSString*)attributeName
                      value:(id)value
 escapingHTMLAttributeValue:(BOOL)escape
 {
-  LOGObjectFnStart();
 
   GSWResponse_appendContentCharacter(self,' ');
   GSWResponse_appendContentAsciiString(self,attributeName);
   GSWResponse_appendContentAsciiString(self,@"=\"");
-  if (escape)
-    GSWResponse_appendContentAsciiString(self,
-                                         GSWResponse_stringByEscapingHTMLAttributeValue(self,value));
-  else
-    GSWResponse_appendContentAsciiString(self,value);
-  GSWResponse_appendContentCharacter(self,'"');
 
-  LOGObjectFnStop();
+  if (escape) {
+    GSWResponse_appendContentString(self,
+                                         GSWResponse_stringByEscapingHTMLAttributeValue(self,value));
+  } else {
+    GSWResponse_appendContentString(self,value);
+  }
+  
+  GSWResponse_appendContentCharacter(self,'"');
+  
 };
 
 @end

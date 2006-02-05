@@ -150,7 +150,7 @@ static Class standardClass = Nil;
                                       inContext:(GSWContext*)aContext
 {
   GSWComponent* component=GSWContext_component(aContext);
-  BOOL disabledInContext=[self disabledInContext:aContext];
+  BOOL disabledInContext=[self disabledInComponent:component];
   if (!disabledInContext)
     {
       BOOL isChecked=NO;
@@ -201,10 +201,12 @@ static Class standardClass = Nil;
 {
   //OK
   BOOL disabledInContext=NO;
+  GSWComponent * component = GSWContext_component(aContext);
+  
   LOGObjectFnStart();
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
-  disabledInContext=[self disabledInContext:aContext];
+  disabledInContext=[self disabledInComponent:component];
   if (!disabledInContext)
     {
       if ([aContext _wasFormSubmitted])

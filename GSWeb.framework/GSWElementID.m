@@ -907,7 +907,13 @@ elements **/
 
   if (_partsCount<1)
     {
+    #warning checkme!
+    return;
+    
       NSWarnLog(@"Can't incrementLastElementIDComponent on an empty elementID");
+      [NSException raise:NSInvalidArgumentException
+                  format:@"Can't incrementLastElementIDComponent on an empty elementID. In %s",
+                         __PRETTY_FUNCTION__];      
     }
   else
     {
@@ -988,11 +994,12 @@ You should avoid element ending with digits.
     }
   else
     {
-      if (isdigit([element characterAtIndex:elementLength-1]))
-        {
-          NSWarnLog(@"You'll may get problems if you use anElementID which ends with digit(s) like you do: '%@'",
-                    element);
-        };
+// do we really need this stuff?? davew    
+//      if (isdigit([element characterAtIndex:elementLength-1]))
+//        {
+//          NSWarnLog(@"You'll may get problems if you use anElementID which ends with digit(s) like you do: '%@'",
+//                    element);
+//        };
     }
 
   NSDebugMLLog(@"GSWElementID",@"_partsCount=%d _builtPartCount=%d element=%@",

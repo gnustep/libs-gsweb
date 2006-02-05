@@ -131,6 +131,8 @@
 #define GSWText                         WOText
 #define GSWTextField                    WOTextField
 #define GSWVBScript                     WOVBScript
+#define GSWDynamicGroup                 WODynamicGroup
+#define GSWHTMLDynamicElement           WOHTMLDynamicElement
 
 /* Extensions */
 #define GSWAnyField                     WOAnyField

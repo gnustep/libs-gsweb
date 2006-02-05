@@ -169,8 +169,8 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication (GSWApplicationD)
 
--(GSWComponentDefinition*)componentDefinitionWithName:(NSString*)aName
-                                            languages:(NSArray*)languages;
+-(GSWComponentDefinition*) _componentDefinitionWithName:(NSString*)aName
+                                              languages:(NSArray*)languages;
 -(GSWComponentDefinition*)lockedComponentDefinitionWithName:(NSString*)aName
                                                   languages:(NSArray*)languages;
 -(GSWComponentDefinition*)lockedLoadComponentDefinitionWithName:(NSString*)aName
@@ -300,8 +300,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(GSWComponent*)pageWithName:(NSString*)aName
                    inContext:(GSWContext*)aContext;
 -(NSString*)defaultPageName;//NDFN
--(GSWComponent*)_pageWithName:(NSString*)aName
-                    inContext:(GSWContext*)aContext;
 @end
 
 //====================================================================

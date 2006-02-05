@@ -54,6 +54,9 @@ At runtime, the GNUstepWeb parser scans an HTML template (.html) and it's declar
 In the case value= "label", the string value will be a constant string "aLabel". 
 In the case value = label, the value came from method "label" or member "label" of the component (by valueForKey: mechanism). 
 In the case value = myMember.label, value came from method "label" or member "label" of the object returned by calling valueForKey:@"myMember" on the component.
+
+NEW FEATURE: negate. add a "!" in front of your key path and the result will be negated.
+
 **/
 
 #ifndef _GSWAssociation_h__
@@ -63,36 +66,43 @@ In the case value = myMember.label, value came from method "label" or member "la
 @interface GSWAssociation : NSObject <NSCopying>
 {
   BOOL _debugEnabled;
+  BOOL _negate;                // GSW addon.
   NSString* _bindingName;
   NSString* _declarationName;
   NSString* _declarationType;
 };
 
 -(id)valueInComponent:(GSWComponent*)component;
+
+- (BOOL) boolValueInComponent:(GSWComponent*)component;
+
 -(void)setValue:(id)value
     inComponent:(GSWComponent*)component;
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
+-(BOOL)isValueSettableInComponent:(GSWComponent*) comp;
+-(BOOL)isValueConstantInComponent:(GSWComponent*) comp;
+
+// YES if we negate the result before returnig it.
+-(BOOL)negate;
+-(void) setNegate:(BOOL) yn;
+
+
 -(NSString*)description;
 -(NSString*)bindingName;
 -(NSString*)declarationName;
 -(NSString*)declarationType;
-@end
 
-//====================================================================
-@interface GSWAssociation (GSWAssociationHandlers)
 +(void)setClasse:(Class)class
       forHandler:(NSString*)handler;
 +(void)addLogHandlerClasse:(Class)class;
 +(void)removeLogHandlerClasse:(Class)class;
-@end
-//====================================================================
-@interface GSWAssociation (GSWAssociationCreation)
+
 +(GSWAssociation*)associationWithValue:(id)value;
 +(GSWAssociation*)associationWithKeyPath:(NSString*)keyPath;
 //NDFN
 +(GSWAssociation*)associationFromString:(NSString*)string;
-@end
+
 /*
 //====================================================================
 @interface GSWAssociation (GSWAssociationOldFn)
@@ -103,14 +113,9 @@ In the case value = myMember.label, value came from method "label" or member "la
 @end
 */
 //====================================================================
-@interface GSWAssociation (GSWAssociationA)
 
 -(BOOL)isImplementedForComponent:(NSObject*)component;
 
-@end
-
-//====================================================================
-@interface GSWAssociation (GSWAssociationB)
 
 -(NSString*)keyPath;
 -(void)logSynchronizeComponentToParentForValue:(id)value

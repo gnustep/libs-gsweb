@@ -45,7 +45,6 @@
   GSWAssociation* _prefix;
   GSWAssociation* _suffix;
   GSWAssociation* _displayString;
-  GSWAssociation* _escapeHTML;
   GSWAssociation* _itemDisabled;
   BOOL _defaultEscapeHTML;
 //GSWeb Additions {

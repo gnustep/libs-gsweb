@@ -67,22 +67,22 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(id)valueInComponent:(GSWComponent*)object
+// dw
+-(id)valueInComponent:(GSWComponent*)component
 {
   id retValue=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"self=%@ ",self);
-  NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
-  NSDebugMLLog(@"associations",@"object=%@ ", object);
-  retValue=[GSWAssociation valueInComponent:object
-                           forKeyPath:_keyPath];
-  NSDebugMLLog(@"associations",@"self=%@ retValue=%@ (%p) (class=%@)",
-               self,
-               retValue,
-               retValue,
-               NSStringFromClass([retValue class]));
-  [self logTakeValue:retValue];
-  LOGObjectFnStop();
+
+// thats what WO does:
+//  retValue = [component valueForKeyPath: _keyPath];
+
+// but we need:  
+  retValue=[GSWAssociation valueInComponent: component
+                                 forKeyPath:_keyPath];
+
+  if (_debugEnabled) {
+    [self logTakeValue:retValue];
+  }
+
   return retValue;
 };
 

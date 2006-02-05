@@ -36,23 +36,28 @@
 //====================================================================
 @interface GSWActiveImage: GSWInput
 {
-  GSWAssociation* _imageMapFileName;
 
 //GSWeb Additions {
-  GSWAssociation* _imageMapString;
-  GSWAssociation* _imageMapRegions;
+  GSWAssociation * _imageMapString;
+  GSWAssociation * _imageMapRegions;
 // }
-  GSWAssociation* _action;
-  GSWAssociation* _href;
-  GSWAssociation* _src;
-  GSWAssociation* _xAssoc;
-  GSWAssociation* _yAssoc;
-  GSWAssociation* _target;
-  GSWAssociation* _filename;
-  GSWAssociation* _framework;
-  GSWAssociation* _data;
-  GSWAssociation* _mimeType;
-  GSWAssociation* _key;
+  GSWAssociation * _file;              // this is imageMapFile
+  GSWAssociation * _action;
+  GSWAssociation * _href;
+  GSWAssociation * _src;
+  GSWAssociation * _xAssoc;
+  GSWAssociation * _yAssoc;
+  GSWAssociation * _target;
+  GSWAssociation * _filename;
+  GSWAssociation * _framework;
+  GSWAssociation * _data;
+  GSWAssociation * _mimeType;
+  GSWAssociation * _key;
+  GSWAssociation * _width;
+  GSWAssociation * _height;
+  GSWAssociation * _secure;
+  GSWAssociation * _actionClass;
+  GSWAssociation * _directActionName;
 };
 
 -(id)initWithName:(NSString*)name
@@ -62,17 +67,11 @@
 -(NSString*)description;
 -(void)dealloc;
 
-@end
 
-//====================================================================
-@interface GSWActiveImage (GSWActiveImageA)
 -(GSWAssociation*)hitTestX:(int)x
                          y:(int)y
                  inRegions:(NSArray*)regions;
-@end
 
-//====================================================================
-@interface GSWActiveImage (GSWActiveImageB)
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)aContext;
 
@@ -84,20 +83,10 @@
 -(NSString*)frameworkNameInContext:(GSWContext*)aContext;
 -(NSString*)imageSourceInContext:(GSWContext*)aContext; //NDFN
 -(NSString*)hrefInContext:(GSWContext*)aContext; //NDFN
-@end
 
-//====================================================================
-@interface GSWActiveImage (GSWActiveImageC)
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
                                       inContext:(GSWContext*)aContext;
-@end
 
-//====================================================================
-@interface GSWActiveImage (GSWActiveImageD)
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
--(BOOL)appendStringAtLeft:(id)unkwnon
-              withMapping:(char*)mapping;
 @end
 
 #endif //_GSWActiveImage_h__

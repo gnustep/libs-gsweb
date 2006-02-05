@@ -257,6 +257,11 @@ static SEL appendStringSel = NULL;
   DESTROY(_requestHandlerKey);
   DESTROY(_queryString);
   DESTROY(_requestHandlerPath);
+
+  _urlASImp=NULL;
+  _urlBeginningASImp=NULL;
+  _flags.composed=NO;
+  
   [super dealloc];
 };
 
@@ -390,10 +395,6 @@ static SEL appendStringSel = NULL;
   return [_url methodSignatureForSelector:selector];
 };
 
-@end
-
-//====================================================================
-@implementation GSWDynamicURLString (GSWDynamicURLStringParsing)
 
 -(void)_compose
 {
@@ -713,10 +714,6 @@ static SEL appendStringSel = NULL;
   //NSDebugMLLog(@"low",@"requestHandlerPath=%@",_requestHandlerPath);
 };
 
-@end
-
-//====================================================================
-@implementation GSWDynamicURLString (GSWDynamicURLStringGetGet)
 /*
 //--------------------------------------------------------------------
 -(NSArray*)urlRequestHandlerPath
@@ -748,6 +745,25 @@ static SEL appendStringSel = NULL;
 {
   return _applicationNumber;
 };
+
+// wo5?
+- (NSString*) applicationNumber
+{
+  // parse? compose?
+  return GSWIntToNSString(_applicationNumber);
+}
+
+- (void) setApplicationNumber: (NSString*) newNr
+{
+  int intVal = [newNr intValue];
+  
+  if (intVal != _applicationNumber) {    
+    _applicationNumber = intVal;
+    _flags.beginningComposed = NO;
+    _flags.composed = NO;
+  }
+}
+
 
 //--------------------------------------------------------------------
 -(NSString*)urlApplicationName
@@ -836,10 +852,6 @@ static SEL appendStringSel = NULL;
   return [NSString stringWithString:url];
 };
 
-@end
-
-//====================================================================
-@implementation GSWDynamicURLString (GSWDynamicURLStringSet)
 -(void)setURLRequestHandlerPath:(NSString*)aString
 {
   LOGObjectFnStart();

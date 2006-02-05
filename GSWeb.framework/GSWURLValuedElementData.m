@@ -36,7 +36,121 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 
 //====================================================================
+
+static Class NSStringClass = Nil;
+
 @implementation GSWURLValuedElementData
+
++ (void) initialize
+{
+  if (self == [GSWURLValuedElementData class])
+    {
+      NSStringClass = [NSString class];
+    }
+}
+
+
++ (NSString*) _dataURLInContext: (GSWContext*) context
+                            key:(GSWAssociation*) key
+                           data:(GSWAssociation*) data
+                       mimeType:(GSWAssociation*) mimeType
+                    inComponent:(GSWComponent*) component
+{
+  id                     obj = nil; 
+  NSString             * str = nil;
+  NSString             * keyStr = nil;
+  NSString             * mimeValue = nil;
+  GSWResourceManager   * resourcemanager = [GSWApp resourceManager];
+  if (key != nil) {
+    id keyValue = [key valueInComponent:component];
+    if (keyValue != nil) {
+      keyStr = [keyValue description];
+    }
+  }
+  if (keyStr != nil) {
+    obj = [resourcemanager _cachedDataForKey: keyStr];
+  }
+  if (obj == nil) {
+    NSData * nsdataValue = [data valueInComponent:component];
+
+    mimeValue = [mimeType valueInComponent:component];
+    if (nsdataValue != nil && mimeValue != nil) {
+      obj = [[GSWURLValuedElementData alloc] initWithData: nsdataValue
+                                                 mimeType: mimeValue
+                                                      key: keyStr];
+      AUTORELEASE(obj);                                                      
+
+      if (obj != nil) {
+        [resourcemanager _cacheData:obj];
+      }
+    }
+  }
+  if (obj == nil) {
+    obj = @"/ERROR/NOT_FOUND/DYNAMIC_DATA";
+    return obj;
+  }
+  if ([obj isKindOfClass:NSStringClass]) {
+    return obj;
+  } else {
+    str = [(WOURLValuedElementData*) obj dataURLInContext:context];
+  }
+  return str;
+}
+
+
+
+// _appendDataURLAttributeToResponse 
++ (void) _appendDataURLToResponse:(GSWResponse*) response
+                        inContext:(GSWContext*) context
+                              key:(GSWAssociation*) key
+                             data:(GSWAssociation*) data
+                         mimeType:(GSWAssociation*) mimeType
+                 urlAttributeName:(NSString *) urlAttribute    // @"src"
+                      inComponent:(GSWComponent*) component
+{
+  NSString * dataURL = [self _dataURLInContext: context
+                                           key: key
+                                          data: data 
+                                      mimeType: mimeType
+                                   inComponent: component];
+
+
+  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, urlAttribute, dataURL, NO);    
+}
+
+// checkme if 0 is the right value in GSW for unused applicationNumber
+
+// dataURL
+- (NSString*) dataURLInContext:(GSWContext *) context
+{
+  int                    appNr = 0;
+  NSString             * appNrStr = nil;
+  GSWDynamicURLString  * url = nil;    
+  GSWDynamicURLString  * url2 = nil;    
+  NSMutableString      * myStr = [NSMutableString stringWithCapacity:80];
+  
+  [myStr appendString: GSWKey_Data[GSWebNamingConv]];       //wodata
+  [myStr appendString:@"="];
+  [myStr appendString:[[self key] encodeURL]];
+
+  appNr = [[context request] applicationNumber];
+  if (appNr > 0) {
+    url = [context _url];
+    appNrStr = [url applicationNumber];
+    // with our current URLString it is a bit waste of time but that is how others to it.
+    [url setApplicationNumber: GSWIntToNSString(appNr)];
+  }
+
+  url2 = [context urlWithRequestHandlerKey:[GSWApp resourceRequestHandlerKey]
+                                      path: nil
+                               queryString: myStr];
+              
+  if (appNr > 0) {
+    [url setApplicationNumber:appNrStr];
+  }
+  return url2;
+}
+
 
 -(id)initWithData:(NSData*)data
          mimeType:(NSString*)type
@@ -65,6 +179,7 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
   return self;
 };
+
 
 //--------------------------------------------------------------------
 -(void)dealloc

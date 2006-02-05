@@ -35,24 +35,48 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWPasswordField
+
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+         template:(GSWElement*)template
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWPasswordField");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",
-               aName,associations,elements);
-  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"password"]
-                   forKey:@"type"];
-  if ((self=[super initWithName:aName
-                   associations:tmpAssociations
-                   contentElements:nil])) //No Childs!
-    {
-    };
-  LOGObjectFnStopC("GSWPasswordField");
-  return self;
-};
+  self = [super initWithName:@"input" associations:associations template: template];
+  if (!self) {
+    return nil;
+  }
 
-//--------------------------------------------------------------------
+  if ((_value == nil) || (![_value isValueSettable])) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: 'value' attribute not present or is a constant",
+                            __PRETTY_FUNCTION__];
+  }
+
+  return self;
+}
+
+- (NSString*) type
+{
+  return @"password";
+}
+
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
+{
+  GSWComponent * component = GSWContext_component(context);
+  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
+    NSString * nameCtx = [self nameInContext:context];
+    if (nameCtx != nil) {
+      NSString* value = [request stringFormValueForKey: nameCtx];
+      [_value setValue: value
+           inComponent:component];
+    }
+  }
+}
+
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
+{
+}
+
+
 @end

@@ -159,9 +159,6 @@ static Class standardClass = Nil;
                                       withDefaultObject:[_displayString autorelease]] retain];
       NSDebugMLLog(@"gswdync",@"displayString=%@",_displayString);
 	  
-      _escapeHTML = [[associations objectForKey:escapeHTML__Key
-                                   withDefaultObject:[_escapeHTML autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"escapeHTML=%@",_escapeHTML);
 
       if (!WOStrictFlag)
         {
@@ -185,7 +182,6 @@ static Class standardClass = Nil;
   DESTROY(_suffix);
   DESTROY(_displayString);
   DESTROY(_itemDisabled);
-  DESTROY(_escapeHTML);
   DESTROY(_isDisplayStringBefore);//GSWeb Only
   [super dealloc];
 }

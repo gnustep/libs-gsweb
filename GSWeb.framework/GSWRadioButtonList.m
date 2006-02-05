@@ -391,7 +391,7 @@ static Class standardClass = Nil;
     {
       BOOL isEqual=NO;
 
-      disabledInContext=[self disabledInContext:aContext];
+      disabledInContext=[self disabledInComponent:component];
 
       itemValue=[listValue objectAtIndex:i];
       [_item setValue:itemValue

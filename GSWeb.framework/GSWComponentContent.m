@@ -46,6 +46,7 @@ RCS_ID("$Id$")
   GSWComponent* component=nil;
   GSWComponent* parent=nil;
   GSWElement* childTemplate=nil;
+
   GSWDeclareDebugElementIDsCount(aContext);
 
   LOGObjectFnStart();

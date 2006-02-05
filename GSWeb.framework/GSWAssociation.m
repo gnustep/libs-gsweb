@@ -51,6 +51,8 @@ static NSDictionary* localMinMaxDictionary=nil;
 static NSMutableDictionary* associationsHandlerClasses=nil;
 static NSLock* associationsLock=nil;
 static NSMutableArray* associationsLogsHandlerClasses=nil;
+static Class NSNumberClass = Nil;
+static Class NSStringClass = Nil;
 
 //====================================================================
 @implementation GSWAssociation
@@ -60,6 +62,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if (self==[GSWAssociation class])
     {
       associationsLock=[NSLock new];
+      NSNumberClass = [NSNumber class];
+      NSStringClass = [NSString class];
 
       if (!localMinMaxDictionary)
         {
@@ -115,6 +119,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if ((self=[super init]))
     {
     };
+  _negate = NO;
+  
   return self;
 };
 
@@ -125,6 +131,23 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   DESTROY(_declarationType);
   [super dealloc];
 };
+
+
+// YES if we negate the result before returnig it.
+-(BOOL)negate
+{
+  return _negate;
+}
+
+-(void) setNegate:(BOOL) yn
+{
+  _negate = yn;
+}
+
+- (BOOL)_hasBindingInParent:(GSWComponent*) parent
+{
+  return YES;
+}
 
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone;
@@ -168,9 +191,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 -(BOOL)isValueConstant 
 {
-  //OK
-  [self subclassResponsibility:_cmd];
-  return NO;
+  return YES;
 };
 
 //--------------------------------------------------------------------
@@ -178,10 +199,19 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 - (BOOL)isValueSettable 
 {
-  //OK
-  [self subclassResponsibility:_cmd];
   return NO;
-};
+}
+
+- (BOOL) isValueSettableInComponent:(GSWComponent*) comp
+{
+  return [self isValueSettable];
+}
+
+- (BOOL) isValueConstantInComponent:(GSWComponent*) comp
+{
+  return [self isValueConstant];
+}
+
 
 //--------------------------------------------------------------------
 //	setValue:inComponent:
@@ -200,27 +230,83 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   return [self subclassResponsibility:_cmd];
 };
 
+// added in WO5?
+// they call it booleanValueInComponent:
+- (BOOL) boolValueInComponent:(GSWComponent*)component
+{
+  id value = [self valueInComponent: component];
+  int  length = 0;
+  int  intVal = 0;
+  NSString * tmpStr = nil;
+  
+  if (! value) {
+   if (_negate) {
+     return YES;
+   }
+    return NO;
+  }
+  if ([value isKindOfClass: NSNumberClass]) {
+   if (_negate) {
+     return (! [value boolValue]);
+   }  
+    return [value boolValue];
+  }
+  if ([value isKindOfClass: NSStringClass]) {
+    length = [value length];
+    if ((length >= 2) && (length <= 5)) {
+      tmpStr = [value lowercaseString];
+      if ([tmpStr isEqual:@"no"] || [tmpStr isEqual:@"false"]  || [tmpStr isEqual:@"nil"] || [tmpStr isEqual:@"null"]) {
+       if (_negate) {
+         return YES;
+       }      
+        return NO;
+      }
+    }
+    if ([tmpStr isEqual:@"0"]) {
+       if (_negate) {
+         return YES;
+       }          
+       return NO;
+    }
+    if (_negate) {
+      return NO;
+    }              
+    return YES;
+  }
+  if (_negate) {
+    return NO;
+  }              
+  
+  return YES;
+}
 
-@end
 
-//====================================================================
-@implementation GSWAssociation (GSWAssociationCreation)
 //--------------------------------------------------------------------
 //	associationWithKeyPath:
 
 +(GSWAssociation*)associationWithKeyPath:(NSString*)keyPath
 {
-  //OK
-  if (keyPath)
-    {
-      if ([keyPath hasPrefix:@"^"]
-          || (!WOStrictFlag && [keyPath hasPrefix:@"~"]))
-        return [[[GSWBindingNameAssociation alloc]initWithKeyPath:keyPath] autorelease];
-      else
-        return [[[GSWKeyValueAssociation alloc]initWithKeyPath:keyPath] autorelease];
+  GSWAssociation  * newAssoc = nil;
+  BOOL              doNegate = NO;
+  NSString        * newPath  = keyPath;
+  
+  if (newPath) {
+    doNegate = [newPath hasPrefix:@"!"];
+    if (doNegate) {
+      newPath = [newPath stringByDeletingPrefix:@"!"];
     }
-  else
-    return nil;
+    if ([newPath hasPrefix:@"^"] || (!WOStrictFlag && [newPath hasPrefix:@"~"])) {
+      newAssoc = [[[GSWBindingNameAssociation alloc] initWithKeyPath: newPath] autorelease];
+    } else {
+      newAssoc = [[[GSWKeyValueAssociation alloc]initWithKeyPath: newPath] autorelease];
+    }
+    if (doNegate) {
+      [newAssoc setNegate:YES];               // default is NO so we may safe a call here
+    }
+    return newAssoc;
+  }
+
+  return nil;
 };
 
 
@@ -350,9 +436,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   return assoc;
 };
 
-@end
-//====================================================================
-@implementation GSWAssociation (GSWAssociationHandlers)
 //--------------------------------------------------------------------
 +(void)setClasse:(Class)class
       forHandler:(NSString*)handler
@@ -407,7 +490,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   LOGClassFnStop();
 };
 
-@end
 /*
 //====================================================================
 @implementation GSWAssociation (GSWAssociationOldFn)
@@ -432,7 +514,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 @end
 */
 //====================================================================
-@implementation GSWAssociation (GSWAssociationA)
 
 //--------------------------------------------------------------------
 -(BOOL)isImplementedForComponent:(NSObject*)component
@@ -440,10 +521,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   return YES;
 };
 
-@end
-
-//====================================================================
-@implementation GSWAssociation (GSWAssociationB)
 
 //--------------------------------------------------------------------
 -(NSString*)keyPath
@@ -575,6 +652,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 };
 
 //--------------------------------------------------------------------
+
 -(void)setDebugEnabledForBinding:(NSString*)bindingName
                  declarationName:(NSString*)declarationName
                  declarationType:(NSString*)declarationType
@@ -811,8 +889,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       tmpObject = [object valueForKey: key];
       tmpKey = [keyPath substringFromIndex: NSMaxRange(r)];
     }
-    //NSLog(@"GSWAssociation: tmpKey:%@ tmpObject:%@",tmpKey,tmpObject);
-
     if (tmpObject) //&& [object isKindOfClass:[GSWComponent class]]
     {
       NSException* exp = [tmpObject validateValue:&value
@@ -820,6 +896,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       if (exp)
       {
         NSException* exception=nil;
+        
         exception=[NSException exceptionWithName:@"EOValidationException"
                                           reason:[exp reason]
                                         userInfo:[NSDictionary

@@ -1303,6 +1303,16 @@ RCS_ID("$Id$")
 
 };
 
+
+- (void) _setApplicationNumber:(int) newValue force:(BOOL) yn
+{
+  if (yn || (_applicationNumber==-9999))
+  {
+    _applicationNumber = newValue;
+  }
+}
+
+
 //--------------------------------------------------------------------
 -(NSString*)requestHandlerKey
 {

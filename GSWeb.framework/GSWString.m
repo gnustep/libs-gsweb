@@ -60,65 +60,53 @@ static Class standardClass = Nil;
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+     associations:(NSMutableDictionary*)associations
+         template:(GSWElement*)template
 {
-  //OK
-  LOGObjectFnStartC("GSWString");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",
-               aName,associations,elements);
-  if ((self=[super initWithName:nil
-                   associations:nil
-                   contentElements:nil]))
-    {
-      _value = [[associations objectForKey:value__Key
-                               withDefaultObject:[_value autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWString: value=%@",_value);
-
-      _dateFormat = [[associations objectForKey:dateFormat__Key
-                                    withDefaultObject:[_dateFormat autorelease]] retain];
-
-      NSDebugMLLog(@"gswdync",@"GSWString: dateFormat=%@",_dateFormat);
-
-      _numberFormat = [[associations objectForKey:numberFormat__Key
-                                     withDefaultObject:[_numberFormat autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWString: numberFormat=%@",_numberFormat);
-
-      _escapeHTML = [[associations objectForKey:escapeHTML__Key
-                                    withDefaultObject:[_escapeHTML autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWString: escapeHTML=%@",_escapeHTML);
-
-      if (!WOStrictFlag)
-        {
-          _convertHTML = [[associations objectForKey:convertHTML__Key
-                                         withDefaultObject:[_convertHTML autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"GSWString: convertHTML=%@",_convertHTML);
-              
-          _convertHTMLEntities = [[associations objectForKey:convertHTMLEntities__Key
-                                                 withDefaultObject:[_convertHTMLEntities autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"GSWString: convertHTMLEntities=%@",_convertHTMLEntities);
-        };
+  self = [super initWithName:nil associations:nil template:nil];
+  if (!self) {
+    return nil;
+  }
+  ASSIGN(_value, [associations objectForKey: value__Key]);
+  if (_value == nil) {
+      [NSException raise:NSInvalidArgumentException
+                  format:@"%s: no 'value' attribute specified.",
+                              __PRETTY_FUNCTION__];
+   }
+  ASSIGN(_valueWhenEmpty, [associations objectForKey: valueWhenEmpty__Key]);
+  ASSIGN(_escapeHTML, [associations objectForKey: escapeHTML__Key]);
+  ASSIGN(_dateFormat, [associations objectForKey: dateFormat__Key]);
+  ASSIGN(_numberFormat, [associations objectForKey: numberFormat__Key]);
+  ASSIGN(_formatter, [associations objectForKey: formatter__Key]);
+  
+  if ((_dateFormat != nil) || (_numberFormat != nil) || (_formatter != nil)) {
+    _shouldFormat = YES;
+  } else {
+    _shouldFormat = NO;
+  }
+  if ((_dateFormat != nil) && (_numberFormat != nil) || (_formatter != nil) && 
+      (_dateFormat != nil) || (_formatter != nil) && (_numberFormat != nil)) {
       
-      _formatter = [[associations objectForKey:formatter__Key
-                                   withDefaultObject:[_formatter autorelease]] retain];
-	  NSDebugMLLog(@"gswdync",@"GSWString: formatter=%@",_formatter);
-    };
-  LOGObjectFnStopC("GSWString");
+     [NSException raise:NSInvalidArgumentException
+             format:@"%s: Cannot have 'dateFormat' and 'numberFormat' attributes at the same time.",
+                                  __PRETTY_FUNCTION__];
+  }
+
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(_value);
   DESTROY(_dateFormat);
   DESTROY(_numberFormat);
-  DESTROY(_escapeHTML);
-  DESTROY(_convertHTML); //GSWeb Only
-  DESTROY(_convertHTMLEntities); //GSWeb Only
   DESTROY(_formatter);
+  DESTROY(_value);
+  DESTROY(_escapeHTML); 
+  DESTROY(_valueWhenEmpty);
+  
   [super dealloc];
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)description
@@ -133,113 +121,18 @@ static Class standardClass = Nil;
                    _formatter];
 };
 
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
-{
-  //OK
-  NSString* formattedValue=nil;
-  GSWRequest* request=nil;
-  BOOL isFromClientComponent=NO;
-  GSWComponent* component=nil;
-
-  LOGObjectFnStartC("GSWString");
-
-  GSWStartElement(aContext);
-  GSWSaveAppendToResponseElementID(aContext);
-
-  request=[aContext request];
-  isFromClientComponent=[request isFromClientComponent];
-  component=GSWContext_component(aContext);
-
-  if (object_get_class(self)==standardClass)
-    formattedValue=(*standardFormattedValueInContextIMP)(self,formattedValueInContextSEL,aContext);
-  else
-    formattedValue=[self formattedValueInContext:aContext];
-
-  if (formattedValue)
-    {
-      BOOL escapeHTMLValue=YES;
-      BOOL convertHTMLValue=NO;
-      BOOL convertHTMLEntitiesValue=NO;
-
-      if (!WOStrictFlag && _convertHTML)
-        {
-          convertHTMLValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                                    standardEvaluateConditionInContextIMP,
-                                                                    _convertHTML,aContext);
-        };
-
-      if (!WOStrictFlag)
-        {
-          if (!convertHTMLValue)
-            {
-              if (_convertHTMLEntities)
-                {
-                  convertHTMLEntitiesValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                                                    standardEvaluateConditionInContextIMP,
-                                                                                    _convertHTMLEntities,aContext);
-                };
-              if (!convertHTMLEntitiesValue)
-                {
-                  if (_escapeHTML)
-                    {
-                      escapeHTMLValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                                               standardEvaluateConditionInContextIMP,
-                                                                               _escapeHTML,aContext);
-                    };
-                };
-            };
-        }
-      else if (_escapeHTML)
-        {
-          escapeHTMLValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                                   standardEvaluateConditionInContextIMP,
-                                                                   _escapeHTML,aContext);
-        };
-
-      if (!WOStrictFlag && convertHTMLValue)
-        GSWResponse_appendContentHTMLConvertString(aResponse,formattedValue);
-      else if (!WOStrictFlag && convertHTMLEntitiesValue)
-        GSWResponse_appendContentHTMLEntitiesConvertString(aResponse,formattedValue);
-      else if (escapeHTMLValue)
-        GSWResponse_appendContentHTMLString(aResponse,formattedValue);
-      else
-        GSWResponse_appendContentString(aResponse,formattedValue);
-    };
-
-  GSWStopElement(aContext);
-
-  LOGObjectFnStopC("GSWString");
-};
 
 //--------------------------------------------------------------------
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
-};
 
-//--------------------------------------------------------------------
--(BOOL)appendStringAtLeft:(id)unkwnon
-              withMapping:(char*)mapping
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
-};
+// TODO: put that into a superclass, bulid a cache?
 
-//--------------------------------------------------------------------
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component
-                               value:(id)value
 {
   //OK
   id formatValue = nil;
-  NSFormatter* formatter = nil;
-  LOGObjectFnStartC("GSWString");
+  id formatter = nil;
   if (_dateFormat)
     {
-      NSDebugMLLog(@"gswdync",@"DateFormat");
       formatValue=[_dateFormat valueInComponent:component];
       if (formatValue)
         formatter=[[[NSDateFormatter alloc]initWithDateFormat:formatValue
@@ -247,85 +140,81 @@ static Class standardClass = Nil;
     }
   else if (_numberFormat)
     {
-      NSDebugMLLog(@"gswdync",@"NumberFormat");
       formatValue=[_numberFormat valueInComponent:component];
       if (formatValue)
         {
           //TODO
-          /*		  _formatter=[[NSNumberFormatter new]autorelease];
-                          [_formatter setFormat:_formatValue];
+          /*
+            formatter=[[NSNumberFormatter new]autorelease];
+            [formatter setFormat:formatValue];
           */
         };
     }
   else
     {
-      NSDebugMLLog(@"gswdync",@"Formatter");
+      NSDebugMLog0(@"Formatter");
       formatter=[_formatter valueInComponent:component];
     };
-  NSDebugMLLog(@"gswdync",@"formatter=%@",formatter);
-  LOGObjectFnStopC("GSWString");
+  LOGObjectFnStopC("GSWTextField");
   return formatter;
 };
 
-//--------------------------------------------------------------------
--(NSString*)elementName
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
 
 //--------------------------------------------------------------------
-// return formatted value
--(NSString*)formattedValueInContext:(GSWContext*)aContext
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
+  GSWComponent* component = GSWContext_component(context);
   NSString* formattedValue=nil;
-  GSWComponent* component=nil;
   id valueValue = nil;
+  NSString * errorDscr = nil;
+  BOOL flag = YES;
+  
+  if (_value != nil) {
+   valueValue = [_value valueInComponent:component];
+   if (_shouldFormat) {
+     NSFormatter* formatter=[self formatterForComponent:component];
+     if (formatter != nil) {
+         if (formattedValue=[formatter stringForObjectValue:valueValue]) {
+            } else {
+               NSWarnLog(@"%s:There's a value (%@ of class %@) but no formattedValue with formater %@",
+                           __PRETTY_FUNCTION__,
+                           valueValue,
+                           [valueValue class],
+                           formatter);
+               valueValue = nil;
 
-  LOGObjectFnStartC("GSWString");
-
-  component=GSWContext_component(aContext);
-
-  NSDebugMLLog(@"gswdync",@"GSWString: value=%@",_value);
-
-  valueValue = [_value valueInComponent:component];
-  NSDebugMLLog(@"gswdync",@"GSWString: valueValue=%@",valueValue);
-
-  if (valueValue)
-    {
-      NSFormatter* formatter=[self formatterForComponent:component
-                                   value:valueValue];
-      if (!formatter)
-        {
-          formattedValue=valueValue;
-          // if we dont do this we get an exception on NSNumbers later. dave at turbocat.de
-          if ([formattedValue isKindOfClass:[NSNumber class]])
-            {
-              formattedValue = [(id)formattedValue stringValue];
-            } 
-        }
-      else
-        {
-          formattedValue=[formatter stringForObjectValue:valueValue];
-          NSDebugMLLog(@"gswdync",@"valueValue=%@ formattedValue=%@",valueValue,formattedValue);
-        };
+            }
+       }
+     } else {  // no format
+       formattedValue = valueValue;
+     }
+    } else {
+      NSLog(@"%s:WARNING value binding is nil!", __PRETTY_FUNCTION__);
+      return;
     }
-
-  LOGObjectFnStopC("GSWString");
-
-  return formattedValue;
-};
-
-@end
-
-//====================================================================
-
-@implementation GSWString (GSWStringA)
-
-//--------------------------------------------------------------------
-+(BOOL)hasGSWebObjectsAssociations
-{
-  return YES;
+  
+  if ((formattedValue != nil) && ([formattedValue isKindOfClass:[NSNumber class]])) {
+   // if we dont do this we get an exception on NSNumbers later. 
+   formattedValue = [(id) formattedValue stringValue];
+  } else {
+   formattedValue = [(id) formattedValue description];
+  }
+  if ((formattedValue == nil || [formattedValue length] == 0) && _valueWhenEmpty != nil) {
+    formattedValue = [_valueWhenEmpty valueInComponent:component];
+    GSWResponse_appendContentString(response, formattedValue);
+  } else {
+    if (formattedValue != nil) {
+      if (_escapeHTML != nil) {
+        flag = [_escapeHTML boolValueInComponent:component];
+      }
+      if (flag) {
+        GSWResponse_appendContentHTMLConvertString(response, formattedValue);
+      } else {
+        GSWResponse_appendContentString(response, formattedValue);
+      }
+    }
+  }
 };
 
 @end

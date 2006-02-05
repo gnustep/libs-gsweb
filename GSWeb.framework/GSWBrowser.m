@@ -156,8 +156,6 @@ static SEL valueInComponentSEL = NULL;
                            withDefaultObject:[_size autorelease]] retain];
       _multiple=[[associations objectForKey:multiple__Key
                                withDefaultObject:[_multiple autorelease]] retain];
-      _escapeHTML=[[associations objectForKey:escapeHTML__Key
-                                 withDefaultObject:[_escapeHTML autorelease]] retain];
     };
   LOGObjectFnStopC("GSWBrowser");
   return self;
@@ -175,7 +173,7 @@ static SEL valueInComponentSEL = NULL;
   DESTROY(_selectedValues);
   DESTROY(_size);
   DESTROY(_multiple);
-  DESTROY(_escapeHTML);
+
   [super dealloc];
 };
 
@@ -258,11 +256,6 @@ static SEL valueInComponentSEL = NULL;
   NSDebugMLLog(@"gswdync",@"selectedValues=%@",_selectedValues);
   NSDebugMLLog(@"gswdync",@"selectedValuesValue=%@",selectedValuesValue);
 
-  if (_escapeHTML)
-    {
-      escapeHTMLValue=[_escapeHTML valueInComponent:component];
-      escapeHTMLBoolValue=boolValueFor(escapeHTMLValue);
-    };
 
   listValueCount=[listValue count];
 
@@ -431,10 +424,11 @@ static SEL valueInComponentSEL = NULL;
 {
   //OK
   BOOL disabledValue=NO;
+  GSWComponent * component = GSWContext_component(aContext);
 
   LOGObjectFnStartC("GSWPopUpButton");
 
-  disabledValue=[self disabledInContext:aContext];
+  disabledValue=[self disabledInComponent:component];
   if (!disabledValue)
     {
       BOOL wasFormSubmitted=[aContext _wasFormSubmitted];

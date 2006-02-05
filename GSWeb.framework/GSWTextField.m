@@ -39,57 +39,43 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+         template:(GSWElement*)template
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
+  self = [super initWithName:@"input" associations:associations template: template];
+  if (!self) {
+    return nil;
+  }
 
-  LOGObjectFnStartC("GSWTextField");
+  if ((_value == nil) || (![_value isValueSettable])) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: 'value' attribute not present or is a constant",
+                            __PRETTY_FUNCTION__];
+  }
+  ASSIGN(_formatter, [_associations objectForKey: formatter__Key]);
+  if (_formatter != nil) {
+    [_associations removeObjectForKey: formatter__Key];
+  }
+  ASSIGN(_dateFormat, [_associations objectForKey: dateFormat__Key]);
+  if (_dateFormat != nil) {
+    [_associations removeObjectForKey: dateFormat__Key];
+  }
+  ASSIGN(_numberFormat, [_associations objectForKey: numberFormat__Key]);
+  if (_numberFormat != nil) {
+    [_associations removeObjectForKey: numberFormat__Key];
+  }
+  ASSIGN(_useDecimalNumber, [_associations objectForKey: useDecimalNumber__Key]);
+  if (_useDecimalNumber != nil) {
+    [_associations removeObjectForKey: useDecimalNumber__Key];
+  }
 
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",aName,associations,elements);
-
-  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"text"]
-                   forKey:@"type"];
-  [tmpAssociations removeObjectForKey:dateFormat__Key];
-  [tmpAssociations removeObjectForKey:dateFormat__AltKey];
-  [tmpAssociations removeObjectForKey:numberFormat__Key];
-  [tmpAssociations removeObjectForKey:numberFormat__AltKey];
-  [tmpAssociations removeObjectForKey:useDecimalNumber__Key];
-  [tmpAssociations removeObjectForKey:formatter__Key];
-
-  if ((self=[super initWithName:aName
-                   associations:tmpAssociations
-                   contentElements:nil])) //No Childs!
-    {
-      _dateFormat = [[associations objectForKey:dateFormat__Key
-                                   withDefaultObject:[_dateFormat autorelease]] retain];
-      if (!_dateFormat)
-        _dateFormat = [[associations objectForKey:dateFormat__AltKey
-                                     withDefaultObject:[_dateFormat autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWTextField: dateFormat=%@",_dateFormat);
-
-      _numberFormat = [[associations objectForKey:numberFormat__Key
-                                      withDefaultObject:[_numberFormat autorelease]] retain];
-      if (!_numberFormat)
-        _numberFormat = [[associations objectForKey:numberFormat__AltKey
-                                       withDefaultObject:[_numberFormat autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWTextField: numberFormat=%@",_numberFormat);
-
-      _useDecimalNumber = [[associations objectForKey:useDecimalNumber__Key
-                                         withDefaultObject:[_useDecimalNumber autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWTextField: useDecimalNumber=%@",_useDecimalNumber);
-
-      _formatter = [[associations objectForKey:formatter__Key
-                                  withDefaultObject:[_formatter autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWTextField: formatter=%@",_formatter);
-
-      if (_dateFormat && _numberFormat)
-        ExceptionRaise0(@"GSWTextField",@"You can't use 'dateFormat' and 'numberFormat' parameters at the same time.");
-    };
-
-  LOGObjectFnStopC("GSWTextField");
-
+  if ((_dateFormat != nil) && (_numberFormat != nil)) {
+     [NSException raise:NSInvalidArgumentException
+             format:@"%s: Cannot have 'dateFormat' and 'numberFormat' attributes at the same time.",
+                                  __PRETTY_FUNCTION__];
+  
+  }
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
@@ -101,155 +87,21 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
-//--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context
+- (NSString*) type
 {
-  BOOL disabledValue=NO;
-  LOGObjectFnStartC("GSWTextField");
-  GSWStartElement(context);
-  GSWAssertCorrectElementID(context);
-  disabledValue=[self disabledInContext:context];
-  if (!disabledValue)
-    {
-      BOOL wasFormSubmitted=[context _wasFormSubmitted];
-      if (wasFormSubmitted)
-        {
-          GSWComponent* component=GSWContext_component(context);
-          NSString* nameInContext=[self nameInContext:context];
-          NSString* value=[request stringFormValueForKey:nameInContext];
-          id resultValue=nil;
-          NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
-          NSDebugMLLog(@"gswdync",@"value=%@",value);
-          if ([value length]>0)
-            {
-              NSFormatter* formatter=[self formatterForComponent:component];
-              NSDebugMLLog(@"gswdync",@"formatter=%@",formatter);
-              if (formatter)
-                {
-                  NSString* errorDscr=nil;
-                  if ([formatter getObjectValue:&resultValue
-                                  forString:value
-                                  errorDescription:&errorDscr])
-                    {
-                      if (value && !resultValue)
-                        {
-                          NSWarnLog(@"There's a value (%@ of class %@) but no formattedValue with formater %@",
-                                    value,
-                                    [value class],
-                                    formatter);
-                        };
-                    }
-                  else
-                    {
-                      NSException* exception=nil;
-                      NSString* valueKeyPath=[_value keyPath];
-                      LOGException(@"EOValidationException formatter=%@ value='%@' resultValue='%@' valueKeyPath=%@ error=%@",
-                                   formatter,value,resultValue,valueKeyPath,errorDscr);
-                      exception=[NSException exceptionWithName:@"EOValidationException"
-                                             reason:errorDscr /*_exceptionDscr*/
-                                             userInfo:[NSDictionary 
-                                                        dictionaryWithObjectsAndKeys:
-                                                          (resultValue ? resultValue : @"nil"),@"EOValidatedObjectUserInfoKey",
-                                                        valueKeyPath,@"EOValidatedPropertyUserInfoKey",
-                                                        nil,nil]];
-                      [component validationFailedWithException:exception
-                                 value:resultValue
-                                 keyPath:valueKeyPath];
-                    };
-                }
-              else
-                resultValue=value;
-            };
-          NSDebugMLLog(@"gswdync",@"resultValue=%@",resultValue);
+  return @"text";
+}
 
-          // Turbocat
-          if (NO)//([self _isFormattedValueInComponent:component
-             //       equalToFormattedValue:value]) 
-            {
-              // does nothing, old formatted values are equal
-            } 
-          else 
-            {              
-              NS_DURING
-                {
-                  [_value setValue:resultValue
-                          inComponent:component];
-                }
-              NS_HANDLER
-                {
-                  LOGException(@"GSWTextField _value=%@ resultValue=%@ exception=%@",
-                               _value,resultValue,localException);
-                  if (WOStrictFlag)
-                    {
-                      [localException raise];
-                    }
-                  else
-                    {
-                      [self handleValidationException:localException
-                            inContext:context];
-                    };
-                }
-              NS_ENDHANDLER;
-            };
-        };
-    };
-  GSWStopElement(context);
-  LOGObjectFnStopC("GSWTextField");
-};
 
-//--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context
-{
-  //OK
-  LOGObjectFnStartC("GSWTextField");
-  //Does nothing special
-  [super appendGSWebObjectsAssociationsToResponse:response
-		 inContext:context];
-  LOGObjectFnStopC("GSWTextField");
-};
+// TODO: put that into a superclass, bulid a cache?
 
-//--------------------------------------------------------------------
--(void)appendValueToResponse:(GSWResponse*)aResponse
-                   inContext:(GSWContext*)aContext
-{
-  id valueValue=nil;
-  id formattedValue=nil;
-  NSFormatter* formatter=nil;
-  GSWComponent* component=nil;
-  LOGObjectFnStartC("GSWTextField");
-  component=GSWContext_component(aContext);
-  valueValue=[_value valueInComponent:component];
-  formatter=[self formatterForComponent:component];
-  if (!formatter)
-    {
-      NSDebugMLog0(@"No Formatter");
-      formattedValue=valueValue;
-    }
-  else
-    {
-      formattedValue=[formatter stringForObjectValue:valueValue];
-    };
-  GSWResponse_appendContentCharacter(aResponse,' ');
-  GSWResponse_appendContentAsciiString(aResponse,@"value");
-  GSWResponse_appendContentCharacter(aResponse,'=');
-  GSWResponse_appendContentCharacter(aResponse,'"');
-  GSWResponse_appendContentHTMLAttributeValue(aResponse,formattedValue);
-  GSWResponse_appendContentCharacter(aResponse,'"');
-  LOGObjectFnStopC("GSWTextField");
-};
-
-//--------------------------------------------------------------------
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component
 {
   //OK
   id formatValue = nil;
   id formatter = nil;
-  LOGObjectFnStartC("GSWTextField");
   if (_dateFormat)
     {
-      NSDebugMLog0(@"DateFormat");
       formatValue=[_dateFormat valueInComponent:component];
       if (formatValue)
         formatter=[[[NSDateFormatter alloc]initWithDateFormat:formatValue
@@ -257,7 +109,6 @@ RCS_ID("$Id$")
     }
   else if (_numberFormat)
     {
-      NSDebugMLog0(@"NumberFormat");
       formatValue=[_numberFormat valueInComponent:component];
       if (formatValue)
         {
@@ -277,46 +128,100 @@ RCS_ID("$Id$")
   return formatter;
 };
 
-@end
-
-//====================================================================
-@implementation GSWTextField (TurbocatAdditions)
 
 //--------------------------------------------------------------------
-- (BOOL)_isFormattedValueInComponent:(GSWComponent *)component  
-               equalToFormattedValue:(NSString *)newFormattedValue 
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
-  BOOL isFormattedValue=NO;
+  id         resultValue = nil;
+  NSString * errorDscr = nil;
 
-  if (newFormattedValue) 
-    {
-      id valueValue=nil;
-      id formattedValue=nil;
-      NSFormatter* formatter=nil;
-
-      // get own value
-      valueValue=[_value valueInComponent:component];
-      formatter=[self formatterForComponent:component];
-      if (!formatter)
-        formattedValue=valueValue;
-      else
-        {
-          formattedValue=[formatter stringForObjectValue:valueValue];
-          if (valueValue && !formattedValue)
-            {
-              NSWarnLog(@"There's a value (%@ of class %@) but no formattedValue with formater %@",
-                        valueValue,
-                        [valueValue class],
-                        formatter);
-            };
-        };
-      if (formattedValue && [newFormattedValue isEqualToString:formattedValue]) 
-        {
-          NSLog(@"### GSWTextField : are EQUAL ###");
-          isFormattedValue=YES;
+  GSWComponent * component = GSWContext_component(context);
+  
+  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
+    NSString * nameCtx = [self nameInContext:context];
+    if (nameCtx != nil) {
+      NSString* value = [request stringFormValueForKey: nameCtx];
+      if (value != nil) {
+        NSFormatter * formatter = nil;
+        if ([value length] > 0) {
+          formatter = [self formatterForComponent:component];
         }
-    };
-  return isFormattedValue;
+        if (formatter != nil) {
+                  if ([formatter getObjectValue:&resultValue
+                                  forString:value
+                                  errorDescription:&errorDscr]) {
+                      if (value && !resultValue) {
+                          NSWarnLog(@"There's a value (%@ of class %@) but no formattedValue with formater %@",
+                                    value,
+                                    [value class],
+                                    formatter);
+                      };
+                    } else {
+                      NSException* exception=nil;
+                      NSString* valueKeyPath=[_value keyPath];
+
+                      exception=[NSException exceptionWithName:@"EOValidationException"
+                                             reason:errorDscr
+                                             userInfo:[NSDictionary 
+                                                        dictionaryWithObjectsAndKeys:
+                                                          (resultValue ? resultValue : @"nil"),@"EOValidatedObjectUserInfoKey",
+                                                        valueKeyPath,@"EOValidatedPropertyUserInfoKey",
+                                                        nil,nil]];
+                      [component validationFailedWithException:exception
+                                 value:resultValue
+                                 keyPath:valueKeyPath];
+                    }                    
+                    
+          if ((value != nil) && (_useDecimalNumber != nil) && ([_useDecimalNumber boolValueInComponent:component])) {
+            // not tested! maybe we need a stringValue here first? dw
+            resultValue = [NSDecimalNumber decimalNumberWithString: value];
+          }
+        } else { // no formatter
+          resultValue=value;
+          if ([resultValue length] == 0) {
+            resultValue = nil;
+          }
+        }
+      }
+      [_value setValue:resultValue
+              inComponent:component];
+    }
+  }
+}
+
+-(void) _appendValueAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*) context
+{
+ GSWComponent * component = GSWContext_component(context);
+ id value = [_value valueInComponent:component];
+ NSFormatter* formatter = nil;
+ id formattedValue=nil;
+
+ if (value != nil) {
+ 
+   formatter = [self formatterForComponent:component];
+   if (formatter != nil) {
+     NS_DURING
+      formattedValue=[formatter stringForObjectValue:value];
+     NS_HANDLER
+       formattedValue = nil;
+       NSLog(@"%s: value '%@' cannot be formatted.",
+                            __PRETTY_FUNCTION__, value);
+     NS_ENDHANDLER
+   }
+   if (formattedValue == nil)
+   {
+      formattedValue = value;
+   }
+
+   GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, formattedValue, YES);
+ }
+}
+
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
+{
 }
 
 @end

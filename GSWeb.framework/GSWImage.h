@@ -40,12 +40,20 @@
 }
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
+         template:(GSWElement*)template;
+
 -(void)dealloc;
 -(NSString*)valueAttributeName;
 -(NSString*)urlAttributeName;
 -(NSString*)elementName;
 -(NSString*)description;
+
++ (void) _appendFilenameToResponse:(GSWResponse *)   response
+                         inContext:(GSWContext *)    context
+                         framework:(GSWAssociation*) framework
+                          filename:(GSWAssociation*) filename
+                             width:(GSWAssociation*) width 
+                            height:(GSWAssociation*) height;
 
 @end
 

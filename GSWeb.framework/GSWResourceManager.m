@@ -1820,4 +1820,31 @@ bundle if none is found
   return globalAppGSWBundle;
 };
 
+// wo
+- (NSString*) errorMessageUrlForResourceNamed:(NSString *) resourceName
+                                  inFramework:(NSString *) frameworkName
+{
+  NSString * url = nil;
+  if( resourceName == nil) {
+    resourceName = @"nil";
+  }
+  if (frameworkName != nil) {
+    url = [NSString stringWithFormat:@"/ERROR/NOT_FOUND/framework=%@/filename=%@", frameworkName, resourceName];
+  } else {
+    NSString * s3 = [GSWApp name];
+    url = [NSString stringWithFormat:@"/ERROR/NOT_FOUND/app=%@/filename=%@", s3, resourceName];
+  }
+  return url;
+}
+
+// checkme: locking?? davew
+- (void) _cacheData:(GSWURLValuedElementData *) aData
+{
+  if (aData != nil) {
+    [_urlValuedElementsData setObject: aData  
+                               forKey: [aData key]];
+  }
+}
+
+
 @end

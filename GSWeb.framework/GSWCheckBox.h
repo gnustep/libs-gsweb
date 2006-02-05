@@ -47,19 +47,5 @@
 
 @end
 
-//====================================================================
-@interface GSWCheckBox (GSWCheckBoxA)
-
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context; 
-@end
-
-//====================================================================
-@interface GSWCheckBox (GSWCheckBoxB)
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
-@end
-
 
 #endif //_GSWCheckBox_h__

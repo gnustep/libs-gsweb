@@ -682,31 +682,68 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)savePage:(GSWComponent*)page
 {
-  //OK
-  GSWContext* context=nil;
-  BOOL pageReplaced=NO;
-  BOOL pageChanged=NO;
-  LOGObjectFnStart();
+  GSWTransactionRecord * transactionrec = nil;
+  BOOL pageChanged = [_currentContext _pageChanged];
+  BOOL createArray = NO;
+  NSString * ctxID = [_currentContext contextID];
+  NSMutableArray *ctxArray = nil;
+  int i=0;
+  int k=0;
+  NSString     * currentCtx = nil;
+  
+  if (_contextArrayStack == nil) {
+    ASSIGN(_contextArrayStack, [NSMutableArray arrayWithCapacity:64]);
+    ASSIGN(_contextRecords, [NSMutableDictionary dictionaryWithCapacity:64]);
+  } else {
+    ctxArray = [_contextArrayStack lastObject];
+    [self _rearrangeContextArrayStackForContextID:ctxID];
+  }
+  if (pageChanged || (ctxArray == nil)) {
+    createArray = YES;
+  } else {
+    if ([ctxArray count] > 0) {
+      GSWTransactionRecord * transactionrecord = [_contextRecords objectForKey:[ctxArray lastObject]];
+      GSWComponent * otherComponent = nil;
+      if (transactionrecord != nil) {
+        otherComponent = [transactionrecord responsePage];
+      }
+      if (otherComponent == page) {
+        createArray = NO;
+      } else {
+        createArray = YES;
+      }
+    }
+  }
+  if (createArray) {
+    ctxArray = [NSMutableArray arrayWithCapacity:64];    
+    [_contextArrayStack addObject:ctxArray];
+  }
+  if (([_currentContext response] != nil) && ([[_currentContext response] _isClientCachingDisabled])) {
+    transactionrec = [GSWTransactionRecord transactionRecordWithResponsePage:page
+                                                                     context:_currentContext];
+  } else {
+    transactionrec = [GSWTransactionRecord transactionRecordWithResponsePage:page
+                                                                     context:nil];
+  }
+  [_contextRecords setObject: transactionrec forKey: ctxID];
+  [ctxArray addObject:ctxID];
+  
+  for (i = [GSWApp pageCacheSize]; ([ctxArray count] > i); [ctxArray removeObjectAtIndex:0]) {
+    currentCtx = [ctxArray objectAtIndex:0];
+    [_contextRecords removeObjectForKey:currentCtx];
+  }
 
-  NSAssert(page,@"No Page");
+  if ([ctxArray count] == 0) {
+    [_contextArrayStack removeObjectAtIndex:([_contextArrayStack count] - 1)];
+  }
+  for (; ([_contextArrayStack count] > i); [_contextArrayStack removeObjectAtIndex:0]) {
+    NSMutableArray * stackArray = [_contextArrayStack objectAtIndex:0];
+    int stackArraySize = [stackArray count];
 
-  context=[self context];
-  pageReplaced=[context _pageReplaced];
-
-  if (!pageReplaced)
-    pageChanged=[context _pageChanged];
-
-  [self _savePage:page
-        forChange:pageChanged || pageReplaced]; //??
-
-/*
-  NSData* data=[NSArchiver archivedDataWithRootObject:page];
-  NSDebugMLLog(@"sessions",@"savePage data=%@",data);
-  [pageCache setObject:data
-  forKey:[[self context] contextID]//TODO
-			 withDuration:60*60];//TODO
-*/
-  LOGObjectFnStop();
+    for (k = 0; k < stackArraySize; k++){
+      [_contextRecords removeObjectForKey:[stackArray objectAtIndex:0]];
+    }
+  }
 };
 
 //--------------------------------------------------------------------
@@ -764,7 +801,7 @@ RCS_ID("$Id$")
   NSAssert(self,@"self");
   NSDebugMLLog(@"sessions",@"_currentContext=%@",_currentContext);
   NSDebugMLLog(@"sessions",@"page 3=%@",page);
-  [page awakeInContext:_currentContext];
+  [page _awakeInContext:_currentContext];
   NSDebugMLLog(@"sessions",@"page 4=%@",page);
   LOGObjectFnStop();
   return page;
@@ -1055,6 +1092,7 @@ extern id gcObjectsToBeVisited;
 }
 
 //--------------------------------------------------------------------
+// _rearrangeContextArrayStack in wo 5
 -(void)_rearrangeContextArrayStackForContextID:(NSString*)contextID
 {
   LOGObjectFnStart();
@@ -1128,138 +1166,6 @@ extern id gcObjectsToBeVisited;
 };
 
 //--------------------------------------------------------------------
--(void)_savePage:(GSWComponent*)page
-       forChange:(BOOL)forChange
-{
-  //OK
-  GSWResponse* response=nil;
-  GSWTransactionRecord* transactionRecord=nil;
-  int pageCacheSize=0;
-  NSString* contextID=nil;
-  int pagesCount=0;
-  int contextsCount=0;
-  NSMutableArray* contextArray=nil;
-  BOOL createNewContextArrayFlag=NO;
-  LOGObjectFnStart();
-
-  NSAssert(page,@"No Page");
-
-  // Retrieve Page contextID
-  contextID=[[page context]contextID];
-  NSDebugMLLog(@"sessions",@"_contextID=%@",contextID);
-  NSAssert(contextID,@"No contextID");
-
-  if ([_contextArrayStack count]>0) // && _forChange!=NO ??
-    {
-      [self _rearrangeContextArrayStackForContextID:contextID];
-      contextArray=[_contextArrayStack lastObject]; //??
-    };
-
-  if(forChange || !contextArray)
-    createNewContextArrayFlag=YES;
-  else if ([contextArray count]>0)
-    {
-      NSString* lastContextID=[contextArray lastObject];
-      GSWTransactionRecord* transRecord = (GSWTransactionRecord*)[_contextRecords objectForKey:lastContextID];
-      GSWComponent* transRecordResponsePage = [transRecord responsePage];
-      createNewContextArrayFlag = (page!=transRecordResponsePage);
-    }
-  
-  if (createNewContextArrayFlag)
-    {
-      contextArray = [NSMutableArray array];
-      [_contextArrayStack addObject:contextArray];
-    }
-
-  // Create contextArrayStack and contextRecords if not already created
-  if (!_contextArrayStack)
-    _contextArrayStack=[NSMutableArray new];
-
-  if (!_contextRecords)
-    _contextRecords=[NSMutableDictionary new];
-
-  NSDebugMLLog(@"sessions",@"contextArrayStack=%@",_contextArrayStack);
-  NSDebugMLLog(@"sessions",@"contextRecords=%@",_contextRecords);
-
-  // Get the response
-  response=[_currentContext response];
-  NSDebugMLLog(@"sessions",@"response=%@",response);
-
-  // Create a new transaction record
-  if (response && [response _isClientCachingDisabled])
-    transactionRecord = [GSWTransactionRecord transactionRecordWithResponsePage:page
-                                              context:_currentContext];
-  else
-    transactionRecord = [GSWTransactionRecord transactionRecordWithResponsePage:page
-                                              context:NULL];
-
-  NSDebugMLLog(@"sessions",@"transactionRecord=%@",transactionRecord);
-
-  // Add it to contextRecords...
-  [_contextRecords setObject:transactionRecord
-                   forKey:contextID];
-  [contextArray addObject:contextID];
-
-  // Retrieve the pageCacheSize
-  pageCacheSize=[self pageCacheSize];
-  NSDebugMLLog(@"sessions",@"pageCacheSize=%d",pageCacheSize);
-  NSAssert1(pageCacheSize>=0,@"bad pageCacheSize %d",pageCacheSize);
-
-  // Remove contextArray pages if page number greater than page cache size
-  pagesCount=[contextArray count];
-  while(pagesCount>=pageCacheSize)
-    {
-      NSString* deleteContextID=[contextArray objectAtIndex:0];
-
-      RETAIN(deleteContextID);
-      GSWLogAssertGood(deleteContextID);
-
-      [GSWApplication statusLogString:@"Deleting cached Page"];
-
-      //NSLog(@"DD contextArray class=%@",[contextArray class]);
-      //NSLog(@"CC contextArray count=%d",[contextArray count]);
-      [contextArray removeObjectAtIndex:0];
-      [_contextRecords removeObjectForKey:deleteContextID];
-      RELEASE(deleteContextID);
-      pagesCount--;
-    };
-
-  // If empty, remove it
-  //NSLog(@"DD _contextArrayStack class=%@",[_contextArrayStack class]);
-  //NSLog(@"DD _contextArrayStack count=%d",[_contextArrayStack count]);
-  if(pagesCount==0)
-    [_contextArrayStack removeLastObject];
-
-  contextsCount=[_contextArrayStack count];
-  //NSLog(@"zz1 contextsCount=%d",contextsCount);
-  //NSLog(@"zz1 pageCacheSize=%d",pageCacheSize);
-  while(contextsCount>=pageCacheSize)
-    {
-      NSMutableArray* aContextArray=[_contextArrayStack objectAtIndex:0];
-      //NSLog(@"zz2 contextsCount=%d",contextsCount);
-      pagesCount=[aContextArray count];
-      while(pagesCount)
-        {
-          NSString* deleteContextID=[aContextArray objectAtIndex:0];
-          RETAIN(deleteContextID);
-          GSWLogAssertGood(deleteContextID);
-
-          [GSWApplication statusLogString:@"Deleting cached Page"];
-
-          //NSLog(@"EE aContextArray class=%@",[aContextArray class]);
-          //NSLog(@"EE aContextArray count=%d",[aContextArray count]);
-          [aContextArray removeObjectAtIndex:0];
-          [_contextRecords removeObjectForKey:deleteContextID];
-          RELEASE(deleteContextID);
-          pagesCount--;
-        };
-      contextsCount--;
-    };
-  //NSLog(@"FF _contextArrayStack class=%@",[_contextArrayStack class]);
-  //NSLog(@"FF _contextArrayStack count=%d",[_contextArrayStack count]);
-
-  LOGObjectFnStop();
-};
 
 //--------------------------------------------------------------------
 -(void)_saveCurrentPage
@@ -1635,34 +1541,23 @@ Returns first element of languages or nil if languages is empty
   GSWElement* element=nil;
   GSWElement* pageElement=nil;
   GSWComponent* pageComponent=nil;
-  LOGObjectFnStart();
+
   NS_DURING
-    {
-      pageElement=[aContext _pageElement];
-      pageComponent=[aContext _pageComponent];
-#ifndef NDEBUG
-      [aContext addDocStructureStep:@"Invoke Action For Request"];
-#endif
-      [aContext _setCurrentComponent:pageComponent];
-      element=[pageElement invokeActionForRequest:aRequest
-                           inContext:aContext];
-      [aContext _setCurrentComponent:nil];
-      if (!element)
-        element=[aContext page]; //??
-    }
+    pageElement = [aContext _pageElement];
+    pageComponent = [aContext _pageComponent];
+    [aContext _setCurrentComponent:pageComponent];
+NSLog(@"pageElement:%@ pageComponent:%@", pageElement, pageComponent);
+    element=[pageElement invokeActionForRequest:aRequest
+                         inContext:aContext];
+    [aContext _setCurrentComponent:nil];
   NS_HANDLER
-    {
-      LOGException0(@"exception in GSWSession invokeActionForRequest:inContext");
-      LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In GSWSession invokeActionForRequest:inContext");
-      LOGException(@"exception=%@",localException);
+                                                              @"In %s", __PRETTY_FUNCTION__);
       [localException raise];
-    }
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+
   return element;
-};
+}
 
 //--------------------------------------------------------------------
 //	appendToResponse:inContext:

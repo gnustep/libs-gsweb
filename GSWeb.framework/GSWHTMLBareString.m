@@ -37,18 +37,19 @@ RCS_ID("$Id$")
 @implementation GSWHTMLBareString
 
 //--------------------------------------------------------------------
+
+// we should ONLY support initWithString: ! dw
 -(id)init
 {
-  if ((self=[super init]))
-    {
-    };
-  return self;
+      [NSException raise:NSInvalidArgumentException
+                  format:@"%s: use initWithString: to init",
+                              __PRETTY_FUNCTION__];
 };
 
 //--------------------------------------------------------------------
 -(id)initWithString:(NSString*)aString
 {
-  if ((self=[self init]))
+  if ((self=[super init]))
     {
       ASSIGN(_string,aString);
     };
@@ -76,32 +77,35 @@ RCS_ID("$Id$")
 {
   return _string;
 };
-
-@end
-
-//====================================================================
-@implementation GSWHTMLBareString (GSWHTMLBareStringA)
-
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
-  GSWSaveAppendToResponseElementID(aContext);//Debug Only
-  GSWResponse_appendContentString(aResponse,_string);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
-  LOGObjectFnStop();
+  GSWResponse_appendContentString(aResponse,_string);  
 };
 
-@end
-
-//====================================================================
-@implementation GSWHTMLBareString (GSWHTMLBareStringB)
 
 //--------------------------------------------------------------------
 +(id)elementWithString:(NSString*)aString
 {
   return [[[GSWHTMLBareString alloc]initWithString:aString] autorelease];
 };
+
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
+{
+};
+
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context
+{
+
+      [NSException raise:NSInvalidArgumentException
+                  format:@"%s: A BareString does not have any brain to think about actions. You should avoid calling this method to save CPU cycles.",
+                              __PRETTY_FUNCTION__];
+
+  //Does Nothing
+  return nil;
+};
+
 @end

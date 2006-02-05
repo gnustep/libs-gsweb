@@ -35,53 +35,23 @@
 
 @interface GSWPopUpButton: GSWInput
 {
-  GSWAssociation* _list;
-  GSWAssociation* _item;
-  GSWAssociation* _displayString;
-  GSWAssociation* _selection;
-//GSWeb Additions {
-  GSWAssociation* _selectionValue;
-// }
-  GSWAssociation* _selectedValue;
-  GSWAssociation* _noSelectionString;
-  GSWAssociation* _escapeHTML;
-//GSWeb Additions {
-  GSWAssociation* _count;
-  GSWAssociation* _index;
-// }
+  GSWAssociation * _list;
+  GSWAssociation * _item;
+  GSWAssociation * _string;
+  GSWAssociation * _selection;
+  GSWAssociation * _selectedValue;
+  GSWAssociation * _noSelectionString;
+  BOOL _loggedSlow;
 };
 
--(void)dealloc;
 
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;
--(NSString*)description;
+
 -(NSString*)elementName;
 
 @end
 
-@interface GSWPopUpButton (GSWPopUpButtonA)
-
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-
--(void)appendValueToResponse:(GSWResponse*)response
-                   inContext:(GSWContext*)context;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
--(void)_fastTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-
--(void)_slowTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-@end
-
-@interface GSWPopUpButton (GSWPopUpButtonB)
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
-@end
-
 #endif //_GSWPopUpButton_h__
+

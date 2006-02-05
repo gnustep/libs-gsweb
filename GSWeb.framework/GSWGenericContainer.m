@@ -33,8 +33,18 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static Class GSWHTMLBareStringClass = Nil;
+
 //====================================================================
 @implementation GSWGenericContainer
+
++ (void) initialize
+{
+  if (self == [GSWGenericContainer class])
+    {
+      GSWHTMLBareStringClass = [GSWHTMLBareString class];
+    };
+};
 
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
@@ -160,8 +170,13 @@ RCS_ID("$Id$")
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext
 {
-  return [_element invokeActionForRequest:aRequest
-                   inContext:aContext];
+
+ if ([_element class] != GSWHTMLBareStringClass) {
+
+    return [_element invokeActionForRequest:aRequest
+                     inContext:aContext];
+ }
+ return nil;                     
 };
 
 //--------------------------------------------------------------------

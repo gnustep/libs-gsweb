@@ -27,6 +27,13 @@
    </license>
 **/
 
+/*
+
+Actually WOElement does really nothing.
+
+*/
+
+
 #include "config.h"
 
 RCS_ID("$Id$")
@@ -177,15 +184,12 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 //--------------------------------------------------------------------
 -(void)dealloc
 {
+
   GSWLogAssertGood(self);
-  //GSWLogC("Dealloc GSWElement");
-  //GSWLogC("Dealloc GSWElement: _appendToResponseElementID");
   DESTROY(_appendToResponseElementID);
-  //GSWLogC("Dealloc GSWElement: _name");
   DESTROY(_declarationName);
-  //GSWLogC("Dealloc GSWElement Super");
+  
   [super dealloc];
-  //GSWLogC("End Dealloc GSWElement");
 }
 #endif
 
@@ -235,11 +239,7 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
 {
-  GSWStartElement(context);
-  GSWAddElementToDocStructure(context);
-  GSWAssertCorrectElementID(context);// Debug Only
   //Does Nothing
-  GSWStopElement(context);
   return nil;
 };
 
@@ -249,8 +249,8 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  GSWSaveAppendToResponseElementID(context);//Debug Only
-  GSWAddElementToDocStructure(context);
+//  GSWSaveAppendToResponseElementID(context);//Debug Only
+//  GSWAddElementToDocStructure(context);
   //Does Nothing
 };
 

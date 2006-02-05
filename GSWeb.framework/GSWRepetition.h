@@ -35,44 +35,21 @@
 	#define _GSWRepetition_h__
 
 //====================================================================
-@interface GSWRepetition: GSWDynamicElement
+
+// NOTE: identifier is not used anywhere. There seems to be a documentation bug.
+
+@interface GSWRepetition: GSWDynamicGroup
 {
   GSWAssociation* _list;
   GSWAssociation* _item;
-  GSWAssociation* _identifier;
   GSWAssociation* _count;
   GSWAssociation* _index;
 //GSWeb Additions {
   GSWAssociation* _startIndex; /** Don't begin at 0 but at startIndex **/
   GSWAssociation* _stopIndex;  /** Don't end at count-1 or list count -1  but at stopIndex **/
 //}
-  GSWHTMLStaticGroup* _childrenGroup;
 };
 
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement;
-@end
-
-//====================================================================
-@interface GSWRepetition (GSWRepetitionA)
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext;
-
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext;
-
--(void)takeValuesFromRequest:(GSWRequest*)aRequest
-                   inContext:(GSWContext*)aContext; 
-
--(GSWElement*)_slowInvokeActionForRequest:(GSWRequest*)aRequest
-                                inContext:(GSWContext*)aContext;
-
--(GSWElement*)_fastInvokeActionForRequest:(GSWRequest*)aRequest
-                                inContext:(GSWContext*)aContext;
 @end
 
 

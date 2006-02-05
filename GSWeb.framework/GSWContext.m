@@ -43,6 +43,7 @@ static SEL senderIDSEL=NULL;
 static SEL contextAndElementIDSEL=NULL;
 static SEL isParentSenderIDSearchOverSEL=NULL;
 static SEL isSenderIDSearchOverSEL=NULL;
+static Class GSWComponentClass = Nil;
 
 // 'Standard' GSWContext class. Used to get IMPs from standardElementIDIMPs
 static Class standardClass=Nil;
@@ -214,6 +215,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       contextAndElementIDSEL=@selector(contextAndElementID);
       isParentSenderIDSearchOverSEL=@selector(isParentSenderIDSearchOver);
       isSenderIDSearchOverSEL=@selector(isSenderIDSearchOver);
+      GSWComponentClass = [GSWComponent class];
       [self setStandardClass:[GSWContext class]];
     };
 };
@@ -276,6 +278,14 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
     {
       GetGSWContextIMPs(&_selfIMPs,self);
       [self _initWithContextID:(unsigned int)-1];
+      _tempComponentDefinition = nil;
+      _componentName = nil;
+      _formSubmitted = NO;
+      _inForm = NO;
+      
+      DESTROY(_resourceManager);
+      _resourceManager = RETAIN([GSWApp resourceManager]);
+      
     };
   LOGObjectFnStop();
   return self;
@@ -285,46 +295,29 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 -(void)dealloc
 {
   GSWLogAssertGood(self);
-  NSDebugFLog(@"Dealloc GSWContext %p. %@",
-	      (void*)self, GSCurrentThread());
-  NSDebugFLog0(@"Release GSWContext senderID");
+  DESTROY(_resourceManager);
   DESTROY(_senderID);
-  NSDebugFLog0(@"Release GSWContext requestSessionID");
   DESTROY(_requestSessionID);
-  NSDebugFLog0(@"Release GSWContext requestContextID");
   DESTROY(_requestContextID);
-  NSDebugFLog0(@"Release GSWContext elementID");
   DESTROY(_elementID);
-  if (_session)
-    {
-      NSDebugFLog(@"sessionCount=%u",[_session retainCount]);
-    };
-  NSDebugFLog0(@"Release GSWContext session");
   DESTROY(_session);
-  NSDebugFLog0(@"Release GSWContext request");
   DESTROY(_request);
-  NSDebugFLog0(@"Release GSWContext Response");
   DESTROY(_response);
-  NSDebugFLog0(@"Release GSWContext pageElement");
   DESTROY(_pageElement);
-  NSDebugFLog0(@"Release GSWContext pageComponent");
   DESTROY(_pageComponent);
-  NSDebugFLog0(@"Release GSWContext currentComponent");
   DESTROY(_currentComponent);
-  NSDebugFLog0(@"Release GSWContext url");
   DESTROY(_url);
-  NSDebugFLog0(@"Release GSWContext awakePageComponents");
   DESTROY(_awakePageComponents);
 #ifndef NDEBUG
   DESTROY(_docStructure);
   DESTROY(_docStructureElements);
 #endif
-  NSDebugFLog0(@"Release GSWContext userInfo");
   DESTROY(_userInfo);
   DESTROY(_languages);
-  NSDebugFLog0(@"Dealloc GSWContext super");
+  DESTROY(_componentName);
+  DESTROY(_tempComponentDefinition);
+
   [super dealloc];
-  NSDebugFLog0(@"end Dealloc GSWContext");
 }
 
 //--------------------------------------------------------------------
@@ -393,9 +386,8 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       clone->_pageChanged=_pageChanged;
       clone->_pageReplaced=_pageReplaced;
       clone->_generateCompleteURLs=_generateCompleteURLs;
-      clone->_isInForm=_isInForm;
+      clone->_inForm=_inForm;
       clone->_actionInvoked=_actionInvoked;
-      clone->_formSubmitted=_formSubmitted;
       clone->_isMultipleSubmitForm=_isMultipleSubmitForm;
       clone->_isSessionDisabled=_isSessionDisabled;
     };
@@ -445,15 +437,18 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 }
 
 //--------------------------------------------------------------------
+
+// wo4
 -(void)setInForm:(BOOL)flag
 {
-  _isInForm=flag;
+  _inForm=flag;
 };
 
 //--------------------------------------------------------------------
+// wo4
 -(BOOL)isInForm
 {
-  return _isInForm;
+  return _inForm;
 };
 
 //--------------------------------------------------------------------
@@ -467,6 +462,11 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 {
   return _isInEnabledForm;
 };
+
+- (GSWDynamicURLString*) _url
+{
+  return _url;
+}
 
 //--------------------------------------------------------------------
 // Create the elementID and set IMPs
@@ -531,6 +531,33 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 {
   return _currentComponent;
 };
+
+// this is used from GSWComponentDefinition, GSWComponent
+-(NSString*) _componentName
+{
+  return _componentName;
+}
+
+// this is used from GSWComponentDefinition
+- (void) _setComponentName:(NSString*) newValue
+{
+  ASSIGN(_componentName, newValue);
+}
+
+// this is used from GSWComponentDefinition, GSWComponent
+- (GSWComponentDefinition*) _tempComponentDefinition
+{
+  GSWComponentDefinition * componentdefinition = AUTORELEASE(RETAIN(_tempComponentDefinition));
+  [self _setTempComponentDefinition:nil];
+
+  return componentdefinition;
+}
+
+// this is used from GSWComponentDefinition
+- (void) _setTempComponentDefinition:(GSWComponentDefinition*) newValue
+{
+  ASSIGN(_tempComponentDefinition, newValue);
+}
 
 //--------------------------------------------------------------------
 -(NSString*)contextID
@@ -702,11 +729,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
     return nil;
 }
 #endif
-
-@end
-
-//====================================================================
-@implementation GSWContext (GSWURLGeneration)
 
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
@@ -1235,10 +1257,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 
   return url;
 };
-@end
 
-//====================================================================
-@implementation GSWContext (GSWContextA)
 
 //--------------------------------------------------------------------
 -(id)_initWithContextID:(unsigned int)contextID
@@ -1255,10 +1274,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   return self;
 };
 
-@end
-
-//====================================================================
-@implementation GSWContext (GSWContextB)
 
 //--------------------------------------------------------------------
 -(BOOL)_isMultipleSubmitForm
@@ -1286,6 +1301,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 };
 
 //--------------------------------------------------------------------
+// wo5?
 -(BOOL)_wasFormSubmitted
 {
   return _formSubmitted;
@@ -1294,7 +1310,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //--------------------------------------------------------------------
 -(void)_setFormSubmitted:(BOOL)flag
 {
-  _formSubmitted=flag;
+  _formSubmitted = flag;
 };
 
 //--------------------------------------------------------------------
@@ -1606,6 +1622,49 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
                url:anURL];
 }
 
+-(GSWDynamicURLString*) _componentActionURL
+{
+  id obj = nil;
+  GSWSession * session = [self session];
+  NSString * s = [self contextID];
+  NSString * s1 = [self elementID];
+  NSMutableString * actionURL = [NSMutableString string];
+  
+  if ([GSWApp pageCacheSize] == 0) {
+    if ([session storesIDsInURLs]) {
+      [actionURL appendString:[[self page] name]];
+      [actionURL appendString:@"/"];
+      [actionURL appendString:[session sessionID]];
+      [actionURL appendString:@"/"];
+      [actionURL appendString:s];
+      [actionURL appendString:@"."];
+      [actionURL appendString:s1];
+    } else {
+      [actionURL appendString:[[self page] name]];
+      [actionURL appendString:@"/"];
+      [actionURL appendString:s];
+      [actionURL appendString:@"."];
+      [actionURL appendString:s1];
+    }
+  } else {
+    if ([session storesIDsInURLs]) {
+      [actionURL appendString:[session sessionID]];
+      [actionURL appendString:@"/"];
+      [actionURL appendString:s];
+      [actionURL appendString:@"."];
+      [actionURL appendString:s1];
+    } else {
+      [actionURL appendString:s];
+      [actionURL appendString:@"."];
+      [actionURL appendString:s1];
+    }
+  }
+  return [self urlWithRequestHandlerKey:[[GSWApp class] componentRequestHandlerKey]
+                                   path: actionURL
+                            queryString: nil];
+
+}
+
 //--------------------------------------------------------------------
 /** Returns array of languages 
 First try  session languages, if none, try self language
@@ -1668,20 +1727,20 @@ If none, try request languages
 };
 
 //--------------------------------------------------------------------
+
 -(void)_setPageElement:(GSWElement*)element
 {
-  LOGObjectFnStart();
-  if (_pageElement!=element)
-    {
-      ASSIGN(_pageElement,element);
+  if (element != _pageElement) {
+    DESTROY(_pageComponent);
+    ASSIGN(_pageElement,element);
+    if (_pageElement != nil) {
+      if ([_pageElement isKindOfClass:[GSWComponent class]]) {
+        [self _setPageComponent:(GSWComponent*) _pageElement];
+      }
+    }
+  }
+}
 
-      [self _setPageComponent:nil];
-      
-      if ([element isKindOfClass:[GSWComponent class]])
-        [self _setPageComponent:(GSWComponent*)element];
-    };
-  LOGObjectFnStop();
-};
 
 //--------------------------------------------------------------------
 -(void)_setPageComponent:(GSWComponent*)component
@@ -1965,10 +2024,6 @@ If none, try request languages
   return queryDictionary;
 };
 
-@end
-
-//====================================================================
-@implementation GSWContext (GSWContextElementID)
 
 //--------------------------------------------------------------------
 //	incrementLastElementIDComponent
@@ -2068,10 +2123,6 @@ If none, try request languages
   return [_elementID elementsCount];
 };
 
-@end
-
-//====================================================================
-@implementation GSWContext (GSWContextD)
 //--------------------------------------------------------------------
 -(NSString*)url
 {
@@ -2131,10 +2182,16 @@ If none, try request languages
   _distributionEnabled=isDistributionEnabled;
 };
 
-@end
 
-//====================================================================
-@implementation GSWContext (GSWContextGSWeb)
+- (NSString*) _urlForResourceNamed: (NSString*)aName 
+                       inFramework: (NSString*)frameworkName
+{
+  return [_resourceManager urlForResourceNamed: aName
+                                   inFramework: frameworkName
+                                     languages: _languages
+                                       request: _request];
+}
+
 -(BOOL)isValidate
 {
   return _isValidate;
@@ -2146,6 +2203,7 @@ If none, try request languages
   _isValidate = isValidate;
   NSDebugMLLog(@"low",@"isValidate=%d",(int)isValidate);
 };
+
 
 @end
 

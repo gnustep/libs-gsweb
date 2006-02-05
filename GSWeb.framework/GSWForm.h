@@ -32,34 +32,17 @@
 #ifndef _GSWForm_h__
 	#define _GSWForm_h__
 
-//OK
 @interface GSWForm: GSWHTMLDynamicElement
 {
-  GSWAssociation* _action;
-  GSWAssociation* _href;
-  GSWAssociation* _multipleSubmit;
-  GSWAssociation* _actionClass;
-  GSWAssociation* _directActionName;
-  GSWAssociation* _queryDictionary;
-//GSWeb Additions {
-  GSWAssociation* _disabled;
-  GSWAssociation* _enabled;
-  GSWAssociation* _fragmentIdentifier;
-  GSWAssociation* _displayDisabled;
-  NSDictionary* _otherPathQueryAssociations;
-// }
-  NSDictionary* _otherQueryAssociations;
+  GSWAssociation * _action;
+  GSWAssociation * _href;
+  GSWAssociation * _multipleSubmit;
+  GSWAssociation * _actionClass;
+  GSWAssociation * _queryDictionary;
+  NSDictionary   * _otherQueryAssociations;
+  GSWAssociation * _directActionName;
 };
 
--(id)elementName;
-
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
-@end
-
-
-@interface GSWForm (GSWFormA)
 #if !GSWEB_STRICT
 -(BOOL)disabledInContext:(GSWContext*)context;
 #endif
@@ -78,18 +61,15 @@
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
-@end
 
-@interface GSWForm (GSWFormB)
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
                                       inContext:(GSWContext*)context;
 
 -(void)_appendCGIActionToResponse:(GSWResponse*)response
                         inContext:(GSWContext*)context;
-@end
 
-@interface GSWForm (GSWFormC)
 +(BOOL)hasGSWebObjectsAssociations;
+
 @end
 
 #endif //_GSWForm_h__

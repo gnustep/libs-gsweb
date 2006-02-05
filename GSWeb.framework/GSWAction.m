@@ -40,14 +40,13 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithRequest:(GSWRequest*)aRequest
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       _context = RETAIN([GSWApp createContextForRequest:aRequest]);
       [GSWApp _setContext:_context]; //NDFN
       [self _initializeRequestSessionIDInContext:_context];
     };
-  LOGObjectFnStop();
+
   return self;
 };
 
@@ -65,6 +64,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+
 -(GSWSession*)existingSession
 {
   //OK
@@ -73,7 +73,7 @@ RCS_ID("$Id$")
 
   LOGObjectFnStart();
 
-  if (![_context isSessionDisabled])
+  if (![_context isSessionDisabled])   // TODO:check if wo does it like that.
     {
       hasSession=[_context hasSession];
       if (hasSession)
@@ -324,7 +324,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(GSWContext*)context
 {
-  return [self _context];
+  return _context;
 };
 
 -(GSWContext*)_context

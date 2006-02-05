@@ -48,7 +48,6 @@
 //GSWeb Additions {
   GSWAssociation* _isDisplayStringBefore;
 // }
-  GSWAssociation* _escapeHTML;
   BOOL _defaultEscapeHTML;
   BOOL _autoValue;
 };

@@ -33,68 +33,47 @@
 	#define _GSWHyperlink_h__
 
 
-@interface GSWHyperlink: GSWDynamicElement
+@interface GSWHyperlink: GSWHTMLDynamicElement
 {
-  GSWAssociation* _action;
-  GSWAssociation* _string;
-  GSWAssociation* _pageName;
-  GSWAssociation* _href;
-  GSWAssociation* _disabled;
-  GSWAssociation* _fragmentIdentifier;
-  GSWAssociation* _secure;
-  GSWAssociation* _queryDictionary;
-  GSWAssociation* _actionClass;
-  GSWAssociation* _directActionName;
-//GSWeb Additions {
-  GSWAssociation* _enabled;
-  GSWAssociation* _displayDisabled;
-  GSWAssociation* _redirectURL;
-  NSDictionary* _pageSetVarAssociations;
-  GSWAssociation* _pageSetVarAssociationsDynamic;
-// }
-  NSDictionary* _otherQueryAssociations;
-  NSDictionary* _otherAssociations;
-
-//GSWeb Additions {
-  GSWAssociation* _filename;
-  GSWAssociation* _framework;
-  GSWAssociation* _data;
-  GSWAssociation* _mimeType;
-  GSWAssociation* _key;
-  NSDictionary* _otherPathQueryAssociations;
-  GSWAssociation* _urlPrefix;
-  GSWAssociation* _pathQueryDictionary;
-  GSWAssociation* _escapeHTML;
-// }
-  GSWElement* _children;
+  WOAssociation * _action;
+  WOAssociation * _string;
+  WOAssociation * _pageName;
+  WOAssociation * _href;
+  WOAssociation * _disabled;
+  WOAssociation * _fragmentIdentifier;
+  WOAssociation * _secure;
+  WOAssociation * _queryDictionary;
+  WOAssociation * _actionClass;
+  WOAssociation * _directActionName;
+  NSDictionary  * _otherQueryAssociations;
 };
 
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement;
-@end
 
-@interface GSWHyperlink (GSWHyperlinkA)
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext;
-#if !GSWEB_STRICT
--(NSString*)frameworkNameInContext:(GSWContext*)aContext;
-#endif
+
 -(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
                            inContext:(GSWContext*)aContext;
+
 -(NSString*)computeActionStringInContext:(GSWContext*)aContext;
+
 -(void)_appendQueryStringToResponse:(GSWResponse*)aResponse
                           inContext:(GSWContext*)aContext;
+
 -(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)aContext;
+
 -(void)_appendFragmentToResponse:(GSWResponse*)aResponse
                        inContext:(GSWContext*)aContext;
+
 -(void)_appendContentStringToResponse:(GSWResponse*)aResponse
                             inContext:(GSWContext*)aContext;
+
 -(void)_appendChildrenToResponse:(GSWResponse*)aResponse
                        inContext:(GSWContext*)aContext;
-@end
 
-@interface GSWHyperlink (GSWHyperlinkB)
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext;
 @end

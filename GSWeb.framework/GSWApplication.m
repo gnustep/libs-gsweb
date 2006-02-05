@@ -1049,8 +1049,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 //====================================================================
 @implementation GSWApplication (GSWApplicationD)
 
--(GSWComponentDefinition*)componentDefinitionWithName:(NSString*)aName
-                                            languages:(NSArray*)languages
+-(GSWComponentDefinition*) _componentDefinitionWithName:(NSString*)aName
+                                              languages:(NSArray*)languages
 {
   //OK
   GSWComponentDefinition* componentDefinition=nil;
@@ -2212,14 +2212,58 @@ to another instance **/
 -(GSWComponent*)pageWithName:(NSString*)aName
                    inContext:(GSWContext*)aContext
 {
+  //OK
   GSWComponent* component=nil;
-  LOGObjectFnStart();
-  NSAssert(aContext,@"No Context");
-  component=[self _pageWithName:aName
-                  inContext:aContext];
-  LOGObjectFnStop();
+  GSWComponentDefinition* componentDefinition=nil;
+  NSArray* languages=nil;
+
+  if (!aContext) {
+    [NSException raise:NSInvalidArgumentException 
+                 format:@"%s: No context!",
+                 __PRETTY_FUNCTION__];
+  }
+  [self lock];
+  NS_DURING
+    {
+      // If the pageName is empty, try to get one from -defaultPageName
+      if ((!aName) || ([aName length]<1)) {
+        aName=[self defaultPageName];
+      }
+      // If the pageName is still empty, use a default one ("Main")
+      if ((!aName) || ([aName length]<1)) {
+        aName=GSWMainPageName;
+      }
+
+      languages=[aContext languages];
+
+      // Find component definition for pageName and languages
+      componentDefinition=[self lockedComponentDefinitionWithName:aName
+                                languages:languages];
+
+      if (!componentDefinition) {
+        [NSException raise:NSInvalidArgumentException 
+                    format:@"%s: unable to create page '%@'.",
+                            __PRETTY_FUNCTION__, aName];
+      }
+      // As we've found a component defintion, we create an instance (an object of class GSWComponent)
+      component=[componentDefinition componentInstanceInContext:aContext];
+      [component _awakeInContext:aContext];
+
+      // And flag it as a page.
+      [component _setIsPage:YES];
+    }
+  NS_HANDLER
+    {
+      localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
+                                                                               __PRETTY_FUNCTION__];
+      LOGException(@"exception=%@",localException);
+      [self unlock];
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  [self unlock];
   return component;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -2228,90 +2272,6 @@ to another instance **/
   return GSWMainPageName;
 };
 
-//--------------------------------------------------------------------
--(GSWComponent*)_pageWithName:(NSString*)aName
-                    inContext:(GSWContext*)aContext
-{
-  //OK
-  GSWComponent* component=nil;
-  GSWComponentDefinition* componentDefinition=nil;
-  NSArray* languages=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"info",@"aName %p=%@",aName,aName);
-  if (!aContext)
-    [NSException raise:NSInvalidArgumentException 
-                 format:@"%s No context when calling %@",
-                 object_get_class_name(self),
-                 NSStringFromSelector(_cmd)];
-  [self lock];
-  NS_DURING
-    {
-      // If the pageName is empty, try to get one from -defaultPageName
-      if ([aName length]<=0)
-        aName=[self defaultPageName];
-
-      // If the pageName is still empty, use a default one ("Main")
-      if ([aName length]<=0)
-        aName=GSWMainPageName;
-
-      NSDebugMLLog(@"info",@"aName=%@",aName);
-
-      // Retrieve context languages
-      languages=[aContext languages];
-      NSDebugMLLog(@"info",@"languages=%@",languages);
-
-      // Find component definition for pageName and languages
-      componentDefinition=[self lockedComponentDefinitionWithName:aName
-                                languages:languages];
-      NSDebugMLLog(@"info",@"componentDefinition %p=%@ (%@)",
-                   componentDefinition,
-                   componentDefinition,
-                   [componentDefinition class]);
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In lockedComponentDefinitionWithName:");
-      LOGException(@"exception=%@",localException);
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  NS_DURING
-    {
-      if (!componentDefinition)
-        {
-          //TODO
-          NSDebugMLLog0(@"info",@"GSWApplication _pageWithName no componentDefinition");
-        }
-      else
-        {
-          // As we've found a component defintion, we create an instance (an object of class GSWComponent)
-          NSAssert(aContext,@"No Context");
-          component=[componentDefinition componentInstanceInContext:aContext];
-          NSAssert(aContext,@"No Context");
-          // Next we awake it
-          [component awakeInContext:aContext];
-
-          // And flag it as a page.
-          [component _setIsPage:YES];
-        };
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In componentInstanceInContext:");
-      LOGException(@"exception=%@",localException);
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  [self unlock];
-  LOGObjectFnStop();
-  return component;
-};
 @end
 
 //====================================================================
@@ -3011,15 +2971,17 @@ to another instance **/
     {
       errorPage=[self pageWithName:pageName
                       inContext:context];
+                      
       if (anException)
         [errorPage takeValue:anException
               forKey:@"exception"]; 
     }
   NS_HANDLER
     {
-      // My God ! Exception on exception !
+      // My God ! Exception on exception !      
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In _handleException:inContext:");
+      NSLog(@"exception=%@",localException);                                                         
       LOGException(@"exception=%@",localException);
       if ([[localException name]isEqualToString:GSWPageNotFoundException])
         response=[self _invokeDefaultException:localException
@@ -3037,14 +2999,12 @@ to another instance **/
         };
     }
   NS_ENDHANDLER;
-
   if (!response)
     {
       if (errorPage)
         {
           id monitor=nil;
-          response=[errorPage generateResponse];
-          
+          response=[errorPage generateResponse];          
           //here ?
           monitor=[self _remoteMonitor];
           if (monitor)
@@ -3057,6 +3017,8 @@ to another instance **/
         {
           NSString* message=[NSString stringWithFormat:@"Exception Handling failed. Can't find Error Page named '%@'",
                                       pageName];
+          NSLog(message);          
+                                      
           response=[GSWResponse responseWithMessage:message
                                 inContext:context
                                 forRequest:nil];
@@ -3075,7 +3037,7 @@ to another instance **/
   GSWResponse* response=nil;
   LOGObjectFnStart();
   NSDebugMLLog(@"application",@"context=%@",aContext);
-  NSDebugMLog(@"EXCEPTION=%@",anException);
+  NSLog(@"EXCEPTION=%@",anException);
   NS_DURING
     {
       response = 
@@ -4489,214 +4451,4 @@ to another instance **/
 };
 
 @end
-/*
-//====================================================================
-@implementation GSWApplication (GSWDeprecatedAPI)
-
-//--------------------------------------------------------------------
-//pageWithName:
-//OldFn
--(GSWComponent*)pageWithName:(NSString*)name_
-{
-  GSWComponent* component=nil;
-  Class aClass=nil;
-  NSDebugMLLog(@"application",@"Page with Name:%@",name_);
-  //No Name ==> "Main"
-  if (!name_ || [name_ length]==0)
-	name_=GSWMainPageName;
-  NSDebugMLLog(@"gswcomponents",@"Page with Name:%@",name_);
-  aClass=NSClassFromString(name_);
-  //If not found, search for library
-  if (!aClass)
-	{
-	  NSString* pagePath=[self pathForResourceNamed:name_
-							   ofType:nil];
-	  Class _principalClass=[self libraryClassWithPath:pagePath];
-	  NSDebugMLLog(@"gswcomponents",@"_principalClass=%@",_principalClass);
-	  if (_principalClass)
-		{
-		  aClass=NSClassFromString(name_);
-		  NSDebugMLLog(@"gswcomponents",@"aClass=%@",aClass);
-		};
-	};
-  if (!aClass)
-	{
-	  //TODO Load Scripted (PageName.gsws)
-	};
-
-  if (!aClass)
-	{
-	  //TODO exception
-	  NSDebugMLLog0(@"application",@"No component class");
-	}
-  else
-	{
-	  Class GSWComponentClass=[GSWComponent class]);
-	  if (!ClassIsKindOfClass(aClass,GSWComponentClass))
-	    {
-	      NSDebugMLLog0(@"application",
-	                    @"component class is not a kind of GSWComponent");
-	      //TODO exception
-	    }
-	  else
-	    {
-	      //TODOV
-	      NSDebugMLLog0(@"application",@"Create Componnent");
-	      component=[[aClass new] autorelease];
-	      if (!component)
-	        {
-		  //TODO exception
-		};
-	    };
-	};
-
-  return component;
-};
-
-//--------------------------------------------------------------------
-//restorePageForContextID:
--(GSWComponent*)restorePageForContextID:(NSString*)contextID
-{
-  return [[self session] restorePageForContextID:contextID];
-};
-
-//--------------------------------------------------------------------
-//savePage:
--(void)savePage:(GSWComponent*)page_
-{
-  [[self session] savePage:page_];
-};
-
-//--------------------------------------------------------------------
-//session
--(GSWSession*)session 
-{
-  return [[self context] session];
-};
-
-//--------------------------------------------------------------------
-//context
-//Remove !!
--(GSWContext*)context 
-{
-  GSWContext* _context=nil;
-  NSMutableDictionary* _threadDictionary=nil;
-  LOGObjectFnStart();
-  _threadDictionary=GSCurrentThreadDictionary();
-  _context=[_threadDictionary objectForKey:GSWThreadKey_Context];
-  LOGObjectFnStop();
-  return _context;
-};
-
-//--------------------------------------------------------------------
-//restoreSession
--(GSWSession*)restoreSession
-{
-  NSAssert(sessionStore,@"No SessionStore Object");
-  return [self restoreSessionWithID:[[self session]sessionID]
-				inContext:[self context]];
-};
-
-//--------------------------------------------------------------------
-//saveSession:
--(void)saveSession:(GSWSession*)session_ 
-{
-  NSAssert(sessionStore,@"No SessionStore Object");
-  [self saveSessionForContext:[self context]];
-};
-
-//--------------------------------------------------------------------
-//createSession
--(GSWSession*)createSession 
-{
-  LOGObjectFnNotImplemented();	//TODOFN 3.5
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//urlForResourceNamed:ofType:
--(NSString*)urlForResourceNamed:(NSString*)name_
-						 ofType:(NSString*)type_ 
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//pathForResourceNamed:ofType:
-
--(NSString*)pathForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)type_ 
-{
-  //TODOV
-  NSBundle* bundle=[NSBundle mainBundle];
-  NSString* path=[bundle pathForResource:name_
-						 ofType:type_];
-  return path;
-};
-
-//--------------------------------------------------------------------
-//stringForKey:inTableNamed:withDefaultValue:
-
--(NSString*)stringForKey:(NSString*)aKey
-			inTableNamed:(NSString*)aTableName
-		withDefaultValue:(NSString*)defaultValue
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//handleRequest:
-//Olf Fn
--(GSWResponse*)handleRequest:(GSWRequest*)aRequest 
-{
-  return [self dispatchRequest:aRequest];//??
-};
-
-//--------------------------------------------------------------------
-//dynamicElementWithName:associations:template:
-//OldFn
--(GSWDynamicElement*)dynamicElementWithName:(NSString*)name_
-			       associations:(NSDictionary*)someAssociations
-				   template:(GSWElement*)templateElement_
-{
-  GSWDynamicElement* element=nil;
-  //  NSString* elementName=[_XMLElement attributeForKey:@"NAME"];
-  Class aClass=NSClassFromString(name_);
-  LOGObjectFnNotImplemented();	//TODOFN
-  NSDebugMLLog0(@"application",
-		@"Begin GSWApplication:dynamicElementWithName");
-  if (!aClass)
-    {
-      ExceptionRaise(@"GSWApplication",
-		     @"GSWApplication: No class named '%@' for "
-		     @"creating dynamic element",
-		     name_);
-    }
-  else
-    {
-      Class GSWElementClass=[GSWElement class];
-      if (!ClassIsKindOfClass(aClass,GSWElementClass))
-	{
-	  ExceptionRaise(@"GSWApplication",
-			 @"GSWApplication: element '%@' is not kind of "
-			 @"GSWElement",
-			 name_);
-	}
-      else
-	{
-	  NSDebugMLLog(@"application",
-		       @"Creating DynamicElement of Class:%@",aClass);
-	  element=[[[aClass alloc] initWithName:name_
-				   associations:someAssociations
-				   template:templateElement_] autorelease];
-	  NSDebugMLLog(@"application",@"Creating DynamicElement:%@",element);
-	};
-    };
-  return element;
-};
-
-@end
-*/
 

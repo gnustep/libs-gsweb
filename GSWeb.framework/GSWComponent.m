@@ -41,77 +41,85 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWComponent
 
-//--------------------------------------------------------------------
-//	init
+/* Static variables */
+
+static NSMutableDictionary * TheTemplateNameDictionary;
+static NSLock * TheTemplateNameDictionaryLock;
+static Class GSWHTMLBareStringClass = Nil;
+
++ (void) initialize
+{
+  if (self == [GSWComponent class]) {
+    TheTemplateNameDictionary = [NSMutableDictionary new];
+    TheTemplateNameDictionaryLock = [[NSLock alloc] init];
+    GSWHTMLBareStringClass = [GSWHTMLBareString class];
+  }
+}
+
+// deprecated. use initWithContext:
 
 -(id)init
 {
-  //OK
-  LOGObjectFnStart();
-  if ((self=[super init]))
-    {
-      NSMutableDictionary* currentThreadDictionary=GSCurrentThreadDictionary();
-      GSWContext* aContext=[currentThreadDictionary objectForKey:GSWThreadKey_Context];
-      // This was set by GSWComponentDefintion -componentInstanceInContext:
-      GSWComponentDefinition* aComponentDefinition=[currentThreadDictionary objectForKey:GSWThreadKey_ComponentDefinition];
-      NSAssert(aContext,@"No Context in GSWComponent Init");
-      NSAssert(aComponentDefinition,@"No ComponentDefinition in GSWComponent Init");
-      ASSIGN(_componentDefinition,aComponentDefinition);
-      _name=[[NSString stringWithCString:object_get_class_name(self)]retain];
-      NSDebugMLLog(@"GSWComponent",@"_name=%@",_name);
-      _isCachingEnabled=YES;
-      [self _setContext:aContext];
-      NSDebugMLLog(@"GSWComponent",@"_context=%@",_context);
-      _templateName=[[self _templateNameFromClass:[self class]] retain];
-      NSDebugMLLog(@"GSWComponent",@"_templateName=%@",_templateName);
-      [self setCachingEnabled:[GSWApp isCachingEnabled]];
-      [_componentDefinition _finishInitializingComponent:self];
-      _isParentToComponentSynchronized=[self synchronizesParentToComponentVariablesWithBindings];
-      _isComponentToParentSynchronized=[self synchronizesComponentToParentVariablesWithBindings];
-      NSDebugMLLog(@"GSWComponent",@"_isParentToComponentSynchronized=%s",(_isParentToComponentSynchronized ? "YES" : "NO"));
-      NSDebugMLLog(@"GSWComponent",@"_isComponentToParentSynchronized=%s",(_isComponentToParentSynchronized ? "YES" : "NO"));
-    };
-  LOGObjectFnStop();
+//  NSLog(@"%s init: deprecated. use initWithContext", class_get_class_name([self class]));
+  return [self initWithContext:[GSWComponentDefinition TheTemporaryContext]];
+}
+
+
+- (id)initWithContext:(GSWContext *) aContext
+{
+  Class myClass = Nil;
+  GSWComponentDefinition* aComponentDefinition = nil;
+  
+  if ((self=[super init])) {
+    if (aContext == nil) {
+      [NSException raise:NSInvalidArgumentException
+                  format:@"Attempt to init component without a context. In %s",
+                         __PRETTY_FUNCTION__];
+    }
+
+    [self _setContext:aContext];
+    myClass = [self class];
+    if (myClass == ([GSWComponent class])) {
+      ASSIGN(_name, [aContext _componentName]);
+    } else {
+      ASSIGN(_name, [NSString stringWithCString:object_get_class_name(self)]);
+    }
+    ASSIGN(_templateName,[NSString stringWithCString:class_get_class_name(myClass)]);
+    _isPage = NO;
+    _subComponents = nil;
+    [self setCachingEnabled:[GSWApp isCachingEnabled]];
+    ASSIGN(_componentDefinition, [aContext _tempComponentDefinition]);
+    aComponentDefinition = [self _componentDefinition];
+    if (aComponentDefinition != nil) {
+      [aComponentDefinition finishInitializingComponent:self];
+    }
+    _isSynchronized = [self synchronizesVariablesWithBindings];
+  }
+
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogAssertGood(self);
-  GSWLogC("Dealloc GSWComponent");
-  GSWLogC("Dealloc GSWComponent: name");
-  DESTROY(_name);
-  GSWLogC("Dealloc GSWComponent: subComponents");
-  DESTROY(_subComponents);
-  GSWLogC("Dealloc GSWComponent: templateName");
-  DESTROY(_templateName);
-  GSWLogC("Dealloc GSWComponent: template");
-  DESTROY(_template);
-  GSWLogC("Dealloc GSWComponent: componentDefinition");
-  DESTROY(_componentDefinition);
-  _parent=nil;
-  GSWLogC("Dealloc GSWComponent: associationsKeys");
-  DESTROY(_associationsKeys);
-  GSWLogC("Dealloc GSWComponent: associations");
-  DESTROY(_associations);
-  GSWLogC("Dealloc GSWComponent: childTemplate");
+
+  DESTROY(_keyAssociations);
   DESTROY(_childTemplate);
-  GSWLogC("Dealloc GSWComponent: userDictionary");
-  DESTROY(_userDictionary);
-  GSWLogC("Dealloc GSWComponent: userAssociations");
-  DESTROY(_userAssociations);
-  GSWLogC("Dealloc GSWComponent: defaultAssociations");
+  DESTROY(_componentDefinition);
   DESTROY(_defaultAssociations);
-  GSWLogC("Dealloc GSWComponent: validationFailureMessages");
+  DESTROY(_name);
+  DESTROY(_subComponents);
+  DESTROY(_template);
+  DESTROY(_templateName);
+  DESTROY(_userAssociations);
+  DESTROY(_userDictionary);
   DESTROY(_validationFailureMessages);
-  GSWLogC("Dealloc GSWComponent: context (set to nil)");
-  _context=nil;
-  GSWLogC("Dealloc GSWComponent: session (set to nil)");
-  _session=nil;
-  GSWLogC("Dealloc GSWComponent Super");
+
+  DESTROY(_context); //_context=nil;
+  _parent = nil;
+  _session = nil;
+  
   [super dealloc];
-  GSWLogC("End Dealloc GSWComponent");
 }
 
 //--------------------------------------------------------------------
@@ -124,15 +132,14 @@ RCS_ID("$Id$")
   ASSIGN(clone->_template,_template);
   ASSIGN(clone->_componentDefinition,_componentDefinition);
   ASSIGN(clone->_parent,_parent);
-  ASSIGNCOPY(clone->_associationsKeys,_associationsKeys);
-  ASSIGNCOPY(clone->_associations,_associations);
+  ASSIGNCOPY(clone->_keyAssociations, _keyAssociations);
   ASSIGNCOPY(clone->_childTemplate,_childTemplate);
   ASSIGNCOPY(clone->_context,_context);
   ASSIGNCOPY(clone->_session,_session);
   clone->_isPage=_isPage;
   clone->_isCachingEnabled=_isCachingEnabled;
-  clone->_isParentToComponentSynchronized=_isParentToComponentSynchronized;
-  clone->_isComponentToParentSynchronized=_isComponentToParentSynchronized;
+//  clone->_isParentToComponentSynchronized=_isParentToComponentSynchronized;
+//  clone->_isComponentToParentSynchronized=_isComponentToParentSynchronized;
   return clone;
 };
 
@@ -147,8 +154,7 @@ RCS_ID("$Id$")
   [aCoder encodeObject:_template];
   [aCoder encodeObject:_componentDefinition];
   [aCoder encodeObject:_parent];
-  [aCoder encodeObject:_associationsKeys];
-  [aCoder encodeObject:_associations];
+  [aCoder encodeObject:_keyAssociations];
   [aCoder encodeObject:_childTemplate];
   [aCoder encodeObject:_context];
   [aCoder encodeObject:_session];
@@ -156,10 +162,10 @@ RCS_ID("$Id$")
           at:&_isPage];
   [aCoder encodeValueOfObjCType:@encode(BOOL)
           at:&_isCachingEnabled];
-  [aCoder encodeValueOfObjCType:@encode(BOOL)
-          at:&_isParentToComponentSynchronized];
-  [aCoder encodeValueOfObjCType:@encode(BOOL)
-          at:&_isComponentToParentSynchronized];
+//  [aCoder encodeValueOfObjCType:@encode(BOOL)
+//          at:&_isParentToComponentSynchronized];
+//  [aCoder encodeValueOfObjCType:@encode(BOOL)
+//          at:&_isComponentToParentSynchronized];
 }
 
 //--------------------------------------------------------------------
@@ -181,9 +187,7 @@ RCS_ID("$Id$")
       [aCoder decodeValueOfObjCType:@encode(id)
               at:&_parent];
       [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_associationsKeys];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_associations];
+              at:&_keyAssociations];
       [aCoder decodeValueOfObjCType:@encode(id)
               at:&_childTemplate];
       [aCoder decodeValueOfObjCType:@encode(id)
@@ -194,10 +198,10 @@ RCS_ID("$Id$")
               at:&_isPage];
       [aCoder decodeValueOfObjCType:@encode(BOOL)
               at:&_isCachingEnabled];
-      [aCoder decodeValueOfObjCType:@encode(BOOL)
-              at:&_isParentToComponentSynchronized];
-      [aCoder decodeValueOfObjCType:@encode(BOOL)
-              at:&_isComponentToParentSynchronized];
+//      [aCoder decodeValueOfObjCType:@encode(BOOL)
+//              at:&_isParentToComponentSynchronized];
+//      [aCoder decodeValueOfObjCType:@encode(BOOL)
+//              at:&_isComponentToParentSynchronized];
 	};
   return self;
 }
@@ -278,16 +282,6 @@ RCS_ID("$Id$")
   return nil;
 };
 
-//--------------------------------------------------------------------
--(NSString*)_templateNameFromClass:(Class)aClass
-{
-  //OK
-  NSString* aTemplateName=nil;
-  LOGObjectFnStart();
-  aTemplateName=[NSString stringWithCString:class_get_class_name(aClass)];
-  LOGObjectFnStop();
-  return aTemplateName;
-};
 
 //--------------------------------------------------------------------
 -(NSString*)description
@@ -338,12 +332,14 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSDictionary*)defaultAssociations
 {
+  NSLog(@"WARNING: %s is not WebObjects API",__PRETTY_FUNCTION__);
   return _defaultAssociations;
 };
 
 //--------------------------------------------------------------------
 -(void)setDefaultAssociations:(NSDictionary*)defaultAssociations
 {
+  NSLog(@"WARNING: %s is not WebObjects API",__PRETTY_FUNCTION__);
   ASSIGN(_defaultAssociations,defaultAssociations);
   NSDebugMLLog(@"GSWComponent",@"defaultAssociations:%@",_defaultAssociations);
 };
@@ -351,15 +347,13 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(GSWAssociation*)defaultAssociationForKey:(NSString*)key
 {
+  NSLog(@"WARNING: %s is not WebObjects API",__PRETTY_FUNCTION__);
+
   return [[self defaultAssociations]objectForKey:key];
 };
 
 // }
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWCachingPolicy)
 
 //--------------------------------------------------------------------
 //setCachingEnabled:
@@ -379,119 +373,128 @@ RCS_ID("$Id$")
   return _isCachingEnabled;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWComponentA)
-
-//--------------------------------------------------------------------
--(void)setParent:(GSWComponent*)parent
-associationsKeys:(NSArray*)associationsKeys
-    associations:(NSArray*)associations
-        template:(GSWElement*)template
+-(void) _setParent:(GSWComponent*) parent
+      associations:(NSMutableDictionary *) assocdict
+          template:(GSWElement*) template
 {
-  //OK
-  LOGObjectFnStart();
-  _parent=parent;
-  NSDebugMLLog(@"GSWComponent",@"name=%@ parent=%p (%@)",
-               [self declarationName],
-               (void*)parent,[parent class]);
-  NSDebugMLLog(@"GSWComponent",@"associations=%@",_associations);
-  ASSIGN(_associations,associations);
-  ASSIGN(_associationsKeys,associationsKeys);
-  NSDebugMLLog(@"GSWComponent",@"associationsKeys=%@",_associationsKeys);
-  ASSIGN(_childTemplate,template);
-  NSDebugMLLog(@"GSWComponent",@"template=%@",_childTemplate);
-  [self validateAPIAssociations];
-  LOGObjectFnStop();
-};
+  if (parent != _parent) {
+    _parent = parent;
+  }
+  if (assocdict != _keyAssociations) {
+    ASSIGN(_keyAssociations, assocdict);    
+  }
+  if (template != _childTemplate) {
+    ASSIGN(_childTemplate,template);
+  }
+  //  not WO!
+  //  [self validateAPIAssociations];
+}
 
 //--------------------------------------------------------------------
+
+-(void) _doPushValuesUp
+{
+  NSEnumerator       * enumer = nil;
+  NSString           * aKey = nil; 
+  GSWAssociation     * assoc = nil;
+
+  if (_isSynchronized && _keyAssociations != nil) {
+    enumer = [_keyAssociations keyEnumerator];
+    while (aKey = [enumer nextObject]) {
+      assoc = [_keyAssociations objectForKey: aKey];
+      if ([assoc isValueSettableInComponent:self]) {
+        [assoc setValue:[self valueForKey: aKey]
+                    inComponent:_parent];
+      }
+    }
+  }
+}
+
+-(void) pushValuesToParent
+{
+  GSWComponentDefinition * componentdefinition = nil;
+  
+  if (_isSynchronized) {
+    [self _doPushValuesUp];
+  }
+  componentdefinition = [self _componentDefinition];
+  if ([componentdefinition isStateless]) {
+    [self reset];
+    _parent = nil;  // no retain? dw
+    _session = nil;
+    DESTROY(_context);
+    [componentdefinition _checkInComponentInstance:self];
+  }
+}
+
+//-(void) pushValuesToParent
+//{
+//  if (YES) //  we should use more meaningfl names here _isComponentToParentSynchronized)
+//    {
+//      int i=0;
+//      id aKey=nil;
+//      GSWAssociation* anAssociation=nil;
+//      id aValue=nil;
+//      id logValue=[self valueForBinding:@"GSWDebug"];
+//      BOOL doLog=boolValueWithDefaultFor(logValue,NO);
+//      int associationsKeysCount=[_associationsKeys count];
+//
+//      for(i=0;i<associationsKeysCount;i++)
+//        {
+//          aKey=[_associationsKeys objectAtIndex:i];
+//          anAssociation=[_associations objectAtIndex:i];
+//          NSDebugMLLog(@"GSWComponent",@"aKey=%@ anAssociation=%@",aKey,anAssociation);
+//          if ([anAssociation isValueSettable]
+//              && ![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
+//            {
+//              aValue=[self valueForKey:aKey];
+//              if (doLog)
+//                [anAssociation logSynchronizeComponentToParentForValue:aValue
+//                               inComponent:_parent];
+//              [anAssociation setValue:aValue
+//                             inComponent:_parent];
+//            };
+//        };
+//    };
+//};
+
 -(void)synchronizeComponentToParent
 {
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"Name=%@ - isComponentToParentSynchronized=%s",
-              [self declarationName],(_isComponentToParentSynchronized ? "YES" : "NO"));
-  if (_isComponentToParentSynchronized)
-    {
-      int i=0;
-      id aKey=nil;
-      GSWAssociation* anAssociation=nil;
-      id aValue=nil;
-      id logValue=[self valueForBinding:@"GSWDebug"];
-      BOOL doLog=boolValueWithDefaultFor(logValue,NO);
-      int associationsKeysCount=[_associationsKeys count];
-
-      NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - Synchro SubComponent->Component",               
-                  [self declarationName]);
-      for(i=0;i<associationsKeysCount;i++)
-        {
-          aKey=[_associationsKeys objectAtIndex:i];
-          anAssociation=[_associations objectAtIndex:i];
-          NSDebugMLLog(@"GSWComponent",@"aKey=%@ anAssociation=%@",aKey,anAssociation);
-          if ([anAssociation isValueSettable]
-              && ![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
-            {
-              aValue=[self valueForKey:aKey];
-              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@ (%@)",
-                           aKey,aValue,NSStringFromClass([aValue class]));
-              if (doLog)
-                [anAssociation logSynchronizeComponentToParentForValue:aValue
-                               inComponent:_parent];
-              [anAssociation setValue:aValue
-                             inComponent:_parent];
-            };
-        };
-    };
-  LOGObjectFnStop();
-};
+  NSLog(@"WARNING: %s is deprecated. Use pushValuesToParent instead.", __PRETTY_FUNCTION__);
+  [self pushValuesToParent];
+}
 
 //--------------------------------------------------------------------
--(void)synchronizeParentToComponent
-{
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"Name=%@ - isParentToComponentSynchronized=%s",
-              [self declarationName],(_isParentToComponentSynchronized ? "YES" : "NO"));
-  if (_isParentToComponentSynchronized)
-    {
-      //Synchro Component->SubComponent
-      int i=0;
-      id aKey=nil;
-      GSWAssociation* anAssociation=nil;
-      id aValue=nil;
-      id logValue=[self valueForBinding:@"GSWDebug"];
-      BOOL doLog=boolValueWithDefaultFor(logValue,NO);
-      int associationsKeysCount=[_associationsKeys count];
 
-      NSDebugMLLog(@"GSWComponent",@"Name=%@ - Synchro Component->SubComponent",
-                  [self declarationName]);
-      for(i=0;i<associationsKeysCount;i++)
-        {
-          aKey=[_associationsKeys  objectAtIndex:i];
-          anAssociation=[_associations objectAtIndex:i];
-          NSDebugMLLog(@"GSWComponent",@"aKey=%@ anAssociation=%@",aKey,anAssociation);
-          if (![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
-            {
-              aValue=[anAssociation valueInComponent:_parent];
-              NSDebugMLLog(@"GSWComponent",@"aKey=%@ aValue=%@ (%@)",
-                           aKey,aValue,NSStringFromClass([aValue class]));
-              if (doLog)
-                [anAssociation logSynchronizeParentToComponentForValue:aValue
-                               inComponent:self];
+
+-(void) pullValuesFromParent
+{
+  NSEnumerator       * enumer = nil;
+  NSString           * myKey = nil;
+  id                 obj; 
+  GSWAssociation     * assoc = nil;
+
+  if (_isSynchronized && (_keyAssociations != nil)) {
+      enumer = [_keyAssociations keyEnumerator];
+      while (myKey = [enumer nextObject]) {
+        assoc = [_keyAssociations objectForKey: myKey];
+        obj = [assoc valueInComponent:_parent];        
 #if HAVE_GDL2 // GDL2 implementation
-              [self smartTakeValue:aValue
-                    forKey:aKey];
+              [self smartTakeValue: obj
+                            forKey: myKey];
 #else
-              [self takeValue:aValue
-                    forKey:aKey];
+              [self takeValue: obj
+                       forKey: myKey];
 #endif
-            };
-        };
-    };
-  LOGObjectFnStop();
-};
+      }
+    }
+}
+
+-(void) synchronizeParentToComponent
+{
+//  NSLog(@"WARNING: %s is deprecated. Use pullValuesFromParent instead.", __PRETTY_FUNCTION__);
+  [self pullValuesFromParent];
+}
 
 //--------------------------------------------------------------------
 -(GSWElement*)_childTemplate
@@ -501,48 +504,43 @@ associationsKeys:(NSArray*)associationsKeys
 };
 
 //--------------------------------------------------------------------
+-(GSWElement*) template
+{
+  GSWElement* element = nil;
+  if (_template != element) {
+    element = _template;
+  } else {
+    element = [self templateWithName:nil];
+    if ([self isCachingEnabled]) {
+        ASSIGN(_template, element);
+    }
+  }
+  return element;
+}
+
 -(GSWElement*)_template
 {
-  //OK
-  GSWElement* template=_template;
-  LOGObjectFnStart();
-  if (!template)
-    {
-      NSDebugMLLog(@"GSWComponent",@"templateName=%@",[self _templateName]);
-      template=[self templateWithName:[self _templateName]];
-      NSDebugMLLog(@"GSWComponent",@"template=%p",template);
-      if ([self isCachingEnabled])
-        {
-          ASSIGN(_template,template);
-        };
-    };
-  LOGObjectFnStop();
-  return template;
+  NSLog(@"WARNING: %s is deprecated. Use template instead.", __PRETTY_FUNCTION__);
+
+  return [self template];
 };
 
 //--------------------------------------------------------------------
 -(GSWComponentDefinition*)_componentDefinition
 {
-  //OK
   GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"_componentDefinition=%@",_componentDefinition);
-  if (_componentDefinition)
+
+  if (_componentDefinition) {
     aComponentDefinition=_componentDefinition;
-  else
-    {
-      NSArray* languages=[self languages];
-      NSDebugMLLog(@"GSWComponent",@"languages=%@",languages);
-      NSDebugMLLog(@"GSWComponent",@"_name=%@",_name);
-      aComponentDefinition=[GSWApp componentDefinitionWithName:_name
-                                   languages:languages];
-      NSDebugMLLog(@"GSWComponent",@"aComponentDefinition=%@",aComponentDefinition);
-      if ([self isCachingEnabled])
-        {
-          ASSIGN(_componentDefinition,aComponentDefinition);
-        };
+  } else {
+    NSArray* languages=[self languages];
+    aComponentDefinition=[GSWApp componentDefinitionWithName:_name
+                                 languages:languages];
+    if ([self isCachingEnabled]) {
+        ASSIGN(_componentDefinition,aComponentDefinition);
     };
-  LOGObjectFnStop();
+  };
+
   return aComponentDefinition;
 };
 
@@ -555,7 +553,7 @@ associationsKeys:(NSArray*)associationsKeys
 //--------------------------------------------------------------------
 -(NSString*)declarationName
 {
-  return [self _templateName];
+  return _templateName;
 };
 
 //--------------------------------------------------------------------
@@ -575,42 +573,21 @@ associationsKeys:(NSArray*)associationsKeys
 //--------------------------------------------------------------------
 -(void)_setContext:(GSWContext*)aContext
 {
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"aContext=%p",(void*)aContext);
-  _context=aContext;//NO retain !
-  LOGObjectFnStop();
+  // Verified with WO 4.5. We DO retain!
+  ASSIGN(_context, aContext);
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWResourceManagement)
 
 //--------------------------------------------------------------------
 //	templateWithName:
 
+// templateWithName is deprecated but I do not know in which version of WO
+
 -(GSWElement*)templateWithName:(NSString*)aName
 {
-  //OK
-  GSWElement* template=nil;
-  NSArray* languages=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  languages=[self languages];
-  aComponentDefinition=[self _componentDefinition];
-  NSAssert(aComponentDefinition,@"No componentDefinition");
-  template=[aComponentDefinition templateWithName:aName
-                                 languages:languages];
-  NSDebugMLLog(@"GSWComponent",@"aName=%@ template=%@",aName,template);
-  LOGObjectFnStop();
-  return template;
+    return [[self _componentDefinition] template];
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWComponentC)
 
 -(GSWComponent*)subComponentForElementID:(NSString*)elementId
 {
@@ -627,21 +604,13 @@ associationsKeys:(NSArray*)associationsKeys
 };
 
 //--------------------------------------------------------------------
--(void)setSubComponent:(GSWComponent*)component
-          forElementID:(NSString*)elementId
+-(void)_setSubcomponent:(GSWComponent*)component
+           forElementID:(NSString*)elementId
 {
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"setSubComponent %@ for _elementId=%@",[component class],elementId);  
-  NSDebugMLLog(@"GSWComponent",@"elementId=%@",elementId);
-  NSDebugMLLog(@"GSWComponent",@"component=%@",component);
-  NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
   if (!_subComponents)
     _subComponents=[NSMutableDictionary new];
   [_subComponents setObject:component
                   forKey:elementId];
-  NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -815,69 +784,39 @@ associationsKeys:(NSArray*)associationsKeys
   LOGObjectFnStop();
 };
 
-@end
 
-//====================================================================
-@implementation GSWComponent (GSWComponentD)
+//PRIVATE
+-(GSWComponent*) _subcomponentForElementWithID:(NSString*) str
+{
+  if ((_subComponents != nil) && (str != nil)) {
+    return [_subComponents objectForKey:str];
+  }
+  return nil;
+}
 
 -(GSWAssociation*)_associationWithName:(NSString*)aName
 {
-  //OK
   GSWAssociation* assoc=nil;
-  unsigned int index=NSNotFound;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"In %@ Search %@ _associationsKeys=%@",
-               NSStringFromClass([self class]),
-               aName,_associationsKeys);
-  //NSDebugMLLog(@"GSWComponent",@"_associations=%@",[_associations description]);
-  if (_associationsKeys)
-    {
-      index=[_associationsKeys indexOfObject:aName];
-      NSDebugMLLog(@"GSWComponent",@"index=%u",index);
-      if (index!=NSNotFound)
-        assoc=[_associations objectAtIndex:index];
-    };
-  if (!WOStrictFlag && index==NSNotFound)
-    {	  
-      assoc=[_defaultAssociations objectForKey:aName];
-    };
-  NSDebugMLLog(@"GSWComponent",@"In %@ Association for %@=%@",
-               NSStringFromClass([self class]),
-               aName,assoc);
-  LOGObjectFnStop();
+
+  if (_keyAssociations != nil) {
+    assoc = [_keyAssociations objectForKey: aName];
+  }
+
   return assoc;
 };
 
-@end
 
-//====================================================================
-@implementation GSWComponent (GSWSynchronizing)
-
-//--------------------------------------------------------------------
 -(BOOL)hasBinding:(NSString*)parentBindingName
 {
-  //OK
-  BOOL hasBinding=NO;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - parentBindingName_=%@",
-               [self declarationName],
-               parentBindingName);
-  if (_associationsKeys)
-    {
-      int index=[_associationsKeys indexOfObject:parentBindingName];
-      NSDebugMLLog(@"GSWComponent",@"index=%u",index);
-      hasBinding=(index!=NSNotFound);
-    };
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - hasBinding=%s",
-               [self declarationName],
-               (hasBinding ? "YES" : "NO"));
-  if (!WOStrictFlag && !hasBinding)
-    {	  
-      hasBinding=([_defaultAssociations objectForKey:parentBindingName]!=nil);
-    };
-  LOGObjectFnStop();
+  BOOL hasBinding = NO;
+  GSWAssociation * association = [self _associationWithName: parentBindingName];
+
+  hasBinding = (association != nil);
+  if (hasBinding) {
+    hasBinding = [association _hasBindingInParent:_parent];
+  }
   return hasBinding;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setValue:(id)value
@@ -992,69 +931,24 @@ associationsKeys:(NSArray*)associationsKeys
 };
 
 //--------------------------------------------------------------------
-//NDFN
-/** Do we need to synchronize component to parent **/
--(BOOL)synchronizesComponentToParentVariablesWithBindings
-{
-  //OK
-  NSDictionary* userDictionary=nil;
-  id synchronizesComponentToParentVariablesWithBindingsValue=nil;
-  BOOL synchronizesComponentToParentVariablesWithBindings=YES;
-  LOGObjectFnStart();
-  userDictionary=[self userDictionary];
-  synchronizesComponentToParentVariablesWithBindingsValue=[userDictionary objectForKey:@"synchronizesComponentToParentVariablesWithBindings"];
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
-               [self declarationName],
-               synchronizesComponentToParentVariablesWithBindingsValue);
-  //NDFN
-  if (synchronizesComponentToParentVariablesWithBindingsValue)
-    {
-      synchronizesComponentToParentVariablesWithBindings=[synchronizesComponentToParentVariablesWithBindingsValue boolValue];
-      NSDebugMLLog(@"GSWComponent",@"userDictionary synchronizesComponentToParentVariablesWithBindings=%s",
-                       (synchronizesComponentToParentVariablesWithBindings ? "YES" : "NO"));
-    }
-  else
-    synchronizesComponentToParentVariablesWithBindings=[self synchronizesVariablesWithBindings];
-  LOGObjectFnStop();
-  return synchronizesComponentToParentVariablesWithBindings;
-};
-
-//--------------------------------------------------------------------
 -(BOOL)synchronizesVariablesWithBindings
 {
-  //OK
-  NSDictionary* userDictionary=nil;
-  id synchronizesVariablesWithBindingsValue=nil;
-  BOOL synchronizesVariablesWithBindings=YES;
-  LOGObjectFnStart();
-  userDictionary=[self userDictionary];
-  synchronizesVariablesWithBindingsValue=[userDictionary objectForKey:@"synchronizesVariablesWithBindings"];
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
-               [self declarationName],
-               synchronizesVariablesWithBindingsValue);
-  //NDFN
-  if (synchronizesVariablesWithBindingsValue)
-    {
-      synchronizesVariablesWithBindings=[synchronizesVariablesWithBindingsValue boolValue];
-      NSDebugMLLog(@"GSWComponent",@"userDictionary synchronizesVariablesWithBindings=%s",
-                       (synchronizesVariablesWithBindings ? "YES" : "NO"));
-    };
-  LOGObjectFnStop();
-  return synchronizesVariablesWithBindings;
-};
+   return (![self isStateless]);
+}
+
+-(BOOL) isStateless
+{
+  return NO;
+}
+
 
 //--------------------------------------------------------------------
 //NDFN
 -(NSDictionary*)bindingAssociations
 {
-  return [NSDictionary dictionaryWithObjects:_associations
-                       forKeys:_associationsKeys];
+  return _keyAssociations;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWRequestHandling)
 
 //--------------------------------------------------------------------
 //	sleep
@@ -1100,83 +994,106 @@ associationsKeys:(NSArray*)associationsKeys
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext 
 {
-  //OK
-  GSWElement* template=nil;
-  GSWRequest* request=nil;
-  BOOL isFromClientComponent=NO;
-  GSWComponent* component=nil;
-  GSWDeclareDebugElementIDsCount(aContext);
-  GSWDeclareDebugElementID(aContext);
-
-  LOGObjectFnStart();
-
-  NSAssert(aContext,@"No Context");
-  NSAssert(aResponse,@"No Response");
-
-  GSWStartElement(aContext);
-  GSWSaveAppendToResponseElementID(aContext);
-
-  template=[self _template];
-  NSAssert(template,@"No template");
-#ifndef NDEBUG
-  if(GSDebugSet(@"gswcomponents"))
-    {
-      GSWResponse_appendDebugCommentContentString(aResponse,
-                                                  ([NSString stringWithFormat:@"Start %@ [%@]",
-                                                             [self _templateName],
-                                                             GSWContext_elementID(aContext)]));
-    };
-#endif
-
-  request=[aContext request];
-  NSAssert(request,@"No request");
-  isFromClientComponent=[request isFromClientComponent];
-  component=GSWContext_component(aContext);
-  GSWContext_appendZeroElementIDComponent(aContext);
-  NS_DURING
-    {
-      GSWResponse_appendDebugCommentContentString(aResponse,
-                                                  ([NSString stringWithFormat:@"declarationName=%@ ID=%@",
-                                                             [self declarationName],GSWContext_elementID(aContext)]));
-
-      NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ GSWContext_elementID(aContext)=%@",
-                   self,[self declarationName],GSWContext_elementID(aContext));
-
-      [template appendToResponse:aResponse
-                 inContext:aContext];
+  GSWComponent * component = nil;
+  GSWElement * element    = nil;
+  
+  [aContext _setResponse: aResponse];
+  element = [self template];
+    
+  if (element != nil) {
+    if (([self parent] == nil) && ([aContext page] != self)) {
+      component = [aContext component];
+      [aContext _setCurrentComponent:self];
     }
-  NS_HANDLER
+    [element appendToResponse: aResponse 
+                     inContext: aContext];
+    if (component != nil)
     {
-      LOGException(@"exception in %@ appendToResponse:inContext",
-                   [self class]);
-      LOGException(@"exception=%@",localException);
-      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In %@ appendToResponse:inContext",
-                                                              [self class]);
-      LOGException(@"exception=%@",localException);
-      [localException raise];
+      [aContext _setCurrentComponent: component];
     }
-  NS_ENDHANDLER;
+  }
+}
 
-  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ GSWContext_elementID(aContext)=%@",
-               self,[self declarationName],GSWContext_elementID(aContext));
-
-  GSWContext_deleteLastElementIDComponent(aContext);
-
-  GSWStopElement(aContext);
-  GSWAssertDebugElementID(aContext);
-  GSWAssertDebugElementIDsCount(aContext);
-
-#ifndef NDEBUG
-  if(GSDebugSet(@"gswcomponents") == YES)
-    GSWResponse_appendDebugCommentContentString(aResponse,
-                                                ([NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
-                                                           [self _templateName],
-                                                           GSWContext_elementID(aContext)]));//TODO enlever
-#endif
-  GSWAssertIsElementID(aContext);
-  LOGObjectFnStop();
-};
+//-(void)appendToResponse:(GSWResponse*)aResponse
+//              inContext:(GSWContext*)aContext 
+//{
+//  //OK
+//  GSWElement* template=nil;
+//  GSWRequest* request=nil;
+//  BOOL isFromClientComponent=NO;
+//  GSWComponent* component=nil;
+//  GSWDeclareDebugElementIDsCount(aContext);
+//  GSWDeclareDebugElementID(aContext);
+//
+//  LOGObjectFnStart();
+//
+//  NSAssert(aContext,@"No Context");
+//  NSAssert(aResponse,@"No Response");
+//
+//  GSWStartElement(aContext);
+//  GSWSaveAppendToResponseElementID(aContext);
+//
+//  template=[self _template];
+//  NSAssert(template,@"No template");
+//#ifndef NDEBUG
+//  if(GSDebugSet(@"gswcomponents"))
+//    {
+//      GSWResponse_appendDebugCommentContentString(aResponse,
+//                                                  ([NSString stringWithFormat:@"Start %@ [%@]",
+//                                                             [self _templateName],
+//                                                             GSWContext_elementID(aContext)]));
+//    };
+//#endif
+//
+//  request=[aContext request];
+//  NSAssert(request,@"No request");
+//  isFromClientComponent=[request isFromClientComponent];
+//  component=GSWContext_component(aContext);
+//  GSWContext_appendZeroElementIDComponent(aContext);
+//  NS_DURING
+//    {
+//      GSWResponse_appendDebugCommentContentString(aResponse,
+//                                                  ([NSString stringWithFormat:@"declarationName=%@ ID=%@",
+//                                                             [self declarationName],GSWContext_elementID(aContext)]));
+//
+//      NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ GSWContext_elementID(aContext)=%@",
+//                   self,[self declarationName],GSWContext_elementID(aContext));
+//
+//      [template appendToResponse:aResponse
+//                 inContext:aContext];
+//    }
+//  NS_HANDLER
+//    {
+//      LOGException(@"exception in %@ appendToResponse:inContext",
+//                   [self class]);
+//      LOGException(@"exception=%@",localException);
+//      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+//                                                              @"In %@ appendToResponse:inContext",
+//                                                              [self class]);
+//      LOGException(@"exception=%@",localException);
+//      [localException raise];
+//    }
+//  NS_ENDHANDLER;
+//
+//  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ GSWContext_elementID(aContext)=%@",
+//               self,[self declarationName],GSWContext_elementID(aContext));
+//
+//  GSWContext_deleteLastElementIDComponent(aContext);
+//
+//  GSWStopElement(aContext);
+//  GSWAssertDebugElementID(aContext);
+//  GSWAssertDebugElementIDsCount(aContext);
+//
+//#ifndef NDEBUG
+//  if(GSDebugSet(@"gswcomponents") == YES)
+//    GSWResponse_appendDebugCommentContentString(aResponse,
+//                                                ([NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
+//                                                           [self _templateName],
+//                                                           GSWContext_elementID(aContext)]));//TODO enlever
+//#endif
+//  GSWAssertIsElementID(aContext);
+//  LOGObjectFnStop();
+//};
 
 //--------------------------------------------------------------------
 //	invokeActionForRequest:inContext:
@@ -1184,57 +1101,27 @@ associationsKeys:(NSArray*)associationsKeys
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext 
 {
-  //OK
-  GSWElement* element=nil;
   GSWElement* template=nil;
-  GSWDeclareDebugElementIDsCount(aContext);
-  GSWDeclareDebugElementID(aContext);
-
-  LOGObjectFnStart();
-
-  GSWStartElement(aContext);
+  GSWElement* element=nil;
 
   NS_DURING
-    {
-      GSWAssertCorrectElementID(aContext);
-      template=[self _template];
-      GSWContext_appendZeroElementIDComponent(aContext);
-      element=[[self _template] invokeActionForRequest:aRequest
+
+  template = [self template];
+  if (template != nil) {
+    if ([template class] != GSWHTMLBareStringClass) {
+      element=[template invokeActionForRequest:aRequest
                                 inContext:aContext];
-      GSWContext_deleteLastElementIDComponent(aContext);
     }
+  }
   NS_HANDLER
-    {
-      LOGException(@"exception in %@ invokeActionForRequest:inContext",
-                   [self class]);
-      LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In %@ invokeActionForRequest:inContext",
-                                                              [self class]);
-      LOGException(@"exception=%@",localException);
+                                                              @"In %s", __PRETTY_FUNCTION__);
       [localException raise];
-    }
-  NS_ENDHANDLER;
-
-  GSWStopElement(aContext);
-  GSWAssertDebugElementID(aContext);
-  GSWAssertDebugElementIDsCount(aContext);
-
-  if (![aContext _wasActionInvoked]
-      && [aContext isParentSenderIDSearchOver])
-    {
-      LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
-               [self class],
-               GSWContext_elementID(aContext),
-               GSWContext_senderID(aContext));
-    };
-
-  GSWAssertIsElementID(aContext);
-
-  LOGObjectFnStop();
-
+  NS_ENDHANDLER
+  
   return element;
-};
+}
+
 
 //--------------------------------------------------------------------
 //	takeValuesFromRequest:inContext:
@@ -1256,8 +1143,8 @@ associationsKeys:(NSArray*)associationsKeys
   [_validationFailureMessages removeAllObjects];
   oldValidateFlag=[aContext isValidate];
   [aContext setValidate:YES];
-  template=[self _template];
-  GSWContext_appendZeroElementIDComponent(aContext);
+  template=[self template];
+//  GSWContext_appendZeroElementIDComponent(aContext);
   NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ GSWContext_elementID(aContext)=%@",
                self,[self declarationName],GSWContext_elementID(aContext));
   [template takeValuesFromRequest:aRequest
@@ -1265,7 +1152,7 @@ associationsKeys:(NSArray*)associationsKeys
   NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ GSWContext_elementID(aContext)=%@",
                self,[self declarationName],GSWContext_elementID(aContext));
 
-  GSWContext_deleteLastElementIDComponent(aContext);
+//  GSWContext_deleteLastElementIDComponent(aContext);
 
   GSWStopElement(aContext);
   GSWAssertDebugElementID(aContext);
@@ -1343,92 +1230,89 @@ associationsKeys:(NSArray*)associationsKeys
 // } 
 
 //--------------------------------------------------------------------
+
+-(void) _awakeInContext:(GSWContext*)aContext
+{
+  GSWComponentDefinition* componentdefinition =nil;
+  
+  [self _setContext:aContext];
+
+  componentdefinition = [self _componentDefinition];
+  [componentdefinition setCachingEnabled:[self isCachingEnabled]];
+  [componentdefinition awake];
+
+  if (_subComponents) {
+
+  [_subComponents makeObjectsPerformSelector:@selector(_awakeInContext:)
+                  withObject:aContext];
+
+  }
+  // do we need this?
+  [componentdefinition _awakeObserversForComponent:self];
+
+  _session = nil;
+  [self awake];
+}
+
+/*
+Makes sure that the receiver is awake in aContext. 
+Call this method before using a component which was cached in a variable.
+*/
+
 -(void)ensureAwakeInContext:(GSWContext*)aContext
 {
-  //LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStart();
-  if (![self context]) 
-    {
-      NSDebugMLLog(@"GSWComponent",@"component sleeps, we awake it = %@",self);
-      [self awakeInContext:aContext];
-    } 
-  else 
-    {
-      if ([self context] != aContext) 
-        { 
-          NSDebugMLLog(@"GSWComponent",
-                       @"component is already awaken, but has not the current context, we awake it twice with current context = %@",
-                       self);
-          [self awakeInContext:aContext];
-	}
-    }
-  LOGObjectFnStop();
+  if ([self context] != aContext)  { 
+    NSDebugMLLog(@"GSWComponent",
+                 @"component is already awaken, but has not the current context, we awake it twice with current context = %@",
+                 self);
+    [self _awakeInContext:aContext];
+  }
 };
 
 //--------------------------------------------------------------------
-//	awake
+-(void) reset
+{
+  //Does Nothing
+}
 
 -(void)awake 
 {
-  LOGObjectFnStart();
   //Does Nothing
-  LOGObjectFnStop();
-};
+}
 
-//--------------------------------------------------------------------
 -(void)awakeInContext:(GSWContext*)aContext
 {
-  //OK
-  GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"aContext=%@",aContext);
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@",[self declarationName]);
-  NSAssert(aContext,@"No Context");
-  [self _setContext:aContext];
-  aComponentDefinition=[self _componentDefinition];
-  [aComponentDefinition setCachingEnabled:[self isCachingEnabled]];
-  [aComponentDefinition awake];
-  [_subComponents makeObjectsPerformSelector:@selector(awakeInContext:)
-                  withObject:aContext];
-  [aComponentDefinition _awakeObserversForComponent:self];
-  [self awake];
-  LOGObjectFnStop();
-};
+  NSLog(@"WARNING: %s is deprecated. Use _awakeInContext: instead.", __PRETTY_FUNCTION__);
+  [self _awakeInContext:aContext];
+}
 
-@end
 
-//====================================================================
-@implementation GSWComponent (GSWActionInvocation)
-
-//--------------------------------------------------------------------
-//	performParentAction:
-
-- (id)performParentAction:(NSString *)attribute
+- (id<GSWActionResults>)performParentAction:(NSString *)attribute
 {
   GSWAssociation *assoc=nil;
-  id ret=nil;
+  GSWContext       *context = nil;
+  GSWComponent     *component = _parent;
+  id<GSWActionResults> actionresults = nil;
+  
+  if (!_parent) {
+    return;
+  }
+  [context _setCurrentComponent:_parent];  
+  [self pushValuesToParent];
+  _parent = component;            // get the _parent back.
 
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent", @"name=%@ - parent=%p",
-               [self declarationName],
-               (void*)_parent);
-  if (_parent)
-    {
-      assoc = [self _associationWithName:attribute];
-      NSDebugMLLog(@"GSWComponent", @"assoc=%@", assoc);
+  context = [self context];  // we do NOT use the iVar to enable fancy subclass magic.
+  NS_DURING
+    actionresults = [_parent valueForKey: attribute];
+  NS_HANDLER
+    localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
+                                                                          __PRETTY_FUNCTION__];
+    [localException raise];    
+  NS_ENDHANDLER
+  [self pullValuesFromParent];
+  [context _setCurrentComponent:self];  
 
-      if(assoc && [assoc isValueConstant] == YES)
-	{
-	  NSString *aValue = [assoc valueInComponent:self];
-
-	  if(aValue)
-	    ret = [_parent performSelector:NSSelectorFromString(aValue)];
-	}
-    }
-
-  LOGObjectFnStop();
-
-  return ret;
+  return actionresults;
 };
 
 //--------------------------------------------------------------------
@@ -1480,10 +1364,6 @@ associationsKeys:(NSArray*)associationsKeys
   return [NSArray arrayWithArray:parents];
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWConveniences)
 -(GSWComponent*)pageWithName:(NSString*)aName
 {
   //OK
@@ -1543,10 +1423,6 @@ associationsKeys:(NSArray*)associationsKeys
   return languages;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWLogging)
 //--------------------------------------------------------------------
 //Called when an Enterprise Object or formatter failed validation during an
 //assignment. 
@@ -1591,25 +1467,6 @@ associationsKeys:(NSArray*)associationsKeys
 };
 
 //--------------------------------------------------------------------
--(void)logWithFormat:(NSString*)aFormat,...
-{
-  va_list ap;
-  va_start(ap,aFormat);
-  [self logWithFormat:aFormat
-        arguments:ap];
-  va_end(ap);
-};
-
-//--------------------------------------------------------------------
--(void)logWithFormat:(NSString*)aFormat
-           arguments:(va_list)arguments
-{
-  NSString* string=[NSString stringWithFormat:aFormat
-                             arguments:arguments];
-  [self logString:string];
-};
-
-//--------------------------------------------------------------------
 +(void)logWithFormat:(NSString*)aFormat,...
 {
   va_list ap;
@@ -1619,16 +1476,6 @@ associationsKeys:(NSArray*)associationsKeys
   va_end(ap);
 };
 
-//--------------------------------------------------------------------
--(void)logString:(NSString*)aString
-{
-  [[self application] logString:aString];
-};
-
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWComponentJ)
 
 -(NSString*)_uniqueID
 {
@@ -1636,10 +1483,6 @@ associationsKeys:(NSArray*)associationsKeys
   return nil;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWComponentK)
 
 //--------------------------------------------------------------------
 -(void)_appendPageToResponse:(GSWResponse*)response
@@ -1650,99 +1493,77 @@ associationsKeys:(NSArray*)associationsKeys
   GSWRequest* request=nil;
   NSString* httpVersion=nil;
   GSWElement* pageElement=nil;
-  BOOL pageChanged=NO;
-  LOGObjectFnStart();
+  BOOL pageChanged=NO;  
+
   NSAssert(aContext,@"No context");
   NS_DURING
-    {
-      GSWContext_deleteAllElementIDComponents(aContext);
+    {    
       request=[aContext request];
-      NSDebugMLLog(@"GSWComponent",@"request=%@",request);
+      GSWContext_deleteAllElementIDComponents(aContext);
       httpVersion=(request ? [request httpVersion] : @"HTTP/1.0");
       [response setHTTPVersion:httpVersion];
       if (request)
         [response setAcceptedEncodings:[request browserAcceptedEncodings]];
       [response setHeader:@"text/html"
                 forKey:@"content-type"];
-      NSDebugMLLog(@"GSWComponent",@"response=%@",response);
       [aContext _setResponse:response];
 
       pageElement=[aContext _pageElement];
-      NSDebugMLLog(@"GSWComponent",@"pageElement=%@",pageElement);
 
       pageChanged=(self!=(GSWComponent*)pageElement);
-      NSDebugMLLog(@"GSWComponent",@"pageChanged=%d",pageChanged);
       [aContext _setPageChanged:pageChanged];
 
       if (pageChanged)
         [aContext _setPageElement:self];
 
       [aContext _setCurrentComponent:self];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"in GSWComponent -_generateResponseInContext:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  
-  NS_DURING
-    {
+
       [self appendToResponse:response
             inContext:aContext];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"in GSWComponent -_generateResponseInContext:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  
-  NS_DURING
-    {
+
       session=[aContext _session];
-      NSDebugMLLog(@"GSWComponent",@"session=%@",session);
-      if (session)
-        {
-          NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
+      if (session) {
           [session appendCookieToResponse:response];
-          NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
           [session _saveCurrentPage];
-        };
+      };
       [aContext _incrementContextID];
       GSWContext_deleteAllElementIDComponents(aContext);
       [aContext _setPageChanged:YES];
-      //[aContext _setPageReplaced:NO];
-      NSDebugMLLog(@"GSWComponent",@"sessionID=%@",[session sessionID]);
     }
   NS_HANDLER
     {
+    NSLog(@"localException is %@", localException);                    
+
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"in GSWComponent -_generateResponseInContext:");
       LOGException(@"%@ (%@)",localException,[localException reason]);
+      
       [localException raise];
     };
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
 -(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+
   NSAssert(aContext,@"No context");
+  
   response=[GSWApp createResponseInContext:aContext];
+  
   [self _appendPageToResponse:response
-        inContext:aContext];
+                    inContext:aContext];
+        
   return response;
 };
 
 //--------------------------------------------------------------------
+
+// actually this is wrong. it should call the validateValue:forKey: of the default implementation
+// as such it should call the validateXXX stuff like EOs do. dave@turbocat.de
+
 -(NSException*)validateValue:(id*)valuePtr
                       forKey:(NSString*)key
 {
@@ -1757,10 +1578,6 @@ associationsKeys:(NSArray*)associationsKeys
   return exception;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWComponentL)
 
 //--------------------------------------------------------------------
 //	stringForKey:inTableNamed:withDefaultValue:
@@ -1981,10 +1798,6 @@ associationsKeys:(NSArray*)associationsKeys
                  languages:[self languages]];
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWTemplateParsing)
 
 //--------------------------------------------------------------------
 //	templateWithHTMLString:declarationString:languages
@@ -2002,10 +1815,6 @@ associationsKeys:(NSArray*)associationsKeys
   return rootElement;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWTemplateParsingOldFn)
 //--------------------------------------------------------------------
 //	templateWithHTMLString:declarationString:
 //old
@@ -2018,28 +1827,13 @@ associationsKeys:(NSArray*)associationsKeys
 };
 
 
-@end
-//====================================================================
-@implementation GSWComponent (GSWActionResults)
 
 //--------------------------------------------------------------------
 -(GSWResponse*)generateResponse
 {
-  //OK
-  GSWResponse* response=nil;
-  GSWContext* aContext=nil;
-  LOGObjectFnStart();
-  aContext=[self context];
-  response=[self _generateResponseInContext:aContext];
-  LOGObjectFnStop();
-  return response;
-};
+  return [self _generateResponseInContext: [self context]];
+}
 
-@end
-
-
-//====================================================================
-@implementation GSWComponent (GSWStatistics)
 
 //--------------------------------------------------------------------
 //	descriptionForResponse:inContext:
@@ -2051,19 +1845,11 @@ associationsKeys:(NSArray*)associationsKeys
   return nil;
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWComponentClassA)
 +(void)_registerObserver:(id)observer
 {
   LOGClassFnNotImplemented();	//TODOFN
 };
 
-@end
-
-//====================================================================
-@implementation GSWComponent (GSWVerifyAPI)
 -(void)validateAPIAssociations
 {
   NSDictionary* api=[[self _componentDefinition] componentAPI];

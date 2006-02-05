@@ -40,15 +40,7 @@
   GSWAssociation* _directActionName;
 };
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
 
--(void)dealloc;
-
-@end
-
-@interface GSWSubmitButton (GSWSubmitButtonA)
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context;
 

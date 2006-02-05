@@ -69,10 +69,13 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 @interface GSWContext : NSObject <NSCopying>
 {
 @private
+ GSWResourceManager* _resourceManager;
   unsigned _contextID;
  NSString* _senderID;
  NSString* _requestSessionID;
  NSString* _requestContextID;
+ NSString* _componentName;
+ GSWComponentDefinition* _tempComponentDefinition; 
  GSWElementID* _elementID;
  GSWSession* _session;
  GSWRequest* _request;
@@ -88,7 +91,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
  BOOL _pageChanged;
  BOOL _pageReplaced;
  BOOL _generateCompleteURLs;
- BOOL _isInForm;
+ BOOL _inForm;
  BOOL _isInEnabledForm;
  BOOL _actionInvoked;
  BOOL _formSubmitted;
@@ -120,10 +123,16 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 -(BOOL)isInForm;
 -(void)setInEnabledForm:(BOOL)flag;
 -(BOOL)isInEnabledForm;
+- (GSWDynamicURLString*) _url;
 -(void)_createElementID;
 -(NSString*)elementID;
 -(NSString*)contextAndElementID;
 -(GSWComponent*)component;
+-(NSString*) _componentName;
+- (void) _setComponentName:(NSString*) newValue;
+- (GSWComponentDefinition*) _tempComponentDefinition;
+- (void) _setTempComponentDefinition:(GSWComponentDefinition*) newValue;
+
 -(GSWComponent*)page;
 -(GSWResponse*)response;
 -(GSWRequest*)request;
@@ -151,10 +160,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 -(void)addDocStructureStep:(NSString*)stepLabel;
 -(NSString*)docStructure;
 #endif
-@end
 
-//====================================================================
-@interface GSWContext (GSWURLGeneration)
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                            urlPrefix:(NSString*)urlPrefix
                                      queryDictionary:(NSDictionary*)queryDictionary;
@@ -249,15 +255,9 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
                                             queryString:(NSString*)queryString
                                                isSecure:(BOOL)isSecure
                                                    port:(int)port;
-@end
 
-//====================================================================
-@interface GSWContext (GSWContextA)
 -(id)_initWithContextID:(unsigned int)contextID;
-@end
 
-//====================================================================
-@interface GSWContext (GSWContextB)
 -(BOOL)_isMultipleSubmitForm;
 -(void)_setIsMultipleSubmitForm:(BOOL)flag;
 -(BOOL)_wasActionInvoked;
@@ -309,6 +309,9 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
                                       queryDictionary:(NSDictionary*)dict
                                   pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                                   url:(id)url;
+
+-(GSWDynamicURLString*) _componentActionURL;
+                                                  
 /** Returns array of languages 
 First try  session languages, if none, try self language
 If none, try request languages
@@ -346,10 +349,7 @@ If none, try request languages
 // context can add key/values in query dictionary
 -(NSDictionary*)computeQueryDictionary:(NSDictionary*)queryDictionary;
 -(NSDictionary*)computePathQueryDictionary:(NSDictionary*)queryDictionary;
-@end
 
-//====================================================================
-@interface GSWContext (GSWContextElementID)
 -(void)deleteAllElementIDComponents;
 -(void)deleteLastElementIDComponent;
 -(void)incrementLastElementIDComponent;
@@ -359,16 +359,17 @@ If none, try request languages
 -(BOOL)isParentSenderIDSearchOver;
 -(BOOL)isSenderIDSearchOver;
 -(int)elementIDElementsCount;
-@end
 
-//====================================================================
-@interface GSWContext (GSWContextD)
 -(NSString*)url;
 -(NSString*)urlSessionPrefix;
 -(int)urlApplicationNumber;
 -(GSWApplication*)application;
 -(void)setDistributionEnabled:(BOOL)flag;
 -(BOOL)isDistributionEnabled;
+
+- (NSString*) _urlForResourceNamed: (NSString*)aName 
+                       inFramework: (NSString*)frameworkName;
+
 @end
 
 //====================================================================

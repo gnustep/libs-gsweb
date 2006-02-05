@@ -48,7 +48,6 @@
   GSWAssociation* _selectedValues;
   GSWAssociation* _size;
   GSWAssociation* _multiple;
-  GSWAssociation* _escapeHTML;
   BOOL _autoValue;//??
 };
 -(void)dealloc;

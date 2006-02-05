@@ -38,8 +38,7 @@
 @interface GSWComponentReference: GSWDynamicElement
 {
   NSString* _name;
-  NSArray* _associationsKeys;
-  NSArray* _associations;
+  NSMutableDictionary* _keyAssociations;
   GSWElement* _contentElement;
 };
 
@@ -52,16 +51,9 @@
          template:(GSWElement*)template;
 -(NSString*)description;
 
-@end
-
-//====================================================================
-@interface GSWComponentReference (GSWComponentReferenceA)
 -(void)popRefComponentInContext:(GSWContext*)aContext;
 -(void)pushRefComponentInContext:(GSWContext*)aContext;
-@end
 
-//====================================================================
-@interface GSWComponentReference (GSWRequestHandling)
 -(void)appendToResponse:(GSWResponse*)aResponse
 			  inContext:(GSWContext*)aContext;
 

@@ -860,5 +860,44 @@ return stringByEscapingHTMLAttributeValue(self);
   return stringByConvertingFromHTML(self);
 };
 
+// some hacks for use in dynamic elements
+
+- (BOOL) isRelativeURL
+{
+  NSRange myRange;
+  unsigned int i = 0;
+  unsigned int j = 0;
+  BOOL flag = YES;
+  
+  if ([self hasPrefix:@"#"]) {
+    return YES;
+  } else {
+    myRange = [self rangeOfString:@"/"];
+    i = myRange.location;
+
+    if (i == 0) {
+      return NO;
+    }    
+    myRange = [self rangeOfString:@":"];
+    j = myRange.location;
+    
+    if (j == NSNotFound) {
+      flag = YES;
+    } else {
+      if (i != NSNotFound && i < j) {
+        flag = YES;
+      } else {
+        flag = NO;
+      }
+    }
+  }
+  return flag;
+}
+
+- (BOOL) isFragmentURL
+{
+  return [self hasPrefix:@"#"];
+}
+
 @end
 

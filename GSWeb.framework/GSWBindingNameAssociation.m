@@ -55,7 +55,6 @@ RCS_ID("$Id$")
           else if (!WOStrictFlag && [aKeyPath hasPrefix:@"~"])
             {
               ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"~"]);
-              _isNonMandatory=YES;
             };
           if ([keys count]>1)
             {
@@ -77,23 +76,28 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
+- (BOOL) _hasBindingInParent:(GSWComponent *) component
+{
+ return [component hasBinding:_parentBindingName];
+}
+
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone;
 {
   GSWBindingNameAssociation* clone = [super copyWithZone:zone];
   ASSIGN(clone->_parentBindingName,_parentBindingName);
   ASSIGN(clone->_keyPath,_keyPath);
-  _isNonMandatory=_isNonMandatory;
   return clone;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - parentBindingName=%@ keyPath=%@>",
+  return [NSString stringWithFormat:@"<%s %p - parentBindingName=%@ negate:%d keyPath=%@>",
                    object_get_class_name(self),
                    (void*)self,
                    _parentBindingName,
+                   _negate,
                    _keyPath];
 };
 

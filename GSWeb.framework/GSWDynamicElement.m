@@ -72,11 +72,6 @@ SEL evaluateConditionInContextSEL = NULL;
   GSWLogC("End Dealloc GSWDynamicElement");
 }
 
-@end
-
-//====================================================================
-@implementation GSWDynamicElement (GSWDynamicElement)
-
 //--------------------------------------------------------------------
 -(BOOL)		evaluateCondition:(id)condition
                         inContext:(GSWContext*)context

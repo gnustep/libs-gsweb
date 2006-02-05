@@ -93,6 +93,7 @@ GSWHTMLTemplateParser.m \
 GSWSessionTimeOutManager.m \
 GSWServerSessionStore.m \
 GSWDeployedBundle.m \
+GSWDynamicGroup.m \
 GSWProjectBundle.m \
 GSWSessionTimeOut.m \
 GSWStats.m \
@@ -184,6 +185,7 @@ GSWFileUpload.m \
 GSWResourceURL.m \
 GSWProcFS.m \
 NSData+Compress.m \
+NSDictionary+HTML.m \
 stacktrace.m \
 attach.m \
 GSWLifebeatThread.m \
@@ -231,6 +233,7 @@ GSWCookie.h \
 GSWDefaultAdaptor.h \
 GSWDefaultAdaptorThread.h \
 GSWDeployedBundle.h \
+GSWDynamicGroup.h \
 GSWAction.h \
 GSWDirectAction.h \
 GSWActionRequestHandler.h \
@@ -299,6 +302,7 @@ GSWTransactionRecord.h \
 GSWURLValuedElementData.h \
 GSWVBScript.h \
 NSNonBlockingFileHandle.h \
+NSDictionary+HTML.h \
 NSString+HTML.h \
 NSString+Trimming.h \
 GSWConfig.h \
