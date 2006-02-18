@@ -1383,15 +1383,11 @@ NSString* GSWGetDefaultDocRoot()
   if (dictionary)
     {
       dict=[[dictionary mutableCopy]autorelease];
-      //NSDebugFLog(@"_dict=%@",_dict);
       [dict addDefaultEntriesFromDictionary:dictionaryDefaults];
-      //NSDebugFLog(@"_dict=%@",_dict);
       dict=[NSDictionary dictionaryWithDictionary:dict];
-      //NSDebugFLog(@"_dict=%@",_dict);
     }
   else
     dict=[NSDictionary dictionaryWithDictionary:dictionaryDefaults];
-  //  NSDebugFLog(@"dict=%@",dict);
   return dict;
 };
 
