@@ -297,9 +297,9 @@ RCS_ID("$Id$")
 {
   GSWAction* action=nil;
 
-  action = AUTORELEASE([[actionClass alloc]initWithRequest:aRequest]);
+  action = AUTORELEASE([[actionClass alloc] initWithRequest:aRequest]);
 
-  return AUTORELEASE(action);
+  return action;
 }
 
 
