@@ -57,6 +57,12 @@ RCS_ID("$Id$")
 @implementation GSWSession
 
 //--------------------------------------------------------------------
+
+- (void) retain
+{
+  [super retain];
+}
+
 //	init
 -(id)init
 {

@@ -1946,48 +1946,13 @@ to another instance **/
 -(void)saveSessionForContext:(GSWContext*)aContext
 {
   GSWSession* session=nil;
-  LOGObjectFnStart();
-  session=[aContext existingSession];
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  if (session)
-    {
-      [self _saveSessionForContext:aContext];
-      NSDebugMLLog(@"sessions",@"session=%@",session);
-      NSDebugMLLog(@"sessions",@"sessionStore=%@",_sessionStore);
-    };
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)_saveSessionForContext:(GSWContext*)aContext
-{
-  GSWSession* session=nil;
-  LOGObjectFnStart();
-  session=[aContext existingSession];
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  if (session)
-    {
-      NS_DURING
-	{
+  session = [aContext _session];                            // NOT existingSession!
+  if (session != nil) {
 	  [session sleepInContext:aContext];
-	  NSDebugMLLog(@"sessions",@"session=%@",session);
 	  [_sessionStore checkInSessionForContext:aContext];
-	  NSDebugMLLog(@"sessions",@"session=%@",session);
 	  [aContext _setSession:nil];
-	  NSDebugMLLog(@"sessions",@"session=%@",session);
-	  NSDebugMLLog(@"sessions",@"sessionStore=%@",_sessionStore);
-	}
-      NS_HANDLER
-	{
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"In _saveSessionForContext:");
-	  LOGException(@"%@ (%@)",localException,[localException reason]);
-	  [localException raise];
-	}
-      NS_ENDHANDLER;
-    };
-  LOGObjectFnStop();
-};
+  }
+}
 
 //--------------------------------------------------------------------
 -(GSWSession*)restoreSessionWithID:(NSString*)sessionID

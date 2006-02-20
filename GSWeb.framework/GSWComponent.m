@@ -214,12 +214,12 @@ static Class GSWHTMLBareStringClass = Nil;
   //OK
   NSString* aFrameworkName=nil;
   GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
+
   aComponentDefinition=[self _componentDefinition];
   NSAssert(aComponentDefinition,@"No componentDefinition");
   aFrameworkName=[aComponentDefinition frameworkName];
   NSDebugMLLog(@"GSWComponent",@"aFrameworkName=%@",aFrameworkName);
-  LOGObjectFnStop();
+
   return aFrameworkName;
 };
 
@@ -593,13 +593,9 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   //OK
   GSWComponent* subc=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"_elementId=%@",elementId);
-  NSDebugMLLog(@"GSWComponent",@"subComponents=%@",_subComponents);
+
   subc=[_subComponents objectForKey:elementId];
-  NSDebugMLLog(@"GSWComponent",@"subc=%@",subc);
-  NSDebugMLLog(@"GSWComponent",@"subComponent %@ for _elementId=%@",[subc class],elementId);  
-  LOGObjectFnStop();
+
   return subc;
 };
 
@@ -618,11 +614,9 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)makeParentsPerformSelectorIfPossible:(SEL)aSelector
 {
   NSArray* parents=nil;
-  LOGObjectFnStart();
+
   parents=[self parents];
-  NSDebugMLLog(@"GSWComponent",@"parents=%@",parents);
   [parents makeObjectsPerformSelectorIfPossible:aSelector];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -631,12 +625,10 @@ static Class GSWHTMLBareStringClass = Nil;
                                  withObject:(id)object
 {
   NSArray* parents=nil;
-  LOGObjectFnStart();
-  parents=[self parents];
-  NSDebugMLLog(@"GSWComponent",@"parents=%@",parents);
+  parents = [self parents];
+
   [parents makeObjectsPerformSelectorIfPossible:aSelector
            withObject:object];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -646,13 +638,13 @@ static Class GSWHTMLBareStringClass = Nil;
                                  withObject:(id)object2
 {
   NSArray* parents=nil;
-  LOGObjectFnStart();
+
   parents=[self parents];
-  NSDebugMLLog(@"GSWComponent",@"parents=%@",parents);
+
   [parents makeObjectsPerformSelectorIfPossible:aSelector
            withObject:object1
            withObject:object2];
-  LOGObjectFnStop();
+
 };
 
 //--------------------------------------------------------------------
@@ -661,7 +653,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   id retValue=nil;
   GSWComponent* obj=[self parent];
-  LOGObjectFnStart();
+
   while(obj)
     {
       if ([obj respondsToSelector:aSelector])
@@ -672,7 +664,7 @@ static Class GSWHTMLBareStringClass = Nil;
       else
 	obj=[obj parent];
     };
-  LOGObjectFnStop();
+
   return retValue;
 };
 
@@ -683,7 +675,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   id retValue=nil;
   GSWComponent* obj=[self parent];
-  LOGObjectFnStart();
+
   while(obj)
     {
       if ([obj respondsToSelector:aSelector])
@@ -695,7 +687,7 @@ static Class GSWHTMLBareStringClass = Nil;
       else
 	obj=[obj parent];
     };
-  LOGObjectFnStop();
+
   return retValue;
 };
 
@@ -707,7 +699,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   id retValue=nil;
   GSWComponent* obj=[self parent];
-  LOGObjectFnStart();
+
   while(obj)
     {
       if ([obj respondsToSelector:aSelector])
@@ -720,7 +712,7 @@ static Class GSWHTMLBareStringClass = Nil;
       else
 	obj=[obj parent];
     };
-  LOGObjectFnStop();
+
   return retValue;
 };
 
@@ -730,15 +722,13 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   NSEnumerator* enumerator=nil;
   GSWComponent* component=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
+
   enumerator= [_subComponents objectEnumerator];    
   while ((component=[enumerator nextObject]))
     {
       [component performSelectorIfPossible:aSelector];
       [component makeSubComponentsPerformSelectorIfPossible:aSelector];
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -748,8 +738,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   NSEnumerator* enumerator=nil;
   GSWComponent* component=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
+
   enumerator= [_subComponents objectEnumerator];    
   while ((component=[enumerator nextObject]))
     {
@@ -758,7 +747,6 @@ static Class GSWHTMLBareStringClass = Nil;
       [component makeSubComponentsPerformSelectorIfPossible:aSelector
                  withObject:object];
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -769,8 +757,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   NSEnumerator* enumerator=nil;
   GSWComponent* component=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"_subComponents=%@",_subComponents);
+
   enumerator= [_subComponents objectEnumerator];    
   while ((component=[enumerator nextObject]))
 	{
@@ -781,7 +768,6 @@ static Class GSWHTMLBareStringClass = Nil;
                      withObject:object1
                      withObject:object2];
 	};
-  LOGObjectFnStop();
 };
 
 
@@ -824,19 +810,10 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   //OK
   GSWAssociation* assoc=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"self=%@ declarationName=%@ - parentBindingName_=%@",
-               NSStringFromClass([self class]),
-               [self declarationName],
-               parentBindingName);
-  NSDebugMLLog(@"GSWComponent",@"value_=%@",value);
-  NSDebugMLLog(@"GSWComponent",@"_parent=%p of class %@",
-               (void*)_parent,
-               NSStringFromClass([_parent class]));
+
   if (_parent)
     {
       assoc=[self _associationWithName:parentBindingName];
-      NSDebugMLLog(@"GSWComponent",@"assoc for %@=%@",parentBindingName,assoc);
       if(assoc)
         [assoc setValue:value
                inComponent:_parent];
@@ -858,7 +835,6 @@ static Class GSWHTMLBareStringClass = Nil;
 #endif
 */
 	};
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -867,16 +843,10 @@ static Class GSWHTMLBareStringClass = Nil;
   //OK
   id aValue=nil;
   GSWAssociation* assoc=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@",
-               [self declarationName]);
-  NSDebugMLLog(@"GSWComponent",@"parentBindingName=%@",
-               parentBindingName);
-  NSDebugMLLog(@"GSWComponent",@"parent=%p of class %@",(void*)_parent,[_parent class]);
+
   if (_parent)
     {
       assoc=[self _associationWithName:parentBindingName];
-      NSDebugMLLog(@"GSWComponent",@"assoc=%@",assoc);
       if(assoc)
         aValue=[assoc valueInComponent:_parent];
 /* // Why doing this ? Be carefull: it may make a loop !
@@ -895,10 +865,8 @@ static Class GSWHTMLBareStringClass = Nil;
 	    }
 #endif
 */
-	  NSDebugMLLog(@"GSWComponent",@"parentBindingName=%@ aValue=%@ (%@)",
-                       parentBindingName,aValue,NSStringFromClass([aValue class]));
 	};
-  LOGObjectFnStop();
+
   return aValue; 
 };
 
@@ -911,7 +879,7 @@ static Class GSWHTMLBareStringClass = Nil;
   NSDictionary* userDictionary=nil;
   id synchronizesParentToComponentVariablesWithBindingsValue=nil;
   BOOL synchronizesParentToComponentVariablesWithBindings=YES;
-  LOGObjectFnStart();
+
   userDictionary=[self userDictionary];
   synchronizesParentToComponentVariablesWithBindingsValue=[userDictionary objectForKey:@"synchronizesParentToComponentVariablesWithBindings"];
   NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
@@ -921,12 +889,10 @@ static Class GSWHTMLBareStringClass = Nil;
   if (synchronizesParentToComponentVariablesWithBindingsValue)
     {
       synchronizesParentToComponentVariablesWithBindings=[synchronizesParentToComponentVariablesWithBindingsValue boolValue];
-      NSDebugMLLog(@"GSWComponent",@"userDictionary synchronizesParentToComponentVariablesWithBindings=%s",
-                       (synchronizesParentToComponentVariablesWithBindings ? "YES" : "NO"));
     }
   else
     synchronizesParentToComponentVariablesWithBindings=[self synchronizesVariablesWithBindings];
-  LOGObjectFnStop();
+
   return synchronizesParentToComponentVariablesWithBindings;
 };
 
@@ -955,9 +921,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
 -(void)sleep 
 {
-  LOGObjectFnStart();
   //Does Nothing
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -965,16 +929,12 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   //OK
   GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
   NS_DURING
     {      
       aComponentDefinition=[self _componentDefinition];
       [aComponentDefinition sleep];
       [self sleep];
       [self _setContext:nil];
-      NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - subComponents=%@",
-                   [self declarationName],
-                   _subComponents);
       [_subComponents makeObjectsPerformSelector:@selector(sleepInContext:)
                      withObject:aContext];
     }
@@ -985,7 +945,6 @@ static Class GSWHTMLBareStringClass = Nil;
       [localException raise];
     }
   NS_ENDHANDLER;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1014,89 +973,6 @@ static Class GSWHTMLBareStringClass = Nil;
   }
 }
 
-//-(void)appendToResponse:(GSWResponse*)aResponse
-//              inContext:(GSWContext*)aContext 
-//{
-//  //OK
-//  GSWElement* template=nil;
-//  GSWRequest* request=nil;
-//  BOOL isFromClientComponent=NO;
-//  GSWComponent* component=nil;
-//  GSWDeclareDebugElementIDsCount(aContext);
-//  GSWDeclareDebugElementID(aContext);
-//
-//  LOGObjectFnStart();
-//
-//  NSAssert(aContext,@"No Context");
-//  NSAssert(aResponse,@"No Response");
-//
-//  GSWStartElement(aContext);
-//  GSWSaveAppendToResponseElementID(aContext);
-//
-//  template=[self _template];
-//  NSAssert(template,@"No template");
-//#ifndef NDEBUG
-//  if(GSDebugSet(@"gswcomponents"))
-//    {
-//      GSWResponse_appendDebugCommentContentString(aResponse,
-//                                                  ([NSString stringWithFormat:@"Start %@ [%@]",
-//                                                             [self _templateName],
-//                                                             GSWContext_elementID(aContext)]));
-//    };
-//#endif
-//
-//  request=[aContext request];
-//  NSAssert(request,@"No request");
-//  isFromClientComponent=[request isFromClientComponent];
-//  component=GSWContext_component(aContext);
-//  GSWContext_appendZeroElementIDComponent(aContext);
-//  NS_DURING
-//    {
-//      GSWResponse_appendDebugCommentContentString(aResponse,
-//                                                  ([NSString stringWithFormat:@"declarationName=%@ ID=%@",
-//                                                             [self declarationName],GSWContext_elementID(aContext)]));
-//
-//      NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ GSWContext_elementID(aContext)=%@",
-//                   self,[self declarationName],GSWContext_elementID(aContext));
-//
-//      [template appendToResponse:aResponse
-//                 inContext:aContext];
-//    }
-//  NS_HANDLER
-//    {
-//      LOGException(@"exception in %@ appendToResponse:inContext",
-//                   [self class]);
-//      LOGException(@"exception=%@",localException);
-//      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-//                                                              @"In %@ appendToResponse:inContext",
-//                                                              [self class]);
-//      LOGException(@"exception=%@",localException);
-//      [localException raise];
-//    }
-//  NS_ENDHANDLER;
-//
-//  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ GSWContext_elementID(aContext)=%@",
-//               self,[self declarationName],GSWContext_elementID(aContext));
-//
-//  GSWContext_deleteLastElementIDComponent(aContext);
-//
-//  GSWStopElement(aContext);
-//  GSWAssertDebugElementID(aContext);
-//  GSWAssertDebugElementIDsCount(aContext);
-//
-//#ifndef NDEBUG
-//  if(GSDebugSet(@"gswcomponents") == YES)
-//    GSWResponse_appendDebugCommentContentString(aResponse,
-//                                                ([NSString stringWithFormat:@"\n<!-- Stop %@ [%@]-->\n",
-//                                                           [self _templateName],
-//                                                           GSWContext_elementID(aContext)]));//TODO enlever
-//#endif
-//  GSWAssertIsElementID(aContext);
-//  LOGObjectFnStop();
-//};
-
-//--------------------------------------------------------------------
-//	invokeActionForRequest:inContext:
 
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext 
@@ -1135,8 +1011,6 @@ static Class GSWHTMLBareStringClass = Nil;
   GSWDeclareDebugElementIDsCount(aContext);
   GSWDeclareDebugElementID(aContext);
 
-  LOGObjectFnStart();
-
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
 
@@ -1144,15 +1018,9 @@ static Class GSWHTMLBareStringClass = Nil;
   oldValidateFlag=[aContext isValidate];
   [aContext setValidate:YES];
   template=[self template];
-//  GSWContext_appendZeroElementIDComponent(aContext);
-  NSDebugMLLog(@"GSWComponent",@"COMPONENT START %p declarationName=%@ GSWContext_elementID(aContext)=%@",
-               self,[self declarationName],GSWContext_elementID(aContext));
+
   [template takeValuesFromRequest:aRequest
 			 inContext:aContext];
-  NSDebugMLLog(@"GSWComponent",@"COMPONENT STOP %p declarationName=%@ GSWContext_elementID(aContext)=%@",
-               self,[self declarationName],GSWContext_elementID(aContext));
-
-//  GSWContext_deleteLastElementIDComponent(aContext);
 
   GSWStopElement(aContext);
   GSWAssertDebugElementID(aContext);
@@ -1162,7 +1030,6 @@ static Class GSWHTMLBareStringClass = Nil;
   GSWAssertIsElementID(aContext);
   GSWAssertDebugElementIDsCount(aContext);
 
-  LOGObjectFnStop();
 };
 
 
@@ -1199,8 +1066,6 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(NSDictionary*)validationFailureMessages
 {
-  LOGObjectFnStart();
-  LOGObjectFnStop();
   return _validationFailureMessages;
 };
 
@@ -1210,20 +1075,15 @@ static Class GSWHTMLBareStringClass = Nil;
   NSMutableArray* msgs=[NSMutableArray array];
   NSEnumerator* subComponentsEnum=nil;
   GSWComponent* component=nil;
-  LOGObjectFnStart();
-//  NSDebugMLLog(@"GSWComponent",@"validationFailureMessages=%@",validationFailureMessages);
+
   [msgs addObjectsFromArray:[[self validationFailureMessages] allValues]];
-//  NSDebugMLLog(@"GSWComponent",@"_msgs=%@",_msgs);
   subComponentsEnum=[_subComponents objectEnumerator];
   while((component=[subComponentsEnum nextObject]))
     {
-      //	  NSDebugMLLog(@"GSWComponent",@"_component=%@",_component);
       [msgs addObjectsFromArray:[component allValidationFailureMessages]];
-      //	  NSDebugMLLog(@"GSWComponent",@"_msgs=%@",_msgs);
     };
   msgs=[NSArray arrayWithArray:msgs];
   //  NSDebugMLLog(@"GSWComponent",@"_msgs=%@",_msgs);
-  LOGObjectFnStop();
   return msgs;
 };
 
@@ -1262,9 +1122,6 @@ Call this method before using a component which was cached in a variable.
 -(void)ensureAwakeInContext:(GSWContext*)aContext
 {
   if ([self context] != aContext)  { 
-    NSDebugMLLog(@"GSWComponent",
-                 @"component is already awaken, but has not the current context, we awake it twice with current context = %@",
-                 self);
     [self _awakeInContext:aContext];
   }
 };
@@ -1369,11 +1226,11 @@ Call this method before using a component which was cached in a variable.
   //OK
   GSWComponent* page=nil;
   GSWContext* aContext=nil;
-  LOGObjectFnStart();
+
   aContext=[self context];
   page=[GSWApp pageWithName:aName
                inContext:aContext];
-  LOGObjectFnStop();
+
   return page;
 };
 
@@ -1409,17 +1266,24 @@ Call this method before using a component which was cached in a variable.
 
 -(GSWContext*)context 
 {
+  GSWContext * ctx = nil;
+
+  if ((_context == nil) && (_session != nil)) {
+    if (ctx = [_session context]) {
+      [self _awakeInContext: ctx];
+      [_context _takeAwakeComponent:self];
+    }
+  }
   return _context;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
 -(NSArray*)languages
 {
   NSArray* languages=nil;
-  LOGObjectFnStart();
   languages=[[self context] languages];
-  LOGObjectFnStop();
+
   return languages;
 };
 
@@ -1433,8 +1297,6 @@ Call this method before using a component which was cached in a variable.
                              keyPath:(id)keyPath
 {
   // Does nothing
-  LOGObjectFnStart();
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1442,7 +1304,6 @@ Call this method before using a component which was cached in a variable.
 {
   LOGObjectFnNotImplemented();	//TODOFN
 /* Seems there's a problem with patches... Why this code is here ?
-   LOGObjectFnStart();
    if (![self context])
      {
        NSDebugMLLog(@"GSWComponent",@"component sleeps, we awake it = %@",self);
@@ -1568,13 +1429,11 @@ Call this method before using a component which was cached in a variable.
                       forKey:(NSString*)key
 {
   NSException* exception=nil;
-  LOGObjectFnStart();
 /*
   // Should all default implementation (i.e. the one which call validateXX:
   exception=[super validateValue:valuePtr
                    forKey:key];
 */
-  LOGObjectFnStop();
   return exception;
 };
 
@@ -1588,27 +1447,12 @@ Call this method before using a component which was cached in a variable.
 {
   //OK
   NSString* string=nil;
-/*
-  NSArray* languages=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  languages=[self languages];
-  aComponentDefinition=[self _componentDefinition];
-  if (aComponentDefinition)
-	string=[aComponentDefinition stringForKey:key
-        inTableNamed:tableName
-        withDefaultValue:defaultValue
-        languages:languages];
-        else
-	string=defaultValue;
-*/
-  LOGObjectFnStart();
+
   string=[GSWApp stringForKey:key
                  inTableNamed:tableName
                  withDefaultValue:defaultValue
                  inFramework:[self frameworkName]
                  languages:[self languages]];
-  LOGObjectFnStop();
   return string;
 };
 
@@ -1618,20 +1462,10 @@ Call this method before using a component which was cached in a variable.
 {
   //OK
   NSDictionary* stringsTable=nil;
-/*  NSArray* languages=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  languages=[self languages];
-  aComponentDefinition=[self _componentDefinition];
-  if (aComponentDefinition)
-	stringsTable=[aComponentDefinition stringsTableNamed:aName
-        withLanguages:languages];
-*/
-  LOGObjectFnStart();
+
   stringsTable=[GSWApp stringsTableNamed:aName
                        inFramework:[self frameworkName]
                        languages:[self languages]];
-  LOGObjectFnStop();
   return stringsTable;
 };
 
@@ -1641,21 +1475,11 @@ Call this method before using a component which was cached in a variable.
 {
   //OK
   NSArray* stringsTableArray=nil;
-/*
-  NSArray* languages=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  languages=[self languages];
-  aComponentDefinition=[self _componentDefinition];
-  if (aComponentDefinition)
-	stringsTableArray=[aComponentDefinition stringsTableArrayNamed:aName
-        withLanguages:languages];
-*/
-  LOGObjectFnStart();
+
   stringsTableArray=[GSWApp stringsTableArrayNamed:aName
                             inFramework:[self frameworkName]
                             languages:[self languages]];
-  LOGObjectFnStop();
+
   return stringsTableArray;
 };
 
@@ -1668,23 +1492,12 @@ Call this method before using a component which was cached in a variable.
 {
   //TODO
   NSString* url=nil;
-/*  NSArray* languages=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  languages=[self languages];
-  aComponentDefinition=[self _componentDefinition];
-  if (aComponentDefinition)
-	url=[aComponentDefinition urlForResourceNamed:aName
-        ofType:type
-        languages:languages
-        request:nil];//TODO
-*/
-  LOGObjectFnStart();
+
   url=[GSWApp urlForResourceNamed:(type ? [NSString stringWithFormat:@"%@.%@",aName,type] : aName)
               inFramework:[self frameworkName]
               languages:[self languages]
               request:nil];//TODO
-  LOGObjectFnStop();
+
   return url;
 };
 
@@ -1703,22 +1516,12 @@ Call this method before using a component which was cached in a variable.
                           ofType:(NSString*)type
 {
   NSString* path=nil;
-/*  NSArray* languages=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
-  languages=[self languages];
-  aComponentDefinition=[self _componentDefinition];
-  if (aComponentDefinition)
-	path=[aComponentDefinition pathForResourceNamed:aName
-        ofType:type
-        languages:languages];
-*/
-  LOGObjectFnStart();
+
   path=[GSWApp pathForResourceNamed:aName
 				ofType:type
                inFramework:[self frameworkName]
                languages:[self languages]];
-  LOGObjectFnStop();
+
   return path;
 };
 
@@ -1730,7 +1533,7 @@ Call this method before using a component which was cached in a variable.
   NSString* path=nil;
   NSArray* languages=nil;
   GSWComponentDefinition* aComponentDefinition=nil;
-  LOGObjectFnStart();
+
   languages=[self languages];
   aComponentDefinition=[self _componentDefinition];
   if (aComponentDefinition)

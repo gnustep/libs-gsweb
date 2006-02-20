@@ -294,7 +294,8 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogAssertGood(self);
+  NSLog(@"Context %@ dealloc", self);
+  
   DESTROY(_resourceManager);
   DESTROY(_senderID);
   DESTROY(_requestSessionID);
@@ -350,6 +351,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 -(id)copyWithZone:(NSZone*)zone
 {
   GSWContext* clone = [[isa allocWithZone:zone] init];
+
   if (clone)
     {
       clone->_contextID=_contextID;
@@ -358,8 +360,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       ASSIGNCOPY(clone->_requestContextID,_requestContextID);
       NSLog(@"self=%p clone=%p _elementID=%p",
                 self,clone,_elementID);
-      if (_elementID)
-        {
+      if (_elementID) {
           ASSIGNCOPY(clone->_elementID,_elementID);
           NSLog(@"self=%p clone=%p _elementID=%p clone->_elementID=%p",
                 self,clone,_elementID,clone->_elementID);
@@ -617,10 +618,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //--------------------------------------------------------------------
 -(GSWSession*)_session
 {
-  if ([self isSessionDisabled])
-    return nil;
-  else
-    return _session;
+  return _session;
 };
 
 //--------------------------------------------------------------------
@@ -1320,9 +1318,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   int count=0;
   GSWComponent* component=nil;
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"awakePageComponents=%@",_awakePageComponents);
   count=[_awakePageComponents count];
 
   for(i=0;i<count;i++)
@@ -1330,7 +1325,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       component=[_awakePageComponents objectAtIndex:i];
       [component sleepInContext:self];
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1745,11 +1739,9 @@ If none, try request languages
 //--------------------------------------------------------------------
 -(void)_setPageComponent:(GSWComponent*)component
 {
-  LOGObjectFnStart();
   ASSIGN(_pageComponent,component);
-  if (component)
-    [self _takeAwakeComponent:component];
-  LOGObjectFnStop();
+  if (_pageComponent)
+    [self _takeAwakeComponent: _pageComponent];
 };
 
 //--------------------------------------------------------------------
@@ -1799,9 +1791,6 @@ If none, try request languages
 //--------------------------------------------------------------------
 -(void)_setSession:(GSWSession*)aSession
 {
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"aSession ID:%@",[aSession sessionID]);
   if (_session!=aSession)
     {
       ASSIGN(_session,aSession);
@@ -1809,11 +1798,8 @@ If none, try request languages
     };
   if (_session)
     {
-      NSDebugMLLog(@"low",@"contextID=%u",_contextID);
       _contextID=[_session _contextCounter];
-      NSDebugMLLog(@"low",@"contextID=%u",_contextID);
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1883,6 +1869,7 @@ If none, try request languages
 };
 
 //--------------------------------------------------------------------
+// I am not so sure if that exists here in WO. davew.
 -(GSWSession*)existingSession
 {
   if ([self isSessionDisabled])
@@ -1894,10 +1881,7 @@ If none, try request languages
 //--------------------------------------------------------------------
 -(void)_setCurrentComponent:(GSWComponent*)component
 {
-  //OK
-  LOGObjectFnStart();
   ASSIGN(_currentComponent,component);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1975,13 +1959,10 @@ If none, try request languages
 -(void)_takeAwakeComponent:(GSWComponent*)component
 {
   //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"component: %@",[component class]);
   if (!_awakePageComponents)
     _awakePageComponents=[NSMutableArray new];
   if (![_awakePageComponents containsObject:component])
     [_awakePageComponents addObject:component];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -2204,6 +2185,11 @@ If none, try request languages
   NSDebugMLLog(@"low",@"isValidate=%d",(int)isValidate);
 };
 
+
+- (void) retain
+{
+  [super retain];
+}
 
 @end
 

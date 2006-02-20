@@ -370,10 +370,6 @@ If none, try request languages
 - (NSString*) _urlForResourceNamed: (NSString*)aName 
                        inFramework: (NSString*)frameworkName;
 
-@end
-
-//====================================================================
-@interface GSWContext (GSWContextGSWeb)
 -(BOOL)isValidate;
 -(void)setValidate:(BOOL)isValidate;
 @end
