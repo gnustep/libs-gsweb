@@ -49,8 +49,6 @@ RCS_ID("$Id$")
 
   GSWDeclareDebugElementIDsCount(aContext);
 
-  LOGObjectFnStart();
-
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);//Debug Only
 
@@ -62,13 +60,10 @@ RCS_ID("$Id$")
   [childTemplate appendToResponse:response
                  inContext:aContext];
   [aContext _setCurrentComponent:component];
-  NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],GSWContext_elementID(aContext));
 
   GSWStopElement(aContext);
   GSWAssertDebugElementIDsCount(aContext);
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -82,16 +77,11 @@ RCS_ID("$Id$")
   GSWElement* childTemplate=nil;
   GSWDeclareDebugElementIDsCount(aContext);
 
-  LOGObjectFnStart();
-
   GSWStartElement(aContext);
 
   component=GSWContext_component(aContext);
-  NSDebugMLLog(@"gswdync",@"component=%@",component);
   childTemplate=[component _childTemplate];
-  NSDebugMLLog(@"gswdync",@"childTemplate=%@",childTemplate);
   parent=[component parent];
-  NSDebugMLLog(@"gswdync",@"parent=%@",parent);
   [aContext _setCurrentComponent:parent];
   element=[childTemplate invokeActionForRequest:request
                          inContext:aContext];
@@ -104,8 +94,6 @@ RCS_ID("$Id$")
 
   GSWStopElement(aContext);
   GSWAssertDebugElementIDsCount(aContext);
-
-  LOGObjectFnStop();
 
   return element;
 };
@@ -120,8 +108,6 @@ RCS_ID("$Id$")
   GSWElement* childTemplate=nil;
   GSWDeclareDebugElementIDsCount(aContext);
 
-  LOGObjectFnStart();
-
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);// Debug Only
 
@@ -133,13 +119,9 @@ RCS_ID("$Id$")
                  inContext:aContext];
   [aContext _setCurrentComponent:component];
 
-  NSDebugMLLog(@"gswdync",@"END ET=%@ declarationName=%@ id=%@",
-               [self class],[self declarationName],GSWContext_elementID(aContext));
-
   GSWStopElement(aContext);
   GSWAssertDebugElementIDsCount(aContext);
 
-  LOGObjectFnStop();
 };
 
 @end

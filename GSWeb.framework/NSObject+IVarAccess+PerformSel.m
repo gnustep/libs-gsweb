@@ -180,26 +180,13 @@ const char* GSGetInstanceVariableType(id obj,
 - (id)getIVarNamed:(NSString *)name_
 {
   id value=nil;
-  SEL sel = @selector(valueForKey:);//NEW NSSelectorFromString(@"valueForKey:");
-//MGNEW  id	(*imp)(id, SEL, id) = (id (*)(id, SEL, id))[NSObject instanceMethodForSelector: sel];
-  NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p (superClass:%@)",
-               name_,
-               [self class],
-               self,
-               [self superclass]);
-  //NSLog(@"%@",name_);
-  //NSLog(@"sel (valueForKey <NSObject>) : %d", (int)sel);
+  SEL sel = @selector(valueForKey:);
 
   NS_DURING
     value = [self valueForKey:name_];//MGNEW
 	//MGNEW value = (*imp)(self, sel, name_);
   NS_HANDLER
     {
-      NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p (superClass:%@). valueForKey: exception",
-                   name_,
-                   [self class],
-                   self,
-                   [self superclass]);
       if([self respondsToSelector:@selector(objectForKey:)] == YES) {
 		if (name_) {
 			value = [self objectForKey:name_];
@@ -233,11 +220,7 @@ const char* GSGetInstanceVariableType(id obj,
   //NSLog(@"sel (takeValue:forKey: <NSObject>) : %d", (int)sel);
 
   NS_DURING
-//NSLog(@"setIVarNamed : self = %@", NSStringFromClass([self class]));
-//NSLog(@"setIVarNamed : name_ = %@ (%@)", name_, NSStringFromClass([name_ class]));
-//NSLog(@"setIVarNamed : value_ = %@ (%@)", value_, NSStringFromClass([value_ class]));
     [self takeValue:value_ forKey:name_];//MGNEW
-	//MGNEW (*imp)(self, sel, value_, name_);
   NS_HANDLER
     {
 	if (![name_ isEqualToString:@"self"]) {
@@ -376,11 +359,6 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	case NSObjectIVarsAccessType_None:
 	  break;
 	case NSObjectIVarsAccessType_PerformSelector:
-	  NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p (superClass:%@)with performSelector",
-				   name_,
-				   [self class],
-				   self,
-				   [self superclass]);
 	  _value=[self performSelector:ivarAccess_->infos.selector];
 	  break;
 	case NSObjectIVarsAccessType_Invocation:
@@ -399,17 +377,9 @@ void IdToPData(const char* retType,id _value,void* pdata)
 			  }
 			else
 			  {
-				NSDebugMLLog(@"low",
-                                             @"getIVarNamed %@ in %@ %p (superClass:%@) with invocation %@ (retType=%s)",
-                                             name_,
-                                             [self class],
-                                             self,
-                                             [self superclass],
-                                             ivarAccess_->infos.invocation,
-                                             retType);
-				[ivarAccess_->infos.invocation getReturnValue:pdata];
-				_value=PDataToId(retType,pdata);
-				objc_free(pdata);
+  				[ivarAccess_->infos.invocation getReturnValue:pdata];
+  				_value=PDataToId(retType,pdata);
+  				objc_free(pdata);
 			  };
 		  };
 	  };
@@ -419,11 +389,6 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		const char* IVarType=ivarAccess_->infos.ivar->ivar_type;
 		unsigned int size=objc_sizeof_type(IVarType);
 		void* pdata=objc_atomic_malloc(size);
-		NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p (superClass:%@) by variable ",
-					 name_,
-					 [self class],
-					 self,
-					 [self superclass]);
 		if (pdata)
 		  {
 			int offset = ivarAccess_->infos.ivar->ivar_offset;
@@ -459,9 +424,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
   Class _class=Nil;
   NSObjectIVarsAccess* _ivarAccess=nil;
   NSMutableDictionary* _classCache=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"getIVarNamed %@ in %p %@  (superClass:%@)",
-	       name_,self,[self class],[self superclass]);
+
   _class=[self class];
   _classCache=[objectIVarAccessCache_Get objectForKey:_class];
   if (!_classCache)
@@ -493,8 +456,6 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	sel=[self getSelectorWithFunctionTemplate:@"%@"
 		  forVariable:name_
 		  uppercaseFirstLetter:NO];
-      NSDebugMLLog(@"low",@"getIVarNamed %@ in %@ %p sel=%p ",
-		   name_,[self class],self,(void*)sel);
       if (sel)
 	{
 	  NSMethodSignature* _sig = [self methodSignatureForSelector:sel];
@@ -512,7 +473,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	  else
 	    {
 	      const char* retType=[_sig methodReturnType];
-	      NSDebugMLLog(@"low",@"retType=%s",retType);
+
 	      if (!retType)
 		{
 		  _exception=[NSException exceptionWithName:@"NSObject IVar"
@@ -534,19 +495,11 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		    }
 		  else
 		    {
-		      NSInvocation* _invocation 
-			= [NSInvocation invocationWithMethodSignature:_sig];
-		      NSDebugMLLog(@"low",
-				   @"_invocation methodSignature "
-				   @"methodReturnType=%s",
-				   [[_invocation methodSignature]
-				     methodReturnType]);
+		      NSInvocation* _invocation = [NSInvocation invocationWithMethodSignature:_sig];
 		      [_invocation setSelector:sel];
-		      _ivarAccess->accessType
-			= NSObjectIVarsAccessType_Invocation;
+		      _ivarAccess->accessType = NSObjectIVarsAccessType_Invocation;
 		      _ivarAccess->infos.invocation=_invocation;
-		      NSAssert([_ivarAccess->infos.invocation selector],
-			       @"No Selector in Invocation");
+		      NSAssert([_ivarAccess->infos.invocation selector], @"No Selector in Invocation");
 		      [_ivarAccess->infos.invocation retain];
 		    };
 		};
@@ -564,13 +517,6 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	    }
 	  else
 	    {
-	      NSDebugMLLog(@"low",
-			   @"getIVarNamed %@ in %@ %p (superClass:%@) "
-			   @"with objectForKey ",
-			   name_,
-			   [self class],
-			   self,
-			   [self superclass]);
 	      if ([self respondsToSelector:@selector(objectForKey:)]) 
 		{
 		  _ivarAccess->accessType=NSObjectIVarsAccessType_Dictionary;
@@ -610,7 +556,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
   else
     _value=[self getIVarNamed:name_
 		 withCacheObject:_ivarAccess];
-//  LOGObjectFnStop();
+
   return _value;
 };
 
@@ -619,7 +565,6 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		  withValue:(id)value_
 	withCacheObject:(NSObjectIVarsAccess*)ivarAccess_
 {
-  LOGObjectFnStart();
   switch(ivarAccess_->accessType)
 	{
 	case NSObjectIVarsAccessType_Error:
@@ -627,13 +572,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	case NSObjectIVarsAccessType_None:
 	  break;
 	case NSObjectIVarsAccessType_PerformSelector:
-	  NSDebugMLLog(@"low",
-				   @"setIVarNamed %@ in %@ %p (superClass:%@) with performSelector value:%@",
-				   name_,
-				   [self class],
-				   self,
-				   [self superclass],
-				   value_);
+
 	  [self performSelector:ivarAccess_->infos.selector
 			withObject:value_];
 	  break;
@@ -646,13 +585,7 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		[ivarAccess_->infos.invocation setTarget:self];
 		[ivarAccess_->infos.invocation setArgument:pdata
 					 atIndex:2];
-		NSDebugMLLog(@"low",
-					 @"setIVarNamed %@ in %@ %p (superClass:%@) with invocation value:%@",
-					 name_,
-					 [self class],
-					 self,
-					 [self superclass],
-					 value_);
+
 		[ivarAccess_->infos.invocation invoke];
 		objc_free(pdata);
 	  };
@@ -684,35 +617,17 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	case NSObjectIVarsAccessType_DictionaryWithoutRemoveObject:
 	  if (value_ || ivarAccess_->accessType==NSObjectIVarsAccessType_DictionaryWithoutRemoveObject)
 		{
-		  NSDebugMLLog(@"low",
-					   @"setIVarNamed %@ in %@ %p (superClass:%@) with setObjectForKey:",
-					   name_,
-					   [self class],
-					   self,
-					   [self superclass]);
 		  // keyvalue coding
 		  [self setObject:value_
 				forKey:name_];
 		}
 	  else
 		{
-		  NSDebugMLLog(@"low",
-					   @"setIVarNamed %@ in %@ %p (superClass:%@) with removeObjectForKey:",
-					   name_,
-					   [self class],
-					   self,
-					   [self superclass]);
 		  // keyvalue coding
 		  [self removeObjectForKey:name_];
 		};
 	  break;
 	case NSObjectIVarsAccessType_EO:
-          NSDebugMLLog(@"low",
-                       @"setIVarNamed %@ in %@ %p (superClass:%@) with takeValue:forKey:",
-                       name_,
-                       [self class],
-                       self,
-                       [self superclass]);
           // keyvalue coding
           [self takeValue:value_
                 forKey:name_];
@@ -720,7 +635,6 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	default:
 	  break;
 	};
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -731,12 +645,8 @@ void IdToPData(const char* retType,id _value,void* pdata)
   BOOL _cachindEnabled=YES;
   Class _class=[self class];
   NSObjectIVarsAccess* _ivarAccess=nil;
-  NSMutableDictionary* _classCache
-    = [objectIVarAccessCache_Set objectForKey:_class];
-//  LOGObjectFnStart();
-  NSDebugMLLog(@"low",
-	       @"LOG setIVarNamed:%@ withValue:%@ in %p %@ (superClass:%@)",
-	       name_,value_,self,[self class],[self superclass]);
+  NSMutableDictionary* _classCache = [objectIVarAccessCache_Set objectForKey:_class];
+
   if (!_classCache)
     {
       _cachindEnabled=![_class isIVarAccessCachingDisabled];
@@ -758,15 +668,11 @@ void IdToPData(const char* retType,id _value,void* pdata)
   if (!_ivarAccess)
     {
       SEL sel=NULL;
-      NSDebugMLLog(@"low",@"Not ivarAccess for name:%@",name_);
+
       _ivarAccess=[NSObjectIVarsAccess ivarAccess];
-      //  NSDebugMLLog(@"low",@"LOG setIVarNamed:%@ withValue:%@ in %@",name_,value_,[self class]);
       sel=[self getSelectorWithFunctionTemplate:@"set%@:"
 		forVariable:name_
 		uppercaseFirstLetter:YES];
-      NSDebugMLLog(@"low",
-		   @"sel=%ld (for %@ in %@)",
-		   sel,name_,[self class]);
       if (sel)
 	{
 	  NSMethodSignature* _sig = [self methodSignatureForSelector:sel];
@@ -800,27 +706,17 @@ void IdToPData(const char* retType,id _value,void* pdata)
 		{
 		  if (*type==_C_ID)
 		    {
-		      _ivarAccess->accessType
-			= NSObjectIVarsAccessType_PerformSelector;	
+		      _ivarAccess->accessType = NSObjectIVarsAccessType_PerformSelector;	
 		      _ivarAccess->infos.selector=sel;
-		      NSDebugMLLog(@"low",
-				   @"perform selector (IVar named :%@)",
-				   name_);
 		    }
 		  else
 		    {
-		      NSInvocation* _invocation 
-			= [NSInvocation invocationWithMethodSignature:_sig];
+		      NSInvocation* _invocation = [NSInvocation invocationWithMethodSignature:_sig];
 		      [_invocation setSelector:sel];
-		      _ivarAccess->accessType
-			= NSObjectIVarsAccessType_Invocation;
+		      _ivarAccess->accessType = NSObjectIVarsAccessType_Invocation;
 		      _ivarAccess->infos.invocation=_invocation;
-		      NSAssert([_ivarAccess->infos.invocation selector],
-			       @"No Selector in Invocation");
+		      NSAssert([_ivarAccess->infos.invocation selector], @"No Selector in Invocation");
 		      [_ivarAccess->infos.invocation retain];
-		      NSDebugMLLog(@"low",
-				   @"invocation (IVar named :%@)",
-				   name_);
 		    };
 		};
 	    };
@@ -834,25 +730,13 @@ void IdToPData(const char* retType,id _value,void* pdata)
 	    {
 	      _ivarAccess->accessType=NSObjectIVarsAccessType_Direct;	
 	      _ivarAccess->infos.ivar=ivar;
-	      NSDebugMLLog(@"low",
-			   @"direct (IVar named :%@)",
-			   name_);
 	    }
 	  else
 	    {
 	      BOOL _respondsToSetObject=NO;
 	      BOOL _respondsToRemoveObject=NO;
-	      NSDebugMLLog(@"low",
-			   @"setIVarNamed %@ in %@ %p (superClass:%@) "
-			   @"with dictionary ",
-			   name_,
-			   [self class],
-			   self,
-			   [self superclass]);
-	      _respondsToSetObject
-		= [self respondsToSelector:@selector(setObject:forKey:)];
-	      _respondsToRemoveObject
-		=[self respondsToSelector:@selector(removeObjectForKey:)];
+	      _respondsToSetObject = [self respondsToSelector:@selector(setObject:forKey:)];
+	      _respondsToRemoveObject = [self respondsToSelector:@selector(removeObjectForKey:)];
 	      if (_respondsToSetObject)
 		{
 		  if (_respondsToRemoveObject)
@@ -902,7 +786,6 @@ void IdToPData(const char* retType,id _value,void* pdata)
     [self setIVarNamed:name_
 	  withValue:value_
 	  withCacheObject:_ivarAccess];
-//  LOGObjectFnStop();
 };
 #endif
 

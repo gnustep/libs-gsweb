@@ -218,7 +218,6 @@ static Class GSWHTMLBareStringClass = Nil;
   aComponentDefinition=[self _componentDefinition];
   NSAssert(aComponentDefinition,@"No componentDefinition");
   aFrameworkName=[aComponentDefinition frameworkName];
-  NSDebugMLLog(@"GSWComponent",@"aFrameworkName=%@",aFrameworkName);
 
   return aFrameworkName;
 };
@@ -228,7 +227,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
 -(void)logString:(NSString*)aString
 {
-  [[self application] logString:aString];
+  [GSWApp logString:aString];
 };
 
 //--------------------------------------------------------------------
@@ -288,11 +287,11 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   //TODO
   NSString* dscr=nil;
-  GSWLogAssertGood(self);
-  NSDebugMLLog(@"GSWComponent",@"GSWComponent description self=%p",self);
+
   dscr=[NSString stringWithFormat:@"<%s %p>",
 				  object_get_class_name(self),
 				  (void*)self];
+
   return dscr;
 };
 
@@ -307,8 +306,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)setUserDictionary:(NSDictionary*)aUserDictionary
 {
   ASSIGN(_userDictionary,aUserDictionary);
-  NSDebugMLLog(@"GSWComponent",@"userDictionary:%@",_userDictionary);
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)userAssociations
@@ -320,8 +318,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)setUserAssociations:(NSDictionary*)userAssociations
 {
   ASSIGN(_userAssociations,userAssociations);
-  NSDebugMLLog(@"GSWComponent",@"userAssociations:%@",_userAssociations);
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWAssociation*)userAssociationForKey:(NSString*)key
@@ -341,7 +338,6 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   NSLog(@"WARNING: %s is not WebObjects API",__PRETTY_FUNCTION__);
   ASSIGN(_defaultAssociations,defaultAssociations);
-  NSDebugMLLog(@"GSWComponent",@"defaultAssociations:%@",_defaultAssociations);
 };
 
 //--------------------------------------------------------------------
@@ -426,37 +422,6 @@ static Class GSWHTMLBareStringClass = Nil;
     [componentdefinition _checkInComponentInstance:self];
   }
 }
-
-//-(void) pushValuesToParent
-//{
-//  if (YES) //  we should use more meaningfl names here _isComponentToParentSynchronized)
-//    {
-//      int i=0;
-//      id aKey=nil;
-//      GSWAssociation* anAssociation=nil;
-//      id aValue=nil;
-//      id logValue=[self valueForBinding:@"GSWDebug"];
-//      BOOL doLog=boolValueWithDefaultFor(logValue,NO);
-//      int associationsKeysCount=[_associationsKeys count];
-//
-//      for(i=0;i<associationsKeysCount;i++)
-//        {
-//          aKey=[_associationsKeys objectAtIndex:i];
-//          anAssociation=[_associations objectAtIndex:i];
-//          NSDebugMLLog(@"GSWComponent",@"aKey=%@ anAssociation=%@",aKey,anAssociation);
-//          if ([anAssociation isValueSettable]
-//              && ![anAssociation isKindOfClass:[GSWBindingNameAssociation class]]) //TODOV
-//            {
-//              aValue=[self valueForKey:aKey];
-//              if (doLog)
-//                [anAssociation logSynchronizeComponentToParentForValue:aValue
-//                               inComponent:_parent];
-//              [anAssociation setValue:aValue
-//                             inComponent:_parent];
-//            };
-//        };
-//    };
-//};
 
 -(void)synchronizeComponentToParent
 {
@@ -882,9 +847,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
   userDictionary=[self userDictionary];
   synchronizesParentToComponentVariablesWithBindingsValue=[userDictionary objectForKey:@"synchronizesParentToComponentVariablesWithBindings"];
-  NSDebugMLLog(@"GSWComponent",@"declarationName=%@ - userDictionary _synchronizesVariablesWithBindingsValue=%@",
-               [self declarationName],
-               synchronizesParentToComponentVariablesWithBindingsValue);
+
   //NDFN
   if (synchronizesParentToComponentVariablesWithBindingsValue)
     {
@@ -1083,7 +1046,7 @@ static Class GSWHTMLBareStringClass = Nil;
       [msgs addObjectsFromArray:[component allValidationFailureMessages]];
     };
   msgs=[NSArray arrayWithArray:msgs];
-  //  NSDebugMLLog(@"GSWComponent",@"_msgs=%@",_msgs);
+
   return msgs;
 };
 
@@ -1611,7 +1574,7 @@ Call this method before using a component which was cached in a variable.
                            languages:(NSArray*)languages
 {
   GSWElement* rootElement=nil;
-  NSDebugMLog0(@"Begin GSWComponent:templateWithHTMLString...");
+
   rootElement=[GSWTemplateParser templateWithHTMLString:htmlString
                                  declarationString:pageDefString
                                  languages:languages];

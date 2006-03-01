@@ -51,16 +51,12 @@ static Class GSWHTMLBareStringClass = Nil;
          template:(GSWElement*)templateElement
 {
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ templateElement=%@",aName,associations,templateElement);
 
   _elementName = [[associations objectForKey:elementName__Key
                            withDefaultObject:[_elementName autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWGenericContainer: elementName=%@",_elementName);
 
   _otherTagString = [[associations objectForKey:otherTagString__Key
                          withDefaultObject:[_otherTagString autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWGenericContainer: otherTagString=%@",_otherTagString);
 
   [tmpAssociations removeObjectForKey:elementName__Key];
   [tmpAssociations removeObjectForKey:otherTagString__Key];
@@ -69,7 +65,6 @@ static Class GSWHTMLBareStringClass = Nil;
     {
       _omitElement = [[associations objectForKey:omitElement__Key
                                     withDefaultObject:[_omitElement autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWGenericContainer: omitElement=%@",_omitElement);
 
       [tmpAssociations removeObjectForKey:omitElement__Key];
     };

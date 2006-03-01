@@ -79,20 +79,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 };
 
 //--------------------------------------------------------------------
-+(void)dealloc
-{
-  GSWLogC("Dealloc GSWResourceManager Class");
-  DESTROY(globalAppGSWBundle);
-  DESTROY(globalAppProjectBundle);
-  DESTROY(globalMime);
-  DESTROY(globalMimePListPathName);
-  DESTROY(localGS2ISOLanguages);
-  DESTROY(localISO2GSLanguages);
-  DESTROY(globalLanguagesPListPathName);
-  GSWLogC("End Dealloc GSWResourceManager Class");
-};
-
-//--------------------------------------------------------------------
 -(id)init
 {
   LOGObjectFnStart();
@@ -152,10 +138,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWResourceManager");
-  GSWLogC("Dealloc GSWResourceManager: _frameworkProjectBundlesCache");
   DESTROY(_frameworkProjectBundlesCache);
-  GSWLogC("Dealloc GSWResourceManager: _appURLs");
   DESTROY(_appURLs);
   DESTROY(_frameworkURLs);
   DESTROY(_appPaths);
@@ -165,11 +148,9 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   DESTROY(_stringsTableArraysByFrameworkByLanguageByName);
   DESTROY(_frameworkClassPaths);
 //  DESTROY(_frameworkPathsToFrameworksNames);
-  GSWLogC("Dealloc GSWResourceManager: _selfLock");
   DESTROY(_selfLock);
-  GSWLogC("Dealloc GSWResourceManager Super");
+
   [super dealloc];
-  GSWLogC("End Dealloc GSWResourceManager");
 };
 
 //--------------------------------------------------------------------
@@ -1250,10 +1231,6 @@ bundle if none is found
   return bundle;
 };
 
-@end
-
-//====================================================================
-@implementation GSWResourceManager (GSWURLValuedElementsDataCaching)
 
 //--------------------------------------------------------------------
 -(void)flushDataCache
@@ -1347,11 +1324,6 @@ bundle if none is found
   LOGObjectFnStop();
 };
 
-@end
-
-
-//====================================================================
-@implementation GSWResourceManager (GSWResourceManagerA)
 
 //--------------------------------------------------------------------
 -(NSString*)pathForResourceNamed:(NSString*)resourceName
@@ -1585,11 +1557,6 @@ bundle if none is found
   return _frameworkClassPaths;
 };
 
-@end
-
-
-//====================================================================
-@implementation GSWResourceManager (GSWResourceManagerOldFn)
 
 //--------------------------------------------------------------------
 -(NSString*)urlForResourceNamed:(NSString*)resourceName
@@ -1620,11 +1587,6 @@ bundle if none is found
   return path;
 };
 
-@end
-
-
-//====================================================================
-@implementation GSWResourceManager (GSWResourceManagerB)
 
 //--------------------------------------------------------------------
 -(void)_validateAPI
@@ -1633,10 +1595,6 @@ bundle if none is found
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
-@end
-
-//====================================================================
-@implementation GSWResourceManager (GSWResourceManagerClassA)
 
 //--------------------------------------------------------------------
 //NDFN

@@ -321,8 +321,6 @@ void testStringByConvertingHTML()
       NSString* string=[testStrings objectAtIndex:i];
       NSString* result=[string stringByConvertingToHTML];
       NSString* reverse=[result stringByConvertingFromHTML];
-      NSDebugFLog(@"RESULT: %d: '%@' => '%@'",i,string,result);
-      NSDebugFLog(@"Reverse RESULT: %d: '%@' => '%@'",i,result,reverse);
     };
 };
 
@@ -565,26 +563,10 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
               /*NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:&dstUnichar
                                                                                                 length:dstLen]);*/
               changed=YES;
-              /*
-              NSDebugFLog(@"-1==> %@",[NSString stringWithCharacters:pString
-                                                length:length]);
-              NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
-                                               length:length]);
-              NSDebugFLog(@"Copy %d characters from pos %d to pos %d",(length-i-srcLen),i+srcLen,i+dstLen);
-              */
               GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
-              /*
-              NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
-                                               length:length+dstLen-srcLen]);
-              NSDebugFLog(@"Copy %d characters to pos %d",dstLen,i);
-              */
               GSWMemMove(pString+i,&dstUnichar,sizeof(unichar)*dstLen);
               i+=dstLen;
               length+=dstLen-srcLen;
-              /*
-              NSDebugFLog(@"2==> i=%d %@",i,[NSString stringWithCharacters:pString
-              length:length]);
-              */
             };
           if (srcLen==0)
             i++;
@@ -793,20 +775,20 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
   NSScanner* scanner=[NSScanner scannerWithString:self];
   if ([scanner scanInt:x])
     {
-      if (x)
-        {
-          NSDebugMLLog(@"low",@"x=%d",*x);
-        };
+//      if (x)
+//        {
+//          NSDebugMLLog(@"low",@"x=%d",*x);
+//        };
       if ([scanner scanString:@"," 
                    intoString:NULL])
         {
           if ([scanner scanInt:y])
             {
-              if (y)
-                {
-                  NSDebugMLLog(@"low",@"y=%d",*y);
-                };
-              NSDebugMLLog(@"low",@"[scanner isAtEnd]=%d",(int)[scanner isAtEnd]);
+//              if (y)
+//                {
+//                  NSDebugMLLog(@"low",@"y=%d",*y);
+//                };
+//              NSDebugMLLog(@"low",@"[scanner isAtEnd]=%d",(int)[scanner isAtEnd]);
               if ([scanner isAtEnd])
                 {
                   ok=YES;

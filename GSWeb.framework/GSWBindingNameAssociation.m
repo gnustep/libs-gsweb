@@ -40,11 +40,10 @@ RCS_ID("$Id$")
 -(id)initWithKeyPath:(NSString*)aKeyPath
 {
   //OK
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       NSArray* keys=nil;
-      NSDebugMLLog(@"associations",@"aKeyPath=%@",aKeyPath);
+
       keys=[aKeyPath componentsSeparatedByString:@"."];
       if ([keys count]>0)
         {
@@ -61,10 +60,8 @@ RCS_ID("$Id$")
               ASSIGN(_keyPath,[[keys subarrayWithRange:NSMakeRange(1,[keys count]-1)]componentsJoinedByString:@"."]);
             };
         };
-      NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
-      NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
     };
-  LOGObjectFnStop();
+
   return self;
 };
 
@@ -105,9 +102,8 @@ RCS_ID("$Id$")
 -(BOOL)isImplementedForComponent:(GSWComponent*)object
 {
   BOOL isImplemented=NO;
-  LOGObjectFnStart();
   isImplemented=(BOOL)[object hasBinding:_parentBindingName];
-  LOGObjectFnStop();
+
   return isImplemented;
 };
 
@@ -115,10 +111,7 @@ RCS_ID("$Id$")
 -(id)valueInComponent:(GSWComponent*)object
 {
   id value=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
-  NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
-  NSDebugMLLog(@"associations",@"object=%@",object);
+
   if (object)
     {
       /*
@@ -135,17 +128,15 @@ RCS_ID("$Id$")
         };
       */
       value=[object valueForBinding:_parentBindingName];
-      NSDebugMLLog(@"associations",@"value=%@",value);
+
       if (value && _keyPath)
         {
           value=[GSWAssociation valueInComponent:value
                                 forKeyPath:_keyPath];
-          NSDebugMLLog(@"associations",@"value=%@",value);
         };
     };
-  NSDebugMLLog(@"associations",@"value=%@",value);
   [self logTakeValue:value];
-  LOGObjectFnStop();
+
   return value;
 };
 
@@ -153,9 +144,6 @@ RCS_ID("$Id$")
 -(void)setValue:(id)value
        inComponent:(GSWComponent*)object
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
-  NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
   if (object)
     {
       [object validateValue:&value
@@ -185,7 +173,6 @@ RCS_ID("$Id$")
                 forBinding:_parentBindingName];
     };
   [self logSetValue:value];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------

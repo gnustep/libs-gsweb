@@ -56,19 +56,11 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
     {
       NSString* elementID=nil;
 
-      LOGObjectFnStartC("GSWElement");
-
       elementID=GSWContext_elementID(context);
-      NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ elementID=%@ %p",self,[self declarationName],elementID,elementID);
 
       ASSIGNCOPY(_appendToResponseElementID,elementID);
-      NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p",
-                   self,[self declarationName],
-                   _appendToResponseElementID,_appendToResponseElementID);
 
       GSWAssertIsElementID(context);
-
-      LOGObjectFnStopC("GSWElement");
     };
 };
 
@@ -78,7 +70,6 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
                                   file:(const char*)file
                                   line:(int)line
 {
-  LOGObjectFnStartC("GSWElement");  
   [self assertIsElementIDInContext:context
         method:method
         file:file
@@ -99,8 +90,6 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
           || appendToResponseElementIDIsFirst!=elementIDIsFirst)
         {
           OK=[_appendToResponseElementID isEqualToString:elementID];
-          NSDebugMLLog(@"GSWElement",@"GSWContext_elementID(context)=%@ _appendToResponseElementID=%@ [_appendToResponseElementID length]=%d OK=%d [context isInLoop]=%d",
-                       GSWContext_elementID(context),_appendToResponseElementID,[_appendToResponseElementID length],OK,[context isInLoop]);
         };
       if (!OK && ![context isInLoop])
         {
@@ -116,10 +105,8 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
                                   _appendToResponseElementID,
                                   _appendToResponseElementID];
           //No: we may have multiple occurences NSAssert1(OK,@"%@",msg);
-          NSDebugMLog(@"ELEMENT ID WARNING %@",msg);
         };
     };
-  LOGObjectFnStopC("GSWElement");
 };
 
 //--------------------------------------------------------------------
@@ -128,12 +115,6 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
                              file:(const char*)file
                              line:(int)line
 {
-  LOGObjectFnStartC("GSWElement");
-/*  NSDebugMLLog(@"GSWElement",@"self=%p declarationName=%@ _appendToResponseElementID=%@ %p / GSWContext_elementID(context)=%@",
-              self,
-              [self declarationName],
-              _appendToResponseElementID,_appendToResponseElementID,GSWContext_elementID(context));
-*/
   if (_appendToResponseElementID
       && [_appendToResponseElementID length]==0
       && [GSWContext_elementID(context) length]>0)
@@ -149,7 +130,6 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
                               _appendToResponseElementID];
       NSAssert1(NO,@"%@",msg);
     };
-  LOGObjectFnStopC("GSWElement");
 };
 
 //--------------------------------------------------------------------
@@ -163,16 +143,6 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
   NSString* senderID=GSWContext_senderID(aContext);
   if (start)
     [aContext addToDocStructureElement:self];
-  NSDebugMLLog(@"GSWElement",@"%s:.%d - %@ %s ELEMENT self=%p class=%@ defName=%@ id=%@ appendID:%@ %s%@",
-               file,line,NSStringFromSelector(method),
-               (start ? "START" : (stop ? "STOP" : "")),
-               self,
-               [self class],
-               [self declarationName],
-               GSWContext_elementID(aContext),
-               _appendToResponseElementID,
-               (senderID ? "senderID:" : ""),
-               (senderID ? senderID : @""));
 };
 
 #endif
@@ -185,7 +155,6 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 -(void)dealloc
 {
 
-  GSWLogAssertGood(self);
   DESTROY(_appendToResponseElementID);
   DESTROY(_declarationName);
   
@@ -207,11 +176,7 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 -(void)setDeclarationName:(NSString*)declarationName
 {
 #ifdef GSWELEMENT_HAS_DECLARATION_NAME
-  NSDebugMLLog(@"gswdync",@"setDeclarationName1 in %p: %p %@",
-               self,declarationName,declarationName);
   ASSIGN(_declarationName,declarationName);
-  NSDebugMLLog(@"gswdync",@"setDeclarationName2 in %p: %p %@",
-               self,_declarationName,_declarationName);
 #endif
 };
 
@@ -261,10 +226,9 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
   BOOL match=NO;
   NSString* senderID=GSWContext_senderID(aContext);
   NSString* elementID=GSWContext_elementID(aContext);
-  NSDebugMLLog(@"gswdync",@" senderID=%@",senderID);
-  NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
+
   match=([elementID hasPrefix:senderID] || [senderID hasPrefix:elementID]);
-  NSDebugMLLog(@"gswdync",@"match=%s",(match ? "YES" : "NO"));
+
   return match;
 };
 

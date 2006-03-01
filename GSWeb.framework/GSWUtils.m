@@ -201,7 +201,7 @@ char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int
   if (resultLength)
     *resultLength=j;
   buffer[j++]='\0';
-  //NSDebugFLog(@"origValue=%d ==> %s",origValue,buffer);
+
   return buffer;
 };
 
@@ -473,10 +473,9 @@ void NSTimeIntervalSleep(NSTimeInterval ti)
   ts.tv_nsec=(long)((ti-ts.tv_sec)*100000000.0);
   remaining.tv_sec=0;
   remaining.tv_nsec=0;
-  NSDebugFLog(@"ts.tv_sec=%ld ts.tv_nsec=%ld",(long)ts.tv_sec,ts.tv_nsec);
   if (nanosleep(&ts,&remaining)==-1)
     {
-      NSDebugFLog(@"remaining tv_sec=%ld tv_nsec=%ld",(long)remaining.tv_sec,remaining.tv_nsec);
+//      NSDebugFLog(@"remaining tv_sec=%ld tv_nsec=%ld",(long)remaining.tv_sec,remaining.tv_nsec);
     };
 };
 
@@ -643,7 +642,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSString* userInfoString=nil;
   NSMutableDictionary* excptUserInfo=nil;
   va_list args;
-  LOGObjectFnStart();
+
   excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format);
   userInfoString = [nsStringClass stringWithFormat:format
@@ -668,7 +667,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
                          userInfo:excptUserInfo];
-  LOGObjectFnStop();
+
   return exception;
 };
 
@@ -681,7 +680,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSString* userInfoString=nil;
   NSMutableDictionary* excptUserInfo=nil;
   va_list args;
-  LOGObjectFnStart();
+
   excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   va_start(args,format);
   userInfoString = [nsStringClass stringWithFormat:format
@@ -692,7 +691,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
                          userInfo:excptUserInfo];
-  LOGObjectFnStop();
+
   return exception;
 };
 
@@ -702,7 +701,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSException* exception=nil;
   NSMutableDictionary* excptUserInfo=nil;
   NSArray* frameInfoArray=nil;
-  LOGObjectFnStart();
+
   NSAssert(frameInfo,@"No frameInfo");
   excptUserInfo=[NSMutableDictionary dictionaryWithDictionary:[self userInfo]];
   frameInfoArray=[excptUserInfo objectForKey:@"FrameInfo"];
@@ -715,7 +714,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   exception=[[self class]exceptionWithName:[self name]
                          reason:[self reason]
                          userInfo:excptUserInfo];
-  LOGObjectFnStop();
+
   return exception;
 };
 
@@ -725,13 +724,13 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSException* exception=nil;
   NSString* frameInfo=nil;
   va_list args;
-  LOGObjectFnStart();
+
   va_start(args,format);
   frameInfo = [nsStringClass stringWithFormat:format
                              arguments:args];
   va_end(args);
   exception=[self exceptionByAddingUserInfoFrameInfo:frameInfo];
-  LOGObjectFnStop();
+
   return exception;
 };
 
@@ -748,7 +747,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSString* fmt=nil;
   NSString* string= nil;
   va_list args;
-  LOGObjectFnStart();
+
   if ([obj isInstance] == YES)
     {
       c = '-';
@@ -766,7 +765,7 @@ void ValidationExceptionRaiseFn0(const char *func,
                         arguments:args];
   va_end(args);
   exception=[self exceptionByAddingUserInfoFrameInfo:string];
-  LOGObjectFnStop();
+
   return exception;
 };
 
@@ -780,7 +779,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSString* fmt =nil;
   NSString* string= nil;
   va_list args;
-  LOGObjectFnStart();
+
   va_start(args,format);
   fmt =  (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%s: %d. In %s %@: %@",
                                          file,line,fn,format);
@@ -788,7 +787,7 @@ void ValidationExceptionRaiseFn0(const char *func,
                         arguments:args];
   va_end(args);
   exception=[self exceptionByAddingUserInfoFrameInfo:string];
-  LOGObjectFnStop();
+
   return exception;
 };
 
@@ -960,16 +959,12 @@ void ValidationExceptionRaiseFn0(const char *func,
   //TODO: Cache it !
   NSString* bundlePath=nil;
   NSString* name=nil;
-  LOGObjectFnStart();
+
   bundlePath=[self bundlePath];
-  NSDebugMLLog(@"low",@"bundlePath=%@",bundlePath);
   bundlePath=[bundlePath stringGoodPath];
-  NSDebugMLLog(@"low",@"bundlePath=%@",bundlePath);
   name=[bundlePath lastPathComponent];
-  NSDebugMLLog(@"low",@"name=%@",name);
   name=[name stringByDeletingPathExtension];
-  NSDebugMLLog(@"low",@"name=%@",name);
-  LOGObjectFnStop();
+
   return name;
 };
 
@@ -1105,14 +1100,6 @@ loggedLockBeforeDateFromFunctionInFileInLine(id self,
 #ifdef GNUSTEP
   threadID = objc_thread_id();
 #endif
-  NSDebugFLLog(@"locking",
-	       @"%@ thread %@(%p) "
-	       @"date:%@ file:%s function:%s line:%li "
-	       @"lock:%@",
-	       (try ? @"trying lock" : @"locking"),
-	       thread, threadID,
-	       limit, file, function, line, 
-	       volatileInternalDescription(self));
 
   if (limit == nil)
     {
@@ -1126,16 +1113,6 @@ loggedLockBeforeDateFromFunctionInFileInLine(id self,
 	    [self lock];
 	  NS_HANDLER
 	    {
-	      NSDebugFLLog(@"locking",
-			   @"locking FAILED thread %@(%p) "
-			   @"date:%@ file:%s function:%s line:%li "
-			   @"lock:%@ "
-			   @"excaption:%@ reason:%@ info:%@",
-			   thread, threadID, 
-			   limit, file, function, line, 
-			   volatileInternalDescription(self),
-			   [localException name], [localException reason],
-			   [localException userInfo]);
 	      [localException raise];
 	    }
 	  NS_ENDHANDLER

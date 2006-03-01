@@ -243,9 +243,7 @@ static BOOL _IsEventLoggingEnabled; // needed?
 -(void)sleep
 {
   //OK
-  LOGObjectFnStart();
   _isAwake=NO;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -278,9 +276,7 @@ static BOOL _IsEventLoggingEnabled; // needed?
 -(void)_clearCache
 {
   //OK
-  LOGObjectFnStart();
   [_bundle clearCache];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -288,11 +284,10 @@ static BOOL _IsEventLoggingEnabled; // needed?
                      languages:(NSArray*)languages
 {
   GSWElement* element=nil;
-  LOGObjectFnStart();
+
   element=[_bundle templateNamed:aName
                    languages:languages];
-  NSDebugMLLog(@"gswcomponents",@"aName=%@ languages=%@ element=%@",aName,languages,element);
-  LOGObjectFnStop();
+
   return element;
 };
 /*
@@ -360,11 +355,11 @@ languages:(NSArray*)languages
                        languages:(NSArray*)languages
 {
   NSString* path=nil;
-  LOGObjectFnStart();
+
   path=[_bundle pathForResourceNamed:aName
                 ofType:aType
                 languages:languages];
-  LOGObjectFnStop();
+
   return path;
 };
 
@@ -586,9 +581,8 @@ languages:(NSArray*)languages
 -(NSDictionary*)componentAPI
 {
   NSDictionary* componentAPI=nil;
-  LOGObjectFnStart();
   componentAPI=[_bundle apiNamed:_name];
-  LOGObjectFnStop();
+
   return componentAPI;
 };
 

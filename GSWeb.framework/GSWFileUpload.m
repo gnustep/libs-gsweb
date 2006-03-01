@@ -158,9 +158,7 @@ RCS_ID("$Id$")
       {
         component=GSWContext_component(context);
         nameInContext=[self nameInContext:context];
-        NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
         fileDatas=[request formValuesForKey:nameInContext];
-        NSDebugMLLog(@"gswdync",@"value=%@",fileDatas);
         fileDatasCount=[fileDatas count];
         /*
           if (_fileDatasCount!=1)
@@ -173,8 +171,6 @@ RCS_ID("$Id$")
         if (fileDatasCount==1) 
           {
             dataValue=[fileDatas objectAtIndex:0];
-            NSDebugMLLog(@"gswdync",@"dataValue %p (class=%@)=%@",
-                         dataValue,[dataValue class],dataValue);
             if (dataValue)
               {
                 if ([dataValue isKindOfClass:[NSData class]])
@@ -189,22 +185,10 @@ RCS_ID("$Id$")
                     if ([dataValue isKindOfClass:[NSString class]] && [dataValue length]==0)
                       {
                         LOGError(@"No Data: %@",dataValue);
-                        NSDebugMLLog(@"gswdync",@"No Data: %p (class=%@)=%@",
-                                     dataValue,[dataValue class],dataValue);
                         dataValue=nil;
                       }
                     else
                       {
-                        NSLog(@"content type request : %@",[request _contentType]);
-                        NSLog(@"data class = %@",NSStringFromClass([dataValue class]));
-                        NSDebugMLLog(@"gswdync",@"??Data: %p (class=%@)=%@",
-                                     dataValue,[dataValue class],dataValue);
-                        /*if (![dataValue isMemberOfClass:[NSString class]]) {
-                          ExceptionRaise(@"GSWFileUpload",
-                          @"GSWFileUpload: bad data :%@",
-                          dataValue);
-                          dataValue=nil;
-                          }*/
                       };
                   };
               }
@@ -213,9 +197,7 @@ RCS_ID("$Id$")
                 LOGError0(@"No Data:");
               };
             fileNameFormValueName=[NSString stringWithFormat:@"%@.filename",nameInContext];
-            NSDebugMLLog(@"gswdync",@"fileNameFormValueName=%@",fileNameFormValueName);
             fileNameValue=[request formValueForKey:fileNameFormValueName];
-            NSDebugMLLog(@"gswdync",@"fileNameValue=%@",fileNameValue);
             if (!fileNameValue || [fileNameValue length]==0)
               {
                 LOGError(@"No fileName: %@",fileNameValue);
