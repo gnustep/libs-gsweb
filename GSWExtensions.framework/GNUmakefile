@@ -145,6 +145,7 @@ GSWStatsPage.m \
 GSWCollapsibleComponentContent.m \
 GSWSessionCreationErrorPage.m \
 GSWSessionRestorationErrorPage.m \
+GSWPageRestorationErrorPage.m \
 GSWExceptionPage.m \
 GSWDictionaryRepetition.m \
 GSWRedirect.m \
