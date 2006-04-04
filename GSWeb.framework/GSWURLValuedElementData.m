@@ -92,7 +92,7 @@ static Class NSStringClass = Nil;
   if ([obj isKindOfClass:NSStringClass]) {
     return obj;
   } else {
-    str = [(WOURLValuedElementData*) obj dataURLInContext:context];
+    str = [(GSWURLValuedElementData*) obj dataURLInContext:context];
   }
   return str;
 }
