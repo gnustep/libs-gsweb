@@ -121,10 +121,8 @@ RCS_ID("$Id$")
     }
   else
     {
-      NSDebugMLog0(@"Formatter");
       formatter=[_formatter valueInComponent:component];
     };
-  LOGObjectFnStopC("GSWTextField");
   return formatter;
 };
 
