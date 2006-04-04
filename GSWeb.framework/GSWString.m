@@ -152,10 +152,8 @@ static Class standardClass = Nil;
     }
   else
     {
-      NSDebugMLog0(@"Formatter");
       formatter=[_formatter valueInComponent:component];
     };
-  LOGObjectFnStopC("GSWTextField");
   return formatter;
 };
 
@@ -175,24 +173,23 @@ static Class standardClass = Nil;
    if (_shouldFormat) {
      NSFormatter* formatter=[self formatterForComponent:component];
      if (formatter != nil) {
-         if (formattedValue=[formatter stringForObjectValue:valueValue]) {
-            } else {
-               NSWarnLog(@"%s:There's a value (%@ of class %@) but no formattedValue with formater %@",
-                           __PRETTY_FUNCTION__,
-                           valueValue,
-                           [valueValue class],
-                           formatter);
-               valueValue = nil;
-
-            }
-       }
-     } else {  // no format
-       formattedValue = valueValue;
-     }
-    } else {
-      NSLog(@"%s:WARNING value binding is nil!", __PRETTY_FUNCTION__);
-      return;
+       NS_DURING
+        formattedValue=[formatter stringForObjectValue:valueValue];
+       NS_HANDLER
+         formattedValue = nil;
+         NSLog(@"%s: value '%@' of class '%@' cannot be formatted.",
+                              __PRETTY_FUNCTION__, valueValue, [valueValue class]);
+       NS_ENDHANDLER
+      }
     }
+    if (formattedValue == nil) {
+        formattedValue = valueValue;
+    }
+
+  } else {
+    NSLog(@"%s:WARNING value binding is nil!", __PRETTY_FUNCTION__);
+    return;
+  }
   
   if ((formattedValue != nil) && ([formattedValue isKindOfClass:[NSNumber class]])) {
    // if we dont do this we get an exception on NSNumbers later. 
