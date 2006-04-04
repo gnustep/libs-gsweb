@@ -35,16 +35,16 @@
 
 @interface GSWHyperlink: GSWHTMLDynamicElement
 {
-  WOAssociation * _action;
-  WOAssociation * _string;
-  WOAssociation * _pageName;
-  WOAssociation * _href;
-  WOAssociation * _disabled;
-  WOAssociation * _fragmentIdentifier;
-  WOAssociation * _secure;
-  WOAssociation * _queryDictionary;
-  WOAssociation * _actionClass;
-  WOAssociation * _directActionName;
+  GSWAssociation * _action;
+  GSWAssociation * _string;
+  GSWAssociation * _pageName;
+  GSWAssociation * _href;
+  GSWAssociation * _disabled;
+  GSWAssociation * _fragmentIdentifier;
+  GSWAssociation * _secure;
+  GSWAssociation * _queryDictionary;
+  GSWAssociation * _actionClass;
+  GSWAssociation * _directActionName;
   NSDictionary  * _otherQueryAssociations;
 };
 
