@@ -189,7 +189,7 @@ static Class standardClass = Nil;
 - (void) _appendNameAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*)context
 {
-  WOComponent * component = nil;
+  GSWComponent * component = nil;
   NSString  * s = [self nameInContext:context];
   if (s != nil) {
     component = GSWContext_component(context);
@@ -203,7 +203,7 @@ static Class standardClass = Nil;
 - (void) _appendValueAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*)context
 {
-  WOComponent * component = GSWContext_component(context);
+  GSWComponent * component = GSWContext_component(context);
   if (_value != nil)
   {
     id obj = [_value valueInComponent:component];
