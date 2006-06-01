@@ -475,7 +475,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
         if ([obj isKindOfClass:NSNumberClass] == YES) {
           s1 = [(NSNumber*) obj stringValue];
         }
-        NSLog(@"%s:class %@ '%@'", __PRETTY_FUNCTION__, [obj class] , obj);
+        //NSLog(@"%s:class %@ '%@'", __PRETTY_FUNCTION__, [obj class] , obj);
         if ([key isEqual:@"otherTagString"]) {
           GSWResponse_appendContentCharacter(response,' ');
           GSWResponse_appendContentString(response, s1);
