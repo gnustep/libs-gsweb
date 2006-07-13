@@ -39,18 +39,6 @@
   GSWAssociation* _selection;
 }
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(void)dealloc;
--(NSString*)description;
-
-
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context; 
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
 
 @end
 
