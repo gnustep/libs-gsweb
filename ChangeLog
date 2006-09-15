@@ -1,3 +1,12 @@
+2006-09-15  David Ayers  <d.ayers@inode.at>
+
+	* Version: Update to 1.3.0
+	* config.mak.in: Update to use new GDL2 native library names.
+	
+2006-09-14  David Ayers  <d.ayers@inode.at>
+
+	* Branch 1.2 release series.
+	
 2006-01-26  David Ayers  <d.ayers@inode.at>
 
 	* GSWeb.framework/GSWAction.m (-[initWithRequest:]): Retain

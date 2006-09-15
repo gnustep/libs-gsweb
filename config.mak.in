@@ -7,8 +7,8 @@ AUX_LIBS=@AUX_LIBS@
 
 #EOControl dependancy
 ifeq ($(GDL2),yes)
-EOCONTROL_LIBRARY_NAME=gnustep-db2control
-EOACCESS_LIBRARY_NAME=gnustep-db2
+EOCONTROL_LIBRARY_NAME=EOControl
+EOACCESS_LIBRARY_NAME=EOAccess
 endif
 
 #Native Framework support
