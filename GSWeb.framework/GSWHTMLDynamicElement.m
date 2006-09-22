@@ -474,6 +474,9 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 // mr. ayers says that is not good..        
         if ([obj isKindOfClass:NSNumberClass] == YES) {
           s1 = [(NSNumber*) obj stringValue];
+        } else {
+          // we have to set the value!
+          s1 = obj;         
         }
         //NSLog(@"%s:class %@ '%@'", __PRETTY_FUNCTION__, [obj class] , obj);
         if ([key isEqual:@"otherTagString"]) {
