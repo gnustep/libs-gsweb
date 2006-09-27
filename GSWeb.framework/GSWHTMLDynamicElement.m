@@ -217,7 +217,6 @@ static inline BOOL _needQuote(NSString* str_needQuote)
         NSString * lowercaseString = [str lowercaseString];
         if (resultattribute != nil)
         {
-        NSLog(@"resultattribute is %@ - %@", resultattribute, NSStringFromClass([resultattribute class]));
           if ([resultattribute isKindOfClass:NSStringClass] == NO) {
             int j = [resultattribute count];
             for (i = 0; ((i < j) && (!flag)); i++) {
