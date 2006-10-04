@@ -15,6 +15,11 @@
 
         dynamicElements = (
                                 {
+                                        pageName = "FileUpload1Page";
+                                        label = "GSWFileUpload 1";
+                                        comment = "GSWFileUpload Test 1";
+                                },
+                                {
                                         pageName = "RadioButtonList1Page";
                                         label = "GSWRadioButtonList 1";
                                         comment = "GSWRadioButtonList Test 1";

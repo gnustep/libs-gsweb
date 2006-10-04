@@ -22,9 +22,6 @@
 #  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-# Install into the system root by default
-GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_SYSTEM_ROOT)
-
 include ../../config.mak
 include $(GNUSTEP_MAKEFILES)/common.make
 include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
@@ -42,12 +39,14 @@ DynamicElements_RESOURCE_FILES = \
 Resources/Info-DynamicElements.plist \
 Resources/Base.gswd \
 
+
 # The Objective-C source files to be compiled
 DynamicElements_OBJC_FILES = \
 BasePage.m \
 DynamicElements.m \
 DynamicElements_main.m \
 Main.m \
+FileUpload1Page.m \
 RadioButtonList1Page.m \
 RadioButtonList2Page.m \
 CheckBoxList1Page.m \
@@ -64,6 +63,7 @@ RadioButton2Page.m \
 
 DynamicElements_COMPONENTS = \
 Main.gswc \
+FileUpload1Page.gswc \
 RadioButtonList1Page.gswc \
 RadioButtonList2Page.gswc \
 CheckBoxList1Page.gswc \

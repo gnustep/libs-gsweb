@@ -1,0 +1,23 @@
+#include "Base"
+
+AFileUpload: GSWFileUpload
+{
+	filePath=aFilePath;
+	data=aFileData;
+};
+
+FileName: GSWString
+{
+        value = aFilePath;
+};
+
+FileSize: GSWString
+{
+        value = aFileData.length.description;
+};
+
+FileContent: GSWString
+{
+        value = aFileData.description;
+};
+
