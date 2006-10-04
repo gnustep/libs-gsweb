@@ -393,7 +393,6 @@ static NSData* lineFeedData=nil;
       NSMutableData* pendingData=nil;
       NSDate* maxDate=[NSDate dateWithTimeIntervalSinceNow:360]; //360s
       NSData* dataBlock=nil;
-      double sleepTime=0.250; //250ms
       int readenBytesNb=0;
       int headersBytesNb=0;
       int dataBytesNb=0;
@@ -542,12 +541,6 @@ static NSData* lineFeedData=nil;
 	         to insure the compiler finds the correct signature.  */
 	      NSDate *now = [NSDate date];
               isElapsed	=[now compare: maxDate]==NSOrderedDescending;
-              if (!isElapsed)
-                {
-                  NSTimeIntervalSleep(sleepTime);//Is this the good method ? //TODOV
-		  now = [NSDate date];
-                  isElapsed=[now compare:maxDate]==NSOrderedDescending;
-                };
             };
         } while (!isAllDataReaden && !isElapsed);
       ASSIGN(_remoteAddress,remoteAddr);

@@ -1,5 +1,9 @@
 2006-10-04  David Ayers  <ayers@fsfe.org>
 
+	* GSWeb.framework/GSWDefaultAdaptorThread.m
+	(readRequestReturnedRequestLine:returnedHeaders:returnedData:):
+	Remove superfluous sleep.
+
 	* Testing/DynamicElements/FileUpload1Page.gswc/FileUpload1Page.gswd
 	* Testing/DynamicElements/FileUpload1Page.gswc/FileUpload1Page.html
 	* Testing/DynamicElements/FileUpload1Page.h
