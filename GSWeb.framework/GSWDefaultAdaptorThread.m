@@ -481,14 +481,8 @@ static NSData* lineFeedData=nil;
             {
 	      /* Because +date returns (id) we use the variable
 	         to insure the compiler finds the correct signature.  */
-	      NSDate *now = [NSDate date];
-              isElapsed	=[now compare: maxDate]==NSOrderedDescending;
-              if (!isElapsed)
-                {
-                  NSTimeIntervalSleep(sleepTime);//Is this the good method ? //TODOV
-		  now = [NSDate date];
-                  isElapsed=[now compare:maxDate]==NSOrderedDescending;
-                };
+      	      NSDate *now = [NSDate date];
+              isElapsed	  = ([now compare: maxDate] == NSOrderedDescending);
             };
         } while (!isAllDataReaden && !isElapsed);
       ASSIGN(_remoteAddress,remoteAddr);
