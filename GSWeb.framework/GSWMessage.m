@@ -466,7 +466,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
       stringByConvertingToHTMLSEL = @selector(stringByConvertingToHTML:);
       NSAssert(stringByConvertingToHTMLSEL,@"No stringByConvertingToHTMLSEL");
            
-      globalDefaultEncoding = WOStrictFlag ? NSISOLatin1StringEncoding : GetDefEncoding();
+      globalDefaultEncoding = WOStrictFlag ? NSISOLatin1StringEncoding : [NSString defaultCStringEncoding];
       initGSWMessageDataCache();
     };
 };
