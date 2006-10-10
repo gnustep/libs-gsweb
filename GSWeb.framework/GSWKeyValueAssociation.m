@@ -79,10 +79,6 @@ RCS_ID("$Id$")
   retValue=[GSWAssociation valueInComponent: component
                                  forKeyPath:_keyPath];
 
-  if (_debugEnabled) {
-    [self logTakeValue:retValue];
-  }
-
   return retValue;
 };
 
@@ -90,13 +86,6 @@ RCS_ID("$Id$")
 -(void)setValue:(id)aValue
     inComponent:(GSWComponent*)object
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
-  NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@ (self=%@)",aValue,self);
-  if (aValue) 
-    {
-      NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([aValue class]));
-    }
   if ([_keyPath length]==0)
     {
       [NSException raise:NSInvalidArgumentException 
@@ -111,8 +100,6 @@ RCS_ID("$Id$")
   [GSWAssociation setValue:aValue
                   inComponent:object
                   forKeyPath:_keyPath];
-  [self logSetValue:aValue];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
