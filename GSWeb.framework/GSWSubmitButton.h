@@ -53,8 +53,6 @@
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 
--(void)_appendActionClassAndNameToResponse:(GSWResponse*)response
-                                 inContext:(GSWContext*)context;
 @end
 
 #endif //_GSWSubmitButton_h__

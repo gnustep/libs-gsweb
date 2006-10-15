@@ -128,7 +128,7 @@ static SEL valueInComponentSEL = NULL;
   
   if ((_list == nil) || (_value != nil || _displayString != nil) && 
         ((_item == nil) || (![_item isValueSettable])) || 
-        (_selections != nil) && (![_selections isValueSettable])) {
+        ((_selections != nil) && (![_selections isValueSettable]))) {
 
     [NSException raise:NSInvalidArgumentException
                 format:@"%s: 'list' must be present. 'item' must not be a constant if 'value' is present.  Cannot have 'displayString' or 'value' without 'item'.  'selection' must not be a constant if present.",

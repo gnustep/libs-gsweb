@@ -66,7 +66,7 @@ RCS_ID("$Id$")
                 format:@"%s: 'action' attribute is a constant",
                             __PRETTY_FUNCTION__];  
   }
-  if ((_action != nil) && (_directActionName != nil) || (_action != nil) && (_actionClass != nil)) {
+  if (((_action != nil) && (_directActionName != nil)) || ((_action != nil) && (_actionClass != nil))) {
     [NSException raise:NSInvalidArgumentException
                 format:@"%s: Either 'action' and 'directActionName' both exist, or 'action' and 'actionClass' both exist",
                             __PRETTY_FUNCTION__];    

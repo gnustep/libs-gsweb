@@ -43,32 +43,17 @@
   GSWAssociation * _directActionName;
 };
 
-#if !GSWEB_STRICT
--(BOOL)disabledInContext:(GSWContext*)context;
-#endif
--(BOOL)compactHTMLTags;
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 
 -(void)_appendHiddenFieldsToResponse:(GSWResponse*)response
                            inContext:(GSWContext*)context;
 
--(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)context;
--(NSString*)computeActionStringInContext:(GSWContext*)context;
-
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context;
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
-
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context;
-
--(void)_appendCGIActionToResponse:(GSWResponse*)response
-                        inContext:(GSWContext*)context;
-
-+(BOOL)hasGSWebObjectsAssociations;
 
 @end
 
