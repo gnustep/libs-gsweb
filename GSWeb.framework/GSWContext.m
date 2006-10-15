@@ -1934,10 +1934,5 @@ If none, try request languages
 };
 
 
-- (void) retain
-{
-  [super retain];
-}
-
 @end
 

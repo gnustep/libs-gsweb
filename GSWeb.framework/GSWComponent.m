@@ -35,6 +35,9 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+
+#include "GSWPrivate.h"
+
 #ifdef HAVE_GDL2
 #include <EOControl/EOKeyValueCoding.h>
 #endif
@@ -396,7 +399,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
   if (_isSynchronized && _keyAssociations != nil) {
     enumer = [_keyAssociations keyEnumerator];
-    while (aKey = [enumer nextObject]) {
+    while ((aKey = [enumer nextObject])) {
       assoc = [_keyAssociations objectForKey: aKey];
       if ([assoc isValueSettableInComponent:self]) {
         [assoc setValue:[self valueForKey: aKey]
@@ -499,7 +502,7 @@ static Class GSWHTMLBareStringClass = Nil;
     aComponentDefinition=_componentDefinition;
   } else {
     NSArray* languages=[self languages];
-    aComponentDefinition=[GSWApp componentDefinitionWithName:_name
+    aComponentDefinition=[GSWApp _componentDefinitionWithName:_name
                                  languages:languages];
     if ([self isCachingEnabled]) {
         ASSIGN(_componentDefinition,aComponentDefinition);
@@ -1070,8 +1073,6 @@ static Class GSWHTMLBareStringClass = Nil;
                   withObject:aContext];
 
   }
-  // do we need this?
-  [componentdefinition _awakeObserversForComponent:self];
 
   _session = nil;
   [self awake];
@@ -1504,7 +1505,7 @@ Call this method before using a component which was cached in a variable.
                                ofType:type_
                                languages:languages];
   return path;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1518,7 +1519,7 @@ Call this method before using a component which was cached in a variable.
                  withDefaultValue:defaultValue
                  inFramework:aFrameworkName
                  languages:[self languages]];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN

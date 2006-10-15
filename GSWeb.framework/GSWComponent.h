@@ -134,7 +134,7 @@
 -(id)valueForBinding:(NSString*)parentBindingName;
 -(BOOL)synchronizesVariablesWithBindings;
 -(BOOL)synchronizesParentToComponentVariablesWithBindings;
--(BOOL)synchronizesComponentToParentVariablesWithBindings;
+//-(BOOL)synchronizesComponentToParentVariablesWithBindings;
 -(BOOL) isStateless;
 -(void) reset;
 
@@ -198,8 +198,9 @@ Call this method before using a component which was cached in a variable.
 -(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext;
 -(id)validateValue:(id*)valuePtr
             forKey:(id)key;
-+(id)validateValue:(id*)valuePtr
-            forKey:(id)key;
+
+//+(id)validateValue:(id*)valuePtr
+//            forKey:(id)key;
 
 -(NSString*)stringForKey:(id)key
             inTableNamed:(NSString*)aName

@@ -29,6 +29,7 @@
 **/
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
 

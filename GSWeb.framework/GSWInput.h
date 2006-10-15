@@ -55,8 +55,6 @@
 
 -(void)dealloc;
 
--(NSString*)elementName;
-
 - (BOOL) disabledInComponent:(GSWComponent*) component;
 
 
@@ -64,9 +62,6 @@
 If no name is binded, it return the context id **/
 -(NSString*)nameInContext:(GSWContext*)context;
 
-//--------------------------------------------------------------------
-/** return the value used in appendValueToResponse:inContext: **/
--(id)valueInContext:(GSWContext*)context;
 
 /** Return YES if element is disabled, NO otherwise, 
 depending on disabled/enabled binding
@@ -76,30 +71,7 @@ depending on disabled/enabled binding
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
 
-/** Append the following elements to response:
-    tag
-    name (by calling -appendNameToResponse:inContext:)
-    value (by calling -appendValueToResponse:inContext:)
-    and others specified tag properties
-**/
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context;
 
-/** Append value property to response. 
-(Called by -appendGSWebObjectsAssociationsToResponse:inContext:)
-**/
--(void)appendValueToResponse:(GSWResponse*)response
-                   inContext:(GSWContext*)context;
-
-/** Append name property to response.
-name come from -nameInContext:
-*/
--(void)appendNameToResponse:(GSWResponse*)response
-                  inContext:(GSWContext*)context;
-
-
--(void)handleValidationException:(NSException*)exception
-                       inContext:(GSWContext*)context;
 
 @end
 

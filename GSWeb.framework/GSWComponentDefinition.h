@@ -84,6 +84,15 @@
 -(BOOL)isCachingEnabled;
 -(void)setCachingEnabled:(BOOL)flag;
 
+- (GSWElement *) template;
+
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)aType
+                       languages:(NSArray*)languages;
+                       
+-(NSDictionary*)componentAPI;
+                       
+
 @end
 
 
