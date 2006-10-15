@@ -36,17 +36,17 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWHTMLBareString
 
-//--------------------------------------------------------------------
 
 // we should ONLY support initWithString: ! dw
 -(id)init
 {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: use initWithString: to init",
-                              __PRETTY_FUNCTION__];
-};
+  [NSException raise:NSInvalidArgumentException
+              format:@"%s: use initWithString: to init",
+                          __PRETTY_FUNCTION__];
 
-//--------------------------------------------------------------------
+  return nil;                              
+}
+
 -(id)initWithString:(NSString*)aString
 {
   if ((self=[super init]))
@@ -54,47 +54,43 @@ RCS_ID("$Id$")
       ASSIGN(_string,aString);
     };
   return self;
-};
+}
 
-//--------------------------------------------------------------------
 -(void)dealloc
 {
   DESTROY(_string);
   [super dealloc];
 }
 
-//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - String:[%@]>",
                    object_get_class_name(self),
                    (void*)self,
                    _string];
-};
+}
 
-//--------------------------------------------------------------------
 -(NSString*)string
 {
   return _string;
-};
-//--------------------------------------------------------------------
+}
+
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
   GSWResponse_appendContentString(aResponse,_string);  
-};
+}
 
 
-//--------------------------------------------------------------------
 +(id)elementWithString:(NSString*)aString
 {
   return [[[GSWHTMLBareString alloc]initWithString:aString] autorelease];
-};
+}
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-};
+}
 
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
@@ -106,6 +102,6 @@ RCS_ID("$Id$")
 
   //Does Nothing
   return nil;
-};
+}
 
 @end
