@@ -42,11 +42,8 @@
      associations:(NSDictionary*)associations
          template:(GSWElement*)template;
 
--(void)dealloc;
 -(NSString*)valueAttributeName;
 -(NSString*)urlAttributeName;
--(NSString*)elementName;
--(NSString*)description;
 
 + (void) _appendFilenameToResponse:(GSWResponse *)   response
                          inContext:(GSWContext *)    context

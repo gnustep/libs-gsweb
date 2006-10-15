@@ -264,13 +264,13 @@ RCS_ID("$Id$")
 - (void) appendAttributesToResponse:(GSWResponse*) response
                           inContext:(GSWContext*) context
 {
-  NSString * s = nil;
-  GSWComponent * component = GSWContext_component(context);
+  NSString           * src = nil;
+  GSWComponent       * component = GSWContext_component(context);
   GSWResourceManager * resourcemanager = [GSWApp resourceManager];
   [super appendAttributesToResponse:response
                           inContext:context];
   if (_src != nil) {
-    s = [_src valueInComponent:component];
+    src = [_src valueInComponent:component];
   }
   if (_directActionName != nil || _actionClass != nil) {
     [response _appendTagAttribute:[self urlAttributeName]
@@ -281,13 +281,14 @@ RCS_ID("$Id$")
       [self _appendFilenameToResponse:response inContext:context];
     } else {
       if (_value != nil || _pageName != nil) {      
-        [response _appendTagAttribute: [self urlAttributeName]
-                                value: [context componentActionURL]
-           escapingHTMLAttributeValue: NO];      
+        GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                      [self urlAttributeName],
+                                                                      [context componentActionURL],
+                                                                      NO);
       } else {
-        if (s != nil) {
-          if ([s isRelativeURL] && (![s isFragmentURL])) {
-            NSString * s1 = [context _urlForResourceNamed: s 
+        if (src != nil) {
+          if ([src isRelativeURL] && (![src isFragmentURL])) {
+            NSString * s1 = [context _urlForResourceNamed: src 
                                               inFramework: nil];
             if (s1 != nil) {
               [response _appendTagAttribute: [self urlAttributeName]
@@ -300,13 +301,14 @@ RCS_ID("$Id$")
               GSWResponse_appendContentCharacter(response,'"');
               GSWResponse_appendContentAsciiString(response, [component baseURL]);
               GSWResponse_appendContentCharacter(response,'/');
-              GSWResponse_appendContentString(response,s);
+              GSWResponse_appendContentString(response,src);
               GSWResponse_appendContentCharacter(response,'"');
             }
           } else {
-              [response _appendTagAttribute: [self urlAttributeName]
-                                      value: s
-                 escapingHTMLAttributeValue: NO];
+              GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                            [self urlAttributeName],
+                                                                            src,
+                                                                            NO);
           }
         } else
         if (_data != nil && _mimeType != nil)
