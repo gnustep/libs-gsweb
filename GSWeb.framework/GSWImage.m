@@ -50,15 +50,17 @@ RCS_ID("$Id$")
     return nil;
   }
 
- ASSIGN(_width, [_associations objectForKey: width__Key]);
- if (_width != nil) {
-   [_associations removeObjectForKey: width__Key];
- }
- ASSIGN(_height, [_associations objectForKey: height__Key]);
- if (_height != nil) {
-   [_associations removeObjectForKey: height__Key];
- }
-                    
+  if ([_associations objectForKey: filename__Key] != nil) {
+    ASSIGN(_width, [_associations objectForKey: width__Key]);
+    if (_width != nil) {
+      [_associations removeObjectForKey: width__Key];
+    }
+    ASSIGN(_height, [_associations objectForKey: height__Key]);
+    if (_height != nil) {
+      [_associations removeObjectForKey: height__Key];
+    }
+  }     
+                
   return self;
 };
 
@@ -82,11 +84,6 @@ RCS_ID("$Id$")
   return @"src";
 };
 
-//--------------------------------------------------------------------
--(NSString*)elementName
-{
-  return @"img";
-};
 
 //--------------------------------------------------------------------
 -(NSString*)description
@@ -243,15 +240,18 @@ RCS_ID("$Id$")
   if (resourceURL != nil) {
     NSString * widthStr = nil;
     NSString * heightStr = nil;
+    
+    NSLog(@"%s resourceURL:%@",__PRETTY_FUNCTION__, resourceURL);
+    
     if (_width != nil || _height != nil) {
       if (_width != nil) {
         widthValue = [_width valueInComponent:component];
-        widthStr = widthValue != nil ? widthValue : nil;        // stringValue?
+        widthStr = widthValue != nil ? NSStringWithObject(widthValue) : nil;
         hasNoWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
       }
       if (_height != nil) {
         heightValue = [_height valueInComponent:component];
-        heightStr = heightValue != nil ? heightValue : nil;    // stringValue?
+        heightStr = heightValue != nil ? NSStringWithObject(heightValue) : nil;    // stringValue?
         hasNoHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
       }
     } else {
@@ -288,17 +288,21 @@ RCS_ID("$Id$")
        escapingHTMLAttributeValue: NO];
 
     if (widthStr != nil) {
-      [response _appendTagAttribute: @"width"
-                              value: widthStr
-         escapingHTMLAttributeValue: NO];
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                    width__Key,
+                                                                    widthStr,
+                                                                    NO);
     }
     if (heightStr != nil) {
-      [response _appendTagAttribute: @"height"
-                              value: heightStr
-         escapingHTMLAttributeValue: NO];
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                    height__Key,
+                                                                    heightStr,
+                                                                    NO);
     }
-  } else {
+  } else { // resourceURL is nil
  
+     NSLog(@"%s resourceURL is nil self:%@",__PRETTY_FUNCTION__, self);
+
     [response _appendTagAttribute:@"src"
                             value:[resourcemanager errorMessageUrlForResourceNamed: fileNameValue
                                                                        inFramework: frameworkName]
@@ -306,8 +310,8 @@ RCS_ID("$Id$")
   }
 }
 
-- (void) _appendCloseTagToResponse:(GSWResponse *) 
-                         inContext:(GSWContext *) context
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
 {
 // do nothing!
 }
