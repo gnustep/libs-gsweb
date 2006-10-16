@@ -103,10 +103,11 @@ static Class standardClass = Nil;
                       forKey:method__Key];
       DESTROY(methodAssoc);
   }
-  if (((_action != nil) && (_href != nil)) || ((_action != nil) &&
-      (_directActionName != nil)) || ((_href != nil) && 
-      (_directActionName != nil)) || ((_action != nil) && 
-      (_actionClass != nil)) || ((_href != nil) && (_actionClass != nil))) {
+  if (((_action != nil) && (_href != nil)) || 
+      ((_action != nil) && (_directActionName != nil)) || 
+      ((_href != nil) && (_directActionName != nil)) || 
+      ((_action != nil) && (_actionClass != nil)) || 
+      ((_href != nil) && (_actionClass != nil))) {
 
      [NSException raise:NSInvalidArgumentException
              format:@"%s: At least two of these conflicting attributes are present: 'action', 'href', 'directActionName', 'actionClass'",
