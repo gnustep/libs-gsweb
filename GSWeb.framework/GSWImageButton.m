@@ -244,13 +244,6 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
-//--------------------------------------------------------------------
--(NSString*)elementName
-{
-  return nil;//@"ELEMENTCHOSENBYCONTEXT";//TODO
-};
-
-//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",

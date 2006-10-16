@@ -35,9 +35,7 @@
 //OK
 //====================================================================
 @interface GSWPasswordField: GSWInput
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
+
 @end
 
 

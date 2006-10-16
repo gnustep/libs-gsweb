@@ -66,6 +66,8 @@
           baseURL:(NSString*)baseURL
     frameworkName:(NSString*)aFrameworkName;
 
+-(GSWComponent*)componentInstanceInContext:(GSWContext*)aContext;
+
 -(Class) componentClass;
 
 
@@ -89,6 +91,9 @@
 -(NSString*)pathForResourceNamed:(NSString*)aName
                           ofType:(NSString*)aType
                        languages:(NSArray*)languages;
+
+- (GSWComponentReference*) componentReferenceWithAssociations:(NSDictionary*)associations
+                                                     template:(GSWElement*)template;
                        
 -(NSDictionary*)componentAPI;
                        

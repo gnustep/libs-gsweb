@@ -46,32 +46,16 @@
   GSWAssociation * _actionClass;
   GSWAssociation * _directActionName;
   NSDictionary  * _otherQueryAssociations;
-};
+}
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement;
-
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext;
 
 -(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
                            inContext:(GSWContext*)aContext;
 
--(NSString*)computeActionStringInContext:(GSWContext*)aContext;
-
 -(void)_appendQueryStringToResponse:(GSWResponse*)aResponse
                           inContext:(GSWContext*)aContext;
 
--(NSDictionary*)computeQueryDictionaryInContext:(GSWContext*)aContext;
-
 -(void)_appendFragmentToResponse:(GSWResponse*)aResponse
-                       inContext:(GSWContext*)aContext;
-
--(void)_appendContentStringToResponse:(GSWResponse*)aResponse
-                            inContext:(GSWContext*)aContext;
-
--(void)_appendChildrenToResponse:(GSWResponse*)aResponse
                        inContext:(GSWContext*)aContext;
 
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest

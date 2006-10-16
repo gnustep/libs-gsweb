@@ -63,8 +63,10 @@
 -(NSString*)userDefinedString;
 -(id)userDefinedValue;
 -(BOOL)hitTest:(NSPoint*)point;
+
 -(BOOL)hitTestX:(int)x
               y:(int)y;
+              
 +(GSWGeometricRegion*)hitTestX:(int)x
                              y:(int)y
                      inRegions:(NSArray*)regions;

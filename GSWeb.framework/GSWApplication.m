@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include "GSWLifebeatThread.h"
 #include "GSWRecording.h"
 
@@ -386,7 +387,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 				    lifebeatPort:[[self class] lifebeatDestinationPort]
 				    interval:lifebeatInterval]);
           NSDebugMLLog(@"application",@"_lifebeatThread=%@",_lifebeatThread);
-#warning go only multi-thread if we want this!
+//#warning go only multi-thread if we want this!
 
           [NSThread detachNewThreadSelector:@selector(run:)
                     toTarget:_lifebeatThread
@@ -997,11 +998,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   return GSWApplicationSuffix[GSWebNamingConv];
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationC)
-
 //--------------------------------------------------------------------
 -(void)_resetCacheForGeneration
 {
@@ -1012,24 +1008,22 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)_resetCache
 {
   //OK
-  NSEnumerator* anEnum=nil;
-  id object=nil;
-  LOGObjectFnStart();
+  NSEnumerator           * anEnum     = nil;
+  GSWComponentDefinition * definition = nil;
+
   [self lock];
   NS_DURING
     {
-      NSDebugMLLog(@"application",@"componentDefinitionCache=%@",_componentDefinitionCache);
       anEnum=[_componentDefinitionCache objectEnumerator];
-      while ((object = [anEnum nextObject]))
+      while ((definition = [anEnum nextObject]))
         {
-          NSDebugMLLog(@"application",@"object=%@",object);
-          if (object!=GSNotFoundMarker && ![object isCachingEnabled])
-            [object _clearCache];
-        };
+          if (((NSString*)definition != GSNotFoundMarker) && (![definition isCachingEnabled]))
+            [definition _clearCache];
+        }
       if (![self isCachingEnabled])
         {
           [[GSWResourceManager _applicationGSWBundle] clearCache];
-        };
+        }
     }
   NS_HANDLER
     {
@@ -1041,7 +1035,7 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
 };
 
 @end
@@ -2282,16 +2276,13 @@ to another instance **/
   if ([someAssociations isAssociationDebugEnabledInComponent:nil])
     [someAssociations associationsSetDebugEnabled];
   elementClass=NSClassFromString(aName);
-  NSDebugMLLog(@"info",@"elementClass %p:%@",elementClass,elementClass);
-  NSDebugMLLog(@"info",@"elementClass superclass:%@",[elementClass superclass]);
+
   if (elementClass && !ClassIsKindOfClass(elementClass,[GSWComponent class]))
     {
-      NSDebugMLLog(@"info",@"CREATE Element of Class %p:%@",aName,aName);
-      element=[[[elementClass alloc] initWithName:aName
-                                     associations:someAssociations
-                                     template:templateElement]
+      element=[[(GSWDynamicElement*)[elementClass alloc] initWithName:aName
+                                                         associations:someAssociations
+                                                             template:templateElement]
                 autorelease];
-      NSDebugMLLog(@"info",@"Created Element %p: %@",element,element);
     }
   else
     {
@@ -2300,10 +2291,8 @@ to another instance **/
                                  languages:languages];
       if (componentDefinition)
         {
-          NSDebugMLLog(@"info",@"CREATE SubComponent %p:%@",aName,aName);
           element=[componentDefinition componentReferenceWithAssociations:someAssociations
                                          template:templateElement];
-          NSDebugMLLog(@"info",@"Created SubComponent %p: %@",element,element);
         }
       else
         {

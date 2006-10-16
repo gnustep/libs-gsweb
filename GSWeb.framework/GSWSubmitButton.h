@@ -47,9 +47,6 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
 
--(void)appendNameToResponse:(GSWResponse*)response
-                  inContext:(GSWContext*)context;
-
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 

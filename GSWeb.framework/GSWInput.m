@@ -243,67 +243,6 @@ static Class standardClass = Nil;
   DESTROY(_escapeHTML);
 
   [super dealloc];
-};
+}
 
-
-//GSWeb additions {
-/*
--(void)handleValidationException:(NSException*)exception
-                       inContext:(GSWContext*)aContext
-{
-  BOOL isValidationException=[exception isValidationException];
-  BOOL raise=YES;
-  LOGObjectFnStartC("GSWInput");
-  if (isValidationException)
-    {				  
-      GSWComponent* component=GSWContext_component(aContext);
-      id handleValidationException=[handleValidationException valueInComponent:component];
-      BOOL handle=NO;
-      if (!handleValidationException)
-        {
-          handleValidationException = [component handleValidationExceptionDefault];
-        };
-      if (handleValidationException)
-        {
-          if ([handleValidationException isEqualToString:@"handleAndRaise"])
-            {
-              handle=YES;
-              raise=YES;
-            }
-          else if ([handleValidationException isEqualToString:@"handle"])
-            {
-              handle=YES;
-              raise=NO;
-            }
-          else if ([handleValidationException isEqualToString:@"raise"])
-            {
-              handle=NO;
-              raise=YES;
-            }
-          else
-            {
-              NSDebugMLog(@"Unknown case for handleValidationException  %@",handleValidationException);
-            };
-        };
-      if (handle)
-        {
-          NSDebugMLog(@"Handled validation exception %@",exception);
-          [component setValidationFailureMessage:[[exception userInfo]objectForKey:@"message"]
-                     forElement:self];
-        }
-      else
-        {
-          NSDebugMLog(@"Unhandled validation exception %@",exception);
-        };
-    };
-  if (raise)
-    {
-      NSDebugMLog(@"Raise exception %@",exception);
-      exception=ExceptionByAddingUserInfoObjectFrameInfo0(exception,@"handleValidationException:inContext");
-      [exception raise];
-    };
-  LOGObjectFnStopC("GSWInput");
-};
-// }
-*/
 @end

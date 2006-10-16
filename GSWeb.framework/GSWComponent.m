@@ -147,68 +147,68 @@ static Class GSWHTMLBareStringClass = Nil;
 };
 
 //--------------------------------------------------------------------
--(void)encodeWithCoder:(NSCoder*)aCoder
-{
-  //TODOV
-  [super encodeWithCoder:aCoder];
-  [aCoder encodeObject:_name];
-  [aCoder encodeObject:_subComponents];
-  [aCoder encodeObject:_templateName];
-  [aCoder encodeObject:_template];
-  [aCoder encodeObject:_componentDefinition];
-  [aCoder encodeObject:_parent];
-  [aCoder encodeObject:_keyAssociations];
-  [aCoder encodeObject:_childTemplate];
-  [aCoder encodeObject:_context];
-  [aCoder encodeObject:_session];
-  [aCoder encodeValueOfObjCType:@encode(BOOL)
-          at:&_isPage];
-  [aCoder encodeValueOfObjCType:@encode(BOOL)
-          at:&_isCachingEnabled];
+//-(void)encodeWithCoder:(NSCoder*)aCoder
+//{
+//  //TODOV
+//  [super encodeWithCoder:aCoder];
+//  [aCoder encodeObject:_name];
+//  [aCoder encodeObject:_subComponents];
+//  [aCoder encodeObject:_templateName];
+//  [aCoder encodeObject:_template];
+//  [aCoder encodeObject:_componentDefinition];
+//  [aCoder encodeObject:_parent];
+//  [aCoder encodeObject:_keyAssociations];
+//  [aCoder encodeObject:_childTemplate];
+//  [aCoder encodeObject:_context];
+//  [aCoder encodeObject:_session];
 //  [aCoder encodeValueOfObjCType:@encode(BOOL)
-//          at:&_isParentToComponentSynchronized];
+//          at:&_isPage];
 //  [aCoder encodeValueOfObjCType:@encode(BOOL)
-//          at:&_isComponentToParentSynchronized];
-}
-
-//--------------------------------------------------------------------
--(id)initWithCoder:(NSCoder*)aCoder
-{
-  //TODOV
-  if ((self = [super initWithCoder:aCoder]))
-    {
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_name];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_subComponents];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_templateName];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_template];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_componentDefinition];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_parent];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_keyAssociations];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_childTemplate];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_context];
-      [aCoder decodeValueOfObjCType:@encode(id)
-              at:&_session];
-      [aCoder decodeValueOfObjCType:@encode(BOOL)
-              at:&_isPage];
-      [aCoder decodeValueOfObjCType:@encode(BOOL)
-              at:&_isCachingEnabled];
+//          at:&_isCachingEnabled];
+////  [aCoder encodeValueOfObjCType:@encode(BOOL)
+////          at:&_isParentToComponentSynchronized];
+////  [aCoder encodeValueOfObjCType:@encode(BOOL)
+////          at:&_isComponentToParentSynchronized];
+//}
+//
+////--------------------------------------------------------------------
+//-(id)initWithCoder:(NSCoder*)aCoder
+//{
+//  //TODOV
+//  if ((self = [super initWithCoder:aCoder]))
+//    {
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_name];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_subComponents];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_templateName];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_template];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_componentDefinition];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_parent];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_keyAssociations];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_childTemplate];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_context];
+//      [aCoder decodeValueOfObjCType:@encode(id)
+//              at:&_session];
 //      [aCoder decodeValueOfObjCType:@encode(BOOL)
-//              at:&_isParentToComponentSynchronized];
+//              at:&_isPage];
 //      [aCoder decodeValueOfObjCType:@encode(BOOL)
-//              at:&_isComponentToParentSynchronized];
-	};
-  return self;
-}
-
+//              at:&_isCachingEnabled];
+////      [aCoder decodeValueOfObjCType:@encode(BOOL)
+////              at:&_isParentToComponentSynchronized];
+////      [aCoder decodeValueOfObjCType:@encode(BOOL)
+////              at:&_isComponentToParentSynchronized];
+//	};
+//  return self;
+//}
+//
 //--------------------------------------------------------------------
 //	frameworkName
 
@@ -1642,5 +1642,6 @@ Call this method before using a component which was cached in a variable.
         };
     };
 };
+
 @end
 

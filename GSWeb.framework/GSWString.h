@@ -51,15 +51,12 @@
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
+// needed? dw.
+//-(NSFormatter*)formatterForComponent:(GSWComponent*)component
+//                               value:(id)value;
 
--(BOOL)appendStringAtLeft:(id)unkwnon
-              withMapping:(char*)mapping;
-
--(NSFormatter*)formatterForComponent:(GSWComponent*)component
-                               value:(id)value;
--(NSString*)formattedValueInContext:(GSWContext*)context;
+// needed? dw.
+// -(NSString*)formattedValueInContext:(GSWContext*)context;
 
 @end
 

@@ -41,6 +41,7 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWSessionTimeOutManager
+
 -(id)init
 {
   //OK
@@ -558,10 +559,6 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWSessionTimeOutManager (GSWSessionRefused)
 
 //--------------------------------------------------------------------
 -(void)startHandleTimerRefusingSessions

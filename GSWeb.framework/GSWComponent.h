@@ -35,7 +35,7 @@
 	#define _GSWComponent_h__
 
 
-@interface GSWComponent : GSWElement <NSCoding,NSCopying>
+@interface GSWComponent : GSWElement <NSCopying>
 {
 //TODO ==> private @private
     NSString* _name;

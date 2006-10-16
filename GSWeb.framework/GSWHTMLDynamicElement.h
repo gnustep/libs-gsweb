@@ -44,12 +44,7 @@
   NSString            * _constantAttributesRepresentation;
   NSMutableDictionary * _associations;
   BOOL                  _finishedInitialization;
-
-//  NSData* _elementsMap;
-//  NSArray* _htmlBareStrings;
-//  NSArray* _dynamicChildren;
-//  NSArray* _attributeAssociations;
-};
+}
 
 - (NSDictionary*) computeQueryDictionaryWithActionClassAssociation: (GSWAssociation*)actionClass
                                        directActionNameAssociation: (GSWAssociation*)directActionName
@@ -60,10 +55,24 @@
 -(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
                              directActionNameAssociation:(GSWAssociation*)directActionName
                                                inContext:(GSWContext*)context;
+
+-(void) appendNonURLAttributesToResponse:(GSWResponse*) response
+                               inContext:(GSWContext*) context;
+
+-(void) appendURLAttributesToResponse:(GSWResponse*) response
+                            inContext:(GSWContext*) context;
                                                          
+-(void) appendConstantAttributesToResponse:(GSWResponse*) response
+                                 inContext:(GSWContext*)aContext;
 
 -(void) appendAttributesToResponse:(GSWResponse *) response
                             inContext:(GSWContext*) context;
+
+-(void) _appendOpenTagToResponse:(GSWResponse *) response
+                       inContext:(GSWContext*) context;
+
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context;
                             
 - (NSString*) constantAttributesRepresentation;
 

@@ -105,19 +105,22 @@ RCS_ID("$Id$")
                              width:(GSWAssociation*) width 
                             height:(GSWAssociation*) height
 {
-  id widthValue = nil;
-  id heightValue = nil;
-  BOOL hasNoWidth = NO;
-  BOOL hasNoHeight = NO;
+  id         widthValue = nil;
+  id         heightValue = nil;
+  BOOL       hasNoWidth = NO;
+  BOOL       hasNoHeight = NO;
+  NSString * frameworkName;
 
   GSWResourceManager * resourcemanager = [GSWApp resourceManager];
 
   GSWComponent * component = GSWContext_component(context);
   
-  NSString* fileNameValue = [_filename valueInComponent:component];
+  NSString* fileNameValue = [filename valueInComponent:component];
 
-  NSString * frameworkName = [self _frameworkNameForAssociation: _framework 
-                                                    inComponent: component];
+  // i think we have to use component, because we are in a '+' method here. dw
+  
+  frameworkName = [(GSWHTMLDynamicElement*) component _frameworkNameForAssociation: framework 
+                                                                       inComponent: component];
 
   NSString * resourceURL = [context _urlForResourceNamed:frameworkName inFramework: frameworkName];
 

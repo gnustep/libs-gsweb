@@ -56,6 +56,8 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWSession
 
+extern id gcObjectsToBeVisited;
+
 //--------------------------------------------------------------------
 
 //	init
@@ -477,10 +479,6 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (Private)
 
 //--------------------------------------------------------------------
 -(void)_setContextArrayStack:(NSArray*)contextArrayStack
@@ -529,10 +527,6 @@ RCS_ID("$Id$")
   _requestCounter = requestCounter;
 }
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionA)
 
 //--------------------------------------------------------------------
 -(id)_initWithSessionID:(NSString*)aSessionID
@@ -562,11 +556,6 @@ RCS_ID("$Id$")
   return self;
 };
 
-@end
-
-//====================================================================
-
-@implementation GSWSession (GSWTermination)
 
 //--------------------------------------------------------------------
 //	isTerminating
@@ -648,10 +637,6 @@ RCS_ID("$Id$")
     _timeOut=timeOut;  
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionDebugging)
 
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)aFormat,...
@@ -663,10 +648,6 @@ RCS_ID("$Id$")
   va_end(ap);
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionD)
 
 //--------------------------------------------------------------------
 -(void)_debugWithString:(NSString*)string
@@ -674,11 +655,6 @@ RCS_ID("$Id$")
   [GSWApp debugWithString:string];
 };
 
-@end
-
-//====================================================================
-
-@implementation GSWSession (GSWPageManagement)
 
 //--------------------------------------------------------------------
 -(void)savePage:(GSWComponent*)page
@@ -902,10 +878,6 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionF)
 
 //--------------------------------------------------------------------
 -(void)clearCookieFromResponse:(GSWResponse*)aResponse
@@ -1000,11 +972,8 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
-@end
 
-//====================================================================
-@implementation GSWSession (GSWSessionG)
-extern id gcObjectsToBeVisited;
+
 //--------------------------------------------------------------------
 -(void)_releaseAutoreleasePool
 {
@@ -1269,10 +1238,6 @@ extern id gcObjectsToBeVisited;
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWLocalization)
 
 //--------------------------------------------------------------------
 -(void)setLanguages:(NSArray*)someLanguages
@@ -1390,10 +1355,6 @@ Returns first element of languages or nil if languages is empty
   return _languages;
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWComponentStateManagement)
 
 //--------------------------------------------------------------------
 //	objectForKey:
@@ -1441,10 +1402,6 @@ Returns first element of languages or nil if languages is empty
   return _componentState;
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWEnterpriseObjects)
 
 //--------------------------------------------------------------------
 -(EOEditingContext*)defaultEditingContext
@@ -1485,11 +1442,6 @@ Returns first element of languages or nil if languages is empty
         };
     };
 };
-
-@end
-
-//====================================================================
-@implementation GSWSession (GSWRequestHandling)
 
 //--------------------------------------------------------------------
 -(GSWContext*)context
@@ -1632,10 +1584,6 @@ NSLog(@"pageElement:%@ pageComponent:%@", pageElement, pageComponent);
 };
 
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWStatistics)
 
 //--------------------------------------------------------------------
 -(NSArray*)statistics
@@ -1691,11 +1639,7 @@ NSLog(@"pageElement:%@ pageComponent:%@", pageElement, pageComponent);
 -(void)_setBirthDate:(NSDate*)birthDate
 {
   ASSIGN(_birthDate,birthDate);
-};
-@end
-
-//====================================================================
-@implementation GSWSession (GSWEvents)
+}
 
 //--------------------------------------------------------------------
 -(BOOL)_allowedToViewEvents
@@ -1728,10 +1672,6 @@ NSLog(@"pageElement:%@ pageComponent:%@", pageElement, pageComponent);
   return [self _allowedToViewEvents];
 }
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionN)
 
 //--------------------------------------------------------------------
 -(GSWApplication*)application
@@ -1739,21 +1679,12 @@ NSLog(@"pageElement:%@ pageComponent:%@", pageElement, pageComponent);
   return [GSWApplication application];
 };
 
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionO)
 
 //--------------------------------------------------------------------
 -(void)_validateAPI
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
-
-@end
-
-//====================================================================
-@implementation GSWSession (GSWSessionClassA)
 
 //--------------------------------------------------------------------
 +(void)__setContextCounterIncrementingEnabled:(BOOL)flag

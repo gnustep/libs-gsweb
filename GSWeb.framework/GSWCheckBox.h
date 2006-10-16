@@ -37,13 +37,8 @@
 {
   GSWAssociation* _checked;
   GSWAssociation* _selection;
-};
+}
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(void)dealloc;
--(NSString*)description;
 
 @end
 

@@ -283,7 +283,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(GSWSession*)_restoreSessionWithID:(NSString*)aSessionID
                           inContext:(GSWContext*)aContext;
 -(void)saveSessionForContext:(GSWContext*)aContext;
--(void)_saveSessionForContext:(GSWContext*)aContext;
 @end
 
 //====================================================================

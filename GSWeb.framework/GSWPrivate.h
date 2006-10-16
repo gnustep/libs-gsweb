@@ -51,6 +51,8 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
 
 - (void) finishInitializingComponent:(GSWComponent*)component;
 
+- (void) _clearCache;
+
 @end
 
 @interface GSWApplication (PrivateDeclarations)

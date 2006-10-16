@@ -72,6 +72,9 @@ depending on disabled/enabled binding
                    inContext:(GSWContext*)context; 
 
 
+- (void) _appendNameAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*)context;
+
 
 @end
 

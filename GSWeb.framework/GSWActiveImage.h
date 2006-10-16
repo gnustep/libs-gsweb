@@ -60,13 +60,6 @@
   GSWAssociation * _directActionName;
 };
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(NSString*)elementName;
--(NSString*)description;
--(void)dealloc;
-
 
 -(GSWAssociation*)hitTestX:(int)x
                          y:(int)y
@@ -81,11 +74,10 @@
                    inContext:(GSWContext*)aContext; 
 
 -(NSString*)frameworkNameInContext:(GSWContext*)aContext;
--(NSString*)imageSourceInContext:(GSWContext*)aContext; //NDFN
--(NSString*)hrefInContext:(GSWContext*)aContext; //NDFN
 
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response_
-                                      inContext:(GSWContext*)aContext;
+
+-(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse
+                           inContext:(GSWContext*)aContext;
 
 @end
 

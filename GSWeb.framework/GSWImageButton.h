@@ -60,18 +60,9 @@
 
 -(void)dealloc;
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(NSString*)description;
--(NSString*)elementName;
-
 -(GSWAssociation*)hitTestX:(int)x
                          y:(int)y
                  inRegions:(NSArray*)regions;
-
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context;
 
 -(id)_imageURLInContext:(GSWContext*)context;
 
