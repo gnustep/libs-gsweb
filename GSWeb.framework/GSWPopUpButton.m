@@ -178,7 +178,7 @@ static SEL valueInComponentSEL = NULL;
               break;
             }
             itemValue = [valueArray objectAtIndex:k];
-            [_item setValue: [itemValue valueInComponent:component] inComponent:component];  // ???
+            [_item setValue: itemValue inComponent:component];  // ???
             valueValue = [_value valueInComponent:component];
             if (valueValue != nil) {
               if ([formValue isEqual:valueValue]) {       // stringValue?
