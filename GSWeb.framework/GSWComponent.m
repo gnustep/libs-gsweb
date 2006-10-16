@@ -397,7 +397,7 @@ static Class GSWHTMLBareStringClass = Nil;
   NSString           * aKey = nil; 
   GSWAssociation     * assoc = nil;
 
-  if (_isSynchronized && _keyAssociations != nil) {
+  if (_isSynchronized && (_keyAssociations != nil)) {
     enumer = [_keyAssociations keyEnumerator];
     while ((aKey = [enumer nextObject])) {
       assoc = [_keyAssociations objectForKey: aKey];
