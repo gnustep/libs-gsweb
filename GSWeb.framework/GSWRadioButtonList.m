@@ -78,84 +78,85 @@ static Class standardClass = Nil;
   if (self == [GSWRadioButtonList class])
     {
       standardClass=[GSWRadioButtonList class];
+    }
+}
 
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
-
-//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
-{
-  //OK
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWRadioButtonList");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",
-               aName,associations,elements);
-  _defaultEscapeHTML=1;
-  [tmpAssociations removeObjectForKey:list__Key];
-  [tmpAssociations removeObjectForKey:item__Key];
-  [tmpAssociations removeObjectForKey:index__Key];
-  [tmpAssociations removeObjectForKey:selection__Key];
-  if (!WOStrictFlag)
-    [tmpAssociations removeObjectForKey:selectionValue__Key];
-  [tmpAssociations removeObjectForKey:prefix__Key];
-  [tmpAssociations removeObjectForKey:suffix__Key];
-  [tmpAssociations removeObjectForKey:displayString__Key];
-  [tmpAssociations removeObjectForKey:escapeHTML__Key];
-  if ((self=[super initWithName:aName
-                   associations:tmpAssociations
-                   contentElements:nil]))
-    {
-      _list=[[associations objectForKey:list__Key
-                          withDefaultObject:[_list autorelease]] retain];
-      _item=[[associations objectForKey:item__Key
-                          withDefaultObject:[_item autorelease]] retain];
-      if (_item && ![_item isValueSettable])
-        {
-          ExceptionRaise0(@"GSWRadioButtonList",@"'item' parameter must be settable");
-        };
-      _index=[[associations objectForKey:index__Key
-                            withDefaultObject:[_index autorelease]] retain];
-      if (_index && ![_index isValueSettable])
-        {
-          ExceptionRaise0(@"GSWRadioButtonList",@"'index' parameter must be settable");
-        };
-      
-      _selection=[[associations objectForKey:selection__Key
-                                withDefaultObject:[_selection autorelease]] retain];
-      if (_selection && ![_selection isValueSettable])
-        {
-          ExceptionRaise0(@"GSWRadioButtonList",@"'selection' parameter must be settable");
-        };
-      if (!WOStrictFlag)
-        {
-          _selectionValue=[[associations objectForKey:selectionValue__Key
-                                         withDefaultObject:[_selectionValue autorelease]] retain];
-          if (_selectionValue && ![_selectionValue isValueSettable])
-            {
-              ExceptionRaise0(@"GSWRadioButtonList",@"'selectionValue' parameter must be settable");
-            };
-        };
-      _prefix=[[associations objectForKey:prefix__Key
-                             withDefaultObject:[_prefix autorelease]] retain];
-      _suffix=[[associations objectForKey:suffix__Key
-                             withDefaultObject:[_suffix autorelease]] retain];
-      _displayString=[[associations objectForKey:displayString__Key
-                                    withDefaultObject:[_displayString autorelease]] retain];
+         template:(GSWElement*)template
+{         
+  GSWAssociation * valueAssoc = nil;
 
-      if (!WOStrictFlag)
-        {
-          _isDisplayStringBefore=[[associations objectForKey:isDisplayStringBefore__Key
-                                                withDefaultObject:[_isDisplayStringBefore autorelease]] retain];
-        };
-      _escapeHTML=[[associations objectForKey:escapeHTML__Key
-                                 withDefaultObject:[_escapeHTML autorelease]] retain];
-    };
+  self = [super initWithName:aName associations:associations template: template];
+  if (!self) {
+    return nil;
+  }  
+
+  _loggedSlow = NO;
+
+  ASSIGN(_suffix, [_associations objectForKey: suffix__Key]);
+  if (_suffix != nil) {
+    [_associations removeObjectForKey: suffix__Key];
+  }
+
+
+  ASSIGN(_index, [_associations objectForKey: index__Key]);
+  if (_index != nil) {
+    [_associations removeObjectForKey: index__Key];
+  }
+
+  ASSIGN(_list, [_associations objectForKey: list__Key]);
+  if (_list != nil) {
+    [_associations removeObjectForKey: list__Key];
+  }
+
+  ASSIGN(_item, [_associations objectForKey: item__Key]);
+  if (_item != nil) {
+    [_associations removeObjectForKey: item__Key];
+  }
+
+  ASSIGN(_selection, [_associations objectForKey: selection__Key]);
+  if (_selection != nil) {
+    [_associations removeObjectForKey: item__Key];
+  }
+
+  ASSIGN(_prefix, [_associations objectForKey: prefix__Key]);
+  if (_prefix != nil) {
+    [_associations removeObjectForKey: prefix__Key];
+  }
+
+  ASSIGN(_displayString, [_associations objectForKey: displayString__Key]);
+  if (_displayString != nil) {
+    [_associations removeObjectForKey: displayString__Key];
+  }
+
+  ASSIGN(_escapeHTML, [_associations objectForKey: escapeHTML__Key]);
+  if (_escapeHTML != nil) {
+    [_associations removeObjectForKey: escapeHTML__Key];
+  }
+
+  if ((valueAssoc = [_associations objectForKey: value__Key])) {
+        [_associations removeObjectForKey: value__Key];
+  }
+  
+  if (_displayString == nil)
+  {
+    ASSIGN(_displayString, valueAssoc);
+    _defaultEscapeHTML = NO;
+  } else {
+    _defaultEscapeHTML = YES;
+  }
+  if ((_list == nil) || (_displayString != nil || _value != nil) &&
+     (_item == nil || (![_item isValueSettable])) ||
+     (_selection != nil && (![_selection isValueSettable])))
+  {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: 'list' must be present. 'item' must not be a constant if 'displayString' or 'value' is present.  'selections' must not be a constant if present.",
+                            __PRETTY_FUNCTION__];      
+  } 
+  
   return self;
-};
+}
 
 //-----------------------------------------------------------------------------------
 -(void)dealloc
@@ -164,22 +165,21 @@ static Class standardClass = Nil;
   DESTROY(_item);
   DESTROY(_index);
   DESTROY(_selection);
-  DESTROY(_selectionValue);//GSWeb Only
   DESTROY(_prefix);
   DESTROY(_suffix);
   DESTROY(_displayString);
-  DESTROY(_isDisplayStringBefore);//GSWeb Only
-  DESTROY(_escapeHTML);
+
   [super dealloc];
 }
 
-//--------------------------------------------------------------------
--(NSString*)description
+-(id) description
 {
-  return [NSString stringWithFormat:@"<%s %p>",
+  return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ index:%@ selection:%@ prefix:%@ suffix:%@ displayString:%@ escapeHTML:%@>",
                    object_get_class_name(self),
-                   (void*)self];
-};
+                   (void*)self, 
+                   _list, _item, _index,
+                   _selection, _prefix, _suffix, _displayString, _escapeHTML];
+}
 
 //--------------------------------------------------------------------
 -(NSString*)elementName
@@ -187,304 +187,188 @@ static Class standardClass = Nil;
   return @"INPUT";
 };
 
-@end
 
-//====================================================================
-@implementation GSWRadioButtonList (GSWRadioButtonListA)
 
-//-----------------------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context
-{
-  //OK
-  LOGObjectFnStartC("GSWRadioButtonList");
-  [self _slowTakeValuesFromRequest:request
-        inContext:context];
-  LOGObjectFnStopC("GSWRadioButtonList");
-};
-
-//-----------------------------------------------------------------------------------
 -(void)_slowTakeValuesFromRequest:(GSWRequest*)request
                         inContext:(GSWContext*)context
 {
-  //OK
-  BOOL disabledInContext=NO;
-  LOGObjectFnStartC("GSWRadioButtonList");
+  GSWComponent * component = GSWContext_component(context);
 
-  disabledInContext=[self disabledInContext:context];
-  if (!disabledInContext)
-    {
-      if ([context _wasFormSubmitted])
-        {
-          GSWComponent* component=GSWContext_component(context);
-          NSArray* listValue=nil; // _list value
-          NSString* name=nil;
-          BOOL found=NO;
-          id formValue=nil;
-          id valueValue=nil; // _value value (or autoValue)
-          id itemValue=nil; // _item value
-          NSString* valueValueString=nil; // _value value as string
-          id itemValueToSet=nil; // item value to set to _selection
-          id valueValueToSet=nil; // valueValue  to set to _selectionValue
-          int i=0;
-          int listValueCount=0;
+  if ((![self disabledInComponent:component]) && ([context _wasFormSubmitted])) {    
+    NSString * ctxName = [self nameInContext:context];
+    NSString * formValue = [request stringFormValueForKey: ctxName];
+    int        count    = 0;
+    int        i        = 0;
+    id         itemValue = nil;
+    id         valueValue = nil;
+    id         selValue = nil;
 
-          name=[self nameInContext:context];
-          NSDebugMLLog(@"gswdync",@"name=%@",name);
+    if (formValue != nil) {
+      NSArray* listValue = [_list valueInComponent:component];
 
-          formValue=[request formValueForKey:name];
-          NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
+      if ([listValue isKindOfClass:[NSArray class]] == NO) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+                            __PRETTY_FUNCTION__, [listValue class]];  
+      }
 
-          listValue=[_list valueInComponent:component];
-          NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
-                    @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
-                    _list,
-                    listValue,
-                    [listValue class]);
-          NSDebugMLLog(@"gswdync",@"listValue=%@",listValue);
+      count = [listValue count];
+      for (i = 0; i < count; i++) {
+        itemValue = [listValue objectAtIndex:i];
+        [_item setValue:itemValue
+            inComponent:component];
+        valueValue = [_value valueInComponent:component];
+        if (valueValue == nil) {
+          continue;
+        }
+        if ([formValue isEqual:valueValue]) {
+          selValue = itemValue;
+          break;
+        }
+        NSLog(@"%s: 'value' evaluated to nil in component %@ Unable to select item %@",
+              __PRETTY_FUNCTION__,self,itemValue);
+      }
 
-          listValueCount=[listValue count];
-          for(i=0;i<listValueCount && !found;i++)
-            {
-              NSDebugMLLog(@"gswdync",@"item=%@",_item);
-              NSDebugMLLog(@"gswdync",@"index=%@",_index);
+    }
+    [_selection setValue:selValue
+             inComponent:component];
 
-              itemValue=[listValue objectAtIndex:i];
-	      if (_item)
-		[_item setValue:itemValue
-                       inComponent:component];
-
-              if (_index)
-                [_index setValue:GSWIntNumber(i)
-                        inComponent:component];
-
-              NSDebugMLLog(@"gswdync",@"value=%@",_value);
-              if (_value)  	// Binded Value          
-                {
-                  valueValue = [_value valueInComponent:component];
-                  valueValueString=NSStringWithObject(valueValue);
-                }
-              else		// Auto Value
-                {
-                  valueValue = GSWIntNumber(i);
-                  valueValueString=GSWIntToNSString(i); 
-                };
-
-	      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-
-              if (valueValue)
-                {
-                  // we compare (with object equality not pointer equality) 
-                  BOOL isEqual=SBIsValueEqual(valueValueString,formValue);
-                  NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
-
-                  if (isEqual)
-                    {
-                      itemValueToSet=itemValue;
-                      valueValueToSet=valueValue;
-                      found=YES;
-                    };
-                };
-            };
-          NSDebugMLLog(@"gswdync",@"component=%@",component);
-          NSDebugMLLog(@"gswdync",@"found=%s",(found ? "YES" : "NO"));
-          NSDebugMLLog(@"gswdync",@"selection=%@",_selection);
-          GSWLogAssertGood(component);
-          NS_DURING
-            {
-              [_selection setValue:itemValueToSet
-                          inComponent:component];
-            };
-          NS_HANDLER
-            {
-              LOGException(@"GSWRadioButtonList _selection=%@ itemValueToSet=%@ exception=%@",
-                           _selection,itemValueToSet,localException);
-              if (WOStrictFlag)
-                {
-                  [localException raise];
-                }
-              else
-                {
-                  [self handleValidationException:localException
-                        inContext:context];
-                };
-            }
-          NS_ENDHANDLER;
-          if (!WOStrictFlag && _selectionValue)
-            {
-              NS_DURING
-                {
-                  [_selectionValue setValue:valueValueToSet
-                                   inComponent:component];
-                };
-              NS_HANDLER
-                {
-                  LOGException(@"GSWRadioButtonList _selectionValue=%@ valueValueToSet=%@ exception=%@",
-                               _selectionValue,valueValueToSet,localException);
-                  if (WOStrictFlag)
-                    {
-                      [localException raise];
-                    }
-                  else
-                    {
-                      [self handleValidationException:localException
-                            inContext:context];
-                    };
-                }
-              NS_ENDHANDLER;
-            };
-        };
-    };
-  LOGObjectFnStopC("GSWRadioButtonList");
-};
+  }
+}
 
 //-----------------------------------------------------------------------------------
 -(void)_fastTakeValuesFromRequest:(GSWRequest*)request
                         inContext:(GSWContext*)context
 {
-  LOGObjectFnStartC("GSWRadioButtonList");
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStopC("GSWRadioButtonList");
-};
+  GSWComponent * component = GSWContext_component(context);
+
+  if ((_selection != nil) && ((![self disabledInComponent:component]) && ([context _wasFormSubmitted]))) {
+
+    NSArray* listValue = nil;
+    id         selValue = nil;
+    NSString * ctxName = [self nameInContext:context];
+    NSString * formValue = [request stringFormValueForKey: ctxName];
+    
+    if (formValue != nil) {
+      NSArray* listValue = [_list valueInComponent:component];
+
+      if ([listValue isKindOfClass:[NSArray class]] == NO) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+                            __PRETTY_FUNCTION__, [listValue class]];  
+      }
+
+      selValue = [listValue objectAtIndex:[formValue intValue]];
+    }
+    [_selection setValue:selValue
+             inComponent:component];
+  }
+}
 
 //-----------------------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)context
 {
-  //OK
-  GSWRequest* request=nil;
-  BOOL isFromClientComponent=NO;
-  BOOL disabledInContext=NO;
-  NSString* name=nil;
-  GSWComponent* component=nil;
-  NSArray* listValue=nil;
-  id selectionValue=nil;
-  id selectionValueValue=nil;
-  int i=0;
-  id displayStringValue=nil;
-  BOOL isDisplayStringBefore=NO;
-  id prefixValue=nil;
-  id suffixValue=nil;
-  id valueValue=nil; // _value value (or auto value)
-  id itemValue=nil; // _item value
-  int listValueCount=0;
+  id             selectionsValue = nil;
+  int i = 0;
+  int j = 0;
+  BOOL           doEscape;
+  int            count           = 0;
+  GSWComponent * component       = GSWContext_component(context);
+  NSString     * ctxName         = [self nameInContext:context];
+  id             listValue       = [_list valueInComponent:component];
+  id             currentValue    = nil;  
+  id             valueValue      = nil;
 
-  LOGObjectFnStartC("GSWRadioButtonList");
+  if ([listValue isKindOfClass:[NSArray class]] == NO) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+                        __PRETTY_FUNCTION__, [listValue class]];  
+  }
 
-  request=[aContext request];
-  isFromClientComponent=[request isFromClientComponent];
-  name=[self nameInContext:aContext];
-  component=GSWContext_component(aContext);
+  doEscape = (_escapeHTML == nil) ? _defaultEscapeHTML : [_escapeHTML boolValueInComponent:component];
 
-  selectionValue=[_selection valueInComponent:component];
-  selectionValueValue=[_selectionValue valueInComponent:component];
 
-  listValue=[_list valueInComponent:component];
-  NSAssert3(!listValue || [listValue respondsToSelector:@selector(count)],
-            @"The list (%@) (%@ of class:%@) doesn't  respond to 'count'",
-            _list,
-            listValue,
-            [listValue class]);
+  selectionsValue = _selection == nil ? nil : [_selection valueInComponent:component];
+  
+  if (selectionsValue != nil) {
+    count = [selectionsValue count];
+  }
 
-  listValueCount=[listValue count];
-  for(i=0;i<listValueCount;i++)
+  for (j = 0; j < count; j++)
+  {
+    if (_index != nil) {
+      [_index setValue:GSWIntToNSString(j)
+           inComponent:component];
+    }
+    NSString * prefixStr = _prefix == nil ? nil : NSStringWithObject([_prefix valueInComponent:component]);
+    NSString * suffixStr = _suffix == nil ? nil : NSStringWithObject([_suffix valueInComponent:component]);
+    id        displayValue     = nil;
+    NSString * dispStr = nil;
+
+    currentValue = [listValue objectAtIndex:j];
+
+    if ((_item != nil) && (_displayString != nil)) {
+      [_item setValue:currentValue inComponent:component];
+      displayValue = [_displayString valueInComponent:component];
+
+      if (displayValue == nil) {
+        dispStr = NSStringWithObject(currentValue);
+        NSLog(@"%s: 'displayString' evaluated to nil in component %@. Using %@", 
+              __PRETTY_FUNCTION__, component, dispStr);
+      } else {
+        dispStr = NSStringWithObject(displayValue);
+      }
+    } else {
+      dispStr = NSStringWithObject(currentValue);
+    }
+    GSWResponse_appendContentAsciiString(response, @"<input name=\"");
+    GSWResponse_appendContentString(response,ctxName);
+    GSWResponse_appendContentAsciiString(response, @"\" type=radio value=\"");
+
+    if (_value != nil) {
+      valueValue = [_value valueInComponent:component];
+      if (valueValue != nil) {
+        GSWResponse_appendContentHTMLConvertString(response,NSStringWithObject(valueValue));
+      } else {
+        NSLog(@"%s: 'value' evaluated to nil in component %@. Using index", 
+              __PRETTY_FUNCTION__, component);
+      }
+    }
+    if (valueValue == nil) {
+      GSWResponse_appendContentString(response,ctxName);
+      GSWResponse_appendContentAsciiString(response,GSWIntToNSString(j));
+    }
+    if ((selectionsValue != nil) && ([selectionsValue isEqual:currentValue])) {
+      GSWResponse_appendContentAsciiString(response,@"\" checked>");
+    } else {
+      GSWResponse_appendContentAsciiString(response,@"\">");
+    }
+    if (prefixStr != nil) {
+      GSWResponse_appendContentString(response,prefixStr);
+    }
+    if (doEscape) {
+      GSWResponse_appendContentHTMLConvertString(response, dispStr);
+    } else {
+      GSWResponse_appendContentString(response,dispStr);
+    }
+    if (suffixStr != nil)
     {
-      BOOL isEqual=NO;
+      GSWResponse_appendContentString(response,suffixStr);
+    }
+  }
 
-      disabledInContext=[self disabledInComponent:component];
+}
 
-      itemValue=[listValue objectAtIndex:i];
-      [_item setValue:itemValue
-             inComponent:component];
-
-      prefixValue=[_prefix valueInComponent:component];
-      suffixValue=[_suffix valueInComponent:component];
-
-      [_index setValue:GSWIntNumber(i)
-              inComponent:component];
-
-      if (_isDisplayStringBefore)
-        {
-          isDisplayStringBefore=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                                         standardEvaluateConditionInContextIMP,
-                                                                         _isDisplayStringBefore,aContext);
-        };
-      displayStringValue=[_displayString valueInComponent:component];
-
-      if (isDisplayStringBefore)
-        GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
-
-      GSWResponse_appendContentString(aResponse,@"<INPUT NAME=\"");
-      GSWResponse_appendContentString(aResponse,name);
-
-      GSWResponse_appendContentString(aResponse,@"\" TYPE=radio VALUE=\"");
-
-      NSDebugMLLog(@"gswdync",@"_value (class: %@): %@",[_value class],_value);
-      // Value property of the INPUT tag
-      if (_value)  	// Binded Value          
-        {
-          valueValue = [_value valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);      
-          GSWResponse_appendContentHTMLAttributeValue(aResponse,valueValue);
-        }
-      else		// Auto Value
-        {
-          valueValue = GSWIntNumber(i);
-          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);      
-          GSWResponse_appendContentAsciiString(aResponse,GSWIntToNSString(i));
-        };
-      GSWResponse_appendContentCharacter(aResponse,'"');
-
-      NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
-      NSDebugMLLog(@"gswdync",@"selectionValue class=%@",[selectionValue class]);
-      NSDebugMLLog(@"gswdync",@"itemValue=%@",itemValue);
-      NSDebugMLLog(@"gswdync",@"itemValue class=%@",[itemValue class]);
-      if (selectionValue)
-        {
-          isEqual=SBIsValueEqual(itemValue,selectionValue);
-          NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
-        }
-
-      NSDebugMLLog(@"gswdync",@"selectionValueValue=%@",selectionValueValue);
-      NSDebugMLLog(@"gswdync",@"selectionValueValue class=%@",[selectionValueValue class]);
-      NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-      NSDebugMLLog(@"gswdync",@"valueValue class=%@",[valueValue class]);
-      if (isEqual==NO && selectionValueValue)
-        {
-          isEqual=SBIsValueEqual(valueValue,selectionValueValue);
-          NSDebugMLLog(@"gswdync",@"isEqual=%s",(isEqual ? "YES" : "NO"));
-        }
-
-      if (isEqual)
-        GSWResponse_appendContentString(aResponse,@" CHECKED");
-
-      if (disabledInContext)
-        GSWResponse_appendContentAsciiString(aResponse,@" DISABLED");
-
-      GSWResponse_appendContentCharacter(aResponse,'>');
-      GSWResponse_appendContentString(aResponse,prefixValue);
-      if (!isDisplayStringBefore)
-        GSWResponse_appendContentHTMLString(aResponse,displayStringValue);
-      GSWResponse_appendContentString(aResponse,suffixValue);
-    };
-  LOGObjectFnStopC("GSWRadioButtonList");
-};
-
-@end
-
-//====================================================================
-@implementation GSWRadioButtonList (GSWRadioButtonListB)
 -(BOOL)appendStringAtRight:(id)unkwnon
                withMapping:(char*)mapping
 {
-  LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
 -(BOOL)appendStringAtLeft:(id)unkwnon
               withMapping:(char*)mapping
 {
-  LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
@@ -492,5 +376,20 @@ static Class standardClass = Nil;
 {
   return NO;
 };
+
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
+{
+  if (_value != nil) {
+    if (!_loggedSlow) {
+      NSLog(@"%s Warning: Avoid using the 'value' binding as it is much slower than omitting it, and it is just cosmetic.",
+            __PRETTY_FUNCTION__);
+      _loggedSlow = YES;
+    }
+    [self _slowTakeValuesFromRequest:request inContext:context];
+  } else {
+    [self _fastTakeValuesFromRequest:request inContext:context];
+  }
+}
 
 @end
