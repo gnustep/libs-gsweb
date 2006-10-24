@@ -476,7 +476,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
 -(id)init 
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       GetGSWMessageIMPs(&_selfMsgIMPs,self);
@@ -485,7 +484,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
       _contentEncoding=[[self class] defaultEncoding];
       _checkBody(self);
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -643,12 +641,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   NSAssert(headers,@"No headers");
   NSAssert(key,@"No header key");
 
-  NSDebugMLLog(@"GSWMessage",@"_headers=%@",_headers);
-
   if (!_headers)
     _headers=[NSMutableDictionary new];
-
-  NSDebugMLLog(@"GSWMessage",@"key=%@ headers=%@",key,headers);
 
   [_headers setObject:headers
             forKey:key];
@@ -677,10 +671,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
  
 -(void)setHeaders:(NSDictionary*)headerDictionary
 {
-  NSDebugMLLog(@"GSWMessage",@"headerDictionary=%@",headerDictionary);
-
-  NSDebugMLLog(@"GSWMessage",@"_headers=%@",_headers);
-
   if (!_headers && [headerDictionary count]>0)
     _headers=[NSMutableDictionary new];
   
@@ -700,7 +690,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
  	};
     };
 
-  NSDebugMLLog(@"GSWMessage",@"_headers=%@",_headers);
 };
  
 //--------------------------------------------------------------------
@@ -800,20 +789,14 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 **/
 -(void)setContent:(NSData*)contentData
 {
-  LOGObjectFnStart();
   DESTROY(_contentData);
   GSWMessage_appendContentData(self,contentData);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 //	content
 -(NSData*)content
 {
-  LOGObjectFnStart();
-
-  LOGObjectFnStop();
-
   return _contentData;
 };
 
@@ -821,8 +804,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 -(NSString*)contentString
 {
   NSString* contentString=nil;
-
-  LOGObjectFnStart();
 
   NS_DURING
     {
@@ -841,10 +822,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 //--------------------------------------------------------------------
 -(void)appendContentData:(NSData*)contentData
 {
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"contentData:%@",contentData);
-
   if (contentData)
     {
       _checkBody(self);
@@ -859,16 +836,11 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
         };
 #endif
     };
-
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 - (void)appendContentString:(NSString *)aValue 
 {
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"aValue:%@",aValue);
 
   // checking [aValue length] takes too long!  
   if (aValue)
@@ -896,17 +868,11 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
         };
 #endif
     };
-
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(void)_appendContentAsciiString:(NSString*) aValue
 {
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"aValue:%@",aValue);
-
   // checking [aValue length] takes too long!  
   if (aValue)
     {
@@ -923,37 +889,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
               (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,ad);
             };
 #endif
-/*
-      NSData *myData = nil;
-      const char *lossyCString = NULL;
-      int    length = 0;
-      int    i = 0;
-      int    ch = 0;
-
-      lossyCString = [aValue lossyCString];
-      length = strlen(lossyCString);
-
-      _checkBody(self);
-  
-      for (i=0; i<length;i++)
-        {
-          ch = lossyCString[i];
-          myData=GSWMessageDataCache[ch];
-          (*_contentDataADImp)(_contentData,appendDataSel,myData);
-
-#ifndef NO_GNUSTEP
-          // Caching management
-          if (_currentCacheData)
-            {
-              assertCurrentCacheDataADImp();
-              (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
-            };
-#endif
-        }
-*/
     };
 
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -963,10 +900,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 {
   NSData *myData = nil;
   int i = aChar;
-
-  LOGObjectFnStart();
-  
-  NSDebugMLLog(@"low",@"aChar:%c",aChar);
 
   myData=GSWMessageDataCache[i];
   
@@ -993,8 +926,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
         };
 #endif
     }
-
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1016,7 +947,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
 -(void)setContentEncoding:(NSStringEncoding)encoding
 {
-  NSDebugMLLog(@"low",@"setContentEncoding:%d",(int)encoding);
   _contentEncoding=encoding;
 };
 
@@ -1032,7 +962,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 -(void)appendContentBytes:(const void*)bytes
                    length:(unsigned)length
 {
-  LOGObjectFnStart();
   if ((length>0) && (bytes != NULL))
     {
       [_contentData appendBytes:bytes
@@ -1047,7 +976,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
         };
 #endif
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1069,7 +997,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 -(void)replaceContentData:(NSData*)replaceData
                    byData:(NSData*)byData
 {
-  LOGObjectFnStart();
   if ([replaceData length]>0) // is there something to replace ?
     {
       NSDebugMLog(@"[_contentData length]=%d",[_contentData length]);
@@ -1080,7 +1007,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
                         range:NSMakeRange(0,[_contentData length])];
         };
     };
-  LOGObjectFnStop();
 };
 
 @end
@@ -1094,14 +1020,9 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
 -(void)appendContentHTMLAttributeValue:(NSString*)value
 {
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"response=%p value=%@",self,value);
 
   GSWMessage_appendContentString(self,
                                  GSWMessage_stringByEscapingHTMLAttributeValue(self,value));
-  
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1109,40 +1030,25 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
 -(void)appendContentHTMLString:(NSString*)aString
 {
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"aString=%@",aString);
 
   GSWMessage_appendContentString(self,
                                  GSWMessage_stringByEscapingHTMLString(self,aString));
-
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)appendContentHTMLConvertString:(NSString*)aString
 {
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"aString=%@",aString);
 
   GSWMessage_appendContentString(self,
                                  GSWMessage_stringByConvertingToHTML(self,aString));
-
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)appendContentHTMLEntitiesConvertString:(NSString*)aString
 {
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"low",@"aString=%@",aString);
 
   GSWMessage_appendContentString(self,
                                  GSWMessage_stringByConvertingToHTMLEntities(self,aString));
-
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1194,22 +1100,21 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 {
   //OK
   NSMutableArray* cookies=nil;
-  LOGObjectFnStart();
+
   cookies=[self _initCookies];
+
   if (cookie)
     [cookies addObject:cookie];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)removeCookie:(GSWCookie*)cookie
 {
   NSMutableArray* cookies=nil;
-  LOGObjectFnStart();
+
   cookies=[self _initCookies];
   if (cookie)
     [cookies removeObject:cookie];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1269,7 +1174,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   if ([cookies count]>0)
     {
       id cookiesHeadersValues=[self cookiesHeadersValues];
-      NSDebugMLLog(@"low",@"cookiesHeadersValues=%@",cookiesHeadersValues);
+
       [self setHeaders:cookiesHeadersValues
             forKey:cookiesKey];
     };
@@ -1329,7 +1234,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 -(int)startCache
 {
   int index=0;
-  LOGObjectFnStart();
 
   if (!_cachesStack)
     {
@@ -1343,7 +1247,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
   index=[_cachesStack count]-1;
 
-  LOGObjectFnStop();
   return index;
 };
 
@@ -1353,20 +1256,12 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   NSMutableData* cachedData=nil;
   int cacheStackCount=0;
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"GSWCacheElement",@"cacheIndex=%d",cacheIndex);
-
   cacheStackCount=[_cachesStack count];
-
-  NSDebugMLLog(@"GSWCacheElement",@"cacheStackCount=%d",cacheStackCount);
 
   if (cacheIndex<cacheStackCount)
     {
       cachedData=[_cachesStack objectAtIndex:cacheIndex];
       AUTORELEASE(RETAIN(cachedData));
-
-      NSDebugMLLog(@"GSWCacheElement",@"cachedData=%@",cachedData);
 
       // Last one ? (normal case)
       if (cacheIndex==(cacheStackCount-1))
@@ -1380,7 +1275,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
           while(cacheIndex<cacheStackCount)
             {
               NSData* tmp=[_cachesStack objectAtIndex:cacheIndex];
-              NSDebugMLLog(@"GSWCacheElement",@"tmp=%@",tmp);
+
               [cachedData appendData:tmp];
               [_cachesStack removeObjectAtIndex:cacheIndex];
             };
@@ -1404,10 +1299,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
           _currentCacheDataADImp=NULL;
         };
     };
-
-  NSDebugMLLog(@"GSWCacheElement",@"cachedData=%@",cachedData);
-
-  LOGObjectFnStop();
   
   return cachedData;
 }
