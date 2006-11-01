@@ -291,8 +291,8 @@ static Class standardClass = Nil;
 
   selectionsValue = _selection == nil ? nil : [_selection valueInComponent:component];
   
-  if (selectionsValue != nil) {
-    count = [selectionsValue count];
+  if (listValue != nil) {
+    count = [listValue count];
   }
 
   for (j = 0; j < count; j++)
@@ -306,6 +306,7 @@ static Class standardClass = Nil;
     id        displayValue     = nil;
     NSString * dispStr = nil;
 
+    valueValue   = nil;
     currentValue = [listValue objectAtIndex:j];
 
     if ((_item != nil) && (_displayString != nil)) {
@@ -336,7 +337,6 @@ static Class standardClass = Nil;
       }
     }
     if (valueValue == nil) {
-      GSWResponse_appendContentString(response,ctxName);
       GSWResponse_appendContentAsciiString(response,GSWIntToNSString(j));
     }
     if ((selectionsValue != nil) && ([selectionsValue isEqual:currentValue])) {
