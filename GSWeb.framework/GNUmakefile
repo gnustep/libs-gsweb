@@ -21,9 +21,6 @@
 #   License along with this library; if not, write to the Free
 #   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-# Install into the system root by default
-GNUSTEP_INSTALLATION_DIR = $(GNUSTEP_SYSTEM_ROOT)
-
 GNUSTEP_LOCAL_ADDITIONAL_MAKEFILES=../gsweb.make
 include $(GNUSTEP_MAKEFILES)/common.make
 ifeq ($(GDL2),yes)
@@ -47,10 +44,10 @@ FRAMEWORK_NAME = GSWeb WebObjects
 endif
 
 # Ensure that each framework uses its own GNUSTEP_OBJ_DIR_NAME & DERIVED_SRC
-ifneq ($(GNUSTEP_INSTANCE),)
-GNUSTEP_OBJ_DIR_NAME := $(GNUSTEP_OBJ_DIR_NAME)/$(GNUSTEP_INSTANCE)
-DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
-endif
+#ifneq ($(GNUSTEP_INSTANCE),)
+#GNUSTEP_OBJ_DIR_NAME := $(GNUSTEP_OBJ_DIR_NAME)/$(GNUSTEP_INSTANCE)
+#DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
+#endif
 
 WebObjects_CPPFLAGS = -DGSWEB_WONAMES
 
