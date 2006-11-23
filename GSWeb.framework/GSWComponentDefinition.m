@@ -634,7 +634,6 @@ languages:(NSArray*)languages
   LOGClassFnNotImplemented();	//TODOFN
 };
 
-// DW
 - (GSWElement *) template
 {
   BOOL htmlChangedOnDisk = NO;
@@ -647,6 +646,7 @@ languages:(NSArray*)languages
       wodChangedOnDisk = YES; // todo compare last chage date with load date
     }
   }
+  
   if (_htmlPath != nil && (_template == nil || htmlChangedOnDisk || wodChangedOnDisk)) {
   NS_DURING
     [TemplateLock lock];
