@@ -118,7 +118,7 @@ RCS_ID("$Id$")
           GSWSessionTimeOut* entry=[_timeOutManager sessionTimeOutForSessionID:aSessionID];
           NS_DURING
             {
-              expirationTime=(int)[entry sessionTimeOut];//seconds
+              expirationTime=(int)[entry sessionTimeOutValue];//seconds
               //NSLog(@"expirationTime=%d",(int)expirationTime);
               isCheckedOut=[entry isCheckedOut]; // See if session is used
               //NSLog(@"aSessionID=%@ isCheckedOut=%d",aSessionID,(int)isCheckedOut);

@@ -147,8 +147,8 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(NSString*)defaultRequestHandlerClassName;
 -(Class)defaultRequestHandlerClass;
 @end
-
-//====================================================================
+//
+////====================================================================
 @interface GSWApplication (GSWApplicationA)
 -(void)becomesMultiThreaded;
 @end

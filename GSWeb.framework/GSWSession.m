@@ -62,17 +62,18 @@ extern id gcObjectsToBeVisited;
 
 //	init
 -(id)init
-{
+{  
     if ((self = [super init]))
     {
-      NSTimeInterval sessionTimeOut=[GSWApplication sessionTimeOutValue];
+      NSNumber       *mytimeOutNum    = [[GSWApp class] sessionTimeOut];
+      NSTimeInterval mySessionTimeOut = [mytimeOutNum  doubleValue];
 
-      [self setTimeOut:sessionTimeOut];
-      [self _initWithSessionID:[[self class]createSessionID]];
+      [self setTimeOut:mySessionTimeOut];
+      [self _initWithSessionID:[[self class] createSessionID]];
     };
   
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)copyWithZone: (NSZone*)zone
@@ -265,42 +266,21 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogAssertGood(self);
-  NSDebugFLog(@"Dealloc GSWSession %p. %@",
-	      (void*)self, GSCurrentThread());
-  NSDebugFLog0(@"Dealloc GSWSession: sessionID");
   DESTROY(_sessionID);
-  NSDebugFLog0(@"Dealloc GSWSession:autoreleasePool ");
-  GSWLogMemCF("Destroy NSAutoreleasePool: %p. %@",
-	      _autoreleasePool, GSCurrentThread());
   DESTROY(_autoreleasePool);
-  NSDebugFLog0(@"Dealloc GSWSession: contextArrayStack");
   DESTROY(_contextArrayStack);
-  NSDebugFLog0(@"Dealloc GSWSession: contextRecords");
   DESTROY(_contextRecords);
-  NSDebugFLog0(@"Dealloc GSWSession: editingContext");
   DESTROY(_editingContext);
-  NSDebugFLog0(@"Dealloc GSWSession: languages");
   DESTROY(_languages);
-  NSDebugFLog0(@"Dealloc GSWSession: componentState");
   DESTROY(_componentState);
-  NSDebugFLog0(@"Dealloc GSWSession: birthDate");
   DESTROY(_birthDate);
-  NSDebugFLog0(@"Dealloc GSWSession: statistics");
   DESTROY(_statistics);
-  NSDebugFLog0(@"Dealloc GSWSession: formattedStatistics");
   DESTROY(_formattedStatistics);
-  NSDebugFLog0(@"Dealloc GSWSession: currentContext (set to nil)");
   _currentContext=nil;
-  NSDebugFLog0(@"Dealloc GSWSession: permanentPageCache");
   DESTROY(_permanentPageCache);
-  NSDebugFLog0(@"Dealloc GSWSession: permanentContextIDArray");
   DESTROY(_permanentContextIDArray);
-  NSDebugFLog0(@"Dealloc GSWSession: domainForIDCookies");
   DESTROY(_domainForIDCookies);
-  NSDebugFLog0(@"Dealloc GSWSession Super");
   [super dealloc];
-  NSDebugFLog0(@"End Dealloc GSWSession");
 }
 
 //--------------------------------------------------------------------
@@ -312,41 +292,44 @@ extern id gcObjectsToBeVisited;
   NSDebugMLLog(@"sessions",@"selfCount=%u",(unsigned int)[self retainCount]);
   NSDebugMLLog(@"sessions",@"sessionIDCount=%u",(unsigned int)[sessionID retainCount]);
   */
-  dscr=[NSString stringWithFormat:@"<%s %p>",
-				 object_get_class_name(self),
-				 (void*)self];
-  /*
+//  dscr=[NSString stringWithFormat:@"<%s %p>",
+//				 object_get_class_name(self),
+//				 (void*)self];
+  
   dscr=[NSString stringWithFormat:@"<%s %p - sessionID=%@ autoreleasePool=%p timeOut=%f contextArrayStack=%@",
 				 object_get_class_name(self),
 				 (void*)self,
-				 sessionID,
-				 (void*)autoreleasePool,
-				 timeOut,
-				 contextArrayStack];
+				 _sessionID,
+				 (void*)_autoreleasePool,
+				 _timeOut,
+				 _contextArrayStack];
+/*
   dscr=[dscr stringByAppendingFormat:@" contextRecords=%@ editingContext=%p languages=%@ componentState=%@ birthDate=%@",
 			 contextRecords,
 			 (void*)editingContext,
 			 languages,
 			 componentState,
 			 birthDate];
+
   dscr=[dscr stringByAppendingFormat:@" statistics=%@ formattedStatistics=%@ currentContext=%p permanentPageCache=%@",
 				   statistics,
 				   formattedStatistics,
 				   (void*)currentContext,
 				   permanentPageCache];
+
   dscr=[dscr stringByAppendingFormat:@" permanentContextIDArray=%@ contextCounter=%d requestCounter=%d isAllowedToViewStatistics=%s", 
 			 permanentContextIDArray,
 			 contextCounter,
 			 requestCounter,
 			 isAllowedToViewStatistics ? "YES" : "NO"];
-
+*/
   dscr=[dscr stringByAppendingFormat:@" isTerminating=%s isDistributionEnabled=%s storesIDsInCookies=%s storesIDsInURLs=%s hasSessionLockedEditingContext=%s>",
-				   isTerminating ? "YES" : "NO",
-				   isDistributionEnabled ? "YES" : "NO",
-				   storesIDsInCookies ? "YES" : "NO",
-				   storesIDsInURLs ? "YES" : "NO",
-				   hasSessionLockedEditingContext ? "YES" : "NO"];
-  */
+				   _isTerminating ? "YES" : "NO",
+				   _isDistributionEnabled ? "YES" : "NO",
+				   _storesIDsInCookies ? "YES" : "NO",
+				   _storesIDsInURLs ? "YES" : "NO",
+				   _hasSessionLockedEditingContext ? "YES" : "NO"];
+  
   return dscr;
 };
 

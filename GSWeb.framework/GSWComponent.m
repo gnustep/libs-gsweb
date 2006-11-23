@@ -444,7 +444,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
   if (_isSynchronized && (_keyAssociations != nil)) {
       enumer = [_keyAssociations keyEnumerator];
-      while (myKey = [enumer nextObject]) {
+      while ((myKey = [enumer nextObject])) {
         assoc = [_keyAssociations objectForKey: myKey];
         obj = [assoc valueInComponent:_parent];        
 #if HAVE_GDL2 // GDL2 implementation
@@ -1110,13 +1110,12 @@ Call this method before using a component which was cached in a variable.
 
 - (id<GSWActionResults>)performParentAction:(NSString *)attribute
 {
-  GSWAssociation *assoc=nil;
   GSWContext       *context = nil;
   GSWComponent     *component = _parent;
   id<GSWActionResults> actionresults = nil;
   
   if (!_parent) {
-    return;
+    return nil;
   }
   [context _setCurrentComponent:_parent];  
   [self pushValuesToParent];
@@ -1233,7 +1232,7 @@ Call this method before using a component which was cached in a variable.
   GSWContext * ctx = nil;
 
   if ((_context == nil) && (_session != nil)) {
-    if (ctx = [_session context]) {
+    if ((ctx = [_session context])) {
       [self _awakeInContext: ctx];
       [_context _takeAwakeComponent:self];
     }
