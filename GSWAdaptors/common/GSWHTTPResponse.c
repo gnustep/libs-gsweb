@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/param.h>
+#include <netdb.h>
 
 #include "config.h"
 #include "GSWUtil.h"

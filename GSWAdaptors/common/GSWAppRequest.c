@@ -199,7 +199,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
                   glbResponsesNb++;
                   if (pHTTPResponse)
                     {
-                      char *value =
+                      CONST char *value =
                         GSWDict_ValueForKey(pHTTPResponse->pHeaders,
                                             "x-gsweb-refusing-redirection");
                       if (value && (strncmp(value,"YES",3)==0))

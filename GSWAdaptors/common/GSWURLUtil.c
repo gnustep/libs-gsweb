@@ -59,7 +59,6 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
   CONST char *pszQueryStringMark=strchr(pszStart,'?');
   CONST char *pszTmpStop=(pszQueryStringMark && pszQueryStringMark<pszURLEnd) ?
     pszQueryStringMark : pszURLEnd;
-  int i, j;
   memset(p_pURLComponents,0,sizeof(GSWURLComponents));
 
   // First, get URL prefix

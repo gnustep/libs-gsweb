@@ -28,6 +28,7 @@ static char rcsId[] = "$Id$";
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/socket.h>

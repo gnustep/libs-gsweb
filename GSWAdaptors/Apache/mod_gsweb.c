@@ -86,6 +86,25 @@ typedef apr_pool_t pool;
 typedef apr_array_header_t array_header;
 typedef apr_table_t table;
 typedef apr_table_entry_t table_entry;
+
+
+#ifndef ap_palloc 
+#define ap_palloc apr_palloc
+#endif
+#ifndef ap_pstrdup
+#define ap_pstrdup apr_pstrdup
+#endif
+#ifndef ap_table_elts
+#define ap_table_elts apr_table_elts
+#endif
+#ifndef ap_table_add
+#define ap_table_add apr_table_add
+#endif
+
+#ifndef ap_http_method
+#define ap_http_method ap_run_http_scheme
+#endif
+
 #else
 //TODO: remove ??
 struct table

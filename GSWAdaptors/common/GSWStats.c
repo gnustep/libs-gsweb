@@ -78,7 +78,6 @@ char* GSWStats_formatStats(GSWTimeStats *p_pStats,
           double baseFloatSec=GSWTime_floatSec(p_pStats->_beginSendRequestTS-baseTS);
           char* p=p_pStats->_pszApplicationStats;
           char* resultStats=NULL;
-          int i=0;
           p_pStats->_pszRecalculedApplicationStats=malloc(applicatonStatsLen+100);
           resultStats=p_pStats->_pszRecalculedApplicationStats;
           while(*p)

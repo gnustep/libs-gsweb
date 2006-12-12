@@ -30,6 +30,7 @@
 #include <netdb.h>
 #include <sys/socket.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "GSWUtil.h"

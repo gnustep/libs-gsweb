@@ -173,7 +173,6 @@ GSWLoadBalancing_FindInstance(GSWAppRequest    *p_pAppRequest,
 {
   BOOL fFound=FALSE;
   GSWApp *pApp=NULL;
-  int i=0;
 
   GSWDebugLog(p_pLogServerData,"Start GSWLoadBalancing_FindInstance");
 

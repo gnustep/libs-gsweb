@@ -31,6 +31,8 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <time.h>
+
 #include "config.h"
 #include "GSWUtil.h"
 #include "GSWDict.h"
@@ -229,7 +231,7 @@ GSWAppInfo_MakeDictKeyName(char *pszName, int iInstance)
 {
   char *name = NULL;
 
-  if (name = calloc(1,50))
+  if ((name = calloc(1,50)))
     {
       if (pszName)
 	{

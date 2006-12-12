@@ -39,9 +39,6 @@
 
 
 extern GSWLock  g_lockAppList;
-extern GSWDict *g_pAppDict;
-extern time_t   config_mtime;
-
 
 extern const char *g_szGSWeb_AdaptorVersion;
 
@@ -104,6 +101,9 @@ typedef struct _GSWConfig
   char *pszAdaptorTemplatesPath;
 } GSWConfig;
 
+
+BOOL
+GSWConfig_LoadConfiguration(void *p_pLogServerData);
 
 EGSWConfigResult GSWConfig_ReadIFND(CONST char *p_pszConfigPath,
 				    time_t     *p_pLastReadTime,

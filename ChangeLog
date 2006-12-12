@@ -1,3 +1,23 @@
+2006-12-12  David Ayers  <ayers@fsfe.org>
+
+	* GSWAdaptors/Apache/mod_gsweb.c: Add defines to support Apache 2.2.
+	
+	* GSWAdaptors/common/GSWLoadBalancing.c
+	(GSWLoadBalancing_FindInstance): Remove unsused variable.
+	* GSWAdaptors/common/GSWStats.c (GSWStats_formatStats): Ditto.
+	* GSWAdaptors/common/GSWURLUtil.c (GSWParseURL): Ditto.
+	* GSWAdaptors/common/GSWHTTPResponse.c: Include netdb.h.
+	* GSWAdaptors/common/GSWApp.c: Include time.h.
+	(GSWAppInfo_MakeDictKeyName): Add parentheses to avoid compiler
+	warning.
+	* GSWAdaptors/common/GSWAppRequest.c
+	(GSWAppRequest_SendAppRequestToApp): Add missing CONST declaration.
+	* GSWAdaptors/common/GSWAppConnectSocket.c: Include unistd.h
+	* GSWAdaptors/common/GSWConfig.c: Ditto.
+	* GSWAdaptors/common/GSWConfig.h (g_pAppDict, config_mtime):
+	Remove unused declarations.
+	(GSWConfig_LoadConfiguration): Add missing declaration.
+	
 2006-11-15  Nicola Pero  <nicola.pero@meta-innovation.com>
 
 	Notice: you should now use 'make DESTDIR=/tmp/xxx install' if you
@@ -10,7 +30,6 @@
 	* GSWExtensions.framework/GNUmakefile: Same change.
 	* GSWExtensionsGSW.framework/GNUmakefile: Same change.
 	* Examples/hello/GNUmakefile: Same change.
-
 
 2006-10-04  David Ayers  <ayers@fsfe.org>
 
