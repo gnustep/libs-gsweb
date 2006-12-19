@@ -2,6 +2,23 @@
 
         * GSWAdaptors/common/GSWLoadBalancing.c: small cosmetic changes in spacing
 
+        Changed logging to include the file name and line number.
+        A logfile with "[debug] ../common/GSWUtil.c(165)" does not make much sense :-) 
+
+        * GSWAdaptors/Apache/mod_gsweb.c
+        * GSWAdaptors/common/GSWUtil.c
+        * GSWAdaptors/common/GSWLoadBalancing.c
+        * GSWAdaptors/common/GSWUtil.h
+        * GSWAdaptors/common/GSWDict.c
+        * GSWAdaptors/common/GSWHTTPRequest.c
+        * GSWAdaptors/common/GSWStats.c
+        * GSWAdaptors/common/GSWHTTPResponse.c
+        * GSWAdaptors/common/GSWURLUtil.c
+        * GSWAdaptors/common/GSWApp.c
+        * GSWAdaptors/common/GSWAppRequest.c
+        * GSWAdaptors/common/GSWAppConnectSocket.c
+        * GSWAdaptors/common/GSWConfig.c
+
 2006-12-12  David Ayers  <ayers@fsfe.org>
 
 	* GSWAdaptors/Apache/mod_gsweb.c: Add defines to support Apache 2.2.
