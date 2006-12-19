@@ -183,7 +183,7 @@ GSWeb_Init(server_rec *p_pServerRec,
 
   pConfig=GSWeb_GetServerConfig(p_pServerRec);
   GSWLog_Init(NULL,GSW_INFO);
-  GSWLog(GSW_INFO,p_pServerRec,
+  GSWLog(__FILE__, __LINE__,GSW_INFO,p_pServerRec,
 	 "GSWeb Init Start Config. Handler: " GSWEB_HANDLER);
   GSWDebugLog(p_pServerRec,
 	 "GSWeb_Init: pConfig->pszGSWeb=%s",
@@ -199,11 +199,11 @@ GSWeb_Init(server_rec *p_pServerRec,
 			 g_szGSWeb_Conf_DocRoot,
 			 pConfig->pszRoot);
 */
-  GSWLog(GSW_INFO,p_pServerRec,
+  GSWLog(__FILE__, __LINE__,GSW_INFO,p_pServerRec,
 	 "GSWeb Init LB Init. Handler: " GSWEB_HANDLER);
   GSWConfig_Init(pDict,p_pServerRec);
 	
-  GSWLog(GSW_INFO,p_pServerRec,
+  GSWLog(__FILE__, __LINE__,GSW_INFO,p_pServerRec,
 	 "GSWeb Init. Handler: " GSWEB_HANDLER);
   GSWDict_Free(pDict);
 };
@@ -302,7 +302,7 @@ GSWeb_Translation(request_rec *p_pRequestRec)
 				     p_pRequestRec->server);
       if (eError!=GSWURLError_OK)
 	{
-	  GSWLog(GSW_ERROR,p_pRequestRec->server,
+	  GSWLog(__FILE__, __LINE__,GSW_ERROR,p_pRequestRec->server,
 		 "GSWeb_Translation Declined (Error %d)",(int)eError);
 	  iRetValue=DECLINED;
 	}
@@ -618,7 +618,7 @@ dieWithMessage(request_rec *p_pRequestRec,
   server_rec      *pServerRec = p_pRequestRec->server;
 
   GSWDebugLog(pServerRec,"Start dieWithMessage");
-  GSWLog(GSW_ERROR,pServerRec,"Send Error Response: %s",p_pszMessage);
+  GSWLog(__FILE__, __LINE__,GSW_ERROR,pServerRec,"Send Error Response: %s",p_pszMessage);
 
   pResponse = GSWHTTPResponse_BuildErrorResponse(NULL,
                                                  p_pStats,
@@ -669,7 +669,7 @@ GSWeb_Handler(request_rec *p_pRequestRec)
   pConfig=GSWeb_GetServerConfig(p_pRequestRec->server);
 
   // Log the request
-  GSWLog(GSW_INFO,
+  GSWLog(__FILE__, __LINE__,GSW_INFO,
 	 pLogServerData,
 	 "GNUstepWeb New request: %s",
 	 p_pRequestRec->uri);
@@ -687,7 +687,7 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 	{
 	  pszURLError=GSWURLErrorMessage(eError,
 					 pLogServerData);
-	  GSWLog(GSW_INFO,pLogServerData,"URL Parsing Error: %s", pszURLError);
+	  GSWLog(__FILE__, __LINE__,GSW_INFO,pLogServerData,"URL Parsing Error: %s", pszURLError);
 	  if (eError==GSWURLError_InvalidAppName)
 	    {
 	      pResponse = GSWDumpConfigFile(&stStats,
@@ -778,7 +778,7 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 			      iRemainingLength=0;
 			    }
 			};
-		      GSWLog(GSW_INFO,pLogServerData,"pszBuffer(%p)=%.*s",
+		      GSWLog(__FILE__, __LINE__,GSW_INFO,pLogServerData,"pszBuffer(%p)=%.*s",
 			     (void *)pszBuffer,
 			     (int)pRequest->uContentLength,
 			     pszBuffer);

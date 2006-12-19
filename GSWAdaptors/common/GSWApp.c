@@ -60,12 +60,12 @@ void
 GSWApp_Free(GSWApp *p_pApp)
 {
   if (!p_pApp)
-    GSWLog(GSW_CRITICAL,NULL,"No App to free");
+    GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"No App to free");
   else
     {
       p_pApp->iUsageCounter--;
       if (p_pApp->iUsageCounter<0)
-	GSWLog(GSW_CRITICAL,NULL,
+	GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,
 	       "App  seems to have been freed too much times");
       if (p_pApp->iUsageCounter<=0)
 	{
@@ -90,17 +90,17 @@ GSWApp_AddInstance(GSWApp         *p_pApp,
 {
   if (!p_pApp)
     {
-      GSWLog(GSW_CRITICAL,NULL,"No App to add instance");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"No App to add instance");
     }
   else if (!p_pInstance)
     {
-      GSWLog(GSW_CRITICAL,NULL,"No instance to add");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"No instance to add");
     }
   else
     {
       if (p_pInstance->pApp!=p_pApp)
 	{
-	  GSWLog(GSW_CRITICAL,NULL,"Trying to add instance to another app");
+	  GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"Trying to add instance to another app");
 	  if (p_pInstance->pApp)
 	    p_pInstance->pApp->iUsageCounter--;
 	  p_pInstance->pApp=p_pApp;
@@ -164,7 +164,7 @@ GSWAppInstance_New(GSWApp *p_pApp)
   GSWAppInstance *pInstance=(GSWAppInstance*)calloc(1,sizeof(GSWAppInstance));
   memset(pInstance,0,sizeof(GSWAppInstance));
   if (!p_pApp)
-    GSWLog(GSW_CRITICAL,NULL,"Intance %p created without App",
+    GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"Intance %p created without App",
 	   pInstance);
   pInstance->pApp=p_pApp;
   return pInstance;

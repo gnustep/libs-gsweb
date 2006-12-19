@@ -34,7 +34,7 @@ GSWDict_SetCapacity(GSWDict *p_pDict,unsigned int p_uCapacity)
 {
   if (!p_pDict)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict");
     }
   else
     {
@@ -65,7 +65,7 @@ GSWDict_FreeElem(GSWDictElem *p_pElem,void *p_pData)
 {
   if (!p_pElem)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict pElem");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict pElem");
     }
   else
     {
@@ -93,7 +93,7 @@ GSWDict_Free(GSWDict *p_pDict)
 {
   if (!p_pDict)
     {
-      GSWLog(GSW_ERROR,NULL,"NULL GSWDict");
+      GSWLog(__FILE__, __LINE__, GSW_ERROR,NULL,"NULL GSWDict");
     }
   else
     {
@@ -122,7 +122,7 @@ GSWDict_Count(GSWDict *p_pDict)
   unsigned int uCount=0;
   if (!p_pDict)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict");
     }
   else
     {
@@ -144,7 +144,7 @@ GSWDict_Add(GSWDict    *p_pDict,
   GSWDictElem *pElem=NULL;
   if (!p_pDict)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict");
     }
   else
     {
@@ -165,7 +165,7 @@ GSWDict_Add(GSWDict    *p_pDict,
 	};
       if (!pElem)
 	{
-	  GSWLog(GSW_CRITICAL,NULL,"No pElem in GSWDict Add");
+	  GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"No pElem in GSWDict Add");
 	};
       pElem->pszKey=strdup(p_pszKey);
       pElem->pValue=p_pValue;
@@ -198,7 +198,7 @@ GSWDict_FindKey(GSWDict    *p_pDict,
   GSWDictElem *pElem=NULL;
   if (!p_pDict)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict");
     }
   else
     {
@@ -233,7 +233,7 @@ GSWDict_PerformForAllElem(GSWDict *p_pDict,
 {
   if (!p_pDict)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict");
     }
   else
     {
@@ -253,7 +253,7 @@ GSWDict_AllKeys(GSWDict *p_pDict)
   GSWList *pList=NULL;
   if (!p_pDict)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict");
     }
   else
     {
@@ -273,11 +273,11 @@ void GSWDict_AddStringDupFromDict(GSWDict *p_pDictDst,GSWDict *p_pDictSrc)
 {
   if (!p_pDictSrc)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict src");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict src");
     }
   else if (!p_pDictDst)
     {
-      GSWLog(GSW_CRITICAL,NULL,"NULL GSWDict dst");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,NULL,"NULL GSWDict dst");
     }
   else
     {

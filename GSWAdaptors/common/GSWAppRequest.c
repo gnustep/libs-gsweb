@@ -92,7 +92,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
 
   if (!fAppFound)
     {
-      GSWLog(GSW_WARNING,p_pLogServerData,
+      GSWLog(__FILE__, __LINE__, GSW_WARNING,p_pLogServerData,
              "App '%s' not found",
              p_pAppRequest->pszName);
       //TODO
@@ -118,7 +118,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
       while (!pHTTPResponse && fAppFound && iAttemptsRemaining-->0)
         {
           fAppNotResponding=FALSE;
-          GSWLog(GSW_INFO,p_pLogServerData,"Attempt# %d: Trying to contact %s:%d on %s:%d",
+          GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,"Attempt# %d: Trying to contact %s:%d on %s:%d",
                  (int)(APP_CONNECT_RETRIES_NB-iAttemptsRemaining),
                  p_pAppRequest->pszName,
                  p_pAppRequest->iInstance,
@@ -159,7 +159,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
                                              hConnect,
                                              p_pLogServerData) != 0)
                 {
-                  GSWLog(GSW_ERROR,p_pLogServerData,"Failed to send request to application %s:%d on %s:%d",
+                  GSWLog(__FILE__, __LINE__,GSW_ERROR,p_pLogServerData,"Failed to send request to application %s:%d on %s:%d",
                          p_pAppRequest->pszName,
                          p_pAppRequest->iInstance,
                          p_pAppRequest->pszHost,
@@ -205,7 +205,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
                       if (value && (strncmp(value,"YES",3)==0))
 			{
 			  // refuseNewSessions == YES in app
-			  GSWLog(GSW_INFO,p_pLogServerData,
+			  GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,
                                  "### This app (%s / %d) is refusing all new sessions ###",
 				 appName, appInstance);
 			  GSWAppInfo_Set(appName, appInstance, TRUE);
@@ -226,7 +226,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
           else
             {
               fAppNotResponding=TRUE;
-              GSWLog(GSW_WARNING,p_pLogServerData,
+              GSWLog(__FILE__, __LINE__, GSW_WARNING,p_pLogServerData,
                      "%s:%d NOT LISTENING on %s:%d",
                      p_pAppRequest->pszName,
                      p_pAppRequest->iInstance,
@@ -267,7 +267,7 @@ GSWAppRequest_SendAppRequestToApp(GSWHTTPRequest  **p_ppHTTPRequest,
 
       if (!pHTTPResponse)
         {
-          GSWLog(GSW_WARNING,p_pLogServerData,
+          GSWLog(__FILE__, __LINE__, GSW_WARNING,p_pLogServerData,
                  "Application %s not found or not responding",
                  p_pAppRequest->pszName);
           pHTTPResponse = GSWDumpConfigFile(p_pAppRequest->pStats,
@@ -318,7 +318,7 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 
   if (!p_pURLComponents)
     {
-      GSWLog(GSW_CRITICAL,p_pLogServerData,
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,
 	     "p_pURLComponents is NULL in GSWAppRequest_HandleRequest");
     }
   else
@@ -400,7 +400,7 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 			{
 			  stAppRequest.iInstance = atoi(pszInstanceCookie +
 			    strlen(g_szGSWeb_InstanceCookie[GSWNAMES_INDEX]));
-			  GSWLog(GSW_INFO,p_pLogServerData,
+			  GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,
 				 "Cookie instance %d from %s",
 				 stAppRequest.iInstance,
 				 pszCookie);
@@ -413,7 +413,7 @@ GSWAppRequest_HandleRequest(GSWHTTPRequest  **p_ppHTTPRequest,
 			    {
 			      stAppRequest.iInstance = atoi(pszInstanceCookie +
 			      strlen(g_szGSWeb_InstanceCookie[WONAMES_INDEX]));
-			      GSWLog(GSW_INFO,p_pLogServerData,
+			      GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,
 				     "Cookie instance %d from %s",
 				     stAppRequest.iInstance,
 				     pszCookie);

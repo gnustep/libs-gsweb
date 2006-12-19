@@ -99,7 +99,7 @@ GSWHTTPRequest_ValidateMethod(GSWHTTPRequest *p_pHTTPRequest,
   GSWDebugLog(p_pLogServerData,"Start GSWHTTPRequest_ValidateMethod");
   if (!p_pHTTPRequest)
     {
-      GSWLog(GSW_CRITICAL,p_pLogServerData,
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,
 	     "No Request in GSWHTTPRequest_ValidateMethod");
       pszMsg="No Request in GSWHTTPRequest_ValidateMethod";
     }
@@ -201,7 +201,7 @@ GSWHTTPRequest_HTTPToAppRequest(GSWHTTPRequest   *p_pHTTPRequest,
   
   GSWDict_Log(p_pHTTPRequest->pHeaders,p_pLogServerData);
 
-  GSWLog(GSW_INFO,p_pLogServerData,"App Request: %s",
+  GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,"App Request: %s",
 	 p_pHTTPRequest->pszRequest);
 
   GSWDebugLog(p_pLogServerData,"Stop GSWHTTPRequest_HTTPToAppRequest");

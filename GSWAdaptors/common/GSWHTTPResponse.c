@@ -93,7 +93,7 @@ GSWHTTPResponse_New(GSWTimeStats   *p_pStats,
 	};
     };
   if (!fOk)
-    GSWLog(GSW_ERROR,p_pLogServerData,"Invalid response");
+    GSWLog(__FILE__, __LINE__, GSW_ERROR,p_pLogServerData,"Invalid response");
   return pHTTPResponse;
 };
 
@@ -429,7 +429,7 @@ GSWHTTPResponse_GetResponse(GSWTimeStats   *p_pStats,
 	  GSWDebugLog(p_pLogServerData,"iReceivedCount=%d",iReceivedCount);
 	  if (iReceivedCount!= pHTTPResponse->uContentLength)
 	    {
-	      GSWLog(GSW_ERROR,p_pLogServerData,
+	      GSWLog(__FILE__, __LINE__, GSW_ERROR,p_pLogServerData,
 		     "Content received (%i) doesn't equal to ContentLength (%u). Too bad, same player shoot again !",
                      iReceivedCount,
                      pHTTPResponse->uContentLength);
@@ -464,7 +464,7 @@ GSWHTTPResponse_GetResponse(GSWTimeStats   *p_pStats,
       if (pHTTPResponse->pContent)
         {
 	  char szTraceBuffer[pHTTPResponse->uContentLength+1];
-	  GSWLog(GSW_INFO,p_pLogServerData,"\ncontent (%d Bytes)=\n",
+	  GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,"\ncontent (%d Bytes)=\n",
 	         pHTTPResponse->uContentLength);
 	  memcpy(szTraceBuffer,pHTTPResponse->pContent,
 		 pHTTPResponse->uContentLength);
@@ -474,7 +474,7 @@ GSWHTTPResponse_GetResponse(GSWTimeStats   *p_pStats,
 		      "%.*s",
 		      (int)pHTTPResponse->uContentLength,
 		      szTraceBuffer);
-//	  GSWLog(GSW_INFO,p_pLogServerData,"\nEND\n");
+//	  GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,"\nEND\n");
 	};
 #endif
 */
@@ -572,7 +572,7 @@ GSWHTTPResponse_BuildStatusResponse(GSWHTTPRequest *p_pHTTPRequest,
 
   GSWDebugLog(p_pLogServerData,
 	 "Start GSWHTTPResponse_BuildStatusResponse");
-  GSWLog(GSW_INFO,p_pLogServerData,"Build Status Page.");
+  GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,"Build Status Page.");
   GSWConfig_LoadConfiguration(p_pLogServerData);
   GSWDict_AddString(pHTTPResponse->pHeaders,
 		    g_szHeader_ContentType,
@@ -630,7 +630,7 @@ GSWDumpConfigFile(GSWTimeStats   *p_pStats,
   char             szReqAppName[MAXPATHLEN]="Unknown";
 
   GSWDebugLog(p_pLogServerData,"Start GSWDumpConfigFile");
-  GSWLog(GSW_INFO,p_pLogServerData,"Creating Applications Page.");
+  GSWLog(__FILE__, __LINE__, GSW_INFO,p_pLogServerData,"Creating Applications Page.");
   if (!g_pszLocalHostName)
     {
       char szHostName[MAXHOSTNAMELEN+1];

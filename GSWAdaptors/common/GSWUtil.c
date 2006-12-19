@@ -162,11 +162,11 @@ VGSWLogSizedIntern(char       *file,
       
 #if defined(Apache)
 #if defined(Apache2)
-      ap_log_error(APLOG_MARK,p_iLevel,0,
+      ap_log_error(file,line,p_iLevel,0,
                    (server_rec *)p_pLogServerData,
                    "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
 #else
-      ap_log_error(APLOG_MARK,p_iLevel,
+      ap_log_error(file,line,p_iLevel,
                    (server_rec *)p_pLogServerData,
                    "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
 #endif
@@ -176,7 +176,10 @@ VGSWLogSizedIntern(char       *file,
 
 //--------------------------------------------------------------------
 void
-GSWLog(int         p_iLevel,
+GSWLog(
+       char       *file,
+		   int         line,
+		   int         p_iLevel,
 #if	defined(Apache)
        server_rec *p_pLogServerData,
 #else
@@ -186,8 +189,9 @@ GSWLog(int         p_iLevel,
 {
   va_list ap;
   va_start(ap,p_pszFormat);
-  VGSWLogSizedIntern(NULL,
-		     0,
+  VGSWLogSizedIntern(
+		     file,
+		     line,
 		     NULL,
 		     p_iLevel,
 		     p_pLogServerData,
@@ -594,14 +598,14 @@ GSWUtil_HostLookup(CONST char *p_pszHost,
 
   if (!pHost)
     {
-      GSWLog(GSW_ERROR,p_pLogServerData,
+      GSWLog(__FILE__, __LINE__,GSW_ERROR,p_pLogServerData,
 	     "gethostbyname(%s) returns no host: %s",
 	     p_pszHost,
 	     hstrerror(error));
     }
   else if (pHost->h_addrtype != AF_INET)
     {
-      GSWLog(GSW_ERROR,p_pLogServerData,"Wrong address type in hostptr for host %s",p_pszHost);
+      GSWLog(__FILE__, __LINE__,GSW_ERROR,p_pLogServerData,"Wrong address type in hostptr for host %s",p_pszHost);
     };
   if (pHost)
     pHost=GSWUtil_CopyHostent(pHost);

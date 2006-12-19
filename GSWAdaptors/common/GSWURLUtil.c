@@ -202,7 +202,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
   if (!pURLCPrefix->pszStart || pURLCPrefix->iLength<=0)
     {
       eError=GSWURLError_InvalidPrefix;
-      GSWLog(GSW_ERROR,p_pLogServerData,"ParseURL GSWURLError_InvalidPrefix");
+      GSWLog(__FILE__, __LINE__, GSW_ERROR,p_pLogServerData,"ParseURL GSWURLError_InvalidPrefix");
     }
   else
     {
@@ -212,7 +212,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
       if (!pURLCAppName->pszStart || pURLCAppName->iLength<=0)
 	{
 	  eError=GSWURLError_InvalidAppName;
-	  GSWLog(GSW_ERROR,p_pLogServerData,
+	  GSWLog(__FILE__, __LINE__, GSW_ERROR,p_pLogServerData,
 		 "ParseURL GSWURLError_InvalidAppName");
 	}
       else
@@ -223,7 +223,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
 	  if (!pURLCAppNum->pszStart)
 	    {
 	      eError=GSWURLError_InvalidAppNumber;
-	      GSWLog(GSW_ERROR,p_pLogServerData,
+	      GSWLog(__FILE__, __LINE__, GSW_ERROR,p_pLogServerData,
 		     "ParseURL GSWURLError_InvalidAppNumber");
 	    }
 	  else
@@ -236,7 +236,7 @@ GSWParseURL(GSWURLComponents *p_pURLComponents,
 		  && pURLCReqHandlerPath->iLength>0)
 		{
 		  eError=GSWURLError_InvalidRequestHandlerKey;
-		  GSWLog(GSW_ERROR,p_pLogServerData,
+		  GSWLog(__FILE__, __LINE__, GSW_ERROR,p_pLogServerData,
 			 "ParseURL GSWURLError_InvalidRequestHandlerKey");
 		}
 	      else

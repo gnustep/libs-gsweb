@@ -183,7 +183,7 @@ void GSWStats_logStats(GSWTimeStats *p_pStats,
                        void         *p_pLogServerData)
 {
   char* formattedStats=GSWStats_formatStats(p_pStats,NULL,p_pLogServerData);
-  GSWLog(GSW_INFO,p_pLogServerData,"%s",formattedStats);
+  GSWLog(__FILE__, __LINE__,GSW_INFO,p_pLogServerData,"%s",formattedStats);
   if (formattedStats)
     free(formattedStats);
 };

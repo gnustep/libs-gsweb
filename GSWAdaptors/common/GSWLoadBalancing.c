@@ -84,7 +84,7 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
         {
           if (!pAppInstance->pApp)
         	{
-        	  GSWLog(GSW_CRITICAL,p_pLogServerData,
+        	  GSWLog(__FILE__, __LINE__,GSW_CRITICAL,p_pLogServerData,
         		 "AppInstance pApp is null pAppInstance=%p",
         		 pAppInstance);
         	};
@@ -94,7 +94,7 @@ GSWLoadBalancing_FindApp(GSWAppRequest    *p_pAppRequest,
         	    time(&curTime);
         	  if (pAppInstance->timeNextRetryTime<curTime)
         	    {
-        	      GSWLog(GSW_WARNING,
+        	      GSWLog(__FILE__, __LINE__,GSW_WARNING,
         		     p_pLogServerData,
                                     "LoadBalance: Instance %s:%d was marked dead for %d secs. Now resurecting !",
         		     p_pAppRequest->pszName, 
@@ -265,7 +265,7 @@ GSWLoadBalancing_MarkNotRespondingApp(GSWAppRequest *p_pAppRequest,
   pAppInstance->uOpenedRequestsNb--;
   pAppInstance->uNotRespondingRequestsNb++;
   pAppInstance->timeNextRetryTime=now+APP_CONNECT_RETRY_DELAY;
-  GSWLog(GSW_WARNING,p_pLogServerData,
+  GSWLog(__FILE__, __LINE__,GSW_WARNING,p_pLogServerData,
          "Marking %s unresponsive for %d s. notResonding count: %u handled count: %u",
 	 p_pAppRequest->pszName,(int)APP_CONNECT_RETRY_DELAY,
          pAppInstance->uNotRespondingRequestsNb,
@@ -287,7 +287,7 @@ GSWLoadBalancing_StartAppRequest(GSWAppRequest *p_pAppRequest,
   if (pAppInstance->timeNextRetryTime!=0)
     {
       pAppInstance->timeNextRetryTime=0;
-      GSWLog(GSW_WARNING,p_pLogServerData,
+      GSWLog(__FILE__, __LINE__,GSW_WARNING,p_pLogServerData,
 	     "Marking %s as alive",p_pAppRequest->pszName);
     };
 }

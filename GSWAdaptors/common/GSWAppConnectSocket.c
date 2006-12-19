@@ -58,7 +58,7 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
 
   if (!p_pAppRequest)
     {
-      GSWLog(GSW_CRITICAL,p_pLogServerData,
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,
              "No AppRequest !");
       //TODO
     }
@@ -76,7 +76,7 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
       pHost=GSWUtil_FindHost(p_pAppRequest->pszHost,p_pLogServerData);
       if (!pHost)
         {
-          GSWLog(GSW_ERROR,p_pLogServerData,
+          GSWLog(__FILE__, __LINE__, GSW_ERROR,p_pLogServerData,
                  "gethostbyname(%s) returns no host",
                  p_pAppRequest->pszHost);
         }
@@ -95,7 +95,7 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
           iSocketDescr=socket(pHost->h_addrtype,SOCK_STREAM, 0);
           if (iSocketDescr<0)
             {
-              GSWLog(GSW_ERROR,
+              GSWLog(__FILE__, __LINE__, GSW_ERROR,
                      p_pLogServerData,
                      "Can't Create socket to %s:%d. Error=%d (%s)",
                      p_pAppRequest->pszHost,
@@ -107,7 +107,7 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
             {
               if (connect(iSocketDescr,(struct sockaddr*)&sin,sizeof(sin))<0)
                 {
-                  GSWLog(GSW_ERROR,
+                  GSWLog(__FILE__, __LINE__, GSW_ERROR,
                          p_pLogServerData,
                          "Can't connect to %s:%d. Error=%d (%s)",
                          p_pAppRequest->pszHost,
@@ -122,7 +122,7 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
                   FILE* pFileRead=fdopen(iSocketDescr,"r");
                   if (!pFileRead)
                     {
-                      GSWLog(GSW_ERROR,
+                      GSWLog(__FILE__, __LINE__, GSW_ERROR,
                              p_pLogServerData,
                              "Can't open for reading. Error=%d (%s)",
                              errno,
@@ -135,7 +135,7 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
                       FILE* pFileWrite=fdopen(iSocketDescr,"w");
                       if (!pFileWrite)
                         {
-                          GSWLog(GSW_ERROR,
+                          GSWLog(__FILE__, __LINE__, GSW_ERROR,
                                  p_pLogServerData,
                                  "Can't open for writing. Error=%d (%s)",
                                  errno,
@@ -170,14 +170,14 @@ void GSWApp_Close(AppConnectHandle p_handle,void* p_pLogServerData)
 
   if (!p_handle)
     {
-      GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no Handle !");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no Handle !");
     }
   else
     {
       AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
       if (!handle->iSocketDescr)
         {
-          GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no socket desc !");
+          GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_Close: no socket desc !");
         }
       else
         {
@@ -200,14 +200,14 @@ int GSWApp_SendLine(AppConnectHandle p_handle, CONST char* p_pszBuffer,void* p_p
 
   if (!p_handle)
 	{
-	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_SendLine: no Handle !");
+	  GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_SendLine: no Handle !");
 	}
   else
 	{
 	  AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
 	  if (!handle->pFileWrite)
 		{
-		  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_SendLine: no write file handle !");
+		  GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_SendLine: no write file handle !");
 		}
 	  else
 		{
@@ -218,7 +218,7 @@ int GSWApp_SendLine(AppConnectHandle p_handle, CONST char* p_pszBuffer,void* p_p
 			}
 		  else
 			{
-			  GSWLog(GSW_ERROR,
+			  GSWLog(__FILE__, __LINE__, GSW_ERROR,
 					 p_pLogServerData,
 					 "GSWApp_SendLine failed. Error=%d (%s)",
 					 errno,
@@ -246,14 +246,14 @@ int GSWApp_SendBlock(AppConnectHandle p_handle,
 
   if (!p_handle)
 	{
-	  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_SendBlock: no Handle !");
+	  GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_SendBlock: no Handle !");
 	}
   else
 	{
 	  AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
 	  if (!handle->pFileWrite)
 		{
-		  GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_SendBlock: no write file handle !");
+		  GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_SendBlock: no write file handle !");
 		}
 	  else
 		{
@@ -261,7 +261,7 @@ int GSWApp_SendBlock(AppConnectHandle p_handle,
 		  fflush(handle->pFileWrite);		  
 		  if (iBytesSent<0)
 			{
-			  GSWLog(GSW_ERROR,
+			  GSWLog(__FILE__, __LINE__, GSW_ERROR,
 					 p_pLogServerData,
 					 "send failed. Error=%d (%s)",
 					 errno,
@@ -290,14 +290,14 @@ int GSWApp_ReceiveLine(AppConnectHandle p_handle,
   *p_pszBuffer=0;
   if (!p_handle)
     {
-      GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no Handle !");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no Handle !");
     }
   else
     {
       AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
       if (!handle->pFileRead)
         {
-          GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no read file handle !");
+          GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveLine: no read file handle !");
         }
       else
         {
@@ -331,14 +331,14 @@ int GSWApp_ReceiveBlock(AppConnectHandle p_handle,
 
   if (!p_handle)
     {
-      GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no Handle !");
+      GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no Handle !");
     }
   else
     {
       AppConnectSocketHandle handle=(AppConnectSocketHandle)p_handle;
       if (!handle->pFileRead)
         {
-          GSWLog(GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no read file handle !");
+          GSWLog(__FILE__, __LINE__, GSW_CRITICAL,p_pLogServerData,"GSWApp_ReceiveBlock: no read file handle !");
         }
       else
         {

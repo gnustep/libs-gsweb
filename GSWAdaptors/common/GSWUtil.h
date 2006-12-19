@@ -86,7 +86,7 @@ long GSWTime_msecPart(GSWTime t);
 	{ if (!(condition)) \
 		{ \
                   char* format=0; \
-                  GSWLog(GSW_CRITICAL,p_pLogServerData,"ARGHH"); \
+                  GSWLog(__FILE__, __LINE__,GSW_CRITICAL,p_pLogServerData,"ARGHH"); \
                   format=malloc(strlen(p_pszFormat)+strlen(__FILE__)+101); \
   		  sprintf(format,"In %s (%d): %s",__FILE__,__LINE__,p_pszFormat); \
 		  free(format); \
@@ -94,7 +94,9 @@ long GSWTime_msecPart(GSWTime t);
 
 //====================================================================
 // Log Functions
-void GSWLog(int p_iLevel,
+void GSWLog(       char       *file,
+		   int         line,
+int p_iLevel,
 #if	defined(Apache)
 	    server_rec *p_pLogServerData,
 #else
@@ -103,9 +105,9 @@ void GSWLog(int p_iLevel,
 	    CONST char *p_pszFormat, ...);
 
 #define GSWDebugLog(p_pLogServerData,p_pszFormat, args...); \
-			GSWLog(GSW_DEBUG,p_pLogServerData,p_pszFormat,  ## args);
+			GSWLog(__FILE__, __LINE__,GSW_DEBUG,p_pLogServerData,p_pszFormat,  ## args);
 #define GSWDebugLogCond(condition,p_pLogServerData,p_pszFormat, args...); \
-			{ if ((condition)) GSWLog(GSW_DEBUG,p_pLogServerData,p_pszFormat,  ## args);};
+			{ if ((condition)) GSWLog(__FILE__, __LINE__,GSW_DEBUG,p_pLogServerData,p_pszFormat,  ## args);};
 
 void GSWLogSized(int p_iLevel,
 #if	defined(Apache)
