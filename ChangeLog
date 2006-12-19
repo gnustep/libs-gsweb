@@ -1,3 +1,7 @@
+2006-12-19  David Wetzel <dave@turbocat.de>
+
+        * GSWAdaptors/common/GSWLoadBalancing.c: small cosmetic changes in spacing
+
 2006-12-12  David Ayers  <ayers@fsfe.org>
 
 	* GSWAdaptors/Apache/mod_gsweb.c: Add defines to support Apache 2.2.
