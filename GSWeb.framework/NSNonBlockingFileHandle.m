@@ -78,6 +78,7 @@
   return data;
 };
 
+
 -(unsigned int)_availableByteCountNonBlocking
 {
   int numBytes=0;

@@ -158,7 +158,7 @@ static NSData* lineFeedData=nil;
     {
       requestOk=[self readRequestReturnedRequestLine:&requestLine
                       returnedHeaders:&headers
-                      returnedData:&data];
+                      returnedData:&data];                      
     }
   NS_HANDLER
     {
@@ -286,55 +286,97 @@ static NSData* lineFeedData=nil;
   return nil; //??
 };
 
-//--------------------------------------------------------------------
-+(NSMutableArray*)completeLinesWithData:(NSMutableData*)data
-                  returnedConsumedCount:(int*)consumedCount
-                 returnedHeadersEndFlag:(BOOL*)headersEndFlag
+
+
+NSMutableArray* unpackData(NSMutableData* data)
 {
-  NSMutableArray* lines=nil;
-  int length=0;
-  length=[data length];
-  if (length>0)
-    {
+  NSMutableArray* lines  = [NSMutableArray new];
+  int             length = [data length];
+
+  if (length>0) {
       NSRange range=NSMakeRange(0,0);
       int i=0;
+      int lastIndex=0;
+      NSString * tmpString = nil;
       char* dataBytes=(char*)[data mutableBytes];
       BOOL endHeaders=NO;
       while(!endHeaders && i<length)
         {
-          if (dataBytes[i]=='\n')
-            {
-              if (range.length>0)
-                {
-                  NSString* tmpString=[[[NSString alloc]initWithData:[data subdataWithRange:range]
-                                                        encoding:NSASCIIStringEncoding]autorelease];
-                  if (!lines)
-                    lines=[NSMutableArray array];
-                  [lines addObject:tmpString];
-                }
-              else // End Header
-                {
-                  endHeaders=YES;
-                };
-              range.location=i+1;
-              range.length=0;
+          if (dataBytes[i]=='\n') {
+            range.location=lastIndex;
+            range.length=(i-range.location);
+            lastIndex = i+1;
+            
+            if (range.length > 1) {            
+              tmpString=[[NSString alloc] initWithData: [data subdataWithRange:range]
+                                  encoding:NSASCIIStringEncoding];
+  
+              [lines addObject: [tmpString stringByTrimmingSpaces]];
+              [tmpString release];
+            } else {
+              endHeaders=YES;
             }
-          else
-            range.length++;
           i++;
-        };
-      range.length=length-range.location;
-      if (range.length>0)
-        memcpy(dataBytes,dataBytes+range.location,range.length);
-      [data setLength:range.length];
-      if (consumedCount)
-        *consumedCount=length-range.length;
-      if (headersEndFlag)
-        *headersEndFlag=endHeaders;
-    };
+          } else {
+            i++;
+          }
+        }
+    }
 
-  return lines;
-};
+  return [lines autorelease];
+}
+
+
+- (NSDictionary*) unpackHeaders:(NSArray*) lines
+{
+  NSMutableDictionary* headers   = [NSMutableDictionary dictionary];
+  int                  count     = 0;
+  int                  i         = 0;
+  NSArray*             prevValue = nil;
+  
+  if ((lines) && ([lines count] > 1)) {
+    count = [lines count];
+    for (i=1;i<count-1;i++) {
+      NSString  * tmpLine    = [lines objectAtIndex:i];
+      NSArray   * components = [tmpLine componentsSeparatedByString:@": "];
+      NSString  * value      = nil;
+      NSArray  * newValue      = nil;
+      NSString  * key        = nil;
+            
+      if ((components) && ([components count] == 2)) {
+        value = [components objectAtIndex:1];
+        key = [components objectAtIndex:0];
+        key = [[key stringByTrimmingSpaces] lowercaseString];
+
+        if ([key isEqualToString:GSWHTTPHeader_AdaptorVersion[GSWNAMES_INDEX]]
+            || [key isEqualToString:GSWHTTPHeader_ServerName[GSWNAMES_INDEX]]) {
+           _requestNamingConv=GSWNAMES_INDEX;
+           goto keyDone;
+        }
+        if ([key isEqualToString:GSWHTTPHeader_AdaptorVersion[WONAMES_INDEX]]
+                  || [key isEqualToString:GSWHTTPHeader_ServerName[WONAMES_INDEX]]) {
+          _requestNamingConv=WONAMES_INDEX;
+          goto keyDone;
+        }
+        
+        keyDone:
+            
+        prevValue=[headers objectForKey:key];
+        if (prevValue) {
+          newValue=[prevValue arrayByAddingObject:value];
+        } else {
+          newValue=[NSArray arrayWithObject:value];
+        }
+
+        [headers setObject: newValue
+                    forKey: key];
+      }
+    }
+  }
+
+  return headers;
+}
+
 
 //--------------------------------------------------------------------
 /** read request from crrent stream and put request line, headers and data in 
@@ -344,166 +386,115 @@ static NSData* lineFeedData=nil;
                       returnedHeaders:(NSDictionary**)headersPtr
                          returnedData:(NSData**)dataPtr
 {
-  BOOL ok=NO;
+  NSMutableData* pendingData=nil;
+  NSData* dataBlock=nil;
+  NSData* dataBlock2=nil;
+  int totalBytes=0;
+  int tries=0;
+  int dataBlockLength=0;
+  int contentLength=-1;
+  BOOL newLineSeen=NO;
+  BOOL allDataRead=NO;
+  BOOL isElapsed=NO;
+  BOOL headersDone=NO;
+  NSArray *listItems = nil;
+  NSMutableData * allMimeData = nil;
+  NSDictionary * headerDict = nil;
+  
+  time_t starttime, now;
 
   if (!_stream)
-    {
-      ExceptionRaise0(@"GSWDefaultAdaptorThread",@"no stream");
-    }
-  else
-    {
-#define REQUEST_METHOD__UNKNOWN	0
-#define REQUEST_METHOD__GET	1
-#define REQUEST_METHOD__POST	2
-      NSMutableData* pendingData=nil;
-      NSDate* maxDate=[NSDate dateWithTimeIntervalSinceNow:360]; //360s
-      NSData* dataBlock=nil;
-      double sleepTime=0.250; //250ms
-      int readenBytesNb=0;
-      int headersBytesNb=0;
-      int dataBytesNb=0;
-      int dataBlockLength=0;
-      int contentLength=-1;
-      int requestMethod=REQUEST_METHOD__UNKNOWN;
-      BOOL isRequestLineSetted=NO;
-      BOOL isDataStep=NO;
-      BOOL isAllDataReaden=NO;
-      BOOL isElapsed=NO;
-      NSMutableDictionary* headers=nil;
-      NSString* userAgent=nil;
-      NSString* remoteAddr=nil;
-      do
-        {
-          dataBlock=[_stream availableDataNonBlocking];
-          dataBlockLength=[dataBlock length];
-          if (dataBlockLength>0)
-            {
-              readenBytesNb+=dataBlockLength;
-              if (!pendingData)
-                pendingData=(NSMutableData*)[NSMutableData data];
-              [pendingData appendData:dataBlock];
-              if (isDataStep)
-                dataBytesNb=[pendingData length];
-              else
-                {
-                  int newBytesCount=0;
-                  NSMutableArray* newLines=[GSWDefaultAdaptorThread completeLinesWithData:pendingData
-                                                                    returnedConsumedCount:&newBytesCount
-                                                                    returnedHeadersEndFlag:&isDataStep];
-                  headersBytesNb+=newBytesCount;
-                  if (newLines)
-                    {
-                      int i=0;
-                      int newLinesCount=[newLines count];
-                      for(i=0;i<newLinesCount;i++)
-                        {
-                          NSString* line=[newLines objectAtIndex:i];
-                          NSAssert([line length]>0,@"No line length");
-                          if (!isRequestLineSetted)
-                            {
-                              *requestLinePtr=line;
-                              isRequestLineSetted=YES;
-                            }
-                          else
-                            {
-                              NSString* key=nil;
-                              NSString* value=nil;
-                              NSArray* newValue=nil;
-                              NSArray* prevValue=nil;
-                              NSRange keyRange=[line rangeOfString:@":"];
-                              if (keyRange.length<=0)
-                                {
-                                  key=line;
-                                  value=[NSString string];
-                                }
-                              else
-                                {
-                                  key=[line substringToIndex:keyRange.location];
-                                  key=[[key stringByTrimmingSpaces] lowercaseString];
+  {
+    ExceptionRaise0(@"GSWDefaultAdaptorThread",@"no stream");
+  }
+        	     
+  time(&starttime);
+  struct timeval timeout;
 
-                                  if (keyRange.location+1<[line length])
-                                    {
-                                      value=[line substringFromIndex:keyRange.location+1];
-                                      value=[value stringByTrimmingSpaces];
-                                    }
-                                  else
-                                    value=[NSString string];
-                                };
-                              if ([key isEqualToString:GSWHTTPHeader_ContentLength])
-                                contentLength=[value intValue];
-                              else if ([key isEqualToString:GSWHTTPHeader_Method[GSWNAMES_INDEX]]
-                                       || [key isEqualToString:GSWHTTPHeader_Method[WONAMES_INDEX]])
-                                {
-                                  if ([value isEqualToString:GSWHTTPHeader_MethodPost])
-                                    requestMethod=REQUEST_METHOD__POST;
-                                  else if ([value isEqualToString:GSWHTTPHeader_MethodGet])
-                                    requestMethod=REQUEST_METHOD__GET;
-                                  else
-                                    {
-                                      NSAssert1(NO,@"Unknown method %@",value);
-                                    };
-                                }
-                              else if ([key isEqualToString:GSWHTTPHeader_UserAgent])
-                                userAgent=value;
-                              else if ([key isEqualToString:GSWHTTPHeader_RemoteAddress[GSWNAMES_INDEX]]
-                                       ||[key isEqualToString:GSWHTTPHeader_RemoteAddress[WONAMES_INDEX]])
-                                remoteAddr=value;
-                              if ([key isEqualToString:GSWHTTPHeader_AdaptorVersion[GSWNAMES_INDEX]]
-                                  || [key isEqualToString:GSWHTTPHeader_ServerName[GSWNAMES_INDEX]])
-                                _requestNamingConv=GSWNAMES_INDEX;
-                              else if ([key isEqualToString:GSWHTTPHeader_AdaptorVersion[WONAMES_INDEX]]
-                                       || [key isEqualToString:GSWHTTPHeader_ServerName[WONAMES_INDEX]])
-                                _requestNamingConv=WONAMES_INDEX;
-                                  
-                              prevValue=[headers objectForKey:key];
-                              if (prevValue)
-                                newValue=[prevValue arrayByAddingObject:value];
-                              else
-                                newValue=[NSArray arrayWithObject:value];
-                              if (!headers)
-                                headers=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-                              [headers setObject:newValue
-                                       forKey:key];
-                            };
-                        };
-                    };
-                };
-            };
-          dataBytesNb=[pendingData length];
-          if (isDataStep)
-            {
-              if (requestMethod==REQUEST_METHOD__GET)
-                isAllDataReaden=YES;
-              else if (requestMethod==REQUEST_METHOD__POST)
-                isAllDataReaden=(dataBytesNb>=contentLength);
-            };
-          if (!isAllDataReaden)
-            {
-	      /* Because +date returns (id) we use the variable
-	         to insure the compiler finds the correct signature.  */
-      	      NSDate *now = [NSDate date];
-              isElapsed	  = ([now compare: maxDate] == NSOrderedDescending);
-            };
-        } while (!isAllDataReaden && !isElapsed);
-      ASSIGN(_remoteAddress,remoteAddr);
-      ok=isAllDataReaden;
-      if (isAllDataReaden)
-        {
-          *headersPtr=[[headers copy] autorelease];
-          if ([pendingData length]>0)
-            *dataPtr=[pendingData copy];
-          else
-            *dataPtr=nil;			
+  timeout.tv_sec = 5;
+  timeout.tv_usec = 0;
+            
+  setsockopt([_stream fileDescriptor], SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof(timeout));
+
+  while ((allDataRead == NO) && (isElapsed == NO)) {
+    char buffer[5];
+
+      dataBlock= [_stream readDataOfLength:1]; 
+      dataBlockLength=[dataBlock length];  
+            
+      if (dataBlockLength>0) {
+        [dataBlock getBytes:buffer];
+
+        if ((buffer[0] == 0xa)) {
+          if ((newLineSeen)) {
+            headersDone = YES;
+          }
+          newLineSeen = YES;
+        } else {
+          if ((buffer[0] != 0xd)) { // cr         
+           newLineSeen = NO;
+          }
         }
-      else
-        {
-          *requestLinePtr=nil;
-          *headersPtr=nil;
-          *dataPtr=nil;
-        };
-    }
-  return ok;
-};
+        buffer[1] = '\0';
+
+          if (headersDone) {
+            NSArray * myArray = nil;
+            
+            listItems   = unpackData(pendingData);
+            headerDict = [self unpackHeaders:listItems];
+            *headersPtr = headerDict;
+            myArray     = [headerDict objectForKey:@"content-length"];
+
+            if ((myArray) && ([myArray count])) {
+              contentLength = [[myArray objectAtIndex:0] intValue];
+              if (contentLength > 0) {
+                if (!allMimeData) {
+                  allMimeData = (NSMutableData*)[NSMutableData data];
+                }
+                while ((contentLength > 0) && (! isElapsed)) {
+                  dataBlock2 = [_stream readDataOfLength: contentLength];
+                  [allMimeData appendData:dataBlock2];
+                  contentLength = contentLength-[dataBlock2 length];  
+                	time(&now);
+                  isElapsed = ((now - starttime) > 30);
+                }
+              }
+            }
+            allDataRead = YES;
+          } else {
+            totalBytes+=dataBlockLength;
+            if (!pendingData)
+              pendingData=(NSMutableData*)[NSMutableData data];
+            [pendingData appendData:dataBlock];
+            tries=0;
+          }
+      } else {
+        if (((totalBytes>2) && (tries>3)) && (newLineSeen)) {
+            allDataRead = YES;
+        }
+        tries++;
+      }
+  }
+
+  if (allMimeData) {
+    *dataPtr = [[allMimeData retain] autorelease];  
+  }
+
+  // check headers for contents?
+  if (!headerDict) {
+    *requestLinePtr=nil;
+    *headersPtr=nil;
+    *dataPtr=nil;
+    return NO;
+  }
+  
+  
+  *requestLinePtr = [listItems objectAtIndex:0];
+
+  return YES;
+}
+
+
 
 //--------------------------------------------------------------------
 /** return a created request build with 'requestLine', 'headers' and 'data' **/

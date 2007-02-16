@@ -201,19 +201,20 @@ RCS_ID("$Id$")
 {
   if ((self=[super init]))
     {
-      if ([aMethod length]==0)
+
+      if ((!aMethod) || ([aMethod length]==0))
         {
           ExceptionRaise(@"GSRequest",@"Empty/Null method during initialization");
         }
       else
         {
-          if ([anURL length]==0)
+          if ((! anURL) || ([anURL length]==0))
             {
               ExceptionRaise(@"GSRequest",@"Empty/Null uri during initialization");
             }
           else
             {              
-              if ([aVersion length]==0)
+              if ((! aVersion) || ([aVersion length]==0))
                 {
                   ExceptionRaise(@"GSRequest",@"Empty/Null http version during initialization");
                 }
@@ -239,10 +240,10 @@ RCS_ID("$Id$")
 
                   if (!content)
                     content = [NSData data];
-                  if ([content isKindOfClass:[GSWInputStreamData class]])
+//                  if ([content isKindOfClass:[GSWInputStreamData class]])
                     [self setContent:content];
-                  else
-                    [self appendContentData:content];
+//                  else
+//                    [self appendContentData:content];
 
                   [self setUserInfo:userInfo];
                 };
@@ -892,10 +893,6 @@ RCS_ID("$Id$")
       [keyValues addObjectsFromArray:values];
     };
 };
-@end
-
-//====================================================================
-@implementation GSWRequest (GSWURIElementReporting)
 
 //--------------------------------------------------------------------
 //	uriValueKeys
@@ -1163,11 +1160,6 @@ RCS_ID("$Id$")
   return _cookies;
 };
 
-@end
-
-
-//====================================================================
-@implementation GSWRequest (GSWRequestA)
 
 //--------------------------------------------------------------------
 -(NSString*)sessionIDFromValuesOrCookie
@@ -1259,10 +1251,6 @@ RCS_ID("$Id$")
   return requestHandlerKey;
 };
 
-@end
-
-//====================================================================
-@implementation GSWRequest (GSWRequestB)
 
 //--------------------------------------------------------------------
 -(NSDictionary*)_extractValuesFromFormData:(NSData*)aFormData
@@ -1335,6 +1323,7 @@ RCS_ID("$Id$")
   if ([_method isEqualToString:GSWHTTPHeader_MethodGet])
     {
       NSString* urlQueryString=[self _urlQueryString];
+
       data=[urlQueryString dataUsingEncoding: [self formValueEncoding]];//??
     }
   else if ([_method isEqualToString:GSWHTTPHeader_MethodPost])
@@ -1391,10 +1380,6 @@ RCS_ID("$Id$")
   _isUsingWebServer=flag;
 };
 
-@end
-
-//====================================================================
-@implementation GSWRequest (GSWRequestG)
 
 //--------------------------------------------------------------------
 -(BOOL)_isSessionIDInRequest
@@ -1491,6 +1476,7 @@ RCS_ID("$Id$")
   if (!_formValues || !_finishedParsingMultipartFormData)
     {
       NSString* contentType=[self _contentType];
+
       if (!contentType || [contentType isEqualToString:GSWHTTPHeader_FormURLEncoded])
         {
           [self _getFormValuesFromURLEncoding];
@@ -1540,179 +1526,7 @@ RCS_ID("$Id$")
   return [formValues count]>0;
 };
 
-@end
-
-//====================================================================
-@implementation GSWRequest (GSWRequestH)
-
 //--------------------------------------------------------------------
--(void)_getFormValuesFromMultipartFormDataOld
-{
-  NSMutableDictionary* formValues=nil;
-  NSArray* contentTypes=nil;
-  int contentTypeIndex=0;
-  int contentTypeCount=0;
-  NSString* contentType=nil;
-  NSData* tmpContentData=nil;
-
-  formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-  contentTypes=[self headersForKey:GSWHTTPHeader_ContentType];
-  contentTypeIndex=0;
-  contentTypeCount=[contentTypes count];
-
-  tmpContentData=[self content];
-  NS_DURING
-    {
-      for(contentTypeIndex=0;contentTypeIndex<contentTypeCount;contentTypeIndex++)
-        {
-          NSDictionary* parsedContentType=nil;
-          NSString* boundaryString=nil;
-          NSArray* decodedParts=nil;
-          int decodedPartIndex=0;
-          int decodedPartCount=0;
-          
-          // get "multipart/form-data; boundary=---------------------------1810101926251"
-          contentType=[contentTypes objectAtIndex:contentTypeIndex];
-          // convert it into
-          //	{
-          //		boundary = "---------------------------1810101926251";
-          //		"multipart/form-data" = "multipart/form-data"; 
-          //	}
-          parsedContentType=[self _parseOneHeader:contentType];
-          boundaryString=[parsedContentType objectForKey:@"boundary"];
-          NSAssert1(boundaryString,@"No boundary in %@",parsedContentType);
-          decodedParts=[self _decodeMultipartBody:tmpContentData
-                             boundary:boundaryString];
-          decodedPartIndex=0;
-          decodedPartCount=[decodedParts count];
-          for(decodedPartIndex=0;decodedPartIndex<decodedPartCount;decodedPartIndex++)
-            {
-              NSData* decodedPart=nil;
-              NSArray* parsedParts=nil;
-              int parsedPartsCount=0;
-
-              decodedPart=[decodedParts objectAtIndex:decodedPartIndex];
-              parsedParts=[self _parseData:decodedPart];
-              //return :
-              //	(
-              //		{
-              //			"content-disposition" = "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\""; 
-              //			"content-type" = text/plain; 
-              //	    },
-              //		<41514541 41415177 4d444179 666f3054 6c4e2b58 58684357 69314b50 51635159 73573677 426d336f 52617247 36584633 4c7a6455 5637664e 39654b6b 764b4a43 71715059 67417250 59374863 78397944 36506b66 774a7550 465a4141 2f303463 446c5072 48525670 537a4135 67664738 62364572 44314158 372b7067 734c5075 304b4d77 0d0a0d0a >
-              //	)
-              parsedPartsCount=[parsedParts count];
-              if (parsedPartsCount==0)
-                {
-                  LOGError(@"parsedPartsCount==0 decodedPart=%@",decodedPart);
-                  //TODO error
-                }
-              else
-                {
-                  NSDictionary* partInfo=nil;
-                  NSString* parsedPartsContentType=nil;
-                  NSString* parsedPartsContentDisposition=nil;
-                  NSDictionary* parsedContentDispositionOfParsedPart=nil;
-                  NSEnumerator* anEnumerator=nil;
-                  NSString* aName=nil;
-                  NSString* dscrKey=nil;
-                  id descrValue=nil;
-
-                  partInfo=[parsedParts objectAtIndex:0];
-
-                  NSAssert1([partInfo isKindOfClass:[NSDictionary class]],
-                            @"partInfo %@ is not a dictionary",partInfo);
-
-                  parsedPartsContentType=[[partInfo objectForKey:GSWHTTPHeader_ContentType] lowercaseString];
-
-                  parsedPartsContentDisposition=[partInfo objectForKey:@"content-disposition"];
-
-                  //Convert: "form-data; name=\"9.1\"; filename=\"C:\\TEMP\\zahn.txt\"";
-                  // into: {filename = "C:\\TEMP\\zahn.txt"; "form-data" = "form-data"; name = 9.1; }
-                  parsedContentDispositionOfParsedPart=[self _parseOneHeader:parsedPartsContentDisposition];
-
-                  anEnumerator=[parsedContentDispositionOfParsedPart keyEnumerator];
-                  aName=[parsedContentDispositionOfParsedPart objectForKey:@"name"];
-
-                  if (!aName)
-                    {
-                      ExceptionRaise(@"GSWRequest",
-                                     @"GSWRequest: No name \n%@\n",
-                                     parsedContentDispositionOfParsedPart);
-                    };
-                  while((dscrKey=[anEnumerator nextObject]))
-                    {
-                      if (![dscrKey isEqualToString:@"name"] 
-                          && ![dscrKey isEqualToString:@"form-data"])
-                        {
-                          NSString* _key=nil;
-                          descrValue=[parsedContentDispositionOfParsedPart objectForKey:dscrKey];
-
-                          _key=[NSString stringWithFormat:@"%@.%@",aName,dscrKey];
-
-                          [formValues setObject:[NSArray arrayWithObject:descrValue]
-                                      forKey:_key];
-                        };
-                    };
-                  if (parsedPartsCount>1)
-                    {
-                      NSArray* values=[parsedParts subarrayWithRange:NSMakeRange(1,[parsedParts count]-1)];
-                      NSMutableArray* valuesNew=[NSMutableArray array];
-                      NSMutableArray* addedValues = nil;
-
-                      if (!parsedPartsContentType
-                          || [parsedPartsContentType isEqualToString:GSWHTTPHeader_MimeType_TextPlain])
-                        {
-                          int valueIndex=0;
-                          int valuesCount=[values count];
-                          id value=nil;
-                          for(valueIndex=0;valueIndex<valuesCount;valueIndex++)
-                            {
-                              value=[values objectAtIndex:valueIndex];
-                              value=[[[NSString alloc]initWithData:value
-                                                      encoding:[self formValueEncoding]]autorelease];
-                              [valuesNew addObject:value];
-                            };
-                          values=[NSArray arrayWithArray:valuesNew];
-                        };
-                      if ((addedValues = [formValues objectForKey:aName])) {
-                        addedValues = [NSMutableArray arrayWithArray:addedValues];
-                        [addedValues addObjectsFromArray:values];
-                        [formValues setObject:addedValues
-                                    forKey:aName];
-
-                      } else {
-                      
-                      [formValues setObject:values
-                                  forKey:aName];
-                      }
-                    };
-                };
-            };
-        };
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest in _getFormValuesFromMultipartFormData");
-      LOGException(@"%@ (%@) \ncontentTypes=%@\ntmpContentData=%@",
-                   localException,
-                   [localException reason],
-                   contentTypes,
-                   tmpContentData);
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-
-  ASSIGN(_formValues,formValues);
-  //
-  //	{
-  //    	9.1 = 	(
-  //					<41514541 41415177 4d444179 666f3054 6c4e2b58 58684357 69314b50 51635159 73573677 426d336f 52617247 36584633 4c7a6455 5637664e 39654b6b 764b4a43 71715059 67417250 59374863 78397944 36506b66 774a7550 465a4141 2f303463 446c5072 48525670 537a4135 67664738 62364572 44314158 372b7067 734c5075 304b4d77 0d0a0d0a >
-  //				);
-  //		9.1.filename = ("C:\\TEMP\\zahn.txt"); 
-  //		9.3 = (submit);
-  //	}
-};
 
 -(void)_getFormValuesFromMultipartFormData
 {
@@ -1762,6 +1576,7 @@ RCS_ID("$Id$")
   // headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
   // NSASCIIStringEncoding should be ok dave@turbocat.de
   headersData=[headersString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+
   parser=[GSMimeParser mimeParser];
   [parser parse:headersData];
   [parser expectNoHeaders];
@@ -2175,10 +1990,6 @@ into
   return nil;
 };
 
-@end
-
-//====================================================================
-@implementation GSWRequest (GSWRequestK)
 
 //--------------------------------------------------------------------
 //	applicationHost
