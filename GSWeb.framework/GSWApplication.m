@@ -148,6 +148,11 @@ int GSWApplicationMainReal(NSString* applicationClassName,
           int i=0;
           BOOL loadResult=NO;
           int frameworksCount=[frameworks count];
+	  /* FIXME: This should use gnustep-base's NSPathUtilities API
+	   * to search for things.  GNUSTEP_SYSTEM_ROOT might not even
+	   * be defined under FHS!  gnustep-base's NSPathUtilities API
+	   * will always work under all filesystem layouts.
+	   */
           NSString* GNUstepRoot=[[[NSProcessInfo processInfo]environment]
                                   objectForKey:@"GNUSTEP_SYSTEM_ROOT"];
           NSDebugFLLog(@"bundles",@"GNUstepRoot=%@",GNUstepRoot);
