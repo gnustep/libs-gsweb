@@ -1,3 +1,12 @@
+2006-12-12  David Ayers  <ayers@fsfe.org>
+
+	* GSWeb.framework/GSWApplication.m (GSWApplicationMainReal):
+	Remove dependency on GNUSTEP_SYSTEM_ROOT and search all domains
+	in precedence for frameworks to load.
+
+	* Doc/howto.gsdoc: Replace reference to GNUSTEP_SYSTEM_ROOT with
+	new installation location.  Also remove refernece to obsolete debug extension.
+	
 2007-02-18  Nicola Pero <nicola.pero@meta-innovation.com>
 
 	* configure.ac: Check for GNUSTEP_MAKEFILES, not GNUSTEP_SYSTEM_ROOT.

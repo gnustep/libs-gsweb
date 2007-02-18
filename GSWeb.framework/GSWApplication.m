@@ -142,45 +142,53 @@ int GSWApplicationMainReal(NSString* applicationClassName,
     {
       NSArray* frameworks=[applicationClass loadFrameworks];
       NSDebugFLog(@"LOAD Frameworks frameworks=%@",frameworks);
+      
       if (frameworks)
         {
           NSBundle* bundle=nil;
-          int i=0;
+          unsigned i=0,j=0;
           BOOL loadResult=NO;
-          int frameworksCount=[frameworks count];
-	  /* FIXME: This should use gnustep-base's NSPathUtilities API
-	   * to search for things.  GNUSTEP_SYSTEM_ROOT might not even
-	   * be defined under FHS!  gnustep-base's NSPathUtilities API
-	   * will always work under all filesystem layouts.
-	   */
-          NSString* GNUstepRoot=[[[NSProcessInfo processInfo]environment]
-                                  objectForKey:@"GNUSTEP_SYSTEM_ROOT"];
-          NSDebugFLLog(@"bundles",@"GNUstepRoot=%@",GNUstepRoot);
-          //		  NSDebugFLLog(@"bundles",@"[[NSProcessInfo processInfo]environment]=%@",[[NSProcessInfo processInfo]environment]);
-          NSDebugFLLog(@"bundles",@"[NSProcessInfo processInfo]=%@",
-                       [NSProcessInfo processInfo]);
+	  NSFileManager *fm = [NSFileManager defaultManager];
+	  NSArray *searchDomains
+	    = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
+						  NSAllDomainsMask,
+						  NO);
+          unsigned frameworksCount=[frameworks count];
+          unsigned searchDomainCount=[searchDomains count];
           for(i=0;i<frameworksCount;i++)
             {
               NSString* bundlePath=[frameworks objectAtIndex:i];
-              NSDebugFLLog(@"bundles",@"bundlePath=%@",bundlePath);
-              //TODO
-              NSDebugFLLog(@"bundles",@"GSFrameworkPSuffix=%@",
-			   GSFrameworkPSuffix);
-              bundlePath
-		= [NSString stringWithFormat: @"%@/Library/Frameworks/%@%@",
-			    GNUstepRoot, bundlePath, GSFrameworkPSuffix];
-              NSDebugFLLog(@"bundles",@"bundlePath=%@",bundlePath);
-              bundle=[NSBundle bundleWithPath:bundlePath];
-              NSDebugFLLog(@"bundles",@"bundle=%@",bundle);
-              loadResult=[bundle load];
-              NSDebugFLog(@"_bundlePath %@ loadResult=%s",
-			  bundlePath,(loadResult ? "YES" : "NO"));
-              if (!loadResult)
-                {
-                  result=-1;
-                  ExceptionRaise(@"GSWApplication",@"Can't load framework %@",
-                                 bundlePath);
-                };
+	      NSString* searchPath=nil;
+	      for (j=0;j<searchDomainCount;j++)
+		{
+		  searchPath = [searchDomains objectAtIndex:j];
+		  searchPath = [searchPath stringByAppendingPathComponent:@"Frameworks"];
+		  searchPath = [searchPath stringByAppendingPathComponent: bundlePath];
+		  /* FIXME: This should be using stringByAppendingPathExtension:
+		     but GSFrameworkPSuffix already has the '.'.*/
+		  searchPath = [searchPath stringByAppendingString: GSFrameworkPSuffix];
+		  if ([fm fileExistsAtPath: searchPath])
+		    {
+		      bundle=[NSBundle bundleWithPath:searchPath];
+		      loadResult=[bundle load];
+		      if (!loadResult)
+			{
+			  ExceptionRaise(@"GSWApplication",@"Can't load framework %@",
+					 searchPath);
+			};
+		      /* Break out of the inner for loop.  */
+		      j = searchDomainCount;
+		    }
+		  else
+		    {
+		      bundle = nil;
+		    }
+		}
+	      if (!bundle)
+		{
+		  ExceptionRaise(@"GSWApplication",@"Can't load framework %@",
+				 bundlePath);
+		};
             };
         };	  
       NSDebugFLLog(@"bundles",@"[NSBundle allBundles] pathes=%@",

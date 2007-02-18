@@ -56,7 +56,7 @@
 	  <heading>Debug</heading>
 	  <p>In order to debug your application compile it with "gmake debug=yes" and
 		install with "gmake install debug=yes". You'll find your application in
-		GNUSTEP_SYSTEM_ROOT/GSWApps/MyApp.debug</p>
+		GNUSTEP_DOMAIN/GNUSTEP_LIBRARY/GSWApps/MyApp.gswa</p>
 	  <p>Now you can enable debug starting your app with -GSWebDebug=&#60;option&#62;</p>
 	  <example>
    Options
