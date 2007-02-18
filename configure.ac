@@ -24,8 +24,8 @@ builtin(include, config/pathxml.m4)dnl
 
 AC_INIT
 
-if test -z "$GNUSTEP_SYSTEM_ROOT"; then
-  AC_MSG_ERROR([You must run the GNUstep initialization script first!])
+if test -z "$GNUSTEP_MAKEFILES"; then
+  AC_MSG_ERROR([You must run set GNUSTEP_MAKEFILES or run the GNUstep initialization script first!])
 fi
 
 AC_CONFIG_HEADER(config.h)

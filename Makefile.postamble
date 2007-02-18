@@ -85,6 +85,9 @@ after-distclean::
 gsweb.make: gsweb.make.in
 	./configure
 
+config.mak: config.mak.in
+	./configure
+
 # Things to do before checking
 # before-check::
 
