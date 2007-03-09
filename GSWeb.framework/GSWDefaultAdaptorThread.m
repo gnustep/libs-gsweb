@@ -400,6 +400,8 @@ NSMutableArray* unpackData(NSMutableData* data)
   NSArray *listItems = nil;
   NSMutableData * allMimeData = nil;
   NSDictionary * headerDict = nil;
+
+#define MAX_HEADER_BYTES 1000
   
   time_t starttime, now;
 
@@ -416,7 +418,7 @@ NSMutableArray* unpackData(NSMutableData* data)
             
   setsockopt([_stream fileDescriptor], SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof(timeout));
 
-  while ((allDataRead == NO) && (isElapsed == NO)) {
+  while (((allDataRead == NO) && (isElapsed == NO)) && (totalBytes < MAX_HEADER_BYTES)) {
     char buffer[5];
 
       dataBlock= [_stream readDataOfLength:1]; 
@@ -555,6 +557,9 @@ NSMutableArray* unpackData(NSMutableData* data)
               else
                 {
                   NSString* httpVersion=[protocol objectAtIndex:1];
+                  if ((httpVersion) && ([httpVersion length] > 3)) {
+                    httpVersion = [httpVersion substringToIndex:3];
+                  } 
                   request=[_application createRequestWithMethod:method
                                         uri:url
                                         httpVersion:httpVersion
