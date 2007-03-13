@@ -1,0 +1,133 @@
+#   Makefile for Apache GNUstepWeb module
+#   Copyright (C) 2005-2007 Free Software Foundation, Inc.
+#   
+#   Updated by:   David Wetzel <dave@turbocat.de>
+#   Written by:		David Ayers <d.ayers@inode.at>
+#   Based on work by:	Manuel Guesdon <mguesdon@sbuilders.com>
+#   
+#   This file is part of the GNUstep Web Library.
+#   
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Library General Public
+#   License as published by the Free Software Foundation; either
+#   version 2 of the License, or (at your option) any later version.
+#   
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Library General Public License for more details.
+#   
+#   You should have received a copy of the GNU Library General Public
+#   License along with this library; if not, write to the Free
+#   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+APXS:=@APXS@
+SERVERAPI:=@SERVERAPI@
+APRCONFIG:=@APRCONFIG@
+
+C_CPPFLAGS=@CONFIG_CPPFLAGS@
+C_LDFLAGS=@CONFIG_LDFLAGS@
+
+
+# To avoid ABI (Application Binary Interface) issues
+# we build all module components with APXS which should
+# invoke the same compiler with the same options with
+# which the Apache server was built.
+# The following variables should be the basis of any
+# Apache specific flags we need to build the module.
+# Some are currently unused and should be removed once
+# this file stabalizes.
+AP_CC         := $(shell ($(APXS) -q CC))
+AP_CFLAGS     := $(shell ($(APXS) -q CFLAGS))
+AP_CFLAGS_SH  := $(shell ($(APXS) -q CFLAGS_SHLIB))
+AP_LDFLAGS_SH := $(shell ($(APXS) -q LDFLAGS_SHLIB))
+AP_LIBS_SH    := $(shell ($(APXS) -q LIBS_SHLIB))
+
+AP_INCDIR := $(shell ($(APXS) -q INCLUDEDIR))
+AP_LIBDIR := $(shell ($(APXS) -q LIBEXECDIR))
+AP_SYSDIR := $(shell ($(APXS) -q SYSCONFDIR))
+
+APR_CFLAGS   := $(shell ($(APRCONFIG) --cflags))
+APR_CPPFLAGS := $(shell ($(APRCONFIG) --cppflags))
+APR_INCDIR   := $(shell ($(APRCONFIG) --includedir))
+APR_LDFLAGS  := $(shell ($(APRCONFIG) --ldflags))
+APR_LIBS     := $(shell ($(APRCONFIG) --libs))
+
+ifneq ($(APR_INCDIR),)
+APR_CPPFLAGS += -I$(APR_INCDIR)
+endif
+
+# It is not clear, why some versions of of apxs  do not 
+# specify -shared in AP_LDFLAGS_SH as it seems to be the 
+# key flag to create DSO (Dynamic Shared Objects) which
+# is stated goal of apxs compilation.  For now we 
+# simply add it if AP_LDFLAGS_SH is not set.
+ifeq ($(AP_LDFLAGS_SH),)
+AP_LDFLAGS_SH = -shared
+endif
+
+CC:=$(APXS) -c
+
+# Not really sure how this variable is useful.
+SRCROOT = ..
+
+ifeq ($(MOD_CONF_DIR),)
+MOD_CONF_DIR=$(AP_SYSDIR)
+endif
+
+ifeq ($(SERVERAPI),Apache2)
+ADAPTOR  := mod_gsw.la
+else
+ADAPTOR  := mod_gsw.so
+endif
+MOD_CONF := mod_gsw.conf
+
+COMMON = $(SRCROOT)/common
+
+GSW_CPPFLAGS = \
+	-D$(SERVERAPI) -DREENTRANT -DEAPI \
+	-I. -I$(COMMON) \
+	-I$(AP_INCDIR) $(APR_CPPFLAGS) \
+	$(C_CPPFLAGS) $(OTHER_CPPFLAGS)
+
+GSW_CFLAGS = \
+	$(AP_CFLAGS) $(AP_CFLAGS_SH) \
+	$(APR_CFLAGS) \
+	$(OTHER_CFLAGS)
+
+GSW_LDFLAGS = \
+	$(AP_LDFLAGS_SH) $(AP_LIBS_SH) \
+	$(APR_LDFLAGS) $(APR_LIBS) \
+	$(C_LDFLAGS) $(OTHER_LDFLAGS)
+
+# We currently include the CPPFLAGS in the CFLAGS so the
+# common makefiles still work.
+comma:=,
+CFLAGS  = $(GSW_CPPFLAGS)
+CFLAGS += $(addprefix -Wc$(comma),$(GSW_CFLAGS))
+LDFLAGS = $(addprefix -Wl$(comma),$(GSW_LDFLAGS))
+
+# Declare default rule before including common.make 
+all:: $(ADAPTOR) 
+
+
+# Link the final adaptor module with APXS
+$(ADAPTOR): $(SRCROOT)/Apache2/mod_gsw.c
+	$(APXS) -c -o $@ $(APXS_FLAGS) $(CFLAGS) $(LDFLAGS) \
+		$(SRCROOT)/Apache2/mod_gsw.c
+
+
+# Install module (via apxs) and mod_gsw.conf file
+install: $(ADAPTOR)
+	$(APXS) -i -n gsweb $(ADAPTOR)
+	  echo "-------------------------------------" ; \
+	  echo Please update your httpd.conf ; \
+	  echo Valid options are: ; \
+	  echo ShowApps on/off ; \
+	  echo App Name=YOURAPP Instance=1 Host=HOSTIP:PORT ; \
+
+clean:
+	rm -f $(ADAPTOR) core *~
+
+distclean: clean
+	rm -rf config.log config.status GNUmakefile autom4te.cache
