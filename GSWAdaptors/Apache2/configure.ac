@@ -25,7 +25,7 @@
 # 02111-1307, USA. 
 #
 AC_INIT
-AC_CONFIG_SRCDIR([mod_gsweb.c])
+AC_CONFIG_SRCDIR([mod_gsw.c])
 AC_CANONICAL_TARGET([])
 
 BIN_PATH=$PATH:/usr/local/sbin:/usr/apache/sbin:/usr/sbin:/usr/pkg/sbin

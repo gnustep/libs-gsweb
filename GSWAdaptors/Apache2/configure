@@ -576,7 +576,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_unique_file="mod_gsweb.c"
+ac_unique_file="mod_gsw.c"
 ac_subst_vars='SHELL
 PATH_SEPARATOR
 PACKAGE_NAME
