@@ -736,7 +736,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
   char            * content_type = NULL;
   char            * content_encoding = NULL;
   char            * location = NULL;
-  int               http_status = OK;
+  int               http_status = DECLINED;
 
   apr_pool_create(&sub_pool, r->pool);
 
@@ -1049,6 +1049,7 @@ static int gsw_handler(request_rec *r)
   char data1[1024];
   char data[1024];
   void *user_data;
+  int     handle_status = OK;
   
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx handler uri: %s", r->uri);
 
@@ -1098,9 +1099,9 @@ static int gsw_handler(request_rec *r)
   app = find_app(r);
     
   if (app != NULL) {
-    int status = handle_request(r, app);
-    if (status != DECLINED) {
-      return status;
+    handle_status = handle_request(r, app);
+    if (handle_status != DECLINED) {
+      return handle_status;
     }
   } 
      
