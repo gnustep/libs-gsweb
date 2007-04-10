@@ -1233,50 +1233,43 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSString* path=nil;
   NSString* url=nil;
   int iName=0;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"aName=%@",aName);
+
   for(iName=0;!path && iName<2;iName++)
     {
       resourceName=[aName stringByAppendingString:GSWPagePSuffix[GSWebNamingConvForRound(iName)]];
       htmlResourceName=[aName stringByAppendingString:GSWComponentTemplatePSuffix];
-      NSDebugMLLog(@"gswcomponents",@"resourceName=%@",resourceName);
+
       resourceManager=[self resourceManager];
       path=[resourceManager pathForResourceNamed:resourceName
                             inFramework:nil
                             language:language];
-      NSDebugMLLog(@"application",@"path=%@",path);
-      if (!path)
+
+  if (!path)
 	{
 	  NSArray* frameworks=[self lockedComponentBearingFrameworks];
 	  NSBundle* framework=nil;
 	  int frameworkN=0;
           int frameworksCount=[frameworks count];
 	  for(frameworkN=0;frameworkN<frameworksCount && !path;frameworkN++)
-            {
-              framework=[frameworks objectAtIndex:frameworkN];
-              NSDebugMLLog(@"gswcomponents",@"TRY framework=%@",framework);
-              path=[resourceManager pathForResourceNamed:resourceName
-                                    inFramework:[framework bundleName]
-                                    language:language];
-              if (!path)
-                {
-                  path=[resourceManager pathForResourceNamed:htmlResourceName
-                                        inFramework:[framework bundleName]
-                                        language:language];
-                };
-              if (path)
-                {
-                  NSDebugMLLog(@"gswcomponents",@"framework=%@ class=%@",framework,[framework class]);
-                  NSDebugMLLog(@"gswcomponents",@"framework bundlePath=%@",[framework bundlePath]);
-                  frameworkName=[framework bundlePath];
-                  NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-                  frameworkName=[frameworkName lastPathComponent];
-                  NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-                  frameworkName=[frameworkName stringByDeletingPathExtension];
-                  NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-                };
-            };
-	  NSDebugMLLog(@"application",@"path=%@",path);
+    {
+      framework=[frameworks objectAtIndex:frameworkN];
+      NSDebugMLLog(@"gswcomponents",@"TRY framework=%@",framework);
+      path=[resourceManager pathForResourceNamed:resourceName
+                            inFramework:[framework bundleName]
+                            language:language];
+      if (!path)
+        {
+          path=[resourceManager pathForResourceNamed:htmlResourceName
+                                inFramework:[framework bundleName]
+                                language:language];
+        }
+      if (path)
+        {
+          frameworkName=[framework bundlePath];
+          frameworkName=[frameworkName lastPathComponent];
+          frameworkName=[frameworkName stringByDeletingPathExtension];
+        }
+    }
 	};
     };
   if (path)
@@ -1289,14 +1282,27 @@ int GSWApplicationMain(NSString* applicationClassName,
       NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
       //NSDebugMLog(!@"Component %@ Found at=%@",aName,path);
 
-      componentDefinition=[[[GSWComponentDefinition alloc] initWithName:aName
-                                                           path:path
-                                                           baseURL:url
-                                                           frameworkName:frameworkName] autorelease];
+      NS_DURING
+      {
+        componentDefinition = [GSWComponentDefinition alloc];
+
+        [componentDefinition initWithName:aName
+                                     path:path
+                                  baseURL:url
+                            frameworkName:frameworkName];
+        [componentDefinition autorelease];
+      }
+      NS_HANDLER
+      {
+        [componentDefinition autorelease];
+        [localException raise];
+      }
+      NS_ENDHANDLER
+
+                            
     };
-  LOGObjectFnStop();
   return componentDefinition;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSArray*)lockedComponentBearingFrameworks
