@@ -1294,7 +1294,8 @@ int GSWApplicationMain(NSString* applicationClassName,
       }
       NS_HANDLER
       {
-        [componentDefinition autorelease];
+        [componentDefinition release];
+        componentDefinition = nil;
         [localException raise];
       }
       NS_ENDHANDLER
