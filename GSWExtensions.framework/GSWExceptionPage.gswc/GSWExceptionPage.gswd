@@ -1,16 +1,3 @@
-ExclamationImage: GSWImage
-{
-    filename = "exclamation.mng";
-    framework = "GSWExtensions";
-    border = 0;
-}
-
-VisibleConditional: GSWCollapsibleComponentContent
-{
-    condition = application.isDebuggingEnabled;
-    closedLabel = "An Exception has Occurred";
-    openedLabel = "Exception Description";
-}
 
 ApplicationNameString: GSWString
 {
