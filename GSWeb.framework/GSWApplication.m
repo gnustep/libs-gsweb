@@ -1157,67 +1157,56 @@ int GSWApplicationMain(NSString* applicationClassName,
       static Class gswCClass = nil;
       Class cClass = NSClassFromString([aName lastPathComponent]);
       
-      if (gswCClass == nil)
-	{
-	  gswCClass = [GSWComponent class];
-	}
+    if (gswCClass == nil)
+  	{
+  	  gswCClass = [GSWComponent class];
+  	}
 
-      if (cClass != 0 && [cClass isSubclassOfClass: gswCClass])
-	{
-	  NSString *baseURL
-	    = @"/ERROR/RelativeUrlsNotSupportedWhenCompenentHasNoWrapper";
-	  NSString *bundlePath
-	    = [[NSBundle bundleForClass: cClass] bundlePath];
-	  NSString *frameworkName
-	    = [[bundlePath lastPathComponent] stringByDeletingPathExtension];
+    if (cClass != 0 && [cClass isSubclassOfClass: gswCClass])
+  	{
+  	  NSString *baseURL
+  	    = @"/ERROR/RelativeUrlsNotSupportedWhenCompenentHasNoWrapper";
+  	  NSString *bundlePath
+  	    = [[NSBundle bundleForClass: cClass] bundlePath];
+  	  NSString *frameworkName
+  	    = [[bundlePath lastPathComponent] stringByDeletingPathExtension];
+  // xxxx
 
-	  componentDefinition
-	    = AUTORELEASE([[GSWComponentDefinition alloc]
-			    initWithName: aName
-			    path: bundlePath
-			    baseURL: baseURL
-			    frameworkName: frameworkName]);
-          if ([self isCachingEnabled])
-	    {
-	      [_componentDefinitionCache setObject: componentDefinition
-					 forKeys: aName, nil];
-	    }
-	}
-    }
+      NS_DURING
+      {
+        componentDefinition = [GSWComponentDefinition alloc];
+
+        [componentDefinition initWithName:aName
+                                     path:bundlePath
+                                  baseURL: baseURL
+                            frameworkName:frameworkName];
+        [componentDefinition autorelease];
+      }
+      NS_HANDLER
+      {
+        [componentDefinition release];
+        componentDefinition = nil;
+        [localException raise];
+      }
+      NS_ENDHANDLER
+
+      if ([self isCachingEnabled] && (componentDefinition))
+  	  {
+  	    [_componentDefinitionCache setObject: componentDefinition
+  				                        	 forKeys: aName, nil];
+  	  }
+  	}
+  }
 
   if (!componentDefinition)
-    {
-      NSLog(@"EXCEPTION: allFrameworks pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
-      ExceptionRaise(GSWPageNotFoundException,
-                     @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
-                     aName,
-                     languages);
-    };
-#ifdef DEBUG
-  stopTS=GSWTime_now();
-#endif
-  if (componentDefinition)
-    {
-#ifdef DEBUG
-      [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached) search time: %.3f s",
-            aName,
-            (language ? "" : "no"),
-            (language ? language : @""),
-            (isCachedComponent ? "" : "Not "),
-            GSWTime_floatSec(stopTS-startTS)];
-#endif
-    };
-#ifdef DEBUG
-  NSDebugMLLog(@"application",
-	       @"%s componentDefinition (%p) for %@ class=%@ %s. search time: %.3f s",
-               (componentDefinition ? "FOUND" : "NOTFOUND"),
-               componentDefinition,
-               aName,
-               (componentDefinition ? [[componentDefinition class] description]: @""),
-               (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""),
-	       GSWTime_floatSec(stopTS-startTS));
-#endif
-  LOGObjectFnStop();
+  {
+    NSLog(@"EXCEPTION: allFrameworks pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
+    ExceptionRaise(GSWPageNotFoundException,
+                    @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
+                    aName,
+                    languages);
+  }
+
   return componentDefinition;
 };
 
@@ -2967,12 +2956,12 @@ to another instance **/
           id monitor=nil;
           response=[errorPage generateResponse];          
           //here ?
-          monitor=[self _remoteMonitor];
-          if (monitor)
-            {
-              //Not used yet NSString* monitorApplicationName=[self _monitorApplicationName];
-              //TODO
-            };
+//          monitor=[self _remoteMonitor];
+//          if (monitor)
+//            {
+//              //Not used yet NSString* monitorApplicationName=[self _monitorApplicationName];
+//              //TODO
+//            };
         }
       else
         {
