@@ -86,14 +86,12 @@ static BOOL _IsEventLoggingEnabled; // needed?
   DESTROY(_instancePool);
   _instancePool = [NSMutableArray new];
   _lockInstancePool = [GSWApp isConcurrentRequestHandlingEnabled];
+
   if ((_name != nil) && (_frameworkName != nil)) {
-//    NSBundle * nsbundle = [NSBundle bundleForName:_frameworkName];
-// HACK! dw
     NSBundle * nsbundle = [NSBundle bundleForClass:NSClassFromString(_className)];
     if (nsbundle != nil) {
       _componentClass = NSClassFromString(_className);
     }
-    // TODO: what if classname is nil?
   }
   myBasePath = [aPath stringByAppendingPathComponent: aName];
   ASSIGN(_htmlPath,[myBasePath stringByAppendingPathExtension:@"html"]);
@@ -101,16 +99,22 @@ static BOOL _IsEventLoggingEnabled; // needed?
   ASSIGN(_wooPath,[myBasePath stringByAppendingPathExtension:GSWArchiveSuffix[GSWebNamingConv]]);
 
   defaultFileManager = [NSFileManager defaultManager];
-
-  if (([defaultFileManager fileExistsAtPath: _htmlPath] == NO) ||
-      ([defaultFileManager fileExistsAtPath: _wodPath] == NO) ||
-      ([defaultFileManager fileExistsAtPath: _wooPath] == NO) ||
-      (_componentClass == Nil)) {
-
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: No template found for component named '%@'",
-                         __PRETTY_FUNCTION__, _name];
+  
+  if (_componentClass == Nil) {
+    [self autorelease];
+    NSLog(@"%s: No component class for component named '%@' found", __PRETTY_FUNCTION__, _name);
+    return nil;
   }
+
+//  if (([defaultFileManager fileExistsAtPath: _htmlPath] == NO) ||
+//      ([defaultFileManager fileExistsAtPath: _wodPath] == NO) ||
+//      ([defaultFileManager fileExistsAtPath: _wooPath] == NO) ||
+//      (_componentClass == Nil)) {
+//
+//      [NSException raise:NSInvalidArgumentException
+//                  format:@"%s: No template found for component named '%@'",
+//                         __PRETTY_FUNCTION__, _name];
+//  }
   _archive = nil;
   _encoding = NSUTF8StringEncoding;
   _template = nil;
@@ -290,65 +294,7 @@ static BOOL _IsEventLoggingEnabled; // needed?
 
   return element;
 };
-/*
-//--------------------------------------------------------------------
--(NSString*)stringForKey:(NSString*)key
-inTableNamed:(NSString*)aName
-withDefaultValue:(NSString*)defaultValue
-languages:(NSArray*)languages
-{
-  NSString* string=nil;
-  LOGObjectFnStart();
-  string=[_bundle stringForKey:key
-  inTableNamed:aName
-  withDefaultValue:defaultValue
-  languages:languages];
-  LOGObjectFnStop();
-  return string;
-};
 
-//--------------------------------------------------------------------
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aName
-                    withLanguages:(NSArray*)languages
-{
-  NSDictionary* stringsTable=nil;
-  LOGObjectFnStart();
-  stringsTable=[bundle stringsTableNamed:aName
-				  withLanguages:languages];
-  LOGObjectFnStop();
-  return stringsTable;
-};
-
-//--------------------------------------------------------------------
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aName
-                    withLanguages:(NSArray*)languages
-{
-  NSArray* stringsTableArray=nil;
-  LOGObjectFnStart();
-  stringsTableArray=[bundle stringsTableArrayNamed:aName
-						withLanguages:languages];
-  LOGObjectFnStop();
-  return stringsTableArray;
-};
-
-//--------------------------------------------------------------------
--(NSString*)urlForResourceNamed:(NSString*)aName
-						 ofType:(NSString*)type
-					  languages:(NSArray*)languages
-						request:(GSWRequest*)request
-{
-  NSString* url=nil;
-  LOGObjectFnStart();
-  url=[bundle urlForResourceNamed:aName
-				  ofType:type
-				  languages:languages
-				  request:request];
-  LOGObjectFnStop();
-  return url;
-};
-*/
 //--------------------------------------------------------------------
 -(NSString*)pathForResourceNamed:(NSString*)aName
                           ofType:(NSString*)aType
