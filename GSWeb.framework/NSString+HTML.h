@@ -100,6 +100,10 @@ GSWEB_EXPORT NSString* baseStringByConvertingFromHTML(NSString* string,
 -(NSString*)stringByConvertingFromHTMLEntities;
 -(NSString*)stringByConvertingToHTML;
 -(NSString*)stringByConvertingFromHTML;
+
+- (BOOL) isRelativeURL;
+- (BOOL) isFragmentURL;
+
 @end
 
 #endif //_NSString_HTML_h__

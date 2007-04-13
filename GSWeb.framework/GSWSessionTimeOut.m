@@ -110,13 +110,14 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(NSTimeInterval)sessionTimeOut
+// changed from sessionTimeOut to sessionTimeOutValue to avoid problems
+-(NSTimeInterval)sessionTimeOutValue
 {
   return _timeOut;
 };
 
 //--------------------------------------------------------------------
--(void)setSessionTimeOut:(NSTimeInterval)aTimeOutInterval
+-(void)setSessionTimeOutValue:(NSTimeInterval)aTimeOutInterval
 {
   _timeOut=aTimeOutInterval;
   NSDebugMLLog(@"sessions",@"_timeOut=%f s",

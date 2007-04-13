@@ -40,11 +40,10 @@ RCS_ID("$Id$")
 -(id)initWithKeyPath:(NSString*)aKeyPath
 {
   //OK
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       NSArray* keys=nil;
-      NSDebugMLLog(@"associations",@"aKeyPath=%@",aKeyPath);
+
       keys=[aKeyPath componentsSeparatedByString:@"."];
       if ([keys count]>0)
         {
@@ -55,17 +54,14 @@ RCS_ID("$Id$")
           else if (!WOStrictFlag && [aKeyPath hasPrefix:@"~"])
             {
               ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"~"]);
-              _isNonMandatory=YES;
             };
           if ([keys count]>1)
             {
               ASSIGN(_keyPath,[[keys subarrayWithRange:NSMakeRange(1,[keys count]-1)]componentsJoinedByString:@"."]);
             };
         };
-      NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
-      NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
     };
-  LOGObjectFnStop();
+
   return self;
 };
 
@@ -77,23 +73,28 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
+- (BOOL) _hasBindingInParent:(GSWComponent *) component
+{
+ return [component hasBinding:_parentBindingName];
+}
+
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone;
 {
   GSWBindingNameAssociation* clone = [super copyWithZone:zone];
   ASSIGN(clone->_parentBindingName,_parentBindingName);
   ASSIGN(clone->_keyPath,_keyPath);
-  _isNonMandatory=_isNonMandatory;
   return clone;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%s %p - parentBindingName=%@ keyPath=%@>",
+  return [NSString stringWithFormat:@"<%s %p - parentBindingName=%@ negate:%d keyPath=%@>",
                    object_get_class_name(self),
                    (void*)self,
                    _parentBindingName,
+                   _negate,
                    _keyPath];
 };
 
@@ -101,9 +102,8 @@ RCS_ID("$Id$")
 -(BOOL)isImplementedForComponent:(GSWComponent*)object
 {
   BOOL isImplemented=NO;
-  LOGObjectFnStart();
   isImplemented=(BOOL)[object hasBinding:_parentBindingName];
-  LOGObjectFnStop();
+
   return isImplemented;
 };
 
@@ -111,10 +111,7 @@ RCS_ID("$Id$")
 -(id)valueInComponent:(GSWComponent*)object
 {
   id value=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
-  NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
-  NSDebugMLLog(@"associations",@"object=%@",object);
+
   if (object)
     {
       /*
@@ -131,17 +128,15 @@ RCS_ID("$Id$")
         };
       */
       value=[object valueForBinding:_parentBindingName];
-      NSDebugMLLog(@"associations",@"value=%@",value);
+
       if (value && _keyPath)
         {
           value=[GSWAssociation valueInComponent:value
                                 forKeyPath:_keyPath];
-          NSDebugMLLog(@"associations",@"value=%@",value);
         };
     };
-  NSDebugMLLog(@"associations",@"value=%@",value);
   [self logTakeValue:value];
-  LOGObjectFnStop();
+
   return value;
 };
 
@@ -149,9 +144,6 @@ RCS_ID("$Id$")
 -(void)setValue:(id)value
        inComponent:(GSWComponent*)object
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"parentBindingName=%@",_parentBindingName);
-  NSDebugMLLog(@"associations",@"keyPath=%@",_keyPath);
   if (object)
     {
       [object validateValue:&value
@@ -181,7 +173,6 @@ RCS_ID("$Id$")
                 forBinding:_parentBindingName];
     };
   [self logSetValue:value];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------

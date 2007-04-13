@@ -118,7 +118,7 @@ RCS_ID("$Id$")
 {
   GSWResponse* response=nil;
   GSWApplication* application=nil;
-  LOGObjectFnStart();
+
   application=[GSWApplication application];
 
   // Test if we should accept request
@@ -151,7 +151,7 @@ RCS_ID("$Id$")
       response=[self generateNullResponse];
       [response _finalizeInContext:nil];
     };
-  LOGObjectFnStop();
+
   return response;
 };
 
@@ -175,19 +175,16 @@ RCS_ID("$Id$")
 +(Class)_actionClassForName:(NSString*)name
 {
   Class class=Nil;
-  LOGObjectFnStart();
+
   class=NSClassFromString(name);
-  NSDebugMLog(@"name=%@",name);
-  NSDebugMLog(@"class=%@",class);
-  NSDebugMLog(@"[GSWAction class]=%@",[GSWAction class]);
+
   if (class)
     {
       [class description];//TODO: does this to force class init. Check this later
       if (!GSObjCIsKindOf(class,[GSWAction class]))
         class=Nil;
     };
-  NSDebugMLog(@"class=%@",class);
-  LOGObjectFnStop();
+
   return class;
 }
 
@@ -200,11 +197,7 @@ RCS_ID("$Id$")
   int pathCount=0;
   int i=0;
 
-  LOGObjectFnStart();
-
   pathCount=[path count];
-  NSDebugMLog(@"path=%@",path);
-  NSDebugMLog(@"pathCount=%d",pathCount);
 
   // remove empty last parts
   for(i=pathCount-1;i>=0 && [[path objectAtIndex:i]length]==0;i--)
@@ -213,14 +206,10 @@ RCS_ID("$Id$")
     {
       path=[path subarrayWithRange:NSMakeRange(0,pathCount)];
     };
-  NSDebugMLog(@"path=%@",path);
-  NSDebugMLog(@"pathCount=%d",pathCount);
+
   switch(pathCount)
     {
     case 0:
-      NSDebugMLog(@"_actionClassName=%@",_actionClassName);
-      NSDebugMLog(@"_actionClassClass=%@",_actionClassClass);
-      NSDebugMLog(@"_defaultActionName=%@",_defaultActionName);      
       *actionClassNamePtr = _actionClassName;
       *actionClassPtr = _actionClassClass;
       *actionNamePtr = _defaultActionName;
@@ -228,16 +217,12 @@ RCS_ID("$Id$")
     case 1:
       {
         NSString* testActionName=[path objectAtIndex:0];
-        NSDebugMLog(@"testActionName=%@",testActionName);
 
         if ([GSWAction _isActionNamed:testActionName
                        actionOfClass:*actionClassPtr])
           {
-            NSDebugMLog(@"_actionClassName=%@",_actionClassName);
             if(!_actionClassClass)
               _actionClassClass = [[self class]_actionClassForName:_actionClassName];           
-            NSDebugMLog(@"_actionClassClass=%@",_actionClassClass);
-            NSDebugMLog(@"testActionName=%@",testActionName);      
             *actionClassNamePtr = _actionClassName;
             *actionClassPtr = _actionClassClass;
             *actionNamePtr = testActionName;
@@ -245,22 +230,16 @@ RCS_ID("$Id$")
         else
           {
             *actionClassPtr = [[self class]_actionClassForName:testActionName]; // is it a class ?
-            NSDebugMLog(@"*actionClassPtr=%@",*actionClassPtr);
             if (*actionClassPtr)
               {
                 *actionClassNamePtr = NSStringFromClass(*actionClassPtr);
                 *actionNamePtr = _defaultActionName;
-                NSDebugMLog(@"*actionClassNamePtr=%@",*actionClassNamePtr);
-                NSDebugMLog(@"*actionNamePtr=%@",*actionNamePtr);      
               } 
             else
               {
                 *actionClassNamePtr = _actionClassName;
                 *actionClassPtr = _actionClassClass;
                 *actionNamePtr = testActionName;
-                NSDebugMLog(@"_actionClassName=%@",_actionClassName);
-                NSDebugMLog(@"_actionClassClass=%@",_actionClassClass);
-                NSDebugMLog(@"testActionName=%@",testActionName);      
               }
           };
       };
@@ -270,25 +249,18 @@ RCS_ID("$Id$")
       {
         *actionClassNamePtr=[path objectAtIndex:0];
         *actionNamePtr=NSStringWithObject([path objectAtIndex:1]);
-        NSDebugMLog(@"*actionClassNamePtr=%@",*actionClassNamePtr);
-        NSDebugMLog(@"*actionNamePtr=%@",*actionNamePtr);
         if ([*actionNamePtr isEqual:*actionClassNamePtr])
           {
             *actionClassNamePtr = _actionClassName;
             *actionClassPtr = _actionClassClass;
-            NSDebugMLog(@"*actionClassNamePtr=%@",*actionClassNamePtr);
-            NSDebugMLog(@"*actionClassPtr=%@",*actionClassPtr);
           }
         else
           {
             *actionClassPtr = [[self class]_actionClassForName:*actionClassNamePtr];
-            NSDebugMLog(@"*actionClassNamePtr=%@",*actionClassNamePtr);
-            NSDebugMLog(@"*actionClassPtr=%@",*actionClassPtr);
           };
         };
       break;
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -297,11 +269,7 @@ RCS_ID("$Id$")
 {
   GSWAction* action=nil;
 
-  LOGObjectFnStart();
-
-  action = AUTORELEASE([[actionClass alloc]initWithRequest:aRequest]);
-
-  LOGObjectFnStop();
+  action = AUTORELEASE([[actionClass alloc] initWithRequest:aRequest]);
 
   return action;
 }
@@ -323,9 +291,7 @@ RCS_ID("$Id$")
   NSException* exception=nil;
   BOOL hasSession=NO;
 
-  LOGObjectFnStart();
-
-  application=[GSWApplication application];
+  application = GSWApp;
 
   NS_DURING
     {
@@ -338,8 +304,6 @@ RCS_ID("$Id$")
           [application awake];
           
           requestHandlerPathArray=[self getRequestHandlerPathForRequest:aRequest];
-          NSDebugMLLog(@"requests",@"requestHandlerPathArray=%@",
-                       requestHandlerPathArray);
           
           // Parse path into actionClassName,actionClass and actionName
 
@@ -350,9 +314,6 @@ RCS_ID("$Id$")
                     classInto:&actionClass
                     nameInto:&actionName
                     forPath:requestHandlerPathArray];
-              NSDebugMLLog(@"requests",@"className=%@",actionClassName);
-              NSDebugMLLog(@"requests",@"actionClass=%@",actionClass);
-              NSDebugMLLog(@"requests",@"actionName=%@",actionName);
             }
           NS_HANDLER
             {
@@ -466,10 +427,7 @@ RCS_ID("$Id$")
                                          actionClass:actionClass
                                          actionObject:action];
                 };
-              NSDebugMLog(@"Exception=%@",exception);
-              NSDebugMLog(@"Response=%@",response);
               [exception raise]; // Will be caught be up level Exception
-              NSDebugMLog(@"Not raised ? Exception=%@",exception);
             };
           if ([application isCachingEnabled])
             {
@@ -479,7 +437,6 @@ RCS_ID("$Id$")
       NS_HANDLER
         {
           LOGException(@"%@ (%@)",localException,[localException reason]);
-          NSDebugMLog(@"EXCEPTION localException=%@",localException);
           if (!response)
             {
               if (!context)
@@ -517,7 +474,6 @@ RCS_ID("$Id$")
     };
   NS_ENDHANDLER;
   
-  NSDebugMLLog(@"requests",@"response=%@",response);
   RETAIN(response);
   if (!context)
     context=[GSWApp _context];
@@ -528,7 +484,6 @@ RCS_ID("$Id$")
       [application saveSessionForContext:context];
     };
 
-  NSDebugMLLog(@"requests",@"response=%@",response);
   AUTORELEASE(response);
   AUTORELEASE(exception);
 	  
@@ -551,7 +506,6 @@ RCS_ID("$Id$")
       [application _setContext:nil];
     };
 
-  LOGObjectFnStop();
   return response;
 };
 
@@ -573,11 +527,6 @@ RCS_ID("$Id$")
 {
   return [self subclassResponsibility: _cmd];
 };
-
-@end
-
-//====================================================================
-@implementation GSWActionRequestHandler (GSWRequestHandlerClassA)
 
 //--------------------------------------------------------------------
 +(id)handler

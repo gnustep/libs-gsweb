@@ -39,29 +39,28 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)inAssociations
-  contentElements:(NSArray*)elements
+     associations:(NSDictionary*) associations
+         template:(GSWElement*)template
 {
-  NSMutableDictionary* associations=nil;
-  LOGObjectFnStartC("GSWImage");
+  self = [super initWithName: @"img"
+                associations: associations
+                    template: template];
 
-  associations=[NSMutableDictionary dictionaryWithDictionary:inAssociations];
+  if (!self) {
+    return nil;
+  }
 
-  _width = [[inAssociations objectForKey:width__Key
-                          withDefaultObject:[_width autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"_width=%@",_width);
-  _height = [[inAssociations objectForKey:height__Key
-                          withDefaultObject:[_height autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"_height=%@",_height);
-
-  [associations removeObjectForKey:width__Key];
-  [associations removeObjectForKey:height__Key];
-
-  if ((self=[super initWithName:name
-                   associations:associations
-                   contentElements:elements]))
-    {
-    };
+  if ([_associations objectForKey: filename__Key] != nil) {
+    ASSIGN(_width, [_associations objectForKey: width__Key]);
+    if (_width != nil) {
+      [_associations removeObjectForKey: width__Key];
+    }
+    ASSIGN(_height, [_associations objectForKey: height__Key]);
+    if (_height != nil) {
+      [_associations removeObjectForKey: height__Key];
+    }
+  }     
+                
   return self;
 };
 
@@ -85,11 +84,6 @@ RCS_ID("$Id$")
   return @"src";
 };
 
-//--------------------------------------------------------------------
--(NSString*)elementName
-{
-  return @"IMG";
-};
 
 //--------------------------------------------------------------------
 -(NSString*)description
@@ -98,52 +92,231 @@ RCS_ID("$Id$")
                    object_get_class_name(self),
                    (void*)self];
 };
+ 
+ 
+// GSWImage._appendFilenameToResponseInContext(woresponse, wocontext, _framework, _filename, _width, _height);
 
 
-//--------------------------------------------------------------------
-+(BOOL)hasGSWebObjectsAssociations
+
++ (void) _appendFilenameToResponse:(GSWResponse *)   response
+                         inContext:(GSWContext *)    context
+                         framework:(GSWAssociation*) framework
+                          filename:(GSWAssociation*) filename
+                             width:(GSWAssociation*) width 
+                            height:(GSWAssociation*) height
 {
-  return YES;
-};
+  id         widthValue = nil;
+  id         heightValue = nil;
+  BOOL       hasNoWidth = NO;
+  BOOL       hasNoHeight = NO;
+  NSString * frameworkName;
 
-//--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
-                                      inContext:(GSWContext*)aContext
+  GSWResourceManager * resourcemanager = [GSWApp resourceManager];
+
+  GSWComponent * component = GSWContext_component(context);
+  
+  NSString* fileNameValue = [filename valueInComponent:component];
+
+  // i think we have to use component, because we are in a '+' method here. dw
+  
+  frameworkName = [(GSWHTMLDynamicElement*) component _frameworkNameForAssociation: framework 
+                                                                       inComponent: component];
+
+  NSString * resourceURL = [context _urlForResourceNamed:frameworkName inFramework: frameworkName];
+
+  if (resourceURL != nil) {
+    NSString * widthStr = nil;
+    NSString * heightStr = nil;
+    if (width != nil || height != nil) {
+      if (width != nil) {
+        widthValue = [width valueInComponent:component];
+        widthStr = widthValue != nil ? widthValue : nil;        // stringValue?
+        hasNoWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
+      }
+      if (height != nil) {
+        heightValue = [height valueInComponent:component];
+        heightStr = heightValue != nil ? heightValue : nil;    // stringValue?
+        hasNoHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
+      }
+    } else {
+      hasNoWidth = YES;
+      hasNoHeight = YES;
+      // do we really need that log? dw. 
+      // NSLog("%@: No height or width information provided for '%@'. If possible, this information should be provided for best performance.", [self class], fileNameValue);
+    }
+    // GSWeb does not have that jet.
+//    
+//    if (hasNoWidth || hasNoHeight) {
+//      GSWImageInfo * imageinfo = [resourcemanager _imageInfoForUrl: resourceURL
+//                                                          fileName: fileNameValue
+//                                                         framework: frameworkName
+//                                                         languages: [context _languages]]);
+//      if (imageinfo != nil) {
+//        if (hasNoWidth)
+//        {
+//          widthStr = imageinfo.widthString();
+//        }
+//        if (hasNoHeight)
+//        {
+//          heightStr = imageinfo.heightString();
+//        }
+//      } else
+//      {
+//        NSLog("%@: could not get height/width information for image at '%@/%@/%@'", 
+//                [self class], resourceURL, fileNameValue, frameworkName);
+//      }
+//    }
+
+    [response _appendTagAttribute: @"src"
+                            value: resourceURL
+       escapingHTMLAttributeValue: NO];
+
+    if (widthStr != nil) {
+      [response _appendTagAttribute: @"width"
+                              value: widthStr
+         escapingHTMLAttributeValue: NO];
+    }
+    if (heightStr != nil) {
+      [response _appendTagAttribute: @"height"
+                              value: heightStr
+         escapingHTMLAttributeValue: NO];
+    }
+  } else {
+ 
+    [response _appendTagAttribute:@"src"
+                            value:[resourcemanager errorMessageUrlForResourceNamed: fileNameValue
+                                                                       inFramework: frameworkName]
+       escapingHTMLAttributeValue:NO];
+  }
+}
+
+// used from GSWActiveImage
+// _appendImageSizetoResponseInContext
+
++ (void) _appendImageSizetoResponse:(GSWResponse *) response
+                          inContext:(GSWContext *) context
+                              width:(GSWAssociation *) width
+                             height:(GSWAssociation *) height
 {
-  //OK
-  LOGObjectFnStartC("GSWImage");
-  [super appendGSWebObjectsAssociationsToResponse:aResponse
-         inContext:aContext];
-  NSDebugMLLog(@"gswdync",@"_width=%@",_width);
-  NSDebugMLLog(@"gswdync",@"_height=%@",_height);
+  GSWComponent * component = GSWContext_component(context);
+  NSString     * widthValue = nil;
+  NSString     * heightValue = nil;
 
-  if (_width || _height)
-    {
-      GSWComponent* component=GSWContext_component(aContext);
-      if (_width)
-        {
-          id width=[_width valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"width=%@",width);
-          if (width)
-            {
-              GSWResponse_appendContentAsciiString(aResponse,@" width=\"");
-              GSWResponse_appendContentHTMLString(aResponse,width);
-              GSWResponse_appendContentCharacter(aResponse,'"');
-            };
-        };
-      if (_height)
-        {
-          id height=[_height valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"height=%@",height);
-          if (height)
-            {
-              GSWResponse_appendContentAsciiString(aResponse,@" height=\"");
-              GSWResponse_appendContentHTMLString(aResponse,height);
-              GSWResponse_appendContentCharacter(aResponse,'"');
-            };
-        };
-    };
-  LOGObjectFnStopC("GSWImage");
-};
+  if (width) {  
+    widthValue = [[width valueInComponent:component] description];
+  }
+  if (height) {  
+    heightValue = [[height valueInComponent:component] description];
+  }
+   
+  if (widthValue != nil) {
+    [response _appendTagAttribute: @"width"
+                            value: widthValue
+       escapingHTMLAttributeValue: NO];
+  }
+  if (heightValue != nil) {
+    [response _appendTagAttribute: @"height"
+                            value: heightValue
+       escapingHTMLAttributeValue: NO];
+  }
+}
+
+- (void) _appendFilenameToResponse:(GSWResponse *) response
+                         inContext:(GSWContext *) context
+{
+  id widthValue = nil;
+  id heightValue = nil;
+  BOOL hasNoWidth = NO;
+  BOOL hasNoHeight = NO;
+
+  GSWResourceManager * resourcemanager = [GSWApp resourceManager];
+
+  GSWComponent * component = GSWContext_component(context);
+  
+  NSString* fileNameValue = [_filename valueInComponent:component];
+
+  NSString * frameworkName = [self _frameworkNameForAssociation: _framework 
+                                                    inComponent: component];
+
+  NSString * resourceURL = [context _urlForResourceNamed:frameworkName inFramework: frameworkName];
+
+  if (resourceURL != nil) {
+    NSString * widthStr = nil;
+    NSString * heightStr = nil;
+    
+    NSLog(@"%s resourceURL:%@",__PRETTY_FUNCTION__, resourceURL);
+    
+    if (_width != nil || _height != nil) {
+      if (_width != nil) {
+        widthValue = [_width valueInComponent:component];
+        widthStr = widthValue != nil ? NSStringWithObject(widthValue) : nil;
+        hasNoWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
+      }
+      if (_height != nil) {
+        heightValue = [_height valueInComponent:component];
+        heightStr = heightValue != nil ? NSStringWithObject(heightValue) : nil;    // stringValue?
+        hasNoHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
+      }
+    } else {
+      hasNoWidth = YES;
+      hasNoHeight = YES;
+      // do we really need that log? dw. 
+      // NSLog("%@: No height or width information provided for '%@'. If possible, this information should be provided for best performance.", [self class], fileNameValue);
+    }
+    // GSWeb does not have that jet.
+//    
+//    if (hasNoWidth || hasNoHeight) {
+//      GSWImageInfo * imageinfo = [resourcemanager _imageInfoForUrl: resourceURL
+//                                                          fileName: fileNameValue
+//                                                         framework: frameworkName
+//                                                         languages: [context _languages]]);
+//      if (imageinfo != nil) {
+//        if (hasNoWidth)
+//        {
+//          widthStr = imageinfo.widthString();
+//        }
+//        if (hasNoHeight)
+//        {
+//          heightStr = imageinfo.heightString();
+//        }
+//      } else
+//      {
+//        NSLog("%@: could not get height/width information for image at '%@/%@/%@'", 
+//                [self class], resourceURL, fileNameValue, frameworkName);
+//      }
+//    }
+
+    [response _appendTagAttribute: @"src"
+                            value: resourceURL
+       escapingHTMLAttributeValue: NO];
+
+    if (widthStr != nil) {
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                    width__Key,
+                                                                    widthStr,
+                                                                    NO);
+    }
+    if (heightStr != nil) {
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+                                                                    height__Key,
+                                                                    heightStr,
+                                                                    NO);
+    }
+  } else { // resourceURL is nil
+ 
+     NSLog(@"%s resourceURL is nil self:%@",__PRETTY_FUNCTION__, self);
+
+    [response _appendTagAttribute:@"src"
+                            value:[resourcemanager errorMessageUrlForResourceNamed: fileNameValue
+                                                                       inFramework: frameworkName]
+       escapingHTMLAttributeValue:NO];
+  }
+}
+
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
+{
+// do nothing!
+}
 
 @end

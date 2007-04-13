@@ -87,16 +87,10 @@
 -(NSString*)description;
 -(void)forwardInvocation:(NSInvocation*)invocation;
 -(NSMethodSignature*)methodSignatureForSelector:(SEL)selector;
-@end
 
-//====================================================================
-@interface GSWDynamicURLString (GSWDynamicURLStringParsing)
 -(void)_compose;
 -(void)_parse;
-@end
 
-//====================================================================
-@interface GSWDynamicURLString (GSWDynamicURLStringGet)
 -(NSString*)urlRequestHandlerPath;
 -(NSString*)urlQueryString;
 -(NSString*)urlRequestHandlerKey;
@@ -109,10 +103,7 @@
 -(int)urlPort;//NDFN
 -(NSString*)urlProtocolHostPort;//NDFN
 -(void)checkURL;
-@end
 
-//====================================================================
-@interface GSWDynamicURLString (GSWDynamicURLStringSet)
 -(void)setURLRequestHandlerPath:(NSString*)aString;
 -(void)setURLQueryString:(NSString*)aString;
 -(void)setURLRequestHandlerKey:(NSString*)aString;

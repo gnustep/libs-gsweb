@@ -37,57 +37,15 @@
 {
   GSWAssociation* _list;
   GSWAssociation* _item;
-//GSWeb Additions {
-  GSWAssociation* _index;
-// }
   GSWAssociation* _displayString;
   GSWAssociation* _selections;
-//GSWeb Additions {
-  GSWAssociation* _selectionValues;
-// }
   GSWAssociation* _selectedValues;
   GSWAssociation* _size;
   GSWAssociation* _multiple;
-  GSWAssociation* _escapeHTML;
-  BOOL _autoValue;//??
+  BOOL            _loggedSlow;
+
 };
--(void)dealloc;
-
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(NSString*)description;
--(NSString*)elementName;
-@end
-
-@interface GSWBrowser (GSWBrowserA)
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
--(void)_slowTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-
--(void)_fastTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-@end
-
-@interface GSWBrowser (GSWBrowserB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context;
-
--(void)appendValueToResponse:(GSWResponse*)response
-                   inContext:(GSWContext*)context;
 
 @end
 
-@interface GSWBrowser (GSWBrowserC)
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
-@end
 #endif //_GSWBrowser_h__

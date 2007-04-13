@@ -47,38 +47,28 @@ RCS_ID("$Id$")
 -(id)initWithResponsePage:(GSWComponent*)aResponsePage
                   context:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       [self setResponsePage:aResponsePage];
-      NSDebugMLLog(@"low",@"responsePage=%@",_responsePage);
-
+      
       ASSIGN(_contextID,([aContext _requestContextID]));
       ASSIGN(_senderID,GSWContext_senderID(aContext));
       ASSIGN(_formValues,([[aContext request] formValues]));
 
-      NSDebugMLLog(@"low",@"contextID=%@",[aContext _requestContextID]);
-      NSDebugMLLog(@"low",@"senderID=%@",_senderID);
     };
-  LOGObjectFnStop();
+
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWTransactionRecord");
-  GSWLogC("Dealloc GSWTransactionRecord: responsePage");
   DESTROY(_responsePage);
-  GSWLogC("Dealloc GSWTransactionRecord: contextID");
   DESTROY(_contextID);
-  GSWLogC("Dealloc GSWTransactionRecord: senderID");
   DESTROY(_senderID);
-  GSWLogC("Dealloc GSWTransactionRecord: formValues");
   DESTROY(_formValues);
-  GSWLogC("Dealloc GSWTransactionRecord super");
+
   [super dealloc];
-  GSWLogC("End Dealloc GSWTransactionRecord");
 };
 
 //--------------------------------------------------------------------
@@ -149,7 +139,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(GSWComponent*)responsePage
 {
-  GSWLogAssertGood(self);
   return _responsePage;
 };
 

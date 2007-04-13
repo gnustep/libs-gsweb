@@ -67,22 +67,18 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(id)valueInComponent:(GSWComponent*)object
+// dw
+-(id)valueInComponent:(GSWComponent*)component
 {
   id retValue=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"self=%@ ",self);
-  NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
-  NSDebugMLLog(@"associations",@"object=%@ ", object);
-  retValue=[GSWAssociation valueInComponent:object
-                           forKeyPath:_keyPath];
-  NSDebugMLLog(@"associations",@"self=%@ retValue=%@ (%p) (class=%@)",
-               self,
-               retValue,
-               retValue,
-               NSStringFromClass([retValue class]));
-  [self logTakeValue:retValue];
-  LOGObjectFnStop();
+
+// thats what WO does:
+//  retValue = [component valueForKeyPath: _keyPath];
+
+// but we need:  
+  retValue=[GSWAssociation valueInComponent: component
+                                 forKeyPath:_keyPath];
+
   return retValue;
 };
 
@@ -90,13 +86,6 @@ RCS_ID("$Id$")
 -(void)setValue:(id)aValue
     inComponent:(GSWComponent*)object
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"keyPath=%@ ",_keyPath);
-  NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@ (self=%@)",aValue,self);
-  if (aValue) 
-    {
-      NSDebugMLLog(@"associations",@"value_ class:%@",NSStringFromClass([aValue class]));
-    }
   if ([_keyPath length]==0)
     {
       [NSException raise:NSInvalidArgumentException 
@@ -111,8 +100,6 @@ RCS_ID("$Id$")
   [GSWAssociation setValue:aValue
                   inComponent:object
                   forKeyPath:_keyPath];
-  [self logSetValue:aValue];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------

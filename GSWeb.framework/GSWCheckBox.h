@@ -37,27 +37,8 @@
 {
   GSWAssociation* _checked;
   GSWAssociation* _selection;
-};
+}
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(void)dealloc;
--(NSString*)description;
-
-@end
-
-//====================================================================
-@interface GSWCheckBox (GSWCheckBoxA)
-
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context; 
-@end
-
-//====================================================================
-@interface GSWCheckBox (GSWCheckBoxB)
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
 
 @end
 

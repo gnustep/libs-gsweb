@@ -95,6 +95,7 @@ GSWProjectBundle.m \
 GSWSessionTimeOut.m \
 GSWStats.m \
 NSNonBlockingFileHandle.m \
+NSDictionary+HTML.m \
 GSWTransactionRecord.m \
 GSWBundle.m \
 NSString+Trimming.m \
@@ -107,6 +108,7 @@ GSWContext.m \
 GSWMultiKeyDictionary.m \
 GSWDisplayGroup.m \
 GSWDynamicElement.m \
+GSWDynamicGroup.m \
 GSWElement.m \
 GSWMessage.m \
 GSWRequest.m \
@@ -235,6 +237,7 @@ GSWActionRequestHandler.h \
 GSWDirectActionRequestHandler.h \
 GSWDisplayGroup.h \
 GSWDynamicElement.h \
+GSWDynamicGroup.h \
 GSWDynamicURLString.h \
 GSWElement.h \
 GSWElementID.h \
@@ -299,6 +302,7 @@ GSWVBScript.h \
 NSNonBlockingFileHandle.h \
 NSString+HTML.h \
 NSString+Trimming.h \
+NSDictionary+HTML.h \
 GSWConfig.h \
 GSWConstants.h \
 GSWDebug.h \

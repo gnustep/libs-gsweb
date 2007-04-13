@@ -39,38 +39,39 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+         template:(GSWElement*)template
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ _elements=%@",
-               aName,associations,elements);
-  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"submit"]
-                   forKey:@"type"];
-  [tmpAssociations removeObjectForKey:action__Key];
-  [tmpAssociations removeObjectForKey:actionClass__Key];
-  if (_directActionName) 
-    [tmpAssociations removeObjectForKey:_directActionName];
+  self = [super initWithName:@"input" associations:associations template: nil];
+  if (!self) {
+    return nil;
+  }  
+  if (_value == nil) {
+    ASSIGN(_value, [[[GSWConstantValueAssociation alloc]initWithValue:@"Submit"] autorelease]);
+  }
+  ASSIGN(_action, [_associations objectForKey: action__Key]);
+  if (_action != nil) {
+    [_associations removeObjectForKey: action__Key];
+  }
+  ASSIGN(_actionClass, [_associations objectForKey: actionClass__Key]);
+  if (_actionClass != nil) {
+    [_associations removeObjectForKey: actionClass__Key];
+  }
+  ASSIGN(_directActionName, [_associations objectForKey: directActionName__Key]);
+  if (_directActionName != nil) {
+    [_associations removeObjectForKey: directActionName__Key];
+  }
   
-  if (![tmpAssociations objectForKey:value__Key])
-    [tmpAssociations setObject:[GSWAssociation associationWithValue:@"submit"]
-                     forKey:value__Key];
+  if ((_action != nil) && ([_action isValueConstant])) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: 'action' attribute is a constant",
+                            __PRETTY_FUNCTION__];  
+  }
+  if (((_action != nil) && (_directActionName != nil)) || ((_action != nil) && (_actionClass != nil))) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: Either 'action' and 'directActionName' both exist, or 'action' and 'actionClass' both exist",
+                            __PRETTY_FUNCTION__];    
+  }
 
-  if ((self=[super initWithName:aName
-                   associations:tmpAssociations
-                   contentElements:nil]))
-    {
-      _action = [[associations objectForKey:action__Key
-                               withDefaultObject:[_action autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWSumbitButton: action=%@",_action);
-      _actionClass = [[associations objectForKey:actionClass__Key
-                                    withDefaultObject:[_actionClass autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWSumbitButton: actionClass=%@",_actionClass);
-      _directActionName = [[associations objectForKey:directActionName__Key
-                                         withDefaultObject:[_directActionName autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWSumbitButton: directActionName=%@",_directActionName);
-    };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -83,6 +84,64 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
+- (NSString*) type
+{
+  return @"submit";
+}
+
+-(id) description
+{
+  return [NSString stringWithFormat:@"<%s %p action: %@ actionClass: %@ directActionName:%@ disabled:%@ >",
+                   object_get_class_name(self),
+                   (void*)self, _action, _actionClass, _directActionName,
+                   _disabled];
+};
+
+
+//--------------------------------------------------------------------
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)aContext
+{
+  //Does Nothing!
+}
+
+-(GSWElement*)invokeActionForRequest:(GSWRequest*) request
+                           inContext:(GSWContext*) context
+{
+  GSWComponent * component = GSWContext_component(context);
+  id actionValue=nil;
+
+  NS_DURING
+  if ((! [self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
+    if ([context _isMultipleSubmitForm]) {    
+      if ([request formValueForKey:[self nameInContext:context]] != nil) {
+        [context _setActionInvoked:YES];
+        if (_action != nil) {
+          actionValue = [_action valueInComponent:component];
+        }
+        if (actionValue == nil) {
+          actionValue = [context page];
+        }
+      }
+    } else {
+      [context _setActionInvoked:YES];
+      if (_action != nil) {
+         actionValue = [_action valueInComponent:component];
+      }
+      if (actionValue == nil) {
+        actionValue = [context page];
+      }
+    }
+  }
+  NS_HANDLER
+   localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                              @"In GSWSubmitButton invokeActionForRequest:inContext");
+   LOGException(@"exception=%@",localException);
+   [localException raise];
+  NS_ENDHANDLER
+
+  return actionValue;
+}
 
 // PRIVATE used within dynamic elements
 - (NSString*) _actionClassAndNameInContext:(GSWContext*) context
@@ -94,182 +153,38 @@ RCS_ID("$Id$")
   return s; 
 }
 
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+- (void) _appendNameAttributeToResponse:(GSWResponse*)response
+                              inContext:(GSWContext*)context
 {
-  //OK
-  LOGObjectFnStart();
-  GSWStartElement(context);
-  GSWSaveAppendToResponseElementID(context);
-  [super appendToResponse:response
-		 inContext:context];
+  if ((_directActionName != nil) || (_actionClass != nil)) {
+    [response _appendTagAttribute: name__Key
+                            value: [self _actionClassAndNameInContext:context]
+       escapingHTMLAttributeValue: NO];  
+  } else {
+    [super _appendNameAttributeToResponse:response
+                              inContext: context];
+  }
+}
 
-  if (_actionClass != nil || _directActionName != nil)
-  {    
- 
-    GSWResponse_appendContentAsciiString(response,@"<input type=\"hidden\" name=\"");
-    GSWResponse_appendContentAsciiString(response,GSWKey_SubmitAction[GSWebNamingConv]);
-    GSWResponse_appendContentCharacter(response,'"');
-    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-                                                                  @"value",
-                                                                  [self _actionClassAndNameInContext:context],
-                                                                  NO);
+- (void) appendToResponse:(GSWResponse*)response
+                inContext:(GSWContext*)context
+{
+  [super appendToResponse:response inContext:context];
+
+  if ((_directActionName != nil) || (_actionClass != nil)) {
+    GSWResponse_appendContentAsciiString(response,@"<input type=\"hidden\" name=\"WOSubmitAction\"");
+    [response _appendTagAttribute: value__Key
+                            value: [self _actionClassAndNameInContext:context]
+       escapingHTMLAttributeValue: NO];  
     GSWResponse_appendContentCharacter(response,'>');
   }
-		 
-  GSWStopElement(context);
-  LOGObjectFnStop();
-};
+}
 
-//--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)aContext
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
 {
-  //OK
-  GSWElement* element=nil;
-  BOOL disabledValue=NO;
-  LOGObjectFnStart();
-  GSWStartElement(aContext);
-  NS_DURING
-    {
-      GSWAssertCorrectElementID(aContext);
-      disabledValue=[self disabledInContext:aContext];
-      NSDebugMLLog(@"gswdync",@"disabledValue=%s",(disabledValue ? "YES" : "NO"));
-      if (!disabledValue)
-        {
-          BOOL wasFormSubmitted=[aContext _wasFormSubmitted];
-          NSDebugMLLog(@"gswdync",@"wasFormSubmitted=%s",(wasFormSubmitted ? "YES" : "NO"));
-          if (wasFormSubmitted)
-            {
-              BOOL invoked=NO;
-              GSWComponent* component=GSWContext_component(aContext);
-              BOOL isMultipleSubmitForm=[aContext _isMultipleSubmitForm];
-              if (isMultipleSubmitForm)
-                {
-                  NSString* nameInContext=[self nameInContext:aContext];
-                  NSString* formValue=[request formValueForKey:nameInContext];
-                  NSDebugMLLog(@"gswdync",@"formValue=%@",formValue);
-                  if (formValue)
-                    invoked=YES;
-                  else
-                    {
-                      NSDebugMLLog(@"gswdync",@"[request formValueKeys]=%@",[request formValueKeys]);
-                    };
-                }
-              else
-                invoked=YES;
-              if (invoked)
-                {
-                  id actionValue=nil;
-                  NSDebugMLLog0(@"gswdync",@"Invoked Object Found !!");
-                  [aContext _setActionInvoked:1];
-                  NS_DURING
-                    {
-                      NSDebugMLLog(@"gswdync",@"Invoked Object Found: action=%@",_action);
-                      actionValue=[_action valueInComponent:component];
-                    }
-                  NS_HANDLER
-                    {
-                      LOGException0(@"exception in GSWSubmitButton invokeActionForRequest:inContext action");
-                      LOGException(@"exception=%@",localException);
-                      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                                              @"In GSWSubmitButton invokeActionForRequest:inContext action %@",
-                                                                              _action);
-                      LOGException(@"exception=%@",localException);
-                      [localException raise];
-                    }
-                  NS_ENDHANDLER;
-                  if (actionValue)
-                    element=actionValue;
-                  if (element)
-                    {
-                      if (![element isKindOfClass:[GSWComponent class]]) //TODO GSWComponent or Element ?
-                        {
-                          ExceptionRaise0(@"GSWSubmitButton",@"Invoked element return a not GSWComponent element");
-                        } 
-                      else 
-                        {
-                          // call awakeInContext when _element is sleeping deeply
-                          [(GSWComponent*)element ensureAwakeInContext:aContext];
-                          /*
-                            if (![_element context]) {
-                            NSDebugMLLog(@"gswdync",@"_element sleeps, awake it = %@",_element);
-                            [_element awakeInContext:aContext];
-                            } else {
-                            [_element awakeInContext:aContext];
-                            }
-                          */
-                        }
-                    }
-                  /* ???
-                     if (!_element)
-                     _element=[aContext page];
-                  */
-                };
-            };
-        };
-    }
-  NS_HANDLER
-    {
-      LOGException0(@"exception in GSWSubmitButton invokeActionForRequest:inContext");
-      LOGException(@"exception=%@",localException);
-      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In GSWSubmitButton invokeActionForRequest:inContext");
-      LOGException(@"exception=%@",localException);
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-
-  if (![aContext _wasActionInvoked] && GSWContext_isParentSenderIDSearchOver(aContext))
-    {
-      LOGError(@"Action not invoked at the end of %@ (id=%@) senderId=%@",
-               [self class],
-               GSWContext_elementID(aContext),
-               GSWContext_senderID(aContext));
-    };
-  GSWStopElement(aContext);
-  LOGObjectFnStop();
-  return element;
-};
-
-//--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)aContext
-{
-  //Does Nothing ?
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);
-  GSWStopElement(aContext);
-};
- 
-//--------------------------------------------------------------------
-
-// used within dynamic elements
-
--(void)appendNameToResponse:(GSWResponse*)response
-                  inContext:(GSWContext*)aContext
-{
-   if (_actionClass != nil || _directActionName != nil)
-   {
-     GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-                                                                   @"name",
-                                                                   [self _actionClassAndNameInContext: aContext],
-                                                                   NO);
-   }
-   else
-   {
-     [super appendNameToResponse:response
-                       inContext:aContext];
-   }
-};
-
-//--------------------------------------------------------------------
--(void)_appendActionClassAndNameToResponse:(GSWResponse*)response
-                                 inContext:(GSWContext*)aContext
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 
 @end
+
 

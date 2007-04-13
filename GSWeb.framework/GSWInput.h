@@ -1,10 +1,12 @@
 /** GSWInput.h - <title>GSWeb: Class GSWInput</title>
 
-   Copyright (C) 1999-2002 Free Software Foundation, Inc.
+   Copyright (C) 1999-2006 Free Software Foundation, Inc.
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Feb 1999
-   
+   Written by:	David Wetzel <dave@turbocat.de> http://www.turbocat.de/
+   Date: Jan 2006
+      
    $Revision$
    $Date$
 
@@ -36,89 +38,45 @@
 //====================================================================
 @interface GSWInput: GSWHTMLDynamicElement
 {
-  GSWAssociation* _disabled;
-//GSWeb Additions {
-  GSWAssociation* _enabled;
-//}
-  GSWAssociation* _name;
-  GSWAssociation* _value;
-//GSWeb Additions {
-  GSWAssociation* _handleValidationException;
-// }
-//GSWeb Additions {
-  GSWAssociation* _tcEscapeHTML;
-// }
-};
+  GSWAssociation * _disabled;
+  GSWAssociation * _name;
+  GSWAssociation * _value;
+  GSWAssociation * _escapeHTML;
+}
 
--(id)initWithName:(NSString*)name
++ (void) _appendImageSizetoResponse:(GSWResponse *) response
+                          inContext:(GSWContext *) context
+                              width:(GSWAssociation *) width
+                             height:(GSWAssociation *) height;
+
+-(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
+  contentElements:(NSMutableArray*) elements;
+
 -(void)dealloc;
--(NSString*)elementName;
 
-@end
+- (BOOL) disabledInComponent:(GSWComponent*) component;
 
-//====================================================================
-@interface GSWInput (GSWInputA)
 
 /** Return the name for html output. 
 If no name is binded, it return the context id **/
 -(NSString*)nameInContext:(GSWContext*)context;
 
-//--------------------------------------------------------------------
-/** return the value used in appendValueToResponse:inContext: **/
--(id)valueInContext:(GSWContext*)context;
 
 /** Return YES if element is disabled, NO otherwise, 
 depending on disabled/enabled binding
 **/
 -(BOOL)disabledInContext:(GSWContext*)context;
-@end
 
-//====================================================================
-@interface GSWInput (GSWInputB)
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
 
-@end
 
-//====================================================================
-@interface GSWInput (GSWInputC)
-/** Append the following elements to response:
-    tag
-    name (by calling -appendNameToResponse:inContext:)
-    value (by calling -appendValueToResponse:inContext:)
-    and others specified tag properties
-**/
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context;
+- (void) _appendNameAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*)context;
 
-/** Append value property to response. 
-(Called by -appendGSWebObjectsAssociationsToResponse:inContext:)
-**/
--(void)appendValueToResponse:(GSWResponse*)response
-                   inContext:(GSWContext*)context;
 
-/** Append name property to response.
-name come from -nameInContext:
-*/
--(void)appendNameToResponse:(GSWResponse*)response
-                  inContext:(GSWContext*)context;
-
-@end
-
-//====================================================================
-@interface GSWInput (GSWInputD)
-+(BOOL)hasGSWebObjectsAssociations;
-@end
-
-//====================================================================
-@interface GSWInput (GSWInputE)
-
-#if !GSWEB_STRICT
--(void)handleValidationException:(NSException*)exception
-                       inContext:(GSWContext*)context;
-#endif
 @end
 
 #endif //GSWInput
+

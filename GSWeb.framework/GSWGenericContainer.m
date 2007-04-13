@@ -33,24 +33,30 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static Class GSWHTMLBareStringClass = Nil;
+
 //====================================================================
 @implementation GSWGenericContainer
+
++ (void) initialize
+{
+  if (self == [GSWGenericContainer class])
+    {
+      GSWHTMLBareStringClass = [GSWHTMLBareString class];
+    };
+};
 
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWForm");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ templateElement=%@",aName,associations,templateElement);
 
   _elementName = [[associations objectForKey:elementName__Key
                            withDefaultObject:[_elementName autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWGenericContainer: elementName=%@",_elementName);
 
   _otherTagString = [[associations objectForKey:otherTagString__Key
                          withDefaultObject:[_otherTagString autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWGenericContainer: otherTagString=%@",_otherTagString);
 
   [tmpAssociations removeObjectForKey:elementName__Key];
   [tmpAssociations removeObjectForKey:otherTagString__Key];
@@ -59,7 +65,6 @@ RCS_ID("$Id$")
     {
       _omitElement = [[associations objectForKey:omitElement__Key
                                     withDefaultObject:[_omitElement autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWGenericContainer: omitElement=%@",_omitElement);
 
       [tmpAssociations removeObjectForKey:omitElement__Key];
     };
@@ -160,8 +165,13 @@ RCS_ID("$Id$")
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext
 {
-  return [_element invokeActionForRequest:aRequest
-                   inContext:aContext];
+
+ if ([_element class] != GSWHTMLBareStringClass) {
+
+    return [_element invokeActionForRequest:aRequest
+                     inContext:aContext];
+ }
+ return nil;                     
 };
 
 //--------------------------------------------------------------------

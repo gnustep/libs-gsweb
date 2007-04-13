@@ -147,8 +147,8 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(NSString*)defaultRequestHandlerClassName;
 -(Class)defaultRequestHandlerClass;
 @end
-
-//====================================================================
+//
+////====================================================================
 @interface GSWApplication (GSWApplicationA)
 -(void)becomesMultiThreaded;
 @end
@@ -169,8 +169,8 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 //====================================================================
 @interface GSWApplication (GSWApplicationD)
 
--(GSWComponentDefinition*)componentDefinitionWithName:(NSString*)aName
-                                            languages:(NSArray*)languages;
+-(GSWComponentDefinition*) _componentDefinitionWithName:(NSString*)aName
+                                              languages:(NSArray*)languages;
 -(GSWComponentDefinition*)lockedComponentDefinitionWithName:(NSString*)aName
                                                   languages:(NSArray*)languages;
 -(GSWComponentDefinition*)lockedLoadComponentDefinitionWithName:(NSString*)aName
@@ -283,7 +283,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(GSWSession*)_restoreSessionWithID:(NSString*)aSessionID
                           inContext:(GSWContext*)aContext;
 -(void)saveSessionForContext:(GSWContext*)aContext;
--(void)_saveSessionForContext:(GSWContext*)aContext;
 @end
 
 //====================================================================
@@ -300,8 +299,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(GSWComponent*)pageWithName:(NSString*)aName
                    inContext:(GSWContext*)aContext;
 -(NSString*)defaultPageName;//NDFN
--(GSWComponent*)_pageWithName:(NSString*)aName
-                    inContext:(GSWContext*)aContext;
 @end
 
 //====================================================================

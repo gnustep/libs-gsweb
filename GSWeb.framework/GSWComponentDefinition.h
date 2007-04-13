@@ -35,25 +35,41 @@
 //====================================================================
 @interface GSWComponentDefinition : NSObject <NSCoding,NSCopying>
 {
-  NSString* _name;
-  GSWBundle* _bundle;
-  NSMutableArray* _observers;
-  NSString* _frameworkName;
-  NSString* _templateName;
+  NSString * _name;
+  NSString * _path;        // _pathURL
+  NSString * _url;
+  NSString * _frameworkName;
+  NSString * _language;
+  NSString * _className;
   Class _componentClass;
-  BOOL _isScriptedClass;
-  BOOL _isCachingEnabled;
+  BOOL _caching;
   BOOL _isAwake;
+  GSWElement * _template;
+  NSString * _htmlPath;
+  NSString * _wodPath;
+  NSString * _wooPath;
+//  BOOL missingArchive;  // NO "_" prefix?? dw
+  NSDictionary * _archive;
+  NSStringEncoding _encoding;
+  BOOL _isStateless;
+  GSWDeployedBundle * _bundle;
+  GSWComponent * _sharedInstance;
+  NSMutableArray * _instancePool;
+  BOOL _lockInstancePool;
+  BOOL _hasBeenAccessed;
+  BOOL _hasContextConstructor;
+  NSLock * _instancePoolLock;
 };
 
 -(id)initWithName:(NSString*)aName
              path:(NSString*)aPath
           baseURL:(NSString*)baseURL
     frameworkName:(NSString*)aFrameworkName;
--(void)dealloc;
--(id)initWithCoder:(NSCoder*)coder;
--(void)encodeWithCoder:(NSCoder*)coder;
--(id)copyWithZone:(NSZone*)zone;
+
+-(GSWComponent*)componentInstanceInContext:(GSWContext*)aContext;
+
+-(Class) componentClass;
+
 
 -(NSString*)frameworkName;
 -(NSString*)baseURL;
@@ -62,70 +78,26 @@
 -(NSString*)description;
 -(void)sleep;
 -(void)awake;
-@end
+- (BOOL) isStateless;
 
-//====================================================================
-@interface GSWComponentDefinition (GSWCacheManagement)
+// PRIVATE
++ (GSWContext *) TheTemporaryContext;
+
 -(BOOL)isCachingEnabled;
 -(void)setCachingEnabled:(BOOL)flag;
-@end
 
-//====================================================================
-@interface GSWComponentDefinition (GSWComponentDefinitionA)
--(void)_clearCache;
-@end
+- (GSWElement *) template;
 
-//====================================================================
-@interface GSWComponentDefinition (GSWComponentDefinitionB)
--(GSWElement*)templateWithName:(NSString*)aName
-                     languages:(NSArray*)languages;
-/*
--(NSString*)stringForKey:(NSString*)key_
-	    inTableNamed:(NSString*)aName
-	withDefaultValue:(NSString*)defaultValue_
-       	       languages:(NSArray*)languages;
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aName
-	            withLanguages:(NSArray*)languages;
-
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aName
-		    withLanguages:(NSArray*)languages;
-
--(NSString*)urlForResourceNamed:(NSString*)aName
-		         ofType:(NSString*)aType
-		      languages:(NSArray*)languages
-	      		request:(GSWRequest*)aRequest;
-*/
 -(NSString*)pathForResourceNamed:(NSString*)aName
                           ofType:(NSString*)aType
                        languages:(NSArray*)languages;
-@end
 
-//====================================================================
-@interface GSWComponentDefinition (GSWComponentDefinitionC)
--(GSWComponent*)componentInstanceInContext:(GSWContext*)aContext;
--(Class)componentClass;
--(Class)_componentClass;
--(GSWComponentReference*)componentReferenceWithAssociations:(NSDictionary*)associations
-                                                   template:(GSWElement*)template;
+- (GSWComponentReference*) componentReferenceWithAssociations:(NSDictionary*)associations
+                                                     template:(GSWElement*)template;
+                       
+-(NSDictionary*)componentAPI;
+                       
 
--(NSDictionary*)componentAPI;//NDFN
-@end
-
-//====================================================================
-@interface GSWComponentDefinition (GSWComponentDefinitionD)
--(void)_finishInitializingComponent:(GSWComponent*)aComponent;
-@end
-
-//====================================================================
-@interface GSWComponentDefinition (GSWComponentDefinitionE)
--(void)_notifyObserversForDyingComponent:(GSWComponent*)aComponent;
--(void)_awakeObserversForComponent:(GSWComponent*)aComponent;
--(void)_deallocForComponent:(GSWComponent*)aComponent;
--(void)_awakeForComponent:(GSWComponent*)aComponent;
--(void)_registerObserver:(id)observer;
-+(void)_registerObserver:(id)observer;
 @end
 
 

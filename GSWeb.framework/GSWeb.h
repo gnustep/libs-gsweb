@@ -122,6 +122,7 @@
 @class GSWBaseParser;
 @class GSWDeclaration;
 @class GSWDeclarationParser;
+@class GSWDynamicGroup;
 @class GSWBundle;
 @class GSWSessionTimeOutManager;
 @class GSWServerSessionStore;
@@ -157,6 +158,7 @@
 #include "GSWDebug.h"
 #include "NSString+Trimming.h"
 #include "NSString+HTML.h"
+#include "NSDictionary+HTML.h"
 #include "GSWElementID.h"
 #include "GSWMessage.h"
 #include "GSWResponse.h"
@@ -173,6 +175,7 @@
 #include "GSWHTMLStaticElement.h"
 #include "GSWHTMLStaticGroup.h"
 #include "GSWDynamicElement.h"
+#include "GSWDynamicGroup.h"
 #include "GSWRequest.h"
 #include "GSWResourceManager.h"
 #include "GSWSession.h"
@@ -210,9 +213,9 @@
 #include "GSWNestedList.h"
 #include "GSWParam.h"
 #include "GSWPasswordField.h"
-#include "GSWPopUpButton.h"
 #include "GSWRadioButton.h"
 #include "GSWRadioButtonList.h"
+#include "GSWPopUpButton.h"
 #include "GSWRepetition.h"
 #include "GSWResetButton.h"
 #include "GSWResetButton.h"

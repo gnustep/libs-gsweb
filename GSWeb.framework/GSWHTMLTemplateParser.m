@@ -176,6 +176,9 @@ Creates a GSWTemporaryElement element, waiting for tag end
 /** Called by parser when it has closed  a dynamic tag 
 Creates a dynamic element from current temporary element element
 **/
+
+// templateInfo: (line: 5 column: 31)
+
 -(void)				parser:(GSWBaseParser*)parser
        didParseClosingDynamicTagOfType:(GSWHTMLRawParserTagType)tagType
                       withTemplateInfo:(NSString*)templateInfo

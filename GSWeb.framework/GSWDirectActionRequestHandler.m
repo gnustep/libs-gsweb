@@ -49,6 +49,39 @@ RCS_ID("$Id$")
   return self;
 };
 
+- (NSString*) _submitButtonsActionPathFromRequest:(GSWRequest*) request
+{
+  NSString * resStr = nil;
+  NSArray  * formValues = nil;
+  
+  if (_allowsContentInputStream) {
+    return nil;
+  }
+  formValues = [request formValuesForKey:@"WOSubmitAction"];
+  if (formValues != nil) {
+    int i = [formValues count];
+    int j = 0;
+    NSString * value = nil;
+
+    do {
+      if (j >= i) {
+        break;
+      }
+      value = [formValues objectAtIndex:j];
+      if ([request formValuesForKey:value] != nil) {
+        resStr = value;
+        break;
+      }
+      if ([request formValuesForKey:[value stringByAppendingString:@".x"]] != nil) {
+        resStr = value;
+        break;
+      }
+      j++;
+    } while (YES);
+  }
+  return resStr;
+}
+
 //--------------------------------------------------------------------
 -(BOOL)defaultDisplayExceptionPages
 {
@@ -80,9 +113,8 @@ RCS_ID("$Id$")
 {
   NSArray* requestHandlerPath=nil;
   id submitButtonsActionPathFromRequest=nil;
-  submitButtonsActionPathFromRequest=[self submitButtonsActionPathFromRequest:aRequest];
-  NSDebugMLLog(@"requests",@"submitButtonsActionPathFromRequest=%@",
-               submitButtonsActionPathFromRequest);
+  submitButtonsActionPathFromRequest=[self _submitButtonsActionPathFromRequest:aRequest];
+
   if (submitButtonsActionPathFromRequest)
     requestHandlerPath=[submitButtonsActionPathFromRequest componentsSeparatedByString:@"/"];
   else
@@ -90,38 +122,6 @@ RCS_ID("$Id$")
   return requestHandlerPath;
 }
 
-//--------------------------------------------------------------------
--(NSString*)submitButtonsActionPathFromRequest:(GSWRequest*)aRequest
-{
-  NSString* path=nil;
-  LOGObjectFnStart();
-  
-  if (!_allowsContentInputStream)
-    {
-      NSArray* submitActions=[aRequest formValuesForKey:GSWKey_SubmitAction[GSWebNamingConv]];
-      if (submitActions)
-        {
-          int count=[submitActions count];
-          int i=0;
-          for(i=0;!path && i<count;i++)
-            {
-              NSString* submitAction=[submitActions objectAtIndex:i];
-              if ([aRequest formValuesForKey:submitAction])
-                path = submitAction;
-              else
-                {
-                  // Try image buttons
-                  NSString* imageButtonFormValueName=[submitAction stringByAppendingString:@".x"];
-                  if ([aRequest formValuesForKey:imageButtonFormValueName])
-                    path = submitAction;
-                };
-            }
-        };
-    };
-  
-  LOGObjectFnStop();
-  return path;
-};
 
 //--------------------------------------------------------------------
 -(GSWResponse*)generateNullResponse

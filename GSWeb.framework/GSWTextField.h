@@ -41,15 +41,8 @@
   GSWAssociation* _formatter;
 };
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
-
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
-
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context; 
 
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component;
 

@@ -39,59 +39,14 @@
   GSWAssociation* _item;
   GSWAssociation* _index;
   GSWAssociation* _selections;
-//GSWeb Additions {
-  GSWAssociation* _selectionValues;
-// }
   GSWAssociation* _prefix;
   GSWAssociation* _suffix;
   GSWAssociation* _displayString;
-  GSWAssociation* _escapeHTML;
-  GSWAssociation* _itemDisabled;
-  BOOL _defaultEscapeHTML;
-//GSWeb Additions {
-  GSWAssociation* _isDisplayStringBefore;
-// }
-};
+  BOOL            _defaultEscapeHTML;
+  BOOL            _loggedSlow;
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(void)dealloc;
+}
 
--(NSString*)description;
--(NSString*)elementName;
-
-
-@end
-
-//====================================================================
-@interface GSWCheckBoxList (GSWCheckBoxListA)
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
--(void)_slowTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-
--(void)_fastTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-@end
-
-//====================================================================
-@interface GSWCheckBoxList (GSWCheckBoxListB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context;
-@end
-
-//====================================================================
-@interface GSWCheckBoxList (GSWCheckBoxListC)
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
--(BOOL)appendStringAtLeft:(id)unkwnon
-              withMapping:(char*)mapping;
--(BOOL)compactHTMLTags;
 @end
 
 

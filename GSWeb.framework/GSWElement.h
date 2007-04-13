@@ -71,7 +71,6 @@ GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 //Do nothing ifndef GSWELEMENT_HAS_DECLARATION_NAME
 -(NSString*)declarationName;
 -(void)setDeclarationName:(NSString*)declarationName;
-@end
 
 #if !defined(GSWDEBUG_ELEMENTSIDS) || defined(NDEBBUG)
 
@@ -136,9 +135,6 @@ GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 
 #endif
 
-
-//====================================================================
-@interface GSWElement (GSWRequestHandling)
 
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;

@@ -37,24 +37,22 @@
 {
   GSWAssociation* _data;
   GSWAssociation* _filepath;
+  // these are new in 5.x
+  GSWAssociation* _mimeType;
+  GSWAssociation* _copyData;
+  GSWAssociation* _inputStream;
+  GSWAssociation* _outputStream;
+  GSWAssociation* _bufferSize;
+  GSWAssociation* _streamToFilePath;
+  GSWAssociation* _overwrite;
+  GSWAssociation* _finalFilePath;
+  
 };
 
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements;
 
--(void)dealloc;
-
-@end
-
-//====================================================================
-@interface GSWFileUpload (GSWFileUploadA)
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context;
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context;
 @end
 
 #endif // _GSWFileUpload_h__

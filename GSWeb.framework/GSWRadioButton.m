@@ -67,223 +67,142 @@ static Class standardClass = Nil;
     };
 };
 
-//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+         template:(GSWElement*)template
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ _elements=%@",
-               aName,associations,elements);
-  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"radio"]
-				 forKey:@"type"];
-  [tmpAssociations removeObjectForKey:selection__Key];
-  [tmpAssociations removeObjectForKey:checked__Key];
-  if ((self=[super initWithName:aName
-                   associations:tmpAssociations
-                   contentElements:nil]))
-    {
-      _selection=[[associations objectForKey:selection__Key
-                                withDefaultObject:[_selection autorelease]] retain];
-      if (_selection && ![_selection isValueSettable])
-        {
-          ExceptionRaise0(@"GSWRadioButton",@"'selection' parameter must be settable");
-        };
+  self = [super initWithName:@"input" associations:associations template: template];
+  if (!self) {
+    return nil;
+  }
 
-      _checked=[[associations objectForKey:checked__Key
-                              withDefaultObject:[_checked autorelease]] retain];
-      if (_checked && ![_checked isValueSettable])
-        {
-          ExceptionRaise0(@"GSWRadioButton",@"'checked' parameter must be settable");
-        };
-      if (!_checked)
-        {
-          if (!_value || !_selection)
-            {
-              ExceptionRaise0(@"GSWRadioButton",
-                              @"if you don't specify 'checked' parameter, you have to specify 'value' and 'selection' parameter");
-            };
-        };
-    };
+  if ((_value != nil) && (![_value isValueSettable])) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: 'value' attribute is a constant",
+                            __PRETTY_FUNCTION__];
+  }
+
+  ASSIGN(_selection, [_associations objectForKey: selection__Key]);
+
+  if (_selection != nil) {
+    [_associations removeObjectForKey: selection__Key];
+  }
+  
+  if (_selection && ![_selection isValueSettable]) {
+    ExceptionRaise0(@"GSWRadioButton",@"'selection' parameter must be settable");
+  }
+
+  ASSIGN(_checked, [_associations objectForKey: checked__Key]);
+
+  if (_checked != nil) {
+    [_associations removeObjectForKey: checked__Key];
+  }
+
+  if (_checked && ![_checked isValueSettable]) {
+    ExceptionRaise0(@"GSWRadioButton",@"'checked' parameter must be settable");
+  };
+  
+  if ((!_checked) && ((!_value) && (!_selection)))
+  {
+    ExceptionRaise0(@"GSWRadioButton",
+                    @"if you don't specify 'checked' parameter, you have to specify 'value' and 'selection' parameter");
+  }
+            
   return self;
-};
+}
 
-//--------------------------------------------------------------------
+//  [tmpAssociations removeObjectForKey:selection__Key];
+//  [tmpAssociations removeObjectForKey:checked__Key];
+
+
 -(void)dealloc
 {
   DESTROY(_checked);
   DESTROY(_selection);
   [super dealloc];
-};
+}
 
-//--------------------------------------------------------------------
--(NSString*)description
+-(id) description
 {
-  return [NSString stringWithFormat:@"<%s %p>",
+  return [NSString stringWithFormat:@"<%s %p checked:%@ selection:%@ disabled:%@ name:%@ value:%@>",
                    object_get_class_name(self),
-                   (void*)self];
+                   (void*)self, 
+                   _checked, _selection, _disabled, _name, _value];
 };
 
-@end
-
-//====================================================================
-@implementation GSWRadioButton (GSWRadioButtonA)
-
-/** return the value used in appendValueToResponse:inContext: **/
--(id)valueInContext:(GSWContext*)context
+- (NSString*) type
 {
-  id value=nil;
-  LOGObjectFnStartC("GSWCheckBox");
-  // use _value evaluation or contextID
-  if (_value)
-    value=[super valueInContext:context];
-  else
-    value=GSWContext_elementID(context);
-  NSDebugMLLog(@"gswdync",@"value=%@",value);
-  LOGObjectFnStopC("GSWCheckBox");
-  return value;
-};
+  return @"radio";
+}
 
-//--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
-                                      inContext:(GSWContext*)aContext
-{
-  GSWComponent* component=GSWContext_component(aContext);
-  BOOL disabledInContext=[self disabledInContext:aContext];
-  if (!disabledInContext)
-    {
-      BOOL isChecked=NO;
-      [self appendValueToResponse:aResponse
-            inContext:aContext];
-      [self appendNameToResponse:aResponse
-            inContext:aContext];
-
-      NSDebugMLLog(@"gswdync",@"_value=%@",_value);
-      NSDebugMLLog(@"gswdync",@"_selection=%@",_selection);
-      NSDebugMLLog(@"gswdync",@"_checked=%@",_checked);
-      if (_value && _selection)
-        {
-          id valueValue=[_value valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-          if (valueValue)
-            {
-              id selectionValue=[_selection valueInComponent:component];
-              NSDebugMLLog(@"gswdync",@"selectionValue=%@",selectionValue);
-              if (selectionValue)
-                {
-                  NSString* valueValueString=NSStringWithObject(valueValue);
-                  NSString* selectionValueString=NSStringWithObject(selectionValue);
-                  isChecked=SBIsValueEqual(selectionValueString,valueValueString);
-                };
-            };
-        }
-      else if (_checked)
-        {
-          isChecked=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                             standardEvaluateConditionInContextIMP,
-                                                             _checked,aContext);
-        };
-      NSDebugMLLog(@"gswdync",@"isChecked=%s",(isChecked ? "YES" : "NO"));
-
-      if (isChecked)
-        GSWResponse_appendContentAsciiString(aResponse,@" checked");
-    };
-};
-@end
-
-//====================================================================
-@implementation GSWRadioButton (GSWRadioButtonB)
-
-//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)aContext
+                   inContext:(GSWContext*)context
 {
-  //OK
-  BOOL disabledInContext=NO;
-  LOGObjectFnStart();
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);
-  disabledInContext=[self disabledInContext:aContext];
-  if (!disabledInContext)
-    {
-      if ([aContext _wasFormSubmitted])
-        {
-          GSWComponent* component=GSWContext_component(aContext);
-          NSString* name=nil;
-          id formValue=nil;
-          id valueValue=nil;
-          BOOL isChecked=NO;
-          name=[self nameInContext:aContext];
-          NSDebugMLLog(@"gswdync",@"name=%@",name);
-          formValue=[request formValueForKey:name];
-          NSDebugMLLog(@"gswdync",@"formValue for %@=%@",name,formValue);
+  GSWComponent* component  = GSWContext_component(context);
+  BOOL          isChecked  = NO;
+  id            valueValue = nil;
 
-          if (_value)
-            valueValue=[_value valueInComponent:component];
-          else
-            valueValue=GSWContext_elementID(aContext);
-            
-          if (formValue && valueValue)
-            {
-              NSString* valueValueString=NSStringWithObject(valueValue);
-              isChecked=SBIsValueEqual(formValue,valueValueString);
-            };
-          NSDebugMLLog(@"gswdync",@"isChecked=%s",(isChecked ? "YES" : "NO"));
+  if ((![self disabledInComponent:component]) && ([context _wasFormSubmitted])) {
 
-          // as RadioButtons are usually grouped, don't set nil to selection when
-          // this  radio button is not checked because we may erase previous 
-          // checked radio button selection
-          if (_value && _selection && isChecked) 
-            {
-              NS_DURING
-                {
-                  [_selection setValue:(isChecked ? valueValue : nil)
-                              inComponent:component];
-                };
-              NS_HANDLER
-                {
-                  LOGException(@"GSWRadioButton _selection=%@ valueValue=%@ exception=%@",
-                               _selection,valueValue,localException);
-                  if (WOStrictFlag)
-                    {
-                      [localException raise];
-                    }
-                  else
-                    {
-                      [self handleValidationException:localException
-                            inContext:aContext];
-                    };
-                }
-              NS_ENDHANDLER;
-            }
+    NSString * nameCtx = [self nameInContext:context];
 
-          if (_checked)
-            {
-              NS_DURING
-                {
-                  [_checked setValue:(isChecked ? GSWNumberYes : GSWNumberNo)
-                            inComponent:component];
-                };
-              NS_HANDLER
-                {
-                  LOGException(@"GSWRadioButton _checked=%@ exception=%@",
-                               _checked,localException);
-                  if (WOStrictFlag)
-                    {
-                      [localException raise];
-                    }
-                  else
-                    {
-                      [self handleValidationException:localException
-                            inContext:aContext];
-                    };
-                }
-              NS_ENDHANDLER;
-            };
-        };
-    };
-  LOGObjectFnStop();
-};
+    if (nameCtx != nil) {
+      NSString* value      = [request stringFormValueForKey: nameCtx];
+      
+      if (_value != nil) {
+         valueValue = [_value valueInComponent:component];
+      } else {
+         valueValue = [context elementID];
+      }
+      
+      isChecked = [value isEqual:NSStringWithObject(valueValue)];
+
+      if (isChecked && _selection != nil && _value != nil) {
+        [_selection setValue: valueValue
+                 inComponent: component];
+      }
+
+      if (_checked != nil) {
+        [_checked setValue: (isChecked ? GSWNumberYes : GSWNumberNo)
+               inComponent: component];
+      }
+
+    }
+  }
+}
+
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
+{
+// nothing!
+}
+
+- (void) appendAttributesToResponse:(GSWResponse*)response
+                inContext:(GSWContext*)context
+{
+  GSWComponent * component = GSWContext_component(context);
+  id             valueValue = nil;
+  id             selectionValue = nil;
+
+  [super appendAttributesToResponse:response inContext:context];
+
+  if (_value != nil) {
+    valueValue = [_value valueInComponent:component];
+    if (valueValue != nil && _selection != nil) {
+      selectionValue = [_selection valueInComponent:component];
+      if ((selectionValue != nil) && [selectionValue isEqual: valueValue]) {
+        GSWResponse_appendContentCharacter(response,' ');
+        GSWResponse_appendContentAsciiString(response,@"checked");
+      }
+    }
+  } else { // _value == nil
+    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, [context elementID], NO);  
+  }
+  if ((_checked != nil) && [_checked boolValueInComponent:component]) {
+     GSWResponse_appendContentCharacter(response,' ');
+     GSWResponse_appendContentAsciiString(response,@"checked");
+  }
+}
+
 
 @end

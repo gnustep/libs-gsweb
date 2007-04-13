@@ -41,6 +41,7 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWSessionTimeOutManager
+
 -(id)init
 {
   //OK
@@ -53,6 +54,7 @@ RCS_ID("$Id$")
       _sessionTimeOuts=[NSMutableDictionary new];
       //	  selfLock=[NSRecursiveLock new];
       _selfLock=[NSLock new];
+      _target=nil;
     };
   return self;
 };
@@ -84,7 +86,7 @@ RCS_ID("$Id$")
     {
       sessionTimeOut=[GSWSessionTimeOut timeOutWithSessionID:sessionID
                                         lastAccessTime:[NSDate timeIntervalSinceReferenceDate]
-                                        sessionTimeOut:[GSWApplication sessionTimeOutValue]];
+                                        sessionTimeOut:[[GSWApp class] sessionTimeOutValue]];
       [_sessionTimeOuts setObject:sessionTimeOut
                         forKey:sessionID];
       [_sessionOrderedTimeOuts addObject:sessionTimeOut];
@@ -147,8 +149,8 @@ RCS_ID("$Id$")
       [sessionTimeOut setLastAccessTime:
                         [NSDate timeIntervalSinceReferenceDate]];
 
-      if (timeOut!=[sessionTimeOut sessionTimeOut])
-        [sessionTimeOut setSessionTimeOut:timeOut];
+      if (timeOut!=[sessionTimeOut sessionTimeOutValue])
+        [sessionTimeOut setSessionTimeOutValue:timeOut];
 
       [_sessionOrderedTimeOuts addObject:sessionTimeOut];
 
@@ -558,10 +560,6 @@ RCS_ID("$Id$")
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWSessionTimeOutManager (GSWSessionRefused)
 
 //--------------------------------------------------------------------
 -(void)startHandleTimerRefusingSessions
@@ -752,5 +750,20 @@ RCS_ID("$Id$")
   //NSLog(@"-Stop HandleTimerRefusingSessions");
 };
 
+- (NSString*) description
+{
+
+  NSString * desStr = [NSString stringWithFormat:@"<%s %p sessionOrderedTimeOuts:%@ sessionTimeOuts:%@ target:XX callback:%@ timer:%@ selfLock:%@>", object_get_class_name(self),
+                                                             (void*)self,
+                                                             _sessionOrderedTimeOuts,
+                                                             _sessionTimeOuts, 
+                                                             //_target 
+                                                             NSStringFromSelector(_callback),
+                                                             _timer,
+                                                             _selfLock
+                                                             ];
+
+  return desStr;
+}
 
 @end

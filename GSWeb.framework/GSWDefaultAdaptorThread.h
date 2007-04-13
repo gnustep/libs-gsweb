@@ -61,10 +61,6 @@
 -(void)setPool:(NSAutoreleasePool*)pool
    destroyLast:(BOOL)destroy;
 
-+(NSMutableArray*)completeLinesWithData:(NSMutableData*)data
-                  returnedConsumedCount:(int*)consumedCount
-                 returnedHeadersEndFlag:(BOOL*)headersEndFlag;
-
 -(BOOL)readRequestReturnedRequestLine:(NSString**)requestLine
                       returnedHeaders:(NSDictionary**)headers
                          returnedData:(NSData**)data;

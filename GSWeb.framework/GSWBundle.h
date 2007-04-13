@@ -68,24 +68,16 @@
 -(void)unlock;
 -(void)lock;
 
-@end
-
-@interface GSWBundle (GSWBundleCache)
 -(void)clearCache;
 -(void)loadCache;
-@end
 
-@interface GSWBundle (GSWBundleA)
 -(id)lockedResourceNamed:(NSString*)aName
                   ofType:(NSString*)aType
            withLanguages:(NSArray*)languages
               usingCache:(NSMutableDictionary*)cache
             relativePath:(NSString**)relativePath
             absolutePath:(NSString**)absolutePath;
-@end
 
-
-@interface GSWBundle (GSWResourceManagement)
 -(void)initializeObject:(id)anObject
        fromArchiveNamed:(NSString*)aName;
 
@@ -142,11 +134,9 @@
 -(NSDictionary*)lockedArchiveNamed:(NSString*)aName;
 -(NSDictionary*)lockedApiNamed:(NSString*)aName;//NDFN
 
-@end
-
-@interface GSWBundle (GSWBundleC)
 -(id)scriptedClassNameFromClassName:(NSString*)aName;
 -(id)scriptPathNameFromScriptedClassName:(NSString*)aName;
+
 @end
 
 #endif //_GSWBundle_h__

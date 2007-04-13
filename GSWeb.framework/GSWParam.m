@@ -127,10 +127,6 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 
 //--------------------------------------------------------------------
 
-@end
-
-//====================================================================
-@implementation GSWParam (GSWParamA)
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext
 {
@@ -154,45 +150,41 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
   return element;
 };
 
-@end
-
-//====================================================================
-@implementation GSWParam (GSWParamB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
-                                      inContext:(GSWContext*)aContext
-{
-  [super appendGSWebObjectsAssociationsToResponse:aResponse
-         inContext:aContext];
-  if (_action)
-    {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
-                                                                    @"value",
-                                                                    [aContext componentActionURL],
-                                                                    NO);// Don't escape
-    }
-  else
-    {
-      GSWComponent* component=GSWContext_component(aContext);
-
-      id value = [self valueInComponent:component];
-      if (value)
-        {
-          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
-                                                                        @"value",
-                                                                        value,
-                                                                        YES);
-        }
-      else if(_treatNilValueAsGSWNull)
-        {
-          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
-                                                                        @"value", 
-                                                                        @"GSWNull",
-                                                                        NO);
-        }
-      else
-        NSWarnLog(@"GSWParam: nil 'value'");
-    };
-};
+//-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
+//                                      inContext:(GSWContext*)aContext
+//{
+//  [super appendGSWebObjectsAssociationsToResponse:aResponse
+//         inContext:aContext];
+//  if (_action)
+//    {
+//      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
+//                                                                    @"value",
+//                                                                    [aContext componentActionURL],
+//                                                                    NO);// Don't escape
+//    }
+//  else
+//    {
+//      GSWComponent* component=GSWContext_component(aContext);
+//
+//      id value = [self valueInComponent:component];
+//      if (value)
+//        {
+//          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
+//                                                                        @"value",
+//                                                                        value,
+//                                                                        YES);
+//        }
+//      else if(_treatNilValueAsGSWNull)
+//        {
+//          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
+//                                                                        @"value", 
+//                                                                        @"GSWNull",
+//                                                                        NO);
+//        }
+//      else
+//        NSWarnLog(@"GSWParam: nil 'value'");
+//    };
+//};
 
 //--------------------------------------------------------------------
 -(id)valueInComponent:(GSWComponent*)component
@@ -211,10 +203,6 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
   return value;
 };
 
-@end
-
-//====================================================================
-@implementation GSWParam (GSWParamC)
 
 //--------------------------------------------------------------------
 +(BOOL)escapeHTML

@@ -805,11 +805,9 @@ static BOOL _dflt_init_applicationBaseURL = NO;
 static NSString *_dflt_applicationBaseURL = nil;
 +(NSString*)applicationBaseURL
 {
-  LOGClassFnStart();
-  INIT_DFLT_OBJ(applicationBaseURL,
+    INIT_DFLT_OBJ(applicationBaseURL,
 		GSWOPT_ApplicationBaseURL[GSWebNamingConv]);
   NSDebugMLLog(@"application",@"url=%@", _dflt_applicationBaseURL);
-  LOGClassFnStop();
   return _dflt_applicationBaseURL;
 };
 
@@ -859,8 +857,7 @@ static BOOL     _dflt_init_projectSearchPath = NO;
 static NSArray *_dflt_projectSearchPath = nil;
 +(NSArray*)projectSearchPath
 {
-  LOGClassFnStart();
-
+  
   INIT_DFLT_OBJ(projectSearchPath,
 		GSWOPT_ProjectSearchPath);
 
@@ -889,7 +886,6 @@ static NSArray *_dflt_projectSearchPath = nil;
 
   NSDebugMLLog(@"application",@"projectSearchPath:%@",
 	       _dflt_projectSearchPath);
-  LOGClassFnStop();
   return _dflt_projectSearchPath;
 };
 
@@ -1148,22 +1144,17 @@ static BOOL      _dflt_init_sessionTimeOut = NO;
 static NSNumber *_dflt_sessionTimeOut = nil;
 +(void)setSessionTimeOut:(NSNumber*)aTimeOut
 {
-  LOGClassFnStart();
-  NSDebugMLLog(@"sessions",@"aTimeOut=%@",aTimeOut);
   ASSIGNCOPY(_dflt_sessionTimeOut, aTimeOut);
   _dflt_init_sessionTimeOut = YES;
-  LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------
 +(NSNumber*)sessionTimeOut
 {
-  LOGClassFnStart();
-  INIT_DFLT_OBJ(sessionTimeOut,
+    INIT_DFLT_OBJ(sessionTimeOut,
 		GSWOPT_SessionTimeOut[GSWebNamingConv]);
-  NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",
-	       _dflt_sessionTimeOut);
-  LOGClassFnStop();
+
+NSLog(@"%s returning %@",__PRETTY_FUNCTION__, _dflt_sessionTimeOut);
   return _dflt_sessionTimeOut;
 };
 
@@ -1284,20 +1275,16 @@ static BOOL _dflt_init_lifebeatInterval = NO;
 static NSTimeInterval _dflt_lifebeatInterval = 0.0;
 +(NSTimeInterval)lifebeatInterval
 {
-  LOGClassFnStart();
-  INIT_DFLT_FLT(lifebeatInterval,
+    INIT_DFLT_FLT(lifebeatInterval,
 		GSWOPT_LifebeatInterval[GSWebNamingConv]);
-  LOGClassFnStop();
   return _dflt_lifebeatInterval;
 };
 
 //--------------------------------------------------------------------
 +(void)setLifebeatInterval:(NSTimeInterval)interval
 {
-  LOGClassFnStart();
-  _dflt_lifebeatInterval = interval;
+    _dflt_lifebeatInterval = interval;
   _dflt_init_lifebeatInterval = YES;
-  LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1481,8 +1468,7 @@ static NSString *_dflt_recordingClassName = nil;
   Class recordingClass = Nil;
   NSString* recordingClassName = nil;
 
-  LOGClassFnStart();
-
+  
   recordingClassName = [self recordingClassName];
   if (!recordingClassName)
     recordingClassName=GSWClassName_DefaultRecording[GSWebNamingConv];
@@ -1491,7 +1477,6 @@ static NSString *_dflt_recordingClassName = nil;
   NSAssert1(recordingClass,@"No recording class named '%@'",
             recordingClassName);
 
-  LOGClassFnStop();
 
   return recordingClass;
 };
@@ -1500,21 +1485,17 @@ static NSString *_dflt_recordingClassName = nil;
 +(void)setSessionTimeOutValue:(NSTimeInterval)aTimeOutValue
 {
   id number=nil;
-  LOGClassFnStart();
-  number = [NSNumber numberWithDouble: aTimeOutValue];
+    number = [NSNumber numberWithDouble: aTimeOutValue];
   NSDebugMLLog(@"sessions",@"aTimeOutValue=%f",aTimeOutValue);
   [(GSWAppClassDummy *)self setSessionTimeOut: number];
-  LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------
 +(NSTimeInterval)sessionTimeOutValue
 {
   id sessionTimeOut=nil;
-  LOGClassFnStart();
-  sessionTimeOut=[(GSWAppClassDummy *)self sessionTimeOut];
+    sessionTimeOut=[(GSWAppClassDummy *)self sessionTimeOut];
   NSDebugMLLog(@"sessions",@"sessionTimeOut=%@",sessionTimeOut);
-  LOGClassFnStop();
   return [sessionTimeOut doubleValue];
 };
 
@@ -1523,18 +1504,14 @@ static BOOL _dflt_init_defaultUndoStackLimit = NO;
 static int _dflt_defaultUndoStackLimit = 0;
 +(void)setDefaultUndoStackLimit:(int)limit
 {
-  LOGClassFnStart();
-  _dflt_defaultUndoStackLimit = limit;
+    _dflt_defaultUndoStackLimit = limit;
   _dflt_init_defaultUndoStackLimit = YES;
-  LOGClassFnStop();
 };
 
 +(int)defaultUndoStackLimit
 {
-  LOGClassFnStart();
-  INIT_DFLT_INT(defaultUndoStackLimit,
+    INIT_DFLT_INT(defaultUndoStackLimit,
 		GSWOPT_DefaultUndoStackLimit[GSWebNamingConv]);
-  LOGClassFnStop();
   return _dflt_defaultUndoStackLimit;
 };
 

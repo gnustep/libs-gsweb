@@ -42,10 +42,7 @@ GSWEB_EXPORT SEL evaluateConditionInContextSEL;
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)template;
-@end
 
-//====================================================================
-@interface GSWDynamicElement (GSWDynamicElement)
 -(BOOL)		evaluateCondition:(id)condition
                         inContext:(GSWContext*)context
     noConditionAssociationDefault:(BOOL)noConditionAssociationDefault

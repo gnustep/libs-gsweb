@@ -174,10 +174,6 @@ bundle if none is found
 bundle if none is found
 **/
 -(GSWDeployedBundle*)lockedCachedBundleForFrameworkNamed:(NSString*)name;
-@end
-
-//====================================================================
-@interface GSWResourceManager (GSWURLValuedElementsDataCaching)
 
 -(void)flushDataCache;
 
@@ -191,11 +187,6 @@ bundle if none is found
 -(void)removeDataForKey:(NSString*)key
                 session:(GSWSession*)session;
 
-@end
-
-
-//====================================================================
-@interface GSWResourceManager (GSWResourceManagerA)
 -(NSString*)pathForResourceNamed:(NSString*)name
                      inFramework:(NSString*)frameworkName
                         language:(NSString*)language;
@@ -212,30 +203,24 @@ bundle if none is found
 -(NSString*)contentTypeForResourcePath:(NSString*)path;
 -(NSArray*)_frameworkClassPaths;
 
-@end
-
-
-//====================================================================
-@interface GSWResourceManager (GSWResourceManagerOldFn)
 -(NSString*)urlForResourceNamed:(NSString*)name
                     inFramework:(NSString*)frameworkName;
 -(NSString*)pathForResourceNamed:(NSString*)name
                      inFramework:(NSString*)frameworkName;
-@end
 
-
-//====================================================================
-@interface GSWResourceManager (GSWResourceManagerB)
 -(void)_validateAPI;
-@end
 
-//====================================================================
-@interface GSWResourceManager (GSWResourceManagerClassA)
 +(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage;		//NDFN
 +(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOlanguages;		//NDFN
 +(NSString*)ISOLanguageFromGSLanguage:(NSString*)GSLanguage;		//NDFN
 +(NSArray*)ISOLanguagesFromGSLanguages:(NSArray*)GSlanguages;		//NDFN
 +(GSWBundle*)_applicationGSWBundle;
+
+- (NSString*) errorMessageUrlForResourceNamed:(NSString *) resourceName
+                                  inFramework:(NSString *) frameworkName;
+
+- (void) _cacheData:(GSWURLValuedElementData *) aData;
+
 @end
 
 #endif //_GSWResourceManager_h__

@@ -539,9 +539,7 @@ objectForReference:(NSString*)keyPath
                   languages:(NSArray*)someLanguages
 {
   GSWElement* template=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"Name=%@",aName);
-  //OK
+
   [self lock];
   NS_DURING
     {
@@ -560,8 +558,7 @@ objectForReference:(NSString*)keyPath
     };
   NS_ENDHANDLER;
   [self unlock];
-  NSDebugMLLog(@"bundles",@"template=%@",template);
-  LOGObjectFnStop();
+
   return template;
 };
 
@@ -573,21 +570,13 @@ objectForReference:(NSString*)keyPath
   GSWElement* template=nil;
   NSString* relativeTemplatePath=nil;
   NSString* absoluteTemplatePath=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"AName=%@",aName);
-  NSDebugMLLog(@"bundles",@"SomeLanguages=%@",someLanguages);
-  NSDebugMLLog(@"bundles",@"Path=%@",_path);
-  NSDebugMLLog(@"bundles",@"baseURL=%@",_baseURL);
-  NSDebugMLLog(@"bundles",@"frameworkName=%@",_frameworkName);
+
   template=[self lockedResourceNamed:aName
                  ofType:GSWComponentTemplateSuffix
                  withLanguages:someLanguages
                  usingCache:_templateCache
                  relativePath:&relativeTemplatePath
                  absolutePath:&absoluteTemplatePath];
-
-  NSDebugMLLog(@"bundles",@"relativeTemplatePath=%@",relativeTemplatePath);
-  NSDebugMLLog(@"bundles",@"absoluteTemplatePath=%@",absoluteTemplatePath);
 
   if (!template)
     {
@@ -676,8 +665,6 @@ objectForReference:(NSString*)keyPath
                 };
               NS_ENDHANDLER;
 #endif
-              GSWLogC("TemplateParsed\n");
-              NSDebugMLLog(@"bundles",@"template=%@",template);
             };
           if ([[GSWApplication application] isCachingEnabled])
             {
@@ -694,8 +681,7 @@ objectForReference:(NSString*)keyPath
             };
         };
     };
-  NSDebugMLLog(@"bundles",@"template=%@",template);
-  LOGObjectFnStop();
+
   return template;
 };
 

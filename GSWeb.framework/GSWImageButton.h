@@ -54,28 +54,15 @@
   GSWAssociation* _data;
   GSWAssociation* _mimeType;
   GSWAssociation* _key;
+  GSWAssociation* _width;
+  GSWAssociation* _height;
 };
 
 -(void)dealloc;
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(NSString*)description;
--(NSString*)elementName;
-
-@end
-//====================================================================
-@interface GSWImageButton (GSWImageButtonA)
 -(GSWAssociation*)hitTestX:(int)x
                          y:(int)y
                  inRegions:(NSArray*)regions;
-@end
-
-//====================================================================
-@interface GSWImageButton (GSWImageButtonB)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context;
 
 -(id)_imageURLInContext:(GSWContext*)context;
 
@@ -92,14 +79,7 @@
                    inContext:(GSWContext*)context;
 
 -(NSString*)frameworkNameInContext:(GSWContext*)context;
-@end
 
-//====================================================================
-@interface GSWImageButton (GSWImageButtonC)
--(BOOL)appendStringAtRight:(id)unkwnon
-			   withMapping:(char*)mapping;
--(BOOL)appendStringAtLeft:(id)unkwnon
-			  withMapping:(char*)mapping;
 @end
 
 #endif //_GSWImageButton_h__

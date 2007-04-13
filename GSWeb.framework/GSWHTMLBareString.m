@@ -36,72 +36,72 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWHTMLBareString
 
-//--------------------------------------------------------------------
+
+// we should ONLY support initWithString: ! dw
 -(id)init
 {
-  if ((self=[super init]))
-    {
-    };
-  return self;
-};
+  [NSException raise:NSInvalidArgumentException
+              format:@"%s: use initWithString: to init",
+                          __PRETTY_FUNCTION__];
 
-//--------------------------------------------------------------------
+  return nil;                              
+}
+
 -(id)initWithString:(NSString*)aString
 {
-  if ((self=[self init]))
+  if ((self=[super init]))
     {
       ASSIGN(_string,aString);
     };
   return self;
-};
+}
 
-//--------------------------------------------------------------------
 -(void)dealloc
 {
   DESTROY(_string);
   [super dealloc];
 }
 
-//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - String:[%@]>",
                    object_get_class_name(self),
                    (void*)self,
                    _string];
-};
+}
 
-//--------------------------------------------------------------------
 -(NSString*)string
 {
   return _string;
-};
+}
 
-@end
-
-//====================================================================
-@implementation GSWHTMLBareString (GSWHTMLBareStringA)
-
-//--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
-  GSWSaveAppendToResponseElementID(aContext);//Debug Only
-  GSWResponse_appendContentString(aResponse,_string);
-  NSDebugMLLog(@"gswdync",@"END ET=%@ id=%@",[self class],GSWContext_elementID(aContext));
-  LOGObjectFnStop();
-};
+  GSWResponse_appendContentString(aResponse,_string);  
+}
 
-@end
 
-//====================================================================
-@implementation GSWHTMLBareString (GSWHTMLBareStringB)
-
-//--------------------------------------------------------------------
 +(id)elementWithString:(NSString*)aString
 {
   return [[[GSWHTMLBareString alloc]initWithString:aString] autorelease];
-};
+}
+
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
+{
+}
+
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)context
+{
+
+      [NSException raise:NSInvalidArgumentException
+                  format:@"%s: A BareString does not have any brain to think about actions. You should avoid calling this method to save CPU cycles.",
+                              __PRETTY_FUNCTION__];
+
+  //Does Nothing
+  return nil;
+}
+
 @end

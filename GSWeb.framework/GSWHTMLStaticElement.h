@@ -44,6 +44,8 @@
 
 -(NSString*)elementName;
 -(NSArray*)dynamicChildren;
+-(NSArray*) childrenElements;
+
 -(NSArray*)htmlBareStrings;
 -(NSData*)elementsMap;
 
@@ -65,10 +67,6 @@
 
 -(NSString*)description;
 
-@end
-
-//====================================================================
-@interface GSWHTMLStaticElement (GSWHTMLStaticElementA)
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 
@@ -83,10 +81,6 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
 
-@end
-
-//====================================================================
-@interface GSWHTMLStaticElement (GSWHTMLStaticElementB)
 -(BOOL)compactHTMLTags;
 -(BOOL)appendStringAtRight:(id)unkwnon
                withMapping:(char*)mapping;
@@ -94,28 +88,17 @@
               withMapping:(char*)mapping;
 -(BOOL)canBeFlattenedAtInitialization;
 
-@end
-
-//====================================================================
-@interface GSWHTMLStaticElement (GSWHTMLStaticElementC)
 +(BOOL)charactersNeedingQuotes;
 +(void)addURLAttribute:(id)attribute
 	   forElementNamed:(NSString*)name;
 +(id)urlsForElementNamed:(NSString*)name;
-@end
 
-//====================================================================
-@interface GSWHTMLStaticElement (GSWHTMLStaticElementD)
 +(NSDictionary*)attributeDictionaryForString:(NSString*)string;
 +(NSString*)stringForAttributeDictionary:(NSDictionary*)attributeDictionary;
 +(GSWElement*)elementWithName:(NSString*)name
               attributeString:(NSString*)attributeString
               contentElements:(NSArray*)elements;
 
-@end
-
-//====================================================================
-@interface GSWHTMLStaticElement (GSWHTMLStaticElementE)
 +(GSWElement*)elementWithName:(NSString*)name
           attributeDictionary:(NSDictionary*)attributeDictionary
               contentElements:(NSArray*)elements;

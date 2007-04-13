@@ -94,16 +94,9 @@
 -(NSString*)description;
 
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionA)
 -(id)_initWithSessionID:(NSString*)aSessionID;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWTermination)
+// Termination
 
 -(void)terminate;
 -(void)_terminateByTimeout;
@@ -111,42 +104,27 @@
 -(void)setTimeOut:(NSTimeInterval)timeInterval;
 -(NSTimeInterval)timeOut;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionDebugging)
+// SessionDebugging
 
 -(void)debugWithFormat:(NSString*)format,...;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionD)
+// SessionD
 
 -(void)_debugWithString:(NSString*)string;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWPageManagement)
+// PageManagement
 
 -(void)savePage:(GSWComponent*)page;
 -(GSWComponent*)restorePageForContextID:(NSString*)aContextID;
 -(unsigned int)permanentPageCacheSize;
 -(void)savePageInPermanentCache:(GSWComponent*)page;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionF)
+// SessionF
 
 -(void)clearCookieFromResponse:(GSWResponse*)aResponse;
 -(void)appendCookieToResponse:(GSWResponse*)aResponse;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionG)
+// SessionG
 
 -(void)_releaseAutoreleasePool;
 -(void)_createAutoreleasePool;
@@ -158,8 +136,6 @@
                                  stackIndex:(unsigned int*)pStackIndex
                           contextArrayIndex:(unsigned int*)pContextArrayIndex;
 -(void)_replacePage:(GSWComponent*)page;
--(void)_savePage:(GSWComponent*)page
-       forChange:(BOOL)forChange;
 -(unsigned int)pageCacheSize;
 -(void)_saveCurrentPage;
 -(int)_requestCounter;
@@ -169,10 +145,7 @@
 -(void)sleepInContext:(GSWContext*)aContext;
 -(void)awakeInContext:(GSWContext*)aContext; 
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWLocalization)
+// Localization
 
 -(void)setLanguages:(NSArray*)languages;
 
@@ -195,10 +168,7 @@ Returns first element of languages or nil if languages is empty
 **/
 -(NSString*)firstLanguage;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWComponentStateManagement)
+// ComponentStateManagement
 
 -(void)setObject:(id)object
           forKey:(NSString*)key;
@@ -206,18 +176,13 @@ Returns first element of languages or nil if languages is empty
 -(id)objectForKey:(NSString*)key;
 -(void)removeObjectForKey:(NSString*)key;
 -(NSMutableDictionary*)componentState;//NDFN
-@end
 
-//====================================================================
-@interface GSWSession (GSWEnterpriseObjects)
+// EnterpriseObjects
 
 -(EOEditingContext*)defaultEditingContext;
 -(void)setDefaultEditingContext:(EOEditingContext*)editingContext;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWRequestHandling)
+// RequestHandling
 
 -(GSWContext*)context;
 -(void)awake;
@@ -232,10 +197,7 @@ Returns first element of languages or nil if languages is empty
 
 -(void)sleep;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWStatistics)
+// Statistics
 
 -(NSArray*)statistics;
 -(BOOL)_allowedToViewStatistics;
@@ -246,34 +208,18 @@ Returns first element of languages or nil if languages is empty
 -(NSString*)_formattedStatistics;
 -(NSDate*)_birthDate;
 -(void)_setBirthDate:(NSDate*)birthDate;
-@end
 
-//====================================================================
-@interface GSWSession (GSWEvents)
 
 -(BOOL)_allowedToViewEvents;
 -(void)_allowToViewEvents;
 -(void)_setAllowedToViewEvents:(BOOL)flag;
 -(BOOL)validateEventsLogin:(NSString*)login
               withPassword:(NSString*)password;
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionN)
 
 -(GSWApplication*)application;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionO)
-
 -(void)_validateAPI;
 
-@end
-
-//====================================================================
-@interface GSWSession (GSWSessionClassA)
 +(void)__setContextCounterIncrementingEnabled:(BOOL)flag;
 +(int)__counterIncrementingEnabledFlag;
 

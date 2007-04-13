@@ -36,21 +36,6 @@
 //====================================================================
 @interface GSWText: GSWInput
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
-
--(NSString*)elementName;
-
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-
--(NSString*)_filterSoftReturnsFromString:(NSString*)string;
 @end
 
-//====================================================================
-@interface GSWText (GSWTextA)
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
-@end
 #endif //_GSWText_h__

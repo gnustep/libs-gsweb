@@ -37,26 +37,8 @@
 {
   GSWAssociation* _checked;
   GSWAssociation* _selection;
-};
+}
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(void)dealloc;
--(NSString*)description;
-
-@end
-
-//====================================================================
-@interface GSWRadioButton (GSWRadioButtonA)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)response
-                                      inContext:(GSWContext*)context; 
-@end
-
-//====================================================================
-@interface GSWRadioButton (GSWRadioButtonB)
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
 
 @end
 

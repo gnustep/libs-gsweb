@@ -37,9 +37,23 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 #include "GSWPrivate.h"
 
-static SEL objectAtIndexSEL = NULL;
 
 static Class standardClass = Nil;
+static Class NSStringClass = Nil;
+static Class NSNumberClass = Nil;
+static Class NSMutableDictionaryClass = Nil;
+static Class GSCachedIntClass = Nil;
+static NSMutableDictionary *  _urlAttributesTable = nil;
+
+static inline BOOL _needQuote(NSString* str_needQuote)
+{
+ if ([str_needQuote isKindOfClass:NSStringClass] == NO) {
+   return NO;
+ } else {
+  unsigned int mystrlen = [str_needQuote length];
+  return (((mystrlen < 1) || ([str_needQuote hasPrefix:@"\""] == NO)) || ([str_needQuote hasSuffix:@"\""] == NO));
+ }
+}
 
 //====================================================================
 @implementation GSWHTMLDynamicElement
@@ -49,1118 +63,542 @@ static Class standardClass = Nil;
 {
   if (self == [GSWHTMLDynamicElement class])
     {
-      standardClass=[GSWHTMLDynamicElement class];
-      objectAtIndexSEL=@selector(objectAtIndex:);
+    if (!_urlAttributesTable) {
+      _urlAttributesTable = [NSMutableDictionary new];
+      [_urlAttributesTable setObject:@"href" forKey:@"a"];
+      [_urlAttributesTable setObject:@"codebase" forKey:@"applet"];
+      [_urlAttributesTable setObject:@"href" forKey:@"area"];
+      [_urlAttributesTable setObject:@"src" forKey:@"bgsound"];
+      [_urlAttributesTable setObject:@"href" forKey:@"base"];
+      [_urlAttributesTable setObject:@"background" forKey:@"body"];
+      [_urlAttributesTable setObject:@"src" forKey:@"embed"];
+      [_urlAttributesTable setObject:@"action" forKey:@"form"];
+      [_urlAttributesTable setObject:@"src" forKey:@"frame"];
+      [_urlAttributesTable setObject:[NSArray arrayWithObjects:@"src",@"dynsrc",@"usemap",nil] 
+                              forKey:@"img"];
+      [_urlAttributesTable setObject:@"src" forKey:@"input"];
+      [_urlAttributesTable setObject:@"href" forKey:@"link"];
+      [_urlAttributesTable setObject:@"src" forKey:@"script"];
+      
+      NSStringClass = [NSString class];
+      NSNumberClass = [NSNumber class];
+      NSMutableDictionaryClass = [NSMutableDictionary class];
+      GSCachedIntClass = NSClassFromString(@"GSCachedInt");
+    }
     };
 };
 
-//--------------------------------------------------------------------
--(id)initWithName:(NSString*)elementName
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
-{ 
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-  LOGObjectFnNotImplemented();	//TODOFN
-  NSDebugMLLog(@"gswdync",@"elementName=%@ associations:%@ elements=%@",elementName,associations,elements);
-  if ((self=[super initWithName:elementName
-                   associations:associations
-                   template:nil]))
-    {
-    };
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-  return self;
-};
-
-//--------------------------------------------------------------------
--(id)initWithName:(NSString*)elementName
-attributeAssociations:(NSDictionary*)attributeAssociations
-  contentElements:(NSArray*)elements
+// returns string or array or nil.
++ (id) _urlAttributesForElementNamed:(NSString*) str
 {
-  //OK
-  NSString* dynamicElementName=[[self elementName] uppercaseString];
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-  NSDebugMLLog(@"gswdync",@"elementName=%@ attributeAssociations_:%@ elements=%@ dynamicElementName=%@",
-		elementName,
-		attributeAssociations,
-		elements,
-		dynamicElementName);
-  if ((self=[super initWithName:dynamicElementName
-                   associations:attributeAssociations
-                   template:nil]))
-    {
-      NSMutableArray* attributeAssociationsValues=[NSMutableArray array];
-      NSEnumerator* attributesKeyEnum=nil;
-      id key=nil;
-      NSMutableArray* htmlBareStrings=[NSMutableArray array];
-      NSMutableData* elementsMap=[[NSMutableData new]autorelease];
-      BOOL hasGSWebObjectsAssociations=NO;
-      int GSWebObjectsAssociationsCount=0;
-      BOOL escapeHTML=[[self class] escapeHTML];// (return NO)
-      if (escapeHTML)
-        {
-          //TODO
-        };
+  id result = nil;
+  if (str == nil) {
+    return nil;
+  } else {
+    result = [_urlAttributesTable objectForKey:[str lowercaseString]];
+    if (!result) {
+      NSLog(@"%s:%@ %@ ", __PRETTY_FUNCTION__ , str, self);
+    }
+  }
+  return result;
+}
 
-      //("<INPUT", " type", "=", text, ">")
-      if (dynamicElementName)
-        {
-          [htmlBareStrings addObject:[@"<" stringByAppendingString:NSStringWithObject(dynamicElementName)]];
-          [elementsMap appendBytes:&ElementsMap_htmlBareString
-                       length:1];
-        };
 
-      attributesKeyEnum= [attributeAssociations keyEnumerator];
-      NSDebugMLLog(@"gswdync",@"attributesKeyEnum=%@ attributeAssociations=%@",
-                   attributesKeyEnum,attributeAssociations);
-      while ((key = [attributesKeyEnum nextObject]))
-        {
-          id association=[attributeAssociations objectForKey:key];
-          id associationValue=[association valueInComponent:nil];
-          NSDebugMLLog(@"gswdync",@"association=%@ associationValue=%@",
-                       association,associationValue);
-          [htmlBareStrings addObject:[@" " stringByAppendingString:NSStringWithObject(key)]];
-          [elementsMap appendBytes:&ElementsMap_htmlBareString
-                       length:1];
-          if (associationValue)
-            {
-              [htmlBareStrings addObject:@"="];
-              [elementsMap appendBytes:&ElementsMap_htmlBareString
-                           length:1];
-              associationValue=NSStringWithObject(associationValue);
-              // Parser remove "";
-              if (![associationValue hasPrefix:@"\""])
-                associationValue=[NSString stringWithFormat:@"\"%@\"",associationValue];
-              NSDebugMLLog(@"gswdync",@"'associationValue'='%@'",
-                           associationValue);
-              [htmlBareStrings addObject:associationValue];
-              [elementsMap appendBytes:&ElementsMap_htmlBareString
-                           length:1];
-            }
-          else
-            {
-              //TODOV
-              [attributeAssociationsValues addObject:association];
-              [elementsMap appendBytes:&ElementsMap_attributeElement
-                           length:1];
-                  
-            };
-        };
-      GSWebObjectsAssociationsCount=[self GSWebObjectsAssociationsCount];
-      if (GSWebObjectsAssociationsCount>0)
-        hasGSWebObjectsAssociations=YES;
-      else
-        hasGSWebObjectsAssociations=[[self class]hasGSWebObjectsAssociations]; //return:YES
-      if (hasGSWebObjectsAssociations)
-        {
-          [elementsMap appendBytes:&ElementsMap_gswebElement
-                       length:1];
-        };
-      [htmlBareStrings addObject:@">"];
-      [elementsMap appendBytes:&ElementsMap_htmlBareString
-                   length:1];
-      if (elements)
-        {
-          int elementsN=[elements count];
-          for(;elementsN>0;elementsN--)
-            [elementsMap appendBytes:&ElementsMap_dynamicElement
-                         length:1];
-          if (dynamicElementName)
-            {
-              [htmlBareStrings addObject:[NSString stringWithFormat:@"</%@>",
-                                                   dynamicElementName]];
-              [elementsMap appendBytes:&ElementsMap_htmlBareString
-                           length:1];
-            };
-        };
-      [self _initWithElementsMap:elementsMap
-            htmlBareStrings:htmlBareStrings
-            dynamicChildren:elements
-            attributeAssociations:attributeAssociationsValues];
-    };
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-  return self;
-};
-
-//--------------------------------------------------------------------
--(id)initWithName:(NSString*)elementName
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement
+-(void) dealloc
 {
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-  NSDebugMLLog(@"gswdync",@"elementName=[%@] associations=[%@] templateElement=[%@]",
-               elementName,associations,templateElement);
-  //OK
-  if ((self=[self initWithName:elementName
-                  associations:associations
-                  contentElements:templateElement ? [NSArray arrayWithObject:templateElement] : nil]))
-    {
-    };
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-  return self;
-};
+  DESTROY(_elementName);
+  DESTROY(_nonURLAttributeAssociations);
+  DESTROY(_urlAttributeAssociations);
+  DESTROY(_constantAttributesRepresentation);
+  DESTROY(_associations);
 
-//--------------------------------------------------------------------
--(void)dealloc
-{
-  DESTROY(_elementsMap);
-  DESTROY(_htmlBareStrings);
-  DESTROY(_dynamicChildren);
-  DESTROY(_attributeAssociations);
   [super dealloc];
-};
+}
 
-//--------------------------------------------------------------------
--(id)_initWithElementsMap:(NSData*)elementsMap
-          htmlBareStrings:(NSArray*)htmlBareStrings
-          dynamicChildren:(NSArray*)dynamicChildren
-    attributeAssociations:(NSArray*)attributeAssociations
+
+-(BOOL) escapeHTML
 {
-  BOOL compactHTMLTags=NO;
-  BOOL hasGSWebObjectsAssociations=NO;
-  int GSWebObjectsAssociationsCount=0;
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-  NSDebugMLLog(@"gswdync",@"elementsMap=%@ htmlBareStrings:%@ dynamicChildren=%@ attributeAssociations=%@",
-               elementsMap,
-               htmlBareStrings,
-               dynamicChildren,
-               attributeAssociations);
-  compactHTMLTags=[self compactHTMLTags];
-  //OK
-  if (compactHTMLTags)
-    {
-      int elementN=0;
-      while(elementN<[elementsMap length] && ((BYTE*)[elementsMap bytes])[elementN]==ElementsMap_htmlBareString)
-        elementN++;
-      NSDebugMLLog(@"gswdync",@"elementN=%d",elementN);
-      [self _setEndOfHTMLTag:elementN];
-      if (elementN>0)
-        {
-          int rmStringN=0;
-          int htmlBareStringsCount=0;
-          NSMutableArray* rmStrings=[NSMutableArray array];
-          NSMutableString* rmString=[[NSMutableString new] autorelease];
-          NSMutableData* tmpElementsMap=[[NSMutableData new] autorelease];
-  NSDebugMLLog(@"gswdync",@"XXXXXX");//XXXXXXX
-          [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
-                          length:1];
-          if ([elementsMap length]>elementN)
-            [tmpElementsMap appendData:[elementsMap subdataWithRange:
-                                                      NSMakeRange(elementN,
-                                                                  [elementsMap length]-elementN)]];
-  NSDebugMLLog(@"gswdync",@"XXXXXX");//XXXXXXX
-          elementsMap=tmpElementsMap;
-          for(rmStringN=0;rmStringN<elementN;rmStringN++)
-            {
-  NSDebugMLLog(@"gswdync",@"XXXXXX");//XXXXXXX
-              NSDebugMLLog(@"gswdync",@"rmString=%@ [_htmlBareStrings objectAtIndex:rmStringN]=%@",
-                           rmString,
-                           [htmlBareStrings objectAtIndex:rmStringN]);
-              [rmString appendString:[htmlBareStrings objectAtIndex:rmStringN]];
-            };
-  NSDebugMLLog(@"gswdync",@"XXXXXX");//XXXXXXX
-          [rmStrings addObject:rmString];
-          NSDebugMLLog(@"gswdync",@"rmStrings=%@",rmStrings);
+  return NO;
+}
 
-          htmlBareStringsCount=[htmlBareStrings count];
-          for(rmStringN=elementN;rmStringN<htmlBareStringsCount;rmStringN++)
-            {
-              NSDebugMLLog(@"gswdync",@"rmStrings=%@ [htmlBareStrings objectAtIndex:rmStringN]=%@",
-                           rmStrings,
-                           [htmlBareStrings objectAtIndex:rmStringN]);
-              [rmStrings addObject:[htmlBareStrings objectAtIndex:rmStringN]];
-            };
-  NSDebugMLLog(@"gswdync",@"XXXXXX");//XXXXXXX
-          htmlBareStrings=rmStrings;
-          NSDebugMLLog(@"gswdync",@"elementsMap=%@ htmlBareStrings:%@",
-                       elementsMap,
-                       htmlBareStrings);
-        };
-    };
-  NSDebugMLLog(@"gswdync",@"XXXXXX");//XXXXXXX
-  [self setHtmlBareStrings:htmlBareStrings]; 
-  GSWebObjectsAssociationsCount=[self GSWebObjectsAssociationsCount];
-  if (GSWebObjectsAssociationsCount>0)
-    hasGSWebObjectsAssociations=YES;
-  else
-    hasGSWebObjectsAssociations=[[self class]hasGSWebObjectsAssociations];
-  if (hasGSWebObjectsAssociations)
-    {
-      //TODO
-    };
-  
-  ASSIGN(_elementsMap,elementsMap);
-							  
-  ASSIGN(_dynamicChildren,dynamicChildren);
-  ASSIGN(_attributeAssociations,attributeAssociations);
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)template
+{
+  self = [super initWithName:nil
+                associations:nil   
+                   template: template];
 
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
+  ASSIGN(_elementName, name);
+  if (associations == nil) {
+     [NSException raise:NSInvalidArgumentException
+             format:@"%s: No associations",
+                                  __PRETTY_FUNCTION__];
+  }
+  DESTROY(_associations);    
+  _associations = [associations mutableCopyWithZone:nil];
+  _finishedInitialization = NO;
+                            
   return self;
-};
+}
 
-//--------------------------------------------------------------------
--(NSString*)elementName
+-(id)initWithName:(NSString*)name
+     associations:(NSDictionary*)associations
+  contentElements:(NSMutableArray*) children
 {
-  //OK
-  [self subclassResponsibility:_cmd];
-  return nil;
-};
 
-//--------------------------------------------------------------------
--(NSArray*)dynamicChildren
+// I am not sure if this mehod should exist here at all. dave@turbocat.de
+
+     [NSException raise:NSInvalidArgumentException
+             format:@"%s: sure you want this?",
+                                  __PRETTY_FUNCTION__];
+//
+//  self = [super initWithName:nil
+//                associations:nil   
+//             contentElements:children];
+//
+//  ASSIGN(_elementName, name);
+//  if (associations == nil) {
+//     [NSException raise:NSInvalidArgumentException
+//             format:@"%s: No associations",
+//                                  __PRETTY_FUNCTION__];
+//  }
+//  DESTROY(_associations);    
+//  _associations = [associations mutableCopyWithZone:nil];
+//  _finishedInitialization = NO;
+//                           
+  return self;
+}
+
+
+- (void) _finishInitialization
 {
-  //OK
-  return _dynamicChildren;
-};
+//lock for _finishedInitialization ?
 
-//--------------------------------------------------------------------
--(NSArray*)htmlBareStrings
-{
-  //OK
-  return _htmlBareStrings;
-};
+  _nonURLAttributeAssociations = nil;
+  _urlAttributeAssociations = nil;
+  NSMutableString * buffer = [NSMutableString stringWithCapacity:256];
+  NSString * str = nil;
+  NSString * s1 = nil;
+  GSWAssociation  * association = nil;
+  id                aValue = nil;
+  int i = 0;
+  
+  if ((_elementName != nil) && ((_associations != nil) && ([_associations count] > 0))) {
+    NSEnumerator * enumer = [[NSArray arrayWithArray:[_associations allKeys]] objectEnumerator];
 
-//--------------------------------------------------------------------
--(NSData*)elementsMap
-{
-  //OK
-  return _elementsMap;
-};
+    while (str = [enumer nextObject]) {
+      association = [_associations objectForKey: str];
+      if (([association isKindOfClass:[GSWConstantValueAssociation class]]) && ([self escapeHTML] == NO)) {
+        aValue = [association valueInComponent:nil];
+        s1 = (aValue == nil) ? @"" : aValue;    // stringValue??
+        if ([s1 isKindOfClass:NSStringClass] == NO) {
+          s1 = [(NSNumber*)s1 stringValue];
+        }
+        if ([aValue isEqual:@"otherTagString"]) {
+          [buffer appendString:@" "];
+          [buffer appendString: s1];
+        } else {
+            [buffer appendString:@" "];
+            [buffer appendString: str];
+            [buffer appendString:@"="];
+          if (_needQuote(s1) || ([s1 length] == 0)) {
+            [buffer appendString:@"\""];
+            [buffer appendString: s1];
+            [buffer appendString:@"\""];
+          } else {
+            [buffer appendString: s1];
+          }
+        }
+        [_associations removeObjectForKey:str];
+      } else {
+        id resultattribute = [[self class] _urlAttributesForElementNamed:_elementName];
+        BOOL flag = NO;
+        NSString * lowercaseString = [str lowercaseString];
+        if (resultattribute != nil)
+        {
+          if ([resultattribute isKindOfClass:NSStringClass] == NO) {
+            int j = [resultattribute count];
+            for (i = 0; ((i < j) && (!flag)); i++) {
+              flag = [lowercaseString isEqual: [resultattribute objectAtIndex:i]];
+            }
+          } else {  // is a string
+              flag = [lowercaseString isEqual: resultattribute];          
+          }
+        }
+        if (flag) {
+          if (_urlAttributeAssociations == nil)
+          {
+            _urlAttributeAssociations = [NSMutableDictionary new];
+          }
+          [_urlAttributeAssociations setObject:association forKey:str];
+          [_associations removeObjectForKey:str];
+        }
+      }
+    } // while 
+    
+    if ([_associations count] > 0) {
+      ASSIGN(_nonURLAttributeAssociations, _associations);
+    }
+  }
+  if ([buffer length] > 0) {
+    ASSIGN(_constantAttributesRepresentation,buffer);
+  } else {
+    DESTROY(_constantAttributesRepresentation);
+  }
+  DESTROY(_associations);    
+  _finishedInitialization = YES;
+}
 
-//--------------------------------------------------------------------
--(NSArray*)attributeAssociations
-{
-  //OK
-  return _attributeAssociations;
-};
-
-//--------------------------------------------------------------------
--(void)_setEndOfHTMLTag:(unsigned int)unknown
-{
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-};
-
-//--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%@ %p elementsMap:%@ htmlBareStrings:%@ dynamicChildren:%@ attributeAssociations:%@>",
-                   [self class],
-                   (void*)self,
-                   _elementsMap,
-                   _htmlBareStrings,
-                   _dynamicChildren,
-                   _attributeAssociations];
-};
+  NSString * desStr = [NSString stringWithFormat:@"<%@ %p elementName:%@ ",
+				   [self class],
+				   (void*)self, _elementName];
 
-//--------------------------------------------------------------------
--(void)setHtmlBareStrings:(NSArray*)htmlBareStrings
+  if (_constantAttributesRepresentation != nil) {
+    desStr = [desStr stringByAppendingFormat:@" Constant Attributes: %@", _constantAttributesRepresentation];
+  }
+  if (_urlAttributeAssociations != nil) {
+    desStr = [desStr stringByAppendingFormat:@" URL Dynamic Attributes: %@", _urlAttributeAssociations];
+  }
+  if (_nonURLAttributeAssociations != nil) {
+    desStr = [desStr stringByAppendingFormat:@" non-URL Dynamic Attributes: %@", _nonURLAttributeAssociations];
+  }
+  if ([self hasChildrenElements]) {
+    desStr = [desStr stringByAppendingFormat:@" Children: %@", [self childrenElements]];
+  }
+  desStr = [desStr stringByAppendingString:@" >"];
+
+  return desStr;
+}
+
+- (NSString*) elementName
 {
-  ASSIGN(_htmlBareStrings,htmlBareStrings);
-};
+  return _elementName;
+}
 
-
-@end
-
-//====================================================================
-@implementation GSWHTMLDynamicElement (GSWHTMLDynamicElementA)
-
-//--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
-                                      inContext:(GSWContext*)aContext
+- (NSMutableDictionary*) urlAttributeAssociations
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-};
+  if (!_finishedInitialization) {
+    [self _finishInitialization];
+  }
+  return _urlAttributeAssociations;
+}
 
-//--------------------------------------------------------------------
--(unsigned int)GSWebObjectsAssociationsCount
+- (NSMutableDictionary*) nonUrlAttributeAssociations
 {
-  return 1;
-};
+  if (!_finishedInitialization) {
+    [self _finishInitialization];
+  }
+  return _nonURLAttributeAssociations;
+}
 
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
+- (NSString*) constantAttributesRepresentation
 {
-  //OK
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-  GSWStartElement(aContext);
-  GSWSaveAppendToResponseElementID(aContext);//Debug Only
-  if ([_elementsMap length]>0)
-    {
-      [self appendToResponse:aResponse
-            inContext:aContext
-            elementsFromIndex:0
-            toIndex:[_elementsMap length]-1];
-    };
-  GSWStopElement(aContext);
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-};
+  if (!_finishedInitialization) {
+    [self _finishInitialization];
+  }
+    return _constantAttributesRepresentation;
+}
 
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
-      elementsFromIndex:(unsigned int)fromIndex
-                toIndex:(unsigned int)toIndex
+// _frameworkNameInComponent
+- (NSString*) _frameworkNameForAssociation: (GSWAssociation*)association 
+                               inComponent: (GSWComponent *) component
 {
-  IMP htmlBareStringsObjectAtIndexIMP=NULL;
-  IMP dynamicChildrenObjectAtIndexIMP=NULL;
+  NSString * s = nil;
 
-  NSStringEncoding encoding=0;
-  NSArray* dynamicChildren=nil;
-  GSWComponent* component=nil;
-  GSWRequest* request=nil;
-  BOOL isFromClientComponent=NO;
-  NSArray* attributeAssociations=nil;
-  int elementN=0;
-  const BYTE* elements=[_elementsMap bytes];
-  BYTE element=0;
-  int elementsN[4]={0,0,0,0};
-  BOOL inChildren=NO;
-  GSWDeclareDebugElementID(aContext);
-  GSWDeclareDebugElementIDsCount(aContext);
-
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-
-  encoding=[aResponse contentEncoding];
-  dynamicChildren=[self dynamicChildren];//call dynamicChildren //GSWTextField: nil
-  NSDebugMLLog(@"gswdync",@"dynamicChildren=%@",dynamicChildren);
-  component=GSWContext_component(aContext);
-  request=[aContext request];
-  isFromClientComponent=[request isFromClientComponent]; //return NO
-  attributeAssociations=[self attributeAssociations]; //return nil for GSWTextField/GSWSubmitButton;
-
-  NSAssert2(fromIndex<[_elementsMap length],@"fromIndex out of range:%u (length=%d)",
-            fromIndex,[_elementsMap length]);
-  NSAssert2(toIndex<[_elementsMap length],@"toIndex out of range:%u (length=%d)",
-            toIndex,[_elementsMap length]);
-  NSAssert2(fromIndex<=toIndex,@"fromIndex>toIndex %u %u ",
-            fromIndex,toIndex);
-  NSDebugMLLog(@"gswdync",@"Starting HTMLDyn AR ET=%@ id=%@",
-               [self class],GSWContext_elementID(aContext));
-
-
-  for(elementN=0;elementN<=toIndex;elementN++)
-    {
-      element=(BYTE)elements[elementN];
-      NSDebugMLLog(@"gswdync",@"inChildren=%s elements=%c (0x%x)",
-                   (inChildren ? "YES" : "NO"),element,(int)element);
-      if (element==ElementsMap_dynamicElement)
-        {
-          if (!inChildren)
-            {
-              GSWAssignDebugElementID(aContext);
-              GSWContext_appendZeroElementIDComponent(aContext);
-              inChildren=YES;
-            };
-        }
-      else
-        {
-          if (inChildren)
-            {
-              GSWContext_deleteLastElementIDComponent(aContext);
-              inChildren=NO;
-
-              GSWAssertDebugElementID(aContext);
-            };
-        };
-      if (element==ElementsMap_htmlBareString)
-        {
-          if (elementN>=fromIndex)
-            {
-              if (!htmlBareStringsObjectAtIndexIMP)
-                htmlBareStringsObjectAtIndexIMP = [_htmlBareStrings methodForSelector:objectAtIndexSEL];
-
-              GSWResponse_appendContentString(aResponse,
-                                              ((*htmlBareStringsObjectAtIndexIMP)(_htmlBareStrings,
-                                                                                 objectAtIndexSEL,
-                                                                                 elementsN[0])));
-            };
-          elementsN[0]++;
-        }
-      else if (element==ElementsMap_gswebElement)
-        {
-          if (elementN>=fromIndex)
-            [self appendGSWebObjectsAssociationsToResponse:aResponse
-                  inContext:aContext];
-          elementsN[1]++;
-        }
-      else if (element==ElementsMap_dynamicElement)
-        {
-          if (elementN>=fromIndex)
-            {
-              NSDebugMLLog(@"gswdync",@"appendToResponse elementN=%d",
-                           elementN);
-
-              if (!dynamicChildrenObjectAtIndexIMP)
-                dynamicChildrenObjectAtIndexIMP = [dynamicChildren methodForSelector:objectAtIndexSEL];
-
-              [(*dynamicChildrenObjectAtIndexIMP)(dynamicChildren,objectAtIndexSEL,elementsN[2])
-                                  appendToResponse:aResponse
-                                  inContext:aContext];
-
-              GSWContext_incrementLastElementIDComponent(aContext);
-            };
-          elementsN[2]++;
-        }
-      else if (element==ElementsMap_attributeElement)
-        {
-          if (elementN>=fromIndex)
-            {
-              GSWAssociation* association=[_attributeAssociations objectAtIndex:elementsN[3]];
-              id value=[association valueInComponent:component];
-              if (value)
-                {
-                  GSWResponse_appendContentAsciiString(aResponse,@"=\"");
-                  GSWResponse_appendContentHTMLAttributeValue(aResponse,value);
-                  GSWResponse_appendContentCharacter(aResponse,'"');
-                };
-            };
-          elementsN[3]++;
-        };
-    };
-  if (inChildren)
-    {
-      GSWContext_deleteLastElementIDComponent(aContext);
-      GSWAssertDebugElementID(aContext);
-    };
-  GSWStopElement(aContext);
-  GSWAssertDebugElementIDsCount(aContext);
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-};
-
-
-//--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext
-{
-  //???
-  IMP dynamicChildrenObjectAtIndexIMP=NULL;
-  GSWElement* element=nil;
-  NSString* senderID=nil;
-  int elementsMapLength=0;
-  GSWDeclareDebugElementIDsCount(aContext);
-
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);// Debug Only
-
-  senderID=GSWContext_senderID(aContext);
-  elementsMapLength=[_elementsMap length];
-
-  if (elementsMapLength>0)
-    {
-      int elementN=0;
-      NSArray* dynamicChildren=[self dynamicChildren];
-      const BYTE* elements=[_elementsMap bytes];
-      BYTE elementIndic=0;
-      int elementsN[4]={0,0,0,0};
-      BOOL searchIsOver=NO;
-      BOOL inChildren=NO;
-      GSWDeclareDebugElementID(aContext);
-
-      for(elementN=0;!element && !searchIsOver && elementN<elementsMapLength;elementN++)
-        {
-          elementIndic=(BYTE)elements[elementN];      
-          if (elementIndic==ElementsMap_dynamicElement)
-            {
-              if (!inChildren)
-                {
-                  GSWAssignDebugElementID(aContext);
-                  GSWContext_appendZeroElementIDComponent(aContext);
-                  inChildren=YES;
-                };
-            }
-          else
-            {
-              if (inChildren)
-                {
-                  GSWContext_deleteLastElementIDComponent(aContext);
-                  inChildren=NO;
-                  GSWAssertDebugElementID(aContext);
-                };
-            };
-          if (elementIndic==ElementsMap_htmlBareString)
-            elementsN[0]++;
-          else if (elementIndic==ElementsMap_gswebElement)
-            elementsN[1]++;
-          else if (elementIndic==ElementsMap_dynamicElement)
-            {
-              if (!dynamicChildrenObjectAtIndexIMP)
-                dynamicChildrenObjectAtIndexIMP = [dynamicChildren methodForSelector:objectAtIndexSEL];
-
-              element = [(*dynamicChildrenObjectAtIndexIMP)(dynamicChildren,objectAtIndexSEL,elementsN[2])
-                                                           invokeActionForRequest:aRequest
-                                                           inContext:aContext];
-              NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
-                        @"From: %@ Element is a %@ not a GSWElement: %@",
-                        [dynamicChildren objectAtIndex:elementsN[2]],
-                        [element class],
-                        element);
-              if (![aContext _wasFormSubmitted] && [aContext isSenderIDSearchOver])
-                {
-                  NSDebugMLLog(@"gswdync",@"id=%@ senderid=%@ => search is over",
-                               GSWContext_elementID(aContext),
-                               senderID);
-                  searchIsOver=YES;
-                };
-              GSWContext_incrementLastElementIDComponent(aContext);
-              elementsN[2]++;
-            }
-          else if (elementIndic==ElementsMap_attributeElement)
-            elementsN[3]++;
-        };
-      if (inChildren)
-        {
-          GSWContext_deleteLastElementIDComponent(aContext);
-          GSWAssertDebugElementID(aContext);
-        };
-
-    };
-
-  GSWStopElement(aContext);
-
-  GSWAssertDebugElementIDsCount(aContext);
-  NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-
-  return element;
-};
-
-
-//--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)aRequest
-                   inContext:(GSWContext*)aContext
-{
-  int elementsMapLength=0;
-  GSWDeclareDebugElementIDsCount(aContext);
-
-  LOGObjectFnStartC("GSWHTMLDynamicElement");
-
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);
-
-  elementsMapLength=[_elementsMap length];
-
-  if (elementsMapLength>0)
-    {
-      int elementN=0;
-      NSArray* dynamicChildren=[self dynamicChildren];
-      const BYTE* elements=[_elementsMap bytes];
-      BYTE element=0;
-      int elementsN[4]={0,0,0,0};
-      BOOL inChildren=NO;
-      IMP dynamicChildrenObjectAtIndexIMP=NULL;
-      GSWDeclareDebugElementID(aContext);
-
-      for(elementN=0;elementN<elementsMapLength;elementN++)
-	{
-	  element=(BYTE)elements[elementN];
-	  if (element==ElementsMap_dynamicElement)
-            {
-              if (!inChildren)
-                {
-                  GSWAssignDebugElementID(aContext);
-                  GSWContext_appendZeroElementIDComponent(aContext);
-                  inChildren=YES;
-                };
-            }
-	  else
-            {
-              if (inChildren)
-                {
-                  GSWContext_deleteLastElementIDComponent(aContext);
-                  inChildren=NO;
-                  GSWAssertDebugElementID(aContext);
-                };
-            };
-
-	  if (element==ElementsMap_htmlBareString)
-            elementsN[0]++;
-	  else if (element==ElementsMap_gswebElement)
-            elementsN[1]++;
-	  else if (element==ElementsMap_dynamicElement)
-            {
-              NSDebugMLLog(@"gswdync",@"i=%d",
-                           elementN);
-              if (!dynamicChildrenObjectAtIndexIMP)
-                dynamicChildrenObjectAtIndexIMP = [dynamicChildren methodForSelector:objectAtIndexSEL];
-
-              [(*dynamicChildrenObjectAtIndexIMP)(dynamicChildren,objectAtIndexSEL,elementsN[2])
-                                                 takeValuesFromRequest:aRequest
-                                                 inContext:aContext];
-
-              GSWContext_incrementLastElementIDComponent(aContext);
-              elementsN[2]++;
-            }
-	  else if (element==ElementsMap_attributeElement)
-            elementsN[3]++;
-	};
-      if (inChildren)
-	{
-          GSWContext_deleteLastElementIDComponent(aContext);
-          GSWAssertDebugElementID(aContext);
-	};
-    };
-  GSWStopElement(aContext);
-  GSWAssertDebugElementIDsCount(aContext);
-  LOGObjectFnStopC("GSWHTMLDynamicElement");
-};
- 
-@end
-
-//====================================================================
-@implementation GSWHTMLDynamicElement (GSWHTMLDynamicElementB)
-
-//--------------------------------------------------------------------
--(BOOL)compactHTMLTags
-{
-  return YES;
-};
-
-//--------------------------------------------------------------------
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
-};
-
-//--------------------------------------------------------------------
--(BOOL)appendStringAtLeft:(id)unkwnon
-              withMapping:(char*)mapping
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
-};
-
-//--------------------------------------------------------------------
--(BOOL)canBeFlattenedAtInitialization
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
-};
-
-@end
-
-//====================================================================
-@implementation GSWHTMLDynamicElement (GSWHTMLDynamicElementC)
-
-//--------------------------------------------------------------------
-+(void)setDynamicElementCompaction:(BOOL)flag
-{
-  LOGClassFnNotImplemented();	//TODOFN
-};
-
-//--------------------------------------------------------------------
-+(BOOL)escapeHTML
-{
-  //OK?
-  return NO;
-};
-
-//--------------------------------------------------------------------
-+(BOOL)hasGSWebObjectsAssociations
-{
-  //OK ?
-  return NO;
-};
-
-@end
-
-
-//====================================================================
-//@implementation GSWHTMLDynamicElement (GSWHTMLDynamicElementD)
-// move it to GSWHTMLDynamicElement later !!!!
-
-@implementation GSWDynamicElement (GSWHTMLDynamicElementD)
-
-//--------------------------------------------------------------------
--(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
-                              directActionNameAssociation:(GSWAssociation*)directActionName
-                                                inContext:(GSWContext*)context
-{
-  return [self computeActionStringWithActionClassAssociation:actionClass
-               directActionNameAssociation:directActionName
-               otherPathQueryAssociations:nil
-               inContext:context];
-};
-
-//--------------------------------------------------------------------
--(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
-                              directActionNameAssociation:(GSWAssociation*)directActionName
-                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
-                                                inContext:(GSWContext*)context
-{
-  return [self computeActionStringWithActionClassAssociation:actionClass
-               directActionNameAssociation:directActionName
-               pathQueryDictionaryAssociation:nil
-               otherPathQueryAssociations:nil
-               inContext:context];
-};
-
-//--------------------------------------------------------------------
--(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
-                              directActionNameAssociation:(GSWAssociation*)directActionName
-                           pathQueryDictionaryAssociation:(GSWAssociation*)pathQueryDictionaryAssociation
-                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
-                                                inContext:(GSWContext*)aContext
-{
-  //OK
-  GSWComponent* component=nil;
-  NSMutableString* tmpDirectActionString=nil;
-  id directActionNameValue=nil;
-  id actionClassValue=nil;
-  IMP das_appendStringIMP=NULL;
-
-  LOGObjectFnStart();
-
-  component=GSWContext_component(aContext);
-  if (directActionName)
-    directActionNameValue=NSStringWithObject([directActionName valueInComponent:component]);
-  if (actionClass)
-    actionClassValue=NSStringWithObject([actionClass valueInComponent:component]);
-
-  if (actionClassValue)
-    {
-      tmpDirectActionString=(NSMutableString*)
-        [NSMutableString stringWithString:actionClassValue];
-      if (directActionNameValue)
-        {
-          // append /directActionNameValue
-          GSWeb_appendStringWithImpPtr(tmpDirectActionString,
-                                       &das_appendStringIMP,
-                                       @"/");
-          GSWeb_appendStringWithImpPtr(tmpDirectActionString,
-                                       &das_appendStringIMP,
-                                       directActionNameValue);
-        };
+  if (association != nil) {
+    s = [association valueInComponent:component];
+    if (s != nil) {
+      if ([[s lowercaseString] isEqual:@"app"]) {
+        s = nil;
+      }
+    } else {
+      if (component != nil)
+      {
+        s = [component frameworkName];
+      }
+      [GSWApp debugWithFormat:@"%s evaluated to nil. Defaulting to %@",
+                                __PRETTY_FUNCTION__,
+                                (s != nil ? s : @"app")];
     }
-  else if (directActionNameValue)
-    {
-      tmpDirectActionString=(NSMutableString*)
-        [NSMutableString stringWithString:directActionNameValue];
+  } else {
+    if (component != nil) {
+        s = [component frameworkName];
     }
-  else
-    {
-      LOGSeriousError(@"No actionClass (for %@) and no directActionName (for %@)",
-                      actionClass,
-                      directActionName);
-    };
+  }
+  return s;
+}
 
-  NSDebugMLog(@"gswdync",@"tmpDirectActionString=%@",
-              tmpDirectActionString);
+// computeActionStringInContext in wo5
+-(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
+                             directActionNameAssociation:(GSWAssociation*)directActionName
+                                               inContext:(GSWContext*)context
 
-  if (tmpDirectActionString)
-    {
-      NSDictionary* pathQueryDictionary=nil;
-      NSDictionary* finalDictionary=nil;
-      if (pathQueryDictionaryAssociation)
-        {
-          NSDebugMLLog(@"gswdync",@"pathQueryDictionaryAssociation=%@",
-                       pathQueryDictionaryAssociation);
-
-          pathQueryDictionary=[pathQueryDictionaryAssociation 
-                                valueInComponent:component];
-
-          NSDebugMLLog(@"gswdync",@"pathQueryDictionary=%@",
-                       pathQueryDictionary);
-        };
-      if ([pathQueryDictionary count]>0 || [otherPathQueryAssociations count]>0)
-        {
-          NSMutableDictionary* pathKV=nil;
-
-          if ([otherPathQueryAssociations count]>0)
-            {              
-              NSEnumerator* enumerator = [otherPathQueryAssociations keyEnumerator];
-              id key=nil;
-              pathKV=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-              while ((key = [enumerator nextObject]))
-                {
-                  id association = [otherPathQueryAssociations valueForKey:key];
-                  id associationValue=[association valueInComponent:component];
-                  NSDebugMLLog(@"gswdync",@"key=%@",key);
-                  NSDebugMLLog(@"gswdync",@"association=%@",association);
-                  NSDebugMLLog(@"gswdync",@"associationValue=%@",associationValue);
-                  if (!associationValue)
-                    associationValue=[NSString string];
-                  [pathKV setObject:associationValue
-                          forKey:key];
-                };
-              if ([pathQueryDictionary count]>0)
-                [pathKV addEntriesFromDictionary:pathQueryDictionary];
-              finalDictionary=pathKV;
-            }
-          else
-            finalDictionary=pathQueryDictionary;
-          
-          NSDebugMLLog(@"gswdync",@"finalDictionary=%@",finalDictionary);
-        };
-
-      NSDebugMLLog(@"gswdync",@"finalDictionary=%@",finalDictionary);
-
-      // We enable context to manipulate (add some keys,...) queryDictionary
-      finalDictionary=[aContext computePathQueryDictionary:finalDictionary];
-      NSDebugMLLog(@"gswdync",@"finalDictionary=%@",finalDictionary);
-
-      if ([finalDictionary count]>0)
-        {
-	  NSArray* keys = nil;
-	  unsigned int count = 0;
-	  unsigned int i = 0;
-          
-
-          // We sort keys so URL are always the same for same parameters
-          keys=[[finalDictionary allKeys]sortedArrayUsingSelector:@selector(compare:)];
-          count=[keys count];
-
-          NSDebugMLLog(@"gswdync",@"finalDictionary=%@",finalDictionary);
-          for(i=0;i<count;i++)
-            {
-              id key = [keys objectAtIndex:i];
-              id value = [finalDictionary valueForKey:key];
-              NSDebugMLLog(@"gswdync",@"key=%@",key);
-              NSDebugMLLog(@"gswdync",@"value=%@",value);
-              // append /key=value
-              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
-                                           &das_appendStringIMP,
-                                           @"/");
-              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
-                                           &das_appendStringIMP,
-                                           NSStringWithObject(key));
-              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
-                                           &das_appendStringIMP,
-                                           @"=");
-              GSWeb_appendStringWithImpPtr(tmpDirectActionString,
-                                           &das_appendStringIMP,
-                                           NSStringWithObject(value));
-            };
-        };
-    };
-
-  NSDebugMLLog(@"gswdync",@"tmpDirectActionString=%@",tmpDirectActionString);
-  LOGObjectFnStop();
-  return tmpDirectActionString;
-};
-
-//--------------------------------------------------------------------
--(NSDictionary*)computeQueryDictionaryWithActionClassAssociation:(GSWAssociation*)actionClass
-                                     directActionNameAssociation:(GSWAssociation*)directActionName
-                                      queryDictionaryAssociation:(GSWAssociation*)queryDictionary
-                                          otherQueryAssociations:(NSDictionary*)otherQueryAssociations
-                                                       inContext:(GSWContext*)aContext
 {
-  NSMutableDictionary* tempQueryDictionary=nil;
-  NSDictionary* finalQueryDictionary=nil;
-  GSWComponent* component=nil;
-  GSWSession* session=nil;
-  NSString* sessionID=nil;
-
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"gswdync",@"actionClass=%@",actionClass);
-  NSDebugMLLog(@"gswdync",@"directActionName=%@",directActionName);
-  NSDebugMLLog(@"gswdync",@"queryDictionary=%@",queryDictionary);
-  NSDebugMLLog(@"gswdync",@"otherQueryAssociations=%@",otherQueryAssociations);
-
-  component=GSWContext_component(aContext);
-  session=[aContext existingSession];
-  NSDebugMLog(@"session=%@",session);
+  GSWComponent * component = GSWContext_component(context);
+  id componentValue = nil;
+  id directActionValue = nil;
+  id resultString = nil;
   
-  if (queryDictionary)
-    {
-      NSDictionary* queryDictionaryValue=[queryDictionary valueInComponent:component];
-      if (queryDictionaryValue)
-        {
-          if ([queryDictionaryValue isKindOfClass:[NSMutableDictionary class]])
-            tempQueryDictionary=(NSMutableDictionary*)queryDictionaryValue;
-          else
-            {
-              NSAssert3([queryDictionaryValue isKindOfClass:[NSDictionary class]],
-                        @"queryDictionary value is not a dictionary but a %@. association was: %@. queryDictionaryValue is:",
-                        [queryDictionaryValue class],
-                        queryDictionary,
-                        queryDictionaryValue);
-              tempQueryDictionary=[[queryDictionaryValue mutableCopy] autorelease];
-            };
-        };
-    };
-  if (!tempQueryDictionary)
-    tempQueryDictionary=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+  if (actionClass != nil) {
+    componentValue = [actionClass valueInComponent: component];
+    if ([componentValue isKindOfClass: NSStringClass] == NO) {
 
-  if (session)
-    sessionID=[session sessionID];
-  NSDebugMLog(@"sessionID=%@",sessionID);
-/*
-in GSWHyperlink, it was
-       if (!_action && !_pageName
-          && (WOStrictFlag || (!WOStrictFlag && !_redirectURL))) //??
-*/
-  if(sessionID
-     && (directActionName || actionClass) 
-     && (!session || ![session storesIDsInCookies] || [session storesIDsInURLs]))
-    [tempQueryDictionary setObject:sessionID
-                          forKey:GSWKey_SessionID[GSWebNamingConv]];
-
-  if (otherQueryAssociations)
-    {
-      NSEnumerator *enumerator = [otherQueryAssociations keyEnumerator];
-      id associationKey=nil;
-      while ((associationKey = [enumerator nextObject]))
-        {
-          id association = [otherQueryAssociations valueForKey:associationKey];
-          id associationValue=[association valueInComponent:component];
-          NSDebugMLLog(@"gswdync",@"associationKey=%@",associationKey);
-          NSDebugMLLog(@"gswdync",@"association=%@",association);
-          NSDebugMLLog(@"gswdync",@"associationValue=%@",associationValue);
-          if (associationValue)
-            [tempQueryDictionary setObject:associationValue
-                                  forKey:associationKey];
-          else
-            [tempQueryDictionary removeObjectForKey:associationKey];
-        };
-    };
-
-  NSDebugMLLog(@"gswdync",@"tempQueryDictionary=%@",tempQueryDictionary);
-
-  // We enable context to manipulate (add some keys,...) queryDictionary
-  finalQueryDictionary=[aContext computeQueryDictionary:tempQueryDictionary];
-  NSDebugMLLog(@"gswdync",@"finalQueryDictionary=%@",finalQueryDictionary);
-
-  LOGObjectFnStop();
-  return finalQueryDictionary;
-};
-@end
-
-//====================================================================
-@implementation GSWHTMLDynamicElement (GSWHTMLDynamicElementCID)
-
-
--(NSString*)addCIDElement:(NSDictionary*)cidElement
-                   forKey:(NSString*)cidKeyValue
-   forCIDStoreAssociation:(GSWAssociation*)cidStore
-                inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  NSDebugMLog(@"cidElement=%@",cidElement);
-  NSDebugMLog(@"cidKeyValue=%@",cidKeyValue);
-  NSDebugMLog(@"cidStore=%@",cidStore);
-  if (cidElement && cidStore)
-    {
-      id cidObject=nil;
-      GSWComponent* component=GSWContext_component(aContext);
-      cidObject=[cidStore valueInComponent:component];
-      NSDebugMLog(@"cidObject=%@",cidObject);
-
-      if (cidObject)
-        {
-          if (![cidObject valueForKey:cidKeyValue])
-            [cidObject takeValue:cidElement
-                       forKey:cidKeyValue];
-          newURL=[@"cid:" stringByAppendingString:NSStringWithObject(cidKeyValue)];
-        };
-      NSDebugMLog(@"newURL=%@",newURL);
-    };
-  LOGObjectFnStop();
-  return newURL;
-};
-
-//--------------------------------------------------------------------
--(NSString*)addURL:(NSString*)url
-forCIDKeyAssociation:(GSWAssociation*)cidKey
-CIDStoreAssociation:(GSWAssociation*)cidStore
-         inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  if (url && cidStore)
-    {
-      NSString* cidKeyValue=nil;
-      GSWComponent* component=GSWContext_component(aContext);
-      cidKeyValue=(NSString*)[cidKey valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
-      if (!cidKeyValue)
-        {
-          // We calculate cidKeyValue by computing md5 on url
-          // so there will be no duplicate elements with different keys
-	  NSData* data = [url dataUsingEncoding: NSUnicodeStringEncoding];
-	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
-        };
-      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:url
-                                               forKey:@"url"]
-                   forKey:cidKeyValue
-                   forCIDStoreAssociation:cidStore
-                   inContext:aContext];
+     [NSException raise:NSInvalidArgumentException
+             format:@"%s: Value for attribute named '%@' must be a string.  Received '%@'.",
+                                  __PRETTY_FUNCTION__, actionClass, componentValue];
     }
-  LOGObjectFnStop();
-  return newURL;
-};
+  }
+  if (directActionName != nil)
+  {
+    directActionValue = [directActionName valueInComponent:component];
+    if ([directActionValue isKindOfClass: NSStringClass] == NO) {
 
-
-//--------------------------------------------------------------------
--(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
-               forCIDKeyAssociation:(GSWAssociation*)cidKey
-                CIDStoreAssociation:(GSWAssociation*)cidStore
-                          inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  if (data && cidStore)
-    {
-      NSString* cidKeyValue=nil;
-      GSWComponent* component=GSWContext_component(aContext);
-      cidKeyValue=(NSString*)[cidKey valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
-      if (!cidKeyValue)
-        {
-          // We calculate cidKeyValue by computing md5 on path
-          // so there will be no duplicate elements with different keys
-          //NSString* cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
-          cidKeyValue=[data key];
-        };
-      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:data
-                                               forKey:@"data"]
-                   forKey:cidKeyValue
-                   forCIDStoreAssociation:cidStore
-                   inContext:aContext];
+     [NSException raise:NSInvalidArgumentException
+             format:@"%s: Value for attribute named '%@' must be a string.  Received '%@'.",
+                                  __PRETTY_FUNCTION__, directActionName, directActionValue];
+      
     }
-  LOGObjectFnStop();
-  return newURL;
-};
-
-
-//--------------------------------------------------------------------
--(NSString*)addPath:(NSString*)path
-forCIDKeyAssociation:(GSWAssociation*)cidKey
-CIDStoreAssociation:(GSWAssociation*)cidStore
-          inContext:(GSWContext*)aContext
-{
-  NSString* newURL=nil;
-  LOGObjectFnStart();
-  if (path && cidStore)
-    {
-      NSString* cidKeyValue=nil;
-      GSWComponent* component=GSWContext_component(aContext);
-      cidKeyValue=(NSString*)[cidKey valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"cidKeyValue=%@",cidKeyValue);
-      if (!cidKeyValue)
-        {
-          // We calculate cidKeyValue by computing md5 on path
-          // so there will be no duplicate elements with different keys
-	  NSData* data = [path dataUsingEncoding: NSUnicodeStringEncoding];
-	  cidKeyValue=[[data md5Digest] hexadecimalRepresentation];
-        };
-
-      newURL=[self addCIDElement:[NSDictionary dictionaryWithObject:path
-                                               forKey:@"filePath"]
-                   forKey:cidKeyValue
-                   forCIDStoreAssociation:cidStore
-                   inContext:aContext];
+  }
+  
+  if ((componentValue != nil) && (directActionValue != nil)) {
+    if ([componentValue isEqual:@"DirectAction"]) {
+      resultString = directActionValue;
+    } else {
+      resultString = [componentValue stringByAppendingString:@"/"];
+      resultString = [resultString stringByAppendingString:directActionValue];
     }
-  LOGObjectFnStop();
-  return newURL;
-};
+  } else {
+    if (componentValue != nil) {
+      resultString = componentValue;
+    } else {
+      if (directActionValue != nil) {
+        resultString = directActionValue;
+      } else {
+        [NSException raise:NSInternalInconsistencyException
+          format:@"%s: Both 'actionClass' and 'directActionName' are either absent or evaluated to nil. Cannot generate dynamic url without an actionClass or directActionName.",
+                               __PRETTY_FUNCTION__];
+      }
+    }
+  }
+  
+  return resultString;
+}
+
+
+// computeQueryDictionaryInContext
+
+- (NSDictionary*) computeQueryDictionaryWithActionClassAssociation: (GSWAssociation*)actionClass
+                                       directActionNameAssociation: (GSWAssociation*)directActionName
+                                        queryDictionaryAssociation: (GSWAssociation*)queryDictionary
+                                            otherQueryAssociations: (NSDictionary*)otherQueryAssociations 
+                                                         inContext: (GSWContext*)context
+{
+  GSWComponent * component = GSWContext_component(context);
+  GSWSession   * session = [context _session];
+  NSString * s = nil;
+  NSMutableDictionary *nsmutabledictionary = nil;
+  NSEnumerator  * keyEnumerator = nil;
+  NSString * key = nil;
+  GSWAssociation *otherAssociations = nil;
+  id otherValue = nil;
+  
+  if (queryDictionary != nil) {
+    NSDictionary * nsdictionary1 = [queryDictionary valueInComponent:component];
+    if ([nsdictionary1 isKindOfClass:NSMutableDictionaryClass]) {
+      nsmutabledictionary = nsdictionary1;
+    } else {
+      nsmutabledictionary = AUTORELEASE([nsdictionary1 mutableCopyWithZone:nil]);
+    }
+  }
+  if (nsmutabledictionary == nil) {
+    nsmutabledictionary = [NSMutableDictionary dictionary];
+  }
+  if (session != nil) {
+    s = [session sessionID];
+  } else {
+    if ([context request] != nil) {
+      s = [[context request] stringFormValueForKey:@"wosid"];
+    }
+  }
+  if ((s != nil) && ((directActionName != nil) || (actionClass != nil)) && ((session == nil) || (![session storesIDsInCookies]) || ([session storesIDsInURLs]))) {
+    [nsmutabledictionary setObject:s forKey:@"wosid"];
+  }
+  if (otherQueryAssociations != nil) {
+    keyEnumerator = [otherQueryAssociations keyEnumerator];
+    
+    while (key = [keyEnumerator nextObject]) {
+      otherAssociations = [otherQueryAssociations objectForKey:key];
+      otherValue = [otherAssociations valueInComponent:component];
+      if (otherValue != nil && ([key isEqual:@"wosid"] || ([otherValue boolValue] == YES))) {
+        [nsmutabledictionary setObject: otherValue forKey:key];
+      } else {
+        [nsmutabledictionary removeObjectForKey:key];
+      }
+    }
+
+  }
+  return nsmutabledictionary;
+}
+
+-(void) appendConstantAttributesToResponse:(GSWResponse*) response
+                                 inContext:(GSWContext*)aContext
+{
+  NSString * str = [self constantAttributesRepresentation];
+  if (str != nil) {
+    GSWResponse_appendContentString(response,str);
+  }
+}
+
+-(void) _appendAttributesFromAssociationsToResponse:(GSWResponse*) response 
+                                          inContext:(GSWContext*)context
+                                       associations:(NSDictionary*) associations
+
+{
+  if ((associations != nil) && ([associations count] > 0)) {
+    NSString * s1 = nil;
+    NSEnumerator * enumer = [associations keyEnumerator];
+    GSWComponent * component = GSWContext_component(context);
+    NSString     * key = nil;
+    GSWAssociation * currentAssociation = nil;
+    id            obj = nil;
+    
+    while (key = [enumer nextObject]) {
+      currentAssociation = [associations objectForKey:key];
+      obj = [currentAssociation valueInComponent:component];
+      if (obj != nil) {
+//        s1 = [(NSNumber*) obj description];
+// mr. ayers says that is not good..        
+        if ([obj isKindOfClass:NSNumberClass] == YES) {
+          s1 = [(NSNumber*) obj stringValue];
+        } else {
+          // we have to set the value!
+          s1 = obj;         
+        }
+        //NSLog(@"%s:class %@ '%@'", __PRETTY_FUNCTION__, [obj class] , obj);
+        if ([key isEqual:@"otherTagString"]) {
+          GSWResponse_appendContentCharacter(response,' ');
+          GSWResponse_appendContentString(response, s1);
+        } else {        
+          [response _appendTagAttribute: key
+                                  value: s1
+             escapingHTMLAttributeValue: NO];
+        }
+      }
+    } // while
+  }
+}
+
+-(void) appendNonURLAttributesToResponse:(GSWResponse*) response
+                               inContext:(GSWContext*) context
+  
+{
+  [self _appendAttributesFromAssociationsToResponse: response 
+                                          inContext: context
+                                       associations: [self nonUrlAttributeAssociations]];
+
+}
+
+-(void) appendURLAttributesToResponse:(GSWResponse*) response
+                            inContext:(GSWContext*) context
+{
+  GSWComponent        * component = nil;
+  NSMutableDictionary * attributeDict = [self urlAttributeAssociations];
+  GSWAssociation      * association = nil;
+  id                  value = nil;
+  
+  if ((attributeDict != nil) && ([attributeDict count] > 0)) {
+    component = GSWContext_component(context);
+    NSEnumerator * enumer = [attributeDict keyEnumerator];
+
+    NSString * key = nil;
+
+    NSString * s = nil;
+    NSString * s1 = nil;
+    
+    while (key = [enumer nextObject]) {
+      association = [attributeDict objectForKey:key];
+      value = [association valueInComponent:component];
+      if (value != nil) {
+        // value to string??
+        s1 = [context _urlForResourceNamed: value 
+                       inFramework: nil];
+      } else {
+        [GSWApp debugWithFormat:@"%s evaluated to nil in component %@. Inserted nil resource in html tag.",
+                                  __PRETTY_FUNCTION__, component];
+      }
+      if (s1 != nil) {
+          [response _appendTagAttribute: key
+                                  value: s1
+             escapingHTMLAttributeValue: NO];
+      } else {
+        GSWResponse_appendContentCharacter(response,' ');
+        GSWResponse_appendContentString(response, key);
+        GSWResponse_appendContentAsciiString(response,@"=\"");
+        GSWResponse_appendContentAsciiString(response, [component baseURL]);
+        GSWResponse_appendContentCharacter(response,'/');
+        GSWResponse_appendContentAsciiString(response, value);
+        GSWResponse_appendContentCharacter(response,'"');
+      }
+    }
+  }
+}
+
+-(void) appendAttributesToResponse:(GSWResponse *) response
+                            inContext:(GSWContext*) context
+{
+  [self appendConstantAttributesToResponse: response 
+                                 inContext: context];
+                                 
+  [self appendNonURLAttributesToResponse: response
+                               inContext: context];
+
+  [self appendURLAttributesToResponse: response
+                            inContext: context];
+}
+
+-(void) _appendOpenTagToResponse:(GSWResponse *) response
+                       inContext:(GSWContext*) context
+
+{
+  GSWResponse_appendContentCharacter(response,'<');
+  GSWResponse_appendContentAsciiString(response, [self elementName]);
+  [self appendAttributesToResponse:response inContext: context];
+  GSWResponse_appendContentCharacter(response,'>');
+}
+
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
+{
+  GSWResponse_appendContentAsciiString(response, @"</");
+  GSWResponse_appendContentAsciiString(response, [self elementName]);
+  GSWResponse_appendContentCharacter(response,'>');
+}
+
+-(void) appendToResponse:(GSWResponse *) response
+               inContext:(GSWContext*) context
+{
+  NSString * myElementName = nil;
+  
+  if (context == nil || response == nil) {
+    return;
+  }
+  myElementName = [self elementName];
+  if (myElementName != nil) {
+    [self _appendOpenTagToResponse:response
+               inContext: context];
+  }
+
+  [self appendChildrenToResponse: response
+                       inContext: context];
+
+  if (myElementName != nil) {
+    [self _appendCloseTagToResponse:response
+               inContext: context];    
+  }
+}
+
 
 @end

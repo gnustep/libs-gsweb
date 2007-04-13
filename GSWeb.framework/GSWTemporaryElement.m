@@ -328,10 +328,15 @@ May raise exception if element can't be created
     }
   else
     {
+      Class elementClass = Nil;
       NSString* elementType=[declaration type];
       NSDebugMLog(@"elementType=%@",elementType);
 
-      if ([elementType length]==0)
+      if (elementType != nil) {
+        elementClass = NSClassFromString(elementType);
+      }
+      
+      if ((elementType == nil) || (elementClass == Nil)) //[elementType length]==0
         {
           [GSWDeclarationFormatException raise:GSWDFEMissingClassNameForElement
                                          format:@"No class name for element named '%@' with declaration: %@. %@",
@@ -339,7 +344,6 @@ May raise exception if element can't be created
         }
       else
         {
-          Class elementClass = NSClassFromString(elementType);
           NSDictionary* associations = nil;
 
           NSDebugMLog(@"elementClass=%@",elementClass);

@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include "GSWLifebeatThread.h"
 #include "GSWRecording.h"
 
@@ -298,7 +299,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(id)init 
 {
   NSUserDefaults* standardUserDefaults=nil;
-  LOGObjectFnStart();
+  
   if ((self=[super init]))
     {
       _selfLock=[NSRecursiveLock new];
@@ -399,7 +400,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 				    lifebeatPort:[[self class] lifebeatDestinationPort]
 				    interval:lifebeatInterval]);
           NSDebugMLLog(@"application",@"_lifebeatThread=%@",_lifebeatThread);
-#warning go only multi-thread if we want this!
+//#warning go only multi-thread if we want this!
 
           [NSThread detachNewThreadSelector:@selector(run:)
                     toTarget:_lifebeatThread
@@ -407,7 +408,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 
         };
     };
-  LOGObjectFnStop();
+  
   return self;
 };
 
@@ -528,7 +529,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)lockRequestHandling
 {
   //OK
-  LOGObjectFnStart();
+  
   if (![self isConcurrentRequestHandlingEnabled])
     {
       /* NSDebugMLLog(@"application",
@@ -569,7 +570,7 @@ int GSWApplicationMain(NSString* applicationClassName,
         };
       NS_ENDHANDLER;
     };
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -577,7 +578,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)unlockRequestHandling
 {
   //OK
-  LOGObjectFnStart();
+  
   if (![self isConcurrentRequestHandlingEnabled])
     {
       NS_DURING
@@ -622,7 +623,7 @@ int GSWApplicationMain(NSString* applicationClassName,
         };
       NS_ENDHANDLER;
     };
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -631,7 +632,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   //call adaptorsDispatchRequestsConcurrently
   //OK
-  LOGObjectFnStart();
+  
   /*  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%@ "
       @"GSCurrentThread()=%@",
       selfLockn,
@@ -674,7 +675,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       [localException raise];
     };
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -683,7 +684,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   //call adaptorsDispatchRequestsConcurrently
   //OK
-  LOGObjectFnStart();
+  
   /*  NSDebugMLLog(@"application",
       @"selfLockn=%d selfLock_thread_id=%@ GSCurrentThread()=%@",
       selfLockn,
@@ -728,7 +729,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       [localException raise];
     };
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -745,7 +746,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSString* name=nil;
   NSProcessInfo* processInfo=nil;
   NSString* processName=nil;
-  LOGObjectFnStart();
+  
   //TODO
 /*  if (applicationName)
 	return applicationName;
@@ -764,7 +765,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSDebugMLLog(@"application",@"_name:%@ %p",name,name);
   //	};
   return name;
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -775,24 +776,15 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
-//setPageRefreshOnBacktrackEnabled:
--(void)setPageRefreshOnBacktrackEnabled:(BOOL)flag 
-{
-  LOGObjectFnStart();
-  _pageRefreshOnBacktrackEnabled=flag;
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
 //path
 -(NSString*)path 
 {
   NSString* path=nil;
-  LOGObjectFnStart();
+  
   NSDebugMLLog(@"bundles",@"[GSWResourceManager _applicationGSWBundle]:%@",[GSWResourceManager _applicationGSWBundle]);
   path=[[GSWResourceManager _applicationGSWBundle] path];
   NSDebugMLLog(@"application",@"path:%@",path);
-  LOGObjectFnStop();
+  
   return path;
 };
 
@@ -802,9 +794,9 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   NSString* baseURL=nil;
   LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStart();
+  
   baseURL=[GSWURLPrefix[GSWebNamingConv] stringByAppendingString:[self name]];
-  LOGObjectFnStop();
+  
   return baseURL;
 };
 
@@ -827,7 +819,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 
   Class defaultRequestHandlerClass=nil;
 
-  LOGObjectFnStart();
+  
 
   // Component Handler
   componentRequestHandler=[[self class] _componentRequestHandler];
@@ -912,7 +904,7 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
 
   NSDebugMLLog(@"application",@"_requestHandlers:%@",_requestHandlers);
-  LOGObjectFnStop();
+  
 };
 
 
@@ -934,22 +926,15 @@ int GSWApplicationMain(NSString* applicationClassName,
   return defaultRequestHandlerClass;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationA)
 -(void)becomesMultiThreaded
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
-@end
+}
 
-//====================================================================
-@implementation GSWApplication (GSWApplicationB)
 -(NSString*)_webserverConnectURL
 {
   NSString* webserverConnectURL=nil;
-  NSString* cgiAdaptorURL=[[self class]cgiAdaptorURL]; //return http://titi.toto.com/cgi-bin/GSWeb.exe
+  NSString* cgiAdaptorURL=[[self class]cgiAdaptorURL]; //return http://www.example.com/cgi-bin/GSWeb.exe
   if (!cgiAdaptorURL)
     {
       NSDebugMLog(@"No CGI adaptor");
@@ -970,37 +955,24 @@ int GSWApplicationMain(NSString* applicationClassName,
                                     port];
       NSDebugMLog(@"webserverConnectURL=%@",webserverConnectURL);
     } 
-  return webserverConnectURL; //return http://titi.toto.com:1436/cgi-bin/GSWeb.exe/ObjCTest3.gswa/-2
+  return webserverConnectURL; //return http://www.example.com:1436/cgi-bin/GSWeb.exe/ObjCTest3.gswa/-2
 };
 
 //--------------------------------------------------------------------
 -(NSString*)_directConnectURL
 {
+  Class GSWAppClass = [self class];
   NSString* directConnectURL=nil;
-  NSString* cgiAdaptorURL=[[self class]cgiAdaptorURL]; //return http://titi.toto.com/cgi-bin/GSWeb.exe
-  if (!cgiAdaptorURL)
-    {
-      NSDebugMLog(@"No CGI adaptor");
-    }
-  else
-    {
-      NSArray* adaptors=[self adaptors];
-      if ([adaptors count]>0)
-        {
-          GSWAdaptor* firstAdaptor=[adaptors objectAtIndex:0];
-          int port=[firstAdaptor port];
-          GSWDynamicURLString* anURL=[[GSWDynamicURLString alloc]initWithCString:[cgiAdaptorURL cString]
-                                                        length:[cgiAdaptorURL cStringLength]];
-          NSDebugMLog(@"anURL=%@",anURL);
-          [anURL setURLPort:port];
-          NSDebugMLog(@"anURL=%@",anURL);
-          [anURL setURLApplicationName:[self name]];
-          NSDebugMLog(@"anURL=%@",anURL);
-          directConnectURL=[NSString stringWithString:(NSString*)anURL];
-          NSDebugMLog(@"directConnectURL=%@",directConnectURL);
-        };
-    } 
-  return directConnectURL; //return http://titi.toto.com:1436/cgi-bin/GSWeb.exe/ObjCTest3
+  NSString* applicationBaseURL =[GSWAppClass applicationBaseURL]; 
+  
+  directConnectURL = [NSString stringWithFormat:@"http://%@:%@%@/%@.%@/0/", [GSWAppClass host],
+                                                                  [GSWAppClass port],
+                                                                  [GSWAppClass applicationBaseURL],
+                                                                  [self name],
+                                                                  [self _applicationExtension]];
+                                                                  
+
+  return directConnectURL; //return http://www.example.com:1436/cgi-bin/GSWeb.exe/ObjCTest3
 };
 
 //--------------------------------------------------------------------
@@ -1009,11 +981,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   LOGObjectFnNotImplemented();	//TODOFN
   return GSWApplicationSuffix[GSWebNamingConv];
 };
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationC)
 
 //--------------------------------------------------------------------
 -(void)_resetCacheForGeneration
@@ -1025,24 +992,22 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)_resetCache
 {
   //OK
-  NSEnumerator* anEnum=nil;
-  id object=nil;
-  LOGObjectFnStart();
+  NSEnumerator           * anEnum     = nil;
+  GSWComponentDefinition * definition = nil;
+
   [self lock];
   NS_DURING
     {
-      NSDebugMLLog(@"application",@"componentDefinitionCache=%@",_componentDefinitionCache);
       anEnum=[_componentDefinitionCache objectEnumerator];
-      while ((object = [anEnum nextObject]))
+      while ((definition = [anEnum nextObject]))
         {
-          NSDebugMLLog(@"application",@"object=%@",object);
-          if (object!=GSNotFoundMarker && ![object isCachingEnabled])
-            [object _clearCache];
-        };
+          if (((NSString*)definition != GSNotFoundMarker) && (![definition isCachingEnabled]))
+            [definition _clearCache];
+        }
       if (![self isCachingEnabled])
         {
           [[GSWResourceManager _applicationGSWBundle] clearCache];
-        };
+        }
     }
   NS_HANDLER
     {
@@ -1054,20 +1019,15 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
-};
 
-@end
+}
 
-//====================================================================
-@implementation GSWApplication (GSWApplicationD)
-
--(GSWComponentDefinition*)componentDefinitionWithName:(NSString*)aName
-                                            languages:(NSArray*)languages
+-(GSWComponentDefinition*) _componentDefinitionWithName:(NSString*)aName
+                                              languages:(NSArray*)languages
 {
   //OK
   GSWComponentDefinition* componentDefinition=nil;
-  LOGObjectFnStart();
+  
   NSDebugMLLog(@"info",@"aName=%@",aName);
   [self lock];
   NS_DURING
@@ -1086,7 +1046,7 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+  
   return componentDefinition;
 };
 
@@ -1099,53 +1059,42 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSString* language=nil;
   int iLanguage=0;
   int languagesCount=0;
-#ifdef DEBUG
-  GSWTime startTS=GSWTime_now();
-  GSWTime stopTS=0;
-#endif
-
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"application",@"aName %p=%@",aName,aName);
 
   languagesCount=[languages count];
 
   for(iLanguage=0;iLanguage<languagesCount && !componentDefinition;iLanguage++)
+  {
+    language=[languages objectAtIndex:iLanguage];
+    if (language)
     {
-      language=[languages objectAtIndex:iLanguage];
-      if (language)
+      if ([self isCachingEnabled])
+      {
+        componentDefinition=[_componentDefinitionCache objectForKeys:aName,language,nil];
+        if (componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
+          componentDefinition=nil;
+        else if (componentDefinition)
+          isCachedComponent=YES;
+      }
+      if (!componentDefinition)
+      {
+        componentDefinition=[self lockedLoadComponentDefinitionWithName:aName
+                                  language:language];
+        if ([self isCachingEnabled])
         {
-          NSDebugMLLog(@"gswcomponents",@"trying language=%@",language);
-          NSDebugMLLog(@"gswcomponents",@"[self isCachingEnabled]=%s",([self isCachingEnabled] ? "YES" : "NO"));
-          if ([self isCachingEnabled])
-            {
-              componentDefinition=[_componentDefinitionCache objectForKeys:aName,language,nil];
-              if (componentDefinition==(GSWComponentDefinition*)GSNotFoundMarker)
-                componentDefinition=nil;
-              else if (componentDefinition)
-                isCachedComponent=YES;
-            };
-          if (!componentDefinition)
-            {
-              componentDefinition=[self lockedLoadComponentDefinitionWithName:aName
-                                        language:language];
-              if ([self isCachingEnabled])
-                {
-                  if (componentDefinition)
-                    [_componentDefinitionCache setObject:componentDefinition
-                                               forKeys:aName,language,nil];
-                  else
-                    [_componentDefinitionCache setObject:GSNotFoundMarker
-                                               forKeys:aName,language,nil];
-                };
-            };
+          if (componentDefinition)
+            [_componentDefinitionCache setObject:componentDefinition
+                                        forKeys:aName,language,nil];
+          else
+            [_componentDefinitionCache setObject:GSNotFoundMarker
+                                        forKeys:aName,language,nil];
         };
+      };
     };
+  };
   if (!componentDefinition)
     {
       language=nil;
-      NSDebugMLLog0(@"application",@"trying no language");
-      NSDebugMLLog(@"gswcomponents",@"[self isCachingEnabled]=%s",([self isCachingEnabled] ? "YES" : "NO"));
+
       if ([self isCachingEnabled])
         {
           componentDefinition=[_componentDefinitionCache objectForKeys:aName,nil];
@@ -1154,7 +1103,6 @@ int GSWApplicationMain(NSString* applicationClassName,
           else if (componentDefinition)
             isCachedComponent=YES;
         };
-      NSDebugMLLog(@"gswcomponents",@"D componentDefinition for %@ %s cached",aName,(componentDefinition ? "" : "NOT"));
       if (!componentDefinition)
         {
           componentDefinition=[self lockedLoadComponentDefinitionWithName:aName
@@ -1176,67 +1124,56 @@ int GSWApplicationMain(NSString* applicationClassName,
       static Class gswCClass = nil;
       Class cClass = NSClassFromString([aName lastPathComponent]);
       
-      if (gswCClass == nil)
-	{
-	  gswCClass = [GSWComponent class];
-	}
+    if (gswCClass == nil)
+  	{
+  	  gswCClass = [GSWComponent class];
+  	}
 
-      if (cClass != 0 && [cClass isSubclassOfClass: gswCClass])
-	{
-	  NSString *baseURL
-	    = @"/ERROR/RelativeUrlsNotSupportedWhenCompenentHasNoWrapper";
-	  NSString *bundlePath
-	    = [[NSBundle bundleForClass: cClass] bundlePath];
-	  NSString *frameworkName
-	    = [[bundlePath lastPathComponent] stringByDeletingPathExtension];
+    if (cClass != 0 && [cClass isSubclassOfClass: gswCClass])
+  	{
+  	  NSString *baseURL
+  	    = @"/ERROR/RelativeUrlsNotSupportedWhenCompenentHasNoWrapper";
+  	  NSString *bundlePath
+  	    = [[NSBundle bundleForClass: cClass] bundlePath];
+  	  NSString *frameworkName
+  	    = [[bundlePath lastPathComponent] stringByDeletingPathExtension];
+  // xxxx
 
-	  componentDefinition
-	    = AUTORELEASE([[GSWComponentDefinition alloc]
-			    initWithName: aName
-			    path: bundlePath
-			    baseURL: baseURL
-			    frameworkName: frameworkName]);
-          if ([self isCachingEnabled])
-	    {
-	      [_componentDefinitionCache setObject: componentDefinition
-					 forKeys: aName, nil];
-	    }
-	}
-    }
+      NS_DURING
+      {
+        componentDefinition = [GSWComponentDefinition alloc];
+
+        [componentDefinition initWithName:aName
+                                     path:bundlePath
+                                  baseURL: baseURL
+                            frameworkName:frameworkName];
+        [componentDefinition autorelease];
+      }
+      NS_HANDLER
+      {
+        [componentDefinition release];
+        componentDefinition = nil;
+        [localException raise];
+      }
+      NS_ENDHANDLER
+
+      if ([self isCachingEnabled] && (componentDefinition))
+  	  {
+  	    [_componentDefinitionCache setObject: componentDefinition
+  				                        	 forKeys: aName, nil];
+  	  }
+  	}
+  }
 
   if (!componentDefinition)
-    {
-      NSLog(@"EXCEPTION: allFrameworks pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
-      ExceptionRaise(GSWPageNotFoundException,
-                     @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
-                     aName,
-                     languages);
-    };
-#ifdef DEBUG
-  stopTS=GSWTime_now();
-#endif
-  if (componentDefinition)
-    {
-#ifdef DEBUG
-      [self statusDebugWithFormat:@"Component %@ %s language %@ (%sCached) search time: %.3f s",
-            aName,
-            (language ? "" : "no"),
-            (language ? language : @""),
-            (isCachedComponent ? "" : "Not "),
-            GSWTime_floatSec(stopTS-startTS)];
-#endif
-    };
-#ifdef DEBUG
-  NSDebugMLLog(@"application",
-	       @"%s componentDefinition (%p) for %@ class=%@ %s. search time: %.3f s",
-               (componentDefinition ? "FOUND" : "NOTFOUND"),
-               componentDefinition,
-               aName,
-               (componentDefinition ? [[componentDefinition class] description]: @""),
-               (componentDefinition ? (isCachedComponent ? "(Cached)" : "(Not Cached)") : ""),
-	       GSWTime_floatSec(stopTS-startTS));
-#endif
-  LOGObjectFnStop();
+  {
+    NSLog(@"EXCEPTION: allFrameworks pathes=%@",[[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
+    ExceptionRaise(GSWPageNotFoundException,
+                    @"Unable to create component definition for %@ for languages: %@ (no componentDefinition).",
+                    aName,
+                    languages);
+  }
+
   return componentDefinition;
 };
 
@@ -1252,70 +1189,73 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSString* path=nil;
   NSString* url=nil;
   int iName=0;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswcomponents",@"aName=%@",aName);
-  for(iName=0;!path && iName<2;iName++)
-    {
-      resourceName=[aName stringByAppendingString:GSWPagePSuffix[GSWebNamingConvForRound(iName)]];
-      htmlResourceName=[aName stringByAppendingString:GSWComponentTemplatePSuffix];
-      NSDebugMLLog(@"gswcomponents",@"resourceName=%@",resourceName);
-      resourceManager=[self resourceManager];
-      path=[resourceManager pathForResourceNamed:resourceName
-                            inFramework:nil
-                            language:language];
-      NSDebugMLLog(@"application",@"path=%@",path);
-      if (!path)
-	{
-	  NSArray* frameworks=[self lockedComponentBearingFrameworks];
-	  NSBundle* framework=nil;
-	  int frameworkN=0;
-          int frameworksCount=[frameworks count];
-	  for(frameworkN=0;frameworkN<frameworksCount && !path;frameworkN++)
-            {
-              framework=[frameworks objectAtIndex:frameworkN];
-              NSDebugMLLog(@"gswcomponents",@"TRY framework=%@",framework);
-              path=[resourceManager pathForResourceNamed:resourceName
-                                    inFramework:[framework bundleName]
-                                    language:language];
-              if (!path)
-                {
-                  path=[resourceManager pathForResourceNamed:htmlResourceName
-                                        inFramework:[framework bundleName]
-                                        language:language];
-                };
-              if (path)
-                {
-                  NSDebugMLLog(@"gswcomponents",@"framework=%@ class=%@",framework,[framework class]);
-                  NSDebugMLLog(@"gswcomponents",@"framework bundlePath=%@",[framework bundlePath]);
-                  frameworkName=[framework bundlePath];
-                  NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-                  frameworkName=[frameworkName lastPathComponent];
-                  NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-                  frameworkName=[frameworkName stringByDeletingPathExtension];
-                  NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-                };
-            };
-	  NSDebugMLLog(@"application",@"path=%@",path);
-	};
-    };
-  if (path)
-    {
-      url=[resourceManager urlForResourceNamed:resourceName
-                           inFramework:frameworkName	//NEW
-                           languages:(language ? [NSArray arrayWithObject:language] : nil)
-                           request:nil];
-      NSDebugMLLog(@"gswcomponents",@"url=%@",url);
-      NSDebugMLLog(@"gswcomponents",@"frameworkName=%@",frameworkName);
-      //NSDebugMLog(!@"Component %@ Found at=%@",aName,path);
 
-      componentDefinition=[[[GSWComponentDefinition alloc] initWithName:aName
-                                                           path:path
-                                                           baseURL:url
-                                                           frameworkName:frameworkName] autorelease];
-    };
-  LOGObjectFnStop();
+  for(iName=0;!path && iName<2;iName++)
+  {
+    resourceName=[aName stringByAppendingString:GSWPagePSuffix[GSWebNamingConvForRound(iName)]];
+    htmlResourceName=[aName stringByAppendingString:GSWComponentTemplatePSuffix];
+    
+    resourceManager=[self resourceManager];
+    path=[resourceManager pathForResourceNamed:resourceName
+                        inFramework:nil
+                        language:language];
+    
+    if (!path)
+    {
+      NSArray* frameworks = [self lockedComponentBearingFrameworks];
+      NSBundle* framework = nil;
+      int frameworkN      = 0;
+      int frameworksCount = [frameworks count];
+
+      for(frameworkN=0;frameworkN<frameworksCount && !path;frameworkN++)
+      {
+        framework = [frameworks objectAtIndex:frameworkN];
+        path = [resourceManager pathForResourceNamed:resourceName
+                                         inFramework:[framework bundleName]
+                                            language:language];
+        if (!path)
+        {
+          path=[resourceManager pathForResourceNamed:htmlResourceName
+                                         inFramework:[framework bundleName]
+                                            language:language];
+        }
+        if (path)
+        {
+          frameworkName=[framework bundlePath];
+          frameworkName=[frameworkName lastPathComponent];
+          frameworkName=[frameworkName stringByDeletingPathExtension];
+        }
+      }
+    }
+  }
+  if (path)
+  {
+    url=[resourceManager urlForResourceNamed:resourceName
+                          inFramework:frameworkName
+                          languages:(language ? [NSArray arrayWithObject:language] : nil)
+                          request:nil];
+
+    NS_DURING
+    {
+      componentDefinition = [GSWComponentDefinition alloc];
+
+      [componentDefinition initWithName:aName
+                                    path:path
+                                baseURL:url
+                          frameworkName:frameworkName];
+      [componentDefinition autorelease];
+    }
+    NS_HANDLER
+    {
+      [componentDefinition release];
+      componentDefinition = nil;
+      [localException raise];
+    }
+    NS_ENDHANDLER
+  }
+  
   return componentDefinition;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSArray*)lockedComponentBearingFrameworks
@@ -1323,7 +1263,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   //OK
   NSArray* array=nil;
   NSMutableArray* allFrameworks=nil;
-  LOGObjectFnStart();
+  
   allFrameworks=[[NSBundle allFrameworks] mutableCopy];
   [allFrameworks addObjectsFromArray:[NSBundle allBundles]];
   //NSDebugMLLog(@"gswcomponents",@"allFrameworks=%@",allFrameworks);
@@ -1332,7 +1272,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSDebugMLLog(@"gswcomponents",@"array=%@",array);
   [allFrameworks release];
 
-  LOGObjectFnStop();
+  
   return array;
 };
 
@@ -1347,7 +1287,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   // This makes only trouble and saves not so much time dave@turbocat.de
   // id hasGSWComponents=nil;
 
-  LOGObjectFnStart();
+  
 
   array=[NSMutableArray array];
   bundlesCount=[bundles count];
@@ -1369,15 +1309,10 @@ int GSWApplicationMain(NSString* applicationClassName,
       //  };
     };
   //  NSDebugMLLog(@"gswcomponents",@"_array=%@",_array);
-  LOGObjectFnStop();
+  
   return array;
-};
+}
 
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationE)
 
 //--------------------------------------------------------------------
 -(Class)contextClass
@@ -1517,7 +1452,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)_discountTerminatedSession
 {
   int activeSessionsCount=1;
-  LOGObjectFnStart();
+  
   [self lock];
   NS_DURING
     {
@@ -1540,14 +1475,13 @@ int GSWApplicationMain(NSString* applicationClassName,
       NSLog(@"Application is refusing new session and active sessions count <= minimum session count. Will terminate");
       [self terminate];
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)_finishInitializingSession:(GSWSession*)aSession
 {
   //OK
-  LOGObjectFnStart();
+  
   [self lock];
   NS_DURING
     {
@@ -1565,14 +1499,14 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
 -(GSWSession*)_initializeSessionInContext:(GSWContext*)aContext
 {
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
   if ([self isRefusingNewSessions])
     {
       LOGError0(@"Try to initialize session with isRefusingNewSessions evaluation to YES");
@@ -1609,25 +1543,25 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+  
   return session;
 };
 
 //--------------------------------------------------------------------
 -(int)lockedDecrementActiveSessionCount
 {
-  LOGObjectFnStart();
+  
   _activeSessionsCount--;
-  LOGObjectFnStop();
+  
   return _activeSessionsCount;
 };
 
 //--------------------------------------------------------------------
 -(int)lockedIncrementActiveSessionCount
 {
-  LOGObjectFnStart();
+  
   _activeSessionsCount++;
-  LOGObjectFnStop();
+  
   return _activeSessionsCount;
 };
 
@@ -1635,18 +1569,13 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(int)_activeSessionsCount
 {
   return _activeSessionsCount;
-};
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationF)
+}
 
 //--------------------------------------------------------------------
 -(void)_setContext:(GSWContext*)aContext
 {
   NSMutableDictionary* threadDictionary=nil;
-  LOGObjectFnStart();
+  
   threadDictionary=GSCurrentThreadDictionary();
   if (aContext)
     [threadDictionary setObject:aContext
@@ -1656,7 +1585,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   //  ASSIGN(context,_context);
   NSDebugMLLog(@"application",@"context:%p",(void*)aContext);
   NSDebugMLLog(@"application",@"context retain count:%p",[aContext retainCount]);
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -1665,18 +1594,14 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   GSWContext* context=nil;
   NSMutableDictionary* threadDictionary=nil;
-  LOGObjectFnStart();
+  
   threadDictionary=GSCurrentThreadDictionary();
   context=[threadDictionary objectForKey:GSWThreadKey_Context];
   NSDebugMLLog(@"application",@"context:%p",(void*)context);
-  LOGObjectFnStop();
+  
   return context;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationG)
 
 //--------------------------------------------------------------------
 -(BOOL)_isDynamicLoadingEnabled
@@ -1690,10 +1615,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   _dynamicLoadingEnabled=NO;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationI)
 
 //--------------------------------------------------------------------
 -(BOOL)_isPageRecreationEnabled
@@ -1705,7 +1626,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)_touchPrincipalClasses
 {
   NSArray* allFrameworks=nil;
-  LOGObjectFnStart();
+  
   [self lock];
   NS_DURING
     {
@@ -1731,13 +1652,8 @@ int GSWApplicationMain(NSString* applicationClassName,
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+  
 };
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationJ)
 
 //--------------------------------------------------------------------
 /** Returns base application URL so visitor will be relocated 
@@ -1788,18 +1704,18 @@ to another instance **/
   id remoteMonitor=nil;
   NSString* monitorApplicationName=nil;
   int port=0;
-  LOGObjectFnStart();
+  
   monitorApplicationName=[self _monitorApplicationName];
   port=[[self class]intPort];
   remoteMonitor=[self _remoteMonitor];
-  LOGObjectFnStop();
+  
   return (remoteMonitor!=nil);
 };
 
 //--------------------------------------------------------------------
 -(id)_remoteMonitor
 {
-  LOGObjectFnStart();
+  
   if (!_remoteMonitor)
     {
       NSString* monitorHost=[self _monitorHost];
@@ -1817,7 +1733,7 @@ to another instance **/
       _remoteMonitor=[proxy performSelector:@selector(targetForProxy)];
       [self _synchronizeInstanceSettingsWithMonitor:_remoteMonitor];
     };
-  LOGObjectFnStop();
+  
   return _remoteMonitor;
 };
 
@@ -1844,21 +1760,12 @@ to another instance **/
   [self terminate];
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationK)
-
 //--------------------------------------------------------------------
 -(void)_validateAPI
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWAdaptorManagement)
 
 //--------------------------------------------------------------------
 //adaptors
@@ -1883,7 +1790,7 @@ to another instance **/
   GSWAdaptor* adaptor=nil;
   Class gswadaptorClass=nil;
   Class adaptorClass=nil;
-  LOGObjectFnStart();
+  
   NSDebugMLLog(@"application",@"adaptor name:%@",name);
   gswadaptorClass=[GSWAdaptor class];
   NSAssert([name length]>0,@"No adaptor name");
@@ -1902,14 +1809,10 @@ to another instance **/
           NSAssert1(NO,@"adaptor of class %@ is not a GSWAdaptor",name);
         };
     };
-  LOGObjectFnStop();
+  
   return adaptor;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWCacheManagement)
 
 //--------------------------------------------------------------------
 //setCachingEnabled:
@@ -1926,10 +1829,6 @@ to another instance **/
   return [[self class]isCachingEnabled];
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWSessionManagement)
 
 //--------------------------------------------------------------------
 //sessionStore
@@ -1959,55 +1858,20 @@ to another instance **/
 -(void)saveSessionForContext:(GSWContext*)aContext
 {
   GSWSession* session=nil;
-  LOGObjectFnStart();
-  session=[aContext existingSession];
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  if (session)
-    {
-      [self _saveSessionForContext:aContext];
-      NSDebugMLLog(@"sessions",@"session=%@",session);
-      NSDebugMLLog(@"sessions",@"sessionStore=%@",_sessionStore);
-    };
-  LOGObjectFnStop();
-};
-
-//--------------------------------------------------------------------
--(void)_saveSessionForContext:(GSWContext*)aContext
-{
-  GSWSession* session=nil;
-  LOGObjectFnStart();
-  session=[aContext existingSession];
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  if (session)
-    {
-      NS_DURING
-	{
+  session = [aContext _session];                            // NOT existingSession!
+  if (session != nil) {
 	  [session sleepInContext:aContext];
-	  NSDebugMLLog(@"sessions",@"session=%@",session);
 	  [_sessionStore checkInSessionForContext:aContext];
-	  NSDebugMLLog(@"sessions",@"session=%@",session);
 	  [aContext _setSession:nil];
-	  NSDebugMLLog(@"sessions",@"session=%@",session);
-	  NSDebugMLLog(@"sessions",@"sessionStore=%@",_sessionStore);
-	}
-      NS_HANDLER
-	{
-	  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"In _saveSessionForContext:");
-	  LOGException(@"%@ (%@)",localException,[localException reason]);
-	  [localException raise];
-	}
-      NS_ENDHANDLER;
-    };
-  LOGObjectFnStop();
-};
+  }
+}
 
 //--------------------------------------------------------------------
 -(GSWSession*)restoreSessionWithID:(NSString*)sessionID
                          inContext:(GSWContext*)aContext
 {
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
   NSDebugMLLog(@"sessions",@"Start Restore Session. sessionID=%@",sessionID);
   [aContext _setRequestSessionID:sessionID];
   NSDebugMLLog(@"sessions",@"sessionID=%@",sessionID);
@@ -2017,7 +1881,7 @@ to another instance **/
   [aContext _setRequestSessionID:nil]; //ATTN: pass nil for unkwon reason
   NSDebugMLLog(@"sessions",@"session=%@",session);
   NSDebugMLLog(@"sessions",@"Stop Restore Session. sessionID=%@",sessionID);
-  LOGObjectFnStop();
+  
   return session;
 };
 
@@ -2028,7 +1892,7 @@ to another instance **/
   //OK
   GSWRequest* request=nil;
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
   NSDebugMLLog(@"sessions",@"aContext=%@",aContext);
   request=[aContext request];
   NSDebugMLLog(@"sessions",@"request=%@",request);
@@ -2039,7 +1903,7 @@ to another instance **/
   [aContext _setSession:session];//even if nil :-)
   [session awakeInContext:aContext];//even if nil :-)
   NSDebugMLLog(@"sessions",@"session=%@",session);
-  LOGObjectFnStop();
+  
   return session;
 };
 
@@ -2048,7 +1912,7 @@ to another instance **/
 {
   //OK
   Class sessionClass=nil;
-  LOGObjectFnStart();
+  
   sessionClass=[[GSWResourceManager _applicationGSWBundle] scriptedClassWithName:GSWClassName_Session
                                                            superclassName:GSWClassName_Session];
   if (!sessionClass)
@@ -2101,7 +1965,7 @@ to another instance **/
 	};
   NSDebugMLLog(@"application",@"_sessionClass:%@",_sessionClass);
 */
-  LOGObjectFnStop();
+  
   return sessionClass;
 };
 
@@ -2117,11 +1981,11 @@ to another instance **/
 {
   //OK
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
   session=[self _createSessionForRequest:aRequest];
   NSDebugMLLog(@"sessions",@"session:%@",session);
   [_statisticsStore _applicationCreatedSession:session];
-  LOGObjectFnStop();
+  
   return session;
 };
 
@@ -2131,7 +1995,7 @@ to another instance **/
   //OK
   Class sessionClass=Nil;
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
   [self lock];
   NS_DURING
     {
@@ -2160,14 +2024,10 @@ to another instance **/
       session=[[sessionClass new]autorelease];
     };
   NSDebugMLLog(@"sessions",@"session:%@",session);
-  LOGObjectFnStop();
+  
   return session;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWPageManagement)
 
 //--------------------------------------------------------------------
 //setPageCacheSize:
@@ -2222,17 +2082,66 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
+// raises an exception if the page cannot be created
+// this behaviour is documeted on Apple's WO 4.5 Doc pages.
+// if you want to create your own pages not based on .wo wrappers, you should 
+// override this without calling super.
+
 -(GSWComponent*)pageWithName:(NSString*)aName
                    inContext:(GSWContext*)aContext
 {
+  //OK
   GSWComponent* component=nil;
-  LOGObjectFnStart();
-  NSAssert(aContext,@"No Context");
-  component=[self _pageWithName:aName
-                  inContext:aContext];
-  LOGObjectFnStop();
+  GSWComponentDefinition* componentDefinition=nil;
+  NSArray* languages=nil;
+
+  if (!aContext) {
+    [NSException raise:NSInvalidArgumentException 
+                 format:@"%s: No context!",
+                 __PRETTY_FUNCTION__];
+  }
+  [self lock];
+  NS_DURING
+    {
+      // If the pageName is empty, try to get one from -defaultPageName
+      if ((!aName) || ([aName length]<1)) {
+        aName=[self defaultPageName];
+      }
+      // If the pageName is still empty, use a default one ("Main")
+      if ((!aName) || ([aName length]<1)) {
+        aName=GSWMainPageName;
+      }
+
+      languages=[aContext languages];
+
+      // Find component definition for pageName and languages
+      componentDefinition=[self lockedComponentDefinitionWithName:aName
+                                languages:languages];
+
+      if (!componentDefinition) {
+        [NSException raise:NSInvalidArgumentException 
+                    format:@"%s: unable to create page '%@'.",
+                            __PRETTY_FUNCTION__, aName];
+      }
+      // As we've found a component defintion, we create an instance (an object of class GSWComponent)
+      component=[componentDefinition componentInstanceInContext:aContext];
+      [component _awakeInContext:aContext];
+
+      // And flag it as a page.
+      [component _setIsPage:YES];
+    }
+  NS_HANDLER
+    {
+      localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
+                                                                               __PRETTY_FUNCTION__];
+      LOGException(@"exception=%@",localException);
+      [self unlock];
+      [localException raise];
+    };
+  NS_ENDHANDLER;
+  [self unlock];
   return component;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -2241,94 +2150,6 @@ to another instance **/
   return GSWMainPageName;
 };
 
-//--------------------------------------------------------------------
--(GSWComponent*)_pageWithName:(NSString*)aName
-                    inContext:(GSWContext*)aContext
-{
-  //OK
-  GSWComponent* component=nil;
-  GSWComponentDefinition* componentDefinition=nil;
-  NSArray* languages=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"info",@"aName %p=%@",aName,aName);
-  if (!aContext)
-    [NSException raise:NSInvalidArgumentException 
-                 format:@"%s No context when calling %@",
-                 object_get_class_name(self),
-                 NSStringFromSelector(_cmd)];
-  [self lock];
-  NS_DURING
-    {
-      // If the pageName is empty, try to get one from -defaultPageName
-      if ([aName length]<=0)
-        aName=[self defaultPageName];
-
-      // If the pageName is still empty, use a default one ("Main")
-      if ([aName length]<=0)
-        aName=GSWMainPageName;
-
-      NSDebugMLLog(@"info",@"aName=%@",aName);
-
-      // Retrieve context languages
-      languages=[aContext languages];
-      NSDebugMLLog(@"info",@"languages=%@",languages);
-
-      // Find component definition for pageName and languages
-      componentDefinition=[self lockedComponentDefinitionWithName:aName
-                                languages:languages];
-      NSDebugMLLog(@"info",@"componentDefinition %p=%@ (%@)",
-                   componentDefinition,
-                   componentDefinition,
-                   [componentDefinition class]);
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In lockedComponentDefinitionWithName:");
-      LOGException(@"exception=%@",localException);
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  NS_DURING
-    {
-      if (!componentDefinition)
-        {
-          //TODO
-          NSDebugMLLog0(@"info",@"GSWApplication _pageWithName no componentDefinition");
-        }
-      else
-        {
-          // As we've found a component defintion, we create an instance (an object of class GSWComponent)
-          NSAssert(aContext,@"No Context");
-          component=[componentDefinition componentInstanceInContext:aContext];
-          NSAssert(aContext,@"No Context");
-          // Next we awake it
-          [component awakeInContext:aContext];
-
-          // And flag it as a page.
-          [component _setIsPage:YES];
-        };
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In componentInstanceInContext:");
-      LOGException(@"exception=%@",localException);
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  [self unlock];
-  LOGObjectFnStop();
-  return component;
-};
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWElementCreation)
 
 //--------------------------------------------------------------------
 -(GSWElement*)dynamicElementWithName:(NSString*)aName
@@ -2370,16 +2191,13 @@ to another instance **/
   if ([someAssociations isAssociationDebugEnabledInComponent:nil])
     [someAssociations associationsSetDebugEnabled];
   elementClass=NSClassFromString(aName);
-  NSDebugMLLog(@"info",@"elementClass %p:%@",elementClass,elementClass);
-  NSDebugMLLog(@"info",@"elementClass superclass:%@",[elementClass superclass]);
+
   if (elementClass && !ClassIsKindOfClass(elementClass,[GSWComponent class]))
     {
-      NSDebugMLLog(@"info",@"CREATE Element of Class %p:%@",aName,aName);
-      element=[[[elementClass alloc] initWithName:aName
-                                     associations:someAssociations
-                                     template:templateElement]
+      element=[[(GSWDynamicElement*)[elementClass alloc] initWithName:aName
+                                                         associations:someAssociations
+                                                             template:templateElement]
                 autorelease];
-      NSDebugMLLog(@"info",@"Created Element %p: %@",element,element);
     }
   else
     {
@@ -2388,10 +2206,8 @@ to another instance **/
                                  languages:languages];
       if (componentDefinition)
         {
-          NSDebugMLLog(@"info",@"CREATE SubComponent %p:%@",aName,aName);
           element=[componentDefinition componentReferenceWithAssociations:someAssociations
                                          template:templateElement];
-          NSDebugMLLog(@"info",@"Created SubComponent %p: %@",element,element);
         }
       else
         {
@@ -2404,10 +2220,6 @@ to another instance **/
 };
 
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWRunning)
 //--------------------------------------------------------------------
 //run
 
@@ -2425,7 +2237,7 @@ to another instance **/
   SEL registerForEventsSEL=NULL;
   SEL unregisterForEventsSEL=NULL;
   NSDebugMLLog0(@"application",@"GSWApplication run");
-  LOGObjectFnStart();
+  
   NSDebugMLog(@"%@", GSCurrentThread());
   registerForEventsSEL=@selector(registerForEvents);
   unregisterForEventsSEL=@selector(unregisterForEvents);
@@ -2442,6 +2254,10 @@ to another instance **/
 
   NS_DURING
     {
+
+     NSLog(@"Application running. To use direct connect enter\n%@\nin your web Browser.\nPlease make sure that this port is only reachable in a trusted network.",
+          [self _directConnectURL]);
+
       [_currentRunLoop run];
     }
   NS_HANDLER
@@ -2455,7 +2271,7 @@ to another instance **/
   NSDebugMLLog0(@"application",@"NSRunLoop end run");
   [_adaptors makeObjectsPerformSelector:unregisterForEventsSEL];
   NSDebugMLLog0(@"application",@"GSWApplication end run");
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -2523,7 +2339,7 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)_scheduleApplicationTimerForTimeInterval:(NSTimeInterval)aTimeInterval
 {
-  LOGObjectFnStart();
+  
   [self lock];
   NS_DURING
     {
@@ -2545,7 +2361,7 @@ to another instance **/
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -2568,7 +2384,7 @@ to another instance **/
 //NDFN
 -(void)lockedAddTimer:(NSTimer*)aTimer
 {
-  LOGObjectFnStart();
+  
   NSDebugMLLog(@"application",@"[self runLoop]=%p",(void*)[self runLoop]);
   NSDebugMLLog(@"application",@"currentMode=%@",[[self runLoop]currentMode]);
   NSDebugMLLog(@"application",@"NSDefaultRunLoopMode=%@",NSDefaultRunLoopMode);
@@ -2577,14 +2393,14 @@ to another instance **/
   [[self runLoop]addTimer:aTimer
                  forMode:NSDefaultRunLoopMode];
   NSDebugMLLog(@"application",@"limitDateForMode=%@",[[self runLoop]limitDateForMode:NSDefaultRunLoopMode]);
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
 //NDFN
 -(void)addTimer:(NSTimer*)aTimer
 {
-  LOGObjectFnStart();
+  
   [self lock];
   NS_DURING
     {
@@ -2600,7 +2416,7 @@ to another instance **/
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -2669,10 +2485,6 @@ to another instance **/
   return ret;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWRequestHandling)
 
 -(GSWResponse*)checkAppIfRefused:(GSWRequest*)aRequest
 {
@@ -2681,7 +2493,7 @@ to another instance **/
   NSString* sessionID=nil;
   BOOL refuseRequest = NO;
 
-  LOGObjectFnStart();
+  
 
   NS_DURING
     {
@@ -2731,7 +2543,7 @@ to another instance **/
     }
   NS_ENDHANDLER;
   
-  LOGObjectFnStop();
+  
   return response;
 }
 
@@ -2741,7 +2553,7 @@ to another instance **/
   GSWResponse* response=nil;
   GSWRequestHandler* requestHandler=nil;
   
-  LOGObjectFnStart();
+  
 #ifndef NDEBUG
   [self lock];
   GSWeb_ApplicationDebugSetChange();
@@ -2795,7 +2607,7 @@ to another instance **/
       NSLog(@"EXCEPTION: %@",localException);
     }
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -2815,13 +2627,13 @@ to another instance **/
 {
   //OK
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
   [aContext setValidate:YES];
   session=[aContext existingSession];
   [session takeValuesFromRequest:aRequest
            inContext:aContext];
   [aContext setValidate:NO];
-  LOGObjectFnStop();
+  
 };
 
 
@@ -2834,7 +2646,7 @@ to another instance **/
   //OK
   GSWElement* element=nil;
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
   NS_DURING
     {
       session=[aContext existingSession];
@@ -2851,7 +2663,7 @@ to another instance **/
       [localException raise];
     }
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+  
   return element;
 };
 
@@ -2863,7 +2675,7 @@ to another instance **/
 {
   GSWRequest* request=nil;
   GSWSession* session=nil;
-  LOGObjectFnStart();
+  
 
   request=[aContext request];
   NSDebugMLog(@"request=%p",request);
@@ -2917,14 +2729,14 @@ to another instance **/
         }
       NS_ENDHANDLER;
     };
-  LOGObjectFnStop();
+  
 };
 
 -(void)_setRecordingHeadersToResponse:(GSWResponse*)aResponse
                            forRequest:(GSWRequest*)aRequest
                             inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
+  
 
   NSDebugMLog(@"Recording Header=%@",
               [aRequest headerForKey:GSWHTTPHeader_Recording[GSWebNamingConv]]);
@@ -2968,7 +2780,7 @@ to another instance **/
         };
     };
 
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -2979,10 +2791,6 @@ to another instance **/
   //Does Nothing
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWErrorHandling)
 
 //Not used now. For future exception handling rewrite
 -(GSWResponse*)_invokeDefaultException:(NSException*)exception
@@ -2991,11 +2799,11 @@ to another instance **/
 {
   //TODO
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   response=[GSWResponse responseWithMessage:@"Exception Handling failed"
                         inContext:aContext
                         forRequest:nil];
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3007,7 +2815,7 @@ to another instance **/
   GSWContext* context=aContext;
   GSWResponse* response=nil;
   GSWComponent* errorPage=nil;
-  LOGObjectFnStart();
+  
   if (context)
     [context _putAwakeComponentsToSleep];
   else
@@ -3024,15 +2832,17 @@ to another instance **/
     {
       errorPage=[self pageWithName:pageName
                       inContext:context];
+                      
       if (anException)
         [errorPage takeValue:anException
               forKey:@"exception"]; 
     }
   NS_HANDLER
     {
-      // My God ! Exception on exception !
+      // My God ! Exception on exception !      
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In _handleException:inContext:");
+      NSLog(@"exception=%@",localException);                                                         
       LOGException(@"exception=%@",localException);
       if ([[localException name]isEqualToString:GSWPageNotFoundException])
         response=[self _invokeDefaultException:localException
@@ -3050,26 +2860,26 @@ to another instance **/
         };
     }
   NS_ENDHANDLER;
-
   if (!response)
     {
       if (errorPage)
         {
           id monitor=nil;
-          response=[errorPage generateResponse];
-          
+          response=[errorPage generateResponse];          
           //here ?
-          monitor=[self _remoteMonitor];
-          if (monitor)
-            {
-              //Not used yet NSString* monitorApplicationName=[self _monitorApplicationName];
-              //TODO
-            };
+//          monitor=[self _remoteMonitor];
+//          if (monitor)
+//            {
+//              //Not used yet NSString* monitorApplicationName=[self _monitorApplicationName];
+//              //TODO
+//            };
         }
       else
         {
           NSString* message=[NSString stringWithFormat:@"Exception Handling failed. Can't find Error Page named '%@'",
                                       pageName];
+          NSLog(message);          
+                                      
           response=[GSWResponse responseWithMessage:message
                                 inContext:context
                                 forRequest:nil];
@@ -3077,7 +2887,7 @@ to another instance **/
     };
   NSAssert(![response isFinalizeInContextHasBeenCalled],
            @"GSWApplication _handlePageRestorationErrorInContext: _finalizeInContext called for GSWResponse");
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3086,9 +2896,9 @@ to another instance **/
                      inContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   NSDebugMLLog(@"application",@"context=%@",aContext);
-  NSDebugMLog(@"EXCEPTION=%@",anException);
+  NSLog(@"EXCEPTION=%@",anException);
   NS_DURING
     {
       response = 
@@ -3108,7 +2918,7 @@ to another instance **/
   NS_ENDHANDLER;
   NSAssert(![response isFinalizeInContextHasBeenCalled],
            @"GSWApplication handleException: _finalizeInContext called for GSWResponse");
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3117,7 +2927,7 @@ to another instance **/
 -(GSWResponse*)handlePageRestorationErrorInContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   NS_DURING
     {
       response=[self _handlePageRestorationErrorInContext:aContext];
@@ -3134,7 +2944,7 @@ to another instance **/
   NS_ENDHANDLER;
   NSAssert(![response isFinalizeInContextHasBeenCalled],
            @"GSWApplication handlePageRestorationErrorInContext: _finalizeInContext called for GSWResponse");
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3144,11 +2954,11 @@ to another instance **/
 -(GSWResponse*)_handlePageRestorationErrorInContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   response=[self _handleErrorWithPageNamed:GSWPageRestorationErrorPageName[GSWebNamingConv]
                  exception:nil
                  inContext:aContext];
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3157,7 +2967,7 @@ to another instance **/
 -(GSWResponse*)handleSessionCreationErrorInContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   NS_DURING
     {
       response=[self _handleSessionCreationErrorInContext:aContext];
@@ -3174,7 +2984,7 @@ to another instance **/
   NS_ENDHANDLER;
   NSAssert(![response isFinalizeInContextHasBeenCalled],
            @"GSWApplication handleSessionCreationErrorInContext: _finalizeInContext called for GSWResponse");
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3183,11 +2993,11 @@ to another instance **/
 -(GSWResponse*)_handleSessionCreationErrorInContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   response=[self _handleErrorWithPageNamed:GSWSessionCreationErrorPageName[GSWebNamingConv]
                  exception:nil
                  inContext:aContext];
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3197,7 +3007,7 @@ to another instance **/
 -(GSWResponse*)handleSessionRestorationErrorInContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   NS_DURING
     {
       response=[self _handleSessionRestorationErrorInContext:aContext];
@@ -3214,7 +3024,7 @@ to another instance **/
   NS_ENDHANDLER;
   NSAssert(![response isFinalizeInContextHasBeenCalled],
            @"GSWApplication handleSessionRestorationErrorInContext: _finalizeInContext called for GSWResponse");
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3224,11 +3034,11 @@ to another instance **/
 -(GSWResponse*)_handleSessionRestorationErrorInContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   response=[self _handleErrorWithPageNamed:GSWSessionRestorationErrorPageName[GSWebNamingConv]
                  exception:nil
                  inContext:aContext];
-  LOGObjectFnStop();
+  
   return response;
 };
 
@@ -3242,16 +3052,12 @@ to another instance **/
                                        actionClass:(Class)actionClass
                                       actionObject:(GSWAction*)actionObject
 {
-  LOGObjectFnStart();  
+    
   //do nothing
-  LOGObjectFnStop();
+  
   return nil;
 }
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWConveniences)
 +(GSWApplication*)application
 {
   return GSWApp;
@@ -3269,14 +3075,7 @@ to another instance **/
               [application class],
               [application name]);
   GSWApp=application;
-};
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWHTMLTemplateParsingDebugging)
-//--------------------------------------------------------------------
-//setPrintsHTMLParserDiagnostics:
+}
 
 -(void)setPrintsHTMLParserDiagnostics:(BOOL)flag
 {
@@ -3306,10 +3105,6 @@ to another instance **/
   return NO;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWScriptedObjectSupport)
 //--------------------------------------------------------------------
 //scriptedClassWithPath:
 
@@ -3343,10 +3138,6 @@ to another instance **/
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWLibrarySupport)
 //--------------------------------------------------------------------
 //NDFN
 -(Class)libraryClassWithPath:(NSString*)path
@@ -3363,10 +3154,6 @@ to another instance **/
     };
   return aClass;
 };
-
-@end
-
-@implementation GSWApplication (GSWDebugging)
 
 //--------------------------------------------------------------------
 -(void)debugWithString:(NSString*)aString
@@ -3654,11 +3441,7 @@ to another instance **/
 -(void)debugAdaptorThreadExited
 {
 }
-@end
 
-//====================================================================
-//Same as GSWDebugging but it print messages on stdout AND call GSWDebugging methods
-@implementation GSWApplication (GSWDebuggingStatus)
 
 //--------------------------------------------------------------------
 -(void)statusDebugWithString:(NSString*)aString
@@ -3823,10 +3606,6 @@ to another instance **/
     }
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWStatisticsSupport)
 //--------------------------------------------------------------------
 //statistics
 -(bycopy NSDictionary*)statistics 
@@ -3848,10 +3627,6 @@ to another instance **/
   ASSIGN(_statisticsStore,statisticsStore);
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (MonitorableApplication)
 
 //--------------------------------------------------------------------
 //monitoringEnabled [deprecated]
@@ -3915,7 +3690,7 @@ to another instance **/
   NSTimeInterval sessionTimeOut=0;
   int activeSessionsCount=0;
 
-  LOGObjectFnStart();
+  
 
   sessionTimeOut=[[self class]sessionTimeOutValue];
   activeSessionsCount=[self activeSessionsCount];
@@ -3931,7 +3706,7 @@ to another instance **/
   NSDebugMLog(@"activeSessionsCount=%d sessionTimeOut=%f ==> refuseNewSessionsTimeInterval=%f",
               activeSessionsCount,sessionTimeOut,ti);
 
-  LOGObjectFnStop();
+  
 
   return ti;
 }
@@ -3950,10 +3725,6 @@ to another instance **/
   [self setTimeOut:aTimeInterval];
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWResourceManagerSupport)
 //--------------------------------------------------------------------
 //setResourceManager:
 -(void)setResourceManager:(GSWResourceManager*)resourceManager
@@ -3982,11 +3753,6 @@ to another instance **/
   return _resourceManager;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (RequestDispatching)
-
 //--------------------------------------------------------------------
 -(GSWRequestHandler*)defaultRequestHandler
 {
@@ -3996,7 +3762,7 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)setDefaultRequestHandler:(GSWRequestHandler*)handler
 {
-  LOGObjectFnStart();
+  
   [self lock];
   NS_DURING
     {
@@ -4012,7 +3778,7 @@ to another instance **/
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+  
 };
 
 //--------------------------------------------------------------------
@@ -4069,10 +3835,10 @@ to another instance **/
 -(GSWRequestHandler*)requestHandlerForKey:(NSString*)aKey
 {
   GSWRequestHandler* handler=nil;
-  LOGObjectFnStart();
+  
   handler=[_requestHandlers objectForKey:aKey];
   NSDebugMLogCond(!handler,@"_requestHandlers=%@",_requestHandlers);
-  LOGObjectFnStop();
+  
   return handler;
 };
 
@@ -4081,19 +3847,14 @@ to another instance **/
 {
   GSWRequestHandler* handler=nil;
   NSString* requestHandlerKey=nil;
-  LOGObjectFnStart();
+  
   requestHandlerKey=[aRequest requestHandlerKey];
   NSDebugMLLog(@"application",@"requestHandlerKey=%@",requestHandlerKey);
   handler=[self requestHandlerForKey:requestHandlerKey];
   NSDebugMLLog(@"application",@"handler=%@",handler);
-  LOGObjectFnStop();
+  
   return handler;
 };
-
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationInternals)
 
 //--------------------------------------------------------------------
 +(NSDictionary*)_webServerConfigDictionary
@@ -4105,11 +3866,11 @@ to another instance **/
 //--------------------------------------------------------------------
 +(Class)_applicationClass
 {
-  LOGObjectFnStart();
+  
   [[GSWResourceManager _applicationGSWBundle] 
     scriptedClassWithName:GSWClassName_Application//TODO
     superclassName:GSWClassName_Application]; //retirune nil //TODO
-  LOGObjectFnStop();
+  
   return NSClassFromString(globalApplicationClassName);
 };
 
@@ -4126,10 +3887,6 @@ to another instance **/
   return (GSWRequestHandler*)[GSWComponentRequestHandler handler];
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassB)
 
 //--------------------------------------------------------------------
 +(id)defaultModelGroup
@@ -4154,10 +3911,6 @@ to another instance **/
   return nil;
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassC)
 
 //--------------------------------------------------------------------
 -(NSDictionary*)mainBundleInfoDictionary
@@ -4218,10 +3971,6 @@ to another instance **/
 */
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassD)
 
 //--------------------------------------------------------------------
 +(int)_garbageCollectionRepeatCount
@@ -4256,10 +4005,6 @@ to another instance **/
   LOGClassFnNotImplemented();	//TODOFN
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (GSWApplicationClassE)
 
 //--------------------------------------------------------------------
 +(int)_requestLimit
@@ -4295,10 +4040,6 @@ to another instance **/
   NSLog(@"LGPL'ed software don't have license parameters. To find License Parameters, please try proprietary softwares");
 };
 
-@end
-
-//====================================================================
-@implementation GSWApplication (NDFN)
 
 //--------------------------------------------------------------------
 //NDFN
@@ -4310,7 +4051,7 @@ to another instance **/
   id propList=nil;
   GSWResourceManager* resourceManager=nil;
   NSString* pathName=nil;
-  LOGObjectFnStart();
+  
   resourceManager=[self resourceManager];
   pathName=[resourceManager pathForResourceNamed:[NSString stringWithFormat:@"%@.%@",aName,type]
                             inFramework:aFrameworkName
@@ -4327,7 +4068,7 @@ to another instance **/
                           pathName);
         };
     };
-  LOGObjectFnStop();
+  
   return propList;
 };
 
@@ -4475,11 +4216,11 @@ to another instance **/
                         languages:(NSArray*)languages
 {
   NSDictionary* st=nil;
-  LOGObjectFnStart();
+  
   st=[[self resourceManager]stringsTableNamed:aTableName
                             inFramework:aFrameworkName
                             languages:languages];
-  LOGObjectFnStop();
+  
   return st;
 };
 
@@ -4502,214 +4243,4 @@ to another instance **/
 };
 
 @end
-/*
-//====================================================================
-@implementation GSWApplication (GSWDeprecatedAPI)
-
-//--------------------------------------------------------------------
-//pageWithName:
-//OldFn
--(GSWComponent*)pageWithName:(NSString*)name_
-{
-  GSWComponent* component=nil;
-  Class aClass=nil;
-  NSDebugMLLog(@"application",@"Page with Name:%@",name_);
-  //No Name ==> "Main"
-  if (!name_ || [name_ length]==0)
-	name_=GSWMainPageName;
-  NSDebugMLLog(@"gswcomponents",@"Page with Name:%@",name_);
-  aClass=NSClassFromString(name_);
-  //If not found, search for library
-  if (!aClass)
-	{
-	  NSString* pagePath=[self pathForResourceNamed:name_
-							   ofType:nil];
-	  Class _principalClass=[self libraryClassWithPath:pagePath];
-	  NSDebugMLLog(@"gswcomponents",@"_principalClass=%@",_principalClass);
-	  if (_principalClass)
-		{
-		  aClass=NSClassFromString(name_);
-		  NSDebugMLLog(@"gswcomponents",@"aClass=%@",aClass);
-		};
-	};
-  if (!aClass)
-	{
-	  //TODO Load Scripted (PageName.gsws)
-	};
-
-  if (!aClass)
-	{
-	  //TODO exception
-	  NSDebugMLLog0(@"application",@"No component class");
-	}
-  else
-	{
-	  Class GSWComponentClass=[GSWComponent class]);
-	  if (!ClassIsKindOfClass(aClass,GSWComponentClass))
-	    {
-	      NSDebugMLLog0(@"application",
-	                    @"component class is not a kind of GSWComponent");
-	      //TODO exception
-	    }
-	  else
-	    {
-	      //TODOV
-	      NSDebugMLLog0(@"application",@"Create Componnent");
-	      component=[[aClass new] autorelease];
-	      if (!component)
-	        {
-		  //TODO exception
-		};
-	    };
-	};
-
-  return component;
-};
-
-//--------------------------------------------------------------------
-//restorePageForContextID:
--(GSWComponent*)restorePageForContextID:(NSString*)contextID
-{
-  return [[self session] restorePageForContextID:contextID];
-};
-
-//--------------------------------------------------------------------
-//savePage:
--(void)savePage:(GSWComponent*)page_
-{
-  [[self session] savePage:page_];
-};
-
-//--------------------------------------------------------------------
-//session
--(GSWSession*)session 
-{
-  return [[self context] session];
-};
-
-//--------------------------------------------------------------------
-//context
-//Remove !!
--(GSWContext*)context 
-{
-  GSWContext* _context=nil;
-  NSMutableDictionary* _threadDictionary=nil;
-  LOGObjectFnStart();
-  _threadDictionary=GSCurrentThreadDictionary();
-  _context=[_threadDictionary objectForKey:GSWThreadKey_Context];
-  LOGObjectFnStop();
-  return _context;
-};
-
-//--------------------------------------------------------------------
-//restoreSession
--(GSWSession*)restoreSession
-{
-  NSAssert(sessionStore,@"No SessionStore Object");
-  return [self restoreSessionWithID:[[self session]sessionID]
-				inContext:[self context]];
-};
-
-//--------------------------------------------------------------------
-//saveSession:
--(void)saveSession:(GSWSession*)session_ 
-{
-  NSAssert(sessionStore,@"No SessionStore Object");
-  [self saveSessionForContext:[self context]];
-};
-
-//--------------------------------------------------------------------
-//createSession
--(GSWSession*)createSession 
-{
-  LOGObjectFnNotImplemented();	//TODOFN 3.5
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//urlForResourceNamed:ofType:
--(NSString*)urlForResourceNamed:(NSString*)name_
-						 ofType:(NSString*)type_ 
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//pathForResourceNamed:ofType:
-
--(NSString*)pathForResourceNamed:(NSString*)name_
-						  ofType:(NSString*)type_ 
-{
-  //TODOV
-  NSBundle* bundle=[NSBundle mainBundle];
-  NSString* path=[bundle pathForResource:name_
-						 ofType:type_];
-  return path;
-};
-
-//--------------------------------------------------------------------
-//stringForKey:inTableNamed:withDefaultValue:
-
--(NSString*)stringForKey:(NSString*)aKey
-			inTableNamed:(NSString*)aTableName
-		withDefaultValue:(NSString*)defaultValue
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
-};
-
-//--------------------------------------------------------------------
-//handleRequest:
-//Olf Fn
--(GSWResponse*)handleRequest:(GSWRequest*)aRequest 
-{
-  return [self dispatchRequest:aRequest];//??
-};
-
-//--------------------------------------------------------------------
-//dynamicElementWithName:associations:template:
-//OldFn
--(GSWDynamicElement*)dynamicElementWithName:(NSString*)name_
-			       associations:(NSDictionary*)someAssociations
-				   template:(GSWElement*)templateElement_
-{
-  GSWDynamicElement* element=nil;
-  //  NSString* elementName=[_XMLElement attributeForKey:@"NAME"];
-  Class aClass=NSClassFromString(name_);
-  LOGObjectFnNotImplemented();	//TODOFN
-  NSDebugMLLog0(@"application",
-		@"Begin GSWApplication:dynamicElementWithName");
-  if (!aClass)
-    {
-      ExceptionRaise(@"GSWApplication",
-		     @"GSWApplication: No class named '%@' for "
-		     @"creating dynamic element",
-		     name_);
-    }
-  else
-    {
-      Class GSWElementClass=[GSWElement class];
-      if (!ClassIsKindOfClass(aClass,GSWElementClass))
-	{
-	  ExceptionRaise(@"GSWApplication",
-			 @"GSWApplication: element '%@' is not kind of "
-			 @"GSWElement",
-			 name_);
-	}
-      else
-	{
-	  NSDebugMLLog(@"application",
-		       @"Creating DynamicElement of Class:%@",aClass);
-	  element=[[[aClass alloc] initWithName:name_
-				   associations:someAssociations
-				   template:templateElement_] autorelease];
-	  NSDebugMLLog(@"application",@"Creating DynamicElement:%@",element);
-	};
-    };
-  return element;
-};
-
-@end
-*/
 

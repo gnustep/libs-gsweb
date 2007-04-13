@@ -40,29 +40,16 @@
   GSWAssociation* _directActionName;
 };
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
 
--(void)dealloc;
-
-@end
-
-@interface GSWSubmitButton (GSWSubmitButtonA)
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context;
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 
 
--(void)appendNameToResponse:(GSWResponse*)response
-                  inContext:(GSWContext*)context;
-
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 
--(void)_appendActionClassAndNameToResponse:(GSWResponse*)response
-                                 inContext:(GSWContext*)context;
 @end
 
 #endif //_GSWSubmitButton_h__

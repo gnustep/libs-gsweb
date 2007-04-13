@@ -293,7 +293,10 @@ NSString* GSWTag_Name[2]={ @"gsweb", @"webobject" };
 //====================================================================
 // Components Keys
 
+id post__Key = @"post";
+id method__Key = @"method";
 id value__Key = @"value";
+id valueWhenEmpty__Key = @"valueWhenEmpty";
 id action__Key = @"action";
 id name__Key = @"name";
 id disabled__Key = @"disabled";
@@ -359,6 +362,7 @@ id directActionName__Key = @"directActionName";
 id file__Key = @"file";
 id data__Key = @"data";
 id mimeType__Key = @"mimeType";
+id type__Key = @"type";
 id key__Key = @"key";
 id selectedValue__Key = @"selectedValue";
 id noSelectionString__Key = @"noSelectionString";

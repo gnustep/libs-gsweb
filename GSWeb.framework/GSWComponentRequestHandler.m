@@ -46,7 +46,7 @@ RCS_ID("$Id$")
   //OK
   GSWResponse* response=nil;
   GSWApplication* application=[GSWApplication application];
-  LOGObjectFnStart();
+
   [application lockRequestHandling];
   response=[self lockedHandleRequest:aRequest];
   if (!response)
@@ -57,8 +57,7 @@ RCS_ID("$Id$")
       [response _finalizeInContext:nil]; //DO Call _finalizeInContext: !
     };
   [application unlockRequestHandling];
-  NSDebugMLLog(@"requests",@"response=%@",response);
-  LOGObjectFnStop();
+
   return response;
 };
 
@@ -76,7 +75,7 @@ RCS_ID("$Id$")
   GSWResponse* response=nil;
   NSDictionary* requestHandlerValues=nil;
   BOOL exceptionRaised=NO;
-  LOGObjectFnStart();
+
   NS_DURING
     {      
       requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:aRequest];
@@ -103,20 +102,12 @@ RCS_ID("$Id$")
       NSString* senderID=nil;
       NSString* requestContextID=nil;
 
-      NSDebugMLLog(@"requests",@"requestHandlerValues=%@",requestHandlerValues);
-      //statisticsStore=[[GSWApplication application]statisticsStore];
-//      NSDebugMLLog(@"requests",@"statisticsStore=%@",statisticsStore);
-      //[statisticsStore applicationWillHandleComponentActionRequest];
-
       aContext=[[GSWApplication application]createContextForRequest:aRequest];
-      NSDebugMLLog(@"requests",@"aContext=%@",aContext);
 
       senderID=[requestHandlerValues objectForKey:GSWKey_ElementID[GSWebNamingConv]];
-      NSDebugMLLog(@"requests",@"AA senderID=%@",senderID);
       [aContext _setSenderID:senderID];
 
       requestContextID=[requestHandlerValues objectForKey:GSWKey_ContextID[GSWebNamingConv]];
-      NSDebugMLLog(@"requests",@"AA requestContextID=%@",requestContextID);
       [aContext _setRequestContextID:requestContextID];
 
       [application _setContext:aContext];
@@ -173,10 +164,7 @@ RCS_ID("$Id$")
     };
   
   [application _setContext:nil];
-  //statisticsStore=[[GSWApplication application] statisticsStore];
-  //[statisticsStore applicationDidHandleComponentActionRequest];
-  NSDebugMLLog(@"requests",@"response=%@",response);
-  LOGObjectFnStop();
+
   return response;
 };
 
@@ -190,11 +178,11 @@ RCS_ID("$Id$")
   GSWResponse* errorResponse=nil;
   GSWSession* session=nil;
   NSString* sessionID=nil;
-  LOGObjectFnStart();
+
   NS_DURING
     {
       sessionID=[elements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
-      NSDebugMLLog(@"requests",@"sessionID=%@",sessionID);
+
       if (sessionID)
         {
           session=[application restoreSessionWithID:sessionID
@@ -209,7 +197,6 @@ RCS_ID("$Id$")
         {
           // check for refuseNewSessions
           session=[application _initializeSessionInContext:aContext];
-          NSDebugMLLog(@"requests",@"session=%@",session);
         }
     }
   NS_HANDLER
@@ -225,7 +212,6 @@ RCS_ID("$Id$")
     {
       if (session)
         {
-          NSDebugMLLog(@"requests",@"session=%@",session);
           NS_DURING
             {
               response=[self lockedDispatchWithPreparedSession:session
@@ -246,17 +232,12 @@ RCS_ID("$Id$")
   //======LAST //CLEAN
   if (response || errorResponse)
     {
-      NSDebugMLLog(@"requests",@"response=%@",response);
-      NSDebugMLLog(@"requests",@"errorResponse=%@",errorResponse);
       RETAIN(response);
       [aContext _putAwakeComponentsToSleep];
       [application saveSessionForContext:aContext];
-      NSDebugMLLog(@"requests",@"session=%@",session);
-      NSDebugMLLog(@"requests",@"sessionCount=%u",[session retainCount]);
-      NSDebugMLLog(@"requests",@"response=%@",response);
       AUTORELEASE(response);
     };
-  LOGObjectFnStop();
+
   return response ? response : errorResponse;
 };
 
@@ -271,26 +252,16 @@ RCS_ID("$Id$")
   GSWComponent* page=nil;
   BOOL storesIDsInCookies=NO;
   NSString* contextID=nil;
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"requests",@"aSession=%@",aSession);
-  NSDebugMLLog(@"requests",@"aContext=%@",aContext);
 
   storesIDsInCookies=[aSession storesIDsInCookies]; //For What ?
-  NSDebugMLLog(@"requests",@"storesIDsInCookies=%s",(storesIDsInCookies ? "YES" : "NO"));
 
   contextID=[elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];//use aContext requestContextID instead ?
-  NSDebugMLLog(@"requests",@"contextID=%@",contextID);
 
   if (contextID) // ??
     {
       NSAssert([contextID length]>0,@"contextID empty");
       page=[self lockedRestorePageForContextID:contextID
                  inSession:aSession];
-      //??
-      NSDebugMLLog(@"requests",@"contextID=%@",contextID);
-      NSDebugMLLog(@"requests",@"aSession=%@",aSession);
-      NSDebugMLLog(@"requests",@"page=%@",page);
       if (!page)
         {
           GSWApplication* application=[aSession application];
@@ -301,7 +272,7 @@ RCS_ID("$Id$")
     {
       NSString* pageName=[elements objectForKey:GSWKey_PageName[GSWebNamingConv]];
       NSException* exception=nil;
-      NSDebugMLLog(@"requests",@"pageName=%@",pageName);
+
       NS_DURING
         {
           page=[[GSWApplication application] pageWithName:pageName
@@ -345,8 +316,7 @@ RCS_ID("$Id$")
         };
 #endif
     };
-  NSDebugMLLog(@"requests",@"response=%@",response);
-  LOGObjectFnStop();
+
   return response ? response : errorResponse;
 };
 
@@ -372,24 +342,14 @@ RCS_ID("$Id$")
   GSWRequest* responseRequest=nil;
   NSString* matchingContextID=nil;
 
-  LOGObjectFnStart();
-  NSDebugMLLog(@"requests",@"aComponent=%@",aComponent);
-
   request=[aContext request];
   contextID=[elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
-  NSDebugMLLog(@"requests",@"contextID=%@",contextID);
 
   response=[GSWApp createResponseInContext:aContext];
-  NSDebugMLLog(@"requests",@"response=%@",response);
-  NSDebugMLLog(@"requests",@"aSession=%@",aSession);
-  NSDebugMLLog(@"requests",@"aContext=%@",aContext);
 
   senderID=GSWContext_senderID(aContext);
-  NSDebugMLLog(@"requests",@"AA senderID=%@",senderID);
-  NSDebugMLLog(@"requests",@"AA request=%@",request);
 
   matchingContextID=[aSession _contextIDMatchingIDsInContext:aContext];
-  NSDebugMLLog(@"requests",@"matchingContextID=%@",matchingContextID);
 
   httpVersion=[request httpVersion];
   [response setHTTPVersion:httpVersion];
@@ -403,10 +363,8 @@ RCS_ID("$Id$")
       page = [self lockedRestorePageForContextID:matchingContextID
                    inSession:aSession];
       [aContext _setPageElement:page];
-      [[GSWApplication application] appendToResponse:response
-                                    inContext:aContext];
-      NSDebugMLLog(@"requests",@"After appendToResponse GSWContext_elementID(aContext)=%@",
-                   GSWContext_elementID(aContext));
+      [GSWApp appendToResponse:response
+                     inContext:aContext];
     }
   else
     {
@@ -425,14 +383,10 @@ RCS_ID("$Id$")
         };
       if (hasFormValues)
         {
-          NSDebugMLLog(@"requests",@"Before takeValues GSWContext_elementID(aContext)=%@",
-                       GSWContext_elementID(aContext));
           NSAssert([GSWContext_elementID(aContext) length]==0,
                    @"1 lockedDispatchWithPreparedPage elementID length>0");
-          [[GSWApplication application] takeValuesFromRequest:request
-                                        inContext:aContext];
-          NSDebugMLLog(@"requests",@"After takeValuesGSWContext_elementID(aContext)=%@",
-                       GSWContext_elementID(aContext));
+          [GSWApp takeValuesFromRequest:request
+                              inContext:aContext];
           if (![GSWContext_elementID(aContext) length]==0)
             {
               LOGSeriousError0(@"2 lockedDispatchWithPreparedPage elementID length>0");
@@ -446,16 +400,15 @@ RCS_ID("$Id$")
         {
           BOOL pageChanged=NO;
           NSException* exception=nil;
-          NSDebugMLLog(@"requests",@"Before invokeAction GSWContext_elementID(aContext)=%@",
-                       GSWContext_elementID(aContext));
+
           NSAssert([GSWContext_elementID(aContext) length]==0,
                    @"3 lockedDispatchWithPreparedPage elementID length>0");
           // Exception catching here ?
           NS_DURING
             {
-              responsePage=(GSWComponent*)[[GSWApplication application] invokeActionForRequest:request
-                                                                        inContext:aContext];
-              NSDebugMLLog(@"requests",@"After invokeAction GSWContext_elementID(aContext)=%@",GSWContext_elementID(aContext));
+              responsePage=(GSWComponent*)[GSWApp invokeActionForRequest:request
+                                                               inContext:aContext];
+
               NSAssert([GSWContext_elementID(aContext) length]==0,@"4 lockedDispatchWithPreparedPage elementID length>0");
             }
           NS_HANDLER
@@ -476,8 +429,7 @@ RCS_ID("$Id$")
               DESTROY(exception);
             }
           NS_ENDHANDLER;
-          //	  GSWContext_deleteAllElementIDComponents(aContext);//NDFN
-          NSDebugMLLog(@"requests",@"responsePage=%@",responsePage);
+
           if (errorResponse)
             {
               response=errorResponse;
@@ -489,10 +441,8 @@ RCS_ID("$Id$")
                 responsePage=page;
               
               responseContext=[(GSWComponent*)responsePage context];//So what ?
-              NSDebugMLLog(@"requests",@"responseContext=%@",responseContext);
               [responseContext _setPageReplaced:NO];
               responsePageElement=(GSWComponent*)[responseContext _pageElement];
-              NSDebugMLLog(@"requests",@"responsePageElement=%@",responsePageElement);
               pageChanged=(responsePage!=responsePageElement);
               [responseContext _setPageChanged:pageChanged];//??
               if (pageChanged)
@@ -514,20 +464,13 @@ RCS_ID("$Id$")
         {
           NS_DURING
             {
-              NSDebugMLLog(@"requests",@"response before appendToResponse=%@",response);
-              NSDebugMLLog(@"requests",@"responseContext=%@",responseContext);
               NSAssert([GSWContext_elementID(aContext) length]==0,
                        @"5 lockedDispatchWithPreparedPage elementID length>0");
-              NSDebugMLLog(@"requests",@"Before appendToResponse GSWContext_elementID(aContext)=%@",
-                       GSWContext_elementID(aContext));
-              [[GSWApplication application] appendToResponse:response
-                                            inContext:responseContext];
-              NSDebugMLLog(@"requests",@"After appendToResponse GSWContext_elementID(aContext)=%@",
-                           GSWContext_elementID(aContext));
+              [GSWApp appendToResponse:response
+                             inContext:responseContext];
               NSAssert([GSWContext_elementID(aContext) length]==0,
                        @"6 lockedDispatchWithPreparedPage elementID length>0");
               responseRequest=[responseContext request];//SoWhat ?
-              //Not used [responseRequest isFromClientComponent];//SoWhat
             }
           NS_HANDLER
             {
@@ -536,15 +479,13 @@ RCS_ID("$Id$")
                                                                       [page name],
                                                                       [page class]);
               LOGException(@"exception=%@",localException);
-              NSDebugMLLog(@"requests",@"context=%@",aContext);
               errorResponse=[[GSWApplication application] handleException:localException
                                                           inContext:aContext];
             }
           NS_ENDHANDLER;
         };
     };
-  NSDebugMLLog(@"requests",@"response=%@",response);
-  LOGObjectFnStop();
+
   return errorResponse ? errorResponse : response;
 };
 
@@ -573,23 +514,19 @@ RCS_ID("$Id$")
 {
   //OK
   NSDictionary* values=nil;
-  LOGClassFnStart();
+
   NS_DURING
     {
       values=[aRequest uriOrFormOrCookiesElements];
-      NSDebugMLLog(@"requests",@"values=%@",values);
     }
   NS_HANDLER
     {
-      LOGException(@"%@ (%@)",
-		   localException,
-		   [localException reason]);
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In +_requestHandlerValuesForRequest:");
       LOGException(@"exception=%@",localException);
       [localException raise];
     };
   NS_ENDHANDLER;
-  LOGClassFnStop();
+
   return values;
 };
 

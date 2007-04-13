@@ -62,10 +62,7 @@
 -(void)unlock;
 // Must not be locked
 -(GSWSessionTimeOut*)sessionTimeOutForSessionID:(NSString*)sessionID;
-@end
 
-//====================================================================
-@interface GSWSessionTimeOutManager (GSWSessionRefused)
 
 -(void)startHandleTimerRefusingSessions;
 -(void)handleTimerKillingApplication:(id)timer;

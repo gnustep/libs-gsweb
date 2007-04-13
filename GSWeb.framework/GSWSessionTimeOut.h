@@ -51,8 +51,8 @@
            sessionTimeOut:(NSTimeInterval)aTimeOutInterval;
 -(NSString*)description;
 -(NSComparisonResult)compareTimeOutDate:(GSWSessionTimeOut*)timeOutObject;
--(NSTimeInterval)sessionTimeOut;
--(void)setSessionTimeOut:(NSTimeInterval)aTimeOutInterval;
+-(NSTimeInterval)sessionTimeOutValue;
+-(void)setSessionTimeOutValue:(NSTimeInterval)aTimeOutInterval;
 -(NSString*)sessionID;
 -(void)setLastAccessTime:(NSTimeInterval)aTime;
 -(NSTimeInterval)lastAccessTime;

@@ -43,28 +43,13 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
 {
   LOGObjectFnStart();
-  //OK
-  NSDebugMLLog(@"gswdync",@"aName:%@",aName);
-  NSDebugMLLog(@"gswdync",@"associations:%@",associations);
   if ((self==[super initWithName:aName
                     associations:associations
-                    template:nil]))
-    {
-      int associationsCount=[associations count];
-      ASSIGN(_name,aName);
-      if (associationsCount>0)
-        {
-          NSMutableArray* tmpArray=[NSMutableArray array];
-          int i=0;
-          ASSIGN(_associationsKeys,[associations allKeys]);
-          for(i=0;i<associationsCount;i++)
-            {
-              [tmpArray addObject:[associations objectForKey:[_associationsKeys objectAtIndex:i]]];
-            };
-          ASSIGN(_associations,[NSArray arrayWithArray:tmpArray]);
-        };
-    };
-  LOGObjectFnStop();
+                    template:nil])) {
+                    
+     ASSIGN(_name,aName);
+     ASSIGN(_keyAssociations,[NSMutableDictionary dictionaryWithDictionary:associations]);
+  }
   return self;
 };
 
@@ -73,172 +58,112 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"aName:%@",aName);
-  NSDebugMLLog(@"gswdync",@"associations:%@",associations);
-  NSDebugMLLog(@"gswdync",@"template:%@",template);
   if ((self==[self initWithName:aName
                    associations:associations]))
     {
       ASSIGN(_contentElement,template);
     };
-  LOGObjectFnStop();
+
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWComponentReference");
-  GSWLogC("Destroy name");
   DESTROY(_name);
-  GSWLogC("Destroy associationsKeys");
-  DESTROY(_associationsKeys);
-  GSWLogC("Destroy associations");
-  DESTROY(_associations);
-  GSWLogC("Destroy contentElement");
+  DESTROY(_keyAssociations);
   DESTROY(_contentElement);
-  GSWLogC("Dealloc GSWComponentReference Super");
+  
   [super dealloc];
-  GSWLogC("End Dealloc GSWComponentReference");
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%@ %p name:%@ associationsKeys:%@ associations:%@ contentElement:%@>",
+
+  return [NSString stringWithFormat:@"<%@ %p name:%@ associations:%@ contentElement:%@>",
                    [self class],
                    (void*)self,
                    _name,
-                   _associationsKeys,
-                   _associations,
+                   _keyAssociations,
                    _contentElement];
 };
 
-@end
 
-//====================================================================
-@implementation GSWComponentReference (GSWComponentReferenceA)
--(void)popRefComponentInContext:(GSWContext*)context
+-(void)_popComponentFromContext:(GSWContext*)context
 {
-  //OK
-  GSWComponent* subComponent=nil;
-  GSWComponent* component=nil;
-  LOGObjectFnStart();
-  subComponent=GSWContext_component(context);
-  component=[subComponent parent];
-  [subComponent synchronizeComponentToParent];
-  [context _setCurrentComponent:component];
-  LOGObjectFnStop();
-};
+  GSWComponent* component = GSWContext_component(context);
+  GSWComponent* parentcomp = [component parent];
+  [component pushValuesToParent];  
+  [context _setCurrentComponent:parentcomp];
+}
 
-//--------------------------------------------------------------------
--(void)pushRefComponentInContext:(GSWContext*)context
+
+
+-(void)_pushComponentInContext:(GSWContext*)context
 {
-  //OK
-  GSWComponent* subComponent=nil;
+  GSWComponent* component = GSWContext_component(context);
+  GSWComponent* subComponent = nil;
+  NSString* elementID = GSWContext_elementID(context);
   GSWComponentDefinition* subComponentDefinition=nil;
-  GSWComponent* component=nil;
-  NSString* elementID=nil;
-  LOGObjectFnStart();
-  component=GSWContext_component(context);
-  elementID=GSWContext_elementID(context);
-  NSDebugMLLog(@"gswdync",@"_elementID:%@",elementID);
-  subComponent=[component subComponentForElementID:elementID];
-  NSDebugMLLog(@"gswdync",@"subComponent:%@",subComponent);
-  if (!subComponent)
-    {
-      NSArray* languages=[context languages];
-      NSDebugMLLog(@"gswdync",@"name:%@",_name);
-      NSDebugMLLog(@"gswdync",@"pushRefComponentInContext comporef=%p parent=%p",
-                   (void*)self,
-                   (void*)component);
-      subComponentDefinition=[GSWApp componentDefinitionWithName:_name
-                                     languages:languages];
-      NSDebugMLLog(@"gswdync",@"subComponentDefinition=%@",subComponentDefinition);
-      if (subComponentDefinition)
-        {
-          subComponent=[subComponentDefinition componentInstanceInContext:context];
-          NSDebugMLLog(@"gswdync",@"subComponent:%@",subComponent);
-          if (subComponent)
-            {
-              NSDebugMLLog(@"gswdync",@"SETPARENT comporef=%p parent=%p component=%p",
-                           (void*)self,
-                           (void*)component,
-                           (void*)subComponent);
-			  [subComponent setParent:component
-                                        associationsKeys:_associationsKeys
-                                        associations:_associations
-                                        template:_contentElement];
-            }
-          else
-            {
-              ExceptionRaise(@"GSWComponentReference: subcomponent instance creation failed in '@'",
-                             _name);
-            };
-        }
-      else
-        {
-          ExceptionRaise(@"GSWComponentReference: can't find subcomponent definition in '@'",
-                         _name);
-        };
-      if (subComponent)
-        {
-          [component setSubComponent:subComponent
+
+  if (component != nil) {
+    subComponent = [component _subcomponentForElementWithID: elementID];
+  }
+  if (subComponent == nil) {
+    subComponentDefinition = [GSWApp _componentDefinitionWithName:_name languages:[context languages]];
+   
+    subComponent = [subComponentDefinition componentInstanceInContext:context];
+    [subComponent _setParent:component
+                associations:_keyAssociations
+                    template:_contentElement];
+
+    if (component != nil) {
+      [component _setSubcomponent:subComponent
                      forElementID:elementID];
-          [subComponent awakeInContext:context];
-        };
-    };
-  if (subComponent)
-    {
-      [subComponent synchronizeParentToComponent];
-    };
+    }
+    [subComponent _awakeInContext: context];
+  } else {
+    [subComponent _setParent:component
+                associations:_keyAssociations
+                    template:_contentElement];
+  }
+
+  [subComponent pullValuesFromParent];
   [context _setCurrentComponent:subComponent];
 
-  LOGObjectFnStop();
-};
+}
 
-@end
 
-//====================================================================
-@implementation GSWComponentReference (GSWRequestHandling)
+-(void)popRefComponentInContext:(GSWContext*)context
+{
+  NSLog(@"WARNING: %s is deprecated. Use _popComponentFromContext instead.", __PRETTY_FUNCTION__);
+  [self _popComponentFromContext: context];
+}
+
+
+-(void) pushRefComponentInContext:(GSWContext*)context
+{
+  NSLog(@"WARNING: %s is deprecated. Use _pushComponentInContext instead.", __PRETTY_FUNCTION__);
+  [self _pushComponentInContext: context];
+}
+
+
 
 //--------------------------------------------------------------------
+
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  //OK
-  GSWComponent* component=nil;
-  GSWComponent* componentPrev=nil;
-  GSWDeclareDebugElementIDsCount(aContext);
 
-  LOGObjectFnStart();
+  [self _pushComponentInContext: aContext];
+  
+  [GSWContext_component(aContext) appendToResponse:aResponse
+               inContext:aContext];
 
-  GSWStartElement(aContext);
-  GSWSaveAppendToResponseElementID(aContext);
+  [self _popComponentFromContext:aContext];
+}
 
-  GSWResponse_appendDebugCommentContentString(aResponse,
-                                              ([NSString stringWithFormat:@"declarationName=%@ ID=%@ name=%@",
-                                                         [self declarationName],
-                                                         GSWContext_elementID(aContext),
-                                                         _name]));
-  componentPrev=GSWContext_component(aContext);
-  [self pushRefComponentInContext:aContext];
-  component=GSWContext_component(aContext);
-  if (component)
-    {
-      [component appendToResponse:aResponse
-                 inContext:aContext];
-      [self popRefComponentInContext:aContext];
-    }
-  else
-    [aContext _setCurrentComponent:componentPrev];
-
-  GSWStopElement(aContext);
-  GSWAssertDebugElementIDsCount(aContext);
-
-  LOGObjectFnStop();
-};
 
 //--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
@@ -247,44 +172,50 @@ RCS_ID("$Id$")
   GSWElement* element=nil;
   GSWComponent* component=nil;
   GSWComponent* componentPrev=nil;
-  GSWDeclareDebugElementIDsCount(aContext);
 
-  LOGObjectFnStart();
-
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);
-
-  NSDebugMLLog(@"gswdync",@"name=%@ senderId=%@",
-               _name,GSWContext_senderID(aContext));
-
-  componentPrev=GSWContext_component(aContext);
-  [self pushRefComponentInContext:aContext];
-
-  component=GSWContext_component(aContext);
-  if (component)
-    {
-      if ([self prefixMatchSenderIDInContext:aContext]) //Avoid trying to find action if we are not the good component
-        {
-          element=[component invokeActionForRequest:request
-                             inContext:aContext];
-          NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
-                    @"Name= %@, from: %@, Element is a %@ not a GSWElement: %@",
-                    _name,
-                    component,
-                    [element class],
-                    element);
-        };
-      [self popRefComponentInContext:aContext];
-    }
-  else
-    [aContext _setCurrentComponent:componentPrev];
-
-  GSWStopElement(aContext);
-  GSWAssertDebugElementIDsCount(aContext);
-
-  LOGObjectFnStop();
+  [self _pushComponentInContext:aContext];
+  element  = [GSWContext_component(aContext) invokeActionForRequest: request
+                                                          inContext: aContext];
+  [self _popComponentFromContext:aContext];
 
   return element;
+
+//  LOGObjectFnStart();
+//
+//  GSWStartElement(aContext);
+//  GSWAssertCorrectElementID(aContext);
+//
+//  NSDebugMLLog(@"gswdync",@"name=%@ senderId=%@",
+//               _name,GSWContext_senderID(aContext));
+//
+//  componentPrev=GSWContext_component(aContext);
+//  [self _pushComponentInContext:aContext];
+//
+//  component=GSWContext_component(aContext);
+//  if (component)
+//    {
+//      if ([self prefixMatchSenderIDInContext:aContext]) //Avoid trying to find action if we are not the good component
+//        {
+//          element=[component invokeActionForRequest:request
+//                             inContext:aContext];
+//          NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
+//                    @"Name= %@, from: %@, Element is a %@ not a GSWElement: %@",
+//                    _name,
+//                    component,
+//                    [element class],
+//                    element);
+//        };
+//      [self _popComponentFromContext:aContext];
+//    }
+//  else
+//    [aContext _setCurrentComponent:componentPrev];
+//
+//  GSWStopElement(aContext);
+//  GSWAssertDebugElementIDsCount(aContext);
+//
+//  LOGObjectFnStop();
+
+//  return element;
 };
 
 //--------------------------------------------------------------------
@@ -302,13 +233,13 @@ RCS_ID("$Id$")
   GSWAssertCorrectElementID(aContext);
 
   componentPrev=GSWContext_component(aContext);
-  [self pushRefComponentInContext:aContext];
+  [self _pushComponentInContext:aContext];
   component=GSWContext_component(aContext);
   if (component)
     {
       [component takeValuesFromRequest:request
                  inContext:aContext];
-      [self popRefComponentInContext:aContext];
+      [self _popComponentFromContext:aContext];
     }
   else
     [aContext _setCurrentComponent:componentPrev];

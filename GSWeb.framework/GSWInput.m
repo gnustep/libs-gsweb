@@ -29,6 +29,7 @@
 **/
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
 
@@ -52,347 +53,196 @@ static Class standardClass = Nil;
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+  contentElements:(NSMutableArray*) elements
 {
-  NSMutableDictionary* attributedAssociations=[[associations mutableCopy] autorelease];
-  LOGObjectFnStartC("GSWInput");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",aName,associations,elements);
-  [attributedAssociations removeObjectForKey:disabled__Key];
-  [attributedAssociations removeObjectForKey:enabled__Key];
-  [attributedAssociations removeObjectForKey:value__Key];
-  [attributedAssociations removeObjectForKey:name__Key];
-  if (!WOStrictFlag)    
-    [attributedAssociations removeObjectForKey:handleValidationException__Key];
-  _value = [[associations objectForKey:value__Key
-                          withDefaultObject:[_value autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"GSWInput: value=%@",_value);
-  if ((self=[super initWithName:aName
-                   attributeAssociations:attributedAssociations
-                   contentElements:elements]))
-    {
-      _disabled = [[associations objectForKey:disabled__Key
-                                 withDefaultObject:[_disabled autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWInput: disabled=%@",_disabled);
-      if (!WOStrictFlag)
-        {
-          _enabled = [[associations objectForKey:enabled__Key
-                                    withDefaultObject:[_enabled autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"GSWInput: enabled=%@",_enabled);
-          if (_disabled && _enabled)
-            {
-              ExceptionRaise0(@"GSWInput",@"You can't use 'diabled' and 'enabled' parameters at the same time.");
-            };
-        };
-      _name = [[associations objectForKey:name__Key
-                             withDefaultObject:[_name autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWInput: name=%@",_name);
-      
-      if (!WOStrictFlag)
-        {
-          _handleValidationException = [[associations objectForKey:handleValidationException__Key
-                                                      withDefaultObject:[_handleValidationException autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"GSWInput: handleValidationException=%@",_handleValidationException);
-          
-          // Turbocat Additions
- 	    //  [attributedAssociations removeObjectForKey: escapeHTML__Key];
-          if ([associations objectForKey: escapeHTML__Key])
-            {
-              _tcEscapeHTML = [[associations objectForKey:escapeHTML__Key
-                                             withDefaultObject:nil] retain];
-            };
-        };
-    };
-  LOGObjectFnStopC("GSWInput");
+  self = [super initWithName:aName associations:associations contentElements: elements];
+  if (!self) {
+    return nil;
+  }
+
+  ASSIGN(_disabled, [_associations objectForKey: disabled__Key]);
+  if (_disabled != nil) {
+    [_associations removeObjectForKey: disabled__Key];
+  }
+  ASSIGN(_name, [_associations objectForKey: name__Key]);
+  if (_name != nil) {
+    [_associations removeObjectForKey: name__Key];
+  }
+  ASSIGN(_value, [_associations objectForKey: value__Key]);
+  if (_value != nil) {
+    [_associations removeObjectForKey: value__Key];
+  }
+  ASSIGN(_escapeHTML, [_associations objectForKey: escapeHTML__Key]);
+  if (_escapeHTML != nil) {
+    [_associations removeObjectForKey: escapeHTML__Key];
+  }
+
   return self;
-};
+}
 
-//--------------------------------------------------------------------
--(void)dealloc
+-(id)initWithName:(NSString*)aName
+     associations:(NSDictionary*)associations
+         template:(GSWElement*)template
 {
-  DESTROY(_disabled);
-  DESTROY(_enabled);//GSWeb Only
-  DESTROY(_name);
-  DESTROY(_value);
-  DESTROY(_handleValidationException);//GSWeb Only
-  DESTROY(_tcEscapeHTML);//GSWeb Only
-  [super dealloc];
-};
+  self = [super initWithName:aName associations:associations template: template];
+  if (!self) {
+    return nil;
+  }
 
-//--------------------------------------------------------------------
--(NSString*)elementName
+  ASSIGN(_disabled, [_associations objectForKey: disabled__Key]);
+  if (_disabled != nil) {
+    [_associations removeObjectForKey: disabled__Key];
+  }
+  ASSIGN(_name, [_associations objectForKey: name__Key]);
+  if (_name != nil) {
+    [_associations removeObjectForKey: name__Key];
+  }
+  ASSIGN(_value, [_associations objectForKey: value__Key]);
+  if (_value != nil) {
+    [_associations removeObjectForKey: value__Key];
+  }
+  ASSIGN(_escapeHTML, [_associations objectForKey: escapeHTML__Key]);
+  if (_escapeHTML != nil) {
+    [_associations removeObjectForKey: escapeHTML__Key];
+  }
+
+  return self;
+}
+
+-(NSString*) type
 {
-  return @"INPUT";
-};
+  return nil;
+}
 
-@end
+- (NSString*) constantAttributesRepresentation
+{
+  if (_constantAttributesRepresentation == nil) {
+    NSString * s = [self type];
+    if (s != nil) {
+      [super constantAttributesRepresentation];
+      NSMutableString * buffer = [NSMutableString stringWithCapacity:256];
+      if (_constantAttributesRepresentation != nil) {
+        [buffer appendString:_constantAttributesRepresentation];
+      }
+      [buffer appendString:@" "];
+      [buffer appendString:@"type"];
+      [buffer appendString:@"=\""];
+      [buffer appendString:s];
+      [buffer appendString:@"\""];
+      ASSIGN(_constantAttributesRepresentation,buffer);
+    }
+  }
+  return [super constantAttributesRepresentation];
+}
 
-//==============================================================================
-@implementation GSWInput (GSWInputA)
+- (BOOL) disabledInComponent:(GSWComponent*) component
+{
+  return ((_disabled != nil) && ([_disabled boolValueInComponent: component]));
+}
 
-//--------------------------------------------------------------------
 -(NSString*)nameInContext:(GSWContext*)context
 {
-  GSWComponent* component=nil;
-  NSString* nameValue=nil;
-  LOGObjectFnStartC("GSWInput");
-  GSWAssertIsElementID(context);
-  if (_name)
-    {
-      component=GSWContext_component(context);
-      nameValue=NSStringWithObject([_name valueInComponent:component]);
+  NSString * s = nil;
+
+  if (_name != nil) {
+    GSWComponent * component = GSWContext_component(context);
+
+    id obj = [_name valueInComponent:component];
+    if (obj != nil) {
+      return obj; // stringValue? 
     }
-  else
-    {
-      nameValue=GSWContext_elementID(context);
-    };
-  NSDebugMLLog(@"gswdync",@"nameValue=%@",nameValue);
-  GSWAssertIsElementID(context);
-  LOGObjectFnStopC("GSWInput");
-  return nameValue;
-};
+  }
+  s = [context elementID];
+  if (s != nil) {
+    return s;
+  } else {
+    [NSException raise:NSInvalidArgumentException
+          format:@"%s: Cannot evaluate 'name' attribute, and context element ID is nil.",
+                               __PRETTY_FUNCTION__];
+  }
+}
 
-//--------------------------------------------------------------------
-/** return the value used in appendValueToResponse:inContext: **/
--(id)valueInContext:(GSWContext*)context
-{
-  id value=nil;
-  LOGObjectFnStartC("GSWInput");
-  if (_value)
-    {
-      GSWComponent* component=nil;
-      component=GSWContext_component(context);
-      value=[_value valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"value=%@",value);
-    };
-  LOGObjectFnStopC("GSWInput");
-  return value;
-};
-
-//--------------------------------------------------------------------
--(BOOL)disabledInContext:(GSWContext*)context
-{
-  BOOL isDisabled=NO;
-
-  LOGObjectFnStartC("GSWInput");
-
-  NSDebugMLLog(@"gswdync",@"_enabled=%@ _disabled=%@",_enabled,_disabled);
-
-  if (!WOStrictFlag && _enabled)
-    {
-      return !GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                       standardEvaluateConditionInContextIMP,
-                                                       _enabled,context);
-    }
-  else
-    {
-      return GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                      standardEvaluateConditionInContextIMP,
-                                                      _disabled,context);
-    };
-
-  NSDebugMLLog(@"gswdync",@"isDisabled=%d",isDisabled);
-
-  LOGObjectFnStopC("GSWInput");
-
-  return isDisabled;
-};
-
-@end
-
-//==============================================================================
-@implementation GSWInput (GSWInputB)
-
-//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  //OK
-  BOOL disabledInContext=NO;
-  LOGObjectFnStartC("GSWInput");
-  GSWStartElement(context);
-  GSWAssertCorrectElementID(context);
-  disabledInContext=[self disabledInContext:context]; //return 0
-  if (!disabledInContext)
-    {
-      BOOL wasFormSubmitted=[context _wasFormSubmitted];
-      if (wasFormSubmitted)
-        {
-          GSWComponent* component=GSWContext_component(context);
-          NSString* nameInContext=[self nameInContext:context];
-          NSString* valueValue=[request formValueForKey:nameInContext];
-          NSDebugMLLog(@"gswdync",@"nameInContext=%@",nameInContext);
-          NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-          NS_DURING
-            {
-              [_value setValue:valueValue
+  id obj = nil;
+  GSWComponent * component = GSWContext_component(context);
+  
+  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
+    NSString * s1 = [self nameInContext:context];
+    if (s1 != nil) {
+      NSString * s = [request stringFormValueForKey:s1];
+              [_value setValue: s
                       inComponent:component];
-            };
-          NS_HANDLER
-            {
-              LOGException(@"GSWInput _value=%@ valueValue=%@ exception=%@",
-                           _value,valueValue,localException);
-              if (!WOStrictFlag)
-                {
-                  [self handleValidationException:localException
-                        inContext:context];
-                }
-              else
-                {
-                  [localException raise];
-                };
-            }
-          NS_ENDHANDLER;
-        };	  
-    };
-  GSWAssertIsElementID(context);
-  LOGObjectFnStopC("GSWInput");
-};
+    }
+  }
+}
 
-@end
-
-//====================================================================
-@implementation GSWInput (GSWInputC)
-
-//--------------------------------------------------------------------
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
-                                      inContext:(GSWContext*)aContext
+- (BOOL) _shouldEscapeHTML:(GSWComponent *) component
 {
-  BOOL disabledInContext=NO;
-  LOGObjectFnStartC("GSWInput");
-  disabledInContext=[self disabledInContext:aContext]; //return 0
-  if (disabledInContext)
-    GSWResponse_appendContentAsciiString(aResponse,@" disabled");
-  [self appendNameToResponse:aResponse
-        inContext:aContext];
-  [self appendValueToResponse:aResponse
-        inContext:aContext];
-  LOGObjectFnStopC("GSWInput");
-};
+  BOOL flag = YES;
+  if (_escapeHTML != nil) {
+    flag = [_escapeHTML boolValueInComponent:component];
+  }
+  return flag;
+}
 
-//--------------------------------------------------------------------
--(void)appendValueToResponse:(GSWResponse*)aResponse
-                   inContext:(GSWContext*)aContext
+- (void) _appendNameAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*)context
 {
-  //OK
-  id valueValue=nil;
-  LOGObjectFnStartC("GSWInput");
-  valueValue=[self valueInContext:aContext];
-  NSDebugMLLog(@"gswdync",@"valueValue=%@",valueValue);
-  if (valueValue)
-    {
-      GSWResponse_appendContentCharacter(aResponse,' ');
-      GSWResponse_appendContentAsciiString(aResponse,@"value");
-      GSWResponse_appendContentCharacter(aResponse,'=');
-      GSWResponse_appendContentCharacter(aResponse,'"');
-      if (_tcEscapeHTML
-          && GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                      standardEvaluateConditionInContextIMP,
-                                                      _tcEscapeHTML,aContext) == NO)
-        {
-          GSWResponse_appendContentString(aResponse,valueValue);
-        }
-      else
-        {
-          GSWResponse_appendContentHTMLAttributeValue(aResponse,valueValue);
-        };
-      GSWResponse_appendContentCharacter(aResponse,'"');
-    };
-  LOGObjectFnStopC("GSWInput");
-};
+  GSWComponent * component = nil;
+  NSString  * s = [self nameInContext:context];
+  if (s != nil) {
+    component = GSWContext_component(context);
+    [response _appendTagAttribute: name__Key
+                            value: s
+       escapingHTMLAttributeValue: [self _shouldEscapeHTML:component]];
+    
+  }
+}
 
-//--------------------------------------------------------------------
--(void)appendNameToResponse:(GSWResponse*)aResponse
-                  inContext:(GSWContext*)aContext
+- (void) _appendValueAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*)context
 {
-  //OK
-  NSString* name=nil;
-  LOGObjectFnStartC("GSWInput");
-  name=[self nameInContext:aContext];
-  NSDebugMLLog(@"gswdync",@"name=%@",name);
-  if (name)
-    {
-      GSWResponse_appendContentCharacter(aResponse,' ');
-      GSWResponse_appendContentAsciiString(aResponse,@"name");
-      GSWResponse_appendContentCharacter(aResponse,'=');
-      GSWResponse_appendContentCharacter(aResponse,'"');
-      GSWResponse_appendContentHTMLAttributeValue(aResponse,name);
-      GSWResponse_appendContentCharacter(aResponse,'"');
-    };
-  LOGObjectFnStopC("GSWInput");
-};
+  GSWComponent * component = GSWContext_component(context);
+  if (_value != nil)
+  {
+    id obj = [_value valueInComponent:component];
+    id obj1 = nil;
+    if (obj != nil) {
+      NSString * s = obj; // stringValue?? 
+      [response _appendTagAttribute: value__Key
+                              value: s
+         escapingHTMLAttributeValue: [self _shouldEscapeHTML:component]];
+    }
+  }
+}
 
-@end
-
-//====================================================================
-@implementation GSWInput (GSWInputD)
-
-//--------------------------------------------------------------------
-+(BOOL)hasGSWebObjectsAssociations
+-(void) appendAttributesToResponse:(GSWResponse *) response
+                            inContext:(GSWContext*) context
 {
-  return YES;
-};
+  [super appendAttributesToResponse: response
+                          inContext: context];
 
-@end
+  if ([self disabledInComponent:GSWContext_component(context)]) {
+    GSWResponse_appendContentCharacter(response,' ');
+    GSWResponse_appendContentAsciiString(response, disabled__Key);
+  }
+  [self _appendValueAttributeToResponse: response
+                              inContext: context];
+  [self _appendNameAttributeToResponse: response
+                             inContext: context];
+}
 
-//====================================================================
-@implementation GSWInput (GSWInputE)
 
-//GSWeb additions {
--(void)handleValidationException:(NSException*)exception
-                       inContext:(GSWContext*)aContext
+-(void)dealloc
 {
-  BOOL isValidationException=[exception isValidationException];
-  BOOL raise=YES;
-  LOGObjectFnStartC("GSWInput");
-  if (isValidationException)
-    {				  
-      GSWComponent* component=GSWContext_component(aContext);
-      id handleValidationException=[handleValidationException valueInComponent:component];
-      BOOL handle=NO;
-      if (!handleValidationException)
-        {
-          handleValidationException = [component handleValidationExceptionDefault];
-        };
-      if (handleValidationException)
-        {
-          if ([handleValidationException isEqualToString:@"handleAndRaise"])
-            {
-              handle=YES;
-              raise=YES;
-            }
-          else if ([handleValidationException isEqualToString:@"handle"])
-            {
-              handle=YES;
-              raise=NO;
-            }
-          else if ([handleValidationException isEqualToString:@"raise"])
-            {
-              handle=NO;
-              raise=YES;
-            }
-          else
-            {
-              NSDebugMLog(@"Unknown case for handleValidationException  %@",handleValidationException);
-            };
-        };
-      if (handle)
-        {
-          NSDebugMLog(@"Handled validation exception %@",exception);
-          [component setValidationFailureMessage:[[exception userInfo]objectForKey:@"message"]
-                     forElement:self];
-        }
-      else
-        {
-          NSDebugMLog(@"Unhandled validation exception %@",exception);
-        };
-    };
-  if (raise)
-    {
-      NSDebugMLog(@"Raise exception %@",exception);
-      exception=ExceptionByAddingUserInfoObjectFrameInfo0(exception,@"handleValidationException:inContext");
-      [exception raise];
-    };
-  LOGObjectFnStopC("GSWInput");
-};
-// }
+  DESTROY(_disabled);
+  DESTROY(_name);
+  DESTROY(_value);
+  DESTROY(_escapeHTML);
+
+  [super dealloc];
+}
+
 @end

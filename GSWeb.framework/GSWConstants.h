@@ -296,7 +296,10 @@ GSWEB_EXPORT NSString* GSWTag_Name[2];
 //====================================================================
 // Components Keys
 
+GSWEB_EXPORT id post__Key;
+GSWEB_EXPORT id method__Key;
 GSWEB_EXPORT id value__Key;
+GSWEB_EXPORT id valueWhenEmpty__Key;
 GSWEB_EXPORT id action__Key;
 GSWEB_EXPORT id name__Key;
 GSWEB_EXPORT id disabled__Key;
@@ -362,6 +365,7 @@ GSWEB_EXPORT id directActionName__Key;
 GSWEB_EXPORT id file__Key;
 GSWEB_EXPORT id data__Key;
 GSWEB_EXPORT id mimeType__Key;
+GSWEB_EXPORT id type__Key;
 GSWEB_EXPORT id key__Key;
 GSWEB_EXPORT id selectedValue__Key;
 GSWEB_EXPORT id noSelectionString__Key;
@@ -392,6 +396,7 @@ GSWEB_EXPORT id pageDesign__Key;
 GSWEB_EXPORT id imageMapString__Key;
 GSWEB_EXPORT id imageMapRegions__Key;
 GSWEB_EXPORT id handleValidationException__Key;
+// at least this one exists on WO too. dave w.
 GSWEB_EXPORT id selectedValues__Key;
 GSWEB_EXPORT id startIndex__Key;
 GSWEB_EXPORT id stopIndex__Key;

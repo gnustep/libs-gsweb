@@ -45,5 +45,34 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
     };
 };
 
+@interface GSWComponentDefinition (PrivateDeclarations)
+
+- (void) _checkInComponentInstance:(GSWComponent*) component;
+
+- (void) finishInitializingComponent:(GSWComponent*)component;
+
+- (void) _clearCache;
+
+@end
+
+@interface GSWApplication (PrivateDeclarations)
+
+-(GSWComponentDefinition*) _componentDefinitionWithName:(NSString*)aName
+                                              languages:(NSArray*)languages;
+
+@end
+
+@interface GSWAssociation (PrivateDeclarations)
+
+- (BOOL)_hasBindingInParent:(GSWComponent*) parent;
+
+@end
+
+@interface GSWInput (PrivateDeclarations)
+
+- (void) _appendNameAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*)context;
+@end
+
 
 #endif // _GSWPrivate_h__

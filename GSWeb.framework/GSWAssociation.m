@@ -51,6 +51,8 @@ static NSDictionary* localMinMaxDictionary=nil;
 static NSMutableDictionary* associationsHandlerClasses=nil;
 static NSLock* associationsLock=nil;
 static NSMutableArray* associationsLogsHandlerClasses=nil;
+static Class NSNumberClass = Nil;
+static Class NSStringClass = Nil;
 
 //====================================================================
 @implementation GSWAssociation
@@ -60,6 +62,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if (self==[GSWAssociation class])
     {
       associationsLock=[NSLock new];
+      NSNumberClass = [NSNumber class];
+      NSStringClass = [NSString class];
 
       if (!localMinMaxDictionary)
         {
@@ -106,6 +110,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   DESTROY(associationsHandlerClasses);
   DESTROY(associationsLogsHandlerClasses);
   DESTROY(associationsLock);
+  
+  [super dealloc];
 };
 
 //--------------------------------------------------------------------
@@ -115,6 +121,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if ((self=[super init]))
     {
     };
+  _negate = NO;
+  
   return self;
 };
 
@@ -125,6 +133,23 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   DESTROY(_declarationType);
   [super dealloc];
 };
+
+
+// YES if we negate the result before returnig it.
+-(BOOL)negate
+{
+  return _negate;
+}
+
+-(void) setNegate:(BOOL) yn
+{
+  _negate = yn;
+}
+
+- (BOOL)_hasBindingInParent:(GSWComponent*) parent
+{
+  return YES;
+}
 
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone;
@@ -140,7 +165,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  GSWLogAssertGood(self);
   LOGObjectFnNotImplemented();	//TODOFN
   return [super description];
 };
@@ -168,9 +192,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 -(BOOL)isValueConstant 
 {
-  //OK
-  [self subclassResponsibility:_cmd];
-  return NO;
+  return YES;
 };
 
 //--------------------------------------------------------------------
@@ -178,10 +200,19 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 
 - (BOOL)isValueSettable 
 {
-  //OK
-  [self subclassResponsibility:_cmd];
   return NO;
-};
+}
+
+- (BOOL) isValueSettableInComponent:(GSWComponent*) comp
+{
+  return [self isValueSettable];
+}
+
+- (BOOL) isValueConstantInComponent:(GSWComponent*) comp
+{
+  return [self isValueConstant];
+}
+
 
 //--------------------------------------------------------------------
 //	setValue:inComponent:
@@ -200,27 +231,83 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   return [self subclassResponsibility:_cmd];
 };
 
+// added in WO5?
+// they call it booleanValueInComponent:
+- (BOOL) boolValueInComponent:(GSWComponent*)component
+{
+  id value = [self valueInComponent: component];
+  int  length = 0;
+  int  intVal = 0;
+  NSString * tmpStr = nil;
+  
+  if (! value) {
+   if (_negate) {
+     return YES;
+   }
+    return NO;
+  }
+  if ([value isKindOfClass: NSNumberClass]) {
+   if (_negate) {
+     return (! [value boolValue]);
+   }  
+    return [value boolValue];
+  }
+  if ([value isKindOfClass: NSStringClass]) {
+    length = [value length];
+    if ((length >= 2) && (length <= 5)) {
+      tmpStr = [value lowercaseString];
+      if ([tmpStr isEqual:@"no"] || [tmpStr isEqual:@"false"]  || [tmpStr isEqual:@"nil"] || [tmpStr isEqual:@"null"]) {
+       if (_negate) {
+         return YES;
+       }      
+        return NO;
+      }
+    }
+    if ([tmpStr isEqual:@"0"]) {
+       if (_negate) {
+         return YES;
+       }          
+       return NO;
+    }
+    if (_negate) {
+      return NO;
+    }              
+    return YES;
+  }
+  if (_negate) {
+    return NO;
+  }              
+  
+  return YES;
+}
 
-@end
 
-//====================================================================
-@implementation GSWAssociation (GSWAssociationCreation)
 //--------------------------------------------------------------------
 //	associationWithKeyPath:
 
 +(GSWAssociation*)associationWithKeyPath:(NSString*)keyPath
 {
-  //OK
-  if (keyPath)
-    {
-      if ([keyPath hasPrefix:@"^"]
-          || (!WOStrictFlag && [keyPath hasPrefix:@"~"]))
-        return [[[GSWBindingNameAssociation alloc]initWithKeyPath:keyPath] autorelease];
-      else
-        return [[[GSWKeyValueAssociation alloc]initWithKeyPath:keyPath] autorelease];
+  GSWAssociation  * newAssoc = nil;
+  BOOL              doNegate = NO;
+  NSString        * newPath  = keyPath;
+  
+  if (newPath) {
+    doNegate = [newPath hasPrefix:@"!"];
+    if (doNegate) {
+      newPath = [newPath stringByDeletingPrefix:@"!"];
     }
-  else
-    return nil;
+    if ([newPath hasPrefix:@"^"] || (!WOStrictFlag && [newPath hasPrefix:@"~"])) {
+      newAssoc = [[[GSWBindingNameAssociation alloc] initWithKeyPath: newPath] autorelease];
+    } else {
+      newAssoc = [[[GSWKeyValueAssociation alloc]initWithKeyPath: newPath] autorelease];
+    }
+    if (doNegate) {
+      [newAssoc setNegate:YES];               // default is NO so we may safe a call here
+    }
+    return newAssoc;
+  }
+
+  return nil;
 };
 
 
@@ -239,8 +326,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 +(GSWAssociation*)associationFromString:(NSString*)string
 {
   GSWAssociation* assoc=nil;
-  LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"string=[%@]",string);
+
   if ([string length]<=0)
     assoc=[self associationWithValue:string];
   else
@@ -249,24 +335,20 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       if ([trimmedString isEqualToString:NSTYES])
         {
           assoc=[self associationWithValue:GSWNumberYes];
-          NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
         }
       else if ([trimmedString isEqualToString:NSTNO])
         {
           assoc=[self associationWithValue:GSWNumberNo];
-          NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
         }
       else if ([trimmedString hasPrefix:@"^"])
         {
           assoc=[self associationWithKeyPath:trimmedString];
-          NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
         }
       else if ([trimmedString hasPrefix:@"\""])
         {
           if ([trimmedString hasSuffix:@"\""])
             {
               assoc=[self associationWithValue:[[trimmedString stringByDeletingPrefix:@"\""] stringByDeletingSuffix:@"\""]];
-              NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
             }
           else
             {
@@ -279,11 +361,10 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           if ([trimmedString hasSuffix:@"\'"])
             {
               assoc=[self associationWithValue:[[trimmedString stringByDeletingPrefix:@"\'"] stringByDeletingSuffix:@"\'"]];
-              NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
             }
           else
             {
-              ExceptionRaise(@"GSWAssociation",@"String '%@' start with a character ' but doesn't finish with a character '",
+              ExceptionRaise(@"GSWAssociation",@"String '%@' starts with a \"'\" but does not end with a \"'\"",
                              trimmedString);
             };
         }
@@ -294,7 +375,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           const char* cString=[numberString cString];//TODO
           char* endPtr=NULL;
           int value=strtol(cString,&endPtr,16);
-          NSDebugMLLog(@"associations",@"value=[%d]",value);
           if (endPtr && *endPtr)
             {
               ExceptionRaise(@"GSWAssociation",@"String '%@' start with a '#' but doesn't countain an hexadecimal number (on %dth Character)",
@@ -306,11 +386,9 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       else
         {
           NSNumber* limit=[localMinMaxDictionary objectForKey:trimmedString];
-          NSDebugMLLog(@"associations",@"limit=[%@]",limit);
           if (limit)
             {
               assoc=[self associationWithValue:limit];
-              NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
             }
           else
             {
@@ -318,12 +396,10 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
               NSRange firstCharRange=[trimmedString rangeOfCharacterFromSet:cset
                                                     options:0
                                                     range:NSMakeRange(0,1)];
-              NSDebugMLLog(@"associations",@"firstCharRange.length=%d firstCharRange.location=%d ",
-                           firstCharRange.length,firstCharRange.location);
+
               if (firstCharRange.length==0 || firstCharRange.location!=0)
                 {
                   assoc=[self associationWithKeyPath:trimmedString];
-                  NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
                 }
               else
                 {
@@ -331,11 +407,9 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                   const char* cString=[trimmedString cString];//TODO
                   char* endPtr=NULL;
                   int value=strtol(cString,&endPtr,10);
-                  NSDebugMLLog(@"associations",@"value=[%d]",value);
+
                   if (endPtr && *endPtr)
                     {
-                      NSDebugMLLog(@"associations",@"endPtr=[%s]",endPtr);
-                      NSDebugMLLog(@"associations",@"value=[%d]",value);
                       ExceptionRaise(@"GSWAssociation",
                                      @"String '%@' must be a good number",
                                      trimmedString);
@@ -345,21 +419,13 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
             };
         };
     };
-  NSDebugMLLog(@"associations",@"assoc=[%@]",assoc);
-  LOGClassFnStop();
   return assoc;
 };
 
-@end
-//====================================================================
-@implementation GSWAssociation (GSWAssociationHandlers)
 //--------------------------------------------------------------------
 +(void)setClasse:(Class)class
       forHandler:(NSString*)handler
 {
-  LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"class=%@",class);
-  NSDebugMLLog(@"associations",@"handler=%@",handler);
   LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
   if (!associationsHandlerClasses)
     {
@@ -372,14 +438,11 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   else if (associationsHandlerClasses)
     [associationsHandlerClasses removeObjectForKey:handler];
   LoggedUnlock(associationsLock);
-  LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------
 +(void)addLogHandlerClasse:(Class)class
 {
-  LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"class=%@",class);
   LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
   if (!associationsLogsHandlerClasses)
     {
@@ -389,14 +452,11 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   if (class)
     [associationsLogsHandlerClasses addObject:class];
   LoggedUnlock(associationsLock);
-  LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------
 +(void)removeLogHandlerClasse:(Class)class
 {
-  LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"class=%@",class);
   LoggedLockBeforeDate(associationsLock,GSW_LOCK_LIMIT);
   if (associationsHandlerClasses)
     {
@@ -404,10 +464,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         [associationsLogsHandlerClasses removeObject:class];
     };
   LoggedUnlock(associationsLock);
-  LOGClassFnStop();
 };
 
-@end
 /*
 //====================================================================
 @implementation GSWAssociation (GSWAssociationOldFn)
@@ -432,7 +490,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 @end
 */
 //====================================================================
-@implementation GSWAssociation (GSWAssociationA)
 
 //--------------------------------------------------------------------
 -(BOOL)isImplementedForComponent:(NSObject*)component
@@ -440,10 +497,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   return YES;
 };
 
-@end
-
-//====================================================================
-@implementation GSWAssociation (GSWAssociationB)
 
 //--------------------------------------------------------------------
 -(NSString*)keyPath
@@ -575,6 +628,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 };
 
 //--------------------------------------------------------------------
+
 -(void)setDebugEnabledForBinding:(NSString*)bindingName
                  declarationName:(NSString*)declarationName
                  declarationType:(NSString*)declarationType
@@ -604,16 +658,11 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 #endif
     };
   id retValue=nil;
-  LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
-               keyPath,object,[object class],[object superclass]);
   if (keyPath && object && object!=EONullNull)
     {
 #if HAVE_GDL2
       NS_DURING
         {
-          NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
-                       keyPath,object,[object class],[object superclass]);
           retValue=[object valueForKeyPath:keyPath];
         }
       NS_HANDLER
@@ -636,8 +685,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       // the same as on GDL2
       NS_DURING
         {
-          NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
-                       keyPath,object,[object class],[object superclass]);
           retValue=[object valueForKeyPath:keyPath];
         }
       NS_HANDLER
@@ -662,19 +709,12 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       Class handlerClass=Nil;
       retValue=object;
       NSAssert(retValue,@"No Component");
-      NSDebugMLLog(@"associations",@"GSWAssociation: keyPath=%@ object=%p (class: %@. SuperClass=%@)",
-                   keyPath,object,[object class],[object superclass]);
+
       while(retValue && [keys count]>0)
         {
           part=[keys objectAtIndex:0];
           [keys removeObjectAtIndex:0];
-          if (retValue) 
-            {
-              NSDebugMLLog(@"associations",@"object_get_class_name(retValue object)=%s", 
-                           object_get_class_name(retValue));
-            }
-          NSDebugMLLog(@"associations",@"part=%@",part);
-          NSDebugMLLog(@"associations",@"part class=%@",NSStringFromClass([part class]));
+
           if ([part hasPrefix:@"\""])
             {
               part=[part stringByDeletingPrefix:@"\""];
@@ -692,9 +732,8 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                     part=[part stringByAppendingFormat:@".%@",tmpPart];
                 }                        
             }
-          NSDebugMLLog(@"associations",@"part=%@",part);
           handlerClass=[associationsHandlerClasses objectForKey:part];
-          NSDebugMLLog(@"associations",@"_handlerClass=%@",handlerClass);
+
           if (handlerClass)
             retValue=[handlerClass processValueInObject:retValue
                                    forHandler:part
@@ -707,7 +746,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                         keyPath);
               part=[keys objectAtIndex:0];
               [keys removeObjectAtIndex:0];
-              NSDebugMLLog(@"associations",@"part=%@",part);
+
               class=NSClassFromString(part);
               NSAssert3(class>0,@"No class named %@ for handler %@ in %@",
                         part,
@@ -734,9 +773,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
           else
             {
               BOOL skipping = NO;
-              NSDebugMLLog(@"associations",@"call %@ valueForKey:%@",
-                           [retValue class],
-                           part);
+
               NS_DURING
                 {
                   retValue=[retValue valueForKey:part];
@@ -759,16 +796,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
 #endif
 #endif
     };
-  if (retValue) 
-    {
-      NSDebugMLLog(@"associations",@"retValue ptr=%p",retValue);
-      NSDebugMLLog(@"associations",@"retValue=%@",retValue);
-    } 
-  else 
-    {
-      NSDebugMLLog(@"associations",@"retValue=nil");
-    }
-  LOGClassFnStop();
+
   return retValue;
 };
 
@@ -783,18 +811,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   id tmpObject = nil;
   NSString *tmpKey = nil;
   
-  LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@",value);
-  NSDebugMLLog(@"associations",@"value class:%@",[value class]);
-  NSDebugMLLog(@"associations",@"value String class:%@",NSStringFromClass([value class]));
-  NSDebugMLLog(@"associations",@"object String class:%@ superclass=%@",
-               NSStringFromClass([object class]),
-               NSStringFromClass([object superclass]));
-  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath:%@",keyPath);
-
- // NSLog(@"GSWAssociation: setValue:%@ inObject:%@ forKeyPath:%@",value,object,keyPath);
-// ... GSWAssociation: setValue:<Color (0x87be648) name=blau nr=1> inObject:<CartListComponent 0x86fa708> forKeyPath:currentCartArticle.color
-
   if (keyPath) {
     NSRange       r = [keyPath rangeOfString: @"."];
 
@@ -811,8 +827,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       tmpObject = [object valueForKey: key];
       tmpKey = [keyPath substringFromIndex: NSMaxRange(r)];
     }
-    //NSLog(@"GSWAssociation: tmpKey:%@ tmpObject:%@",tmpKey,tmpObject);
-
     if (tmpObject) //&& [object isKindOfClass:[GSWComponent class]]
     {
       NSException* exp = [tmpObject validateValue:&value
@@ -820,6 +834,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       if (exp)
       {
         NSException* exception=nil;
+        
         exception=[NSException exceptionWithName:@"EOValidationException"
                                           reason:[exp reason]
                                         userInfo:[NSDictionary
@@ -839,7 +854,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
       }
     }
   }
-  LOGClassFnStop();
 }
 
 #else // GDL2 or GDL1
@@ -848,14 +862,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
     inComponent:(GSWComponent*)object
      forKeyPath:(NSString*)keyPath
 {
-  LOGClassFnStart();
-  NSDebugMLLog(@"associations",@"GSWAssociation: setValue:%@",value);
-  NSDebugMLLog(@"associations",@"value class:%@",[value class]);
-  NSDebugMLLog(@"associations",@"value String class:%@",NSStringFromClass([value class]));
-  NSDebugMLLog(@"associations",@"object String class:%@ superclass=%@",
-               NSStringFromClass([object class]),
-               NSStringFromClass([object superclass]));
-  NSDebugMLLog(@"associations",@"GSWAssociation: keyPath:%@",keyPath);
   if ([keyPath length]==0)
     {
         [NSException raise:NSInvalidArgumentException 
@@ -876,8 +882,7 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
     {
       part=[keys objectAtIndex:0];
       [keys removeObjectAtIndex:0];
-      NSDebugMLLog(@"associations",@"part=%@",part);
-      NSDebugMLLog(@"associations",@"part class=%@",NSStringFromClass([part class]));
+
       if ([part hasPrefix:@"\""])
         {
           part=[part stringByDeletingPrefix:@"\""];
@@ -895,10 +900,9 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                 part=[part stringByAppendingFormat:@".%@",tmpPart];
             }                        
         }
-      NSDebugMLLog(@"associations",@"part=%@",part);
       
       handlerClass=[associationsHandlerClasses objectForKey:part];
-      NSDebugMLLog(@"associations",@"handlerClass=%@",handlerClass);
+
       if (handlerClass)
         {
           tmpObject=[handlerClass processSetValue:value
@@ -918,7 +922,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
                             keyPath);
                   part=[keys objectAtIndex:0];
                   [keys removeObjectAtIndex:0];
-                  NSDebugMLLog(@"associations",@"part=%@",part);
                   class=NSClassFromString(part);
                   NSAssert3(class>0,@"No class named %@ for handler %@ in %@",
                             part,
@@ -940,8 +943,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
               [tmpObject takeValue:value
                          forKey:part];
 #ifdef HAVE_GDL2
-              NSDebugMLLog(@"associations",@"object class=%@",[object class]);
-              NSDebugMLLog(@"associations",@"tmpObject class=%@",[tmpObject class]);
               // Turbocat
               if (tmpObject && [tmpObject isKindOfClass:[GSWComponent class]]) 
                 {
@@ -968,7 +969,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
         };
     };	  
 #endif
-  LOGClassFnStop();
 };
 
 #endif 
@@ -995,17 +995,14 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   NSEnumerator* enumerator=nil;
   id key=nil;
   id association=nil;
-  LOGObjectFnStart();
   enumerator = [self keyEnumerator];
   while ((key = [enumerator nextObject]))
     {
-      NSDebugMLLog(@"associations",@"key=%@",key);
       association=[self objectForKey:key];
       [association setDebugEnabledForBinding:@""
                    declarationName:key
                    declarationType:@""];	//TODO
     };
-  LOGObjectFnStop();
 };
 
 -(void)associationsSetValuesFromObject:(id)from
@@ -1015,34 +1012,21 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   id key=nil;
   id varValue=nil;
   id var=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"associations",@"from=%@",from);
-  NSDebugMLLog(@"associations",@"to=%@",to);
+
   enumerator = [self keyEnumerator];
   while ((key = [enumerator nextObject]))
     {
-      NSDebugMLLog(@"associations",@"key=%@",key);
-/*      NSAssert2([key isKindOfClass:[GSWAssociation class]],
-                @"key is not an GSWAssociation but a %@: %@",
-                [key class],
-                key);*/
       var=[self objectForKey:key];
-      NSDebugMLLog(@"associations",@"var=%@",var);
-/*      NSAssert2([var isKindOfClass:[GSWAssociation class]],
-                @"Variable is not an GSWAssociation but a %@: %@",
-                [var class],
-                var);*/
       if ([var isKindOfClass:[GSWAssociation class]])
         varValue=[var valueInComponent:from];
       else
         varValue=var;
-      NSDebugMLLog(@"associations",@"varValue=%@",varValue);
+
       if (![key isKindOfClass:[GSWAssociation class]])
         key=[GSWAssociation associationWithKeyPath:key];
       [key setValue:varValue
             inComponent:to];
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1055,27 +1039,23 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   id varKey=nil;
   id varKeyAssociation=nil;
   id value=nil;
-  LOGObjectFnStart();
+
   newAssociation=(NSMutableDictionary*)[NSMutableDictionary dictionary];
   enumerator = [self keyEnumerator];
   while ((key = [enumerator nextObject]))
     {
-      NSDebugMLLog(@"associations",@"key=%@",key);
       if ([key hasPrefix:prefix])
         {
           value=[self objectForKey:key];
-          NSDebugMLLog(@"associations",@"value=%@",value);
           varKey=[key stringByDeletingPrefix:prefix];
-          NSDebugMLLog(@"associations",@"varKey=%@",varKey);
           varKeyAssociation=[GSWAssociation associationWithKeyPath:varKey];
-          NSDebugMLLog(@"associations",@"varKeyAssociation=%@",varKeyAssociation);
           [newAssociation setObject:value
                           forKey:varKeyAssociation];
           [removeFrom removeObjectForKey:key];
         };
     };
   newAssociation=[NSDictionary dictionaryWithDictionary:newAssociation];
-  LOGObjectFnStop();
+
   return newAssociation;
 };
 
@@ -1090,7 +1070,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   while ((key=[enumerator nextObject]))
     {
       value=[self objectForKey:key];
-      NSDebugMLog(@"key=%@ value=%@",key,value);
       if ([value isKindOfClass:[NSString class]])
         {
           newValue=[GSWAssociation associationFromString:value];
@@ -1128,7 +1107,6 @@ static NSMutableArray* associationsLogsHandlerClasses=nil;
   for(i=0;i<count;i++)
     {
       value=[self objectAtIndex:i];
-      NSDebugMLog(@"i=%d value=%@",i,value);
       if ([value isKindOfClass:[NSString class]])
         {
           newValue=[GSWAssociation associationFromString:value];

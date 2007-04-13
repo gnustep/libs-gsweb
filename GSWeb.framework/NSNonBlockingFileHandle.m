@@ -60,9 +60,9 @@
 -(NSData*)availableDataNonBlocking
 {
   NSData* data=nil;
-  LOGObjectFnStart();
+
   data=[self readDataOfLengthNonBlocking: UINT_MAX];
-  LOGObjectFnStop();
+
   return data;
 };
 
@@ -72,17 +72,18 @@
 -(NSData*)readDataToEndOfFileNonBlocking
 {
   NSData* data=nil;
-  LOGObjectFnStart();
+
   data=[self readDataOfLengthNonBlocking: UINT_MAX];
-  LOGObjectFnStop();
+
   return data;
 };
+
 
 -(unsigned int)_availableByteCountNonBlocking
 {
   int numBytes=0;
   int fd = 0;
-  LOGObjectFnStart();
+
   fd=[self fileDescriptor];
 
   if (ioctl(fd, FIONREAD, (char *) &numBytes) == -1)
@@ -91,7 +92,7 @@
       [NSException raise: NSFileHandleOperationException
                    format: @"ioctl() Err # %d", (int)errno];
     };
-  LOGObjectFnStop();
+
   return numBytes;
 };
 
@@ -101,18 +102,15 @@
 {
   NSData* data=nil;
   unsigned int readLength=0;
-  LOGObjectFnStart();
 
   readLength = [self _availableByteCountNonBlocking];
-  NSDebugMLog(@"readLength=%u",readLength);
   readLength = (readLength < length) ? readLength : length;
   
   if (readLength>0)
     {
       data=[self readDataOfLength: readLength];
-      NSDebugMLog(@"[data length]=%u",[data length]);
     };
-  LOGObjectFnStop();
+
   return data;
 }
 

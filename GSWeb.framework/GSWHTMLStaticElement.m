@@ -33,11 +33,19 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-static SEL objectAtIndexSEL = NULL;
+/*
 
+In WO 5 this class is WODynamicGroup I think.
+In WO 4.5 WOHTMLStaticElement.
+
+*/
+
+
+static SEL objectAtIndexSEL = NULL;
 static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
 
 static Class standardClass = Nil;
+static Class GSWHTMLBareStringClass = Nil;
 
 //====================================================================
 @implementation GSWHTMLStaticElement
@@ -48,6 +56,7 @@ static Class standardClass = Nil;
   if (self == [GSWHTMLStaticElement class])
     {
       standardClass=[GSWHTMLStaticElement class];
+      GSWHTMLBareStringClass = [GSWHTMLBareString class];
       objectAtIndexSEL=@selector(objectAtIndex:);
 
       standardEvaluateConditionInContextIMP = 
@@ -266,6 +275,13 @@ static Class standardClass = Nil;
   return _dynamicChildren;
 };
 
+// to be compatible with GSWDynamicGroup.
+// do we have to add htmlBareStrings also? dw
+-(NSArray*) childrenElements
+{
+  return _dynamicChildren;
+};
+
 //--------------------------------------------------------------------
 -(NSArray*)htmlBareStrings
 {
@@ -295,18 +311,21 @@ static Class standardClass = Nil;
 };
 
 //--------------------------------------------------------------------
+
+- (BOOL) hasChildrenElements
+{
+  return ([_elementsMap length] > 0);
+}
+
 -(NSString*)description
 {
-  return [NSString stringWithFormat:@"<%@ %p elementsMap:%@>",
+
+  return [NSString stringWithFormat:@"<%@ %p elementName:%@ htmlBareStrings:%@ dynamicChildren:%@ elementsMap:%@>",
 				   [self class],
-				   (void*)self,
+				   (void*)self, _elementName, _htmlBareStrings, _dynamicChildren,
 				   _elementsMap];
 };
 
-@end
-
-//====================================================================
-@implementation GSWHTMLStaticElement (GSWHTMLStaticElementA)
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
@@ -315,19 +334,23 @@ static Class standardClass = Nil;
   int length=0;
   //GSWRequest* request=[aContext request];
   //not used BOOL isFromClientComponent=[request isFromClientComponent]; //bis repetitam
-  GSWStartElement(aContext);
-  GSWSaveAppendToResponseElementID(aContext);
+//  GSWStartElement(aContext);
+//  GSWSaveAppendToResponseElementID(aContext);
 
   length=[_elementsMap length];
-  if (length>0)
-    {
-      [self appendToResponse:response
-            inContext:aContext
-            elementsFromIndex:0
-            toIndex:length-1];
-    };
-  GSWAssertIsElementID(aContext);
-  GSWStopElement(aContext);
+  [aContext appendZeroElementIDComponent];
+  
+  if (length>0) {
+   [self appendToResponse:response
+         inContext:aContext
+         elementsFromIndex:0
+         toIndex:length-1];
+  };
+
+ [aContext deleteLastElementIDComponent];
+    
+//  GSWAssertIsElementID(aContext);
+//  GSWStopElement(aContext);
 };
 
 //--------------------------------------------------------------------
@@ -398,6 +421,7 @@ static Class standardClass = Nil;
 };
 
 //--------------------------------------------------------------------
+  
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)aContext
 {
@@ -406,23 +430,23 @@ static Class standardClass = Nil;
   NSString* senderID=nil;
   int length=0;
 
-  LOGObjectFnStart();
-
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);// Debug Only
 
   senderID=GSWContext_senderID(aContext);
 
   length=[_elementsMap length];
 
-  if (length>0)
-    {
+  if ([self hasChildrenElements])  {
       IMP objectAtIndexIMP = NULL;
       NSArray* aDynamicChildrensArray=[self dynamicChildren];
       const BYTE* elements=[_elementsMap bytes];
       BYTE elementIndic=0;
       int elementsN[3]={0,0,0};
       int elementN=0;
+
+id currentEl = nil;
+
+      [aContext appendZeroElementIDComponent];
+      
       for(elementN=0;!element && !searchIsOver && elementN<length;elementN++)
         {
           elementIndic=(BYTE)elements[elementN];
@@ -433,16 +457,21 @@ static Class standardClass = Nil;
               if (!objectAtIndexIMP)
                 objectAtIndexIMP = [aDynamicChildrensArray methodForSelector:objectAtIndexSEL];
 
-              element=[(*objectAtIndexIMP)(aDynamicChildrensArray,objectAtIndexSEL,elementsN[1])
-                                          invokeActionForRequest:request
-                                          inContext:aContext];
+                 currentEl = (*objectAtIndexIMP)(aDynamicChildrensArray,objectAtIndexSEL,elementsN[1]);
+                 if ([currentEl class] != GSWHTMLBareStringClass) {
 
-              NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
-                        @"From: %@, Element is a %@ not a GSWElement: %@",
-                        [aDynamicChildrensArray objectAtIndex:elementsN[1]],
-                        [element class],
-                        element);
-              if (![aContext _wasFormSubmitted] && GSWContext_isSenderIDSearchOver(aContext))
+                   element=[currentEl invokeActionForRequest:request
+                                                   inContext:aContext];
+     
+                   NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
+                             @"From: %@, Element is a %@ not a GSWElement: %@",
+                             [aDynamicChildrensArray objectAtIndex:elementsN[1]],
+                             [element class],
+                             element);
+                 }
+// TODO: check if that is right.                 
+//              if (![aContext _wasFormSubmitted] && GSWContext_isSenderIDSearchOver(aContext))
+              if (![aContext _wasFormSubmitted] && (element))
                 {
                   searchIsOver=YES;
                 };
@@ -456,12 +485,8 @@ static Class standardClass = Nil;
               elementsN[2]++;
             };
         };
+        [aContext deleteLastElementIDComponent];
     };
-
-  GSWAssertIsElementID(aContext);
-  GSWStopElement(aContext);
-
-  LOGObjectFnStop();
 
   return element;
 };
@@ -477,14 +502,16 @@ static Class standardClass = Nil;
   GSWAssertCorrectElementID(aContext);
 
   length=[_elementsMap length];
-  if (length>0)
-    {
+  if ([self hasChildrenElements])  {
+
       IMP objectAtIndexIMP = NULL;
       int elementN=0;
       NSArray* aDynamicChildrensArray=[self dynamicChildren];
       const BYTE* elements=[_elementsMap bytes];
       BYTE elementIndic=0;
       int elementsN[3]={0,0,0};
+
+      [aContext appendZeroElementIDComponent];
 
       for(elementN=0;elementN<length;elementN++)
         {
@@ -509,16 +536,13 @@ static Class standardClass = Nil;
               elementsN[2]++;
             };
         };
+      [aContext deleteLastElementIDComponent];
     };
   GSWAssertIsElementID(aContext);
   GSWStopElement(aContext);
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWHTMLStaticElement (GSWHTMLStaticElementB)
 
 //--------------------------------------------------------------------
 -(BOOL)compactHTMLTags
@@ -550,11 +574,6 @@ static Class standardClass = Nil;
   return NO;
 };
 
-@end
-
-//====================================================================
-@implementation GSWHTMLStaticElement (GSWHTMLStaticElementC)
-
 //--------------------------------------------------------------------
 +(BOOL)charactersNeedingQuotes
 {
@@ -575,11 +594,6 @@ static Class standardClass = Nil;
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
 };
-
-@end
-
-//====================================================================
-@implementation GSWHTMLStaticElement (GSWHTMLStaticElementD)
 
 //--------------------------------------------------------------------
 +(NSDictionary*)attributeDictionaryForString:(NSString*)string
@@ -603,11 +617,6 @@ static Class standardClass = Nil;
   LOGClassFnNotImplemented();	//TODOFN
   return nil;
 };
-
-@end
-
-//====================================================================
-@implementation GSWHTMLStaticElement (GSWHTMLStaticElementE)
 
 //--------------------------------------------------------------------
 +(GSWElement*)elementWithName:(NSString*)name

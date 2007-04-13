@@ -36,38 +36,11 @@
 
 
 //====================================================================
-@interface GSWConditional: GSWDynamicElement
+@interface GSWConditional: GSWDynamicGroup
 {
   GSWAssociation* _condition;
-//GSWeb Additions {
-  GSWAssociation* _value;
-  GSWAssociation* _conditionValue;
-// }
   GSWAssociation* _negate;
-  GSWHTMLStaticGroup* _childrenGroup;
 };
-
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement;
-
--(NSString*)description;
--(void)dealloc;
-@end
-
-//====================================================================
-@interface GSWConditional (GSWConditionalA)
--(void)appendToResponse:(GSWResponse*)aResponse
-			  inContext:(GSWContext*)aContext;
-
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext;
-
--(void)takeValuesFromRequest:(GSWRequest*)aRequest
-                   inContext:(GSWContext*)aContext; 
 
 @end
 

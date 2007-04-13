@@ -36,122 +36,49 @@
 
 
 //====================================================================
-@interface GSWHTMLDynamicElement: GSWDynamicElement
+@interface GSWHTMLDynamicElement: GSWDynamicGroup
 {
-  NSData* _elementsMap;
-  NSArray* _htmlBareStrings;
-  NSArray* _dynamicChildren;
-  NSArray* _attributeAssociations;
-};
--(NSString*)elementName;
--(NSArray*)dynamicChildren;
--(NSArray*)htmlBareStrings;
--(NSData*)elementsMap;
--(NSArray*)attributeAssociations;
+  NSString            * _elementName;
+  NSMutableDictionary * _nonURLAttributeAssociations;
+  NSMutableDictionary * _urlAttributeAssociations;
+  NSString            * _constantAttributesRepresentation;
+  NSMutableDictionary * _associations;
+  BOOL                  _finishedInitialization;
+}
 
--(id)_initWithElementsMap:(NSData*)elementsMap
-          htmlBareStrings:(NSArray*)htmlBareStrings
-          dynamicChildren:(NSArray*)dynamicChildren
-    attributeAssociations:(NSArray*)attributeAssociations;
+- (NSDictionary*) computeQueryDictionaryWithActionClassAssociation: (GSWAssociation*)actionClass
+                                       directActionNameAssociation: (GSWAssociation*)directActionName
+                                        queryDictionaryAssociation: (GSWAssociation*)queryDictionary
+                                            otherQueryAssociations: (NSDictionary*)otherQueryAssociations 
+                                                         inContext: (GSWContext*)context;
 
--(id)initWithName:(NSString*)elementName
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
-
--(id)initWithName:(NSString*)elementName
-attributeAssociations:(NSDictionary*)attributeAssociations
-  contentElements:(NSArray*)elements;
-
--(id)initWithName:(NSString*)elementName
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement;
-
--(void)dealloc;
-
--(void)_setEndOfHTMLTag:(unsigned int)unknown;
-
--(NSString*)description;
--(void)setHtmlBareStrings:(NSArray*)htmlBareStrings;
-
-@end
-
-//====================================================================
-@interface GSWHTMLDynamicElement (GSWHTMLDynamicElementA)
--(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
-                                      inContext:(GSWContext*)aContext;
--(unsigned int)GSWebObjectsAssociationsCount;
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext;
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
-      elementsFromIndex:(unsigned int)fromIndex
-                toIndex:(unsigned int)toIndex;
-
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext;
-
--(void)takeValuesFromRequest:(GSWRequest*)aRequest
-                   inContext:(GSWContext*)aContext; 
-@end
-
-//====================================================================
-@interface GSWHTMLDynamicElement (GSWHTMLDynamicElementB)
--(BOOL)compactHTMLTags;
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
--(BOOL)appendStringAtLeft:(id)unkwnon
-              withMapping:(char*)mapping;
--(BOOL)canBeFlattenedAtInitialization;
-@end
-
-//====================================================================
-@interface GSWHTMLDynamicElement (GSWHTMLDynamicElementC)
-+(void)setDynamicElementCompaction:(BOOL)flag;
-+(BOOL)escapeHTML;
-+(BOOL)hasGSWebObjectsAssociations;
-@end
-
-//====================================================================
-@interface GSWHTMLDynamicElement (GSWHTMLDynamicElementD)
 -(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
-                              directActionNameAssociation:(GSWAssociation*)directActionName
-                                                inContext:(GSWContext*)context;
--(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
-                              directActionNameAssociation:(GSWAssociation*)directActionName
-                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
-                                                inContext:(GSWContext*)context;
--(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
-                              directActionNameAssociation:(GSWAssociation*)directActionName
-                           pathQueryDictionaryAssociation:(GSWAssociation*)pathQueryDictionaryAssociation
-                               otherPathQueryAssociations:(NSDictionary*)otherPathQueryAssociations
-                                                inContext:(GSWContext*)context;
--(NSDictionary*)computeQueryDictionaryWithActionClassAssociation:(GSWAssociation*)actionClass
-                                     directActionNameAssociation:(GSWAssociation*)directActionName
-                                      queryDictionaryAssociation:(GSWAssociation*)queryDictionary
-                                          otherQueryAssociations:(NSDictionary*)otherQueryAssociations
-                                                       inContext:(GSWContext*)context;
-@end
+                             directActionNameAssociation:(GSWAssociation*)directActionName
+                                               inContext:(GSWContext*)context;
 
-//====================================================================
-@interface GSWHTMLDynamicElement (GSWHTMLDynamicElementCID)
+-(void) appendNonURLAttributesToResponse:(GSWResponse*) response
+                               inContext:(GSWContext*) context;
 
--(NSString*)addCIDElement:(NSDictionary*)cidElement
-                   forKey:(NSString*)cidKeyValue
-   forCIDStoreAssociation:(GSWAssociation*)cidStore
-                inContext:(GSWContext*)aContext;
+-(void) appendURLAttributesToResponse:(GSWResponse*) response
+                            inContext:(GSWContext*) context;
+                                                         
+-(void) appendConstantAttributesToResponse:(GSWResponse*) response
+                                 inContext:(GSWContext*)aContext;
 
--(NSString*)addURL:(NSString*)url
-forCIDKeyAssociation:(GSWAssociation*)cidKey
-CIDStoreAssociation:(GSWAssociation*)cidStore
-         inContext:(GSWContext*)aContext;
+-(void) appendAttributesToResponse:(GSWResponse *) response
+                            inContext:(GSWContext*) context;
 
--(NSString*)addURLValuedElementData:(GSWURLValuedElementData*)data
-               forCIDKeyAssociation:(GSWAssociation*)cidKey
-                CIDStoreAssociation:(GSWAssociation*)cidStore
-                          inContext:(GSWContext*)aContext;
--(NSString*)addPath:(NSString*)path
-forCIDKeyAssociation:(GSWAssociation*)cidKey
-CIDStoreAssociation:(GSWAssociation*)cidStore
-          inContext:(GSWContext*)aContext;
+-(void) _appendOpenTagToResponse:(GSWResponse *) response
+                       inContext:(GSWContext*) context;
+
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context;
+                            
+- (NSString*) constantAttributesRepresentation;
+
+- (NSString*) _frameworkNameForAssociation: (GSWAssociation*)association 
+                               inComponent: (GSWComponent *) component;
+- (NSString*) elementName;
+
 @end
 #endif

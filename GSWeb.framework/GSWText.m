@@ -37,17 +37,23 @@ RCS_ID("$Id$")
 @implementation GSWText
 
 //--------------------------------------------------------------------
--(id)initWithName:(NSString*)name
+-(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+         template:(GSWElement*)template
 {
-  if ((self=[super initWithName:name
-                   associations:associations
-                   contentElements:nil]))
-    {
-    };
+  self = [super initWithName:@"textarea" associations:associations template: nil];
+  if (!self) {
+    return nil;
+  }
+
+  if ((_value == nil) || (![_value isValueSettable])) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: 'value' attribute not present or is a constant",
+                            __PRETTY_FUNCTION__];
+  }
+
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
@@ -66,47 +72,69 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)elementName
 {
-  return @"TEXTAREA";
+  return @"textarea";
 };
 
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
 {
-  //OK
-  //GSWRequest* request=[aContext request];
-  NSString* valueValue=nil;
-  NSString* valueValueFiltered=nil;
-  //not used BOOL isFromClientComponent=[request isFromClientComponent];
-  GSWComponent* component=GSWContext_component(aContext);
-  [super appendToResponse:aResponse
-		 inContext:aContext];
-  valueValue=[_value valueInComponent:component];
-  valueValueFiltered=[self _filterSoftReturnsFromString:valueValue];
-  GSWResponse_appendContentHTMLString(aResponse,valueValueFiltered);
-  GSWResponse_appendContentAsciiString(aResponse,@"</TEXTAREA>");
-};
+  id         resultValue = nil;
 
-//--------------------------------------------------------------------
+  GSWComponent * component = GSWContext_component(context);
+  
+  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
+    NSString * nameCtx = [self nameInContext:context];
+    if (nameCtx != nil) {
+      [_value setValue: [request stringFormValueForKey: nameCtx]
+           inComponent:component];
+    }
+  }
+}
+
+-(void) _appendValueAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*) context
+{
+// nothing!
+}
+
 // Replace \r\n by \n
 -(NSString*)_filterSoftReturnsFromString:(NSString*)string
 {
-  NSRange range=[string rangeOfString:@"\r\n"];
-  if (range.length>0)
-    string=[string stringByReplacingString:@"\r\n"
-                   withString:@"\n"];
-  return string;
+  NSRange range;
+  NSMutableString * myTmpStr = nil;
+  unsigned len = 0;
+  
+  if (!string) {
+    return nil;
+  }
+  len = [string length];
+  if (len<1) {
+    return string;
+  }
+ 
+  myTmpStr = [NSMutableString stringWithCapacity: len];
+  [myTmpStr setString: string];
+  
+  while (YES) {
+    range = [myTmpStr rangeOfString:@"\r\n"];
+    if (range.length>0) {
+      [myTmpStr replaceCharactersInRange: range withString:@"\n"];
+    } else {
+      break;
+    }
+  }
+  return [NSString stringWithString: myTmpStr];
 };
 
-@end
 
-//====================================================================
-@implementation GSWText (GSWTextA)
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping
+-(void) appendChildrenToResponse:(GSWResponse*) response
+                       inContext:(GSWContext*) context
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
-};
+  id valueValue = [_value valueInComponent:GSWContext_component(context)];
+  if (valueValue != nil) {
+    GSWResponse_appendContentHTMLString(response, [self _filterSoftReturnsFromString:valueValue]);
+  }
+}
+
 
 @end

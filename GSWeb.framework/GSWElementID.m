@@ -239,9 +239,6 @@ New parts is stored id *partsPtr and new allocated parts count in *allocatedPart
 **/
 void GSWElementIDRealloc(GSWElementIDPart** partsPtr,int* allocatedPartsCountPtr,int allocPartsCount)
 {
-  NSDebugFLLog(@"GSWElementID",
-               @"*partsPtr=%p *allocatedPartsCountPtr=%d allocPartsCount=%d",
-               *partsPtr,*allocatedPartsCountPtr,allocPartsCount);
 
   //Really need ?  
   if (allocPartsCount>*allocatedPartsCountPtr)
@@ -254,8 +251,6 @@ void GSWElementIDRealloc(GSWElementIDPart** partsPtr,int* allocatedPartsCountPtr
       NSCAssert2(newParts,@"Can't alloc %d parts (allocSize bytes)",
                  allocPartsCount,
                  allocSize);
-      NSDebugFLLog(@"GSWElementID",@"allocSize=%d newParts=%p",
-                   allocSize,newParts);
 
       if ((*allocatedPartsCountPtr)>0)
         {
@@ -272,9 +267,6 @@ void GSWElementIDRealloc(GSWElementIDPart** partsPtr,int* allocatedPartsCountPtr
 
       *allocatedPartsCountPtr=allocPartsCount;
       *partsPtr=newParts;
-      NSDebugFLLog(@"GSWElementID",
-                   @"==> *partsPtr=%p *allocatedPartsCountPtr=%d",
-                   *partsPtr,*allocatedPartsCountPtr);
     };
 };
 
@@ -328,9 +320,6 @@ partsCount is the number of parts to allocate
   unichar* ptr=NULL;
   unichar* stringEndPtr=NULL;
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"GSWElementID",@"string=%@",string);
 
   length=[string length];
   if (length>0)
@@ -352,13 +341,10 @@ partsCount is the number of parts to allocate
           ptr++;
         };
 
-      NSDebugMLLog(@"GSWElementID",@"partsCount=%d",partsCount);
       partsCount+=16; // keeps space for extensions
     }
   else
     partsCount=GSWElementID_DefaultElementPartsCount;
-
-  NSDebugMLLog(@"GSWElementID",@"partsCount=%d",partsCount);
 
   if ((self=[self initWithPartsCountCapacity:partsCount]))
     {
@@ -379,12 +365,6 @@ partsCount is the number of parts to allocate
               
               ptr=startPartPtr;
               endPartPtr=NULL; // end part pointer
-
-              NSDebugMLLog(@"GSWElementID",@"stringChars=%p stringEndPtr=%p length=%d startPartPtr=%p",
-                           stringChars,stringEndPtr,length,startPartPtr);
-              NSDebugMLLog(@"GSWElementID",@"Starting partString=%@",
-                           [NSString stringWithCharacters:startPartPtr
-                                     length:stringEndPtr-startPartPtr]);
 
               while(ptr<stringEndPtr)
                 {
@@ -414,14 +394,6 @@ partsCount is the number of parts to allocate
               // no '.' found ==> last part
               if (!endPartPtr)
                 endPartPtr=stringEndPtr-1;
-
-              NSDebugMLLog(@"GSWElementID",@"startPartPtr=%p endPartPtr=%p",
-                           startPartPtr,endPartPtr);
-
-              NSDebugMLLog(@"GSWElementID",@"part=%@ isAllNumeric=%d numericIndexPtr=%p number=%d",
-                           [NSString stringWithCharacters:startPartPtr
-                                     length:endPartPtr-startPartPtr+1],
-                           isAllNumeric,numericIndexPtr,number);
               
               // Entirely numeric ?
               if (isAllNumeric)
@@ -443,8 +415,6 @@ partsCount is the number of parts to allocate
               //We could also build part elementIDString but I'm not sure it's interesting as 
               //initializing GSWElementID from string is mainly to be used for 'statics' elementIDs
               //Assigning _elementIDString at the end should be sufficient.
-              NSDebugMLLog(@"GSWElementID",@"Part #%d: %@",
-                           _partsCount,GSWElementIDPartDescription(part));
               
               _partsCount++;
               part++;
@@ -452,11 +422,7 @@ partsCount is the number of parts to allocate
             };
         };
     };      
-  NSDebugMLLog(@"GSWElementID",@"string: %@ => elementIDString=%@",
-              string,[self elementIDString]);
   ASSIGN(_elementIDString,string);
-
-  LOGObjectFnStop();
 
   return self;
 };
@@ -465,9 +431,6 @@ partsCount is the number of parts to allocate
 /** dealloc object **/
 -(void)dealloc
 {
-  LOGObjectFnStart();
-
-  GSWLogAssertGood(self);
 
   if (_allocatedPartsCount>0)
     {
@@ -489,7 +452,6 @@ partsCount is the number of parts to allocate
   DESTROY(_isSearchOverLastSenderID);
 
   [super dealloc];
-  GSWLogMemC("GSWElementID end of dealloc");
 };
 
 //--------------------------------------------------------------------
@@ -552,11 +514,6 @@ For better performences, senderID should be an immutable string
 {
   BOOL over=NO;
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"GSWElementID",@"senderID=%@",senderID);
-  NSDebugMLLog(@"GSWElementID",@"onParentFlag=%d",onParentFlag);
-
   if (senderID == nil)
     [NSException raise:NSInvalidArgumentException
                  format:@"compare with nil"];
@@ -574,12 +531,11 @@ For better performences, senderID should be an immutable string
       else
         {
           senderElementID=[[self class]elementIDWithString:senderID];
-          NSDebugMLLog(@"GSWElementID",@"senderElementID=%@",senderElementID);
 
           //Cache it if it is not mutable
           if ([senderID isKindOfClass:[NSMutableString class]])
             {
-              NSWarnLog(@"Performances: senderID passed to -isSearchOverForSenderID: is a mutable string");
+              // NSWarnLog(@"Performances: senderID passed to -isSearchOverForSenderID: is a mutable string");
             }
           else
             {
@@ -589,17 +545,11 @@ For better performences, senderID should be an immutable string
         };
 
       count=min((onParentFlag ? _partsCount-1 : _partsCount),senderElementID->_partsCount);
-      NSDebugMLog(@"count=%d",count);
+
       for(i=0,selfElementPart=_parts,senderElementPart=senderElementID->_parts;
           i<count && !over;
           i++,selfElementPart++,senderElementPart++)
         {
-          NSDebugMLLog(@"GSWElementID",@"selfElementPart #%d: %@",
-                       i,GSWElementIDPartDescription(selfElementPart));
-
-          NSDebugMLLog(@"GSWElementID",@"senderElementPart #%d: %@",
-                       i,GSWElementIDPartDescription(senderElementPart));
-
           if (selfElementPart->_string)
             {
               if (senderElementPart->_string) // string & string
@@ -640,17 +590,8 @@ For better performences, senderID should be an immutable string
                   // else continue
                 };
             };
-          NSDebugMLLog(@"GSWElementID",@"Part #%d selfElementPart=%@ senderIDElementPart=%@ => over=%d",
-                       i,
-                       GSWElementIDPartDescription(selfElementPart),
-                       GSWElementIDPartDescription(senderElementPart),
-                       over);
         };
-      NSDebugMLLog(@"GSWElementID",@"self=%@ senderID=%@ => over=%d",
-                   [self elementIDString],senderID,over);
     };
-
-  LOGObjectFnStop();
 
   return over;
 }
@@ -691,11 +632,6 @@ For better performences, senderID should be an immutable string
     @".60", @".61", @".62", @".63", @".64", @".65", @".66", @".67", @".68", @".69" };
   static int preBuiltDotPlusNumCount = sizeof(preBuiltDotPlusNum)/sizeof(NSString*);
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"GSWElementID",@"_partsCount=%d _builtPartCount=%d",
-              _partsCount,_builtPartCount);
-
   NSAssert1(_builtPartCount>=0,@"_builtPartCount=%d",_builtPartCount);
 
   if (_partsCount>0)
@@ -705,7 +641,6 @@ For better performences, senderID should be an immutable string
         {
           int i=0;
           
-          NSDebugMLLog(@"GSWElementID",@"_tmpString=%@",_tmpString);
           // No working string created ? 
           if (!_tmpString)
             {
@@ -721,15 +656,8 @@ For better performences, senderID should be an immutable string
                                      (_builtPartCount>0 ?
                                       (NSString*)(part->_elementIDString) : (NSString*)@""));
           
-          NSDebugMLLog(@"GSWElementID",@"_tmpString=%@",_tmpString);
           for(i=_builtPartCount,part=_parts+_builtPartCount;i<_partsCount;i++,part++)
             {
-              NSDebugMLLog(@"GSWElementID",@"Part#%d _parts=%p part=%p",
-                           i,_parts,part);
-
-              NSDebugMLLog(@"GSWElementID",@"Part #%d: %@",
-                           i,GSWElementIDPartDescription(part));
-
               if (part->_string)
                 {
                   if (i>0)
@@ -777,10 +705,6 @@ For better performences, senderID should be an immutable string
                     };
                 };
 
-              NSDebugMLLog(@"GSWElementID",@"_tmpString=%@",_tmpString);
-              NSDebugMLLog(@"GSWElementID",@"Part #%d: %@",
-                           i,GSWElementIDPartDescription(part));
-
               if (part->_elementIDString)
                 {
                   (*part->_elementIDString_setStringIMP)(part->_elementIDString,
@@ -793,20 +717,13 @@ For better performences, senderID should be an immutable string
                   part->_elementIDString_setStringIMP=[part->_elementIDString 
                                                            methodForSelector:setStringSelector];
                 };
-              NSDebugMLLog(@"GSWElementID",@"part->_elementIDString=%@",part->_elementIDString);
             };
           _builtPartCount=_partsCount;
-          NSDebugMLLog(@"GSWElementID",@"_builtPartCount=%d",_builtPartCount);
         };  
 
       part=_parts+_partsCount-1;
       ASSIGN(_elementIDString,([NSString stringWithString:part->_elementIDString]));
-
-      NSDebugMLLog(@"GSWElementID",@"_elementIDString=%@",_elementIDString);
     };
-  NSDebugMLLog(@"GSWElementID",@"_builtPartCount=%d _partsCount=%d",_builtPartCount,_partsCount);
-
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -816,18 +733,13 @@ elements **/
 {
   NSString* elementIDString=@"";
 
-  //NSLog(@"ELEMENTID: [elementID elementIDString];");
-
-  NSDebugMLLog(@"GSWElementID",@"_partsCount=%d",_partsCount);
   if (_partsCount>0)
     {
-      NSDebugMLLog(@"GSWElementID",@"_elementIDString=%@",_elementIDString);
       if (!_elementIDString) // Not alreday built ?
         (*_buildElementPartsIMP)(self,buildElementPartsSelector);
       elementIDString=_elementIDString;
       AUTORELEASE(RETAIN(elementIDString));
     };
-  NSDebugMLLog(@"GSWElementID",@"elementIDString=%@",elementIDString);
 
   return elementIDString;
 }
@@ -838,11 +750,6 @@ elements **/
 {
   int i=0;
   GSWElementIDPart* part=NULL;
-
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"GSWElementID",@"fromIndex=%d _partsCount=%d _builtPartCount=%d",
-               fromIndex,_partsCount,_builtPartCount);
 
   NSAssert1(fromIndex>=0,@"fromIndex (%d) <0",
             fromIndex);
@@ -862,10 +769,6 @@ elements **/
 
   _partsCount=fromIndex;
 
-  NSDebugMLLog(@"GSWElementID",@"==>fromIndex=%d _partsCount=%d _builtPartCount=%d",
-               fromIndex,_partsCount,_builtPartCount);
-
-  LOGObjectFnStop();
 }
 
   
@@ -873,62 +776,52 @@ elements **/
 /** empties elementID **/
 -(void)deleteAllElementIDComponents
 {
-  LOGObjectFnStart();
-
-  //NSLog(@"ELEMENTID: [elementID deleteAllElementIDComponents];");
 
   if (_partsCount>0)
     (*_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,0);
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 /** Deletes last elementID part **/
 -(void)deleteLastElementIDComponent
 {
-  LOGObjectFnStart();
-
-  //NSLog(@"ELEMENTID: [elementID deleteLastElementIDComponent];");
 
   if (_partsCount>0)
     (*_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,_partsCount-1);
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 /** Increments last elementID part **/
 -(void)incrementLastElementIDComponent
 {
-  LOGObjectFnStart();
 
   //NSLog(@"ELEMENTID: [elementID incrementLastElementIDComponent];");
 
   if (_partsCount<1)
     {
-      NSWarnLog(@"Can't incrementLastElementIDComponent on an empty elementID");
+    #warning checkme!
+    return;
+    
+      // NSWarnLog(@"Can't incrementLastElementIDComponent on an empty elementID");
+      [NSException raise:NSInvalidArgumentException
+                  format:@"Can't incrementLastElementIDComponent on an empty elementID. In %s",
+                         __PRETTY_FUNCTION__];      
     }
   else
     {
       GSWElementIDPart* part=NULL;
 
-      NSDebugMLLog(@"GSWElementID",@"_partsCount=%d _builtPartCount=%d",
-                   _partsCount,_builtPartCount);
-
       // Update part number
       part=_parts+_partsCount-1;
       part->_number++;
-      NSDebugMLLog(@"GSWElementID",@"Part #%d: %@",
-                   _partsCount-1,GSWElementIDPartDescription(part));
 
       // update cache state information
       if (_builtPartCount>=_partsCount)
         _builtPartCount=_partsCount-1;
       DESTROY(_elementIDString);      
 
-      NSDebugMLLog(@"GSWElementID",@"==> _partsCount=%d _builtPartCount=%d",
-                   _partsCount,_builtPartCount);
     };
 };
   
@@ -938,13 +831,6 @@ elements **/
 {
   GSWElementIDPart* part=NULL;
 
-  LOGObjectFnStart();
-
-  //NSLog(@"ELEMENTID: [elementID appendZeroElementIDComponent];");
-
-  NSDebugMLLog(@"GSWElementID",@"_partsCount=%d _builtPartCount=%d",
-               _partsCount,_builtPartCount);
-
   if (_partsCount>=_allocatedPartsCount)
     GSWElementIDRealloc(&_parts,&_allocatedPartsCount,
                         _allocatedPartsCount+GSWElementID_DefaultElementPartsCount);
@@ -952,8 +838,6 @@ elements **/
   // Set to new part
   part=_parts+_partsCount;
   part->_number=0;
-  NSDebugMLLog(@"GSWElementID",@"Part #%d: %@",
-               _partsCount,GSWElementIDPartDescription(part));
 
   // update cache state information
   DESTROY(_elementIDString);
@@ -961,10 +845,6 @@ elements **/
   // Increments parts count
   _partsCount++;
 
-  NSDebugMLLog(@"GSWElementID",@"==> _partsCount=%d _builtPartCount=%d",
-               _partsCount,_builtPartCount);
-
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -976,10 +856,6 @@ You should avoid element ending with digits.
   int elementLength=0;
   GSWElementIDPart* part=NULL;
 
-  LOGObjectFnStart();
-
-  //NSLog(@"ELEMENTID: [elementID appendElementIDComponent:@\"%@\"];",element);
-
   elementLength=[element length];
   
   if (elementLength==0)
@@ -988,15 +864,13 @@ You should avoid element ending with digits.
     }
   else
     {
-      if (isdigit([element characterAtIndex:elementLength-1]))
-        {
-          NSWarnLog(@"You'll may get problems if you use anElementID which ends with digit(s) like you do: '%@'",
-                    element);
-        };
+// do we really need this stuff?? davew    
+//      if (isdigit([element characterAtIndex:elementLength-1]))
+//        {
+//          NSWarnLog(@"You'll may get problems if you use anElementID which ends with digit(s) like you do: '%@'",
+//                    element);
+//        };
     }
-
-  NSDebugMLLog(@"GSWElementID",@"_partsCount=%d _builtPartCount=%d element=%@",
-               _partsCount,_builtPartCount,element);
 
   if (_partsCount>=_allocatedPartsCount)
     GSWElementIDRealloc(&_parts,&_allocatedPartsCount,
@@ -1016,10 +890,6 @@ You should avoid element ending with digits.
   // Increments parts count
   _partsCount++;
 
-  NSDebugMLLog(@"GSWElementID",@"==> _partsCount=%d _builtPartCount=%d",
-               _partsCount,_builtPartCount);
-
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------

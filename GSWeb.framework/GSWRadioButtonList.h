@@ -39,53 +39,13 @@
   GSWAssociation* _item;
   GSWAssociation* _index;
   GSWAssociation* _selection;
-//GSWeb Additions {
-  GSWAssociation* _selectionValue;
-// }
   GSWAssociation* _prefix;
   GSWAssociation* _suffix;
   GSWAssociation* _displayString;
-//GSWeb Additions {
-  GSWAssociation* _isDisplayStringBefore;
-// }
-  GSWAssociation* _escapeHTML;
-  BOOL _defaultEscapeHTML;
-  BOOL _autoValue;
-};
+  BOOL            _defaultEscapeHTML;
+  BOOL            _loggedSlow;
+}
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(void)dealloc;
-
--(NSString*)description;
--(NSString*)elementName;
-
-
-@end
-
-//====================================================================
-@interface GSWRadioButtonList (GSWRadioButtonListA)
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
--(void)_slowTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-
--(void)_fastTakeValuesFromRequest:(GSWRequest*)request
-                        inContext:(GSWContext*)context; 
-@end
-
-//====================================================================
-@interface GSWRadioButtonList (GSWRadioButtonListB)
--(BOOL)appendStringAtRight:(id)unkwnon
-               withMapping:(char*)mapping;
--(BOOL)appendStringAtLeft:(id)unkwnon
-              withMapping:(char*)mapping;
--(BOOL)compactHTMLTags;
 @end
 
 

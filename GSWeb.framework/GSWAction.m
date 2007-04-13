@@ -40,14 +40,13 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithRequest:(GSWRequest*)aRequest
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       _context = RETAIN([GSWApp createContextForRequest:aRequest]);
       [GSWApp _setContext:_context]; //NDFN
       [self _initializeRequestSessionIDInContext:_context];
     };
-  LOGObjectFnStop();
+
   return self;
 };
 
@@ -65,15 +64,14 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+
 -(GSWSession*)existingSession
 {
   //OK
   GSWSession* session=nil;
   BOOL hasSession=NO;
 
-  LOGObjectFnStart();
-
-  if (![_context isSessionDisabled])
+  if (![_context isSessionDisabled])   // TODO:check if wo does it like that.
     {
       hasSession=[_context hasSession];
       if (hasSession)
@@ -86,7 +84,6 @@ RCS_ID("$Id$")
             {
               NS_DURING
                 {
-                  NSDebugMLLog(@"requests",@"sessionID=%@",sessionID);
                   session=[GSWApp restoreSessionWithID:sessionID
                                   inContext:_context];
                   //No Exception if session can't be restored !
@@ -103,8 +100,6 @@ RCS_ID("$Id$")
         };
     };
 
-  LOGObjectFnStop();
-
   return session;
 };
 
@@ -114,8 +109,6 @@ RCS_ID("$Id$")
   //OK
   GSWSession* session=nil;
   BOOL hasSession=NO;
-
-  LOGObjectFnStart();
 
   if (![_context isSessionDisabled])
     {
@@ -128,7 +121,6 @@ RCS_ID("$Id$")
             {
               NS_DURING
                 {
-                  NSDebugMLLog(@"requests",@"aSessionID=%@",aSessionID);
                   session=[GSWApp restoreSessionWithID:aSessionID
                                   inContext:_context];
                   //No Exception if session can't be restored !
@@ -136,7 +128,6 @@ RCS_ID("$Id$")
               NS_HANDLER
                 {
                   localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-                  LOGException(@"exception=%@",localException);
                   //No Exception if session can't be restored !
                   session=nil;
                 }
@@ -145,61 +136,55 @@ RCS_ID("$Id$")
         };
     };
 
-  LOGObjectFnStop();
-
   return session;
 };
 
 //--------------------------------------------------------------------
--(GSWSession*)session
-{
-  BOOL hasSession=NO;
-  GSWSession* session=nil;
-
-  LOGObjectFnStart();
-
-  if (![_context isSessionDisabled])
-    {
-      hasSession=[_context hasSession];
-      if (hasSession)
-        session=[_context existingSession];
-      if (!session)
-        {
-          NSString* sessionID=nil;
-          sessionID=[[self request] sessionID];
-          if (sessionID)
-            {
-              NS_DURING
-                {
-                  session=[GSWApp restoreSessionWithID:sessionID
-                                  inContext:_context];
-                }
-              NS_HANDLER
-                {
-                  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-                  LOGException(@"exception=%@",localException);
-                  [localException raise];
-                };
-              NS_ENDHANDLER;
-              if (!session)
-                {
-                  ExceptionRaise(@"GSWAction",
-                                 @"Unable to restore sessionID %@.",
-                                 sessionID);
-                };
-            }
-          else
-            {
-              // No Session ID: Create a new Session
-              session=[_context session];
-            };
-        };
-    };
-
-  LOGObjectFnStop();
-
-  return session;
-};
+//-(GSWSession*)session
+//{
+//  BOOL hasSession=NO;
+//  GSWSession* session=nil;
+//
+//  if (![_context isSessionDisabled])
+//    {
+//      hasSession=[_context hasSession];
+//      if (hasSession)
+//        session=[_context existingSession];
+//      if (!session)
+//        {
+//          NSString* sessionID=nil;
+//          sessionID=[[self request] sessionID];
+//          if (sessionID)
+//            {
+//              NS_DURING
+//                {
+//                  session=[GSWApp restoreSessionWithID:sessionID
+//                                  inContext:_context];
+//                }
+//              NS_HANDLER
+//                {
+//                  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
+//                  LOGException(@"exception=%@",localException);
+//                  [localException raise];
+//                };
+//              NS_ENDHANDLER;
+//              if (!session)
+//                {
+//                  ExceptionRaise(@"GSWAction",
+//                                 @"Unable to restore sessionID %@.",
+//                                 sessionID);
+//                };
+//            }
+//          else
+//            {
+//              // No Session ID: Create a new Session
+//              session=[_context session];
+//            };
+//        };
+//    };
+//
+//  return session;
+//};
 
 //--------------------------------------------------------------------
 //	application
@@ -214,7 +199,7 @@ RCS_ID("$Id$")
 {
   //OK
   GSWComponent* component=nil;
-  LOGObjectFnStart();
+
   NS_DURING
     {
       NSAssert(_context,@"No Context");
@@ -230,7 +215,7 @@ RCS_ID("$Id$")
       [localException raise];
     };
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+
   return component;
 };
 
@@ -249,8 +234,9 @@ RCS_ID("$Id$")
   NSString* actionSelName=nil;
   SEL actionSel=NULL;
   actionSelName=[actionName stringByAppendingString:@"Action"];
-  NSDebugMLLog(@"requests",@"actionSelName=%@",actionSelName);
+
   actionSel=NSSelectorFromString(actionSelName);
+
   return actionSel;
 }
 
@@ -290,10 +276,7 @@ RCS_ID("$Id$")
   GSWRequest* request=nil;
   NSString* sessionID=nil;
 
-  LOGObjectFnStart();
-
   request=[aContext request];
-  NSDebugMLog(@"request=%@",request);
 
   sessionID=[self sessionIDForRequest:request];
   if (sessionID)
@@ -301,7 +284,6 @@ RCS_ID("$Id$")
       [aContext _setRequestSessionID:sessionID];
     };
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -316,15 +298,10 @@ RCS_ID("$Id$")
   return [_context languages];
 }
 
-@end
-
-//====================================================================
-@implementation GSWAction (GSWActionA)
-
 //--------------------------------------------------------------------
 -(GSWContext*)context
 {
-  return [self _context];
+  return _context;
 };
 
 -(GSWContext*)_context
@@ -345,15 +322,10 @@ RCS_ID("$Id$")
   return [_context session];
 };
 
-@end
-
-//====================================================================
-@implementation GSWAction (GSWDebugging)
-
 //--------------------------------------------------------------------
 -(void)logWithString:(NSString*)string
 {
-  [GSWApplication logString:string];
+  [GSWApp logString:string];
 };
 
 //--------------------------------------------------------------------
@@ -361,8 +333,8 @@ RCS_ID("$Id$")
 {
   va_list ap;
   va_start(ap,aFormat);
-  [[GSWApplication application]logWithFormat:aFormat
-                               arguments:ap];
+  [GSWApp logWithFormat:aFormat
+              arguments:ap];
   va_end(ap);
 };
 
@@ -371,8 +343,8 @@ RCS_ID("$Id$")
 {
   va_list ap;
   va_start(ap,aFormat);
-  [[GSWApplication application] logWithFormat:aFormat
-                                arguments:ap];
+  [GSWApp logWithFormat:aFormat
+              arguments:ap];
   va_end(ap);
 };
 

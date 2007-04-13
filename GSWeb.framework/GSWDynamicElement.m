@@ -54,28 +54,21 @@ SEL evaluateConditionInContextSEL = NULL;
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  //OK
-  if ((self=[super init]))
-    {
-    };
-  return self;
-};
+  id ourid = [super init];
+  
+  if (ourid) {
+     return ourid;
+  }
+  DESTROY(self);
+  
+  return nil;
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogAssertGood(self);
-  GSWLogC("Dealloc GSWDynamicElement");
-  GSWLogC("Dealloc GSWDynamicElement: name");
-  GSWLogC("Dealloc GSWDynamicElement Super");
   [super dealloc];
-  GSWLogC("End Dealloc GSWDynamicElement");
 }
-
-@end
-
-//====================================================================
-@implementation GSWDynamicElement (GSWDynamicElement)
 
 //--------------------------------------------------------------------
 -(BOOL)		evaluateCondition:(id)condition
@@ -85,27 +78,14 @@ SEL evaluateConditionInContextSEL = NULL;
 {
   //OK
   BOOL result=noConditionAssociationDefault;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"condition_=%@ noConditionAssociationDefault=%s noConditionDefault=%s",
-               condition,(noConditionAssociationDefault ? "YES" : "NO"),
-               (noConditionDefault ?  "YES" : "NO"));
+
   if (condition)
     {
       GSWComponent* component=GSWContext_component(context);
       id value=[condition valueInComponent:component];
-      NSDebugMLLog(@"gswdync",@"_value=%@ class=%@",value,[value class]);
-#ifndef NDEBUG
-      if ([value respondsToSelector:@selector(unsignedCharValue)])
-        {
-          NSDebugMLLog(@"gswdync",@"unsignedCharValue=%d",(int)[value unsignedCharValue]);
-        };
-#endif
       result=boolValueWithDefaultFor(value,noConditionDefault);
     };
-  NSDebugMLLog(@"gswdync",@"condition_=%@ noConditionAssociationDefault=%s noConditionDefault=%s ==> result=%s",
-               condition,(noConditionAssociationDefault ? "YES" : "NO"),
-               (noConditionDefault ?  "YES" : "NO"),(result ? "YES" : "NO"));
-  LOGObjectFnStop();
+
   return result;
 };
 
@@ -114,14 +94,12 @@ SEL evaluateConditionInContextSEL = NULL;
                inContext:(GSWContext*)context
 {
   BOOL result=NO;
-  LOGObjectFnStart();
-  
+
   result=[self 	evaluateCondition:condition
                 inContext:context
                 noConditionAssociationDefault:NO
                 noConditionDefault:YES];
   
-  LOGObjectFnStop();
   return result;
 };
 @end
