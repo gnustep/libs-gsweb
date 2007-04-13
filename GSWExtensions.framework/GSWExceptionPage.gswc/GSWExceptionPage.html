@@ -8,22 +8,20 @@
 <table border="0">
 <tr>
 <td align="center" Valign="TOP">
-    <gsweb name="ExclamationImage"></gsweb><br/>
-    Re-enter<br/>
-    <gsweb name="ReenterHyperlink">
-        <b><gsweb name="ApplicationNameString"></gsweb></b>
-    </gsweb>
+    <h2>[!] An error occured in application <gsweb name="ApplicationNameString"></gsweb>.</h2>
+    <h4><gsweb name="ReenterHyperlink">&lt;&lt;&nbsp;Re-enter <gsweb name="ApplicationNameString"></gsweb></gsweb></h4>
 </td>
+</tr>
+<tr>
 <td align="LEFT" Valign="TOP">
-    <gsweb name="VisibleConditional">
         <hr/>
-        <table border="0">
+        <table border="0" width="700">
             <tr>
                 <td align="RIGHT" Valign="MIDDLE">
                     <b>Application:</b>
                 </td>
                 <td align="LEFT" Valign="MIDDLE">
-                    <PRE><gsweb name="ApplicationNameString"></gsweb></PRE>
+                    <tt><gsweb name="ApplicationNameString"></gsweb></tt>
                 </td>
             </tr>
             <tr>
@@ -31,7 +29,7 @@
                     <b>Reference:</b>
                 </td>
                 <td align="left" valign="top">
-                    <PRE><gsweb name="ReferenceString"></gsweb></PRE>
+                    <tt><gsweb name="ReferenceString"></gsweb></tt>
                 </td>
             </tr>
             <tr>
@@ -39,7 +37,7 @@
                     <b>Error:</b>
                 </td>
                 <td align="LEFT" Valign="MIDDLE">
-                    <PRE><gsweb name="ExceptionNameString"></gsweb></PRE>
+                    <tt><gsweb name="ExceptionNameString"></gsweb></tt>
                 </td>
             </tr>
             <tr>
@@ -48,7 +46,7 @@
                 </td>
                 <td align="LEFT" Valign="MIDDLE">
                     <gsweb name="ReasonRepetition">
-                        <PRE><gsweb name="ReasonString"></gsweb></PRE><br/>
+                        <tt><gsweb name="ReasonString"></gsweb></tt><br/>
                     </gsweb>
                 </td>
             </tr>
@@ -62,10 +60,10 @@
                 <gsweb name="UserInfoRowRepetition">
                 <tr>
                     <td align="RIGHT" Valign="TOP">
-                        <b><PRE><gsweb name="UserInfoKeyString"></gsweb>:</PRE></b>
+                        <b><tt><gsweb name="UserInfoKeyString"></gsweb>:</tt></b>
                     </td>
                     <td align="LEFT" Valign="TOP">
-                        <PRE><gsweb name="UserInfoValueString"></gsweb></PRE>
+                        <tt><gsweb name="UserInfoValueString"></gsweb></tt>
                     </td>
                 </tr>
                 </gsweb>
@@ -80,10 +78,9 @@
                 </tr>
             </gsweb>
     </table>
-  </gsweb>
 </td>
 </tr>
 </table>
-
+<p>Powered by <a href="http://wiki.gnustep.org/index.php/GNUstepWeb">GNUstep Web</a></p>
 </body>
 </html>
