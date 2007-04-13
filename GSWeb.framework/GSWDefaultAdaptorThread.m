@@ -232,13 +232,7 @@ static NSData* lineFeedData=nil;
             };
         };
     };
-#ifdef DEBUG
-  [GSWApplication statusLogString:@"threadWillExit START"];
-#endif
   [_application threadWillExit];
-#ifdef DEBUG
-  [GSWApplication statusLogString:@"threadWillExit STOP"];
-#endif
   if (_isMultiThread)
     {
       NSAssert([NSThread isMultiThreaded],@"No MultiThread !");
@@ -246,9 +240,6 @@ static NSData* lineFeedData=nil;
     }
   else
     [self threadExited];
-#ifdef DEBUG
-  [GSWApplication statusLogString:@"run STOP"];
-#endif
 };
 
 //--------------------------------------------------------------------

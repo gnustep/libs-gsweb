@@ -175,26 +175,6 @@ RCS_ID("$Id$")
     };
   
 
-/*
-  LOGObjectFnStop();
-#ifdef DEBUG
-  [GSWApplication statusLogWithFormat:@"threadWillExit START"];
-#endif
-  [_application threadWillExit];
-#ifdef DEBUG
-  [GSWApplication statusLogWithFormat:@"threadWillExit STOP"];
-#endif
-  if (_isMultiThread)
-    {
-      NSAssert([NSThread isMultiThreaded],@"No MultiThread !");
-      [NSThread exit]; //???
-    }
-  else
-    [self threadExited];
-#ifdef DEBUG
-  [GSWApplication statusLogWithFormat:@"run STOP"];
-#endif
-*/
 };
 
 //--------------------------------------------------------------------
