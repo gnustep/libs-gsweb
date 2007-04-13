@@ -47,3 +47,8 @@ DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
 include $(GNUSTEP_MAKEFILES)/gswapp.make
 
 -include Makefile.postamble
+
+# enable this for TCSimpleDB
+#ADDITIONAL_TOOL_LIBS += -lTCSimpleDB 
+#ADDITIONAL_OBJCFLAGS += -DTCSDB
+
