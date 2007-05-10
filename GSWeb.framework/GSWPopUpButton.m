@@ -120,12 +120,14 @@ static SEL valueInComponentSEL = NULL;
     [_associations removeObjectForKey:selectedValue__Key];
   }
 
-  if ((_list == nil) || (_value != nil || _string != nil) && ((_item == nil) || (![_item isValueSettable])) || 
-      (_selection != nil) && (![_selection isValueSettable])) {
+  if (((_list == nil)) || 
+      ((_value != nil) && ((_item == nil) && ([_item isValueSettable] == NO))) ||
+      (((_string != nil) || (_item != nil)) && (_item == nil)) ||
+      ((_selection != nil) && ([_item isValueSettable] == NO))) {
 
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'list' must be present. 'item' must not be a constant if 'value' is present.  Cannot have 'displayString' or 'value' without 'item'.  'selection' must not be a constant if present.",
-                            __PRETTY_FUNCTION__];  
+      [NSException raise:NSInvalidArgumentException
+                  format:@"%s: 'list' must be present. 'item' must not be a constant if 'value' is present. Cannot have 'displayString' or 'value' without 'item'. 'selection' must not be a constant if present.",
+                              __PRETTY_FUNCTION__];  
   }
   if ((_selection != nil) && (_selectedValue != nil)) {
     [NSException raise:NSInvalidArgumentException
@@ -304,7 +306,8 @@ static SEL valueInComponentSEL = NULL;
     }
   }
   if (_selection != nil) {
-    obj = [_selection valueInComponent:component];
+    // it seems like we have to do that below. dw.
+    // obj = [_selection valueInComponent:component];
   } else {
     if (_selectedValue != nil) {
       compoValue = [_selectedValue valueInComponent:component];
@@ -345,6 +348,7 @@ static SEL valueInComponentSEL = NULL;
     }
     GSWResponse_appendContentAsciiString(response,@"\n<option");
     if (_selection != nil) {
+      obj = [_selection valueInComponent:component];
       isSelected = (obj == nil) ? NO : [obj isEqual:arrayObj];
     } else {
       if (_selectedValue != nil) {
