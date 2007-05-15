@@ -1140,7 +1140,10 @@ static int gsw_handler(request_rec *r)
         for (i = 0; i < tarr->nelts; i++) {
           gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
   
-          ap_rprintf(r, "<tr><td>%s</td>", appconf->app_name);
+          ap_rprintf(r, "<tr><td><a href=\"%s%s.woa/%d/\">%s</a></td>", ADAPTOR_PREFIX, 
+                                                           appconf->app_name,
+                                                           appconf->instance_number,
+                                                           appconf->app_name);
           ap_rprintf(r, "<td>%u</td>", appconf->instance_number);
           ap_rprintf(r, "<td>%s</td>", appconf->host_name);
           ap_rprintf(r, "<td>%u</td>", appconf->port);
