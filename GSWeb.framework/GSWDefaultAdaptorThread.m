@@ -180,6 +180,7 @@ static NSData* lineFeedData=nil;
           request=[self createRequestFromRequestLine:requestLine
                         headers:headers
                         data:data];
+          //NSLog(@"%s %@",__PRETTY_FUNCTION__, request);
         }
       NS_HANDLER
         {
@@ -368,31 +369,91 @@ NSMutableArray* unpackData(NSMutableData* data)
   return headers;
 }
 
-- (NSData*) _readPostData
+- (NSData*) _readPostDataMultipart:(BOOL) multip boundary:(NSString*) boundary
 {
 
-#define         UPLOAD_LIMIT 1024*1024*10 // 10 MB
-#define         TIME_LIMIT 30 // 30 seconds
+  #define         UPLOAD_LIMIT 1024*1024*10 // 10 MB
+  #define         TIME_LIMIT 15 // seconds
+  
+  time_t          starttime, now;
+  BOOL            crSeen = NO;
+  BOOL            nlSeen = NO;
+  BOOL            crnlSeen = NO;
+  int             crlfCount = 1;
+  int             tmpPos = 0;
+  unsigned        bytesSinceNewLine = 0;
+  BOOL            isElapsed = NO;
+  NSMutableData*  allMimeData = (NSMutableData*)[NSMutableData data];
+  NSData*          boundaryData = nil;
+  unsigned        boundaryLen = NSNotFound;
+  
+  char buffer[5];
+  char buffer1[100];
 
-time_t          starttime, now;
-int             totalLen = 0;
-BOOL            isElapsed = NO;
-NSMutableData*  allMimeData = nil;
-
+  if (multip) {
+    NSString  * totalString = [[@"--" stringByAppendingString: boundary] stringByAppendingString:@"--"];
+    boundaryLen = [totalString length];
+    boundaryData = [totalString dataUsingEncoding: NSUTF8StringEncoding];
+  }
   time(&starttime);
 
-  while ((! isElapsed) && ([allMimeData length] <= UPLOAD_LIMIT)) {
-    NSData* dataBlock = [_stream readDataOfLengthNonBlocking:1024];
-    if (dataBlock) {
-      if (!allMimeData) {
-        allMimeData = (NSMutableData*)[NSMutableData data];
+  NS_DURING
+
+  while ((! isElapsed) && ([allMimeData length] <= UPLOAD_LIMIT) && (crlfCount > 0))  {
+    NSData* dataBlock = [_stream readDataOfLength:1];
+    if ((dataBlock) && ([dataBlock length])) {
+      [dataBlock getBytes:buffer];
+      if (buffer[0] == 0xd) {
+        crSeen = YES;
+        time(&now);
+        isElapsed = ((now - starttime) > TIME_LIMIT);
+      } else {
+        if (buffer[0] == 0xa) {
+          nlSeen = YES;         
+        } else {
+          crSeen = NO;
+          nlSeen = NO;
+          crnlSeen = NO;
+          bytesSinceNewLine++;
+        }
       }
-      [allMimeData appendData:dataBlock];
-    } else {
-      break;
-    }
-    time(&now);
-    isElapsed = ((now - starttime) > TIME_LIMIT);
+
+      if (crlfCount > 0) {
+        [allMimeData appendData:dataBlock];
+       // printf("%c (%x)\n", buffer[0], buffer[0]); // cr (0d) + nl (0a)
+      }
+
+      if (crSeen && nlSeen) {
+        crnlSeen = YES;
+        crSeen = NO;
+        nlSeen = NO;
+        
+        if (boundaryLen == bytesSinceNewLine) {
+          NSRange range = NSMakeRange([allMimeData length]-2-boundaryLen, boundaryLen);
+          NSData * tmpData = [allMimeData subdataWithRange: range];
+           
+          if ([tmpData isEqual: boundaryData]) {
+            crlfCount = 0;
+          }    
+        }
+        tmpPos  = [allMimeData length];
+        if (multip == NO) {
+          crlfCount = 0;
+        }
+       
+        bytesSinceNewLine = 0;
+      }
+      
+    } 
+  }
+
+
+  NS_HANDLER
+    NSLog(@"%@", [localException reason]);
+  NS_ENDHANDLER
+
+  if ([allMimeData length] == 0) {
+    return nil;
   }
 
   return allMimeData;
@@ -485,7 +546,17 @@ NSMutableData*  allMimeData = nil;
               }
 //              
             } else { // no content length info
-              allMimeData = [self _readPostData];
+              myArray     = [headerDict objectForKey:@"content-type"];
+              if ((myArray) && ([myArray count])) {
+                NSString * multiStr  = [myArray objectAtIndex:0];
+                BOOL       multipart = ([multiStr hasPrefix:@"multipart/form-data;"]);
+                NSString * boundStr  = nil;
+                if (multipart) {
+                  boundStr = [multiStr substringFromIndex:30];
+                }
+               
+                allMimeData = [self _readPostDataMultipart: multipart boundary: boundStr];
+              }
             }
             allDataRead = YES;
           } else {
