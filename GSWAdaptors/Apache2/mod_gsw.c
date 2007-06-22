@@ -1,39 +1,25 @@
-/* Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 /*
- * Apache gsw module.  Provide demonstrations of how modules do things.
- * It is not meant to be used in a production server.  Since it participates
- * in all of the processing phases, it could conceivable interfere with
- * the proper operation of other modules -- particularly the ones related
- * to security.
- *
- * In the interest of brevity, all functions and structures internal to
- * this module, but which may have counterparts in *real* modules, are
- * prefixed with 'gsw_' instead of 'gsw_'.
- *
- * IMPORTANT NOTE
- * ==============
- *
- * Some of the code in this module has problems.
- * Before using it to base your work on, see
- *
- * http://issues.apache.org/bugzilla/show_bug.cgi?id=29709
- * http://issues.apache.org/bugzilla/show_bug.cgi?id=32051
- */
+   Copyright (C) 1999, 2000 Free Software Foundation, Inc.
+   
+   Written by:	David Wetzel <dave@turbocat.de>
+   Based on Apache2 Sample Module
+      
+   This file is part of the GNUstep Web Library.
+   
+   This library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Library General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or (at your option) any later version.
+   
+   This library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Library General Public License for more details.
+   
+   You should have received a copy of the GNU Library General Public
+   License along with this library; if not, write to the Free
+   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 
 #include "httpd.h"
 #include "http_config.h"
@@ -672,28 +658,26 @@ void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool)
 
 
   while (((done == 0) && (i < sizeof(buffer) -1)) && (rval >0)) {
-   rval= read(socket, &b, 1);
-   buffer[i] = b;
+     rval= read(socket, &b, 1);
+    buffer[i] = b;
 
-   if (b == '\n') {
-      done = 1;
-      buffer[i] = '\0';
+    if (b == '\n') {
+        done = 1;
+        buffer[i] = '\0';
+    }
+    i++;
    }
-   i++;
-//	buffer[i] = '\0';
-//   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "got:'%s'", buffer);
 
-	}
-	buffer[i] = '\0';
+       buffer[i] = '\0';
 	
 	// in case we got a \0 in the string?
-	i = strlen(buffer);
-	
-	if (i > 0) {
-	  void * newBuf = apr_palloc(pool,i+1);
-	  strncpy(newBuf, buffer, i+1);
-	  return newBuf;
-	}
+       i = strlen(buffer);	
+       if (i > 0) {
+            void * newBuf = apr_palloc(pool,i+1);
+	 strncpy(newBuf, buffer, i+1);
+//   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "read_sock_line:'%s'", newBuf);
+	 return newBuf;
+       }
   return NULL;
 }
 
@@ -763,7 +747,8 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
       }
 
       if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
-          return DECLINED;
+              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
+        return DECLINED;
       }
       
       // check if we are on a POST trip...
@@ -787,6 +772,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 
         postbuf = apr_palloc(sub_pool,1024*8+1);
         
+        // TODO: check if we need to transfer the last CR / NL from the POST data.
         while (bytesread > 0) {
           bytesread = ap_get_client_block(r, postbuf, 1024*8);
 
@@ -797,8 +783,8 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
           postbuf[bytesread]='\0';
           write_sock(soc, postbuf, bytesread, r);
         }
-        postbuf[0]='\0';
-        write_sock(soc, postbuf, 1, r);
+//        postbuf[0]='\0';
+//        write_sock(soc, postbuf, 1, r);
       }        
 
       write_sock(soc, CRLF, 2, r);

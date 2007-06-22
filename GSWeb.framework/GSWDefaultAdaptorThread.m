@@ -368,6 +368,36 @@ NSMutableArray* unpackData(NSMutableData* data)
   return headers;
 }
 
+- (NSData*) _readPostData
+{
+
+#define         UPLOAD_LIMIT 1024*1024*10 // 10 MB
+#define         TIME_LIMIT 30 // 30 seconds
+
+time_t          starttime, now;
+int             totalLen = 0;
+BOOL            isElapsed = NO;
+NSMutableData*  allMimeData = nil;
+
+  time(&starttime);
+
+  while ((! isElapsed) && ([allMimeData length] <= UPLOAD_LIMIT)) {
+    NSData* dataBlock = [_stream readDataOfLengthNonBlocking:1024];
+    if (dataBlock) {
+      if (!allMimeData) {
+        allMimeData = (NSMutableData*)[NSMutableData data];
+      }
+      [allMimeData appendData:dataBlock];
+    } else {
+      break;
+    }
+    time(&now);
+    isElapsed = ((now - starttime) > TIME_LIMIT);
+  }
+
+  return allMimeData;
+}
+
 
 //--------------------------------------------------------------------
 /** read request from crrent stream and put request line, headers and data in 
@@ -440,6 +470,7 @@ NSMutableArray* unpackData(NSMutableData* data)
 
             if ((myArray) && ([myArray count])) {
               contentLength = [[myArray objectAtIndex:0] intValue];
+//
               if (contentLength > 0) {
                 if (!allMimeData) {
                   allMimeData = (NSMutableData*)[NSMutableData data];
@@ -452,6 +483,9 @@ NSMutableArray* unpackData(NSMutableData* data)
                   isElapsed = ((now - starttime) > 30);
                 }
               }
+//              
+            } else { // no content length info
+              allMimeData = [self _readPostData];
             }
             allDataRead = YES;
           } else {

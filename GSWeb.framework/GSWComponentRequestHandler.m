@@ -76,6 +76,8 @@ RCS_ID("$Id$")
   NSDictionary* requestHandlerValues=nil;
   BOOL exceptionRaised=NO;
 
+//  NSLog(@"%s %@",__PRETTY_FUNCTION__, aRequest);
+
   NS_DURING
     {      
       requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:aRequest];
