@@ -809,7 +809,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
         newBuf = read_sock_line(soc, r, sub_pool);
         
         if (newBuf != NULL) {
-          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newBuf:'%s' len:%d", newBuf, strlen(newBuf));
+//          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newBuf:'%s' len:%d", newBuf, strlen(newBuf));
           
           if (load_avr_seen == 0) {
             if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
@@ -882,7 +882,9 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
     }
     
     close(soc);
-//    apr_pool_destroy(sub_pool);  
+//    apr_pool_destroy(sub_pool); 
+
+    time(&app->last_response_time);
   }
   
   //apr_pool_destroy(sub_pool);
@@ -1036,6 +1038,7 @@ static int gsw_handler(request_rec *r)
   char data[1024];
   void *user_data;
   int     handle_status = OK;
+  extern char *tzname[2];
   
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx handler uri: %s", r->uri);
 
@@ -1135,7 +1138,7 @@ static int gsw_handler(request_rec *r)
           ap_rprintf(r, "<td>%u</td>", appconf->port);
           ap_rprintf(r, "<td>%u</td>", appconf->load);
           ap_rprintf(r, "<td>%s</td>", (appconf->unreachable == 1) ? "YES": "NO");
-          ap_rprintf(r, "<td>%u</td></tr>\n", appconf->last_response_time);
+          ap_rprintf(r, "<td>%s</td></tr>\n", ctime(&appconf->last_response_time));
         }
   
         ap_rputs("</table><br>\n",r);
