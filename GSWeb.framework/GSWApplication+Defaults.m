@@ -523,13 +523,7 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
      (_userDefaults ? _userDefaults \
       : (_userDefaults = [NSUserDefaults standardUserDefaults]))
 
-/* FIXME: Once setValue:forKey: is implemented in -base we should use
-   use it unconditionally.  */
-#ifdef GNUSTEP
-#define TAKEVALUEFORKEY [self takeValue: val forKey: key]
-#else
 #define TAKEVALUEFORKEY [self setValue: val forKey: key]
-#endif
 
 /* These two macros are seperate for experimental reasons.  
    They may be merged later.  */

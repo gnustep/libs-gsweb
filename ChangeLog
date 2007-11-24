@@ -1,28 +1,45 @@
-2007-06-22  David Wetzel <dave@turbocat.de>
-    * GSWAdaptors/Apache2/mod_gsw.c
-    * GSWSWeb.framework/GSWComponentRequestHandler.m
-    * GSWeb.framework/GSWDefaultAdaptorThread.m
+2007-11-24  David Ayers  <ayers@fsfe.org>
 
-    Added support for POST requests from browsers without content-length header.
-    (firefox does this without proxy)
+	* GSWeb.framework/GSWApplication+Defaults.m
+	(TAKEVALUEFORKEY): Rely on setValue:forKey: to handle
+	nil values.
+
+	* GSWExtensions.framework/GSWKeyValueConditional.h
+	* GSWExtensions.framework/GSWKeyValueConditional.api
+	Convert from DOS to UNIX line feeds.
+	
+2007-06-22  David Wetzel <dave@turbocat.de>
+	
+	* GSWAdaptors/Apache2/mod_gsw.c
+	* GSWSWeb.framework/GSWComponentRequestHandler.m
+	* GSWeb.framework/GSWDefaultAdaptorThread.m
+
+	Added support for POST requests from browsers without
+	content-length header.
+	(firefox does this without proxy)
 
 2007-05-15  David Wetzel <dave@turbocat.de>
-  * GSWAdaptors/Apache2
-  made Application name clickable on status page
+	
+	* GSWAdaptors/Apache2
+	made Application name clickable on status page
 
 2007-05-10  David Wetzel <dave@turbocat.de> 
-  * GSWeb.framework/GSWPopUpButton.m
-  fixed "if" statement
+	
+	* GSWeb.framework/GSWPopUpButton.m
+	fixed "if" statement
 
 2007-04-13  David Wetzel <dave@turbocat.de>
-  * Merged files from my branch to head. Changes include:
-  * Nearly all Dynamic Elements rewritten
-  * More use of inheritance there
-  * Less logging
-  * Direct connect enables developers to access applications without web servers.
+	
+	* Merged files from my branch to head. Changes include:
+	* Nearly all Dynamic Elements rewritten
+	* More use of inheritance there
+	* Less logging
+	* Direct connect enables developers to access applications
+	without web servers.
 
-  * Hello demo application:
-    fix double text field, update documentation, allow compilation with TCSDB
+	* Hello demo application:
+	fix double text field, update documentation,
+	allow compilation with TCSDB
 
 2006-12-12  David Ayers  <ayers@fsfe.org>
 
