@@ -32,6 +32,9 @@
 #ifndef _GSWMessage_h__
 	#define _GSWMessage_h__
 
+@class GSWMessage;
+@class GSWCookie;
+
 typedef struct _GSWMessageIMPs
 {
   // Instance IMPs
@@ -171,7 +174,6 @@ GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,
 
 //====================================================================
 @interface GSWMessage (Cookies)
--(void)_finalizeCookiesInContext:(GSWContext*)aContext;
 -(NSMutableArray*)_initCookies;
 -(NSString*)_formattedCookiesString;
 -(void)addCookie:(GSWCookie*)cookie;

@@ -111,7 +111,6 @@
 @class GSWStaticResourceRequestHandler;
 @class GSWActionRequestHandler;
 @class GSWDirectActionRequestHandler;
-@class GSWDefaultAdaptorThread;
 @class GSWKeyValueAssociation;
 @class GSWConstantValueAssociation;
 @class GSWHTMLStaticElement;
@@ -235,7 +234,6 @@
 #include "GSWStaticResourceRequestHandler.h"
 #include "GSWActionRequestHandler.h"
 #include "GSWDirectActionRequestHandler.h"
-#include "GSWDefaultAdaptorThread.h"
 #include "GSWKeyValueAssociation.h"
 #include "GSWConstantValueAssociation.h"
 #include "GSWTemplateParser.h"

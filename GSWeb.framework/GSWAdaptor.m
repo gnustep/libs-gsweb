@@ -43,11 +43,9 @@ RCS_ID("$Id$")
 -(id)initWithName:(NSString*)name
         arguments:(NSDictionary*)arguments
 {
-  NSDebugMLog(@"Init");
   self=[super init];
-  LOGObjectFnStop();
   return self;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -67,54 +65,31 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-//	runOnce
+//	depricated at least in 5.something
 -(void)runOnce
 {
-  //TODOFN
-};
+  //Does Nothing
+}
 
 //--------------------------------------------------------------------
-//	doesBusyRunOnce
+//	depricated at least in 5.something
 -(BOOL)doesBusyRunOnce
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return NO;
-};
+  return YES;
+}
 
 //--------------------------------------------------------------------
 -(BOOL)dispatchesRequestsConcurrently
 {
-  LOGObjectFnNotImplemented();	//TODOFN
   return NO;
-};
+}
 
 //--------------------------------------------------------------------
 //	port
 -(int)port
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return 0;
-};
-
-//--------------------------------------------------------------------
--(id)workerThreadCount
-{
-  [self subclassResponsibility: _cmd];
-  return nil;
-};
-
-//--------------------------------------------------------------------
--(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread
-{
-  [self subclassResponsibility: _cmd];
-};
-
-//--------------------------------------------------------------------
--(BOOL)isMultiThreadEnabled
-{
-  [self subclassResponsibility: _cmd];
-  return NO;
-};
+  return -1;
+}
 
 @end
 
@@ -126,5 +101,5 @@ RCS_ID("$Id$")
  forApplicationNamed:(NSString*)applicationName
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 @end

@@ -32,6 +32,10 @@
 #ifndef _GSWRequest_h__
 	#define _GSWRequest_h__
 
+@class GSWDynamicURLString;
+@class GSWContext;
+
+#include "GSWMessage.h"
 
 //====================================================================
 /** A class to handle value and quality like for Accept-Language or 

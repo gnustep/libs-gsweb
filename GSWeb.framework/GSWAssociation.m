@@ -849,7 +849,7 @@ static Class NSStringClass = Nil;
         {
         // no exception, set the value
 
-        [tmpObject takeValue:value
+        [tmpObject setValue:value
                      forKey:tmpKey];
       }
     }
@@ -940,7 +940,7 @@ static Class NSStringClass = Nil;
           else
             {
               GSWLogAssertGood(tmpObject);
-              [tmpObject takeValue:value
+              [tmpObject setValue:value
                          forKey:part];
 #ifdef HAVE_GDL2
               // Turbocat

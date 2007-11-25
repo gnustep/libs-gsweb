@@ -32,6 +32,10 @@
 #ifndef _GSWResponse_h__
 	#define _GSWResponse_h__
 
+@class GSWResponse;
+@class GSWContext;
+@class GSWRequest;
+
 typedef struct _GSWResponseIMPs
 {
   // Instance IMPs

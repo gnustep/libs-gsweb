@@ -40,29 +40,25 @@ RCS_ID("$Id$")
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
   return [self subclassResponsibility:_cmd];
-};
+}
 
 //--------------------------------------------------------------------
 -(void)lock
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 
 //--------------------------------------------------------------------
 -(void)unlock
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 
-@end
-
-//====================================================================
-@implementation GSWRequestHandler (GSWRequestHandlerClassA)
 +(id)handler
 {
   [self subclassResponsibility:_cmd];
   return nil;
-};
+}
 
 @end
 

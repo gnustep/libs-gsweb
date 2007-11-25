@@ -55,6 +55,23 @@ GSWEB_EXPORT int GSWebNamingConv;//GSWNAMES_INDEX or WONAMES_INDEX
 	  (GSWebNamingConv==GSWNAMES_INDEX ? WONAMES_INDEX : GSWNAMES_INDEX))
 
 GSWEB_EXPORT BOOL WOStrictFlag;
+
+@class GSWSessionStore;
+@class GSWStatisticsStore;
+@class GSWResourceManager;
+@class GSWRequestHandler;
+@class GSWLifebeatThread;
+@class GSWSession;
+@class GSWAdaptor;
+@class GSWComponent;
+@class GSWElement;
+@class GSWResponse;
+@class GSWAssociation;
+@class GSWComponentDefinition;
+@class GSWMultiKeyDictionary;
+@class GSWActionRequestHandler;
+@class GSWAction;
+
 //====================================================================
 @interface GSWApplication : NSObject <NSLocking>
 {

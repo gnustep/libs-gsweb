@@ -32,23 +32,18 @@
 #ifndef _GSWRequestHandler_h__
 	#define _GSWRequestHandler_h__
 
+#define DidHandleRequestNotification "WORequestHandlerDidHandleRequestNotification"
+
+
 //====================================================================
 @interface GSWRequestHandler : NSObject <NSLocking>
 {
   NSRecursiveLock* _selfLock;
-#ifndef NDEBUG
-  int _selfLockn;
-#endif
-};
+}
 
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
 -(void)lock;
 -(void)unlock;
 
-@end
-
-//====================================================================
-@interface GSWRequestHandler (GSWRequestHandlerClassA)
-+(id)handler;
 @end
 #endif //_GSWRequestHandler_h__

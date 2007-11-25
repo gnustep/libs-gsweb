@@ -84,6 +84,7 @@ GSWConstants.m \
 GSWTemporaryElement.m \
 GSWBaseParser.m \
 GSWHTMLRawParser.m \
+GSWHTTPIO.m \
 GSWDeclaration.m \
 GSWDeclarationParser.m \
 GSWTemplateParser.m \
@@ -164,7 +165,6 @@ GSWComponentRequestHandler.m \
 GSWResourceRequestHandler.m \
 GSWActionRequestHandler.m \
 GSWDirectActionRequestHandler.m \
-GSWDefaultAdaptorThread.m \
 GSWKeyValueAssociation.m \
 GSWHTMLStaticElement.m \
 GSWHTMLStaticGroup.m \
@@ -191,6 +191,7 @@ GSWStaticResourceRequestHandler.m \
 GSWRecording.m \
 GSWInputStreamData.m \
 GSWActionURL.m \
+GSWWorkerThread.m \
 
 #For next Version:
 #GSWAdminAction.m \
@@ -229,7 +230,6 @@ GSWConstantValueAssociation.h \
 GSWContext.h \
 GSWCookie.h \
 GSWDefaultAdaptor.h \
-GSWDefaultAdaptorThread.h \
 GSWDeployedBundle.h \
 GSWAction.h \
 GSWDirectAction.h \

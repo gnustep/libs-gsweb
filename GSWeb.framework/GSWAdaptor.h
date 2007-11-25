@@ -26,6 +26,8 @@
 #ifndef _GSWAdaptor_h__
 	#define _GSWAdaptor_h__
 
+#include <Foundation/NSObject.h>
+
 
 //====================================================================
 // GSWAdaptor
@@ -35,13 +37,13 @@
         arguments:(NSDictionary*)arguments;
 -(void)registerForEvents;
 -(void)unregisterForEvents;
--(void)runOnce;
--(BOOL)doesBusyRunOnce;
 -(BOOL)dispatchesRequestsConcurrently;
 -(int)port;
--(id)workerThreadCount;
--(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread;
--(BOOL)isMultiThreadEnabled;
+
+// deprecated since?
+-(void)runOnce;
+-(BOOL)doesBusyRunOnce;
+
 @end
 
 //====================================================================
@@ -49,5 +51,10 @@
 -(void)	registerPort:(int)port
  forApplicationNamed:(NSString*)applicationName;
 @end
+
+// FIXME: check if that exists:
+// -(id)workerThreadCount;
+//-(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread;
+//-(BOOL)isMultiThreadEnabled;
 
 #endif //_GSWAdaptor_h__

@@ -69,7 +69,6 @@
 #define GSWComponentRequestHandler	WOComponentRequestHandler
 #define GSWResourceRequestHandler	WOResourceRequestHandler
 #define GSWDirectActionRequestHandler	WODirectActionRequestHandler
-#define GSWDefaultAdaptorThread		WODefaultAdaptorThread
 #define GSWKeyValueAssociation		WOKeyValueAssociation
 #define GSWConstantValueAssociation	WOConstantValueAssociation
 #define GSWHTMLStaticElement		WOHTMLStaticElement

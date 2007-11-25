@@ -1,6 +1,12 @@
 2007-11-25  David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/Apache2/mod_gsw.c
 	Works also if a header or empty line at the end of the headers has a \r\n ending.
+	GSWeb.framework:
+	* rewrote large parts of GSWDefaultAdaptor 
+	* new GSWHTTPIO and GSWWorkerThread
+	* dropped GSWDefaultAdaptorThread
+	* some takeValue:forKey: fixes
+	* started to remove global inclues
 
 2007-11-24  David Ayers  <ayers@fsfe.org>
 

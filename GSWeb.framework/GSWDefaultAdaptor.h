@@ -27,9 +27,19 @@
 #ifndef _GSWDefaultAdaptor_h__
 	#define _GSWDefaultAdaptor_h__
 
+#include "GSWDefines.h"
+#include "GSWWOCompatibility.h"
+#include "GSWAdaptor.h"
+
+@class GSWWorkerThread;
+@class NSDictionary;
+@class NSString;
+@class NSFileHandle;
+@class NSMutableArray;
+@class NSLock;
+
 GSWEB_EXPORT int iBlock;
-//====================================================================
-// GSWDefaultAdaptor
+
 
 @interface GSWDefaultAdaptor: GSWAdaptor
 {
@@ -41,12 +51,20 @@ GSWEB_EXPORT int iBlock;
   int _workerThreadCount;
   int _workerThreadCountMin;
   int _workerThreadCountMax;
+  int _listenQueueSize;
+  int _maxSocketIdleTime;
+  int _maxWorkerThreads;
+  int __nmbOfWorkerThreads;
+  int __nmbOfActiveThreads;
+  int __windowSize;
+
   BOOL _isMultiThreadEnabled;
   NSFileHandle* _fileHandle;
   NSMutableArray* _waitingThreads;
   NSMutableArray* _threads;
   NSLock* _selfLock;
   BOOL _blocked;
+  BOOL _shouldGrow;
 }
 
 -(id)initWithName:(NSString*)name
@@ -60,8 +78,6 @@ GSWEB_EXPORT int iBlock;
 -(BOOL)dispatchesRequestsConcurrently;
 -(int)port;
 -(NSString*)host;
--(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread;
--(BOOL)tryLock;
 -(void)unlock;
 
 -(void)setWorkerThreadCount:(id)workerThreadCount;
@@ -74,6 +90,8 @@ GSWEB_EXPORT int iBlock;
 -(BOOL)isMultiThreadEnabled;
 -(BOOL)isConnectionAllowedWithHandle:(NSFileHandle*)handle
                      returnedMessage:(NSString**)retMessage;
+
+- (void) workerThreadWillExit:(GSWWorkerThread*) thread;
 
 @end
 

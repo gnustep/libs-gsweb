@@ -1369,6 +1369,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
+// dw: I do not know if this exists in WO
 -(Class)requestClass
 {
   NSString* requestClassName=[self requestClassName];
@@ -1378,6 +1379,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
+// dw: I do not know if this exists in WO
+
 -(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
                                   uri:(NSString*)anURL
                           httpVersion:(NSString*)aVersion
@@ -2507,8 +2510,6 @@ to another instance **/
           sessionID=[requestHandlerValues objectForKey:GSWKey_SessionID[GSWebNamingConv]];
           if (!sessionID) 
             {
-              NSLog(@"Application : sessionID is nil");
-
               if ([self isRefusingNewSessions])
                 {
                   NSLog(@"refuseRequest !");

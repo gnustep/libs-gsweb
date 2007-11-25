@@ -451,7 +451,7 @@ static Class GSWHTMLBareStringClass = Nil;
               [self smartTakeValue: obj
                             forKey: myKey];
 #else
-              [self takeValue: obj
+              [self setValue: obj
                        forKey: myKey];
 #endif
       }

@@ -44,5 +44,78 @@
 #endif
 
 
+/*
+  The following macros are for use of locks together with exception handling.
+  A synchronized block is properly 'unlocked' even if an exception occures.
+  It is used this way:
+
+    SYNCHRONIZED(MyObject) {
+      THROW(MyException..);
+    }
+    END_SYNCHRONIZED;
+
+  Where MyObject must be an object that conforms to the NSObject and NSLocking
+  protocol.
+  This is much different to
+
+    [MyObject lock];
+    {
+      THROW(MyException..);
+    }
+    [MyObject unlock];
+
+  which leaves the lock locked when an exception happens.
+*/
+
+#if defined(DEBUG_SYNCHRONIZED)
+
+#define SYNCHRONIZED(__lock__) \
+  { \
+    id<NSObject,NSLocking> __syncLock__ = [__lock__ retain]; \
+    [__syncLock__ lock]; \
+    fprintf(stderr, "0x%08X locked in %s.\n", \
+            (unsigned)__syncLock__, __PRETTY_FUNCTION__); \
+    NS_DURING {
+
+#define END_SYNCHRONIZED \
+    } \
+    NS_HANDLER { \
+      fprintf(stderr, "0x%08X exceptional unlock in %s exception %s.\n", \
+              (unsigned)__syncLock__, __PRETTY_FUNCTION__,\
+              [[localException description] cString]); \
+      [__syncLock__ unlock]; \
+      [__syncLock__ release]; __syncLock__ = nil; \
+      [localException raise]; \
+    } \
+    NS_ENDHANDLER; \
+    fprintf(stderr, "0x%08X unlock in %s.\n", \
+            (unsigned)__syncLock__, __PRETTY_FUNCTION__); \
+    [__syncLock__ unlock]; \
+    [__syncLock__ release];  __syncLock__ = nil; \
+  }
+
+#else
+
+#define SYNCHRONIZED(__lock__) \
+  { \
+    id<NSObject,NSLocking> __syncLock__ = [__lock__ retain]; \
+    [__syncLock__ lock]; \
+    NS_DURING {
+
+#define END_SYNCHRONIZED \
+    } \
+    NS_HANDLER { \
+      [__syncLock__ unlock]; \
+      [__syncLock__ release]; \
+      [localException raise]; \
+    } \
+    NS_ENDHANDLER; \
+    [__syncLock__ unlock]; \
+    [__syncLock__ release]; \
+  }
+
+#endif
+
+
 #endif /* __GSWeb_GSWDefines_h__ */
 

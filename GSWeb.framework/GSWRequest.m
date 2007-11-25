@@ -199,57 +199,47 @@ RCS_ID("$Id$")
             content:(NSData*)content
            userInfo:(NSDictionary*)userInfo
 {
-  if ((self=[super init]))
-    {
+  if ((self=[super init])) {
+    NSString* adaptorVersion = nil;
 
-      if ((!aMethod) || ([aMethod length]==0))
-        {
-          ExceptionRaise(@"GSRequest",@"Empty/Null method during initialization");
-        }
-      else
-        {
-          if ((! anURL) || ([anURL length]==0))
-            {
-              ExceptionRaise(@"GSRequest",@"Empty/Null uri during initialization");
-            }
-          else
-            {              
-              if ((! aVersion) || ([aVersion length]==0))
-                {
-                  ExceptionRaise(@"GSRequest",@"Empty/Null http version during initialization");
-                }
-              else
-                {              
-                  ASSIGNCOPY(_method,aMethod);
-                  
-                  [self setHTTPVersion:aVersion];
+    if ((!aMethod) || ([aMethod length]==0)) {
+      ExceptionRaise(@"GSWRequest",@"Empty/Null method during initialization");
+    }
 
-                  [self setHeaders:headers];
-                  
-                  _defaultFormValueEncoding=[[self class]defaultEncoding];
-                  
-                  _applicationNumber=-9999;
-                  {
-                    NSString* adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConv]];
-                    if (!adaptorVersion)
-                      adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConvInversed]];
-                    [self _setIsUsingWebServer:(adaptorVersion!=nil)];
-                  };
-                  _uri = [[GSWDynamicURLString alloc]initWithString:anURL];
-                  [_uri checkURL];
+    if (([aMethod isEqualToString:@"GET"] == NO) && ([aMethod isEqualToString:@"POST"] == NO) &&
+        ([aMethod isEqualToString:@"HEAD"] == NO)) {
 
-                  if (!content)
-                    content = [NSData data];
-//                  if ([content isKindOfClass:[GSWInputStreamData class]])
-                    [self setContent:content];
-//                  else
-//                    [self appendContentData:content];
+        ExceptionRaise(@"GSWRequest", @"Method '%@' is not supported. To support '%@', you will have to implement a subclass of GSWRequest, and force GSWeb to instantiate it.", aMethod, aMethod);
+    }
 
-                  [self setUserInfo:userInfo];
-                };
-            };
-        };
-    };
+    if ((! anURL) /*|| ([anURL length]==0)*/) {
+      ExceptionRaise(@"GSWRequest",@"Empty/Null uri during initialization");
+    }
+    if ((! aVersion) || ([aVersion length]==0)) {
+      ExceptionRaise(@"GSWRequest",@"Empty/Null http version during initialization");
+    }
+
+    ASSIGNCOPY(_method,aMethod);
+    [self setHTTPVersion:aVersion];
+    [self setHeaders:headers];
+    
+    _defaultFormValueEncoding=[[self class] defaultEncoding];      
+    _applicationNumber=-9999;
+    adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConv]];
+    if (!adaptorVersion) {
+      adaptorVersion=[self headerForKey:GSWHTTPHeader_AdaptorVersion[GSWebNamingConvInversed]];
+    }
+    [self _setIsUsingWebServer:(adaptorVersion!=nil)];
+
+    _uri = [[GSWDynamicURLString alloc] initWithString:anURL];
+    [_uri checkURL];
+    
+    if (!content)
+    content = [NSData data];
+    [self setContent:content];
+    
+    [self setUserInfo:userInfo];
+  }
   return self;
 };
 
