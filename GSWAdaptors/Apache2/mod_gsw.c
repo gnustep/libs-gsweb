@@ -664,6 +664,9 @@ void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool)
     if (b == '\n') {
         done = 1;
         buffer[i] = '\0';
+        if ((i>0) && (buffer[i-1] == '\r')) {
+          buffer[i-1] = '\0';       
+        }
     }
     i++;
    }
@@ -694,7 +697,6 @@ void * read_sock(int socket, size_t size, apr_pool_t * pool)
 	return newBuf;
 
 }
-
 
 
 /*
@@ -836,6 +838,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
           if (content_encoding == NULL) {
             if (strncmp(newBuf, "content-encoding: ", 18) == 0) {
               content_encoding = newBuf+18;
+
               ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content-encoding: %s", content_encoding);
               apr_table_set(r->headers_out, "content-encoding", content_encoding);
              }
