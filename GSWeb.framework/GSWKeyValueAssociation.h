@@ -46,11 +46,6 @@
 -(BOOL)isValueConstant;
 -(BOOL)isValueSettable;
 
-@end
-
-//====================================================================
-@interface GSWKeyValueAssociation (GSWAssociationB)
-
 -(NSString*)keyPath;
 -(NSString*)debugDescription;
 @end

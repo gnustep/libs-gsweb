@@ -84,23 +84,28 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(void)setValue:(id)aValue
-    inComponent:(GSWComponent*)object
+    inComponent:(GSWComponent*)component
 {
+  NSException *ex = nil;
+  
   if ([_keyPath length]==0)
-    {
-      [NSException raise:NSInvalidArgumentException 
-                   format:@"No key path when setting value %@ in object of class %@ for association %@",
-                   aValue,NSStringFromClass([object class]),self];
-    }
-  /*Not Here because self is not a string key !
-  //TODO (return something!)
-  [object validateValue:&aValue
-  forKey:self];
-  */
-  [GSWAssociation setValue:aValue
-                  inComponent:object
-                  forKeyPath:_keyPath];
-};
+  {
+    [NSException raise:NSInvalidArgumentException 
+                format:@"No key path when setting value %@ in object of class %@ for association %@",
+                 aValue,NSStringFromClass([component class]),self];
+  }
+  
+  NS_DURING {
+    [component validateTakeValue:aValue
+                      forKeyPath:_keyPath];
+  } NS_HANDLER {
+    ex = localException;    
+  } NS_ENDHANDLER;
+  
+  [component validationFailedWithException:ex
+                                     value:aValue
+                                   keyPath:_keyPath];
+}
 
 //--------------------------------------------------------------------
 -(BOOL)isValueConstant
