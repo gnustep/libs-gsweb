@@ -102,9 +102,11 @@ RCS_ID("$Id$")
     ex = localException;    
   } NS_ENDHANDLER;
   
-  [component validationFailedWithException:ex
-                                     value:aValue
-                                   keyPath:_keyPath];
+  if (ex != nil) { 
+    [component validationFailedWithException:ex
+                                       value:aValue
+                                    keyPath:_keyPath];
+  }
 }
 
 //--------------------------------------------------------------------
