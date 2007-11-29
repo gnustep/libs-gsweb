@@ -1255,12 +1255,27 @@ Call this method before using a component which was cached in a variable.
 //assignment. 
 //The default implementation ignores the error. Subclassers can override to
 // record the error and possibly return a different page for the current action.
--(void)validationFailedWithException:(NSException*)exception
-                               value:(id)aValue
-                             keyPath:(id)keyPath
+
+- (void) validationFailedWithException:(NSException *)exception
+                                 value:(id)value
+                               keyPath:(NSString *)keyPath
 {
-  // Does nothing
-};
+  // FIXME: check if that code is in WO4.x
+  /*
+  if ([self hasSession]) {
+    [[self session] validationFailedWithException:exception
+                                            value:value
+                                          keyPath:keyPath
+                                        component:self];
+  } else {
+   [GSWApp validationFailedWithException:exception
+                                   value:value
+                                 keyPath:keyPath
+                               component:self
+                                 session:null];
+  }
+  */
+}
 
 //--------------------------------------------------------------------
 -(void)_debugWithString:(NSString*)string
@@ -1399,7 +1414,6 @@ Call this method before using a component which was cached in a variable.
 */
   return exception;
 };
-
 
 //--------------------------------------------------------------------
 //	stringForKey:inTableNamed:withDefaultValue:
@@ -1641,6 +1655,7 @@ Call this method before using a component which was cached in a variable.
         };
     };
 };
+
 
 @end
 
