@@ -39,13 +39,13 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithKeyPath:(NSString*)aKeyPath
 {
-  //OK
-  if ((self=[super init]))
-    {
-      ASSIGNCOPY(_keyPath,aKeyPath);
-    };
+  if ((self=[super init])) {
+    ASSIGNCOPY(_keyPath,aKeyPath);
+    _isValueSettable = ((_keyPath != nil) && ([_keyPath length] > 0));
+    
+  }
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
@@ -109,6 +109,13 @@ RCS_ID("$Id$")
   }
 }
 
+- (void) _setValueNoValidation:(id) aValue inComponent:(GSWComponent*) component
+{    
+  if (_isValueSettable) {
+    [component takeValue:aValue forKeyPath:_keyPath];
+  }
+}    
+
 //--------------------------------------------------------------------
 -(BOOL)isValueConstant
 {
@@ -118,8 +125,8 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(BOOL)isValueSettable
 {
-  return YES;
-};
+  return _isValueSettable;
+}
 
 //--------------------------------------------------------------------
 -(NSString*)description

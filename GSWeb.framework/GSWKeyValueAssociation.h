@@ -36,6 +36,7 @@
 @interface GSWKeyValueAssociation : GSWAssociation
 {
   NSString* _keyPath;
+  BOOL      _isValueSettable;
 }
 
 -(id)initWithKeyPath:(NSString*)aKeyPath;

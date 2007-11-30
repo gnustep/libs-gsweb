@@ -136,12 +136,12 @@ static inline void _prepareForIterationWithIndex(int i, int j, NSArray * array, 
 {
   if (item != nil) {
     id obj = [array objectAtIndex:i];
-    [item setValue:obj 
-       inComponent:component];       // _setValueNoValidation?
+    [item _setValueNoValidation:obj 
+                    inComponent:component];
   }
   if (index != nil) {
-    [index setValue:[NSNumber numberWithInt:i] 
-        inComponent:component];       // _setValueNoValidation?
+    [index _setValueNoValidation:[NSNumber numberWithInt:i] 
+                     inComponent:component];
   }
   if (i != 0) {
     [context incrementLastElementIDComponent];
@@ -154,12 +154,12 @@ static inline void _cleanupAfterIteration(GSWContext * context,
                       GSWComponent * component, int i, GSWAssociation* item, GSWAssociation* index)
 {
   if (item != nil) {
-    [item setValue:nil 
-       inComponent:component];       // _setValueNoValidation?
+    [item _setValueNoValidation:nil 
+                    inComponent:component];
   }
   if (index != nil) {
-    [index setValue:[NSNumber numberWithInt:i] 
-        inComponent:component];       // _setValueNoValidation?
+    [index _setValueNoValidation:[NSNumber numberWithInt:i] 
+                     inComponent:component];
   }
   [context deleteLastElementIDComponent];  
 }
@@ -255,14 +255,14 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
             currentValue = [arrayValue objectAtIndex:i];
           }
         if (_item != nil) {
-          [_item setValue:currentValue
-              inComponent:component];            // speedup? ?
+          [_item _setValueNoValidation:currentValue
+                           inComponent:component];
         }
       }
     }
     if (_index != nil) {
-      [_index setValue:[NSNumber numberWithInt:i]
-           inComponent:component];            // speedup? ?
+      [_index _setValueNoValidation:[NSNumber numberWithInt:i]
+                        inComponent:component];
     }
     [context appendElementIDComponent: indexStr];
     element = [super invokeActionForRequest:request

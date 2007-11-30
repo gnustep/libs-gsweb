@@ -3,6 +3,11 @@
         * GSWBindingNameAssociation.m
         * GSWAssociation.m
         add _setValueNoValidation:inComponent:
+        * GSWKeyValueAssociation
+        added _isValueSettable
+        added _setValueNoValidation: inComponent:
+        * GSWRepetition.m
+        use private _setValueNoValidation: inComponent: to speed things up
 
 2007-11-25  David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/Apache2/mod_gsw.c
