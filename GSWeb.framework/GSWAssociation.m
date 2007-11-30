@@ -221,7 +221,12 @@ static Class NSStringClass = Nil;
     inComponent:(GSWComponent*)component
 {
   [self subclassResponsibility:_cmd];
-};
+}
+
+- (void) _setValueNoValidation:(id) aValue inComponent:(GSWComponent*) component
+{
+  [self setValue:aValue inComponent:component];
+}
 
 //--------------------------------------------------------------------
 //	valueInComponent:

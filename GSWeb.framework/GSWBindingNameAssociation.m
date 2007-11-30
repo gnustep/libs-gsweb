@@ -39,31 +39,25 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithKeyPath:(NSString*)aKeyPath
 {
-  //OK
   if ((self=[super init]))
     {
       NSArray* keys=nil;
+      int      keyCount = 0;
+      
+      if ([aKeyPath hasPrefix:@"^"]) {
+        aKeyPath = [aKeyPath substringFromIndex:1];
+      }
 
       keys=[aKeyPath componentsSeparatedByString:@"."];
-      if ([keys count]>0)
-        {
-          if (!WOStrictFlag && [aKeyPath hasPrefix:@"^"])
-            {
-              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"^"]);
-            }
-          else if (!WOStrictFlag && [aKeyPath hasPrefix:@"~"])
-            {
-              ASSIGNCOPY(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"~"]);
-            };
-          if ([keys count]>1)
-            {
-              ASSIGN(_keyPath,[[keys subarrayWithRange:NSMakeRange(1,[keys count]-1)]componentsJoinedByString:@"."]);
-            };
-        };
-    };
+      ASSIGN(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"^"]);
+      keyCount = [keys count];
+      if (keyCount > 1) {
+        ASSIGN(_keyPath,[[keys subarrayWithRange:NSMakeRange(1,keyCount-1)] componentsJoinedByString:@"."]);
+      }
+    }
 
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
@@ -71,7 +65,7 @@ RCS_ID("$Id$")
   DESTROY(_parentBindingName);
   DESTROY(_keyPath);
   [super dealloc];
-};
+}
 
 - (BOOL) _hasBindingInParent:(GSWComponent *) component
 {
@@ -99,81 +93,81 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(BOOL)isImplementedForComponent:(GSWComponent*)object
+-(BOOL)isImplementedForComponent:(GSWComponent*)component
 {
   BOOL isImplemented=NO;
-  isImplemented=(BOOL)[object hasBinding:_parentBindingName];
+  isImplemented=(BOOL)[component hasBinding:_parentBindingName];
 
   return isImplemented;
 };
 
 //--------------------------------------------------------------------
--(id)valueInComponent:(GSWComponent*)object
+-(id)valueInComponent:(GSWComponent*)component
 {
-  id value=nil;
-
-  if (object)
-    {
-      /*
-        #if !GSWEB_STRICT
-        if (!isNonMandatory)
-        #endif
-        {
-        if (![self isImplementedForComponent:object_])
-        {
-        ExceptionRaise(NSGenericException,@"%@ is not implemented for object of class %@",
-        self,
-        [object_ class]);			  
-        };
-        };
-      */
-      value=[object valueForBinding:_parentBindingName];
-
-      if (value && _keyPath)
-        {
-          value=[GSWAssociation valueInComponent:value
-                                forKeyPath:_keyPath];
-        };
-    };
-  [self logTakeValue:value];
-
+  id value = [component valueForBinding:_parentBindingName];
+  
+  if ((_keyPath != nil) && (value != nil)) {
+      value = [value valueForKeyPath:_keyPath];
+  }
   return value;
-};
+}
 
 //--------------------------------------------------------------------
--(void)setValue:(id)value
-       inComponent:(GSWComponent*)object
+-(void)setValue:(id)newValue
+    inComponent:(GSWComponent*)component
 {
-  if (object)
-    {
-      [object validateValue:&value
-              forKey:self];
-      /*
-        #if !GSWEB_STRICT
-        if (!isNonMandatory)
-        #endif
-        {
-        if (![self isImplementedForComponent:object_])
-        {
-        ExceptionRaise(NSGenericException,@"%@ is not implemented for object of class %@",
-        self,
-        [object_ class]);			  
-        };
-        };
-      */
-      if (_keyPath)
-        {
-          id tmpValue=[object valueForBinding:_parentBindingName];
-          [GSWAssociation setValue:value
-                          inComponent:tmpValue
+  if (_keyPath != nil) {
+    NSException * ex = nil;
+    id value = [component valueForBinding:_parentBindingName];
+    
+    if (value != nil) {
+      NS_DURING {
+        [component validateTakeValue:newValue
                           forKeyPath:_keyPath];
-        }
-      else
-        [object setValue:value
-                forBinding:_parentBindingName];
-    };
-  [self logSetValue:value];
-};
+      } NS_HANDLER {
+        ex = localException;
+      } NS_ENDHANDLER;
+    }
+    
+    if ((ex != nil) && ([value isKindOfClass:[GSWComponent class]])) {
+      [(GSWComponent*)value validationFailedWithException:ex
+                                                    value:newValue
+                                                  keyPath:_keyPath];
+    }
+  } else {
+    [component setValue:newValue
+             forBinding:_parentBindingName];
+  }
+}
+
+- (void) _setValueNoValidation:(id) aValue inComponent:(GSWComponent*) component
+{    
+  if (_keyPath != nil) {
+    id value = [component valueForBinding:_parentBindingName];
+
+    if (value != nil) {
+        [component takeValue:aValue
+                          forKeyPath:_keyPath];
+    }
+
+  } else {
+    GSWAssociation * association = [component _associationWithName:_parentBindingName];
+    GSWComponent*    parent = nil;
+
+    if (association == nil) {
+      return;
+    }
+
+    parent = [component parent];
+    if ([association isValueSettableInComponent:parent]) {
+      [association _setValueNoValidation:aValue inComponent:parent];
+    } else {
+      [NSException raise:NSInvalidArgumentException 
+                  format:@"%@: Cannot set value for binding '%@' -- corresponding association %@ is not settable.",
+			 [parent name], _parentBindingName, association];
+    }
+  }
+}    
 
 //--------------------------------------------------------------------
 -(BOOL)isValueConstant
@@ -185,7 +179,50 @@ RCS_ID("$Id$")
 -(BOOL)isValueSettable
 {
   return YES;
-};
+}
+
+- (BOOL) isValueSettableInComponent:(GSWComponent*) component
+{
+  GSWAssociation * association = [component _associationWithName:_parentBindingName];
+  BOOL yn = NO;
+
+  if (association != nil) {
+    yn = [association isValueSettableInComponent:[component parent]];
+  }
+  return yn;
+}
+
+- (BOOL) isValueConstantInComponent:(GSWComponent*) component
+{
+  GSWAssociation * association = [component _associationWithName:_parentBindingName];
+  BOOL yn = NO;
+
+  if (association != nil) {
+    yn = [association isValueConstantInComponent:[component parent]];
+  }
+  return yn;
+}
+
+- (BOOL) _isImplementedForComponent:(GSWComponent*) component
+{
+  return ([component _associationWithName:_parentBindingName] != nil);
+}
+
+- (NSString*) keyPath
+{
+  return @"<none>";
+}
+
+- (NSString*) bindingInComponent:(GSWComponent*) component
+{
+  GSWComponent * parentcomp = [component parent];
+  GSWAssociation * association = [component _associationWithName:_parentBindingName];
+  
+  if (association != nil) {
+    return [association bindingInComponent:parentcomp];
+  }
+  return nil;
+}
 
 @end
 
