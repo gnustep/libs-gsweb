@@ -1359,17 +1359,26 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
+// FIXME:check if that is needed for 4.5 compat
 -(BOOL)_isUsingWebServer
 {
   return _isUsingWebServer;
-};
+}
 
-//--------------------------------------------------------------------
 -(void)_setIsUsingWebServer:(BOOL)flag
 {
   _isUsingWebServer=flag;
-};
+}
 
+-(BOOL) isUsingWebServer
+{
+  return _isUsingWebServer;
+}
+
+-(void)setIsUsingWebServer:(BOOL)flag
+{
+  _isUsingWebServer=flag;
+}
 
 //--------------------------------------------------------------------
 -(BOOL)_isSessionIDInRequest
