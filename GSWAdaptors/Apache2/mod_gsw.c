@@ -95,6 +95,8 @@ typedef struct gsw_app_conf {
 } gsw_app_conf;
 
 #define GSW_INST_CACHE "gsw_inst_cache"
+#define X_WO_VERSION_HEADER "x-webobjects-adaptor-version: 20071201\r\n"
+
 //#define CRLF           "\r\n"
 
 /*
@@ -747,6 +749,8 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
           snprintf(tmpStr, sizeof(tmpStr), "%s: %s\r\n", hdrs[i].key, hdrs[i].val);
           write_sock(soc, tmpStr, strlen(tmpStr), r);
       }
+      // write x-webobjects-adaptor-version to the app
+      write_sock(soc, X_WO_VERSION_HEADER, strlen(X_WO_VERSION_HEADER), r);
 
       if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
               ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
