@@ -85,7 +85,7 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
     _mtAdaptor = (GSWDefaultAdaptor*)adaptor;
     ASSIGN(_serverSocket,stream);
     _keepAlive=NO;
-    _maxSocketIdleTime=300; // 300 ms
+    _maxSocketIdleTime=900; // 300 ms
     _isMultiThreadEnabled = [adaptor isMultiThreadEnabled];
     
     if (_isMultiThreadEnabled) {
