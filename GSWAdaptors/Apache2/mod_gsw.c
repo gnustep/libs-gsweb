@@ -38,6 +38,7 @@
 
 #include <sys/socket.h> 
 #include <netinet/in.h> 
+#include <netinet/tcp.h> 
 #include <netdb.h> 
 #include <arpa/inet.h> 
 
@@ -586,6 +587,7 @@ int connect_host(char * hostname, u_int16_t port)
   struct sockaddr_in 	 socketAddress;
   in_addr_t            in_addr;
   int                  sock;
+  int                  flag = 1;
 
   socketAddress.sin_addr.s_addr = 0;
 
@@ -595,6 +597,15 @@ int connect_host(char * hostname, u_int16_t port)
     return -1;
   }
 
+  ok = setsockopt(sock,            /* socket affected */
+                  IPPROTO_TCP,     /* set option at TCP level */
+                  TCP_NODELAY,     /* name of option */
+                  (char *) &flag,  /* the cast is historical cruft */
+                  sizeof(int));    /* length of option value */
+  if (ok != 0) {
+    goto saveclose;
+  }
+  
   if (inet_aton(hostname, &socketAddress.sin_addr) == 0) {
     // failure
     struct hostent * host = NULL;
@@ -617,6 +628,8 @@ int connect_host(char * hostname, u_int16_t port)
     }
   }
 
+saveclose:
+  
   close(sock);  
   return -1;
 }
@@ -710,197 +723,200 @@ x-webobjects-adaptorstats: applicationThreadCreation=+0.000s applicationThreadRu
 
 */
 
+static int send_headers(int soc, request_rec *r)
+{
+  apr_array_header_t    * hdrs_arr = NULL;
+  apr_table_entry_t     * hdrs = NULL;
+  int                     retval = 0;
+  int                     i = 0;
+  char tmpStr[512];
+  
+  hdrs_arr = (apr_array_header_t*) apr_table_elts(r->headers_in);
+  hdrs = (apr_table_entry_t *) hdrs_arr->elts;
+    
+  snprintf(tmpStr, sizeof(tmpStr), "%s\r\n", r->the_request);
+  retval = write_sock(soc,tmpStr,strlen(tmpStr), r);
+  if (retval != 0) {
+    return retval;
+  }
+  
+  for (i = 0; i < hdrs_arr->nelts; ++i) {
+    if (!hdrs[i].key)
+      continue;
+    snprintf(tmpStr, sizeof(tmpStr), "%s: %s\r\n", hdrs[i].key, hdrs[i].val);
+    retval = write_sock(soc,tmpStr,strlen(tmpStr), r);
+    if (retval != 0) {
+      return retval;
+    }
+  }
+  // write x-webobjects-adaptor-version to the app
+  snprintf(tmpStr, sizeof(tmpStr), X_WO_VERSION_HEADER);
 
+  retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
+  
+  return retval;
+}
 
 static int handle_request(request_rec *r, gsw_app_conf * app)
 {
-  int             soc = -1;
-  char          * newBuf = NULL;
-  apr_pool_t    * sub_pool = NULL;
-  int             load_avr_seen = 0;
-  int             length_seen = 0;
-  u_int8_t        newload = 0;
-  size_t          content_length = 0;
-  char            * content_type = NULL;
-  char            * content_encoding = NULL;
-  char            * location = NULL;
-  int               http_status = DECLINED;
-
-  apr_pool_create(&sub_pool, r->pool);
-
-  //print_app(r, NULL, app);
-
-  soc = connect_host(app->host_name, app->port);
+	int                     soc = -1;
+	char                  * newBuf = NULL;
+	apr_pool_t            * sub_pool = NULL;
+	int                     load_avr_seen = 0;
+	int                     length_seen = 0;
+	u_int8_t                newload = 0;
+	size_t                  content_length = 0;
+	char                  * content_type = NULL;
+	char                  * content_encoding = NULL;
+	char                  * location = NULL;
+	int                     http_status = DECLINED;
+  char tmpStr[512];
   
-  if (soc != -1) {
-    if (write_sock(soc, (const void *) r->the_request, strlen(r->the_request), r) == 0) {
-      int   headers_done = 0;
-      int   i=0;
-      const apr_array_header_t *hdrs_arr = apr_table_elts(r->headers_in);
-      const apr_table_entry_t *hdrs = (const apr_table_entry_t *) hdrs_arr->elts;
-      char tmpStr[512];
-
-      write_sock(soc, CRLF, 2, r);
-
-    
-      for (i = 0; i < hdrs_arr->nelts; ++i) {
-          if (!hdrs[i].key)
-              continue;
-          snprintf(tmpStr, sizeof(tmpStr), "%s: %s\r\n", hdrs[i].key, hdrs[i].val);
-          write_sock(soc, tmpStr, strlen(tmpStr), r);
-      }
-      // write x-webobjects-adaptor-version to the app
-      write_sock(soc, X_WO_VERSION_HEADER, strlen(X_WO_VERSION_HEADER), r);
-
-      if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
-              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
-        return DECLINED;
-      }
-      
-      // check if we are on a POST trip...
-      if ((r->method_number == M_POST) && (ap_should_client_block(r))) {
-        size_t bytescopied = 0;
-        size_t bytesread = 1;
-        char * postbuf = NULL;
-
-
-//        if ((r->content_type) && strlen(r->content_type)) {
-//          snprintf(tmpStr, sizeof(tmpStr), "content-type: %s", r->content_type);
-//          write_sock(soc, tmpStr, strlen(tmpStr), r);
-//          write_sock(soc, CRLF, 2, r);
-////        }
-//        
-//        snprintf(tmpStr, sizeof(tmpStr), "content-length: %d", r->remaining);
-//        write_sock(soc, tmpStr, strlen(tmpStr), r);
-//        write_sock(soc, CRLF, 2, r);
+	
+	apr_pool_create(&sub_pool, r->pool);
+		
+	soc = connect_host(app->host_name, app->port);
+  	
+	if (soc != -1) {
+		if (send_headers(soc, r)  == 0) {
+			int   headers_done = 0;			
+			
+			if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
+				ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
+				return DECLINED;
+			}
+			
+			// check if we are on a POST trip...
+			if ((r->method_number == M_POST) && (ap_should_client_block(r))) {
+				size_t bytescopied = 0;
+				size_t bytesread = 1;
+				char * postbuf = NULL;
         
-        write_sock(soc, CRLF, 2, r);
-
-        postbuf = apr_palloc(sub_pool,1024*8+1);
-        
-        // TODO: check if we need to transfer the last CR / NL from the POST data.
-        while (bytesread > 0) {
-          bytesread = ap_get_client_block(r, postbuf, 1024*8);
-
-          bytescopied += bytesread;
-          if (bytesread == 0) {
-            break;
-          }
-          postbuf[bytesread]='\0';
-          write_sock(soc, postbuf, bytesread, r);
-        }
-//        postbuf[0]='\0';
-//        write_sock(soc, postbuf, 1, r);
-      }        
-
-      write_sock(soc, CRLF, 2, r);
-
-      // HTTP/1.0 200 OK NeXT WebObjects
-      if (newBuf = read_sock_line(soc, r, sub_pool)) {
-        if ((strncasecmp(newBuf,"HTTP/",5) != 0) || (strlen(newBuf) < 15)) {
-          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no 'HTTP/...'", newBuf);
-          apr_pool_destroy(sub_pool);
-          return DECLINED;
-        } else {
-          newBuf[12] = '\0';
-          http_status = atoi(newBuf+9);
-          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "http_status '%s' (%d)", newBuf+9, http_status);
-          if (http_status==200) {            
-            http_status=OK;
-          }
-        }
-      }
-     
-      while (headers_done == 0) {
-        newBuf = read_sock_line(soc, r, sub_pool);
-        
-        if (newBuf != NULL) {
-//          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newBuf:'%s' len:%d", newBuf, strlen(newBuf));
-          
-          if (load_avr_seen == 0) {
-            if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
-              load_avr_seen = 1;
-              newload = atoi(newBuf+26);
-              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newload:%d", newload);
-            }
-          }
-          if (length_seen == 0) {
-            if (strncmp(newBuf, "content-length: ", 16) == 0) {
-              length_seen = 1;
-              content_length = atol(newBuf+16);
-              snprintf(tmpStr, sizeof(tmpStr), "%d", content_length);
-              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content-length: %s", tmpStr);
-              apr_table_set(r->headers_out, "content-length", tmpStr);
-            }
-          }
-          if (content_type == NULL) {
-            if (strncmp(newBuf, "content-type: ", 14) == 0) {
-              content_type = newBuf+14;
-              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content_type: %s", content_type);
-            }
-          }
-          if (content_encoding == NULL) {
-            if (strncmp(newBuf, "content-encoding: ", 18) == 0) {
-              content_encoding = newBuf+18;
-
-              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content-encoding: %s", content_encoding);
-              apr_table_set(r->headers_out, "content-encoding", content_encoding);
-             }
-          }
-          if (location == NULL) {
-            if (strncmp(newBuf, "location: ", 10) == 0) {
-              location = newBuf+10;
-              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location: %s", location);
-              apr_table_set(r->headers_out, "location", location);
-             }
-          }
-        } else {
-          headers_done = 1;
-          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "#########");
-        }
-      } // while
-      
-      // do the request
-      if ((content_type != NULL) && (content_length > 0)) {
-        size_t    bytesDone = 0;
-        size_t    blockSize = 1024;
-        size_t    rval=1;
-      	char      * transferBuf = NULL;
-        
-        ap_set_content_type(r, content_type);
-        
-        if (content_length < blockSize) {
-          blockSize = content_length;
-        }
-        transferBuf = apr_palloc(sub_pool, blockSize);
-        if (! transferBuf) {
-          goto internal_error;
-        }
-
-        while ((bytesDone < content_length) && (rval > 0)) {
-          rval= read(soc, transferBuf, blockSize);
-          if (rval > 0) {
-            ap_rwrite(transferBuf, rval, r);
-            bytesDone += rval;
-          } 	
-        }
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "copied %d bytes", bytesDone);
-      }
-    }
-    
-    close(soc);
-//    apr_pool_destroy(sub_pool); 
-
-    time(&app->last_response_time);
-  }
-  
-  //apr_pool_destroy(sub_pool);
-
-  return http_status;
-
-  internal_error:
-      close(soc);
-      return 500;  
+				write_sock(soc, CRLF, 2, r);
+				
+				postbuf = apr_palloc(sub_pool,1024*8+1);
+				
+				// TODO: check if we need to transfer the last CR / NL from the POST data.
+				while (bytesread > 0) {
+					bytesread = ap_get_client_block(r, postbuf, 1024*8);
+					
+					bytescopied += bytesread;
+					if (bytesread == 0) {
+						break;
+					}
+					postbuf[bytesread]='\0';
+					write_sock(soc, postbuf, bytesread, r);
+				}
+			}        
+			
+			write_sock(soc, CRLF, 2, r);
+			
+			// HTTP/1.0 200 OK NeXT WebObjects
+			if (newBuf = read_sock_line(soc, r, sub_pool)) {
+				if ((strncasecmp(newBuf,"HTTP/",5) != 0) || (strlen(newBuf) < 15)) {
+					ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no 'HTTP/...'", newBuf);
+					apr_pool_destroy(sub_pool);
+					return DECLINED;
+				} else {
+					newBuf[12] = '\0';
+					http_status = atoi(newBuf+9);
+					ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "http_status '%s' (%d)", newBuf+9, http_status);
+					if (http_status==200) {            
+						http_status=OK;
+					}
+				}
+			}
+			
+			while (headers_done == 0) {
+				newBuf = read_sock_line(soc, r, sub_pool);
+				
+				if (newBuf != NULL) {
+					//          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newBuf:'%s' len:%d", newBuf, strlen(newBuf));
+					
+					if (load_avr_seen == 0) {
+						if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
+							load_avr_seen = 1;
+							newload = atoi(newBuf+26);
+							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newload:%d", newload);
+						}
+					}
+					if (length_seen == 0) {
+						if (strncmp(newBuf, "content-length: ", 16) == 0) {
+							length_seen = 1;
+							content_length = atol(newBuf+16);
+							snprintf(tmpStr, sizeof(tmpStr), "%d", content_length);
+							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content-length: %s", tmpStr);
+							apr_table_set(r->headers_out, "content-length", tmpStr);
+						}
+					}
+					if (content_type == NULL) {
+						if (strncmp(newBuf, "content-type: ", 14) == 0) {
+							content_type = newBuf+14;
+							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content_type: %s", content_type);
+						}
+					}
+					if (content_encoding == NULL) {
+						if (strncmp(newBuf, "content-encoding: ", 18) == 0) {
+							content_encoding = newBuf+18;
+							
+							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content-encoding: %s", content_encoding);
+							apr_table_set(r->headers_out, "content-encoding", content_encoding);
+						}
+					}
+					if (location == NULL) {
+						if (strncmp(newBuf, "location: ", 10) == 0) {
+							location = newBuf+10;
+							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location: %s", location);
+							apr_table_set(r->headers_out, "location", location);
+						}
+					}
+				} else {
+					headers_done = 1;
+					ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "#########");
+				}
+			} // while
+			
+			// do the request
+			if ((content_type != NULL) && (content_length > 0)) {
+				size_t    bytesDone = 0;
+				size_t    blockSize = 1024;
+				size_t    rval=1;
+				char      * transferBuf = NULL;
+				
+				ap_set_content_type(r, content_type);
+				
+				if (content_length < blockSize) {
+					blockSize = content_length;
+				}
+				transferBuf = apr_palloc(sub_pool, blockSize);
+				if (! transferBuf) {
+					goto internal_error;
+				}
+				
+				while ((bytesDone < content_length) && (rval > 0)) {
+					rval= read(soc, transferBuf, blockSize);
+					if (rval > 0) {
+						ap_rwrite(transferBuf, rval, r);
+						bytesDone += rval;
+					} 	
+				}
+				ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "copied %d bytes", bytesDone);
+			}
+		}
+		
+		close(soc);
+		//    apr_pool_destroy(sub_pool); 
+		
+		time(&app->last_response_time);
+	}
+	
+	//apr_pool_destroy(sub_pool);
+	
+	return http_status;
+	
+internal_error:
+	close(soc);
+	return 500;  
 }
 
 
@@ -941,11 +957,11 @@ static const char *cmd_gsw(cmd_parms *cmd, void *mconfig)
 }
 
 
-static const char *set_ShowApps(cmd_parms *cmd, void *mconfig, int bool)
+static const char * set_ShowApps(cmd_parms *cmd, void *mconfig, int mybool)
 {
     gsw_cfg *cfg = (gsw_cfg *) mconfig;
     
-    cfg->showApps = bool;
+    cfg->showApps = mybool;
     
     return NULL;
 }
