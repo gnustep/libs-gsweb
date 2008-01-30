@@ -95,8 +95,24 @@ typedef struct gsw_app_conf {
   u_int8_t  unreachable;         // 0=online 1=unreachable
 } gsw_app_conf;
 
-#define GSW_INST_CACHE "gsw_inst_cache"
-#define X_WO_VERSION_HEADER "x-webobjects-adaptor-version: 20071201\r\n"
+#define GSW_INST_CACHE          "gsw_inst_cache"
+#define X_WO_VERSION_HEADER     "x-webobjects-adaptor-version: 20071201\r\n"
+#define SERVER_SOFTWARE         "SERVER_SOFTWARE"
+#define SERVER_NAME             "SERVER_NAME"
+#define SERVER_PORT             "SERVER_PORT"
+#ifndef REMOTE_HOST
+#define REMOTE_HOST             "REMOTE_HOST"
+#endif
+#define DOCUMENT_ROOT           "DOCUMENT_ROOT"
+#define SERVER_ADMIN            "SERVER_ADMIN"
+#define SCRIPT_FILENAME         "SCRIPT_FILENAME"
+#define REMOTE_PORT             "REMOTE_PORT"
+#define REMOTE_USER             "REMOTE_USER"
+#define AUTH_TYPE               "AUTH_TYPE"
+#define REMOTE_IDENT            "REMOTE_IDENT"
+#define REDIRECT_QUERY_STRING   "REDIRECT_QUERY_STRING"
+#define REDIRECT_URL            "REDIRECT_URL"
+
 
 //#define CRLF           "\r\n"
 
@@ -534,7 +550,7 @@ gsw_app_conf * find_app(request_rec *r)
 
     snprintf(tmp_key, sizeof(tmp_key), "%s:%d", app_name, instance_nr);
   
-    app_conf = apr_table_get(cfg->app_table, (const char *)tmp_key); 	
+    app_conf = apr_table_get(cfg->app_table, (const char  *)tmp_key); 	
    	
    	if (app_conf != NULL) {
    	  return app_conf;
@@ -730,7 +746,9 @@ static int send_headers(int soc, request_rec *r)
   int                     retval = 0;
   int                     i = 0;
   char tmpStr[512];
-  
+  server_rec            * s = r->server;
+  conn_rec              * c = r->connection;
+ 
   hdrs_arr = (apr_array_header_t*) apr_table_elts(r->headers_in);
   hdrs = (apr_table_entry_t *) hdrs_arr->elts;
     
@@ -753,7 +771,10 @@ static int send_headers(int soc, request_rec *r)
   snprintf(tmpStr, sizeof(tmpStr), X_WO_VERSION_HEADER);
 
   retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
-  
+  // SERVER_PORT
+  snprintf(tmpStr, sizeof(tmpStr), "SERVER_PORT: %u\r\n",s->port);
+  retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
+ 
   return retval;
 }
 
