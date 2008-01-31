@@ -772,7 +772,7 @@ static int send_headers(int soc, request_rec *r)
 
   retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
   // SERVER_PORT
-  snprintf(tmpStr, sizeof(tmpStr), "SERVER_PORT: %u\r\n",s->port);
+  snprintf(tmpStr, sizeof(tmpStr), "SERVER_PORT: %hu\r\n",ap_get_server_port(r));
   retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
  
   return retval;
