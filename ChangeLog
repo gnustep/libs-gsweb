@@ -1,4 +1,10 @@
+2008-02-13  David Ayers  <ayers@fsfe.org>
+
+	* GSWeb.framework/GSWUtils.m (boolValueFor,boolValueWithDefaultFor): Rely
+	on [NSString-boolValue] as it handle NO and digits more correctly.
+	
 2007-11-30  David Wetzel <dave@turbocat.de>
+	
         GSWeb.framework:
         * GSWBindingNameAssociation.m
         * GSWAssociation.m
@@ -10,6 +16,7 @@
         use private _setValueNoValidation: inComponent: to speed things up
 
 2007-11-25  David Wetzel <dave@turbocat.de>
+	
 	* GSWAdaptors/Apache2/mod_gsw.c
 	Works also if a header or empty line at the end of the headers has a \r\n ending.
 	GSWeb.framework:

@@ -336,8 +336,6 @@ BOOL boolValueFor(id anObject)
         return YES;
       else if (/*anObject==BNNO ||*/ anObject==NSTNO || anObject==GSWNumberNo)
         return NO;
-      else if (/*[anObject conformsTo:@protocol(NSString)]*/ [anObject isKindOfClass:nsStringClass] && [anObject length]>0)
-        return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
       else if ([anObject respondsToSelector:@selector(boolValue)] && [anObject boolValue])
         return YES;
       else if ([anObject respondsToSelector:@selector(intValue)] && [anObject intValue])
@@ -361,8 +359,6 @@ BOOL boolValueWithDefaultFor(id anObject,BOOL defaultValue)
         return YES;
       else if (/*anObject==BNNO ||*/ anObject==NSTNO)
         return NO;
-      else if ([anObject isKindOfClass:nsStringClass] && [anObject length]>0)
-        return ([anObject caseInsensitiveCompare: @"NO"]!=NSOrderedSame);
       else if ([anObject respondsToSelector:@selector(boolValue)])
         return ([anObject boolValue]!=NO);
       else if ([anObject respondsToSelector:@selector(intValue)])
