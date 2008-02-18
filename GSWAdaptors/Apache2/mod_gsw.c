@@ -107,11 +107,13 @@ typedef struct gsw_app_conf {
 #define SERVER_ADMIN            "SERVER_ADMIN"
 #define SCRIPT_FILENAME         "SCRIPT_FILENAME"
 #define REMOTE_PORT             "REMOTE_PORT"
+#define REMOTE_ADDR             "REMOTE_ADDR"
 #define REMOTE_USER             "REMOTE_USER"
 #define AUTH_TYPE               "AUTH_TYPE"
 #define REMOTE_IDENT            "REMOTE_IDENT"
 #define REDIRECT_QUERY_STRING   "REDIRECT_QUERY_STRING"
 #define REDIRECT_URL            "REDIRECT_URL"
+
 
 
 //#define CRLF           "\r\n"
@@ -739,6 +741,15 @@ x-webobjects-adaptorstats: applicationThreadCreation=+0.000s applicationThreadRu
 
 */
 
+static int send_header_string(int soc, const char * key, const char * value, request_rec *r)
+{
+  int                     retval = 0;
+  char tmpStr[512];
+
+  snprintf(tmpStr, sizeof(tmpStr)-1, "%s: %s\r\n",key, value);
+  retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
+}
+
 static int send_headers(int soc, request_rec *r)
 {
   apr_array_header_t    * hdrs_arr = NULL;
@@ -746,6 +757,7 @@ static int send_headers(int soc, request_rec *r)
   int                     retval = 0;
   int                     i = 0;
   char tmpStr[512];
+  const char            * ap_str;
   server_rec            * s = r->server;
   conn_rec              * c = r->connection;
  
@@ -771,10 +783,42 @@ static int send_headers(int soc, request_rec *r)
   snprintf(tmpStr, sizeof(tmpStr), X_WO_VERSION_HEADER);
 
   retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
+  
+  retval = send_header_string(soc, SERVER_NAME, s->server_hostname, r);
+
   // SERVER_PORT
   snprintf(tmpStr, sizeof(tmpStr), "SERVER_PORT: %hu\r\n",ap_get_server_port(r));
   retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
- 
+
+  retval = send_header_string(soc, REMOTE_ADDR, c->remote_ip, r);
+
+  if (r->user != NULL) {
+    retval = send_header_string(soc, REMOTE_USER, r->user, r);
+  }
+  
+  if (r->ap_auth_type != NULL) {
+    retval = send_header_string(soc, AUTH_TYPE, r->ap_auth_type, r);
+  }
+  
+  ap_str = (char *)ap_get_remote_logname(r);
+  
+  if (ap_str != NULL) {
+    retval = send_header_string(soc, REMOTE_IDENT, ap_str, r);
+  }
+
+  /*
+   *	Apache custom responses.  If we have redirected, add special headers
+   */
+
+  if (r->prev) {
+    if (r->prev->args) {
+      retval = send_header_string(soc, REDIRECT_QUERY_STRING, r->prev->args, r);
+    }
+    if (r->prev->uri) {
+      retval = send_header_string(soc, REDIRECT_URL, r->prev->uri, r);
+    }
+  }
+  
   return retval;
 }
 
