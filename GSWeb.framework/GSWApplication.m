@@ -104,137 +104,114 @@ int GSWApplicationMainReal(NSString* applicationClassName,
 {
   Class applicationClass=Nil;
   int result=0;
-//call NSBundle Start:_usesFastJavaBundleSetup
-//call :NSBundle Start:_setUsesFastJavaBundleSetup:YES
-//call NSBundle mainBundle
+  //call NSBundle Start:_usesFastJavaBundleSetup
+  //call :NSBundle Start:_setUsesFastJavaBundleSetup:YES
+  //call NSBundle mainBundle
   NSAutoreleasePool *appAutoreleasePool=nil;
-
+  
   appAutoreleasePool = [NSAutoreleasePool new];
-  GSWLogMemCF("New NSAutoreleasePool: %p",appAutoreleasePool);
-  /*
+  
+  GSWeb_AdjustVolatileNSArgumentDomain();
+  
+  if (!localDynCreateClassNames)
+    localDynCreateClassNames=[NSMutableDictionary new];
+  
+  GSWeb_InitializeGlobalAppDefaultOptions();
+  GSWeb_InitializeDebugOptions();
   //TODO
-  DebugInstall("/dvlp/projects/app/Source/app.gswa/shared_debug_obj/ix86/linux-gnu/gnu-gnu-gnu-xgps/app_server");
-  DebugEnableBreakpoints();
-  */
-  if (result>=0)
-    {
-      GSWeb_AdjustVolatileNSArgumentDomain();
-
-      if (!localDynCreateClassNames)
-        localDynCreateClassNames=[NSMutableDictionary new];
-
-      GSWeb_InitializeGlobalAppDefaultOptions();
-      GSWeb_InitializeDebugOptions();
-      //TODO
-      if (applicationClassName && [applicationClassName length]>0)
-        ASSIGNCOPY(globalApplicationClassName,applicationClassName);
-      GSWeb_ApplicationDebugSetChange();
-      applicationClass=[GSWApplication _applicationClass];
-      NSDebugFLog(@"=======");
-      NSDebugFLog(@"applicationClass: %@",applicationClass);
-      if (!applicationClass)
-        {
-          NSCAssert(NO,@"!applicationClass");
-          //TODO error
-          result=-1;
-        };
-    };
-  if (result>=0)
-    {
-      NSArray* frameworks=[applicationClass loadFrameworks];
-      NSDebugFLog(@"LOAD Frameworks frameworks=%@",frameworks);
+  if (applicationClassName && [applicationClassName length]>0)
+    ASSIGNCOPY(globalApplicationClassName,applicationClassName);
+  GSWeb_ApplicationDebugSetChange();
+  applicationClass=[GSWApplication _applicationClass];
+  
+  if (!applicationClass) {
+    NSCAssert(NO,@"!applicationClass");
+    //TODO error
+    result=-1;
+  }
+  
+  if (result>=0) {
+    NSArray* frameworks=[applicationClass loadFrameworks];
+    
+    if (frameworks) {
+      NSBundle* bundle=nil;
+      unsigned i=0,j=0;
+      BOOL loadResult=NO;
+      NSFileManager *fm = [NSFileManager defaultManager];
+      NSArray *searchDomains = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
+                                                                   NSAllDomainsMask,
+                                                                   NO);
+      unsigned frameworksCount = [frameworks count];
+      unsigned searchDomainCount = [searchDomains count];
       
-      if (frameworks)
-        {
-          NSBundle* bundle=nil;
-          unsigned i=0,j=0;
-          BOOL loadResult=NO;
-	  NSFileManager *fm = [NSFileManager defaultManager];
-	  NSArray *searchDomains
-	    = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
-						  NSAllDomainsMask,
-						  NO);
-          unsigned frameworksCount=[frameworks count];
-          unsigned searchDomainCount=[searchDomains count];
-          for(i=0;i<frameworksCount;i++)
-            {
-              NSString* bundlePath=[frameworks objectAtIndex:i];
+      for (i=0; i<frameworksCount; i++) {
+        NSString* bundlePath=[frameworks objectAtIndex:i];
 	      NSString* searchPath=nil;
-	      for (j=0;j<searchDomainCount;j++)
-		{
-		  searchPath = [searchDomains objectAtIndex:j];
-		  searchPath = [searchPath stringByAppendingPathComponent:@"Frameworks"];
-		  searchPath = [searchPath stringByAppendingPathComponent: bundlePath];
-		  /* FIXME: This should be using stringByAppendingPathExtension:
-		     but GSFrameworkPSuffix already has the '.'.*/
-		  searchPath = [searchPath stringByAppendingString: GSFrameworkPSuffix];
-		  if ([fm fileExistsAtPath: searchPath])
-		    {
-		      bundle=[NSBundle bundleWithPath:searchPath];
-		      loadResult=[bundle load];
-		      if (!loadResult)
-			{
-			  ExceptionRaise(@"GSWApplication",@"Can't load framework %@",
-					 searchPath);
-			};
-		      /* Break out of the inner for loop.  */
-		      j = searchDomainCount;
-		    }
-		  else
-		    {
-		      bundle = nil;
-		    }
-		}
-	      if (!bundle)
-		{
-		  ExceptionRaise(@"GSWApplication",@"Can't load framework %@",
-				 bundlePath);
-		};
-            };
-        };	  
-      NSDebugFLLog(@"bundles",@"[NSBundle allBundles] pathes=%@",
-		   [[NSBundle allBundles] valueForKey:@"resourcePath"]);
-      NSDebugFLLog(@"bundles",@"[NSBundle allFrameworks] pathes=%@",
-		   [[NSBundle allFrameworks] valueForKey:@"resourcePath"]);
-    };
-  if (result>=0)
-    {
-      NS_DURING
-        {
-          id app=[applicationClass new];
-          if (app)
-            result=1;
-          else
-            result=-1;
-        };	  
-      // Make sure we pass all exceptions back to the requestor.
-      NS_HANDLER
-        {
-          NSLog(@"Can't create Application (Class:%@)- "
-		@"%@ %@ Name:%@ Reason:%@",
-                applicationClass,
-                localException,
-                [localException description],
-                [localException name],
-                [localException reason]);
-          result=-1;
+        
+	      for (j=0; j<searchDomainCount; j++) {
+          searchPath = [searchDomains objectAtIndex:j];
+          searchPath = [searchPath stringByAppendingPathComponent:@"Frameworks"];
+          searchPath = [searchPath stringByAppendingPathComponent: bundlePath];
+          /* FIXME: This should be using stringByAppendingPathExtension:
+           but GSFrameworkPSuffix already has the '.'.*/
+          searchPath = [searchPath stringByAppendingString: GSFrameworkPSuffix];
+          
+          if ([fm fileExistsAtPath: searchPath]) {
+            bundle=[NSBundle bundleWithPath:searchPath];
+            loadResult=[bundle load];
+            
+            if (!loadResult) {
+              ExceptionRaise(@"GSWApplication",@"Can't load framework %@",
+                             searchPath);
+            }
+            /* Break out of the inner for loop.  */
+            j = searchDomainCount;
+          } else {
+            bundle = nil;
+          }
         }
-      NS_ENDHANDLER;
-    };
-  NSDebugLog(@"result=%d",result);
-  printf("result=%d\n",result);
-  if (result>=0 && GSWApp)
+	      if (!bundle) {
+          ExceptionRaise(@"GSWApplication",@"Can't load framework %@",
+                         bundlePath);
+        }
+      }
+    }	  
+  }
+  
+  if (result>=0) {
+    NS_DURING
     {
-      [GSWApp _setPool:[NSAutoreleasePool new]];
-
-      [GSWApp run];
-
-      DESTROY(GSWApp);
-    };
-  GSWLogMemCF("Destroy NSAutoreleasePool: %p",appAutoreleasePool);
+      id app=[applicationClass new];
+      if (app)
+        result=1;
+      else
+        result=-1;
+    }	  
+    // Make sure we pass all exceptions back to the requestor.
+    NS_HANDLER
+    {
+      NSLog(@"Can't create Application (Class:%@)- "
+            @"%@ %@ Name:%@ Reason:%@",
+            applicationClass,
+            localException,
+            [localException description],
+            [localException name],
+            [localException reason]);
+      result=-1;
+    }
+    NS_ENDHANDLER;
+  }
+  if (result>=0 && GSWApp) {
+    [GSWApp _setPool:[NSAutoreleasePool new]];
+    
+    [GSWApp run];
+    
+    DESTROY(GSWApp);
+  }
+  
   DESTROY(appAutoreleasePool);
   return result;
-};
+}
 
 //====================================================================
 // Main function (for WO compatibility)
@@ -2239,43 +2216,31 @@ to another instance **/
   //call [self resourceManager];
   SEL registerForEventsSEL=NULL;
   SEL unregisterForEventsSEL=NULL;
-  NSDebugMLLog0(@"application",@"GSWApplication run");
   
-  NSDebugMLog(@"%@", GSCurrentThread());
   registerForEventsSEL=@selector(registerForEvents);
   unregisterForEventsSEL=@selector(unregisterForEvents);
-  NSDebugMLLog(@"application",@"adaptors=%@",_adaptors);
   [_adaptors makeObjectsPerformSelector:registerForEventsSEL];
-  NSDebugMLLog0(@"application",@"NSRunLoop run");
-	  //call adaptor run
-	  //call self _openInitialURL
-  NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",
-	       GSCurrentThreadDictionary());
-  NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",
-	       [NSRunLoop currentRunLoop]);
+  //call adaptor run
+  //call self _openInitialURL
+
   NSAssert(_currentRunLoop,@"No runLoop");
-
-  NS_DURING
-    {
-
-     NSLog(@"Application running. To use direct connect enter\n%@\nin your web Browser.\nPlease make sure that this port is only reachable in a trusted network.",
+  
+  NS_DURING {    
+    NSLog(@"Application running. To use direct connect enter\n%@\nin your web Browser.\nPlease make sure that this port is only reachable in a trusted network.",
           [self _directConnectURL]);
-
-      [_currentRunLoop run];
+    
+    while ((_terminating == NO) && [_currentRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]]) {
+      // run loop
     }
-  NS_HANDLER
-    {
-      NSLog(@"%@",localException);
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    }
-  NS_ENDHANDLER;
+  } NS_HANDLER {
+    NSLog(@"%@",localException);
+    LOGException(@"%@ (%@)",localException,[localException reason]);
+    [localException raise];
+  } NS_ENDHANDLER;
   
-  NSDebugMLLog0(@"application",@"NSRunLoop end run");
   [_adaptors makeObjectsPerformSelector:unregisterForEventsSEL];
-  NSDebugMLLog0(@"application",@"GSWApplication end run");
   
-};
+}
 
 //--------------------------------------------------------------------
 //runLoop
@@ -2323,7 +2288,7 @@ to another instance **/
 -(BOOL)isTerminating 
 {
   return _terminating;
-};
+}
 
 //--------------------------------------------------------------------
 //terminate
@@ -2331,13 +2296,15 @@ to another instance **/
 {
   NSTimer* timer=nil;
   _terminating = YES;
+  /*
   timer=[NSTimer timerWithTimeInterval:0
                  target:self
                  selector:@selector(_handleQuitTimer:)
                  userInfo:nil
                  repeats:NO];
   [GSWApp addTimer:timer];
-};
+   */
+}
 
 //--------------------------------------------------------------------
 -(void)_scheduleApplicationTimerForTimeInterval:(NSTimeInterval)aTimeInterval
