@@ -1,3 +1,7 @@
+2008-03-01  David Wetzel <dave@turbocat.de>
+        * GSWAdaptors/Apache2/mod_gsw.c
+        read POST data before contacting the app
+
 2008-02-18  David Wetzel <dave@turbocat.de>
         * GSWAdaptors/Apache2/mod_gsw.c
         pass more to the application

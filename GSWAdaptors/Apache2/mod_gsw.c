@@ -113,6 +113,7 @@ typedef struct gsw_app_conf {
 #define REMOTE_IDENT            "REMOTE_IDENT"
 #define REDIRECT_QUERY_STRING   "REDIRECT_QUERY_STRING"
 #define REDIRECT_URL            "REDIRECT_URL"
+#define CONTENT_LENGTH          "content-length"
 
 
 
@@ -806,6 +807,11 @@ static int send_headers(int soc, request_rec *r)
     retval = send_header_string(soc, REMOTE_IDENT, ap_str, r);
   }
 
+  // the_request
+  if (r->unparsed_uri != NULL) {
+    retval = send_header_string(soc, "the_request", r->the_request, r);
+  }
+  
   /*
    *	Apache custom responses.  If we have redirected, add special headers
    */
@@ -822,6 +828,58 @@ static int send_headers(int soc, request_rec *r)
   return retval;
 }
 
+uint32_t get_content_len(request_rec *r)
+{
+  apr_array_header_t    * hdrs_arr = NULL;
+  apr_table_entry_t     * hdrs = NULL;
+  int                     i = 0;
+  const char            * ap_str;
+  uint32_t              * len = 0;
+  
+  hdrs_arr = (apr_array_header_t*) apr_table_elts(r->headers_in);
+  hdrs = (apr_table_entry_t *) hdrs_arr->elts;
+  
+  for (i = 0; i < hdrs_arr->nelts; ++i) {
+    if (!hdrs[i].key)
+      continue;
+    if (strcasecmp(hdrs[i].key, CONTENT_LENGTH) == 0) {
+      len = atoi((const char *)hdrs[i].val);
+      break;
+    }
+  }
+  return len;
+}
+
+void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool, gsw_app_conf * app)
+{
+  char * postbuf = NULL;
+  char * tmpbuf = NULL;
+  if ((r->method_number == M_POST) && (ap_should_client_block(r))) {
+    apr_off_t 	bytesread = 0;
+    apr_off_t   len_read = 0;
+    
+    if (!clength) {
+      return NULL;
+    }
+    
+    postbuf = apr_palloc(pool,clength+1);
+    tmpbuf = postbuf;
+
+    while (bytesread < clength) {
+      len_read = ap_get_client_block(r, tmpbuf, clength - bytesread);
+      if (len_read < 0) {
+        return NULL;
+      }
+      bytesread += len_read;
+      tmpbuf += len_read;
+    }
+    postbuf[clength] = '\0';    
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "got '%s'", postbuf);
+  }
+
+  return postbuf;
+}
+
 static int handle_request(request_rec *r, gsw_app_conf * app)
 {
 	int                     soc = -1;
@@ -835,10 +893,22 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 	char                  * content_encoding = NULL;
 	char                  * location = NULL;
 	int                     http_status = DECLINED;
+  void                  * postdata = NULL;
+  uint32_t                contentLen = 0;
   char tmpStr[512];
   
 	
 	apr_pool_create(&sub_pool, r->pool);
+  
+  if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
+    return DECLINED;
+  }
+  
+  if (r->method_number == M_POST) {
+    contentLen = get_content_len(r);
+    postdata = read_post_data(r, contentLen, sub_pool, app);
+  }
 		
 	soc = connect_host(app->host_name, app->port);
   	
@@ -846,34 +916,12 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 		if (send_headers(soc, r)  == 0) {
 			int   headers_done = 0;			
 			
-			if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
-				ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
-				return DECLINED;
-			}
 			
 			// check if we are on a POST trip...
-			if ((r->method_number == M_POST) && (ap_should_client_block(r))) {
-				size_t bytescopied = 0;
-				size_t bytesread = 1;
-				char * postbuf = NULL;
-        
-				write_sock(soc, CRLF, 2, r);
-				
-				postbuf = apr_palloc(sub_pool,1024*8+1);
-				
-				// TODO: check if we need to transfer the last CR / NL from the POST data.
-				while (bytesread > 0) {
-					bytesread = ap_get_client_block(r, postbuf, 1024*8);
-					
-					bytescopied += bytesread;
-					if (bytesread == 0) {
-						break;
-					}
-					postbuf[bytesread]='\0';
-					write_sock(soc, postbuf, bytesread, r);
-				}
-			}        
-			
+      if (postdata) {
+        write_sock(soc, CRLF, 2, r);
+        write_sock(soc, postdata, contentLen, r);
+			}
 			write_sock(soc, CRLF, 2, r);
 			
 			// HTTP/1.0 200 OK NeXT WebObjects
