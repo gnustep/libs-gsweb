@@ -68,11 +68,6 @@ RCS_ID("$Id$")
       NSWarnLog(@"XML parser is no more handled. Using RawHTML one");
       type=GSWTemplateParserType_RawHTML;
     }
-  else if ([string caseInsensitiveCompare:GSWOPTValue_DefaultTemplateParser_ANTLR] == NSOrderedSame)
-    {
-      NSWarnLog(@"ANTLR parser is no more handled. Using RawHTML one");
-      type=GSWTemplateParserType_RawHTML;
-    }
   else 
     type=GSWTemplateParserType_RawHTML;
   NSDebugMLog(@"templateParserTypeFromString:%@ ==> %d",string,type);
@@ -181,10 +176,6 @@ RCS_ID("$Id$")
           break;
         case GSWTemplateParserType_XML:
           NSWarnLog(@"XML parser is no more handled. Using RawHTML one");
-          finalParserClass=[GSWHTMLTemplateParser class];
-          break;
-        case GSWTemplateParserType_ANTLR:
-          NSWarnLog(@"ANTLR parser is no more handled. Using RawHTML one");
           finalParserClass=[GSWHTMLTemplateParser class];
           break;
         case GSWTemplateParserType_RawHTML:

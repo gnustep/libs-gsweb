@@ -40,7 +40,6 @@ typedef enum _GSWTemplateParserType
   GSWTemplateParserType_XMLHTML,
   GSWTemplateParserType_XMLHTMLNoOmittedTags,
   GSWTemplateParserType_XML,
-  GSWTemplateParserType_ANTLR,
   GSWTemplateParserType_RawHTML
 } GSWTemplateParserType;
 
