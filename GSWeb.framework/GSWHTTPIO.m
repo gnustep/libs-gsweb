@@ -41,7 +41,7 @@
 #include "GSWResponse.h"
 #include "GSWRequest.h"
 
-#define READ_SIZE 1024
+#define READ_SIZE 2048
 
 static NSString *URIResponseString = @" GNUstep Web\r\n";
 static NSString *CONTENT_LENGTH = @"content-length";
@@ -75,27 +75,31 @@ static NSString *CLOSE = @"close";
 - (NSData*) readDataLine
 {
   NSMutableData	*d;
-  int		got;
+  int		got,pos=0;
+  int   total = 0;
   char		buf[READ_SIZE];
+  int   fileDescriptor = [(GSFileHandle*)self fileDescriptor];
   
   d = [NSMutableData dataWithCapacity: READ_SIZE];
   do {
-    //got = [(GSFileHandle*) self read: buf length: 1];
-    got = [(GSFileHandle*) self read: buf length: 1];
+    got = recv(fileDescriptor, &buf[pos], 1, 0);
     if (got > 0) {
-      if (buf[0] != 0xd) {           // CR
-        if (buf[0] == 0xa) {         // NL
-          return d;
+      if (buf[pos] != 0xd) {           // CR
+        if (buf[pos] == 0xa) {         // NL
+           break;
         }
-        [d appendBytes: buf length: got];
+        pos++;
       }
     } else if (got < 0) {
       [NSException raise: NSFileHandleOperationException
                   format: @"unable to read from descriptor - %@",
        [NSError _last]];
     }
-  } while (got > 0);
+  } while ((got > 0) && (pos < READ_SIZE));
   
+  if (pos>0) {
+    [d appendBytes: buf length: pos];
+  }
   return d;
 }
 
@@ -312,6 +316,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
 }
 
 
+
 + (GSWRequest*) readRequestFromFromHandle:(NSFileHandle*) fh
 {
   NSDictionary  * headers;
@@ -323,11 +328,12 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   GSWRequest    * request = nil;
 
   [fh setNonBlocking: NO];
-  
+
   requestArray = [self readRequestLineFromHandle:fh];
   if ((!requestArray) || ([requestArray count] <3)) { 
     return nil; 
   }
+  
   headers = [self readHeadersFromHandle:fh];
   if (!headers) { 
     return nil; 
