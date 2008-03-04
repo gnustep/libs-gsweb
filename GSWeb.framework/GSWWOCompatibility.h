@@ -75,7 +75,6 @@
 #define GSWHTMLStaticGroup		WOHTMLStaticGroup
 #define GSWInput			WOInput
 #define GSWComponentReference		WOComponentReference
-#define GSWPageDefElement		WOPageDefElement
 #define GSWBundle			WOBundle
 #define GSWSessionTimeOutManager	WOSessionTimeOutManager
 #define GSWServerSessionStore		WOServerSessionStore

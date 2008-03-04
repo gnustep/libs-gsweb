@@ -1,3 +1,21 @@
+2008-03-04  David Wetzel <dave@turbocat.de>
+        GSWeb.framework/GSWPageDefElement.m
+        GSWeb.framework/GSWTemplateParserXML.h
+        GSWeb.framework/GSWTemplateParserXML.m
+        GSWeb.framework/GSWPageDefParserExt.h
+        GSWeb.framework/GSWPageDefParserExt.m
+        GSWeb.framework/NSObject+IVarAccess+PerformSel.h
+        GSWeb.framework/NSObject+IVarAccess+PerformSel.m
+        GSWeb.framework/GSWHTMLAttrParserExt.h
+        GSWeb.framework/GSWHTMLAttrParserExt.m
+        GSWeb.framework/GSWHTMLParserExt.h
+        GSWeb.framework/GSWHTMLParserExt.m
+        GSWeb.framework/GSWPageDefParserTokenTypes.txt
+        GSWeb.framework/GSWPageDefElement.h
+        * deleted unused code
+        GSWeb.framework/GSWWOCompatibility.h
+        * removed define
+
 2008-03-02  David Wetzel <dave@turbocat.de>
         GSWeb.framework/GSWHTTPIO.m
         * optimized readDataLine
