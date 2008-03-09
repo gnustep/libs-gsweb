@@ -1591,7 +1591,7 @@ RCS_ID("$Id$")
 	break;
       default:
 	[parser setDefaultCharset: 
-	   [GSObjCClass(parser) charsetFromEncoding: e]];
+	   [GSObjCClass([parser mimeDocument]) charsetFromEncoding: e]];
 	break;
     }
 

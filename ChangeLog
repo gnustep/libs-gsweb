@@ -1,4 +1,11 @@
+2008-03-09  David Ayers  <ayers@fsfe.org>
+
+	* GSWeb.framework/GSWRequest.m (_getFormValuesFromMultipartFormData):
+	Determine character set for parser by invoking charsetFromEncoding:
+	on document instead of parser.
+
 2008-03-04  David Wetzel <dave@turbocat.de>
+	
         GSWeb.framework/GSWPageDefElement.m
         GSWeb.framework/GSWTemplateParserXML.h
         GSWeb.framework/GSWTemplateParserXML.m

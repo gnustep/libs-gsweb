@@ -72,6 +72,11 @@ static NSString *CLOSE = @"close";
 
 @implementation NSFileHandle (GSWFileHandleExtensions)
 
+- (NSData*) _peakSocketLength:(unsigned) len
+{
+  len = recv(descriptor, buf, len, 0);
+}
+
 - (NSData*) readDataLine
 {
   NSMutableData	*d;
