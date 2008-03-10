@@ -1512,7 +1512,7 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
   
 #ifdef MOD_EXIPC_SET_MUTEX_PERMS
   rs = unixd_set_global_mutex_perms(exipc_mutex);
-  if (!APR_STATUS_IS_SUCCESS(rs)) {
+  if (rs != APR_SUCCESS) {
     ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s, 
                  "Parent could not set permissions on Example IPC "
                  "mutex: check User and Group directives");
