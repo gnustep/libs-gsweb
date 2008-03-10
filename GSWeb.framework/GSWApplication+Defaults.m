@@ -1300,6 +1300,7 @@ static NSString *_dflt_host = nil;
 {
   INIT_DFLT_OBJ(host,
 		GSWOPT_Host[GSWebNamingConv]);
+  if (!_dflt_host) _dflt_host = @"localhost";
   return _dflt_host;
 };
 

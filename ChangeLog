@@ -4,6 +4,9 @@
 	Determine character set for parser by invoking charsetFromEncoding:
 	on document instead of parser.
 
+	* GSWeb.framework/GSWApplication+Defaults.m ([+host]): Set default
+	host to localhost.
+
 2008-03-04  David Wetzel <dave@turbocat.de>
 	
         GSWeb.framework/GSWPageDefElement.m
