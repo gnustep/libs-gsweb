@@ -42,6 +42,11 @@
 #include <netdb.h> 
 #include <arpa/inet.h> 
 
+#if !defined(OS2) && !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
+#include "unixd.h"
+#define MOD_EXIPC_SET_MUTEX_PERMS /* XXX Apache should define something */
+#endif
+
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
 /* Data declarations.                                                       */
@@ -67,6 +72,8 @@
  * are handed a record that applies to the current location by implication or
  * inheritance, and modifying it will change the rules for other locations.
  */
+
+
 typedef struct gsw_cfg {
     int cmode;                  /* Environment to which record applies
                                  * (directory, server, or combination).
@@ -84,15 +91,23 @@ typedef struct gsw_cfg {
     apr_table_t * app_table;
 } gsw_cfg;
 
+#define MAX_URL_LENGTH		256	
+#define MAX_NAME_LENGTH		64	
+#define UNREACHABLE       -10		
+#define INTERNAL_ERROR    500		
+
+#define RETRY_COUNT       3
+
+
 
 typedef struct gsw_app_conf {
-  char      app_name[64];
-  char      host_name[64];
-  u_int16_t instance_number;
-  time_t    last_response_time;  // in sec since January 1, 1970
-  u_int8_t  load;                // 0..255
-  u_int16_t port;
-  u_int8_t  unreachable;         // 0=online 1=unreachable
+  char        app_name[MAX_NAME_LENGTH];
+  char        host_name[MAX_NAME_LENGTH];
+  u_int16_t   instance_number;
+  u_int16_t   port;
+  u_int16_t   total_index;                  // index in shared memory
+  char        redirect_url[MAX_URL_LENGTH];	/* in case of error */
+
 } gsw_app_conf;
 
 #define GSW_INST_CACHE          "gsw_inst_cache"
@@ -115,9 +130,10 @@ typedef struct gsw_app_conf {
 #define REDIRECT_URL            "REDIRECT_URL"
 #define CONTENT_LENGTH          "content-length"
 
+static int locklevel = 0;
 
-
-//#define CRLF           "\r\n"
+//#define     apr_global_mutex_lock_d(mtx_) { syslog(LOG_ERR,"lock %d level: %d\n",__LINE__, locklevel); apr_global_mutex_lock(mtx_); locklevel++;}
+//#define     apr_global_mutex_unlock_d(mtx_) { locklevel--; syslog(LOG_ERR,"un-lock %d level: %d\n",__LINE__,locklevel); apr_global_mutex_unlock(mtx_); syslog(LOG_ERR,"OK\n");}
 
 /*
  * Let's set up a module-local static cell to point to the accreting callback
@@ -138,6 +154,21 @@ static apr_table_t *static_calls_made = NULL;
  */
 static apr_pool_t *gsw_pool = NULL;
 static apr_pool_t *gsw_subpool = NULL;
+
+
+// shared memory
+apr_shm_t *exipc_shm;
+char *shmfilename;
+apr_global_mutex_t *exipc_mutex;
+char *mutexfilename; 
+
+
+typedef struct exipc_data {
+  apr_time_t    last_response_time;  // in sec since January 1, 1970
+  apr_time_t    last_request_time;  // in sec since January 1, 1970
+  u_int32_t load;                
+  u_int8_t  unreachable;         // 0=online 1=unreachable
+} exipc_data;
 
 /*
  * Declare ourselves so the configuration routines can find and know us.
@@ -163,150 +194,12 @@ int print_app(void *rec, const char *key, const char *value)
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name:'%s'", appconf->app_name);
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "host_name:'%s'", appconf->host_name);
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_number:'%u'", appconf->instance_number);
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "load:'%d'", appconf->load);
+//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "load:'%d'", appconf->load);
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "port:'%u'", appconf->port);
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "unreachable:'%d'", appconf->unreachable);
+//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "unreachable:'%d'", appconf->unreachable);
   
   return 1; // continue loop
 }
-
-
-
-/*--------------------------------------------------------------------------*/
-/*                                                                          */
-/* The following pseudo-prototype declarations illustrate the parameters    */
-/* passed to command handlers for the different types of directive          */
-/* syntax.  If an argument was specified in the directive definition        */
-/* (look for "command_rec" below), it's available to the command handler    */
-/* via the (void *) info field in the cmd_parms argument passed to the      */
-/* handler (cmd->info for the example below).                              */
-/*                                                                          */
-/*--------------------------------------------------------------------------*/
-
-/*
- * Command handler for a NO_ARGS directive.  Declared in the command_rec
- * list with
- *   AP_INIT_NO_ARGS("directive", function, mconfig, where, help)
- *
- * static const char *handle_NO_ARGS(cmd_parms *cmd, void *mconfig);
- */
-
-/*
- * Command handler for a RAW_ARGS directive.  The "args" argument is the text
- * of the commandline following the directive itself.  Declared in the
- * command_rec list with
- *   AP_INIT_RAW_ARGS("directive", function, mconfig, where, help)
- *
- * static const char *handle_RAW_ARGS(cmd_parms *cmd, void *mconfig,
- *                                    const char *args);
- */
-
-/*
- * Command handler for a FLAG directive.  The single parameter is passed in
- * "bool", which is either zero or not for Off or On respectively.
- * Declared in the command_rec list with
- *   AP_INIT_FLAG("directive", function, mconfig, where, help)
- *
- * static const char *handle_FLAG(cmd_parms *cmd, void *mconfig, int bool);
- */
-
-/*
- * Command handler for a TAKE1 directive.  The single parameter is passed in
- * "word1".  Declared in the command_rec list with
- *   AP_INIT_TAKE1("directive", function, mconfig, where, help)
- *
- * static const char *handle_TAKE1(cmd_parms *cmd, void *mconfig,
- *                                 char *word1);
- */
-
-/*
- * Command handler for a TAKE2 directive.  TAKE2 commands must always have
- * exactly two arguments.  Declared in the command_rec list with
- *   AP_INIT_TAKE2("directive", function, mconfig, where, help)
- *
- * static const char *handle_TAKE2(cmd_parms *cmd, void *mconfig,
- *                                 char *word1, char *word2);
- */
-
-/*
- * Command handler for a TAKE3 directive.  Like TAKE2, these must have exactly
- * three arguments, or the parser complains and doesn't bother calling us.
- * Declared in the command_rec list with
- *   AP_INIT_TAKE3("directive", function, mconfig, where, help)
- *
- * static const char *handle_TAKE3(cmd_parms *cmd, void *mconfig,
- *                                 char *word1, char *word2, char *word3);
- */
-
-/*
- * Command handler for a TAKE12 directive.  These can take either one or two
- * arguments.
- * - word2 is a NULL pointer if no second argument was specified.
- * Declared in the command_rec list with
- *   AP_INIT_TAKE12("directive", function, mconfig, where, help)
- *
- * static const char *handle_TAKE12(cmd_parms *cmd, void *mconfig,
- *                                  char *word1, char *word2);
- */
-
-/*
- * Command handler for a TAKE123 directive.  A TAKE123 directive can be given,
- * as might be expected, one, two, or three arguments.
- * - word2 is a NULL pointer if no second argument was specified.
- * - word3 is a NULL pointer if no third argument was specified.
- * Declared in the command_rec list with
- *   AP_INIT_TAKE123("directive", function, mconfig, where, help)
- *
- * static const char *handle_TAKE123(cmd_parms *cmd, void *mconfig,
- *                                   char *word1, char *word2, char *word3);
- */
-
-/*
- * Command handler for a TAKE13 directive.  Either one or three arguments are
- * permitted - no two-parameters-only syntax is allowed.
- * - word2 and word3 are NULL pointers if only one argument was specified.
- * Declared in the command_rec list with
- *   AP_INIT_TAKE13("directive", function, mconfig, where, help)
- *
- * static const char *handle_TAKE13(cmd_parms *cmd, void *mconfig,
- *                                  char *word1, char *word2, char *word3);
- */
-
-/*
- * Command handler for a TAKE23 directive.  At least two and as many as three
- * arguments must be specified.
- * - word3 is a NULL pointer if no third argument was specified.
- * Declared in the command_rec list with
- *   AP_INIT_TAKE23("directive", function, mconfig, where, help)
- *
- * static const char *handle_TAKE23(cmd_parms *cmd, void *mconfig,
- *                                  char *word1, char *word2, char *word3);
- */
-
-/*
- * Command handler for a ITERATE directive.
- * - Handler is called once for each of n arguments given to the directive.
- * - word1 points to each argument in turn.
- * Declared in the command_rec list with
- *   AP_INIT_ITERATE("directive", function, mconfig, where, help)
- *
- * static const char *handle_ITERATE(cmd_parms *cmd, void *mconfig,
- *                                   char *word1);
- */
-
-/*
- * Command handler for a ITERATE2 directive.
- * - Handler is called once for each of the second and subsequent arguments
- *   given to the directive.
- * - word1 is the same for each call for a particular directive instance (the
- *   first argument).
- * - word2 points to each of the second and subsequent arguments in turn.
- * Declared in the command_rec list with
- *   AP_INIT_ITERATE2("directive", function, mconfig, where, help)
- *
- * static const char *handle_ITERATE2(cmd_parms *cmd, void *mconfig,
- *                                    char *word1, char *word2);
- */
 
 
 
@@ -325,24 +218,6 @@ static gsw_cfg *our_dconfig(const request_rec *r)
 {
     return (gsw_cfg *) ap_get_module_config(r->per_dir_config, &gsw_module);
 }
-
-#if 0
-/*
- * Locate our server configuration record for the specified server.
- */
-static gsw_cfg *our_sconfig(const server_rec *s)
-{
-    return (gsw_cfg *) ap_get_module_config(s->module_config, &gsw_module);
-}
-
-/*
- * Likewise for our configuration record for the specified request.
- */
-static gsw_cfg *our_rconfig(const request_rec *r)
-{
-    return (gsw_cfg *) ap_get_module_config(r->request_config, &gsw_module);
-}
-#endif
 
 /*
  * Likewise for our configuration record for a connection.
@@ -373,133 +248,131 @@ static void setup_module_cells(void)
     };
 }
 
-/*
- * This routine is used to add a trace of a callback to the list.  We're
- * passed the server record (if available), the request record (if available),
- * a pointer to our private configuration record (if available) for the
- * environment to which the callback is supposed to apply, and some text.  We
- * turn this into a textual representation and add it to the tail of the list.
- * The list can be displayed by the gsw_handler() routine.
- *
- * If the call occurs within a request context (i.e., we're passed a request
- * record), we put the trace into the request apr_pool_t and attach it to the
- * request via the notes mechanism.  Otherwise, the trace gets added
- * to the static (non-request-specific) list.
- *
- * Note that the r->notes table is only for storing strings; if you need to
- * maintain per-request data of any other type, you need to use another
- * mechanism.
- */
 
-#define TRACE_NOTE "gsw-trace"
-
-static void trace_add(server_rec *s, request_rec *r, gsw_cfg *mconfig,
-                      const char *note)
+void * read_shared_mem(apr_pool_t * pool, int appcount) 
 {
-    const char *sofar;
-    char *addon;
-    char *where;
-    apr_pool_t *p;
-    const char *trace_copy;
+  apr_size_t   memsize = apr_shm_size_get(exipc_shm);
+  void       * mem     = NULL;
+  apr_status_t rs; 
 
-    /*
-     * Make sure our pools and tables are set up - we need 'em.
-     */
-    setup_module_cells();
-    /*
-     * Now, if we're in request-context, we use the request pool.
-     */
-    if (r != NULL) {
-        p = r->pool;
-        if ((trace_copy = apr_table_get(r->notes, TRACE_NOTE)) == NULL) {
-            trace_copy = "";
-        }
-    }
-    else {
-        /*
-         * We're not in request context, so the trace gets attached to our
-         * module-wide pool.  We do the create/destroy every time we're called
-         * in non-request context; this avoids leaking memory in some of
-         * the subsequent calls that allocate memory only once (such as the
-         * key formation below).
-         *
-         * Make a new sub-pool and copy any existing trace to it.  Point the
-         * trace cell at the copied value.
-         */
-        apr_pool_create(&p, gsw_pool);
-        if (trace != NULL) {
-            trace = apr_pstrdup(p, trace);
-        }
-        /*
-         * Now, if we have a sub-pool from before, nuke it and replace with
-         * the one we just allocated.
-         */
-        if (gsw_subpool != NULL) {
-            apr_pool_destroy(gsw_subpool);
-        }
-        gsw_subpool = p;
-        trace_copy = trace;
-    }
-    /*
-     * If we weren't passed a configuration record, we can't figure out to
-     * what location this call applies.  This only happens for co-routines
-     * that don't operate in a particular directory or server context.  If we
-     * got a valid record, extract the location (directory or server) to which
-     * it applies.
-     */
-    where = (mconfig != NULL) ? mconfig->loc : "nowhere";
-    where = (where != NULL) ? where : "";
-    /*
-     * Now, if we're not in request context, see if we've been called with
-     * this particular combination before.  The apr_table_t is allocated in the
-     * module's private pool, which doesn't get destroyed.
-     */
-    if (r == NULL) {
-        char *key;
+  if (memsize) {
+    mem = apr_pcalloc(pool, memsize);
+    
+    if (mem) {
+      void * base = NULL;
+      apr_status_t rv;
 
-        key = apr_pstrcat(p, note, ":", where, NULL);
-        if (apr_table_get(static_calls_made, key) != NULL) {
-            /*
-             * Been here, done this.
-             */
-            return;
-        }
-        else {
-            /*
-             * First time for this combination of routine and environment -
-             * log it so we don't do it again.
-             */
-            apr_table_set(static_calls_made, key, "been here");
-        }
+
+      rv = apr_global_mutex_lock(exipc_mutex);
+      if (rv != APR_SUCCESS) {
+        char errstr[1024];
+        apr_strerror(rv,errstr,1024);			
+        syslog(LOG_ERR,"rv != APR_SUCCESS %s\n", errstr);
+        return NULL;
+      }
+      base = apr_shm_baseaddr_get(exipc_shm);
+      memcpy(mem, base, memsize);
+      apr_global_mutex_unlock(exipc_mutex); 
     }
-    addon = apr_pstrcat(p,
-                        "   <li>\n"
-                        "    <dl>\n"
-                        "     <dt><samp>", note, "</samp></dt>\n"
-                        "     <dd><samp>[", where, "]</samp></dd>\n"
-                        "    </dl>\n"
-                        "   </li>\n",
-                        NULL);
-    sofar = (trace_copy == NULL) ? "" : trace_copy;
-    trace_copy = apr_pstrcat(p, sofar, addon, NULL);
-    if (r != NULL) {
-        apr_table_set(r->notes, TRACE_NOTE, trace_copy);
-    }
-    else {
-        trace = trace_copy;
-    }
-    /*
-     * You *could* change the following if you wanted to see the calling
-     * sequence reported in the server's error_log, but beware - almost all of
-     * these co-routines are called for every single request, and the impact
-     * on the size (and readability) of the error_log is considerable.
-     */
-#define EXAMPLE_LOG_EACH 0
-    if (EXAMPLE_LOG_EACH && (s != NULL)) {
-        ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s, "mod_gsw: %s", note);
-    }
+  }
+  
+  return mem;
 }
 
+
+void mark_unreachable(gsw_app_conf * app)
+{
+  exipc_data   * mem   = NULL;
+  exipc_data   * data    = NULL;
+  apr_time_t     now     = apr_time_now(); 
+        
+  apr_global_mutex_lock(exipc_mutex); 	
+  mem = apr_shm_baseaddr_get(exipc_shm);
+  
+  data = (exipc_data*) mem+(app->total_index * sizeof(exipc_data));
+  data->last_request_time = now;
+  data->unreachable = 1;
+  
+  apr_global_mutex_unlock(exipc_mutex); 
+}
+
+void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr_time_t last_response_time, u_int32_t load)
+{
+  exipc_data   * mem   = NULL;
+  exipc_data   * data    = NULL;
+  
+  apr_global_mutex_lock(exipc_mutex); 	
+  mem = apr_shm_baseaddr_get(exipc_shm);
+  
+  data = (exipc_data*) mem+(app->total_index * sizeof(exipc_data));
+  data->last_request_time = last_request_time;
+  data->last_response_time = last_response_time;
+  data->load = load;
+  
+  apr_global_mutex_unlock(exipc_mutex); 
+}
+
+
+/*
+ *
+ */
+
+gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
+{
+
+  if (((name) && (strlen(name))) && (cfg->app_table)) {
+
+
+
+    const        apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
+    const        apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
+    int          i;
+	  apr_time_t   t;
+    exipc_data * mem;
+    int          appcount = tarr->nelts;
+    exipc_data * current_stats = NULL;
+    u_int32_t    lastload = UINT32_MAX;                
+    int          lastindex = -1;                
+
+    if (!appcount) {
+      return NULL;
+    }
+
+    mem = read_shared_mem(r->pool,  appcount);
+    if (!mem) {
+      return NULL;
+    }
+    
+    
+    // current time
+	  t = apr_time_now();
+    // substract 300 sec / 5 min
+    t = t - 300;
+    
+    for (i = 0; i < tarr->nelts; i++) {
+      gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
+  
+      if ((strcasecmp(appconf->app_name, name) == 0)) {
+        current_stats = (exipc_data*) mem+(i * sizeof(exipc_data));
+
+        // enable unreachable instances after some time
+        if ((current_stats->unreachable == 1) && (current_stats->last_request_time < t)) {
+          current_stats->unreachable = 0;
+        }
+          
+        if (current_stats->unreachable == 0) {
+          if (current_stats->load <= lastload) {
+            lastindex = i;              
+          }
+        }
+      }    
+    }
+    if (lastindex >= 0) {
+      return (gsw_app_conf *) telts[lastindex].val;
+    }
+  }
+  return NULL;
+}
 
 gsw_app_conf * find_app(request_rec *r)
 {
@@ -553,7 +426,7 @@ gsw_app_conf * find_app(request_rec *r)
 
     snprintf(tmp_key, sizeof(tmp_key), "%s:%d", app_name, instance_nr);
   
-    app_conf = apr_table_get(cfg->app_table, (const char  *)tmp_key); 	
+    app_conf = (gsw_app_conf *) apr_table_get(cfg->app_table, (const char  *)tmp_key); 	
    	
    	if (app_conf != NULL) {
    	  return app_conf;
@@ -561,38 +434,7 @@ gsw_app_conf * find_app(request_rec *r)
     
   }
 
-  if (((app_name) && (strlen(app_name))) && (cfg->app_table)) {
-    const          apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
-    const          apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
-    int            i;
-	  time_t         t;
-
-    // current time
-	  time(&t);
-    // substract 300 sec / 5 min
-    t = t - 300;
-    
-    for (i = 0; i < tarr->nelts; i++) {
-      gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-  
-      if ((strcasecmp(appconf->app_name, app_name) == 0)) {
-        if (app_conf == NULL) {
-          app_conf = appconf;
-        } else {
-          // enable unreachable instances after some time
-          if ((appconf->unreachable == 1) && (appconf->last_response_time < t)) {
-            appconf->unreachable = 0;
-          }
-          
-          if (appconf->unreachable == 0) {
-            if (appconf->load <= app_conf->load) {
-               app_conf = appconf;              
-            }
-          }
-        }
-      }    
-    }
-  }
+  app_conf = find_app_by_name(app_name, cfg, r);
 
   return app_conf;        
 }
@@ -834,7 +676,7 @@ uint32_t get_content_len(request_rec *r)
   apr_table_entry_t     * hdrs = NULL;
   int                     i = 0;
   const char            * ap_str;
-  uint32_t              * len = 0;
+  uint32_t                len = 0;
   
   hdrs_arr = (apr_array_header_t*) apr_table_elts(r->headers_in);
   hdrs = (apr_table_entry_t *) hdrs_arr->elts;
@@ -874,41 +716,31 @@ void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool, gsw_
       tmpbuf += len_read;
     }
     postbuf[clength] = '\0';    
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "got '%s'", postbuf);
   }
 
   return postbuf;
 }
 
-static int handle_request(request_rec *r, gsw_app_conf * app)
+static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t contentLen)
 {
 	int                     soc = -1;
 	char                  * newBuf = NULL;
 	apr_pool_t            * sub_pool = NULL;
 	int                     load_avr_seen = 0;
 	int                     length_seen = 0;
-	u_int8_t                newload = 0;
+	u_int32_t               newload = 0;
 	size_t                  content_length = 0;
 	char                  * content_type = NULL;
 	char                  * content_encoding = NULL;
 	char                  * location = NULL;
 	int                     http_status = DECLINED;
-  void                  * postdata = NULL;
-  uint32_t                contentLen = 0;
-  char tmpStr[512];
+  char                    tmpStr[512];
+  apr_time_t              request_time;
+  apr_time_t              done_time;
   
 	
 	apr_pool_create(&sub_pool, r->pool);
   
-  if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
-    return DECLINED;
-  }
-  
-  if (r->method_number == M_POST) {
-    contentLen = get_content_len(r);
-    postdata = read_post_data(r, contentLen, sub_pool, app);
-  }
 		
 	soc = connect_host(app->host_name, app->port);
   	
@@ -916,7 +748,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 		if (send_headers(soc, r)  == 0) {
 			int   headers_done = 0;			
 			
-			
+			request_time = apr_time_now();
 			// check if we are on a POST trip...
       if (postdata) {
         write_sock(soc, CRLF, 2, r);
@@ -933,7 +765,6 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 				} else {
 					newBuf[12] = '\0';
 					http_status = atoi(newBuf+9);
-					ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "http_status '%s' (%d)", newBuf+9, http_status);
 					if (http_status==200) {            
 						http_status=OK;
 					}
@@ -944,13 +775,10 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 				newBuf = read_sock_line(soc, r, sub_pool);
 				
 				if (newBuf != NULL) {
-					//          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newBuf:'%s' len:%d", newBuf, strlen(newBuf));
-					
 					if (load_avr_seen == 0) {
 						if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
 							load_avr_seen = 1;
 							newload = atoi(newBuf+26);
-							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newload:%d", newload);
 						}
 					}
 					if (length_seen == 0) {
@@ -958,34 +786,28 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 							length_seen = 1;
 							content_length = atol(newBuf+16);
 							snprintf(tmpStr, sizeof(tmpStr), "%d", content_length);
-							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content-length: %s", tmpStr);
 							apr_table_set(r->headers_out, "content-length", tmpStr);
 						}
 					}
 					if (content_type == NULL) {
 						if (strncmp(newBuf, "content-type: ", 14) == 0) {
 							content_type = newBuf+14;
-							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content_type: %s", content_type);
 						}
 					}
 					if (content_encoding == NULL) {
 						if (strncmp(newBuf, "content-encoding: ", 18) == 0) {
 							content_encoding = newBuf+18;
-							
-							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "content-encoding: %s", content_encoding);
 							apr_table_set(r->headers_out, "content-encoding", content_encoding);
 						}
 					}
 					if (location == NULL) {
 						if (strncmp(newBuf, "location: ", 10) == 0) {
 							location = newBuf+10;
-							ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location: %s", location);
 							apr_table_set(r->headers_out, "location", location);
 						}
 					}
 				} else {
 					headers_done = 1;
-					ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "#########");
 				}
 			} // while
 			
@@ -1013,15 +835,19 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 						bytesDone += rval;
 					} 	
 				}
-				ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "copied %d bytes", bytesDone);
 			}
 		}
 		
 		close(soc);
-		//    apr_pool_destroy(sub_pool); 
+    done_time = apr_time_now();
 		
-		time(&app->last_response_time);
-	}
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %d ms", apr_time_msec(done_time - request_time));
+
+    update_app_statistics(app, request_time, done_time, newload);
+
+	} else { // -1
+    http_status = UNREACHABLE;
+  }
 	
 	//apr_pool_destroy(sub_pool);
 	
@@ -1029,7 +855,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app)
 	
 internal_error:
 	close(soc);
-	return 500;  
+	return INTERNAL_ERROR;  
 }
 
 
@@ -1065,7 +891,6 @@ static const char *cmd_gsw(cmd_parms *cmd, void *mconfig)
      * "Example Wuz Here"
      */
     cfg->local = 1;
-    trace_add(cmd->server, NULL, cfg, "cmd_gsw()");
     return NULL;
 }
 
@@ -1094,6 +919,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   char         * portStr      = NULL;  
   char         * keyStr       = NULL;
   int            len          = 0;  
+  const apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
 
 //App Name=TCWebMail Instance=1 Host=10.1.0.1:9901
 //App Name=PBX Instance=1 Host=10.1.0.1:9001
@@ -1126,9 +952,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   strncpy(appConf->host_name, hostName, sizeof(appConf->host_name));
 
   appConf->instance_number = atoi(instanceStr);
-  appConf->load = 0;
-  appConf->unreachable = 0;
-  appConf->last_response_time = 0;
+  appConf->total_index = tarr->nelts;
 
   snprintf(tmpStr, sizeof(tmpStr), "%s:%d", appName, appConf->instance_number);
 
@@ -1136,7 +960,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   keyStr = apr_pcalloc(cmd->pool,len);
   strncpy(keyStr, tmpStr, len);
 
-  apr_table_addn(cfg->app_table, (const char *) keyStr, (const char *) appConf);			
+  apr_table_addn((apr_table_t*) tarr, (const char *) keyStr, (const char *) appConf);			
               
   return NULL;
 }
@@ -1169,12 +993,14 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
 static int gsw_handler(request_rec *r)
 {
   gsw_app_conf   * app = NULL;
-  gsw_cfg *dcfg;
-  char data1[1024];
-  char data[1024];
-  void *user_data;
-  int     handle_status = OK;
-  extern char *tzname[2];
+  gsw_cfg        * dcfg;
+  char             data1[1024];
+  char             data[1024];
+  void           * user_data;
+  int              handle_status = OK;
+  void           * postdata = NULL;
+  uint32_t         contentLen = 0;
+
   
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx handler uri: %s", r->uri);
 
@@ -1186,27 +1012,6 @@ static int gsw_handler(request_rec *r)
 
   dcfg = our_dconfig(r);
 
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx the_request: %s", r->the_request);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx protocol: %s (%d)", r->protocol, r->proto_num);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx content_type: %s", r->content_type);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx handler: %s", r->handler);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx content_encoding: %s", r->content_encoding);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "xx user: %s", r->user);
-//
-//  apr_table_do(print_app,(void *) r, dcfg->app_table, NULL);
-
-  // some testing dave
-//  strncpy(data1, "hallo welt", sizeof(data1));
-//
-//  apr_pool_userdata_set(data1, GSW_INST_CACHE, NULL, gsw_pool);
-//
-//
-//  apr_pool_userdata_get(&user_data, GSW_INST_CACHE, gsw_pool);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "apr_pool_userdata_get ok:%s", user_data);
-
-
-
-  trace_add(r->server, r, dcfg, "gsw_handler()");
   /*
     * We're about to start sending content, so we need to force the HTTP
     * headers to be sent at this point.  Otherwise, no headers will be sent
@@ -1221,11 +1026,42 @@ static int gsw_handler(request_rec *r)
     * is broken.
     */
     
+  
   app = find_app(r);
     
   if (app != NULL) {
-    handle_status = handle_request(r, app);
-    if (handle_status != DECLINED) {
+    int i;
+    handle_status = OK;
+
+    if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
+      handle_status = DECLINED;
+    } else {
+      if (r->method_number == M_POST) {
+        contentLen = get_content_len(r);
+        postdata = read_post_data(r, contentLen, r->pool, app);
+      }
+    }
+    
+    
+    for (i = 0; ((i < RETRY_COUNT) && (handle_status != DECLINED)); i++) {
+      handle_status = handle_request(r, app, postdata, contentLen);
+      
+      switch (handle_status) {
+        case UNREACHABLE:
+          mark_unreachable(app);
+          app = find_app(r);
+          break;
+        case DECLINED:
+          break;
+        case OK:
+          return handle_status;
+        default:
+          break;
+      }
+    }
+    
+    if ((handle_status != DECLINED) && (handle_status != UNREACHABLE)) {
       return handle_status;
     }
   } 
@@ -1247,7 +1083,7 @@ static int gsw_handler(request_rec *r)
     ap_rputs("<html>\n", r);
     ap_rputs("<head>\n", r);
     ap_rputs("<title>GNUstepWeb Status</title>\n", r);
-    ap_rputs("<meta name=\"robots\" content=\"NOODP\">\n", r);
+    ap_rputs("<meta name=\"robots\" content=\"NOINDEX, NOFOLLOW\">\n", r);
     ap_rputs("</head>\n", r);
     ap_rputs("<body>\n", r);
     ap_rputs("<h1>GNUstepWeb Status</h1><br>\n", r);
@@ -1257,29 +1093,40 @@ static int gsw_handler(request_rec *r)
         const apr_array_header_t *tarr = apr_table_elts(dcfg->app_table);
         const apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
         int i;
-  
+        exipc_data * mem;
+        int          appcount = tarr->nelts;
+        exipc_data * current_stats = NULL;
+        char         timestr[APR_CTIME_LEN];
+        
+        mem = read_shared_mem(r->pool,  appcount);
+
+        if (mem) {
           ap_rputs("<table border=1>\n",r);
-          ap_rputs("<tr><td>Name</td><td>Instance</td><td>Host</td><td>Port</td><td>Load</td><td> Unreachable</td><td>Last Response</td></tr>\n",r);
-  
-        
-        for (i = 0; i < tarr->nelts; i++) {
-          gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-  
-          ap_rprintf(r, "<tr><td><a href=\"%s%s.woa/%d/\">%s</a></td>", ADAPTOR_PREFIX, 
-                                                           appconf->app_name,
-                                                           appconf->instance_number,
-                                                           appconf->app_name);
-          ap_rprintf(r, "<td>%u</td>", appconf->instance_number);
-          ap_rprintf(r, "<td>%s</td>", appconf->host_name);
-          ap_rprintf(r, "<td>%u</td>", appconf->port);
-          ap_rprintf(r, "<td>%u</td>", appconf->load);
-          ap_rprintf(r, "<td>%s</td>", (appconf->unreachable == 1) ? "YES": "NO");
-          ap_rprintf(r, "<td>%s</td></tr>\n", ctime(&appconf->last_response_time));
+          ap_rputs("<tr><td>Name</td><td>Instance</td><td>Host</td><td>Port</td><td>Load</td><td> Unreachable</td><td>Last Request</td><td>Last Response</td></tr>\n",r);
+          
+          for (i = 0; i < tarr->nelts; i++) {
+            gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
+            current_stats = (exipc_data*) mem+(i * sizeof(exipc_data));
+            
+            ap_rprintf(r, "<tr><td><a href=\"%s%s.woa/%d/\">%s</a></td>", ADAPTOR_PREFIX, 
+                       appconf->app_name,
+                       appconf->instance_number,
+                       appconf->app_name);
+            ap_rprintf(r, "<td>%u</td>", appconf->instance_number);
+            ap_rprintf(r, "<td>%s</td>", appconf->host_name);
+            ap_rprintf(r, "<td>%u</td>", appconf->port);
+            ap_rprintf(r, "<td>%u</td>", current_stats->load);
+            ap_rprintf(r, "<td>%s</td>", (current_stats->unreachable == 1) ? "YES": "NO");
+            apr_ctime(timestr, current_stats->last_request_time);
+            ap_rprintf(r, "<td>%s</td>", timestr);
+            apr_ctime(timestr, current_stats->last_response_time);
+            ap_rprintf(r, "<td>%s</td></tr>\n", timestr);
+          }
+          
+          ap_rputs("</table><br>\n",r);
+          
         }
-  
-        ap_rputs("</table><br>\n",r);
-        
-       
+
       }
     } else {
       ap_rputs("<p>Application list hidden. Set <samp>ShowApps on</samp> in your Apache config to list.</p>\n",r);
@@ -1395,7 +1242,6 @@ static void *gsw_create_dir_config(apr_pool_t *p, char *dirspec)
 
     dname = (dname != NULL) ? dname : "";
     cfg->loc = apr_pstrcat(p, "DIR(", dname, ")", NULL);
-    trace_add(NULL, NULL, cfg, "gsw_create_dir_config()");
     return (void *) cfg;
 }
 
@@ -1455,7 +1301,7 @@ static void *gsw_merge_dir_config(apr_pool_t *p, void *parent_conf,
      */
     note = apr_pstrcat(p, "gsw_merge_dir_config(\"", pconf->loc, "\",\"",
                    nconf->loc, "\")", NULL);
-    trace_add(NULL, NULL, merged_config, note);
+
     return (void *) merged_config;
 }
 
@@ -1485,7 +1331,7 @@ static void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
      */
     sname = (sname != NULL) ? sname : "";
     cfg->loc = apr_pstrcat(p, "SVR(", sname, ")", NULL);
-    trace_add(s, NULL, cfg, "gsw_create_server_config()");
+
     return (void *) cfg;
 }
 
@@ -1525,7 +1371,7 @@ static void *gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
      */
     note = apr_pstrcat(p, "gsw_merge_server_config(\"", s1conf->loc, "\",\"",
                    s2conf->loc, "\")", NULL);
-    trace_add(NULL, NULL, merged_config, note);
+
     return (void *) merged_config;
 }
 
@@ -1539,9 +1385,44 @@ static int gsw_pre_config(apr_pool_t *pconf, apr_pool_t *plog,
     /*
      * Log the call and exit.
      */
-    trace_add(NULL, NULL, NULL, "gsw_pre_config()");
 
     return OK;
+}
+
+/*
+ * Returns the number of instances configured
+ */
+
+static int app_count(server_rec *s)
+{
+  gsw_cfg                  * cfg = (gsw_cfg *) ap_get_module_config(s->module_config, &gsw_module);
+  const apr_array_header_t * tarr = NULL;
+
+  if (cfg) {
+    tarr = apr_table_elts((apr_table_t *)cfg->app_table);
+    if (tarr) {
+      return tarr->nelts;
+    }
+  }
+  
+  return 0;
+}
+
+void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s)
+{
+  int i;
+  exipc_data * currentRecord  =  (exipc_data *) apr_shm_baseaddr_get(xxx);
+  apr_size_t  size =  apr_shm_size_get(xxx);
+
+// count
+  // fixme
+  for (i = 0;i<6;i++) {
+    currentRecord->last_response_time = 0;
+    currentRecord->load = 0;
+    currentRecord->unreachable = 0;
+    currentRecord = currentRecord + sizeof(exipc_data);
+  }
+  
 }
 
 /*
@@ -1555,11 +1436,101 @@ static int gsw_pre_config(apr_pool_t *pconf, apr_pool_t *plog,
 static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
                           apr_pool_t *ptemp, server_rec *s)
 {
-    /*
-     * Log the call and exit.
-     */
-    trace_add(NULL, NULL, NULL, "gsw_post_config()");
+  void          * data; /* These two help ensure that we only init once. */
+  const char    * userdata_key = "gsw_init_module";
+  apr_status_t    rs;
+  void          * base;
+  const char    * temp_dir;
+  int             appcount = 0;
+  
+  //ap_error_log2stderr(s);
+  openlog("www", LOG_PID,LOG_USER);
+  
+  /* 
+   * The following checks if this routine has been called before. 
+   * This is necessary because the parent process gets initialized
+   * a couple of times as the server starts up, and we don't want 
+   * to create any more mutexes and shared memory segments than
+   * we're actually going to use. 
+   */
+
+  apr_pool_userdata_get(&data, userdata_key, s->process->pool);
+  if (!data) {
+    apr_pool_userdata_set((const void *) 1, userdata_key, 
+                          apr_pool_cleanup_null, s->process->pool);
+
     return OK;
+  } 
+  
+  /* Create the shared memory segment */
+  
+  /* 
+   * Create a unique filename using our pid. This information is 
+   * stashed in the global variable so the children inherit it.
+   * TODO get the location from the environment $TMPDIR or somesuch. 
+   */
+  
+ // hack since we do not have any config now. fix this later -- dw
+  appcount = 50; //app_count(s);
+  
+  apr_temp_dir_get(&temp_dir, pconf);		
+
+  apr_filepath_merge(&shmfilename, temp_dir, 
+                     apr_psprintf(pconf, "gsw_shm.%ld", (long int)getpid()), 0, pconf);		
+
+  /* Now create that segment */
+  rs = apr_shm_create(&exipc_shm, sizeof(exipc_data) * appcount, 
+                      (const char *) shmfilename, pconf);
+  if (rs != APR_SUCCESS) {
+    ap_log_error(APLOG_MARK, APLOG_ERR, rs, s, 
+                 "Failed to create shared memory segment on file %s", 
+                 shmfilename);
+    return HTTP_INTERNAL_SERVER_ERROR;
+  }
+  
+  
+  /* Create global mutex */
+  
+  /* 
+   * Create another unique filename to lock upon. Note that
+   * depending on OS and locking mechanism of choice, the file
+   * may or may not be actually created. 
+   */
+
+  apr_filepath_merge(&mutexfilename, temp_dir, 
+                     apr_psprintf(pconf, "gsw_mutex.%ld", (long int)getpid()), 0, pconf);		
+  
+  rs = apr_global_mutex_create(&exipc_mutex, (const char *) mutexfilename, 
+                               APR_LOCK_DEFAULT, pconf);
+  if (rs != APR_SUCCESS) {
+    ap_log_error(APLOG_MARK, APLOG_ERR, rs, s, 
+                 "Failed to create mutex on file %s", 
+                 mutexfilename);
+
+    return HTTP_INTERNAL_SERVER_ERROR;
+  }
+  
+#ifdef MOD_EXIPC_SET_MUTEX_PERMS
+  rs = unixd_set_global_mutex_perms(exipc_mutex);
+  if (!APR_STATUS_IS_SUCCESS(rs)) {
+    ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s, 
+                 "Parent could not set permissions on Example IPC "
+                 "mutex: check User and Group directives");
+    return HTTP_INTERNAL_SERVER_ERROR;
+  }
+#endif /* MOD_EXIPC_SET_MUTEX_PERMS */
+
+  apr_global_mutex_lock(exipc_mutex); 	
+  
+  /* Created it, now let's zero it out */
+  base = apr_shm_baseaddr_get(exipc_shm);
+  
+  init_shared_mem(exipc_shm, appcount, s);
+
+  apr_global_mutex_unlock(exipc_mutex); 
+  
+  
+  return OK;
 }
 
 /*
@@ -1576,7 +1547,6 @@ static int gsw_open_logs(apr_pool_t *pconf, apr_pool_t *plog,
     /*
      * Log the call and exit.
      */
-    trace_add(s, NULL, NULL, "gsw_open_logs()");
     return OK;
 }
 
@@ -1595,72 +1565,46 @@ static apr_status_t gsw_child_exit(void *data)
      */
     sname = (sname != NULL) ? sname : "";
     note = apr_pstrcat(s->process->pool, "gsw_child_exit(", sname, ")", NULL);
-    trace_add(s, NULL, NULL, note);
+
     return APR_SUCCESS;
 }
 
-/*
- * All our process initialiser does is add its trace to the log.
+/* 
+ * This routine gets called when a child inits. We use it to attach
+ * to the shared memory segment, and reinitialize the mutex.
  */
+
 static void gsw_child_init(apr_pool_t *p, server_rec *s)
 {
-    char *note;
-    char *sname = s->server_hostname;
+  apr_status_t rs;
+  
+  /*
+   * Set up any module cells that ought to be initialised.
+   */
+  setup_module_cells();
+  
+  /* 
+   * Re-open the mutex for the child. Note we're reusing
+   * the mutex pointer global here. 
+   */
 
-    /*
-     * Set up any module cells that ought to be initialised.
-     */
-    setup_module_cells();
-    /*
-     * The arbitrary text we add to our trace entry indicates for which server
-     * we're being called.
-     */
-    sname = (sname != NULL) ? sname : "";
-    note = apr_pstrcat(p, "gsw_child_init(", sname, ")", NULL);
-    trace_add(s, NULL, NULL, note);
-
-    apr_pool_cleanup_register(p, s, gsw_child_exit, gsw_child_exit);
+  rs = apr_global_mutex_child_init(&exipc_mutex, 
+                                   (const char *) mutexfilename, 
+                                   p);
+  if (rs != APR_SUCCESS) {
+    ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s, 
+                 "Failed to reopen mutex on file %s", 
+                 mutexfilename);
+    /* There's really nothing else we can do here, since
+     * This routine doesn't return a status. */
+    exit(1); /* Ugly, but what else? */
+  } 
+  
+  apr_pool_cleanup_register(p, s, gsw_child_exit, gsw_child_exit);
+  
+  
 }
 
-/*
- * XXX: This routine is called XXX
- *
- * The return value is OK, DECLINED, or HTTP_mumble.  If we return OK, the
- * server will still call any remaining modules with an handler for this
- * phase.
- */
-#if 0
-static const char *gsw_http_scheme(const request_rec *r)
-{
-    gsw_cfg *cfg;
-
-    cfg = our_dconfig(r);
-    /*
-     * Log the call and exit.
-     */
-    trace_add(r->server, NULL, cfg, "gsw_http_scheme()");
-    return "gsw";
-}
-
-/*
- * XXX: This routine is called XXX
- *
- * The return value is OK, DECLINED, or HTTP_mumble.  If we return OK, the
- * server will still call any remaining modules with an handler for this
- * phase.
- */
-static apr_port_t gsw_default_port(const request_rec *r)
-{
-    gsw_cfg *cfg;
-
-    cfg = our_dconfig(r);
-    /*
-     * Log the call and exit.
-     */
-    trace_add(r->server, NULL, cfg, "gsw_default_port()");
-    return 80;
-}
-#endif /*0*/
 
 /*
  * XXX: This routine is called XXX
@@ -1677,7 +1621,6 @@ static void gsw_insert_filter(request_rec *r)
     /*
      * Log the call and exit.
      */
-    trace_add(r->server, NULL, cfg, "gsw_insert_filter()");
 }
 
 /*
@@ -1689,16 +1632,6 @@ static void gsw_insert_filter(request_rec *r)
  */
 static int gsw_quick_handler(request_rec *r, int lookup_uri)
 {
-    gsw_cfg *cfg;
-
-    cfg = our_dconfig(r);
-    /*
-     * Log the call and exit.
-     */
-    trace_add(r->server, NULL, cfg, "gsw_quick_handler()");
-
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "gsw_quick_handler uri: %s", r->uri);
-
     return DECLINED;
 }
 
@@ -1718,12 +1651,7 @@ static int gsw_pre_connection(conn_rec *c, void *csd)
     gsw_cfg *cfg;
 
     cfg = our_cconfig(c);
-#if 0
-    /*
-     * Log the call and exit.
-     */
-    trace_add(r->server, NULL, cfg, "gsw_pre_connection()");
-#endif
+
     return OK;
 }
 
@@ -1736,6 +1664,8 @@ static int gsw_pre_connection(conn_rec *c, void *csd)
  * The return VALUE is OK, DECLINED, or HTTP_mumble.  If we return OK, no
  * further modules are called for this phase.
  */
+ 
+ // FIXME: remove??
 static int gsw_process_connection(conn_rec *c)
 {
     return DECLINED;
@@ -1749,16 +1679,9 @@ static int gsw_process_connection(conn_rec *c)
  * The return value is OK, DECLINED, or HTTP_mumble.  If we return OK, no
  * further modules are called for this phase.
  */
+ // FIXME: remove??
 static int gsw_post_read_request(request_rec *r)
 {
-    gsw_cfg *cfg;
-
-    cfg = our_dconfig(r);
-    /*
-     * We don't actually *do* anything here, except note the fact that we were
-     * called.
-     */
-    trace_add(r->server, r, cfg, "gsw_post_read_request()");
     return DECLINED;
 }
 
@@ -1772,24 +1695,12 @@ static int gsw_post_read_request(request_rec *r)
  */
 static int gsw_translate_handler(request_rec *r)
 {
-
-    gsw_cfg *cfg;
-
-    cfg = our_dconfig(r);
-    /*
-     * We don't actually *do* anything here, except note the fact that we were
-     * called.
-     */
-
-    if (strncmp(r->uri, "/wo/",4) != 0) {
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "gsw_translate_handler DECLINED");
-        return DECLINED;
-    }
-
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "gsw_translate_handler uri: %s filename: %s hostname: %s", r->uri, r->filename,  r->hostname);
-
-    trace_add(r->server, r, cfg, "gsw_translate_handler()");
-    return OK;
+  if (strncmp(r->uri, "/wo/",4) != 0) {
+//    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "gsw_translate_handler DECLINED");
+    return DECLINED;
+  }
+  
+  return OK;
 }
 
 /*
@@ -1802,15 +1713,6 @@ static int gsw_translate_handler(request_rec *r)
  */
 static int gsw_map_to_storage_handler(request_rec *r)
 {
-
-    gsw_cfg *cfg;
-
-    cfg = our_dconfig(r);
-    /*
-     * We don't actually *do* anything here, except note the fact that we were
-     * called.
-     */
-    trace_add(r->server, r, cfg, "gsw_map_to_storage_handler()");
     return DECLINED;
 }
 
@@ -1828,16 +1730,7 @@ static int gsw_map_to_storage_handler(request_rec *r)
  */
 static int gsw_header_parser_handler(request_rec *r)
 {
-
-    gsw_cfg *cfg;
-
-    cfg = our_dconfig(r);
-    /*
-     * We don't actually *do* anything here, except note the fact that we were
-     * called.
-     */
-    trace_add(r->server, r, cfg, "header_parser_handler()");
-    return DECLINED;
+  return DECLINED;
 }
 
 
@@ -1859,7 +1752,7 @@ static int gsw_check_user_id(request_rec *r)
     /*
      * Don't do anything except log the call.
      */
-    trace_add(r->server, r, cfg, "gsw_check_user_id()");
+
     return DECLINED;
 }
 
@@ -1883,7 +1776,7 @@ static int gsw_auth_checker(request_rec *r)
      * Log the call and return OK, or access will be denied (even though we
      * didn't actually do anything).
      */
-    trace_add(r->server, r, cfg, "gsw_auth_checker()");
+
     return DECLINED;
 }
 
@@ -1902,7 +1795,7 @@ static int gsw_access_checker(request_rec *r)
     gsw_cfg *cfg;
 
     cfg = our_dconfig(r);
-    trace_add(r->server, r, cfg, "gsw_access_checker()");
+
     return DECLINED;
 }
 
@@ -1924,7 +1817,7 @@ static int gsw_type_checker(request_rec *r)
      * Log the call, but don't do anything else - and report truthfully that
      * we didn't do anything.
      */
-    trace_add(r->server, r, cfg, "gsw_type_checker()");
+
     return DECLINED;
 }
 
@@ -1942,10 +1835,7 @@ static int gsw_fixer_upper(request_rec *r)
     gsw_cfg *cfg;
 
     cfg = our_dconfig(r);
-    /*
-     * Log the call and exit.
-     */
-    trace_add(r->server, r, cfg, "gsw_fixer_upper()");
+
     return OK;
 }
 
@@ -1962,7 +1852,7 @@ static int gsw_logger(request_rec *r)
     gsw_cfg *cfg;
 
     cfg = our_dconfig(r);
-    trace_add(r->server, r, cfg, "gsw_logger()");
+
     return DECLINED;
 }
 
