@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 1999, 2000 Free Software Foundation, Inc.
+   Copyright (C) 2007-2008 Free Software Foundation, Inc.
    
    Written by:	David Wetzel <dave@turbocat.de>
    Based on Apache2 Sample Module
@@ -428,9 +428,7 @@ gsw_app_conf * find_app(request_rec *r)
   
     app_conf = (gsw_app_conf *) apr_table_get(cfg->app_table, (const char  *)tmp_key); 	
    	
-   	if (app_conf != NULL) {
-   	  return app_conf;
-   	}
+    return app_conf;
     
   }
 
@@ -1032,37 +1030,37 @@ static int gsw_handler(request_rec *r)
   if (app != NULL) {
     int i;
     handle_status = OK;
-
+    
     if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
-      handle_status = DECLINED;
     } else {
       if (r->method_number == M_POST) {
         contentLen = get_content_len(r);
         postdata = read_post_data(r, contentLen, r->pool, app);
       }
-    }
-    
-    
-    for (i = 0; ((i < RETRY_COUNT) && (handle_status != DECLINED)); i++) {
-      handle_status = handle_request(r, app, postdata, contentLen);
       
-      switch (handle_status) {
-        case UNREACHABLE:
-          mark_unreachable(app);
-          app = find_app(r);
-          break;
-        case DECLINED:
-          break;
-        case OK:
-          return handle_status;
-        default:
-          break;
+      
+      for (i = 0; ((i < RETRY_COUNT) && (handle_status <= OK)); i++) {
+        handle_status = handle_request(r, app, postdata, contentLen);
+        
+        switch (handle_status) {
+          case UNREACHABLE:
+            mark_unreachable(app);
+            app = find_app(r);
+            break;
+          case DECLINED:
+            break;
+          case OK:
+            return handle_status;
+          default:
+            break;
+        }
       }
-    }
-    
-    if ((handle_status != DECLINED) && (handle_status != UNREACHABLE)) {
-      return handle_status;
+      
+      if ((handle_status > OK)) {
+        return handle_status;
+      }
+      
     }
   } 
      
