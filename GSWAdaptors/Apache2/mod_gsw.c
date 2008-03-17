@@ -47,6 +47,7 @@
 #define MOD_EXIPC_SET_MUTEX_PERMS /* XXX Apache should define something */
 #endif
 
+
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
 /* Data declarations.                                                       */
@@ -75,20 +76,20 @@
 
 
 typedef struct gsw_cfg {
-    int cmode;                  /* Environment to which record applies
-                                 * (directory, server, or combination).
-                                 */
+  int cmode;                  /* Environment to which record applies
+   * (directory, server, or combination).
+   */
 #define CONFIG_MODE_SERVER 1
 #define CONFIG_MODE_DIRECTORY 2
 #define CONFIG_MODE_COMBO 3     /* Shouldn't ever happen. */
-    int local;                  /* Boolean: "Example" directive declared
-                                 * here?
-                                 */
-    int congenital;             /* Boolean: did we inherit an "Example"? */
-    char *trace;                /* Pointer to trace string. */
-    char *loc;                  /* Location to which this record applies. */
-    int  showApps;
-    apr_table_t * app_table;
+  int local;                  /* Boolean: "Example" directive declared
+   * here?
+   */
+  int congenital;             /* Boolean: did we inherit an "Example"? */
+  char *trace;                /* Pointer to trace string. */
+  char *loc;                  /* Location to which this record applies. */
+  int  showApps;
+  apr_table_t * app_table;
 } gsw_cfg;
 
 #define MAX_URL_LENGTH		256	
@@ -129,8 +130,13 @@ typedef struct gsw_app_conf {
 #define REDIRECT_QUERY_STRING   "REDIRECT_QUERY_STRING"
 #define REDIRECT_URL            "REDIRECT_URL"
 #define CONTENT_LENGTH          "content-length"
+#define DEFAULT_APP_COUNT       10
 
 static int locklevel = 0;
+
+// used to read configs
+static int instance_count;
+static int last_app_index;
 
 //#define     apr_global_mutex_lock_d(mtx_) { syslog(LOG_ERR,"lock %d level: %d\n",__LINE__, locklevel); apr_global_mutex_lock(mtx_); locklevel++;}
 //#define     apr_global_mutex_unlock_d(mtx_) { locklevel--; syslog(LOG_ERR,"un-lock %d level: %d\n",__LINE__,locklevel); apr_global_mutex_unlock(mtx_); syslog(LOG_ERR,"OK\n");}
@@ -167,7 +173,7 @@ typedef struct exipc_data {
   apr_time_t    last_response_time;  // in sec since January 1, 1970
   apr_time_t    last_request_time;  // in sec since January 1, 1970
   u_int32_t load;                
-  u_int8_t  unreachable;         // 0=online 1=unreachable
+  u_int8_t unreachable;         // 0=online 1=unreachable
 } exipc_data;
 
 /*
@@ -266,8 +272,8 @@ void * read_shared_mem(apr_pool_t * pool, int appcount)
       rv = apr_global_mutex_lock(exipc_mutex);
       if (rv != APR_SUCCESS) {
         char errstr[1024];
-        apr_strerror(rv,errstr,1024);			
-        syslog(LOG_ERR,"rv != APR_SUCCESS %s\n", errstr);
+        //apr_strerror(rv,errstr,1024);			
+        //syslog(LOG_ERR,"rv != APR_SUCCESS %s\n", errstr);
         return NULL;
       }
       base = apr_shm_baseaddr_get(exipc_shm);
@@ -283,15 +289,15 @@ void * read_shared_mem(apr_pool_t * pool, int appcount)
 void mark_unreachable(gsw_app_conf * app)
 {
   exipc_data   * mem   = NULL;
-  exipc_data   * data    = NULL;
   apr_time_t     now     = apr_time_now(); 
+  u_int16_t      index   = app->total_index;
+
         
   apr_global_mutex_lock(exipc_mutex); 	
-  mem = apr_shm_baseaddr_get(exipc_shm);
+  mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
   
-  data = (exipc_data*) mem+(app->total_index * sizeof(exipc_data));
-  data->last_request_time = now;
-  data->unreachable = 1;
+  mem[index].last_request_time = now;
+  mem[index].unreachable = 1;
   
   apr_global_mutex_unlock(exipc_mutex); 
 }
@@ -300,15 +306,15 @@ void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr
 {
   exipc_data   * mem   = NULL;
   exipc_data   * data    = NULL;
+  u_int16_t      index   = app->total_index;
   
   apr_global_mutex_lock(exipc_mutex); 	
-  mem = apr_shm_baseaddr_get(exipc_shm);
+  mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
   
-  data = (exipc_data*) mem+(app->total_index * sizeof(exipc_data));
-  data->last_request_time = last_request_time;
-  data->last_response_time = last_response_time;
-  data->load = load;
-  
+  mem[index].last_request_time = last_request_time;
+  mem[index].last_response_time = last_response_time;
+  mem[index].load = load;
+
   apr_global_mutex_unlock(exipc_mutex); 
 }
 
@@ -330,7 +336,6 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 	  apr_time_t   t;
     exipc_data * mem;
     int          appcount = tarr->nelts;
-    exipc_data * current_stats = NULL;
     u_int32_t    lastload = UINT32_MAX;                
     int          lastindex = -1;                
 
@@ -347,21 +352,19 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
     // current time
 	  t = apr_time_now();
     // substract 300 sec / 5 min
-    t = t - 300;
+    t = t - apr_time_from_sec(300);
     
     for (i = 0; i < tarr->nelts; i++) {
       gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
   
       if ((strcasecmp(appconf->app_name, name) == 0)) {
-        current_stats = (exipc_data*) mem+(i * sizeof(exipc_data));
-
         // enable unreachable instances after some time
-        if ((current_stats->unreachable == 1) && (current_stats->last_request_time < t)) {
-          current_stats->unreachable = 0;
+        if ((mem[i].unreachable == 1) && (mem[i].last_request_time < t)) {
+          mem[i].unreachable = 0;
         }
           
-        if (current_stats->unreachable == 0) {
-          if (current_stats->load <= lastload) {
+        if (mem[i].unreachable == 0) {
+          if (mem[i].load <= lastload) {
             lastindex = i;              
           }
         }
@@ -902,6 +905,19 @@ static const char * set_ShowApps(cmd_parms *cmd, void *mconfig, int mybool)
     return NULL;
 }
 
+static const char *set_inst_count(cmd_parms *cmd, void *key, const char *value)
+{
+  gsw_cfg *cfg = ap_get_module_config(cmd->server->module_config, &gsw_module);
+  
+  if (instance_count != DEFAULT_APP_COUNT) {
+    return "InstanceCount is only allowed once.";
+  }
+
+  instance_count = atoi((char *)value);
+
+  // success
+  return NULL;
+}
 
 static const char * set_App(cmd_parms *cmd, void *mconfig,
                                  char *word1, char *word2, char *word3)
@@ -917,6 +933,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   char         * portStr      = NULL;  
   char         * keyStr       = NULL;
   int            len          = 0;  
+  gsw_cfg *modulecfg = ap_get_module_config(cmd->server->module_config, &gsw_module);
   const apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
 
 //App Name=TCWebMail Instance=1 Host=10.1.0.1:9901
@@ -927,7 +944,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   hostName = strrchr(word3, '=');
   
   if ((!appName) || (!instanceStr) || (!hostName)) {
-    return "App is invalid!";
+    return apr_psprintf(cmd->temp_pool, "App '%s' '%s' '%s' is invalid.", word1, word2, word3);		
   }
   
   appConf = apr_pcalloc(cmd->pool, sizeof(gsw_app_conf));
@@ -950,15 +967,21 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   strncpy(appConf->host_name, hostName, sizeof(appConf->host_name));
 
   appConf->instance_number = atoi(instanceStr);
-  appConf->total_index = tarr->nelts;
-
+  appConf->total_index = last_app_index;
+  
+  if (instance_count < appConf->total_index) {
+    return apr_psprintf(cmd->temp_pool, "InstanceCount is '%d', but you added '%d' applications. Increase InstanceCount.", 
+                        instance_count, appConf->total_index);		
+  }
+  
   snprintf(tmpStr, sizeof(tmpStr), "%s:%d", appName, appConf->instance_number);
 
   len = strlen(tmpStr)+1;
   keyStr = apr_pcalloc(cmd->pool,len);
   strncpy(keyStr, tmpStr, len);
 
-  apr_table_addn((apr_table_t*) tarr, (const char *) keyStr, (const char *) appConf);			
+  apr_table_addn((apr_table_t*) tarr, (const char *) keyStr, (const char *) appConf);	
+  last_app_index++;
               
   return NULL;
 }
@@ -1093,7 +1116,6 @@ static int gsw_handler(request_rec *r)
         int i;
         exipc_data * mem;
         int          appcount = tarr->nelts;
-        exipc_data * current_stats = NULL;
         char         timestr[APR_CTIME_LEN];
         
         mem = read_shared_mem(r->pool,  appcount);
@@ -1104,7 +1126,6 @@ static int gsw_handler(request_rec *r)
           
           for (i = 0; i < tarr->nelts; i++) {
             gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-            current_stats = (exipc_data*) mem+(i * sizeof(exipc_data));
             
             ap_rprintf(r, "<tr><td><a href=\"%s%s.woa/%d/\">%s</a></td>", ADAPTOR_PREFIX, 
                        appconf->app_name,
@@ -1113,11 +1134,11 @@ static int gsw_handler(request_rec *r)
             ap_rprintf(r, "<td>%u</td>", appconf->instance_number);
             ap_rprintf(r, "<td>%s</td>", appconf->host_name);
             ap_rprintf(r, "<td>%u</td>", appconf->port);
-            ap_rprintf(r, "<td>%u</td>", current_stats->load);
-            ap_rprintf(r, "<td>%s</td>", (current_stats->unreachable == 1) ? "YES": "NO");
-            apr_ctime(timestr, current_stats->last_request_time);
+            ap_rprintf(r, "<td>%u</td>", mem[i].load);
+            ap_rprintf(r, "<td>%s</td>", (mem[i].unreachable == 1) ? "YES": "NO");
+            apr_ctime(timestr, mem[i].last_request_time);
             ap_rprintf(r, "<td>%s</td>", timestr);
-            apr_ctime(timestr, current_stats->last_response_time);
+            apr_ctime(timestr, mem[i].last_response_time);
             ap_rprintf(r, "<td>%s</td></tr>\n", timestr);
           }
           
@@ -1312,25 +1333,25 @@ static void *gsw_merge_dir_config(apr_pool_t *p, void *parent_conf,
  */
 static void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
 {
-
-    gsw_cfg *cfg;
-    char *sname = s->server_hostname;
-
-    /*
-     * As with the gsw_create_dir_config() reoutine, we allocate and fill
-     * in an empty record.
-     */
-    cfg = (gsw_cfg *) apr_pcalloc(p, sizeof(gsw_cfg));
-    cfg->local = 0;
-    cfg->congenital = 0;
-    cfg->cmode = CONFIG_MODE_SERVER;
-    /*
-     * Note that we were called in the trace list.
-     */
-    sname = (sname != NULL) ? sname : "";
-    cfg->loc = apr_pstrcat(p, "SVR(", sname, ")", NULL);
-
-    return (void *) cfg;
+  
+  gsw_cfg *cfg;
+  char *sname = s->server_hostname;
+    
+  /*
+   * As with the gsw_create_dir_config() reoutine, we allocate and fill
+   * in an empty record.
+   */
+  cfg = (gsw_cfg *) apr_pcalloc(p, sizeof(gsw_cfg));
+  cfg->local = 0;
+  cfg->congenital = 0;
+  cfg->cmode = CONFIG_MODE_SERVER;
+  /*
+   * Note that we were called in the trace list.
+   */
+  sname = (sname != NULL) ? sname : "";
+  cfg->loc = apr_pstrcat(p, "SVR(", sname, ")", NULL);
+  
+  return (void *) cfg;
 }
 
 /*
@@ -1409,19 +1430,17 @@ static int app_count(server_rec *s)
 void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s)
 {
   int i;
-  exipc_data * currentRecord  =  (exipc_data *) apr_shm_baseaddr_get(xxx);
-  apr_size_t  size =  apr_shm_size_get(xxx);
+  
+  exipc_data *currentRecord  =  (exipc_data *) apr_shm_baseaddr_get(xxx);
 
-// count
-  // fixme
-  for (i = 0;i<6;i++) {
-    currentRecord->last_response_time = 0;
-    currentRecord->load = 0;
-    currentRecord->unreachable = 0;
-    currentRecord = currentRecord + sizeof(exipc_data);
+  for (i = 0;i<count;i++) {
+    currentRecord[i].last_response_time = 0;
+    currentRecord[i].load = 0;
+    currentRecord[i].unreachable = 0;
   }
   
 }
+
 
 /*
  * This routine is called to perform any module-specific fixing of header
@@ -1440,9 +1459,9 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
   void          * base;
   const char    * temp_dir;
   int             appcount = 0;
+  gsw_cfg       * cfg;
   
-  //ap_error_log2stderr(s);
-  openlog("www", LOG_PID,LOG_USER);
+  //openlog("www", LOG_PID,LOG_USER);
   
   /* 
    * The following checks if this routine has been called before. 
@@ -1468,8 +1487,9 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
    * TODO get the location from the environment $TMPDIR or somesuch. 
    */
   
- // hack since we do not have any config now. fix this later -- dw
-  appcount = 50; //app_count(s);
+  cfg = ap_get_module_config(s->module_config, &gsw_module);
+
+  appcount = instance_count;
   
   apr_temp_dir_get(&temp_dir, pconf);		
 
@@ -1477,7 +1497,8 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
                      apr_psprintf(pconf, "gsw_shm.%ld", (long int)getpid()), 0, pconf);		
 
   /* Now create that segment */
-  rs = apr_shm_create(&exipc_shm, sizeof(exipc_data) * appcount, 
+
+  rs = apr_shm_create(&exipc_shm, (sizeof(exipc_data) * appcount), 
                       (const char *) shmfilename, pconf);
   if (rs != APR_SUCCESS) {
     ap_log_error(APLOG_MARK, APLOG_ERR, rs, s, 
@@ -1520,9 +1541,7 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
 
   apr_global_mutex_lock(exipc_mutex); 	
   
-  /* Created it, now let's zero it out */
-  base = apr_shm_baseaddr_get(exipc_shm);
-  
+  /* Created it, now let's zero it out */  
   init_shared_mem(exipc_shm, appcount, s);
 
   apr_global_mutex_unlock(exipc_mutex); 
@@ -1888,6 +1907,9 @@ static int gsw_logger(request_rec *r)
  */
 static void gsw_register_hooks(apr_pool_t *p)
 {
+  instance_count = DEFAULT_APP_COUNT; // default value
+  last_app_index = 0;
+
     ap_hook_pre_config(gsw_pre_config, NULL, NULL, APR_HOOK_MIDDLE);
     ap_hook_post_config(gsw_post_config, NULL, NULL, APR_HOOK_MIDDLE);
     ap_hook_open_logs(gsw_open_logs, NULL, NULL, APR_HOOK_MIDDLE);
@@ -1956,6 +1978,13 @@ static const command_rec gsw_cmds[] =
     "Container for directives affecting resources located in the proxied "
     "location, in regular expression syntax"),
 
+  AP_INIT_TAKE1("InstanceCount",
+                set_inst_count,
+                NULL,
+                RSRC_CONF,
+                "InstanceCount <number> -- the number of instances to tell the module how much shared memory is needed"
+                ),
+  
     {NULL}
 };
 /*--------------------------------------------------------------------------*/
