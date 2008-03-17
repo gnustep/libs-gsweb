@@ -1,3 +1,13 @@
+2008-03-17  David Wetzel <dave@turbocat.de>
+        GSWeb.framework/GSWAssociation.h/m
+        + bindingInComponent
+
+        GSWeb.framework/GSWPrivate.h
+        + _setValueNoValidation: inComponent: 
+
+        GSWeb.framework/GSWBindingNameAssociation.m
+        * re-wrote initWithKeyPath:
+
 2008-03-11  David Wetzel <dave@turbocat.de>
         GSWAdaptors/Apache2/mod_gsw.c
         * fixed http status bug

@@ -66,6 +66,9 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
 
 - (BOOL)_hasBindingInParent:(GSWComponent*) parent;
 
+- (void) _setValueNoValidation:(id) aValue
+                   inComponent:(GSWComponent*) component;
+
 @end
 
 @interface GSWInput (PrivateDeclarations)

@@ -496,6 +496,14 @@ static Class NSStringClass = Nil;
 */
 //====================================================================
 
+// returns the binding String as in the wod.
+// override in subclasses
+- (NSString*) bindingInComponent:(GSWComponent*) component
+{
+  return nil;
+}
+
+
 //--------------------------------------------------------------------
 -(BOOL)isImplementedForComponent:(NSObject*)component
 {

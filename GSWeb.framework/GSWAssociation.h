@@ -103,16 +103,9 @@ NEW FEATURE: negate. add a "!" in front of your key path and the result will be 
 //NDFN
 +(GSWAssociation*)associationFromString:(NSString*)string;
 
-/*
-//====================================================================
-@interface GSWAssociation (GSWAssociationOldFn)
 
--(void)setValue:(id)value;
--(id)value;
-
-@end
-*/
-//====================================================================
+// returns the binding String as in the wod.
+- (NSString*) bindingInComponent:(GSWComponent*) component;
 
 -(BOOL)isImplementedForComponent:(NSObject*)component;
 

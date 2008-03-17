@@ -32,6 +32,9 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
+
+#define DOTSTRING @"."
 
 //====================================================================
 @implementation GSWBindingNameAssociation
@@ -40,22 +43,31 @@ RCS_ID("$Id$")
 -(id)initWithKeyPath:(NSString*)aKeyPath
 {
   if ((self=[super init]))
-    {
-      NSArray* keys=nil;
-      int      keyCount = 0;
-      
-      if ([aKeyPath hasPrefix:@"^"]) {
-        aKeyPath = [aKeyPath substringFromIndex:1];
-      }
-
-      keys=[aKeyPath componentsSeparatedByString:@"."];
-      ASSIGN(_parentBindingName,[[keys objectAtIndex:0] stringByDeletingPrefix:@"^"]);
-      keyCount = [keys count];
-      if (keyCount > 1) {
-        ASSIGN(_keyPath,[[keys subarrayWithRange:NSMakeRange(1,keyCount-1)] componentsJoinedByString:@"."]);
-      }
+  {
+    NSArray*      keys=nil;
+    NSRange       dotRange;
+    
+    if ([aKeyPath hasPrefix:@"^"]) {
+      aKeyPath = [aKeyPath substringFromIndex:1];
     }
+    // TODO: check if ~ was used in here in WO 4.x 
+    
+    keys=[aKeyPath componentsSeparatedByString:@"."];
+    dotRange = [aKeyPath rangeOfString:DOTSTRING];
 
+    if (dotRange.length) {
+      ASSIGN(_parentBindingName, [aKeyPath substringToIndex:dotRange.location]);        
+      
+      // it makes no sense to try empty strings
+      if ([aKeyPath length] > (dotRange.length + dotRange.location)) {
+        ASSIGN(_keyPath,[aKeyPath substringFromIndex:dotRange.location+1]);
+      }
+    } else {
+      // no "." in the string use it as _parentBindingName
+      ASSIGN(_parentBindingName, aKeyPath);        
+    }
+  }
+  
   return self;
 }
 
@@ -212,7 +224,7 @@ RCS_ID("$Id$")
 {
   return @"<none>";
 }
-
+    
 - (NSString*) bindingInComponent:(GSWComponent*) component
 {
   GSWComponent * parentcomp = [component parent];
