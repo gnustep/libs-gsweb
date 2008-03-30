@@ -2,8 +2,8 @@
 
    Copyright (C) 1999-2004 Free Software Foundation, Inc.
    
-   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 	Feb 1999
+   Written by:	David Wetzel <dave@turbocat.de>
+   Date: 	Mar 2008
    
    $Revision$
    $Date$
@@ -32,504 +32,388 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 //====================================================================
 @implementation GSWComponentRequestHandler
 
-//--------------------------------------------------------------------
+
+// note: we are NOT looking at [WORequest _lookForIDsInCookiesFirst] since it is always NO -- dw
+
+- (NSDictionary*) requestHandlerValuesForRequest:(GSWRequest *) aRequest
+{
+  NSMutableDictionary  * aDictionary = [NSMutableDictionary dictionary];
+  NSArray              * pathArray = [aRequest requestHandlerPathArray];
+  NSString             * lastObject = nil;
+  NSString             * penultElement = nil;
+  NSString             * aSessionID = nil;
+  NSString             * aContextID = nil;
+  NSString             * aSenderID = nil;
+  NSMutableString      * pageName = nil;
+  NSString             * sessionIdKey = [GSWApp sessionIdKey];
+  int p = 0;
+  int count = 0;
+  int length = 0;
+  int pageNameLocation = 0;
+  int pageNameLength = 0;
+  
+  if ((pathArray))
+  {
+    count = [pathArray count];
+  }
+  
+  if (count != 0)
+  {
+    lastObject = [pathArray lastObject];
+    if(count > 1)
+    {
+      penultElement = [pathArray objectAtIndex:count - 2];
+    }
+    
+    for (length = [lastObject length]; ((p < length) && (isdigit([lastObject characterAtIndex:p]) != 0)); p++) { }
+    
+    if ((p < length) && ([lastObject characterAtIndex:p] == '.')) {
+      aContextID = [lastObject substringToIndex:p];
+      p++;
+      aSenderID = [lastObject substringFromIndex:p];
+      
+      if ((penultElement != nil) && ([penultElement hasSuffix:GSWPagePSuffix[GSWebNamingConv]])) {
+        if (GSWebNamingConv == 1) {
+          pageNameLength = count - 2; // .wo
+        } else {
+          pageNameLength = count - 4; // .gswc
+        }
+      } else {
+        if (penultElement != nil) {
+          aSessionID = penultElement;
+          pageNameLength = count - 2;   // TODO:check if that works with GSWNAMES.
+        } else {
+          pageNameLength = 0;
+        }
+      }
+      if (aContextID != nil)
+      {
+        [aDictionary setObject:aContextID forKey:GSWKey_ContextID[GSWebNamingConv]]; // wocid
+        [aDictionary setObject:aSenderID forKey:GSWKey_ElementID[GSWebNamingConv]]; // woeid
+      }
+    } else {
+      if ([lastObject hasSuffix:GSWPagePSuffix[GSWebNamingConv]]) {
+        pageNameLength = count;
+      } else {
+        aSessionID = lastObject;
+        pageNameLength = count - 1;
+      }
+    }
+    
+    if (pageNameLength != 0) {
+      if (pageNameLength == 1) {
+        pageName = [pathArray objectAtIndex:0];
+      } else {
+        int i;
+        pageName = [[NSMutableString alloc] initWithCapacity:256];
+        [pageName autorelease];
+        
+        for (i = pageNameLocation; i < pageNameLength - pageNameLocation; i++) {
+          [pageName appendString:[pathArray objectAtIndex:i]];
+          [pageName appendString:@"/"];
+        }
+        [pageName appendString:[pathArray objectAtIndex:i]];
+      }
+      if ([pageName hasSuffix:GSWPagePSuffix[GSWebNamingConv]]) {
+        if (GSWebNamingConv == 1) {
+          pageName = (NSMutableString*) [pageName substringToIndex:[pageName length] - 3]; // .wo
+        } else {
+          pageName = (NSMutableString*) [pageName substringToIndex:[pageName length] - 5]; // .gswc
+        }
+      }
+      [aDictionary setObject:pageName 
+                      forKey:GSWKey_PageName[GSWebNamingConv]];
+    }
+    
+    if (aSessionID == nil) {
+      aSessionID = [aRequest stringFormValueForKey:sessionIdKey];
+      
+      if(aSessionID == nil) {
+        aSessionID = [aRequest cookieValueForKey:sessionIdKey];
+      }
+    }
+  } else {
+    if ([GSWApp shouldRestoreSessionOnCleanEntry:aRequest]) {
+      aSessionID = [aRequest cookieValueForKey:sessionIdKey];
+    }
+  }
+  
+  if ((aSessionID != nil) && ([aSessionID length] > 0)) {
+    [aDictionary setObject:aSessionID forKey:sessionIdKey];
+  }
+  return aDictionary;
+}
+
+GSWResponse * _dispatchWithPreparedPage(GSWComponent * aPage, GSWSession * aSession, GSWContext * aContext, NSDictionary * someElements)
+{
+  GSWRequest      * aRequest = [aContext request];
+  GSWApplication  * anApplication = GSWApp;
+  GSWResponse     * aResponse = [anApplication createResponseInContext:aContext];
+  NSString        * aSenderID = [aContext senderID];
+  NSString        * oldContextID = [aSession _contextIDMatchingIDsInContext:aContext];
+  BOOL              didPageChange = NO;
+
+  [aResponse setHTTPVersion:[aRequest httpVersion]];
+  [aResponse setHeader:@"text/html"
+                forKey:@"content-type"];
+  [aContext _setResponse:aResponse];
+  
+  if (oldContextID == nil) {
+    if ((aSenderID != nil) && ([aRequest _hasFormValues])) {
+      [anApplication takeValuesFromRequest:aRequest inContext:aContext];
+    }
+    [aContext _setPageChanged:NO];
+    
+    if (aSenderID != nil) {
+      GSWElement * anActionResults = [anApplication invokeActionForRequest:aRequest inContext:aContext];
+
+      if ((anActionResults == nil) || ([anActionResults isKindOfClass: [GSWComponent class]])) {
+        GSWComponent  * aResultComponent = (GSWComponent*) anActionResults;
+
+        if ((aResultComponent != nil) && ([aResultComponent context] != aContext)) {
+          [aResultComponent _awakeInContext:aContext];
+        }        
+        
+        if ((aResultComponent != nil) && (aResultComponent != [aContext _pageElement])) {
+          didPageChange = YES;
+        }
+        
+        [aContext _setPageChanged:didPageChange];
+
+        if (didPageChange) {
+          [aContext _setPageElement:aResultComponent];
+        }
+      } else {
+        GSWResponse * theResponse = [anActionResults generateResponse];
+        return theResponse;
+      }
+    }
+  } else {
+    GSWComponent * responsePage = [aSession restorePageForContextID:oldContextID];
+    [aContext _setPageElement:responsePage];
+  }
+  
+  [anApplication appendToResponse:aResponse inContext: aContext];
+  
+  return aResponse;
+}
+
+GSWResponse * _dispatchWithPreparedSession(GSWSession * aSession, GSWContext * aContext, NSDictionary * someElements)
+{
+  GSWComponent    * aPage = nil;
+  GSWResponse     * aResponse = nil;
+  NSString        * aPageName = [someElements objectForKey:GSWKey_PageName[GSWebNamingConv]]; // "wopage"
+  NSString        * oldContextID = [aContext _requestContextID];
+  GSWApplication  * anApplication = GSWApp;
+  NSString        * sessionIdKey = [anApplication sessionIdKey];
+  NSString        * oldSessionID = [someElements objectForKey:sessionIdKey];
+  BOOL              clearIDsInCookies = NO;
+  BOOL              storesIDsInCookies = [aSession storesIDsInCookies];
+  
+  if ((oldSessionID == nil) || (oldContextID == nil)) {
+    if ((aPageName == nil) && (!storesIDsInCookies))
+    {
+      GSWRequest * request = [aContext request];
+      NSString   * cookieHeader = [request headerForKey:GSWHTTPHeader_Cookie]; //"cookie"
+      if ((cookieHeader != nil) && ([cookieHeader length] > 0)) {
+        NSDictionary * cookieDict = [request cookieValues];
+
+        if (([cookieDict objectForKey:sessionIdKey] != nil) || 
+            ([cookieDict objectForKey:[anApplication instanceIdKey]] != nil)) {
+          clearIDsInCookies = YES;
+        }
+      }
+    }
+    aPage = [anApplication pageWithName:aPageName inContext:aContext];
+  } else {
+    aPage = [aSession restorePageForContextID:oldContextID];
+
+    if (aPage == nil) {
+      if ([anApplication _isPageRecreationEnabled]) {
+        aPage = [anApplication pageWithName:aPageName inContext: aContext];
+      } else {
+        return [anApplication handlePageRestorationErrorInContext:aContext];
+      }
+    }
+  }
+  
+  [aContext _setPageElement:aPage];
+  aResponse = _dispatchWithPreparedPage(aPage, aSession, aContext, someElements);
+
+  if ([anApplication isPageRefreshOnBacktrackEnabled]) {
+    [aResponse disableClientCaching];
+  }
+  
+  [aSession _saveCurrentPage];
+  
+  if ((clearIDsInCookies) && (!storesIDsInCookies)) {
+    [aSession _clearCookieFromResponse:aResponse];
+  }
+  
+  return aResponse;
+}
+
+
+GSWResponse * _dispatchWithPreparedApplication(GSWApplication *app, GSWContext * aContext, NSDictionary * requestHandlerDict)
+{
+  GSWSession  * session = nil;
+  GSWResponse * response = nil;
+  GSWRequest  * request = [aContext request];
+  NSString    * sessionID;
+
+  sessionID = [requestHandlerDict objectForKey:GSWKey_SessionID[GSWebNamingConv]]; //@"wosid"
+  if ((!sessionID)) {
+    session = [app _initializeSessionInContext:aContext];
+  } else {
+    session = [app restoreSessionWithID:sessionID inContext:aContext];
+  }
+
+  if (session == nil) {
+    response = [app handleSessionCreationErrorInContext:aContext];
+  } else {
+      response = _dispatchWithPreparedSession(session, aContext, requestHandlerDict);
+  }
+
+  [aContext _putAwakeComponentsToSleep];
+  [app saveSessionForContext:aContext];
+  
+  return response;
+}
+
+- (GSWResponse*) _handleRequest:(GSWRequest*) aRequest
+{
+  GSWContext          * aContext = nil;
+  NSDictionary        * requestHandlerValues;
+  NSString            * aSessionID;
+  NSString            * aSenderID;
+  NSString            * oldContextID;
+  GSWStatisticsStore  * aStatisticsStore;
+  GSWResponse         * aResponse;
+  GSWApplication      * app = GSWApp;   // is there any reason not to use the global var? -- dw
+  
+  requestHandlerValues = [self requestHandlerValuesForRequest:aRequest];
+  aSessionID = [requestHandlerValues objectForKey:[app sessionIdKey]];
+  
+  if ((aSessionID == nil) && [app isRefusingNewSessions]) 
+  {
+    NSString * newLocationURL = [app _newLocationForRequest:aRequest];
+    NSString * msgString = [NSString stringWithFormat:@"Sorry, your request could not immediately be processed. Please try this URL: <a href=\"%@\">%@</a>",
+                            newLocationURL, newLocationURL];
+    
+    aResponse = [app createResponseInContext:nil];
+    [aResponse _redirectResponse:newLocationURL contentString:msgString];
+    [aResponse _finalizeInContext:nil];
+    
+    return aResponse;
+  }
+  
+  aSenderID = [requestHandlerValues objectForKey:GSWKey_ElementID[GSWebNamingConv]];
+  oldContextID = [requestHandlerValues objectForKey:GSWKey_ContextID[GSWebNamingConv]];
+  
+  if ((aStatisticsStore = [app statisticsStore]))
+  {
+    [aStatisticsStore applicationWillHandleComponentActionRequest];
+  }
+  
+  NS_DURING {
+    aContext = [app createContextForRequest:aRequest];
+    [aContext _setRequestContextID:oldContextID];
+    [aContext _setSenderID:aSenderID];
+    
+    [app awake];
+    aResponse = _dispatchWithPreparedApplication(app, aContext, requestHandlerValues);
+    [[NSNotificationCenter defaultCenter] postNotificationName:DidHandleRequestNotification
+                                                        object:aContext];
+    
+    [app sleep];
+  } NS_HANDLER {
+    GSWSession * aSession = nil;
+    
+    NSLog(@"%s: Exception occurred while handling request:%@", __PRETTY_FUNCTION__, [localException reason]);
+    
+    if(aContext == nil)
+    {
+      aContext = [app createContextForRequest:aRequest];
+    } else {
+      [aContext _putAwakeComponentsToSleep];
+    }
+    
+    aSession = [aContext _session];
+    aResponse = [app handleException:localException 
+                           inContext:aContext];
+    
+    if (aSession) {
+      NS_DURING {
+        [app saveSessionForContext:aContext];
+        [app sleep];
+      } NS_HANDLER {
+        NSLog(@"WOApplication '%@': Another Exception occurred while trying to clean the application :%@", [app name], [localException reason]);
+      } NS_ENDHANDLER;
+    }
+    
+  } NS_ENDHANDLER;
+  
+  if ((aContext) && ([aContext _session]))
+  {
+    [app saveSessionForContext:aContext];
+  }
+  
+  if ((aResponse))
+  {
+    [aResponse _finalizeInContext:aContext];
+  }
+  
+  if ((aStatisticsStore))
+  {
+    GSWComponent * aPage = [aContext page];
+    NSString     * pageName = nil;
+    
+    if ((aPage))
+    {
+      pageName = [aPage name];
+    }
+    [aStatisticsStore applicationDidHandleComponentActionRequestWithPageNamed:pageName];
+  }
+  return aResponse;
+}
+
+
+
 /** Handle request aRequest and return the response 
-    This lock application
+    This may lock the application
 **/
 
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
   //OK
   GSWResponse* response=nil;
-  GSWApplication* application=[GSWApplication application];
+  NSLock        * lock;
 
-  [application lockRequestHandling];
-  response=[self lockedHandleRequest:aRequest];
-  if (!response)
-    {
-      response=[GSWResponse responseWithMessage:@"Component Handle request failed. No Response"
-                            inContext:nil
-                            forRequest:aRequest];
-      [response _finalizeInContext:nil]; //DO Call _finalizeInContext: !
-    };
-  [application unlockRequestHandling];
-
-  return response;
-};
-
-//--------------------------------------------------------------------
-/** Handle request aRequest and return the response 
-    Application should be locked before this
-**/
-
--(GSWResponse*)lockedHandleRequest:(GSWRequest*)aRequest
-{
-  //OK
-  //GSWStatisticsStore* statisticsStore=nil;
-  GSWApplication* application=[GSWApplication application];
-  GSWContext* aContext=nil;
-  GSWResponse* response=nil;
-  NSDictionary* requestHandlerValues=nil;
-  BOOL exceptionRaised=NO;
-
-//  NSLog(@"%s %@",__PRETTY_FUNCTION__, aRequest);
-
-  NS_DURING
-    {      
-      requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:aRequest];
-    }
-  NS_HANDLER
-    {
-      exceptionRaised=YES;
-      LOGException(@"%@ (%@)",
-		   localException,
-		   [localException reason]);
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In -lockedHandleRequest:");
-      LOGException(@"exception=%@",localException);
-      [application awake];
-      response=[application handleException:localException
-                            inContext:nil];
-      [application sleep];
-      [response _finalizeInContext:aContext];//DO Call _finalizeInContext: !
-      NSAssert(!response || [response isFinalizeInContextHasBeenCalled],@"_finalizeInContext not called for GSWResponse");
-    };
-  NS_ENDHANDLER;
-  if (!exceptionRaised)
-    {
-      NSString* senderID=nil;
-      NSString* requestContextID=nil;
-
-      aContext=[[GSWApplication application]createContextForRequest:aRequest];
-
-      senderID=[requestHandlerValues objectForKey:GSWKey_ElementID[GSWebNamingConv]];
-      [aContext _setSenderID:senderID];
-
-      requestContextID=[requestHandlerValues objectForKey:GSWKey_ContextID[GSWebNamingConv]];
-      [aContext _setRequestContextID:requestContextID];
-
-      [application _setContext:aContext];
-      //====>
-      NS_DURING
-        {
-          [application awake];
-          response=[self lockedDispatchWithPreparedApplication:application
-                         inContext:aContext
-                         elements:requestHandlerValues];
-          
-        }
-      NS_HANDLER
-        {
-          exceptionRaised=YES;
-          LOGException(@"%@ (%@)",
-                       localException,
-                       [localException reason]);
-          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"In lockedDispatchWithPreparedApplication");
-          LOGException(@"exception=%@",localException);
-          response=[application handleException:localException
-                                inContext:aContext];
-          [application sleep];
-          [response _finalizeInContext:aContext]; //DO Call _finalizeInContext: !
-          NSAssert(!response || [response isFinalizeInContextHasBeenCalled],
-                   @"_finalizeInContext not called for GSWResponse");
-        };
-      NS_ENDHANDLER;
-      if (!exceptionRaised)
-        {
-          NS_DURING
-            {
-              [application sleep];
-              [response _finalizeInContext:aContext];//LAST //CLEAN
-            }
-          NS_HANDLER
-            {
-              LOGException(@"%@ (%@)",
-                           localException,
-                           [localException reason]);
-              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                       @"In [application sleep] or [response _finalizeInContext:aContext]");
-              LOGException(@"exception=%@",localException);
-              response=[application handleException:localException
-                                    inContext:nil];
-              [response _finalizeInContext:aContext]; //DO Call _finalizeInContext: !
-              NSAssert(!response || [response isFinalizeInContextHasBeenCalled],
-                       @"_finalizeInContext not called for GSWResponse");
-            };
-          NS_ENDHANDLER;
-        };
-      //<===========
-    };
+  lock = [GSWApp requestHandlingLock];
   
-  [application _setContext:nil];
-
+  if (lock) {
+    SYNCHRONIZED(lock) {
+      response = [self _handleRequest:aRequest];
+    }
+    END_SYNCHRONIZED;
+    
+  } else {
+    // no locking
+    response = [self _handleRequest:aRequest];
+  }
+  
   return response;
-};
+}
 
-//--------------------------------------------------------------------
--(GSWResponse*)lockedDispatchWithPreparedApplication:(GSWApplication*)application
-                                           inContext:(GSWContext*)aContext
-                                            elements:(NSDictionary*)elements
-{
-  //OK
-  GSWResponse* response=nil;
-  GSWResponse* errorResponse=nil;
-  GSWSession* session=nil;
-  NSString* sessionID=nil;
-
-  NS_DURING
-    {
-      sessionID=[elements objectForKey:GSWKey_SessionID[GSWebNamingConv]];
-
-      if (sessionID)
-        {
-          session=[application restoreSessionWithID:sessionID
-                               inContext:aContext];
-          if (!session)
-            {
-              // check for refuseNewSessions
-              errorResponse=[application handleSessionRestorationErrorInContext:aContext];
-            };
-        }
-      else
-        {
-          // check for refuseNewSessions
-          session=[application _initializeSessionInContext:aContext];
-        }
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"in session create/restore");
-      LOGException(@"exception=%@",localException);
-      errorResponse=[application handleException:localException
-                                 inContext:aContext];
-    }
-  NS_ENDHANDLER;
-  if (!response && !errorResponse)
-    {
-      if (session)
-        {
-          NS_DURING
-            {
-              response=[self lockedDispatchWithPreparedSession:session
-                             inContext:aContext
-                             elements:elements];
-            }
-          NS_HANDLER
-            {
-              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                       @"in lockedDispatchWithPreparedSession");
-              LOGException(@"exception=%@",localException);
-              errorResponse=[application handleException:localException
-                                         inContext:aContext];
-            }
-          NS_ENDHANDLER;
-        };
-    };
-  //======LAST //CLEAN
-  if (response || errorResponse)
-    {
-      RETAIN(response);
-      [aContext _putAwakeComponentsToSleep];
-      [application saveSessionForContext:aContext];
-      AUTORELEASE(response);
-    };
-
-  return response ? response : errorResponse;
-};
-
-//--------------------------------------------------------------------
--(GSWResponse*)lockedDispatchWithPreparedSession:(GSWSession*)aSession
-                                       inContext:(GSWContext*)aContext
-                                        elements:(NSDictionary*)elements
-{
-  //OK
-  GSWResponse* errorResponse=nil;
-  GSWResponse* response=nil;
-  GSWComponent* page=nil;
-  BOOL storesIDsInCookies=NO;
-  NSString* contextID=nil;
-
-  storesIDsInCookies=[aSession storesIDsInCookies]; //For What ?
-
-  contextID=[elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];//use aContext requestContextID instead ?
-
-  if (contextID) // ??
-    {
-      NSAssert([contextID length]>0,@"contextID empty");
-      page=[self lockedRestorePageForContextID:contextID
-                 inSession:aSession];
-      if (!page)
-        {
-          GSWApplication* application=[aSession application];
-          errorResponse=[application handlePageRestorationErrorInContext:aContext];
-        };
-    }
-  else
-    {
-      NSString* pageName=[elements objectForKey:GSWKey_PageName[GSWebNamingConv]];
-      NSException* exception=nil;
-
-      NS_DURING
-        {
-          page=[[GSWApplication application] pageWithName:pageName
-                                             inContext:aContext];
-        }
-      NS_HANDLER
-        {
-          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"In pageWithName");
-          LOGException(@"exception=%@",localException);
-          ASSIGN(exception,localException);
-        }
-      NS_ENDHANDLER;
-      if (!page)
-        {
-          errorResponse=[[GSWApplication application] handleException:exception
-                                                      inContext:aContext];
-        };
-      DESTROY(exception);
-    };
-  if (!response && !errorResponse && page)
-    {
-      [aContext _setPageElement:page];
-      response=[self lockedDispatchWithPreparedPage:page
-                     inSession:aSession
-                     inContext:aContext
-                     elements:elements];
-    };
-  if (response)
-    {
-      BOOL isPageRefreshOnBacktrackEnabled=[[GSWApplication application] isPageRefreshOnBacktrackEnabled];
-      if (isPageRefreshOnBacktrackEnabled)
-        [response disableClientCaching];
-
-      [aSession _saveCurrentPage];
-#if 0
-      if (!contextID) // ??
-        {
-          if (![aSession storesIDsInCookies])//??
-            [aSession clearCookieFromResponse:response];
-        };
-#endif
-    };
-
-  return response ? response : errorResponse;
-};
-
-//--------------------------------------------------------------------
--(GSWResponse*)lockedDispatchWithPreparedPage:(GSWComponent*)aComponent
-                                    inSession:(GSWSession*)aSession
-                                    inContext:(GSWContext*)aContext
-                                     elements:(NSDictionary*)elements
-{
-  //OK
-  GSWRequest* request=nil;
-  GSWResponse* response=nil;
-  GSWResponse* errorResponse=nil;
-  NSString* senderID=nil;
-  NSString* contextID=nil;
-  NSString* httpVersion=nil;
-  GSWComponent* page=nil;
-  GSWComponent* responsePage=nil;
-  BOOL isFromClientComponent=NO;
-  BOOL hasFormValues=NO;
-  GSWContext* responseContext=nil;
-  GSWComponent* responsePageElement=nil;
-  GSWRequest* responseRequest=nil;
-  NSString* matchingContextID=nil;
-
-  request=[aContext request];
-  contextID=[elements objectForKey:GSWKey_ContextID[GSWebNamingConv]];
-
-  response=[GSWApp createResponseInContext:aContext];
-
-  senderID=GSWContext_senderID(aContext);
-
-  matchingContextID=[aSession _contextIDMatchingIDsInContext:aContext];
-
-  httpVersion=[request httpVersion];
-  [response setHTTPVersion:httpVersion];
-  [response setAcceptedEncodings:[request browserAcceptedEncodings]];
-  [response setHeader:@"text/html"
-            forKey:@"content-type"];
-  [aContext _setResponse:response];
-
-  if (matchingContextID)
-    {
-      page = [self lockedRestorePageForContextID:matchingContextID
-                   inSession:aSession];
-      [aContext _setPageElement:page];
-      [GSWApp appendToResponse:response
-                     inContext:aContext];
-    }
-  else
-    {
-      page=[aContext page];
-      if (contextID)//??
-        {
-          hasFormValues=[request _hasFormValues];
-        }
-      else
-        {
-          [aContext _setPageChanged:NO];
-          isFromClientComponent=[request isFromClientComponent];
-          //??
-          [aContext _setPageReplaced:NO];
-          isFromClientComponent=[request isFromClientComponent];
-        };
-      if (hasFormValues)
-        {
-          NSAssert([GSWContext_elementID(aContext) length]==0,
-                   @"1 lockedDispatchWithPreparedPage elementID length>0");
-          [GSWApp takeValuesFromRequest:request
-                              inContext:aContext];
-          if (![GSWContext_elementID(aContext) length]==0)
-            {
-              LOGSeriousError0(@"2 lockedDispatchWithPreparedPage elementID length>0");
-              GSWContext_deleteAllElementIDComponents(aContext);//NDFN
-            };
-          [aContext _setPageChanged:NO];//???
-          isFromClientComponent=[request isFromClientComponent];
-          [aContext _setPageReplaced:NO];
-        };
-      if (senderID) //??
-        {
-          BOOL pageChanged=NO;
-          NSException* exception=nil;
-
-          NSAssert([GSWContext_elementID(aContext) length]==0,
-                   @"3 lockedDispatchWithPreparedPage elementID length>0");
-          // Exception catching here ?
-          NS_DURING
-            {
-              responsePage=(GSWComponent*)[GSWApp invokeActionForRequest:request
-                                                               inContext:aContext];
-
-              NSAssert([GSWContext_elementID(aContext) length]==0,@"4 lockedDispatchWithPreparedPage elementID length>0");
-            }
-          NS_HANDLER
-            {
-              LOGException0(@"exception in invokeActionForRequest");
-              LOGException(@"exception=%@",localException);
-              localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                                      @"In invokeActionForRequest component=%@ of Class %@",
-                                                                      [aComponent name],
-                                                                      [aComponent class]);
-              LOGException(@"exception=%@",localException);
-              ASSIGN(exception,localException);
-              if (!responsePage)
-                {
-                  errorResponse=[[GSWApplication application] handleException:exception
-                                                              inContext:aContext];
-                };
-              DESTROY(exception);
-            }
-          NS_ENDHANDLER;
-
-          if (errorResponse)
-            {
-              response=errorResponse;
-              responseContext=aContext;
-            }
-          else
-            {
-              if (!responsePage)
-                responsePage=page;
-              
-              responseContext=[(GSWComponent*)responsePage context];//So what ?
-              [responseContext _setPageReplaced:NO];
-              responsePageElement=(GSWComponent*)[responseContext _pageElement];
-              pageChanged=(responsePage!=responsePageElement);
-              [responseContext _setPageChanged:pageChanged];//??
-              if (pageChanged)
-                {
-                  [responseContext _setPageElement:responsePage];
-                };
-              responseRequest=[responseContext request];//SoWhat ?
-              [responseRequest isFromClientComponent];//SoWhat
-            };
-        }
-      else
-        {
-          responseContext=aContext;
-          responsePageElement=page;
-          responsePage=aComponent;
-          responseRequest=request;
-        };
-      if (!errorResponse)
-        {
-          NS_DURING
-            {
-              NSAssert([GSWContext_elementID(aContext) length]==0,
-                       @"5 lockedDispatchWithPreparedPage elementID length>0");
-              [GSWApp appendToResponse:response
-                             inContext:responseContext];
-              NSAssert([GSWContext_elementID(aContext) length]==0,
-                       @"6 lockedDispatchWithPreparedPage elementID length>0");
-              responseRequest=[responseContext request];//SoWhat ?
-            }
-          NS_HANDLER
-            {
-              localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                                      @"In appendToResponse page=%@ of Class %@",
-                                                                      [page name],
-                                                                      [page class]);
-              LOGException(@"exception=%@",localException);
-              errorResponse=[[GSWApplication application] handleException:localException
-                                                          inContext:aContext];
-            }
-          NS_ENDHANDLER;
-        };
-    };
-
-  return errorResponse ? errorResponse : response;
-};
-
-//--------------------------------------------------------------------
--(GSWComponent*)lockedRestorePageForContextID:(NSString*)aContextID
-                                    inSession:(GSWSession*)aSession
-{
-  //OK
-  GSWComponent* page=[aSession restorePageForContextID:aContextID];
-  return page;
-};
-
-@end
-
-//====================================================================
-@implementation GSWComponentRequestHandler (GSWRequestHandlerClassA)
-
-//--------------------------------------------------------------------
+// do we need this? -- dw
 +(id)handler
 {
   return [[GSWComponentRequestHandler new] autorelease];
-};
-
-//--------------------------------------------------------------------
-+(NSDictionary*)_requestHandlerValuesForRequest:(GSWRequest*)aRequest
-{
-  //OK
-  NSDictionary* values=nil;
-
-  NS_DURING
-    {
-      values=[aRequest uriOrFormOrCookiesElements];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In +_requestHandlerValuesForRequest:");
-      LOGException(@"exception=%@",localException);
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-
-  return values;
 };
 
 

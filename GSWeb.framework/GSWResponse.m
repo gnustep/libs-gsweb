@@ -34,6 +34,7 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include "NSData+Compress.h"
+#include "GSWPrivate.h"
 
 //====================================================================
 @implementation GSWResponse
@@ -228,7 +229,20 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
                         (void*)_userInfo];
   LOGObjectFnStop();
   return description;
-};
+}
+
+// it seems that in WO, this is a class method, which makes no sense
+- (void) _redirectResponse:(NSString *) location contentString:(NSString *) content
+{
+  GSWResponse_appendContentString(self, content);
+  [self setStatus:302];
+  [self setHeader:location
+           forKey:@"Location"];
+  [self setHeader:@"YES"
+           forKey:@"x-webobjects-refusing-redirection"];
+}
+
+
 @end
 
 //====================================================================
@@ -332,15 +346,15 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   [self _finalizeCookiesInContext:aContext];
 
   // Add load info to headers
-  if (![self headersForKey:GSWHTTPHeader_LoadAverage[GSWebNamingConv]])
+  if (![self headersForKey:GSWHTTPHeader_LoadAverage])
     [self setHeader:GSWIntToNSString([GSWApp activeSessionsCount])
-          forKey:GSWHTTPHeader_LoadAverage[GSWebNamingConv]];
+          forKey:GSWHTTPHeader_LoadAverage];
 
   // Add refusing new sessions info to headers
   if ([GSWApp isRefusingNewSessions]
-      && ![self headersForKey:GSWHTTPHeader_RefuseSessions[GSWebNamingConv]])
+      && ![self headersForKey:GSWHTTPHeader_RefuseSessions])
     [self setHeader:GSWIntToNSString((int)[GSWApp _refuseNewSessionsTimeInterval])
-          forKey:GSWHTTPHeader_RefuseSessions[GSWebNamingConv]];
+          forKey:GSWHTTPHeader_RefuseSessions];
 
   [self _finalizeContentEncodingInContext:aContext];
 
@@ -673,7 +687,7 @@ escapingHTMLAttributeValue:(BOOL)escape
                  forRequest:nil];
   LOGClassFnStop();
   return response;
-};
+}
 
 @end
 

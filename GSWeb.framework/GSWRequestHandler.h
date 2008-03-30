@@ -32,7 +32,7 @@
 #ifndef _GSWRequestHandler_h__
 	#define _GSWRequestHandler_h__
 
-#define DidHandleRequestNotification "WORequestHandlerDidHandleRequestNotification"
+#define DidHandleRequestNotification @"WORequestHandlerDidHandleRequestNotification"
 
 
 //====================================================================

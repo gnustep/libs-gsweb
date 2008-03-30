@@ -141,8 +141,8 @@ GSWEB_EXPORT NSString* GSWHTTPHeader_RecordingSessionID[2];
 GSWEB_EXPORT NSString* GSWHTTPHeader_RecordingIDsURL[2];
 GSWEB_EXPORT NSString* GSWHTTPHeader_RecordingIDsCookie[2];
 GSWEB_EXPORT NSString* GSWHTTPHeader_RecordingApplicationNumber[2];
-GSWEB_EXPORT NSString* GSWHTTPHeader_LoadAverage[2];
-GSWEB_EXPORT NSString* GSWHTTPHeader_RefuseSessions[2];
+GSWEB_EXPORT NSString* GSWHTTPHeader_LoadAverage;
+GSWEB_EXPORT NSString* GSWHTTPHeader_RefuseSessions;
 
 // Header key to return statistics to Adaptor
 GSWEB_EXPORT NSString* GSWHTTPHeader_AdaptorStats[2];

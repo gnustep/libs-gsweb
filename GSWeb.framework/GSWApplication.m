@@ -301,6 +301,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       _minimumActiveSessionsCount = 0;	// 0 is default
       _dynamicLoadingEnabled=YES;
       _printsHTMLParserDiagnostics=YES;
+      _allowsConcurrentRequestHandling = NO;
 
       [[self class] _setApplication:self];
       [self _touchPrincipalClasses];
@@ -453,6 +454,12 @@ int GSWApplicationMain(NSString* applicationClassName,
   return dscr;
 };
 
+-(BOOL) shouldRestoreSessionOnCleanEntry:(GSWRequest*) aRequest
+{
+  return NO;
+}
+
+
 //--------------------------------------------------------------------
 //	allowsConcurrentRequestHandling
 -(BOOL)allowsConcurrentRequestHandling
@@ -464,21 +471,24 @@ int GSWApplicationMain(NSString* applicationClassName,
 //	adaptorsDispatchRequestsConcurrently
 -(BOOL)adaptorsDispatchRequestsConcurrently
 {
-  //TODO: use isMultiThreaded ?
-  BOOL adaptorsDispatchRequestsConcurrently=NO;
-  int i=0;
-  int adaptorsCount=[_adaptors count];
-  for(i=0;!adaptorsDispatchRequestsConcurrently && i<adaptorsCount;i++)
-    adaptorsDispatchRequestsConcurrently=[[_adaptors objectAtIndex:i]dispatchesRequestsConcurrently];
-  return adaptorsDispatchRequestsConcurrently;
-};
+  return _isMultiThreaded;
+}
 
 //--------------------------------------------------------------------
 //	isConcurrentRequestHandlingEnabled
 -(BOOL)isConcurrentRequestHandlingEnabled
 {
-  return [self allowsConcurrentRequestHandling];
-};
+  return (_isMultiThreaded && _allowsConcurrentRequestHandling);
+}
+
+- (NSLock *) requestHandlingLock
+{
+  if (_isMultiThreaded && (!_allowsConcurrentRequestHandling)) {
+    return _globalLock;
+  } 
+
+  return nil;
+}
 
 //--------------------------------------------------------------------
 // calls the class because on MacOSX KVC does not support "application.class.isDebuggingEnabled"
@@ -2294,7 +2304,7 @@ to another instance **/
 //terminate
 -(void)terminate 
 {
-  NSTimer* timer=nil;
+//  NSTimer* timer=nil;
   _terminating = YES;
   /*
   timer=[NSTimer timerWithTimeInterval:0
@@ -2456,120 +2466,37 @@ to another instance **/
 };
 
 
--(GSWResponse*)checkAppIfRefused:(GSWRequest*)aRequest
-{
-  NSDictionary* requestHandlerValues=nil;
-  GSWResponse* response=nil;
-  NSString* sessionID=nil;
-  BOOL refuseRequest = NO;
-
-  
-
-  NS_DURING
-    {
-//      NSLog(@"Application : checkAppIfRefused");
-//      NSLog(@"Application : allSessionIDs = %@", [_sessionStore allSessionIDs]);
-      requestHandlerValues=[GSWComponentRequestHandler _requestHandlerValuesForRequest:aRequest];
-      if (requestHandlerValues) 
-        {
-//          NSLog(@"Application : requestHandlerValues is set");
-
-          sessionID=[requestHandlerValues objectForKey:GSWKey_SessionID[GSWebNamingConv]];
-          if (!sessionID) 
-            {
-              if ([self isRefusingNewSessions])
-                {
-                  NSLog(@"refuseRequest !");
-                  refuseRequest = YES;
-                };
-            } 
-          else 
-            {
-//             NSLog(@"Application : sessionID found : %@", sessionID);
-//             NSLog(@"Application : allSessionIDs = %@", [_sessionStore allSessionIDs]);
-              // check for existing session ID
-              if (![_sessionStore containsSessionID:sessionID]) 
-                {
-//                  NSLog(@"Application : sessionStore does not contain _sessionID");
-                  if ([self isRefusingNewSessions])
-                    refuseRequest = YES;				
-                }
-            }
-          if (refuseRequest)
-            {
-              NSLog(@"Application : refuseRequest == YES ,generate Response");
-              // generate response, to refuse the request
-              response=[GSWResponse generateRefusingResponseInContext:nil  
-                                    forRequest:aRequest];
-              if (response) 
-                [response _finalizeInContext:nil]; //DO Call _finalizeInContext: !			
-            }
-        }
-    }
-  NS_HANDLER
-    {
-    }
-  NS_ENDHANDLER;
-  
-  
-  return response;
-}
-
 -(GSWResponse*)dispatchRequest:(GSWRequest*)aRequest
 {
-  //OK
-  GSWResponse* response=nil;
-  GSWRequestHandler* requestHandler=nil;
+  GSWResponse           * response=nil;
+  GSWRequestHandler     * requestHandler=nil;
+  NSNotificationCenter  * noteCenter = [NSNotificationCenter defaultCenter];
   
-  
-#ifndef NDEBUG
-  [self lock];
-  GSWeb_ApplicationDebugSetChange();
-  [self unlock];
-#endif
 
   NS_DURING
-    {
-      ASSIGN(_lastAccessDate,[NSDate date]);
-      
-      [[NSNotificationCenter defaultCenter]postNotificationName:@"ApplicationWillDispatchRequestNotification"
-                                           object:aRequest];
-      
-      response = [self checkAppIfRefused:aRequest];
-      if (!response) 
-        {
-          NSDebugMLLog(@"requests",@"aRequest=%@",aRequest);
-          
-          requestHandler=[self handlerForRequest:aRequest];
-          NSDebugMLLog(@"requests",@"requestHandler=%@",requestHandler);
-          
-          if (!requestHandler)
-            requestHandler=[self defaultRequestHandler];
-          
-          NSDebugMLLog(@"requests",@"requestHandler=%@",requestHandler);
-          
-          if (!requestHandler)
-            {
-              NSDebugMLLog0(@"application",@"GSWApplication dispatchRequest: no request handler");
-              //TODO error
-            }
-          else
-            {
-              NSDebugMLLog(@"requests",@"sessionStore=%@",_sessionStore);
-              response=[requestHandler handleRequest:aRequest];
-              NSDebugMLLog(@"requests",@"sessionStore=%@",_sessionStore);
-              [self _resetCache];
-              NSDebugMLLog(@"requests",@"sessionStore=%@",_sessionStore);
-            };
-          if (!response)
-            {
-              //TODO RESPONSE_PB
-            };
-          [[NSNotificationCenter defaultCenter]postNotificationName:@"ApplicationDidDispatchRequestNotification"
-                                               object:response];
-          [aRequest _setContext:nil];
-        };
+  {
+    ASSIGN(_lastAccessDate,[NSDate date]);
+    
+    [noteCenter postNotificationName:@"ApplicationWillDispatchRequestNotification"
+                                                       object:aRequest];
+    
+    requestHandler = [self handlerForRequest:aRequest];
+    
+    if (!requestHandler)
+      requestHandler = [self defaultRequestHandler];
+        
+    response = [requestHandler handleRequest:aRequest];
+    if (!response) {
+      NSDebugLog(@"%s !!! Response is null !!!", __PRETTY_FUNCTION__);
+      response = [self createResponseInContext:nil];
     }
+    
+    [self _resetCache];
+    
+    [noteCenter postNotificationName:@"ApplicationDidDispatchRequestNotification"
+                                                       object:response];
+    [aRequest _setContext:nil];
+  }
   NS_HANDLER
     {
       NSLog(@"EXCEPTION: %@",localException);
@@ -2577,7 +2504,7 @@ to another instance **/
   NS_ENDHANDLER;
   
   return response;
-};
+}
 
 //--------------------------------------------------------------------
 //awake
@@ -4209,6 +4136,16 @@ to another instance **/
 {
   return languages;
 };
+
+- (NSString*) sessionIdKey
+{
+  return @"wosid";
+}
+
+- (NSString*) instanceIdKey
+{
+  return @"woinst";
+}
 
 @end
 

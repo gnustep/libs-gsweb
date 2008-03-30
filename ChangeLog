@@ -1,3 +1,19 @@
+2008-03-31  David Wetzel <dave@turbocat.de>
+        GSWAdaptors/Apache2/mod_gsw.c
+        * make load-balancing work
+        * add refusing to app status
+
+        GSWeb.framework/GSWApplication.m
+        GSWeb.framework/GSWRequestHandler.h
+        GSWeb.framework/GSWComponentRequestHandler.h
+        GSWeb.framework/GSWComponentRequestHandler.m
+        GSWeb.framework/GSWResponse.m
+        GSWeb.framework/GSWConstants.h
+        GSWeb.framework/GSWConstants.m
+        GSWeb.framework/GSWPrivate.h
+        GSWeb.framework/GSWApplication.h
+        * rewrote GSWComponentRequestHandler to make refusing work
+       
 2008-03-17  David Wetzel <dave@turbocat.de>
         GSWeb.framework/GSWAssociation.h/m
         + bindingInComponent

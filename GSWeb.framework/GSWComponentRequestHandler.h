@@ -38,26 +38,8 @@
 }
 
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
--(GSWResponse*)lockedHandleRequest:(GSWRequest*)aRequest;
--(GSWResponse*)lockedDispatchWithPreparedApplication:(GSWApplication*)application
-                                           inContext:(GSWContext*)aContext
-                                            elements:(NSDictionary*)elements;
--(GSWResponse*)lockedDispatchWithPreparedSession:(GSWSession*)aSession
-                                       inContext:(GSWContext*)aContext
-                                        elements:(NSDictionary*)elements;
--(GSWResponse*)lockedDispatchWithPreparedPage:(GSWComponent*)_component
-                                    inSession:(GSWSession*)aSession
-                                    inContext:(GSWContext*)aContext
-                                     elements:(NSDictionary*)elements;
--(GSWComponent*)lockedRestorePageForContextID:(NSString*)aContextID
-                                    inSession:(GSWSession*)aSession;
 
 @end
 
-//====================================================================
-@interface GSWComponentRequestHandler (GSWRequestHandlerClassA)
-+(id)handler;
-+(NSDictionary*)_requestHandlerValuesForRequest:(GSWRequest*)aRequest;
-@end
 
 #endif //_GSWComponentRequestHandler_h__

@@ -123,6 +123,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
   BOOL _isTracingObjectiveCMessagesEnabled;
   BOOL _isTracingScriptedMessagesEnabled;
   BOOL _isTracingStatementsEnabled;
+  BOOL _allowsConcurrentRequestHandling;
   NSRunLoop* _currentRunLoop;
   NSDate* _runLoopDate;
   NSTimer* _initialTimer;
@@ -135,10 +136,11 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(void)dealloc;
 -(id)init;
 
-
+-(BOOL) shouldRestoreSessionOnCleanEntry:(GSWRequest*) aRequest;
 -(BOOL)allowsConcurrentRequestHandling;
 -(BOOL)adaptorsDispatchRequestsConcurrently;
 -(BOOL)isConcurrentRequestHandlingEnabled;
+-(NSLock *) requestHandlingLock;
 -(BOOL)isRequestHandlingLocked;
 -(void)lockRequestHandling;
 -(void)unlockRequestHandling;
@@ -163,6 +165,8 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 -(NSString*)defaultRequestHandlerClassName;
 -(Class)defaultRequestHandlerClass;
+- (NSString*) sessionIdKey;
+- (NSString*) instanceIdKey;
 @end
 //
 ////====================================================================

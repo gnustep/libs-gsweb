@@ -111,6 +111,7 @@ typedef struct gsw_app_conf {
 
 } gsw_app_conf;
 
+
 #define GSW_INST_CACHE          "gsw_inst_cache"
 #define X_WO_VERSION_HEADER     "x-webobjects-adaptor-version: 20071201\r\n"
 #define SERVER_SOFTWARE         "SERVER_SOFTWARE"
@@ -170,10 +171,11 @@ char *mutexfilename;
 
 
 typedef struct exipc_data {
-  apr_time_t    last_response_time;  // in sec since January 1, 1970
+  apr_time_t    last_response_time; // in sec since January 1, 1970
   apr_time_t    last_request_time;  // in sec since January 1, 1970
   u_int32_t load;                
-  u_int8_t unreachable;         // 0=online 1=unreachable
+  u_int8_t unreachable;             // 0=online 1=unreachable
+  u_int8_t refusing;                // 0=serving new sessions 1=refusing
 } exipc_data;
 
 /*
@@ -302,6 +304,21 @@ void mark_unreachable(gsw_app_conf * app)
   apr_global_mutex_unlock(exipc_mutex); 
 }
 
+void mark_refusing(gsw_app_conf * app)
+{
+  exipc_data   * mem   = NULL;
+  apr_time_t     now     = apr_time_now(); 
+  u_int16_t      index   = app->total_index;
+  
+  apr_global_mutex_lock(exipc_mutex); 	
+  mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
+  
+  mem[index].last_request_time = now;
+  mem[index].refusing = 1;
+  
+  apr_global_mutex_unlock(exipc_mutex); 
+}
+
 void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr_time_t last_response_time, u_int32_t load)
 {
   exipc_data   * mem   = NULL;
@@ -314,6 +331,7 @@ void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr
   mem[index].last_request_time = last_request_time;
   mem[index].last_response_time = last_response_time;
   mem[index].load = load;
+  mem[index].unreachable = 0;
 
   apr_global_mutex_unlock(exipc_mutex); 
 }
@@ -359,13 +377,15 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
   
       if ((strcasecmp(appconf->app_name, name) == 0)) {
         // enable unreachable instances after some time
-        if ((mem[i].unreachable == 1) && (mem[i].last_request_time < t)) {
+        if (mem[i].last_request_time < t) {
           mem[i].unreachable = 0;
+          mem[i].refusing = 0;
         }
           
-        if (mem[i].unreachable == 0) {
+        if ((mem[i].unreachable == 0) && (mem[i].refusing == 0)) {
           if (mem[i].load <= lastload) {
-            lastindex = i;              
+            lastindex = i;
+            lastload = mem[i].load;
           }
         }
       }    
@@ -399,20 +419,20 @@ gsw_app_conf * find_app(request_rec *r)
 
 
   strncpy(app_name, appName, sizeof(app_name));
-    
+//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name '%s'", app_name);
+  
   if ((appName = index(app_name, '.'))) {
     *appName = '\0';    
-  } else {
-    return NULL;
-  }
+    appName++;
   
   // now get the instance number if any
-  appName++;
 
   if ((instance_str = index(appName, '/'))) {
+//    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_str '%s'", instance_str);
     instance_str++;
     if (appName = index(instance_str, '/')) {
       *appName = '\0';
+//      ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "appName '%s'", appName);
       instance_nr = atoi(instance_str);
       // parse error?
       if (instance_nr == 0) {
@@ -421,9 +441,16 @@ gsw_app_conf * find_app(request_rec *r)
     }
   }
 
+  } else {
+    //    return NULL;
+
+  }
 
   cfg = our_dconfig(r);
 
+//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_nr '%d'", instance_nr);
+
+  
   if (instance_nr != -1) {
     char   tmp_key[128];
 
@@ -436,7 +463,7 @@ gsw_app_conf * find_app(request_rec *r)
   }
 
   app_conf = find_app_by_name(app_name, cfg, r);
-
+  
   return app_conf;        
 }
 
@@ -594,7 +621,64 @@ static int send_header_string(int soc, const char * key, const char * value, req
   retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
 }
 
-static int send_headers(int soc, request_rec *r)
+const char * fixRequestString(request_rec *r, gsw_app_conf *app)
+{
+  char            * req_str = r->the_request;
+  size_t            len = strlen(req_str);
+  char            * appName = apr_palloc(r->pool,len+5);
+  char            * spaceStr;
+  char            * instanceStr;
+  char            * restStr = NULL;
+  int               instance_nr = -1;
+  char            * newString = NULL;
+
+  strncpy(appName, req_str, len);
+
+  // GET /wo/PBX HTTP/1.1
+  
+  if (appName = index(appName, '/')) {
+    appName++;
+    if (appName = index(appName, '/')) {
+      appName++;
+      if (spaceStr = index(appName, ' ')) {
+        *spaceStr = '\0';
+        instanceStr = appName;
+        instanceStr++;
+        if (instanceStr = index(appName, '/')) {
+          *instanceStr = '\0';
+          instanceStr++;
+          if (spaceStr = index(instanceStr, '/')) {
+            *spaceStr = '\0';
+            restStr = spaceStr;
+            restStr++;
+          }
+//          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instanceStr:'%s'", instanceStr);
+        }
+//        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "appName:'%s'", appName);
+//        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "restStr:'%s'", restStr);
+      }
+    }
+  }
+  
+  if (!restStr) {
+    restStr = "";
+  }
+  
+  if (spaceStr = index(appName, '.')) {
+    *spaceStr = '\0';
+  }
+  
+  
+  newString = apr_psprintf(r->pool, "%s %s%s.woa/%d/%s HTTP/1.1\r\n", r->method, ADAPTOR_PREFIX, appName, app->instance_number
+,restStr);		
+
+//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newString:'%s'", newString);
+
+  
+  return newString;
+}
+
+static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
 {
   apr_array_header_t    * hdrs_arr = NULL;
   apr_table_entry_t     * hdrs = NULL;
@@ -607,9 +691,16 @@ static int send_headers(int soc, request_rec *r)
  
   hdrs_arr = (apr_array_header_t*) apr_table_elts(r->headers_in);
   hdrs = (apr_table_entry_t *) hdrs_arr->elts;
-    
-  snprintf(tmpStr, sizeof(tmpStr), "%s\r\n", r->the_request);
+
+  // GET /wo/PBX HTTP/1.1
+  
+  
+  //snprintf(tmpStr, sizeof(tmpStr), "%s\r\n", r->the_request);
+  strncpy(tmpStr, fixRequestString(r,app), sizeof(tmpStr));
+
   retval = write_sock(soc,tmpStr,strlen(tmpStr), r);
+//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "send_headers:'%s'", tmpStr);
+
   if (retval != 0) {
     return retval;
   }
@@ -746,7 +837,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 	soc = connect_host(app->host_name, app->port);
   	
 	if (soc != -1) {
-		if (send_headers(soc, r)  == 0) {
+		if (send_headers(soc, app, r)  == 0) {
 			int   headers_done = 0;			
 			
 			request_time = apr_time_now();
@@ -768,13 +859,15 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 					http_status = atoi(newBuf+9);
 					if (http_status==200) {            
 						http_status=OK;
-					}
+					} 
+          if (http_status == 302) {
+            r->status = http_status;
+          }
 				}
 			}
 			
 			while (headers_done == 0) {
 				newBuf = read_sock_line(soc, r, sub_pool);
-				
 				if (newBuf != NULL) {
 					if (load_avr_seen == 0) {
 						if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
@@ -802,9 +895,11 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 						}
 					}
 					if (location == NULL) {
-						if (strncmp(newBuf, "location: ", 10) == 0) {
+            // Apple has a bug, giving us a 'L', so we do that too but accept a 'l' too -- dw 
+						if (strncasecmp(newBuf, "location: ", 10) == 0) {
 							location = newBuf+10;
 							apr_table_set(r->headers_out, "location", location);
+              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
 						}
 					}
 				} else {
@@ -813,14 +908,16 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 			} // while
 			
 			// do the request
-			if ((content_type != NULL) && (content_length > 0)) {
+			if ((content_length > 0)) {
 				size_t    bytesDone = 0;
 				size_t    blockSize = 1024;
 				size_t    rval=1;
 				char      * transferBuf = NULL;
 				
-				ap_set_content_type(r, content_type);
-				
+        if (content_type != NULL) {
+          ap_set_content_type(r, content_type);
+				}
+        
 				if (content_length < blockSize) {
 					blockSize = content_length;
 				}
@@ -844,7 +941,11 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 		
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %d ms", apr_time_msec(done_time - request_time));
 
-    update_app_statistics(app, request_time, done_time, newload);
+    if (http_status==302) {
+      mark_refusing(app);
+    } else {
+      update_app_statistics(app, request_time, done_time, newload);
+    }
 
 	} else { // -1
     http_status = UNREACHABLE;
@@ -1075,6 +1176,8 @@ static int gsw_handler(request_rec *r)
             break;
           case OK:
             return handle_status;
+          case HTTP_MOVED_TEMPORARILY:
+            return OK;                  // otherwise, we get a apache error doc!
           default:
             break;
         }
@@ -1122,7 +1225,7 @@ static int gsw_handler(request_rec *r)
 
         if (mem) {
           ap_rputs("<table border=1>\n",r);
-          ap_rputs("<tr><td>Name</td><td>Instance</td><td>Host</td><td>Port</td><td>Load</td><td> Unreachable</td><td>Last Request</td><td>Last Response</td></tr>\n",r);
+          ap_rputs("<tr><td>Name</td><td>Instance</td><td>Host</td><td>Port</td><td>Load</td><td> Unreachable</td><td>Refusing</td><td>Last Request</td><td>Last Response</td></tr>\n",r);
           
           for (i = 0; i < tarr->nelts; i++) {
             gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
@@ -1136,6 +1239,7 @@ static int gsw_handler(request_rec *r)
             ap_rprintf(r, "<td>%u</td>", appconf->port);
             ap_rprintf(r, "<td>%u</td>", mem[i].load);
             ap_rprintf(r, "<td>%s</td>", (mem[i].unreachable == 1) ? "YES": "NO");
+            ap_rprintf(r, "<td>%s</td>", (mem[i].refusing == 1) ? "YES": "NO");
             apr_ctime(timestr, mem[i].last_request_time);
             ap_rprintf(r, "<td>%s</td>", timestr);
             apr_ctime(timestr, mem[i].last_response_time);
@@ -1437,6 +1541,7 @@ void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s)
     currentRecord[i].last_response_time = 0;
     currentRecord[i].load = 0;
     currentRecord[i].unreachable = 0;
+    currentRecord[i].refusing = 0;
   }
   
 }

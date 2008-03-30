@@ -140,8 +140,8 @@ NSString* GSWHTTPHeader_RecordingSessionID[2]={ @"x-gsweb-session-id", @"x-webob
 NSString* GSWHTTPHeader_RecordingIDsURL[2]={ @"x-gsweb-ids-url", @"x-webobjects-ids-url" };
 NSString* GSWHTTPHeader_RecordingIDsCookie[2]={ @"x-gsweb-ids-url", @"x-webobjects-ids-cookie" };
 NSString* GSWHTTPHeader_RecordingApplicationNumber[2]={ @"x-gsweb-application-number", @"x-webobjects-application-number" };
-NSString* GSWHTTPHeader_LoadAverage[2] = { @"x-gsweb-loadaverage", @"x-webobjects-loadaverage" };
-NSString* GSWHTTPHeader_RefuseSessions[2] = { @"x-gsweb-refusenewsessions", @"x-webobjects-refusenewsessions" };
+NSString* GSWHTTPHeader_LoadAverage    = @"x-webobjects-loadaverage";
+NSString* GSWHTTPHeader_RefuseSessions = @"x-webobjects-refusenewsessions";
 NSString* GSWHTTPHeader_AdaptorStats[2] = { @"x-gsweb-adaptorstats", @"x-webobjects-adaptorstats" };
 
 NSString* GSWHTTPHeader_MethodPost=@"POST";

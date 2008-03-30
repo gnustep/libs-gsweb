@@ -77,5 +77,11 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
                               inContext:(GSWContext*)context;
 @end
 
+@interface GSWResponse (PrivateDeclarations)
+
+- (void) _redirectResponse:(NSString *) location contentString:(NSString *) content;
+
+@end
+
 
 #endif // _GSWPrivate_h__
