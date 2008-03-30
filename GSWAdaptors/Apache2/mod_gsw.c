@@ -132,6 +132,7 @@ typedef struct gsw_app_conf {
 #define REDIRECT_URL            "REDIRECT_URL"
 #define CONTENT_LENGTH          "content-length"
 #define DEFAULT_APP_COUNT       10
+#define REFUSING_SESSIONS_HEADER "x-webobjects-refusenewsessions: "
 
 static int locklevel = 0;
 
@@ -818,6 +819,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 	int                     soc = -1;
 	char                  * newBuf = NULL;
 	apr_pool_t            * sub_pool = NULL;
+	int                     refusing_seen = 0;
 	int                     load_avr_seen = 0;
 	int                     length_seen = 0;
 	u_int32_t               newload = 0;
@@ -875,6 +877,11 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 							newload = atoi(newBuf+26);
 						}
 					}
+          if (refusing_seen == 0) {
+						if (strncmp(newBuf, REFUSING_SESSIONS_HEADER, 32) == 0) {
+							refusing_seen = 1;
+						}
+					}          
 					if (length_seen == 0) {
 						if (strncmp(newBuf, "content-length: ", 16) == 0) {
 							length_seen = 1;
@@ -941,7 +948,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 		
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %d ms", apr_time_msec(done_time - request_time));
 
-    if (http_status==302) {
+    if ((http_status==302) && (refusing_seen==1)) {
       mark_refusing(app);
     } else {
       update_app_statistics(app, request_time, done_time, newload);
