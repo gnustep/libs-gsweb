@@ -44,7 +44,6 @@ RCS_ID("$Id$")
 {
   if ((self=[super init]))
   {
-    NSArray*      keys=nil;
     NSRange       dotRange;
     
     if ([aKeyPath hasPrefix:@"^"]) {
@@ -52,7 +51,6 @@ RCS_ID("$Id$")
     }
     // TODO: check if ~ was used in here in WO 4.x 
     
-    keys=[aKeyPath componentsSeparatedByString:@"."];
     dotRange = [aKeyPath rangeOfString:DOTSTRING];
 
     if (dotRange.length) {

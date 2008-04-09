@@ -262,7 +262,6 @@ void * read_shared_mem(apr_pool_t * pool, int appcount)
 {
   apr_size_t   memsize = apr_shm_size_get(exipc_shm);
   void       * mem     = NULL;
-  apr_status_t rs; 
 
   if (memsize) {
     mem = apr_pcalloc(pool, memsize);
@@ -274,7 +273,7 @@ void * read_shared_mem(apr_pool_t * pool, int appcount)
 
       rv = apr_global_mutex_lock(exipc_mutex);
       if (rv != APR_SUCCESS) {
-        char errstr[1024];
+        //char errstr[1024];
         //apr_strerror(rv,errstr,1024);			
         //syslog(LOG_ERR,"rv != APR_SUCCESS %s\n", errstr);
         return NULL;
@@ -323,7 +322,6 @@ void mark_refusing(gsw_app_conf * app)
 void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr_time_t last_response_time, u_int32_t load)
 {
   exipc_data   * mem   = NULL;
-  exipc_data   * data    = NULL;
   u_int16_t      index   = app->total_index;
   
   apr_global_mutex_lock(exipc_mutex); 	
@@ -407,9 +405,9 @@ gsw_app_conf * find_app(request_rec *r)
   gsw_cfg      * cfg          = NULL;
   gsw_app_conf * app_conf     = NULL;
 
-  if (appName = index(r->uri, '/')) {
+  if ((appName = index(r->uri, '/'))) {
     appName++;
-    if (appName = index(appName, '/')) {
+    if ((appName = index(appName, '/'))) {
       appName++;
     } else {
      return NULL;
@@ -429,11 +427,9 @@ gsw_app_conf * find_app(request_rec *r)
   // now get the instance number if any
 
   if ((instance_str = index(appName, '/'))) {
-//    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_str '%s'", instance_str);
     instance_str++;
-    if (appName = index(instance_str, '/')) {
+    if ((appName = index(instance_str, '/'))) {
       *appName = '\0';
-//      ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "appName '%s'", appName);
       instance_nr = atoi(instance_str);
       // parse error?
       if (instance_nr == 0) {
@@ -870,16 +866,20 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 			
 			while (headers_done == 0) {
 				newBuf = read_sock_line(soc, r, sub_pool);
+        int copy_header = 1;
+        
 				if (newBuf != NULL) {
 					if (load_avr_seen == 0) {
 						if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
 							load_avr_seen = 1;
 							newload = atoi(newBuf+26);
+              copy_header = 0;
 						}
 					}
           if (refusing_seen == 0) {
 						if (strncmp(newBuf, REFUSING_SESSIONS_HEADER, 32) == 0) {
 							refusing_seen = 1;
+              copy_header = 0;
 						}
 					}          
 					if (length_seen == 0) {
@@ -888,17 +888,20 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 							content_length = atol(newBuf+16);
 							snprintf(tmpStr, sizeof(tmpStr), "%d", content_length);
 							apr_table_set(r->headers_out, "content-length", tmpStr);
+              copy_header = 0;
 						}
 					}
 					if (content_type == NULL) {
 						if (strncmp(newBuf, "content-type: ", 14) == 0) {
 							content_type = newBuf+14;
+              copy_header = 0;
 						}
 					}
 					if (content_encoding == NULL) {
 						if (strncmp(newBuf, "content-encoding: ", 18) == 0) {
 							content_encoding = newBuf+18;
 							apr_table_set(r->headers_out, "content-encoding", content_encoding);
+              copy_header = 0;
 						}
 					}
 					if (location == NULL) {
@@ -907,8 +910,20 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 							location = newBuf+10;
 							apr_table_set(r->headers_out, "location", location);
               ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
+              copy_header = 0;
 						}
 					}
+          if ((copy_header == 1)) {
+            char * hdrValue = index(newBuf, ':');
+            
+            if (hdrValue) {
+              *hdrValue = '\0';
+              hdrValue++; // space
+              hdrValue++; // first pos.
+              
+              apr_table_set(r->headers_out, newBuf, hdrValue);
+            }
+          }
 				} else {
 					headers_done = 1;
 				}
