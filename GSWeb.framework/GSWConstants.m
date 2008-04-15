@@ -272,8 +272,9 @@ NSString* GSASK_Language = @"GSLanguage";
 //====================================================================
 // Page names
 
-NSString* GSWSessionRestorationErrorPageName[2]={ @"GSWSessionRestorationErrorPage", @"WOSessionRestorationErrorPage" };
-NSString* GSWSessionCreationErrorPageName[2]={ @"GSWSessionCreationErrorPage", @"WOSessionCreationError" };
+NSString* GSWSessionRestorationErrorPageName[2]={ @"GSWSessionRestorationErrorPage", @"WOSessionRestorationErrorPage" };// WOSessionCreationErrorPage should be WOSessionCreationError but then we would have to hack our sed script in 
+// GSWExtensions -- dw
+NSString* GSWSessionCreationErrorPageName[2]={ @"GSWSessionCreationErrorPage", @"WOSessionCreationErrorPage" };
 NSString* GSWExceptionPageName[2]={ @"GSWExceptionPage", @"WOExceptionPage" };
 NSString* GSWPageRestorationErrorPageName[2]={ @"GSWPageRestorationErrorPage", @"WOPageRestorationErrorPage" };
 

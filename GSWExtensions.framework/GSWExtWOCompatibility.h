@@ -41,7 +41,7 @@
 #ifndef GSWEB_WONAMES
 #include <GSWeb/GSWeb.h>
 #else
-#include <WebObjects/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 #endif
 
 #endif //_GSWExtWOCompatibility_h__
