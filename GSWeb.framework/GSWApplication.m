@@ -280,7 +280,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   if ((self=[super init]))
     {
       _selfLock=[NSRecursiveLock new];
-      _globalLock=[NSLock new];
+      _globalLock=[NSRecursiveLock new];
       
       ASSIGN(_startDate,[NSDate date]);
       ASSIGN(_lastAccessDate,[NSDate date]);
@@ -611,113 +611,17 @@ int GSWApplicationMain(NSString* applicationClassName,
       NS_ENDHANDLER;
     };
   
-};
+}
 
-//--------------------------------------------------------------------
-//	lock
--(void)lock
+-(void) lock
 {
-  //call adaptorsDispatchRequestsConcurrently
-  //OK
-  
-  /*  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%@ "
-      @"GSCurrentThread()=%@",
-      selfLockn,
-      selfLock_thread_id,
-      GSCurrentThread());
-      if (selfLockn>0)
-      {
-      if (selfLock_thread_id!=GSCurrentThread())
-      {
-      NSDebugMLLog(@"application",@"PROBLEM: owner!=thread id");
-      };
-      };
-  */
-  NS_DURING
-    {
-      /*  printf("SELFLOCK lock %@\n", GSCurrentThread());
-          LoggedLockBeforeDate(selfLock,GSW_LOCK_LIMIT);
-	  printf("SELFLOCK locked %@\n", GSCurrentThread());
-#ifndef NDEBUG
-      selfLockn++;
-      selfLock_thread_id=GSCurrentThread();
-#endif
-      NSDebugMLLog(@"application",
-                   @"selfLockn=%d selfLock_thread_id=%@ GSCurrentThread()=%@",
-		   selfLockn,
-		   selfLock_thread_id,
-		   GSCurrentThread());
-      */
-      [_selfLock lock];//NEW
-#ifndef NDEBUG
-      _selfLockn++;
-      _selfLock_thread_id=GSCurrentThread();
-#endif
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"selfLock tmplockBeforeDate");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  
-};
+  [_globalLock lock];
+}
 
-//--------------------------------------------------------------------
-//	unlock
--(void)unlock
+-(void) unlock
 {
-  //call adaptorsDispatchRequestsConcurrently
-  //OK
-  
-  /*  NSDebugMLLog(@"application",
-      @"selfLockn=%d selfLock_thread_id=%@ GSCurrentThread()=%@",
-      selfLockn,
-      selfLock_thread_id,
-      GSCurrentThread());
-      if (selfLockn>0)
-      {
-      if (selfLock_thread_id!=GSCurrentThread())
-      {
-      NSDebugMLLog(@"application",@"PROBLEM: owner!=thread id");
-      };
-      };
-  */
-  NS_DURING
-    {
-      NSDebugLockMLog(@"SELFLOCK unlock %@", GSCurrentThread());
-      //	  LoggedUnlock(selfLock);
-      [_selfLock unlock];//NEW
-      NSDebugLockMLog(@"SELFLOCK unlocked %@", GSCurrentThread());
-#ifndef NDEBUG
-      _selfLockn--;
-      if (_selfLockn==0)
-        _selfLock_thread_id=NULL;
-#endif
-      /*  NSDebugMLLog(@"application",@"selfLockn=%d selfLock_thread_id=%@ "
-	  @"GSCurrentThread()=%@",
-	  selfLockn,
-	  selfLock_thread_id,
-	  GSCurrentThread());
-      */
-    }
-  NS_HANDLER
-    {
-      NSDebugMLLog(@"application",
-		   @"selfLockn=%d selfLock_thread_id=%@ GSCurrentThread()=%@",
-                   _selfLockn,
-                   _selfLock_thread_id,
-                   GSCurrentThread());
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"selfLock loggedunlock");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  
-};
+  [_globalLock unlock];
+}
 
 //--------------------------------------------------------------------
 -(BOOL)isTaskDaemon
@@ -1495,47 +1399,36 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(GSWSession*)_initializeSessionInContext:(GSWContext*)aContext
 {
-  GSWSession* session=nil;
+  GSWSession* session = nil;
   
   if ([self isRefusingNewSessions])
-    {
-      LOGError0(@"Try to initialize session with isRefusingNewSessions evaluation to YES");
-      [aContext _setIsRefusingThisRequest:YES];
-    };
+  {
+    LOGError0(@"Try to initialize session with isRefusingNewSessions evaluation to YES");
+    [aContext _setIsRefusingThisRequest:YES];
+  }
+  
+  // SYNCHRONIZED makes no sense here, we are just changing a number -- dw
   [self lock];
-  NS_DURING
-    {
-      [self lockedIncrementActiveSessionCount];
-      session=[self createSessionForRequest:[aContext request]];
-      NSDebugMLLog(@"sessions",@"session:%@",session);
-      NSDebugMLLog(@"sessions",@"session ID:%@",[session sessionID]);
-      if (session)
-        {
-          [aContext _setSession:session];
-          [session awakeInContext:aContext];
-          [[NSNotificationCenter defaultCenter]postNotificationName:@"SessionDidCreateNotification"
-                                               object:session];
-        }
-      else
-        {
-          NSDebugMLog(@"Unable to create session");
-          [self lockedDecrementActiveSessionCount];
-        };
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In _initializeSessionInContext:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
+  _activeSessionsCount++;
   [self unlock];
   
+  session = [self createSessionForRequest:[aContext request]];
+  
+  if (session == nil) {
+    [self lock];
+    _activeSessionsCount--;
+    [self unlock];
+    
+    return nil;
+  }
+  
+  [aContext _setSession:session];
+  [session awakeInContext:aContext];
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"SessionDidCreateNotification"
+                                                      object:session];
+  
   return session;
-};
+}
 
 //--------------------------------------------------------------------
 -(int)lockedDecrementActiveSessionCount
@@ -1547,13 +1440,14 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
--(int)lockedIncrementActiveSessionCount
-{
-  
-  _activeSessionsCount++;
-  
-  return _activeSessionsCount;
-};
+// does this exist in WO?
+//-(int)lockedIncrementActiveSessionCount
+//{
+//  
+//  _activeSessionsCount++;
+//  
+//  return _activeSessionsCount;
+//};
 
 //--------------------------------------------------------------------
 -(int)_activeSessionsCount
@@ -1861,41 +1755,22 @@ to another instance **/
                          inContext:(GSWContext*)aContext
 {
   GSWSession* session=nil;
-  
-  NSDebugMLLog(@"sessions",@"Start Restore Session. sessionID=%@",sessionID);
-  [aContext _setRequestSessionID:sessionID];
-  NSDebugMLLog(@"sessions",@"sessionID=%@",sessionID);
-  NSDebugMLLog(@"sessions",@"_sessionStore=%@",_sessionStore);
-  session=[self _restoreSessionWithID:sessionID
-                inContext:aContext];
-  [aContext _setRequestSessionID:nil]; //ATTN: pass nil for unkwon reason
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  NSDebugMLLog(@"sessions",@"Stop Restore Session. sessionID=%@",sessionID);
-  
-  return session;
-};
-
-//--------------------------------------------------------------------
--(GSWSession*)_restoreSessionWithID:(NSString*)sessionID
-                          inContext:(GSWContext*)aContext
-{
-  //OK
   GSWRequest* request=nil;
-  GSWSession* session=nil;
   
-  NSDebugMLLog(@"sessions",@"aContext=%@",aContext);
-  request=[aContext request];
-  NSDebugMLLog(@"sessions",@"request=%@",request);
-  NSDebugMLLog(@"sessions",@"sessionID_=%@",sessionID);
-  NSDebugMLLog(@"sessions",@"sessionStore=%@",_sessionStore);
-  session=[_sessionStore checkOutSessionWithID:sessionID
-                         request:request];
-  [aContext _setSession:session];//even if nil :-)
-  [session awakeInContext:aContext];//even if nil :-)
-  NSDebugMLLog(@"sessions",@"session=%@",session);
+  session = [_sessionStore checkOutSessionWithID:sessionID
+                                         request:request];
+  
+  if (session != nil)
+  {
+    [aContext _setSession:session];
+    [session awakeInContext:aContext];
+  }
+  
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"SessionDidRestoreNotification"
+                                                      object:session];
   
   return session;
-};
+}
 
 //--------------------------------------------------------------------
 -(Class)_sessionClass
