@@ -1,18 +1,26 @@
+2008-05-25  Sebastian Reitenbach  <sebastia@l00-bugdead-prods.de>
+
+	* GSWeb.framework/stacktrace.m (PLATFORM_UNIX): Define
+	PLATFORM_UNIX for OpenBSD.
+
 2008-04-20  David Wetzel <dave@turbocat.de>
+	
         GSWeb.framework/GSWApplication.m
         * cleanups
 
 2008-04-17  David Wetzel <dave@turbocat.de>
+	
         GSWeb.framework/GSWConstants.m
         * remove comment
 
 2008-04-15  David Wetzel <dave@turbocat.de>
+	
         GSWeb.framework/GSWConstants.m
         GSWExtensions.framework/GSWExtWOCompatibility.h
         * make WOSessionCreationError work with WO names 
-        (maybe we can change the SED script to be 100% compatible?, does that matter?)
  
 2008-04-09  David Wetzel <dave@turbocat.de>
+	
         GSWAdaptors/Apache2/mod_gsw.c
         * small cleanups
         * copy all non-private headers to user
@@ -21,6 +29,7 @@
         * remove unused code
 
 2008-03-31  David Wetzel <dave@turbocat.de>
+	
         GSWAdaptors/Apache2/mod_gsw.c
         * make load-balancing work
         * add refusing to app status
@@ -37,6 +46,7 @@
         * rewrote GSWComponentRequestHandler to make refusing work
        
 2008-03-17  David Wetzel <dave@turbocat.de>
+	
         GSWeb.framework/GSWAssociation.h/m
         + bindingInComponent
 
@@ -50,10 +60,12 @@
         * various fixes
 
 2008-03-11  David Wetzel <dave@turbocat.de>
+	
         GSWAdaptors/Apache2/mod_gsw.c
         * fixed http status bug
 
 2008-03-10  David Wetzel <dave@turbocat.de>
+	
         GSWAdaptors/Apache2/mod_gsw.c
         * use shared memory to share application statistics across httpd processes
         * first version of load balancing
