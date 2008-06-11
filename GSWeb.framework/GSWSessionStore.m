@@ -101,85 +101,54 @@ RCS_ID("$Id$")
                             request:(GSWRequest*)aRequest
 {
   GSWSession* session=nil;
-  BOOL isCheckedOut=YES;
-  int tryCount=0;
-  int startTime=(int)time(NULL);
-  int currentTime=startTime;
-  int expirationTime=60; // default exp time is 60s
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"aSessionID=%@",aSessionID);
-  NSDebugMLLog(@"sessions",@"self=%@",self);
-  do
+  
+  session = [self restoreSessionWithID:aSessionID
+                               request:aRequest];
+  
+  if (!session) {
+    return nil;
+  }
+  
+  SYNCHRONIZED(_lock) {
+    
+    BOOL isCheckedOut = YES;
+    
+    GSWSessionTimeOut* entry = [_timeOutManager sessionTimeOutForSessionID:aSessionID];
+    int expirationTime=(int)[entry sessionTimeOutValue];//seconds
+    
+    NSLog(@"expirationTime=%d",(int)expirationTime);
+
+    isCheckedOut=[entry isCheckedOut]; // See if session is used
+    
+    if (!isCheckedOut) 
     {
-      tryCount++;
-      if ([self tryLock])
+      session = [self restoreSessionWithID:aSessionID
+                                   request:aRequest];
+      if (session) {
+        NSLog(@"CheckOut: %@. SessionID:%@",aSessionID,[session sessionID]);
+        
+        // If sessionID has Changed, re-find entry
+        if (![[session sessionID] isEqualToString:aSessionID])
         {
-          GSWSessionTimeOut* entry=[_timeOutManager sessionTimeOutForSessionID:aSessionID];
-          NS_DURING
-            {
-              expirationTime=(int)[entry sessionTimeOutValue];//seconds
-              //NSLog(@"expirationTime=%d",(int)expirationTime);
-              isCheckedOut=[entry isCheckedOut]; // See if session is used
-              //NSLog(@"aSessionID=%@ isCheckedOut=%d",aSessionID,(int)isCheckedOut);
-              //NSLog(@"entry=%@",(int)entry);
-
-              // if it is not used, restore it and so on....
-              if (!isCheckedOut) 
-                {
-                  session=[self restoreSessionWithID:aSessionID
-                                request:aRequest];
-                  if (session)
-                    {
-                      //NSLog(@"CheckOut: %@. SessionID:%@",aSessionID,[session sessionID]);
-
-                      // If sessionID has Changed, re-find entry
-                      if (![[session sessionID] isEqualToString:aSessionID])
-                        {
-                          aSessionID=[session sessionID];
-                          entry=[_timeOutManager sessionTimeOutForSessionID:aSessionID];
-                        };
-                      isCheckedOut=[entry isCheckedOut];
-                      if (!isCheckedOut) 
-                        {                          
-                          [session _createAutoreleasePool];
-                          [entry setIsCheckedOut:YES];
-                        };
-                    };
-                };
-            }
-          NS_HANDLER
-            {
-              NSDebugMLLog(@"sessions",@"Can't checkOutSessionID=%@",aSessionID);
-              localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                       @"In checkOutSessionWithID:request:");
-              LOGException(@"%@ (%@)",localException,[localException reason]);
-              // Put the previous check in/out state
-              [entry setIsCheckedOut:isCheckedOut];
-              [self unlock];
-              [localException raise];
-            }
-          NS_ENDHANDLER;
-          [self unlock];
-          currentTime=(int)time(NULL);
-          if (isCheckedOut) // Session already check out. Wait...
-            {
-              NSTimeIntervalSleep(0.010); // sleep for 10 ms
-              if (tryCount%100==0)
-                NSLog(@"Try check out %@ for %d seconds (tryCount=%d)",aSessionID,(currentTime-startTime),tryCount);
-            };         
+          [NSException raise:@"IllegalStateException"
+                      format:@"How can a session ID change? -- dw"];
+          
         }
-      else
-        {
-          NSLog(@"Try lock failed");
-          currentTime=(int)time(NULL);
-        };
+        isCheckedOut = [entry isCheckedOut];
+        NSLog(@"isCheckedOut: %d", isCheckedOut);
+
+        if (!isCheckedOut) 
+        {                          
+          [session _createAutoreleasePool];
+          [entry setIsCheckedOut:YES];
+        }
+      }
     }
-  while(isCheckedOut && (currentTime-startTime)<expirationTime);
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  LOGObjectFnStop();
+  }
+  END_SYNCHRONIZED;
+  
   return session;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)checkInSessionForContext:(GSWContext*)aContext

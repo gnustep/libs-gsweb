@@ -263,19 +263,22 @@ GSWResponse * _dispatchWithPreparedApplication(GSWApplication *app, GSWContext *
 {
   GSWSession  * session = nil;
   GSWResponse * response = nil;
-  GSWRequest  * request = [aContext request];
   NSString    * sessionID;
 
   sessionID = [requestHandlerDict objectForKey:GSWKey_SessionID[GSWebNamingConv]]; //@"wosid"
   if ((!sessionID)) {
     session = [app _initializeSessionInContext:aContext];
+    if (session == nil) {
+      response = [app handleSessionCreationErrorInContext:aContext];
+    }
   } else {
     session = [app restoreSessionWithID:sessionID inContext:aContext];
+    if (session == nil) {
+      response = [app handleSessionRestorationErrorInContext:aContext];
+    }
   }
 
-  if (session == nil) {
-    response = [app handleSessionCreationErrorInContext:aContext];
-  } else {
+  if (response == nil) {
       response = _dispatchWithPreparedSession(session, aContext, requestHandlerDict);
   }
 

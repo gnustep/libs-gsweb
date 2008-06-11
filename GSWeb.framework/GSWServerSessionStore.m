@@ -97,15 +97,10 @@ RCS_ID("$Id$")
                   request:(GSWRequest*)aRequest
 {
   GSWSession* session=nil;
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"aSessionID=%@",aSessionID);
-  NSDebugMLLog(@"sessions",@"sessions=%@",_sessions);
-  session=[_sessions objectForKey:aSessionID];
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  LOGObjectFnStop();
+
+  session = [_sessions objectForKey:aSessionID];
   return session;
-};
+}
 
 //--------------------------------------------------------------------
 /** Should be Locked **/

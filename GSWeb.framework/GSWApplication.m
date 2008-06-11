@@ -1755,10 +1755,9 @@ to another instance **/
                          inContext:(GSWContext*)aContext
 {
   GSWSession* session=nil;
-  GSWRequest* request=nil;
   
   session = [_sessionStore checkOutSessionWithID:sessionID
-                                         request:request];
+                                         request:[aContext request]];
   
   if (session != nil)
   {
@@ -1848,11 +1847,12 @@ to another instance **/
   GSWSession* session=nil;
   
   session=[self _createSessionForRequest:aRequest];
-  NSDebugMLLog(@"sessions",@"session:%@",session);
+
+  // is this done in 4.5? -- dw
   [_statisticsStore _applicationCreatedSession:session];
-  
+    
   return session;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWSession*)_createSessionForRequest:(GSWRequest*)aRequest
@@ -1861,37 +1861,19 @@ to another instance **/
   Class sessionClass=Nil;
   GSWSession* session=nil;
   
-  [self lock];
-  NS_DURING
-    {
-      sessionClass=[self _sessionClass];
-      NSDebugMLLog(@"sessions",@"sessionClass:%@",sessionClass);
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In _sessionClass");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  [self unlock];
+  sessionClass=[self _sessionClass];
+  
   if (!sessionClass)
-    {
-      //TODO erreur
-      NSDebugMLLog0(@"application",@"No Session Class");
-      NSAssert(NO,@"Can't find session class");
-    }
+  {
+    NSAssert(NO,@"Can't find session class");
+  }
   else
-    {
-      session=[[sessionClass new]autorelease];
-    };
-  NSDebugMLLog(@"sessions",@"session:%@",session);
+  {
+    session=[[sessionClass new]autorelease];
+  }
   
   return session;
-};
+}
 
 
 //--------------------------------------------------------------------
