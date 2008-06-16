@@ -116,17 +116,13 @@ RCS_ID("$Id$")
     GSWSessionTimeOut* entry = [_timeOutManager sessionTimeOutForSessionID:aSessionID];
     int expirationTime=(int)[entry sessionTimeOutValue];//seconds
     
-    NSLog(@"expirationTime=%d",(int)expirationTime);
-
     isCheckedOut=[entry isCheckedOut]; // See if session is used
     
     if (!isCheckedOut) 
     {
       session = [self restoreSessionWithID:aSessionID
                                    request:aRequest];
-      if (session) {
-        NSLog(@"CheckOut: %@. SessionID:%@",aSessionID,[session sessionID]);
-        
+      if (session) {        
         // If sessionID has Changed, re-find entry
         if (![[session sessionID] isEqualToString:aSessionID])
         {
@@ -135,8 +131,7 @@ RCS_ID("$Id$")
           
         }
         isCheckedOut = [entry isCheckedOut];
-        NSLog(@"isCheckedOut: %d", isCheckedOut);
-
+        
         if (!isCheckedOut) 
         {                          
           [session _createAutoreleasePool];
