@@ -1147,10 +1147,8 @@ static NSNumber *_dflt_sessionTimeOut = nil;
 {
     INIT_DFLT_OBJ(sessionTimeOut,
 		GSWOPT_SessionTimeOut[GSWebNamingConv]);
-
-NSLog(@"%s returning %@",__PRETTY_FUNCTION__, _dflt_sessionTimeOut);
   return _dflt_sessionTimeOut;
-};
+}
 
 @end
 
