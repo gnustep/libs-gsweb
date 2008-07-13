@@ -128,40 +128,35 @@ RCS_ID("$Id$")
 {
   GSWResponse* aResponse=nil;
 
-  LOGObjectFnStart();
+  aResponse = [GSWApp createResponseInContext:nil];
 
-  aResponse=[GSWApp createResponseInContext:nil];
-
-  GSWResponse_appendContentString(aResponse,@"<HTML><HEAD><TITLE>DirectAction Error</TITLE></HEAD><BODY><CENTER>The result of a direct action returned nothing.</CENTER></BODY></HTML>");
-
-  LOGObjectFnStop();
+  [aResponse setStatus:500];
+  GSWResponse_appendContentString(aResponse,@"<html><head><title>Error</title></head><body>Your request produced an error.</body></html>");
 
   return aResponse;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWResponse*)generateRequestRefusalResponseForRequest:(GSWRequest*)aRequest
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
-  response=[GSWResponse generateRefusingResponseInContext:nil
-                          forRequest:aRequest];
-  LOGObjectFnStop();
+  
+  response = [GSWResponse generateRefusingResponseInContext:nil
+                                                 forRequest:aRequest];
   return response;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWResponse*)generateErrorResponseWithException:(NSException*)exception
                                         inContext:(GSWContext*)aContext
 {
   GSWResponse* response=nil;
-  LOGObjectFnStart();
+  
   if (_displayExceptionPages)
-    response=[GSWApp handleException:exception
-                     inContext:aContext];
-  LOGObjectFnStop();
+    response = [GSWApp handleException:exception
+                             inContext:aContext];
   return response;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN: return additional path elements
