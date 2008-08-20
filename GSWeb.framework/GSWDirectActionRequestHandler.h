@@ -45,16 +45,12 @@
 -(GSWResponse*)generateRequestRefusalResponseForRequest:(GSWRequest*)aRequest;
 -(GSWResponse*)generateErrorResponseWithException:(NSException*)exception
                                         inContext:(GSWContext*)aContext;
--(id)submitButtonsActionPathFromRequest:(GSWRequest*)aRequest;
 +(NSArray*)additionalRequestPathArrayFromRequest:(GSWRequest*)aRequest;
 -(void)setAllowsContentInputStream:(BOOL)yn;
 -(BOOL)allowsContentInputStream;
 -(void)setDisplayExceptionPages:(BOOL)yn;
 -(BOOL)displayExceptionPages;
-@end
 
-//====================================================================
-@interface GSWDirectActionRequestHandler (GSWRequestHandlerClassA)
 +(id)handler;
 +(GSWDirectActionRequestHandler*)handlerWithDefaultActionClassName:(NSString*)defaultActionClassName
                                                  defaultActionName:(NSString*)defaultActionName

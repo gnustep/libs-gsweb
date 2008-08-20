@@ -49,6 +49,43 @@ static Class NSStringClass = Nil;
     }
 }
 
+// checkme if 0 is the right value in GSW for unused applicationNumber
+// checkme: does this exists in WO4.5?
+// dataURL
+- (NSString*) dataURLInContext:(GSWContext *) context
+{
+  int                    appNr = 0;
+  NSString             * appNrStr = nil;
+  GSWDynamicURLString  * url = nil;    
+  GSWDynamicURLString  * url2 = nil;    
+  NSMutableString      * myStr = [NSMutableString stringWithCapacity:80];
+
+  NSLog(@"is this code ever used? -- dw (%s)",__PRETTY_FUNCTION__ );
+
+  
+  [myStr appendString: GSWKey_Data[GSWebNamingConv]];       //wodata
+  [myStr appendString:@"="];
+  [myStr appendString:[[self key] encodeURL]];
+  
+  appNr = [[context request] applicationNumber];
+  if (appNr > 0) {
+    url = [context _url];
+    appNrStr = [url applicationNumber];
+    // with our current URLString it is a bit waste of time but that is how others to it.
+    [url setApplicationNumber: GSWIntToNSString(appNr)];
+  }
+  
+  url2 = [context urlWithRequestHandlerKey:[[GSWApp class] resourceRequestHandlerKey]
+                                      path: nil
+                               queryString: myStr];
+  
+  if (appNr > 0) {
+    [url setApplicationNumber:appNrStr];
+  }
+  return url2;
+}
+
+
 
 + (NSString*) _dataURLInContext: (GSWContext*) context
                             key:(GSWAssociation*) key
@@ -117,40 +154,6 @@ static Class NSStringClass = Nil;
 
   GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, urlAttribute, dataURL, NO);    
 }
-
-// checkme if 0 is the right value in GSW for unused applicationNumber
-
-// dataURL
-- (NSString*) dataURLInContext:(GSWContext *) context
-{
-  int                    appNr = 0;
-  NSString             * appNrStr = nil;
-  GSWDynamicURLString  * url = nil;    
-  GSWDynamicURLString  * url2 = nil;    
-  NSMutableString      * myStr = [NSMutableString stringWithCapacity:80];
-  
-  [myStr appendString: GSWKey_Data[GSWebNamingConv]];       //wodata
-  [myStr appendString:@"="];
-  [myStr appendString:[[self key] encodeURL]];
-
-  appNr = [[context request] applicationNumber];
-  if (appNr > 0) {
-    url = [context _url];
-    appNrStr = [url applicationNumber];
-    // with our current URLString it is a bit waste of time but that is how others to it.
-    [url setApplicationNumber: GSWIntToNSString(appNr)];
-  }
-
-  url2 = [context urlWithRequestHandlerKey:[GSWApp resourceRequestHandlerKey]
-                                      path: nil
-                               queryString: myStr];
-              
-  if (appNr > 0) {
-    [url setApplicationNumber:appNrStr];
-  }
-  return url2;
-}
-
 
 -(id)initWithData:(NSData*)data
          mimeType:(NSString*)type

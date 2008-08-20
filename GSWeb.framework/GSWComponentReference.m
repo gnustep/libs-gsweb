@@ -34,6 +34,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 //====================================================================
 @implementation GSWComponentReference
@@ -170,8 +171,8 @@ RCS_ID("$Id$")
                            inContext:(GSWContext*)aContext
 {
   GSWElement* element=nil;
-  GSWComponent* component=nil;
-  GSWComponent* componentPrev=nil;
+//  GSWComponent* component=nil;
+//  GSWComponent* componentPrev=nil;
 
   [self _pushComponentInContext:aContext];
   element  = [GSWContext_component(aContext) invokeActionForRequest: request

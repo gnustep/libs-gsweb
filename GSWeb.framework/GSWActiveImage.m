@@ -34,21 +34,61 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
-//====================================================================
+
+static NSString * static_sessionIDKey = nil;
+static NSString * static_tempQueryKey = nil; 
+
 @implementation GSWActiveImage
+
++ (void) initialize
+{
+  if (self == [GSWActiveImage class])
+  {
+    if (!static_sessionIDKey) {
+      static_sessionIDKey = [[GSWApp sessionIdKey] retain];
+      static_tempQueryKey = [[@"?" stringByAppendingString:static_sessionIDKey] retain];
+    }
+  }
+}
+
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
+  NSMutableDictionary * tempQueryAssociations = [NSMutableDictionary dictionary];
+  GSWAssociation      * tempAssociation = nil;
 
   self = [super initWithName:@"input" associations:associations template: nil];
   if (!self) {
     return nil;
   }
+  
+  tempAssociation = [_associations objectForKey:static_tempQueryKey];
+  if (tempAssociation != nil) {
+    [tempQueryAssociations setObject:tempAssociation
+                              forKey:static_sessionIDKey];
+    [_associations removeObjectForKey: static_tempQueryKey];
+  }
 
+  if ([static_sessionIDKey isEqualToString:@"wosid"] == NO) {
+    tempAssociation = [_associations objectForKey:@"?wosid"];
+    if (tempAssociation != nil) {
+      [tempQueryAssociations setObject:@"wosid"
+                                forKey:static_sessionIDKey];
+      [_associations removeObjectForKey: @"wosid"];
+    }
+  }
+  
+  if ([tempQueryAssociations count] > 0) {
+    _sessionIDQueryAssociations = [tempQueryAssociations retain];
+  } else {
+    DESTROY(_sessionIDQueryAssociations);
+  }
+  
   ASSIGN(_file, [_associations objectForKey: imageMapFileName__Key]);
   if (_file != nil) {
     [_associations removeObjectForKey: imageMapFileName__Key];
@@ -227,6 +267,7 @@ RCS_ID("$Id$")
   DESTROY(_secure);
   DESTROY(_actionClass);
   DESTROY(_directActionName);
+  DESTROY(_sessionIDQueryAssociations);
 
   [super dealloc];
 }
@@ -463,7 +504,7 @@ RCS_ID("$Id$")
 {
   NSString           * srcValue = nil;
   GSWComponent       * component = GSWContext_component(context);
-  GSWResourceManager * resourcemanager = [GSWApp resourceManager];
+
   GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"border", @"0", NO);      
 
   [self appendURLAttributesToResponse:response
@@ -603,22 +644,22 @@ RCS_ID("$Id$")
 -(void) _appendCGIActionURLToResponse:(GSWResponse*) response
                             inContext:(GSWContext*) context
 {
-
+  NSDictionary* queryDictionary = nil;
+  
   NSString * actionStr = [self computeActionStringWithActionClassAssociation: _actionClass
                                                  directActionNameAssociation: _directActionName
                                                                    inContext: context];
-
-  if (_secure != nil) {
-    [context _generateCompleteURLs];
-  }
-  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"href",
-                               // pass this to _componentActionURL?
-                               // (_secure != nil && [_secure boolValueInComponent: [context component]]) 
-                                                  [context _componentActionURL],
-                                                  NO);      
-  if (_secure != nil) {
-    [context _generateRelativeURLs];  
-  }
+  
+  queryDictionary = [self computeQueryDictionaryWithRequestHandlerPath: actionStr 
+                                            queryDictionaryAssociation: nil
+                                                otherQueryAssociations: _sessionIDQueryAssociations 
+                                                             inContext: context];
+  
+  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"href", [context _directActionURLForActionNamed:actionStr
+                                                                                                           queryDictionary:queryDictionary
+                                                                                                                  isSecure:[self secureInContext:context]
+                                                                                                                      port:0
+                                                                                                     escapeQueryDictionary:YES], NO);  
 }
 
 

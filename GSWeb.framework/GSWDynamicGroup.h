@@ -32,6 +32,7 @@
 #ifndef _GSWDynamicGroup_h__
 	#define _GSWDynamicGroup_h__
 
+#include "GSWDynamicElement.h"
 
 @interface GSWDynamicGroup: GSWDynamicElement
 {

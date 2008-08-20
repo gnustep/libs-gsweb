@@ -87,7 +87,7 @@ static Class standardClass = Nil;
 
   if (((_checked == nil) && (_value == nil)) || 
       (((_checked != nil) && (_value != nil)) || ((_checked != nil) && (! [_checked isValueSettable])) || 
-      ((_value != nil) && (_selection != nil)) && (![_selection isValueSettable]))) {
+      (((_value != nil) && (_selection != nil)) && (![_selection isValueSettable])))) {
        [NSException raise:NSInvalidArgumentException
                    format:@"%s: Bad attribute list.",
                                   __PRETTY_FUNCTION__];

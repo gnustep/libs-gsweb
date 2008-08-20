@@ -32,6 +32,8 @@
 #ifndef _GSWDynamicElement_h__
 	#define _GSWDynamicElement_h__
 
+#import "GSWElement.h"
+
 GSWEB_EXPORT SEL evaluateConditionInContextSEL;
 
 //====================================================================

@@ -182,10 +182,16 @@ RCS_ID("$Id$")
     return NSOrderedDescending;
   else
     return NSOrderedSame;  
-};
+}
+
 @end
 
-//====================================================================
+@interface GSWRequest (Internal)
+
+-(NSDictionary*)_uriElements;
+
+@end
+
 @implementation GSWRequest
 
 //--------------------------------------------------------------------
@@ -1252,7 +1258,7 @@ RCS_ID("$Id$")
   int allKeysCount=0;
 
 
-#warning we should use ACSII encoding here? dave@turbocat.de
+// CHECKME: we should use ACSII encoding here? dave@turbocat.de
 // according to the the standard http://www.w3.org/International/O-URL-code.html,
 // URIs are encoded in NSASCIIStringEncoding with escape sequences cooresponding
 // to the hexadecimal value of the UTF-8 encoding.  Therefore the encoding should
@@ -1365,14 +1371,15 @@ RCS_ID("$Id$")
   return _isUsingWebServer;
 }
 
+// this is legal at least in some versions of WO. -- dw
+-(BOOL)isUsingWebServer
+{
+  return _isUsingWebServer;
+}
+
 -(void)_setIsUsingWebServer:(BOOL)flag
 {
   _isUsingWebServer=flag;
-}
-
--(BOOL) isUsingWebServer
-{
-  return _isUsingWebServer;
 }
 
 -(void)setIsUsingWebServer:(BOOL)flag

@@ -220,7 +220,7 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)handleTimer:(id)aTimer
+-(void)handleTimer:(NSTimer*)aTimer
 {
   //OK
   BOOL requestHandlingLocked=NO;
@@ -479,13 +479,8 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)addTimer:(NSTimer*)timer
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"timer=%@",timer);
-  NSDebugMLLog(@"sessions",@"timer fireDate=%@",[timer fireDate]);
-  NSDebugMLLog(@"sessions",@"timer tisn=%f",[[timer fireDate]timeIntervalSinceNow]);
   [GSWApp addTimer:timer];
-  LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 -(void)removeCallBack

@@ -189,7 +189,8 @@ GSWResponse * _dispatchWithPreparedPage(GSWComponent * aPage, GSWSession * aSess
           [aContext _setPageElement:aResultComponent];
         }
       } else {
-        GSWResponse * theResponse = [anActionResults generateResponse];
+        // CHECKME: extend the GSWElement protocol? -- dw
+        GSWResponse * theResponse = [(GSWComponent*)anActionResults generateResponse];
         return theResponse;
       }
     }
@@ -414,10 +415,11 @@ GSWResponse * _dispatchWithPreparedApplication(GSWApplication *app, GSWContext *
 }
 
 // do we need this? -- dw
+// used in GSWApplication _componentRequestHandler
 +(id)handler
 {
   return [[GSWComponentRequestHandler new] autorelease];
-};
+}
 
 
 @end

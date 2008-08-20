@@ -196,10 +196,6 @@ RCS_ID("$Id$")
   return _displayExceptionPages;
 };
 
-@end
-
-//====================================================================
-@implementation GSWDirectActionRequestHandler (GSWRequestHandlerClassA)
 
 //--------------------------------------------------------------------
 +(id)handler

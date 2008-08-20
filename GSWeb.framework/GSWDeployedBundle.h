@@ -100,9 +100,6 @@ if it was not cached **/
 -(void)lock;
 -(void)unlock;
 
-@end
-
-@interface GSWDeployedBundle (GSWDeployedBundleA)
 +(id)bundleWithPath:(NSString*)aPath;
 @end
 

@@ -32,10 +32,18 @@
 #ifndef _GSWElement_h__
 	#define _GSWElement_h__
 
+#include "GSWDefines.h"
+#include "GSWConstants.h"
+#include "GSWUtils.h"
+
 GSWEB_EXPORT BYTE ElementsMap_htmlBareString;
 GSWEB_EXPORT BYTE ElementsMap_gswebElement;
 GSWEB_EXPORT BYTE ElementsMap_dynamicElement;
 GSWEB_EXPORT BYTE ElementsMap_attributeElement;
+
+@class GSWResponse;
+@class GSWContext;
+@class GSWRequest;
 
 #ifndef NDEBBUG
 #define GSWELEMENT_HAS_DECLARATION_NAME

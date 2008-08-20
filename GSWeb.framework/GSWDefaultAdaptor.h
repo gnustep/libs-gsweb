@@ -73,12 +73,13 @@ GSWEB_EXPORT int iBlock;
 -(void)registerForEvents;
 -(void)unregisterForEvents;
 
--(void)runOnce;
+//-(void)runOnce;
 -(BOOL)doesBusyRunOnce;
 -(BOOL)dispatchesRequestsConcurrently;
 -(int)port;
 -(NSString*)host;
--(void)unlock;
+// no lock, why unlock? -- dw
+//-(void)unlock;
 
 -(void)setWorkerThreadCount:(id)workerThreadCount;
 -(id)workerThreadCount;
@@ -86,17 +87,16 @@ GSWEB_EXPORT int iBlock;
 -(id)workerThreadCountMin;
 -(void)setWorkerThreadCountMax:(id)workerThreadCount;
 -(id)workerThreadCountMax;
+
+// WO 5:Use the system property WOListenQueueSize instead
 -(void)setListenQueueSize:(id)listenQueueSize;
+
 -(BOOL)isMultiThreadEnabled;
 -(BOOL)isConnectionAllowedWithHandle:(NSFileHandle*)handle
                      returnedMessage:(NSString**)retMessage;
 
 - (void) workerThreadWillExit:(GSWWorkerThread*) thread;
 
-@end
-
-//====================================================================
-@interface GSWDefaultAdaptor (GSWDefaultAdaptorA)
 -(void)stop;
 -(void)run;
 -(void)_runOnce;

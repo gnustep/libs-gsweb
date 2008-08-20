@@ -160,12 +160,13 @@ static Class standardClass = Nil;
           format:@"%s: Cannot evaluate 'name' attribute, and context element ID is nil.",
                                __PRETTY_FUNCTION__];
   }
+  // make the compiler happy ;)
+  return nil;
 }
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  id obj = nil;
   GSWComponent * component = GSWContext_component(context);
   
   if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
@@ -208,7 +209,6 @@ static Class standardClass = Nil;
   if (_value != nil)
   {
     id obj = [_value valueInComponent:component];
-    id obj1 = nil;
     if (obj != nil) {
       NSString * s = obj; // stringValue?? 
       [response _appendTagAttribute: value__Key

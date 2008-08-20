@@ -42,14 +42,8 @@
   GSWAssociation * _selectedValue;
   GSWAssociation * _noSelectionString;
   BOOL _loggedSlow;
-};
+}
 
-
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
-
--(NSString*)elementName;
 
 @end
 

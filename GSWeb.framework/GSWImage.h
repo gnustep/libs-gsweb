@@ -32,6 +32,7 @@
 #ifndef _GSWImage_h__
 	#define _GSWImage_h__
 
+#include "GSWHTMLURLValuedElement.h"
 
 @interface GSWImage: GSWHTMLURLValuedElement
 {

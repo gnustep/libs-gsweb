@@ -249,12 +249,18 @@ RCS_ID("$Id$")
     if (_width != nil || _height != nil) {
       if (_width != nil) {
         widthValue = [_width valueInComponent:component];
-        widthStr = widthValue != nil ? NSStringWithObject(widthValue) : nil;
+        if (widthValue != nil) {
+          widthStr = NSStringWithObject(widthValue);
+        }
+        
         hasNoWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
       }
       if (_height != nil) {
         heightValue = [_height valueInComponent:component];
-        heightStr = heightValue != nil ? NSStringWithObject(heightValue) : nil;    // stringValue?
+        if (heightValue != nil) {
+          heightStr = NSStringWithObject(heightValue);
+        }
+        
         hasNoHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
       }
     } else {

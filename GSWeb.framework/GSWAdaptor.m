@@ -91,6 +91,12 @@ RCS_ID("$Id$")
   return -1;
 }
 
+- (BOOL) isMultiThreadEnabled
+{
+  return NO;
+}
+
+
 @end
 
 //====================================================================

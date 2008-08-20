@@ -73,12 +73,11 @@ RCS_ID("$Id$")
 -(NSString*)elementName
 {
   return @"textarea";
-};
+}
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  id         resultValue = nil;
 
   GSWComponent * component = GSWContext_component(context);
   

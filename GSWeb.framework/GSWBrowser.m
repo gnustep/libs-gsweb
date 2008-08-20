@@ -126,8 +126,8 @@ static SEL valueInComponentSEL = NULL;
     [_associations removeObjectForKey: escapeHTML__Key];
   }
   
-  if ((_list == nil) || (_value != nil || _displayString != nil) && 
-        ((_item == nil) || (![_item isValueSettable])) || 
+  if ((_list == nil) || ((_value != nil || _displayString != nil) && 
+        (((_item == nil) || (![_item isValueSettable])))) || 
         ((_selections != nil) && (![_selections isValueSettable]))) {
 
     [NSException raise:NSInvalidArgumentException
@@ -188,7 +188,6 @@ static SEL valueInComponentSEL = NULL;
   NSArray           * valueArray  = nil;
   NSArray           * selectionsArray  = nil;
   int                 listCount   = 0;
-  id                  obj         = nil;
   BOOL                isSelected  = NO;
   id                  compoValue  = nil;
   int                 i           = 0;
@@ -393,7 +392,6 @@ static SEL valueInComponentSEL = NULL;
     int              count           = 0;    
     int              i               = 0;    
     NSMutableArray * mutArray        = nil;
-    NSArray        * selectionsValue = nil;
 
     if (formValues != nil) {
       count    = [formValues count];
@@ -411,7 +409,6 @@ static SEL valueInComponentSEL = NULL;
        for (i = 0; i < count; i++) {
           id s1 = (NSString*) [formValues objectAtIndex:i];
           int k = [s1 intValue];
-          id obj1 = nil;
           if (listValue != nil) {
             id valueValue = [listValue objectAtIndex:k];
             [mutArray addObject:valueValue];

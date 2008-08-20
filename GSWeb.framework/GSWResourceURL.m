@@ -48,20 +48,6 @@ RCS_ID("$Id$")
   return nil;
 };
 
-@end
-
-//====================================================================
-@implementation GSWResourceURL (GSWResourceURLA)
-
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
-{
-  LOGObjectFnStartC("GSWResourceURL");
-  [self appendURLToResponse:response
-        inContext:context];
-  LOGObjectFnStopC("GSWResourceURL");
-};
 
 //--------------------------------------------------------------------
 -(NSString*)valueAttributeName

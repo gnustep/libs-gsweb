@@ -36,7 +36,7 @@ typedef enum _GSWProcState
   GSWProcState__SleepWait
 
 } GSWProcState;
-@interface GSWProcFSProcInfo : NSObject <NSCoding,NSCopying>
+@interface GSWProcFSProcInfo : NSObject //<NSCoding,NSCopying>
 {
   NSString* _user;		// user name corresponding to owner of process [/proc/#/stat]
   NSString* _command;		// basename of executable file in call to exec(2) [/proc/#/stat]

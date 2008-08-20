@@ -36,13 +36,7 @@
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)template;
--(NSString*)elementName;
-@end
 
-@interface GSWActionURL  (GSWActionURLA)
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-+(BOOL)hasGSWebObjectsAssociations;
 @end
 
 #endif // _GSWActionURL_h__

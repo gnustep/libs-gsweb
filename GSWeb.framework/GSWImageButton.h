@@ -78,7 +78,7 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context;
 
--(NSString*)frameworkNameInContext:(GSWContext*)context;
+//-(NSString*)frameworkNameInContext:(GSWContext*)context;
 
 @end
 

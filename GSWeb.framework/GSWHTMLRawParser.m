@@ -544,7 +544,6 @@ May raise exception.
                         else
                           {
                             BOOL stopTag=NO;
-                            int tagStopIndex=_index;
                             int tagPropertiesStopIndex=_index;
 
                             if (isClosingTag)

@@ -163,7 +163,7 @@ RCS_ID("$Id$")
                                              reason:errorDscr
                                              userInfo:[NSDictionary 
                                                         dictionaryWithObjectsAndKeys:
-                                                          (resultValue ? resultValue : @"nil"),@"EOValidatedObjectUserInfoKey",
+                                                          (resultValue ? resultValue : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
                                                         valueKeyPath,@"EOValidatedPropertyUserInfoKey",
                                                         nil,nil]];
                       [component validationFailedWithException:exception

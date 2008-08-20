@@ -30,6 +30,7 @@
 #include "GSWWorkerThread.h"
 
 
+#include "GSWPrivate.h"
 #include "GSWDefines.h"
 #include "GSWConstants.h"
 #include "GSWUtils.h"
@@ -42,7 +43,7 @@
 #include "GSWResponse.h"
 #include "GSWHTTPIO.h"
 
-static NSData* lineFeedData=nil;
+//static NSData* lineFeedData=nil;
 static NSString *REQUEST_ID = @"x-webobjects-request-id";
 
 @interface NSThread (WeKnowWhatWeDo)
@@ -129,7 +130,6 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
 -(void)runOnce
 {
   GSWRequest      *request = nil;
-  BOOL            ok      = NO;
   struct timeval  timeout;
   GSWResponse     *response;
   
@@ -178,9 +178,9 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
     }
     NS_DURING {
 //      request = [GSWHTTPIO readRequestFromFromHandle: _serverSocket];
-      ok = [GSWHTTPIO sendResponse:response
-                          toHandle: _serverSocket
-                           request:request];
+      [GSWHTTPIO sendResponse:response
+                     toHandle: _serverSocket
+                      request:request];
     } NS_HANDLER {
       NSLog(@"%s -- Exception while sending response: %@", 
             __PRETTY_FUNCTION__, [localException description]);

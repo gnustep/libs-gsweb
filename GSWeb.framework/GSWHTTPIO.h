@@ -29,6 +29,7 @@
 
 @class NSFileHandle;
 @class GSWRequest;
+@class GSWResponse;
 
 
 @interface GSWHTTPIO : NSObject {
@@ -36,6 +37,10 @@
 }
 
 + (GSWRequest*) readRequestFromFromHandle:(NSFileHandle*) fh;
+
++ (void) sendResponse:(GSWResponse*) response
+             toHandle:(NSFileHandle*) fh
+              request:(GSWRequest*) request;
 
 @end
 

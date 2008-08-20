@@ -72,7 +72,6 @@
    destroyLast:(BOOL)destroy;
 
 -(void)threadExited;
-+(id)threadExited:(NSNotification*)notif;
 
 @end
 

@@ -89,8 +89,8 @@ static Class NSStringClass = Nil;
   DESTROY(_otherQueryAssociations);
   _otherQueryAssociations = RETAIN([_associations extractObjectsForKeysWithPrefix:@"?" removePrefix: YES]);
 
-  _otherQueryAssociations = _otherQueryAssociations == nil || 
-                               ([_otherQueryAssociations count] <= 0) ? nil : _otherQueryAssociations;
+//  _otherQueryAssociations = (((_otherQueryAssociations == nil) || 
+//                               ([_otherQueryAssociations count] <= 0)) ? nil : _otherQueryAssociations);
 
   if ((_otherQueryAssociations != nil) && ([_otherQueryAssociations count] == 0)) {
     DESTROY(_otherQueryAssociations);
@@ -143,10 +143,10 @@ static Class NSStringClass = Nil;
                   format:@"%s: Missing required attribute: 'action' or 'href' or 'pageName' or 'directActionName' or 'actionClass'",
                               __PRETTY_FUNCTION__];
   }
-  if ((_action != nil) && (_href != nil) || (_action != nil) && (_pageName != nil) || 
-      (_href != nil) && (_pageName != nil) || (_action != nil) && 
-      (_directActionName != nil) || (_href != nil) && (_directActionName != nil) || (_pageName != nil) &&
-      (_directActionName != nil) || (_action != nil) && (_actionClass != nil)) {
+  if (((_action != nil) && (_href != nil)) || ((_action != nil) && (_pageName != nil)) || 
+      ((_href != nil) && (_pageName != nil)) || ((_action != nil) && 
+      (_directActionName != nil)) || ((_href != nil) && (_directActionName != nil)) || ((_pageName != nil) &&
+      (_directActionName != nil)) || ((_action != nil) && (_actionClass != nil))) {
 
       [NSException raise:NSInvalidArgumentException
                   format:@"%s: At least two of these conflicting attributes are present: 'action', 'href', 'pageName', 'directActionName', 'actionClass'.",
@@ -210,7 +210,7 @@ static Class NSStringClass = Nil;
         }
       }
     } else {
-      #warning TODO GSWNoContentElement
+      //TODO GSWNoContentElement
       obj = nil;
     }
     if (obj == nil) {
@@ -242,6 +242,9 @@ static Class NSStringClass = Nil;
                            inContext:(GSWContext*) context
 {
   NSString     * str = nil;
+  
+  GSOnceMLog(@"%s is deprecated, use _appendQueryStringToResponse: inContext: requestHandlerPath: htmlEscapeURL:", __PRETTY_FUNCTION__);
+  
   NSDictionary * queryDict = [self computeQueryDictionaryWithActionClassAssociation: _actionClass
                                                         directActionNameAssociation: _directActionName
                                                          queryDictionaryAssociation: _queryDictionary
@@ -254,6 +257,34 @@ static Class NSStringClass = Nil;
     GSWResponse_appendContentHTMLAttributeValue(response, str);
   }
 }
+
+-(void) _appendQueryStringToResponse:(GSWResponse*) response
+                           inContext:(GSWContext*) context
+                  requestHandlerPath: (NSString*) aRequestHandlerPath
+                       htmlEscapeURL: (BOOL) htmlEscapeURL
+{
+  NSString     * str = nil;
+  NSString     * path;
+  
+  if ((aRequestHandlerPath == nil)) {
+    path = @"";
+  } else {
+    path = aRequestHandlerPath;
+  }
+  
+  NSDictionary * queryDict = [self computeQueryDictionaryWithRequestHandlerPath: path
+                                                     queryDictionaryAssociation: _queryDictionary
+                                                         otherQueryAssociations: _otherQueryAssociations 
+                                                                      inContext: context];
+    
+  if ((queryDict != nil) && ([queryDict count] > 0)) {
+    // CHECKME: we should pass htmlEscapeURL to encodeAsCGIFormValues ?? -- dw
+    str = [queryDict encodeAsCGIFormValues];
+    GSWResponse_appendContentCharacter(response,'?');
+    GSWResponse_appendContentHTMLAttributeValue(response, str);
+  }
+}
+
 
 -(void) _appendFragmentToResponse:(GSWResponse*) response
                         inContext:(GSWContext*) context

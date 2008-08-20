@@ -52,7 +52,7 @@
                              timeOut:(NSTimeInterval)timeOut;
 -(void)handleTimer:(NSTimer*)timer;
 -(NSTimer*)resetTimer;
--(void)addTimer:(id)timer;
+-(void)addTimer:(NSTimer*)timer;
 -(void)removeCallBack;
 -(void)setCallBack:(SEL)callback
             target:(id)target;
@@ -70,3 +70,4 @@
 
 @end
 #endif //_GSWSessionTimeOutManager_h__
+

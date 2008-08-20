@@ -555,18 +555,18 @@ RCS_ID("$Id$")
 
 
 //--------------------------------------------------------------------
--(NSString*)frameworkNameInContext:(GSWContext*)aContext
-{
-  //OK
-  NSString* frameworkName=nil;  
-  GSWComponent* component=GSWContext_component(aContext);
-  NSDebugMLog(@"framework=%@",_framework);
-  if (_framework)
-    frameworkName=[_framework valueInComponent:component];
-  else
-    frameworkName=[component frameworkName];
-  return frameworkName;
-};
+//-(NSString*)frameworkNameInContext:(GSWContext*)aContext
+//{
+//  //OK
+//  NSString* frameworkName=nil;  
+//  GSWComponent* component=GSWContext_component(aContext);
+//  NSDebugMLog(@"framework=%@",_framework);
+//  if (_framework)
+//    frameworkName=[_framework valueInComponent:component];
+//  else
+//    frameworkName=[component frameworkName];
+//  return frameworkName;
+//};
 
 
 @end

@@ -68,15 +68,17 @@
 -(void)unlock;
 -(void)lock;
 
--(void)clearCache;
--(void)loadCache;
+// CHECKME: do we need this for WO 4.5? -- dw
 
--(id)lockedResourceNamed:(NSString*)aName
-                  ofType:(NSString*)aType
-           withLanguages:(NSArray*)languages
-              usingCache:(NSMutableDictionary*)cache
-            relativePath:(NSString**)relativePath
-            absolutePath:(NSString**)absolutePath;
+-(void)clearCache;
+//-(void)loadCache;
+
+//-(id)lockedResourceNamed:(NSString*)aName
+//                  ofType:(NSString*)aType
+//           withLanguages:(NSArray*)languages
+//              usingCache:(NSMutableDictionary*)cache
+//            relativePath:(NSString**)relativePath
+//            absolutePath:(NSString**)absolutePath;
 
 -(void)initializeObject:(id)anObject
        fromArchiveNamed:(NSString*)aName;
@@ -93,39 +95,43 @@
 
 -(NSString*)lockedScriptedClassPathWithName:(NSString*)aName;
 
--(Class)compiledClassWithName:(NSString*)aName
-               superclassName:(NSString*)superclassName;
+//-(Class)compiledClassWithName:(NSString*)aName
+//               superclassName:(NSString*)superclassName;
 
 -(GSWElement*)templateNamed:(NSString*)aName
                   languages:(NSArray*)languages;
 
+
 -(GSWElement*)lockedTemplateNamed:(NSString*)aName
                         languages:(NSArray*)languages;
 
--(NSString*)stringForKey:(NSString*)key_
-            inTableNamed:(NSString*)aName
-        withDefaultValue:(NSString*)defaultValue
-               languages:(NSArray*)languages;
+
+//-(NSString*)stringForKey:(NSString*)key_
+//            inTableNamed:(NSString*)aName
+//        withDefaultValue:(NSString*)defaultValue
+//               languages:(NSArray*)languages;
+//
 
 //NDFN
 -(NSDictionary*)stringsTableNamed:(NSString*)aName
                     withLanguages:(NSArray*)languages;
 
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aName
-                    withLanguages:(NSArray*)languages;
+//-(NSArray*)stringsTableArrayNamed:(NSString*)aName
+//                    withLanguages:(NSArray*)languages;
 
--(NSString*)urlForResourceNamed:(NSString*)aName
-                         ofType:(NSString*)aType
-                      languages:(NSArray*)languages
-                        request:(GSWRequest*)aRequest;
+//-(NSString*)urlForResourceNamed:(NSString*)aName
+//                         ofType:(NSString*)aType
+//                      languages:(NSArray*)languages
+//                        request:(GSWRequest*)aRequest;
+//
 
 -(NSString*)pathForResourceNamed:(NSString*)aName
                           ofType:(NSString*)aType
                        languages:(NSArray*)languages;
 
--(NSStringEncoding)encodingForResourcesNamed:(NSString*)aName;
 
+-(NSStringEncoding)encodingForResourcesNamed:(NSString*)aName;
 -(GSWTemplateParserType)templateParserTypeForResourcesNamed:(NSString*)aName;//NDFN
 
 -(NSDictionary*)archiveNamed:(NSString*)aName;
@@ -134,8 +140,8 @@
 -(NSDictionary*)lockedArchiveNamed:(NSString*)aName;
 -(NSDictionary*)lockedApiNamed:(NSString*)aName;//NDFN
 
--(id)scriptedClassNameFromClassName:(NSString*)aName;
--(id)scriptPathNameFromScriptedClassName:(NSString*)aName;
+//-(id)scriptedClassNameFromClassName:(NSString*)aName;
+//-(id)scriptPathNameFromScriptedClassName:(NSString*)aName;
 
 @end
 

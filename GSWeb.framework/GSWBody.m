@@ -39,7 +39,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+  contentElements:(NSMutableArray*)elements
 {
   if ((self=[super initWithName:name
                    associations:associations

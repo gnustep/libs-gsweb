@@ -141,10 +141,6 @@ RCS_ID("$Id$")
   return dscr;
 };
 
-@end
-
-//====================================================================
-@implementation GSWKeyValueAssociation (GSWAssociationB)
 
 //--------------------------------------------------------------------
 -(NSString*)keyPath

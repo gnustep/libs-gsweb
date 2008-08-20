@@ -58,6 +58,8 @@
   GSWAssociation * _secure;
   GSWAssociation * _actionClass;
   GSWAssociation * _directActionName;
+  NSDictionary   * _sessionIDQueryAssociations;
+
 };
 
 
@@ -73,7 +75,7 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)aContext; 
 
--(NSString*)frameworkNameInContext:(GSWContext*)aContext;
+//-(NSString*)frameworkNameInContext:(GSWContext*)aContext;
 
 
 -(void)_appendCGIActionURLToResponse:(GSWResponse*)aResponse

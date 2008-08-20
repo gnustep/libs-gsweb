@@ -160,17 +160,12 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)headerValue
 {
-  NSString* header=nil;
-  NSString* domainString=nil;
-  NSString* pathString=nil;
-  NSDate* expires=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"low",@"name:%@",_name);
-  NSDebugMLLog(@"low",@"value:%@",_value);
-  NSDebugMLLog(@"low",@"path:%@",_path);
-  NSDebugMLLog(@"low",@"domain:%@",_domain);
-  NSDebugMLLog(@"low",@"expires:%@",_expires);
-  NSDebugMLLog(@"low",@"isSecure:%d",_isSecure);
+  NSString* header = nil;
+  NSString* domainString = nil;
+  NSString* pathString = nil;
+  NSString* valueStr;
+  NSDate* expires = nil;
+
   if (_domain)
     domainString=[NSString stringWithFormat:@" domain=%@;",_domain];
   else
@@ -183,12 +178,16 @@ RCS_ID("$Id$")
     expires=_expires;
   else
     expires=[NSDate dateWithTimeIntervalSinceNow:24L*60L*60L*365L];//1 Year
-  NSDebugMLLog(@"low",@"pathString:%@",pathString);
-  NSDebugMLLog(@"low",@"domainString:%@",domainString);
-  NSDebugMLLog(@"low",@"expires:%@",expires);
+
+  if ((_value != nil)) {
+    valueStr = _value;
+  } else {
+    valueStr = @"";
+  }
+  
   header=[NSString stringWithFormat:@"%@=%@; expires=%@;%@%@%@",
                    _name,
-                   (_value ? _value : @""),
+                   valueStr,
                    [expires  htmlDescription],
                    pathString,
                    domainString,

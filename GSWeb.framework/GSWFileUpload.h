@@ -47,11 +47,7 @@
   GSWAssociation* _overwrite;
   GSWAssociation* _finalFilePath;
   
-};
-
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
+}
 
 @end
 

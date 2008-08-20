@@ -32,6 +32,7 @@
 #ifndef _GSWElementID_h__
 	#define _GSWElementID_h__
 
+@class GSWElementID;
 
 typedef struct _GSWElementIDPart
 {
@@ -128,7 +129,7 @@ partsCount is the number of parts to allocate
 /** Append 'element' element ID after last elementID part 
 You should avoid element ending with digits.
 **/
--(void)appendElementIDComponent:(id)_element;
+-(void)appendElementIDComponent:(NSString*)element;
 
 /** Returns parent element ID **/
 -(NSString*)parentElementIDString;

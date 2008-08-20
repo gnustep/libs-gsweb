@@ -36,6 +36,8 @@
 @class GSWContext;
 @class GSWRequest;
 
+#include "GSWMessage.h"
+
 typedef struct _GSWResponseIMPs
 {
   // Instance IMPs

@@ -38,7 +38,7 @@ RCS_ID("$Id$")
 #include "GSWPrivate.h"
 
 
-static Class standardClass = Nil;
+//static Class standardClass = Nil;
 static Class NSStringClass = Nil;
 static Class NSNumberClass = Nil;
 static Class NSMutableDictionaryClass = Nil;
@@ -111,6 +111,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
   DESTROY(_urlAttributeAssociations);
   DESTROY(_constantAttributesRepresentation);
   DESTROY(_associations);
+  DESTROY(_secure);
 
   [super dealloc];
 }
@@ -136,7 +137,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
                                   __PRETTY_FUNCTION__];
   }
   DESTROY(_associations);    
-  _associations = [associations mutableCopyWithZone:nil];
+  _associations = [associations mutableCopyWithZone:[self zone]];
   _finishedInitialization = NO;
                             
   return self;
@@ -187,11 +188,16 @@ static inline BOOL _needQuote(NSString* str_needQuote)
   if ((_elementName != nil) && ((_associations != nil) && ([_associations count] > 0))) {
     NSEnumerator * enumer = [[NSArray arrayWithArray:[_associations allKeys]] objectEnumerator];
 
-    while (str = [enumer nextObject]) {
+    while ((str = [enumer nextObject])) {
       association = [_associations objectForKey: str];
       if (([association isKindOfClass:[GSWConstantValueAssociation class]]) && ([self escapeHTML] == NO)) {
         aValue = [association valueInComponent:nil];
-        s1 = (aValue == nil) ? @"" : aValue;    // stringValue??
+        if ((aValue == nil)) {
+          s1 = @"";
+        } else {
+          s1 = (NSString*)aValue;
+        }
+        
         if ([s1 isKindOfClass:NSStringClass] == NO) {
           s1 = [(NSNumber*)s1 stringValue];
         }
@@ -319,9 +325,16 @@ static inline BOOL _needQuote(NSString* str_needQuote)
       {
         s = [component frameworkName];
       }
+      NSString * tmpStr;
+      
+      if ((s != nil)) {
+        tmpStr = s;
+      } else {
+        tmpStr = @"app";
+      }
       [GSWApp debugWithFormat:@"%s evaluated to nil. Defaulting to %@",
                                 __PRETTY_FUNCTION__,
-                                (s != nil ? s : @"app")];
+                                tmpStr];
     }
   } else {
     if (component != nil) {
@@ -388,7 +401,64 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 }
 
 
-// computeQueryDictionaryInContext
+- (NSDictionary*) __queryDictionary:(GSWAssociation*) queryDictionary
+                          inContext:(GSWContext*) context
+{
+  NSDictionary* aQueryDict = nil;
+
+  if (queryDictionary != nil) {
+    aQueryDict = [queryDictionary valueInComponent:[context component]];
+  }
+  
+  if(aQueryDict != nil) {
+    return aQueryDict;
+  } else {
+    // or a nil? -- dw
+    return [NSDictionary dictionary];
+  }
+}
+
+- (NSDictionary*) __otherQueryDictionary:(NSDictionary*) otherQueryAssociations
+                               inContext:(GSWContext*) context
+{
+  NSMutableDictionary * queryDict = [NSMutableDictionary dictionary];
+  
+  if (otherQueryAssociations != nil) {
+    NSEnumerator *keyEnumerator = [otherQueryAssociations keyEnumerator];
+    NSString     *key;
+
+    while ((key = [keyEnumerator nextObject])) {
+      GSWAssociation * association = [otherQueryAssociations objectForKey:key];
+      id value = [association valueInComponent:[context component]];
+
+      if (value) {
+        [queryDict setObject:value forKey:key];
+      }
+    } 
+  }
+  // is it really faster/better to copy this here? -- dw
+  return [NSDictionary dictionaryWithDictionary:queryDict];
+}
+
+
+- (NSDictionary*) computeQueryDictionaryWithRequestHandlerPath: (NSString*) aRequestHandlerPath 
+                                    queryDictionaryAssociation: (GSWAssociation*) queryDictionary
+                                        otherQueryAssociations: (NSDictionary*) otherQueryAssociations 
+                                                     inContext: (GSWContext*) context
+{
+  NSDictionary * aQueryDict = [self __queryDictionary:queryDictionary
+                                            inContext: context];
+
+  NSDictionary * anotherQueryDict = [self __otherQueryDictionary:otherQueryAssociations
+                                                       inContext: context];
+
+  return [context computeQueryDictionaryWithPath:aRequestHandlerPath
+                                 queryDictionary:aQueryDict
+                            otherQueryDictionary:anotherQueryDict];
+}
+
+
+
 
 - (NSDictionary*) computeQueryDictionaryWithActionClassAssociation: (GSWAssociation*)actionClass
                                        directActionNameAssociation: (GSWAssociation*)directActionName
@@ -408,9 +478,9 @@ static inline BOOL _needQuote(NSString* str_needQuote)
   if (queryDictionary != nil) {
     NSDictionary * nsdictionary1 = [queryDictionary valueInComponent:component];
     if ([nsdictionary1 isKindOfClass:NSMutableDictionaryClass]) {
-      nsmutabledictionary = nsdictionary1;
+      nsmutabledictionary = (NSMutableDictionary*) nsdictionary1;
     } else {
-      nsmutabledictionary = AUTORELEASE([nsdictionary1 mutableCopyWithZone:nil]);
+      nsmutabledictionary = (NSMutableDictionary*) AUTORELEASE([nsdictionary1 mutableCopyWithZone:[self zone]]);
     }
   }
   if (nsmutabledictionary == nil) {
@@ -429,7 +499,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
   if (otherQueryAssociations != nil) {
     keyEnumerator = [otherQueryAssociations keyEnumerator];
     
-    while (key = [keyEnumerator nextObject]) {
+    while ((key = [keyEnumerator nextObject])) {
       otherAssociations = [otherQueryAssociations objectForKey:key];
       otherValue = [otherAssociations valueInComponent:component];
       if (otherValue != nil && ([key isEqual:@"wosid"] || ([otherValue boolValue] == YES))) {
@@ -465,7 +535,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
     GSWAssociation * currentAssociation = nil;
     id            obj = nil;
     
-    while (key = [enumer nextObject]) {
+    while ((key = [enumer nextObject])) {
       currentAssociation = [associations objectForKey:key];
       obj = [currentAssociation valueInComponent:component];
       if (obj != nil) {
@@ -515,10 +585,9 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 
     NSString * key = nil;
 
-    NSString * s = nil;
     NSString * s1 = nil;
     
-    while (key = [enumer nextObject]) {
+    while ((key = [enumer nextObject])) {
       association = [attributeDict objectForKey:key];
       value = [association valueInComponent:component];
       if (value != nil) {
@@ -600,5 +669,13 @@ static inline BOOL _needQuote(NSString* str_needQuote)
   }
 }
 
+- (BOOL) secureInContext:(GSWContext*) context
+{
+  if (_secure != nil) {
+    return [_secure boolValueInComponent:[context component]];
+  } else {
+    return [context secureMode];
+  }
+}
 
 @end

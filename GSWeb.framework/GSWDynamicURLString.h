@@ -92,9 +92,18 @@
 -(void)_parse;
 
 -(NSString*)urlRequestHandlerPath;
+// 5.0 also in 4.5?
+-(NSString*)requestHandlerPath;
+
 -(NSString*)urlQueryString;
+-(NSString*)queryString;
+
 -(NSString*)urlRequestHandlerKey;
 -(int)urlApplicationNumber;
+
+- (NSString*) applicationNumber;
+- (void) setApplicationNumber: (NSString*) newNr;
+
 -(NSString*)urlApplicationName;
 -(NSString*)urlPrefix;
 -(NSString*)urlProtocol;//NDFN
@@ -105,8 +114,15 @@
 -(void)checkURL;
 
 -(void)setURLRequestHandlerPath:(NSString*)aString;
+// 5.0 also in 4.5?
+-(void)setRequestHandlerPath:(NSString*)aString;
+
 -(void)setURLQueryString:(NSString*)aString;
+-(void)setQueryString:(NSString*)aString;
+
 -(void)setURLRequestHandlerKey:(NSString*)aString;
+-(void)setRequestHandlerKey:(NSString*)aString;
+
 -(void)setURLApplicationNumber:(int)applicationNumber;
 -(void)setURLApplicationName:(NSString*)aString;
 -(void)setURLPrefix:(NSString*)aString;

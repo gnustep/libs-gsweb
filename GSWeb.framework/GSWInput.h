@@ -34,6 +34,7 @@
 #ifndef _GSWInput_h__
 	#define _GSWInput_h__
 
+#include "GSWHTMLDynamicElement.h"
 
 //====================================================================
 @interface GSWInput: GSWHTMLDynamicElement
@@ -44,29 +45,16 @@
   GSWAssociation * _escapeHTML;
 }
 
-+ (void) _appendImageSizetoResponse:(GSWResponse *) response
-                          inContext:(GSWContext *) context
-                              width:(GSWAssociation *) width
-                             height:(GSWAssociation *) height;
-
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
   contentElements:(NSMutableArray*) elements;
-
--(void)dealloc;
 
 - (BOOL) disabledInComponent:(GSWComponent*) component;
 
 
 /** Return the name for html output. 
-If no name is binded, it return the context id **/
+ If no name is binded, it return the context id **/
 -(NSString*)nameInContext:(GSWContext*)context;
-
-
-/** Return YES if element is disabled, NO otherwise, 
-depending on disabled/enabled binding
-**/
--(BOOL)disabledInContext:(GSWContext*)context;
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 

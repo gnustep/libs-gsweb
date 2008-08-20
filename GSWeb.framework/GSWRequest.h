@@ -109,10 +109,6 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(NSString*)referer;//NDFN
 -(NSString*)description;
 
-@end
-
-//====================================================================
-@interface GSWRequest (GSWFormValueReporting)
 
 -(void)setDefaultFormValueEncoding:(NSStringEncoding)encoding;
 -(NSStringEncoding)defaultFormValueEncoding;
@@ -135,22 +131,13 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
                 forKey:(NSString*)key;
 -(void)appendFormValues:(NSArray*)values
                  forKey:(NSString*)key;
-@end
 
-//====================================================================
-@interface GSWRequest (GSWURIElementReporting)
 -(NSArray*)uriElementKeys;
 -(NSString*)uriElementForKey:(NSString*)key;
 -(NSDictionary*)uriElements;
-@end
 
-//====================================================================
-@interface GSWRequest (GSWRequestTypeReporting)
 -(BOOL)isFromClientComponent;
-@end
 
-//====================================================================
-@interface GSWRequest (Cookies)
 
 //NDFN
 -(void)setCookieFromHeaders;
@@ -162,10 +149,6 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(NSDictionary*)_initCookieDictionary;
 -(NSString*)_cookieDescription;
 
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestA)
-
 -(NSString*)sessionIDFromValuesOrCookieByLookingForCookieFirst:(BOOL)lookCookieFirst;
 -(NSString*)sessionID;
 -(NSString*)requestHandlerPath;
@@ -174,24 +157,18 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(int)applicationNumber;
 -(NSString*)requestHandlerKey;
 
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestB)
 -(NSDictionary*)_extractValuesFromFormData:(NSData*)formData
                               withEncoding:(NSStringEncoding)encoding;
 -(NSStringEncoding)_formValueEncodingFromFormData:(NSData*)formData;
 -(NSData*)_formData;
 -(NSString*)_contentType;
 -(NSString*)_urlQueryString;
-@end
 
-//====================================================================
-@interface GSWRequest (GSWRequestF)
 -(BOOL)_isUsingWebServer;
+-(BOOL)isUsingWebServer;
+
 -(void)_setIsUsingWebServer:(BOOL)_flag;
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestG)
+
 -(BOOL)_isSessionIDInRequest;
 -(BOOL)_isSessionIDInCookies;
 -(BOOL)_isSessionIDInFormValues;
@@ -216,21 +193,14 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 +(BOOL)_lookForIDsInCookiesFirst;
 -(BOOL)_hasFormValues; 
 
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestH)
 -(void)_getFormValuesFromMultipartFormData;
 -(NSArray*)_decodeMultipartBody:(NSData*)body
                        boundary:(NSString*)boundary;
 -(NSArray*)_parseData:(NSData*)data;
 -(NSDictionary*)_parseOneHeader:(NSString*)header;
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestI)
+
 -(id)nonNilFormValueForKey:(NSString*)key;
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestJ)
+
 -(id)dictionaryWithKeys:(id)unknown;
 -(NSString*)selectedButtonName;
 -(id)valueFromImageMapNamed:(NSString*)aName;
@@ -240,9 +210,7 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(id)yCoord;
 -(id)xCoord;
 -(id)formKeyWithSuffix:(NSString*)suffix;
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestK)
+
 -(NSString*)applicationHost;
 -(NSString*)pageName;
 -(NSString*)contextID;
@@ -251,11 +219,8 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(NSDictionary*)uriOrFormOrCookiesElementsByLookingForCookieFirst:(BOOL)lookCookieFirst;
 -(id)uriOrFormOrCookiesElementForKey:(NSString*)key
              byLookingForCookieFirst:(BOOL)lookCookieFirst;
--(NSMutableDictionary*)uriOrFormOrCookiesElements;
--(NSMutableDictionary*)_uriElements;
-@end
-//====================================================================
-@interface GSWRequest (GSWRequestL)
+-(NSDictionary*)uriOrFormOrCookiesElements;
+
 -(void)_validateAPI;
 @end
 

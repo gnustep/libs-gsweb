@@ -34,6 +34,14 @@
 #ifndef _GSWComponent_h__
 	#define _GSWComponent_h__
 
+#include "GSWElement.h"
+
+@class GSWSession;
+@class GSWComponentDefinition;
+@class GSWAssociation;
+@class GSWDynamicElement;
+
+#include "GSWResponse.h"
 
 @interface GSWComponent : GSWElement <NSCopying>
 {
@@ -88,8 +96,12 @@
       associations:(NSMutableDictionary *) assocdict
           template:(GSWElement*) template;
 
+-(void) pushValuesToParent;
+
 -(void)synchronizeComponentToParent;
 -(void)synchronizeParentToComponent;
+-(void) pullValuesFromParent;
+
 -(GSWElement*)_childTemplate;
 -(GSWElement*) template;
 -(GSWComponentDefinition*)_componentDefinition;
@@ -169,7 +181,7 @@ Call this method before using a component which was cached in a variable.
 // PRIVATE
 -(void)_awakeInContext:(GSWContext*)aContext;
 
--(id)performParentAction:(NSString*)attribute;
+- (id<GSWActionResults>)performParentAction:(NSString *)attribute;
 -(GSWComponent*)parent;
 -(GSWComponent*)topParent;//NDFN
 -(NSArray*)parents;//NDFN
@@ -182,9 +194,10 @@ Call this method before using a component which was cached in a variable.
 -(NSArray*)languages;//NDFN
 -(GSWApplication*)application;
 
--(void)validationFailedWithException:(NSException*)exception
-                               value:(id)_value
-                             keyPath:(id)_keyPath;
+-(void) validationFailedWithException:(NSException *)exception
+                                 value:(id)value
+                               keyPath:(NSString *)keyPath;
+
 -(void)_debugWithString:(NSString*)string;
 -(void)debugWithFormat:(NSString*)format,...;
 -(void)logString:(NSString*)aString;
@@ -196,13 +209,13 @@ Call this method before using a component which was cached in a variable.
 -(NSString*)_uniqueID;
 
 -(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext;
--(id)validateValue:(id*)valuePtr
-            forKey:(id)key;
+-(NSException*)validateValue:(id*)valuePtr
+                      forKey:(NSString*)key;
 
 //+(id)validateValue:(id*)valuePtr
 //            forKey:(id)key;
 
--(NSString*)stringForKey:(id)key
+-(NSString*)stringForKey:(NSString*)key
             inTableNamed:(NSString*)aName
         withDefaultValue:(NSString*)defaultValue;
 //NDFN

@@ -29,9 +29,31 @@
 
 // $Id$
 
+
+/*  
+ * Private declarations of private methods in GSWeb.
+ *
+ * If you use them outside the GSW Framework you should keep in mind that they may
+ * change any time. This is no public API and may be incompatible with any WebObjects
+ * Version.
+ *
+ * Actually this is bad. We should have separate CLASSNAME_Private.h files
+ */
+
 #ifndef _GSWPrivate_h__
 	#define _GSWPrivate_h__
 
+#include "GSWComponentDefinition.h"
+#include "GSWComponent.h"
+#include "GSWApplication.h"
+#include "GSWAssociation.h"
+#include "GSWInput.h"
+#include "GSWHyperlink.h"
+#include "GSWImage.h"
+#include "GSWContext.h"
+#include "GSWSession.h"
+#include "GSWMessage.h"
+#include "GSWDefaultAdaptor.h"
 
 /** append string to object using appendString: impPtr.
 If *impPtr is NULL, the method assign it **/
@@ -45,6 +67,7 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
     };
 };
 
+
 @interface GSWComponentDefinition (PrivateDeclarations)
 
 - (void) _checkInComponentInstance:(GSWComponent*) component;
@@ -52,6 +75,12 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
 - (void) finishInitializingComponent:(GSWComponent*)component;
 
 - (void) _clearCache;
+
+@end
+
+@interface GSWComponent (PrivateDeclarations)
+
+-(GSWComponent*) _subcomponentForElementWithID:(NSString*) str;
 
 @end
 
@@ -83,5 +112,57 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
 
 @end
 
+@interface GSWHyperlink (PrivateDeclarations)
+
+-(void) _appendQueryStringToResponse:(GSWResponse*) response
+                           inContext:(GSWContext*) context
+                  requestHandlerPath:(NSString*) aRequestHandlerPath
+                       htmlEscapeURL:(BOOL) htmlEscapeURL;
+
+@end
+
+@interface GSWMessage (PrivateDeclarations)
+
+-(void)_finalizeCookiesInContext:(GSWContext*)aContext;
+
+@end
+
+@interface GSWImage (PrivateDeclarations)
+
++ (void) _appendImageSizetoResponse:(GSWResponse *) response
+                          inContext:(GSWContext *) context
+                              width:(GSWAssociation *) width
+                             height:(GSWAssociation *) height;
+
+@end
+
+@interface GSWContext (PrivateDeclarations)
+
+- (GSWDynamicURLString*) _urlWithRequestHandlerKey:(NSString*) requestHandlerKey
+                                requestHandlerPath:(NSString*) aRequestHandlerPath
+                                       queryString:(NSString*) aQueryString
+                                          isSecure:(BOOL) isSecure
+                                              port:(int) somePort;
+
+
+-(GSWDynamicURLString*) _directActionURLForActionNamed:(NSString*) anActionName
+                                       queryDictionary:(NSDictionary*)queryDictionary
+                                              isSecure:(BOOL)isSecure
+                                                  port:(int)port
+                                 escapeQueryDictionary:(BOOL)escapeQueryDict;
+
+@end
+
+@interface GSWSession (PrivateDeclarations)
+
+-(void) _clearCookieFromResponse:(GSWResponse*) aResponse;
+
+@end
+
+@interface GSWDefaultAdaptor (PrivateDeclarations)
+
++(GSWResponse*) _lastDitchErrorResponse; 
+
+@end
 
 #endif // _GSWPrivate_h__

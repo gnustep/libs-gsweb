@@ -39,6 +39,8 @@
 
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
 
++(id)handler;
+
 @end
 
 

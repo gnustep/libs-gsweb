@@ -230,7 +230,7 @@ RCS_ID("$Id$")
     {
       NSString* headerString=nil;
       NSString* requestString=nil;
-      GSWApplication* application=[GSWApplication application];
+
       NSString* requestURI=[_request uri];
       NSString* filePath= [_recordingPath stringByAppendingPathComponent:
                                             [NSString stringWithFormat:@"%0.6d-request",_recordingStep]];

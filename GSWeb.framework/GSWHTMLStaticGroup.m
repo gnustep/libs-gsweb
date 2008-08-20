@@ -44,9 +44,7 @@ RCS_ID("$Id$")
 -(id)initWithContentElements:(NSArray*)elements
 {
   //OK
-  LOGObjectFnStart();  
-  NSDebugMLLog(@"gswdync",@"elements:%@",elements);
-#warning checkme!  
+// checkme
 /*  if ([elements count]==1 && [[elements objectAtIndex:0] class]==[GSWHTMLStaticGroup class])
     self=[super initWithName:nil
                 attributeDictionary:nil
@@ -56,9 +54,8 @@ RCS_ID("$Id$")
     self=[super initWithName:nil
                 attributeDictionary:nil
                 contentElements:elements];
-  LOGObjectFnStop();
   return self;
-};
+}
 
 -(NSString*)description
 {
@@ -86,16 +83,13 @@ RCS_ID("$Id$")
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  GSWStartElement(aContext);
   if (_documentTypeString)
     {
-      NSDebugMLLog(@"gswdync",@"added documentTypeString = %@",_documentTypeString);
       GSWResponse_appendContentString(aResponse,_documentTypeString);
     };
   
   [super appendToResponse:aResponse
          inContext:aContext];
-  GSWStopElement(aContext);
-};
+}
 
 @end

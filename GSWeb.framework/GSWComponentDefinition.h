@@ -32,6 +32,12 @@
 #ifndef _GSWComponentDefinition_h__
 	#define _GSWComponentDefinition_h__
 
+@class GSWElement;
+@class GSWBundle;
+@class GSWComponent;
+@class GSWContext;
+@class GSWComponentReference;
+
 //====================================================================
 @interface GSWComponentDefinition : NSObject <NSCoding,NSCopying>
 {
@@ -52,7 +58,7 @@
   NSDictionary * _archive;
   NSStringEncoding _encoding;
   BOOL _isStateless;
-  GSWDeployedBundle * _bundle;
+  GSWBundle * _bundle;
   GSWComponent * _sharedInstance;
   NSMutableArray * _instancePool;
   BOOL _lockInstancePool;
@@ -96,7 +102,9 @@
                                                      template:(GSWElement*)template;
                        
 -(NSDictionary*)componentAPI;
-                       
+
+//+ (id) copyWithZone: (NSZone*)z;
+
 
 @end
 

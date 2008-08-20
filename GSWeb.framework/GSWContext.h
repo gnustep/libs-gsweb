@@ -30,9 +30,15 @@
 // $Id$
 
 #ifndef _GSWContext_h__
-	#define _GSWContext_h__
+#define _GSWContext_h__
 
-@class GSWContext;
+#include "GSWElementID.h"
+
+@class GSWElementID;
+@class GSWSession;
+@class GSWRequest;
+@class GSWResponse;
+@class GSWDynamicURLString;
 
 typedef struct _GSWContextIMPs
 {
@@ -85,6 +91,8 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
  GSWComponent* _currentComponent;
  GSWDynamicURLString* _url;
  NSMutableArray* _awakePageComponents;
+ int _secureMode;
+
  int _urlApplicationNumber;
  int _isClientComponentRequest;
  BOOL _distributionEnabled;
@@ -347,8 +355,14 @@ If none, try request languages
 -(void)_setUserInfo:(NSMutableDictionary*)userInfo;
 
 // context can add key/values in query dictionary
--(NSDictionary*)computeQueryDictionary:(NSDictionary*)queryDictionary;
+//-(NSDictionary*)computeQueryDictionary:(NSDictionary*)queryDictionary;
 -(NSDictionary*)computePathQueryDictionary:(NSDictionary*)queryDictionary;
+
+// computeQueryDictionary
+-(NSDictionary*) computeQueryDictionaryWithPath:(NSString*) aRequestHandlerPath
+                                queryDictionary:(NSDictionary*) queryDictionary
+                           otherQueryDictionary:(NSDictionary*) otherQueryDictionary;
+
 
 -(void)deleteAllElementIDComponents;
 -(void)deleteLastElementIDComponent;
@@ -372,6 +386,10 @@ If none, try request languages
 
 -(BOOL)isValidate;
 -(void)setValidate:(BOOL)isValidate;
+
+-(BOOL)secureMode;
+-(void)setSecureMode:(BOOL) value;
+
 @end
 
 #endif //_GSWContext_h__

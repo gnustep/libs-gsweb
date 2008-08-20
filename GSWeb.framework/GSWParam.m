@@ -38,7 +38,7 @@ RCS_ID("$Id$")
 
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)inAssociations
-  contentElements:(NSArray*)elements
+  contentElements:(NSMutableArray*)elements
            target:(id)target
               key:(NSString*)key
 treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
@@ -91,7 +91,7 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+  contentElements:(NSMutableArray*)elements
 {
   return [self initWithName:aName
                associations:associations

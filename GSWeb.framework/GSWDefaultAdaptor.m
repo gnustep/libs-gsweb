@@ -372,11 +372,6 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
   return _isMultiThreadEnabled;
 }
 
-@end
-
-
-//====================================================================
-@implementation GSWDefaultAdaptor (GSWDefaultAdaptorA)
 -(void)stop
 {
   LOGObjectFnNotImplemented();	//TODOFN
@@ -391,6 +386,41 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
+
+// WO 5:Use the user default WOListenQueueSize instead
+// we did not have it. added to make compiler happy.
+-(void)setListenQueueSize:(id)listenQueueSize;
+{
+  NSLog(@"%s is depricated. Use the user default WOListenQueueSize instead.",__PRETTY_FUNCTION__);
+}
+
+// CHECKME: find out if we really need this. -- dw
+-(void)setWorkerThreadCountMax:(id)workerThreadCount
+{
+}
+
+// CHECKME: find out if we really need this. -- dw
+-(id)workerThreadCountMax
+{
+  return [NSNumber numberWithInt:1000];
+}
+
+// CHECKME: find out if we really need this. -- dw
+-(void)setWorkerThreadCountMin:(id)workerThreadCount
+{
+}
+
+// CHECKME: find out if we really need this. -- dw
+-(id)workerThreadCountMin
+{
+  return [NSNumber numberWithInt:1];
+}
+
+// CHECKME: find out if we really need this. -- dw
+-(void)setWorkerThreadCount:(id)workerThreadCount
+{
+}
+
 
 
 @end

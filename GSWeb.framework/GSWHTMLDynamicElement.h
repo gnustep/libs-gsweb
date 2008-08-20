@@ -34,6 +34,7 @@
 #ifndef _GSWHTMLDynamicElement_h__
 	#define _GSWHTMLDynamicElement_h__
 
+#include "GSWDynamicGroup.h"
 
 //====================================================================
 @interface GSWHTMLDynamicElement: GSWDynamicGroup
@@ -44,6 +45,7 @@
   NSString            * _constantAttributesRepresentation;
   NSMutableDictionary * _associations;
   BOOL                  _finishedInitialization;
+  GSWAssociation      * _secure;
 }
 
 - (NSDictionary*) computeQueryDictionaryWithActionClassAssociation: (GSWAssociation*)actionClass
@@ -51,6 +53,11 @@
                                         queryDictionaryAssociation: (GSWAssociation*)queryDictionary
                                             otherQueryAssociations: (NSDictionary*)otherQueryAssociations 
                                                          inContext: (GSWContext*)context;
+
+- (NSDictionary*) computeQueryDictionaryWithRequestHandlerPath: (NSString*) aRequestHandlerPath 
+                                    queryDictionaryAssociation: (GSWAssociation*) queryDictionary
+                                        otherQueryAssociations: (NSDictionary*) otherQueryAssociations 
+                                                     inContext: (GSWContext*) context;
 
 -(NSString*)computeActionStringWithActionClassAssociation:(GSWAssociation*)actionClass
                              directActionNameAssociation:(GSWAssociation*)directActionName
@@ -79,6 +86,8 @@
 - (NSString*) _frameworkNameForAssociation: (GSWAssociation*)association 
                                inComponent: (GSWComponent *) component;
 - (NSString*) elementName;
+
+- (BOOL) secureInContext:(GSWContext*) context;
 
 @end
 #endif

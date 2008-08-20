@@ -753,14 +753,11 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(void)	       setLogFile:(id)logFile
-  rotationFrequencyInDays:(double)rotationFrequency
+-(void) setLogFile:(NSString *)logFile rotationFrequencyInDays:(NSTimeInterval)rotationFrequency
 {
-  LOGObjectFnStart();
   ASSIGN(_logPath,logFile);
   _logRotation=rotationFrequency;
-  LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 +(NSString*)formatDescription:(NSString*)description

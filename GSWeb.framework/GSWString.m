@@ -84,8 +84,8 @@ static Class standardClass = Nil;
   } else {
     _shouldFormat = NO;
   }
-  if ((_dateFormat != nil) && (_numberFormat != nil) || (_formatter != nil) && 
-      (_dateFormat != nil) || (_formatter != nil) && (_numberFormat != nil)) {
+  if (((_dateFormat != nil) && (_numberFormat != nil)) || ((_formatter != nil) && 
+      (_dateFormat != nil)) || ((_formatter != nil) && (_numberFormat != nil))) {
       
      [NSException raise:NSInvalidArgumentException
              format:@"%s: Cannot have 'dateFormat' and 'numberFormat' attributes at the same time.",
@@ -165,7 +165,6 @@ static Class standardClass = Nil;
   GSWComponent* component = GSWContext_component(context);
   NSString* formattedValue=nil;
   id valueValue = nil;
-  NSString * errorDscr = nil;
   BOOL flag = YES;
   
   if (_value != nil) {

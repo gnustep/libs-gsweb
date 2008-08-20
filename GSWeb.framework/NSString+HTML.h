@@ -63,6 +63,7 @@ GSWEB_EXPORT NSString* baseStringByConvertingFromHTML(NSString* string,
 #define stringByEscapingHTMLString(string) \
 	baseStringByConvertingToHTML(string,&htmlConvertHTMLString,NO)
 
+
 #define stringByEscapingHTMLAttributeValue(string) \
 	baseStringByConvertingToHTML(string,&htmlConvertAttributeValueStruct,NO)
 

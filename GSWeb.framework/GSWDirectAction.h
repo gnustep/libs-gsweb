@@ -36,15 +36,13 @@
 //====================================================================
 @interface GSWDirectAction : GSWAction
 {
-};
+}
+
 -(id)initWithRequest:(GSWRequest*)aRequest;
 -(id <GSWActionResults>)performActionNamed:(NSString*)actionName;
--(id)defaultAction;
+-(id<GSWActionResults>)defaultAction;
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest;
-@end
 
-//====================================================================
-@interface GSWDirectAction (GSWTakeValuesConvenience)
 -(NSArray*)additionalRequestPathArray;
 -(void)takeFormValueArraysForKeyArray:(NSArray*)keys;
 -(void)takeFormValuesForKeyArray:(NSArray*)keys;

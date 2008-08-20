@@ -114,7 +114,7 @@ RCS_ID("$Id$")
     BOOL isCheckedOut = YES;
     
     GSWSessionTimeOut* entry = [_timeOutManager sessionTimeOutForSessionID:aSessionID];
-    int expirationTime=(int)[entry sessionTimeOutValue];//seconds
+    //int expirationTime=(int)[entry sessionTimeOutValue];//seconds
     
     isCheckedOut=[entry isCheckedOut]; // See if session is used
     

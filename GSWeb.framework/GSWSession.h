@@ -32,6 +32,8 @@
 #ifndef _GSWSession_h__
 	#define _GSWSession_h__
 
+@class EOEditingContext;
+
 @interface GSWSession : NSObject <NSCoding,NSCopying>
 {
 @private

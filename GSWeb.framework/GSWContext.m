@@ -201,6 +201,26 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
     return NO;
 }
 
+@implementation NSMutableDictionary (GSWContextAdditions)
+
+// sessionIDInQueryDictionary
+- (id) sessionID
+{
+  id value = nil;
+  
+  value = [self objectForKey:[GSWApp sessionIdKey]];
+  if (!value) {
+    value = [self objectForKey:@"wosid"];
+  }
+  return value;
+}
+
+@end
+
+@interface NSMutableDictionary (GSWContextAdditions)
+- (id) sessionID;
+@end
+
 //====================================================================
 @implementation GSWContext
 
@@ -281,6 +301,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       _componentName = nil;
       _formSubmitted = NO;
       _inForm = NO;
+      _secureMode = -2;
       
       DESTROY(_resourceManager);
       _resourceManager = RETAIN([GSWApp resourceManager]);
@@ -413,6 +434,14 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   return desc;
 };
 
+- (BOOL) _sessionIDInURL
+{
+  GSWRequest * aReq = [self request];
+  
+  return ((aReq != nil) && ([aReq stringFormValueForKey:[GSWApp sessionIdKey]] != nil));
+}
+
+
 //--------------------------------------------------------------------
 -(BOOL)_isRefusingThisRequest
 {
@@ -431,14 +460,14 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 -(void)setInForm:(BOOL)flag
 {
   _inForm=flag;
-};
+}
 
 //--------------------------------------------------------------------
 // wo4
 -(BOOL)isInForm
 {
   return _inForm;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setInEnabledForm:(BOOL)flag
@@ -450,10 +479,14 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 -(BOOL)isInEnabledForm
 {
   return _isInEnabledForm;
-};
+}
 
 - (GSWDynamicURLString*) _url
 {
+  if(_url == nil) {
+    _url = [GSWDynamicURLString new];
+  }
+  
   return _url;
 }
 
@@ -1420,7 +1453,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 
 -(GSWDynamicURLString*) _componentActionURL
 {
-  id obj = nil;
   GSWSession * session = [self session];
   NSString * s = [self contextID];
   NSString * s1 = [self elementID];
@@ -1460,6 +1492,48 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
                             queryString: nil];
 
 }
+
+
+// new 
+//_directActionURL in wo 5
+
+-(GSWDynamicURLString*) _directActionURLForActionNamed:(NSString*) anActionName
+                                       queryDictionary:(NSDictionary*)queryDictionary
+                                              isSecure:(BOOL)isSecure
+                                                  port:(int)port
+                                 escapeQueryDictionary:(BOOL)escapeQueryDict
+{
+  GSWDynamicURLString * url = nil;
+  NSString * aQueryString = nil;
+  
+  BOOL forceLoadBalancing;
+  NSString *savedApplicationNumber;
+  BOOL isInDevelopment = ((_request) && ([_request applicationNumber] < -1));
+  
+  forceLoadBalancing = ((_session == nil) && ((_requestSessionID == nil)) && (!isInDevelopment));
+  savedApplicationNumber = [[self _url] applicationNumber];
+  
+  if (forceLoadBalancing) {
+    [_url setApplicationNumber:@"-1"];
+  }
+  
+  if ((queryDictionary != nil) && ([queryDictionary count] > 0)) {
+    aQueryString = [queryDictionary encodeAsCGIFormValuesEscpaeAmpersand:escapeQueryDict];
+  }
+  
+  url = [self _urlWithRequestHandlerKey:[[GSWApp class] directActionRequestHandlerKey]
+                     requestHandlerPath:anActionName
+                            queryString:aQueryString
+                               isSecure:isSecure
+                                   port:port];
+  
+  if(forceLoadBalancing) {
+    [_url setApplicationNumber:savedApplicationNumber];
+  }
+  
+  return url;
+}
+
 
 //--------------------------------------------------------------------
 /** Returns array of languages 
@@ -1741,13 +1815,121 @@ If none, try request languages
   ASSIGN(_userInfo,userInfo);
 };
 
+
+-(void) _stripSessionIDFromURL
+{
+  NSString * handlerPath = [[self _url] requestHandlerPath];
+  if ((!handlerPath) || ([handlerPath isEqual:@""])) {
+    return;
+  }
+  
+  NSRange  range;
+  unsigned handlerPathlength;
+  
+  range = [handlerPath rangeOfString:[GSWApp sessionIdKey]];
+  
+  if (range.location > 0) {
+    NSRange endRange;
+    NSRange totalRange;
+    
+    handlerPathlength = [handlerPath length];
+    
+    totalRange = NSMakeRange(range.location, handlerPathlength-range.location);
+    
+    endRange = [handlerPath rangeOfString:@"&"
+                                  options:0 
+                                    range:totalRange];
+    
+    if(endRange.location == NSNotFound) {
+      [[self _url] setRequestHandlerPath: [handlerPath substringWithRange:NSMakeRange(0, range.location)]];
+    } else {
+      [[self _url] setRequestHandlerPath:[[handlerPath substringWithRange:NSMakeRange(0, range.location)] 
+                                          stringByAppendingString:[handlerPath substringWithRange:NSMakeRange(range.location + 1, handlerPathlength)]]];
+    }
+  }
+}
+
+
 //--------------------------------------------------------------------
 // context can add key/values in query dictionary
--(NSDictionary*)computeQueryDictionary:(NSDictionary*)queryDictionary
+//-(NSDictionary*)computeQueryDictionary:(NSDictionary*)queryDictionary
+//{
+//  //Do nothing
+//  return queryDictionary;
+//};
+
+// computeQueryDictionary
+-(NSDictionary*) computeQueryDictionaryWithPath:(NSString*) aRequestHandlerPath
+                                queryDictionary:(NSDictionary*) queryDictionary
+                           otherQueryDictionary:(NSDictionary*) otherQueryDictionary
 {
-  //Do nothing
-  return queryDictionary;
-};
+  NSMutableDictionary * newQueryDictionary;
+  NSString            * sessionId = nil;
+  GSWSession          * sess = nil;
+  if (queryDictionary != nil) {
+    newQueryDictionary = [[queryDictionary mutableCopy] autorelease];
+  } else {
+    newQueryDictionary = [NSMutableDictionary dictionary];
+  }
+  
+  if ([self hasSession]) {
+    sess = [self session];
+    if ((![sess isTerminating]) && [sess storesIDsInURLs]) {
+      sessionId = [sess sessionID]; 
+    }
+  } else {
+    if ([self _sessionIDInURL]) {
+      sessionId = _requestSessionID;
+    }
+  }
+  
+  // CHECKME: can [newQueryDictionary sessionID] be a NO/FALSE value?
+  if ((sessionId != nil) && ([newQueryDictionary sessionID] == nil)) {
+    [newQueryDictionary setObject:sessionId
+                           forKey:[GSWApp sessionIdKey]];
+  } else {
+    if ([newQueryDictionary count] > 0) {
+      [newQueryDictionary removeObjectForKey:[GSWApp sessionIdKey]];
+      [newQueryDictionary removeObjectForKey:@"wosid"];
+    }
+  }
+  if (otherQueryDictionary != nil) {
+    NSEnumerator * keyEnumerator = [otherQueryDictionary keyEnumerator];
+    NSString * aKey = nil;
+    
+    while ((aKey = [keyEnumerator nextObject])) {        
+      id aValue = [otherQueryDictionary objectForKey:aKey];
+      
+      if (([aKey isEqual:[GSWApp sessionIdKey]]) || ([aKey isEqual:@"wosid"])) {
+        // CHECKME!
+        if ([aValue boolValue] == NO) {
+          [newQueryDictionary removeObjectForKey:aKey];
+        }
+      } else {
+        [newQueryDictionary setObject:aValue forKey:aKey];
+      }
+    }
+    
+  }
+  sessionId = [newQueryDictionary objectForKey:[GSWApp sessionIdKey]];
+  
+  if (sessionId) {
+    NSRange range;
+    NSRange range2;
+    
+    range = [aRequestHandlerPath rangeOfString:sessionId];
+    range2 = [aRequestHandlerPath rangeOfString:[GSWApp sessionIdKey]];
+    
+    if ((range.location != NSNotFound) || (range.location != NSNotFound))
+    {
+      [newQueryDictionary removeObjectForKey:[GSWApp sessionIdKey]];
+      [newQueryDictionary removeObjectForKey:@"wosid"];
+    }
+  } else {
+    [self _stripSessionIDFromURL];
+  }
+  return newQueryDictionary;
+}
 
 //--------------------------------------------------------------------
 // context can add key/values in query dictionary
@@ -1931,7 +2113,83 @@ If none, try request languages
 -(void)setValidate:(BOOL)isValidate
 {
   _isValidate = isValidate;
-};
+}
+
+- (BOOL) secureRequest
+{
+  BOOL isSecure = NO;
+
+  if (_request != nil) {
+    isSecure = [_request isSecure];
+  }
+
+  return isSecure;
+}
+
+- (BOOL) secureMode
+{
+  if ((_secureMode == -2)) {
+    return [self secureRequest];
+  }
+  return ((_secureMode == YES));
+}
+
+- (void) setSecureMode:(BOOL) value
+{
+  _secureMode = (int) value;
+}
+
+
+- (GSWDynamicURLString*) relativeURLWithRequestHandlerKey:(NSString*) requestHandlerKey
+                                                     path:(NSString*) requestHandlerPath
+                                              queryString:(NSString*) queryString
+{
+  GSWDynamicURLString * url = [self _url];
+  
+  // CHECKME: rename to setRequestHandlerKey: ?? -- dw
+  [url setURLRequestHandlerKey:requestHandlerKey];
+  [url setRequestHandlerPath:requestHandlerPath];
+  [url setQueryString:queryString];
+
+  return url;
+}
+
+
+- (GSWDynamicURLString*) _urlWithRequestHandlerKey:(NSString*) requestHandlerKey
+                                requestHandlerPath:(NSString*) aRequestHandlerPath
+                                       queryString:(NSString*) aQueryString
+                                          isSecure:(BOOL) isSecure
+                                              port:(int) somePort
+{
+  GSWDynamicURLString * url = nil;
+  
+  if (_generateCompleteURLs || ((_request != nil) && (isSecure != [_request isSecure]))) {
+    url = [self completeURLWithRequestHandlerKey:requestHandlerKey
+                                            path:aRequestHandlerPath
+                                     queryString:aQueryString
+                                        isSecure:isSecure
+                                            port:somePort];
+  } else {
+    url = [self relativeURLWithRequestHandlerKey:requestHandlerKey
+                                            path:aRequestHandlerPath
+                                     queryString:aQueryString];
+    
+  }
+  return url;
+}
+
+
+- (GSWDynamicURLString*) _urlWithRequestHandlerKey:(NSString*) requestHandlerKey
+                                requestHandlerPath:(NSString*) requestHandlerPath
+                                       queryString:(NSString*) queryString
+                                          isSecure:(BOOL) isSecure
+{
+  return [self _urlWithRequestHandlerKey:requestHandlerKey 
+                      requestHandlerPath:requestHandlerPath 
+                             queryString:queryString
+                                isSecure:isSecure
+                                    port:0];
+}
 
 
 @end

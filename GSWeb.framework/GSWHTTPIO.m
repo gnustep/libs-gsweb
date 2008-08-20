@@ -56,7 +56,7 @@ static NSString *NEWLINE2 = @"\r\n";
 static NSString *HTTP11 = @"HTTP/1.1";
 static NSString *CONNECTION = @"connection";
 static NSString *KEEP_ALIVE = @"keep-alive";
-static NSString *CLOSE = @"close";
+//static NSString *CLOSE = @"close";
 
 
 /* Get error information.
@@ -66,6 +66,7 @@ static NSString *CLOSE = @"close";
 @end
 
 @interface NSFileHandle (GSWFileHandleExtensions)
+//- (void) setNonBlocking: (BOOL)flag;
 
 - (NSData*) readDataLine;
 @end
@@ -76,7 +77,6 @@ static NSString *CLOSE = @"close";
 {
   NSMutableData	*d;
   int		got,pos=0;
-  int   total = 0;
   char		buf[READ_SIZE];
   int   fileDescriptor = [(GSFileHandle*)self fileDescriptor];
   
@@ -236,8 +236,6 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
 
 + (NSDictionary*) readHeadersFromHandle:(NSFileHandle*) fh
 {
-  BOOL                  headersDone=NO;
-  NSArray               *lines = [NSMutableArray array];
   NSData                *currentLineData = nil;
   unsigned int          length = 0;
   NSMutableDictionary   *headers   = [NSMutableDictionary dictionary];
@@ -327,7 +325,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   NSData        * contentData = nil;
   GSWRequest    * request = nil;
 
-  [fh setNonBlocking: NO];
+  [(GSFileHandle*) fh setNonBlocking: NO];
 
   requestArray = [self readRequestLineFromHandle:fh];
   if ((!requestArray) || ([requestArray count] <3)) { 

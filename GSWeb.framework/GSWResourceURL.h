@@ -34,14 +34,10 @@
 
 @interface GSWResourceURL: GSWHTMLURLValuedElement
 -(NSString*)elementName;
-@end
 
-@interface GSWResourceURL (GSWResourceURLA)
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
 -(NSString*)valueAttributeName;
 -(NSString*)urlAttributeName;
-+(BOOL)hasGSWebObjectsAssociations;
+
 @end
 
 #endif // _GSWResourceURL_h__

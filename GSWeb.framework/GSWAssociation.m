@@ -242,7 +242,6 @@ static Class NSStringClass = Nil;
 {
   id value = [self valueInComponent: component];
   int  length = 0;
-  int  intVal = 0;
   NSString * tmpStr = nil;
   
   if (! value) {
@@ -852,7 +851,7 @@ static Class NSStringClass = Nil;
                                           reason:[exp reason]
                                         userInfo:[NSDictionary
                                                             dictionaryWithObjectsAndKeys:
-                                          (value ? value : @"nil"),@"EOValidatedObjectUserInfoKey",
+                                          (value ? value : (id)@"nil"),@"EOValidatedObjectUserInfoKey",
                                           keyPath,@"EOValidatedPropertyUserInfoKey",
                                           nil,nil]];
         [object validationFailedWithException:exception

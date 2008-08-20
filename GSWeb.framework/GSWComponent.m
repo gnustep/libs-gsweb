@@ -1330,7 +1330,7 @@ Call this method before using a component which was cached in a variable.
   //OK
   GSWSession* session=nil;
   GSWRequest* request=nil;
-  NSString* httpVersion=nil;
+  NSString* httpVersion=@"HTTP/1.0";
   GSWElement* pageElement=nil;
   BOOL pageChanged=NO;  
 
@@ -1339,10 +1339,13 @@ Call this method before using a component which was cached in a variable.
     {    
       request=[aContext request];
       GSWContext_deleteAllElementIDComponents(aContext);
-      httpVersion=(request ? [request httpVersion] : @"HTTP/1.0");
-      [response setHTTPVersion:httpVersion];
-      if (request)
+
+      if (request != nil) {
+        httpVersion = [request httpVersion];
         [response setAcceptedEncodings:[request browserAcceptedEncodings]];
+      }
+
+      [response setHTTPVersion:httpVersion];
       [response setHeader:@"text/html"
                 forKey:@"content-type"];
       [aContext _setResponse:response];
@@ -1361,10 +1364,12 @@ Call this method before using a component which was cached in a variable.
             inContext:aContext];
 
       session=[aContext _session];
+
       if (session) {
           [session appendCookieToResponse:response];
           [session _saveCurrentPage];
-      };
+      }
+
       [aContext _incrementContextID];
       GSWContext_deleteAllElementIDComponents(aContext);
       [aContext _setPageChanged:YES];
@@ -1469,12 +1474,19 @@ Call this method before using a component which was cached in a variable.
 {
   //TODO
   NSString* url=nil;
-
-  url=[GSWApp urlForResourceNamed:(type ? [NSString stringWithFormat:@"%@.%@",aName,type] : aName)
-              inFramework:[self frameworkName]
-              languages:[self languages]
-              request:nil];//TODO
-
+  NSString* name;
+  
+  if ((type != nil)) {
+    name = [NSString stringWithFormat:@"%@.%@",aName,type];
+  } else {
+    name = aName;
+  }
+  
+  url=[GSWApp urlForResourceNamed:name
+                      inFramework:[self frameworkName]
+                        languages:[self languages]
+                          request:nil];//TODO
+  
   return url;
 };
 
@@ -1560,10 +1572,19 @@ Call this method before using a component which was cached in a variable.
                          ofType:(NSString*)extension
                     inFramework:(NSString*)aFrameworkName;
 {
-  return [GSWApp urlForResourceNamed:(extension ? [NSString stringWithFormat:@"%@.%@",aName,extension] : aName)
-                 inFramework:aFrameworkName
-                 languages:[self languages]
-                 request:nil];//TODO
+  
+  NSString * name;
+  
+  if ((extension != nil)) {
+    name = [NSString stringWithFormat:@"%@.%@",aName,extension];
+  } else {
+    name = aName;
+  }
+  
+  return [GSWApp urlForResourceNamed:name
+                         inFramework:aFrameworkName
+                           languages:[self languages]
+                             request:nil];//TODO
 };
 
 //--------------------------------------------------------------------

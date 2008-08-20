@@ -1592,6 +1592,35 @@ Returns first element of languages or nil if languages is empty
   _isAllowedToViewEvents=flag;
 };
 
+-(void) _clearCookieFromResponse:(GSWResponse*) aResponse
+{
+  NSString       *cookiePath = [self domainForIDCookies];
+  NSCalendarDate *today = [NSCalendarDate date];
+  GSWCookie * instanceCookie;
+  GSWCookie * sessionIDCookie;
+  
+  NSCalendarDate *dateInThePast = [today dateByAddingYears:0 months:-1 days:0 hours:0 minutes:0 seconds:0];
+  
+  sessionIDCookie = [GSWCookie cookieWithName:[GSWApp sessionIdKey]
+                                        value:_sessionID
+                                         path:cookiePath
+                                       domain:nil
+                                      expires:dateInThePast
+                                     isSecure:NO];
+  
+  [aResponse addCookie:sessionIDCookie];
+  
+  instanceCookie = [GSWCookie cookieWithName:[GSWApp instanceIdKey]
+                                       value:@"-1"
+                                        path:cookiePath
+                                      domain:nil
+                                     expires:dateInThePast
+                                    isSecure:NO];
+  
+  [aResponse addCookie:instanceCookie];
+}
+
+
 //--------------------------------------------------------------------
 -(BOOL)validateEventsLogin:(NSString*)login
               withPassword:(NSString*)password

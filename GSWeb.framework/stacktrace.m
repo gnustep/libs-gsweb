@@ -30,7 +30,9 @@
  *  - Added a missing 'quit' command for OSF dbx
  *
  ************************************************************************/
+#ifndef  USE_BUILTIN
 #define USE_BUILTIN
+#endif
 
 #if defined(unix) || defined(__unix) || defined(__xlC__) || defined(__NetBSD__) || defined(__OpenBSD__)
 # define PLATFORM_UNIX
@@ -225,7 +227,7 @@ static void GCC_DumpStack(void)
   unsigned long highestAddress;
   unsigned long lowestAddress;
   char type;
-  char *pname;
+  //char *pname;
   char name[MAX_BUFFER_SIZE];
   int number;
   write(global_output,

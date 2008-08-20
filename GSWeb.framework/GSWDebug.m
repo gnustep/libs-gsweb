@@ -320,39 +320,46 @@ void DumpIVar(id object,struct objc_ivar* ivar,int deep)
 //Dump object 
 void GSWLogDumpObjectFn(CONST char* file,int line,id object,int deep)
 {
-  USTART
-    if (object && deep>0)
-      {
-        struct objc_ivar_list *ivars=NULL;
-        Class class = [object class];
-        if (class)
-          {
-            NSDebugFLog(@"--%s %d [%d] Dumping object %p of Class %s "
-			@"Description:%@",
-                        ((file && isalpha(*file) && line>=0 && line<=20000) 
-			 ? file : ""),
-                        line,
-                        deep,
-                        (void*)object,
-                        class->name,
-                        objectDescription(object));
-            while (class)
-              {
-                ivars = class->ivars;
-                class = class->super_class;
-                if (ivars)
-                  {
-                    int   i;
-                    for (i = 0; i < ivars->ivar_count; i++)
-                      {
-                        DumpIVar(object,&ivars->ivar_list[i],deep-1);
-                      };
-                  }
-              };
-          };
-      };
-  USTOP
-    };
+  static BOOL beenHere = NO;
+  if (beenHere == NO) {
+    
+    NSLog(@"%s is deprecated", __PRETTY_FUNCTION__);
+    beenHere = YES;
+  }
+}
+//  USTART
+//    if (object && deep>0)
+//      {
+//        struct objc_ivar_list *ivars=NULL;
+//        Class class = [object class];
+//        if (class)
+//          {
+//            NSDebugFLog(@"--%s %d [%d] Dumping object %p of Class %s "
+//			@"Description:%@",
+//                        ((file && isalpha(*file) && line>=0 && line<=20000) 
+//			 ? file : ""),
+//                        line,
+//                        deep,
+//                        (void*)object,
+//                        class->name,
+//                        objectDescription(object));
+//            while (class)
+//              {
+//                ivars = class->ivars;
+//                class = class->super_class;
+//                if (ivars)
+//                  {
+//                    int   i;
+//                    for (i = 0; i < ivars->ivar_count; i++)
+//                      {
+//                        DumpIVar(object,&ivars->ivar_list[i],deep-1);
+//                      };
+//                  }
+//              };
+//          };
+//      };
+//  USTOP
+//    }
 
 //--------------------------------------------------------------------
 void GSWLogAssertGoodFn(CONST char* file,int line,id object)

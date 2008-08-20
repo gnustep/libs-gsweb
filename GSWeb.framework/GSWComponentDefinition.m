@@ -37,7 +37,6 @@
 static NSLock *       ComponentConstructorLock;
 static NSLock *       TemplateLock;
 static GSWContext *   TheTemporaryContext;
-static BOOL _IsEventLoggingEnabled; // needed?
 
 @implementation GSWComponentDefinition
 
@@ -58,7 +57,7 @@ static BOOL _IsEventLoggingEnabled; // needed?
 
 //--------------------------------------------------------------------
 
-#warning CHECKME: missing Languages?
+// CHECKME: missing Languages?
 // we my have a different name and class?
 //  aName StartPage
 //  aPath   /Users/dave/projects/new/PBXBilling/trunk/PBX.gswa/Resources/StartPage.wo
@@ -281,7 +280,7 @@ static BOOL _IsEventLoggingEnabled; // needed?
 {
   //OK
   [_bundle clearCache];
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWElement*)templateWithName:(NSString*)aName
@@ -310,7 +309,7 @@ static BOOL _IsEventLoggingEnabled; // needed?
 };
 
 
-#warning CHECKME
+// CHECKME
 
 -(GSWComponent*) _componentInstanceInContext:(GSWContext*) aContext
 {
@@ -609,6 +608,25 @@ static BOOL _IsEventLoggingEnabled; // needed?
 
   }
   return _template;
+}
+
+- (void) encodeWithCoder: (NSCoder*)aCoder
+{
+  NSLog(@"%s is not imlemented", __PRETTY_FUNCTION__);
+  return;
+}
+
+- (id) initWithCoder: (NSCoder*)aDecoder
+{
+  NSLog(@"%s is not imlemented", __PRETTY_FUNCTION__);
+  return self;
+}
+
+- (id) copyWithZone: (NSZone*)z
+{
+
+  NSLog(@"%s is not imlemented", __PRETTY_FUNCTION__);
+  return self;
 }
 
 @end

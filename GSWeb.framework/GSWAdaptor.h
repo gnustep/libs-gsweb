@@ -43,6 +43,7 @@
 // deprecated since?
 -(void)runOnce;
 -(BOOL)doesBusyRunOnce;
+-(BOOL)isMultiThreadEnabled;
 
 @end
 
@@ -55,6 +56,5 @@
 // FIXME: check if that exists:
 // -(id)workerThreadCount;
 //-(void)adaptorThreadExited:(GSWDefaultAdaptorThread*)adaptorThread;
-//-(BOOL)isMultiThreadEnabled;
 
 #endif //_GSWAdaptor_h__

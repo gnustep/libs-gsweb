@@ -796,33 +796,20 @@ elements **/
 /** Increments last elementID part **/
 -(void)incrementLastElementIDComponent
 {
-
-  //NSLog(@"ELEMENTID: [elementID incrementLastElementIDComponent];");
-
-  if (_partsCount<1)
-    {
-    #warning checkme!
+  if (_partsCount == 0) {
     return;
-    
-      // NSWarnLog(@"Can't incrementLastElementIDComponent on an empty elementID");
-      [NSException raise:NSInvalidArgumentException
-                  format:@"Can't incrementLastElementIDComponent on an empty elementID. In %s",
-                         __PRETTY_FUNCTION__];      
-    }
-  else
-    {
-      GSWElementIDPart* part=NULL;
-
-      // Update part number
-      part=_parts+_partsCount-1;
-      part->_number++;
-
-      // update cache state information
-      if (_builtPartCount>=_partsCount)
-        _builtPartCount=_partsCount-1;
-      DESTROY(_elementIDString);      
-
-    };
+  }
+  
+  GSWElementIDPart* part=NULL;
+  
+  // Update part number
+  part=_parts+_partsCount-1;
+  part->_number++;
+  
+  // update cache state information
+  if (_builtPartCount>=_partsCount)
+    _builtPartCount=_partsCount-1;
+  DESTROY(_elementIDString);      
 };
   
 //--------------------------------------------------------------------

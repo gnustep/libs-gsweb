@@ -39,7 +39,8 @@ RCS_ID("$Id$")
 -(void)dealloc
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+  [super dealloc];
+}
 
 //--------------------------------------------------------------------
 

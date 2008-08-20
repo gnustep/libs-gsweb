@@ -65,7 +65,7 @@ Bindings
         isDisplayStringBefore If evaluated to yes, displayString is displayed before radio button
 **/
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
+//static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
 
 static Class standardClass = Nil;
 
@@ -146,9 +146,9 @@ static Class standardClass = Nil;
   } else {
     _defaultEscapeHTML = YES;
   }
-  if ((_list == nil) || (_displayString != nil || _value != nil) &&
-     (_item == nil || (![_item isValueSettable])) ||
-     (_selection != nil && (![_selection isValueSettable])))
+  if ((((_list == nil) || (_displayString != nil || _value != nil)) &&
+     ((_item == nil) || (![_item isValueSettable]))) ||
+     ((_selection != nil) && (![_selection isValueSettable])))
   {
     [NSException raise:NSInvalidArgumentException
                 format:@"%s: 'list' must be present. 'item' must not be a constant if 'displayString' or 'value' is present.  'selections' must not be a constant if present.",
@@ -244,7 +244,6 @@ static Class standardClass = Nil;
 
   if ((_selection != nil) && ((![self disabledInComponent:component]) && ([context _wasFormSubmitted]))) {
 
-    NSArray* listValue = nil;
     id         selValue = nil;
     NSString * ctxName = [self nameInContext:context];
     NSString * formValue = [request stringFormValueForKey: ctxName];
@@ -270,7 +269,6 @@ static Class standardClass = Nil;
               inContext:(GSWContext*)context
 {
   id             selectionsValue = nil;
-  int i = 0;
   int j = 0;
   BOOL           doEscape;
   int            count           = 0;
@@ -301,12 +299,21 @@ static Class standardClass = Nil;
       [_index setValue:GSWIntToNSString(j)
            inComponent:component];
     }
-    NSString * prefixStr = _prefix == nil ? nil : NSStringWithObject([_prefix valueInComponent:component]);
-    NSString * suffixStr = _suffix == nil ? nil : NSStringWithObject([_suffix valueInComponent:component]);
+    NSString * prefixStr = nil;
+    NSString * suffixStr =  nil;
     id        displayValue     = nil;
     NSString * dispStr = nil;
 
     valueValue   = nil;
+    
+    if (_prefix != nil) {
+      prefixStr = NSStringWithObject([_prefix valueInComponent:component]);
+    }
+
+    if (_suffix != nil) {
+      suffixStr = NSStringWithObject([_suffix valueInComponent:component]);
+    }
+    
     currentValue = [listValue objectAtIndex:j];
 
     if ((_item != nil) && (_displayString != nil)) {

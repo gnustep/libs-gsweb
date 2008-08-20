@@ -93,7 +93,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 /** Should be Locked **/
--(id)restoreSessionWithID:(NSString*)aSessionID
+-(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
                   request:(GSWRequest*)aRequest
 {
   GSWSession* session=nil;

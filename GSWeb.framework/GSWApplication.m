@@ -262,13 +262,15 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
-+(void)dealloc
-{
-  [GSWAssociation removeLogHandlerClasse:[self class]];
-  DESTROY(localDynCreateClassNames);
-  GSWeb_DestroyGlobalAppDefaultOptions();
-  [[self superclass]dealloc];
-};
+// FIXME: do we need to dealloc a CLASS??? looks strange to me -- dw
+//+(void)dealloc
+//{
+//  // FIXME: do we need to dealloc a CLASS??? looks strange to me -- dw
+//  [GSWAssociation removeLogHandlerClasse:[self class]];
+//  DESTROY(localDynCreateClassNames);
+//  GSWeb_DestroyGlobalAppDefaultOptions();
+//  [[self superclass]dealloc];
+//};
 
 //-----------------------------------------------------------------------------------
 //init
@@ -854,7 +856,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   Class GSWAppClass = [self class];
   NSString* directConnectURL=nil;
-  NSString* applicationBaseURL =[GSWAppClass applicationBaseURL]; 
   
   directConnectURL = [NSString stringWithFormat:@"http://%@:%@%@/%@.%@/0/", [GSWAppClass host],
                                                                   [GSWAppClass port],
@@ -2616,7 +2617,7 @@ to another instance **/
     {
       if (errorPage)
         {
-          id monitor=nil;
+//          id monitor=nil;
           response=[errorPage generateResponse];          
           //here ?
 //          monitor=[self _remoteMonitor];
@@ -3927,10 +3928,19 @@ to another instance **/
                      inFramework:(NSString*)aFrameworkName
                        languages:(NSArray*)languages
 {
-  return [[self resourceManager]pathForResourceNamed:(type ? [NSString stringWithFormat:@"%@.%@",aName,type] : aName)
+  
+  NSString * name;
+  
+  if (type) {
+    name = [NSString stringWithFormat:@"%@.%@",aName,type];
+  } else {
+    name = aName;
+  }
+  
+  return [[self resourceManager]pathForResourceNamed:name
                                 inFramework:aFrameworkName
                                 languages:languages];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -4003,6 +4013,12 @@ to another instance **/
 {
   return @"woinst";
 }
+
+
+// Hackers note: we will not implement WO 5's newDynamicURL. Use 
+// [GSWDynamicURLString string];
+// or [GSWDynamicURLString stringWithString:url]
+// instead.
 
 @end
 

@@ -135,6 +135,12 @@ void GSWInitializeAllMisc()
       NSMapInsert(encodingsByName,
                   @"NSNonLossyASCIIStringEncoding",
                   (const void*)NSNonLossyASCIIStringEncoding);
+
+      // we might need this for compatibility. -- dw
+      NSMapInsert(encodingsByName,
+                  @"UTF-8",
+                  (const void*)NSUTF8StringEncoding);
+
       NSMapInsert(encodingsByName,
                   @"NSUTF8StringEncoding",
                   (const void*)NSUTF8StringEncoding);
@@ -2110,7 +2116,9 @@ NSString* NSStringWithObject(id object)
   if (object)
     {
       if ([object isKindOfClass:nsMutableStringClass])
-        string=AUTORELEASE([object copy]);
+        // why wasting memory? -- dw
+        // string=AUTORELEASE([object copy]);
+        string=(NSString*)object;
       else if ([object isKindOfClass:nsStringClass])
         string=(NSString*)object;
 #ifdef HAVE_GDL2

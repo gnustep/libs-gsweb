@@ -37,9 +37,8 @@ RCS_ID("$Id: GSWDynamicGroup.m,v 1.17 2004/12/31 14:33:16 mguesdon Exp $")
 
 //====================================================================
 
-static Class NSDictionaryClass = Nil;
-static Class NSArrayClass = Nil;
-
+//static Class NSDictionaryClass = Nil;
+//static Class NSArrayClass = Nil;
 
 @implementation NSDictionary (GSWHTML)
 
@@ -75,15 +74,35 @@ static NSMutableArray* _encodeAsCGIFormValuesInDictionaryUsingEncoding(NSDiction
   NSString       * codeStr = nil;
   id               obj = nil;
 
-  while (key = [enumer nextObject]) {
+  while ((key = [enumer nextObject])) {
     obj = [dict objectForKey:key];
     codeStr = [key encodeURL];       // give encoding to method?
-    if (subCodeStr = _encodeObjectAndKeyUsingEncoding(obj, codeStr, encoding)) {      
+    if ((subCodeStr = _encodeObjectAndKeyUsingEncoding(obj, codeStr, encoding))) {      
       [array addObject: subCodeStr];
     }
   }
 
   return array;
+}
+
+// encodeAsCGIFormValues
+- (NSString*) encodeAsCGIFormValuesEscpaeAmpersand:(BOOL) doEscapeAmpersand
+{
+  NSMutableArray      * stringArray = nil;
+  NSString            * encodingStr = [self objectForKey:@"WOURLEncoding"];
+  NSStringEncoding      encoding = NSUTF8StringEncoding;
+
+  if (encodingStr) {
+    encoding =[NSString encodingNamed:encodingStr];
+  }
+
+  stringArray = _encodeAsCGIFormValuesInDictionaryUsingEncoding(self, encoding);
+
+  if (doEscapeAmpersand) {
+    return [stringArray componentsJoinedByString:@"&amp;"];
+  }
+  
+  return [stringArray componentsJoinedByString:@"&"];
 }
 
 

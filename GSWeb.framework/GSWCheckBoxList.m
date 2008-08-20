@@ -139,8 +139,8 @@ static Class standardClass = Nil;
   }
 
 
-  if ((_list == nil) || (_value != nil || _displayString != nil) && ((_item == nil) || (![_item isValueSettable])) || 
-      (_selections != nil) && (![_selections isValueSettable])) {
+  if ((_list == nil) || ((_value != nil || _displayString != nil) && ((_item == nil) || (![_item isValueSettable]))) || 
+      ((_selections != nil) && (![_selections isValueSettable]))) {
 
     [NSException raise:NSInvalidArgumentException
                 format:@"%s: 'list' must be present. 'item' must not be a constant if 'displayString' or 'value' is present.  'selection' must not be a constant if present.",
@@ -292,13 +292,21 @@ static Class standardClass = Nil;
   }
 
   for (j = 0; j < count; j++) {
-    NSString * prefixStr = _prefix == nil ? nil : NSStringWithObject([_prefix valueInComponent:component]);
-    NSString * suffixStr = _suffix == nil ? nil : NSStringWithObject([_suffix valueInComponent:component]);
+    NSString * prefixStr = nil;
+    NSString * suffixStr = nil;
     NSString * dispStr = nil;
     id        obj2     = nil;
     id        displayValue     = nil;
     id        valueValue       = nil;
 
+    if ((_prefix != nil)) {
+      prefixStr = NSStringWithObject([_prefix valueInComponent:component]);
+    }
+
+    if ((_suffix != nil)) {
+      suffixStr = NSStringWithObject([_suffix valueInComponent:component]);
+    }
+    
     if (_index != nil) {
       [_index setValue:GSWIntToNSString(j)
            inComponent:component];

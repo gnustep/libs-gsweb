@@ -41,210 +41,163 @@ static SEL appendStringSel = NULL;
 + (void) initialize
 {
   if (self == [GSWDynamicURLString class])
-    {
-      appendStringSel = @selector(appendString:);
-    };
-};
+  {
+    appendStringSel = @selector(appendString:);
+  }
+}
+
++ (id) string
+{
+  return [[[self alloc] init] autorelease];
+}
+
++ (id)stringWithString:(NSString *)aString
+{
+  return [[[self alloc] initWithString:aString] autorelease];
+}
 
 //--------------------------------------------------------------------
 -(id)init
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
   if ((self=[super init]))
-    {
-      _url=[NSMutableString new];
-      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
-    };
-  LOGObjectFnStop();
+  {
+    _url=[NSMutableString new];
+  }
+  
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithCharactersNoCopy:(unichar*)chars
                        length:(unsigned int)length
                  freeWhenDone:(BOOL)flag
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithCharactersNoCopy:chars
-                                   length:length
-                                   freeWhenDone:flag];
-      if (chars)
-        [self _parse];
-    };
-  LOGObjectFnStop();
+  _url=[[NSMutableString alloc]initWithCharactersNoCopy:chars
+                                                 length:length
+                                           freeWhenDone:flag];
+  if (chars) {
+    [self _parse];
+  }
   return self;
-};
+}
 
 
 //--------------------------------------------------------------------
 -(id)initWithCharacters:(const unichar*)chars
                  length:(unsigned int)length
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithCharacters:chars
-                                   length:length];
-      if (chars)
-        [self _parse];
-    };
-  LOGObjectFnStop();
+  _url = [[NSMutableString alloc] initWithCharacters:chars
+                                              length:length];
+  if (chars) {
+    [self _parse];
+  }
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithCStringNoCopy:(char*)byteString
                     length:(unsigned int)length
               freeWhenDone:(BOOL)flag
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithCStringNoCopy:byteString
-                                   length:length
-                                   freeWhenDone:flag];
-      if (byteString)
-        [self _parse];
-    };
-  LOGObjectFnStop();
+  _url = [[NSMutableString alloc] initWithCStringNoCopy:byteString
+                                                 length:length
+                                           freeWhenDone:flag];
+  if (byteString) {
+    [self _parse];
+  }
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithCString:(const char*)byteString
               length:(unsigned int)length;
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithCString:byteString
-                                   length:length];
-      //NSDebugMLLog(@"low",@"url=%@",_url);
-      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
-      if (byteString)
-        [self _parse];
-      //NSDebugMLLog(@"low",@"url=%@",_url);
-      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
-    };
-  LOGObjectFnStop();
+  _url = [[NSMutableString alloc] initWithCString:byteString
+                                           length:length];
+  if (byteString) {
+    [self _parse];
+  }
+  
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithCString:(const char*)byteString;
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      //NSDebugMLLog(@"low",@"byteString=%s",byteString);
-      _url=[[NSMutableString alloc]initWithCString:byteString];
-      if (byteString)
-        [self _parse];
-      //NSDebugMLLog(@"low",@"url=%@",_url);
-      //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
-    };
-  LOGObjectFnStop();
+  _url = [[NSMutableString alloc] initWithCString:byteString];
+  if (byteString) {
+    [self _parse];
+  }
+  
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithString:(NSString*)string
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithString:string];
-      if (string)
-        [self _parse];
-    };
-  LOGObjectFnStop();
+  _url = [[NSMutableString alloc] initWithString:string];
+  if (string) {
+    [self _parse];
+  }
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithFormat:(NSString*)format,...
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      va_list ap;
-      va_start(ap,format);
-      _url=[[NSMutableString alloc]initWithFormat:format
-                                   arguments:ap];
-      va_end(ap);
-      [self _parse];
-    };
-  LOGObjectFnStop();
+  va_list ap;
+  va_start(ap,format);
+  _url = [[NSMutableString alloc] initWithFormat:format
+                                       arguments:ap];
+  va_end(ap);
+  [self _parse];
+  
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithFormat:(NSString*)format
           arguments:(va_list)argList
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithFormat:format
-                                   arguments:argList];
-      [self _parse];
-    };
-  LOGObjectFnStop();
+  _url = [[NSMutableString alloc] initWithFormat:format
+                                       arguments:argList];
+  [self _parse];
+  
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithData:(NSData*)data
          encoding:(NSStringEncoding)encoding
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithData:data
-                                   encoding:encoding];
-      if (data)
-        [self _parse];
-    };
-  LOGObjectFnStop();
+  _url = [[NSMutableString alloc] initWithData:data
+                                      encoding:encoding];
+  if (data) {
+    [self _parse];
+  }
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithContentsOfFile:(NSString*)path
 {
-  //OK
-  LOGObjectFnStart();
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self=[super init]))
-    {
-      _url=[[NSMutableString alloc]initWithContentsOfFile:path];
-      [self _parse];
-    };
-  LOGObjectFnStop();
+  _url=[[NSMutableString alloc]initWithContentsOfFile:path];
+  [self _parse];
+  
   return self;
-};
+}
+
+//--------------------------------------------------------------------
+-(id)initWithCoder:(NSCoder*)coder
+{
+  [coder decodeValueOfObjCType:@encode(id)
+                            at:&_url];
+  _urlASImp=NULL;
+  _flags.composed=YES;
+  [self _parse];
+  
+  return self;
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
@@ -278,21 +231,6 @@ static SEL appendStringSel = NULL;
 }
 
 //--------------------------------------------------------------------
--(id)initWithCoder:(NSCoder*)coder
-{
-  //NSDebugMLLog(@"low",@"new GSWDynamicURLString %p",self);
-  //We are a primitive ! if ((self = [self init]))
-    {
-      [coder decodeValueOfObjCType:@encode(id)
-             at:&_url];
-      _urlASImp=NULL;
-      _flags.composed=YES;
-      [self _parse];
-    };
-  return self;
-};
-
-//--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)coder
 {
   [self _compose];
@@ -323,21 +261,18 @@ static SEL appendStringSel = NULL;
 - (void) replaceCharactersInRange: (NSRange)range 
 		       withString: (NSString*)aString
 {
-  LOGObjectFnStart();
   if (!_flags.composed)
   {
     [self _compose];
   }
   [_url replaceCharactersInRange:range
         withString:aString];
-  LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
   GSWDynamicURLString* clone = nil;
-  LOGObjectFnStart();
   //NSDebugMLLog(@"low",@"url class=%@",[_url class]);
   clone=[[isa allocWithZone:zone] init];
   //NSDebugMLLog(@"low",@"new clone GSWDynamicURLString %p => %p",self,clone);
@@ -363,7 +298,6 @@ static SEL appendStringSel = NULL;
       clone->_flags.composed=_flags.composed;
       clone->_flags.beginningComposed=_flags.beginningComposed;
     };
-  LOGObjectFnStop();
   return clone;
 };
 
@@ -728,11 +662,21 @@ static SEL appendStringSel = NULL;
   return _requestHandlerPath;
 };
 
+-(NSString*)requestHandlerPath
+{
+  return _requestHandlerPath;
+};
+
 //--------------------------------------------------------------------
 -(NSString*)urlQueryString
 {
   return _queryString;
-};
+}
+
+-(NSString*)queryString
+{
+  return _queryString;
+}
 
 //--------------------------------------------------------------------
 -(NSString*)urlRequestHandlerKey
@@ -852,40 +796,54 @@ static SEL appendStringSel = NULL;
   return [NSString stringWithString:url];
 };
 
+// CHECKME: depricate?
 -(void)setURLRequestHandlerPath:(NSString*)aString
 {
-  LOGObjectFnStart();
   ASSIGN(_requestHandlerPath,aString);
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
+-(void)setRequestHandlerPath:(NSString*)aString
+{
+  ASSIGN(_requestHandlerPath,aString);
+  _flags.composed=NO;
+}
+
 //--------------------------------------------------------------------
+// CHECKME: depricate?
 -(void)setURLQueryString:(NSString*)aString
 {
-  LOGObjectFnStart();
   ASSIGN(_queryString,aString);
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
+-(void)setQueryString:(NSString*)aString
+{
+  ASSIGN(_queryString,aString);
+  _flags.composed=NO;
+}
+
 //--------------------------------------------------------------------
+// CHECKME: rename to setRequestHandlerKey: ?? -- dw
+
 -(void)setURLRequestHandlerKey:(NSString*)aString
 {
-  LOGObjectFnStart();
   ASSIGN(_requestHandlerKey,aString);
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
+
+-(void)setRequestHandlerKey:(NSString*)aString
+{
+  ASSIGN(_requestHandlerKey,aString);
+  _flags.composed=NO;
+}
 
 //--------------------------------------------------------------------
 -(void)setURLApplicationNumber:(int)applicationNumber
 {
-  LOGObjectFnStart();
   _applicationNumber=applicationNumber;
   _flags.beginningComposed=NO;
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -895,11 +853,9 @@ static SEL appendStringSel = NULL;
     return;
   }
 
-  LOGObjectFnStart();
   ASSIGN(_applicationName,aString);
   _flags.beginningComposed=NO;
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -909,11 +865,9 @@ static SEL appendStringSel = NULL;
     return;
   }
 
-  LOGObjectFnStart();
   ASSIGN(_prefix,aString);
   _flags.beginningComposed=NO;
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -924,11 +878,9 @@ static SEL appendStringSel = NULL;
     return;
   }
 
-  LOGObjectFnStart();
   ASSIGN(_protocol,aString);
   _flags.beginningComposed=NO;
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -939,11 +891,9 @@ static SEL appendStringSel = NULL;
     return;
   }
 
-  LOGObjectFnStart();
   ASSIGN(_host,aString);
   _flags.beginningComposed=NO;
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -952,14 +902,12 @@ static SEL appendStringSel = NULL;
 {
   int myport = [aString intValue];
 
-  LOGObjectFnStart();
   if (_port==myport) {
     return;
   }
   _port=myport;
   _flags.beginningComposed=NO;
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -969,11 +917,10 @@ static SEL appendStringSel = NULL;
   if (_port==port) {
   return;
   }
-  LOGObjectFnStart();
+  
   _port=port;
   _flags.beginningComposed=NO;
   _flags.composed=NO;
-  LOGObjectFnStop();
 };
 
 @end

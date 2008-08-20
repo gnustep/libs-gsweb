@@ -35,6 +35,7 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static NSString * emptyStr=@"";
 
 //====================================================================
 @implementation GSWResourceManager
@@ -490,7 +491,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   count=[languages count];
   frameworksCount=[frameworks count];
@@ -546,10 +547,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   else
-    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks = [NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
 
   frameworksCount=[frameworks count];
 
@@ -630,10 +631,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   else
-    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
 
   frameworksCount=[frameworks count];
 
@@ -775,10 +776,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   else
-    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
 
   frameworksCount=[frameworks count];
 
@@ -840,7 +841,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       {
         frameworkDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aFrameworkName)
-          aFrameworkName=@"";//Global
+          aFrameworkName=emptyStr;//Global
         [_stringsTablesByFrameworkByLanguageByName setObject:frameworkDict
                                                    forKey:aFrameworkName];
       };
@@ -849,7 +850,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       {
         languageDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aLanguage)
-          aLanguage=@"";
+          aLanguage=emptyStr;
         [frameworkDict setObject:languageDict
                        forKey:aLanguage];
       };
@@ -894,10 +895,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   else
-    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
 
   frameworksCount=[frameworks count];
   
@@ -955,7 +956,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       {
         frameworkDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aFrameworkName)
-          aFrameworkName=@"";//Global
+          aFrameworkName=emptyStr;//Global
         [_stringsTableArraysByFrameworkByLanguageByName setObject:frameworkDict
                                                         forKey:aFrameworkName];
       };
@@ -964,7 +965,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       {
         languageDict=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         if (!aLanguage)
-          aLanguage=@"";
+          aLanguage=emptyStr;
         [frameworkDict setObject:languageDict
                        forKey:aLanguage];
       };
@@ -1053,10 +1054,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   else
-    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
   
   frameworksCount=[frameworks count];
 
@@ -1104,10 +1105,10 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   else
-    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
   NSDebugMLLog(@"resmanager",@"frameworks=%@",frameworks);
 
   frameworksCount=[frameworks count];
@@ -1378,10 +1379,10 @@ bundle if none is found
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
-      frameworks=[frameworks arrayByAddingObject:@""];
+      frameworks=[frameworks arrayByAddingObject:emptyStr];
     }
   else
-    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : @""];
+    frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
 
   frameworksCount=[frameworks count];
 
@@ -1458,11 +1459,11 @@ bundle if none is found
 };
 
 //--------------------------------------------------------------------
--(id)_absolutePathForJavaClassPath:(NSString*)path
+-(NSString *) _absolutePathForJavaClassPath:(NSString*)path
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWURLValuedElementData*)_cachedDataForKey:(NSString*)key

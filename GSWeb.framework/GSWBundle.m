@@ -218,10 +218,6 @@ objectForReference:(NSString*)keyPath
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWBundle (GSWBundleCache)
 
 //--------------------------------------------------------------------
 -(void)clearCache
@@ -253,10 +249,6 @@ objectForReference:(NSString*)keyPath
   LOGObjectFnNotImplemented();	//TODOFN
 };
 
-@end
-
-//====================================================================
-@implementation GSWBundle (GSWBundleA)
 
 // returned relativePath won't have "/" prefix
 
@@ -327,19 +319,23 @@ objectForReference:(NSString*)keyPath
         };
     };
 
-  if (aRelativePath)
-    *aRelativePath=(([relativePath length]>0) ? relativePath : nil);
-  if (anAbsolutePath)
-    *anAbsolutePath=(([absolutePath length]>0) ? absolutePath : nil);
-
-  LOGObjectFnStop();
+  if (aRelativePath) {
+    if ([relativePath length]>0) {
+      *aRelativePath = relativePath;
+    } else {
+      *aRelativePath = nil;
+    }
+  }
+  if (anAbsolutePath) {
+    if ([absolutePath length]>0) {
+      *anAbsolutePath = absolutePath;
+    } else {
+      *anAbsolutePath = nil;
+    }
+  }
 
   return resource;
-};
-@end
-
-//====================================================================
-@implementation GSWBundle (GSWResourceManagement)
+}
 
 //--------------------------------------------------------------------
 -(void)initializeObject:(id)anObject
@@ -908,15 +904,12 @@ objectForReference:(NSString*)keyPath
 {
   NSString* absolutePath=nil;
   LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"aName=%@",aName);
-  NSDebugMLLog(@"bundles",@"aType=%@",aType);
-  NSDebugMLLog(@"bundles",@"someLanguages=%@",someLanguages);
   [self lock];
   NS_DURING
     {
       NSString* path=nil;
       NSString* relativePath=nil;
-      LOGObjectFnStart();
+
       path=[self lockedResourceNamed:aName
                  ofType:aType
                  withLanguages:someLanguages
@@ -942,7 +935,7 @@ objectForReference:(NSString*)keyPath
     };
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return absolutePath;
 };
 
@@ -1179,10 +1172,6 @@ objectForReference:(NSString*)keyPath
   return api;
 };
 
-@end
-
-//====================================================================
-@implementation GSWBundle (GSWBundleC)
 
 //--------------------------------------------------------------------
 -(id)scriptedClassNameFromClassName:(NSString*)aName

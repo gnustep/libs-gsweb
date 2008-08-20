@@ -996,7 +996,8 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(void)dealloc
 {
   DESTROY(_points);
-};
+  [super dealloc];
+}
 
 //--------------------------------------------------------------------
 -(NSString*)description

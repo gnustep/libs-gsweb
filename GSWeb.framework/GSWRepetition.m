@@ -34,6 +34,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 static SEL prepareIterationSEL=NULL;
 static SEL objectAtIndexSEL = NULL;

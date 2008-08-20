@@ -111,12 +111,10 @@ RCS_ID("$Id$")
   GSWResponse* response=[component generateResponse];
   [response disableClientCaching];
   return response;
-};
+}
 
-@end
 
-//====================================================================
-@implementation GSWDirectAction (GSWTakeValuesConvenience)
+// GSWTakeValuesConvenience
 
 //--------------------------------------------------------------------
 //NDFN: return additional path elements

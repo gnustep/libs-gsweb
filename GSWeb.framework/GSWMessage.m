@@ -812,7 +812,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
     }
   NS_HANDLER
     {
-      NSWarnLog(@"Can't convert contentData to Strong: %@",localException);
+      NSWarnLog(@"Can't convert contentData to String: %@",localException);
     }
   NS_ENDHANDLER;
 

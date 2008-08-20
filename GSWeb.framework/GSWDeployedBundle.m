@@ -342,7 +342,7 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
-                                   inDirectory:(id)aDirectory
+                                   inDirectory:(NSString*)aDirectory
                                      languages:(NSArray*)someLanguages
 {
   //OK
@@ -727,10 +727,6 @@ if it was not cached **/
   LOGObjectFnStop();
 };
 
-@end
-
-//====================================================================
-@implementation GSWDeployedBundle (GSWDeployedBundleA)
 
 //--------------------------------------------------------------------
 +(id)bundleWithPath:(NSString*)aPath
