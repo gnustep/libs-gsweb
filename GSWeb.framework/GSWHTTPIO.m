@@ -212,7 +212,10 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   _appendMessageHeaders(message,headers);
  
   if ([httpVersion isEqualToString:HTTP11]) {
-    if (keepAlive == NO) {
+    // bug #24006 keep-alive is not implemented.
+    // I am uable to reproduce the need for double clicking on links/forms,
+    // but for now, we send close. -- dw
+    if (YES /*keepAlive == NO*/) {
       [headers appendString:@"connection: close\r\n"];        
     } else {
       [headers appendString:@"connection: keep-alive\r\n"];        
