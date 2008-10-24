@@ -1,22 +1,26 @@
 2008-08-28  David Wetzel <dave@turbocat.de>
+	
         * bug #24006 keep-alive is not implemented.
-          announce close connections for now
+	announce close connections for now
  
 2008-08-20  David Wetzel <dave@turbocat.de>
-        GSWeb.framework:
-        * fixed many warnings
+	
+	* GSWeb.framework:
+	fixed many warnings
 
 2008-07-14  David Wetzel <dave@turbocat.de>
-	GSWeb.framework/GSWDirectActionRequestHandler.m:
-    * set status code in generateNullResponse, reformat, remove some logs
+	
+	* GSWeb.framework/GSWDirectActionRequestHandler.m:
+	set status code in generateNullResponse, reformat, remove some logs
 
 2008-04-20  David Wetzel <dave@turbocat.de>
-        GSWeb.framework/GSWApplication.m
-        GSWeb.framework/GSWComponentRequestHandler.m
-        GSWeb.framework/GSWServerSessionStore.m
-        GSWeb.framework/GSWSessionStore.m
-        * fixed session (re)creation bug
-        * code cleanups
+	
+	* GSWeb.framework/GSWApplication.m,
+	* GSWeb.framework/GSWComponentRequestHandler.m,
+	* GSWeb.framework/GSWServerSessionStore.m,
+	* GSWeb.framework/GSWSessionStore.m:
+	fixed session (re)creation bug
+	code cleanups
 
 2008-05-25  Sebastian Reitenbach  <sebastia@l00-bugdead-prods.de>
 
@@ -25,70 +29,65 @@
 
 2008-04-20  David Wetzel <dave@turbocat.de>
 	
-        GSWeb.framework/GSWApplication.m
-        * cleanups
+	* GSWeb.framework/GSWApplication.m: cleanups
 
 2008-04-17  David Wetzel <dave@turbocat.de>
 	
-        GSWeb.framework/GSWConstants.m
-        * remove comment
+	* GSWeb.framework/GSWConstants.m: remove comment
 
 2008-04-15  David Wetzel <dave@turbocat.de>
 	
-        GSWeb.framework/GSWConstants.m
-        GSWExtensions.framework/GSWExtWOCompatibility.h
-        * make WOSessionCreationError work with WO names 
+	* GSWeb.framework/GSWConstants.m,
+	* GSWExtensions.framework/GSWExtWOCompatibility.h
+	make WOSessionCreationError work with WO names 
  
 2008-04-09  David Wetzel <dave@turbocat.de>
 	
-        GSWAdaptors/Apache2/mod_gsw.c
-        * small cleanups
-        * copy all non-private headers to user
+	* GSWAdaptors/Apache2/mod_gsw.c: small cleanups
+        copy all non-private headers to user
 
-        GSWeb.framework/GSWBindingNameAssociation.m
-        * remove unused code
+        * GSWeb.framework/GSWBindingNameAssociation.m
+        remove unused code
 
 2008-03-31  David Wetzel <dave@turbocat.de>
 	
-        GSWAdaptors/Apache2/mod_gsw.c
-        * make load-balancing work
-        * add refusing to app status
+        * GSWAdaptors/Apache2/mod_gsw.c
+        make load-balancing work
+        add refusing to app status
 
-        GSWeb.framework/GSWApplication.m
-        GSWeb.framework/GSWRequestHandler.h
-        GSWeb.framework/GSWComponentRequestHandler.h
-        GSWeb.framework/GSWComponentRequestHandler.m
-        GSWeb.framework/GSWResponse.m
-        GSWeb.framework/GSWConstants.h
-        GSWeb.framework/GSWConstants.m
-        GSWeb.framework/GSWPrivate.h
-        GSWeb.framework/GSWApplication.h
-        * rewrote GSWComponentRequestHandler to make refusing work
+        * GSWeb.framework/GSWApplication.m
+        * GSWeb.framework/GSWRequestHandler.h
+        * GSWeb.framework/GSWComponentRequestHandler.h
+        * GSWeb.framework/GSWComponentRequestHandler.m
+        * GSWeb.framework/GSWResponse.m
+        * GSWeb.framework/GSWConstants.h
+        * GSWeb.framework/GSWConstants.m
+        * GSWeb.framework/GSWPrivate.h
+        * GSWeb.framework/GSWApplication.h
+        rewrote GSWComponentRequestHandler to make refusing work
        
 2008-03-17  David Wetzel <dave@turbocat.de>
 	
-        GSWeb.framework/GSWAssociation.h/m
+        * GSWeb.framework/GSWAssociation.h/m
         + bindingInComponent
 
-        GSWeb.framework/GSWPrivate.h
+        * GSWeb.framework/GSWPrivate.h
         + _setValueNoValidation: inComponent: 
 
-        GSWeb.framework/GSWBindingNameAssociation.m
-        * re-wrote initWithKeyPath:
+        * GSWeb.framework/GSWBindingNameAssociation.m
+        re-wrote initWithKeyPath:
 
-	GSWAdaptors/Apache2/mod_gsw.c
-        * various fixes
+	* GSWAdaptors/Apache2/mod_gsw.c: various fixes
 
 2008-03-11  David Wetzel <dave@turbocat.de>
 	
-        GSWAdaptors/Apache2/mod_gsw.c
-        * fixed http status bug
+	* GSWAdaptors/Apache2/mod_gsw.c: fixed http status bug
 
 2008-03-10  David Wetzel <dave@turbocat.de>
 	
-        GSWAdaptors/Apache2/mod_gsw.c
-        * use shared memory to share application statistics across httpd processes
-        * first version of load balancing
+	GSWAdaptors/Apache2/mod_gsw.c
+	* use shared memory to share application statistics across httpd processes
+	* first version of load balancing
 
 2008-03-09  David Ayers  <ayers@fsfe.org>
 
@@ -101,27 +100,27 @@
 
 2008-03-04  David Wetzel <dave@turbocat.de>
 	
-        GSWeb.framework/GSWPageDefElement.m
-        GSWeb.framework/GSWTemplateParserXML.h
-        GSWeb.framework/GSWTemplateParserXML.m
-        GSWeb.framework/GSWPageDefParserExt.h
-        GSWeb.framework/GSWPageDefParserExt.m
-        GSWeb.framework/NSObject+IVarAccess+PerformSel.h
-        GSWeb.framework/NSObject+IVarAccess+PerformSel.m
-        GSWeb.framework/GSWHTMLAttrParserExt.h
-        GSWeb.framework/GSWHTMLAttrParserExt.m
-        GSWeb.framework/GSWHTMLParserExt.h
-        GSWeb.framework/GSWHTMLParserExt.m
-        GSWeb.framework/GSWPageDefParserTokenTypes.txt
-        GSWeb.framework/GSWPageDefElement.h
-        * deleted unused code
-        GSWeb.framework/GSWWOCompatibility.h
-        * removed define
+	* GSWeb.framework/GSWPageDefElement.m
+	* GSWeb.framework/GSWTemplateParserXML.
+	* GSWeb.framework/GSWTemplateParserXML.m
+	* GSWeb.framework/GSWPageDefParserExt.h
+	* GSWeb.framework/GSWPageDefParserExt.m
+	* GSWeb.framework/NSObject+IVarAccess+PerformSel.h
+	* GSWeb.framework/NSObject+IVarAccess+PerformSel.m
+	* GSWeb.framework/GSWHTMLAttrParserExt.h
+	* GSWeb.framework/GSWHTMLAttrParserExt.m
+	* GSWeb.framework/GSWHTMLParserExt.h
+	* GSWeb.framework/GSWHTMLParserExt.m
+	* GSWeb.framework/GSWPageDefParserTokenTypes.txt
+	* GSWeb.framework/GSWPageDefElement.h
+        deleted unused code
+        * GSWeb.framework/GSWWOCompatibility.h
+        removed define
 
 2008-03-02  David Wetzel <dave@turbocat.de>
-        GSWeb.framework/GSWHTTPIO.m
-        * optimized readDataLine
-        * deleted all references to ANTLR
+        * GSWeb.framework/GSWHTTPIO.m
+        optimized readDataLine
+        deleted all references to ANTLR
 
 2008-03-01  David Wetzel <dave@turbocat.de>
         * GSWAdaptors/Apache2/mod_gsw.c
