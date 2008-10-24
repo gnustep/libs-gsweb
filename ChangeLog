@@ -1,3 +1,14 @@
+2008-10-24  David Ayers <ayers@fsfe.org>
+
+	* GSWeb.framework/GSWDisplayGroup.h (HAVE_GDL2):
+	Remove fallback to obsolete gnustep-db and default
+	to GDL2 headers.
+	([GSWDisplayGroup-undoManager]): Expect GDL2 class.
+	
+	* GSWeb.framework/GSWUtils.m (GSWInitializeAllMisc)
+	(NSStringWithObject): Remove special NSNull handling as
+	EONull must always map to NSNull anyway.
+
 2008-08-28  David Wetzel <dave@turbocat.de>
 	
         * bug #24006 keep-alive is not implemented.

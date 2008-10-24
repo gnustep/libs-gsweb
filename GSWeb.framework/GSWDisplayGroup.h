@@ -32,36 +32,9 @@
 #ifndef _GSWDisplayGroup_h__
 #define _GSWDisplayGroup_h__
 
-#if !HAVE_GDL2
-   #ifdef TCSDB
-      #include <TCSimpleDB/TCSimpleDB.h>
-      #include <TCSimpleDB/EODefines.h>
-   #else // TCSDB
-      #include <eoaccess/EOModel.h>
-      #include <eoaccess/EOEntity.h>
-      #include <eoaccess/EOAttribute.h>
-      #include <eoaccess/EOAttributeOrdering.h>
-      #include <eoaccess/EORelationship.h>
-      #include <eoaccess/EOQualifier.h>
-
-      #include <eoaccess/EOAdaptor.h>
-      #include <eoaccess/EOAdaptorContext.h>
-      #include <eoaccess/EOAdaptorChannel.h>
-
-      #include <eoaccess/EODatabase.h>
-      #include <eoaccess/EODatabaseContext.h>
-      #include <eoaccess/EODatabaseChannel.h>
-      #include <eoaccess/EODataSources.h>
-      #include <eoaccess/EODatabaseDataSource.h>
-
-      #include <eoaccess/EOGenericRecord.h>
-      #include <eoaccess/EONull.h>
-      #include <eoaccess/EOSQLExpression.h>
-
-      @class EOKeyValueUnarchiver;
-
-      #define EODataSource EODatabaseDataSource
-   #endif
+#ifdef TCSDB
+   #include <TCSimpleDB/TCSimpleDB.h>
+   #include <TCSimpleDB/EODefines.h>
 #else
    #include <EOControl/EOQualifier.h>
    #include <EOControl/EOEditingContext.h>
@@ -141,11 +114,7 @@
 };
 
 + (GSWDisplayGroup* )displayGroup;
-#if HAVE_GDL2
 - (EOUndoManager*)undoManager;
-#else
-- (id)undoManager;
-#endif
 - (NSArray *)allObjects;
 - (NSArray *)allQualifierOperators;
 - (unsigned)batchCount;

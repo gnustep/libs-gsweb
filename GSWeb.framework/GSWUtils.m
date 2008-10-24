@@ -64,7 +64,6 @@ static Class nsNumberClass=Nil;
 static Class nsStringClass=Nil;
 static Class nsMutableStringClass=Nil;
 static Class eoNullClass=Nil;
-static Class nsNullClass=Nil;
 
 static NSMapTable* encodingsByName=NULL;
 
@@ -93,7 +92,6 @@ void GSWInitializeAllMisc()
       ASSIGN(nsStringClass,[NSString class]);
       ASSIGN(nsMutableStringClass,[NSMutableString class]);
       ASSIGN(eoNullClass,[EONull class]);
-      ASSIGN(nsNullClass,[NSNull class]);
 
       stringWithStringSEL = @selector(stringWithString:);
       NSCAssert(stringWithStringSEL,@"No SEL for stringWithString:");
@@ -2121,13 +2119,8 @@ NSString* NSStringWithObject(id object)
         string=(NSString*)object;
       else if ([object isKindOfClass:nsStringClass])
         string=(NSString*)object;
-#ifdef HAVE_GDL2
       else if ([object isKindOfClass:eoNullClass])
         string=@"";
-#else
-      else if ([object isKindOfClass:nsNullClass])
-        string=@"";
-#endif
       else if ([object respondsToSelector:@selector(stringValue)])
         string=[object stringValue];
       else if ([object respondsToSelector:@selector(description)])
