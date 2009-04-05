@@ -90,6 +90,10 @@
 #define GSWStats			WOStats
 #define GSWTransactionRecord		WOTransactionRecord
 #define GSWDefaultAdaptor		WODefaultAdaptor
+#define GSWImageInfo			WOImageInfo
+#define GSWJpegImageInfo		WOJpegImageInfo
+#define GSWGifImageInfo			WOGifImageInfo
+#define GSWPngImageInfo			WOPngImageInfo
 
 
 /* Dynamic Elements */

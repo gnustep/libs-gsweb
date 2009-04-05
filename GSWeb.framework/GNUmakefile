@@ -142,6 +142,7 @@ GSWHiddenField.m \
 GSWHyperlink.m \
 GSWImage.m \
 GSWImageButton.m \
+GSWImageInfo.m \
 GSWJavaScript.m \
 GSWNestedList.m \
 GSWParam.m \
@@ -256,6 +257,7 @@ GSWHiddenField.h \
 GSWHyperlink.h \
 GSWImage.h \
 GSWImageButton.h \
+GSWImageInfo.h \
 GSWInput.h \
 GSWJavaScript.h \
 GSWKeyValueAssociation.h \

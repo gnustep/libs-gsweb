@@ -1,4 +1,10 @@
-2008-10-24  David Ayers <ayers@fsfe.org>
+2009-04-05  David Ayers  <ayers@fsfe.org>
+
+	* GSWeb.framework/GSWImageInfo.h/m: New files.
+	* GSWeb.framework/GNUmakefile: Include new files.
+	* GSWeb.framework/GSWWOCompatibility.h: Include new files.
+	
+2008-10-24  David Ayers  <ayers@fsfe.org>
 
 	* GSWeb.framework/GSWDisplayGroup.h (HAVE_GDL2):
 	Remove fallback to obsolete gnustep-db and default
@@ -9,22 +15,22 @@
 	(NSStringWithObject): Remove special NSNull handling as
 	EONull must always map to NSNull anyway.
 
-2008-08-28  David Wetzel <dave@turbocat.de>
+2008-08-28  David Wetzel  <dave@turbocat.de>
 	
         * bug #24006 keep-alive is not implemented.
 	announce close connections for now
  
-2008-08-20  David Wetzel <dave@turbocat.de>
+2008-08-20  David Wetzel  <dave@turbocat.de>
 	
 	* GSWeb.framework:
 	fixed many warnings
 
-2008-07-14  David Wetzel <dave@turbocat.de>
+2008-07-14  David Wetzel  <dave@turbocat.de>
 	
 	* GSWeb.framework/GSWDirectActionRequestHandler.m:
 	set status code in generateNullResponse, reformat, remove some logs
 
-2008-04-20  David Wetzel <dave@turbocat.de>
+2008-04-20  David Wetzel  <dave@turbocat.de>
 	
 	* GSWeb.framework/GSWApplication.m,
 	* GSWeb.framework/GSWComponentRequestHandler.m,
