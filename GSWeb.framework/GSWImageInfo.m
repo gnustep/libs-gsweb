@@ -46,7 +46,7 @@ RCS_ID("$Id: GSWImageInfo.m 25027 2009-04-05 13:00:10Z ayers $")
 @implementation GSWJpegImageInfo
 -(id)initWithContentsOfFile: (NSString *)path
 {
-  NSEmitTODO();
+  NSLog(@"TODO:[%@ %@] %s:%d",NSStringFromClass([self class]),NSStringFromSelector(_cmd),__FILE__,__LINE__);
   DESTROY(self);
   return self;
 }
@@ -54,7 +54,7 @@ RCS_ID("$Id: GSWImageInfo.m 25027 2009-04-05 13:00:10Z ayers $")
 @implementation GSWGifImageInfo
 -(id)initWithContentsOfFile: (NSString *)path
 {
-  NSEmitTODO();
+  NSLog(@"TODO:[%@ %@] %s:%d",NSStringFromClass([self class]),NSStringFromSelector(_cmd),__FILE__,__LINE__);
   DESTROY(self);
   return self;
 }
@@ -62,14 +62,14 @@ RCS_ID("$Id: GSWImageInfo.m 25027 2009-04-05 13:00:10Z ayers $")
 @implementation GSWPngImageInfo
 -(id)initWithContentsOfFile: (NSString *)path
 {
-  NSEmitTODO();
+  NSLog(@"TODO:[%@ %@] %s:%d",NSStringFromClass([self class]),NSStringFromSelector(_cmd),__FILE__,__LINE__);
   DESTROY(self);
   return self;
 }
 @end
 
 @implementation GSWImageInfo
-static NSArray *supportedExtensions = nil;
+static NSDictionary *extensionClassDict = nil;
 
 + (void)initialize
 {
@@ -98,7 +98,7 @@ static NSArray *supportedExtensions = nil;
 }
 + (BOOL)pathHasSupportedExtension:(NSString *)path
 {
-  NSString *extension = [filename pathExtension];
+  NSString *extension = [path pathExtension];
   return [extensionClassDict objectForKey: extension] ? YES : NO;
 }
 + (Class)subclassForExtension:(NSString *)extension

@@ -208,6 +208,7 @@
 #include "GSWHyperlink.h"
 #include "GSWImage.h"
 #include "GSWImageButton.h"
+#include "GSWImageInfo.h"
 #include "GSWJavaScript.h"
 #include "GSWNestedList.h"
 #include "GSWParam.h"

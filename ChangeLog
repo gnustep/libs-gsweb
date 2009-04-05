@@ -3,6 +3,7 @@
 	* GSWeb.framework/GSWImageInfo.h/m: New files.
 	* GSWeb.framework/GNUmakefile: Include new files.
 	* GSWeb.framework/GSWWOCompatibility.h: Include new files.
+	* GSWeb.framework/GSWeb.h: Include new header.
 	
 2008-10-24  David Ayers  <ayers@fsfe.org>
 
