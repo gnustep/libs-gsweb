@@ -1780,30 +1780,46 @@ bundle if none is found
 };
 
 // wo
-- (NSString*) errorMessageUrlForResourceNamed:(NSString *) resourceName
-                                  inFramework:(NSString *) frameworkName
+- (NSString *) errorMessageUrlForResourceNamed:(NSString *) resourceName
+				   inFramework:(NSString *) frameworkName
 {
   NSString * url = nil;
-  if( resourceName == nil) {
-    resourceName = @"nil";
-  }
-  if (frameworkName != nil) {
-    url = [NSString stringWithFormat:@"/ERROR/NOT_FOUND/framework=%@/filename=%@", frameworkName, resourceName];
-  } else {
-    NSString * s3 = [GSWApp name];
-    url = [NSString stringWithFormat:@"/ERROR/NOT_FOUND/app=%@/filename=%@", s3, resourceName];
-  }
+  if( resourceName == nil)
+    {
+      resourceName = @"nil";
+    }
+  if (frameworkName != nil)
+    {
+      url = [NSString stringWithFormat:@"/ERROR/NOT_FOUND/framework=%@/filename=%@", frameworkName, resourceName];
+    }
+  else
+    {
+      NSString * s3 = [GSWApp name];
+      url = [NSString stringWithFormat:@"/ERROR/NOT_FOUND/app=%@/filename=%@", s3, resourceName];
+    }
   return url;
 }
 
 // checkme: locking?? davew
 - (void) _cacheData:(GSWURLValuedElementData *) aData
 {
-  if (aData != nil) {
-    [_urlValuedElementsData setObject: aData  
-                               forKey: [aData key]];
-  }
+  if (aData != nil) 
+    {
+      [_urlValuedElementsData setObject: aData  
+			      forKey: [aData key]];
+    }
 }
 
+- (GSWImageInfo *) _imageInfoForUrl:(NSString *)resourceURL
+			   fileName:(NSString *)filename
+			  framework:(NSString *)frameworkName
+			  languages:(NSArray *)languages
+{
+  NSString *path = [self pathForResourceNamed:filename
+			 inFramework:(NSString*)frameworkName
+			 languages:(NSArray*)languages];
+  
+  return [GSWImageInfo imageInfoWithFile: path];
+}
 
 @end

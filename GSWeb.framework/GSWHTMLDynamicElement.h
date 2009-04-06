@@ -48,6 +48,9 @@
   GSWAssociation      * _secure;
 }
 
++ (NSString*) _frameworkNameForAssociation: (GSWAssociation*)association 
+                               inComponent: (GSWComponent *) component;
+
 - (NSDictionary*) computeQueryDictionaryWithActionClassAssociation: (GSWAssociation*)actionClass
                                        directActionNameAssociation: (GSWAssociation*)directActionName
                                         queryDictionaryAssociation: (GSWAssociation*)queryDictionary
@@ -83,8 +86,6 @@
                             
 - (NSString*) constantAttributesRepresentation;
 
-- (NSString*) _frameworkNameForAssociation: (GSWAssociation*)association 
-                               inComponent: (GSWComponent *) component;
 - (NSString*) elementName;
 
 - (BOOL) secureInContext:(GSWContext*) context;

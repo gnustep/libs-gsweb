@@ -149,6 +149,7 @@
 @class GSWMonitorXMLDecoder;
 @class GSWRecording;
 @class GSWInputStreamData;
+@class GSWImageInfo;
 
 #include "GSWDefines.h"
 #include "GSWConstants.h"

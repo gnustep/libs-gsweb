@@ -220,6 +220,10 @@ bundle if none is found
                                   inFramework:(NSString *) frameworkName;
 
 - (void) _cacheData:(GSWURLValuedElementData *) aData;
+- (GSWImageInfo *) _imageInfoForUrl:(NSString *)resourceURL
+			   fileName:(NSString *)filename
+			  framework:(NSString *)frameworkName
+			  languages:(NSArray *)languages;
 
 @end
 

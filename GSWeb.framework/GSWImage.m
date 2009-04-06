@@ -94,10 +94,10 @@ RCS_ID("$Id$")
 };
  
  
-// GSWImage._appendFilenameToResponseInContext(woresponse, wocontext, _framework, _filename, _width, _height);
-
-
-
+/* This class method does not actually exist in WO45 yet it seems subsequent
+ * versions implement it to factor out code replicated by mutliple classes
+ * across the class hierarchy.
+ */
 + (void) _appendFilenameToResponse:(GSWResponse *)   response
                          inContext:(GSWContext *)    context
                          framework:(GSWAssociation*) framework
@@ -105,89 +105,114 @@ RCS_ID("$Id$")
                              width:(GSWAssociation*) width 
                             height:(GSWAssociation*) height
 {
-  id         widthValue = nil;
-  id         heightValue = nil;
-  BOOL       hasNoWidth = NO;
-  BOOL       hasNoHeight = NO;
-  NSString * frameworkName;
+  GSWResourceManager *resourcemanager;
+  GSWComponent *component;
+  NSString *fileNameValue;
+  NSString *frameworkName = nil;
+  NSString *resourceURL;
 
-  GSWResourceManager * resourcemanager = [GSWApp resourceManager];
+  resourcemanager = [GSWApp resourceManager];
+  component = GSWContext_component(context);
+  fileNameValue = [filename valueInComponent:component];
+  frameworkName
+    = [GSWHTMLDynamicElement _frameworkNameForAssociation: framework
+			     inComponent: component];
 
-  GSWComponent * component = GSWContext_component(context);
-  
-  NSString* fileNameValue = [filename valueInComponent:component];
+  resourceURL = [context _urlForResourceNamed: fileNameValue
+			 inFramework: frameworkName];
 
-  // i think we have to use component, because we are in a '+' method here. dw
-  
-  frameworkName = [(GSWHTMLDynamicElement*) component _frameworkNameForAssociation: framework 
-                                                                       inComponent: component];
+  if (resourceURL != nil)
+    {
+      NSString *widthStr = nil;
+      NSString *heightStr = nil;
+      BOOL calculateWidth = NO;
+      BOOL calculateHeight = NO;
 
-  NSString * resourceURL = [context _urlForResourceNamed:frameworkName inFramework: frameworkName];
+      if (width != nil || height != nil)
+	{
+	  if (width != nil)
+	    {
+	      id widthValue;
+	      widthValue = [width valueInComponent:component];
+	      if (widthValue)
+		{
+		  widthStr = NSStringWithObject(widthValue);
+		}
+	      calculateWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
+	    }
+	  if (height != nil)
+	    {
+	      id heightValue;
+	      heightValue = [height valueInComponent:component];
+	      if (heightValue)
+		{
+		  heightStr = NSStringWithObject(heightValue);
+		}
+	      calculateHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
+	    }
+	}
+      else
+	{
+	  calculateWidth = YES;
+	  calculateHeight = YES;
 
-  if (resourceURL != nil) {
-    NSString * widthStr = nil;
-    NSString * heightStr = nil;
-    if (width != nil || height != nil) {
-      if (width != nil) {
-        widthValue = [width valueInComponent:component];
-        widthStr = widthValue != nil ? widthValue : nil;        // stringValue?
-        hasNoWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
-      }
-      if (height != nil) {
-        heightValue = [height valueInComponent:component];
-        heightStr = heightValue != nil ? heightValue : nil;    // stringValue?
-        hasNoHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
-      }
-    } else {
-      hasNoWidth = YES;
-      hasNoHeight = YES;
-      // do we really need that log? dw. 
-      // NSLog("%@: No height or width information provided for '%@'. If possible, this information should be provided for best performance.", [self class], fileNameValue);
+	  GSOnceMLog(@"%@: No height or width information provided for '%@'. If possible, this information should be provided for best performance.",
+		     NSStringFromClass([self class]), fileNameValue);
+	}
+
+      if (calculateWidth || calculateHeight)
+	{
+	  GSWImageInfo * imageinfo;
+
+	  imageinfo = [resourcemanager _imageInfoForUrl: resourceURL
+				       fileName: fileNameValue
+				       framework: frameworkName
+				       languages: [context languages]];
+	  if (imageinfo != nil)
+	    {
+	      if (calculateWidth)
+		{
+		  widthStr = [imageinfo widthString];
+		}
+	      if (calculateHeight)
+		{
+		  heightStr = [imageinfo heightString];
+		}
+	    }
+	  else
+	    {
+	      NSLog(@"%@: Could not get height/width information for image at '%@' '%@' '%@'", 
+	            NSStringFromClass([self class]), resourceURL,
+		    fileNameValue, frameworkName);
+	    }
+	}
+
+      [response _appendTagAttribute: @"src"
+		value: resourceURL
+		escapingHTMLAttributeValue: NO];
+
+      if (widthStr != nil)
+	{
+	  [response _appendTagAttribute: @"width"
+		    value: widthStr
+		    escapingHTMLAttributeValue: NO];
+	}
+      if (heightStr != nil)
+	{
+	  [response _appendTagAttribute: @"height"
+		    value: heightStr
+		    escapingHTMLAttributeValue: NO];
+	}
     }
-    // GSWeb does not have that jet.
-//    
-//    if (hasNoWidth || hasNoHeight) {
-//      GSWImageInfo * imageinfo = [resourcemanager _imageInfoForUrl: resourceURL
-//                                                          fileName: fileNameValue
-//                                                         framework: frameworkName
-//                                                         languages: [context _languages]]);
-//      if (imageinfo != nil) {
-//        if (hasNoWidth)
-//        {
-//          widthStr = imageinfo.widthString();
-//        }
-//        if (hasNoHeight)
-//        {
-//          heightStr = imageinfo.heightString();
-//        }
-//      } else
-//      {
-//        NSLog("%@: could not get height/width information for image at '%@/%@/%@'", 
-//                [self class], resourceURL, fileNameValue, frameworkName);
-//      }
-//    }
-
-    [response _appendTagAttribute: @"src"
-                            value: resourceURL
-       escapingHTMLAttributeValue: NO];
-
-    if (widthStr != nil) {
-      [response _appendTagAttribute: @"width"
-                              value: widthStr
-         escapingHTMLAttributeValue: NO];
+  else
+    {
+      NSString *message 
+	= [resourcemanager errorMessageUrlForResourceNamed: fileNameValue
+			   inFramework: frameworkName];
+      [response _appendTagAttribute:@"src"
+		value: message
+		escapingHTMLAttributeValue:NO];
     }
-    if (heightStr != nil) {
-      [response _appendTagAttribute: @"height"
-                              value: heightStr
-         escapingHTMLAttributeValue: NO];
-    }
-  } else {
- 
-    [response _appendTagAttribute:@"src"
-                            value:[resourcemanager errorMessageUrlForResourceNamed: fileNameValue
-                                                                       inFramework: frameworkName]
-       escapingHTMLAttributeValue:NO];
-  }
 }
 
 // used from GSWActiveImage
@@ -221,102 +246,21 @@ RCS_ID("$Id$")
   }
 }
 
+/* This function exists in WO45 and its implementation coresponds
+ * to the class method.  Yet insubesquent versions of WO it has
+ * been consolidated into the class method.  We keep this method
+ * to remain compatible yet internally take advantage of the class method
+ * where applicable.
+ */
 - (void) _appendFilenameToResponse:(GSWResponse *) response
                          inContext:(GSWContext *) context
 {
-  id widthValue = nil;
-  id heightValue = nil;
-  BOOL hasNoWidth = NO;
-  BOOL hasNoHeight = NO;
-
-  GSWResourceManager * resourcemanager = [GSWApp resourceManager];
-
-  GSWComponent * component = GSWContext_component(context);
-  
-  NSString* fileNameValue = [_filename valueInComponent:component];
-
-  NSString * frameworkName = [self _frameworkNameForAssociation: _framework 
-                                                    inComponent: component];
-
-  NSString * resourceURL = [context _urlForResourceNamed:frameworkName inFramework: frameworkName];
-
-  if (resourceURL != nil) {
-    NSString * widthStr = nil;
-    NSString * heightStr = nil;
-    
-    NSLog(@"%s resourceURL:%@",__PRETTY_FUNCTION__, resourceURL);
-    
-    if (_width != nil || _height != nil) {
-      if (_width != nil) {
-        widthValue = [_width valueInComponent:component];
-        if (widthValue != nil) {
-          widthStr = NSStringWithObject(widthValue);
-        }
-        
-        hasNoWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
-      }
-      if (_height != nil) {
-        heightValue = [_height valueInComponent:component];
-        if (heightValue != nil) {
-          heightStr = NSStringWithObject(heightValue);
-        }
-        
-        hasNoHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
-      }
-    } else {
-      hasNoWidth = YES;
-      hasNoHeight = YES;
-      // do we really need that log? dw. 
-      // NSLog("%@: No height or width information provided for '%@'. If possible, this information should be provided for best performance.", [self class], fileNameValue);
-    }
-    // GSWeb does not have that jet.
-//    
-//    if (hasNoWidth || hasNoHeight) {
-//      GSWImageInfo * imageinfo = [resourcemanager _imageInfoForUrl: resourceURL
-//                                                          fileName: fileNameValue
-//                                                         framework: frameworkName
-//                                                         languages: [context _languages]]);
-//      if (imageinfo != nil) {
-//        if (hasNoWidth)
-//        {
-//          widthStr = imageinfo.widthString();
-//        }
-//        if (hasNoHeight)
-//        {
-//          heightStr = imageinfo.heightString();
-//        }
-//      } else
-//      {
-//        NSLog("%@: could not get height/width information for image at '%@/%@/%@'", 
-//                [self class], resourceURL, fileNameValue, frameworkName);
-//      }
-//    }
-
-    [response _appendTagAttribute: @"src"
-                            value: resourceURL
-       escapingHTMLAttributeValue: NO];
-
-    if (widthStr != nil) {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-                                                                    width__Key,
-                                                                    widthStr,
-                                                                    NO);
-    }
-    if (heightStr != nil) {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-                                                                    height__Key,
-                                                                    heightStr,
-                                                                    NO);
-    }
-  } else { // resourceURL is nil
- 
-     NSLog(@"%s resourceURL is nil self:%@",__PRETTY_FUNCTION__, self);
-
-    [response _appendTagAttribute:@"src"
-                            value:[resourcemanager errorMessageUrlForResourceNamed: fileNameValue
-                                                                       inFramework: frameworkName]
-       escapingHTMLAttributeValue:NO];
-  }
+  [GSWImage _appendFilenameToResponse: response
+	    inContext: context
+	    framework: _framework
+	    filename: _filename
+	    width: _width
+	    height: _height];
 }
 
 -(void) _appendCloseTagToResponse:(GSWResponse *) response
@@ -325,4 +269,15 @@ RCS_ID("$Id$")
 // do nothing!
 }
 
+/* This function exists in WO45 and its implementation coresponds
+ * to the class method of GSWHTMLDynamicElement.  Yet insubesquent
+ * versions of WO it has been consolidated into the class method.
+ * We keep this method to remain compatible yet internally take
+ * advantage of the class method where applicable.
+ */
+- (NSString*) _frameworkNameInComponent: (GSWComponent *) component
+{
+  return [GSWHTMLDynamicElement _frameworkNameForAssociation: _framework
+				inComponent: component];
+}
 @end

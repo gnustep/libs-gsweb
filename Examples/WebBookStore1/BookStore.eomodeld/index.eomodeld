@@ -1,6 +1,6 @@
 {
     EOModelVersion = 2; 
-    adaptorName = Postgres95; 
+    adaptorName = PostgreSQL; 
     connectionDictionary = {
         databaseName = BookStore;
     }; 

@@ -309,39 +309,41 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 }
 
 // _frameworkNameInComponent
-- (NSString*) _frameworkNameForAssociation: (GSWAssociation*)association 
++ (NSString*) _frameworkNameForAssociation: (GSWAssociation*)association 
                                inComponent: (GSWComponent *) component
 {
-  NSString * s = nil;
+  NSString *name = nil;
 
-  if (association != nil) {
-    s = [association valueInComponent:component];
-    if (s != nil) {
-      if ([[s lowercaseString] isEqual:@"app"]) {
-        s = nil;
-      }
-    } else {
+  if (association != nil)
+    {
+      name = [association valueInComponent:component];
+      if (name)
+	{
+	  if ([@"app" caseInsensativeCompare: name])
+	    {
+	      name = nil;
+	    }
+	}
+      else
+	{
+	  if (component != nil)
+	    {
+	      name = [component frameworkName];
+	    }
+
+	  [GSWApp debugWithFormat:@"%s evaluated to nil. Defaulting to %@",
+		  __PRETTY_FUNCTION__,
+		  (name ? name : @"app")];
+	}
+    }
+  else
+    {
       if (component != nil)
-      {
-        s = [component frameworkName];
-      }
-      NSString * tmpStr;
-      
-      if ((s != nil)) {
-        tmpStr = s;
-      } else {
-        tmpStr = @"app";
-      }
-      [GSWApp debugWithFormat:@"%s evaluated to nil. Defaulting to %@",
-                                __PRETTY_FUNCTION__,
-                                tmpStr];
+	{
+	  name = [component frameworkName];
+	}
     }
-  } else {
-    if (component != nil) {
-        s = [component frameworkName];
-    }
-  }
-  return s;
+   return name;
 }
 
 // computeActionStringInContext in wo5

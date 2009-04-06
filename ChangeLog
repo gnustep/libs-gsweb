@@ -1,3 +1,21 @@
+2009-04-07  David Ayers  <ayers@fsfe.org>
+
+	* GSWeb.framework/GSWeb.h (GSWImageInfo): Foward declare.
+	* GSWeb.framework/GSWHTMLDynamicElement.h/m
+	(-/+[_frameworkNameForAssociation:inComponent:]): Convert to class
+	method.  Cleanup implementation.
+	* GSWeb.framework/GSWImage.m
+	(+[_appendFilenameToResponse:inContext:framework:filename:width:height:]):
+	Add handling for image url and cleanup implementation.
+	(-[_appendFilenameToResponse:inContext:]): Delegate to class method.
+	* GSWeb.framework/GSWResourceManager.h/m
+	(-[_imageInfoForUrl:fileName:framework:languages:]): New method.
+	(-[errorMessageUrlForResourceNamed:inFramework:]): Reformat.
+	(-[_cacheData:]): Ditto.
+
+	* Examples/WebBookStore1/BookStore.eomodeld/index.eomodeld:
+	Update adaptor name.
+	
 2009-04-05  David Ayers  <ayers@fsfe.org>
 
 	* GSWeb.framework/GSWImageInfo.h/m: New files.
