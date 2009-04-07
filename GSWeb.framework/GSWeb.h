@@ -150,6 +150,7 @@
 @class GSWRecording;
 @class GSWInputStreamData;
 @class GSWImageInfo;
+@class GSWPngImageInfo;
 
 #include "GSWDefines.h"
 #include "GSWConstants.h"
@@ -210,6 +211,7 @@
 #include "GSWImage.h"
 #include "GSWImageButton.h"
 #include "GSWImageInfo.h"
+#include "GSWPngImageInfo.h"
 #include "GSWJavaScript.h"
 #include "GSWNestedList.h"
 #include "GSWParam.h"

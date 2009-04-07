@@ -262,7 +262,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 
   LOGObjectFnStart();
 
-#ifdef HAVE_ZLIB
+#ifdef HAVE_LIBZ
   dataLength=[self _contentLength];
   NSDebugMLog(@"dataLength=%d",dataLength);
   // Now we see if we can gzip the content

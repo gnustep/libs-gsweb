@@ -143,6 +143,7 @@ GSWHyperlink.m \
 GSWImage.m \
 GSWImageButton.m \
 GSWImageInfo.m \
+GSWPngImageInfo.m \
 GSWJavaScript.m \
 GSWNestedList.m \
 GSWParam.m \
@@ -258,6 +259,7 @@ GSWHyperlink.h \
 GSWImage.h \
 GSWImageButton.h \
 GSWImageInfo.h \
+GSWPngImageInfo.h \
 GSWInput.h \
 GSWJavaScript.h \
 GSWKeyValueAssociation.h \

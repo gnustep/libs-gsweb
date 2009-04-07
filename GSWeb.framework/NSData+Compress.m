@@ -33,7 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#ifdef HAVE_ZLIB
+#ifdef HAVE_LIBZ
 #include <zlib.h>
 
 void GZPutLong(void* ptr,uLong value)

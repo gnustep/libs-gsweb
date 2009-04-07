@@ -1,12 +1,12 @@
-/** NSData+Compress.h - <title>GSWeb: NSData / zlib</title>
+/** GSWPngImageInfo.h - <title>GSWeb: Class GSWPngImageInfo</title>
 
-   Copyright (C) 2003 Free Software Foundation, Inc.
-  
-   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 	May 2003
+   Copyright (C) 2009 Free Software Foundation, Inc.
    
-   $Revision$
-   $Date$
+   Written by:	David Ayers  <ayers@fsfe.org>
+   Date: 	April 2009
+   
+   $Revision: 26815 $
+   $Date: 2009-04-05 13:00:10 +0200$
 
    This file is part of the GNUstep Web Library.
    
@@ -27,16 +27,14 @@
    </license>
 **/
 
-// $Id$
+// $Id: GSWImageInfo.h 26815 2009-04-05  13:00:10Z ayers $
 
-#ifndef _NSData_Compress_h__
-#define _NSData_Compress_h__
+#ifndef _GSWPngImageInfo_h__
+	#define _GSWPngImageInfo_h__
 
-#ifdef HAVE_LIBZ
-//====================================================================
-@interface NSData (GSWZLib)
--(NSData*)deflate;
+@interface GSWPngImageInfo : GSWImageInfo
+-(id)initWithContentsOfFile: (NSString *)path;
 @end
-#endif
 
-#endif //_NSData_Compress_h__
+
+#endif //_GSWPngImageInfo_h__

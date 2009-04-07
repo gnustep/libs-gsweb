@@ -25,9 +25,10 @@
 #define	included_config_h
 
 
+#undef HAVE_LIBZ
+#undef HAVE_LIBPNG
 #undef HAVE_LIBWRAP
 #undef HAVE_GDL2
-#define HAVE_ZLIB 1
 
 #define RCS_ID(name) \
         static const char rcsId[] = name; \

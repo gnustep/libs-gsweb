@@ -15,6 +15,21 @@
 
 	* Examples/WebBookStore1/BookStore.eomodeld/index.eomodeld:
 	Update adaptor name.
+
+	* configure.ac: Add check for zlib and libpng.  Do not clobber LIBS
+	and AUX_LIBS for libwrap check.
+	* configure: Regenerate.
+	* config.h.in (HAVE_LIBZ,HAVE_ZLIB): Update autoconf test to canonical
+	name.
+	(HAVE_LIBPNG): Add new test for libpng.
+	* GSWeb.framework/GSWPngImageInfo.h/m: New files.
+	* GSWeb.framework/GSWeb.h (GSWPngImageInfo): Add declaration and include.
+	* GSWeb.framework/GNUmakefile (GSWPngImageInfo.h/m): Add files.
+	* GSWeb.framework/GSWImageInfo.m (GSWPngImageInfo): Remove reference to
+	class.
+	* GSWeb.framework/GSWResponse.m (HAVE_LIBZ,HAVE_ZLIB): Update references.
+	* GSWeb.framework/NSData+Compress.h/m (HAVE_LIBZ,HAVE_ZLIB): Ditto.
+
 	
 2009-04-05  David Ayers  <ayers@fsfe.org>
 

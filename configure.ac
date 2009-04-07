@@ -54,9 +54,19 @@ fi
 AC_SUBST(GDL2)
 
 #--------------------------------------------------------------------
+# Check for zlib
+# AC_CHECL_LIB sets HAVE_LIBZ instead of HAVE_ZLIB
+#--------------------------------------------------------------------
+AC_CHECK_HEADERS(zlib.h)
+if test $ac_cv_header_zlib_h = yes; then
+  AC_CHECK_LIB(z, gzseek)
+fi
+
+#--------------------------------------------------------------------
 # Check for libwrap
 #--------------------------------------------------------------------
 saved_LIBS="$LIBS"
+WRAP_LIBS=""
 AC_CHECK_LIB(wrap, main, wrap_ok=yes, wrap_ok=no)
 if test "$wrap_ok" = yes; then
   LIBS="-lwrap"
@@ -81,13 +91,13 @@ if test "$wrap_ok" = yes; then
   fi
 
   if test "$wrap_ok" = yes; then
-    AUX_LIBS="$AUX_LIBS $LIBS"
+    WRAP_LIBS="$LIBS"
     HAVE_LIBWRAP=1
     AC_DEFINE(HAVE_LIBWRAP)
   fi
 fi
 AC_SUBST(LIBWRAP,$wrap_ok)
-LIBS="$saved_LIBS"
+LIBS="$saved_LIBS $WRAP_LIBS"
 
 #--------------------------------------------------------------------
 # Check recent libxml for XML parser
@@ -114,6 +124,17 @@ else
 fi
 
 #--------------------------------------------------------------------
+# Find additional image libs
+#--------------------------------------------------------------------
+AC_ARG_ENABLE(png,
+  [  --disable-png           Disable PNG support],,
+  enable_png=yes)
+
+if test $enable_png = yes; then
+  AC_CHECK_LIB(png, png_sig_cmp)
+fi
+
+#--------------------------------------------------------------------
 # Record the version
 #--------------------------------------------------------------------
 AC_MSG_CHECKING(for the version of GSWeb we are compiling)
@@ -127,6 +148,7 @@ AC_SUBST(MINOR_VERSION)
 AC_SUBST(SUBMINOR_VERSION)
 AC_SUBST(GCC_VERSION)
 
+AUX_LIBS="$LIBS"
 AC_SUBST(AUX_INCS)
 AC_SUBST(AUX_LIBS)
 
