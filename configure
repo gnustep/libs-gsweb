@@ -1757,6 +1757,9 @@ if test "$GDL2" = yes; then
 #define HAVE_GDL2 1
 _ACEOF
 
+else
+  { echo "$as_me:$LINENO: WARNING: Could not find GNUstep Database Library 2. Will assume a compatible library exists anyway." >&5
+echo "$as_me: WARNING: Could not find GNUstep Database Library 2. Will assume a compatible library exists anyway." >&2;}
 fi
 
 

@@ -50,6 +50,8 @@ AC_SUBST(GSWNAMES)
 AC_CHECK_FILE($GNUSTEP_MAKEFILES/Auxiliary/gdl2.make, GDL2=yes, GDL2=no)
 if test "$GDL2" = yes; then
   AC_DEFINE(HAVE_GDL2)
+else
+  AC_MSG_WARN(Could not find GNUstep Database Library 2. Will assume a compatible library exists anyway.)
 fi
 AC_SUBST(GDL2)
 

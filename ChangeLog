@@ -1,3 +1,8 @@
+2009-04-14  David Ayers  <ayers@fsfe.org>
+
+	* configure.ac: Warn if GDL2 isn't found.
+	* configure: Regenerate.
+	
 2009-04-07  David Ayers  <ayers@fsfe.org>
 
 	* GSWeb.framework/GSWeb.h (GSWImageInfo): Foward declare.
