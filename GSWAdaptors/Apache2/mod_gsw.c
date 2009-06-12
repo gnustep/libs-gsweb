@@ -134,14 +134,11 @@ typedef struct gsw_app_conf {
 #define DEFAULT_APP_COUNT       10
 #define REFUSING_SESSIONS_HEADER "x-webobjects-refusenewsessions: "
 
-static int locklevel = 0;
 
 // used to read configs
 static int instance_count;
 static int last_app_index;
 
-//#define     apr_global_mutex_lock_d(mtx_) { syslog(LOG_ERR,"lock %d level: %d\n",__LINE__, locklevel); apr_global_mutex_lock(mtx_); locklevel++;}
-//#define     apr_global_mutex_unlock_d(mtx_) { locklevel--; syslog(LOG_ERR,"un-lock %d level: %d\n",__LINE__,locklevel); apr_global_mutex_unlock(mtx_); syslog(LOG_ERR,"OK\n");}
 
 /*
  * Let's set up a module-local static cell to point to the accreting callback
@@ -541,7 +538,7 @@ static int write_sock(int socket, const void *data, size_t len, request_rec *r)
 			case EINTR:
 				break;
 			default:
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "cannot write to socket '%s'", data);
+        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "cannot write to socket '%s'", data);
         return -1;
 				break;
 		}
@@ -556,47 +553,40 @@ void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool)
   int   done = 0;
   char  buffer[1024];
   char  b;
-
-
+  
+  
   while (((done == 0) && (i < sizeof(buffer) -1)) && (rval >0)) {
-     rval= read(socket, &b, 1);
-    buffer[i] = b;
+    rval= read(socket, &b, 1);
+    
+    if ((rval == -1)) {
+      ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "read_sock_line:'%s'", strerror(errno));
 
+      return NULL;
+    }
+    
+    buffer[i] = b;
+    
     if (b == '\n') {
-        done = 1;
-        buffer[i] = '\0';
-        if ((i>0) && (buffer[i-1] == '\r')) {
-          buffer[i-1] = '\0';       
-        }
+      done = 1;
+      buffer[i] = '\0';
+      if ((i>0) && (buffer[i-1] == '\r')) {
+        buffer[i-1] = '\0';       
+      }
     }
     i++;
-   }
-
-       buffer[i] = '\0';
+  }
+  
+  buffer[i] = '\0';
 	
 	// in case we got a \0 in the string?
-       i = strlen(buffer);	
-       if (i > 0) {
-            void * newBuf = apr_palloc(pool,i+1);
-	 strncpy(newBuf, buffer, i+1);
-//   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "read_sock_line:'%s'", newBuf);
-	 return newBuf;
-       }
+  i = strlen(buffer);	
+  if (i > 0) {
+    void * newBuf = apr_palloc(pool,i+1);
+    strncpy(newBuf, buffer, i+1);
+    //   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "read_sock_line:'%s'", newBuf);
+    return newBuf;
+  }
   return NULL;
-}
-
-void * read_sock(int socket, size_t size, apr_pool_t * pool)
-{
-  size_t		rval = 1;
-
-	char * newBuf = apr_palloc(pool,size+1);
-
-
-  rval= read(socket, newBuf, size);
-  newBuf[size+1] = '\0';
-	
-	return newBuf;
-
 }
 
 

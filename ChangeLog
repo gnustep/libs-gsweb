@@ -1,3 +1,8 @@
+2009-06-12  David Wetzel <dave@turbocat.de>
+    GSWAdaptors/Apache2/mod_gsw.c:
+    * removed unused read_sock()
+    * reformated read_sock_line()
+
 2009-04-14  David Ayers  <ayers@fsfe.org>
 
 	* configure.ac: Warn if GDL2 isn't found.
