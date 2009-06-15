@@ -103,7 +103,7 @@ GSW_LDFLAGS = \
 # We currently include the CPPFLAGS in the CFLAGS so the
 # common makefiles still work.
 comma:=,
-CFLAGS  = $(GSW_CPPFLAGS) -g
+CFLAGS  = $(GSW_CPPFLAGS) 
 CFLAGS += $(addprefix -Wc$(comma),$(GSW_CFLAGS))
 LDFLAGS = $(addprefix -Wl$(comma),$(GSW_LDFLAGS))
 
@@ -113,7 +113,7 @@ all:: $(ADAPTOR)
 
 # Link the final adaptor module with APXS
 $(ADAPTOR): $(SRCROOT)/Apache2/mod_gsw.c
-	$(APXS) -c -o $@ $(APXS_FLAGS) $(CFLAGS) $(LDFLAGS) \
+	$(APXS) -c -g -o $@ $(APXS_FLAGS) $(CFLAGS) $(LDFLAGS) \
 		$(SRCROOT)/Apache2/mod_gsw.c
 
 
