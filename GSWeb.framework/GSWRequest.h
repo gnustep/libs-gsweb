@@ -66,17 +66,19 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 @private
   NSString* _method;
   GSWDynamicURLString* _uri;
-  NSStringEncoding _defaultFormValueEncoding;
-  NSStringEncoding _formValueEncoding;
-  NSDictionary* _formValues;
-  NSDictionary* _uriElements;
-  NSDictionary* _cookie;
-  BOOL _finishedParsingMultipartFormData;
-  NSString* _applicationURLPrefix;
-  NSArray* _requestHandlerPathArray;
-  NSArray* _browserLanguages;
-  NSArray* _browserAcceptedEncodings;
-  int _requestType;
+  NSStringEncoding     _defaultFormValueEncoding;
+  NSStringEncoding     _formValueEncoding;
+  NSDictionary*        _formValues;
+  NSDictionary*        _uriElements;
+  NSDictionary*        _cookie;
+  BOOL                 _finishedParsingMultipartFormData;
+  NSString*            _applicationURLPrefix;
+  NSArray*             _requestHandlerPathArray;
+  NSArray*             _browserLanguages;
+  NSArray*             _browserAcceptedEncodings;
+  int                  _requestType;
+  NSString*            _originatingAddress;
+  uint16_t             _originatingPort;
   BOOL _isUsingWebServer;
   BOOL _formValueEncodingDetectionEnabled;
   int _applicationNumber;
@@ -222,6 +224,12 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(NSDictionary*)uriOrFormOrCookiesElements;
 
 -(void)_validateAPI;
+
+-(NSString*) _originatingAddress;
+-(void) _setOriginatingAddress:(NSString*) anAddress;
+- (uint16_t) _originatingPort;
+- (void) _setOriginatingPort:(uint16_t) aPort;
+
 @end
 
 #endif //_GSWRequest_h__

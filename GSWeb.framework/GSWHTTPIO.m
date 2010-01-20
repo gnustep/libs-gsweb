@@ -40,6 +40,7 @@
 #include "GSWMessage.h"
 #include "GSWResponse.h"
 #include "GSWRequest.h"
+#include <netinet/in.h>
 
 #define READ_SIZE 2048
 
@@ -56,6 +57,8 @@ static NSString *NEWLINE2 = @"\r\n";
 static NSString *HTTP11 = @"HTTP/1.1";
 static NSString *CONNECTION = @"connection";
 static NSString *KEEP_ALIVE = @"keep-alive";
+static BOOL      _alwaysAppendContentLength = YES;
+
 //static NSString *CLOSE = @"close";
 
 
@@ -103,11 +106,22 @@ static NSString *KEEP_ALIVE = @"keep-alive";
   return d;
 }
 
+
 @end
 
 
 @implementation GSWHTTPIO
 
+/* Apple is accessing this in Application.java in wotaskd example code -- dw */
++ _setAlwaysAppendContentLength:(BOOL) yn
+{
+  _alwaysAppendContentLength = yn;
+}
+
++ (BOOL) _alwaysAppendContentLength
+{
+  return _alwaysAppendContentLength;
+}
 
 // PRIVATE
 void _unpackHeaderLineAddToDict(NSString *line, NSMutableDictionary* headers)
@@ -222,7 +236,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
     }
   }
 
-  if (contentLength > 0) {
+  if ((contentLength > 0) || _alwaysAppendContentLength) {
     [headers appendString:CONTENT_LENGTHCOLON];        
     [headers appendString:[NSString stringWithFormat:@"%d\r\n", contentLength]];        
   }
@@ -233,6 +247,28 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   
   if ((requestIsHead == NO) && (contentLength > 0)) {
     [fh writeData: [message content]];    
+  }
+}
+
+
+//PRIVATE
++ (void) _getConnectionInfoFromHandle:(NSFileHandle*) fh 
+                        remoteAddress:(NSString**) rAddress
+                           remotePort:(uint16_t*) rPort
+{
+  int                  fileDescriptor = [(GSFileHandle*) fh fileDescriptor];
+  struct sockaddr_in   sockAddress;
+  socklen_t            address_len = sizeof(sockAddress);
+  struct sockaddr_in   sockaddrIn;
+  char                 str[INET_ADDRSTRLEN]; 
+  
+  if (getpeername(fileDescriptor, (struct sockaddr *) &sockAddress,  &address_len) == 0) {
+    
+    inet_ntop(AF_INET, &sockAddress.sin_addr, str, sizeof(str));
+        
+    *rAddress = [NSString stringWithUTF8String:str];
+    
+    *rPort = ntohs(sockAddress.sin_port);
   }
 }
 
@@ -327,9 +363,17 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   NSString      * method = nil;
   NSData        * contentData = nil;
   GSWRequest    * request = nil;
+  uint16_t        rPort = 0;
+  NSString      * rAddress = nil;
 
   [(GSFileHandle*) fh setNonBlocking: NO];
 
+  // get info about who talks to us
+  
+  [self _getConnectionInfoFromHandle: fh 
+                       remoteAddress: &rAddress
+                          remotePort: &rPort];
+  
   requestArray = [self readRequestLineFromHandle:fh];
   if ((!requestArray) || ([requestArray count] <3)) { 
     return nil; 
@@ -341,6 +385,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   }
 
   method = [requestArray objectAtIndex:0];
+  
 
   if ((tmpValue = [headers objectForKey:CONTENT_LENGTH]) && ([tmpValue count])) {
     NSString      * tmpString = [tmpValue objectAtIndex:0];
@@ -358,6 +403,15 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
                                        content:contentData
                                       userInfo:nil];
 
+  if (request != nil)
+  {
+    [request _setOriginatingAddress:rAddress];
+    [request _setOriginatingPort:rPort];
+//    [request _setAcceptingAddress:xxx];
+//    [request _setAcceptingPort:yyy];
+  }
+  
+  
   return [request autorelease];
 }
 

@@ -430,6 +430,23 @@ int GSWApplicationMain(NSString* applicationClassName,
   GSWLogMemC("End Dealloc GSWApplication");
 };
 
+
+-(void) _setHostAddress:(NSString *) hostAdr
+{
+  [_hostAddress release];
+  _hostAddress = [hostAdr retain];
+}
+
+- (NSString*) hostAddress
+{
+  if(_hostAddress == nil)
+  {
+    _hostAddress = [[[NSHost currentHost] address] retain];
+  }
+  return _hostAddress;
+}
+
+
 //--------------------------------------------------------------------
 -(NSString*)description
 {

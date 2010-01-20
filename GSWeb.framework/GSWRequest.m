@@ -151,6 +151,7 @@ RCS_ID("$Id$")
 -(void)dealloc
 {
   DESTROY(_value);
+
   [super dealloc];
 };
 
@@ -261,6 +262,7 @@ RCS_ID("$Id$")
   DESTROY(_requestHandlerPathArray);
   DESTROY(_browserLanguages);
   DESTROY(_browserAcceptedEncodings);
+  DESTROY(_originatingAddress);
 
   [super dealloc];
 };
@@ -282,6 +284,8 @@ RCS_ID("$Id$")
       ASSIGNCOPY(clone->_requestHandlerPathArray,_requestHandlerPathArray);
       ASSIGNCOPY(clone->_browserLanguages,_browserLanguages);
       ASSIGNCOPY(clone->_browserAcceptedEncodings,_browserAcceptedEncodings);
+      ASSIGNCOPY(clone->_originatingAddress,_originatingAddress);
+
       clone->_requestType=_requestType;
       clone->_isUsingWebServer=_isUsingWebServer;
       clone->_formValueEncodingDetectionEnabled=_formValueEncodingDetectionEnabled;
@@ -2279,5 +2283,28 @@ into
 {
   LOGObjectFnNotImplemented();	//TODOFN
 };
+
+
+-(NSString*) _originatingAddress
+{
+  return _originatingAddress;
+}
+
+-(void) _setOriginatingAddress:(NSString*) anAddress
+{
+  [_originatingAddress release];
+  _originatingAddress = [anAddress retain];
+}
+
+- (uint16_t) _originatingPort
+{
+  return _originatingPort;
+}
+
+- (void) _setOriginatingPort:(uint16_t) aPort
+{
+  _originatingPort = aPort;
+}
+
 
 @end

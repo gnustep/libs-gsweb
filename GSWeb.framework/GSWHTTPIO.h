@@ -36,6 +36,10 @@
 
 }
 
++ _setAlwaysAppendContentLength:(BOOL) yn;
+
++ (BOOL) _alwaysAppendContentLength;
+  
 + (GSWRequest*) readRequestFromFromHandle:(NSFileHandle*) fh;
 
 + (void) sendResponse:(GSWResponse*) response

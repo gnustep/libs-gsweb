@@ -1311,7 +1311,10 @@ static NSString *_dflt_host = nil;
   /*
     [[GSWApp adaptors] makeObjectsPerformSelector:@selector(setHost:)
 	withObject:host_];
+   - (NSString*) hostAddress;
+
   */
+  [GSWApp _setHostAddress:[[NSHost hostWithName:host] address]];
 };
 
 //--------------------------------------------------------------------

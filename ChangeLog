@@ -1,3 +1,28 @@
+2010-01-20  David Wetzel <dave@turbocat.de>
+    GSWeb.framework/GSWApplication.m
+    * added _setHostAddress:, hostAddress 
+
+    GSWeb.framework/GSWRequest.h
+    * added _originatingAddress, _originatingPort
+
+    GSWeb.framework/GSWDisplayGroup.h
+    * changed undoManager to be id as compile fix for TCSDB.
+    
+    GSWeb.framework/GSWApplication+Defaults.m
+    * added hostAddress
+    
+    GSWeb.framework/GSWHTTPIO.h
+    * added _setAlwaysAppendContentLength
+    
+    GSWeb.framework/GSWHTTPIO.m
+    * added _alwaysAppendContentLength
+    * added + (void) _getConnectionInfoFromHandle:remoteAddress:remotePort:
+    * set originatingAddress and port to request now.
+    
+    GSWeb.framework/GSWApplication.h
+    * added _hostAddress, hostAddress, _setHostAddress
+    * removed lots of @interface lines.
+
 2009-06-12  David Wetzel <dave@turbocat.de>
     GSWAdaptors/Apache2/GNUmakefile.in
     * added -g to include debug info as default
