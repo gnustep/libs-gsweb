@@ -113,13 +113,13 @@ all:: $(ADAPTOR)
 
 # Link the final adaptor module with APXS
 $(ADAPTOR): $(SRCROOT)/Apache2/mod_gsw.c
-	$(APXS) -c -g -o $@ $(APXS_FLAGS) $(CFLAGS) $(LDFLAGS) \
+	$(APXS) -c -o $@ $(APXS_FLAGS) $(CFLAGS) $(LDFLAGS) \
 		$(SRCROOT)/Apache2/mod_gsw.c
 
 
 # Install module (via apxs) and mod_gsw.conf file
 install: $(ADAPTOR)
-	$(APXS) -i -n gsweb $(ADAPTOR)
+	$(APXS) -i -n gsw $(ADAPTOR)
 	  echo "-------------------------------------" ; \
 	  echo Please update your httpd.conf ; \
 	  echo Valid options are: ; \
@@ -127,7 +127,7 @@ install: $(ADAPTOR)
 	  echo App Name=YOURAPP Instance=1 Host=HOSTIP:PORT ; \
 
 clean:
-	rm -f $(ADAPTOR) core *~
+	rm -f $(ADAPTOR) core *~ mod_gsw.lo mod_gsw.o mod_gsw.slo
 
 distclean: clean
 	rm -rf config.log config.status GNUmakefile autom4te.cache

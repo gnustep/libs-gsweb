@@ -1,3 +1,7 @@
+2010-04-14  David Wetzel <dave@turbocat.de>
+    Apache2/GNUmakefile.in
+    * changed flags, clean now
+
 2010-01-20  David Wetzel <dave@turbocat.de>
     GSWeb.framework/GSWApplication.m
     * added _setHostAddress:, hostAddress 
