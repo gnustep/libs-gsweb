@@ -320,7 +320,7 @@ static GSWContext *   TheTemporaryContext;
   GSWComponent * myInstance = nil;
   BOOL         locked = NO;
   
-  if ([myClass isKindOfClass: [GSWComponent class]]) {
+  if ([myClass isSubclassOfClass: [GSWComponent class]]) {
     [aContext _setComponentName:_className];
   }
   [aContext _setTempComponentDefinition:self];
