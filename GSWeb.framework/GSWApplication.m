@@ -37,12 +37,6 @@ RCS_ID("$Id$")
 #include "GSWLifebeatThread.h"
 #include "GSWRecording.h"
 
-#if HAVE_GDL2 // GDL2 implementation
-#include <EOAccess/EOModelGroup.h>
-#endif
-#ifdef TCSDB
-#include <TCSimpleDB/TCSimpleDB.h>
-#endif
 #include "stacktrace.h"
 #include "attach.h"
 
@@ -3661,18 +3655,12 @@ to another instance **/
 //--------------------------------------------------------------------
 +(id)defaultModelGroup
 {
-#if HAVE_GDL2 // GDL2 implementation
-  //OK
-  return [EOModelGroup defaultGroup];
-#else
 #ifdef TCSDB
-  return [DBModelGroup defaultGroup];
+  return [NSClassFromString(@"DBModelGroup") defaultGroup];
 #else
-  LOGClassFnNotImplemented();
-  return nil;
+  return [NSClassFromString(@"EOModelGroup") defaultGroup];
 #endif
-#endif
-};
+}
 
 //--------------------------------------------------------------------
 +(id)_modelGroupFromBundles:(id)bundles

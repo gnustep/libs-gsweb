@@ -558,6 +558,53 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(void)setRequestClassName:(NSString*)className;
 -(NSString*)requestClassName;
 
+//NDFN
+-(id)propListWithResourceNamed:(NSString*)aName
+                        ofType:(NSString*)aType
+                   inFramework:(NSString*)aFrameworkName
+                     languages:(NSArray*)languages;
++(BOOL)createUnknownComponentClasses:(NSArray*)classes
+                      superClassName:(NSString*)aSuperClassName;
++(void)addDynCreateClassName:(NSString*)aClassName
+              superClassName:(NSString*)aSuperClassName;
+//NDFN
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                     inFramework:(NSString*)aFrameworkName
+                       languages:(NSArray*)languages;
+//NDFN
+-(NSString*)pathForResourceNamed:(NSString*)aName
+                          ofType:(NSString*)aType 
+                     inFramework:(NSString*)aFrameworkName
+                       languages:(NSArray*)languages;
+
+//NDFN
+-(NSString*)urlForResourceNamed:(NSString*)aName
+                    inFramework:(NSString*)aFrameworkName
+                      languages:(NSArray*)languages
+                        request:(GSWRequest*)aRequest;
+//NDFN
+-(NSString*)stringForKey:(NSString*)key_
+            inTableNamed:(NSString*)aTableName
+        withDefaultValue:(NSString*)defaultValue
+             inFramework:(NSString*)aFrameworkName
+               languages:(NSArray*)languages;
+//NDFN
+-(NSDictionary*)stringsTableNamed:(NSString*)aTableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages;
+//NDFN
+-(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
+                      inFramework:(NSString*)aFrameworkName
+                        languages:(NSArray*)languages;
+//NDFN
+-(NSArray*)filterLanguages:(NSArray*)languages;
+@end
+
+GSWEB_EXPORT GSWApplication* GSWApp;
+
+/* User Defaults. This is an interface in WO 4.x -- dw*/
+@interface GSWApplication (UserDefaults)
+
 +(NSArray*)loadFrameworks;
 +(void)setLoadFrameworks:(NSArray*)frameworks;
 +(BOOL)isDebuggingEnabled;
@@ -688,76 +735,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 +(BOOL)_multipleInstances;
 +(void)_readLicenseParameters;
 
-//NDFN
--(id)propListWithResourceNamed:(NSString*)aName
-                        ofType:(NSString*)aType
-                   inFramework:(NSString*)aFrameworkName
-                     languages:(NSArray*)languages;
-+(BOOL)createUnknownComponentClasses:(NSArray*)classes
-                      superClassName:(NSString*)aSuperClassName;
-+(void)addDynCreateClassName:(NSString*)aClassName
-              superClassName:(NSString*)aSuperClassName;
-//NDFN
--(NSString*)pathForResourceNamed:(NSString*)aName
-                     inFramework:(NSString*)aFrameworkName
-                       languages:(NSArray*)languages;
-//NDFN
--(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)aType 
-                     inFramework:(NSString*)aFrameworkName
-                       languages:(NSArray*)languages;
+@end /* User defaults */
 
-//NDFN
--(NSString*)urlForResourceNamed:(NSString*)aName
-                    inFramework:(NSString*)aFrameworkName
-                      languages:(NSArray*)languages
-                        request:(GSWRequest*)aRequest;
-//NDFN
--(NSString*)stringForKey:(NSString*)key_
-            inTableNamed:(NSString*)aTableName
-        withDefaultValue:(NSString*)defaultValue
-             inFramework:(NSString*)aFrameworkName
-               languages:(NSArray*)languages;
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages;
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages;
-//NDFN
--(NSArray*)filterLanguages:(NSArray*)languages;
-@end
-//====================================================================
-/*
-@interface GSWApplication (GSWDeprecatedAPI)
--(GSWComponent*)pageWithName:(NSString*)aName; //OldFN
--(void)savePage:(GSWComponent*)page_;
--(GSWSession*)session;
--(GSWContext*)context;
--(GSWSession*)createSession;
--(GSWSession*)restoreSession;
--(void)saveSession:(GSWSession*)session_;
-
--(GSWResponse*)handleSessionCreationError;
--(GSWResponse*)handleSessionRestorationError;
--(GSWResponse*)handlePageRestorationError;
--(GSWResponse*)handleException:(NSException*)exception_;
-
--(GSWComponent*)restorePageForContextID:(NSString*)contextID_;
--(NSString*)pathForResourceNamed:(NSString*)aName
-						   ofType:(NSString*)aType;
--(NSString*)urlForResourceNamed:(NSString*)aName
-						  ofType:(NSString*)aType;
--(NSString*)stringForKey:(NSString*)key_
-			inTableNamed:(NSString*)table_
-		withDefaultValue:(NSString*)defaultValue_;
--(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
--(GSWDynamicElement*)dynamicElementWithName:(NSString*)aName
-							  associations:(NSDictionary*)associations_
-								  template:(GSWElement*)templateElement_; //OldFN
-@end
-*/
-GSWEB_EXPORT GSWApplication* GSWApp;
 #endif //_GSWApplication_h__
