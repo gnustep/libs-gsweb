@@ -1256,7 +1256,15 @@ static int  _dflt_lifebeatDestinationPort = 0;
 };
 
 //--------------------------------------------------------------------
+// dw 20 jan 2010 this should be
+// -(void) _setLifebeatDestinationPort:(int) port
 +(void)setLifebeatDestinationPort:(int)port
+{
+  _dflt_lifebeatDestinationPort = port;
+  _dflt_init_lifebeatDestinationPort = YES;
+};
+
++(void)_setLifebeatDestinationPort:(int)port
 {
   _dflt_lifebeatDestinationPort = port;
   _dflt_init_lifebeatDestinationPort = YES;

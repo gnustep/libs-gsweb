@@ -87,7 +87,6 @@
 @class GSWAssociation;
 @class GSWComponent;
 @class GSWContext;
-@class GSWDisplayGroup;
 @class GSWElement;
 @class GSWDynamicElement;
 @class GSWMessage;
@@ -170,7 +169,6 @@
 #include "GSWApplication.h"
 #include "GSWAssociation.h"
 #include "GSWContext.h"
-#include "GSWDisplayGroup.h"
 #include "GSWElement.h"
 #include "GSWComponent.h"
 #include "GSWHTMLStaticElement.h"

@@ -94,6 +94,7 @@
 #define GSWJpegImageInfo		WOJpegImageInfo
 #define GSWGifImageInfo			WOGifImageInfo
 #define GSWPngImageInfo			WOPngImageInfo
+#define WOHttpIO                        GSWHTTPIO
 
 
 /* Dynamic Elements */

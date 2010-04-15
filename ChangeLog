@@ -1,3 +1,14 @@
+2010-04-15  David Wetzel <dave@turbocat.de>
+    new GSWDatabase Framework for EOF/GDL based applications
+    not tested yet!
+    GSWeb.framework:
+    * Moved WODisplayGroup.? to GSWDatabase
+      changed: GNUmakefile GSWeb.h GSWWOCompatibility.h
+    * GSWApplication: removed EOF
+    * small cleanups
+    * GSWUtils.m EONull -> NSNull
+    * GSWApplication+Defaults.m, GSWPrivate.h additions for Monitoring
+
 2010-04-14  David Wetzel <dave@turbocat.de>
     Apache2/GNUmakefile.in
     * changed flags, clean now

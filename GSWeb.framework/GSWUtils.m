@@ -91,7 +91,7 @@ void GSWInitializeAllMisc()
       // Strings things
       ASSIGN(nsStringClass,[NSString class]);
       ASSIGN(nsMutableStringClass,[NSMutableString class]);
-      ASSIGN(eoNullClass,[EONull class]);
+      ASSIGN(eoNullClass,[NSNull class]);
 
       stringWithStringSEL = @selector(stringWithString:);
       NSCAssert(stringWithStringSEL,@"No SEL for stringWithString:");

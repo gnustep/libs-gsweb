@@ -89,6 +89,10 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
 -(GSWComponentDefinition*) _componentDefinitionWithName:(NSString*)aName
                                               languages:(NSArray*)languages;
 
+/* defaults */
+
++(void)_setLifebeatDestinationPort:(int)port;
+
 @end
 
 @interface GSWAssociation (PrivateDeclarations)

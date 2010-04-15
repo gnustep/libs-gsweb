@@ -107,7 +107,6 @@ GSWAssociation.m \
 GSWComponent.m \
 GSWContext.m \
 GSWMultiKeyDictionary.m \
-GSWDisplayGroup.m \
 GSWDynamicElement.m \
 GSWDynamicGroup.m \
 GSWElement.m \
@@ -194,6 +193,7 @@ GSWRecording.m \
 GSWInputStreamData.m \
 GSWActionURL.m \
 GSWWorkerThread.m \
+NSObject+XML.m
 
 #For next Version:
 #GSWAdminAction.m \
@@ -237,7 +237,6 @@ GSWAction.h \
 GSWDirectAction.h \
 GSWActionRequestHandler.h \
 GSWDirectActionRequestHandler.h \
-GSWDisplayGroup.h \
 GSWDynamicElement.h \
 GSWDynamicGroup.h \
 GSWDynamicURLString.h \
@@ -323,6 +322,9 @@ GSWRecording.h \
 GSWInputStreamData.h \
 GSWActionURL.h \
 GSWDefines.h \
+GSWHTTPIO.h \
+GSWPrivate.h \
+NSObject+XML.h
 
 #For next Version:
 #GSWAdminAction.h \
@@ -341,7 +343,6 @@ WO_HEADER_FILES = \
 	WOContext.h \
 	WOCookie.h \
 	WODirectAction.h \
-	WODisplayGroup.h \
 	WODynamicElement.h \
 	WOElement.h \
 	WOMailDelivery.h \
