@@ -33,10 +33,6 @@ Resources/Info-gnustep.plist \
 GSWDatabase_COMPONENTS = 
 GSWDatabase_LOCALIZED_RESOURCE_FILES = 
 
-GSWDatabase_COMPONENTS = $(addprefix GSW, \
-			     $(addsuffix .gswc, $(Extensions_COMPONENTS)))
-GSWDatabase_COMPONENTS += GSWRedirect.gswc
-
 WOExtensions_COMPONENTS =  $(addprefix WO, \
 			     $(addsuffix .wo, $(Extensions_COMPONENTS)))
 
