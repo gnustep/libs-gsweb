@@ -8,6 +8,7 @@
     * small cleanups
     * GSWUtils.m EONull -> NSNull
     * GSWApplication+Defaults.m, GSWPrivate.h additions for Monitoring
+    * added NSObject+XML.?
 
 2010-04-14  David Wetzel <dave@turbocat.de>
     Apache2/GNUmakefile.in
