@@ -40,12 +40,12 @@ RCS_ID("$Id$")
 #include <limits.h>
 #include <float.h>
 
-#ifdef TCSDB
-#include <TCSimpleDB/TCSimpleDB.h>
-#endif
-#if HAVE_GDL2
-#include <EOControl/EOKeyValueCoding.h>
-#endif
+//#ifdef TCSDB
+//#include <TCSimpleDB/TCSimpleDB.h>
+//#endif
+//#if HAVE_GDL2
+//#include <EOControl/EOKeyValueCoding.h>
+//#endif
 
 static NSDictionary* localMinMaxDictionary=nil;
 static NSMutableDictionary* associationsHandlerClasses=nil;
@@ -99,9 +99,9 @@ static Class NSStringClass = Nil;
                                                [NSNumber numberWithFloat:DBL_MAX],@"DOUBLE_MAX",
                                                nil,nil]
                                   retain];
-        };
-    };
-};
+        }
+    }
+}
 
 //--------------------------------------------------------------------
 +(void)dealloc
@@ -112,7 +112,7 @@ static Class NSStringClass = Nil;
   DESTROY(associationsLock);
   
   [super dealloc];
-};
+}
 
 //--------------------------------------------------------------------
 //	init
@@ -120,11 +120,11 @@ static Class NSStringClass = Nil;
 {
   if ((self=[super init]))
     {
-    };
+    }
   _negate = NO;
   
   return self;
-};
+}
 
 -(void)dealloc
 {
@@ -132,7 +132,7 @@ static Class NSStringClass = Nil;
   DESTROY(_declarationName);
   DESTROY(_declarationType);
   [super dealloc];
-};
+}
 
 
 // YES if we negate the result before returnig it.
@@ -160,32 +160,32 @@ static Class NSStringClass = Nil;
          declarationName:_declarationName
          declarationType:_declarationType];
   return clone;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return [super description];
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)bindingName
 {
   return _bindingName;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)declarationName
 {
   return _declarationName;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)declarationType
 {
   return _declarationType;
-};
+}
 
 //--------------------------------------------------------------------
 //	isValueConstant
@@ -193,7 +193,7 @@ static Class NSStringClass = Nil;
 -(BOOL)isValueConstant 
 {
   return YES;
-};
+}
 
 //--------------------------------------------------------------------
 //	isValueSettable
@@ -234,7 +234,7 @@ static Class NSStringClass = Nil;
 -(id)valueInComponent:(GSWComponent*)component;
 {
   return [self subclassResponsibility:_cmd];
-};
+}
 
 // added in WO5?
 // they call it booleanValueInComponent:
@@ -312,7 +312,7 @@ static Class NSStringClass = Nil;
   }
 
   return nil;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -322,7 +322,7 @@ static Class NSStringClass = Nil;
 {
   //OK
   return [[[GSWConstantValueAssociation alloc]initWithValue:value] autorelease];
-};
+}
 
 //--------------------------------------------------------------------
 //	associationFromString:
@@ -358,7 +358,7 @@ static Class NSStringClass = Nil;
             {
               ExceptionRaise(@"GSWAssociation",@"String '%@' start with a \" but doesn't finish with a \"",
                              trimmedString);
-            };
+            }
         }
       else if ([trimmedString hasPrefix:@"\'"])
         {
@@ -370,7 +370,7 @@ static Class NSStringClass = Nil;
             {
               ExceptionRaise(@"GSWAssociation",@"String '%@' starts with a \"'\" but does not end with a \"'\"",
                              trimmedString);
-            };
+            }
         }
       else if ([trimmedString hasPrefix:@"#"])
         {
@@ -384,7 +384,7 @@ static Class NSStringClass = Nil;
               ExceptionRaise(@"GSWAssociation",@"String '%@' start with a '#' but doesn't countain an hexadecimal number (on %dth Character)",
                              trimmedString,
                              (int)(endPtr-cString+1));
-            };
+            }
           assoc=[self associationWithValue:GSWIntNumber(value)];
         }
       else
@@ -417,14 +417,14 @@ static Class NSStringClass = Nil;
                       ExceptionRaise(@"GSWAssociation",
                                      @"String '%@' must be a good number",
                                      trimmedString);
-                    };
+                    }
                   assoc=[self associationWithValue:GSWIntNumber(value)];
-                };
-            };
-        };
-    };
+                }
+            }
+        }
+    }
   return assoc;
-};
+}
 
 //--------------------------------------------------------------------
 +(void)setClasse:(Class)class
@@ -435,14 +435,14 @@ static Class NSStringClass = Nil;
     {
       if (class)
         associationsHandlerClasses=[NSMutableDictionary new];
-    };
+    }
   if (class)
     [associationsHandlerClasses setObject:class
                                 forKey:handler];
   else if (associationsHandlerClasses)
     [associationsHandlerClasses removeObjectForKey:handler];
   LoggedUnlock(associationsLock);
-};
+}
 
 //--------------------------------------------------------------------
 +(void)addLogHandlerClasse:(Class)class
@@ -452,11 +452,11 @@ static Class NSStringClass = Nil;
     {
       if (class)
         associationsLogsHandlerClasses=[NSMutableArray new];
-    };
+    }
   if (class)
     [associationsLogsHandlerClasses addObject:class];
   LoggedUnlock(associationsLock);
-};
+}
 
 //--------------------------------------------------------------------
 +(void)removeLogHandlerClasse:(Class)class
@@ -466,9 +466,9 @@ static Class NSStringClass = Nil;
     {
       if (class)
         [associationsLogsHandlerClasses removeObject:class];
-    };
+    }
   LoggedUnlock(associationsLock);
-};
+}
 
 /*
 //====================================================================
@@ -480,7 +480,7 @@ static Class NSStringClass = Nil;
 {
   GSWContext* context=[[GSWApplication application] context];
   [self valueInComponent:GSWContext_component(context)];
-};
+}
 
 //--------------------------------------------------------------------
 //	setValue:inComponent:
@@ -490,7 +490,7 @@ static Class NSStringClass = Nil;
   GSWContext* context=[[GSWApplication application] context];
   [self setValue:(id)value
         inComponent:GSWContext_component(context)];
-};
+}
 @end
 */
 //====================================================================
@@ -507,7 +507,7 @@ static Class NSStringClass = Nil;
 -(BOOL)isImplementedForComponent:(NSObject*)component
 {
   return YES;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -516,7 +516,7 @@ static Class NSStringClass = Nil;
   //OK
   [self subclassResponsibility:_cmd];
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)logValue:(id)value
@@ -548,7 +548,7 @@ static Class NSStringClass = Nil;
                            bindingNamed:_bindingName
                            associationDescription:debugDescription
                            value:value];
-                };
+                }
             }
           NS_HANDLER
             {
@@ -558,23 +558,23 @@ static Class NSStringClass = Nil;
             }
           NS_ENDHANDLER;
           LoggedUnlock(associationsLock);
-        };
-    };
-};
+        }
+    }
+}
 
 //--------------------------------------------------------------------
 -(void)logTakeValue:(id)value
 {
   [self logValue:value
         forSet:NO];
-};
+}
 
 //--------------------------------------------------------------------
 -(void)logSetValue:(id)value
 {
   [self logValue:value
         forSet:YES];
-};
+}
 
 //--------------------------------------------------------------------
 -(void)logSynchronizeForValue:(id)value
@@ -600,7 +600,7 @@ static Class NSStringClass = Nil;
                 [class logSynchronizeParentToComponentForValue:value
                        association:self
                        inComponent:component];
-            };
+            }
         }
       NS_HANDLER
         {
@@ -610,8 +610,8 @@ static Class NSStringClass = Nil;
         }
       NS_ENDHANDLER;
       LoggedUnlock(associationsLock);
-    };
-};
+    }
+}
 
 //--------------------------------------------------------------------
 -(void)logSynchronizeComponentToParentForValue:(id)value
@@ -620,7 +620,7 @@ static Class NSStringClass = Nil;
   [self logSynchronizeForValue:value
         inComponent:component
         componentToParent:YES];
-};
+}
 
 //--------------------------------------------------------------------
 -(void)logSynchronizeParentToComponentForValue:(id)value
@@ -629,7 +629,7 @@ static Class NSStringClass = Nil;
   [self logSynchronizeForValue:value
         inComponent:component
         componentToParent:NO];
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)debugDescription
@@ -637,7 +637,7 @@ static Class NSStringClass = Nil;
   //OK
   [self subclassResponsibility:_cmd];
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 
@@ -649,7 +649,7 @@ static Class NSStringClass = Nil;
   ASSIGN(_bindingName,bindingName);
   ASSIGN(_declarationName,declarationName);
   ASSIGN(_declarationType,declarationType);
-};
+}
 
 //--------------------------------------------------------------------
 +(id)valueInComponent:(GSWComponent*)object
@@ -658,209 +658,89 @@ static Class NSStringClass = Nil;
   static id EONullNull=nil;
   //TODO MultiThread Protection ?
   if (!EONullNull)
-    {
-#ifdef HAVE_GDL2 
-  EONullNull=[EONull null];
-#else
-#ifdef TCSDB
-  EONullNull=[DBNull null];
-#else
-  EONullNull=[NSNull null];
-#endif
-#endif
-    };
+  {
+    EONullNull=[NSNull null];
+  }
   id retValue=nil;
+  
   if (keyPath && object && object!=EONullNull)
+  {
+    NS_DURING
     {
-#if HAVE_GDL2
-      NS_DURING
-        {
-          retValue=[object valueForKeyPath:keyPath];
-        }
-      NS_HANDLER
-        {
-          NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
-                [object class],
-                keyPath,
-                localException);
-          localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods" 
-                                           format:@"-[%@ %@]",
-                                           [object class],
-                                           keyPath];
-          [localException raise];
-        }
-      NS_ENDHANDLER;
-      if (retValue==EONullNull)
-        retValue=nil;
-#else
-#ifdef TCSDB
-      // the same as on GDL2
-      NS_DURING
-        {
-          retValue=[object valueForKeyPath:keyPath];
-        }
-      NS_HANDLER
-        {
-          NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
-                [object class],
-                keyPath,
-                localException);
-          localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods"
-                                           format:@"-[%@ %@]",
-                                           [object class],
-                                           keyPath];
-          [localException raise];
-        }
-      NS_ENDHANDLER;
-      if (retValue==EONullNull)
-        retValue=nil;
-
-#else // NO TCSDB and NO GDL2
-      NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
-      id part=nil;
-      Class handlerClass=Nil;
-      retValue=object;
-      NSAssert(retValue,@"No Component");
-
-      while(retValue && [keys count]>0)
-        {
-          part=[keys objectAtIndex:0];
-          [keys removeObjectAtIndex:0];
-
-          if ([part hasPrefix:@"\""])
-            {
-              part=[part stringByDeletingPrefix:@"\""];
-              while([keys count]>0)
-                {
-                  id tmpPart=[keys objectAtIndex:0];
-                  [keys removeObjectAtIndex:0];
-                  if ([tmpPart hasSuffix:@"\""])
-                    {
-                      tmpPart=[tmpPart stringByDeletingSuffix:@"\""];
-                      part=[part stringByAppendingFormat:@".%@",tmpPart];
-                      break;
-                    }
-                  else
-                    part=[part stringByAppendingFormat:@".%@",tmpPart];
-                }                        
-            }
-          handlerClass=[associationsHandlerClasses objectForKey:part];
-
-          if (handlerClass)
-            retValue=[handlerClass processValueInObject:retValue
-                                   forHandler:part
-                                   forKeyPath:keys];
-          else if ([part isEqualToString:GSASK_Class])
-            {
-              Class class=Nil;
-              NSAssert2([keys count]>0,@"No class name for handler %@ in %@",
-                        GSASK_Class,
-                        keyPath);
-              part=[keys objectAtIndex:0];
-              [keys removeObjectAtIndex:0];
-
-              class=NSClassFromString(part);
-              NSAssert3(class>0,@"No class named %@ for handler %@ in %@",
-                        part,
-                        GSASK_Class,
-                        keyPath);
-              if (class)
-                retValue=class;
-              else
-                retValue=nil;
-            }
-          else if ([part isEqualToString:GSASK_Language])
-            {
-              NSArray* languages=[[GSWApp _context] languages];
-              int count=[languages count];
-              id v=nil;
-              int i=0;
-              for(i=0;!v && i<count;i++)
-                {
-                  id language=[languages objectAtIndex:i];
-                  v=[retValue valueForKey:language];
-                };
-              retValue=v;
-            }
-          else
-            {
-              BOOL skipping = NO;
-
-              NS_DURING
-                {
-                  retValue=[retValue valueForKey:part];
-                }
-              NS_HANDLER
-                {
-                  NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
-                        [retValue class],
-                        part,
-                        localException);
-                  localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods"
-                                                   format:@"-[%@ %@]",[retValue class],part];
-                  [localException raise];
-                }
-              NS_ENDHANDLER;
-            };
-          if (retValue==EONullNull)
-            retValue=nil;
-        };
-#endif
-#endif
-    };
-
+      retValue=[object valueForKeyPath:keyPath];
+    }
+    NS_HANDLER
+    {
+      NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
+            [object class],
+            keyPath,
+            localException);
+      localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods"
+                                                               format:@"-[%@ %@]",
+                        [object class],
+                        keyPath];
+      
+      [localException raise];
+    }
+    NS_ENDHANDLER;
+    if (retValue==EONullNull)
+      retValue=nil;
+  }
+  
   return retValue;
-};
+}
 
 //--------------------------------------------------------------------
 
-#ifdef TCSDB
 +(void)setValue:(id)value
     inComponent:(GSWComponent*)object
      forKeyPath:(NSString*)keyPath
 {
-
+  
   id tmpObject = nil;
   NSString *tmpKey = nil;
   
   if (keyPath) {
     NSRange       r = [keyPath rangeOfString: @"."];
-
+    
     if (r.length == 0) {
       tmpObject = object;
       tmpKey = keyPath;
     } else {
       NSString  *key = [keyPath substringToIndex: r.location];
-     // NSString  *path = [keyPath substringFromIndex: NSMaxRange(r)];
-
-      //[[self valueForKey: key] smartTakeValue: anObject
-  //                                 forKeyPath: path];
-
       tmpObject = [object valueForKey: key];
       tmpKey = [keyPath substringFromIndex: NSMaxRange(r)];
     }
     if (tmpObject) //&& [object isKindOfClass:[GSWComponent class]]
     {
-      NSException* exp = [tmpObject validateValue:&value
-                                           forKey:tmpKey];
-      if (exp)
+      NSError * outError = nil;
+      
+      BOOL ok = [tmpObject validateValue:&value forKey:tmpKey error:&outError];
+      if (ok == NO)
       {
-        NSException* exception=nil;
+        NSException  * exception=nil;
+        NSDictionary * uInfo;
+        NSString     * errorStr = @"unknown reason";
+        
+        uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                 (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
+                 keyPath, @"EOValidatedPropertyUserInfoKey",
+                 nil];
+        
+        if ((outError) && ([outError userInfo])) {
+          errorStr = [[outError userInfo] valueForKey:NSLocalizedDescriptionKey];
+        }
         
         exception=[NSException exceptionWithName:@"EOValidationException"
-                                          reason:[exp reason]
-                                        userInfo:[NSDictionary
-                                                            dictionaryWithObjectsAndKeys:
-                                          (value ? value : (id)@"nil"),@"EOValidatedObjectUserInfoKey",
-                                          keyPath,@"EOValidatedPropertyUserInfoKey",
-                                          nil,nil]];
+                                          reason:errorStr
+                                        userInfo:uInfo];
+        
         [object validationFailedWithException:exception
                                         value:value
                                       keyPath:keyPath];
-      } else 
-        {
-        // no exception, set the value
-
+      } else {
+        // all fine, set the value
+        
         [tmpObject setValue:value
                      forKey:tmpKey];
       }
@@ -868,122 +748,6 @@ static Class NSStringClass = Nil;
   }
 }
 
-#else // GDL2 or GDL1
-
-+(void)setValue:(id)value
-    inComponent:(GSWComponent*)object
-     forKeyPath:(NSString*)keyPath
-{
-  if ([keyPath length]==0)
-    {
-        [NSException raise:NSInvalidArgumentException 
-                     format:@"No key path when setting value %@ in object of class %@",
-                     value,NSStringFromClass([object class])];
-    };
-
-#if HAVE_GDL2
-  [object smartTakeValue:value
-          forKeyPath:keyPath];
-#else // no GDL2
-  NSMutableArray* keys=[[keyPath componentsSeparatedByString:@"."] mutableCopy];
-  id part=nil;
-  id tmpObject=object;
-  Class handlerClass=Nil;
-  NSAssert(tmpObject,@"No Object");
-  while(tmpObject && [keys count]>0)
-    {
-      part=[keys objectAtIndex:0];
-      [keys removeObjectAtIndex:0];
-
-      if ([part hasPrefix:@"\""])
-        {
-          part=[part stringByDeletingPrefix:@"\""];
-          while([keys count]>0)
-            {
-              id tmpPart=[keys objectAtIndex:0];
-              [keys removeObjectAtIndex:0];
-              if ([tmpPart hasSuffix:@"\""])
-                {
-                  tmpPart=[tmpPart stringByDeletingSuffix:@"\""];
-                  part=[part stringByAppendingFormat:@".%@",tmpPart];
-                  break;
-                }
-              else
-                part=[part stringByAppendingFormat:@".%@",tmpPart];
-            }                        
-        }
-      
-      handlerClass=[associationsHandlerClasses objectForKey:part];
-
-      if (handlerClass)
-        {
-          tmpObject=[handlerClass processSetValue:value
-                                  inObject:tmpObject
-                                  forHandler:part
-                                  forKeyPath:keys];
-        }
-      else
-        {
-          if ([keys count]>0)
-            {
-              if ([part isEqualToString:GSASK_Class])
-                {
-                  Class class=Nil;                      
-                  NSAssert2([keys count]>0,@"No class name for handler %@ in %@",
-                            GSASK_Class,
-                            keyPath);
-                  part=[keys objectAtIndex:0];
-                  [keys removeObjectAtIndex:0];
-                  class=NSClassFromString(part);
-                  NSAssert3(class>0,@"No class named %@ for handler %@ in %@",
-                            part,
-                            GSASK_Class,
-                            keyPath);
-                  if (class)
-                    tmpObject=class;
-                  else
-                    tmpObject=nil;
-                }
-              else 
-                {
-                  tmpObject=[tmpObject valueForKey:part];
-                }
-            }
-          else
-            {
-              GSWLogAssertGood(tmpObject);
-              [tmpObject setValue:value
-                         forKey:part];
-#ifdef HAVE_GDL2
-              // Turbocat
-              if (tmpObject && [tmpObject isKindOfClass:[GSWComponent class]]) 
-                {
-                  NSException* exp = [tmpObject validateValue:&value
-                                                forKey:part];
-                  if (exp) 
-                    {
-                      NSException* exception=nil;                          
-                      exception=[NSException exceptionWithName:@"EOValidationException"
-                                             reason:[exp reason]
-                                             userInfo:[NSDictionary 
-                                                        dictionaryWithObjectsAndKeys:
-                                                          (value ? value : @"nil"),@"EOValidatedObjectUserInfoKey",
-                                                        keyPath,@"EOValidatedPropertyUserInfoKey",
-                                                        nil,nil]];
-                      [object validationFailedWithException:exception
-                              value:value
-                              keyPath:keyPath];
-                    }
-                }
-#endif
-              tmpObject=nil;
-            };
-        };
-    };	  
-#endif
-};
-
-#endif 
 
 @end
 
@@ -998,9 +762,9 @@ static Class NSStringClass = Nil;
     {
       id value=[debugAssociation valueInComponent:component];
       debug=boolValueWithDefaultFor(value,NO);
-    };
+    }
   return debug;
-};
+}
   
 -(void)associationsSetDebugEnabled
 {
@@ -1014,8 +778,8 @@ static Class NSStringClass = Nil;
       [association setDebugEnabledForBinding:@""
                    declarationName:key
                    declarationType:@""];	//TODO
-    };
-};
+    }
+}
 
 -(void)associationsSetValuesFromObject:(id)from
                               inObject:(id)to
@@ -1038,8 +802,8 @@ static Class NSStringClass = Nil;
         key=[GSWAssociation associationWithKeyPath:key];
       [key setValue:varValue
             inComponent:to];
-    };
-};
+    }
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)associationsWithoutPrefix:(NSString*)prefix
@@ -1064,12 +828,12 @@ static Class NSStringClass = Nil;
           [newAssociation setObject:value
                           forKey:varKeyAssociation];
           [removeFrom removeObjectForKey:key];
-        };
-    };
+        }
+    }
   newAssociation=[NSDictionary dictionaryWithDictionary:newAssociation];
 
   return newAssociation;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)dictionaryByReplacingStringsWithAssociations
@@ -1101,9 +865,9 @@ static Class NSStringClass = Nil;
         newValue=value;
       [newDictionary setObject:newValue
                      forKey:key];
-    };
+    }
   return [NSDictionary dictionaryWithDictionary:newDictionary];
-};
+}
 
 @end
 
@@ -1134,7 +898,7 @@ static Class NSStringClass = Nil;
       else
         newValue=value;
       [newArray addObject:newValue];
-    };
+    }
   return [NSArray arrayWithArray:newArray];
-};
+}
 @end

@@ -38,9 +38,6 @@ RCS_ID("$Id$")
 
 #include "GSWPrivate.h"
 
-#ifdef HAVE_GDL2
-#include <EOControl/EOKeyValueCoding.h>
-#endif
 //====================================================================
 @implementation GSWComponent
 
@@ -144,7 +141,7 @@ static Class GSWHTMLBareStringClass = Nil;
 //  clone->_isParentToComponentSynchronized=_isParentToComponentSynchronized;
 //  clone->_isComponentToParentSynchronized=_isComponentToParentSynchronized;
   return clone;
-};
+}
 
 //--------------------------------------------------------------------
 //-(void)encodeWithCoder:(NSCoder*)aCoder
@@ -205,7 +202,7 @@ static Class GSWHTMLBareStringClass = Nil;
 ////              at:&_isParentToComponentSynchronized];
 ////      [aCoder decodeValueOfObjCType:@encode(BOOL)
 ////              at:&_isComponentToParentSynchronized];
-//	};
+//	}
 //  return self;
 //}
 //
@@ -223,7 +220,7 @@ static Class GSWHTMLBareStringClass = Nil;
   aFrameworkName=[aComponentDefinition frameworkName];
 
   return aFrameworkName;
-};
+}
 
 //--------------------------------------------------------------------
 //	logString:
@@ -231,7 +228,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)logString:(NSString*)aString
 {
   [GSWApp logString:aString];
-};
+}
 
 //--------------------------------------------------------------------
 //	logWithFormat:
@@ -243,7 +240,7 @@ static Class GSWHTMLBareStringClass = Nil;
   [self logWithFormat:aFormat
         arguments:ap];
   va_end(ap);
-};
+}
 
 //--------------------------------------------------------------------
 //	logWithFormat:arguments:
@@ -254,7 +251,7 @@ static Class GSWHTMLBareStringClass = Nil;
   NSString* string=[NSString stringWithFormat:aFormat
                              arguments:arguments];
   [self logString:string];
-};
+}
 
 //--------------------------------------------------------------------
 //	name
@@ -262,7 +259,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(NSString*)name 
 {
   return _name;
-};
+}
 
 //--------------------------------------------------------------------
 //	path
@@ -273,7 +270,7 @@ static Class GSWHTMLBareStringClass = Nil;
   NSBundle* bundle=[NSBundle mainBundle];
   return [bundle pathForResource:_name
                  ofType:GSWPageSuffix[GSWebNamingConv]];
-};
+}
 
 //--------------------------------------------------------------------
 //	baseURL
@@ -282,7 +279,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -296,14 +293,14 @@ static Class GSWHTMLBareStringClass = Nil;
 				  (void*)self];
 
   return dscr;
-};
+}
 
 // GSWeb Additions {
 //--------------------------------------------------------------------
 -(NSDictionary*)userDictionary
 {
   return _userDictionary;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setUserDictionary:(NSDictionary*)aUserDictionary
@@ -315,7 +312,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(NSDictionary*)userAssociations
 {
   return _userAssociations;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setUserAssociations:(NSDictionary*)userAssociations
@@ -327,21 +324,21 @@ static Class GSWHTMLBareStringClass = Nil;
 -(GSWAssociation*)userAssociationForKey:(NSString*)key
 {
   return [[self userAssociations]objectForKey:key];
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)defaultAssociations
 {
   NSLog(@"WARNING: %s is not WebObjects API",__PRETTY_FUNCTION__);
   return _defaultAssociations;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setDefaultAssociations:(NSDictionary*)defaultAssociations
 {
   NSLog(@"WARNING: %s is not WebObjects API",__PRETTY_FUNCTION__);
   ASSIGN(_defaultAssociations,defaultAssociations);
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWAssociation*)defaultAssociationForKey:(NSString*)key
@@ -349,7 +346,7 @@ static Class GSWHTMLBareStringClass = Nil;
   NSLog(@"WARNING: %s is not WebObjects API",__PRETTY_FUNCTION__);
 
   return [[self defaultAssociations]objectForKey:key];
-};
+}
 
 // }
 
@@ -361,7 +358,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   //OK
   _isCachingEnabled=caching;
-};
+}
 
 //--------------------------------------------------------------------
 //isCachingEnabled
@@ -370,7 +367,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   //OK
   return _isCachingEnabled;
-};
+}
 
 -(void) _setParent:(GSWComponent*) parent
       associations:(NSMutableDictionary *) assocdict
@@ -441,21 +438,18 @@ static Class GSWHTMLBareStringClass = Nil;
   NSString           * myKey = nil;
   id                 obj; 
   GSWAssociation     * assoc = nil;
-
+  
   if (_isSynchronized && (_keyAssociations != nil)) {
-      enumer = [_keyAssociations keyEnumerator];
-      while ((myKey = [enumer nextObject])) {
-        assoc = [_keyAssociations objectForKey: myKey];
-        obj = [assoc valueInComponent:_parent];        
-#if HAVE_GDL2 // GDL2 implementation
-              [self smartTakeValue: obj
-                            forKey: myKey];
-#else
-              [self setValue: obj
-                       forKey: myKey];
-#endif
-      }
+    enumer = [_keyAssociations keyEnumerator];
+    
+    while ((myKey = [enumer nextObject])) {
+      assoc = [_keyAssociations objectForKey: myKey];
+      obj = [assoc valueInComponent:_parent];        
+      [self setValue: obj
+              forKey: myKey];
     }
+    
+  }
 }
 
 -(void) synchronizeParentToComponent
@@ -469,7 +463,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   //OK
   return _childTemplate;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWElement*) template
@@ -491,7 +485,7 @@ static Class GSWHTMLBareStringClass = Nil;
   NSLog(@"WARNING: %s is deprecated. Use template instead.", __PRETTY_FUNCTION__);
 
   return [self template];
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWComponentDefinition*)_componentDefinition
@@ -506,44 +500,44 @@ static Class GSWHTMLBareStringClass = Nil;
                                  languages:languages];
     if ([self isCachingEnabled]) {
         ASSIGN(_componentDefinition,aComponentDefinition);
-    };
-  };
+    }
+  }
 
   return aComponentDefinition;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)_templateName
 {
   return _templateName;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)declarationName
 {
   return _templateName;
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)_isPage
 {
   //OK
   return _isPage;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_setIsPage:(BOOL)isPage
 {
   //OK
   _isPage=isPage;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_setContext:(GSWContext*)aContext
 {
   // Verified with WO 4.5. We DO retain!
   ASSIGN(_context, aContext);
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -554,7 +548,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(GSWElement*)templateWithName:(NSString*)aName
 {
     return [[self _componentDefinition] template];
-};
+}
 
 
 -(GSWComponent*)subComponentForElementID:(NSString*)elementId
@@ -565,7 +559,7 @@ static Class GSWHTMLBareStringClass = Nil;
   subc=[_subComponents objectForKey:elementId];
 
   return subc;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_setSubcomponent:(GSWComponent*)component
@@ -575,7 +569,7 @@ static Class GSWHTMLBareStringClass = Nil;
     _subComponents=[NSMutableDictionary new];
   [_subComponents setObject:component
                   forKey:elementId];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -585,7 +579,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
   parents=[self parents];
   [parents makeObjectsPerformSelectorIfPossible:aSelector];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -597,7 +591,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
   [parents makeObjectsPerformSelectorIfPossible:aSelector
            withObject:object];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -613,7 +607,7 @@ static Class GSWHTMLBareStringClass = Nil;
            withObject:object1
            withObject:object2];
 
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -631,10 +625,10 @@ static Class GSWHTMLBareStringClass = Nil;
 	}
       else
 	obj=[obj parent];
-    };
+    }
 
   return retValue;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -654,10 +648,10 @@ static Class GSWHTMLBareStringClass = Nil;
 	}
       else
 	obj=[obj parent];
-    };
+    }
 
   return retValue;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -679,10 +673,10 @@ static Class GSWHTMLBareStringClass = Nil;
 	}
       else
 	obj=[obj parent];
-    };
+    }
 
   return retValue;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -696,8 +690,8 @@ static Class GSWHTMLBareStringClass = Nil;
     {
       [component performSelectorIfPossible:aSelector];
       [component makeSubComponentsPerformSelectorIfPossible:aSelector];
-    };
-};
+    }
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -714,8 +708,8 @@ static Class GSWHTMLBareStringClass = Nil;
                  withObject:object];
       [component makeSubComponentsPerformSelectorIfPossible:aSelector
                  withObject:object];
-    };
-};
+    }
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -735,8 +729,8 @@ static Class GSWHTMLBareStringClass = Nil;
 	  [component makeSubComponentsPerformSelectorIfPossible:aSelector
                      withObject:object1
                      withObject:object2];
-	};
-};
+	}
+}
 
 
 //PRIVATE
@@ -757,7 +751,7 @@ static Class GSWHTMLBareStringClass = Nil;
   }
 
   return assoc;
-};
+}
 
 
 -(BOOL)hasBinding:(NSString*)parentBindingName
@@ -776,67 +770,32 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)setValue:(id)value
      forBinding:(NSString*)parentBindingName
 {
-  //OK
   GSWAssociation* assoc=nil;
-
+  
   if (_parent)
-    {
-      assoc=[self _associationWithName:parentBindingName];
-      if(assoc)
-        [assoc setValue:value
-               inComponent:_parent];
-      /* // Why doing this ? Be carefull: it may make a loop !
-#if HAVE_GDL2
-	  else
-          {
-          NS_DURING
-              {
-		[self smartTakeValue:value_ 
-                  forKey:parentBindingName_];
-               }
-	      NS_HANDLER;
-               {
-                  //TODO
-               }
-	      NS_ENDHANDLER;
-	    }
-#endif
-*/
-	};
-};
+  {
+    assoc=[self _associationWithName:parentBindingName];
+    if(assoc)
+      [assoc setValue:value
+          inComponent:_parent];
+	}
+}
 
 //--------------------------------------------------------------------
 -(id)valueForBinding:(NSString*)parentBindingName
 {
-  //OK
   id aValue=nil;
   GSWAssociation* assoc=nil;
-
+  
   if (_parent)
-    {
-      assoc=[self _associationWithName:parentBindingName];
-      if(assoc)
-        aValue=[assoc valueInComponent:_parent];
-/* // Why doing this ? Be carefull: it may make a loop !
-#if HAVE_GDL2
-	  else
-	    {
-	      NS_DURING
-                {
-                  aValue = [self valueForKey:parentBindingName_];
-                }
-	      NS_HANDLER
-                {
-                  //TODO
-                }
-	      NS_ENDHANDLER;
-	    }
-#endif
-*/
-	};
-
+  {
+    assoc=[self _associationWithName:parentBindingName];
+    if(assoc)
+      aValue=[assoc valueInComponent:_parent];
+	}
+  
   return aValue; 
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -860,7 +819,7 @@ static Class GSWHTMLBareStringClass = Nil;
     synchronizesParentToComponentVariablesWithBindings=[self synchronizesVariablesWithBindings];
 
   return synchronizesParentToComponentVariablesWithBindings;
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)synchronizesVariablesWithBindings
@@ -879,7 +838,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(NSDictionary*)bindingAssociations
 {
   return _keyAssociations;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -888,7 +847,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)sleep 
 {
   //Does Nothing
-};
+}
 
 //--------------------------------------------------------------------
 -(void)sleepInContext:(GSWContext*)aContext
@@ -911,7 +870,7 @@ static Class GSWHTMLBareStringClass = Nil;
       [localException raise];
     }
   NS_ENDHANDLER;
-};
+}
 
 //--------------------------------------------------------------------
 //	appendToResponse:inContext:
@@ -996,7 +955,7 @@ static Class GSWHTMLBareStringClass = Nil;
   GSWAssertIsElementID(aContext);
   GSWAssertDebugElementIDsCount(aContext);
 
-};
+}
 
 
 //GSWeb Additions {
@@ -1008,32 +967,32 @@ static Class GSWHTMLBareStringClass = Nil;
     _validationFailureMessages=[NSMutableDictionary new];
   [_validationFailureMessages setObject:message
                               forKey:[NSValue valueWithNonretainedObject:element]];
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)validationFailureMessageForElement:(GSWDynamicElement*)element
 {
   return [_validationFailureMessages objectForKey:[NSValue valueWithNonretainedObject:element]];
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)handleValidationExceptionDefault
 {
   return nil; //Raise !
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)isValidationFailure
 {
   //TODO ameliorate
   return [[self allValidationFailureMessages] count]>0;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)validationFailureMessages
 {
   return _validationFailureMessages;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSArray*)allValidationFailureMessages
@@ -1047,11 +1006,11 @@ static Class GSWHTMLBareStringClass = Nil;
   while((component=[subComponentsEnum nextObject]))
     {
       [msgs addObjectsFromArray:[component allValidationFailureMessages]];
-    };
+    }
   msgs=[NSArray arrayWithArray:msgs];
 
   return msgs;
-};
+}
 
 // } 
 
@@ -1088,7 +1047,7 @@ Call this method before using a component which was cached in a variable.
   if ([self context] != aContext)  { 
     [self _awakeInContext:aContext];
   }
-};
+}
 
 //--------------------------------------------------------------------
 -(void) reset
@@ -1133,14 +1092,14 @@ Call this method before using a component which was cached in a variable.
   [context _setCurrentComponent:self];  
 
   return actionresults;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWComponent*)parent
 {
   //OK
   return _parent;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1152,9 +1111,9 @@ Call this method before using a component which was cached in a variable.
     {
       topParent=parent;
       parent=[parent parent];
-    };
+    }
   return topParent;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1166,9 +1125,9 @@ Call this method before using a component which was cached in a variable.
     {
       [parents addObject:parent];
       parent=[parent parent];
-    };
+    }
   return [NSArray arrayWithArray:parents];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1180,9 +1139,9 @@ Call this method before using a component which was cached in a variable.
     {
       [parents addObject:[parent class]];
       parent=[parent parent];
-    };
+    }
   return [NSArray arrayWithArray:parents];
-};
+}
 
 -(GSWComponent*)pageWithName:(NSString*)aName
 {
@@ -1195,7 +1154,7 @@ Call this method before using a component which was cached in a variable.
                inContext:aContext];
 
   return page;
-};
+}
 
 //--------------------------------------------------------------------
 //	session
@@ -1208,13 +1167,13 @@ Call this method before using a component which was cached in a variable.
   else if (_context)
     session=[_context session];
   return session;
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)hasSession
 {
   return (_session!=nil);
-};
+}
 
 //--------------------------------------------------------------------
 //	application
@@ -1222,7 +1181,7 @@ Call this method before using a component which was cached in a variable.
 -(GSWApplication*)application 
 {
   return [GSWApplication application];
-};
+}
 
 //--------------------------------------------------------------------
 //	context
@@ -1248,7 +1207,7 @@ Call this method before using a component which was cached in a variable.
   languages=[[self context] languages];
 
   return languages;
-};
+}
 
 //--------------------------------------------------------------------
 //Called when an Enterprise Object or formatter failed validation during an
@@ -1293,17 +1252,17 @@ Call this method before using a component which was cached in a variable.
          { 
            NSDebugMLLog(@"GSWComponent",@"component is already awaken, but has not the current context, we awake it twice with current context = %@",self);
            [self awakeInContext:aContext];
-         };
-     };
+         }
+     }
    LOGObjectFnStop();
 */
-};
+}
 
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)aFormat,...
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 
 //--------------------------------------------------------------------
 +(void)logWithFormat:(NSString*)aFormat,...
@@ -1313,14 +1272,14 @@ Call this method before using a component which was cached in a variable.
   [[GSWApplication application] logWithFormat:aFormat
                                 arguments:ap];
   va_end(ap);
-};
+}
 
 
 -(NSString*)_uniqueID
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -1383,10 +1342,10 @@ Call this method before using a component which was cached in a variable.
       LOGException(@"%@ (%@)",localException,[localException reason]);
       
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext
@@ -1401,7 +1360,7 @@ Call this method before using a component which was cached in a variable.
                     inContext:aContext];
         
   return response;
-};
+}
 
 //--------------------------------------------------------------------
 
@@ -1418,7 +1377,55 @@ Call this method before using a component which was cached in a variable.
                    forKey:key];
 */
   return exception;
-};
+}
+
+/**
+ * This method is called to validate and potentially coerce
+ * VALUE for the receivers key path.  This method also assigns
+ * the value if it is different from the current value.
+ * This method will raise an EOValidationException
+ * if validateValue:forKeyPath:error: returns an error.
+ * This method returns new value.
+ **/
+- (id)validateTakeValue:(id)value forKeyPath:(NSString *)path
+{
+  NSError *outError = nil;
+  BOOL     ok = [self validateValue:&value 
+                         forKeyPath:path 
+                              error:&outError];
+  
+  
+  if (ok) { // value is ok
+    [self setValue:value
+         forKeyPath:path];
+    
+    return value;
+  } else {
+    NSException  * exception=nil;
+    NSDictionary * uInfo;
+    NSString     * errorStr = @"unknown reason";
+    
+    uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+             (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
+             path, @"EOValidatedPropertyUserInfoKey",
+             nil];
+    
+    if ((outError) && ([outError userInfo])) {
+      errorStr = [[outError userInfo] valueForKey:NSLocalizedDescriptionKey];
+    }
+    
+    exception=[NSException exceptionWithName:@"EOValidationException"
+                                      reason:errorStr
+                                    userInfo:uInfo];
+    
+    if (exception) {
+      [exception raise];
+    }
+    
+  }
+  
+  return value;
+}
 
 //--------------------------------------------------------------------
 //	stringForKey:inTableNamed:withDefaultValue:
@@ -1436,7 +1443,7 @@ Call this method before using a component which was cached in a variable.
                  inFramework:[self frameworkName]
                  languages:[self languages]];
   return string;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1449,7 +1456,7 @@ Call this method before using a component which was cached in a variable.
                        inFramework:[self frameworkName]
                        languages:[self languages]];
   return stringsTable;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1463,7 +1470,7 @@ Call this method before using a component which was cached in a variable.
                             languages:[self languages]];
 
   return stringsTableArray;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -1488,7 +1495,7 @@ Call this method before using a component which was cached in a variable.
                           request:nil];//TODO
   
   return url;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)_urlForResourceNamed:(NSString*)aName
@@ -1496,7 +1503,7 @@ Call this method before using a component which was cached in a variable.
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 //	pathForResourceNamed:ofType:
@@ -1512,7 +1519,7 @@ Call this method before using a component which was cached in a variable.
                languages:[self languages]];
 
   return path;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1554,7 +1561,7 @@ Call this method before using a component which was cached in a variable.
   return [GSWApp stringsTableNamed:aName
                  inFramework:aFrameworkName
                  languages:[self languages]];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1564,7 +1571,7 @@ Call this method before using a component which was cached in a variable.
   return [GSWApp stringsTableArrayNamed:aName
                  inFramework:aFrameworkName
                  languages:[self languages]];
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1585,7 +1592,7 @@ Call this method before using a component which was cached in a variable.
                          inFramework:aFrameworkName
                            languages:[self languages]
                              request:nil];//TODO
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1597,7 +1604,7 @@ Call this method before using a component which was cached in a variable.
                  ofType:(NSString*)extension
                  inFramework:aFrameworkName
                  languages:[self languages]];
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -1614,7 +1621,7 @@ Call this method before using a component which was cached in a variable.
                                  declarationString:pageDefString
                                  languages:languages];
   return rootElement;
-};
+}
 
 //--------------------------------------------------------------------
 //	templateWithHTMLString:declarationString:
@@ -1625,7 +1632,7 @@ Call this method before using a component which was cached in a variable.
   return [self templateWithHTMLString:htmlString
                declarationString:pageDefString
                languages:nil];
-};
+}
 
 
 
@@ -1644,12 +1651,12 @@ Call this method before using a component which was cached in a variable.
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 +(void)_registerObserver:(id)observer
 {
   LOGClassFnNotImplemented();	//TODOFN
-};
+}
 
 -(void)validateAPIAssociations
 {
@@ -1672,10 +1679,10 @@ Call this method before using a component which was cached in a variable.
                            [_parent class],
                            [self class],
                            [self parentsClasses]];
-            };
-        };
-    };
-};
+            }
+        }
+    }
+}
 
 
 @end

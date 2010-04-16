@@ -261,5 +261,22 @@ Creates a GSWHTMLComment with the comment text
   LOGObjectFnStop();
 }
 
+// those are here because a protocol forces us to implement them -- dw
+
+- (id) retain
+{
+  return [super retain];
+}
+
+- (oneway void)release
+{
+  return [super release];
+}
+
+- (id)autorelease
+{
+  return [super autorelease];
+}
+
 @end
 

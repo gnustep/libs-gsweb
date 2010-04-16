@@ -70,7 +70,7 @@ extern id gcObjectsToBeVisited;
 
       [self setTimeOut:mySessionTimeOut];
       [self _initWithSessionID:[[self class] createSessionID]];
-    };
+    }
   
   return self;
 }
@@ -103,7 +103,7 @@ extern id gcObjectsToBeVisited;
   [clone setStoresIDsInCookies:_storesIDsInCookies];  
   //_hasSessionLockedEditingContext: no
   return clone;
-};
+}
 
 //--------------------------------------------------------------------
 +(NSString*)createSessionID
@@ -156,7 +156,7 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.uptime)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
-          };
+          }
 
         if (sizeToFill>=sizeof(unsigned int) && info.loads[0]>0)
           {
@@ -165,7 +165,7 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[0] >> 4)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
-          };
+          }
 
         if (sizeToFill>=sizeof(unsigned int) && info.loads[1]>0)
           {
@@ -174,7 +174,7 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[1] >> 4)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
-          };
+          }
 
         if (sizeToFill>=sizeof(unsigned int) && info.loads[2]>0)
           {
@@ -183,7 +183,7 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[2] >> 4)) ^ rnd);
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
-          };
+          }
 
         if (sizeToFill>=sizeof(unsigned int) && info.freeram>0)
           {
@@ -192,7 +192,7 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeram >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
-          };
+          }
         
         if (sizeToFill>=sizeof(unsigned int) && info.sharedram>0)
           {
@@ -201,7 +201,7 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.sharedram >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
-          };
+          }
         
         if (sizeToFill>=sizeof(unsigned int) && info.freeswap>0)
           {
@@ -210,7 +210,7 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeswap >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);
-          };
+          }
         
         if (sizeToFill>=sizeof(unsigned int) && info.bufferram>0)
           {
@@ -219,9 +219,9 @@ extern id gcObjectsToBeVisited;
             *((unsigned int*)pMd5Data)=(((unsigned int)(info.bufferram >> 4)) ^ rnd); // Drop 4 minor bits
             sizeToFill-=sizeof(unsigned int);
             pMd5Data+=sizeof(unsigned int);                            
-          };
-      };
-  };
+          }
+      }
+  }
 #endif
   NSDebugMLog(@"sizeToFill %d",sizeToFill);
   while(sizeToFill>0)
@@ -229,13 +229,13 @@ extern id gcObjectsToBeVisited;
       *((unsigned char*)pMd5Data)=(unsigned char)(256.0*rand()/(RAND_MAX+1.0));
       sizeToFill--;
       pMd5Data++;
-    };
+    }
   //Now do md5 on bytes after sizeof(ts)
   md5Sum=[md5Data md5Digest];
   [data appendData:md5Sum];
   sessionID=[data hexadecimalRepresentation];
   return sessionID;
-};
+}
 //--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)coder
 {
@@ -331,7 +331,7 @@ extern id gcObjectsToBeVisited;
 				   _hasSessionLockedEditingContext ? "YES" : "NO"];
   
   return dscr;
-};
+}
 
 //--------------------------------------------------------------------
 //	sessionID
@@ -339,7 +339,7 @@ extern id gcObjectsToBeVisited;
 -(NSString*)sessionID
 {
   return _sessionID;
-};
+}
 
 //--------------------------------------------------------------------
 //	sessionID
@@ -347,7 +347,7 @@ extern id gcObjectsToBeVisited;
 -(void)setSessionID:(NSString*)sessionID
 {
   ASSIGN(_sessionID,sessionID);
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)domainForIDCookies
@@ -373,20 +373,20 @@ extern id gcObjectsToBeVisited;
                         adaptorPrefix,
                         applicationName,
                         GSWApplicationSuffix[GSWebNamingConv]]));
-    };
+    }
 
   NSDebugMLLog(@"sessions",@"_domainForIDCookies=%@",_domainForIDCookies);
 
   
 
   return _domainForIDCookies;
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)storesIDsInURLs
 {
   return _storesIDsInURLs;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setStoresIDsInURLs:(BOOL)flag
@@ -396,7 +396,7 @@ extern id gcObjectsToBeVisited;
     _storesIDsInURLs=flag;
 
   
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDate*)expirationDateForIDCookies
@@ -408,13 +408,13 @@ extern id gcObjectsToBeVisited;
                expirationDateForIDCookies,
                [expirationDateForIDCookies htmlDescription]);
   return expirationDateForIDCookies;
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)storesIDsInCookies
 {
   return _storesIDsInCookies;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setStoresIDsInCookies:(BOOL)flag
@@ -424,9 +424,9 @@ extern id gcObjectsToBeVisited;
     {
       _storesIDsInCookies=flag;
       [_currentContext _synchronizeForDistribution];
-    };      
+    }      
   
-};
+}
 
 //--------------------------------------------------------------------
 /** Returns NO if URLs contains application number so requests are 
@@ -438,7 +438,7 @@ extern id gcObjectsToBeVisited;
 -(BOOL)isDistributionEnabled
 {
   return _isDistributionEnabled;
-};
+}
 
 //--------------------------------------------------------------------
 /** Enables or disables application instance number in URLs.
@@ -453,9 +453,9 @@ extern id gcObjectsToBeVisited;
     {
       _isDistributionEnabled=flag;
       [_currentContext _synchronizeForDistribution];
-    };
+    }
   
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -521,7 +521,7 @@ extern id gcObjectsToBeVisited;
   if (_sessionID)
     {
       NSDebugMLLog(@"sessions",@"sessionIDCount=%u",[_sessionID retainCount]);
-    };
+    }
   application=[GSWApplication application];
   //applic statisticsStore
   //applic _activeSessionsCount
@@ -531,7 +531,7 @@ extern id gcObjectsToBeVisited;
   [application _finishInitializingSession:self];
 
   return self;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -541,7 +541,7 @@ extern id gcObjectsToBeVisited;
 -(BOOL)isTerminating 
 {
   return _isTerminating;
-};
+}
 
 //--------------------------------------------------------------------
 //	terminate
@@ -568,17 +568,17 @@ extern id gcObjectsToBeVisited;
             {
               [_editingContext unlock];
               _hasSessionLockedEditingContext = NO;
-            };
+            }
           DESTROY(_editingContext);
-        };
+        }
       /*
         [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
         //TODO: VERIFY
         [self setTimeOut:(NSTimeInterval) 1];	// forces to call removeSessionWithID in GSWServerSessionStore to dealloc it
       */
-    };
+    }
   
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_terminateByTimeout
@@ -596,7 +596,7 @@ extern id gcObjectsToBeVisited;
 -(NSTimeInterval)timeOut
 {
   return _timeOut;
-};
+}
 
 //--------------------------------------------------------------------
 //	setTimeOut:
@@ -607,7 +607,7 @@ extern id gcObjectsToBeVisited;
     _timeOut=[[NSDate distantFuture]timeIntervalSinceDate:_birthDate];
   else
     _timeOut=timeOut;  
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -618,14 +618,14 @@ extern id gcObjectsToBeVisited;
   [GSWApp debugWithFormat:aFormat
           arguments:ap];
   va_end(ap);
-};
+}
 
 
 //--------------------------------------------------------------------
 -(void)_debugWithString:(NSString*)string
 {
   [GSWApp debugWithString:string];
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -693,7 +693,7 @@ extern id gcObjectsToBeVisited;
       [_contextRecords removeObjectForKey:[stackArray objectAtIndex:0]];
     }
   }
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWComponent*)restorePageForContextID:(NSString*)aContextID
@@ -713,7 +713,7 @@ extern id gcObjectsToBeVisited;
     {
       page=[transactionRecord responsePage];
       GSWLogAssertGood(page);
-    };
+    }
   
   if (page) // will put it at the end of the stack
     {
@@ -730,9 +730,9 @@ extern id gcObjectsToBeVisited;
             {
               [_contextArrayStack addObject:contextArray]; //add before removing to avoid release
               [_contextArrayStack removeObjectAtIndex:stackIndex];
-            };
-        };
-    };
+            }
+        }
+    }
 
   if ([_permanentPageCache objectForKey:aContextID])
       page=[self _permanentPageWithContextID:aContextID];
@@ -742,14 +742,14 @@ extern id gcObjectsToBeVisited;
   [page _awakeInContext:_currentContext];
 
   return page;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
 -(unsigned int)permanentPageCacheSize
 {
   return [GSWApp permanentPageCacheSize];
-};
+}
 
 //--------------------------------------------------------------------
 -(void)savePageInPermanentCache:(GSWComponent*)page
@@ -788,7 +788,7 @@ extern id gcObjectsToBeVisited;
       NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[permanentPageCache objectForKey:deleteContextID]);
       [permanentPageCache removeObjectForKey:deleteContextID];
       RELEASE(deleteContextID);
-    };
+    }
   contextID=[context contextID];
   NSAssert(contextID,@"No contextID");
 
@@ -802,14 +802,14 @@ extern id gcObjectsToBeVisited;
       if (![permanentPageCache objectForKey:contextID])
         {
           LOGSeriousError0(@"but not present in cache");
-        };
+        }
     }
   else if ([permanentPageCache objectForKey:contextID])
     {
       LOGSeriousError(@"page of class %@ contextID %@ in permanent cache but not in stack",
                       [page class],
                       contextID);
-    };
+    }
 
   NSDebugMLLog(@"sessions",@"SESSION REPLACE: %p",[permanentPageCache objectForKey:contextID]);
   [permanentPageCache setObject:page
@@ -825,17 +825,17 @@ extern id gcObjectsToBeVisited;
         anotherContextID=[_permanentContextIDArray objectAtIndex:i];
         anObject=[permanentPageCache objectForKey:anotherContextID];
         [GSWApplication statusLogWithFormat:@"%d contextID=%@ page class=%@",i,anotherContextID,[anObject class]];
-      };
-  };
+      }
+  }
   */
   if ([_permanentContextIDArray count]!=[permanentPageCache count])
     {
       LOGSeriousError(@"[permanentContextIDArray count] %d != [permanentPageCache count] %d",
                       (int)[_permanentContextIDArray count],
                       (int)[permanentPageCache count]);
-    };
+    }
   
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -873,7 +873,7 @@ extern id gcObjectsToBeVisited;
   [aResponse addCookie:instanceIDCookie];
 
   
-};
+}
 
 //--------------------------------------------------------------------
 -(void)appendCookieToResponse:(GSWResponse*)aResponse
@@ -893,7 +893,7 @@ extern id gcObjectsToBeVisited;
         {
           sessionID=[self sessionID];
           anExpireDate=[self expirationDateForIDCookies];
-        };
+        }
 
       // SessionID cookie
       [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_SessionID[GSWebNamingConv]
@@ -917,7 +917,7 @@ extern id gcObjectsToBeVisited;
             instance=[request applicationNumber]; // use the request instance number
           else
           instance=-1;
-        };
+        }
       [aResponse addCookie:[GSWCookie cookieWithName:GSWKey_InstanceID[GSWebNamingConv]
                                       value:GSWIntToNSString(instance)
                                       path:domainForIDCookies
@@ -925,9 +925,9 @@ extern id gcObjectsToBeVisited;
                                       expires:anExpireDate
                                       isSecure:NO]];
 
-    };
+    }
   
-};
+}
 
 
 
@@ -944,7 +944,7 @@ extern id gcObjectsToBeVisited;
 //  printf("session %p _releaseAutoreleasePool STOP\n",self);
 //  fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
   
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_createAutoreleasePool
@@ -955,7 +955,7 @@ extern id gcObjectsToBeVisited;
       GSWLogMemCF("New NSAutoreleasePool: %p",_autoreleasePool);
     }
   
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWComponent*)_permanentPageWithContextID:(NSString*)aContextID
@@ -964,7 +964,7 @@ extern id gcObjectsToBeVisited;
     page=[_permanentPageCache objectForKey:aContextID];
   
   return page;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSMutableDictionary*)_permanentPageCache
@@ -975,7 +975,7 @@ extern id gcObjectsToBeVisited;
     _permanentContextIDArray=[NSMutableArray new];
   
   return _permanentPageCache;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)_contextIDMatchingContextID:(NSString*)aContextID
@@ -983,7 +983,7 @@ extern id gcObjectsToBeVisited;
 {
   NSAssert(NO,@"Deprecated. use _contextIDMatchingIDsInContext:");
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)_contextIDMatchingIDsInContext:(GSWContext*)aContext
@@ -1005,7 +1005,7 @@ extern id gcObjectsToBeVisited;
           GSWTransactionRecord* aTransactionRecord=[_contextRecords objectForKey:aContextID];
           if ([aTransactionRecord isMatchingIDsInContext:aContext])
             contextID=aContextID;
-        };      
+        }      
     }
 
   
@@ -1034,10 +1034,10 @@ extern id gcObjectsToBeVisited;
           // Put it at the stack end
           [_contextArrayStack addObject:contextArray]; //add before removing to avoid release
           [_contextArrayStack removeObjectAtIndex:stackIndex];              
-        };
+        }
     }
   
-};
+}
 
 //--------------------------------------------------------------------
 -(NSMutableArray*)_contextArrayForContextID:(NSString*)aContextID
@@ -1058,30 +1058,30 @@ extern id gcObjectsToBeVisited;
             *pStackIndex=i;
           if (pContextArrayIndex)
             *pContextArrayIndex=contextArrayIndex;
-        };
-    };
+        }
+    }
   if (!contextArray)
     {
       if (pStackIndex)
         *pStackIndex=NSNotFound;
       if (pContextArrayIndex)
         *pContextArrayIndex=NSNotFound;
-    };
+    }
   return contextArray;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_replacePage:(GSWComponent*)page
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
 -(unsigned int)pageCacheSize
 {
   return [GSWApp pageCacheSize];
-};
+}
 
 //--------------------------------------------------------------------
 
@@ -1106,32 +1106,32 @@ extern id gcObjectsToBeVisited;
                 {
                   if ([self pageCacheSize]>0)
                     [self savePage:component];
-                };
-            };
-        };
-    };
+                }
+            }
+        }
+    }
   
-};
+}
 
 //--------------------------------------------------------------------
 -(int)_requestCounter
 {
   //OK
   return _requestCounter;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_contextDidIncrementContextID
 {
   _contextCounter++;
-};
+}
 
 //--------------------------------------------------------------------
 -(int)_contextCounter
 {
   //OK
   return _contextCounter;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_setContext:(GSWContext*)aContext
@@ -1141,7 +1141,7 @@ extern id gcObjectsToBeVisited;
   if (aContext!=_currentContext)
     _currentContext=aContext;
   
-};
+}
 
 //--------------------------------------------------------------------
 -(void)sleepInContext:(GSWContext*)aContext
@@ -1155,7 +1155,7 @@ extern id gcObjectsToBeVisited;
     }
   [self _setContext:nil];
   
-};
+}
 
 //--------------------------------------------------------------------
 -(void)awakeInContext:(GSWContext*)aContext
@@ -1168,8 +1168,8 @@ extern id gcObjectsToBeVisited;
         {
           _contextCounter++;
           _requestCounter++;
-        };
-    };
+        }
+    }
   NSDebugMLLog(@"sessions",@"contextCounter=%i",_contextCounter);
   if (_editingContext 
       && !_hasSessionLockedEditingContext
@@ -1177,10 +1177,10 @@ extern id gcObjectsToBeVisited;
     {
       [_editingContext lock];
       _hasSessionLockedEditingContext=YES;
-    };
+    }
   [self awake];
   
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -1192,11 +1192,11 @@ extern id gcObjectsToBeVisited;
   if (!someLanguages)
     {
       LOGError0(@"No languages");
-    };
+    }
   ASSIGN(_languages,someLanguages);
 
   
-};
+}
 
 //--------------------------------------------------------------------
 /** GSWeb specific
@@ -1217,13 +1217,13 @@ Insert language language at the begining of session languages array
               [mutableLanguages insertObject:language
                                 atIndex:0];
               [self setLanguages:mutableLanguages];
-            };
+            }
         }
       else
         [self setLanguages:[NSArray arrayWithObject:language]];
-    };
+    }
   
-};
+}
 
 //--------------------------------------------------------------------
 /** GSWeb specific
@@ -1243,9 +1243,9 @@ is not present
         }
       else
         [self setLanguages:[NSArray arrayWithObject:language]];
-    };
+    }
   
-};
+}
 
 //--------------------------------------------------------------------
 /** GSWeb specific
@@ -1263,7 +1263,7 @@ Returns first element of languages or nil if languages is empty
   
 
   return firstLanguage;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSArray*)languages
@@ -1278,12 +1278,12 @@ Returns first element of languages or nil if languages is empty
       NSArray* languages=[request browserLanguages];
       [self setLanguages:languages];
       NSDebugMLLog(@"sessions",@"_languages=%@",_languages);
-    };
+    }
 
   
 
   return _languages;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSArray*)_languages
@@ -1291,7 +1291,7 @@ Returns first element of languages or nil if languages is empty
     
 
   return _languages;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -1303,7 +1303,7 @@ Returns first element of languages or nil if languages is empty
   NSDebugMLLog(@"sessions",@"key=%@ object=%@",key,object);
   
   return object;
-};
+}
 
 //--------------------------------------------------------------------
 //	setObject:forKey:
@@ -1320,7 +1320,7 @@ Returns first element of languages or nil if languages is empty
   [_componentState setObject:object
                    forKey:key];
   
-};
+}
 
 //--------------------------------------------------------------------
 -(void)removeObjectForKey:(NSString*)key
@@ -1328,34 +1328,33 @@ Returns first element of languages or nil if languages is empty
     NSDebugMLLog(@"sessions",@"key=%@",key);
   [_componentState removeObjectForKey:key];
   
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
 -(NSMutableDictionary*)componentState
 {
   return _componentState;
-};
+}
 
 
 //--------------------------------------------------------------------
 -(EOEditingContext*)defaultEditingContext
 {
-#if HAVE_GDL2
   if(!_editingContext)
+  {
+    ASSIGN(_editingContext,[[[NSClassFromString(@"EOEditingContext") alloc] init] autorelease]);
+    
+    [_editingContext setLevelsOfUndo:[GSWApplication defaultUndoStackLimit]];
+    if ([GSWApplication _lockDefaultEditingContext])
     {
-      ASSIGN(_editingContext,[[[EOEditingContext alloc] init] autorelease]);
-      [_editingContext setLevelsOfUndo:[GSWApplication defaultUndoStackLimit]];
-      if ([GSWApplication _lockDefaultEditingContext])
-        {
-          [_editingContext lock];
-          _hasSessionLockedEditingContext=YES;
-        };
+      [_editingContext lock];
+      _hasSessionLockedEditingContext=YES;
     }
-#endif
-
+  }
+  
   return _editingContext;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)setDefaultEditingContext:(EOEditingContext*)editingContext
@@ -1374,22 +1373,22 @@ Returns first element of languages or nil if languages is empty
         {
           [_editingContext lock];
           _hasSessionLockedEditingContext=YES;
-        };
-    };
-};
+        }
+    }
+}
 
 //--------------------------------------------------------------------
 -(GSWContext*)context
 {
   return _currentContext;
-};
+}
 
 //--------------------------------------------------------------------
 //	awake
 -(void)awake 
 {
   DESTROY(_domainForIDCookies);
-};
+}
 
 //--------------------------------------------------------------------
 //	sleep
@@ -1399,7 +1398,7 @@ Returns first element of languages or nil if languages is empty
   // We destroy domainForIDCookies because applictaion name may 
   //   change between pages
   DESTROY(_domainForIDCookies);
-};
+}
 
 //--------------------------------------------------------------------
 //	takeValuesFromRequest:inContext:
@@ -1418,7 +1417,7 @@ Returns first element of languages or nil if languages is empty
                inContext:aContext];
   [aContext _setCurrentComponent:nil];
   
-};
+}
 
 //--------------------------------------------------------------------
 //	invokeActionForRequest:inContext:
@@ -1510,11 +1509,11 @@ Returns first element of languages or nil if languages is empty
                   _formattedStatistics = [NSMutableString new];
                 [_formattedStatistics appendString:formattedDescr];
               }
-          };
-      };
-  };
+          }
+      }
+  }
   
-};
+}
 
 
 
@@ -1522,25 +1521,25 @@ Returns first element of languages or nil if languages is empty
 -(NSArray*)statistics
 {
   return _statistics;
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)_allowedToViewStatistics
 {
   return _isAllowedToViewStatistics;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_allowToViewStatistics
 {
   _isAllowedToViewStatistics=YES;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_setAllowedToViewStatistics:(BOOL)flag
 {
   _isAllowedToViewStatistics=flag;
-};
+}
 
 //--------------------------------------------------------------------
 -(BOOL)validateStatisticsLogin:(NSString*)login
@@ -1560,13 +1559,13 @@ Returns first element of languages or nil if languages is empty
 -(NSString*)_formattedStatistics
 {
   return [NSString stringWithString:_formattedStatistics];
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDate*)_birthDate
 {
   return _birthDate;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_setBirthDate:(NSDate*)birthDate
@@ -1578,19 +1577,19 @@ Returns first element of languages or nil if languages is empty
 -(BOOL)_allowedToViewEvents
 {
   return _isAllowedToViewEvents;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_allowToViewEvents
 {
   _isAllowedToViewEvents=YES;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_setAllowedToViewEvents:(BOOL)flag
 {
   _isAllowedToViewEvents=flag;
-};
+}
 
 -(void) _clearCookieFromResponse:(GSWResponse*) aResponse
 {
@@ -1639,26 +1638,26 @@ Returns first element of languages or nil if languages is empty
 -(GSWApplication*)application
 {
   return [GSWApplication application];
-};
+}
 
 
 //--------------------------------------------------------------------
 -(void)_validateAPI
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 
 //--------------------------------------------------------------------
 +(void)__setContextCounterIncrementingEnabled:(BOOL)flag
 {
   LOGClassFnNotImplemented();  //TODOFN
-};
+}
 
 //--------------------------------------------------------------------
 +(int)__counterIncrementingEnabledFlag
 {
   LOGClassFnNotImplemented();  //TODOFN
   return 1;
-};
+}
 
 @end

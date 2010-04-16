@@ -128,6 +128,11 @@ Creates a GSWHTMLComment with the comment text
 **/
 -(void)		parser:(GSWBaseParser*)parser
        didParseComment:(NSString*)text;
+
+- (id) retain;
+- (oneway void)release;
+- (id)autorelease;
+
 @end
 
 
@@ -207,6 +212,7 @@ Creates a GSWHTMLComment with the comment text
 -(NSDictionary*)parseDeclarationsString:(NSString*)declarationsString
                                   named:(NSString*)declarationsName
                        inFrameworkNamed:(NSString*)declarationsFrameworkName;
+
 @end
 
 #endif //_GSWTemplateParser_h__

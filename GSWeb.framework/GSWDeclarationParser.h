@@ -90,6 +90,11 @@ accumulated instead of blocking on first error) **/
 @protocol GSWDeclarationParserPragmaDelegate
 -(NSDictionary*)includedDeclarationsFromFilePath:(NSString*)file
                               fromFrameworkNamed:(NSString*)frameworkName;
+
+- (id) retain;
+- (oneway void)release;
+- (id)autorelease;
+
 @end
 
 //====================================================================

@@ -396,7 +396,7 @@ void GetGSWMessageIMPs(GSWMessageIMPs* impsPtr,GSWMessage* message)
 
 static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   if (self->_contentData == nil) {
-    self->_contentData = [[NSMutableData alloc] initWithCapacity:DEF_CONTENT_SIZE];
+    self->_contentData = [(NSMutableData*)[NSMutableData alloc] initWithCapacity:DEF_CONTENT_SIZE];
   }
   if (!self->_contentDataADImp) { 		
 		self->_contentDataADImp=[self->_contentData methodForSelector:appendDataSel]; 

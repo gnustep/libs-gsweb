@@ -1,3 +1,9 @@
+2010-04-16  David Wetzel <dave@turbocat.de>
+    GSWeb.framework
+    * Many warnings fixed.
+    * Removed GDL dependency.
+    * NSKeyValueCoding is now MacOS X compatible.
+         
 2010-04-15  David Wetzel <dave@turbocat.de>
     new GSWDatabase Framework for EOF/GDL based applications
     not tested yet!

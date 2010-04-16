@@ -2,14 +2,14 @@
 #
 #
 DYNAMIC_LINKER=simple
-GDL2=@GDL2@
+#GDL2=@GDL2@
 AUX_LIBS=@AUX_LIBS@
 
 #EOControl dependancy
-ifeq ($(GDL2),yes)
-EOCONTROL_LIBRARY_NAME=EOControl
-EOACCESS_LIBRARY_NAME=EOAccess
-endif
+#ifeq ($(GDL2),yes)
+#EOCONTROL_LIBRARY_NAME=EOControl
+#EOACCESS_LIBRARY_NAME=EOAccess
+#endif
 
 #Native Framework support
 ifeq ($(OBJC_RUNTIME_LIB),apple)

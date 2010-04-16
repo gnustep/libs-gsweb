@@ -220,8 +220,8 @@ RCS_ID("$Id$")
 {
   GSWComponent * component = GSWContext_component(context);
   NSString * fname = [_filename valueInComponent: component];
-  NSString * fwname =  [self _frameworkNameForAssociation: _framework 
-                                              inComponent: component];
+  NSString * fwname =  [[self class] _frameworkNameForAssociation: _framework 
+                                                      inComponent: component];
   NSString * url = [context _urlForResourceNamed: fname
                                     inFramework: fwname];
   

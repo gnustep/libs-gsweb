@@ -258,11 +258,9 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 //--------------------------------------------------------------------
 -(void)_finalizeContentEncodingInContext:(GSWContext*)aContext
 {
+#ifdef HAVE_LIBZ
   int dataLength=0;
 
-  LOGObjectFnStart();
-
-#ifdef HAVE_LIBZ
   dataLength=[self _contentLength];
   NSDebugMLog(@"dataLength=%d",dataLength);
   // Now we see if we can gzip the content
@@ -311,9 +309,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
         };
     };
 #endif
-
-  LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 -(void)_finalizeInContext:(GSWContext*)aContext

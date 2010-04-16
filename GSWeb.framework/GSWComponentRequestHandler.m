@@ -110,7 +110,7 @@ RCS_ID("$Id$")
         pageName = [pathArray objectAtIndex:0];
       } else {
         int i;
-        pageName = [[NSMutableString alloc] initWithCapacity:256];
+        pageName = [(NSMutableString*) [NSMutableString alloc] initWithCapacity:256];
         [pageName autorelease];
         
         for (i = pageNameLocation; i < pageNameLength - pageNameLocation; i++) {

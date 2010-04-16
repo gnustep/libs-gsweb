@@ -212,6 +212,16 @@ Call this method before using a component which was cached in a variable.
 -(NSException*)validateValue:(id*)valuePtr
                       forKey:(NSString*)key;
 
+/**
+ * This method is called to validate and potentially coerce
+ * VALUE for the receivers key path.  This method also assigns
+ * the value if it is different from the current value.
+ * This method will raise an EOValidationException
+ * if validateValue:forKeyPath:error: returns an error.
+ * This method returns new value.
+ **/
+- (id)validateTakeValue:(id)value forKeyPath:(NSString *)path;
+
 //+(id)validateValue:(id*)valuePtr
 //            forKey:(id)key;
 

@@ -36,7 +36,7 @@
 
 }
 
-+ _setAlwaysAppendContentLength:(BOOL) yn;
++ (void) _setAlwaysAppendContentLength:(BOOL) yn;
 
 + (BOOL) _alwaysAppendContentLength;
   

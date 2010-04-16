@@ -3656,9 +3656,9 @@ to another instance **/
 +(id)defaultModelGroup
 {
 #ifdef TCSDB
-  return [NSClassFromString(@"DBModelGroup") defaultGroup];
+  return (id) [NSClassFromString(@"DBModelGroup") defaultGroup];
 #else
-  return [NSClassFromString(@"EOModelGroup") defaultGroup];
+  return (id) [NSClassFromString(@"EOModelGroup") defaultGroup];
 #endif
 }
 

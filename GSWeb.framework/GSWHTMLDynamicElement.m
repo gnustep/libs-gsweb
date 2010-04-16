@@ -319,7 +319,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
       name = [association valueInComponent:component];
       if (name)
 	{
-	  if ([@"app" caseInsensativeCompare: name])
+	  if ([@"app" caseInsensitiveCompare: name])
 	    {
 	      name = nil;
 	    }
@@ -333,7 +333,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 
 	  [GSWApp debugWithFormat:@"%s evaluated to nil. Defaulting to %@",
 		  __PRETTY_FUNCTION__,
-		  (name ? name : @"app")];
+		  (name ? name : (NSString*) @"app")];
 	}
     }
   else

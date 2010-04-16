@@ -112,7 +112,7 @@ RCS_ID("$Id$")
 - (void) _setValueNoValidation:(id) aValue inComponent:(GSWComponent*) component
 {    
   if (_isValueSettable) {
-    [component takeValue:aValue forKeyPath:_keyPath];
+    [component setValue:aValue forKeyPath:_keyPath];
   }
 }    
 

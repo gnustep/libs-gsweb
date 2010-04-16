@@ -72,9 +72,9 @@ static SEL appendStringSel = NULL;
                        length:(unsigned int)length
                  freeWhenDone:(BOOL)flag
 {
-  _url=[[NSMutableString alloc]initWithCharactersNoCopy:chars
-                                                 length:length
-                                           freeWhenDone:flag];
+  _url=[(NSMutableString*) [NSMutableString alloc] initWithCharactersNoCopy:chars
+                                                                     length:length
+                                                               freeWhenDone:flag];
   if (chars) {
     [self _parse];
   }
@@ -86,8 +86,8 @@ static SEL appendStringSel = NULL;
 -(id)initWithCharacters:(const unichar*)chars
                  length:(unsigned int)length
 {
-  _url = [[NSMutableString alloc] initWithCharacters:chars
-                                              length:length];
+  _url = [(NSMutableString*)[NSMutableString alloc] initWithCharacters:chars
+                                                                length:length];
   if (chars) {
     [self _parse];
   }
@@ -99,9 +99,9 @@ static SEL appendStringSel = NULL;
                     length:(unsigned int)length
               freeWhenDone:(BOOL)flag
 {
-  _url = [[NSMutableString alloc] initWithCStringNoCopy:byteString
-                                                 length:length
-                                           freeWhenDone:flag];
+  _url = [(NSMutableString*) [NSMutableString alloc] initWithCStringNoCopy:byteString
+                                                                    length:length
+                                                              freeWhenDone:flag];
   if (byteString) {
     [self _parse];
   }
@@ -112,8 +112,8 @@ static SEL appendStringSel = NULL;
 -(id)initWithCString:(const char*)byteString
               length:(unsigned int)length;
 {
-  _url = [[NSMutableString alloc] initWithCString:byteString
-                                           length:length];
+  _url = [(NSMutableString*) [NSMutableString alloc] initWithCString:byteString
+                                                              length:length];
   if (byteString) {
     [self _parse];
   }

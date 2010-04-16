@@ -36,16 +36,15 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-#ifdef HAVE_GDL2
-#include <EOControl/EOKeyValueCoding.h>
+//#ifdef HAVE_GDL2
+//#include <EOControl/EOKeyValueCoding.h>
 
 //====================================================================
 @interface GSWBundleUnarchiverDelegate : NSObject
 {
   id _object;
 }
-- (id) unarchiver:(EOKeyValueUnarchiver*)unarchiver
-objectForReference:(NSString*)keyPath;
+- (id) unarchiver:(NSKeyedUnarchiver*)unarchiver objectForReference:(NSString*)keyPath;
 - (id) initWithObject:(id)object;
 @end
 
@@ -56,14 +55,13 @@ objectForReference:(NSString*)keyPath;
 - (void) dealloc
 {
   [super dealloc];
-};
+}
 
 //--------------------------------------------------------------------
-- (id) unarchiver:(EOKeyValueUnarchiver*)unarchiver
-objectForReference:(NSString*)keyPath
+- (id) unarchiver:(NSKeyedUnarchiver*)unarchiver objectForReference:(NSString*)keyPath
 {
   return [_object valueForKeyPath:keyPath];
-};
+}
 
 //--------------------------------------------------------------------
 - (id) initWithObject:(id)object
@@ -71,23 +69,23 @@ objectForReference:(NSString*)keyPath
   if ((self=[super init]))
     {
       _object=object;
-    };
+    }
   return self;
-};
+}
 
 @end
-#endif // HAVE_GDL2
+//#endif // HAVE_GDL2
 
 @implementation GSWBundle
 
 //--------------------------------------------------------------------
 -(id)initWithPath:(NSString*)aPath
-		  baseURL:(NSString*)aBaseURL
+          baseURL:(NSString*)aBaseURL
 {
   return [self initWithPath:aPath
                baseURL:aBaseURL
                inFrameworkNamed:nil];
-};
+}
 
 //--------------------------------------------------------------------
 -(id)initWithPath:(NSString*)aPath
@@ -115,9 +113,9 @@ objectForReference:(NSString*)keyPath
       _classCache=[NSMutableDictionary new];
       _selfLock=[NSRecursiveLock new];
       LOGObjectFnStop();
-    };
+    }
   return self;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)dealloc
@@ -152,25 +150,25 @@ objectForReference:(NSString*)keyPath
   GSWLogC("Dealloc GSWBundle Super");
   [super dealloc];
   GSWLogC("End Dealloc GSWBundle");
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)baseURL
 {
   return _baseURL;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)path
 {
   return _path;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)frameworkName
 {
   return _frameworkName;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)description
@@ -190,7 +188,7 @@ objectForReference:(NSString*)keyPath
                _frameworkName];
 //  GSWLogC("GSWBundle description D");
   return descr;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)unlock
@@ -203,7 +201,7 @@ objectForReference:(NSString*)keyPath
 #endif
   NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
   LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 -(void)lock
@@ -216,7 +214,7 @@ objectForReference:(NSString*)keyPath
 #endif
   NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
   LOGObjectFnStop();
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -237,17 +235,17 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 -(void)loadCache
 {
   LOGObjectFnNotImplemented();	//TODOFN
-};
+}
 
 
 // returned relativePath won't have "/" prefix
@@ -290,7 +288,7 @@ objectForReference:(NSString*)keyPath
           // format like: language.languageSuffix/fileName
           relativePath=[language stringByAppendingPathExtension:GSLanguageSuffix];
           relativePath=[relativePath stringByAppendingPathComponent:fileName];
-        };
+        }
       NSDebugMLLog(@"bundles",@"language=%@",language);
       NSDebugMLLog(@"bundles",@"relativePath=%@",relativePath);
       absolutePath=[_path stringByAppendingPathComponent:relativePath];
@@ -315,9 +313,9 @@ objectForReference:(NSString*)keyPath
                         forKey:relativePath];
               relativePath=nil;
               absolutePath=nil;
-            };
-        };
-    };
+            }
+        }
+    }
 
   if (aRelativePath) {
     if ([relativePath length]>0) {
@@ -357,7 +355,7 @@ objectForReference:(NSString*)keyPath
     [self initializeObject:anObject
           fromArchive:archive];
   LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 -(void)initializeObject:(id)anObject
@@ -387,10 +385,10 @@ objectForReference:(NSString*)keyPath
             [anObject setUserAssociations:userAssociations];
           if (defaultAssociations && [anObject respondsToSelector:@selector(setDefaultAssociations:)])
             [anObject setDefaultAssociations:defaultAssociations];
-        };
-#if HAVE_GDL2 // GDL2 implementation
+        }
+#if 0 //HAVE_GDL2 // GDL2 implementation
       {
-        EOKeyValueUnarchiver* unarchiver=nil;
+        NSKeyedUnarchiver* unarchiver=nil;
         GSWBundleUnarchiverDelegate* bundleDelegate=nil;
         NSDictionary* variables=nil;
         NSEnumerator* variablesEnum=nil;
@@ -431,8 +429,8 @@ objectForReference:(NSString*)keyPath
                          variableValue,
                          variableValue,
                          [variableValue retainCount]);
-          };
-      };
+          }
+      }
 #else
       LOGObjectFnNotImplemented();
 #endif
@@ -450,11 +448,11 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 -(Class)scriptedClassWithName:(NSString*)aName
@@ -476,7 +474,7 @@ objectForReference:(NSString*)keyPath
           aClass=[self lockedScriptedClassWithName:aName
                        pathName:pathName
                        superclassName:aSuperclassName];
-        };
+        }
     }
   NS_HANDLER
     {
@@ -485,12 +483,12 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
   return aClass;
-};
+}
 
 //--------------------------------------------------------------------
 -(Class)lockedScriptedClassWithName:(NSString*)aName
@@ -499,7 +497,7 @@ objectForReference:(NSString*)keyPath
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)lockedScriptedClassPathWithName:(NSString*)aName
@@ -520,7 +518,7 @@ objectForReference:(NSString*)keyPath
                  relativePath:NULL
                  absolutePath:&path];
   return path;
-};
+}
 
 //--------------------------------------------------------------------
 -(Class)compiledClassWithName:(NSString*)aName
@@ -528,7 +526,7 @@ objectForReference:(NSString*)keyPath
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWElement*)templateNamed:(NSString*)aName
@@ -551,12 +549,12 @@ objectForReference:(NSString*)keyPath
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In lockedTemplateNamed");
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
 
   return template;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWElement*)lockedTemplateNamed:(NSString*)aName
@@ -618,7 +616,7 @@ objectForReference:(NSString*)keyPath
                                       absolutePath:&absoluteDefinitionPath];
                   NSDebugMLLog(@"bundles",@"absoluteDefinitionPath=%@",
                                absoluteDefinitionPath);
-                };
+                }
               
               if (absoluteDefinitionPath)
                 {
@@ -629,7 +627,7 @@ objectForReference:(NSString*)keyPath
                   pageDefString = [NSString stringWithContentsOfFile:absoluteDefinitionPath 
                                                             encoding:encoding];
 
-                };
+                }
 #ifndef NDEBUG
               NS_DURING
 #endif
@@ -658,10 +656,10 @@ objectForReference:(NSString*)keyPath
                   localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                            @"In template Parsing");
                   [localException raise];
-                };
+                }
               NS_ENDHANDLER;
 #endif
-            };
+            }
           if ([[GSWApplication application] isCachingEnabled])
             {
               if (template)
@@ -674,12 +672,12 @@ objectForReference:(NSString*)keyPath
 		  [_templateCache setObject:GSNotFoundMarker
 				  forKey:relativeTemplatePath];
 		}
-            };
-        };
-    };
+            }
+        }
+    }
 
   return template;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)stringForKey:(NSString*)aKey
@@ -702,7 +700,7 @@ objectForReference:(NSString*)keyPath
     string=defaultValue;
   LOGObjectFnStop();
   return string;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -750,9 +748,9 @@ objectForReference:(NSString*)keyPath
                   else
                     [_stringsTableCache setObject:GSNotFoundMarker
                                         forKey:relativePath];
-                };
-            };
-        };
+                }
+            }
+        }
     }
   NS_HANDLER
     {
@@ -761,12 +759,12 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
   return stringsTable;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -800,7 +798,7 @@ objectForReference:(NSString*)keyPath
                   LOGSeriousError(@"Bad stringTableArray \n%@\n from file %@",
                                   [NSString stringWithContentsOfFile:absolutePath],
                                   absolutePath);
-                };
+                }
               if ([[GSWApplication application] isCachingEnabled])
                 {
                   if (stringsTableArray)
@@ -809,9 +807,9 @@ objectForReference:(NSString*)keyPath
                   else
                     [_stringsTableArrayCache setObject:GSNotFoundMarker
                                              forKey:relativePath];
-                };
-            };
-        };
+                }
+            }
+        }
     }
   NS_HANDLER
     {
@@ -821,12 +819,12 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
   return stringsTableArray;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)urlForResourceNamed:(NSString*)aName
@@ -863,9 +861,9 @@ objectForReference:(NSString*)keyPath
                 {
                   [_pathCache setObject:baseURL
                               forKey:relativePath];
-                };
-            };
-        };
+                }
+            }
+        }
       if (baseURL)
         {
           if (isUsingWebServer)
@@ -880,8 +878,8 @@ objectForReference:(NSString*)keyPath
                                        queryString:[NSString stringWithFormat:@"%@=%@",
                                                              GSWKey_Data[GSWebNamingConv],
                                                              completePath]];//TODO Escape
-            };
-        };
+            }
+        }
     }
   NS_HANDLER
     {
@@ -890,12 +888,12 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
   return url;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSString*)pathForResourceNamed:(NSString*)aName
@@ -923,7 +921,7 @@ objectForReference:(NSString*)keyPath
         {
           [_pathCache setObject:absolutePath
                       forKey:relativePath];
-        };
+        }
     }
   NS_HANDLER
     {
@@ -932,12 +930,12 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
 
   return absolutePath;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSStringEncoding)encodingForResourcesNamed:(NSString*)aName
@@ -968,9 +966,9 @@ objectForReference:(NSString*)keyPath
                   encodingObject=GSWIntToNSString([NSString encodingNamed: encodingObject]);
                   [_encodingCache setObject:encodingObject
                                   forKey:aName];
-                };
-            };
-        };
+                }
+            }
+        }
       if (encodingObject)
         encoding=[encodingObject intValue];
     }
@@ -981,12 +979,12 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
   return encoding;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWTemplateParserType)templateParserTypeForResourcesNamed:(NSString*)aName
@@ -1013,9 +1011,9 @@ objectForReference:(NSString*)keyPath
                   templateParserTypeObject=GSWIntNumber([GSWTemplateParser templateParserTypeFromString:templateParserTypeObject]);
                   [_templateParserTypeCache setObject:templateParserTypeObject
                                   forKey:aName];
-                };
-            };
-        };
+                }
+            }
+        }
       if (templateParserTypeObject)
         templateParserType=[templateParserTypeObject intValue];
     }
@@ -1026,12 +1024,12 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   LOGObjectFnStop();
   return templateParserType;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)archiveNamed:(NSString*)aName
@@ -1053,13 +1051,13 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   NSDebugMLLog(@"bundles",@"archive=%@",archive);
   LOGObjectFnStop();
   return archive;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)lockedArchiveNamed:(NSString*)aName
@@ -1087,7 +1085,7 @@ objectForReference:(NSString*)keyPath
                     relativePath:&relativePath
                     absolutePath:&absolutePath];
       NSDebugMLLog(@"bundles",@"archive=%p absolutePath=%@",archive,absolutePath);
-    };
+    }
   if (!archive)
     {
       if (absolutePath)
@@ -1101,13 +1099,13 @@ objectForReference:(NSString*)keyPath
               else
                 [_archiveCache setObject:GSNotFoundMarker
                                forKey:relativePath];
-            };
-        };
-    };
+            }
+        }
+    }
   NSDebugMLLog(@"bundles",@"archive=%@",archive);
   LOGObjectFnStop();
   return archive;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)apiNamed:(NSString*)aName
@@ -1129,13 +1127,13 @@ objectForReference:(NSString*)keyPath
       //TODO
       [self unlock];
       [localException raise];
-    };
+    }
   NS_ENDHANDLER;
   [self unlock];
   NSDebugMLLog(@"bundles",@"api=%@",api);
   LOGObjectFnStop();
   return api;
-};
+}
 
 //--------------------------------------------------------------------
 -(NSDictionary*)lockedApiNamed:(NSString*)aName
@@ -1164,13 +1162,13 @@ objectForReference:(NSString*)keyPath
               else
                 [_apiCache setObject:GSNotFoundMarker
                            forKey:relativePath];
-            };
-        };
-    };
+            }
+        }
+    }
   NSDebugMLLog(@"bundles",@"api=%@",api);
   LOGObjectFnStop();
   return api;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -1178,14 +1176,14 @@ objectForReference:(NSString*)keyPath
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 //--------------------------------------------------------------------
 -(id)scriptPathNameFromScriptedClassName:(NSString*)aName
 {
   LOGObjectFnNotImplemented();	//TODOFN
   return nil;
-};
+}
 
 @end
 

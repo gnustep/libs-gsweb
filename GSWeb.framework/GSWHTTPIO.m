@@ -41,6 +41,7 @@
 #include "GSWResponse.h"
 #include "GSWRequest.h"
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define READ_SIZE 2048
 
@@ -113,7 +114,7 @@ static BOOL      _alwaysAppendContentLength = YES;
 @implementation GSWHTTPIO
 
 /* Apple is accessing this in Application.java in wotaskd example code -- dw */
-+ _setAlwaysAppendContentLength:(BOOL) yn
++ (void) _setAlwaysAppendContentLength:(BOOL) yn
 {
   _alwaysAppendContentLength = yn;
 }
@@ -259,7 +260,6 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   int                  fileDescriptor = [(GSFileHandle*) fh fileDescriptor];
   struct sockaddr_in   sockAddress;
   socklen_t            address_len = sizeof(sockAddress);
-  struct sockaddr_in   sockaddrIn;
   char                 str[INET_ADDRSTRLEN]; 
   
   if (getpeername(fileDescriptor, (struct sockaddr *) &sockAddress,  &address_len) == 0) {
