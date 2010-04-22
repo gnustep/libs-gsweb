@@ -41,7 +41,6 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/GSObjCRuntime.h>
-#include <GNUstepBase/GSCategories.h>
 #endif
 
 #define DEFAULT_DICTIONARY_CAPACITY 32
@@ -1094,9 +1093,9 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 {
   NSString* descr=nil;
   //TODO
-  descr=[NSString stringWithFormat:@"<%s %@>",
+  descr=[NSString stringWithFormat:@"<%@ %p allValues=%@>",
 				  NSStringFromClass([self class]),
-				  (void*)self];
+				  (void*)self, [self allValues]];
   return descr;
 };
 

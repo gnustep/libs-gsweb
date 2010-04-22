@@ -11,6 +11,8 @@
     * fix index
     NSString+HTML.m, GSWBaseParser.m, GSWDeclarationParser.m, GSWHTMLRawParser.m
     * use NSZoneMalloc()
+    GSWMultiKeyDictionary.m:
+    * fixed description
 
 2010-04-16  David Wetzel <dave@turbocat.de>
     * fixed memory leak
