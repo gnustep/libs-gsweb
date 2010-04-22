@@ -497,7 +497,7 @@ May raise exception.
   // does not work on Snow Leopard. Any suggestions? -- dw
   //_uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
   
-  _uniBuf =  (unichar*)NSZoneMalloc(NSDefaultMallocZone(),(sizeof(unichar)*(_length+1));
+  _uniBuf =  (unichar*)NSZoneMalloc(NSDefaultMallocZone(),sizeof(unichar)*(_length+1));
   
   NS_DURING
     {
