@@ -532,7 +532,7 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
       int dstLen=0;
       unichar dstUnichar;
 //      unichar* pString=GSAutoreleasedBuffer((length+1)*sizeof(unichar));
-      unichar* pString=malloc((length+1)*sizeof(unichar));
+      unichar* pString=NSZoneMalloc(NSDefaultMallocZone(),(length+1)*sizeof(unichar));
       int i=0;
       int j=0;
       [string getCharacters:pString];
@@ -583,7 +583,8 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
         str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
       else
         str=string;
-      free(pString);
+      NSZoneFree(NSDefaultMallocZone(), pString);
+
     }
   else if ([string isKindOfClass:mutableStringClass])
     str=@"";

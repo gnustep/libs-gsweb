@@ -298,7 +298,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 
       [[self class] _setApplication:self];
       [self _touchPrincipalClasses];
-      _contextDictionary = [NSMutableDictionary new];
 
       standardUserDefaults=[NSUserDefaults standardUserDefaults];
       NSDebugMLLog(@"options",@"standardUserDefaults=%@",standardUserDefaults);
@@ -412,7 +411,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   DESTROY(_initialTimer);
   DESTROY(_activeSessionsCountLock);
   DESTROY(_lifebeatThread);
-  DESTROY(_contextDictionary);
   
   if (GSWApp == self)
   {
@@ -1470,15 +1468,14 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(void)_setContext:(GSWContext*)aContext
 {
-  SYNCHRONIZED(self) {
-    if (aContext) {
-      [_contextDictionary setObject:aContext
-                             forKey:GSWThreadKey_Context];
-    } else {
-      [_contextDictionary removeObjectForKey:GSWThreadKey_Context];  
-    }
+  NSMutableDictionary * thDict = [[NSThread currentThread] threadDictionary];
+  
+  if (aContext) {
+    [thDict setObject:aContext
+               forKey:GSWThreadKey_Context];
+  } else {
+    [thDict removeObjectForKey:GSWThreadKey_Context];  
   }
-  END_SYNCHRONIZED;
   
 }
 
@@ -1488,10 +1485,9 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   GSWContext* context=nil;
   
-  SYNCHRONIZED(self) {
-    context=[_contextDictionary objectForKey:GSWThreadKey_Context];
-  }
-  END_SYNCHRONIZED;
+  NSMutableDictionary * thDict = [[NSThread currentThread] threadDictionary];
+  
+  context = [thDict objectForKey:GSWThreadKey_Context];
   
   return context;
 }

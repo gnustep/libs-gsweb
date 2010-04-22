@@ -163,12 +163,9 @@ RCS_ID("$Id$")
     NSTimer* timer=nil;
     int removedNb=0;
     
-    NSUInteger timeOutCount = [_sessionOrderedTimeOuts count];
-    NSUInteger index;
-    
-    index = timeOutCount-1;
-    
-    while ((index > 1) && ((sessionTimeOut = [_sessionOrderedTimeOuts objectAtIndex:index-1])))
+    NSUInteger index = [_sessionOrderedTimeOuts count];
+        
+    while ((index > 0) && ((sessionTimeOut = [_sessionOrderedTimeOuts objectAtIndex:index-1])))
     {
       if ([sessionTimeOut timeOutTime]<now) 
       {

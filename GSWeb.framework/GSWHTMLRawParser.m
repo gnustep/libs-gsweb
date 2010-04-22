@@ -497,7 +497,7 @@ May raise exception.
   // does not work on Snow Leopard. Any suggestions? -- dw
   //_uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
   
-  _uniBuf =  (unichar*)malloc(sizeof(unichar)*(_length+1));
+  _uniBuf =  (unichar*)NSZoneMalloc(NSDefaultMallocZone(),(sizeof(unichar)*(_length+1));
   
   NS_DURING
     {
@@ -637,8 +637,7 @@ May raise exception.
     {
       if (_uniBuf)
         {
-          //objc_free(_uniBuf);
-          free(_uniBuf);
+          NSZoneFree(NSDefaultMallocZone(),_uniBuf);
           _uniBuf=NULL;
         };
       [localException raise];

@@ -1094,7 +1094,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 {
   NSString* descr=nil;
   //TODO
-  descr=[NSString stringWithFormat:@"<%s %p>",
+  descr=[NSString stringWithFormat:@"<%s %@>",
 				  NSStringFromClass([self class]),
 				  (void*)self];
   return descr;

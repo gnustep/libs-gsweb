@@ -2091,7 +2091,7 @@ NSString* GSWGetDefaultDocRoot()
 //--------------------------------------------------------------------
 + (NSStringEncoding) encodingNamed:(NSString*) encodingName
 {  
-  NSStringEncoding encoding=NSUnicodeStringEncoding;
+  NSStringEncoding encoding;
 
   NSCAssert(encodingsByName,@"encodingsByName not initialized");
 

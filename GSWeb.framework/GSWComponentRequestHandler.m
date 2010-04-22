@@ -289,6 +289,11 @@ GSWResponse * _dispatchWithPreparedApplication(GSWApplication *app, GSWContext *
   return response;
 }
 
+/*
+ returns YES. Subclassers might override this.
+ Used to reject requests to /favicon.ico in direct connect mode.
+ */
+
 - (BOOL) rejectFavicon
 {
   return YES;

@@ -1520,7 +1520,6 @@ RCS_ID("$Id$")
       formValues=[self _extractValuesFromFormData:formData
                        withEncoding:formValueEncoding];
 
-      [_formValues release];
       ASSIGN(_formValues,formValues);
     };
 };
