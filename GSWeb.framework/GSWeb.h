@@ -43,6 +43,7 @@
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
 #endif
 
 #if GDL2
@@ -77,7 +78,7 @@
 #include <Foundation/NSThread.h>
 #include <Foundation/NSFormatter.h>
 #include <GNUstepBase/GSXML.h>
-#include <GNUstepBase/GSCategories.h>
+//#include <GNUstepBase/GSCategories.h>
 #include "GSWConfig.h"
 
 @class EOEditingContext;

@@ -112,7 +112,7 @@ static Class standardClass = Nil;
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - value=%@ dateFormat=%@ numberFormat=%@ escapeHTML=%@ formatter=%@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _value,
                    _dateFormat,

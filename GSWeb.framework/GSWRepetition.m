@@ -125,7 +125,7 @@ static SEL setValueInComponentSEL = NULL;
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ count:%@ index:%@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _list, _item, _count, _index];
 };

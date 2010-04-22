@@ -92,7 +92,7 @@ RCS_ID("$Id$")
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p action: %@ actionClass: %@ directActionName:%@ disabled:%@ >",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self, _action, _actionClass, _directActionName,
                    _disabled];
 };

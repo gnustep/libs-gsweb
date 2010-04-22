@@ -218,7 +218,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   LOGObjectFnStart();
   description=[NSString stringWithFormat:
                           @"<%s %p - httpVersion=%@ status=%d headers=%p contentFaults=%p contentData=%p contentEncoding=%d userInfo=%p>",
-                        object_get_class_name(self),
+                        object_getClassName(self),
                         (void*)self,
                         _httpVersion,
                         _status,

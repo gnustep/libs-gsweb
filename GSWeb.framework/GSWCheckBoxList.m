@@ -167,7 +167,7 @@ static Class standardClass = Nil;
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ index:%@ selections:%@ prefix:%@ suffix:%@ displayString:%@ escapeHTML:%@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self, 
                    _list, _item, _index,
                    _selections, _prefix, _suffix, _displayString, _escapeHTML];

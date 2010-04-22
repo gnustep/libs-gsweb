@@ -90,7 +90,7 @@ RCS_ID("$Id$")
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p: properties=%@ parent=%p children count=%d templateInfo=%@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _properties,
                    _parent,

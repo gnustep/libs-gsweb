@@ -27,7 +27,7 @@
 	#define _GSWAdaptor_h__
 
 #include <Foundation/NSObject.h>
-
+@class NSDictionary;
 
 //====================================================================
 // GSWAdaptor

@@ -1476,7 +1476,7 @@ NSString* GSWGetDefaultDocRoot()
 -(NSString*)description
 {
   return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _searchList,
                    _persDomains,
@@ -2091,7 +2091,7 @@ NSString* GSWGetDefaultDocRoot()
 //--------------------------------------------------------------------
 + (NSStringEncoding) encodingNamed:(NSString*) encodingName
 {  
-  NSStringEncoding encoding=GSUndefinedEncoding;
+  NSStringEncoding encoding=NSUnicodeStringEncoding;
 
   NSCAssert(encodingsByName,@"encodingsByName not initialized");
 

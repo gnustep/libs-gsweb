@@ -138,7 +138,7 @@ static Class standardClass = Nil;
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p action: %@ actionClass: %@ directActionName: %@ href:%@ multipleSubmit: %@ queryDictionary: %@ otherQueryAssociations: %@ >",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self, _action, _actionClass, _directActionName, _href, _multipleSubmit,
                    _queryDictionary, _otherQueryAssociations];
 };

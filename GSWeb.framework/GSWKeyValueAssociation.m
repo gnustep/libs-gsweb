@@ -134,7 +134,7 @@ RCS_ID("$Id$")
   NSString* dscr=nil;
   GSWLogAssertGood(self);
   dscr=[NSString stringWithFormat:@"<%s %p -",
-                 object_get_class_name(self),
+                 object_getClassName(self),
                  (void*)self];
   dscr=[dscr stringByAppendingFormat:@" keyPath=%@>",
              _keyPath];

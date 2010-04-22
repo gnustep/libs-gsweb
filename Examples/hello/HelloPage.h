@@ -10,9 +10,9 @@
  */
 
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 
-@interface HelloPage:GSWComponent 
+@interface HelloPage:WOComponent 
 {
     NSString *nameString;
 }

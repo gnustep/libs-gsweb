@@ -55,7 +55,8 @@ RCS_ID("$Id$")
   DESTROY(_string);
   if (_uniBuf)
     {
-      objc_free(_uniBuf);
+      //objc_free(_uniBuf);
+      free(_uniBuf);
       _uniBuf=NULL;
     };
   [super dealloc];

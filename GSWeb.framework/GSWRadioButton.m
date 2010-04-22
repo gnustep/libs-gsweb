@@ -125,7 +125,7 @@ static Class standardClass = Nil;
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p checked:%@ selection:%@ disabled:%@ name:%@ value:%@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self, 
                    _checked, _selection, _disabled, _name, _value];
 };

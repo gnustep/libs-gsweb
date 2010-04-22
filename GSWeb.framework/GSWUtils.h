@@ -89,7 +89,10 @@ GSWEB_EXPORT NSNumber* GSWIntNumber(int value);
 
 typedef long long GSWTime; // usec since Epoch
 
+#ifndef USEC_PER_SEC
 #define USEC_PER_SEC	((GSWTime)1000000)
+#endif
+
 #define GSWTime_makeTimeFromSecAndUSec(sec,usec)	((GSWTime)(sec)*USEC_PER_SEC+(GSWTime)(usec))
 
 GSWEB_EXPORT GSWTime GSWTime_now();

@@ -38,6 +38,12 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 #include <limits.h>
 
+#ifndef GNUSTEP
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/GSCategories.h>
+#endif
+
 #define DEFAULT_DICTIONARY_CAPACITY 32
 
 // Copied from NSDate.m. We should find a better solution....
@@ -1089,7 +1095,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
   NSString* descr=nil;
   //TODO
   descr=[NSString stringWithFormat:@"<%s %p>",
-				  object_get_class_name(self),
+				  NSStringFromClass([self class]),
 				  (void*)self];
   return descr;
 };

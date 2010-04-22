@@ -41,7 +41,7 @@
   GSWAssociation * _href;
   GSWAssociation * _disabled;
   GSWAssociation * _fragmentIdentifier;
-  GSWAssociation * _secure;
+//  GSWAssociation * _secure;
   GSWAssociation * _queryDictionary;
   GSWAssociation * _actionClass;
   GSWAssociation * _directActionName;

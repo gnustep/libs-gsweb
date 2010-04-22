@@ -9,4 +9,7 @@
  * HelloWorld ObjC application.
  */
 
-BODY_NAME_STRING:GSWString {value = nameString}
+body_name_string:WOString 
+{
+    value = nameString
+}

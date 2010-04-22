@@ -11,9 +11,9 @@
  *
  */
  
-NAME_FIELD:GSWTextField {value = nameString}
+name_field:WOTextField {value = nameString}
 
-SUBMIT_BUTTON:GSWSubmitButton {action = sayHello}
+submit_button:WOSubmitButton {action = sayHello}
 
-MyForm: GSWForm {
+form: WOForm {
 }

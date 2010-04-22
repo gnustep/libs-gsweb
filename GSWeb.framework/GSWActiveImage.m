@@ -264,7 +264,7 @@ static NSString * static_tempQueryKey = nil;
   DESTROY(_key);
   DESTROY(_width);
   DESTROY(_height);
-  DESTROY(_secure);
+//  DESTROY(_secure);
   DESTROY(_actionClass);
   DESTROY(_directActionName);
   DESTROY(_sessionIDQueryAssociations);
@@ -282,7 +282,7 @@ static NSString * static_tempQueryKey = nil;
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self];
 };
 

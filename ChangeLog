@@ -1,4 +1,9 @@
 2010-04-16  David Wetzel <dave@turbocat.de>
+    * fixed memory leak
+    * ported to OS X (beta)
+    * depricated GSW naming
+    
+2010-04-16  David Wetzel <dave@turbocat.de>
     GSWeb.framework
     * Many warnings fixed.
     * Removed GDL dependency.

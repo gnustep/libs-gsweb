@@ -289,20 +289,36 @@ GSWResponse * _dispatchWithPreparedApplication(GSWApplication *app, GSWContext *
   return response;
 }
 
+- (BOOL) rejectFavicon
+{
+  return YES;
+}
+
 - (GSWResponse*) _handleRequest:(GSWRequest*) aRequest
 {
   GSWContext          * aContext = nil;
   NSDictionary        * requestHandlerValues;
   NSString            * aSessionID;
   NSString            * aSenderID;
+  NSString            * uri;
   NSString            * oldContextID;
   GSWStatisticsStore  * aStatisticsStore;
   GSWResponse         * aResponse;
   GSWApplication      * app = GSWApp;   // is there any reason not to use the global var? -- dw
+    
+  
+  uri = [aRequest uri];
+  if ([self rejectFavicon] && uri != nil) {
+    if ([@"/favicon.ico" isEqualToString:uri]) {
+      aResponse = [app createResponseInContext:nil];
+      [aResponse setStatus:404]; // sorry kids
+      return aResponse;
+    }
+  }
   
   requestHandlerValues = [self requestHandlerValuesForRequest:aRequest];
   aSessionID = [requestHandlerValues objectForKey:[app sessionIdKey]];
-  
+
   if ((aSessionID == nil) && [app isRefusingNewSessions]) 
   {
     NSString * newLocationURL = [app _newLocationForRequest:aRequest];

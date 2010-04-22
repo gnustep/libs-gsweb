@@ -68,7 +68,7 @@ static Class NSStringClass = Nil;
   DESTROY(_href);
   DESTROY(_disabled);
   DESTROY(_fragmentIdentifier);
-  DESTROY(_secure);
+//  DESTROY(_secure);
   DESTROY(_queryDictionary);
   DESTROY(_actionClass);
   DESTROY(_directActionName);
@@ -164,7 +164,7 @@ static Class NSStringClass = Nil;
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p action: %@ actionClass: %@ directActionName: %@ href:%@ string:%@   queryDictionary: %@ otherQueryAssociations: %@ pageName: %@ fragmentIdentifier:%@ disabled:%@ secure:%@ >",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self, _action, _actionClass, _directActionName, _href,
                    _string,
                    _queryDictionary, _otherQueryAssociations, _pageName,

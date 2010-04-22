@@ -177,7 +177,7 @@ RCS_ID("$Id$")
 //  GSWLogC("GSWBundle description A");
 //  NSDebugMLLog(@"bundles",@"GSWBundle description Self=%p",self);
   descr=[NSString stringWithFormat:@"<%s %p - ",
-                  object_get_class_name(self),
+                  object_getClassName(self),
                   (void*)self];
   //  GSWLogC("GSWBundle description B");
   descr=[descr stringByAppendingFormat:@"path:[%@] ",

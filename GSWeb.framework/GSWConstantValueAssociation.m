@@ -70,7 +70,7 @@ RCS_ID("$Id$")
 -(NSString*)debugDescription
 {
   NSString* dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
-                           object_get_class_name(self),
+                           object_getClassName(self),
                            (void*)self,
                            _value,
                            [_value class]];
@@ -114,7 +114,7 @@ RCS_ID("$Id$")
       GSWLogAssertGood(_value);
     };
   dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
-                 object_get_class_name(self),
+                 object_getClassName(self),
                  (void*)self,
                  _value,
                  [_value class]];

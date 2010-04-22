@@ -158,7 +158,7 @@ RCS_ID("$Id$")
 -(NSString*)description
 {
   return [NSString stringWithFormat: @"<%s %p : %@: %.1f>",
-		   object_get_class_name(self),
+		   object_getClassName(self),
 		   (void*)self,
 		   _value,
                    _quality];
@@ -535,7 +535,7 @@ RCS_ID("$Id$")
               int i=0;
               int browserLanguagesCount=0;
 
-              browserLanguages=[browserLanguages mutableCopy];
+              browserLanguages=[[browserLanguages mutableCopy] autorelease];
               browserLanguagesCount=[browserLanguages count];
 
               for(i=0;i<browserLanguagesCount;i++)
@@ -607,7 +607,7 @@ RCS_ID("$Id$")
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - method=%@, uri=%@, httpVersion=%@, headers=%@, content=%@, userInfo=%@, defaultFormValueEncoding=%u, formValueEncoding=%u, formValues=%@, uriElements=%@, cookie=%@, applicationURLPrefix=%@, requestHandlerPathArray=%@, browserLanguages=%@, requestType=%d, isUsingWebServer=%s, formValueEncodingDetectionEnabled=%s, applicationNumber=%d",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _method,
                    _uri,
@@ -1519,6 +1519,8 @@ RCS_ID("$Id$")
 
       formValues=[self _extractValuesFromFormData:formData
                        withEncoding:formValueEncoding];
+
+      [_formValues release];
       ASSIGN(_formValues,formValues);
     };
 };

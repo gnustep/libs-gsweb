@@ -31,17 +31,17 @@ GSWEB_SUBMINOR_VERSION = @SUBMINOR_VERSION@
 ifeq ($(GSW_NAMES),wo)
   AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions -lWOExtensionsGSW
 else
-  AUXILIARY_GSW_LIBS += -lGSWeb -lGSWExtensions -lGSWExtensionsGSW
+#  AUXILIARY_GSW_LIBS += -lGSWeb -lGSWExtensions -lGSWExtensionsGSW
 endif
 
 
 AUXILIARY_INCLUDE_DIRS += @AUX_INCS@
 AUXILIARY_TOOL_LIBS += @AUX_LIBS@
 
-GDL2=@GDL2@
-ifeq ($(GDL2),yes)
-include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
-endif
+#GDL2=@GDL2@
+#ifeq ($(GDL2),yes)
+#include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
+#endif
 
 endif # GSWEB_MAKE_LOADED
 

@@ -282,9 +282,6 @@ int GSWApplicationMain(NSString* applicationClassName,
       ASSIGN(_lastAccessDate,[NSDate date]);
       [self setTimeOut:0];//No time out
 
-      NSDebugMLLog(@"application",@"GSCurrentThreadDictionary()=%@",
-		   GSCurrentThreadDictionary());
-
       //Do it before run so application can addTimer,... in -run
       NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",[NSRunLoop currentRunLoop]);
       ASSIGN(_currentRunLoop,[NSRunLoop currentRunLoop]); 
@@ -301,6 +298,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 
       [[self class] _setApplication:self];
       [self _touchPrincipalClasses];
+      _contextDictionary = [NSMutableDictionary new];
 
       standardUserDefaults=[NSUserDefaults standardUserDefaults];
       NSDebugMLLog(@"options",@"standardUserDefaults=%@",standardUserDefaults);
@@ -414,6 +412,8 @@ int GSWApplicationMain(NSString* applicationClassName,
   DESTROY(_initialTimer);
   DESTROY(_activeSessionsCountLock);
   DESTROY(_lifebeatThread);
+  DESTROY(_contextDictionary);
+  
   if (GSWApp == self)
   {
     GSWApp = nil;
@@ -449,7 +449,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   [self lock];
   dscr=[NSString stringWithFormat:
                    @"<%s %p - name=%@ adaptors=%@ sessionStore=%@ pageCacheSize=%d permanentPageCacheSize=%d pageRecreationEnabled=%s pageRefreshOnBacktrackEnabled=%s componentDefinitionCache=%@ caching=%s terminating=%s timeOut=%f dynamicLoadingEnabled=%s>",
-                 object_get_class_name(self),
+                 object_getClassName(self),
                  (void*)self,
                  [self name],
                  [[self adaptors] description],
@@ -1470,33 +1470,31 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(void)_setContext:(GSWContext*)aContext
 {
-  NSMutableDictionary* threadDictionary=nil;
+  SYNCHRONIZED(self) {
+    if (aContext) {
+      [_contextDictionary setObject:aContext
+                             forKey:GSWThreadKey_Context];
+    } else {
+      [_contextDictionary removeObjectForKey:GSWThreadKey_Context];  
+    }
+  }
+  END_SYNCHRONIZED;
   
-  threadDictionary=GSCurrentThreadDictionary();
-  if (aContext)
-    [threadDictionary setObject:aContext
-                      forKey:GSWThreadKey_Context];
-  else
-    [threadDictionary removeObjectForKey:GSWThreadKey_Context];  
-  //  ASSIGN(context,_context);
-  NSDebugMLLog(@"application",@"context:%p",(void*)aContext);
-  NSDebugMLLog(@"application",@"context retain count:%p",[aContext retainCount]);
-  
-};
+}
 
 //--------------------------------------------------------------------
 // Internal Use only
 -(GSWContext*)_context
 {
   GSWContext* context=nil;
-  NSMutableDictionary* threadDictionary=nil;
   
-  threadDictionary=GSCurrentThreadDictionary();
-  context=[threadDictionary objectForKey:GSWThreadKey_Context];
-  NSDebugMLLog(@"application",@"context:%p",(void*)context);
+  SYNCHRONIZED(self) {
+    context=[_contextDictionary objectForKey:GSWThreadKey_Context];
+  }
+  END_SYNCHRONIZED;
   
   return context;
-};
+}
 
 
 //--------------------------------------------------------------------
@@ -1742,7 +1740,7 @@ to another instance **/
       // We can't set the editing context if one has already been created
       [NSException raise:NSInvalidArgumentException 
                    format:@"%s Can't set a sessionStore when one already exists",
-                   object_get_class_name(self)];
+                   object_getClassName(self)];
     }
   else
     {

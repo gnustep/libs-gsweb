@@ -306,7 +306,7 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _userDefinedString,
                    _userDefinedValue];
@@ -512,7 +512,7 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@ center %@ size %@ start %d stop %d>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _userDefinedString,
                    _userDefinedValue,
@@ -905,7 +905,7 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@ rect %@>",
-				   object_get_class_name(self),
+				   object_getClassName(self),
 				   (void*)self,
 				   _userDefinedString,
 				   _userDefinedValue,
@@ -1003,7 +1003,7 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p - userDefinedString %@ userDefinedValue %@ points %@>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self,
                    _userDefinedString,
                    _userDefinedValue,

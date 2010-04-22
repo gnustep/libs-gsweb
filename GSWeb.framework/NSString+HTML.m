@@ -34,6 +34,11 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+#ifndef GNUSTEP
+#include <GNUstepBase/GSObjCRuntime.h>
+#endif
+
+
 #include <limits.h>
 
 /*
@@ -351,7 +356,7 @@ void allocOrReallocUnicharString(unichar** ptrPtr,int* capacityPtr,int length,in
 NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct* convStructPtr,BOOL includeCRLF)
 {
   NSString* str=nil;
-  int length=[string length];
+  NSUInteger length=[string length];
   NSCAssert(convStructPtr->charsCount>0,@"normalChars not initialized");
   if (length>0)
     {
@@ -526,7 +531,8 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
       int srcLen=0;
       int dstLen=0;
       unichar dstUnichar;
-      unichar* pString=GSAutoreleasedBuffer((length+1)*sizeof(unichar));
+//      unichar* pString=GSAutoreleasedBuffer((length+1)*sizeof(unichar));
+      unichar* pString=malloc((length+1)*sizeof(unichar));
       int i=0;
       int j=0;
       [string getCharacters:pString];
@@ -577,11 +583,14 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
         str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
       else
         str=string;
+      free(pString);
     }
   else if ([string isKindOfClass:mutableStringClass])
     str=@"";
   else
     str=AUTORELEASE(RETAIN(string));
+  
+  
   return str;
 };
 
@@ -604,11 +613,11 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
 //
 -(NSString*) decodeURLEncoding:(NSStringEncoding) encoding
 {
-  unsigned orglen = [self length];
+  NSUInteger orglen = [self length];
   NSMutableData *new = [NSMutableData dataWithLength: orglen];
   const unsigned char *read;
   unsigned char *write;
-  unsigned i,n,l;
+  NSUInteger i,n,l;
 
   read  = [self UTF8String];
   write = [new mutableBytes];

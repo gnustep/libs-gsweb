@@ -100,7 +100,7 @@ RCS_ID("$Id$")
   NSString* descr=nil;
 //  GSWLogC("GSWDeployedBundle description A");
   descr=[NSString stringWithFormat:@"<%s %p - ",
-                  object_get_class_name(self),
+                  object_getClassName(self),
                   (void*)self];
 //  GSWLogC("GSWDeployedBundle description B");
   descr=[descr stringByAppendingFormat:@"bundlePath:%@ ",

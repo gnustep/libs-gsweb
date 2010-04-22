@@ -23,7 +23,7 @@
 #
 
 include $(GNUSTEP_MAKEFILES)/common.make
-include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
+include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb_wo.make
 
 
 GSWAPP_NAME=Hello
@@ -34,13 +34,20 @@ Hello_GSWAPP_INFO_PLIST=Resources/Info-Hello.plist
 # The Objective-C source files to be compiled
 Hello_OBJC_FILES = Hello_main.m Hello.m HelloPage.m Main.m 
 
-Hello_COMPONENTS = Main.gswc HelloPage.gswc
+Hello_COMPONENTS = Main.wo HelloPage.wo
 
 SRCS = $(GSWAPP_NAME:=.m)
 
 HDRS =
 
 DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
+
+
+AUXILIARY_GSW_LIBS = -framework WebObjects -framework WOExtensions
+#else
+#AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions
+#endif
+
 
 -include Makefile.preamble
 

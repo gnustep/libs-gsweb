@@ -37,6 +37,11 @@
 {
 }
 
+/*
+ returns YES. Subclassers might override this.
+ */
+- (BOOL) rejectFavicon;
+
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
 
 +(id)handler;

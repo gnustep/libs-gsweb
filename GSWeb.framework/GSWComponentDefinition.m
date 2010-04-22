@@ -232,7 +232,7 @@ static GSWContext *   TheTemporaryContext;
 {
   //TODO
   return [NSString stringWithFormat:@"<%s %p - name:[%@] bundle:[%@] frameworkName=[%@] componentClass=[%@] isCachingEnabled=[%s] isAwake=[%s]>",
-				   object_get_class_name(self),
+				   object_getClassName(self),
 				   (void*)self,
 				   _name,
 				   _bundle,
@@ -333,7 +333,7 @@ static GSWContext *   TheTemporaryContext;
         componentInitIMP = [GSWComponent instanceMethodForSelector:@selector(init)];
   
         if (instanceInitIMP != componentInitIMP) {
-//          NSLog(@"Class %s should implement initWithContext: and not init", object_get_class_name(myClass));
+//          NSLog(@"Class %s should implement initWithContext: and not init", object_getClassName(myClass));
           [ComponentConstructorLock lock];
             locked = YES;
             TheTemporaryContext = aContext;

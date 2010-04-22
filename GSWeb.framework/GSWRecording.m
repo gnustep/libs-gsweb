@@ -176,7 +176,7 @@ RCS_ID("$Id$")
   NSMutableData* contentData = nil;
   int contentLength=0;
   NSString* applicationURLPrefix=nil;
-  NSStringEncoding contentEncoding=GSUndefinedEncoding;
+  NSStringEncoding contentEncoding=NSUTF8StringEncoding;
 
   LOGObjectFnStart();
 

@@ -55,7 +55,7 @@
   GSWAssociation * _key;
   GSWAssociation * _width;
   GSWAssociation * _height;
-  GSWAssociation * _secure;
+//  GSWAssociation * _secure;
   GSWAssociation * _actionClass;
   GSWAssociation * _directActionName;
   NSDictionary   * _sessionIDQueryAssociations;

@@ -2,13 +2,13 @@
 #include <GNUstepBase/GNUstep.h>
 #endif
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 
 int main(int argc, const char *argv[])
 {
   int ret=0;
   NSAutoreleasePool     *arp = [NSAutoreleasePool new];
-  ret=GSWApplicationMain(@"Hello", argc, argv);
+  ret=WOApplicationMain(@"Hello", argc, argv);
   [arp release];
   return ret;
 }

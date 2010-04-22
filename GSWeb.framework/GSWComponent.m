@@ -60,7 +60,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
 -(id)init
 {
-//  NSLog(@"%s init: deprecated. use initWithContext", class_get_class_name([self class]));
+//  NSLog(@"%s init: deprecated. use initWithContext", class_getName([self class]));
   return [self initWithContext:[GSWComponentDefinition TheTemporaryContext]];
 }
 
@@ -82,9 +82,9 @@ static Class GSWHTMLBareStringClass = Nil;
     if (myClass == ([GSWComponent class])) {
       ASSIGN(_name, [aContext _componentName]);
     } else {
-      ASSIGN(_name, [NSString stringWithCString:object_get_class_name(self)]);
+      ASSIGN(_name, [NSString stringWithCString:object_getClassName(self)]);
     }
-    ASSIGN(_templateName,[NSString stringWithCString:class_get_class_name(myClass)]);
+    ASSIGN(_templateName,[NSString stringWithCString:class_getName(myClass)]);
     _isPage = NO;
     _subComponents = nil;
     [self setCachingEnabled:[GSWApp isCachingEnabled]];
@@ -289,7 +289,7 @@ static Class GSWHTMLBareStringClass = Nil;
   NSString* dscr=nil;
 
   dscr=[NSString stringWithFormat:@"<%s %p>",
-				  object_get_class_name(self),
+				  object_getClassName(self),
 				  (void*)self];
 
   return dscr;

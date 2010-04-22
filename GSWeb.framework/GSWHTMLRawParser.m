@@ -493,8 +493,12 @@ May raise exception.
 {
 //  Object obj = null;
   _length=[_string length];
-
-  _uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
+  
+  // does not work on Snow Leopard. Any suggestions? -- dw
+  //_uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
+  
+  _uniBuf =  (unichar*)malloc(sizeof(unichar)*(_length+1));
+  
   NS_DURING
     {
       [_string getCharacters:_uniBuf];
@@ -633,7 +637,8 @@ May raise exception.
     {
       if (_uniBuf)
         {
-          objc_free(_uniBuf);
+          //objc_free(_uniBuf);
+          free(_uniBuf);
           _uniBuf=NULL;
         };
       [localException raise];

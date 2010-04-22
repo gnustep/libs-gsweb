@@ -112,14 +112,14 @@ NSString* IVarInString(const char* aType,void* aValue)
           {
             Class* pvalue=(Class*)aValue;
             return [NSString stringWithFormat:@"Class:%s",
-                             class_get_class_name(*pvalue)];
+                             class_getName(*pvalue)];
           };
           break;
         case _C_SEL:
           {
             SEL* pvalue=(SEL*)aValue;
             return [NSString stringWithFormat:@"SEL:%s",
-                             sel_get_name(*pvalue)];
+                             sel_getName(*pvalue)];
           };
           break;
         case _C_CHR:

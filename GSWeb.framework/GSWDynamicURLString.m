@@ -334,18 +334,7 @@ static SEL appendStringSel = NULL;
 {
   if (!_flags.composed)
     {
-      if (_url)
-        {
-          int length=[_url length];
-          //NSDebugMLLog(@"low",@"url %p %@ class=%@",_url,_url,[_url class]);
-          if (length>0)
-            [_url deleteCharactersInRange:NSMakeRange(0,length)];
-        }
-      else
-        {
-          _url=[NSMutableString new];
-          _urlASImp=NULL;
-        };
+      NSString * tmpUrl = [[NSMutableString new] autorelease];
 
       if (!_flags.beginningComposed)
         {
@@ -415,25 +404,33 @@ static SEL appendStringSel = NULL;
         };
 
       if (!_urlASImp)
-        _urlASImp = [_url methodForSelector:appendStringSel];
+        _urlASImp = [tmpUrl methodForSelector:appendStringSel];
 
-      (*_urlASImp)(_url,appendStringSel,_urlBeginning);
+      (*_urlASImp)(tmpUrl,appendStringSel,_urlBeginning);
 
       if (_requestHandlerKey)
         {
-          (*_urlASImp)(_url,appendStringSel,_requestHandlerKey);
-          (*_urlASImp)(_url,appendStringSel,@"/");
+          (*_urlASImp)(tmpUrl,appendStringSel,_requestHandlerKey);
+          (*_urlASImp)(tmpUrl,appendStringSel,@"/");
         };
       if (_requestHandlerPath)
         {
-          (*_urlASImp)(_url,appendStringSel,_requestHandlerPath);
+          (*_urlASImp)(tmpUrl,appendStringSel,_requestHandlerPath);
         };
       if (_queryString)
         {
-          (*_urlASImp)(_url,appendStringSel,@"?");
-          (*_urlASImp)(_url,appendStringSel,_queryString);
+          (*_urlASImp)(tmpUrl,appendStringSel,@"?");
+          (*_urlASImp)(tmpUrl,appendStringSel,_queryString);
         };
         _flags.composed=YES;
+      
+      if (([tmpUrl length]==0)) {
+        NSLog(@"%s:cannot parse '%@'", __PRETTY_FUNCTION__, _url);
+      } else {
+        [_url release];
+        _url = [tmpUrl retain];
+      }
+
       //NSDebugMLLog(@"low",@"url %@ class=%@",_url,[_url class]);
     };
 };

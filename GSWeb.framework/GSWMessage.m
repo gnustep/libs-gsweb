@@ -222,7 +222,7 @@ NSString* GSWMessage_stringByEscapingHTMLString(GSWMessage* aMessage,NSString* a
   if (aMessage)
     {
       return (*(aMessage->_selfMsgIMPs._stringByEscapingHTMLStringIMP))
-        (object_get_class(aMessage),stringByEscapingHTMLStringSEL,aString);
+        (object_getClass(aMessage),stringByEscapingHTMLStringSEL,aString);
     }
   else 
     return nil;
@@ -234,7 +234,7 @@ NSString* GSWMessage_stringByEscapingHTMLAttributeValue(GSWMessage* aMessage,NSS
   if (aMessage)
     {
       return (*(aMessage->_selfMsgIMPs._stringByEscapingHTMLAttributeValueIMP))
-        (object_get_class(aMessage),stringByEscapingHTMLAttributeValueSEL,aString);
+        (object_getClass(aMessage),stringByEscapingHTMLAttributeValueSEL,aString);
     }
   else 
     return nil;
@@ -246,7 +246,7 @@ NSString* GSWMessage_stringByConvertingToHTMLEntities(GSWMessage* aMessage,NSStr
   if (aMessage)
     {
       return (*(aMessage->_selfMsgIMPs._stringByConvertingToHTMLEntitiesIMP))
-        (object_get_class(aMessage),stringByConvertingToHTMLEntitiesSEL,aString);
+        (object_getClass(aMessage),stringByConvertingToHTMLEntitiesSEL,aString);
     }
   else 
     return nil;
@@ -258,7 +258,7 @@ NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,NSString* aSt
   if (aMessage)
     {
       return (*(aMessage->_selfMsgIMPs._stringByConvertingToHTMLIMP))
-        (object_get_class(aMessage),stringByConvertingToHTMLSEL,aString);
+        (object_getClass(aMessage),stringByConvertingToHTMLSEL,aString);
     }
   else 
     return nil;
@@ -327,7 +327,7 @@ void GetGSWMessageIMPs(GSWMessageIMPs* impsPtr,GSWMessage* message)
 
   NSCAssert(message,@"No message");
 
-  Class messageClass=object_get_class(message);
+  Class messageClass=object_getClass(message);
 
   NSCAssert(contentEncodingSEL,@"No contentEncodingSEL on GetGSWMessageIMPs");
 

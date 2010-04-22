@@ -13,6 +13,8 @@
 #include <GNUstepBase/GNUstep.h>
 #endif
 
+#include <WebObjects/WebObjects.h>
+
 #include "Main.h"
 #include "Hello.h"
 #include "HelloPage.h"

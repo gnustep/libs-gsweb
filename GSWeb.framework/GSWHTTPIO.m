@@ -26,7 +26,9 @@
 #include <Foundation/NSString.h>
 #include <Foundation/NSFileHandle.h>
 #include <Foundation/NSData.h>
+#ifdef GNUSTEP
 #include <GNUstepBase/GSFileHandle.h>
+#endif
 #include <Foundation/NSError.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDictionary.h>
@@ -82,7 +84,7 @@ static BOOL      _alwaysAppendContentLength = YES;
   NSMutableData	*d;
   int		got,pos=0;
   char		buf[READ_SIZE];
-  int   fileDescriptor = [(GSFileHandle*)self fileDescriptor];
+  int   fileDescriptor = [self fileDescriptor];
   
   d = [NSMutableData dataWithCapacity: READ_SIZE];
   do {
@@ -257,7 +259,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
                         remoteAddress:(NSString**) rAddress
                            remotePort:(uint16_t*) rPort
 {
-  int                  fileDescriptor = [(GSFileHandle*) fh fileDescriptor];
+  int                  fileDescriptor = [fh fileDescriptor];
   struct sockaddr_in   sockAddress;
   socklen_t            address_len = sizeof(sockAddress);
   char                 str[INET_ADDRSTRLEN]; 
@@ -344,6 +346,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   
   if ((([method isEqualToString:GET]) || ([method isEqualToString:HEAD])) || 
     ([method isEqualToString:POST] == NO || (length <1))) {
+    NSLog(@"%s: unsupportet method '%@'", __PRETTY_FUNCTION__, method);
     return nil;
   }
 
@@ -366,8 +369,10 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   uint16_t        rPort = 0;
   NSString      * rAddress = nil;
 
+#ifdef GNUSTEP
   [(GSFileHandle*) fh setNonBlocking: NO];
-
+#endif
+  
   // get info about who talks to us
   
   [self _getConnectionInfoFromHandle: fh 

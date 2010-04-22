@@ -41,22 +41,27 @@
 
 #include "GSWWorkerThread.h"
 
-#if HAVE_LIBWRAP
-#include <tcpd.h>
-#include <syslog.h>
+#ifndef GNUSTEP
+#include <GNUstepBase/NSFileHandle+GNUstepBase.h>
 #endif
+
+
+//#if HAVE_LIBWRAP
+//#include <tcpd.h>
+//#include <syslog.h>
+//#endif
 
 
 RCS_ID("$Id$")
 
 
-#if HAVE_LIBWRAP
-int deny_severity = LOG_WARNING;
-int allow_severity = LOG_INFO;
-/*static*/ void twist_option(char   *value,struct request_info *request)
-{
-};
-#endif
+//#if HAVE_LIBWRAP
+//int deny_severity = LOG_WARNING;
+//int allow_severity = LOG_INFO;
+///*static*/ void twist_option(char   *value,struct request_info *request)
+//{
+//};
+//#endif
        
 
 static GSWResponse * static_lastDitchErrorResponse = nil;
@@ -145,13 +150,20 @@ static GSWResponse * static_lastDitchErrorResponse = nil;
     
   #ifndef __APPLE__
     NSAssert([_fileHandle readInProgress],@"No [_fileHandle readInProgress]");
-    NSDebugDeepMLog(@"%@ - B readInProgress=%d", GSCurrentThread(),(int)[_fileHandle readInProgress]);
+//    NSDebugDeepMLog(@"%@ - B readInProgress=%d", GSCurrentThread(),(int)[_fileHandle readInProgress]);
   #endif
+  
+  NSLog(@"Thread XX Waiting for connections on %@:%d.",
+//  [GSCurrentThread() description],
+  _host,
+  _port);
+#if 0
     [GSWApplication statusLogWithFormat:
   		    @"Thread %@: Waiting for connections on %@:%d.",
-                    GSCurrentThread(),
+                    [GSCurrentThread() description],
                     _host,
                     _port];
+#endif
   }
   END_SYNCHRONIZED;
 }
@@ -329,7 +341,7 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
     }
   else
     {
-#if HAVE_LIBWRAP
+#if 0 //HAVE_LIBWRAP
       NSString* appName=nil;
       struct request_info libwrapRequestInfo;
       memset(&libwrapRequestInfo, 0, sizeof(libwrapRequestInfo));
@@ -421,6 +433,15 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
 {
 }
 
+-(NSString*)description
+{
+  return [NSString stringWithFormat:@"<%s %p host: %@ port: %d adaptorHost: %@>",
+          object_getClassName(self),
+          (void*)self, 
+          _host,
+          _port,
+          _adaptorHost];
+}
 
 
 @end

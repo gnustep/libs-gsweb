@@ -454,8 +454,11 @@ inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
     {
       if (!_declarations)
         _declarations=(NSMutableDictionary*)[NSMutableDictionary new];
+      // does not work on Snow Leopard. Any suggestions? -- dw    
+      // _uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
+
+      _uniBuf =  (unichar*)malloc(sizeof(unichar)*(_length+1));
       
-      _uniBuf =  (unichar*)objc_malloc(sizeof(unichar)*(_length+1));
       NS_DURING
         {
           [_string getCharacters:_uniBuf];
@@ -498,7 +501,8 @@ inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
         {
           if (_uniBuf)
             {
-              objc_free(_uniBuf);
+              //objc_free(_uniBuf);
+              free(_uniBuf);
               _uniBuf=NULL;
             };
           [localException raise];

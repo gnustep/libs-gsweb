@@ -91,6 +91,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
   NSMutableDictionary* _requestHandlers;
   GSWRequestHandler* _defaultRequestHandler;
   NSString*          _hostAddress;
+  NSMutableDictionary* _contextDictionary;
 @public //TODO-NOW REMOVE
   NSRecursiveLock* _selfLock;
 #ifndef NDEBUG

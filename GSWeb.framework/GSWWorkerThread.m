@@ -22,8 +22,14 @@
    Boston, MA 02111 USA.
    */
 
+#ifndef GNUSTEP
+#include <GNUstepBase/GNUstep.h>
+#include <GNUstepBase/NSDebug+GNUstepBase.h>
+#endif
+
 #include <Foundation/Foundation.h>
 #include <Foundation/NSThread.h>
+#include <sys/socket.h>
 
 #include "GSWWOCompatibility.h"
 
@@ -212,7 +218,7 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
 - (NSString*) description
 {
   return [NSString stringWithFormat:@"<%s %p socket:%@ >",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self, _serverSocket];
 }
 
