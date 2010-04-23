@@ -1,7 +1,11 @@
 To install this little application:
  o install GNUstep, GNUstepWeb (including apache module),..
 
-./Hello.gswa/Hello -GSWMTEnabled NO -GSWPort 9008 -GSWAdaptorHost 10.1.0.1
+./Hello.gswa/Hello -GSWMTEnabled NO -WOHost 127.0.0.1 -WOPort 9008 -WOAdaptorHost 127.0.0.1
+
+On OS X:
+
+./Hello.gswa/Contents/MacOS/Hello -GSWMTEnabled NO -WOHost 127.0.0.1 -WOPort 9008 -WOAdaptorHost 127.0.0.1
 
 (change your port and IP as needed)
 
