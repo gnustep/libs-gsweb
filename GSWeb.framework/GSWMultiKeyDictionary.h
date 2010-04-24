@@ -40,7 +40,7 @@
 };
 
 +(id)dictionary;
--(id)initWithCapacity:(unsigned int)capacity;
+-(id)initWithCapacity:(NSUInteger)capacity;
 
 -(void)setObject:(id)object
          forKeys:(id)keys,...;

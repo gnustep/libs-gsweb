@@ -1,83 +1,90 @@
+2010-04-24  David Ayers  <ayers@fsfe.org>
+
+	* GSWeb.framework/GSWMultiKeyDictionary.h/m:
+	Adapt API to current NSDictionary API.
+
 2010-04-23  David Wetzel <dave@turbocat.de>
-    Examples/hello/INSTALL
-    * updated to flags really needed
+
+	* Examples/hello/INSTALL:
+	updated to flags really needed
     
 2010-04-16  David Wetzel <dave@turbocat.de>
-    GSWApplication.*:
-    * use [[NSThread currentThread] threadDictionary]
-    GSWMultiKeyDictionary.m
-    * fix format
-    GSWRequest.m
-    * fix potential double release
-    GSWComponentRequestHandler.*
-    * add comments for rejectFavicon
-    GSWSessionTimeOutManager.m
-    * fix index
-    NSString+HTML.m, GSWBaseParser.m, GSWDeclarationParser.m, GSWHTMLRawParser.m
-    * use NSZoneMalloc()
-    GSWMultiKeyDictionary.m:
-    * fixed description
+
+	* GSWApplication.*:
+	use [[NSThread currentThread] threadDictionary]
+	* GSWMultiKeyDictionary.m: fix format
+	* GSWRequest.m: fix potential double release
+	* GSWComponentRequestHandler.*:  add comments for rejectFavicon
+	* GSWSessionTimeOutManager.m: fix index
+	* NSString+HTML.m, GSWBaseParser.m, GSWDeclarationParser.m,
+	* GSWHTMLRawParser.m: use NSZoneMalloc()
+	* GSWMultiKeyDictionary.m: fixed description
 
 2010-04-16  David Wetzel <dave@turbocat.de>
-    * fixed memory leak
-    * ported to OS X (beta)
-    * depricated GSW naming
+
+	* fixed memory leak
+	* ported to OS X (beta)
+	* depricated GSW naming
     
 2010-04-16  David Wetzel <dave@turbocat.de>
-    GSWeb.framework
-    * Many warnings fixed.
-    * Removed GDL dependency.
-    * NSKeyValueCoding is now MacOS X compatible.
+
+	* GSWeb.framework: Many warnings fixed.
+	Removed GDL dependency.
+	* NSKeyValueCoding is now MacOS X compatible.
          
 2010-04-15  David Wetzel <dave@turbocat.de>
-    new GSWDatabase Framework for EOF/GDL based applications
-    not tested yet!
-    GSWeb.framework:
-    * Moved WODisplayGroup.? to GSWDatabase
-      changed: GNUmakefile GSWeb.h GSWWOCompatibility.h
-    * GSWApplication: removed EOF
-    * small cleanups
-    * GSWUtils.m EONull -> NSNull
-    * GSWApplication+Defaults.m, GSWPrivate.h additions for Monitoring
-    * added NSObject+XML.?
+
+	* new GSWDatabase Framework for EOF/GDL based applications
+	not tested yet!
+	* GSWeb.framework:
+	* Moved WODisplayGroup.? to GSWDatabase
+	changed: GNUmakefile GSWeb.h GSWWOCompatibility.h
+	* GSWApplication: removed EOF
+	* small cleanups
+	* GSWUtils.m EONull -> NSNull
+	* GSWApplication+Defaults.m, GSWPrivate.h additions for Monitoring
+	* added NSObject+XML.?
 
 2010-04-14  David Wetzel <dave@turbocat.de>
-    Apache2/GNUmakefile.in
-    * changed flags, clean now
+	
+	* Apache2/GNUmakefile.in: changed flags, clean now
 
 2010-01-20  David Wetzel <dave@turbocat.de>
-    GSWeb.framework/GSWApplication.m
-    * added _setHostAddress:, hostAddress 
 
-    GSWeb.framework/GSWRequest.h
-    * added _originatingAddress, _originatingPort
+	* GSWeb.framework/GSWApplication.m:
+	added _setHostAddress:, hostAddress 
 
-    GSWeb.framework/GSWDisplayGroup.h
-    * changed undoManager to be id as compile fix for TCSDB.
-    
-    GSWeb.framework/GSWApplication+Defaults.m
-    * added hostAddress
-    
-    GSWeb.framework/GSWHTTPIO.h
-    * added _setAlwaysAppendContentLength
-    
-    GSWeb.framework/GSWHTTPIO.m
-    * added _alwaysAppendContentLength
-    * added + (void) _getConnectionInfoFromHandle:remoteAddress:remotePort:
-    * set originatingAddress and port to request now.
-    
-    GSWeb.framework/GSWApplication.h
-    * added _hostAddress, hostAddress, _setHostAddress
-    * removed lots of @interface lines.
+	* GSWeb.framework/GSWRequest.h:
+	added _originatingAddress, _originatingPort
 
-2009-06-12  David Wetzel <dave@turbocat.de>
-    GSWAdaptors/Apache2/GNUmakefile.in
-    * added -g to include debug info as default
+	* GSWeb.framework/GSWDisplayGroup.h:
+	changed undoManager to be id as compile fix for TCSDB.
+    
+	* GSWeb.framework/GSWApplication+Defaults.m:
+	added hostAddress
+    
+	* GSWeb.framework/GSWHTTPIO.h:
+	added _setAlwaysAppendContentLength
+    
+	* GSWeb.framework/GSWHTTPIO.m:
+	added _alwaysAppendContentLength
+	added + (void) _getConnectionInfoFromHandle:remoteAddress:remotePort:
+	set originatingAddress and port to request now.
+
+	* GSWeb.framework/GSWApplication.h:
+	added _hostAddress, hostAddress, _setHostAddress
+	removed lots of @interface lines.
 
 2009-06-12  David Wetzel <dave@turbocat.de>
-    GSWAdaptors/Apache2/mod_gsw.c:
-    * removed unused read_sock()
-    * reformated read_sock_line()
+
+	* GSWAdaptors/Apache2/GNUmakefile.in:
+	added -g to include debug info as default
+
+2009-06-12  David Wetzel <dave@turbocat.de>
+
+	* GSWAdaptors/Apache2/mod_gsw.c:
+	removed unused read_sock()
+	reformated read_sock_line()
 
 2009-04-14  David Ayers  <ayers@fsfe.org>
 

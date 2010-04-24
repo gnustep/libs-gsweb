@@ -128,7 +128,7 @@ struct	_GSWMapBucket {
 
 struct	_GSWMapBase {
   NSZone	*zone;
-  unsigned int	nodeSize;	/* Size of a node */
+  NSUInteger	nodeSize;	/* Size of a node */
   GSWMapTable	firstTable;
 
   GSWMapTable	freeTables;	/* List of unused tables.	*/
@@ -857,7 +857,7 @@ static void GSWMapCleanMap(GSWMapTable map)
   if (map->nodeCount > 0)
     {
       GSWMapBucket	bucket = map->buckets;
-      unsigned int	i;
+      NSUInteger	i;
       GSWMapNode	startNode = 0;
       GSWMapNode	prevNode = 0;
       GSWMapNode	node = NULL;
@@ -922,7 +922,7 @@ static void GSWMapCleanBase(GSWMapBase base)
 //--------------------------------------------------------------------
 static void GSWMapEmptyBase(GSWMapBase base)
 {
-  unsigned int	i=0;
+  NSUInteger	i=0;
 
   GSWMapEmptyMap(base->firstTable);
   base->firstTable=NULL;
@@ -983,10 +983,10 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 
 //==============================================================================
 @interface GSWMultiKeyDictionary(Private)
-+(id)dictionaryWithNodeSize:(unsigned int)nodeSize;
--(id)initWithNodeSize:(unsigned int)nodeSize;
--(id)initWithNodeSize:(unsigned int)nodeSize
-             capacity:(unsigned int)capacity;
++(id)dictionaryWithNodeSize:(NSUInteger)nodeSize;
+-(id)initWithNodeSize:(NSUInteger)nodeSize;
+-(id)initWithNodeSize:(NSUInteger)nodeSize
+             capacity:(NSUInteger)capacity;
 
 -(void)setObject:(id)object
          forKeys:(id*)keys
@@ -1004,7 +1004,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 @implementation GSWMultiKeyDictionary : NSObject
 
 //------------------------------------------------------------------------------
-+(id)dictionaryWithNodeSize:(unsigned int)nodeSize
++(id)dictionaryWithNodeSize:(NSUInteger)nodeSize
 {
   NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
              @"Bad node size: %u < %u",
@@ -1020,7 +1020,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 };
 
 //------------------------------------------------------------------------------
--(id)initWithNodeSize:(unsigned int)nodeSize
+-(id)initWithNodeSize:(NSUInteger)nodeSize
 {
   LOGObjectFnStart();
   NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
@@ -1043,8 +1043,8 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 };
 
 //------------------------------------------------------------------------------
--(id)initWithNodeSize:(unsigned int)nodeSize
-             capacity:(unsigned int)capacity
+-(id)initWithNodeSize:(NSUInteger)nodeSize
+             capacity:(NSUInteger)capacity
 {
   LOGObjectFnStart();
   NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
@@ -1068,7 +1068,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 };
 
 //------------------------------------------------------------------------------
--(id)initWithCapacity:(unsigned int)capacity
+-(id)initWithCapacity:(NSUInteger)capacity
 {
   LOGObjectFnStart();
   [self initWithNodeSize:sizeof(GSWMapNode_t)
