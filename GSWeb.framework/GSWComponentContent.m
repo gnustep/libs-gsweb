@@ -35,8 +35,18 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
+static Class GSWHTMLBareStringClass = Nil;
+
 //====================================================================
 @implementation GSWComponentContent
+
++ (void) initialize
+{
+  if (self == [GSWComponentContent class])
+  {
+    GSWHTMLBareStringClass = [GSWHTMLBareString class];
+  }
+}
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
@@ -70,33 +80,33 @@ RCS_ID("$Id$")
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)aContext
 {
-  //OK
   GSWElement* element=nil;
   GSWComponent* component=nil;
   GSWComponent* parent=nil;
   GSWElement* childTemplate=nil;
   GSWDeclareDebugElementIDsCount(aContext);
-
+  
   GSWStartElement(aContext);
-
+  
   component=GSWContext_component(aContext);
   childTemplate=[component _childTemplate];
-  parent=[component parent];
-  [aContext _setCurrentComponent:parent];
-  element=[childTemplate invokeActionForRequest:request
-                         inContext:aContext];
-  NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
-            @"childTemplate=%@ Element is a %@ not a GSWElement: %@",
-            childTemplate,
-            [element class],
-            element);
-  [aContext _setCurrentComponent:component];
-
+  if ([childTemplate class] != GSWHTMLBareStringClass) {
+    parent=[component parent];
+    [aContext _setCurrentComponent:parent];
+    element=[childTemplate invokeActionForRequest:request
+                                        inContext:aContext];
+    NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
+              @"childTemplate=%@ Element is a %@ not a GSWElement: %@",
+              childTemplate,
+              [element class],
+              element);
+    [aContext _setCurrentComponent:component];
+  }
   GSWStopElement(aContext);
   GSWAssertDebugElementIDsCount(aContext);
-
+  
   return element;
-};
+}
 
 //--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request

@@ -106,22 +106,14 @@ RCS_ID("$Id$")
 /** Should be Locked **/
 -(GSWSession*)removeSessionWithID:(NSString*)aSessionID
 {
-  //OK
   GSWSession* session=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"aSessionID=%@",aSessionID);
-
-  NSDebugMLLog(@"sessions",@"_sessions=%@",_sessions);
   session=[_sessions objectForKey:aSessionID];
-  NSDebugMLLog(@"sessions",@"session=%@",session);
   RETAIN(session); //to avoid discarding it now
   [_sessions removeObjectForKey:aSessionID];
-  NSDebugMLLog(@"sessions",@"_sessions=%@",_sessions);
   AUTORELEASE(session); //discard it 'later'
 
-  LOGObjectFnStop();
   return session;
-};
+}
 
 @end
 

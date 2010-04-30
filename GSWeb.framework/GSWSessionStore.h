@@ -51,8 +51,8 @@
 -(void)checkInSessionForContext:(GSWContext*)aContext;
 
 -(void)_checkInSessionForContext:(GSWContext*)aContext;
+
 -(void)unlock;
--(BOOL)tryLock;
 -(void)lock;
 
 @end
@@ -61,25 +61,6 @@
 @interface GSWSessionStore (GSWSessionStoreCreation)
 +(GSWSessionStore*)serverSessionStore;
 @end
-/*
-//====================================================================
-@interface GSWSessionStore (GSWSessionStoreOldFn)
-+(GSWSessionStore*)cookieSessionStoreWithDistributionDomain:(NSString*)aDomain
-secure:(BOOL)flag;
-+(GSWSessionStore*)pageSessionStore;
-+(GSWSessionStore*)serverSessionStore;
-
--(GSWSession*)restoreSession;
--(void)saveSession:(GSWSession*)session;
-@end
-*/
-/*
-//====================================================================
-@interface GSWSessionStore (GSWSessionStoreA)
--(BOOL)_isSessionIDCheckedOut:(NSString*)aSessionID;
-
-@end
-*/
 //====================================================================
 @interface GSWSessionStore (GSWSessionStoreB)
 -(void)_validateAPI;
