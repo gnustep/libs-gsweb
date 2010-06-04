@@ -274,7 +274,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
           NSString* contentType=[self headerForKey:@"content-type"];
           NSString* gzHeader=[self headerForKey:@"gzip"];
 
-          if ([contentType isEqualTo:@"text/html"])
+          if ([contentType isEqual:@"text/html"])
             {
               NSString* contentEncoding=[self headerForKey:@"content-encoding"];
               // we could do better by handling compress,...

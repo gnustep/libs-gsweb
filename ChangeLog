@@ -1,3 +1,14 @@
+2010-05-03  David Wetzel <dave@turbocat.de>
+        * config.h.in
+        changed RCS_ID to avoid warnings
+        * GSWeb.framework/WebObjects/WebObjects.h
+        * GSWeb.framework/WebObjects/WebObjects.h
+        check if GSWEB_WONAMES was defined before
+        * GSWeb.framework/GSWResponse.m
+        fix typo
+        * GSWeb.framework/GSWDeclarationParser.m
+        remove non-existing header file
+
 2010-04-24  David Ayers  <ayers@fsfe.org>
 
 	* GSWeb.framework/GSWMultiKeyDictionary.h/m:

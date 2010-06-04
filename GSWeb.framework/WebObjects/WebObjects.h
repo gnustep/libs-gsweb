@@ -33,7 +33,8 @@
 #ifndef _WebObjects_h__
 	#define _WebObjects_h__
 
-#define  GSWEB_WONAMES
+#ifndef GSWEB_WONAMES
+#define GSWEB_WONAMES
+#endif
 #include "GSWeb.h"
-
 #endif

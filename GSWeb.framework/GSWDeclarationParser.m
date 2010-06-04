@@ -38,7 +38,6 @@ RCS_ID("$Id$")
 
 #include "GSWDeclarationParser.h"
 #include <GNUstepBase/Unicode.h>
-#include <GNUstepBase/GSCategories.h>
 
 static inline BOOL _parserIsIdentifierChar(unichar c)
 {

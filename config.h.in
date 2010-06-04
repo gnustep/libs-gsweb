@@ -31,7 +31,7 @@
 #undef HAVE_GDL2
 
 #define RCS_ID(name) \
-        static const char rcsId[] = name; \
-        static const char *__rcsId_hack() {__rcsId_hack(); return rcsId;}
+	static const char RCSID[] = name; \
+	static inline const char *getGswRCSID() { if (0) getGswRCSID(); return RCSID;}
 
 #endif
