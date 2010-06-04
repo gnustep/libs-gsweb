@@ -1,3 +1,7 @@
+2010-05-04  David Wetzel <dave@turbocat.de>
+	* Examples/hello/GNUmakefile
+	check for platform and use frameworks or libs
+	
 2010-05-03  David Wetzel <dave@turbocat.de>
         * config.h.in
         changed RCS_ID to avoid warnings

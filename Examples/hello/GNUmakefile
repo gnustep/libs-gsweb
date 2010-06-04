@@ -42,11 +42,11 @@ HDRS =
 
 DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
 
-
+ifneq ($(FOUNDATION_LIB),gnu)
 AUXILIARY_GSW_LIBS = -framework WebObjects -framework WOExtensions
-#else
-#AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions
-#endif
+else
+AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions
+endif
 
 
 -include Makefile.preamble
