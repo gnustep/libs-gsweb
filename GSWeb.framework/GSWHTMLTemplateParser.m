@@ -55,8 +55,6 @@ RCS_ID("$Id$")
 {
   GSWElement* template=nil;
 
-  LOGObjectFnStart();
-
   if ([_string length])
     {
       GSWHTMLRawParser* htmlRawParser = [GSWHTMLRawParser parserWithDelegate:self
@@ -78,7 +76,6 @@ RCS_ID("$Id$")
 
       if ([_currentElement parentElement])
         {
-          NSDebugMLog(@"_currentElement=%@",_currentElement);
           [NSException raise:NSInvalidArgumentException 
                        format:@"In template named %@: Missing dynamic tag end after reaching end of template. Tag name is '%@'. templateInfo: %@",
                        _templateName,[_currentElement name],[_currentElement templateInfo]];
@@ -87,8 +84,6 @@ RCS_ID("$Id$")
         template=[_currentElement template];
     };
 
-  LOGObjectFnStop();
-
   return template;
 };
 
@@ -96,8 +91,6 @@ RCS_ID("$Id$")
 -(GSWElement*)parse
 {
   GSWElement* template=nil;
-
-  LOGObjectFnStart();
 
   [self parseDeclarations];
   _currentElement = [GSWTemporaryElement temporaryElement];
@@ -113,8 +106,6 @@ RCS_ID("$Id$")
                      [self errorMessagesAsText],
                      _processedDeclarationsFilePaths);
     };
-
-  LOGObjectFnStop();
 
   return template;
 }
@@ -135,15 +126,10 @@ Creates a GSWHTMLBareString element with the text
 {
   GSWHTMLBareString* element=nil;
 
-  LOGObjectFnStart();
-
-  NSDebugMLog(@"text=%@",text);
-
   element = [GSWHTMLBareString elementWithString:text];
 
   [_currentElement addChildElement:element];
 
-  LOGObjectFnStop();
 }
 
 
@@ -156,20 +142,10 @@ Creates a GSWTemporaryElement element, waiting for tag end
                         withProperties:(NSDictionary*)tagProperties
                           templateInfo:(NSString*)templateInfo
 {
-  LOGObjectFnStart();
-
-  NSDebugMLog(@"Opening element: tagProperties=%@",tagProperties);
-  NSDebugMLog(@"Opening element: templateInfo=%@",templateInfo);
-  NSDebugMLog(@"Opening element: parent=%@",_currentElement);
-
   _currentElement = [GSWTemporaryElement temporaryElementOfType:tagType
                                          withProperties:tagProperties
                                          templateInfo:templateInfo
                                          parent:_currentElement];
-
-  NSDebugMLog(@"New (Child) _currentElement=%@",_currentElement);
-
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -185,12 +161,7 @@ Creates a dynamic element from current temporary element element
 {
   GSWTemporaryElement* parent=nil;
 
-  LOGObjectFnStart();
-  
-  NSDebugMLog(@"Closing element=%@",_currentElement);
-
   parent=[_currentElement parentElement];
-  NSDebugMLog(@"Parent element=%@",_currentElement);
 
   if(!parent)
     {
@@ -232,10 +203,7 @@ Creates a dynamic element from current temporary element element
       NS_ENDHANDLER;
 
       _currentElement = parent;
-
-      NSDebugMLog(@"New (Parent) _currentElement=%@",_currentElement);
     }
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -247,18 +215,10 @@ Creates a GSWHTMLComment with the comment text
 {
   GSWHTMLComment* element=nil;
 
-  LOGObjectFnStart();
-
-  NSDebugMLog(@"didParseComment child Of element: %@",_currentElement);
-  NSDebugMLog(@"string=%@",text);
-
   element = [GSWHTMLComment elementWithString:text];
-  NSDebugMLog(@"element=%@",element);
 
   [_currentElement addChildElement:element];
-  NSDebugMLog(@"_currentElement=%@",_currentElement);
 
-  LOGObjectFnStop();
 }
 
 // those are here because a protocol forces us to implement them -- dw

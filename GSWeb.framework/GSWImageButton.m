@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWImageButton
@@ -271,7 +272,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)_imageURLInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -399,14 +400,11 @@ RCS_ID("$Id$")
   GSWComponent* component=nil;
   int x=0;
   int y=0;
-  LOGObjectFnStart();
   component=GSWContext_component(aContext);
   GSWContext_appendZeroElementIDComponent(aContext);
   senderID=GSWContext_senderID(aContext);
-  NSDebugMLog(@"senderID=%@",senderID);
   elementID=GSWContext_elementID(aContext);
-  NSDebugMLog(@"declarationName=%@ elementID=%@",
-              [self declarationName],elementID);
+
   if ([elementID isEqualToString:senderID])
     {
       //TODO
@@ -423,8 +421,7 @@ RCS_ID("$Id$")
               NSString* nameInContext=[self nameInContext:aContext];
               NSString* formValueX=[request formValueForKey:[nameInContext stringByAppendingString:@".x"]];
               NSString* formValueY=[request formValueForKey:[nameInContext stringByAppendingString:@".y"]];
-              NSDebugMLLog(@"gswdync",@"formValueX=%@",formValueX);
-              NSDebugMLLog(@"gswdync",@"formValueY=%@",formValueY);
+
               if (formValueX && formValueY)
                 {
                   x=[formValueX intValue];
@@ -442,11 +439,11 @@ RCS_ID("$Id$")
       else
         {
           elementID=GSWContext_elementID(aContext);
-          NSDebugMLog(@"elementID=%@",elementID);
+
           if ([elementID isEqualToString:senderID])
             {
               id param=[request formValueForKey:GSWKey_IsmapCoords[GSWebNamingConv]];
-              NSDebugMLLog(@"gswdync",@"param=%@",param);
+
               if (param)
                 {
                   if ([param ismapCoordx:&x
@@ -482,7 +479,7 @@ RCS_ID("$Id$")
                 regions=[GSWGeometricRegion geometricRegionsWithFile:imageMapFilePath];
               else
                 {
-                  NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
+                  //NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
                 };
             }
           else if (!WOStrictFlag && _imageMapString)
@@ -536,7 +533,7 @@ RCS_ID("$Id$")
                 }
               else
                 {				
-                  NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
+//                  NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
                 };
             };
           if (!element)
@@ -549,24 +546,9 @@ RCS_ID("$Id$")
   else
     element=[super invokeActionForRequest:request
                    inContext:aContext];
-  LOGObjectFnStop();
   return element;
 };
 
-
-//--------------------------------------------------------------------
-//-(NSString*)frameworkNameInContext:(GSWContext*)aContext
-//{
-//  //OK
-//  NSString* frameworkName=nil;  
-//  GSWComponent* component=GSWContext_component(aContext);
-//  NSDebugMLog(@"framework=%@",_framework);
-//  if (_framework)
-//    frameworkName=[_framework valueInComponent:component];
-//  else
-//    frameworkName=[component frameworkName];
-//  return frameworkName;
-//};
 
 
 @end

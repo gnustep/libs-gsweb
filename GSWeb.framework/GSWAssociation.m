@@ -36,6 +36,8 @@ RCS_ID("$Id$")
 #include "GSWConstantValueAssociation.h"
 #include "GSWBindingNameAssociation.h"
 #include <math.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 #include <limits.h>
 #include <float.h>
@@ -165,7 +167,7 @@ static Class NSStringClass = Nil;
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return [super description];
 }
 
@@ -552,7 +554,6 @@ static Class NSStringClass = Nil;
             }
           NS_HANDLER
             {
-              LOGException(@"%@ (%@)",localException,[localException reason]);
               LoggedUnlock(associationsLock);
               [localException raise];
             }
@@ -604,7 +605,6 @@ static Class NSStringClass = Nil;
         }
       NS_HANDLER
         {
-          LOGException(@"%@ (%@)",localException,[localException reason]);
           LoggedUnlock(associationsLock);
           [localException raise];
         }

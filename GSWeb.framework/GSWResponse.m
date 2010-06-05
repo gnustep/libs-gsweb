@@ -35,6 +35,7 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 #include "NSData+Compress.h"
 #include "GSWPrivate.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWResponse
@@ -97,14 +98,12 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 -(id)init 
 {
   //OK
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       GetGSWResponseIMPs(&_selfIMPs,self);
       _canDisableClientCaching=YES;
       _status=200;
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -191,7 +190,6 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 //--------------------------------------------------------------------
 -(void)disableClientCaching
 {
-  LOGObjectFnStart();
 
   if (!_isClientCachingDisabled && _canDisableClientCaching)
     {
@@ -208,14 +206,12 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
       _isClientCachingDisabled=YES;
     };
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(NSString*)description
 {
   NSString* description=nil;
-  LOGObjectFnStart();
   description=[NSString stringWithFormat:
                           @"<%s %p - httpVersion=%@ status=%d headers=%p contentFaults=%p contentData=%p contentEncoding=%d userInfo=%p>",
                         object_getClassName(self),
@@ -227,7 +223,6 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
                         (void*)_contentData,
                         (int)_contentEncoding,
                         (void*)_userInfo];
-  LOGObjectFnStop();
   return description;
 }
 
@@ -318,25 +313,15 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   NSString* dataLengthString=nil;
   NSData* content=nil;
 
-  LOGObjectFnStart();
 
   NSAssert(!_isFinalizeInContextHasBeenCalled,@"GSWResponse _finalizeInContext: already called");
-
-#ifndef NDEBUG
-  if(GSDebugSet(@"GSWDocStructure"))
-    {
-      NSString* docStructure=[aContext docStructure];
-      if (docStructure)
-        GSWResponse_appendContentString(self,
-                                        ([NSString stringWithFormat:@"\n<!-- %@ -->\n",docStructure]));
-    }
-#endif
 
   //TODOV: if !session in request and session created: no client cache
   if (![self _isClientCachingDisabled] && [aContext hasSession] && ![aContext _requestSessionID])
     [self disableClientCaching];
 
-  [self _resolveContentFaultsInContext:aContext];
+  // where does this come from?
+  //[self _resolveContentFaultsInContext:aContext];
 
   // Finalize cookies
   [self _finalizeCookiesInContext:aContext];
@@ -356,17 +341,14 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 
   content=[self content];
   dataLength=[self _contentLength];
-  NSDebugMLog(@"dataLength=%d",dataLength);
 
   dataLengthString=GSWIntToNSString(dataLength);
 
   [self setHeader:dataLengthString
 		forKey:GSWHTTPHeader_ContentLength];
-  NSDebugMLLog(@"low",@"headers:%@",_headers);
 
   _isFinalizeInContextHasBeenCalled=YES;
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -397,13 +379,13 @@ escapingHTMLAttributeValue:(BOOL)escape
 @implementation GSWResponse (GSWResponseB)
 -(void)_resolveContentFaultsInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_appendContentFault:(id)unknown
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 @end
@@ -431,7 +413,7 @@ escapingHTMLAttributeValue:(BOOL)escape
 //--------------------------------------------------------------------
 -(BOOL)_responseIsEqual:(GSWResponse*)aResponse
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
@@ -486,7 +468,6 @@ escapingHTMLAttributeValue:(BOOL)escape
 {
   GSWResponse* aResponse=nil;
   NSString* httpVersion=nil;
-  LOGClassFnStart();
   aResponse=[GSWApp createResponseInContext:aContext];
   if (aResponse)
     {
@@ -505,7 +486,6 @@ escapingHTMLAttributeValue:(BOOL)escape
       if (forceFinalize)
         [aResponse forceFinalizeInContext];
     };
-  LOGClassFnStop();
   return aResponse;
 };
 
@@ -522,7 +502,6 @@ escapingHTMLAttributeValue:(BOOL)escape
 {
   GSWResponse* response=nil;
   NSString* httpVersion=nil;
-  LOGClassFnStart();
   response=[GSWApp createResponseInContext:aContext];
   if (response)
     {
@@ -560,7 +539,6 @@ escapingHTMLAttributeValue:(BOOL)escape
           [aContext _setResponse:response];
         }
     };
-  LOGClassFnStop();
   return response;
 };
 
@@ -604,7 +582,6 @@ escapingHTMLAttributeValue:(BOOL)escape
 {
   GSWResponse* response=nil;
   NSString* httpVersion=nil;
-  LOGClassFnStart();
   response=[GSWApp createResponseInContext:aContext];
   if (response)
     {
@@ -627,7 +604,6 @@ escapingHTMLAttributeValue:(BOOL)escape
           [aContext _setResponse:response];
         }
     };
-  LOGClassFnStop();
   return response;
 };
 
@@ -639,13 +615,11 @@ escapingHTMLAttributeValue:(BOOL)escape
                                       isDefinitive:(BOOL)isDefinitive
 {
   GSWResponse* response=nil;
-  LOGClassFnStart();
   response=[self generateRedirectResponseWithMessage:message
                  location:location
                  isDefinitive:isDefinitive
                  inContext:nil
                  forRequest:nil];
-  LOGClassFnStop();
   return response;
 };
 
@@ -657,7 +631,6 @@ escapingHTMLAttributeValue:(BOOL)escape
 {
   NSString* message=nil;
   GSWResponse* response=nil;
-  LOGClassFnStart();
   message=[NSString stringWithFormat:@"This page has been moved%s to <a HREF=\"%@\">%@</a>",
                     (isDefinitive ? "" : " temporarily"),
                     location,
@@ -667,7 +640,6 @@ escapingHTMLAttributeValue:(BOOL)escape
                  isDefinitive:isDefinitive
                  inContext:aContext
                  forRequest:aRequest];
-  LOGClassFnStop();
   return response;
 };
 
@@ -676,12 +648,10 @@ escapingHTMLAttributeValue:(BOOL)escape
                                               isDefinitive:(BOOL)isDefinitive
 {
   GSWResponse* response=nil;
-  LOGClassFnStart();
   response=[self generateRedirectDefaultResponseWithLocation:location
                  isDefinitive:isDefinitive
                  inContext:nil
                  forRequest:nil];
-  LOGClassFnStop();
   return response;
 }
 

@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWApplet
@@ -40,7 +41,7 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -55,7 +56,7 @@ RCS_ID("$Id$")
 -(BOOL)appendStringAtRight:(id)unkwnon
                withMapping:(char*)mapping
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
@@ -67,7 +68,7 @@ RCS_ID("$Id$")
                     key:(id)key
  treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -75,48 +76,48 @@ RCS_ID("$Id$")
 
 -(NSString*)elementName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)contextID
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(void)setContextID:(id)contextID
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 
 -(id)url
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(void)setURL:(id)url
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(NSString*)elementID
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(void)setElementID:(NSString*)elementID
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -127,7 +128,7 @@ RCS_ID("$Id$")
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -135,7 +136,7 @@ RCS_ID("$Id$")
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -144,60 +145,60 @@ RCS_ID("$Id$")
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //-------------------------------------------------------------------- 
 -(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
                                       inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_computeAgcArchiveStringInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(id)_agcArchiveURLsListInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)_archiveURLsListInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)_agcArchiveNamesListInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)_archiveNamesListInContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(void)_deallocForComponent:(id)aComponent
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_awakeForComponent:(id)aComponent
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------

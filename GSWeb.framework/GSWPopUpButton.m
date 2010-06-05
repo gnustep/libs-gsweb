@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 /**
 Bindings

@@ -37,9 +37,12 @@ RCS_ID("$Id$")
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#ifdef GNUSTEP
-#include <objc/thr.h>
+#ifndef GNUSTEP
+#include <GNUstepBase/GSObjCRuntime.h>
 #endif
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
+#include <GNUstepBase/GSMime.h>
 #include "stacktrace.h"
 #include "attach.h"
 
@@ -175,7 +178,7 @@ NSNumber* GSWNumber_No()
 };
 
 //--------------------------------------------------------------------
-char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int* resultLength)
+char* GSWIntToString(char* buffer,NSUInteger bufferSize,int value,NSUInteger* resultLength)
 {
   int origValue=value;
   int i=bufferSize-1;
@@ -234,7 +237,7 @@ NSString* GSWIntToNSString(int value)
 {
   NSString* s=nil;
   char buffer[20];
-  unsigned int resultLength=0;
+  NSUInteger resultLength=0;
   
   NSCAssert(nsStringClass,@"GSWUtils not initialized");
 
@@ -806,10 +809,8 @@ void ValidationExceptionRaiseFn0(const char *func,
 -(NSString*)htmlDescription
 {
   NSTimeZone* gmtTZ=[NSTimeZone timeZoneWithName:@"GMT"];
-  LOGObjectFnNotImplemented();	//TODOFN
   if (!gmtTZ)
     NSWarnLog(@"no time zone for GMT");
-  //TODO English day...
   return [self descriptionWithCalendarFormat:@"%A, %d-%b-%Y %H:%M:%S GMT"
 			   timeZone:gmtTZ
 			   locale:nil];
@@ -832,7 +833,7 @@ void ValidationExceptionRaiseFn0(const char *func,
 };
 
 //--------------------------------------------------------------------
-- (id)initWithCapacity:(unsigned)cap
+- (id)initWithCapacity:(NSUInteger)cap
 {
   if ((self=[super init]))
     {
@@ -843,19 +844,19 @@ void ValidationExceptionRaiseFn0(const char *func,
 }
 
 //--------------------------------------------------------------------
-- (unsigned)count
+- (NSUInteger)count
 {
   return [_array count];
 }
 
 //--------------------------------------------------------------------
-- (id)objectAtIndex:(unsigned)i
+- (id)objectAtIndex:(NSUInteger)i
 {
   return [_array objectAtIndex:i];
 }
 
 //--------------------------------------------------------------------
-- (void)removeObjectAtIndex:(unsigned)i
+- (void)removeObjectAtIndex:(NSUInteger)i
 {
   [_array removeObjectAtIndex:i];
 }
@@ -904,32 +905,27 @@ void ValidationExceptionRaiseFn0(const char *func,
 
 //--------------------------------------------------------------------
 -(void)insertObject:(id)object
-            atIndex:(unsigned int)index
+            atIndex:(NSUInteger)index
 {
-  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
-
   [NSException raise:@"NSMutableOrderedArray"
-	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_getName(_cmd)];
 };
 
 //--------------------------------------------------------------------
--(void)replaceObjectAtIndex:(unsigned int)index
+-(void)replaceObjectAtIndex:(NSUInteger)index
                  withObject:(id)object
 {
-  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
-
   [NSException raise:@"NSMutableOrderedArray"
-	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_getName(_cmd)];
 };
 
 //--------------------------------------------------------------------
 -(void)replaceObjectsInRange:(NSRange)range
         withObjectsFromArray:(NSArray*)array
 {
-  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
 
   [NSException raise:@"NSMutableOrderedArray"
-	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_getName(_cmd)];
 };
 
 //--------------------------------------------------------------------
@@ -937,10 +933,8 @@ void ValidationExceptionRaiseFn0(const char *func,
         withObjectsFromArray:(NSArray*)array
                        range:(NSRange)arrayRange
 {
-  LOGException0(@"NSMutableOrderedArray doesn't support this fn");
-
   [NSException raise:@"NSMutableOrderedArray"
-	       format:@"NSMutableOrderedArray doesn't support %s",sel_get_name(_cmd)];
+	       format:@"NSMutableOrderedArray doesn't support %s",sel_getName(_cmd)];
 };
 
 //--------------------------------------------------------------------
@@ -1060,7 +1054,7 @@ volatileInternalDescription(NSLock *self)
 #ifdef GNUSTEP
   struct objc_mutex *mutex = 0;
   const char *type;
-  unsigned int size;
+  NSUInteger size;
   int offset;
 
   if (GSObjCFindVariable(self, "_mutex", &type, &size, &offset))
@@ -1196,7 +1190,7 @@ loggedUnlockFromFunctionInFileInLine(id self,
                        withObject:(id)object1
                        withObject:(id)object2
 {
-  unsigned i = [self count];
+  NSUInteger i = [self count];
   while (i-- > 0)
     [[self objectAtIndex:i]performSelector:selector
                            withObject:object1
@@ -1206,7 +1200,7 @@ loggedUnlockFromFunctionInFileInLine(id self,
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
 {
-  unsigned i = [self count];
+  NSUInteger i = [self count];
   while (i-->0)
     [[self objectAtIndex: i] performSelectorIfPossible:aSelector];
 }
@@ -1221,7 +1215,7 @@ loggedUnlockFromFunctionInFileInLine(id self,
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
                                  withObject:(id)argument
 {
-  unsigned i = [self count];
+  NSUInteger i = [self count];
   while (i-->0)
     [[self objectAtIndex: i] performSelectorIfPossible:aSelector
                              withObject:argument];
@@ -1232,7 +1226,7 @@ loggedUnlockFromFunctionInFileInLine(id self,
                                  withObject:(id)argument1
                                  withObject:(id)argument2
 {
-  unsigned i = [self count];
+  NSUInteger i = [self count];
   while (i-->0)
     [[self objectAtIndex: i] performSelectorIfPossible:aSelector
                              withObject:argument1
@@ -1421,7 +1415,6 @@ NSString* GSWGetDefaultDocRoot()
   NSString* key=nil;
   NSString* newKey=nil;
   id value=nil;
-  LOGObjectFnStart();
   newDictionary=(NSMutableDictionary*)[NSMutableDictionary dictionary];
   enumerator = [self keyEnumerator];
   while ((key = [enumerator nextObject]))
@@ -1441,7 +1434,6 @@ NSString* GSWGetDefaultDocRoot()
         };
     };
   newDictionary=[NSDictionary dictionaryWithDictionary:newDictionary];
-  LOGObjectFnStop();
   return newDictionary;
 };
 
@@ -1588,7 +1580,7 @@ NSString* GSWGetDefaultDocRoot()
 
 //--------------------------------------------------------------------
 -(NSRange)rangeOfData:(NSData*)data
-              options:(unsigned)mask
+              options:(NSUInteger)mask
 {
   NSRange all = NSMakeRange(0,[self length]);
   return [self rangeOfData:data
@@ -1598,7 +1590,7 @@ NSString* GSWGetDefaultDocRoot()
 
 //--------------------------------------------------------------------
 -(NSRange)rangeOfData:(NSData *)aData
-              options:(unsigned)mask
+              options:(NSUInteger)mask
                 range:(NSRange)aRange
 {
   NSRange range=NSMakeRange(NSNotFound,0);
@@ -1632,27 +1624,19 @@ NSString* GSWGetDefaultDocRoot()
                 {
                   if (reverse)
                     {
-                      NSDebugFLog(@"cmp at %d length %d",
-                                  aRange.location-aDataLength,
-                                  aDataLength);
                       if (memcmp(selfBytes+aRange.location-aDataLength,
                                  aDataBytes,
                                  aDataLength)==0)
                         {
-                          NSDebugFLog0(@"FOUND");
                           range=NSMakeRange(selfLength-aDataLength,aDataLength);
                         };
                     }
                   else
                     {
-                      NSDebugFLog(@"cmp at %d length %d",
-                                  aRange.location,
-                                  aDataLength);
                       if (memcmp(selfBytes+aRange.location,
                                  aDataBytes,
                                  aDataLength))
                         {
-                          NSDebugFLog0(@"FOUND");
                           range=NSMakeRange(0,aDataLength);
                         };
                     };
@@ -1664,18 +1648,13 @@ NSString* GSWGetDefaultDocRoot()
                 {
                   int i=0;
                   int first=(aRange.location+aDataLength);
-                  NSDebugFLog(@"cmp at %d downto index: %d",
-                              aRange.location+aRange.length-1,
-                              first);
                   for(i=aRange.location+aRange.length-1;i>=first && range.length==0;i--)
                     {
                       if (((unsigned char*)selfBytes)[i]==((unsigned char*)aDataBytes)[aDataLength-1])
                         {
-                          NSDebugFLog(@"FOUND Last Char at %d",i);
                           if (memcmp(selfBytes+i-aDataLength,aDataBytes,aDataLength)==0)
                             {
                               range=NSMakeRange(i-aDataLength,aDataLength);
-                              NSDebugFLog(@"FOUND at %d",i-aDataLength);
                             };
                         };
                     };
@@ -1684,18 +1663,14 @@ NSString* GSWGetDefaultDocRoot()
                 {
                   int i=0;
                   int last=aRange.location+aRange.length-aDataLength;
-                  NSDebugFLog(@"cmp at %d upto index: %d",
-                              aRange.location,
-                              last);
+
                   for(i=aRange.location;i<=last && range.length==0;i++)
                     {
                       if (((unsigned char*)selfBytes)[i]==((unsigned char*)aDataBytes)[0])
                         {
-                          NSDebugFLog(@"FOUND First Char at %d",i);
                           if (memcmp(selfBytes+i,aDataBytes,aDataLength)==0)
                             {
                               range=NSMakeRange(i,aDataLength);
-                              NSDebugFLog(@"FOUND at %d",i);
                             };
                         };
                     };
@@ -1716,18 +1691,17 @@ NSString* GSWGetDefaultDocRoot()
   NSRange found;
   NSData* tmpData=nil;
   NSMutableArray *array = [NSMutableArray array];
-  NSDebugFLog(@"aSeparator %@ length=%d",aSeparator,[aSeparator length]);
-  NSDebugFLog(@"self length=%d",[self length]);
+
   search=NSMakeRange(0, [self length]);
   complete=search;
   found=[self rangeOfData:aSeparator];
-  NSDebugFLog(@"found=(%u,%u)",found.location,found.length);
+
   while (found.length)
     {
       NSRange current;
       current = NSMakeRange (search.location,
                              found.location-search.location);
-      NSDebugFLog(@"current=(%u,%u)",current.location,current.length);
+
       tmpData=[self subdataWithRange:current];
       [array addObject:tmpData];
       search = NSMakeRange (found.location + found.length,
@@ -1739,12 +1713,12 @@ NSString* GSWGetDefaultDocRoot()
   // Add the last search data range
   tmpData=[self subdataWithRange:search];
   [array addObject:tmpData];
-  NSDebugFLog(@"array=%@",array);
+
   return [NSArray arrayWithArray:array];
 };
 
 //--------------------------------------------------------------------
--(NSData*)dataByDeletingFirstBytesCount:(unsigned int)bytesCount
+-(NSData*)dataByDeletingFirstBytesCount:(NSUInteger)bytesCount
 {
   NSMutableData* tmpdata=[self mutableCopy];
   [tmpdata deleteFirstBytesCount:bytesCount];
@@ -1752,7 +1726,7 @@ NSString* GSWGetDefaultDocRoot()
 };
 
 //--------------------------------------------------------------------
--(NSData*)dataByDeletingLastBytesCount:(unsigned int)bytesCount
+-(NSData*)dataByDeletingLastBytesCount:(NSUInteger)bytesCount
 {
   NSMutableData* tmpdata=[self mutableCopy];
   [tmpdata deleteLastBytesCount:bytesCount];
@@ -1765,10 +1739,10 @@ NSString* GSWGetDefaultDocRoot()
 @implementation NSMutableData (SBNSData)
 
 //--------------------------------------------------------------------
--(void)deleteFirstBytesCount:(unsigned int)bytesCount
+-(void)deleteFirstBytesCount:(NSUInteger)bytesCount
 {
   void* mutableBytes=NULL;
-  unsigned int length=[self length];
+  NSUInteger length=[self length];
   NSAssert2(length>=bytesCount,
             @"Can't delete %d first bytes from a data of length %d",
             bytesCount,length);
@@ -1778,9 +1752,9 @@ NSString* GSWGetDefaultDocRoot()
 };
 
 //--------------------------------------------------------------------
--(void)deleteLastBytesCount:(unsigned int)bytesCount;
+-(void)deleteLastBytesCount:(NSUInteger)bytesCount;
 {
-  unsigned int length=[self length];
+  NSUInteger length=[self length];
   NSAssert2(length>=bytesCount,
             @"Can't delete %d last bytes from a data of length %d",
             bytesCount,length);
@@ -1863,9 +1837,9 @@ NSString* GSWGetDefaultDocRoot()
             }
           else
             {
-              LOGSeriousError(@"Can't convert %@ of class %@ to string",
-                              anObject,
-                              [anObject class]);
+//              LOGSeriousError(@"Can't convert %@ of class %@ to string",
+//                              anObject,
+//                              [anObject class]);
               string=@"***";
             };
           break;
@@ -1892,17 +1866,17 @@ NSString* GSWGetDefaultDocRoot()
             }
           else
             {
-              LOGSeriousError(@"Can't convert %@ of class %@ to string",
-                              anObject,
-                              [anObject class]);
+//              LOGSeriousError(@"Can't convert %@ of class %@ to string",
+//                              anObject,
+//                              [anObject class]);
               string=@"***";
             };
           break;
         case NSNumFmtType__Unknown:
         default:
-          LOGSeriousError(@"Unknown type %d to convert %@ to string",
-                          (int)_type,
-                          anObject);
+//          LOGSeriousError(@"Unknown type %d to convert %@ to string",
+//                          (int)_type,
+//                          anObject);
           string=@"***";
           break;
         };
@@ -1932,9 +1906,9 @@ NSString* GSWGetDefaultDocRoot()
       break;
     case NSNumFmtType__Unknown:
     default:	  
-      LOGSeriousError(@"Unknown type %d to convert from string %@",
-                      (int)_type,
-                      string);
+//      LOGSeriousError(@"Unknown type %d to convert from string %@",
+//                      (int)_type,
+//                      string);
       *error = @"Unknown type";
       break;
     };
@@ -1943,7 +1917,6 @@ NSString* GSWGetDefaultDocRoot()
 
 @end
 
-#include <GNUstepBase/GSMime.h>
 
 //====================================================================
 @implementation NSData (Base64)
@@ -2011,12 +1984,12 @@ NSString* GSWGetDefaultDocRoot()
 @implementation NSMutableData (Replace)
 
 //--------------------------------------------------------------------
-- (unsigned int) replaceOccurrencesOfData: (NSData*)replace
+- (NSUInteger) replaceOccurrencesOfData: (NSData*)replace
                                  withData: (NSData*)by
                                     range: (NSRange)searchRange
 {
   NSRange       range;
-  unsigned int  count = 0;
+  NSUInteger  count = 0;
 
   if (replace == nil)
     {
@@ -2033,12 +2006,12 @@ NSString* GSWGetDefaultDocRoot()
 
   if (range.length > 0)
     {
-      unsigned  byLen = [by length];
+      NSUInteger  byLen = [by length];
       const void* byBytes=[by bytes];
 
       do
         {
-          unsigned int      newEnd;
+          NSUInteger      newEnd;
           count++;
           [self replaceBytesInRange:range
                 withBytes:byBytes

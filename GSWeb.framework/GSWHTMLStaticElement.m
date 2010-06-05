@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 /*
 
@@ -70,11 +71,7 @@ static Class GSWHTMLBareStringClass = Nil;
              contentElements:(NSArray*)anElementsArray
 {
   //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"anElementName=%@ aAttributeAssociationsList:%@ anElementsArray=%@",
-               anElementName,
-               aAttributeAssociationsList,
-               anElementsArray);
+
   if ((self=[super init]))
     {
       NSMutableArray* attributeAssociationsValues=[NSMutableArray array];
@@ -90,14 +87,12 @@ static Class GSWHTMLBareStringClass = Nil;
                           length:1];
 
           attributesKeyEnum= [aAttributeAssociationsList keyEnumerator];
-          NSDebugMLLog(@"gswdync",@"attributesKeyEnum=%@ aAttributeAssociationsList=%@",
-                       attributesKeyEnum,aAttributeAssociationsList);
+
           while ((key = [attributesKeyEnum nextObject]))
             {
               id association=[aAttributeAssociationsList objectForKey:key];
               id associationValue=[association valueInComponent:nil];
-              NSDebugMLLog(@"gswdync",@"association=%@ associationValue=%@",
-                           association,associationValue);
+
               [tmpHtmlBareStrings addObject:[@" " stringByAppendingString:NSStringWithObject(key)]];
               [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
                               length:1];
@@ -142,7 +137,6 @@ static Class GSWHTMLBareStringClass = Nil;
             htmlBareStrings:tmpHtmlBareStrings
             dynamicChildren:anElementsArray];
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -151,12 +145,7 @@ static Class GSWHTMLBareStringClass = Nil;
   attributeString:(NSString*)attributeString
   contentElements:(NSArray*)anElementsArray
 {
-  //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"anElementName=%@ attributeString:%@ anElementsArray=%@",
-		anElementName,
-		attributeString,
-		anElementsArray);
+
   if ((self=[super init]))
     {
       NSMutableArray* tmpHtmlBareStrings=[NSMutableArray array];
@@ -193,7 +182,6 @@ static Class GSWHTMLBareStringClass = Nil;
             htmlBareStrings:tmpHtmlBareStrings
             dynamicChildren:anElementsArray];	  
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -203,11 +191,7 @@ static Class GSWHTMLBareStringClass = Nil;
           dynamicChildren:(NSArray*)aDynamicChildrensArray
 {
   BOOL compactHTMLTags=NO;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"gswdync",@"tmpElementsMap=%@ tmpHtmlBareStrings:%@ dynamicChildren=%@",
-		tmpElementsMap,
-		tmpHtmlBareStrings,
-		aDynamicChildrensArray);
+
   compactHTMLTags=[self compactHTMLTags];
   //OK
   if (compactHTMLTags)
@@ -233,25 +217,15 @@ static Class GSWHTMLBareStringClass = Nil;
           tmpElementsMap=tmpElementsMap;
           for(rmStringN=0;rmStringN<elementN;rmStringN++)
             {
-              NSDebugMLLog(@"gswdync",@"rmString=[%@]",rmString);
-              NSDebugMLLog(@"gswdync",@"[tmpHtmlBareStrings objectAtIndex:rmStringN]=[%@]",
-                           [tmpHtmlBareStrings objectAtIndex:rmStringN]);
               [rmString appendString:[tmpHtmlBareStrings objectAtIndex:rmStringN]];
             };
-          NSDebugMLLog(@"gswdync",@"rmString=[%@]",rmString);
-          NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
           [rmStrings addObject:rmString];
-          NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
 
           tmpHtmlBareStringsCount=[tmpHtmlBareStrings count];
           for(rmStringN=elementN;rmStringN<tmpHtmlBareStringsCount;rmStringN++)
             {
-              NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
-              NSDebugMLLog(@"gswdync",@"[tmpHtmlBareStrings objectAtIndex:rmStringN]=[%@]",
-                           [tmpHtmlBareStrings objectAtIndex:rmStringN]);
               [rmStrings addObject:[tmpHtmlBareStrings objectAtIndex:rmStringN]];
             };
-          NSDebugMLLog(@"gswdync",@"rmStrings=[%@]",rmStrings);
           tmpHtmlBareStrings=rmStrings;
         };
     };
@@ -259,7 +233,6 @@ static Class GSWHTMLBareStringClass = Nil;
   ASSIGN(_elementsMap,tmpElementsMap);
   ASSIGN(_dynamicChildren,aDynamicChildrensArray);
 
-  LOGObjectFnStop();
   return self;
 };
 
@@ -307,7 +280,7 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(void)_setEndOfHTMLTag:(unsigned int)unknown
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -376,9 +349,6 @@ static Class GSWHTMLBareStringClass = Nil;
 
   for(elementN=0;elementN<=toIndex;elementN++)
     {
-      NSDebugMLLog(@"GSWElement",@"appendTo self=%p elementN=%d GSWContext_elementID(context)=%@",
-                   self,elementN,GSWContext_elementID(aContext));
-
       element=(BYTE)elements[elementN];
       if (element==ElementsMap_htmlBareString)
         {
@@ -496,7 +466,6 @@ id currentEl = nil;
                    inContext:(GSWContext*)aContext
 {
   int length=0;
-  LOGObjectFnStart();
 
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
@@ -540,14 +509,12 @@ id currentEl = nil;
     };
   GSWAssertIsElementID(aContext);
   GSWStopElement(aContext);
-  LOGObjectFnStop();
 };
 
 
 //--------------------------------------------------------------------
 -(BOOL)compactHTMLTags
 {
-  LOGObjectFnNotImplemented();	//TODOFN
   return NO;
 };
 
@@ -555,7 +522,7 @@ id currentEl = nil;
 -(BOOL)appendStringAtRight:(id)unkwnon
                withMapping:(char*)mapping
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
@@ -563,21 +530,21 @@ id currentEl = nil;
 -(BOOL)appendStringAtLeft:(id)unkwnon
               withMapping:(char*)mapping
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
 -(BOOL)canBeFlattenedAtInitialization
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
 +(BOOL)charactersNeedingQuotes
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
@@ -585,27 +552,27 @@ id currentEl = nil;
 +(void)addURLAttribute:(id)attribute
        forElementNamed:(NSString*)name
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 +(id)urlsForElementNamed:(NSString*)name
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 +(NSDictionary*)attributeDictionaryForString:(NSString*)string
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 +(NSString*)stringForAttributeDictionary:(NSDictionary*)attributeDictionary
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -614,7 +581,7 @@ id currentEl = nil;
               attributeString:(NSString*)attributeString
               contentElements:(NSArray*)elements
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -623,25 +590,25 @@ id currentEl = nil;
           attributeDictionary:(NSDictionary*)attributeDictionary
               contentElements:(NSArray*)elements
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 +(Class)_elementClassForName:(NSString*)name
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 +(void)setElementClass:(Class)class
                forName:(NSString*)name
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 +(GSWElement*)_theEmptyElement
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 

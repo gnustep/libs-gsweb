@@ -43,44 +43,30 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
-  LOGObjectFnStartC("GSWSwitchComponent");
   if ((self=[super initWithName:aName
                    associations:associations
                    template:nil]))
     {
       NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): tmpAssociations=%@",
-                   self,[self declarationName],tmpAssociations);
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): GSWComponentName__Key=%@",
-                   self,[self declarationName],GSWComponentName__Key[GSWebNamingConv]);
+
       [tmpAssociations removeObjectForKey:GSWComponentName__Key[GSWebNamingConv]];
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName__Key=%@",
-                   self,[self declarationName],componentName__Key);
+
       [tmpAssociations removeObjectForKey:componentName__Key];
       
       _componentName = [[associations objectForKey:GSWComponentName__Key[GSWebNamingConv]
                                      withDefaultObject:[_componentName autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@",
-                   self,[self declarationName],_componentName);
+
       if (!_componentName)
         {
           _componentName = [[associations objectForKey:componentName__Key
                                           withDefaultObject:[_componentName autorelease]] retain];
-          NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@",
-                       self,[self declarationName],_componentName);
         }
 
-      ASSIGN(_componentAttributes,[NSDictionary dictionaryWithDictionary:tmpAssociations]);
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentAttributes=%@",
-                   self,[self declarationName],_componentAttributes);
-      
+      ASSIGN(_componentAttributes,[NSDictionary dictionaryWithDictionary:tmpAssociations]);      
       ASSIGN(_template,templateElement);
-      NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): template=%@",
-                   self,[self declarationName],_template);
       
       _componentCache=[NSMutableDictionary new];
     };
-  LOGObjectFnStopC("GSWSwitchComponent");
   return self;
 };
 
@@ -113,7 +99,7 @@ RCS_ID("$Id$")
 {
   GSWElement* element=nil;
   NSString* elementNameInContext=nil;
-  LOGObjectFnStartC("GSWSwitchComponent");
+
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
@@ -128,7 +114,6 @@ RCS_ID("$Id$")
   [element appendToResponse:response
            inContext:aContext];
   GSWContext_deleteLastElementIDComponent(aContext);
-  LOGObjectFnStopC("GSWSwitchComponent");
 };
 
 //--------------------------------------------------------------------
@@ -138,7 +123,7 @@ RCS_ID("$Id$")
   GSWElement* resultElement=nil;
   GSWElement* element=nil;
   NSString* elementNameInContext=nil;
-  LOGObjectFnStartC("GSWSwitchComponent");
+
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
@@ -153,7 +138,7 @@ RCS_ID("$Id$")
   resultElement=[element invokeActionForRequest:request
                            inContext:aContext];
   GSWContext_deleteLastElementIDComponent(aContext);
-  LOGObjectFnStopC("GSWSwitchComponent");
+
   return resultElement;
 };
 
@@ -163,7 +148,7 @@ RCS_ID("$Id$")
 {
   GSWElement* element=nil;
   NSString* elementNameInContext=nil;
-  LOGObjectFnStartC("GSWSwitchComponent");
+
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
   elementNameInContext=[self _elementNameInContext:aContext];
@@ -178,7 +163,6 @@ RCS_ID("$Id$")
   [element takeValuesFromRequest:aRequest
            inContext:aContext];
   GSWContext_deleteLastElementIDComponent(aContext);
-  LOGObjectFnStopC("GSWSwitchComponent");
 };
 
 //-------------------------------------------------------------------- 
@@ -192,12 +176,7 @@ if the component has already been created, it get it from the cache; otherwise, 
   NSArray* languages=nil;
   GSWComponent* component=nil;
 
-  LOGObjectFnStartC("GSWSwitchComponent");
-
   component=GSWContext_component(aContext);
-
-  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@ parent=%@",
-               self,[self declarationName],_componentName,[component parent]);
 
   if ([aName length]==0)
     {      
@@ -228,7 +207,7 @@ if the component has already been created, it get it from the cache; otherwise, 
             };
         };
     };
-  LOGObjectFnStopC("GSWSwitchComponent");
+
   return element;
 };
 
@@ -239,17 +218,9 @@ if the component has already been created, it get it from the cache; otherwise, 
   GSWComponent* component=nil;
   NSString* componentNameValue=nil;
 
-  LOGObjectFnStartC("GSWSwitchComponent");
-
   component=GSWContext_component(aContext);
-  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentName=%@",
-               self,[self declarationName],_componentName);
 
   componentNameValue=[_componentName valueInComponent:component];
-  NSDebugMLLog(@"gswdync",@"GSWSwitchComponent %p (declarationName=%@): componentNameValue=%@",
-               self,[self declarationName],componentNameValue);
-
-  LOGObjectFnStopC("GSWSwitchComponent");
 
   return componentNameValue;
 };

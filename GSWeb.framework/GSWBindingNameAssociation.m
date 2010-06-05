@@ -154,20 +154,20 @@ RCS_ID("$Id$")
 {    
   if (_keyPath != nil) {
     id value = [component valueForBinding:_parentBindingName];
-
+    
     if (value != nil) {
-        [component takeValue:aValue
-                          forKeyPath:_keyPath];
+      [component setValue:aValue
+               forKeyPath:_keyPath];
     }
-
+    
   } else {
     GSWAssociation * association = [component _associationWithName:_parentBindingName];
     GSWComponent*    parent = nil;
-
+    
     if (association == nil) {
       return;
     }
-
+    
     parent = [component parent];
     if ([association isValueSettableInComponent:parent]) {
       [association _setValueNoValidation:aValue inComponent:parent];

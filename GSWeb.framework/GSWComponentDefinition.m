@@ -29,6 +29,7 @@
 **/
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 
@@ -368,7 +369,6 @@ static GSWContext *   TheTemporaryContext;
       }
       localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
                                                                             __PRETTY_FUNCTION__];
-      LOGException(@"exception=%@",localException);
       [localException raise];
   NS_ENDHANDLER;
   
@@ -446,7 +446,6 @@ static GSWContext *   TheTemporaryContext;
 
    localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
                                                                     __PRETTY_FUNCTION__];
-   LOGException(@"exception=%@",localException);
    if (_lockInstancePool && locked) {
      [_instancePoolLock unlock];
    }
@@ -513,11 +512,9 @@ static GSWContext *   TheTemporaryContext;
 {
   //OK
   GSWComponentReference* componentReference=nil;
-  LOGObjectFnStart();
   componentReference=[[[GSWComponentReference alloc]initWithName:_name
                                                     associations:associations
                                                     template:template] autorelease];
-  LOGObjectFnStop();
   return componentReference;
 };
 
@@ -546,37 +543,37 @@ static GSWContext *   TheTemporaryContext;
 //--------------------------------------------------------------------
 -(void)_notifyObserversForDyingComponent:(GSWComponent*)aComponent
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_awakeObserversForComponent:(GSWComponent*)aComponent
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_deallocForComponent:(GSWComponent*)aComponent
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_awakeForComponent:(GSWComponent*)aComponent
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_registerObserver:(id)observer
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 +(void)_registerObserver:(id)observer
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 - (GSWElement *) template
@@ -612,20 +609,20 @@ static GSWContext *   TheTemporaryContext;
 
 - (void) encodeWithCoder: (NSCoder*)aCoder
 {
-  NSLog(@"%s is not imlemented", __PRETTY_FUNCTION__);
+  [self notImplemented: _cmd];
   return;
 }
 
 - (id) initWithCoder: (NSCoder*)aDecoder
 {
-  NSLog(@"%s is not imlemented", __PRETTY_FUNCTION__);
+  [self notImplemented: _cmd];
   return self;
 }
 
 - (id) copyWithZone: (NSZone*)z
 {
 
-  NSLog(@"%s is not imlemented", __PRETTY_FUNCTION__);
+  [self notImplemented: _cmd];
   return self;
 }
 

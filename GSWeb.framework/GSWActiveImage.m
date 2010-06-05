@@ -323,17 +323,14 @@ static NSString * static_tempQueryKey = nil;
   int x=0;
   int y=0;
 
-  LOGObjectFnStart();
 
   component=GSWContext_component(aContext);
 
   GSWContext_appendZeroElementIDComponent(aContext);
 
   senderID=GSWContext_senderID(aContext);
-  NSDebugMLog(@"senderID=%@",senderID);
 
   elementID=GSWContext_elementID(aContext);
-  NSDebugMLog(@"elementID=%@",elementID);
 
   if ([elementID isEqualToString:senderID])
     {
@@ -352,8 +349,7 @@ static NSString * static_tempQueryKey = nil;
               NSString* nameInContext=[self nameInContext:aContext];
               NSString* formValueX=[request formValueForKey:[nameInContext stringByAppendingString:@".x"]];
               NSString* formValueY=[request formValueForKey:[nameInContext stringByAppendingString:@".y"]];
-              NSDebugMLLog(@"gswdync",@"formValueX=%@",formValueX);
-              NSDebugMLLog(@"gswdync",@"formValueY=%@",formValueY);
+
               if (formValueX && formValueY)
                 {
                   x=[formValueX intValue];
@@ -370,11 +366,11 @@ static NSString * static_tempQueryKey = nil;
       else
         {
           elementID=GSWContext_elementID(aContext);
-          NSDebugMLog(@"elementID=%@",elementID);
+
           if ([elementID isEqualToString:senderID])
             {
               id param=[request formValueForKey:GSWKey_IsmapCoords[GSWebNamingConv]];
-              NSDebugMLLog(@"gswdync",@"param=%@",param);
+
               if (param)
                 {
                   if ([param ismapCoordx:&x
@@ -411,7 +407,7 @@ static NSString * static_tempQueryKey = nil;
                 regions=[GSWGeometricRegion geometricRegionsWithFile:imageMapFilePath];
               else
                 {
-                  NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
+                  //NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
                 };
             }
           else if (!WOStrictFlag && _imageMapString)
@@ -464,7 +460,7 @@ static NSString * static_tempQueryKey = nil;
                 }
               else
                 {				
-                  NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
+                  //NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
                 };
             };
           if (!element)
@@ -495,7 +491,6 @@ static NSString * static_tempQueryKey = nil;
                 [element class],
                 element);
     };
-  LOGObjectFnStop();
   return element;
 };
 

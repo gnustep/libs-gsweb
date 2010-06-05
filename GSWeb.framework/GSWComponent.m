@@ -37,6 +37,8 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 
 #include "GSWPrivate.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWComponent
@@ -277,7 +279,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
 -(NSString*)baseURL 
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -866,7 +868,6 @@ static Class GSWHTMLBareStringClass = Nil;
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In sleepInContext:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     }
   NS_ENDHANDLER;
@@ -1239,7 +1240,7 @@ Call this method before using a component which was cached in a variable.
 //--------------------------------------------------------------------
 -(void)_debugWithString:(NSString*)string
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 /* Seems there's a problem with patches... Why this code is here ?
    if (![self context])
      {
@@ -1254,14 +1255,13 @@ Call this method before using a component which was cached in a variable.
            [self awakeInContext:aContext];
          }
      }
-   LOGObjectFnStop();
 */
 }
 
 //--------------------------------------------------------------------
 -(void)debugWithFormat:(NSString*)aFormat,...
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 //--------------------------------------------------------------------
@@ -1277,7 +1277,7 @@ Call this method before using a component which was cached in a variable.
 
 -(NSString*)_uniqueID
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -1338,9 +1338,7 @@ Call this method before using a component which was cached in a variable.
     NSLog(@"localException is %@", localException);                    
 
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"in GSWComponent -_generateResponseInContext:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
-      
+                                                               @"in GSWComponent -_generateResponseInContext:");      
       [localException raise];
     }
   NS_ENDHANDLER;
@@ -1501,7 +1499,7 @@ Call this method before using a component which was cached in a variable.
 -(NSString*)_urlForResourceNamed:(NSString*)aName
                           ofType:(NSString*)type
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -1649,13 +1647,12 @@ Call this method before using a component which was cached in a variable.
 -(NSString*)descriptionForResponse:(GSWResponse*)aResponse
                          inContext:(GSWContext*)aContext 
 {
-  LOGObjectFnNotImplemented();	//TODOFN
-  return nil;
+  return _name;
 }
 
 +(void)_registerObserver:(id)observer
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 -(void)validateAPIAssociations

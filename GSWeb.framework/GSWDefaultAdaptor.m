@@ -40,6 +40,7 @@
 #include "GSWeb.h"
 
 #include "GSWWorkerThread.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 #ifndef GNUSTEP
 #include <GNUstepBase/NSFileHandle+GNUstepBase.h>
@@ -239,7 +240,7 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
 -(BOOL)doesBusyRunOnce
 {
   //call _runOnce
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
@@ -315,7 +316,7 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
 
 -(id)announceBrokenConnection:(id)notification
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   NSDebugMLLog(@"trace",@"announceBrokenConnection");
 //  [self shutDownConnectionWithSocket:[in_port _port_socket]];
   return self;
@@ -386,17 +387,17 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
 
 -(void)stop
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 -(void)run
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 -(void)_runOnce
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 // WO 5:Use the user default WOListenQueueSize instead

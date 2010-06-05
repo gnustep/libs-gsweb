@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 
 //====================================================================
@@ -106,6 +107,6 @@ RCS_ID("$Id$")
 -(void)	registerPort:(int)port
  forApplicationNamed:(NSString*)applicationName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 @end

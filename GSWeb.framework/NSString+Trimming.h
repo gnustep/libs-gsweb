@@ -51,9 +51,6 @@
 -(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long)max;
 #endif
 -(BOOL)isStartingWithNumber;
--(long)longValue;
--(unsigned long)ulongValue;
--(long long)longLongValue;
 
 @end
 

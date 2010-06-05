@@ -88,7 +88,6 @@
 
   if (ioctl(fd, FIONREAD, (char *) &numBytes) == -1)
     {
-      LOGException0(@"NSFileHandleOperationException ioctl() Err");
       [NSException raise: NSFileHandleOperationException
                    format: @"ioctl() Err # %d", (int)errno];
     };

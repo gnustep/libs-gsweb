@@ -59,7 +59,6 @@ static Class standardClass = Nil;
 {
   //OK
   NSMutableDictionary* otherAssociations=nil;
-  LOGObjectFnStart();
   ASSIGN(_children,templateElement);
   _action = [[someAssociations objectForKey:action__Key
                                withDefaultObject:[_action autorelease]] retain];
@@ -95,7 +94,6 @@ static Class standardClass = Nil;
                    template:nil]))
     {
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -132,7 +130,6 @@ static Class standardClass = Nil;
   //OK (condition/action/directActionName)
   GSWComponent* component=GSWContext_component(aContext);
   BOOL disabled=NO;
-  LOGObjectFnStart();
   NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
   if (_disabled)
     {
@@ -181,7 +178,6 @@ static Class standardClass = Nil;
       GSWResponse_appendContentAsciiString(aResponse,@"</a>");
     };
   NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -193,7 +189,6 @@ static Class standardClass = Nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
 
-  LOGObjectFnStart();
 
   senderID=GSWContext_senderID(aContext);
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
@@ -236,7 +231,6 @@ static Class standardClass = Nil;
   NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
   NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
 
-  LOGObjectFnStop();
 
   return element;
 };

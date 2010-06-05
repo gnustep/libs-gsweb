@@ -34,6 +34,7 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include "GSWPrivate.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 static int dontTraceComponentActionURL=0;
 
@@ -2055,7 +2056,7 @@ If none, try request languages
 // return http://my.host.org/cgi-bin/GSWeb/MyApp.ApplicationSuffix/123456789012334567890123456789
 -(NSString*)urlSessionPrefix 
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 
   return [NSString stringWithFormat:@"%@%@/%@.%@/%@",
 				   [_request urlProtocolHostPort],

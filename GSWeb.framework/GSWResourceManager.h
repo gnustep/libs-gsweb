@@ -208,8 +208,6 @@ bundle if none is found
 -(NSString*)pathForResourceNamed:(NSString*)name
                      inFramework:(NSString*)frameworkName;
 
--(void)_validateAPI;
-
 +(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage;		//NDFN
 +(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOlanguages;		//NDFN
 +(NSString*)ISOLanguageFromGSLanguage:(NSString*)GSLanguage;		//NDFN

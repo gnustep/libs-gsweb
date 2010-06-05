@@ -35,6 +35,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //#ifdef HAVE_GDL2
 //#include <EOControl/EOKeyValueCoding.h>
@@ -94,11 +95,7 @@ RCS_ID("$Id$")
 {
   if ((self=[super init]))
     {
-      LOGObjectFnStart();
-      NSDebugMLLog(@"bundles",@"aPath=%@",aPath);
-      NSDebugMLLog(@"bundles",@"aBaseURL=%@",aBaseURL);
       ASSIGN(_path,[aPath stringGoodPath]);
-      NSDebugMLLog(@"bundles",@"path=%@",_path);
       ASSIGN(_baseURL,aBaseURL);
       ASSIGN(_frameworkName,aFrameworkName);
       _archiveCache=[NSMutableDictionary new];
@@ -112,7 +109,6 @@ RCS_ID("$Id$")
       _templateCache=[NSMutableDictionary new];
       _classCache=[NSMutableDictionary new];
       _selfLock=[NSRecursiveLock new];
-      LOGObjectFnStop();
     }
   return self;
 }
@@ -120,36 +116,21 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWBundle");
-  GSWLogC("Dealloc GSWBundle: path");
   DESTROY(_path);
-  GSWLogC("Dealloc GSWBundle: baseURL");
   DESTROY(_baseURL);
-  GSWLogC("Dealloc GSWBundle: archiveCache");
   DESTROY(_archiveCache);
-  GSWLogC("Dealloc GSWBundle: apiCache");
   DESTROY(_apiCache);
-  GSWLogC("Dealloc GSWBundle: encodingCache");
   DESTROY(_encodingCache);
-  GSWLogC("Dealloc GSWBundle: templateParserTypeCache");
   DESTROY(_templateParserTypeCache);
-  GSWLogC("Dealloc GSWBundle: pathCache");
   DESTROY(_pathCache);
-  GSWLogC("Dealloc GSWBundle: urlCache");
   DESTROY(_urlCache);
-  GSWLogC("Dealloc GSWBundle: stringsTableCache");
   DESTROY(_stringsTableCache);
-  GSWLogC("Dealloc GSWBundle: stringsTableArrayCache");
   DESTROY(_stringsTableArrayCache);
-  GSWLogC("Dealloc GSWBundle: templateCache");
   DESTROY(_templateCache);
-  GSWLogC("Dealloc GSWBundle: classCache");
   DESTROY(_classCache);
-  GSWLogC("Dealloc GSWBundle: selfLock");
   DESTROY(_selfLock);
-  GSWLogC("Dealloc GSWBundle Super");
+  
   [super dealloc];
-  GSWLogC("End Dealloc GSWBundle");
 }
 
 //--------------------------------------------------------------------
@@ -174,77 +155,83 @@ RCS_ID("$Id$")
 -(NSString*)description
 {
   NSString* descr=nil;
-//  GSWLogC("GSWBundle description A");
-//  NSDebugMLLog(@"bundles",@"GSWBundle description Self=%p",self);
+
   descr=[NSString stringWithFormat:@"<%s %p - ",
                   object_getClassName(self),
                   (void*)self];
-  //  GSWLogC("GSWBundle description B");
+
   descr=[descr stringByAppendingFormat:@"path:[%@] ",
                _path];
-  //  GSWLogC("GSWBundle description C");
+
   descr=[descr stringByAppendingFormat:@"baseURL:[%@] frameworkName:[%@]>",
                _baseURL,
                _frameworkName];
-//  GSWLogC("GSWBundle description D");
+
   return descr;
 }
 
 //--------------------------------------------------------------------
 -(void)unlock
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
   LoggedUnlock(_selfLock);
 #ifndef NDEBUG
   _selfLockn--;
 #endif
-  NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(void)lock
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
   LoggedLockBeforeDate(_selfLock,GSW_LOCK_LIMIT);
 #ifndef NDEBUG
   _selfLockn++;
 #endif
-  NSDebugMLLog(@"bundles",@"selfLockn=%d",_selfLockn);
-  LOGObjectFnStop();
 }
 
 
 //--------------------------------------------------------------------
 -(void)clearCache
 {
-  //OK
-  LOGObjectFnStart();
   [self lock];
   NS_DURING
     {
-      //TemplateCache clearr ?
-      LOGObjectFnNotImplemented();	//TODOFN
+      DESTROY(_archiveCache);
+      DESTROY(_apiCache);
+      DESTROY(_encodingCache);
+      DESTROY(_templateParserTypeCache);
+      DESTROY(_pathCache);
+      DESTROY(_urlCache);
+      DESTROY(_stringsTableCache);
+      DESTROY(_stringsTableArrayCache);
+      DESTROY(_templateCache);
+      DESTROY(_classCache);
+      
+      _archiveCache=[NSMutableDictionary new];
+      _apiCache=[NSMutableDictionary new];
+      _encodingCache=[NSMutableDictionary new];
+      _templateParserTypeCache=[NSMutableDictionary new];
+      _pathCache=[NSMutableDictionary new];
+      _urlCache=[NSMutableDictionary new];
+      _stringsTableCache=[NSMutableDictionary new];
+      _stringsTableArrayCache=[NSMutableDictionary new];
+      _templateCache=[NSMutableDictionary new];
+      _classCache=[NSMutableDictionary new];
+      
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(void)loadCache
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 
@@ -267,15 +254,13 @@ RCS_ID("$Id$")
   NSFileManager* fileManager=nil;
   int languagesNb=0;
   BOOL exists=NO;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"type=%@",aType);
+
   languagesNb=[someLanguages count];
 
   fileManager=[NSFileManager defaultManager];
   NSAssert(fileManager,@"No fileManager");
 
   fileName=[aName stringByAppendingPathExtension:aType];
-  NSDebugMLLog(@"bundles",@"fileName=%@",fileName);
 
   for(languageIndex=0;!resource && !path && languageIndex<=languagesNb;languageIndex++)
     {
@@ -289,13 +274,12 @@ RCS_ID("$Id$")
           relativePath=[language stringByAppendingPathExtension:GSLanguageSuffix];
           relativePath=[relativePath stringByAppendingPathComponent:fileName];
         }
-      NSDebugMLLog(@"bundles",@"language=%@",language);
-      NSDebugMLLog(@"bundles",@"relativePath=%@",relativePath);
+      
       absolutePath=[_path stringByAppendingPathComponent:relativePath];
-      NSDebugMLLog(@"bundles",@"absolutePath=%@",absolutePath);
+
       if ([[GSWApplication application] isCachingEnabled])
         resource=[aCache objectForKey:relativePath];
-      NSDebugMLLog(@"bundles",@"resource=%@",resource);
+
       if (resource==GSNotFoundMarker)
         {
           resource=nil;
@@ -305,7 +289,7 @@ RCS_ID("$Id$")
       else if (!resource)
         {
           exists=[fileManager fileExistsAtPath:absolutePath];
-          NSDebugMLLog(@"bundles",@"%@ exists=%s",absolutePath,(exists ? "YES" : "NO"));
+
           if (!exists)
             {
               if ([[GSWApplication application] isCachingEnabled])
@@ -341,44 +325,35 @@ RCS_ID("$Id$")
 {
   //OK
   NSDictionary* archive=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"anObject:%@",anObject);
-  NSDebugMLLog(@"bundles",@"aName:%@",aName);
+
   //call application _isDynamicLoadingEnabled
   //call -- isTerminating
   //call -- isCachingEnabled
   //call -- isPageRefreshOnBacktrackEnabled//0
   archive=[self archiveNamed:aName];
   //Verify
-  NSDebugMLLog(@"bundles",@"archive:%@",archive);
+
   if (archive)
     [self initializeObject:anObject
           fromArchive:archive];
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(void)initializeObject:(id)anObject
             fromArchive:(NSDictionary*)anArchive
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"anObject:%@",anObject);
-  NSDebugMLLog(@"bundles",@"anArchive:%@",anArchive);
   [self lock];
   NS_DURING
     {
+      /*
       if (!WOStrictFlag)
         {
           NSDictionary* userDictionary=[anArchive objectForKey:@"userDictionary"];
           NSDictionary* userAssociations=[anArchive objectForKey:@"userAssociations"];		
           NSDictionary* defaultAssociations=[anArchive objectForKey:@"defaultAssociations"];
-          NSDebugMLLog(@"bundles",@"userDictionary:%@",userDictionary);
-          NSDebugMLLog(@"bundles",@"userAssociations:%@",userAssociations);
-          NSDebugMLLog(@"bundles",@"defaultAssociations:%@",defaultAssociations);
+
           userAssociations=[userAssociations dictionaryByReplacingStringsWithAssociations];
-          NSDebugMLLog(@"bundles",@"userAssociations:%@",userAssociations);
           defaultAssociations=[defaultAssociations dictionaryByReplacingStringsWithAssociations];
-          NSDebugMLLog(@"bundles",@"defaultAssociations:%@",defaultAssociations);
           if (userDictionary && [anObject respondsToSelector:@selector(setUserDictionary:)])
             [anObject setUserDictionary:userDictionary];
           if (userAssociations && [anObject respondsToSelector:@selector(setUserAssociations:)])
@@ -386,54 +361,8 @@ RCS_ID("$Id$")
           if (defaultAssociations && [anObject respondsToSelector:@selector(setDefaultAssociations:)])
             [anObject setDefaultAssociations:defaultAssociations];
         }
-#if 0 //HAVE_GDL2 // GDL2 implementation
-      {
-        NSKeyedUnarchiver* unarchiver=nil;
-        GSWBundleUnarchiverDelegate* bundleDelegate=nil;
-        NSDictionary* variables=nil;
-        NSEnumerator* variablesEnum=nil;
-        id variableName=nil;
-        NSDebugMLLog(@"bundles",@"anArchive %p:%@",anArchive,anArchive);
-        unarchiver=[[[EOKeyValueUnarchiver alloc] initWithDictionary:anArchive]
-                     autorelease];
-        NSDebugMLLog(@"bundles",@"unarchiver %p:%@",unarchiver,unarchiver);
-        bundleDelegate=[[[GSWBundleUnarchiverDelegate alloc] initWithObject:anObject]
-                         autorelease];
-        NSDebugMLLog(@"bundles",@"bundleDelegate %p:%@",bundleDelegate,bundleDelegate);
-        [unarchiver setDelegate:bundleDelegate];
-        NSDebugMLLog(@"bundles",@"decodevar here=%p",[NSString string]);
-        variables=[unarchiver decodeObjectForKey:@"variables"];
-        NSDebugMLLog(@"bundles",@"variables %p:%@",variables,variables);
-        [unarchiver finishInitializationOfObjects];
-        NSDebugMLLog(@"bundles",@"here=%p",[NSString string]);
-        [unarchiver awakeObjects];
-        variablesEnum=[variables keyEnumerator];
-        NSDebugMLLog(@"bundles",@"here=%p",[NSString string]);
-        NSDebugMLLog0(@"bundles",@"Will set variables");
-        while ((variableName = [variablesEnum nextObject]))
-          {
-            id variableValue=[variables objectForKey:variableName];
-            NSDebugMLLog(@"bundles",@"ObjectClas=%@ variableName %p:%@ variableValue %p:%@",
-                         [anObject class],
-                         variableName,
-                         variableName,
-                         variableValue,
-                         variableValue);
-            NSDebugMLLog(@"bundles",@"BEF variableValue %p:%@ [RC=%d]",
-                         variableValue,
-                         variableValue,
-                         [variableValue retainCount]);
-            [anObject smartTakeValue:variableValue
-                     forKey:variableName];
-            NSDebugMLLog(@"bundles",@"AFT variableValue %p:%@ [RC=%d]",
-                         variableValue,
-                         variableValue,
-                         [variableValue retainCount]);
-          }
-      }
-#else
-      LOGObjectFnNotImplemented();
-#endif
+      [self notImplemented: _cmd];
+       */
     }
   NS_HANDLER
     {
@@ -451,7 +380,6 @@ RCS_ID("$Id$")
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -461,9 +389,7 @@ RCS_ID("$Id$")
   //OK
   Class aClass=nil;
   NSString* pathName=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"Name=%@",aName);
-  NSDebugMLLog(@"bundles",@"aSuperclassName=%@",aSuperclassName);
+
   [self lock];
   NS_DURING
     {
@@ -478,15 +404,13 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return aClass;
 }
 
@@ -495,7 +419,7 @@ RCS_ID("$Id$")
                            pathName:(NSString*)aPathName
                      superclassName:(NSString*)aSuperclassName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -524,7 +448,7 @@ RCS_ID("$Id$")
 -(Class)compiledClassWithName:(NSString*)aName
                superclassName:(NSString*)aSuperclassName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -542,8 +466,6 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
@@ -576,9 +498,9 @@ RCS_ID("$Id$")
     {
       if (!relativeTemplatePath)
         {
-          NSDebugMLLog(@"errors",@"No template named:%@ for languages:%@",
-                       aName,
-                       someLanguages);
+//          NSDebugMLLog(@"errors",@"No template named:%@ for languages:%@",
+//                       aName,
+//                       someLanguages);
         }
       else
         {
@@ -588,12 +510,12 @@ RCS_ID("$Id$")
           NSString* htmlString=[NSString stringWithContentsOfFile:absoluteTemplatePath 
                                                          encoding:encoding];
           //NSString* htmlString=[NSString stringWithContentsOfFile:absoluteTemplatePath];
-          NSDebugMLLog(@"bundles",@"htmlPath=%@",absoluteTemplatePath);
+
           if (!htmlString)
             {
-              NSDebugMLLog(@"errors",@"No html file for template named:%@ for languages:%@",
-                           aName,
-                           someLanguages);
+//              NSDebugMLLog(@"errors",@"No html file for template named:%@ for languages:%@",
+//                           aName,
+//                           someLanguages);
             }
           else
             {
@@ -604,8 +526,7 @@ RCS_ID("$Id$")
                                   usingCache:nil
                                   relativePath:NULL
                                   absolutePath:&absoluteDefinitionPath];
-              NSDebugMLLog(@"bundles",@"absoluteDefinitionPath=%@",
-                           absoluteDefinitionPath);
+
               if (!pageDefString && !absoluteDefinitionPath)
                 {
                   pageDefString=[self lockedResourceNamed:aName
@@ -614,15 +535,11 @@ RCS_ID("$Id$")
                                       usingCache:nil
                                       relativePath:NULL
                                       absolutePath:&absoluteDefinitionPath];
-                  NSDebugMLLog(@"bundles",@"absoluteDefinitionPath=%@",
-                               absoluteDefinitionPath);
                 }
               
               if (absoluteDefinitionPath)
                 {
                   //TODO use encoding !
-                  NSDebugMLLog(@"bundles",@"absoluteDefinitionPath=%@",
-                               absoluteDefinitionPath);
                   //pageDefString=[NSString stringWithContentsOfFile:absoluteDefinitionPath];
                   pageDefString = [NSString stringWithContentsOfFile:absoluteDefinitionPath 
                                                             encoding:encoding];
@@ -632,8 +549,6 @@ RCS_ID("$Id$")
               NS_DURING
 #endif
                 {
-                  NSDebugMLLog(@"bundles",@"GSWTemplateParser on template named %@",
-                               aName);
                   template=[GSWTemplateParser templateNamed:aName
                                               inFrameworkNamed:[self frameworkName]
                                               withParserType:templateParserType
@@ -648,11 +563,6 @@ RCS_ID("$Id$")
 #ifndef NDEBUG
               NS_HANDLER
                 {
-                  NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                               localException,
-                               [localException reason],
-                               __FILE__,
-                               __LINE__);
                   localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                            @"In template Parsing");
                   [localException raise];
@@ -687,18 +597,14 @@ RCS_ID("$Id$")
 {
   NSDictionary* stringsTable=nil;
   NSString* string=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"AKey=%@",aKey);
-  NSDebugMLLog(@"bundles",@"aName=%@",aName);
-  NSDebugMLLog(@"bundles",@"SomeLanguages=%@",someLanguages);
-  NSDebugMLLog(@"bundles",@"defaultValue_=%@",defaultValue);
+
   stringsTable=[self stringsTableNamed:aName
                      withLanguages:someLanguages];
   if (stringsTable)
     string=[stringsTable objectForKey:aKey];
   if (!string)
     string=defaultValue;
-  LOGObjectFnStop();
+
   return string;
 }
 
@@ -708,15 +614,13 @@ RCS_ID("$Id$")
                     withLanguages:(NSArray*)someLanguages
 {
   NSDictionary* stringsTable=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"aName=%@",aName);
-  NSDebugMLLog(@"bundles",@"SomeLanguages=%@",someLanguages);
+
   [self lock];
   NS_DURING
     {
       NSString* relativePath=nil;
       NSString* absolutePath=nil;
-      LOGObjectFnStart();
+    
       stringsTable=[self lockedResourceNamed:aName
                          ofType:GSWStringTableSuffix
                          withLanguages:someLanguages
@@ -735,8 +639,8 @@ RCS_ID("$Id$")
                 }
               NS_HANDLER
                 {
-                  LOGSeriousError(@"Failed to parse strings file %@ - %@",
-                                  absolutePath, localException);
+//                  LOGSeriousError(@"Failed to parse strings file %@ - %@",
+//                                  absolutePath, localException);
                   stringsTable = nil;
                 }
               NS_ENDHANDLER
@@ -754,15 +658,13 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return stringsTable;
 }
 
@@ -772,15 +674,13 @@ RCS_ID("$Id$")
                     withLanguages:(NSArray*)someLanguages
 {
   NSArray* stringsTableArray=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"aName=%@",aName);
-  NSDebugMLLog(@"bundles",@"SomeLanguages=%@",someLanguages);
+
   [self lock];
   NS_DURING
     {
       NSString* relativePath=nil;
       NSString* absolutePath=nil;
-      LOGObjectFnStart();
+    
       stringsTableArray=[self lockedResourceNamed:aName
                               ofType:GSWStringTableArraySuffix
                               withLanguages:someLanguages
@@ -795,9 +695,9 @@ RCS_ID("$Id$")
               stringsTableArray=[NSArray arrayWithContentsOfFile:absolutePath];
               if (!stringsTableArray)
                 {
-                  LOGSeriousError(@"Bad stringTableArray \n%@\n from file %@",
-                                  [NSString stringWithContentsOfFile:absolutePath],
-                                  absolutePath);
+//                  LOGSeriousError(@"Bad stringTableArray \n%@\n from file %@",
+//                                  [NSString stringWithContentsOfFile:absolutePath],
+//                                  absolutePath);
                 }
               if ([[GSWApplication application] isCachingEnabled])
                 {
@@ -815,14 +715,13 @@ RCS_ID("$Id$")
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"During stringsTableArrayNamed:withLanguages:");
-      LOGException(@"exception=%@",localException);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return stringsTableArray;
 }
 
@@ -834,7 +733,7 @@ RCS_ID("$Id$")
 {
   BOOL isUsingWebServer=NO;
   NSString* url=nil;
-  LOGObjectFnStart();
+
   isUsingWebServer=[aRequest _isUsingWebServer];
   [self lock];
   NS_DURING
@@ -842,8 +741,6 @@ RCS_ID("$Id$")
       NSString* relativePath=nil;
       NSString* absolutePath=nil;
       NSString* baseURL=nil;
-
-      LOGObjectFnStart();
 
       // baseURL have / prefix, relativePath don't
       baseURL=[self lockedResourceNamed:aName
@@ -883,15 +780,13 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return url;
 }
 
@@ -901,7 +796,7 @@ RCS_ID("$Id$")
                        languages:(NSArray*)someLanguages
 {
   NSString* absolutePath=nil;
-  LOGObjectFnStart();
+
   [self lock];
   NS_DURING
     {
@@ -925,8 +820,6 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
@@ -943,13 +836,10 @@ RCS_ID("$Id$")
   NSDictionary* archive=nil;
   NSStringEncoding encoding=[GSWMessage defaultEncoding]; // safer, because we may not have a .woo file
   id encodingObject=nil;
-  LOGObjectFnStart();
+
   [self lock];
   NS_DURING
     {
-      NSDebugMLLog(@"bundles",@"aName=%@",aName);
-      NSDebugMLLog(@"bundles",@"encodingCache=%@",_encodingCache);
-      NSDebugMLLog(@"bundles",@"archiveCache=%@",_archiveCache);
       encodingObject=[_encodingCache objectForKey:aName];
       if (!encodingObject)
         {
@@ -974,15 +864,13 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return encoding;
 }
 
@@ -992,13 +880,10 @@ RCS_ID("$Id$")
   NSDictionary* archive=nil;
   GSWTemplateParserType templateParserType=GSWTemplateParserType_Default;
   id templateParserTypeObject=nil;
-  LOGObjectFnStart();
+
   [self lock];
   NS_DURING
     {
-      NSDebugMLLog(@"bundles",@"aName=%@",aName);
-      NSDebugMLLog(@"bundles",@"templateParserTypeCache=%@",_templateParserTypeCache);
-      NSDebugMLLog(@"bundles",@"archiveCache=%@",_archiveCache);
       templateParserTypeObject=[_templateParserTypeCache objectForKey:aName];
       if (!templateParserTypeObject)
         {
@@ -1019,15 +904,13 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return templateParserType;
 }
 
@@ -1036,26 +919,21 @@ RCS_ID("$Id$")
 {
   //OK
   NSDictionary* archive=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"aName=%@",aName);
+
   [self lock];
   NS_DURING
     {
       archive=[self lockedArchiveNamed:aName];
-      NSDebugMLLog(@"bundles",@"archive=%@",archive);
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  NSDebugMLLog(@"bundles",@"archive=%@",archive);
-  LOGObjectFnStop();
+
   return archive;
 }
 
@@ -1066,25 +944,22 @@ RCS_ID("$Id$")
   NSDictionary* archive=nil;
   NSString* relativePath=nil;
   NSString* absolutePath=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"search=%@.%@",aName,GSWArchiveSuffix[GSWebNamingConv]);
+
   archive=[self lockedResourceNamed:aName
                 ofType:GSWArchiveSuffix[GSWebNamingConv]
                 withLanguages:nil
                 usingCache:_archiveCache
                 relativePath:&relativePath
                 absolutePath:&absolutePath];
-  NSDebugMLLog(@"bundles",@"archive=%p absolutePath=%@",archive,absolutePath);
+
   if (!archive && !absolutePath)
     {
-      NSDebugMLLog(@"bundles",@"search=%@.%@",aName,GSWArchiveSuffix[GSWebNamingConvInversed]);
       archive=[self lockedResourceNamed:aName
                     ofType:GSWArchiveSuffix[GSWebNamingConvInversed]
                     withLanguages:nil
                     usingCache:_archiveCache
                     relativePath:&relativePath
                     absolutePath:&absolutePath];
-      NSDebugMLLog(@"bundles",@"archive=%p absolutePath=%@",archive,absolutePath);
     }
   if (!archive)
     {
@@ -1102,8 +977,7 @@ RCS_ID("$Id$")
             }
         }
     }
-  NSDebugMLLog(@"bundles",@"archive=%@",archive);
-  LOGObjectFnStop();
+
   return archive;
 }
 
@@ -1112,26 +986,21 @@ RCS_ID("$Id$")
 {
   //OK
   NSDictionary* api=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"aName=%@",aName);
+
   [self lock];
   NS_DURING
     {
       api=[self lockedApiNamed:aName];
-      NSDebugMLLog(@"bundles",@"api=%@",api);
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"bundles",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  NSDebugMLLog(@"bundles",@"api=%@",api);
-  LOGObjectFnStop();
+
   return api;
 }
 
@@ -1142,7 +1011,7 @@ RCS_ID("$Id$")
   NSDictionary* api=nil;
   NSString* relativePath=nil;
   NSString* absolutePath=nil;
-  LOGObjectFnStart();
+
   api=[self lockedResourceNamed:aName
             ofType:GSWAPISuffix
             withLanguages:nil
@@ -1165,8 +1034,7 @@ RCS_ID("$Id$")
             }
         }
     }
-  NSDebugMLLog(@"bundles",@"api=%@",api);
-  LOGObjectFnStop();
+
   return api;
 }
 
@@ -1174,14 +1042,14 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)scriptedClassNameFromClassName:(NSString*)aName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
 //--------------------------------------------------------------------
 -(id)scriptPathNameFromScriptedClassName:(NSString*)aName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 

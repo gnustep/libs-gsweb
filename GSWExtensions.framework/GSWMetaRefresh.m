@@ -51,14 +51,10 @@ RCS_ID("$Id$")
   NSNumber* seconds = nil;
   NSString* contentString = nil;
 
-  LOGObjectFnStart();
-
   seconds = [self valueForBinding:@"seconds"];
   contentString = [NSString stringWithFormat:@"%@;url=%@",
                             [seconds description],
                             [[self context]componentActionURL]];
-
-  LOGObjectFnStop();
 
   return contentString;
 };
@@ -68,8 +64,6 @@ RCS_ID("$Id$")
 {
   GSWComponent* component = nil;
 
-  LOGObjectFnStart();
-
   if ([self hasBinding:@"pageName"])
     {
       NSString* pageName = [self valueForBinding:@"pageName"];
@@ -77,8 +71,6 @@ RCS_ID("$Id$")
     }
   else
     component = [self valueForBinding:@"action"];
-
-  LOGObjectFnStop();
 
   return component;
 };

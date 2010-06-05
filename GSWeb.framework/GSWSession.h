@@ -118,7 +118,7 @@
 
 -(void)savePage:(GSWComponent*)page;
 -(GSWComponent*)restorePageForContextID:(NSString*)aContextID;
--(unsigned int)permanentPageCacheSize;
+-(NSUInteger)permanentPageCacheSize;
 -(void)savePageInPermanentCache:(GSWComponent*)page;
 
 // SessionF
@@ -135,10 +135,10 @@
 -(NSString*)_contextIDMatchingIDsInContext:(GSWContext*)aContext;
 -(void)_rearrangeContextArrayStackForContextID:(NSString*)contextID;
 -(NSMutableArray*)_contextArrayForContextID:(NSString*)aContextID
-                                 stackIndex:(unsigned int*)pStackIndex
-                          contextArrayIndex:(unsigned int*)pContextArrayIndex;
+                                 stackIndex:(NSUInteger*)pStackIndex
+                          contextArrayIndex:(NSUInteger*)pContextArrayIndex;
 -(void)_replacePage:(GSWComponent*)page;
--(unsigned int)pageCacheSize;
+-(NSUInteger)pageCacheSize;
 -(void)_saveCurrentPage;
 -(int)_requestCounter;
 -(void)_contextDidIncrementContextID;
@@ -219,11 +219,6 @@ Returns first element of languages or nil if languages is empty
               withPassword:(NSString*)password;
 
 -(GSWApplication*)application;
-
--(void)_validateAPI;
-
-+(void)__setContextCounterIncrementingEnabled:(BOOL)flag;
-+(int)__counterIncrementingEnabledFlag;
 
 @end
 #endif

@@ -32,6 +32,8 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 static SEL appendStringSel = NULL;
 
@@ -69,7 +71,7 @@ static SEL appendStringSel = NULL;
 
 //--------------------------------------------------------------------
 -(id)initWithCharactersNoCopy:(unichar*)chars
-                       length:(unsigned int)length
+                       length:(NSUInteger)length
                  freeWhenDone:(BOOL)flag
 {
   _url=[(NSMutableString*) [NSMutableString alloc] initWithCharactersNoCopy:chars
@@ -84,7 +86,7 @@ static SEL appendStringSel = NULL;
 
 //--------------------------------------------------------------------
 -(id)initWithCharacters:(const unichar*)chars
-                 length:(unsigned int)length
+                 length:(NSUInteger)length
 {
   _url = [(NSMutableString*)[NSMutableString alloc] initWithCharacters:chars
                                                                 length:length];
@@ -96,7 +98,7 @@ static SEL appendStringSel = NULL;
 
 //--------------------------------------------------------------------
 -(id)initWithCStringNoCopy:(char*)byteString
-                    length:(unsigned int)length
+                    length:(NSUInteger)length
               freeWhenDone:(BOOL)flag
 {
   _url = [(NSMutableString*) [NSMutableString alloc] initWithCStringNoCopy:byteString
@@ -110,7 +112,7 @@ static SEL appendStringSel = NULL;
 
 //--------------------------------------------------------------------
 -(id)initWithCString:(const char*)byteString
-              length:(unsigned int)length;
+              length:(NSUInteger)length;
 {
   _url = [(NSMutableString*) [NSMutableString alloc] initWithCString:byteString
                                                               length:length];
@@ -238,7 +240,7 @@ static SEL appendStringSel = NULL;
 };
 
 //--------------------------------------------------------------------
-- (unsigned) length
+- (NSUInteger) length
 {
   if (!_flags.composed)
   {
@@ -716,12 +718,6 @@ static SEL appendStringSel = NULL;
 -(NSString*)urlPrefix
 {
   return _prefix;
-};
-
-//--------------------------------------------------------------------
--(void)checkURL
-{
-  LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------

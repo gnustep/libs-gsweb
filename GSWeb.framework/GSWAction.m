@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWAction
@@ -91,7 +92,6 @@ RCS_ID("$Id$")
               NS_HANDLER
                 {
                   localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-                  LOGException(@"exception=%@",localException);
                   //No Exception if session can't be restored !
                   session=nil;
                 }
@@ -139,52 +139,6 @@ RCS_ID("$Id$")
   return session;
 };
 
-//--------------------------------------------------------------------
-//-(GSWSession*)session
-//{
-//  BOOL hasSession=NO;
-//  GSWSession* session=nil;
-//
-//  if (![_context isSessionDisabled])
-//    {
-//      hasSession=[_context hasSession];
-//      if (hasSession)
-//        session=[_context existingSession];
-//      if (!session)
-//        {
-//          NSString* sessionID=nil;
-//          sessionID=[[self request] sessionID];
-//          if (sessionID)
-//            {
-//              NS_DURING
-//                {
-//                  session=[GSWApp restoreSessionWithID:sessionID
-//                                  inContext:_context];
-//                }
-//              NS_HANDLER
-//                {
-//                  localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"in session create/restore");
-//                  LOGException(@"exception=%@",localException);
-//                  [localException raise];
-//                };
-//              NS_ENDHANDLER;
-//              if (!session)
-//                {
-//                  ExceptionRaise(@"GSWAction",
-//                                 @"Unable to restore sessionID %@.",
-//                                 sessionID);
-//                };
-//            }
-//          else
-//            {
-//              // No Session ID: Create a new Session
-//              session=[_context session];
-//            };
-//        };
-//    };
-//
-//  return session;
-//};
 
 //--------------------------------------------------------------------
 //	application
@@ -208,9 +162,6 @@ RCS_ID("$Id$")
     }
   NS_HANDLER
     {
-      LOGException(@"%@ (%@)",
-                   localException,
-                   [localException reason]);
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In pageWithName:inContext:");
       [localException raise];
     };

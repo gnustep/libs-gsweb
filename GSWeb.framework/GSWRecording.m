@@ -41,7 +41,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)_setRecordingPath:(NSString*)recordingPath
 {
-  LOGObjectFnStart();
 
   NSDebugMLog(@"recordingPath=%@",recordingPath);
 
@@ -90,7 +89,6 @@ RCS_ID("$Id$")
           ExceptionRaise(@"GSWRecording: can't create directory '%@'",_recordingPath);
         };
     };
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -137,7 +135,6 @@ RCS_ID("$Id$")
   int i=0;
   int count=0;
 
-  LOGObjectFnStart();
 
   headerKeys=[message headerKeys];
   count=[headerKeys count];
@@ -164,7 +161,6 @@ RCS_ID("$Id$")
 
   [headersString appendString:@"\r\n"];
 
-  LOGObjectFnStop();
   return headersString;
 }
 
@@ -178,7 +174,6 @@ RCS_ID("$Id$")
   NSString* applicationURLPrefix=nil;
   NSStringEncoding contentEncoding=NSUTF8StringEncoding;
 
-  LOGObjectFnStart();
 
   response = (GSWResponse*)[[response copy]autorelease];
   sessionID = [response headerForKey:GSWHTTPHeader_RecordingSessionID[GSWebNamingConv]];
@@ -211,14 +206,12 @@ RCS_ID("$Id$")
             forKey:@"x-gsweb-unwildcarded-content-length"];
   [response setContent:contentData];
 
-  LOGObjectFnStop();
   return response;
 }
 
 //--------------------------------------------------------------------
 -(void)saveRequest:(GSWRequest*)request
 {
-  LOGObjectFnStart();
 
   NSDebugMLog(@"_recordingStep=%d",_recordingStep);  
 
@@ -249,7 +242,6 @@ RCS_ID("$Id$")
                      atomically:NO];
     };
 
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -259,7 +251,6 @@ RCS_ID("$Id$")
   NSString* responseString=nil;
   NSString* headerString=nil;
 
-  LOGObjectFnStart();
 
   NSDebugMLog(@"_recordingStep=%d",_recordingStep);  
 
@@ -289,7 +280,6 @@ RCS_ID("$Id$")
 
   NSDebugMLog(@"_recordingStep=%d",_recordingStep);  
 
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
@@ -297,7 +287,6 @@ RCS_ID("$Id$")
 {
   GSWRequest* request=nil;
 
-  LOGObjectFnStart();
 
   // Get the request
   request = (GSWRequest*)[notification object];
@@ -307,13 +296,11 @@ RCS_ID("$Id$")
   // Save it
   [self saveRequest:request];
 
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(void)_applicationDidDispatchRequest:(NSNotification*)notification
 {
-  LOGObjectFnStart();
 
   NSDebugMLog(@"_request=%p",_request);  
 
@@ -326,7 +313,6 @@ RCS_ID("$Id$")
       [self saveResponse:response];
     }
 
-  LOGObjectFnStop();
 };
 
 @end

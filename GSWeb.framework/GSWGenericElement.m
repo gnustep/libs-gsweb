@@ -57,7 +57,6 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
-  LOGObjectFnStart();
 
   if ((self=[super initWithName: name
 		   associations: associations
@@ -102,7 +101,6 @@ static Class standardClass = Nil;
       ASSIGNCOPY(_otherAssociations, dict);
     }
 
-  LOGObjectFnStop();
 
   return self;
 };
@@ -132,12 +130,10 @@ static Class standardClass = Nil;
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  LOGObjectFnStart();
 
   [self _elementNameAppendToResponse: response 
         inContext: context];
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -147,7 +143,6 @@ static Class standardClass = Nil;
   GSWElement *element = nil;
   GSWComponent *component = nil;
 
-  LOGObjectFnStart();
 
   component = GSWContext_component(aContext);
 
@@ -188,7 +183,6 @@ static Class standardClass = Nil;
         };
     }
 
-  LOGObjectFnStop();
 
   return element;
 };
@@ -197,7 +191,6 @@ static Class standardClass = Nil;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
 
   if (_hasFormValues)
     {
@@ -222,7 +215,6 @@ static Class standardClass = Nil;
 	}
     }
 
-  LOGObjectFnStop();
 };
 
 //-------------------------------------------------------------------- 
@@ -231,7 +223,6 @@ static Class standardClass = Nil;
 {
   NSString *elementName = nil;
 
-  LOGObjectFnStart();
 
   if (_elementID != nil)
     {
@@ -249,7 +240,6 @@ static Class standardClass = Nil;
 	    inContext: aContext];
     }
 
-  LOGObjectFnStop();
 
   return elementName;
 };
@@ -261,7 +251,6 @@ static Class standardClass = Nil;
 {
   GSWComponent *comp = nil;
 
-  LOGObjectFnStart();
 
   comp = GSWContext_component(aContext);
   GSWResponse_appendContentCharacter(aResponse,'<');
@@ -289,7 +278,6 @@ static Class standardClass = Nil;
     }
   GSWResponse_appendContentCharacter(aResponse, '>');
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -300,7 +288,6 @@ static Class standardClass = Nil;
   NSEnumerator *keyEnum = nil;
   NSString *key = nil;
 
-  LOGObjectFnStart();
 
   comp = GSWContext_component(aContext);
   keyEnum = [_otherAssociations keyEnumerator];
@@ -323,7 +310,6 @@ static Class standardClass = Nil;
 	}
     }
   
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -331,7 +317,6 @@ static Class standardClass = Nil;
 {
   NSString* elementName = nil;
 
-  LOGObjectFnStart();
 
   NSDebugMLog(@"_elementName=%@",_elementName);
 
@@ -354,7 +339,6 @@ static Class standardClass = Nil;
 
   NSDebugMLog(@"elementName=%@",elementName);
 
-  LOGObjectFnStop();
 
   return elementName;
 };

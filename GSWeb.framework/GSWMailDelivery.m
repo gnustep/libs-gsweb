@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWMailDelivery
@@ -57,13 +58,7 @@ static GSWMailDelivery *sharedInstance;
                         send:(BOOL)sendNow
 {
   NSString* emailString=nil;
-  LOGObjectFnStart();
-  NSDebugMLog(@"sender=%@",sender);
-  NSDebugMLog(@"to=%@",to);
-  NSDebugMLog(@"cc=%@",cc);
-  NSDebugMLog(@"subject=%@",subject);
-  NSDebugMLog(@"plainTextMessage=%@",plainTextMessage);
-  NSDebugMLog(@"sendNow=%d",(int)sendNow);
+
   emailString=[self composeEmailFrom:sender
                     to:to
                     cc:cc
@@ -71,8 +66,7 @@ static GSWMailDelivery *sharedInstance;
                     subject:subject
                     plainText:plainTextMessage
                     send:sendNow];
-  NSDebugMLog(@"emailString=%@",emailString);
-  LOGObjectFnStop();
+
   return emailString;
 };
 
@@ -84,13 +78,7 @@ static GSWMailDelivery *sharedInstance;
                         send:(BOOL)sendNow
 {
   NSString* emailString=nil;
-  LOGObjectFnStart();
-  NSDebugMLog(@"sender=%@",sender);
-  NSDebugMLog(@"to=%@",to);
-  NSDebugMLog(@"cc=%@",cc);
-  NSDebugMLog(@"subject=%@",subject);
-  NSDebugMLog(@"component=%@",component);
-  NSDebugMLog(@"sendNow=%d",(int)sendNow);
+
   emailString=[self composeEmailFrom:sender
                     to:to
                     cc:cc
@@ -98,8 +86,7 @@ static GSWMailDelivery *sharedInstance;
                     subject:subject
                     component:component
                     send:sendNow];
-  NSDebugMLog(@"emailString=%@",emailString);
-  LOGObjectFnStop();
+
   return emailString;
 };
 
@@ -117,18 +104,10 @@ static GSWMailDelivery *sharedInstance;
   NSMutableString* toString=nil;
   int i=0;
   int count=0;
-  LOGObjectFnStart();
   NSAssert1(!to || [to isKindOfClass:[NSArray class]],@"to is a %@, not a NSArray",[to class]);
   NSAssert1(!cc || [cc isKindOfClass:[NSArray class]],@"cc is a %@, not a NSArray",[cc class]);
   NSAssert1(!bcc || [bcc isKindOfClass:[NSArray class]],@"bcc is a %@, not a NSArray",[bcc class]);
   count=[to count];
-  NSDebugMLog(@"sender=%@",sender);
-  NSDebugMLog(@"to=%@",to);
-  NSDebugMLog(@"cc=%@",cc);
-  NSDebugMLog(@"bcc=%@",bcc);
-  NSDebugMLog(@"subject=%@",subject);
-  NSDebugMLog(@"plainTextMessage=%@",plainTextMessage);
-  NSDebugMLog(@"sendNow=%d",(int)sendNow);
 
   for(i=0;i<count;i++)
     {
@@ -140,7 +119,6 @@ static GSWMailDelivery *sharedInstance;
           [toString appendString:NSStringWithObject([to objectAtIndex:i])];
         };
     };
-  NSDebugMLog(@"toString=%@",toString);
   messageString=(NSMutableString*)[NSMutableString string];
 
   // From:
@@ -153,7 +131,6 @@ static GSWMailDelivery *sharedInstance;
   [messageString appendString:toString];
   [messageString appendString:@"\n"];
 
-  NSDebugMLog(@"messageString=%@",messageString);
   count=[cc count];
   if (count)
     {
@@ -168,13 +145,11 @@ static GSWMailDelivery *sharedInstance;
               [ccString appendString:NSStringWithObject([cc objectAtIndex:i])];
             };
         };
-      NSDebugMLog(@"ccString=%@",ccString);
 
       // cc:
       [messageString appendString:@"Cc: "];
       [messageString appendString:ccString];
       [messageString appendString:@"\n"];
-      NSDebugMLog(@"messageString=%@",messageString);
     };
   count=[bcc count];
   if (count)
@@ -190,13 +165,11 @@ static GSWMailDelivery *sharedInstance;
               [bccString appendString:NSStringWithObject([bcc objectAtIndex:i])];
             };
         };
-      NSDebugMLog(@"bccString=%@",bccString);
 
       // Bcc:
       [messageString appendString:@"Bcc: "];
       [messageString appendString:bccString];
       [messageString appendString:@"\n"];
-      NSDebugMLog(@"messageString=%@",messageString);
     };
 
   //Subject
@@ -206,11 +179,9 @@ static GSWMailDelivery *sharedInstance;
 
   // plainTextMessage
   [messageString appendString:NSStringWithObject(plainTextMessage)];
-  NSDebugMLog(@"messageString=%@",messageString);
 
   if (sendNow)
     [self sendEmail:messageString];
-  LOGObjectFnStop();
   return messageString;
 };
 
@@ -229,16 +200,13 @@ static GSWMailDelivery *sharedInstance;
   NSString* plainTextMessage=nil;
   NSString* messageString=nil;
   GSWResponse* response=nil;
-  LOGObjectFnStart();
-  NSDebugMLog(@"component=%@",component);
+
   context=[component context];
-  NSDebugMLog(@"context=%@",context);
   [context _generateCompleteURLs];
   response=[component generateResponse];
-  NSDebugMLog(@"response=%@",response);
   plainTextMessage=[[[NSString alloc]initWithData:[response content]
                                      encoding:[response contentEncoding]] autorelease];
-  NSDebugMLog(@"plainTextMessage=%@",plainTextMessage);
+
   messageString=[self composeEmailFrom:sender
                          to:to
                          cc:cc
@@ -247,8 +215,7 @@ static GSWMailDelivery *sharedInstance;
                          plainText:plainTextMessage
                          send:sendNow];
   messageString=[[response content]description];
-  NSDebugMLog(@"messageString=%@",messageString);
-  LOGObjectFnStop();
+
   return messageString;
 };
 
@@ -259,9 +226,7 @@ static GSWMailDelivery *sharedInstance;
   NSString* sendmailPath=nil;
   NSString* sendmailCommand=nil;
   NSFileManager* fileManager=nil;
-  LOGObjectFnStart();
   //TODO: here we should contact smtp server,... instead au using sendmail
-  NSDebugMLog(@"emailString=%@",emailString);
   fileManager=[NSFileManager defaultManager];
   NSAssert(fileManager,@"No fileManager");
   sendmailPath=@"/usr/bin/sendmail";
@@ -297,11 +262,9 @@ static GSWMailDelivery *sharedInstance;
             };
         };
     };
-  NSDebugMLog(@"sendmailPath=%@",sendmailPath);
   // -i When reading a message from standard  input,  don't treat  a line with only a . character as the end of input.
   // -t Extract  recipients  from  message  headers.   This requires  that  no  recipients  be specified on the command line.
   sendmailCommand=[sendmailPath stringByAppendingString:@" -i -t"];
-  NSDebugMLog(@"sendmailCommand=%@",sendmailCommand);
   sendmailFile=popen([sendmailCommand lossyCString],"w");
   if (sendmailFile)
     {
@@ -310,68 +273,21 @@ static GSWMailDelivery *sharedInstance;
       size_t written=fwrite(cString, sizeof(char),len,sendmailFile);
       if (written!=len)
         {
-          NSDebugMLog(@"Error writing to sendmail (written %d / %d",written,len);
+//          NSDebugMLog(@"Error writing to sendmail (written %d / %d",written,len);
         };
       fclose(sendmailFile);
     }
   else
     {
-      NSDebugMLog(@"Can't run sendmail (%@)",sendmailCommand);
+      NSLog(@"Can't run sendmail (%@)",sendmailCommand);
     };
-  LOGObjectFnStop();
 
-/*  int files[2];
-  pid_t pid;
-  LOGObjectFnStart();
-
-  NSDebugMLog(@"emailString=%@",emailString);
-
-  if(pipe(files))
-    [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot create pipe", 
-                 NSStringFromSelector(_cmd), 
-                 NSStringFromClass([self class]), 
-                 self];
-
-  switch(pid = fork())
-    {
-    case 0:
-      NSDebugMLog(@"FORK0");
-      close(0);
-      dup(files[0]);
-      close(files[0]);
-      close(files[1]);
-
-      execlp("sendmail", "sendmail", "-i", "-t", NULL);
-
-      break;
-
-    case -1:
-      NSDebugMLog(@"FORK-1");
-      close(files[0]);
-      close(files[1]);
-      [NSException raise:NSInternalInconsistencyException format:@"%@ -- %@ 0x%x: cannot fork process", 
-                   NSStringFromSelector(_cmd), 
-                   NSStringFromClass([self class]), 
-                   self];
-      break;
-
-    default:
-      NSDebugMLog(@"FORKDEF");
-      write(files[1], [emailString cString], strlen([emailString cString]));
-      close(files[0]);
-      close(files[1]);
-
-      waitpid(pid, NULL, 0);
-      break;
-    }
-  LOGObjectFnStop();
-*/
 };
 
 -(void)_invokeGSWSendMailAt:(id)at
                   withEmail:(id)email
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 @end

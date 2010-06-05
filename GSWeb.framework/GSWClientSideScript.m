@@ -59,8 +59,7 @@ static Class standardClass = Nil;
          template:(GSWElement*)templateElement
 {
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWClientSideScript");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ templateElement=%@",aName,associations,templateElement);
+
   [tmpAssociations removeObjectForKey:scriptFile__Key];
   [tmpAssociations removeObjectForKey:scriptString__Key];
   [tmpAssociations removeObjectForKey:scriptSource__Key];
@@ -74,19 +73,19 @@ static Class standardClass = Nil;
     {
       _scriptFile = [[associations objectForKey:scriptFile__Key
                                    withDefaultObject:[_scriptFile autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWClientSideScript: scriptFile=%@",_scriptFile);
+
       _scriptString = [[associations objectForKey:scriptString__Key
                                      withDefaultObject:[_scriptString autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWClientSideScript: scriptString=%@",_scriptString);
+
       _scriptSource = [[associations objectForKey:scriptSource__Key
                                      withDefaultObject:[_scriptSource autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWClientSideScript: scriptSource=%@",_scriptSource);
+
       _hideInComment = [[associations objectForKey:hideInComment__Key
                                       withDefaultObject:[_hideInComment autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWClientSideScript: hideInComment=%@",_hideInComment);
+
       _language = [[associations objectForKey:language__Key
                                  withDefaultObject:[_language autorelease]] retain];
-      NSDebugMLLog(@"gswdync",@"GSWClientSideScript: language=%@",_language);
+
     };
   return self;
 };
@@ -116,7 +115,7 @@ static Class standardClass = Nil;
   BOOL hideInCommentValue=NO;
   id languageValue=nil;
   id scriptValue=nil;
-  LOGObjectFnStartC("GSWClientSideScript");
+
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);
   component=GSWContext_component(aContext);
@@ -206,7 +205,6 @@ static Class standardClass = Nil;
                                                              @"Can't find script file '%@'",
                                                            scriptFileName]
                                           userInfo:nil];
-                   LOGException(@"GSWClientSideScript exception=%@",exception);                   
                    [exception raise];
                 };
             }
@@ -222,7 +220,6 @@ static Class standardClass = Nil;
     };
   GSWResponse_appendContentAsciiString(aResponse,@"</SCRIPT>");
   GSWStopElement(aContext);
-  LOGObjectFnStopC("GSWClientSideScript");
 };
 
 //--------------------------------------------------------------------

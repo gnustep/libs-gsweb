@@ -37,7 +37,6 @@ RCS_ID("$Id$")
 #include <unistd.h>
 #include "GSWeb.h"
 #include "GSWLifebeatThread.h"
-#include <GNUstepBase/GSCategories.h>
 
 //====================================================================
 @implementation GSWLifebeatThread
@@ -116,18 +115,14 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogMemC("dealloc GSWLifebeatThread");
   DESTROY(_creationDate);
   DESTROY(_applicationName);
   DESTROY(_applicationHost);
   DESTROY(_lifebeatHost);
   DESTROY(_baseURL);
   DESTROY(_messages);
-  GSWLogMemC("release pool");
 //  DESTROY(_pool);
-  GSWLogMemC("super dealloc");
   [super dealloc];
-  GSWLogMemC("dealloc GSWLifebeatThread end");
 };
 
 //--------------------------------------------------------------------
@@ -142,11 +137,7 @@ RCS_ID("$Id$")
 {
   if (destroy)
     {
-      GSWLogMemC("dealloc pool");
-      GSWLogMemCF("Destroy NSAutoreleasePool: %p. %@",
-		  _pool, GSCurrentThread());
       DESTROY(_pool);
-      GSWLogMemC("end dealloc pool");
     };
   _pool=pool;
 };
@@ -154,9 +145,9 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)sendMessage:(NSString*)message
 {
-  NSURL* url=[NSURL URLWithString:message];
-  NSData* data=[url resourceDataUsingCache:NO];
-  NSDebugMLog(@"MESSAGE data=%@",data);//TODO handle it !
+//  NSURL* url=[NSURL URLWithString:message];
+//  NSData* data=[url resourceDataUsingCache:NO];
+  // TODO: check
 };
 
 //--------------------------------------------------------------------
@@ -180,15 +171,8 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)threadExited
 {
-//  LOGObjectFnStart();
-//  NSDebugMLLog0(@"trace",@"GSWLifebeatThread: threadExited method");
-//  NSDebugMLLog(@"low",@"[_defaultAdaptorThread retainCount=%d",
-//			   (int)[self retainCount]);
-  GSWLogMemCF("Will Destroy NSAutoreleasePool: %p",_pool);
   [self setPool:nil
         destroyLast:YES];
-//  LOGObjectFnStop();
-  GSWLogDeepC("threadExited");
 };
 /*
 //TODO

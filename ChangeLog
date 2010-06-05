@@ -1,3 +1,261 @@
+2010-05-05  David Wetzel <dave@turbocat.de>
+	* GSWExtensionsGSW.framework/GSWFileUploadComponent.m
+	* GSWExtensionsGSW.framework/GSWLogin.m
+	removed logs
+	* GSWExtensionsGSW.framework/GNUmakefile
+	added ADDITIONAL_OBJCFLAGS = -Werror-implicit-function-declaration
+	* GSWExtensionsGSW.framework/GSWCacheElement.m
+	removed logs, use object_getClassName
+	* GSWExtensionsGSW.framework/GSWValidationFailureComponent.m
+	* GSWExtensionsGSW.framework/GSWTabComponent.m
+	* GSWExtensionsGSW.framework/GSWFileUploadFormComponent.m
+	* GSWExtensionsGSW.framework/GSWSimpleFormComponent.m
+	* GSWeb.framework/GSWApplication.m
+	removed logs, _validateAPI
+	ClassIsKindOfClass -> GSObjCIsKindOf
+	* GSWeb.framework/GSWAction.m
+	include <GNUstepBase/NSObject+GNUstepBase.h>
+	removed logs and unused (commented) code
+	* GSWeb.framework/GSWResourceManager.h
+	removed _validateAPI
+	* GSWeb.framework/GSWImageButton.m
+	added #include <GNUstepBase/NSObject+GNUstepBase.h>
+	removed logs and unused (commented) code
+	* GSWeb.framework/NSString+HTML.h
+	changed int to NSUInteger / NSInteger
+	* GSWeb.framework/GSWResourceManager.m
+	removed logs, _validateAPI
+	* GSWeb.framework/GSWContext.m 
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWRequestHandler.m
+	include <GNUstepBase/NSObject+GNUstepBase.h>
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/NSString+HTML.m
+	include <GNUstepBase/NSString+GNUstepBase.h>
+	changed int to NSUInteger
+	use memmove in GSWMemMove macro
+	disabled testStringByConvertingHTML
+	removed logs
+	fixed warnings
+	* GSWeb.framework/GSWMultiKeyDictionary.m
+	removed logs
+	* GSWeb.framework/GSWVBScript.m
+	removed logs
+	* GSWeb.framework/NSNonBlockingFileHandle.m
+	removed logs
+	* GSWeb.framework/GSWStatisticsStore.h
+	removed useless @interface / @end for the same class
+	* GSWeb.framework/GSWLifebeatThread.m
+	removed include <GNUstepBase/GSCategories.h>
+	removed logs
+	* GSWeb.framework/GSWStatisticsStore.m
+	removed logs
+	include <GNUstepBase/NSObject+GNUstepBase.h>
+	include <GNUstepBase/NSString+GNUstepBase.h>
+	implement _purgePathsStatistics, _updatePathsStatisticsWithPaths
+	removed useless @implementation / @end for the same class
+	* GSWeb.framework/GSWCookie.m
+	removed logs
+	* GSWeb.framework/GNUmakefile
+	added ADDITIONAL_OBJCFLAGS = -Werror-implicit-function-declaration
+	* GSWeb.framework/GSWRecording.m
+	removed logs
+	* GSWeb.framework/GSWToggle.m
+	removed logs
+	* GSWeb.framework/GSWMessage.m
+	include <GNUstepBase/NSObject+GNUstepBase.h>
+	globalDefaultEncoding = [NSString defaultCStringEncoding];
+	(see http://wiki.gnustep.org/index.php/GSWebFAQ )
+	use NSUInteger for index
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWDefaultAdaptor.m
+	include <GNUstepBase/NSObject+GNUstepBase.h>
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWJavaScript.m
+	* GSWeb.framework/GSWClientSideScript.m
+	removed logs
+	* GSWeb.framework/GSWNestedList.m
+	removed logs
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWEmbeddedObject.m	
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWRequest.h
+	removed _validateAPI
+	* GSWeb.framework/GSWRequest.m
+	add includes
+	removed _validateAPI
+	removed logs
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWUtils.h
+	unsigned int -> NSUInteger
+	* GSWeb.framework/Resources/languages.plist
+	added languages
+	* GSWeb.framework/GSWUtils.m
+	add includes
+	unsigned int -> NSUInteger
+	removed logs
+	* GSWeb.framework/GSWComponentReference.m	
+	removed logs
+	* GSWeb.framework/GSWGeometricRegion.m
+	add includes
+	removed logs
+	* GSWeb.framework/GSWKeyValueAssociation.m
+	add includes
+	removed logs
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWHiddenField.m
+	removed logs
+	* GSWeb.framework/GSWParam.m
+	add includes
+	removed logs
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/NSString+Trimming.h
+	* GSWeb.framework/NSString+Trimming.m
+	removed longValue, ulongValue, longLongValue;
+	removed logs
+	* GSWeb.framework/GSWStaticResourceRequestHandler.m
+	removed logs
+	* GSWeb.framework/GSWURLValuedElementData.m
+	removed logs
+	* GSWeb.framework/GSWDirectAction.m
+	takeValue -> setValue
+	removed logs
+	int -> NSUInteger
+	* GSWeb.framework/GSWComponentDefinition.m
+	add includes
+	removed logs
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWAssociation.m
+	add includes
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	removed logs
+	* GSWeb.framework/GSWSession.h
+	* GSWeb.framework/GSWSession.m
+	unsigned int-> NSUInteger
+	add includes
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	removed logs
+	David Ayers: pls check sleepInContext!
+	removed _validateAPI, __setContextCounterIncrementingEnabled, __counterIncrementingEnabledFlag
+	* GSWeb.framework/GSWFileUpload.m
+	removed logs
+	* GSWeb.framework/GSWApplet.m
+	add includes
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWGenericElement.m
+	removed logs
+	GSWeb.framework/GSWTemplateParser.m
+	add includes
+	* GSWeb.framework/GSWTemporaryElement.m		
+	removed logs
+	* GSWeb.framework/GSWResponse.m
+	add include
+	removed docStructure checks
+	removed logs
+	* GSWeb.framework/GSWProjectBundle.m
+	add include
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	removed logs
+	* GSWeb.framework/GSWWorkerThread.m
+	added - drain
+	removed NSLog
+	* GSWeb.framework/GSWApplication+Defaults.m
+	add include			
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	removed logs
+	* GSWeb.framework/GSWActiveImage.m
+	* GSWeb.framework/GSWDirectActionRequestHandler.m
+	* GSWeb.framework/GSWConstantValueAssociation.m
+	* GSWeb.framework/NSData+Compress.m
+	removed logs
+	* GSWeb.framework/GSWHTMLStaticElement.m	
+	add includes
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	removed logs
+	* GSWeb.framework/GSWServerSessionStore.m
+	removed logs
+	* GSWeb.framework/GSWAdaptor.m
+	add includes
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWDeployedBundle.m
+	removed logs
+	add includes
+	* GSWeb.framework/GSWSubmitButton.m
+	removed logs
+	* GSWeb.framework/GSWDeclarationParser.m
+	add includes
+	removed logs
+	* GSWeb.framework/GSWBundle.m
+	add includes
+	removed logs
+	clearCache
+	* GSWeb.framework/GSWWOCompatibility.h
+	fixed typo in WOMessage
+	* GSWeb.framework/GSWSessionTimeOut.m
+	removed logs
+	* GSWeb.framework/GSWPopUpButton.m	
+	add includes
+	* GSWeb.framework/GSWComponent.m
+	add includes
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWHTTPIO.m
+	add include
+	* GSWeb.framework/GSWBindingNameAssociation.m
+	takeValue -> setValue
+	* GSWeb.framework/GSWHTMLTemplateParser.m
+	removed logs
+	* GSWeb.framework/GSWResetButton.m
+	removed logs
+	* GSWeb.framework/GSWDebug.h/m
+	disabled log funtions
+	* GSWeb.framework/GSWActionRequestHandler.m
+	add includes
+	removed logs
+	* GSWeb.framework/GSWSwitchComponent.m
+	* GSWeb.framework/GSWSessionTimeOutManager.m
+	removed logs
+	* GSWeb.framework/GSWMailDelivery.m
+	add includes
+	removed logs
+	* GSWeb.framework/GSWDynamicURLString.h
+	* GSWeb.framework/GSWDynamicURLString.m
+	unsigned int -> NSUInteger
+	removed checkURL
+	add includes
+	* GSWeb.framework/GSWProcFS.m		
+	removed logs
+	* GSWeb.framework/GSWApplication.h
+	removed _validateAPI
+	* GSWeb.framework/GSWResourceRequestHandler.m
+	add include
+	removed logs
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	* GSWeb.framework/GSWSessionStore.h
+	removed _validateAPI
+	* GSWeb.framework/GSWSessionStore.m
+	add include
+	removed _validateAPI
+	removed logs
+	* GSWExtensions.framework/GSWLongResponsePage.m
+	* GSWExtensions.framework/GSWExceptionPage.m
+	* GSWExtensions.framework/GSWMetaRefresh.m
+	* GSWExtensions.framework/GSWCollapsibleComponentContent.m
+	removed logs
+	* GSWExtensions.framework/GNUmakefile
+	added ADDITIONAL_OBJCFLAGS = -Werror-implicit-function-declaration
+	* GSWExtensions.framework/GSWStatsPage.m
+	removed logs
+	unsigned int -> NSUInteger
+	* Examples/hello/HelloPage.wo/HelloPage.html
+	* Examples/hello/Main.wo/Main.html
+	* Examples/hello/Hello.m
+	convert to UTF8
+	
+	The change of
+	LOGObjectFnNotImplemented(); -> [self notImplemented: _cmd];
+	will show where we need to implement functionality.
+	Please send bug reports! -- dw
+    
 2010-05-04  David Wetzel <dave@turbocat.de>
 	* Examples/hello/GNUmakefile
 	check for platform and use frameworks or libs

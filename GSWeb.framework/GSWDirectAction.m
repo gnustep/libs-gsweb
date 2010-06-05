@@ -40,11 +40,9 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithRequest:(GSWRequest*)aRequest
 {
-  LOGObjectFnStart();
   if ((self=[super initWithRequest:aRequest]))
     {
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -59,9 +57,8 @@ RCS_ID("$Id$")
 {
   id<GSWActionResults> actionResult=nil;
   SEL actionSel=NULL;
-  LOGObjectFnStart();
   actionSel=[self _selectorForActionNamed:actionName];
-  NSDebugMLLog(@"requests",@"actionSel=%p",(void*)actionSel);
+
   if (!actionSel)
     {
       [NSException raise:NSInvalidArgumentException 
@@ -73,16 +70,9 @@ RCS_ID("$Id$")
       NS_DURING
         {
           actionResult=[self performSelector:actionSel];
-          NSDebugMLLog(@"requests",
-                       @"_actionResult=%@ class=%@",
-                       actionResult,
-                       [(NSObject*)actionResult class]);
         }
       NS_HANDLER
         {
-          LOGException(@"%@ (%@)",
-                       localException,
-                       [localException reason]);
           localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                                   @"In performSelector: class: %@ actionName: %@",
                                                                   [self class],actionName);
@@ -90,7 +80,6 @@ RCS_ID("$Id$")
         };
       NS_ENDHANDLER;
     };
-  LOGObjectFnStop();
   return actionResult;
 };
 
@@ -98,9 +87,8 @@ RCS_ID("$Id$")
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest
 {
   NSString* sessionID = nil;
-  NSDebugMLog(@"aRequest=%@",aRequest);
   sessionID = [aRequest sessionIDFromValuesOrCookieByLookingForCookieFirst:NO];
-  NSDebugMLog(@"sessionID=%@",sessionID);
+
   return sessionID;
 }
 
@@ -130,13 +118,14 @@ RCS_ID("$Id$")
   GSWRequest* request=[self request];
   if (request)
     {
-      int count=[keyArray count];
-      int i=0;
+      NSUInteger count=[keyArray count];
+      NSUInteger i=0;
+      
       for(i=0;i<count;i++)
         {
           NSString* key=[keyArray objectAtIndex:i];
           NSArray* v=[request formValuesForKey:key];
-          [self takeValue:v
+          [self setValue:v
                 forKey:key];
         };      
     }
@@ -148,13 +137,14 @@ RCS_ID("$Id$")
   GSWRequest* request=[self request];
   if (request)
     {
-      int count=[keyArray count];
-      int i=0;
+      NSUInteger count=[keyArray count];
+      NSUInteger i=0;
+      
       for(i=0;i<count;i++)
         {
           NSString* key=[keyArray objectAtIndex:i];
           id v=[request formValueForKey:key];
-          [self takeValue:v
+          [self setValue:v
                 forKey:key];
         }
     };
@@ -173,7 +163,7 @@ RCS_ID("$Id$")
       while(key)
         {
           NSArray* v=[request formValuesForKey:key];
-          [self takeValue:v
+          [self setValue:v
                 forKey:key];
           key = va_arg(ap,id);
         };
@@ -194,7 +184,7 @@ RCS_ID("$Id$")
       while(key)
         {
           id v=[request formValueForKey:key];
-          [self takeValue:v
+          [self setValue:v
                 forKey:key];
           key = va_arg(ap,id);
         };

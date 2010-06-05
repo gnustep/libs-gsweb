@@ -41,30 +41,25 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
 	{
 	};
-  LOGObjectFnStop();
+
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)awake
 {
-  LOGObjectFnStart();
   [super awake];
   _tmpErrorMessage=nil;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)sleep
 {
-  LOGObjectFnStart();
   _tmpErrorMessage=nil;
   [super sleep];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -90,7 +85,6 @@ RCS_ID("$Id$")
   id key=nil;
   NSString* dscrValue=nil;
   NSString* value=nil;
-  LOGObjectFnStart();
   anEnum=[fieldsDscription keyEnumerator];
   while((key=[anEnum nextObject]))
     {
@@ -110,9 +104,8 @@ RCS_ID("$Id$")
                                  (errorMessagePrefix ? errorMessagePrefix : @""),
                                  missingFields,
                                  (errorMessageSuffix ? errorMessageSuffix : @"")];
-      NSDebugMLog(@"_tmpErrorMessage=%@",_tmpErrorMessage);
     };
-  LOGObjectFnStop();
+
   return !missingFields;
 };
 
@@ -145,7 +138,7 @@ RCS_ID("$Id$")
   NSString* dscrValue=nil;
   NSString* value=nil;
   NSString* msg=nil;
-  LOGObjectFnStart();
+
   anEnum=[fieldsDscription keyEnumerator];
   while((key=[anEnum nextObject]))
     {
@@ -153,30 +146,28 @@ RCS_ID("$Id$")
       value=[fields  objectForKey:key];
       [mailText appendFormat:@"%@:\t%@\n",dscrValue,value];
     };
-  NSDebugMLog(@"to=%@",to);
-  NSDebugMLog(@"from=%@",from);
+
   if (from && to)
     {
       NSString* text=[NSString stringWithFormat:@"%@%@%@",
                                (messagePrefix ? messagePrefix : @""),
                                mailText,
                                (messageSuffix ?  messageSuffix : @"")];
-      NSDebugMLog(@"text=%@",text);
+
       msg=[[GSWMailDelivery sharedInstance] composeEmailFrom:from
                                             to:[NSArray arrayWithObject:to]
                                             cc:nil
                                             subject:subject
                                             plainText:text
                                             send:YES];
-      NSDebugMLog(@"msg=%@",msg);
     }
   else
     {
       //TODO
-      LOGError(@"No From or To address (from=%@ , to=%@)",from,to);
+//      LOGError(@"No From or To address (from=%@ , to=%@)",from,to);
     };
   page=[self pageWithName:sentPageName];
-  LOGObjectFnStop();
+
   return page;
 };
 @end

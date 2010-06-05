@@ -62,11 +62,6 @@
 +(GSWSessionStore*)serverSessionStore;
 @end
 //====================================================================
-@interface GSWSessionStore (GSWSessionStoreB)
--(void)_validateAPI;
-@end
-
-//====================================================================
 @interface GSWSessionStore (GSWSessionStoreInfo)
 -(BOOL)containsSessionID:(NSString*)aSessionID;
 -(NSArray *)allSessionIDs;

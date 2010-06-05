@@ -34,6 +34,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 
 /* globals used by GSWeb: */
@@ -558,13 +559,13 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
 //--------------------------------------------------------------------
 +(void)_initRegistrationDomainDefaults
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 +(void)_initUserDefaultsKeys
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -573,7 +574,6 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
   GSWAdaptor* adaptor=nil;
   NSDictionary* args=nil;
   NSString* adaptorName=nil;
-  LOGObjectFnStart();
   NSDebugMLLog(@"options",@"userDefault=%@",userDefaults);
   args=[self _argsDictionaryWithUserDefaults:userDefaults];
   NSDebugMLLog(@"options",@"args=%@",args);
@@ -585,7 +585,6 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
     ASSIGN(_adaptors,[_adaptors arrayByAddingObject:adaptor]);
   else
     ASSIGN(_adaptors,[NSArray arrayWithObject:adaptor]);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -599,7 +598,6 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
   NSNumber* workerThreadCount=nil;
   NSNumber* listenQueueSize=nil;
   NSMutableDictionary* argsDict=nil;
-  LOGObjectFnStart();
   port=[(GSWAppClassDummy*)[self class] port];
   host=[(GSWAppClassDummy*)[self class] host];
   adaptor=[(GSWAppClassDummy*)[self class] adaptor];
@@ -622,7 +620,6 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
   if (listenQueueSize)
     [argsDict setObject:listenQueueSize
               forKey:GSWOPT_ListenQueueSize[GSWebNamingConv]];
-  LOGObjectFnStop();
   return argsDict;
 };
 

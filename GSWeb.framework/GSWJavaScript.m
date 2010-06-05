@@ -41,8 +41,7 @@ RCS_ID("$Id$")
 {
   GSWAssociation* languageAssociation=nil;
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWJavaScript");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ templateElement=%@",aName,associations,templateElement);
+
   if (![tmpAssociations objectForKey:language__Key])
     {
       // Create and set the language (Javascript)

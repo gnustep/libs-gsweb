@@ -39,8 +39,8 @@ typedef struct _GSWHTMLConvertingStruct
 {
   unichar* normalChars;
   unichar* htmlChars;
-  int* htmlCharsLen;
-  int charsCount;
+  NSUInteger* htmlCharsLen;
+  NSUInteger charsCount;
 } GSWHTMLConvertingStruct;
 
 GSWEB_EXPORT GSWHTMLConvertingStruct htmlConvertStruct;
@@ -93,8 +93,8 @@ GSWEB_EXPORT NSString* baseStringByConvertingFromHTML(NSString* string,
                         forceArray:(BOOL)forceArray
                           encoding:(NSStringEncoding) encoding;
 
--(BOOL)ismapCoordx:(int*)x
-                 y:(int*)y;
+-(BOOL)ismapCoordx:(NSInteger*)x
+                 y:(NSInteger*)y;
 -(NSString*)stringByEscapingHTMLString;
 -(NSString*)stringByEscapingHTMLAttributeValue;
 -(NSString*)stringByConvertingToHTMLEntities;

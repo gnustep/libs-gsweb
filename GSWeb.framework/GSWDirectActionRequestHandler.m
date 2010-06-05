@@ -164,11 +164,9 @@ RCS_ID("$Id$")
 {
   NSArray* requestHandlerPathArray=nil;
   NSArray* additionalRequestPathArray=nil;
-  LOGObjectFnStart();
   requestHandlerPathArray=[aRequest requestHandlerPathArray];
   if ([requestHandlerPathArray count]>2)
     additionalRequestPathArray=[requestHandlerPathArray subarrayWithRange:NSMakeRange(2,[requestHandlerPathArray count]-2)];
-  LOGObjectFnStart();
   return additionalRequestPathArray;
 };
 

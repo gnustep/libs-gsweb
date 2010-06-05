@@ -36,6 +36,7 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 #include <time.h>
 #include <unistd.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWSessionStore
@@ -43,39 +44,30 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       _lock=[NSRecursiveLock new];
       _timeOutManager=[GSWSessionTimeOutManager new];
-      NSDebugMLLog(@"sessions",@"GSWSessionStore self=%p class=%@",self,[self class]);
+
       [_timeOutManager setCallBack:@selector(removeSessionWithID:)
                        target:self];
       [_timeOutManager startHandleTimerRefusingSessions];
-      [self _validateAPI];
     };
-  LOGObjectFnStop();
   return self;   
 };
 
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWSessionStore");
-  GSWLogC("Dealloc GSWSessionStore: lock");
   DESTROY(_lock);
-  GSWLogC("Dealloc GSWSessionStore: timeOutManager");
   DESTROY(_timeOutManager);
-  GSWLogC("Dealloc GSWSessionStore Super");
   [super dealloc];
-  GSWLogC("End Dealloc GSWSessionStore");
 };
 
 //--------------------------------------------------------------------
 /** Abstract **/
 -(GSWSession*)removeSessionWithID:(NSString*)aSessionID
 {
-  NSDebugMLLog(@"sessions",@"self=%p class=%@",self,[self class]);
   [self subclassResponsibility: _cmd];
   return nil;
 };
@@ -279,23 +271,6 @@ RCS_ID("$Id$")
 };
 
 @end
-//====================================================================
-@implementation GSWSessionStore (GSWSessionStoreB)
--(void)_validateAPI
-{
-  LOGObjectFnStart();
-  if ([self class]==[GSWSessionStore class])
-    {
-      [NSException raise:NSGenericException
-                   format:@"Can't allocate a direct GSWSessionStore instance because some methods need to be implemented by subclasses"];
-    };
-  LOGObjectFnNotImplemented();	//TODOFN
-  LOGObjectFnStop();
-};
-
-@end
-
-
 //====================================================================
 @implementation GSWSessionStore (GSWSessionStoreInfo)
 

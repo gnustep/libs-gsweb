@@ -38,12 +38,11 @@ RCS_ID("$Id$")
 -(id)init
 {
   //OK
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       _sessions=[NSMutableDictionary new];
     };
-  LOGObjectFnStop();
+
   return self;
 };
 
@@ -71,9 +70,8 @@ RCS_ID("$Id$")
   //OK
   GSWSession* session=nil;
   NSString* sessionID=nil;
-  LOGObjectFnStart();
   session=[aContext existingSession];
-  NSDebugMLLog(@"sessions",@"session=%@",session);
+
   if (!session)
     {
       [NSException raise:@"IllegalStateException"
@@ -82,14 +80,11 @@ RCS_ID("$Id$")
 
   sessionID=[session sessionID];
   NSAssert(sessionID,@"No _sessionID!");
-  NSDebugMLLog(@"sessions",@"_sessionID=%@",sessionID);
 
   [_sessions setObject:session
              forKey:sessionID];
 
-  NSDebugMLLog(@"sessions",@"session=%@",session);
-  LOGObjectFnStop();
-};
+}
 
 //--------------------------------------------------------------------
 /** Should be Locked **/
@@ -123,10 +118,8 @@ RCS_ID("$Id$")
 {
   BOOL contain = NO;
   //OK
-  LOGObjectFnStart();
   if([_sessions objectForKey:aSessionID]) 
     contain = YES;
-  LOGObjectFnStop();
   return contain;
 };
 

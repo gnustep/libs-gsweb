@@ -78,7 +78,6 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)associations
   contentElements:(NSArray*)elements
 {
-  LOGObjectFnStart();
   if ((self=[super initWithName:aName
                    associations:nil
                    template:nil]))
@@ -88,27 +87,21 @@ static Class standardClass = Nil;
 
       _cachedObject = [[associations objectForKey:@"cachedObject"
                                      withDefaultObject:[_cachedObject autorelease]] retain];
-      NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%@",_cachedObject);
       
       _cache = [[associations objectForKey:@"cache"
                               withDefaultObject:[_cache autorelease]] retain];
-      NSDebugMLLog(@"GSWCacheElement",@"cache=%@",_cache);
 
       _duration = [[associations objectForKey:@"duration"
                                  withDefaultObject:[_duration autorelease]] retain];
-      NSDebugMLLog(@"GSWCacheElement",@"duration=%@",_duration);
       
       _uniqID = [[associations objectForKey:@"uniqID"
                                withDefaultObject:[_uniqID autorelease]] retain];
-      NSDebugMLLog(@"GSWCacheElement",@"uniqID=%@",_uniqID);
       
       _disabled = [[associations objectForKey:disabled__Key
                                  withDefaultObject:[_disabled autorelease]] retain];
-      NSDebugMLLog(@"GSWCacheElement",@"disabled=%@",_disabled);
       
       _enabled = [[associations objectForKey:enabled__Key
                                 withDefaultObject:[_enabled autorelease]] retain];
-      NSDebugMLLog(@"GSWCacheElement",@"enabled=%@",_enabled);
       
       if (_disabled && _enabled)
         {
@@ -178,7 +171,6 @@ static Class standardClass = Nil;
             };
         };
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -187,13 +179,11 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)someAssociations
          template:(GSWElement*)templateElement
 {
-  LOGObjectFnStart();
   if ((self=[self initWithName:aName
                   associations:someAssociations
                   contentElements:templateElement ? [NSArray arrayWithObject:templateElement] : nil]))
     {
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -223,7 +213,7 @@ static Class standardClass = Nil;
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
-                   object_get_class_name(self),
+                   object_getClassName(self),
                    (void*)self];
 };
 
@@ -239,8 +229,6 @@ static Class standardClass = Nil;
   GSWComponent* component=nil;
   BOOL isDisabled=NO;
   GSWDeclareDebugElementIDsCount(aContext);
-
-  LOGObjectFnStart();
 
   component=[aContext component];
 
@@ -282,15 +270,10 @@ static Class standardClass = Nil;
       [aContext appendElementIDComponent:[@"CacheElement-" stringByAppendingString:uniqID]];
 
       contextAndElementID=[aContext contextAndElementID];
-      NSDebugMLLog(@"GSWCacheElement",@"contextAndElementID=%@",contextAndElementID);
 
       elementID=AUTORELEASE([[aContext elementID] copy]); // because elementID is mutable (and varying)
-      NSDebugMLLog(@"GSWCacheElement",@"elementID=%@",elementID);
 
       sessionID=[[aContext session] sessionID];
-      NSDebugMLLog(@"GSWCacheElement",@"sessionID=%@",sessionID);
-      
-      NSDebugMLLog(@"GSWCacheElement",@"isDisabled=%d",isDisabled);
 
       if (!isDisabled)
         {
@@ -304,17 +287,15 @@ static Class standardClass = Nil;
                 {
                   GSWAssociation* assoc=[_keys objectAtIndex:i];
                   keys[i]=[assoc valueInComponent:component];
-                  NSDebugMLLog(@"GSWCacheElement",@"keys[%d]=%@",i,keys[i]);
+
                   if (!keys[i])
                     {
                       keys[i]=[NSNull null];
-                      NSDebugMLLog(@"GSWCacheElement",@"keys[%d]=%@",i,keys[i]);
                     };
                 };
               cachedObject=[cache objectForKeys:keys
                                   count:keysCount];
             };
-          NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%p",cachedObject);
 
           contextAndElementIDCacheKey=(NSMutableString*)[NSMutableString stringWithString:@"##CONTEXT_ELEMENT_ID-"];
           [contextAndElementIDCacheKey appendString:uniqID];
@@ -327,9 +308,6 @@ static Class standardClass = Nil;
           if (cachedObject)
             {
               NSData* sessionIDData=nil;
-              NSLog(@"GSWCacheElement5: sessionID=%@",sessionID);
-              NSLog(@"GSWCacheElement5: elementID=%@",elementID);
-              NSLog(@"GSWCacheElement5: contextAndElementID=%@",contextAndElementID);
               cacheUsed=YES;
               cachedObject=AUTORELEASE([cachedObject mutableCopy]);
               //NSLog(@"GSWCacheElement: cachedObject found=%@",cachedObject);
@@ -353,11 +331,9 @@ static Class standardClass = Nil;
           else
             {
               _cacheIndex=[aResponse startCache];              
-              NSDebugMLLog(@"GSWCacheElement",@"cacheIndex=%d",_cacheIndex);
             };
         };
 
-      NSDebugMLLog(@"GSWCacheElement",@"cacheUsed=%d",cacheUsed);
       if (!cacheUsed)
         {
           /*NSLog(@"GSWCacheElement Children Start Date=%@",
@@ -371,7 +347,7 @@ static Class standardClass = Nil;
       if (!cacheUsed && !isDisabled)
         {
           NSMutableData* cachedObject=[aResponse stopCacheOfIndex:_cacheIndex];
-          NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%p",cachedObject);
+          //NSDebugMLLog(@"GSWCacheElement",@"cachedObject=%p",cachedObject);
           //NSLog(@"GSWCacheElement6: sessionID=%@",sessionID);
           //NSLog(@"GSWCacheElement6: elementID=%@",elementID);
           //NSLog(@"GSWCacheElement6: contextAndElementID=%@",contextAndElementID);
@@ -393,7 +369,6 @@ static Class standardClass = Nil;
           else
             {
               id duration=[_duration valueInComponent:component];
-              NSDebugMLLog(@"GSWCacheElement",@"duration=%@",duration);
               if (duration)
                 {
                   NSTimeInterval ts=0;
@@ -420,8 +395,6 @@ static Class standardClass = Nil;
 
       [aContext deleteLastElementIDComponent];
 
-      NSDebugMLLog(@"GSWCacheElement",@"END ET=%@ id=%@",[self class],[aContext elementID]);
-
       /*NSLog(@"GSWCacheElement Stop Date=%@",
         GSWTime_format(GSWTime_now()));*/
 
@@ -429,16 +402,12 @@ static Class standardClass = Nil;
     }
   NS_HANDLER
     {
-      LOGException0(@"exception in GSWCacheElement appendToResponse:inContext");
-      LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                               @"In GSWForm appendToResponse:inContext");
-      LOGException(@"exception=%@",localException);
       [localException raise];
     }
   NS_ENDHANDLER;
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -446,8 +415,6 @@ static Class standardClass = Nil;
                    inContext:(GSWContext*)aContext
 {
   NSString* uniqID=nil;
-
-  LOGObjectFnStart();
 
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
@@ -464,7 +431,6 @@ static Class standardClass = Nil;
   GSWStopElement(aContext);
   GSWAssertIsElementID(aContext);
 
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -473,8 +439,6 @@ static Class standardClass = Nil;
 {
   GSWElement* element=nil;
   NSString* uniqID=nil;
-
-  LOGObjectFnStart();
 
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
@@ -487,7 +451,6 @@ static Class standardClass = Nil;
   element=[_childrenGroup invokeActionForRequest:aRequest
                           inContext:aContext];
 
-  NSDebugMLLog(@"GSWCacheElement",@"element=%@",element);
   NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
             @"Element is a %@ not a GSWElement: %@",
             [element class],
@@ -497,8 +460,6 @@ static Class standardClass = Nil;
 
   GSWStopElement(aContext);
   GSWAssertIsElementID(aContext);
-
-  LOGObjectFnStop();
 
   return element;
 };

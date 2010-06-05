@@ -266,8 +266,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 -(void)_terminateFromMonitor;
 
--(void)_validateAPI;
-
 -(NSArray*)adaptors;
 
 -(GSWAdaptor*)adaptorWithName:(NSString*)aName

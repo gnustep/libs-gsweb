@@ -41,8 +41,7 @@ RCS_ID("$Id$")
   contentElements:(NSArray*)elements
 {
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWResetButton");
-  NSDebugMLLog(@"gswdync",@"aName=%@ associations:%@ elements=%@",aName,associations,elements);
+
   [tmpAssociations setObject:[GSWAssociation associationWithValue:@"reset"]
                    forKey:@"type"];
 
@@ -55,7 +54,7 @@ RCS_ID("$Id$")
                    contentElements:nil]))
     {
     };
-  LOGObjectFnStopC("GSWResetButton");
+
   return self;
 };
 

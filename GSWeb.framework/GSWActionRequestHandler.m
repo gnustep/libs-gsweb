@@ -33,6 +33,8 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWActionRequestHandler
@@ -139,7 +141,6 @@ RCS_ID("$Id$")
         }
       NS_HANDLER
         {
-          LOGException(@"%@ (%@)",localException,[localException reason]);
           [application unlockRequestHandling];
           [localException raise];//TODO
         };
@@ -317,7 +318,6 @@ RCS_ID("$Id$")
             }
           NS_HANDLER
             {
-              LOGException(@"%@ (%@)",localException,[localException reason]);
               // Be carefull: there's no context created for the moment
               response=[application  handleActionRequestErrorWithRequest:aRequest
                                      exception:localException
@@ -349,7 +349,6 @@ RCS_ID("$Id$")
                 }
               NS_HANDLER
                 {
-                  LOGException(@"%@ (%@)",localException,[localException reason]);
                   response=[application  handleActionRequestErrorWithRequest:aRequest
                                          exception:localException
                                          reason:@"InstantiationError"
@@ -371,7 +370,6 @@ RCS_ID("$Id$")
                 }
               NS_HANDLER
                 {
-                  LOGException(@"%@ (%@)",localException,[localException reason]);
                   response=[application  handleActionRequestErrorWithRequest:aRequest
                                          exception:localException
                                          reason:@"InvocationError"
@@ -436,7 +434,6 @@ RCS_ID("$Id$")
         }
       NS_HANDLER
         {
-          LOGException(@"%@ (%@)",localException,[localException reason]);
           if (!response)
             {
               if (!context)

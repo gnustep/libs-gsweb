@@ -1,7 +1,26 @@
 {
 	"FR" = "French";
 	"FR-FR" = "French";
+	"fr-ca" = "French";
 	"EN" = "English";
+	"en-en" = "English";
+	"en-us" = "English";
+	"en-ca" = "English";
 	"ES" = "Spanish";
-	"DE" = "Deutsch";
+	"DE-DE" = "German";
+	"DE-AT" = "German";
+	"DE" = "German";
+	"de-ch" = "German";
+	"de-lu" = "German";
+	"de-li" = "German";
+	"nl" = "Dutch";
+	"it" = "Italian";
+	"ja" = "Japanese";
+	"ko" = "Korean";
+	"pl" = "Polish";
+	"ro" = "Romanian";
+	"zh-cn" = "Chinese";
+	"zh-tw" = "Chinese";
+	"zh-sg" = "Chinese";
+	"cz" = "Czech";
 }

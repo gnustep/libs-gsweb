@@ -69,7 +69,7 @@ static int gzHeaderSize=10;
                      Z_DEFAULT_STRATEGY); /* int strategy */
   if (err!=Z_OK)
     {
-      LOGError(@"deflateInit2 error: %d",err);
+//      LOGError(@"deflateInit2 error: %d",err);
     }
   else
     {
@@ -111,7 +111,7 @@ static int gzHeaderSize=10;
           err = deflate(&c_stream, Z_NO_FLUSH);
           if (err!=Z_OK)
             {
-              LOGError(@"deflate error: %d",err);
+              //LOGError(@"deflate error: %d",err);
             }
           else
             {
@@ -142,7 +142,7 @@ static int gzHeaderSize=10;
                 }
               else
                 {
-                  LOGError(@"deflate error: %d",err);
+                  //LOGError(@"deflate error: %d",err);
                 };
             } while (err == Z_OK);
         };
@@ -156,7 +156,7 @@ static int gzHeaderSize=10;
       err = deflateEnd(&c_stream);
       if (err!=Z_OK)
         {
-          LOGError(@"deflateEnd error: %d",err);
+          //LOGError(@"deflateEnd error: %d",err);
         }
     };
   return outData;

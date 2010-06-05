@@ -223,8 +223,6 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
              byLookingForCookieFirst:(BOOL)lookCookieFirst;
 -(NSDictionary*)uriOrFormOrCookiesElements;
 
--(void)_validateAPI;
-
 -(NSString*) _originatingAddress;
 -(void) _setOriginatingAddress:(NSString*) anAddress;
 - (uint16_t) _originatingPort;

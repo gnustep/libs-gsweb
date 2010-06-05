@@ -395,4 +395,6 @@ ifeq ($(doc),yes)
 include $(GNUSTEP_MAKEFILES)/documentation.make
 endif
 
+ADDITIONAL_OBJCFLAGS = -Werror-implicit-function-declaration
+
 -include Makefile.postamble

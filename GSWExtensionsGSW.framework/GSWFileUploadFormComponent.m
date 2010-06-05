@@ -41,28 +41,22 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
 	{
 	};
-  LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)awake
 {
-  LOGObjectFnStart();
   [super awake];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)sleep
 {
-  LOGObjectFnStart();
   [super sleep];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -81,7 +75,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSMutableDictionary*)fileInfo
 {
-  LOGObjectFnStart();
   if (!_fileInfo)
 	{
 	  if ([self hasBinding:@"fileInfo"])
@@ -91,7 +84,7 @@ RCS_ID("$Id$")
                     _fileInfo=[NSMutableDictionary new];
 		};
 	};
-  LOGObjectFnStop();
+
   return _fileInfo;
 };
 
@@ -137,7 +130,6 @@ RCS_ID("$Id$")
 -(GSWComponent*)updateAction
 {
   GSWComponent* _returnPage=nil;
-  LOGObjectFnStart();
   [self setValue:_fileInfo
 		forBinding:@"fileInfo"];
   if ([self hasBinding:@"action"])
@@ -145,7 +137,7 @@ RCS_ID("$Id$")
 	  _returnPage=[self valueForBinding:@"action"];
 	};
   DESTROY(_fileInfo);
-  LOGObjectFnStop();
+
   return _returnPage;
 };
 
@@ -153,7 +145,6 @@ RCS_ID("$Id$")
 -(GSWComponent*)deleteAction
 {
   GSWComponent* _returnPage=nil;
-  LOGObjectFnStart();
   [_fileInfo removeObjectForKey:@"data"];
   [self setValue:_fileInfo
         forBinding:@"fileInfo"];
@@ -162,7 +153,7 @@ RCS_ID("$Id$")
       _returnPage=[self valueForBinding:@"action"];
     };
   DESTROY(_fileInfo);
-  LOGObjectFnStop();
+
   return _returnPage;
 };
 

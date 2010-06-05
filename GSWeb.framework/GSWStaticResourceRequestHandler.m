@@ -72,7 +72,6 @@ RCS_ID("$Id$")
         {
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"globalLock loggedlockBeforeDate");
-          LOGException(@"%@ (%@)",localException,[localException reason]);
           [localException raise];
         }
       NS_ENDHANDLER;

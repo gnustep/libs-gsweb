@@ -48,7 +48,7 @@
 #define GSWEvent                        WOEvent
 #define GSWHTTPConnection               WOHTTPConnection
 #define GSWMailDelivery			WOMailDelivery
-#define GSWMessage                      WOMesssage
+#define GSWMessage                      WOMessage
 #define GSWRequest			WORequest
 #define GSWRequestHandler		WORequestHandler
 #define GSWResourceManager		WOResourceManager

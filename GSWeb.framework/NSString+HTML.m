@@ -37,6 +37,7 @@ RCS_ID("$Id$")
 #ifndef GNUSTEP
 #include <GNUstepBase/GSObjCRuntime.h>
 #endif
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 
 #include <limits.h>
@@ -223,7 +224,7 @@ GSWHTMLConvertingStruct htmlConvertAttributeValueStruct;
 GSWHTMLConvertingStruct htmlConvertHTMLString;
 
 static unichar unicodeBR[5];
-static int unicodeBRLen=4;
+static NSUInteger unicodeBRLen=4;
 #define htmlCharsMaxLength 9
 #define htmlCharsAtIndex(convStructPtr,i)	(((convStructPtr)->htmlChars)+((i)*(htmlCharsMaxLength+1)))
 
@@ -241,13 +242,13 @@ static void initNormalHTMLChars(GSWHTMLConvertingStruct* htmlConvertStruct,
 {
   NSArray* normalCharsStringArray=[normalCharsPropertyListString propertyList];
   NSArray* htmlCharsStringArray=[htmlCharsPropertyListString propertyList];      
-  int i=0;
+  NSUInteger i=0;
   htmlConvertStruct->charsCount=[normalCharsStringArray count];
   NSCAssert([htmlCharsStringArray count]==htmlConvertStruct->charsCount,
                 @"html and normal characters array have not the same count of elements");
   htmlConvertStruct->normalChars=NSZoneMalloc(NSDefaultMallocZone(),sizeof(unichar)*(htmlConvertStruct->charsCount));
   htmlConvertStruct->htmlChars=NSZoneMalloc(NSDefaultMallocZone(),sizeof(unichar)*(htmlCharsMaxLength+1)*(htmlConvertStruct->charsCount));
-  htmlConvertStruct->htmlCharsLen=NSZoneMalloc(NSDefaultMallocZone(),sizeof(int)*(htmlConvertStruct->charsCount));
+  htmlConvertStruct->htmlCharsLen=NSZoneMalloc(NSDefaultMallocZone(),sizeof(NSUInteger)*(htmlConvertStruct->charsCount));
   
   for(i=0;i<(htmlConvertStruct->charsCount);i++)
     {
@@ -297,17 +298,9 @@ void NSStringHTML_Initialize()
 };
 
 //====================================================================
-#define GSWMemMove(dst,src,size);		\
+#define GSWMemMove(dst, src, size);		\
 {						\
-int __size=(size);				\
-unsigned char* __src=((char*)(src));		\
-unsigned char* __dst=((char*)(dst));		\
-unsigned char* __pDst=__dst+__size-1;		\
-unsigned char* __pSrc=__src+__size-1;		\
-if (__dst>__src)				\
-   while(__pDst>=__dst) { *__pDst--=*__pSrc--; }	\
-else							\
-   while(__pDst>=__dst) { *__dst++=*__src++; };		\
+  memmove(dst, src, size); \
 };
 
 #define HTML_TEST_STRINGS @"(\"\", \
@@ -319,22 +312,24 @@ else							\
 
 void testStringByConvertingHTML()
 {
-  NSArray* testStrings=[HTML_TEST_STRINGS propertyList];
-  int i=0;
+/*
+ NSArray* testStrings=[HTML_TEST_STRINGS propertyList];
+  NSUInteger i=0;
   for(i=0;i<[testStrings count];i++)
     {
       NSString* string=[testStrings objectAtIndex:i];
       NSString* result=[string stringByConvertingToHTML];
       NSString* reverse=[result stringByConvertingFromHTML];
     };
+ */
 };
 
-void allocOrReallocUnicharString(unichar** ptrPtr,int* capacityPtr,int length,int newCapacity)
+void allocOrReallocUnicharString(unichar** ptrPtr,NSUInteger* capacityPtr,NSUInteger length,NSUInteger newCapacity)
 {
   //Really need ?  
   if (newCapacity>*capacityPtr)
     {
-      int allocSize=newCapacity*sizeof(unichar);
+      NSUInteger allocSize=newCapacity*sizeof(unichar);
       unichar* newPtr=GSAutoreleasedBuffer(allocSize);
 
       NSCAssert1(newPtr,@"Can't alloc %d allocSize bytes",
@@ -343,7 +338,9 @@ void allocOrReallocUnicharString(unichar** ptrPtr,int* capacityPtr,int length,in
       if (length>0)
         {
           // Copy previous parts
-          GSWMemMove(newPtr,*ptrPtr,length*sizeof(unichar));
+          GSWMemMove(newPtr,
+                     *ptrPtr,
+                     length*sizeof(unichar));
         };
 
       *capacityPtr=newCapacity;
@@ -361,14 +358,14 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
   if (length>0)
     {
       BOOL changed=NO;
-      int srcLen=0;
-      int dstLen=0;
+      NSUInteger srcLen=0;
+      NSUInteger dstLen=0;
       unichar* dstChars=NULL;
-      int capacity=0;
+      NSUInteger capacity=0;
       unichar* pString=NULL;
-      int i=0;
-      int j=0;
-      int allocMargin=max(128,length/2);
+      NSUInteger i=0;
+      NSUInteger j=0;
+      NSUInteger allocMargin=max(128,length/2);
       allocOrReallocUnicharString(&pString,&capacity,0,length+1+allocMargin);
       [string getCharacters:pString];
       //NSDebugFLog(@"string=%@",string);
@@ -414,26 +411,13 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
             };
           if (srcLen>0)
             {
-              /*NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:dstChars
-                length:dstLen]);*/
               changed=YES;
-              /*NSDebugFLog(@"-1==> %@",[NSString stringWithCharacters:pString
-                                                length:length]);*/
               if (length+1+dstLen-srcLen>capacity)
                 allocOrReallocUnicharString(&pString,&capacity,length,capacity+allocMargin);
-              /*NSDebugFLog(@"0==> %@",[NSString stringWithCharacters:pString
-                                               length:length]);
-              NSDebugFLog(@"Copy %d characters from pos %d to pos %d",(length-i-srcLen),i+srcLen,i+dstLen);*/
               GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
-              /*NSDebugFLog(@"1==> %@",[NSString stringWithCharacters:pString
-                                               length:length+dstLen-srcLen]);
-              NSDebugFLog(@"Copy %d characters to pos %d",dstLen,i);*/
               GSWMemMove(pString+i,dstChars,sizeof(unichar)*dstLen);
               i+=dstLen;
-              length+=dstLen-srcLen;
-              /*NSDebugFLog(@"2==> i=%d length=%d %@",i,length,[NSString stringWithCharacters:pString
-                length:length]);*/
-              
+              length+=dstLen-srcLen;              
             }
           else
             i++;
@@ -452,7 +436,7 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
   return str;
 };
 
-inline BOOL areUnicharEquals(unichar* p1,unichar* p2,int len)
+inline BOOL areUnicharEquals(unichar* p1,unichar* p2,NSUInteger len)
 {
   switch(len)
     {
@@ -523,25 +507,22 @@ inline BOOL areUnicharEquals(unichar* p1,unichar* p2,int len)
 NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruct* convStructPtr,BOOL includeBR)
 {
   NSString* str=nil;
-  int length=[string length];
+  NSUInteger length=[string length];
   NSCAssert(convStructPtr->charsCount>0,@"normalChars not initialized");
   if (length>0)
     {
       BOOL changed=NO;
-      int srcLen=0;
-      int dstLen=0;
+      NSUInteger srcLen=0;
+      NSUInteger dstLen=0;
       unichar dstUnichar;
-//      unichar* pString=GSAutoreleasedBuffer((length+1)*sizeof(unichar));
       unichar* pString=NSZoneMalloc(NSDefaultMallocZone(),(length+1)*sizeof(unichar));
-      int i=0;
-      int j=0;
+      NSUInteger i=0;
+      NSUInteger j=0;
       [string getCharacters:pString];
-      //NSDebugFLog(@"string=%@",string);
+
       while(i<(length-2)) // at least 2 characters for html coded
         {
           srcLen=0;
-          /*NSDebugFLog(@"i=%d: c=%@",i,[NSString stringWithCharacters:pString+i
-                                                length:length-i]);*/
           if (includeBR
               && length-i>=unicodeBRLen
               && areUnicharEquals(pString+i,unicodeBR,unicodeBRLen))
@@ -566,8 +547,6 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
             };
           if (srcLen>0)
             {
-              /*NSDebugFLog(@"i=%d j=%d: srcLen=%d dstLen=%d by '%@'",i,j,srcLen,dstLen,[NSString stringWithCharacters:&dstUnichar
-                                                                                                length:dstLen]);*/
               changed=YES;
               GSWMemMove(pString+i+dstLen,pString+i+srcLen,sizeof(unichar)*(length-i-srcLen));
               GSWMemMove(pString+i,&dstUnichar,sizeof(unichar)*dstLen);
@@ -616,8 +595,8 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
 {
   NSUInteger orglen = [self length];
   NSMutableData *new = [NSMutableData dataWithLength: orglen];
-  const unsigned char *read;
-  unsigned char *write;
+  const char *read;
+  char *write;
   NSUInteger i,n,l;
 
   read  = [self UTF8String];
@@ -719,8 +698,8 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
   if ([self length]>0)
     {
       NSArray* listItems = [self componentsSeparatedByString:sep1];
-      int iCount=0;
-      int itemsCount=[listItems count];
+      NSUInteger iCount=0;
+      NSUInteger itemsCount=[listItems count];
 
       pDico=(NSMutableDictionary*)[NSMutableDictionary dictionary];
 
@@ -778,12 +757,12 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
 };
 
 //--------------------------------------------------------------------
--(BOOL)ismapCoordx:(int*)x
-                 y:(int*)y
+-(BOOL)ismapCoordx:(NSInteger*)x
+                 y:(NSInteger*)y
 {
   BOOL ok=NO;
   NSScanner* scanner=[NSScanner scannerWithString:self];
-  if ([scanner scanInt:x])
+  if ([scanner scanInteger:x])
     {
 //      if (x)
 //        {
@@ -857,8 +836,8 @@ return stringByEscapingHTMLAttributeValue(self);
 - (BOOL) isRelativeURL
 {
   NSRange myRange;
-  unsigned int i = 0;
-  unsigned int j = 0;
+  NSUInteger i = 0;
+  NSUInteger j = 0;
   BOOL flag = YES;
   
   if ([self hasPrefix:@"#"]) {

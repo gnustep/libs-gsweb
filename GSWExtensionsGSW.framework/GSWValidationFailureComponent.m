@@ -40,32 +40,26 @@ RCS_ID("$Id$")
 
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
 	{
 	};
-  LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)awake
 {
-  LOGObjectFnStart();
   [super awake];
   _tmpValidationFailureMessage=nil;
   _tmpAllValidationFailureMessagesArray=nil;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)sleep
 {
-  LOGObjectFnStart();
   _tmpValidationFailureMessage=nil;
   _tmpAllValidationFailureMessagesArray=nil;
   [super sleep];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -84,12 +78,10 @@ RCS_ID("$Id$")
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
   _tmpValidationFailureMessage=nil;
   _tmpAllValidationFailureMessagesArray=nil;  
   [super appendToResponse:response
          inContext:aContext];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -101,16 +93,12 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSArray*)allValidationFailureMessagesArray
 {
-  LOGObjectFnStart();
   if (!_tmpAllValidationFailureMessagesArray)
     {
       NSArray* allValidationFailureMessagesArray=[[self parent]allValidationFailureMessages];
-      NSDebugMLog(@"allValidationFailureMessagesArray=%@",allValidationFailureMessagesArray);
       _tmpAllValidationFailureMessagesArray=allValidationFailureMessagesArray;
-      NSDebugMLog(@"_tmpAllValidationFailureMessagesArray=%@",_tmpAllValidationFailureMessagesArray);
     };
-  NSDebugMLog(@"_tmpAllValidationFailureMessagesArray=%@",_tmpAllValidationFailureMessagesArray);
-  LOGObjectFnStop();
+
   return _tmpAllValidationFailureMessagesArray;
 };
 

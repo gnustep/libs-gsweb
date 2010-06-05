@@ -136,7 +136,6 @@ RCS_ID("$Id$")
   NS_HANDLER
    localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                               @"In GSWSubmitButton invokeActionForRequest:inContext");
-   LOGException(@"exception=%@",localException);
    [localException raise];
   NS_ENDHANDLER
 

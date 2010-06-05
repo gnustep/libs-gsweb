@@ -35,19 +35,17 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <Foundation/NSFileManager.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWProjectBundle
 
 -(id)initWithPath:(NSString*)aPath
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"bundles",@"aPath=%@",aPath);
   if ((self=[super initWithPath:aPath]))
     {
       //TODO
     };
-  LOGObjectFnStop();
   return nil;
 };
 
@@ -75,14 +73,14 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSArray*)lockedPathsForResourcesOfType:(id)aType
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return [super lockedPathsForResourcesOfType:aType];
 };
 
 //--------------------------------------------------------------------
 -(NSArray*)lockedPathsForResourcesInSubprojectsOfType:(id)aType
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -90,7 +88,7 @@ RCS_ID("$Id$")
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
                                       language:(NSString*)aLanguage
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return [super lockedRelativePathForResourceNamed:aName
                 language:aLanguage];
 };
@@ -99,7 +97,7 @@ RCS_ID("$Id$")
 -(NSString*)lockedRelativePathForResourceNamed:(NSString*)aName
                                      languages:(NSArray*)someLanguages
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return [super lockedRelativePathForResourceNamed:aName
                 languages:someLanguages];
 };
@@ -113,21 +111,21 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(BOOL)isFramework
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
 -(GSWDeployedBundle*)projectBundle
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return [super projectBundle];
 };
 
 //--------------------------------------------------------------------
 -(NSString*)projectPath
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -153,12 +151,8 @@ RCS_ID("$Id$")
   NSEnumerator* projectEnum = nil;
   NSEnumerator* projectSearchPathEnum=nil;
   NSString* path=nil;
-  LOGClassFnStart();
-  NSDebugMLLog(@"bundles",@"aName:%@",aName);
-  NSDebugMLLog(@"bundles",@"isFramework=%s",(isFramework ? "YES" : "NO"));
     
   projectSearchPath=[GSWApplication projectSearchPath];	 // ("H:\\Wotests")
-  NSDebugMLLog(@"bundles",@"projectSearchPath:%@",projectSearchPath);
   projectsBundles=[NSMutableArray array];
 
   projectSearchPathEnum = [projectSearchPath objectEnumerator];
@@ -173,25 +167,17 @@ RCS_ID("$Id$")
           NSDictionary* attributes = [dirEnum fileAttributes];
           NSString* fileType = [attributes objectForKey:NSFileType];
           filePath=[path stringByAppendingFormat:@"/%@",filePath];
-          NSDebugMLLog(@"bundles",@"filePath:%@",filePath);
-          //		  NSDebugMLLog(@"bundles",@"attributes:%@",attributes);
-          //		  NSDebugMLLog(@"bundles",@"fileType:%@",fileType);
           if ([fileType isEqual:NSFileTypeDirectory])
             {
               BOOL tmpBundleIsFramework=NO;
               NSString* tmpBundleProjectName=nil;
               GSWDeployedBundle* tmpBundle=(GSWDeployedBundle*)[GSWProjectBundle bundleWithPath:filePath];
-              NSDebugMLLog(@"bundles",@"tmpBundle:%@",tmpBundle);
               tmpBundleProjectName=[tmpBundle projectName];
-              NSDebugMLLog(@"bundles",@"tmpBundleProjectName:%@",tmpBundleProjectName);
               tmpBundleIsFramework=[tmpBundle isFramework];
-              NSDebugMLLog(@"bundles",@"tmpBundleIsFramework=%s",
-                           (tmpBundleIsFramework ? "YES" : "NO"));
 //Why projectName...
               if ((isFramework && tmpBundleIsFramework)
                   ||(!isFramework && !tmpBundleIsFramework))
                 {
-                  NSDebugMLLog(@"bundles",@"adding tmpBundle:%@",tmpBundleProjectName);
                   [projectsBundles addObject:tmpBundle];
                 };
             };
@@ -202,24 +188,18 @@ RCS_ID("$Id$")
     {
       NSString* suffix1=isFramework ? GSFrameworkPSuffix : GSWApplicationPSuffix[GSWebNamingConv];
       NSString* suffix2=isFramework ? GSFrameworkPSuffix : GSWApplicationPSuffix[GSWebNamingConvInversed];
-      NSDebugMLLog(@"bundles",@"suffix1:%@ suffix2",suffix1,suffix2);
-      NSDebugMLLog(@"bundles",@"aBundle:%@",aBundle);
 
       if ([[aBundle bundlePath]hasSuffix:suffix1] 
           || [[aBundle bundlePath]hasSuffix:suffix2] 
           || [[aBundle bundlePath]hasSuffix:@".debug"])
         {
           NSString* tmpName=[aBundle projectName];
-          NSDebugMLLog(@"bundles",@"tmpName:%@",tmpName);
           if ([tmpName isEqual:aName])
             {
               projectBundle=aBundle;
-              NSDebugMLLog(@"bundles",@"projectBundle:%@",projectBundle);
             };
         };
     };
-  NSDebugMLLog(@"bundles",@"projectBundle:%@",projectBundle);
-  LOGClassFnStop();
   return projectBundle;
 };
 

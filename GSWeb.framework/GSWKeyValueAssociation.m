@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWKeyValueAssociation
@@ -50,12 +51,8 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogMemC("GSWKeyValueAssociation start of dealloc");
-  GSWLogAssertGood(self);
   DESTROY(_keyPath);
-  GSWLogMemC("keyPath deallocated");
   [super dealloc];
-  GSWLogMemC("GSWKeyValueAssociation end of dealloc");
 };
 
 //--------------------------------------------------------------------
@@ -132,7 +129,7 @@ RCS_ID("$Id$")
 -(NSString*)description
 {
   NSString* dscr=nil;
-  GSWLogAssertGood(self);
+
   dscr=[NSString stringWithFormat:@"<%s %p -",
                  object_getClassName(self),
                  (void*)self];
@@ -151,7 +148,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)debugDescription
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 

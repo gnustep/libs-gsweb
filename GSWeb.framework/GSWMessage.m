@@ -35,6 +35,7 @@ RCS_ID("$Id$")
 #include <GNUstepBase/Unicode.h>
 #include "GSWeb.h"
 #include "NSData+Compress.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 
 static NSStringEncoding globalDefaultEncoding=GSUndefinedEncoding;
@@ -465,8 +466,8 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
       stringByConvertingToHTMLSEL = @selector(stringByConvertingToHTML:);
       NSAssert(stringByConvertingToHTMLSEL,@"No stringByConvertingToHTMLSEL");
-           
-      globalDefaultEncoding = WOStrictFlag ? NSISOLatin1StringEncoding : [NSString defaultCStringEncoding];
+      // WO 4.5 uses Latin1, WO 5 utf8     
+      globalDefaultEncoding = [NSString defaultCStringEncoding];
       initGSWMessageDataCache();
     }
 }
@@ -746,31 +747,31 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
              forKey:(NSString*)key
 {
   id object=[_headers objectForKey:key];
-
+  
   if (object)
+  {
+    if ([object isKindOfClass:[NSArray class]])
     {
-      if ([object isKindOfClass:[NSArray class]])
-        {
-          int index=[object indexOfObject:header];
-          if (index!=NSNotFound)
-            {
-              if ([object count]==1)
-                [_headers removeObjectForKey:key];
-              else
-                {                  
-                  object=[[object mutableCopy]autorelease];
-                  [object removeObjectAtIndex:index];
-                  [self setHeaders:object
-                        forKey:key];
-                };
-            }
-        }
-      else if ([object isEqual:header])
-        {
+      NSUInteger index=[object indexOfObject:header];
+      if (index!=NSNotFound)
+      {
+        if ([object count]==1)
           [_headers removeObjectForKey:key];
-        };
-    };
-};
+        else
+        {                  
+          object=[[object mutableCopy]autorelease];
+          [object removeObjectAtIndex:index];
+          [self setHeaders:object
+                    forKey:key];
+        }
+      }
+    }
+    else if ([object isEqual:header])
+    {
+      [_headers removeObjectForKey:key];
+    }
+  }
+}
 
 //--------------------------------------------------------------------
 -(void)removeHeaderForKey:(NSString*)key
@@ -850,7 +851,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 
       if (!myData)
         {
-          NSLog(aValue);
           [NSException raise:NSInvalidArgumentException 
                        format:@"%s: could not convert '%s' non-lossy to encoding %i",
                        __PRETTY_FUNCTION__, [aValue lossyCString],_contentEncoding];  
@@ -1083,7 +1083,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 //--------------------------------------------------------------------
 -(NSString*)_formattedCookiesString
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 

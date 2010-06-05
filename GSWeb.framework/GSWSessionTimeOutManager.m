@@ -74,7 +74,6 @@ RCS_ID("$Id$")
 -(GSWSessionTimeOut*)_sessionTimeOutForSessionID:(NSString*)sessionID
 {
   GSWSessionTimeOut* sessionTimeOut=nil;
-  LOGObjectFnStart();
   sessionTimeOut=[_sessionTimeOuts objectForKey:sessionID];
   if (sessionTimeOut)
     {
@@ -91,7 +90,7 @@ RCS_ID("$Id$")
                         forKey:sessionID];
       [_sessionOrderedTimeOuts addObject:sessionTimeOut];
     }
-  LOGObjectFnStop();
+
   return sessionTimeOut;
 }
 
@@ -99,7 +98,6 @@ RCS_ID("$Id$")
 -(GSWSessionTimeOut*)sessionTimeOutForSessionID:(NSString*)sessionID
 {
   GSWSessionTimeOut* sessionTimeOut=nil;
-  LOGObjectFnStart();
   [self lock];
   NS_DURING
     {
@@ -108,13 +106,12 @@ RCS_ID("$Id$")
   NS_HANDLER
     {
       NSLog(@"### exception ... %@", [localException reason]);
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
+
   return sessionTimeOut;
 }
 
@@ -208,7 +205,6 @@ RCS_ID("$Id$")
 {
   NSTimer* newTimer=nil;
   GSWSessionTimeOut* sessionTimeOut=nil;
-  LOGObjectFnStart();
 //  [self lock];
   NS_DURING
     {
@@ -293,16 +289,13 @@ RCS_ID("$Id$")
   NS_HANDLER
     {
       NSLog(@"%@ (%@)",localException,[localException reason]);
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       //	  [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   //  [self unlock];
-  NSDebugMLLog(@"sessions",@"newTimer=%@",newTimer);
-  NSDebugMLLog(@"sessions",@"newTimer fireDate=%@",[newTimer fireDate]);
-  LOGObjectFnStop();
+
   return newTimer;
 }
 
@@ -324,65 +317,45 @@ RCS_ID("$Id$")
             target:(id)target
 {
   //OK
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"target [%@]=%@",[target class],target);
-  NSDebugMLLog(@"sessions",@"callback=%@",NSStringFromSelector(callback));
   _target=target; //Do not retain !
   _callback=callback;
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(BOOL)tryLockBeforeTimeIntervalSinceNow:(NSTimeInterval)ti
 {
   BOOL locked=NO;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"selfLockn=%d lock before %f s (%@)",
-               _selfLockn,ti,[NSDate dateWithTimeIntervalSinceNow:ti]);
   locked=LoggedTryLockBeforeDate(_selfLock,
 				 [NSDate dateWithTimeIntervalSinceNow:ti]);
 #ifndef NDEBUG
   if (locked)
     _selfLockn++;
 #endif
-  NSDebugMLLog(@"sessions",@"selfLockn=%d",_selfLockn);
-  LOGObjectFnStop();
   return locked;
 }
 
 //--------------------------------------------------------------------
 -(void)lockBeforeTimeIntervalSinceNow:(NSTimeInterval)ti
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"selfLockn=%d lock before %f s (%@)",
-               _selfLockn,ti,[NSDate dateWithTimeIntervalSinceNow:ti]);
   LoggedLockBeforeDate(_selfLock,[NSDate dateWithTimeIntervalSinceNow:ti]);
 #ifndef NDEBUG
   _selfLockn++;
 #endif
-  NSDebugMLLog(@"sessions",@"selfLockn=%d",_selfLockn);
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(void)lock
 {
-  LOGObjectFnStart();
   [self lockBeforeTimeIntervalSinceNow:GSLOCK_DELAY_S];
-  LOGObjectFnStop();
 }
 
 //--------------------------------------------------------------------
 -(void)unlock
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"sessions",@"selfLockn=%d",_selfLockn);
   LoggedUnlock(_selfLock);
 #ifndef NDEBUG
 	_selfLockn--;
 #endif
-  NSDebugMLLog(@"sessions",@"selfLockn=%d",_selfLockn);
-  LOGObjectFnStop();
 }
 
 
@@ -394,7 +367,6 @@ RCS_ID("$Id$")
 
   //NSLog(@"---Start startHandleTimerRefusingSessions");
   //[GSWApplication statusLogString:@"Start startHandleTimerRefusingSessions"];
-  //LOGObjectFnStart();
   [self lock];
   /*
     newTimer=[NSTimer timerWithTimeInterval:REFUSING_NEW_SESSION_TIMER_INTERVAL	// first time after 5 seconds
@@ -418,7 +390,6 @@ RCS_ID("$Id$")
   NSDebugMLLog(@"sessions",@"newTimer tisn=%f",[[newTimer fireDate]timeIntervalSinceNow]);
   
   [self unlock];
-  //LOGObjectFnStop();
   //[GSWApplication statusLogString:@"Stop startHandleTimerRefusingSessions"];
   //NSLog(@"---Stop startHandleTimerRefusingSessions");
 }
@@ -479,7 +450,6 @@ RCS_ID("$Id$")
                       NS_HANDLER
                         {
                           NSLog(@"### exception ... %@", [localException reason]);
-                          LOGException(@"%@ (%@)",localException,[localException reason]);
                           //TODO
                           [_target unlock];
         		  timer = [NSTimer scheduledTimerWithTimeInterval:REFUSING_NEW_SESSION_TIMER_INTERVAL
@@ -538,7 +508,6 @@ RCS_ID("$Id$")
       NS_HANDLER
         {
           NSDebugMLLog(@"sessions",@"EXCEPTION");
-          LOGException(@"%@ (%@)",localException,[localException reason]);
           //TODO
           [self unlock];
           //[GSWApp unlockRequestHandling];

@@ -137,26 +137,6 @@ RCS_ID("$Id$")
   return (numberRange.location==0 && numberRange.length>0);
 };
 
-//--------------------------------------------------------------------
--(long)longValue
-{
-  return atol([self cString]);
-}
-
-//--------------------------------------------------------------------
--(unsigned long)ulongValue
-{
-  return strtoul([self cString],NULL,10);
-}
-
-//--------------------------------------------------------------------
--(long long)longLongValue
-{
-  long long v=0;
-  NSScanner* scanner = [NSScanner scannerWithString:self];
-  [scanner scanLongLong:&v];
-  return v;
-}
 
 @end
 
@@ -224,7 +204,6 @@ RCS_ID("$Id$")
   NSString* filename=nil;
   NSFileManager* fileManager=nil;
   NSArray* directoryContents=nil;
-  LOGObjectFnStart();
   fileManager=[NSFileManager defaultManager];
   directoryContents=[fileManager directoryContentsAtPath:directory];
   if (!directoryContents)
@@ -244,7 +223,6 @@ RCS_ID("$Id$")
     };
   if (filename)
     filename=[directory stringByAppendingPathComponent:filename];
-  LOGObjectFnStop();
   return filename;
 };
 @end

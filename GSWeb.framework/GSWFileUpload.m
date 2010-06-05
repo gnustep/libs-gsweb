@@ -177,14 +177,14 @@ RCS_ID("$Id$")
                   {
                     if ([dataValue length]==0)
                       {
-                        LOGError(@"Empty Data: %@",dataValue);					  
+//                        LOGError(@"Empty Data: %@",dataValue);					  
                       };
                   }
                 else
                   {
                     if ([dataValue isKindOfClass:[NSString class]] && [dataValue length]==0)
                       {
-                        LOGError(@"No Data: %@",dataValue);
+//                        LOGError(@"No Data: %@",dataValue);
                         dataValue=nil;
                       }
                     else
@@ -194,13 +194,13 @@ RCS_ID("$Id$")
               }
             else
               {
-                LOGError0(@"No Data:");
+//                LOGError0(@"No Data:");
               };
             fileNameFormValueName=[NSString stringWithFormat:@"%@.filename",nameInContext];
             fileNameValue=[request formValueForKey:fileNameFormValueName];
             if (!fileNameValue || [fileNameValue length]==0)
               {
-                LOGError(@"No fileName: %@",fileNameValue);
+                //LOGError(@"No fileName: %@",fileNameValue);
               };
             [_filepath setValue:fileNameValue
                        inComponent:component];
@@ -221,7 +221,6 @@ RCS_ID("$Id$")
       {
         localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                  @"GSWFileUpload in takeValuesFromRequest");
-        LOGException(@"%@ (%@)",localException,[localException reason]);
         [localException raise];
       };
     NS_ENDHANDLER;

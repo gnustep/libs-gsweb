@@ -29,6 +29,7 @@
 #ifdef GNUSTEP
 #include <GNUstepBase/GSFileHandle.h>
 #endif
+#include <GNUstepBase/NSString+GNUstepBase.h>
 #include <Foundation/NSError.h>
 #include <Foundation/NSException.h>
 #include <Foundation/NSDictionary.h>

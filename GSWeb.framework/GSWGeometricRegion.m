@@ -33,6 +33,8 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <math.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 
 //--------------------------------------------------------------------
@@ -292,13 +294,11 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(id)copyWithZone:(NSZone*)zone
 {
   GSWGeometricRegion* clone = nil;
-  LOGObjectFnStart();
   clone=[[isa allocWithZone:zone] init];
   if (clone)
     {
       ASSIGN(clone->_userDefinedString,_userDefinedString);
     };
-  LOGObjectFnStop();
   return clone;
 };
 
@@ -495,7 +495,6 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(id)copyWithZone:(NSZone*)zone
 {
   GSWArcRegion* clone = nil;
-  LOGObjectFnStart();
   clone = [super copyWithZone:zone];
   if (clone)
     {
@@ -504,7 +503,6 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
       clone->_start=_start;
       clone->_stop=_stop;	  
     };
-  LOGObjectFnStop();
   return clone;
 };
 
@@ -528,7 +526,6 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 {
   BOOL hitOk=NO;
   NSPoint test=NSMakePoint(x,y);
-  LOGObjectFnStart();
   NSDebugMLLog(@"low",@"self=%@\nx=%u y=%u",self,x,y);
   if (_size.width==0)	
     hitOk=isOnSegment(test,
@@ -568,7 +565,6 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
         };
     };
   NSDebugMLLog(@"low",@"hitOk=%s",(hitOk ? "YES" : "NO"));
-  LOGObjectFnStop();
   return hitOk;
 };
 
@@ -917,10 +913,8 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
               y:(int)y
 {
   BOOL hitOk=NO;
-  LOGObjectFnStart();
   NSDebugMLLog(@"low",@"self=%@\nx=%u y=%u",self,x,y);
   hitOk=NSPointInRect(NSMakePoint(x,y),_rect);
-  LOGObjectFnStop();
   return hitOk;
 };
 

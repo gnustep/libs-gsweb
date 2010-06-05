@@ -26,6 +26,8 @@
 #ifndef _GSWebDebug_h__
 #define _GSWebDebug_h__
 
+#if 0 // If somebody needs this please send patches to make it work
+
 #ifdef DEBUG
 GSWEB_EXPORT NSString *
 GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSString *fmt);
@@ -804,5 +806,7 @@ GSWLogAssertGoodFn(CONST char* file,int line,id object);
 #define NSDebugLockMLLogCond(cond, level, format, args...)  {} 
 #define NSDebugLockMLogCond(cond, format, args...) {}
 #endif
+
+#endif // 0
 
 #endif // _GSWebDebug_h__

@@ -159,7 +159,6 @@ static Class NSStringClass = Nil;
          mimeType:(NSString*)type
               key:(NSString*)key
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       ASSIGN(_data,data);
@@ -179,7 +178,6 @@ static Class NSStringClass = Nil;
         };
       NSDebugMLog(@"key=%@",_key);
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -199,7 +197,6 @@ static Class NSStringClass = Nil;
 {
   NSString* queryString=nil;
   GSWDynamicURLString* url=nil;
-  LOGObjectFnStart();
   queryString=[NSString stringWithFormat:@"%@=%@",GSWKey_Data[GSWebNamingConv],[self key]];
   NSDebugMLog(@"queryString=%@",queryString);
   url=[aContext urlWithRequestHandlerKey:GSWResourceRequestHandlerKey[GSWebNamingConv]
@@ -207,7 +204,6 @@ static Class NSStringClass = Nil;
                queryString:queryString];
   NSDebugMLog(@"url=%@",url);
   GSWResponse_appendContentAsciiString(aResponse,(NSString*)url);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -216,7 +212,6 @@ static Class NSStringClass = Nil;
 {
   //OK
   NSData* data=_data;
-  LOGObjectFnStart();
 //  GSWStartElement(aContext);
 //  GSWSaveAppendToResponseElementID(aContext);
   NSDebugMLog(@"data=%@",data);
@@ -233,7 +228,6 @@ static Class NSStringClass = Nil;
   
   [response setHeader:_mimeType
             forKey:@"content-type"];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -247,32 +241,24 @@ static Class NSStringClass = Nil;
 //--------------------------------------------------------------------
 -(BOOL)isTemporary
 {
-  LOGObjectFnStart();
-  LOGObjectFnStop();
   return _temporaryKey;
 };
 
 //--------------------------------------------------------------------
 -(NSData*)data
 {
-  LOGObjectFnStart();
-  LOGObjectFnStop();
   return _data;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)type
 {
-  LOGObjectFnStart();
-  LOGObjectFnStop();
   return _mimeType;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)key
 {
-  LOGObjectFnStart();
-  LOGObjectFnStop();
   return _key;
 };
 

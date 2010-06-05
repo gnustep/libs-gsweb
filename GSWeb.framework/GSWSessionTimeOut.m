@@ -48,11 +48,6 @@ RCS_ID("$Id$")
       ASSIGN(_sessionID,aSessionID);
       _lastAccessTime=aTime;
       _timeOut=aTimeOutInterval;
-      NSDebugMLLog(@"sessions",@"_lastAccessTime=%f (%@)",
-                   _lastAccessTime,
-                   [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime]);
-      NSDebugMLLog(@"sessions",@"_timeOut=%f s",
-                   _timeOut);
     };
   return self;
 };
@@ -70,11 +65,6 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  NSDebugFLog0(@"Dealloc GSWSessionTimeOut");
-  if (_sessionID)
-    {
-      NSDebugFLog(@"sessionIDCount=%u",[_sessionID retainCount]);
-    };
   DESTROY(_sessionID);
   [super dealloc];
 };
@@ -120,8 +110,6 @@ RCS_ID("$Id$")
 -(void)setSessionTimeOutValue:(NSTimeInterval)aTimeOutInterval
 {
   _timeOut=aTimeOutInterval;
-  NSDebugMLLog(@"sessions",@"_timeOut=%f s",
-               _timeOut);
 };
 
 //--------------------------------------------------------------------
@@ -134,9 +122,6 @@ RCS_ID("$Id$")
 -(void)setLastAccessTime:(NSTimeInterval)aTime
 {
   _lastAccessTime=aTime;
-  NSDebugMLLog(@"sessions",@"_lastAccessTime=%f (%@)",
-               _lastAccessTime,
-               [NSDate dateWithTimeIntervalSinceReferenceDate:_lastAccessTime]);
 };
 
 //--------------------------------------------------------------------

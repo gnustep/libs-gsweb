@@ -34,6 +34,8 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 static NSString * emptyStr=@"";
 
@@ -55,34 +57,25 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     {
       NSBundle* mainBundle=nil;
       GSWDeployedBundle* deployedBundle=nil;
-      GSWLogC("Start GSWResourceManager +initialize");
       //if ((self=[[super superclass] initialize]))
         {
           NSString* bundlePath=nil;
           mainBundle=[GSWApplication mainBundle];
-          //NSDebugMLLog(@"resmanager",@"mainBundle:%p",mainBundle);
-          //NSDebugMLLog(@"resmanager",@"mainBundle:%@",mainBundle);
           bundlePath=[mainBundle  bundlePath];
-          //NSDebugMLLog(@"resmanager",@"bundlePath:%@",bundlePath);
           deployedBundle=(GSWDeployedBundle*)[GSWDeployedBundle bundleWithPath:bundlePath];
-          //NSDebugMLLog(@"resmanager",@"deployedBundle:%@",deployedBundle);
 	  
           globalAppProjectBundle=[[deployedBundle projectBundle] retain];
-          //NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
           NSAssert(globalAppProjectBundle,@"no globalAppProjectBundle");
-          //		  LOGDumpObject(globalAppProjectBundle,2);
           //call  deployedBundle bundlePath
           //call  globalAppProjectBundle bundlePath
           //call isDebuggingEnabled
         };
-      GSWLogC("Stop GSWResourceManager +init");
     };
 };
 
 //--------------------------------------------------------------------
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
       //TODO NSBundle* mainBundle=[NSBundle mainBundle];
@@ -96,13 +89,11 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         {
           bundle=[allFrameworks objectAtIndex:i];
           bundlePath=[bundle bundlePath];
-          NSDebugMLLog(@"resmanager",@"bundlePath=%@",bundlePath);
           //So what ?
         };
       
       _selfLock=[NSRecursiveLock new];
       
-      [self _validateAPI];
       _frameworkProjectBundlesCache=[NSMutableDictionary new];
       _appURLs=[NSMutableDictionary new];
       _frameworkURLs=[NSMutableDictionary new];
@@ -132,7 +123,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
           */
         };
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -174,8 +164,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
@@ -195,32 +183,22 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSBundle* bundle=nil;
   NSString* frameworkName=nil;
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
-
   allFrameworks=[NSBundle allFrameworks];
-  NSDebugMLLog(@"resmanager",@"allBundles=%@",[NSBundle allBundles]);
-  NSDebugMLLog(@"resmanager",@"allFrameworks=%@",allFrameworks);
 
   allFrameworksCount=[allFrameworks count];
 
   for(i=0;i<allFrameworksCount;i++)
     {
       bundle=[allFrameworks objectAtIndex:i];
-      NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
       frameworkName=[bundle bundleName];
-      NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
       [self lockedCachedBundleForFrameworkNamed:frameworkName];
     };
-  LOGObjectFnStop();
 };
 /*
 //--------------------------------------------------------------------
 -(NSString*)frameworkNameForPath:(NSString*)aPath
 {
   NSString* _name=nil;
-  LOGObjectFnStart();
   NSDebugMLLog(@"resmanager",@"aPath=%@",aPath);
   [self lock];
   NS_DURING
@@ -265,7 +243,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 	}
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
   return _name;
   
 };
@@ -277,8 +254,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 {
   //OK
   NSString* path=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@",resourceName,aFrameworkName,languages);
   [self lock];
   NS_DURING
     {
@@ -288,14 +263,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
   return path;
 };
 
@@ -307,11 +280,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
 {
   //OK
   NSString* url=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"name=%@ aFrameworkName=%@ languages=%@ request=%@",
-               name,aFrameworkName,languages,request);
-//  NSDebugMLLog(@"resmanager",@"[_frameworkProjectBundlesCache count]=%d",[_frameworkProjectBundlesCache count]);
-//  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
+
   [self lock];
   NS_DURING
     {
@@ -322,17 +291,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-//  NSDebugMLLog(@"resmanager",@"[_frameworkProjectBundlesCache count]=%d",[_frameworkProjectBundlesCache count]);
-//  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
-  LOGObjectFnStop();
   return url;
 };
 
@@ -344,7 +308,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                languages:(NSArray*)languages
 {
   NSString* string=nil;
-  LOGObjectFnStart();
   [self lock];
   NS_DURING
     {
@@ -355,8 +318,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
@@ -365,7 +326,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   [self unlock];
   if (!string)
     string=defaultValue;
-  LOGObjectFnStop();
   return string;
 };
 
@@ -377,8 +337,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                     foundLanguage:(NSString**)foundLanguagePtr
 {
   NSDictionary* stringsTable=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"tableName=%@ frameworkName=%@",tableName,aFrameworkName);
   [self lock];
   NS_DURING
     {
@@ -389,15 +347,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
   return stringsTable;
 };
 
@@ -420,8 +375,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                         languages:(NSArray*)languages
 {
   NSArray* stringsTableArray=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"tableName=%@ frameworkName=%@",tableName,aFrameworkName);
+
   [self lock];
   NS_DURING
     {
@@ -431,42 +385,31 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
   return stringsTableArray;
 };
 
 //--------------------------------------------------------------------
 -(void)unlock
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"_selfLockn=%d",_selfLockn);
   LoggedUnlock(_selfLock);
 #ifndef NDEBUG
 	_selfLockn--;
 #endif
-  NSDebugMLLog(@"resmanager",@"_selfLockn=%d",_selfLockn);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)lock
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"_selfLockn=%d",_selfLockn);
   LoggedLockBeforeDate(_selfLock,GSW_LOCK_LIMIT);
 #ifndef NDEBUG
   _selfLockn++;
 #endif
-  NSDebugMLLog(@"resmanager",@"_selfLockn=%d",_selfLockn);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -486,7 +429,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* frameworkName=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
 
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
@@ -495,9 +437,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   count=[languages count];
   frameworksCount=[frameworks count];
-
-  NSDebugMLLog(@"resmanager",@"languages=%@",languages);
-  NSDebugMLLog(@"resmanager",@"frameworks=%@",frameworks);
 
   for(i=0;!string && i<=count;i++)
     {
@@ -519,7 +458,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         };
     };
 
-  LOGObjectFnStop();
 
   return string;
 };
@@ -541,7 +479,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* frameworkName=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
 
   count=[languages count];
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
@@ -569,14 +506,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
             *foundLanguagePtr=language;
         };
     };
-
-  NSDebugMLLog(@"resmanager",@"lockedStringsTableNamed:%@ inFramework:%@ languages:%@: %@",
-               aTableName,
-               aFrameworkName,
-               languages,
-               stringsTable);
-
-  LOGObjectFnStop();
 
   return stringsTable;
 };
@@ -624,7 +553,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* frameworkName=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
 
   count=[languages count];
 
@@ -653,7 +581,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
             *foundLanguagePtr=language;
         };
     };
-  LOGObjectFnStop();
   return stringsTableArray;
 };
 
@@ -678,13 +605,11 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   //OK
   NSString* string=nil;
   NSDictionary* stringsTable=nil;
-  LOGObjectFnStart();
   stringsTable=[self lockedCachedStringsTableWithName:aTableName
 					  inFramework:aFrameworkName
 					  language:aLanguage];
   if (stringsTable)
 	string=[stringsTable objectForKey:aKey];
-  LOGObjectFnStop();
   return string;
 };
 
@@ -697,7 +622,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSDictionary* stringsTablesForFramework=nil;
   NSDictionary* stringsTablesForFrameworkAndLanguage=nil;
 
-  LOGObjectFnStart();
   stringsTablesForFramework=[_stringsTablesByFrameworkByLanguageByName 
                               objectForKey:aFrameworkName];
   stringsTablesForFrameworkAndLanguage=[stringsTablesForFramework
@@ -712,12 +636,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   else if ((id)stringsTable==(id)localNotFoundMarker)
     stringsTable=nil;
 
-  NSDebugMLLog(@"resmanager",@"lockedCachedStringsTableNamed:%@ inFramework:%@ language:%@: %@",
-               aTableName,
-               aFrameworkName,
-               aLanguage,
-               stringsTable);
-  LOGObjectFnStop();
   return stringsTable;
 };
 
@@ -730,7 +648,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSArray* stringsTableArray=nil;
   NSDictionary* stringsTableArraysForFramework=nil;
   NSDictionary* stringsTableArraysForFrameworkAndLanguage=nil;
-  LOGObjectFnStart();
 
   stringsTableArraysForFramework=
     [_stringsTableArraysByFrameworkByLanguageByName 
@@ -748,7 +665,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                               language:aLanguage];
   else if ((id)stringsTableArray==(id)localNotFoundMarker)
     stringsTableArray=nil;
-  LOGObjectFnStop();
   return stringsTableArray;
 };
 
@@ -768,10 +684,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* frameworkName=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"resmanager",@"aTableName=%@ aFrameworkName=%@ aLanguage=%@",
-               aTableName,aFrameworkName,aLanguage);
   resourceName=[aTableName stringByAppendingString:GSWStringTablePSuffix];
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
@@ -790,14 +702,11 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         frameworkName=nil;
       if (frameworkName)
         {
-          // NSDebugMLLog(@"resmanager",@"frameworkName=%@",aFrameworkName);
           bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
           if (bundle)
             {
-              // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
               relativePath=[bundle relativePathForResourceNamed:resourceName
                                    language:aLanguage];
-              // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
               if (relativePath)
                 {
                   path=[[bundle bundlePath] stringByAppendingPathComponent:relativePath];
@@ -806,10 +715,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         }
       else
         {
-          // NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
           relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
                                                language:aLanguage];
-          // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
           if (relativePath)
             {
               NSString* applicationPath=[GSWApp path];
@@ -817,7 +724,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
             };
         };
     };
-//  NSDebugMLLog(@"resmanager",@"path=%@",path);
   if (path)
     {
       //TODO use encoding ??
@@ -828,8 +734,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         }
       NS_HANDLER
         {
-          LOGSeriousError(@"Failed to parse strings file %@ - %@",
-                          path, localException);
           stringsTable = nil;
         }
       NS_ENDHANDLER
@@ -862,12 +766,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       [languageDict setObject:localNotFoundMarker
                     forKey:aTableName];
   }
-  NSDebugMLLog(@"resmanager",@"lockedStringsTableWithName:%@ inFramework:%@ language:%@: %sFOUND",
-               aTableName,
-               aFrameworkName,
-               aLanguage,
-               (stringsTable ? "" : "NOT "));
-  LOGObjectFnStop();
   return stringsTable;
 };
 
@@ -888,9 +786,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSString* frameworkName=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
-
-  NSDebugMLLog(@"resmanager",@"aTableName=%@ aFrameworkName=%@ aLanguage=%@",aTableName,aFrameworkName,aLanguage);
   resourceName=[aTableName stringByAppendingString:GSWStringTableArrayPSuffix];
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
@@ -910,14 +805,11 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       
       if (frameworkName)
         {
-          // NSDebugMLLog(@"resmanager",@"frameworkName=%@",aFrameworkName);
           bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
           if (bundle)
             {
-              // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
               relativePath=[bundle relativePathForResourceNamed:resourceName
                                    language:aLanguage];
-              // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
               if (relativePath)
                 {
                   path=[[bundle bundlePath] stringByAppendingPathComponent:relativePath];
@@ -926,10 +818,8 @@ NSString* localNotFoundMarker=@"NOTFOUND";
         }
       else
         {
-          // NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
           relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
                                                language:aLanguage];
-          // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
           if (relativePath)
             {
               NSString* applicationPath=[GSWApp path];
@@ -937,16 +827,15 @@ NSString* localNotFoundMarker=@"NOTFOUND";
             };
         };
     };
-  //  NSDebugMLLog(@"resmanager",@"path=%@",path);
   if (path)
     {
       //TODO use encoding ??
       stringsTableArray=[NSArray arrayWithContentsOfFile:path];
       if (!stringsTableArray)
         {
-          LOGSeriousError(@"Bad stringTableArray \n%@\n from file %@",
-                          [NSString stringWithContentsOfFile:path],
-                          path);
+//          LOGSeriousError(@"Bad stringTableArray \n%@\n from file %@",
+//                          [NSString stringWithContentsOfFile:path],
+//                          path);
         };
     };
   {
@@ -977,7 +866,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       [languageDict setObject:localNotFoundMarker
                     forKey:aTableName];
   }
-  LOGObjectFnStop();
   return stringsTableArray;
 };
 
@@ -990,13 +878,9 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   //OK	TODOV
   NSString* url=nil;
   BOOL isUsingWebServer=NO;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@ _request=%@",
-               resourceName,aFrameworkName,languages,request);
-//  NSDebugMLLog(@"resmanager",@"[_frameworkProjectBundlesCache count]=%d",[_frameworkProjectBundlesCache count]);
-//  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
+
   isUsingWebServer=!request || [request _isUsingWebServer];
-  NSDebugMLLog(@"resmanager",@"_isUsingWebServer=%s",(isUsingWebServer ? "YES" : "NO"));
+
   if (isUsingWebServer)
     {
       url=[self lockedCachedURLForResourceNamed:resourceName
@@ -1031,9 +915,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
                                                     GSWKey_Data[GSWebNamingConv],
                                                     path]];//TODO Escape
     };
-  //  NSDebugMLLog(@"resmanager",@"[_frameworkProjectBundlesCache count]=%d",[_frameworkProjectBundlesCache count]);
-  //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
-  LOGObjectFnStop();
+
   return url;
 };
 
@@ -1048,9 +930,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSArray* frameworks=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
 
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@",resourceName,aFrameworkName,languages);
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
@@ -1077,15 +957,12 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     };
   if (!url)
     {
-      LOGSeriousError(@"No URL for resource named: %@ in framework named: %@ for languages: %@",
+      NSLog(@"No URL for resource named: %@ in framework named: %@ for languages: %@",
                       resourceName,
                       aFrameworkName,
                       languages);
     };
-  //  NSDebugMLLog(@"resmanager",@"[_frameworkProjectBundlesCache count]=%d",[_frameworkProjectBundlesCache count]);
-  //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
-  //  NSDebugMLLog(@"resmanager",@"url=%@",url);
-  LOGObjectFnStop();
+
   return url;
 };
 
@@ -1099,9 +976,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
   NSArray* frameworks=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ languages=%@",
-               resourceName,aFrameworkName,languages);
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
@@ -1109,7 +983,6 @@ NSString* localNotFoundMarker=@"NOTFOUND";
     }
   else
     frameworks=[NSArray arrayWithObject:aFrameworkName ? aFrameworkName : emptyStr];
-  NSDebugMLLog(@"resmanager",@"frameworks=%@",frameworks);
 
   frameworksCount=[frameworks count];
 
@@ -1126,8 +999,7 @@ NSString* localNotFoundMarker=@"NOTFOUND";
       path=[bundle absolutePathForResourceNamed:resourceName
                    languages:languages];
     };
-  //  NSDebugMLLog(@"resmanager",@"path=%@",path);
-  LOGObjectFnStop();
+
   return path;
 };
 
@@ -1140,8 +1012,6 @@ bundle if none is found
 -(GSWDeployedBundle*)cachedBundleForFrameworkNamed:(NSString*)aFrameworkName
 {
   GSWDeployedBundle* bundle=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"frameworkName=%@",aFrameworkName);
   [self lock];
   NS_DURING
     {
@@ -1149,15 +1019,12 @@ bundle if none is found
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
   return bundle;
 };
 
@@ -1170,10 +1037,8 @@ bundle if none is found
 {
   //OK
   GSWDeployedBundle* bundle=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"resourceName=%@",resourceName);
+
   NSAssert(resourceName,@"No name");
-//  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
   if (resourceName==GSWFramework_app
       || [resourceName isEqualToString:GSWFramework_app])
     {
@@ -1182,7 +1047,6 @@ bundle if none is found
     }
   else
     bundle=[_frameworkProjectBundlesCache objectForKey:resourceName];
-  //  NSDebugMLLog(@"resmanager",@"bundle %@ %s cached",resourceName,(bundle ? "" : "NOT"));
   if (!bundle)
     {
       NSMutableArray* allFrameworks=AUTORELEASE([[NSBundle allFrameworks] mutableCopy]);
@@ -1198,13 +1062,9 @@ bundle if none is found
         {
           tmpBundle=[allFrameworks objectAtIndex:i];
           //TODO: use bundleName ?
-          // NSDebugMLLog(@"resmanager",@"tmpBundle=%@",tmpBundle);
           bundlePath=[tmpBundle bundlePath];
-          // NSDebugMLLog(@"resmanager",@"bundlePath=%@",bundlePath);
           frameworkName=[bundlePath lastPathComponent];
-          // NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
           frameworkName=[frameworkName stringByDeletingPathExtension];
-          // NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
           if ([frameworkName isEqualToString:resourceName])
             {
               bundle=(GSWDeployedBundle*)[GSWDeployedBundle bundleWithPath:bundlePath];
@@ -1217,7 +1077,6 @@ bundle if none is found
                 //TODO
                 };
               */
-              //NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
             };
         };
       if (!bundle)
@@ -1226,9 +1085,7 @@ bundle if none is found
       [_frameworkProjectBundlesCache setObject:bundle
                                      forKey:resourceName];
     };
-  //  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
-  //  NSDebugMLLog(@"resmanager",@"bundle=%@",bundle);
-  LOGObjectFnStop();
+
   return bundle;
 };
 
@@ -1236,7 +1093,6 @@ bundle if none is found
 //--------------------------------------------------------------------
 -(void)flushDataCache
 {
-  LOGObjectFnStart();
   [self lock];
   NS_DURING
     {
@@ -1244,22 +1100,17 @@ bundle if none is found
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
 	  //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)setURLValuedElementData:(GSWURLValuedElementData*)aData
 {
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"aData=%@",aData);
   if ([aData data])
     {
       [self lock];
@@ -1270,9 +1121,6 @@ bundle if none is found
 	}
       NS_HANDLER
 	{
-	  NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-		       localException,[localException reason],
-		       __FILE__,__LINE__);
 	  //TODO
 	  [self unlock];
 	  [localException raise];
@@ -1280,7 +1128,6 @@ bundle if none is found
       NS_ENDHANDLER
       [self unlock];
     }
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1290,23 +1137,17 @@ bundle if none is found
        session:(GSWSession*)session_ //unused
 {
   GSWURLValuedElementData* dataValue=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"aData=%@",aData);
-  NSDebugMLLog(@"resmanager",@"aKey=%@",aKey);
-  NSDebugMLLog(@"resmanager",@"aType=%@",aType);
+
   dataValue=[[[GSWURLValuedElementData alloc] initWithData:aData
                                               mimeType:aType
                                               key:aKey] autorelease];
-  NSDebugMLLog(@"resmanager",@"dataValue=%@",dataValue);
   [self setURLValuedElementData:dataValue];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)removeDataForKey:(NSString*)aKey
                 session:(GSWSession*)session //unused
 {
-  LOGObjectFnStart();
   [self lock];
   NS_DURING
     {
@@ -1314,15 +1155,12 @@ bundle if none is found
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
 };
 
 
@@ -1333,10 +1171,6 @@ bundle if none is found
 {
   //OK
   NSString* path=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ aLanguage=%@",resourceName,aFrameworkName,aLanguage);
-//  NSDebugMLLog(@"resmanager",@"[_frameworkProjectBundlesCache count]=%d",[_frameworkProjectBundlesCache count]);
-//  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
   [self lock];
   NS_DURING
     {
@@ -1346,15 +1180,12 @@ bundle if none is found
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
   return path;
 };
 
@@ -1372,10 +1203,7 @@ bundle if none is found
   NSString* frameworkName=nil;
   int frameworksCount=0;
 
-  LOGObjectFnStart();
 
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@ aLanguage=%@",resourceName,aFrameworkName,aLanguage);
-//  NSDebugMLLog(@"resmanager",@"_frameworkProjectBundlesCache=%@",_frameworkProjectBundlesCache);
   if (!WOStrictFlag && [aFrameworkName isEqualToString:GSWFramework_all])
     {
       frameworks=[_frameworkProjectBundlesCache allKeys];
@@ -1394,14 +1222,11 @@ bundle if none is found
       
       if (frameworkName)
         {
-          // NSDebugMLLog(@"resmanager",@"frameworkName=%@",frameworkName);
           bundle=[self lockedCachedBundleForFrameworkNamed:frameworkName];
           if (bundle)
             {
-              // NSDebugMLLog(@"resmanager",@"found cached bundle=%@",bundle);
               relativePath=[bundle relativePathForResourceNamed:resourceName
                                    language:aLanguage];
-              // NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
               if (relativePath)
                 {
                   path=[[bundle bundlePath] stringByAppendingPathComponent:relativePath];
@@ -1410,10 +1235,8 @@ bundle if none is found
         }
       else
         {
-          NSDebugMLLog(@"resmanager",@"globalAppProjectBundle=%@",globalAppProjectBundle);
           relativePath=[globalAppProjectBundle relativePathForResourceNamed:resourceName
                                                language:aLanguage];
-          NSDebugMLLog(@"resmanager",@"relativePath=%@",relativePath);
           if (relativePath)
             {
               NSString* applicationPath=[GSWApp path];
@@ -1421,8 +1244,7 @@ bundle if none is found
             };
         };
     };
-  //  NSDebugMLLog(@"resmanager",@"path=%@",path);
-  LOGObjectFnStop();
+
   return path;
 };
 
@@ -1437,31 +1259,27 @@ bundle if none is found
 {
   //OK
   NSArray* array=nil;
-  LOGObjectFnStart();
   array=[_frameworkProjectBundlesCache allValues];
-  LOGObjectFnStop();
   return array;
 };
 
 //--------------------------------------------------------------------
 -(void)lockedRemoveDataForKey:(NSString*)key
 {
-  LOGObjectFnStart();
   [_urlValuedElementsData removeObjectForKey:key];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(BOOL)_doesRequireJavaVirualMachine
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
 //--------------------------------------------------------------------
 -(NSString *) _absolutePathForJavaClassPath:(NSString*)path
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -1470,25 +1288,19 @@ bundle if none is found
 {
   //OK
   GSWURLValuedElementData* data=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"key=%@",key);
   [self lock];
   NS_DURING
     {
       data=[_urlValuedElementsData objectForKey:key];
-      NSDebugMLLog(@"resmanager",@"data=%@",data);
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
   return data;
 };
 
@@ -1500,7 +1312,6 @@ bundle if none is found
   BOOL isTemporary=NO;
   NSString* key=nil;
   NSString* type=nil;
-  LOGObjectFnStart();
   data=[aData data];
   NSAssert(data,@"Data");
   isTemporary=[aData isTemporary];
@@ -1517,15 +1328,12 @@ bundle if none is found
     }
   NS_HANDLER
     {
-      NSDebugMLLog(@"resmanager",@"EXCEPTION:%@ (%@) [%s %d]",
-                   localException,[localException reason],__FILE__,__LINE__);
       //TODO
       [self unlock];
       [localException raise];
     }
   NS_ENDHANDLER;
   [self unlock];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -1534,21 +1342,14 @@ bundle if none is found
   //OK
   NSString* type=nil;
   NSString* extension=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"path=%@",path);
   extension=[path pathExtension];
-  NSDebugMLLog(@"resmanager",@"extension=%@",extension);
   if (extension)
     {
       extension=[extension lowercaseString];
-      NSDebugMLLog(@"resmanager",@"extension=%@",extension);
       type=[globalMime objectForKey:extension];
-      NSDebugMLLog(@"resmanager",@"type=%@",type);
     };
   if (!type)
     type=[NSString stringWithString:@"application/octet-stream"];
-  NSDebugMLLog(@"resmanager",@"type=%@",type);
-  LOGObjectFnStop();
   return type;
 };
 
@@ -1564,13 +1365,12 @@ bundle if none is found
                     inFramework:(NSString*)aFrameworkName
 {
   NSString* url=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@",resourceName,aFrameworkName);
+
   url=[self urlForResourceNamed:resourceName
 			 inFramework:aFrameworkName
 			 languages:nil
 			 request:nil];
-  LOGObjectFnStop();
+
   return url;
 };
 
@@ -1579,23 +1379,13 @@ bundle if none is found
                      inFramework:(NSString*)aFrameworkName
 {
   NSString* path=nil;
-  LOGObjectFnStart();
-  NSDebugMLLog(@"resmanager",@"resourceName=%@ aFrameworkName=%@",resourceName,aFrameworkName);
+
   path=[self pathForResourceNamed:resourceName
              inFramework:aFrameworkName
              language:nil];
-  LOGObjectFnStop();
+  
   return path;
 };
-
-
-//--------------------------------------------------------------------
--(void)_validateAPI
-{
-  //Verifier que self ne respond pas aux OldFN
-  LOGObjectFnNotImplemented();	//TODOFN
-};
-
 
 //--------------------------------------------------------------------
 //NDFN
@@ -1609,7 +1399,6 @@ bundle if none is found
 +(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOLanguages
 {
   NSArray* GSLanguages=nil;
-  LOGClassFnStart();
   if (ISOLanguages)
     {
       NSMutableArray* array=[NSMutableArray array];
@@ -1626,12 +1415,11 @@ bundle if none is found
             [array addObject:GSLanguage];
           else
             {
-              LOGError(@"Unknown language: %@\nKnown languages are : %@",ISOLanguage,localISO2GSLanguages);
+              NSLog(@"Unknown language: %@\nKnown languages are : %@",ISOLanguage,localISO2GSLanguages);
             };
         };
       GSLanguages=[NSArray arrayWithArray:array];
     }
-  LOGClassFnStop();
   return GSLanguages;
 };
 
@@ -1647,7 +1435,6 @@ bundle if none is found
 +(NSArray*)ISOLanguagesFromGSLanguages:(NSArray*)GSLanguages
 {
   NSArray* ISOLanguages=nil;
-  LOGClassFnStart();
   if (GSLanguages)
     {
       NSMutableArray* array=[NSMutableArray array];
@@ -1665,53 +1452,45 @@ bundle if none is found
             [array addObject:ISOLanguage];
           else
             {
-              LOGError(@"Unknown language: %@\nKnown languages are : %@",GSLanguage,localGS2ISOLanguages);
+              NSLog(@"Unknown language: %@\nKnown languages are : %@",GSLanguage,localGS2ISOLanguages);
             };
         };
       ISOLanguages=[NSArray arrayWithArray:array];
     }
-  LOGClassFnStop();
   return ISOLanguages;
 };
 //--------------------------------------------------------------------
 +(GSWBundle*)_applicationGSWBundle
 {
-  LOGClassFnStart();
   if (!globalAppGSWBundle)
     {
       NSString* applicationBaseURL=nil;
       NSString* baseURL=nil;
       NSString* wrapperName=nil;
+      
       applicationBaseURL=[GSWApplication applicationBaseURL]; //(retourne /GSWeb)
-      NSDebugMLLog(@"resmanager",@"applicationBaseURL=%@",applicationBaseURL);
       wrapperName=[globalAppProjectBundle wrapperName];
-      NSDebugMLLog(@"resmanager",@"wrapperName=%@",wrapperName);
       baseURL=[applicationBaseURL stringByAppendingFormat:@"/%@",wrapperName];
-      NSDebugMLLog(@"resmanager",@"baseURL=%@",baseURL);
-      NSDebugMLLog(@"resmanager",@"[globalAppProjectBundle bundlePath]=%@",[globalAppProjectBundle bundlePath]);
       globalAppGSWBundle=[[GSWBundle alloc]initWithPath:[globalAppProjectBundle bundlePath]
                                            baseURL:baseURL];
-      NSDebugMLLog(@"resmanager",@"globalAppGSWBundle=%@",globalAppGSWBundle);
       //???
       {
         NSBundle* resourceManagerBundle = [NSBundle bundleForClass: self];
-        NSDebugMLLog(@"resmanager",@"resourceManagerBundle bundlePath=%@",[resourceManagerBundle bundlePath]);
+
         globalMimePListPathName=[resourceManagerBundle pathForResource:@"MIME"
                                                        ofType:@"plist"]; //TODO should return /usr/GNUstep/Libraries/GNUstepWeb/GSWeb.framework/Resources/MIME.plist
-        NSDebugMLLog(@"resmanager",@"globalMimePListPathName=%@",globalMimePListPathName);
+
         if (!globalMimePListPathName)
           globalMimePListPathName = [[NSBundle bundleForClass: self]
                                       pathForResource:@"MIME"
                                       ofType:@"plist"];
             
-        NSDebugMLLog(@"resmanager",@"globalMimePListPathName=%@",globalMimePListPathName);
         NSAssert(globalMimePListPathName,@"No resource MIME.plist");
         {
           NSDictionary* tmpMimeTypes=nil;
           NSMutableDictionary* mimeTypes=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-          LOGObjectFnStart();
           tmpMimeTypes=[NSDictionary  dictionaryWithContentsOfFile:globalMimePListPathName];
-          // NSDebugMLLog(@"resmanager",@"tmpMimeTypes=%@",tmpMimeTypes);
+
           if (tmpMimeTypes)
             {
               NSEnumerator* enumerator = [tmpMimeTypes keyEnumerator];
@@ -1733,21 +1512,17 @@ bundle if none is found
         };
         globalLanguagesPListPathName=[resourceManagerBundle pathForResource:@"languages"
                                                             ofType:@"plist"];
-        NSDebugMLLog(@"resmanager",@"globalLanguagesPListPathName=%@",globalLanguagesPListPathName);
         if (!globalLanguagesPListPathName)
           globalLanguagesPListPathName=[[NSBundle bundleForClass: self]
                                          pathForResource:@"languages"
                                          ofType:@"plist"];
             
-        NSDebugMLLog(@"resmanager",@"globalLanguagesPListPathName=%@",globalLanguagesPListPathName);
         NSAssert(globalLanguagesPListPathName,@"No resource languages.plist");
         {
           NSDictionary* tmpLanguages=nil;
           NSMutableDictionary* ISO2GS=(NSMutableDictionary*)[NSMutableDictionary dictionary];
           NSMutableDictionary* GS2ISO=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-          LOGObjectFnStart();
           tmpLanguages=[NSDictionary  dictionaryWithContentsOfFile:globalLanguagesPListPathName];
-          NSDebugMLLog(@"resmanager",@"tmpLanguages=%@",tmpLanguages);
           if (tmpLanguages)
             {
               NSEnumerator* enumerator = [tmpLanguages keyEnumerator];
@@ -1765,8 +1540,6 @@ bundle if none is found
                               forKey:[gs lowercaseString]];
                     };
                 };
-              NSDebugMLLog(@"resmanager",@"ISO2GS=%@",ISO2GS);
-              NSDebugMLLog(@"resmanager",@"GS2ISO=%@",GS2ISO);
             };
           ASSIGN(localISO2GSLanguages,[NSDictionary dictionaryWithDictionary:ISO2GS]);
           ASSIGN(localGS2ISOLanguages,[NSDictionary dictionaryWithDictionary:GS2ISO]);
@@ -1775,7 +1548,6 @@ bundle if none is found
 	  
       [globalAppGSWBundle clearCache];
     };
-  LOGClassFnStop();
   return globalAppGSWBundle;
 };
 

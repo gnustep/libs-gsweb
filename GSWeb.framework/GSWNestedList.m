@@ -32,13 +32,14 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWNestedList
 
 -(void)dealloc
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   [super dealloc];
 }
 
@@ -48,7 +49,7 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -57,7 +58,7 @@ RCS_ID("$Id$")
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -66,14 +67,14 @@ RCS_ID("$Id$")
              orderedList:(id)orderedList
                    level:(int)level
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -83,7 +84,7 @@ RCS_ID("$Id$")
                 inList:(id)list
            inComponent:(id)component
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -93,7 +94,7 @@ RCS_ID("$Id$")
            currentIndex:(unsigned int)index
             inComponent:(id)component
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 

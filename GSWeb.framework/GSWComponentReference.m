@@ -43,7 +43,6 @@ RCS_ID("$Id$")
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
 {
-  LOGObjectFnStart();
   if ((self==[super initWithName:aName
                     associations:associations
                     template:nil])) {
@@ -181,7 +180,6 @@ RCS_ID("$Id$")
 
   return element;
 
-//  LOGObjectFnStart();
 //
 //  GSWStartElement(aContext);
 //  GSWAssertCorrectElementID(aContext);
@@ -214,7 +212,6 @@ RCS_ID("$Id$")
 //  GSWStopElement(aContext);
 //  GSWAssertDebugElementIDsCount(aContext);
 //
-//  LOGObjectFnStop();
 
 //  return element;
 };
@@ -228,7 +225,6 @@ RCS_ID("$Id$")
   GSWComponent* componentPrev=nil;
   GSWDeclareDebugElementIDsCount(aContext);
 
-  LOGObjectFnStart();
 
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
@@ -248,7 +244,6 @@ RCS_ID("$Id$")
   GSWStopElement(aContext);
   GSWAssertDebugElementIDsCount(aContext);
 
-  LOGObjectFnStop();
 };
  
 @end

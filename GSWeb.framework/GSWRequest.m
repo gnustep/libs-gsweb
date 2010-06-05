@@ -34,6 +34,9 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <GNUstepBase/GSMime.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 #include "GSWInputStreamData.h"
 #include "GSWPrivate.h"
 
@@ -116,7 +119,7 @@ RCS_ID("$Id$")
     {
       if (qualitySeparatorRange.location==0)
         {
-          LOGError(@"value/quality string: '%@'",string);
+//          LOGError(@"value/quality string: '%@'",string);
         }
       else
         {
@@ -239,7 +242,6 @@ RCS_ID("$Id$")
     [self _setIsUsingWebServer:(adaptorVersion!=nil)];
 
     _uri = [[GSWDynamicURLString alloc] initWithString:anURL];
-    [_uri checkURL];
     
     if (!content)
     content = [NSData data];
@@ -526,7 +528,7 @@ RCS_ID("$Id$")
           NSArray* languages=[GSWValueQualityHeaderPart valuesFromHeaderString:header];
           if (!languages)
             {
-              LOGError0(@"No languages");
+//              LOGError0(@"No languages");
             };
           browserLanguages=(NSMutableArray*)[GSWResourceManager GSLanguagesFromISOLanguages:languages];
           if (browserLanguages)
@@ -556,12 +558,12 @@ RCS_ID("$Id$")
         }
       else
         {
-          LOGError0(@"No languages header");
+          //LOGError0(@"No languages header");
         };
       
       if (!browserLanguages)
         {
-          LOGError0(@"No known languages");
+          //LOGError0(@"No known languages");
           browserLanguages=(NSMutableArray*)[NSArray array];
         };
       ASSIGN(_browserLanguages,browserLanguages);
@@ -681,7 +683,6 @@ RCS_ID("$Id$")
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"GSWRequest formValueKeys");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
@@ -802,7 +803,6 @@ RCS_ID("$Id$")
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"GSWRequest formValues");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
@@ -910,7 +910,6 @@ RCS_ID("$Id$")
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"GSWRequest uriElementKeys");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
@@ -933,7 +932,6 @@ RCS_ID("$Id$")
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"GSWRequest uriElementForKey:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
@@ -956,7 +954,6 @@ RCS_ID("$Id$")
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"GSWRequest uriElements");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [localException raise];
     };
   NS_ENDHANDLER;
@@ -1429,7 +1426,7 @@ RCS_ID("$Id$")
                               isSecure:(BOOL)isSecure
                                   port:(int)port
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -1938,7 +1935,7 @@ into
 //--------------------------------------------------------------------
 -(id)nonNilFormValueForKey:(NSString*)key
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -1947,21 +1944,21 @@ into
 //--------------------------------------------------------------------
 -(id)dictionaryWithKeys:(id)unknown
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)selectedButtonName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)valueFromImageMapNamed:(NSString*)aName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -1969,35 +1966,35 @@ into
 -(id)valueFromImageMapNamed:(NSString*)aName
                 inFramework:(NSString*)aFramework
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)valueFromImageMap:(id)unknown
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)yCoord
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)xCoord
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(id)formKeyWithSuffix:(NSString*)suffix
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -2008,7 +2005,7 @@ into
 
 -(NSString*)applicationHost 
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -2280,11 +2277,6 @@ into
 };
 
 //--------------------------------------------------------------------
--(void)_validateAPI
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-};
-
 
 -(NSString*) _originatingAddress
 {

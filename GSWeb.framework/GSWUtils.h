@@ -55,10 +55,10 @@ typedef unsigned char BYTE;
 #define BYTE_DEFINED
 #endif
 #ifndef UINTs_DEFINED
-typedef unsigned int UINT;
+typedef NSUInteger UINT;
 typedef unsigned char UINT8;
 typedef unsigned short UINT16;
-typedef unsigned int UINT32;
+typedef NSUInteger UINT32;
 #define UINTs_DEFINED
 #endif
 
@@ -81,7 +81,7 @@ GSWEB_EXPORT NSNumber* GSWNumber_No();
 
 #define GSW_LOCK_LIMIT [NSDate dateWithTimeIntervalSinceNow:GSLOCK_DELAY_S]
 
-GSWEB_EXPORT char* GSWIntToString(char* buffer,unsigned int bufferSize,int value,unsigned int* resultLength);
+GSWEB_EXPORT char* GSWIntToString(char* buffer,NSUInteger bufferSize,int value,NSUInteger* resultLength);
 GSWEB_EXPORT NSString* GSWIntToNSString(int value);
 GSWEB_EXPORT NSNumber* GSWIntNumber(int value);
 
@@ -244,8 +244,8 @@ GSWEB_EXPORT NSString* GSWGetDefaultDocRoot();
 -(void)addObject:(id)object;
 -(void)addObjectsFromArray:(NSArray*)array;
 -(void)insertObject:(id)object
-            atIndex:(unsigned int)index;
--(void)replaceObjectAtIndex:(unsigned int)index
+            atIndex:(NSUInteger)index;
+-(void)replaceObjectAtIndex:(NSUInteger)index
                  withObject:(id)object;
 -(void)replaceObjectsInRange:(NSRange)range
         withObjectsFromArray:(NSArray*)array;
@@ -368,19 +368,19 @@ loggedUnlockFromFunctionInFileInLine(id self,
 @interface NSData (SBNSData)
 -(NSRange)rangeOfData:(NSData*)data;
 -(NSRange)rangeOfData:(NSData*)data
-              options:(unsigned)mask;
+              options:(NSUInteger)mask;
 -(NSRange)rangeOfData:(NSData *)aData
-              options:(unsigned)mask
+              options:(NSUInteger)mask
                 range:(NSRange)aRange;
 -(NSArray*)componentsSeparatedByData:(NSData*)separator;
--(NSData*)dataByDeletingFirstBytesCount:(unsigned int)bytesCount;
--(NSData*)dataByDeletingLastBytesCount:(unsigned int)bytesCount;
+-(NSData*)dataByDeletingFirstBytesCount:(NSUInteger)bytesCount;
+-(NSData*)dataByDeletingLastBytesCount:(NSUInteger)bytesCount;
 @end
 
 //====================================================================
 @interface NSMutableData (SBNSData)
--(void)deleteFirstBytesCount:(unsigned int)bytesCount;
--(void)deleteLastBytesCount:(unsigned int)bytesCount;
+-(void)deleteFirstBytesCount:(NSUInteger)bytesCount;
+-(void)deleteLastBytesCount:(NSUInteger)bytesCount;
 @end
 
 //====================================================================
@@ -436,7 +436,7 @@ typedef enum _NSNumFmtType
 
 //====================================================================
 @interface NSMutableData (Replace)
-- (unsigned int) replaceOccurrencesOfData: (NSData*)replace
+- (NSUInteger) replaceOccurrencesOfData: (NSData*)replace
                                  withData: (NSData*)by
                                     range: (NSRange)searchRange;
 @end

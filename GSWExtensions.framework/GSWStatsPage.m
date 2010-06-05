@@ -76,7 +76,8 @@ RCS_ID("$Id$")
   NSString* password;
 
 */
-NSLog(@"detailsDict");
+/*
+ NSLog(@"detailsDict");
 NSLog([_detailsDict description]);
 NSLog(@"pagesDict");
 NSLog([_pagesDict description]);
@@ -86,7 +87,7 @@ NSLog(@"sessionMemoryDict");
 NSLog([_sessionMemoryDict description]);
 
 NSLog(@"transactions");
-/*NSLog(_transactions);
+NSLog(_transactions);
 NSLog(@"statsDict");
 NSLog(_statsDict);
 NSLog(@"memoryDict");
@@ -102,7 +103,7 @@ NSLog(_sessionsDict);
 {
   id instance=nil;
   NSArray* commandLineArguments = [[NSProcessInfo processInfo] arguments];
-  unsigned int i=0;
+  NSUInteger i=0;
   i = [commandLineArguments indexOfObject:@"-n"];
   if (i!=NSNotFound && ([commandLineArguments count] > i + 1))
 	instance=[commandLineArguments objectAtIndex:i+1];
@@ -125,7 +126,6 @@ NSLog(_sessionsDict);
 
 -(id)_initIvars
 {
-  id currentCount=nil;
   _statsDict = [[self application] statistics];
   _pagesDict = [_statsDict objectForKey:@"Pages"];
   _directActionsDict = [_statsDict objectForKey:@"DirectActions"];

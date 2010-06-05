@@ -41,15 +41,10 @@ RCS_ID("$Id$")
 
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWExceptionPage\n");  
   DESTROY(_exception);
-  GSWLogC("Dealloc GSWExceptionPage reasons\n");  
   DESTROY(_reasons);
-  GSWLogC("Dealloc GSWExceptionPage reference\n");  
   DESTROY(_reference);
-  GSWLogC("Dealloc GSWExceptionPage super\n");  
   [super dealloc];
-  GSWLogC("Dealloc GSWExceptionPage end\n");  
 };
 
 -(void)awake
@@ -70,9 +65,7 @@ RCS_ID("$Id$")
 {
   if (!_reasons)
     {
-      NSDebugMLog(@"_exception reason=%@",[_exception reason]);
       ASSIGN(_reasons,[[_exception reason] componentsSeparatedByString:@"\n"]);
-      NSDebugMLog(@"_reasons=%@",_reasons);
     };
   return _reasons;
 };
@@ -88,9 +81,6 @@ RCS_ID("$Id$")
 -(void)setException:(NSException*)exception
 {
   ASSIGN(_exception,exception);
-  NSDebugMLog(@"_exception name=%@",[_exception name]);
-  NSDebugMLog(@"_exception reason=%@",[_exception reason]);
-  NSDebugMLog(@"_exception userInfo=%@",[_exception userInfo]);
 };
 
 -(id)getTmpUserInfoValue

@@ -41,30 +41,24 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
     };
-  LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)awake
 {
-  LOGObjectFnStart();
   [super awake];
   _tmpFileInfo=nil;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)sleep
 {
-  LOGObjectFnStart();
   _tmpFileInfo=nil;
   [super sleep];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -84,46 +78,31 @@ RCS_ID("$Id$")
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
   _tmpFileInfo=nil;
   [aResponse appendDebugCommentContentString:[[self fileInfo]description]];
-  NSDebugMLog(@"fileInfo %@",_tmpFileInfo);
+
   [super appendToResponse:aResponse
          inContext:aContext];
   _tmpFileInfo=nil;
-  NSDebugMLog(@"fileInfo %@",_tmpFileInfo);
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStart();
   _tmpFileInfo=nil;
-  NSDebugMLog(@"fileInfo %@",[self fileInfo]);
   [super takeValuesFromRequest:aRequest
          inContext:aContext];
-  NSDebugMLog(@"fileInfo.fileURL %@",[_tmpFileInfo valueForKey:@"fileURL"]);
-  NSDebugMLog(@"fileInfo.fileName %@",[_tmpFileInfo valueForKey:@"fileName"]);
-  NSDebugMLog(@"fileInfo.filePath %@",[_tmpFileInfo valueForKey:@"filePath"]);
-  NSDebugMLog(@"fileInfo.data %p",[_tmpFileInfo valueForKey:@"data"]);
-  NSDebugMLog(@"fileInfo.data length %d",(int)[[_tmpFileInfo valueForKey:@"data"] length]);
-  NSDebugMLog(@"fileInfo.mimeType %@",[_tmpFileInfo valueForKey:@"mimeType"]);
-  NSDebugMLog(@"fileInfo.widthAndHeightCode %@",[_tmpFileInfo valueForKey:@"widthAndHeightCode"]);
-  NSDebugMLog(@"fileInfo.width %@",[_tmpFileInfo valueForKey:@"width"]);
-  NSDebugMLog(@"fileInfo.height %@",[_tmpFileInfo valueForKey:@"height"]);
+
   if ([[_tmpFileInfo valueForKey:@"data"]length]>0 || boolValueWithDefaultFor([_tmpFileInfo valueForKey:@"isDeleted"],NO))
     [self setValue:_tmpFileInfo
           forBinding:@"fileInfo"];
   _tmpFileInfo=nil;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(NSMutableDictionary*)fileInfo
 {
-  LOGObjectFnStart();
   if (!_tmpFileInfo)
     {
       if ([self hasBinding:@"fileInfo"])
@@ -133,7 +112,7 @@ RCS_ID("$Id$")
             _tmpFileInfo=(NSMutableDictionary*)[NSMutableDictionary dictionary];
         };
     };
-  LOGObjectFnStop();
+
   return _tmpFileInfo;
 };
 

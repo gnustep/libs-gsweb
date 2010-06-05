@@ -88,9 +88,7 @@
 -(void)setSessionMovingAverageSampleSize:(int)aSize;
 -(int)transactionMovingAverageSampleSize;
 -(void)setTransactionMovingAverageSampleSize:(int)aSize;
-@end
 
-@interface GSWStatisticsStore (GSWStatisticsStoreA)
 -(void)_purgePathsStatistics;
 -(void)_updatePathsStatisticsWithPaths:(id)paths;
 -(void)sessionTerminating:(GSWSession*)session;
@@ -104,17 +102,13 @@
 -(void)applicationDidHandleComponentActionRequestWithPageNamed:(NSString*)pageName;
 -(void)applicationDidHandleDirectActionRequestWithActionNamed:(NSString*)actionName;
 -(void)applicationDidHandleWebServiceRequestWithActionNamed:(NSString*)actionName;
-@end
 
-@interface GSWStatisticsStore (GSWStatisticsStoreB)
 -(NSString*)descriptionForResponse:(GSWResponse*)aResponse
                          inContext:(GSWContext*)aContext;
 -(void)recordStatisticsForResponse:(GSWResponse*)aResponse
                          inContext:(GSWContext*)aContext;
 
-@end
 
-@interface GSWStatisticsStore (GSWStatisticsStoreC)
 -(void)logString:(id)string;
 -(NSTimeInterval)logFileRotationFrequencyInDays;
 -(NSString*)logFile;
@@ -123,9 +117,7 @@
 +(NSString*)formatDescription:(NSString*)description
                   forResponse:(GSWResponse*)aResponse
                     inContext:(GSWContext*)aContext;
-@end
 
-@interface GSWStatisticsStore (GSWStatisticsStoreD)
 -(NSString*)_password;
 -(NSDictionary*)_pathsStatistics;
 -(NSDictionary*)_pagesStatistics;
@@ -149,25 +141,12 @@
 -(int)_componentActionTransactionsCount;
 -(int)_transactionsCount;
  
-@end
-
-@interface GSWStatisticsStore (GSWStatisticsStoreE)
 -(BOOL)validateLogin:(id)login
           forSession:(id)session;
 -(void)setPassword:(NSString*)password;
 
-@end
-
-@interface GSWStatisticsStore (GSWStatisticsStoreF)
 -(BOOL)validateLogin:(id)login;
-@end
 
-@interface GSWStatisticsStore (GSWStatisticsStoreG)
--(void)_validateAPI;
-
-@end
-
-@interface GSWStatisticsStore (GSWStatisticsStoreH)
 +(id)timeIntervalDescription:(NSTimeInterval)timeInterval;
 @end
 #endif //_GSWStatisticsStore_h__

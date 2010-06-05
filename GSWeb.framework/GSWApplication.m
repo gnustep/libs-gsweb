@@ -40,6 +40,11 @@ RCS_ID("$Id$")
 #include "stacktrace.h"
 #include "attach.h"
 
+#include <GNUstepBase/NSThread+GNUstepBase.h>
+#include <GNUstepBase/NString+GNUstepBase.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+
 /*
 Monitor Refresh (or View Details):
 application lock
@@ -283,7 +288,6 @@ int GSWApplicationMain(NSString* applicationClassName,
       [self setTimeOut:0];//No time out
 
       //Do it before run so application can addTimer,... in -run
-      NSDebugMLLog(@"application",@"[NSRunLoop currentRunLoop]=%@",[NSRunLoop currentRunLoop]);
       ASSIGN(_currentRunLoop,[NSRunLoop currentRunLoop]); 
 
       _pageCacheSize=30;
@@ -300,7 +304,6 @@ int GSWApplicationMain(NSString* applicationClassName,
       [self _touchPrincipalClasses];
 
       standardUserDefaults=[NSUserDefaults standardUserDefaults];
-      NSDebugMLLog(@"options",@"standardUserDefaults=%@",standardUserDefaults);
 
       [self _initAdaptorsWithUserDefaults:standardUserDefaults];
 
@@ -327,10 +330,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 
       if ([[self class]isMonitorEnabled])
 	{
-	  NSDebugMLLog0(@"application",@"init: call self _setupForMonitoring");
 	  [self _setupForMonitoring];
 	};
-      NSDebugMLLog0(@"application",@"init: call appGSWBundle initializeObject:...");
       [[GSWResourceManager _applicationGSWBundle] initializeObject:self
                                                   fromArchiveNamed:@"Application"];
       [self setPrintsHTMLParserDiagnostics:NO];
@@ -342,25 +343,20 @@ int GSWApplicationMain(NSString* applicationClassName,
         };
 
       //call recordingPath
-      NSDebugMLLog0(@"application",@"init: call self registerRequestHandlers");
       [self registerRequestHandlers];
-      [self _validateAPI];
-      NSDebugMLLog0(@"application",@"init: addObserver");
+      
       [[NSNotificationCenter defaultCenter]addObserver:self
                                            selector:@selector(_sessionDidTimeOutNotification:)
                                            name:GSWNotification__SessionDidTimeOutNotification[GSWebNamingConv]
                                            object:nil];
-      NSDebugMLLog0(@"application",@"init: addObserver called");
       
       // Create lifebeat thread only if we're not the observer :-)
-      NSDebugMLLog(@"application",@"[self isTaskDaemon]=%d",[self isTaskDaemon]);
-      NSDebugMLLog(@"application",@"[[self class] isLifebeatEnabled]=%d",[[self class] isLifebeatEnabled]);
+
       if (![self isTaskDaemon] && [[self class] isLifebeatEnabled])
         {
           NSTimeInterval lifebeatInterval=[[self class]lifebeatInterval];
           if (lifebeatInterval<1)
             lifebeatInterval=30; //30s
-          NSDebugMLLog(@"application",@"lifebeatInterval=%f",lifebeatInterval);
 
           ASSIGN(_lifebeatThread,
 		 [GSWLifebeatThread lifebeatThreadWithApplication:self
@@ -370,7 +366,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 				    lifebeatHost:[[self class] lifebeatDestinationHost]
 				    lifebeatPort:[[self class] lifebeatDestinationPort]
 				    interval:lifebeatInterval]);
-          NSDebugMLLog(@"application",@"_lifebeatThread=%@",_lifebeatThread);
 //#warning go only multi-thread if we want this!
 
           [NSThread detachNewThreadSelector:@selector(run:)
@@ -386,7 +381,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogMemC("Dealloc GSWApplication");
   DESTROY(_adaptors);
   DESTROY(_sessionStore);
   DESTROY(_componentDefinitionCache);
@@ -400,11 +394,8 @@ int GSWApplicationMain(NSString* applicationClassName,
   DESTROY(_instanceNumber);
   DESTROY(_requestHandlers);
   DESTROY(_defaultRequestHandler);
-  GSWLogMemC("Dealloc GSWApplication: selfLock");
   DESTROY(_selfLock);
-  GSWLogMemC("Dealloc GSWApplication: globalLock");
   DESTROY(_globalLock);
-  GSWLogMemC("Dealloc GSWApplication: globalAutoreleasePool");
   DESTROY(_globalAutoreleasePool);
   DESTROY(_currentRunLoop);
   DESTROY(_runLoopDate);
@@ -417,9 +408,7 @@ int GSWApplicationMain(NSString* applicationClassName,
     GSWApp = nil;
   }
 
-  GSWLogMemC("Dealloc GSWApplication Super");
   [super dealloc];
-  GSWLogMemC("End Dealloc GSWApplication");
 };
 
 
@@ -546,9 +535,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       */
       NS_DURING
         {
-          NSDebugLockMLog(@"GLOBALLOCK lock %@", GSCurrentThread());
           LoggedLockBeforeDate(_globalLock,GSW_LOCK_LIMIT);
-          NSDebugLockMLog(@"GLOBALLOCK locked %@", GSCurrentThread());
 #ifndef NDEBUG
           _globalLockn++;
           _globalLock_thread_id=GSCurrentThread();
@@ -563,7 +550,7 @@ int GSWApplicationMain(NSString* applicationClassName,
         {
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"globalLock loggedlockBeforeDate");
-          LOGException(@"%@ (%@)",localException,[localException reason]);
+          NSLog(@"%@ (%@)",localException,[localException reason]);
           [localException raise];
         };
       NS_ENDHANDLER;
@@ -590,12 +577,9 @@ int GSWApplicationMain(NSString* applicationClassName,
             {
               if (_globalLock_thread_id!=GSCurrentThread())
                 {
-                  NSDebugMLLog0(@"application",@"PROBLEM: owner!=thread id");
                 };
             };
-          NSDebugLockMLog(@"GLOBALLOCK unlock %@", GSCurrentThread());
           LoggedUnlock(_globalLock);
-          NSDebugLockMLog(@"GLOBALLOCK unlocked %@",GSCurrentThread());
 #ifndef NDEBUG
           _globalLockn--;
           if (_globalLockn==0)
@@ -609,14 +593,8 @@ int GSWApplicationMain(NSString* applicationClassName,
         }
       NS_HANDLER
         {
-          NSDebugMLog(@"globalLockn=%d globalLock_thread_id=%@ "
-		      @"GSCurrentThread()=%@",
-                      _globalLockn,
-                      _globalLock_thread_id,
-                      GSCurrentThread());
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"globalLock loggedunlock");
-          LOGException(@"%@ (%@)",localException,[localException reason]);
           [localException raise];
         };
       NS_ENDHANDLER;
@@ -656,15 +634,12 @@ int GSWApplicationMain(NSString* applicationClassName,
 	{*/
   processInfo=[NSProcessInfo processInfo];
   processName=[processInfo processName];
-  NSDebugMLLog(@"application",@"_cmd:%p",_cmd);
-  NSDebugMLLog(@"application",@"processInfo:%@",processInfo);
-  NSDebugMLLog(@"application",@"processName:%@",processName);
+
   processName=[processName lastPathComponent];
   if ([processName hasSuffix:GSWApplicationPSuffix[GSWebNamingConv]])
     name=[processName stringByDeletingSuffix:GSWApplicationPSuffix[GSWebNamingConv]];
   else
     name=processName;
-  NSDebugMLLog(@"application",@"_name:%@ %p",name,name);
   //	};
   return name;
   
@@ -683,9 +658,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   NSString* path=nil;
   
-  NSDebugMLLog(@"bundles",@"[GSWResourceManager _applicationGSWBundle]:%@",[GSWResourceManager _applicationGSWBundle]);
   path=[[GSWResourceManager _applicationGSWBundle] path];
-  NSDebugMLLog(@"application",@"path:%@",path);
   
   return path;
 };
@@ -695,7 +668,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(NSString*)baseURL 
 {
   NSString* baseURL=nil;
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   
   baseURL=[GSWURLPrefix[GSWebNamingConv] stringByAppendingString:[self name]];
   
@@ -727,9 +700,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   componentRequestHandler=[[self class] _componentRequestHandler];
   componentRequestHandlerKey=[[self class] componentRequestHandlerKey];
 
-  NSDebugMLLog(@"application",@"componentRequestHandlerKey:%@",
-               componentRequestHandlerKey);
-
 
   // Resource Handler
   resourceRequestHandler=(GSWResourceRequestHandler*)
@@ -737,18 +707,12 @@ int GSWApplicationMain(NSString* applicationClassName,
 
   resourceRequestHandlerKey=[[self class] resourceRequestHandlerKey];
 
-  NSDebugMLLog(@"application",@"resourceRequestHandlerKey:%@",
-               resourceRequestHandlerKey);
-
 
   // DirectAction Handler
   directActionRequestHandler=(GSWDirectActionRequestHandler*)
     [GSWDirectActionRequestHandler handler];
 
   directActionRequestHandlerKey=[[self class] directActionRequestHandlerKey];
-
-  NSDebugMLLog(@"application",@"directActionRequestHandlerKey:%@",
-               directActionRequestHandlerKey);
 
 
   // "Ping" Handler
@@ -758,9 +722,6 @@ int GSWApplicationMain(NSString* applicationClassName,
                                    shouldAddToStatistics:NO];
   pingDirectActionRequestHandlerKey=[[self class] pingActionRequestHandlerKey];
 
-  NSDebugMLLog(@"application",@"pingDirectActionRequestHandlerKey:%@",
-               pingDirectActionRequestHandlerKey);
-
 
   // Stream Handler
   streamDirectActionRequestHandler=(GSWDirectActionRequestHandler*)
@@ -768,9 +729,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 
   streamDirectActionRequestHandlerKey=[[self class] streamActionRequestHandlerKey];
   [streamDirectActionRequestHandler setAllowsContentInputStream:YES];
-
-  NSDebugMLLog(@"application",@"streamDirectActionRequestHandlerKey:%@",
-               streamDirectActionRequestHandlerKey);
 
 
   [self registerRequestHandler:componentRequestHandler
@@ -804,8 +762,6 @@ int GSWApplicationMain(NSString* applicationClassName,
       [self registerRequestHandler:staticResourceRequestHandler
             forKey:staticResourceRequestHandlerKey];
     };
-
-  NSDebugMLLog(@"application",@"_requestHandlers:%@",_requestHandlers);
   
 };
 
@@ -830,7 +786,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 -(void)becomesMultiThreaded
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 -(NSString*)_webserverConnectURL
@@ -839,7 +795,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSString* cgiAdaptorURL=[[self class]cgiAdaptorURL]; //return http://www.example.com/cgi-bin/GSWeb.exe
   if (!cgiAdaptorURL)
     {
-      NSDebugMLog(@"No CGI adaptor");
+      //NSDebugMLog(@"No CGI adaptor");
     }
   else
     {
@@ -855,7 +811,6 @@ int GSWApplicationMain(NSString* applicationClassName,
                                     [self name],
                                     [self _applicationExtension],
                                     port];
-      NSDebugMLog(@"webserverConnectURL=%@",webserverConnectURL);
     } 
   return webserverConnectURL; //return http://www.example.com:1436/cgi-bin/GSWeb.exe/ObjCTest3.gswa/-2
 };
@@ -879,14 +834,12 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(NSString*)_applicationExtension
 {
-  LOGObjectFnNotImplemented();	//TODOFN
   return GSWApplicationSuffix[GSWebNamingConv];
 };
 
 //--------------------------------------------------------------------
 -(void)_resetCacheForGeneration
 {
-  LOGObjectFnNotImplemented();	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -913,7 +866,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In Application _resetCache");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       [self unlock];
       [localException raise];
       //TODO
@@ -929,7 +881,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   //OK
   GSWComponentDefinition* componentDefinition=nil;
   
-  NSDebugMLLog(@"info",@"aName=%@",aName);
   [self lock];
   NS_DURING
     {
@@ -940,7 +891,6 @@ int GSWApplicationMain(NSString* applicationClassName,
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In lockedComponentDefinitionWithName");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -1170,7 +1120,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   //NSDebugMLLog(@"gswcomponents",@"allFrameworks=%@",allFrameworks);
   //NSDebugFLLog(@"gswcomponents",@"allFrameworks pathes=%@",[allFrameworks valueForKey:@"resourcePath"]);
   array=[self lockedInitComponentBearingFrameworksFromBundleArray:allFrameworks];
-  NSDebugMLLog(@"gswcomponents",@"array=%@",array);
+
   [allFrameworks release];
 
   
@@ -1206,7 +1156,6 @@ int GSWApplicationMain(NSString* applicationClassName,
       //if (boolValueFor(hasGSWComponents))
       //  {
           [array addObject:bundle];
-          NSDebugMLLog(@"gswcomponents",@"Add %@",[bundle bundleName]);
       //  };
     };
   //  NSDebugMLLog(@"gswcomponents",@"_array=%@",_array);
@@ -1367,7 +1316,6 @@ int GSWApplicationMain(NSString* applicationClassName,
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In lockedDecrementActiveSessionCount...");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -1396,7 +1344,6 @@ int GSWApplicationMain(NSString* applicationClassName,
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In initializeObject:fromArchiveNamed:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -1413,7 +1360,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   
   if ([self isRefusingNewSessions])
   {
-    LOGError0(@"Try to initialize session with isRefusingNewSessions evaluation to YES");
     [aContext _setIsRefusingThisRequest:YES];
   }
   
@@ -1535,7 +1481,6 @@ int GSWApplicationMain(NSString* applicationClassName,
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -1564,13 +1509,13 @@ to another instance **/
 //called when deamon is shutdown
 -(void)_connectionDidDie:(id)unknown
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(BOOL)_shouldKill
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
@@ -1578,13 +1523,13 @@ to another instance **/
 //TODO return  (Vv9@0:4c8)
 -(void)_setShouldKill:(BOOL)flag
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 -(void)_synchronizeInstanceSettingsWithMonitor:(id)_monitor
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -1611,8 +1556,6 @@ to another instance **/
       NSString* monitorHost=[self _monitorHost];
       NSNumber* workerThreadCount=[[self class]workerThreadCount];
       id proxy=nil;
-      NSDebugFLLog(@"monitor",@"monitorHost=%@",monitorHost);
-      NSDebugFLLog(@"monitor",@"workerThreadCount=%@",workerThreadCount);
       if ([[NSDistantObject class] respondsToSelector:@selector(setDebug:)])
 	{
 	  [NSDistantObject setDebug:YES];
@@ -1651,13 +1594,6 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
--(void)_validateAPI
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-};
-
-
-//--------------------------------------------------------------------
 //adaptors
 
 -(NSArray*)adaptors 
@@ -1681,18 +1617,16 @@ to another instance **/
   Class gswadaptorClass=nil;
   Class adaptorClass=nil;
   
-  NSDebugMLLog(@"application",@"adaptor name:%@",name);
   gswadaptorClass=[GSWAdaptor class];
   NSAssert([name length]>0,@"No adaptor name");
   adaptorClass=NSClassFromString(name);
   NSAssert1(adaptorClass,@"No adaptor named '%@'",name);
   if (adaptorClass)
     {
-      if (ClassIsKindOfClass(adaptorClass,gswadaptorClass))
+      if (GSObjCIsKindOf(adaptorClass,gswadaptorClass))
         {
           adaptor=[[[adaptorClass alloc] initWithName:name
                                          arguments:arguments] autorelease];
-          NSDebugMLLog(@"application",@"adaptor:%@",adaptor);
         }
       else
         {
@@ -1930,7 +1864,7 @@ to another instance **/
 -(GSWComponent*)pageWithName:(NSString*)aName
                   forRequest:(GSWRequest*)aRequest
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -1987,7 +1921,6 @@ to another instance **/
     {
       localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
                                                                                __PRETTY_FUNCTION__];
-      LOGException(@"exception=%@",localException);
       [self unlock];
       [localException raise];
     };
@@ -2107,7 +2040,6 @@ to another instance **/
     }
   } NS_HANDLER {
     NSLog(@"%@",localException);
-    LOGException(@"%@ (%@)",localException,[localException reason]);
     [localException raise];
   } NS_ENDHANDLER;
   
@@ -2139,7 +2071,6 @@ to another instance **/
 
 -(void)setTimeOut:(NSTimeInterval)aTimeInterval
 {
-  NSDebugMLLog(@"sessions",@"timeOut=%ld",(long)aTimeInterval);
   if (aTimeInterval==0)
     _timeOut=[[NSDate distantFuture]timeIntervalSinceDate:_lastAccessDate];
   else
@@ -2197,7 +2128,6 @@ to another instance **/
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In addTimer:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -2228,14 +2158,8 @@ to another instance **/
 -(void)lockedAddTimer:(NSTimer*)aTimer
 {
   
-  NSDebugMLLog(@"application",@"[self runLoop]=%p",(void*)[self runLoop]);
-  NSDebugMLLog(@"application",@"currentMode=%@",[[self runLoop]currentMode]);
-  NSDebugMLLog(@"application",@"NSDefaultRunLoopMode=%@",NSDefaultRunLoopMode);
-  NSDebugMLLog(@"application",@"aTimer=%@",aTimer);
-  NSDebugMLLog(@"application",@"aTimer fireDate=%@",[aTimer fireDate]);
   [[self runLoop]addTimer:aTimer
                  forMode:NSDefaultRunLoopMode];
-  NSDebugMLLog(@"application",@"limitDateForMode=%@",[[self runLoop]limitDateForMode:NSDefaultRunLoopMode]);
   
 };
 
@@ -2252,7 +2176,6 @@ to another instance **/
   NS_HANDLER
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,@"In addTimer:");
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -2275,7 +2198,7 @@ to another instance **/
 //--------------------------------------------------------------------
 -(void)_setNextCollectionCount:(int)_count
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -2312,7 +2235,7 @@ to another instance **/
 {
 //  [NSBundle bundleForClass:XX];
   //TODO finish
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -2350,7 +2273,6 @@ to another instance **/
         
     response = [requestHandler handleRequest:aRequest];
     if (!response) {
-      NSDebugLog(@"%s !!! Response is null !!!", __PRETTY_FUNCTION__);
       response = [self createResponseInContext:nil];
     }
     
@@ -2413,11 +2335,8 @@ to another instance **/
     }
   NS_HANDLER
     {
-      LOGException0(@"exception in GSWApplication invokeActionForRequest:inContext");
-      LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                               @"In GSWApplication invokeActionForRequest:inContext");
-      LOGException(@"exception=%@",localException);
       [localException raise];
     }
   NS_ENDHANDLER;
@@ -2436,13 +2355,10 @@ to another instance **/
   
 
   request=[aContext request];
-  NSDebugMLog(@"request=%p",request);
   session=[aContext existingSession];
-  NSDebugMLog(@"session=%p",session);
 
   if ([aContext _isRefusingThisRequest])
     {
-      NSLog(@"Context refuseThisRequest. Will redirect to available instance");
       [aResponse _generateRedirectResponseWithMessage:nil
                  location:[self _newLocationForRequest:request]
                  isDefinitive:YES];//301
@@ -2457,13 +2373,9 @@ to another instance **/
         }
       NS_HANDLER
         {
-          LOGException(@"exception in %@ appendToResponse:inContext",
-                       [self class]);
-          LOGException(@"exception=%@",localException);
           localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                                   @"In %@ appendToResponse:inContext",
                                                                   [self class]);
-          LOGException(@"exception=%@",localException);
           [localException raise];
         }
       NS_ENDHANDLER;
@@ -2476,13 +2388,9 @@ to another instance **/
         }
       NS_HANDLER
         {
-          LOGException(@"exception in %@ _setRecordingHeadersToResponse...",
-                       [self class]);
-          LOGException(@"exception=%@",localException);
           localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                                   @"In %@ _setRecordingHeadersToResponse...",
                                                                   [self class]);
-          LOGException(@"exception=%@",localException);
           [localException raise];
         }
       NS_ENDHANDLER;
@@ -2495,10 +2403,6 @@ to another instance **/
                             inContext:(GSWContext*)aContext
 {
   
-
-  NSDebugMLog(@"Recording Header=%@",
-              [aRequest headerForKey:GSWHTTPHeader_Recording[GSWebNamingConv]]);
-
   if (_recorder
       && ([aRequest headerForKey:GSWHTTPHeader_Recording[GSWebNamingConv]]
           || [[self class] recordingPath]))
@@ -2508,7 +2412,6 @@ to another instance **/
       NSString* header=nil;
       
       header=GSWIntToNSString([aRequest applicationNumber]);
-      NSDebugMLog(@"header=%@",header);
 
       [aResponse setHeader:header
                  forKey:GSWHTTPHeader_RecordingApplicationNumber[GSWebNamingConv]];
@@ -2520,8 +2423,6 @@ to another instance **/
         }
       else
         sessionID = [aRequest sessionID];
-
-      NSDebugMLog(@"sessionID=%@",sessionID);
 
       if (sessionID)
         {
@@ -2578,9 +2479,7 @@ to another instance **/
     [context _putAwakeComponentsToSleep];
   else
     {
-      LOGError0(@"No context !");
       context=[GSWContext contextWithRequest:nil];	  
-      LOGError0(@"Really can't get context !");
     };
   //TODO Hack: verify that there is an application context otherswise, it failed in component Creation
   if (![self _context])
@@ -2601,7 +2500,6 @@ to another instance **/
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In _handleException:inContext:");
       NSLog(@"exception=%@",localException);                                                         
-      LOGException(@"exception=%@",localException);
       if ([[localException name]isEqualToString:GSWPageNotFoundException])
         response=[self _invokeDefaultException:localException
                        named:pageName
@@ -2655,7 +2553,6 @@ to another instance **/
 {
   GSWResponse* response=nil;
   
-  NSDebugMLLog(@"application",@"context=%@",aContext);
   NSLog(@"EXCEPTION=%@",anException);
   NS_DURING
     {
@@ -2668,7 +2565,6 @@ to another instance **/
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In _handleException:inContext:");
-      LOGException(@"exception=%@",localException);
       response=[GSWResponse responseWithMessage:@"Exception Handling failed"
                             inContext:aContext
                             forRequest:nil];
@@ -2694,7 +2590,6 @@ to another instance **/
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In _handlePageRestorationErrorInContext:");
-      LOGException(@"exception=%@",localException);
       response=[GSWResponse responseWithMessage:@"Exception Handling failed. Can't find Page Restoration Error Page"
                             inContext:aContext
                             forRequest:nil];
@@ -2734,7 +2629,6 @@ to another instance **/
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In _handleSessionCreationErrorInContext:");
-      LOGException(@"exception=%@",localException);
       response=[GSWResponse responseWithMessage:@"Session Creation Error Handling failed."
                             inContext:aContext
                             forRequest:nil];
@@ -2774,7 +2668,6 @@ to another instance **/
     {
       localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                @"In _handleSessionRestorationErrorInContext:");
-      LOGException(@"exception=%@",localException);
       response=[GSWResponse responseWithMessage:@"Session Restoration Error Handling failed."
                             inContext:aContext
                             forRequest:nil];
@@ -2828,10 +2721,6 @@ to another instance **/
   //call self isTerminating
   //call self isCachingEnabled
   //call self isPageRefreshOnBacktrackEnabled
-  NSDebugMLog(@"setApplication:%p (of class %@) name:%@",
-              application,
-              [application class],
-              [application name]);
   GSWApp=application;
 }
 
@@ -2844,7 +2733,6 @@ to another instance **/
     }
   NS_HANDLER
     {
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -2868,7 +2756,7 @@ to another instance **/
 
 -(Class)scriptedClassWithPath:(NSString*)path
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -2878,7 +2766,7 @@ to another instance **/
 -(Class)scriptedClassWithPath:(NSString*)path
                      encoding:(NSStringEncoding)encoding
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -2886,14 +2774,14 @@ to another instance **/
 -(Class)_classWithScriptedClassName:(NSString*)aName
                           languages:(NSArray*)languages
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(void)_setClassFromNameResolutionEnabled:(BOOL)flag
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -2902,13 +2790,10 @@ to another instance **/
 {
   Class aClass=nil;
   NSBundle* bundle=[NSBundle bundleWithPath:path];
-  NSDebugMLLog(@"application",@"GSWApplication libraryClassWithPath:bundle=%@",bundle);
   if (bundle)
     {
       BOOL result=[bundle load];
-      NSDebugMLLog(@"application",@"GSWApplication libraryClassWithPath:bundle load result=%d",result);
       aClass=[bundle principalClass];
-      NSDebugMLLog(@"application",@"GSWApplication libraryClassWithPath:bundle class=%@",aClass);
     };
   return aClass;
 };
@@ -2956,7 +2841,7 @@ to another instance **/
 -(void)_setTracingAspect:(id)unknwon
                  enabled:(BOOL)enabled
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -3461,9 +3346,6 @@ to another instance **/
   if (ti<15)
     ti = 15;
 
-  NSDebugMLog(@"activeSessionsCount=%d sessionTimeOut=%f ==> refuseNewSessionsTimeInterval=%f",
-              activeSessionsCount,sessionTimeOut,ti);
-
   
 
   return ti;
@@ -3473,7 +3355,7 @@ to another instance **/
 //logToMonitorWithFormat:
 -(void)logToMonitorWithFormat:(NSString*)aFormat 
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
@@ -3495,7 +3377,6 @@ to another instance **/
     }
   NS_HANDLER
     {
-      LOGException(@"%@ (%@)",localException,[localException reason]);
       //TODO
       [self unlock];
       [localException raise];
@@ -3595,7 +3476,6 @@ to another instance **/
   GSWRequestHandler* handler=nil;
   
   handler=[_requestHandlers objectForKey:aKey];
-  NSDebugMLogCond(!handler,@"_requestHandlers=%@",_requestHandlers);
   
   return handler;
 };
@@ -3617,7 +3497,7 @@ to another instance **/
 //--------------------------------------------------------------------
 +(NSDictionary*)_webServerConfigDictionary
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -3635,7 +3515,7 @@ to another instance **/
 //--------------------------------------------------------------------
 +(Class)_compiledApplicationClass
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -3659,7 +3539,7 @@ to another instance **/
 //--------------------------------------------------------------------
 +(id)_modelGroupFromBundles:(id)bundles
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -3697,7 +3577,7 @@ to another instance **/
 +(NSBundle*)mainBundle
 {
   NSBundle* mainBundle=nil;
-//  LOGClassFnNotImplemented();	//TODOFN
+//  [self notImplemented: _cmd];	//TODOFN
   mainBundle=[NSBundle mainBundle];
   NSDebugMLog(@"[mainBundle  bundlePath]:%@",[mainBundle  bundlePath]);
   return mainBundle;
@@ -3727,62 +3607,62 @@ to another instance **/
 //--------------------------------------------------------------------
 +(int)_garbageCollectionRepeatCount
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return 1;
 };
 
 //--------------------------------------------------------------------
 +(BOOL)_lockDefaultEditingContext
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return YES;
 };
 
 //--------------------------------------------------------------------
 +(void)_setLockDefaultEditingContext:(BOOL)flag
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 //--------------------------------------------------------------------
 +(id)_allowsConcurrentRequestHandling
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 +(void)_setAllowsConcurrentRequestHandling:(id)unknown
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 };
 
 
 //--------------------------------------------------------------------
 +(int)_requestLimit
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return 1;
 };
 
 //--------------------------------------------------------------------
 +(int)_requestWindow
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return 1;
 };
 
 //--------------------------------------------------------------------
 +(BOOL)_multipleThreads
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return YES;
 };
 
 //--------------------------------------------------------------------
 +(BOOL)_multipleInstances
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 
@@ -3808,16 +3688,15 @@ to another instance **/
   pathName=[resourceManager pathForResourceNamed:[NSString stringWithFormat:@"%@.%@",aName,type]
                             inFramework:aFrameworkName
                             languages:languages];
-  NSDebugMLLog(@"application",@"pathName:%@",pathName);
   if (pathName)
     {
       NSString* propListString=[NSString stringWithContentsOfFile:pathName];
       propList=[propListString propertyList];
       if (!propList)
         {
-          LOGSeriousError(@"Bad propertyList \n%@\n from file %@",
-                          propListString,
-                          pathName);
+//          LOGSeriousError(@"Bad propertyList \n%@\n from file %@",
+//                          propListString,
+//                          pathName);
         };
     };
   
@@ -3839,7 +3718,6 @@ to another instance **/
   BOOL ok=YES;
   int classesCount=0;
 
-  LOGClassFnStart();
 
   classesCount=[classes count];
 
@@ -3881,7 +3759,7 @@ to another instance **/
                     }
                   else
                     {    
-                      LOGError(@"Can't create one of these classes %@ (super class: %@)",
+                      NSLog(@"Can't create one of these classes %@ (super class: %@)",
                                aClassName,superClassName);
                     };
                 };
@@ -3892,7 +3770,6 @@ to another instance **/
           GSObjCAddClasses(newClasses);
         };
     };
-  LOGClassFnStop();
   return ok;
 #endif
 };
@@ -3901,12 +3778,10 @@ to another instance **/
 +(void)addDynCreateClassName:(NSString*)className
               superClassName:(NSString*)superClassName
 {
-  LOGClassFnStart();
   NSDebugMLLog(@"gswdync",@"ClassName:%@ superClassName:%@",
 	       className, superClassName);
   [localDynCreateClassNames setObject:superClassName
                             forKey:className];
-  LOGClassFnStop();
 };
 
 //--------------------------------------------------------------------

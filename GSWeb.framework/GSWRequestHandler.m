@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWRequestHandler
@@ -45,13 +46,13 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)lock
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 //--------------------------------------------------------------------
 -(void)unlock
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 +(id)handler

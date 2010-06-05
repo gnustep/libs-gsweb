@@ -27,6 +27,8 @@
    </license>
 **/
 
+#if 0 // If somebody needs this please send patches to make it work
+
 #include "config.h"
 
 RCS_ID("$Id$")
@@ -35,6 +37,9 @@ RCS_ID("$Id$")
 #include "GSWDebug.h"
 #include <Foundation/NSThread.h>
 #include <Foundation/NSAutoreleasePool.h>
+#include <GNUstepBase/NSThread+GNUstepBase.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+
 #include <unistd.h>
 
 #define USTART	NSAutoreleasePool* arp=[NSAutoreleasePool new];
@@ -47,7 +52,7 @@ NSString* GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSStrin
   Class         cls = (Class)obj;
   char          c = '+';
 
-  if ([obj isInstance] == YES)
+  if (GSObjCIsInstance(obj) == YES)
     {
       c = '-';
       cls = [obj class];
@@ -61,7 +66,7 @@ NSString* GSWDebugMethodMsg(id obj, SEL sel, const char *file, int line, NSStrin
 void GSWLogC_(CONST char* file,int line,CONST char* string)
 {
   int len=0;
-  const char *thread=[[GSCurrentThread() description] cString];
+  const char *thread=[[GSCurrentThread() description] cStringUsingEncoding:NSASCIIStringEncoding];
 
   fprintf(stderr,"%s (%d) ", thread, (int)getpid());
   fprintf(stderr,"File %s: %d. ",file,line);
@@ -386,3 +391,4 @@ void GSWLogAssertGoodFn(CONST char* file,int line,id object)
     };
 };
 #endif
+#endif // 0

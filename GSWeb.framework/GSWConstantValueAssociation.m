@@ -50,12 +50,8 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogMemC("GSWConstantValueAssociation start of dealloc");
-  GSWLogAssertGood(self);
   DESTROY(_value);
-  GSWLogMemC("value deallocated");
   [super dealloc];
-  GSWLogMemC("GSWConstantValueAssociation end of dealloc");
 };
 
 //--------------------------------------------------------------------
@@ -108,11 +104,7 @@ RCS_ID("$Id$")
 -(NSString*)description
 {
   NSString* dscr=nil;
-  GSWLogAssertGood(self);
-  if (_value)
-    {
-      GSWLogAssertGood(_value);
-    };
+
   dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
                  object_getClassName(self),
                  (void*)self,

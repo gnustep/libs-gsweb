@@ -41,34 +41,28 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
     {
     };
-  LOGObjectFnStop();
   return self;
 };
 
 //--------------------------------------------------------------------
 -(void)awake
 {
-  LOGObjectFnStart();
   [super awake];
   message=nil;
   user=nil;
   password=nil;
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
 -(void)sleep
 {
-  LOGObjectFnStart();
   message=nil;
   user=nil;
   password=nil;
   [super sleep];
-  LOGObjectFnStop();
 };
 
 //--------------------------------------------------------------------
@@ -88,8 +82,7 @@ RCS_ID("$Id$")
 {
   GSWComponent* _nextPage=nil;
   BOOL _bindingOk=NO;
-  LOGObjectFnStart();
-  NSDebugMLog(@"user=%@ password=%@",user,password);
+
   NS_DURING
     {
       if ([self hasBinding:@"password"])
@@ -107,7 +100,6 @@ RCS_ID("$Id$")
                     forBinding:@"login"];
             };
 	};
-      NSDebugMLog(@"_bindingOk=%s",(_bindingOk ? "YES" : "NO"));
       if (_bindingOk)
 	{
 	  [self setValue:password
@@ -121,28 +113,22 @@ RCS_ID("$Id$")
 	{
 	  message=[self valueForBinding:@"message"];
 	};
-      NSDebugMLog(@"message=%@",message);
       _tryCount++;
     }
   NS_HANDLER
     {
-      LOGException0(@"exception in GSWLogin login action");
-      LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                               @"In GSWLogin login action");
-      LOGException(@"exception=%@",localException);
       [localException raise];
     }
   NS_ENDHANDLER;
-  LOGObjectFnStop();
+
   return _nextPage;
 };
 
 //--------------------------------------------------------------------
 -(NSNumber*)computeIsTryCountGreaterThanForKey:(NSString*)count
 {
-  NSDebugMLog(@"_tryCount=%d",_tryCount);
-  NSDebugMLog(@"count=%@ countIntValue=%d",count,[count intValue]);
   return ((_tryCount>[count intValue]) ? GSWNumberYes : GSWNumberNo);
 };
 @end

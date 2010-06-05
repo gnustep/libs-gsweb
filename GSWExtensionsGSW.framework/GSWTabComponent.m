@@ -40,26 +40,22 @@ RCS_ID("$Id$")
 
 -(id)init
 {
-  LOGObjectFnStart();
   if ((self=[super init]))
 	{
 	};
-  LOGObjectFnStop();
+
   return self;
 };
 
 -(void)awake
 {
-  LOGObjectFnStart();
   [super awake];
-  LOGObjectFnStop();
+
 };
 
 -(void)sleep
 {
-  LOGObjectFnStart();
   [super sleep];
-  LOGObjectFnStop();
 };
 
 -(void)dealloc
@@ -76,7 +72,7 @@ RCS_ID("$Id$")
 {
   NSString* image=nil;
   BOOL isSelected=NO;
-  LOGObjectFnStart();
+
   isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
   if (isSelected)
     {
@@ -96,7 +92,7 @@ RCS_ID("$Id$")
       else
         image = @"tabLeftBorderNotSelected.gif";
     };
-  NSDebugMLog(@"image=%@",image);
+
   return image;
 };
 
@@ -104,7 +100,7 @@ RCS_ID("$Id$")
 {
   NSString* image=nil;
   BOOL isSelected=NO;
-  LOGObjectFnStart();
+
   isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
   if (isSelected)
     {
@@ -124,14 +120,14 @@ RCS_ID("$Id$")
       else
         image = @"tabRightBorderNotSelected.gif";
     };
-  NSDebugMLog(@"image=%@",image);
+
   return image;
 };
 -(NSString*)tabImage
 {
   NSString* image=nil;
   BOOL isSelected=NO;
-  LOGObjectFnStart();
+
   isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
   if (isSelected)
     {
@@ -147,7 +143,7 @@ RCS_ID("$Id$")
       else if ([self hasBinding:@"tabImage"])
         image=[self valueForBinding:@"tabImage"];
     };
-  NSDebugMLog(@"image=%@",image);
+
   return image;
 };
 
@@ -155,7 +151,7 @@ RCS_ID("$Id$")
 {
   NSString* text=nil;
   BOOL isSelected=NO;
-  LOGObjectFnStart();
+
   isSelected=boolValueFor([self valueForBinding:@"isCurrentTabSelected"]);
   if (isSelected)
     {
@@ -171,17 +167,14 @@ RCS_ID("$Id$")
       else if ([self hasBinding:@"tabText"])
         text=[self valueForBinding:@"tabText"];
     };
-  NSDebugMLog(@"text=%@",text);
-  LOGObjectFnStop();
+
   return text;
 };
 
 -(GSWComponent*)selectCurrentTab
 {
   GSWComponent* page=nil;
-  LOGObjectFnStart();
   page=[self valueForBinding:@"selectCurrentTab"];
-  LOGObjectFnStop();
   return page;
 };
 @end

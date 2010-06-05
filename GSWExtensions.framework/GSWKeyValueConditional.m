@@ -52,24 +52,15 @@ RCS_ID("$Id$")
   id parentValue;
   id value;
 
-  LOGObjectFnStart();
-
 //    key = [self valueForBinding:@"key"];
 //    parentValue = (key ? [[self parent] valueForKeyPath:key]:nil);
   parentValue = [self valueForBinding:@"key"];
   value = [self valueForBinding:@"value"];
 
-  NSDebugMLLog(@"GSWComponent",@"parentValue=%@",parentValue);
-  NSDebugMLLog(@"GSWComponent",@"value=%@",value);
-
   if(parentValue == nil)
     condition = (value == nil);
   else
     condition = [parentValue isEqual:value];
-
-  NSDebugMLLog(@"GSWComponent",@"condition=%d",condition);
-
-  LOGObjectFnStop();
 
   return condition;
 }

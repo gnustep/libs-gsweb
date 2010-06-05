@@ -63,16 +63,12 @@ RCS_ID("$Id$")
      templateInfo:(NSString*)templateInfo
            parent:(GSWTemporaryElement*)parent
 {
-  LOGObjectFnStart();
-
   if ((self=[self init]))
     {
       _parent=parent;
       ASSIGNCOPY(_properties,properties);
       ASSIGNCOPY(_templateInfo,templateInfo);
     };
-
-  LOGObjectFnStop();
 
   return self;
 };
@@ -103,23 +99,17 @@ RCS_ID("$Id$")
 /** adds element to children **/
 -(void)addChildElement:(GSWElement*)element
 {
-  LOGObjectFnStart();
 
   if (!_children)
     _children=[NSMutableArray new];
   [_children addObject:element];
 
-  LOGObjectFnStart();
 };
 
 //--------------------------------------------------------------------
 /** Returns parent element **/
 -(GSWTemporaryElement*)parentElement
 {
-  LOGObjectFnStart();
-
-  LOGObjectFnStop();
-
   return _parent;
 };
 
@@ -127,10 +117,6 @@ RCS_ID("$Id$")
 /** Returns template information **/
 -(NSString*)templateInfo
 {
-  LOGObjectFnStart();
-
-  LOGObjectFnStop();
-
   return _templateInfo;
 }
 
@@ -142,11 +128,6 @@ RCS_ID("$Id$")
   GSWElement* template = nil;
   NSMutableArray* elementChildren=nil;
   int childrenCount=0;
-
-  LOGObjectFnStart();
-
-  NSDebugMLog(@"self=%@",self);
-  NSDebugMLog(@"_children=%@",_children);
 
   // Is there children ?
   childrenCount=[_children count];
@@ -166,10 +147,8 @@ RCS_ID("$Id$")
           for(i=0;i<childrenCount;i++)
             {
               GSWElement* element=[_children objectAtIndex:i];
-              NSDebugMLog(@"element=%@",element);
               if ([element isKindOfClass:[GSWHTMLBareString class]])// Concatenate BareStrings
                 {
-                  NSDebugMLog(@"bareStringText=%@",bareStringText);
                   if (bareStringText)
                     {
                       [bareStringText appendString:[(GSWHTMLBareString*)element string]];
@@ -181,7 +160,6 @@ RCS_ID("$Id$")
                       bareStringText=[NSMutableString stringWithString:[(GSWHTMLBareString*)element string]];
                       element=nil;
                     };
-                  NSDebugMLog(@"element=%@",element);
                 }
               else
                 {
@@ -189,7 +167,6 @@ RCS_ID("$Id$")
                     {
                       GSWHTMLBareString* bareString = [GSWHTMLBareString elementWithString:bareStringText];
                       [bareStringText setString:@""];
-                      NSDebugMLog(@"bareString=%@",bareString);
                       if (!elementChildren)
                         elementChildren=(NSMutableArray*)[NSMutableArray array];
                       [elementChildren addObject:bareString];
@@ -204,7 +181,6 @@ RCS_ID("$Id$")
             };
         };
 
-      NSDebugMLog(@"elementChildren=%@",elementChildren);
       if ([elementChildren count]==1)
         {
           template=[elementChildren lastObject];
@@ -214,10 +190,6 @@ RCS_ID("$Id$")
           template=[GSWHTMLStaticGroup elementWithContentElements:elementChildren];
         };
     };
-
-  NSDebugMLog(@"template=%@",template);
-
-  LOGObjectFnStop();
 
   return template;
 }
@@ -230,13 +202,9 @@ nil if none is found
 {
   NSString* name=nil;
 
-  LOGObjectFnStart();
 
   name=[_properties objectForKey:@"name"];
-  NSDebugMLog(@"name=%@",name);
-  NSDebugMLog(@"_properties=%@",_properties);
 
-  LOGObjectFnStop();
 
   return name;
 };
@@ -254,19 +222,11 @@ found for that element
   NSString* name=nil;
   GSWDeclaration* elementDeclaration=nil;
 
-  LOGObjectFnStart();
-
-  NSDebugMLog(@"self=%@",self);
-  NSDebugMLog(@"declarations=%@",declarations);
-  NSDebugMLog(@"languages=%@",languages);
-
   // First, get children template
   template = [self template];
-  NSDebugMLog(@"template=%@",template);
 
   // Get element name
   name=[self name];
-  NSDebugMLog(@"name=%@",name);
 
   if (!name)
     {
@@ -277,7 +237,6 @@ found for that element
   else
     {
       elementDeclaration = [declarations objectForKey:name];
-      NSDebugMLog(@"elementDeclaration=%@",elementDeclaration);
       
       if (!elementDeclaration)
         {
@@ -292,11 +251,9 @@ found for that element
                         properties:_properties
                         template:template
                         languages:languages];
-          NSDebugMLog(@"element=%@",element);
         };
     };
 
-  LOGObjectFnStop();
 
   return element;
 }
@@ -313,13 +270,6 @@ May raise exception if element can't be created
 {
   GSWElement* element = nil;
 
-  LOGObjectFnStart();
-
-  NSDebugMLog(@"declaration=%@",declaration);
-  NSDebugMLog(@"name=%@",name);
-  NSDebugMLog(@"properties=%@",properties);
-  NSDebugMLog(@"template=%@",template);
-
   if (!declaration)
     {
       [GSWDeclarationFormatException raise:GSWDFEMissingDeclarationForElement
@@ -330,7 +280,6 @@ May raise exception if element can't be created
     {
       Class elementClass = Nil;
       NSString* elementType=[declaration type];
-      NSDebugMLog(@"elementType=%@",elementType);
 
       if (elementType != nil) {
         elementClass = NSClassFromString(elementType);
@@ -346,8 +295,6 @@ May raise exception if element can't be created
         {
           NSDictionary* associations = nil;
 
-          NSDebugMLog(@"elementClass=%@",elementClass);
-
           associations=[declaration associations];
           if ([properties count]>0)
             {
@@ -362,7 +309,6 @@ May raise exception if element can't be created
                       if (!addedAssoc)
                         addedAssoc=(NSMutableDictionary*)[NSMutableDictionary dictionary];
                       value=[properties objectForKey:key];
-                      NSDebugMLog(@"key=%@ value=%@",key,value);
                       [addedAssoc setObject:[GSWAssociation associationWithValue:value]
                                   forKey:key];
                     };
@@ -378,7 +324,6 @@ May raise exception if element can't be created
                           associations:associations
                           template:template
                           languages:languages];
-          NSDebugMLog(@"element=%@",element);
           if (element)
             {
               [element setDeclarationName:[declaration name]];
@@ -391,10 +336,6 @@ May raise exception if element can't be created
             };
         };
     };
-
-  NSDebugMLog(@"element=%@",element);
-
-  LOGObjectFnStop();
 
   return element;
 }

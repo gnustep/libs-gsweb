@@ -42,14 +42,11 @@ RCS_ID("$Id$")
 //-----------------------------------------------------------------------------------
 -(void)dealloc
 {
-  GSWLogC("Dealloc GSWCollopsibleComponent");
-  GSWLogC("Dealloc GSWCollopsibleComponent Super");
   DESTROY(_openedImageFileName);
   DESTROY(_closedImageFileName);
   DESTROY(_openedHelpString);
   DESTROY(_closedHelpString);
   [super dealloc];
-  GSWLogC("End Dealloc GSWCollopsibleComponent");
 };
 
 //-----------------------------------------------------------------------------------
@@ -71,8 +68,7 @@ RCS_ID("$Id$")
 //-----------------------------------------------------------------------------------
 -(BOOL)isVisible
 {
-  LOGObjectFnStart();
-  NSDebugMLog(@"_isVisibleConditionPassed=%s",(_isVisibleConditionPassed ? "YES" : "NO"));
+
   if (!_isVisibleConditionPassed)
     {
       if ([self hasBinding:@"condition"])
@@ -83,24 +79,21 @@ RCS_ID("$Id$")
         _isVisible=boolValueFor([self valueForBinding:@"condition"]);
       _isVisibleConditionPassed=YES;
     };
-  NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
-  LOGObjectFnStop();
+
   return _isVisible;
 };
 
 //-----------------------------------------------------------------------------------
 -(GSWComponent*)toggleVisibilityAction
 {
-  LOGObjectFnStart();
-  NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
   _isVisible = ![self isVisible];
-  NSDebugMLog(@"_isVisible=%s",(_isVisible ? "YES" : "NO"));
+
   if ([self hasBinding:@"visibility"])
 	{
 	  [self setValue:(_isVisible ? GSWNumberYes : GSWNumberNo)
                 forBinding:@"visibility"];
 	};
-  LOGObjectFnStop();
+
   return nil;
 };
 
@@ -108,7 +101,7 @@ RCS_ID("$Id$")
 -(NSString*)imageFileName
 {
   NSString* _image=nil;
-  LOGObjectFnStart();
+
   if ([self isVisible])
 	{
 	  if (!_openedImageFileName) 
@@ -124,7 +117,6 @@ RCS_ID("$Id$")
 	}
   else
 	{
-	  NSDebugMLog(@"_closedImageFileName=%@",_closedImageFileName);
 	  if (!_closedImageFileName) 
 		{
 		  if ([self hasBinding:@"closedImageFileName"])
@@ -136,8 +128,7 @@ RCS_ID("$Id$")
 		};
 	  _image=_closedImageFileName;
 	};
-  NSDebugMLog(@"_image=%@",_image);
-  LOGObjectFnStop();
+
   return _image;
 };
 
@@ -145,7 +136,7 @@ RCS_ID("$Id$")
 -(NSString*)label
 {
   NSString* _label=nil;
-  LOGObjectFnStart();
+
   if ([self isVisible])
 	{
 	  if ([self hasBinding:@"openedLabel"])
@@ -160,8 +151,7 @@ RCS_ID("$Id$")
 	  else if ([self hasBinding:@"label"])
 		_label=[self valueForBinding:@"label"];
 	};
-  NSDebugMLog(@"_label=%@",_label);
-  LOGObjectFnStop();
+  
   return _label;
 };
 
@@ -169,7 +159,7 @@ RCS_ID("$Id$")
 -(NSString*)helpString
 {
   NSString* _helpString=nil;
-  LOGObjectFnStart();
+
   if ([self isVisible])
 	{
 	  if (!_openedHelpString)
@@ -196,8 +186,7 @@ RCS_ID("$Id$")
 		};
 	  _helpString=_closedHelpString;
 	};
-  NSDebugMLog(@"_helpString=%@",_helpString);
-  LOGObjectFnStop();
+
   return _helpString;
 };
 
@@ -212,8 +201,6 @@ RCS_ID("$Id$")
 {
   BOOL isDisabled=NO;
 
-  LOGObjectFnStart();
-
   if ([self hasBinding:@"disabled"])
     isDisabled=boolValueFor([self valueForBinding:@"disabled"]);
   else if ([self hasBinding:@"enabled"])
@@ -221,10 +208,6 @@ RCS_ID("$Id$")
       BOOL isEnabled=boolValueFor([self valueForBinding:@"enabled"]);
       isDisabled=(isEnabled ? NO : YES);
     };
-
-  NSDebugMLog(@"isDisabled=%s",(isDisabled ? "YES" : "NO"));
-
-  LOGObjectFnStop();
   
   return isDisabled;
 };
@@ -234,16 +217,10 @@ RCS_ID("$Id$")
 {
   BOOL shouldDisplay=YES;
 
-  LOGObjectFnStart();
-
   if ([self isDisabled]
       && [self hasBinding:@"displayDisabled"]
       && !boolValueFor([self valueForBinding:@"displayDisabled"]))
     shouldDisplay=NO;
-
-  NSDebugMLog(@"shouldDisplay=%s",(shouldDisplay ? "YES" : "NO"));
-
-  LOGObjectFnStop();
   
   return shouldDisplay;
 };

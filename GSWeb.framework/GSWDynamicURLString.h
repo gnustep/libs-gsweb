@@ -60,15 +60,15 @@
 
 -(id)init;
 -(id)initWithCharactersNoCopy:(unichar*)chars
-                       length:(unsigned int)length
+                       length:(NSUInteger)length
                  freeWhenDone:(BOOL)flag;
 -(id)initWithCharacters:(const unichar*)chars
-                 length:(unsigned int)length;
+                 length:(NSUInteger)length;
 -(id)initWithCStringNoCopy:(char*)byteString
-                    length:(unsigned int)length
+                    length:(NSUInteger)length
               freeWhenDone:(BOOL)flag;
 -(id)initWithCString:(const char*)byteString
-              length:(unsigned int)length;
+              length:(NSUInteger)length;
 -(id)initWithCString:(const char*)byteString;
 -(id)initWithString:(NSString*)string;
 -(id)initWithFormat:(NSString*)format,...;
@@ -111,7 +111,6 @@
 -(NSString*)urlPortString;//NDFN
 -(int)urlPort;//NDFN
 -(NSString*)urlProtocolHostPort;//NDFN
--(void)checkURL;
 
 -(void)setURLRequestHandlerPath:(NSString*)aString;
 // 5.0 also in 4.5?

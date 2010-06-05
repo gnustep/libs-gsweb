@@ -36,6 +36,7 @@ RCS_ID("$Id$")
 
 #include "GSWExtWOCompatibility.h"
 #include "GSWLongResponsePage.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 @interface GSWLongResponsePage (Private)
 -(void) _setCancelled:(BOOL)cancelled;
@@ -66,29 +67,21 @@ RCS_ID("$Id$")
 /** Locks the page **/
 -(void) lock
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
   [self subclassResponsibility: _cmd];
-  LOGObjectFnStopC("GSWLongResponsePage");
 };
 
 
 /** Unlock the page **/
 -(void) unlock
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
   [self subclassResponsibility: _cmd];
-  LOGObjectFnStopC("GSWLongResponsePage");
 };
 
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  LOGObjectFnStartC("GSWLongResponsePage");   
   [self lock];
-  NSDebugMLog(@"_refreshInterval=%f",(double)_refreshInterval);
-  NSDebugMLog(@"_done=%d",(int)_done);
-  NSDebugMLog(@"_performingAction=%d",(int)_performingAction);
-  //
+
   if (_refreshInterval>0 && !_done/*_keepRefreshing*/)
     {
       NSString *url=nil;
@@ -97,13 +90,13 @@ RCS_ID("$Id$")
       url=(NSString*)[aContext urlWithRequestHandlerKey:@"cr"
                                path:nil 
                                queryString:nil];
-      NSDebugMLog(@"url=%@",url);
+
       header=[NSString stringWithFormat:@"%d;url=%@%@/%@.GSWMetaRefresh",
                        (int)_refreshInterval,
                        url,
                        [[aContext session]sessionID],
                        [aContext contextID]];
-      NSDebugMLog(@"header=%@",header);
+
       [aResponse setHeader:header
                  forKey:@"Refresh"];
     };
@@ -111,7 +104,7 @@ RCS_ID("$Id$")
   if (!_performingAction) 
     {      
       _performingAction = YES;
-      NSDebugMLog(@"BEFORE performAction thread=%p",[NSThread currentThread]);
+
       [NSThread detachNewThreadSelector:@selector(_perform)
                 toTarget:self
                 withObject:nil];
@@ -119,18 +112,14 @@ RCS_ID("$Id$")
   [super appendToResponse:aResponse
          inContext:aContext];
   [self unlock];
-  LOGObjectFnStopC("GSWLongResponsePage");
 };
 
 -(id)threadExited:(NSNotification*)notif
 {
   NSThread* thread=nil;
-  LOGObjectFnStartC("GSWLongResponsePage");
   thread=[notif object];
-  NSDebugMLog(@"threadExited thread=%@",thread);
-  fflush(stdout);
-  fflush(stderr);
-//  threadDict = [thread threadDictionary];
+
+  //  threadDict = [thread threadDictionary];
 //  NSDebugMLLog(@"low",@"threadDict=%@",threadDict);
 //  adaptorThread=[threadDict objectForKey:GSWThreadKey_DefaultAdaptorThread];
 //  NSDebugMLLog(@"low",@"adaptorThread=%@",adaptorThread);
@@ -138,7 +127,6 @@ RCS_ID("$Id$")
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                         name:NSThreadWillExitNotification
                                         object:thread];
-  LOGObjectFnStopC("GSWLongResponsePage");
   return nil; //??
 };
 
@@ -146,7 +134,7 @@ RCS_ID("$Id$")
 {
   id result=nil;
   NSAutoreleasePool* arp = nil;
-  LOGObjectFnStartC("GSWLongResponsePage"); 
+
   arp = [NSAutoreleasePool new];
   [[NSNotificationCenter defaultCenter] addObserver:self
                                         selector:@selector(threadExited:)
@@ -155,17 +143,7 @@ RCS_ID("$Id$")
   NS_DURING
     {
       [self _setResult:nil];
-      NSDebugMLog(@"CALL performAction thread=%p",[NSThread currentThread]);
-      NSDebugMLog(@"CALL performAction thread=%@",[NSThread currentThread]);
       result=[self performAction];
-      fflush(stdout);
-      fflush(stderr);
-      printf("==AFTER performAction");
-      NSDebugMLog(@"result=%@",result);
-      NSDebugMLog(@"AFTER performAction");
-      printf("AFTER performAction");
-      fflush(stdout);
-      fflush(stderr);
       
       if (!_cancelled)
         _done=YES; //???
@@ -174,58 +152,43 @@ RCS_ID("$Id$")
   NS_HANDLER
     {
       RETAIN(localException);
-      NSLog(@"EXCEPTION %@",localException);
-      NSDebugMLog(@"EXCEPTION %@",localException);
-      fflush(stdout);
-      fflush(stderr);
       DESTROY(arp);
       AUTORELEASE(localException);
       [localException raise];
     }
   NS_ENDHANDLER;
   DESTROY(arp);
-  LOGObjectFnStopC("GSWLongResponsePage");
-  fflush(stdout);
-  fflush(stderr);
 };
 
 /** Set status (Lock protected) **/
 -(void)setStatus:(id)status
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
   if (status!=_status)
     {
       [self lock];
       ASSIGN(_status,status);
       [self unlock];
     };
-  LOGObjectFnStopC("GSWLongResponsePage");
 };
 
 -(id) _status
 {
   //??
-  LOGObjectFnStartC("GSWLongResponsePage");
-  LOGObjectFnStopC("GSWLongResponsePage");
   return _status;
 };
 
 /** Set the refresh interval. Default is 0. If >0, a refresh header is appended to the response **/
 -(void)setRefreshInterval:(NSTimeInterval)interval
 {
-  LOGObjectFnStartC("GSWLongResponsePage"); 
   if (interval>0)
     _refreshInterval = interval;
   else
     _refreshInterval = 0;
-  LOGObjectFnStopC("GSWLongResponsePage"); 
 };
 
 /** Get the refresh interval. **/
 -(NSTimeInterval)refreshInterval
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
-  LOGObjectFnStopC("GSWLongResponsePage");
   return _refreshInterval;
 };
 
@@ -233,8 +196,6 @@ RCS_ID("$Id$")
 -(BOOL)isCancelled
 {
   //??
-  LOGObjectFnStartC("GSWLongResponsePage");
-  LOGObjectFnStopC("GSWLongResponsePage");
   return _cancelled;
 };
 
@@ -246,9 +207,8 @@ count>1 ==> if your code is thread safe, you can enable concurrent request handl
 **/
 -(id) performAction
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
   [self subclassResponsibility:_cmd];
-  LOGObjectFnStopC("GSWLongResponsePage");
+
   return nil;
 };
 
@@ -265,7 +225,7 @@ Don't override it
   NSException *exception=nil;
   id result=[self _result];//OK
   id status=nil;
-  LOGObjectFnStartC("GSWLongResponsePage");
+
   exception=[self _exception];
   status=[self _status];
   if (exception)
@@ -279,7 +239,7 @@ Don't override it
     page=[self cancelPageForStatus:status];
   else
     page=[self refreshPageForStatus:status];
-  LOGObjectFnStopC("GSWLongResponsePage");
+
   return page;
 };
 
@@ -289,10 +249,10 @@ Don't override it
   GSWComponent *page=nil;
   id status=nil;
   status=[self _status];
-  LOGObjectFnStartC("GSWLongResponsePage");
+
   [self _setCancelled:YES];
   page=[self cancelPageForStatus:status];
-  LOGObjectFnStopC("GSWLongResponsePage");
+
   return page;
 };
 
@@ -301,9 +261,9 @@ Default implemnetation raise the exception **/
 -(GSWComponent *)pageForException:(NSException *)exception
 {
   //??
-  LOGObjectFnStartC("GSWLongResponsePage");
+
   [exception raise];//??
-  LOGObjectFnStopC("GSWLongResponsePage");
+
   return nil;
 };
 
@@ -314,18 +274,15 @@ You can override this to return a newly created result page
 **/
 -(GSWComponent *)pageForResult:(id) result
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
   //TODO: stop refreshing ?
   _done=YES;
-  LOGObjectFnStopC("GSWLongResponsePage");
+
   return self;
 };
 
 /** Called on each refresh. Should return self. **/
 -(GSWComponent *)refreshPageForStatus:(id) status
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
-  LOGObjectFnStopC("GSWLongResponsePage");
   return self;
 };
 
@@ -334,10 +291,9 @@ Default implementation stops automatic refresh and returns self.
 **/
 -(GSWComponent *)cancelPageForStatus:(id) status;
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
   //[self subclassResponsibility: _cmd];
   _cancelled=YES;
-  LOGObjectFnStopC("GSWLongResponsePage");
+
   return self;
 };
 
@@ -347,7 +303,7 @@ Default implementation stops automatic refresh and returns self.
 {
   //??
   GSWElement *element=nil;
-  LOGObjectFnStartC("GSWLongResponsePage");
+
   if ([GSWContext_senderID(aContext) isEqualToString:@"GSWMetaRefresh"])//GSWMetaRefreshSenderId])//senderID ret: GSWMetaRefresh // Seems OK
     {
       element=[self refresh];//OK
@@ -355,7 +311,7 @@ Default implementation stops automatic refresh and returns self.
   else
     element=[super invokeActionForRequest:aRequest
                    inContext:aContext];
-  LOGObjectFnStopC("GSWLongResponsePage");
+
   return element;
 };
 
@@ -363,39 +319,32 @@ Default implementation stops automatic refresh and returns self.
 -(void) _setCancelled:(BOOL)cancelled
 {
   //??
-  LOGObjectFnStartC("GSWLongResponsePage");
   if (cancelled!=_cancelled)
     {
       [self lock];
       _cancelled=cancelled;
       [self unlock];      
     };
-  LOGObjectFnStopC("GSWLongResponsePage");
 };
 
 -(void) _setResult:(id)result
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
   if (result!=_result)
     {
       [self lock];
       _result=result;
       [self unlock];      
     };
-  LOGObjectFnStopC("GSWLongResponsePage");
 };
 
 -(id)_result
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
-  LOGObjectFnStopC("GSWLongResponsePage");
   return _result;
 };
 
 -(void)_setException:(NSException*)exception
 {
 //??
-  LOGObjectFnStartC("GSWLongResponsePage");
   if (exception!=_exception)
     {
       [self lock];
@@ -403,13 +352,10 @@ Default implementation stops automatic refresh and returns self.
       [self unlock];
     };
   [self subclassResponsibility: _cmd];
-  LOGObjectFnStopC("GSWLongResponsePage");
 };
 
 -(NSException*)_exception
 {
-  LOGObjectFnStartC("GSWLongResponsePage");
-  LOGObjectFnStopC("GSWLongResponsePage");
   return _exception;
 };
 

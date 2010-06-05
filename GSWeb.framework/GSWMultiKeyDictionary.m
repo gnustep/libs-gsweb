@@ -1022,23 +1022,19 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 //------------------------------------------------------------------------------
 -(id)initWithNodeSize:(NSUInteger)nodeSize
 {
-  LOGObjectFnStart();
   NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
              @"Bad node size: %u < %u",
              nodeSize,
              sizeof(GSWMapNode_t));
   self=[self initWithNodeSize:nodeSize
              capacity:DEFAULT_DICTIONARY_CAPACITY];
-  LOGObjectFnStop();
   return self;
 };
 
 //------------------------------------------------------------------------------
 -(id)init
 {
-  LOGObjectFnStart();
   self=[self initWithNodeSize:sizeof(GSWMapNode_t)];
-  LOGObjectFnStop();
   return self;
 };
 
@@ -1046,7 +1042,6 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 -(id)initWithNodeSize:(NSUInteger)nodeSize
              capacity:(NSUInteger)capacity
 {
-  LOGObjectFnStart();
   NSCAssert2(nodeSize>=sizeof(GSWMapNode_t),
              @"Bad node size: %u < %u",
              nodeSize,
@@ -1063,17 +1058,14 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
       GSWMapBaseInitWithZoneAndCapacity((GSWMapBase)_mapBase, [self zone],
 					capacity);
     };
-  LOGObjectFnStop();
   return self;
 };
 
 //------------------------------------------------------------------------------
 -(id)initWithCapacity:(NSUInteger)capacity
 {
-  LOGObjectFnStart();
   [self initWithNodeSize:sizeof(GSWMapNode_t)
         capacity:capacity];
-  LOGObjectFnStop();
   return self;
 };
 

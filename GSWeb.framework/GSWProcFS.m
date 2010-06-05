@@ -192,7 +192,7 @@ NSString* formattedByteSizeValue(unsigned int value)
 
   if ([content length] == 0)
     {
-      LOGSeriousError(@"Read (%@) attempt failed", path);
+      //LOGSeriousError(@"Read (%@) attempt failed", path);
     }
 
   return content;
@@ -214,11 +214,10 @@ NSString* formattedByteSizeValue(unsigned int value)
 {
   BOOL ok=NO;
   NSString* pidstat=[self contentOfPIDFile:@"statm"];
-  NSDebugMLog(@"pidstat=%@",pidstat);
+
   if (pidstat)
     {
       const char* statsChars=[pidstat cString];
-      NSDebugMLog(@"pidstat=%@",pidstat);
       if (sscanf(statsChars, "%ld %ld %ld %ld %ld %ld %ld",
                  &_pagesNb,//size
                  &_residentPagesNb,//resident
@@ -238,14 +237,13 @@ NSString* formattedByteSizeValue(unsigned int value)
   BOOL ok=NO;
   NSString* pidstat = [self contentOfPIDFile: @"stat"];
 
-  NSDebugMLog(@"pidstat=%@",pidstat);
   if (pidstat)
     {
       NSRange cmdEnd=[pidstat rangeOfString:@") "];
       if (cmdEnd.length>0)
         {
           NSString* pid_cmd=[pidstat substringToIndex:cmdEnd.location];
-          NSDebugMLog(@"pid_cmd=%@",pid_cmd);
+
           if (cmdEnd.location+cmdEnd.length<[pidstat length])
             {
               NSString* stats=[pidstat substringFromIndex:cmdEnd.location+cmdEnd.length];
@@ -264,7 +262,6 @@ NSString* formattedByteSizeValue(unsigned int value)
               long cstime;
               long startTime;
               
-              NSDebugMLog(@"stats=%@",stats);
               if (sscanf(statsChars,
                          "%c %d %d %d %d %d %lu %lu %lu %lu %lu %ld %ld %ld %ld %d "
                          "%d %lu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %LX %LX %LX %LX %lu",
@@ -341,7 +338,6 @@ NSString* formattedByteSizeValue(unsigned int value)
                                           if (linux_version_code < LINUX_VERSION(1,1,30) && P->tty != -1)
                                           P->tty = 4*0x100 + P->tty;              // when tty wasn't full devno 
                   */
-                  NSDebugMLog(@"residentMemorySize=%lu",_residentMemorySize);
                 };
             };
         };

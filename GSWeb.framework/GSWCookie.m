@@ -86,7 +86,6 @@ RCS_ID("$Id$")
           expires:(NSDate*)anExpireDate
          isSecure:(BOOL)isSecureFlag
 {
-  LOGObjectFnStart();
   if ((self=[self init]))
     {
       NSDebugMLLog(@"low",@"aName:%@",aName);
@@ -102,7 +101,6 @@ RCS_ID("$Id$")
       [self setExpires:anExpireDate];
       [self setIsSecure:isSecureFlag];
     };
-  LOGObjectFnStop();
   return self;
 };
 
@@ -193,7 +191,6 @@ RCS_ID("$Id$")
                    domainString,
                    (_isSecure ? @" secure;" : @"")];
   NSDebugMLLog(@"low",@"header=%@",header);
-  LOGObjectFnStop();
   return header;
 };
 

@@ -66,10 +66,19 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
   }
 }
 
+/**
+ * drain all vars that have been created in the thread.
+ */
+-(void)drain
+{
+  DESTROY(_pool);
+}
+
 -(void)dealloc
 {
 // TODO: add vars!
-  
+
+  DESTROY(_t);
   DESTROY(_serverSocket);
   DESTROY(_currentSocket);
 
@@ -77,7 +86,10 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
 
   _app = nil;
   _mtAdaptor = nil;
-  DESTROY(_pool);
+  // we are NOT draining our _pool here we do it before the thread is gone.
+  // otherwise, we get nice
+  // *** attempt to pop an unknown autorelease pool
+  // messages -- dw
 
   [super dealloc];
 }
@@ -117,7 +129,6 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
 
 - (void)threadWillExit:(NSNotification*)notification
 {
-  NSLog(@"%s",__PRETTY_FUNCTION__);
   [[NSNotificationCenter defaultCenter] removeObserver: self];
   
   [_mtAdaptor workerThreadWillExit:self];
@@ -198,6 +209,9 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
   [self _closeSocket];
   
   _processingRequest = NO;
+
+  [self drain];
+
   if (_isMultiThreadEnabled) {
     [NSThread exit];
   }

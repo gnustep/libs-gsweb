@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include <GNUstepBase/NSObject+GNUstepBase.h>
 
 //====================================================================
 @implementation GSWParam
@@ -44,7 +45,6 @@ RCS_ID("$Id$")
 treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 {
   NSMutableDictionary* associations=nil;
-  LOGObjectFnStartC("GSWImage");
 
   _treatNilValueAsGSWNull = treatNilValueAsGSWNull;
   ASSIGN(_target,target);
@@ -54,11 +54,9 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 
   _action = [[inAssociations objectForKey:action__Key
                              withDefaultObject:[_action autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"_action=%@",_action);
 
   _value = [[inAssociations objectForKey:value__Key
                           withDefaultObject:[_value autorelease]] retain];
-  NSDebugMLLog(@"gswdync",@"_value=%@",_value);
 
   [associations removeObjectForKey:action__Key];
   [associations removeObjectForKey:value__Key];
@@ -114,14 +112,14 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
 //--------------------------------------------------------------------
 -(NSString*)elementName
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 };
 
@@ -132,7 +130,6 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 {
   GSWElement* element=nil;
 
-  LOGObjectFnStart();
 
   if (_action
       && [GSWContext_elementID(aContext) isEqualToString:GSWContext_senderID(aContext)])
@@ -145,60 +142,22 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
         element = [aContext page];
     };
 
-  LOGObjectFnStart();
 
   return element;
 };
 
-//-(void)appendGSWebObjectsAssociationsToResponse:(GSWResponse*)aResponse
-//                                      inContext:(GSWContext*)aContext
-//{
-//  [super appendGSWebObjectsAssociationsToResponse:aResponse
-//         inContext:aContext];
-//  if (_action)
-//    {
-//      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
-//                                                                    @"value",
-//                                                                    [aContext componentActionURL],
-//                                                                    NO);// Don't escape
-//    }
-//  else
-//    {
-//      GSWComponent* component=GSWContext_component(aContext);
-//
-//      id value = [self valueInComponent:component];
-//      if (value)
-//        {
-//          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
-//                                                                        @"value",
-//                                                                        value,
-//                                                                        YES);
-//        }
-//      else if(_treatNilValueAsGSWNull)
-//        {
-//          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
-//                                                                        @"value", 
-//                                                                        @"GSWNull",
-//                                                                        NO);
-//        }
-//      else
-//        NSWarnLog(@"GSWParam: nil 'value'");
-//    };
-//};
 
 //--------------------------------------------------------------------
 -(id)valueInComponent:(GSWComponent*)component
 {
   id value=nil;
 
-  LOGObjectFnStart();
 
   if (_target)
     value=[_target valueForKey:_targetKey];
   else if (_value)
     value=[_value valueInComponent:component];
 
-  LOGObjectFnStop();
 
   return value;
 };
@@ -207,7 +166,7 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 //--------------------------------------------------------------------
 +(BOOL)escapeHTML
 {
-  LOGClassFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 };
 

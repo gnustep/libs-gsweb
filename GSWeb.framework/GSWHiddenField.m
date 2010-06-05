@@ -40,9 +40,7 @@ RCS_ID("$Id$")
   contentElements:(NSArray*)elements
 {
   NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-  LOGObjectFnStartC("GSWHiddenField");
-  NSDebugMLLog(@"gswdync",@"name=%@ associations:%@ elements=%@",
-               aName,associations,elements);
+
   [tmpAssociations setObject:[GSWAssociation associationWithValue:@"hidden"]
                    forKey:@"type"];
   if ((self=[super initWithName:aName
@@ -50,7 +48,7 @@ RCS_ID("$Id$")
                    contentElements:nil])) //No Childs!
     {
     };
-  LOGObjectFnStopC("GSWHiddenField");
+
   return self;
 };
 

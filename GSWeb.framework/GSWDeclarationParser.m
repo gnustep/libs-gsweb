@@ -38,6 +38,9 @@ RCS_ID("$Id$")
 
 #include "GSWDeclarationParser.h"
 #include <GNUstepBase/Unicode.h>
+#include <GNUstepBase/GSObjCRuntime.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
+#include <GNUstepBase/NSData+GNUstepBase.h>
 
 static inline BOOL _parserIsIdentifierChar(unichar c)
 {
@@ -429,7 +432,6 @@ inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
 {
   NSData* md5=nil;
   NSDictionary* declarations=nil;
-  LOGObjectFnStart();
 
   if (_declarations)
     [_declarations removeAllObjects];
@@ -512,8 +514,6 @@ inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
                            forKey:md5];
     };
 
-  LOGObjectFnStop();
-
   return declarations;
 }
 
@@ -521,13 +521,10 @@ inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
 -(NSDictionary*)parseDeclarationString:(NSString*)declarationString
 {
   NSDictionary* declarations=nil;
-  LOGObjectFnStart();
 
   declarations=[self parseDeclarationString:declarationString
                      named:nil
                      inFrameworkNamed:nil];
-
-  LOGObjectFnStop();
 
   return declarations;
 }
@@ -1110,7 +1107,7 @@ Returns a NSNumber
       string=[NSString stringWithCharacters:_uniBuf+startIndex+1
                        length:_index-startIndex-1];
       NSDebugMLog(@"string=%@",string);
-      cString=[string cString];
+      cString=[string cStringUsingEncoding:NSASCIIStringEncoding];
       intValue=strtol(cString,&endPtr,16);
       NSDebugMLog(@"cString='%s' endPtr='%s'",cString,endPtr);
       if (endPtr && *endPtr)

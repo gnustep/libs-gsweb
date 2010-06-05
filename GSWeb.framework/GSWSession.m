@@ -33,7 +33,9 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
-#include <GNUstepBase/GSCategories.h>
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/NSData+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 
 #include <time.h>
 #if __linux__
@@ -145,85 +147,76 @@ extern id gcObjectsToBeVisited;
     struct sysinfo info;
     if ((sysinfo(&info)) == 0)
       {
-        unsigned int rnd;
+        NSUInteger rnd;
 
         // >0 test is to ignore not changing elements
 
-        if (sizeToFill>=sizeof(unsigned int) && info.uptime>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.uptime>0)
           {
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            NSDebugMLog(@"UPTIME %ld",(long)info.uptime);
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.uptime)) ^ rnd);
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.uptime)) ^ rnd);
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);
           }
 
-        if (sizeToFill>=sizeof(unsigned int) && info.loads[0]>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.loads[0]>0)
           {
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            NSDebugMLog(@"loads[0] %ld",(long)info.loads[0]);
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[0] >> 4)) ^ rnd);
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.loads[0] >> 4)) ^ rnd);
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);
           }
 
-        if (sizeToFill>=sizeof(unsigned int) && info.loads[1]>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.loads[1]>0)
           {
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            NSDebugMLog(@"loads[1] %ld",(long)info.loads[1]);
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[1] >> 4)) ^ rnd);
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.loads[1] >> 4)) ^ rnd);
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);
           }
 
-        if (sizeToFill>=sizeof(unsigned int) && info.loads[2]>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.loads[2]>0)
           {
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            NSDebugMLog(@"loads[2] %ld",(long)info.loads[2]);
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.loads[2] >> 4)) ^ rnd);
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.loads[2] >> 4)) ^ rnd);
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);
           }
 
-        if (sizeToFill>=sizeof(unsigned int) && info.freeram>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.freeram>0)
           {
-            NSDebugMLog(@"freeram %ld",(unsigned long)info.freeram);
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeram >> 4)) ^ rnd); // Drop 4 minor bits
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.freeram >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);
           }
         
-        if (sizeToFill>=sizeof(unsigned int) && info.sharedram>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.sharedram>0)
           {
-            NSDebugMLog(@"sharedram %ld",(unsigned long)info.sharedram);
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.sharedram >> 4)) ^ rnd); // Drop 4 minor bits
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.sharedram >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);
           }
         
-        if (sizeToFill>=sizeof(unsigned int) && info.freeswap>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.freeswap>0)
           {
-            NSDebugMLog(@"freeswap %ld",(unsigned long)info.freeswap);
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.freeswap >> 4)) ^ rnd); // Drop 4 minor bits
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.freeswap >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);
           }
         
-        if (sizeToFill>=sizeof(unsigned int) && info.bufferram>0)
+        if (sizeToFill>=sizeof(NSUInteger) && info.bufferram>0)
           {
-            NSDebugMLog(@"bufferram %ld",(unsigned long)info.bufferram);
             rnd=(unsigned)(((float)UINT_MAX)*rand()/(RAND_MAX+1.0));
-            *((unsigned int*)pMd5Data)=(((unsigned int)(info.bufferram >> 4)) ^ rnd); // Drop 4 minor bits
-            sizeToFill-=sizeof(unsigned int);
-            pMd5Data+=sizeof(unsigned int);                            
+            *((NSUInteger*)pMd5Data)=(((NSUInteger)(info.bufferram >> 4)) ^ rnd); // Drop 4 minor bits
+            sizeToFill-=sizeof(NSUInteger);
+            pMd5Data+=sizeof(NSUInteger);                            
           }
       }
   }
 #endif
-  NSDebugMLog(@"sizeToFill %d",sizeToFill);
   while(sizeToFill>0)
     {
       *((unsigned char*)pMd5Data)=(unsigned char)(256.0*rand()/(RAND_MAX+1.0));
@@ -239,7 +232,7 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)encodeWithCoder:(NSCoder*)coder
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   /*
   [coder_ encodeObject:sessionID];
   [coder_ encodeObject:languages];
@@ -252,7 +245,7 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(id)initWithCoder: (NSCoder*)coder
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   /*
   [coder_ decodeValueOfObjCType: @encode(id) at:&sessionID];
   [coder_ decodeValueOfObjCType: @encode(id) at:&languages];
@@ -287,15 +280,7 @@ extern id gcObjectsToBeVisited;
 -(NSString*)description
 {
   NSString* dscr=nil;
-  GSWLogAssertGood(self);
-  /*
-  NSDebugMLLog(@"sessions",@"selfCount=%u",(unsigned int)[self retainCount]);
-  NSDebugMLLog(@"sessions",@"sessionIDCount=%u",(unsigned int)[sessionID retainCount]);
-  */
-//  dscr=[NSString stringWithFormat:@"<%s %p>",
-//				 object_getClassName(self),
-//				 (void*)self];
-  
+
   dscr=[NSString stringWithFormat:@"<%s %p - sessionID=%@ autoreleasePool=%p timeOut=%f contextArrayStack=%@",
 				 object_getClassName(self),
 				 (void*)self,
@@ -303,26 +288,7 @@ extern id gcObjectsToBeVisited;
 				 (void*)_autoreleasePool,
 				 _timeOut,
 				 _contextArrayStack];
-/*
-  dscr=[dscr stringByAppendingFormat:@" contextRecords=%@ editingContext=%p languages=%@ componentState=%@ birthDate=%@",
-			 contextRecords,
-			 (void*)editingContext,
-			 languages,
-			 componentState,
-			 birthDate];
 
-  dscr=[dscr stringByAppendingFormat:@" statistics=%@ formattedStatistics=%@ currentContext=%p permanentPageCache=%@",
-				   statistics,
-				   formattedStatistics,
-				   (void*)currentContext,
-				   permanentPageCache];
-
-  dscr=[dscr stringByAppendingFormat:@" permanentContextIDArray=%@ contextCounter=%d requestCounter=%d isAllowedToViewStatistics=%s", 
-			 permanentContextIDArray,
-			 contextCounter,
-			 requestCounter,
-			 isAllowedToViewStatistics ? "YES" : "NO"];
-*/
   dscr=[dscr stringByAppendingFormat:@" isTerminating=%s isDistributionEnabled=%s storesIDsInCookies=%s storesIDsInURLs=%s hasSessionLockedEditingContext=%s>",
 				   _isTerminating ? "YES" : "NO",
 				   _isDistributionEnabled ? "YES" : "NO",
@@ -355,30 +321,28 @@ extern id gcObjectsToBeVisited;
   //OK
   
   if (!_domainForIDCookies)
-    {
-      GSWContext* context=nil;
-      GSWRequest* request=nil;
-      NSString* applicationName=nil;
-      NSString* adaptorPrefix=nil;
-      [[GSWApplication application]lock];
-      context=[self context];
-      request=[context request];
-      applicationName=[request applicationName];
-      NSDebugMLLog(@"sessions",@"applicationName=%@",applicationName);
-      adaptorPrefix=[request adaptorPrefix];
-      NSDebugMLLog(@"sessions",@"adaptorPrefix=%@",adaptorPrefix);
-      [[GSWApplication application]unlock];
-      ASSIGN(_domainForIDCookies,
-             ([NSString stringWithFormat:@"%@/%@.%@",
-                        adaptorPrefix,
-                        applicationName,
-                        GSWApplicationSuffix[GSWebNamingConv]]));
-    }
-
-  NSDebugMLLog(@"sessions",@"_domainForIDCookies=%@",_domainForIDCookies);
-
+  {
+    GSWContext* context=nil;
+    GSWRequest* request=nil;
+    NSString* applicationName=nil;
+    NSString* adaptorPrefix=nil;
+    
+    [[GSWApplication application]lock];
+    
+    context=[self context];
+    request=[context request];
+    applicationName=[request applicationName];
+    adaptorPrefix=[request adaptorPrefix];
+    
+    [[GSWApplication application]unlock];
+    
+    ASSIGN(_domainForIDCookies,
+           ([NSString stringWithFormat:@"%@/%@.%@",
+             adaptorPrefix,
+             applicationName,
+             GSWApplicationSuffix[GSWebNamingConv]]));
+  }
   
-
   return _domainForIDCookies;
 }
 
@@ -402,11 +366,8 @@ extern id gcObjectsToBeVisited;
 -(NSDate*)expirationDateForIDCookies
 {
   NSDate* expirationDateForIDCookies=nil;
-  NSDebugMLLog(@"sessions",@"timeOut=%f",(double)_timeOut);
   expirationDateForIDCookies=[NSDate dateWithTimeIntervalSinceNow:_timeOut];
-  NSDebugMLLog(@"sessions",@"expirationDateForIDCookies=%@ (HTML: %@)",
-               expirationDateForIDCookies,
-               [expirationDateForIDCookies htmlDescription]);
+
   return expirationDateForIDCookies;
 }
 
@@ -419,7 +380,6 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)setStoresIDsInCookies:(BOOL)flag
 {
-    NSDebugMLLog(@"sessions",@"newflag=%d",(int)flag);
   if (flag!=_storesIDsInCookies)
     {
       _storesIDsInCookies=flag;
@@ -518,10 +478,6 @@ extern id gcObjectsToBeVisited;
 
   ASSIGNCOPY(_sessionID,aSessionID);
 
-  if (_sessionID)
-    {
-      NSDebugMLLog(@"sessions",@"sessionIDCount=%u",[_sessionID retainCount]);
-    }
   application=[GSWApplication application];
   //applic statisticsStore
   //applic _activeSessionsCount
@@ -703,7 +659,6 @@ extern id gcObjectsToBeVisited;
   NSArray* contextArray=nil;
   GSWTransactionRecord* transactionRecord=nil;
 
-  GSWLogAssertGood(self);
   NSAssert(aContextID,@"No contextID");
   NSAssert([aContextID length]>0,@"contextID empty");
 
@@ -712,13 +667,12 @@ extern id gcObjectsToBeVisited;
   if (transactionRecord)
     {
       page=[transactionRecord responsePage];
-      GSWLogAssertGood(page);
     }
   
   if (page) // will put it at the end of the stack
     {
-      unsigned int stackIndex=0;
-      unsigned int contextArrayIndex=0;
+      NSUInteger stackIndex=0;
+      NSUInteger contextArrayIndex=0;
 
       contextArray=[self _contextArrayForContextID:aContextID
                          stackIndex:&stackIndex
@@ -737,8 +691,6 @@ extern id gcObjectsToBeVisited;
   if ([_permanentPageCache objectForKey:aContextID])
       page=[self _permanentPageWithContextID:aContextID];
 
-  NSAssert(self,@"self");
-
   [page _awakeInContext:_currentContext];
 
   return page;
@@ -746,7 +698,7 @@ extern id gcObjectsToBeVisited;
 
 //--------------------------------------------------------------------
 //NDFN
--(unsigned int)permanentPageCacheSize
+-(NSUInteger)permanentPageCacheSize
 {
   return [GSWApp permanentPageCacheSize];
 }
@@ -756,7 +708,7 @@ extern id gcObjectsToBeVisited;
 {
   GSWContext* context=nil;
   NSMutableDictionary* permanentPageCache=nil;
-  unsigned int permanentPageCacheSize=0;
+  NSUInteger permanentPageCacheSize=0;
   NSString* contextID=nil;
     context=[self context];
   permanentPageCache=[self _permanentPageCache];
@@ -767,25 +719,13 @@ extern id gcObjectsToBeVisited;
     {
       id deletePage=nil;
       NSString* deleteContextID=nil;
-      [GSWApplication statusLogString:@"Deleting permanent cached Page"];
       deleteContextID=[_permanentContextIDArray objectAtIndex:0];
-      GSWLogAssertGood(deleteContextID);
+
       RETAIN(deleteContextID); // We'll remove it from array
-      [GSWApplication statusLogWithFormat:@"permanentContextIDArray=%@",
-                      _permanentContextIDArray];
-      [GSWApplication statusLogWithFormat:@"contextID=%@",deleteContextID];
-      NSDebugMLLog(@"sessions",@"deleteContextID=%@",deleteContextID);
-      NSDebugMLLog(@"sessions",@"[permanentContextIDArray objectAtIndex:0]=%@",
-                   [_permanentContextIDArray objectAtIndex:0]);
-      NSDebugMLLog(@"sessions",@"[permanentContextIDArray objectAtIndex:0] retainCount=%d",
-                   (int)[[_permanentContextIDArray objectAtIndex:0] retainCount]);
-      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[_permanentContextIDArray objectAtIndex:0]);
+
       [_permanentContextIDArray removeObjectAtIndex:0];
       deletePage=[_contextRecords objectForKey:deleteContextID];
-      GSWLogAssertGood(deletePage);
-      [GSWApplication statusLogWithFormat:@"delete page of class=%@",
-                      [deletePage class]];
-      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",[permanentPageCache objectForKey:deleteContextID]);
+
       [permanentPageCache removeObjectForKey:deleteContextID];
       RELEASE(deleteContextID);
     }
@@ -794,24 +734,15 @@ extern id gcObjectsToBeVisited;
 
   if ([_permanentContextIDArray containsObject:contextID])
     {
-      LOGSeriousError(@"page of class %@ contextID %@ already in permanent cache stack",
-                      [page class],
-                      contextID);
-      NSDebugMLLog(@"sessions",@"SESSION REMOVE: %p",contextID);
       [_permanentContextIDArray removeObject:contextID];
       if (![permanentPageCache objectForKey:contextID])
         {
-          LOGSeriousError0(@"but not present in cache");
         }
     }
   else if ([permanentPageCache objectForKey:contextID])
     {
-      LOGSeriousError(@"page of class %@ contextID %@ in permanent cache but not in stack",
-                      [page class],
-                      contextID);
     }
 
-  NSDebugMLLog(@"sessions",@"SESSION REPLACE: %p",[permanentPageCache objectForKey:contextID]);
   [permanentPageCache setObject:page
                       forKey:contextID];
   [_permanentContextIDArray addObject:contextID];
@@ -830,9 +761,6 @@ extern id gcObjectsToBeVisited;
   */
   if ([_permanentContextIDArray count]!=[permanentPageCache count])
     {
-      LOGSeriousError(@"[permanentContextIDArray count] %d != [permanentPageCache count] %d",
-                      (int)[_permanentContextIDArray count],
-                      (int)[permanentPageCache count]);
     }
   
 }
@@ -952,7 +880,6 @@ extern id gcObjectsToBeVisited;
     if (!_autoreleasePool)
     {
       _autoreleasePool=[NSAutoreleasePool new];
-      GSWLogMemCF("New NSAutoreleasePool: %p",_autoreleasePool);
     }
   
 }
@@ -991,9 +918,7 @@ extern id gcObjectsToBeVisited;
   NSString* contextID=nil;
   NSString* requestContextID=nil;
 
-    NSDebugMLog(@"aContext=%@",aContext);
   requestContextID=[aContext _requestContextID];
-  NSDebugMLog(@"requestContextID=%@",requestContextID);
   if (_contextRecords &&  requestContextID)
     {
       NSArray* contextIDs = [_contextRecords allKeys];
@@ -1020,8 +945,8 @@ extern id gcObjectsToBeVisited;
   
   if (_contextRecords)
     {
-      unsigned int stackIndex=0;
-      unsigned int contextArrayIndex=0;
+      NSUInteger stackIndex=0;
+      NSUInteger contextArrayIndex=0;
       NSMutableArray* contextArray = [self _contextArrayForContextID:contextID
                                            stackIndex:&stackIndex
                                            contextArrayIndex:&contextArrayIndex];
@@ -1041,16 +966,16 @@ extern id gcObjectsToBeVisited;
 
 //--------------------------------------------------------------------
 -(NSMutableArray*)_contextArrayForContextID:(NSString*)aContextID
-                                 stackIndex:(unsigned int*)pStackIndex
-                          contextArrayIndex:(unsigned int*)pContextArrayIndex
+                                 stackIndex:(NSUInteger*)pStackIndex
+                          contextArrayIndex:(NSUInteger*)pContextArrayIndex
 {
   NSMutableArray* contextArray=nil;
-  int stackCount=[_contextArrayStack count];
-  unsigned int i=0;
+  NSUInteger stackCount=[_contextArrayStack count];
+  NSUInteger i=0;
   for(i=0;!contextArray && i<stackCount;i++)
     {
       NSMutableArray* aContextArray=[_contextArrayStack objectAtIndex:i];
-      unsigned int contextArrayIndex=[aContextArray indexOfObject:aContextID];
+      NSUInteger contextArrayIndex=[aContextArray indexOfObject:aContextID];
       if (contextArrayIndex!=NSNotFound)
         {
           contextArray=aContextArray;
@@ -1073,12 +998,12 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)_replacePage:(GSWComponent*)page
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 //--------------------------------------------------------------------
 //NDFN
--(unsigned int)pageCacheSize
+-(NSUInteger)pageCacheSize
 {
   return [GSWApp pageCacheSize];
 }
@@ -1136,8 +1061,6 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)_setContext:(GSWContext*)aContext
 {
-  //OK
-    NSDebugMLLog(@"sessions",@"aContext=%p",(void*)aContext);
   if (aContext!=_currentContext)
     _currentContext=aContext;
   
@@ -1146,13 +1069,23 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)sleepInContext:(GSWContext*)aContext
 {
-  //OK
-    [self sleep];
+  [self sleep];
+  
   if (_hasSessionLockedEditingContext)
-    {
+  {
+    if (_editingContext) {
       [_editingContext unlock];
-      _hasSessionLockedEditingContext = NO;
     }
+    _hasSessionLockedEditingContext = NO;
+  }
+  
+  if (([self isTerminating]) && (_editingContext != nil))
+  {
+    // TODO: discuss with Mr. Ayers if we need that.
+    // [_editingContext dispose];
+    DESTROY(_editingContext);
+  }
+  
   [self _setContext:nil];
   
 }
@@ -1160,24 +1093,18 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(void)awakeInContext:(GSWContext*)aContext
 {
-    [self _setContext:aContext];
-  NSDebugMLLog(@"sessions",@"contextCounter=%i",_contextCounter);
-  if (aContext)
-    {
-      if ([[self class] __counterIncrementingEnabledFlag]) //??
-        {
-          _contextCounter++;
-          _requestCounter++;
-        }
-    }
-  NSDebugMLLog(@"sessions",@"contextCounter=%i",_contextCounter);
+  [self _setContext:aContext];
+  
+  _contextCounter++;
+  _requestCounter++;
+  
   if (_editingContext 
       && !_hasSessionLockedEditingContext
       && [GSWApplication _lockDefaultEditingContext])
-    {
-      [_editingContext lock];
-      _hasSessionLockedEditingContext=YES;
-    }
+  {
+    [_editingContext lock];
+    _hasSessionLockedEditingContext=YES;
+  }
   [self awake];
   
 }
@@ -1187,12 +1114,6 @@ extern id gcObjectsToBeVisited;
 -(void)setLanguages:(NSArray*)someLanguages
 {
   
-  NSDebugMLLog(@"sessions",@"someLanguages=%@",someLanguages);
-
-  if (!someLanguages)
-    {
-      LOGError0(@"No languages");
-    }
   ASSIGN(_languages,someLanguages);
 
   
@@ -1473,13 +1394,9 @@ Returns first element of languages or nil if languages is empty
     }
   NS_HANDLER
     {
-      LOGException(@"exception in %@ appendToResponse:inContext",
-                   [self class]);
-      LOGException(@"exception=%@",localException);
       localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
                                                               @"In %@ appendToResponse:inContext",
                                                               [self class]);
-      LOGException(@"exception=%@",localException);
       [localException raise];
     }
   NS_ENDHANDLER;
@@ -1638,26 +1555,6 @@ Returns first element of languages or nil if languages is empty
 -(GSWApplication*)application
 {
   return [GSWApplication application];
-}
-
-
-//--------------------------------------------------------------------
--(void)_validateAPI
-{
-  LOGObjectFnNotImplemented();	//TODOFN
-}
-
-//--------------------------------------------------------------------
-+(void)__setContextCounterIncrementingEnabled:(BOOL)flag
-{
-  LOGClassFnNotImplemented();  //TODOFN
-}
-
-//--------------------------------------------------------------------
-+(int)__counterIncrementingEnabledFlag
-{
-  LOGClassFnNotImplemented();  //TODOFN
-  return 1;
 }
 
 @end
