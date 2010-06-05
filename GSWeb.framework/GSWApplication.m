@@ -41,7 +41,7 @@ RCS_ID("$Id$")
 #include "attach.h"
 
 #include <GNUstepBase/NSThread+GNUstepBase.h>
-#include <GNUstepBase/NString+GNUstepBase.h>
+#include <GNUstepBase/NSString+GNUstepBase.h>
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #include <GNUstepBase/GSObjCRuntime.h>
 

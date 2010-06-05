@@ -1,4 +1,10 @@
 2010-05-05  David Wetzel <dave@turbocat.de>
+	* GSWeb.framework/GSWApplication.m
+	fixed typo in include
+	* GSWeb.framework/GSWString.m
+	removed unused IMP caching
+	
+2010-05-05  David Wetzel <dave@turbocat.de>
 	* GSWExtensionsGSW.framework/GSWFileUploadComponent.m
 	* GSWExtensionsGSW.framework/GSWLogin.m
 	removed logs

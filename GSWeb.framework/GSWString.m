@@ -33,11 +33,6 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 
-static SEL formattedValueInContextSEL = NULL;
-
-static IMP standardFormattedValueInContextIMP = NULL;
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
 static Class standardClass = Nil;
 
 //====================================================================
@@ -49,12 +44,7 @@ static Class standardClass = Nil;
   if (self == [GSWString class])
     {
       standardClass=[GSWString class];
-      formattedValueInContextSEL=@selector(formattedValueInContext:);
 
-      standardFormattedValueInContextIMP = 
-        [self instanceMethodForSelector:formattedValueInContextSEL];
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
     };
 };
 
