@@ -1387,21 +1387,53 @@ Call this method before using a component which was cached in a variable.
  **/
 - (id)validateTakeValue:(id)value forKeyPath:(NSString *)path
 {
-  NSError *outError = nil;
-  BOOL     ok = [self validateValue:&value 
-                         forKeyPath:path 
-                              error:&outError];
+  NSError   * outError = nil;
+  BOOL        ok       = NO;
+  NSRange     dotRange;
+  NSString  * errorStr = @"unknown reason";
+  
+  if (!path) {
+    errorStr = @"keyPath must not be nil";
+  } else {
+    
+    id targetObject = self;
+    
+    dotRange = [path rangeOfString:@"."
+                           options:NSBackwardsSearch];
+    
+    if (dotRange.location != NSNotFound) {
+      NSString * newPath = [path substringToIndex:dotRange.location];
+      
+      targetObject = [self valueForKeyPath:newPath];
+      
+      if (!targetObject) {
+        // If there is no object to set a value, we cannot do any validation.
+        // There is nothing to set on a non-existing object, so just go.
+        return nil;
+      }
+      
+      path = [path substringFromIndex: dotRange.location];
+      
+      NSLog(@"paths '%@'", path);
+      
+    } 
+    
+    ok = [targetObject validateValue:&value 
+                          forKeyPath:path 
+                               error:&outError];
+  }
+  
+  
   
   
   if (ok) { // value is ok
     [self setValue:value
-         forKeyPath:path];
+        forKeyPath:path];
     
     return value;
   } else {
     NSException  * exception=nil;
     NSDictionary * uInfo;
-    NSString     * errorStr = @"unknown reason";
     
     uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
              (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",

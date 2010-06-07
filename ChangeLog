@@ -1,10 +1,15 @@
-2010-05-05  David Wetzel <dave@turbocat.de>
+2010-06-07  David Wetzel <dave@turbocat.de>
+	* GSWeb.framework/GSWComponent.m
+	validateTakeValue: forKeyPath:
+	fix for paths where an object in the path is nil
+
+2010-06-05  David Wetzel <dave@turbocat.de>
 	* GSWeb.framework/GSWApplication.m
 	fixed typo in include
 	* GSWeb.framework/GSWString.m
 	removed unused IMP caching
 	
-2010-05-05  David Wetzel <dave@turbocat.de>
+2010-06-05  David Wetzel <dave@turbocat.de>
 	* GSWExtensionsGSW.framework/GSWFileUploadComponent.m
 	* GSWExtensionsGSW.framework/GSWLogin.m
 	removed logs
