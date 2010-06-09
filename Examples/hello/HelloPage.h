@@ -9,6 +9,8 @@
  * page.
  */
 
+#ifndef __HelloPage_h__
+#define __HelloPage_h__
 
 #include <WebObjects/WebObjects.h>
 
@@ -20,3 +22,5 @@
 - (void)setNameString:(NSString *)string;
 
 @end
+
+#endif // __HelloPage_h__

@@ -9,7 +9,10 @@
  * page.
  */
 
-#include <GSWeb/GSWeb.h>
+#ifndef __Main_h__
+#define __Main_h__
+
+#include <WebObjects/WebObjects.h>
 
 @interface Main:GSWComponent 
 {
@@ -20,3 +23,4 @@
 
 @end
 
+#endif // __Main_h__

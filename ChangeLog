@@ -1,3 +1,10 @@
+2010-06-09  David Wetzel <dave@turbocat.de>
+	* Examples/hello/Main.m
+	GSW* -> WO*
+	* Examples/hello/HelloPage.h
+	* Examples/hello/Main.h
+	wrap headers in #ifdef
+	
 2010-06-07  David Wetzel <dave@turbocat.de>
 	* GSWeb.framework/GSWComponent.m
 	validateTakeValue: forKeyPath:

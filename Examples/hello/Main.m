@@ -13,8 +13,6 @@
 #include <GNUstepBase/GNUstep.h>
 #endif
 
-#include <WebObjects/WebObjects.h>
-
 #include "Main.h"
 #include "Hello.h"
 #include "HelloPage.h"
@@ -27,25 +25,23 @@
   [super dealloc];
 }
 
-- (GSWComponent *)sayHello 
+- (WOComponent *)sayHello 
 {
-  HelloPage *nextPage= (HelloPage*)[self pageWithName:@"HelloPage"];
-  // Here we are using the EOKeyValueCodingProtocol to set 'nameString' in the Hello page
-  // The alternative would be to implement the accessor method 'setNameString:'
-  // [nextPage takeValue:nameString forKey:@"nameString"]; 
+  HelloPage *nextPage = (HelloPage*)[self pageWithName:@"HelloPage"];
   [nextPage setNameString:nameString];
+  
   return nextPage;
 }
 
 @end
 
-@interface Session:GSWSession
+@interface Session:WOSession
 {
 }
 
 @end
 
-@interface Application:GSWApplication
+@interface Application:WOApplication
 {
 }
 
