@@ -1,3 +1,47 @@
+2010-06-10  David Wetzel <dave@turbocat.de>
+	* GSWeb.framework/GNUmakefile
+	* GSWeb.framework/WOKeyValueUnarchiver.m/h
+	add WOKeyValueUnarchiver
+	* GSWeb.framework/GSWComponentDefinition.m
+	add check, reformat
+	* GSWeb.framework/GSWBundle.m
+	add WOKeyValueUnarchiver
+	initializeObject: fromArchive:
+	use WOKeyValueUnarchiver to create objects
+	* GSWeb.framework/GSWComponent.m
+	validateTakeValue:forKeyPath:
+	fix path problem on multiple "." like foo.bar.test
+	add unarchiver: objectForReference:
+	* Examples/WebBookStore1/Main.wo/Main.woo
+	fix class of authorDG WODisplayGroup
+
+2010-06-09  David Wetzel <dave@turbocat.de>
+	* GSWDatabase/WODisplayGroup.m
+	compiles without warning
+	cleanup, removed logs,
+	added exceptions
+	* GSWDatabase/WODisplayGroup.h
+	cleanup includes
+	* Examples/WebBookStore1/Main.m
+	removed create and drop tables.
+	* Examples/WebBookStore1/WebBookStore1_main.m
+	adapt to WO naming
+	* Examples/WebBookStore1/Main.gswc -> Main.wo
+	* Examples/WebBookStore1/GNUmakefile
+	updated
+	* Examples/WebBookStore1/Application.h
+	* Examples/WebBookStore1/DirectAction.h
+	* Examples/WebBookStore1/DirectAction.m
+	* Examples/WebBookStore1/Session.h
+	* Examples/WebBookStore1/Main.h
+	WO naming
+	* Examples/WebBookStore1/README
+	new file
+	* Examples/WebBookStore1/BookStore.eomodeld/index.eomodeld
+	added more sample data to connection dictionary
+	* GNUmakefile
+	add GSWDatabase to main project makefile
+
 2010-06-09  David Wetzel <dave@turbocat.de>
 	* Examples/hello/Main.m
 	GSW* -> WO*

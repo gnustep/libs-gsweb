@@ -37,6 +37,7 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 
 #include "GSWPrivate.h"
+#include "WOKeyValueUnarchiver.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #include <GNUstepBase/NSString+GNUstepBase.h>
 
@@ -1391,6 +1392,7 @@ Call this method before using a component which was cached in a variable.
   BOOL        ok       = NO;
   NSRange     dotRange;
   NSString  * errorStr = @"unknown reason";
+  NSString  * validatePath = path;
   
   if (!path) {
     errorStr = @"keyPath must not be nil";
@@ -1412,19 +1414,14 @@ Call this method before using a component which was cached in a variable.
         return nil;
       }
       
-      path = [path substringFromIndex: dotRange.location];
-      
-      NSLog(@"paths '%@'", path);
-      
+      // 1 is the length of the "."
+      validatePath = [path substringFromIndex: dotRange.location+1];
     } 
     
     ok = [targetObject validateValue:&value 
-                          forKeyPath:path 
+                          forKeyPath:validatePath 
                                error:&outError];
   }
-  
-  
-  
   
   if (ok) { // value is ok
     [self setValue:value
@@ -1713,6 +1710,14 @@ Call this method before using a component which was cached in a variable.
     }
 }
 
+- (id)unarchiver: (WOKeyValueUnarchiver*)archiver objectForReference: (id)keyPath
+{  
+  if ([keyPath isKindOfClass:[NSString class]])
+  {
+    return [self valueForKeyPath:keyPath];
+  }
+  return nil;
+}
 
 @end
 

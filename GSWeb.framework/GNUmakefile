@@ -193,7 +193,8 @@ GSWRecording.m \
 GSWInputStreamData.m \
 GSWActionURL.m \
 GSWWorkerThread.m \
-NSObject+XML.m
+NSObject+XML.m \
+WOKeyValueUnarchiver.m
 
 #For next Version:
 #GSWAdminAction.m \
@@ -324,7 +325,8 @@ GSWActionURL.h \
 GSWDefines.h \
 GSWHTTPIO.h \
 GSWPrivate.h \
-NSObject+XML.h
+NSObject+XML.h \
+WOKeyValueUnarchiver.h
 
 #For next Version:
 #GSWAdminAction.h \

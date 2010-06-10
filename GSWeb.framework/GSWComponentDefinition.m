@@ -532,12 +532,15 @@ static GSWContext *   TheTemporaryContext;
 //--------------------------------------------------------------------
 -(void) finishInitializingComponent:(GSWComponent*)component
 {
-  //OK
   NSDictionary* archive=nil;
-  archive=[_bundle archiveNamed:_name];
-  [_bundle initializeObject:component
-           fromArchive:archive];
-};
+  
+  archive = [_bundle archiveNamed:_name];
+  
+  if (archive) {
+    [_bundle initializeObject:component
+                  fromArchive:archive];
+  }
+}
 
 
 //--------------------------------------------------------------------

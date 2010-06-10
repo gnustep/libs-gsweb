@@ -1,34 +1,35 @@
 /** GSWBundle.m -  <title>GSWeb: Class GSWBundle</title>
-
-   Copyright (C) 1999-2004 Free Software Foundation, Inc.
-   
-   Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
-   Date: 	Mar 1999
-   
-   $Revision$
-   $Date$
-   $Id$
-   
-   <abstract></abstract>
-
-   This file is part of the GNUstep Web Library.
-
-   <license>
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Library General Public
-   License as published by the Free Software Foundation; either
-   version 2 of the License, or (at your option) any later version.
-   
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Library General Public License for more details.
-   
-   You should have received a copy of the GNU Library General Public
-   License along with this library; if not, write to the Free
-   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-   </license>
-**/
+ 
+ Copyright (C) 1999-2004 Free Software Foundation, Inc.
+ 
+ Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
+ Date: 	Mar 1999
+ Written by: David Wetzel <dave@turbocat.de>
+ 
+ $Revision$
+ $Date$
+ $Id$
+ 
+ <abstract></abstract>
+ 
+ This file is part of the GNUstep Web Library.
+ 
+ <license>
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Library General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Library General Public License for more details.
+ 
+ You should have received a copy of the GNU Library General Public
+ License along with this library; if not, write to the Free
+ Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ </license>
+ **/
 
 #include "config.h"
 
@@ -36,9 +37,7 @@ RCS_ID("$Id$")
 
 #include "GSWeb.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
-
-//#ifdef HAVE_GDL2
-//#include <EOControl/EOKeyValueCoding.h>
+#include "WOKeyValueUnarchiver.h"
 
 //====================================================================
 @interface GSWBundleUnarchiverDelegate : NSObject
@@ -342,44 +341,34 @@ RCS_ID("$Id$")
 -(void)initializeObject:(id)anObject
             fromArchive:(NSDictionary*)anArchive
 {
-  [self lock];
-  NS_DURING
+  SYNCHRONIZED(self) {
+    NSDictionary          * variableDefinitions = nil;
+    WOKeyValueUnarchiver  * unarchiver;
+                                         
+    unarchiver = [[WOKeyValueUnarchiver alloc] initWithDictionary: anArchive];
+    AUTORELEASE(unarchiver);
+    
+    [unarchiver setDelegate:anObject];
+    
+    variableDefinitions = (NSDictionary*) [unarchiver decodeObjectForKey:@"variables"];
+    [unarchiver finishInitializationOfObjects];
+    [unarchiver awakeObjects];
+    
+    if (variableDefinitions)
     {
-      /*
-      if (!WOStrictFlag)
-        {
-          NSDictionary* userDictionary=[anArchive objectForKey:@"userDictionary"];
-          NSDictionary* userAssociations=[anArchive objectForKey:@"userAssociations"];		
-          NSDictionary* defaultAssociations=[anArchive objectForKey:@"defaultAssociations"];
+      NSString     * varName;
+      id             varValue;
+      NSEnumerator * keyEnumer = [variableDefinitions keyEnumerator];
+      
+      while ((varName = [keyEnumer nextObject])) {
+        varValue = [variableDefinitions objectForKey:varName];
 
-          userAssociations=[userAssociations dictionaryByReplacingStringsWithAssociations];
-          defaultAssociations=[defaultAssociations dictionaryByReplacingStringsWithAssociations];
-          if (userDictionary && [anObject respondsToSelector:@selector(setUserDictionary:)])
-            [anObject setUserDictionary:userDictionary];
-          if (userAssociations && [anObject respondsToSelector:@selector(setUserAssociations:)])
-            [anObject setUserAssociations:userAssociations];
-          if (defaultAssociations && [anObject respondsToSelector:@selector(setDefaultAssociations:)])
-            [anObject setDefaultAssociations:defaultAssociations];
-        }
-      [self notImplemented: _cmd];
-       */
+        [anObject setValue:varValue
+                    forKey:varName];
+      }
     }
-  NS_HANDLER
-    {
-      NSDebugMLog(@"EXCEPTION:%@ (%@) [%s %d] anObject=%p class=%@ superClass=%@ ",
-                   localException,
-                   [localException reason],
-                   __FILE__,
-                   __LINE__,
-                  anObject,
-                  [anObject class],
-                  [anObject superclass]);
-      //TODO
-      [self unlock];
-      [localException raise];
-    }
-  NS_ENDHANDLER;
-  [self unlock];
+    
+  } END_SYNCHRONIZED;
 }
 
 //--------------------------------------------------------------------

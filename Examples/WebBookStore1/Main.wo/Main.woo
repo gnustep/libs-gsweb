@@ -1,7 +1,7 @@
 {
     variables = {
         authorDG = {
-            class = GSWDisplayGroup;
+            class = WODisplayGroup;
             dataSource = {
                 class = EODatabaseDataSource;
                 editingContext = session.defaultEditingContext;
