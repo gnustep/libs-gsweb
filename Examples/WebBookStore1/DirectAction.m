@@ -1,7 +1,7 @@
 #include "DirectAction.h"
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 
-@implementation DirectAction : GSWDirectAction 
+@implementation DirectAction : WODirectAction 
 
 - (GSWComponent *)defaultAction 
 {

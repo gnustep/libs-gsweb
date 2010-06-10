@@ -1,15 +1,15 @@
 #ifndef INC_Main_h_
 #define INC_Main_h_
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 
-@class GSWDisplayGroup;
+@class WODisplayGroup;
 
-@interface Main : GSWComponent
+@interface Main : WOComponent
 {
   id author;                 /* Custom objects or EOGenericRecord.  */
-  GSWDisplayGroup *authorDG; /* Initiilaized by [GSWComponent-init]
-				via the components .gswi file. */
+  WODisplayGroup *authorDG;  /* Initiilaized by [GSWComponent-init]
+                                via the components .wod file. */
 }
 
 - (void)selectObject;

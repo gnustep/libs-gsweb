@@ -1,7 +1,7 @@
 #ifndef INC_Session_h_
 #define INC_Session_h_
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 
 @interface Session : GSWSession
 {

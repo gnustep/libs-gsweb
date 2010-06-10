@@ -32,21 +32,20 @@
 #ifndef _GSWDisplayGroup_h__
 #define _GSWDisplayGroup_h__
 
-#ifdef TCSDB
-   #include <TCSimpleDB/TCSimpleDB.h>
-   #include <TCSimpleDB/EODefines.h>
-#else
-   #include <EOControl/EOQualifier.h>
-   #include <EOControl/EOEditingContext.h>
-   #include <EOControl/EODataSource.h>
-   #include <EOControl/EODetailDataSource.h>
-   #include <EOControl/EOKeyValueArchiver.h>
-   #include <EOControl/EONull.h>
-   #include <EOControl/EODeprecated.h>
-   #include <EOAccess/EODatabaseDataSource.h>
+#include <EOControl/EOQualifier.h>
+#include <EOControl/EOEditingContext.h>
+#include <EOControl/EODataSource.h>
+#include <EOControl/EODetailDataSource.h>
+#include <EOControl/EOKeyValueArchiver.h>
+#include <EOControl/EONull.h>
+#include <EOControl/EODeprecated.h>
+#include <EOAccess/EODatabaseDataSource.h>
+
+#ifndef GSWDisplayGroup
+#define GSWDisplayGroup WODisplayGroup
 #endif
 
-@interface GSWDisplayGroup : NSObject <NSCoding>
+@interface WODisplayGroup : NSObject <NSCoding>
 {
   id _delegate;
 /*

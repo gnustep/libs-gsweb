@@ -1,0 +1,65 @@
+This is how you can get started.
+
+Create the database:
+
+createdb BookStore
+
+psql BookStore
+
+copy/paste this stuff in:
+
+CREATE TABLE BSAUTHOR (FNAME varchar(30), LNAME varchar(30), PID integer NOT NULL);
+CREATE TABLE BSBOOK (FK_AUTHOR integer, PID integer NOT NULL, TITLE varchar(30));
+CREATE TABLE BSCUSTOMER (FNAME varchar(30), LNAME varchar(30), PID integer NOT NULL);
+CREATE TABLE BSORDER (FK_CUSTOMER integer, PID integer NOT NULL);
+CREATE TABLE BSORDERPOS (FK_ORDER integer, PID integer NOT NULL);
+CREATE SEQUENCE BSAUTHOR_SEQ;
+CREATE SEQUENCE BSBOOK_SEQ;
+CREATE SEQUENCE BSCUSTOMER_SEQ;
+CREATE SEQUENCE BSORDER_SEQ;
+CREATE SEQUENCE BSORDERPOS_SEQ;
+ALTER TABLE BSAUTHOR ADD PRIMARY KEY (PID);
+ALTER TABLE BSBOOK ADD PRIMARY KEY (PID);
+ALTER TABLE BSCUSTOMER ADD PRIMARY KEY (PID);
+ALTER TABLE BSORDER ADD PRIMARY KEY (PID);
+ALTER TABLE BSORDERPOS ADD PRIMARY KEY (PID);
+ALTER TABLE BSBOOK ADD CONSTRAINT BSBOOK_author_FK FOREIGN KEY (FK_AUTHOR) REFERENCES BSAUTHOR (PID) DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE BSORDER ADD CONSTRAINT BSORDER_customer_FK FOREIGN KEY (FK_CUSTOMER) REFERENCES BSCUSTOMER (PID) DEFERRABLE INITIALLY DEFERRED;
+
+%----------------------
+
+check what we created:
+
+BookStore=# \d
+             List of relations
+ Schema |      Name      |   Type   | Owner 
+--------+----------------+----------+-------
+ public | bsauthor       | table    | dave
+ public | bsauthor_seq   | sequence | dave
+ public | bsbook         | table    | dave
+ public | bsbook_seq     | sequence | dave
+ public | bscustomer     | table    | dave
+ public | bscustomer_seq | sequence | dave
+ public | bsorder        | table    | dave
+ public | bsorder_seq    | sequence | dave
+ public | bsorderpos     | table    | dave
+ public | bsorderpos_seq | sequence | dave
+(10 rows)
+
+check .../pgsql/data/pg_hba.conf
+The machine running your program should be able to access your database.
+This works for me:
+
+host    all         all         172.16.112.1/32          password
+(you might have to change the IP)
+
+if needed make pgsql load the new config.
+
+adjust the connection dictionary in BookStore.eomodeld/index.eomodeld
+
+Especially these fields. You can use any text editor or the EOModelEditor.
+
+	databaseServer = hostname;
+	password = pw;
+	userName = dave;
+

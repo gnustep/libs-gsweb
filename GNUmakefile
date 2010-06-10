@@ -33,6 +33,7 @@ include ./config.mak
 SUBPROJECTS = GSWeb.framework \
 	GSWExtensions.framework \
 	GSWExtensionsGSW.framework \
+	GSWDatabase
 
 #GSWAdaptors
 

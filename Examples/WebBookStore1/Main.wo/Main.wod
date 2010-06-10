@@ -1,0 +1,79 @@
+QueryForm: WOForm {};
+
+firstNameQueryField: WOTextField 
+{ 
+  value = authorDG.queryMatch.firstName;
+};
+
+lastNameQueryField: WOTextField
+{
+  value = authorDG.queryMatch.lastName;
+};
+
+ExecuteQuery: WOSubmitButton 
+{
+  action = authorDG.qualifyDataSource; 
+  value = "Search";
+};
+
+SelectionList: WORepetition
+{
+  item = author;
+  list = authorDG.displayedObjects;
+};
+
+SelectObjectLink: WOHyperlink 
+{
+  action = selectObject; 
+};
+
+ObjectIdentifier: WOString
+{
+  value = author.lastName;
+};
+
+ModificationForm: WOForm {
+	multipleSubmit = YES;
+};
+
+lastNameField: WOTextField 
+{
+  value = authorDG.selectedObject.lastName;
+};
+
+firstNameField: WOTextField 
+{
+  value = authorDG.selectedObject.firstName;  
+};
+
+InsertButton: WOSubmitButton
+{
+  action = authorDG.insert; 
+/*  filename = "Insert.png"; */
+  value = "Insert";
+};
+UpdateButton: WOSubmitButton
+{
+  action = saveChanges;
+/*  filename = "Save.png"; */
+  value = "Save";
+};
+DeleteButton: WOSubmitButton 
+{
+  action = authorDG.delete; 
+  /* filename = "Delete.png";*/
+  value = "Delete";
+};
+/*
+CreateTablesButton: WOImageButton 
+{
+  action = createTables; 
+  filename = "CreateTables.png";
+};
+
+DropTablesButton: WOImageButton 
+{
+  action = dropTables; 
+  filename = "DropTables.png";
+};
+*/

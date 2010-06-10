@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Authors</title>
+  </head>
+  <body>
+    <!-- Query section -->
+    <center>
+      <h2>Search for Authors</h2>
+      <p>Specify which authors to display below:</p>
+      <webobject name=QueryForm>
+        <p>
+        First Name: <webobject name=firstNameQueryField></webobject> <BR/>
+        Last  Name: <webobject name=lastNameQueryField></webobject> <BR/>
+        </p>
+        <webobject name=ExecuteQuery></webobject>
+      </webobject>
+    </center>
+    
+    <!-- Selection section -->
+    <center>
+      <p>Click a link to select that author.</p>
+      <p><webobject name=SelectionList>
+        <webobject name=SelectObjectLink>
+          <webobject name=ObjectIdentifier></webobject>
+        </webobject>
+        <BR>
+      </webobject></p>
+    </center>
+    <HR>
+    
+    <!-- Displayed objects section -->
+    <webobject name=ModificationForm>
+      <table border=0>
+        <tr><td>First Name: </td> <td> <webobject name=firstNameField></webobject> </td></tr>
+        <tr><td>Last Name: </td> <td> <webobject name=lastNameField></webobject> </td></tr>
+      </table>
+      <center>
+        <webobject name=InsertButton></webobject>
+        <webobject name=UpdateButton></webobject>
+        <webobject name=DeleteButton></webobject>
+      </center>
+      <center>
+<!--
+<webobject name=CreateTablesButton></webobject>
+<webobject name=DropTablesButton></webobject>
+-->
+      </center>
+    </webobject>
+    <HR>
+    
+  </body>
+</html>

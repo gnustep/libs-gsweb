@@ -1,16 +1,16 @@
 #ifndef INC_DirectAction_h_
 #define INC_DirectAction_h_
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WODirectAction.h>
 
-@class GSWComponent;
+@class WOComponent;
 
-@interface DirectAction : GSWDirectAction
+@interface DirectAction : WODirectAction
 {
 
 }
 
-- (GSWComponent *)defaultAction;
+- (WOComponent *)defaultAction;
 
 @end
 

@@ -1,15 +1,36 @@
 {
-    EOModelVersion = 2; 
-    adaptorName = PostgreSQL; 
+    EOModelVersion = 2;
+    adaptorName = PostgreSQL;
     connectionDictionary = {
-        databaseName = BookStore;
-    }; 
+	adaptorName = PostgreSQLEOAdaptor;
+	databaseEncoding = NSUTF8StringEncoding;
+	databaseName = BookStore;
+	databaseServer = "172.16.2.10";
+	password = XXXX;
+	userName = XXXX;
+    };
     entities = (
-        {className = EOGenericRecord; name = Author; }, 
-        {className = EOGenericRecord; name = Book; }, 
-        {className = EOGenericRecord; name = Customer; }, 
-        {className = EOGenericRecord; name = Order; }, 
-        {className = EOGenericRecord; name = OrderPos; }
-    ); 
-    internalInfo = {}; 
+	{
+	    className = EOGenericRecord;
+	    name = Author;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = Book;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = Customer;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = Order;
+	},
+	{
+	    className = EOGenericRecord;
+	    name = OrderPos;
+	}
+    );
+    storedProcedures = (
+    );
 }

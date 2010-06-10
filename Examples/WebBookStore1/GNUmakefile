@@ -38,7 +38,23 @@ WebBookStore1_RESOURCE_FILES = BookStore.eomodeld
 WebBookStore1_WEBSERVER_RESOURCE_FILES = Insert.png Delete.png Save.png \
 	CreateTables.png DropTables.png
 
-WebBookStore1_COMPONENTS = Main.gswc
+WebBookStore1_COMPONENTS = Main.wo
+
+SRCS = $(GSWAPP_NAME:=.m)
+
+HDRS =
+
+DIST_FILES = $(SRCS) $(HDRS) GNUmakefile Makefile.postamble Makefile.preamble
+
+ifneq ($(FOUNDATION_LIB),gnu)
+AUXILIARY_GSW_LIBS = -framework WebObjects -framework WOExtensions \
+	-framework GSWDatabase -framework EOAccess -framework EOControl \
+        -framework PostgreSQLEOAdaptor
+else
+AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions -lGSWDatabase -lEOAccess \
+	-lEOControl
+endif
+
 
 -include Makefile.preamble
 

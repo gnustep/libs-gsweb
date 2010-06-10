@@ -35,7 +35,11 @@
 
 @class EOUndoManager;
 
-#if HAVE_GDL2 // GDL2 implementation
+#ifndef GNUSTEP
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#endif
+
+#include <WebObjects/WebObjects.h>
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOClassDescription.h>
 
@@ -60,7 +64,6 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
                operatorSelector:(SEL)sel;
 @end
 
-#endif
 
 @interface NSArray (Indexes)
 -(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects;
@@ -69,8 +72,6 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
 //====================================================================
 @implementation WODisplayGroup
-
-#if HAVE_GDL2 // GDL2 implementation
 
 + (void)initialize
 {
@@ -123,9 +124,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
     _queryMinMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
     _queryMax      = [[NSMutableDictionary alloc] initWithCapacity:8];
     _queryMaxMatch = [[NSMutableDictionary alloc] initWithCapacity:8];
-    NSDebugMLLog(@"WODisplayGroup",@"_queryOperator=%@",_queryOperator);
     _queryOperator = [[NSMutableDictionary alloc] initWithCapacity:8];
-    NSDebugMLLog(@"WODisplayGroup",@"_queryOperator=%@",_queryOperator);
     _queryKeyValueQualifierClassName 
     = [[NSMutableDictionary alloc] initWithCapacity:8];
     
@@ -137,10 +136,6 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
            [[self class]globalDefaultStringMatchOperator]);
     ASSIGN(_defaultStringMatchFormat,
            [[self class]globalDefaultStringMatchFormat]);
-    NSDebugMLLog(@"WODisplayGroup",@"_defaultStringMatchOperator=%@",
-                 _defaultStringMatchOperator);
-    NSDebugMLLog(@"WODisplayGroup",@"_defaultStringMatchFormat=%@",
-                 _defaultStringMatchFormat);
     
     [self setFetchesOnLoad:YES];
     [self setSelectsFirstObjectAfterFetch:YES];
@@ -152,7 +147,6 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 {
   if ((self=[self init]))
   {
-    NSDebugMLLog(@"WODisplayGroup",@"WODisplayGroup %p",self);
     [self setNumberOfObjectsPerBatch:
      [unarchiver decodeIntForKey:@"numberOfObjectsPerBatch"]];
     [self setFetchesOnLoad:
@@ -178,24 +172,23 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
     [self setQueryOperator:[unarchiver decodeObjectForKey:@"queryOperator"]];
     [self setQueryKeyValueQualifierClassName:[unarchiver decodeObjectForKey:@"queryKeyValueQualifierClassName"]];
     [self finishInitialization];
-    NSDebugMLLog(@"WODisplayGroup",@"WODisplayGroup %p : %@",self,self);
   }
   return self;
 }
 
--(void)unableToSetNilForKey:(NSString*)key
+- (void)setNilValueForKey:(NSString *)key
 {
   if ([key isEqualToString:@"numberOfObjectsPerBatch"])
     [self setNumberOfObjectsPerBatch:0];
   else
-    [super unableToSetNilForKey:key];
+    [super setNilValueForKey:key];
 }
 
 -(NSString*)description
 {
   NSString* dscr=nil;
   dscr=[NSString stringWithFormat:@"<%s %p - \n",
-        object_get_class_name(self),
+        object_getClassName(self),
         (void*)self];
   
   dscr=[dscr stringByAppendingFormat:@"numberOfObjectsPerBatch:[%d]\n",
@@ -477,7 +470,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   }
   else
   {
-    LOGObjectFnNotImplemented();	//TODOFN
+    [self notImplemented: _cmd];	//TODOFN
   }
   return self; //??
 }
@@ -486,7 +479,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 -(id)_notify:(SEL)selector
         with:(id)object
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -722,7 +715,7 @@ shouldRedisplayForEditingContextChangeNotification:notification];
 
 -(BOOL)buildsQualifierFromInput
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 }
 
@@ -1097,7 +1090,7 @@ shouldRedisplayForEditingContextChangeNotification:notification];
 
 -(id)executeQuery
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;//return nil for direct .gswd actions ==> same page
 }
 
@@ -1142,7 +1135,6 @@ shouldRedisplayForEditingContextChangeNotification:notification];
         NS_HANDLER
         {
           NSLog(@"%@ (%@)",localException,[localException reason]);
-          LOGException(@"%@ (%@)",localException,[localException reason]);
           RETAIN(localException);
           DESTROY(arp);
           AUTORELEASE(localException);
@@ -1189,7 +1181,7 @@ shouldRedisplayForEditingContextChangeNotification:notification];
 
 -(NSMutableDictionary*)inputObjectForQualifier
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -1258,7 +1250,6 @@ shouldRedisplayForEditingContextChangeNotification:notification];
   index=max(0,index);
   index=min(count,index);
   
-  NSDebugMLog(@"INSERT Index=%d",index);
   [self insertObjectAtIndex:index];
   [self displayBatchContainingSelectedObject];
   
@@ -1394,7 +1385,7 @@ createObjectFailedForDataSource:_dataSource];
 
 -(EOQualifier*)lastQualifierFromInputValues
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -1408,7 +1399,7 @@ createObjectFailedForDataSource:_dataSource];
 
 -(BOOL)usesOptimisticRefresh
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 }
 
@@ -1416,12 +1407,12 @@ createObjectFailedForDataSource:_dataSource];
 
 -(void)setUsesOptimisticRefresh:(id)object_
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 -(void)awakeFromNib
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 
@@ -1465,7 +1456,7 @@ createObjectFailedForDataSource:_dataSource];
 
 -(EOQualifier*)qualifierFromInputValues
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -1537,17 +1528,14 @@ createObjectFailedForDataSource:_dataSource];
     if (setQualifierSel)
       [_dataSource performSelector:setQualifierSel
                         withObject:qualifier];
-    
-    NSDebugMLLog0(@"gswdisplaygroup",@"Will fetch");
+
     [self fetch];
-    NSDebugMLLog0(@"gswdisplaygroup",@"End fetch");
     
     [self setCurrentBatchIndex:1];
   }
   NS_HANDLER
   {
     NSLog(@"%@ (%@)",localException,[localException reason]);
-    LOGException(@"%@ (%@)",localException,[localException reason]);
     [localException raise];
   }
   NS_ENDHANDLER;
@@ -1660,7 +1648,7 @@ createObjectFailedForDataSource:_dataSource];
 
 -(NSMutableDictionary*)secondObjectForQualifier
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return nil;
 }
 
@@ -1823,7 +1811,7 @@ createObjectFailedForDataSource:_dataSource];
 
 - (void)setBuildsQualifierFromInput:(BOOL)flag
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 //--------------------------------------------------------------------
@@ -1832,31 +1820,28 @@ createObjectFailedForDataSource:_dataSource];
 - (void)setCurrentBatchIndex:(unsigned)index
 {
   
-  NSDebugMLLog(@"GSWDisplayGroup",@"index=%d",index);
-  NSDebugMLLog(@"GSWDisplayGroup",@"_numberOfObjectsPerBatch=%d",_numberOfObjectsPerBatch);
   if(_numberOfObjectsPerBatch>0)
   {
     int batchCount=[self batchCount];
-    NSDebugMLLog(@"GSWDisplayGroup",@"batchCount=%d",batchCount);
+
     if (index<1)
       _batchIndex=(batchCount>0 ?  batchCount : 1);
     else if (index>batchCount)
       _batchIndex=1;
     else
       _batchIndex=index;
-    NSDebugMLLog(@"GSWDisplayGroup",@"_batchIndex=%d",_batchIndex);
   }
 }
 
 -(void)_checkSelectedBatchConsistency
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
 }
 
 
 -(BOOL)_allowsNullForKey:(id)key
 {
-  LOGObjectFnNotImplemented();	//TODOFN
+  [self notImplemented: _cmd];	//TODOFN
   return NO;
 }
 
@@ -1880,7 +1865,6 @@ createObjectFailedForDataSource:_dataSource];
   {
     ASSIGN(_defaultStringMatchFormat, format);
   }
-  NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
 }
 
 //--------------------------------------------------------------------
@@ -1889,7 +1873,6 @@ createObjectFailedForDataSource:_dataSource];
 - (void)setDefaultStringMatchOperator:(NSString *)operator
 {
   ASSIGN(_defaultStringMatchOperator, operator);
-  NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchOperator=%@",_defaultStringMatchOperator);
 }
 
 //--------------------------------------------------------------------
@@ -1997,17 +1980,15 @@ createObjectFailedForDataSource:_dataSource];
 - (void)setMasterObject:(id)masterObject
 {
   EODetailDataSource *source=nil;
-  NSDebugMLLog(@"GSWDisplayGroup",@"masterObject=%@",masterObject);
+
   if([self hasDetailDataSource] == YES)
   {
     source = (EODetailDataSource *)_dataSource;
-    NSDebugMLLog(@"GSWDisplayGroup",@"source=%@",source);
-    NSDebugMLLog(@"GSWDisplayGroup",@"[source detailKey]=%@",[source detailKey]);
+
     [_dataSource qualifyWithRelationshipKey:[source detailKey]
                                    ofObject:masterObject];
     if ([self fetchesOnLoad])
     {
-      NSDebugMLLog(@"GSWDisplayGroup",@"will fetch");
       [self fetch];
     }
   }
@@ -2139,9 +2120,7 @@ createObjectFailedForDataSource:_dataSource];
         retValue=YES;
       }
     }
-  }
-  NSDebugMLLog(@"GSWDisplayGroup",@"_selection count]=%d",[_selection count]);
-  
+  }  
   
   return retValue;
 }
@@ -2198,35 +2177,24 @@ createObjectFailedForDataSource:_dataSource];
   }
   else
   {
-    NSDebugMLLog(@"GSWDisplayGroup",@"_qualifier=%d",
-                 _qualifier);
     // Filter ?
     if (_qualifier)
     {
       newDisplayedObjects=[newDisplayedObjects 
                            filteredArrayUsingQualifier:_qualifier];
-      NSDebugMLLog(@"GSWDisplayGroup",@"[newDisplayedObjects count]=%d",
-                   [newDisplayedObjects count]);
     }
-    NSDebugMLLog(@"GSWDisplayGroup",@"_sortOrdering=%d",
-                 _sortOrdering);
     // Sort ?
     if (_sortOrdering)
     {
       newDisplayedObjects=[newDisplayedObjects
                            sortedArrayUsingKeyOrderArray:_sortOrdering];
-      NSDebugMLLog(@"GSWDisplayGroup",@"[newDisplayedObjects count]=%d",
-                   [newDisplayedObjects count]);
     }
   }
   ASSIGN(_displayedObjects,([NSMutableArray arrayWithArray:newDisplayedObjects]));
-  NSDebugMLLog(@"GSWDisplayGroup",@"[_displayedObjects count]=%d",
-               [_displayedObjects count]);
   
   [self selectObjectsIdenticalTo:selectedObjects
             selectFirstOnNoMatch:NO];
   [self redisplay];
-  NSDebugMLLog(@"GSWDisplayGroup",@"STOP updateDisplayedObjects");
   /*
    NSEnumerator *objsEnum=nil;
    id object=nil;
@@ -2288,11 +2256,10 @@ createObjectFailedForDataSource:_dataSource];
   [self notImplemented:_cmd];
 }
 
-#endif
 
 @end
 
-#if HAVE_GDL2 // GDL2 implementation
+//#if HAVE_GDL2 // GDL2 implementation
 //====================================================================
 @implementation GSWDisplayGroup (Private)
 -(void)finishInitialization
@@ -2359,25 +2326,21 @@ createObjectFailedForDataSource:_dataSource];
 {
   NSEnumerator *enumerator=nil;
   NSString *key=nil;
-  NSDebugMLLog(@"GSWDisplayGroup",@"array=%@",array);
-  NSDebugMLLog(@"GSWDisplayGroup",@"values=%@",values);
-  NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
-               (void*)sel,
-               NSStringFromSelector(sel));
+
   enumerator = [values keyEnumerator];
+  
   while((key = [enumerator nextObject]))
   {
     EOQualifier* qualifier=nil;
     id value=[values objectForKey:key];
-    NSDebugMLLog(@"GSWDisplayGroup",@"key=%@ value=%@",key,value);
+
     qualifier=[self _qualifierForKey:key
                                value:value
                     operatorSelector:sel];
-    NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
+
     if (qualifier)
       [array addObject:qualifier];
   }
-  NSDebugMLLog(@"GSWDisplayGroup",@"array=%@",array);
 }
 
 
@@ -2388,19 +2351,13 @@ createObjectFailedForDataSource:_dataSource];
   EOClassDescription* cd=nil;
   EOQualifier* qualifier=nil;
   NSException* validateException=nil;
-  
-  NSDebugMLLog(@"GSWDisplayGroup",@"value=%@",value);
-  NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
-               (void*)operatorSelector,
-               NSStringFromSelector(operatorSelector));
-  
+    
   // Get object class description
   cd=[_dataSource classDescriptionForObjects];
   
   // Validate the value against object class description
   validateException=[cd validateValue:&value
                                forKey:key];
-  NSDebugMLLog(@"GSWDisplayGroup",@"validateException=%@",validateException);
   
   if (validateException)
   {
@@ -2410,9 +2367,7 @@ createObjectFailedForDataSource:_dataSource];
   {
     NSString* qualifierClassName=[_queryKeyValueQualifierClassName objectForKey:key];
     Class qualifierClass=Nil;
-    NSDebugMLLog(@"GSWDisplayGroup",@"key=%@",key);
-    NSDebugMLLog(@"GSWDisplayGroup",@"_queryKeyValueQualifierClassName=%@",_queryKeyValueQualifierClassName);
-    NSDebugMLLog(@"GSWDisplayGroup",@"qualifierClassName=%@",qualifierClassName);
+
     if ([qualifierClassName length]>0)
     {
       qualifierClass=NSClassFromString(qualifierClassName);
@@ -2423,23 +2378,12 @@ createObjectFailedForDataSource:_dataSource];
     }
     else
       qualifierClass=[EOKeyValueQualifier class];
-    NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
-                 (void*)operatorSelector,
-                 NSStringFromSelector(operatorSelector));
-    NSDebugMLLog(@"GSWDisplayGroup",@"EOQualifierOperatorEqual=%p: %@",
-                 (void*)EOQualifierOperatorEqual,
-                 NSStringFromSelector(EOQualifierOperatorEqual));
     
     // If the selector is the equal operator
-    if (sel_eq(operatorSelector, EOQualifierOperatorEqual))
+    if (sel_isEqual(operatorSelector, EOQualifierOperatorEqual))
     {
       // Search if there's a specific defined operator for it
       NSString* operatorString=[_queryOperator objectForKey:key];
-      NSDebugMLLog(@"GSWDisplayGroup",@"key=%@",key);
-      NSDebugMLLog(@"GSWDisplayGroup",@"_queryOperator=%@",_queryOperator);
-      NSDebugMLLog(@"GSWDisplayGroup",@"operatorString=%@",operatorString);
-      NSDebugMLLog(@"GSWDisplayGroup",@"[value isKindOfClass:[NSString class]]=%d",
-                   [value isKindOfClass:[NSString class]]);
       
       // If value is a string, try to do handle string specific operators
       if([value isKindOfClass:[NSString class]])
@@ -2453,7 +2397,7 @@ createObjectFailedForDataSource:_dataSource];
         {
           NSString* stringValue = (NSString*)value;
           // Other string operators don't care about empry string
-          NSDebugMLLog(@"GSWDisplayGroup",@"stringValue=%@",stringValue);
+
           if ([stringValue length]==0)
           {
             // So ends here and we'll return a nil qualifier
@@ -2463,7 +2407,6 @@ createObjectFailedForDataSource:_dataSource];
           }
           else if ([operatorString length]==0) // ==> defaultStringMatchOperator with defaultStringMatchFormat
           {
-            NSDebugMLLog(@"GSWDisplayGroup",@"_defaultStringMatchFormat=%@",_defaultStringMatchFormat);
             value=[NSString stringWithFormat:_defaultStringMatchFormat,
                    value];
             operatorString = _defaultStringMatchOperator;
@@ -2490,20 +2433,12 @@ createObjectFailedForDataSource:_dataSource];
       }
       else
       {
-        NSDebugMLLog(@"GSWDisplayGroup",@"! string value");
         if ([operatorString length]==0)
           operatorString = @"=";
       }
-      NSDebugMLLog(@"GSWDisplayGroup",@"operatorString=%@",operatorString);
       operatorSelector = [qualifierClass operatorSelectorForString:operatorString];
-      NSDebugMLLog(@"GSWDisplayGroup",@"operatorSelector=%p: %@",
-                   (void*)operatorSelector,
-                   NSStringFromSelector(operatorSelector));
     }
-    NSDebugMLLog(@"GSWDisplayGroup",@"%@ %@ %@",
-                 key,
-                 NSStringFromSelector(operatorSelector),
-                 value);
+
     if (key || operatorSelector || value) // qualifier returned will be nil when we have to discard it
     {
       if (operatorSelector)
@@ -2512,7 +2447,6 @@ createObjectFailedForDataSource:_dataSource];
                     initWithKey:key
                     operatorSelector:operatorSelector
                     value:value] autorelease];
-        NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
       }
       else
       {
@@ -2521,13 +2455,12 @@ createObjectFailedForDataSource:_dataSource];
       }
     }
   }
-  NSDebugMLLog(@"GSWDisplayGroup",@"qualifier=%@",qualifier);
   return qualifier;
 }
 
 @end
 
-#endif
+//#endif
 
 @implementation NSArray (Indexes)
 -(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects
@@ -2546,7 +2479,7 @@ createObjectFailedForDataSource:_dataSource];
       for(i=0;i<objectsCount;i++)
       {
         id object=[objects objectAtIndex:i];
-        unsigned int index=[self indexOfObjectIdenticalTo:object];
+        NSUInteger index=[self indexOfObjectIdenticalTo:object];
         if (index!=NSNotFound)
         {
           NSNumber* indexObject=GSWIntNumber((int)index);
@@ -2562,7 +2495,7 @@ createObjectFailedForDataSource:_dataSource];
   }
   if (!indexes)
     indexes=[NSArray array];
-  NSDebugMLLog(@"GSWDisplayGroup",@"indexes count]=%d",[indexes count]);
+
   return indexes;
 }
 
