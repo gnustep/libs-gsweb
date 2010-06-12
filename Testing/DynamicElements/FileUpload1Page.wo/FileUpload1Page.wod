@@ -1,0 +1,39 @@
+
+AFileUpload: WOFileUpload
+{
+	filePath=aFilePath;
+	data=aFileData;
+};
+
+FileName: WOString
+{
+        value = aFilePath;
+};
+
+FileSize: WOString
+{
+        value = aFileData.length.description;
+};
+
+FileContent: WOString
+{
+        value = aFileData.description;
+};
+
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

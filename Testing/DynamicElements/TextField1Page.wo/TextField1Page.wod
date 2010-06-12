@@ -1,0 +1,28 @@
+
+ATextField: WOTextField
+{
+        value = aString;
+};
+
+EnteredString: WOString
+{
+        value = aString;
+};
+
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

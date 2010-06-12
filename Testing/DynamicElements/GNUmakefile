@@ -22,12 +22,8 @@
 #  Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #
 
-include ../../config.mak
 include $(GNUSTEP_MAKEFILES)/common.make
 include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
-ifeq ($(GDL2),yes)
-include $(GNUSTEP_MAKEFILES)/Auxiliary/gdl2.make
-endif
 
 GSWAPP_NAME=DynamicElements
 DynamicElements_HAS_GSWCOMPONENTS=YES
@@ -37,7 +33,6 @@ DynamicElements_GSWAPP_INFO_PLIST=Resources/Info-DynamicElements.plist
 # The bundle resource files and directories
 DynamicElements_RESOURCE_FILES = \
 Resources/Info-DynamicElements.plist \
-Resources/Base.gswd \
 
 
 # The Objective-C source files to be compiled
@@ -58,29 +53,33 @@ PopUpButton2Page.m \
 TextField1Page.m \
 CheckBox1Page.m \
 CheckBox2Page.m \
-RadioButton1Page.m \
-RadioButton2Page.m \
+RadioButton1Page.m 
 
 DynamicElements_COMPONENTS = \
-Main.gswc \
-FileUpload1Page.gswc \
-RadioButtonList1Page.gswc \
-RadioButtonList2Page.gswc \
-CheckBoxList1Page.gswc \
-CheckBoxList2Page.gswc \
-Browser1Page.gswc \
-Browser2Page.gswc \
-PopUpButton1Page.gswc \
-PopUpButton2Page.gswc \
-TextField1Page.gswc \
-CheckBox1Page.gswc \
-CheckBox2Page.gswc \
-RadioButton1Page.gswc \
-RadioButton2Page.gswc \
+Main.wo \
+FileUpload1Page.wo \
+RadioButtonList1Page.wo \
+RadioButtonList2Page.wo \
+CheckBoxList1Page.wo \
+CheckBoxList2Page.wo \
+Browser1Page.wo \
+Browser2Page.wo \
+PopUpButton1Page.wo \
+PopUpButton2Page.wo \
+TextField1Page.wo \
+CheckBox1Page.wo \
+CheckBox2Page.wo \
+RadioButton1Page.wo 
 
 
 -include Makefile.preamble
 
 include $(GNUSTEP_MAKEFILES)/gswapp.make
+
+ifneq ($(FOUNDATION_LIB),gnu)
+AUXILIARY_GSW_LIBS = -framework WebObjects -framework WOExtensions
+else
+AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions
+endif
 
 -include Makefile.postamble

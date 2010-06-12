@@ -1,0 +1,39 @@
+
+APopUpButton: WOPopUpButton
+{
+        list = application.bundleInfo.PopUpButton.list;
+        item = anItem;
+        value = anItem.value;
+        displayString = anItem.label;
+        selection = selectedItem;
+        noSelectionString = "Nothing Selected";
+        name = "POPNAME";
+};
+
+SelectedItem: WOString
+{
+        value = selectedItem;
+};
+
+SelectedValue: WOString
+{
+        value = selectedItem.value;
+};
+
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

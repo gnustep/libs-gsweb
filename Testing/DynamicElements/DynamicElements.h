@@ -1,3 +1,5 @@
+#include <WebObjects/WebObjects.h>
+
 //====================================================================
-@interface DynamicElements : GSWApplication
+@interface DynamicElements : WOApplication
 @end

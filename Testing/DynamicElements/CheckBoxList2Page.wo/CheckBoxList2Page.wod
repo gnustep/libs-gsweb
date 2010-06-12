@@ -1,0 +1,32 @@
+
+ACheckBoxList: WOCheckBoxList
+{
+        list = application.bundleInfo.CheckBoxList.list;
+        item = anItem;
+        displayString = anItem.label;
+        selections = selectedItems;
+        name = "CHECKNAME";
+};
+
+SelectedItems: WOString
+{
+        value = selectedItems;
+};
+
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

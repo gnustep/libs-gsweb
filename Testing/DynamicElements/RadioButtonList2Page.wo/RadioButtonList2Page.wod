@@ -1,0 +1,32 @@
+
+ARadioButtonList: WORadioButtonList
+{
+        list = application.bundleInfo.RadioButtonList.list;
+        item = anItem;
+        displayString = anItem.label;
+        selection = selectedItem;
+        name = "RADIONAME";
+};
+
+SelectedItem: WOString
+{
+        value = selectedItem;
+};
+
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

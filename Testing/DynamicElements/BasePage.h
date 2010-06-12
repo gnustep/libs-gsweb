@@ -32,7 +32,7 @@
 #ifndef _BasePage_h__
 	#define _BasePage_h__
 
-@interface BasePage: GSWComponent
+@interface BasePage: WOComponent
 {
 }
 @end

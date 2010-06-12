@@ -1,0 +1,27 @@
+/*
+ * Main.gswd
+ *
+ * You may freely copy, distribute and reuse the code in this example.
+ * We disclaims any warranty of any kind, expressed or implied, as to
+ * its fitness for any particular use.
+ *
+ * This is the declarations file for the  main page of the
+ * DynamicElements Testing application.
+ */
+
+Repetition: WORepetition
+{
+        item = tmpDynamicElement;
+        list = application.bundleInfo.dynamicElements;
+};
+
+Link: WOHyperlink
+{
+        pageName = tmpDynamicElement.pageName;
+        string = tmpDynamicElement.label;
+};
+
+Comment: WOString
+{
+        value = tmpDynamicElement.comment;
+};

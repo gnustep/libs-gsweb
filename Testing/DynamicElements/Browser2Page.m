@@ -28,7 +28,7 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 #include "BasePage.h"
 #include "Browser2Page.h"
 

@@ -28,13 +28,13 @@
    </license>
 **/
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 #include "BasePage.h"
 
 
 @implementation BasePage
 
--(GSWComponent*)submitAction
+-(WOComponent*)submitAction
 {
   return nil;
 };

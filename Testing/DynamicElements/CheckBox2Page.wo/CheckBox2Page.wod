@@ -1,0 +1,28 @@
+
+ACheckBox: WOCheckBox
+{
+        selection = checkBoxValue;
+        checked = isChecked;
+};
+
+IsCheckedValue: WOString
+{
+        value = isChecked;
+};
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

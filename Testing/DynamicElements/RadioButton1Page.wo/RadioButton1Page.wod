@@ -1,0 +1,54 @@
+
+
+RadioButton1: WORadioButton
+{
+        selection = value;
+        checked = isChecked1;
+        name = "RadioButton";
+};
+
+RadioButton2: WORadioButton
+{
+        selection = value;
+        checked = isChecked2;
+        name = "RadioButton";
+};
+
+RadioButton3: WORadioButton
+{
+        selection = value;
+        checked = isChecked3;
+        name = "RadioButton";
+};
+
+IsCheckedValue1: WOString
+{
+        value = isChecked1;
+};
+
+IsCheckedValue2: WOString
+{
+        value = isChecked2;
+};
+
+IsCheckedValue3: WOString
+{
+        value = isChecked3;
+};
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+

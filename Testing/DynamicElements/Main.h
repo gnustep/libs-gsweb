@@ -10,9 +10,9 @@
  */
 
 
-#include <GSWeb/GSWeb.h>
+#include <WebObjects/WebObjects.h>
 
-@interface Main: GSWComponent 
+@interface Main: WOComponent 
 {
   id tmpDynamicElement;
 }

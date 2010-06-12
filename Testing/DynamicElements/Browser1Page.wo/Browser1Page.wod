@@ -1,0 +1,34 @@
+
+ABrowser: WOBrowser
+{
+        list = application.bundleInfo.Browser.list;
+        item = anItem;
+        value = anItem.value;
+        displayString = anItem.label;
+        selections = selectedItems;
+        multiple = YES;
+        name = "BROWSERNAME";
+};
+
+SelectedItems: WOString
+{
+        value = selectedItems;
+};
+
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+};
+
+Form: WOForm
+{
+        enctype = "multipart/form-data";
+};
+
+SubmitButton: WOSubmitButton
+{
+        action = submitAction;
+        value = "Submit";
+};
+
