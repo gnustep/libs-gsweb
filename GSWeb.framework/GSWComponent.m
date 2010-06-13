@@ -1302,7 +1302,6 @@ Call this method before using a component which was cached in a variable.
 
       if (request != nil) {
         httpVersion = [request httpVersion];
-        [response setAcceptedEncodings:[request browserAcceptedEncodings]];
       }
 
       [response setHTTPVersion:httpVersion];

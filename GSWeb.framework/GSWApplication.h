@@ -695,9 +695,6 @@ GSWEB_EXPORT GSWApplication* GSWApp;
 +(int)defaultUndoStackLimit;
 +(BOOL)_lockDefaultEditingContext;
 +(void)_setLockDefaultEditingContext:(BOOL)flag;
-+(NSString*)acceptedContentEncoding;
-+(NSArray*)acceptedContentEncodingArray;
-+(void)setAcceptedContentEncoding:(NSString*)acceptedContentEncoding;
 +(NSString*)defaultTemplateParser;//NDFN
 +(void)setDefaultTemplateParser:(NSString*)defaultTemplateParser;//NDFN
 +(BOOL)defaultDisplayExceptionPages;//NDFN

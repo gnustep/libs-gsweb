@@ -32,6 +32,9 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#ifndef GNUSTEP
+#include <GNUstepBase/NSObject+GNUstepBase.h>
+#endif
 
 //====================================================================
 @implementation GSWEmbeddedObject

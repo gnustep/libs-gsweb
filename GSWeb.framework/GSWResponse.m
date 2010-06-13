@@ -42,6 +42,7 @@ RCS_ID("$Id$")
 
 static NSString* disabledCacheDateString=nil;
 static NSArray* cacheControlHeaderValues=nil;
+static NSArray* compressableContentTypesCache=nil;
 
 static SEL appendTagAttributeValueEscapingHTMLAttributeValueSEL = NULL;
 
@@ -90,8 +91,30 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
                                                 nil]));
 
       appendTagAttributeValueEscapingHTMLAttributeValueSEL = @selector(_appendTagAttribute:value:escapingHTMLAttributeValue:);
+      
+      ASSIGN(compressableContentTypesCache, ([NSArray arrayWithObjects:@"text/html",
+                                             @"text/plain",
+                                             @"text/css",
+                                             @"text/csv",
+                                             @"text/xml",
+                                             @"text/rtf",
+                                             @"text/calendar",
+                                             @"text/x-vcalendar",
+                                             @"text/enriched",
+                                             @"text/directory",nil]));
+                                             
     };
 };
+
++ (NSArray*) compressableContentTypes
+{
+  return compressableContentTypesCache;
+}
+
++ (void) setCompressableContentTypes:(NSArray*) cTypes
+{
+  ASSIGN(compressableContentTypesCache,cTypes);
+}
 
 //--------------------------------------------------------------------
 //	init
@@ -116,7 +139,6 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   DESTROY(_contentFaults);
 //  NSDebugFLog0(@"Release Response contentData");
   DESTROY(_contentStreamFileHandle);
-  DESTROY(_acceptedEncodings);
 //  NSDebugFLog0(@"Release Response");
   [super dealloc];
 };
@@ -129,7 +151,6 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
     {
       clone->_status=_status;
       ASSIGNCOPY(clone->_contentFaults,_contentFaults);
-      ASSIGNCOPY(clone->_acceptedEncodings,_acceptedEncodings);
       clone->_isClientCachingDisabled=_isClientCachingDisabled;
       clone->_canDisableClientCaching=_canDisableClientCaching;
       clone->_contentFaultsHaveBeenResolved=_contentFaultsHaveBeenResolved;
@@ -149,18 +170,6 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 -(void)forceFinalizeInContext
 {
   _isFinalizeInContextHasBeenCalled=YES;
-};
-
-//--------------------------------------------------------------------
--(NSArray*)acceptedEncodings
-{
-  return _acceptedEncodings;
-};
-
-//--------------------------------------------------------------------
--(void)setAcceptedEncodings:(NSArray*)acceptedEncodings
-{
-  ASSIGN(_acceptedEncodings,acceptedEncodings);
 };
 
 //--------------------------------------------------------------------
@@ -238,11 +247,6 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 }
 
 
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWResponseA)
-
 //--------------------------------------------------------------------
 //NDFN
 -(BOOL)isFinalizeInContextHasBeenCalled
@@ -250,62 +254,69 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   return _isFinalizeInContextHasBeenCalled;
 };
 
-//--------------------------------------------------------------------
+
+- (BOOL)_browserSupportsCompression:(GSWRequest *)aRequest
+{
+  NSString	*value;
+  NSRange 	 range;
+
+  if (aRequest && ((value = [aRequest headerForKey:@"accept-encoding"]))) {
+    range = [value rangeOfString:@"gzip" options:0];
+
+    if (range.length) {
+      return YES;
+    }
+  }
+  return NO;
+}
+
 -(void)_finalizeContentEncodingInContext:(GSWContext*)aContext
 {
 #ifdef HAVE_LIBZ
-  int dataLength=0;
-
+  NSUInteger dataLength=0;
+  
   dataLength=[self _contentLength];
-  NSDebugMLog(@"dataLength=%d",dataLength);
+  
   // Now we see if we can gzip the content
-  if (dataLength>1024) // min length: 1024
+  // it does not make sense to compress data less than 150 bytes.
+  if ((dataLength > 150) && ([self _browserSupportsCompression:[aContext request]])) 
+  {
+    NSString* contentType=[self headerForKey:@"content-type"];
+    NSString* contentEncoding=[self headerForKey:@"content-encoding"];
+    
+    if ((contentEncoding) || (!compressableContentTypesCache)) {
+      return;
+    }
+    
+    // only compress if we know it makes sense
+    if ([compressableContentTypesCache containsObject:contentType])
     {
-      // we could do better by having parameters for types
-      NSArray* appAcceptedContentEncodingArray=[GSWApplication acceptedContentEncodingArray];
-      NSDebugMLog(@"appAcceptedContentEncodingArray=%@",appAcceptedContentEncodingArray);
-      if ([appAcceptedContentEncodingArray count]>0)
-        {
-          NSString* contentType=[self headerForKey:@"content-type"];
-          NSString* gzHeader=[self headerForKey:@"gzip"];
-
-          if ([contentType isEqual:@"text/html"])
-            {
-              NSString* contentEncoding=[self headerForKey:@"content-encoding"];
-              // we could do better by handling compress,...
-              if (([contentEncoding length]==0 // Not already encoded
-                  && [_acceptedEncodings containsObject:@"gzip"]
-                  && [appAcceptedContentEncodingArray containsObject:@"gzip"]) 
-                  && ((gzHeader == nil) || ([gzHeader isEqual:@"0"])))
-
-                {
-                  NSDate* compressStartDate=[NSDate date];
-                  NSData* content=[self content];
-                  NSData* compressedData=[content deflate];
-                  NSDebugMLog(@"compressedData=%@",compressedData);
-                  if (compressedData)
-                    {
 #ifdef DEBUG
-                      NSDate* compressStopDate=[NSDate date];
-                      NSString* sizeInfoHeader=[NSString stringWithFormat:@"deflate from %d to %d in %0.3f s",
-                                                         dataLength,
-                                                         [compressedData length],
-                                                     [compressStopDate timeIntervalSinceDate:compressStartDate]];
-                      [self setHeader:sizeInfoHeader
-                            forKey:@"deflate-info"];
+      NSDate* compressStartDate=[NSDate date];
 #endif
-                      [self setContent:compressedData];
-                      dataLength=[self _contentLength];
-                      [self setHeader:@"gzip"
-                            forKey:@"content-encoding"];
-                    };
-                };
-            };
-        };
-    };
+      NSData* content=[self content];
+      NSData* compressedData=[content deflate];
+      if (compressedData)
+      {
+#ifdef DEBUG
+        NSDate* compressStopDate=[NSDate date];
+        NSString* sizeInfoHeader=[NSString stringWithFormat:@"deflate from %d to %d in %0.3f s",
+                                  dataLength,
+                                  [compressedData length],
+                                  [compressStopDate timeIntervalSinceDate:compressStartDate]];
+        [self setHeader:sizeInfoHeader
+                 forKey:@"deflate-info"];
 #endif
+        [self setContent:compressedData];
+        dataLength=[self _contentLength];
+        [self setHeader:@"gzip"
+                 forKey:@"content-encoding"];
+      }
+    }
+  }
+#endif // HAVE_LIBZ
 }
-
+          
 //--------------------------------------------------------------------
 -(void)_finalizeInContext:(GSWContext*)aContext
 {
@@ -373,10 +384,6 @@ escapingHTMLAttributeValue:(BOOL)escape
   
 };
 
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWResponseB)
 -(void)_resolveContentFaultsInContext:(GSWContext*)aContext
 {
   [self notImplemented: _cmd];	//TODOFN
@@ -387,11 +394,6 @@ escapingHTMLAttributeValue:(BOOL)escape
 {
   [self notImplemented: _cmd];	//TODOFN
 };
-
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWResponseC)
 
 //--------------------------------------------------------------------
 -(BOOL)_isClientCachingDisabled
@@ -405,11 +407,6 @@ escapingHTMLAttributeValue:(BOOL)escape
   return [_contentData length];
 };
 
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWResponseD)
-
 //--------------------------------------------------------------------
 -(BOOL)_responseIsEqual:(GSWResponse*)aResponse
 {
@@ -417,20 +414,12 @@ escapingHTMLAttributeValue:(BOOL)escape
   return NO;
 };
 
-@end
-//====================================================================
-@implementation GSWResponse (GSWActionResults)
-
 //--------------------------------------------------------------------
 -(GSWResponse*)generateResponse
 {
   return self;
 };
 
-@end
-
-//====================================================================
-@implementation GSWResponse (Stream)
 -(void)setContentStreamFileHandle:(NSFileHandle*)fileHandle
                        bufferSize:(unsigned int)bufferSize
                            length:(unsigned long)length
@@ -442,10 +431,6 @@ escapingHTMLAttributeValue:(BOOL)escape
     _contentStreamBufferSize=bufferSize;
   _contentStreamBufferLength=length;
 };
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWResponseError)
 
 //--------------------------------------------------------------------
 //NDFN
@@ -488,11 +473,6 @@ escapingHTMLAttributeValue:(BOOL)escape
     };
   return aResponse;
 };
-
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWResponseRefused)
 
 //--------------------------------------------------------------------
 //
@@ -541,11 +521,6 @@ escapingHTMLAttributeValue:(BOOL)escape
     };
   return response;
 };
-
-@end
-
-//====================================================================
-@implementation GSWResponse (GSWResponseRedirected)
 
 //--------------------------------------------------------------------
 -(void)_generateRedirectResponseWithMessage:(NSString*)message

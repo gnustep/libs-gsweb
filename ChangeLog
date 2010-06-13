@@ -1,3 +1,34 @@
+2010-06-13  David Wetzel <dave@turbocat.de>
+	* Examples/hello/Main.m
+	add DirectAction to avoid error messages
+	* GSWeb.framework/GSWEmbeddedObject.m
+	include NSObject+GNUstepBase.h
+	* GSWeb.framework/GSWConfig.h
+	remove GSWOPTVALUE_AcceptedContentEncoding
+	* GSWeb.framework/GSWResponse.h
+	remove acceptedEncodings
+	add + compressableContentTypes
+	add + setCompressableContentTypes:
+	remove usesless @interface/@end 
+	* GSWeb.framework/GSWResponse.m
+	add compressableContentTypesCache
+	add + compressableContentTypes
+	add + setCompressableContentTypes:
+	remove acceptedEncodings
+	remove usesless @implementation/@end 
+	add _browserSupportsCompression:
+	refactor _finalizeContentEncodingInContext:
+	* GSWeb.framework/GSWConstants.h
+	* GSWeb.framework/GSWConstants.m
+	remove GSWOPT_AcceptedContentEncoding
+	* GSWeb.framework/GSWComponent.m
+	do not call setAcceptedEncodings on response.
+	* GSWeb.framework/GSWApplication.h
+	* GSWeb.framework/GSWApplication+Defaults.m
+	remove + acceptedContentEncoding
+	remove + acceptedContentEncodingArray
+	remove + setAcceptedContentEncoding:
+	
 2010-06-11  David Wetzel <dave@turbocat.de>
 	* Testing/DynamicElements
 	Ported to WO names.

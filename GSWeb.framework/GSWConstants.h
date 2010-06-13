@@ -232,7 +232,6 @@ GSWEB_EXPORT NSString* GSWOPT_DebugSetConfigFilePath;
 GSWEB_EXPORT NSString* GSWOPT_AdaptorHost[2];
 GSWEB_EXPORT NSString* GSWOPT_RecordingPath[2];
 GSWEB_EXPORT NSString* GSWOPT_DefaultTemplateParser[2];
-GSWEB_EXPORT NSString* GSWOPT_AcceptedContentEncoding[2];
 GSWEB_EXPORT NSString* GSWOPT_SessionStoreClassName[2];
 GSWEB_EXPORT NSString* GSWOPT_ResourceManagerClassName[2];
 GSWEB_EXPORT NSString* GSWOPT_StatisticsStoreClassName[2];

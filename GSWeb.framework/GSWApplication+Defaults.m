@@ -330,7 +330,6 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
       LOGOPT_NC(GSWOPT_AdaptorHost);
 
       LOGOPT   (GSWOPTVALUE_DefaultTemplateParser);
-      LOGOPT   (GSWOPTVALUE_AcceptedContentEncoding);
       LOGOPT   (GSWOPTVALUE_DisplayExceptionPages);
       LOGOPT   (GSWOPTVALUE_AllowsCacheControlHeader);
 
@@ -465,9 +464,6 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
 		      
 		      GSWOPTVALUE_DefaultTemplateParser,
 		      GSWOPT_DefaultTemplateParser[GSWebNamingConv],
-
-		      GSWOPTVALUE_AcceptedContentEncoding,
-		      GSWOPT_AcceptedContentEncoding[GSWebNamingConv],
 		      
 		      GSWOPTVALUE_DisplayExceptionPages,
 		      GSWOPT_DisplayExceptionPages[GSWebNamingConv],
@@ -1563,33 +1559,6 @@ static NSString *_dflt_debugSetConfigFilePath = nil;
   NSAssert(NO,
 	   @"+setSaveResponsesPath: is now obsolete. Use +setRecordingPath:");
 };
-
-//--------------------------------------------------------------------
-static BOOL      _dflt_init_acceptedContentEncoding = NO;
-static NSString *_dflt_acceptedContentEncoding = nil;
-+(NSString*)acceptedContentEncoding
-{
-  INIT_DFLT_OBJ(acceptedContentEncoding,
-		GSWOPT_AcceptedContentEncoding[GSWebNamingConv]);
-  return _dflt_acceptedContentEncoding;
-};
-
-//--------------------------------------------------------------------
-+(NSArray*)acceptedContentEncodingArray
-{
-  NSArray* acceptedContentEncodingArray=nil;
-  NSString* acceptedContentEncoding=[self acceptedContentEncoding];
-  acceptedContentEncodingArray=[acceptedContentEncoding componentsSeparatedByString:@";"];
-  return acceptedContentEncodingArray;
-};
-
-//--------------------------------------------------------------------
-+(void)setAcceptedContentEncoding:(NSString*)acceptedContentEncoding
-{
-  ASSIGNCOPY(_dflt_acceptedContentEncoding, acceptedContentEncoding);
-  _dflt_init_acceptedContentEncoding = YES;
-};
-
 
 //--------------------------------------------------------------------
 static BOOL      _dflt_init_defaultTemplateParser = NO;

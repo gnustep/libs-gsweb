@@ -229,7 +229,6 @@ NSString* GSWOPT_DebugSetConfigFilePath=@"GSWDebugSetConfigFilePath";
 NSString* GSWOPT_AdaptorHost[2]={ @"GSWAdaptorHost", @"WOAdaptorHost" };
 NSString* GSWOPT_RecordingPath[2]={ @"GSWRecordingPath", @"WORecordingPath" };
 NSString* GSWOPT_DefaultTemplateParser[2]= { @"GSWDefaultTemplateParser", @"WODefaultTemplateParser" };
-NSString* GSWOPT_AcceptedContentEncoding[2]= { @"GSWAcceptedContentEncoding", @"WOAcceptedContentEncoding" };
 NSString* GSWOPT_SessionStoreClassName[2]= { @"GSWSessionStoreClassName", @"WOSessionStoreClassName" };
 NSString* GSWOPT_ResourceManagerClassName[2]= { @"GSWResourceManagerClassName", @"WOResourceManagerClassName" };
 NSString* GSWOPT_StatisticsStoreClassName[2]= { @"GSWStatisticsStoreClassName", @"WOStatisticsStoreClassName" };

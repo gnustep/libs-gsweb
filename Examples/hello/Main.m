@@ -35,6 +35,10 @@
 
 @end
 
+/*
+ * in an real world application you should move these to separate files.
+ */
+
 @interface Session:WOSession
 {
 }
@@ -47,8 +51,16 @@
 
 @end
 
+@interface DirectAction:WODirectAction
+{
+}
+@end
+
 @implementation Session
 @end
 
 @implementation Application
+@end
+
+@implementation DirectAction
 @end

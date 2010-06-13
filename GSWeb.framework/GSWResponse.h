@@ -102,7 +102,6 @@ GSWEB_EXPORT void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(
   NSFileHandle* _contentStreamFileHandle;
   unsigned int _contentStreamBufferSize;
   unsigned long _contentStreamBufferLength;
-  NSArray* _acceptedEncodings;
   BOOL _canDisableClientCaching;
   BOOL _isClientCachingDisabled;
   BOOL _contentFaultsHaveBeenResolved;
@@ -111,11 +110,21 @@ GSWEB_EXPORT void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(
  GSWResponseIMPs _selfIMPs;
 };
 
+/* Used to determine if the content might be gzip compressed or not before sending to the client.
+ * This is an extension in GSWeb 
+ */
++ (NSArray*) compressableContentTypes;
+
+/* You can change the compressable types here. Use an empty array or nil to
+ * turn the compression functionality off.
+ * This is an extension in GSWeb 
+ */
+
++ (void) setCompressableContentTypes:(NSArray*) cTypes;
+
 -(void)willSend;//NDFN
 -(void)forceFinalizeInContext;
 -(void)setStatus:(unsigned int)status;
--(void)setAcceptedEncodings:(NSArray*)acceptedEncodings;
--(NSArray*)acceptedEncodings;
 -(unsigned int)status;
 -(NSString*)description;
 
@@ -124,52 +133,25 @@ GSWEB_EXPORT void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(
 // should be called before finalizeInContext
 -(void)setCanDisableClientCaching:(BOOL)yn;
 
-@end
-
-//====================================================================
-@interface GSWResponse (GSWResponseA)
 -(BOOL)isFinalizeInContextHasBeenCalled;//NDFN
 -(void)_finalizeInContext:(GSWContext*)context;
 -(void)_appendTagAttribute:(NSString*)attributeName
                      value:(id)value
 escapingHTMLAttributeValue:(BOOL)escape;
 
-@end
-
-//====================================================================
-@interface GSWResponse (GSWResponseB)
 -(void)_resolveContentFaultsInContext:(GSWContext*)context;
 -(void)_appendContentFault:(id)unknown;
 
-@end
-
-//====================================================================
-@interface GSWResponse (GSWResponseC)
 -(BOOL)_isClientCachingDisabled;
 -(unsigned int)_contentDataLength;
-@end
 
-//====================================================================
-@interface GSWResponse (GSWResponseD)
 -(BOOL)_responseIsEqual:(GSWResponse*)response;
-@end
-
-//====================================================================
-@interface GSWResponse (GSWActionResults) <GSWActionResults>
 
 -(GSWResponse*)generateResponse;
 
-@end
-
-//====================================================================
-@interface GSWResponse (Stream)
 -(void)setContentStreamFileHandle:(NSFileHandle*)fileHandle
                        bufferSize:(unsigned int)bufferSize
                            length:(unsigned long)length;
-@end
-
-//====================================================================
-@interface GSWResponse (GSWResponseError)
 
 //NDFN
 //Last cHance Response
@@ -181,20 +163,12 @@ escapingHTMLAttributeValue:(BOOL)escape;
 			 inContext:(GSWContext*)context
 			forRequest:(GSWRequest*)request
                      forceFinalize:(BOOL)forceFinalize;
-@end
-
-//====================================================================
-@interface GSWResponse (GSWResponseRefused)
 
 //--------------------------------------------------------------------
 //
 //Refuse Response
 +(GSWResponse*)generateRefusingResponseInContext:(GSWContext*)context
                                       forRequest:(GSWRequest*)request;
-@end
-
-//====================================================================
-@interface GSWResponse (GSWResponseRedirected)
 
 -(void)_generateRedirectResponseWithMessage:(NSString*)message
                                    location:(NSString*)location
