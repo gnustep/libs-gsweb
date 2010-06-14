@@ -1110,7 +1110,6 @@ shouldRedisplayForEditingContextChangeNotification:notification];
       {
         EOUndoManager* undoManager=nil;
         NSArray *objects=nil;
-        NSAutoreleasePool* arp = nil;
         
         [[NSNotificationCenter defaultCenter] 
          postNotificationName:@"WODisplayGroupWillFetch" //TODO Name
@@ -1125,7 +1124,6 @@ shouldRedisplayForEditingContextChangeNotification:notification];
           [_dataSource setQualifierBindings:_queryBindings];
         }
         
-        arp = [NSAutoreleasePool new];
         NS_DURING
         {
           objects = [_dataSource fetchObjects];
@@ -1136,12 +1134,10 @@ shouldRedisplayForEditingContextChangeNotification:notification];
         {
           NSLog(@"%@ (%@)",localException,[localException reason]);
           RETAIN(localException);
-          DESTROY(arp);
           AUTORELEASE(localException);
           [localException raise];
         }
         NS_ENDHANDLER;
-        DESTROY(arp);
         
         if (_delegateRespondsTo.didFetchObjects)
           [_delegate displayGroup:self

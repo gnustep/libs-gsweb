@@ -64,8 +64,8 @@ ADDITIONAL_CFLAGS =
 
 # Additional include directories the compiler should search
 ADDITIONAL_INCLUDE_DIRS += \
-	-I../GSWeb.framework/$(GNUSTEP_TARGET_DIR) \
-	-I../GSWeb.framework/derived_src
+	-I../GSWeb/$(GNUSTEP_TARGET_DIR) \
+	-I../GSWeb/derived_src
 
 # Additional LDFLAGS to pass to the linker
 ADDITIONAL_LDFLAGS = 
@@ -74,11 +74,11 @@ ADDITIONAL_LDFLAGS =
 ADDITIONAL_LIB_DIRS = 
 
 ifeq ($(HAVE_NATIVE_FRAMEWORK_SUPPORT),yes)
-ADDITIONAL_FRAMEWORK_DIRS = -F../GSWeb.framework
+ADDITIONAL_FRAMEWORK_DIRS = -F../GSWeb
 else
 #This is needed to strip GSW/WOExtensions from GNUSTEP_OBJ_DIR
-GSWEB_LIBRARY_BASE = ../GSWeb.framework/GSWeb.framework
-WO_LIBRARY_BASE = ../GSWeb.framework/WebObjects.framework
+GSWEB_LIBRARY_BASE = ../GSWeb/GSWeb.framework
+WO_LIBRARY_BASE = ../GSWeb/WebObjects.framework
 GSW_FRAMEWORK_SUFFIX = Versions/Current/$(GNUSTEP_TARGET_LDIR)
 
 GSWExtensionsGSW_LIB_DIRS = \

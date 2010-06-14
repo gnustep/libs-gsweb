@@ -30,9 +30,9 @@ include ./config.mak
 #
 # The list of subproject directories
 #
-SUBPROJECTS = GSWeb.framework \
-	GSWExtensions.framework \
-	GSWExtensionsGSW.framework \
+SUBPROJECTS = GSWeb \
+	GSWExtensions \
+	GSWExtensionsGSW \
 	GSWDatabase
 
 #GSWAdaptors

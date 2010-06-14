@@ -1,6 +1,5 @@
 #   -*-makefile-*-
 #   Makefile.postamble
-#
 #   Copyright (C) 1999 Free Software Foundation, Inc.
 #   
 #   Written by:	Manuel Guesdon <mguesdon@sbuilders.com>
@@ -34,7 +33,7 @@
 
 # Things to do before compiling
 ifneq ($(gswnames),gsw)
-before-all:: $(WOExtensionsGSW_COMPONENTS)
+before-all:: $(WOExtensions_COMPONENTS) $(WO_LOCALIZED_COMPONENTS)
 endif
 
 # Things to do after compiling
@@ -45,24 +44,26 @@ endif
 
 # Things to do after installing
 # after-install::
-autodocs: 
-	echo $($(LIBRARY_NAME)_HEADER_FILES)
-	mkdir -p Doc/tmp
-	rm -f Doc/tmp/*
-	autodoc -allclasses -format html -template /usr/GNUstep/System/Libraries/Resources/DocTemplates/AutoDocTemplate.gsdoc -destination Doc/tmp/ -copyright "Copyright (C) 1999-200 Free Software Foundation, Inc." -define-author-name "Manuel Guesdon" -define-author-email "mguesdon@orange-concept.com" -define-author-desc "Developer" -define-author-url "http://www.gnustep.org/developers/whoiswho.html" -define-dtd-ref "/usr/GNUstep/System/Libraries/Resources/DTDs/gsdoc-0_6_6.dtd" -define-stylesheeturl "http://www.orange-concept.com/styles/default.css" -define-basetitle "GNUstepWeb - GSWExtensionsGSW" -define-dtd-url "http://www.gnustep.org/gsdoc-0_6_6.xml" -define-next "[[next]]" -define-prev "[[prev]]" -define-up "[[up]]" $($(LIBRARY_NAME)_HEADER_FILES)
-	mmv "Doc/tmp/*.html" "Doc/tmp/#1.gsdoc"
-	mv -f Doc/tmp/*.gsdoc Doc/
-
-gsdocs:
-	@(cd Doc; \
-	gsdoc --GNU-Debug=dflt --verbose=1 --makeRefs --makeIndex --makeIndexTemplate=/usr/GNUstep/System/Libraries/Resources/DocTemplates/indextemplate.gsdoc  --projectName="GSWExtensionsGSW" --refs=../../ --refs=/usr/local/doc/dev/ --define-version=1.0 --location="/usr/local/doc/dev/test/gsweb/GSWExtensionsGSW"  --define-stylesheeturl="http://www.orange-concept.com/styles/default.css" --define-basetitle="GNUstepWeb - GSWeb" --define-dtd-url="http://www.gnustep.org/gsdoc-0_6_6.xml" --define-authorName="Manuel Guesdon" --define-author-email="mguesdon@orange-concept.com" --define-authorDesc="Developer" --define-authorURL="http://www.gnustep.org/developers/whoiswho.html" --define-copyright="Copyright (C) 1999-2000 Free Software Foundation, Inc." --define-date="" --define-up="../index" "*.gsdoc" ; \
-	cd ..; )
 
 # Things to do before uninstalling
 # before-uninstall::
 
 # Things to do after uninstalling
 # after-uninstall::
+
+autodocs: 
+	echo $($(LIBRARY_NAME)_HEADER_FILES)
+	mkdir -p Doc/tmp
+	rm -f Doc/tmp/*
+	autodoc -allclasses -format html -template /usr/GNUstep/System/Libraries/Resources/DocTemplates/AutoDocTemplate.gsdoc -destination Doc/tmp/ -copyright "Copyright (C) 1999-200 Free Software Foundation, Inc." -define-author-name "Manuel Guesdon" -define-author-email "mguesdon@orange-concept.com" -define-author-desc "Developer" -define-author-url "http://www.gnustep.org/developers/whoiswho.html" -define-dtd-ref "/usr/GNUstep/System/Libraries/Resources/DTDs/gsdoc-0_6_6.dtd" -define-stylesheeturl "http://www.orange-concept.com/styles/default.css" -define-basetitle "GNUstepWeb - GSWExtensions" -define-dtd-url "http://www.gnustep.org/gsdoc-0_6_6.xml" -define-next "[[next]]" -define-prev "[[prev]]" -define-up "[[up]]" $($(LIBRARY_NAME)_HEADER_FILES)
+	mmv "Doc/tmp/*.html" "Doc/tmp/#1.gsdoc"
+	mv -f Doc/tmp/*.gsdoc Doc/
+
+gsdocs:
+	@(cd Doc; \
+	gsdoc --verbose=1 --makeRefs --makeIndex --makeIndexTemplate=/usr/GNUstep/System/Libraries/Resources/DocTemplates/indextemplate.gsdoc  --projectName="GSWExtensions" --refs=../../../ --refs=/usr/local/doc/dev/ --define-version=1.0 --location="/usr/local/doc/dev/test/gsweb/GSWExtensions"  --define-stylesheeturl="http://www.orange-concept.com/styles/default.css" --define-basetitle="GNUstepWeb - GSWeb" --define-dtd-url="http://www.gnustep.org/gsdoc-0_6_6.xml" --define-authorName="Manuel Guesdon" --define-author-email="mguesdon@orange-concept.com" --define-authorDesc="Developer" --define-authorURL="http://www.gnustep.org/developers/whoiswho.html" --define-copyright="Copyright (C) 1999-2000 Free Software Foundation, Inc." --define-date="" --define-up="../index" "*.gsdoc" ; \
+	cd ..; )
+
 
 # Things to do before cleaning
 # before-clean::
@@ -84,23 +85,24 @@ endif
 # Things to do after checking
 # after-check::
 
+# An sed script to convert the classes refered to in .gswd files
+# from their GSW- to their WO-representations based on the mappings
+# contained in the GSWWOCompatibility.h header.
 # Currently this script is rather aggresive as it doesn't identify
 # whole words but merely patterns.
-GSWWOReplaceScript.sed: ../GSWeb.framework/GSWWOCompatibility.h
-	$(ECHO_NOTHING) \
-	grep "^#define[[:space:]]*GSW.*[[:space:]]*WO.*" \
-	    ../GSWeb.framework/GSWWOCompatibility.h | \
+GSWWOReplaceScript.sed: ../GSWeb/GSWWOCompatibility.h
+	$(ECHO_NOTHING)grep "^#define[[:space:]]*GSW.*[[:space:]]*WO.*" \
+	    ../GSWeb/GSWWOCompatibility.h | \
 	  sed -e 's/#define /s\//' \
 	      -e 's/[[:space:]*]/\//' \
 	      -e 's/[[:space:]*]//g' \
 	      -e 's/$$/\//' > $@ ; \
-	echo "s/GSWExtensionsGSW/WOExtensionsGSW/g" >> $@ ; \
-	$(END_ECHO)
+	echo "s/GSWExtensions/WOExtensions/g" >> $@ ;$(END_ECHO)
 
 # The script is copied instead of referenced as the relative path
 # from the $@ directory is unknown.  Keep this rule in sync with
-# GSWExtensions.framework/Makefile.postamble
-$(WOExtensionsGSW_COMPONENTS): GSWWOReplaceScript.sed
+# GSWExtensionsGSW/Makefile.postamble
+$(WOExtensions_COMPONENTS) $(WO_LOCALIZED_COMPONENTS): GSWWOReplaceScript.sed
 	$(ECHO_NOTHING)cp -r $(subst .wo,.gswc,$(subst WO,GSW, $@)) $@ && \
 	cp GSWWOReplaceScript.sed $@ && \
 	cd $@ && ( \
@@ -124,7 +126,10 @@ $(WOExtensionsGSW_COMPONENTS): GSWWOReplaceScript.sed
 	  done ) ;$(END_ECHO)
 
 WO-components-clean:
-	$(ECHO_NOTHING) \
-	rm -rf $(WOExtensionsGSW_COMPONENTS) ; \
-	rm -f GSWWOReplaceScript.sed ; \
-	$(END_ECHO)
+	$(ECHO_NOTHING)rm -rf $(WOExtensions_COMPONENTS) ; \
+	rm -rf $(WO_LOCALIZED_COMPONENTS) ; \
+	rm -f GSWWOReplaceScript.sed ;$(END_ECHO)
+
+$(WO_HEADER_FILES): WOExtensions.h
+	$(ECHO_NOTHING)$(LN_S) WOExtensions.h $@;$(END_ECHO)
+

@@ -1,4 +1,10 @@
 2010-06-13  David Wetzel <dave@turbocat.de>
+	rename all *.framework top level directories to their basename.
+	* GSWDatabase/WODisplayGroup.m
+	remove local NSAutoreleasePool
+	adjust makefiles
+	
+2010-06-13  David Wetzel <dave@turbocat.de>
 	* Examples/hello/Main.m
 	add DirectAction to avoid error messages
 	* GSWeb.framework/GSWEmbeddedObject.m
