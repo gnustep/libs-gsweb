@@ -1,4 +1,12 @@
 2010-06-13  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWDeployedBundle.m
+	remove local NSAutoreleasePool
+	* configure.ac
+	GSWeb.framework -> GSWeb
+	* configure
+	regenerate
+	
+2010-06-13  David Wetzel <dave@turbocat.de>
 	rename all *.framework top level directories to their basename.
 	* GSWDatabase/WODisplayGroup.m
 	remove local NSAutoreleasePool

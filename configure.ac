@@ -157,5 +157,5 @@ AC_SUBST(AUX_LIBS)
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-AC_CONFIG_FILES([config.mak gsweb.make GSWeb.framework/Makefile.preamble])
+AC_CONFIG_FILES([config.mak gsweb.make GSWeb/Makefile.preamble])
 AC_OUTPUT

@@ -317,7 +317,6 @@ RCS_ID("$Id$")
   NSString* path=nil;
   if (aName)
     {
-      NSAutoreleasePool* arp = [NSAutoreleasePool new];
       NS_DURING
         {
           NSString* emptyString=@"";
@@ -415,13 +414,11 @@ RCS_ID("$Id$")
           localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
                                                                    @"lockedCachedRelativePathForResourceNamed:inDirectory:language:");
           RETAIN(localException);
-          DESTROY(arp);
           AUTORELEASE(localException);
           [localException raise];
         }
       NS_ENDHANDLER;
       RETAIN(path);
-      DESTROY(arp);
       AUTORELEASE(path);      
     };
   return path;

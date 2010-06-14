@@ -3148,7 +3148,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -3169,7 +3169,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -4145,7 +4145,7 @@ AUX_LIBS="$LIBS"
 #--------------------------------------------------------------------
 # Write the Makefiles
 #--------------------------------------------------------------------
-ac_config_files="$ac_config_files config.mak gsweb.make GSWeb.framework/Makefile.preamble"
+ac_config_files="$ac_config_files config.mak gsweb.make GSWeb/Makefile.preamble"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4702,7 +4702,7 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "config.mak") CONFIG_FILES="$CONFIG_FILES config.mak" ;;
     "gsweb.make") CONFIG_FILES="$CONFIG_FILES gsweb.make" ;;
-    "GSWeb.framework/Makefile.preamble") CONFIG_FILES="$CONFIG_FILES GSWeb.framework/Makefile.preamble" ;;
+    "GSWeb/Makefile.preamble") CONFIG_FILES="$CONFIG_FILES GSWeb/Makefile.preamble" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
