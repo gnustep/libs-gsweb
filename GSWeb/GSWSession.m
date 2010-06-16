@@ -65,14 +65,17 @@ extern id gcObjectsToBeVisited;
 //	init
 -(id)init
 {  
-    if ((self = [super init]))
-    {
-      NSNumber       *mytimeOutNum    = [[GSWApp class] sessionTimeOut];
-      NSTimeInterval mySessionTimeOut = [mytimeOutNum  doubleValue];
+  if ((self = [super init]))
+  {
+    NSNumber       *mytimeOutNum    = [[GSWApp class] sessionTimeOut];
+    NSTimeInterval mySessionTimeOut = [mytimeOutNum  doubleValue];
 
-      [self setTimeOut:mySessionTimeOut];
-      [self _initWithSessionID:[[self class] createSessionID]];
-    }
+    _autoreleasePool = nil;
+    
+    [self setTimeOut:mySessionTimeOut];
+    [self _initWithSessionID:[[self class] createSessionID]];
+    
+  }
   
   return self;
 }
@@ -260,7 +263,6 @@ extern id gcObjectsToBeVisited;
 -(void)dealloc
 {
   DESTROY(_sessionID);
-  DESTROY(_autoreleasePool);
   DESTROY(_contextArrayStack);
   DESTROY(_contextRecords);
   DESTROY(_editingContext);
@@ -273,6 +275,9 @@ extern id gcObjectsToBeVisited;
   DESTROY(_permanentPageCache);
   DESTROY(_permanentContextIDArray);
   DESTROY(_domainForIDCookies);
+  // we are NOT destroying the _autoreleasePool here.
+  // this is triggered externally.
+  
   [super dealloc];
 }
 
@@ -857,32 +862,24 @@ extern id gcObjectsToBeVisited;
   
 }
 
-
-
-//--------------------------------------------------------------------
 -(void)_releaseAutoreleasePool
 {
-  //OK
-  //  printf("session %p _releaseAutoreleasePool START\n",self);
-//  fprintf(stderr,"session %p _releaseAutoreleasePool START\n",self);
-//TODO-NOW remettre  [GarbageCollector collectGarbages];
-//  printf("session %p _releaseAutoreleasePool after garbage",self);
-//  fprintf(stderr,"session %p _releaseAutoreleasePool after garbage\n",self);
   DESTROY(_autoreleasePool);
-//  printf("session %p _releaseAutoreleasePool STOP\n",self);
-//  fprintf(stderr,"session %p _releaseAutoreleasePool STOP\n",self);
-  
 }
 
 //--------------------------------------------------------------------
 -(void)_createAutoreleasePool
 {
-    if (!_autoreleasePool)
-    {
-      _autoreleasePool=[NSAutoreleasePool new];
-    }
-  
+  if (!_autoreleasePool)
+  {
+    _autoreleasePool=[NSAutoreleasePool new];
+  } else {
+    [NSException raise:NSInternalInconsistencyException 
+                format:@"%s - Can't create an autorelease pool when one already exists.",
+     __PRETTY_FUNCTION__];
+  }
 }
+
 
 //--------------------------------------------------------------------
 -(GSWComponent*)_permanentPageWithContextID:(NSString*)aContextID

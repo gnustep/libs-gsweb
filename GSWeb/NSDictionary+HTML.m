@@ -86,7 +86,7 @@ static NSMutableArray* _encodeAsCGIFormValuesInDictionaryUsingEncoding(NSDiction
 }
 
 // encodeAsCGIFormValues
-- (NSString*) encodeAsCGIFormValuesEscpaeAmpersand:(BOOL) doEscapeAmpersand
+- (NSString*) encodeAsCGIFormValuesEscapeAmpersand:(BOOL) doEscapeAmpersand
 {
   NSMutableArray      * stringArray = nil;
   NSString            * encodingStr = [self objectForKey:@"WOURLEncoding"];

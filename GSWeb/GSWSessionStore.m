@@ -193,9 +193,10 @@ RCS_ID("$Id$")
       
       [_timeOutManager updateTimeOutForSessionWithID:sessionID
                                              timeOut:sessionTimeOut];
-      
-      // why do we do that?
-      //[session _releaseAutoreleasePool];
+
+      // verified with WO 4.5 this is called somewhere in this method
+      // (checkInSessionForContext:)
+      [session _releaseAutoreleasePool];
 
       [session release];
       session = nil;

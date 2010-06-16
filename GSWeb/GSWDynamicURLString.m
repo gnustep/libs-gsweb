@@ -427,7 +427,7 @@ static SEL appendStringSel = NULL;
         _flags.composed=YES;
       
       if (([tmpUrl length]==0)) {
-        NSLog(@"%s:cannot parse '%@'", __PRETTY_FUNCTION__, _url);
+        //NSLog(@"%s:cannot parse '%@'", __PRETTY_FUNCTION__, _url);
       } else {
         [_url release];
         _url = [tmpUrl retain];

@@ -278,8 +278,7 @@ static Class NSStringClass = Nil;
                                                                       inContext: context];
     
   if ((queryDict != nil) && ([queryDict count] > 0)) {
-    // CHECKME: we should pass htmlEscapeURL to encodeAsCGIFormValues ?? -- dw
-    str = [queryDict encodeAsCGIFormValues];
+    str = [queryDict encodeAsCGIFormValuesEscapeAmpersand:htmlEscapeURL];
     GSWResponse_appendContentCharacter(response,'?');
     GSWResponse_appendContentHTMLAttributeValue(response, str);
   }
@@ -365,7 +364,11 @@ static Class NSStringClass = Nil;
       if (securestuff) {
         [context _generateRelativeURLs];
       }
-      [self _appendQueryStringToResponse:response inContext: context];
+      [self _appendQueryStringToResponse:response 
+                               inContext:context 
+                      requestHandlerPath:nil
+                           htmlEscapeURL:YES];
+      
       [self _appendFragmentToResponse: response inContext:context];
       GSWResponse_appendContentCharacter(response,'"');
     } else {
@@ -387,7 +390,12 @@ static Class NSStringClass = Nil;
         } else {
           GSWResponse_appendContentString(response,s1);
         }
-        [self _appendQueryStringToResponse:response inContext: context];
+
+        [self _appendQueryStringToResponse:response 
+                                 inContext:context
+                        requestHandlerPath:nil
+                             htmlEscapeURL:YES];
+        
         [self _appendFragmentToResponse: response inContext:context];
         GSWResponse_appendContentCharacter(response,'"');
       } else {
@@ -398,7 +406,12 @@ static Class NSStringClass = Nil;
             GSWResponse_appendContentAsciiString(response,href__Key);
             GSWResponse_appendContentCharacter(response,'=');
             GSWResponse_appendContentCharacter(response,'"');
-            [self _appendQueryStringToResponse:response inContext: context];
+
+            [self _appendQueryStringToResponse:response 
+                                     inContext:context
+                            requestHandlerPath:nil
+                                 htmlEscapeURL:YES];
+
             GSWResponse_appendContentCharacter(response,'#');
             GSWResponse_appendContentString(response,obj2);    // stringValue?
             GSWResponse_appendContentCharacter(response,'"');

@@ -1,3 +1,28 @@
+2010-06-16  David Wetzel <dave@turbocat.de>
+	* GSWeb/Resources/languages.plist
+	add more languages
+	* GSWeb/GSWHyperlink.m
+	_appendQueryStringToResponse:inContext:requestHandlerPath:htmlEscapeURL:
+	use encodeAsCGIFormValuesEscapeAmpersand: not encodeAsCGIFormValues
+	appendAttributesToResponse:inContext:
+	use _appendQueryStringToResponse:inContext:requestHandlerPath:htmlEscapeURL: 
+	not _appendQueryStringToResponse:inContext:
+	* GSWeb/GSWSession.m
+	do not dealloc _autoreleasePool in dealloc
+	This seems to fix 
+	* GSWeb/NSDictionary+HTML.h
+	* GSWeb/NSDictionary+HTML.m
+	fix typo in method name encodeAsCGIFormValuesEscapeAmpersand
+	* GSWeb/GSWActionURL.m
+	use _appendQueryStringToResponse:inContext:requestHandlerPath:htmlEscapeURL: 
+	not _appendQueryStringToResponse:inContext:
+	* GSWeb/GSWDynamicURLString.m
+	disable NSLog
+	* GSWeb/GSWSessionStore.m
+	_checkInSessionForContext:
+	enable [session _releaseAutoreleasePool]
+	add comment
+
 2010-06-13  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWDeployedBundle.m
 	remove local NSAutoreleasePool

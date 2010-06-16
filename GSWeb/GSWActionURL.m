@@ -72,7 +72,12 @@ RCS_ID("$Id$")
     {
       NSString * actionURL = [context componentActionURLIsSecure:[self secureInContext:context]];
       [response appendContentString:actionURL];
-      [self _appendQueryStringToResponse:response inContext: context];
+
+      [self _appendQueryStringToResponse:response
+                               inContext:context
+                      requestHandlerPath:nil
+                           htmlEscapeURL:NO];
+      
       [self _appendFragmentToResponse: response inContext:context];
     } else {
       if(url != nil)
@@ -92,16 +97,23 @@ RCS_ID("$Id$")
         } else {
           GSWResponse_appendContentString(response,url);
         }
-        [self _appendQueryStringToResponse:response inContext: context];
+        [self _appendQueryStringToResponse:response
+                                 inContext:context
+                        requestHandlerPath:nil
+                             htmlEscapeURL:NO];
+
         [self _appendFragmentToResponse: response inContext:context];
       } else {
         if(_fragmentIdentifier != nil)
         {
           fragment = [_fragmentIdentifier valueInComponent:component];
           if (fragment != nil) {
-            NSLog(@"fragment is kind of class %@", NSStringFromClass([fragment class]));                  
+//            NSLog(@"fragment is kind of class %@", NSStringFromClass([fragment class]));                  
             GSWResponse_appendContentString(response,fragment);
-            [self _appendQueryStringToResponse: response inContext: context requestHandlerPath:@"" htmlEscapeURL:NO];
+            [self _appendQueryStringToResponse:response
+                                     inContext: context
+                            requestHandlerPath:@""
+                                 htmlEscapeURL:NO];
           }
         }
       }

@@ -35,7 +35,7 @@
 
 @interface NSDictionary (HTML)
 - (NSString*) encodeAsCGIFormValues;
-- (NSString*) encodeAsCGIFormValuesEscpaeAmpersand:(BOOL) doEscapeAmpersand;
+- (NSString*) encodeAsCGIFormValuesEscapeAmpersand:(BOOL) doEscapeAmpersand;
 
 @end
 
