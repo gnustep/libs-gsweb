@@ -99,8 +99,6 @@ typedef struct gsw_cfg {
 
 #define RETRY_COUNT       3
 
-
-
 typedef struct gsw_app_conf {
   char        app_name[MAX_NAME_LENGTH];
   char        host_name[MAX_NAME_LENGTH];
@@ -133,7 +131,6 @@ typedef struct gsw_app_conf {
 #define CONTENT_LENGTH          "content-length"
 #define DEFAULT_APP_COUNT       10
 #define REFUSING_SESSIONS_HEADER "x-webobjects-refusenewsessions: "
-
 
 // used to read configs
 static int instance_count;
@@ -190,16 +187,21 @@ module AP_MODULE_DECLARE_DATA gsw_module;
 
 // callback function for looping the table
 
-int print_app(void *rec, const char *key, const char *value)
+int print_app(void *rec, const char *key, gsw_app_conf *appconf)
 {
 
   request_rec  *r       = rec;
-  gsw_app_conf *appconf = (gsw_app_conf *) value;
+//  gsw_app_conf *appconf = (gsw_app_conf *) value;
 
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Key:'%s'", key);
+  if (!appconf) {
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "print_app: got a NULL conf");
+    return 0;
+  }
+  
+ // ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Key:'%s'", key);
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name:'%s'", appconf->app_name);
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "host_name:'%s'", appconf->host_name);
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_number:'%u'", appconf->instance_number);
+ // ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_number:'%u'", appconf->instance_number);
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "load:'%d'", appconf->load);
   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "port:'%u'", appconf->port);
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "unreachable:'%d'", appconf->unreachable);
@@ -285,13 +287,12 @@ void * read_shared_mem(apr_pool_t * pool, int appcount)
 }
 
 
-void mark_unreachable(gsw_app_conf * app)
+void mark_unreachable(request_rec *r, gsw_app_conf * app)
 {
   exipc_data   * mem   = NULL;
   apr_time_t     now     = apr_time_now(); 
   u_int16_t      index   = app->total_index;
-
-        
+  
   apr_global_mutex_lock(exipc_mutex); 	
   mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
   
@@ -342,8 +343,6 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 
   if (((name) && (strlen(name))) && (cfg->app_table)) {
 
-
-
     const        apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
     const        apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
     int          i;
@@ -352,7 +351,7 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
     int          appcount = tarr->nelts;
     u_int32_t    lastload = UINT32_MAX;                
     int          lastindex = -1;                
-
+    
     if (!appcount) {
       return NULL;
     }
@@ -413,9 +412,8 @@ gsw_app_conf * find_app(request_rec *r)
     return NULL;
   }
 
-
   strncpy(app_name, appName, sizeof(app_name));
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name '%s'", app_name);
+  //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name '%s'", app_name);
   
   if ((appName = index(app_name, '.'))) {
     *appName = '\0';    
@@ -442,9 +440,6 @@ gsw_app_conf * find_app(request_rec *r)
 
   cfg = our_dconfig(r);
 
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_nr '%d'", instance_nr);
-
-  
   if (instance_nr != -1) {
     char   tmp_key[128];
 
@@ -457,6 +452,8 @@ gsw_app_conf * find_app(request_rec *r)
   }
 
   app_conf = find_app_by_name(app_name, cfg, r);
+  
+  //print_app(r, NULL, app_conf);
   
   return app_conf;        
 }
@@ -817,7 +814,6 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
   char                    tmpStr[512];
   apr_time_t              request_time;
   apr_time_t              done_time;
-  
 	
 	apr_pool_create(&sub_pool, r->pool);
   
@@ -899,7 +895,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 						if (strncasecmp(newBuf, "location: ", 10) == 0) {
 							location = newBuf+10;
 							apr_table_set(r->headers_out, "location", location);
-              ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
+              //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
               copy_header = 0;
 						}
 					}
@@ -949,10 +945,10 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 		}
 		
 		close(soc);
-    done_time = apr_time_now();
-		
+    
+    done_time = apr_time_now();		
     ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %d ms", apr_time_msec(done_time - request_time));
-
+    
     if ((http_status==302) && (refusing_seen==1)) {
       mark_refusing(app);
     } else {
@@ -1181,7 +1177,7 @@ static int gsw_handler(request_rec *r)
         
         switch (handle_status) {
           case UNREACHABLE:
-            mark_unreachable(app);
+            mark_unreachable(r,app);
             app = find_app(r);
             break;
           case DECLINED:
@@ -1201,7 +1197,7 @@ static int gsw_handler(request_rec *r)
       
     }
   } 
-     
+    
     ap_set_content_type(r, "text/html");
     /*
      * If we're only supposed to send header information (HEAD request), we're
@@ -1816,7 +1812,7 @@ static int gsw_process_connection(conn_rec *c)
  // FIXME: remove??
 static int gsw_post_read_request(request_rec *r)
 {
-    return DECLINED;
+  return DECLINED;
 }
 
 /*
@@ -1830,7 +1826,6 @@ static int gsw_post_read_request(request_rec *r)
 static int gsw_translate_handler(request_rec *r)
 {
   if (strncmp(r->uri, "/wo/",4) != 0) {
-//    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "gsw_translate_handler DECLINED");
     return DECLINED;
   }
   
@@ -1847,7 +1842,11 @@ static int gsw_translate_handler(request_rec *r)
  */
 static int gsw_map_to_storage_handler(request_rec *r)
 {
+  if (strncmp(r->uri, "/wo/",4) != 0) {
     return DECLINED;
+  }
+  
+  return OK;
 }
 
 /*
