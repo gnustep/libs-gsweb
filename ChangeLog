@@ -18,6 +18,8 @@
 	* GSWeb/GSWBundle.m
 	use [GSMimeDocument encodingFromCharset:encodingObject]
 	not + encodingNamed (which we trashed above)
+	* GSWeb/NSDictionary+HTML.m
+	use [GSMimeDocument encodingFromCharset:]
 	
 2010-06-17  David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/Apache2/mod_gsw.c

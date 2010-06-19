@@ -33,6 +33,7 @@
 RCS_ID("$Id: GSWDynamicGroup.m,v 1.17 2004/12/31 14:33:16 mguesdon Exp $")
 
 #include "GSWeb.h"
+#include <GNUstepBase/GSMime.h>
 
 
 //====================================================================
@@ -93,7 +94,8 @@ static NSMutableArray* _encodeAsCGIFormValuesInDictionaryUsingEncoding(NSDiction
   NSStringEncoding      encoding = NSUTF8StringEncoding;
 
   if (encodingStr) {
-    encoding =[NSString encodingNamed:encodingStr];
+    
+    encoding = [GSMimeDocument encodingFromCharset:encodingStr];
   }
 
   stringArray = _encodeAsCGIFormValuesInDictionaryUsingEncoding(self, encoding);
