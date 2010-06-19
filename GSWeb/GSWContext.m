@@ -1884,8 +1884,7 @@ If none, try request languages
     }
   }
   
-  // CHECKME: can [newQueryDictionary sessionID] be a NO/FALSE value?
-  if ((sessionId != nil) && ([newQueryDictionary sessionID] == nil)) {
+  if ((sessionId != nil) && ([[newQueryDictionary sessionID] boolValue])) {
     [newQueryDictionary setObject:sessionId
                            forKey:[GSWApp sessionIdKey]];
   } else {

@@ -38,7 +38,6 @@
 typedef struct _GSWMessageIMPs
 {
   // Instance IMPs
-  GSWIMP_STRING_ENCODING _contentEncodingIMP;
   IMP _contentIMP;
   IMP _contentStringIMP;
   IMP _appendContentAsciiStringIMP;
@@ -64,7 +63,6 @@ typedef struct _GSWMessageIMPs
 GSWEB_EXPORT void GetGSWMessageIMPs(GSWMessageIMPs* impsPtr,GSWMessage* message);
 
 /** functions to accelerate calls of frequently used GSWMessage methods **/
-GSWEB_EXPORT NSStringEncoding GSWMessage_contentEncoding(GSWMessage* aMessage);
 GSWEB_EXPORT NSData* GSWMessage_content(GSWMessage* aMessage);
 GSWEB_EXPORT NSString* GSWMessage_contentString(GSWMessage* aMessage);
 GSWEB_EXPORT void GSWMessage_appendContentAsciiString(GSWMessage* aMessage,NSString* aString);

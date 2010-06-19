@@ -38,6 +38,7 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #include "WOKeyValueUnarchiver.h"
+#include <GNUstepBase/GSMime.h>
 
 //====================================================================
 @interface GSWBundleUnarchiverDelegate : NSObject
@@ -842,14 +843,20 @@ RCS_ID("$Id$")
                   //NSLog(@"encodingObject is '%@'", encodingObject);
                   //encodingObject is 'NSISOLatin1StringEncoding'
                   //not very cool to make a int into a string and some time later a string..
-                  encodingObject=GSWIntToNSString([NSString encodingNamed: encodingObject]);
+                  
+                  encoding = [GSMimeDocument encodingFromCharset:encodingObject];
+                  
+                  if ((encoding == 0)) {
+                    [NSException raise: NSInvalidArgumentException
+                                format: @"Resource named %@ -- unknown encoding '%@'", aName, encodingObject];
+                  }
+
+                  encodingObject=GSWIntToNSString(encoding);
                   [_encodingCache setObject:encodingObject
                                   forKey:aName];
                 }
             }
         }
-      if (encodingObject)
-        encoding=[encodingObject intValue];
     }
   NS_HANDLER
     {

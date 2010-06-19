@@ -43,7 +43,6 @@ static NSString* globalDefaultURLEncoding=nil;
 
 static SEL appendDataSel = NULL;
 
-static SEL contentEncodingSEL = NULL;
 static SEL contentSEL = NULL;
 static SEL contentStringSEL = NULL;
 
@@ -70,18 +69,6 @@ static SEL stringByConvertingToHTMLSEL = NULL;
 
 //====================================================================
 /** functions to accelerate calls of frequently used GSWMessage methods **/
-
-//--------------------------------------------------------------------
-NSStringEncoding GSWMessage_contentEncoding(GSWMessage* aMessage)
-{
-  if (aMessage)
-    {
-      return (*(aMessage->_selfMsgIMPs._contentEncodingIMP))
-        (aMessage,contentEncodingSEL);
-    }
-  else
-    return (NSStringEncoding)0;
-}
 
 //--------------------------------------------------------------------
 NSData* GSWMessage_content(GSWMessage* aMessage)
@@ -329,11 +316,6 @@ void GetGSWMessageIMPs(GSWMessageIMPs* impsPtr,GSWMessage* message)
   NSCAssert(message,@"No message");
 
   Class messageClass=object_getClass(message);
-
-  NSCAssert(contentEncodingSEL,@"No contentEncodingSEL on GetGSWMessageIMPs");
-
-  impsPtr->_contentEncodingIMP = 
-    (GSWIMP_STRING_ENCODING)[message methodForSelector:contentEncodingSEL];
   
   impsPtr->_contentIMP = 
     [message methodForSelector:contentSEL];
@@ -412,9 +394,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
     {
       appendDataSel = @selector(appendData:);
       NSAssert(appendDataSel,@"No appendDataSel");
-
-      contentEncodingSEL = @selector(contentEncoding);
-      NSAssert(contentEncodingSEL,@"No contentEncodingSEL");
 
       contentSEL = @selector(content);
       NSAssert(contentSEL,@"No contentSEL");

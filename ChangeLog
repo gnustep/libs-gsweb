@@ -1,3 +1,24 @@
+2010-06-18  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWContext.m
+	- computeQueryDictionaryWithPath:queryDictionary:otherQueryDictionary
+	use boolValue.
+	This fixes ?wosid in links where it not has to be.
+	* GSWeb/GSWMessage.h
+	remove _contentEncodingIMP, GSWMessage_contentEncoding
+	* GSWeb/GSWMessage.m
+	remove contentEncodingSEL, GSWMessage_contentEncoding()
+	* GSWeb/GSWUtils.h
+	remove NSStringEncoding
+	remove + encodingNamed:
+	* GSWeb/GSWUtils.m
+	remove encodingsByName
+	remove + encodingNamed:
+	* GSWeb/GSWResponse.h
+	remove GSWResponse_contentEncoding
+	* GSWeb/GSWBundle.m
+	use [GSMimeDocument encodingFromCharset:encodingObject]
+	not + encodingNamed (which we trashed above)
+	
 2010-06-17  David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/Apache2/mod_gsw.c
 	minor cleanups, avoid missing filename message to logs

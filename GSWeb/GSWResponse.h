@@ -51,8 +51,6 @@ GSWEB_EXPORT void GetGSWResponseIMPs(GSWResponseIMPs* impsPtr,GSWResponse* aResp
 GSWEB_EXPORT void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* aResponse,NSString* aString,id value,BOOL escaping);
 
 /** functions to accelerate calls of frequently used GSResponse methods **/
-#define GSWResponse_contentEncoding(aResponse) \
-		GSWMessage_contentEncoding(aResponse)
 #define GSWResponse_content(aResponse) \
 		GSWMessage_content(aResponse)
 #define GSWResponse_contentString(aResponse) \

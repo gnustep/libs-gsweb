@@ -68,8 +68,6 @@ static Class nsStringClass=Nil;
 static Class nsMutableStringClass=Nil;
 static Class eoNullClass=Nil;
 
-static NSMapTable* encodingsByName=NULL;
-
 //--------------------------------------------------------------------
 void GSWInitializeAllMisc()
 {
@@ -110,53 +108,6 @@ void GSWInitializeAllMisc()
       NSCAssert(stringWithCString_lengthSEL,@"No SEL for stringWithCString:length::");
       nsString_stringWithCString_lengthIMP = [nsStringClass methodForSelector:stringWithCString_lengthSEL];
       NSCAssert(nsString_stringWithCString_lengthIMP,@"No IMP for stringWithCString:length:");
-
-      // Encodings
-      encodingsByName=NSCreateMapTable(NSObjectMapKeyCallBacks,
-                                       NSIntMapValueCallBacks,
-                                       32);
-      NSMapInsert(encodingsByName,
-                  @"NSISOLatin1StringEncoding",
-                  (const void*)NSISOLatin1StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSASCIIStringEncoding",
-                  (const void*)NSASCIIStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSISOLatin2StringEncoding",
-                  (const void*)NSISOLatin2StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSJapaneseEUCStringEncoding",
-                  (const void*)NSJapaneseEUCStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSMacOSRomanStringEncoding",
-                  (const void*)NSMacOSRomanStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSNEXTSTEPStringEncoding",
-                  (const void*)NSNEXTSTEPStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSNonLossyASCIIStringEncoding",
-                  (const void*)NSNonLossyASCIIStringEncoding);
-
-      // we might need this for compatibility. -- dw
-      NSMapInsert(encodingsByName,
-                  @"UTF-8",
-                  (const void*)NSUTF8StringEncoding);
-
-      NSMapInsert(encodingsByName,
-                  @"NSUTF8StringEncoding",
-                  (const void*)NSUTF8StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSUnicodeStringEncoding",
-                  (const void*)NSUnicodeStringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSWindowsCP1253StringEncoding",
-                  (const void*)NSWindowsCP1253StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSWindowsCP1252StringEncoding",
-                  (const void*)NSWindowsCP1252StringEncoding);
-      NSMapInsert(encodingsByName,
-                  @"NSWindowsCP1254StringEncoding",
-                  (const void*)NSWindowsCP1254StringEncoding);
 
       // NSString+HTML
       NSStringHTML_Initialize();
@@ -2059,22 +2010,6 @@ NSString* GSWGetDefaultDocRoot()
     }
   
   return tmpString;
-}
-
-//--------------------------------------------------------------------
-+ (NSStringEncoding) encodingNamed:(NSString*) encodingName
-{  
-  NSStringEncoding encoding;
-
-  NSCAssert(encodingsByName,@"encodingsByName not initialized");
-
-  encoding=(NSStringEncoding)NSMapGet(encodingsByName,(const void*)encodingName);
-  if (!encoding)
-    [NSException raise:NSInvalidArgumentException 
-                 format:@"%s: does not know about '%s'",
-                 __PRETTY_FUNCTION__, encodingName];  
-
-  return encoding;
 }
 
 @end

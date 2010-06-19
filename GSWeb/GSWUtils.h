@@ -72,7 +72,6 @@ typedef long (*GSWIMP_LONG)(id, SEL, ...);
 typedef BOOL (*GSWIMP_BOOL)(id, SEL, ...);
 typedef float (*GSWIMP_FLOAT)(id, SEL, ...);
 typedef double (*GSWIMP_DOUBLE)(id, SEL, ...);
-typedef NSStringEncoding (*GSWIMP_STRING_ENCODING)(id, SEL, ...);
 
 GSWEB_EXPORT NSNumber* GSWNumber_Yes();
 GSWEB_EXPORT NSNumber* GSWNumber_No();
@@ -448,8 +447,6 @@ typedef enum _NSNumFmtType
 
 + (id)stringWithContentsOfFile:(NSString *)path
                       encoding:(NSStringEncoding)encoding;
-
-+ (NSStringEncoding) encodingNamed:(NSString*) encodingName;
 @end
 
 //====================================================================
