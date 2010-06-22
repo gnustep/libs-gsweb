@@ -1,4 +1,10 @@
- 2010-06-22  David Wetzel <dave@turbocat.de>
+2010-06-22  David Wetzel <dave@turbocat.de>
+	* GSWExtensions/Resources/Info-gnustep.plist
+	delete
+	* GSWExtensions/GNUmakefile
+	let makefiles generate Info-gnustep.plist
+
+2010-06-22  David Wetzel <dave@turbocat.de>
 	* GSWExtensions/Resources/Info-gnustep.plist
 	* GSWExtensions/GNUmakefile
 	fix framework name to be able to load files from the right bundle

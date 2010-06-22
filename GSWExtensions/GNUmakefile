@@ -48,12 +48,7 @@ DERIVED_SRC := $(DERIVED_SRC)/$(GNUSTEP_INSTANCE)
 endif
 
 WOExtensions_CPPFLAGS = -DGSWEB_WONAMES
-
-# The framework resource files and directories
-GSWExtensions_RESOURCE_FILES = \
-Resources/Info-gnustep.plist \
-
-WOExtensions_RESOURCE_FILES = $(GSWExtensions_RESOURCE_FILES)
+WOExtensions_HAS_GSWCOMPONENTS=YES
 
 Extensions_COMPONENTS = \
 SessionCreationErrorPage \
