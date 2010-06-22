@@ -105,7 +105,7 @@
 -(GSWElement*)_childTemplate;
 -(GSWElement*) template;
 -(GSWComponentDefinition*)_componentDefinition;
--(NSString*)_templateName GS_ATTRIB_DEPRECATED;
+-(NSString*)_templateName /*GS_ATTRIB_DEPRECATED*/;
 -(NSString*)declarationName;
 -(BOOL)_isPage;
 -(void)_setIsPage:(BOOL)isPage;
@@ -226,7 +226,7 @@ Call this method before using a component which was cached in a variable.
 //            forKey:(id)key;
 
 -(NSString*)urlForResourceNamed:(NSString*)aName
-                         ofType:(NSString*)extension GS_ATTRIB_DEPRECATED;
+                         ofType:(NSString*)extension /*GS_ATTRIB_DEPRECATED*/;
 
 /* 
  Deprecated in WO 4.0. 
@@ -235,7 +235,7 @@ Call this method before using a component which was cached in a variable.
  instead.
  */
 -(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)extension GS_ATTRIB_DEPRECATED;
+                          ofType:(NSString*)extension /*GS_ATTRIB_DEPRECATED*/;
 
 +(GSWElement*)templateWithHTMLString:(NSString*)htmlString
                    declarationString:(NSString*)declarationString
@@ -250,7 +250,7 @@ Call this method before using a component which was cached in a variable.
  */
 
 +(GSWElement*)templateWithHTMLString:(NSString *)htmlString
-                   declarationString:(NSString*)declarationString GS_ATTRIB_DEPRECATED;
+                   declarationString:(NSString*)declarationString /*GS_ATTRIB_DEPRECATED*/;
 
 
 - (GSWResponse*)generateResponse;

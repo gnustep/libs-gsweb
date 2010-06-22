@@ -110,14 +110,14 @@ GSWEB_EXPORT NSDictionary* globalMime;
  */
 
 -(NSString*)urlForResourceNamed:(NSString*)name
-                    inFramework:(NSString*)frameworkName GS_ATTRIB_DEPRECATED;
+                    inFramework:(NSString*)frameworkName /*GS_ATTRIB_DEPRECATED*/;
 
 /* Deprecated in WO 4.0. 
  * Use pathForResourceNamed:inFramework:languages: instead.
  */
 
 -(NSString*)pathForResourceNamed:(NSString*)name
-                     inFramework:(NSString*)frameworkName GS_ATTRIB_DEPRECATED;
+                     inFramework:(NSString*)frameworkName /*GS_ATTRIB_DEPRECATED*/;
 
 +(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage;		//NDFN
 +(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOlanguages;		//NDFN

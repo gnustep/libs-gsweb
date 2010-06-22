@@ -1,3 +1,8 @@
+2010-06-22  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWResourceManager.h
+	* GSWeb/GSWComponent.h
+	disable GS_ATTRIB_DEPRECATED until a solution is found
+
 2010-06-21  David Wetzel <dave@turbocat.de>
 	* GSWExtensions/GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.gswd
 	* GSWExtensions/GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.gswd
