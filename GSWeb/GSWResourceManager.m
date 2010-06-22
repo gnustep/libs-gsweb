@@ -318,6 +318,8 @@ NSMutableDictionary   *globalPathCache = nil;
  /WebObjects/MyApp.woa/0/wr/English.lproj/name
  /WebObjects/MyApp.woa/0/wr/testpic.jpg
  /WebObjects/MyApp.woa/0/wr/MyFramework/wr/English.lproj/name
+
+ TODO: test with true dynamic data in URLs
  */
 
 -(NSString*)urlForResourceNamed:(NSString*)name
@@ -325,8 +327,9 @@ NSMutableDictionary   *globalPathCache = nil;
                       languages:(NSArray*)languages
                         request:(GSWRequest*)request
 {
-  NSString* url=nil;
-  NSString* path=nil;
+  NSString   * url=nil;
+  NSString   * path=nil;
+  //GSWContext * context = nil;
   
   if ((languages) && ([languages count])) {
     NSEnumerator * langEnumer = [languages objectEnumerator];
@@ -346,15 +349,18 @@ NSMutableDictionary   *globalPathCache = nil;
                              language:nil];
     
   }
-
+  
   if (!path) {
     return nil;
   }
   
   path = [self _cleanPath:path frameworkName:aFrameworkName];
   
-  url = [NSString stringWithFormat:@"%@/%@.woa/0/wr%@", [GSWApplication applicationBaseURL],
-         [GSWApp name], path];
+  //context = [request _context];
+  
+  url = [NSString stringWithFormat:@"%@%@%@", [request _applicationURLPrefix],
+         [[GSWApp class] resourceRequestHandlerKey], 
+         path];
   
   return url;
 }

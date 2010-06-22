@@ -1,4 +1,8 @@
 2010-06-22  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWResourceManager.m
+	make url prefix dynamic based on [request _applicationURLPrefix]
+
+2010-06-22  David Wetzel <dave@turbocat.de>
 	* GSWExtensions/Resources/Info-gnustep.plist
 	delete
 	* GSWExtensions/GNUmakefile
