@@ -33,7 +33,6 @@
 	#define _GSWComponentDefinition_h__
 
 @class GSWElement;
-@class GSWBundle;
 @class GSWComponent;
 @class GSWContext;
 @class GSWComponentReference;
@@ -58,14 +57,15 @@
   NSDictionary * _archive;
   NSStringEncoding _encoding;
   BOOL _isStateless;
-  GSWBundle * _bundle;
   GSWComponent * _sharedInstance;
   NSMutableArray * _instancePool;
   BOOL _lockInstancePool;
   BOOL _hasBeenAccessed;
   BOOL _hasContextConstructor;
   NSLock * _instancePoolLock;
-};
+  NSDate * _wooReadDate;
+  NSDate * _htmlReadDate;
+}
 
 -(id)initWithName:(NSString*)aName
              path:(NSString*)aPath
@@ -93,6 +93,11 @@
 -(void)setCachingEnabled:(BOOL)flag;
 
 - (GSWElement *) template;
+
+/*
+ * returns the contents of the .wod
+ */
+- (NSDictionary *) archive;
 
 -(NSString*)pathForResourceNamed:(NSString*)aName
                           ofType:(NSString*)aType

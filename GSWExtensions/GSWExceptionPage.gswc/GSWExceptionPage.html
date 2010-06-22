@@ -1,86 +1,95 @@
-<html>
-<head>
-  <title>GNUstepWeb Error</title>
-   <meta name="robots" content="noindex,nofollow"/>
-</head>
-<body bgcolor="white">
-
-<table border="0">
-<tr>
-<td align="center" Valign="TOP">
-    <h2>[!] An error occured in application <gsweb name="ApplicationNameString"></gsweb>.</h2>
-    <h4><gsweb name="ReenterHyperlink">&lt;&lt;&nbsp;Re-enter <gsweb name="ApplicationNameString"></gsweb></gsweb></h4>
-</td>
-</tr>
-<tr>
-<td align="LEFT" Valign="TOP">
-        <hr/>
-        <table border="0" width="700">
-            <tr>
-                <td align="RIGHT" Valign="MIDDLE">
-                    <b>Application:</b>
-                </td>
-                <td align="LEFT" Valign="MIDDLE">
-                    <tt><gsweb name="ApplicationNameString"></gsweb></tt>
-                </td>
-            </tr>
-            <tr>
-                <td align="right" valign="top">
-                    <b>Reference:</b>
-                </td>
-                <td align="left" valign="top">
-                    <tt><gsweb name="ReferenceString"></gsweb></tt>
-                </td>
-            </tr>
-            <tr>
-                <td align="RIGHT" Valign="MIDDLE">
-                    <b>Error:</b>
-                </td>
-                <td align="LEFT" Valign="MIDDLE">
-                    <tt><gsweb name="ExceptionNameString"></gsweb></tt>
-                </td>
-            </tr>
-            <tr>
-                <td align="RIGHT" Valign="MIDDLE">
-                    <b>Reason:</b>
-                </td>
-                <td align="LEFT" Valign="MIDDLE">
-                    <gsweb name="ReasonRepetition">
-                        <tt><gsweb name="ReasonString"></gsweb></tt><br/>
-                    </gsweb>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" align="LEFT" Valign="bottom">
-                    <hr/>
-                    <b>User Info Dictionary:</b>
-                </td>
-            </tr>
-            <gsweb name="HasUserInfoConditional">
-                <gsweb name="UserInfoRowRepetition">
-                <tr>
-                    <td align="RIGHT" Valign="TOP">
-                        <b><tt><gsweb name="UserInfoKeyString"></gsweb>:</tt></b>
-                    </td>
-                    <td align="LEFT" Valign="TOP">
-                        <tt><gsweb name="UserInfoValueString"></gsweb></tt>
-                    </td>
-                </tr>
-                </gsweb>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+      body {color: #111;font-family:"Helvetica Neue",Helvetica,sans-serif;}      
+      .fail {margin: auto; padding: 40px; display: block;
+        border: 1px solid #000000;
+        position: relative;}      
+      .fail h2 {margin: 0 0 .2em; font-size: 24px}
+      .fail p {margin: 0; font-size: .8em;}
+      .power {float:right;padding-top: 10px;}
+      img {float:left;padding-right: 10px;}      
+      a {color: #0092E8;}
+      a:hover {color: #0071b3;}
+      </style>    
+    <title>GNUstepWeb Error</title>
+    <meta name="robots" content="noindex,nofollow"/>
+  </head>
+  <body>
+    
+    <div class="fail">
+      <gsweb name="ExclamationImage"></gsweb>
+      <h2>An error occured in application <gsweb name="ApplicationNameString"></gsweb>.</h2>
+      <p><gsweb name="ReenterHyperlink">Re-enter <gsweb name="ApplicationNameString"></gsweb> to continue.</gsweb></p>
+      
+      <table border="0" width="700">
+        <tr>
+          <td align="RIGHT" Valign="MIDDLE">
+            <b>Application:</b>
+          </td>
+          <td align="LEFT" Valign="MIDDLE">
+            <tt><gsweb name="ApplicationNameString"></gsweb></tt>
+          </td>
+        </tr>
+        <tr>
+          <td align="right" valign="top">
+            <b>Reference:</b>
+          </td>
+          <td align="left" valign="top">
+            <tt><gsweb name="ReferenceString"></gsweb></tt>
+          </td>
+        </tr>
+        <tr>
+          <td align="RIGHT" Valign="MIDDLE">
+            <b>Error:</b>
+          </td>
+          <td align="LEFT" Valign="MIDDLE">
+            <tt><gsweb name="ExceptionNameString"></gsweb></tt>
+          </td>
+        </tr>
+        <tr>
+          <td align="RIGHT" Valign="MIDDLE">
+            <b>Reason:</b>
+          </td>
+          <td align="LEFT" Valign="MIDDLE">
+            <gsweb name="ReasonRepetition">
+              <tt><gsweb name="ReasonString"></gsweb></tt><br/>
             </gsweb>
-            <gsweb name="NoUserInfoConditional">
-                <tr>
-                <td align="RIGHT" Valign="TOP">
-                </td>
-                <td align="LEFT" Valign="TOP">
-                <b>Exception has no userInfo dictionary</b>
-                </td>
-                </tr>
-            </gsweb>
-    </table>
-</td>
-</tr>
-</table>
-<p>Powered by <a href="http://wiki.gnustep.org/index.php/GNUstepWeb">GNUstep Web</a></p>
-</body>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" align="LEFT" Valign="bottom">
+            <hr/>
+            <b>User Info Dictionary:</b>
+          </td>
+        </tr>
+        <gsweb name="HasUserInfoConditional">
+          <gsweb name="UserInfoRowRepetition">
+            <tr>
+              <td align="RIGHT" Valign="TOP">
+                <b><tt><gsweb name="UserInfoKeyString"></gsweb>:</tt></b>
+              </td>
+              <td align="LEFT" Valign="TOP">
+                <tt><gsweb name="UserInfoValueString"></gsweb></tt>
+              </td>
+            </tr>
+          </gsweb>
+        </gsweb>
+        <gsweb name="NoUserInfoConditional">
+          <tr>
+            <td align="RIGHT" Valign="TOP">
+            </td>
+            <td align="LEFT" Valign="TOP">
+              <b>Exception has no userInfo dictionary</b>
+            </td>
+          </tr>
+        </gsweb>
+      </table>
+      
+      <p class="power">Powered by <a href="http://wiki.gnustep.org/index.php/GNUstepWeb">GNUstep Web</a></p>        
+    </div>
+    
+  </body>
 </html>

@@ -1519,7 +1519,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   }
   
   if ((queryDictionary != nil) && ([queryDictionary count] > 0)) {
-    aQueryString = [queryDictionary encodeAsCGIFormValuesEscpaeAmpersand:escapeQueryDict];
+    aQueryString = [queryDictionary encodeAsCGIFormValuesEscapeAmpersand:escapeQueryDict];
   }
   
   url = [self _urlWithRequestHandlerKey:[[GSWApp class] directActionRequestHandlerKey]

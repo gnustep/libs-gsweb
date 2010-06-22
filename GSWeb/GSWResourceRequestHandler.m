@@ -38,27 +38,108 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWResourceRequestHandler
 
-//--------------------------------------------------------------------
+-(GSWResponse*)_404ResponseForPath:(NSString*)aPath
+{
+  GSWResponse * aResponse = [GSWApp createResponseInContext:nil];
+  
+  [aResponse setStatus:404];
+  [aResponse setHeader:@"0"
+                forKey:@"content-length"];
+  return aResponse;
+}
+
+
+-(NSString*) _filepathForUripath:(NSString*) uri
+{
+  // testpic.jpg
+  NSString * filePath  = nil;
+  NSString * framework = nil;
+  NSRange range = [uri rangeOfString:@"/"];
+  
+  if ((range.location == NSNotFound)) {
+    // app wrapper resource
+    framework = nil;
+  } else {
+    framework = [uri substringToIndex:range.location];
+    range = [uri rangeOfString:@"/"
+                       options:NSBackwardsSearch];
+    if ((range.location != NSNotFound)) {
+      uri = [uri substringFromIndex:range.location+1];
+    }
+  }
+
+  
+  range = [uri rangeOfString:@".."
+                     options:NSBackwardsSearch];
+  
+  if ((range.location != NSNotFound)) {
+    [NSException raise:NSInvalidArgumentException 
+                format:@"Resource paths containing '..' are not accepted."];  
+  }
+
+  range = [uri rangeOfString:@"~'"
+                     options:NSBackwardsSearch];
+  
+  if ((range.location != NSNotFound)) {
+    [NSException raise:NSInvalidArgumentException 
+                format:@"Resource paths containing '~' are not accepted."];  
+  }
+  
+  range = [uri rangeOfString:@".wo"
+                     options:NSBackwardsSearch];
+  
+  if ((range.location != NSNotFound)) {
+    [NSException raise:NSInvalidArgumentException 
+                format:@"Resource paths containing '.wo' are not accepted."];  
+  }
+
+  range = [uri rangeOfString:@".wod"
+                     options:NSBackwardsSearch];
+  
+  if ((range.location != NSNotFound)) {
+    [NSException raise:NSInvalidArgumentException 
+                format:@"Resource paths containing '.wod' are not accepted."];  
+  }
+  
+  
+  filePath = [[GSWApp resourceManager] pathForResourceNamed:uri
+                                                inFramework:framework
+                                                   language:nil];  
+  return filePath;
+}
+
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
-  //OK
-  // /GSWeb/ObjCTest3.gswa/wr?gswdata=0
   GSWResponse* response=nil;
-  NSString* gswdata=nil;
-  NSDictionary* elements=nil;
+  NSString      * wodataValue=nil;
+  NSDictionary  * elements=nil;
+  NSString      * uri = nil;
+  NSString      * urlRequestHandlerPath = nil;
+  NSString      * filePath = nil;
   
-  elements=[aRequest uriOrFormOrCookiesElements];
-  gswdata=[elements objectForKey:GSWKey_Data[GSWebNamingConv]];
+  uri = [aRequest uri];
+  urlRequestHandlerPath = [uri urlRequestHandlerPath];
   
-  if (gswdata)
-    response=[self _responseForDataCachedWithKey:gswdata];
-  else
+  //  elements=[aRequest uriOrFormOrCookiesElements];
+  //  gswdata=[elements objectForKey:GSWKey_Data[GSWebNamingConv]];
+  
+  wodataValue = [aRequest stringFormValueForKey:@"wodata"];
+  if (wodataValue)
   {
-    ExceptionRaise0(@"GSWResourceRequestHandler",@"No data key in request");
-  };
+    response = [self _responseForDataCachedWithKey:wodataValue];
+  } else {    
+    filePath = [self _filepathForUripath:urlRequestHandlerPath];
+    
+    response = [self _responseForDataAtPath:filePath];
+  }
+  
+  [[NSNotificationCenter defaultCenter] postNotificationName:DidHandleRequestNotification
+                                                      object:response
+                                                    userInfo:nil];
+  
   [response _finalizeInContext:nil];
   return response;
-};
+}
 
 //--------------------------------------------------------------------
 -(GSWResponse*)_responseForJavaClassAtPath:(NSString*)aPath
@@ -70,9 +151,36 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(GSWResponse*)_responseForDataAtPath:(NSString*)aPath
 {
-  [self notImplemented: _cmd];	//TODOFN
-  return nil;
-};
+  NSUInteger      fileLength = 0;
+  NSString      * contentType;
+  NSData        * fileData;
+  GSWResponse   * aResponse;
+  
+  
+  fileData = [NSData dataWithContentsOfFile:aPath];
+  
+  if (!fileData) {
+    return [self _404ResponseForPath:aPath];
+  }
+  
+  contentType = [[GSWApp resourceManager] contentTypeForResourcePath:aPath];
+  
+  aResponse = [GSWApp createResponseInContext:nil];
+  
+  [aResponse setStatus:200];
+  [aResponse setHeader:[NSString stringWithFormat:@"%d",[fileData length]]
+                forKey:@"content-length"];
+  
+  if (contentType)
+  {
+    [aResponse setHeader:contentType
+                  forKey:@"content-type"];
+  }
+  
+  [aResponse setContent:fileData];
+  
+  return aResponse;
+}
 
 //--------------------------------------------------------------------
 -(GSWResponse*)_responseForDataCachedWithKey:(NSString*)aKey
@@ -106,10 +214,6 @@ RCS_ID("$Id$")
   return nil;
 };
 
-@end
-
-//====================================================================
-@implementation GSWResourceRequestHandler (GSWRequestHandlerClassA)
 
 //--------------------------------------------------------------------
 +(id)handler

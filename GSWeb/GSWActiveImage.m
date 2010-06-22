@@ -389,27 +389,22 @@ static NSString * static_tempQueryKey = nil;
           GSWAssociation* actionAssociation=nil;
           NSArray* regions=nil;
           if (_file)
+          {
+            id imageMapFileNameValue=[_file valueInComponent:component];
+            NSString* imageMapFilePath;
+            GSWResourceManager* resourceManager=[[GSWApplication application]resourceManager];
+            NSArray* languages=[aContext languages];
+            imageMapFilePath=[resourceManager pathForResourceNamed:imageMapFileNameValue
+                                                       inFramework:nil
+                                                         languages:languages];
+            
+            if (imageMapFilePath)
+              regions=[GSWGeometricRegion geometricRegionsWithFile:imageMapFilePath];
+            else
             {
-              id imageMapFileNameValue=[_file valueInComponent:component];
-              NSString* imageMapFilePath=[GSWContext_component(aContext)
-                                           pathForResourceNamed:imageMapFileNameValue
-                                           ofType:nil];
-              if (!imageMapFilePath)
-                {
-                  GSWResourceManager* resourceManager=[[GSWApplication application]resourceManager];
-                  NSArray* languages=[aContext languages];
-                  imageMapFilePath=[resourceManager pathForResourceNamed:imageMapFileNameValue
-                                                    inFramework:nil
-                                                    languages:languages];
-			  
-                };
-              if (imageMapFilePath)
-                regions=[GSWGeometricRegion geometricRegionsWithFile:imageMapFilePath];
-              else
-                {
-                  //NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
-                };
-            }
+              //NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
+            };
+          }
           else if (!WOStrictFlag && _imageMapString)
             {
               id imageMapValue=[_imageMapString valueInComponent:component];

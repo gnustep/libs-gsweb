@@ -44,10 +44,6 @@
 -(GSWResponse*)_generateResponseForData:(NSData*)aData
                                mimeType:(NSString*)mimeType;
 
-@end
-
-//====================================================================
-@interface GSWResourceRequestHandler (GSWRequestHandlerClassAA)
 +(id)handler;
 @end
 

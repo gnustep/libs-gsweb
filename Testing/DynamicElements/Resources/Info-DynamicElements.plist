@@ -78,6 +78,11 @@
                                         pageName = "RadioButton1Page";
                                         label = "RadioButton 1";
                                         comment = "GSWRadioButton Test 1";
+                                },
+                                {
+                                        pageName = "ImagePage";
+                                        label = "Image";
+                                        comment = "GSWImage Test";
                                 }
                         );
         RadioButtonList = {

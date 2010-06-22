@@ -1,0 +1,11 @@
+MainPageLink: WOHyperlink
+{
+        pageName = "Main";
+        string = "Main Page";
+}
+
+TestImage: WOImage
+{
+        filename = "testpic.jpg";
+        alt = "test";
+}

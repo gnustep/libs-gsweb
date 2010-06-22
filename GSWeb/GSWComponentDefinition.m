@@ -30,6 +30,7 @@
 
 #include "GSWeb.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
+#include <GNUstepBase/GSMime.h>
 
 //====================================================================
 
@@ -80,6 +81,8 @@ static GSWContext *   TheTemporaryContext;
   ASSIGN(_url, baseURL);   
   ASSIGN(_frameworkName, aFrameworkName);   
   DESTROY(_language);
+  DESTROY(_wooReadDate);
+  DESTROY(_htmlReadDate);
   _hasBeenAccessed = NO;
   _hasContextConstructor = NO;
   _isStateless = NO;
@@ -88,10 +91,7 @@ static GSWContext *   TheTemporaryContext;
   _lockInstancePool = [GSWApp isConcurrentRequestHandlingEnabled];
 
   if ((_name != nil) && (_frameworkName != nil)) {
-    NSBundle * nsbundle = [NSBundle bundleForClass:NSClassFromString(_className)];
-    if (nsbundle != nil) {
-      _componentClass = NSClassFromString(_className);
-    }
+    _componentClass = NSClassFromString(_className);
   }
   myBasePath = [aPath stringByAppendingPathComponent: aName];
   ASSIGN(_htmlPath,[myBasePath stringByAppendingPathExtension:@"html"]);
@@ -116,25 +116,10 @@ static GSWContext *   TheTemporaryContext;
 //                         __PRETTY_FUNCTION__, _name];
 //  }
   _archive = nil;
-  _encoding = NSUTF8StringEncoding;
+  _encoding = 0;  // to test for real value later
   _template = nil;
   [self setCachingEnabled:[[GSWApp class] isCachingEnabled]];
   _isAwake = NO;
-  if (_frameworkName == nil) {
-      _bundle=[[GSWBundle alloc] initWithPath:aPath
-                                 baseURL:baseURL
-                                 inFrameworkNamed: nil];
-  } else {
-      _bundle=[[GSWBundle alloc] initWithPath:aPath
-                                 baseURL:baseURL
-                                 inFrameworkNamed: _frameworkName];
-    if (_bundle == nil)
-    {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: No framework named '%@'",
-                         __PRETTY_FUNCTION__, _frameworkName];
-    }
-  }
 
   _instancePoolLock = [[NSLock alloc] init];
   
@@ -156,9 +141,12 @@ static GSWContext *   TheTemporaryContext;
   DESTROY(_wodPath);
   DESTROY(_wooPath);
   DESTROY(_archive);
-  DESTROY(_bundle);
   DESTROY(_sharedInstance);
   DESTROY(_instancePool);
+  
+  DESTROY(_wooReadDate);
+  DESTROY(_htmlReadDate);
+
   
   [super dealloc];
 
@@ -232,11 +220,10 @@ static GSWContext *   TheTemporaryContext;
 -(NSString*)description
 {
   //TODO
-  return [NSString stringWithFormat:@"<%s %p - name:[%@] bundle:[%@] frameworkName=[%@] componentClass=[%@] isCachingEnabled=[%s] isAwake=[%s]>",
+  return [NSString stringWithFormat:@"<%s %p - name:[%@] frameworkName=[%@] componentClass=[%@] isCachingEnabled=[%s] isAwake=[%s]>",
 				   object_getClassName(self),
 				   (void*)self,
 				   _name,
-				   _bundle,
 				   _frameworkName,
 				   _componentClass,
 				   _caching ? "YES" : "NO",
@@ -279,36 +266,7 @@ static GSWContext *   TheTemporaryContext;
 //--------------------------------------------------------------------
 -(void)_clearCache
 {
-  //OK
-  [_bundle clearCache];
 }
-
-//--------------------------------------------------------------------
--(GSWElement*)templateWithName:(NSString*)aName
-                     languages:(NSArray*)languages
-{
-  GSWElement* element=nil;
-
-  element=[_bundle templateNamed:aName
-                   languages:languages];
-
-  return element;
-};
-
-//--------------------------------------------------------------------
--(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)aType
-                       languages:(NSArray*)languages
-{
-  NSString* path=nil;
-
-  path=[_bundle pathForResourceNamed:aName
-                ofType:aType
-                languages:languages];
-
-  return path;
-};
-
 
 // CHECKME
 
@@ -475,24 +433,9 @@ static GSWContext *   TheTemporaryContext;
     {
       BOOL createClassesOk=NO;
       NSString* superClassName=nil;
-      if (!WOStrictFlag)
-        {
-          // Search component archive for a superclass (superClassName keyword)
-          NSDictionary* archive=[_bundle archiveNamed:_name];
-          superClassName=[archive objectForKey:@"superClassName"];
-          if (superClassName)
-            {
-              if (!NSClassFromString(superClassName))
-                {
-                  ExceptionRaise(NSGenericException,@"Superclass %@ of component %@ doesn't exist",
-                                 superClassName,
-                                 _name);
-                };
-            };
-        };
       // If we haven't found a superclass, use GSWComponent as the superclass
       if (!superClassName)
-        superClassName=@"GSWComponent";
+        superClassName=@"WOComponent";
       // Create class
       createClassesOk=[GSWApplication createUnknownComponentClasses:[NSArray arrayWithObject:_name]
                                       superClassName:superClassName];
@@ -518,27 +461,18 @@ static GSWContext *   TheTemporaryContext;
   return componentReference;
 };
 
-//--------------------------------------------------------------------
-//NDFN
--(NSDictionary*)componentAPI
-{
-  NSDictionary* componentAPI=nil;
-  componentAPI=[_bundle apiNamed:_name];
-
-  return componentAPI;
-};
-
 
 //--------------------------------------------------------------------
 -(void) finishInitializingComponent:(GSWComponent*)component
 {
-  NSDictionary* archive=nil;
-  
-  archive = [_bundle archiveNamed:_name];
+  NSDictionary * archive=nil;
+  NSBundle     * bundle = [NSBundle bundleForClass:NSClassFromString(_className)];
+    
+  archive = [self archive];
   
   if (archive) {
-    [_bundle initializeObject:component
-                  fromArchive:archive];
+    [bundle initializeObject:component
+                 fromArchive:archive];
   }
 }
 
@@ -579,33 +513,161 @@ static GSWContext *   TheTemporaryContext;
   [self notImplemented: _cmd];	//TODOFN
 };
 
-- (GSWElement *) template
+/*
+ * returns the contents of the .woo
+ */
+- (NSDictionary *) archive
 {
-  BOOL htmlChangedOnDisk = NO;
-  BOOL wodChangedOnDisk = NO;
-  BOOL doCache = [self isCachingEnabled];
-
-  if (doCache == NO) {
-    htmlChangedOnDisk = YES; // todo compare last chage date with load date
-    if (_htmlPath != nil && !htmlChangedOnDisk) {
-      wodChangedOnDisk = YES; // todo compare last chage date with load date
+  if ((_caching) && (_archive)) {
+    // nothing to waste time with.
+    return _archive;
+  } else {  
+    NSFileManager * defaultManager = [NSFileManager defaultManager];
+    NSDictionary  * attributes;
+    NSDate        * modDate;
+    
+    attributes = [defaultManager attributesOfItemAtPath:_wooPath error:NULL];
+    modDate = [attributes fileModificationDate];
+    
+    
+    // file not found.
+    if (!modDate) {
+      modDate = [NSDate date];
+      ASSIGN(_wooReadDate, modDate);
+      ASSIGN(_archive, [NSDictionary dictionary]);
+      return _archive;
+    }
+    
+    if ((!_wooReadDate) || (([modDate compare:_wooReadDate] == NSOrderedDescending))) {
+      ASSIGN(_wooReadDate, [NSDate date]);
+      ASSIGN(_archive, [NSDictionary dictionaryWithContentsOfFile:_wooPath]);
     }
   }
   
-  if (_htmlPath != nil && (_template == nil || htmlChangedOnDisk || wodChangedOnDisk)) {
+  return _archive;  
+}
+
+
+-(NSStringEncoding) encoding
+{
+  NSDictionary     * archive = nil;
+  NSString         * encodingName = nil;
+  
+  if ((_encoding == 0)) {
+    
+    _encoding = [GSWMessage defaultEncoding]; // safer, because we may not have a .woo file
+    
+    archive = [self archive];
+    if (archive)
+    {
+      encodingName = [archive objectForKey:@"encoding"];
+      if (encodingName)
+      {
+        _encoding = [GSMimeDocument encodingFromCharset:encodingName];
+        
+        if ((_encoding == 0)) {
+          [NSException raise: NSInvalidArgumentException
+                      format: @"%s %@ -- unknown encoding '%@'",__PRETTY_FUNCTION__, _wooPath, encodingName];
+        }
+        
+      }
+    }
+  }
+  
+  return _encoding;
+}
+
+- (GSWElement *) _lockedTemplate
+{
+  //OK
+  GSWElement* template=nil;
+  NSStringEncoding encoding = [self encoding];
+  
+  NSString* pageDefString=nil;
+  NSString* htmlString = [NSString stringWithContentsOfFile:_htmlPath 
+                                                   encoding:encoding];
+  
+  if (!htmlString)
+  {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: No HTML file found at '%@'",
+     __PRETTY_FUNCTION__, _htmlPath];
+  } 
+  
+  pageDefString = [NSString stringWithContentsOfFile:_wodPath 
+                                            encoding:encoding];
+  
+  if (!pageDefString) {
+    [NSException raise:NSInvalidArgumentException
+                format:@"%s: No WOD file found at '%@'",
+     __PRETTY_FUNCTION__, _wodPath];
+  }
+  
   NS_DURING
+  {
+    template=[GSWTemplateParser templateNamed:_name
+                             inFrameworkNamed:nil
+                               withParserType:GSWTemplateParserType_Default
+                              parserClassName:nil
+                                   withString:htmlString
+                                     encoding:encoding
+                                     fromPath:nil
+                           declarationsString:pageDefString
+                                    languages:nil
+                             declarationsPath:nil];
+  }
+  NS_HANDLER
+  {
+    localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                             @"In template Parsing");
+    [localException raise];
+  }
+  NS_ENDHANDLER;
+  
+  return template;
+}
+
+- (GSWElement *) template
+{
+  BOOL htmlChangedOnDisk = NO;
+  
+  // _htmlReadDate
+  if (_caching == NO) {
+    htmlChangedOnDisk = YES;
+  } else {
+    NSFileManager * defaultManager = [NSFileManager defaultManager];
+    NSDictionary  * attributes;
+    NSDate        * modDate;
+    
+    attributes = [defaultManager attributesOfItemAtPath:_wooPath error:NULL];
+    modDate = [attributes fileModificationDate];
+    
+    if ((!_htmlReadDate) || (([modDate compare:_htmlReadDate] == NSOrderedDescending))) {
+      htmlChangedOnDisk = YES;
+    } else {
+      attributes = [defaultManager attributesOfItemAtPath:_wodPath error:NULL];
+      modDate = [attributes fileModificationDate];
+      
+      if (([modDate compare:_htmlReadDate] == NSOrderedDescending)) {
+        htmlChangedOnDisk = YES;
+      }
+    }
+  }
+  
+  if (_htmlPath != nil && (_template == nil || htmlChangedOnDisk)) {
+    ASSIGN(_htmlReadDate, [NSDate date]);
+    NS_DURING
     [TemplateLock lock];
     DESTROY(_template);
-  
-    _template = RETAIN([_bundle templateNamed: _name
-                                    languages:nil]); // _language? array?
+    
+    _template = RETAIN([self _lockedTemplate]);
     [TemplateLock unlock];
-  NS_HANDLER
+    NS_HANDLER
     DESTROY(_template);
     [TemplateLock unlock];
     [localException raise];
-  NS_ENDHANDLER
-
+    NS_ENDHANDLER
+    
   }
   return _template;
 }

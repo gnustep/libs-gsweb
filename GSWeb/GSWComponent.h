@@ -105,7 +105,7 @@
 -(GSWElement*)_childTemplate;
 -(GSWElement*) template;
 -(GSWComponentDefinition*)_componentDefinition;
--(NSString*)_templateName;
+-(NSString*)_templateName GS_ATTRIB_DEPRECATED;
 -(NSString*)declarationName;
 -(BOOL)_isPage;
 -(void)_setIsPage:(BOOL)isPage;
@@ -225,58 +225,32 @@ Call this method before using a component which was cached in a variable.
 //+(id)validateValue:(id*)valuePtr
 //            forKey:(id)key;
 
--(NSString*)stringForKey:(NSString*)key
-            inTableNamed:(NSString*)aName
-        withDefaultValue:(NSString*)defaultValue;
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aName;
-
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aName;
-
 -(NSString*)urlForResourceNamed:(NSString*)aName
-                         ofType:(NSString*)extension;
--(NSString*)_urlForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)extension;
+                         ofType:(NSString*)extension GS_ATTRIB_DEPRECATED;
+
+/* 
+ Deprecated in WO 4.0. 
+ Use GSWResourceManager’s implementation of 
+ pathForResourceNamed:inFramework:languages: 
+ instead.
+ */
 -(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)extension;
-//NDFN
--(NSString*)pathForComponentResourceNamed:(NSString*)aName
-                                   ofType:(NSString*)type;
-
-
-//NDFN
--(NSString*)stringForKey:(id)key
-            inTableNamed:(NSString*)aName
-        withDefaultValue:(NSString*)defaultValue
-             inFramework:(NSString*)frameworkName;
-
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aName
-                      inFramework:(NSString*)frameworkName;
-
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aName
-                      inFramework:(NSString*)frameworkName;
-
-//NDFN
--(NSString*)urlForResourceNamed:(NSString*)aName
-                         ofType:(NSString*)extension
-                    inFramework:(NSString*)frameworkName;
-
-//NDFN
--(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)extension
-                     inFramework:(NSString*)frameworkName;
-
+                          ofType:(NSString*)extension GS_ATTRIB_DEPRECATED;
 
 +(GSWElement*)templateWithHTMLString:(NSString*)htmlString
                    declarationString:(NSString*)declarationString
                            languages:(NSArray*)languages;
 
 
+/* 
+ Deprecated in WO 4.0. 
+ Use
+ templateWithHTMLString:declarationString:languages:
+ instead.
+ */
+
 +(GSWElement*)templateWithHTMLString:(NSString *)htmlString
-                   declarationString:(NSString*)declarationString;//old
+                   declarationString:(NSString*)declarationString GS_ATTRIB_DEPRECATED;
 
 
 - (GSWResponse*)generateResponse;

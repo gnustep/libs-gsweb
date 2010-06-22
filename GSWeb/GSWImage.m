@@ -110,109 +110,99 @@ RCS_ID("$Id$")
   NSString *fileNameValue;
   NSString *frameworkName = nil;
   NSString *resourceURL;
-
+  
   resourcemanager = [GSWApp resourceManager];
   component = GSWContext_component(context);
   fileNameValue = [filename valueInComponent:component];
-  frameworkName
-    = [GSWHTMLDynamicElement _frameworkNameForAssociation: framework
-			     inComponent: component];
-
+  frameworkName = [framework valueInComponent:component];
+  
   resourceURL = [context _urlForResourceNamed: fileNameValue
-			 inFramework: frameworkName];
-
+                                  inFramework: frameworkName];
+  
   if (resourceURL != nil)
+  {
+    NSString *widthStr = nil;
+    NSString *heightStr = nil;
+    BOOL calculateWidth = NO;
+    BOOL calculateHeight = NO;
+    
+    if (width != nil)
     {
-      NSString *widthStr = nil;
-      NSString *heightStr = nil;
-      BOOL calculateWidth = NO;
-      BOOL calculateHeight = NO;
-
-      if (width != nil || height != nil)
-	{
-	  if (width != nil)
-	    {
-	      id widthValue;
-	      widthValue = [width valueInComponent:component];
-	      if (widthValue)
-		{
-		  widthStr = NSStringWithObject(widthValue);
-		}
-	      calculateWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
-	    }
-	  if (height != nil)
-	    {
-	      id heightValue;
-	      heightValue = [height valueInComponent:component];
-	      if (heightValue)
-		{
-		  heightStr = NSStringWithObject(heightValue);
-		}
-	      calculateHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
-	    }
-	}
-      else
-	{
-	  calculateWidth = YES;
-	  calculateHeight = YES;
-
-	  GSOnceMLog(@"%@: No height or width information provided for '%@'. If possible, this information should be provided for best performance.",
-		     NSStringFromClass([self class]), fileNameValue);
-	}
-
-      if (calculateWidth || calculateHeight)
-	{
-	  GSWImageInfo * imageinfo;
-
-	  imageinfo = [resourcemanager _imageInfoForUrl: resourceURL
-				       fileName: fileNameValue
-				       framework: frameworkName
-				       languages: [context languages]];
-	  if (imageinfo != nil)
+      id widthValue;
+      widthValue = [width valueInComponent:component];
+      if (widthValue)
+      {
+        widthStr = NSStringWithObject(widthValue);
+      }
+      calculateWidth = (widthStr == nil || [widthStr isEqual:@"*"]);
+    }
+    if (height != nil)
+    {
+      id heightValue;
+      heightValue = [height valueInComponent:component];
+      if (heightValue)
+      {
+        heightStr = NSStringWithObject(heightValue);
+      }
+      calculateHeight = (heightStr == nil || [heightStr isEqual:@"*"]);
+    }
+    
+    if (calculateWidth || calculateHeight)
+    {
+      GSWImageInfo * imageinfo;
+      
+      GSOnceMLog(@"%@: No height or width information provided for '%@'. If possible, this information should be provided for best performance.",
+                 NSStringFromClass([self class]), fileNameValue);
+      
+      imageinfo = [resourcemanager _imageInfoForUrl: resourceURL
+                                           fileName: fileNameValue
+                                          framework: frameworkName
+                                          languages: [context languages]];
+      if (imageinfo != nil)
 	    {
 	      if (calculateWidth)
-		{
-		  widthStr = [imageinfo widthString];
-		}
+        {
+          widthStr = [imageinfo widthString];
+        }
 	      if (calculateHeight)
-		{
-		  heightStr = [imageinfo heightString];
-		}
+        {
+          heightStr = [imageinfo heightString];
+        }
 	    }
-	  else
+      else
 	    {
 	      NSLog(@"%@: Could not get height/width information for image at '%@' '%@' '%@'", 
 	            NSStringFromClass([self class]), resourceURL,
-		    fileNameValue, frameworkName);
+              fileNameValue, frameworkName);
 	    }
-	}
-
-      [response _appendTagAttribute: @"src"
-		value: resourceURL
-		escapingHTMLAttributeValue: NO];
-
-      if (widthStr != nil)
-	{
-	  [response _appendTagAttribute: @"width"
-		    value: widthStr
-		    escapingHTMLAttributeValue: NO];
-	}
-      if (heightStr != nil)
-	{
-	  [response _appendTagAttribute: @"height"
-		    value: heightStr
-		    escapingHTMLAttributeValue: NO];
-	}
     }
-  else
+    
+    [response _appendTagAttribute: @"src"
+                            value: resourceURL
+       escapingHTMLAttributeValue: NO];
+    
+    if (widthStr != nil)
     {
-      NSString *message 
-	= [resourcemanager errorMessageUrlForResourceNamed: fileNameValue
-			   inFramework: frameworkName];
-      [response _appendTagAttribute:@"src"
-		value: message
-		escapingHTMLAttributeValue:NO];
+      [response _appendTagAttribute: @"width"
+                              value: widthStr
+         escapingHTMLAttributeValue: NO];
     }
+    if (heightStr != nil)
+    {
+      [response _appendTagAttribute: @"height"
+                              value: heightStr
+         escapingHTMLAttributeValue: NO];
+    }
+  }
+  else
+  {
+    NSString *message 
+    = [resourcemanager errorMessageUrlForResourceNamed: fileNameValue
+                                           inFramework: frameworkName];
+    [response _appendTagAttribute:@"src"
+                            value: message
+       escapingHTMLAttributeValue:NO];
+  }
 }
 
 // used from GSWActiveImage

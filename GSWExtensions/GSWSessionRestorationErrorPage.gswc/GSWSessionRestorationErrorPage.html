@@ -1,24 +1,29 @@
-<html>
-<head>
-  <title>Missing Session Error</title>
-   <meta name="robots" content="noindex,nofollow"/>
-</head>
-<body bgcolor="white">
-
-<table border="0" width="100%">
-<tr>
-    <td align="CENTER" Valign="TOP">
-        <gsweb name="ExclamationImage"></gsweb><br/>
-        Re-enter<br/>
-        <gsweb name="ReenterHyperlink">
-            <b><gsweb name="ApplicationNameString"></gsweb></b>
-        </gsweb>
-    </td>
-    <td align="LEFT" Valign="MIDDLE">
-        <b>Your session has timed out.</b>
-    </td>
-</tr>
-</table>
-
-</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+      body {color: #111;font-family:"Helvetica Neue",Helvetica,sans-serif;}      
+      .fail {margin: auto; padding: 40px; width: 400px; display: block;
+        border: 1px solid #000000;
+        position: relative;}      
+      .fail h2 {margin: 0 0 .2em; font-size: 24px}
+      .fail p {margin: 0; font-size: .8em;}
+      .power {float:right;padding-top: 10px;}
+      img {float:left;padding-right: 10px;}      
+      a {color: #0092E8;}
+      a:hover {color: #0071b3;}
+      </style>
+    
+    <title>Missing Session Error</title>
+    <meta name="robots" content="noindex,nofollow"/>
+  </head>
+  <body>
+    <div class="fail">
+      <gsweb name="ExclamationImage"></gsweb>
+      <h2>Your session has timed out.</h2>
+      <p><gsweb name="ReenterHyperlink">Re-enter <gsweb name="ApplicationNameString"></gsweb> to continue.</gsweb></p>
+      <p class="power">Powered by <a href="http://wiki.gnustep.org/index.php/GNUstepWeb">GNUstep Web</a></p>
+    </div>
+  </body>
 </html>

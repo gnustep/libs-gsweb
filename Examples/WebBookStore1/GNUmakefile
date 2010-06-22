@@ -27,7 +27,7 @@ include $(GNUSTEP_MAKEFILES)/Auxiliary/gsweb.make
 
 GSWAPP_NAME=WebBookStore1
 WebBookStore1_HAS_GSWCOMPONENTS=YES
-WebBookStore1_PRINCIPAL_CLASS=WebBookStore1
+WebBookStore1_PRINCIPAL_CLASS=Application
 WebBookStore1_GSWAPP_INFO_PLIST=Resources/Info-WebBookStore1.plist
 
 # The Objective-C source files to be compiled

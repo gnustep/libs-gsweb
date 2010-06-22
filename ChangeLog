@@ -1,3 +1,36 @@
+2010-06-21  David Wetzel <dave@turbocat.de>
+	* GSWExtensions/GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.gswd
+	* GSWExtensions/GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.gswd
+	* GSWExtensions/GNUmakefile
+	* GSWExtensions/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.gswd
+	* GSWExtensions/GSWExceptionPage.gswc/GSWExceptionPage.gswd
+	use exclamation.png. exclamation.svg is not displayed inline in mozilla 
+	due to a bug in mozilla.
+	* GSWExtensions/WebServerResources/exclamation.png
+	* GSWExtensions/WebServerResources/exclamation.svg
+	new file
+	* GSWExtensions/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.html
+	* GSWExtensions/GSWExceptionPage.gswc/GSWExceptionPage.html
+	better web design
+	* GSWeb/GSWApplication.m
+	-path
+	get path from _resourceManager
+	_resetCache
+	do not call _clearCache, maybe we should trash the _componentDefinitionCache?
+	_finishInitializingSession:
+	make empty, still seems to work
+	+_applicationClass
+	don not use _applicationGSWBundle
+	* GSWeb/GSWResourceManager.h
+	* GSWeb/GSWResourceManager.m
+	major redesign with WO 4.5 docs in mind.
+	* GSWeb/GSWImageButton.m
+	refactor resourceManager code
+	* GSWeb/GSWeb.h
+	remove GSWBundle class
+	* Testing/DynamicElements
+	added Image test.
+
 2010-06-18  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWContext.m
 	- computeQueryDictionaryWithPath:queryDictionary:otherQueryDictionary

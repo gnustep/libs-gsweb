@@ -169,7 +169,7 @@ void _unpackHeaderLineAddToDict(NSString *line, NSMutableDictionary* headers)
 
 //PRIVATE
 
-void _appendMessageHeaders(GSWMessage * message,NSMutableString * headers)
+void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers)
 {
   NSMutableDictionary * headerDict = [message headers];
   NSArray             * keyArray = nil;
@@ -209,14 +209,17 @@ void _appendMessageHeaders(GSWMessage * message,NSMutableString * headers)
 }
 
 //PRIVATE
-void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion, GSWRequest * request, NSMutableString * headers)
+void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersion, GSWRequest * request, NSMutableString * headers)
 {
   int  contentLength = 0;
   BOOL keepAlive = NO;
   BOOL requestIsHead = NO;
-  
+  NSString * eTagString = nil;
+  NSString * ifNoneMatchValue;
+
   if (message) {
     contentLength = [message _contentLength];
+    eTagString = [message headerForKey:@"ETag"];
   }
   
   if (request) {
@@ -225,10 +228,19 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
       keepAlive = [connectionValue isEqualToString:KEEP_ALIVE];
     }
     requestIsHead = [[request method] isEqualToString:HEAD];
+    ifNoneMatchValue = [request headerForKey:@"if-none-match"];
   }
 
+  if ([ifNoneMatchValue isEqualToString:eTagString]) {
+    // return 304 Not Modified
+    [message setStatus:304];
+  }
+  
+  [headers appendString:GSWIntToNSString([message status])];
+  [headers appendString:URIResponseString];
+
   _appendMessageHeaders(message,headers);
- 
+  
   if ([httpVersion isEqualToString:HTTP11]) {
     // bug #24006 keep-alive is not implemented.
     // I am uable to reproduce the need for double clicking on links/forms,
@@ -239,7 +251,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
       [headers appendString:@"connection: keep-alive\r\n"];        
     }
   }
-
+  
   if ((contentLength > 0) || _alwaysAppendContentLength) {
     [headers appendString:CONTENT_LENGTHCOLON];        
     [headers appendString:[NSString stringWithFormat:@"%d\r\n", contentLength]];        
@@ -249,7 +261,8 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   [fh writeData: [headers dataUsingEncoding:NSISOLatin1StringEncoding
                        allowLossyConversion:YES]];
   
-  if ((requestIsHead == NO) && (contentLength > 0)) {
+  if (((requestIsHead == NO) && (contentLength > 0)) && 
+      ([message status] != 304)) {    
     [fh writeData: [message content]];    
   }
 }
@@ -401,7 +414,7 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
                                            method: [requestArray objectAtIndex:0] 
                                            length: contentLength];
   }
-
+  
   request = [[GSWRequest alloc] initWithMethod:method
                                            uri:[requestArray objectAtIndex:1]
                                    httpVersion:[requestArray objectAtIndex:2]
@@ -430,8 +443,6 @@ void _sendMessage(GSWMessage * message, NSFileHandle* fh, NSString * httpVersion
   
   [bufferStr appendString:httpVersion];
   [bufferStr appendString:SPACE];
-  [bufferStr appendString:GSWIntToNSString([response status])];
-  [bufferStr appendString:URIResponseString];
 
   _sendMessage(response, fh, httpVersion, request, bufferStr);
   

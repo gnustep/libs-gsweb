@@ -57,127 +57,34 @@ GSWEB_EXPORT NSDictionary* globalMime;
 };
 
 -(NSString*)description;
--(void)_initFrameworkProjectBundles;
 
 //-(NSString*)frameworkNameForPath:(NSString*)path_;
 -(NSString*)pathForResourceNamed:(NSString*)name
                      inFramework:(NSString*)frameworkName
                        languages:(NSArray*)languages;
+
 -(NSString*)urlForResourceNamed:(NSString*)name
                     inFramework:(NSString*)frameworkName
                       languages:(NSArray*)languages
                         request:(GSWRequest*)request;
--(NSString*)stringForKey:(NSString*)key_
+
+/*
+ * Return value: string from tableName using key to look it up.
+ * first searches the tableName.strings file in the locale
+ * subdirectories. languages specifies the search order.
+ */
+
+-(NSString*)stringForKey:(NSString*)key
             inTableNamed:(NSString*)tableName
-        withDefaultValue:(NSString*)defaultValue_
+        withDefaultValue:(NSString*)defaultValue
              inFramework:(NSString*)frameworkName
                languages:(NSArray*)languages;
-
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)tableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages
-                    foundLanguage:(NSString**)foundLanguagePtr;
-
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)tableName
-                      inFramework:(NSString*)frameworkName
-                        languages:(NSArray*)languages;
-
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)tableName
-                      inFramework:(NSString*)frameworkName
-                        languages:(NSArray*)languages;
 
 -(void)lock;
 
 -(void)unlock;
 
--(NSString*)lockedStringForKey:(NSString*)key
-                  inTableNamed:(NSString*)tableName
-                   inFramework:(NSString*)framework
-                     languages:(NSArray*)languages;
-
-//NDFN
--(NSDictionary*)lockedStringsTableNamed:(NSString*)aTableName
-                            inFramework:(NSString*)aFrameworkName
-                              languages:(NSArray*)languages
-                          foundLanguage:(NSString**)foundLanguagePtr;
-
-
-//NDFN
--(NSString*)lockedStringForKey:(NSString*)aKey
-                  inTableNamed:(NSString*)aTableName
-                   inFramework:(NSString*)aFrameworkName
-                     languages:(NSArray*)languages
-                 foundLanguage:(NSString**)foundLanguagePtr;
-
-//NDFN
--(NSDictionary*)lockedStringsTableNamed:(NSString*)tableName
-                            inFramework:(NSString*)framework
-                              languages:(NSArray*)languages;
-
-//NDFN
--(NSArray*)lockedStringsTableArrayNamed:(NSString*)aTableName
-                            inFramework:(NSString*)aFrameworkName
-                              languages:(NSArray*)languages
-                          foundLanguage:(NSString**)foundLanguagePtr;
-
-//NDFN
--(NSArray*)lockedStringsTableArrayNamed:(NSString*)tableName
-                            inFramework:(NSString*)framework
-                              languages:(NSArray*)languages;
-
--(NSString*)lockedCachedStringForKey:(NSString*)key
-                        inTableNamed:(NSString*)tableName
-                         inFramework:(NSString*)frameworkName
-                            language:(NSString*)language;
-
--(NSDictionary*)lockedCachedStringsTableWithName:(NSString*)tableName
-                                     inFramework:(NSString*)frameworkName
-                                        language:(NSString*)language;
-
-//NDFN
--(NSArray*)lockedCachedStringsTableArrayWithName:(NSString*)tableName
-                                     inFramework:(NSString*)frameworkName
-                                        language:(NSString*)language;
-
--(NSDictionary*)lockedStringsTableWithName:(NSString*)tableName
-                               inFramework:(NSString*)frameworkName
-                                  language:(NSString*)language;
-
-//NDFN
--(NSArray*)lockedStringsTableArrayWithName:(NSString*)tableName
-                               inFramework:(NSString*)frameworkName
-                                  language:(NSString*)language;
-
--(NSString*)lockedUrlForResourceNamed:(NSString*)name
-                          inFramework:(NSString*)frameworkName
-                            languages:(NSArray*)languages_
-                              request:(GSWRequest*)request;
-
--(NSString*)lockedCachedURLForResourceNamed:(NSString*)name
-                                inFramework:(NSString*)frameworkName
-                                  languages:(NSArray*)languages;
-
--(NSString*)lockedPathForResourceNamed:(NSString*)name
-                           inFramework:(NSString*)frameworkName
-                             languages:(NSArray*)languages;
-
-/** GSWeb specific
-Returns the bundle for framework named aFrameworkName or application 
-bundle if none is found
-**/
--(GSWDeployedBundle*)cachedBundleForFrameworkNamed:(NSString*)aFrameworkName;
-
-/** Returns the bundle for framework named aFrameworkName or application 
-bundle if none is found
-**/
--(GSWDeployedBundle*)lockedCachedBundleForFrameworkNamed:(NSString*)name;
-
 -(void)flushDataCache;
-
--(void)setURLValuedElementData:(GSWURLValuedElementData*)data;
 
 -(void)setData:(NSData*)data
         forKey:(NSString*)key
@@ -190,29 +97,32 @@ bundle if none is found
 -(NSString*)pathForResourceNamed:(NSString*)name
                      inFramework:(NSString*)frameworkName
                         language:(NSString*)language;
--(NSString*)lockedPathForResourceNamed:(NSString*)name
-                           inFramework:(NSString*)frameworkName
-                              language:(NSString*)language;
+
 -(GSWDeployedBundle*)_appProjectBundle;
--(NSArray*)_allFrameworkProjectBundles;
--(void)lockedRemoveDataForKey:(NSString*)key;
 -(BOOL)_doesRequireJavaVirualMachine;
 -(NSString*)_absolutePathForJavaClassPath:(NSString*)path;
 -(GSWURLValuedElementData*)_cachedDataForKey:(NSString*)key;
--(void)lockedCacheData:(GSWURLValuedElementData*)data;
 -(NSString*)contentTypeForResourcePath:(NSString*)path;
 -(NSArray*)_frameworkClassPaths;
 
+/* Deprecated in WO 4.0. 
+ * Use urlForResourceNamed:inFramework:languages:request: instead.
+ */
+
 -(NSString*)urlForResourceNamed:(NSString*)name
-                    inFramework:(NSString*)frameworkName;
+                    inFramework:(NSString*)frameworkName GS_ATTRIB_DEPRECATED;
+
+/* Deprecated in WO 4.0. 
+ * Use pathForResourceNamed:inFramework:languages: instead.
+ */
+
 -(NSString*)pathForResourceNamed:(NSString*)name
-                     inFramework:(NSString*)frameworkName;
+                     inFramework:(NSString*)frameworkName GS_ATTRIB_DEPRECATED;
 
 +(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage;		//NDFN
 +(NSArray*)GSLanguagesFromISOLanguages:(NSArray*)ISOlanguages;		//NDFN
 +(NSString*)ISOLanguageFromGSLanguage:(NSString*)GSLanguage;		//NDFN
 +(NSArray*)ISOLanguagesFromGSLanguages:(NSArray*)GSlanguages;		//NDFN
-+(GSWBundle*)_applicationGSWBundle;
 
 - (NSString*) errorMessageUrlForResourceNamed:(NSString *) resourceName
                                   inFramework:(NSString *) frameworkName;

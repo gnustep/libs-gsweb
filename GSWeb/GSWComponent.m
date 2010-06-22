@@ -1454,182 +1454,44 @@ Call this method before using a component which was cached in a variable.
 }
 
 //--------------------------------------------------------------------
-//	stringForKey:inTableNamed:withDefaultValue:
-
--(NSString*)stringForKey:(NSString*)key
-            inTableNamed:(NSString*)tableName
-        withDefaultValue:(NSString*)defaultValue
-{
-  //OK
-  NSString* string=nil;
-
-  string=[GSWApp stringForKey:key
-                 inTableNamed:tableName
-                 withDefaultValue:defaultValue
-                 inFramework:[self frameworkName]
-                 languages:[self languages]];
-  return string;
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aName
-{
-  //OK
-  NSDictionary* stringsTable=nil;
-
-  stringsTable=[GSWApp stringsTableNamed:aName
-                       inFramework:[self frameworkName]
-                       languages:[self languages]];
-  return stringsTable;
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aName
-{
-  //OK
-  NSArray* stringsTableArray=nil;
-
-  stringsTableArray=[GSWApp stringsTableArrayNamed:aName
-                            inFramework:[self frameworkName]
-                            languages:[self languages]];
-
-  return stringsTableArray;
-}
-
-
-//--------------------------------------------------------------------
 //	urlForResourceNamed:ofType:
 
 -(NSString*)urlForResourceNamed:(NSString*)aName
                          ofType:(NSString*)type
 {
-  //TODO
-  NSString* url=nil;
-  NSString* name;
+  NSString* url = nil;
   
-  if ((type != nil)) {
-    name = [NSString stringWithFormat:@"%@.%@",aName,type];
-  } else {
-    name = aName;
-  }
+  GSOnceMLog(@"%s is depricated in WO 4.0. Use GSWResourceManager’s implementation of "
+             @"urlForResourceNamed:inFramework:languages:request: " 
+             @"instead.",
+             __PRETTY_FUNCTION__);
   
-  url=[GSWApp urlForResourceNamed:name
-                      inFramework:[self frameworkName]
-                        languages:[self languages]
-                          request:nil];//TODO
+  url=[[GSWApp resourceManager] urlForResourceNamed:aName
+                                             ofType:type
+                                        inFramework:nil
+                                          languages:[self languages]
+                                            request:nil];
   
   return url;
 }
 
 //--------------------------------------------------------------------
--(NSString*)_urlForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)type
-{
-  [self notImplemented: _cmd];	//TODOFN
-  return nil;
-}
-
-//--------------------------------------------------------------------
-//	pathForResourceNamed:ofType:
-// Normally: local search. Here we do a resourceManager serahc.
 -(NSString*)pathForResourceNamed:(NSString*)aName
                           ofType:(NSString*)type
 {
   NSString* path=nil;
+  
+  GSOnceMLog(@"%s is depricated in WO 4.0. Use GSWResourceManager’s implementation of "
+             @"pathForResourceNamed:inFramework:languages: " 
+             @"instead.",
+             __PRETTY_FUNCTION__);
 
-  path=[GSWApp pathForResourceNamed:aName
-				ofType:type
-               inFramework:[self frameworkName]
-               languages:[self languages]];
-
+  path=[[GSWApp resourceManager] pathForResourceNamed:aName
+                                               ofType:type
+                                          inFramework:nil
+                                            languages:[self languages]];
+  
   return path;
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)pathForComponentResourceNamed:(NSString*)aName
-                                   ofType:(NSString*)type_ 
-{
-  NSString* path=nil;
-  NSArray* languages=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-
-  languages=[self languages];
-  aComponentDefinition=[self _componentDefinition];
-  if (aComponentDefinition)
-    path=[aComponentDefinition pathForResourceNamed:aName
-                               ofType:type_
-                               languages:languages];
-  return path;
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)stringForKey:(id)key
-            inTableNamed:(NSString*)aName
-        withDefaultValue:(NSString*)defaultValue
-             inFramework:(NSString*)aFrameworkName
-{
-  return [GSWApp stringForKey:key
-                 inTableNamed:aName
-                 withDefaultValue:defaultValue
-                 inFramework:aFrameworkName
-                 languages:[self languages]];
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aName
-                      inFramework:(NSString*)aFrameworkName
-{
-  return [GSWApp stringsTableNamed:aName
-                 inFramework:aFrameworkName
-                 languages:[self languages]];
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aName
-                      inFramework:(NSString*)aFrameworkName
-{
-  return [GSWApp stringsTableArrayNamed:aName
-                 inFramework:aFrameworkName
-                 languages:[self languages]];
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)urlForResourceNamed:(NSString*)aName
-                         ofType:(NSString*)extension
-                    inFramework:(NSString*)aFrameworkName;
-{
-  
-  NSString * name;
-  
-  if ((extension != nil)) {
-    name = [NSString stringWithFormat:@"%@.%@",aName,extension];
-  } else {
-    name = aName;
-  }
-  
-  return [GSWApp urlForResourceNamed:name
-                         inFramework:aFrameworkName
-                           languages:[self languages]
-                             request:nil];//TODO
-}
-
-//--------------------------------------------------------------------
-//NDFN
--(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)extension
-                     inFramework:(NSString*)aFrameworkName
-{
-  return [GSWApp pathForResourceNamed:aName
-                 ofType:(NSString*)extension
-                 inFramework:aFrameworkName
-                 languages:[self languages]];
 }
 
 
@@ -1651,10 +1513,14 @@ Call this method before using a component which was cached in a variable.
 
 //--------------------------------------------------------------------
 //	templateWithHTMLString:declarationString:
-//old
 +(GSWElement*)templateWithHTMLString:(NSString*)htmlString
                    declarationString:(NSString*)pageDefString
 {
+  GSOnceMLog(@"%s is depricated in WO 4.0. Use "
+             @"templateWithHTMLString:declarationString:languages:" 
+             @"instead.",
+             __PRETTY_FUNCTION__);
+  
   return [self templateWithHTMLString:htmlString
                declarationString:pageDefString
                languages:nil];

@@ -101,7 +101,9 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
                                              @"text/calendar",
                                              @"text/x-vcalendar",
                                              @"text/enriched",
-                                             @"text/directory",nil]));
+                                             @"text/directory",
+                                             @"image/svg+xml",
+                                              nil]));
                                              
     };
 };
@@ -276,6 +278,14 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   NSUInteger dataLength=0;
   
   dataLength=[self _contentLength];
+  
+  if (dataLength>0) {
+    NSString * eTagString = [NSString stringWithFormat:@"%lx", 
+                             (unsigned long) [_contentData hash]];
+    
+    [self setHeader:eTagString
+             forKey:@"ETag"];
+  }
   
   // Now we see if we can gzip the content
   // it does not make sense to compress data less than 150 bytes.

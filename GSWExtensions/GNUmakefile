@@ -124,7 +124,8 @@ appOff.png \
 appOn.png \
 back.png \
 dir.png \
-exclamation.mng \
+exclamation.png \
+exclamation.svg \
 eye.png \
 lft-OSarw.png \
 rt-OSarw.png \

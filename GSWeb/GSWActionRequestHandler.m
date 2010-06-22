@@ -333,13 +333,7 @@ RCS_ID("$Id$")
 
           if (actionClass)
             {
-              GSWResourceManager* resourceManager=nil;
-              GSWDeployedBundle* appBundle=nil;
               id<GSWActionResults> actionResult=nil;
-
-              resourceManager=[application resourceManager];
-              appBundle=[resourceManager _appProjectBundle];
-              [resourceManager _allFrameworkProjectBundles];//So what ?
           
               NS_DURING
                 {

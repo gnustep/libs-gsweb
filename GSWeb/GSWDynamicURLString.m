@@ -460,6 +460,7 @@ static SEL appendStringSel = NULL;
       int tmpIndex=0;
       NSRange protocolEndRange;
       NSRange queryStringStartRange=[Left rangeOfString:@"?"];
+      
       if (queryStringStartRange.length>0)
         {
           if (queryStringStartRange.location+1<[Left length])
@@ -527,8 +528,9 @@ static SEL appendStringSel = NULL;
                       ASSIGN(_host,[Left substringToIndex:hostEndRangeSlash.location]);
                       //NSDebugMLLog(@"low",@"host [%@]",_host);
                       if (hostEndRangeSlash.location+hostEndRangeSlash.length<[Left length])
+                      {                        
                         Left=[Left substringFromIndex:hostEndRangeSlash.location+hostEndRangeSlash.length-1];//Keep the '/'
-                      else
+                      } else
                         Left=nil;
                       //NSDebugMLLog(@"low",@"Left [%@]",Left);
                     }
@@ -638,13 +640,13 @@ static SEL appendStringSel = NULL;
             };
         };
     };
-  //NSDebugMLLog(@"low",@"url=%@",_url);
-  //NSDebugMLLog(@"low",@"prefix=%@",_prefix);
-  //NSDebugMLLog(@"low",@"applicationName=%@",_applicationName);
-  //NSDebugMLLog(@"low",@"applicationNumberString=%@",_applicationNumberString);
-  //NSDebugMLLog(@"low",@"requestHandlerKey=%@",_requestHandlerKey);
-  //NSDebugMLLog(@"low",@"queryString=%@",_queryString);
-  //NSDebugMLLog(@"low",@"requestHandlerPath=%@",_requestHandlerPath);
+  //  NSLog(@"%s %d _url:'%@'",__PRETTY_FUNCTION__, __LINE__, _url);
+  //  NSLog(@"%s %d _prefix:'%@'",__PRETTY_FUNCTION__, __LINE__, _prefix);
+  //  NSLog(@"%s %d _applicationName:'%@'",__PRETTY_FUNCTION__, __LINE__, _applicationName);
+  //  NSLog(@"%s %d _applicationNumberString:'%@'",__PRETTY_FUNCTION__, __LINE__, _applicationNumberString);
+  //  NSLog(@"%s %d _requestHandlerKey:'%@'",__PRETTY_FUNCTION__, __LINE__, _requestHandlerKey);
+  //  NSLog(@"%s %d _queryString:'%@'",__PRETTY_FUNCTION__, __LINE__, _queryString);
+  //  NSLog(@"%s %d _requestHandlerPath:'%@'",__PRETTY_FUNCTION__, __LINE__, _requestHandlerPath);
 };
 
 /*

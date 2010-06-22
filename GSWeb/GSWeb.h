@@ -99,7 +99,7 @@
 @class GSWStatisticsStore;
 @class GSWRequestHandler;
 @class GSWComponentDefinition;
-@class GSWBundle;
+//@class GSWBundle;
 @class GSWMultiKeyDictionary;
 @class GSWCookie;
 @class GSWElementID;
@@ -122,7 +122,6 @@
 @class GSWDeclaration;
 @class GSWDeclarationParser;
 @class GSWDynamicGroup;
-@class GSWBundle;
 @class GSWSessionTimeOutManager;
 @class GSWServerSessionStore;
 @class GSWDeployedBundle;

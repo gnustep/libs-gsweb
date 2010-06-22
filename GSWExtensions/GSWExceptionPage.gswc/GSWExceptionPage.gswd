@@ -1,3 +1,11 @@
+ExclamationImage: GSWImage
+{
+    filename = "exclamation.png";
+    framework = "WOExtensions";
+    height="50";
+    width="60";
+    alt="exclamation sign"
+}
 
 ApplicationNameString: GSWString
 {

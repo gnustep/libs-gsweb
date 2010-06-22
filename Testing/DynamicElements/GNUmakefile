@@ -34,6 +34,7 @@ DynamicElements_GSWAPP_INFO_PLIST=Resources/Info-DynamicElements.plist
 DynamicElements_RESOURCE_FILES = \
 Resources/Info-DynamicElements.plist \
 
+DynamicElements_WEBSERVER_RESOURCE_FILES = testpic.jpg
 
 # The Objective-C source files to be compiled
 DynamicElements_OBJC_FILES = \
@@ -53,7 +54,8 @@ PopUpButton2Page.m \
 TextField1Page.m \
 CheckBox1Page.m \
 CheckBox2Page.m \
-RadioButton1Page.m 
+RadioButton1Page.m \
+ImagePage.m
 
 DynamicElements_COMPONENTS = \
 Main.wo \
@@ -69,7 +71,8 @@ PopUpButton2Page.wo \
 TextField1Page.wo \
 CheckBox1Page.wo \
 CheckBox2Page.wo \
-RadioButton1Page.wo 
+RadioButton1Page.wo \
+ImagePage.wo
 
 
 -include Makefile.preamble

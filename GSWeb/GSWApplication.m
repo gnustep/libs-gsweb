@@ -332,8 +332,9 @@ int GSWApplicationMain(NSString* applicationClassName,
 	{
 	  [self _setupForMonitoring];
 	};
-      [[GSWResourceManager _applicationGSWBundle] initializeObject:self
-                                                  fromArchiveNamed:@"Application"];
+      // ?? 
+      //      [[GSWResourceManager _applicationGSWBundle] initializeObject:self
+      //                                                  fromArchiveNamed:@"Application"];
       [self setPrintsHTMLParserDiagnostics:NO];
 
       if ([[self class] recordingPath])
@@ -658,7 +659,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   NSString* path=nil;
   
-  path=[[GSWResourceManager _applicationGSWBundle] path];
+  path=[[_resourceManager _appProjectBundle] path];
   
   return path;
 };
@@ -852,15 +853,17 @@ int GSWApplicationMain(NSString* applicationClassName,
   [self lock];
   NS_DURING
     {
-      anEnum=[_componentDefinitionCache objectEnumerator];
-      while ((definition = [anEnum nextObject]))
-        {
-          if (((NSString*)definition != GSNotFoundMarker) && (![definition isCachingEnabled]))
-            [definition _clearCache];
-        }
+      // we should probably clear the _componentDefinitionCache? -- dw
+      
+//      anEnum=[_componentDefinitionCache objectEnumerator];
+//      while ((definition = [anEnum nextObject]))
+//        {
+//          if (((NSString*)definition != GSNotFoundMarker) && (![definition isCachingEnabled]))
+//            [definition _clearCache];
+//        }
       if (![self isCachingEnabled])
         {
-          [[GSWResourceManager _applicationGSWBundle] clearCache];
+          [_resourceManager flushDataCache];
         }
     }
   NS_HANDLER
@@ -1331,27 +1334,9 @@ int GSWApplicationMain(NSString* applicationClassName,
 
 //--------------------------------------------------------------------
 -(void)_finishInitializingSession:(GSWSession*)aSession
-{
-  //OK
-  
-  [self lock];
-  NS_DURING
-    {
-      [[GSWResourceManager _applicationGSWBundle] initializeObject:aSession
-                                                  fromArchiveNamed:@"Session"];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In initializeObject:fromArchiveNamed:");
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
-  [self unlock];
-  
-};
+{  
+  //Does nothing on WO 5 
+}
 
 //--------------------------------------------------------------------
 -(GSWSession*)_initializeSessionInContext:(GSWContext*)aContext
@@ -1714,64 +1699,16 @@ to another instance **/
 //--------------------------------------------------------------------
 -(Class)_sessionClass
 {
-  //OK
   Class sessionClass=nil;
   
-  sessionClass=[[GSWResourceManager _applicationGSWBundle] scriptedClassWithName:GSWClassName_Session
-                                                           superclassName:GSWClassName_Session];
+//  sessionClass=[[_resourceManager _appProjectBundle] scriptedClassWithName:GSWClassName_Session
+//                                                            superclassName:GSWClassName_Session];
+  
   if (!sessionClass)
     sessionClass=NSClassFromString(GSWClassName_Session);
-
-/*
-
-  //Search Compiled Class "Session" (subclass of GSWsession)
-  gswsessionClass=NSClassFromString();
-  sessionClass=NSClassFromString(GSWClassName_Session);
-
-  //If not found, search for library "Session" in application .gswa directory
-  if (!_sessionClass)
-	{
-	  NSString* sessionPath=[self pathForResourceNamed:@"session"
-								  ofType:nil];
-	  Class _principalClass=[self libraryClassWithPath:sessionPath];
-	  NSDebugMLLog(@"application",@"_principalClass=%@",_principalClass);
-	  if (_principalClass)
-		{
-		  _sessionClass=NSClassFromString(GSWClassName_Session);
-		  NSDebugMLLog(@"application",@"sessionClass=%@",_sessionClass);
-		};
-	};
-
-  //If not found, search for scripted "Session" in application .gswa directory
-  if (!sessionClass)
-	{
-	  //TODO
-	};
-
-  //If not found, search for scripted "Session" in a session.gsws file
-  if (!sessionClass)
-	{
-	  //TODO
-	};
-
-  if (!sessionClass)
-	{
-	  sessionClass=_gswsessionClass;
-	}
-  else
-	{
-	  if (!ClassIsKindOfClass(_sessionClass,_gswsessionClass))
-	    {
-	      //TODO exception
-	      NSDebugMLLog(@"application",
-	      @"session class is not a kind of GSWSession");
-	    }
-	};
-  NSDebugMLLog(@"application",@"_sessionClass:%@",_sessionClass);
-*/
   
   return sessionClass;
-};
+}
 
 //--------------------------------------------------------------------
 //NDFN
@@ -2265,7 +2202,7 @@ to another instance **/
     
     [noteCenter postNotificationName:@"ApplicationWillDispatchRequestNotification"
                                                        object:aRequest];
-    
+        
     requestHandler = [self handlerForRequest:aRequest];
     
     if (!requestHandler)
@@ -2488,11 +2425,11 @@ to another instance **/
   NS_DURING
     {
       errorPage=[self pageWithName:pageName
-                      inContext:context];
-                      
+                         inContext:context];
+      
       if (anException)
-        [errorPage takeValue:anException
-              forKey:@"exception"]; 
+        [errorPage setValue:anException
+                     forKey:@"exception"]; 
     }
   NS_HANDLER
     {
@@ -3504,13 +3441,30 @@ to another instance **/
 //--------------------------------------------------------------------
 +(Class)_applicationClass
 {
+  NSBundle * mainBundle = [NSBundle mainBundle];
+  NSString * className  = [[mainBundle infoDictionary] objectForKey:@"NSPrincipalClass"];
+  Class      potentialAppClass = NULL;
   
-  [[GSWResourceManager _applicationGSWBundle] 
-    scriptedClassWithName:GSWClassName_Application//TODO
-    superclassName:GSWClassName_Application]; //retirune nil //TODO
+  if (className) {
+    potentialAppClass = NSClassFromString(className);
+    
+    if ((potentialAppClass) && GSObjCIsKindOf(potentialAppClass,[GSWApplication class])) 
+    {
+      return potentialAppClass;
+    }
+  } 
   
-  return NSClassFromString(globalApplicationClassName);
-};
+  potentialAppClass = NSClassFromString(@"Application");
+  
+  if ((potentialAppClass) && GSObjCIsKindOf(potentialAppClass,[GSWApplication class])) 
+  {
+    return potentialAppClass;
+  }
+  
+  
+  NSLog(@"You should consider creating your own WOApplication subclass.");
+  return NSClassFromString(@"WOApplication");
+}
 
 //--------------------------------------------------------------------
 +(Class)_compiledApplicationClass

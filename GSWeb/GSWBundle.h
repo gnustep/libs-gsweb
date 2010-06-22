@@ -4,7 +4,8 @@
   
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 		Mar 1999
-   
+   Written by: David Wetzel <dave@turbocat.de>
+
    $Revision$
    $Date$
 
@@ -33,116 +34,19 @@
 	#define _GSWBundle_h__
 
 
-//====================================================================
-@interface GSWBundle : NSObject <NSLocking>
+@interface NSBundle (WOResourceManagement)
+
+-(void)initializeObject:(id)anObject
+            fromArchive:(NSDictionary*)anArchive;
+
+@end
+
+@interface GSWBundleUnarchiverDelegate : NSObject
 {
-  NSString* _path;
-  NSString* _baseURL;
-  NSString* _frameworkName;
-  NSMutableDictionary* _archiveCache;
-  NSMutableDictionary* _apiCache;//NDFN
-  NSMutableDictionary* _encodingCache;
-  NSMutableDictionary* _templateParserTypeCache;//NDFN
-  NSMutableDictionary* _pathCache;
-  NSMutableDictionary* _urlCache;
-  NSMutableDictionary* _stringsTableCache;
-  NSMutableDictionary* _stringsTableArrayCache; //NDFN
-  NSMutableDictionary* _templateCache;
-  NSMutableDictionary* _classCache;
-  NSRecursiveLock* _selfLock;
-#ifndef NDEBUG
-  int _selfLockn;
-#endif
-};
-
--(NSString*)baseURL;
--(NSString*)path;
--(NSString*)frameworkName;
--(NSString*)description;
--(void)dealloc;
--(id)initWithPath:(NSString*)aPath
-          baseURL:(NSString*)aBaseURL
- inFrameworkNamed:(NSString*)aFrameworkName;
--(id)initWithPath:(NSString*)aPath
-          baseURL:(NSString*)aBaseURL;
--(void)unlock;
--(void)lock;
-
-// CHECKME: do we need this for WO 4.5? -- dw
-
--(void)clearCache;
-//-(void)loadCache;
-
-//-(id)lockedResourceNamed:(NSString*)aName
-//                  ofType:(NSString*)aType
-//           withLanguages:(NSArray*)languages
-//              usingCache:(NSMutableDictionary*)cache
-//            relativePath:(NSString**)relativePath
-//            absolutePath:(NSString**)absolutePath;
-
--(void)initializeObject:(id)anObject
-       fromArchiveNamed:(NSString*)aName;
-
--(void)initializeObject:(id)anObject
-            fromArchive:(NSDictionary*)archive;
-
--(Class)scriptedClassWithName:(NSString*)aName
-               superclassName:(NSString*)superclassName;
-
--(Class)lockedScriptedClassWithName:(NSString*)aName
-                           pathName:(NSString*)pathName
-                     superclassName:(NSString*)superclassName;
-
--(NSString*)lockedScriptedClassPathWithName:(NSString*)aName;
-
-//-(Class)compiledClassWithName:(NSString*)aName
-//               superclassName:(NSString*)superclassName;
-
--(GSWElement*)templateNamed:(NSString*)aName
-                  languages:(NSArray*)languages;
-
-
--(GSWElement*)lockedTemplateNamed:(NSString*)aName
-                        languages:(NSArray*)languages;
-
-
-//-(NSString*)stringForKey:(NSString*)key_
-//            inTableNamed:(NSString*)aName
-//        withDefaultValue:(NSString*)defaultValue
-//               languages:(NSArray*)languages;
-//
-
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aName
-                    withLanguages:(NSArray*)languages;
-
-//NDFN
-//-(NSArray*)stringsTableArrayNamed:(NSString*)aName
-//                    withLanguages:(NSArray*)languages;
-
-//-(NSString*)urlForResourceNamed:(NSString*)aName
-//                         ofType:(NSString*)aType
-//                      languages:(NSArray*)languages
-//                        request:(GSWRequest*)aRequest;
-//
-
--(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)aType
-                       languages:(NSArray*)languages;
-
-
--(NSStringEncoding)encodingForResourcesNamed:(NSString*)aName;
--(GSWTemplateParserType)templateParserTypeForResourcesNamed:(NSString*)aName;//NDFN
-
--(NSDictionary*)archiveNamed:(NSString*)aName;
--(NSDictionary*)apiNamed:(NSString*)aName;//NDFN
-
--(NSDictionary*)lockedArchiveNamed:(NSString*)aName;
--(NSDictionary*)lockedApiNamed:(NSString*)aName;//NDFN
-
-//-(id)scriptedClassNameFromClassName:(NSString*)aName;
-//-(id)scriptPathNameFromScriptedClassName:(NSString*)aName;
-
+  id _object;
+}
+- (id) unarchiver:(NSKeyedUnarchiver*)unarchiver objectForReference:(NSString*)keyPath;
+- (id) initWithObject:(id)object;
 @end
 
 #endif //_GSWBundle_h__
