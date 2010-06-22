@@ -31,13 +31,14 @@ srcdir = .
 
 # Options
 ifeq ($(gswnames), gsw)
-FRAMEWORK_NAME = GSWExtensions
+#FRAMEWORK_NAME = GSWExtensions
+FRAMEWORK_NAME = WOExtensions
 endif
 ifeq ($(gswnames), wo)
 FRAMEWORK_NAME = WOExtensions
 endif
 ifeq ($(gswnames), all)
-FRAMEWORK_NAME = GSWExtensions WOExtensions
+FRAMEWORK_NAME = WOExtensions
 endif
 
 # Ensure that each framework uses its own GNUSTEP_OBJ_DIR_NAME & DERIVED_SRC

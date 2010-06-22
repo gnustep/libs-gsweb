@@ -1,3 +1,8 @@
+ 2010-06-22  David Wetzel <dave@turbocat.de>
+	* GSWExtensions/Resources/Info-gnustep.plist
+	* GSWExtensions/GNUmakefile
+	fix framework name to be able to load files from the right bundle
+
 2010-06-22  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWResourceManager.m
 	split names into pathExtension and name before feeding it into NSBundle.
