@@ -560,8 +560,8 @@ NSMutableDictionary   *globalPathCache = nil;
         //              __PRETTY_FUNCTION__, resourceName, frameworkName);
       } else {
         
-        NSString  * nameWithoutExtension = [path stringByDeletingPathExtension];
-        NSString  * pathExtension = [path pathExtension];
+        NSString  * nameWithoutExtension = [resourceName stringByDeletingPathExtension];
+        NSString  * pathExtension = [resourceName pathExtension];
         
         path = [bundleToUse pathForResource:nameWithoutExtension 
                                      ofType:pathExtension
