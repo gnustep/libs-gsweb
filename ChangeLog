@@ -1,4 +1,9 @@
 2010-06-22  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWResourceManager.m
+	split names into pathExtension and name before feeding it into NSBundle.
+	This is not needed on OSX, but on current -base
+	
+2010-06-22  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWResourceManager.h
 	* GSWeb/GSWComponent.h
 	disable GS_ATTRIB_DEPRECATED until a solution is found

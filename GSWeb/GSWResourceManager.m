@@ -556,36 +556,38 @@ NSMutableDictionary   *globalPathCache = nil;
       }
       
       if (!bundleToUse) {
-//        NSLog(@"%s: could not find bundle for resource '%@' inFramework '%@'",
-//              __PRETTY_FUNCTION__, resourceName, frameworkName);
-        return nil;
-      }
-      
-      path = [bundleToUse pathForResource:resourceName 
-                                   ofType:nil  // if we have a full name we do not need this
-                              inDirectory:nil 
-                          forLocalization:language];
-      
-      if (!path) {
-        path = [bundleToUse pathForResource:resourceName 
-                                     ofType:nil
-                                inDirectory:@"WebServer"
+        //        NSLog(@"%s: could not find bundle for resource '%@' inFramework '%@'",
+        //              __PRETTY_FUNCTION__, resourceName, frameworkName);
+      } else {
+        
+        NSString  * nameWithoutExtension = [path stringByDeletingPathExtension];
+        NSString  * pathExtension = [path pathExtension];
+        
+        path = [bundleToUse pathForResource:nameWithoutExtension 
+                                     ofType:pathExtension
+                                inDirectory:nil 
                             forLocalization:language];
+        
+        if (!path) {
+          path = [bundleToUse pathForResource:nameWithoutExtension 
+                                       ofType:pathExtension
+                                  inDirectory:@"WebServer"
+                              forLocalization:language];
+        }
+        [self _cachePath:path 
+        forResourceNamed:resourceName
+             inFramework:frameworkName
+                language:language];
       }
-      [self _cachePath:path 
-      forResourceNamed:resourceName
-           inFramework:frameworkName
-              language:language];
+      
     }
-    
-    
   } 
   END_SYNCHRONIZED;
   
   /*
-  NSLog(@"%s resourceName:'%@' language:'%@' frameworkName:'%@' path '%@'", __PRETTY_FUNCTION__, 
-        resourceName, language, frameworkName,
-        path);
+   NSLog(@"%s resourceName:'%@' language:'%@' frameworkName:'%@' path '%@'", __PRETTY_FUNCTION__, 
+   resourceName, language, frameworkName,
+   path);
    */
   if ([localNotFoundMarker isEqualToString:path]) {
     return nil;
