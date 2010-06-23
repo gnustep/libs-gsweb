@@ -130,7 +130,7 @@ RCS_ID("$Id$")
   } else {    
     filePath = [self _filepathForUripath:urlRequestHandlerPath];
     
-    response = [self _responseForDataAtPath:filePath];
+    response = [self _responseForDataAtPath:filePath request:aRequest];
   }
   
   [[NSNotificationCenter defaultCenter] postNotificationName:DidHandleRequestNotification
@@ -149,27 +149,57 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
--(GSWResponse*)_responseForDataAtPath:(NSString*)aPath
+-(GSWResponse*)_responseForDataAtPath:(NSString*)aPath 
+                              request:(GSWRequest*)aRequest
 {
-  NSUInteger      fileLength = 0;
   NSString      * contentType;
   NSData        * fileData;
   GSWResponse   * aResponse;
+  NSDictionary  * attributes;
+  NSDate        * modDate;
+  NSString      * eTagString;
+  NSString      * dateString;
+  NSString      * hashString;
+  NSString      * ifNoneMatchValue;
   
-  
-  fileData = [NSData dataWithContentsOfFile:aPath];
-  
-  if (!fileData) {
+  attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:aPath 
+                                                                error:NULL];
+  modDate = [attributes fileModificationDate];
+
+  if (!modDate) {
     return [self _404ResponseForPath:aPath];
   }
   
-  contentType = [[GSWApp resourceManager] contentTypeForResourcePath:aPath];
-  
+  dateString = [modDate descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S GMT"
+                                             timeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]
+                                               locale:nil];
+
   aResponse = [GSWApp createResponseInContext:nil];
   
-  [aResponse setStatus:200];
-  [aResponse setHeader:[NSString stringWithFormat:@"%d",[fileData length]]
-                forKey:@"content-length"];
+  [aResponse setHeader:dateString
+                forKey:@"Last-Modified"];
+
+  hashString = [NSString stringWithFormat:@"%@-%@", dateString, [attributes objectForKey:NSFileSize]];
+  
+  eTagString = [NSString stringWithFormat:@"%lx", (unsigned long) [hashString hash]];
+  
+  [aResponse setHeader:eTagString
+                forKey:@"ETag"];
+  
+  ifNoneMatchValue = [aRequest headerForKey:@"if-none-match"];
+
+  if ([ifNoneMatchValue isEqualToString:eTagString]) {
+    // return 304 Not Modified
+    [aResponse setStatus:304];  
+    
+  } else {
+    
+    fileData = [NSData dataWithContentsOfFile:aPath];
+    [aResponse setContent:fileData];
+    [aResponse setStatus:200];
+  }
+  
+  contentType = [[GSWApp resourceManager] contentTypeForResourcePath:aPath];
   
   if (contentType)
   {
@@ -177,7 +207,6 @@ RCS_ID("$Id$")
                   forKey:@"content-type"];
   }
   
-  [aResponse setContent:fileData];
   
   return aResponse;
 }

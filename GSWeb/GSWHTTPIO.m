@@ -214,12 +214,9 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
   int  contentLength = 0;
   BOOL keepAlive = NO;
   BOOL requestIsHead = NO;
-  NSString * eTagString = nil;
-  NSString * ifNoneMatchValue;
 
   if (message) {
     contentLength = [message _contentLength];
-    eTagString = [message headerForKey:@"ETag"];
   }
   
   if (request) {
@@ -228,12 +225,6 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
       keepAlive = [connectionValue isEqualToString:KEEP_ALIVE];
     }
     requestIsHead = [[request method] isEqualToString:HEAD];
-    ifNoneMatchValue = [request headerForKey:@"if-none-match"];
-  }
-
-  if ([ifNoneMatchValue isEqualToString:eTagString]) {
-    // return 304 Not Modified
-    [message setStatus:304];
   }
   
   [headers appendString:GSWIntToNSString([message status])];

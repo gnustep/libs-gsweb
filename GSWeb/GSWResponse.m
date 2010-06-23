@@ -280,11 +280,13 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   dataLength=[self _contentLength];
   
   if (dataLength>0) {
-    NSString * eTagString = [NSString stringWithFormat:@"%lx", 
+/*
+ NSString * eTagString = [NSString stringWithFormat:@"%lx", 
                              (unsigned long) [_contentData hash]];
     
     [self setHeader:eTagString
              forKey:@"ETag"];
+ */
   }
   
   // Now we see if we can gzip the content

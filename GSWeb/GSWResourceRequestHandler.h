@@ -39,8 +39,12 @@
 
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest;
 -(GSWResponse*)_responseForJavaClassAtPath:(NSString*)aPath;
--(GSWResponse*)_responseForDataAtPath:(NSString*)aPath;
+
+-(GSWResponse*)_responseForDataAtPath:(NSString*)aPath 
+                              request:(GSWRequest*)aRequest;
+
 -(GSWResponse*)_responseForDataCachedWithKey:(NSString*)aKey;
+
 -(GSWResponse*)_generateResponseForData:(NSData*)aData
                                mimeType:(NSString*)mimeType;
 

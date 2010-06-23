@@ -1,4 +1,19 @@
 2010-06-22  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWResponse.m
+	* GSWeb/GSWHTTPIO.m
+	do not add ETag
+	* GSWeb/GSWResourceRequestHandler.h
+	add request: argument to _responseForDataAtPath:
+	* GSWeb/GSWResourceRequestHandler.m
+	add request: argument to _responseForDataAtPath:
+	_responseForDataAtPath:request:
+	generate Last-Modified header
+	generate ETag header
+	use hash of modification date and size
+	(faster than over a large NSData object)
+	check for if-none-match header
+	
+2010-06-22  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWResourceManager.m
 	make url prefix dynamic based on [request _applicationURLPrefix]
 
