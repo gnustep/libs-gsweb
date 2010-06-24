@@ -37,8 +37,10 @@ RCS_ID("$Id$")
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #include <GNUstepBase/NSString+GNUstepBase.h>
 
-static NSString * emptyStr=@"";
-
+static NSString            * NONESTR = @"NONE";
+static NSString            * localNotFoundMarker=@"NOTFOUND";
+static NSMutableDictionary * TheStringsTableDictionary = nil;
+static NSLock              * TheStringsTableLock = nil;
 //====================================================================
 @implementation GSWResourceManager
 
@@ -48,7 +50,6 @@ NSString* globalMimePListPathName=nil;
 NSDictionary* localGS2ISOLanguages=nil;
 NSDictionary* localISO2GSLanguages=nil;
 NSString* globalLanguagesPListPathName=nil;
-NSString* localNotFoundMarker=@"NOTFOUND";
 NSMutableDictionary   *globalPathCache = nil;
 //--------------------------------------------------------------------
 +(void)initialize
@@ -157,6 +158,10 @@ NSMutableDictionary   *globalPathCache = nil;
       }
       if (!globalPathCache) {
         globalPathCache = [NSMutableDictionary new];
+      }
+      if (!TheStringsTableDictionary) {
+        TheStringsTableDictionary = [NSMutableDictionary new];
+        TheStringsTableLock = [NSLock new];
       }
       //TODO NSBundle* mainBundle=[NSBundle mainBundle];
       NSArray* allFrameworks=[NSBundle allFrameworks];
@@ -365,40 +370,121 @@ NSMutableDictionary   *globalPathCache = nil;
   return url;
 }
 
+
+static NSDictionary * _cachedStringsTable(GSWResourceManager * resmanager, NSString * tableName, NSString * framework, NSString * lang)
+{
+  NSDictionary * stringTableDict = nil;
+
+  if (tableName)
+  {
+    NSString * languageKey = (!lang) ? NONESTR : lang;
+    NSString * frameworkNameKey = (!framework) ? NONESTR : framework;
+    NSString * tableKey = [NSString stringWithFormat:@"%@_%@_%@", tableName, frameworkNameKey, languageKey];
+    
+    SYNCHRONIZED(TheStringsTableLock) {
+      stringTableDict = [TheStringsTableDictionary objectForKey:tableKey];
+    } END_SYNCHRONIZED;
+    
+    if (!stringTableDict)
+    {
+      // load from file
+      if (tableName)
+      {
+        NSString * path;
+        
+        path = [resmanager pathForResourceNamed:[tableName stringByAppendingString:@".strings"]
+                                    inFramework:framework
+                                       language:lang];
+        
+        if (path) {
+          NSString         * fileString = nil;
+          NSStringEncoding   encoding = 0;
+          NSError          * error = nil;
+          
+          fileString = [NSString stringWithContentsOfFile:path 
+                                             usedEncoding:&encoding 
+                                                    error:&error];
+          
+          if (error) {
+            NSLog(@"%s: %@", __PRETTY_FUNCTION__, error);
+          } else {
+            stringTableDict = [fileString propertyListFromStringsFileFormat];
+          }
+        }        
+      }
+      if (!stringTableDict)
+      {
+        stringTableDict = (NSDictionary*) [NSNull null];
+      }
+      SYNCHRONIZED(TheStringsTableLock) {
+        [TheStringsTableDictionary setObject:stringTableDict
+                                      forKey:tableKey];
+      } END_SYNCHRONIZED;
+    }
+    // we are using a static object so the == is ok here.
+    if ((stringTableDict == (NSDictionary*) [NSNull null]))
+    {
+      stringTableDict = nil;
+    }
+  }
+  return stringTableDict;
+}
+
+
+static NSString * _cachedStringForKey(GSWResourceManager * resmanager, NSString * key, NSString * tableName, NSString * framework, NSString * lang)
+{
+  NSDictionary * stringTableDict = _cachedStringsTable(resmanager, tableName, framework, lang);
+  NSString     * string = nil;
+
+  if ((stringTableDict) && (key)) 
+  {
+    string = [stringTableDict objectForKey:key];
+  }
+  return string;
+}
+
 /*
  * Return value: string from tableName using key to look it up.
  * first searches the tableName.strings file in the locale
  * subdirectories. languages specifies the search order.
  */
 -(NSString*)stringForKey:(NSString*)key
-            inTableNamed:(NSString*)tableName
+            inTableNamed:(NSString*)aTableName
         withDefaultValue:(NSString*)defaultValue
              inFramework:(NSString*)framework
                languages:(NSArray*)languages
 {
-  NSLog(@"I am working on this -- dw");
-//  NSString* string=nil;
-//  [self lock];
-//  NS_DURING
-//    {
-//      string=[self lockedStringForKey:key
-//                   inTableNamed:tableName
-//                   inFramework:framework
-//                   languages:languages];
-//    }
-//  NS_HANDLER
-//    {
-//      //TODO
-//      [self unlock];
-//      [localException raise];
-//    }
-//  NS_ENDHANDLER;
-//  [self unlock];
-//  if (!string)
-//    string=defaultValue;
-//  return string;
-  return nil;
-};
+  NSString * string=nil;
+  NSString * tableName; 
+  
+  if (!aTableName) {
+    tableName = @"Localizable";
+  } else {
+    tableName = aTableName;
+  }
+
+  if (languages)
+  {
+    NSUInteger count = [languages count];
+    NSUInteger idx;
+
+    for(idx = 0; idx < count; idx++)
+    {
+      NSString * lang = [languages objectAtIndex:idx];
+      string = _cachedStringForKey(self, key, tableName, framework, lang);
+      if (string) 
+      {
+        return string;
+      }
+    }
+    
+  }
+  string = _cachedStringForKey(self, key, tableName, framework, nil);
+  
+  if (!string)
+    string=defaultValue;
+  return string;
+}
 
 //--------------------------------------------------------------------
 -(void)unlock
@@ -490,7 +576,7 @@ NSMutableDictionary   *globalPathCache = nil;
   NSString * key = [NSString stringWithFormat:@"%@:%@:%@",
                     resourceName,
                     (frameworkName) ? frameworkName : @"APP",
-                    (language) ? language : @"NONE"];
+                    (language) ? language : NONESTR];
     
   cachedPath = [globalPathCache objectForKey:key];
     
@@ -509,7 +595,7 @@ NSMutableDictionary   *globalPathCache = nil;
   NSString * key = [NSString stringWithFormat:@"%@:%@:%@",
                     resourceName,
                     (frameworkName) ? frameworkName : @"APP",
-                    (language) ? language : @"NONE"];
+                    (language) ? language : NONESTR];
   
   if (!path) {
     path = localNotFoundMarker;

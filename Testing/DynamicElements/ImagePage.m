@@ -34,5 +34,18 @@
 
 @implementation ImagePage
 
+- (NSString*) helloMessage
+{
+  NSString * helloStr;
+  
+  helloStr = [[WOApp resourceManager] stringForKey:@"hello"
+                                      inTableNamed:nil
+                                  withDefaultValue:@"string not found"
+                                       inFramework:nil
+                                         languages:[self languages]];
+  
+  return helloStr;
+}
+
 @end
 

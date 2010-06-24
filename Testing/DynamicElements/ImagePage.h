@@ -34,6 +34,8 @@
 @interface ImagePage: BasePage
 {
 }
+- (NSString*) helloMessage;
+
 @end
 
 #endif //_ImagePage_h__

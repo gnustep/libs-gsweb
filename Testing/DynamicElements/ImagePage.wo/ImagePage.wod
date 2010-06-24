@@ -9,3 +9,7 @@ TestImage: WOImage
         filename = "testpic.jpg";
         alt = "test";
 }
+HelloString: WOString
+{
+        value = helloMessage;
+}

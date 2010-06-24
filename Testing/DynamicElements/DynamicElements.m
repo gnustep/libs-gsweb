@@ -7,6 +7,14 @@
  */
 
 @implementation DynamicElements
+- (id) init
+{
+  if ([super init]) {
+    [WOMessage setDefaultEncoding: NSUTF8StringEncoding];
+  }
+  return self;
+}
+
 @end
 
 @interface Session: WOSession

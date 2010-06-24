@@ -1,3 +1,24 @@
+2010-06-23  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWResourceManager.m
+	reformat statics, add TheStringsTableLock
+	add _cachedStringsTable()
+	add _cachedStringForKey()
+	rewrote -stringForKey:inTableNamed:withDefaultValue:inFramework:languages:
+	use NONESTR, not @"NONE"
+	* Testing/DynamicElements/ImagePage.h
+	* Testing/DynamicElements/Resources/Chinese.lproj/Localizable.strings
+	* Testing/DynamicElements/Resources/Russian.lproj/Localizable.strings
+	* Testing/DynamicElements/Resources/French.lproj/Localizable.strings
+	* Testing/DynamicElements/Resources/English.lproj/Localizable.strings
+	* Testing/DynamicElements/Resources/German.lproj/Localizable.strings
+	* Testing/DynamicElements/ImagePage.m
+	* Testing/DynamicElements/ImagePage.wo
+	add test for GSWResourceManager's -stringForKey:inTableNamed:withDefaultValue:inFramework:languages:
+	* Testing/DynamicElements/DynamicElements.m
+	set UTF8 encoding
+	* Testing/DynamicElements/GNUmakefile
+	add new files
+
 2010-06-22  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWResponse.m
 	* GSWeb/GSWHTTPIO.m

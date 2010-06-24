@@ -33,6 +33,11 @@ DynamicElements_GSWAPP_INFO_PLIST=Resources/Info-DynamicElements.plist
 # The bundle resource files and directories
 DynamicElements_RESOURCE_FILES = \
 Resources/Info-DynamicElements.plist \
+Resources/Chinese.lproj \
+Resources/English.lproj \
+Resources/French.lproj \
+Resources/German.lproj \
+Resources/Russian.lproj \
 
 DynamicElements_WEBSERVER_RESOURCE_FILES = testpic.jpg
 
