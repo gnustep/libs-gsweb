@@ -796,11 +796,32 @@ static NSString * _cachedStringForKey(GSWResourceManager * resmanager, NSString 
 }
 
 //--------------------------------------------------------------------
-//NDFN
+
+/*
+ * more specific names like 'ja-jp' have priority over 'ja'
+ * that way, de-at could return a different language than 'de'
+ * As they have some different words...
+ */
+
 +(NSString*)GSLanguageFromISOLanguage:(NSString*)ISOLanguage
 {
-  return [localISO2GSLanguages objectForKey:[[ISOLanguage stringByTrimmingSpaces] lowercaseString]];
-};
+  NSString * searchStr = [[ISOLanguage stringByTrimmingSpaces] lowercaseString];
+  NSString * langName  = nil;
+  
+  langName = [localISO2GSLanguages objectForKey:searchStr];
+  
+  if (!langName) {
+    // try to get only the prefix of 'ja-jp'
+    NSRange  minusRange = [searchStr rangeOfString:@"-"];
+    if (minusRange.location != NSNotFound) {
+      searchStr = [searchStr substringToIndex:minusRange.location];
+
+      langName = [localISO2GSLanguages objectForKey:searchStr];
+    }
+
+  }
+  return langName;
+}
 
 //--------------------------------------------------------------------
 //NDFN

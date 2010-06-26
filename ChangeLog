@@ -1,3 +1,9 @@
+2010-06-25  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWResourceManager.m
+	+ GSLanguageFromISOLanguage:
+	use 2 steps to find language, first supplied one 'ja-jp'
+	if that fails, use 'ja'
+	
 2010-06-23  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWResourceManager.m
 	reformat statics, add TheStringsTableLock
