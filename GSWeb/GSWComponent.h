@@ -42,6 +42,7 @@
 @class GSWDynamicElement;
 
 #include "GSWResponse.h"
+#include "GSWContext.h"
 
 @interface GSWComponent : GSWElement <NSCopying>
 {
@@ -257,6 +258,14 @@ Call this method before using a component which was cached in a variable.
 
 -(NSString*)descriptionForResponse:(GSWResponse*)response
                          inContext:(GSWContext*)aContext;
+
+/*
+ * the current default returns WOHTML401Markup
+ * override this in your page component for diffent
+ * behaviour.
+ */
+
+- (WOMarkupType) markupType;
 
 +(void)_registerObserver:(id)observer;
 

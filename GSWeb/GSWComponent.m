@@ -1544,6 +1544,11 @@ Call this method before using a component which was cached in a variable.
   return _name;
 }
 
+- (WOMarkupType) markupType
+{
+  return WOHTML401Markup;
+}
+
 +(void)_registerObserver:(id)observer
 {
   [self notImplemented: _cmd];	//TODOFN

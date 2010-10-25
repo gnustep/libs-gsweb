@@ -39,6 +39,7 @@
 @class GSWRequest;
 @class GSWResponse;
 @class GSWDynamicURLString;
+@class GSWResourceManager;
 
 typedef struct _GSWContextIMPs
 {
@@ -54,6 +55,14 @@ typedef struct _GSWContextIMPs
   GSWIMP_BOOL _isParentSenderIDSearchOverIMP;
   GSWIMP_BOOL _isSenderIDSearchOverIMP;
 } GSWContextIMPs;
+
+typedef enum {
+  WOUndefinedMarkup = 0,  
+  WOHTML32Markup,           
+  WOHTML401Markup,           
+  WOXHTML10Markup,
+  WOXHTMLBasic11Markup
+} WOMarkupType;
 
 /** Fill impsPtr structure with IMPs for context **/
 GSWEB_EXPORT void GetGSWContextIMPs(GSWContextIMPs* impsPtr,GSWContext* context);
@@ -75,51 +84,51 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 @interface GSWContext : NSObject <NSCopying>
 {
 @private
- GSWResourceManager* _resourceManager;
+  GSWResourceManager* _resourceManager;
   unsigned _contextID;
- NSString* _senderID;
- NSString* _requestSessionID;
- NSString* _requestContextID;
- NSString* _componentName;
- GSWComponentDefinition* _tempComponentDefinition; 
- GSWElementID* _elementID;
- GSWSession* _session;
- GSWRequest* _request;
- GSWResponse* _response;
- GSWElement* _pageElement;
- GSWComponent* _pageComponent;
- GSWComponent* _currentComponent;
- GSWDynamicURLString* _url;
- NSMutableArray* _awakePageComponents;
- int _secureMode;
-
- int _urlApplicationNumber;
- int _isClientComponentRequest;
- BOOL _distributionEnabled;
- BOOL _pageChanged;
- BOOL _pageReplaced;
- BOOL _generateCompleteURLs;
- BOOL _inForm;
- BOOL _isInEnabledForm;
- BOOL _actionInvoked;
- BOOL _formSubmitted;
- BOOL _isMultipleSubmitForm;
- BOOL _isValidate;
+  NSString* _senderID;
+  NSString* _requestSessionID;
+  NSString* _requestContextID;
+  NSString* _componentName;
+  GSWComponentDefinition* _tempComponentDefinition; 
+  GSWElementID* _elementID;
+  GSWSession* _session;
+  GSWRequest* _request;
+  GSWResponse* _response;
+  GSWElement* _pageElement;
+  GSWComponent* _pageComponent;
+  GSWComponent* _currentComponent;
+  GSWDynamicURLString* _url;
+  NSMutableArray* _awakePageComponents;
+  int _secureMode;
+  WOMarkupType _markupType;
+  int _urlApplicationNumber;
+  int _isClientComponentRequest;
+  BOOL _distributionEnabled;
+  BOOL _pageChanged;
+  BOOL _pageReplaced;
+  BOOL _generateCompleteURLs;
+  BOOL _inForm;
+  BOOL _isInEnabledForm;
+  BOOL _actionInvoked;
+  BOOL _formSubmitted;
+  BOOL _isMultipleSubmitForm;
+  BOOL _isValidate;
 #ifndef NDEBUG
- int _loopLevel; //ForDebugging purpose: each repetition increment and next decrement it
- NSMutableString* _docStructure; //ForDebugging purpose: array of all objects if the document during appendResponse, takeValues, invokeAction
- NSMutableSet* _docStructureElements;
+  int _loopLevel; //ForDebugging purpose: each repetition increment and next decrement it
+  NSMutableString* _docStructure; //ForDebugging purpose: array of all objects if the document during appendResponse, takeValues, invokeAction
+  NSMutableSet* _docStructureElements;
 #endif
- NSMutableDictionary* _userInfo;
- NSArray* _languages;
- BOOL _isRefusingThisRequest;
- BOOL _isSessionDisabled;
- 
- // IMPs for elementID manipulations
- // As there's not many GSWContext objects, using some extra memory is not a problem
- GSWElementIDIMPs _elementIDIMPs;
+  NSMutableDictionary* _userInfo;
+  NSArray* _languages;
+  BOOL _isRefusingThisRequest;
+  BOOL _isSessionDisabled;
+  
+  // IMPs for elementID manipulations
+  // As there's not many GSWContext objects, using some extra memory is not a problem
+  GSWElementIDIMPs _elementIDIMPs;
 @public // So we can use it in functions
- GSWContextIMPs _selfIMPs;
+  GSWContextIMPs _selfIMPs;
 };
 
 /** Set GSWContext standard class (so we can use pre-build GSWContextIMPs) **/
@@ -389,6 +398,16 @@ If none, try request languages
 
 -(BOOL)secureMode;
 -(void)setSecureMode:(BOOL) value;
+
+/**
+ * returns the WOMarkupType of the context's page.
+ * this is cached in the context.
+ * Dynamic Elements can query the context for the markupType
+ * in order to generate standards compatible 
+ * markup.
+ */
+
+- (WOMarkupType) markupType;
 
 @end
 

@@ -1,3 +1,16 @@
+2010-10-24  David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWContext.h
+	add @class GSWResourceManager
+	add WOMarkupType
+	add _markupType;
+	reformat
+	* GSWeb/GSWContext.m
+	add - (WOMarkupType) markupType
+	* GSWeb/GSWComponent.h
+	add - (WOMarkupType) markupType
+	* GSWeb/GSWComponent.m
+	add - (WOMarkupType) markupType
+	
 2010-06-25  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWResourceManager.m
 	+ GSLanguageFromISOLanguage:

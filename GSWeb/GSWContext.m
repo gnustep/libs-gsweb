@@ -303,6 +303,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       _formSubmitted = NO;
       _inForm = NO;
       _secureMode = -2;
+      _markupType = WOUndefinedMarkup;
       
       DESTROY(_resourceManager);
       _resourceManager = RETAIN([GSWApp resourceManager]);
@@ -2191,6 +2192,17 @@ If none, try request languages
                                     port:0];
 }
 
+- (WOMarkupType) markupType
+{
+  if ((_markupType == WOUndefinedMarkup))
+  {
+    GSWComponent* thePage = [self page];
+    if (thePage) {
+      _markupType = [thePage markupType];
+    }
+  }
+  return _markupType;
+}
 
 @end
 
