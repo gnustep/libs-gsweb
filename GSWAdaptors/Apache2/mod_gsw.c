@@ -340,56 +340,69 @@ void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr
 
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 {
-
-  if (((name) && (strlen(name))) && (cfg->app_table)) {
-
-    const        apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
-    const        apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
-    int          i;
-	  apr_time_t   t;
-    exipc_data * mem;
-    int          appcount = tarr->nelts;
-    u_int32_t    lastload = UINT32_MAX;                
-    int          lastindex = -1;                
     
-    if (!appcount) {
-      return NULL;
-    }
-
-    mem = read_shared_mem(r->pool,  appcount);
-    if (!mem) {
-      return NULL;
-    }
-    
-    
-    // current time
-	  t = apr_time_now();
-    // substract 300 sec / 5 min
-    t = t - apr_time_from_sec(300);
-    
-    for (i = 0; i < tarr->nelts; i++) {
-      gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-  
-      if ((strcasecmp(appconf->app_name, name) == 0)) {
-        // enable unreachable instances after some time
-        if (mem[i].last_request_time < t) {
-          mem[i].unreachable = 0;
-          mem[i].refusing = 0;
+    if (((name) && (strlen(name))) && (cfg->app_table)) 
+    {
+        
+        const        apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
+        const        apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
+        int          i;
+        apr_time_t   t;
+        exipc_data * mem;
+        int          appcount = tarr->nelts;
+        u_int32_t    lastload = UINT32_MAX;                
+        int          lastindex = -1;                
+        int          lastUnreachableIndex = -1;                
+        
+        if (!appcount) {
+            return NULL;
         }
-          
-        if ((mem[i].unreachable == 0) && (mem[i].refusing == 0)) {
-          if (mem[i].load <= lastload) {
-            lastindex = i;
-            lastload = mem[i].load;
-          }
+        
+        mem = read_shared_mem(r->pool,  appcount);
+        if (!mem) {
+            return NULL;
         }
-      }    
+        
+        
+        // current time
+        t = apr_time_now();
+        // substract 300 sec / 5 min
+        t = t - apr_time_from_sec(300);
+        
+        for (i = 0; i < tarr->nelts; i++) {
+            gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
+            
+            if ((strcasecmp(appconf->app_name, name) == 0)) {
+                // enable unreachable instances after some time
+                if (mem[i].last_request_time < t) {
+                    mem[i].unreachable = 0;
+                    mem[i].refusing = 0;
+                }
+                
+                if ((mem[i].unreachable == 0) && (mem[i].refusing == 0)) {
+                    if (mem[i].load <= lastload) {
+                        lastindex = i;
+                        lastload = mem[i].load;
+                    }
+                } else {
+                    // if there is only one app, we have to hit it anyways.
+                    if ((appcount == 1)) {
+                        if ((mem[i].unreachable == 1)) {
+                            lastUnreachableIndex = i;
+                        }
+                    }
+                }
+                
+            }    
+        }
+        if (lastindex >= 0) {
+            return (gsw_app_conf *) telts[lastindex].val;
+        }
+        if (lastUnreachableIndex >= 0) {
+            return (gsw_app_conf *) telts[lastUnreachableIndex].val;
+        }
     }
-    if (lastindex >= 0) {
-      return (gsw_app_conf *) telts[lastindex].val;
-    }
-  }
-  return NULL;
+    return NULL;
 }
 
 gsw_app_conf * find_app(request_rec *r)
@@ -811,13 +824,13 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 	char                  * content_encoding = NULL;
 	char                  * location = NULL;
 	int                     http_status = DECLINED;
-  char                    tmpStr[512];
-  apr_time_t              request_time;
-  apr_time_t              done_time;
+    char                    tmpStr[512];
+    apr_time_t              request_time;
+    apr_time_t              done_time;
 	
 	apr_pool_create(&sub_pool, r->pool);
-  
-		
+    
+    
 	soc = connect_host(app->host_name, app->port);
   	
 	if (soc != -1) {
@@ -826,9 +839,9 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 			
 			request_time = apr_time_now();
 			// check if we are on a POST trip...
-      if (postdata) {
-        write_sock(soc, CRLF, 2, r);
-        write_sock(soc, postdata, contentLen, r);
+            if (postdata) {
+                write_sock(soc, CRLF, 2, r);
+                write_sock(soc, postdata, contentLen, r);
 			}
 			write_sock(soc, CRLF, 2, r);
 			
@@ -844,28 +857,28 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 					if (http_status==200) {            
 						http_status=OK;
 					} 
-          if (http_status == 302) {
-            r->status = http_status;
-          }
+                    if (http_status == 302) {
+                        r->status = http_status;
+                    }
 				}
 			}
 			
 			while (headers_done == 0) {
 				newBuf = read_sock_line(soc, r, sub_pool);
-        int copy_header = 1;
-        
+                int copy_header = 1;
+                
 				if (newBuf != NULL) {
 					if (load_avr_seen == 0) {
 						if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
 							load_avr_seen = 1;
 							newload = atoi(newBuf+26);
-              copy_header = 0;
+                            copy_header = 0;
 						}
 					}
-          if (refusing_seen == 0) {
+                    if (refusing_seen == 0) {
 						if (strncmp(newBuf, REFUSING_SESSIONS_HEADER, 32) == 0) {
 							refusing_seen = 1;
-              copy_header = 0;
+                            copy_header = 0;
 						}
 					}          
 					if (length_seen == 0) {
@@ -874,42 +887,42 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 							content_length = atol(newBuf+16);
 							snprintf(tmpStr, sizeof(tmpStr), "%d", content_length);
 							apr_table_set(r->headers_out, "content-length", tmpStr);
-              copy_header = 0;
+                            copy_header = 0;
 						}
 					}
 					if (content_type == NULL) {
 						if (strncmp(newBuf, "content-type: ", 14) == 0) {
 							content_type = newBuf+14;
-              copy_header = 0;
+                            copy_header = 0;
 						}
 					}
 					if (content_encoding == NULL) {
 						if (strncmp(newBuf, "content-encoding: ", 18) == 0) {
 							content_encoding = newBuf+18;
 							apr_table_set(r->headers_out, "content-encoding", content_encoding);
-              copy_header = 0;
+                            copy_header = 0;
 						}
 					}
 					if (location == NULL) {
-            // Apple has a bug, giving us a 'L', so we do that too but accept a 'l' too -- dw 
+                        // Apple has a bug, giving us a 'L', so we do that too but accept a 'l' too -- dw 
 						if (strncasecmp(newBuf, "location: ", 10) == 0) {
 							location = newBuf+10;
 							apr_table_set(r->headers_out, "location", location);
-              //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
-              copy_header = 0;
+                            //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
+                            copy_header = 0;
 						}
 					}
-          if ((copy_header == 1)) {
-            char * hdrValue = index(newBuf, ':');
-            
-            if (hdrValue) {
-              *hdrValue = '\0';
-              hdrValue++; // space
-              hdrValue++; // first pos.
-              
-              apr_table_set(r->headers_out, newBuf, hdrValue);
-            }
-          }
+                    if ((copy_header == 1)) {
+                        char * hdrValue = index(newBuf, ':');
+                        
+                        if (hdrValue) {
+                            *hdrValue = '\0';
+                            hdrValue++; // space
+                            hdrValue++; // first pos.
+                            
+                            apr_table_set(r->headers_out, newBuf, hdrValue);
+                        }
+                    }
 				} else {
 					headers_done = 1;
 				}
@@ -922,10 +935,10 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 				size_t    rval=1;
 				char      * transferBuf = NULL;
 				
-        if (content_type != NULL) {
-          ap_set_content_type(r, content_type);
+                if (content_type != NULL) {
+                    ap_set_content_type(r, content_type);
 				}
-        
+                
 				if (content_length < blockSize) {
 					blockSize = content_length;
 				}
@@ -945,19 +958,19 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 		}
 		
 		close(soc);
-    
-    done_time = apr_time_now();		
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %d ms", apr_time_msec(done_time - request_time));
-    
-    if ((http_status==302) && (refusing_seen==1)) {
-      mark_refusing(app);
-    } else {
-      update_app_statistics(app, request_time, done_time, newload);
-    }
-
+        
+        done_time = apr_time_now();		
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %d ms", apr_time_msec(done_time - request_time));
+        
+        if ((http_status==302) && (refusing_seen==1)) {
+            mark_refusing(app);
+        } else {
+            update_app_statistics(app, request_time, done_time, newload);
+        }
+        
 	} else { // -1
-    http_status = UNREACHABLE;
-  }
+        http_status = UNREACHABLE;
+    }
 	
 	//apr_pool_destroy(sub_pool);
 	
@@ -1095,6 +1108,105 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   return NULL;
 }
 
+// done using http://www.sveinbjorn.org/dataurlmaker
+
+static void print_image(request_rec * r)
+{
+    ap_rputs("<img alt=\"exclamation sign\" src=\""
+             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAyCAYAAAF38YiUAAAAAXNSR0IArs"
+             "4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAN1wAADdcBQiibeAAAD8dJREFUaN7dmnl0VVWWh7"
+             "9735S8zGQAAgQSQhKGhmAAMQ6ABhAZBCkRQSgcy6Gbru7VzrW6rVKrre5eRVG6UBBXIRoQooBQgkDQAk"
+             "WwFQpEUKEKEUwgCYSQvPnde3b/cd97ySOggILaZ627zrjP7+yz99l3n30vnE/aAEq9tUbatultKyOrqz"
+             "UtNZ0Xobkd9bE7bxERkenTp4uUlcXNwrtgrynQJRQKyQcffCC1tbXyQa/81kF1PXXZu3ev1NbWyoQJE2"
+             "Tfvn3ymhMB0jSAeSB+4PTHCw3nzqLs2SP3wNh2HdWpySIiIo88Iu2pKisFEBGRubreOqBhTJk0NDRIQk"
+             "KC+Hw+eTtVEwC9Etb46ms4efIkTqeTEydO0G3bp2zNzRHtxbOw4v+21R++eaysA+F8k++Pz4hUV4tUVs"
+             "qOwQPObYLV8LRUV4ssXy6AFBcXi9x+u9SNGi6A66yEr4NIZaW0fPmliIgAMnfuXFFKiZSUSGN+ntwO/x"
+             "Idr0UL67vlSn/nMRpX7yE1NZWUlBQSEhIQEXw+H83NzTSsrOLIYw+xPYD6b7BpAA33zZDA25WETAiZED"
+             "TFylV83Spb+V5d5+KkDbA1sHi+AB3Om7jxwftFtm+XtzPSzk/O60Bk2zaRN98UWbBA/gjLzpWwh7l2tU"
+             "UoIvLkk3J44qhzQ999RZnIqlUxOUtDg8iUKTLv29R0FdTKqlUiW7a0EouIDBsm3pJekgcFZyVuuG+6yP"
+             "z5EgqF4oi9Xq9IcbEszsw4sxWr0nVRG5dyZMwYgsFgbIBSilAoxPvZbjKDJ3kIdsYRL4OKYX2TCJsQDA"
+             "bx+/34fD4WLFiAz+fD7/eTuaCSsIKf9+41MKrWGsAX4yskee87NK3ZA0BSUhJut5ucnByOHTuG1+slEA"
+             "gggQC7h5axPQzPgqYthtDInrojaJ5dj2O6Hqm7nS6eCQSvsXvh+Tf/rmYbQBg4pzwQZA+0XLDubwR5Pz"
+             "NDFsFcLkWqhsx3E1xiVK8T2bNHamZMlhVw9HznOS9jsB5mZw7oc3z4Rx9jS0qHujpyfzaTa2bf3Wm5pf"
+             "mO7x14HXzW77ZJc0tfeAnq6kAEhg2Dujoy8/swbva9vKJpoSzo/L0BrwG5/KF/LMmd9YAF2q8fWnk5ms"
+             "PB84YBdXUkKjvTZ87ghcyM2rthxneW6SoQ/++ftgxLZaWIUrFjDsiIESMsWzF7tsgNN4gMGybbS/vI01"
+             "B9QYAroXR9dgdRS1+1AOfPF9M0JZqiwA8//HCsLfzyyyIlJSLFxfLllYPldxA4L9DXYeGnFVdKQy9djv"
+             "XUpXHa9dLY2Ch+v78dcFVVlQUaDktzc7PUffG5vJOuycY0TT7pXyy/tsYlfSvoMjhV/4vpUl+oS22BLn"
+             "977H45ePCgHD16VE6ePCler1fC4bAcOHBABg0aJIZhSCAQkObmZmloaJDDhw/L/v37ZW0ysiYJebdjmj"
+             "xhs0k/6N8WR2tbWQJSMWsS6r03MQRa/rQRldUJXddJSEjA6XTidDqx2+1kZGQAUFhYyIcffkg4HCYUCh"
+             "EIBAiHwwDsv6IUIxhGaTqehGQ2NTX/dgk8HgOeD+4Uh91bcXUvjENfYAqYCoKzfolCQwAlgq7bQNfRdR"
+             "uChgiYIiglhE0TwzBRSlACCmjespnmHTswIvMV5uTw8rH6gwuhpwawCGTMnTdjejwoZYISlGGiTIUohT"
+             "JMUAqlTFQ40qYUmAplRsaZJkopxIj0R9tMhSgz1u4A5h5v/ICfVNoIv9+akyUbLY11XhJQAW0jSGDRPD"
+             "k4vkKWwXuXituGunumi3zxhRirV8hah10GQfHFBh26tVO2qF07RXbsENmyRRrumyUrrPe8dtFeiwq29b"
+             "3vDjRTwOsFj4esa8eSWdDd/iQ8clGA34YlBdcPI23clBhoNC8ddz094bdA8vcKvBZcyma7tfttM1tBR4"
+             "+GxETwekntUkDZqKtZANu/V2CBxiH3z8CR18sCzc8HXYexY2MLKSjsg9vl7DsCyr4X4LUwPi0/z505aU"
+             "Zsex9/5RU0TUPXdRg/Hrxe7IZw3egRTIWPzmXebx1gwOr+s6ZCIGhxN3YsGzZssHZCBHr3hqDV10lPpE"
+             "dBnvYr+J/vBLwaNvWbdD0pg4dboC4XJCaSl5cXP3DOnNiWD87JJse60qZfEPBaSNWczmu7jZ3QqlDjxw"
+             "O0B3Y4oKwMvF4yvCEqysv4L/jkgoAD0Fh+/0zsadng8WCUtepMjx492p/xxx6zFhcK0et4M8mJCd3GQs"
+             "V5Aa+Auzv2LbKl9S61JvP7CRcWxvp79+7djsY0TTzPPQeAXdMZOaA35bARsJ+zVakCqZ86WuoLdTnWyy"
+             "H1R45IS0uLhMNhERE5ePBgzOeKJp/PJ42NjfJJURfZlKbJhlRN1nTLlX+Gl8+J4yr465BpN8LHGzEFwg"
+             "PLMWw2DMPAMAxEhPz8/DiacDiMaZoYhkHq+vctD0ago1MjHWYCOd8IvBy62JPcpe5Df7XcFwH/Uy/GJo"
+             "36VUoprrjiCtavXx9rj4IrEdyTp2GKcPRoDZP7FPEwfH46sK1t5SZoHn7XLahPtmIKeP7jeczO3bDZbO"
+             "i6jqZpaJqGiFBcXExeXh5JSUkx4FAoRCgUwjn0ShpfnIcSaPZ68Gn2RKdh7jsA+9px/Bo8nj94AKr6NW"
+             "urXG6MQVchInFchUIhVq1axYgRIygqKiIUCsX6ouIAyKv6M6aAPxhkZG5HimB5W29Fb2Ohniromo5SCi"
+             "XQsmxrnAzbPgMGDIj1RbmMAlu+Pji656MlJaMUfHr4MMOzM7kDVsT51a/CVyNm3Zxne++NmCsaGliOOe"
+             "BylFgXQzTQdFura6tF3FtTYSiFYSoM00QiuqFMRe2zf8BUEUVLSWXNqWaWCN1PwmFtCZS4OqR/dlUPJ0"
+             "bT8dhAU8CIlpXEFmSelre2y2n10+eAsk45zDtW718IbnsYXhk1bSLh4/VoSqGbCk2Z2AyF3TRjPrSYls"
+             "+s1Gm+smn1K1MhhjU+6k9HfWtRgqiIbw6JQKG2HJxNcFSgg7LcGxRgtimfS/1caZpg/kr4lcYlTMvBmQ"
+             "FzsIyKGYJFH8G/PWEFhC5JumQMvw0DbPBxYlYHe8mtNyJKsffVFfhPtQRfh7EvwaZLsQ7bJYqM3anB2s"
+             "y+RXrRrFvpcMc/4R5yFelujZYjNfYeTadm9oFT78DHES386TK8ERYAv8677kryb72F1JumQzgMgQAJPU"
+             "tI75CE2XIKZ82x64dD3p8tzyH8k1Pp5WBLh4/R9dK+t4wja8IknP0GQShkMRwKxZ7Avl3UvLORXWvfxQ"
+             "s7HoAxnvP6XvYDS/ht6OyCI7Ykd/fSu24le/od2LsWgN8PgYCVR8uBAHZ3CqmdOpGRkUj9/oO5Y0x15z"
+             "FYewTqf/QMr4drBT5J6drZ1f/OaXS45XZ0Z0KMOfx+MAxLul5vjHEdnZTszmRmp3D869rE/v7AvZmwd+"
+             "cZPLUfDcPr4FETFucO6k/xtJ+RPnYKWthoZTQchuHDoU8fKCmBrl1h1y7w+SAQQAuGSE7pQGZWCj6fV0"
+             "s7eWpKKdj/Au9HXqc/HobfgtUK7u89/jp6TLyR5Cuui1dfhwOzooIFixYxd+5cNm3ahD05mcLJk2HnTm"
+             "hqimmB2+kmIzURW6IT/9H6a66BgRvgLSD4gxutNeDWYC92e4/LbptI9rWjsefmtxqlcBhyc6G8nNLSUn"
+             "bv3h1H379/f6tt4ULYvTvOqPmaGznccpItmz8kKPL3Z2BELRz5LuvVvyOzJQKNjoy0HkMf+Dkdb5yKPa"
+             "tLawDK64W+faG8HICsrKx2czidkSvFXXfBqFFxASy3qVGouRhdcTXuBFfPR+DzMXDlD8LwarjVhM86FB"
+             "W4Bt99G5mjJqFr9lZGvV6oqLAiMpHULm4B5ObmtlbGj4cHH4xj2h4IkXfCw+ghpWRnZrhHwfv3wC8u9D"
+             "heEMOrYK4BSwquuZz+0yaTUT4SfP7WhRoGMmUK5MTfwbt3795uri5dusQ3DBiALFpkXdI8HvB40Hw+ut"
+             "Y1MSKvC8U9utELXngInsO6iVw8hgW0FbBNadrsy6aMpde4G0jpO6SVUY8HMymJwJQpKGf7WH1hm5jNWR"
+             "kGzIwMAm++icrNtc505Lbb0RdmaGIiV/UrogPc++/WB7zMi8LwGsh6Axr0xISh5XdNJfnoZ3heeoqWZc"
+             "9h1nwFXi/+7t1pGTkS0zStCIiKd4uLi4u/WaWx/iUwTRMTaF68mMANNwBwKuxn18mv2Vl7AN3bxPjL/g"
+             "G3TS9/AvYVQcn3aqWroBx4P61zjjZw0mi0rWtQ3mbruk/kyv/EPByjJmK323E4HNjt9tijR/6O8Xq9JC"
+             "fHB8/Xr1/PqFGjYlG5tiGlaH5i6cvU/ebR1vCCgDMhkS55PVm37wCN/oD5MUxca7265Du9h6vglwqWdy"
+             "vtq/W+ZhDa5jdQwUAruNNFcOE6GDDE2kGtdQ+jgZdou9PpZPPmzRw6dAiAtLQ05syZg91uj2M2Wo7W7c"
+             "V9cF01guZVVZhKEBFCRpimxhMMLCjAZ5i6yx+YVgDh3dZXAXVBEl4GSwWm9h8znKwUG+x81wr6RKRqdO"
+             "yGZ95KbInudlK12WyxPBqPi8bk4uyCSEyNo3mU6baSNgyD8KkmaqaMI3z8eJx25XXJo9YbZOvROpqh6n"
+             "m4k7P8WqKf7RvLEvhc2WxTr5pxE9lmIxJhVkUCRYGh1+FZuBacrtjiYgtro45tA4vBYJCZM2ficDhwOB"
+             "wkJyezcuXKWDiubViubTQ0ugF6cgrd3voLrsuGxIJXSuDgkcOkYzKhe1eS4ebZ8KEbcs9Jwssh34C9Ca"
+             "kpiVdPn4jsqEadqItJVQkEbv9XQpNvbzfZN0lW13WWLFnC7Nmz42hcLhc1NTVWYCzynC5l02zvRtc/O4"
+             "fjf1qIgtjxSnMn0SUzk2Vf1eAxzZYtULEb/vesZ7gSbjRhW3ZBnmPIjSOR91ahWppijCrAzO1B4KHfgd"
+             "b+NCilYuc2qqoiEnv69evHyJEj+frrr3G5XEycOJGlS5ei6/oZz7BhGO0sfTS5ywZzomo5pt8fi636Qm"
+             "EafV6uze1EbSDkyjDNuzLh0N9gT9SYxVb9KvyngkdKysvo3jMX2bbWWnQbyxiVsrTZgGjZOlMSZ0nbak"
+             "Vc+Yy0beeW+P5voj1DH2j0zclil8fHTo+Xk/CH5fAoELABLIZKBfddedP1ZLvMuPP6zQuL9su3LuxsG3"
+             "DGec5Ae7Z1nKnPFKjz+Chyu+mW4OJQIDi0CHrthWo71kVzvwA7N39IcnoqIt0QJPJCi+y2Fq1Z7aJZiy"
+             "Mi1ThVjuRWd2S8RGjb5hEa1W6s1W62mVPaYCmsHVMxmui88bjb/QEaDAMT8MEhIOf0g5gUcdXs/P9Kyo"
+             "rF0/R/NzVwuE9PAZoAAAAASUVORK5CYII=\" width=\"60\" height=\"50\">\n", r);
+    
+}
+
+/*
+ * this prints some CSS for use in the error page in gsw_handler
+ */
+
+static void print_css(request_rec * r)
+{
+    ap_rputs("<style type=\"text/css\"> \
+             body {color: #111;font-family:\"Helvetica Neue\",Helvetica,sans-serif;} \
+             .fail {margin: auto; padding: 40px; display: block; \
+             border: 1px solid #000000; \
+             position: relative;} \
+             .fail h2 {margin: 0 0 .2em; font-size: 24px} \
+             .fail p {margin: 0; font-size: .8em;} \
+             .power {float:right;padding-top: 10px;} \
+             img {float:left;padding-right: 10px;} \
+             a {color: #0092E8;} \
+             a:hover {color: #0071b3;} \
+             table {white-space:nowrap;} \
+             </style>\n", r);
+}
+
 
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
@@ -1214,6 +1326,7 @@ static int gsw_handler(request_rec *r)
     ap_rputs(DOCTYPE_HTML_3_2, r);
     ap_rputs("<html>\n", r);
     ap_rputs("<head>\n", r);
+    print_css(r);
     ap_rputs("<title>GNUstepWeb Status</title>\n", r);
     ap_rputs("<meta name=\"robots\" content=\"NOINDEX, NOFOLLOW\">\n", r);
     ap_rputs("</head>\n", r);
@@ -1232,8 +1345,9 @@ static int gsw_handler(request_rec *r)
         mem = read_shared_mem(r->pool,  appcount);
 
         if (mem) {
-          ap_rputs("<table border=1>\n",r);
-          ap_rputs("<tr><td>Name</td><td>Instance</td><td>Host</td><td>Port</td><td>Load</td><td> Unreachable</td><td>Refusing</td><td>Last Request</td><td>Last Response</td></tr>\n",r);
+          ap_rputs("<div class=\"fail\"><table width=\"700\">\n",r);
+            print_image(r);  
+          ap_rputs("<tr><th>Name</th><th>Instance</th><th>Host</th><th>Port</th><th>Load</th><th>Unreachable</th><th>Refusing</th><th>Last Request</th><th>Last Response</th></tr>\n",r);
           
           for (i = 0; i < tarr->nelts; i++) {
             gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
@@ -1264,9 +1378,9 @@ static int gsw_handler(request_rec *r)
 
     }
 
-      ap_rputs("<p>Powered by <a href=\"http://wiki.gnustep.org/index.php/GNUstepWeb\">GNUstep Web</a></p>\n",r);
+      ap_rputs("<p class=\"power\">Powered by <a href=\"http://wiki.gnustep.org/index.php/GNUstepWeb\">GNUstep Web</a></p>\n",r);
     
-    ap_rputs(" </body>\n", r);
+    ap_rputs("</div>\n</body>\n", r);
     ap_rputs("</html>\n", r);
     /*
      * We're all done, so cancel the timeout we set.  Since this is probably

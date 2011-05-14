@@ -1,3 +1,9 @@
+2011-05-13  David Wetzel <dave@turbocat.de>
+	* GSWAdaptors/Apache2/mod_gsw.c
+	modified find_app_by_name() wen dealing with single instances
+	include image
+	include some css
+
 2010-10-24  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWContext.h
 	add @class GSWResourceManager
