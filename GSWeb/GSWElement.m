@@ -197,7 +197,7 @@ BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 //--------------------------------------------------------------------
 //	invokeActionForRequest:inContext:
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
 {
   //Does Nothing

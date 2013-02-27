@@ -49,8 +49,7 @@
 #define READ_SIZE 2048
 
 static NSString *URIResponseString = @" GNUstep Web\r\n";
-static NSString *CONTENT_LENGTH = @"content-length";
-static NSString *CONTENT_LENGTHCOLON = @"content-length: ";
+static NSString *CONTENT_LENGTHCOLON = @"Content-Length: ";
 static NSString *GET = @"GET";
 static NSString *POST = @"POST";
 static NSString *HEAD = @"HEAD";
@@ -59,7 +58,7 @@ static NSString *HEADERSEP = @": ";
 static NSString *NEWLINE = @"\r\n";
 static NSString *NEWLINE2 = @"\r\n";
 static NSString *HTTP11 = @"HTTP/1.1";
-static NSString *CONNECTION = @"connection";
+static NSString *CONNECTION = @"Connection";
 static NSString *KEEP_ALIVE = @"keep-alive";
 static BOOL      _alwaysAppendContentLength = YES;
 
@@ -139,7 +138,8 @@ void _unpackHeaderLineAddToDict(NSString *line, NSMutableDictionary* headers)
   if ((components) && ([components count] == 2)) {
     value = [components objectAtIndex:1];
     key = [components objectAtIndex:0];
-    key = [[key stringByTrimmingSpaces] lowercaseString];
+
+    key = [key stringByTrimmingSpaces];
     
     if ([key isEqualToString:GSWHTTPHeader_AdaptorVersion[GSWNAMES_INDEX]]
         || [key isEqualToString:GSWHTTPHeader_ServerName[GSWNAMES_INDEX]]) {
@@ -180,7 +180,7 @@ void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers)
     if (![headerDict isKindOfClass:[NSMutableDictionary class]]) {
       headerDict = [[headerDict mutableCopy] autorelease];
     }
-    [headerDict removeObjectForKey:CONTENT_LENGTH];
+    [headerDict removeObjectForKey:GSWHTTPHeader_ContentLength];
     keyArray = [headerDict allKeys];
     count = [keyArray count];
 
@@ -237,9 +237,9 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
     // I am uable to reproduce the need for double clicking on links/forms,
     // but for now, we send close. -- dw
     if (YES /*keepAlive == NO*/) {
-      [headers appendString:@"connection: close\r\n"];        
+      [headers appendString:@"Connection: close\r\n"];
     } else {
-      [headers appendString:@"connection: keep-alive\r\n"];        
+      [headers appendString:@"Connection: keep-alive\r\n"];
     }
   }
   
@@ -356,7 +356,7 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
   }
 
   data = [fh readDataOfLength: length];
-
+    
   return data;
 }
 
@@ -397,7 +397,7 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
   method = [requestArray objectAtIndex:0];
   
 
-  if ((tmpValue = [headers objectForKey:CONTENT_LENGTH]) && ([tmpValue count])) {
+  if ((tmpValue = [headers objectForKey:GSWHTTPHeader_ContentLength]) && ([tmpValue count])) {
     NSString      * tmpString = [tmpValue objectAtIndex:0];
     
     contentLength = [tmpString intValue];
@@ -405,7 +405,7 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
                                            method: [requestArray objectAtIndex:0] 
                                            length: contentLength];
   }
-  
+      
   request = [[GSWRequest alloc] initWithMethod:method
                                            uri:[requestArray objectAtIndex:1]
                                    httpVersion:[requestArray objectAtIndex:2]

@@ -454,61 +454,63 @@ Method for GSWDeclarationParserPragmaDelegate protocol
         };
     };
 
-  if (path)
+    if (path)
     {
-      NSString* declarationsString=nil;
-
-      [_processedDeclarationsFilePaths addObject:path];
-
-      //NSString* pageDefPath=[path stringByAppendingString:_declarationsPath];
-      //TODO use encoding !
-
-      declarationsString=[NSString stringWithContentsOfFile:path];
-
-      if (declarationsString)
+        NSString         * declarationsString=nil;
+        NSStringEncoding   encoding;
+        NSError          * error = nil;
+        
+        [_processedDeclarationsFilePaths addObject:path];
+                
+        declarationsString = [NSString stringWithContentsOfFile:path
+                                                   usedEncoding:&encoding
+                                                          error:&error];
+        
+        if (declarationsString)
         {
-          declarations=[self parseDeclarationsString:declarationsString
-                             named:declarationFileName
-                             inFrameworkNamed:declarationFrameworkName];
-
-          if (!declarations)
+            declarations = [self parseDeclarationsString:declarationsString
+                                                   named:declarationFileName
+                                        inFrameworkNamed:declarationFrameworkName];
+            
+            if (!declarations)
             {
-              ExceptionRaise(@"%@ Template componentDeclaration parse failed for "
-                             @"included file:%@ in framework:%@ (processedFiles=%@)",
-                             [self logPrefix],
-                             declarationFileName,
-                             declarationFrameworkName,
-                             _processedDeclarationsFilePaths);
+                ExceptionRaise(@"%@ Template componentDeclaration parse failed for "
+                               @"included file:%@ in framework:%@ (processedFiles=%@) error=%@",
+                               [self logPrefix],
+                               declarationFileName,
+                               declarationFrameworkName,
+                               _processedDeclarationsFilePaths,
+                               error);
             };
         }
-      else
+        else
         {
-          ExceptionRaise(@"GSWTemplateParser",
-                         @"%@ Can't load included component declaration "
-                         @"named:%@ in framework:%@ (_processedDeclarationsFilePaths=%@)",
-                         [self logPrefix],
-                         declarationFileName,
-                         declarationFrameworkName,
-                         _processedDeclarationsFilePaths);
+            ExceptionRaise(@"GSWTemplateParser",
+                           @"%@ Can't load included component declaration "
+                           @"named:%@ in framework:%@ (_processedDeclarationsFilePaths=%@)",
+                           [self logPrefix],
+                           declarationFileName,
+                           declarationFrameworkName,
+                           _processedDeclarationsFilePaths);
         };
     }
-  else if (isPathAlreadyProcessed)
+    else if (isPathAlreadyProcessed)
     {
-      // Returns an empty dictionary
-      declarations=[NSDictionary dictionary];
+        // Returns an empty dictionary
+        declarations=[NSDictionary dictionary];
     }
-  else
+    else
     {
-      ExceptionRaise(@"GSWTemplateParser",
-                     @"%@ Can't find included component declaration "
-                     @"named:%@ in framework:%@ (processedFiles=%@)",
-                     [self logPrefix],
-                     declarationFileName,
-                     declarationFrameworkName,
-                     _processedDeclarationsFilePaths);
+        ExceptionRaise(@"GSWTemplateParser",
+                       @"%@ Can't find included component declaration "
+                       @"named:%@ in framework:%@ (processedFiles=%@)",
+                       [self logPrefix],
+                       declarationFileName,
+                       declarationFrameworkName,
+                       _processedDeclarationsFilePaths);
     };
-
-  return declarations;
+    
+    return declarations;
 };
 
 //--------------------------------------------------------------------

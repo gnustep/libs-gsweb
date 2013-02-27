@@ -262,7 +262,7 @@ static void initNormalHTMLChars(GSWHTMLConvertingStruct* htmlConvertStruct,
     };
 }
 
-static void testStringByConvertingHTML();
+//static void testStringByConvertingHTML();
 
 void NSStringHTML_Initialize()
 {
@@ -310,19 +310,6 @@ void NSStringHTML_Initialize()
                         \"&\r\n2\\U00E8\", \
                         \"<ee>\")"
 
-void testStringByConvertingHTML()
-{
-/*
- NSArray* testStrings=[HTML_TEST_STRINGS propertyList];
-  NSUInteger i=0;
-  for(i=0;i<[testStrings count];i++)
-    {
-      NSString* string=[testStrings objectAtIndex:i];
-      NSString* result=[string stringByConvertingToHTML];
-      NSString* reverse=[result stringByConvertingFromHTML];
-    };
- */
-};
 
 void allocOrReallocUnicharString(unichar** ptrPtr,NSUInteger* capacityPtr,NSUInteger length,NSUInteger newCapacity)
 {
@@ -653,9 +640,9 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
 {
   NSMutableString* temp=[NSMutableString stringWithCapacity:[self length]];
   const char* p=NULL;
-  const char* valid=[validString cString];
+    const char* valid=[validString cStringUsingEncoding:NSUTF8StringEncoding];
   static char *digits = "0123456789ABCDEF";
-  for (p =[self cString]; p && *p; p++)
+  for (p =[self cStringUsingEncoding:NSUTF8StringEncoding]; p && *p; p++)
     {
       if (isdigit(*p) || isalpha(*p) || (valid && strchr(valid, *p)))
         [temp appendFormat:@"%c",*p];
@@ -771,7 +758,7 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
       if ([scanner scanString:@"," 
                    intoString:NULL])
         {
-          if ([scanner scanInt:y])
+          if ([scanner scanInteger:y])
             {
 //              if (y)
 //                {

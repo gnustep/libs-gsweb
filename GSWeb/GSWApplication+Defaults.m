@@ -34,6 +34,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWApplication+Defaults.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 
 
@@ -63,47 +64,51 @@ static NSUserDefaults *_userDefaults = nil;
 void
 GSWeb_ApplicationDebugSetChange()
 {
-  static NSString* prevStateString=nil;
-  NSProcessInfo* processInfo=[NSProcessInfo processInfo];
-  NSMutableSet* debugSet=[processInfo debugSet];
-  NSString* debugSetConfigFilePath=nil;
-  NSString* newStateString=nil;
-  BOOL change=NO;
-
-  debugSetConfigFilePath = [GSWApplication debugSetConfigFilePath];
-  NSDebugFLog(@"debugSetConfigFilePath=%@", debugSetConfigFilePath);
-
-  if (debugSetConfigFilePath)
-    newStateString = [NSString stringWithContentsOfFile:
-				 [GSWApplication debugSetConfigFilePath]];
-
-  NSDebugFLog(@"debugSet=%@", debugSet);
-  NSDebugFLog(@"newStateString=%@", newStateString);
-  NSDebugFLog(@"prevStateString=%@", prevStateString);
-
-  if (newStateString)
-    change =! [newStateString isEqualToString: prevStateString];
-  else if (prevStateString)
-    change =! [prevStateString isEqualToString: newStateString];
-
-  NSDebugFLog(@"change=%d",change);
-  
-  if (change)
-    {		
-      NSArray* pList=[newStateString propertyList];
-      [debugSet removeAllObjects];
-      if (pList && [pList isKindOfClass:[NSArray class]])
+    static NSString   * prevStateString=nil;
+    NSProcessInfo     * processInfo=[NSProcessInfo processInfo];
+    NSMutableSet      * debugSet=[processInfo debugSet];
+    NSString          * debugSetConfigFilePath = nil;
+    NSString          * newStateString = nil;
+    BOOL                change=NO;
+    NSStringEncoding    usedEncoding;
+    NSError           * error = nil;
+    
+    debugSetConfigFilePath = [GSWApplication debugSetConfigFilePath];
+    NSDebugFLog(@"debugSetConfigFilePath=%@", debugSetConfigFilePath);
+    
+    if (debugSetConfigFilePath) {
+        newStateString = [NSString stringWithContentsOfFile:[GSWApplication debugSetConfigFilePath]
+                                               usedEncoding:&usedEncoding
+                                                      error:&error];
+        
+    }
+    NSDebugFLog(@"debugSet=%@", debugSet);
+    NSDebugFLog(@"newStateString=%@", newStateString);
+    NSDebugFLog(@"prevStateString=%@", prevStateString);
+    
+    if (newStateString)
+        change =! [newStateString isEqualToString: prevStateString];
+    else if (prevStateString)
+        change =! [prevStateString isEqualToString: newStateString];
+    
+    NSDebugFLog(@"change=%d",change);
+    
+    if (change)
+    {
+        NSArray* pList=[newStateString propertyList];
+        [debugSet removeAllObjects];
+        if (pList && [pList isKindOfClass:[NSArray class]])
         {
-          int count=[pList count];
-          int i=0;
-          for(i=0;i<count;i++)
+            int count=[pList count];
+            int i=0;
+            for(i=0;i<count;i++)
             {
-              [debugSet addObject:[pList objectAtIndex:i]];
-            };
-        };
-      ASSIGN(prevStateString,newStateString);
-    };
-};
+                [debugSet addObject:[pList objectAtIndex:i]];
+            }
+        }
+        ASSIGN(prevStateString,newStateString);
+    }
+}
 
 void
 GSWApplicationSetDebugSetOption(NSString* opt)
@@ -526,27 +531,27 @@ GSWeb_DestroyGlobalAppDefaultOptions(void)
    They may be merged later.  */
 #define INIT_DFLT_OBJ(name,opt) \
      if (_dflt_init_##name == NO) { \
-       id key = [NSString stringWithCString: #name]; \
+       id key = [NSString stringWithCString: #name encoding:NSUTF8StringEncoding]; \
        id val = [NSUSERDEFAULTS objectForKey: opt]; \
        TAKEVALUEFORKEY; }
 
 #define INIT_DFLT_BOOL(name, opt) \
      if (_dflt_init_##name == NO) { \
-       id key = [NSString stringWithCString: #name]; \
+       id key = [NSString stringWithCString: #name encoding:NSUTF8StringEncoding]; \
        BOOL v = [NSUSERDEFAULTS boolForKey: opt]; \
        id val = [NSNumber numberWithBool: v]; \
        TAKEVALUEFORKEY; }
 
 #define INIT_DFLT_INT(name, opt) \
      if (_dflt_init_##name == NO) { \
-       id key = [NSString stringWithCString: #name]; \
+       id key = [NSString stringWithCString: #name encoding:NSUTF8StringEncoding]; \
        int  v = [NSUSERDEFAULTS integerForKey: opt]; \
        id val = GSWIntNumber(v); \
        TAKEVALUEFORKEY; }
 
 #define INIT_DFLT_FLT(name, opt) \
      if (_dflt_init_##name == NO) { \
-       id key  = [NSString stringWithCString: #name]; \
+       id key  = [NSString stringWithCString: #name encoding:NSUTF8StringEncoding]; \
        float v = [NSUSERDEFAULTS floatForKey: opt]; \
        id val  = [NSNumber numberWithFloat: v]; \
        TAKEVALUEFORKEY; }
@@ -676,11 +681,6 @@ static NSString *_dflt_requestClassName = nil;
   return _dflt_requestClassName;
 }
 
-@end
-
-
-//====================================================================
-@implementation GSWApplication (UserDefaults)
 //--------------------------------------------------------------------
 static BOOL     _dflt_init_loadFrameworks = NO;
 static NSArray *_dflt_loadFrameworks = nil;
@@ -1142,12 +1142,6 @@ static NSNumber *_dflt_sessionTimeOut = nil;
 		GSWOPT_SessionTimeOut[GSWebNamingConv]);
   return _dflt_sessionTimeOut;
 }
-
-@end
-
-
-//====================================================================
-@implementation GSWApplication (GSWUserDefaults)
 
 //--------------------------------------------------------------------
 //NDFN

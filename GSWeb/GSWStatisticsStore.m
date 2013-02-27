@@ -766,8 +766,8 @@ RCS_ID("$Id$")
         }
       else
         {
-          NSTimeInterval userTime=NSTimeIntervalFromTimeVal(&rusageStruct.ru_utime);
-          NSTimeInterval systemTime=NSTimeIntervalFromTimeVal(&rusageStruct.ru_stime);
+//          NSTimeInterval userTime=NSTimeIntervalFromTimeVal(&rusageStruct.ru_utime);
+//          NSTimeInterval systemTime=NSTimeIntervalFromTimeVal(&rusageStruct.ru_stime);
         };
     };
   

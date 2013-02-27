@@ -298,7 +298,7 @@ void initGSWMessageDataCache(void)
     {
       cstring[0] = (char)i;
       myNSString = [NSString stringWithCString:cstring
-                             length:1];
+                                      encoding:NSASCIIStringEncoding];
       myData = [myNSString dataUsingEncoding:NSASCIIStringEncoding
                            allowLossyConversion:YES];
       [myData retain];
@@ -821,29 +821,33 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 //--------------------------------------------------------------------
 - (void)appendContentString:(NSString *)aValue 
 {
-
-  // checking [aValue length] takes too long!  
-  if (aValue)
+    
+    // checking [aValue length] takes too long!
+    if (aValue)
     {
-      NSData *myData = [aValue dataUsingEncoding:_contentEncoding
-                               allowLossyConversion:NO];
-
-      if (!myData)
+        NSData *myData = [aValue dataUsingEncoding:_contentEncoding
+                              allowLossyConversion:NO];
+        
+        if (!myData)
         {
-          [NSException raise:NSInvalidArgumentException 
-                       format:@"%s: could not convert '%s' non-lossy to encoding %i",
-                       __PRETTY_FUNCTION__, [aValue lossyCString],_contentEncoding];  
+            NSData *lossyData = [aValue dataUsingEncoding:_contentEncoding
+                                     allowLossyConversion:YES];
+            
+            [NSException raise:NSInvalidArgumentException
+                        format:@"%s: could not convert '%s' non-lossy to encoding %i",
+             __PRETTY_FUNCTION__, [lossyData bytes], _contentEncoding];
         }
-
-      _checkBody(self);
-      (*_contentDataADImp)(_contentData,appendDataSel,myData);
-
+        
+        _checkBody(self);
+        (*_contentDataADImp)(_contentData,appendDataSel,myData);
+        
 #ifndef NO_GNUSTEP
-      // Caching management
-      if (_currentCacheData)
+#warning check this. -- dw
+        // Caching management
+        if (_currentCacheData)
         {
-          assertCurrentCacheDataADImp();
-          (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
+            assertCurrentCacheDataADImp();
+            (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
         };
 #endif
     };
@@ -877,35 +881,43 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 // append one ASCII char
 -(void)appendContentCharacter:(char)aChar
 {
-  NSData *myData = nil;
-  int i = aChar;
-
-  myData=GSWMessageDataCache[i];
-  
-  if (!myData)
+    NSData *myData = nil;
+    int i = aChar;
+    
+    myData=GSWMessageDataCache[i];
+    
+    if (!myData)
     {
-      NSString* string=[NSString stringWithCString:&aChar
-                                 length:1];
-      if (string)
+        char string[2];
+        
+        string[0] = aChar;
+        string[1] = '\0';
+        
+        NSString* nsstring=[NSString stringWithCString:string
+                                              encoding:_contentEncoding];
+
+NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
+
+        if (nsstring)
         {
-          GSWMessage_appendContentString(self,string);
+            GSWMessage_appendContentString(self,nsstring);
         }
     }
-  else
+    else
     {
-      _checkBody(self);
-      (*_contentDataADImp)(_contentData,appendDataSel,myData);
-
+        _checkBody(self);
+        (*_contentDataADImp)(_contentData,appendDataSel,myData);
+        
 #ifndef NO_GNUSTEP
-      // Caching management
-      if (_currentCacheData)
+        // Caching management
+        if (_currentCacheData)
         {
-          assertCurrentCacheDataADImp();
-          (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
-        };
+            assertCurrentCacheDataADImp();
+            (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
+        }
 #endif
     }
-};
+}
 
 //--------------------------------------------------------------------
 -(int)_contentLength

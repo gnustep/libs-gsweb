@@ -44,7 +44,7 @@ RCS_ID("$Id$")
   
   [aResponse setStatus:404];
   [aResponse setHeader:@"0"
-                forKey:@"content-length"];
+                forKey:GSWHTTPHeader_ContentLength];
   return aResponse;
 }
 
@@ -110,12 +110,12 @@ RCS_ID("$Id$")
 
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
-  GSWResponse* response=nil;
-  NSString      * wodataValue=nil;
-  NSDictionary  * elements=nil;
-  NSString      * uri = nil;
-  NSString      * urlRequestHandlerPath = nil;
-  NSString      * filePath = nil;
+  GSWResponse         * response=nil;
+  NSString            * wodataValue=nil;
+//  NSDictionary        * elements=nil;
+  GSWDynamicURLString * uri = nil;
+  NSString            * urlRequestHandlerPath = nil;
+  NSString            * filePath = nil;
   
   uri = [aRequest uri];
   urlRequestHandlerPath = [uri urlRequestHandlerPath];
@@ -174,6 +174,8 @@ RCS_ID("$Id$")
                                              timeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]
                                                locale:nil];
 
+NSLog(@"dateString is %@", dateString);
+
   aResponse = [GSWApp createResponseInContext:nil];
   
   [aResponse setHeader:dateString
@@ -204,7 +206,7 @@ RCS_ID("$Id$")
   if (contentType)
   {
     [aResponse setHeader:contentType
-                  forKey:@"content-type"];
+                  forKey:@"Content-Type"];
   }
   
   

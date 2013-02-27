@@ -117,8 +117,8 @@ static Class standardClass = Nil;
   }
 }
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*) request
-                           inContext:(GSWContext*) context
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*) request
+                                    inContext:(GSWContext*) context
 {
   GSWComponent * component = GSWContext_component(context);
   BOOL conVal = [_condition boolValueInComponent:component];

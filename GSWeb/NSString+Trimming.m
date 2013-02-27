@@ -71,18 +71,12 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-#ifdef LONG_LONG_MAX
--(BOOL)isAnIntegerNumberWithMin:(long long)min
-                            max:(long long)max
-#else
--(BOOL)isAnIntegerNumberWithMin:(long)min
-                            max:(long)max
-#endif
+-(BOOL)isAnIntegerNumberWithMin:(NSInteger) min
+                            max:(NSInteger) max
 {
   if ([self isAnIntegerNumber])
     {
-      //TODO
-      long v=[self longValue];
+      NSInteger v=[self integerValue];
       if (v>=min && v<=max)
         return YES;
       else
@@ -106,24 +100,23 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-#ifdef LONG_LONG_MAX
--(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long long)max
-#else
--(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long)max
-#endif
+-(BOOL)isAnUnsignedIntegerNumberWithMax:(NSUInteger) max
 {
-  if ([self isAnUnsignedIntegerNumber])
+    unsigned int v;
+    
+    if ([self isAnUnsignedIntegerNumber])
     {
-      //TODO
-      unsigned long v=[self ulongValue];
-      if (v<=max)
-        return YES;
-      else
-        return NO;
+        //TODO
+        sscanf([self UTF8String], "%u", &v);
+        //      v=[self unsignedIntegerValue];
+        if (v<=max)
+            return YES;
+        else
+            return NO;
     }
-  else
-    return NO;
-};
+    else
+        return NO;
+}
 
 //--------------------------------------------------------------------
 -(BOOL)isStartingWithNumber
@@ -146,7 +139,7 @@ RCS_ID("$Id$")
 +(NSString*)stringUniqueIdWithLength:(int)length
 {
   int i=0;
-  NSTimeInterval ti=[[NSDate date]timeIntervalSinceReferenceDate];
+  NSTimeInterval ti = [[NSDate date] timeIntervalSinceReferenceDate];
   NSMutableData* data=nil;
   void* pData=NULL;
   NSString* dataHex=nil;  
@@ -201,30 +194,36 @@ RCS_ID("$Id$")
                                     withPrefix:(NSString*)prefix
                                     withSuffix:(NSString*)suffix
 {
-  NSString* filename=nil;
-  NSFileManager* fileManager=nil;
-  NSArray* directoryContents=nil;
-  fileManager=[NSFileManager defaultManager];
-  directoryContents=[fileManager directoryContentsAtPath:directory];
-  if (!directoryContents)
+    NSString      * filename = nil;
+    NSFileManager * fileManager = nil;
+    NSArray       * directoryContents = nil;
+    NSError       * error = nil;
+    
+    fileManager = [NSFileManager defaultManager];
+    
+    directoryContents = [fileManager contentsOfDirectoryAtPath:directory
+                                                         error:&error];
+    if (!directoryContents)
     {
-      //ERROR
+        //ERROR
+        NSDebugMLog(@"error %s %@",__PRETTY_FUNCTION__, error);
     }
-  else
+    else
     {
-      int attempts=16;
-      while(attempts-->0 && !filename)
+        int attempts=16;
+        while(attempts-->0 && !filename)
         {
-          NSString* unique=[NSString stringUniqueIdWithLength:16];
-          filename=[NSString stringWithFormat:@"%@_%@_%@",prefix,unique,suffix];
-          if ([directoryContents containsObject:filename])
-            filename=nil;
+            NSString* unique=[NSString stringUniqueIdWithLength:16];
+            filename=[NSString stringWithFormat:@"%@_%@_%@",prefix,unique,suffix];
+            if ([directoryContents containsObject:filename])
+                filename=nil;
         };
     };
-  if (filename)
-    filename=[directory stringByAppendingPathComponent:filename];
-  return filename;
-};
+    if (filename)
+        filename=[directory stringByAppendingPathComponent:filename];
+    return filename;
+}
+
 @end
 
 //====================================================================

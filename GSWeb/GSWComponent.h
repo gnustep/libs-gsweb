@@ -44,7 +44,7 @@
 #include "GSWResponse.h"
 #include "GSWContext.h"
 
-@interface GSWComponent : GSWElement <NSCopying>
+@interface GSWComponent : GSWElement <NSCopying, GSWActionResults>
 {
 //TODO ==> private @private
     NSString* _name;
@@ -157,7 +157,7 @@
 -(void)sleepInContext:(GSWContext*)aContext;
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext;
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)aContext;
@@ -269,6 +269,5 @@ Call this method before using a component which was cached in a variable.
 
 +(void)_registerObserver:(id)observer;
 
--(void)validateAPIAssociations;
 @end
 #endif //_GSWComponent_h__

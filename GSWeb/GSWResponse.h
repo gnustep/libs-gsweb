@@ -92,7 +92,7 @@ GSWEB_EXPORT void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(
 @end
 
 //====================================================================
-@interface GSWResponse : GSWMessage
+@interface GSWResponse: GSWMessage <GSWActionResults>
 {
 @private
   unsigned int _status;

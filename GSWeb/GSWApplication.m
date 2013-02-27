@@ -36,6 +36,7 @@ RCS_ID("$Id$")
 #include "GSWPrivate.h"
 #include "GSWLifebeatThread.h"
 #include "GSWRecording.h"
+#include "GSWApplication+Defaults.h"
 
 #include "stacktrace.h"
 #include "attach.h"
@@ -64,6 +65,7 @@ application unlock
 - (NSString *)adaptor;
 - (NSString *)host;
 - (NSNumber *)port;
++ (id)defaultGroup;
 @end
 
 #ifdef GNUSTEP
@@ -77,7 +79,7 @@ application unlock
 @end
 
 #define GSWFPutSL(string, file) \
-  do { fputs([string lossyCString],file); fputs("\n",file); fflush(file); } \
+do { fputs([[string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES] bytes], file); fputs("\n",file); fflush(file); } \
   while (0)
 
 /* GSWApplication+Defaults.m */
@@ -659,7 +661,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 {
   NSString* path=nil;
   
-  path=[[_resourceManager _appProjectBundle] path];
+  path=[[_resourceManager _appProjectBundle] bundlePath];
   
   return path;
 };
@@ -847,8 +849,8 @@ int GSWApplicationMain(NSString* applicationClassName,
 -(void)_resetCache
 {
   //OK
-  NSEnumerator           * anEnum     = nil;
-  GSWComponentDefinition * definition = nil;
+//  NSEnumerator           * anEnum     = nil;
+//  GSWComponentDefinition * definition = nil;
 
   [self lock];
   NS_DURING
@@ -1539,12 +1541,12 @@ to another instance **/
   if (!_remoteMonitor)
     {
       NSString* monitorHost=[self _monitorHost];
-      NSNumber* workerThreadCount=[[self class]workerThreadCount];
+//      NSNumber* workerThreadCount=[[self class]workerThreadCount];
       id proxy=nil;
-      if ([[NSDistantObject class] respondsToSelector:@selector(setDebug:)])
-	{
-	  [NSDistantObject setDebug:YES];
-	}
+//      if ([[NSDistantObject class] respondsToSelector:@selector(setDebug:)])
+//	{
+//	  [NSDistantObject setDebug:YES];
+//	}
       _remoteMonitorConnection = [NSConnection connectionWithRegisteredName:GSWMonitorServiceName
                                                host:monitorHost];
       proxy=[_remoteMonitorConnection rootProxy];
@@ -2257,29 +2259,28 @@ to another instance **/
 //--------------------------------------------------------------------
 //invokeActionForRequest:inContext:
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext 
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
+                                     inContext:(GSWContext*)aContext
 {
-  //OK
-  GSWElement* element=nil;
-  GSWSession* session=nil;
-  
-  NS_DURING
+    GSWSession* session=nil;
+    id <GSWActionResults> results = nil;
+    
+    NS_DURING
     {
-      session=[aContext existingSession];
-      element=[session invokeActionForRequest:aRequest
-                       inContext:aContext];
+        session = [aContext existingSession];
+        results = [session invokeActionForRequest:aRequest
+                                        inContext:aContext];
     }
-  NS_HANDLER
+    NS_HANDLER
     {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In GSWApplication invokeActionForRequest:inContext");
-      [localException raise];
+        localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                                @"In GSWApplication invokeActionForRequest:inContext");
+        [localException raise];
     }
-  NS_ENDHANDLER;
-  
-  return element;
-};
+    NS_ENDHANDLER;
+    
+    return results;
+}
 
 //--------------------------------------------------------------------
 //appendToResponse:inContext:
@@ -2471,7 +2472,7 @@ to another instance **/
         {
           NSString* message=[NSString stringWithFormat:@"Exception Handling failed. Can't find Error Page named '%@'",
                                       pageName];
-          NSLog(message);          
+          NSLog(@"%@", message);
                                       
           response=[GSWResponse responseWithMessage:message
                                 inContext:context
@@ -2729,7 +2730,7 @@ to another instance **/
   NSBundle* bundle=[NSBundle bundleWithPath:path];
   if (bundle)
     {
-      BOOL result=[bundle load];
+      [bundle load];
       aClass=[bundle principalClass];
     };
   return aClass;
@@ -3566,19 +3567,6 @@ to another instance **/
 };
 
 //--------------------------------------------------------------------
-+(BOOL)_lockDefaultEditingContext
-{
-  [self notImplemented: _cmd];	//TODOFN
-  return YES;
-};
-
-//--------------------------------------------------------------------
-+(void)_setLockDefaultEditingContext:(BOOL)flag
-{
-  [self notImplemented: _cmd];	//TODOFN
-};
-
-//--------------------------------------------------------------------
 +(id)_allowsConcurrentRequestHandling
 {
   [self notImplemented: _cmd];	//TODOFN
@@ -3634,28 +3622,33 @@ to another instance **/
                    inFramework:(NSString*)aFrameworkName
                      languages:(NSArray*)languages
 {
-  id propList=nil;
-  GSWResourceManager* resourceManager=nil;
-  NSString* pathName=nil;
-  
-  resourceManager=[self resourceManager];
-  pathName=[resourceManager pathForResourceNamed:[NSString stringWithFormat:@"%@.%@",aName,type]
-                            inFramework:aFrameworkName
-                            languages:languages];
-  if (pathName)
+    id propList=nil;
+    GSWResourceManager* resourceManager=nil;
+    NSString* pathName=nil;
+    
+    resourceManager=[self resourceManager];
+    pathName=[resourceManager pathForResourceNamed:[NSString stringWithFormat:@"%@.%@",aName,type]
+                                       inFramework:aFrameworkName
+                                         languages:languages];
+    if (pathName)
     {
-      NSString* propListString=[NSString stringWithContentsOfFile:pathName];
-      propList=[propListString propertyList];
-      if (!propList)
+        NSStringEncoding  encoding;
+        NSError          *error = nil;
+        
+        NSString* propListString=[NSString stringWithContentsOfFile:pathName
+                                                       usedEncoding:&encoding
+                                                              error:&error];
+        propList = [propListString propertyList];
+        if (!propList)
         {
-//          LOGSeriousError(@"Bad propertyList \n%@\n from file %@",
-//                          propListString,
-//                          pathName);
+            //          LOGSeriousError(@"Bad propertyList \n%@\n from file %@",
+            //                          propListString,
+            //                          pathName);
         };
     };
-  
-  return propList;
-};
+    
+    return propList;
+}
 
 //--------------------------------------------------------------------
 +(BOOL)createUnknownComponentClasses:(NSArray*)classes
@@ -3799,31 +3792,31 @@ to another instance **/
 };
 
 
-//--------------------------------------------------------------------
-//NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages
-{
-  NSDictionary* st=nil;
-  
-  st=[[self resourceManager]stringsTableNamed:aTableName
-                            inFramework:aFrameworkName
-                            languages:languages];
-  
-  return st;
-};
+////--------------------------------------------------------------------
+////NDFN
+//-(NSDictionary*)stringsTableNamed:(NSString*)aTableName
+//                      inFramework:(NSString*)aFrameworkName
+//                        languages:(NSArray*)languages
+//{
+//  NSDictionary* st=nil;
+//  
+//  st=[[self resourceManager]stringsTableNamed:aTableName
+//                            inFramework:aFrameworkName
+//                            languages:languages];
+//  
+//  return st;
+//};
 
 //--------------------------------------------------------------------
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages
-{
-  return [[self resourceManager]stringsTableArrayNamed:aTableName
-                                inFramework:aFrameworkName
-                                languages:languages];
-};
+//-(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
+//                      inFramework:(NSString*)aFrameworkName
+//                        languages:(NSArray*)languages
+//{
+//  return [[self resourceManager]stringsTableArrayNamed:aTableName
+//                                inFramework:aFrameworkName
+//                                languages:languages];
+//};
 
 //--------------------------------------------------------------------
 //NDFN

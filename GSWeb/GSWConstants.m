@@ -146,16 +146,16 @@ NSString* GSWHTTPHeader_AdaptorStats[2] = { @"x-gsweb-adaptorstats", @"x-webobje
 
 NSString* GSWHTTPHeader_MethodPost=@"POST";
 NSString* GSWHTTPHeader_MethodGet=@"GET";
-NSString* GSWHTTPHeader_AcceptLanguage=@"accept-language";
-NSString* GSWHTTPHeader_AcceptEncoding=@"accept-encoding";
-NSString* GSWHTTPHeader_ContentType=@"content-type";
+NSString* GSWHTTPHeader_AcceptLanguage=@"Accept-Language";
+NSString* GSWHTTPHeader_AcceptEncoding=@"Accept-Encoding";
+NSString* GSWHTTPHeader_ContentType=@"Content-Type";
 NSString* GSWHTTPHeader_FormURLEncoded=@"application/x-www-form-urlencoded";
 NSString* GSWHTTPHeader_MultipartFormData=@"multipart/form-data";
 NSString* GSWHTTPHeader_MimeType_TextPlain=@"text/plain";
-NSString* GSWHTTPHeader_UserAgent=@"user-agent";
-NSString* GSWHTTPHeader_Referer=@"referer";
+NSString* GSWHTTPHeader_UserAgent=@"User-Agent";
+NSString* GSWHTTPHeader_Referer=@"Referer";
 
-NSString* GSWHTTPHeader_ContentLength=@"content-length";
+NSString* GSWHTTPHeader_ContentLength=@"Content-Length";
 
 NSString* GSWHTTPHeader_Response_OK=@"OK";
 

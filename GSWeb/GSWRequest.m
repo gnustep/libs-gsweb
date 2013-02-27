@@ -813,7 +813,6 @@ RCS_ID("$Id$")
 -(void)appendFormValue:(id)value
                 forKey:(NSString*)key
 {
-
   if (value)
     {
       NSMutableDictionary* formValues=nil;
@@ -855,7 +854,7 @@ RCS_ID("$Id$")
 
 -(void)appendFormValues:(NSArray*)values
                  forKey:(NSString*)key
-{
+{    
   if (values)
     {
       NSMutableDictionary* formValues=nil;
@@ -1494,7 +1493,7 @@ RCS_ID("$Id$")
         }
       else
         {
-          //NSDebugMLLog(@"requests",@"contentType=%@",contentType);
+            NSLog(@"%s contentType=%@",__PRETTY_FUNCTION__, contentType);
         };
       _finishedParsingMultipartFormData=YES;
     };
@@ -1538,153 +1537,177 @@ RCS_ID("$Id$")
 
 -(void)_getFormValuesFromMultipartFormData
 {
-  NSMutableDictionary* formValues=nil;
-  GSMimeParser* parser=nil;
-  id key=nil;
-  NSData* headersData=nil;
-  NSMutableString* headersString=[NSMutableString string];
-  NSDictionary* headers=nil;
-  NSEnumerator* enumerator=nil;
-  IMP headersString_appendStringIMP=NULL;
-  NSStringEncoding e;
-
-  formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
-
-  // Append Each Header
-  headers=[self headers];
-  enumerator=[headers keyEnumerator];
-  while((key=[enumerator nextObject]))
+    NSMutableDictionary* formValues=nil;
+    GSMimeParser* parser=nil;
+    id key=nil;
+    NSData* headersData=nil;
+    NSMutableString* headersString=[NSMutableString string];
+    NSDictionary* headers=nil;
+    NSEnumerator* enumerator=nil;
+    IMP headersString_appendStringIMP=NULL;
+    NSStringEncoding e;
+    
+    formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
+    
+    // Append Each Header
+    headers=[self headers];
+    enumerator=[headers keyEnumerator];
+    while((key=[enumerator nextObject]))
     {
-      NSArray* value=[headers objectForKey:key];
-      int i=0;
-      int count=[value count];
-      for(i=0;i<count;i++)
+        NSArray* value=[headers objectForKey:key];
+        int i=0;
+        int count=[value count];
+        for(i=0;i<count;i++)
         {
-          // append "key: value\n" to headersString
-          GSWeb_appendStringWithImpPtr(headersString,
-                                       &headersString_appendStringIMP,
-                                       key);
-          GSWeb_appendStringWithImpPtr(headersString,
-                                       &headersString_appendStringIMP,
-                                       @": ");
-          GSWeb_appendStringWithImpPtr(headersString,
-                                       &headersString_appendStringIMP,
-                                       [value objectAtIndex:i]);
-          GSWeb_appendStringWithImpPtr(headersString,
-                                       &headersString_appendStringIMP,
-                                       @"\n");
+            // append "key: value\n" to headersString
+            GSWeb_appendStringWithImpPtr(headersString,
+                                         &headersString_appendStringIMP,
+                                         key);
+            GSWeb_appendStringWithImpPtr(headersString,
+                                         &headersString_appendStringIMP,
+                                         @": ");
+            GSWeb_appendStringWithImpPtr(headersString,
+                                         &headersString_appendStringIMP,
+                                         [value objectAtIndex:i]);
+            GSWeb_appendStringWithImpPtr(headersString,
+                                         &headersString_appendStringIMP,
+                                         @"\n");
         };
     };
-
-  // Append \n to specify headers end.
-  GSWeb_appendStringWithImpPtr(headersString,
-                               &headersString_appendStringIMP,
-                               @"\n");
-
-  // headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
-  // NSASCIIStringEncoding should be ok dave@turbocat.de
-  headersData=[headersString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
-
-  parser=[GSMimeParser mimeParser];
-  [parser parse:headersData];
-  [parser expectNoHeaders];
-
-  e = [self formValueEncoding];
-  switch (e)
+    
+    // Append \n to specify headers end.
+    GSWeb_appendStringWithImpPtr(headersString,
+                                 &headersString_appendStringIMP,
+                                 @"\n");
+    
+    // headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
+    // NSASCIIStringEncoding should be ok dave@turbocat.de
+    headersData=[headersString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    
+    parser=[GSMimeParser mimeParser];
+    [parser parse:headersData];
+    [parser expectNoHeaders];
+    
+    e = [self formValueEncoding];
+    switch (e)
     {
-      case NSISOLatin1StringEncoding:
-	[parser setDefaultCharset: @"iso-8859-1"];
-	break;
-      case NSUTF8StringEncoding:
-	[parser setDefaultCharset: @"utf-8"];
-	break;
-      default:
-	[parser setDefaultCharset: 
-	   [GSObjCClass([parser mimeDocument]) charsetFromEncoding: e]];
-	break;
+        case NSISOLatin1StringEncoding:
+            [parser setDefaultCharset: @"iso-8859-1"];
+            break;
+        case NSUTF8StringEncoding:
+            [parser setDefaultCharset: @"utf-8"];
+            break;
+        default:
+            [parser setDefaultCharset:
+             [GSObjCClass([parser mimeDocument]) charsetFromEncoding: e]];
+            break;
     }
-
-  if ([parser parse:_contentData])
-    [parser parse:nil];
-  if ([parser isComplete] == NO)
+    
+    if ([parser parse:_contentData])
+        [parser parse:nil];
+    if ([parser isComplete] == NO)
     {
-          //TODO
+        //TODO
     }
-  else
-    {      
-      GSMimeDocument* document = [parser mimeDocument];
-      NSArray* content=nil;
-      NSString* contentSubtype=nil;
-
-      content=[document content];
-      contentSubtype=[document contentSubtype];
-
-      if ([contentSubtype isEqual:@"form-data"])
+    else
+    {
+        GSMimeDocument* document = [parser mimeDocument];
+        NSArray* content=nil;
+        NSString* contentSubtype=nil;
+        
+        content=[document content];
+        contentSubtype=[document contentSubtype];
+        
+        if ([contentSubtype isEqual:@"form-data"])
         {
-          if (![content isKindOfClass:[NSArray class]])
+            if (![content isKindOfClass:[NSArray class]])
             {
-              //TODO
+                //TODO
             }
-          else
+            else
             {
-              int i=0;
-              int count=[content count];
-              for(i=0;i<count;i++)
+                int i=0;
+                int count=[content count];
+                for(i=0;i<count;i++)
                 {
-                  GSMimeDocument* aDoc=[content objectAtIndex:i];
-                  GSMimeHeader* contentDispositionHeader=nil;
-                  NSString* contentDispositionValue=nil;
-                  NSDictionary* contentDispositionParams=nil;
-                  id aDocContent=nil;
-                  NSAssert2([aDoc isKindOfClass:[GSMimeDocument class]],
-                            @"Document is not a GSMimeDocument but a %@:\n%@",
-                            [aDoc class],aDoc);
-                  aDocContent=[aDoc content];
-                  contentDispositionHeader=[aDoc headerNamed:@"content-disposition"];
-                  contentDispositionValue=[contentDispositionHeader value];
-                  contentDispositionParams=[contentDispositionHeader parameters];
-                  if ([contentDispositionValue isEqual:@"form-data"])
+                    GSMimeDocument* aDoc=[content objectAtIndex:i];
+                    GSMimeHeader* contentDispositionHeader=nil;
+                    NSString* contentDispositionValue=nil;
+                    NSDictionary* contentDispositionParams=nil;
+                    id aDocContent=nil;
+                    NSAssert2([aDoc isKindOfClass:[GSMimeDocument class]],
+                              @"Document is not a GSMimeDocument but a %@:\n%@",
+                              [aDoc class],aDoc);
+                    aDocContent=[aDoc content];
+                    contentDispositionHeader=[aDoc headerNamed:@"content-disposition"];
+                    contentDispositionValue=[contentDispositionHeader value];
+                    contentDispositionParams=[contentDispositionHeader parameters];
+                    
+                    if ([contentDispositionValue isEqual:@"form-data"])
                     {
-                      NSString* formDataName=[contentDispositionParams objectForKey:@"name"];
-                      if (!formDataName)
+                        NSString* formDataName=[contentDispositionParams objectForKey:@"name"];
+                        if (!formDataName)
                         {
-                          ExceptionRaise(@"GSWRequest",
-                                         @"GSWRequest: No name \n%@\n",
-                                         aDoc);
+                            ExceptionRaise(@"GSWRequest",
+                                           @"GSWRequest: No name \n%@\n",
+                                           aDoc);
                         }
-                      else
+                        else
                         {
-                          NSString* paramName=nil;
-                          NSEnumerator* paramNamesEnumerator=[contentDispositionParams keyEnumerator];
-                          while((paramName=[paramNamesEnumerator nextObject]))
+                            NSString* paramName=nil;
+                            NSEnumerator* paramNamesEnumerator=[contentDispositionParams keyEnumerator];
+                            while((paramName=[paramNamesEnumerator nextObject]))
                             {
-                              if (![paramName isEqualToString:@"name"])
+                                if (![paramName isEqualToString:@"name"])
                                 {
-                                  NSArray* previous=nil;
-                                  NSString* paramFormValueName=nil;
-                                  id paramValue=nil;
-
-                                  paramValue=[contentDispositionParams objectForKey:paramName];
-                                  paramFormValueName=[NSString stringWithFormat:@"%@.%@",formDataName,paramName];
-                                  previous=[formValues objectForKey:paramFormValueName];
-
-                                  if (previous)
-                                    [formValues setObject:[previous arrayByAddingObject:paramValue]
-                                                forKey:paramFormValueName];                                  
-                                  else
-                                    [formValues setObject:[NSArray arrayWithObject:paramValue]
-                                                forKey:paramFormValueName];
-                                };
-                            };
-                          if (aDocContent)
+                                    NSArray   * previous = nil;
+                                    NSArray   * prevContentType = nil;
+                                    NSString  * paramFormValueName = nil;
+                                    NSString  * typeFormValueName = nil;
+                                    NSString  * contentType = nil;
+                                    id          paramValue = nil;
+                                    
+                                    paramValue = [contentDispositionParams objectForKey:paramName];
+                                    
+                                    paramFormValueName = [NSString stringWithFormat:@"%@.%@",formDataName,paramName];
+                                    previous = [formValues objectForKey:paramFormValueName];
+                                    typeFormValueName = [NSString stringWithFormat:@"%@.%@",formDataName, @"content-type"];
+                                    prevContentType = [formValues objectForKey:typeFormValueName];
+                                    
+                                    contentType = [NSString stringWithFormat:@"%@/%@",
+                                                   [aDoc contentType],
+                                                   [aDoc contentSubtype]];
+                                    
+                                    if (prevContentType) {
+                                        [formValues setObject:[prevContentType arrayByAddingObject:contentType]
+                                                       forKey:typeFormValueName];
+                                    } else {
+                                        [formValues setObject:[NSArray arrayWithObject:contentType]
+                                                       forKey:typeFormValueName];
+                                    }
+                                    
+                                    if (previous) {
+                                        if (paramValue) {
+                                            [formValues setObject:[previous arrayByAddingObject:paramValue]
+                                                           forKey:paramFormValueName];
+                                        }
+                                    } else {
+                                        if (paramValue) {
+                                            [formValues setObject:[NSArray arrayWithObject:paramValue]
+                                                           forKey:paramFormValueName];
+                                        }
+                                    }
+                                }
+                            }
+                            if (aDocContent)
                             {
-                              NSArray* previous=[formValues objectForKey:formDataName];
-                              if (previous)
-                                [formValues setObject:[previous arrayByAddingObject:aDocContent]
-                                            forKey:formDataName];                                  
-                              else
-                                [formValues setObject:[NSArray arrayWithObject:aDocContent]
-                                            forKey:formDataName];
+                                NSArray* previous=[formValues objectForKey:formDataName];
+                                if (previous)
+                                    [formValues setObject:[previous arrayByAddingObject:aDocContent]
+                                                   forKey:formDataName];
+                                else
+                                    [formValues setObject:[NSArray arrayWithObject:aDocContent]
+                                                   forKey:formDataName];
                             };
                         };
                     };
@@ -1692,7 +1715,7 @@ RCS_ID("$Id$")
             };
         };
     };
-  ASSIGN(_formValues,formValues);
+    ASSIGN(_formValues,formValues);
 };
 
 //--------------------------------------------------------------------

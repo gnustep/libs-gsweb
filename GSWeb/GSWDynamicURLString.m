@@ -97,31 +97,31 @@ static SEL appendStringSel = NULL;
 }
 
 //--------------------------------------------------------------------
--(id)initWithCStringNoCopy:(char*)byteString
-                    length:(NSUInteger)length
-              freeWhenDone:(BOOL)flag
-{
-  _url = [(NSMutableString*) [NSMutableString alloc] initWithCStringNoCopy:byteString
-                                                                    length:length
-                                                              freeWhenDone:flag];
-  if (byteString) {
-    [self _parse];
-  }
-  return self;
-}
+//-(id)initWithCStringNoCopy:(char*)byteString
+//                    length:(NSUInteger)length
+//              freeWhenDone:(BOOL)flag
+//{
+//  _url = [(NSMutableString*) [NSMutableString alloc] initWithCStringNoCopy:byteString
+//                                                                    length:length
+//                                                              freeWhenDone:flag];
+//  if (byteString) {
+//    [self _parse];
+//  }
+//  return self;
+//}
 
 //--------------------------------------------------------------------
--(id)initWithCString:(const char*)byteString
-              length:(NSUInteger)length;
-{
-  _url = [(NSMutableString*) [NSMutableString alloc] initWithCString:byteString
-                                                              length:length];
-  if (byteString) {
-    [self _parse];
-  }
-  
-  return self;
-}
+//-(id)initWithCString:(const char*)byteString
+//              length:(NSUInteger)length;
+//{
+//  _url = [(NSMutableString*) [NSMutableString alloc] initWithCString:byteString
+//                                                              length:length];
+//  if (byteString) {
+//    [self _parse];
+//  }
+//  
+//  return self;
+//}
 
 //--------------------------------------------------------------------
 -(id)initWithCString:(const char*)byteString;
@@ -250,7 +250,7 @@ static SEL appendStringSel = NULL;
 };
 
 //--------------------------------------------------------------------
-- (unichar) characterAtIndex: (unsigned)index
+- (unichar)characterAtIndex:(NSUInteger)index
 {
   if (!_flags.composed)
   {

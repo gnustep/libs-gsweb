@@ -265,10 +265,11 @@ static GSWMailDelivery *sharedInstance;
   // -i When reading a message from standard  input,  don't treat  a line with only a . character as the end of input.
   // -t Extract  recipients  from  message  headers.   This requires  that  no  recipients  be specified on the command line.
   sendmailCommand=[sendmailPath stringByAppendingString:@" -i -t"];
-  sendmailFile=popen([sendmailCommand lossyCString],"w");
+  sendmailFile=popen([sendmailCommand UTF8String],"w");
   if (sendmailFile)
     {
-      const char* cString=[emailString lossyCString];
+      const char* cString=[[emailString dataUsingEncoding:NSASCIIStringEncoding
+                                    allowLossyConversion:YES] bytes];
       size_t len=strlen(cString);
       size_t written=fwrite(cString, sizeof(char),len,sendmailFile);
       if (written!=len)

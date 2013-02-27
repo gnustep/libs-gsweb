@@ -378,7 +378,7 @@ static Class NSStringClass = Nil;
         {
           NSString* numberString=[trimmedString stringByDeletingPrefix:@"#"];
           //char* cString=[numberString lossyCString];//TODO
-          const char* cString=[numberString cString];//TODO
+          const char* cString=[numberString UTF8String];
           char* endPtr=NULL;
           int value=strtol(cString,&endPtr,16);
           if (endPtr && *endPtr)
@@ -410,7 +410,7 @@ static Class NSStringClass = Nil;
               else
                 {
                   //char* cString=[trimmedString lossyCString];//TODO
-                  const char* cString=[trimmedString cString];//TODO
+                  const char* cString=[trimmedString UTF8String];
                   char* endPtr=NULL;
                   int value=strtol(cString,&endPtr,10);
 

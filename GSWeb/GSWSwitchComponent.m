@@ -120,27 +120,27 @@ RCS_ID("$Id$")
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)aContext
 {
-  GSWElement* resultElement=nil;
-  GSWElement* element=nil;
-  NSString* elementNameInContext=nil;
-
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);
-  elementNameInContext=[self _elementNameInContext:aContext];
-  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
-  if ([elementNameInContext length]==0)
+    id <GSWActionResults, NSObject> resultElement=nil;
+    GSWElement* element=nil;
+    NSString* elementNameInContext=nil;
+    
+    GSWStartElement(aContext);
+    GSWAssertCorrectElementID(aContext);
+    elementNameInContext=[self _elementNameInContext:aContext];
+    GSWContext_appendElementIDComponent(aContext,elementNameInContext);
+    if ([elementNameInContext length]==0)
     {
-      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
-                     _componentName);
+        ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
+                       _componentName);
     };
-  element=[self _realComponentWithName:elementNameInContext
-                inContext:aContext];
-  resultElement=[element invokeActionForRequest:request
-                           inContext:aContext];
-  GSWContext_deleteLastElementIDComponent(aContext);
-
-  return resultElement;
-};
+    element=[self _realComponentWithName:elementNameInContext
+                               inContext:aContext];
+    resultElement = (id <GSWActionResults, NSObject>) [element invokeActionForRequest:request
+                                                                           inContext:aContext];
+    GSWContext_deleteLastElementIDComponent(aContext);
+    
+    return resultElement;
+}
 
 //--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest

@@ -43,7 +43,7 @@
 
 - (NSString*) encodeXMLPrefix
 {
-  return [NSString stringWithFormat:@"<element type=\"%@\">\n", [self className]];
+  return [NSString stringWithFormat:@"<element type=\"%@\">\n", NSStringFromClass([self class])];
 }
 
 - (NSString*) encodeXMLSuffix
@@ -92,7 +92,7 @@
                 format: @"key is missing"];
   }
   
-  prefixStr = [NSString stringWithFormat:@"<%@ type=\"%@\">\n", key, [self className]];
+  prefixStr = [NSString stringWithFormat:@"<%@ type=\"%@\">\n", key, NSStringFromClass([self class])];
   [contentStr appendString:prefixStr];
   
   suffixStr = [NSString stringWithFormat:@"</%@>\n", key];
@@ -136,7 +136,7 @@
                 format: @"key is missing"];
   }
   
-  prefixStr = [NSString stringWithFormat:@"<%@ type=\"%@\">\n", key, [self className]];
+  prefixStr = [NSString stringWithFormat:@"<%@ type=\"%@\">\n", key, NSStringFromClass([self class])];
   [contentStr appendString:prefixStr];
   
   suffixStr = [NSString stringWithFormat:@"</%@>\n", key];

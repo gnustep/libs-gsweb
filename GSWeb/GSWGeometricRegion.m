@@ -102,12 +102,17 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 //--------------------------------------------------------------------
 +(NSArray*)geometricRegionsWithFile:(NSString*)fileName
 {
-  NSArray* regions=nil;
-  NSString* string=[NSString stringWithContentsOfFile:fileName];
+    NSArray          * regions = nil;
+    NSStringEncoding   usedEncoding;
+    NSError          * error = nil;
+    
+    NSString* string=[NSString stringWithContentsOfFile:fileName
+                                           usedEncoding:&usedEncoding
+                                                  error:&error];
   if (!string)
     {
-      ExceptionRaise(@"GSWGeometricRegion: Can't open File '%@'",
-                     fileName);
+      ExceptionRaise(@"GSWGeometricRegion: Can't open File '%@' %@",
+                     fileName, error);
     }
   else
     regions=[self geometricRegionsWithString:string];

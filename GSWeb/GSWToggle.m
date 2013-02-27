@@ -185,7 +185,7 @@ static Class standardClass = Nil;
                            inContext:(GSWContext*)aContext
 {
   //OK
-  GSWElement* element=nil;
+  id <GSWActionResults, NSObject> element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
 
@@ -223,7 +223,7 @@ static Class standardClass = Nil;
     }
   else
     {
-      element=[_children invokeActionForRequest:aRequest
+      element = (id <GSWActionResults, NSObject>)[_children invokeActionForRequest:aRequest
                         inContext:aContext];
       NSDebugMLLog(@"gswdync",@"element=%@",element);
     };

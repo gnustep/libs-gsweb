@@ -80,7 +80,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)aContext
 {
-  GSWElement* element=nil;
+  id <GSWActionResults, NSObject> element=nil;
   GSWComponent* component=nil;
   GSWComponent* parent=nil;
   GSWElement* childTemplate=nil;
@@ -93,7 +93,7 @@ static Class GSWHTMLBareStringClass = Nil;
   if ([childTemplate class] != GSWHTMLBareStringClass) {
     parent=[component parent];
     [aContext _setCurrentComponent:parent];
-    element=[childTemplate invokeActionForRequest:request
+    element = (id <GSWActionResults, NSObject>)[childTemplate invokeActionForRequest:request
                                         inContext:aContext];
     NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
               @"childTemplate=%@ Element is a %@ not a GSWElement: %@",

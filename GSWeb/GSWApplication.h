@@ -203,7 +203,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 -(GSWContext*)createContextForRequest:(GSWRequest*)aRequest;
 
--(Class)responseClass;
+//-(Class)responseClass;
 
 -(GSWResponse*)createResponseInContext:(GSWContext*)aContext;
 
@@ -230,7 +230,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 -(int)lockedDecrementActiveSessionCount;
 
--(int)lockedIncrementActiveSessionCount;
+//-(int)lockedIncrementActiveSessionCount;
 
 -(int)_activeSessionsCount;
 
@@ -290,8 +290,8 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(GSWSession*)restoreSessionWithID:(NSString*)aSessionID
                          inContext:(GSWContext*)aContext;
 
--(GSWSession*)_restoreSessionWithID:(NSString*)aSessionID
-                          inContext:(GSWContext*)aContext;
+//-(GSWSession*)_restoreSessionWithID:(NSString*)aSessionID
+//                          inContext:(GSWContext*)aContext;
 
 -(void)saveSessionForContext:(GSWContext*)aContext;
 
@@ -362,8 +362,8 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 -(void)awake;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext;
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
+                                     inContext:(GSWContext*)aContext;
 
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext;
@@ -543,18 +543,11 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 -(GSWRequestHandler*)handlerForRequest:(GSWRequest*)aRequest;
 
-+(void)_initRegistrationDomainDefaults;
-+(void)_initUserDefaultsKeys;
 
--(void)_initAdaptorsWithUserDefaults:(NSUserDefaults*)userDefault;
--(NSDictionary*)_argsDictionaryWithUserDefaults:(NSUserDefaults*)userDefault;
-
--(void)setContextClassName:(NSString*)className;
--(NSString*)contextClassName;
--(void)setResponseClassName:(NSString*)className;
--(NSString*)responseClassName;
--(void)setRequestClassName:(NSString*)className;
--(NSString*)requestClassName;
+//-(void)setResponseClassName:(NSString*)className;
+//-(NSString*)responseClassName;
+//-(void)setRequestClassName:(NSString*)className;
+//-(NSString*)requestClassName;
 
 //NDFN
 -(id)propListWithResourceNamed:(NSString*)aName
@@ -587,13 +580,13 @@ GSWEB_EXPORT BOOL WOStrictFlag;
              inFramework:(NSString*)aFrameworkName
                languages:(NSArray*)languages;
 //NDFN
--(NSDictionary*)stringsTableNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages;
+//-(NSDictionary*)stringsTableNamed:(NSString*)aTableName
+//                      inFramework:(NSString*)aFrameworkName
+//                        languages:(NSArray*)languages;
 //NDFN
--(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
-                      inFramework:(NSString*)aFrameworkName
-                        languages:(NSArray*)languages;
+//-(NSArray*)stringsTableArrayNamed:(NSString*)aTableName
+//                      inFramework:(NSString*)aFrameworkName
+//                        languages:(NSArray*)languages;
 //NDFN
 -(NSArray*)filterLanguages:(NSArray*)languages;
 @end

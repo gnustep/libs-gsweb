@@ -51,9 +51,6 @@
 -(void)appendToResponse:(GSWResponse*)aResponse
 			  inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext;
-
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext; 
 

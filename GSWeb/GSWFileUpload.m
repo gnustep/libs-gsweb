@@ -88,8 +88,13 @@ RCS_ID("$Id$")
     [_associations removeObjectForKey: finalFilePath__Key];
   }
   */
+    
+    ASSIGN(_multiple, [_associations objectForKey: multiple__Key]);
+    if (_multiple != nil) {
+        [_associations removeObjectForKey: multiple__Key];
+    }
 
-  if (((_data == nil) && (_filepath == nil)) || ((_data != nil) && (![_data isValueSettable])) || 
+  if (((_data == nil) && (_filepath == nil)) || ((_data != nil) && (![_data isValueSettable])) ||
       ((_filepath != nil) && (![_filepath isValueSettable]))) {
     [NSException raise:NSInvalidArgumentException
                 format:@"%s: None of the 'data' or 'filePath' attributes is not present or is a constant. Only exacatly one of the two attributes is allowed.",
@@ -101,18 +106,19 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-  DESTROY(_data);
-  DESTROY(_filepath);
-  DESTROY(_mimeType);
-  DESTROY(_copyData);
-  DESTROY(_inputStream);
-  DESTROY(_outputStream);
-  DESTROY(_bufferSize);
-  DESTROY(_streamToFilePath);
-  DESTROY(_overwrite);
-  DESTROY(_finalFilePath);
-  
-  [super dealloc];
+    DESTROY(_data);
+    DESTROY(_filepath);
+    DESTROY(_mimeType);
+    DESTROY(_copyData);
+    DESTROY(_inputStream);
+    DESTROY(_outputStream);
+    DESTROY(_bufferSize);
+    DESTROY(_streamToFilePath);
+    DESTROY(_overwrite);
+    DESTROY(_finalFilePath);
+    DESTROY(_multiple);
+    
+    [super dealloc];
 };
 
 
@@ -124,7 +130,13 @@ RCS_ID("$Id$")
 -(void) _appendValueAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*) context
 {
- // nothing!
+    GSWComponent * component = GSWContext_component(context);
+
+    if (_multiple != nil && ([_multiple boolValueInComponent:component])) {
+        GSWResponse_appendContentCharacter(response,' ');
+        GSWResponse_appendContentAsciiString(response,@"multiple");
+    }
+
 }
 
 -(void) _appendCloseTagToResponse:(GSWResponse *) response
@@ -134,98 +146,90 @@ RCS_ID("$Id$")
 }
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
 {
   //Bypass GSWInput
   return nil;
-};
+}
 
-//--------------------------------------------------------------------
+/*
+ "7.1.filename" =     (
+ "15072009(002).jpg",
+ "31082009.jpg"
+ );
+ "7.3" =     (
+ Submit
+ );
+*/
+
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
-  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
-    GSWComponent* component=nil;
-    NSString* nameInContext=nil;
-    NSArray* fileDatas=nil;
-    NSString* fileNameFormValueName=nil;
-    NSString* fileNameValue=nil;
-    NSData* dataValue=nil;
-    int fileDatasCount=0;
-    NS_DURING
-      {
-        component=GSWContext_component(context);
-        nameInContext=[self nameInContext:context];
-        fileDatas=[request formValuesForKey:nameInContext];
-        fileDatasCount=[fileDatas count];
-        /*
-          if (_fileDatasCount!=1)
-          {
-          ExceptionRaise(@"GSWFileUpload",
-          @"GSWFileUpload: File Data Nb != 1 :%d",
-          _fileDatasCount);
-          };
-        */
-        if (fileDatasCount==1) 
-          {
-            dataValue=[fileDatas objectAtIndex:0];
-            if (dataValue)
-              {
-                if ([dataValue isKindOfClass:[NSData class]])
-                  {
-                    if ([dataValue length]==0)
-                      {
-//                        LOGError(@"Empty Data: %@",dataValue);					  
-                      };
-                  }
-                else
-                  {
-                    if ([dataValue isKindOfClass:[NSString class]] && [dataValue length]==0)
-                      {
-//                        LOGError(@"No Data: %@",dataValue);
-                        dataValue=nil;
-                      }
-                    else
-                      {
-                      };
-                  };
-              }
-            else
-              {
-//                LOGError0(@"No Data:");
-              };
-            fileNameFormValueName=[NSString stringWithFormat:@"%@.filename",nameInContext];
-            fileNameValue=[request formValueForKey:fileNameFormValueName];
-            if (!fileNameValue || [fileNameValue length]==0)
-              {
-                //LOGError(@"No fileName: %@",fileNameValue);
-              };
-            [_filepath setValue:fileNameValue
-                       inComponent:component];
-            [_data setValue:dataValue
-                   inComponent:component];
-  } 
-        else 
-          {
-            // bug in omniweb-browser if you click cancel in FileOpenPanel, it transmits incorrect datas
+    GSWComponent * component = GSWContext_component(context);
+    if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted]))
+    {
+        GSWComponent        * component=nil;
+        NSString            * nameInContext=nil;
+        NSArray             * fileDatas=nil;
+        NSString            * fileNameFormValueName=nil;
+        NSString            * mimeValueName=nil;
+        NSUInteger            fileDatasCount=0;
+        
+        NS_DURING
+        {
+            component=GSWContext_component(context);
+            nameInContext=[self nameInContext:context];
             
-            [_filepath setValue:nil
-                       inComponent:component];
-            [_data setValue:nil
-                   inComponent:component];
-  }
-      }
-    NS_HANDLER
-      {
-        localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                 @"GSWFileUpload in takeValuesFromRequest");
-        [localException raise];
-      };
-    NS_ENDHANDLER;
-  };
-};
+            fileNameFormValueName = [NSString stringWithFormat:@"%@.filename", nameInContext];
+            mimeValueName = [NSString stringWithFormat:@"%@.%@",nameInContext, @"content-type"];
+            
+            fileDatas = [request formValuesForKey:nameInContext];
+                        
+            fileDatasCount = [fileDatas count];
+            
+            if (fileDatasCount >= 1)
+            {
+                NSArray * fileNameValue = [request formValuesForKey:fileNameFormValueName];
+                NSArray * mimeValue = [request formValuesForKey:mimeValueName];;
+
+                if ([[fileNameValue objectAtIndex:0] length] == 0) {
+                    fileNameValue = nil;
+                    fileDatas = nil;
+                    mimeValue = nil;
+                }
+                
+                if (_multiple != nil && ([_multiple boolValueInComponent:component])) {
+                    [_filepath setValue:fileNameValue
+                            inComponent:component];
+                    
+                    [_data setValue:fileDatas
+                        inComponent:component];
+                    
+                    [_mimeType setValue:mimeValue
+                            inComponent:component];
+                } else {
+                    
+                    [_filepath setValue:[fileNameValue objectAtIndex:0]
+                            inComponent:component];
+                    
+                    [_data setValue:[fileDatas objectAtIndex:0]
+                        inComponent:component];
+                    
+                    [_mimeType setValue:[mimeValue objectAtIndex:0]
+                            inComponent:component];
+                }
+            }
+        }
+        NS_HANDLER
+        {
+            localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
+                                                                     @"GSWFileUpload in takeValuesFromRequest");
+            [localException raise];
+        }
+        NS_ENDHANDLER;
+    }
+}
 
 
 @end

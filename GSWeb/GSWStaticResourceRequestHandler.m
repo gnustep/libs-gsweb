@@ -59,10 +59,12 @@ RCS_ID("$Id$")
       NSString* documentRoot = [self _documentRoot];
       [resourcePath appendString:documentRoot];
       [resourcePath appendString:uri];
+        NSError *error = nil;
+        
       NS_DURING
         {
-          NSDictionary* fileAttributes=[[NSFileManager defaultManager]fileAttributesAtPath:resourcePath
-                                                                      traverseLink:YES];
+          NSDictionary* fileAttributes=[[NSFileManager defaultManager] attributesOfItemAtPath:resourcePath
+                                                                                       error:&error];
           resourceLength=(unsigned long)[fileAttributes fileSize];
           
           resourceFileHandle=[NSFileHandle fileHandleForReadingAtPath:resourcePath];

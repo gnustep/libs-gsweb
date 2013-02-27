@@ -162,17 +162,17 @@ static Class GSWHTMLBareStringClass = Nil;
 
 //--------------------------------------------------------------------
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
+                                    inContext:(GSWContext*)aContext
 {
-
- if ([_element class] != GSWHTMLBareStringClass) {
-
-    return [_element invokeActionForRequest:aRequest
-                     inContext:aContext];
- }
- return nil;                     
-};
+    
+    if ([_element class] != GSWHTMLBareStringClass) {
+        
+        return [_element invokeActionForRequest:aRequest
+                                      inContext:aContext];
+    }
+    return nil;
+}
 
 //--------------------------------------------------------------------
 

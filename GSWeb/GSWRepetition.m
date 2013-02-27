@@ -222,11 +222,11 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 }
 
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)context
 {
   GSWComponent * component = GSWContext_component(context);
-  GSWElement   * element   = nil;
+  id <GSWActionResults, NSObject> element   = nil;
   NSString     * indexStr  = nil;
 
   NSString     * senderID     = [context senderID];
@@ -266,8 +266,8 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
                         inComponent:component];
     }
     [context appendElementIDComponent: indexStr];
-    element = [super invokeActionForRequest:request
-                                  inContext:context];
+      element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
+                                                                     inContext:context];
     [context deleteLastElementIDComponent];
   } else {
     count = 0;
@@ -287,8 +287,8 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
     
     for (k = 0; k < count && element == nil; k++) {
       _prepareForIterationWithIndex(k, count, arrayValue, context, component, _item, _index);
-      element = [super invokeActionForRequest:request
-                                    inContext:context];
+        element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
+                                                                       inContext:context];
       
     }
 

@@ -388,18 +388,18 @@ RCS_ID("$Id$")
 
 // todo: check if 100% compatible
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)aContext
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
+                                    inContext:(GSWContext*)aContext
 {
-  GSWElement* element=nil;
+  id <GSWActionResults, NSObject>  element=nil;
   NSString* senderID=nil;
   NSString* elementID=nil;
   BOOL isInForm=NO;
   BOOL XYValues=NO;
   BOOL thisOne=NO;
   GSWComponent* component=nil;
-  int x=0;
-  int y=0;
+  NSInteger x=0;
+  NSInteger y=0;
   component=GSWContext_component(aContext);
   GSWContext_appendZeroElementIDComponent(aContext);
   senderID=GSWContext_senderID(aContext);
@@ -534,12 +534,12 @@ RCS_ID("$Id$")
             element=[aContext page];
         }
       else
-        element=[super invokeActionForRequest:request
-                       inContext:aContext];
+          element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
+                                                                         inContext:aContext];
     }
   else
-    element=[super invokeActionForRequest:request
-                   inContext:aContext];
+      element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
+                                                                     inContext:aContext];
   return element;
 };
 

@@ -82,11 +82,14 @@ RCS_ID("$Id$")
       
       ASSIGN(_recordingPath,recordingPath);
       NSDebugMLog(@"_recordingPath=%@",_recordingPath);
+        NSError *error = nil;
       
-      if (![fileManager createDirectoryAtPath:_recordingPath
-                        attributes:nil])
+        if (![fileManager createDirectoryAtURL:[NSURL fileURLWithPath:_recordingPath]
+                   withIntermediateDirectories:YES
+                                    attributes:nil
+                                         error:&error])
         {
-          ExceptionRaise(@"GSWRecording: can't create directory '%@'",_recordingPath);
+          ExceptionRaise(@"GSWRecording: can't create directory '%@' - %@",_recordingPath, error);
         };
     };
 };
@@ -212,74 +215,81 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(void)saveRequest:(GSWRequest*)request
 {
-
-  NSDebugMLog(@"_recordingStep=%d",_recordingStep);  
-
-  ASSIGN(_request,request);
-
-  NSDebugMLog(@"request=%p",request);  
-
-  if (request)
+    
+    NSDebugMLog(@"_recordingStep=%d",_recordingStep);
+    
+    ASSIGN(_request,request);
+    
+    NSDebugMLog(@"request=%p",request);
+    
+    if (request)
     {
-      NSString* headerString=nil;
-      NSString* requestString=nil;
-
-      NSString* requestURI=[_request uri];
-      NSString* filePath= [_recordingPath stringByAppendingPathComponent:
-                                            [NSString stringWithFormat:@"%0.6d-request",_recordingStep]];
-
-      [GSWApplication logWithFormat:@"Saving Request into '%@'",filePath];
-
-      headerString = [NSString stringWithFormat:@"%@ %@ %@\r\n%@",
-                               [_request method],
-                               requestURI,
-                               [_request httpVersion],
-                               [self _headersStringForMessage:_request]];
-      NSDebugMLog(@"  headerString=%@",  headerString);  
-      requestString = [headerString stringByAppendingString:[request contentString]];
-
-      [requestString writeToFile:filePath
-                     atomically:NO];
-    };
-
+        NSString * headerString = nil;
+        NSString * requestString = nil;
+        NSError  * error = nil;
+        
+        NSString* requestURI=[_request uri];
+        NSString* filePath= [_recordingPath stringByAppendingPathComponent:
+                             [NSString stringWithFormat:@"%0.6d-request",_recordingStep]];
+        
+        [GSWApplication logWithFormat:@"Saving Request into '%@'",filePath];
+        
+        headerString = [NSString stringWithFormat:@"%@ %@ %@\r\n%@",
+                        [_request method],
+                        requestURI,
+                        [_request httpVersion],
+                        [self _headersStringForMessage:_request]];
+        NSDebugMLog(@"  headerString=%@",  headerString);
+        requestString = [headerString stringByAppendingString:[request contentString]];
+        
+        [requestString writeToFile:filePath
+                        atomically:NO
+                          encoding:NSUTF8StringEncoding
+                             error:&error];
+    }
+    
 }
 
 //--------------------------------------------------------------------
 -(void)saveResponse:(GSWResponse*)response
 {
-  NSString* filePath=nil;
-  NSString* responseString=nil;
-  NSString* headerString=nil;
-
-
-  NSDebugMLog(@"_recordingStep=%d",_recordingStep);  
-
-  NSDebugMLLog(@"GSWRecording",@"recordingSessionID=%@",
-               [response headerForKey:GSWHTTPHeader_RecordingSessionID[GSWebNamingConv]]);
-
-  response = [self _wildcardedResponse:response];
-
-  filePath= [_recordingPath stringByAppendingPathComponent:
-                              [NSString stringWithFormat:@"%0.6d-response",_recordingStep]];
-
-  [GSWApplication logWithFormat:@"Saving Response into '%@'",filePath];
-
-  headerString=[NSString stringWithFormat:@"%@ %u %@\r\n%@",
-                         [response httpVersion],
-                         (unsigned int)[response status],
-                         GSWHTTPHeader_Response_HeaderLineEnd[GSWebNamingConv],
-                         [self _headersStringForMessage:response]];
-
-  NSDebugMLog(@"headerString=%@",headerString);  
-
-  responseString = [headerString stringByAppendingString:[response contentString]];
-
-  [responseString writeToFile:filePath
-                  atomically:NO];
-  _recordingStep++;
-
-  NSDebugMLog(@"_recordingStep=%d",_recordingStep);  
-
+    NSString* filePath=nil;
+    NSString* responseString=nil;
+    NSString* headerString=nil;
+    NSError  * error = nil;
+    
+    
+    NSDebugMLog(@"_recordingStep=%d",_recordingStep);
+    
+    NSDebugMLLog(@"GSWRecording",@"recordingSessionID=%@",
+                 [response headerForKey:GSWHTTPHeader_RecordingSessionID[GSWebNamingConv]]);
+    
+    response = [self _wildcardedResponse:response];
+    
+    filePath= [_recordingPath stringByAppendingPathComponent:
+               [NSString stringWithFormat:@"%0.6d-response",_recordingStep]];
+    
+    [GSWApplication logWithFormat:@"Saving Response into '%@'",filePath];
+    
+    headerString=[NSString stringWithFormat:@"%@ %u %@\r\n%@",
+                  [response httpVersion],
+                  (unsigned int)[response status],
+                  GSWHTTPHeader_Response_HeaderLineEnd[GSWebNamingConv],
+                  [self _headersStringForMessage:response]];
+    
+    NSDebugMLog(@"headerString=%@",headerString);
+    
+    responseString = [headerString stringByAppendingString:[response contentString]];
+    
+    [responseString writeToFile:filePath
+                     atomically:NO
+                       encoding:NSUTF8StringEncoding
+                          error:&error];
+    
+    _recordingStep++;
+    
+    NSDebugMLog(@"_recordingStep=%d",_recordingStep);
+    
 }
 
 //--------------------------------------------------------------------

@@ -59,12 +59,12 @@ BOOL GSWDynamicElement_evaluateValueInContext(GSWDynamicElement* element,Class s
                                               GSWIMP_BOOL imp,GSWAssociation* condition,GSWContext* context)
 {
   // was object_get_class
-  if (imp && object_getClass(element)==standardClass)
-    {
-      return (*imp)(element,evaluateConditionInContextSEL,
-                    condition,context);
-    }
-  else
+//  if (imp && object_getClass(element)==standardClass)
+//    {
+//      return (*imp)(element,evaluateConditionInContextSEL,
+//                    condition,context);
+//    }
+//  else
     return [element evaluateCondition:condition
             inContext:context];
 };

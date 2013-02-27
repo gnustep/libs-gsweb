@@ -98,7 +98,7 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(NSArray*)browserLanguages;
 -(NSArray*)browserAcceptedEncodings;
 -(NSArray*)requestHandlerPathArray;
--(NSString*)uri;
+-(GSWDynamicURLString*) uri;
 -(NSString*)urlProtocol;//NDFN
 -(NSString*)urlHost;//NDFN
 -(NSString*)urlPortString;//NDFN

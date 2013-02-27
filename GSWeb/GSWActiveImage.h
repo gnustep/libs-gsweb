@@ -70,8 +70,6 @@
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)aContext;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)aContext; 
 

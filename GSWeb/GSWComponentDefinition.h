@@ -99,17 +99,13 @@
  */
 - (NSDictionary *) archive;
 
--(NSString*)pathForResourceNamed:(NSString*)aName
-                          ofType:(NSString*)aType
-                       languages:(NSArray*)languages;
+// does this exist in wo?
+//-(NSString*)pathForResourceNamed:(NSString*)aName
+//                          ofType:(NSString*)aType
+//                       languages:(NSArray*)languages;
 
 - (GSWComponentReference*) componentReferenceWithAssociations:(NSDictionary*)associations
                                                      template:(GSWElement*)template;
-                       
--(NSDictionary*)componentAPI;
-
-//+ (id) copyWithZone: (NSZone*)z;
-
 
 @end
 

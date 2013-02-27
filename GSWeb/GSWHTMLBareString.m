@@ -92,8 +92,8 @@ RCS_ID("$Id$")
 {
 }
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
+                                    inContext:(GSWContext*)context
 {
 
       [NSException raise:NSInvalidArgumentException

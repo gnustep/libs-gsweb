@@ -160,7 +160,7 @@ GSWResponse * _dispatchWithPreparedPage(GSWComponent * aPage, GSWSession * aSess
 
   [aResponse setHTTPVersion:[aRequest httpVersion]];
   [aResponse setHeader:@"text/html"
-                forKey:@"content-type"];
+                forKey:@"Content-Type"];
   [aContext _setResponse:aResponse];
   
   if (oldContextID == nil) {
@@ -170,7 +170,8 @@ GSWResponse * _dispatchWithPreparedPage(GSWComponent * aPage, GSWSession * aSess
     [aContext _setPageChanged:NO];
     
     if (aSenderID != nil) {
-      GSWElement * anActionResults = [anApplication invokeActionForRequest:aRequest inContext:aContext];
+      id <GSWActionResults, NSObject> anActionResults = (id <GSWActionResults, NSObject>) [anApplication invokeActionForRequest:aRequest
+                                                                                                                    inContext:aContext];
 
       if ((anActionResults == nil) || ([anActionResults isKindOfClass: [GSWComponent class]])) {
         GSWComponent  * aResultComponent = (GSWComponent*) anActionResults;

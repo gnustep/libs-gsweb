@@ -309,19 +309,19 @@ static NSString * static_tempQueryKey = nil;
 }
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)aContext
 {
-  GSWElement* element=nil;
-  NSString* senderID=nil;
-  NSString* elementID=nil;
-  BOOL disabledInContext=NO;
-  BOOL isInForm=NO;
-  BOOL XYValues=NO;
-  BOOL thisOne=NO;
-  GSWComponent* component=nil;
-  int x=0;
-  int y=0;
+    NSObject <GSWActionResults> * results = nil;
+    NSString* senderID=nil;
+    NSString* elementID=nil;
+    BOOL disabledInContext=NO;
+    BOOL isInForm=NO;
+    BOOL XYValues=NO;
+    BOOL thisOne=NO;
+    GSWComponent* component=nil;
+    NSInteger x=0;
+    NSInteger y=0;
 
 
   component=GSWContext_component(aContext);
@@ -427,13 +427,13 @@ static NSString * static_tempQueryKey = nil;
           if (actionAssociation)
             {
               [aContext _setActionInvoked:YES];
-              element=[actionAssociation valueInComponent:component];
-              NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
+              results = (NSObject <GSWActionResults> *) [actionAssociation valueInComponent:component];
+              NSAssert4(!results || [results isKindOfClass:[GSWElement class]],
                         @"actionAssociation=%@, component=%@ Element is a %@ not a GSWElement: %@",
                         actionAssociation,
                         component,
-                        [element class],
-                        element);
+                        [results class],
+                        results);
             }
           else
             {
@@ -445,48 +445,48 @@ static NSString * static_tempQueryKey = nil;
               else if (_action)
                 {
                   [aContext _setActionInvoked:YES];
-                  element=[_action valueInComponent:component];
-                  NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
+                  results = (NSObject <GSWActionResults> *)[_action valueInComponent:component];
+                  NSAssert4(!results || [results isKindOfClass:[GSWElement class]],
                             @"_action=%@, component=%@ Element is a %@ not a GSWElement: %@",
                             _action,
                             component,
-                            [element class],
-                            element);
+                            [results class],
+                            results);
                 }
               else
                 {				
                   //NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
                 };
             };
-          if (!element)
+          if (!results)
             {
-              element=[aContext page];
-              NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+              results=[aContext page];
+              NSAssert2(!results || [results isKindOfClass:[GSWElement class]],
                         @"Element is a %@ not a GSWElement: %@",
-                        [element class],
-                        element);
+                        [results class],
+                        results);
             };
         }
       else
-        {
-          element=[super invokeActionForRequest:request
-                         inContext:aContext];
-          NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+      {
+          results = (NSObject <GSWActionResults> *) [super invokeActionForRequest:request
+                                                                       inContext:aContext];
+          NSAssert2(!results || [results isKindOfClass:[GSWElement class]],
                     @"Element is a %@ not a GSWElement: %@",
-                    [element class],
-                    element);
-        };
+                    [results class],
+                    results);
+      }
     }
   else
     {
-      element=[super invokeActionForRequest:request
-                     inContext:aContext];
-      NSAssert2(!element || [element isKindOfClass:[GSWElement class]],
+        results = (NSObject <GSWActionResults> *) [super invokeActionForRequest:request
+                                                                     inContext:aContext];
+      NSAssert2(!results || [results isKindOfClass:[GSWElement class]],
                 @"Element is a %@ not a GSWElement: %@",
-                [element class],
-                element);
+                [results class],
+                results);
     };
-  return element;
+  return results;
 };
 
 -(void)appendAttributesToResponse:(GSWResponse*) response

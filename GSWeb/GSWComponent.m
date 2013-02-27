@@ -85,9 +85,9 @@ static Class GSWHTMLBareStringClass = Nil;
     if (myClass == ([GSWComponent class])) {
       ASSIGN(_name, [aContext _componentName]);
     } else {
-      ASSIGN(_name, [NSString stringWithCString:object_getClassName(self)]);
+      ASSIGN(_name, NSStringFromClass([self class]));
     }
-    ASSIGN(_templateName,[NSString stringWithCString:class_getName(myClass)]);
+    ASSIGN(_templateName,NSStringFromClass(myClass));
     _isPage = NO;
     _subComponents = nil;
     [self setCachingEnabled:[GSWApp isCachingEnabled]];
@@ -901,28 +901,28 @@ static Class GSWHTMLBareStringClass = Nil;
 }
 
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext 
+-(id <GSWActionResults>) invokeActionForRequest:(GSWRequest*)aRequest
+                                      inContext:(GSWContext*)aContext
 {
-  GSWElement* template=nil;
-  GSWElement* element=nil;
-
-  NS_DURING
-
-  template = [self template];
-  if (template != nil) {
-    if ([template class] != GSWHTMLBareStringClass) {
-      element=[template invokeActionForRequest:aRequest
-                                inContext:aContext];
+    id <GSWActionResults>   results = nil;
+    GSWElement            * template = nil;
+    
+    NS_DURING
+    
+    template = [self template];
+    if (template != nil) {
+        if ([template class] != GSWHTMLBareStringClass) {
+            results = [template invokeActionForRequest:aRequest
+                                             inContext:aContext];
+        }
     }
-  }
-  NS_HANDLER
-      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In %s", __PRETTY_FUNCTION__);
-      [localException raise];
-  NS_ENDHANDLER
-  
-  return element;
+    NS_HANDLER
+    localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                            @"In %s", __PRETTY_FUNCTION__);
+    [localException raise];
+    NS_ENDHANDLER
+    
+    return results;
 }
 
 
@@ -1306,7 +1306,7 @@ Call this method before using a component which was cached in a variable.
 
       [response setHTTPVersion:httpVersion];
       [response setHeader:@"text/html"
-                forKey:@"content-type"];
+                forKey:@"Content-Type"];
       [aContext _setResponse:response];
 
       pageElement=[aContext _pageElement];
@@ -1459,20 +1459,19 @@ Call this method before using a component which was cached in a variable.
 -(NSString*)urlForResourceNamed:(NSString*)aName
                          ofType:(NSString*)type
 {
-  NSString* url = nil;
-  
-  GSOnceMLog(@"%s is depricated in WO 4.0. Use GSWResourceManager’s implementation of "
-             @"urlForResourceNamed:inFramework:languages:request: " 
-             @"instead.",
-             __PRETTY_FUNCTION__);
-  
-  url=[[GSWApp resourceManager] urlForResourceNamed:aName
-                                             ofType:type
-                                        inFramework:nil
-                                          languages:[self languages]
-                                            request:nil];
-  
-  return url;
+    NSString* url = nil;
+    
+    GSOnceMLog(@"%s is depricated in WO 4.0. Use GSWResourceManager’s implementation of "
+               @"urlForResourceNamed:inFramework:languages:request: "
+               @"instead.",
+               __PRETTY_FUNCTION__);
+    
+    url=[[GSWApp resourceManager] urlForResourceNamed:aName
+                                          inFramework:nil
+                                            languages:[self languages]
+                                              request:nil];
+    
+    return url;
 }
 
 //--------------------------------------------------------------------
@@ -1487,7 +1486,6 @@ Call this method before using a component which was cached in a variable.
              __PRETTY_FUNCTION__);
 
   path=[[GSWApp resourceManager] pathForResourceNamed:aName
-                                               ofType:type
                                           inFramework:nil
                                             languages:[self languages]];
   
@@ -1552,32 +1550,6 @@ Call this method before using a component which was cached in a variable.
 +(void)_registerObserver:(id)observer
 {
   [self notImplemented: _cmd];	//TODOFN
-}
-
--(void)validateAPIAssociations
-{
-  NSDictionary* api=[[self _componentDefinition] componentAPI];
-  if (api)
-    {
-      NSArray* required=[api objectForKey:@"Required"];
-      //TODO useit NSArray* optional=[api objectForKey:@"Optional"];
-      int i=0;
-      int count=[required count];
-      id aName=nil;
-      for(i=0;i<count;i++)
-        {
-          aName=[required objectAtIndex:i];
-          if (![self hasBinding:aName])
-            {
-              [NSException raise:NSGenericException
-                           format:@"There is no binding for '%@' in parent '%@' for component '%@' [parents : %@]",
-                           aName,
-                           [_parent class],
-                           [self class],
-                           [self parentsClasses]];
-            }
-        }
-    }
 }
 
 - (id)unarchiver: (WOKeyValueUnarchiver*)archiver objectForReference: (id)keyPath

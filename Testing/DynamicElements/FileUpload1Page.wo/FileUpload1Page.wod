@@ -3,6 +3,7 @@ AFileUpload: WOFileUpload
 {
 	filePath=aFilePath;
 	data=aFileData;
+	multiple="multiple";
 };
 
 FileName: WOString

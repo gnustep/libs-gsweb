@@ -1339,28 +1339,28 @@ Returns first element of languages or nil if languages is empty
 
 //--------------------------------------------------------------------
 //	invokeActionForRequest:inContext:
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+-(id <GSWActionResults>) invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)aContext 
 {
-  GSWElement* element=nil;
-  GSWElement* pageElement=nil;
-  GSWComponent* pageComponent=nil;
-
-  NS_DURING
+    id <GSWActionResults> results = nil;
+    GSWElement* pageElement=nil;
+    GSWComponent* pageComponent=nil;
+    
+    NS_DURING
     pageElement = [aContext _pageElement];
     pageComponent = [aContext _pageComponent];
     [aContext _setCurrentComponent:pageComponent];
-
-    element=[pageElement invokeActionForRequest:aRequest
-                         inContext:aContext];
+    
+    results = [pageElement invokeActionForRequest:aRequest
+                                        inContext:aContext];
     [aContext _setCurrentComponent:nil];
-  NS_HANDLER
-      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In %s", __PRETTY_FUNCTION__);
-      [localException raise];
-  NS_ENDHANDLER;
-
-  return element;
+    NS_HANDLER
+    localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+                                                            @"In %s", __PRETTY_FUNCTION__);
+    [localException raise];
+    NS_ENDHANDLER;
+    
+    return results;
 }
 
 //--------------------------------------------------------------------

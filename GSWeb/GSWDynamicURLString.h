@@ -64,11 +64,11 @@
                  freeWhenDone:(BOOL)flag;
 -(id)initWithCharacters:(const unichar*)chars
                  length:(NSUInteger)length;
--(id)initWithCStringNoCopy:(char*)byteString
-                    length:(NSUInteger)length
-              freeWhenDone:(BOOL)flag;
--(id)initWithCString:(const char*)byteString
-              length:(NSUInteger)length;
+//-(id)initWithCStringNoCopy:(char*)byteString
+//                    length:(NSUInteger)length
+//              freeWhenDone:(BOOL)flag;
+//-(id)initWithCString:(const char*)byteString
+//              length:(NSUInteger)length;
 -(id)initWithCString:(const char*)byteString;
 -(id)initWithString:(NSString*)string;
 -(id)initWithFormat:(NSString*)format,...;

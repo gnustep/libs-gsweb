@@ -44,6 +44,7 @@
 #ifndef GNUSTEP
 #include <GNUstepBase/GNUstep.h>
 #include <GNUstepBase/NSDebug+GNUstepBase.h>
+#include <GNUstepBase/Additions.h>
 #endif
 
 #if GDL2

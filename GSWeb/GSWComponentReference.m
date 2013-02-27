@@ -169,52 +169,17 @@ RCS_ID("$Id$")
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)aContext
 {
-  GSWElement* element=nil;
-//  GSWComponent* component=nil;
-//  GSWComponent* componentPrev=nil;
-
-  [self _pushComponentInContext:aContext];
-  element  = [GSWContext_component(aContext) invokeActionForRequest: request
-                                                          inContext: aContext];
-  [self _popComponentFromContext:aContext];
-
-  return element;
-
-//
-//  GSWStartElement(aContext);
-//  GSWAssertCorrectElementID(aContext);
-//
-//  NSDebugMLLog(@"gswdync",@"name=%@ senderId=%@",
-//               _name,GSWContext_senderID(aContext));
-//
-//  componentPrev=GSWContext_component(aContext);
-//  [self _pushComponentInContext:aContext];
-//
-//  component=GSWContext_component(aContext);
-//  if (component)
-//    {
-//      if ([self prefixMatchSenderIDInContext:aContext]) //Avoid trying to find action if we are not the good component
-//        {
-//          element=[component invokeActionForRequest:request
-//                             inContext:aContext];
-//          NSAssert4(!element || [element isKindOfClass:[GSWElement class]],
-//                    @"Name= %@, from: %@, Element is a %@ not a GSWElement: %@",
-//                    _name,
-//                    component,
-//                    [element class],
-//                    element);
-//        };
-//      [self _popComponentFromContext:aContext];
-//    }
-//  else
-//    [aContext _setCurrentComponent:componentPrev];
-//
-//  GSWStopElement(aContext);
-//  GSWAssertDebugElementIDsCount(aContext);
-//
-
-//  return element;
-};
+    id <GSWActionResults, NSObject> element=nil;
+    
+    [self _pushComponentInContext:aContext];
+    
+    element  = (id <GSWActionResults, NSObject>) [GSWContext_component(aContext) invokeActionForRequest: request
+                                                                                              inContext: aContext];
+    [self _popComponentFromContext:aContext];
+    
+    return element;
+    
+}
 
 //--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request

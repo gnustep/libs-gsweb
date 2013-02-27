@@ -205,11 +205,11 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   if (!_isClientCachingDisabled && _canDisableClientCaching)
     {
       [self setHeader:disabledCacheDateString 
-            forKey:@"date"];
+            forKey:@"Date"];
       [self setHeader:disabledCacheDateString
-            forKey:@"expires"];
+            forKey:@"Expires"];
       [self setHeader:@"no-cache"
-            forKey:@"pragma"];
+            forKey:@"Pragma"];
       
       if([[GSWApp class] _allowsCacheControlHeader])
         [self setHeaders:cacheControlHeaderValues
@@ -262,7 +262,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   NSString	*value;
   NSRange 	 range;
 
-  if (aRequest && ((value = [aRequest headerForKey:@"accept-encoding"]))) {
+  if (aRequest && ((value = [aRequest headerForKey:GSWHTTPHeader_AcceptEncoding]))) {
     range = [value rangeOfString:@"gzip" options:0];
 
     if (range.length) {
@@ -293,8 +293,8 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   // it does not make sense to compress data less than 150 bytes.
   if ((dataLength > 150) && ([self _browserSupportsCompression:[aContext request]])) 
   {
-    NSString* contentType=[self headerForKey:@"content-type"];
-    NSString* contentEncoding=[self headerForKey:@"content-encoding"];
+    NSString* contentType=[self headerForKey:@"Content-Type"];
+    NSString* contentEncoding=[self headerForKey:@"Content-Encoding"];
     
     if ((contentEncoding) || (!compressableContentTypesCache)) {
       return;
@@ -322,7 +322,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
         [self setContent:compressedData];
         dataLength=[self _contentLength];
         [self setHeader:@"gzip"
-                 forKey:@"content-encoding"];
+                 forKey:@"Content-Encoding"];
       }
     }
   }
@@ -475,7 +475,7 @@ escapingHTMLAttributeValue:(BOOL)escape
       if (httpVersion)
 	[aResponse setHTTPVersion:httpVersion];
       [aResponse setHeader:@"text/html"
-                forKey:@"content-type"];
+                forKey:@"Content-Type"];
       [aContext _setResponse:aResponse];
       responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
                                GSWResponse_stringByEscapingHTMLString(aResponse,aMessage)];
@@ -553,7 +553,7 @@ escapingHTMLAttributeValue:(BOOL)escape
   [self setHeader:location
         forKey:@"Location"];
   [self setHeader:@"text/html" 
-        forKey:@"content-type"];
+        forKey:@"Content-Type"];
   [self setHeader:@"YES"
         forKey:@"x-gsweb-refusing-redirection"];
 }

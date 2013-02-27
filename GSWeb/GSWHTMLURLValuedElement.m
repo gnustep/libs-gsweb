@@ -188,7 +188,7 @@ RCS_ID("$Id$")
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)context
 {
-  GSWElement* element = nil;
+  id <GSWActionResults, NSObject> element = nil;
   NSString* senderID = nil;
   NSString* elementID = nil;
   GSWComponent * component = nil;
@@ -211,7 +211,7 @@ RCS_ID("$Id$")
       }
     }
   } else {
-    element = [super invokeActionForRequest: aRequest inContext: context];
+    element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest: aRequest inContext: context];
   }
   return element;
 };

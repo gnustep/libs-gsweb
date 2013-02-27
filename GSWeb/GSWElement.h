@@ -35,6 +35,7 @@
 #include "GSWDefines.h"
 #include "GSWConstants.h"
 #include "GSWUtils.h"
+#include "GSWResponse.h"
 
 GSWEB_EXPORT BYTE ElementsMap_htmlBareString;
 GSWEB_EXPORT BYTE ElementsMap_gswebElement;
@@ -147,8 +148,11 @@ GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context;
+-(id <GSWActionResults>) invokeActionForRequest:(GSWRequest*)request
+                                      inContext:(GSWContext*)aContext;
+
+//-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+//                           inContext:(GSWContext*)context;
 
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context; 

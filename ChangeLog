@@ -1,3 +1,10 @@
+2013-02-26  David Wetzel <dave@turbocat.de>
+	* added GSWeb/GSWApplication+Defaults.h
+	* GSWeb/GNUmakefile: use -Werror
+	* GSWeb/GSWFileUpload.* added multiple file support
+	* Testing/DynamicElements/FileUpload1Page.wo added multiple file support
+	* GSWeb/* fixed warnings on Mountain Lion
+
 2011-05-13  David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/Apache2/mod_gsw.c
 	modified find_app_by_name() wen dealing with single instances

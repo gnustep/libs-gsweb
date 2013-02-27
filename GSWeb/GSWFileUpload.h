@@ -33,20 +33,27 @@
 	#define _GSWFileUpload_h__
 
 //====================================================================
+/*
+ 
+ if multiple is yes, filepath, mimeType and data will be in arrays.
+ 
+ */
+
 @interface GSWFileUpload: GSWInput
 {
-  GSWAssociation* _data;
-  GSWAssociation* _filepath;
-  // these are new in 5.x
-  GSWAssociation* _mimeType;
-  GSWAssociation* _copyData;
-  GSWAssociation* _inputStream;
-  GSWAssociation* _outputStream;
-  GSWAssociation* _bufferSize;
-  GSWAssociation* _streamToFilePath;
-  GSWAssociation* _overwrite;
-  GSWAssociation* _finalFilePath;
-  
+    GSWAssociation* _data;
+    GSWAssociation* _filepath;
+    // these are new in 5.x
+    GSWAssociation* _mimeType;
+    GSWAssociation* _copyData;
+    GSWAssociation* _inputStream;
+    GSWAssociation* _outputStream;
+    GSWAssociation* _bufferSize;
+    GSWAssociation* _streamToFilePath;
+    GSWAssociation* _overwrite;
+    GSWAssociation* _finalFilePath;
+    // new in modern browsers
+    GSWAssociation* _multiple;
 }
 
 @end

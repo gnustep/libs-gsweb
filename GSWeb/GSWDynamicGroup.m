@@ -208,8 +208,8 @@ static Class GSWHTMLBareStringClass = Nil;
 -(id <GSWActionResults>) invokeActionForRequest:(GSWRequest*)request
                                     inContext:(GSWContext*)aContext
 {
-  return [self  invokeChildrenAction:request
-                           inContext:aContext];
+    return  [self invokeChildrenAction:request
+                             inContext:aContext];
 }
 
 -(void) appendChildrenToResponse:(GSWResponse*) response

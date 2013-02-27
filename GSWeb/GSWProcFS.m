@@ -184,18 +184,23 @@ NSString* formattedByteSizeValue(unsigned int value)
 
 + (NSString *)contentOfProcFile: (NSString *)procFile
 {
-  NSString *path;
-  NSString *content;
+    NSString         * path;
+    NSString         * content;
+    NSStringEncoding   usedEncoding;
+    NSError          * error = nil;
+    
+    path = [NSString stringWithFormat: @"/proc/%@", procFile];
 
-  path = [NSString stringWithFormat: @"/proc/%@", procFile];
-  content = [NSString stringWithContentsOfFile: path];
-
-  if ([content length] == 0)
+    content = [NSString stringWithContentsOfFile:path
+                                    usedEncoding:&usedEncoding
+                                           error:&error];
+    
+    if (!content)
     {
-      //LOGSeriousError(@"Read (%@) attempt failed", path);
+        //LOGSeriousError(@"Read (%@) attempt failed", path);
     }
-
-  return content;
+    
+    return content;
 }
 
 -(NSString*)contentOfPIDFile:(NSString*)pidFile
@@ -217,7 +222,7 @@ NSString* formattedByteSizeValue(unsigned int value)
 
   if (pidstat)
     {
-      const char* statsChars=[pidstat cString];
+      const char* statsChars=[pidstat UTF8String];
       if (sscanf(statsChars, "%ld %ld %ld %ld %ld %ld %ld",
                  &_pagesNb,//size
                  &_residentPagesNb,//resident
@@ -242,7 +247,7 @@ NSString* formattedByteSizeValue(unsigned int value)
       NSRange cmdEnd=[pidstat rangeOfString:@") "];
       if (cmdEnd.length>0)
         {
-          NSString* pid_cmd=[pidstat substringToIndex:cmdEnd.location];
+//          NSString* pid_cmd=[pidstat substringToIndex:cmdEnd.location];
 
           if (cmdEnd.location+cmdEnd.length<[pidstat length])
             {
@@ -254,7 +259,7 @@ NSString* formattedByteSizeValue(unsigned int value)
                 memset(P->cmd, 0, sizeof P->cmd);   // clear even though *P xcalloc'd ?! 
                 sscanf(S, "%d (%39c", &P->pid, P->cmd);
               */
-              const char* statsChars=[stats cString];
+              const char* statsChars=[stats UTF8String];
               char cState;
               long utime;
               long stime;

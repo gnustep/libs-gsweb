@@ -37,19 +37,20 @@
 -(BOOL)isANumber;
 -(BOOL)isAFloatNumber;
 -(BOOL)isAnIntegerNumber;
-#ifdef LONG_LONG_MAX
--(BOOL)isAnIntegerNumberWithMin:(long long)min
-                            max:(long long)max;
-#else
--(BOOL)isAnIntegerNumberWithMin:(long)min
-                            max:(long)max;
-#endif
+//#ifdef LONG_LONG_MAX
+//-(BOOL)isAnIntegerNumberWithMin:(long long)min
+//                            max:(long long)max;
+
+-(BOOL) isAnIntegerNumberWithMin:(NSInteger) min
+                             max:(NSInteger) max;
+
 -(BOOL)isAnUnsignedIntegerNumber;
-#ifdef LONG_LONG_MAX
--(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long long)max;
-#else
--(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long)max;
-#endif
+//#ifdef LONG_LONG_MAX
+//-(BOOL)isAnUnsignedIntegerNumberWithMax:(unsigned long long)max;
+//#else
+
+-(BOOL)isAnUnsignedIntegerNumberWithMax:(NSUInteger) max;
+
 -(BOOL)isStartingWithNumber;
 
 @end

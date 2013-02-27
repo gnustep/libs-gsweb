@@ -762,7 +762,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSTimeZone* gmtTZ=[NSTimeZone timeZoneWithName:@"GMT"];
   if (!gmtTZ)
     NSWarnLog(@"no time zone for GMT");
-  return [self descriptionWithCalendarFormat:@"%A, %d-%b-%Y %H:%M:%S GMT"
+  return [self descriptionWithCalendarFormat:@"%a, %d %b %Y %H:%M:%S GMT"
 			   timeZone:gmtTZ
 			   locale:nil];
 };

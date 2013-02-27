@@ -395,7 +395,7 @@ static Class GSWHTMLBareStringClass = Nil;
 -(GSWElement*)invokeActionForRequest:(GSWRequest*)request
                            inContext:(GSWContext*)aContext
 {
-  GSWElement* element=nil;
+  id <GSWActionResults, NSObject> element=nil;
   BOOL searchIsOver=NO;
   NSString* senderID=nil;
   int length=0;
@@ -429,9 +429,9 @@ id currentEl = nil;
 
                  currentEl = (*objectAtIndexIMP)(aDynamicChildrensArray,objectAtIndexSEL,elementsN[1]);
                  if ([currentEl class] != GSWHTMLBareStringClass) {
-
-                   element=[currentEl invokeActionForRequest:request
-                                                   inContext:aContext];
+                     
+                     element = (id <GSWActionResults, NSObject>) [currentEl invokeActionForRequest:request
+                                                                                         inContext:aContext];
      
                    NSAssert3(!element || [element isKindOfClass:[GSWElement class]],
                              @"From: %@, Element is a %@ not a GSWElement: %@",

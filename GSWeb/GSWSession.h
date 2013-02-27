@@ -191,8 +191,8 @@ Returns first element of languages or nil if languages is empty
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext;
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
+                                     inContext:(GSWContext*)aContext;
 
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext;
