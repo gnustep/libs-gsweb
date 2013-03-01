@@ -275,7 +275,7 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
       LOGOPT_NC(GSWOPTValue_SessionStoreClassName);
       LOGOPT_NC(GSWOPT_SessionStoreClassName);
 
-      LOGOPT_NC(GSWOPTVALUE_DirectConnectEnabled);
+      LOGOPT   (GSWOPTVALUE_DirectConnectEnabled);
       LOGOPT_NC(GSWOPT_DirectConnectEnabled);
 
       LOGOPT   (GSWOPTVALUE_FrameworksBaseURL);

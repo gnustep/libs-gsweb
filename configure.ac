@@ -133,6 +133,12 @@ AC_ARG_ENABLE(png,
   enable_png=yes)
 
 if test $enable_png = yes; then
+
+  PNG_CPPFLAGS="`pkg-config --cflags libpng`"
+  CPPFLAGS="$CPPFLAGS $PNG_CPPFLAGS"
+  AUX_INCS="$AUX_INCS $PNG_CPPFLAGS"
+  AC_CHECK_HEADER(png.h, [], [], [])
+
   AC_CHECK_LIB(png, png_sig_cmp)
 fi
 

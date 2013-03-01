@@ -989,9 +989,9 @@ void ValidationExceptionRaiseFn0(const char *func,
      when other threads invoke description on us.  */
   if (self == [NSThread currentThread])
     {
-      return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"<%s: %p (%p)>",
-		       GSClassNameFromObject(self),
-		       self, objc_thread_id());
+        return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"<%s: %p>",
+                                               GSClassNameFromObject(self),
+                                               self);
     }
   return [super description];
 }
@@ -1002,30 +1002,7 @@ void ValidationExceptionRaiseFn0(const char *func,
 static NSString *
 volatileInternalDescription(NSLock *self)
 {
-#ifdef GNUSTEP
-  struct objc_mutex *mutex = 0;
-  const char *type;
-  NSUInteger size;
-  int offset;
-
-  if (GSObjCFindVariable(self, "_mutex", &type, &size, &offset))
-    {
-      GSObjCGetVariable(self, offset, size, &mutex);
-    }
-
-  if (mutex != 0)
-    {
-      return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"(%@ mutex:%p owner:%p depth:%d)",
-                                             self, mutex, mutex->owner, mutex->depth);
-    }
-  else
-    {
-      return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"(%@ mutex:%p)",
-                                             self, mutex);
-    }
-#else
   return [self description];
-#endif
 }
 
 //--------------------------------------------------------------------
@@ -1039,12 +1016,8 @@ loggedLockBeforeDateFromFunctionInFileInLine(id self,
 {
   BOOL isLocked = YES;
   NSThread *thread;
-  void *threadID = 0;
 
   thread = [NSThread currentThread];
-#ifdef GNUSTEP
-  threadID = objc_thread_id();
-#endif
 
   if (limit == nil)
     {
@@ -1072,11 +1045,11 @@ loggedLockBeforeDateFromFunctionInFileInLine(id self,
 	  NSString *name;
 
 	  NSDebugFLLog(@"locking",
-		       @"tried lock FAILED thread %@(%p) "
+		       @"tried lock FAILED thread %@ "
 		       @"date:%@ file:%s function:%s line:%li "
 		       @"lock:%@ "
 		       @"exception:%@ reason:%@ info:%@",
-		       thread, threadID, 
+		       thread, 
 		       limit, file, function, line, 
 		       volatileInternalDescription(self));
 
@@ -1089,12 +1062,12 @@ loggedLockBeforeDateFromFunctionInFileInLine(id self,
     }
 
   NSDebugFLLog(@"locking",
-	       @"%@ %@ thread %@(%p) "
+	       @"%@ %@ thread %@ "
 	       @"date:%@ file:%s function:%s line:%li "
 	       @"result:%d lock:%@",
 	       (try ? @"tried lock" : @"lock"),
 	       (isLocked ? @"SUCCEEDED" : @"FAILED"),
-	       thread, threadID,
+	       thread,
 	       limit, file, function, line,
 	       isLocked, volatileInternalDescription(self));
 
@@ -1108,29 +1081,26 @@ loggedUnlockFromFunctionInFileInLine(id self,
 				     const char *function,
 				     long line)
 {
-  NSThread *thread;
-  void *threadID = 0;
-
-  thread = [NSThread currentThread];
-#ifdef GNUSTEP
-  threadID = objc_thread_id();
-#endif
-  NSDebugFLLog(@"locking",
-	       @"unlock thread %@(%p) "
-	       @"file:%s function:%s line:%li "
-	       @"lock:%@",
-	       thread, threadID,
-	       file, function, line, 
-	       volatileInternalDescription(self));
-  [self unlock];
-  NSDebugFLLog(@"locking",
-	       @"unlock SUCCEEDED thread %@(%p) "
-	       @"file:%s function:%s line:%li "
-	       @"lock:%@",
-	       thread, threadID,
-	       file, function, line, 
-	       volatileInternalDescription(self));
-
+    NSThread *thread;
+    
+    thread = [NSThread currentThread];
+    
+    NSDebugFLLog(@"locking",
+                 @"unlock thread %@ "
+                 @"file:%s function:%s line:%li "
+                 @"lock:%@",
+                 thread,
+                 file, function, line,
+                 volatileInternalDescription(self));
+    [self unlock];
+    NSDebugFLLog(@"locking",
+                 @"unlock SUCCEEDED thread %@ "
+                 @"file:%s function:%s line:%li "
+                 @"lock:%@",
+                 thread,
+                 file, function, line, 
+                 volatileInternalDescription(self));
+    
 }
 
 //====================================================================

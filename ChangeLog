@@ -1,3 +1,11 @@
+2013-03-01  David Wetzel <dave@turbocat.de>
+	* configure.ac
+	* GSWeb/GSWUtils.m
+	* GSWeb/GSWApplication+Defaults.m
+	* GSWeb/GSWHTTPIO.m
+	
+	Fixed for non-Apple platforms, patch from Sebastian Reitenbach.
+
 2013-02-26  David Wetzel <dave@turbocat.de>
 	* added GSWeb/GSWApplication+Defaults.h
 	* GSWeb/GNUmakefile: use -Werror

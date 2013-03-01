@@ -26,9 +26,6 @@
 #include <Foundation/NSString.h>
 #include <Foundation/NSFileHandle.h>
 #include <Foundation/NSData.h>
-#ifdef GNUSTEP
-#include <GNUstepBase/GSFileHandle.h>
-#endif
 #include <GNUstepBase/NSString+GNUstepBase.h>
 #include <Foundation/NSError.h>
 #include <Foundation/NSException.h>
@@ -374,9 +371,10 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
   uint16_t        rPort = 0;
   NSString      * rAddress = nil;
 
-#ifdef GNUSTEP
-  [(GSFileHandle*) fh setNonBlocking: NO];
-#endif
+    // checkme.
+    //#ifdef GNUSTEP
+    //  [(GSFileHandle*) fh setNonBlocking: NO];
+    //#endif
   
   // get info about who talks to us
   
