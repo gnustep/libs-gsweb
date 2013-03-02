@@ -1,4 +1,7 @@
-2013-03-01  David Wetzel <dave@turbocat.de>
+2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* regenerate configure from configure.ac
+
+2013-03-02  David Wetzel <dave@turbocat.de>
 	add GSWDatabase/Makefile.preamble patch from Sebastian Reitenbach
 	
 2013-03-01  David Wetzel <dave@turbocat.de>
