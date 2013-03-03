@@ -202,6 +202,11 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
     return NO;
 }
 
+
+@interface NSMutableDictionary (GSWContextAdditions)
+- (id) sessionID;
+@end
+
 @implementation NSMutableDictionary (GSWContextAdditions)
 
 // sessionIDInQueryDictionary
@@ -216,10 +221,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   return value;
 }
 
-@end
-
-@interface NSMutableDictionary (GSWContextAdditions)
-- (id) sessionID;
 @end
 
 //====================================================================
