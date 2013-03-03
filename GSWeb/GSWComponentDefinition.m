@@ -553,7 +553,7 @@ static GSWContext *   TheTemporaryContext;
   NSDictionary     * archive = nil;
   NSString         * encodingName = nil;
   
-  if ((_encoding == 0)) {
+  if (_encoding == 0) {
     
     _encoding = [GSWMessage defaultEncoding]; // safer, because we may not have a .woo file
     
@@ -565,7 +565,7 @@ static GSWContext *   TheTemporaryContext;
       {
         _encoding = [GSMimeDocument encodingFromCharset:encodingName];
         
-        if ((_encoding == 0)) {
+        if (_encoding == 0) {
           [NSException raise: NSInvalidArgumentException
                       format: @"%s %@ -- unknown encoding '%@'",__PRETTY_FUNCTION__, _wooPath, encodingName];
         }

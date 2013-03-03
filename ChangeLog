@@ -1,6 +1,14 @@
 2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWSessionTimeOutManager.h
 	  GSWSessionTimeOutManager conforms to NSLocking protocol
+	* GSWeb/GSWComponentDefinition.m
+	* GSWeb/GSWComponentReference.m
+	* GSWeb/GSWContext.m
+	* GSWeb/GSWHTMLDynamicElement.m
+	* GSWeb/GSWHyperlink.m
+	* GSWeb/GSWResourceManager.m
+	* GSWeb/GSWResourceRequestHandler.m
+	  get rid of extaneous parentheses on equality tests
 
 2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* regenerate configure from configure.ac

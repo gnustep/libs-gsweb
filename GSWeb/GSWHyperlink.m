@@ -266,7 +266,7 @@ static Class NSStringClass = Nil;
   NSString     * str = nil;
   NSString     * path;
   
-  if ((aRequestHandlerPath == nil)) {
+  if (aRequestHandlerPath == nil) {
     path = @"";
   } else {
     path = aRequestHandlerPath;

@@ -192,7 +192,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
       association = [_associations objectForKey: str];
       if (([association isKindOfClass:[GSWConstantValueAssociation class]]) && ([self escapeHTML] == NO)) {
         aValue = [association valueInComponent:nil];
-        if ((aValue == nil)) {
+        if (aValue == nil) {
           s1 = @"";
         } else {
           s1 = (NSString*)aValue;

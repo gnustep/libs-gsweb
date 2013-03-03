@@ -2129,7 +2129,7 @@ If none, try request languages
 
 - (BOOL) secureMode
 {
-  if ((_secureMode == -2)) {
+  if (_secureMode == -2) {
     return [self secureRequest];
   }
   return ((_secureMode == YES));
@@ -2194,7 +2194,7 @@ If none, try request languages
 
 - (WOMarkupType) markupType
 {
-  if ((_markupType == WOUndefinedMarkup))
+  if (_markupType == WOUndefinedMarkup)
   {
     GSWComponent* thePage = [self page];
     if (thePage) {

@@ -56,7 +56,7 @@ RCS_ID("$Id$")
   NSString * framework = nil;
   NSRange range = [uri rangeOfString:@"/"];
   
-  if ((range.location == NSNotFound)) {
+  if (range.location == NSNotFound) {
     // app wrapper resource
     framework = nil;
   } else {

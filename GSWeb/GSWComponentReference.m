@@ -43,9 +43,9 @@ RCS_ID("$Id$")
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
 {
-  if ((self==[super initWithName:aName
+  if (self==[super initWithName:aName
                     associations:associations
-                    template:nil])) {
+                    template:nil]) {
                     
      ASSIGN(_name,aName);
      ASSIGN(_keyAssociations,[NSMutableDictionary dictionaryWithDictionary:associations]);
@@ -58,8 +58,8 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  if ((self==[self initWithName:aName
-                   associations:associations]))
+  if (self==[self initWithName:aName
+                   associations:associations])
     {
       ASSIGN(_contentElement,template);
     };

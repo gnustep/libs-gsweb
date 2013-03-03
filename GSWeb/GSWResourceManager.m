@@ -301,7 +301,7 @@ NSMutableDictionary   *globalPathCache = nil;
   NSRange range = [oldPath rangeOfString:@"Resources/WebServer"
                                  options:NSBackwardsSearch];
   
-  if ((range.location == NSNotFound)) {
+  if (range.location == NSNotFound) {
     if (([oldPath hasSuffix:@".wo"] == NO)) {
       return nil;
     }
@@ -422,7 +422,7 @@ static NSDictionary * _cachedStringsTable(GSWResourceManager * resmanager, NSStr
       } END_SYNCHRONIZED;
     }
     // we are using a static object so the == is ok here.
-    if ((stringTableDict == (NSDictionary*) [NSNull null]))
+    if (stringTableDict == (NSDictionary*) [NSNull null])
     {
       stringTableDict = nil;
     }
