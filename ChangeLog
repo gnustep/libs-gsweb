@@ -9,6 +9,8 @@
 	* GSWeb/GSWResourceManager.m
 	* GSWeb/GSWResourceRequestHandler.m
 	  get rid of extaneous parentheses on equality tests
+	* GSWeb/GSWUtils.m
+	  NS(U)Integer conversions
 
 2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* regenerate configure from configure.ac

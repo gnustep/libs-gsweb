@@ -813,7 +813,7 @@ void ValidationExceptionRaiseFn0(const char *func,
 }
 
 //--------------------------------------------------------------------
-- (void)release
+- (oneway void)release
 {
   DESTROY(_array);
   _compareSelector=NULL;
@@ -1869,12 +1869,9 @@ NSString* GSWGetDefaultDocRoot()
     [NSException raise: NSInvalidArgumentException format: @"range of nil"];
   else
     {
-      int selfLength=[self length];
-      int searchedLength=[data length];
-      if (aRange.location<0)
-        {
-        }
-      else if (aRange.location+aRange.length>selfLength)
+      NSUInteger selfLength=[self length];
+      NSUInteger searchedLength=[data length];
+      if (aRange.location+aRange.length>selfLength)
         {
         }
       else if (selfLength>0 && searchedLength>0)
@@ -1882,12 +1879,12 @@ NSString* GSWGetDefaultDocRoot()
           const unsigned char* bytes=(const unsigned char*)[self bytes];
           const unsigned char* searchedBytes=(const unsigned char*)[data bytes];
 
-          int searchIndex=0;
+          NSUInteger searchIndex=0;
           for(searchIndex=aRange.location;
               searchIndex<(selfLength-searchedLength) && range.length==0;
               searchIndex++)
             {
-              int i=0;
+              NSUInteger i=0;
               if (bytes[searchIndex]==searchedBytes[0])
                 {
                   for(i=1;i<searchedLength && bytes[searchIndex+i]==searchedBytes[i];i++);
