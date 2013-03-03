@@ -158,8 +158,6 @@
 - (void)awakeFromKeyValueUnarchiver:(EOKeyValueUnarchiver*)object;
 - (NSMutableDictionary *)inputObjectForQualifier;
 - (BOOL)inQueryMode;
--(void) editingContext:(EOEditingContext*)editingContext
-   presentErrorMessage:(NSString*)msg;
 - (id)insert;
 - (id)insertAfterLastObject;
 - (NSDictionary *)insertedObjectDefaultValues;

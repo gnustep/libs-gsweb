@@ -263,7 +263,10 @@ GSWEB_EXPORT NSString* GSWGetDefaultDocRoot();
 @interface NSObject (NSObjectVoid)
 -(id)nilMethod;
 +(id)nilMethod;
+#ifndef GNUSTEP_BASE_LIBRARY
+// defined in gnustep-base NSObject
 -(NSString*)className;
+#endif
 +(NSString*)className;
 -(id)performSelectorIfPossible:(SEL)aSelector;
 -(id)performSelectorIfPossible:(SEL)aSelector

@@ -16,6 +16,10 @@
 	  do not use redundant stringWithString:
 	* GSWeb/GSWContext.m
 	  move @interface before @implementation
+	* GSWDatabase/WODisplayGroup.[h|m]
+	* GSWeb/GSWUtils.[h|m]
+	  no need for categories to reimplement things
+	  already defined in their primary class
 
 2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* regenerate configure from configure.ac

@@ -54,6 +54,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 @interface WODisplayGroup (Private)
 -(void)finishInitialization;
 -(void)_setUpForNewDataSource;
+-(void) editingContext:(EOEditingContext*)editingContext
+   presentErrorMessage:(NSString*)msg;
 -(void)_presentAlertWithTitle:(id)title
                       message:(id)msg;
 -(void)_addQualifiersToArray:(NSMutableArray*)array

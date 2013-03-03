@@ -929,11 +929,14 @@ void ValidationExceptionRaiseFn0(const char *func,
   return nil;
 };
 
+#ifndef GNUSTEP_BASE_LIBRARY
+// defined in gnustep-base NSObject
 //--------------------------------------------------------------------
 -(NSString*)className
 {
   return NSStringFromClass([self class]);
 };
+#endif
 
 //--------------------------------------------------------------------
 +(NSString*)className
