@@ -748,7 +748,7 @@ static NSString * _cachedStringForKey(GSWResourceManager * resmanager, NSString 
       type=[globalMime objectForKey:extension];
     };
   if (!type)
-    type=[NSString stringWithString:@"application/octet-stream"];
+    type=@"application/octet-stream";
   return type;
 };
 

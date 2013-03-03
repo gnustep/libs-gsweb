@@ -98,7 +98,7 @@ static Class GSWHTMLBareStringClass = Nil;
                               length:1];
               if (associationValue)
                 {
-                  [tmpHtmlBareStrings addObject:[NSString stringWithString:@"="]];
+                  [tmpHtmlBareStrings addObject:@"="];
                   [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
                                   length:1];
                   [tmpHtmlBareStrings addObject:[NSString stringWithFormat:@"\"%@\"",associationValue]];

@@ -11,6 +11,9 @@
 	  get rid of extaneous parentheses on equality tests
 	* GSWeb/GSWUtils.m
 	  NS(U)Integer conversions
+	* GSWeb/GSWResourceManager.m
+	* GSWeb/GSWHTMLStaticElement.m
+	  do not use redundant stringWithString:
 
 2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* regenerate configure from configure.ac
