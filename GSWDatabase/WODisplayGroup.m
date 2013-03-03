@@ -56,8 +56,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 -(void)_setUpForNewDataSource;
 -(void) editingContext:(EOEditingContext*)editingContext
    presentErrorMessage:(NSString*)msg;
--(void)_presentAlertWithTitle:(id)title
-                      message:(id)msg;
+-(void)_presentAlertWithTitle:(NSString *)title
+                      message:(NSString *)msg;
 -(void)_addQualifiersToArray:(NSMutableArray*)array
                    forValues:(NSDictionary*)values
             operatorSelector:(SEL)sel;

@@ -319,9 +319,9 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 //	uri
--(NSString*)uri 
+-(WODynamicURLString *)uri 
 {
-  return (NSString*)_uri;
+  return (WODynamicURLString *)_uri;
 };
 
 //--------------------------------------------------------------------

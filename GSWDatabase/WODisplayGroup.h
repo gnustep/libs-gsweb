@@ -113,7 +113,7 @@
 };
 
 + (GSWDisplayGroup* )displayGroup;
-- (id)undoManager;
+- (EOUndoManager *)undoManager;
 - (NSArray *)allObjects;
 - (NSArray *)allQualifierOperators;
 - (unsigned)batchCount;

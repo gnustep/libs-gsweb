@@ -41,7 +41,7 @@
 -(BOOL)isVisible;
 -(GSWComponent*)toggleVisibilityAction;
 -(NSString*)imageFileName;
--(id)label;
+-(NSString *)label;
 -(NSString*)helpString;
 -(BOOL)isDisabled;
 -(BOOL)shouldDisplay;

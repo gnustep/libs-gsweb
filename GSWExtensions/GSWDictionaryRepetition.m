@@ -89,13 +89,13 @@ RCS_ID("$Id$")
   return nil;
 };
 
--(void)setCurrentKey:(id)key
+-(void)setCurrentKey:(NSString *)aKey
 {
   id value = nil;
-  NSDebugMLLog(@"gswdync",@"key=%@",key);
-  value=[[self dictionary] objectForKey:key];
+  NSDebugMLLog(@"gswdync",@"key=%@",aKey);
+  value=[[self dictionary] objectForKey:aKey];
   NSDebugMLLog(@"gswdync",@"value=%@",value);
-  [self setValue:key
+  [self setValue:aKey
 		forBinding:@"key"];
   [self setValue:value
 		forBinding:@"item"];

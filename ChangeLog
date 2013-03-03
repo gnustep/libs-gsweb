@@ -1,3 +1,13 @@
+2013-03-03 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWDatabase/WODisplayGroup.h
+	* GSWDatabase/WODisplayGroup.m
+	* GSWExtensions/GSWCollapsibleComponentContent.h
+	* GSWExtensions/GSWCollapsibleComponentContent.m
+	* GSWExtensions/GSWDictionaryRepetition.m
+	* GSWeb/GSWRequest.m
+	  make the methods in the interface match the 
+	  methods in the implementation
+
 2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWSessionTimeOutManager.h
 	  GSWSessionTimeOutManager conforms to NSLocking protocol
