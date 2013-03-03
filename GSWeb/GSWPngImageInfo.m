@@ -64,7 +64,6 @@ reader_func(png_structp png_struct,
 -(id)initWithContentsOfFile: (NSString *)path
 {
 #ifdef HAVE_LIBPNG
-#warning HAVE_LIBPNG
   if ((self = [super init]))
     {
       NSData *data = [NSData dataWithContentsOfFile: path];

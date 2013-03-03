@@ -20,6 +20,10 @@
 	* GSWeb/GSWUtils.[h|m]
 	  no need for categories to reimplement things
 	  already defined in their primary class
+	* GSWeb/GSWPngImageInfo.m
+	  remove useless #warning
+	* GSWeb/GSWApplication.m
+	  _globalLock is NSLock, not NSRecursiveLock
 
 2013-03-02 Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* regenerate configure from configure.ac

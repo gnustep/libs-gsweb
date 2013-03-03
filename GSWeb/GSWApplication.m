@@ -283,7 +283,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   if ((self=[super init]))
     {
       _selfLock=[NSRecursiveLock new];
-      _globalLock=[NSRecursiveLock new];
+      _globalLock=[NSLock new];
       
       ASSIGN(_startDate,[NSDate date]);
       ASSIGN(_lastAccessDate,[NSDate date]);
