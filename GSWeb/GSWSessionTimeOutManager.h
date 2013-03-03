@@ -34,7 +34,7 @@
 
 
 //====================================================================
-@interface GSWSessionTimeOutManager : NSObject
+@interface GSWSessionTimeOutManager : NSObject <NSLocking>
 {
   NSMutableArray* _sessionOrderedTimeOuts;
   NSMutableDictionary* _sessionTimeOuts;
