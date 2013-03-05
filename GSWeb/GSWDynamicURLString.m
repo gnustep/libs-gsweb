@@ -336,7 +336,7 @@ static SEL appendStringSel = NULL;
 {
   if (!_flags.composed)
     {
-      NSString * tmpUrl = [[NSMutableString new] autorelease];
+      NSMutableString * tmpUrl = [[NSMutableString new] autorelease];
 
       if (!_flags.beginningComposed)
         {

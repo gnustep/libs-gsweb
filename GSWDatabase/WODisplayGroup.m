@@ -360,21 +360,24 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   return result;
 }
 
--(BOOL)_deleteObjectsAtIndexes:(NSArray*)indexes
+-(BOOL) _deleteObjectsAtIndexes:(NSArray*)indexes
 {
-  BOOL result=NO;
-  int indexesCount = 0;
-  
-  
-  indexesCount = [indexes count];
-  if (indexesCount>0)
-  {
-    NSArray* objects=[_displayedObjects objectsAtIndexes:indexes];
-    result=[self _deleteObjects:objects];
-  }
-  
-  
-  return result;
+    BOOL result = NO;
+    
+    if ([indexes count] > 0)
+    {
+        NSEnumerator      * idxEnumer = [indexes objectEnumerator];
+        NSMutableArray    * objects   = [NSMutableArray array];
+        NSNumber          * idx       = nil;
+        
+        while ((idx = [idxEnumer nextObject])) {
+            [objects addObject:[_displayedObjects objectAtIndex:[idx intValue]]];
+        }
+        
+        result=[self _deleteObjects:objects];
+    }
+    
+    return result;
 }
 
 -(void)_insertObjectWithObjectAndIndex:(NSArray*)objectAndIndex
@@ -1668,8 +1671,18 @@ createObjectFailedForDataSource:_dataSource];
 
 - (NSArray *)selectedObjects
 {
-  if (!_selectedObjects)
-    ASSIGN(_selectedObjects,([_displayedObjects objectsAtIndexes:_selection]));
+    if (!_selectedObjects) {
+        NSEnumerator      * idxEnumer = [_selection objectEnumerator];
+        NSMutableArray    * objects   = [NSMutableArray array];
+        NSNumber          * idx       = nil;
+        
+        while ((idx = [idxEnumer nextObject])) {
+            [objects addObject:[_displayedObjects objectAtIndex:[idx intValue]]];
+        }
+        
+//        ASSIGN(_selectedObjects,([_displayedObjects objectsAtIndexes:_selection]));
+        ASSIGN(_selectedObjects, objects);
+    }
   
   return _selectedObjects;
 }
@@ -2302,13 +2315,13 @@ createObjectFailedForDataSource:_dataSource];
   }
 }
 
-//Deprecated
--(void)editingContext:(EOEditingContext*)editingContext
-  presentErrorMessage:(NSString*)message
-{
-  [self _presentAlertWithTitle:@"Editing context error"
-                       message:message];
-}
+////Deprecated
+//-(void)editingContext:(EOEditingContext*)editingContext
+//  presentErrorMessage:(NSString*)message
+//{
+//  [self _presentAlertWithTitle:@"Editing context error"
+//                       message:message];
+//}
 
 -(void)_presentAlertWithTitle:(NSString*)title
                       message:(NSString*)message

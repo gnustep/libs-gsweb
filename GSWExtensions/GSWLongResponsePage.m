@@ -298,8 +298,8 @@ Default implementation stops automatic refresh and returns self.
 };
 
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                            inContext:(GSWContext*)aContext
+- (id <GSWActionResults>) invokeActionForRequest:(GSWRequest*)aRequest
+                                       inContext:(GSWContext*)aContext
 {
   //??
   GSWElement *element=nil;

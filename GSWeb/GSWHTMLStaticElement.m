@@ -214,7 +214,6 @@ static Class GSWHTMLBareStringClass = Nil;
                               [tmpElementsMap subdataWithRange:
                                                 NSMakeRange(elementN,
                                                             [tmpElementsMap length]-elementN)]];
-          tmpElementsMap=tmpElementsMap;
           for(rmStringN=0;rmStringN<elementN;rmStringN++)
             {
               [rmString appendString:[tmpHtmlBareStrings objectAtIndex:rmStringN]];
