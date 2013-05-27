@@ -423,7 +423,7 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
   return str;
 };
 
-inline BOOL areUnicharEquals(unichar* p1,unichar* p2,NSUInteger len)
+static inline BOOL areUnicharEquals(unichar* p1,unichar* p2,NSUInteger len)
 {
   switch(len)
     {

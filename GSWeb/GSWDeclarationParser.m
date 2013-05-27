@@ -225,83 +225,83 @@ void GetGSWDeclarationParserIMPS(GSWDeclarationParserIMPs* impsPtr,GSWDeclaratio
     };
 };
 
-inline BOOL skipBlanks(GSWDeclarationParser* parser)
+static inline BOOL skipBlanks(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._skipBlanksIMP)(parser,skipBlanksSEL));
 };
 
-inline BOOL skipComment(GSWDeclarationParser* parser)
+static inline BOOL skipComment(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._skipCommentIMP)(parser,skipCommentSEL));
 };
 
-inline BOOL skipBlanksAndComments(GSWDeclarationParser* parser)
+static inline BOOL skipBlanksAndComments(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._skipBlanksAndCommentsIMP)(parser,skipBlanksAndCommentsSEL));
 };
 
-inline void parsePragma(GSWDeclarationParser* parser)
+static inline void parsePragma(GSWDeclarationParser* parser)
 {
   ((*parser->_selfIMPs._parsePragmaIMP)(parser,parsePragmaSEL));
 };
 
-inline NSString* parseIdentifier(GSWDeclarationParser* parser)
+static inline NSString* parseIdentifier(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseIdentifierIMP)(parser,parseIdentifierSEL));
 };
 
-inline NSString* parseKey(GSWDeclarationParser* parser)
+static inline NSString* parseKey(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseKeyIMP)(parser,parseKeySEL));
 };
 
-inline id parseKeyPath(GSWDeclarationParser* parser)
+static inline id parseKeyPath(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseKeyPathIMP)(parser,parseKeyPathSEL));
 };
 
-inline id parseQuotedString(GSWDeclarationParser* parser)
+static inline id parseQuotedString(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseQuotedStringIMP)(parser,parseQuotedStringSEL));
 };
 
-inline NSData* parseHexData(GSWDeclarationParser* parser)
+static inline NSData* parseHexData(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseHexDataIMP)(parser,parseHexDataSEL));
 };
 
-inline NSNumber* tryParseBoolean(GSWDeclarationParser* parser)
+static inline NSNumber* tryParseBoolean(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._tryParseBooleanIMP)(parser,tryParseBooleanSEL));
 };
 
-inline NSNumber* parseNumber(GSWDeclarationParser* parser)
+static inline NSNumber* parseNumber(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseNumberIMP)(parser,parseNumberSEL));
 };
 
-inline NSNumber* parseHexNumber(GSWDeclarationParser* parser)
+static inline NSNumber* parseHexNumber(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseHexNumberIMP)(parser,parseHexNumberSEL));
 };
 
-inline id parseValueAsAssociation(GSWDeclarationParser* parser,BOOL asAssociation)
+static inline id parseValueAsAssociation(GSWDeclarationParser* parser,BOOL asAssociation)
 {
   return ((*parser->_selfIMPs._parseValueAsAssociationIMP)(parser,parseValueAsAssociationSEL,asAssociation));
 };
 
-inline NSDictionary* parseDictionaryWithValuesAsAssociations(GSWDeclarationParser* parser,
+static inline NSDictionary* parseDictionaryWithValuesAsAssociations(GSWDeclarationParser* parser,
                                                              BOOL valuesAsAssociations)
 {
   return ((*parser->_selfIMPs._parseDictionaryWithValuesAsAssociationsIMP)(parser,parseDictionaryWithValuesAsAssociationsSEL,valuesAsAssociations));
 };
 
-inline NSArray* parseArray(GSWDeclarationParser* parser)
+static inline NSArray* parseArray(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseArrayIMP)(parser,parseArraySEL));
 };
 
-inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
+static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
 {
   return ((*parser->_selfIMPs._parseDeclarationIMP)(parser,parseDeclarationSEL));
 };

@@ -1,3 +1,7 @@
+2013-05-27: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWeb/NSString+HTML.m
+	* GSWeb/GSWDeclarationParser.m
+	  make inline functions static to please clang
 2013-03-04  David Wetzel <dave@turbocat.de>
 	* GSWExtensions/GSWLongResponsePage.m
 	* GSWDatabase/WODisplayGroup.m
