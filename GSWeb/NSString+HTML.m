@@ -319,7 +319,7 @@ void allocOrReallocUnicharString(unichar** ptrPtr,NSUInteger* capacityPtr,NSUInt
       NSUInteger allocSize=newCapacity*sizeof(unichar);
       unichar* newPtr=GSAutoreleasedBuffer(allocSize);
 
-      NSCAssert1(newPtr,@"Can't alloc %d allocSize bytes",
+      NSCAssert1(newPtr,@"Can't alloc %"PRIuPTR" allocSize bytes",
                  allocSize);
 
       if (length>0)

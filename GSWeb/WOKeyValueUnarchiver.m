@@ -400,7 +400,7 @@
   }
   NS_HANDLER
   {
-    NSDebugMLLog(@"gsdb", @"WOKeyValueUnarchiver",@"EXCEPTION:%@ (%@) [%s %d]",
+    NSDebugMLLog(@"gsdb", @"WOKeyValueUnarchiver" @"EXCEPTION:%@ (%@) [%s %d]",
                  localException,
                  [localException reason],
                  __FILE__,

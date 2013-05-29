@@ -216,7 +216,7 @@ RCS_ID("$Id$")
 -(void)saveRequest:(GSWRequest*)request
 {
     
-    NSDebugMLog(@"_recordingStep=%d",_recordingStep);
+    NSDebugMLog(@"_recordingStep=%ld",_recordingStep);
     
     ASSIGN(_request,request);
     
@@ -230,7 +230,7 @@ RCS_ID("$Id$")
         
         NSString* requestURI=[_request uri];
         NSString* filePath= [_recordingPath stringByAppendingPathComponent:
-                             [NSString stringWithFormat:@"%0.6d-request",_recordingStep]];
+                             [NSString stringWithFormat:@"%0.6ld-request",_recordingStep]];
         
         [GSWApplication logWithFormat:@"Saving Request into '%@'",filePath];
         
@@ -259,7 +259,7 @@ RCS_ID("$Id$")
     NSError  * error = nil;
     
     
-    NSDebugMLog(@"_recordingStep=%d",_recordingStep);
+    NSDebugMLog(@"_recordingStep=%ld",_recordingStep);
     
     NSDebugMLLog(@"GSWRecording",@"recordingSessionID=%@",
                  [response headerForKey:GSWHTTPHeader_RecordingSessionID[GSWebNamingConv]]);
@@ -267,7 +267,7 @@ RCS_ID("$Id$")
     response = [self _wildcardedResponse:response];
     
     filePath= [_recordingPath stringByAppendingPathComponent:
-               [NSString stringWithFormat:@"%0.6d-response",_recordingStep]];
+               [NSString stringWithFormat:@"%0.6ld-response",_recordingStep]];
     
     [GSWApplication logWithFormat:@"Saving Response into '%@'",filePath];
     
@@ -288,7 +288,7 @@ RCS_ID("$Id$")
     
     _recordingStep++;
     
-    NSDebugMLog(@"_recordingStep=%d",_recordingStep);
+    NSDebugMLog(@"_recordingStep=%ld",_recordingStep);
     
 }
 

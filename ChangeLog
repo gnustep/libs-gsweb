@@ -1,7 +1,23 @@
+2013-05-29: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWeb/GNUmakefile
+	* GSWeb/GSWProcFS.m
+	* GSWeb/GSWUtils.m
+	* GSWeb/GSWHTMLStaticElement.m
+	* GSWeb/GSWRecording.m
+	* GSWeb/NSString+HTML.m
+	* GSWeb/GSWMessage.m
+	* GSWeb/GSWRequest.m
+	* GSWeb/WOKeyValueUnarchiver.m
+	* GSWeb/GSWMultiKeyDictionary.m
+	* GSWeb/GSWTemporaryElement.m
+	  fix some format strings, patch based on submission from
+	  Graham Lee to bug report 39087
+
 2013-05-27: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/NSString+HTML.m
 	* GSWeb/GSWDeclarationParser.m
 	  make inline functions static to please clang
+
 2013-03-04  David Wetzel <dave@turbocat.de>
 	* GSWExtensions/GSWLongResponsePage.m
 	* GSWDatabase/WODisplayGroup.m

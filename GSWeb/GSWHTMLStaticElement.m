@@ -339,9 +339,9 @@ static Class GSWHTMLBareStringClass = Nil;
   BYTE element=0;
   int elementsN[3]={0,0,0};
 
-  NSAssert2(fromIndex<[_elementsMap length],@"fromIndex out of range:%u (length=%d)",
+  NSAssert2(fromIndex<[_elementsMap length],@"fromIndex out of range:%u (length=%"PRIuPTR")",
             fromIndex,[_elementsMap length]);
-  NSAssert2(toIndex<[_elementsMap length],@"toIndex out of range:%u (length=%d)",
+  NSAssert2(toIndex<[_elementsMap length],@"toIndex out of range:%u (length=%"PRIuPTR")",
             toIndex,[_elementsMap length]);
   NSAssert2(fromIndex<=toIndex,@"fromIndex>toIndex %u %u ",
             fromIndex,toIndex);

@@ -41,7 +41,7 @@ RCS_ID("$Id$")
 NSString* formattedByteSizeValue(unsigned int value)
 {
   if (value<1024)
-    return [NSString stringWithFormat:@"%lu b",value];
+    return [NSString stringWithFormat:@"%l b",value];
   else if (value<1024L*1024L)
     return [NSString stringWithFormat:@"%.3f Kb",
 		     (((double)value)/1024)];
@@ -122,7 +122,7 @@ NSString* formattedByteSizeValue(unsigned int value)
                  _ttyc,
                  _environ,
                  _commandLine];
-  dscr=[dscr stringByAppendingFormat:@"uid: %d\npid: %d\nppid: %d\npgrp: %d\nsession: %d\ntty: %d\ntpgid: %d\npriority: %d\nnice: %d\nsignal: %LX\nblocked: %LX\nsigIgnore: %LX\nsigCache: %LX\n",
+  dscr=[dscr stringByAppendingFormat:@"uid: %d\npid: %d\nppid: %d\npgrp: %d\nsession: %d\ntty: %d\ntpgid: %d\npriority: %d\nnice: %d\nsignal: %llX\nblocked: %llX\nsigIgnore: %llX\nsigCache: %llX\n",
              _uid,
              _pid,
              _ppid,
@@ -269,7 +269,7 @@ NSString* formattedByteSizeValue(unsigned int value)
               
               if (sscanf(statsChars,
                          "%c %d %d %d %d %d %lu %lu %lu %lu %lu %ld %ld %ld %ld %d "
-                         "%d %lu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %LX %LX %LX %LX %lu",
+                         "%d %lu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %llX %llX %llX %llX %lu",
                          &cState, //state
                          &_ppid,//ppid
                          &_pgrp,//pgrp
