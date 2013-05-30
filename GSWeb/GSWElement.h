@@ -42,7 +42,6 @@ GSWEB_EXPORT BYTE ElementsMap_gswebElement;
 GSWEB_EXPORT BYTE ElementsMap_dynamicElement;
 GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 
-@class GSWResponse;
 @class GSWContext;
 @class GSWRequest;
 

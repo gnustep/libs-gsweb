@@ -1,3 +1,7 @@
+2013-05-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWeb/GSWElement.h
+	  @class not needed after including full header of that class
+
 2013-05-30: Graham Lee <iamleeg@gmail.com>
 	* GSWeb/GSWContext.m
 	  remove useless comparison
