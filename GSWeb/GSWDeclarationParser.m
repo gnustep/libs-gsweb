@@ -462,7 +462,7 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
         {
           [_string getCharacters:_uniBuf];
       
-          NSDebugMLog(@"index=%d length=%d",index,_length);
+          NSDebugMLog(@"index=%d length=%d",_index,_length);
           //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
           
           while(_index<_length)
@@ -644,7 +644,7 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
           [GSWDeclarationFormatException 
             raise:GSWDFEMissingPragmaDelegate
             format:@"In %@ %@: No pragma delegate for pragma directive '%@'",
-            _frameworkName,_fileName];
+            _frameworkName,_fileName,pragmaDirective];
         }
       else
         {
@@ -669,8 +669,8 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
     {
       [GSWDeclarationFormatException 
         raise:GSWDFEUnknownPragmaDirective
-        format:@"In %@ %@: Unknown pragma directive '%@' at line %@",
-        _frameworkName,_fileName,
+        format:@"In %@ %@: Unknown pragma directive '%@' at line %d",
+        _frameworkName,_fileName,pragmaDirective,
         [self lineIndexFromIndex:startIndex]];
     };
   //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
@@ -1245,7 +1245,7 @@ Returns a NSString
                 {
                   [GSWDeclarationFormatException 
                     raise:GSWDFEUnexpectedBufferEnd
-                    format:@"In %@ %@: Reached buffer end while trying to parse value of a dictionary entry",
+                    format:@"In %@ %@: Reached buffer end while trying to parse value of a dictionary entry at line %d",
                     _frameworkName,_fileName,
                     [self lineIndexFromIndex:keyStartIndex]];
                 }
@@ -1260,7 +1260,7 @@ Returns a NSString
                     {
                       [GSWDeclarationFormatException 
                         raise:GSWDFEUnexpectedBufferEnd
-                        format:@"In %@ %@: Reached buffer end while trying to parse value of a dictionary entry",
+                        format:@"In %@ %@: Reached buffer end while trying to parse value of a dictionary entry at line %d",
                         _frameworkName,_fileName,
                         [self lineIndexFromIndex:keyStartIndex]];
                     }

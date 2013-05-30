@@ -979,6 +979,9 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
   GSWMultiKeyDictionary* _dictionary;
   NSMutableArray* _objects;
 }
+
+-(id)initWithDictionary:(GSWMultiKeyDictionary*)d;
+
 @end
 
 //==============================================================================
@@ -1431,7 +1434,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
 {
   return AUTORELEASE([[GSWMultiKeyDictionaryObjectEnumerator 
                         allocWithZone:NSDefaultMallocZone()] 
-                       initWithDictionary: (NSDictionary*)self]);
+                       initWithDictionary: self]);
 }
 
 //------------------------------------------------------------------------------

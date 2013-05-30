@@ -530,7 +530,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
     @"50.", @"51.", @"52.", @"53.", @"54.", @"55.", @"56.", @"57.", @"58.", @"59.", 
     @"60.", @"61.", @"62.", @"63.", @"64.", @"65.", @"66.", @"67.", @"68.", @"69." };
   static int preBuiltNumPlusDotCount = sizeof(preBuiltNumPlusDot)/sizeof(NSString*);
-  if (_contextID>=0 && _contextID<preBuiltNumPlusDotCount)
+  if (_contextID<preBuiltNumPlusDotCount)
     {
       if (_elementID)
         return [preBuiltNumPlusDot[_contextID] stringByAppendingString:

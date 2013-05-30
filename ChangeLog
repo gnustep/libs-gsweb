@@ -1,3 +1,11 @@
+2013-05-30: Graham Lee <iamleeg@gmail.com>
+	* GSWeb/GSWContext.m
+	  remove useless comparison
+	* GSWeb/GSWDeclarationParser.m
+	  fix some format strings and variables used in there
+	* Add method to interface and remove a cast
+	  from bug report 39088
+
 2013-05-29: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GNUmakefile
 	* GSWeb/GSWProcFS.m
