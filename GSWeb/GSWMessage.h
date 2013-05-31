@@ -92,11 +92,9 @@ GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,
   NSMutableData* _contentData;
   IMP _contentDataADImp;
 
-#ifndef NO_GNUSTEP
   NSMutableArray* _cachesStack; // Cache Stacks
   NSMutableData* _currentCacheData; // Current Cache Data (last object of _cachesStack). Do not retain/release
   IMP _currentCacheDataADImp;
-#endif
 
 @public // For functions
   GSWMessageIMPs _selfMsgIMPs;
@@ -188,14 +186,9 @@ GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,
 @end
 
 //====================================================================
-#ifndef NO_GNUSTEP
-
 @interface GSWMessage (GSWMessageCache)
 -(int)startCache;
 -(id)stopCacheOfIndex:(int)cacheIndex;
 @end
-
-#endif
-
 
 #endif //_GSWMessage_h__

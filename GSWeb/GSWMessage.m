@@ -261,15 +261,11 @@ static id GSWMessageDataCache[GSWMESSGAEDATACHESIZE];
 #define DEF_CONTENT_SIZE 81920
 
 //====================================================================
-#ifndef NO_GNUSTEP
-
 @interface GSWMessage (GSWMessageCachePrivate)
 -(void)_cacheAppendData:(NSData*)data;
 -(void)_cacheAppendBytes:(const void*)aBuffer
                   length:(unsigned int)bufferSize;
 @end
-
-#endif
 
 //====================================================================
 #define assertContentDataADImp();		\
@@ -485,9 +481,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   //NSDebugFLog0(@"Release Message cookies");
   DESTROY(_cookies);
 //  NSDebugFLog0(@"Release Message");
-#ifndef NO_GNUSTEP
   DESTROY(_cachesStack);
-#endif
   [super dealloc];
 };
 
@@ -514,7 +508,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
       clone->_contentData=[_contentData mutableCopyWithZone:zone];
       clone->_contentDataADImp=NULL;
 
-#ifndef NO_GNUSTEP
       DESTROY(clone->_cachesStack);
       clone->_cachesStack=[_cachesStack mutableCopyWithZone:zone];
       if ([clone->_cachesStack count]>0)
@@ -522,7 +515,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
           clone->_currentCacheData=[clone->_cachesStack lastObject];
           clone->_currentCacheDataADImp=NULL;
         };
-#endif
     };
   return clone;
 };
@@ -807,14 +799,12 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
       _checkBody(self);
       (*_contentDataADImp)(_contentData,appendDataSel,contentData);
 
-#ifndef NO_GNUSTEP
       // Caching management
       if (_currentCacheData)
         {
           assertCurrentCacheDataADImp();
           (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,contentData);
         };
-#endif
     };
 }
 
@@ -841,7 +831,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
         _checkBody(self);
         (*_contentDataADImp)(_contentData,appendDataSel,myData);
         
-#ifndef NO_GNUSTEP
 #warning check this. -- dw
         // Caching management
         if (_currentCacheData)
@@ -849,7 +838,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
             assertCurrentCacheDataADImp();
             (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
         };
-#endif
     };
 }
 
@@ -864,14 +852,12 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
       
       (*_contentDataADImp)(_contentData,appendDataSel,ad);
 
-#ifndef NO_GNUSTEP
           // Caching management
           if (_currentCacheData)
             {
               assertCurrentCacheDataADImp();
               (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,ad);
             };
-#endif
     };
 
 }
@@ -908,14 +894,12 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
         _checkBody(self);
         (*_contentDataADImp)(_contentData,appendDataSel,myData);
         
-#ifndef NO_GNUSTEP
         // Caching management
         if (_currentCacheData)
         {
             assertCurrentCacheDataADImp();
             (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
         }
-#endif
     }
 }
 
@@ -958,14 +942,12 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
       [_contentData appendBytes:bytes
                     length:length];
 
-#ifndef NO_GNUSTEP
       // Caching management
       if (_currentCacheData)
         {
           [_currentCacheData appendBytes:bytes
                              length:length];
         };
-#endif
     };
 };
 
@@ -1217,8 +1199,6 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
 
 
 //====================================================================
-#ifndef NO_GNUSTEP
-
 @implementation GSWMessage (GSWMessageCache)
 
 //--------------------------------------------------------------------
@@ -1296,4 +1276,3 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
 
 @end
 
-#endif
