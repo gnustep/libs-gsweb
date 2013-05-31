@@ -288,7 +288,7 @@ GSWConfig_ReadIFND(CONST char *p_pszConfigPath,
 		  if (*p_ppPropList)
 		    {
 		      GSWLog(__FILE__, __LINE__, GSW_WARNING,p_pLogServerData,
-		 "GSWConfig_ReadIFND: New configuration from %s readen",
+		 "GSWConfig_ReadIFND: New configuration from %s read",
 			     p_pszConfigPath);
 		    }
 		  else

@@ -16,6 +16,12 @@
 	* GSWDatabase/WODisplayGroup.m
 	  uncomment the right method, and use an NSIndexSet
 	  where needed instead of NSArray
+	* GSWAdaptors/Apache/INSTALL
+	  add a missing semicolon, and remove deprecated documentation
+	* GSWAdaptors/Apache/mod_gsweb.c
+	  make it compile with OpenBSD Apache 1.X
+	* GSWAdaptors/common/GSWConfig.c
+	  fix output
 
 2013-05-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWElement.h

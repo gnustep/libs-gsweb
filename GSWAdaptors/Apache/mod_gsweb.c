@@ -429,6 +429,7 @@ copyHeaders(request_rec    *p_pRequestRec,
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ScriptFileName,
 			   p_pRequestRec->filename);
+#if 0
   pszPort = APR_PSPRINTF(p_pRequestRec->pool,
                          "%u",
 #ifdef Apache2
@@ -440,6 +441,7 @@ copyHeaders(request_rec    *p_pRequestRec,
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemotePort,
 			   pszPort);
+#endif
   
 #ifdef Apache2
 //TODO
@@ -745,7 +747,12 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		      && ap_should_client_block(p_pRequestRec))
 		    {
 		      long iReadLength=0;
+
+#ifdef Apache2
 		      apr_size_t iRemainingLength = pRequest->uContentLength;
+#else
+		      size_t iRemainingLength = pRequest->uContentLength;
+#endif
 		      char *pszBuffer = malloc(pRequest->uContentLength);
 		      char *pszData = pszBuffer;
 		      

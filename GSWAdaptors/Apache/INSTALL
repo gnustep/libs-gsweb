@@ -103,7 +103,7 @@ The format is (there is an example for values below):
           host = IPAdressOfTheComputerOnWhichRunTheApplication;
           port = ThePortListenByTheApplication;
           parameters = { transport= socket; };
-        }
+        };
       };
     };
   };
@@ -130,54 +130,4 @@ Example values for a localhost use:
 
 
 Now, develop an application and run it !
-
-Deprecated Documentation
-************************
-You have to do:
-
-For Apache 1.x:
-	o make -f GNUmakefile-Apache1x
-	o copy mod_gsweb.so in apache libexec (the apache directory of modules, in which you should have mod_mime.so, mod_alias.so,...)
-	o edit your apache configuration file:
-
-		- Add 
-
-	        LoadModule GSWeb_Module  libexec/mod_gsweb.so
-	        AddModule mod_gsweb.c
-
-		- Add Global configuration directives:
-			o gsweb configuration file path
-				GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf		(for exemple)
-			o gsweb alias
-				GSWeb_Alias /GSWeb									(for exemple)
-
-	    - Add the following lines for a virtual host (or all hosts)
-	        <Location /GSWeb*>
-	                SetHandler GSWeb
-	        </Location>
-
-	o create your gsweb configuration file (see ../Doc/ConfigurationFile.html)
-
-
-For Apache 2.x:
-	o make -f GNUmakefile-Apache2x all
-	o copy mod_gsweb.so in apache libexec (the apache directory of modules, in which you should have mod_mime.so, mod_alias.so,...)
-	o edit your apache configuration file:
-
-		- Add 
-
-	        LoadModule GSWeb_Module  libexec/mod_gsweb.so
-
-		- Add Global configuration directives:
-			o gsweb configuration file path
-				GSWeb_ConfigFilePath /etc/httpd/conf/gsweb.conf		(for exemple)
-			o gsweb alias
-				GSWeb_Alias /GSWeb									(for exemple)
-
-	    - Add the following lines for a virtual host (or all hosts)
-	        <Location /GSWeb*>
-	                SetHandler GSWeb
-	        </Location>
-
-	o create your gsweb configuration file (see ../Doc/ConfigurationFile.html)
 
