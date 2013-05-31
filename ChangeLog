@@ -13,6 +13,9 @@
 	  39088
 	* GSWeb/GSWProcFS.m
 	  fix a format string
+	* GSWDatabase/WODisplayGroup.m
+	  uncomment the right method, and use an NSIndexSet
+	  where needed instead of NSArray
 
 2013-05-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWElement.h

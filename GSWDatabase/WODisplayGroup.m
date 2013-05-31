@@ -1229,13 +1229,14 @@ shouldRedisplayForEditingContextChangeNotification:notification];
   return (_savedAllObjects!=nil);
 }
 
+////Deprecated
 //--------------------------------------------------------------------
--(void)editingContext:(EOEditingContext*)editingContext
-  presentErrorMessage:(NSString*)message
-{
-  [self _presentAlertWithTitle:@"Editing Context Error"
-                       message:message];
-}
+//-(void)editingContext:(EOEditingContext*)editingContext
+//  presentErrorMessage:(NSString*)message
+//{
+//  [self _presentAlertWithTitle:@"Editing Context Error"
+//                       message:message];
+//}
 
 //--------------------------------------------------------------------
 //	insert
@@ -2102,7 +2103,9 @@ createObjectFailedForDataSource:_dataSource];
   else
     sortedSelection = [NSArray array];
   
-  selectedObjects = [[[_displayedObjects objectsAtIndexes:sortedSelection] mutableCopy]autorelease];
+  selectedObjects = [[[_displayedObjects objectsAtIndexes:
+		[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [sortedSelection count])]]
+		mutableCopy]autorelease];
   isSelectedObjectsChanged = ![selectedObjects isEqual:_selectedObjects];
   isSelectionChanged = ![sortedSelection isEqual:_selection];
   if (!isSelectionChanged && !isSelectedObjectsChanged)
@@ -2315,13 +2318,12 @@ createObjectFailedForDataSource:_dataSource];
   }
 }
 
-////Deprecated
-//-(void)editingContext:(EOEditingContext*)editingContext
-//  presentErrorMessage:(NSString*)message
-//{
-//  [self _presentAlertWithTitle:@"Editing context error"
-//                       message:message];
-//}
+-(void)editingContext:(EOEditingContext*)editingContext
+  presentErrorMessage:(NSString*)message
+{
+  [self _presentAlertWithTitle:@"Editing context error"
+                       message:message];
+}
 
 -(void)_presentAlertWithTitle:(NSString*)title
                       message:(NSString*)message
