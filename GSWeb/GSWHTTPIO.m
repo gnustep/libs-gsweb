@@ -61,6 +61,9 @@ static BOOL      _alwaysAppendContentLength = YES;
 
 //static NSString *CLOSE = @"close";
 
+#ifdef GNUSTEP
+@class GSFileHandle;
+#endif
 
 /* Get error information.
  */
@@ -371,10 +374,9 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
   uint16_t        rPort = 0;
   NSString      * rAddress = nil;
 
-    // checkme.
-    //#ifdef GNUSTEP
-    //  [(GSFileHandle*) fh setNonBlocking: NO];
-    //#endif
+    #ifdef GNUSTEP
+      [(GSFileHandle *)fh setNonBlocking: NO];
+    #endif
   
   // get info about who talks to us
   

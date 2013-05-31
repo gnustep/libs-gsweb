@@ -1,6 +1,9 @@
 2013-05-31: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWMessage.[h|]
 	  get rid of bogus #ifndef NO_GNUSTEP
+	* GSWeb/GSWHTTPIO.m
+	  use the file handle in non-blocking mode in GNUstep
+	  environment, uses a private GSFileHandle class
 
 2013-05-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWElement.h
