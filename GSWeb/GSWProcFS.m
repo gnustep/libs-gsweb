@@ -41,7 +41,7 @@ RCS_ID("$Id$")
 NSString* formattedByteSizeValue(unsigned int value)
 {
   if (value<1024)
-    return [NSString stringWithFormat:@"%l b",value];
+    return [NSString stringWithFormat:@"%u b",value];
   else if (value<1024L*1024L)
     return [NSString stringWithFormat:@"%.3f Kb",
 		     (((double)value)/1024)];

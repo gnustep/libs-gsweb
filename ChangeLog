@@ -11,6 +11,8 @@
 	* GSWeb/GSWMultiKeyDictionary.m
 	  Explicitly create a NSMutableDicitonary, see bug
 	  39088
+	* GSWeb/GSWProcFS.m
+	  fix a format string
 
 2013-05-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWElement.h
