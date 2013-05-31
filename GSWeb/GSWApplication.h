@@ -97,7 +97,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
   int _selfLockn;
   NSThread *_selfLock_thread_id;
 #endif
-  NSLock* _globalLock;
+  NSRecursiveLock* _globalLock;
 #ifndef NDEBUG
   int _globalLockn;
   NSThread *_globalLock_thread_id;
@@ -144,7 +144,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(BOOL)allowsConcurrentRequestHandling;
 -(BOOL)adaptorsDispatchRequestsConcurrently;
 -(BOOL)isConcurrentRequestHandlingEnabled;
--(NSLock *) requestHandlingLock;
+-(NSRecursiveLock *) requestHandlingLock;
 -(BOOL)isRequestHandlingLocked;
 -(void)lockRequestHandling;
 -(void)unlockRequestHandling;

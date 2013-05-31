@@ -1504,7 +1504,7 @@ static void GSWMapBaseInitWithZoneAndCapacity(GSWMapBase base,
   if ((self=[super init]))
     {
       ASSIGN(_dictionary,((GSWMultiKeyDictionary*)d));
-      ASSIGN(_objects,[_dictionary allValues]);
+      _objects = [NSMutableArray arrayWithArray:[_dictionary allValues]];
     };
   return self;
 }

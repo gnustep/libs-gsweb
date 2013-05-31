@@ -283,7 +283,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   if ((self=[super init]))
     {
       _selfLock=[NSRecursiveLock new];
-      _globalLock=[NSLock new];
+      _globalLock=[NSRecursiveLock new];
       
       ASSIGN(_startDate,[NSDate date]);
       ASSIGN(_lastAccessDate,[NSDate date]);
@@ -484,7 +484,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   return (_isMultiThreaded && _allowsConcurrentRequestHandling);
 }
 
-- (NSLock *) requestHandlingLock
+- (NSRecursiveLock *) requestHandlingLock
 {
   if (_isMultiThreaded && (!_allowsConcurrentRequestHandling)) {
     return _globalLock;

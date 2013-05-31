@@ -4,6 +4,11 @@
 	* GSWeb/GSWHTTPIO.m
 	  use the file handle in non-blocking mode in GNUstep
 	  environment, uses a private GSFileHandle class
+	* GSWeb/GSWApplication.[h|m]
+	* GSWeb/GSWComponentRequestHandler.m
+	* GSWeb/GSWMultiKeyDictionary.m
+	  make _globalLock a NSRecursiveLock to fix problem
+	  I introduced with SVN rev 36250, fixes bug 39092
 
 2013-05-30: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWElement.h

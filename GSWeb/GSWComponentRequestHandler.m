@@ -418,7 +418,7 @@ GSWResponse * _dispatchWithPreparedApplication(GSWApplication *app, GSWContext *
 {
   //OK
   GSWResponse* response=nil;
-  NSLock        * lock;
+  NSRecursiveLock    * lock;
 
   lock = [GSWApp requestHandlingLock];
   
