@@ -831,7 +831,6 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
         _checkBody(self);
         (*_contentDataADImp)(_contentData,appendDataSel,myData);
         
-#warning check this. -- dw
         // Caching management
         if (_currentCacheData)
         {

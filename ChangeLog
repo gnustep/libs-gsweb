@@ -1,3 +1,9 @@
+2013-06-02: David Wetzel <dave@turbocat.de>
+	* GSWeb/GSWMessage.m
+	  Remove warning
+	* README
+	  Change maintainer
+
 2013-05-31: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWMessage.[h|]
 	  get rid of bogus #ifndef NO_GNUSTEP
