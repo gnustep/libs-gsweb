@@ -446,74 +446,35 @@ hstrerror(int herr)
 static PSTHostent
 GSWUtil_CopyHostent(PSTHostent p_pHost)
 {
-  PSTHostent pNewHost=NULL;
-  int    iSize=(ROUND_UP(sizeof(struct hostent),
-			 sizeof(void *)))+strlen(p_pHost->h_name)+1;
-  int    iAliasNb=0;
-  int    iAddressesNb = 0;
-  char **ppszAliasOrAddress=NULL;
-  char **ppszNewHostAliasOrAddress=NULL;
-  void  *pTmp=NULL;
-  
-  // Aliases
-  for (ppszAliasOrAddress=p_pHost->h_aliases;
-       ppszAliasOrAddress && *ppszAliasOrAddress;
-       ppszAliasOrAddress++)
-    {
-      iSize+=strlen(*ppszAliasOrAddress)+1;
-      iAliasNb++;
-    };
+  int i = 0, alias_index = 0;
 
-  // Aliases Pointers Null Terminated List
-  iSize=ROUND_UP(iSize,sizeof(char *));
-  iSize+=(iAliasNb+1)*sizeof(char *);
-	
-  for (ppszAliasOrAddress=p_pHost->h_addr_list;
-       ppszAliasOrAddress && *ppszAliasOrAddress;
-       ppszAliasOrAddress++)
-    iAddressesNb++;
-  
-  iSize+=iAddressesNb*(sizeof(char *)+p_pHost->h_length+1);
-  
-  pNewHost=malloc(ROUND_UP(iSize,sizeof(char *)));
-  pTmp=pNewHost;
-  pNewHost->h_addrtype = p_pHost->h_addrtype;
-  pNewHost->h_length = p_pHost->h_length;
-		
-  pTmp+=ROUND_UP(sizeof(struct hostent),sizeof(void *));
-  pNewHost->h_aliases = (char **)pTmp;
-  pTmp+=(iAliasNb+1)*sizeof(char *);
-  pNewHost->h_addr_list = (char **)pTmp;
-  pTmp+=(iAddressesNb+1)*sizeof(char *);
-	
-  pNewHost->h_name = pTmp;
-  strcpy(pNewHost->h_name,p_pHost->h_name);
-  pTmp+=strlen(pNewHost->h_name)+1;
-
-  // Copy Aliases
-  for (ppszAliasOrAddress=p_pHost->h_aliases,
-	 ppszNewHostAliasOrAddress=pNewHost->h_aliases;
-       ppszAliasOrAddress && *ppszAliasOrAddress;
-       ppszAliasOrAddress++,ppszNewHostAliasOrAddress++)
+  while (p_pHost->h_aliases[alias_index] != NULL)
     {
-      *ppszNewHostAliasOrAddress = (char *)pTmp;
-      strcpy((char *)pTmp,*ppszAliasOrAddress);
-      pTmp+=strlen(*ppszAliasOrAddress) + 1;
-    };
-  *ppszNewHostAliasOrAddress=NULL;
-  
-  pTmp=(void *)ROUND_UP(pTmp,pNewHost->h_length);
-  for (ppszAliasOrAddress=p_pHost->h_addr_list,
-	 ppszNewHostAliasOrAddress=pNewHost->h_addr_list;
-       ppszAliasOrAddress && *ppszAliasOrAddress;
-       ppszAliasOrAddress++,ppszNewHostAliasOrAddress++)
+      ++alias_index;
+    }
+  struct hostent *pNewHost = (struct hostent*) malloc (sizeof(struct hostent));
+  bzero(pNewHost, sizeof(struct hostent));
+  pNewHost->h_name = (char *) strdup(p_pHost->h_name);
+  pNewHost->h_aliases = (char **) malloc ((alias_index + 1) * sizeof(char *));
+  if (alias_index)
     {
-      *ppszNewHostAliasOrAddress=(char *)pTmp;
-      memcpy(*ppszNewHostAliasOrAddress,*ppszAliasOrAddress,
-	     pNewHost->h_length);
-      pTmp+=pNewHost->h_length;
-    };
-  *ppszNewHostAliasOrAddress=NULL;
+      for (i=0; i<alias_index; i++) 
+        {
+          pNewHost->h_aliases[i] = (char *) strdup(p_pHost->h_aliases[i]);
+        }
+    }
+  else
+    {
+      pNewHost->h_aliases[0] = NULL;
+    }
+  pNewHost->h_aliases[alias_index] = 0;
+  pNewHost->h_addrtype = AF_INET;
+  pNewHost->h_length = sizeof(struct in_addr);
+  pNewHost->h_addr_list = (char **) malloc (2 * sizeof(char *));
+  pNewHost->h_addr_list[0] = (char *) malloc(sizeof(struct in_addr));
+  memset(pNewHost->h_addr_list[0], 0, sizeof(struct in_addr));
+  memcpy(pNewHost->h_addr_list[0], p_pHost->h_addr_list[0], sizeof(struct in_addr));
+  pNewHost->h_addr_list[1] = 0;
   return pNewHost;
 };
 
@@ -524,10 +485,10 @@ GSWUtil_HostLookup(CONST char *p_pszHost,
 {
   PSTHostent pHost=NULL;
   struct in_addr hostaddr;
+  struct hostent stTmpHost;
   int error=0;
 
 #if	defined(HAS_REENTRANT_GETHOSTENT)
-  struct hostent stTmpHost;
   char szBuffer[BUFLEN];
   
   pHost = &stTmpHost;		/* point to struct on the stack */
@@ -583,9 +544,11 @@ GSWUtil_HostLookup(CONST char *p_pszHost,
 #endif  // SOLARIS
     };
 #else   // !HAS_REENTRANT_GETHOSTENT
+  pHost = &stTmpHost;
   if (isdigit(*p_pszHost))
     {
-      pHost = gethostbyaddr((char *)&hostaddr.s_addr, sizeof(hostaddr.s_addr),
+      in_addr_t address = inet_addr(p_pszHost);
+      pHost = gethostbyaddr(&address, sizeof(in_addr_t),
 			    AF_INET);
       error = (pHost) ? 0 : h_errno;
     }

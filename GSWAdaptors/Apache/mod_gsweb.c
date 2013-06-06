@@ -66,46 +66,6 @@ typedef struct _GSWeb_Config
 } GSWeb_Config;
 
 
-#ifdef Apache2
-/*
- * Declare ourselves so the configuration routines can find and know us.
- * We'll fill it in at the end of the module.
- */
-module AP_MODULE_DECLARE_DATA gsweb_module;
-
-#include <ap_compat.h>
-#include <apr_pools.h>
-#include <apr_strings.h>
-#include <apr_tables.h>
-
-#define ap_soft_timeout(s, r) ;
-#define ap_hard_timeout(s, r) ;
-#define ap_kill_timeout(r) ;
-
-typedef apr_pool_t pool;
-typedef apr_array_header_t array_header;
-typedef apr_table_t table;
-typedef apr_table_entry_t table_entry;
-
-
-#ifndef ap_palloc 
-#define ap_palloc apr_palloc
-#endif
-#ifndef ap_pstrdup
-#define ap_pstrdup apr_pstrdup
-#endif
-#ifndef ap_table_elts
-#define ap_table_elts apr_table_elts
-#endif
-#ifndef ap_table_add
-#define ap_table_add apr_table_add
-#endif
-
-#ifndef ap_http_method
-#define ap_http_method ap_run_http_scheme
-#endif
-
-#else
 //TODO: remove ??
 struct table
 {
@@ -119,15 +79,6 @@ struct table
     void *creator;
 #endif
 };  
-#endif
-
-// 1.x/2.x Compatibility
-#ifdef Apache2
-#define APR_PSPRINTF apr_psprintf
-#else
-#define APR_PSPRINTF ap_psprintf
-#endif
-
 
 /*
 static CONST char *GSWeb_SetDocRoot(cmd_parms *p_pCmdParams,
@@ -153,30 +104,11 @@ GSWeb_GetServerConfig(server_rec *p_pServerRec)
 }
 
 
-#ifdef Apache2
-static int GSWeb_PostConfig(apr_pool_t *p, apr_pool_t *plog,
-                            apr_pool_t *ptemp, server_rec *s)
-{
-  char buffer[256]="mod_gsweb/" 
-    GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING 
-    "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING
-    "rev";
-  RevisionStringToRevisionValue(buffer+strlen(buffer),moduleRevision);
-  ap_add_version_component(p, buffer);
-  return OK;
-}
-#endif
 //--------------------------------------------------------------------
 // Init
-#ifdef Apache2
-static void
-GSWeb_ChildInit(apr_pool_t *p,
-		server_rec *p_pServerRec)
-#else
 static void
 GSWeb_Init(server_rec *p_pServerRec,
 	   pool       *p) 
-#endif
 {
   GSWDict      *pDict=GSWDict_New(0);
   GSWeb_Config *pConfig=NULL;
@@ -363,11 +295,7 @@ copyHeaders(request_rec    *p_pRequestRec,
   // Add server headers
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ServerSoftware,
-#ifdef Apache2
-			   ap_get_server_version()
-#else
 			   SERVER_VERSION
-#endif
                            );
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RequestScheme,
@@ -379,7 +307,7 @@ copyHeaders(request_rec    *p_pRequestRec,
 
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ProtocolNum,
-			   APR_PSPRINTF(p_pRequestRec->pool,
+			   ap_psprintf(p_pRequestRec->pool,
                                         "%u",
                                         p_pRequestRec->proto_num));
 
@@ -396,7 +324,7 @@ copyHeaders(request_rec    *p_pRequestRec,
         else
           serverPort=(unsigned)pServerRec->port;
       };
-    pszPort = APR_PSPRINTF(p_pRequestRec->pool,
+    pszPort = ap_psprintf(p_pRequestRec->pool,
                            "%u",
                            (unsigned int)serverPort);
   };
@@ -404,19 +332,11 @@ copyHeaders(request_rec    *p_pRequestRec,
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_ServerPort,
 			   pszPort);
-#ifdef Apache2
-  GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
-			   g_szServerInfo_RemoteHost,
-			   (CONST char *)ap_get_remote_host(pConnection,
-					        p_pRequestRec->per_dir_config,
-						REMOTE_NAME,NULL));
-#else /* Apache 1.x */
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemoteHost,
 			   (CONST char *)ap_get_remote_host(pConnection,
 						p_pRequestRec->per_dir_config,
 						REMOTE_NAME));
-#endif
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemoteAddress,
 			   pConnection->remote_ip);
@@ -430,22 +350,15 @@ copyHeaders(request_rec    *p_pRequestRec,
 			   g_szServerInfo_ScriptFileName,
 			   p_pRequestRec->filename);
 #if 0
-  pszPort = APR_PSPRINTF(p_pRequestRec->pool,
+  pszPort = ap_psprintf(p_pRequestRec->pool,
                          "%u",
-#ifdef Apache2
-                         pConnection->remote_addr->port
-#else
                          ntohs(pConnection->remote_addr.sin_port)
-#endif
                          );
   GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			   g_szServerInfo_RemotePort,
 			   pszPort);
 #endif
   
-#ifdef Apache2
-//TODO
-#else
   if (pConnection->user)
     GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			     g_szServerInfo_RemoteUser,
@@ -454,7 +367,6 @@ copyHeaders(request_rec    *p_pRequestRec,
     GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
 			     g_szServerInfo_AuthType,//"auth_type",
 			     pConnection->ap_auth_type);
-#endif
   pszRemoteLogName = (char *)ap_get_remote_logname(p_pRequestRec);
   if (pszRemoteLogName)
     GSWHTTPRequest_AddHeader(p_pGSWHTTPRequest,
@@ -480,9 +392,6 @@ getHeader(GSWDictElem *p_pElem,
     {
       pRequestRec->content_type = (char *)ap_pstrdup(pRequestRec->pool,
                                                      (char *)p_pElem->pValue);//TODOVERIFY: strdup or not ?
-#ifdef Apache2
-      ap_set_content_type(pRequestRec, (char *)p_pElem->pValue);
-#endif
     }
   else
     ap_table_add(pRequestRec->headers_out,p_pElem->pszKey,
@@ -507,45 +416,11 @@ sendResponse(request_rec     *p_pRequestRec,
   
   p_pHTTPResponse->pStats->_prepareSendResponseTS=GSWTime_now();
 	
-  // Add Headers for processing time information
-#ifdef Apache2
-  if (GSWConfig_AddTimeHeaders())
-    {
-      GSWDebugLog(pServerRec,"Start addTimeHeaders");
-/*
-      char *pszBuffer= malloc(100);
-      GSWTime newTS=GSWTime_now();
-      GSWTime requestTS=GSWTime_makeFromAPRTime(p_pRequestRec->request_time);
-      long duration=newTS-requestTS;
-      strcpy(pszBuffer,"gswadaptor-requestdate: ");            
-      GSWTime_format(pszBuffer+strlen(pszBuffer),requestTS);
-      GSWHTTPResponse_AddHeader(p_pHTTPResponse,
-                                pszBuffer);
-      strcpy(pszBuffer,"gswadaptor-sendresponsedate: ");            
-      GSWTime_format(pszBuffer+strlen(pszBuffer),newTS);
-      GSWHTTPResponse_AddHeader(p_pHTTPResponse,
-                                pszBuffer);
-      sprintf(pszBuffer,"gswadaptor-processduration: %0.3fs",
-              GSWTime_floatSec(duration));
-      free(pszBuffer);
-      pszBuffer=NULL;
-*/
-      // caller should free the returned string
-      char* pszBuffer=GSWStats_formatStats(p_pHTTPResponse->pStats,
-                                           "gswadaptor-stats: ",
-                                           pServerRec);
-      
-      GSWHTTPResponse_AddHeader(p_pHTTPResponse,
-                                pszBuffer);
-      free(pszBuffer);
-      GSWDebugLog(pServerRec,"Stop addTimeHeaders");
-  };
-#endif
   // Process Headers
   GSWDict_PerformForAllElem(p_pHTTPResponse->pHeaders,getHeader,p_pRequestRec);
 	
   GSWDebugLog(pServerRec,"status message=[%s]",p_pHTTPResponse->pszStatusMessage);
-  p_pRequestRec->status_line = APR_PSPRINTF(p_pRequestRec->pool,"%u %s",
+  p_pRequestRec->status_line = ap_psprintf(p_pRequestRec->pool,"%u %s",
                                             p_pHTTPResponse->uStatus,
                                             p_pHTTPResponse->pszStatusMessage);
 
@@ -556,9 +431,6 @@ sendResponse(request_rec     *p_pRequestRec,
   if (!p_pRequestRec->content_type)
     {
       p_pRequestRec->content_type = g_szContentType_TextHtml;
-#ifdef Apache2
-      ap_set_content_type(p_pRequestRec, g_szContentType_TextHtml);
-#endif
     };
   GSWDebugLog(pServerRec,"p_pRequestRec->content_type=%s",p_pRequestRec->content_type);
 	
@@ -570,9 +442,7 @@ sendResponse(request_rec     *p_pRequestRec,
   p_pHTTPResponse->pStats->_beginSendResponseTS=GSWTime_now();
 
   // send Headers
-#ifndef Apache2 // No more needed in Apache2 (?)
   ap_send_http_header(p_pRequestRec);	
-#endif
 
   // If not headers only
   if (!p_pRequestRec->header_only)
@@ -748,11 +618,7 @@ GSWeb_Handler(request_rec *p_pRequestRec)
 		    {
 		      long iReadLength=0;
 
-#ifdef Apache2
-		      apr_size_t iRemainingLength = pRequest->uContentLength;
-#else
 		      size_t iRemainingLength = pRequest->uContentLength;
-#endif
 		      char *pszBuffer = malloc(pRequest->uContentLength);
 		      char *pszData = pszBuffer;
 		      
@@ -845,120 +711,6 @@ GSWeb_Handler(request_rec *p_pRequestRec)
   return iRetVal;
 };
 
-
-
-#ifdef Apache2
-
-/*--------------------------------------------------------------------------*/
-/*                                                                          */
-/* Which functions are responsible for which hooks in the server.           */
-/*                                                                          */
-/*--------------------------------------------------------------------------*/
-/* 
- * Each function our module provides to handle a particular hook is
- * specified here.  The functions are registered using 
- * ap_hook_foo(name, predecessors, successors, position)
- * where foo is the name of the hook.
- *
- * The args are as follows:
- * name         -> the name of the function to call.
- * predecessors -> a list of modules whose calls to this hook must be
- *                 invoked before this module.
- * successors   -> a list of modules whose calls to this hook must be
- *                 invoked after this module.
- * position     -> The relative position of this module.  One of
- *                 APR_HOOK_FIRST, APR_HOOK_MIDDLE, or APR_HOOK_LAST.
- *                 Most modules will use APR_HOOK_MIDDLE.  If multiple
- *                 modules use the same relative position, Apache will
- *                 determine which to call first.
- *                 If your module relies on another module to run first,
- *                 or another module running after yours, use the 
- *                 predecessors and/or successors.
- *
- * The number in brackets indicates the order in which the routine is called
- * during request processing.  Note that not all routines are necessarily
- * called (such as if a resource doesn't have access restrictions).
- * The actual delivery of content to the browser [9] is not handled by
- * a hook; see the handler declarations below.
- */
-static void
-GSWeb_register_hooks(apr_pool_t *p)
-{
-/*    ap_hook_pre_config(GSWeb_PreConfig, NULL, NULL, APR_HOOK_MIDDLE);
-*/
-    ap_hook_post_config(GSWeb_PostConfig, NULL, NULL, APR_HOOK_MIDDLE);
-/*
-    ap_hook_open_logs(GSWeb_OpenLogs, NULL, NULL, APR_HOOK_MIDDLE);
-*/
-    ap_hook_child_init(GSWeb_ChildInit, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_handler(GSWeb_Handler, NULL, NULL, APR_HOOK_MIDDLE);
-/*    ap_hook_quick_handler(GSWeb_QuickHandler, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_pre_connection(GSWeb_PreConnection, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_process_connection(GSWeb_ProcessConnection, NULL, NULL, APR_HOOK_MIDDLE);
-    // [1] post read_request handling 
-    ap_hook_post_read_request(GSWeb_PostReadRequest, NULL, NULL,APR_HOOK_MIDDLE);
-    ap_hook_log_transaction(GSWeb_Logger, NULL, NULL, APR_HOOK_MIDDLE);
-#if 0
-    ap_hook_http_method(GSWeb_HttpMethod, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_default_port(GSWeb_DefaultPort, NULL, NULL, APR_HOOK_MIDDLE);
-#endif
-    ap_hook_translate_name(GSWeb_Translation, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_header_parser(GSWeb_header_ParserHandler, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_check_user_id(GSWeb_CheckUserId, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_fixups(GSWeb_FixerUpper, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_type_checker(GSWeb_TypeChecker, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_access_checker(GSWeb_AccessChecker, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_auth_checker(GSWeb_AuthChecker, NULL, NULL, APR_HOOK_MIDDLE);
-    ap_hook_insert_filter(GSWeb_InsertFilter, NULL, NULL, APR_HOOK_MIDDLE);
-*/
-}
-
-/*--------------------------------------------------------------------------*/
-/*                                                                          */
-/* All of the routines have been declared now.  Here's the list of          */
-/* directives specific to our module, and information about where they      */
-/* may appear and how the command parser should pass them to us for         */
-/* processing.  Note that care must be taken to ensure that there are NO    */
-/* collisions of directive names between modules.                           */
-/*                                                                          */
-/*--------------------------------------------------------------------------*/
-/* 
- * List of directives specific to our module.
- */
-static const command_rec GSWeb_Commands[] =
-{
-  AP_INIT_TAKE1
-  (
-   GSWEB_CONF__ALIAS,       /* directive name */
-   GSWeb_SetScriptAlias,    /* config action routine */
-   NULL,                    /* argument to include in call */
-   RSRC_CONF,               /* where available */
-   "ScriptAlias for GSWeb"  /* directive description */
-   ),
-  AP_INIT_TAKE1
-  (
-   GSWEB_CONF__CONFIG_FILE_PATH,        /* directive name */
-   GSWeb_SetConfig,                     /* config action routine */
-   NULL,                                /* argument to include in call */
-   RSRC_CONF,                           /* where available */
-   "Configuration File Path for GSWeb"  /* directive description */
-   ),
-  {NULL}
-};
-
-module AP_MODULE_DECLARE_DATA gsweb_module =
-{
-    STANDARD20_MODULE_STUFF,
-    NULL,//x_create_dir_config,    /* per-directory config creator */
-    NULL,//x_merge_dir_config,     /* dir config merger */
-    GSWeb_CreateServerConfig,      /* server config creator */
-    NULL,//x_merge_server_config,  /* server config merger */
-    GSWeb_Commands,                /* command table */
-    GSWeb_register_hooks,          /* set up other request processing hooks */
-};
-
-#else
-
 //--------------------------------------------------------------------
 // Module definitions
 
@@ -1024,4 +776,3 @@ module gsweb_module =
   NULL					
 };
 
-#endif

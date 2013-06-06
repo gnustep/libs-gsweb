@@ -1,3 +1,12 @@
+2013-06-06: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWAdaptors/common/GSWAppConnectSocket.c
+	* GSWAdaptors/common/GSWUtil.c
+	  make the old Apache Adaptor work on OpenBSD
+	* GSWAdaptors/Apache/mod_gsweb.c
+	* GSWAdaptors/Apache/GNUmakefile-Apache[1|2]x
+	  remove all #ifdef Apache2, and remove old GNUmakefiles
+
+
 2013-06-02: David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWMessage.m
 	  Remove warning

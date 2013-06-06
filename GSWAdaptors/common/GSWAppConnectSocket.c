@@ -84,10 +84,10 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
         {
           int iSocketDescr = 0;
           struct sockaddr_in sin;
-          memset(&sin,0,sizeof(sin));
+          memset(&sin,0,sizeof(struct sockaddr_in));
           sin.sin_family = pHost->h_addrtype;
           sin.sin_port = htons(p_pAppRequest->iPort);
-          memcpy(&sin.sin_addr,pHost->h_addr_list[0],pHost->h_length);
+          sin.sin_addr=*(struct in_addr*)pHost->h_addr_list[0];
           GSWDebugLog(p_pLogServerData,
                       "Try contacting %s on port %d...",
                       p_pAppRequest->pszHost,
@@ -105,7 +105,7 @@ AppConnectHandle GSWApp_Open(GSWAppRequest* p_pAppRequest,void* p_pLogServerData
             }
           else
             {
-              if (connect(iSocketDescr,(struct sockaddr*)&sin,sizeof(sin))<0)
+              if (connect(iSocketDescr,(struct sockaddr*)&sin,sizeof(struct sockaddr_in))<0)
                 {
                   GSWLog(__FILE__, __LINE__, GSW_ERROR,
                          p_pLogServerData,
