@@ -28,8 +28,7 @@
 #include <string.h>
 #include <sys/param.h>
 
-#include "../common/config.h"
-
+#include "config.h"
 
 #include "GSWUtil.h"
 #include "GSWStats.h"

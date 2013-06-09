@@ -8,6 +8,11 @@
 	* GSWAdaptors/common/config.h
 	  remove #ifdefs of Netscape, Apache and Apache2, only
 	  leave parts of Apache
+	* GSWAdaptors/Apache/GNUmakefile.in
+	* GSWAdaptors/Apache/mod_gsweb.c
+	  do not reference the common directory anymore
+	* move files needed by the Apache adaptor from
+	  common into the Apache directory
 
 2013-06-06: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWAdaptors/common/GSWAppConnectSocket.c

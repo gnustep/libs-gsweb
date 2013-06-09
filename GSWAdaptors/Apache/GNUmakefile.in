@@ -22,7 +22,6 @@
 #   Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 APXS:=@APXS@
-SERVERAPI:=@SERVERAPI@
 APRCONFIG:=@APRCONFIG@
 
 C_CPPFLAGS=@CONFIG_CPPFLAGS@
@@ -47,18 +46,6 @@ AP_INCDIR := $(shell ($(APXS) -q INCLUDEDIR))
 AP_LIBDIR := $(shell ($(APXS) -q LIBEXECDIR))
 AP_SYSDIR := $(shell ($(APXS) -q SYSCONFDIR))
 
-ifeq ($(SERVERAPI),Apache2)
-APR_CFLAGS   := $(shell ($(APRCONFIG) --cflags))
-APR_CPPFLAGS := $(shell ($(APRCONFIG) --cppflags))
-APR_INCDIR   := $(shell ($(APRCONFIG) --includedir))
-APR_LDFLAGS  := $(shell ($(APRCONFIG) --ldflags))
-APR_LIBS     := $(shell ($(APRCONFIG) --libs))
-
-ifneq ($(APR_INCDIR),)
-APR_CPPFLAGS += -I$(APR_INCDIR)
-endif
-endif
-
 # It is not clear, why some versions of of apxs  do not 
 # specify -shared in AP_LDFLAGS_SH as it seems to be the 
 # key flag to create DSO (Dynamic Shared Objects) which
@@ -77,19 +64,12 @@ ifeq ($(MOD_CONF_DIR),)
 MOD_CONF_DIR=$(AP_SYSDIR)
 endif
 
-ifeq ($(SERVERAPI),Apache2)
-ADAPTOR  := mod_gsweb.la
-else
 ADAPTOR  := mod_gsweb.so
-endif
 MOD_CONF := mod_gsweb.conf
 
-COMMON = $(SRCROOT)/common
-
 GSW_CPPFLAGS = \
-	-D$(SERVERAPI) -DREENTRANT -DEAPI \
-	-I. -I$(COMMON) \
-	-I$(AP_INCDIR) $(APR_CPPFLAGS) \
+	-DEAPI \
+	-I. -I$(AP_INCDIR) $(APR_CPPFLAGS) \
 	$(C_CPPFLAGS) $(OTHER_CPPFLAGS)
 
 GSW_CFLAGS = \
@@ -110,16 +90,20 @@ CFLAGS  = $(GSW_CPPFLAGS)
 CFLAGS += $(addprefix -Wc$(comma),$(GSW_CFLAGS))
 LDFLAGS = $(addprefix -Wl$(comma),$(GSW_LDFLAGS))
 
-# Declare default rule before including common.make 
-all:: $(ADAPTOR) $(MOD_CONF)
-
-# Include common.make to set COMMONFILES
-include $(COMMON)/common.make
+ADAPTORFILES = GSWHTTPHeaders.c \
+        config.c GSWConfig.c GSWPropList.c \
+        GSWTemplates.c GSWApp.c \
+        GSWURLUtil.c GSWDict.c \
+        GSWHTTPRequest.c GSWHTTPResponse.c \
+        GSWAppConnectSocket.c GSWUtil.c \
+        GSWAppRequest.c \
+        GSWLoadBalancing.c GSWList.c  \
+        GSWString.c GSWStats.c mod_gsweb.c
 
 # Link the final adaptor module with APXS
-$(ADAPTOR): $(COMMONFILES) $(SRCROOT)/Apache/mod_gsweb.c
+$(ADAPTOR): $(ADAPTORFILES)
 	$(APXS) -c -o $@ $(APXS_FLAGS) $(CFLAGS) $(LDFLAGS) \
-		$(COMMONFILES) $(SRCROOT)/Apache/mod_gsweb.c
+		$(ADAPTORFILES)
 
 # Create mod_gsweb.conf file based on MOD_CONF_DIR (apxs)
 $(MOD_CONF):
@@ -131,6 +115,8 @@ $(MOD_CONF):
 	echo "<Location /GSWeb*>" >> $(MOD_CONF) ; \
 	echo "  SetHandler GSWeb" >> $(MOD_CONF) ; \
 	echo "</Location>" >> $(MOD_CONF) ;
+
+all:: $(ADAPTOR) $(MOD_CONF)
 
 # Install module (via apxs) and mod_gsweb.conf file
 install: $(ADAPTOR) $(MOD_CONF)
@@ -151,9 +137,8 @@ httpdconfig: $(ADAPTOR)
 
 clean:
 	rm -f $(ADAPTOR) $(MOD_CONF) core *~
-	rm -rf .libs ../common/.libs
+	rm -rf .libs 
 	rm -f *.o *.la *.lo *.slo
-	rm -f ../common/*.o ../common/*.la ../common/*.lo ../common/*.slo
 
 distclean: clean
 	rm -rf config.log config.status GNUmakefile autom4te.cache
