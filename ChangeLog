@@ -13,6 +13,7 @@
 	  do not reference the common directory anymore
 	* move files needed by the Apache adaptor from
 	  common into the Apache directory
+	* remove GSWAdaptors/common and remaining stuff in there
 
 2013-06-06: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWAdaptors/common/GSWAppConnectSocket.c
