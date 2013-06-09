@@ -684,8 +684,8 @@ GSWEB_EXPORT GSWApplication* GSWApp;
 +(NSTimeInterval)sessionTimeOutValue;
 +(NSString*)debugSetConfigFilePath;//NDFN
 +(void)setDebugSetConfigFilePath:(NSString*)debugSetConfigFilePath;//NDFN
-+(void)setDefaultUndoStackLimit:(int)limit;
-+(int)defaultUndoStackLimit;
++(void)setDefaultUndoStackLimit:(NSUInteger)limit;
++(NSUInteger)defaultUndoStackLimit;
 +(BOOL)_lockDefaultEditingContext;
 +(void)_setLockDefaultEditingContext:(BOOL)flag;
 +(NSString*)defaultTemplateParser;//NDFN

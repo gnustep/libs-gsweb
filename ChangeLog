@@ -16,6 +16,9 @@
 	* remove GSWAdaptors/common and remaining stuff in there
 	* GSWeb/GSWUtils.m
 	  do not use deprecated method, replace as suggested by warning
+	* GSWeb/GSWApplication+Defaults.m
+	* GSWeb/GSWApplication.h
+	  make the defaultUndoStackLimit NSUInteger
 
 2013-06-06: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWAdaptors/common/GSWAppConnectSocket.c

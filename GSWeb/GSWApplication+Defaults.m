@@ -1492,14 +1492,14 @@ static NSString *_dflt_recordingClassName = nil;
 
 //--------------------------------------------------------------------
 static BOOL _dflt_init_defaultUndoStackLimit = NO;
-static int _dflt_defaultUndoStackLimit = 0;
-+(void)setDefaultUndoStackLimit:(int)limit
+static NSUInteger _dflt_defaultUndoStackLimit = 0;
++(void)setDefaultUndoStackLimit:(NSUInteger)limit
 {
     _dflt_defaultUndoStackLimit = limit;
   _dflt_init_defaultUndoStackLimit = YES;
 };
 
-+(int)defaultUndoStackLimit
++(NSUInteger)defaultUndoStackLimit
 {
     INIT_DFLT_INT(defaultUndoStackLimit,
 		GSWOPT_DefaultUndoStackLimit[GSWebNamingConv]);
