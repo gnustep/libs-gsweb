@@ -702,7 +702,7 @@ void ValidationExceptionRaiseFn0(const char *func,
   NSString* string= nil;
   va_list args;
 
-  if ([obj isInstance] == YES)
+  if (class_isMetaClass([self class]) == NO)
     {
       c = '-';
       cls = [obj class];

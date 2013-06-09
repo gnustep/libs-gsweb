@@ -14,6 +14,8 @@
 	* move files needed by the Apache adaptor from
 	  common into the Apache directory
 	* remove GSWAdaptors/common and remaining stuff in there
+	* GSWeb/GSWUtils.m
+	  do not use deprecated method, replace as suggested by warning
 
 2013-06-06: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWAdaptors/common/GSWAppConnectSocket.c
