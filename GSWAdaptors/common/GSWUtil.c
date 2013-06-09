@@ -38,12 +38,8 @@
 #include "config.h"
 #include "GSWLock.h"
 
-#if defined(Netscape)
-#include <frame/log.h>
-#elif defined(Apache)
 #include <httpd.h>
 #include <http_log.h>
-#endif
 
 #include "config.h"
 #include "GSWUtil.h"
@@ -136,11 +132,7 @@ VGSWLogSizedIntern(char       *file,
 		   int         line,
 		   char       *fn,
 		   int         p_iLevel,
-#if	defined(Apache)
 		   server_rec *p_pLogServerData,
-#else
-		   void       *p_pLogServerData,
-#endif
 		   int         p_iBufferSize,
 		   CONST char *p_pszFormat,
 		   va_list     ap)
@@ -156,21 +148,9 @@ VGSWLogSizedIntern(char       *file,
       vsnprintf(szBuffer, p_iBufferSize+511, p_pszFormat, ap);
       szBuffer[p_iBufferSize+511] = 0;
       
-#if	defined(Netscape)
-      log_error(0,"GSWeb: ",NULL,NULL,szBuffer);
-#endif
-      
-#if defined(Apache)
-#if defined(Apache2)
-      ap_log_error(file,line,p_iLevel,0,
-                   (server_rec *)p_pLogServerData,
-                   "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
-#else
       ap_log_error(file,line,p_iLevel,
                    (server_rec *)p_pLogServerData,
                    "GSWeb[%lu]: %s",(unsigned long)getpid(),szBuffer);
-#endif
-#endif 
     };
 }
 
@@ -180,11 +160,7 @@ GSWLog(
        char       *file,
 		   int         line,
 		   int         p_iLevel,
-#if	defined(Apache)
        server_rec *p_pLogServerData,
-#else
-       void       *p_pLogServerData,
-#endif
        CONST char *p_pszFormat, ...)
 {
   va_list ap;
@@ -204,11 +180,7 @@ GSWLog(
 //--------------------------------------------------------------------
 void
 GSWLogSized(int p_iLevel,
-#if	defined(Apache)
 	    server_rec *p_pLogServerData,
-#else
-	    void       *p_pLogServerData,
-#endif
 	    int p_iBufferSize,
 	    CONST char *p_pszFormat, ...)
 {
@@ -231,11 +203,7 @@ GSWLogIntern(char *file,
 	     int   line,
 	     char *fn,
 	     int   p_iLevel,
-#if	defined(Apache)
 	     server_rec *p_pLogServerData,
-#else
-	     void       *p_pLogServerData,
-#endif
 	     CONST char *p_pszFormat,...)
 {
   va_list ap;
@@ -257,11 +225,7 @@ GSWLogSizedIntern(char *file,
 		  int   line,
 		  char *fn,
 		  int   p_iLevel,
-#if	defined(Apache)
 		  server_rec *p_pLogServerData,
-#else
-		  void *p_pLogServerData,
-#endif
 		  int p_iBufferSize,
 		  CONST char *p_pszFormat,...)
 {
@@ -369,10 +333,6 @@ strcasestr(CONST char *p_pszString,CONST char *p_pszSearchedString)
   return NULL;
 };
 
-#if defined(HAS_REENTRANT_GETHOSTENT) && !defined(_REENTRANT)
-#define _REENTRANT     /* needs to be defined so proper structs get included */
-#endif
-
 //--------------------------------------------------------------------
 void
 GSWUtil_ClearHostCache()
@@ -414,11 +374,6 @@ GSWUtil_FindHost(CONST char *p_pszHost,
 #define	BUFLEN			4096
 
 
-#if	defined(NEEDS_HSTRERR)
-#ifndef	NETDB_SUCCESS
-#define	NETDB_SUCCESS 0
-#endif
-
 //--------------------------------------------------------------------
 CONST char *
 hstrerror(int herr)
@@ -440,7 +395,6 @@ hstrerror(int herr)
   else
     return "unknown error";
 }
-#endif
 
 //--------------------------------------------------------------------
 static PSTHostent
@@ -488,62 +442,12 @@ GSWUtil_HostLookup(CONST char *p_pszHost,
   struct hostent stTmpHost;
   int error=0;
 
-#if	defined(HAS_REENTRANT_GETHOSTENT)
-  char szBuffer[BUFLEN];
-  
-  pHost = &stTmpHost;		/* point to struct on the stack */
-  memset(pHost,0,sizeof(struct hostent));
-  memset(szBuffer,0,sizeof(szBuffer));
-#endif	
-  
   if (!p_pszHost) 
     p_pszHost="localhost";
 
   if (isdigit(*p_pszHost)) 
     hostaddr.s_addr=inet_addr(p_pszHost);
 	
-#if	defined(HAS_REENTRANT_GETHOSTENT)
-  if (isdigit(*p_pszHost))
-    {
-#if	defined(SOLARIS)
-      pHost = gethostbyaddr_r((char *)&hostaddr.s_addr,
-			      sizeof(hostaddr.s_addr),
-			      AF_INET,
-			      pHost,
-			      szBuffer,
-			      BUFLEN, &error);
-#else	// !SOLARIS
-      if (gethostbyaddr_r((char *)&hostaddr.s_addr, 
-			  sizeof(hostaddr.s_addr),
-			  AF_INET,
-			  &stTmpHost,
-			  szBuffer) == 0)
-	{
-	  pHost = &stTmpHost;
-	  error = 0;
-	}
-      else
-	{
-	  pHost=NULL;
-	  error = h_errno;
-	};
-#endif  // SOLARIS
-    }
-  else
-    {
-#if	defined(SOLARIS)
-      pHost = gethostbyname_r(p_pszHost,
-			      &stTmpHost,
-			      szBuffer,
-			      BUFLEN,
-			      &error);
-#else	// !SOLARIS
-      pHost = (gethostbyname_r(p_pszHost,&stTmpHost,szBuffer)==0) ? 
-	&stTmpHost : NULL;
-      error = (pHost) ? 0 : h_errno;
-#endif  // SOLARIS
-    };
-#else   // !HAS_REENTRANT_GETHOSTENT
   pHost = &stTmpHost;
   if (isdigit(*p_pszHost))
     {
@@ -557,7 +461,6 @@ GSWUtil_HostLookup(CONST char *p_pszHost,
       pHost = gethostbyname(p_pszHost);
       error = (pHost) ? 0 : h_errno;
     }
-#endif  // HAS_REENTRANT_GETHOSTENT
 
   if (!pHost)
     {

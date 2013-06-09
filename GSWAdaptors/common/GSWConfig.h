@@ -53,18 +53,7 @@ extern const char *g_szGSWeb_MimeType;
 //extern const char *g_szGSWeb_Conf_DocRoot;
 extern const char *g_szGSWeb_Conf_ConfigFilePath;
 
-// Apache
-#if defined(Apache)
 extern const char *g_szGSWeb_Conf_Alias;
-#endif
-
-// Netscape
-#if	defined(Netscape)
-extern const char *g_szGSWeb_Conf_PathTrans;
-extern const char *g_szGSWeb_Conf_AppRoot;
-extern const char *g_szGSWeb_Conf_Name;
-#endif
-
 
 extern const char *g_szGSWeb_InstanceCookie[2];
 

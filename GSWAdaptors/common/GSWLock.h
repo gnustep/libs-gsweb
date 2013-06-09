@@ -31,26 +31,12 @@ extern "C" {
 
 
 // Apache has no theading for old versions
-#if !defined(REENTRANT) || defined(Apache)
-	#define	GSWLock	void*
-	#define	GSWLock_Init(TheLock)
-	#define	GSWLock_Lock(TheLock)
-	#define	GSWLock_Unlock(TheLock)
-	#define	GSWLock_Free(TheLock)
-	#define	GSWLock_Sleep(SecNb)	sleep(SecNb)
-#elif defined(Netscape)
-	#include <base/systems.h>
-	#include <base/crit.h>
-	#include <base/systhr.h>
-	#define	GSWLock	CRITICAL
-	#define	GSWLock_Init(TheLock)	(TheLock = crit_init())
-	#define	GSWLock_Lock(TheLock)	crit_enter(TheLock)
-	#define	GSWLock_Unlock(TheLock)	crit_exit(TheLock)
-	#define	GSWLock_Free(TheLock)	crit_terminate(TheLock)
-	#define	GSWLock_Sleep(SecNb)	systhread_sleep(SecNb*1000)
-#else
-	#error	"GSWLock.h Unknwon server"
-#endif
+#define	GSWLock	void*
+#define	GSWLock_Init(TheLock)
+#define	GSWLock_Lock(TheLock)
+#define	GSWLock_Unlock(TheLock)
+#define	GSWLock_Free(TheLock)
+#define	GSWLock_Sleep(SecNb)	sleep(SecNb)
 
 #ifdef __cplusplus
 }

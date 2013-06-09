@@ -38,12 +38,8 @@
 #include "config.h"
 #include "GSWLock.h"
 
-#if defined(Netscape)
-#include <frame/log.h>
-#elif defined(Apache)
 #include <httpd.h>
 #include <http_log.h>
-#endif
 
 #include "config.h"
 #include "GSWUtil.h"

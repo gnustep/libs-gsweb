@@ -30,10 +30,6 @@
 extern "C" {
 #endif //_cplusplus
 
-#if defined(Apache2)
-#define Apache
-#endif
-
 #define CONST const
 #define DEBUG
 
@@ -80,37 +76,12 @@ extern "C" {
 //#define GSWEB_CONF__DOC_ROOT		"GSWeb_DocumentRoot"
 #define GSWEB_CONF__CONFIG_FILE_PATH	"GSWeb_ConfigFilePath"
 
-// Aapche
-#if defined(Apache)
 #define GSWEB_CONF__ALIAS	"GSWeb_Alias"
-#endif
-
-// Netscape
-#if	defined(Netscape)
-#define	GSWEB_CONF__PATH_TRANS	"from"			// NameTrans
-#define	GSWEB_CONF__APP_ROOT	"dir"			// NameTrans
-#define	GSWEB_CONF__NAME	"name"			// NameTrans, Object 
-#endif
-
 
 #define	GSWEB_INSTANCE_COOKIE_WO	"woinst="
 #define	GSWEB_INSTANCE_COOKIE_GSW	"gswinst="
 
-/*
- *	operating specific things regarding gethostbyname()
- */
-#if	defined(SOLARIS)
-#define	HAS_REENTRANT_GETHOSTENT
-#if defined(NSAPI) || defined(Apache)
-#define	NEEDS_HSTRERR
-#endif
-#endif
-
-#if defined(Apache)
 #define	SERVER	"Apache"
-#elif defined(Netscape)
-#define	SERVER	"NSAPI"
-#endif
 
 #ifndef	MAXHOSTNAMELEN
 #define	MAXHOSTNAMELEN	256

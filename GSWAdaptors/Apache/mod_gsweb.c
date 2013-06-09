@@ -525,7 +525,7 @@ GSWeb_Handler(request_rec *p_pRequestRec)
   memset(&stStats,0,sizeof(stStats));
 
   // The request time stamp
-  stStats._requestTS=GSWTime_makeFromAPRTime(p_pRequestRec->request_time);
+  stStats._requestTS=(GSWTime)(p_pRequestRec->request_time);
 
   // Handling start time stamp
   stStats._beginHandleRequestTS=GSWTime_now();

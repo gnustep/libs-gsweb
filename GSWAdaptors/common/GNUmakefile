@@ -1,5 +1,3 @@
-
-
 #Defaults
 
 #Directories
@@ -18,12 +16,7 @@ ADAPTORLIB = $(OBJROOT)/libAdaptor.a
 COMMON = $(SRCROOT)/common
 INCLUDE = -I$(COMMON)
 
-ifeq "solaris" "$(PLATFORM_OS)"
-CFLAGS = -O2 $(RC_CFLAGS) $(INCLUDE) -DCGI -DSOLARIS -DNEEDS_HSTRERR
-else
 CFLAGS = -O2 $(RC_CFLAGS) $(INCLUDE) -DCGI 
-endif
-
 
 all:: $(ADAPTORLIB)
 

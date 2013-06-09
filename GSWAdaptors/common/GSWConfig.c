@@ -62,39 +62,19 @@ const char *g_szGSWeb_MimeType=GSWEB__MIME_TYPE;
 //const char *g_szGSWeb_Conf_DocRoot=GSWEB_CONF__DOC_ROOT;
 const char *g_szGSWeb_Conf_ConfigFilePath=GSWEB_CONF__CONFIG_FILE_PATH;
 
-
-// Apache
-#if defined(Apache)
 const char *g_szGSWeb_Conf_Alias=GSWEB_CONF__ALIAS;
-#endif
-
-// Netscape
-#if	defined(Netscape)
-const char *g_szGSWeb_Conf_PathTrans=GSWEB_CONF__PATH_TRANS;
-const char *g_szGSWeb_Conf_AppRoot=GSWEB_CONF__APP_ROOT;
-const char *g_szGSWeb_Conf_Name=GSWEB_CONF__NAME;
-#endif
-
 const char *g_szGSWeb_InstanceCookie[2]={ GSWEB_INSTANCE_COOKIE_GSW, GSWEB_INSTANCE_COOKIE_WO };
-
 const char *g_szGSWeb_Server=SERVER;
 const char *g_szGSWeb_ServerAndAdaptorVersion=SERVER "/" GSWEB_SERVER_ADAPTOR_VERSION_MAJOR_STRING "." GSWEB_SERVER_ADAPTOR_VERSION_MINOR_STRING;
-
 
 const char *const g_szGNUstep = "GNUstep";
 
 const char *const g_szOKGSWeb[2] = { "OK GSWeb", "OK Apple"};
 const char *const g_szOKStatus[2] = { "HTTP/1.0 200 OK GNUstep GSWeb", "HTTP/1.0 200 OK Apple GSWeb"};
 
-#if	defined(Apache)
 #define GSWServerVersion		ap_get_server_version()
 #define GSWServerBuilt			ap_get_server_built()
 #define GSWServerURL			"http://www.apache.org"
-#else
-#define GSWServerVersion		"Unknown"
-#define GSWServerBuilt			"Unknown"
-#define GSWServerURL			"http://www.gnustepweb.org"
-#endif
 
 //====================================================================
 GSWLock          g_lockAppList=NULL;

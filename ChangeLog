@@ -1,3 +1,14 @@
+2013-06-09: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWAdaptors/Apache/mod_gsweb.c
+	* GSWAdaptors/common/GNUmakefile
+	* GSWAdaptors/common/GSWConfig.[h|c]
+	* GSWAdaptors/common/GSWLock.h
+	* GSWAdaptors/common/GSWStats.c
+	* GSWAdaptors/common/GSWUtil.[h|c]
+	* GSWAdaptors/common/config.h
+	  remove #ifdefs of Netscape, Apache and Apache2, only
+	  leave parts of Apache
+
 2013-06-06: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWAdaptors/common/GSWAppConnectSocket.c
 	* GSWAdaptors/common/GSWUtil.c
@@ -9,7 +20,6 @@
 	  note about Apache adaptor to work with OpenBSD Apache
 	  delete GSWAdaptors/netscape
 	
-
 2013-06-02: David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWMessage.m
 	  Remove warning

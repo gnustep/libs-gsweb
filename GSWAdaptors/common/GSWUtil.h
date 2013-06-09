@@ -37,7 +37,6 @@
 extern "C" {
 #endif
 
-#if	defined(Apache)
 #include "httpd.h"
 #include "http_log.h"
 //#define APLOG_EMERG     LOG_EMERG     /* system is unusable */
@@ -48,14 +47,6 @@ extern "C" {
 //#define APLOG_NOTICE    LOG_NOTICE    /* normal but significant condition */
 #define	GSW_INFO	  	APLOG_INFO		/* informational */
 #define	GSW_DEBUG		APLOG_DEBUG     /* debug-level messages */
-#else
-#define	GSW_DEBUG	0
-#define	GSW_INFO    1
-#define	GSW_WARNING 2
-#define	GSW_ERROR  3
-#define GSW_CRITICAL 4
-#endif
-
 
 #define max(x, y)               ((x) > (y) ? (x) : (y))
 #define min(x, y)               ((x) < (y) ? (x) : (y))
@@ -76,10 +67,6 @@ long GSWTime_msecPart(GSWTime t);
 
 #define GSWTime_floatSec(t) ((double)(((double)GSWTime_secPart(t))+((double)GSWTime_usecPart(t))/USEC_PER_SEC))
 
-#ifdef Apache
-#define GSWTime_makeFromAPRTime(aprtime) ((GSWTime)(aprtime))
-#endif
-  
 //====================================================================
 // Asserts
 #define GSWAssert(condition,p_pLogServerData,p_pszFormat, args...); \
@@ -97,11 +84,7 @@ long GSWTime_msecPart(GSWTime t);
 void GSWLog(       char       *file,
 		   int         line,
 int p_iLevel,
-#if	defined(Apache)
 	    server_rec *p_pLogServerData,
-#else
-	    void *p_pLogServerData,
-#endif
 	    CONST char *p_pszFormat, ...);
 
 #define GSWDebugLog(p_pLogServerData,p_pszFormat, args...); \
@@ -110,11 +93,7 @@ int p_iLevel,
 			{ if ((condition)) GSWLog(__FILE__, __LINE__,GSW_DEBUG,p_pLogServerData,p_pszFormat,  ## args);};
 
 void GSWLogSized(int p_iLevel,
-#if	defined(Apache)
 		   server_rec *p_pLogServerData,
-#else
-                   void *p_pLogServerData,
-#endif
                    int p_iBufferSize,
                    CONST char *p_pszFormat, ...);
 
@@ -122,11 +101,7 @@ void GSWLogIntern(char       *file,
 		  int         line,
 		  char       *fn,
 		  int         p_iLevel,
-#if	defined(Apache)
 		  server_rec *p_pLogServerData,
-#else
-		  void       *p_pLogServerData,
-#endif
 		  CONST char *p_pszFormat, ...);
   
 
@@ -134,11 +109,7 @@ void GSWLogSizedIntern(char       *file,
 		       int         line,
 		       char       *fn,
 		       int         p_iLevel,
-#if	defined(Apache)
 		       server_rec *p_pLogServerData,
-#else
-		       void       *p_pLogServerData,
-#endif
 		       int         p_iBufferSize,
 		       CONST char *p_pszFormat, ...);
 
