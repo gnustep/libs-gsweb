@@ -1364,8 +1364,12 @@ static int gsw_handler(request_rec *r)
             ap_rprintf(r, "<td>%s</td>", (mem[i].refusing == 1) ? "YES": "NO");
             apr_ctime(timestr, mem[i].last_request_time);
             ap_rprintf(r, "<td>%s</td>", timestr);
-            apr_ctime(timestr, mem[i].last_response_time);
-            ap_rprintf(r, "<td>%s</td></tr>\n", timestr);
+              if (mem[i].last_response_time > 0) {
+                  apr_ctime(timestr, mem[i].last_response_time);
+                  ap_rprintf(r, "<td>%s</td></tr>\n", timestr);
+              } else {
+                  ap_rprintf(r, "<td>never</td></tr>\n");                  
+              }
           }
           
           ap_rputs("</table><br>\n",r);

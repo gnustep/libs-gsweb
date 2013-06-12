@@ -1,3 +1,7 @@
+2013-06-11: David Wetzel <dave@turbocat.de>
+	* GSWAdaptors/Apache2/mod_gsw.c
+	  print 'never' and not the epoch time if there was never a response
+
 2013-06-09: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWAdaptors/Apache/mod_gsweb.c
 	* GSWAdaptors/common/GNUmakefile
