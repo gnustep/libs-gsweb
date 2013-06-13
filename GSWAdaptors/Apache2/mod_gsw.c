@@ -111,7 +111,7 @@ typedef struct gsw_app_conf {
 
 
 #define GSW_INST_CACHE          "gsw_inst_cache"
-#define X_WO_VERSION_HEADER     "x-webobjects-adaptor-version: 20071201\r\n"
+#define X_WO_VERSION_HEADER     "x-webobjects-adaptor-version: 20130612\r\n"
 #define SERVER_SOFTWARE         "SERVER_SOFTWARE"
 #define SERVER_NAME             "SERVER_NAME"
 #define SERVER_PORT             "SERVER_PORT"
@@ -869,37 +869,37 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
                 
 				if (newBuf != NULL) {
 					if (load_avr_seen == 0) {
-						if (strncmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
+						if (strncasecmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
 							load_avr_seen = 1;
 							newload = atoi(newBuf+26);
                             copy_header = 0;
 						}
 					}
                     if (refusing_seen == 0) {
-						if (strncmp(newBuf, REFUSING_SESSIONS_HEADER, 32) == 0) {
+						if (strncasecmp(newBuf, REFUSING_SESSIONS_HEADER, 32) == 0) {
 							refusing_seen = 1;
                             copy_header = 0;
 						}
 					}          
 					if (length_seen == 0) {
-						if (strncmp(newBuf, "content-length: ", 16) == 0) {
+						if (strncasecmp(newBuf, "content-length: ", 16) == 0) {
 							length_seen = 1;
 							content_length = atol(newBuf+16);
 							snprintf(tmpStr, sizeof(tmpStr), "%d", content_length);
-							apr_table_set(r->headers_out, "content-length", tmpStr);
+							apr_table_set(r->headers_out, "Content-Length", tmpStr);
                             copy_header = 0;
 						}
 					}
 					if (content_type == NULL) {
-						if (strncmp(newBuf, "content-type: ", 14) == 0) {
+						if (strncasecmp(newBuf, "content-type: ", 14) == 0) {
 							content_type = newBuf+14;
-                            copy_header = 0;
+                            copy_header = 1;
 						}
 					}
 					if (content_encoding == NULL) {
-						if (strncmp(newBuf, "content-encoding: ", 18) == 0) {
+						if (strncasecmp(newBuf, "content-encoding: ", 18) == 0) {
 							content_encoding = newBuf+18;
-							apr_table_set(r->headers_out, "content-encoding", content_encoding);
+							apr_table_set(r->headers_out, "Content-Encoding", content_encoding);
                             copy_header = 0;
 						}
 					}
@@ -907,7 +907,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
                         // Apple has a bug, giving us a 'L', so we do that too but accept a 'l' too -- dw 
 						if (strncasecmp(newBuf, "location: ", 10) == 0) {
 							location = newBuf+10;
-							apr_table_set(r->headers_out, "location", location);
+							apr_table_set(r->headers_out, "Location", location);
                             //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
                             copy_header = 0;
 						}
