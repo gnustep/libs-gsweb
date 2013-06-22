@@ -160,7 +160,7 @@ GSWResponse * _dispatchWithPreparedPage(GSWComponent * aPage, GSWSession * aSess
 
   [aResponse setHTTPVersion:[aRequest httpVersion]];
   [aResponse setHeader:@"text/html"
-                forKey:@"Content-Type"];
+                forKey:GSWHTTPHeader_ContentType];
   [aContext _setResponse:aResponse];
   
   if (oldContextID == nil) {

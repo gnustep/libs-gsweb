@@ -206,7 +206,7 @@ NSLog(@"dateString is %@", dateString);
   if (contentType)
   {
     [aResponse setHeader:contentType
-                  forKey:@"Content-Type"];
+                  forKey:GSWHTTPHeader_ContentType];
   }
   
   

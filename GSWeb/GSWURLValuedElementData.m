@@ -224,10 +224,10 @@ static Class NSStringClass = Nil;
   else
     [response setContent:data];
   [response setHeader:GSWIntToNSString((int)[data length])
-            forKey:@"Content-Length"];
+            forKey:GSWHTTPHeader_ContentLength];
   
   [response setHeader:_mimeType
-            forKey:@"Content-Type"];
+            forKey:GSWHTTPHeader_ContentType];
 };
 
 //--------------------------------------------------------------------

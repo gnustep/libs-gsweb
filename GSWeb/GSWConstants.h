@@ -143,6 +143,7 @@ GSWEB_EXPORT NSString* GSWHTTPHeader_RecordingIDsCookie[2];
 GSWEB_EXPORT NSString* GSWHTTPHeader_RecordingApplicationNumber[2];
 GSWEB_EXPORT NSString* GSWHTTPHeader_LoadAverage;
 GSWEB_EXPORT NSString* GSWHTTPHeader_RefuseSessions;
+GSWEB_EXPORT NSString* GSWHTTPHeader_RefusingRedirection[2];
 
 // Header key to return statistics to Adaptor
 GSWEB_EXPORT NSString* GSWHTTPHeader_AdaptorStats[2];
@@ -152,8 +153,11 @@ GSWEB_EXPORT NSString* GSWHTTPHeader_MethodPost;
 GSWEB_EXPORT NSString* GSWHTTPHeader_MethodGet;
 GSWEB_EXPORT NSString* GSWHTTPHeader_AcceptLanguage;
 GSWEB_EXPORT NSString* GSWHTTPHeader_AcceptEncoding;
+GSWEB_EXPORT NSString* GSWHTTPHeader_ContentDisposition;
+GSWEB_EXPORT NSString* GSWHTTPHeader_ContentEncoding;
 GSWEB_EXPORT NSString* GSWHTTPHeader_ContentType;
 GSWEB_EXPORT NSString* GSWHTTPHeader_FormURLEncoded;
+GSWEB_EXPORT NSString* GSWHTTPHeader_Location;
 GSWEB_EXPORT NSString* GSWHTTPHeader_MultipartFormData;
 GSWEB_EXPORT NSString* GSWHTTPHeader_ContentLength;
 GSWEB_EXPORT NSString* GSWHTTPHeader_MimeType_TextPlain;

@@ -1639,7 +1639,7 @@ RCS_ID("$Id$")
                               @"Document is not a GSMimeDocument but a %@:\n%@",
                               [aDoc class],aDoc);
                     aDocContent=[aDoc content];
-                    contentDispositionHeader=[aDoc headerNamed:@"content-disposition"];
+                    contentDispositionHeader=[aDoc headerNamed:GSWHTTPHeader_ContentDisposition];
                     contentDispositionValue=[contentDispositionHeader value];
                     contentDispositionParams=[contentDispositionHeader parameters];
                     
@@ -1671,7 +1671,7 @@ RCS_ID("$Id$")
                                     
                                     paramFormValueName = [NSString stringWithFormat:@"%@.%@",formDataName,paramName];
                                     previous = [formValues objectForKey:paramFormValueName];
-                                    typeFormValueName = [NSString stringWithFormat:@"%@.%@",formDataName, @"content-type"];
+                                    typeFormValueName = [NSString stringWithFormat:@"%@.%@",formDataName, GSWHTTPHeader_ContentType];
                                     prevContentType = [formValues objectForKey:typeFormValueName];
                                     
                                     contentType = [NSString stringWithFormat:@"%@/%@",

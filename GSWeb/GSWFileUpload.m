@@ -182,7 +182,7 @@ RCS_ID("$Id$")
             nameInContext=[self nameInContext:context];
             
             fileNameFormValueName = [NSString stringWithFormat:@"%@.filename", nameInContext];
-            mimeValueName = [NSString stringWithFormat:@"%@.%@",nameInContext, @"content-type"];
+            mimeValueName = [NSString stringWithFormat:@"%@.%@",nameInContext, GSWHTTPHeader_ContentType];
             
             fileDatas = [request formValuesForKey:nameInContext];
                         

@@ -243,9 +243,9 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   GSWResponse_appendContentString(self, content);
   [self setStatus:302];
   [self setHeader:location
-           forKey:@"Location"];
+           forKey:GSWHTTPHeader_Location];
   [self setHeader:@"YES"
-           forKey:@"x-webobjects-refusing-redirection"];
+           forKey:GSWHTTPHeader_RefusingRedirection[1]];
 }
 
 
@@ -293,8 +293,8 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   // it does not make sense to compress data less than 150 bytes.
   if ((dataLength > 150) && ([self _browserSupportsCompression:[aContext request]])) 
   {
-    NSString* contentType=[self headerForKey:@"Content-Type"];
-    NSString* contentEncoding=[self headerForKey:@"Content-Encoding"];
+    NSString* contentType=[self headerForKey:GSWHTTPHeader_ContentType];
+    NSString* contentEncoding=[self headerForKey:GSWHTTPHeader_ContentEncoding];
     
     if ((contentEncoding) || (!compressableContentTypesCache)) {
       return;
@@ -322,7 +322,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
         [self setContent:compressedData];
         dataLength=[self _contentLength];
         [self setHeader:@"gzip"
-                 forKey:@"Content-Encoding"];
+                 forKey:GSWHTTPHeader_ContentEncoding];
       }
     }
   }
@@ -475,7 +475,7 @@ escapingHTMLAttributeValue:(BOOL)escape
       if (httpVersion)
 	[aResponse setHTTPVersion:httpVersion];
       [aResponse setHeader:@"text/html"
-                forKey:@"Content-Type"];
+                forKey:GSWHTTPHeader_ContentType];
       [aContext _setResponse:aResponse];
       responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
                                GSWResponse_stringByEscapingHTMLString(aResponse,aMessage)];
@@ -544,18 +544,18 @@ escapingHTMLAttributeValue:(BOOL)escape
       GSWResponse_appendContentString(self,message);
       
       [self setHeader:GSWIntToNSString([[self content] length])
-            forKey:@"content-length"];
+            forKey:GSWHTTPHeader_ContentLength];
     };
   if (isDefinitive)
     [self setStatus:301]; // redirect definitive !
   else
     [self setStatus:302]; // redirect temporary !
   [self setHeader:location
-        forKey:@"Location"];
+        forKey:GSWHTTPHeader_Location];
   [self setHeader:@"text/html" 
-        forKey:@"Content-Type"];
+        forKey:GSWHTTPHeader_ContentType];
   [self setHeader:@"YES"
-        forKey:@"x-gsweb-refusing-redirection"];
+        forKey:GSWHTTPHeader_RefusingRedirection[0]];
 }
 
 //--------------------------------------------------------------------

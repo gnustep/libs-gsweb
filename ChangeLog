@@ -1,3 +1,14 @@
+2013-06-22: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWeb/GSWComponentRequestHandler.m
+	* GSWeb/GSWComponent.m
+	* GSWeb/GSWConstants.[h|m]
+	* GSWeb/GSWFileUpload.m
+	* GSWeb/GSWRequest.m
+	* GSWeb/GSWResourceRequestHandler.m
+	* GSWeb/GSWResponse.m
+	introduce some new string constants to GSWConstants
+	and use them more consistently
+
 2013-06-12: David Wetzel <dave@turbocat.de>
 	* GSWAdaptors/Apache2/mod_gsw.c
 	  use strncasecmp to be more tolerant with header case

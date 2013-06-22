@@ -1306,7 +1306,7 @@ Call this method before using a component which was cached in a variable.
 
       [response setHTTPVersion:httpVersion];
       [response setHeader:@"text/html"
-                forKey:@"Content-Type"];
+                forKey:GSWHTTPHeader_ContentType];
       [aContext _setResponse:response];
 
       pageElement=[aContext _pageElement];
