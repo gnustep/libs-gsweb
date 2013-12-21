@@ -1,3 +1,8 @@
+2013-12-21: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
+	* GSWeb/GSWSession.m
+	  do not include linux/sys.h
+	  patch by Graham Lee
+
 2013-06-22: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWComponentRequestHandler.m
 	* GSWeb/GSWComponent.m

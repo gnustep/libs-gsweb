@@ -40,7 +40,6 @@ RCS_ID("$Id$")
 #include <time.h>
 #if __linux__
 #include <linux/kernel.h>
-#include <linux/sys.h>
 #include <sys/sysinfo.h>
 #endif
 
