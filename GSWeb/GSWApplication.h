@@ -209,13 +209,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 
 -(Class)requestClass;
 
--(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
-                                  uri:(NSString*)anURL
-                          httpVersion:(NSString*)aVersion
-                              headers:(NSDictionary*)headers
-                              content:(NSData*)content
-                             userInfo:(NSDictionary*)userInfo;
-
 -(GSWResourceManager*)createResourceManager;
 
 -(GSWStatisticsStore*)createStatisticsStore;

@@ -280,8 +280,7 @@ static Class GSWHTMLBareStringClass = Nil;
 
 -(NSString*)baseURL 
 {
-  [self notImplemented: _cmd];	//TODOFN
-  return nil;
+  return [[self _componentDefinition] baseURL];
 }
 
 

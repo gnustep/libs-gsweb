@@ -69,7 +69,6 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
 @interface NSArray (Indexes)
 -(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects;
--(NSArray*)objectsAtIndexes:(NSArray*)indexes;
 @end
 
 //====================================================================
@@ -2512,40 +2511,5 @@ createObjectFailedForDataSource:_dataSource];
   return indexes;
 }
 
--(NSArray*)objectsAtIndexes:(NSArray*)indexes
-{
-  NSArray* objects=nil;
-  int selfCount=0;
-  
-  selfCount=[self count];
-  if ([self count]>0)
-  {
-    int indexesCount=[indexes count];
-    if (indexesCount>0)
-    {
-      NSMutableArray* tmpObjects=nil;
-      int i=0;
-      for(i=0;i<indexesCount;i++)
-      {
-        id indexObject=[indexes objectAtIndex:i];
-        int index=[indexObject intValue];
-        if (index<selfCount)
-        {
-          id object=[self objectAtIndex:index];
-          if (tmpObjects)
-            [tmpObjects addObject:object];
-          else
-            tmpObjects=(NSMutableArray*)[NSMutableArray arrayWithObject:object];
-        }
-      }
-      if (tmpObjects)
-        objects=[NSArray arrayWithArray:tmpObjects];
-    }
-  }
-  if (!objects)
-    objects=[NSArray array];
-  
-  return objects;
-}
 @end
 

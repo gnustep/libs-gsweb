@@ -71,7 +71,7 @@ static GSWContext *   TheTemporaryContext;
     frameworkName:(NSString*)aFrameworkName
 {
   NSString * myBasePath = nil;
-  NSFileManager * defaultFileManager = nil;
+  //NSFileManager * defaultFileManager = nil;
 
   [super init];
   ASSIGN(_name, [aName stringByDeletingPathExtension]);    // does it ever happen that
@@ -98,7 +98,7 @@ static GSWContext *   TheTemporaryContext;
   ASSIGN(_wodPath,[myBasePath stringByAppendingPathExtension:GSWComponentDeclarationsSuffix[GSWebNamingConv]]);
   ASSIGN(_wooPath,[myBasePath stringByAppendingPathExtension:GSWArchiveSuffix[GSWebNamingConv]]);
 
-  defaultFileManager = [NSFileManager defaultManager];
+  //defaultFileManager = [NSFileManager defaultManager];
   
   if (_componentClass == Nil) {
     [self autorelease];

@@ -1,3 +1,68 @@
+2014-04-11  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWDatabase/WODisplayGroup.m
+	  remove -objectsAtIndexes: (implemented in core/NSArray)
+	* GSWeb/GSWComponent.m
+	  implement -baseURL
+	* GSWeb/GSWComponentDefinition.m
+	  comment unused defaultFileManager
+	* GSWeb/GSWUtils.m
+	* GSWeb/GSWMessage.m
+	  fix encoding output in logs/messages
+	* GSWeb/GSWString.[hm]
+	  fix -initWithName:associations:template: definition
+	* GSWeb/GSWRequest.m
+	  fix misnaming (s/WODynamicURLString/GSWDynamicURLString/)
+	  fix encoding output in logs/messages
+	* GSWeb/GSWRadioButton.m
+	  remove [_value isValueSettable] test: this value is not set
+	* GSWeb/GSWImage.m
+	  fix framework name computing
+	* GSWeb/GSWHTTPIO.m
+	  allow custom request class
+	  fix warning
+	* GSWeb/GSWApplication.m
+	  fix GSWFPutSL (there was no \0 at end of string)
+	  fix -sessionIdKey
+	  fix -instanceIdKey
+	  remove unused -createRequestWithMethod:...
+	* GSWeb/GSWApplication.h
+	  remove unused -createRequestWithMethod:...
+	* config.mak.in
+	  define EOCONTROL_LIBRARY_NAME and EOACCESS_LIBRARY_NAME
+	* GSWeb/GSWConstants.[hm]
+	  add GSWKey_QuestionMarkSessionID
+	  add border__Key
+	* GSWeb/GSWActiveImage.h
+	  add _border association
+	* GSWeb/GSWActiveImage.m
+	  fix SessionID stuff in initWithName:...
+	  add _border association
+	  fix associations tests
+	  respect GNUstep coding standard (curly brackets placement)
+	* GSWeb/GSWContext.m
+	  fix -sessionID
+	* GSWeb/GSWForm.m
+	  fix _appendHiddenFieldsToResponse:inContext: (convert value to string)
+	* GSWeb/GSWHTMLDynamicElement.m
+	  fix _frameworkNameForAssociation:inComponent:
+	  fix computeQueryDictionaryWithActionClassAssociation: (wosid hadcoding and 
+	  other values tests)
+	  respect GNUstep coding standard (curly brackets placement)
+	  rename variables to make code easier to understand
+	  fix _appendAttributesFromAssociationsToResponse:
+	* GSWeb/GSWHTMLRawParser.m
+	  fix warning
+	* GSWExtensions/GNUmakefile
+	  fix FRAMEWORK_NAME for gswnames=gsw
+	* GSWExtensionsGSW/GSWFileUploadComponent.m
+	  removed uneeded method
+	* GSWExtensionsGSW/GSWFileUploadComponent.gswc/GSWFileUploadComponent.gswd
+	  quick fix FileLinkWithPath (investigate this later)
+	* config.mak.in
+	  fix gswnames problem for ./configure --with-gswnames=gsw
+	* README
+	  add original developper name
+
 2013-12-21: Sebastian Reitenbach <sebastia@l00-bugdead-prods.de>
 	* GSWeb/GSWSession.m
 	  do not include linux/sys.h

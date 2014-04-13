@@ -105,6 +105,7 @@ GSWEB_EXPORT NSString* GSWClassName_DefaultRecording[2];
 
 GSWEB_EXPORT NSString* GSWKey_InstanceID[2];
 GSWEB_EXPORT NSString* GSWKey_SessionID[2];
+GSWEB_EXPORT NSString* GSWKey_QuestionMarkSessionID[2];
 GSWEB_EXPORT NSString* GSWKey_PageName[2];
 GSWEB_EXPORT NSString* GSWKey_ContextID[2];
 GSWEB_EXPORT NSString* GSWKey_ElementID[2];
@@ -381,6 +382,7 @@ GSWEB_EXPORT id formValues__Key;
 GSWEB_EXPORT id invokeAction__Key;
 GSWEB_EXPORT id elementID__Key;
 GSWEB_EXPORT id otherTagString__Key;
+GSWEB_EXPORT id border__Key;
 
 //GSWeb Additions
 GSWEB_EXPORT id redirectURL__Key;

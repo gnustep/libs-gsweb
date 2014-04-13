@@ -59,7 +59,7 @@
   GSWAssociation * _actionClass;
   GSWAssociation * _directActionName;
   NSDictionary   * _sessionIDQueryAssociations;
-
+  GSWAssociation * _border;
 };
 
 

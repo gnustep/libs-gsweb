@@ -232,14 +232,10 @@ An exception is raised if the end quote is not found,...
                             index:(int*)indexPtr
                          stopIndex:(int)stopIndex
 {
-  int startIndex=0;  
-
   NSAssert2(_uniBuf[*indexPtr]==quote,@"First character is not a '%c' but a '%c'",
             (char)quote,(char)_uniBuf[*indexPtr]);
 
   (*indexPtr)++; //skip quote
-
-  startIndex=*indexPtr;
 
   while(*indexPtr<=stopIndex
         && _uniBuf[*indexPtr]!=quote)
@@ -557,7 +553,6 @@ May raise exception.
                               }
                             else 
                               {
-                                NSString* tagPropertiesString=nil;
 				NSDictionary* tagProperties;
 
                                 if (_uniBuf[_index-1]=='/')
@@ -565,9 +560,6 @@ May raise exception.
                                     stopTag=YES;
                                     tagPropertiesStopIndex--;
                                   };
-                                tagPropertiesString=[NSString stringWithCharacters:_uniBuf+tagPropertiesStartIndex
-                                                              length:tagPropertiesStopIndex-tagPropertiesStartIndex];
-
                                 tagProperties=[self tagPropertiesForType:tagType
                                                                   betweenIndex:tagPropertiesStartIndex
                                                                   andIndex:tagPropertiesStopIndex-1];

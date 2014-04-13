@@ -50,7 +50,7 @@ static Class standardClass = Nil;
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
-     associations:(NSMutableDictionary*)associations
+     associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
   self = [super initWithName:nil associations:nil template:nil];

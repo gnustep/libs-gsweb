@@ -1968,11 +1968,11 @@ NSString* GSWGetDefaultDocRoot()
       tmpString = [tmpString initWithData:tmpData 
                              encoding:encoding];
       if (!tmpString) {
-        NSLog(@"%s NO STRING for path '%@' encoding:%"PRIuPTR, __PRETTY_FUNCTION__, path, encoding);
+        NSLog(@"%s NO STRING for path '%@' encoding:%"PRIuPTR, __PRETTY_FUNCTION__, path, (NSUInteger)encoding);
         
         [NSException raise:NSInvalidArgumentException 
                      format:@"%s: could not open convert file contents '%@' non-lossy to encoding %"PRIuPTR,
-                     __PRETTY_FUNCTION__, path, encoding];  
+                     __PRETTY_FUNCTION__, path, (NSUInteger)encoding];  
         
       }                               
       AUTORELEASE(tmpString);

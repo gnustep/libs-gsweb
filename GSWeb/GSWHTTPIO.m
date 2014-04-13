@@ -40,6 +40,7 @@
 #include "GSWMessage.h"
 #include "GSWResponse.h"
 #include "GSWRequest.h"
+#include "GSWApplication.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -212,7 +213,7 @@ void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers)
 void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersion, GSWRequest * request, NSMutableString * headers)
 {
   int  contentLength = 0;
-  BOOL keepAlive = NO;
+  //BOOL keepAlive = NO;
   BOOL requestIsHead = NO;
 
   if (message) {
@@ -222,7 +223,7 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
   if (request) {
     NSString * connectionValue = [request headerForKey:CONNECTION];
     if (connectionValue) {
-      keepAlive = [connectionValue isEqualToString:KEEP_ALIVE];
+      //keepAlive = [connectionValue isEqualToString:KEEP_ALIVE];
     }
     requestIsHead = [[request method] isEqualToString:HEAD];
   }
@@ -406,12 +407,13 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
                                            length: contentLength];
   }
       
-  request = [[GSWRequest alloc] initWithMethod:method
-                                           uri:[requestArray objectAtIndex:1]
-                                   httpVersion:[requestArray objectAtIndex:2]
-                                       headers:headers
-                                       content:contentData
-                                      userInfo:nil];
+  request = [[[[GSWApplication application]requestClass]
+	       alloc] initWithMethod:method
+		      uri:[requestArray objectAtIndex:1]
+		      httpVersion:[requestArray objectAtIndex:2]
+		      headers:headers
+		      content:contentData
+		      userInfo:nil];
 
   if (request != nil)
   {

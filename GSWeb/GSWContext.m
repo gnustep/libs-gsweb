@@ -216,7 +216,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   
   value = [self objectForKey:[GSWApp sessionIdKey]];
   if (!value) {
-    value = [self objectForKey:@"wosid"];
+    value = [self objectForKey:GSWKey_SessionID[GSWebNamingConv]];
   }
   return value;
 }

@@ -76,12 +76,6 @@ static Class standardClass = Nil;
     return nil;
   }
 
-  if ((_value != nil) && (![_value isValueSettable])) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'value' attribute is a constant",
-                            __PRETTY_FUNCTION__];
-  }
-
   ASSIGN(_selection, [_associations objectForKey: selection__Key]);
 
   if (_selection != nil) {

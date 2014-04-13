@@ -101,6 +101,7 @@ NSString* GSWClassName_DefaultRecording[2]={ @"GSWRecording", @"WORecording" };
 
 NSString* GSWKey_InstanceID[2]={ @"gswinst", @"woinst" };
 NSString* GSWKey_SessionID[2]={ @"gswsid", @"wosid" };
+NSString* GSWKey_QuestionMarkSessionID[2]={ @"?gswsid", @"?wosid" };
 NSString* GSWKey_PageName[2]={ @"gswpage", @"wopage" };
 NSString* GSWKey_ContextID[2]={ @"gswcid", @"wocid" };
 NSString* GSWKey_ElementID[2]={ @"gsweid", @"woeid" };
@@ -378,6 +379,7 @@ id formValues__Key = @"formValues";
 id invokeAction__Key = @"invokeAction";
 id elementID__Key = @"elementID";
 id otherTagString__Key = @"otherTagString";
+id border__Key = @"border";
 
 //GSWeb additions
 id redirectURL__Key = @"redirectURL";

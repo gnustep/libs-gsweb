@@ -319,9 +319,9 @@ RCS_ID("$Id$")
 
 //--------------------------------------------------------------------
 //	uri
--(WODynamicURLString *)uri 
+-(GSWDynamicURLString *)uri 
 {
-  return (WODynamicURLString *)_uri;
+  return (GSWDynamicURLString *)_uri;
 };
 
 //--------------------------------------------------------------------
@@ -617,8 +617,8 @@ RCS_ID("$Id$")
                    _headers,
                    _contentData,
                    _userInfo,
-                   _defaultFormValueEncoding,
-                   _formValueEncoding,
+                   (NSUInteger)_defaultFormValueEncoding,
+                   (NSUInteger)_formValueEncoding,
                    _formValues,
                    _uriElements,
                    _cookie,

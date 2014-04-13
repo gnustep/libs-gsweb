@@ -39,6 +39,7 @@ RCS_ID("$Id$")
 
 static NSString * static_sessionIDKey = nil;
 static NSString * static_tempQueryKey = nil; 
+static GSWAssociation * static_defaultBorderAssociation = nil;
 
 @implementation GSWActiveImage
 
@@ -49,6 +50,7 @@ static NSString * static_tempQueryKey = nil;
     if (!static_sessionIDKey) {
       static_sessionIDKey = [[GSWApp sessionIdKey] retain];
       static_tempQueryKey = [[@"?" stringByAppendingString:static_sessionIDKey] retain];
+      static_defaultBorderAssociation = [[GSWAssociation associationWithValue:@"0"] retain];
     }
   }
 }
@@ -66,7 +68,7 @@ static NSString * static_tempQueryKey = nil;
   if (!self) {
     return nil;
   }
-  
+ 
   tempAssociation = [_associations objectForKey:static_tempQueryKey];
   if (tempAssociation != nil) {
     [tempQueryAssociations setObject:tempAssociation
@@ -74,12 +76,12 @@ static NSString * static_tempQueryKey = nil;
     [_associations removeObjectForKey: static_tempQueryKey];
   }
 
-  if ([static_sessionIDKey isEqualToString:@"wosid"] == NO) {
-    tempAssociation = [_associations objectForKey:@"?wosid"];
+  if ([static_sessionIDKey isEqualToString:GSWKey_SessionID[GSWebNamingConv]] == NO) {
+    tempAssociation = [_associations objectForKey:GSWKey_QuestionMarkSessionID[GSWebNamingConv]];
     if (tempAssociation != nil) {
-      [tempQueryAssociations setObject:@"wosid"
-                                forKey:static_sessionIDKey];
-      [_associations removeObjectForKey: @"wosid"];
+      [tempQueryAssociations setObject:tempAssociation
+                                forKey:GSWKey_SessionID[GSWebNamingConv]];
+      [_associations removeObjectForKey:GSWKey_QuestionMarkSessionID[GSWebNamingConv]];
     }
   }
   
@@ -149,6 +151,13 @@ static NSString * static_tempQueryKey = nil;
   if (_key != nil) {
     [_associations removeObjectForKey: key__Key];
   }
+  ASSIGN(_border, [_associations objectForKey: border__Key]);
+  if (_border != nil) {
+    [_associations removeObjectForKey: border__Key];
+  }
+  else {
+    ASSIGN(_border,static_defaultBorderAssociation);
+  }
   
   if (_file != nil && _imageMapString != nil && _imageMapRegions != nil) {
      [NSException raise:NSInvalidArgumentException
@@ -159,88 +168,107 @@ static NSString * static_tempQueryKey = nil;
                          imageMapRegions__Key];
   };
 
-  if (_action != nil) {
-    if (_actionClass != nil || _directActionName != nil || _href != nil) {
+  if (_action != nil)
+    {
+      if (_actionClass != nil || _directActionName != nil || _href != nil) 
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: If 'action' is specified, 'directActionName', 'actionClass', and 'href' must be nil.",
+		       __PRETTY_FUNCTION__];
+	}
+      if ([_action isValueConstant]) 
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'action' must not be a constant.",
+		       __PRETTY_FUNCTION__];
+	}
+    } 
+  else if (_href != nil)
+    {
+      if (_actionClass != nil || _directActionName != nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: If 'directActionName' or 'actionClass' is specified, 'action' and 'href' must be nil.",
+		       __PRETTY_FUNCTION__];
+	}
+    }
+  else if (_actionClass == nil && _directActionName == nil) 
+    {
       [NSException raise:NSInvalidArgumentException
-                  format:@"%s: If 'action' is specified, 'directActionName', 'actionClass', and 'href' must be nil.",
-                              __PRETTY_FUNCTION__];
+		   format:@"%s: Either a component action or a direct action or 'href' must be specified.",
+		   __PRETTY_FUNCTION__];
     }
-    if ([_action isValueConstant]) {
+
+  if (_filename != nil) 
+    {
+      if (_src != nil || _data != nil || _value != nil) 
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: If 'filename' is specified, 'src', 'data', and 'value' must be nil.",
+		       __PRETTY_FUNCTION__];
+	}
+    } 
+  else 
+    {
+      if (_framework != nil) 
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'framework' should not be specified if 'filename' is nil.",
+		       __PRETTY_FUNCTION__];
+	}                           
+      if (_data != nil)
+	{
+	  if (_mimeType == nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: 'mimeType' must be specified if 'data' is specified.",
+			   __PRETTY_FUNCTION__];
+	    }
+	  if (_src != nil || _value != nil) 
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: If 'data' is specified, 'src', 'filename', and 'value' must be nil.",
+			   __PRETTY_FUNCTION__];
+	    }
+	}
+      else if (_value != nil)
+	{
+	  if ([_value isValueConstant])
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: 'value' must not be constant.",
+			   __PRETTY_FUNCTION__];
+	    }
+	  if (_src != nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: If 'value' is specified, 'data', 'filename', and 'src' must be nil.",
+			   __PRETTY_FUNCTION__];    
+	    }
+	} 
+      else if (_src == nil) 
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: One of 'filename', 'src', 'data', or 'value' must be specified.",
+		       __PRETTY_FUNCTION__];        
+	}
+    }
+
+  if (_xAssoc != nil && _yAssoc != nil) 
+    {
+      if (![_xAssoc isValueSettable] || ![_yAssoc isValueSettable])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'x' and 'y' can not be constants.",
+		       __PRETTY_FUNCTION__];        
+	}
+    }
+  else if (_xAssoc != nil || _yAssoc != nil)
+    {
       [NSException raise:NSInvalidArgumentException
-                  format:@"%s: 'action' must not be a constant.",
-                              __PRETTY_FUNCTION__];
+		   format:@"%s: 'x' and 'y' must both be specified or both be nil.",
+		   __PRETTY_FUNCTION__];            
     }
-  } else {
-    if (_href != nil) {
-      if (_actionClass != nil || _directActionName != nil) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: If 'directActionName' or 'actionClass' is specified, 'action' and 'href' must be nil.",
-                                __PRETTY_FUNCTION__];
-      }
-    } else {
-      if (_actionClass == nil && _directActionName == nil) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: Either a component action or a direct action or 'href' must be specified.",
-                                __PRETTY_FUNCTION__];
-      }
-    }
-  }
-  if (_filename != nil) {
-    if (_src != nil || _data != nil || _value != nil) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: If 'filename' is specified, 'src', 'data', and 'value' must be nil.",
-                                __PRETTY_FUNCTION__];
-    }
-  } else {
-    if (_framework != nil) {
-       [NSException raise:NSInvalidArgumentException
-                   format:@"%s: 'framework' should not be specified if 'filename' is nil.",
-                               __PRETTY_FUNCTION__];
-    }                           
-  }
-  if (_data != nil) {
-    if (_mimeType == nil) {
-       [NSException raise:NSInvalidArgumentException
-                   format:@"%s: 'mimeType' must be specified if 'data' is specified.",
-                               __PRETTY_FUNCTION__];
-    }
-    if (_src != nil || _value != nil) {
-       [NSException raise:NSInvalidArgumentException
-                   format:@"%s: If 'data' is specified, 'src', 'filename', and 'value' must be nil.",
-                               __PRETTY_FUNCTION__];
-    }
-  } else
-  if (_value != nil) {
-    if ([_value isValueConstant]) {
-       [NSException raise:NSInvalidArgumentException
-                   format:@"%s: 'value' must not be constant.",
-                               __PRETTY_FUNCTION__];
-    }
-    if (_src != nil) {
-       [NSException raise:NSInvalidArgumentException
-                   format:@"%s: If 'value' is specified, 'data', 'filename', and 'src' must be nil.",
-                               __PRETTY_FUNCTION__];    
-    }
-  } else {
-    if (_src == nil) {
-       [NSException raise:NSInvalidArgumentException
-                   format:@"%s: One of 'filename', 'src', 'data', or 'value' must be specified.",
-                               __PRETTY_FUNCTION__];        
-    }
-  }
-  if (_xAssoc != nil && _yAssoc != nil) {
-    if ((![_xAssoc isValueSettable]) || (![_yAssoc isValueSettable])) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: 'x' and 'y' can not be constants.",
-                                __PRETTY_FUNCTION__];        
-    }
-  } else {
-    if (_xAssoc != nil || _yAssoc != nil) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: 'x' and 'y' must both be specified or both be nil.",
-                              __PRETTY_FUNCTION__];            
-    }
-  }
   
   return self;
 };
@@ -268,6 +296,7 @@ static NSString * static_tempQueryKey = nil;
   DESTROY(_actionClass);
   DESTROY(_directActionName);
   DESTROY(_sessionIDQueryAssociations);
+  DESTROY(_border);
 
   [super dealloc];
 }
@@ -493,9 +522,12 @@ static NSString * static_tempQueryKey = nil;
                         inContext:(GSWContext*) context
 {
   NSString           * srcValue = nil;
+  id                   borderValue = nil;
   GSWComponent       * component = GSWContext_component(context);
 
-  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"border", @"0", NO);      
+  borderValue=[_border valueInComponent:component];
+  if (borderValue != nil)
+    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"border", NSStringWithObject(borderValue), NO);
 
   [self appendURLAttributesToResponse:response
                             inContext:context];

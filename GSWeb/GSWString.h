@@ -45,7 +45,7 @@
 };
 
 -(id)initWithName:(NSString*)name
-     associations:(NSMutableDictionary*)associations
+     associations:(NSDictionary*)associations
          template:(GSWElement*)template;
 
 -(void)appendToResponse:(GSWResponse*)response

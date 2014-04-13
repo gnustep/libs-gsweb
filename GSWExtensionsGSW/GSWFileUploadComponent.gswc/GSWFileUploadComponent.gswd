@@ -134,11 +134,12 @@ UploadFile: GSWFileUpload
 	enabled=^isUploadEnabled;
 };
 
-FileLinkWithPath: GSWHyperlink
+//TODO: investigate this later
+FileLinkWithPath: GSWResourceURL
 {
 	filename=fileInfo.filePath;
-	data=fileInfo.data;
-	mimeType=fileInfo.mimeType;
+	//data=fileInfo.data;
+	//mimeType=fileInfo.mimeType;
 	key=fileInfo.filePath;
 	string= ^string;
 	target = ^target;

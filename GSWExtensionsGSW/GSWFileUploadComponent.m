@@ -39,15 +39,6 @@ RCS_ID("$Id$")
 @implementation GSWFileUploadComponent
 
 //--------------------------------------------------------------------
--(id)init
-{
-  if ((self=[super init]))
-    {
-    };
-  return self;
-};
-
-//--------------------------------------------------------------------
 -(void)awake
 {
   [super awake];

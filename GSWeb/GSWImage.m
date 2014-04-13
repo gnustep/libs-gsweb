@@ -114,7 +114,8 @@ RCS_ID("$Id$")
   resourcemanager = [GSWApp resourceManager];
   component = GSWContext_component(context);
   fileNameValue = [filename valueInComponent:component];
-  frameworkName = [framework valueInComponent:component];
+  frameworkName = [GSWHTMLDynamicElement _frameworkNameForAssociation:framework
+					 inComponent:component];
   
   resourceURL = [context _urlForResourceNamed: fileNameValue
                                   inFramework: frameworkName];

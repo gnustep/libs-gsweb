@@ -31,8 +31,8 @@ srcdir = .
 
 # Options
 ifeq ($(gswnames), gsw)
-#FRAMEWORK_NAME = GSWExtensions
-FRAMEWORK_NAME = WOExtensions
+FRAMEWORK_NAME = GSWExtensions
+#FRAMEWORK_NAME = WOExtensions
 endif
 ifeq ($(gswnames), wo)
 FRAMEWORK_NAME = WOExtensions

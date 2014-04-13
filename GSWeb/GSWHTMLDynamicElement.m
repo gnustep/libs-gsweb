@@ -319,7 +319,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
       name = [association valueInComponent:component];
       if (name)
 	{
-	  if ([@"app" caseInsensitiveCompare: name])
+	  if ([@"app" caseInsensitiveCompare: name] == NSOrderedSame)
 	    {
 	      name = nil;
 	    }
@@ -470,49 +470,70 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 {
   GSWComponent * component = GSWContext_component(context);
   GSWSession   * session = [context _session];
-  NSString * s = nil;
-  NSMutableDictionary *nsmutabledictionary = nil;
-  NSEnumerator  * keyEnumerator = nil;
-  NSString * key = nil;
-  GSWAssociation *otherAssociations = nil;
-  id otherValue = nil;
+  NSString * sessionID = nil;
+  NSMutableDictionary *newQueryDictionary = nil;
   
-  if (queryDictionary != nil) {
-    NSDictionary * nsdictionary1 = [queryDictionary valueInComponent:component];
-    if ([nsdictionary1 isKindOfClass:NSMutableDictionaryClass]) {
-      nsmutabledictionary = (NSMutableDictionary*) nsdictionary1;
-    } else {
-      nsmutabledictionary = (NSMutableDictionary*) AUTORELEASE([nsdictionary1 mutableCopyWithZone:[self zone]]);
-    }
-  }
-  if (nsmutabledictionary == nil) {
-    nsmutabledictionary = [NSMutableDictionary dictionary];
-  }
-  if (session != nil) {
-    s = [session sessionID];
-  } else {
-    if ([context request] != nil) {
-      s = [[context request] stringFormValueForKey:@"wosid"];
-    }
-  }
-  if ((s != nil) && ((directActionName != nil) || (actionClass != nil)) && ((session == nil) || (![session storesIDsInCookies]) || ([session storesIDsInURLs]))) {
-    [nsmutabledictionary setObject:s forKey:@"wosid"];
-  }
-  if (otherQueryAssociations != nil) {
-    keyEnumerator = [otherQueryAssociations keyEnumerator];
-    
-    while ((key = [keyEnumerator nextObject])) {
-      otherAssociations = [otherQueryAssociations objectForKey:key];
-      otherValue = [otherAssociations valueInComponent:component];
-      if (otherValue != nil && ([key isEqual:@"wosid"] || ([otherValue boolValue] == YES))) {
-        [nsmutabledictionary setObject: otherValue forKey:key];
-      } else {
-        [nsmutabledictionary removeObjectForKey:key];
-      }
+  if (queryDictionary != nil)
+    {
+      NSDictionary * nsdictionary1 = [queryDictionary valueInComponent:component];
+      if ([nsdictionary1 isKindOfClass:NSMutableDictionaryClass])
+	newQueryDictionary = (NSMutableDictionary*) nsdictionary1;
+      else
+	newQueryDictionary = (NSMutableDictionary*) AUTORELEASE([nsdictionary1 mutableCopyWithZone:[self zone]]);
     }
 
-  }
-  return nsmutabledictionary;
+  if (newQueryDictionary == nil)
+    newQueryDictionary = [NSMutableDictionary dictionary];
+
+  if (session != nil)
+    sessionID = [session sessionID];
+  else 
+    {
+      if ([context request] != nil)
+	sessionID = [[context request] stringFormValueForKey:GSWKey_SessionID[GSWebNamingConv]];   
+    }
+
+  if (sessionID != nil
+      && (directActionName != nil || actionClass != nil)
+      && (session == nil || ![session storesIDsInCookies] || [session storesIDsInURLs])) 
+    {
+      [newQueryDictionary setObject:sessionID
+			  forKey:GSWKey_SessionID[GSWebNamingConv]];
+    }
+
+  if (otherQueryAssociations != nil) 
+    {
+      GSWAssociation *otherAssociations = nil;
+      NSString * key = nil;
+      id otherValue = nil;
+      NSEnumerator* keyEnumerator = [otherQueryAssociations keyEnumerator];
+    
+      while ((key = [keyEnumerator nextObject]))
+	{
+	  otherAssociations = [otherQueryAssociations objectForKey:key];
+	  otherValue = [otherAssociations valueInComponent:component];
+	  if (otherValue != nil)
+	    {
+	      if ([key isEqual:GSWKey_SessionID[GSWebNamingConv]]
+		  || [key isEqual:[GSWApp sessionIdKey]])
+		{
+		  if ([otherValue isKindOfClass:[NSNumber class]]
+		      && [otherValue boolValue] == NO)
+		    [newQueryDictionary removeObjectForKey:key];
+		}
+	      else
+		{
+		  [newQueryDictionary setObject: otherValue
+				      forKey:key];
+		}
+	    } 
+	  else 
+	    {
+	      [newQueryDictionary removeObjectForKey:key];
+	    }
+	}      
+    }
+  return newQueryDictionary;
 }
 
 -(void) appendConstantAttributesToResponse:(GSWResponse*) response
@@ -529,38 +550,37 @@ static inline BOOL _needQuote(NSString* str_needQuote)
                                        associations:(NSDictionary*) associations
 
 {
-  if ((associations != nil) && ([associations count] > 0)) {
-    NSString * s1 = nil;
-    NSEnumerator * enumer = [associations keyEnumerator];
-    GSWComponent * component = GSWContext_component(context);
-    NSString     * key = nil;
-    GSWAssociation * currentAssociation = nil;
-    id            obj = nil;
+  if (associations != nil
+      && [associations count] > 0)
+    {
+      NSString * s1 = nil;
+      NSEnumerator * enumer = [associations keyEnumerator];
+      GSWComponent * component = GSWContext_component(context);
+      NSString     * key = nil;
+      GSWAssociation * currentAssociation = nil;
+      id            obj = nil;
     
-    while ((key = [enumer nextObject])) {
-      currentAssociation = [associations objectForKey:key];
-      obj = [currentAssociation valueInComponent:component];
-      if (obj != nil) {
-//        s1 = [(NSNumber*) obj description];
-// mr. ayers says that is not good..        
-        if ([obj isKindOfClass:NSNumberClass] == YES) {
-          s1 = [(NSNumber*) obj stringValue];
-        } else {
-          // we have to set the value!
-          s1 = obj;         
-        }
-        //NSLog(@"%s:class %@ '%@'", __PRETTY_FUNCTION__, [obj class] , obj);
-        if ([key isEqual:@"otherTagString"]) {
-          GSWResponse_appendContentCharacter(response,' ');
-          GSWResponse_appendContentString(response, s1);
-        } else {        
-          [response _appendTagAttribute: key
-                                  value: s1
-             escapingHTMLAttributeValue: NO];
-        }
-      }
-    } // while
-  }
+      while ((key = [enumer nextObject]))
+	{
+	  currentAssociation = [associations objectForKey:key];
+	  obj = [currentAssociation valueInComponent:component];
+	  if (obj != nil)
+	    {
+	      s1=NSStringWithObject(obj);
+	      if ([key isEqual:@"otherTagString"])
+		{
+		  GSWResponse_appendContentCharacter(response,' ');
+		  GSWResponse_appendContentString(response, s1);
+		}
+	      else
+		{        
+		  [response _appendTagAttribute: key
+			    value: s1
+			    escapingHTMLAttributeValue: NO];
+		}
+	    }
+	}
+    }
 }
 
 -(void) appendNonURLAttributesToResponse:(GSWResponse*) response

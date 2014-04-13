@@ -79,7 +79,7 @@ application unlock
 @end
 
 #define GSWFPutSL(string, file) \
-do { fputs([[string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES] bytes], file); fputs("\n",file); fflush(file); } \
+  do { NSData* cString=[string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES]; NSUInteger length=[cString length]; fwrite([cString bytes],1,length,file); fputs("\n",file); fflush(file); } \
   while (0)
 
 /* GSWApplication+Defaults.m */
@@ -1224,44 +1224,14 @@ int GSWApplicationMain(NSString* applicationClassName,
 };
 
 //--------------------------------------------------------------------
-// dw: I do not know if this exists in WO
+// It's not exist in WO but enable to have custom request class
+//   like we can customer context and session classes
 -(Class)requestClass
 {
   NSString* requestClassName=[self requestClassName];
   Class requestClass=NSClassFromString(requestClassName);
   NSAssert1(requestClass,@"No requestClass named '%@'",requestClassName);
   return requestClass;
-};
-
-//--------------------------------------------------------------------
-// dw: I do not know if this exists in WO
-
--(GSWRequest*)createRequestWithMethod:(NSString*)aMethod
-                                  uri:(NSString*)anURL
-                          httpVersion:(NSString*)aVersion
-                              headers:(NSDictionary*)headers
-                              content:(NSData*)content
-                             userInfo:(NSDictionary*)userInfo
-{
-  GSWRequest* request=nil;
-  NSString* requestClassName=[self requestClassName];
-  Class requestClass=NSClassFromString(requestClassName);
-  NSAssert1(requestClass,@"No requestClass named '%@'",requestClassName);
-  if (requestClass)
-    {
-      request=[[[requestClass alloc]initWithMethod:aMethod
-                                    uri:anURL
-                                    httpVersion:aVersion
-                                    headers:headers
-                                    content:content
-                                    userInfo:userInfo]autorelease];
-    }
-  if (!request)
-    {
-      //TODO: throw cleaner exception
-      NSAssert(NO,@"Can't create request");
-    };
-  return request;
 };
 
 //--------------------------------------------------------------------
@@ -3827,12 +3797,12 @@ to another instance **/
 
 - (NSString*) sessionIdKey
 {
-  return @"wosid";
+  return GSWKey_SessionID[GSWebNamingConv];
 }
 
 - (NSString*) instanceIdKey
 {
-  return @"woinst";
+  return GSWKey_InstanceID[GSWebNamingConv];
 }
 
 

@@ -825,7 +825,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
             
             [NSException raise:NSInvalidArgumentException
                         format:@"%s: could not convert '%s' non-lossy to encoding %"PRIuPTR,
-             __PRETTY_FUNCTION__, [lossyData bytes], _contentEncoding];
+             __PRETTY_FUNCTION__, [lossyData bytes], (NSUInteger)_contentEncoding];
         }
         
         _checkBody(self);

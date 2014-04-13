@@ -210,7 +210,7 @@ static Class standardClass = Nil;
       value = [queryDict objectForKey:key];
       GSWResponse_appendContentAsciiString(response,@"<input type=hidden");
       GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, name__Key, key, NO);  
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, value, NO);
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, NSStringWithObject(value), NO);
       GSWResponse_appendContentAsciiString(response,@">\n");
     }
 
