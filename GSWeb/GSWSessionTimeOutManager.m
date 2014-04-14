@@ -399,7 +399,7 @@ RCS_ID("$Id$")
 {
   NSLog(@"application is shutting down...");
   [GSWApp lock];
-  [GSWApp lockRequestHandling];
+  [[GSWApp requestHandlingLock]lock];
   [self lock];
   [GSWApp dealloc];
   [GSWApplication dealloc];	// call class method , not instance method

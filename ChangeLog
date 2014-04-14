@@ -1,4 +1,28 @@
 2014-04-11  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWHyperlink.m
+	  fix generateRelativeURLs/generateRelativeURLs
+	  rename variables to make code easier to understand
+	  respect GNUstep coding standard (curly brackets placement)
+	* GSWeb/GSWApplication.m
+	  set _isMultiThreaded when adaptor dispatchesRequestsConcurrently
+	  remove -lockRequestHandling
+	  remove -lockedDecrementActiveSessionCount
+	  remove -lockedIncrementActiveSessionCount
+	* GSWeb/GSWApplication.h
+	  remove -lockRequestHandling
+	  remove _globalLockn
+	  remove _globalLock_thread_id
+	  remove -dealloc
+	  remove -init
+	  remove duplicate declarations
+	  remove -lockedDecrementActiveSessionCount
+	  remove -lockedIncrementActiveSessionCount
+	* GSWeb/GSWActionRequestHandler.m
+	  copy lock code from GSWComponentRequestHandler
+	* GSWeb/GSWSessionTimeOutManager.m
+	  use -requestHandlingLock instead of -lockRequestHandling
+	  
+2014-04-11  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWDatabase/WODisplayGroup.m
 	  remove -objectsAtIndexes: (implemented in core/NSArray)
 	* GSWeb/GSWComponent.m

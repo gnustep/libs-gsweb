@@ -251,11 +251,13 @@ static Class NSStringClass = Nil;
                                                              otherQueryAssociations: _otherQueryAssociations 
                                                                           inContext: context];
   
-  if ((queryDict != nil) && ([queryDict count] > 0)) {
-    str = [queryDict encodeAsCGIFormValues];
-    GSWResponse_appendContentCharacter(response,'?');
-    GSWResponse_appendContentHTMLAttributeValue(response, str);
-  }
+  if (queryDict != nil 
+      && [queryDict count] > 0)
+    {
+      str = [queryDict encodeAsCGIFormValues];
+      GSWResponse_appendContentCharacter(response,'?');
+      GSWResponse_appendContentHTMLAttributeValue(response, str);
+    }
 }
 
 -(void) _appendQueryStringToResponse:(GSWResponse*) response
@@ -264,24 +266,19 @@ static Class NSStringClass = Nil;
                        htmlEscapeURL: (BOOL) htmlEscapeURL
 {
   NSString     * str = nil;
-  NSString     * path;
-  
-  if (aRequestHandlerPath == nil) {
-    path = @"";
-  } else {
-    path = aRequestHandlerPath;
-  }
+  NSString     * path = (aRequestHandlerPath == nil ? @"" : aRequestHandlerPath);
   
   NSDictionary * queryDict = [self computeQueryDictionaryWithRequestHandlerPath: path
                                                      queryDictionaryAssociation: _queryDictionary
                                                          otherQueryAssociations: _otherQueryAssociations 
                                                                       inContext: context];
     
-  if ((queryDict != nil) && ([queryDict count] > 0)) {
-    str = [queryDict encodeAsCGIFormValuesEscapeAmpersand:htmlEscapeURL];
-    GSWResponse_appendContentCharacter(response,'?');
-    GSWResponse_appendContentHTMLAttributeValue(response, str);
-  }
+  if (queryDict != nil && [queryDict count] > 0) 
+    {
+      str = [queryDict encodeAsCGIFormValuesEscapeAmpersand:htmlEscapeURL];
+      GSWResponse_appendContentCharacter(response,'?');
+      GSWResponse_appendContentHTMLAttributeValue(response, str);
+    }
 }
 
 
@@ -301,6 +298,10 @@ static Class NSStringClass = Nil;
 -(void)_appendCGIActionURLToResponse:(GSWResponse*) response
                            inContext:(GSWContext*) context
 {
+  BOOL completeURLsOriginalState=NO;
+  GSWComponent * component = GSWContext_component(context);
+  BOOL securestuff = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
+
   NSString * actionStr = [self computeActionStringWithActionClassAssociation: _actionClass
                                                  directActionNameAssociation: _directActionName
                                                                    inContext: context];
@@ -311,130 +312,147 @@ static Class NSStringClass = Nil;
                                                              otherQueryAssociations: _otherQueryAssociations 
                                                                           inContext: context];
   NSString * urlString = nil;
-  if (_secure != nil) {
-    [context _generateCompleteURLs];
-  }
+
+  if (securestuff)
+    completeURLsOriginalState=[context _generateCompleteURLs];
+
   urlString = [context directActionURLForActionNamed: actionStr
                                      queryDictionary: queryDict];
 
-  if (_secure != nil) {
+  if (securestuff
+      && !completeURLsOriginalState)
     [context _generateRelativeURLs];
-  }
+
   GSWResponse_appendContentString(response,urlString);
 
-  [self _appendFragmentToResponse: response inContext:context];
+  [self _appendFragmentToResponse: response
+	inContext:context];
 }
 
 -(void) appendAttributesToResponse:(GSWResponse *) response
                             inContext:(GSWContext*) context
 {
-  id obj = nil;
-
-  GSWComponent * component = GSWContext_component(context);
-  BOOL securestuff = ((_secure != nil) && [_secure boolValueInComponent:component]);
-
   [super appendAttributesToResponse: response
                           inContext: context];
                             
-  if (_href != nil) {
-    obj = [_href valueInComponent:component];
-  }
-  if (_actionClass != nil || _directActionName != nil) {
-    GSWResponse_appendContentCharacter(response,' ');
-    GSWResponse_appendContentAsciiString(response, href__Key);
-    GSWResponse_appendContentCharacter(response,'=');
-    GSWResponse_appendContentCharacter(response,'"');
-
-    [self _appendCGIActionURLToResponse:response
-                              inContext:context];
-    
-    GSWResponse_appendContentCharacter(response,'"');
-  } else {
-    if (_action != nil || _pageName != nil) {
+  if (_actionClass != nil || _directActionName != nil)
+    {
       GSWResponse_appendContentCharacter(response,' ');
       GSWResponse_appendContentAsciiString(response, href__Key);
       GSWResponse_appendContentCharacter(response,'=');
       GSWResponse_appendContentCharacter(response,'"');
-      if (securestuff) {
-        [context _generateCompleteURLs];
-      }
+
+      [self _appendCGIActionURLToResponse:response
+	    inContext:context];
+      
+      GSWResponse_appendContentCharacter(response,'"');
+    }
+  else if (_action != nil || _pageName != nil)
+    {
+      GSWComponent * component = GSWContext_component(context);
+      BOOL securestuff = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
+      BOOL completeURLsOriginalState=NO;
+
+      GSWResponse_appendContentCharacter(response,' ');
+      GSWResponse_appendContentAsciiString(response, href__Key);
+      GSWResponse_appendContentCharacter(response,'=');
+      GSWResponse_appendContentCharacter(response,'"');
+
+      if (securestuff)
+        completeURLsOriginalState=[context _generateCompleteURLs];
+      
       GSWResponse_appendContentString(response, 
-                          [context _componentActionURL]);
+				      [context _componentActionURL]);
   
-      if (securestuff) {
+      if (securestuff
+	  && !completeURLsOriginalState)
         [context _generateRelativeURLs];
-      }
+      
       [self _appendQueryStringToResponse:response 
                                inContext:context 
                       requestHandlerPath:nil
                            htmlEscapeURL:YES];
       
-      [self _appendFragmentToResponse: response inContext:context];
+      [self _appendFragmentToResponse: response
+	    inContext:context];
+
       GSWResponse_appendContentCharacter(response,'"');
-    } else {
-      if (obj != nil) {
-        NSString * s1 = obj; //stringValue?
-        GSWResponse_appendContentCharacter(response,' ');
-        GSWResponse_appendContentAsciiString(response,href__Key);
-        GSWResponse_appendContentCharacter(response,'=');
-        GSWResponse_appendContentCharacter(response,'"');
-        if ([s1 isRelativeURL] && (![s1 isFragmentURL])) {
-          NSString * s = [context _urlForResourceNamed:s1 inFramework:nil];
-          if (s != nil) {
-            GSWResponse_appendContentString(response,s);
-          } else {
-            GSWResponse_appendContentAsciiString(response,[component baseURL]);
-            GSWResponse_appendContentCharacter(response,'/');
-            GSWResponse_appendContentString(response,s1);
-          }
-        } else {
-          GSWResponse_appendContentString(response,s1);
+    } 
+  else if (_href != nil)
+    {
+      GSWComponent * component = GSWContext_component(context);
+      NSString* hrefValue = [_href valueInComponent:component];
+
+      if (hrefValue==nil)
+	hrefValue=@"";
+      else 
+	hrefValue=NSStringWithObject(hrefValue);
+	
+      GSWResponse_appendContentCharacter(response,' ');
+      GSWResponse_appendContentAsciiString(response,href__Key);
+      GSWResponse_appendContentCharacter(response,'=');
+      GSWResponse_appendContentCharacter(response,'"');
+
+      if ([hrefValue isRelativeURL] && ![hrefValue isFragmentURL])
+	{
+	  NSString * url = [context _urlForResourceNamed:hrefValue
+				    inFramework:nil];
+          if (url != nil)
+            GSWResponse_appendContentString(response,url);
+          else 
+	    {
+	      GSWResponse_appendContentAsciiString(response,[component baseURL]);
+	      GSWResponse_appendContentCharacter(response,'/');
+	      GSWResponse_appendContentString(response,hrefValue);
+	    }
+        } 
+      else
+	{
+          GSWResponse_appendContentString(response,hrefValue);
         }
 
-        [self _appendQueryStringToResponse:response 
-                                 inContext:context
-                        requestHandlerPath:nil
-                             htmlEscapeURL:YES];
-        
-        [self _appendFragmentToResponse: response inContext:context];
-        GSWResponse_appendContentCharacter(response,'"');
-      } else {
-        if (_fragmentIdentifier != nil) {
-          id obj2 = [_fragmentIdentifier valueInComponent:component];
-          if (obj2 != nil) {
-            GSWResponse_appendContentCharacter(response,' ');
-            GSWResponse_appendContentAsciiString(response,href__Key);
-            GSWResponse_appendContentCharacter(response,'=');
-            GSWResponse_appendContentCharacter(response,'"');
+      [self _appendQueryStringToResponse:response 
+	    inContext:context
+	    requestHandlerPath:nil
+	    htmlEscapeURL:YES];
+      
+      [self _appendFragmentToResponse: response
+	    inContext:context];
 
-            [self _appendQueryStringToResponse:response 
-                                     inContext:context
-                            requestHandlerPath:nil
-                                 htmlEscapeURL:YES];
-
-            GSWResponse_appendContentCharacter(response,'#');
-            GSWResponse_appendContentString(response,obj2);    // stringValue?
-            GSWResponse_appendContentCharacter(response,'"');
-          }
-        }
-      }
+      GSWResponse_appendContentCharacter(response,'"');
     }
-  }
+  else if (_fragmentIdentifier != nil)
+    {
+      GSWComponent * component = GSWContext_component(context);
+      id fragmentIdentifierValue = [_fragmentIdentifier valueInComponent:component];
+      if (fragmentIdentifierValue != nil)
+	{
+	  GSWResponse_appendContentCharacter(response,' ');
+	  GSWResponse_appendContentAsciiString(response,href__Key);
+	  GSWResponse_appendContentCharacter(response,'=');
+	  GSWResponse_appendContentCharacter(response,'"');
+	  
+	  [self _appendQueryStringToResponse:response 
+		inContext:context
+		requestHandlerPath:nil
+		htmlEscapeURL:YES];
+	  
+	  GSWResponse_appendContentCharacter(response,'#');
+	  GSWResponse_appendContentString(response,NSStringWithObject(fragmentIdentifierValue));
+	  GSWResponse_appendContentCharacter(response,'"');
+	}
+    }
 }
 
 -(void) appendContentStringToResponse:(GSWResponse *) response
                             inContext:(GSWContext*) context
 {
-  if (_string != nil) {
-    id value = [_string valueInComponent:GSWContext_component(context)];
-    if (value != nil) {
-      if ([value isKindOfClass:NSStringClass]) {
-        GSWResponse_appendContentString(response, value);  
-      } else {      
-        GSWResponse_appendContentString(response, [value description]);        
-      }
+  if (_string != nil)
+    {
+      id stringValue = [_string valueInComponent:GSWContext_component(context)];
+      if (stringValue != nil)
+        GSWResponse_appendContentString(response,NSStringWithObject(stringValue));
     }
-  }
 }
 
 -(void) appendChildrenToResponse:(GSWResponse *) response

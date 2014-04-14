@@ -484,13 +484,13 @@ int GSWApplicationMain(NSString* applicationClassName,
   return (_isMultiThreaded && _allowsConcurrentRequestHandling);
 }
 
+//--------------------------------------------------------------------
 - (NSRecursiveLock *) requestHandlingLock
 {
-  if (_isMultiThreaded && (!_allowsConcurrentRequestHandling)) {
+  if (_isMultiThreaded && !_allowsConcurrentRequestHandling)
     return _globalLock;
-  } 
-
-  return nil;
+  else
+    return nil;
 }
 
 //--------------------------------------------------------------------
@@ -513,97 +513,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 
   return (lockable ? NO : YES);
 };
-
-//--------------------------------------------------------------------
-//	lockRequestHandling
--(void)lockRequestHandling
-{
-  //OK
-  
-  if (![self isConcurrentRequestHandlingEnabled])
-    {
-      /* NSDebugMLLog(@"application",
-		   @"globalLockn=%d globalLock_thread_id=%@ "
-		   @"GSCurrentThread()=%@",
-          globalLockn,(void*)
-          globalLock_thread_id,
-          GSCurrentThread());
-          if (globalLockn>0)
-          {
-          if (globalLock_thread_id!=GSCurrentThread())
-          {
-          NSDebugMLLog(@"application",@"PROBLEM: owner!=thread id");
-          };
-          };
-      */
-      NS_DURING
-        {
-          LoggedLockBeforeDate(_globalLock,GSW_LOCK_LIMIT);
-#ifndef NDEBUG
-          _globalLockn++;
-          _globalLock_thread_id=GSCurrentThread();
-#endif
-          /* NSDebugMLLog(@"application",
-	     @"globalLockn=%d globalLock_thread_id=%@ GSCurrentThread()=%@",
-             globalLockn,
-             globalLock_thread_id,
-             GSCurrentThread());*/
-        }
-      NS_HANDLER
-        {
-          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"globalLock loggedlockBeforeDate");
-          NSLog(@"%@ (%@)",localException,[localException reason]);
-          [localException raise];
-        };
-      NS_ENDHANDLER;
-    };
-  
-};
-
-//--------------------------------------------------------------------
-//	unlockRequestHandling
--(void)unlockRequestHandling
-{
-  //OK
-  
-  if (![self isConcurrentRequestHandlingEnabled])
-    {
-      NS_DURING
-        {
-          /*  NSDebugMLLog(@"application",
-	      @"globalLockn=%d globalLock_thread_id=%@ GSCurrentThread()=%@",
-              globalLockn,
-              globalLock_thread_id,
-              GSCurrentThread());*/
-          if (_globalLockn>0)
-            {
-              if (_globalLock_thread_id!=GSCurrentThread())
-                {
-                };
-            };
-          LoggedUnlock(_globalLock);
-#ifndef NDEBUG
-          _globalLockn--;
-          if (_globalLockn==0)
-            _globalLock_thread_id=NULL;
-#endif
-          /*  NSDebugMLLog(@"application",
-	      @"globalLockn=%d globalLock_thread_id=%@ GSCurrentThread()=%@",
-	      globalLockn,
-	      globalLock_thread_id,
-	      GSCurrentThread());*/
-        }
-      NS_HANDLER
-        {
-          localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                                   @"globalLock loggedunlock");
-          [localException raise];
-        };
-      NS_ENDHANDLER;
-    };
-  
-}
 
 -(void) lock
 {
@@ -1279,23 +1188,10 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(void)_discountTerminatedSession
 {
-  int activeSessionsCount=1;
+  int activeSessionsCount=0;
   
   [self lock];
-  NS_DURING
-    {
-      [self lockedDecrementActiveSessionCount];
-      activeSessionsCount=[self activeSessionsCount];
-    }
-  NS_HANDLER
-    {
-      localException=ExceptionByAddingUserInfoObjectFrameInfo0(localException,
-                                                               @"In lockedDecrementActiveSessionCount...");
-      //TODO
-      [self unlock];
-      [localException raise];
-    };
-  NS_ENDHANDLER;
+  activeSessionsCount=--_activeSessionsCount;
   [self unlock];
   if ([self isRefusingNewSessions] && activeSessionsCount<=_minimumActiveSessionsCount)
     {
@@ -1327,40 +1223,22 @@ int GSWApplicationMain(NSString* applicationClassName,
   
   session = [self createSessionForRequest:[aContext request]];
   
-  if (session == nil) {
-    [self lock];
-    _activeSessionsCount--;
-    [self unlock];
+  if (session == nil)
+    {
+      [self lock];
+      _activeSessionsCount--;
+      [self unlock];
     
-    return nil;
-  }
+      return nil;
+    }
   
   [aContext _setSession:session];
   [session awakeInContext:aContext];
   [[NSNotificationCenter defaultCenter] postNotificationName:@"SessionDidCreateNotification"
-                                                      object:session];
+					object:session];
   
   return session;
 }
-
-//--------------------------------------------------------------------
--(int)lockedDecrementActiveSessionCount
-{
-  
-  _activeSessionsCount--;
-  
-  return _activeSessionsCount;
-};
-
-//--------------------------------------------------------------------
-// does this exist in WO?
-//-(int)lockedIncrementActiveSessionCount
-//{
-//  
-//  _activeSessionsCount++;
-//  
-//  return _activeSessionsCount;
-//};
 
 //--------------------------------------------------------------------
 -(int)_activeSessionsCount
@@ -1571,15 +1449,14 @@ to another instance **/
   //call isPageRefreshOnBacktrackEnabled
 */
   GSWAdaptor* adaptor=nil;
-  Class gswadaptorClass=nil;
-  Class adaptorClass=nil;
-  
-  gswadaptorClass=[GSWAdaptor class];
+  Class adaptorClass=NSClassFromString(name);
+
   NSAssert([name length]>0,@"No adaptor name");
-  adaptorClass=NSClassFromString(name);
   NSAssert1(adaptorClass,@"No adaptor named '%@'",name);
+
   if (adaptorClass)
     {
+      Class gswadaptorClass=[GSWAdaptor class];
       if (GSObjCIsKindOf(adaptorClass,gswadaptorClass))
         {
           adaptor=[[[adaptorClass alloc] initWithName:name
@@ -1591,6 +1468,9 @@ to another instance **/
         };
     };
   
+  if([adaptor dispatchesRequestsConcurrently])
+    _isMultiThreaded = YES;
+
   return adaptor;
 };
 

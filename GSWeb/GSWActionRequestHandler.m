@@ -119,9 +119,7 @@ RCS_ID("$Id$")
 -(GSWResponse*)handleRequest:(GSWRequest*)aRequest
 {
   GSWResponse* response=nil;
-  GSWApplication* application=nil;
-
-  application=[GSWApplication application];
+  GSWApplication* application=GSWApp;
 
   // Test if we should accept request
   if ([application isRefusingNewSessions]
@@ -134,18 +132,20 @@ RCS_ID("$Id$")
   else
     {
       // Accept it 
-      [application lockRequestHandling];
-      NS_DURING
-        {
-          response=[self _handleRequest:aRequest];
-        }
-      NS_HANDLER
-        {
-          [application unlockRequestHandling];
-          [localException raise];//TODO
-        };
-      NS_ENDHANDLER;
-      [application unlockRequestHandling];
+      NSRecursiveLock* lock = [application requestHandlingLock];
+      if (lock)
+	{
+	  SYNCHRONIZED(lock)
+	    {
+	      response = [self _handleRequest:aRequest];
+	    }
+	  END_SYNCHRONIZED;    
+	}
+      else
+	{
+	  // no locking
+	  response = [self _handleRequest:aRequest];
+	}
     };
   if (!response)
     {
@@ -277,7 +277,7 @@ RCS_ID("$Id$")
 
 
 //--------------------------------------------------------------------
-// Application lockRequestHandling is set
+// Application requestHandlingLock is set
 -(GSWResponse*)_handleRequest:(GSWRequest*)aRequest
 {
   GSWResponse* response=nil;

@@ -98,10 +98,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
   NSThread *_selfLock_thread_id;
 #endif
   NSRecursiveLock* _globalLock;
-#ifndef NDEBUG
-  int _globalLockn;
-  NSThread *_globalLock_thread_id;
-#endif
   NSAutoreleasePool* _globalAutoreleasePool;
   unsigned _pageCacheSize;
   unsigned _permanentPageCacheSize;
@@ -137,8 +133,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 - (NSString*) hostAddress;
 -(void) _setHostAddress:(NSString *) hostAdr;
 
--(void)dealloc;
--(id)init;
 
 -(BOOL) shouldRestoreSessionOnCleanEntry:(GSWRequest*) aRequest;
 -(BOOL)allowsConcurrentRequestHandling;
@@ -146,8 +140,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(BOOL)isConcurrentRequestHandlingEnabled;
 -(NSRecursiveLock *) requestHandlingLock;
 -(BOOL)isRequestHandlingLocked;
--(void)lockRequestHandling;
--(void)unlockRequestHandling;
 -(void)lock;
 -(void)unlock;
 
@@ -162,10 +154,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(void)setPageRefreshOnBacktrackEnabled:(BOOL)flag;
 
 -(void)registerRequestHandlers;
--(void)unlock;
--(void)lock;
--(void)unlockRequestHandling;
--(void)lockRequestHandling;
 
 -(NSString*)defaultRequestHandlerClassName;
 
@@ -220,10 +208,6 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 -(void)_finishInitializingSession:(GSWSession*)aSession;
 
 -(GSWSession*)_initializeSessionInContext:(GSWContext*)aContext;
-
--(int)lockedDecrementActiveSessionCount;
-
-//-(int)lockedIncrementActiveSessionCount;
 
 -(int)_activeSessionsCount;
 
