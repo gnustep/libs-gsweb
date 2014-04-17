@@ -1946,17 +1946,14 @@ to another instance **/
 //NDFN
 -(void)lockedAddTimer:(NSTimer*)aTimer
 {
-  
   [[self runLoop]addTimer:aTimer
-                 forMode:NSDefaultRunLoopMode];
-  
+                 forMode:NSDefaultRunLoopMode];  
 };
 
 //--------------------------------------------------------------------
 //NDFN
 -(void)addTimer:(NSTimer*)aTimer
-{
-  
+{ 
   [self lock];
   NS_DURING
     {
@@ -1970,8 +1967,7 @@ to another instance **/
       [localException raise];
     };
   NS_ENDHANDLER;
-  [self unlock];
-  
+  [self unlock];  
 };
 
 //--------------------------------------------------------------------
@@ -2045,32 +2041,30 @@ to another instance **/
 {
   GSWResponse           * response=nil;
   GSWRequestHandler     * requestHandler=nil;
-  NSNotificationCenter  * noteCenter = [NSNotificationCenter defaultCenter];
   
-
   NS_DURING
-  {
-    ASSIGN(_lastAccessDate,[NSDate date]);
+    {
+      NSNotificationCenter  * noteCenter = [NSNotificationCenter defaultCenter];
+      ASSIGN(_lastAccessDate,[NSDate date]);
+      
+      [noteCenter postNotificationName:@"ApplicationWillDispatchRequestNotification"
+		  object:aRequest];
+      
+      requestHandler = [self handlerForRequest:aRequest];
     
-    [noteCenter postNotificationName:@"ApplicationWillDispatchRequestNotification"
-                                                       object:aRequest];
+      if (!requestHandler)
+	requestHandler = [self defaultRequestHandler];
         
-    requestHandler = [self handlerForRequest:aRequest];
+      response = [requestHandler handleRequest:aRequest];
+      if (!response)
+	response = [self createResponseInContext:nil];
     
-    if (!requestHandler)
-      requestHandler = [self defaultRequestHandler];
-        
-    response = [requestHandler handleRequest:aRequest];
-    if (!response) {
-      response = [self createResponseInContext:nil];
+      [self _resetCache];
+      
+      [noteCenter postNotificationName:@"ApplicationDidDispatchRequestNotification"
+		  object:response];
+      [aRequest _setContext:nil];
     }
-    
-    [self _resetCache];
-    
-    [noteCenter postNotificationName:@"ApplicationDidDispatchRequestNotification"
-                                                       object:response];
-    [aRequest _setContext:nil];
-  }
   NS_HANDLER
     {
       NSLog(@"EXCEPTION: %@",localException);
@@ -2094,15 +2088,9 @@ to another instance **/
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext 
 {
-  //OK
-  GSWSession* session=nil;
-  
-  [aContext setValidate:YES];
-  session=[aContext existingSession];
+  GSWSession* session=[aContext existingSession];
   [session takeValuesFromRequest:aRequest
            inContext:aContext];
-  [aContext setValidate:NO];
-  
 };
 
 
@@ -2112,24 +2100,23 @@ to another instance **/
 -(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
                                      inContext:(GSWContext*)aContext
 {
-    GSWSession* session=nil;
-    id <GSWActionResults> results = nil;
-    
-    NS_DURING
+  id <GSWActionResults> results = nil;
+  
+  NS_DURING
     {
-        session = [aContext existingSession];
-        results = [session invokeActionForRequest:aRequest
-                                        inContext:aContext];
+      GSWSession* session = [aContext existingSession];
+      results = [session invokeActionForRequest:aRequest
+			 inContext:aContext];
     }
-    NS_HANDLER
+  NS_HANDLER
     {
-        localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                                @"In GSWApplication invokeActionForRequest:inContext");
-        [localException raise];
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+							      @"In GSWApplication invokeActionForRequest:inContext");
+      [localException raise];
     }
-    NS_ENDHANDLER;
-    
-    return results;
+  NS_ENDHANDLER;
+  
+  return results;
 }
 
 //--------------------------------------------------------------------
@@ -2138,12 +2125,8 @@ to another instance **/
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext 
 {
-  GSWRequest* request=nil;
-  GSWSession* session=nil;
-  
-
-  request=[aContext request];
-  session=[aContext existingSession];
+  GSWRequest* request=[aContext request];
+  GSWSession* session=[aContext existingSession];
 
   if ([aContext _isRefusingThisRequest])
     {
@@ -2189,8 +2172,7 @@ to another instance **/
 -(void)_setRecordingHeadersToResponse:(GSWResponse*)aResponse
                            forRequest:(GSWRequest*)aRequest
                             inContext:(GSWContext*)aContext
-{
-  
+{  
   if (_recorder
       && ([aRequest headerForKey:GSWHTTPHeader_Recording[GSWebNamingConv]]
           || [[self class] recordingPath]))

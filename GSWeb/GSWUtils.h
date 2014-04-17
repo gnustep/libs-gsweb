@@ -118,21 +118,6 @@ ExceptionRaiseFn0(const char *func,
 		  NSString* name_,
 		  NSString* format_);
 
-GSWEB_EXPORT void
-ValidationExceptionRaiseFn(const char *func, 
-			   const char *file,
-			   int line,
-			   NSString* name_,
-			   NSString* message_,
-			   NSString* format_,
-			   ...);
-GSWEB_EXPORT void
-ValidationExceptionRaiseFn0(const char *func, 
-			    const char *file,
-			    int line,
-			    NSString* name_,
-			    NSString* message_,
-			    NSString* format_);
 
 #define ExceptionRaise(name_, format_, args...) \
   { ExceptionRaiseFn(__PRETTY_FUNCTION__, __FILE__, __LINE__, \
@@ -141,14 +126,6 @@ ValidationExceptionRaiseFn0(const char *func,
 #define ExceptionRaise0(name_, format_) \
   { ExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__, \
                       name_,format_); }
-
-#define ValidationExceptionRaise(name_,message_, format_, args...) \
-  { ValidationExceptionRaiseFn(__PRETTY_FUNCTION__, __FILE__, __LINE__,\
-                               name_,message_,format_, ## args); }
-
-#define ValidationExceptionRaise0(name_,message_, format_) \
-  { ValidationExceptionRaiseFn0(__PRETTY_FUNCTION__, __FILE__, __LINE__,\
-                                name_,message_,format_); }
 
 GSWEB_EXPORT BOOL boolValueFor(id id_);
 GSWEB_EXPORT BOOL boolValueWithDefaultFor(id id_,BOOL defaultValue);
@@ -205,7 +182,6 @@ GSWEB_EXPORT NSString* GSWGetDefaultDocRoot();
                                                      file:(const char*)file
                                                      line:(int)line
                                                    format:(NSString*)format,...;
--(BOOL)isValidationException;
 @end
 
 //====================================================================

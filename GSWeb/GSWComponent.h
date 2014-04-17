@@ -63,7 +63,6 @@
 	NSDictionary* _userDictionary;
 	NSDictionary* _userAssociations;
 	NSDictionary* _defaultAssociations;
-	NSMutableDictionary* _validationFailureMessages;
 // }
     BOOL _isPage;
     BOOL _isCachingEnabled;
@@ -161,15 +160,6 @@
                            inContext:(GSWContext*)aContext;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)aContext;
-#if !GSWEB_STRICT
--(void)setValidationFailureMessage:(NSString*)message
-                        forElement:(GSWDynamicElement*)element;
--(NSString*)validationFailureMessageForElement:(GSWDynamicElement*)element;
--(NSString*)handleValidationExceptionDefault;
--(BOOL)isValidationFailure;
--(NSDictionary*)validationFailureMessages;
--(NSArray*)allValidationFailureMessages;
-#endif
 
 /*
 Makes sure that the receiver is awake in aContext. 
@@ -206,8 +196,6 @@ Call this method before using a component which was cached in a variable.
 -(void)logWithFormat:(NSString*)format
            arguments:(va_list)argList;
 +(void)logWithFormat:(NSString*)format,...;
-
--(NSString*)_uniqueID;
 
 -(GSWResponse*)_generateResponseInContext:(GSWContext*)aContext;
 -(NSException*)validateValue:(id*)valuePtr

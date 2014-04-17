@@ -46,56 +46,61 @@ RCS_ID("$Id$")
 
 /* Static variables */
 
-static NSMutableDictionary * TheTemplateNameDictionary;
-static NSLock * TheTemplateNameDictionaryLock;
+static NSMutableDictionary * TheTemplateNameDictionary = nil;
+static NSLock * TheTemplateNameDictionaryLock = nil;
 static Class GSWHTMLBareStringClass = Nil;
 
+//--------------------------------------------------------------------
 + (void) initialize
 {
-  if (self == [GSWComponent class]) {
-    TheTemplateNameDictionary = [NSMutableDictionary new];
-    TheTemplateNameDictionaryLock = [[NSLock alloc] init];
-    GSWHTMLBareStringClass = [GSWHTMLBareString class];
-  }
+  if (self == [GSWComponent class])
+    {
+      TheTemplateNameDictionary = [NSMutableDictionary new];
+      TheTemplateNameDictionaryLock = [[NSLock alloc] init];
+      GSWHTMLBareStringClass = [GSWHTMLBareString class];
+    }
 }
 
+//--------------------------------------------------------------------
 // deprecated. use initWithContext:
-
 -(id)init
 {
 //  NSLog(@"%s init: deprecated. use initWithContext", class_getName([self class]));
   return [self initWithContext:[GSWComponentDefinition TheTemporaryContext]];
 }
 
-
+//--------------------------------------------------------------------
 - (id)initWithContext:(GSWContext *) aContext
 {
   Class myClass = Nil;
   GSWComponentDefinition* aComponentDefinition = nil;
   
-  if ((self=[super init])) {
-    if (aContext == nil) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"Attempt to init component without a context. In %s",
-                         __PRETTY_FUNCTION__];
-    }
+  if ((self=[super init]))
+    {
+      if (aContext == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"Attempt to init component without a context. In %s",
+		       __PRETTY_FUNCTION__];
+	}
 
     [self _setContext:aContext];
+
     myClass = [self class];
-    if (myClass == ([GSWComponent class])) {
+    if (myClass == [GSWComponent class])
       ASSIGN(_name, [aContext _componentName]);
-    } else {
+    else
       ASSIGN(_name, NSStringFromClass([self class]));
-    }
+    
     ASSIGN(_templateName,NSStringFromClass(myClass));
     _isPage = NO;
     _subComponents = nil;
     [self setCachingEnabled:[GSWApp isCachingEnabled]];
+
     ASSIGN(_componentDefinition, [aContext _tempComponentDefinition]);
     aComponentDefinition = [self _componentDefinition];
-    if (aComponentDefinition != nil) {
-      [aComponentDefinition finishInitializingComponent:self];
-    }
+    [aComponentDefinition finishInitializingComponent:self];
+    
     _isSynchronized = [self synchronizesVariablesWithBindings];
   }
 
@@ -105,7 +110,6 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(void)dealloc
 {
-
   DESTROY(_keyAssociations);
   DESTROY(_childTemplate);
   DESTROY(_componentDefinition);
@@ -116,8 +120,6 @@ static Class GSWHTMLBareStringClass = Nil;
   DESTROY(_templateName);
   DESTROY(_userAssociations);
   DESTROY(_userDictionary);
-  DESTROY(_validationFailureMessages);
-
   DESTROY(_context); //_context=nil;
   _parent = nil;
   _session = nil;
@@ -214,20 +216,14 @@ static Class GSWHTMLBareStringClass = Nil;
 
 -(NSString*)frameworkName 
 {
-  //OK
-  NSString* aFrameworkName=nil;
-  GSWComponentDefinition* aComponentDefinition=nil;
-
-  aComponentDefinition=[self _componentDefinition];
+  GSWComponentDefinition* aComponentDefinition=[self _componentDefinition];
   NSAssert(aComponentDefinition,@"No componentDefinition");
-  aFrameworkName=[aComponentDefinition frameworkName];
 
-  return aFrameworkName;
+  return [aComponentDefinition frameworkName];
 }
 
 //--------------------------------------------------------------------
 //	logString:
-
 -(void)logString:(NSString*)aString
 {
   [GSWApp logString:aString];
@@ -235,7 +231,6 @@ static Class GSWHTMLBareStringClass = Nil;
 
 //--------------------------------------------------------------------
 //	logWithFormat:
-
 -(void)logWithFormat:(NSString*)aFormat,...
 {
   va_list ap;
@@ -247,7 +242,6 @@ static Class GSWHTMLBareStringClass = Nil;
 
 //--------------------------------------------------------------------
 //	logWithFormat:arguments:
-
 -(void)logWithFormat:(NSString*)aFormat
            arguments:(va_list)arguments
 {
@@ -258,7 +252,6 @@ static Class GSWHTMLBareStringClass = Nil;
 
 //--------------------------------------------------------------------
 //	name
-
 -(NSString*)name 
 {
   return _name;
@@ -266,18 +259,13 @@ static Class GSWHTMLBareStringClass = Nil;
 
 //--------------------------------------------------------------------
 //	path
-
 -(NSString*)path 
 {
-  //TODOV
-  NSBundle* bundle=[NSBundle mainBundle];
-  return [bundle pathForResource:_name
-                 ofType:GSWPageSuffix[GSWebNamingConv]];
+  return [[self _componentDefinition] path];
 }
 
 //--------------------------------------------------------------------
 //	baseURL
-
 -(NSString*)baseURL 
 {
   return [[self _componentDefinition] baseURL];
@@ -287,14 +275,9 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  //TODO
-  NSString* dscr=nil;
-
-  dscr=[NSString stringWithFormat:@"<%s %p>",
-				  object_getClassName(self),
-				  (void*)self];
-
-  return dscr;
+  return [NSString stringWithFormat:@"<%s %p>",
+		   object_getClassName(self),
+		   (void*)self];
 }
 
 // GSWeb Additions {
@@ -355,74 +338,69 @@ static Class GSWHTMLBareStringClass = Nil;
 
 //--------------------------------------------------------------------
 //setCachingEnabled:
-
 -(void)setCachingEnabled:(BOOL)caching
 {
-  //OK
   _isCachingEnabled=caching;
 }
 
 //--------------------------------------------------------------------
 //isCachingEnabled
-
 -(BOOL)isCachingEnabled 
 {
-  //OK
   return _isCachingEnabled;
 }
 
+//--------------------------------------------------------------------
 -(void) _setParent:(GSWComponent*) parent
       associations:(NSMutableDictionary *) assocdict
           template:(GSWElement*) template
 {
-  if (parent != _parent) {
+  if (parent != _parent)
     _parent = parent;
-  }
-  if (assocdict != _keyAssociations) {
+  
+  if (assocdict != _keyAssociations)
     ASSIGN(_keyAssociations, assocdict);    
-  }
-  if (template != _childTemplate) {
+  
+  if (template != _childTemplate)
     ASSIGN(_childTemplate,template);
-  }
-  //  not WO!
-  //  [self validateAPIAssociations];
 }
 
 //--------------------------------------------------------------------
-
 -(void) _doPushValuesUp
 {
-  NSEnumerator       * enumer = nil;
-  NSString           * aKey = nil; 
-  GSWAssociation     * assoc = nil;
-
-  if (_isSynchronized && (_keyAssociations != nil)) {
-    enumer = [_keyAssociations keyEnumerator];
-    while ((aKey = [enumer nextObject])) {
-      assoc = [_keyAssociations objectForKey: aKey];
-      if ([assoc isValueSettableInComponent:self]) {
-        [assoc setValue:[self valueForKey: aKey]
-                    inComponent:_parent];
-      }
+  if (_isSynchronized && (_keyAssociations != nil))
+    {
+      NSEnumerator* enumer = [_keyAssociations keyEnumerator];
+      NSString* aKey = nil;
+      while ((aKey = [enumer nextObject]))
+	{
+	   GSWAssociation* assoc = [_keyAssociations objectForKey: aKey];
+	  if ([assoc isValueSettableInComponent:self])
+	    {
+	      [assoc setValue:[self valueForKey: aKey]
+		     inComponent:_parent];
+	    }
+	}
     }
-  }
 }
 
 -(void) pushValuesToParent
 {
   GSWComponentDefinition * componentdefinition = nil;
   
-  if (_isSynchronized) {
-    [self _doPushValuesUp];
-  }
+  if (_isSynchronized)
+    {
+      [self _doPushValuesUp];
+    }
   componentdefinition = [self _componentDefinition];
-  if ([componentdefinition isStateless]) {
-    [self reset];
-    _parent = nil;  // no retain? dw
-    _session = nil;
-    DESTROY(_context);
-    [componentdefinition _checkInComponentInstance:self];
-  }
+  if ([componentdefinition isStateless])
+    {
+      [self reset];
+      _parent = nil;  // no retain? dw
+      _session = nil;
+      DESTROY(_context);
+      [componentdefinition _checkInComponentInstance:self];
+    }
 }
 
 -(void)synchronizeComponentToParent
@@ -432,26 +410,21 @@ static Class GSWHTMLBareStringClass = Nil;
 }
 
 //--------------------------------------------------------------------
-
-
 -(void) pullValuesFromParent
 {
-  NSEnumerator       * enumer = nil;
-  NSString           * myKey = nil;
-  id                 obj; 
-  GSWAssociation     * assoc = nil;
-  
-  if (_isSynchronized && (_keyAssociations != nil)) {
-    enumer = [_keyAssociations keyEnumerator];
-    
-    while ((myKey = [enumer nextObject])) {
-      assoc = [_keyAssociations objectForKey: myKey];
-      obj = [assoc valueInComponent:_parent];        
-      [self setValue: obj
-              forKey: myKey];
+  if (_isSynchronized
+      && _keyAssociations != nil)
+    {
+      NSEnumerator* enumer = [_keyAssociations keyEnumerator];
+      NSString* aKey = nil;
+      while ((aKey = [enumer nextObject]))
+	{
+	  GSWAssociation* assoc = [_keyAssociations objectForKey: aKey];
+	  id obj = [assoc valueInComponent:_parent];        
+	  [self setValue: obj
+		forKey: aKey];
+	}
     }
-    
-  }
 }
 
 -(void) synchronizeParentToComponent
@@ -463,7 +436,6 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(GSWElement*)_childTemplate
 {
-  //OK
   return _childTemplate;
 }
 
@@ -471,17 +443,18 @@ static Class GSWHTMLBareStringClass = Nil;
 -(GSWElement*) template
 {
   GSWElement* element = nil;
-  if (_template != element) {
+  if (_template != element)
     element = _template;
-  } else {
-    element = [self templateWithName:nil];
-    if ([self isCachingEnabled]) {
+  else 
+    {
+      element = [self templateWithName:nil];
+      if ([self isCachingEnabled])
         ASSIGN(_template, element);
     }
-  }
   return element;
 }
 
+//--------------------------------------------------------------------
 -(GSWElement*)_template
 {
   NSLog(@"WARNING: %s is deprecated. Use template instead.", __PRETTY_FUNCTION__);
@@ -494,17 +467,16 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   GSWComponentDefinition* aComponentDefinition=nil;
 
-  if (_componentDefinition) {
+  if (_componentDefinition)
     aComponentDefinition=_componentDefinition;
-  } else {
-    NSArray* languages=[self languages];
-    aComponentDefinition=[GSWApp _componentDefinitionWithName:_name
-                                 languages:languages];
-    if ([self isCachingEnabled]) {
-        ASSIGN(_componentDefinition,aComponentDefinition);
+  else
+    {
+      NSArray* languages=[self languages];
+      aComponentDefinition=[GSWApp _componentDefinitionWithName:_name
+				   languages:languages];
+      if ([self isCachingEnabled])
+        ASSIGN(_componentDefinition,aComponentDefinition);      
     }
-  }
-
   return aComponentDefinition;
 }
 
@@ -523,14 +495,12 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(BOOL)_isPage
 {
-  //OK
   return _isPage;
 }
 
 //--------------------------------------------------------------------
 -(void)_setIsPage:(BOOL)isPage
 {
-  //OK
   _isPage=isPage;
 }
 
@@ -546,21 +516,17 @@ static Class GSWHTMLBareStringClass = Nil;
 //	templateWithName:
 
 // templateWithName is deprecated but I do not know in which version of WO
+// MGuesdon;: still exists in 5.0
 
 -(GSWElement*)templateWithName:(NSString*)aName
 {
-    return [[self _componentDefinition] template];
+  return [[self _componentDefinition] template];
 }
 
-
+//--------------------------------------------------------------------
 -(GSWComponent*)subComponentForElementID:(NSString*)elementId
 {
-  //OK
-  GSWComponent* subc=nil;
-
-  subc=[_subComponents objectForKey:elementId];
-
-  return subc;
+  return [_subComponents objectForKey:elementId];
 }
 
 //--------------------------------------------------------------------
@@ -577,10 +543,7 @@ static Class GSWHTMLBareStringClass = Nil;
 //NDFN
 -(void)makeParentsPerformSelectorIfPossible:(SEL)aSelector
 {
-  NSArray* parents=nil;
-
-  parents=[self parents];
-  [parents makeObjectsPerformSelectorIfPossible:aSelector];
+  [[self parents] makeObjectsPerformSelectorIfPossible:aSelector];
 }
 
 //--------------------------------------------------------------------
@@ -588,11 +551,8 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)makeParentsPerformSelectorIfPossible:(SEL)aSelector
                                  withObject:(id)object
 {
-  NSArray* parents=nil;
-  parents = [self parents];
-
-  [parents makeObjectsPerformSelectorIfPossible:aSelector
-           withObject:object];
+  [[self parents] makeObjectsPerformSelectorIfPossible:aSelector
+		  withObject:object];
 }
 
 //--------------------------------------------------------------------
@@ -601,13 +561,9 @@ static Class GSWHTMLBareStringClass = Nil;
                                  withObject:(id)object1
                                  withObject:(id)object2
 {
-  NSArray* parents=nil;
-
-  parents=[self parents];
-
-  [parents makeObjectsPerformSelectorIfPossible:aSelector
-           withObject:object1
-           withObject:object2];
+  [[self parents] makeObjectsPerformSelectorIfPossible:aSelector
+		  withObject:object1
+		  withObject:object2];
 
 }
 
@@ -700,10 +656,9 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)makeSubComponentsPerformSelectorIfPossible:(SEL)aSelector
                                        withObject:(id)object
 {
-  NSEnumerator* enumerator=nil;
+  NSEnumerator* enumerator=[_subComponents objectEnumerator];    
   GSWComponent* component=nil;
 
-  enumerator= [_subComponents objectEnumerator];    
   while ((component=[enumerator nextObject]))
     {
       [component performSelectorIfPossible:aSelector
@@ -719,52 +674,48 @@ static Class GSWHTMLBareStringClass = Nil;
                                        withObject:(id)object1
                                        withObject:(id)object2
 {
-  NSEnumerator* enumerator=nil;
+  NSEnumerator* enumerator=[_subComponents objectEnumerator];    
   GSWComponent* component=nil;
 
-  enumerator= [_subComponents objectEnumerator];    
   while ((component=[enumerator nextObject]))
-	{
-	  [component performSelectorIfPossible:aSelector
-                     withObject:object1
-                     withObject:object2];
-	  [component makeSubComponentsPerformSelectorIfPossible:aSelector
-                     withObject:object1
-                     withObject:object2];
-	}
+    {
+      [component performSelectorIfPossible:aSelector
+		 withObject:object1
+		 withObject:object2];
+      [component makeSubComponentsPerformSelectorIfPossible:aSelector
+		 withObject:object1
+		 withObject:object2];
+    }
 }
 
 
 //PRIVATE
 -(GSWComponent*) _subcomponentForElementWithID:(NSString*) str
 {
-  if ((_subComponents != nil) && (str != nil)) {
+  if (_subComponents != nil
+      && str != nil)
     return [_subComponents objectForKey:str];
-  }
-  return nil;
+  else
+    return nil;
 }
 
+//--------------------------------------------------------------------
 -(GSWAssociation*)_associationWithName:(NSString*)aName
 {
-  GSWAssociation* assoc=nil;
-
-  if (_keyAssociations != nil) {
-    assoc = [_keyAssociations objectForKey: aName];
-  }
-
-  return assoc;
+  return [_keyAssociations objectForKey: aName];
 }
 
 
+//--------------------------------------------------------------------
 -(BOOL)hasBinding:(NSString*)parentBindingName
 {
   BOOL hasBinding = NO;
   GSWAssociation * association = [self _associationWithName: parentBindingName];
 
   hasBinding = (association != nil);
-  if (hasBinding) {
+  if (hasBinding)
     hasBinding = [association _hasBindingInParent:_parent];
-  }
+  
   return hasBinding;
 }
 
@@ -772,29 +723,25 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)setValue:(id)value
      forBinding:(NSString*)parentBindingName
 {
-  GSWAssociation* assoc=nil;
-  
   if (_parent)
-  {
-    assoc=[self _associationWithName:parentBindingName];
-    if(assoc)
-      [assoc setValue:value
-          inComponent:_parent];
-	}
+    {
+      GSWAssociation* assoc=[self _associationWithName:parentBindingName];
+      if(assoc)
+	[assoc setValue:value
+	       inComponent:_parent];
+    }
 }
 
 //--------------------------------------------------------------------
 -(id)valueForBinding:(NSString*)parentBindingName
 {
   id aValue=nil;
-  GSWAssociation* assoc=nil;
-  
   if (_parent)
-  {
-    assoc=[self _associationWithName:parentBindingName];
-    if(assoc)
-      aValue=[assoc valueInComponent:_parent];
-	}
+    {
+      GSWAssociation* assoc=[self _associationWithName:parentBindingName];
+      if(assoc)
+	aValue=[assoc valueInComponent:_parent];
+    }
   
   return aValue; 
 }
@@ -829,6 +776,7 @@ static Class GSWHTMLBareStringClass = Nil;
    return (![self isStateless]);
 }
 
+//--------------------------------------------------------------------
 -(BOOL) isStateless
 {
   return NO;
@@ -879,49 +827,57 @@ static Class GSWHTMLBareStringClass = Nil;
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext 
 {
-  GSWComponent * component = nil;
   GSWElement * element    = nil;
   
   [aContext _setResponse: aResponse];
   element = [self template];
     
-  if (element != nil) {
-    if (([self parent] == nil) && ([aContext page] != self)) {
-      component = [aContext component];
-      [aContext _setCurrentComponent:self];
-    }
-    [element appendToResponse: aResponse 
-                     inContext: aContext];
-    if (component != nil)
+  if (element != nil) 
     {
-      [aContext _setCurrentComponent: component];
+      GSWComponent * component = nil;
+      if ([self parent] == nil
+	  && [aContext page] != self)
+	{
+	  component = [aContext component];
+	  [aContext _setCurrentComponent:self];
+	}
+      [element appendToResponse: aResponse 
+	       inContext: aContext];
+      if (component != nil)
+	{
+	  [aContext _setCurrentComponent: component];
+	}
     }
-  }
 }
 
 
+//--------------------------------------------------------------------
 -(id <GSWActionResults>) invokeActionForRequest:(GSWRequest*)aRequest
                                       inContext:(GSWContext*)aContext
 {
-    id <GSWActionResults>   results = nil;
-    GSWElement            * template = nil;
-    
-    NS_DURING
-    
-    template = [self template];
-    if (template != nil) {
-        if ([template class] != GSWHTMLBareStringClass) {
-            results = [template invokeActionForRequest:aRequest
-                                             inContext:aContext];
-        }
+  id <GSWActionResults>   results = nil;
+  
+  NS_DURING
+    {
+      GSWElement* template = [self template];
+      if (template != nil) 
+	{
+	  if ([template class] != GSWHTMLBareStringClass) 
+	    {
+	      results = [template invokeActionForRequest:aRequest
+				  inContext:aContext];
+	    }
+	}
     }
-    NS_HANDLER
-    localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                            @"In %s", __PRETTY_FUNCTION__);
-    [localException raise];
-    NS_ENDHANDLER
+  NS_HANDLER
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+							      @"In %s", __PRETTY_FUNCTION__);
+      [localException raise];
+    }
+  NS_ENDHANDLER;
     
-    return results;
+  return results;
 }
 
 
@@ -932,7 +888,6 @@ static Class GSWHTMLBareStringClass = Nil;
                    inContext:(GSWContext*)aContext 
 {
   //OK
-  BOOL oldValidateFlag=NO;
   GSWElement* template=nil;
   GSWDeclareDebugElementIDsCount(aContext);
   GSWDeclareDebugElementID(aContext);
@@ -940,9 +895,6 @@ static Class GSWHTMLBareStringClass = Nil;
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
 
-  [_validationFailureMessages removeAllObjects];
-  oldValidateFlag=[aContext isValidate];
-  [aContext setValidate:YES];
   template=[self template];
 
   [template takeValuesFromRequest:aRequest
@@ -951,72 +903,11 @@ static Class GSWHTMLBareStringClass = Nil;
   GSWStopElement(aContext);
   GSWAssertDebugElementID(aContext);
 
-  [aContext setValidate:oldValidateFlag];
-
   GSWAssertIsElementID(aContext);
   GSWAssertDebugElementIDsCount(aContext);
-
-}
-
-
-//GSWeb Additions {
-//--------------------------------------------------------------------
--(void)setValidationFailureMessage:(NSString*)message
-                        forElement:(GSWDynamicElement*)element
-{
-  if (!_validationFailureMessages)
-    _validationFailureMessages=[NSMutableDictionary new];
-  [_validationFailureMessages setObject:message
-                              forKey:[NSValue valueWithNonretainedObject:element]];
 }
 
 //--------------------------------------------------------------------
--(NSString*)validationFailureMessageForElement:(GSWDynamicElement*)element
-{
-  return [_validationFailureMessages objectForKey:[NSValue valueWithNonretainedObject:element]];
-}
-
-//--------------------------------------------------------------------
--(NSString*)handleValidationExceptionDefault
-{
-  return nil; //Raise !
-}
-
-//--------------------------------------------------------------------
--(BOOL)isValidationFailure
-{
-  //TODO ameliorate
-  return [[self allValidationFailureMessages] count]>0;
-}
-
-//--------------------------------------------------------------------
--(NSDictionary*)validationFailureMessages
-{
-  return _validationFailureMessages;
-}
-
-//--------------------------------------------------------------------
--(NSArray*)allValidationFailureMessages
-{
-  NSMutableArray* msgs=[NSMutableArray array];
-  NSEnumerator* subComponentsEnum=nil;
-  GSWComponent* component=nil;
-
-  [msgs addObjectsFromArray:[[self validationFailureMessages] allValues]];
-  subComponentsEnum=[_subComponents objectEnumerator];
-  while((component=[subComponentsEnum nextObject]))
-    {
-      [msgs addObjectsFromArray:[component allValidationFailureMessages]];
-    }
-  msgs=[NSArray arrayWithArray:msgs];
-
-  return msgs;
-}
-
-// } 
-
-//--------------------------------------------------------------------
-
 -(void) _awakeInContext:(GSWContext*)aContext
 {
   GSWComponentDefinition* componentdefinition =nil;
@@ -1027,12 +918,11 @@ static Class GSWHTMLBareStringClass = Nil;
   [componentdefinition setCachingEnabled:[self isCachingEnabled]];
   [componentdefinition awake];
 
-  if (_subComponents) {
-
-  [_subComponents makeObjectsPerformSelector:@selector(_awakeInContext:)
-                  withObject:aContext];
-
-  }
+  if (_subComponents)
+    {
+      [_subComponents makeObjectsPerformSelector:@selector(_awakeInContext:)
+		      withObject:aContext];
+    }
 
   _session = nil;
   [self awake];
@@ -1045,9 +935,8 @@ Call this method before using a component which was cached in a variable.
 
 -(void)ensureAwakeInContext:(GSWContext*)aContext
 {
-  if ([self context] != aContext)  { 
+  if ([self context] != aContext)
     [self _awakeInContext:aContext];
-  }
 }
 
 //--------------------------------------------------------------------
@@ -1074,21 +963,25 @@ Call this method before using a component which was cached in a variable.
   GSWComponent     *component = _parent;
   id<GSWActionResults> actionresults = nil;
   
-  if (!_parent) {
+  if (!_parent)
     return nil;
-  }
+  
   [context _setCurrentComponent:_parent];  
   [self pushValuesToParent];
   _parent = component;            // get the _parent back.
 
   context = [self context];  // we do NOT use the iVar to enable fancy subclass magic.
   NS_DURING
-    actionresults = [_parent valueForKey: attribute];
+    {
+      actionresults = [_parent valueForKey: attribute];
+    }
   NS_HANDLER
-    localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
+    {
+      localException=[localException exceptionByAddingUserInfoFrameInfoFormat:@"In %s",
                                                                           __PRETTY_FUNCTION__];
-    [localException raise];    
-  NS_ENDHANDLER
+      [localException raise];    
+    }
+  NS_ENDHANDLER;
   [self pullValuesFromParent];
   [context _setCurrentComponent:self];  
 
@@ -1098,7 +991,6 @@ Call this method before using a component which was cached in a variable.
 //--------------------------------------------------------------------
 -(GSWComponent*)parent
 {
-  //OK
   return _parent;
 }
 
@@ -1146,7 +1038,6 @@ Call this method before using a component which was cached in a variable.
 
 -(GSWComponent*)pageWithName:(NSString*)aName
 {
-  //OK
   GSWComponent* page=nil;
   GSWContext* aContext=nil;
 
@@ -1191,12 +1082,15 @@ Call this method before using a component which was cached in a variable.
 {
   GSWContext * ctx = nil;
 
-  if ((_context == nil) && (_session != nil)) {
-    if ((ctx = [_session context])) {
-      [self _awakeInContext: ctx];
-      [_context _takeAwakeComponent:self];
+  if (_context == nil
+      && _session != nil)
+    {
+      if ((ctx = [_session context]))
+	{
+	  [self _awakeInContext: ctx];
+	  [_context _takeAwakeComponent:self];
+	}
     }
-  }
   return _context;
 }
 
@@ -1204,10 +1098,7 @@ Call this method before using a component which was cached in a variable.
 //NDFN
 -(NSArray*)languages
 {
-  NSArray* languages=nil;
-  languages=[[self context] languages];
-
-  return languages;
+  return [[self context] languages];
 }
 
 //--------------------------------------------------------------------
@@ -1274,35 +1165,24 @@ Call this method before using a component which was cached in a variable.
   va_end(ap);
 }
 
-
--(NSString*)_uniqueID
-{
-  [self notImplemented: _cmd];	//TODOFN
-  return nil;
-}
-
-
 //--------------------------------------------------------------------
 -(void)_appendPageToResponse:(GSWResponse*)response
                    inContext:(GSWContext*)aContext
 {
-  //OK
-  GSWSession* session=nil;
-  GSWRequest* request=nil;
-  NSString* httpVersion=@"HTTP/1.0";
-  GSWElement* pageElement=nil;
-  BOOL pageChanged=NO;  
-
   NSAssert(aContext,@"No context");
   NS_DURING
     {    
-      request=[aContext request];
+      GSWSession* session=nil;
+      NSString* httpVersion=@"HTTP/1.0";
+      GSWElement* pageElement=nil;
+      BOOL pageChanged=NO;  
+      GSWRequest* request=[aContext request];
+
       GSWContext_deleteAllElementIDComponents(aContext);
 
-      if (request != nil) {
+      if (request != nil)
         httpVersion = [request httpVersion];
-      }
-
+      
       [response setHTTPVersion:httpVersion];
       [response setHeader:@"text/html"
                 forKey:GSWHTTPHeader_ContentType];
@@ -1323,10 +1203,11 @@ Call this method before using a component which was cached in a variable.
 
       session=[aContext _session];
 
-      if (session) {
+      if (session)
+	{
           [session appendCookieToResponse:response];
           [session _saveCurrentPage];
-      }
+	}
 
       [aContext _incrementContextID];
       GSWContext_deleteAllElementIDComponents(aContext);
@@ -1384,70 +1265,77 @@ Call this method before using a component which was cached in a variable.
  * if validateValue:forKeyPath:error: returns an error.
  * This method returns new value.
  **/
-- (id)validateTakeValue:(id)value forKeyPath:(NSString *)path
+- (id)validateTakeValue:(id)value
+	     forKeyPath:(NSString *)path
 {
-  NSError   * outError = nil;
-  BOOL        ok       = NO;
-  NSRange     dotRange;
-  NSString  * errorStr = @"unknown reason";
-  NSString  * validatePath = path;
-  
-  if (!path) {
-    errorStr = @"keyPath must not be nil";
-  } else {
-    
-    id targetObject = self;
-    
-    dotRange = [path rangeOfString:@"."
-                           options:NSBackwardsSearch];
-    
-    if (dotRange.location != NSNotFound) {
-      NSString * newPath = [path substringToIndex:dotRange.location];
-      
-      targetObject = [self valueForKeyPath:newPath];
-      
-      if (!targetObject) {
-        // If there is no object to set a value, we cannot do any validation.
-        // There is nothing to set on a non-existing object, so just go.
-        return nil;
-      }
-      
-      // 1 is the length of the "."
-      validatePath = [path substringFromIndex: dotRange.location+1];
-    } 
-    
-    ok = [targetObject validateValue:&value 
-                          forKeyPath:validatePath 
-                               error:&outError];
-  }
-  
-  if (ok) { // value is ok
-    [self setValue:value
-        forKeyPath:path];
-    
-    return value;
-  } else {
-    NSException  * exception=nil;
-    NSDictionary * uInfo;
-    
-    uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-             (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
-             path, @"EOValidatedPropertyUserInfoKey",
-             nil];
-    
-    if ((outError) && ([outError userInfo])) {
-      errorStr = [[outError userInfo] valueForKey:NSLocalizedDescriptionKey];
+  if (!path)
+    {
+      [NSException raise:NSInvalidArgumentException
+		   format:@"keyPath must not be nil"];
     }
+  else
+    {    
+      NSError   * outError = nil;
+      NSString  * validatePath = path;
+      id targetObject = self;
+      
+      NSRange dotRange = [path rangeOfString:@"."
+			       options:NSBackwardsSearch];
     
-    exception=[NSException exceptionWithName:@"EOValidationException"
-                                      reason:errorStr
-                                    userInfo:uInfo];
+      if (dotRange.location != NSNotFound)
+	{
+	  NSString * newPath = [path substringToIndex:dotRange.location];
+      
+	  targetObject = [self valueForKeyPath:newPath];
+      
+	  if (!targetObject)
+	    {
+	      // If there is no object to set a value, we cannot do any validation.
+	      // There is nothing to set on a non-existing object, so just go.
+	      return nil;
+	    }
+      
+	  // 1 is the length of the "."
+	  validatePath = [path substringFromIndex: dotRange.location+1];
+	}
     
-    if (exception) {
-      [exception raise];
+      if ([targetObject validateValue:&value 
+			forKeyPath:validatePath 
+			error:&outError])
+	{
+	  id oldValue=[self valueForKeyPath:path];
+	  if (SBIsValueEqual(oldValue,value)==NO)
+	    {
+	      //Set it if it differ from previous value
+	      [self setValue:value
+		    forKeyPath:path];
+	    }
+	  return value;
+	}
+      else
+	{
+	  NSString  * errorStr = @"unknown reason";
+	  NSException  * exception=nil;
+	  NSDictionary * uInfo = nil;
+      
+	  uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+				  (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
+				path, @"EOValidatedPropertyUserInfoKey",
+				nil];
+	  
+	  if (outError
+	      && [outError userInfo])
+	    {
+	      errorStr = [[outError userInfo] valueForKey:NSLocalizedDescriptionKey];
+	    }
+      
+	  exception=[NSException exceptionWithName:@"EOValidationException"
+				 reason:errorStr
+				 userInfo:uInfo];
+      
+	  [exception raise];
+	}
     }
-    
-  }
   
   return value;
 }
@@ -1458,19 +1346,19 @@ Call this method before using a component which was cached in a variable.
 -(NSString*)urlForResourceNamed:(NSString*)aName
                          ofType:(NSString*)type
 {
-    NSString* url = nil;
+  NSString* url = nil;
     
-    GSOnceMLog(@"%s is depricated in WO 4.0. Use GSWResourceManager’s implementation of "
-               @"urlForResourceNamed:inFramework:languages:request: "
-               @"instead.",
-               __PRETTY_FUNCTION__);
-    
-    url=[[GSWApp resourceManager] urlForResourceNamed:aName
-                                          inFramework:nil
-                                            languages:[self languages]
-                                              request:nil];
-    
-    return url;
+  GSOnceMLog(@"%s is deprecated in WO 4.0. Use GSWResourceManager’s implementation of "
+	     @"urlForResourceNamed:inFramework:languages:request: "
+	     @"instead.",
+	     __PRETTY_FUNCTION__);
+  
+  url=[[GSWApp resourceManager] urlForResourceNamed:aName
+				inFramework:nil
+				languages:[self languages]
+				request:nil];
+  
+  return url;
 }
 
 //--------------------------------------------------------------------
@@ -1479,7 +1367,7 @@ Call this method before using a component which was cached in a variable.
 {
   NSString* path=nil;
   
-  GSOnceMLog(@"%s is depricated in WO 4.0. Use GSWResourceManager’s implementation of "
+  GSOnceMLog(@"%s is deprecated in WO 4.0. Use GSWResourceManager’s implementation of "
              @"pathForResourceNamed:inFramework:languages: " 
              @"instead.",
              __PRETTY_FUNCTION__);
@@ -1500,12 +1388,9 @@ Call this method before using a component which was cached in a variable.
                    declarationString:(NSString*)pageDefString
                            languages:(NSArray*)languages
 {
-  GSWElement* rootElement=nil;
-
-  rootElement=[GSWTemplateParser templateWithHTMLString:htmlString
-                                 declarationString:pageDefString
-                                 languages:languages];
-  return rootElement;
+  return [GSWTemplateParser templateWithHTMLString:htmlString
+			    declarationString:pageDefString
+			    languages:languages];
 }
 
 //--------------------------------------------------------------------
@@ -1513,7 +1398,7 @@ Call this method before using a component which was cached in a variable.
 +(GSWElement*)templateWithHTMLString:(NSString*)htmlString
                    declarationString:(NSString*)pageDefString
 {
-  GSOnceMLog(@"%s is depricated in WO 4.0. Use "
+  GSOnceMLog(@"%s is deprecated in WO 4.0. Use "
              @"templateWithHTMLString:declarationString:languages:" 
              @"instead.",
              __PRETTY_FUNCTION__);
@@ -1541,22 +1426,26 @@ Call this method before using a component which was cached in a variable.
   return _name;
 }
 
+//--------------------------------------------------------------------
 - (WOMarkupType) markupType
 {
   return WOHTML401Markup;
 }
 
+//--------------------------------------------------------------------
 +(void)_registerObserver:(id)observer
 {
   [self notImplemented: _cmd];	//TODOFN
 }
 
-- (id)unarchiver: (WOKeyValueUnarchiver*)archiver objectForReference: (id)keyPath
+//--------------------------------------------------------------------
+-(id)   unarchiver: (WOKeyValueUnarchiver*)archiver
+objectForReference: (id)keyPath
 {  
   if ([keyPath isKindOfClass:[NSString class]])
-  {
-    return [self valueForKeyPath:keyPath];
-  }
+    {
+      return [self valueForKeyPath:keyPath];
+    }
   return nil;
 }
 

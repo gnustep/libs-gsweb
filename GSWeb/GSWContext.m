@@ -2106,17 +2106,6 @@ If none, try request languages
                                        request: _request];
 }
 
--(BOOL)isValidate
-{
-  return _isValidate;
-};
-
-//--------------------------------------------------------------------
--(void)setValidate:(BOOL)isValidate
-{
-  _isValidate = isValidate;
-}
-
 - (BOOL) secureRequest
 {
   BOOL isSecure = NO;

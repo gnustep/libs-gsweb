@@ -113,7 +113,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
   BOOL _actionInvoked;
   BOOL _formSubmitted;
   BOOL _isMultipleSubmitForm;
-  BOOL _isValidate;
 #ifndef NDEBUG
   int _loopLevel; //ForDebugging purpose: each repetition increment and next decrement it
   NSMutableString* _docStructure; //ForDebugging purpose: array of all objects if the document during appendResponse, takeValues, invokeAction
@@ -392,9 +391,6 @@ If none, try request languages
 
 - (NSString*) _urlForResourceNamed: (NSString*)aName 
                        inFramework: (NSString*)frameworkName;
-
--(BOOL)isValidate;
--(void)setValidate:(BOOL)isValidate;
 
 -(BOOL)secureMode;
 -(void)setSecureMode:(BOOL) value;

@@ -498,61 +498,6 @@ void ExceptionRaiseFn0(const char *func,
                format:@"%@",string];
 };
 
-//--------------------------------------------------------------------
-void ValidationExceptionRaiseFn(const char *func, 
-                                const char *file,
-                                int line,
-                                NSString* name,
-                                NSString* message,
-                                NSString* format,
-                                ...)
-{
-  NSException* exception=nil;
-  NSString* fmt=(*nsString_stringWithFormatIMP)
-    (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
-     func,line,file,name,format);
-  NSString* string=nil;
-  va_list args;
-  va_start(args,format);
-  string=[nsStringClass stringWithFormat:fmt
-                        arguments:args];
-  va_end(args);
-  NSLog(@"%@",string);
-  exception=[NSException exceptionWithName:name
-                         reason:string
-                         userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  GSWNumberYes,@"isValidationException",
-                                                message,@"message",
-                                                nil,nil]];
-  StackTraceIFND();
-  DebugBreakpointIFND();
-  [exception raise];
-};
-
-//--------------------------------------------------------------------
-void ValidationExceptionRaiseFn0(const char *func, 
-                                 const char *file,
-                                 int line,
-                                 NSString* name,
-                                 NSString* message,
-                                 NSString* format)
-{
-  NSException* exception=nil;
-  NSString* string=(*nsString_stringWithFormatIMP)
-    (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
-     func,line,file,name,format);
-  NSLog(@"%@",string);
-  exception=[NSException exceptionWithName:name
-                         reason:format
-                         userInfo:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                  GSWNumberYes,@"isValidationException",
-                                                message,@"message",
-                                                nil,nil]];
-  StackTraceIFND();
-  DebugBreakpointIFND();
-  [exception raise];
-};
-
 //====================================================================
 @implementation NSException (NSBuild)
 

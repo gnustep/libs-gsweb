@@ -1,3 +1,36 @@
+2014-04-17  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWPopUpButton.m	
+	  fix _slowTakeValuesFromRequest:inContext: 
+	    (convert valueValue before isEqual:)
+	  replace while loop by a simplier for loop
+	  respect GNUstep coding standard (curly brackets placement)
+	  rename variable to make code more understandable
+	* GSWeb/GSWComponent.m
+	  respect GNUstep coding standard (curly brackets placement)
+	  fix validateTakeValue:forKeyPath: (set value if only if different)
+	  remove non standard and unused methods validation stuff:
+	    -setValidationFailureMessage:forElement:
+	    -validationFailureMessageForElement:
+	    -handleValidationExceptionDefault
+	    -isValidationFailure
+	    -validationFailureMessages
+	    -allValidationFailureMessages
+	  fix -path 
+	  remove context -setIsValidate: calls
+	  remove _uniqueID
+	  clean code
+	* GSWeb/GSWComponent.h
+	  remove _validationFailureMessages
+	  remove non standard and unused methods validation stuff
+	  remove _uniqueID
+	* GSWeb/GSWUtils.[hm]
+	  remove non standard -isValidationException
+	  remove -ValidationExceptionRaise*
+	* GSWeb/GSWContext.[hm]
+	  remove -setValidate
+	  remove -isValidate
+	* GSWeb/GSWApplication.m
+	  remove context -setIsValidate: calls	
 2014-04-11  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWHyperlink.m
 	  fix generateRelativeURLs/generateRelativeURLs
