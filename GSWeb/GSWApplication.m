@@ -579,12 +579,7 @@ int GSWApplicationMain(NSString* applicationClassName,
 //baseURL
 -(NSString*)baseURL 
 {
-  NSString* baseURL=nil;
-  [self notImplemented: _cmd];	//TODOFN
-  
-  baseURL=[GSWURLPrefix[GSWebNamingConv] stringByAppendingString:[self name]];
-  
-  return baseURL;
+  return [[self class]applicationBaseURL];
 };
 
 //--------------------------------------------------------------------

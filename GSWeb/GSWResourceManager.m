@@ -51,26 +51,21 @@ NSDictionary* localGS2ISOLanguages=nil;
 NSDictionary* localISO2GSLanguages=nil;
 NSString* globalLanguagesPListPathName=nil;
 NSMutableDictionary   *globalPathCache = nil;
+NSMutableDictionary   *globalURLCache = nil;
 //--------------------------------------------------------------------
 +(void)initialize
 {
   if (self==[GSWResourceManager class])
     {
-      NSBundle* mainBundle=nil;
-      GSWDeployedBundle* deployedBundle=nil;
-      //if ((self=[[super superclass] initialize]))
-        {
-          NSString* bundlePath=nil;
-          mainBundle=[GSWApplication mainBundle];
-          bundlePath=[mainBundle  bundlePath];
-          deployedBundle=(GSWDeployedBundle*)[GSWDeployedBundle bundleWithPath:bundlePath];
-	  
-          globalAppProjectBundle=[[deployedBundle projectBundle] retain];
-          NSAssert(globalAppProjectBundle,@"no globalAppProjectBundle");
-          //call  deployedBundle bundlePath
-          //call  globalAppProjectBundle bundlePath
-          //call isDebuggingEnabled
-        };
+      NSBundle* mainBundle=[GSWApplication mainBundle];
+      NSString* bundlePath=[mainBundle  bundlePath];
+      ASSIGN(globalAppProjectBundle,([GSWDeployedBundle bundleWithPath:bundlePath]));
+      NSAssert(globalAppProjectBundle,@"no globalAppProjectBundle");
+      globalPathCache = [NSMutableDictionary new];
+      globalURLCache = [NSMutableDictionary new];
+
+      TheStringsTableDictionary = [NSMutableDictionary new];
+      TheStringsTableLock = [NSLock new];
     };
 };
 
@@ -152,17 +147,11 @@ NSMutableDictionary   *globalPathCache = nil;
 {
   if ((self=[super init]))
     {
-      if (!globalMime) {
-        [self _loadMimeTypes];
-        [self _loadLanguages];
-      }
-      if (!globalPathCache) {
-        globalPathCache = [NSMutableDictionary new];
-      }
-      if (!TheStringsTableDictionary) {
-        TheStringsTableDictionary = [NSMutableDictionary new];
-        TheStringsTableLock = [NSLock new];
-      }
+      if (!globalMime)
+	{
+	  [self _loadMimeTypes];
+	  [self _loadLanguages];
+	}
       //TODO NSBundle* mainBundle=[NSBundle mainBundle];
       NSArray* allFrameworks=[NSBundle allFrameworks];
       int i=0;
@@ -333,40 +322,62 @@ NSMutableDictionary   *globalPathCache = nil;
                         request:(GSWRequest*)request
 {
   NSString   * url=nil;
-  NSString   * path=nil;
-  //GSWContext * context = nil;
-  
-  if ((languages) && ([languages count])) {
-    NSEnumerator * langEnumer = [languages objectEnumerator];
-    NSString     * currentLang;
+  //It's not a complete WO implementation: WO use WODeployedBundle instead of NSBundle
+  if ([request isUsingWebServer])
+    {
+      if ([languages count]>0)
+	{
+	  NSEnumerator * langEnumer = [languages objectEnumerator];
+	  NSString     * currentLang= nil;
     
-    while (((currentLang = [langEnumer nextObject])) && (!path)) {
-      path = [self pathForResourceNamed:name
-                            inFramework:aFrameworkName
-                               language:currentLang];
-      
+	  while (((currentLang = [langEnumer nextObject])) && url==nil)
+	    {
+	      url = [self urlForResourceNamed:name
+			  inFramework:aFrameworkName
+			  language:currentLang];      
+	    }
+	}
+      if (url==nil)
+	{
+	  // no languages or url not found   
+	  url = [self urlForResourceNamed:name
+		      inFramework:aFrameworkName
+		      language:nil];    
+	}
     }
-  } else {
-    // no languages
+  else
+    {
+      NSString   * path=nil;
+      if ([languages count]>0)
+	{
+	  NSEnumerator * langEnumer = [languages objectEnumerator];
+	  NSString     * currentLang= nil;
     
-    path = [self pathForResourceNamed:name
-                          inFramework:aFrameworkName
-                             language:nil];
-    
-  }
+	  while (((currentLang = [langEnumer nextObject])) && path==nil)
+	    {
+	      path = [self pathForResourceNamed:name
+			   inFramework:aFrameworkName
+			   language:currentLang];      
+	    }
+	}
+      if (path==nil)
+	{
+	  // no languages or path not found   
+	  path = [self pathForResourceNamed:name
+		       inFramework:aFrameworkName
+		       language:nil];    
+	}
   
-  if (!path) {
-    return nil;
-  }
+      if (path!=nil)
+	{
+	  path = [self _cleanPath:path
+		       frameworkName:aFrameworkName];
   
-  path = [self _cleanPath:path frameworkName:aFrameworkName];
-  
-  //context = [request _context];
-  
-  url = [NSString stringWithFormat:@"%@%@%@", [request _applicationURLPrefix],
-         [[GSWApp class] resourceRequestHandlerKey], 
-         path];
-  
+	  url = [NSString stringWithFormat:@"%@%@%@", [request _applicationURLPrefix],
+			  [[GSWApp class] resourceRequestHandlerKey], 
+			  path];
+	}
+    }
   return url;
 }
 
@@ -681,13 +692,147 @@ static NSString * _cachedStringForKey(GSWResourceManager * resmanager, NSString 
    resourceName, language, frameworkName,
    path);
    */
-  if ([localNotFoundMarker isEqualToString:path]) {
-    return nil;
-  }
+  if ([localNotFoundMarker isEqualToString:path])
+    path=nil;
   
   return path;
 }
 
+/*
+ must be used locked.
+ returns localNotFoundMarker on negative cache result.
+ */
+-(NSString*)_cachedURLForResourceNamed:(NSString*)resourceName
+			   inFramework:(NSString*)frameworkName
+			      language:(NSString*)language
+{
+  NSString * cachedURL = nil;
+  
+  NSString * key = [NSString stringWithFormat:@"%@:%@:%@",
+                    resourceName,
+                    (frameworkName) ? frameworkName : @"APP",
+                    (language) ? language : NONESTR];
+    
+  cachedURL = [globalURLCache objectForKey:key];
+    
+  return cachedURL;
+}
+
+/*
+ must be used locked.
+ saves localNotFoundMarker into cache if url is nil.
+ */
+-(void)_cacheURL:(NSString*)url
+forResourceNamed:(NSString*)resourceName
+     inFramework:(NSString*)frameworkName
+	language:(NSString*)language
+{  
+  NSString * key = [NSString stringWithFormat:@"%@:%@:%@",
+                    resourceName,
+                    (frameworkName) ? frameworkName : @"APP",
+                    (language) ? language : NONESTR];
+  
+  if (!url)
+    url = localNotFoundMarker;
+  
+  [globalPathCache setObject:url
+                      forKey:key];
+}
+
+
+/*
+ Returns the url for the resource resourceName. 
+ resourceName must include the extension.
+ If the file is in the application, specify nil for the frameworkName argument.
+ */
+-(NSString*)urlForResourceNamed:(NSString*)resourceName
+		    inFramework:(NSString*)frameworkName
+		       language:(NSString*)language
+{
+  NSString * url        = nil;
+  
+  SYNCHRONIZED(self) 
+  {    
+    url = [self _cachedURLForResourceNamed:resourceName
+		inFramework:frameworkName
+		language:language];
+    if (url==nil)
+      {
+	NSBundle * bundleToUse = nil;
+	NSString* path = nil;
+	BOOL isApp=NO;
+	if (!frameworkName)
+	  {
+	    bundleToUse = [NSBundle mainBundle];
+	    isApp=YES;
+	  }
+	else
+	  {
+	    NSEnumerator * bundleEnumer = [[NSBundle allFrameworks] objectEnumerator];
+	    NSBundle     * currentBundle= nil;
+	    
+	    while (((currentBundle = [bundleEnumer nextObject])) && bundleToUse==nil)
+	      {
+		if (([[[currentBundle infoDictionary] objectForKey:@"CFBundleExecutable"] 
+		       isEqualToString:frameworkName]) || 
+		    ([[[currentBundle infoDictionary] objectForKey:@"NSExecutable"] 
+		       isEqualToString:frameworkName]))
+		  {
+		    
+		    bundleToUse = currentBundle;
+		  }
+	      }    
+	  }
+	
+	if (!bundleToUse)
+	  {
+	    //        NSLog(@"%s: could not find bundle for resource '%@' inFramework '%@'",
+	    //              __PRETTY_FUNCTION__, resourceName, frameworkName);
+	  }
+	else
+	  {        
+	    NSString  * nameWithoutExtension = [resourceName stringByDeletingPathExtension];
+	    NSString  * pathExtension = [resourceName pathExtension];
+	    
+	    path = [bundleToUse pathForResource:nameWithoutExtension 
+				ofType:pathExtension
+                                inDirectory:nil 
+				forLocalization:language];
+	    
+	    if (!path)
+	      {
+		path = [bundleToUse pathForResource:nameWithoutExtension 
+				    ofType:pathExtension
+				    inDirectory:@"WebServer"
+				    forLocalization:language];
+	      }
+	    if (path!=nil)
+	      {
+		NSString* baseURL=(isApp ? [[GSWApp class]applicationBaseURL] : [[GSWApp class]frameworksBaseURL]);
+		NSString* bundlePath = [bundleToUse bundlePath];
+		NSRange r=[path rangeOfString:bundlePath];
+		NSAssert2(r.location==0 && r.length>0,@"Path mismatch: bundlePath '%@' for '%@'.",bundlePath,path);
+		path=[path substringFromIndex:r.location+r.length];
+		url=[NSString stringWithFormat:@"%@/%@%@",
+			      baseURL,
+			      [bundlePath lastPathComponent],
+			      path];
+	      }
+	    [self _cacheURL:url
+		  forResourceNamed:resourceName
+		  inFramework:frameworkName
+		  language:language];
+	  }
+	
+      }
+  } 
+  END_SYNCHRONIZED;
+
+  if ([localNotFoundMarker isEqualToString:url])
+    url=nil;
+  
+  return url;
+}
 
 //--------------------------------------------------------------------
 -(GSWDeployedBundle*)_appProjectBundle

@@ -1,3 +1,8 @@
+2014-04-29  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWApplication.m:
+	  fix -baseURL
+	* GSWeb/GSWResourceManager.m:
+	  fix urlForResourceNamed:... when using web server
 2014-04-17  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWPopUpButton.m	
 	  fix _slowTakeValuesFromRequest:inContext: 
