@@ -1,4 +1,11 @@
-2014-04-29  Manuel Guesdon <mguesdon@orange-concept.com>
+2014-05-06  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWCheckBoxList.m
+	  fix appendToResponse:inContext:
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	* GSWeb/GSWElement.[hm]
+	  add GSWAssignAndRemoveAssociation() to make controls code simplier
+w2014-04-29  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWApplication.m:
 	  fix -baseURL
 	* GSWeb/GSWResourceManager.m:

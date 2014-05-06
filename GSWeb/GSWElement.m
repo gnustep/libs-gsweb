@@ -45,6 +45,16 @@ BYTE ElementsMap_gswebElement	=	(BYTE)0x57; // 'W'
 BYTE ElementsMap_dynamicElement	=	(BYTE)0x43; // 'C'
 BYTE ElementsMap_attributeElement = 	(BYTE)0x41; // 'A'
 
+GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
+					      NSMutableDictionary* associations,
+					      NSString* associationName)
+{
+  ASSIGN(*associationPtr,([associations objectForKey:associationName]));
+  if (*associationPtr)
+    [associations removeObjectForKey:associationName];
+  return *associationPtr;
+}
+
 //====================================================================
 @implementation GSWElement
 

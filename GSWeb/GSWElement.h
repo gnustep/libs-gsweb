@@ -44,6 +44,11 @@ GSWEB_EXPORT BYTE ElementsMap_attributeElement;
 
 @class GSWContext;
 @class GSWRequest;
+@class GSWAssociation;
+
+GSWEB_EXPORT GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
+							   NSMutableDictionary* associations,
+							   NSString* associationName);
 
 #ifndef NDEBBUG
 #define GSWELEMENT_HAS_DECLARATION_NAME
