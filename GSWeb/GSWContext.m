@@ -869,60 +869,64 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)componentActionURL
 {
-  GSWDynamicURLString* url=nil;
-
-  url=[self componentActionURLIsSecure:[[self request]isSecure]];
-
-  return url;
+  return [self _componentActionURLIsSecure:[[self request]isSecure]];
 };
 
 //--------------------------------------------------------------------
--(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure
+-(GSWDynamicURLString*) _componentActionURLIsSecure:(BOOL)isSecure
 {
-  BOOL storesIDsInURLs=NO;
-  GSWDynamicURLString* url=nil;
-  GSWSession* session=nil;
-  NSString* elementID=nil;
-  NSString* componentRequestHandlerKey=nil;
-  NSString* requestHandlerKey=nil;
-  NSString* requestHandlerPath=nil;
-
-  session=[self session]; //OK
-
-  elementID=[self elementID];
-
-  componentRequestHandlerKey=[GSWApplication componentRequestHandlerKey];
+  GSWSession * session = [self session];
+  NSString * contextID = [self contextID];
+  NSString * elementID = [self elementID];
+  NSString * actionURL = nil;
   
-  requestHandlerKey=componentRequestHandlerKey;
-  storesIDsInURLs=[session storesIDsInURLs];
-  
-  if (storesIDsInURLs)
+  if ([GSWApp pageCacheSize] == 0)
     {
-      NSString* sessionID=[_session sessionID];
-      // requestHandlerPath as sessionID/_contextID.elementID
-      if (sessionID)
-        {
-          requestHandlerPath=[[sessionID stringByAppendingString:@"/"]
-                               stringByAppendingString:GSWContext_contextAndElementID(self)];
-        }
+      if ([session storesIDsInURLs])
+	{
+	  actionURL=GSWJoinedStrings(7,
+				     [[self page] name],
+				     @"/",
+				     [session sessionID],
+				     @"/",
+				     contextID,
+				     @".",
+				     elementID);
+	}
       else
-        {
-          requestHandlerPath=[@"/" stringByAppendingString:GSWContext_contextAndElementID(self)];
-        };
+	{
+	  actionURL=GSWJoinedStrings(5,
+				     [[self page] name],
+				     @"/",
+				     contextID,
+				     @".",
+				     elementID);
+	}
     }
   else
     {
-      // requestHandlerPath as /_contextID.elementID
-      requestHandlerPath=[@"/" stringByAppendingString:GSWContext_contextAndElementID(self)];
-    };
-
-  url=[self urlWithRequestHandlerKey:requestHandlerKey
-            path:requestHandlerPath
-            queryString:nil
-            isSecure:isSecure];
-
-  return url;
-};
+      if ([session storesIDsInURLs])
+	{
+	  actionURL=GSWJoinedStrings(5,
+				     [session sessionID],
+				     @"/",
+				     contextID,
+				     @".",
+				     elementID);
+	}
+      else
+	{
+	  actionURL=GSWJoinedStrings(3,
+				     contextID,
+				     @".",
+				     elementID);
+	}
+    }
+  return [self urlWithRequestHandlerKey:[[GSWApp class] componentRequestHandlerKey]
+	       path: actionURL
+	       queryString: nil
+	       isSecure:isSecure];
+}
 
 //--------------------------------------------------------------------
 -(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
@@ -1195,17 +1199,8 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //--------------------------------------------------------------------
 -(void)_putAwakeComponentsToSleep
 {
-  int i=0;
-  int count=0;
-  GSWComponent* component=nil;
-
-  count=[_awakePageComponents count];
-
-  for(i=0;i<count;i++)
-    {
-      component=[_awakePageComponents objectAtIndex:i];
-      [component sleepInContext:self];
-    };
+  [_awakePageComponents makeObjectsPerformSelector:@selector(sleepInContext:)
+			withObject:self];
 };
 
 //--------------------------------------------------------------------
@@ -1399,11 +1394,12 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       NSArray* keys=[[pathQueryDictionary allKeys]sortedArrayUsingSelector:@selector(compare:)];
       int count=[keys count];
       int i=0;
+      IMP oaiIMP=NULL;
 
       // append each key/value pair as /key=value
       for(i=0;i<count;i++)
         {
-          id key = [keys objectAtIndex:i];
+          id key = GSWeb_objectAtIndexWithImpPtr(keys,&oaiIMP,i);
           id value = [pathQueryDictionary valueForKey:key];
           if (!value)
             value=[NSString string];
@@ -1454,47 +1450,6 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
                url:anURL];
 }
 
--(GSWDynamicURLString*) _componentActionURL
-{
-  GSWSession * session = [self session];
-  NSString * s = [self contextID];
-  NSString * s1 = [self elementID];
-  NSMutableString * actionURL = [NSMutableString string];
-  
-  if ([GSWApp pageCacheSize] == 0) {
-    if ([session storesIDsInURLs]) {
-      [actionURL appendString:[[self page] name]];
-      [actionURL appendString:@"/"];
-      [actionURL appendString:[session sessionID]];
-      [actionURL appendString:@"/"];
-      [actionURL appendString:s];
-      [actionURL appendString:@"."];
-      [actionURL appendString:s1];
-    } else {
-      [actionURL appendString:[[self page] name]];
-      [actionURL appendString:@"/"];
-      [actionURL appendString:s];
-      [actionURL appendString:@"."];
-      [actionURL appendString:s1];
-    }
-  } else {
-    if ([session storesIDsInURLs]) {
-      [actionURL appendString:[session sessionID]];
-      [actionURL appendString:@"/"];
-      [actionURL appendString:s];
-      [actionURL appendString:@"."];
-      [actionURL appendString:s1];
-    } else {
-      [actionURL appendString:s];
-      [actionURL appendString:@"."];
-      [actionURL appendString:s1];
-    }
-  }
-  return [self urlWithRequestHandlerKey:[[GSWApp class] componentRequestHandlerKey]
-                                   path: actionURL
-                            queryString: nil];
-
-}
 
 
 // new 
@@ -1819,37 +1774,38 @@ If none, try request languages
 };
 
 
+//--------------------------------------------------------------------
 -(void) _stripSessionIDFromURL
 {
   NSString * handlerPath = [[self _url] requestHandlerPath];
-  if ((!handlerPath) || ([handlerPath isEqual:@""])) {
-    return;
-  }
-  
-  NSRange  range;
-  unsigned handlerPathlength;
-  
-  range = [handlerPath rangeOfString:[GSWApp sessionIdKey]];
-  
-  if (range.location > 0) {
-    NSRange endRange;
-    NSRange totalRange;
-    
-    handlerPathlength = [handlerPath length];
-    
-    totalRange = NSMakeRange(range.location, handlerPathlength-range.location);
-    
-    endRange = [handlerPath rangeOfString:@"&"
-                                  options:0 
-                                    range:totalRange];
-    
-    if(endRange.location == NSNotFound) {
-      [[self _url] setRequestHandlerPath: [handlerPath substringWithRange:NSMakeRange(0, range.location)]];
-    } else {
-      [[self _url] setRequestHandlerPath:[[handlerPath substringWithRange:NSMakeRange(0, range.location)] 
-                                          stringByAppendingString:[handlerPath substringWithRange:NSMakeRange(range.location + 1, handlerPathlength)]]];
+  if ([handlerPath length]>0)
+    {  
+      NSRange  range = [handlerPath rangeOfString:[GSWApp sessionIdKey]];
+      if (range.location > 0)
+	{
+	  NSUInteger handlerPathLength = [handlerPath length];
+	  NSRange totalRange = NSMakeRange(range.location,
+					   handlerPathLength-range.location);
+	  NSRange endRange = [handlerPath rangeOfString:@"&"
+					  options:0 
+					  range:totalRange];
+	  
+	  if(endRange.location == NSNotFound)
+	    {
+	      [[self _url] setRequestHandlerPath: 
+			     [handlerPath substringWithRange:NSMakeRange(0, 
+									 range.location)]];
+	    }
+	  else
+	    {
+	      [[self _url] setRequestHandlerPath:
+			     [[handlerPath substringWithRange:NSMakeRange(0, range.location)] 
+			       stringByAppendingString:[handlerPath 
+							 substringWithRange:NSMakeRange(range.location + 1, 
+											handlerPathLength)]]];
+	    }
+	}
     }
-  }
 }
 
 
@@ -1866,70 +1822,81 @@ If none, try request languages
                                 queryDictionary:(NSDictionary*) queryDictionary
                            otherQueryDictionary:(NSDictionary*) otherQueryDictionary
 {
-  NSMutableDictionary * newQueryDictionary;
+  NSMutableDictionary * newQueryDictionary = nil;
   NSString            * sessionId = nil;
   GSWSession          * sess = nil;
-  if (queryDictionary != nil) {
+
+  if (queryDictionary != nil)
     newQueryDictionary = [[queryDictionary mutableCopy] autorelease];
-  } else {
+  else
     newQueryDictionary = [NSMutableDictionary dictionary];
-  }
+    
+  if ([self hasSession])
+    {
+      sess = [self session];
+      if (![sess isTerminating]
+	  && [sess storesIDsInURLs])
+	{
+	  sessionId = [sess sessionID]; 
+	}
+    }
+  else if ([self _sessionIDInURL])
+    sessionId = _requestSessionID;
   
-  if ([self hasSession]) {
-    sess = [self session];
-    if ((![sess isTerminating]) && [sess storesIDsInURLs]) {
-      sessionId = [sess sessionID]; 
+  if (sessionId != nil
+      && GSWIsBoolNumberYes([newQueryDictionary sessionID]))
+    {
+      [newQueryDictionary setObject:sessionId
+			  forKey:[GSWApp sessionIdKey]];
     }
-  } else {
-    if ([self _sessionIDInURL]) {
-      sessionId = _requestSessionID;
-    }
-  }
-  
-  if ((sessionId != nil) && ([[newQueryDictionary sessionID] boolValue])) {
-    [newQueryDictionary setObject:sessionId
-                           forKey:[GSWApp sessionIdKey]];
-  } else {
-    if ([newQueryDictionary count] > 0) {
-      [newQueryDictionary removeObjectForKey:[GSWApp sessionIdKey]];
-      [newQueryDictionary removeObjectForKey:@"wosid"];
-    }
-  }
-  if (otherQueryDictionary != nil) {
-    NSEnumerator * keyEnumerator = [otherQueryDictionary keyEnumerator];
-    NSString * aKey = nil;
-    
-    while ((aKey = [keyEnumerator nextObject])) {        
-      id aValue = [otherQueryDictionary objectForKey:aKey];
-      
-      if (([aKey isEqual:[GSWApp sessionIdKey]]) || ([aKey isEqual:@"wosid"])) {
-        // CHECKME!
-        if ([aValue boolValue] == NO) {
-          [newQueryDictionary removeObjectForKey:aKey];
-        }
-      } else {
-        [newQueryDictionary setObject:aValue forKey:aKey];
-      }
-    }
-    
-  }
-  sessionId = [newQueryDictionary objectForKey:[GSWApp sessionIdKey]];
-  
-  if (sessionId) {
-    NSRange range;
-    NSRange range2;
-    
-    range = [aRequestHandlerPath rangeOfString:sessionId];
-    range2 = [aRequestHandlerPath rangeOfString:[GSWApp sessionIdKey]];
-    
-    if ((range.location != NSNotFound) || (range.location != NSNotFound))
+  else if ([newQueryDictionary count] > 0)
     {
       [newQueryDictionary removeObjectForKey:[GSWApp sessionIdKey]];
-      [newQueryDictionary removeObjectForKey:@"wosid"];
+      [newQueryDictionary removeObjectForKey:GSWKey_SessionID[GSWebNamingConv]];
     }
-  } else {
+
+  if (otherQueryDictionary != nil)
+    {
+      NSEnumerator * keyEnumerator = [otherQueryDictionary keyEnumerator];
+      NSString * aKey = nil;
+      
+      while ((aKey = [keyEnumerator nextObject]))
+	{
+	  id aValue = [otherQueryDictionary objectForKey:aKey];
+	  
+	  if ([aKey isEqual:[GSWApp sessionIdKey]]
+	      || [aKey isEqual:GSWKey_SessionID[GSWebNamingConv]])
+	    {
+	      if (GSWIsBoolNumberNo(aValue))
+		[newQueryDictionary removeObjectForKey:aKey];
+	    }
+	  else
+	    {
+	      [newQueryDictionary setObject:aValue
+				  forKey:aKey];
+	    }
+	}    
+    }
+  sessionId = [newQueryDictionary objectForKey:[GSWApp sessionIdKey]];
+  
+  if (sessionId)
+    {
+      NSRange range;
+      NSRange range2;
+      
+      range = [aRequestHandlerPath rangeOfString:sessionId];
+      range2 = [aRequestHandlerPath rangeOfString:[GSWApp sessionIdKey]];
+      
+      if (range.location != NSNotFound
+	  || range2.location != NSNotFound)
+	{
+	  [newQueryDictionary removeObjectForKey:[GSWApp sessionIdKey]];
+	  [newQueryDictionary removeObjectForKey:@"wosid"];
+	}
+    }
+  else
     [self _stripSessionIDFromURL];
-  }
+ 
   return newQueryDictionary;
 }
 
@@ -2043,12 +2010,7 @@ If none, try request languages
 //--------------------------------------------------------------------
 -(NSString*)url
 {
-  //OK
-  GSWDynamicURLString* componentActionURL=nil;
-
-  componentActionURL=[self componentActionURL];
-
-  return (NSString*)componentActionURL;
+  return [self componentActionURL];
 };
 
 //--------------------------------------------------------------------
@@ -2097,6 +2059,7 @@ If none, try request languages
 };
 
 
+//--------------------------------------------------------------------
 - (NSString*) _urlForResourceNamed: (NSString*)aName 
                        inFramework: (NSString*)frameworkName
 {
@@ -2106,31 +2069,34 @@ If none, try request languages
                                        request: _request];
 }
 
+//--------------------------------------------------------------------
 - (BOOL) secureRequest
 {
   BOOL isSecure = NO;
 
-  if (_request != nil) {
+  if (_request != nil)
     isSecure = [_request isSecure];
-  }
 
   return isSecure;
 }
 
+//--------------------------------------------------------------------
 - (BOOL) secureMode
 {
-  if (_secureMode == -2) {
+  if (_secureMode == -2)
     return [self secureRequest];
-  }
-  return ((_secureMode == YES));
+  else
+    return (_secureMode == YES);
 }
 
+//--------------------------------------------------------------------
 - (void) setSecureMode:(BOOL) value
 {
   _secureMode = (int) value;
 }
 
 
+//--------------------------------------------------------------------
 - (GSWDynamicURLString*) relativeURLWithRequestHandlerKey:(NSString*) requestHandlerKey
                                                      path:(NSString*) requestHandlerPath
                                               queryString:(NSString*) queryString
@@ -2146,6 +2112,7 @@ If none, try request languages
 }
 
 
+//--------------------------------------------------------------------
 - (GSWDynamicURLString*) _urlWithRequestHandlerKey:(NSString*) requestHandlerKey
                                 requestHandlerPath:(NSString*) aRequestHandlerPath
                                        queryString:(NSString*) aQueryString
@@ -2154,22 +2121,28 @@ If none, try request languages
 {
   GSWDynamicURLString * url = nil;
   
-  if (_generateCompleteURLs || ((_request != nil) && (isSecure != [_request isSecure]))) {
-    url = [self completeURLWithRequestHandlerKey:requestHandlerKey
-                                            path:aRequestHandlerPath
-                                     queryString:aQueryString
-                                        isSecure:isSecure
-                                            port:somePort];
-  } else {
-    url = [self relativeURLWithRequestHandlerKey:requestHandlerKey
-                                            path:aRequestHandlerPath
-                                     queryString:aQueryString];
-    
-  }
+  if (_generateCompleteURLs
+      || (_request != nil
+	  && isSecure != [_request isSecure]))
+    {
+      url = [self completeURLWithRequestHandlerKey:requestHandlerKey
+		  path:aRequestHandlerPath
+		  queryString:aQueryString
+		  isSecure:isSecure
+		  port:somePort];
+    }
+  else
+    {
+      url = [self relativeURLWithRequestHandlerKey:requestHandlerKey
+		  path:aRequestHandlerPath
+		  queryString:aQueryString];
+      
+    }
   return url;
 }
 
 
+//--------------------------------------------------------------------
 - (GSWDynamicURLString*) _urlWithRequestHandlerKey:(NSString*) requestHandlerKey
                                 requestHandlerPath:(NSString*) requestHandlerPath
                                        queryString:(NSString*) queryString
@@ -2182,15 +2155,15 @@ If none, try request languages
                                     port:0];
 }
 
+//--------------------------------------------------------------------
 - (WOMarkupType) markupType
 {
   if (_markupType == WOUndefinedMarkup)
-  {
-    GSWComponent* thePage = [self page];
-    if (thePage) {
-      _markupType = [thePage markupType];
+    {
+      GSWComponent* thePage = [self page];
+      if (thePage)
+	_markupType = [thePage markupType];
     }
-  }
   return _markupType;
 }
 

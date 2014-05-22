@@ -60,6 +60,7 @@ static Class NSStringClass = Nil;
     };
 };
 
+//--------------------------------------------------------------------
 -(void) dealloc
 {
   DESTROY(_action);
@@ -77,90 +78,66 @@ static Class NSStringClass = Nil;
   [super dealloc];
 }
 
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:@"a" associations:associations template:template];
-  if (!self) {
-    return nil;
-  }
+  if ((self = [super initWithName:@"a"
+		     associations:associations
+		     template:template]))
+    {
+      DESTROY(_otherQueryAssociations);
+      _otherQueryAssociations = RETAIN([_associations extractObjectsForKeysWithPrefix:@"?" removePrefix: YES]);
 
-  DESTROY(_otherQueryAssociations);
-  _otherQueryAssociations = RETAIN([_associations extractObjectsForKeysWithPrefix:@"?" removePrefix: YES]);
+      if ([_otherQueryAssociations count] == 0)
+	DESTROY(_otherQueryAssociations);
 
-//  _otherQueryAssociations = (((_otherQueryAssociations == nil) || 
-//                               ([_otherQueryAssociations count] <= 0)) ? nil : _otherQueryAssociations);
+      GSWAssignAndRemoveAssociation(&_action,_associations,action__Key);
+      GSWAssignAndRemoveAssociation(&_string,_associations,string__Key);
+      GSWAssignAndRemoveAssociation(&_href,_associations,href__Key);
+      GSWAssignAndRemoveAssociation(&_disabled,_associations,disabled__Key);
+      GSWAssignAndRemoveAssociation(&_queryDictionary,_associations,queryDictionary__Key);
+      GSWAssignAndRemoveAssociation(&_actionClass,_associations,actionClass__Key);
+      GSWAssignAndRemoveAssociation(&_directActionName,_associations,directActionName__Key);
+      GSWAssignAndRemoveAssociation(&_pageName,_associations,pageName__Key);
+      GSWAssignAndRemoveAssociation(&_fragmentIdentifier,_associations,fragmentIdentifier__Key);
+      GSWAssignAndRemoveAssociation(&_secure,_associations,secure__Key);
 
-  if ((_otherQueryAssociations != nil) && ([_otherQueryAssociations count] == 0)) {
-    DESTROY(_otherQueryAssociations);
-  }
-  ASSIGN(_action, [_associations objectForKey: action__Key]);
-  if (_action != nil) {
-    [_associations removeObjectForKey: action__Key];
-  }
-  ASSIGN(_href, [_associations objectForKey: href__Key]);
-  if (_href != nil) {
-    [_associations removeObjectForKey: href__Key];
-  }  
-  ASSIGN(_string, [_associations objectForKey: string__Key]);
-  if (_string != nil) {
-    [_associations removeObjectForKey: string__Key];
-  }  
-  ASSIGN(_disabled, [_associations objectForKey: disabled__Key]);
-  if (_disabled != nil) {
-    [_associations removeObjectForKey: disabled__Key];
-  }  
-  ASSIGN(_queryDictionary, [_associations objectForKey: queryDictionary__Key]);
-  if (_queryDictionary != nil) {
-    [_associations removeObjectForKey: queryDictionary__Key];
-  }  
-  ASSIGN(_actionClass, [_associations objectForKey: actionClass__Key]);
-  if (_actionClass != nil) {
-    [_associations removeObjectForKey: actionClass__Key];
-  }  
-  ASSIGN(_directActionName, [_associations objectForKey: directActionName__Key]);
-  if (_directActionName != nil) {
-    [_associations removeObjectForKey: directActionName__Key];
-  }  
-  ASSIGN(_pageName, [_associations objectForKey: pageName__Key]);
-  if (_pageName != nil) {
-    [_associations removeObjectForKey: pageName__Key];
-  }  
-  ASSIGN(_secure, [_associations objectForKey: secure__Key]);
-  if (_secure != nil) {
-    [_associations removeObjectForKey: secure__Key];
-  }  
-  ASSIGN(_fragmentIdentifier, [_associations objectForKey: fragmentIdentifier__Key]);
-  if (_fragmentIdentifier != nil) {
-    [_associations removeObjectForKey: fragmentIdentifier__Key];
-  }  
-
-  if ((_action == nil) && (_href == nil) && (_pageName == nil) && 
-      (_directActionName == nil) && (_actionClass == nil)) {
-     
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: Missing required attribute: 'action' or 'href' or 'pageName' or 'directActionName' or 'actionClass'",
-                              __PRETTY_FUNCTION__];
-  }
-  if (((_action != nil) && (_href != nil)) || ((_action != nil) && (_pageName != nil)) || 
-      ((_href != nil) && (_pageName != nil)) || ((_action != nil) && 
-      (_directActionName != nil)) || ((_href != nil) && (_directActionName != nil)) || ((_pageName != nil) &&
-      (_directActionName != nil)) || ((_action != nil) && (_actionClass != nil))) {
-
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: At least two of these conflicting attributes are present: 'action', 'href', 'pageName', 'directActionName', 'actionClass'.",
-                              __PRETTY_FUNCTION__];      
-  }
-  if ((_action != nil) && ([_action isValueConstant])) {
-     [NSException raise:NSInvalidArgumentException
-             format:@"%s: 'action' is a constant.",
-                                  __PRETTY_FUNCTION__];
-    
-  }
+      if (_action == nil
+	  && _href == nil
+	  && _pageName == nil
+	  && _directActionName == nil
+	  && _actionClass == nil)
+	{     
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Missing required attribute: 'action' or 'href' or 'pageName' or 'directActionName' or 'actionClass'",
+		       __PRETTY_FUNCTION__];
+	}
+      if ((_action != nil && _href != nil)
+	  || (_action != nil && _pageName != nil)
+	  || (_href != nil && _pageName != nil)
+	  || (_action != nil && _directActionName != nil)
+	  || (_href != nil && _directActionName != nil)
+	  || (_pageName != nil && _directActionName != nil)
+	  || (_action != nil && _actionClass != nil))
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: At least two of these conflicting attributes are present: 'action', 'href', 'pageName', 'directActionName', 'actionClass'.",
+		       __PRETTY_FUNCTION__];      
+	}
+      if (_action != nil
+	  && [_action isValueConstant])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'action' is a constant.",
+		       __PRETTY_FUNCTION__];
+	}
+    }
   return self;
 }
 
+//--------------------------------------------------------------------
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p action: %@ actionClass: %@ directActionName: %@ href:%@ string:%@   queryDictionary: %@ otherQueryAssociations: %@ pageName: %@ fragmentIdentifier:%@ disabled:%@ secure:%@ >",
@@ -171,78 +148,94 @@ static Class NSStringClass = Nil;
                    _fragmentIdentifier, _disabled, _secure];
 };
 
+//--------------------------------------------------------------------
 // isDisabled in wo5
 - (BOOL) isDisabledInContext:(GSWContext *) context
 {
   return ((_disabled != nil) && ([_disabled boolValueInComponent: GSWContext_component(context)]));
 }
 
+//--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*) request
                            inContext:(GSWContext*) context
 {
-  NSString * str = nil;
-  id obj = nil;
-  id value = nil;
-  GSWComponent * component = GSWContext_component(context);
+  GSWElement* result = nil;
   
-  if ([[context elementID] isEqual:[context senderID]]) {
-    if ((_disabled == nil) || (![_disabled boolValueInComponent:component])) {
-      if (_pageName != nil) {
-        value = [_pageName valueInComponent:component];
-        if (value != nil) {
-          str = value; //stringValue;
-        }
-      }
-      if (_action != nil) {
-        obj = [_action valueInComponent:component];
-      } else {
-        if (_pageName == nil) {
-         [NSException raise:NSInternalInconsistencyException
-                 format:@"%s: Missing page name.", __PRETTY_FUNCTION__];
-        }
-        if (str != nil) {
-          obj = [GSWApp pageWithName:str inContext:context];
-        } else {
-         // CHECKME: log page name? dave@turbocat.de
-         [NSException raise:NSInternalInconsistencyException
-                 format:@"%s: cannot find page.", __PRETTY_FUNCTION__];
-          
-        }
-      }
-    } else {
-      //TODO GSWNoContentElement
-      obj = nil;
+  if ([[context elementID] isEqual:[context senderID]])
+    {
+      GSWComponent* component = GSWContext_component(context);
+      if (_disabled == nil
+	  || ![_disabled boolValueInComponent:component])
+	{
+	  NSString* pageName = nil;
+	  if (_pageName != nil)
+	    {
+	      pageName = NSStringWithObject([_pageName valueInComponent:component]);
+	    }
+	  if (_action != nil)
+	    {
+	      result = [_action valueInComponent:component];
+	    }
+	  else
+	    {
+	      if (_pageName == nil)
+		{
+		  [NSException raise:NSInternalInconsistencyException
+			       format:@"%s: Missing page name.", __PRETTY_FUNCTION__];
+		}
+	      if (pageName != nil)
+		{
+		  result = [GSWApp pageWithName:pageName
+				   inContext:context];
+		}
+	      else
+		{
+		  // CHECKME: log page name? dave@turbocat.de
+		  [NSException raise:NSInternalInconsistencyException
+			       format:@"%s: cannot find page.", __PRETTY_FUNCTION__];
+		  
+		}
+	    }
+	}
+      else
+	{
+	  //TODO GSWNoContentElement
+	  result = nil;
+	}
+      if (result == nil)
+	{
+	  result = [context page];
+	}
     }
-    if (obj == nil) {
-      obj = [context page];
-    }
-  }
-  return obj;
+  return result;
 }
 
+//--------------------------------------------------------------------
 -(void) _appendOpenTagToResponse:(GSWResponse *) response
                        inContext:(GSWContext*) context
 {
-   if (! [self isDisabledInContext:context]) {
-    [super _appendOpenTagToResponse:response
-                          inContext:context];
-  }
+   if (![self isDisabledInContext:context])
+     {
+       [super _appendOpenTagToResponse:response
+	      inContext:context];
+     }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendCloseTagToResponse:(GSWResponse *) response
                         inContext:(GSWContext*) context
 {
-  if (! [self isDisabledInContext:context]) {
-    [super _appendCloseTagToResponse:response
-                           inContext:context];
-  }
+  if (![self isDisabledInContext:context])
+    {
+      [super _appendCloseTagToResponse:response
+	     inContext:context];
+    }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendQueryStringToResponse:(GSWResponse*) response
                            inContext:(GSWContext*) context
 {
-  NSString     * str = nil;
-  
   GSOnceMLog(@"%s is deprecated, use _appendQueryStringToResponse: inContext: requestHandlerPath: htmlEscapeURL:", __PRETTY_FUNCTION__);
   
   NSDictionary * queryDict = [self computeQueryDictionaryWithActionClassAssociation: _actionClass
@@ -254,18 +247,18 @@ static Class NSStringClass = Nil;
   if (queryDict != nil 
       && [queryDict count] > 0)
     {
-      str = [queryDict encodeAsCGIFormValues];
+      NSString* queryString = [queryDict encodeAsCGIFormValues];
       GSWResponse_appendContentCharacter(response,'?');
-      GSWResponse_appendContentHTMLAttributeValue(response, str);
+      GSWResponse_appendContentHTMLAttributeValue(response, queryString);
     }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendQueryStringToResponse:(GSWResponse*) response
                            inContext:(GSWContext*) context
                   requestHandlerPath: (NSString*) aRequestHandlerPath
                        htmlEscapeURL: (BOOL) htmlEscapeURL
 {
-  NSString     * str = nil;
   NSString     * path = (aRequestHandlerPath == nil ? @"" : aRequestHandlerPath);
   
   NSDictionary * queryDict = [self computeQueryDictionaryWithRequestHandlerPath: path
@@ -273,28 +266,32 @@ static Class NSStringClass = Nil;
                                                          otherQueryAssociations: _otherQueryAssociations 
                                                                       inContext: context];
     
-  if (queryDict != nil && [queryDict count] > 0) 
+  if ([queryDict count] > 0) 
     {
-      str = [queryDict encodeAsCGIFormValuesEscapeAmpersand:htmlEscapeURL];
+      NSString* queryString = [queryDict encodeAsCGIFormValuesEscapeAmpersand:htmlEscapeURL];
       GSWResponse_appendContentCharacter(response,'?');
-      GSWResponse_appendContentHTMLAttributeValue(response, str);
+      GSWResponse_appendContentHTMLAttributeValue(response, queryString);
     }
 }
 
 
+//--------------------------------------------------------------------
 -(void) _appendFragmentToResponse:(GSWResponse*) response
                         inContext:(GSWContext*) context
 
 {
-  if (_fragmentIdentifier != nil) {
-    id obj = [_fragmentIdentifier valueInComponent:GSWContext_component(context)];
-    if (obj != nil) {
-      GSWResponse_appendContentCharacter(response,'#');
-      GSWResponse_appendContentString(response, obj);  // [obj stringValue] ??
+  if (_fragmentIdentifier != nil)
+    {
+      NSString* fragment = [_fragmentIdentifier valueInComponent:GSWContext_component(context)];
+      if (fragment != nil)
+	{
+	  GSWResponse_appendContentCharacter(response,'#');
+	  GSWResponse_appendContentString(response, NSStringWithObject(fragment));
+	}
     }
-  }
 }
 
+//--------------------------------------------------------------------
 -(void)_appendCGIActionURLToResponse:(GSWResponse*) response
                            inContext:(GSWContext*) context
 {
@@ -329,6 +326,7 @@ static Class NSStringClass = Nil;
 	inContext:context];
 }
 
+//--------------------------------------------------------------------
 -(void) appendAttributesToResponse:(GSWResponse *) response
                             inContext:(GSWContext*) context
 {
@@ -350,24 +348,16 @@ static Class NSStringClass = Nil;
   else if (_action != nil || _pageName != nil)
     {
       GSWComponent * component = GSWContext_component(context);
-      BOOL securestuff = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
-      BOOL completeURLsOriginalState=NO;
+      BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
 
       GSWResponse_appendContentCharacter(response,' ');
       GSWResponse_appendContentAsciiString(response, href__Key);
       GSWResponse_appendContentCharacter(response,'=');
       GSWResponse_appendContentCharacter(response,'"');
 
-      if (securestuff)
-        completeURLsOriginalState=[context _generateCompleteURLs];
-      
       GSWResponse_appendContentString(response, 
-				      [context _componentActionURL]);
+				      [context _componentActionURLIsSecure:secure]);
   
-      if (securestuff
-	  && !completeURLsOriginalState)
-        [context _generateRelativeURLs];
-      
       [self _appendQueryStringToResponse:response 
                                inContext:context 
                       requestHandlerPath:nil
@@ -393,7 +383,8 @@ static Class NSStringClass = Nil;
       GSWResponse_appendContentCharacter(response,'=');
       GSWResponse_appendContentCharacter(response,'"');
 
-      if ([hrefValue isRelativeURL] && ![hrefValue isFragmentURL])
+      if ([hrefValue isRelativeURL]
+	  && ![hrefValue isFragmentURL])
 	{
 	  NSString * url = [context _urlForResourceNamed:hrefValue
 				    inFramework:nil];
@@ -444,17 +435,19 @@ static Class NSStringClass = Nil;
     }
 }
 
+//--------------------------------------------------------------------
 -(void) appendContentStringToResponse:(GSWResponse *) response
                             inContext:(GSWContext*) context
 {
   if (_string != nil)
     {
-      id stringValue = [_string valueInComponent:GSWContext_component(context)];
-      if (stringValue != nil)
-        GSWResponse_appendContentString(response,NSStringWithObject(stringValue));
+      NSString* string = [_string valueInComponent:GSWContext_component(context)];
+      if (string != nil)
+        GSWResponse_appendContentString(response,NSStringWithObject(string));
     }
 }
 
+//--------------------------------------------------------------------
 -(void) appendChildrenToResponse:(GSWResponse *) response
                        inContext:(GSWContext*) context
 {

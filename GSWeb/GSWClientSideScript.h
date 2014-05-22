@@ -32,29 +32,18 @@
 #ifndef _GSWClientSideScript_h__
 	#define _GSWClientSideScript_h__
 
-//OK
 //====================================================================
-@interface GSWClientSideScript: GSWDynamicElement
+@interface GSWClientSideScript: GSWHTMLDynamicElement
 {
   GSWAssociation* _scriptFile;
   GSWAssociation* _scriptString;
   GSWAssociation* _scriptSource;
   GSWAssociation* _hideInComment;
   GSWAssociation* _language;
-  NSDictionary* _otherAttributes;
 };
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement;
--(void)dealloc;
+-(void)setLanguage:(NSString*)language;
 
-@end
-
-//====================================================================
-@interface GSWClientSideScript (GSWClientSideScriptA)
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext;
 @end
 
 #endif //GSWClientSideScript

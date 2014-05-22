@@ -42,6 +42,7 @@ RCS_ID("$Id$")
 //-----------------------------------------------------------------------------------
 -(void)dealloc
 {
+  DESTROY(_framework);
   DESTROY(_openedImageFileName);
   DESTROY(_closedImageFileName);
   DESTROY(_openedHelpString);
@@ -96,6 +97,19 @@ RCS_ID("$Id$")
 
   return nil;
 };
+
+//-----------------------------------------------------------------------------------
+- (NSString*)framework
+{
+  if (!_framework)
+    {
+      if ([self hasBinding:@"framework"])
+	ASSIGN(_framework,([self valueForBinding:@"framework"]));
+      else
+	ASSIGN(_framework,([GSWApp frameworkNameGSWExtensions]));
+    }
+  return _framework;
+}
 
 //-----------------------------------------------------------------------------------
 -(NSString*)imageFileName

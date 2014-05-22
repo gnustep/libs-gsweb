@@ -34,16 +34,6 @@
 
 //====================================================================
 @interface GSWFrame: GSWHTMLURLValuedElement
-
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
--(void)dealloc;
--(NSString*)valueAttributeName;
--(NSString*)urlAttributeName;
--(NSString*)elementName;
--(NSString*)description;
-
 @end
 
 

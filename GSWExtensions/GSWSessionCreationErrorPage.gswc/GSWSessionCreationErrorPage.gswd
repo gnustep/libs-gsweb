@@ -1,8 +1,7 @@
-
 ExclamationImage: GSWImage
 {
     filename = "exclamation.png";
-    framework = "WOExtensions";
+    framework = application.frameworkNameGSWExtensions;
     height="50";
     width="60";
     alt="exclamation sign"

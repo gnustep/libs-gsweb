@@ -41,29 +41,32 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement
+         template:(GSWElement*)template
 {
-  if ((self=[super initWithName:aName
-                   associations:associations
+  if ((self=[super initWithName:nil
+                   associations:nil
                    template:nil]))
     {
       NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-
-      [tmpAssociations removeObjectForKey:GSWComponentName__Key[GSWebNamingConv]];
-
-      [tmpAssociations removeObjectForKey:componentName__Key];
       
-      _componentName = [[associations objectForKey:GSWComponentName__Key[GSWebNamingConv]
-                                     withDefaultObject:[_componentName autorelease]] retain];
+      ASSIGN(_componentName,([associations objectForKey:GSWComponentName__Key[GSWebNamingConv]]));
+      if (_componentName)
+	[tmpAssociations removeObjectForKey:GSWComponentName__Key[GSWebNamingConv]];
+      else
+	{
+	  ASSIGN(_componentName,([associations objectForKey:componentName__Key]));
+	  if (_componentName)
+	    [tmpAssociations removeObjectForKey:componentName__Key];
+	  else
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: Missing required attribute: '%@'",
+			   __PRETTY_FUNCTION__,GSWComponentName__Key[GSWebNamingConv]];
+	    }
+	}
 
-      if (!_componentName)
-        {
-          _componentName = [[associations objectForKey:componentName__Key
-                                          withDefaultObject:[_componentName autorelease]] retain];
-        }
-
-      ASSIGN(_componentAttributes,[NSDictionary dictionaryWithDictionary:tmpAssociations]);      
-      ASSIGN(_template,templateElement);
+      ASSIGN(_componentAttributes,tmpAssociations);
+      ASSIGN(_template,template);
       
       _componentCache=[NSMutableDictionary new];
     };
@@ -88,81 +91,19 @@ RCS_ID("$Id$")
 				   (void*)self];
 };
 
-@end
-
-//====================================================================
-@implementation GSWSwitchComponent (GSWSwitchComponentA)
-
-//--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)aContext
+//-------------------------------------------------------------------- 
+/** returns the element name by resolving _componentName association **/
+-(NSString*)_elementNameInContext:(GSWContext*)aContext
 {
-  GSWElement* element=nil;
-  NSString* elementNameInContext=nil;
-
-  GSWStartElement(aContext);
-  GSWSaveAppendToResponseElementID(aContext);
-  elementNameInContext=[self _elementNameInContext:aContext];
-  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
-  if ([elementNameInContext length]==0)
+  GSWComponent* component=GSWContext_component(aContext);
+  NSString* componentName=NSStringWithObject([_componentName valueInComponent:component]);
+  if ([componentName length]==0)
     {
-      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
-                     _componentName);
-    };
-  element=[self _realComponentWithName:elementNameInContext
-                inContext:aContext];
-  [element appendToResponse:response
-           inContext:aContext];
-  GSWContext_deleteLastElementIDComponent(aContext);
-};
-
-//--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)aContext
-{
-    id <GSWActionResults, NSObject> resultElement=nil;
-    GSWElement* element=nil;
-    NSString* elementNameInContext=nil;
-    
-    GSWStartElement(aContext);
-    GSWAssertCorrectElementID(aContext);
-    elementNameInContext=[self _elementNameInContext:aContext];
-    GSWContext_appendElementIDComponent(aContext,elementNameInContext);
-    if ([elementNameInContext length]==0)
-    {
-        ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
-                       _componentName);
-    };
-    element=[self _realComponentWithName:elementNameInContext
-                               inContext:aContext];
-    resultElement = (id <GSWActionResults, NSObject>) [element invokeActionForRequest:request
-                                                                           inContext:aContext];
-    GSWContext_deleteLastElementIDComponent(aContext);
-    
-    return resultElement;
-}
-
-//--------------------------------------------------------------------
--(void)takeValuesFromRequest:(GSWRequest*)aRequest
-                   inContext:(GSWContext*)aContext
-{
-  GSWElement* element=nil;
-  NSString* elementNameInContext=nil;
-
-  GSWStartElement(aContext);
-  GSWAssertCorrectElementID(aContext);
-  elementNameInContext=[self _elementNameInContext:aContext];
-  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
-  if ([elementNameInContext length]==0)
-    {
-      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
-                     _componentName);
-    };
-  element=[self _realComponentWithName:elementNameInContext
-                inContext:aContext];
-  [element takeValuesFromRequest:aRequest
-           inContext:aContext];
-  GSWContext_deleteLastElementIDComponent(aContext);
+      [NSException raise:NSInternalInconsistencyException
+		   format:@"%s: componentName not specified or evaluate to nil or empty",
+		   __PRETTY_FUNCTION__];
+    }
+  return componentName;
 };
 
 //-------------------------------------------------------------------- 
@@ -173,23 +114,19 @@ if the component has already been created, it get it from the cache; otherwise, 
                            inContext:(GSWContext*)aContext
 {
   GSWElement* element=nil;
-  NSArray* languages=nil;
-  GSWComponent* component=nil;
-
-  component=GSWContext_component(aContext);
 
   if ([aName length]==0)
     {      
-      ExceptionRaise(@"GSWSwitchComponent",
-                     @"ComponentName is null. componentNameKey='%@' declarationName=%@ currentComponentName=%@",
-                     _componentName,[self declarationName],[component name]);
+      [NSException raise:NSInternalInconsistencyException
+		   format:@"%s: no componentName",
+		   __PRETTY_FUNCTION__];
     }
   else
     {
       element=[_componentCache objectForKey:aName];
-      if (!element)
+      if (element==nil)
         {
-          languages=[aContext languages];
+          NSArray* languages=[aContext languages];
           element=[GSWApp dynamicElementWithName:aName
                           associations:_componentAttributes
                           template:_template
@@ -201,9 +138,9 @@ if the component has already been created, it get it from the cache; otherwise, 
             }
           else
             {
-              ExceptionRaise(@"GSWSwitchComponent",
-                             @"GSWSwitchComponent %p (declarationName=%@): Creation failed for element named:%@",
-                             self,[self declarationName],aName);
+	      [NSException raise:NSInternalInconsistencyException
+			   format:@"%s: cannot find component or dynamic element named %@",
+			   __PRETTY_FUNCTION__,aName];
             };
         };
     };
@@ -211,18 +148,88 @@ if the component has already been created, it get it from the cache; otherwise, 
   return element;
 };
 
-//-------------------------------------------------------------------- 
-/** returns the element name by resolving _componentName association **/
--(NSString*)_elementNameInContext:(GSWContext*)aContext
+//--------------------------------------------------------------------
+-(void)takeValuesFromRequest:(GSWRequest*)aRequest
+                   inContext:(GSWContext*)aContext
 {
-  GSWComponent* component=nil;
-  NSString* componentNameValue=nil;
+  GSWElement* element=nil;
+  NSString* elementNameInContext=nil;
 
-  component=GSWContext_component(aContext);
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
 
-  componentNameValue=[_componentName valueInComponent:component];
+  elementNameInContext=[self _elementNameInContext:aContext];
 
-  return componentNameValue;
+  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
+
+  if ([elementNameInContext length]==0)
+    {
+      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
+                     _componentName);
+    };
+  element=[self _realComponentWithName:elementNameInContext
+                inContext:aContext];
+  [element takeValuesFromRequest:aRequest
+           inContext:aContext];
+
+  GSWContext_deleteLastElementIDComponent(aContext);
+};
+
+//--------------------------------------------------------------------
+-(GSWElement*)invokeActionForRequest:(GSWRequest*)request
+                           inContext:(GSWContext*)aContext
+{
+  id <GSWActionResults, NSObject> resultElement=nil;
+  GSWElement* element=nil;
+  NSString* elementNameInContext=nil;
+  
+  GSWStartElement(aContext);
+  GSWAssertCorrectElementID(aContext);
+
+  elementNameInContext=[self _elementNameInContext:aContext];
+
+  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
+
+  if ([elementNameInContext length]==0)
+    {
+        ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
+                       _componentName);
+    };
+
+  element=[self _realComponentWithName:elementNameInContext
+		inContext:aContext];
+  resultElement = (id <GSWActionResults, NSObject>) [element invokeActionForRequest:request
+							     inContext:aContext];
+  GSWContext_deleteLastElementIDComponent(aContext);
+    
+  return resultElement;
+}
+
+//--------------------------------------------------------------------
+-(void)appendToResponse:(GSWResponse*)response
+              inContext:(GSWContext*)aContext
+{
+  GSWElement* element=nil;
+  NSString* elementNameInContext=nil;
+
+  GSWStartElement(aContext);
+  GSWSaveAppendToResponseElementID(aContext);
+
+  elementNameInContext=[self _elementNameInContext:aContext];
+
+  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
+
+  if ([elementNameInContext length]==0)
+    {
+      ExceptionRaise(@"GSWSwitchComponent",@"ComponentName Value is null ! componentName: %@",
+                     _componentName);
+    };
+  element=[self _realComponentWithName:elementNameInContext
+                inContext:aContext];
+  [element appendToResponse:response
+           inContext:aContext];
+
+  GSWContext_deleteLastElementIDComponent(aContext);
 };
 
 @end

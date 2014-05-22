@@ -33,12 +33,14 @@
 RCS_ID("$Id: GSWDynamicGroup.m,v 1.17 2004/12/31 14:33:16 mguesdon Exp $")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 static Class GSWHTMLBareStringClass = Nil;
 
 //====================================================================
 @implementation GSWDynamicGroup
 
+//--------------------------------------------------------------------
 + (void) initialize
 {
   if (self == [GSWDynamicGroup class])
@@ -47,7 +49,7 @@ static Class GSWHTMLBareStringClass = Nil;
     };
 };
 
-
+//--------------------------------------------------------------------
 + (GSWDynamicGroup*) emptyGroup
 {
   GSWDynamicGroup * theGroup = [GSWDynamicGroup alloc];
@@ -60,78 +62,72 @@ static Class GSWHTMLBareStringClass = Nil;
 }
 
 
+//--------------------------------------------------------------------
 -(NSMutableArray*) childrenElements
 {
   return _children;
 }
 
+//--------------------------------------------------------------------
 - (void) _initChildrenFromTemplate:(GSWElement*) element
 {
   NSMutableArray * array = nil;
-  if (element) {
-  
-    // [element isKindOfClass:[GSWDynamicGroup class]] 
-    if ([element isKindOfClass:[GSWHTMLStaticGroup class]]) {
-      array = [(GSWDynamicGroup*) element childrenElements];
-//NSLog(@"%s element is %@ array is %@", __PRETTY_FUNCTION__, element, array);      
+  if (element)
+    {
+      // [element isKindOfClass:[GSWDynamicGroup class]] 
+      if ([element isKindOfClass:[GSWHTMLStaticGroup class]])
+	{
+	  array = [(GSWDynamicGroup*) element childrenElements];
+	  //NSLog(@"%s element is %@ array is %@", __PRETTY_FUNCTION__, element, array);      
+	}
+      // normally, this should be called only if the above isKindOfClass is NO.
+      // BUT some elements seem be parsed wrong/different than in WO.
+      if (array == nil)
+	{
+	  array = [NSMutableArray array];
+	  [array addObject:element];
+	}
     }
-    // normally, this should be called only if the above isKindOfClass is NO.
-    // BUT some elements seem be parsed wrong/different than in WO.
-    if (array == nil) {
-      array = [NSMutableArray array];
-      [array addObject:element];
-    }
-  }
   DESTROY(_children);
-  if ((array) && ([array count] > 0)) {
+  if ([array count] > 0)
     ASSIGN(_children,array);
-  }
 }
 
 
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  id ourid = [super initWithName:nil
-                    associations:nil   
-                        template:nil];
-                   
-  if (! ourid) {
-    [self release];
-    return nil;
-  }                 
-                           
-  [ourid _initChildrenFromTemplate:template];
-  
-  return ourid;
+  if ((self=[super initWithName:nil
+		   associations:nil   
+		   template:nil]))
+    {
+      [self _initChildrenFromTemplate:template];
+    }
+  return self;
 }
 
+//--------------------------------------------------------------------
 // YES it is called like that
 // initWithName:associations:contentElements
 // NOT initWithName: attributeAssociations: contentElements:
-
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
   contentElements:(NSMutableArray*) children
 {
-  id ourid = [super initWithName:nil
-                associations:nil   
-                   template:nil];
-
-  DESTROY(_children);
-
-  if (! ourid) {
-    [self release];
-    return nil;
-  }                 
-                           
-  if ((children) && ([children count] > 0)) {
-    ASSIGN(_children, children);
-  }
-  return ourid;
+  if ((self=[super initWithName:nil
+		   associations:nil   
+                   template:nil]))
+    {
+      DESTROY(_children);
+      if ([children count] > 0)
+	ASSIGN(_children, children);
+    }
+  return self;
 }
 
+//--------------------------------------------------------------------
 -(void) dealloc
 {
   DESTROY(_children);
@@ -139,99 +135,118 @@ static Class GSWHTMLBareStringClass = Nil;
   [super dealloc];
 }
 
+//--------------------------------------------------------------------
 -(void) addChildElement:(id) element
 {
-  if (_children == nil) {
+  if (_children == nil)
     _children = [NSMutableArray new];
-  }
   [_children addObject:element];
 }
 
+//--------------------------------------------------------------------
 - (BOOL) hasChildrenElements
 {
-  return ((_children != nil) && ([_children count] > 0));
+  return ([_children count] > 0 ? YES : NO);
 }
 
+//--------------------------------------------------------------------
 -(void) takeChildrenValuesFromRequest:(GSWRequest*)request
                             inContext:(GSWContext*)aContext
 {
-  if ([self hasChildrenElements]) {
-    int i = [_children count];
-    int j = 0;
-
-    [aContext appendZeroElementIDComponent];
-    
-    for (; j < i; j++) {
-      GSWElement * element = [_children objectAtIndex:j];
-      [element takeValuesFromRequest: request 
-                           inContext: aContext];
-      [aContext incrementLastElementIDComponent];
+  if ([self hasChildrenElements])
+    {
+      NSUInteger c = [_children count];
+      int i = 0;
+      IMP oaiIMP=NULL;
+      
+      GSWContext_appendZeroElementIDComponent(aContext);
+      
+      for (i=0; i < c; i++)
+	{
+	  GSWElement * element = GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
+	  if (i>0)
+	    GSWContext_incrementLastElementIDComponent(aContext);
+	  [element takeValuesFromRequest: request 
+		   inContext: aContext];
+	}
+      
+      GSWContext_deleteLastElementIDComponent(aContext);
     }
-
-    [aContext deleteLastElementIDComponent];
-  }
 }
 
+//--------------------------------------------------------------------
 -(void) takeValuesFromRequest:(GSWRequest*)request
                     inContext:(GSWContext*)aContext
-
 {
   [self takeChildrenValuesFromRequest:request
                             inContext:aContext];
 }
 
--(id <GSWActionResults>) invokeChildrenAction:(GSWRequest*)request
-                                    inContext:(GSWContext*)aContext
+//--------------------------------------------------------------------
+-(id <GSWActionResults>) invokeChildrenActionForRequest:(GSWRequest*)request
+					      inContext:(GSWContext*)aContext
 
 {
   id actionresults = nil;
-  if ([self hasChildrenElements]) {
-    int kidsCount = [_children count];
-    int j = 0;
-    
-    [aContext appendZeroElementIDComponent];
 
-    for (; (j < kidsCount) && (actionresults == nil); j++) {
-      GSWElement * element = [_children objectAtIndex:j];
-      if ([element class] != GSWHTMLBareStringClass) {
+  if ([self hasChildrenElements])
+    {
+      NSUInteger c = [_children count];
+      int i = 0;
+      IMP oaiIMP=NULL;
       
-        actionresults = [element invokeActionForRequest: request 
-                                              inContext: aContext];
-      }
-      [aContext incrementLastElementIDComponent];
-    }
-    [aContext deleteLastElementIDComponent];
+      GSWContext_appendZeroElementIDComponent(aContext);
+      
+      for (i=0; i < c && actionresults == nil; i++)
+	{
+	  GSWElement * element = GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
+	  if (i>0)
+	    GSWContext_incrementLastElementIDComponent(aContext);
+	  if ([element class] != GSWHTMLBareStringClass)
+	    {      
+	      actionresults = [element invokeActionForRequest: request 
+				       inContext: aContext];
+	    }
+	}
+      GSWContext_deleteLastElementIDComponent(aContext);
   }
   return actionresults;
 }
 
+//--------------------------------------------------------------------
 -(id <GSWActionResults>) invokeActionForRequest:(GSWRequest*)request
                                     inContext:(GSWContext*)aContext
 {
-    return  [self invokeChildrenAction:request
-                             inContext:aContext];
+  return  [self invokeChildrenActionForRequest:request
+		inContext:aContext];
 }
 
+//--------------------------------------------------------------------
 -(void) appendChildrenToResponse:(GSWResponse*) response
                        inContext:(GSWContext*)aContext
 {
-  if ([self hasChildrenElements]) {
-    int kidsCount = [_children count];
-    int j = 0;
+  if ([self hasChildrenElements])
+    {
+      NSUInteger c = [_children count];
+      int i = 0;
+      IMP oaiIMP=NULL;
     
-    [aContext appendZeroElementIDComponent];
-
-    for (; j < kidsCount; j++) {
-      GSWElement * element = [_children objectAtIndex:j];
-      [element appendToResponse: response
-                      inContext: aContext];
+      GSWContext_appendZeroElementIDComponent(aContext);
       
-      [aContext incrementLastElementIDComponent];
+      for (i=0; i < c; i++)
+	{
+	  GSWElement * element = GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
+	  if (i>0)
+	    GSWContext_incrementLastElementIDComponent(aContext);
+	  [element appendToResponse: response
+		   inContext: aContext];
+	  
+	}
+      GSWContext_deleteLastElementIDComponent(aContext);
     }
-    [aContext deleteLastElementIDComponent];
-  }
 }
 
+//--------------------------------------------------------------------
 -(void) appendToResponse:(GSWResponse*) response
                inContext:(GSWContext*)aContext
 {
@@ -239,6 +254,7 @@ static Class GSWHTMLBareStringClass = Nil;
                        inContext: aContext];
 }
 
+//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p children:%@>",

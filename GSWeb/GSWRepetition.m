@@ -36,74 +36,73 @@ RCS_ID("$Id$")
 #include "GSWeb.h"
 #include "GSWPrivate.h"
 
-static SEL prepareIterationSEL=NULL;
-static SEL objectAtIndexSEL = NULL;
-static SEL setValueInComponentSEL = NULL;
-
 //====================================================================
 @implementation GSWRepetition
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWRepetition class])
-    {
-      prepareIterationSEL=@selector(_prepareIterationWithIndex:startIndex:stopIndex:list:listCount:listObjectAtIndexIMP:itemSetValueIMP:indexSetValueIMP:component:inContext:);
-      objectAtIndexSEL=@selector(objectAtIndex:);
-      setValueInComponentSEL=@selector(setValue:inComponent:);
-    };
-};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {         
-  self = [super initWithName:nil associations:nil template: template];
-  if (!self) {
-    return nil;
-  }  
-
-  ASSIGN(_list, [associations objectForKey: list__Key]);
-  ASSIGN(_item, [associations objectForKey: item__Key]);
-  ASSIGN(_count, [associations objectForKey: count__Key]);
-  ASSIGN(_index, [associations objectForKey: index__Key]);
-
-  if (!WOStrictFlag) {
-    ASSIGN(_startIndex, [associations objectForKey: startIndex__Key]);
-    ASSIGN(_stopIndex, [associations objectForKey: stopIndex__Key]);
-  }
-
-  if (_list == nil && _count == nil) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Missing 'list' or 'count' attribute.",
-                            __PRETTY_FUNCTION__];  
-  }
-  if (_list != nil && _item == nil) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Missing 'item' attribute with 'list' attribute.",
-                            __PRETTY_FUNCTION__];  
-  }
-  if (_list != nil && _count != nil) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Illegal use of 'count' attribute with 'list' attribute.",
-                            __PRETTY_FUNCTION__];  
-  }
-  if (_count != nil && (_list != nil || _item != nil)) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Illegal use of 'list' or 'item' attribute with 'count' attribute.",
+  if ((self = [super initWithName:nil
+		     associations:nil
+		     template: template]))
+    {
+      ASSIGN(_list, [associations objectForKey: list__Key]);
+      ASSIGN(_item, [associations objectForKey: item__Key]);
+      ASSIGN(_count, [associations objectForKey: count__Key]);
+      ASSIGN(_index, [associations objectForKey: index__Key]);
+      
+      if (!WOStrictFlag)
+	{
+	  ASSIGN(_startIndex, [associations objectForKey: startIndex__Key]);
+	  ASSIGN(_stopIndex, [associations objectForKey: stopIndex__Key]);
+	}
+      
+      if (_list == nil 
+	  && _count == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Missing 'list' or 'count' attribute.",
+		       __PRETTY_FUNCTION__];  
+	}
+      if (_list != nil
+	  && _item == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Missing 'item' attribute with 'list' attribute.",
+		       __PRETTY_FUNCTION__];  
+	}
+      if (_list != nil
+	  && _count != nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Illegal use of 'count' attribute with 'list' attribute.",
+		       __PRETTY_FUNCTION__];  
+	}
+      if (_count != nil
+	  && (_list != nil
+	      || _item != nil))
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Illegal use of 'list' or 'item' attribute with 'count' attribute.",
                             __PRETTY_FUNCTION__];    
-  }
-  if (_item != nil && (![_item isValueSettable])) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: The 'item' attribute must be settable.",
-                            __PRETTY_FUNCTION__];    
-  }
-  if (_index != nil && (![_index isValueSettable])) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: The 'index' attribute must be settable.",
-                            __PRETTY_FUNCTION__];    
-  }
+	}
+      if (_item != nil
+	  && ![_item isValueSettable])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: The 'item' attribute must be settable.",
+		       __PRETTY_FUNCTION__];    
+	}
+      if (_index != nil
+	  && ![_index isValueSettable])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: The 'index' attribute must be settable.",
+		       __PRETTY_FUNCTION__];    
+	}
+    }
 
   return self;
 };
@@ -122,6 +121,7 @@ static SEL setValueInComponentSEL = NULL;
   [super dealloc];
 }
 
+//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ count:%@ index:%@>",
@@ -130,72 +130,96 @@ static SEL setValueInComponentSEL = NULL;
                    _list, _item, _count, _index];
 };
 
-
-
-static inline void _prepareForIterationWithIndex(int i, int j, NSArray * array, GSWContext * context, 
-                                     GSWComponent *component, GSWAssociation* item, GSWAssociation* index)
+//--------------------------------------------------------------------
+static inline void _prepareForIterationWithIndex(BOOL isFirst,
+						 int i, 
+						 int count, 
+						 NSArray * list, 
+						 IMP* oaiIMPPtr,
+						 GSWContext * context, 
+						 GSWComponent *component, 
+						 GSWAssociation* item, 
+						 GSWAssociation* index)
 {
-  if (item != nil) {
-    id obj = [array objectAtIndex:i];
-    [item _setValueNoValidation:obj 
-                    inComponent:component];
-  }
-  if (index != nil) {
-    [index _setValueNoValidation:[NSNumber numberWithInt:i] 
-                     inComponent:component];
-  }
-  if (i != 0) {
-    [context incrementLastElementIDComponent];
-  } else {
-    [context appendZeroElementIDComponent];  
-  }
+  if (item != nil)
+    {
+      id obj = GSWeb_objectAtIndexWithImpPtr(list,oaiIMPPtr,i);
+      [item _setValueNoValidation:obj 
+	    inComponent:component];
+    }
+  if (index != nil)
+    {
+      [index _setValueNoValidation:GSWIntNumber(i)
+	     inComponent:component];
+    }
+  if (isFirst)
+    GSWContext_appendZeroElementIDComponent(context);
+  else
+    GSWContext_incrementLastElementIDComponent(context);
 }
 
+//--------------------------------------------------------------------
 static inline void _cleanupAfterIteration(GSWContext * context, 
-                      GSWComponent * component, int i, GSWAssociation* item, GSWAssociation* index)
+					  GSWComponent * component, 
+					  int i, 
+					  GSWAssociation* item, 
+					  GSWAssociation* index)
 {
-  if (item != nil) {
-    [item _setValueNoValidation:nil 
-                    inComponent:component];
-  }
-  if (index != nil) {
-    [index _setValueNoValidation:[NSNumber numberWithInt:i] 
-                     inComponent:component];
-  }
-  [context deleteLastElementIDComponent];  
+  if (item != nil)
+    {
+      [item _setValueNoValidation:nil 
+	    inComponent:component];
+    }
+  if (index != nil)
+    {
+      [index _setValueNoValidation:GSWIntNumber(i)
+	     inComponent:component];
+    }
+  GSWContext_deleteLastElementIDComponent(context);
 }
-
-
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
   GSWComponent * component = GSWContext_component(context);
-  NSArray      * myArray = nil;
-  NSNumber     * countValue = nil;
-  unsigned int count = 0;
-  unsigned int i = 0;
+  NSArray      * list = nil;
+  NSUInteger count = 0;
+  NSUInteger i = 0;
+  BOOL isFirst = YES;
+  IMP oaiIMP=NULL;
   
-  if (_list != nil) {
-    myArray = [_list valueInComponent:component];
-    if (myArray != nil)
-    count = [myArray count];
-  } else {
-    countValue = [_count valueInComponent:component];
-    if (countValue != nil) {
-      count = [countValue intValue];
-    } 
-  }
-  for (i = 0; i < count; i++) {
-    _prepareForIterationWithIndex(i, count, myArray, context, component,_item, _index);
-    [super appendChildrenToResponse:response
-              inContext:context];
-  }
+  if (_list != nil)
+    {
+      list = [_list valueInComponent:component];
+      if (list != nil)
+	count = [list count];
+    }
+  else
+    {
+      count = [[_count valueInComponent:component] intValue];
+    }
 
-  if (count > 0) {
+  if (_startIndex != nil)
+    i=[[_startIndex valueInComponent:component] intValue];
+
+  if (_stopIndex != nil)
+    {
+      NSUInteger stopIndex=[[_stopIndex valueInComponent:component] intValue];
+      if (stopIndex<count)
+	count=stopIndex+1;
+    }
+
+  for (; i < count; i++)
+    {
+      _prepareForIterationWithIndex(isFirst, i, count, list, &oaiIMP, context, component,_item, _index);
+      [super appendChildrenToResponse:response
+	     inContext:context];
+      isFirst=NO;
+    }
+
+  if (!isFirst)
     _cleanupAfterIteration(context, component, count, _item, _index);
-  }
 }
 
 
@@ -212,130 +236,181 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 //  NSLog(@"elementLen:%d", elementLen);
 //  NSLog(@"senderLen:%d", senderLen);
 
-  if (myRange.location == NSNotFound) {
+  if (myRange.location == NSNotFound)
     return [senderStr substringFromIndex: elementLen];
-  } else {
-//  NSLog(@"found myRange.location:%d", myRange.location);
-    return [senderStr substringWithRange: NSMakeRange(elementLen, myRange.location-elementLen)];
-  }
-  return nil;
+  else 
+    {
+      //  NSLog(@"found myRange.location:%d", myRange.location);
+      return [senderStr substringWithRange: NSMakeRange(elementLen, myRange.location-elementLen)];
+    }
 }
 
-
+//--------------------------------------------------------------------
 -(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context
+				     inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
   id <GSWActionResults, NSObject> element   = nil;
+  GSWComponent * component = GSWContext_component(context);
   NSString     * indexStr  = nil;
-
   NSString     * senderID     = [context senderID];
   NSString     * elementID    = [context elementID];
-  NSArray      * arrayValue   = nil;
-  id             currentValue = nil;
-  int            count        = 0;
-  int            k            = 0;
   
-  if ([senderID hasPrefix:elementID]) {
-    int i = [elementID length];
-    // code taken from http://www.unicode.org/charts/PDF/U0000.pdf
-    // '.'
-    if (([senderID length] > i) && ([senderID characterAtIndex:i] == 0x002e)) {
-      indexStr = _indexStringForSenderAndElement(senderID, elementID);
-//      NSLog(@"indexStr is '%@' senderID:'%@' elementID:'%@'", indexStr, senderID, elementID);
+  if ([senderID hasPrefix:elementID])
+    {
+      int i = [elementID length];
+      // code taken from http://www.unicode.org/charts/PDF/U0000.pdf
+      // '.'
+      if (([senderID length] > i) && ([senderID characterAtIndex:i] == 0x002e))
+	{
+	  indexStr = _indexStringForSenderAndElement(senderID, elementID);
+	  //      NSLog(@"indexStr is '%@' senderID:'%@' elementID:'%@'", indexStr, senderID, elementID);
+	}
     }
-  }
 
-  if (indexStr != nil) {
-    int i = [indexStr intValue];
-    if (_list != nil) {
-      arrayValue = [_list valueInComponent:component];
+  if (indexStr != nil) 
+    {
+      int i = [indexStr intValue];
+      if (_startIndex != nil)
+	i+=[[_startIndex valueInComponent:component] intValue];
 
-      if (arrayValue != nil) {
-          if ((i >= 0) && (i < [arrayValue count])) {
-            currentValue = [arrayValue objectAtIndex:i];
-          }
-        if (_item != nil) {
-          [_item _setValueNoValidation:currentValue
-                           inComponent:component];
-        }
-      }
-    }
-    if (_index != nil) {
-      [_index _setValueNoValidation:[NSNumber numberWithInt:i]
-                        inComponent:component];
-    }
-    [context appendElementIDComponent: indexStr];
+      if (_list != nil)
+	{
+	  NSArray* list = [_list valueInComponent:component];
+	  	  
+	  if (list != nil)
+	    {
+	      IMP oaiIMP=NULL;
+	      int stopIndex = 0;
+	      id currentValue = nil;
+	      NSUInteger count = [list count];
+	      if (_stopIndex)
+		{
+		  stopIndex=[[_stopIndex valueInComponent:component] intValue];
+		  if (stopIndex<count)
+		    count=stopIndex+1;
+		}
+	      if (i >= 0
+		  && i < count)
+		{
+		  currentValue = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+		}
+	      if (_item != nil)
+		{
+		  [_item _setValueNoValidation:currentValue
+			 inComponent:component];
+		}
+	    }
+	}
+      if (_index != nil)
+	{
+	  [_index _setValueNoValidation:GSWIntNumber(i)
+		  inComponent:component];
+	}
+      GSWContext_appendElementIDComponent(context,indexStr);
       element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
-                                                                     inContext:context];
-    [context deleteLastElementIDComponent];
-  } else {
-    count = 0;
-
-    if (_list != nil) {
-      arrayValue = [_list valueInComponent:component];
-      count =  [arrayValue count];
-    } else {
-      id countValue = [_count valueInComponent:component];
-      if (countValue != nil) {
-        count = [countValue intValue];    // or first into a string?
-      } else {
-       NSLog(@"%s:'count' evaluated to nil in component %@. Repetition count reset to zero.",
-             __PRETTY_FUNCTION__, component);
-      }
+							 inContext:context];
+      GSWContext_deleteLastElementIDComponent(context);
     }
+  else
+    {
+      BOOL isFirst=YES;
+      NSUInteger count = 0;
+      NSUInteger k = 0;
+      NSArray* list = nil;
+      IMP oaiIMP=NULL;
+
+      if (_list != nil)
+	{
+	  list = [_list valueInComponent:component];
+	  count =  [list count];
+	}
+      else
+	{
+	  id countValue = [_count valueInComponent:component];
+	  if (countValue != nil)
+	    {
+	      count = [countValue intValue];    // or first into a string?
+	    }
+	  else
+	    {
+	      NSLog(@"%s:'count' evaluated to nil in component %@. Repetition count reset to zero.",
+		    __PRETTY_FUNCTION__, component);
+	    }
+	}
+      if (_startIndex != nil)
+	k=[[_startIndex valueInComponent:component] intValue];
+
+      if (_stopIndex != nil)
+	{
+	  NSUInteger stopIndex=[[_stopIndex valueInComponent:component] intValue];
+	  if (stopIndex<count)
+	    count=stopIndex+1;
+	}
     
-    for (k = 0; k < count && element == nil; k++) {
-      _prepareForIterationWithIndex(k, count, arrayValue, context, component, _item, _index);
-        element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
-                                                                       inContext:context];
-      
-    }
+      for (; k < count && element == nil; k++)
+	{
+	  _prepareForIterationWithIndex(isFirst,k, count, list, &oaiIMP, context, component, _item, _index);
+	  element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
+							     inContext:context];
+	  isFirst=NO;
+	}
 
-    if (count > 0) {
-      _cleanupAfterIteration(context, component, count, _item, _index);
+      if (!isFirst)
+	_cleanupAfterIteration(context, component, count, _item, _index);
     }
-  }
   return element;
 };
 
+//--------------------------------------------------------------------
 - (void) takeValuesFromRequest:(GSWRequest *) request
                      inContext:(GSWContext*)context
 {
   GSWComponent * component = GSWContext_component(context);
-  NSArray      * arrayValue   = nil;
-  id             countValue   = nil;
-  int            i            = 0;
+  NSArray      * list   = nil;
+  NSUInteger     i      = 0;
+  NSUInteger     count = 0;
+  BOOL           isFirst = YES;
+  IMP            oaiIMP=NULL;
 
-  int count = 0;
-
-  if (_list != nil) {
-    arrayValue = [_list valueInComponent:component];
-    if (arrayValue != nil) {
-      count = [arrayValue count];
+  if (_list != nil)
+    {
+      list = [_list valueInComponent:component];
+      if (list != nil)
+	count = [list count];    
+    } 
+  else
+    {
+      id countValue = [_count valueInComponent:component];
+      if (countValue != nil)
+	count = [countValue intValue];    // or first into a string?
+      else
+	{
+	  NSLog(@"%s: 'count' evaluated to nil in %@. Resetting to zero. (%@)",
+		__PRETTY_FUNCTION__, component, _count);  
+	}
     }
-  } else {
-    countValue = [_count valueInComponent:component];
-    if (countValue != nil) {
-      count = [countValue intValue];    // or first into a string?
-    } else {
-      NSLog(@"%s: 'count' evaluated to nil in %@. Resetting to zero. (%@)",
-                              __PRETTY_FUNCTION__, component, _count);  
+
+  if (_startIndex != nil)
+    i=[[_startIndex valueInComponent:component] intValue];
+
+  if (_stopIndex != nil)
+    {
+      NSUInteger stopIndex=[[_stopIndex valueInComponent:component] intValue];
+      if (stopIndex<count)
+	count=stopIndex+1;
     }
-  }
-  for (i = 0; i < count; i++) {
 
-    _prepareForIterationWithIndex(i, count, arrayValue, context, component,_item, _index);
+  for (i = 0; i < count; i++)
+    {      
+      _prepareForIterationWithIndex(isFirst, i, count, list, &oaiIMP, context, component,_item, _index);
+      
+      [super takeValuesFromRequest:request
+	     inContext:context];
+      isFirst=NO;
+    }
 
-    [super takeValuesFromRequest:request
-                       inContext:context];
-    
-  }
-
-  if (count > 0)
-  {
+  if (!isFirst)
     _cleanupAfterIteration(context, component, count, _item, _index);
-  }
 }
 
 

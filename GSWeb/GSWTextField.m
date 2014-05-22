@@ -41,39 +41,30 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:@"input" associations:associations template: template];
-  if (!self) {
-    return nil;
-  }
+  if ((self = [super initWithName:@"input"
+		     associations:associations
+		     template: template]))
+    {
+      if (_value == nil
+	  || ![_value isValueSettable])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'value' attribute not present or is a constant",
+		       __PRETTY_FUNCTION__];
+	}
+      GSWAssignAndRemoveAssociation(&_formatter,_associations,formatter__Key);
+      GSWAssignAndRemoveAssociation(&_dateFormat,_associations,dateFormat__Key);
+      GSWAssignAndRemoveAssociation(&_numberFormat,_associations,numberFormat__Key);
+      GSWAssignAndRemoveAssociation(&_useDecimalNumber,_associations,useDecimalNumber__Key);
 
-  if ((_value == nil) || (![_value isValueSettable])) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'value' attribute not present or is a constant",
-                            __PRETTY_FUNCTION__];
-  }
-  ASSIGN(_formatter, [_associations objectForKey: formatter__Key]);
-  if (_formatter != nil) {
-    [_associations removeObjectForKey: formatter__Key];
-  }
-  ASSIGN(_dateFormat, [_associations objectForKey: dateFormat__Key]);
-  if (_dateFormat != nil) {
-    [_associations removeObjectForKey: dateFormat__Key];
-  }
-  ASSIGN(_numberFormat, [_associations objectForKey: numberFormat__Key]);
-  if (_numberFormat != nil) {
-    [_associations removeObjectForKey: numberFormat__Key];
-  }
-  ASSIGN(_useDecimalNumber, [_associations objectForKey: useDecimalNumber__Key]);
-  if (_useDecimalNumber != nil) {
-    [_associations removeObjectForKey: useDecimalNumber__Key];
-  }
-
-  if ((_dateFormat != nil) && (_numberFormat != nil)) {
-     [NSException raise:NSInvalidArgumentException
-             format:@"%s: Cannot have 'dateFormat' and 'numberFormat' attributes at the same time.",
-                                  __PRETTY_FUNCTION__];
-  
-  }
+      if (_dateFormat != nil
+	  && _numberFormat != nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Cannot have 'dateFormat' and 'numberFormat' attributes at the same time.",
+		       __PRETTY_FUNCTION__];
+	}
+    }
   return self;
 }
 
@@ -93,8 +84,8 @@ RCS_ID("$Id$")
 }
 
 
+//--------------------------------------------------------------------
 // TODO: put that into a superclass, bulid a cache?
-
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component
 {
   //OK
@@ -136,26 +127,35 @@ RCS_ID("$Id$")
 
   GSWComponent * component = GSWContext_component(context);
   
-  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
-    NSString * nameCtx = [self nameInContext:context];
-    if (nameCtx != nil) {
-      NSString* value = [request stringFormValueForKey: nameCtx];
-      if (value != nil) {
-        NSFormatter * formatter = nil;
-        if ([value length] > 0) {
-          formatter = [self formatterForComponent:component];
-        }
-        if (formatter != nil) {
+  if (![self disabledInComponent: component]
+      && [context _wasFormSubmitted])
+    {
+      NSString * nameCtx = [self nameInContext:context];
+      if (nameCtx != nil)
+	{
+	  NSString* value = [request stringFormValueForKey: nameCtx];
+	  if (value != nil)
+	    {
+	      NSFormatter * formatter = nil;
+	      if ([value length] > 0)
+		formatter = [self formatterForComponent:component];
+        
+	      if (formatter != nil)
+		{
                   if ([formatter getObjectValue:&resultValue
-                                  forString:value
-                                  errorDescription:&errorDscr]) {
-                      if (value && !resultValue) {
-                          NSWarnLog(@"There's a value (%@ of class %@) but no formattedValue with formater %@",
+				 forString:value
+				 errorDescription:&errorDscr])
+		    {
+		      if (!resultValue)
+			{
+			  NSWarnLog(@"There's a value (%@ of class %@) but no formattedValue with formater %@",
                                     value,
                                     [value class],
                                     formatter);
-                      };
-                    } else {
+			};
+		    }
+		  else
+		    {
                       NSException* exception=nil;
                       NSString* valueKeyPath=[_value keyPath];
 
@@ -171,52 +171,60 @@ RCS_ID("$Id$")
                                  keyPath:valueKeyPath];
                     }                    
                     
-          if ((value != nil) && (_useDecimalNumber != nil) && ([_useDecimalNumber boolValueInComponent:component])) {
-            // not tested! maybe we need a stringValue here first? dw
-            resultValue = [NSDecimalNumber decimalNumberWithString: value];
-          }
-        } else { // no formatter
-          resultValue=value;
-          if ([resultValue length] == 0) {
-            resultValue = nil;
-          }
-        }
-      }
-      [_value setValue:resultValue
-              inComponent:component];
+		  if (value != nil
+		      && _useDecimalNumber != nil
+		      && [_useDecimalNumber boolValueInComponent:component])
+		    {
+		      // not tested! maybe we need a stringValue here first? dw
+		      resultValue = [NSDecimalNumber decimalNumberWithString: value];
+		    }
+		} 
+	      else
+		{ // no formatter
+		  resultValue=value;
+		  if ([resultValue length] == 0)
+		    resultValue = nil;
+		}
+	    }
+	  [_value setValue:resultValue
+		  inComponent:component];
+	}
     }
-  }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendValueAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*) context
 {
  GSWComponent * component = GSWContext_component(context);
  id value = [_value valueInComponent:component];
- NSFormatter* formatter = nil;
- id formattedValue=nil;
 
- if (value != nil) {
- 
-   formatter = [self formatterForComponent:component];
-   if (formatter != nil) {
-     NS_DURING
-      formattedValue=[formatter stringForObjectValue:value];
-     NS_HANDLER
-       formattedValue = nil;
-       NSLog(@"%s: value '%@' cannot be formatted.",
-                            __PRETTY_FUNCTION__, value);
-     NS_ENDHANDLER
-   }
-   if (formattedValue == nil)
+ if (value != nil)
    {
-      formattedValue = value;
-   }
+     NSFormatter* formatter = [self formatterForComponent:component];
+     id formattedValue=nil;
+     if (formatter != nil)
+       {
+	 NS_DURING
+	   {
+	     formattedValue=[formatter stringForObjectValue:value];
+	   }
+	 NS_HANDLER
+	   {
+	     formattedValue = nil;
+	     NSLog(@"%s: value '%@' cannot be formatted.",
+		   __PRETTY_FUNCTION__, value);
+	   }
+	 NS_ENDHANDLER;
+       }
+     if (formattedValue == nil)
+       formattedValue = NSStringWithObject(value);
 
-   GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, formattedValue, YES);
- }
+     GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, formattedValue, YES);
+   }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendCloseTagToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {

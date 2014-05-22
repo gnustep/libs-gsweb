@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 #include <sys/time.h>
 #include <time.h>
@@ -68,6 +69,9 @@ static Class nsStringClass=Nil;
 static Class nsMutableStringClass=Nil;
 static Class eoNullClass=Nil;
 
+SEL gswAppendStringSEL = NULL;
+SEL gswObjectAtIndexSEL = NULL;
+
 //--------------------------------------------------------------------
 void GSWInitializeAllMisc()
 {
@@ -75,6 +79,9 @@ void GSWInitializeAllMisc()
   if (!initialized)
     {
       initialized=YES;
+
+      gswAppendStringSEL = @selector(appendString:);
+      gswObjectAtIndexSEL = @selector(objectAtIndex:);
 
       // Yes & No
       ASSIGN(cachedGSWNumber_Yes,([NSNumber numberWithBool:YES]));
@@ -390,13 +397,32 @@ BOOL SBIsValueIsIn(id id1,id id2)
 {
   int i=0;
   int count=[id2 count];
+  IMP oaiIMP=NULL;
   for(i=0;i<count;i++)
     {
-      if (SBIsValueEqual(id1,[id2 objectAtIndex:i]))
+      if (SBIsValueEqual(id1,GSWeb_objectAtIndexWithImpPtr(id2,&oaiIMP,i)))
         return YES;
     };
   return NO;
 };
+
+//--------------------------------------------------------------------
+//returns YES if v is a NSNumber class and evaluate to YES
+BOOL GSWIsBoolNumberYes(id v)
+{
+  return (([v isKindOfClass:[NSNumber class]]
+	   && [v boolValue] == YES) ? YES : NO);
+
+}
+
+//--------------------------------------------------------------------
+//returns YES if v is a NSNumber class and evaluate to NO
+BOOL GSWIsBoolNumberNo(id v)
+{
+  return (([v isKindOfClass:[NSNumber class]]
+	   && [v boolValue] == NO) ? YES : NO);
+
+}
 
 /* The number of seconds between 1/1/2001 and 1/1/1970 = -978307200. */
 /* This number comes from:
@@ -771,12 +797,13 @@ void ExceptionRaiseFn0(const char *func,
   //TODO better method
   int i=0;
   int count=[_array count];
+  IMP oaiIMP=NULL;
   NSComparisonResult result=NSOrderedSame;
 
   for(i=0;result!=NSOrderedDescending && i<count;i++)
     {
       result=(NSComparisonResult)[object performSelector:_compareSelector
-                                         withObject:[_array objectAtIndex:i]];
+                                         withObject:GSWeb_objectAtIndexWithImpPtr(_array,&oaiIMP,i)];
 
       if (result==NSOrderedDescending)
 	[_array insertObject:object
@@ -792,10 +819,11 @@ void ExceptionRaiseFn0(const char *func,
 {
   int i;
   int count=[array count];
+  IMP oaiIMP=NULL;
 
   for(i=0;i<count;i++)
     {
-      [_array addObject:[array objectAtIndex:i]];
+      [_array addObject:GSWeb_objectAtIndexWithImpPtr(array,&oaiIMP,i)];
     };
 };
 
@@ -1059,18 +1087,23 @@ loggedUnlockFromFunctionInFileInLine(id self,
                        withObject:(id)object2
 {
   NSUInteger i = [self count];
+  IMP oaiIMP=NULL;
   while (i-- > 0)
-    [[self objectAtIndex:i]performSelector:selector
-                           withObject:object1
-                           withObject:object2];
+    {
+      [GSWeb_objectAtIndexWithImpPtr(self,&oaiIMP,i) 
+				    performSelector:selector
+				    withObject:object1
+				    withObject:object2];
+    }
 };
 
 //--------------------------------------------------------------------
 -(void)makeObjectsPerformSelectorIfPossible:(SEL)aSelector
 {
   NSUInteger i = [self count];
+  IMP oaiIMP=NULL;
   while (i-->0)
-    [[self objectAtIndex: i] performSelectorIfPossible:aSelector];
+    [GSWeb_objectAtIndexWithImpPtr(self,&oaiIMP,i)  performSelectorIfPossible:aSelector];
 }
 
 //--------------------------------------------------------------------
@@ -1084,9 +1117,13 @@ loggedUnlockFromFunctionInFileInLine(id self,
                                  withObject:(id)argument
 {
   NSUInteger i = [self count];
+  IMP oaiIMP=NULL;
   while (i-->0)
-    [[self objectAtIndex: i] performSelectorIfPossible:aSelector
-                             withObject:argument];
+    {
+      [GSWeb_objectAtIndexWithImpPtr(self,&oaiIMP,i) 
+				    performSelectorIfPossible:aSelector
+				    withObject:argument];
+    }
 }
 
 //--------------------------------------------------------------------
@@ -1095,10 +1132,14 @@ loggedUnlockFromFunctionInFileInLine(id self,
                                  withObject:(id)argument2
 {
   NSUInteger i = [self count];
+  IMP oaiIMP=NULL;
   while (i-->0)
-    [[self objectAtIndex: i] performSelectorIfPossible:aSelector
-                             withObject:argument1
-                             withObject:argument2];
+    {
+      [GSWeb_objectAtIndexWithImpPtr(self,&oaiIMP,i)
+				    performSelectorIfPossible:aSelector
+				    withObject:argument1
+				    withObject:argument2];
+    }
 }
 
 //--------------------------------------------------------------------
@@ -1108,7 +1149,6 @@ loggedUnlockFromFunctionInFileInLine(id self,
   [self makeObjectsPerformSelectorIfPossible:aSelector
         withObject: argument];
 }
-
 
 @end
 
@@ -1361,10 +1401,11 @@ NSString* GSWGetDefaultDocRoot()
   int i=0;
   id object=nil;
   id key=nil;
+  IMP oaiIMP=NULL;
   for(i=0;i<count;i++)
     {
       //TODO optimiser
-      object=[array objectAtIndex:i];
+      object=GSWeb_objectAtIndexWithImpPtr(array,&oaiIMP,i);
       key=[object performSelector:sel];
       NSAssert1(key,@"NSDictionary dictionaryWithArray: no key for object:%@",object);
       [dict setObject:object
@@ -1383,10 +1424,11 @@ NSString* GSWGetDefaultDocRoot()
   int i=0;
   id object=nil;
   id key=nil;
+  IMP oaiIMP=NULL;
   for(i=0;i<count;i++)
     {
       //TODO optimiser
-      object=[array objectAtIndex:i];
+      object=GSWeb_objectAtIndexWithImpPtr(array,&oaiIMP,i);
       key=[object performSelector:sel
                   withObject:anObject];
       NSAssert1(key,@"NSDictionary dictionaryWithArray: no key for object:%@",object);
@@ -1818,9 +1860,10 @@ NSString* GSWGetDefaultDocRoot()
     {
       NSUInteger selfLength=[self length];
       NSUInteger searchedLength=[data length];
-      if (aRange.location+aRange.length>selfLength)
+      if (aRange.location+aRange.length>selfLength
+	  || searchedLength>selfLength)
         {
-        }
+	}
       else if (selfLength>0 && searchedLength>0)
         {
           const unsigned char* bytes=(const unsigned char*)[self bytes];
@@ -1850,8 +1893,8 @@ NSString* GSWGetDefaultDocRoot()
 
 //--------------------------------------------------------------------
 - (NSUInteger) replaceOccurrencesOfData: (NSData*)replace
-                                 withData: (NSData*)by
-                                    range: (NSRange)searchRange
+			       withData: (NSData*)by
+				  range: (NSRange)searchRange
 {
   NSRange       range;
   NSUInteger  count = 0;
@@ -1935,11 +1978,7 @@ NSString* NSStringWithObject(id object)
   NSCAssert(nsMutableStringClass,@"GSWUtils not initialized");
   if (object)
     {
-      if ([object isKindOfClass:nsMutableStringClass])
-        // why wasting memory? -- dw
-        // string=AUTORELEASE([object copy]);
-        string=(NSString*)object;
-      else if ([object isKindOfClass:nsStringClass])
+      if ([object isKindOfClass:nsStringClass])
         string=(NSString*)object;
       else if ([object isKindOfClass:eoNullClass])
         string=@"";

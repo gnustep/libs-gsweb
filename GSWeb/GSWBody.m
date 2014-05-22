@@ -41,18 +41,12 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
   contentElements:(NSMutableArray*)elements
 {
-  if ((self=[super initWithName:name
+  if ((self=[super initWithName:@"body"
                    associations:associations
                    contentElements:elements]))
     {
     };
   return self;
-};
-
-//--------------------------------------------------------------------
--(void)dealloc
-{
-  [super dealloc];
 };
 
 //--------------------------------------------------------------------
@@ -65,12 +59,6 @@ RCS_ID("$Id$")
 -(NSString*)urlAttributeName
 {
   return @"background";
-};
-
-//--------------------------------------------------------------------
--(NSString*)elementName
-{
-  return @"body";
 };
 
 //--------------------------------------------------------------------

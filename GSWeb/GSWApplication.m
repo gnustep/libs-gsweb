@@ -3668,5 +3668,10 @@ to another instance **/
 // or [GSWDynamicURLString stringWithString:url]
 // instead.
 
+// Returns GSWExtensions or WOExtensions
+- (NSString*)frameworkNameGSWExtensions
+{
+  return GSWFramework_extensions[GSWebNamingConv];
+}
 @end
 

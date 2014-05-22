@@ -57,21 +57,18 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
-
   if ((self=[super initWithName: name
 		   associations: associations
 		   template: templateElement]))
     {
-      NSMutableDictionary *dict=nil;
-
-      ASSIGN(_elementName, [associations objectForKey: elementName__Key]);
-      ASSIGN(_name, [associations objectForKey: name__Key]);
-      ASSIGN(_omitTags, [associations objectForKey: omitTags__Key]);
-      ASSIGN(_formValue, [associations objectForKey: formValue__Key]);
-      ASSIGN(_formValues, [associations objectForKey: formValues__Key]);
-      ASSIGN(_invokeAction, [associations objectForKey: invokeAction__Key]);
-      ASSIGN(_elementID, [associations objectForKey: elementID__Key]);
-      ASSIGN(_otherTagString, [associations objectForKey: otherTagString__Key]);
+      GSWAssignAndRemoveAssociation(&_elementName,_associations,elementName__Key);
+      GSWAssignAndRemoveAssociation(&_omitTags,_associations,omitTags__Key);
+      GSWAssignAndRemoveAssociation(&_formValue,_associations,formValue__Key);
+      GSWAssignAndRemoveAssociation(&_formValues,_associations,formValues__Key);
+      GSWAssignAndRemoveAssociation(&_invokeAction,_associations,invokeAction__Key);
+      GSWAssignAndRemoveAssociation(&_elementID,_associations,elementID__Key);
+      GSWAssignAndRemoveAssociation(&_otherTagString,_associations,otherTagString__Key);
+      GSWAssignAndRemoveAssociation(&_name,_associations,name__Key);
 
       if(_formValue || _formValues)
 	{
@@ -86,21 +83,7 @@ static Class standardClass = Nil;
 			   associations];
 	    }
 	}
-
-      dict = AUTORELEASE([associations mutableCopy]);
-
-      [dict removeObjectForKey: elementName__Key];
-      [dict removeObjectForKey: name__Key];
-      [dict removeObjectForKey: omitTags__Key];
-      [dict removeObjectForKey: formValue__Key];
-      [dict removeObjectForKey: formValues__Key];
-      [dict removeObjectForKey: invokeAction__Key];
-      [dict removeObjectForKey: elementID__Key];
-      [dict removeObjectForKey: otherTagString__Key];
-
-      ASSIGNCOPY(_otherAssociations, dict);
     }
-
 
   return self;
 };
@@ -108,6 +91,7 @@ static Class standardClass = Nil;
 //--------------------------------------------------------------------
 -(void)dealloc
 {
+  RELEASE (_elementName);
   RELEASE (_name);
   RELEASE (_omitTags);
   RELEASE (_formValue);
@@ -115,7 +99,6 @@ static Class standardClass = Nil;
   RELEASE (_invokeAction);
   RELEASE (_elementID);
   RELEASE (_otherTagString);
-  RELEASE (_otherAssociations);
   [super dealloc];
 };
 
@@ -123,17 +106,30 @@ static Class standardClass = Nil;
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"%@(%p)\n(%@)", 
-		   NSStringFromClass([self class]), self, _otherAssociations];
+		   NSStringFromClass([self class]), self, _associations];
 };
 
 //--------------------------------------------------------------------
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context
+-(NSString*)_elementNameInContext:(GSWContext*)aContext
 {
+  NSString* elementName = nil;
+  if (_elementName)
+    {
+      BOOL omit = NO;      
+      if (_omitTags)
+	{
+	  omit = GSWDynamicElement_evaluateValueInContext(self,standardClass,
+                                                          standardEvaluateConditionInContextIMP,
+                                                          _omitTags,aContext);
+	}
+      
+      if (omit == NO)
+	{
+	  elementName=[_elementName valueInComponent:GSWContext_component(aContext)];
+	}
+    }
 
-  [self _elementNameAppendToResponse: response 
-        inContext: context];
-
+  return elementName;
 };
 
 //--------------------------------------------------------------------
@@ -141,10 +137,7 @@ static Class standardClass = Nil;
                            inContext:(GSWContext*)aContext
 {
   GSWElement *element = nil;
-  GSWComponent *component = nil;
-
-
-  component = GSWContext_component(aContext);
+  GSWComponent *component = GSWContext_component(aContext);
 
   if (_invokeAction != nil
       && [_invokeAction isImplementedForComponent:component])
@@ -158,31 +151,34 @@ static Class standardClass = Nil;
       if ([elementID isEqualToString: senderID])
 	{
           if (_elementID != nil)
+	    {
               [_elementID setValue: elementID
                           inComponent: component];
+	    }
 
           element = [_invokeAction valueInComponent:component];
-          if (!element)
+          if (element==nil)
             element = [aContext page];
         }
       else if (_name)
         {
-          id nameValue = [_name valueInComponent:component];
-          id formValue = [request stringFormValueForKey:nameValue];
+          NSString* name = NSStringWithObject([_name valueInComponent:component]);
+          id formValue = [request stringFormValueForKey:name];
 
           if (formValue)
             {
               if(_elementID)
-                [_elementID setValue: elementID
-                            inComponent:component];
+		{
+		  [_elementID setValue: elementID
+			      inComponent:component];
+		}
 
               element = [_invokeAction valueInComponent: component];
-              if (!element)
+              if (element==nil)
                 element = [aContext page];
             };
         };
     }
-
 
   return element;
 };
@@ -191,12 +187,11 @@ static Class standardClass = Nil;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)aContext
 {
-
   if (_hasFormValues)
     {
       GSWComponent *component = GSWContext_component(aContext);
       NSString *elementID = GSWContext_elementID(aContext);
-      id nameValue = [_name valueInComponent: component];
+      NSString* name = NSStringWithObject([_name valueInComponent: component]);
 
       if (_elementID != nil)
 	{
@@ -205,142 +200,70 @@ static Class standardClass = Nil;
 	}
       if (_formValue != nil)
 	{ 
-	  [_formValue setValue: [request stringFormValueForKey: nameValue]
+	  [_formValue setValue: [request stringFormValueForKey: name]
 		      inComponent: component];
 	}
       if (_formValues != nil)
 	{
-	  [_formValue setValue: [request formValuesForKey: nameValue]
+	  [_formValue setValue: [request formValuesForKey: name]
 		      inComponent: component];
 	}
     }
 
 };
 
-//-------------------------------------------------------------------- 
--(id)_elementNameAppendToResponse:(GSWResponse*)response
+//--------------------------------------------------------------------
+-(void)appendAttributesToResponse:(GSWResponse*)aResponse
 			inContext:(GSWContext*)aContext
 {
-  NSString *elementName = nil;
-
-
-  if (_elementID != nil)
-    {
-      [_elementID setValue: GSWContext_elementID(aContext)
-		  inComponent: GSWContext_component(aContext)];
-    }
-
-  elementName = [self _elementNameInContext: aContext];
-  NSDebugMLog(@"elementName=%@",elementName);
-
-  if (elementName != nil)
-    {
-      [self _appendTagWithName: elementName 
-	    toResponse: response 
-	    inContext: aContext];
-    }
-
-
-  return elementName;
-};
-
-//--------------------------------------------------------------------
--(void)_appendTagWithName:(NSString*)name
-               toResponse:(GSWResponse*)aResponse
-                inContext:(GSWContext*)aContext
-{
-  GSWComponent *comp = nil;
-
-
-  comp = GSWContext_component(aContext);
-  GSWResponse_appendContentCharacter(aResponse,'<');
-  GSWResponse_appendContentString(aResponse, name);
+  GSWComponent *component = GSWContext_component(aContext);
   if (_name != nil)
     {
-      NSString *compName = [_name valueInComponent: comp];
-      GSWResponse_appendContentAsciiString(aResponse, @" name=\"");
-      GSWResponse_appendContentString(aResponse, compName);
-      GSWResponse_appendContentCharacter(aResponse, '"');
+      NSString* name = NSStringWithObject([_name valueInComponent:component]);
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,@"name",name,YES);
     }
-  if (_otherAssociations != nil)
+
+  if(_otherTagString != nil)
     {
-      [self _appendOtherAttributesToResponse: aResponse 
-	    inContext: aContext];
-    }
-  if (_otherTagString != nil)
-    {
-      NSString *oTagComp = [_otherTagString valueInComponent: comp];
-      if (oTagComp != nil && [oTagComp length])
+      NSString* otherTagString = NSStringWithObject([_otherTagString valueInComponent:component]);
+      if ([otherTagString length]>0)
 	{
-	  GSWResponse_appendContentCharacter(aResponse, ' ');
-	  GSWResponse_appendContentString(aResponse, oTagComp);
+	  GSWResponse_appendContentCharacter(aResponse,' ');
+	  GSWResponse_appendContentString(aResponse,otherTagString);
 	}
     }
-  GSWResponse_appendContentCharacter(aResponse, '>');
 
-};
+  [self appendConstantAttributesToResponse:aResponse
+	inContext:aContext];
+  [self appendNonURLAttributesToResponse:aResponse
+	inContext:aContext];
+  [self appendURLAttributesToResponse:aResponse
+	inContext:aContext];
+}
 
 //--------------------------------------------------------------------
--(void)_appendOtherAttributesToResponse:(GSWResponse*)aResponse
-                              inContext:(GSWContext*)aContext
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
 {
-  GSWComponent *comp = nil;
-  NSEnumerator *keyEnum = nil;
-  NSString *key = nil;
-
-
-  comp = GSWContext_component(aContext);
-  keyEnum = [_otherAssociations keyEnumerator];
-
-  while ((key = [keyEnum nextObject]))
+  if (aContext != nil
+      && aResponse != nil)
     {
-      GSWAssociation *assoc;
-      id val;
-      NSString *desc;
-
-      assoc = [_otherAssociations objectForKey: key];
-      val = [assoc valueInComponent: comp];
-      if (val != nil)
-	{
-	  desc = [val description];
-          GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,
-                                                                        key,
-                                                                        desc,
-                                                                        NO);
+      if (_elementID != nil)
+        {
+	  GSWComponent *component = GSWContext_component(aContext);
+	  [_elementID setValue:[aContext elementID]
+		      inComponent:component];
+        }
+      ASSIGN(_dynElementName,([self _elementNameInContext:aContext]));
+      if (_dynElementName != nil)
+        {
+	  GSWResponse_appendContentCharacter(aResponse,'<');
+	  GSWResponse_appendContentAsciiString(aResponse,_dynElementName);
+	  [self appendAttributesToResponse:aResponse
+		inContext:aContext];
+	  GSWResponse_appendContentCharacter(aResponse,'>');
 	}
     }
-  
-};
-
-//--------------------------------------------------------------------
--(NSString*)_elementNameInContext:(GSWContext*)aContext
-{
-  NSString* elementName = nil;
-
-
-  NSDebugMLog(@"_elementName=%@",_elementName);
-
-   if (_elementName)
-    {
-      BOOL omit = NO;
-
-      if (_omitTags)
-	{
-	  omit = GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                          standardEvaluateConditionInContextIMP,
-                                                          _omitTags,aContext);
-	}
-
-      if (omit == NO)
-	{
-	  elementName=[_elementName valueInComponent:GSWContext_component(aContext)];
-	}
-    }
-
-  NSDebugMLog(@"elementName=%@",elementName);
-
-
-  return elementName;
 };
 
 @end

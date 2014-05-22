@@ -35,6 +35,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include <GNUstepBase/NSString+GNUstepBase.h>
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 
@@ -387,6 +388,7 @@ Method for GSWDeclarationParserPragmaDelegate protocol
   NSString* path=nil;
   int iLanguage=0;
   BOOL isPathAlreadyProcessed=NO;
+  IMP oaiIMP=NULL;
 
   resourceManager=[GSWApp resourceManager];
 
@@ -407,7 +409,7 @@ Method for GSWDeclarationParserPragmaDelegate protocol
       NSString* language=nil;
       int iName=0;
       if (iLanguage<[_languages count])
-        language=[_languages objectAtIndex:iLanguage];
+        language=GSWeb_objectAtIndexWithImpPtr(_languages,&oaiIMP,iLanguage);
       else
         language=nil;
       for(iName=0;!path && iName<2;iName++)
@@ -475,23 +477,23 @@ Method for GSWDeclarationParserPragmaDelegate protocol
             if (!declarations)
             {
                 ExceptionRaise(@"%@ Template componentDeclaration parse failed for "
-                               @"included file:%@ in framework:%@ (processedFiles=%@) error=%@",
+                               @"included file:%@ in framework:%@ (processedFiles=%@)",
                                [self logPrefix],
                                declarationFileName,
                                declarationFrameworkName,
-                               _processedDeclarationsFilePaths,
-                               error);
+                               _processedDeclarationsFilePaths);
             };
         }
         else
         {
             ExceptionRaise(@"GSWTemplateParser",
                            @"%@ Can't load included component declaration "
-                           @"named:%@ in framework:%@ (_processedDeclarationsFilePaths=%@)",
+                           @"named:%@ in framework:%@ (_processedDeclarationsFilePaths=%@) error=%@",
                            [self logPrefix],
                            declarationFileName,
                            declarationFrameworkName,
-                           _processedDeclarationsFilePaths);
+                           _processedDeclarationsFilePaths,
+			   error);
         };
     }
     else if (isPathAlreadyProcessed)

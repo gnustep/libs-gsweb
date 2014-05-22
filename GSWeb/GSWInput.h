@@ -45,10 +45,6 @@
   GSWAssociation * _escapeHTML;
 }
 
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-  contentElements:(NSMutableArray*) elements;
-
 - (BOOL) disabledInComponent:(GSWComponent*) component;
 
 

@@ -68,20 +68,21 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)someAssociations
          template:(GSWElement*)templateElement
 {
-  self = [super initWithName:nil associations:nil template: templateElement];
-  if (!self) {
-    return nil;
-  }  
-
-  // here, we do not need to remove associations
-  ASSIGN(_condition, [someAssociations objectForKey: condition__Key]);
-  ASSIGN(_negate, [someAssociations objectForKey: negate__Key]);
-
-  if (_condition == nil) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Missing 'condition' attribute.",
-                            __PRETTY_FUNCTION__];      
-  }
+  if ((self = [super initWithName:nil
+		     associations:nil
+		     template: templateElement]))
+    {
+      // here, we do not need to remove associations
+      ASSIGN(_condition, [someAssociations objectForKey: condition__Key]);
+      ASSIGN(_negate, [someAssociations objectForKey: negate__Key]);
+      
+      if (_condition == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Missing 'condition' attribute.",
+		       __PRETTY_FUNCTION__];      
+	}
+    }
   return self;
 };
 
@@ -95,6 +96,7 @@ static Class standardClass = Nil;
   [super dealloc];
 }
 
+//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p condition: %@ negate: %@>",
@@ -103,53 +105,60 @@ static Class standardClass = Nil;
 };
 
 
+//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
   GSWComponent * component = GSWContext_component(context);
   BOOL conVal = [_condition boolValueInComponent:component];
   BOOL doNegate = NO;
-  if (_negate != nil) {
+  if (_negate != nil)
     doNegate = [_negate boolValueInComponent:component];
-  }
-  if ((conVal && !doNegate) || (!conVal && doNegate)) {
-    [super takeValuesFromRequest:request inContext:context];
-  }
+
+  if ((conVal && !doNegate) 
+      || (!conVal && doNegate))
+    {
+      [super takeValuesFromRequest:request
+	     inContext:context];
+    }
 }
 
+//--------------------------------------------------------------------
 -(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*) request
                                     inContext:(GSWContext*) context
 {
+  id <GSWActionResults> result=nil;
   GSWComponent * component = GSWContext_component(context);
   BOOL conVal = [_condition boolValueInComponent:component];
   BOOL doNegate = NO;
-  if (_negate != nil) {
+  if (_negate != nil)
     doNegate = [_negate boolValueInComponent:component];
-  }
-  if ((conVal && !doNegate) || (!conVal && doNegate)) {
-    return [super invokeActionForRequest:request inContext:context];
-  } else {
-    return nil;
-  }
+
+  if ((conVal && !doNegate)
+      || (!conVal && doNegate))
+    {
+      result=[super invokeActionForRequest:request
+		    inContext:context];
+    }
+  return result;
 }
 
+//--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*) response
               inContext:(GSWContext*) context
 {
   GSWComponent * component = GSWContext_component(context);
   BOOL conVal = [_condition boolValueInComponent:component];
   BOOL doNegate = NO;
-  if (_negate != nil) {
+  if (_negate != nil)
     doNegate = [_negate boolValueInComponent:component];
-  }
-//  GSWResponse_appendContentAsciiString(response,@"<!-- CON ( -->");
-//  NSLog(@"%@ doNegate:%d conVal:%d", self, doNegate, conVal);
-  if ((conVal && (!doNegate)) || ((!conVal) && doNegate)) {
-//  NSLog(@"append!");
   
-    [super appendChildrenToResponse:response inContext:context];
-  }
-//  GSWResponse_appendContentAsciiString(response,@"<!-- CON ) -->");  
+  if ((conVal && !doNegate)
+      || (!conVal && doNegate))
+    {
+      [super appendChildrenToResponse:response
+	     inContext:context];
+    }
 }
 
 @end

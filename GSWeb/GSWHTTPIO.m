@@ -41,6 +41,7 @@
 #include "GSWResponse.h"
 #include "GSWRequest.h"
 #include "GSWApplication.h"
+#include "GSWPrivate.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
@@ -170,47 +171,58 @@ void _unpackHeaderLineAddToDict(NSString *line, NSMutableDictionary* headers)
 
 //PRIVATE
 
-void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers)
+void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers, IMP* headersAppStringIMPPtr)
 {
   NSMutableDictionary * headerDict = [message headers];
   NSArray             * keyArray = nil;
   int                   i = 0;
   
-  if (headerDict != nil) {
-    int count = 0;
-    if (![headerDict isKindOfClass:[NSMutableDictionary class]]) {
-      headerDict = [[headerDict mutableCopy] autorelease];
-    }
-    [headerDict removeObjectForKey:GSWHTTPHeader_ContentLength];
-    keyArray = [headerDict allKeys];
-    count = [keyArray count];
-
-    for (; i < count; i++) {
-      NSString    * currentKey = [keyArray objectAtIndex:i];
-      NSArray     * currentValueArray = [headerDict objectForKey:currentKey];
-      if ([currentValueArray isKindOfClass:[NSArray class]]) {
-        int x = 0;
-        int valueCount = [currentValueArray count];
-        for (; x < valueCount; x++) {
-          [headers appendString:currentKey];
-          [headers appendString:HEADERSEP];
-          [headers appendString:[currentValueArray objectAtIndex:x]];
-          [headers appendString:NEWLINE];
-        }
-      } else {
-        NSString * myStrValue = (NSString*) currentValueArray;
-        [headers appendString:currentKey];
-        [headers appendString:HEADERSEP];
-        [headers appendString:myStrValue];
-        [headers appendString:NEWLINE];        
-      }
-    }
+  if (headerDict != nil)
+    {
+      NSUInteger count = 0;
+      IMP keyArray_oaiIMP=NULL;
+      if (![headerDict isKindOfClass:[NSMutableDictionary class]])
+	headerDict = [[headerDict mutableCopy] autorelease];
     
-  }
+      [headerDict removeObjectForKey:GSWHTTPHeader_ContentLength];
+      keyArray = [headerDict allKeys];
+      count = [keyArray count];
+
+      for (; i < count; i++)
+	{
+	  NSString    * currentKey = GSWeb_objectAtIndexWithImpPtr(keyArray,&keyArray_oaiIMP,i);
+	  NSArray     * currentValueArray = [headerDict objectForKey:currentKey];
+	  if ([currentValueArray isKindOfClass:[NSArray class]])
+	    {
+	      int x = 0;
+	      int valueCount = [currentValueArray count];
+	      for (; x < valueCount; x++)
+		{
+		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,currentKey);
+		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,HEADERSEP);
+		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,[currentValueArray objectAtIndex:x]);
+		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,NEWLINE);
+		}
+	    }
+	  else
+	    {
+	      NSString * myStrValue = (NSString*) currentValueArray;
+	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,currentKey);
+	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,HEADERSEP);
+	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,myStrValue);
+	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,NEWLINE);        
+	    }
+	}      
+    }
 }
 
 //PRIVATE
-void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersion, GSWRequest * request, NSMutableString * headers)
+void _sendMessage(GSWResponse * message, 
+		  NSFileHandle* fh, 
+		  NSString * httpVersion, 
+		  GSWRequest * request, 
+		  NSMutableString * headers,
+		  IMP* headersAppStringIMPPtr)
 {
   int  contentLength = 0;
   //BOOL keepAlive = NO;
@@ -228,27 +240,27 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
     requestIsHead = [[request method] isEqualToString:HEAD];
   }
   
-  [headers appendString:GSWIntToNSString([message status])];
-  [headers appendString:URIResponseString];
+  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,GSWIntToNSString([message status]));
+  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,URIResponseString);
 
-  _appendMessageHeaders(message,headers);
+  _appendMessageHeaders(message,headers,headersAppStringIMPPtr);
   
   if ([httpVersion isEqualToString:HTTP11]) {
     // bug #24006 keep-alive is not implemented.
     // I am uable to reproduce the need for double clicking on links/forms,
     // but for now, we send close. -- dw
     if (YES /*keepAlive == NO*/) {
-      [headers appendString:@"Connection: close\r\n"];
+      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,@"Connection: close\r\n");
     } else {
-      [headers appendString:@"Connection: keep-alive\r\n"];
+      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,@"Connection: keep-alive\r\n");
     }
   }
   
   if ((contentLength > 0) || _alwaysAppendContentLength) {
-    [headers appendString:CONTENT_LENGTHCOLON];        
-    [headers appendString:[NSString stringWithFormat:@"%d\r\n", contentLength]];        
+    GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,CONTENT_LENGTHCOLON);        
+    GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,[NSString stringWithFormat:@"%d\r\n", contentLength]);        
   }
-  [headers appendString:NEWLINE2];        
+  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,NEWLINE2);        
 
   [fh writeData: [headers dataUsingEncoding:NSISOLatin1StringEncoding
                        allowLossyConversion:YES]];
@@ -433,11 +445,12 @@ void _sendMessage(GSWResponse * message, NSFileHandle* fh, NSString * httpVersio
 {
   NSString        * httpVersion = [response httpVersion];
   NSMutableString * bufferStr = [NSMutableString string];
-  
-  [bufferStr appendString:httpVersion];
-  [bufferStr appendString:SPACE];
+  IMP               bufferAppStringIMP = NULL;
 
-  _sendMessage(response, fh, httpVersion, request, bufferStr);
+  GSWeb_appendStringWithImpPtr(bufferStr,&bufferAppStringIMP,httpVersion);
+  GSWeb_appendStringWithImpPtr(bufferStr,&bufferAppStringIMP,SPACE);
+
+  _sendMessage(response, fh, httpVersion, request, bufferStr,&bufferAppStringIMP);
   
 }
       

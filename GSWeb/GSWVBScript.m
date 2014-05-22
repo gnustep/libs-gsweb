@@ -36,27 +36,18 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWVBScript
 
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement
+         template:(GSWElement*)template
 {
-  GSWAssociation* languageAssociation=nil;
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-
-  if (![tmpAssociations objectForKey:language__Key])
-    {
-      // Create and set the language (Javascript)
-      languageAssociation=[GSWConstantValueAssociation associationWithValue:@"VBScript"]; //???
-      [tmpAssociations setObject:languageAssociation
-                       forKey:language__Key];
-    };
   if ((self=[super initWithName:aName
-                   associations:tmpAssociations
-                   template:templateElement]))
+                   associations:associations
+                   template:template]))
     {
+      [self setLanguage:@"VBScript"];
     };
   return self;
 };
-//--------------------------------------------------------------------
 
 @end

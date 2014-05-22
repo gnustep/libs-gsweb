@@ -43,17 +43,8 @@
   GSWAssociation * _directActionName;
 };
 
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-
 -(void)_appendHiddenFieldsToResponse:(GSWResponse*)response
                            inContext:(GSWContext*)context;
-
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
 
 @end
 

@@ -32,6 +32,7 @@
   NSString* _tmpAnchorName;
   BOOL _isVisibleConditionPassed;
   BOOL _isVisible;
+  NSString* _framework;
   NSString* _openedImageFileName;
   NSString* _closedImageFileName;
   NSString* _openedHelpString;

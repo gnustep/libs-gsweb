@@ -32,28 +32,9 @@
 #ifndef _GSWGenericContainer_h__
 	#define _GSWGenericContainer_h__
 
-
+#include "GSWGenericElement.h"
 //====================================================================
-@interface GSWGenericContainer: GSWDynamicElement
-{
-  GSWAssociation* _elementName;
-  GSWAssociation* _otherTagString;
-  GSWAssociation* _omitElement;
-  GSWAssociation* _children;
-  NSDictionary* _associations;
-  GSWElement* _element;
-};
-
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement;
-
--(void)appendToResponse:(GSWResponse*)aResponse
-			  inContext:(GSWContext*)aContext;
-
--(void)takeValuesFromRequest:(GSWRequest*)aRequest
-                   inContext:(GSWContext*)aContext; 
-
+@interface GSWGenericContainer: GSWGenericElement
 @end
 
 #endif //_GSWGenericContainer_h__

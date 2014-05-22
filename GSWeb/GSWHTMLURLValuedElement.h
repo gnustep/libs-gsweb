@@ -56,9 +56,6 @@
 -(NSString*)valueAttributeName;
 -(NSString*)urlAttributeName;
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
-                           inContext:(GSWContext*)aContext; 
-
 @end
 
 #endif // _GSWHTMLURLValuedElement_h__

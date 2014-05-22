@@ -53,34 +53,45 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:nil associations:nil template:nil];
-  if (!self) {
-    return nil;
-  }
-  ASSIGN(_value, [associations objectForKey: value__Key]);
-  if (_value == nil) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: no 'value' attribute specified.",
-                              __PRETTY_FUNCTION__];
-   }
-  ASSIGN(_valueWhenEmpty, [associations objectForKey: valueWhenEmpty__Key]);
-  ASSIGN(_escapeHTML, [associations objectForKey: escapeHTML__Key]);
-  ASSIGN(_dateFormat, [associations objectForKey: dateFormat__Key]);
-  ASSIGN(_numberFormat, [associations objectForKey: numberFormat__Key]);
-  ASSIGN(_formatter, [associations objectForKey: formatter__Key]);
+  if ((self = [super initWithName:nil 
+		     associations:nil 
+		     template:nil]))
+    {
+      ASSIGN(_value, [associations objectForKey: value__Key]);
+      if (_value == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: no 'value' attribute specified.",
+		       __PRETTY_FUNCTION__];
+	}
+      ASSIGN(_valueWhenEmpty, [associations objectForKey: valueWhenEmpty__Key]);
+      ASSIGN(_escapeHTML, [associations objectForKey: escapeHTML__Key]);
+      ASSIGN(_dateFormat, [associations objectForKey: dateFormat__Key]);
+      ASSIGN(_numberFormat, [associations objectForKey: numberFormat__Key]);
+      ASSIGN(_formatter, [associations objectForKey: formatter__Key]);
   
-  if ((_dateFormat != nil) || (_numberFormat != nil) || (_formatter != nil)) {
-    _shouldFormat = YES;
-  } else {
-    _shouldFormat = NO;
-  }
-  if (((_dateFormat != nil) && (_numberFormat != nil)) || ((_formatter != nil) && 
-      (_dateFormat != nil)) || ((_formatter != nil) && (_numberFormat != nil))) {
-      
-     [NSException raise:NSInvalidArgumentException
-             format:@"%s: Cannot have 'dateFormat' and 'numberFormat' attributes at the same time.",
-                                  __PRETTY_FUNCTION__];
-  }
+      if (_dateFormat != nil
+	  || _numberFormat != nil
+	  || _formatter != nil)
+	{
+	  _shouldFormat = YES;
+	}
+      else
+	{
+	  _shouldFormat = NO;
+	}
+
+      if ((_dateFormat != nil && _numberFormat != nil) 
+	  || (_formatter != nil && 
+	      _dateFormat != nil)
+	  || (_formatter != nil && _numberFormat != nil))
+	{
+	  
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Cannot have 'dateFormat' and 'numberFormat' attributes at the same time.",
+		       __PRETTY_FUNCTION__];
+	}
+    }
 
   return self;
 }
@@ -115,10 +126,8 @@ static Class standardClass = Nil;
 //--------------------------------------------------------------------
 
 // TODO: put that into a superclass, bulid a cache?
-
 -(NSFormatter*)formatterForComponent:(GSWComponent*)component
 {
-  //OK
   id formatValue = nil;
   id formatter = nil;
   if (_dateFormat)
@@ -153,54 +162,56 @@ static Class standardClass = Nil;
               inContext:(GSWContext*)context
 {
   GSWComponent* component = GSWContext_component(context);
-  NSString* formattedValue=nil;
-  id valueValue = nil;
-  BOOL flag = YES;
   
-  if (_value != nil) {
-   valueValue = [_value valueInComponent:component];
-   if (_shouldFormat) {
-     NSFormatter* formatter=[self formatterForComponent:component];
-     if (formatter != nil) {
-       NS_DURING
-        formattedValue=[formatter stringForObjectValue:valueValue];
-       NS_HANDLER
-         formattedValue = nil;
-         NSLog(@"%s: value '%@' of class '%@' cannot be formatted.",
-                              __PRETTY_FUNCTION__, valueValue, [valueValue class]);
-       NS_ENDHANDLER
-      }
+  if (_value == nil)
+    {
+      NSLog(@"%s:WARNING value binding is nil!", __PRETTY_FUNCTION__);
     }
-    if (formattedValue == nil) {
-        formattedValue = valueValue;
-    }
-
-  } else {
-    NSLog(@"%s:WARNING value binding is nil!", __PRETTY_FUNCTION__);
-    return;
-  }
+  else
+    {
+      NSString* formattedValue=nil;
+      id valueValue = [_value valueInComponent:component];
+      if (_shouldFormat)
+	{
+	  NSFormatter* formatter=[self formatterForComponent:component];
+	  if (formatter != nil)
+	    {
+	      NS_DURING
+		{
+		  formattedValue=NSStringWithObject([formatter stringForObjectValue:valueValue]);
+		}
+	      NS_HANDLER
+		{
+		  formattedValue = nil;
+		  NSLog(@"%s: value '%@' of class '%@' cannot be formatted.",
+			__PRETTY_FUNCTION__, valueValue, [valueValue class]);
+		}
+	      NS_ENDHANDLER
+		}
+	}
+      else
+	formattedValue=NSStringWithObject(valueValue);
   
-  if ((formattedValue != nil) && ([formattedValue isKindOfClass:[NSNumber class]])) {
-   // if we dont do this we get an exception on NSNumbers later. 
-   formattedValue = [(id) formattedValue stringValue];
-  } else {
-   formattedValue = [(id) formattedValue description];
-  }
-  if ((formattedValue == nil || [formattedValue length] == 0) && _valueWhenEmpty != nil) {
-    formattedValue = [_valueWhenEmpty valueInComponent:component];
-    GSWResponse_appendContentString(response, formattedValue);
-  } else {
-    if (formattedValue != nil) {
-      if (_escapeHTML != nil) {
-        flag = [_escapeHTML boolValueInComponent:component];
-      }
-      if (flag) {
-        GSWResponse_appendContentHTMLConvertString(response, formattedValue);
-      } else {
-        GSWResponse_appendContentString(response, formattedValue);
-      }
+      if ((formattedValue == nil || [formattedValue length] == 0) 
+	  && _valueWhenEmpty != nil)
+	{
+	  formattedValue = [_valueWhenEmpty valueInComponent:component];
+	  GSWResponse_appendContentString(response, formattedValue);
+	}
+      else
+	{
+	  if (formattedValue != nil)
+	    {
+	      BOOL flag = YES;
+	      if (_escapeHTML != nil)
+		flag = [_escapeHTML boolValueInComponent:component];
+	      if (flag)
+		GSWResponse_appendContentHTMLConvertString(response, formattedValue);
+	      else
+		GSWResponse_appendContentString(response, formattedValue);
+	    }
+	}
     }
-  }
 };
 
 @end

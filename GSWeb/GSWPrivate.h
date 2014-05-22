@@ -55,6 +55,9 @@
 #include "GSWMessage.h"
 #include "GSWDefaultAdaptor.h"
 
+GSWEB_EXPORT SEL gswAppendStringSEL;
+GSWEB_EXPORT SEL gswObjectAtIndexSEL;
+
 /** append string to object using appendString: impPtr.
 If *impPtr is NULL, the method assign it **/
 static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* impPtr,NSString* string)
@@ -62,11 +65,32 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
   if (object && string)
     {
       if (!*impPtr)
-        *impPtr=[object methodForSelector:@selector(appendString:)];
-      (**impPtr)(object,@selector(appendString:),string);
+	{
+	  if (gswAppendStringSEL==NULL)
+	    GSWInitializeAllMisc();
+	  *impPtr=[object methodForSelector:gswAppendStringSEL];
+	}
+      (**impPtr)(object,gswAppendStringSEL,string);
     };
 };
 
+/** get object at index 
+If *impPtr is NULL, the method assign it **/
+static inline id GSWeb_objectAtIndexWithImpPtr(NSArray* array,IMP* impPtr,NSUInteger index)
+{
+  if (array)
+    {
+      if (!*impPtr)
+	{
+	  if (gswObjectAtIndexSEL==NULL)
+	    GSWInitializeAllMisc();
+	  *impPtr=[array methodForSelector:gswObjectAtIndexSEL];
+	}
+      return (**impPtr)(array,gswObjectAtIndexSEL,index);
+    }
+  else
+    return nil;
+};
 
 @interface GSWComponentDefinition (PrivateDeclarations)
 

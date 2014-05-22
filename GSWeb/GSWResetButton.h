@@ -32,16 +32,8 @@
 #ifndef _GSWResetButton_h__
 	#define _GSWResetButton_h__
 
-//OK
 //====================================================================
 @interface GSWResetButton: GSWInput
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
 @end
 
 

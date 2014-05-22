@@ -39,49 +39,15 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+	 template:(GSWElement*)template
 {
-  NSString* elementName=[self elementName];
-  if ((self=[super initWithName:elementName
+  if ((self=[super initWithName:@"frame"
                    associations:associations
                    contentElements:nil]))
     {
     };
   return self;
 };
-
-//--------------------------------------------------------------------
--(void)dealloc
-{
-  [super dealloc];
-};
-
-//--------------------------------------------------------------------
--(NSString*)valueAttributeName
-{
-  return @"value";
-};
-
-//--------------------------------------------------------------------
--(NSString*)urlAttributeName
-{
-  return @"src";
-};
-
-//--------------------------------------------------------------------
--(NSString*)elementName
-{
-  return @"FRAME";
-};
-
-//--------------------------------------------------------------------
--(NSString*)description
-{
-  return [NSString stringWithFormat:@"<%s %p>",
-                   object_getClassName(self),
-                   (void*)self];
-};
-
 
 @end
 

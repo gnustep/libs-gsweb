@@ -37,121 +37,91 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWHTMLURLValuedElement
 
--(NSString*) valueAttributeName
-{
-    return @"src";
-}
-
--(NSString*) urlAttributeName
-{
-  return @"value";
-}
-
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  NSString* urlAttributeName=nil;
-  NSString* valueAttributeName=nil;
+  if ((self=[super initWithName: aName
+		   associations:associations
+		   template:template]))
+    {  
+      NSString* urlAttributeName = [self urlAttributeName];
+      NSString* valueAttributeName = [self valueAttributeName];
 
-  self=[super initWithName: aName
-        associations:associations
-            template:template];
-  if (!self) {
-    return nil;
-  }              
-  
-  urlAttributeName = [self urlAttributeName];
-  valueAttributeName = [self valueAttributeName];
+      GSWAssignAndRemoveAssociation(&_src,_associations,urlAttributeName);
+      GSWAssignAndRemoveAssociation(&_value,_associations,valueAttributeName);
+      GSWAssignAndRemoveAssociation(&_pageName,_associations,pageName__Key);
+      GSWAssignAndRemoveAssociation(&_filename,_associations,filename__Key);
+      GSWAssignAndRemoveAssociation(&_framework,_associations,framework__Key);
+      GSWAssignAndRemoveAssociation(&_data,_associations,data__Key);
+      GSWAssignAndRemoveAssociation(&_mimeType,_associations,mimeType__Key);
+      GSWAssignAndRemoveAssociation(&_key,_associations,key__Key);
+      GSWAssignAndRemoveAssociation(&_queryDictionary,_associations,queryDictionary__Key);
+      GSWAssignAndRemoveAssociation(&_actionClass,_associations,actionClass__Key);
+      GSWAssignAndRemoveAssociation(&_directActionName,_associations,directActionName__Key);
 
-  ASSIGN(_src, [_associations objectForKey: urlAttributeName]);
-  if (_src != nil) {
-    [_associations removeObjectForKey: urlAttributeName];
-  }
-  ASSIGN(_value, [_associations objectForKey: valueAttributeName]);
-  if (_value != nil) {
-    [_associations removeObjectForKey: valueAttributeName];
-  }
-  ASSIGN(_pageName, [_associations objectForKey: pageName__Key]);
-  if (_pageName != nil) {
-    [_associations removeObjectForKey: pageName__Key];
-  }
-  ASSIGN(_filename, [_associations objectForKey: filename__Key]);
-  if (_filename != nil) {
-    [_associations removeObjectForKey: filename__Key];
-  }
-  ASSIGN(_framework, [_associations objectForKey: framework__Key]);
-  if (_framework != nil) {
-    [_associations removeObjectForKey: framework__Key];
-  }
-  ASSIGN(_data, [_associations objectForKey: data__Key]);
-  if (_data != nil) {
-    [_associations removeObjectForKey: data__Key];
-  }
-  ASSIGN(_mimeType, [_associations objectForKey: mimeType__Key]);
-  if (_mimeType != nil) {
-    [_associations removeObjectForKey: mimeType__Key];
-  }
-  ASSIGN(_key, [_associations objectForKey: key__Key]);
-  if (_key != nil) {
-    [_associations removeObjectForKey: key__Key];
-  }
-  ASSIGN(_actionClass, [_associations objectForKey: actionClass__Key]);
-  if (_actionClass != nil) {
-    [_associations removeObjectForKey: actionClass__Key];
-  }
-  ASSIGN(_directActionName, [_associations objectForKey: directActionName__Key]);
-  if (_directActionName != nil) {
-    [_associations removeObjectForKey: directActionName__Key];
-  }
-  ASSIGN(_queryDictionary, [_associations objectForKey: queryDictionary__Key]);
-  if (_queryDictionary != nil) {
-    [_associations removeObjectForKey: queryDictionary__Key];
-  }
 
-  _otherQueryAssociations = RETAIN([_associations extractObjectsForKeysWithPrefix:@"?" 
-                                                                     removePrefix: YES]);
+      _otherQueryAssociations = RETAIN([_associations extractObjectsForKeysWithPrefix:@"?" 
+						      removePrefix: YES]);
 
-  if (_filename != nil) {
-    if ((_src != nil) || (_pageName != nil) || (_value != nil) || (_data != nil)) {
-    
-     [NSException raise:NSInvalidArgumentException
-             format:@"%s: Can't have 'filename' and '%@', 'pageName', 'data', or '%@'.",
-                                  __PRETTY_FUNCTION__, [self urlAttributeName], [self valueAttributeName]];
-     }
-  } else {
-    if (_data != nil) {
-      if (_src != nil || _pageName != nil || _value != nil) {
-         [NSException raise:NSInvalidArgumentException
-                 format:@"%s: Can't have 'data' and '%@', 'pageName', 'pageName', or '%@'.",
-                                      __PRETTY_FUNCTION__, [self urlAttributeName], [self valueAttributeName]];      
-      }
-      if (_mimeType == nil) {
-         [NSException raise:NSInvalidArgumentException
-                 format:@"%s: Missing 'mimeType' when 'data' is specified.",
-                                      __PRETTY_FUNCTION__];            
-      }
-    } else {
-      if (((_pageName != nil) && (_src != nil)) || ((_pageName != nil) && (_value != nil)) || ((_src != nil) && (_value != nil))) {
-         [NSException raise:NSInvalidArgumentException
-                 format:@"%s: dynamic element can not have two conflicting bindings: 'pageName' and '%@', or  'pageName' and '%@', or 'pageName', or '%@' and '%@'.",
-                                      __PRETTY_FUNCTION__, 
-                                      [self urlAttributeName], 
-                                      [self valueAttributeName],
-                                      [self urlAttributeName], 
-                                      [self valueAttributeName]];            
-      
-      }
-      if (((_pageName == nil) && (_value == nil) && (_src == nil) && (_directActionName == nil)) && 
-           ((_actionClass == nil) && (! [self isKindOfClass:[GSWBody class]]))) {
-
-         [NSException raise:NSInvalidArgumentException
-                 format:@"%s: At least one of the following bindings is required for this dynamic element: 'directActionName', 'actionClass', 'filename', 'pageName', 'data', '%@' or '%@'.",
-                                      __PRETTY_FUNCTION__,[self urlAttributeName], 
-                                      [self valueAttributeName]];            
-      }
+      if (_filename != nil)
+	{
+	  if (_src != nil
+	      || _pageName != nil
+	      || _value != nil
+	      || _data != nil)
+	    {	      
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: Can't have 'filename' and '%@', 'pageName', 'data', or '%@'.",
+			   __PRETTY_FUNCTION__, [self urlAttributeName], [self valueAttributeName]];
+	    }
+	}
+      else  if (_data != nil)
+	{
+	  if (_src != nil
+	      || _pageName != nil
+	      || _value != nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: Can't have 'data' and '%@', 'pageName', 'pageName', or '%@'.",
+			   __PRETTY_FUNCTION__, [self urlAttributeName], [self valueAttributeName]];      
+	    }
+	  if (_mimeType == nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: Missing 'mimeType' when 'data' is specified.",
+			   __PRETTY_FUNCTION__];            
+	    }
+	}
+      else
+	{
+	  if ((_pageName != nil && _src != nil)
+	      || (_pageName != nil && _value != nil)
+	      || (_src != nil && _value != nil))
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: dynamic element can not have two conflicting bindings: 'pageName' and '%@', or  'pageName' and '%@', or 'pageName', or '%@' and '%@'.",
+			   __PRETTY_FUNCTION__, 
+			   [self urlAttributeName], 
+			   [self valueAttributeName],
+			   [self urlAttributeName], 
+			   [self valueAttributeName]];            
+	    }
+	  if (_pageName == nil
+	      && _value == nil 
+	      && _src == nil 
+	      && _directActionName == nil 
+	      && _actionClass == nil
+	      && ![self isKindOfClass:[GSWBody class]])
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: At least one of the following bindings is required for this dynamic element: 'directActionName', 'actionClass', 'filename', 'pageName', 'data', '%@' or '%@'.",
+			   __PRETTY_FUNCTION__,[self urlAttributeName], 
+			   [self valueAttributeName]];            
+	    }
+	}
     }
-  }
 
   return self;
 };
@@ -185,37 +155,52 @@ RCS_ID("$Id$")
 
 
 //--------------------------------------------------------------------
--(GSWElement*)invokeActionForRequest:(GSWRequest*)aRequest
+-(NSString*) valueAttributeName
+{
+    return @"src";
+}
+
+//--------------------------------------------------------------------
+-(NSString*) urlAttributeName
+{
+  return @"value";
+}
+
+//--------------------------------------------------------------------
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
                            inContext:(GSWContext*)context
 {
-  id <GSWActionResults, NSObject> element = nil;
-  NSString* senderID = nil;
-  NSString* elementID = nil;
-  GSWComponent * component = nil;
+  id <GSWActionResults> element = nil;
+
+  NSString* elementID = GSWContext_elementID(context);
+  NSString* senderID = GSWContext_senderID(context);
   
-  elementID = GSWContext_elementID(context);
-  senderID = GSWContext_senderID(context);
-  if (elementID != nil && senderID != nil && [elementID isEqual:senderID]) {
-    component = GSWContext_component(context);
-    if (_value != nil) {
-      element = [_value valueInComponent:component];
-    } else {
-      if (_pageName != nil) {
-        GSWElement* element1 = [_pageName valueInComponent:component];
-        if (element1 != nil) {
-          NSString * pageName = (NSString *) element1;    // stringValue?
-          if (pageName != nil) {
-             element = [GSWApp pageWithName:pageName inContext:context];
-          }
-        }
-      }
+  if (elementID != nil
+      && senderID != nil
+      && [elementID isEqual:senderID])
+    {
+      GSWComponent* component = GSWContext_component(context);
+      if (_value != nil)
+	element = [_value valueInComponent:component];
+      else if (_pageName != nil)
+	{
+	  NSString* pageName = NSStringWithObject([_pageName valueInComponent:component]);
+	  if (pageName != nil)
+	    {
+	      element = [GSWApp pageWithName:pageName
+				inContext:context];
+	    }
+	}
     }
-  } else {
-    element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest: aRequest inContext: context];
-  }
+  else
+    {
+      element = [super invokeActionForRequest: aRequest 
+		       inContext: context];
+    }
   return element;
 };
 
+//--------------------------------------------------------------------
 - (NSString*) _imageURL:(GSWContext*) context
 {
   GSWComponent * component = GSWContext_component(context);
@@ -225,26 +210,27 @@ RCS_ID("$Id$")
   NSString * url = [context _urlForResourceNamed: fname
                                     inFramework: fwname];
   
-  if (url == nil) {
-    url = [[GSWApp resourceManager] errorMessageUrlForResourceNamed:fname inFramework:fwname];
-  }
+  if (url == nil)
+    {
+      url = [[GSWApp resourceManager] errorMessageUrlForResourceNamed:fname
+				      inFramework:fwname];
+    }
   return url;
 }
 
+//--------------------------------------------------------------------
 - (void) _appendFilenameToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {
-  NSString * myurl = [self _imageURL:context];
-
-  [response _appendTagAttribute: [self urlAttributeName]
-                          value: myurl
-     escapingHTMLAttributeValue: NO];
-  
+  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								[self urlAttributeName],
+								[self _imageURL:context],
+								NO);
 }
 
+//--------------------------------------------------------------------
 - (NSString*) CGIActionURL:(GSWContext*) context
 {
-
   NSString * actionString = [self computeActionStringWithActionClassAssociation: _actionClass
                                                     directActionNameAssociation: _directActionName
                                                                       inContext: context];
@@ -257,72 +243,86 @@ RCS_ID("$Id$")
 
   return [context directActionURLForActionNamed: actionString
                                      queryDictionary: queryDict];
-
 }
 
 
+//--------------------------------------------------------------------
 - (void) appendAttributesToResponse:(GSWResponse*) response
                           inContext:(GSWContext*) context
 {
-  NSString           * src = nil;
-  GSWComponent       * component = GSWContext_component(context);
-
   [super appendAttributesToResponse:response
                           inContext:context];
-
-  if (_src != nil) {
-    src = [_src valueInComponent:component];
-  }
-  if (_directActionName != nil || _actionClass != nil) {
-    [response _appendTagAttribute:[self urlAttributeName]
-                            value:[self CGIActionURL:context] 
-       escapingHTMLAttributeValue:NO];
-  } else {
-    if (_filename != nil) {
-      [self _appendFilenameToResponse:response inContext:context];
-    } else {
-      if (_value != nil || _pageName != nil) {      
-        GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-                                                                      [self urlAttributeName],
-                                                                      [context componentActionURL],
-                                                                      NO);
-      } else {
-        if (src != nil) {
-          if ([src isRelativeURL] && (![src isFragmentURL])) {
-            NSString * s1 = [context _urlForResourceNamed: src 
-                                              inFramework: nil];
-            if (s1 != nil) {
-              [response _appendTagAttribute: [self urlAttributeName]
-                                      value: s1
-                 escapingHTMLAttributeValue: NO];      
-            } else {
-              GSWResponse_appendContentCharacter(response,' ');
-              GSWResponse_appendContentAsciiString(response, [self urlAttributeName]);
-              GSWResponse_appendContentCharacter(response,'=');
-              GSWResponse_appendContentCharacter(response,'"');
-              GSWResponse_appendContentAsciiString(response, [component baseURL]);
-              GSWResponse_appendContentCharacter(response,'/');
-              GSWResponse_appendContentString(response,src);
-              GSWResponse_appendContentCharacter(response,'"');
-            }
-          } else {
+  
+  if (_directActionName != nil || _actionClass != nil)
+    {
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								    [self urlAttributeName],
+								    [self CGIActionURL:context],
+								    NO);
+    }
+  else if (_filename != nil)
+    {
+      [self _appendFilenameToResponse:response
+	    inContext:context];
+    }
+  else if (_value != nil || _pageName != nil)
+    {
+      GSWComponent* component = GSWContext_component(context);
+      BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								    [self urlAttributeName],
+								    [context _componentActionURLIsSecure:secure],
+								    NO);
+    }
+  else
+    {
+      GSWComponent* component = GSWContext_component(context);
+      NSString* src=NSStringWithObject([_src valueInComponent:component]);
+      if (src != nil)
+	{
+          if ([src isRelativeURL] 
+	      && ![src isFragmentURL])
+	    {
+	      NSString* url = [context _urlForResourceNamed: src 
+				       inFramework: nil];
+	      if (url != nil)
+		{
+		  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+										[self urlAttributeName],
+										url,
+										NO);
+		}
+	      else 
+		{
+		  GSWResponse_appendContentCharacter(response,' ');
+		  GSWResponse_appendContentAsciiString(response, [self urlAttributeName]);
+		  GSWResponse_appendContentCharacter(response,'=');
+		  GSWResponse_appendContentCharacter(response,'"');
+		  GSWResponse_appendContentAsciiString(response, [component baseURL]);
+		  GSWResponse_appendContentCharacter(response,'/');
+		  GSWResponse_appendContentString(response,src);
+		  GSWResponse_appendContentCharacter(response,'"');
+		}
+	    }
+	  else
+	    {
               GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
                                                                             [self urlAttributeName],
                                                                             src,
                                                                             NO);
-          }
-        } else
-        if (_data != nil && _mimeType != nil)
-        {
-          // TODO call _appendDataURLAttributeToResponse
-          [NSException raise:NSInvalidArgumentException
-                  format:@"%s: you need to add a call to _appendDataURLAttributeToResponse in file '%s'",
-                                       __PRETTY_FUNCTION__,__FILE__];
-          
+	    }
         }
-      }
+      else if (_data != nil && _mimeType != nil)
+        {
+	  [GSWURLValuedElementData _appendDataURLAttributeToResponse:response
+				   inContext:context
+				   key:_key
+				   data:_data
+				   mimeType:_mimeType
+				   urlAttributeName:[self urlAttributeName]
+				   inComponent:component];
+        }
     }
-  }
 }
 
 @end

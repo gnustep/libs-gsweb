@@ -35,23 +35,38 @@ RCS_ID("$Id$")
 
 //====================================================================
 @implementation GSWHiddenField
+
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+	 template:(GSWElement*)template
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-
-  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"hidden"]
-                   forKey:@"type"];
-  if ((self=[super initWithName:aName
-                   associations:tmpAssociations
-                   contentElements:nil])) //No Childs!
+  if ((self=[super initWithName:@"input"
+                   associations:associations
+                   template:nil])) //No Childs!
     {
+      if (_value == nil
+	  || ![_value isValueSettable])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'value' attribute not present or is a constant",
+		       __PRETTY_FUNCTION__];
+	}
     };
 
   return self;
 };
 
 //--------------------------------------------------------------------
+- (NSString*) type
+{
+  return @"hidden";
+}
+
+//--------------------------------------------------------------------
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
+{
+}
 @end
 

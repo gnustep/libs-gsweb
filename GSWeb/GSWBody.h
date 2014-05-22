@@ -35,14 +35,6 @@
 
 //====================================================================
 @interface GSWBody: GSWHTMLURLValuedElement
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSMutableArray*)elements;
--(void)dealloc;
--(NSString*)valueAttributeName;
--(NSString*)urlAttributeName;
--(NSString*)elementName;
--(NSString*)description;
 @end
 
 

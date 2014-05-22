@@ -35,6 +35,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 //====================================================================
 @implementation GSWTemporaryElement
@@ -143,10 +144,10 @@ RCS_ID("$Id$")
           // More than one child: try to concatenate BareStrings
           NSMutableString* bareStringText=nil;
           int i=0;
-
+	  IMP oaiIMP=NULL;
           for(i=0;i<childrenCount;i++)
             {
-              GSWElement* element=[_children objectAtIndex:i];
+              GSWElement* element=GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
               if ([element isKindOfClass:[GSWHTMLBareString class]])// Concatenate BareStrings
                 {
                   if (bareStringText)
@@ -155,7 +156,8 @@ RCS_ID("$Id$")
                       element=nil;
                     }
                   else if (i+1<childrenCount
-                           && [[_children objectAtIndex:i+1] isKindOfClass:[GSWHTMLBareString class]])
+                           && [GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i+1)
+							    isKindOfClass:[GSWHTMLBareString class]])
                     {
                       bareStringText=[NSMutableString stringWithString:[(GSWHTMLBareString*)element string]];
                       element=nil;

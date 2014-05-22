@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 #ifndef GNUSTEP
 #include <GNUstepBase/GSObjCRuntime.h>
@@ -687,12 +688,13 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
       NSArray* listItems = [self componentsSeparatedByString:sep1];
       NSUInteger iCount=0;
       NSUInteger itemsCount=[listItems count];
+      IMP oaiIMP=NULL;
 
       pDico=(NSMutableDictionary*)[NSMutableDictionary dictionary];
 
       for(iCount=0;iCount<itemsCount;iCount++)
         {
-          if ([[listItems objectAtIndex:iCount] length]>0)
+          if ([GSWeb_objectAtIndexWithImpPtr(listItems,&oaiIMP,iCount) length]>0)
             {
               NSArray* listParam = [[listItems objectAtIndex:iCount] componentsSeparatedByString:sep2];
               id key=nil;

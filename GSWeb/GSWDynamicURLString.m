@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #include <GNUstepBase/NSString+GNUstepBase.h>
 
@@ -550,9 +551,10 @@ static SEL appendStringSel = NULL;
       //NSDebugMLLog(@"low",@"prefix: components [%@]",components);
       components=[Left componentsSeparatedByString:@"/"];
       componentsCount=[components count];
+      IMP oaiIMP=NULL;
       for(tmpIndex=index;!_prefix && tmpIndex<componentsCount;tmpIndex++)
         {
-          NSString* tmp=[components objectAtIndex:tmpIndex];
+          NSString* tmp=GSWeb_objectAtIndexWithImpPtr(components,&oaiIMP,tmpIndex);
           if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]]
               || [tmp hasSuffix:GSWApplicationPSuffix[WONAMES_INDEX]])
             {
@@ -580,10 +582,10 @@ static SEL appendStringSel = NULL;
             {
               /*NSDebugMLLog(@"low",@"applicationName: components [%@]",
               [components subarrayWithRange:NSMakeRange(index,componentsCount-index)]);
-              */
+              */	      
               for(tmpIndex=index;!_applicationName && tmpIndex<componentsCount;tmpIndex++)
                 {
-                  NSString* tmp=[components objectAtIndex:tmpIndex];
+                  NSString* tmp=GSWeb_objectAtIndexWithImpPtr(components,&oaiIMP,tmpIndex);
                   NSString* appSuffix=nil;
                   if ([tmp hasSuffix:GSWApplicationPSuffix[GSWNAMES_INDEX]])
                     appSuffix=GSWApplicationPSuffix[GSWNAMES_INDEX];

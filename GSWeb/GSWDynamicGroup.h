@@ -53,6 +53,12 @@
 
 - (BOOL) hasChildrenElements;
 
+-(void) takeChildrenValuesFromRequest:(GSWRequest*)request
+			    inContext:(GSWContext*)aContext;
+
+-(id <GSWActionResults>) invokeChildrenActionForRequest:(GSWRequest*)request
+					      inContext:(GSWContext*)aContext;
+
 -(void) appendChildrenToResponse:(GSWResponse*) response
                        inContext:(GSWContext*)aContext;
 

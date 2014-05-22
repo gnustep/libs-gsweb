@@ -33,7 +33,7 @@
 
 //OK
 //====================================================================
-@interface GSWGenericElement: GSWDynamicElement
+@interface GSWGenericElement: GSWHTMLDynamicElement
 {
   GSWAssociation* _elementName;
   GSWAssociation* _name;
@@ -43,37 +43,9 @@
   GSWAssociation* _invokeAction;
   GSWAssociation* _elementID;
   GSWAssociation* _otherTagString;
-  NSDictionary* _otherAssociations;
   BOOL _hasFormValues;
 };
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement;
-
--(void)dealloc;
--(NSString*)description;
-
--(void)appendToResponse:(GSWResponse*)response
-              inContext:(GSWContext*)context;
-
--(GSWElement*)invokeActionForRequest:(GSWRequest*)request
-                           inContext:(GSWContext*)context;
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
-
--(id)_elementNameAppendToResponse:(GSWResponse*)response
-                        inContext:(GSWContext*)context;
-
--(void)_appendTagWithName:(NSString*)name
-               toResponse:(GSWResponse*)response
-                inContext:(GSWContext*)context;
-
--(void)_appendOtherAttributesToResponse:(GSWResponse*)response
-                              inContext:(GSWContext*)context;
-
--(NSString*)_elementNameInContext:(GSWContext*)context;
 @end
 
 #endif //_GSWGenericElement_h__

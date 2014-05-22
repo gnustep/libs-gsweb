@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include <time.h>
 
 //====================================================================
@@ -276,3 +277,36 @@ RCS_ID("$Id$")
 };
 @end
 
+//--------------------------------------------------------------------
+NSString* GSWJoinedStrings(int stringsCount,NSString* s1,...)
+{
+  NSString* result=nil;
+  if (stringsCount>0)
+    {
+      NSMutableString* tmp=nil;
+      //GSODFLog(@"s1=%@",result);
+      if (stringsCount==1)
+	tmp=(NSMutableString*)s1;
+      else
+	{
+	  IMP asIMP=NULL;
+	  va_list ap;
+	  va_start(ap,s1);
+	  int i=0;
+	  for(i=0;i<stringsCount;i++)
+	    {
+	      NSString* s=(i==0 ? s1 : va_arg(ap,NSString*));
+	      if (s)
+		{
+		  if (!tmp)
+		    tmp=[NSMutableString string];
+		  GSWeb_appendStringWithImpPtr(tmp,&asIMP,s);
+		}
+	    }
+	  va_end(ap);
+	}
+      if (tmp!=nil)
+	result=[NSString stringWithString:tmp];
+    }
+  return result;
+}

@@ -2360,27 +2360,31 @@ createObjectFailedForDataSource:_dataSource];
                           value:(id)value
                operatorSelector:(SEL)operatorSelector
 {
-  EOClassDescription* cd=nil;
   EOQualifier* qualifier=nil;
   NSException* validateException=nil;
     
   // Get object class description
-  cd=[_dataSource classDescriptionForObjects];
+  EOClassDescription* cd=[_dataSource classDescriptionForObjects];
   
   // Validate the value against object class description
   validateException=[cd validateValue:&value
-                               forKey:key];
-  
-  if (validateException)
-  {
-    [validateException raise]; //VERIFY
-  }
-  else
-  {
-    NSString* qualifierClassName=[_queryKeyValueQualifierClassName objectForKey:key];
-    Class qualifierClass=Nil;
+			forKey:key];
 
-    if ([qualifierClassName length]>0)
+  if (validateException)
+    {
+      if ([[validateException name] isEqualToString:EOValidationException])
+	{
+	  //Don't raise exception, just log it
+	  NSLog(@"Exception during value validation for key: '%@': %@",key,validateException);
+	}
+      else
+	[validateException raise];
+    }
+
+  NSString* qualifierClassName=[_queryKeyValueQualifierClassName objectForKey:key];
+  Class qualifierClass=Nil;
+
+  if ([qualifierClassName length]>0)
     {
       qualifierClass=NSClassFromString(qualifierClassName);
       NSAssert1(qualifierClass,@"No qualifier class named %@",qualifierClassName);
@@ -2388,85 +2392,84 @@ createObjectFailedForDataSource:_dataSource];
                 @"Qualifier class %@ instance does not responds to -initWithKey:operatorSelector:value:",
                 qualifierClassName);
     }
-    else
-      qualifierClass=[EOKeyValueQualifier class];
-    
-    // If the selector is the equal operator
-    if (sel_isEqual(operatorSelector, EOQualifierOperatorEqual))
+  else
+    qualifierClass=[EOKeyValueQualifier class];
+  
+  // If the selector is the equal operator
+  if (sel_isEqual(operatorSelector, EOQualifierOperatorEqual))
     {
       // Search if there's a specific defined operator for it
       NSString* operatorString=[_queryOperator objectForKey:key];
       
       // If value is a string, try to do handle string specific operators
       if([value isKindOfClass:[NSString class]])
-      {
-        // 'Basic' equal operator
-        if ([operatorString isEqualToString:@"is"])
-        {
-          operatorString = @"=";
-        }
-        else
-        {
-          NSString* stringValue = (NSString*)value;
-          // Other string operators don't care about empry string
-
-          if ([stringValue length]==0)
-          {
-            // So ends here and we'll return a nil qualifier
-            key=nil; 
-            value=nil;
-            operatorString=nil;
-          }
-          else if ([operatorString length]==0) // ==> defaultStringMatchOperator with defaultStringMatchFormat
-          {
-            value=[NSString stringWithFormat:_defaultStringMatchFormat,
-                   value];
-            operatorString = _defaultStringMatchOperator;
-          }
-          else if ([operatorString isEqualToString:@"starts with"])
-          {
-            value=[NSString stringWithFormat:@"%@*",
-                   value];
-            operatorString = _defaultStringMatchOperator;
-          } 
-          else if ([operatorString isEqualToString:@"ends with"])
-          {
-            value=[NSString stringWithFormat:@"*%@",
-                   value];
-            operatorString = _defaultStringMatchOperator;
-          } 
-          else if([operatorString isEqualToString:@"contains"])
-          {
-            value=[NSString stringWithFormat:@"*%@*",
-                   value];
-            operatorString = _defaultStringMatchOperator;
-          }
-        }
-      }
+	{
+	  // 'Basic' equal operator
+	  if ([operatorString isEqualToString:@"is"])
+	    {
+	      operatorString = @"=";
+	    }
+	  else
+	    {
+	      NSString* stringValue = (NSString*)value;
+	      // Other string operators don't care about empry string
+	      
+	      if ([stringValue length]==0)
+		{
+		  // So ends here and we'll return a nil qualifier
+		  key=nil; 
+		  value=nil;
+		  operatorString=nil;
+		}
+	      else if ([operatorString length]==0) // ==> defaultStringMatchOperator with defaultStringMatchFormat
+		{
+		  value=[NSString stringWithFormat:_defaultStringMatchFormat,
+				  value];
+		  operatorString = _defaultStringMatchOperator;
+		}
+	      else if ([operatorString isEqualToString:@"starts with"])
+		{
+		  value=[NSString stringWithFormat:@"%@*",
+				  value];
+		  operatorString = _defaultStringMatchOperator;
+		} 
+	      else if ([operatorString isEqualToString:@"ends with"])
+		{
+		  value=[NSString stringWithFormat:@"*%@",
+				  value];
+		  operatorString = _defaultStringMatchOperator;
+		} 
+	      else if([operatorString isEqualToString:@"contains"])
+		{
+		  value=[NSString stringWithFormat:@"*%@*",
+				  value];
+		  operatorString = _defaultStringMatchOperator;
+		}
+	    }
+	}
       else
-      {
-        if ([operatorString length]==0)
-          operatorString = @"=";
-      }
+	{
+	  if ([operatorString length]==0)
+	    operatorString = @"=";
+	}
       operatorSelector = [qualifierClass operatorSelectorForString:operatorString];
     }
-
-    if (key || operatorSelector || value) // qualifier returned will be nil when we have to discard it
+  
+  if (key || operatorSelector || value) // qualifier returned will be nil when we have to discard it
     {
       if (operatorSelector)
-      {
-        qualifier=[[[qualifierClass alloc]
-                    initWithKey:key
-                    operatorSelector:operatorSelector
-                    value:value] autorelease];
-      }
+	{
+	  qualifier=[[[qualifierClass alloc]
+		       initWithKey:key
+		       operatorSelector:operatorSelector
+		       value:value] autorelease];
+	}
       else
-      {
-        NSLog(@"Error: Qualifier (%@) null selector for %@ %@ %@. Discard it !",
-              qualifierClass,key,[_queryOperator objectForKey:key],value);
-      }
+	{
+	  NSLog(@"Error: Qualifier (%@) null selector for %@ %@ %@. Discard it !",
+		qualifierClass,key,[_queryOperator objectForKey:key],value);
+	}
     }
-  }
   return qualifier;
 }
 

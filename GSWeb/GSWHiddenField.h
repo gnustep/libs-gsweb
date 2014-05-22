@@ -32,12 +32,8 @@
 #ifndef _GSWHiddenField_h__
 	#define _GSWHiddenField_h__
 
-//OK
 //====================================================================
 @interface GSWHiddenField: GSWInput
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements;
 @end
 
 

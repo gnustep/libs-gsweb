@@ -35,6 +35,7 @@ RCS_ID("$Id$")
 #include <GNUstepBase/Unicode.h>
 #include "GSWeb.h"
 #include "NSData+Compress.h"
+#include "GSWPrivate.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 
 
@@ -1108,10 +1109,11 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
       int count=[cookies count];
       GSWCookie* cookie=nil;
       NSString* cookieString=nil;
+      IMP oaiIMP=NULL;
       strings=[NSMutableArray array];
       for(i=0;i<count;i++)
         {
-          cookie=[cookies objectAtIndex:i];
+          cookie=GSWeb_objectAtIndexWithImpPtr(cookies,&oaiIMP,i);
           cookieString=[cookie headerValue];
           NSAssert(cookieString,@"No cookie HeaderValue");
           [strings addObject:cookieString];
@@ -1225,12 +1227,13 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
 {
   NSMutableData* cachedData=nil;
   int cacheStackCount=0;
+  IMP oaiIMP=NULL;
 
   cacheStackCount=[_cachesStack count];
 
   if (cacheIndex<cacheStackCount)
     {
-      cachedData=[_cachesStack objectAtIndex:cacheIndex];
+      cachedData=GSWeb_objectAtIndexWithImpPtr(_cachesStack,&oaiIMP,cacheIndex);
       AUTORELEASE(RETAIN(cachedData));
 
       // Last one ? (normal case)
@@ -1244,7 +1247,7 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
           cacheIndex++;
           while(cacheIndex<cacheStackCount)
             {
-              NSData* tmp=[_cachesStack objectAtIndex:cacheIndex];
+              NSData* tmp=GSWeb_objectAtIndexWithImpPtr(_cachesStack,&oaiIMP,cacheIndex);
 
               [cachedData appendData:tmp];
               [_cachesStack removeObjectAtIndex:cacheIndex];
@@ -1255,7 +1258,7 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
       //Add cachedData to previous cache item data
       if (cacheStackCount>0)
         {
-          _currentCacheData=[_cachesStack objectAtIndex:cacheStackCount-1];
+          _currentCacheData=GSWeb_objectAtIndexWithImpPtr(_cachesStack,&oaiIMP,cacheStackCount-1);
           _currentCacheDataADImp=NULL;
           if ([cachedData length]>0)
             {

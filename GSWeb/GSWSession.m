@@ -33,6 +33,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #include <GNUstepBase/NSData+GNUstepBase.h>
 #include <GNUstepBase/NSString+GNUstepBase.h>
@@ -912,24 +913,21 @@ extern id gcObjectsToBeVisited;
 -(NSString*)_contextIDMatchingIDsInContext:(GSWContext*)aContext
 {
   NSString* contextID=nil;
-  NSString* requestContextID=nil;
-
-  requestContextID=[aContext _requestContextID];
+  NSString* requestContextID=[aContext _requestContextID];
   if (_contextRecords &&  requestContextID)
     {
       NSArray* contextIDs = [_contextRecords allKeys];
       int count = [contextIDs count];
       int i=0;
+      IMP oaiIMP=NULL;
       for(i=0;!contextID && i<count;i++)
         {
-          NSString* aContextID=[contextIDs objectAtIndex:i];
+          NSString* aContextID=GSWeb_objectAtIndexWithImpPtr(contextIDs,&oaiIMP,i);
           GSWTransactionRecord* aTransactionRecord=[_contextRecords objectForKey:aContextID];
           if ([aTransactionRecord isMatchingIDsInContext:aContext])
             contextID=aContextID;
         }      
     }
-
-  
 
   return contextID;
 }
@@ -938,7 +936,6 @@ extern id gcObjectsToBeVisited;
 // _rearrangeContextArrayStack in wo 5
 -(void)_rearrangeContextArrayStackForContextID:(NSString*)contextID
 {
-  
   if (_contextRecords)
     {
       NSUInteger stackIndex=0;
@@ -968,9 +965,10 @@ extern id gcObjectsToBeVisited;
   NSMutableArray* contextArray=nil;
   NSUInteger stackCount=[_contextArrayStack count];
   NSUInteger i=0;
+  IMP oaiIMP=NULL;
   for(i=0;!contextArray && i<stackCount;i++)
     {
-      NSMutableArray* aContextArray=[_contextArrayStack objectAtIndex:i];
+      NSMutableArray* aContextArray=GSWeb_objectAtIndexWithImpPtr(_contextArrayStack,&oaiIMP,i);
       NSUInteger contextArrayIndex=[aContextArray indexOfObject:aContextID];
       if (contextArrayIndex!=NSNotFound)
         {
@@ -1176,8 +1174,6 @@ Returns first element of languages or nil if languages is empty
   languages=[self languages];
   if ([languages count]>0)
     firstLanguage=[languages objectAtIndex:0];
-
-  
 
   return firstLanguage;
 }

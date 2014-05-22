@@ -53,188 +53,22 @@ static Class standardClass = Nil;
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSMutableArray*) elements
-{
-  self = [super initWithName:aName associations:associations contentElements: elements];
-  if (!self) {
-    return nil;
-  }
-
-  ASSIGN(_disabled, [_associations objectForKey: disabled__Key]);
-  if (_disabled != nil) {
-    [_associations removeObjectForKey: disabled__Key];
-  }
-  ASSIGN(_name, [_associations objectForKey: name__Key]);
-  if (_name != nil) {
-    [_associations removeObjectForKey: name__Key];
-  }
-  ASSIGN(_value, [_associations objectForKey: value__Key]);
-  if (_value != nil) {
-    [_associations removeObjectForKey: value__Key];
-  }
-  ASSIGN(_escapeHTML, [_associations objectForKey: escapeHTML__Key]);
-  if (_escapeHTML != nil) {
-    [_associations removeObjectForKey: escapeHTML__Key];
-  }
-
-  return self;
-}
-
--(id)initWithName:(NSString*)aName
-     associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:aName associations:associations template: template];
-  if (!self) {
-    return nil;
-  }
-
-  ASSIGN(_disabled, [_associations objectForKey: disabled__Key]);
-  if (_disabled != nil) {
-    [_associations removeObjectForKey: disabled__Key];
-  }
-  ASSIGN(_name, [_associations objectForKey: name__Key]);
-  if (_name != nil) {
-    [_associations removeObjectForKey: name__Key];
-  }
-  ASSIGN(_value, [_associations objectForKey: value__Key]);
-  if (_value != nil) {
-    [_associations removeObjectForKey: value__Key];
-  }
-  ASSIGN(_escapeHTML, [_associations objectForKey: escapeHTML__Key]);
-  if (_escapeHTML != nil) {
-    [_associations removeObjectForKey: escapeHTML__Key];
-  }
+  if (([super initWithName:aName
+	      associations:associations
+	      template: template]))
+    {
+      GSWAssignAndRemoveAssociation(&_disabled,_associations,disabled__Key);
+      GSWAssignAndRemoveAssociation(&_name,_associations,name__Key);
+      GSWAssignAndRemoveAssociation(&_value,_associations,value__Key);
+      GSWAssignAndRemoveAssociation(&_escapeHTML,_associations,escapeHTML__Key);
+    }
 
   return self;
 }
 
--(NSString*) type
-{
-  return nil;
-}
-
-- (NSString*) constantAttributesRepresentation
-{
-  if (_constantAttributesRepresentation == nil) {
-    NSString * s = [self type];
-    if (s != nil) {
-      [super constantAttributesRepresentation];
-      NSMutableString * buffer = [NSMutableString stringWithCapacity:256];
-      if (_constantAttributesRepresentation != nil) {
-        [buffer appendString:_constantAttributesRepresentation];
-      }
-      [buffer appendString:@" "];
-      [buffer appendString:@"type"];
-      [buffer appendString:@"=\""];
-      [buffer appendString:s];
-      [buffer appendString:@"\""];
-      ASSIGN(_constantAttributesRepresentation,buffer);
-    }
-  }
-  return [super constantAttributesRepresentation];
-}
-
-- (BOOL) disabledInComponent:(GSWComponent*) component
-{
-  return ((_disabled != nil) && ([_disabled boolValueInComponent: component]));
-}
-
--(NSString*)nameInContext:(GSWContext*)context
-{
-  NSString * s = nil;
-
-  if (_name != nil) {
-    GSWComponent * component = GSWContext_component(context);
-
-    id obj = [_name valueInComponent:component];
-    if (obj != nil) {
-      return obj; // stringValue? 
-    }
-  }
-  s = [context elementID];
-  if (s != nil) {
-    return s;
-  } else {
-    [NSException raise:NSInvalidArgumentException
-          format:@"%s: Cannot evaluate 'name' attribute, and context element ID is nil.",
-                               __PRETTY_FUNCTION__];
-  }
-  // make the compiler happy ;)
-  return nil;
-}
-
--(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context
-{
-  GSWComponent * component = GSWContext_component(context);
-  
-  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
-    NSString * s1 = [self nameInContext:context];
-    if (s1 != nil) {
-      NSString * s = [request stringFormValueForKey:s1];
-              [_value setValue: s
-                      inComponent:component];
-    }
-  }
-}
-
-- (BOOL) _shouldEscapeHTML:(GSWComponent *) component
-{
-  BOOL flag = YES;
-  if (_escapeHTML != nil) {
-    flag = [_escapeHTML boolValueInComponent:component];
-  }
-  return flag;
-}
-
-- (void) _appendNameAttributeToResponse:(GSWResponse *) response
-                              inContext:(GSWContext*)context
-{
-  GSWComponent * component = nil;
-  NSString  * s = [self nameInContext:context];
-  if (s != nil) {
-    component = GSWContext_component(context);
-    [response _appendTagAttribute: name__Key
-                            value: s
-       escapingHTMLAttributeValue: [self _shouldEscapeHTML:component]];
-    
-  }
-}
-
-- (void) _appendValueAttributeToResponse:(GSWResponse *) response
-                              inContext:(GSWContext*)context
-{
-  GSWComponent * component = GSWContext_component(context);
-  if (_value != nil)
-  {
-    id obj = [_value valueInComponent:component];
-    if (obj != nil) {
-      NSString * s = obj; // stringValue?? 
-      [response _appendTagAttribute: value__Key
-                              value: s
-         escapingHTMLAttributeValue: [self _shouldEscapeHTML:component]];
-    }
-  }
-}
-
--(void) appendAttributesToResponse:(GSWResponse *) response
-                            inContext:(GSWContext*) context
-{
-  [super appendAttributesToResponse: response
-                          inContext: context];
-
-  if ([self disabledInComponent:GSWContext_component(context)]) {
-    GSWResponse_appendContentCharacter(response,' ');
-    GSWResponse_appendContentAsciiString(response, disabled__Key);
-  }
-  [self _appendValueAttributeToResponse: response
-                              inContext: context];
-  [self _appendNameAttributeToResponse: response
-                             inContext: context];
-}
-
-
+//--------------------------------------------------------------------
 -(void)dealloc
 {
   DESTROY(_disabled);
@@ -244,5 +78,142 @@ static Class standardClass = Nil;
 
   [super dealloc];
 }
+
+//--------------------------------------------------------------------
+-(NSString*) type
+{
+  return nil;
+}
+
+//--------------------------------------------------------------------
+- (NSString*) constantAttributesRepresentation
+{
+  if (_constantAttributesRepresentation == nil)
+    {
+      NSString * s = [self type];
+      if (s != nil)
+	{
+	  IMP asIMP=NULL;
+	  [super constantAttributesRepresentation];
+	  NSMutableString * buffer = [NSMutableString stringWithCapacity:256];
+	  if (_constantAttributesRepresentation != nil)
+	    GSWeb_appendStringWithImpPtr(buffer,&asIMP,_constantAttributesRepresentation);
+      
+	  GSWeb_appendStringWithImpPtr(buffer,&asIMP,@" type=\"");
+	  GSWeb_appendStringWithImpPtr(buffer,&asIMP,s);
+	  GSWeb_appendStringWithImpPtr(buffer,&asIMP,@"\"");
+
+	  ASSIGN(_constantAttributesRepresentation,buffer);
+	}
+    }
+  return [super constantAttributesRepresentation];
+}
+
+//--------------------------------------------------------------------
+- (BOOL) disabledInComponent:(GSWComponent*) component
+{
+  return (_disabled != nil 
+	  && [_disabled boolValueInComponent: component]);
+}
+
+//--------------------------------------------------------------------
+-(NSString*)nameInContext:(GSWContext*)context
+{
+  NSString * s = nil;
+
+  if (_name != nil)
+    {
+      GSWComponent * component = GSWContext_component(context);
+      s = NSStringWithObject([_name valueInComponent:component]);
+    }
+  if (s==nil)
+    {
+      s = [context elementID];
+      if (s == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Cannot evaluate 'name' attribute, and context element ID is nil.",
+		       __PRETTY_FUNCTION__];
+	}
+    }
+  return s;
+}
+
+//--------------------------------------------------------------------
+-(void)takeValuesFromRequest:(GSWRequest*)request
+                   inContext:(GSWContext*)context
+{
+  GSWComponent * component = GSWContext_component(context);
+  
+  if (![self disabledInComponent: component]
+      && [context _wasFormSubmitted])
+    {
+      NSString* name = [self nameInContext:context];
+      if (name != nil)
+	{
+	  NSString* value = [request stringFormValueForKey:name];
+	  [_value setValue: value
+		  inComponent:component];
+	}
+    }
+}
+
+//--------------------------------------------------------------------
+- (BOOL) _shouldEscapeHTML:(GSWComponent *) component
+{
+  BOOL flag = YES;
+  if (_escapeHTML != nil)
+    flag = [_escapeHTML boolValueInComponent:component];
+  return flag;
+}
+
+//--------------------------------------------------------------------
+- (void) _appendNameAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*)context
+{
+  NSString* name = [self nameInContext:context];
+  if (name != nil)
+    {
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								    name__Key,
+								    name,
+								    YES);
+      
+    }
+}
+
+//--------------------------------------------------------------------
+- (void) _appendValueAttributeToResponse:(GSWResponse *) response
+                              inContext:(GSWContext*)context
+{
+  if (_value != nil)
+    {
+      GSWComponent * component = GSWContext_component(context);
+      NSString* value=NSStringWithObject([_value valueInComponent:component]);
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								    value__Key,
+								    value,
+								    [self _shouldEscapeHTML:component]);
+    }
+}
+
+//--------------------------------------------------------------------
+-(void) appendAttributesToResponse:(GSWResponse *) response
+                            inContext:(GSWContext*) context
+{
+  [super appendAttributesToResponse: response
+                          inContext: context];
+
+  if ([self disabledInComponent:GSWContext_component(context)])
+    {
+      GSWResponse_appendContentCharacter(response,' ');
+      GSWResponse_appendContentAsciiString(response, disabled__Key);
+    }
+  [self _appendValueAttributeToResponse: response
+	inContext: context];
+  [self _appendNameAttributeToResponse: response
+	inContext: context];
+}
+
 
 @end

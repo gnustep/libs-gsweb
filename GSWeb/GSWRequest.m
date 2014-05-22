@@ -56,9 +56,10 @@ RCS_ID("$Id$")
     {
       int i=0;
       NSMutableArray* qvs=[NSMutableArray array];
+      IMP oaiIMP=NULL;
       for(i=0;i<count;i++)
         {
-          NSString* string=[valuesAndQualities objectAtIndex:i];
+          NSString* string=GSWeb_objectAtIndexWithImpPtr(valuesAndQualities,&oaiIMP,i);
           GSWValueQualityHeaderPart* qv=[GSWValueQualityHeaderPart 
                                            valueQualityHeaderPartWithString:string];
           if ([[qv value]length]>0)
@@ -68,6 +69,7 @@ RCS_ID("$Id$")
       if (count>0)
         {
           unsigned int i;
+	  IMP oaiIMP=NULL;
           //Sor oon quality desc
           [qvs sortUsingSelector:@selector(compareOnQualityDesc:)];
 
@@ -75,11 +77,11 @@ RCS_ID("$Id$")
           for(i=0;i<count;i++)
             {
               int j=0;
-              GSWValueQualityHeaderPart* qv=[qvs objectAtIndex:i];
+              GSWValueQualityHeaderPart* qv=GSWeb_objectAtIndexWithImpPtr(qvs,&oaiIMP,i);
               NSString* value=[qv value];
               for(j=i+1;j<count;j++)
                 {
-                  GSWValueQualityHeaderPart* qv2=[qvs objectAtIndex:j];
+                  GSWValueQualityHeaderPart* qv2=GSWeb_objectAtIndexWithImpPtr(qvs,&oaiIMP,j);
                   NSString* value2=[qv2 value];
                   if ([value2 isEqual:value])
                     {
@@ -536,6 +538,7 @@ RCS_ID("$Id$")
               //Remove Duplicates
               int i=0;
               int browserLanguagesCount=0;
+	      IMP oaiIMP=NULL;
 
               browserLanguages=[[browserLanguages mutableCopy] autorelease];
               browserLanguagesCount=[browserLanguages count];
@@ -543,10 +546,10 @@ RCS_ID("$Id$")
               for(i=0;i<browserLanguagesCount;i++)
                 {
                   int j=0;
-                  NSString* language=[browserLanguages objectAtIndex:i];
+                  NSString* language=GSWeb_objectAtIndexWithImpPtr(browserLanguages,&oaiIMP,i);
                   for(j=browserLanguagesCount-1;j>i;j--)
                     {
-                      NSString* language2=[browserLanguages objectAtIndex:j];
+                      NSString* language2=GSWeb_objectAtIndexWithImpPtr(browserLanguages,&oaiIMP,j);
                       if ([language2 isEqual:language])
                         {
                           [browserLanguages removeObjectAtIndex:j];
@@ -1005,9 +1008,10 @@ RCS_ID("$Id$")
                   id cookieValue=nil;
                   int index=0;
                   int valueCount=[value count];
+		  IMP oaiIMP=NULL;
                   for(index=0;index<valueCount;index++)
                     {
-                      cookieValue=[value objectAtIndex:index];
+                      cookieValue=GSWeb_objectAtIndexWithImpPtr(value,&oaiIMP,index);
                       if (cookieValue)
                         {
                           newValue=nil;
@@ -1086,11 +1090,12 @@ RCS_ID("$Id$")
       NSArray* cookiePrevValue=nil;
       int i=0;
       int cookiesArrayCount=[cookiesArray count];
+      IMP oaiIMP=NULL;
 
       for(i=0;i<cookiesArrayCount;i++)
         {
           int cookieCount=0;
-          cookieString=[cookiesArray objectAtIndex:i];
+          cookieString=GSWeb_objectAtIndexWithImpPtr(cookiesArray,&oaiIMP,i);
           cookie=[cookieString componentsSeparatedByString:@"="];
 
           cookieCount=[cookie count];
@@ -1282,9 +1287,10 @@ RCS_ID("$Id$")
       NSString* key=nil;
       BOOL ismapCoordsFound=NO;
       NSArray* value=nil;
+      IMP oaiIMP=NULL;
       for(i=0;i<allKeysCount && !ismapCoordsFound;i++)
         {
-          key=[allKeys objectAtIndex:i];
+          key=GSWeb_objectAtIndexWithImpPtr(allKeys,&oaiIMP,i);
           value=[tmpFormData objectForKey:key];
           if ([value count]==1
               &&[[value objectAtIndex:0]length]==0
@@ -1557,6 +1563,7 @@ RCS_ID("$Id$")
         NSArray* value=[headers objectForKey:key];
         int i=0;
         int count=[value count];
+	IMP oaiIMP=NULL;
         for(i=0;i<count;i++)
         {
             // append "key: value\n" to headersString
@@ -1568,7 +1575,7 @@ RCS_ID("$Id$")
                                          @": ");
             GSWeb_appendStringWithImpPtr(headersString,
                                          &headersString_appendStringIMP,
-                                         [value objectAtIndex:i]);
+                                         GSWeb_objectAtIndexWithImpPtr(value,&oaiIMP,i));
             GSWeb_appendStringWithImpPtr(headersString,
                                          &headersString_appendStringIMP,
                                          @"\n");
@@ -1628,9 +1635,10 @@ RCS_ID("$Id$")
             {
                 int i=0;
                 int count=[content count];
+		IMP oaiIMP=NULL;
                 for(i=0;i<count;i++)
                 {
-                    GSMimeDocument* aDoc=[content objectAtIndex:i];
+		  GSMimeDocument* aDoc=GSWeb_objectAtIndexWithImpPtr(content,&oaiIMP,i);
                     GSMimeHeader* contentDispositionHeader=nil;
                     NSString* contentDispositionValue=nil;
                     NSDictionary* contentDispositionParams=nil;
@@ -1728,18 +1736,19 @@ RCS_ID("$Id$")
   int i=0;
   NSData* tmpData=nil;
   int partsCount=0;
+  IMP oaiIMP=NULL;
 
   boundaryString=[NSString stringWithFormat:@"--%@\r\n",aBoundary];//Add "--" and "\r\n"
   dataBoundary=[boundaryString dataUsingEncoding:[self formValueEncoding]];//TODO
   parts=[aBody componentsSeparatedByData:dataBoundary];
 
   partsCount=[parts count];
-
   for(i=0;i<partsCount;i++)
     {
-      tmpData=[parts objectAtIndex:i];
+      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
       if ([tmpData length]<400)
         {
+	  //TODO: we don't user dataString ?
           NSString* _dataString=nil;
           _dataString=[[[NSString alloc]initWithData:tmpData
                                         encoding:[self formValueEncoding]]autorelease];
@@ -1747,7 +1756,7 @@ RCS_ID("$Id$")
       else
         {
           //NSDebugMLLog(@"requests",@"tmpData=%@",tmpData);
-      };
+	};
     };
 
   // The 1st part should be empty (or it's only a warning message...)
@@ -1759,9 +1768,10 @@ RCS_ID("$Id$")
 
   // Now deleting last \r\n of each object
   parts=[parts mutableCopy];
+  oaiIMP=NULL;
   for(i=0;i<partsCount;i++)
     {
-      tmpData=[parts objectAtIndex:i];
+      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
       if (i==partsCount-1)
         {
           //Delete the last \r\nseparator--\r\n
@@ -1779,7 +1789,7 @@ RCS_ID("$Id$")
   
   for(i=0;i<partsCount;i++)
     {
-      tmpData=[parts objectAtIndex:i];
+      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
       if ([tmpData length]<400)
         {
           NSString* dataString=nil;
@@ -1911,6 +1921,7 @@ into
   int partIndex=0;
   int partCount=0;
   NSString* part=nil;
+  IMP oaiIMP=NULL;
 
   parsedParts=(NSMutableDictionary*)[NSMutableDictionary dictionary];
   headerParts=[aHeader componentsSeparatedByString:@";"];
@@ -1921,7 +1932,7 @@ into
       int parsedPartCount=0;
       NSString* key=nil;
       NSString* value=nil;
-      part=[headerParts objectAtIndex:partIndex];
+      part=GSWeb_objectAtIndexWithImpPtr(headerParts,&oaiIMP,partIndex);
       part=[part stringByTrimmingSpaces];
       parsedPart=[part componentsSeparatedByString:@"="];
       parsedPartCount=[parsedPart count];

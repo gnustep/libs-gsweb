@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include "GSWKeyValueAssociation.h"
 #include "GSWConstantValueAssociation.h"
 #include "GSWBindingNameAssociation.h"
@@ -880,9 +881,10 @@ static Class NSStringClass = Nil;
   int i=0;
   id value=nil;
   id newValue=nil;
+  IMP oaiIMP=NULL;
   for(i=0;i<count;i++)
     {
-      value=[self objectAtIndex:i];
+      value=GSWeb_objectAtIndexWithImpPtr(self,&oaiIMP,i);
       if ([value isKindOfClass:[NSString class]])
         {
           newValue=[GSWAssociation associationFromString:value];

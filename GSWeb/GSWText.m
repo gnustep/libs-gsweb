@@ -41,25 +41,20 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:@"textarea" associations:associations template: nil];
-  if (!self) {
-    return nil;
-  }
-
-  if ((_value == nil) || (![_value isValueSettable])) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'value' attribute not present or is a constant",
-                            __PRETTY_FUNCTION__];
-  }
-
+  if ((self = [super initWithName:@"textarea"
+		     associations:associations
+		     template: nil]))
+    {
+      if (_value == nil
+	  || ![_value isValueSettable])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'value' attribute not present or is a constant",
+		       __PRETTY_FUNCTION__];
+	}
+    }
   return self;
 }
-
-//--------------------------------------------------------------------
--(void)dealloc
-{
-  [super dealloc];
-};
 
 //--------------------------------------------------------------------
 -(NSString*)description
@@ -75,64 +70,68 @@ RCS_ID("$Id$")
   return @"textarea";
 }
 
+//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-
   GSWComponent * component = GSWContext_component(context);
   
-  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
-    NSString * nameCtx = [self nameInContext:context];
-    if (nameCtx != nil) {
-      [_value setValue: [request stringFormValueForKey: nameCtx]
-           inComponent:component];
+  if (![self disabledInComponent: component]
+      && [context _wasFormSubmitted])
+    {
+      NSString * nameCtx = [self nameInContext:context];
+      if (nameCtx != nil)
+	{
+	  [_value setValue: [request stringFormValueForKey: nameCtx]
+		  inComponent:component];
+	}
     }
-  }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendValueAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*) context
 {
-// nothing!
+  // nothing!
 }
 
+//--------------------------------------------------------------------
 // Replace \r\n by \n
 -(NSString*)_filterSoftReturnsFromString:(NSString*)string
 {
-  NSRange range;
-  NSMutableString * myTmpStr = nil;
-  unsigned len = 0;
+  NSString* result=nil;
   
-  if (!string) {
-    return nil;
-  }
-  len = [string length];
-  if (len<1) {
-    return string;
-  }
- 
-  myTmpStr = [NSMutableString stringWithCapacity: len];
-  [myTmpStr setString: string];
+  if (string!=nil)
+    {
+      NSUInteger len = [string length];
+      if (len==0)
+	result=string;
+      else
+	{
+	  NSMutableString * myTmpStr = [NSMutableString stringWithString: string];
   
-  while (YES) {
-    range = [myTmpStr rangeOfString:@"\r\n"];
-    if (range.length>0) {
-      [myTmpStr replaceCharactersInRange: range withString:@"\n"];
-    } else {
-      break;
+	  while (YES)
+	    {
+	      NSRange range = [myTmpStr rangeOfString:@"\r\n"];
+	      if (range.length>0)
+		[myTmpStr replaceCharactersInRange: range withString:@"\n"];
+	      else
+		break;    
+	    }
+	  result=[NSString stringWithString: myTmpStr];
+	}
     }
-  }
-  return [NSString stringWithString: myTmpStr];
+  return result;
 };
 
 
+//--------------------------------------------------------------------
 -(void) appendChildrenToResponse:(GSWResponse*) response
                        inContext:(GSWContext*) context
 {
-  id valueValue = [_value valueInComponent:GSWContext_component(context)];
-  if (valueValue != nil) {
-    GSWResponse_appendContentHTMLString(response, [self _filterSoftReturnsFromString:valueValue]);
-  }
+  id value = [_value valueInComponent:GSWContext_component(context)];
+  if (value != nil)
+    GSWResponse_appendContentHTMLString(response, [self _filterSoftReturnsFromString:NSStringWithObject(value)]);
 }
 
 

@@ -42,180 +42,155 @@ RCS_ID("$Id$")
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  int imageMapDefNb=0;
+  if ((self = [super initWithName:@"input"
+		     associations:associations
+		     template: nil]))
+    {
+      int imageMapDefNb=0;
+      if ([_associations objectForKey: type__Key])
+	{
+	  [_associations removeObjectForKey: type__Key];
+	  NSLog(@"ImageButton: 'type' attribute ignored");
+	}
 
-  self = [super initWithName:@"input" associations:associations template: nil];
-  if (!self) {
-    return nil;
-  }
-  if ([_associations objectForKey: type__Key]) {
-    [_associations removeObjectForKey: type__Key];
-    NSLog(@"ImageButton: 'type' attribute ignored");
-  }
+      GSWAssignAndRemoveAssociation(&_action,_associations,action__Key);
+      if (GSWAssignAndRemoveAssociation(&_imageMapFileName,_associations,imageMapFileName__Key))
+	imageMapDefNb++;
+      GSWAssignAndRemoveAssociation(&_actionClass,_associations,actionClass__Key);
+      GSWAssignAndRemoveAssociation(&_directActionName,_associations,directActionName__Key);
+      GSWAssignAndRemoveAssociation(&_xAssoc,_associations,x__Key);
+      GSWAssignAndRemoveAssociation(&_yAssoc,_associations,y__Key);
+      if (GSWAssignAndRemoveAssociation(&_filename,_associations,filename__Key))
+	{
+	  GSWAssignAndRemoveAssociation(&_width,_associations,width__Key);
+	  GSWAssignAndRemoveAssociation(&_height,_associations,height__Key);
+	}  
 
-  ASSIGN(_action, [_associations objectForKey: action__Key]);
-  if (_action != nil) {
-    [_associations removeObjectForKey: action__Key];
-  }
-  ASSIGN(_imageMapFileName, [_associations objectForKey: imageMapFileName__Key]);
-  if (_imageMapFileName != nil) {
-    imageMapDefNb++;
-    [_associations removeObjectForKey: imageMapFileName__Key];
-  }
-  ASSIGN(_actionClass, [_associations objectForKey: actionClass__Key]);
-  if (_actionClass != nil) {
-    [_associations removeObjectForKey: actionClass__Key];
-  }
-  ASSIGN(_directActionName, [_associations objectForKey: directActionName__Key]);
-  if (_directActionName != nil) {
-    [_associations removeObjectForKey: directActionName__Key];
-  }
-  ASSIGN(_xAssoc, [_associations objectForKey: x__Key]);
-  if (_xAssoc != nil) {
-    [_associations removeObjectForKey: x__Key];
-  }
-  ASSIGN(_yAssoc, [_associations objectForKey: y__Key]);
-  if (_yAssoc != nil) {
-    [_associations removeObjectForKey: y__Key];
-  }
-  ASSIGN(_filename, [_associations objectForKey: filename__Key]);
-  if (_filename != nil) {
-    [_associations removeObjectForKey: filename__Key];
-  }
-  if (_filename != nil) {
-    ASSIGN(_width, [_associations objectForKey: width__Key]);
-    if (_width != nil) {
-      [_associations removeObjectForKey: width__Key];
-    }
-    ASSIGN(_height, [_associations objectForKey: height__Key]);
-    if (_height != nil) {
-      [_associations removeObjectForKey: height__Key];
-    }
-  }  
-  ASSIGN(_framework, [_associations objectForKey: framework__Key]);
-  if (_framework != nil) {
-    [_associations removeObjectForKey: framework__Key];
-  }
-  ASSIGN(_src, [_associations objectForKey: src__Key]);
-  if (_src != nil) {
-    [_associations removeObjectForKey: src__Key];
-  }
-  ASSIGN(_data, [_associations objectForKey: data__Key]);
-  if (_data != nil) {
-    [_associations removeObjectForKey: data__Key];
-  }
-  ASSIGN(_mimeType, [_associations objectForKey: mimeType__Key]);
-  if (_mimeType != nil) {
-    [_associations removeObjectForKey: mimeType__Key];
-  }
-  ASSIGN(_key, [_associations objectForKey: key__Key]);
-  if (_key != nil) {
-    [_associations removeObjectForKey: key__Key];
-  }
+      GSWAssignAndRemoveAssociation(&_framework,_associations,framework__Key);
+      GSWAssignAndRemoveAssociation(&_src,_associations,src__Key);
+      GSWAssignAndRemoveAssociation(&_data,_associations,data__Key);
+      GSWAssignAndRemoveAssociation(&_mimeType,_associations,mimeType__Key);
+      GSWAssignAndRemoveAssociation(&_key,_associations,key__Key);
 
-  if (!WOStrictFlag) {
-    ASSIGN(_imageMapString, [_associations objectForKey: imageMapString__Key]);
-    if (_imageMapString != nil) {
-      imageMapDefNb++;    
-      [_associations removeObjectForKey: imageMapString__Key];
-    }
-    ASSIGN(_imageMapRegions, [_associations objectForKey: imageMapRegions__Key]);
-    if (_imageMapRegions != nil) {
-      imageMapDefNb++;    
-      [_associations removeObjectForKey: imageMapRegions__Key];
-    }
+      if (!WOStrictFlag)
+	{
+	  if (GSWAssignAndRemoveAssociation(&_imageMapString,_associations,imageMapString__Key))
+	    imageMapDefNb++;
+	  
+	  if (GSWAssignAndRemoveAssociation(&_imageMapRegions,_associations,imageMapRegions__Key))
+	    imageMapDefNb++;    
   
-    if (imageMapDefNb>0) {   // sure that this is 0 and not 1? dw
-        ExceptionRaise(@"ImageButton",@"you can't specify %@, %@ and %@",
-                       imageMapFileName__Key,
-                       imageMapString__Key,
-                       imageMapRegions__Key);
-    }
-    ASSIGN(_cidStore, [_associations objectForKey: cidStore__Key]);
-    if (_cidStore != nil) {
-      [_associations removeObjectForKey: cidStore__Key];
-    }
-    ASSIGN(_cidKey, [_associations objectForKey: cidKey__Key]);
-    if (_cidKey != nil) {
-      [_associations removeObjectForKey: cidKey__Key];
-    }
-  } // (!WOStrictFlag)
+	  if (imageMapDefNb>0)
+	    {   // sure that this is 0 and not 1? dw
+	      ExceptionRaise(@"ImageButton",@"you can't specify %@, %@ and %@",
+			     imageMapFileName__Key,
+			     imageMapString__Key,
+			     imageMapRegions__Key);
+	    }
+	  GSWAssignAndRemoveAssociation(&_cidStore,_associations,cidStore__Key);
+	  GSWAssignAndRemoveAssociation(&_cidKey,_associations,cidKey__Key);
+	} // (!WOStrictFlag)
 
-  if (_action != nil) {
-    if (_actionClass != nil || _directActionName != nil) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: Neither 'directActionName' nor 'actionClass' should be specified if 'action' is specified.",
-                              __PRETTY_FUNCTION__];
-    }
-    if ([_action isValueConstant]) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: 'action' must be a setable value and not a contant.",
-                              __PRETTY_FUNCTION__];
-    }
-  } else {
-    if (_actionClass == nil && _directActionName == nil) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: Either a 'action' or a direct action must be specified.",
-                              __PRETTY_FUNCTION__];
-    }
-  }
-  if (_filename != nil) {
-    if (_src != nil || _data != nil || _value != nil) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: If 'filename' is specified, 'value', 'data', and 'src' must be nil.",
-                              __PRETTY_FUNCTION__];
-     }
-  } else { // _filename 
-    if (_framework != nil) {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: 'framework' should not be specified if 'filename' is nil.",
-                              __PRETTY_FUNCTION__];    
-    }
-    if (_data != nil) {
-      if (_mimeType == nil) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: 'mimeType' must be specified if 'data' is specified.",
-                                __PRETTY_FUNCTION__];    
-      }
-      if (_src != nil || _value != nil) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: If 'data' is specified, 'src', 'filename', and 'value' must be nil.",
-                                __PRETTY_FUNCTION__];    
-      }
-    } else
-      if (_value != nil) {
-        if ([_value isValueConstant]) {
-          [NSException raise:NSInvalidArgumentException
-                      format:@"%s: 'value' must not be constant.",
-                                  __PRETTY_FUNCTION__];            
-        }
-        if (_src != nil) {
-          [NSException raise:NSInvalidArgumentException
-                      format:@"%s: If 'value' is specified, 'data', 'filename', and 'src' must be nil.",
-                                  __PRETTY_FUNCTION__];        
-        }
-      } else {
-        if (_src == nil) {
-          [NSException raise:NSInvalidArgumentException
-                      format:@"%s: One of 'filename', 'src', 'data', or 'value' must be specified.",
-                                  __PRETTY_FUNCTION__];        
-        }
-      }
-  }
-  if (_xAssoc != nil && _yAssoc != nil) {
-    if ((![_xAssoc isValueSettable]) || (![_yAssoc isValueSettable])) {
-          [NSException raise:NSInvalidArgumentException
-                      format:@"%s: 'x' and 'y' can not be constants.",
-                                  __PRETTY_FUNCTION__];            
-    }
-  } else
-  if (_xAssoc != nil || _yAssoc != nil) {
-          [NSException raise:NSInvalidArgumentException
-                      format:@"%s: 'x' and 'y' must both be specified or both be nil.",
-                                  __PRETTY_FUNCTION__];              
-  }
+      if (_action != nil)
+	{
+	  if (_actionClass != nil
+	      || _directActionName != nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: Neither 'directActionName' nor 'actionClass' should be specified if 'action' is specified.",
+			   __PRETTY_FUNCTION__];
+	    }
+	  if ([_action isValueConstant])
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: 'action' must be a setable value and not a contant.",
+			   __PRETTY_FUNCTION__];
+	    }
+	}
+      else if (_actionClass == nil
+	       && _directActionName == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Either a 'action' or a direct action must be specified.",
+		       __PRETTY_FUNCTION__];
+	}
 
-
+      if (_filename != nil)
+	{
+	  if (_src != nil
+	      || _data != nil
+	      || _value != nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: If 'filename' is specified, 'value', 'data', and 'src' must be nil.",
+			   __PRETTY_FUNCTION__];
+	    }
+	}
+      else
+	{
+	  if (_framework != nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: 'framework' should not be specified if 'filename' is nil.",
+			   __PRETTY_FUNCTION__];    
+	    }
+	  if (_data != nil)
+	    {
+	      if (_mimeType == nil)
+		{
+		  [NSException raise:NSInvalidArgumentException
+			       format:@"%s: 'mimeType' must be specified if 'data' is specified.",
+			       __PRETTY_FUNCTION__];    
+		}
+	      if (_src != nil
+		  || _value != nil)
+		{
+		  [NSException raise:NSInvalidArgumentException
+			       format:@"%s: If 'data' is specified, 'src', 'filename', and 'value' must be nil.",
+			       __PRETTY_FUNCTION__];    
+		}
+	    }
+	  else if (_value != nil)
+	    {
+	      if ([_value isValueConstant])
+		{
+		  [NSException raise:NSInvalidArgumentException
+			       format:@"%s: 'value' must not be constant.",
+			       __PRETTY_FUNCTION__];            
+		}
+	      if (_src != nil)
+		{
+		    [NSException raise:NSInvalidArgumentException
+				 format:@"%s: If 'value' is specified, 'data', 'filename', and 'src' must be nil.",
+				 __PRETTY_FUNCTION__];        
+		}
+	    }
+	  else if (_src == nil)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: One of 'filename', 'src', 'data', or 'value' must be specified.",
+			   __PRETTY_FUNCTION__];        
+	    }
+	}
+  
+      if (_xAssoc != nil && _yAssoc != nil)
+	{
+	  if (![_xAssoc isValueSettable]
+	      || ![_yAssoc isValueSettable])
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: 'x' and 'y' can not be constants.",
+			   __PRETTY_FUNCTION__];            
+	    }
+	}
+      else if (_xAssoc != nil
+	       || _yAssoc != nil)
+	{
+          [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'x' and 'y' must both be specified or both be nil.",
+		       __PRETTY_FUNCTION__];              
+	}
+    }
 
   return self;
 };
@@ -245,6 +220,7 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
+//--------------------------------------------------------------------
 -(NSString*)description
 {
   return [NSString stringWithFormat:@"<%s %p>",
@@ -252,6 +228,7 @@ RCS_ID("$Id$")
                    (void*)self];
 };
 
+//--------------------------------------------------------------------
 -(GSWAssociation*)hitTestX:(int)x
                          y:(int)y
                  inRegions:(NSArray*)regions
@@ -268,8 +245,6 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-
-//--------------------------------------------------------------------
 -(id)_imageURLInContext:(GSWContext*)aContext
 {
   [self notImplemented: _cmd];	//TODOFN
@@ -277,7 +252,6 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-
 -(void)_appendDirectActionToResponse:(GSWResponse*) response
                            inContext:(GSWContext*) context
 {
@@ -289,7 +263,6 @@ RCS_ID("$Id$")
 };
 
 //--------------------------------------------------------------------
-
 -(void)appendAttributesToResponse:(GSWResponse*) response
                         inContext:(GSWContext*) context
 {
@@ -305,76 +278,92 @@ RCS_ID("$Id$")
   [self appendURLAttributesToResponse:response
                             inContext:context];
 
-  if (! [self disabledInComponent: component]) {
-    GSWResponse_appendContentAsciiString(response, @" type=\"image\"");
-    NSString * nameCtx = [self nameInContext:context];
-    if (nameCtx != nil) {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, name__Key, nameCtx, YES);      
+  if (![self disabledInComponent: component])
+    {
+      GSWResponse_appendContentAsciiString(response, @" type=\"image\"");
+      NSString * nameCtx = [self nameInContext:context];
+      if (nameCtx != nil)
+	{
+	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
+									name__Key, 
+									nameCtx, 
+									YES);
+	}
     }
-  }
-  if (_value != nil) {
-    [context appendZeroElementIDComponent];
-    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, src__Key, [context componentActionURL], NO);          
-    [context deleteLastElementIDComponent];
-  } else {
-    if (_data != nil && _mimeType != nil) {
-      [GSWURLValuedElementData  _appendDataURLToResponse: response
-                        inContext: context
-                              key: _key
-                             data: _data
-                         mimeType: _mimeType
-                 urlAttributeName: src__Key
-                      inComponent: component];
-    } else {
-      if (_filename != nil) {
+  if (_value != nil)
+    {
+      BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
+      GSWContext_appendZeroElementIDComponent(context);
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
+								    src__Key, 
+								    [context _componentActionURLIsSecure:secure],
+								    NO);
+      GSWContext_deleteLastElementIDComponent(context);
+    }
+  else if (_data != nil
+	   && _mimeType != nil)
+    {
+      [GSWURLValuedElementData  _appendDataURLAttributeToResponse: response
+				inContext: context
+				key: _key
+				data: _data
+				mimeType: _mimeType
+				urlAttributeName: src__Key
+				inComponent: component];
+    }
+  else if (_filename != nil)
+    {      
+      [GSWImage _appendFilenameToResponse: response
+		inContext: context
+		framework: _framework
+		filename: _filename
+		width: _width 
+		height: _height];
       
-         [GSWImage _appendFilenameToResponse: response
-                                   inContext: context
-                                   framework: _framework
-                                    filename: _filename
-                                       width: _width 
-                                      height: _height];
-
-      } else {
-        NSString * srcValue = [_src valueInComponent:component];
-        if (srcValue == nil) {
+    }
+  else
+    {
+      NSString * srcValue = [_src valueInComponent:component];
+      if (srcValue == nil)
+	{
           srcValue = [resourcemanager errorMessageUrlForResourceNamed:@"/nil"
-                                                          inFramework:@"nil"];
-
-         NSLog(@"%s: 'src' (full url) evaluated to nil in component '%@'. Inserted error resource in html tag.",
+				      inFramework:@"nil"];
+	  
+	  NSLog(@"%s: 'src' (full url) evaluated to nil in component '%@'. Inserted error resource in html tag.",
                 __PRETTY_FUNCTION__, component);
         }
-        [response _appendTagAttribute:@"src"
-                                value:srcValue
-           escapingHTMLAttributeValue:NO];
-      }
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								    @"src",
+								    srcValue,
+								      NO);
     }
-  }
 }
 
-
+//--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*) response
               inContext:(GSWContext*) context
 {
   GSWComponent * component = GSWContext_component(context);
 
-  if ([self disabledInComponent: component]) {
+  if ([self disabledInComponent: component])
     GSWResponse_appendContentAsciiString(response,@"<img");
-  } else {
+  else
     GSWResponse_appendContentAsciiString(response,@"<input");
-  }
 
   [self appendAttributesToResponse:response 
                          inContext:context];
 
   GSWResponse_appendContentCharacter(response,'>');
 
-  if (_directActionName != nil || _actionClass != nil) {
-    GSWResponse_appendContentAsciiString(response,@"<input type=\"hidden\" name=\"GSWSubmitAction\" value=\"");
-    [self _appendDirectActionToResponse:response
+  if (_directActionName != nil
+      || _actionClass != nil)
+    {
+      GSWResponse_appendContentAsciiString(response,
+					   @"<input type=\"hidden\" name=\"GSWSubmitAction\" value=\"");
+      [self _appendDirectActionToResponse:response
                               inContext:context];
-    GSWResponse_appendContentCharacter(response,'>');
-  }
+      GSWResponse_appendContentCharacter(response,'>');
+    }
 };
 
 //--------------------------------------------------------------------
@@ -384,162 +373,169 @@ RCS_ID("$Id$")
   //Does nothing!
 };
 
-
-
-// todo: check if 100% compatible
 //--------------------------------------------------------------------
+// todo: check if 100% compatible
 -(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)request
                                     inContext:(GSWContext*)aContext
 {
-  id <GSWActionResults, NSObject>  element=nil;
+  NSObject <GSWActionResults>* element=nil;
+  GSWComponent* component=GSWContext_component(aContext);
+
   NSString* senderID=nil;
   NSString* elementID=nil;
   BOOL isInForm=NO;
   BOOL XYValues=NO;
   BOOL thisOne=NO;
-  GSWComponent* component=nil;
   NSInteger x=0;
   NSInteger y=0;
-  component=GSWContext_component(aContext);
+
   GSWContext_appendZeroElementIDComponent(aContext);
   senderID=GSWContext_senderID(aContext);
   elementID=GSWContext_elementID(aContext);
 
   if ([elementID isEqualToString:senderID])
     {
-      //TODO
-    };
-  GSWContext_deleteLastElementIDComponent(aContext);
-  if (! [self disabledInComponent: component])
-    {
-      isInForm=[aContext isInForm];
-      if (isInForm)
-        {
-          BOOL wasFormSubmitted=[aContext _wasFormSubmitted];
-          if (wasFormSubmitted)
-            {
-              NSString* nameInContext=[self nameInContext:aContext];
-              NSString* formValueX=[request formValueForKey:[nameInContext stringByAppendingString:@".x"]];
-              NSString* formValueY=[request formValueForKey:[nameInContext stringByAppendingString:@".y"]];
-
-              if (formValueX && formValueY)
-                {
-                  x=[formValueX intValue];
-                  y=[formValueY intValue];
-                  XYValues=YES;
-                  thisOne=YES;
-                }
-              else
-                {
-                  //TODO
-                  //thisOne=YES;//??
-                };
-            };
-        }
-      else
-        {
-          elementID=GSWContext_elementID(aContext);
-
-          if ([elementID isEqualToString:senderID])
-            {
-              id param=[request formValueForKey:GSWKey_IsmapCoords[GSWebNamingConv]];
-
-              if (param)
-                {
-                  if ([param ismapCoordx:&x
-                             y:&y])
-                    XYValues=YES;
-                  else
-                    {
-                      //TODO
-                    };
-                };
-              thisOne=YES;
-            };
-        };
-      if (thisOne)
-        {
-          GSWAssociation* actionAssociation=nil;
-          NSArray* regions=nil;
-          if (_imageMapFileName)
-          {
-            id imageMapFileNameValue=[_imageMapFileName valueInComponent:component];
-            NSString* imageMapFilePath;
-            
-            imageMapFilePath=[[GSWApp resourceManager] pathForResourceNamed:imageMapFileNameValue
-                                                                inFramework:nil
-                                                                  languages:[aContext languages]];                  
-            if (imageMapFilePath)
-              regions=[GSWGeometricRegion geometricRegionsWithFile:imageMapFilePath];
-            else
-            {
-              //NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
-            };
-          }
-          else if (!WOStrictFlag && _imageMapString)
-            {
-              id imageMapValue=[_imageMapString valueInComponent:component];
-              regions=[GSWGeometricRegion geometricRegionsWithString:imageMapValue];
-            }
-          else if (!WOStrictFlag && _imageMapRegions)
-            {
-              regions=[_imageMapRegions valueInComponent:component];
-            };
-          if (_xAssoc)
-            [_xAssoc setValue:GSWIntNumber(x)
-                     inComponent:component];
-          if (_yAssoc)
-            [_yAssoc setValue:GSWIntNumber(y)
-                     inComponent:component];
-	  
-          actionAssociation=[self hitTestX:x
-                                  y:y
-                                  inRegions:regions];
-          if (actionAssociation)
-            {
-              [aContext _setActionInvoked:YES];
-              element=[actionAssociation valueInComponent:component];
-
-              if (element && [element isKindOfClass:[GSWComponent class]])
-                {
-                  // call awakeInContext when _element is sleeping deeply
-                  [(GSWComponent*)element ensureAwakeInContext:aContext];
-                }
-            }
-          else
-            {
-              /*			  if (href)
-                                          {
-                                          [aContext _setActionInvoked:YES];
-                                          //TODO redirect to href
-                                          }
-                                          else*/ 
-              if (_action)
-                {
-                  [aContext _setActionInvoked:YES];
-                  element=[_action valueInComponent:component];
-                  
-                  if (element && [element isKindOfClass:[GSWComponent class]])
-                    {
-                      // call awakeInContext when _element is sleeping deeply
-                      [(GSWComponent*)element ensureAwakeInContext:aContext];
-                    }
-                }
-              else
-                {				
-//                  NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
-                };
-            };
-          if (!element)
-            element=[aContext page];
-        }
-      else
-          element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
-                                                                         inContext:aContext];
+      GSWContext_deleteLastElementIDComponent(aContext);
+      if (_value != nil)
+	element=[_value valueInComponent:component];
     }
   else
-      element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
-                                                                     inContext:aContext];
+    {
+      GSWContext_deleteLastElementIDComponent(aContext);
+      elementID=GSWContext_elementID(aContext);
+
+      if (![self disabledInComponent: component])
+	{
+	  isInForm=[aContext isInForm];
+	  if (isInForm)
+	    {
+	      BOOL wasFormSubmitted=[aContext _wasFormSubmitted];
+	      if (wasFormSubmitted)
+		{
+		  NSString* nameInContext=[self nameInContext:aContext];
+		  NSString* formValueX=[request formValueForKey:[nameInContext stringByAppendingString:@".x"]];
+		  NSString* formValueY=[request formValueForKey:[nameInContext stringByAppendingString:@".y"]];
+		  
+		  if (formValueX && formValueY)
+		    {
+		      x=[formValueX intValue];
+		      y=[formValueY intValue];
+		      XYValues=YES;
+		      thisOne=YES;
+		    }
+		  else
+		    {
+		      //TODO
+		      //thisOne=YES;//??
+		    };
+		};
+	    }
+	  else
+	    {
+	      elementID=GSWContext_elementID(aContext);
+	      
+	      if ([elementID isEqualToString:senderID])
+		{
+		  id param=[request formValueForKey:GSWKey_IsmapCoords[GSWebNamingConv]];
+		  
+		  if (param)
+		    {
+		      if ([param ismapCoordx:&x
+				 y:&y])
+			XYValues=YES;
+		      else
+			{
+			  //TODO
+			};
+		    };
+		  thisOne=YES;
+		};
+	    };
+	  if (thisOne)
+	    {
+	      GSWAssociation* actionAssociation=nil;
+	      NSArray* regions=nil;
+	      if (_imageMapFileName)
+		{
+		  id imageMapFileNameValue=[_imageMapFileName valueInComponent:component];
+		  NSString* imageMapFilePath;
+		  
+		  imageMapFilePath=[[GSWApp resourceManager] pathForResourceNamed:imageMapFileNameValue
+							     inFramework:nil
+							     languages:[aContext languages]];                  
+		  if (imageMapFilePath)
+		    regions=[GSWGeometricRegion geometricRegionsWithFile:imageMapFilePath];
+		  else
+		    {
+		      //NSDebugMLLog0(@"gswdync",@"GSWActiveImage No image Map.");
+		    };
+		}
+	      else if (!WOStrictFlag && _imageMapString)
+		{
+		  id imageMapValue=[_imageMapString valueInComponent:component];
+		  regions=[GSWGeometricRegion geometricRegionsWithString:imageMapValue];
+		}
+	      else if (!WOStrictFlag && _imageMapRegions)
+		{
+		  regions=[_imageMapRegions valueInComponent:component];
+		};
+	      if (_xAssoc)
+		[_xAssoc setValue:GSWIntNumber(x)
+			 inComponent:component];
+	      if (_yAssoc)
+		[_yAssoc setValue:GSWIntNumber(y)
+			 inComponent:component];
+	      
+	      actionAssociation=[self hitTestX:x
+				      y:y
+				      inRegions:regions];
+	      if (actionAssociation)
+		{
+		  [aContext _setActionInvoked:YES];
+		  element=[actionAssociation valueInComponent:component];
+		  
+		  if (element
+		      && [element isKindOfClass:[GSWComponent class]])
+		    {
+		      // call awakeInContext when _element is sleeping deeply
+		      [(GSWComponent*)element ensureAwakeInContext:aContext];
+		    }
+		}
+	      else
+		{
+		  /*			  if (href)
+		    {
+		    [aContext _setActionInvoked:YES];
+		    //TODO redirect to href
+		    }
+		    else*/ 
+		  if (_action)
+		    {
+		      [aContext _setActionInvoked:YES];
+		      element=[_action valueInComponent:component];
+		      
+		      if (element && [element isKindOfClass:[GSWComponent class]])
+			{
+			  // call awakeInContext when _element is sleeping deeply
+			  [(GSWComponent*)element ensureAwakeInContext:aContext];
+			}
+		    }
+		  else
+		    {				
+		      //NSDebugMLLog0(@"gswdync",@"GSWActiveImage Couldn't trigger action.");
+		    };
+		};
+	      if (!element)
+		element=[aContext page];
+	    }
+	  else
+	    element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
+							       inContext:aContext];
+	}
+      else
+	element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
+							   inContext:aContext];
+    }
   return element;
 };
 

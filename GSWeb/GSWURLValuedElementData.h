@@ -42,13 +42,13 @@
   BOOL _temporaryKey;
 };
 
-+ (void) _appendDataURLToResponse:(GSWResponse*) response
-                        inContext:(GSWContext*) context
-                              key:(GSWAssociation*) key
-                             data:(GSWAssociation*) data
-                         mimeType:(GSWAssociation*) mimeType
-                 urlAttributeName:(NSString *) urlAttribute    // @"src"
-                      inComponent:(GSWComponent*) component;
++ (void) _appendDataURLAttributeToResponse:(GSWResponse*) response
+				 inContext:(GSWContext*) context
+				       key:(GSWAssociation*) key
+				      data:(GSWAssociation*) data
+				  mimeType:(GSWAssociation*) mimeType
+			  urlAttributeName:(NSString *) urlAttribute    // @"src"
+			       inComponent:(GSWComponent*) component;
 
 -(id)initWithData:(NSData*)data
          mimeType:(NSString*)type

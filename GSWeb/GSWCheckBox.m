@@ -70,32 +70,29 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:@"input" associations:associations template: nil];
-  if (!self) {
-    return nil;
-  }
+  if ((self = [super initWithName:@"input"
+		     associations:associations
+		     template: nil]))
+    {
+      GSWAssignAndRemoveAssociation(&_checked,_associations,checked__Key);
+      GSWAssignAndRemoveAssociation(&_selection,_associations,selection__Key);
 
-  ASSIGN(_checked, [_associations objectForKey: checked__Key]);
-  if (_checked != nil) {
-    [_associations removeObjectForKey: checked__Key];
-  }
-
-  ASSIGN(_selection, [_associations objectForKey: selection__Key]);
-  if (_selection != nil) {
-    [_associations removeObjectForKey: selection__Key];
-  }
-
-  if (((_checked == nil) && (_value == nil)) || 
-      (((_checked != nil) && (_value != nil)) || ((_checked != nil) && (! [_checked isValueSettable])) || 
-      (((_value != nil) && (_selection != nil)) && (![_selection isValueSettable])))) {
-       [NSException raise:NSInvalidArgumentException
-                   format:@"%s: Bad attribute list.",
-                                  __PRETTY_FUNCTION__];
+      if ((_checked == nil && _value == nil)
+	  || ((_checked != nil && _value != nil) 
+	      || (_checked != nil && ![_checked isValueSettable])
+	      || ((_value != nil && _selection != nil) 
+		  && ![_selection isValueSettable])))
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Bad attribute list.",
+		       __PRETTY_FUNCTION__];
+	}
   }
 
   return self;
 };
 
+//--------------------------------------------------------------------
 - (NSString *) type
 {
   return @"checkbox";
@@ -117,79 +114,96 @@ static Class standardClass = Nil;
                    (void*)self];
 };
 
+//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*) request
                    inContext:(GSWContext*) context
 {
   GSWComponent * component = GSWContext_component(context);
-  id             valueValue = nil;
-  id             selectionValue = nil;
-  BOOL           isChecked = NO;
   
-  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
-    NSString * nameCtx = [self nameInContext:context];
-    if (nameCtx != nil) {
-      NSArray* formValues = [request formValuesForKey: nameCtx];
+  if (![self disabledInComponent: component]
+      && [context _wasFormSubmitted])
+    {
+      NSString * nameCtx = [self nameInContext:context];
+      if (nameCtx != nil)
+	{
+	  BOOL isChecked = NO;
+	  id value = nil;
+	  NSArray* formValues = [request formValuesForKey: nameCtx];
 
-      if (_value != nil) {
-        valueValue = [_value valueInComponent:component];
-      } else {
-        valueValue = [context elementID];
-      }
-      isChecked = [formValues containsObject: NSStringWithObject(valueValue)];
+	  if (_value != nil)
+	    value = [_value valueInComponent:component];
+	  else
+	    value = [context elementID];
+      
+	  isChecked = [formValues containsObject: NSStringWithObject(value)];
                     
-      if ((_value != nil) && (_selection != nil)) {
-        if (isChecked) {
-          [_selection setValue: valueValue
-                   inComponent: component];
-        } else {
-          selectionValue = [_selection valueInComponent:component];
-          if (selectionValue != nil) {
-            [_selection setValue: nil
-                   inComponent: component];;
-          }
-        }
-      }
-      if (_checked != nil) {
-        [_checked setValue: (isChecked ? GSWNumberYes : GSWNumberNo)
-               inComponent: component];
-
-      }
+	  if (_value != nil
+	      && _selection != nil)
+	    {
+	      if (isChecked)
+		{
+		  [_selection setValue: value
+			      inComponent: component];
+		}
+	      else
+		{
+		  id selection = [_selection valueInComponent:component];
+		  if (selection != nil)
+		    {
+		      [_selection setValue: nil
+				  inComponent: component];;
+		    }
+		}
+	    }
+	  if (_checked != nil)
+	    {
+	      [_checked setValue: (isChecked ? GSWNumberYes : GSWNumberNo)
+			inComponent: component];
+	    }
+	}
     }
-  }
 };
 
 
+//--------------------------------------------------------------------
 -(void) _appendCloseTagToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {
-// nothing!
+  // nothing!
 }
 
+//--------------------------------------------------------------------
 - (void) appendAttributesToResponse:(GSWResponse*)response
                 inContext:(GSWContext*)context
 {
   GSWComponent * component = GSWContext_component(context);
-  id             valueValue = nil;
-  id             selectionValue = nil;
 
   [super appendAttributesToResponse:response inContext:context];
 
-  if (_value != nil) {
-    valueValue = [_value valueInComponent:component];
-    if (valueValue != nil && _selection != nil) {
-      selectionValue = [_selection valueInComponent:component];
-      if ((selectionValue != nil) && [selectionValue isEqual: valueValue]) {
-        GSWResponse_appendContentCharacter(response,' ');
-        GSWResponse_appendContentAsciiString(response,@"checked");
-      }
+  if (_value != nil)
+    {
+      id value = [_value valueInComponent:component];
+      if (value != nil
+	  && _selection != nil)
+	{
+	  id selection = [_selection valueInComponent:component];
+
+	  if (selection != nil
+	      && [selection isEqual: value])
+	    {
+	      GSWResponse_appendContentAsciiString(response,@" checked");
+	    }
+	}
     }
-  } else { // _value == nil
-    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, [context elementID], NO);  
-  }
-  if ((_checked != nil) && [_checked boolValueInComponent:component]) {
-     GSWResponse_appendContentCharacter(response,' ');
-     GSWResponse_appendContentAsciiString(response,@"checked");
-  }
+  else
+    { // _value == nil
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, [context elementID], NO);  
+    }
+  if (_checked != nil
+      && [_checked boolValueInComponent:component])
+    {
+      GSWResponse_appendContentAsciiString(response,@" checked");
+    }
 }
 
 

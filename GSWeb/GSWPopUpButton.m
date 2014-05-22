@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 #include <GNUstepBase/NSString+GNUstepBase.h>
 
 /**
@@ -69,75 +70,44 @@ Bindings
 //====================================================================
 @implementation GSWPopUpButton
 
-static SEL objectAtIndexSEL = NULL;
-static SEL setValueInComponentSEL = NULL;
-static SEL valueInComponentSEL = NULL;
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWPopUpButton class])
-    {
-      objectAtIndexSEL=@selector(objectAtIndex:);
-      setValueInComponentSEL=@selector(setValue:inComponent:);
-      valueInComponentSEL=@selector(valueInComponent:);
-    };
-};
-
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {         
-  self = [super initWithName:@"select" associations:associations template: template];
-  if (!self) {
-    return nil;
-  }  
+  if ((self = [super initWithName:@"select"
+		     associations:associations
+		     template: template]))
+    {
+      _loggedSlow = NO;
+      GSWAssignAndRemoveAssociation(&_list,_associations,list__Key);
+      GSWAssignAndRemoveAssociation(&_item,_associations,item__Key);
+      GSWAssignAndRemoveAssociation(&_string,_associations,displayString__Key);
+      GSWAssignAndRemoveAssociation(&_selection,_associations,selection__Key);
+      GSWAssignAndRemoveAssociation(&_noSelectionString,_associations,noSelectionString__Key);
+      GSWAssignAndRemoveAssociation(&_selectedValue,_associations,selectedValue__Key);
 
-  _loggedSlow = NO;
-
-  ASSIGN(_list, [_associations objectForKey: list__Key]);
-  if (_list != nil) {
-    [_associations removeObjectForKey: list__Key];
-  }
-  ASSIGN(_item, [_associations objectForKey: item__Key]);
-  if (_item != nil) {
-    [_associations removeObjectForKey: item__Key];
-  }
-  ASSIGN(_string, [_associations objectForKey: displayString__Key]);
-  if (_string != nil) {
-    [_associations removeObjectForKey: displayString__Key];
-  }
-  ASSIGN(_selection, [_associations objectForKey: selection__Key]);
-  if (_selection != nil) {
-    [_associations removeObjectForKey: selection__Key];
-  }
-  ASSIGN(_noSelectionString, [_associations objectForKey: noSelectionString__Key]);
-  if (_noSelectionString != nil) {
-    [_associations removeObjectForKey: noSelectionString__Key];
-  }
-  ASSIGN(_selectedValue, [_associations objectForKey: selectedValue__Key]);
-  if (_selectedValue != nil) {
-    [_associations removeObjectForKey:selectedValue__Key];
-  }
-
-  if (((_list == nil)) || 
-      ((_value != nil) && ((_item == nil) && ([_item isValueSettable] == NO))) ||
-      (((_string != nil) || (_item != nil)) && (_item == nil)) ||
-      ((_selection != nil) && ([_selection isValueSettable] == NO))) {
-
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: 'list' must be present. 'item' must not be a constant if 'value' is present. Cannot have 'displayString' or 'value' without 'item'. 'selection' must not be a constant if present.",
-                              __PRETTY_FUNCTION__];  
-  }
-  if ((_selection != nil) && (_selectedValue != nil)) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Cannot have both selections and selectedValues.",
-                            __PRETTY_FUNCTION__];  
-  }
+      if (_list == nil
+	  || (_value != nil && (_item == nil && [_item isValueSettable] == NO)) 
+	  || ((_string != nil || _item != nil) && _item == nil)
+	  || (_selection != nil && [_selection isValueSettable] == NO))
+	{	  
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'list' must be present. 'item' must not be a constant if 'value' is present. Cannot have 'displayString' or 'value' without 'item'. 'selection' must not be a constant if present.",
+		       __PRETTY_FUNCTION__];  
+	}
+      if (_selection != nil
+	  && _selectedValue != nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Cannot have both selections and selectedValues.",
+		       __PRETTY_FUNCTION__];  
+	}
+    }
   return self;
 }
  
+//--------------------------------------------------------------------
 -(void) dealloc
 {
   DESTROY(_list);
@@ -150,6 +120,7 @@ static SEL valueInComponentSEL = NULL;
   [super dealloc];
 }
   
+//--------------------------------------------------------------------
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ string:%@ selections:%@ selectedValue:%@ NoSelectionString:%@ >",
@@ -158,6 +129,7 @@ static SEL valueInComponentSEL = NULL;
                    _list, _item, _string, _selection, _selectedValue, _noSelectionString];
 };
 
+//--------------------------------------------------------------------
 - (void)_slowTakeValuesFromRequest:(GSWRequest*) request
                          inContext:(GSWContext*) context
 {
@@ -179,13 +151,14 @@ static SEL valueInComponentSEL = NULL;
 	    {
 	      if ([list isKindOfClass:[NSArray class]])
 		{
-		  id item = nil;
-		  id value = nil;
 		  NSUInteger listCount = [list count];
 		  NSUInteger i = 0;
+		  IMP oaiIMP=NULL;
+
 		  for(i=0;i<listCount;i++)
 		    {
-		      item = [list objectAtIndex:i];
+		      id value = nil;
+		      id item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
 		      [_item setValue: item
 			     inComponent:component];
 		      value = [_value valueInComponent:component];
@@ -217,6 +190,7 @@ static SEL valueInComponentSEL = NULL;
     }
 }
 
+//--------------------------------------------------------------------
 - (void) _fastTakeValuesFromRequest:(GSWRequest*) request
                               inContext:(GSWContext*) context
 {
@@ -262,6 +236,7 @@ static SEL valueInComponentSEL = NULL;
     }
 }
 
+//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
@@ -283,11 +258,14 @@ static SEL valueInComponentSEL = NULL;
     }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendValueAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*) context
 {
+  //do nothing
 }
 
+//--------------------------------------------------------------------
 -(void) appendChildrenToResponse:(GSWResponse *) response
                        inContext:(GSWContext*) context
 {
@@ -340,6 +318,7 @@ static SEL valueInComponentSEL = NULL;
       NSString* selectedValueString = nil;
       id selection = nil;
       int i=0;
+      IMP oaiIMP=NULL;
 
       if (_selection != nil)
 	selection = [_selection valueInComponent:component];
@@ -354,7 +333,7 @@ static SEL valueInComponentSEL = NULL;
 	  BOOL isSelected = NO;
 
 	  if (list != nil)
-	    item = [list objectAtIndex:i];
+	    item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
 
 	  if (_string != nil
 	      || _value != nil)
@@ -388,13 +367,15 @@ static SEL valueInComponentSEL = NULL;
 	  
 	  if (_selection != nil)
 	    {
-	      isSelected = (selection == nil) ? NO : [selection isEqual:item];
+	      if (selection!=nil)
+		isSelected = [selection isEqual:item];
 	    }
 	  else if (_selectedValue != nil)
 	    {
 	      if (_value != nil)
 		{
-		  isSelected = (selectedValueString == nil) ? NO : [selectedValueString isEqual: valueString];
+		  if (selectedValueString)
+		    isSelected = [selectedValueString isEqual: valueString];
 		}
 	      else
 		{
@@ -431,7 +412,6 @@ static SEL valueInComponentSEL = NULL;
 	}
     }
 }
-
 
 @end
 

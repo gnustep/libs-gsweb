@@ -37,88 +37,76 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWActionURL
 
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)template
-{
-  id me = [super initWithName:name
-                 associations:associations
-                     template:template];
-  
-  return me;
-}
-
-
+//--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  id          fragment = nil;
-  NSString  * path = nil;
-  NSString  * url = nil;
-  
-  GSWComponent * component = [context component];
-  
-  if(_href != nil)
-  {
-    url = [_href valueInComponent:component];
-  }
-  
-  if(_directActionName != nil || _actionClass != nil)
-  {
-    [self _appendCGIActionURLToResponse:response
-                              inContext:context]; 
-  } else {
-    if(_action != nil || _pageName != nil)
+  if (_directActionName != nil
+     || _actionClass != nil)
     {
-      NSString * actionURL = [context componentActionURLIsSecure:[self secureInContext:context]];
-      [response appendContentString:actionURL];
-
-      [self _appendQueryStringToResponse:response
-                               inContext:context
-                      requestHandlerPath:nil
-                           htmlEscapeURL:NO];
-      
-      [self _appendFragmentToResponse: response inContext:context];
-    } else {
-      if(url != nil)
-      {        
-        if (([url isRelativeURL]) && (![url isFragmentURL]))
-        {
-          path = [context _urlForResourceNamed:url inFramework:nil];
-          if(path != nil)
-          {
-            GSWResponse_appendContentString(response,path);
-            
-          } else {
-            GSWResponse_appendContentAsciiString(response, [component baseURL]);
-            GSWResponse_appendContentCharacter(response,'/');
-            GSWResponse_appendContentString(response,url);
-          }
-        } else {
-          GSWResponse_appendContentString(response,url);
-        }
-        [self _appendQueryStringToResponse:response
-                                 inContext:context
-                        requestHandlerPath:nil
-                             htmlEscapeURL:NO];
-
-        [self _appendFragmentToResponse: response inContext:context];
-      } else {
-        if(_fragmentIdentifier != nil)
-        {
-          fragment = [_fragmentIdentifier valueInComponent:component];
-          if (fragment != nil) {
-//            NSLog(@"fragment is kind of class %@", NSStringFromClass([fragment class]));                  
-            GSWResponse_appendContentString(response,fragment);
-            [self _appendQueryStringToResponse:response
-                                     inContext: context
-                            requestHandlerPath:@""
-                                 htmlEscapeURL:NO];
-          }
-        }
-      }
+      [self _appendCGIActionURLToResponse:response
+	    inContext:context]; 
     }
-  }
+  else if (_action != nil 
+	  || _pageName != nil)
+    {
+      NSString * actionURL = [context _componentActionURLIsSecure:[self secureInContext:context]];
+      GSWResponse_appendContentString(response,actionURL);
+      
+      [self _appendQueryStringToResponse:response
+	    inContext:context
+	    requestHandlerPath:nil
+	    htmlEscapeURL:NO];
+      
+      [self _appendFragmentToResponse: response
+	    inContext:context];
+    }
+  else 
+    {
+      GSWComponent* component = [context component];
+    
+      NSString* url = NSStringWithObject([_href valueInComponent:component]);
+      if (url != nil)
+	{        
+	  if ([url isRelativeURL] 
+	      && ![url isFragmentURL])
+	    {
+	      NSString* path = [context _urlForResourceNamed:url
+					inFramework:nil];
+	      if(path != nil)
+		GSWResponse_appendContentString(response,path);
+	      else
+		{
+		  GSWResponse_appendContentAsciiString(response, [component baseURL]);
+		  GSWResponse_appendContentCharacter(response,'/');
+		  GSWResponse_appendContentString(response,url);
+		}
+	    }
+	  else
+	    {
+	      GSWResponse_appendContentString(response,url);
+	    }
+	  [self _appendQueryStringToResponse:response
+		inContext:context
+		requestHandlerPath:nil
+		htmlEscapeURL:NO];
+	  
+	  [self _appendFragmentToResponse: response
+		inContext:context];
+	}
+      else if(_fragmentIdentifier != nil)
+        {
+          NSString* fragment = [_fragmentIdentifier valueInComponent:component];
+          if (fragment != nil)
+	    {
+	      GSWResponse_appendContentString(response,NSStringWithObject(fragment));
+	      [self _appendQueryStringToResponse:response
+		    inContext: context
+		    requestHandlerPath:@""
+		    htmlEscapeURL:NO];
+	    }
+        }
+    }
 }
 
 

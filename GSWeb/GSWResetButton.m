@@ -38,25 +38,22 @@ RCS_ID("$Id$")
 
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-  contentElements:(NSArray*)elements
+	 template:(GSWElement*)template
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-
-  [tmpAssociations setObject:[GSWAssociation associationWithValue:@"reset"]
-                   forKey:@"type"];
-
-  if (![tmpAssociations objectForKey:value__Key])
-    [tmpAssociations setObject:[GSWAssociation associationWithValue:@"reset"]
-                     forKey:value__Key];
-  
-  if ((self=[super initWithName:aName
-                   associations:tmpAssociations
+  if ((self=[super initWithName:@"input"
+                   associations:associations
                    contentElements:nil]))
     {
     };
 
   return self;
 };
+
+//--------------------------------------------------------------------
+- (NSString*) type
+{
+  return @"reset";
+}
 
 //--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
@@ -66,5 +63,11 @@ RCS_ID("$Id$")
   GSWAssertCorrectElementID(context);
   //Does Nothing and don't call its parent GSWInput !
 };
+
+//--------------------------------------------------------------------
+-(void) _appendCloseTagToResponse:(GSWResponse *) response
+                         inContext:(GSWContext*) context
+{
+}
 
 @end

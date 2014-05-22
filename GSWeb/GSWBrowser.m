@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 /**
 Bindings
@@ -65,87 +66,48 @@ Bindings
 //====================================================================
 @implementation GSWBrowser
 
-static SEL objectAtIndexSEL = NULL;
-static SEL setValueInComponentSEL = NULL;
-static SEL valueInComponentSEL = NULL;
-
 //--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWBrowser class])
-    {
-      objectAtIndexSEL=@selector(objectAtIndex:);
-      setValueInComponentSEL=@selector(setValue:inComponent:);
-      valueInComponentSEL=@selector(valueInComponent:);
-    };
-};
-
-//--------------------------------------------------------------------
-
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {         
-  self = [super initWithName:@"select" associations:associations template: template];
-  if (!self) {
-    return nil;
-  }  
+  if ((self = [super initWithName:@"select"
+		     associations:associations
+		     template: template]))
+    {
+      _loggedSlow = NO;
 
-  _loggedSlow = NO;
+      GSWAssignAndRemoveAssociation(&_list,_associations,list__Key);
+      GSWAssignAndRemoveAssociation(&_item,_associations,item__Key);
+      GSWAssignAndRemoveAssociation(&_displayString,_associations,displayString__Key);
+      GSWAssignAndRemoveAssociation(&_selections,_associations,selections__Key);
+      GSWAssignAndRemoveAssociation(&_multiple,_associations,multiple__Key);
+      GSWAssignAndRemoveAssociation(&_size,_associations,size__Key);
+      GSWAssignAndRemoveAssociation(&_selectedValues,_associations,selectedValues__Key);
+      GSWAssignAndRemoveAssociation(&_escapeHTML,_associations,escapeHTML__Key);
 
-  ASSIGN(_list, [_associations objectForKey: list__Key]);
-  if (_list != nil) {
-    [_associations removeObjectForKey: list__Key];
-  }
-  ASSIGN(_item, [_associations objectForKey: item__Key]);
-  if (_item != nil) {
-    [_associations removeObjectForKey: item__Key];
-  }
-  ASSIGN(_displayString, [_associations objectForKey: displayString__Key]);
-  if (_displayString != nil) {
-    [_associations removeObjectForKey: displayString__Key];
-  }
-  ASSIGN(_selections, [_associations objectForKey: selections__Key]);
-  if (_selections != nil) {
-    [_associations removeObjectForKey: selections__Key];
-  }
-  ASSIGN(_multiple, [_associations objectForKey: multiple__Key]);
-  if (_multiple != nil) {
-    [_associations removeObjectForKey: multiple__Key];
-  }
-  ASSIGN(_size, [_associations objectForKey: size__Key]);
-  if (_size != nil) {
-    [_associations removeObjectForKey: size__Key];
-  }
-  ASSIGN(_selectedValues, [_associations objectForKey: selectedValues__Key]);
-  if (_selectedValues != nil) {
-    [_associations removeObjectForKey: selectedValues__Key];
-  }
-  ASSIGN(_escapeHTML, [_associations objectForKey: escapeHTML__Key]);
-  if (_escapeHTML != nil) {
-    [_associations removeObjectForKey: escapeHTML__Key];
-  }
-  
-  if ((_list == nil) || ((_value != nil || _displayString != nil) && 
-        (((_item == nil) || (![_item isValueSettable])))) || 
-        ((_selections != nil) && (![_selections isValueSettable]))) {
-
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'list' must be present. 'item' must not be a constant if 'value' is present.  Cannot have 'displayString' or 'value' without 'item'.  'selection' must not be a constant if present.",
-                            __PRETTY_FUNCTION__];  
-  }
-  if ((_selections != nil) && (_selectedValues != nil)) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Cannot have both selections and selectedValues.",
-                            __PRETTY_FUNCTION__];  
-  }
+      if (_list == nil || ((_value != nil || _displayString != nil) && 
+        ((_item == nil || ![_item isValueSettable]))) || 
+	  (_selections != nil && ![_selections isValueSettable]))
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'list' must be present. 'item' must not be a constant if 'value' is present.  Cannot have 'displayString' or 'value' without 'item'.  'selection' must not be a constant if present.",
+		       __PRETTY_FUNCTION__];  
+	}
+      if (_selections != nil
+	  && _selectedValues != nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Cannot have both selections and selectedValues.",
+		       __PRETTY_FUNCTION__];  
+	}
+    }
   return self;
 }
 
-
+//--------------------------------------------------------------------
 -(void)dealloc
 {
-
   DESTROY(_list);
   DESTROY(_item);
   DESTROY(_displayString);
@@ -158,6 +120,7 @@ static SEL valueInComponentSEL = NULL;
 };
 
 
+//--------------------------------------------------------------------
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ displayString:%@ selections:%@ selectedValues:%@ multiple:%@ size:%@ escapeHTML:%@>",
@@ -169,6 +132,7 @@ static SEL valueInComponentSEL = NULL;
 
 
 
+//--------------------------------------------------------------------
 /*
  On WO it looks like that when value is not bound:
 
@@ -185,112 +149,134 @@ static SEL valueInComponentSEL = NULL;
 -(void) appendChildrenToResponse:(GSWResponse *) response
                        inContext:(GSWContext*) context
 {
-  NSArray           * valueArray  = nil;
-  NSArray           * selectionsArray  = nil;
-  int                 listCount   = 0;
-  BOOL                isSelected  = NO;
-  id                  compoValue  = nil;
-  int                 i           = 0;
-  NSString          * valueValue  = nil;
-  NSString          * s1          = nil;
-  id arrayObj = nil;
-  
   GSWComponent * component = GSWContext_component(context);
   BOOL doEscape = YES;
-  
-  if (_escapeHTML != nil) {
+  NSArray* list = nil;
+  NSUInteger listCount = 0;
+  NSArray* selections = nil;
+  int i = 0;
+  IMP oaiIMP=NULL;
+
+  if (_escapeHTML != nil) 
     doEscape = [_escapeHTML boolValueInComponent:component];
-  }
-  compoValue = [_list valueInComponent:component];
-  if (compoValue != nil) {
-    if ([compoValue isKindOfClass:[NSArray class]]) {
-      valueArray = compoValue;
-      listCount = [valueArray count];
-    } else {
-      [NSException raise:NSInvalidArgumentException
-                  format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
-                           __PRETTY_FUNCTION__, [compoValue class]];      
-    }
-  }
 
-  if (_selections != nil) {
-    selectionsArray = [_selections valueInComponent:component];
-  } else {
-    if (_selectedValues != nil) {
-      selectionsArray = [_selectedValues valueInComponent:component];
+  list = [_list valueInComponent:component];
+  if (list != nil)
+    {
+      if ([list isKindOfClass:[NSArray class]])
+	{
+	  listCount = [list count];
+	}
+      else
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+		       __PRETTY_FUNCTION__, [list class]];      
+	}
     }
-  }
 
-  for (i = 0; i < listCount; i++) {
-    valueValue = nil;
-    s1 = nil;
-    arrayObj = nil;
-    if (valueArray != nil) {
-      arrayObj = [valueArray objectAtIndex:i];
-    }
-    if ((_displayString != nil) || (_value != nil)) {
-      [_item setValue:arrayObj inComponent:component];
-      if (_displayString != nil) {
-        id obj5 = [_displayString valueInComponent:component];
-        if (obj5 != nil) {
-          s1 = obj5;   // stringValue??
-          if (_value != nil) {
-            id obj7 = [_value valueInComponent:component];
-            if (obj7 != nil) {
-              valueValue = obj7;  // stringValue?
-            }
-          } else {
-            valueValue = s1;
-          }
-        }
-      } else {
-        id obj6 = [_value valueInComponent:component];
-        if (obj6 != nil) {
-          valueValue = obj6; // stringValue?
-          s1 = valueValue;
-        }
-      }
-    } else {
-      s1 = arrayObj; // stringValue?
-      valueValue = s1;
-    }
-    GSWResponse_appendContentAsciiString(response,@"\n<option");
-    if (selectionsArray != nil) {
-      isSelected = (arrayObj == nil) ? NO : [selectionsArray containsObject:arrayObj];
-    } else {
-        if (_value != nil) {
-          isSelected = compoValue == nil ? NO : [compoValue isEqual: valueValue];
-        } else {
-          isSelected = [GSWIntToNSString(i) isEqual:compoValue];
-        }
-    }
-    if (isSelected) {
-      GSWResponse_appendContentCharacter(response,' ');
-      GSWResponse_appendContentAsciiString(response,@"selected");
-    }
-    if (_value != nil) {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, valueValue, YES);
+  if (_selections != nil)
+    selections = [_selections valueInComponent:component];
+  else if (_selectedValues != nil)
+    selections = [_selectedValues valueInComponent:component];
+
+  for (i = 0; i < listCount; i++)
+    {
+      NSString* displayString=nil;
+      id item = nil;
+      BOOL isSelected=NO;
+      NSString* valueString = nil;
+      id value = nil;
+
+      if (list != nil)
+	item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
       
-    } else {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, GSWIntToNSString(i), NO);
-    }
-    GSWResponse_appendContentCharacter(response,'>');
-    if (doEscape) {
-      GSWResponse_appendContentHTMLConvertString(response, s1);
-    } else {
-      GSWResponse_appendContentString(response, s1);
-    }
-    GSWResponse_appendContentAsciiString(response,@"</option>");
-  }
+      if (_displayString != nil
+	  || _value != nil)
+	{
+	  [_item setValue:item
+		 inComponent:component];
 
+	  if (_displayString != nil)
+	    {
+	      displayString = [_displayString valueInComponent:component];
+	      if (displayString!=nil)
+		{
+		  if (_value != nil)
+		    {
+		      value = [_value valueInComponent:component];
+		      valueString = NSStringWithObject(value);
+		    }
+		  else
+		    {
+		      value = displayString;
+		      valueString = NSStringWithObject(displayString);
+		    }
+		  displayString=NSStringWithObject(displayString);
+		}
+	    }
+	  else
+	    {
+	      value = [_value valueInComponent:component];
+	      if (value != nil)
+		{
+		  valueString=NSStringWithObject(value);
+		  displayString = valueString;
+		}
+	    }
+	}
+      else
+	{
+	  value = item;
+	  valueString = NSStringWithObject(item);
+	  displayString = valueString;
+	}
+
+      GSWResponse_appendContentAsciiString(response,@"\n<option");
+      if (_selections != nil)
+	{
+	  if (item
+	      && selections)
+	    isSelected = [selections containsObject:item];
+	}
+      else
+	{
+	  if (_value != nil)
+	    {
+	      if (item
+		  && selections)
+		isSelected = [selections containsObject:value];
+	    }
+	  else
+	    isSelected = [selections containsObject:GSWIntToNSString(i)];
+	}
+      if (isSelected)
+	GSWResponse_appendContentAsciiString(response,@" selected");
+
+      if (_value != nil)
+	GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, valueString, YES);
+      else
+	GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, GSWIntToNSString(i), NO);
+    
+      GSWResponse_appendContentCharacter(response,'>');
+      if (doEscape)
+	GSWResponse_appendContentHTMLConvertString(response, displayString);
+      else
+	GSWResponse_appendContentString(response, displayString);
+    
+      GSWResponse_appendContentAsciiString(response,@"</option>");
+    }
 }
 
 
+//--------------------------------------------------------------------
 -(void) _appendValueAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*) context
 {
+  //Do nothing
 }
 
+//--------------------------------------------------------------------
 -(void) appendAttributesToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {
@@ -301,139 +287,191 @@ static SEL valueInComponentSEL = NULL;
   [super appendAttributesToResponse:response 
                           inContext:context];
 
+  if (_size != nil)
+    {
+      sizeValue = [_size valueInComponent:component];
+      sizeInt   = [sizeValue intValue];
+      sizeValue = GSWIntToNSString(sizeInt);
+    }
 
-  if (_size != nil) {
-    sizeValue = [_size valueInComponent:component];
-    sizeInt   = [sizeValue intValue];
-    sizeValue = GSWIntToNSString(sizeInt);
-  }
-
-  if (_size == nil || sizeValue == nil || (sizeInt < 2)) {
-    sizeValue = GSWIntToNSString(5);
-  }
+  if (_size == nil
+      || sizeValue == nil
+      || sizeInt < 2)
+    {
+      sizeValue = GSWIntToNSString(5);
+    }
 
   GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, size__Key, sizeValue, NO);
 
-  if (_multiple != nil && ([_multiple boolValueInComponent:component])) {
-    GSWResponse_appendContentCharacter(response,' ');
-    GSWResponse_appendContentAsciiString(response,@"multiple");
-  }
+  if (_multiple != nil
+      && [_multiple boolValueInComponent:component])
+    {
+      GSWResponse_appendContentAsciiString(response,@" multiple");
+    }
 }
 
+//--------------------------------------------------------------------
 - (void)_slowTakeValuesFromRequest:(GSWRequest*) request
                          inContext:(GSWContext*) context
 {
   GSWComponent * component = GSWContext_component(context);
 
-  if ((_selections != nil) && (![self disabledInComponent:component]) && ([context _wasFormSubmitted])) {
+  if (_selections != nil
+      && ![self disabledInComponent:component]
+      && [context _wasFormSubmitted])
+    {      
+      NSString       * ctxName    = [self nameInContext:context];
+      NSArray        * formValues = [request formValuesForKey: ctxName];
+      NSArray        * selections = nil;
+      
+      if (formValues != nil)
+	{
+	  NSUInteger formValuesCount = [formValues count];
 
-    NSString       * ctxName         = [self nameInContext:context];
-    NSArray        * formValues      = [request formValuesForKey: ctxName];
-    NSArray        * listValue       = nil;
-    BOOL             multipe         = NO;
-    int              count           = 0;    
-    NSMutableArray * mutArray        = [NSMutableArray array];
-    
-    if (formValues != nil) {
-      int      i = 0;    
-
-      count      = [formValues count];
-
-      if (count) {
-        if (_multiple != nil) {
-          multipe = [_multiple boolValueInComponent:component];
-        }
+	  if (formValuesCount>0)
+	    {
+	      if (_list != nil)
+		{
+		  NSArray* list = [_list valueInComponent:component];
+		  if ([list isKindOfClass:[NSArray class]] == NO)
+		    {
+		      [NSException raise:NSInvalidArgumentException
+				   format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+				   __PRETTY_FUNCTION__, [list class]];  
+		    }
+		  else
+		    {
+		      NSUInteger listCount = [list count];
+		      int i=0;
+		      IMP oaiIMP=NULL;
+		      BOOL multiple = NO;
+		      if (_multiple != nil)
+			multiple = [_multiple boolValueInComponent:component];
        
-        if (_list != nil) {
-            listValue = [_list valueInComponent:component];
-            if ([listValue isKindOfClass:[NSArray class]] == NO) {
-              [NSException raise:NSInvalidArgumentException
-                          format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
-                                  __PRETTY_FUNCTION__, [listValue class]];  
-            }
-  
-          for (i = 0; i < count; i++) {
-            id valueValue = nil;
-            id obj1       = [listValue objectAtIndex:i];
-  
-            [_item setValue:obj1 inComponent: component];
-  
-            valueValue = [_value valueInComponent:component];
-            if (valueValue != nil) {
-              if (![formValues containsObject:NSStringWithObject(valueValue)]) {
-                continue;
-              }
-              [mutArray addObject:obj1];
-              if (!multipe) {
-                break;
-              }
-            } else {
-              NSLog(@"%s: 'value' evaluated to null in component %@, %@",
-                           __PRETTY_FUNCTION__, component, self);
-            }
-          }     // for
-        }       // _list != nil
-      }
+		      for (i = 0; i < listCount; i++)
+			{
+			  id value = nil;
+			  id item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+			  
+			  [_item setValue:item
+				 inComponent: component];
+			  
+			  value = [_value valueInComponent:component];
+			  if (value != nil) 
+			    {
+			      if ([formValues containsObject:NSStringWithObject(value)])
+				{
+				  if (selections==nil)
+				    selections=[NSMutableArray array];
+				  [(NSMutableArray*)selections addObject:item];
+				  if (!multiple)
+				    break;
+				}
+			    }
+			  else
+			    {
+			      NSLog(@"%s: 'value' evaluated to null in component %@, %@",
+				    __PRETTY_FUNCTION__, component, self);
+			    }
+			}
+		    }
+		}
+	    }
+	}
+      if (selections==nil)
+	selections = [NSArray array];
+      [_selections setValue:selections
+		   inComponent: component];
     }
-    [_selections setValue:mutArray inComponent: component];
-  }
 }
 
 
+//--------------------------------------------------------------------
 - (void) _fastTakeValuesFromRequest:(GSWRequest*) request
                           inContext:(GSWContext*) context
 {
   GSWComponent * component = GSWContext_component(context);
 
-  if ((_selections != nil) && (![self disabledInComponent:component]) && ([context _wasFormSubmitted])) {
-    NSString       * ctxName         = [self nameInContext:context];
-    NSArray        * formValues      = [request formValuesForKey: ctxName];
-    NSArray        * listValue       = nil;
-    int              count           = 0;    
-    int              i               = 0;    
-    NSMutableArray * mutArray        = nil;
-
-    if (formValues != nil) {
-      count    = [formValues count];
-      mutArray = [NSMutableArray arrayWithCapacity:count];
+  if (_selections != nil
+      && ![self disabledInComponent:component]
+      && [context _wasFormSubmitted])
+    {
+      NSString       * ctxName         = [self nameInContext:context];
+      NSArray        * formValues      = [request formValuesForKey: ctxName];
+      NSArray        * selections      = nil;
       
-      if ((_list != nil) && (count > 0)) {
-          listValue = [_list valueInComponent:component];
-          if ([listValue isKindOfClass:[NSArray class]] == NO) {
-            [NSException raise:NSInvalidArgumentException
-                        format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
-                                __PRETTY_FUNCTION__, [listValue class]];  
-          }
-      }
-      
-       for (i = 0; i < count; i++) {
-          id s1 = (NSString*) [formValues objectAtIndex:i];
-          int k = [s1 intValue];
-          if (listValue != nil) {
-            id valueValue = [listValue objectAtIndex:k];
-            [mutArray addObject:valueValue];
-          } 
-       }
-           
-       [_selections setValue:mutArray inComponent: component];
+      if (formValues != nil)
+	{
+	  int formValuesCount = [formValues count];
+	  if (formValuesCount>0)
+	    {
+	      NSArray* list = nil;
 
+	      if (_list != nil)
+		{
+		  list = [_list valueInComponent:component];
+		  if ([list isKindOfClass:[NSArray class]] == NO)
+		    {
+		      [NSException raise:NSInvalidArgumentException
+				   format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+				   __PRETTY_FUNCTION__, [list class]];  
+		    }
+		  else
+		    {
+		      IMP formValues_oaiIMP=NULL;
+		      IMP list_oaiIMP=NULL;
+		      int i=0;
+		      BOOL multiple = NO;
+		      if (_multiple != nil)
+			multiple = [_multiple boolValueInComponent:component];
+
+		      for (i = 0; i < formValuesCount; i++)
+			{
+			  NSString* formValue = GSWeb_objectAtIndexWithImpPtr(formValues,&formValues_oaiIMP,i);
+			  int intFormValue = [formValue intValue];
+			  if (list != nil)
+			    {
+			      id item = GSWeb_objectAtIndexWithImpPtr(list,&list_oaiIMP,intFormValue);
+			      if (selections==nil)
+				selections=[NSMutableArray array];
+			      [(NSMutableArray*)selections addObject:item];
+			    } 
+			  if (!multiple)
+			    break;
+			}
+		    }
+		}
+	    }
+	}
+
+      if (selections==nil)
+	selections = [NSArray array];
+
+      [_selections setValue:selections
+		   inComponent: component];
     }
-  }
 }
 
+//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  if (_value != nil) {
-    if (!_loggedSlow) {
-      NSLog(@"%s Warning: Avoid using the 'value' binding as it is much slower than omitting it, and it is just cosmetic.",
-            __PRETTY_FUNCTION__);
-      _loggedSlow = YES;
+  if (_value != nil)
+    {
+      if (!_loggedSlow)
+	{
+	  NSLog(@"%s Warning: Avoid using the 'value' binding as it is much slower than omitting it, and it is just cosmetic.",
+		__PRETTY_FUNCTION__);
+	  _loggedSlow = YES;
+	}
+      [self _slowTakeValuesFromRequest:request
+	    inContext:context];
+    } 
+  else
+    {
+      [self _fastTakeValuesFromRequest:request 
+	    inContext:context];
     }
-    [self _slowTakeValuesFromRequest:request inContext:context];
-  } else {
-    [self _fastTakeValuesFromRequest:request inContext:context];
-  }
 }
 
 

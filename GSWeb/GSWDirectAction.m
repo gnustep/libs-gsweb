@@ -33,24 +33,10 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 //====================================================================
 @implementation GSWDirectAction
-
-//--------------------------------------------------------------------
--(id)initWithRequest:(GSWRequest*)aRequest
-{
-  if ((self=[super initWithRequest:aRequest]))
-    {
-    };
-  return self;
-};
-
-//--------------------------------------------------------------------
--(void)dealloc
-{
-  [super dealloc];
-};
 
 //--------------------------------------------------------------------
 -(id <GSWActionResults>)performActionNamed:(NSString*)actionName
@@ -120,10 +106,11 @@ RCS_ID("$Id$")
     {
       NSUInteger count=[keyArray count];
       NSUInteger i=0;
+      IMP oaiIMP=NULL;
       
       for(i=0;i<count;i++)
         {
-          NSString* key=[keyArray objectAtIndex:i];
+          NSString* key=GSWeb_objectAtIndexWithImpPtr(keyArray,&oaiIMP,i);
           NSArray* v=[request formValuesForKey:key];
           [self setValue:v
                 forKey:key];
@@ -139,10 +126,11 @@ RCS_ID("$Id$")
     {
       NSUInteger count=[keyArray count];
       NSUInteger i=0;
+      IMP oaiIMP=NULL;
       
       for(i=0;i<count;i++)
         {
-          NSString* key=[keyArray objectAtIndex:i];
+          NSString* key=GSWeb_objectAtIndexWithImpPtr(keyArray,&oaiIMP,i);
           id v=[request formValueForKey:key];
           [self setValue:v
                 forKey:key];

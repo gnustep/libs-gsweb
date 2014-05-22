@@ -135,6 +135,12 @@ GSWEB_EXPORT BOOL SBIsEqual(id id1,id id2);
 GSWEB_EXPORT BOOL SBIsValueEqual(id id1,id id2);
 GSWEB_EXPORT BOOL SBIsValueIsIn(id id1,id id2);
 
+//returns YES if v is a NSNumber class and evaluate to YES
+GSWEB_EXPORT BOOL GSWIsBoolNumberYes(id v);
+
+//returns YES if v is a NSNumber class and evaluate to NO
+GSWEB_EXPORT BOOL GSWIsBoolNumberNo(id v);
+
 GSWEB_EXPORT NSTimeInterval NSTimeIntervalFromTimeVal(struct timeval* tv);
 GSWEB_EXPORT void NSTimeIntervalSleep(NSTimeInterval ti);
 

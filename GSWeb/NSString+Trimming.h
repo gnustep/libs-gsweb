@@ -90,4 +90,6 @@
 -(void)removeQuote:(NSString*)quote;
 @end
 
+GSWEB_EXPORT NSString* GSWJoinedStrings(int stringsCount,NSString* s1,...);
+
 #endif //_NSString_Trimming_h__

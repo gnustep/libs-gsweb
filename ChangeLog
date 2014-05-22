@@ -1,3 +1,165 @@
+2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWUtils.m
+	  fix rangeOfData:range:
+	* GSWExtensions/GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.gswd
+	  set framework binding
+	* GSWExtensions/GSWCollapsibleComponentContent.[hm]
+	  handle framework binding
+	* GSWExtensions/GSWPageRestorationErrorPage.gswc/GSWPageRestorationErrorPage.gswd
+	  set framework binding
+	* GSWExtensions/GSWSessionCreationErrorPage.gswc/GSWSessionCreationErrorPage.gswd
+	  set framework binding
+	* GSWExtensions/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.gswd
+	  set framework binding
+	* GSWeb/GSWApplication.[hm]
+	  add -frameworkNameGSWExtensions
+	* GSWeb/GSWPasswordField.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	* GSWeb/GSWPasswordField.h
+	  remove unneeded declarations
+	* GSWeb/GSWHiddenField.m
+	  fix
+	* GSWeb/GSWHiddenField.h
+	  remove unneeded declarations
+	* GSWeb/GSWString.m
+	  fix appendToResponse:inContext: when formattedValue is nil
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	* GSWeb/GSWTemplateParser.m:
+	  fix exception error messages
+	* GSWeb/GSWPopUpButton.m	
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  clean code
+	* GSWeb/GSWRepetition.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  reimplement startIndex and stopIndex bindings
+	  clean code
+	* GSWeb/GSWCheckBoxList.m
+	  fix -initWithName:...: prefix__Key duplicate, _value
+	* GSWeb.framework/GSWRadioButtonList.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  Fix bug in -initWithName (valueAssoc)
+	  Fix bug in _slowTakeValuesFromRequest: (call NSStringWithObject())
+	* GSWeb/GSWTextField.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  Fix bug (call NSStringWithObject())
+	* GSWeb/GSWText.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  clean code
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  Fix bug (call NSStringWithObject())
+	* GSWeb/GSWCheckBox.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  clean code
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	* GSWeb/GSWRadioButton.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  clean code
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	* GSWeb.framework/GSWInput.h
+	  remove  initWithName:associations:contentElements:
+	* GSWeb.framework/GSWInput.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  ensure name is a string in -nameInContext:
+	  fix name escaping in -_appendNameAttributeToResponse:
+	  ensure value is a string in _appendValueAttributeToResponse:
+	  remove initWithName:associations:contentElements:
+	* GSWeb/GSWHTMLDynamicElement.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  ensure string conversion in -_finishInitialization
+	  rename variables to make code understandable
+	* GSWeb/GSWConditional.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	* GSWeb/GSWActionImage.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  fix secure stuff
+	  ensure string conversion
+	* GSWeb/GSWActionURL.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  ensure string conversion
+	* GSWeb/GSWBody.h
+	  remove uneeded declarations
+	* GSWeb/GSWBody.m
+	  remove uneeded stuff
+	  fix initWithName:...
+	* GSWeb.framework/GSWBrowser.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  clean code
+	  rename variables to make code understandable
+	  Fix bugs
+	* GSWeb.framework/GSWFileUpload.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	* GSWeb/GSWFrame.h
+	  remove uneeded declarations
+	* GSWeb/GSWFrame.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  clean code
+	* GSWeb/GSWGenericContainer.h
+	  remove uneeded declarations
+	  change inheritence
+	* GSWeb/GSWGenericContainer.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  clean code
+	* GSWeb/GSWGenericElement.h
+	  remove uneeded declarations
+	  change inheritence
+	* GSWeb/GSWGenericElement.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  clean code
+	* GSWeb/GSWForm.h
+	  remove uneeded declarations
+	* GSWeb/GSWForm.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  clean code
+	  ensure string conversion
+	* GSWeb/GSWHTMLURLValuedElement.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  clean code
+	  ensure string conversion
+	  finish appendAttributesToResponse:inContext implementation
+	* GSWeb/GSWHyperlink.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  clean code
+	  ensure string conversion
+	* GSWeb/GSWImage.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  clean code
+	* GSWeb/GSWClientSideScript.h
+	  remove uneeded declarations
+	  change inheritence
+	  add -setLanguage	  
+	* GSWeb/GSWJavaScript.m
+	  clean and update code
+	* GSWeb/GSWSubmitButton.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	  clean code
+	* GSWeb/GSWImageButton.m
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  use GSWAssignAndRemoveAssociation() in initWithName:associations:template:
+	* GSWeb/GSWSwitchComponent.m
+	  clean and update code
+	* GSWeb/GSWJavaScript.m
+	  clean and update code
+	* GSWeb/GSWContext.m
+	  clean & fix -computeQueryDictionaryWithPath:queryDictionary:otherQueryDictionary:
+	  fix componentActionURL... methods	  
+	* GSWeb/GSWHTTPIO.m:	
+	  use GSWeb_appendStringWithImpPtr()
+	* GSWeb/GSWActionURL.h
+	  remove uneeded declarations
+	* GSWeb/GSWPrivate.h
+	  add GSWeb_objectAtIndexWithImpPtr
+	* GSWDatabase/WODisplayGroup.m
+	  Don't raise validation exceptions in _qualifierForKey:value:operatorSelector:
 2014-05-06  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWCheckBoxList.m
 	  fix appendToResponse:inContext:

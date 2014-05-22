@@ -54,20 +54,10 @@ SEL evaluateConditionInContextSEL = NULL;
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  id ourid = [super init];
-  
-  if (ourid) {
-     return ourid;
-  }
-  DESTROY(self);
-  
-  return nil;
-}
-
-//--------------------------------------------------------------------
--(void)dealloc
-{
-  [super dealloc];
+  if ((self=[super init]))
+    {  
+    }  
+  return self;
 }
 
 //--------------------------------------------------------------------

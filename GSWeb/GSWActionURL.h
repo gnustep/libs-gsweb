@@ -33,10 +33,6 @@
 	#define _GSWActionURL_h__
 
 @interface GSWActionURL: GSWHyperlink
--(id)initWithName:(NSString*)name
-     associations:(NSDictionary*)associations
-         template:(GSWElement*)template;
-
 @end
 
 #endif // _GSWActionURL_h__

@@ -46,144 +46,68 @@ static Class GSWHTMLBareStringClass = Nil;
     };
 };
 
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)templateElement
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-
-  _elementName = [[associations objectForKey:elementName__Key
-                           withDefaultObject:[_elementName autorelease]] retain];
-
-  _otherTagString = [[associations objectForKey:otherTagString__Key
-                         withDefaultObject:[_otherTagString autorelease]] retain];
-
-  [tmpAssociations removeObjectForKey:elementName__Key];
-  [tmpAssociations removeObjectForKey:otherTagString__Key];
-
-  if (!WOStrictFlag)
-    {
-      _omitElement = [[associations objectForKey:omitElement__Key
-                                    withDefaultObject:[_omitElement autorelease]] retain];
-
-      [tmpAssociations removeObjectForKey:omitElement__Key];
-    };
-
-
   if ((self=[super initWithName:aName
-                   associations:tmpAssociations
+                   associations:associations
                    template:templateElement]))
     {
-      if ([tmpAssociations count]>0)
-        ASSIGN(_associations,tmpAssociations);
-      ASSIGN(_element,templateElement);
     };
   return self;
 };
 
 //--------------------------------------------------------------------
--(void)dealloc
-{
-  DESTROY(_elementName);
-  DESTROY(_otherTagString);
-  DESTROY(_omitElement);
-  DESTROY(_associations);
-  DESTROY(_element);
-  [super dealloc];
-};
-
-//--------------------------------------------------------------------
--(NSString*)description
-{
-  //TODOFN
-  return [super description];
-};
-
-//--------------------------------------------------------------------
-
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
-{
-  NSEnumerator *assocEnumer=nil;
-  id currentAssocKey=nil;
-  id component = GSWContext_component(aContext);
-  id theValue=nil;
-  id otherTag = nil;
-  id tag = nil;
-  BOOL omitElement = NO;
-
-  if (!WOStrictFlag && _omitElement)
-    {
-      omitElement=[self evaluateCondition:_omitElement
-                        inContext:aContext
-                        noConditionAssociationDefault:NO
-                        noConditionDefault:NO];
-    };
-
-  if (!omitElement)
-    {
-      tag = [_elementName valueInComponent:component];
-      
-      GSWResponse_appendContentCharacter(aResponse,'<');
-      GSWResponse_appendContentString(aResponse,tag);
-      
-      if ((otherTag = [_otherTagString valueInComponent:component])) 
-        {
-          GSWResponse_appendContentCharacter(aResponse,' ');
-          GSWResponse_appendContentString(aResponse,otherTag);
-        }
-    
-      assocEnumer = [_associations keyEnumerator];
-      while ((currentAssocKey = [assocEnumer nextObject])) 
-        {
-          theValue = NSStringWithObject([[_associations objectForKey:currentAssocKey] 
-                                          valueInComponent:component]);
-
-          GSWResponse_appendContentCharacter(aResponse,' ');
-          GSWResponse_appendContentString(aResponse,currentAssocKey);
-          GSWResponse_appendContentAsciiString(aResponse,@"=\"");
-          GSWResponse_appendContentString(aResponse,theValue);
-          GSWResponse_appendContentCharacter(aResponse,'"');
-        }
-
-      GSWResponse_appendContentCharacter(aResponse,'>');
-    };
-  
-  [_element appendToResponse:aResponse
-            inContext:aContext];
-
-  if (!omitElement)
-    {
-      GSWResponse_appendContentAsciiString(aResponse,@"</");
-      GSWResponse_appendContentString(aResponse,tag);
-      GSWResponse_appendContentCharacter(aResponse,'>');
-    };
-};
-
-//--------------------------------------------------------------------
-
--(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
-                                    inContext:(GSWContext*)aContext
-{
-    
-    if ([_element class] != GSWHTMLBareStringClass) {
-        
-        return [_element invokeActionForRequest:aRequest
-                                      inContext:aContext];
-    }
-    return nil;
-}
-
-//--------------------------------------------------------------------
-
 -(void)takeValuesFromRequest:(GSWRequest*)aRequest
                    inContext:(GSWContext*)aContext
 {
-  [_element takeValuesFromRequest:aRequest 
-	    inContext:aContext];
-};
+  //Call super and next children because it inherit from GSWGenericElement
+  [super takeValuesFromRequest:aRequest
+	 inContext:aContext];
+  [self takeChildrenValuesFromRequest:aRequest
+	inContext:aContext];
+}
 
-//-------------------------------------------------------------------- 
+//--------------------------------------------------------------------
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*)aRequest
+				     inContext:(GSWContext*)aContext
+{
+  //Call super and next children because it inherit from GSWGenericElement
+  id <GSWActionResults> actionResult = [super invokeActionForRequest:aRequest
+					      inContext:aContext];
+  if (actionResult == nil)
+    {    
+      actionResult = [self invokeChildrenActionForRequest:aRequest
+			   inContext:aContext];
+    }
+  return actionResult;
+}
+
+//--------------------------------------------------------------------
+-(void)appendToResponse:(GSWResponse*)aResponse
+              inContext:(GSWContext*)aContext
+{
+  //Call super and next children because it inherit from GSWGenericElement
+  NSString* elementName = nil;
+  [super appendToResponse:aResponse
+	 inContext:aContext];
+
+  //get elementName after super appendToResponse:inContext: because GSWGenericElement set elementName in it !
+  elementName = [self elementName];
+
+  [self appendChildrenToResponse:aResponse
+	inContext:aContext];
+
+  if (elementName != nil)
+    {
+      GSWResponse_appendContentCharacter(aResponse,'<');
+      GSWResponse_appendContentCharacter(aResponse,'/');
+      GSWResponse_appendContentString(aResponse,elementName);
+      GSWResponse_appendContentCharacter(aResponse,'>');
+    }
+}
 
 @end
 

@@ -36,43 +36,52 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWPasswordField
 
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:@"input" associations:associations template: template];
-  if (!self) {
-    return nil;
-  }
-
-  if ((_value == nil) || (![_value isValueSettable])) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'value' attribute not present or is a constant",
-                            __PRETTY_FUNCTION__];
-  }
+  if ((self = [super initWithName:@"input"
+		     associations:associations
+		     template: nil]))
+    {
+      if (_value == nil
+	  || ![_value isValueSettable])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'value' attribute not present or is a constant",
+		       __PRETTY_FUNCTION__];
+	}
+    }
 
   return self;
 }
 
+//--------------------------------------------------------------------
 - (NSString*) type
 {
   return @"password";
 }
 
+//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
   GSWComponent * component = GSWContext_component(context);
-  if ((![self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
-    NSString * nameCtx = [self nameInContext:context];
-    if (nameCtx != nil) {
-      NSString* value = [request stringFormValueForKey: nameCtx];
-      [_value setValue: value
-           inComponent:component];
+  if (![self disabledInComponent: component]
+      && [context _wasFormSubmitted])
+    {
+      NSString * nameCtx = [self nameInContext:context];
+      if (nameCtx != nil)
+	{
+	  NSString* value = [request stringFormValueForKey: nameCtx];
+	  [_value setValue: value
+		  inComponent:component];
+	}
     }
-  }
 }
 
+//--------------------------------------------------------------------
 -(void) _appendCloseTagToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {

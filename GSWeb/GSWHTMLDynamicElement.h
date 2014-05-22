@@ -39,7 +39,7 @@
 //====================================================================
 @interface GSWHTMLDynamicElement: GSWDynamicGroup
 {
-  NSString            * _elementName;
+  NSString            * _dynElementName;
   NSMutableDictionary * _nonURLAttributeAssociations;
   NSMutableDictionary * _urlAttributeAssociations;
   NSString            * _constantAttributesRepresentation;

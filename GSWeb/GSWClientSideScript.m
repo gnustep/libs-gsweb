@@ -56,36 +56,33 @@ static Class standardClass = Nil;
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
-         template:(GSWElement*)templateElement
+         template:(GSWElement*)template
 {
-  NSMutableDictionary* tmpAssociations=[NSMutableDictionary dictionaryWithDictionary:associations];
-
-  [tmpAssociations removeObjectForKey:scriptFile__Key];
-  [tmpAssociations removeObjectForKey:scriptString__Key];
-  [tmpAssociations removeObjectForKey:scriptSource__Key];
-  [tmpAssociations removeObjectForKey:hideInComment__Key];
-  [tmpAssociations removeObjectForKey:language__Key];
-  _otherAttributes=[NSDictionary dictionaryWithDictionary:tmpAssociations];
-  RETAIN(_otherAttributes);
-  if ((self=[super initWithName:aName
+  if ((self=[super initWithName:@"SCRIPT"
                    associations:nil
-                   template:templateElement]))
+                   template:nil]))
     {
-      _scriptFile = [[associations objectForKey:scriptFile__Key
-                                   withDefaultObject:[_scriptFile autorelease]] retain];
-
-      _scriptString = [[associations objectForKey:scriptString__Key
-                                     withDefaultObject:[_scriptString autorelease]] retain];
-
-      _scriptSource = [[associations objectForKey:scriptSource__Key
-                                     withDefaultObject:[_scriptSource autorelease]] retain];
-
-      _hideInComment = [[associations objectForKey:hideInComment__Key
-                                      withDefaultObject:[_hideInComment autorelease]] retain];
-
-      _language = [[associations objectForKey:language__Key
-                                 withDefaultObject:[_language autorelease]] retain];
-
+      GSWAssignAndRemoveAssociation(&_scriptFile,_associations,scriptFile__Key);
+      GSWAssignAndRemoveAssociation(&_scriptString,_associations,scriptString__Key);
+      GSWAssignAndRemoveAssociation(&_scriptSource,_associations,scriptSource__Key);
+      GSWAssignAndRemoveAssociation(&_language,_associations,language__Key);
+      GSWAssignAndRemoveAssociation(&_hideInComment,_associations,hideInComment__Key);
+      if (_scriptFile == nil
+	  && _scriptString == nil
+	  && _scriptSource == nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: one of 'scriptFile' or 'scriptString' or 'scriptSource' attributes must be specified.",
+		       __PRETTY_FUNCTION__];
+	}
+      else if (_scriptFile != nil
+	       && _scriptString != nil
+	       && _scriptFile != nil)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Only one of 'scriptFile' or 'scriptString' or 'scriptSource' attributes can specified.",
+		       __PRETTY_FUNCTION__];
+	}
     };
   return self;
 };
@@ -98,141 +95,140 @@ static Class standardClass = Nil;
   DESTROY(_scriptSource);
   DESTROY(_hideInComment);
   DESTROY(_language);
-  DESTROY(_otherAttributes);
   [super dealloc];
 };
 
 //--------------------------------------------------------------------
-
-@end
-
-//====================================================================
-@implementation GSWClientSideScript (GSWClientSideScriptA)
--(void)appendToResponse:(GSWResponse*)aResponse
-              inContext:(GSWContext*)aContext
+-(void)setLanguage:(NSString*)language
 {
-    GSWComponent* component=nil;
-    BOOL hideInCommentValue=NO;
-    id languageValue=nil;
-    id scriptValue=nil;
-    
-    GSWStartElement(aContext);
-    GSWSaveAppendToResponseElementID(aContext);
-    component=GSWContext_component(aContext);
-    [super appendToResponse:aResponse
-                  inContext:aContext];
-    //hideInCommentValue=[_hideInComment valueInComponent:component];
-    hideInCommentValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                                standardEvaluateConditionInContextIMP,
-                                                                _hideInComment,aContext);
-    GSWResponse_appendContentAsciiString(aResponse,@"<SCRIPT language=");
-    languageValue=[_language valueInComponent:component];
-    
-    GSWResponse_appendContentHTMLAttributeValue(aResponse,languageValue);
-    if ([_otherAttributes count]>0)
-    {
-        NSEnumerator* enumerator = [_otherAttributes keyEnumerator];
-        id key;
-        id value;
-        while ((key = [enumerator nextObject]))
-        {
-            value=[_otherAttributes objectForKey:key];
-            GSWResponse_appendContentCharacter(aResponse,' ');
-            GSWResponse_appendContentString(aResponse,key);
-            if (value)
-            {
-                GSWResponse_appendContentCharacter(aResponse,'=');
-                GSWResponse_appendContentHTMLAttributeValue(aResponse,value);
-            };
-        };
-    };
-    if (_scriptSource)
-    {
-        scriptValue=[_scriptSource valueInComponent:component];
-        if (scriptValue)
-        {
-            GSWResponse_appendContentString(aResponse,@" src=\"");
-            GSWResponse_appendContentString(aResponse,scriptValue);
-            GSWResponse_appendContentCharacter(aResponse,'"');
-        };
-    }
-    GSWResponse_appendContentCharacter(aResponse,'>');
-    if (_scriptString || _scriptFile)
-    {
-        GSWResponse_appendContentCharacter(aResponse,'\n');
-        if (hideInCommentValue)
-            GSWResponse_appendContentAsciiString(aResponse,@"<!-- GNUstepWeb ClientScript\n");
-        
-        if (_scriptString)
-        {
-            scriptValue=[_scriptString valueInComponent:component];
-            if (scriptValue)
-                GSWResponse_appendContentString(aResponse,scriptValue);
-            else
-            {
-                //TODO
-            };
-        }
-        else if (_scriptFile)
-        {
-            NSString* scriptFileName=[_scriptFile valueInComponent:component];
-            if (scriptFileName)
-            {
-                NSError            * error = nil;
-                GSWResourceManager * resourceManager = nil;
-                NSString           * path = nil;
-
-                resourceManager=[GSWApp resourceManager];
-                path=[resourceManager pathForResourceNamed:scriptFileName
-                                               inFramework:nil
-                                                 languages:[aContext languages]];
-                if (path)
-                {
-                    NSString           * scriptValue = nil;
-                    NSStringEncoding   usedEncoding;
-                    
-                    scriptValue = [NSString stringWithContentsOfFile:path
-                                                        usedEncoding:&usedEncoding
-                                                               error:&error];
-                    if (scriptValue)
-                    {
-                        GSWResponse_appendContentString(aResponse,scriptValue);
-                    }
-                    else
-                    {
-                        //TODO
-                    }
-                }
-                else
-                {
-                    NSException* exception=nil;
-                    exception=[NSException exceptionWithName:NSInvalidArgumentException
-                                                      reason:[NSString stringWithFormat:
-                                                              @"Can't open script file '%@' - %@",
-                                                              scriptFileName, error]
-                                                    userInfo:nil];
-                    [exception raise];
-                };
-            }
-            else
-            {
-                NSException* exception=nil;
-                exception=[NSException exceptionWithName:NSInvalidArgumentException
-                                                  reason:[NSString stringWithFormat:
-                                                          @"No script file name"]
-                                                userInfo:nil];
-                [exception raise];
-            };
-        };
-        
-        GSWResponse_appendContentCharacter(aResponse,'\n');
-        if (hideInCommentValue)
-            GSWResponse_appendContentAsciiString(aResponse,@"//-->\n");
-    };
-    GSWResponse_appendContentAsciiString(aResponse,@"</SCRIPT>");
-    GSWStopElement(aContext);
-};
+  if (language!=nil)
+    ASSIGN(_language,([GSWAssociation associationWithValue:language]));
+}
 
 //--------------------------------------------------------------------
+-(void)appendAttributesToResponse:(GSWResponse *) aResponse
+			inContext:(GSWContext*) aContext
+{
+  GSWComponent * component = GSWContext_component(aContext);
+
+  NSString* language=[_language valueInComponent:component];
+  if (language == nil)
+    {
+      [NSException raise:NSInternalInconsistencyException
+		   format:@"%s: language binding evaluated to nil",
+		   __PRETTY_FUNCTION__];
+    }
+  GSWResponse_appendContentAsciiString(aResponse,@" language=");
+  GSWResponse_appendContentHTMLAttributeValue(aResponse,NSStringWithObject(language));
+
+  if (_scriptSource != nil)
+    {
+      NSString* url=NSStringWithObject([_scriptSource valueInComponent:component]);
+      if (url != nil)
+	{
+	  if ([url isRelativeURL])
+	    {
+	      if ([url isFragmentURL])
+		{
+		  NSLog(@"%s warning: relative fragment URL %@",__PRETTY_FUNCTION__,url);
+		}
+	      else
+		{
+		  NSString* tmp = [aContext _urlForResourceNamed:url
+					    inFramework:nil];//and 3rd param: YES
+		  if (tmp != nil)
+		    url = tmp;
+		  else		    
+		    url = [[[component baseURL] 
+			     stringByAppendingString:@"/"]
+			    stringByAppendingString:tmp];
+		} 
+	    }
+	  if (url != nil)
+	    {
+	      GSWResponse_appendContentAsciiString(aResponse,@" src=\"");
+	      GSWResponse_appendContentString(aResponse,url);
+	      GSWResponse_appendContentCharacter(aResponse,'"');
+	    }
+	}
+    }
+  [super appendAttributesToResponse:aResponse
+	 inContext:aContext];
+}
+
+//--------------------------------------------------------------------
+-(void)appendChildrenToResponse:(GSWResponse *) aResponse
+			inContext:(GSWContext*) aContext
+{
+  if(_scriptSource == nil)
+    {
+      NSString* scriptContent = nil;
+      BOOL hideInComment = NO;
+      GSWComponent * component = GSWContext_component(aContext);
+
+      if (_hideInComment != nil
+	 && [_hideInComment boolValueInComponent:component])
+	hideInComment = YES;
+
+      if (hideInComment)
+	GSWResponse_appendContentAsciiString(aResponse,@"<!-- Dynamic client side script from GNUstepWeb");
+
+      GSWResponse_appendContentCharacter(aResponse,'\n');
+
+      if(_scriptFile != nil)
+	{
+	  NSString* scriptFile = NSStringWithObject([_scriptFile valueInComponent:component]);
+	  if (scriptFile == nil)
+	    {
+	      [NSException raise:NSInternalInconsistencyException
+			   format:@"%s: scriptFile evaluate to nil",
+			   __PRETTY_FUNCTION__];
+	    }
+	  else
+	    {
+	      NSString* scriptPath = [[GSWApp resourceManager] pathForResourceNamed:scriptFile
+							       inFramework:nil
+							       languages:[aContext languages]];
+	      if (scriptPath == nil)
+		{
+		  [NSException raise:NSInternalInconsistencyException
+			       format:@"%s: cannot find script file '%@'",
+			       __PRETTY_FUNCTION__,scriptFile];
+		}
+	      else
+                {
+		  NSStringEncoding usedEncoding;
+		  NSString* error=nil;
+		  NSString* scriptContent = [NSString stringWithContentsOfFile:scriptPath
+						      usedEncoding:&usedEncoding
+						      error:&error];
+		  if (scriptContent == nil)
+                    {
+		      [NSException raise:NSInternalInconsistencyException
+				   format:@"%s: cannot load script at path '%@': %@",
+				   __PRETTY_FUNCTION__,scriptPath,error];
+		    }
+		}
+	    }
+	}
+      else if (_scriptString != nil)
+	{
+	  scriptContent = NSStringWithObject([_scriptString valueInComponent:component]);
+	  if(scriptContent == nil)
+	    {
+	      [NSException raise:NSInternalInconsistencyException
+			   format:@"%s: scriptString evaluate to nil",
+			   __PRETTY_FUNCTION__];
+	    };
+	}
+
+      GSWResponse_appendContentString(aResponse,scriptContent);
+      GSWResponse_appendContentCharacter(aResponse,'\n');
+
+      if(hideInComment)
+	GSWResponse_appendContentAsciiString(aResponse,@"//-->\n");
+    }
+}
+
 @end
 

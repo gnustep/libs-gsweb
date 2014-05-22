@@ -36,42 +36,51 @@ RCS_ID("$Id$")
 //====================================================================
 @implementation GSWSubmitButton
 
+static GSWAssociation* static_defaultValueAssociation = nil;
+
+//--------------------------------------------------------------------
++ (void) initialize
+{
+  if (self == [GSWSubmitButton class])
+    {
+      if (!static_defaultValueAssociation)
+	{
+	  ASSIGN(static_defaultValueAssociation,([GSWAssociation associationWithValue:@"Submit"]));
+	}
+    }
+}
+
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  self = [super initWithName:@"input" associations:associations template: nil];
-  if (!self) {
-    return nil;
-  }  
-  if (_value == nil) {
-    ASSIGN(_value, [[[GSWConstantValueAssociation alloc]initWithValue:@"Submit"] autorelease]);
-  }
-  ASSIGN(_action, [_associations objectForKey: action__Key]);
-  if (_action != nil) {
-    [_associations removeObjectForKey: action__Key];
-  }
-  ASSIGN(_actionClass, [_associations objectForKey: actionClass__Key]);
-  if (_actionClass != nil) {
-    [_associations removeObjectForKey: actionClass__Key];
-  }
-  ASSIGN(_directActionName, [_associations objectForKey: directActionName__Key]);
-  if (_directActionName != nil) {
-    [_associations removeObjectForKey: directActionName__Key];
-  }
+  if ((self = [super initWithName:@"input"
+		     associations:associations
+		     template: nil]))
+    {
+      if (_value == nil)
+	ASSIGN(_value,static_defaultValueAssociation);
   
-  if ((_action != nil) && ([_action isValueConstant])) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'action' attribute is a constant",
-                            __PRETTY_FUNCTION__];  
-  }
-  if (((_action != nil) && (_directActionName != nil)) || ((_action != nil) && (_actionClass != nil))) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Either 'action' and 'directActionName' both exist, or 'action' and 'actionClass' both exist",
-                            __PRETTY_FUNCTION__];    
-  }
-
+      GSWAssignAndRemoveAssociation(&_action,_associations,action__Key);
+      GSWAssignAndRemoveAssociation(&_actionClass,_associations,actionClass__Key);
+      GSWAssignAndRemoveAssociation(&_directActionName,_associations,directActionName__Key);
+  
+      if (_action != nil
+	  && [_action isValueConstant])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'action' attribute is a constant",
+		       __PRETTY_FUNCTION__];  
+	}
+      if ((_action != nil && _directActionName != nil) 
+	  || (_action != nil && _actionClass != nil))
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Either 'action' and 'directActionName' both exist, or 'action' and 'actionClass' both exist",
+		       __PRETTY_FUNCTION__];    
+	}
+    }
   return self;
 };
 
@@ -84,11 +93,13 @@ RCS_ID("$Id$")
   [super dealloc];
 };
 
+//--------------------------------------------------------------------
 - (NSString*) type
 {
   return @"submit";
 }
 
+//--------------------------------------------------------------------
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p action: %@ actionClass: %@ directActionName:%@ disabled:%@ >",
@@ -105,78 +116,95 @@ RCS_ID("$Id$")
   //Does Nothing!
 }
 
+//--------------------------------------------------------------------
 -(GSWElement*)invokeActionForRequest:(GSWRequest*) request
                            inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
   id actionValue=nil;
 
   NS_DURING
-  if ((! [self disabledInComponent: component]) && ([context _wasFormSubmitted])) {
-    if ([context _isMultipleSubmitForm]) {    
-      if ([request formValueForKey:[self nameInContext:context]] != nil) {
-        [context _setActionInvoked:YES];
-        if (_action != nil) {
-          actionValue = [_action valueInComponent:component];
-        }
-        if (actionValue == nil) {
-          actionValue = [context page];
-        }
-      }
-    } else {
-      [context _setActionInvoked:YES];
-      if (_action != nil) {
-         actionValue = [_action valueInComponent:component];
-      }
-      if (actionValue == nil) {
-        actionValue = [context page];
-      }
+    {
+      GSWComponent * component = GSWContext_component(context);
+      if (! [self disabledInComponent: component]
+	  && [context _wasFormSubmitted])
+	{
+	  if ([context _isMultipleSubmitForm])
+	    {
+	      if ([request formValueForKey:[self nameInContext:context]] != nil)
+		{
+		  [context _setActionInvoked:YES];
+		  if (_action != nil)
+		    actionValue = [_action valueInComponent:component];
+		  
+		  if (actionValue == nil)
+		    actionValue = [context page];
+		}
+	    }
+	  else
+	    {
+	      [context _setActionInvoked:YES];
+	      if (_action != nil)
+		actionValue = [_action valueInComponent:component];
+	      
+	      if (actionValue == nil)
+		actionValue = [context page];
+	    }
+	}
     }
-  }
   NS_HANDLER
-   localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
-                                                              @"In GSWSubmitButton invokeActionForRequest:inContext");
-   [localException raise];
+    {
+      localException=ExceptionByAddingUserInfoObjectFrameInfo(localException,
+							      @"In GSWSubmitButton invokeActionForRequest:inContext");
+      [localException raise];
+    }
   NS_ENDHANDLER
-
   return actionValue;
 }
 
+//--------------------------------------------------------------------
 // PRIVATE used within dynamic elements
 - (NSString*) _actionClassAndNameInContext:(GSWContext*) context
 {
-  NSString * s = [self computeActionStringWithActionClassAssociation: _actionClass
-                              directActionNameAssociation: _directActionName
-                                                inContext: context];
-  
-  return s; 
+  return [self computeActionStringWithActionClassAssociation: _actionClass
+	       directActionNameAssociation: _directActionName
+	       inContext: context];
 }
 
+//--------------------------------------------------------------------
 - (void) _appendNameAttributeToResponse:(GSWResponse*)response
                               inContext:(GSWContext*)context
 {
-  if ((_directActionName != nil) || (_actionClass != nil)) {
-    [response _appendTagAttribute: name__Key
-                            value: [self _actionClassAndNameInContext:context]
-       escapingHTMLAttributeValue: NO];  
-  } else {
-    [super _appendNameAttributeToResponse:response
-                              inContext: context];
-  }
+  if (_directActionName != nil
+      || _actionClass != nil)
+    {
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								    name__Key,
+								    [self _actionClassAndNameInContext:context],
+								    NO);
+    }
+  else
+    {
+      [super _appendNameAttributeToResponse:response
+	     inContext: context];
+    }
 }
 
+//--------------------------------------------------------------------
 - (void) appendToResponse:(GSWResponse*)response
                 inContext:(GSWContext*)context
 {
   [super appendToResponse:response inContext:context];
 
-  if ((_directActionName != nil) || (_actionClass != nil)) {
-    GSWResponse_appendContentAsciiString(response,@"<input type=\"hidden\" name=\"WOSubmitAction\"");
-    [response _appendTagAttribute: value__Key
-                            value: [self _actionClassAndNameInContext:context]
-       escapingHTMLAttributeValue: NO];  
-    GSWResponse_appendContentCharacter(response,'>');
-  }
+  if (_directActionName != nil
+      || _actionClass != nil)
+    {
+      GSWResponse_appendContentAsciiString(response,@"<input type=\"hidden\" name=\"WOSubmitAction\"");
+      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+								    value__Key,
+								    [self _actionClassAndNameInContext:context],
+								    NO);
+      GSWResponse_appendContentCharacter(response,'>');
+    }
 }
 
 -(void) _appendCloseTagToResponse:(GSWResponse *) response

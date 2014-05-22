@@ -32,6 +32,7 @@
 RCS_ID("$Id$")
 
 #include "GSWeb.h"
+#include "GSWPrivate.h"
 
 /**
 Bindings
@@ -81,80 +82,44 @@ static Class standardClass = Nil;
     }
 }
 
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {         
-  GSWAssociation * valueAssoc = nil;
+  if ((self = [super initWithName:aName
+		     associations:associations
+		     template: template]))
+    {
+      _loggedSlow = NO;
 
-  self = [super initWithName:aName associations:associations template: template];
-  if (!self) {
-    return nil;
-  }  
-
-  _loggedSlow = NO;
-
-  ASSIGN(_suffix, [_associations objectForKey: suffix__Key]);
-  if (_suffix != nil) {
-    [_associations removeObjectForKey: suffix__Key];
-  }
-
-
-  ASSIGN(_index, [_associations objectForKey: index__Key]);
-  if (_index != nil) {
-    [_associations removeObjectForKey: index__Key];
-  }
-
-  ASSIGN(_list, [_associations objectForKey: list__Key]);
-  if (_list != nil) {
-    [_associations removeObjectForKey: list__Key];
-  }
-
-  ASSIGN(_item, [_associations objectForKey: item__Key]);
-  if (_item != nil) {
-    [_associations removeObjectForKey: item__Key];
-  }
-
-  ASSIGN(_selection, [_associations objectForKey: selection__Key]);
-  if (_selection != nil) {
-    [_associations removeObjectForKey: item__Key];
-  }
-
-  ASSIGN(_prefix, [_associations objectForKey: prefix__Key]);
-  if (_prefix != nil) {
-    [_associations removeObjectForKey: prefix__Key];
-  }
-
-  ASSIGN(_displayString, [_associations objectForKey: displayString__Key]);
-  if (_displayString != nil) {
-    [_associations removeObjectForKey: displayString__Key];
-  }
-
-  ASSIGN(_escapeHTML, [_associations objectForKey: escapeHTML__Key]);
-  if (_escapeHTML != nil) {
-    [_associations removeObjectForKey: escapeHTML__Key];
-  }
-
-  if ((valueAssoc = [_associations objectForKey: value__Key])) {
-        [_associations removeObjectForKey: value__Key];
-  }
-  
-  if (_displayString == nil)
-  {
-    ASSIGN(_displayString, valueAssoc);
-    _defaultEscapeHTML = NO;
-  } else {
-    _defaultEscapeHTML = YES;
-  }
-  if ((((_list == nil) || (_displayString != nil || _value != nil)) &&
-     ((_item == nil) || (![_item isValueSettable]))) ||
-     ((_selection != nil) && (![_selection isValueSettable])))
-  {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: 'list' must be present. 'item' must not be a constant if 'displayString' or 'value' is present.  'selections' must not be a constant if present.",
-                            __PRETTY_FUNCTION__];      
-  } 
-  
+      GSWAssignAndRemoveAssociation(&_suffix,_associations,suffix__Key);
+      GSWAssignAndRemoveAssociation(&_index,_associations,index__Key);
+      GSWAssignAndRemoveAssociation(&_list,_associations,list__Key);
+      GSWAssignAndRemoveAssociation(&_item,_associations,item__Key);
+      GSWAssignAndRemoveAssociation(&_selection,_associations,selection__Key);
+      GSWAssignAndRemoveAssociation(&_prefix,_associations,prefix__Key);
+      GSWAssignAndRemoveAssociation(&_displayString,_associations,displayString__Key);
+      GSWAssignAndRemoveAssociation(&_escapeHTML,_associations,escapeHTML__Key);
+      
+      if (_displayString == nil)
+	{
+	  ASSIGN(_displayString, _value);
+	  _defaultEscapeHTML = NO;
+	}
+      else
+	{
+	  _defaultEscapeHTML = YES;
+	}
+      if (((_list == nil || (_displayString != nil || _value != nil)) 
+	   && (_item == nil || ![_item isValueSettable])) 
+	  || (_selection != nil && ![_selection isValueSettable]))
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'list' must be present. 'item' must not be a constant if 'displayString' or 'value' is present.  'selections' must not be a constant if present.",
+		       __PRETTY_FUNCTION__];      
+	} 
+    }
   return self;
 }
 
@@ -172,6 +137,7 @@ static Class standardClass = Nil;
   [super dealloc];
 }
 
+//--------------------------------------------------------------------
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p list:%@ item:%@ index:%@ selection:%@ prefix:%@ suffix:%@ displayString:%@ escapeHTML:%@>",
@@ -187,53 +153,59 @@ static Class standardClass = Nil;
   return @"INPUT";
 };
 
-
-
+//--------------------------------------------------------------------
 -(void)_slowTakeValuesFromRequest:(GSWRequest*)request
                         inContext:(GSWContext*)context
 {
   GSWComponent * component = GSWContext_component(context);
 
-  if ((![self disabledInComponent:component]) && ([context _wasFormSubmitted])) {    
-    NSString * ctxName = [self nameInContext:context];
-    NSString * formValue = [request stringFormValueForKey: ctxName];
-    int        count    = 0;
-    int        i        = 0;
-    id         itemValue = nil;
-    id         valueValue = nil;
-    id         selValue = nil;
+  if (![self disabledInComponent:component]
+      && [context _wasFormSubmitted])
+    {
+      id         selection = nil;
+      NSString * ctxName = [self nameInContext:context];
+      NSString * formValue = [request stringFormValueForKey: ctxName];
+      
+      if (formValue != nil)
+	{
+	  NSArray* list = [_list valueInComponent:component];
+	  
+	  if ([list isKindOfClass:[NSArray class]] == NO)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+			   __PRETTY_FUNCTION__, [list class]];  
+	    }
+	  else
+	    {
+	      int i = 0;
+	      NSUInteger count = [list count];
+	      IMP list_oaiIMP=NULL;
+	      for (i = 0; i < count; i++)
+		{
+		  id value= nil;
+		  id item = GSWeb_objectAtIndexWithImpPtr(list,&list_oaiIMP,i);
 
-    if (formValue != nil) {
-      NSArray* listValue = [_list valueInComponent:component];
+		  [_item setValue:item
+			 inComponent:component];
 
-      if ([listValue isKindOfClass:[NSArray class]] == NO) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
-                            __PRETTY_FUNCTION__, [listValue class]];  
-      }
-
-      count = [listValue count];
-      for (i = 0; i < count; i++) {
-        itemValue = [listValue objectAtIndex:i];
-        [_item setValue:itemValue
-            inComponent:component];
-        valueValue = [_value valueInComponent:component];
-        if (valueValue == nil) {
-          continue;
-        }
-        if ([formValue isEqual:valueValue]) {
-          selValue = itemValue;
-          break;
-        }
-        NSLog(@"%s: 'value' evaluated to nil in component %@ Unable to select item %@",
-              __PRETTY_FUNCTION__,self,itemValue);
-      }
-
+		  value = [_value valueInComponent:component];
+		  if (value == nil)
+		    {
+		      NSLog(@"%s: 'value' evaluated to nil in component %@ Unable to select item %@",
+			    __PRETTY_FUNCTION__,self,item);
+		    }
+		  else if ([formValue isEqual:NSStringWithObject(value)]) 
+		    {
+		      selection = item;
+		      break;
+		    }
+		}
+	    }
+	}
+      [_selection setValue:selection
+		  inComponent:component];
     }
-    [_selection setValue:selValue
-             inComponent:component];
-
-  }
 }
 
 //-----------------------------------------------------------------------------------
@@ -242,161 +214,177 @@ static Class standardClass = Nil;
 {
   GSWComponent * component = GSWContext_component(context);
 
-  if ((_selection != nil) && ((![self disabledInComponent:component]) && ([context _wasFormSubmitted]))) {
-
-    id         selValue = nil;
-    NSString * ctxName = [self nameInContext:context];
-    NSString * formValue = [request stringFormValueForKey: ctxName];
-    
-    if (formValue != nil) {
-      NSArray* listValue = [_list valueInComponent:component];
-
-      if ([listValue isKindOfClass:[NSArray class]] == NO) {
-        [NSException raise:NSInvalidArgumentException
-                    format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
-                            __PRETTY_FUNCTION__, [listValue class]];  
-      }
-
-      selValue = [listValue objectAtIndex:[formValue intValue]];
+  if (_selection != nil
+      && ![self disabledInComponent:component]
+      && [context _wasFormSubmitted])
+    {
+      id         selection = nil;
+      NSString * ctxName = [self nameInContext:context];
+      NSString * formValue = [request stringFormValueForKey: ctxName];
+      
+      if (formValue != nil)
+	{
+	  NSArray* list = [_list valueInComponent:component];
+	  
+	  if ([list isKindOfClass:[NSArray class]] == NO)
+	    {
+	      [NSException raise:NSInvalidArgumentException
+			   format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+			   __PRETTY_FUNCTION__, [list class]];  
+	    }
+	  
+	  selection = [list objectAtIndex:[formValue intValue]];
+	}
+      [_selection setValue:selection
+		  inComponent:component];
     }
-    [_selection setValue:selValue
-             inComponent:component];
-  }
 }
 
 //-----------------------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  id             selectionsValue = nil;
-  int j = 0;
-  BOOL           doEscape;
-  int            count           = 0;
   GSWComponent * component       = GSWContext_component(context);
-  NSString     * ctxName         = [self nameInContext:context];
-  id             listValue       = [_list valueInComponent:component];
-  id             currentValue    = nil;  
-  id             valueValue      = nil;
+  NSArray*       list       = [_list valueInComponent:component];
 
-  if ([listValue isKindOfClass:[NSArray class]] == NO) {
-    [NSException raise:NSInvalidArgumentException
-                format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
-                        __PRETTY_FUNCTION__, [listValue class]];  
-  }
-
-  doEscape = (_escapeHTML == nil) ? _defaultEscapeHTML : [_escapeHTML boolValueInComponent:component];
-
-
-  selectionsValue = _selection == nil ? nil : [_selection valueInComponent:component];
-  
-  if (listValue != nil) {
-    count = [listValue count];
-  }
-
-  for (j = 0; j < count; j++)
-  {
-    if (_index != nil) {
-      [_index setValue:GSWIntToNSString(j)
-           inComponent:component];
-    }
-    NSString * prefixStr = nil;
-    NSString * suffixStr =  nil;
-    id        displayValue     = nil;
-    NSString * dispStr = nil;
-
-    valueValue   = nil;
-    
-    if (_prefix != nil) {
-      prefixStr = NSStringWithObject([_prefix valueInComponent:component]);
-    }
-
-    if (_suffix != nil) {
-      suffixStr = NSStringWithObject([_suffix valueInComponent:component]);
-    }
-    
-    currentValue = [listValue objectAtIndex:j];
-
-    if ((_item != nil) && (_displayString != nil)) {
-      [_item setValue:currentValue inComponent:component];
-      displayValue = [_displayString valueInComponent:component];
-
-      if (displayValue == nil) {
-        dispStr = NSStringWithObject(currentValue);
-        NSLog(@"%s: 'displayString' evaluated to nil in component %@. Using %@", 
-              __PRETTY_FUNCTION__, component, dispStr);
-      } else {
-        dispStr = NSStringWithObject(displayValue);
-      }
-    } else {
-      dispStr = NSStringWithObject(currentValue);
-    }
-    GSWResponse_appendContentAsciiString(response, @"<input name=\"");
-    GSWResponse_appendContentString(response,ctxName);
-    GSWResponse_appendContentAsciiString(response, @"\" type=radio value=\"");
-
-    if (_value != nil) {
-      valueValue = [_value valueInComponent:component];
-      if (valueValue != nil) {
-        GSWResponse_appendContentHTMLConvertString(response,NSStringWithObject(valueValue));
-      } else {
-        NSLog(@"%s: 'value' evaluated to nil in component %@. Using index", 
-              __PRETTY_FUNCTION__, component);
-      }
-    }
-    if (valueValue == nil) {
-      GSWResponse_appendContentAsciiString(response,GSWIntToNSString(j));
-    }
-    if ((selectionsValue != nil) && ([selectionsValue isEqual:currentValue])) {
-      GSWResponse_appendContentAsciiString(response,@"\" checked>");
-    } else {
-      GSWResponse_appendContentAsciiString(response,@"\">");
-    }
-    if (prefixStr != nil) {
-      GSWResponse_appendContentString(response,prefixStr);
-    }
-    if (doEscape) {
-      GSWResponse_appendContentHTMLConvertString(response, dispStr);
-    } else {
-      GSWResponse_appendContentString(response,dispStr);
-    }
-    if (suffixStr != nil)
+  if (list!=nil)
     {
-      GSWResponse_appendContentString(response,suffixStr);
-    }
-  }
+      if ([list isKindOfClass:[NSArray class]] == NO)
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: Evaluating 'list' binding returned a '%@' class and not a NSArray.",
+		       __PRETTY_FUNCTION__, [list class]];  
+	}
+      else
+	{
+	  NSUInteger count=[list count];
+	  if (count>0)
+	    {
+	      int i = 0;
+	      BOOL doEscape = (_escapeHTML == nil) ? _defaultEscapeHTML : [_escapeHTML boolValueInComponent:component];
+	      NSString* ctxName  = [self nameInContext:context];
+	      id selection = [_selection valueInComponent:component];
+	      IMP list_oaiIMP=NULL;
+  
+	      for (i = 0; i < count; i++)
+		{
+		  NSString * prefixStr = nil;
+		  NSString * suffixStr =  nil;
+		  NSString * dispStr = nil;
+		  id        displayValue     = nil;
+		  id        value = nil;
+		  id        item    = nil;  
+		  
+		  if (_index != nil)
+		    {
+		      [_index setValue:GSWIntToNSString(i)
+			      inComponent:component];
+		    }
+		  
+		  if (_prefix != nil)
+		    prefixStr = NSStringWithObject([_prefix valueInComponent:component]);
+		  
+		  if (_suffix != nil)
+		    suffixStr = NSStringWithObject([_suffix valueInComponent:component]);
+		  
+		  item = GSWeb_objectAtIndexWithImpPtr(list,&list_oaiIMP,i);
+		  
+		  if (_item != nil
+		      && _displayString != nil)
+		    {
+		      [_item setValue:item
+			     inComponent:component];
+		      displayValue = [_displayString valueInComponent:component];
+		      
+		      if (displayValue == nil)
+			{
+			  dispStr = NSStringWithObject(item);
+			  NSLog(@"%s: 'displayString' evaluated to nil in component %@. Using %@", 
+				__PRETTY_FUNCTION__, component, dispStr);
+			}
+		      else
+			dispStr = NSStringWithObject(displayValue);	
+		    }
+		  else
+		    dispStr = NSStringWithObject(item);
+		  
+		  GSWResponse_appendContentAsciiString(response, @"<input name=\"");
+		  GSWResponse_appendContentString(response,ctxName);
+		  GSWResponse_appendContentAsciiString(response, @"\" type=radio value=\"");
+		  
+		  if (_value != nil)
+		    {
+		      value = [_value valueInComponent:component];
+		      if (value != nil)
+			GSWResponse_appendContentHTMLConvertString(response,NSStringWithObject(value));
+		      else
+			{
+			  NSLog(@"%s: 'value' evaluated to nil in component %@. Using index", 
+				__PRETTY_FUNCTION__, component);
+			}
+		    }
 
+		  if (value == nil)
+		    GSWResponse_appendContentAsciiString(response,GSWIntToNSString(i));
+		  
+		  if (selection != nil 
+		      && [selection isEqual:item])
+		    GSWResponse_appendContentAsciiString(response,@"\" checked>");
+		  else
+		    GSWResponse_appendContentAsciiString(response,@"\">");
+		  
+		  if (prefixStr != nil)
+		    GSWResponse_appendContentString(response,prefixStr);
+		  
+		  if (doEscape)
+		    GSWResponse_appendContentHTMLConvertString(response, dispStr);
+		  else
+		    GSWResponse_appendContentString(response,dispStr);
+		  
+		  if (suffixStr != nil)
+		    GSWResponse_appendContentString(response,suffixStr);
+		}
+	    }
+	}
+    }
 }
 
+//-----------------------------------------------------------------------------------
 -(BOOL)appendStringAtRight:(id)unkwnon
                withMapping:(char*)mapping
 {
   return NO;
 };
 
+//-----------------------------------------------------------------------------------
 -(BOOL)appendStringAtLeft:(id)unkwnon
               withMapping:(char*)mapping
 {
   return NO;
 };
 
+//-----------------------------------------------------------------------------------
 -(BOOL)compactHTMLTags
 {
   return NO;
 };
 
+//-----------------------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  if (_value != nil) {
-    if (!_loggedSlow) {
-      NSLog(@"%s Warning: Avoid using the 'value' binding as it is much slower than omitting it, and it is just cosmetic.",
-            __PRETTY_FUNCTION__);
-      _loggedSlow = YES;
+  if (_value != nil)
+    {
+      if (!_loggedSlow)
+	{
+	  NSLog(@"%s Warning: Avoid using the 'value' binding as it is much slower than omitting it, and it is just cosmetic.",
+		__PRETTY_FUNCTION__);
+	  _loggedSlow = YES;
+	}
+      [self _slowTakeValuesFromRequest:request inContext:context];
     }
-    [self _slowTakeValuesFromRequest:request inContext:context];
-  } else {
+  else
     [self _fastTakeValuesFromRequest:request inContext:context];
-  }
 }
 
 @end

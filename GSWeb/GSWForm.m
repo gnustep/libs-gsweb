@@ -40,6 +40,7 @@ static Class standardClass = Nil;
 //====================================================================
 @implementation GSWForm
 
+static GSWAssociation* static_defaultMethodAssociation = nil;
 //--------------------------------------------------------------------
 + (void) initialize
 {
@@ -49,79 +50,64 @@ static Class standardClass = Nil;
 
       standardEvaluateConditionInContextIMP = 
         (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
+
+      ASSIGN(static_defaultMethodAssociation,([GSWAssociation associationWithValue:@"post"]));
     };
 };
 
+//--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  GSWConstantValueAssociation * methodAssoc = nil;
-  
-  self = [super initWithName:@"form" associations:associations template:template];
-  if (!self) {
-    return nil;
-  }
-  
-  DESTROY(_otherQueryAssociations);
-  _otherQueryAssociations = RETAIN([_associations extractObjectsForKeysWithPrefix:@"?" removePrefix: YES]);
+  if ((self = [super initWithName:@"form"
+		     associations:associations
+		     template:template]))
+    {
+      DESTROY(_otherQueryAssociations);
+      _otherQueryAssociations = RETAIN([_associations extractObjectsForKeysWithPrefix:@"?" removePrefix: YES]);
 
-  if ((_otherQueryAssociations != nil) && ([_otherQueryAssociations count] == 0)) {
-    DESTROY(_otherQueryAssociations);
-  }
-  ASSIGN(_action, [_associations objectForKey: action__Key]);
-  if (_action != nil) {
-    [_associations removeObjectForKey: action__Key];
-  }
-  ASSIGN(_href, [_associations objectForKey: href__Key]);
-  if (_href != nil) {
-    [_associations removeObjectForKey: href__Key];
-  }  
-  ASSIGN(_multipleSubmit, [_associations objectForKey: multipleSubmit__Key]);
-  if (_multipleSubmit != nil) {
-    [_associations removeObjectForKey: multipleSubmit__Key];
-  }
-  ASSIGN(_actionClass, [_associations objectForKey: actionClass__Key]);
-  if (_actionClass != nil) {
-    [_associations removeObjectForKey: actionClass__Key];
-  }
-  ASSIGN(_queryDictionary, [_associations objectForKey: queryDictionary__Key]);
-  if (_queryDictionary != nil) {
-    [_associations removeObjectForKey: queryDictionary__Key];
-  }
-  ASSIGN(_directActionName, [_associations objectForKey: directActionName__Key]);
-  if (_directActionName != nil) {
-    [_associations removeObjectForKey: directActionName__Key];
-  }
-  
-  if ((([_associations objectForKey:method__Key] == nil) && 
-      ([_associations objectForKey:@"Method"] == nil)) && 
-      ([_associations objectForKey:@"METHOD"] == nil)) {
+      if ([_otherQueryAssociations count] == 0)
+	DESTROY(_otherQueryAssociations);
 
-      methodAssoc = [[GSWConstantValueAssociation alloc] initWithValue:post__Key];
-      [_associations setObject: methodAssoc
-                      forKey:method__Key];
-      DESTROY(methodAssoc);
-  }
-  if (((_action != nil) && (_href != nil)) || 
-      ((_action != nil) && (_directActionName != nil)) || 
-      ((_href != nil) && (_directActionName != nil)) || 
-      ((_action != nil) && (_actionClass != nil)) || 
-      ((_href != nil) && (_actionClass != nil))) {
+      GSWAssignAndRemoveAssociation(&_action,_associations,action__Key);
+      GSWAssignAndRemoveAssociation(&_href,_associations,href__Key);
+      GSWAssignAndRemoveAssociation(&_multipleSubmit,_associations,multipleSubmit__Key);
+      GSWAssignAndRemoveAssociation(&_actionClass,_associations,actionClass__Key);
+      GSWAssignAndRemoveAssociation(&_queryDictionary,_associations,queryDictionary__Key);
+      GSWAssignAndRemoveAssociation(&_directActionName,_associations,directActionName__Key);
 
-     [NSException raise:NSInvalidArgumentException
-             format:@"%s: At least two of these conflicting attributes are present: 'action', 'href', 'directActionName', 'actionClass'",
-                                  __PRETTY_FUNCTION__];
-   }
-  if ((_action != nil) && ([_action isValueConstant])) {
-     [NSException raise:NSInvalidArgumentException
-             format:@"%s: 'action' is a constant.",
-                                  __PRETTY_FUNCTION__];
-    
-  }
+      if ([_associations objectForKey:method__Key] == nil
+	  && [_associations objectForKey:@"Method"] == nil
+	  && [_associations objectForKey:@"METHOD"] == nil)
+	{
+	  [_associations setObject: static_defaultMethodAssociation
+			 forKey:method__Key];
+	}
+
+      if ((_action != nil && _href != nil)
+	  || (_action != nil && _directActionName != nil)
+	  || (_href != nil && _directActionName != nil)
+	  || (_action != nil && _actionClass != nil)
+	  || (_href != nil && _actionClass != nil))
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: At least two of these conflicting attributes are present: 'action', 'href', 'directActionName', 'actionClass'",
+		       __PRETTY_FUNCTION__];
+	}
+      if (_action != nil
+	  && [_action isValueConstant])
+	{
+	  [NSException raise:NSInvalidArgumentException
+		       format:@"%s: 'action' is a constant.",
+		       __PRETTY_FUNCTION__];
+	  
+	}
+    }
   return self;
 }
 
+//--------------------------------------------------------------------
 -(void) dealloc
 {
   DESTROY(_action);
@@ -135,6 +121,7 @@ static Class standardClass = Nil;
   [super dealloc];
 }
 
+//--------------------------------------------------------------------
 -(id) description
 {
   return [NSString stringWithFormat:@"<%s %p action: %@ actionClass: %@ directActionName: %@ href:%@ multipleSubmit: %@ queryDictionary: %@ otherQueryAssociations: %@ >",
@@ -143,23 +130,24 @@ static Class standardClass = Nil;
                    _queryDictionary, _otherQueryAssociations];
 };
 
-
+//--------------------------------------------------------------------
 - (void) _enterFormInContext:(GSWContext *) context
 {
   [context setInForm:YES];
-  if ([[context elementID] isEqual:[context senderID]]) {
+  if ([[context elementID] isEqual:[context senderID]])
     [context _setFormSubmitted:YES];
-  }
 }
 
+//--------------------------------------------------------------------
 - (void) _exitFormInContext:(GSWContext *) context
 {
   [context setInForm:NO];
   [context _setFormSubmitted:NO];
 }
 
+//--------------------------------------------------------------------
 -(void)takeValuesFromRequest:(GSWRequest*)request
-                   inContext:(GSWContext*)context; 
+                   inContext:(GSWContext*)context
 {
   [self _enterFormInContext:context];
   [super takeValuesFromRequest:request
@@ -167,64 +155,70 @@ static Class standardClass = Nil;
   [self _exitFormInContext:context];  
 }
 
--(GSWElement*)invokeActionForRequest:(GSWRequest*) request
-                           inContext:(GSWContext*) context
+//--------------------------------------------------------------------
+-(id <GSWActionResults>)invokeActionForRequest:(GSWRequest*) request
+				     inContext:(GSWContext*) context
 
 {
-  id  supervalue = nil;
+  id <GSWActionResults> result = nil;
   
   [self _enterFormInContext:context];
   [context _setActionInvoked:NO];
-  [context _setIsMultipleSubmitForm:(_multipleSubmit == nil ? NO : [_multipleSubmit boolValueInComponent:[context component]])];
+  [context _setIsMultipleSubmitForm:(_multipleSubmit == nil ? 
+				     NO : [_multipleSubmit boolValueInComponent:[context component]])];
   
-  supervalue = [super invokeActionForRequest:request inContext:context];
-  if ((![context _wasActionInvoked]) && ([context _wasFormSubmitted])) {
-    if (_action != nil) {
-      supervalue = [_action valueInComponent:[context component]];
+  result = [super invokeActionForRequest:request
+		  inContext:context];
+  if (![context _wasActionInvoked]
+      && [context _wasFormSubmitted])
+    {
+      if (_action != nil)
+	result = [_action valueInComponent:[context component]];
+      if (result == nil)
+	result = [context page];
     }
-    if (supervalue == nil) {
-      supervalue = [context page];
-    }
-  }
   [context _setIsMultipleSubmitForm:NO];
   [self _exitFormInContext:context];
   
-  return supervalue;
+  return result;
 }
 
+//--------------------------------------------------------------------
 -(void) _appendHiddenFieldsToResponse:(GSWResponse*) response
-                       inContext:(GSWContext*) context
+			    inContext:(GSWContext*) context
 {
-  NSEnumerator * myEnumer = nil;
-  NSString     * key = nil;
-  NSString     * value = nil;
   NSDictionary * queryDict = [self computeQueryDictionaryWithActionClassAssociation: _actionClass
                                                         directActionNameAssociation: _directActionName
                                                          queryDictionaryAssociation: _queryDictionary
                                                              otherQueryAssociations: _otherQueryAssociations 
                                                                           inContext: context];
-  if ([queryDict count] > 0) {
-    myEnumer = [queryDict keyEnumerator];
-    
-    while ((key = [myEnumer nextObject])) {
-      value = [queryDict objectForKey:key];
-      GSWResponse_appendContentAsciiString(response,@"<input type=hidden");
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, name__Key, key, NO);  
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, NSStringWithObject(value), NO);
-      GSWResponse_appendContentAsciiString(response,@">\n");
-    }
+  if ([queryDict count] > 0)
+    {
+      NSEnumerator* myEnumer = [queryDict keyEnumerator];
+      NSString* key=nil;
 
-  }
+      while ((key = [myEnumer nextObject]))
+	{
+	  NSString* value = NSStringWithObject([queryDict objectForKey:key]);
+	  GSWResponse_appendContentAsciiString(response,@"<input type=hidden");
+	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, name__Key, key, NO);  
+	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, value, NO);
+	  GSWResponse_appendContentAsciiString(response,@">\n");
+	}
+    }
 }
 
+//--------------------------------------------------------------------
 -(void) appendToResponse:(GSWResponse *) response
                inContext:(GSWContext*) context
 {
   [context setInForm:YES];
-  [super appendToResponse: response inContext: context];
+  [super appendToResponse: response
+	 inContext: context];
   [context setInForm:NO];
 }
 
+//--------------------------------------------------------------------
 -(void) appendChildrenToResponse:(GSWResponse *) response
                        inContext:(GSWContext*) context
 {
@@ -235,6 +229,7 @@ static Class standardClass = Nil;
                             inContext:context];
 }
 
+//--------------------------------------------------------------------
 -(void) _appendCGIActionToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {
@@ -249,32 +244,48 @@ static Class standardClass = Nil;
   GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, action__Key, myActionURL, NO);
 }
 
+//--------------------------------------------------------------------
 -(void) appendAttributesToResponse:(GSWResponse *) response 
-                         inContext:(GSWContext*) context
+                         inContext:(GSWContext*) aContext
 {
-  NSString     * value = nil;
-  GSWComponent * component = [context component];
+  GSWComponent * component = GSWContext_component(aContext);
 
-  [super appendAttributesToResponse:response inContext:context];
-  if (_href != nil) {
-    value = [_href valueInComponent:component];
-  }
-  if (_directActionName != nil || _actionClass != nil) {
-    [self _appendCGIActionToResponse:response inContext: context];
-  } else {
-    if (value != nil) {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, action__Key, value, NO);
-    } else {
-      if (_href == nil) {
-        GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
-                        action__Key, [context componentActionURL], NO);
-      } else {
-        NSLog(@"%s: action attribute evaluates to null. %@", __PRETTY_FUNCTION__, self);
-      }
+  [super appendAttributesToResponse:response
+	 inContext:aContext];
+  
+
+  if (_directActionName != nil
+      || _actionClass != nil)
+    {
+      [self _appendCGIActionToResponse:response
+	    inContext: aContext];
     }
-  }
+  else
+    {
+      NSString* href=[_href valueInComponent:component];
+      if (href != nil)
+	{
+	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
+									action__Key, 
+									NSStringWithObject(href),
+									NO);
+	}
+      else if (_href == nil)
+	{
+	  BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
+	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
+									action__Key, 
+									[aContext _componentActionURLIsSecure:secure],
+									NO);
+	}
+      else
+	{
+	  NSLog(@"%s: action attribute evaluates to null. %@", __PRETTY_FUNCTION__, self);
+	}
+    }
 }
 
+//--------------------------------------------------------------------
 +(BOOL)hasGSWebObjectsAssociations
 {
   return NO;

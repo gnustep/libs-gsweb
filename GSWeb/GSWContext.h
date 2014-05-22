@@ -212,7 +212,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
                                  pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                             isSecure:(BOOL)isSecure;
 -(GSWDynamicURLString*)componentActionURL;
--(GSWDynamicURLString*)componentActionURLIsSecure:(BOOL)isSecure;
+-(GSWDynamicURLString*)_componentActionURLIsSecure:(BOOL)isSecure;
 
 -(GSWDynamicURLString*)urlWithURLPrefix:(NSString*)urlPrefix
                       requestHandlerKey:(NSString*)requestHandlerKey
@@ -326,7 +326,8 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
                                   pathQueryDictionary:(NSDictionary*)pathQueryDictionary
                                                   url:(id)url;
 
--(GSWDynamicURLString*) _componentActionURL;
+-(GSWDynamicURLString*) componentActionURL;
+-(GSWDynamicURLString*) _componentActionURLIsSecure:(BOOL)isSecure;
                                                   
 /** Returns array of languages 
 First try  session languages, if none, try self language

@@ -38,7 +38,6 @@
 {
 }
 
--(id)initWithRequest:(GSWRequest*)aRequest;
 -(id <GSWActionResults>)performActionNamed:(NSString*)actionName;
 -(id<GSWActionResults>)defaultAction;
 -(NSString*)sessionIDForRequest:(GSWRequest*)aRequest;
