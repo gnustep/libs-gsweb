@@ -39,12 +39,5 @@
 };
 
 -(id)initWithValue:(id)aValue;
--(NSString*)debugDescription;
--(BOOL)isValueConstant;
--(BOOL)isValueSettable;
--(id)valueInComponent:(GSWComponent*)component;
--(void)setValue:(id)aValue
-       inComponent:(GSWComponent*)component;
-
 @end
 #endif //GSWConstantValueAssociation

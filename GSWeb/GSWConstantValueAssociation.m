@@ -65,12 +65,7 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)debugDescription
 {
-  NSString* dscr=[NSString stringWithFormat:@"<%s %p - value=%@ (class: %@)>",
-                           object_getClassName(self),
-                           (void*)self,
-                           _value,
-                           [_value class]];
-  return dscr;
+  return NSStringFromClass([_value class]);
 };
 
 //--------------------------------------------------------------------
@@ -88,7 +83,11 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(id)valueInComponent:(GSWComponent*)object
 {
-  [self logTakeValue:_value];
+  if (_debugEnabled)
+    {
+      [self _logPullValue:_value
+	    inComponent:object];
+    }
   return _value;
 };
 

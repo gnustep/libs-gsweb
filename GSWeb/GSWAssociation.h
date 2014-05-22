@@ -115,8 +115,11 @@ NEW FEATURE: negate. add a "!" in front of your key path and the result will be 
                                    inComponent:(GSWComponent*)component;
 -(void)logSynchronizeParentToComponentForValue:(id)value
                                    inComponent:(GSWComponent*)component;
--(void)logTakeValue:(id)value;
--(void)logSetValue:(id)value;
+
+-(void)_logPullValue:(id)value
+	 inComponent:(GSWComponent*) component;
+-(void)_logPushValue:(id)value
+	 inComponent:(GSWComponent*) component;
 
 -(NSString*)debugDescription;
 -(void)setDebugEnabledForBinding:(NSString*)bindingName

@@ -1,4 +1,25 @@
 2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWAssociation.h
+	  replace logTakeValue: by _logPullValue:inComponent:
+	  replace logSetValue: by logPushValue:inComponent:
+	* GSWeb/GSWAssociation.m
+	  replace logTakeValue: by _logPullValue:inComponent:
+	  replace logSetValue: by logPushValue:inComponent:
+	  respect GNUstep coding standard (curly brackets placement, etc.)
+	  implement -debugDescription
+	* GSWeb/GSWConstantValueAssociation.m
+	  replace logTakeValue: by _logPullValue:inComponent:
+	  replace logSetValue: by logPushValue:inComponent:
+	  fix -debugDescription
+	* GSWeb/GSWKeyValueAssociation.m
+	  replace logTakeValue: by _logPullValue:inComponent:
+	  replace logSetValue: by logPushValue:inComponent:
+	  simplify -description
+	* GSWeb/GSWKeyValueAssociation.h
+	  remove unneedded declarations
+	* GSWeb/GSWConstantValueAssociation.m
+	  remove unneedded declarations
+2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWUtils.m
 	  fix rangeOfData:range:
 	* GSWExtensions/GSWCollapsibleComponentContent.gswc/GSWCollapsibleComponentContent.gswd

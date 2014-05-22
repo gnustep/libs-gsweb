@@ -75,7 +75,11 @@ RCS_ID("$Id$")
 // but we need:  
   retValue=[GSWAssociation valueInComponent: component
                                  forKeyPath:_keyPath];
-
+  if (_debugEnabled)
+    {
+      [self _logPullValue:retValue
+	    inComponent:component];
+    }
   return retValue;
 };
 
@@ -86,31 +90,44 @@ RCS_ID("$Id$")
   NSException *ex = nil;
   
   if ([_keyPath length]==0)
-  {
-    [NSException raise:NSInvalidArgumentException 
-                format:@"No key path when setting value %@ in object of class %@ for association %@",
-                 aValue,NSStringFromClass([component class]),self];
-  }
+    {
+      [NSException raise:NSInvalidArgumentException 
+		   format:@"No key path when setting value %@ in object of class %@ for association %@",
+		   aValue,NSStringFromClass([component class]),self];
+    }
   
-  NS_DURING {
-    [component validateTakeValue:aValue
-                      forKeyPath:_keyPath];
-  } NS_HANDLER {
-    ex = localException;    
-  } NS_ENDHANDLER;
+  NS_DURING
+    {
+      [component validateTakeValue:aValue
+		 forKeyPath:_keyPath];
+    }
+  NS_HANDLER
+    {
+      ex = localException;    
+    } 
+  NS_ENDHANDLER;
   
-  if (ex != nil) { 
-    [component validationFailedWithException:ex
-                                       value:aValue
-                                    keyPath:_keyPath];
-  }
+  if (_debugEnabled)
+    {
+      [self _logPushValue:aValue
+	    inComponent:component];
+    }
+  if (ex != nil)
+    { 
+      [component validationFailedWithException:ex
+		 value:aValue
+		 keyPath:_keyPath];
+    }
 }
 
-- (void) _setValueNoValidation:(id) aValue inComponent:(GSWComponent*) component
+- (void) _setValueNoValidation:(id) aValue
+		   inComponent:(GSWComponent*) component
 {    
-  if (_isValueSettable) {
-    [component setValue:aValue forKeyPath:_keyPath];
-  }
+  if (_isValueSettable)
+    {
+      [component setValue:aValue
+		 forKeyPath:_keyPath];
+    }
 }    
 
 //--------------------------------------------------------------------
@@ -128,28 +145,16 @@ RCS_ID("$Id$")
 //--------------------------------------------------------------------
 -(NSString*)description
 {
-  NSString* dscr=nil;
-
-  dscr=[NSString stringWithFormat:@"<%s %p -",
-                 object_getClassName(self),
-                 (void*)self];
-  dscr=[dscr stringByAppendingFormat:@" keyPath=%@>",
-             _keyPath];
-  return dscr;
+  return [NSString stringWithFormat:@"<%s %p - keyPath=%@>",
+		   object_getClassName(self),
+		   (void*)self,
+		   _keyPath];
 };
-
 
 //--------------------------------------------------------------------
 -(NSString*)keyPath
 {
   return _keyPath;
-};
-
-//--------------------------------------------------------------------
--(NSString*)debugDescription
-{
-  [self notImplemented: _cmd];	//TODOFN
-  return nil;
 };
 
 @end

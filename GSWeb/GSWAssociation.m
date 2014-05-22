@@ -118,17 +118,6 @@ static Class NSStringClass = Nil;
 }
 
 //--------------------------------------------------------------------
-//	init
--(id)init
-{
-  if ((self=[super init]))
-    {
-    }
-  _negate = NO;
-  
-  return self;
-}
-
 -(void)dealloc
 {
   DESTROY(_bindingName);
@@ -137,18 +126,20 @@ static Class NSStringClass = Nil;
   [super dealloc];
 }
 
-
+//--------------------------------------------------------------------
 // YES if we negate the result before returnig it.
 -(BOOL)negate
 {
   return _negate;
 }
 
+//--------------------------------------------------------------------
 -(void) setNegate:(BOOL) yn
 {
   _negate = yn;
 }
 
+//--------------------------------------------------------------------
 - (BOOL)_hasBindingInParent:(GSWComponent*) parent
 {
   return YES;
@@ -206,11 +197,13 @@ static Class NSStringClass = Nil;
   return NO;
 }
 
+//--------------------------------------------------------------------
 - (BOOL) isValueSettableInComponent:(GSWComponent*) comp
 {
   return [self isValueSettable];
 }
 
+//--------------------------------------------------------------------
 - (BOOL) isValueConstantInComponent:(GSWComponent*) comp
 {
   return [self isValueConstant];
@@ -219,7 +212,6 @@ static Class NSStringClass = Nil;
 
 //--------------------------------------------------------------------
 //	setValue:inComponent:
-
 -(void)setValue:(id)value
     inComponent:(GSWComponent*)component
 {
@@ -233,59 +225,66 @@ static Class NSStringClass = Nil;
 
 //--------------------------------------------------------------------
 //	valueInComponent:
-
 -(id)valueInComponent:(GSWComponent*)component;
 {
   return [self subclassResponsibility:_cmd];
 }
 
+//--------------------------------------------------------------------
 // added in WO5?
 // they call it booleanValueInComponent:
 - (BOOL) boolValueInComponent:(GSWComponent*)component
 {
   id value = [self valueInComponent: component];
-  int  length = 0;
-  NSString * tmpStr = nil;
   
-  if (! value) {
-   if (_negate) {
-     return YES;
-   }
+  if (value==nil)
+    {
+      if (_negate)
+	return YES;
+      else
+	return NO;
+    }
+  if ([value isKindOfClass: NSNumberClass])
+    {
+      if (_negate)
+	return (![value boolValue]);
+      else
+	return [value boolValue];
+    }
+  else if ([value isKindOfClass: NSStringClass])
+    {
+      NSString* tmpStr = nil;
+      int  length = [value length];
+      if (length >= 2 && length <= 5)
+	{
+	  tmpStr = [value lowercaseString];
+	  if ([tmpStr isEqual:@"no"]
+	      || [tmpStr isEqual:@"false"]
+	      || [tmpStr isEqual:@"nil"]
+	      || [tmpStr isEqual:@"null"])
+	    {
+	      if (_negate)
+		return YES;
+	      else
+		return NO;
+	    }
+	}
+      if ([tmpStr isEqual:@"0"])
+	{
+	  if (_negate)
+	    return YES;
+	  else
+	    return NO;
+	}
+      if (_negate)
+	return NO;
+      else           
+	return YES;
+    }
+  if (_negate)
     return NO;
-  }
-  if ([value isKindOfClass: NSNumberClass]) {
-   if (_negate) {
-     return (! [value boolValue]);
-   }  
-    return [value boolValue];
-  }
-  if ([value isKindOfClass: NSStringClass]) {
-    length = [value length];
-    if ((length >= 2) && (length <= 5)) {
-      tmpStr = [value lowercaseString];
-      if ([tmpStr isEqual:@"no"] || [tmpStr isEqual:@"false"]  || [tmpStr isEqual:@"nil"] || [tmpStr isEqual:@"null"]) {
-       if (_negate) {
-         return YES;
-       }      
-        return NO;
-      }
-    }
-    if ([tmpStr isEqual:@"0"]) {
-       if (_negate) {
-         return YES;
-       }          
-       return NO;
-    }
-    if (_negate) {
-      return NO;
-    }              
+  else     
     return YES;
-  }
-  if (_negate) {
-    return NO;
-  }              
-  
-  return YES;
 }
 
 
@@ -473,31 +472,7 @@ static Class NSStringClass = Nil;
   LoggedUnlock(associationsLock);
 }
 
-/*
-//====================================================================
-@implementation GSWAssociation (GSWAssociationOldFn)
 //--------------------------------------------------------------------
-//	value
-
--(id)value
-{
-  GSWContext* context=[[GSWApplication application] context];
-  [self valueInComponent:GSWContext_component(context)];
-}
-
-//--------------------------------------------------------------------
-//	setValue:inComponent:
-//OldFn
--(void)setValue:(id)value
-{
-  GSWContext* context=[[GSWApplication application] context];
-  [self setValue:(id)value
-        inComponent:GSWContext_component(context)];
-}
-@end
-*/
-//====================================================================
-
 // returns the binding String as in the wod.
 // override in subclasses
 - (NSString*) bindingInComponent:(GSWComponent*) component
@@ -512,11 +487,9 @@ static Class NSStringClass = Nil;
   return YES;
 }
 
-
 //--------------------------------------------------------------------
 -(NSString*)keyPath
 {
-  //OK
   [self subclassResponsibility:_cmd];
   return nil;
 }
@@ -562,6 +535,28 @@ static Class NSStringClass = Nil;
           LoggedUnlock(associationsLock);
         }
     }
+}
+
+//--------------------------------------------------------------------
+-(void)_logPullValue:(id)value
+	 inComponent:(GSWComponent*) component
+{
+  [GSWApp logTakeValueForDeclarationNamed:_declarationName
+	  type:_declarationType
+	  bindingNamed:_bindingName
+	  associationDescription:[self debugDescription]
+	  value:value];
+}
+
+//--------------------------------------------------------------------
+-(void)_logPushValue:(id)value
+	 inComponent:(GSWComponent*) component
+{
+  [GSWApp logSetValueForDeclarationNamed:_declarationName
+	  type:_declarationType
+	  bindingNamed:_bindingName
+	  associationDescription:[self debugDescription]
+	  value:value];
 }
 
 //--------------------------------------------------------------------
@@ -635,9 +630,7 @@ static Class NSStringClass = Nil;
 //--------------------------------------------------------------------
 -(NSString*)debugDescription
 {
-  //OK
-  [self subclassResponsibility:_cmd];
-  return nil;
+  return NSStringFromClass([self class]);
 }
 
 //--------------------------------------------------------------------
@@ -659,34 +652,32 @@ static Class NSStringClass = Nil;
   static id EONullNull=nil;
   //TODO MultiThread Protection ?
   if (!EONullNull)
-  {
     EONullNull=[NSNull null];
-  }
   id retValue=nil;
   
   if (keyPath && object && object!=EONullNull)
-  {
-    NS_DURING
     {
-      retValue=[object valueForKeyPath:keyPath];
+      NS_DURING
+	{
+	  retValue=[object valueForKeyPath:keyPath];
+	}
+      NS_HANDLER
+	{
+	  NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
+		[object class],
+		keyPath,
+		localException);
+	  localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods"
+					   format:@"-[%@ %@]",
+					   [object class],
+					   keyPath];
+	  
+	  [localException raise];
+	}
+      NS_ENDHANDLER;
+      if (retValue==EONullNull)
+	retValue=nil;
     }
-    NS_HANDLER
-    {
-      NSLog(@"Attempt to get %@ -%@ raised an exception (%@)",
-            [object class],
-            keyPath,
-            localException);
-      localException = [localException exceptionByAddingToUserInfoKey:@"Invalid Ivars/Methods"
-                                                               format:@"-[%@ %@]",
-                        [object class],
-                        keyPath];
-      
-      [localException raise];
-    }
-    NS_ENDHANDLER;
-    if (retValue==EONullNull)
-      retValue=nil;
-  }
   
   return retValue;
 }
@@ -697,56 +688,64 @@ static Class NSStringClass = Nil;
     inComponent:(GSWComponent*)object
      forKeyPath:(NSString*)keyPath
 {
-  
   id tmpObject = nil;
   NSString *tmpKey = nil;
   
-  if (keyPath) {
-    NSRange       r = [keyPath rangeOfString: @"."];
-    
-    if (r.length == 0) {
-      tmpObject = object;
-      tmpKey = keyPath;
-    } else {
-      NSString  *key = [keyPath substringToIndex: r.location];
-      tmpObject = [object valueForKey: key];
-      tmpKey = [keyPath substringFromIndex: NSMaxRange(r)];
-    }
-    if (tmpObject) //&& [object isKindOfClass:[GSWComponent class]]
+  if (keyPath)
     {
-      NSError * outError = nil;
-      
-      BOOL ok = [tmpObject validateValue:&value forKey:tmpKey error:&outError];
-      if (ok == NO)
-      {
-        NSException  * exception=nil;
-        NSDictionary * uInfo;
-        NSString     * errorStr = @"unknown reason";
-        
-        uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                 (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
-                 keyPath, @"EOValidatedPropertyUserInfoKey",
-                 nil];
-        
-        if ((outError) && ([outError userInfo])) {
-          errorStr = [[outError userInfo] valueForKey:NSLocalizedDescriptionKey];
-        }
-        
-        exception=[NSException exceptionWithName:@"EOValidationException"
-                                          reason:errorStr
-                                        userInfo:uInfo];
-        
-        [object validationFailedWithException:exception
-                                        value:value
-                                      keyPath:keyPath];
-      } else {
-        // all fine, set the value
-        
-        [tmpObject setValue:value
-                     forKey:tmpKey];
-      }
+      NSRange       r = [keyPath rangeOfString: @"."];
+    
+      if (r.length == 0)
+	{
+	  tmpObject = object;
+	  tmpKey = keyPath;
+	}
+      else
+	{
+	  NSString  *key = [keyPath substringToIndex: r.location];
+	  tmpObject = [object valueForKey: key];
+	  tmpKey = [keyPath substringFromIndex: NSMaxRange(r)];
+	}
+      if (tmpObject) //&& [object isKindOfClass:[GSWComponent class]]
+	{
+	  NSError * outError = nil;
+	  
+	  BOOL ok = [tmpObject validateValue:&value
+			       forKey:tmpKey
+			       error:&outError];
+	  if (ok == NO)
+	    {
+	      NSException  * exception=nil;
+	      NSDictionary * uInfo;
+	      NSString     * errorStr = @"unknown reason";
+	      
+	      uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+				      (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
+				    keyPath, @"EOValidatedPropertyUserInfoKey",
+				    nil];
+	      
+	      if (outError
+		  && [outError userInfo])
+		{
+		  errorStr = [[outError userInfo] valueForKey:NSLocalizedDescriptionKey];
+		}
+	      
+	      exception=[NSException exceptionWithName:@"EOValidationException"
+				     reason:errorStr
+				     userInfo:uInfo];
+	      
+	      [object validationFailedWithException:exception
+		      value:value
+		      keyPath:keyPath];
+	    }
+	  else
+	    {
+	      // all fine, set the value
+	      [tmpObject setValue:value
+			 forKey:tmpKey];
+	    }
+	}
     }
-  }
 }
 
 

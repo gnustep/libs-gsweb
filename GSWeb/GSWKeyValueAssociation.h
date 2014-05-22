@@ -40,15 +40,7 @@
 }
 
 -(id)initWithKeyPath:(NSString*)aKeyPath;
-
--(id)valueInComponent:(GSWComponent*)component;
--(void)setValue:(id)aValue
-       inComponent:(GSWComponent*)component;
--(BOOL)isValueConstant;
--(BOOL)isValueSettable;
-
 -(NSString*)keyPath;
--(NSString*)debugDescription;
 @end
 
 #endif //_GSWKeyValueAssociation_h__
