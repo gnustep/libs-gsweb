@@ -1,3 +1,9 @@
+2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWDatabase/WODisplayGroup.m
+	  respect GNUstep coding standard (curly brackets placement, indentation)
+	  fix _deleteObject: (undo selectors)
+	  fix _insertObjectWithObjectAndIndex: (NSAssert)
+	  fix insertObject:atIndex: (undo selectors)
 2014-05-22  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWAssociation.h
 	  replace logTakeValue: by _logPullValue:inComponent:

@@ -283,60 +283,61 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 -(BOOL)_deleteObject:(id)object
 {
   BOOL result=NO;
-  
-  
+    
   if(_delegateRespondsTo.shouldDeleteObject
      && ![_delegate displayGroup:self
-              shouldDeleteObject:object])
-    result=NO;
-  else
-  {
-    BOOL deletionOK=NO;
-    NS_DURING
+		    shouldDeleteObject:object])
     {
-      if(_dataSource)
-        [_dataSource deleteObject:object];
-      deletionOK=YES;
-    }
-    NS_HANDLER
-    {
-      NSLog(@"EXCEPTION: %@",localException);
-      [self _presentAlertWithTitle:@"Error Deleting Object"
-                           message:[localException reason]];
       result=NO;
     }
-    NS_ENDHANDLER;
-    if (deletionOK)
+  else
     {
-      EOUndoManager* undoManager=[self undoManager];
-      if (undoManager)
-      {
-        [undoManager registerUndoWithTarget:self
-                                   selector:@selector(_selectObjects:)
-                                        arg:[self selectedObjects]];
+      BOOL deletionOK=NO;
+      NS_DURING
+	{
+	  if(_dataSource)
+	    [_dataSource deleteObject:object];
+	  deletionOK=YES;
+	}
+      NS_HANDLER
+	{
+	  NSLog(@"EXCEPTION: %@",localException);
+	  [self _presentAlertWithTitle:@"Error Deleting Object"
+		message:[localException reason]];
+	  result=NO;
+	}
+      NS_ENDHANDLER;
+      if (deletionOK)
+	{
+	  EOUndoManager* undoManager=[self undoManager];
+	  if (undoManager)
+	    {
+	      [undoManager registerUndoWithTarget:self
+			   selector:@selector(selectObjectsIdenticalTo:)
+			   arg:[self selectedObjects]];
         
-        [undoManager registerUndoWithTarget:self
-                                   selector:@selector(_insertObjectWithObjectAndIndex:)
-                                        arg:[NSArray arrayWithObjects:object,
-                                             GSWIntNumber([_displayedObjects indexOfObjectIdenticalTo:object]),
-                                             nil]];
-      }
-      
-      [_displayedObjects removeObjectIdenticalTo:object];
-      [_allObjects removeObjectIdenticalTo:object];
-      
-      [self selectObjectsIdenticalTo:[self selectedObjects]
+	      [undoManager registerUndoWithTarget:self
+			   selector:@selector(_insertObjectWithObjectAndIndex:)
+			   arg:[NSArray arrayWithObjects:object,
+					GSWIntNumber([_displayedObjects indexOfObjectIdenticalTo:object]),
+					nil]];
+	    }
+	  
+	  [_displayedObjects removeObjectIdenticalTo:object];
+	  [_allObjects removeObjectIdenticalTo:object];
+	  
+	  [self selectObjectsIdenticalTo:[self selectedObjects]
                 selectFirstOnNoMatch:NO];
-      
-      if (_delegateRespondsTo.didDeleteObject)
-        [_delegate displayGroup:self
-                didDeleteObject:object];
-      
-      [self redisplay];
-      
-      result=YES;
+	  
+	  if (_delegateRespondsTo.didDeleteObject)
+	    [_delegate displayGroup:self
+		       didDeleteObject:object];
+	  
+	  [self redisplay];
+	  
+	  result=YES;
+	}
     }
-  }
   return result;
 }
 
@@ -384,9 +385,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   id object=nil;
   NSNumber* indexObject=nil;
   int index=0;
-  
-  
-  NSAssert1([objectAndIndex count]==0,
+    
+  NSAssert1([objectAndIndex count]==2,
             @"Bad Array : %@",objectAndIndex);
   
   object = [objectAndIndex objectAtIndex:0];
@@ -397,7 +397,6 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
   
   [self insertObject:object
              atIndex:index];
-  
 }
 
 /** Returns 1st index of selection if any, -1 otherwise **/
@@ -1279,65 +1278,64 @@ shouldRedisplayForEditingContextChangeNotification:notification];
 - (void)insertObject:(id)anObject
              atIndex:(unsigned)index
 {
-  
   if ([self endEditing])
-  {
-    if (index>[_displayedObjects count])
     {
-      [[NSException exceptionWithName:NSInvalidArgumentException
-                               reason:[NSString stringWithFormat:@"%@ %@: index %u is beyond the bounds of %d",
-                                       [self class],NSStringFromSelector(_cmd),
-                                       index,[_displayedObjects count]]
-                             userInfo:nil] raise];
+      if (index>[_displayedObjects count])
+	{
+	  [[NSException exceptionWithName:NSInvalidArgumentException
+			reason:[NSString stringWithFormat:@"%@ %@: index %u is beyond the bounds of %d",
+					 [self class],NSStringFromSelector(_cmd),
+					 index,[_displayedObjects count]]
+			userInfo:nil] raise];
+	}
+      else if (_delegateRespondsTo.shouldInsertObject == YES
+	       && ![_delegate displayGroup:self
+			      shouldInsertObject:anObject
+			      atIndex:index])
+	{
+	  // to nothing more
+	}
+      else
+	{
+	  BOOL insertionOK=NO;
+	  NS_DURING
+	    {
+	      if (_dataSource)
+		[_dataSource insertObject:anObject];
+	      insertionOK=YES;
+	    }
+	  NS_HANDLER
+	    {
+	      NSLog(@"EXCEPTION: %@",localException);
+	      [self _presentAlertWithTitle:@"Error Inserting Object"
+		    message:[localException reason]];
+	    }
+	  NS_ENDHANDLER;
+	  if (insertionOK)
+	    {
+	      EOUndoManager* undoManager=[self undoManager];
+	      if (undoManager)
+		{
+		  [undoManager registerUndoWithTarget:self
+			       selector:@selector(selectObjectsIdenticalTo:)
+			       arg:[self selectedObjects]];
+		  [undoManager registerUndoWithTarget:self
+			       selector:@selector(_deleteObject:)
+			       arg:anObject];
+		}
+	      [_displayedObjects insertObject:anObject
+				 atIndex:index];
+	      [_allObjects insertObject:anObject
+			   atIndex:index];
+	      [self redisplay];
+	      
+	      if (_delegateRespondsTo.didInsertObject)
+		[_delegate displayGroup:self
+			   didInsertObject:anObject];
+	      [self selectObjectsIdenticalTo:[NSArray arrayWithObject:anObject]];
+	    }
+	}
     }
-    else if (_delegateRespondsTo.shouldInsertObject == YES
-             && ![_delegate displayGroup:self
-                      shouldInsertObject:anObject
-                                 atIndex:index])
-    {
-      // to nothing more
-    }
-    else
-    {
-      BOOL insertionOK=NO;
-      NS_DURING
-      {
-        if (_dataSource)
-          [_dataSource insertObject:anObject];
-        insertionOK=YES;
-      }
-      NS_HANDLER
-      {
-        NSLog(@"EXCEPTION: %@",localException);
-        [self _presentAlertWithTitle:@"Error Inserting Object"
-                             message:[localException reason]];
-      }
-      NS_ENDHANDLER;
-      if (insertionOK)
-      {
-        EOUndoManager* undoManager=[self undoManager];
-        if (undoManager)
-        {
-          [undoManager registerUndoWithTarget:self
-                                     selector:@selector(_selectObjects:)
-                                          arg:[self selectedObjects]];
-          [undoManager registerUndoWithTarget:self
-                                     selector:@selector(_deleteObject:)
-                                          arg:anObject];
-        }
-        [_displayedObjects insertObject:anObject
-                                atIndex:index];
-        [_allObjects insertObject:anObject
-                          atIndex:index];
-        [self redisplay];
-        
-        if (_delegateRespondsTo.didInsertObject)
-          [_delegate displayGroup:self
-                  didInsertObject:anObject];
-        [self selectObjectsIdenticalTo:[NSArray arrayWithObject:anObject]];
-      }
-    }
-  }
 }
 
 //--------------------------------------------------------------------
