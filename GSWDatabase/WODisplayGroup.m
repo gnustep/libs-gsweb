@@ -42,6 +42,7 @@
 #include <WebObjects/WebObjects.h>
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOClassDescription.h>
+#include <GSWeb/GSWPrivate.h>
 
 static NSArray* globalStringQualifierOperators=nil;
 static NSArray* globalAllQualifierOperators=nil;
@@ -69,6 +70,8 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
 @interface NSArray (Indexes)
 -(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects;
+-(NSArray*)objectsAtIndexesArray:(NSArray*)indexes;
+-(BOOL)isEqualByObjectPointer:(NSArray*)otherArray;
 @end
 
 //====================================================================
@@ -1751,7 +1754,6 @@ createObjectFailedForDataSource:_dataSource];
 { 
   BOOL result=NO;
   NSArray* selectionIndexes = nil;
-  
   selectionIndexes = [_displayedObjects indexesOfObjectsIdenticalTo:objects];
   
   result = [self setSelectionIndexes:selectionIndexes];
@@ -2086,52 +2088,55 @@ createObjectFailedForDataSource:_dataSource];
 - (BOOL)setSelectionIndexes:(NSArray *)selection
 {
   BOOL retValue=NO;
-  NSMutableArray* selectedObjects = nil;
+  NSArray* selectedObjects = nil;
   NSArray* sortedSelection = nil;
   BOOL isSelectionChanged = NO;
   BOOL isSelectedObjectsChanged = NO;
   
-  if([selection count]>1)
-  {
+  if ([selection count]>1)
     sortedSelection = [selection sortedArrayUsingSelector:@selector(compare:)];
-  }
-  else if([_displayedObjects count]>0)
+  else if ([_displayedObjects count]>0)
     sortedSelection = [NSArray arrayWithArray:selection];
   else
     sortedSelection = [NSArray array];
   
-  selectedObjects = [[[_displayedObjects objectsAtIndexes:
-		[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [sortedSelection count])]]
-		mutableCopy]autorelease];
-  isSelectedObjectsChanged = ![selectedObjects isEqual:_selectedObjects];
-  isSelectionChanged = ![sortedSelection isEqual:_selection];
-  if (!isSelectionChanged && !isSelectedObjectsChanged)
-    retValue=YES;
-  else
-  {
-    if (![self endEditing])
-      retValue=NO;
-    else
+  selectedObjects = [_displayedObjects objectsAtIndexesArray:sortedSelection];
+
+  isSelectedObjectsChanged = ![selectedObjects isEqualByObjectPointer:_selectedObjects];
+  isSelectionChanged = ![sortedSelection isEqualByObjectPointer:_selection];
+
+  if (!isSelectionChanged
+      && !isSelectedObjectsChanged)
     {
-      if(_delegateRespondsTo.shouldChangeSelection == YES 
-         && [_delegate displayGroup:self
-     shouldChangeSelectionToIndexes:sortedSelection] == NO)
-        retValue=NO;
-      else 
-      {
-        if (isSelectionChanged)
-          ASSIGN(_selection,sortedSelection);
-        if (isSelectedObjectsChanged)
-        {
-          ASSIGN(_selectedObjects,selectedObjects);
-          if(_delegateRespondsTo.didChangeSelectedObjects == YES)
-            [_delegate displayGroupDidChangeSelectedObjects:self];
-        }
-        [self _notifySelectionChanged];
-        retValue=YES;
-      }
+      retValue=YES;
     }
-  }  
+  else
+    {
+      if (![self endEditing])
+	retValue=NO;
+      else
+	{
+	  if(_delegateRespondsTo.shouldChangeSelection == YES 
+	     && [_delegate displayGroup:self
+			   shouldChangeSelectionToIndexes:sortedSelection] == NO)
+	    {
+	      retValue=NO;
+	    }
+	  else 
+	    {
+	      if (isSelectionChanged)
+		ASSIGN(_selection,sortedSelection);
+	      if (isSelectedObjectsChanged)
+		{
+		  ASSIGN(_selectedObjects,selectedObjects);
+		  if(_delegateRespondsTo.didChangeSelectedObjects == YES)
+		    [_delegate displayGroupDidChangeSelectedObjects:self];
+		}
+	      [self _notifySelectionChanged];
+	      retValue=YES;
+	    }
+	}
+    }
   
   return retValue;
 }
@@ -2479,38 +2484,105 @@ createObjectFailedForDataSource:_dataSource];
 -(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects
 {
   NSArray* indexes=nil;
-  int selfCount=0;
-  
-  selfCount=[self count];
+  NSUInteger selfCount=[self count];
   if (selfCount>0)
-  {
-    int objectsCount=[objects count];
-    if (objectsCount>0)
     {
-      NSMutableArray* tmpIndexes=nil;
-      int i=0;
-      for(i=0;i<objectsCount;i++)
-      {
-        id object=[objects objectAtIndex:i];
-        NSUInteger index=[self indexOfObjectIdenticalTo:object];
-        if (index!=NSNotFound)
-        {
-          NSNumber* indexObject=GSWIntNumber((int)index);
-          if (tmpIndexes)
-            [tmpIndexes addObject:indexObject];
-          else
-            tmpIndexes=(NSMutableArray*)[NSMutableArray arrayWithObject:indexObject];
-        }
-      }
-      if (tmpIndexes)
-        indexes=[NSArray arrayWithArray:tmpIndexes];
+      NSUInteger objectsCount=[objects count];
+      if (objectsCount>0)
+	{
+	  NSMutableArray* tmpIndexes=nil;
+	  NSUInteger i=0;
+	  IMP objects_oaiIMP=NULL;
+	  for(i=0;i<objectsCount;i++)
+	    {
+	      id object=GSWeb_objectAtIndexWithImpPtr(objects,&objects_oaiIMP,i);
+	      NSUInteger index=[self indexOfObjectIdenticalTo:object];
+	      if (index!=NSNotFound)
+		{
+		  NSNumber* indexObject=GSWIntNumber((int)index);
+		  if (tmpIndexes)
+		    [tmpIndexes addObject:indexObject];
+		  else
+		    tmpIndexes=(NSMutableArray*)[NSMutableArray arrayWithObject:indexObject];
+		}
+	    }
+	  if (tmpIndexes)
+	    indexes=[NSArray arrayWithArray:tmpIndexes];
+	}
     }
-  }
   if (!indexes)
     indexes=[NSArray array];
 
   return indexes;
 }
 
+-(NSArray*)objectsAtIndexesArray:(NSArray*)indexes
+{
+  NSArray* objects=nil;
+  NSUInteger selfCount=[self count];
+  if ([self count]>0)
+    {
+      NSUInteger indexesCount=[indexes count];
+      if (indexesCount>0)
+	{
+	  NSMutableArray* tmpObjects=nil;
+	  NSUInteger i=0;
+	  IMP indexes_oaiIMP=NULL;
+	  IMP self_oaiIMP=NULL;
+	  for(i=0;i<indexesCount;i++)
+	    {
+	      id indexObject=GSWeb_objectAtIndexWithImpPtr(indexes,&indexes_oaiIMP,i);
+	      int index=[indexObject intValue];
+	      if (index<selfCount)
+		{
+		  id object=GSWeb_objectAtIndexWithImpPtr(self,&self_oaiIMP,index);
+		  if (tmpObjects)
+		    [tmpObjects addObject:object];
+		  else
+		    tmpObjects=(NSMutableArray*)[NSMutableArray arrayWithObject:object];
+		}
+	    }
+	  if (tmpObjects)
+	    objects=[NSArray arrayWithArray:tmpObjects];
+	}
+    }
+  if (!objects)
+    objects=[NSArray array];
+  
+  return objects;
+}
+
+-(BOOL)isEqualByObjectPointer:(NSArray*)otherArray
+{
+  BOOL isEqual=NO;
+  if (self == otherArray)
+    isEqual=YES;
+  else
+    {
+      NSUInteger count=[self count];
+      if (count == [otherArray count])
+	{
+	  if (count==0)
+	    isEqual=YES;
+	  else
+	    {
+	      IMP self_oaiIMP = NULL;
+	      IMP other_oaiIMP = NULL;
+	      NSUInteger i=0;
+	      isEqual=YES;
+	      for (i = 0; i < count; i++)
+		{
+		  if (GSWeb_objectAtIndexWithImpPtr(self,&self_oaiIMP,i)
+		      !=GSWeb_objectAtIndexWithImpPtr(otherArray,&other_oaiIMP,i))
+		    {
+		      isEqual=NO;
+		      break;
+		    };
+		}
+	    }
+	}
+    }
+  return isEqual;
+}
 @end
 
