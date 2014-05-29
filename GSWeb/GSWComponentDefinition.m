@@ -76,7 +76,7 @@ static GSWContext *   TheTemporaryContext;
   [super init];
   ASSIGN(_name, [aName stringByDeletingPathExtension]);    // does it ever happen that
   ASSIGN(_className, aName);                               // those are different? dw.
-  _componentClass = NSClassFromString(_className);  
+  ASSIGN(_componentClass,NSClassFromString(_className));
   ASSIGN(_path, aPath);   
   ASSIGN(_url, baseURL);   
   ASSIGN(_frameworkName, aFrameworkName);   
@@ -90,9 +90,11 @@ static GSWContext *   TheTemporaryContext;
   _instancePool = [NSMutableArray new];
   _lockInstancePool = [GSWApp isConcurrentRequestHandlingEnabled];
 
-  if ((_name != nil) && (_frameworkName != nil)) {
-    _componentClass = NSClassFromString(_className);
-  }
+  if (_name != nil
+      && _frameworkName != nil)
+    {
+      ASSIGN(_componentClass,NSClassFromString(_className));
+    }
   myBasePath = [aPath stringByAppendingPathComponent: aName];
   ASSIGN(_htmlPath,[myBasePath stringByAppendingPathExtension:@"html"]);
   ASSIGN(_wodPath,[myBasePath stringByAppendingPathExtension:GSWComponentDeclarationsSuffix[GSWebNamingConv]]);
@@ -135,7 +137,7 @@ static GSWContext *   TheTemporaryContext;
   DESTROY(_frameworkName);
   DESTROY(_language);
   DESTROY(_className);
-  _componentClass = Nil;
+  DESTROY(_componentClass);
   DESTROY(_template);
   DESTROY(_htmlPath);
   DESTROY(_wodPath);
@@ -419,34 +421,21 @@ static GSWContext *   TheTemporaryContext;
 /** Find the class of the component **/
 -(Class) componentClass
 {  
-  Class componentClass = Nil;
-  
-  if (_componentClass) {
-    return _componentClass;
-  }
-  
-  componentClass = _componentClass;
-  if (!componentClass) {
-    componentClass=NSClassFromString(_name);//???
-  }
-  if (!componentClass) // There's no class with that name
-    {
-      BOOL createClassesOk=NO;
-      NSString* superClassName=nil;
-      // If we haven't found a superclass, use GSWComponent as the superclass
-      if (!superClassName)
-        superClassName=@"WOComponent";
-      // Create class
-      createClassesOk=[GSWApplication createUnknownComponentClasses:[NSArray arrayWithObject:_name]
-                                      superClassName:superClassName];
+  if (_componentClass==Nil)
+    {  
+      ASSIGN(_componentClass,NSClassFromString(_name));
+      if (_componentClass==Nil) // There's no class with that name
+	{
+	  BOOL createClassesOk=NO;
+	  // Create class with GSWComponent as the superclass
+	  createClassesOk=[GSWApplication createUnknownComponentClasses:[NSArray arrayWithObject:_name]
+					  superClassName:GSWClassName_Component[GSWebNamingConv]];
 
-      // Use it
-      componentClass=NSClassFromString(_name);
-    };
-  //call GSWApp isCaching
-  _componentClass=componentClass;
+	  ASSIGN(_componentClass,NSClassFromString(_name));
+	};
+    }
 
-  return componentClass;
+  return _componentClass;
 };
 
 //--------------------------------------------------------------------

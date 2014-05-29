@@ -90,6 +90,7 @@ NSString* GSWClassName_Application=@"Application";
 NSString* GSWClassName_ResourceManager[2]={ @"GSWResourceManager", @"WOResourceManager" };
 NSString* GSWClassName_StatisticsStore[2]={ @"GSWStatisticsStore", @"WOStatisticsStore" };
 NSString* GSWClassName_ServerSessionStore[2]={ @"GSWServerSessionStore", @"WOServerSessionStore" };
+NSString* GSWClassName_Component[2]={ @"GSWComponent", @"WOComponent" };
 NSString* GSWClassName_DefaultAdaptor[2]={ @"GSWDefaultAdaptor", @"WODefaultAdaptor" };
 NSString* GSWClassName_DefaultContext[2]={ @"GSWContext", @"WOContext" };
 NSString* GSWClassName_DefaultResponse[2]={ @"GSWResponse", @"WOResponse" };

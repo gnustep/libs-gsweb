@@ -94,6 +94,7 @@ GSWEB_EXPORT NSString* GSWClassName_Application;
 GSWEB_EXPORT NSString* GSWClassName_ResourceManager[2];
 GSWEB_EXPORT NSString* GSWClassName_StatisticsStore[2];
 GSWEB_EXPORT NSString* GSWClassName_ServerSessionStore[2];
+GSWEB_EXPORT NSString* GSWClassName_Component[2];
 GSWEB_EXPORT NSString* GSWClassName_DefaultAdaptor[2];
 GSWEB_EXPORT NSString* GSWClassName_DefaultContext[2];
 GSWEB_EXPORT NSString* GSWClassName_DefaultResponse[2];

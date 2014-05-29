@@ -1,4 +1,9 @@
 2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWConstants.[hm]
+	  add GSWClassName_Component
+	* GSWeb/GSWComponentDefinition.m
+	  fix -componentClass to use GSWClassName_Component
+2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWDatabase/WODisplayGroup.m
 	  respect GNUstep coding standard (curly brackets placement, indentation)
 	  fix _deleteObject: (undo selectors)
