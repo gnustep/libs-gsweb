@@ -1,4 +1,15 @@
 2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWDatabase/GSWHTMLDynamicElement.[hm]
+	  add -hasNonURLAttributes
+	  add -hasURLAttributes
+	  add -hasConstantAttributes
+	* GSWeb/GSWRadioButtonList.m
+	  handle disabled association
+	  handle other associations (like id, onChange, etc)
+	* GSWeb/GSWCheckBoxList.m
+	  handle disabled association
+	  handle other associations (like id, onChange, etc)
+2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWDatabase/WODisplayGroup.m
 	  add NSArray -objectsAtIndexesArray:
 	  add NSArray -isEqualByObjectPointer:

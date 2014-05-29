@@ -66,12 +66,15 @@
                              directActionNameAssociation:(GSWAssociation*)directActionName
                                                inContext:(GSWContext*)context;
 
+-(BOOL) hasNonURLAttributes;
 -(void) appendNonURLAttributesToResponse:(GSWResponse*) response
                                inContext:(GSWContext*) context;
 
+-(BOOL) hasURLAttributes;
 -(void) appendURLAttributesToResponse:(GSWResponse*) response
                             inContext:(GSWContext*) context;
                                                          
+-(BOOL) hasConstantAttributes;
 -(void) appendConstantAttributesToResponse:(GSWResponse*) response
                                  inContext:(GSWContext*)aContext;
 

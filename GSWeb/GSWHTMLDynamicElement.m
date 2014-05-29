@@ -540,6 +540,15 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 }
 
 //--------------------------------------------------------------------
+//Used by childs like GSW(CheckBox|RadioButton)List to avoid calling 
+//multiple time appendConstantAttributesToResponse: if there's nothing
+//to do
+-(BOOL)hasConstantAttributes
+{
+  return ([[self constantAttributesRepresentation] length]>0 ? YES : NO);
+}
+
+//--------------------------------------------------------------------
 -(void) appendConstantAttributesToResponse:(GSWResponse*) response
                                  inContext:(GSWContext*)aContext
 {
@@ -583,6 +592,15 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 }
 
 //--------------------------------------------------------------------
+//Used by childs like GSW(CheckBox|RadioButton)List to avoid calling 
+//multiple time appendNonURLAttributesToResponse: if there's nothing
+//to do
+-(BOOL)hasNonURLAttributes
+{
+  return ([[self nonUrlAttributeAssociations] count]>0 ? YES : NO);
+}
+
+//--------------------------------------------------------------------
 -(void) appendNonURLAttributesToResponse:(GSWResponse*) response
                                inContext:(GSWContext*) context
   
@@ -591,6 +609,15 @@ static inline BOOL _needQuote(NSString* str_needQuote)
                                           inContext: context
                                        associations: [self nonUrlAttributeAssociations]];
 
+}
+
+//--------------------------------------------------------------------
+//Used by childs like GSW(CheckBox|RadioButton)List to avoid calling 
+//multiple time appendURLAttributesToResponse: if there's nothing
+//to do
+-(BOOL)hasURLAttributes
+{
+  return ([[self urlAttributeAssociations] count]>0 ? YES : NO);
 }
 
 //--------------------------------------------------------------------

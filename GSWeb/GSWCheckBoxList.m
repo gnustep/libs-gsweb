@@ -280,6 +280,10 @@ static Class standardClass = Nil;
 	  BOOL doEscape = NO;
 	  id selections = nil;
 	  IMP oaiIMP=NULL;
+	  BOOL isDisabled=[self disabledInComponent:GSWContext_component(context)];
+	  BOOL hasConstantAttributes=[self hasConstantAttributes];
+	  BOOL hasNonURLAttributes=[self hasNonURLAttributes];
+	  BOOL hasURLAttributes=[self hasURLAttributes];
 	  
 	  if (_escapeHTML==nil)
 	    doEscape=_defaultEscapeHTML;
@@ -355,9 +359,33 @@ static Class standardClass = Nil;
 		GSWResponse_appendContentAsciiString(response,GSWIntToNSString(i));
 	      
 	      if ([selections containsObject:item]) 
-		GSWResponse_appendContentAsciiString(response,@"\" checked>");
+		GSWResponse_appendContentAsciiString(response,@"\" checked");
 	      else 
-		GSWResponse_appendContentAsciiString(response,@"\">");
+		GSWResponse_appendContentAsciiString(response,@"\"");
+
+	      if (isDisabled)
+		GSWResponse_appendContentAsciiString(response,@" disabled");
+
+	      //append other associations (like id, onChange, ...)
+	      if (hasConstantAttributes)
+		{
+		  [self appendConstantAttributesToResponse: response 
+			inContext: context];
+		}
+	      
+	      if (hasNonURLAttributes)
+		{
+		  [self appendNonURLAttributesToResponse: response
+			inContext: context];
+		}
+	      
+	      if (hasURLAttributes)
+		{
+		  [self appendURLAttributesToResponse: response
+			inContext: context];
+		}
+
+	      GSWResponse_appendContentCharacter(response,'>');
 	      
 	      if (prefixStr != nil) 
 		GSWResponse_appendContentString(response,prefixStr);

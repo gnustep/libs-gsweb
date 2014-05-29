@@ -265,6 +265,10 @@ static Class standardClass = Nil;
 	      NSString* ctxName  = [self nameInContext:context];
 	      id selection = [_selection valueInComponent:component];
 	      IMP list_oaiIMP=NULL;
+	      BOOL isDisabled=[self disabledInComponent:GSWContext_component(context)];
+	      BOOL hasConstantAttributes=[self hasConstantAttributes];
+	      BOOL hasNonURLAttributes=[self hasNonURLAttributes];
+	      BOOL hasURLAttributes=[self hasURLAttributes];
   
 	      for (i = 0; i < count; i++)
 		{
@@ -329,10 +333,34 @@ static Class standardClass = Nil;
 		  
 		  if (selection != nil 
 		      && [selection isEqual:item])
-		    GSWResponse_appendContentAsciiString(response,@"\" checked>");
+		    GSWResponse_appendContentAsciiString(response,@"\" checked");
 		  else
-		    GSWResponse_appendContentAsciiString(response,@"\">");
+		    GSWResponse_appendContentAsciiString(response,@"\"");
 		  
+		  if (isDisabled)
+		    GSWResponse_appendContentAsciiString(response,@" disabled");
+		  
+		  //append other associations (like id, onChange, ...)
+		  if (hasConstantAttributes)
+		    {
+		      [self appendConstantAttributesToResponse: response 
+			    inContext: context];
+		    }
+		  
+		  if (hasNonURLAttributes)
+		    {
+		      [self appendNonURLAttributesToResponse: response
+			    inContext: context];
+		    }
+		  
+		  if (hasURLAttributes)
+		    {
+		      [self appendURLAttributesToResponse: response
+			    inContext: context];
+		    }
+		  
+		  GSWResponse_appendContentCharacter(response,'>');
+	      
 		  if (prefixStr != nil)
 		    GSWResponse_appendContentString(response,prefixStr);
 		  
