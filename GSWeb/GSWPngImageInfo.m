@@ -28,7 +28,6 @@
 **/
 
 #include "config.h"
-RCS_ID("$Id: GSWImageInfo.m 25027 2009-04-05 13:00:10Z ayers $")
 
 #ifdef HAVE_LIBPNG
 #include <png.h>

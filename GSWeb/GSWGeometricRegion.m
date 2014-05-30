@@ -29,8 +29,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "GSWeb.h"
 #include <math.h>
 #include <GNUstepBase/NSObject+GNUstepBase.h>

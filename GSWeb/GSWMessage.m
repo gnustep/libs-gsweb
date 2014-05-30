@@ -30,8 +30,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include <GNUstepBase/Unicode.h>
 #include "GSWeb.h"
 #include "NSData+Compress.h"

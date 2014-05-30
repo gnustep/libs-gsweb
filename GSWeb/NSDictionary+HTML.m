@@ -30,8 +30,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id: GSWDynamicGroup.m,v 1.17 2004/12/31 14:33:16 mguesdon Exp $")
-
 #include "GSWeb.h"
 #include <GNUstepBase/GSMime.h>
 

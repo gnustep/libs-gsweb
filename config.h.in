@@ -30,8 +30,4 @@
 #undef HAVE_LIBWRAP
 #undef HAVE_GDL2
 
-#define RCS_ID(name) \
-	static const char RCSID[] = name; \
-	static inline const char *getGswRCSID() { if (0) getGswRCSID(); return RCSID;}
-
 #endif

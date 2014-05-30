@@ -31,8 +31,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "GSWExtWOCompatibility.h"
 #include "GSWSessionCreationErrorPage.h"
 

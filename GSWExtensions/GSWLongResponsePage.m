@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "GSWExtWOCompatibility.h"
 #include "GSWLongResponsePage.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>

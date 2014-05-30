@@ -32,8 +32,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include <unistd.h>
 #include "GSWeb.h"
 #include "GSWLifebeatThread.h"

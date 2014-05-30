@@ -53,9 +53,6 @@
 //#endif
 
 
-RCS_ID("$Id$")
-
-
 //#if HAVE_LIBWRAP
 //int deny_severity = LOG_WARNING;
 //int allow_severity = LOG_INFO;

@@ -30,8 +30,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "GSWExtGSWWOCompatibility.h"
 #include "GSWCacheElement.h"
 

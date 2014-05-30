@@ -47,9 +47,6 @@
 #define IsNumberStyle(__value,__style) \
   (((([__value unsignedIntValue])&(__style))==(__style)) ? YES : NO)
 
-#define VOID_RCSID	\
-static void VoidUseRCSId() { rcsId[0]=0; };
-
 #ifndef BYTE_DEFINED
 typedef unsigned char BYTE;
 #define BYTE_DEFINED

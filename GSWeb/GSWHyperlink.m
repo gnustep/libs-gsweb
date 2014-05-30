@@ -35,8 +35,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "GSWeb.h"
 
 static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;

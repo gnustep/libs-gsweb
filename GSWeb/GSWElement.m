@@ -36,8 +36,6 @@ Actually WOElement does really nothing.
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "GSWeb.h"
 
 BYTE ElementsMap_htmlBareString	=	(BYTE)0x53; // 'S'

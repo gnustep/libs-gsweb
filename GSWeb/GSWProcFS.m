@@ -34,8 +34,6 @@
 
 #include "config.h"
 
-RCS_ID("$Id$")
-
 #include "GSWeb.h"
 
 NSString* formattedByteSizeValue(unsigned int value)
