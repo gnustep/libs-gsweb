@@ -100,7 +100,6 @@ static Class standardClass = Nil;
       GSWAssignAndRemoveAssociation(&_selection,_associations,selection__Key);
       GSWAssignAndRemoveAssociation(&_prefix,_associations,prefix__Key);
       GSWAssignAndRemoveAssociation(&_displayString,_associations,displayString__Key);
-      GSWAssignAndRemoveAssociation(&_escapeHTML,_associations,escapeHTML__Key);
       
       if (_displayString == nil)
 	{

@@ -1,3 +1,10 @@
+2014-05-30  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWRadioButtonList.m
+	  Remove escapeHTML association assign (done in GSWInput)
+	* GSWeb/GSWCheckBoxList.m
+	  Remove escapeHTML association assign (done in GSWInput)
+	* GSWeb.framework/GSWInput.m
+	  Fix -init...
 2014-05-29  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWDatabase/GSWHTMLDynamicElement.[hm]
 	  add -hasNonURLAttributes

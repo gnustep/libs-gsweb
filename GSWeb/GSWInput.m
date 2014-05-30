@@ -55,9 +55,9 @@ static Class standardClass = Nil;
      associations:(NSDictionary*)associations
          template:(GSWElement*)template
 {
-  if (([super initWithName:aName
-	      associations:associations
-	      template: template]))
+  if ((self=[super initWithName:aName
+		   associations:associations
+		   template: template]))
     {
       GSWAssignAndRemoveAssociation(&_disabled,_associations,disabled__Key);
       GSWAssignAndRemoveAssociation(&_name,_associations,name__Key);
