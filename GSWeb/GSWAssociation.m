@@ -718,8 +718,8 @@ static Class NSStringClass = Nil;
 	      NSString     * errorStr = @"unknown reason";
 	      
 	      uInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-				      (value ? value : (id)@"nil"), @"EOValidatedObjectUserInfoKey",
-				    keyPath, @"EOValidatedPropertyUserInfoKey",
+				      tmpObject, @"EOValidatedObjectUserInfoKey", //Target Object
+				    keyPath, @"EOValidatedPropertyUserInfoKey",   //Target Object Key Path
 				    nil];
 	      
 	      if (outError
