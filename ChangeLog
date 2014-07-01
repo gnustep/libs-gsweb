@@ -1,3 +1,6 @@
+2014-07-01  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWHyperlink.m
+	  fix -appendAttribute:... for nil href value
 2014-06-11  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWAssociation.m
 	  fix EOValidatedObjectUserInfoKey value	
