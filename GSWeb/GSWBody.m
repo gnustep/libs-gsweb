@@ -37,11 +37,11 @@
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
      associations:(NSDictionary*)associations
-  contentElements:(NSMutableArray*)elements
+         template:(GSWElement*)template
 {
   if ((self=[super initWithName:@"body"
                    associations:associations
-                   contentElements:elements]))
+                   template:template]))
     {
     };
   return self;
