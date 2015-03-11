@@ -141,7 +141,7 @@ void _unpackHeaderLineAddToDict(NSString *line, NSMutableDictionary* headers)
     value = [components objectAtIndex:1];
     key = [components objectAtIndex:0];
 
-    key = [key stringByTrimmingSpaces];
+    key = [[key stringByTrimmingSpaces]lowercaseString];
     
     if ([key isEqualToString:GSWHTTPHeader_AdaptorVersion[GSWNAMES_INDEX]]
         || [key isEqualToString:GSWHTTPHeader_ServerName[GSWNAMES_INDEX]]) {

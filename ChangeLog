@@ -1,3 +1,6 @@
+2015-03-11  Manuel Guesdon <mguesdon@orange-concept.com>
+	* GSWeb/GSWHTTPIO.m
+	  force header keys to lowercase
 2014-07-04  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWBody.m
 	  fix initWithName:...
