@@ -1,3 +1,11 @@
+2017-09-02  David Wetzel <dave@turbocat.de> 
+	* GSWeb/GSWSessionTimeOutManager.m
+	  shorten description to avoid loop
+	* GSWeb/GSWApplication.m
+	  added -frameworkNameWOExtensions to make WONames work
+	  (Session restoration error page did not work)
+	* GSWDatabase/WODisplayGroup.m
+	  added <WebObjects/GSWPrivate.h> header
 2015-03-11  Manuel Guesdon <mguesdon@orange-concept.com>
 	* GSWeb/GSWConstants.m
 	  downcase Header keys

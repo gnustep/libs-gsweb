@@ -545,15 +545,18 @@
 - (NSString*) description
 {
 
-  NSString * desStr = [NSString stringWithFormat:@"<%s %p sessionOrderedTimeOuts:%@ sessionTimeOuts:%@ target:XX callback:%@ timer:%@ selfLock:%@>", object_getClassName(self),
-                                                             (void*)self,
-                                                             _sessionOrderedTimeOuts,
-                                                             _sessionTimeOuts, 
-                                                             //_target 
-                                                             NSStringFromSelector(_callback),
-                                                             _timer,
-                                                             _selfLock
-                                                             ];
+    NSString * desStr = [NSString stringWithFormat:@"<%s %p>", object_getClassName(self),
+                         (void*)self];
+
+//  NSString * desStr = [NSString stringWithFormat:@"<%s %p sessionOrderedTimeOuts:%@ sessionTimeOuts:%@ target:XX callback:%@ timer:%@ selfLock:%@>", object_getClassName(self),
+//                                                             (void*)self,
+//                                                             _sessionOrderedTimeOuts,
+//                                                             _sessionTimeOuts, 
+//                                                             //_target 
+//                                                             NSStringFromSelector(_callback),
+//                                                             _timer,
+//                                                             _selfLock
+//                                                             ];
 
   return desStr;
 }

@@ -3666,10 +3666,18 @@ to another instance **/
 // or [GSWDynamicURLString stringWithString:url]
 // instead.
 
+// we need BOTH of those frameworkNameXX methods otherwise either GSWNames or WONames will fail -- dwetzel
+
 // Returns GSWExtensions or WOExtensions
 - (NSString*)frameworkNameGSWExtensions
 {
   return GSWFramework_extensions[GSWebNamingConv];
 }
+
+- (NSString*)frameworkNameWOExtensions
+{
+    return GSWFramework_extensions[GSWebNamingConv];
+}
+
 @end
 

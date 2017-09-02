@@ -42,7 +42,7 @@
 #include <WebObjects/WebObjects.h>
 #include <EOControl/EOSortOrdering.h>
 #include <EOControl/EOClassDescription.h>
-#include <GSWeb/GSWPrivate.h>
+#include <WebObjects/GSWPrivate.h>
 
 static NSArray* globalStringQualifierOperators=nil;
 static NSArray* globalAllQualifierOperators=nil;
