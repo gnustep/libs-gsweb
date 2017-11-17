@@ -1,4 +1,8 @@
-2017-09-02  David Wetzel <dave@turbocat.de> 
+2017-11-16  David Wetzel <dave@turbocat.de>
+    * GSWExtensions/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.html
+    * GSWExtensions/GSWExceptionPage.gswc/GSWExceptionPage.html
+      tweak CSS and Sizes for iPhone
+2017-09-02  David Wetzel <dave@turbocat.de>
 	* GSWeb/GSWSessionTimeOutManager.m
 	  shorten description to avoid loop
 	* GSWeb/GSWApplication.m
