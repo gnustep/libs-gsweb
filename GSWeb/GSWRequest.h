@@ -64,25 +64,25 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 @interface GSWRequest : GSWMessage
 {
 @private
-  NSString* _method;
-  GSWDynamicURLString* _uri;
-  NSStringEncoding     _defaultFormValueEncoding;
-  NSStringEncoding     _formValueEncoding;
-  NSDictionary*        _formValues;
-  NSDictionary*        _uriElements;
-  NSDictionary*        _cookie;
-  BOOL                 _finishedParsingMultipartFormData;
-  NSString*            _applicationURLPrefix;
-  NSArray*             _requestHandlerPathArray;
-  NSArray*             _browserLanguages;
-  NSArray*             _browserAcceptedEncodings;
-  int                  _requestType;
-  NSString*            _originatingAddress;
-  uint16_t             _originatingPort;
-  BOOL _isUsingWebServer;
-  BOOL _formValueEncodingDetectionEnabled;
-  int _applicationNumber;
-  GSWContext* _context;//Don't retain/release because request is retained by context
+    NSString* _method;
+    GSWDynamicURLString* _uri;
+    NSStringEncoding     _defaultFormValueEncoding;
+    NSStringEncoding     _formValueEncoding;
+    NSDictionary*        _formValues;
+    NSDictionary*        _uriElements;
+    NSDictionary*        _cookie;
+    BOOL                 _finishedParsingMultipartFormData;
+    NSString*            _applicationURLPrefix;
+    NSArray*             _requestHandlerPathArray;
+    NSArray*             _browserLanguages;
+    NSArray*             _browserAcceptedEncodings;
+    int                  _requestType;
+    NSString*            _originatingAddress;
+    uint16_t             _originatingPort;
+    BOOL _isUsingWebServer;
+    BOOL _formValueEncodingDetectionEnabled;
+    int _applicationNumber;
+    GSWContext* _context;//Don't retain/release because request is retained by context
 };
 
 -(id)initWithMethod:(NSString*)aMethod
@@ -165,6 +165,12 @@ Cf RFC 2616 (http://www.rfc-editor.org/rfc/rfc2616.txt)
 -(NSData*)_formData;
 -(NSString*)_contentType;
 -(NSString*)_urlQueryString;
+
+-(BOOL)isAjaxSubmit;
+
++(NSString*)ajaxFormSubmitKey;
+
++(void)setAjaxFormSubmitKey:(NSString*) value;
 
 -(BOOL)_isUsingWebServer;
 -(BOOL)isUsingWebServer;

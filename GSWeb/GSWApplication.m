@@ -583,91 +583,100 @@ int GSWApplicationMain(NSString* applicationClassName,
 //--------------------------------------------------------------------
 -(void)registerRequestHandlers
 {
-  //OK
-  NSString* componentRequestHandlerKey=nil;
-  NSString* resourceRequestHandlerKey=nil;
-  NSString* directActionRequestHandlerKey=nil;
-  NSString* pingDirectActionRequestHandlerKey=nil;
-  NSString* streamDirectActionRequestHandlerKey=nil;
+    //OK
+    NSString* componentRequestHandlerKey=nil;
+    NSString* resourceRequestHandlerKey=nil;
+    NSString* directActionRequestHandlerKey=nil;
+    NSString* pingDirectActionRequestHandlerKey=nil;
+    NSString* streamDirectActionRequestHandlerKey=nil;
+    NSString* ajaxRequestHandlerKey=nil;
 
-  GSWRequestHandler* componentRequestHandler=nil;
-  GSWResourceRequestHandler* resourceRequestHandler=nil;
-  GSWDirectActionRequestHandler* directActionRequestHandler=nil;
-  GSWDirectActionRequestHandler* pingDirectActionRequestHandler=nil;
-  GSWDirectActionRequestHandler* streamDirectActionRequestHandler=nil;
-  GSWRequestHandler* defaultRequestHandler=nil;
-
-  Class defaultRequestHandlerClass=nil;
-
-  
-
-  // Component Handler
-  componentRequestHandler=[[self class] _componentRequestHandler];
-  componentRequestHandlerKey=[[self class] componentRequestHandlerKey];
-
-
-  // Resource Handler
-  resourceRequestHandler=(GSWResourceRequestHandler*)
+    GSWRequestHandler* componentRequestHandler=nil;
+    GSWResourceRequestHandler* resourceRequestHandler=nil;
+    GSWDirectActionRequestHandler* directActionRequestHandler=nil;
+    GSWDirectActionRequestHandler* pingDirectActionRequestHandler=nil;
+    GSWDirectActionRequestHandler* streamDirectActionRequestHandler=nil;
+    GSWAjaxRequestHandler*         ajaxRequestHander=nil;
+    GSWRequestHandler*             defaultRequestHandler=nil;
+    
+    Class defaultRequestHandlerClass=nil;
+    
+    
+    
+    // Component Handler
+    componentRequestHandler=[[self class] _componentRequestHandler];
+    componentRequestHandlerKey=[[self class] componentRequestHandlerKey];
+    
+    
+    // Resource Handler
+    resourceRequestHandler=(GSWResourceRequestHandler*)
     [GSWResourceRequestHandler handler];
-
-  resourceRequestHandlerKey=[[self class] resourceRequestHandlerKey];
-
-
-  // DirectAction Handler
-  directActionRequestHandler=(GSWDirectActionRequestHandler*)
+    
+    resourceRequestHandlerKey=[[self class] resourceRequestHandlerKey];
+    
+    
+    // DirectAction Handler
+    directActionRequestHandler=(GSWDirectActionRequestHandler*)
     [GSWDirectActionRequestHandler handler];
-
-  directActionRequestHandlerKey=[[self class] directActionRequestHandlerKey];
-
-
-  // "Ping" Handler
-  pingDirectActionRequestHandler=(GSWDirectActionRequestHandler*)
+    
+    directActionRequestHandlerKey=[[self class] directActionRequestHandlerKey];
+    
+    
+    // "Ping" Handler
+    pingDirectActionRequestHandler=(GSWDirectActionRequestHandler*)
     [GSWDirectActionRequestHandler handlerWithDefaultActionClassName:@"GSWAdminAction"
-                                   defaultActionName:@"ping"
-                                   shouldAddToStatistics:NO];
-  pingDirectActionRequestHandlerKey=[[self class] pingActionRequestHandlerKey];
-
-
-  // Stream Handler
-  streamDirectActionRequestHandler=(GSWDirectActionRequestHandler*)
+                                                   defaultActionName:@"ping"
+                                               shouldAddToStatistics:NO];
+    pingDirectActionRequestHandlerKey=[[self class] pingActionRequestHandlerKey];
+    
+    
+    // Stream Handler
+    streamDirectActionRequestHandler=(GSWDirectActionRequestHandler*)
     [GSWDirectActionRequestHandler handler];
+    
+    streamDirectActionRequestHandlerKey=[[self class] streamActionRequestHandlerKey];
+    [streamDirectActionRequestHandler setAllowsContentInputStream:YES];
+    
+    // Ajax
+    
+    ajaxRequestHandlerKey = [[self class] ajaxRequestHandlerKey];
+    ajaxRequestHander = [GSWAjaxRequestHandler handler];
+    
+    [self registerRequestHandler:componentRequestHandler
+                          forKey:componentRequestHandlerKey];
+    [self registerRequestHandler:resourceRequestHandler
+                          forKey:resourceRequestHandlerKey];
+    [self registerRequestHandler:directActionRequestHandler
+                          forKey:directActionRequestHandlerKey];
+    [self registerRequestHandler:directActionRequestHandler
+                          forKey:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]];
+    [self registerRequestHandler:pingDirectActionRequestHandler
+                          forKey:pingDirectActionRequestHandlerKey];
+    [self registerRequestHandler:streamDirectActionRequestHandler
+                          forKey:streamDirectActionRequestHandlerKey];
+    
+    [self registerRequestHandler:ajaxRequestHander
+                          forKey:ajaxRequestHandlerKey];
 
-  streamDirectActionRequestHandlerKey=[[self class] streamActionRequestHandlerKey];
-  [streamDirectActionRequestHandler setAllowsContentInputStream:YES];
-
-
-  [self registerRequestHandler:componentRequestHandler
-		forKey:componentRequestHandlerKey];
-  [self registerRequestHandler:resourceRequestHandler
-		forKey:resourceRequestHandlerKey];
-  [self registerRequestHandler:directActionRequestHandler
-		forKey:directActionRequestHandlerKey];
-  [self registerRequestHandler:directActionRequestHandler
-		forKey:GSWDirectActionRequestHandlerKey[GSWebNamingConvInversed]];
-  [self registerRequestHandler:pingDirectActionRequestHandler
-		forKey:pingDirectActionRequestHandlerKey];
-  [self registerRequestHandler:streamDirectActionRequestHandler
-		forKey:streamDirectActionRequestHandlerKey];
-
-  // Default Request Handler
-  defaultRequestHandlerClass=[self defaultRequestHandlerClass];
-  if (defaultRequestHandlerClass)
+    // Default Request Handler
+    defaultRequestHandlerClass=[self defaultRequestHandlerClass];
+    if (defaultRequestHandlerClass)
     defaultRequestHandler=(GSWRequestHandler*)[defaultRequestHandlerClass handler];
-  else
+    else
     defaultRequestHandler=componentRequestHandler;
-  [self setDefaultRequestHandler:defaultRequestHandler];
-
-
-  // If direct connect enabled, add static resources handler
-  if ([[self class] isDirectConnectEnabled])
+    [self setDefaultRequestHandler:defaultRequestHandler];
+    
+    
+    // If direct connect enabled, add static resources handler
+    if ([[self class] isDirectConnectEnabled])
     {
-      GSWStaticResourceRequestHandler* staticResourceRequestHandler = (GSWStaticResourceRequestHandler*)
+        GSWStaticResourceRequestHandler* staticResourceRequestHandler = (GSWStaticResourceRequestHandler*)
         [GSWStaticResourceRequestHandler handler];
-      NSString* staticResourceRequestHandlerKey=[[self class] staticResourceRequestHandlerKey];
-      [self registerRequestHandler:staticResourceRequestHandler
-            forKey:staticResourceRequestHandlerKey];
+        NSString* staticResourceRequestHandlerKey=[[self class] staticResourceRequestHandlerKey];
+        [self registerRequestHandler:staticResourceRequestHandler
+                              forKey:staticResourceRequestHandlerKey];
     };
-  
+    
 };
 
 

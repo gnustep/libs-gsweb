@@ -261,6 +261,10 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
       LOGOPT_NC(GSWOPTValue_DirectActionRequestHandlerKey);
       LOGOPT_NC(GSWOPT_DirectActionRequestHandlerKey);
 
+        // ajax
+      LOGOPT_NC(GSWOPTValue_AjaxRequestHanderKey);
+      LOGOPT_NC(GSWOPT_AjaxRequestHandlerKey);
+
       LOGOPT_NC(GSWOPTValue_PingActionRequestHandlerKey);
       LOGOPT_NC(GSWOPT_PingActionRequestHandlerKey);
 
@@ -386,7 +390,10 @@ GSWeb_InitializeGlobalAppDefaultOptions(void)
 		      
 		      GSWOPTValue_DirectActionRequestHandlerKey[GSWebNamingConv],
 		      GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv],
-		      
+
+              GSWOPTValue_AjaxRequestHanderKey[GSWebNamingConv],
+              GSWOPT_AjaxRequestHandlerKey[GSWebNamingConv],
+
 		      GSWOPTValue_StreamActionRequestHandlerKey[GSWebNamingConv],
 		      GSWOPT_StreamActionRequestHandlerKey[GSWebNamingConv],
 		      
@@ -1082,13 +1089,29 @@ static NSString *_dflt_directActionRequestHandlerKey;
 		GSWOPT_DirectActionRequestHandlerKey[GSWebNamingConv]);
   return _dflt_directActionRequestHandlerKey;
 };
-
 //--------------------------------------------------------------------
 +(void)setDirectActionRequestHandlerKey:(NSString*)aKey
 {
   ASSIGNCOPY(_dflt_directActionRequestHandlerKey, aKey);
   _dflt_init_directActionRequestHandlerKey = YES;
 };
+//--------------------------------------------------------------------
+
+static BOOL      _dflt_init_ajaxRequestHandlerKey = NO;
+static NSString *_dflt_ajaxRequestHandlerKey;
++(NSString*)ajaxRequestHandlerKey
+{
+    INIT_DFLT_OBJ(ajaxRequestHandlerKey,
+                  GSWOPT_AjaxRequestHandlerKey[GSWebNamingConv]);
+    return _dflt_ajaxRequestHandlerKey;
+};
+
++(void)setAjaxRequestHandlerKey:(NSString*)aKey
+{
+    ASSIGNCOPY(_dflt_ajaxRequestHandlerKey, aKey);
+    _dflt_init_ajaxRequestHandlerKey = YES;
+};
+
 
 //--------------------------------------------------------------------
 static BOOL      _dflt_init_resourceRequestHandlerKey = NO;

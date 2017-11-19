@@ -438,7 +438,7 @@ GSWResponse * _dispatchWithPreparedApplication(GSWApplication *app, GSWContext *
 // used in GSWApplication _componentRequestHandler
 +(id)handler
 {
-  return [[GSWComponentRequestHandler new] autorelease];
+  return [[self new] autorelease];
 }
 
 

@@ -4,10 +4,6 @@
    
    Written by:	Manuel Guesdon <mguesdon@orange-concept.com>
    Date: 	Jan 1999
-   
-   $Revision$
-   $Date$
-   $Id$
 
    This file is part of the GNUstep Web Library.
    
@@ -197,6 +193,8 @@
 @end
 
 @implementation GSWRequest
+
+static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
 
 //--------------------------------------------------------------------
 //	initWithMethod:uri:httpVersion:headers:content:userInfo:
@@ -722,6 +720,10 @@
 {
   id formValue=nil;
   NSArray* formValuesForKey=nil;
+    
+    if (!key) {
+        return nil;
+    }
 
   formValuesForKey=[self formValuesForKey:key];
   NSAssert3(!formValuesForKey || [formValuesForKey isKindOfClass:[NSArray class]],@"formValues:%@ ForKey:%@ is not a NSArray it's a %@",
@@ -1369,6 +1371,22 @@
 };
 
 //--------------------------------------------------------------------
+
+-(BOOL) isAjaxSubmit
+{
+    return ([self formValueForKey:[[self class] ajaxFormSubmitKey]] != nil);
+}
+
++ (NSString*) ajaxFormSubmitKey
+{
+    return (__AJAX_FORM_SUBMIT_KEY == nil) ? @"" : __AJAX_FORM_SUBMIT_KEY;
+}
+
++ (void) setAjaxFormSubmitKey:(NSString*) value
+{
+    ASSIGN(__AJAX_FORM_SUBMIT_KEY,(value == nil) ? @"" : value);
+}
+
 // FIXME:check if that is needed for 4.5 compat
 -(BOOL)_isUsingWebServer
 {

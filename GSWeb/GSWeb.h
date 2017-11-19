@@ -111,6 +111,7 @@
 @class GSWResourceRequestHandler;
 @class GSWStaticResourceRequestHandler;
 @class GSWActionRequestHandler;
+@class GSWAjaxRequestHandler;
 @class GSWDirectActionRequestHandler;
 @class GSWKeyValueAssociation;
 @class GSWConstantValueAssociation;
@@ -236,6 +237,7 @@
 #include "GSWResourceRequestHandler.h"
 #include "GSWStaticResourceRequestHandler.h"
 #include "GSWActionRequestHandler.h"
+#include "GSWAjaxRequestHandler.h"
 #include "GSWDirectActionRequestHandler.h"
 #include "GSWKeyValueAssociation.h"
 #include "GSWConstantValueAssociation.h"

@@ -122,6 +122,7 @@ GSWDefaultAdaptor.m \
 GSWUtils.m \
 GSWClientSideScript.m \
 GSWActiveImage.m \
+GSWAjaxRequestHandler.m \
 GSWBody.m \
 GSWTextField.m \
 GSWForm.m \
@@ -213,6 +214,7 @@ GSWeb_HEADER_FILES = \
 GSWeb.h \
 GSWActiveImage.h \
 GSWAdaptor.h \
+GSWAjaxRequestHandler.h \
 GSWApplet.h \
 GSWApplication.h \
 GSWAssociation.h \
@@ -350,6 +352,7 @@ WO_HEADER_FILES = \
 	WOMailDelivery.h \
 	WORequest.h \
 	WORequestHandler.h \
+    WOAjaxRequestHandler.h \
 	WOResourceManager.h \
 	WOResponse.h \
 	WOSession.h \

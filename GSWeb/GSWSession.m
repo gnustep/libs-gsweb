@@ -588,7 +588,22 @@ extern id gcObjectsToBeVisited;
 
 
 //--------------------------------------------------------------------
+
+-(void)savePageInPageFragmentCache:(GSWComponent*)page
+{
+    // TODO
+}
+
 -(void)savePage:(GSWComponent*)page
+{
+    if ([_currentContext shouldNotStorePageInBacktrackCache]) {
+        [self savePageInPageFragmentCache:page];
+    } else {
+        [self savePageInPageCache:page];
+    }
+}
+
+-(void)savePageInPageCache:(GSWComponent*)page
 {
   GSWTransactionRecord * transactionrec = nil;
   BOOL pageChanged = [_currentContext _pageChanged];

@@ -615,6 +615,8 @@ GSWEB_EXPORT GSWApplication* GSWApp;
 +(void)setComponentRequestHandlerKey:(NSString*)aKey;
 +(NSString*)directActionRequestHandlerKey;
 +(void)setDirectActionRequestHandlerKey:(NSString*)aKey;
++(NSString*)ajaxRequestHandlerKey;
++(void)setAjaxRequestHandlerKey:(NSString*)aKey;
 +(NSString*)resourceRequestHandlerKey;
 +(void)setResourceRequestHandlerKey:(NSString*)aKey;
 +(NSString*)statisticsStoreClassName;

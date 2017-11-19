@@ -1,3 +1,30 @@
+2017-11-19  David Wetzel <dave@turbocat.de>
+    * GSWeb/GSWAjaxRequestHandler.*
+      new files
+    * GSWeb/GNUmakefile
+      add GSWAjaxRequestHandler.*, WOAjaxRequestHandler.h
+    * GSWeb/GSWApplication+Defaults.*
+      add AjaxRequestHanderKey
+    * GSWeb/GSWApplication.h
+      add +ajaxRequestHandlerKey
+      add +setAjaxRequestHandlerKey:
+    * GSWeb/GSWApplication.m
+      create ajax request handler in registerRequestHandlers
+    * GSWeb/GSWComponentRequestHandler.m
+      return current class instance in +handler (works in subclasses too..)
+    * GSWConstants.*
+      added ajax
+    * GSWContext.*
+      added +shouldNotStorePageInBacktrackCache
+    * GSWeb/GSWMessage.*
+      added storePageInBacktrackCache
+    * GSWeb/GSWRequest.*
+      added -isAjaxSubmit, ajaxFormSubmitKey
+    * GSWeb/GSWSession.m
+    * GSWeb/GSWeb.h
+    * GSWeb/GSWWOCompatibility.h
+      ajax adjustments
+
 2017-11-16  David Wetzel <dave@turbocat.de>
     * GSWExtensions/GSWSessionRestorationErrorPage.gswc/GSWSessionRestorationErrorPage.html
     * GSWExtensions/GSWExceptionPage.gswc/GSWExceptionPage.html

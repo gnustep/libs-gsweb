@@ -455,6 +455,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
     {
       GetGSWMessageIMPs(&_selfMsgIMPs,self);
       ASSIGN(_httpVersion,@"HTTP/1.0");
+      _storePageInBacktrackCache = YES;
       _headers=[NSMutableDictionary new];
       _contentEncoding=[[self class] defaultEncoding];
       _checkBody(self);
@@ -536,6 +537,16 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
     };
           
   return isEqual;
+}
+
+-(BOOL)storePageInBacktrackCache
+{
+    return _storePageInBacktrackCache;
+}
+
+-(void)setStorePageInBacktrackCache:(BOOL) yn
+{
+    _storePageInBacktrackCache = yn;
 }
 
 //--------------------------------------------------------------------

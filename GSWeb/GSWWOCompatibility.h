@@ -66,6 +66,7 @@
 #define GSWBundle			WOBundle
 #define GSWMultiKeyDictionary		WOMultiKeyDictionary
 #define GSWElementID			WOElementIDString
+#define GSWAjaxRequestHandler       WOAjaxRequestHandler
 #define GSWComponentRequestHandler	WOComponentRequestHandler
 #define GSWResourceRequestHandler	WOResourceRequestHandler
 #define GSWDirectActionRequestHandler	WODirectActionRequestHandler

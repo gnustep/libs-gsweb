@@ -741,6 +741,21 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 #endif
 
 //--------------------------------------------------------------------
+
+- (BOOL) shouldNotStorePageInBacktrackCache
+{
+    BOOL shouldNot = NO;
+    
+    BOOL requestNotStorePageInBacktrackCache = ((_request) && ([_request storePageInBacktrackCache] == NO));
+    BOOL responseNotStorePageInBacktrackCache = ((_response) && ([_response storePageInBacktrackCache] == NO));
+    BOOL requestIsAjaxSubmit = ((_request) && [_request isAjaxSubmit]);
+    
+    shouldNot = (responseNotStorePageInBacktrackCache || requestNotStorePageInBacktrackCache || requestIsAjaxSubmit);
+    
+    return shouldNot;
+}
+
+//--------------------------------------------------------------------
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                            urlPrefix:(NSString*)urlPrefix
                                      queryDictionary:(NSDictionary*)queryDictionary

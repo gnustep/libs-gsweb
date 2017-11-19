@@ -84,21 +84,26 @@ GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,
 //====================================================================
 @interface GSWMessage : NSObject <NSCopying>
 {
-  NSString* _httpVersion;
-  NSMutableDictionary* _headers;
-  NSMutableArray* _cookies;
-  NSStringEncoding _contentEncoding;
-  NSDictionary* _userInfo;
-  NSMutableData* _contentData;
-  IMP _contentDataADImp;
-
-  NSMutableArray* _cachesStack; // Cache Stacks
-  NSMutableData* _currentCacheData; // Current Cache Data (last object of _cachesStack). Do not retain/release
-  IMP _currentCacheDataADImp;
-
+    BOOL _storePageInBacktrackCache;
+    NSString* _httpVersion;
+    NSMutableDictionary* _headers;
+    NSMutableArray* _cookies;
+    NSStringEncoding _contentEncoding;
+    NSDictionary* _userInfo;
+    NSMutableData* _contentData;
+    IMP _contentDataADImp;
+    
+    NSMutableArray* _cachesStack; // Cache Stacks
+    NSMutableData* _currentCacheData; // Current Cache Data (last object of _cachesStack). Do not retain/release
+    IMP _currentCacheDataADImp;
+    
 @public // For functions
-  GSWMessageIMPs _selfMsgIMPs;
+    GSWMessageIMPs _selfMsgIMPs;
 };
+
+-(BOOL)storePageInBacktrackCache;
+
+-(void)setStorePageInBacktrackCache:(BOOL) yn;
 
 -(void)setHTTPVersion:(NSString*)version;
 -(NSString*)httpVersion;

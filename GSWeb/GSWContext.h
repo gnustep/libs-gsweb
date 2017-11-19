@@ -177,6 +177,8 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 -(NSString*)docStructure;
 #endif
 
+- (BOOL) shouldNotStorePageInBacktrackCache;
+
 -(GSWDynamicURLString*)directActionURLForActionNamed:(NSString*)actionName
                                            urlPrefix:(NSString*)urlPrefix
                                      queryDictionary:(NSDictionary*)queryDictionary;
