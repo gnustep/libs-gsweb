@@ -641,7 +641,7 @@ int GSWApplicationMain(NSString* applicationClassName,
     
     ajaxRequestHandlerKey = [[self class] ajaxRequestHandlerKey];
     ajaxRequestHander = [GSWAjaxRequestHandler handler];
-    
+        
     [self registerRequestHandler:componentRequestHandler
                           forKey:componentRequestHandlerKey];
     [self registerRequestHandler:resourceRequestHandler

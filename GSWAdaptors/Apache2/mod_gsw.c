@@ -41,6 +41,8 @@
 #include <netinet/tcp.h> 
 #include <netdb.h> 
 #include <arpa/inet.h> 
+// needed on FreeBSD at least
+#include <unistd.h>
 
 #if !defined(OS2) && !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
 #include "unixd.h"
@@ -386,8 +388,8 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
                     }
                 } else {
                     // if there is only one app, we have to hit it anyways.
-                    if ((appcount == 1)) {
-                        if ((mem[i].unreachable == 1)) {
+                    if (appcount == 1) {
+                        if (mem[i].unreachable == 1) {
                             lastUnreachableIndex = i;
                         }
                     }
@@ -568,7 +570,7 @@ void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool)
   while (((done == 0) && (i < sizeof(buffer) -1)) && (rval >0)) {
     rval= read(socket, &b, 1);
     
-    if ((rval == -1)) {
+    if (rval == -1) {
       ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "read_sock_line:'%s'", strerror(errno));
 
       return NULL;
@@ -611,11 +613,13 @@ x-webobjects-adaptorstats: applicationThreadCreation=+0.000s applicationThreadRu
 
 static int send_header_string(int soc, const char * key, const char * value, request_rec *r)
 {
-  int                     retval = 0;
-  char tmpStr[512];
-
-  snprintf(tmpStr, sizeof(tmpStr)-1, "%s: %s\r\n",key, value);
-  retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
+    int                     retval = 0;
+    char tmpStr[512];
+    
+    snprintf(tmpStr, sizeof(tmpStr)-1, "%s: %s\r\n",key, value);
+    retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
+    return retval;
+    
 }
 
 const char * fixRequestString(request_rec *r, gsw_app_conf *app)
@@ -633,18 +637,18 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
 
   // GET /wo/PBX HTTP/1.1
   
-  if (appName = index(appName, '/')) {
+  if ((appName = index(appName, '/'))) {
     appName++;
-    if (appName = index(appName, '/')) {
+    if ((appName = index(appName, '/'))) {
       appName++;
-      if (spaceStr = index(appName, ' ')) {
+      if ((spaceStr = index(appName, ' '))) {
         *spaceStr = '\0';
         instanceStr = appName;
         instanceStr++;
-        if (instanceStr = index(appName, '/')) {
+        if ((instanceStr = index(appName, '/'))) {
           *instanceStr = '\0';
           instanceStr++;
-          if (spaceStr = index(instanceStr, '/')) {
+          if ((spaceStr = index(instanceStr, '/'))) {
             *spaceStr = '\0';
             restStr = spaceStr;
             restStr++;
@@ -661,7 +665,7 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
     restStr = "";
   }
   
-  if (spaceStr = index(appName, '.')) {
+  if ((spaceStr = index(appName, '.'))) {
     *spaceStr = '\0';
   }
   
@@ -722,7 +726,11 @@ static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
   snprintf(tmpStr, sizeof(tmpStr), "SERVER_PORT: %hu\r\n",ap_get_server_port(r));
   retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
 
-  retval = send_header_string(soc, REMOTE_ADDR, c->remote_ip, r);
+#if (AP_SERVER_MAJORVERSION_NUMBER == 2) && (AP_SERVER_MINORVERSION_NUMBER < 4)
+    retval = send_header_string(soc, REMOTE_ADDR, c->remote_ip, r);
+#else
+    retval = send_header_string(soc, REMOTE_ADDR, c->client_ip, r);
+#endif
 
   if (r->user != NULL) {
     retval = send_header_string(soc, REMOTE_USER, r->user, r);
@@ -846,7 +854,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 			write_sock(soc, CRLF, 2, r);
 			
 			// HTTP/1.0 200 OK NeXT WebObjects
-			if (newBuf = read_sock_line(soc, r, sub_pool)) {
+			if ((newBuf = read_sock_line(soc, r, sub_pool))) {
 				if ((strncasecmp(newBuf,"HTTP/",5) != 0) || (strlen(newBuf) < 15)) {
 					ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no 'HTTP/...'", newBuf);
 					apr_pool_destroy(sub_pool);
@@ -885,7 +893,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 						if (strncasecmp(newBuf, "content-length: ", 16) == 0) {
 							length_seen = 1;
 							content_length = atol(newBuf+16);
-							snprintf(tmpStr, sizeof(tmpStr), "%d", content_length);
+							snprintf(tmpStr, sizeof(tmpStr), "%zu", content_length);
 							apr_table_set(r->headers_out, "Content-Length", tmpStr);
                             copy_header = 0;
 						}
@@ -912,7 +920,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
                             copy_header = 0;
 						}
 					}
-                    if ((copy_header == 1)) {
+                    if (copy_header == 1) {
                         char * hdrValue = index(newBuf, ':');
                         
                         if (hdrValue) {
@@ -960,7 +968,7 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
 		close(soc);
         
         done_time = apr_time_now();		
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %d ms", apr_time_msec(done_time - request_time));
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %ld ms", apr_time_msec(done_time - request_time));
         
         if ((http_status==302) && (refusing_seen==1)) {
             mark_refusing(app);
@@ -1041,8 +1049,12 @@ static const char *set_inst_count(cmd_parms *cmd, void *key, const char *value)
   return NULL;
 }
 
+//
+//const char*(* cmd_func::take3)
+//                           (cmd_parms *parms, void *mconfig, const char *w, const char *w2, const char *w3)
+
 static const char * set_App(cmd_parms *cmd, void *mconfig,
-                                 char *word1, char *word2, char *word3)
+                                 const char *word1, const char *word2, const char *word3)
 {
   const command_rec *thiscmd = cmd->cmd;
   
@@ -1672,6 +1684,17 @@ void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s)
   
 }
 
+/* unixd_set_global_mutex_perms changed name to ap_unixd_set_global_mutex_perms
+ * in Apache 2.4. This function provides a wrapper with the new name for old
+ * versions.
+ */
+#ifdef AP_NEED_SET_MUTEX_PERMS
+#if (AP_SERVER_MAJORVERSION_NUMBER == 2) && (AP_SERVER_MINORVERSION_NUMBER < 4)
+static inline apr_status_t ap_unixd_set_global_mutex_perms(apr_global_mutex_t *gmutex) {
+    return unixd_set_global_mutex_perms(gmutex);
+}
+#endif
+#endif
 
 /*
  * This routine is called to perform any module-specific fixing of header
@@ -1761,7 +1784,7 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
   }
   
 #ifdef MOD_EXIPC_SET_MUTEX_PERMS
-  rs = unixd_set_global_mutex_perms(exipc_mutex);
+  rs = ap_unixd_set_global_mutex_perms(exipc_mutex);
   if (rs != APR_SUCCESS) {
     ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s, 
                  "Parent could not set permissions on Example IPC "
