@@ -1,9 +1,14 @@
+2017-12-04  David Wetzel <dave@turbocat.de>
+    * GSWAdaptors/Apache2/mod_gsw.c
+      add support for /wo/showapps
+      return HTTP status 504 if app is unreachable
+    * GSWAdaptors/README.txt
+      update note for /wo/showapps
 2017-11-19  David Wetzel <dave@turbocat.de>
     * GSWAdaptors/Apache2/mod_gsw.c
       compiles with Apache 2.4 now
     * GSWAdaptors/README.txt
       updated readme
-
 2017-11-19  David Wetzel <dave@turbocat.de>
     * GSWeb/GSWAjaxRequestHandler.*
       new files

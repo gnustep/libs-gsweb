@@ -1219,6 +1219,79 @@ static void print_css(request_rec * r)
              </style>\n", r);
 }
 
+static void showApps(request_rec * r, gsw_cfg *dcfg)
+{
+    ap_set_content_type(r, "text/html");
+    
+    /*
+     * Now send our actual output.  Since we tagged this as being
+     * "text/html", we need to embed any HTML.
+     */
+    ap_rputs(DOCTYPE_HTML_3_2, r);
+    ap_rputs("<html>\n", r);
+    ap_rputs("<head>\n", r);
+    print_css(r);
+    ap_rputs("<title>GNUstepWeb Status</title>\n", r);
+    ap_rputs("<meta name=\"robots\" content=\"NOINDEX, NOFOLLOW\">\n", r);
+    ap_rputs("</head>\n", r);
+    ap_rputs("<body>\n", r);
+    ap_rputs("<h1>GNUstepWeb Status</h1><br>\n", r);
+    
+    if ((dcfg->showApps)) {
+        if ((dcfg->app_table)) {
+            const apr_array_header_t *tarr = apr_table_elts(dcfg->app_table);
+            const apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
+            int i;
+            exipc_data * mem;
+            int          appcount = tarr->nelts;
+            char         timestr[APR_CTIME_LEN];
+            
+            mem = read_shared_mem(r->pool,  appcount);
+            
+            if (mem) {
+                ap_rputs("<div class=\"fail\"><table width=\"700\">\n",r);
+                print_image(r);
+                ap_rputs("<tr><th>Name</th><th>Instance</th><th>Host</th><th>Port</th><th>Load</th><th>Unreachable</th><th>Refusing</th><th>Last Request</th><th>Last Response</th></tr>\n",r);
+                
+                for (i = 0; i < tarr->nelts; i++) {
+                    gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
+                    
+                    ap_rprintf(r, "<tr><td><a href=\"%s%s.woa/%d/\">%s</a></td>", ADAPTOR_PREFIX,
+                               appconf->app_name,
+                               appconf->instance_number,
+                               appconf->app_name);
+                    ap_rprintf(r, "<td>%u</td>", appconf->instance_number);
+                    ap_rprintf(r, "<td>%s</td>", appconf->host_name);
+                    ap_rprintf(r, "<td>%u</td>", appconf->port);
+                    ap_rprintf(r, "<td>%u</td>", mem[i].load);
+                    ap_rprintf(r, "<td>%s</td>", (mem[i].unreachable == 1) ? "YES": "NO");
+                    ap_rprintf(r, "<td>%s</td>", (mem[i].refusing == 1) ? "YES": "NO");
+                    apr_ctime(timestr, mem[i].last_request_time);
+                    ap_rprintf(r, "<td>%s</td>", timestr);
+                    if (mem[i].last_response_time > 0) {
+                        apr_ctime(timestr, mem[i].last_response_time);
+                        ap_rprintf(r, "<td>%s</td></tr>\n", timestr);
+                    } else {
+                        ap_rprintf(r, "<td>never</td></tr>\n");
+                    }
+                }
+                
+                ap_rputs("</table><br>\n",r);
+                
+            }
+            
+        }
+    } else {
+        ap_rputs("<p>Application list hidden. Set <samp>ShowApps on</samp> in your Apache config to list.</p>\n",r);
+        
+    }
+    
+    ap_rputs("<p class=\"power\">Powered by <a href=\"http://wiki.gnustep.org/index.php/GNUstepWeb\">GNUstep Web</a></p>\n",r);
+    
+    ap_rputs("</div>\n</body>\n", r);
+    ap_rputs("</html>\n", r);
+
+}
 
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
@@ -1265,6 +1338,11 @@ static int gsw_handler(request_rec *r)
 
 
   dcfg = our_dconfig(r);
+
+    if (strncmp(r->uri, "/wo/showapps",12) == 0) {
+        showApps(r, dcfg);
+        return OK;
+    }
 
   /*
     * We're about to start sending content, so we need to force the HTTP
@@ -1322,82 +1400,15 @@ static int gsw_handler(request_rec *r)
     }
   } 
     
-    ap_set_content_type(r, "text/html");
     /*
      * If we're only supposed to send header information (HEAD request), we're
      * already there.
      */
-    if (r->header_only) {
-        return OK;
-    }
+//    if (r->header_only) {
+////        return OK;
+//        return 504;
+//    }
 
-    /*
-     * Now send our actual output.  Since we tagged this as being
-     * "text/html", we need to embed any HTML.
-     */
-    ap_rputs(DOCTYPE_HTML_3_2, r);
-    ap_rputs("<html>\n", r);
-    ap_rputs("<head>\n", r);
-    print_css(r);
-    ap_rputs("<title>GNUstepWeb Status</title>\n", r);
-    ap_rputs("<meta name=\"robots\" content=\"NOINDEX, NOFOLLOW\">\n", r);
-    ap_rputs("</head>\n", r);
-    ap_rputs("<body>\n", r);
-    ap_rputs("<h1>GNUstepWeb Status</h1><br>\n", r);
-
-    if ((dcfg->showApps)) {
-      if ((dcfg->app_table)) {
-        const apr_array_header_t *tarr = apr_table_elts(dcfg->app_table);
-        const apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
-        int i;
-        exipc_data * mem;
-        int          appcount = tarr->nelts;
-        char         timestr[APR_CTIME_LEN];
-        
-        mem = read_shared_mem(r->pool,  appcount);
-
-        if (mem) {
-          ap_rputs("<div class=\"fail\"><table width=\"700\">\n",r);
-            print_image(r);  
-          ap_rputs("<tr><th>Name</th><th>Instance</th><th>Host</th><th>Port</th><th>Load</th><th>Unreachable</th><th>Refusing</th><th>Last Request</th><th>Last Response</th></tr>\n",r);
-          
-          for (i = 0; i < tarr->nelts; i++) {
-            gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-            
-            ap_rprintf(r, "<tr><td><a href=\"%s%s.woa/%d/\">%s</a></td>", ADAPTOR_PREFIX, 
-                       appconf->app_name,
-                       appconf->instance_number,
-                       appconf->app_name);
-            ap_rprintf(r, "<td>%u</td>", appconf->instance_number);
-            ap_rprintf(r, "<td>%s</td>", appconf->host_name);
-            ap_rprintf(r, "<td>%u</td>", appconf->port);
-            ap_rprintf(r, "<td>%u</td>", mem[i].load);
-            ap_rprintf(r, "<td>%s</td>", (mem[i].unreachable == 1) ? "YES": "NO");
-            ap_rprintf(r, "<td>%s</td>", (mem[i].refusing == 1) ? "YES": "NO");
-            apr_ctime(timestr, mem[i].last_request_time);
-            ap_rprintf(r, "<td>%s</td>", timestr);
-              if (mem[i].last_response_time > 0) {
-                  apr_ctime(timestr, mem[i].last_response_time);
-                  ap_rprintf(r, "<td>%s</td></tr>\n", timestr);
-              } else {
-                  ap_rprintf(r, "<td>never</td></tr>\n");                  
-              }
-          }
-          
-          ap_rputs("</table><br>\n",r);
-          
-        }
-
-      }
-    } else {
-      ap_rputs("<p>Application list hidden. Set <samp>ShowApps on</samp> in your Apache config to list.</p>\n",r);
-
-    }
-
-      ap_rputs("<p class=\"power\">Powered by <a href=\"http://wiki.gnustep.org/index.php/GNUstepWeb\">GNUstep Web</a></p>\n",r);
-    
-    ap_rputs("</div>\n</body>\n", r);
-    ap_rputs("</html>\n", r);
     /*
      * We're all done, so cancel the timeout we set.  Since this is probably
      * the end of the request we *could* assume this would be done during
@@ -1408,7 +1419,7 @@ static int gsw_handler(request_rec *r)
      * We did what we wanted to do, so tell the rest of the server we
      * succeeded.
      */
-    return OK;
+    return 504;
 }
 
 /*--------------------------------------------------------------------------*/

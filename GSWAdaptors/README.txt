@@ -17,10 +17,14 @@ ShowApps on
 
 App Name=TCWebMail Instance=1 Host=127.0.0.1:9804
 
-
 Then you start your App like this (plus your other arguments):
 
 ./TCWebMail.gswa/TCWebMail -WOHost 127.0.0.1 -WOPort 9804
 
+If you enabled ShowApps, you can access the list of applications like this:
+
+http://www.example.org/wo/showapps
+
+If an application is unreachable the adaptor will return an HTTP status 504
 
 dw.
