@@ -68,7 +68,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 @class GSWResponse;
 @class GSWAssociation;
 @class GSWComponentDefinition;
-@class GSWMultiKeyDictionary;
+@class GSWDictionary;
 @class GSWActionRequestHandler;
 @class GSWAction;
 
@@ -77,7 +77,7 @@ GSWEB_EXPORT BOOL WOStrictFlag;
 {
   NSArray* _adaptors;
   GSWSessionStore* _sessionStore;
-  GSWMultiKeyDictionary* _componentDefinitionCache;
+  GSWDictionary* _componentDefinitionCache;
   NSTimeInterval _timeOut;
   NSDate* _startDate;
   NSDate* _lastAccessDate;

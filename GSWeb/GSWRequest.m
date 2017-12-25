@@ -1802,23 +1802,24 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
       [(NSMutableArray*)parts replaceObjectAtIndex:i
                         withObject:tmpData];
     };
-  
-  for(i=0;i<partsCount;i++)
-    {
-      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
-      if ([tmpData length]<400)
-        {
-          NSString* dataString=nil;
-          dataString=[[[NSString alloc]initWithData:tmpData
-                                       encoding:[self formValueEncoding]]autorelease];
-          
-        }
-      else
-        {
-        };
-    };
 
-  return parts;
+#warning checkme -- dw
+//  for(i=0;i<partsCount;i++)
+//    {
+//      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
+//      if ([tmpData length]<400)
+//        {
+//          NSString* dataString=nil;
+//          dataString=[[[NSString alloc]initWithData:tmpData
+//                                       encoding:[self formValueEncoding]]autorelease];
+//
+//        }
+//      else
+//        {
+//        };
+//    };
+
+  return [parts autorelease];
 };
 
 //--------------------------------------------------------------------

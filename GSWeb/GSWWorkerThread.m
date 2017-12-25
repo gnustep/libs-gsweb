@@ -66,32 +66,15 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
   }
 }
 
-/**
- * drain all vars that have been created in the thread.
- */
--(void)drain
-{
-  DESTROY(_pool);
-}
-
 -(void)dealloc
 {
 // TODO: add vars!
-
-  DESTROY(_t);
   DESTROY(_serverSocket);
   DESTROY(_currentSocket);
-
-//  NSThread         * _t;
-
   _app = nil;
   _mtAdaptor = nil;
-  // we are NOT draining our _pool here we do it before the thread is gone.
-  // otherwise, we get nice
-  // *** attempt to pop an unknown autorelease pool
-  // messages -- dw
 
-  [super dealloc];
+    [super dealloc];
 }
 
 
@@ -99,39 +82,42 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
          adaptor:(GSWAdaptor*)adaptor
           stream:(NSFileHandle*)stream
 {
-  if ((self = [self init])) {
-    _app = application;
-    _mtAdaptor = (GSWDefaultAdaptor*)adaptor;
-    ASSIGN(_serverSocket,stream);
-    _keepAlive=NO;
-    _maxSocketIdleTime=900; // 300 ms
-    _isMultiThreadEnabled = [adaptor isMultiThreadEnabled];
-    
-    if (_isMultiThreadEnabled) {
-      _t = [[NSThread alloc] initWithTarget:self
-                                   selector:@selector(runOnce)
-                                   object:nil];
-                                     
-      [[NSNotificationCenter defaultCenter] addObserver: self
-                                            selector:@selector(threadWillExit:)
-                                            name:NSThreadWillExitNotification
-                                            object: _t];
-      _runFlag = YES;                               
-      [_t start];
-    } else {
-      _runFlag = YES;                               
-     [self runOnce];
+    if ((self = [self init])) {
+        _app = application;
+        _mtAdaptor = (GSWDefaultAdaptor*)adaptor;
+        ASSIGN(_serverSocket,stream);
+        _keepAlive=NO;
+        _maxSocketIdleTime=900; // 300 ms
+        _isMultiThreadEnabled = [adaptor isMultiThreadEnabled];
+        
+        if (_isMultiThreadEnabled) {
+            _t = [[NSThread alloc] initWithTarget:self
+                                         selector:@selector(runOnce)
+                                           object:nil];
+            
+            [[NSNotificationCenter defaultCenter] addObserver: self
+                                                     selector:@selector(threadWillExit:)
+                                                         name:NSThreadWillExitNotification
+                                                       object: _t];
+            _runFlag = YES;
+            [_t start];
+            [_t autorelease];
+        } else {
+            _runFlag = YES;
+            _pool = [[NSAutoreleasePool alloc] init];
+            [self runOnce];
+            DESTROY(_pool);
+        }
+        
     }
-
-  }
-  return self;
+    return self;
 }
 
 - (void)threadWillExit:(NSNotification*)notification
 {
-  [[NSNotificationCenter defaultCenter] removeObserver: self];
-  
-  [_mtAdaptor workerThreadWillExit:self];
+    [_mtAdaptor workerThreadWillExit:self];
+    _mtAdaptor = nil;
+    [[NSNotificationCenter defaultCenter] removeObserver: self];
 }
 
 //PRIVATE!
@@ -146,76 +132,68 @@ static NSString *REQUEST_ID = @"x-webobjects-request-id";
 
 -(void)runOnce
 {
-  GSWRequest      *request = nil;
-  struct timeval  timeout;
-  GSWResponse     *response;
-  
-  if ((!_runFlag) || (_serverSocket == nil)) {
-    return;
-  }
-  
-  _pool = [[NSAutoreleasePool alloc] init];
-  
-  _errorOnRead = NO;
-  // _maxSocketIdleTime is milisecs!
-  timeout.tv_sec = 0;
-  timeout.tv_usec = _maxSocketIdleTime * 1000;
-  
-  NS_DURING {
-    setsockopt([_serverSocket fileDescriptor], SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof(timeout));
+    GSWRequest      *request = nil;
+    struct timeval  timeout;
+    GSWResponse     *response;
     
-    request = [GSWHTTPIO readRequestFromFromHandle: _serverSocket];
-  } NS_HANDLER {
-    _errorOnRead = YES;
-    NSLog(@"%s -- dropping connection reason: %@",__PRETTY_FUNCTION__, [localException reason]);
-  } NS_ENDHANDLER;
-  
-  // "womp" is the request handler key used by the WOTaskD contacing your app
-  if ((_errorOnRead || (request == nil)) || 
-      ((([[_app class] isDirectConnectEnabled] == NO) && ([request isUsingWebServer] == NO)) &&
-       ([@"womp" isEqual:[request requestHandlerKey]] == NO))) {
-         goto done;
-  }  
-  _processingRequest = YES;
-  _dispatchError = NO;
-  
-  NS_DURING {
-    response = [_app dispatchRequest:request];
-  } NS_HANDLER {
-    NSLog(@"%s -- Exception occurred while responding to client: %@", 
-          __PRETTY_FUNCTION__, [localException description]);
-    _dispatchError = YES;
-    response = [GSWDefaultAdaptor _lastDitchErrorResponse];
-  } NS_ENDHANDLER;
-  
-  if (response) {
-    NSString * reqid = [request headerForKey:REQUEST_ID];
-    if (reqid) {
-      [response setHeader:reqid forKey:REQUEST_ID];
+    if ((!_runFlag) || (_serverSocket == nil)) {
+        return;
     }
+    
+    
+    _errorOnRead = NO;
+    // _maxSocketIdleTime is milisecs!
+    timeout.tv_sec = 0;
+    timeout.tv_usec = _maxSocketIdleTime * 1000;
+    
+    
     NS_DURING {
-//      request = [GSWHTTPIO readRequestFromFromHandle: _serverSocket];
-      [GSWHTTPIO sendResponse:response
-                     toHandle: _serverSocket
-                      request:request];
+        setsockopt([_serverSocket fileDescriptor], SOL_SOCKET, SO_RCVTIMEO, &timeout,sizeof(timeout));
+        
+        request = [GSWHTTPIO readRequestFromFromHandle: _serverSocket];
     } NS_HANDLER {
-      NSLog(@"%s -- Exception while sending response: %@", 
-            __PRETTY_FUNCTION__, [localException description]);
+        _errorOnRead = YES;
+        NSLog(@"%s -- dropping connection reason: %@",__PRETTY_FUNCTION__, [localException reason]);
     } NS_ENDHANDLER;
-  }
-  
-  done: 
-  
-  [self _closeSocket];
-  
-  _processingRequest = NO;
-
-  [self drain];
-
-  if (_isMultiThreadEnabled) {
-    [NSThread exit];
-  }
-
+    
+    // "womp" is the request handler key used by the WOTaskD contacing your app
+    if ((_errorOnRead || (request == nil)) ||
+        ((([[_app class] isDirectConnectEnabled] == NO) && ([request isUsingWebServer] == NO)) &&
+         ([@"womp" isEqual:[request requestHandlerKey]] == NO))) {
+            goto done;
+        }
+    _processingRequest = YES;
+    _dispatchError = NO;
+    
+    NS_DURING {
+        response = [_app dispatchRequest:request];
+    } NS_HANDLER {
+        NSLog(@"%s -- Exception occurred while responding to client: %@",
+              __PRETTY_FUNCTION__, [localException description]);
+        _dispatchError = YES;
+        response = [GSWDefaultAdaptor _lastDitchErrorResponse];
+    } NS_ENDHANDLER;
+    
+    if (response) {
+        NSString * reqid = [request headerForKey:REQUEST_ID];
+        if (reqid) {
+            [response setHeader:reqid forKey:REQUEST_ID];
+        }
+        NS_DURING {
+            [GSWHTTPIO sendResponse:response
+                           toHandle: _serverSocket
+                            request:request];
+        } NS_HANDLER {
+            NSLog(@"%s -- Exception while sending response: %@",
+                  __PRETTY_FUNCTION__, [localException description]);
+        } NS_ENDHANDLER;
+    }
+    
+done:
+    
+    [self _closeSocket];
+    
+    _processingRequest = NO;
 }
 
 

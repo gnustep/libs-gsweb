@@ -64,7 +64,6 @@
 /* private */
 #define GSWComponentDefinition		WOComponentDefinition
 #define GSWBundle			WOBundle
-#define GSWMultiKeyDictionary		WOMultiKeyDictionary
 #define GSWElementID			WOElementIDString
 #define GSWAjaxRequestHandler       WOAjaxRequestHandler
 #define GSWComponentRequestHandler	WOComponentRequestHandler
@@ -82,7 +81,6 @@
 #define GSWDeployedBundle		WODeployedBundle
 #define GSWProjectBundle		WOProjectBundle
 #define GSWSessionTimeOut		WOSessionTimeOut
-#define GSWMultiKeyDictionary		WOMultiKeyDictionary
 #define GSWTemplateParser		WOTemplateParser
 #define GSWDynamicURLString		WODynamicURLString
 #define GSWBindingNameAssociation	WOBindingNameAssociation

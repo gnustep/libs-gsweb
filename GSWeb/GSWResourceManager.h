@@ -43,7 +43,7 @@ GSWEB_EXPORT NSDictionary* globalMime;
   NSMutableDictionary* _appURLs;
   NSMutableDictionary* _frameworkURLs;
   NSMutableDictionary* _appPaths;
-  GSWMultiKeyDictionary* _frameworkPaths;
+  GSWDictionary* _frameworkPaths;
   NSMutableDictionary* _urlValuedElementsData;
   NSMutableDictionary* _stringsTablesByFrameworkByLanguageByName;//NDFN
   NSMutableDictionary* _stringsTableArraysByFrameworkByLanguageByName;//NDFN

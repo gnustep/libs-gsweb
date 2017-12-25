@@ -1,3 +1,33 @@
+2017-12-25  David Wetzel <dave@turbocat.de>
+    * GSWDatabase/WODisplayGroup.m
+      fix format string and NSArray / NSMutableArray bugs
+    * GSWeb/GNUmakefile
+    * GSWeb/GSWApplication.h
+    * GSWeb/GSWApplication.m
+      replace GSWMultiKeyDictionary with GSWDictionary
+    * GSWeb/GSWDefaultAdaptor.m
+      limit _workerThreadCountMax to 16 for now
+    * GSWeb/GSWDeployedBundle.*, GSWResourceManager.*
+      replace GSWMultiKeyDictionary with GSWDictionary
+    * GSWeb/GSWDictionary
+      new class using NSMutableDictionary internally.
+    * GSWeb/GSWImageInfo.m
+      fix leak
+    * GSWeb/GSWRequest.m
+      fix leak
+    * GSWeb/GSWUtils.m
+      fix leak
+    * GSWeb/GSWWOCompatibility.h
+      remove GSWMultiKeyDictionary
+    * GSWeb/GSWWorkerThread.m
+      some cleanups but still does not run in MT on FreeBSD.
+    * GSWeb/NSString+Trimming.m
+      fix leaks
+    * Tests/gsweb/GNUmakefile.postamble
+    * Tests/gsweb/GNUmakefile.super
+    * Tests/gsweb/GSWDictionary/TestInfo
+    * Tests/gsweb/GSWDictionary/general.m
+      new files
 2017-12-04  David Wetzel <dave@turbocat.de>
     * GSWAdaptors/Apache2/mod_gsw.c
       add support for /wo/showapps

@@ -42,7 +42,7 @@
   NSString* _wrapperName;
   NSString* _projectName;
   BOOL _isFramework;
-  GSWMultiKeyDictionary* _relativePathsCache;
+  GSWDictionary* _relativePathsCache;
   NSMutableDictionary* _absolutePathsCache;
   NSMutableDictionary* _urlsCache;
   NSRecursiveLock* _selfLock;

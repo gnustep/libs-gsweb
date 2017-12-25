@@ -253,14 +253,6 @@ int GSWApplicationMain(NSString* applicationClassName,
 }
 
 //--------------------------------------------------------------------
-+(id)init
-{
-  id ret=[[self superclass]init];
-  [GSWAssociation addLogHandlerClasse:[self class]];
-  return ret;
-};
-
-//--------------------------------------------------------------------
 // FIXME: do we need to dealloc a CLASS??? looks strange to me -- dw
 //+(void)dealloc
 //{
@@ -280,6 +272,8 @@ int GSWApplicationMain(NSString* applicationClassName,
   
   if ((self=[super init]))
     {
+      [GSWAssociation addLogHandlerClasse:[self class]];
+
       _selfLock=[NSRecursiveLock new];
       _globalLock=[NSRecursiveLock new];
       
@@ -323,7 +317,7 @@ int GSWApplicationMain(NSString* applicationClassName,
       //call adaptorsDispatchRequestsConcurrently
       _activeSessionsCountLock=[NSLock new];
 
-      _componentDefinitionCache=[GSWMultiKeyDictionary new];
+      _componentDefinitionCache=[[GSWDictionary alloc] init];
 
       [self setResourceManager:[self createResourceManager]];
       [self setStatisticsStore:[self createStatisticsStore]];
@@ -826,7 +820,7 @@ int GSWApplicationMain(NSString* applicationClassName,
   NSString* language=nil;
   int iLanguage=0;
   int languagesCount=0;
-
+    
   languagesCount=[languages count];
 
   for(iLanguage=0;iLanguage<languagesCount && !componentDefinition;iLanguage++)

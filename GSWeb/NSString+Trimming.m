@@ -53,6 +53,8 @@
   [nonNumberCS addCharactersInString:@".Ee-+"];
   [nonNumberCS invert];
   nonNumberRange  = [self rangeOfCharacterFromSet:nonNumberCS];
+  [nonNumberCS release];
+
   return (nonNumberRange.length<=0);
 };
 
@@ -66,6 +68,7 @@
   [nonNumberCS addCharactersInString:@".-+"];
   [nonNumberCS invert];
   nonNumberRange  = [self rangeOfCharacterFromSet:nonNumberCS];
+  [nonNumberCS release];
   return (nonNumberRange.length<=0);
 };
 
@@ -95,6 +98,8 @@
   [nonNumberCS addCharactersInString:@".+"];
   [nonNumberCS invert];
   nonNumberRange  = [self rangeOfCharacterFromSet:nonNumberCS];
+  [nonNumberCS release];
+
   return (nonNumberRange.length<=0);
 };
 
@@ -126,6 +131,8 @@
                                     mutableCopy];
   [numberCS addCharactersInString:@".-+"];
   numberRange  = [self rangeOfCharacterFromSet:numberCS];
+  [numberCS release];
+
   return (numberRange.location==0 && numberRange.length>0);
 };
 

@@ -79,6 +79,7 @@ WebObjects_RESOURCE_DIRS = $(GSWeb_RESOURCE_DIRS)
 
 # The Bundle Objective-C source files to be compiled
 GSWeb_OBJC_FILES = \
+GSWDictionary.m \
 GSWDebug.m \
 GSWConstants.m \
 GSWTemporaryElement.m \
@@ -106,7 +107,6 @@ GSWApplication+Defaults.m \
 GSWAssociation.m \
 GSWComponent.m \
 GSWContext.m \
-GSWMultiKeyDictionary.m \
 GSWDynamicElement.m \
 GSWDynamicGroup.m \
 GSWElement.m \
@@ -211,6 +211,7 @@ WebObjects_OBJC_FILES = $(GSWeb_OBJC_FILES)
 
 # The framework installed header files
 GSWeb_HEADER_FILES = \
+GSWDictionary.h \
 GSWeb.h \
 GSWActiveImage.h \
 GSWAdaptor.h \
@@ -266,7 +267,6 @@ GSWInput.h \
 GSWJavaScript.h \
 GSWKeyValueAssociation.h \
 GSWMailDelivery.h \
-GSWMultiKeyDictionary.h \
 GSWNestedList.h \
 GSWTemporaryElement.h \
 GSWBaseParser.h \

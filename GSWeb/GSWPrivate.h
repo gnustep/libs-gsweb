@@ -27,8 +27,6 @@
    </license>
 **/
 
-// $Id$
-
 
 /*  
  * Private declarations of private methods in GSWeb.
@@ -43,6 +41,7 @@
 #ifndef _GSWPrivate_h__
 	#define _GSWPrivate_h__
 
+#include "GSWDictionary.h"
 #include "GSWComponentDefinition.h"
 #include "GSWComponent.h"
 #include "GSWApplication.h"

@@ -1630,7 +1630,7 @@ NSString* GSWGetDefaultDocRoot()
 {
   NSMutableData* tmpdata=[self mutableCopy];
   [tmpdata deleteFirstBytesCount:bytesCount];
-  return [NSData dataWithData:tmpdata];
+  return [NSData dataWithData:[tmpdata autorelease]];
 };
 
 //--------------------------------------------------------------------
@@ -1638,7 +1638,7 @@ NSString* GSWGetDefaultDocRoot()
 {
   NSMutableData* tmpdata=[self mutableCopy];
   [tmpdata deleteLastBytesCount:bytesCount];
-  return [NSData dataWithData:tmpdata];
+  return [NSData dataWithData:[tmpdata autorelease]];
 };
 
 @end

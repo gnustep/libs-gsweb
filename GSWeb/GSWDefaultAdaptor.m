@@ -103,6 +103,9 @@ static GSWResponse * static_lastDitchErrorResponse = nil;
       _isMultiThreadEnabled=[[arguments objectForKey:GSWOPT_MultiThreadEnabled] boolValue];
       ASSIGN(_adaptorHost,[arguments objectForKey:GSWOPT_AdaptorHost[GSWebNamingConv]]);
       
+        // for now...
+        _workerThreadCountMax = 16;
+
       if ((_workerThreadCountMax <1) || (_isMultiThreadEnabled == NO)) {
         _workerThreadCountMax = 1;
         _isMultiThreadEnabled = NO;

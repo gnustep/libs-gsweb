@@ -34,6 +34,7 @@
 #include "GSWeb.h"
 #include <GNUstepBase/NSThread+GNUstepBase.h>
 #include <GNUstepBase/NSObject+GNUstepBase.h>
+#include "GSWPrivate.h"
 
 
 //====================================================================
@@ -50,7 +51,7 @@
 
       _isFramework=[_bundlePath hasSuffix:GSFrameworkSuffix];//Ok ?
 
-      _relativePathsCache=[GSWMultiKeyDictionary new];
+      _relativePathsCache=[GSWDictionary new];
       _absolutePathsCache=[NSMutableDictionary new];
       _urlsCache=[NSMutableDictionary new];
 #ifndef NDEBUG

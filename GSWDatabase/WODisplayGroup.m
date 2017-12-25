@@ -70,7 +70,7 @@ static BOOL globalDefaultForValidatesChangesImmediately = NO;
 
 @interface NSArray (Indexes)
 -(NSArray*)indexesOfObjectsIdenticalTo:(NSArray*)objects;
--(NSArray*)objectsAtIndexesArray:(NSArray*)indexes;
+-(NSMutableArray*)objectsAtIndexesArray:(NSArray*)indexes;
 -(BOOL)isEqualByObjectPointer:(NSArray*)otherArray;
 @end
 
@@ -1286,7 +1286,7 @@ shouldRedisplayForEditingContextChangeNotification:notification];
       if (index>[_displayedObjects count])
 	{
 	  [[NSException exceptionWithName:NSInvalidArgumentException
-			reason:[NSString stringWithFormat:@"%@ %@: index %u is beyond the bounds of %d",
+			reason:[NSString stringWithFormat:@"%@ %@: index %d is beyond the bounds of %lu",
 					 [self class],NSStringFromSelector(_cmd),
 					 index,[_displayedObjects count]]
 			userInfo:nil] raise];
@@ -2088,7 +2088,7 @@ createObjectFailedForDataSource:_dataSource];
 - (BOOL)setSelectionIndexes:(NSArray *)selection
 {
   BOOL retValue=NO;
-  NSArray* selectedObjects = nil;
+  NSMutableArray* selectedObjects = nil;
   NSArray* sortedSelection = nil;
   BOOL isSelectionChanged = NO;
   BOOL isSelectedObjectsChanged = NO;
@@ -2516,38 +2516,36 @@ createObjectFailedForDataSource:_dataSource];
   return indexes;
 }
 
--(NSArray*)objectsAtIndexesArray:(NSArray*)indexes
+-(NSMutableArray*)objectsAtIndexesArray:(NSArray*)indexes
 {
-  NSArray* objects=nil;
+  NSMutableArray* objects=nil;
   NSUInteger selfCount=[self count];
   if ([self count]>0)
+  {
+    NSUInteger indexesCount=[indexes count];
+    if (indexesCount>0)
     {
-      NSUInteger indexesCount=[indexes count];
-      if (indexesCount>0)
-	{
-	  NSMutableArray* tmpObjects=nil;
-	  NSUInteger i=0;
-	  IMP indexes_oaiIMP=NULL;
-	  IMP self_oaiIMP=NULL;
-	  for(i=0;i<indexesCount;i++)
-	    {
-	      id indexObject=GSWeb_objectAtIndexWithImpPtr(indexes,&indexes_oaiIMP,i);
-	      int index=[indexObject intValue];
-	      if (index<selfCount)
-		{
-		  id object=GSWeb_objectAtIndexWithImpPtr(self,&self_oaiIMP,index);
-		  if (tmpObjects)
-		    [tmpObjects addObject:object];
-		  else
-		    tmpObjects=(NSMutableArray*)[NSMutableArray arrayWithObject:object];
-		}
-	    }
-	  if (tmpObjects)
-	    objects=[NSArray arrayWithArray:tmpObjects];
-	}
+      NSMutableArray* tmpObjects=nil;
+      NSUInteger i=0;
+      IMP indexes_oaiIMP=NULL;
+      IMP self_oaiIMP=NULL;
+      for(i=0;i<indexesCount;i++)
+      {
+        id indexObject=GSWeb_objectAtIndexWithImpPtr(indexes,&indexes_oaiIMP,i);
+        int index=[indexObject intValue];
+        if (index<selfCount)
+        {
+          id object=GSWeb_objectAtIndexWithImpPtr(self,&self_oaiIMP,index);
+          if (tmpObjects)
+            [tmpObjects addObject:object];
+          else
+            tmpObjects=(NSMutableArray*)[NSMutableArray arrayWithObject:object];
+        }
+      }
     }
+  }
   if (!objects)
-    objects=[NSArray array];
+    objects=[NSMutableArray array];
   
   return objects;
 }

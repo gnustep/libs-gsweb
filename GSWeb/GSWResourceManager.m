@@ -34,6 +34,7 @@
 #include "GSWeb.h"
 #include <GNUstepBase/NSObject+GNUstepBase.h>
 #include <GNUstepBase/NSString+GNUstepBase.h>
+#include "GSWPrivate.h"
 
 static NSString            * NONESTR = @"NONE";
 static NSString            * localNotFoundMarker=@"NOTFOUND";
@@ -170,7 +171,7 @@ NSMutableDictionary   *globalURLCache = nil;
       _appURLs=[NSMutableDictionary new];
       _frameworkURLs=[NSMutableDictionary new];
       _appPaths=[NSMutableDictionary new];
-      _frameworkPaths=[GSWMultiKeyDictionary new];
+      _frameworkPaths=[GSWDictionary new];
       _urlValuedElementsData=[NSMutableDictionary new];
       _stringsTablesByFrameworkByLanguageByName=[NSMutableDictionary new];
       _stringsTableArraysByFrameworkByLanguageByName=[NSMutableDictionary new];

@@ -73,7 +73,7 @@ static NSDictionary *extensionClassDict = nil;
 {
   NSString *extension = [filename pathExtension];
   Class cls = [self subclassForExtension: extension];
-  return [[cls alloc] initWithContentsOfFile: filename];
+  return [[[cls alloc] initWithContentsOfFile: filename] autorelease];
 }
 + (NSArray *)supportedExtensions
 {

@@ -83,7 +83,6 @@
 #include "GSWConfig.h"
 
 @class EOEditingContext;
-
 @class GSWAdaptor;
 @class GSWApplication;
 @class GSWAssociation;
@@ -101,7 +100,6 @@
 @class GSWRequestHandler;
 @class GSWComponentDefinition;
 //@class GSWBundle;
-@class GSWMultiKeyDictionary;
 @class GSWCookie;
 @class GSWElementID;
 @class GSWAction;
@@ -129,7 +127,6 @@
 @class GSWDeployedBundle;
 @class GSWProjectBundle;
 @class GSWSessionTimeOut;
-@class GSWMultiKeyDictionary;
 @class GSWTemplateParser;
 @class GSWDynamicURLString;
 @class GSWBindingNameAssociation;
@@ -249,7 +246,6 @@
 #include "GSWServerSessionStore.h"
 #include "GSWDeployedBundle.h"
 #include "GSWProjectBundle.h"
-#include "GSWMultiKeyDictionary.h"
 #include "GSWDynamicURLString.h"
 #include "GSWBindingNameAssociation.h"
 #include "GSWURLValuedElementData.h"
