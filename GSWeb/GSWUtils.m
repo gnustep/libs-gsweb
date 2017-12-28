@@ -1366,28 +1366,6 @@ NSString* GSWGetDefaultDocRoot()
 @end
 
 //====================================================================
-//TODO
-#ifdef GNUSTEP
-@implementation NSUserDefaults (Description)
-
-//--------------------------------------------------------------------
--(NSString*)description
-{
-  return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"<%s %p - searchList:\n%@\n persDomains:\n%@\n tempDomains:\n%@\n changedDomains:\n%@\n dictionaryRep:\n%@\n defaultsDatabase:\n%@\n>",
-                   object_getClassName(self),
-                   (void*)self,
-                   _searchList,
-                   _persDomains,
-                   _tempDomains,
-                   _changedDomains,
-                   _dictionaryRep,
-                   _defaultsDatabase);
-};
-
-@end
-#endif
-
-//====================================================================
 @implementation NSDictionary (FromNSArray)
 
 //--------------------------------------------------------------------

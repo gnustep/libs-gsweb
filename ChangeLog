@@ -1,3 +1,13 @@
+2017-12-28  David Wetzel <dave@turbocat.de>
+    * gsweb.make.in
+    * GNUmakefile
+      remove GSWExtensionsGSW as this is depricated now.
+    * GSWeb/GSWDefaultAdaptor.m
+      added retain/autorelease
+    * GSWUtils.m
+      removed category on NSUserDefaults
+    * GSWDefaultAdaptor.m
+      removed _workerThreadCountMax = 16
 2017-12-25  David Wetzel <dave@turbocat.de>
     * GSWDatabase/WODisplayGroup.m
       fix format string and NSArray / NSMutableArray bugs

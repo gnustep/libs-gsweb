@@ -49,9 +49,9 @@ include ./config.mak
 #
 SUBPROJECTS = GSWeb \
 	GSWExtensions \
-	GSWExtensionsGSW \
 	GSWDatabase
 
+#	GSWExtensionsGSW \
 #GSWAdaptors
 
 -include Makefile.preamble

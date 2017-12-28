@@ -103,9 +103,6 @@ static GSWResponse * static_lastDitchErrorResponse = nil;
       _isMultiThreadEnabled=[[arguments objectForKey:GSWOPT_MultiThreadEnabled] boolValue];
       ASSIGN(_adaptorHost,[arguments objectForKey:GSWOPT_AdaptorHost[GSWebNamingConv]]);
       
-        // for now...
-        _workerThreadCountMax = 16;
-
       if ((_workerThreadCountMax <1) || (_isMultiThreadEnabled == NO)) {
         _workerThreadCountMax = 1;
         _isMultiThreadEnabled = NO;
@@ -194,11 +191,13 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
 - (void) workerThreadWillExit:(GSWWorkerThread*) thread
 {
   [_selfLock lock];
+  [thread retain];
        [_threads removeObject: thread];
        if ([_waitingThreads count]) {
          _workOnHandle([_waitingThreads objectAtIndex:0], self, _threads, _isMultiThreadEnabled);
          [_waitingThreads removeObjectAtIndex:0]; 
        }
+  [thread autorelease];
   [_selfLock unlock];
 }
 

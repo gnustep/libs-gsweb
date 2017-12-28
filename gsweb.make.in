@@ -29,7 +29,7 @@ GSWEB_MINOR_VERSION = @MINOR_VERSION@
 GSWEB_SUBMINOR_VERSION = @SUBMINOR_VERSION@
 
 ifeq ($(GSW_NAMES),wo)
-  AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions -lWOExtensionsGSW
+  AUXILIARY_GSW_LIBS += -lWebObjects -lWOExtensions 
 else
 #  AUXILIARY_GSW_LIBS += -lGSWeb -lGSWExtensions -lGSWExtensionsGSW
 endif
