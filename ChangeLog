@@ -8,6 +8,8 @@
       removed category on NSUserDefaults
     * GSWDefaultAdaptor.m
       removed _workerThreadCountMax = 16
+    * GSWeb/GSWConfig.h
+      GSWOPTVALUE_WorkerThreadCountMax 256 -> 32
 2017-12-25  David Wetzel <dave@turbocat.de>
     * GSWDatabase/WODisplayGroup.m
       fix format string and NSArray / NSMutableArray bugs

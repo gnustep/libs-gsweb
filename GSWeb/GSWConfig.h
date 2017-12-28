@@ -64,7 +64,7 @@
 #define GSWOPTVALUE_DefaultUndoStackLimit			@"10"
 #define GSWOPTVALUE_LockDefaultEditingContext			@"NO"
 #define GSWOPTVALUE_WorkerThreadCountMin			@"16"
-#define GSWOPTVALUE_WorkerThreadCountMax			@"256"
+#define GSWOPTVALUE_WorkerThreadCountMax			@"32"
 #define GSWOPTVALUE_DisplayExceptionPages			@"YES"
 #define GSWOPTVALUE_AllowsCacheControlHeader			@"NO"
 #endif // _GSWebConfig_h__
