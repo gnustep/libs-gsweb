@@ -35,6 +35,13 @@
 
 @implementation GSWDictionary
 
+-(void) dealloc
+{
+    DESTROY(_storageDict);
+    
+    [super dealloc];
+}
+
 + (instancetype) dictionary
 {
     return AUTORELEASE([[self alloc] init]);

@@ -104,9 +104,21 @@ static GSWResponse * static_lastDitchErrorResponse = nil;
       ASSIGN(_adaptorHost,[arguments objectForKey:GSWOPT_AdaptorHost[GSWebNamingConv]]);
       
       if ((_workerThreadCountMax <1) || (_isMultiThreadEnabled == NO)) {
-        _workerThreadCountMax = 1;
+        _workerThreadCountMax = 0;
         _isMultiThreadEnabled = NO;
       }
+      
+      if (_isMultiThreadEnabled) {
+        for (int i=0; i < _workerThreadCountMax; i++) {
+          GSWWorkerThread * thread = [GSWWorkerThread alloc];
+          thread = [thread initWithApp:GSWApp
+                               adaptor:self
+                                stream:nil];
+          [_threads addObject: thread];
+          [thread release];
+        }
+      }
+
     }
   return self;
 }
@@ -187,18 +199,16 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
                            atIndex: [waitingThreadArray count]];
 }
 
-// never called if single threaded.
-- (void) workerThreadWillExit:(GSWWorkerThread*) thread
+
+- (void) workerThreadFinished:(GSWWorkerThread*) thread
 {
   [_selfLock lock];
-  [thread retain];
-       [_threads removeObject: thread];
-       if ([_waitingThreads count]) {
-         _workOnHandle([_waitingThreads objectAtIndex:0], self, _threads, _isMultiThreadEnabled);
-         [_waitingThreads removeObjectAtIndex:0]; 
-       }
-  [thread autorelease];
+  if ([_waitingThreads count]) {
+    [thread setServerSocket:[_waitingThreads objectAtIndex:0]];
+    [_waitingThreads removeObjectAtIndex:0];
+  }
   [_selfLock unlock];
+
 }
 
 //PRIVATE!
@@ -268,44 +278,54 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
   return GSWIntNumber(_workerThreadCount);
 }
 
+// Use locked only
+- (GSWWorkerThread*) _nextFreeThread
+{
+  for (GSWWorkerThread *thread in _threads) {
+    if ([thread isWorking] == NO) {
+      return thread;
+    }
+  }
+  return nil;
+}
 
 -(void)announceNewConnection:(NSNotification*)notification
 {
   NSFileHandle     *listenHandle=nil;
   NSFileHandle     *inStream = nil;
   NSString* connRefusedMessage=nil;
-
-//  requestTS=GSWTime_now();
-
+  
   listenHandle=[notification object];
-
+  
   inStream = [[notification userInfo] objectForKey:@"NSFileHandleNotificationFileHandleItem"];
   // we want future Notifications.
   [listenHandle acceptConnectionInBackgroundAndNotify];
-
-
+  
   if (![self isConnectionAllowedWithHandle:inStream
                            returnedMessage:&connRefusedMessage]) {
     // don't waste any time
     [inStream closeFile];
     return;
   }
-   
-//  SYNCHRONIZED(_selfLock) 
-{
+  
   [_selfLock lock];
-    int count = [_threads count];
-
-    if (count < _workerThreadCountMax) {      
-      _workOnHandle(inStream,self, _threads, _isMultiThreadEnabled);      
+  
+  GSWWorkerThread * thread = nil;
+  
+  if (_isMultiThreadEnabled) {
+    thread = [self _nextFreeThread];
+    
+    if (thread) {
+      [thread setServerSocket:inStream];
     } else {
-      _queueWorkOnHandle(inStream, _waitingThreads);      
+      _queueWorkOnHandle(inStream, _waitingThreads);
     }
-  [_selfLock unlock];
+
+  } else {
+    _workOnHandle(inStream,self, _threads, _isMultiThreadEnabled);
   }
-
-//  END_SYNCHRONIZED;
-
+  [_selfLock unlock];
+  
 }
 
 -(NSFileHandle*)fileHandle
@@ -414,7 +434,7 @@ void _queueWorkOnHandle(NSFileHandle* handle, NSMutableArray* waitingThreadArray
 // CHECKME: find out if we really need this. -- dw
 -(id)workerThreadCountMax
 {
-  return [NSNumber numberWithInt:1000];
+  return [NSNumber numberWithInt:_workerThreadCountMax];
 }
 
 // CHECKME: find out if we really need this. -- dw

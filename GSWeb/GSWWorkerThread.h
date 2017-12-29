@@ -71,8 +71,10 @@
 //  int              _inputBufferIndex;
 //  BOOL             _keepAlive;
 //  BOOL             _errorOnRead;
-//  BOOL             _runFlag;
+  NSCondition        * _queueCondition;
 }
+
+- (void)setServerSocket:(NSFileHandle*)stream;
 
 -(id)initWithApp:(GSWApplication*)application
          adaptor:(GSWAdaptor*)adaptor
@@ -80,6 +82,7 @@
 
 -(void)runOnce;
 
+-(BOOL)isWorking;
 
 @end
 

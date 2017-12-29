@@ -95,7 +95,8 @@ GSWEB_EXPORT int iBlock;
 -(BOOL)isConnectionAllowedWithHandle:(NSFileHandle*)handle
                      returnedMessage:(NSString**)retMessage;
 
-- (void) workerThreadWillExit:(GSWWorkerThread*) thread;
+// GSW only
+- (void) workerThreadFinished:(GSWWorkerThread*) thread;
 
 -(void)stop;
 -(void)run;
