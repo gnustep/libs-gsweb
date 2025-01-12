@@ -1,0 +1,373 @@
+
+README for the libPropList library
+
+(c) Bjoern Giesler, July 1997
+
+
+Abstract
+========
+========
+
+This file documents the libPropList library, hereafter referred to as
+PL. The library uses an opaque data type to represent a tree structure
+made of strings, data blocks, arrays and dictionaries (key-value pair
+lists). This structure can be manipulated, written out to and read in
+from a file, and synchronized with the contents of a file.
+The purpose of PL is to closely mimick the behaviour of the property
+lists used in GNUstep/OPENSTEP (there formed with the NSString,
+NSData, NSArray and NSDictionary classes) and to be compatible with
+it. PL enables programs that use configuration or preference files to
+make these compatible with GNUstep/OPENSTEP's user defaults handling
+mechanism, without needing to use Objective-C or GNUstep/OPENSTEP
+themselves.
+
+The source code of PL contains several parts of the GNUstep base
+library's source code (especially the parts that read and write string
+descriptions and files). The GNUstep base library is covered by the
+GNU Library Public License. The source code for the GNUstep base library
+can be found at ftp://prep.ai.mit.edu/pub/gnu/gnustep. PL itself is
+covered by the GNU Library Public License, as well. For more
+information, read the file COPYING.LIB.
+
+
+
+
+The proplist_t data type
+========================
+========================
+
+The proplist_t data type is deliberately opaque (it is typedef'ed as a
+pointer to void). It should not be accessed other than with the
+library's commands.
+
+
+The retain / release mechanism
+==============================
+==============================
+
+The idea for this has been shamelessly nicked from OPENSTEP. Every
+object maintains a retain count, which is set to 1 when the object is
+created, increased every time it is retained (e.g. inserted in an
+object or array) and decreased every time it is released. The purpose
+of this is easier and more efficient memory handling. A few short
+examples:
+
+	proplist_t key, value, dict;
+	key = PLMakeString("foo"); value = PLMakeString("bar");
+
+	/* insert into array. key and value are retained */
+	dict = PLMakeDictionaryFromEntries(key, value, NULL);
+	/* release key and value (not needed here anymore) */
+	PLRelease(key); PLRelease(value);
+
+Releasing key and value after they have been inserted into dict makes
+sure that when dict is released, key and value are destroyed.
+If you want an object to stick around even after what brought it to
+you has been destroyed, you can use something like
+
+    void SomeFunction(proplist_t array)
+      {
+	static proplist_t permanent = 
+            PLRetain(PLGetArrayElement(array, 0));
+	...
+      }
+
+This makes sure that even after array has been released, the object
+that permanent points to is retained. Once you don't need permanent
+any more, you can release it, and it's physically destroyed (unless
+it's retained somewhere else).
+
+
+The library functions
+=====================
+=====================
+
+
+
+File handling
+=============
+
+The routines described in this section are used to access disk files,
+i.e. getting property lists stored in files, saving and synchronizing
+them. The tilde notation (~/foo => $HOME/foo) is supported for file
+names.
+
+proplist_t PLGetProplistWithPath(const char *filename)
+------------------------------------------------
+Returns a property list read in from the specified file, or NULL if
+there was an error. All the elements of the returned property list
+have their filename reference set to the specified file. 
+
+If filename is NULL or the empty string, the name of the file is set to
+$GNUSTEP_USER_PATH/$GNUSTEP_DEFAULTS_FILE, with GNUSTEP_USER_PATH
+defaulting to "~/GNUstep" and GNUSTEP_DEFAULTS_FILE defaulting to
+"Defaults", if the environment variables aren't set. 
+
+If filename contains a tilde as its first character, the tilde is
+replaced with the user's home directory.
+
+BOOL PLSynchronize(proplist_t pl)
+---------------------------------
+Synchronizes the property list with the file associated with
+it. Returns YES if successful, NO if not. 
+
+BOOL PLSave(proplist_t pl, BOOL atomically)
+-------------------------------------------
+Saves the property list in the file associated with it. If atomically
+is YES, the function uses a temporary file to save the property list
+into, then uses the rename() system call to move that file to the
+final file. Returns YES if successful, NO if not.
+
+proplist_t PLSetFilename(proplist_t pl, proplist_t filename)
+-------------------------------------------------------
+Sets the filename property of every element in the property list to
+the string specified in filename. Returns the changed property list.
+
+proplist_t PLGetFilename(proplist_t pl)
+---------------------------------------
+Returns the property list's filename property.
+
+
+
+Talking to gsdd
+===============
+
+The routines described in this section are used to talk to the GNUstep
+Defaults Daemon, gsdd. If that daemon is not already running, the
+library will try to start it.
+
+proplist_t PLGetDomainNames()
+-----------------------------
+Returns an array containing all registered domain names.
+
+proplist_t PLGetDomain(proplist_t name)
+---------------------------------------
+Returns a property list representing the domain specified by name.
+
+proplist_t PLSetDomain(proplist_t name, proplist_t value, BOOL kickme)
+----------------------------------------------------------------------
+Sets the specified value for the specified domain. If kickme is NO, a
+callback the application registered for this domain will not be
+called.
+
+proplist_t PLDeleteDomain(proplist_t name, BOOL kickme)
+-------------------------------------------------------
+Deletes the specified domain. See above for the value of kickme.
+
+proplist_t PLRegister(proplist_t name, plcallback_t callback)
+-------------------------------------------------------------
+Registers callback to be called whenever the domain associated with
+name is changed. 
+
+NOTE: The library only knows about a single callback. The reason for
+this is that the daemon cannot tell a certain process which domain has
+changed; it only registers that a process wants to be told if a
+certain domain has changed (by sending it a signal). Therefore, you
+have to specify the same callback on each call to PLRegister.
+
+proplist_t PLUnregister(proplist_t name)
+----------------------------------------
+Unregister name; i.e. the callback will no longer be called if the
+domain associated with name is changed.
+
+
+
+Property list handling functions
+================================
+
+The routines in this section allow manipulation of property lists, and
+converting between ASCII representations of property lists and the
+lists themselves.
+
+proplist_t PLGetProplistWithDescription(const char *description)
+----------------------------------------------------------------
+Returns a property list by parsing description, or NULL if there was
+an error. description has to be in GNUstep/OPENSTEP property list
+format.
+
+BOOL PLIsString(proplist_t pl)
+BOOL PLIsData(proplist_t pl)
+BOOL PLIsArray(proplist_t pl)
+BOOL PLIsDictionary(proplist_t pl)
+BOOL PLIsSimple(proplist_t pl)
+BOOL PLIsCompound(proplist_t pl)
+--------------------------------
+All these functions return YES if pl is of the respective type, NO if
+it isn't. PLIsSimple returns YES if pl is a string or data object,
+PLIsCompound returns YES if pl is an array or dictionary object.
+
+
+unsigned char *PLGetStringDescription(proplist_t pl)
+----------------------------------------------------
+Returns a description of pl (which must be a string) in
+GNUstep/OPENSTEP format. The difference between this function's output
+and that returned by PLGetString is that this function's output is
+surrounded by quotes if the string contains whitespace or any special
+character. The string returned by this function is allocated by the
+library; it is the user's responsibility to free it.
+
+unsigned char *PLGetString(proplist_t pl)
+-----------------------------------------
+Returns the string contents of pl (which must be a string). This
+function returns a reference to pl's contents; do not free it!
+
+unsigned char *PLGetDataDescription(proplist_t pl)
+--------------------------------------------------
+Returns a description of pl (which must be a data object) in
+GNUstep/OPENSTEP format. It is the user's responsibility to free the
+returned string.
+
+unsigned int PLGetDataLength(proplist_t pl)
+-------------------------------------------
+Returns the number of bytes contained in pl (which must be a data
+object).
+
+unsigned char *PLGetDataBytes(proplist_t pl)
+--------------------------------------------
+Returns a reference to the contents of pl (which must be a data
+object). Do not free the memory associated with the returned value,
+and keep in mind that it is not a string (i.e. it may contain NUL
+bytes.
+
+
+unsigned char *PLGetDescriptionIndent(proplist_t pl, unsigned int level)
+------------------------------------------------------------------------
+Returns a pretty-printed description of the property list in
+GNUstep property list format. You probably want to call it with
+level==0, but YMMV. Free the returned string after you're done.
+
+unsigned char *PLGetDescription(proplist_t pl)
+----------------------------------------------
+Returns a compact description of the property list in GNUstep
+format. Free the returned string after you're done.
+
+
+unsigned int PLGetNumberOfElements(proplist_t pl)
+-------------------------------------------------
+Returns the number of elements contained in pl. This is always 0 if pl
+is a string or data object. If pl is a dictionary, its number of keys
+== its number of values == the returned number.
+
+proplist_t PLGetArrayElement(proplist_t pl, unsigned int index)
+---------------------------------------------------------------
+Returns the array element at index, or NULL if index is out of
+bounds. The returned value is a reference; do not destroy it before
+having removed it from the array!
+
+proplist_t PLGetAllDictionaryKeys(proplist_t pl)
+------------------------------------------------
+Returns an array containing all the keys of pl (which must be a
+dictionary). The array returned is newly created for this purpose.
+
+proplist_t PLGetDictionaryEntry(proplist_t pl, proplist_t key)
+--------------------------------------------------------------
+Returns the dictionary entry associated with key, or NULL if key isn't
+in the dictionary. The returned value is a reference to a dictionary
+value; do not destroy it!
+
+
+proplist_t PLGetContainer(proplist_t pl)
+----------------------------------------
+Returns pl's container (i.e. the array or dictionary of which pl is an
+element), or NULL if pl is at top level.
+
+
+proplist_t PLMakeString(unsigned char *bytes)
+---------------------------------------------
+Returns a newly created string object. The passed string is copied for
+this purpose, i.e. you can free it after this call.
+
+proplist_t PLMakeData(unsigned char *data, unsigned int length)
+---------------------------------------------------------------
+Returns a newly created data object. The passed data is copied.
+
+proplist_t PLMakeArrayFromElements(proplist_t pl, ...)
+------------------------------------------------------
+Returns a newly created array object. The passed arguments (all of
+type proplist_t) must be NULL-terminated. If the first argument is
+NULL, an empty array is returned. None of the passed property lists
+are copied, so do not free them!
+
+proplist_t PLInsertArrayElement(proplist_t array, proplist_t pl,
+				unsigned int index)
+----------------------------------------------------------------
+Inserts pl into array at the specified index. Returns array if
+successful, NULL if index is out of bounds. pl is not copied.
+
+proplist_t PLRemoveArrayElement(proplist_t array, unsigned int index)
+---------------------------------------------------------------------
+Removes the element at the specified index from the array. Returns
+array if successful, NULL if index is out of bounds. The removed
+element is not destroyed.
+
+proplist_t PLAppendArrayElement(proplist_t array, proplist_t pl)
+----------------------------------------------------------------
+Appends pl as the last element of array. Returns array. pl is not
+copied.
+
+proplist_t PLMakeDictionaryFromEntries(proplist_t key, proplist_t value,
+				       ...)
+------------------------------------------------------------------------
+Returns a newly created dictionary object. The arguments must have the
+form key1, value1, ..., keyn, valuen, NULL. None of the arguments are
+copied. NOTE: all the dictionary functions use PLIsEqual() for the key
+comparison. 
+
+proplist_t PLInsertDictionaryEntry(proplist_t dict, proplist_t key,
+				   proplist_t value)
+-------------------------------------------------------------------
+Inserts value as the new value for key into dict. key and value are
+retained, i.e. you can release them afterwards.
+
+proplist_t PLRemoveDictionaryEntry(proplist_t dict, proplist_t key)
+-------------------------------------------------------------------
+Removes key and its associated value from dict, and releases both.
+
+proplist_t PLMergeDictionaries(proplist_t dest, proplist_t source)
+------------------------------------------------------------------
+Merges source into dest. It does so by PLDeepCopy()ing every key-value
+pair in source. Be careful about this function, because it might throw
+out references by calling PLInsertDictionaryEntry(), which can create
+a memory hole if you don't retain references.
+
+
+void PLRelease(proplist_t pl)
+-----------------------------
+Releases pl and all its contents. Only actually destroys them if they
+aren't retained somewhere else.
+
+proplist_t PLShallowCopy(proplist_t pl)
+---------------------------------------
+Copies pl. If pl is a string or data object, its contents are copied
+as well. If pl is a dictionary or array object, only pl itself, but
+not its contents, is copied. Returns the copy.
+
+proplist_t PLDeepCopy(proplist_t pl)
+------------------------------------
+Copies pl and all its contents. Returns the copy.
+
+
+BOOL PLIsEqual(proplist_t pl1, proplist_t pl2)
+----------------------------------------------
+Returns YES if pl1 (i.e. all its contents) is equal to pl2. You can
+specify a comparison function that compares strings (in case you do
+not want to do case-sensitive comparison, etc.) with
+PLSetStringCmpHook().
+
+void PLSetStringCmpHook(BOOL(*fn)(proplist_t, proplist_t))
+----------------------------------------------------------
+Sets the hook that is called upon string comparison to fn. Both
+arguments supplied to fn are strings. fn must return YES if both
+strings are equal, or NO if they aren't. The default function does
+case-sensitive comparison; you can reset libPropList to use the
+default function by passing NULL as an argument.
+NOTE: This is to change soon to a strcmp()-compatible comparing
+function, to optimize searching.
+
+
+
+
+
+
+
+

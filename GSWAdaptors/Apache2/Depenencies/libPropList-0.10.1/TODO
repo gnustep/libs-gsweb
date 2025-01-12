@@ -1,0 +1,12 @@
+
+o Clean up the code. It's messy. (This is urgent.)
+
+o Library still needs some testing.
+
+o Use Sun secure RPC?
+
+o Write manual pages for defaults(1), PropertyList(5) and gsdd(8)
+
+o replace #define BOOL with #ifndef Bool #define Bool
+  BOOL is already typedefed in Xmd.h (so we can't even check if it is
+  already defined)

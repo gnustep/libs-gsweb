@@ -1,0 +1,6 @@
+Bjoern Giesler <giesler@ira.uka.de>
+
+GNU automake / autoconf support by Alfredo Kojima <kojima@inf.ufrgs.br>
+
+flex/bison parser written for the GNUstep base library; unfortunately I
+don't know by whom

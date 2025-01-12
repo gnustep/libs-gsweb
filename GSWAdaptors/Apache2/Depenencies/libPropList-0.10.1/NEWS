@@ -1,0 +1,16 @@
+New features in 0.7.1:
+
+o Fixed all the memory leaks (I hope). This should make gsdd usable
+  with WindowMaker, etc.
+
+New features in version 0.7:
+
+o Changed memory management to OPENSTEP-style Retain / Release mechanism
+
+o Implemented libFoundation's multiple-file approach (~/GNUstep/Defaults as
+  directory containing domains as single files)
+
+o GNU automake / autoconf support added, thanks to Alfredo Kojima
+
+o Fixed a number of memory leaks and bugs
+
