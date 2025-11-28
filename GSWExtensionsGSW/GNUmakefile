@@ -115,7 +115,7 @@ GSWExtensionsGSW_AGSDOC_FILES = \
 
 #$(GSWExtensionsGSW_AUTOGSDOC_SOURCE)
 GSWExtensionsGSW_AGSDOC_FLAGS = \
-        -Declared WebObjects \
+        -Declared WOExtensions \
 	-Standards YES \
 	-Project gswextensionsgsw \
 	-WordMap '{\
