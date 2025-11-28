@@ -10,7 +10,7 @@ int main()
 //  Class gswDictClass0 = [GSWDictionary class];
   Class gswDictClass = NSClassFromString(@"GSWDictionary");
 
-    id dict = [gswDictClass new];
+    id dict = AUTORELEASE([gswDictClass new]);
 
     PASS(dict != nil, "GSWDictionary dictionary created");
     PASS([dict count] == 0, "count is 0");
@@ -22,19 +22,23 @@ int main()
 
     PASS([dict count] == 1, "count is 1 after adding one object");
 
-    id myObj = [dict objectForKeyArray:@[@"Hello.wo",@"DE"]];
+    id myObj = [dict objectForKeyArray:
+      [NSArray arrayWithObjects: @"Hello.wo",@"DE",nil]];
 
     PASS([myObj isEqualTo:helloString], "objectForKeyArray works");
 
-    myObj = [dict objectForKeyArray:@[@"Hello.wo",@"FR"]];
+    myObj = [dict objectForKeyArray:
+      [NSArray arrayWithObjects: @"Hello.wo",@"FR",nil]];
   
     PASS(myObj == nil, "objectForKeyArray does not find non-existing rows");
     
-    [dict removeObjectForKeyArray:@[@"Hello.wo",@"FR"]];
+    [dict removeObjectForKeyArray:
+      [NSArray arrayWithObjects: @"Hello.wo",@"FR",nil]];
 
     PASS([dict count] == 1, "count is still 1 after trying to remove one object for non-existing key");
 
-    [dict removeObjectForKeyArray:@[@"Hello.wo",@"DE"]];
+    [dict removeObjectForKeyArray:
+      [NSArray arrayWithObjects: @"Hello.wo",@"DE", nil]];
 
     PASS([dict count] == 0, "count is 0 after removing object using removeObjectForKeyArray:");
 
