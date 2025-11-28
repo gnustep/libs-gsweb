@@ -24,9 +24,11 @@
 
 #ifndef _GSWebDICTIONARY_h__
 #define _GSWebDICTIONARY_h__
+@class	NSMutableDictionary;
 
 @interface GSWDictionary : NSObject
 {
+  NSMutableDictionary	*_storageDict;
 }
 
 + (instancetype)dictionary;

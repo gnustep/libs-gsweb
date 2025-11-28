@@ -27,12 +27,6 @@
 
 #define GLUESTRING @"🎃"
 
-@interface GSWDictionary()
-
-@property (strong, nonatomic) NSMutableDictionary *storageDict;
-
-@end
-
 @implementation GSWDictionary
 
 -(void) dealloc
@@ -50,7 +44,7 @@
 - (instancetype) init
 {
     self = [super init];
-    [self setStorageDict:[NSMutableDictionary dictionary]];
+    _storageDict = [NSMutableDictionary new];
     
     return self;
 }

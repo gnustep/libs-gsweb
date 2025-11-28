@@ -109,7 +109,9 @@ static GSWResponse * static_lastDitchErrorResponse = nil;
       }
       
       if (_isMultiThreadEnabled) {
-        for (int i=0; i < _workerThreadCountMax; i++) {
+	int	i;
+
+        for (i=0; i < _workerThreadCountMax; i++) {
           GSWWorkerThread * thread = [GSWWorkerThread alloc];
           thread = [thread initWithApp:GSWApp
                                adaptor:self
