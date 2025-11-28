@@ -33,16 +33,21 @@ DOCUMENT_NAME = GNUstepWeb
 GNUstepWeb_AGSDOC_FILES = gsweb.gsdoc
 
 GNUstepWeb_AGSDOC_FLAGS = \
-	-Declared Foundation \
+	-Declared WebObjects \
 	-Standards YES \
-	-SystemProjects System \
 	-Project GNUstepWeb \
 	-WordMap '{\
-	FOUNDATION_EXPORT=extern;FOUNDATION_STATIC_INLINE="";\
-	GS_GEOM_SCOPE=extern;GS_GEOM_ATTR="";\
-	GS_EXPORT=extern;GS_DECLARE="";\
-	GS_RANGE_SCOPE=extern;GS_RANGE_ATTR="";\
-	GS_ZONE_SCOPE=extern;GS_ZONE_ATTR="";\
+	FOUNDATION_EXPORT=extern;\
+	FOUNDATION_STATIC_INLINE="";\
+	GS_DECLARE="";\
+	GS_EXPORT=extern;\
+	GS_GEOM_ATTR="";\
+	GS_GEOM_SCOPE=extern;\
+	GS_RANGE_ATTR="";\
+	GS_RANGE_SCOPE=extern;\
+	GS_ZONE_ATTR="";\
+	GS_ZONE_SCOPE=extern;\
+	GSWEB_EXPORT="";\
 	}' -Up GNUstepWeb
 
 -include Makefile.preamble

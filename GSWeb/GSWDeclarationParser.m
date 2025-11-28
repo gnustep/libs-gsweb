@@ -782,8 +782,8 @@ Returns a NSString without '"' pefix and suffix
 };
 
 //--------------------------------------------------------------------
-/** Parse a data <12A1 1213...>
-Index should be on the value first character ('<')
+/** Parse a data &lt;12A1 1213...&gt;
+Index should be on the value first character ('&lt;')
 Returns a NSData
 **/
 -(NSData*)parseHexData
