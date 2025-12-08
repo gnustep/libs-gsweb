@@ -24,7 +24,7 @@
 	<chapter>
 	  <heading>Introduction</heading>
 	  <p>GNUstepWeb is a library which was designed to be compatible with <uref url="http://gemma.apple.com/techpubs/webobjects/">WebObjects</uref> 4.x, developed by <uref url="http://www.next.com">NeXT</uref> (now <uref url="http://www.apple.com">Apple</uref>) Inc.</p>
-	  <p>GNUstepWeb web site is <uref url="http://www.gnustepweb.org">here</uref></p>
+	  <p>GNUstepWeb web site is <uref url="https://mediawiki.gnustep.org/index.php/GNUstepWeb">here</uref></p>
 	  <p>GNUstepWeb is based on <prjref prjname="gnustep-base">GNUstep</prjref>. GNUstep web site is <uref url="http://www.gnustep.org">here</uref></p>
 	</chapter>
     </front>
