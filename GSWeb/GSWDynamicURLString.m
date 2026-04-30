@@ -357,49 +357,49 @@ static SEL appendStringSel = NULL;
             {
               if (_host)
                 {
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://");
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://");
                 }
               else if (_port)
                 {
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://localhost");
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://localhost");
                 }
               else if (_prefix)
                 {
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@":/");
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@":/");
                 }
               else
                 {
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
-                  ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://");
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,_protocol);
+                  ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@"://");
                 }
             };
           if (_host)
-            ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,_host);
+            ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,_host);
           if (_port)
             {
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@":");
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWIntToNSString(_port));
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@":");
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWIntToNSString(_port));
               //[_urlBeginning appendFormat:@":%d",_port];              
             };
           if (_prefix)
             {
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,_prefix);
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,_prefix);
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
             };
           if (_applicationName)
             {
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,_applicationName);
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@".");
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWApplicationSuffix[GSWebNamingConv]);
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,_applicationName);
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@".");
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWApplicationSuffix[GSWebNamingConv]);
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
             };
           if (_applicationNumber>=0)
             {
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWIntToNSString(_applicationNumber));
-              ((GSWIMP_VOID)_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,GSWIntToNSString(_applicationNumber));
+              ((void (*)(id, SEL, NSString*))_urlBeginningASImp)(_urlBeginning,appendStringSel,@"/");
               //[_urlBeginning  appendFormat:@"%d/",_applicationNumber];          
             };
         };
@@ -407,21 +407,21 @@ static SEL appendStringSel = NULL;
       if (!_urlASImp)
         _urlASImp = (GSWIMP_VOID)[tmpUrl methodForSelector:appendStringSel];
 
-      ((GSWIMP_VOID)_urlASImp)(tmpUrl,appendStringSel,_urlBeginning);
+      ((void (*)(id, SEL, NSString*))_urlASImp)(tmpUrl,appendStringSel,_urlBeginning);
 
       if (_requestHandlerKey)
         {
-          ((GSWIMP_VOID)_urlASImp)(tmpUrl,appendStringSel,_requestHandlerKey);
-          ((GSWIMP_VOID)_urlASImp)(tmpUrl,appendStringSel,@"/");
+          ((void (*)(id, SEL, NSString*))_urlASImp)(tmpUrl,appendStringSel,_requestHandlerKey);
+          ((void (*)(id, SEL, NSString*))_urlASImp)(tmpUrl,appendStringSel,@"/");
         };
       if (_requestHandlerPath)
         {
-          ((GSWIMP_VOID)_urlASImp)(tmpUrl,appendStringSel,_requestHandlerPath);
+          ((void (*)(id, SEL, NSString*))_urlASImp)(tmpUrl,appendStringSel,_requestHandlerPath);
         };
       if (_queryString)
         {
-          ((GSWIMP_VOID)_urlASImp)(tmpUrl,appendStringSel,@"?");
-          ((GSWIMP_VOID)_urlASImp)(tmpUrl,appendStringSel,_queryString);
+          ((void (*)(id, SEL, NSString*))_urlASImp)(tmpUrl,appendStringSel,@"?");
+          ((void (*)(id, SEL, NSString*))_urlASImp)(tmpUrl,appendStringSel,_queryString);
         };
         _flags.composed=YES;
       
@@ -761,31 +761,31 @@ static SEL appendStringSel = NULL;
     {
       if (_host)
         {
-          ((GSWIMP_VOID)imp)(url,appendStringSel,_protocol);
-          ((GSWIMP_VOID)imp)(url,appendStringSel,@"://");
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,_protocol);
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,@"://");
         }
       else if (_port)
         {
-          ((GSWIMP_VOID)imp)(url,appendStringSel,_protocol);
-          ((GSWIMP_VOID)imp)(url,appendStringSel,@"://localhost");
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,_protocol);
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,@"://localhost");
         }
       else if (_prefix)
         {
-          ((GSWIMP_VOID)imp)(url,appendStringSel,_protocol);
-          ((GSWIMP_VOID)imp)(url,appendStringSel,@":/");
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,_protocol);
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,@":/");
         }
       else
         {
-          ((GSWIMP_VOID)imp)(url,appendStringSel,_protocol);
-          ((GSWIMP_VOID)imp)(url,appendStringSel,@"://");
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,_protocol);
+          ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,@"://");
         }
     };
   if (_host)
-    ((GSWIMP_VOID)imp)(url,appendStringSel,_host);
+    ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,_host);
   if (_port)
     {
-      ((GSWIMP_VOID)imp)(url,appendStringSel,@":");
-      ((GSWIMP_VOID)imp)(url,appendStringSel,GSWIntToNSString(_port));
+      ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,@":");
+      ((void (*)(id, SEL, NSString*))imp)(url,appendStringSel,GSWIntToNSString(_port));
     };
 
   return [NSString stringWithString:url];

@@ -807,13 +807,13 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
   if (contentData)
     {
       _checkBody(self);
-      (*_contentDataADImp)(_contentData,appendDataSel,contentData);
+      ((void (*)(id, SEL, NSData*))_contentDataADImp)(_contentData,appendDataSel,contentData);
 
       // Caching management
       if (_currentCacheData)
         {
           assertCurrentCacheDataADImp();
-          (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,contentData);
+          ((void (*)(id, SEL, NSData*))_currentCacheDataADImp)(_currentCacheData,appendDataSel,contentData);
         };
     };
 }
@@ -839,13 +839,13 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
         }
         
         _checkBody(self);
-        (*_contentDataADImp)(_contentData,appendDataSel,myData);
+        ((void (*)(id, SEL, NSData*))_contentDataADImp)(_contentData,appendDataSel,myData);
         
         // Caching management
         if (_currentCacheData)
         {
             assertCurrentCacheDataADImp();
-            (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
+            ((void (*)(id, SEL, NSData*))_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
         };
     };
 }
@@ -859,13 +859,13 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
       NSData* ad=[aValue dataUsingEncoding:NSASCIIStringEncoding
                          allowLossyConversion:YES];
       
-      (*_contentDataADImp)(_contentData,appendDataSel,ad);
+      ((void (*)(id, SEL, NSData*))_contentDataADImp)(_contentData,appendDataSel,ad);
 
           // Caching management
           if (_currentCacheData)
             {
               assertCurrentCacheDataADImp();
-              (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,ad);
+              ((void (*)(id, SEL, NSData*))_currentCacheDataADImp)(_currentCacheData,appendDataSel,ad);
             };
     };
 
@@ -901,13 +901,13 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
     else
     {
         _checkBody(self);
-        (*_contentDataADImp)(_contentData,appendDataSel,myData);
+        ((void (*)(id, SEL, NSData*))_contentDataADImp)(_contentData,appendDataSel,myData);
         
         // Caching management
         if (_currentCacheData)
         {
             assertCurrentCacheDataADImp();
-            (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
+            ((void (*)(id, SEL, NSData*))_currentCacheDataADImp)(_currentCacheData,appendDataSel,myData);
         }
     }
 }
@@ -1272,7 +1272,7 @@ NSLog(@"%s - '%s' '%@'",__PRETTY_FUNCTION__, string, nsstring);
           if ([cachedData length]>0)
             {
               assertCurrentCacheDataADImp();
-              (*_currentCacheDataADImp)(_currentCacheData,appendDataSel,cachedData);
+              ((void (*)(id, SEL, NSData*))_currentCacheDataADImp)(_currentCacheData,appendDataSel,cachedData);
             };
         }
       else

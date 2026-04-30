@@ -650,7 +650,7 @@ For better performences, senderID should be an immutable string
           
           // Start from previous built element if one otherwise, start from empty string
           part=_parts+_builtPartCount-1;
-          _tmpString_setStringIMP(_tmpString,appendStringSelector,
+          ((void (*)(id, SEL, NSString*))_tmpString_setStringIMP)(_tmpString,setStringSelector,
                                      (_builtPartCount>0 ?
                                       (NSString*)(part->_elementIDString) : (NSString*)@""));
           
@@ -660,15 +660,15 @@ For better performences, senderID should be an immutable string
                 {
                   if (i>0)
                     {
-                      _tmpString_appendStringIMP(_tmpString,
+                      ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
                                                     appendStringSelector,@".");
                     };
 
-                  _tmpString_appendStringIMP(_tmpString,
+                  ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
                                                 appendStringSelector,part->_string);
                   if (part->_number>0)
                     {
-                      _tmpString_appendStringIMP(_tmpString,
+                      ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
                                                     appendStringSelector,
                                                     GSWIntToNSString(part->_number));
                     };
@@ -680,24 +680,24 @@ For better performences, senderID should be an immutable string
                       if (part->_number<preBuiltDotPlusNumCount)
                         {
                           // Save a appendString :-)
-                          _tmpString_appendStringIMP(_tmpString,
+                          ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
                                                         appendStringSelector,
                                                         preBuiltDotPlusNum[part->_number]);
                         }
                       else
                         {
-                          _tmpString_appendStringIMP(_tmpString,
+                          ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
                                                         appendStringSelector,
                                                         @".");                  
                           
-                          _tmpString_appendStringIMP(_tmpString,
+                          ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
                                                         appendStringSelector,
                                                         GSWIntToNSString(part->_number));
                         };
                     }
                   else
                     {
-                      _tmpString_appendStringIMP(_tmpString,
+                      ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
                                                     appendStringSelector,
                                                     GSWIntToNSString(part->_number));
                     };
@@ -705,7 +705,7 @@ For better performences, senderID should be an immutable string
 
               if (part->_elementIDString)
                 {
-                  part->_elementIDString_setStringIMP(part->_elementIDString,
+                  ((void (*)(id, SEL, NSString*))part->_elementIDString_setStringIMP)(part->_elementIDString,
                                                          setStringSelector,
                                                          _tmpString);
                 }
@@ -734,7 +734,7 @@ elements **/
   if (_partsCount>0)
     {
       if (!_elementIDString) // Not alreday built ?
-        (*_buildElementPartsIMP)(self,buildElementPartsSelector);
+        ((void (*)(id, SEL))_buildElementPartsIMP)(self,buildElementPartsSelector);
       elementIDString=_elementIDString;
       AUTORELEASE(RETAIN(elementIDString));
     };
@@ -776,7 +776,7 @@ elements **/
 {
 
   if (_partsCount>0)
-    (*_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,0);
+    ((void (*)(id, SEL, int))_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,0);
 
 };
 
@@ -786,7 +786,7 @@ elements **/
 {
 
   if (_partsCount>0)
-    (*_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,_partsCount-1);
+    ((void (*)(id, SEL, int))_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,_partsCount-1);
 
 };
 
@@ -887,7 +887,7 @@ You should avoid element ending with digits.
     {
       GSWElementIDPart* part=NULL;
       if (_builtPartCount<(_partsCount-1))
-          (*_buildElementPartsIMP)(self,buildElementPartsSelector);
+          ((void (*)(id, SEL))_buildElementPartsIMP)(self,buildElementPartsSelector);
       
       part=_parts+_partsCount-2;
       elementIDString=[NSString stringWithString:part->_elementIDString];

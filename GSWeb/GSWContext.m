@@ -104,7 +104,7 @@ void GetGSWContextIMPs(GSWContextIMPs* impsPtr,GSWContext* context)
 void GSWContext_incrementLastElementIDComponent(GSWContext* aContext)
 {
   if (aContext)
-    (*(aContext->_selfIMPs._incrementLastElementIDComponentIMP))
+    ((void (*)(id, SEL))aContext->_selfIMPs._incrementLastElementIDComponentIMP)
       (aContext,incrementLastElementIDComponentSEL);
 };
 
@@ -112,7 +112,7 @@ void GSWContext_incrementLastElementIDComponent(GSWContext* aContext)
 void GSWContext_appendElementIDComponent(GSWContext* aContext,NSString* component)
 {
   if (aContext)
-    (*(aContext->_selfIMPs._appendElementIDComponentIMP))
+    ((void (*)(id, SEL, NSString*))aContext->_selfIMPs._appendElementIDComponentIMP)
       (aContext,appendElementIDComponentSEL,component);
 };
 
@@ -120,7 +120,7 @@ void GSWContext_appendElementIDComponent(GSWContext* aContext,NSString* componen
 void GSWContext_appendZeroElementIDComponent(GSWContext* aContext)
 {
   if (aContext)
-    (*(aContext->_selfIMPs._appendZeroElementIDComponentIMP))
+    ((void (*)(id, SEL))aContext->_selfIMPs._appendZeroElementIDComponentIMP)
       (aContext,appendZeroElementIDComponentSEL);
 };
 
@@ -128,7 +128,7 @@ void GSWContext_appendZeroElementIDComponent(GSWContext* aContext)
 void GSWContext_deleteAllElementIDComponents(GSWContext* aContext)
 {
   if (aContext)
-    (*(aContext->_selfIMPs._deleteAllElementIDComponentsIMP))
+    ((void (*)(id, SEL))aContext->_selfIMPs._deleteAllElementIDComponentsIMP)
       (aContext,deleteAllElementIDComponentsSEL);
 };
 
@@ -136,7 +136,7 @@ void GSWContext_deleteAllElementIDComponents(GSWContext* aContext)
 void GSWContext_deleteLastElementIDComponent(GSWContext* aContext)
 {
   if (aContext)
-    (*(aContext->_selfIMPs._deleteLastElementIDComponentIMP))
+    ((void (*)(id, SEL))aContext->_selfIMPs._deleteLastElementIDComponentIMP)
       (aContext,deleteLastElementIDComponentSEL);
 };
 
@@ -144,7 +144,7 @@ void GSWContext_deleteLastElementIDComponent(GSWContext* aContext)
 NSString* GSWContext_elementID(GSWContext* aContext)
 {
   if (aContext)
-    return (*(aContext->_selfIMPs._elementIDIMP))
+    return ((id (*)(id, SEL))aContext->_selfIMPs._elementIDIMP)
       (aContext,elementIDSEL);
   else
     return nil;
@@ -154,7 +154,7 @@ NSString* GSWContext_elementID(GSWContext* aContext)
 NSString* GSWContext_senderID(GSWContext* aContext)
 {
   if (aContext)
-    return (*(aContext->_selfIMPs._senderIDIMP))
+    return ((id (*)(id, SEL))aContext->_selfIMPs._senderIDIMP)
       (aContext,senderIDSEL);
   else
     return nil;
@@ -164,7 +164,7 @@ NSString* GSWContext_senderID(GSWContext* aContext)
 NSString* GSWContext_contextAndElementID(GSWContext* aContext)
 {
   if (aContext)
-    return (*(aContext->_selfIMPs._contextAndElementIDIMP))
+    return ((id (*)(id, SEL))aContext->_selfIMPs._contextAndElementIDIMP)
       (aContext,contextAndElementIDSEL);
   else
     return nil;
@@ -174,7 +174,7 @@ NSString* GSWContext_contextAndElementID(GSWContext* aContext)
 GSWComponent* GSWContext_component(GSWContext* aContext)
 {
   if (aContext)
-    return (GSWComponent*)(*(aContext->_selfIMPs._componentIMP))
+    return (GSWComponent*)((id (*)(id, SEL))aContext->_selfIMPs._componentIMP)
       (aContext,componentSEL);
   else
     return nil;
@@ -184,7 +184,7 @@ GSWComponent* GSWContext_component(GSWContext* aContext)
 GSWEB_EXPORT BOOL GSWContext_isParentSenderIDSearchOver(GSWContext* aContext)
 {
   if (aContext)
-    return (*(aContext->_selfIMPs._isParentSenderIDSearchOverIMP))
+    return ((BOOL (*)(id, SEL))aContext->_selfIMPs._isParentSenderIDSearchOverIMP)
       (aContext,isParentSenderIDSearchOverSEL);
   else
     return NO;
@@ -194,7 +194,7 @@ GSWEB_EXPORT BOOL GSWContext_isParentSenderIDSearchOver(GSWContext* aContext)
 GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 {
   if (aContext)
-    return (*(aContext->_selfIMPs._isSenderIDSearchOverIMP))
+    return ((BOOL (*)(id, SEL))aContext->_selfIMPs._isSenderIDSearchOverIMP)
       (aContext,isSenderIDSearchOverSEL);
   else
     return NO;
@@ -509,7 +509,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
     {
       NSAssert(_elementIDIMPs._elementIDStringIMP,
                @"No _elementIDIMPs._elementIDStringIMP");
-      return (*_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL);
+      return ((id (*)(id, SEL))_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL);
     }
   else
     return nil;
@@ -532,7 +532,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
     {
       if (_elementID)
         return [preBuiltNumPlusDot[_contextID] stringByAppendingString:
-                                    (*_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL)];
+                                    ((id (*)(id, SEL))_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL)];
       else
         return preBuiltNumPlusDot[_contextID];
     }
@@ -541,7 +541,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
       if (_elementID)
         return [NSString stringWithFormat:@"%u.%@",
                          _contextID,
-                         (*_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL)];
+                         ((id (*)(id, SEL))_elementIDIMPs._elementIDStringIMP)(_elementID,elementIDStringSEL)];
       else
         return [NSString stringWithFormat:@"%u.%@",
                          _contextID,
@@ -1931,7 +1931,7 @@ If none, try request languages
   
   NSAssert(_elementIDIMPs._incrementLastElementIDComponentIMP,
            @"No _elementIDIMPs._incrementLastElementIDComponentIMP");
-  (*_elementIDIMPs._incrementLastElementIDComponentIMP)(_elementID,incrementLastElementIDComponentSEL);
+  ((void (*)(id, SEL))_elementIDIMPs._incrementLastElementIDComponentIMP)(_elementID,incrementLastElementIDComponentSEL);
 };
 
 
@@ -1946,7 +1946,7 @@ If none, try request languages
   NSAssert(_elementIDIMPs._appendElementIDComponentIMP,
            @"No _elementIDIMPs._appendElementIDComponentIMP");
 
-  (*_elementIDIMPs._appendElementIDComponentIMP)(_elementID,appendElementIDComponentSEL,string);
+  ((void (*)(id, SEL, NSString*))_elementIDIMPs._appendElementIDComponentIMP)(_elementID,appendElementIDComponentSEL,string);
 };
 
 //--------------------------------------------------------------------
@@ -1959,7 +1959,7 @@ If none, try request languages
   NSAssert(_elementIDIMPs._appendZeroElementIDComponentIMP,
            @"No _elementIDIMPs._appendZeroElementIDComponentIMP");
 
-  (*_elementIDIMPs._appendZeroElementIDComponentIMP)(_elementID,appendZeroElementIDComponentSEL);
+  ((void (*)(id, SEL))_elementIDIMPs._appendZeroElementIDComponentIMP)(_elementID,appendZeroElementIDComponentSEL);
 };
 
 //--------------------------------------------------------------------
@@ -1972,7 +1972,7 @@ If none, try request languages
   NSAssert(_elementIDIMPs._deleteAllElementIDComponentsIMP,
            @"No _elementIDIMPs._deleteAllElementIDComponentsIMP");
 
-  (*_elementIDIMPs._deleteAllElementIDComponentsIMP)(_elementID,deleteAllElementIDComponentsSEL);
+  ((void (*)(id, SEL))_elementIDIMPs._deleteAllElementIDComponentsIMP)(_elementID,deleteAllElementIDComponentsSEL);
 };
 
 //--------------------------------------------------------------------
@@ -1985,7 +1985,7 @@ If none, try request languages
   NSAssert(_elementIDIMPs._deleteLastElementIDComponentIMP,
            @"No _elementIDIMPs._deleteLastElementIDComponentIMP");
 
-  (*_elementIDIMPs._deleteLastElementIDComponentIMP)(_elementID,deleteLastElementIDComponentSEL);
+  ((void (*)(id, SEL))_elementIDIMPs._deleteLastElementIDComponentIMP)(_elementID,deleteLastElementIDComponentSEL);
 };
 
 //--------------------------------------------------------------------
@@ -1995,7 +1995,7 @@ If none, try request languages
     {
       NSAssert(_elementIDIMPs._isParentSearchOverForSenderIDIMP,
                @"No _elementIDIMPs._isParentSearchOverForSenderIDIMP");
-      return (*_elementIDIMPs._isParentSearchOverForSenderIDIMP)(_elementID,isParentSearchOverForSenderIDSEL,_senderID);
+      return ((BOOL (*)(id, SEL, NSString*))_elementIDIMPs._isParentSearchOverForSenderIDIMP)(_elementID,isParentSearchOverForSenderIDSEL,_senderID);
     }
   else
     return NO;
@@ -2008,7 +2008,7 @@ If none, try request languages
     {
       NSAssert(_elementIDIMPs._isSearchOverForSenderIDIMP,
                @"No _elementIDIMPs._isSearchOverForSenderIDIMP");
-      return (*_elementIDIMPs._isSearchOverForSenderIDIMP)(_elementID,isSearchOverForSenderIDSEL,_senderID);
+      return ((BOOL (*)(id, SEL, NSString*))_elementIDIMPs._isSearchOverForSenderIDIMP)(_elementID,isSearchOverForSenderIDSEL,_senderID);
     }
   else
     return NO;

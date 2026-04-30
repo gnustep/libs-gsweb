@@ -92,7 +92,7 @@ void GSWInitializeAllMisc()
       NSCAssert(numberWithIntSEL,@"No SEL for numberWithIntSEL:");
       numberWithIntIMP=(GSWIMP_ID)[nsNumberClass methodForSelector:numberWithIntSEL];
       for(i=0;i<INT_NUMBER_CACHE_SIZE;i++)
-        ASSIGN(GSWIntNumber_cache[i],(numberWithIntIMP(nsNumberClass,numberWithIntSEL,i)));
+        ASSIGN(GSWIntNumber_cache[i],(((id (*)(id, SEL, int))numberWithIntIMP)(nsNumberClass,numberWithIntSEL,i)));
 
       // Strings things
       ASSIGN(nsStringClass,[NSString class]);
@@ -201,7 +201,7 @@ NSString* GSWIntToNSString(int value)
   if (!s)
     {
       GSWIntToString(buffer,20,value,&resultLength);
-      s=nsString_stringWithCString_lengthIMP(nsStringClass,stringWithCString_lengthSEL,
+      s=((id (*)(id, SEL, const char *, NSUInteger))nsString_stringWithCString_lengthIMP)(nsStringClass,stringWithCString_lengthSEL,
                                                 buffer,resultLength);
     }
   return s;
@@ -214,7 +214,7 @@ NSNumber* GSWIntNumber(int value)
   if (value>=0 && value<INT_NUMBER_CACHE_SIZE)
     return GSWIntNumber_cache[value];
   else
-    return numberWithIntIMP(nsNumberClass,numberWithIntSEL,value);
+    return ((id (*)(id, SEL, int))numberWithIntIMP)(nsNumberClass,numberWithIntSEL,value);
 };
 
 //--------------------------------------------------------------------
@@ -286,7 +286,7 @@ NSString* GSWTime_format(GSWTime t)
   sDate[22] = timeMSecPart % 10 + '0';
 
   sDate[23] = 0;
-  return nsString_stringWithCString_lengthIMP(nsStringClass,stringWithCString_lengthSEL,
+  return ((id (*)(id, SEL, const char *, NSUInteger))nsString_stringWithCString_lengthIMP)(nsStringClass,stringWithCString_lengthSEL,
                                                  sDate,23);
 }
 
@@ -461,7 +461,7 @@ void NSTimeIntervalSleep(NSTimeInterval ti)
 void StackTraceIFND()
 {
   NSString* stackTraceString=[nsStringClass stringWithContentsOfFile:
-                                              nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"/tmp/%@.stacktrace",
+                                              ((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"/tmp/%@.stacktrace",
                                                              globalApplicationClassName)];
   if ([stackTraceString intValue])
     {
@@ -473,7 +473,7 @@ void StackTraceIFND()
 void DebugBreakpointIFND()
 {
   NSString* breakString=[nsStringClass stringWithContentsOfFile:
-                                         nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"/tmp/%@.break",
+                                         ((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"/tmp/%@.break",
                                                                          globalApplicationClassName)];
   if ([breakString intValue])
     {
@@ -489,7 +489,7 @@ void ExceptionRaiseFn(const char *func,
                       NSString* format,
                       ...)
 {
-  NSString* fmt =  nsString_stringWithFormatIMP
+  NSString* fmt =  ((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)
     (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
      func,line,file,name,format);
   NSString* string= nil;
@@ -512,7 +512,7 @@ void ExceptionRaiseFn0(const char *func,
                        NSString* name,
                        NSString* format)
 {
-  NSString* string =  nsString_stringWithFormatIMP
+  NSString* string =  ((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)
     (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
      func,line,file,name,format);
   NSLog(@"%@",string);
@@ -676,7 +676,7 @@ void ExceptionRaiseFn0(const char *func,
       c = '-';
       cls = [obj class];
     };
-  fmt = nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL, @"%s: %d. In [%@ %c%@] %@",
+  fmt = ((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"%s: %d. In [%@ %c%@] %@",
                                         file,
                                         line,
                                         NSStringFromClass(cls),
@@ -704,7 +704,7 @@ void ExceptionRaiseFn0(const char *func,
   va_list args;
 
   va_start(args,format);
-  fmt =  nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%s: %d. In %s %@: %@",
+  fmt =  ((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%s: %d. In %s %@: %@",
                                          file,line,fn,format);
   string=[nsStringClass stringWithFormat:fmt
                         arguments:args];
@@ -963,7 +963,7 @@ void ExceptionRaiseFn0(const char *func,
      when other threads invoke description on us.  */
   if (self == [NSThread currentThread])
     {
-        return nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL, @"<%s: %p>",
+        return ((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"<%s: %p>",
                                                GSClassNameFromObject(self),
                                                self);
     }
@@ -1728,7 +1728,7 @@ NSString* GSWGetDefaultDocRoot()
           if ([anObject isKindOfClass:nsNumberClass])
             {
               double value=[anObject doubleValue];
-              string=nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%.2f",value);
+              string=((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else if ([anObject respondsToSelector:@selector(intValue)])
             {
@@ -1738,12 +1738,12 @@ NSString* GSWGetDefaultDocRoot()
           else if ([anObject respondsToSelector:@selector(floatValue)])
             {
               double value=(double)[anObject floatValue];
-              string=nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%.2f",value);
+              string=((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else if ([anObject respondsToSelector:@selector(doubleValue)])
             {
               double value=[anObject doubleValue];
-              string=nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%.2f",value);
+              string=((id (*)(id, SEL, NSString *, ...))nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else
             {
