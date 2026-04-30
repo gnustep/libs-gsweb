@@ -51,16 +51,16 @@ static NSNumber* cachedGSWNumber_No=nil;
 #define INT_NUMBER_CACHE_SIZE 128
 static NSNumber* GSWIntNumber_cache[INT_NUMBER_CACHE_SIZE];
 static SEL numberWithIntSEL = NULL;
-static IMP numberWithIntIMP = NULL;
+static GSWIMP_ID numberWithIntIMP = NULL;
 
 static SEL stringWithStringSEL = NULL;
-static IMP nsString_stringWithStringIMP = NULL;
+static GSWIMP_ID nsString_stringWithStringIMP = NULL;
 
 static SEL stringWithFormatSEL = NULL;
-static IMP nsString_stringWithFormatIMP = NULL;
+static GSWIMP_ID nsString_stringWithFormatIMP = NULL;
 
 static SEL stringWithCString_lengthSEL = NULL;
-static IMP nsString_stringWithCString_lengthIMP = NULL;
+static GSWIMP_ID nsString_stringWithCString_lengthIMP = NULL;
 
 static Class nsNumberClass=Nil;
 static Class nsStringClass=Nil;
@@ -90,9 +90,9 @@ void GSWInitializeAllMisc()
       nsNumberClass=[NSNumber class];
       numberWithIntSEL=@selector(numberWithInt:);
       NSCAssert(numberWithIntSEL,@"No SEL for numberWithIntSEL:");
-      numberWithIntIMP=[nsNumberClass methodForSelector:numberWithIntSEL];
+      numberWithIntIMP=(GSWIMP_ID)[nsNumberClass methodForSelector:numberWithIntSEL];
       for(i=0;i<INT_NUMBER_CACHE_SIZE;i++)
-        ASSIGN(GSWIntNumber_cache[i],((*numberWithIntIMP)(nsNumberClass,numberWithIntSEL,i)));
+        ASSIGN(GSWIntNumber_cache[i],(numberWithIntIMP(nsNumberClass,numberWithIntSEL,i)));
 
       // Strings things
       ASSIGN(nsStringClass,[NSString class]);
@@ -101,17 +101,17 @@ void GSWInitializeAllMisc()
 
       stringWithStringSEL = @selector(stringWithString:);
       NSCAssert(stringWithStringSEL,@"No SEL for stringWithString:");
-      nsString_stringWithStringIMP = [nsStringClass methodForSelector:stringWithStringSEL];
+      nsString_stringWithStringIMP = (GSWIMP_ID)[nsStringClass methodForSelector:stringWithStringSEL];
       NSCAssert(nsString_stringWithStringIMP,@"No IMP for stringWithString:");
 
       stringWithFormatSEL = @selector(stringWithFormat:);
       NSCAssert(stringWithFormatSEL,@"No SEL for stringWithFormat:");
-      nsString_stringWithFormatIMP = [nsStringClass methodForSelector:stringWithFormatSEL];
+      nsString_stringWithFormatIMP = (GSWIMP_ID)[nsStringClass methodForSelector:stringWithFormatSEL];
       NSCAssert(nsString_stringWithFormatIMP,@"No IMP for stringWithFormat:");
 
       stringWithCString_lengthSEL = @selector(stringWithCString:length:);
       NSCAssert(stringWithCString_lengthSEL,@"No SEL for stringWithCString:length::");
-      nsString_stringWithCString_lengthIMP = [nsStringClass methodForSelector:stringWithCString_lengthSEL];
+      nsString_stringWithCString_lengthIMP = (GSWIMP_ID)[nsStringClass methodForSelector:stringWithCString_lengthSEL];
       NSCAssert(nsString_stringWithCString_lengthIMP,@"No IMP for stringWithCString:length:");
 
       // NSString+HTML
@@ -201,7 +201,7 @@ NSString* GSWIntToNSString(int value)
   if (!s)
     {
       GSWIntToString(buffer,20,value,&resultLength);
-      s=(*nsString_stringWithCString_lengthIMP)(nsStringClass,stringWithCString_lengthSEL,
+      s=nsString_stringWithCString_lengthIMP(nsStringClass,stringWithCString_lengthSEL,
                                                 buffer,resultLength);
     }
   return s;
@@ -214,7 +214,7 @@ NSNumber* GSWIntNumber(int value)
   if (value>=0 && value<INT_NUMBER_CACHE_SIZE)
     return GSWIntNumber_cache[value];
   else
-    return (*numberWithIntIMP)(nsNumberClass,numberWithIntSEL,value);
+    return numberWithIntIMP(nsNumberClass,numberWithIntSEL,value);
 };
 
 //--------------------------------------------------------------------
@@ -286,7 +286,7 @@ NSString* GSWTime_format(GSWTime t)
   sDate[22] = timeMSecPart % 10 + '0';
 
   sDate[23] = 0;
-  return (*nsString_stringWithCString_lengthIMP)(nsStringClass,stringWithCString_lengthSEL,
+  return nsString_stringWithCString_lengthIMP(nsStringClass,stringWithCString_lengthSEL,
                                                  sDate,23);
 }
 
@@ -461,7 +461,7 @@ void NSTimeIntervalSleep(NSTimeInterval ti)
 void StackTraceIFND()
 {
   NSString* stackTraceString=[nsStringClass stringWithContentsOfFile:
-                                              (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"/tmp/%@.stacktrace",
+                                              nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"/tmp/%@.stacktrace",
                                                              globalApplicationClassName)];
   if ([stackTraceString intValue])
     {
@@ -473,7 +473,7 @@ void StackTraceIFND()
 void DebugBreakpointIFND()
 {
   NSString* breakString=[nsStringClass stringWithContentsOfFile:
-                                         (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"/tmp/%@.break",
+                                         nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"/tmp/%@.break",
                                                                          globalApplicationClassName)];
   if ([breakString intValue])
     {
@@ -489,7 +489,7 @@ void ExceptionRaiseFn(const char *func,
                       NSString* format,
                       ...)
 {
-  NSString* fmt =  (*nsString_stringWithFormatIMP)
+  NSString* fmt =  nsString_stringWithFormatIMP
     (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
      func,line,file,name,format);
   NSString* string= nil;
@@ -512,7 +512,7 @@ void ExceptionRaiseFn0(const char *func,
                        NSString* name,
                        NSString* format)
 {
-  NSString* string =  (*nsString_stringWithFormatIMP)
+  NSString* string =  nsString_stringWithFormatIMP
     (nsStringClass,stringWithFormatSEL,@"File %s: %d. In %s EXCEPTION %@: %@",
      func,line,file,name,format);
   NSLog(@"%@",string);
@@ -676,7 +676,7 @@ void ExceptionRaiseFn0(const char *func,
       c = '-';
       cls = [obj class];
     };
-  fmt = (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"%s: %d. In [%@ %c%@] %@",
+  fmt = nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL, @"%s: %d. In [%@ %c%@] %@",
                                         file,
                                         line,
                                         NSStringFromClass(cls),
@@ -704,7 +704,7 @@ void ExceptionRaiseFn0(const char *func,
   va_list args;
 
   va_start(args,format);
-  fmt =  (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%s: %d. In %s %@: %@",
+  fmt =  nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%s: %d. In %s %@: %@",
                                          file,line,fn,format);
   string=[nsStringClass stringWithFormat:fmt
                         arguments:args];
@@ -963,7 +963,7 @@ void ExceptionRaiseFn0(const char *func,
      when other threads invoke description on us.  */
   if (self == [NSThread currentThread])
     {
-        return (*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL, @"<%s: %p>",
+        return nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL, @"<%s: %p>",
                                                GSClassNameFromObject(self),
                                                self);
     }
@@ -1256,16 +1256,14 @@ NSString* GSWGetDefaultDocRoot()
 +(NSDictionary*)dictionaryWithDictionary:(NSDictionary*)dictionary
          andDefaultEntriesFromDictionary:(NSDictionary*)dictionaryDefaults
 {
-  NSMutableDictionary* dict=nil;
   if (dictionary)
     {
-      dict=[[dictionary mutableCopy]autorelease];
+      NSMutableDictionary* dict=[[dictionary mutableCopy]autorelease];
       [dict addDefaultEntriesFromDictionary:dictionaryDefaults];
-      dict=[NSDictionary dictionaryWithDictionary:dict];
+      return [NSDictionary dictionaryWithDictionary:dict];
     }
   else
-    dict=[NSDictionary dictionaryWithDictionary:dictionaryDefaults];
-  return dict;
+    return [NSDictionary dictionaryWithDictionary:dictionaryDefaults];
 };
 
 //--------------------------------------------------------------------
@@ -1275,8 +1273,7 @@ NSString* GSWGetDefaultDocRoot()
   NSMutableDictionary* dict=[[self mutableCopy]autorelease];
   [dict setObject:object
         forKey:key];
-  dict=[NSDictionary dictionaryWithDictionary:dict];
-  return dict;
+  return [NSDictionary dictionaryWithDictionary:dict];
 };
 
 //--------------------------------------------------------------------
@@ -1284,8 +1281,7 @@ NSString* GSWGetDefaultDocRoot()
 {
   NSMutableDictionary* dict=[[self mutableCopy]autorelease];
   [dict addEntriesFromDictionary:dictionary];
-  dict=[NSDictionary dictionaryWithDictionary:dict];
-  return dict;
+  return [NSDictionary dictionaryWithDictionary:dict];
 };
 
 @end
@@ -1339,8 +1335,7 @@ NSString* GSWGetDefaultDocRoot()
           [self removeObjectForKey:key];
         };
     };
-  newDictionary=[NSDictionary dictionaryWithDictionary:newDictionary];
-  return newDictionary;
+  return [NSDictionary dictionaryWithDictionary:newDictionary];
 };
 
 
@@ -1665,7 +1660,7 @@ NSString* GSWGetDefaultDocRoot()
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
-  NSFooNumberFormatter* clone = [[isa allocWithZone:zone] init];
+  NSFooNumberFormatter* clone = [[[self class] allocWithZone:zone] init];
   if (clone)
     {
       clone->_type=_type;
@@ -1733,7 +1728,7 @@ NSString* GSWGetDefaultDocRoot()
           if ([anObject isKindOfClass:nsNumberClass])
             {
               double value=[anObject doubleValue];
-              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
+              string=nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else if ([anObject respondsToSelector:@selector(intValue)])
             {
@@ -1743,12 +1738,12 @@ NSString* GSWGetDefaultDocRoot()
           else if ([anObject respondsToSelector:@selector(floatValue)])
             {
               double value=(double)[anObject floatValue];
-              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
+              string=nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else if ([anObject respondsToSelector:@selector(doubleValue)])
             {
               double value=[anObject doubleValue];
-              string=(*nsString_stringWithFormatIMP)(nsStringClass,stringWithFormatSEL,@"%.2f",value);
+              string=nsString_stringWithFormatIMP(nsStringClass,stringWithFormatSEL,@"%.2f",value);
             }
           else
             {

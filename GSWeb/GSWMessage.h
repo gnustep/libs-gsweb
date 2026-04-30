@@ -38,25 +38,25 @@
 typedef struct _GSWMessageIMPs
 {
   // Instance IMPs
-  IMP _contentIMP;
-  IMP _contentStringIMP;
-  IMP _appendContentAsciiStringIMP;
-  IMP _appendContentCharacterIMP;
-  IMP _appendContentStringIMP;
-  IMP _appendContentDataIMP;
-  IMP _appendContentBytesIMP;
-  IMP _appendDebugCommentContentStringIMP;
-  IMP _replaceContentDataByDataIMP;
-  IMP _appendContentHTMLStringIMP;
-  IMP _appendContentHTMLAttributeValueIMP;
-  IMP _appendContentHTMLConvertStringIMP;
-  IMP _appendContentHTMLEntitiesConvertStringIMP;
+  GSWIMP_ID _contentIMP;
+  GSWIMP_ID _contentStringIMP;
+  GSWIMP_VOID _appendContentAsciiStringIMP;
+  GSWIMP_VOID _appendContentCharacterIMP;
+  GSWIMP_VOID _appendContentStringIMP;
+  GSWIMP_VOID _appendContentDataIMP;
+  GSWIMP_VOID _appendContentBytesIMP;
+  GSWIMP_VOID _appendDebugCommentContentStringIMP;
+  GSWIMP_VOID _replaceContentDataByDataIMP;
+  GSWIMP_VOID _appendContentHTMLStringIMP;
+  GSWIMP_VOID _appendContentHTMLAttributeValueIMP;
+  GSWIMP_VOID _appendContentHTMLConvertStringIMP;
+  GSWIMP_VOID _appendContentHTMLEntitiesConvertStringIMP;
 
   // Class IMPs
-  IMP _stringByEscapingHTMLStringIMP;
-  IMP _stringByEscapingHTMLAttributeValueIMP;
-  IMP _stringByConvertingToHTMLEntitiesIMP;
-  IMP _stringByConvertingToHTMLIMP;
+  GSWIMP_ID _stringByEscapingHTMLStringIMP;
+  GSWIMP_ID _stringByEscapingHTMLAttributeValueIMP;
+  GSWIMP_ID _stringByConvertingToHTMLEntitiesIMP;
+  GSWIMP_ID _stringByConvertingToHTMLIMP;
 } GSWMessageIMPs;
 
 /** Fill impsPtr structure with IMPs for message **/
@@ -91,11 +91,11 @@ GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,
     NSStringEncoding _contentEncoding;
     NSDictionary* _userInfo;
     NSMutableData* _contentData;
-    IMP _contentDataADImp;
+    GSWIMP_VOID _contentDataADImp;
     
     NSMutableArray* _cachesStack; // Cache Stacks
     NSMutableData* _currentCacheData; // Current Cache Data (last object of _cachesStack). Do not retain/release
-    IMP _currentCacheDataADImp;
+    GSWIMP_VOID _currentCacheDataADImp;
     
 @public // For functions
     GSWMessageIMPs _selfMsgIMPs;

@@ -269,12 +269,12 @@ static id GSWMessageDataCache[GSWMESSGAEDATACHESIZE];
 //====================================================================
 #define assertContentDataADImp();		\
 	{ if (!_contentDataADImp) { 		\
-		_contentDataADImp=[_contentData \
+		_contentDataADImp=(GSWIMP_VOID)[_contentData \
 			methodForSelector:appendDataSel]; }; };
 
 #define assertCurrentCacheDataADImp();		\
 	{ if (!_currentCacheDataADImp) { 		\
-		_currentCacheDataADImp=[_currentCacheData \
+		_currentCacheDataADImp=(GSWIMP_VOID)[_currentCacheData \
 			methodForSelector:appendDataSel]; }; };
 
 //====================================================================
@@ -313,58 +313,58 @@ void GetGSWMessageIMPs(GSWMessageIMPs* impsPtr,GSWMessage* message)
   Class messageClass=object_getClass(message);
   
   impsPtr->_contentIMP = 
-    [message methodForSelector:contentSEL];
+    (GSWIMP_ID)[message methodForSelector:contentSEL];
   
   impsPtr->_contentStringIMP = 
-    [message methodForSelector:contentStringSEL];
+    (GSWIMP_ID)[message methodForSelector:contentStringSEL];
   
   impsPtr->_appendContentAsciiStringIMP = 
-    [message methodForSelector:appendContentAsciiStringSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentAsciiStringSEL];
   
   impsPtr->_appendContentCharacterIMP = 
-    [message methodForSelector:appendContentCharacterSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentCharacterSEL];
   
   impsPtr->_appendContentDataIMP = 
-    [message methodForSelector:appendContentDataSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentDataSEL];
   
   impsPtr->_appendContentStringIMP = 
-    [message methodForSelector:appendContentStringSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentStringSEL];
   
   impsPtr->_appendContentBytesIMP = 
-    [message methodForSelector:appendContentBytesSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentBytesSEL];
   
   impsPtr->_appendDebugCommentContentStringIMP = 
-    [message methodForSelector:appendDebugCommentContentStringSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendDebugCommentContentStringSEL];
   
   impsPtr->_replaceContentDataByDataIMP = 
-    [message methodForSelector:replaceContentDataByDataSEL];
+    (GSWIMP_VOID)[message methodForSelector:replaceContentDataByDataSEL];
   
   impsPtr->_appendContentHTMLStringIMP = 
-    [message methodForSelector:appendContentHTMLStringSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentHTMLStringSEL];
   
   impsPtr->_appendContentHTMLAttributeValueIMP = 
-    [message methodForSelector:appendContentHTMLAttributeValueSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentHTMLAttributeValueSEL];
   
   impsPtr->_appendContentHTMLConvertStringIMP = 
-    [message methodForSelector:appendContentHTMLConvertStringSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentHTMLConvertStringSEL];
   
   impsPtr->_appendContentHTMLEntitiesConvertStringIMP = 
-    [message methodForSelector:appendContentHTMLEntitiesConvertStringSEL];
+    (GSWIMP_VOID)[message methodForSelector:appendContentHTMLEntitiesConvertStringSEL];
   
   impsPtr->_stringByEscapingHTMLStringIMP = 
-    [messageClass methodForSelector:stringByEscapingHTMLStringSEL];
+    (GSWIMP_ID)[messageClass methodForSelector:stringByEscapingHTMLStringSEL];
   NSCAssert(impsPtr->_stringByEscapingHTMLStringIMP,@"No stringByEscapingHTMLStringIMP");
   
   impsPtr->_stringByEscapingHTMLAttributeValueIMP = 
-    [messageClass methodForSelector:stringByEscapingHTMLAttributeValueSEL];
+    (GSWIMP_ID)[messageClass methodForSelector:stringByEscapingHTMLAttributeValueSEL];
   NSCAssert(impsPtr->_stringByEscapingHTMLAttributeValueIMP,@"No stringByEscapingHTMLAttributeValueIMP");
   
   impsPtr->_stringByConvertingToHTMLEntitiesIMP = 
-    [messageClass methodForSelector:stringByConvertingToHTMLEntitiesSEL];
+    (GSWIMP_ID)[messageClass methodForSelector:stringByConvertingToHTMLEntitiesSEL];
   NSCAssert(impsPtr->_stringByConvertingToHTMLEntitiesIMP,@"No stringByConvertingToHTMLEntitiesIMP");
   
   impsPtr->_stringByConvertingToHTMLIMP = 
-    [messageClass methodForSelector:stringByConvertingToHTMLSEL];
+    (GSWIMP_ID)[messageClass methodForSelector:stringByConvertingToHTMLSEL];
   NSCAssert(impsPtr->_stringByConvertingToHTMLIMP,@"No stringByConvertingToHTMLIMP");
 };
 
@@ -377,7 +377,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
     self->_contentData = [(NSMutableData*)[NSMutableData alloc] initWithCapacity:DEF_CONTENT_SIZE];
   }
   if (!self->_contentDataADImp) { 		
-		self->_contentDataADImp=[self->_contentData methodForSelector:appendDataSel]; 
+		self->_contentDataADImp=(GSWIMP_VOID)[self->_contentData methodForSelector:appendDataSel]; 
 		}
   return self->_contentData;
 }
@@ -488,7 +488,7 @@ static __inline__ NSMutableData *_checkBody(GSWMessage *self) {
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
-  GSWMessage* clone = [[isa allocWithZone:zone] init];
+  GSWMessage* clone = [[[self class] allocWithZone:zone] init];
   if (clone)
     {
       ASSIGNCOPY(clone->_httpVersion,_httpVersion);

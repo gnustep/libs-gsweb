@@ -41,7 +41,7 @@
 typedef struct _GSWResponseIMPs
 {
   // Instance IMPs
-  IMP _appendTagAttributeValueEscapingHTMLAttributeValueIMP;
+  GSWIMP_VOID _appendTagAttributeValueEscapingHTMLAttributeValueIMP;
 } GSWResponseIMPs;
 
 /** Fill impsPtr structure with IMPs for message **/

@@ -63,31 +63,31 @@ void GetGSWContextIMPs(GSWContextIMPs* impsPtr,GSWContext* context)
       memset(impsPtr,0,sizeof(GSWContextIMPs));
 
       impsPtr->_incrementLastElementIDComponentIMP = 
-        [context methodForSelector:incrementLastElementIDComponentSEL];
+        (GSWIMP_VOID)[context methodForSelector:incrementLastElementIDComponentSEL];
 
       impsPtr->_appendElementIDComponentIMP 
-        = [context methodForSelector:appendElementIDComponentSEL];
+        = (GSWIMP_VOID)[context methodForSelector:appendElementIDComponentSEL];
 
       impsPtr->_appendZeroElementIDComponentIMP = 
-        [context methodForSelector:appendZeroElementIDComponentSEL];
+        (GSWIMP_VOID)[context methodForSelector:appendZeroElementIDComponentSEL];
 
       impsPtr->_deleteAllElementIDComponentsIMP = 
-        [context methodForSelector:deleteAllElementIDComponentsSEL];
+        (GSWIMP_VOID)[context methodForSelector:deleteAllElementIDComponentsSEL];
 
       impsPtr->_deleteLastElementIDComponentIMP = 
-        [context methodForSelector:deleteLastElementIDComponentSEL];
+        (GSWIMP_VOID)[context methodForSelector:deleteLastElementIDComponentSEL];
 
       impsPtr->_elementIDIMP = 
-        [context methodForSelector:elementIDSEL];
+        (GSWIMP_ID)[context methodForSelector:elementIDSEL];
 
       impsPtr->_componentIMP = 
-        [context methodForSelector:componentSEL];
+        (GSWIMP_ID)[context methodForSelector:componentSEL];
 
       impsPtr->_senderIDIMP = 
-        [context methodForSelector:senderIDSEL];
+        (GSWIMP_ID)[context methodForSelector:senderIDSEL];
 
       impsPtr->_contextAndElementIDIMP =
-        [context methodForSelector:contextAndElementIDSEL];
+        (GSWIMP_ID)[context methodForSelector:contextAndElementIDSEL];
 
       impsPtr->_isParentSenderIDSearchOverIMP = 
         (GSWIMP_BOOL)[context methodForSelector:isParentSenderIDSearchOverSEL];
@@ -251,34 +251,34 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
   InitializeGSWElementIDSELs();
 
   standardContextIMPs._incrementLastElementIDComponentIMP = 
-    [self instanceMethodForSelector:incrementLastElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:incrementLastElementIDComponentSEL];
 
   standardContextIMPs._appendElementIDComponentIMP = 
-    [self instanceMethodForSelector:appendElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:appendElementIDComponentSEL];
 
   standardContextIMPs._appendZeroElementIDComponentIMP = 
-    [self instanceMethodForSelector:appendZeroElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:appendZeroElementIDComponentSEL];
 
   standardContextIMPs._deleteAllElementIDComponentsIMP = 
-    [self instanceMethodForSelector:deleteAllElementIDComponentsSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:deleteAllElementIDComponentsSEL];
 
   standardContextIMPs._deleteLastElementIDComponentIMP = 
-    [self instanceMethodForSelector:deleteLastElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:deleteLastElementIDComponentSEL];
 
   standardContextIMPs._elementIDIMP = 
-    [self instanceMethodForSelector:elementIDSEL];
+    (GSWIMP_ID)[self instanceMethodForSelector:elementIDSEL];
 
   standardContextIMPs._componentIMP = 
-    [self instanceMethodForSelector:componentSEL];
+    (GSWIMP_ID)[self instanceMethodForSelector:componentSEL];
 
   standardContextIMPs._senderIDIMP = 
-    [self instanceMethodForSelector:senderIDSEL];
+    (GSWIMP_ID)[self instanceMethodForSelector:senderIDSEL];
 
   standardContextIMPs._contextAndElementIDIMP = 
-    [self instanceMethodForSelector:contextAndElementIDSEL];
+    (GSWIMP_ID)[self instanceMethodForSelector:contextAndElementIDSEL];
 
   standardContextIMPs._componentIMP = 
-    [self instanceMethodForSelector:componentSEL];
+    (GSWIMP_ID)[self instanceMethodForSelector:componentSEL];
 
   standardContextIMPs._isParentSenderIDSearchOverIMP = 
     (GSWIMP_BOOL)[self instanceMethodForSelector:isParentSenderIDSearchOverSEL];
@@ -364,7 +364,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext)
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
-  GSWContext* clone = [[isa allocWithZone:zone] init];
+  GSWContext* clone = [[[self class] allocWithZone:zone] init];
 
   if (clone)
     {

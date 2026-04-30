@@ -43,15 +43,15 @@
 
 typedef struct _GSWContextIMPs
 {
-  IMP _incrementLastElementIDComponentIMP;
-  IMP _appendElementIDComponentIMP;
-  IMP _appendZeroElementIDComponentIMP;
-  IMP _deleteAllElementIDComponentsIMP;
-  IMP _deleteLastElementIDComponentIMP;
-  IMP _elementIDIMP;
-  IMP _componentIMP;
-  IMP _senderIDIMP;
-  IMP _contextAndElementIDIMP;
+  GSWIMP_VOID _incrementLastElementIDComponentIMP;
+  GSWIMP_VOID _appendElementIDComponentIMP;
+  GSWIMP_VOID _appendZeroElementIDComponentIMP;
+  GSWIMP_VOID _deleteAllElementIDComponentsIMP;
+  GSWIMP_VOID _deleteLastElementIDComponentIMP;
+  GSWIMP_ID _elementIDIMP;
+  GSWIMP_ID _componentIMP;
+  GSWIMP_ID _senderIDIMP;
+  GSWIMP_ID _contextAndElementIDIMP;
   GSWIMP_BOOL _isParentSenderIDSearchOverIMP;
   GSWIMP_BOOL _isSenderIDSearchOverIMP;
 } GSWContextIMPs;

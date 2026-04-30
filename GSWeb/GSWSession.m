@@ -81,7 +81,7 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(id)copyWithZone: (NSZone*)zone
 {
-  GSWSession* clone = [[isa allocWithZone: zone] init];
+  GSWSession* clone = [[[self class] allocWithZone: zone] init];
   [clone setSessionID:_sessionID];
   [clone setTimeOut:_timeOut];
   [clone _setContextArrayStack:_contextArrayStack];

@@ -146,7 +146,7 @@ static Class NSStringClass = Nil;
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone;
 {
-  GSWAssociation* clone = [[isa allocWithZone:zone] init];
+  GSWAssociation* clone = [[[self class] allocWithZone:zone] init];
   clone->_debugEnabled=_debugEnabled;
   [clone setDebugEnabledForBinding:_bindingName
          declarationName:_declarationName

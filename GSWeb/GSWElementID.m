@@ -137,19 +137,19 @@ void GetGSWElementIDIMPs(GSWElementIDIMPs* impsPtr,GSWElementID* elementID)
       memset(&standardElementIDIMPs,0,sizeof(GSWElementIDIMPs));
 
       impsPtr->_incrementLastElementIDComponentIMP = 
-        [elementID methodForSelector:incrementLastElementIDComponentSEL];
+        (GSWIMP_VOID)[elementID methodForSelector:incrementLastElementIDComponentSEL];
 
       impsPtr->_appendElementIDComponentIMP = 
-        [elementID methodForSelector:appendElementIDComponentSEL];
+        (GSWIMP_VOID)[elementID methodForSelector:appendElementIDComponentSEL];
 
       impsPtr->_appendZeroElementIDComponentIMP = 
-        [elementID methodForSelector:appendZeroElementIDComponentSEL];
+        (GSWIMP_VOID)[elementID methodForSelector:appendZeroElementIDComponentSEL];
 
       impsPtr->_deleteAllElementIDComponentsIMP = 
-        [elementID methodForSelector:deleteAllElementIDComponentsSEL];
+        (GSWIMP_VOID)[elementID methodForSelector:deleteAllElementIDComponentsSEL];
 
       impsPtr->_deleteLastElementIDComponentIMP = 
-        [elementID methodForSelector:deleteLastElementIDComponentSEL];
+        (GSWIMP_VOID)[elementID methodForSelector:deleteLastElementIDComponentSEL];
 
       impsPtr->_isParentSearchOverForSenderIDIMP = 
         (GSWIMP_BOOL)[elementID methodForSelector:isParentSearchOverForSenderIDSEL];
@@ -158,7 +158,7 @@ void GetGSWElementIDIMPs(GSWElementIDIMPs* impsPtr,GSWElementID* elementID)
         (GSWIMP_BOOL)[elementID methodForSelector:isSearchOverForSenderIDSEL];
 
       impsPtr->_elementIDStringIMP = 
-        [elementID methodForSelector:elementIDStringSEL];
+        (GSWIMP_ID)[elementID methodForSelector:elementIDStringSEL];
     };
 };
 
@@ -206,19 +206,19 @@ void InitializeGSWElementIDSELs()
   memset(&standardElementIDIMPs,0,sizeof(GSWElementIDIMPs));
 
   standardElementIDIMPs._incrementLastElementIDComponentIMP = 
-    [self instanceMethodForSelector:incrementLastElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:incrementLastElementIDComponentSEL];
 
   standardElementIDIMPs._appendElementIDComponentIMP = 
-    [self instanceMethodForSelector:appendElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:appendElementIDComponentSEL];
 
   standardElementIDIMPs._appendZeroElementIDComponentIMP = 
-    [self instanceMethodForSelector:appendZeroElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:appendZeroElementIDComponentSEL];
 
   standardElementIDIMPs._deleteAllElementIDComponentsIMP = 
-    [self instanceMethodForSelector:deleteAllElementIDComponentsSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:deleteAllElementIDComponentsSEL];
 
   standardElementIDIMPs._deleteLastElementIDComponentIMP = 
-    [self instanceMethodForSelector:deleteLastElementIDComponentSEL];
+    (GSWIMP_VOID)[self instanceMethodForSelector:deleteLastElementIDComponentSEL];
 
   standardElementIDIMPs._isParentSearchOverForSenderIDIMP = 
     (GSWIMP_BOOL)[self instanceMethodForSelector:isParentSearchOverForSenderIDSEL];
@@ -227,7 +227,7 @@ void InitializeGSWElementIDSELs()
     (GSWIMP_BOOL)[self instanceMethodForSelector:isSearchOverForSenderIDSEL];
 
   standardElementIDIMPs._elementIDStringIMP = 
-    [self instanceMethodForSelector:elementIDStringSEL];      
+    (GSWIMP_ID)[self instanceMethodForSelector:elementIDStringSEL];      
 };
 
 //--------------------------------------------------------------------
@@ -297,8 +297,8 @@ partsCount is the number of parts to allocate
 {
   if ((self=[super init]))
     {
-      _deleteElementsFromIndexIMP=[self methodForSelector:deleteElementsFromIndexSelector];
-      _buildElementPartsIMP=[self methodForSelector:buildElementPartsSelector];
+      _deleteElementsFromIndexIMP=(GSWIMP_VOID)[self methodForSelector:deleteElementsFromIndexSelector];
+      _buildElementPartsIMP=(GSWIMP_VOID)[self methodForSelector:buildElementPartsSelector];
       if (partsCount>0)
         {
           GSWElementIDRealloc(&_parts,&_allocatedPartsCount,partsCount);
@@ -644,13 +644,13 @@ For better performences, senderID should be an immutable string
             {
               // Create working string and cache -appendString: IMP
               _tmpString=(NSMutableString*)[NSMutableString new]; //Retained !
-              _tmpString_appendStringIMP=[_tmpString methodForSelector:appendStringSelector];
-              _tmpString_setStringIMP=[_tmpString methodForSelector:setStringSelector];
+              _tmpString_appendStringIMP=(GSWIMP_VOID)[_tmpString methodForSelector:appendStringSelector];
+              _tmpString_setStringIMP=(GSWIMP_VOID)[_tmpString methodForSelector:setStringSelector];
             };
           
           // Start from previous built element if one otherwise, start from empty string
           part=_parts+_builtPartCount-1;
-          (*_tmpString_setStringIMP)(_tmpString,appendStringSelector,
+          _tmpString_setStringIMP(_tmpString,appendStringSelector,
                                      (_builtPartCount>0 ?
                                       (NSString*)(part->_elementIDString) : (NSString*)@""));
           
@@ -660,15 +660,15 @@ For better performences, senderID should be an immutable string
                 {
                   if (i>0)
                     {
-                      (*_tmpString_appendStringIMP)(_tmpString,
+                      _tmpString_appendStringIMP(_tmpString,
                                                     appendStringSelector,@".");
                     };
 
-                  (*_tmpString_appendStringIMP)(_tmpString,
+                  _tmpString_appendStringIMP(_tmpString,
                                                 appendStringSelector,part->_string);
                   if (part->_number>0)
                     {
-                      (*_tmpString_appendStringIMP)(_tmpString,
+                      _tmpString_appendStringIMP(_tmpString,
                                                     appendStringSelector,
                                                     GSWIntToNSString(part->_number));
                     };
@@ -680,24 +680,24 @@ For better performences, senderID should be an immutable string
                       if (part->_number<preBuiltDotPlusNumCount)
                         {
                           // Save a appendString :-)
-                          (*_tmpString_appendStringIMP)(_tmpString,
+                          _tmpString_appendStringIMP(_tmpString,
                                                         appendStringSelector,
                                                         preBuiltDotPlusNum[part->_number]);
                         }
                       else
                         {
-                          (*_tmpString_appendStringIMP)(_tmpString,
+                          _tmpString_appendStringIMP(_tmpString,
                                                         appendStringSelector,
                                                         @".");                  
                           
-                          (*_tmpString_appendStringIMP)(_tmpString,
+                          _tmpString_appendStringIMP(_tmpString,
                                                         appendStringSelector,
                                                         GSWIntToNSString(part->_number));
                         };
                     }
                   else
                     {
-                      (*_tmpString_appendStringIMP)(_tmpString,
+                      _tmpString_appendStringIMP(_tmpString,
                                                     appendStringSelector,
                                                     GSWIntToNSString(part->_number));
                     };
@@ -705,14 +705,14 @@ For better performences, senderID should be an immutable string
 
               if (part->_elementIDString)
                 {
-                  (*part->_elementIDString_setStringIMP)(part->_elementIDString,
+                  part->_elementIDString_setStringIMP(part->_elementIDString,
                                                          setStringSelector,
                                                          _tmpString);
                 }
               else
                 {
                   part->_elementIDString=[_tmpString mutableCopy]; //Retained !
-                  part->_elementIDString_setStringIMP=[part->_elementIDString 
+                  part->_elementIDString_setStringIMP=(GSWIMP_VOID)[part->_elementIDString 
                                                            methodForSelector:setStringSelector];
                 };
             };

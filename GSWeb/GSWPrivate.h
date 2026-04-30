@@ -69,7 +69,7 @@ static inline void GSWeb_appendStringWithImpPtr(NSMutableString* object,IMP* imp
 	    GSWInitializeAllMisc();
 	  *impPtr=[object methodForSelector:gswAppendStringSEL];
 	}
-      (**impPtr)(object,gswAppendStringSEL,string);
+      ((void (*)(id, SEL, NSString *))*impPtr)(object,gswAppendStringSEL,string);
     };
 };
 
@@ -85,7 +85,7 @@ static inline id GSWeb_objectAtIndexWithImpPtr(NSArray* array,IMP* impPtr,NSUInt
 	    GSWInitializeAllMisc();
 	  *impPtr=[array methodForSelector:gswObjectAtIndexSEL];
 	}
-      return (**impPtr)(array,gswObjectAtIndexSEL,index);
+      return ((id (*)(id, SEL, NSUInteger))*impPtr)(array,gswObjectAtIndexSEL,index);
     }
   else
     return nil;

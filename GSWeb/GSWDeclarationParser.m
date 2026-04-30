@@ -183,43 +183,43 @@ void GetGSWDeclarationParserIMPS(GSWDeclarationParserIMPs* impsPtr,GSWDeclaratio
         (GSWIMP_BOOL)[declarationParser methodForSelector:skipBlanksAndCommentsSEL];
 
       impsPtr->_parsePragmaIMP = 
-        [declarationParser methodForSelector:parsePragmaSEL];
+        (GSWIMP_VOID)[declarationParser methodForSelector:parsePragmaSEL];
 
       impsPtr->_parseIdentifierIMP = 
-        [declarationParser methodForSelector:parseIdentifierSEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseIdentifierSEL];
 
       impsPtr->_parseKeyIMP = 
-        [declarationParser methodForSelector:parseKeySEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseKeySEL];
 
       impsPtr->_parseQuotedStringIMP = 
-        [declarationParser methodForSelector:parseQuotedStringSEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseQuotedStringSEL];
 
       impsPtr->_parseHexDataIMP = 
-        [declarationParser methodForSelector:parseHexDataSEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseHexDataSEL];
       
       impsPtr->_parseKeyPathIMP = 
-        [declarationParser methodForSelector:parseKeyPathSEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseKeyPathSEL];
 
       impsPtr->_tryParseBooleanIMP = 
-        [declarationParser methodForSelector:tryParseBooleanSEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:tryParseBooleanSEL];
       
       impsPtr->_parseNumberIMP = 
-        [declarationParser methodForSelector:parseNumberSEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseNumberSEL];
 
       impsPtr->_parseHexNumberIMP = 
-        [declarationParser methodForSelector:parseHexNumberSEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseHexNumberSEL];
       
       impsPtr->_parseValueAsAssociationIMP = 
-        [declarationParser methodForSelector:parseValueAsAssociationSEL];
+        (GSWIMP_ID_BOOL)[declarationParser methodForSelector:parseValueAsAssociationSEL];
 
       impsPtr->_parseDictionaryWithValuesAsAssociationsIMP = 
-        [declarationParser methodForSelector:parseDictionaryWithValuesAsAssociationsSEL];
+        (GSWIMP_ID_BOOL)[declarationParser methodForSelector:parseDictionaryWithValuesAsAssociationsSEL];
       
       impsPtr->_parseArrayIMP = 
-        [declarationParser methodForSelector:parseArraySEL];
+        (GSWIMP_ID)[declarationParser methodForSelector:parseArraySEL];
 
       impsPtr->_parseDeclarationIMP = 
-        [declarationParser methodForSelector:parseDeclarationSEL];      
+        (GSWIMP_ID)[declarationParser methodForSelector:parseDeclarationSEL];      
     };
 };
 
@@ -345,43 +345,43 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
         (GSWIMP_BOOL)[standardClass instanceMethodForSelector:skipBlanksAndCommentsSEL];
 
       standardDeclarationParserIMPs._parsePragmaIMP = 
-        [standardClass instanceMethodForSelector:parsePragmaSEL];
+        (GSWIMP_VOID)[standardClass instanceMethodForSelector:parsePragmaSEL];
 
       standardDeclarationParserIMPs._parseIdentifierIMP = 
-        [standardClass instanceMethodForSelector:parseIdentifierSEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseIdentifierSEL];
 
       standardDeclarationParserIMPs._parseKeyIMP = 
-        [standardClass instanceMethodForSelector:parseKeySEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseKeySEL];
 
       standardDeclarationParserIMPs._parseQuotedStringIMP = 
-        [standardClass instanceMethodForSelector:parseQuotedStringSEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseQuotedStringSEL];
 
       standardDeclarationParserIMPs._parseHexDataIMP = 
-        [standardClass instanceMethodForSelector:parseHexDataSEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseHexDataSEL];
       
       standardDeclarationParserIMPs._parseKeyPathIMP = 
-        [standardClass instanceMethodForSelector:parseKeyPathSEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseKeyPathSEL];
 
       standardDeclarationParserIMPs._tryParseBooleanIMP = 
-        [standardClass instanceMethodForSelector:tryParseBooleanSEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:tryParseBooleanSEL];
       
       standardDeclarationParserIMPs._parseNumberIMP = 
-        [standardClass instanceMethodForSelector:parseNumberSEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseNumberSEL];
 
       standardDeclarationParserIMPs._parseHexNumberIMP = 
-        [standardClass instanceMethodForSelector:parseHexNumberSEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseHexNumberSEL];
       
       standardDeclarationParserIMPs._parseValueAsAssociationIMP = 
-        [standardClass instanceMethodForSelector:parseValueAsAssociationSEL];
+        (GSWIMP_ID_BOOL)[standardClass instanceMethodForSelector:parseValueAsAssociationSEL];
 
       standardDeclarationParserIMPs._parseDictionaryWithValuesAsAssociationsIMP = 
-        [standardClass instanceMethodForSelector:parseDictionaryWithValuesAsAssociationsSEL];
+        (GSWIMP_ID_BOOL)[standardClass instanceMethodForSelector:parseDictionaryWithValuesAsAssociationsSEL];
       
       standardDeclarationParserIMPs._parseArrayIMP = 
-        [standardClass instanceMethodForSelector:parseArraySEL];
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseArraySEL];
 
       standardDeclarationParserIMPs._parseDeclarationIMP = 
-        [standardClass instanceMethodForSelector:parseDeclarationSEL];      
+        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseDeclarationSEL];      
     };
 };
 

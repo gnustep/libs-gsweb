@@ -37,19 +37,19 @@ typedef struct _GSWDeclarationParserIMPs
   GSWIMP_BOOL _skipBlanksIMP;
   GSWIMP_BOOL _skipCommentIMP;
   GSWIMP_BOOL _skipBlanksAndCommentsIMP;
-  IMP _parsePragmaIMP;
-  IMP _parseIdentifierIMP;
-  IMP _parseKeyIMP;
-  IMP _parseQuotedStringIMP;
-  IMP _parseHexDataIMP;
-  IMP _parseKeyPathIMP;
-  IMP _tryParseBooleanIMP;
-  IMP _parseNumberIMP;
-  IMP _parseHexNumberIMP;
-  IMP _parseValueAsAssociationIMP;
-  IMP _parseDictionaryWithValuesAsAssociationsIMP;
-  IMP _parseArrayIMP;
-  IMP _parseDeclarationIMP;
+  GSWIMP_VOID _parsePragmaIMP;
+  GSWIMP_ID _parseIdentifierIMP;
+  GSWIMP_ID _parseKeyIMP;
+  GSWIMP_ID _parseQuotedStringIMP;
+  GSWIMP_ID _parseHexDataIMP;
+  GSWIMP_ID _parseKeyPathIMP;
+  GSWIMP_ID _tryParseBooleanIMP;
+  GSWIMP_ID _parseNumberIMP;
+  GSWIMP_ID _parseHexNumberIMP;
+  GSWIMP_ID_BOOL _parseValueAsAssociationIMP;
+  GSWIMP_ID_BOOL _parseDictionaryWithValuesAsAssociationsIMP;
+  GSWIMP_ID _parseArrayIMP;
+  GSWIMP_ID _parseDeclarationIMP;
 } GSWDeclarationParserIMPs;
 
 /** Fill impsPtr structure with IMPs for context **/

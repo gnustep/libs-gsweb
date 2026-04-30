@@ -232,8 +232,8 @@ static Class mutableStringClass = Nil;
 static Class stringClass=Nil;
 static SEL stringWithCharactersSEL=NULL;
 static SEL stringWithStringSEL=NULL;
-static IMP stringClass_stringWithCharactersIMP=NULL;
-static IMP stringClass_stringWithStringIMP=NULL;
+static GSWIMP_ID stringClass_stringWithCharactersIMP=NULL;
+static GSWIMP_ID stringClass_stringWithStringIMP=NULL;
 
 static void initNormalHTMLChars(GSWHTMLConvertingStruct* htmlConvertStruct,
                                 NSString* normalCharsPropertyListString,
@@ -289,8 +289,8 @@ void NSStringHTML_Initialize()
 
       stringWithCharactersSEL=@selector(stringWithCharacters:length:);
       stringWithStringSEL=@selector(stringWithString:);
-      stringClass_stringWithCharactersIMP=[stringClass methodForSelector:stringWithCharactersSEL];
-      stringClass_stringWithStringIMP=[stringClass methodForSelector:stringWithStringSEL];
+      stringClass_stringWithCharactersIMP=(GSWIMP_ID)[stringClass methodForSelector:stringWithCharactersSEL];
+      stringClass_stringWithStringIMP=(GSWIMP_ID)[stringClass methodForSelector:stringWithStringSEL];
 
       //testStringByConvertingHTML();
     };

@@ -237,7 +237,7 @@
 -(NSString*)logPrefix
 {
   return [NSString stringWithFormat:@"%@:Template Parser for template named %@ in framework %@ \nat %@ - ",
-		   NSStringFromClass(isa),
+		   NSStringFromClass([self class]),
                    _templateName,
                    _frameworkName,
                    _stringPath];

@@ -53,7 +53,7 @@ void GetGSWResponseIMPs(GSWResponseIMPs* impsPtr,GSWResponse* aResponse)
   NSCAssert(aResponse,@"No response");
 
   impsPtr->_appendTagAttributeValueEscapingHTMLAttributeValueIMP = 
-    [aResponse methodForSelector:appendTagAttributeValueEscapingHTMLAttributeValueSEL];
+    (GSWIMP_VOID)[aResponse methodForSelector:appendTagAttributeValueEscapingHTMLAttributeValueSEL];
 };
 
 //====================================================================

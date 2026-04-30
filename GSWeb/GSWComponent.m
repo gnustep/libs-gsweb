@@ -128,7 +128,7 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(id)copyWithZone: (NSZone*)zone
 {
-  GSWComponent* clone = [[isa allocWithZone: zone] init];
+  GSWComponent* clone = [[[self class] allocWithZone: zone] init];
   ASSIGNCOPY(clone->_name,_name);
   ASSIGNCOPY(clone->_subComponents,_subComponents);
   ASSIGNCOPY(clone->_templateName,_templateName);
