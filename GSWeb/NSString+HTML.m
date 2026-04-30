@@ -409,9 +409,11 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
             i++;
         };
       if (changed)
-        str=(*stringClass_stringWithCharactersIMP)(stringClass,stringWithCharactersSEL,pString,length);
+        str = ((id (*)(id, SEL, const unichar*, NSUInteger))stringClass_stringWithCharactersIMP)
+                (stringClass, stringWithCharactersSEL, pString, length);
       else if ([string isKindOfClass:mutableStringClass])
-        str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
+        str = ((id (*)(id, SEL, id))stringClass_stringWithStringIMP)
+                (stringClass, stringWithStringSEL, string);
       else
         str=string;
     }
@@ -543,9 +545,11 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
             i++;
         };
       if (changed)
-        str=(*stringClass_stringWithCharactersIMP)(stringClass,stringWithCharactersSEL,pString,length);
+        str = ((id (*)(id, SEL, const unichar*, NSUInteger))stringClass_stringWithCharactersIMP)
+                (stringClass, stringWithCharactersSEL, pString, length);
       else if ([string isKindOfClass:mutableStringClass])
-        str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
+        str = ((id (*)(id, SEL, id))stringClass_stringWithStringIMP)
+                (stringClass, stringWithStringSEL, string);
       else
         str=string;
       NSZoneFree(NSDefaultMallocZone(), pString);
