@@ -67,7 +67,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 {
   if (aResponse)
     {
-      (*(aResponse->_selfIMPs._appendTagAttributeValueEscapingHTMLAttributeValueIMP))
+      ((void (*)(id, SEL, NSString*, id, BOOL))aResponse->_selfIMPs._appendTagAttributeValueEscapingHTMLAttributeValueIMP)
         (aResponse,appendTagAttributeValueEscapingHTMLAttributeValueSEL,aString,value,escaping);
     };
 }

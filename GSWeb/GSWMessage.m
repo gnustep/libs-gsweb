@@ -74,7 +74,7 @@ NSData* GSWMessage_content(GSWMessage* aMessage)
 {
   if (aMessage)
     {
-      return (*(aMessage->_selfMsgIMPs._contentIMP))
+      return ((id (*)(id, SEL))aMessage->_selfMsgIMPs._contentIMP)
         (aMessage,contentSEL);
     }
   else
@@ -86,7 +86,7 @@ NSString* GSWMessage_contentString(GSWMessage* aMessage)
 {
   if (aMessage)
     {
-      return (*(aMessage->_selfMsgIMPs._contentStringIMP))
+      return ((id (*)(id, SEL))aMessage->_selfMsgIMPs._contentStringIMP)
         (aMessage,contentStringSEL);
     }
   else
@@ -98,7 +98,7 @@ void GSWMessage_appendContentAsciiString(GSWMessage* aMessage,NSString* aString)
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentAsciiStringIMP))
+      ((void (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._appendContentAsciiStringIMP)
         (aMessage,appendContentAsciiStringSEL,aString);
     };
 }
@@ -108,7 +108,7 @@ void GSWMessage_appendContentCharacter(GSWMessage* aMessage,char aChar)
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentCharacterIMP))
+      ((void (*)(id, SEL, char))aMessage->_selfMsgIMPs._appendContentCharacterIMP)
         (aMessage,appendContentCharacterSEL,aChar);
     };
 }
@@ -118,7 +118,7 @@ void GSWMessage_appendContentString(GSWMessage* aMessage,NSString* aString)
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentStringIMP))
+      ((void (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._appendContentStringIMP)
         (aMessage,appendContentStringSEL,aString);
     };
 }
@@ -128,7 +128,7 @@ void GSWMessage_appendContentData(GSWMessage* aMessage,NSData* contentData)
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentDataIMP))
+      ((void (*)(id, SEL, NSData*))aMessage->_selfMsgIMPs._appendContentDataIMP)
         (aMessage,appendContentDataSEL,contentData);
     };
 }
@@ -138,7 +138,7 @@ void GSWMessage_appendContentBytes(GSWMessage* aMessage,const void* contentsByte
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentBytesIMP))
+      ((void (*)(id, SEL, const void*, unsigned))aMessage->_selfMsgIMPs._appendContentBytesIMP)
         (aMessage,appendContentBytesSEL,contentsBytes,length);
     };
 }
@@ -148,7 +148,7 @@ void GSWMessage_appendDebugCommentContentString(GSWMessage* aMessage,NSString* a
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendDebugCommentContentStringIMP))
+      ((void (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._appendDebugCommentContentStringIMP)
         (aMessage,appendDebugCommentContentStringSEL,aString);
     };
 }
@@ -158,7 +158,7 @@ void GSWMessage_replaceContentDataByData(GSWMessage* aMessage,NSData* replaceDat
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._replaceContentDataByDataIMP))
+      ((void (*)(id, SEL, NSData*, NSData*))aMessage->_selfMsgIMPs._replaceContentDataByDataIMP)
         (aMessage,replaceContentDataByDataSEL,replaceData,byData);
     };
 }
@@ -168,7 +168,7 @@ void GSWMessage_appendContentHTMLString(GSWMessage* aMessage,NSString* aString)
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentHTMLStringIMP))
+      ((void (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._appendContentHTMLStringIMP)
         (aMessage,appendContentHTMLStringSEL,aString);
     };
 }
@@ -178,7 +178,7 @@ void GSWMessage_appendContentHTMLAttributeValue(GSWMessage* aMessage,NSString* a
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentHTMLAttributeValueIMP))
+      ((void (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._appendContentHTMLAttributeValueIMP)
         (aMessage,appendContentHTMLAttributeValueSEL,aString);
     };
 }
@@ -188,7 +188,7 @@ void GSWMessage_appendContentHTMLConvertString(GSWMessage* aMessage,NSString* aS
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentHTMLConvertStringIMP))
+      ((void (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._appendContentHTMLConvertStringIMP)
         (aMessage,appendContentHTMLConvertStringSEL,aString);
     };
 }
@@ -198,7 +198,7 @@ void GSWMessage_appendContentHTMLEntitiesConvertString(GSWMessage* aMessage,NSSt
 {
   if (aMessage)
     {
-      (*(aMessage->_selfMsgIMPs._appendContentHTMLEntitiesConvertStringIMP))
+      ((void (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._appendContentHTMLEntitiesConvertStringIMP)
         (aMessage,appendContentHTMLEntitiesConvertStringSEL,aString);
     };
 }
@@ -208,7 +208,7 @@ NSString* GSWMessage_stringByEscapingHTMLString(GSWMessage* aMessage,NSString* a
 {
   if (aMessage)
     {
-      return (*(aMessage->_selfMsgIMPs._stringByEscapingHTMLStringIMP))
+      return ((id (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._stringByEscapingHTMLStringIMP)
         (object_getClass(aMessage),stringByEscapingHTMLStringSEL,aString);
     }
   else 
@@ -220,7 +220,7 @@ NSString* GSWMessage_stringByEscapingHTMLAttributeValue(GSWMessage* aMessage,NSS
 {
   if (aMessage)
     {
-      return (*(aMessage->_selfMsgIMPs._stringByEscapingHTMLAttributeValueIMP))
+      return ((id (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._stringByEscapingHTMLAttributeValueIMP)
         (object_getClass(aMessage),stringByEscapingHTMLAttributeValueSEL,aString);
     }
   else 
@@ -232,7 +232,7 @@ NSString* GSWMessage_stringByConvertingToHTMLEntities(GSWMessage* aMessage,NSStr
 {
   if (aMessage)
     {
-      return (*(aMessage->_selfMsgIMPs._stringByConvertingToHTMLEntitiesIMP))
+      return ((id (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._stringByConvertingToHTMLEntitiesIMP)
         (object_getClass(aMessage),stringByConvertingToHTMLEntitiesSEL,aString);
     }
   else 
@@ -244,7 +244,7 @@ NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,NSString* aSt
 {
   if (aMessage)
     {
-      return (*(aMessage->_selfMsgIMPs._stringByConvertingToHTMLIMP))
+      return ((id (*)(id, SEL, NSString*))aMessage->_selfMsgIMPs._stringByConvertingToHTMLIMP)
         (object_getClass(aMessage),stringByConvertingToHTMLSEL,aString);
     }
   else 
