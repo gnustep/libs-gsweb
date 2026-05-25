@@ -57,7 +57,7 @@ static Class standardClass = Nil;
          template:(GSWElement*)template
 {
   if ((self=[super initWithName:@"SCRIPT"
-                   associations:nil
+                   associations:associations
                    template:nil]))
     {
       GSWAssignAndRemoveAssociation(&_scriptFile,_associations,scriptFile__Key);
