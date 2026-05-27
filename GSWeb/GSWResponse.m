@@ -73,6 +73,7 @@ static NSArray* compressableContentTypesCache=nil;
                                              @"text/enriched",
                                              @"text/directory",
                                              @"image/svg+xml",
+                                             @"application/json",
                                               nil]));
                                              
     };
