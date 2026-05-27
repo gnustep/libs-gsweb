@@ -42,37 +42,10 @@ static NSString* disabledCacheDateString=nil;
 static NSArray* cacheControlHeaderValues=nil;
 static NSArray* compressableContentTypesCache=nil;
 
-static SEL appendTagAttributeValueEscapingHTMLAttributeValueSEL = NULL;
+
 
 //====================================================================
-/** Fill impsPtr structure with IMPs for response **/
-void GetGSWResponseIMPs(GSWResponseIMPs* impsPtr,GSWResponse* aResponse)
-{
-  memset(impsPtr,0,sizeof(GSWResponseIMPs));
 
-  NSCAssert(aResponse,@"No response");
-
-  impsPtr->_appendTagAttributeValueEscapingHTMLAttributeValueIMP = 
-    (GSWIMP_VOID)[aResponse methodForSelector:appendTagAttributeValueEscapingHTMLAttributeValueSEL];
-};
-
-//====================================================================
-/** functions to accelerate calls of frequently used GSWResponse methods **/
-
-//--------------------------------------------------------------------
-void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* aResponse,
-                                                                   NSString* aString,
-                                                                   id value,
-                                                                   BOOL escaping)
-{
-  if (aResponse)
-    {
-      ((void (*)(id, SEL, NSString*, id, BOOL))aResponse->_selfIMPs._appendTagAttributeValueEscapingHTMLAttributeValueIMP)
-        (aResponse,appendTagAttributeValueEscapingHTMLAttributeValueSEL,aString,value,escaping);
-    };
-}
-
-//--------------------------------------------------------------------
 +(void)initialize
 {
   if (self==[GSWResponse class])
@@ -88,8 +61,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
                                                 @"max-age=0",
                                                 nil]));
 
-      appendTagAttributeValueEscapingHTMLAttributeValueSEL = @selector(_appendTagAttribute:value:escapingHTMLAttributeValue:);
-      
+
       ASSIGN(compressableContentTypesCache, ([NSArray arrayWithObjects:@"text/html",
                                              @"text/plain",
                                              @"text/css",
@@ -123,7 +95,6 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
   //OK
   if ((self=[super init]))
     {
-      GetGSWResponseIMPs(&_selfIMPs,self);
       _canDisableClientCaching=YES;
       _status=200;
     };
@@ -238,7 +209,7 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 // it seems that in WO, this is a class method, which makes no sense
 - (void) _redirectResponse:(NSString *) location contentString:(NSString *) content
 {
-  GSWResponse_appendContentString(self, content);
+  [self appendContentString:content];
   [self setStatus:302];
   [self setHeader:location
            forKey:GSWHTTPHeader_Location];
@@ -379,18 +350,17 @@ void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* 
 escapingHTMLAttributeValue:(BOOL)escape
 {
 
-  GSWResponse_appendContentCharacter(self,' ');
-  GSWResponse_appendContentAsciiString(self,attributeName);
-  GSWResponse_appendContentAsciiString(self,@"=\"");
+  [self appendContentCharacter:' '];
+  [self _appendContentAsciiString:attributeName];
+  [self _appendContentAsciiString:@"=\""];
 
   if (escape) {
-    GSWResponse_appendContentString(self,
-                                         GSWResponse_stringByEscapingHTMLAttributeValue(self,value));
+    [self appendContentString:[GSWMessage stringByEscapingHTMLAttributeValue:value]];
   } else {
-    GSWResponse_appendContentString(self,value);
+    [self appendContentString:value];
   }
   
-  GSWResponse_appendContentCharacter(self,'"');
+  [self appendContentCharacter:'"'];
   
 };
 
@@ -476,8 +446,8 @@ escapingHTMLAttributeValue:(BOOL)escape
                 forKey:GSWHTTPHeader_ContentType];
       [aContext _setResponse:aResponse];
       responseString=[NSString stringWithFormat:@"<HTML>\n<TITLE>GNUstepWeb Error</TITLE>\n</HEAD>\n<BODY bgcolor=\"white\">\n<CENTER>\n%@\n</CENTER>\n</BODY>\n</HTML>\n",
-                               GSWResponse_stringByEscapingHTMLString(aResponse,aMessage)];
-      GSWResponse_appendContentString(aResponse,responseString);
+                               [GSWMessage stringByEscapingHTMLString:aMessage]];
+      [aResponse appendContentString:responseString];
       if (forceFinalize)
         [aResponse forceFinalizeInContext];
     };
@@ -539,7 +509,7 @@ escapingHTMLAttributeValue:(BOOL)escape
 {
   if (message)
     {
-      GSWResponse_appendContentString(self,message);
+      [self appendContentString:message];
       
       [self setHeader:GSWIntToNSString([[self content] length])
             forKey:GSWHTTPHeader_ContentLength];

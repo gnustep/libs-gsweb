@@ -129,7 +129,7 @@
   aResponse = [GSWApp createResponseInContext:nil];
 
   [aResponse setStatus:500];
-  GSWResponse_appendContentString(aResponse,@"<html><head><title>Error</title></head><body>Your request produced an error.</body></html>");
+  [aResponse appendContentString:@"<html><head><title>Error</title></head><body>Your request produced an error.</body></html>"];
 
   return aResponse;
 }

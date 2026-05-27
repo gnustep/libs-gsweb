@@ -130,9 +130,9 @@ treatNilValueAsGSWNull:(BOOL)treatNilValueAsGSWNull
 
 
   if (_action
-      && [GSWContext_elementID(aContext) isEqualToString:GSWContext_senderID(aContext)])
+      && [[aContext elementID] isEqualToString:[aContext senderID]])
     {
-      GSWComponent* component=GSWContext_component(aContext);
+      GSWComponent* component=[aContext component];
 
       element = [_action valueInComponent:component];
 

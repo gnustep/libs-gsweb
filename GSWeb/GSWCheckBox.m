@@ -46,24 +46,8 @@ Bindings
         disabled	If evaluated to yes, the check box appear inactivated.
 **/
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWCheckBox
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWCheckBox class])
-    {
-      standardClass=[GSWCheckBox class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -118,7 +102,7 @@ static Class standardClass = Nil;
 -(void)takeValuesFromRequest:(GSWRequest*) request
                    inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   
   if (![self disabledInComponent: component]
       && [context _wasFormSubmitted])
@@ -176,7 +160,7 @@ static Class standardClass = Nil;
 - (void) appendAttributesToResponse:(GSWResponse*)response
                 inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
 
   [super appendAttributesToResponse:response inContext:context];
 
@@ -191,18 +175,18 @@ static Class standardClass = Nil;
 	  if (selection != nil
 	      && [selection isEqual: value])
 	    {
-	      GSWResponse_appendContentAsciiString(response,@" checked");
+	      [response _appendContentAsciiString:@" checked"];
 	    }
 	}
     }
   else
     { // _value == nil
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, [context elementID], NO);  
+      [response _appendTagAttribute:value__Key value:[context elementID] escapingHTMLAttributeValue:NO];  
     }
   if (_checked != nil
       && [_checked boolValueInComponent:component])
     {
-      GSWResponse_appendContentAsciiString(response,@" checked");
+      [response _appendContentAsciiString:@" checked"];
     }
 }
 

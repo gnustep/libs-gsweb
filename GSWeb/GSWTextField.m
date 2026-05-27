@@ -123,7 +123,7 @@
   id         resultValue = nil;
   NSString * errorDscr = nil;
 
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   
   if (![self disabledInComponent: component]
       && [context _wasFormSubmitted])
@@ -194,7 +194,7 @@
 -(void) _appendValueAttributeToResponse:(GSWResponse *) response
                               inContext:(GSWContext*) context
 {
- GSWComponent * component = GSWContext_component(context);
+ GSWComponent * component = [context component];
  id value = [_value valueInComponent:component];
 
  if (value != nil)
@@ -218,7 +218,7 @@
      if (formattedValue == nil)
        formattedValue = NSStringWithObject(value);
 
-     GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, formattedValue, YES);
+     [response _appendTagAttribute:value__Key value:formattedValue escapingHTMLAttributeValue:YES];
    }
 }
 

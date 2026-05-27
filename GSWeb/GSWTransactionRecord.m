@@ -50,7 +50,7 @@
       [self setResponsePage:aResponsePage];
       
       ASSIGN(_contextID,([aContext _requestContextID]));
-      ASSIGN(_senderID,GSWContext_senderID(aContext));
+      ASSIGN(_senderID,[aContext senderID]);
       ASSIGN(_formValues,([[aContext request] formValues]));
 
     };
@@ -119,7 +119,7 @@
 {
   BOOL match=NO;
   if ([_contextID isEqualToString:[aContext _requestContextID]]
-      && [_senderID isEqualToString:GSWContext_senderID(aContext)])
+      && [_senderID isEqualToString:[aContext senderID]])
     {
       NSDictionary* requestFormValues=[[aContext request] formValues];
       match=((!_formValues && !requestFormValues)

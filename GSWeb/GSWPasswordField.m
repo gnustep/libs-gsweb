@@ -65,7 +65,7 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   if (![self disabledInComponent: component]
       && [context _wasFormSubmitted])
     {

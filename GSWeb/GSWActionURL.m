@@ -49,7 +49,7 @@
 	  || _pageName != nil)
     {
       NSString * actionURL = [context _componentActionURLIsSecure:[self secureInContext:context]];
-      GSWResponse_appendContentString(response,actionURL);
+      [response appendContentString:actionURL];
       
       [self _appendQueryStringToResponse:response
 	    inContext:context
@@ -72,17 +72,17 @@
 	      NSString* path = [context _urlForResourceNamed:url
 					inFramework:nil];
 	      if(path != nil)
-		GSWResponse_appendContentString(response,path);
+		[response appendContentString:path];
 	      else
 		{
-		  GSWResponse_appendContentAsciiString(response, [component baseURL]);
-		  GSWResponse_appendContentCharacter(response,'/');
-		  GSWResponse_appendContentString(response,url);
+		  [response _appendContentAsciiString:[component baseURL]];
+		  [response appendContentCharacter:'/'];
+		  [response appendContentString:url];
 		}
 	    }
 	  else
 	    {
-	      GSWResponse_appendContentString(response,url);
+	      [response appendContentString:url];
 	    }
 	  [self _appendQueryStringToResponse:response
 		inContext:context
@@ -97,7 +97,7 @@
           NSString* fragment = [_fragmentIdentifier valueInComponent:component];
           if (fragment != nil)
 	    {
-	      GSWResponse_appendContentString(response,NSStringWithObject(fragment));
+	      [response appendContentString:NSStringWithObject(fragment)];
 	      [self _appendQueryStringToResponse:response
 		    inContext: context
 		    requestHandlerPath:@""

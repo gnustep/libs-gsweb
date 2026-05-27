@@ -123,11 +123,11 @@
 {
   if (_multiple != nil)
     {
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
       if ([_multiple boolValueInComponent:component])
 	{
-	  GSWResponse_appendContentCharacter(response,' ');
-	  GSWResponse_appendContentAsciiString(response,@"multiple");
+	  [response appendContentCharacter:' '];
+	  [response _appendContentAsciiString:@"multiple"];
 	}
     }
 }
@@ -161,13 +161,13 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   if (![self disabledInComponent: component]
       && [context _wasFormSubmitted])
     {
       NS_DURING
         {
-	  GSWComponent* component=GSWContext_component(context);
+	  GSWComponent* component=[context component];
 	  NSString* nameInContext=[self nameInContext:context];
           
 	  NSString* fileNameFormValueName = [NSString stringWithFormat:@"%@.filename", 

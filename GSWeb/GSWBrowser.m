@@ -147,13 +147,12 @@ Bindings
 -(void) appendChildrenToResponse:(GSWResponse *) response
                        inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   BOOL doEscape = YES;
   NSArray* list = nil;
   NSUInteger listCount = 0;
   NSArray* selections = nil;
   int i = 0;
-  IMP oaiIMP=NULL;
 
   if (_escapeHTML != nil) 
     doEscape = [_escapeHTML boolValueInComponent:component];
@@ -187,7 +186,7 @@ Bindings
       id value = nil;
 
       if (list != nil)
-	item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+	item = [list objectAtIndex:i];
       
       if (_displayString != nil
 	  || _value != nil)
@@ -230,7 +229,7 @@ Bindings
 	  displayString = valueString;
 	}
 
-      GSWResponse_appendContentAsciiString(response,@"\n<option");
+      [response _appendContentAsciiString:@"\n<option"];
       if (_selections != nil)
 	{
 	  if (item
@@ -249,20 +248,20 @@ Bindings
 	    isSelected = [selections containsObject:GSWIntToNSString(i)];
 	}
       if (isSelected)
-	GSWResponse_appendContentAsciiString(response,@" selected");
+	[response _appendContentAsciiString:@" selected"];
 
       if (_value != nil)
-	GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, valueString, YES);
+	[response _appendTagAttribute:value__Key value:valueString escapingHTMLAttributeValue:YES];
       else
-	GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, GSWIntToNSString(i), NO);
+	[response _appendTagAttribute:value__Key value:GSWIntToNSString(i) escapingHTMLAttributeValue:NO];
     
-      GSWResponse_appendContentCharacter(response,'>');
+      [response appendContentCharacter:'>'];
       if (doEscape)
-	GSWResponse_appendContentHTMLConvertString(response, displayString);
+	[response appendContentHTMLConvertString:displayString];
       else
-	GSWResponse_appendContentString(response, displayString);
+	[response appendContentString:displayString];
     
-      GSWResponse_appendContentAsciiString(response,@"</option>");
+      [response _appendContentAsciiString:@"</option>"];
     }
 }
 
@@ -280,7 +279,7 @@ Bindings
 {
   id             sizeValue = nil;
   int            sizeInt   = 5;
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
 
   [super appendAttributesToResponse:response 
                           inContext:context];
@@ -299,12 +298,12 @@ Bindings
       sizeValue = GSWIntToNSString(5);
     }
 
-  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, size__Key, sizeValue, NO);
+  [response _appendTagAttribute:size__Key value:sizeValue escapingHTMLAttributeValue:NO];
 
   if (_multiple != nil
       && [_multiple boolValueInComponent:component])
     {
-      GSWResponse_appendContentAsciiString(response,@" multiple");
+      [response _appendContentAsciiString:@" multiple"];
     }
 }
 
@@ -312,7 +311,7 @@ Bindings
 - (void)_slowTakeValuesFromRequest:(GSWRequest*) request
                          inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
 
   if (_selections != nil
       && ![self disabledInComponent:component]
@@ -341,7 +340,6 @@ Bindings
 		    {
 		      NSUInteger listCount = [list count];
 		      int i=0;
-		      IMP oaiIMP=NULL;
 		      BOOL multiple = NO;
 		      if (_multiple != nil)
 			multiple = [_multiple boolValueInComponent:component];
@@ -349,7 +347,7 @@ Bindings
 		      for (i = 0; i < listCount; i++)
 			{
 			  id value = nil;
-			  id item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+			  id item = [list objectAtIndex:i];
 			  
 			  [_item setValue:item
 				 inComponent: component];
@@ -388,7 +386,7 @@ Bindings
 - (void) _fastTakeValuesFromRequest:(GSWRequest*) request
                           inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
 
   if (_selections != nil
       && ![self disabledInComponent:component]
@@ -416,8 +414,6 @@ Bindings
 		    }
 		  else
 		    {
-		      IMP formValues_oaiIMP=NULL;
-		      IMP list_oaiIMP=NULL;
 		      int i=0;
 		      BOOL multiple = NO;
 		      if (_multiple != nil)
@@ -425,11 +421,11 @@ Bindings
 
 		      for (i = 0; i < formValuesCount; i++)
 			{
-			  NSString* formValue = GSWeb_objectAtIndexWithImpPtr(formValues,&formValues_oaiIMP,i);
+			  NSString* formValue = [formValues objectAtIndex:i];
 			  int intFormValue = [formValue intValue];
 			  if (list != nil)
 			    {
-			      id item = GSWeb_objectAtIndexWithImpPtr(list,&list_oaiIMP,intFormValue);
+			      id item = [list objectAtIndex:intFormValue];
 			      if (selections==nil)
 				selections=[NSMutableArray array];
 			      [(NSMutableArray*)selections addObject:item];

@@ -48,8 +48,6 @@
         _elementIDString: is a cache of the elementID string from first part to this part.
   		it is a mutable string to avoid too much string allocation/deallocation
 
-        _elementIDString_setStringIMP; is the IMP for _elementIDString -setString:
-
 
   o About GSWElementID:
 
@@ -66,10 +64,6 @@
   _tmpString: is a working NSMutableString. There's no eed for locking since GSWElementID 
   		is a 'mutable'  object used only internally during a request life.
 
-  _tmpString_appendStringIMP: is the IMP for _tmpString -appendString:
-
-  _tmpString_setStringIMP: is the IMP for _tmpString -setString:
-
   _elementIDString: is the current non mutable elementIDstring (it will save a string 
 		creation when elementIDString is called more than one time without changes; 
 		otherwise, it cost nothing as we have to create it anywat
@@ -80,155 +74,23 @@
 
   _isSearchOverLastSenderID: is the elementID built from isSearchOverLastSenderIDString
 
-  _deleteElementsFromIndexIMP: IMP of -_deleteElementsFromIndex
-  _buildElementIMP: IMP of -_buildElement
-
 
   Manuel Guesdon
 */
 
 NSString* GSWElementIDPartDescription(GSWElementIDPart* part)
 {
-  return [NSString stringWithFormat:@"<GSWElementIDPart %p: number: %d string: %@ elementID: %@ IMP: %p",
+  return [NSString stringWithFormat:@"<GSWElementIDPart %p: number: %d string: %@ elementID: %@",
                    part,
                    part->_number,
                    part->_string,
-                   part->_elementIDString,
-                   part->_elementIDString_setStringIMP];
+                   part->_elementIDString];
 };
 
 //====================================================================
 @implementation GSWElementID
 
-// 'Standard' GSWElementID class. Used to get IMPs from standardElementIDIMPs
-static Class standardClass=Nil;
 
-// List of standardClass IMPs
-static GSWElementIDIMPs standardElementIDIMPs;
-
-// Internal Selectors
-static SEL deleteElementsFromIndexSelector = NULL;
-static SEL buildElementPartsSelector = NULL;
-static SEL appendStringSelector = NULL;
-static SEL setStringSelector = NULL;
-
-// Public Selectors
-SEL appendZeroElementIDComponentSEL=NULL;
-SEL deleteLastElementIDComponentSEL=NULL;
-SEL incrementLastElementIDComponentSEL=NULL;
-SEL appendElementIDComponentSEL=NULL;
-SEL deleteAllElementIDComponentsSEL=NULL;
-SEL isParentSearchOverForSenderIDSEL=NULL;
-SEL isSearchOverForSenderIDSEL=NULL;
-SEL elementIDStringSEL=NULL;
-
-
-//--------------------------------------------------------------------
-// Fill impsPtr structure with IMPs for elementID
-void GetGSWElementIDIMPs(GSWElementIDIMPs* impsPtr,GSWElementID* elementID)
-{
-  NSCAssert(elementID,@"No elementID in GetGSWElementIDIMPs()");
-  if ([elementID class]==standardClass)
-    {
-      memcpy(impsPtr,&standardElementIDIMPs,sizeof(GSWElementIDIMPs));
-    }
-  else
-    {
-      memset(&standardElementIDIMPs,0,sizeof(GSWElementIDIMPs));
-
-      impsPtr->_incrementLastElementIDComponentIMP = 
-        (GSWIMP_VOID)[elementID methodForSelector:incrementLastElementIDComponentSEL];
-
-      impsPtr->_appendElementIDComponentIMP = 
-        (GSWIMP_VOID)[elementID methodForSelector:appendElementIDComponentSEL];
-
-      impsPtr->_appendZeroElementIDComponentIMP = 
-        (GSWIMP_VOID)[elementID methodForSelector:appendZeroElementIDComponentSEL];
-
-      impsPtr->_deleteAllElementIDComponentsIMP = 
-        (GSWIMP_VOID)[elementID methodForSelector:deleteAllElementIDComponentsSEL];
-
-      impsPtr->_deleteLastElementIDComponentIMP = 
-        (GSWIMP_VOID)[elementID methodForSelector:deleteLastElementIDComponentSEL];
-
-      impsPtr->_isParentSearchOverForSenderIDIMP = 
-        (GSWIMP_BOOL)[elementID methodForSelector:isParentSearchOverForSenderIDSEL];
-
-      impsPtr->_isSearchOverForSenderIDIMP = 
-        (GSWIMP_BOOL)[elementID methodForSelector:isSearchOverForSenderIDSEL];
-
-      impsPtr->_elementIDStringIMP = 
-        (GSWIMP_ID)[elementID methodForSelector:elementIDStringSEL];
-    };
-};
-
-//--------------------------------------------------------------------
-// Initialize GSWElementID selectors
-void InitializeGSWElementIDSELs()
-{
-  static BOOL initialized=NO;
-  if (!initialized)
-    {
-      incrementLastElementIDComponentSEL = @selector(incrementLastElementIDComponent);
-      appendElementIDComponentSEL = @selector(appendElementIDComponent:);
-      appendZeroElementIDComponentSEL=@selector(appendZeroElementIDComponent);
-      deleteAllElementIDComponentsSEL = @selector(deleteAllElementIDComponents);
-      deleteLastElementIDComponentSEL=@selector(deleteLastElementIDComponent);
-      isParentSearchOverForSenderIDSEL = @selector(isParentSearchOverForSenderID:);
-      isSearchOverForSenderIDSEL = @selector(isSearchOverForSenderID:);
-      elementIDStringSEL = @selector(elementIDString);
-      initialized=YES;
-    };
-};
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWElementID class])
-    {
-      deleteElementsFromIndexSelector=@selector(_deleteElementsFromIndex:);
-      buildElementPartsSelector=@selector(_buildElementParts);
-      appendStringSelector=@selector(appendString:);
-      setStringSelector=@selector(setString:);
-
-      InitializeGSWElementIDSELs();
-      memset(&standardElementIDIMPs,0,sizeof(GSWElementIDIMPs));
-      [self setStandardClass:[GSWElementID class]];
-    };
-};
-
-//--------------------------------------------------------------------
-+(void)setStandardClass:(Class)aStandardClass
-{
-  // TODO MultiThread protection
-  standardClass=aStandardClass;
-
-  memset(&standardElementIDIMPs,0,sizeof(GSWElementIDIMPs));
-
-  standardElementIDIMPs._incrementLastElementIDComponentIMP = 
-    (GSWIMP_VOID)[self instanceMethodForSelector:incrementLastElementIDComponentSEL];
-
-  standardElementIDIMPs._appendElementIDComponentIMP = 
-    (GSWIMP_VOID)[self instanceMethodForSelector:appendElementIDComponentSEL];
-
-  standardElementIDIMPs._appendZeroElementIDComponentIMP = 
-    (GSWIMP_VOID)[self instanceMethodForSelector:appendZeroElementIDComponentSEL];
-
-  standardElementIDIMPs._deleteAllElementIDComponentsIMP = 
-    (GSWIMP_VOID)[self instanceMethodForSelector:deleteAllElementIDComponentsSEL];
-
-  standardElementIDIMPs._deleteLastElementIDComponentIMP = 
-    (GSWIMP_VOID)[self instanceMethodForSelector:deleteLastElementIDComponentSEL];
-
-  standardElementIDIMPs._isParentSearchOverForSenderIDIMP = 
-    (GSWIMP_BOOL)[self instanceMethodForSelector:isParentSearchOverForSenderIDSEL];
-
-  standardElementIDIMPs._isSearchOverForSenderIDIMP = 
-    (GSWIMP_BOOL)[self instanceMethodForSelector:isSearchOverForSenderIDSEL];
-
-  standardElementIDIMPs._elementIDStringIMP = 
-    (GSWIMP_ID)[self instanceMethodForSelector:elementIDStringSEL];      
-};
 
 //--------------------------------------------------------------------
 /** Allocate or reallocate allocPartsCount elements. Previous parts are in *partsPtr;
@@ -297,8 +159,6 @@ partsCount is the number of parts to allocate
 {
   if ((self=[super init]))
     {
-      _deleteElementsFromIndexIMP=(GSWIMP_VOID)[self methodForSelector:deleteElementsFromIndexSelector];
-      _buildElementPartsIMP=(GSWIMP_VOID)[self methodForSelector:buildElementPartsSelector];
       if (partsCount>0)
         {
           GSWElementIDRealloc(&_parts,&_allocatedPartsCount,partsCount);
@@ -642,17 +502,13 @@ For better performences, senderID should be an immutable string
           // No working string created ? 
           if (!_tmpString)
             {
-              // Create working string and cache -appendString: IMP
               _tmpString=(NSMutableString*)[NSMutableString new]; //Retained !
-              _tmpString_appendStringIMP=(GSWIMP_VOID)[_tmpString methodForSelector:appendStringSelector];
-              _tmpString_setStringIMP=(GSWIMP_VOID)[_tmpString methodForSelector:setStringSelector];
             };
           
           // Start from previous built element if one otherwise, start from empty string
           part=_parts+_builtPartCount-1;
-          ((void (*)(id, SEL, NSString*))_tmpString_setStringIMP)(_tmpString,setStringSelector,
-                                     (_builtPartCount>0 ?
-                                      (NSString*)(part->_elementIDString) : (NSString*)@""));
+          [_tmpString setString:(_builtPartCount>0 ?
+                                 (NSString*)(part->_elementIDString) : (NSString*)@"")];
           
           for(i=_builtPartCount,part=_parts+_builtPartCount;i<_partsCount;i++,part++)
             {
@@ -660,17 +516,13 @@ For better performences, senderID should be an immutable string
                 {
                   if (i>0)
                     {
-                      ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
-                                                    appendStringSelector,@".");
+                      [_tmpString appendString:@"."];
                     };
 
-                  ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
-                                                appendStringSelector,part->_string);
+                  [_tmpString appendString:part->_string];
                   if (part->_number>0)
                     {
-                      ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
-                                                    appendStringSelector,
-                                                    GSWIntToNSString(part->_number));
+                      [_tmpString appendString:GSWIntToNSString(part->_number)];
                     };
                 }
               else
@@ -679,41 +531,27 @@ For better performences, senderID should be an immutable string
                     {
                       if (part->_number<preBuiltDotPlusNumCount)
                         {
-                          // Save a appendString :-)
-                          ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
-                                                        appendStringSelector,
-                                                        preBuiltDotPlusNum[part->_number]);
+                          [_tmpString appendString:preBuiltDotPlusNum[part->_number]];
                         }
                       else
                         {
-                          ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
-                                                        appendStringSelector,
-                                                        @".");                  
-                          
-                          ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
-                                                        appendStringSelector,
-                                                        GSWIntToNSString(part->_number));
+                          [_tmpString appendString:@"."];                  
+                          [_tmpString appendString:GSWIntToNSString(part->_number)];
                         };
                     }
                   else
                     {
-                      ((void (*)(id, SEL, NSString*))_tmpString_appendStringIMP)(_tmpString,
-                                                    appendStringSelector,
-                                                    GSWIntToNSString(part->_number));
+                      [_tmpString appendString:GSWIntToNSString(part->_number)];
                     };
                 };
 
               if (part->_elementIDString)
                 {
-                  ((void (*)(id, SEL, NSString*))part->_elementIDString_setStringIMP)(part->_elementIDString,
-                                                         setStringSelector,
-                                                         _tmpString);
+                  [part->_elementIDString setString:_tmpString];
                 }
               else
                 {
                   part->_elementIDString=[_tmpString mutableCopy]; //Retained !
-                  part->_elementIDString_setStringIMP=(GSWIMP_VOID)[part->_elementIDString 
-                                                           methodForSelector:setStringSelector];
                 };
             };
           _builtPartCount=_partsCount;
@@ -734,7 +572,7 @@ elements **/
   if (_partsCount>0)
     {
       if (!_elementIDString) // Not alreday built ?
-        ((void (*)(id, SEL))_buildElementPartsIMP)(self,buildElementPartsSelector);
+        [self _buildElementParts];
       elementIDString=_elementIDString;
       AUTORELEASE(RETAIN(elementIDString));
     };
@@ -776,7 +614,7 @@ elements **/
 {
 
   if (_partsCount>0)
-    ((void (*)(id, SEL, int))_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,0);
+    [self _deleteElementsFromIndex:0];
 
 };
 
@@ -786,7 +624,7 @@ elements **/
 {
 
   if (_partsCount>0)
-    ((void (*)(id, SEL, int))_deleteElementsFromIndexIMP)(self,deleteElementsFromIndexSelector,_partsCount-1);
+    [self _deleteElementsFromIndex:_partsCount-1];
 
 };
 
@@ -887,7 +725,7 @@ You should avoid element ending with digits.
     {
       GSWElementIDPart* part=NULL;
       if (_builtPartCount<(_partsCount-1))
-          ((void (*)(id, SEL))_buildElementPartsIMP)(self,buildElementPartsSelector);
+          [self _buildElementParts];
       
       part=_parts+_partsCount-2;
       elementIDString=[NSString stringWithString:part->_elementIDString];

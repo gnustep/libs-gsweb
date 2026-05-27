@@ -83,7 +83,7 @@
 {
   if (_documentTypeString)
     {
-      GSWResponse_appendContentString(aResponse,_documentTypeString);
+      [aResponse appendContentString:_documentTypeString];
     };
   
   [super appendToResponse:aResponse

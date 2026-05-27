@@ -93,7 +93,7 @@
 /** returns the element name by resolving _componentName association **/
 -(NSString*)_elementNameInContext:(GSWContext*)aContext
 {
-  GSWComponent* component=GSWContext_component(aContext);
+  GSWComponent* component=[aContext component];
   NSString* componentName=NSStringWithObject([_componentName valueInComponent:component]);
   if ([componentName length]==0)
     {
@@ -158,7 +158,7 @@ if the component has already been created, it get it from the cache; otherwise, 
 
   elementNameInContext=[self _elementNameInContext:aContext];
 
-  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
+  [aContext appendElementIDComponent:elementNameInContext];
 
   if ([elementNameInContext length]==0)
     {
@@ -170,7 +170,7 @@ if the component has already been created, it get it from the cache; otherwise, 
   [element takeValuesFromRequest:aRequest
            inContext:aContext];
 
-  GSWContext_deleteLastElementIDComponent(aContext);
+  [aContext deleteLastElementIDComponent];
 };
 
 //--------------------------------------------------------------------
@@ -186,7 +186,7 @@ if the component has already been created, it get it from the cache; otherwise, 
 
   elementNameInContext=[self _elementNameInContext:aContext];
 
-  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
+  [aContext appendElementIDComponent:elementNameInContext];
 
   if ([elementNameInContext length]==0)
     {
@@ -198,7 +198,7 @@ if the component has already been created, it get it from the cache; otherwise, 
 		inContext:aContext];
   resultElement = (id <GSWActionResults, NSObject>) [element invokeActionForRequest:request
 							     inContext:aContext];
-  GSWContext_deleteLastElementIDComponent(aContext);
+  [aContext deleteLastElementIDComponent];
     
   return resultElement;
 }
@@ -215,7 +215,7 @@ if the component has already been created, it get it from the cache; otherwise, 
 
   elementNameInContext=[self _elementNameInContext:aContext];
 
-  GSWContext_appendElementIDComponent(aContext,elementNameInContext);
+  [aContext appendElementIDComponent:elementNameInContext];
 
   if ([elementNameInContext length]==0)
     {
@@ -227,7 +227,7 @@ if the component has already been created, it get it from the cache; otherwise, 
   [element appendToResponse:response
            inContext:aContext];
 
-  GSWContext_deleteLastElementIDComponent(aContext);
+  [aContext deleteLastElementIDComponent];
 };
 
 @end

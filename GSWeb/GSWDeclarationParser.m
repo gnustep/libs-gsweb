@@ -93,22 +93,6 @@ NSString* const GSWDFEMissingAliasedDeclaration = @"GSWDFEMissingAliasedDeclarat
 static NSSet* delayedDeclarationFormatExceptionNames = nil;
 static NSMutableDictionary* declarationsCache=nil;
 
-static SEL skipBlanksSEL = NULL;
-static SEL skipCommentSEL = NULL;
-static SEL skipBlanksAndCommentsSEL = NULL;
-static SEL parsePragmaSEL = NULL;
-static SEL parseIdentifierSEL = NULL;
-static SEL parseKeySEL = NULL;
-static SEL parseQuotedStringSEL = NULL;
-static SEL parseHexDataSEL = NULL;
-static SEL parseKeyPathSEL = NULL;
-static SEL tryParseBooleanSEL = NULL;
-static SEL parseNumberSEL = NULL;
-static SEL parseHexNumberSEL = NULL;
-static SEL parseValueAsAssociationSEL = NULL;
-static SEL parseDictionaryWithValuesAsAssociationsSEL = NULL;
-static SEL parseArraySEL = NULL;
-static SEL parseDeclarationSEL = NULL;
 
 //====================================================================
 @implementation GSWDeclarationFormatException
@@ -155,155 +139,24 @@ accumulated instead of blocking on first error) **/
 @end
 
 
-// 'Standard' GSWContext class. Used to get IMPs from standardElementIDIMPs
-static Class standardClass=Nil;
-
-// List of standardClass IMPs
-static GSWDeclarationParserIMPs standardDeclarationParserIMPs;
-
-//====================================================================
-/** Fill impsPtr structure with IMPs for declarationParser **/
-void GetGSWDeclarationParserIMPS(GSWDeclarationParserIMPs* impsPtr,GSWDeclarationParser* declarationParser)
-{
-  if ([declarationParser class]==standardClass)
-    {
-      memcpy(impsPtr,&standardDeclarationParserIMPs,sizeof(GSWDeclarationParserIMPs));
-    }
-  else
-    {
-      memset(impsPtr,0,sizeof(GSWDeclarationParserIMPs));
-
-      impsPtr->_skipBlanksIMP = 
-        (GSWIMP_BOOL)[declarationParser methodForSelector:skipBlanksSEL];
-
-      impsPtr->_skipCommentIMP = 
-        (GSWIMP_BOOL)[declarationParser methodForSelector:skipCommentSEL];
-
-      impsPtr->_skipBlanksAndCommentsIMP = 
-        (GSWIMP_BOOL)[declarationParser methodForSelector:skipBlanksAndCommentsSEL];
-
-      impsPtr->_parsePragmaIMP = 
-        (GSWIMP_VOID)[declarationParser methodForSelector:parsePragmaSEL];
-
-      impsPtr->_parseIdentifierIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseIdentifierSEL];
-
-      impsPtr->_parseKeyIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseKeySEL];
-
-      impsPtr->_parseQuotedStringIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseQuotedStringSEL];
-
-      impsPtr->_parseHexDataIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseHexDataSEL];
-      
-      impsPtr->_parseKeyPathIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseKeyPathSEL];
-
-      impsPtr->_tryParseBooleanIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:tryParseBooleanSEL];
-      
-      impsPtr->_parseNumberIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseNumberSEL];
-
-      impsPtr->_parseHexNumberIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseHexNumberSEL];
-      
-      impsPtr->_parseValueAsAssociationIMP = 
-        (GSWIMP_ID_BOOL)[declarationParser methodForSelector:parseValueAsAssociationSEL];
-
-      impsPtr->_parseDictionaryWithValuesAsAssociationsIMP = 
-        (GSWIMP_ID_BOOL)[declarationParser methodForSelector:parseDictionaryWithValuesAsAssociationsSEL];
-      
-      impsPtr->_parseArrayIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseArraySEL];
-
-      impsPtr->_parseDeclarationIMP = 
-        (GSWIMP_ID)[declarationParser methodForSelector:parseDeclarationSEL];      
-    };
-};
-
-static inline BOOL skipBlanks(GSWDeclarationParser* parser)
-{
-  return (((BOOL (*)(id, SEL))parser->_selfIMPs._skipBlanksIMP)(parser,skipBlanksSEL));
-};
-
-static inline BOOL skipComment(GSWDeclarationParser* parser)
-{
-  return (((BOOL (*)(id, SEL))parser->_selfIMPs._skipCommentIMP)(parser,skipCommentSEL));
-};
-
-static inline BOOL skipBlanksAndComments(GSWDeclarationParser* parser)
-{
-  return (((BOOL (*)(id, SEL))parser->_selfIMPs._skipBlanksAndCommentsIMP)(parser,skipBlanksAndCommentsSEL));
-};
-
-static inline void parsePragma(GSWDeclarationParser* parser)
-{
-  (((void (*)(id, SEL))parser->_selfIMPs._parsePragmaIMP)(parser,parsePragmaSEL));
-};
-
-static inline NSString* parseIdentifier(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseIdentifierIMP)(parser,parseIdentifierSEL));
-};
-
-static inline NSString* parseKey(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseKeyIMP)(parser,parseKeySEL));
-};
-
-static inline id parseKeyPath(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseKeyPathIMP)(parser,parseKeyPathSEL));
-};
-
-static inline id parseQuotedString(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseQuotedStringIMP)(parser,parseQuotedStringSEL));
-};
-
-static inline NSData* parseHexData(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseHexDataIMP)(parser,parseHexDataSEL));
-};
-
-static inline NSNumber* tryParseBoolean(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._tryParseBooleanIMP)(parser,tryParseBooleanSEL));
-};
-
-static inline NSNumber* parseNumber(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseNumberIMP)(parser,parseNumberSEL));
-};
-
-static inline NSNumber* parseHexNumber(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseHexNumberIMP)(parser,parseHexNumberSEL));
-};
-
-static inline id parseValueAsAssociation(GSWDeclarationParser* parser,BOOL asAssociation)
-{
-  return (((id (*)(id, SEL, BOOL))parser->_selfIMPs._parseValueAsAssociationIMP)(parser,parseValueAsAssociationSEL,asAssociation));
-};
-
-static inline NSDictionary* parseDictionaryWithValuesAsAssociations(GSWDeclarationParser* parser,
-                                                             BOOL valuesAsAssociations)
-{
-  return (((id (*)(id, SEL, BOOL))parser->_selfIMPs._parseDictionaryWithValuesAsAssociationsIMP)(parser,parseDictionaryWithValuesAsAssociationsSEL,valuesAsAssociations));
-};
-
-static inline NSArray* parseArray(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseArrayIMP)(parser,parseArraySEL));
-};
-
-static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
-{
-  return (((id (*)(id, SEL))parser->_selfIMPs._parseDeclarationIMP)(parser,parseDeclarationSEL));
-};
-
+@interface GSWDeclarationParser (Private)
+-(BOOL)skipBlanks;
+-(BOOL)skipComment;
+-(BOOL)skipBlanksAndComments;
+-(void)parsePragma;
+-(NSString*)parseIdentifier;
+-(NSString*)parseKey;
+-(id)parseKeyPath;
+-(id)parseQuotedString;
+-(NSData*)parseHexData;
+-(NSNumber*)tryParseBoolean;
+-(NSNumber*)parseNumber;
+-(NSNumber*)parseHexNumber;
+-(id)parseValueAsAssociation:(BOOL)asAssociation;
+-(NSDictionary*)parseDictionaryWithValuesAsAssociations:(BOOL)valuesAsAssociations;
+-(NSArray*)parseArray;
+-(GSWDeclaration*)parseDeclaration;
+@end
 
 //====================================================================
 @implementation GSWDeclarationParser
@@ -313,75 +166,6 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
   if (self == [GSWDeclarationParser class])
     {
       declarationsCache=[NSMutableDictionary new];
-
-      standardClass=[GSWDeclarationParser class];
-
-      skipBlanksSEL = @selector(skipBlanks);
-      skipCommentSEL = @selector(skipComment);
-      skipBlanksAndCommentsSEL = @selector(skipBlanksAndComments);
-      parsePragmaSEL = @selector(parsePragma);
-      parseIdentifierSEL = @selector(parseIdentifier);
-      parseKeySEL = @selector(parseKey);
-      parseQuotedStringSEL = @selector(parseQuotedString);
-      parseHexDataSEL = @selector(parseHexData);
-      parseKeyPathSEL = @selector(parseKeyPath);
-      tryParseBooleanSEL = @selector(tryParseBoolean);
-      parseNumberSEL = @selector(parseNumber);
-      parseHexNumberSEL = @selector(parseHexNumber);
-      parseValueAsAssociationSEL = @selector(parseValueAsAssociation:);
-      parseDictionaryWithValuesAsAssociationsSEL = @selector(parseDictionaryWithValuesAsAssociations:);
-      parseArraySEL = @selector(parseArray);
-      parseDeclarationSEL = @selector(parseDeclaration);      
-
-      memset(&standardDeclarationParserIMPs,0,sizeof(GSWDeclarationParserIMPs));
-
-      standardDeclarationParserIMPs._skipBlanksIMP = 
-        (GSWIMP_BOOL)[standardClass instanceMethodForSelector:skipBlanksSEL];
-
-      standardDeclarationParserIMPs._skipCommentIMP  =
-        (GSWIMP_BOOL)[standardClass instanceMethodForSelector:skipCommentSEL];
-
-      standardDeclarationParserIMPs._skipBlanksAndCommentsIMP = 
-        (GSWIMP_BOOL)[standardClass instanceMethodForSelector:skipBlanksAndCommentsSEL];
-
-      standardDeclarationParserIMPs._parsePragmaIMP = 
-        (GSWIMP_VOID)[standardClass instanceMethodForSelector:parsePragmaSEL];
-
-      standardDeclarationParserIMPs._parseIdentifierIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseIdentifierSEL];
-
-      standardDeclarationParserIMPs._parseKeyIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseKeySEL];
-
-      standardDeclarationParserIMPs._parseQuotedStringIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseQuotedStringSEL];
-
-      standardDeclarationParserIMPs._parseHexDataIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseHexDataSEL];
-      
-      standardDeclarationParserIMPs._parseKeyPathIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseKeyPathSEL];
-
-      standardDeclarationParserIMPs._tryParseBooleanIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:tryParseBooleanSEL];
-      
-      standardDeclarationParserIMPs._parseNumberIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseNumberSEL];
-
-      standardDeclarationParserIMPs._parseHexNumberIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseHexNumberSEL];
-      
-      standardDeclarationParserIMPs._parseValueAsAssociationIMP = 
-        (GSWIMP_ID_BOOL)[standardClass instanceMethodForSelector:parseValueAsAssociationSEL];
-
-      standardDeclarationParserIMPs._parseDictionaryWithValuesAsAssociationsIMP = 
-        (GSWIMP_ID_BOOL)[standardClass instanceMethodForSelector:parseDictionaryWithValuesAsAssociationsSEL];
-      
-      standardDeclarationParserIMPs._parseArrayIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseArraySEL];
-
-      standardDeclarationParserIMPs._parseDeclarationIMP = 
-        (GSWIMP_ID)[standardClass instanceMethodForSelector:parseDeclarationSEL];      
     };
 };
 
@@ -406,11 +190,7 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
 //--------------------------------------------------------------------
 -(id)init
 {
-  if ((self=[super init]))
-    {
-      GetGSWDeclarationParserIMPS(&_selfIMPs,self);
-    };
-  return self;
+  return [super init];
 };
 //--------------------------------------------------------------------
 -(void)dealloc
@@ -466,18 +246,18 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
           while(_index<_length)
             {      
               //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-              skipBlanksAndComments(self);
+              [self skipBlanksAndComments];
               //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
               if (_index<_length)
                 {
                   if (_uniBuf[_index]=='#')
                     {
-                      parsePragma(self);
+                      [self parsePragma];
                       NSDebugMLog(@"index=%d _length=%d",_index,20);
                     }
                   else if (_parserIsIdentifierChar(_uniBuf[_index]))
                     {
-                      GSWDeclaration* declaration=parseDeclaration(self);
+                      GSWDeclaration* declaration=[self parseDeclaration];
                       NSDebugMLog(@"declaration=%@",declaration);
                       [_declarations setObject:declaration
                                      forKey:[declaration name]];
@@ -604,9 +384,9 @@ static inline GSWDeclaration* parseDeclaration(GSWDeclarationParser* parser)
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
   while(_index<_length && isLastSkipped)
     {
-      isLastSkipped=skipBlanks(self);
+      isLastSkipped=[self skipBlanks];
       //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-      if (skipComment(self))
+      if ([self skipComment])
         isLastSkipped=YES;
       //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
       if (isLastSkipped)
@@ -719,7 +499,7 @@ Returns a NSString
 **/
 -(NSString*)parseKey
 {
-  return parseIdentifier(self);
+  return [self parseIdentifier];
 }
 
 //--------------------------------------------------------------------
@@ -1139,32 +919,32 @@ Returns a NSString
   switch(_uniBuf[_index])
     {
     case '"': // a quoted string
-      value=parseQuotedString(self);
+      value=[self parseQuotedString];
       if (value && asAssociation)
         value=[GSWAssociation associationWithValue:value];
       break;
     case '<': // a data coded as hex
-      value=parseHexData(self);
+      value=[self parseHexData];
       if (value && asAssociation)
         value=[GSWAssociation associationWithValue:value];
       break;
     case '{': // a dictionary
-      value=parseDictionaryWithValuesAsAssociations(self,NO);
+      value=[self parseDictionaryWithValuesAsAssociations:NO];
       if (value && asAssociation)
         value=[GSWAssociation associationWithValue:value];
       break;
     case '(': // an array
-      value=parseArray(self);
+      value=[self parseArray];
       if (value && asAssociation)
         value=[GSWAssociation associationWithValue:value];
       break;
     case '#':
-      value=parseHexNumber(self);
+      value=[self parseHexNumber];
       if (value && asAssociation)
         value=[GSWAssociation associationWithValue:value];
       break;
     default:
-      value=tryParseBoolean(self);
+      value=[self tryParseBoolean];
       if (value)
         {
           if (asAssociation)
@@ -1177,13 +957,13 @@ Returns a NSString
               || _uniBuf[_index]=='-'
               || _uniBuf[_index]=='+')
             {
-              value=parseNumber(self);
+              value=[self parseNumber];
               if (value && asAssociation)
                 value=[GSWAssociation associationWithValue:value];
             }
           else
             {
-              value=parseKeyPath(self);
+              value=[self parseKeyPath];
               if (value && asAssociation)
                 value=[GSWAssociation associationWithKeyPath:value];
             };
@@ -1219,7 +999,7 @@ Returns a NSString
       //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
       
       // Parse Key
-      skipBlanksAndComments(self);
+      [self skipBlanksAndComments];
       //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
 
       if (_index<_length)
@@ -1233,10 +1013,10 @@ Returns a NSString
           else
             {
               NSString* key=nil;
-              key=parseKeyPath(self);
+              key=[self parseKeyPath];
 
               //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
-              skipBlanksAndComments(self);
+              [self skipBlanksAndComments];
 
               //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
               if (_index>=_length)
@@ -1251,7 +1031,7 @@ Returns a NSString
                 {
                   _index++;
 
-                  skipBlanksAndComments(self);
+                  [self skipBlanksAndComments];
                   //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
 
                   if (_index>=_length)
@@ -1265,7 +1045,7 @@ Returns a NSString
                   else
                     {
                       id value=nil;
-                      value=parseValueAsAssociation(self,valuesAsAssociations);
+                      value=[self parseValueAsAssociation:valuesAsAssociations];
                       //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
                       
                       if (value)
@@ -1280,7 +1060,7 @@ Returns a NSString
                                        key,[self lineIndexFromIndex:keyStartIndex]];
                         };
                       
-                      skipBlanksAndComments(self);
+                      [self skipBlanksAndComments];
                       //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
                       if (_index>=_length)
                         {
@@ -1351,7 +1131,7 @@ Returns a NSString
       //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
       
       // Parse Value
-      skipBlanksAndComments(self);
+      [self skipBlanksAndComments];
       if (_index<_length)
         {
           if (_uniBuf[_index]==')')
@@ -1362,7 +1142,7 @@ Returns a NSString
             }
           else
             {
-              id value=parseValueAsAssociation(self,NO);
+              id value=[self parseValueAsAssociation:NO];
               //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
               
               if (value)
@@ -1376,7 +1156,7 @@ Returns a NSString
                     [self lineIndexFromIndex:valueStartIndex]];
                 };
               
-              skipBlanksAndComments(self);
+              [self skipBlanksAndComments];
               //ParserDebugLogBuffer(_uniBuf,_length,_index,_length);
               if (_index>=_length)
                 {
@@ -1436,10 +1216,10 @@ Returns a GSWDeclaration.
   NSAssert(_index<_length,@"Reached buffer end parsing a declaration");
 
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-  identifier=parseIdentifier(self);
+  identifier=[self parseIdentifier];
 
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-  skipBlanksAndComments(self);
+  [self skipBlanksAndComments];
 
   //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
   if (_index>=_length)
@@ -1455,10 +1235,10 @@ Returns a GSWDeclaration.
       NSString* type=nil;
       NSDictionary* associations=nil;
       _index++;
-      skipBlanksAndComments(self);
+      [self skipBlanksAndComments];
       //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-      type=parseIdentifier(self);
-      skipBlanksAndComments(self);
+      type=[self parseIdentifier];
+      [self skipBlanksAndComments];
       if (_index>=_length)
         {
           [GSWDeclarationFormatException 
@@ -1469,9 +1249,9 @@ Returns a GSWDeclaration.
         }
       else if (_uniBuf[_index]=='{')
         {
-          associations=parseDictionaryWithValuesAsAssociations(self,YES);
+          associations=[self parseDictionaryWithValuesAsAssociations:YES];
           //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-          skipBlanksAndComments(self);
+          [self skipBlanksAndComments];
           if (_index<_length)
             {
               if (_uniBuf[_index]==';')
@@ -1496,10 +1276,10 @@ Returns a GSWDeclaration.
       NSString* aliasedIdentifier=nil;
       GSWDeclaration* aliasedDeclaration=nil;
       _index++;
-      skipBlanksAndComments(self);
+      [self skipBlanksAndComments];
       //ParserDebugLogBuffer(_uniBuf,_length,_index,20);
-      aliasedIdentifier=parseIdentifier(self);
-      skipBlanksAndComments(self);
+      aliasedIdentifier=[self parseIdentifier];
+      [self skipBlanksAndComments];
       if (_index<_length)
         {
           if (_uniBuf[_index]==';')

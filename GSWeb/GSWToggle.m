@@ -31,24 +31,8 @@
 
 #include "GSWeb.h"
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWToggle
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWToggle class])
-    {
-      standardClass=[GSWToggle class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -126,27 +110,26 @@ static Class standardClass = Nil;
               inContext:(GSWContext*)aContext
 {
   //OK (condition/action/directActionName)
-  GSWComponent* component=GSWContext_component(aContext);
+  GSWComponent* component=[aContext component];
   BOOL disabled=NO;
-  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
+  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
   if (_disabled)
     {
-      disabled=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                        standardEvaluateConditionInContextIMP,
-                                                        _disabled,aContext);
+      disabled = [self evaluateCondition:_disabled
+                                inContext:aContext];
     };
 
   if (!disabled)
     {
       NSString* url=nil;
-      GSWResponse_appendContentAsciiString(aResponse,@"<A ");
-      GSWResponse_appendContentAsciiString(aResponse,@"href");
-      GSWResponse_appendContentCharacter(aResponse,'=');
-      GSWResponse_appendContentCharacter(aResponse,'"');
+      [aResponse _appendContentAsciiString:@"<A "];
+      [aResponse _appendContentAsciiString:@"href"];
+      [aResponse appendContentCharacter:'='];
+      [aResponse appendContentCharacter:'"'];
       url=(NSString*)[aContext componentActionURL];
       NSDebugMLLog(@"gswdync",@"url=%@",url);
-      GSWResponse_appendContentString(aResponse,url);
-      GSWResponse_appendContentCharacter(aResponse,'"');
+      [aResponse appendContentString:url];
+      [aResponse appendContentCharacter:'"'];
       NSDebugMLLog(@"gswdync",@"_otherAssociations=%@",_otherAssociations);
       if (_otherAssociations)
         {
@@ -159,23 +142,23 @@ static Class standardClass = Nil;
               oaValue=[[_otherAssociations objectForKey:key] 
                         valueInComponent:component];
               NSDebugMLLog(@"gswdync",@"oaValue=%@",oaValue);
-              GSWResponse_appendContentCharacter(aResponse,' ');
-              GSWResponse_appendContentAsciiString(aResponse,key);
-              GSWResponse_appendContentCharacter(aResponse,'=');
-              GSWResponse_appendContentCharacter(aResponse,'"');
-              GSWResponse_appendContentHTMLString(aResponse,oaValue);
-              GSWResponse_appendContentCharacter(aResponse,'"');
+              [aResponse appendContentCharacter:' '];
+              [aResponse _appendContentAsciiString:key];
+              [aResponse appendContentCharacter:'='];
+              [aResponse appendContentCharacter:'"'];
+              [aResponse appendContentHTMLString:oaValue];
+              [aResponse appendContentCharacter:'"'];
             };
         };
-      GSWResponse_appendContentCharacter(aResponse,'>');
+      [aResponse appendContentCharacter:'>'];
     };
   [_children appendToResponse:aResponse
             inContext:aContext];
   if (!disabled)//??
     {
-      GSWResponse_appendContentAsciiString(aResponse,@"</a>");
+      [aResponse _appendContentAsciiString:@"</a>"];
     };
-  NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
+  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
 };
 
 //--------------------------------------------------------------------
@@ -188,18 +171,17 @@ static Class standardClass = Nil;
   NSString* elementID=nil;
 
 
-  senderID=GSWContext_senderID(aContext);
+  senderID=[aContext senderID];
   NSDebugMLLog(@"gswdync",@"senderID=%@",senderID);
 
-  elementID=GSWContext_elementID(aContext);
+  elementID=[aContext elementID];
   NSDebugMLLog(@"gswdync",@"elementID=%@",elementID);
 
   if ([elementID isEqualToString:senderID])
     {
-      GSWComponent* component=GSWContext_component(aContext);
-      BOOL conditionValue=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                                   standardEvaluateConditionInContextIMP,
-                                                                   _condition,aContext);
+      GSWComponent* component=[aContext component];
+      BOOL conditionValue = [self evaluateCondition:_condition
+                                           inContext:aContext];
       conditionValue=!conditionValue;
       if (_action)
         [_action setValue:(conditionValue ? GSWNumberYes : GSWNumberNo)
@@ -226,8 +208,8 @@ static Class standardClass = Nil;
       NSDebugMLLog(@"gswdync",@"element=%@",element);
     };
 
-  NSDebugMLLog(@"gswdync",@"senderID=%@",GSWContext_senderID(aContext));
-  NSDebugMLLog(@"gswdync",@"elementID=%@",GSWContext_elementID(aContext));
+  NSDebugMLLog(@"gswdync",@"senderID=%@",[aContext senderID]);
+  NSDebugMLLog(@"gswdync",@"elementID=%@",[aContext elementID]);
 
 
   return element;

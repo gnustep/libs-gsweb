@@ -60,7 +60,7 @@ static Class GSWHTMLBareStringClass = Nil;
   GSWStartElement(aContext);
   GSWSaveAppendToResponseElementID(aContext);//Debug Only
 
-  component=GSWContext_component(aContext);
+  component=[aContext component];
 
   childTemplate=[component _childTemplate];
   parent=[component parent];
@@ -86,7 +86,7 @@ static Class GSWHTMLBareStringClass = Nil;
   
   GSWStartElement(aContext);
   
-  component=GSWContext_component(aContext);
+  component=[aContext component];
   childTemplate=[component _childTemplate];
   if ([childTemplate class] != GSWHTMLBareStringClass) {
     parent=[component parent];
@@ -119,7 +119,7 @@ static Class GSWHTMLBareStringClass = Nil;
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);// Debug Only
 
-  component=GSWContext_component(aContext);
+  component=[aContext component];
   childTemplate=[component _childTemplate];
   parent=[component parent];
   [aContext _setCurrentComponent:parent];

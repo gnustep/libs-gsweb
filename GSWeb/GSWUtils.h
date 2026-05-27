@@ -62,16 +62,7 @@ typedef NSUInteger UINT32;
 // Function which call various initialization functions
 GSWEB_EXPORT void GSWInitializeAllMisc();
 
-// Various IMP types declaration
-typedef short (*GSWIMP_SHORT)(id, SEL, ...);
-typedef int (*GSWIMP_INT)(id, SEL, ...);
-typedef long (*GSWIMP_LONG)(id, SEL, ...);
-typedef BOOL (*GSWIMP_BOOL)(id, SEL, ...);
-typedef float (*GSWIMP_FLOAT)(id, SEL, ...);
-typedef double (*GSWIMP_DOUBLE)(id, SEL, ...);
-typedef id (*GSWIMP_ID)(id, SEL, ...);
-typedef void (*GSWIMP_VOID)(id, SEL, ...);
-typedef id (*GSWIMP_ID_BOOL)(id, SEL, BOOL, ...);
+
 
 GSWEB_EXPORT NSNumber* GSWNumber_Yes();
 GSWEB_EXPORT NSNumber* GSWNumber_No();

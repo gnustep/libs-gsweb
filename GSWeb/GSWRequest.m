@@ -50,10 +50,9 @@
     {
       int i=0;
       NSMutableArray* qvs=[NSMutableArray array];
-      IMP oaiIMP=NULL;
       for(i=0;i<count;i++)
         {
-          NSString* string=GSWeb_objectAtIndexWithImpPtr(valuesAndQualities,&oaiIMP,i);
+          NSString* string=[valuesAndQualities objectAtIndex:i];
           GSWValueQualityHeaderPart* qv=[GSWValueQualityHeaderPart 
                                            valueQualityHeaderPartWithString:string];
           if ([[qv value]length]>0)
@@ -63,7 +62,6 @@
       if (count>0)
         {
           unsigned int i;
-	  IMP oaiIMP=NULL;
           //Sor oon quality desc
           [qvs sortUsingSelector:@selector(compareOnQualityDesc:)];
 
@@ -71,11 +69,11 @@
           for(i=0;i<count;i++)
             {
               int j=0;
-              GSWValueQualityHeaderPart* qv=GSWeb_objectAtIndexWithImpPtr(qvs,&oaiIMP,i);
+              GSWValueQualityHeaderPart* qv=[qvs objectAtIndex:i];
               NSString* value=[qv value];
               for(j=i+1;j<count;j++)
                 {
-                  GSWValueQualityHeaderPart* qv2=GSWeb_objectAtIndexWithImpPtr(qvs,&oaiIMP,j);
+                  GSWValueQualityHeaderPart* qv2=[qvs objectAtIndex:j];
                   NSString* value2=[qv2 value];
                   if ([value2 isEqual:value])
                     {
@@ -534,7 +532,6 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
               //Remove Duplicates
               int i=0;
               int browserLanguagesCount=0;
-	      IMP oaiIMP=NULL;
 
               browserLanguages=[[browserLanguages mutableCopy] autorelease];
               browserLanguagesCount=[browserLanguages count];
@@ -542,10 +539,10 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
               for(i=0;i<browserLanguagesCount;i++)
                 {
                   int j=0;
-                  NSString* language=GSWeb_objectAtIndexWithImpPtr(browserLanguages,&oaiIMP,i);
+                  NSString* language=[browserLanguages objectAtIndex:i];
                   for(j=browserLanguagesCount-1;j>i;j--)
                     {
-                      NSString* language2=GSWeb_objectAtIndexWithImpPtr(browserLanguages,&oaiIMP,j);
+                      NSString* language2=[browserLanguages objectAtIndex:j];
                       if ([language2 isEqual:language])
                         {
                           [browserLanguages removeObjectAtIndex:j];
@@ -1008,10 +1005,9 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
                   id cookieValue=nil;
                   int index=0;
                   int valueCount=[value count];
-		  IMP oaiIMP=NULL;
                   for(index=0;index<valueCount;index++)
                     {
-                      cookieValue=GSWeb_objectAtIndexWithImpPtr(value,&oaiIMP,index);
+                      cookieValue=[value objectAtIndex:index];
                       if (cookieValue)
                         {
                           newValue=nil;
@@ -1090,12 +1086,11 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
       NSArray* cookiePrevValue=nil;
       int i=0;
       int cookiesArrayCount=[cookiesArray count];
-      IMP oaiIMP=NULL;
 
       for(i=0;i<cookiesArrayCount;i++)
         {
           int cookieCount=0;
-          cookieString=GSWeb_objectAtIndexWithImpPtr(cookiesArray,&oaiIMP,i);
+          cookieString=[cookiesArray objectAtIndex:i];
           cookie=[cookieString componentsSeparatedByString:@"="];
 
           cookieCount=[cookie count];
@@ -1287,10 +1282,9 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
       NSString* key=nil;
       BOOL ismapCoordsFound=NO;
       NSArray* value=nil;
-      IMP oaiIMP=NULL;
       for(i=0;i<allKeysCount && !ismapCoordsFound;i++)
         {
-          key=GSWeb_objectAtIndexWithImpPtr(allKeys,&oaiIMP,i);
+          key=[allKeys objectAtIndex:i];
           value=[tmpFormData objectForKey:key];
           if ([value count]==1
               &&[[value objectAtIndex:0]length]==0
@@ -1566,7 +1560,6 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
     NSMutableString* headersString=[NSMutableString string];
     NSDictionary* headers=nil;
     NSEnumerator* enumerator=nil;
-    IMP headersString_appendStringIMP=NULL;
     NSStringEncoding e;
     
     formValues=(NSMutableDictionary*)[NSMutableDictionary dictionary];
@@ -1579,29 +1572,18 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
         NSArray* value=[headers objectForKey:key];
         int i=0;
         int count=[value count];
-	IMP oaiIMP=NULL;
         for(i=0;i<count;i++)
         {
             // append "key: value\n" to headersString
-            GSWeb_appendStringWithImpPtr(headersString,
-                                         &headersString_appendStringIMP,
-                                         key);
-            GSWeb_appendStringWithImpPtr(headersString,
-                                         &headersString_appendStringIMP,
-                                         @": ");
-            GSWeb_appendStringWithImpPtr(headersString,
-                                         &headersString_appendStringIMP,
-                                         GSWeb_objectAtIndexWithImpPtr(value,&oaiIMP,i));
-            GSWeb_appendStringWithImpPtr(headersString,
-                                         &headersString_appendStringIMP,
-                                         @"\n");
+            [headersString appendString:key];
+            [headersString appendString:@": "];
+            [headersString appendString:[value objectAtIndex:i]];
+            [headersString appendString:@"\n"];
         };
     };
     
     // Append \n to specify headers end.
-    GSWeb_appendStringWithImpPtr(headersString,
-                                 &headersString_appendStringIMP,
-                                 @"\n");
+    [headersString appendString:@"\n"];
     
     // headersData=[headersString dataUsingEncoding:[self formValueEncoding]];
     // NSASCIIStringEncoding should be ok dave@turbocat.de
@@ -1651,10 +1633,9 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
             {
                 int i=0;
                 int count=[content count];
-		IMP oaiIMP=NULL;
                 for(i=0;i<count;i++)
                 {
-		  GSMimeDocument* aDoc=GSWeb_objectAtIndexWithImpPtr(content,&oaiIMP,i);
+		  GSMimeDocument* aDoc=[content objectAtIndex:i];
                     GSMimeHeader* contentDispositionHeader=nil;
                     NSString* contentDispositionValue=nil;
                     NSDictionary* contentDispositionParams=nil;
@@ -1752,7 +1733,6 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
   int i=0;
   NSData* tmpData=nil;
   int partsCount=0;
-  IMP oaiIMP=NULL;
 
   boundaryString=[NSString stringWithFormat:@"--%@\r\n",aBoundary];//Add "--" and "\r\n"
   dataBoundary=[boundaryString dataUsingEncoding:[self formValueEncoding]];//TODO
@@ -1761,7 +1741,7 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
   partsCount=[parts count];
   for(i=0;i<partsCount;i++)
     {
-      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
+      tmpData=[parts objectAtIndex:i];
       if ([tmpData length]<400)
         {
 	  //TODO: we don't user dataString ?
@@ -1784,10 +1764,9 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
 
   // Now deleting last \r\n of each object
   parts=[parts mutableCopy];
-  oaiIMP=NULL;
   for(i=0;i<partsCount;i++)
     {
-      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
+      tmpData=[parts objectAtIndex:i];
       if (i==partsCount-1)
         {
           //Delete the last \r\nseparator--\r\n
@@ -1806,7 +1785,7 @@ static NSString * __AJAX_FORM_SUBMIT_KEY = @"AJAX_SUBMIT_BUTTON_NAME";
 #warning checkme -- dw
 //  for(i=0;i<partsCount;i++)
 //    {
-//      tmpData=GSWeb_objectAtIndexWithImpPtr(parts,&oaiIMP,i);
+//      tmpData=[parts objectAtIndex:i];
 //      if ([tmpData length]<400)
 //        {
 //          NSString* dataString=nil;
@@ -1938,7 +1917,6 @@ into
   int partIndex=0;
   int partCount=0;
   NSString* part=nil;
-  IMP oaiIMP=NULL;
 
   parsedParts=(NSMutableDictionary*)[NSMutableDictionary dictionary];
   headerParts=[aHeader componentsSeparatedByString:@";"];
@@ -1949,7 +1927,7 @@ into
       int parsedPartCount=0;
       NSString* key=nil;
       NSString* value=nil;
-      part=GSWeb_objectAtIndexWithImpPtr(headerParts,&oaiIMP,partIndex);
+      part=[headerParts objectAtIndex:partIndex];
       part=[part stringByTrimmingSpaces];
       parsedPart=[part componentsSeparatedByString:@"="];
       parsedPartCount=[parsedPart count];

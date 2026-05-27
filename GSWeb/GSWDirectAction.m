@@ -104,11 +104,10 @@
     {
       NSUInteger count=[keyArray count];
       NSUInteger i=0;
-      IMP oaiIMP=NULL;
       
       for(i=0;i<count;i++)
         {
-          NSString* key=GSWeb_objectAtIndexWithImpPtr(keyArray,&oaiIMP,i);
+          NSString* key=[keyArray objectAtIndex:i];
           NSArray* v=[request formValuesForKey:key];
           [self setValue:v
                 forKey:key];
@@ -124,11 +123,10 @@
     {
       NSUInteger count=[keyArray count];
       NSUInteger i=0;
-      IMP oaiIMP=NULL;
       
       for(i=0;i<count;i++)
         {
-          NSString* key=GSWeb_objectAtIndexWithImpPtr(keyArray,&oaiIMP,i);
+          NSString* key=[keyArray objectAtIndex:i];
           id v=[request formValueForKey:key];
           [self setValue:v
                 forKey:key];

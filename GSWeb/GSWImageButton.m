@@ -257,7 +257,7 @@
                                                   directActionNameAssociation: _directActionName
                                                                     inContext: context];
 
-    GSWResponse_appendContentString(response, actionStr);
+    [response appendContentString:actionStr];
 };
 
 //--------------------------------------------------------------------
@@ -265,7 +265,7 @@
                         inContext:(GSWContext*) context
 {
   GSWResourceManager * resourcemanager = [GSWApp resourceManager];
-  GSWComponent       * component = GSWContext_component(context);
+  GSWComponent       * component = [context component];
 
   [self appendConstantAttributesToResponse:response
                                  inContext:context];
@@ -278,25 +278,19 @@
 
   if (![self disabledInComponent: component])
     {
-      GSWResponse_appendContentAsciiString(response, @" type=\"image\"");
+      [response _appendContentAsciiString:@" type=\"image\""];
       NSString * nameCtx = [self nameInContext:context];
       if (nameCtx != nil)
 	{
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
-									name__Key, 
-									nameCtx, 
-									YES);
+	  [response _appendTagAttribute:name__Key value:nameCtx escapingHTMLAttributeValue:YES];
 	}
     }
   if (_value != nil)
     {
       BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
-      GSWContext_appendZeroElementIDComponent(context);
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
-								    src__Key, 
-								    [context _componentActionURLIsSecure:secure],
-								    NO);
-      GSWContext_deleteLastElementIDComponent(context);
+      [context appendZeroElementIDComponent];
+      [response _appendTagAttribute:src__Key value:[context _componentActionURLIsSecure:secure] escapingHTMLAttributeValue:NO];
+      [context deleteLastElementIDComponent];
     }
   else if (_data != nil
 	   && _mimeType != nil)
@@ -330,10 +324,7 @@
 	  NSLog(@"%s: 'src' (full url) evaluated to nil in component '%@'. Inserted error resource in html tag.",
                 __PRETTY_FUNCTION__, component);
         }
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    @"src",
-								    srcValue,
-								      NO);
+      [response _appendTagAttribute:@"src" value:srcValue escapingHTMLAttributeValue:NO];
     }
 }
 
@@ -341,26 +332,25 @@
 -(void)appendToResponse:(GSWResponse*) response
               inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
 
   if ([self disabledInComponent: component])
-    GSWResponse_appendContentAsciiString(response,@"<img");
+    [response _appendContentAsciiString:@"<img"];
   else
-    GSWResponse_appendContentAsciiString(response,@"<input");
+    [response _appendContentAsciiString:@"<input"];
 
   [self appendAttributesToResponse:response 
                          inContext:context];
 
-  GSWResponse_appendContentCharacter(response,'>');
+  [response appendContentCharacter:'>'];
 
   if (_directActionName != nil
       || _actionClass != nil)
     {
-      GSWResponse_appendContentAsciiString(response,
-					   @"<input type=\"hidden\" name=\"GSWSubmitAction\" value=\"");
+      [response _appendContentAsciiString:@"<input type=\"hidden\" name=\"GSWSubmitAction\" value=\""];
       [self _appendDirectActionToResponse:response
                               inContext:context];
-      GSWResponse_appendContentCharacter(response,'>');
+      [response appendContentCharacter:'>'];
     }
 };
 
@@ -377,7 +367,7 @@
                                     inContext:(GSWContext*)aContext
 {
   NSObject <GSWActionResults>* element=nil;
-  GSWComponent* component=GSWContext_component(aContext);
+  GSWComponent* component=[aContext component];
 
   NSString* senderID=nil;
   NSString* elementID=nil;
@@ -387,20 +377,20 @@
   NSInteger x=0;
   NSInteger y=0;
 
-  GSWContext_appendZeroElementIDComponent(aContext);
-  senderID=GSWContext_senderID(aContext);
-  elementID=GSWContext_elementID(aContext);
+  [aContext appendZeroElementIDComponent];
+  senderID=[aContext senderID];
+  elementID=[aContext elementID];
 
   if ([elementID isEqualToString:senderID])
     {
-      GSWContext_deleteLastElementIDComponent(aContext);
+      [aContext deleteLastElementIDComponent];
       if (_value != nil)
 	element=[_value valueInComponent:component];
     }
   else
     {
-      GSWContext_deleteLastElementIDComponent(aContext);
-      elementID=GSWContext_elementID(aContext);
+      [aContext deleteLastElementIDComponent];
+      elementID=[aContext elementID];
 
       if (![self disabledInComponent: component])
 	{
@@ -430,7 +420,7 @@
 	    }
 	  else
 	    {
-	      elementID=GSWContext_elementID(aContext);
+	      elementID=[aContext elementID];
 	      
 	      if ([elementID isEqualToString:senderID])
 		{

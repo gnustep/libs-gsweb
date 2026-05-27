@@ -31,10 +31,6 @@
 
 #include "GSWeb.h"
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWForm
 
@@ -44,11 +40,6 @@ static GSWAssociation* static_defaultMethodAssociation = nil;
 {
   if (self == [GSWForm class])
     {
-      standardClass=[GSWForm class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-
       ASSIGN(static_defaultMethodAssociation,([GSWAssociation associationWithValue:@"post"]));
     };
 };
@@ -198,10 +189,10 @@ static GSWAssociation* static_defaultMethodAssociation = nil;
       while ((key = [myEnumer nextObject]))
 	{
 	  NSString* value = NSStringWithObject([queryDict objectForKey:key]);
-	  GSWResponse_appendContentAsciiString(response,@"<input type=hidden");
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, name__Key, key, NO);  
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, value__Key, value, NO);
-	  GSWResponse_appendContentAsciiString(response,@">\n");
+	  [response _appendContentAsciiString:@"<input type=hidden"];
+	  [response _appendTagAttribute:name__Key value:key escapingHTMLAttributeValue:NO];  
+	  [response _appendTagAttribute:value__Key value:value escapingHTMLAttributeValue:NO];
+	  [response _appendContentAsciiString:@">\n"];
 	}
     }
 }
@@ -239,14 +230,14 @@ static GSWAssociation* static_defaultMethodAssociation = nil;
                                                   queryDictionary: nil];
                                                        
   
-  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, action__Key, myActionURL, NO);
+  [response _appendTagAttribute:action__Key value:myActionURL escapingHTMLAttributeValue:NO];
 }
 
 //--------------------------------------------------------------------
 -(void) appendAttributesToResponse:(GSWResponse *) response 
                          inContext:(GSWContext*) aContext
 {
-  GSWComponent * component = GSWContext_component(aContext);
+  GSWComponent * component = [aContext component];
 
   [super appendAttributesToResponse:response
 	 inContext:aContext];
@@ -263,18 +254,12 @@ static GSWAssociation* static_defaultMethodAssociation = nil;
       NSString* href=[_href valueInComponent:component];
       if (href != nil)
 	{
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
-									action__Key, 
-									NSStringWithObject(href),
-									NO);
+	  [response _appendTagAttribute:action__Key value:NSStringWithObject(href) escapingHTMLAttributeValue:NO];
 	}
       else if (_href == nil)
 	{
 	  BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-									action__Key, 
-									[aContext _componentActionURLIsSecure:secure],
-									NO);
+	  [response _appendTagAttribute:action__Key value:[aContext _componentActionURLIsSecure:secure] escapingHTMLAttributeValue:NO];
 	}
       else
 	{

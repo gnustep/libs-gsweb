@@ -41,21 +41,6 @@
 @class GSWDynamicURLString;
 @class GSWResourceManager;
 
-typedef struct _GSWContextIMPs
-{
-  GSWIMP_VOID _incrementLastElementIDComponentIMP;
-  GSWIMP_VOID _appendElementIDComponentIMP;
-  GSWIMP_VOID _appendZeroElementIDComponentIMP;
-  GSWIMP_VOID _deleteAllElementIDComponentsIMP;
-  GSWIMP_VOID _deleteLastElementIDComponentIMP;
-  GSWIMP_ID _elementIDIMP;
-  GSWIMP_ID _componentIMP;
-  GSWIMP_ID _senderIDIMP;
-  GSWIMP_ID _contextAndElementIDIMP;
-  GSWIMP_BOOL _isParentSenderIDSearchOverIMP;
-  GSWIMP_BOOL _isSenderIDSearchOverIMP;
-} GSWContextIMPs;
-
 typedef enum {
   WOUndefinedMarkup = 0,  
   WOHTML32Markup,           
@@ -64,21 +49,7 @@ typedef enum {
   WOXHTMLBasic11Markup
 } WOMarkupType;
 
-/** Fill impsPtr structure with IMPs for context **/
-GSWEB_EXPORT void GetGSWContextIMPs(GSWContextIMPs* impsPtr,GSWContext* context);
 
-/** functions to accelerate calls of frequently used GSWContext methods **/
-GSWEB_EXPORT void GSWContext_incrementLastElementIDComponent(GSWContext* aContext);
-GSWEB_EXPORT void GSWContext_appendElementIDComponent(GSWContext* aContext,NSString* component);
-GSWEB_EXPORT void GSWContext_appendZeroElementIDComponent(GSWContext* aContext);
-GSWEB_EXPORT void GSWContext_deleteAllElementIDComponents(GSWContext* aContext);
-GSWEB_EXPORT void GSWContext_deleteLastElementIDComponent(GSWContext* aContext);
-GSWEB_EXPORT NSString* GSWContext_elementID(GSWContext* aContext);
-GSWEB_EXPORT GSWComponent* GSWContext_component(GSWContext* aContext);
-GSWEB_EXPORT NSString* GSWContext_senderID(GSWContext* aContext);
-GSWEB_EXPORT NSString* GSWContext_contextAndElementID(GSWContext* aContext);
-GSWEB_EXPORT BOOL GSWContext_isParentSenderIDSearchOver(GSWContext* aContext);
-GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
 
 //====================================================================
 @interface GSWContext : NSObject <NSCopying>
@@ -122,16 +93,7 @@ GSWEB_EXPORT BOOL GSWContext_isSenderIDSearchOver(GSWContext* aContext);
   NSArray* _languages;
   BOOL _isRefusingThisRequest;
   BOOL _isSessionDisabled;
-  
-  // IMPs for elementID manipulations
-  // As there's not many GSWContext objects, using some extra memory is not a problem
-  GSWElementIDIMPs _elementIDIMPs;
-@public // So we can use it in functions
-  GSWContextIMPs _selfIMPs;
-};
-
-/** Set GSWContext standard class (so we can use pre-build GSWContextIMPs) **/
-+(void)setStandardClass:(Class)standardClass;
+}
 
 +(GSWContext*)contextWithRequest:(GSWRequest*)aRequest;
 

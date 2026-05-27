@@ -302,7 +302,7 @@ Default implementation stops automatic refresh and returns self.
   //??
   GSWElement *element=nil;
 
-  if ([GSWContext_senderID(aContext) isEqualToString:@"GSWMetaRefresh"])//GSWMetaRefreshSenderId])//senderID ret: GSWMetaRefresh // Seems OK
+  if ([[aContext senderID] isEqualToString:@"GSWMetaRefresh"])//GSWMetaRefreshSenderId])//senderID ret: GSWMetaRefresh // Seems OK
     {
       element=[self refresh];//OK
     }

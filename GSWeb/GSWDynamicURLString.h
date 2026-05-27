@@ -37,9 +37,7 @@
 @interface GSWDynamicURLString : NSMutableString <NSCoding,NSCopying/*,NSMutableString*/>
 {
   NSMutableString* _urlBeginning;
-  GSWIMP_VOID _urlBeginningASImp;
   NSMutableString* _url;
-  GSWIMP_VOID _urlASImp;
   
   NSString* _protocol;//NDFN
   NSString* _host;//NDFN

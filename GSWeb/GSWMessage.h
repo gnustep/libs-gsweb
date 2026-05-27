@@ -35,51 +35,8 @@
 @class GSWMessage;
 @class GSWCookie;
 
-typedef struct _GSWMessageIMPs
-{
-  // Instance IMPs
-  GSWIMP_ID _contentIMP;
-  GSWIMP_ID _contentStringIMP;
-  GSWIMP_VOID _appendContentAsciiStringIMP;
-  GSWIMP_VOID _appendContentCharacterIMP;
-  GSWIMP_VOID _appendContentStringIMP;
-  GSWIMP_VOID _appendContentDataIMP;
-  GSWIMP_VOID _appendContentBytesIMP;
-  GSWIMP_VOID _appendDebugCommentContentStringIMP;
-  GSWIMP_VOID _replaceContentDataByDataIMP;
-  GSWIMP_VOID _appendContentHTMLStringIMP;
-  GSWIMP_VOID _appendContentHTMLAttributeValueIMP;
-  GSWIMP_VOID _appendContentHTMLConvertStringIMP;
-  GSWIMP_VOID _appendContentHTMLEntitiesConvertStringIMP;
 
-  // Class IMPs
-  GSWIMP_ID _stringByEscapingHTMLStringIMP;
-  GSWIMP_ID _stringByEscapingHTMLAttributeValueIMP;
-  GSWIMP_ID _stringByConvertingToHTMLEntitiesIMP;
-  GSWIMP_ID _stringByConvertingToHTMLIMP;
-} GSWMessageIMPs;
 
-/** Fill impsPtr structure with IMPs for message **/
-GSWEB_EXPORT void GetGSWMessageIMPs(GSWMessageIMPs* impsPtr,GSWMessage* message);
-
-/** functions to accelerate calls of frequently used GSWMessage methods **/
-GSWEB_EXPORT NSData* GSWMessage_content(GSWMessage* aMessage);
-GSWEB_EXPORT NSString* GSWMessage_contentString(GSWMessage* aMessage);
-GSWEB_EXPORT void GSWMessage_appendContentAsciiString(GSWMessage* aMessage,NSString* aString);
-GSWEB_EXPORT void GSWMessage_appendContentCharacter(GSWMessage* aMessage,char aChar);
-GSWEB_EXPORT void GSWMessage_appendContentString(GSWMessage* aMessage,NSString* string);
-GSWEB_EXPORT void GSWMessage_appendContentData(GSWMessage* aMessage,NSData* contentData);
-GSWEB_EXPORT void GSWMessage_appendContentBytes(GSWMessage* aMessage,const void* contentsBytes,unsigned length);
-GSWEB_EXPORT void GSWMessage_appendDebugCommentContentString(GSWMessage* aMessage,NSString* string);
-GSWEB_EXPORT void GSWMessage_replaceContentData(GSWMessage* aMessage,NSData* replaceData,NSData* byData);
-GSWEB_EXPORT void GSWMessage_appendContentHTMLString(GSWMessage* aMessage,NSString* string);
-GSWEB_EXPORT void GSWMessage_appendContentHTMLAttributeValue(GSWMessage* aMessage,NSString* string);
-GSWEB_EXPORT void GSWMessage_appendContentHTMLConvertString(GSWMessage* aMessage,NSString* string);
-GSWEB_EXPORT void GSWMessage_appendContentHTMLEntitiesConvertString(GSWMessage* aMessage,NSString* string);
-GSWEB_EXPORT NSString* GSWMessage_stringByEscapingHTMLString(GSWMessage* aMessage,NSString* aString);
-GSWEB_EXPORT NSString* GSWMessage_stringByEscapingHTMLAttributeValue(GSWMessage* aMessage,NSString* aString);
-GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTMLEntities(GSWMessage* aMessage,NSString* aString);
-GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,NSString* aString);
 
 //====================================================================
 @interface GSWMessage : NSObject <NSCopying>
@@ -91,14 +48,8 @@ GSWEB_EXPORT NSString* GSWMessage_stringByConvertingToHTML(GSWMessage* aMessage,
     NSStringEncoding _contentEncoding;
     NSDictionary* _userInfo;
     NSMutableData* _contentData;
-    GSWIMP_VOID _contentDataADImp;
-    
     NSMutableArray* _cachesStack; // Cache Stacks
     NSMutableData* _currentCacheData; // Current Cache Data (last object of _cachesStack). Do not retain/release
-    GSWIMP_VOID _currentCacheDataADImp;
-    
-@public // For functions
-    GSWMessageIMPs _selfMsgIMPs;
 };
 
 -(BOOL)storePageInBacktrackCache;

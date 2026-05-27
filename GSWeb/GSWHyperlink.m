@@ -37,9 +37,6 @@
 
 #include "GSWeb.h"
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
 static Class NSStringClass = Nil;
 
 //====================================================================
@@ -50,11 +47,7 @@ static Class NSStringClass = Nil;
 {
   if (self == [GSWHyperlink class])
     {
-      standardClass=[GSWHyperlink class];
       NSStringClass = [NSString class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
     };
 };
 
@@ -150,7 +143,7 @@ static Class NSStringClass = Nil;
 // isDisabled in wo5
 - (BOOL) isDisabledInContext:(GSWContext *) context
 {
-  return ((_disabled != nil) && ([_disabled boolValueInComponent: GSWContext_component(context)]));
+  return ((_disabled != nil) && ([_disabled boolValueInComponent: [context component]]));
 }
 
 //--------------------------------------------------------------------
@@ -161,7 +154,7 @@ static Class NSStringClass = Nil;
   
   if ([[context elementID] isEqual:[context senderID]])
     {
-      GSWComponent* component = GSWContext_component(context);
+      GSWComponent* component = [context component];
       if (_disabled == nil
 	  || ![_disabled boolValueInComponent:component])
 	{
@@ -246,8 +239,8 @@ static Class NSStringClass = Nil;
       && [queryDict count] > 0)
     {
       NSString* queryString = [queryDict encodeAsCGIFormValues];
-      GSWResponse_appendContentCharacter(response,'?');
-      GSWResponse_appendContentHTMLAttributeValue(response, queryString);
+      [response appendContentCharacter:'?'];
+      [response appendContentHTMLAttributeValue:queryString];
     }
 }
 
@@ -267,8 +260,8 @@ static Class NSStringClass = Nil;
   if ([queryDict count] > 0) 
     {
       NSString* queryString = [queryDict encodeAsCGIFormValuesEscapeAmpersand:htmlEscapeURL];
-      GSWResponse_appendContentCharacter(response,'?');
-      GSWResponse_appendContentHTMLAttributeValue(response, queryString);
+      [response appendContentCharacter:'?'];
+      [response appendContentHTMLAttributeValue:queryString];
     }
 }
 
@@ -280,11 +273,11 @@ static Class NSStringClass = Nil;
 {
   if (_fragmentIdentifier != nil)
     {
-      NSString* fragment = [_fragmentIdentifier valueInComponent:GSWContext_component(context)];
+      NSString* fragment = [_fragmentIdentifier valueInComponent:[context component]];
       if (fragment != nil)
 	{
-	  GSWResponse_appendContentCharacter(response,'#');
-	  GSWResponse_appendContentString(response, NSStringWithObject(fragment));
+	  [response appendContentCharacter:'#'];
+	  [response appendContentString:NSStringWithObject(fragment)];
 	}
     }
 }
@@ -294,7 +287,7 @@ static Class NSStringClass = Nil;
                            inContext:(GSWContext*) context
 {
   BOOL completeURLsOriginalState=NO;
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   BOOL securestuff = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
 
   NSString * actionStr = [self computeActionStringWithActionClassAssociation: _actionClass
@@ -318,7 +311,7 @@ static Class NSStringClass = Nil;
       && !completeURLsOriginalState)
     [context _generateRelativeURLs];
 
-  GSWResponse_appendContentString(response,urlString);
+  [response appendContentString:urlString];
 
   [self _appendFragmentToResponse: response
 	inContext:context];
@@ -333,28 +326,27 @@ static Class NSStringClass = Nil;
                             
   if (_actionClass != nil || _directActionName != nil)
     {
-      GSWResponse_appendContentCharacter(response,' ');
-      GSWResponse_appendContentAsciiString(response, href__Key);
-      GSWResponse_appendContentCharacter(response,'=');
-      GSWResponse_appendContentCharacter(response,'"');
+      [response appendContentCharacter:' '];
+      [response _appendContentAsciiString:href__Key];
+      [response appendContentCharacter:'='];
+      [response appendContentCharacter:'"'];
 
       [self _appendCGIActionURLToResponse:response
 	    inContext:context];
       
-      GSWResponse_appendContentCharacter(response,'"');
+      [response appendContentCharacter:'"'];
     }
   else if (_action != nil || _pageName != nil)
     {
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
       BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
 
-      GSWResponse_appendContentCharacter(response,' ');
-      GSWResponse_appendContentAsciiString(response, href__Key);
-      GSWResponse_appendContentCharacter(response,'=');
-      GSWResponse_appendContentCharacter(response,'"');
+      [response appendContentCharacter:' '];
+      [response _appendContentAsciiString:href__Key];
+      [response appendContentCharacter:'='];
+      [response appendContentCharacter:'"'];
 
-      GSWResponse_appendContentString(response, 
-				      [context _componentActionURLIsSecure:secure]);
+      [response appendContentString:[context _componentActionURLIsSecure:secure]];
   
       [self _appendQueryStringToResponse:response 
                                inContext:context 
@@ -364,21 +356,21 @@ static Class NSStringClass = Nil;
       [self _appendFragmentToResponse: response
 	    inContext:context];
 
-      GSWResponse_appendContentCharacter(response,'"');
+      [response appendContentCharacter:'"'];
     } 
   else
     {
       NSString* hrefValue = nil;
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
       if (_href != nil
 	  && (hrefValue = [_href valueInComponent:component]) != nil)
 	{
 	  hrefValue = NSStringWithObject(hrefValue);
 
-	  GSWResponse_appendContentCharacter(response,' ');
-	  GSWResponse_appendContentAsciiString(response,href__Key);
-	  GSWResponse_appendContentCharacter(response,'=');
-	  GSWResponse_appendContentCharacter(response,'"');
+	  [response appendContentCharacter:' '];
+	  [response _appendContentAsciiString:href__Key];
+	  [response appendContentCharacter:'='];
+	  [response appendContentCharacter:'"'];
 	  
 	  if ([hrefValue isRelativeURL]
 	      && ![hrefValue isFragmentURL])
@@ -386,17 +378,17 @@ static Class NSStringClass = Nil;
 	      NSString * url = [context _urlForResourceNamed:hrefValue
 					inFramework:nil];
 	      if (url != nil)
-		GSWResponse_appendContentString(response,url);
+		[response appendContentString:url];
 	      else 
 		{
-		  GSWResponse_appendContentAsciiString(response,[component baseURL]);
-		  GSWResponse_appendContentCharacter(response,'/');
-		  GSWResponse_appendContentString(response,hrefValue);
+		  [response _appendContentAsciiString:[component baseURL]];
+		  [response appendContentCharacter:'/'];
+		  [response appendContentString:hrefValue];
 		}
 	    } 
 	  else
 	    {
-	      GSWResponse_appendContentString(response,hrefValue);
+	      [response appendContentString:hrefValue];
 	    }
 	  
 	  [self _appendQueryStringToResponse:response 
@@ -407,26 +399,26 @@ static Class NSStringClass = Nil;
 	  [self _appendFragmentToResponse: response
 		inContext:context];
 	  
-	  GSWResponse_appendContentCharacter(response,'"');
+	  [response appendContentCharacter:'"'];
 	}
       else if (_fragmentIdentifier != nil)
 	{
 	  id fragmentIdentifierValue = [_fragmentIdentifier valueInComponent:component];
 	  if (fragmentIdentifierValue != nil)
 	    {
-	      GSWResponse_appendContentCharacter(response,' ');
-	      GSWResponse_appendContentAsciiString(response,href__Key);
-	      GSWResponse_appendContentCharacter(response,'=');
-	      GSWResponse_appendContentCharacter(response,'"');
+	      [response appendContentCharacter:' '];
+	      [response _appendContentAsciiString:href__Key];
+	      [response appendContentCharacter:'='];
+	      [response appendContentCharacter:'"'];
 	      
 	      [self _appendQueryStringToResponse:response 
 		    inContext:context
 		    requestHandlerPath:nil
 		    htmlEscapeURL:YES];
 	      
-	      GSWResponse_appendContentCharacter(response,'#');
-	      GSWResponse_appendContentString(response,NSStringWithObject(fragmentIdentifierValue));
-	      GSWResponse_appendContentCharacter(response,'"');
+	      [response appendContentCharacter:'#'];
+	      [response appendContentString:NSStringWithObject(fragmentIdentifierValue)];
+	      [response appendContentCharacter:'"'];
 	    }
 	}
     }
@@ -438,9 +430,9 @@ static Class NSStringClass = Nil;
 {
   if (_string != nil)
     {
-      NSString* string = [_string valueInComponent:GSWContext_component(context)];
+      NSString* string = [_string valueInComponent:[context component]];
       if (string != nil)
-        GSWResponse_appendContentString(response,NSStringWithObject(string));
+        [response appendContentString:NSStringWithObject(string)];
     }
 }
 

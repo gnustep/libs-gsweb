@@ -100,10 +100,10 @@ static Class GSWHTMLBareStringClass = Nil;
 
   if (elementName != nil)
     {
-      GSWResponse_appendContentCharacter(aResponse,'<');
-      GSWResponse_appendContentCharacter(aResponse,'/');
-      GSWResponse_appendContentString(aResponse,elementName);
-      GSWResponse_appendContentCharacter(aResponse,'>');
+      [aResponse appendContentCharacter:'<'];
+      [aResponse appendContentCharacter:'/'];
+      [aResponse appendContentString:elementName];
+      [aResponse appendContentCharacter:'>'];
     }
 }
 

@@ -2492,10 +2492,9 @@ createObjectFailedForDataSource:_dataSource];
 	{
 	  NSMutableArray* tmpIndexes=nil;
 	  NSUInteger i=0;
-	  IMP objects_oaiIMP=NULL;
 	  for(i=0;i<objectsCount;i++)
 	    {
-	      id object=GSWeb_objectAtIndexWithImpPtr(objects,&objects_oaiIMP,i);
+	      id object=[objects objectAtIndex:i];
 	      NSUInteger index=[self indexOfObjectIdenticalTo:object];
 	      if (index!=NSNotFound)
 		{
@@ -2527,15 +2526,13 @@ createObjectFailedForDataSource:_dataSource];
     {
       NSMutableArray* tmpObjects=nil;
       NSUInteger i=0;
-      IMP indexes_oaiIMP=NULL;
-      IMP self_oaiIMP=NULL;
       for(i=0;i<indexesCount;i++)
       {
-        id indexObject=GSWeb_objectAtIndexWithImpPtr(indexes,&indexes_oaiIMP,i);
+        id indexObject=[indexes objectAtIndex:i];
         int index=[indexObject intValue];
         if (index<selfCount)
         {
-          id object=GSWeb_objectAtIndexWithImpPtr(self,&self_oaiIMP,index);
+          id object=[self objectAtIndex:index];
           if (tmpObjects)
             [tmpObjects addObject:object];
           else
@@ -2564,14 +2561,12 @@ createObjectFailedForDataSource:_dataSource];
 	    isEqual=YES;
 	  else
 	    {
-	      IMP self_oaiIMP = NULL;
-	      IMP other_oaiIMP = NULL;
 	      NSUInteger i=0;
 	      isEqual=YES;
 	      for (i = 0; i < count; i++)
 		{
-		  if (GSWeb_objectAtIndexWithImpPtr(self,&self_oaiIMP,i)
-		      !=GSWeb_objectAtIndexWithImpPtr(otherArray,&other_oaiIMP,i))
+		  if ([self objectAtIndex:i]
+		      !=[otherArray objectAtIndex:i])
 		    {
 		      isEqual=NO;
 		      break;

@@ -42,24 +42,8 @@ Bindings
   negate		If evaluated to yes, negate the condition (defaut=NO)
 **/
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWConditional
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWConditional class])
-    {
-      standardClass=[GSWConditional class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -107,7 +91,7 @@ static Class standardClass = Nil;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   BOOL conVal = [_condition boolValueInComponent:component];
   BOOL doNegate = NO;
   if (_negate != nil)
@@ -126,7 +110,7 @@ static Class standardClass = Nil;
                                     inContext:(GSWContext*) context
 {
   id <GSWActionResults> result=nil;
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   BOOL conVal = [_condition boolValueInComponent:component];
   BOOL doNegate = NO;
   if (_negate != nil)
@@ -145,7 +129,7 @@ static Class standardClass = Nil;
 -(void)appendToResponse:(GSWResponse*) response
               inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   BOOL conVal = [_condition boolValueInComponent:component];
   BOOL doNegate = NO;
   if (_negate != nil)

@@ -32,28 +32,7 @@
 #ifndef _GSWDeclarationParser_h__
 	#define _GSWDeclarationParser_h__
 
-typedef struct _GSWDeclarationParserIMPs
-{
-  GSWIMP_BOOL _skipBlanksIMP;
-  GSWIMP_BOOL _skipCommentIMP;
-  GSWIMP_BOOL _skipBlanksAndCommentsIMP;
-  GSWIMP_VOID _parsePragmaIMP;
-  GSWIMP_ID _parseIdentifierIMP;
-  GSWIMP_ID _parseKeyIMP;
-  GSWIMP_ID _parseQuotedStringIMP;
-  GSWIMP_ID _parseHexDataIMP;
-  GSWIMP_ID _parseKeyPathIMP;
-  GSWIMP_ID _tryParseBooleanIMP;
-  GSWIMP_ID _parseNumberIMP;
-  GSWIMP_ID _parseHexNumberIMP;
-  GSWIMP_ID_BOOL _parseValueAsAssociationIMP;
-  GSWIMP_ID_BOOL _parseDictionaryWithValuesAsAssociationsIMP;
-  GSWIMP_ID _parseArrayIMP;
-  GSWIMP_ID _parseDeclarationIMP;
-} GSWDeclarationParserIMPs;
 
-/** Fill impsPtr structure with IMPs for context **/
-GSWEB_EXPORT void GetGSWDeclarationParserIMPS(GSWDeclarationParserIMPs* impsPtr,GSWDeclarationParser* declarationParser);
 
 
 GS_EXPORT NSString* const GSWDFEMissingDeclarationForElement;
@@ -104,9 +83,6 @@ accumulated instead of blocking on first error) **/
   NSMutableDictionary* _declarations;
   NSString* _fileName;
   NSString* _frameworkName;
-
-@public
-  GSWDeclarationParserIMPs _selfIMPs;
 }
 +(GSWDeclarationParser*)declarationParserWithPragmaDelegate:(id<GSWDeclarationParserPragmaDelegate>)pragmaDelegate;
 -(id)initWithPragmaDelegate:(id<GSWDeclarationParserPragmaDelegate>)pragmaDelegate;

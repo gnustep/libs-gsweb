@@ -31,19 +31,9 @@
 
 #include "GSWeb.h"
 
-SEL evaluateConditionInContextSEL = NULL;
 
 //====================================================================
 @implementation GSWDynamicElement
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWDynamicElement class])
-    {
-      evaluateConditionInContextSEL=@selector(evaluateCondition:inContext:);
-    };
-};
 
 //--------------------------------------------------------------------
 //	initWithName:associations:template:
@@ -69,7 +59,7 @@ SEL evaluateConditionInContextSEL = NULL;
 
   if (condition)
     {
-      GSWComponent* component=GSWContext_component(context);
+      GSWComponent* component=[context component];
       id value=[condition valueInComponent:component];
       result=boolValueWithDefaultFor(value,noConditionDefault);
     };

@@ -294,7 +294,6 @@ NSString* GSWJoinedStrings(int stringsCount,NSString* s1,...)
 	tmp=(NSMutableString*)s1;
       else
 	{
-	  IMP asIMP=NULL;
 	  va_list ap;
 	  va_start(ap,s1);
 	  int i=0;
@@ -305,7 +304,7 @@ NSString* GSWJoinedStrings(int stringsCount,NSString* s1,...)
 		{
 		  if (!tmp)
 		    tmp=[NSMutableString string];
-		  GSWeb_appendStringWithImpPtr(tmp,&asIMP,s);
+		  [tmp appendString:s];
 		}
 	    }
 	  va_end(ap);

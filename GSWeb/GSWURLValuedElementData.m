@@ -150,7 +150,7 @@ static Class NSStringClass = Nil;
                                    inComponent: component];
 
 
-  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, urlAttribute, dataURL, NO);    
+  [response _appendTagAttribute:urlAttribute value:dataURL escapingHTMLAttributeValue:NO];    
 }
 
 -(id)initWithData:(NSData*)data
@@ -201,7 +201,7 @@ static Class NSStringClass = Nil;
                path:nil
                queryString:queryString];
   NSDebugMLog(@"url=%@",url);
-  GSWResponse_appendContentAsciiString(aResponse,(NSString*)url);
+  [aResponse _appendContentAsciiString:(NSString*)url];
 };
 
 //--------------------------------------------------------------------

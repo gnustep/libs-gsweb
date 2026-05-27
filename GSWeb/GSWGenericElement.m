@@ -31,24 +31,8 @@
 
 #include "GSWeb.h"
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWGenericElement
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWGenericElement class])
-    {
-      standardClass=[GSWGenericElement class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
 
 //-----------------------------------------------------------------------------------
 -(id)initWithName:(NSString*)name
@@ -116,14 +100,13 @@ static Class standardClass = Nil;
       BOOL omit = NO;      
       if (_omitTags)
 	{
-	  omit = GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                          standardEvaluateConditionInContextIMP,
-                                                          _omitTags,aContext);
+	  omit = [self evaluateCondition:_omitTags
+                                    inContext:aContext];
 	}
       
       if (omit == NO)
 	{
-	  elementName=[_elementName valueInComponent:GSWContext_component(aContext)];
+	  elementName=[_elementName valueInComponent:[aContext component]];
 	}
     }
 
@@ -135,13 +118,13 @@ static Class standardClass = Nil;
                            inContext:(GSWContext*)aContext
 {
   GSWElement *element = nil;
-  GSWComponent *component = GSWContext_component(aContext);
+  GSWComponent *component = [aContext component];
 
   if (_invokeAction != nil
       && [_invokeAction isImplementedForComponent:component])
     {
-      NSString *elementID = GSWContext_elementID(aContext);
-      NSString *senderID = GSWContext_senderID(aContext);
+      NSString *elementID = [aContext elementID];
+      NSString *senderID = [aContext senderID];
 
       NSDebugMLog(@"elementID=%@ senderID=%@",
                   elementID,senderID);
@@ -187,8 +170,8 @@ static Class standardClass = Nil;
 {
   if (_hasFormValues)
     {
-      GSWComponent *component = GSWContext_component(aContext);
-      NSString *elementID = GSWContext_elementID(aContext);
+      GSWComponent *component = [aContext component];
+      NSString *elementID = [aContext elementID];
       NSString* name = NSStringWithObject([_name valueInComponent: component]);
 
       if (_elementID != nil)
@@ -214,11 +197,11 @@ static Class standardClass = Nil;
 -(void)appendAttributesToResponse:(GSWResponse*)aResponse
 			inContext:(GSWContext*)aContext
 {
-  GSWComponent *component = GSWContext_component(aContext);
+  GSWComponent *component = [aContext component];
   if (_name != nil)
     {
       NSString* name = NSStringWithObject([_name valueInComponent:component]);
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(aResponse,@"name",name,YES);
+      [aResponse _appendTagAttribute:@"name" value:name escapingHTMLAttributeValue:YES];
     }
 
   if(_otherTagString != nil)
@@ -226,8 +209,8 @@ static Class standardClass = Nil;
       NSString* otherTagString = NSStringWithObject([_otherTagString valueInComponent:component]);
       if ([otherTagString length]>0)
 	{
-	  GSWResponse_appendContentCharacter(aResponse,' ');
-	  GSWResponse_appendContentString(aResponse,otherTagString);
+	  [aResponse appendContentCharacter:' '];
+	  [aResponse appendContentString:otherTagString];
 	}
     }
 
@@ -248,18 +231,18 @@ static Class standardClass = Nil;
     {
       if (_elementID != nil)
         {
-	  GSWComponent *component = GSWContext_component(aContext);
+	  GSWComponent *component = [aContext component];
 	  [_elementID setValue:[aContext elementID]
 		      inComponent:component];
         }
       ASSIGN(_dynElementName,([self _elementNameInContext:aContext]));
       if (_dynElementName != nil)
         {
-	  GSWResponse_appendContentCharacter(aResponse,'<');
-	  GSWResponse_appendContentAsciiString(aResponse,_dynElementName);
+	  [aResponse appendContentCharacter:'<'];
+	  [aResponse _appendContentAsciiString:_dynElementName];
 	  [self appendAttributesToResponse:aResponse
 		inContext:aContext];
-	  GSWResponse_appendContentCharacter(aResponse,'>');
+	  [aResponse appendContentCharacter:'>'];
 	}
     }
 };

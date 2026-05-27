@@ -142,10 +142,9 @@
           // More than one child: try to concatenate BareStrings
           NSMutableString* bareStringText=nil;
           int i=0;
-	  IMP oaiIMP=NULL;
           for(i=0;i<childrenCount;i++)
             {
-              GSWElement* element=GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
+              GSWElement* element=[_children objectAtIndex:i];
               if ([element isKindOfClass:[GSWHTMLBareString class]])// Concatenate BareStrings
                 {
                   if (bareStringText)
@@ -154,7 +153,7 @@
                       element=nil;
                     }
                   else if (i+1<childrenCount
-                           && [GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i+1)
+                           && [[_children objectAtIndex:i+1]
 							    isKindOfClass:[GSWHTMLBareString class]])
                     {
                       bareStringText=[NSMutableString stringWithString:[(GSWHTMLBareString*)element string]];
