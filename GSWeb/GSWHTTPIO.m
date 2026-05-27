@@ -171,7 +171,7 @@ void _unpackHeaderLineAddToDict(NSString *line, NSMutableDictionary* headers)
 
 //PRIVATE
 
-void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers, IMP* headersAppStringIMPPtr)
+void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers)
 {
   NSMutableDictionary * headerDict = [message headers];
   NSArray             * keyArray = nil;
@@ -180,7 +180,6 @@ void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers, IMP*
   if (headerDict != nil)
     {
       NSUInteger count = 0;
-      IMP keyArray_oaiIMP=NULL;
       if (![headerDict isKindOfClass:[NSMutableDictionary class]])
 	headerDict = [[headerDict mutableCopy] autorelease];
     
@@ -190,7 +189,7 @@ void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers, IMP*
 
       for (; i < count; i++)
 	{
-	  NSString    * currentKey = GSWeb_objectAtIndexWithImpPtr(keyArray,&keyArray_oaiIMP,i);
+	  NSString    * currentKey = [keyArray objectAtIndex:i];
 	  NSArray     * currentValueArray = [headerDict objectForKey:currentKey];
 	  if ([currentValueArray isKindOfClass:[NSArray class]])
 	    {
@@ -198,19 +197,19 @@ void _appendMessageHeaders(GSWResponse * message,NSMutableString * headers, IMP*
 	      int valueCount = [currentValueArray count];
 	      for (; x < valueCount; x++)
 		{
-		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,currentKey);
-		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,HEADERSEP);
-		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,[currentValueArray objectAtIndex:x]);
-		  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,NEWLINE);
+		  [headers appendString:currentKey];
+		  [headers appendString:HEADERSEP];
+		  [headers appendString:[currentValueArray objectAtIndex:x]];
+		  [headers appendString:NEWLINE];
 		}
 	    }
 	  else
 	    {
 	      NSString * myStrValue = (NSString*) currentValueArray;
-	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,currentKey);
-	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,HEADERSEP);
-	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,myStrValue);
-	      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,NEWLINE);        
+	      [headers appendString:currentKey];
+	      [headers appendString:HEADERSEP];
+	      [headers appendString:myStrValue];
+	      [headers appendString:NEWLINE];        
 	    }
 	}      
     }
@@ -221,8 +220,7 @@ void _sendMessage(GSWResponse * message,
 		  NSFileHandle* fh, 
 		  NSString * httpVersion, 
 		  GSWRequest * request, 
-		  NSMutableString * headers,
-		  IMP* headersAppStringIMPPtr)
+		  NSMutableString * headers)
 {
   int  contentLength = 0;
   //BOOL keepAlive = NO;
@@ -240,27 +238,27 @@ void _sendMessage(GSWResponse * message,
     requestIsHead = [[request method] isEqualToString:HEAD];
   }
   
-  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,GSWIntToNSString([message status]));
-  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,URIResponseString);
+  [headers appendString:GSWIntToNSString([message status])];
+  [headers appendString:URIResponseString];
 
-  _appendMessageHeaders(message,headers,headersAppStringIMPPtr);
+  _appendMessageHeaders(message,headers);
   
   if ([httpVersion isEqualToString:HTTP11]) {
     // bug #24006 keep-alive is not implemented.
     // I am uable to reproduce the need for double clicking on links/forms,
     // but for now, we send close. -- dw
     if (YES /*keepAlive == NO*/) {
-      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,@"Connection: close\r\n");
+      [headers appendString:@"Connection: close\r\n"];
     } else {
-      GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,@"Connection: keep-alive\r\n");
+      [headers appendString:@"Connection: keep-alive\r\n"];
     }
   }
   
   if ((contentLength > 0) || _alwaysAppendContentLength) {
-    GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,CONTENT_LENGTHCOLON);        
-    GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,[NSString stringWithFormat:@"%d\r\n", contentLength]);        
+    [headers appendString:CONTENT_LENGTHCOLON];        
+    [headers appendString:[NSString stringWithFormat:@"%d\r\n", contentLength]];        
   }
-  GSWeb_appendStringWithImpPtr(headers,headersAppStringIMPPtr,NEWLINE2);        
+  [headers appendString:NEWLINE2];        
 
   [fh writeData: [headers dataUsingEncoding:NSISOLatin1StringEncoding
                        allowLossyConversion:YES]];
@@ -445,12 +443,11 @@ void _sendMessage(GSWResponse * message,
 {
   NSString        * httpVersion = [response httpVersion];
   NSMutableString * bufferStr = [NSMutableString string];
-  IMP               bufferAppStringIMP = NULL;
 
-  GSWeb_appendStringWithImpPtr(bufferStr,&bufferAppStringIMP,httpVersion);
-  GSWeb_appendStringWithImpPtr(bufferStr,&bufferAppStringIMP,SPACE);
+  [bufferStr appendString:httpVersion];
+  [bufferStr appendString:SPACE];
 
-  _sendMessage(response, fh, httpVersion, request, bufferStr,&bufferAppStringIMP);
+  _sendMessage(response, fh, httpVersion, request, bufferStr);
   
 }
       

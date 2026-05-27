@@ -122,7 +122,7 @@ static GSWAssociation* static_defaultValueAssociation = nil;
 
   NS_DURING
     {
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
       if (! [self disabledInComponent: component]
 	  && [context _wasFormSubmitted])
 	{
@@ -175,10 +175,7 @@ static GSWAssociation* static_defaultValueAssociation = nil;
   if (_directActionName != nil
       || _actionClass != nil)
     {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    name__Key,
-								    [self _actionClassAndNameInContext:context],
-								    NO);
+      [response _appendTagAttribute:name__Key value:[self _actionClassAndNameInContext:context] escapingHTMLAttributeValue:NO];
     }
   else
     {
@@ -196,12 +193,9 @@ static GSWAssociation* static_defaultValueAssociation = nil;
   if (_directActionName != nil
       || _actionClass != nil)
     {
-      GSWResponse_appendContentAsciiString(response,@"<input type=\"hidden\" name=\"WOSubmitAction\"");
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    value__Key,
-								    [self _actionClassAndNameInContext:context],
-								    NO);
-      GSWResponse_appendContentCharacter(response,'>');
+      [response _appendContentAsciiString:@"<input type=\"hidden\" name=\"WOSubmitAction\""];
+      [response _appendTagAttribute:value__Key value:[self _actionClassAndNameInContext:context] escapingHTMLAttributeValue:NO];
+      [response appendContentCharacter:'>'];
     }
 }
 

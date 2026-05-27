@@ -39,35 +39,9 @@ typedef struct _GSWElementIDPart
   int _number;
   NSString* _string;  
   NSMutableString* _elementIDString; //ElementID of this part
-  IMP _elementIDString_setStringIMP;
 } GSWElementIDPart;
 
-GSWEB_EXPORT SEL appendZeroElementIDComponentSEL;
-GSWEB_EXPORT SEL deleteLastElementIDComponentSEL;
-GSWEB_EXPORT SEL incrementLastElementIDComponentSEL;
-GSWEB_EXPORT SEL appendElementIDComponentSEL;
-GSWEB_EXPORT SEL deleteAllElementIDComponentsSEL;
-GSWEB_EXPORT SEL isParentSearchOverForSenderIDSEL;
-GSWEB_EXPORT SEL isSearchOverForSenderIDSEL;
-GSWEB_EXPORT SEL elementIDStringSEL;
 
-typedef struct _GSWElementIDIMPs
-{
-  IMP _incrementLastElementIDComponentIMP;
-  IMP _appendElementIDComponentIMP;
-  IMP _appendZeroElementIDComponentIMP;
-  IMP _deleteAllElementIDComponentsIMP;
-  IMP _deleteLastElementIDComponentIMP;
-  GSWIMP_BOOL _isParentSearchOverForSenderIDIMP;
-  GSWIMP_BOOL _isSearchOverForSenderIDIMP;
-  IMP _elementIDStringIMP;
-} GSWElementIDIMPs;
-
-/** Initialize GSWElementID selectors **/
-GSWEB_EXPORT void InitializeGSWElementIDSELs();
-
-/** Fill impsPtr structure with IMPs for elementID **/
-GSWEB_EXPORT void GetGSWElementIDIMPs(GSWElementIDIMPs* impsPtr,GSWElementID* elementID);
 
 //====================================================================
 #define GSWElementID_DefaultElementPartsCount	128
@@ -81,20 +55,11 @@ GSWEB_EXPORT void GetGSWElementIDIMPs(GSWElementIDIMPs* impsPtr,GSWElementID* el
   int _builtPartCount;			/** number of parts which have a built _elementIDString **/
 
   NSMutableString* _tmpString;		/** a mutable string for manipulations **/
-  IMP _tmpString_appendStringIMP;	/** _tmpString -appendString: IMP **/
-  IMP _tmpString_setStringIMP;		/** _tmpString -setString: IMP **/
-
   NSString* _elementIDString;		/** cached current elementIDString **/
 
   NSString* _isSearchOverLastSenderIDString;	/** cached last isSearchOver sender ID string **/
   GSWElementID* _isSearchOverLastSenderID;	/** cache elementID built from _isSearchOverLastSenderIDString **/
-
-  IMP _deleteElementsFromIndexIMP;	/** -_deleteElementsFromIndex IMP **/
-  IMP _buildElementPartsIMP;		/** -_buildElementParts IMP **/
 };
-
-/** Set GSWElementID standard class (so we can use pre-build GSWElementIDIMPs) **/
-+(void)setStandardClass:(Class)standardClass;
 
 /** Returns a elementID **/
 +(GSWElementID*)elementID;

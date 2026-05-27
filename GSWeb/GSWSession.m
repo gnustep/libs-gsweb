@@ -81,7 +81,7 @@ extern id gcObjectsToBeVisited;
 //--------------------------------------------------------------------
 -(id)copyWithZone: (NSZone*)zone
 {
-  GSWSession* clone = [[isa allocWithZone: zone] init];
+  GSWSession* clone = [[[self class] allocWithZone: zone] init];
   [clone setSessionID:_sessionID];
   [clone setTimeOut:_timeOut];
   [clone _setContextArrayStack:_contextArrayStack];
@@ -932,10 +932,9 @@ extern id gcObjectsToBeVisited;
       NSArray* contextIDs = [_contextRecords allKeys];
       int count = [contextIDs count];
       int i=0;
-      IMP oaiIMP=NULL;
       for(i=0;!contextID && i<count;i++)
         {
-          NSString* aContextID=GSWeb_objectAtIndexWithImpPtr(contextIDs,&oaiIMP,i);
+          NSString* aContextID=[contextIDs objectAtIndex:i];
           GSWTransactionRecord* aTransactionRecord=[_contextRecords objectForKey:aContextID];
           if ([aTransactionRecord isMatchingIDsInContext:aContext])
             contextID=aContextID;
@@ -978,10 +977,9 @@ extern id gcObjectsToBeVisited;
   NSMutableArray* contextArray=nil;
   NSUInteger stackCount=[_contextArrayStack count];
   NSUInteger i=0;
-  IMP oaiIMP=NULL;
   for(i=0;!contextArray && i<stackCount;i++)
     {
-      NSMutableArray* aContextArray=GSWeb_objectAtIndexWithImpPtr(_contextArrayStack,&oaiIMP,i);
+      NSMutableArray* aContextArray=[_contextArrayStack objectAtIndex:i];
       NSUInteger contextArrayIndex=[aContextArray indexOfObject:aContextID];
       if (contextArrayIndex!=NSNotFound)
         {

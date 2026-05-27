@@ -55,21 +55,6 @@ Bindings
 //====================================================================
 @implementation GSWCacheElement
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWCacheElement class])
-    {
-      standardClass=[GSWCacheElement class];
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
-
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -251,15 +236,13 @@ static Class standardClass = Nil;
 
       if (_disabled)
         {
-          isDisabled=GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                              standardEvaluateConditionInContextIMP,
-                                                              _disabled,aContext);
+          isDisabled = [self evaluateCondition:_disabled
+                                      inContext:aContext];
         }
       else if (_enabled)
         {
-          isDisabled=!GSWDynamicElement_evaluateValueInContext(self,standardClass,
-                                                               standardEvaluateConditionInContextIMP,
-                                                               _enabled,aContext);
+          isDisabled = ![self evaluateCondition:_enabled
+                                       inContext:aContext];
         };
       
       uniqID=NSStringWithObject([_uniqID valueInComponent:component]);

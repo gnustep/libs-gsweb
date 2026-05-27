@@ -230,10 +230,6 @@ static NSUInteger unicodeBRLen=4;
 
 static Class mutableStringClass = Nil;
 static Class stringClass=Nil;
-static SEL stringWithCharactersSEL=NULL;
-static SEL stringWithStringSEL=NULL;
-static IMP stringClass_stringWithCharactersIMP=NULL;
-static IMP stringClass_stringWithStringIMP=NULL;
 
 static void initNormalHTMLChars(GSWHTMLConvertingStruct* htmlConvertStruct,
                                 NSString* normalCharsPropertyListString,
@@ -286,11 +282,6 @@ void NSStringHTML_Initialize()
 
       ASSIGN(mutableStringClass,[NSMutableString class]);
       ASSIGN(stringClass,[NSString class]);
-
-      stringWithCharactersSEL=@selector(stringWithCharacters:length:);
-      stringWithStringSEL=@selector(stringWithString:);
-      stringClass_stringWithCharactersIMP=[stringClass methodForSelector:stringWithCharactersSEL];
-      stringClass_stringWithStringIMP=[stringClass methodForSelector:stringWithStringSEL];
 
       //testStringByConvertingHTML();
     };
@@ -409,9 +400,9 @@ NSString* baseStringByConvertingToHTML(NSString* string,GSWHTMLConvertingStruct*
             i++;
         };
       if (changed)
-        str=(*stringClass_stringWithCharactersIMP)(stringClass,stringWithCharactersSEL,pString,length);
+        str = [stringClass stringWithCharacters:pString length:length];
       else if ([string isKindOfClass:mutableStringClass])
-        str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
+        str = [stringClass stringWithString:string];
       else
         str=string;
     }
@@ -543,9 +534,9 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
             i++;
         };
       if (changed)
-        str=(*stringClass_stringWithCharactersIMP)(stringClass,stringWithCharactersSEL,pString,length);
+        str = [stringClass stringWithCharacters:pString length:length];
       else if ([string isKindOfClass:mutableStringClass])
-        str=(*stringClass_stringWithStringIMP)(stringClass,stringWithStringSEL,string);
+        str = [stringClass stringWithString:string];
       else
         str=string;
       NSZoneFree(NSDefaultMallocZone(), pString);
@@ -686,13 +677,12 @@ NSString* baseStringByConvertingFromHTML(NSString* string,GSWHTMLConvertingStruc
       NSArray* listItems = [self componentsSeparatedByString:sep1];
       NSUInteger iCount=0;
       NSUInteger itemsCount=[listItems count];
-      IMP oaiIMP=NULL;
 
       pDico=(NSMutableDictionary*)[NSMutableDictionary dictionary];
 
       for(iCount=0;iCount<itemsCount;iCount++)
         {
-          if ([GSWeb_objectAtIndexWithImpPtr(listItems,&oaiIMP,iCount) length]>0)
+          if ([[listItems objectAtIndex:iCount] length]>0)
             {
               NSArray* listParam = [[listItems objectAtIndex:iCount] componentsSeparatedByString:sep2];
               id key=nil;

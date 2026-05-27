@@ -72,7 +72,7 @@
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   
   if (![self disabledInComponent: component]
       && [context _wasFormSubmitted])
@@ -127,9 +127,9 @@
 -(void) appendChildrenToResponse:(GSWResponse*) response
                        inContext:(GSWContext*) context
 {
-  id value = [_value valueInComponent:GSWContext_component(context)];
+  id value = [_value valueInComponent:[context component]];
   if (value != nil)
-    GSWResponse_appendContentHTMLString(response, [self _filterSoftReturnsFromString:NSStringWithObject(value)]);
+    [response appendContentHTMLString:[self _filterSoftReturnsFromString:NSStringWithObject(value)]];
 }
 
 

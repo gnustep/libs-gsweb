@@ -237,7 +237,7 @@
 -(NSString*)logPrefix
 {
   return [NSString stringWithFormat:@"%@:Template Parser for template named %@ in framework %@ \nat %@ - ",
-		   NSStringFromClass(isa),
+		   NSStringFromClass([self class]),
                    _templateName,
                    _frameworkName,
                    _stringPath];
@@ -386,7 +386,6 @@ Method for GSWDeclarationParserPragmaDelegate protocol
   NSString* path=nil;
   int iLanguage=0;
   BOOL isPathAlreadyProcessed=NO;
-  IMP oaiIMP=NULL;
 
   resourceManager=[GSWApp resourceManager];
 
@@ -407,7 +406,7 @@ Method for GSWDeclarationParserPragmaDelegate protocol
       NSString* language=nil;
       int iName=0;
       if (iLanguage<[_languages count])
-        language=GSWeb_objectAtIndexWithImpPtr(_languages,&oaiIMP,iLanguage);
+        language=[_languages objectAtIndex:iLanguage];
       else
         language=nil;
       for(iName=0;!path && iName<2;iName++)

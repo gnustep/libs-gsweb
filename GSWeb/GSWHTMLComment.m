@@ -76,9 +76,9 @@
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  GSWResponse_appendContentAsciiString(aResponse,@"<!--");
-  GSWResponse_appendContentAsciiString(aResponse,_string);
-  GSWResponse_appendContentAsciiString(aResponse,@"-->");
+  [aResponse _appendContentAsciiString:@"<!--"];
+  [aResponse _appendContentAsciiString:_string];
+  [aResponse _appendContentAsciiString:@"-->"];
 };
 
 

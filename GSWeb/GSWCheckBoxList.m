@@ -61,24 +61,8 @@ Bindings
         isDisplayStringBefore If evaluated to no, displayString is displayed after radio button. 
 **/
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWCheckBoxList
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWCheckBoxList class])
-    {
-      standardClass=[GSWCheckBoxList class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -155,7 +139,7 @@ static Class standardClass = Nil;
 -(void)_slowTakeValuesFromRequest:(GSWRequest*)request
 			inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   if (_selections != nil
       && ![self disabledInComponent:component]
       && [context _wasFormSubmitted])
@@ -179,13 +163,12 @@ static Class standardClass = Nil;
 	    {
 	      NSUInteger listCount = [list count];
 	      int i=0;
-	      IMP oaiIMP=NULL;
 
 	      selections = [NSMutableArray arrayWithCapacity:formValuesCount];      
 
 	      for (i = 0; i < listCount; i++)
 		{
-		  id item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+		  id item = [list objectAtIndex:i];
 		  id value = nil;
 		  
 		  [_item setValue: item
@@ -216,7 +199,7 @@ static Class standardClass = Nil;
 -(void)_fastTakeValuesFromRequest:(GSWRequest*)request
                         inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   
   if (_selections != nil
       && ![self disabledInComponent:component]
@@ -238,12 +221,10 @@ static Class standardClass = Nil;
 	  else
 	    {
 	      int i=0;
-	      IMP formValues_oaiIMP=NULL;
-	      IMP list_oaiIMP=NULL;
 	      for (i = 0; i < formValuesCount; i++)
 		{
-		  int itemIndex = [NSStringWithObject(GSWeb_objectAtIndexWithImpPtr(formValues,&formValues_oaiIMP,i)) intValue];
-		  [(NSMutableArray*)selections addObject:GSWeb_objectAtIndexWithImpPtr(list,&list_oaiIMP,itemIndex)];
+		  int itemIndex = [NSStringWithObject([formValues objectAtIndex:i]) intValue];
+		  [(NSMutableArray*)selections addObject:[list objectAtIndex:itemIndex]];
 		}
 	    }
 	}
@@ -258,7 +239,7 @@ static Class standardClass = Nil;
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  GSWComponent * component       = GSWContext_component(context);
+  GSWComponent * component       = [context component];
   NSArray*       list       = [_list valueInComponent:component];
   
   if ([list isKindOfClass:[NSArray class]] == NO)
@@ -276,8 +257,7 @@ static Class standardClass = Nil;
 	  int i = 0;
 	  BOOL doEscape = NO;
 	  id selections = nil;
-	  IMP oaiIMP=NULL;
-	  BOOL isDisabled=[self disabledInComponent:GSWContext_component(context)];
+	  BOOL isDisabled=[self disabledInComponent:[context component]];
 	  BOOL hasConstantAttributes=[self hasConstantAttributes];
 	  BOOL hasNonURLAttributes=[self hasNonURLAttributes];
 	  BOOL hasURLAttributes=[self hasURLAttributes];
@@ -310,7 +290,7 @@ static Class standardClass = Nil;
 			  inComponent:component];
 		}
 	      
-	      item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+	      item = [list objectAtIndex:i];
 	      
 	      if (_item != nil
 		  && _displayString != nil)
@@ -335,16 +315,16 @@ static Class standardClass = Nil;
 	      else
 		displayString = NSStringWithObject(item);
 	      
-	      GSWResponse_appendContentAsciiString(response, @"<input name=\"");
-	      GSWResponse_appendContentString(response,ctxName);
-	      GSWResponse_appendContentAsciiString(response,@"\" type=checkbox value=\"");
+	      [response _appendContentAsciiString:@"<input name=\""];
+	      [response appendContentString:ctxName];
+	      [response _appendContentAsciiString:@"\" type=checkbox value=\""];
 	      
 	      if (_value != nil)
 		{
 		  value = [_value valueInComponent:component];
 		  if (value != nil) 
 		    {
-		      GSWResponse_appendContentHTMLConvertString(response, NSStringWithObject(value));
+		      [response appendContentHTMLConvertString:NSStringWithObject(value)];
 		    }
 		  else 
 		    {
@@ -353,15 +333,15 @@ static Class standardClass = Nil;
 		    }
 		}
 	      if (value == nil) 
-		GSWResponse_appendContentAsciiString(response,GSWIntToNSString(i));
+		[response _appendContentAsciiString:GSWIntToNSString(i)];
 	      
 	      if ([selections containsObject:item]) 
-		GSWResponse_appendContentAsciiString(response,@"\" checked");
+		[response _appendContentAsciiString:@"\" checked"];
 	      else 
-		GSWResponse_appendContentAsciiString(response,@"\"");
+		[response _appendContentAsciiString:@"\""];
 
 	      if (isDisabled)
-		GSWResponse_appendContentAsciiString(response,@" disabled");
+		[response _appendContentAsciiString:@" disabled"];
 
 	      //append other associations (like id, onChange, ...)
 	      if (hasConstantAttributes)
@@ -382,18 +362,18 @@ static Class standardClass = Nil;
 			inContext: context];
 		}
 
-	      GSWResponse_appendContentCharacter(response,'>');
+	      [response appendContentCharacter:'>'];
 	      
 	      if (prefixStr != nil) 
-		GSWResponse_appendContentString(response,prefixStr);
+		[response appendContentString:prefixStr];
 	      
 	      if (doEscape)
-		GSWResponse_appendContentHTMLConvertString(response,displayString);
+		[response appendContentHTMLConvertString:displayString];
 	      else 
-		GSWResponse_appendContentString(response,displayString);
+		[response appendContentString:displayString];
 	      
 	      if (suffixStr != nil) 
-		GSWResponse_appendContentString(response,suffixStr);
+		[response appendContentString:suffixStr];
 	    } // for
 	}
     }

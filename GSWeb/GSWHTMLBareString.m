@@ -76,7 +76,7 @@
 -(void)appendToResponse:(GSWResponse*)aResponse
               inContext:(GSWContext*)aContext
 {
-  GSWResponse_appendContentString(aResponse,_string);  
+  [aResponse appendContentString:_string];  
 }
 
 

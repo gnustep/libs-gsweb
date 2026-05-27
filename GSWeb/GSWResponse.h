@@ -38,53 +38,8 @@
 
 #include "GSWMessage.h"
 
-typedef struct _GSWResponseIMPs
-{
-  // Instance IMPs
-  IMP _appendTagAttributeValueEscapingHTMLAttributeValueIMP;
-} GSWResponseIMPs;
 
-/** Fill impsPtr structure with IMPs for message **/
-GSWEB_EXPORT void GetGSWResponseIMPs(GSWResponseIMPs* impsPtr,GSWResponse* aResponse);
 
-/** functions to accelerate calls of frequently used GSResponse methods **/
-GSWEB_EXPORT void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(GSWResponse* aResponse,NSString* aString,id value,BOOL escaping);
-
-/** functions to accelerate calls of frequently used GSResponse methods **/
-#define GSWResponse_content(aResponse) \
-		GSWMessage_content(aResponse)
-#define GSWResponse_contentString(aResponse) \
-		GSWMessage_contentString(aResponse)
-#define GSWResponse_appendContentAsciiString(aResponse,aString) \
-		GSWMessage_appendContentAsciiString(aResponse,aString)
-#define GSWResponse_appendContentCharacter(aResponse,aChar) \
-		GSWMessage_appendContentCharacter(aResponse,aChar)
-#define GSWResponse_appendContentString(aResponse,string) \
-		GSWMessage_appendContentString(aResponse,string)
-#define GSWResponse_appendContentData(aResponse,contentData) \
-		GSWMessage_appendContentData(aResponse,contentData)
-#define GSWResponse_appendContentBytes(aResponse,contentsBytes,length) \
-		GSWMessage_appendContentBytes(aResponse,contentsBytes,length)
-#define GSWResponse_appendDebugCommentContentString(aResponse,string) \
-		GSWMessage_appendDebugCommentContentString(aResponse,string)
-#define GSWResponse_replaceContentData(aResponse,replaceData,byData) \
-		GSWMessage_replaceContentData(aResponse,replaceData,byData)
-#define GSWResponse_appendContentHTMLString(aResponse,string) \
-		GSWMessage_appendContentHTMLString(aResponse,string)
-#define GSWResponse_appendContentHTMLAttributeValue(aResponse,string) \
-		GSWMessage_appendContentHTMLAttributeValue(aResponse,string)
-#define GSWResponse_appendContentHTMLConvertString(aResponse,string) \
-		GSWMessage_appendContentHTMLConvertString(aResponse,string)
-#define GSWResponse_appendContentHTMLEntitiesConvertString(aResponse,string) \
-		GSWMessage_appendContentHTMLEntitiesConvertString(aResponse,string)
-#define GSWResponse_stringByEscapingHTMLString(aResponse,aString) \
-		GSWMessage_stringByEscapingHTMLString(aResponse,aString)
-#define GSWResponse_stringByEscapingHTMLAttributeValue(aResponse,aString) \
-		GSWMessage_stringByEscapingHTMLAttributeValue(aResponse,aString)
-#define GSWResponse_stringByConvertingToHTMLEntities(aResponse,aString) \
-		GSWMessage_stringByConvertingToHTMLEntities(aResponse,aString)
-#define GSWResponse_stringByConvertingToHTML(aResponse,aString) \
-		GSWMessage_stringByConvertingToHTML(aResponse,aString)
 
 //====================================================================
 @protocol GSWActionResults
@@ -104,8 +59,6 @@ GSWEB_EXPORT void GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(
   BOOL _isClientCachingDisabled;
   BOOL _contentFaultsHaveBeenResolved;
   BOOL _isFinalizeInContextHasBeenCalled;
-@public
- GSWResponseIMPs _selfIMPs;
 };
 
 /* Used to determine if the content might be gzip compressed or not before sending to the client.

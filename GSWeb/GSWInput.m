@@ -31,24 +31,8 @@
 #include "GSWeb.h"
 #include "GSWPrivate.h"
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWInput
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWInput class])
-    {
-      standardClass=[GSWInput class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -93,15 +77,14 @@ static Class standardClass = Nil;
       NSString * s = [self type];
       if (s != nil)
 	{
-	  IMP asIMP=NULL;
 	  [super constantAttributesRepresentation];
 	  NSMutableString * buffer = [NSMutableString stringWithCapacity:256];
 	  if (_constantAttributesRepresentation != nil)
-	    GSWeb_appendStringWithImpPtr(buffer,&asIMP,_constantAttributesRepresentation);
+	    [buffer appendString:_constantAttributesRepresentation];
       
-	  GSWeb_appendStringWithImpPtr(buffer,&asIMP,@" type=\"");
-	  GSWeb_appendStringWithImpPtr(buffer,&asIMP,s);
-	  GSWeb_appendStringWithImpPtr(buffer,&asIMP,@"\"");
+	  [buffer appendString:@" type=\""];
+	  [buffer appendString:s];
+	  [buffer appendString:@"\""];
 
 	  ASSIGN(_constantAttributesRepresentation,buffer);
 	}
@@ -123,7 +106,7 @@ static Class standardClass = Nil;
 
   if (_name != nil)
     {
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
       s = NSStringWithObject([_name valueInComponent:component]);
     }
   if (s==nil)
@@ -143,7 +126,7 @@ static Class standardClass = Nil;
 -(void)takeValuesFromRequest:(GSWRequest*)request
                    inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   
   if (![self disabledInComponent: component]
       && [context _wasFormSubmitted])
@@ -174,10 +157,7 @@ static Class standardClass = Nil;
   NSString* name = [self nameInContext:context];
   if (name != nil)
     {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    name__Key,
-								    name,
-								    YES);
+      [response _appendTagAttribute:name__Key value:name escapingHTMLAttributeValue:YES];
       
     }
 }
@@ -188,12 +168,9 @@ static Class standardClass = Nil;
 {
   if (_value != nil)
     {
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
       NSString* value=NSStringWithObject([_value valueInComponent:component]);
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    value__Key,
-								    value,
-								    [self _shouldEscapeHTML:component]);
+      [response _appendTagAttribute:value__Key value:value escapingHTMLAttributeValue:[self _shouldEscapeHTML:component]];
     }
 }
 
@@ -204,10 +181,10 @@ static Class standardClass = Nil;
   [super appendAttributesToResponse: response
                           inContext: context];
 
-  if ([self disabledInComponent:GSWContext_component(context)])
+  if ([self disabledInComponent:[context component]])
     {
-      GSWResponse_appendContentCharacter(response,' ');
-      GSWResponse_appendContentAsciiString(response, disabled__Key);
+      [response appendContentCharacter:' '];
+      [response _appendContentAsciiString:disabled__Key];
     }
   [self _appendValueAttributeToResponse: response
 	inContext: context];

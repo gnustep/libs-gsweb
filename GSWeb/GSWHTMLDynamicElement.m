@@ -169,7 +169,6 @@ static inline BOOL _needQuote(NSString* str_needQuote)
       if (_dynElementName != nil
 	  && [_associations count] > 0)
 	{
-	  IMP asIMP=NULL;
 	  BOOL escapeHTML=[self escapeHTML];
 	  NSEnumerator * enumer = [[NSArray arrayWithArray:[_associations allKeys]] objectEnumerator];
 	  NSString* key = nil;
@@ -190,23 +189,23 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 
 		  if ([key isEqual:@"otherTagString"])
 		    {
-		      GSWeb_appendStringWithImpPtr(buffer,&asIMP,@" ");
-		      GSWeb_appendStringWithImpPtr(buffer,&asIMP,aValue);
+		      [buffer appendString:@" "];
+		      [buffer appendString:aValue];
 		    }
 		  else
 		    {
-		      GSWeb_appendStringWithImpPtr(buffer,&asIMP,@" ");
-		      GSWeb_appendStringWithImpPtr(buffer,&asIMP,key);
-		      GSWeb_appendStringWithImpPtr(buffer,&asIMP,@"=");
+		      [buffer appendString:@" "];
+		      [buffer appendString:key];
+		      [buffer appendString:@"="];
 		      if (_needQuote(aValue)
 			  || [aValue length] == 0)
 			{
-			  GSWeb_appendStringWithImpPtr(buffer,&asIMP,@"\"");
-			  GSWeb_appendStringWithImpPtr(buffer,&asIMP,aValue);
-			  GSWeb_appendStringWithImpPtr(buffer,&asIMP,@"\"");
+			  [buffer appendString:@"\""];
+			  [buffer appendString:aValue];
+			  [buffer appendString:@"\""];
 			}
 		      else
-			GSWeb_appendStringWithImpPtr(buffer,&asIMP,aValue);
+			[buffer appendString:aValue];
 		    }
 		  [_associations removeObjectForKey:key];
 		}
@@ -225,10 +224,9 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 			{  // an array
 			  int c = [knowAttrKeys count];
 			  int i = 0;
-			  IMP oaiIMP=NULL;
 			  for (i = 0;i<c && !isKnowURLAttr; i++)
 			    {
-			      isKnowURLAttr = [lcKey isEqual: GSWeb_objectAtIndexWithImpPtr(knowAttrKeys,&oaiIMP,i)];
+			      isKnowURLAttr = [lcKey isEqual: [knowAttrKeys objectAtIndex:i]];
 			    }
 			}
 		    }
@@ -347,7 +345,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
                                                inContext:(GSWContext*)context
 
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   NSString* actionClassValue = nil;
   NSString* directActionValue = nil;
   NSString* resultString = nil;
@@ -472,7 +470,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
                                             otherQueryAssociations: (NSDictionary*)otherQueryAssociations 
                                                          inContext: (GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   GSWSession   * session = [context _session];
   NSString * sessionID = nil;
   NSMutableDictionary *newQueryDictionary = nil;
@@ -552,7 +550,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 {
   NSString * str = [self constantAttributesRepresentation];
   if (str != nil)
-    GSWResponse_appendContentString(response,str);
+    [response appendContentString:str];
 }
 
 //--------------------------------------------------------------------
@@ -565,7 +563,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
       && [associations count] > 0)
     {
       NSEnumerator * enumer = [associations keyEnumerator];
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
       NSString     * key = nil;
     
       while ((key = [enumer nextObject]))
@@ -577,12 +575,12 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 	      value=NSStringWithObject(value);
 	      if ([key isEqual:@"otherTagString"])
 		{
-		  GSWResponse_appendContentCharacter(response,' ');
-		  GSWResponse_appendContentString(response, value);
+		  [response appendContentCharacter:' '];
+		  [response appendContentString:value];
 		}
 	      else
 		{ 
-		  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,key,value,NO);
+		  [response _appendTagAttribute:key value:value escapingHTMLAttributeValue:NO];
 		}
 	    }
 	}
@@ -626,7 +624,7 @@ static inline BOOL _needQuote(NSString* str_needQuote)
   
   if ([attributeDict count] > 0)
     {
-      GSWComponent* component = GSWContext_component(context);
+      GSWComponent* component = [context component];
       NSEnumerator* enumer = [attributeDict keyEnumerator];
       NSString * key = nil;
 
@@ -647,17 +645,17 @@ static inline BOOL _needQuote(NSString* str_needQuote)
 	    }
 	  if (urlValue != nil)
 	    {
-	      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,key,urlValue,NO);
+	      [response _appendTagAttribute:key value:urlValue escapingHTMLAttributeValue:NO];
 	    }
 	  else
 	    {
-	      GSWResponse_appendContentCharacter(response,' ');
-	      GSWResponse_appendContentString(response, key);
-	      GSWResponse_appendContentAsciiString(response,@"=\"");
-	      GSWResponse_appendContentAsciiString(response, [component baseURL]);
-	      GSWResponse_appendContentCharacter(response,'/');
-	      GSWResponse_appendContentAsciiString(response, value);
-	      GSWResponse_appendContentCharacter(response,'"');
+	      [response appendContentCharacter:' '];
+	      [response appendContentString:key];
+	      [response _appendContentAsciiString:@"=\""];
+	      [response _appendContentAsciiString:[component baseURL]];
+	      [response appendContentCharacter:'/'];
+	      [response _appendContentAsciiString:value];
+	      [response appendContentCharacter:'"'];
 	    }
 	}
     }
@@ -682,20 +680,20 @@ static inline BOOL _needQuote(NSString* str_needQuote)
                        inContext:(GSWContext*) context
 
 {
-  GSWResponse_appendContentCharacter(response,'<');
-  GSWResponse_appendContentAsciiString(response, [self elementName]);
+  [response appendContentCharacter:'<'];
+  [response _appendContentAsciiString:[self elementName]];
   [self appendAttributesToResponse:response
 	inContext: context];
-  GSWResponse_appendContentCharacter(response,'>');
+  [response appendContentCharacter:'>'];
 }
 
 //--------------------------------------------------------------------
 -(void) _appendCloseTagToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {
-  GSWResponse_appendContentAsciiString(response, @"</");
-  GSWResponse_appendContentAsciiString(response, [self elementName]);
-  GSWResponse_appendContentCharacter(response,'>');
+  [response _appendContentAsciiString:@"</"];
+  [response _appendContentAsciiString:[self elementName]];
+  [response appendContentCharacter:'>'];
 }
 
 //--------------------------------------------------------------------

@@ -159,7 +159,7 @@ static Class standardClass = Nil;
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  GSWComponent* component = GSWContext_component(context);
+  GSWComponent* component = [context component];
   
   if (_value == nil)
     {
@@ -194,7 +194,7 @@ static Class standardClass = Nil;
 	  && _valueWhenEmpty != nil)
 	{
 	  formattedValue = [_valueWhenEmpty valueInComponent:component];
-	  GSWResponse_appendContentString(response, formattedValue);
+	  [response appendContentString:formattedValue];
 	}
       else
 	{
@@ -204,9 +204,9 @@ static Class standardClass = Nil;
 	      if (_escapeHTML != nil)
 		flag = [_escapeHTML boolValueInComponent:component];
 	      if (flag)
-		GSWResponse_appendContentHTMLConvertString(response, formattedValue);
+		[response appendContentHTMLConvertString:formattedValue];
 	      else
-		GSWResponse_appendContentString(response, formattedValue);
+		[response appendContentString:formattedValue];
 	    }
 	}
     }

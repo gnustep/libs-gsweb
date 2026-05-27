@@ -90,7 +90,7 @@
 
 -(void)_popComponentFromContext:(GSWContext*)context
 {
-  GSWComponent* component = GSWContext_component(context);
+  GSWComponent* component = [context component];
   GSWComponent* parentcomp = [component parent];
   [component pushValuesToParent];  
   [context _setCurrentComponent:parentcomp];
@@ -100,9 +100,9 @@
 
 -(void)_pushComponentInContext:(GSWContext*)context
 {
-  GSWComponent* component = GSWContext_component(context);
+  GSWComponent* component = [context component];
   GSWComponent* subComponent = nil;
-  NSString* elementID = GSWContext_elementID(context);
+  NSString* elementID = [context elementID];
   GSWComponentDefinition* subComponentDefinition=nil;
 
   if (component != nil) {
@@ -156,7 +156,7 @@
 
   [self _pushComponentInContext: aContext];
   
-  [GSWContext_component(aContext) appendToResponse:aResponse
+  [[aContext component] appendToResponse:aResponse
                inContext:aContext];
 
   [self _popComponentFromContext:aContext];
@@ -171,7 +171,7 @@
     
     [self _pushComponentInContext:aContext];
     
-    element  = (id <GSWActionResults, NSObject>) [GSWContext_component(aContext) invokeActionForRequest: request
+    element  = (id <GSWActionResults, NSObject>) [[aContext component] invokeActionForRequest: request
                                                                                               inContext: aContext];
     [self _popComponentFromContext:aContext];
     
@@ -192,9 +192,9 @@
   GSWStartElement(aContext);
   GSWAssertCorrectElementID(aContext);
 
-  componentPrev=GSWContext_component(aContext);
+  componentPrev=[aContext component];
   [self _pushComponentInContext:aContext];
-  component=GSWContext_component(aContext);
+  component=[aContext component];
   if (component)
     {
       [component takeValuesFromRequest:request

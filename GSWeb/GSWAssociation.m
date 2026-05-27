@@ -146,7 +146,7 @@ static Class NSStringClass = Nil;
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone;
 {
-  GSWAssociation* clone = [[isa allocWithZone:zone] init];
+  GSWAssociation* clone = [[[self class] allocWithZone:zone] init];
   clone->_debugEnabled=_debugEnabled;
   [clone setDebugEnabledForBinding:_bindingName
          declarationName:_declarationName
@@ -878,10 +878,9 @@ static Class NSStringClass = Nil;
   int i=0;
   id value=nil;
   id newValue=nil;
-  IMP oaiIMP=NULL;
   for(i=0;i<count;i++)
     {
-      value=GSWeb_objectAtIndexWithImpPtr(self,&oaiIMP,i);
+      value=[self objectAtIndex:i];
       if ([value isKindOfClass:[NSString class]])
         {
           newValue=[GSWAssociation associationFromString:value];

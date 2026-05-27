@@ -133,7 +133,6 @@ static inline void _prepareForIterationWithIndex(BOOL isFirst,
 						 int i, 
 						 int count, 
 						 NSArray * list, 
-						 IMP* oaiIMPPtr,
 						 GSWContext * context, 
 						 GSWComponent *component, 
 						 GSWAssociation* item, 
@@ -141,7 +140,7 @@ static inline void _prepareForIterationWithIndex(BOOL isFirst,
 {
   if (item != nil)
     {
-      id obj = GSWeb_objectAtIndexWithImpPtr(list,oaiIMPPtr,i);
+      id obj = [list objectAtIndex:i];
       [item _setValueNoValidation:obj 
 	    inComponent:component];
     }
@@ -151,9 +150,9 @@ static inline void _prepareForIterationWithIndex(BOOL isFirst,
 	     inComponent:component];
     }
   if (isFirst)
-    GSWContext_appendZeroElementIDComponent(context);
+    [context appendZeroElementIDComponent];
   else
-    GSWContext_incrementLastElementIDComponent(context);
+    [context incrementLastElementIDComponent];
 }
 
 //--------------------------------------------------------------------
@@ -173,19 +172,18 @@ static inline void _cleanupAfterIteration(GSWContext * context,
       [index _setValueNoValidation:GSWIntNumber(i)
 	     inComponent:component];
     }
-  GSWContext_deleteLastElementIDComponent(context);
+  [context deleteLastElementIDComponent];
 }
 
 //--------------------------------------------------------------------
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   NSArray      * list = nil;
   NSUInteger count = 0;
   NSUInteger i = 0;
   BOOL isFirst = YES;
-  IMP oaiIMP=NULL;
   
   if (_list != nil)
     {
@@ -210,7 +208,7 @@ static inline void _cleanupAfterIteration(GSWContext * context,
 
   for (; i < count; i++)
     {
-      _prepareForIterationWithIndex(isFirst, i, count, list, &oaiIMP, context, component,_item, _index);
+      _prepareForIterationWithIndex(isFirst, i, count, list, context, component,_item, _index);
       [super appendChildrenToResponse:response
 	     inContext:context];
       isFirst=NO;
@@ -248,7 +246,7 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 				     inContext:(GSWContext*)context
 {
   id <GSWActionResults, NSObject> element   = nil;
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   NSString     * indexStr  = nil;
   NSString     * senderID     = [context senderID];
   NSString     * elementID    = [context elementID];
@@ -277,7 +275,6 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 	  	  
 	  if (list != nil)
 	    {
-	      IMP oaiIMP=NULL;
 	      int stopIndex = 0;
 	      id currentValue = nil;
 	      NSUInteger count = [list count];
@@ -290,7 +287,7 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 	      if (i >= 0
 		  && i < count)
 		{
-		  currentValue = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+		  currentValue = [list objectAtIndex:i];
 		}
 	      if (_item != nil)
 		{
@@ -304,10 +301,10 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 	  [_index _setValueNoValidation:GSWIntNumber(i)
 		  inComponent:component];
 	}
-      GSWContext_appendElementIDComponent(context,indexStr);
+      [context appendElementIDComponent:indexStr];
       element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
 							 inContext:context];
-      GSWContext_deleteLastElementIDComponent(context);
+      [context deleteLastElementIDComponent];
     }
   else
     {
@@ -315,7 +312,6 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
       NSUInteger count = 0;
       NSUInteger k = 0;
       NSArray* list = nil;
-      IMP oaiIMP=NULL;
 
       if (_list != nil)
 	{
@@ -347,7 +343,7 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
     
       for (; k < count && element == nil; k++)
 	{
-	  _prepareForIterationWithIndex(isFirst,k, count, list, &oaiIMP, context, component, _item, _index);
+	  _prepareForIterationWithIndex(isFirst,k, count, list, context, component, _item, _index);
 	  element = (id <GSWActionResults, NSObject>) [super invokeActionForRequest:request
 							     inContext:context];
 	  isFirst=NO;
@@ -363,12 +359,11 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 - (void) takeValuesFromRequest:(GSWRequest *) request
                      inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   NSArray      * list   = nil;
   NSUInteger     i      = 0;
   NSUInteger     count = 0;
   BOOL           isFirst = YES;
-  IMP            oaiIMP=NULL;
 
   if (_list != nil)
     {
@@ -400,7 +395,7 @@ static inline NSString* _indexStringForSenderAndElement(NSString * senderStr, NS
 
   for (i = 0; i < count; i++)
     {      
-      _prepareForIterationWithIndex(isFirst, i, count, list, &oaiIMP, context, component,_item, _index);
+      _prepareForIterationWithIndex(isFirst, i, count, list, context, component,_item, _index);
       
       [super takeValuesFromRequest:request
 	     inContext:context];

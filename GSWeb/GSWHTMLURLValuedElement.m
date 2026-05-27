@@ -170,14 +170,14 @@
 {
   id <GSWActionResults> element = nil;
 
-  NSString* elementID = GSWContext_elementID(context);
-  NSString* senderID = GSWContext_senderID(context);
+  NSString* elementID = [context elementID];
+  NSString* senderID = [context senderID];
   
   if (elementID != nil
       && senderID != nil
       && [elementID isEqual:senderID])
     {
-      GSWComponent* component = GSWContext_component(context);
+      GSWComponent* component = [context component];
       if (_value != nil)
 	element = [_value valueInComponent:component];
       else if (_pageName != nil)
@@ -201,7 +201,7 @@
 //--------------------------------------------------------------------
 - (NSString*) _imageURL:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   NSString * fname = [_filename valueInComponent: component];
   NSString * fwname =  [[self class] _frameworkNameForAssociation: _framework 
                                                       inComponent: component];
@@ -220,10 +220,7 @@
 - (void) _appendFilenameToResponse:(GSWResponse *) response
                          inContext:(GSWContext*) context
 {
-  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								[self urlAttributeName],
-								[self _imageURL:context],
-								NO);
+  [response _appendTagAttribute:[self urlAttributeName] value:[self _imageURL:context] escapingHTMLAttributeValue:NO];
 }
 
 //--------------------------------------------------------------------
@@ -253,10 +250,7 @@
   
   if (_directActionName != nil || _actionClass != nil)
     {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    [self urlAttributeName],
-								    [self CGIActionURL:context],
-								    NO);
+      [response _appendTagAttribute:[self urlAttributeName] value:[self CGIActionURL:context] escapingHTMLAttributeValue:NO];
     }
   else if (_filename != nil)
     {
@@ -265,16 +259,13 @@
     }
   else if (_value != nil || _pageName != nil)
     {
-      GSWComponent* component = GSWContext_component(context);
+      GSWComponent* component = [context component];
       BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    [self urlAttributeName],
-								    [context _componentActionURLIsSecure:secure],
-								    NO);
+      [response _appendTagAttribute:[self urlAttributeName] value:[context _componentActionURLIsSecure:secure] escapingHTMLAttributeValue:NO];
     }
   else
     {
-      GSWComponent* component = GSWContext_component(context);
+      GSWComponent* component = [context component];
       NSString* src=NSStringWithObject([_src valueInComponent:component]);
       if (src != nil)
 	{
@@ -285,29 +276,23 @@
 				       inFramework: nil];
 	      if (url != nil)
 		{
-		  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-										[self urlAttributeName],
-										url,
-										NO);
+		  [response _appendTagAttribute:[self urlAttributeName] value:url escapingHTMLAttributeValue:NO];
 		}
 	      else 
 		{
-		  GSWResponse_appendContentCharacter(response,' ');
-		  GSWResponse_appendContentAsciiString(response, [self urlAttributeName]);
-		  GSWResponse_appendContentCharacter(response,'=');
-		  GSWResponse_appendContentCharacter(response,'"');
-		  GSWResponse_appendContentAsciiString(response, [component baseURL]);
-		  GSWResponse_appendContentCharacter(response,'/');
-		  GSWResponse_appendContentString(response,src);
-		  GSWResponse_appendContentCharacter(response,'"');
+		  [response appendContentCharacter:' '];
+		  [response _appendContentAsciiString:[self urlAttributeName]];
+		  [response appendContentCharacter:'='];
+		  [response appendContentCharacter:'"'];
+		  [response _appendContentAsciiString:[component baseURL]];
+		  [response appendContentCharacter:'/'];
+		  [response appendContentString:src];
+		  [response appendContentCharacter:'"'];
 		}
 	    }
 	  else
 	    {
-              GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-                                                                            [self urlAttributeName],
-                                                                            src,
-                                                                            NO);
+              [response _appendTagAttribute:[self urlAttributeName] value:src escapingHTMLAttributeValue:NO];
 	    }
         }
       else if (_data != nil && _mimeType != nil)

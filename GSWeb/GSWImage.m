@@ -96,7 +96,7 @@
                             height:(GSWAssociation*) height
 {
   GSWResourceManager *resourcemanager = [GSWApp resourceManager];
-  GSWComponent *component = GSWContext_component(context);
+  GSWComponent *component = [context component];
   NSString *fileNameValue = [filename valueInComponent:component];
   NSString *frameworkName = [GSWHTMLDynamicElement _frameworkNameForAssociation:framework
 						   inComponent:component];
@@ -147,24 +147,15 @@
 	    }
 	}
       
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    @"src",
-								    resourceURL,
-								    NO);
+      [response _appendTagAttribute:@"src" value:resourceURL escapingHTMLAttributeValue:NO];
       
       if (widthStr != nil)
 	{
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-									@"width",
-									widthStr,
-									NO);
+	  [response _appendTagAttribute:@"width" value:widthStr escapingHTMLAttributeValue:NO];
 	}
       if (heightStr != nil)
 	{
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-									@"height",
-									heightStr,
-									NO);
+	  [response _appendTagAttribute:@"height" value:heightStr escapingHTMLAttributeValue:NO];
 	}
     }
   else
@@ -172,10 +163,7 @@
       NSString *message 
 	= [resourcemanager errorMessageUrlForResourceNamed: fileNameValue
 			   inFramework: frameworkName];
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-									@"src",
-									message,
-									NO);
+	  [response _appendTagAttribute:@"src" value:message escapingHTMLAttributeValue:NO];
   }
 }
 
@@ -188,23 +176,17 @@
                               width:(GSWAssociation *) width
                              height:(GSWAssociation *) height
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   NSString     * widthValue = NSStringWithObject([width valueInComponent:component]);
   NSString     * heightValue = NSStringWithObject([height valueInComponent:component]);
    
   if (widthValue != nil)
     {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    @"width",
-								    widthValue,
-								    NO);
+      [response _appendTagAttribute:@"width" value:widthValue escapingHTMLAttributeValue:NO];
     }
   if (heightValue != nil)
     {
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-								    @"height",
-								    heightValue,
-								    NO);
+      [response _appendTagAttribute:@"height" value:heightValue escapingHTMLAttributeValue:NO];
     }
 }
 

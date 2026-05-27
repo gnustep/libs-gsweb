@@ -131,7 +131,7 @@ Bindings
 - (void)_slowTakeValuesFromRequest:(GSWRequest*) request
                          inContext:(GSWContext*) context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   if (_selection != nil
       && ![self disabledInComponent:component]
       && [context _wasFormSubmitted])
@@ -151,12 +151,11 @@ Bindings
 		{
 		  NSUInteger listCount = [list count];
 		  NSUInteger i = 0;
-		  IMP oaiIMP=NULL;
 
 		  for(i=0;i<listCount;i++)
 		    {
 		      id value = nil;
-		      id item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+		      id item = [list objectAtIndex:i];
 		      [_item setValue: item
 			     inComponent:component];
 		      value = [_value valueInComponent:component];
@@ -194,7 +193,7 @@ Bindings
 {
   if (_selection != nil)
     {
-      GSWComponent * component = GSWContext_component(context);
+      GSWComponent * component = [context component];
 
       if (![self disabledInComponent:component]
 	  && [context _wasFormSubmitted])
@@ -270,7 +269,7 @@ Bindings
   NSArray * list = nil;
   NSUInteger listCount = 0;
   
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   BOOL doEscape = YES;
   
   if (_escapeHTML != nil)
@@ -296,13 +295,13 @@ Bindings
       id noSelectionValue = [_noSelectionString valueInComponent:component];
       if (noSelectionValue != nil)
 	{
-	  GSWResponse_appendContentAsciiString(response,@"\n<option value=\"WONoSelectionString\">");
+	  [response _appendContentAsciiString:@"\n<option value=\"WONoSelectionString\">"];
 	  // wo seems to NOT do it right here. They escape always.
 	  if (doEscape)
-	    GSWResponse_appendContentHTMLConvertString(response,NSStringWithObject(noSelectionValue)); 
+	    [response appendContentHTMLConvertString:NSStringWithObject(noSelectionValue)]; 
 	  else
-	    GSWResponse_appendContentString(response, NSStringWithObject(noSelectionValue));
-	  GSWResponse_appendContentAsciiString(response, @"</option>");
+	    [response appendContentString:NSStringWithObject(noSelectionValue)];
+	  [response _appendContentAsciiString:@"</option>"];
 	}
       else
 	{
@@ -316,7 +315,6 @@ Bindings
       NSString* selectedValueString = nil;
       id selection = nil;
       int i=0;
-      IMP oaiIMP=NULL;
 
       if (_selection != nil)
 	selection = [_selection valueInComponent:component];
@@ -331,7 +329,7 @@ Bindings
 	  BOOL isSelected = NO;
 
 	  if (list != nil)
-	    item = GSWeb_objectAtIndexWithImpPtr(list,&oaiIMP,i);
+	    item = [list objectAtIndex:i];
 
 	  if (_string != nil
 	      || _value != nil)
@@ -361,7 +359,7 @@ Bindings
 	      displayString = NSStringWithObject(item);
 	      valueString = displayString;
 	    }
-	  GSWResponse_appendContentAsciiString(response,@"\n<option");
+	  [response _appendContentAsciiString:@"\n<option"];
 	  
 	  if (_selection != nil)
 	    {
@@ -383,30 +381,24 @@ Bindings
 
 	  if (isSelected)
 	    {
-	      GSWResponse_appendContentCharacter(response,' ');
-	      GSWResponse_appendContentAsciiString(response,@"selected");
+	      [response appendContentCharacter:' '];
+	      [response _appendContentAsciiString:@"selected"];
 	    }
 	  
 	  if (_value != nil)
 	    {
-	      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
-									    value__Key, 
-									    valueString, 
-									    YES);
+	      [response _appendTagAttribute:value__Key value:valueString escapingHTMLAttributeValue:YES];
 	    }
 	  else
 	    {
-	      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response,
-									    value__Key,
-									    GSWIntToNSString(i),
-									    NO);
+	      [response _appendTagAttribute:value__Key value:GSWIntToNSString(i) escapingHTMLAttributeValue:NO];
 	    }
-	  GSWResponse_appendContentCharacter(response,'>');
+	  [response appendContentCharacter:'>'];
 	  if (doEscape)
-	    GSWResponse_appendContentHTMLConvertString(response, displayString);
+	    [response appendContentHTMLConvertString:displayString];
 	  else
-	    GSWResponse_appendContentString(response, displayString);
-	  GSWResponse_appendContentAsciiString(response,@"</option>");
+	    [response appendContentString:displayString];
+	  [response _appendContentAsciiString:@"</option>"];
 	}
     }
 }

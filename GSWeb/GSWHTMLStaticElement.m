@@ -41,9 +41,6 @@ In WO 4.5 WOHTMLStaticElement.
 */
 
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
 static Class GSWHTMLBareStringClass = Nil;
 
 //====================================================================
@@ -54,11 +51,7 @@ static Class GSWHTMLBareStringClass = Nil;
 {
   if (self == [GSWHTMLStaticElement class])
     {
-      standardClass=[GSWHTMLStaticElement class];
       GSWHTMLBareStringClass = [GSWHTMLBareString class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
     };
 };
 
@@ -204,7 +197,6 @@ static Class GSWHTMLBareStringClass = Nil;
           NSMutableArray* rmStrings=[NSMutableArray array];
           NSMutableString* rmString=[[NSMutableString new] autorelease];
           NSMutableData* tmpElementsMap=[[NSMutableData new] autorelease];
-	  IMP oaiIMP=NULL;
           [tmpElementsMap appendBytes:&ElementsMap_htmlBareString
                           length:1];
           if ([tmpElementsMap length]>elementN)
@@ -214,14 +206,14 @@ static Class GSWHTMLBareStringClass = Nil;
                                                             [tmpElementsMap length]-elementN)]];
           for(rmStringN=0;rmStringN<elementN;rmStringN++)
             {
-              [rmString appendString:GSWeb_objectAtIndexWithImpPtr(tmpHtmlBareStrings,&oaiIMP,rmStringN)];
+              [rmString appendString:[tmpHtmlBareStrings objectAtIndex:rmStringN]];
             };
           [rmStrings addObject:rmString];
 
           tmpHtmlBareStringsCount=[tmpHtmlBareStrings count];
           for(rmStringN=elementN;rmStringN<tmpHtmlBareStringsCount;rmStringN++)
             {
-              [rmStrings addObject:GSWeb_objectAtIndexWithImpPtr(tmpHtmlBareStrings,&oaiIMP,rmStringN)];
+              [rmStrings addObject:[tmpHtmlBareStrings objectAtIndex:rmStringN]];
             };
           tmpHtmlBareStrings=rmStrings;
         };
@@ -308,7 +300,7 @@ static Class GSWHTMLBareStringClass = Nil;
 //  GSWSaveAppendToResponseElementID(aContext);
 
   length=[_elementsMap length];
-  GSWContext_appendZeroElementIDComponent(aContext);
+  [aContext appendZeroElementIDComponent];
   
   if (length>0)
     {
@@ -318,7 +310,7 @@ static Class GSWHTMLBareStringClass = Nil;
 	    toIndex:length-1];
     };
 
-  GSWContext_deleteLastElementIDComponent(aContext);
+  [aContext deleteLastElementIDComponent];
     
 //  GSWAssertIsElementID(aContext);
 //  GSWStopElement(aContext);
@@ -335,8 +327,6 @@ static Class GSWHTMLBareStringClass = Nil;
   const BYTE* elements=[_elementsMap bytes];
   BYTE element=0;
   int elementsN[3]={0,0,0};
-  IMP hbs_oaiIMP=NULL;
-  IMP adca_oaiIMP=NULL;
 
   NSAssert2(fromIndex<[_elementsMap length],@"fromIndex out of range:%u (length=%"PRIuPTR")",
             fromIndex,[_elementsMap length]);
@@ -352,8 +342,7 @@ static Class GSWHTMLBareStringClass = Nil;
         {
           if (elementN>=fromIndex)
             {
-              GSWResponse_appendContentString(aResponse,
-					      GSWeb_objectAtIndexWithImpPtr(_htmlBareStrings,&hbs_oaiIMP,elementsN[0]));
+              [aResponse appendContentString:[_htmlBareStrings objectAtIndex:elementsN[0]]];
             };
 
           elementsN[0]++;
@@ -362,11 +351,11 @@ static Class GSWHTMLBareStringClass = Nil;
         {
           if (elementN>=fromIndex)
             {
-	      [GSWeb_objectAtIndexWithImpPtr(aDynamicChildrensArray,&adca_oaiIMP,elementsN[1])
+	      [[aDynamicChildrensArray objectAtIndex:elementsN[1]]
 					    appendToResponse:aResponse
 					    inContext:aContext];
 
-              GSWContext_incrementLastElementIDComponent(aContext);
+              [aContext incrementLastElementIDComponent];
 
             };
           elementsN[1]++;
@@ -391,7 +380,7 @@ static Class GSWHTMLBareStringClass = Nil;
   int length=0;
 
 
-  senderID=GSWContext_senderID(aContext);
+  senderID=[aContext senderID];
 
   length=[_elementsMap length];
 
@@ -401,9 +390,8 @@ static Class GSWHTMLBareStringClass = Nil;
       const BYTE* elements=[_elementsMap bytes];
       int elementsN[3]={0,0,0};
       int elementN=0;
-      IMP adca_oaiIMP=NULL;
 
-      GSWContext_appendZeroElementIDComponent(aContext);
+      [aContext appendZeroElementIDComponent];
       
       for(elementN=0;!element && !searchIsOver && elementN<length;elementN++)
         {
@@ -412,7 +400,7 @@ static Class GSWHTMLBareStringClass = Nil;
             elementsN[0]++;
           else if (elementIndic==ElementsMap_dynamicElement)
             {
-	      id currentEl = GSWeb_objectAtIndexWithImpPtr(aDynamicChildrensArray,&adca_oaiIMP,elementsN[1]);
+	      id currentEl = [aDynamicChildrensArray objectAtIndex:elementsN[1]];
 	      if ([currentEl class] != GSWHTMLBareStringClass)
 		{                     
 		  element = (id <GSWActionResults, NSObject>) [currentEl invokeActionForRequest:request
@@ -425,13 +413,13 @@ static Class GSWHTMLBareStringClass = Nil;
 			    element);
 		}
 	      // TODO: check if that is right.                 
-	      //              if (![aContext _wasFormSubmitted] && GSWContext_isSenderIDSearchOver(aContext))
+	      //              if (![aContext _wasFormSubmitted] && [aContext isSenderIDSearchOver])
               if (![aContext _wasFormSubmitted] && (element))
                 {
                   searchIsOver=YES;
                 };
 	      
-              GSWContext_incrementLastElementIDComponent(aContext);
+              [aContext incrementLastElementIDComponent];
 	      
               elementsN[1]++;
             }
@@ -440,7 +428,7 @@ static Class GSWHTMLBareStringClass = Nil;
               elementsN[2]++;
             };
         };
-      GSWContext_deleteLastElementIDComponent(aContext);
+      [aContext deleteLastElementIDComponent];
     };
 
   return element;
@@ -462,9 +450,8 @@ static Class GSWHTMLBareStringClass = Nil;
       NSArray* aDynamicChildrensArray=[self dynamicChildren];
       const BYTE* elements=[_elementsMap bytes];
       int elementsN[3]={0,0,0};
-      IMP adca_oaiIMP=NULL;
 
-      GSWContext_appendZeroElementIDComponent(aContext);
+      [aContext appendZeroElementIDComponent];
 
       for(elementN=0;elementN<length;elementN++)
         {
@@ -473,11 +460,11 @@ static Class GSWHTMLBareStringClass = Nil;
             elementsN[0]++;
           else if (elementIndic==ElementsMap_dynamicElement)
             {
-	      [GSWeb_objectAtIndexWithImpPtr(aDynamicChildrensArray,&adca_oaiIMP,elementsN[1])
+	      [[aDynamicChildrensArray objectAtIndex:elementsN[1]]
 					    takeValuesFromRequest:request
 					    inContext:aContext];
 
-              GSWContext_incrementLastElementIDComponent(aContext);
+              [aContext incrementLastElementIDComponent];
 
               elementsN[1]++;
             }
@@ -486,7 +473,7 @@ static Class GSWHTMLBareStringClass = Nil;
               elementsN[2]++;
             };
         };
-      GSWContext_deleteLastElementIDComponent(aContext);
+      [aContext deleteLastElementIDComponent];
     };
   GSWAssertIsElementID(aContext);
   GSWStopElement(aContext);

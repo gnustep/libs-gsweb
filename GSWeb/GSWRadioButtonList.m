@@ -64,21 +64,8 @@ Bindings
         isDisplayStringBefore If evaluated to yes, displayString is displayed before radio button
 **/
 
-//static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWRadioButtonList
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWRadioButtonList class])
-    {
-      standardClass=[GSWRadioButtonList class];
-    }
-}
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -154,7 +141,7 @@ static Class standardClass = Nil;
 -(void)_slowTakeValuesFromRequest:(GSWRequest*)request
                         inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
 
   if (![self disabledInComponent:component]
       && [context _wasFormSubmitted])
@@ -177,11 +164,10 @@ static Class standardClass = Nil;
 	    {
 	      int i = 0;
 	      NSUInteger count = [list count];
-	      IMP list_oaiIMP=NULL;
 	      for (i = 0; i < count; i++)
 		{
 		  id value= nil;
-		  id item = GSWeb_objectAtIndexWithImpPtr(list,&list_oaiIMP,i);
+		  id item = [list objectAtIndex:i];
 
 		  [_item setValue:item
 			 inComponent:component];
@@ -209,7 +195,7 @@ static Class standardClass = Nil;
 -(void)_fastTakeValuesFromRequest:(GSWRequest*)request
                         inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
 
   if (_selection != nil
       && ![self disabledInComponent:component]
@@ -241,7 +227,7 @@ static Class standardClass = Nil;
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  GSWComponent * component       = GSWContext_component(context);
+  GSWComponent * component       = [context component];
   NSArray*       list       = [_list valueInComponent:component];
 
   if (list!=nil)
@@ -261,8 +247,7 @@ static Class standardClass = Nil;
 	      BOOL doEscape = (_escapeHTML == nil) ? _defaultEscapeHTML : [_escapeHTML boolValueInComponent:component];
 	      NSString* ctxName  = [self nameInContext:context];
 	      id selection = [_selection valueInComponent:component];
-	      IMP list_oaiIMP=NULL;
-	      BOOL isDisabled=[self disabledInComponent:GSWContext_component(context)];
+	      BOOL isDisabled=[self disabledInComponent:[context component]];
 	      BOOL hasConstantAttributes=[self hasConstantAttributes];
 	      BOOL hasNonURLAttributes=[self hasNonURLAttributes];
 	      BOOL hasURLAttributes=[self hasURLAttributes];
@@ -288,7 +273,7 @@ static Class standardClass = Nil;
 		  if (_suffix != nil)
 		    suffixStr = NSStringWithObject([_suffix valueInComponent:component]);
 		  
-		  item = GSWeb_objectAtIndexWithImpPtr(list,&list_oaiIMP,i);
+		  item = [list objectAtIndex:i];
 		  
 		  if (_item != nil
 		      && _displayString != nil)
@@ -309,15 +294,15 @@ static Class standardClass = Nil;
 		  else
 		    dispStr = NSStringWithObject(item);
 		  
-		  GSWResponse_appendContentAsciiString(response, @"<input name=\"");
-		  GSWResponse_appendContentString(response,ctxName);
-		  GSWResponse_appendContentAsciiString(response, @"\" type=radio value=\"");
+		  [response _appendContentAsciiString:@"<input name=\""];
+		  [response appendContentString:ctxName];
+		  [response _appendContentAsciiString:@"\" type=radio value=\""];
 		  
 		  if (_value != nil)
 		    {
 		      value = [_value valueInComponent:component];
 		      if (value != nil)
-			GSWResponse_appendContentHTMLConvertString(response,NSStringWithObject(value));
+			[response appendContentHTMLConvertString:NSStringWithObject(value)];
 		      else
 			{
 			  NSLog(@"%s: 'value' evaluated to nil in component %@. Using index", 
@@ -326,16 +311,16 @@ static Class standardClass = Nil;
 		    }
 
 		  if (value == nil)
-		    GSWResponse_appendContentAsciiString(response,GSWIntToNSString(i));
+		    [response _appendContentAsciiString:GSWIntToNSString(i)];
 		  
 		  if (selection != nil 
 		      && [selection isEqual:item])
-		    GSWResponse_appendContentAsciiString(response,@"\" checked");
+		    [response _appendContentAsciiString:@"\" checked"];
 		  else
-		    GSWResponse_appendContentAsciiString(response,@"\"");
+		    [response _appendContentAsciiString:@"\""];
 		  
 		  if (isDisabled)
-		    GSWResponse_appendContentAsciiString(response,@" disabled");
+		    [response _appendContentAsciiString:@" disabled"];
 		  
 		  //append other associations (like id, onChange, ...)
 		  if (hasConstantAttributes)
@@ -356,18 +341,18 @@ static Class standardClass = Nil;
 			    inContext: context];
 		    }
 		  
-		  GSWResponse_appendContentCharacter(response,'>');
+		  [response appendContentCharacter:'>'];
 	      
 		  if (prefixStr != nil)
-		    GSWResponse_appendContentString(response,prefixStr);
+		    [response appendContentString:prefixStr];
 		  
 		  if (doEscape)
-		    GSWResponse_appendContentHTMLConvertString(response, dispStr);
+		    [response appendContentHTMLConvertString:dispStr];
 		  else
-		    GSWResponse_appendContentString(response,dispStr);
+		    [response appendContentString:dispStr];
 		  
 		  if (suffixStr != nil)
-		    GSWResponse_appendContentString(response,suffixStr);
+		    [response appendContentString:suffixStr];
 		}
 	    }
 	}

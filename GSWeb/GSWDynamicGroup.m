@@ -155,20 +155,19 @@ static Class GSWHTMLBareStringClass = Nil;
     {
       NSUInteger c = [_children count];
       int i = 0;
-      IMP oaiIMP=NULL;
       
-      GSWContext_appendZeroElementIDComponent(aContext);
+      [aContext appendZeroElementIDComponent];
       
       for (i=0; i < c; i++)
 	{
-	  GSWElement * element = GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
+	  GSWElement * element = [_children objectAtIndex:i];
 	  if (i>0)
-	    GSWContext_incrementLastElementIDComponent(aContext);
+	    [aContext incrementLastElementIDComponent];
 	  [element takeValuesFromRequest: request 
 		   inContext: aContext];
 	}
       
-      GSWContext_deleteLastElementIDComponent(aContext);
+      [aContext deleteLastElementIDComponent];
     }
 }
 
@@ -191,22 +190,21 @@ static Class GSWHTMLBareStringClass = Nil;
     {
       NSUInteger c = [_children count];
       int i = 0;
-      IMP oaiIMP=NULL;
       
-      GSWContext_appendZeroElementIDComponent(aContext);
+      [aContext appendZeroElementIDComponent];
       
       for (i=0; i < c && actionresults == nil; i++)
 	{
-	  GSWElement * element = GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
+	  GSWElement * element = [_children objectAtIndex:i];
 	  if (i>0)
-	    GSWContext_incrementLastElementIDComponent(aContext);
+	    [aContext incrementLastElementIDComponent];
 	  if ([element class] != GSWHTMLBareStringClass)
 	    {      
 	      actionresults = [element invokeActionForRequest: request 
 				       inContext: aContext];
 	    }
 	}
-      GSWContext_deleteLastElementIDComponent(aContext);
+      [aContext deleteLastElementIDComponent];
   }
   return actionresults;
 }
@@ -227,20 +225,19 @@ static Class GSWHTMLBareStringClass = Nil;
     {
       NSUInteger c = [_children count];
       int i = 0;
-      IMP oaiIMP=NULL;
     
-      GSWContext_appendZeroElementIDComponent(aContext);
+      [aContext appendZeroElementIDComponent];
       
       for (i=0; i < c; i++)
 	{
-	  GSWElement * element = GSWeb_objectAtIndexWithImpPtr(_children,&oaiIMP,i);
+	  GSWElement * element = [_children objectAtIndex:i];
 	  if (i>0)
-	    GSWContext_incrementLastElementIDComponent(aContext);
+	    [aContext incrementLastElementIDComponent];
 	  [element appendToResponse: response
 		   inContext: aContext];
 	  
 	}
-      GSWContext_deleteLastElementIDComponent(aContext);
+      [aContext deleteLastElementIDComponent];
     }
 }
 

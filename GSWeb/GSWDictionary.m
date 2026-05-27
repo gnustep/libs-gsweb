@@ -23,6 +23,7 @@
  **/
 
 #include <Foundation/Foundation.h>
+#include <GNUstepBase/Additions.h>
 #include "GSWDictionary.h"
 
 #define GLUESTRING @"🎃"

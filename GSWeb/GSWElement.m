@@ -64,7 +64,7 @@ GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
     {
       NSString* elementID=nil;
 
-      elementID=GSWContext_elementID(context);
+      elementID=[context elementID];
 
       ASSIGNCOPY(_appendToResponseElementID,elementID);
 
@@ -84,7 +84,7 @@ GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
         line:line];
   if ([_appendToResponseElementID length]>0)
     {
-      NSString* elementID=GSWContext_elementID(context);
+      NSString* elementID=[context elementID];
       BOOL appendToResponseElementIDIsFirst=NO;
       BOOL elementIDIsFirst=NO;
       BOOL OK=YES;
@@ -107,8 +107,8 @@ GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
                                   [self declarationName],
                                   file,
                                   line,
-                                  GSWContext_elementID(context),
-                                  GSWContext_elementID(context),
+                                  [context elementID],
+                                  [context elementID],
                                   NSStringFromSelector(method),
                                   _appendToResponseElementID,
                                   _appendToResponseElementID];
@@ -125,7 +125,7 @@ GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
 {
   if (_appendToResponseElementID
       && [_appendToResponseElementID length]==0
-      && [GSWContext_elementID(context) length]>0)
+      && [[context elementID] length]>0)
     {
       NSString* msg=[NSString stringWithFormat:@"In Object %p Class %@ declarationName=%@ (file %s line %d), in %@ _appendToResponseElementID '%@' (%p) is not set",
                               self,
@@ -148,7 +148,7 @@ GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
                  startFlag:(BOOL)start
                   stopFlag:(BOOL)stop
 {
-  NSString* senderID=GSWContext_senderID(aContext);
+  NSString* senderID=[aContext senderID];
   if (start)
     [aContext addToDocStructureElement:self];
 };
@@ -228,8 +228,8 @@ GSWAssociation* GSWAssignAndRemoveAssociation(GSWAssociation** associationPtr,
 -(BOOL)prefixMatchSenderIDInContext:(GSWContext*)aContext
 {
   BOOL match=NO;
-  NSString* senderID=GSWContext_senderID(aContext);
-  NSString* elementID=GSWContext_elementID(aContext);
+  NSString* senderID=[aContext senderID];
+  NSString* elementID=[aContext elementID];
 
   match=([elementID hasPrefix:senderID] || [senderID hasPrefix:elementID]);
 

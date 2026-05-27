@@ -32,24 +32,8 @@
 #include "GSWeb.h"
 
 
-static GSWIMP_BOOL standardEvaluateConditionInContextIMP = NULL;
-
-static Class standardClass = Nil;
-
 //====================================================================
 @implementation GSWClientSideScript
-
-//--------------------------------------------------------------------
-+ (void) initialize
-{
-  if (self == [GSWClientSideScript class])
-    {
-      standardClass=[GSWClientSideScript class];
-
-      standardEvaluateConditionInContextIMP = 
-        (GSWIMP_BOOL)[self instanceMethodForSelector:evaluateConditionInContextSEL];
-    };
-};
 
 //--------------------------------------------------------------------
 -(id)initWithName:(NSString*)aName
@@ -107,7 +91,7 @@ static Class standardClass = Nil;
 -(void)appendAttributesToResponse:(GSWResponse *) aResponse
 			inContext:(GSWContext*) aContext
 {
-  GSWComponent * component = GSWContext_component(aContext);
+  GSWComponent * component = [aContext component];
 
   NSString* language=[_language valueInComponent:component];
   if (language == nil)
@@ -116,8 +100,8 @@ static Class standardClass = Nil;
 		   format:@"%s: language binding evaluated to nil",
 		   __PRETTY_FUNCTION__];
     }
-  GSWResponse_appendContentAsciiString(aResponse,@" language=");
-  GSWResponse_appendContentHTMLAttributeValue(aResponse,NSStringWithObject(language));
+  [aResponse _appendContentAsciiString:@" language="];
+  [aResponse appendContentHTMLAttributeValue:NSStringWithObject(language)];
 
   if (_scriptSource != nil)
     {
@@ -144,9 +128,9 @@ static Class standardClass = Nil;
 	    }
 	  if (url != nil)
 	    {
-	      GSWResponse_appendContentAsciiString(aResponse,@" src=\"");
-	      GSWResponse_appendContentString(aResponse,url);
-	      GSWResponse_appendContentCharacter(aResponse,'"');
+	      [aResponse _appendContentAsciiString:@" src=\""];
+	      [aResponse appendContentString:url];
+	      [aResponse appendContentCharacter:'"'];
 	    }
 	}
     }
@@ -162,16 +146,16 @@ static Class standardClass = Nil;
     {
       NSString* scriptContent = nil;
       BOOL hideInComment = NO;
-      GSWComponent * component = GSWContext_component(aContext);
+      GSWComponent * component = [aContext component];
 
       if (_hideInComment != nil
 	 && [_hideInComment boolValueInComponent:component])
 	hideInComment = YES;
 
       if (hideInComment)
-	GSWResponse_appendContentAsciiString(aResponse,@"<!-- Dynamic client side script from GNUstepWeb");
+	[aResponse _appendContentAsciiString:@"<!-- Dynamic client side script from GNUstepWeb"];
 
-      GSWResponse_appendContentCharacter(aResponse,'\n');
+      [aResponse appendContentCharacter:'\n'];
 
       if(_scriptFile != nil)
 	{
@@ -220,11 +204,11 @@ static Class standardClass = Nil;
 	    };
 	}
 
-      GSWResponse_appendContentString(aResponse,scriptContent);
-      GSWResponse_appendContentCharacter(aResponse,'\n');
+      [aResponse appendContentString:scriptContent];
+      [aResponse appendContentCharacter:'\n'];
 
       if(hideInComment)
-	GSWResponse_appendContentAsciiString(aResponse,@"//-->\n");
+	[aResponse _appendContentAsciiString:@"//-->\n"];
     }
 }
 

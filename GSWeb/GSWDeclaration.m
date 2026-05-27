@@ -82,7 +82,7 @@ return self;
 //--------------------------------------------------------------------
 -(id)copyWithZone:(NSZone*)zone
 {
-  GSWDeclaration* clone = [[isa allocWithZone:zone] init];
+  GSWDeclaration* clone = [[[self class] allocWithZone:zone] init];
   ASSIGNCOPY(clone->_name,_name);
   ASSIGNCOPY(clone->_type,_type);
   ASSIGNCOPY(clone->_associations,_associations);

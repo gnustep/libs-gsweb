@@ -128,7 +128,7 @@ static Class GSWHTMLBareStringClass = Nil;
 //--------------------------------------------------------------------
 -(id)copyWithZone: (NSZone*)zone
 {
-  GSWComponent* clone = [[isa allocWithZone: zone] init];
+  GSWComponent* clone = [[[self class] allocWithZone: zone] init];
   ASSIGNCOPY(clone->_name,_name);
   ASSIGNCOPY(clone->_subComponents,_subComponents);
   ASSIGNCOPY(clone->_templateName,_templateName);
@@ -1176,7 +1176,7 @@ Call this method before using a component which was cached in a variable.
       BOOL pageChanged=NO;  
       GSWRequest* request=[aContext request];
 
-      GSWContext_deleteAllElementIDComponents(aContext);
+      [aContext deleteAllElementIDComponents];
 
       if (request != nil)
         httpVersion = [request httpVersion];
@@ -1208,7 +1208,7 @@ Call this method before using a component which was cached in a variable.
 	}
 
       [aContext _incrementContextID];
-      GSWContext_deleteAllElementIDComponents(aContext);
+      [aContext deleteAllElementIDComponents];
       [aContext _setPageChanged:YES];
     }
   NS_HANDLER

@@ -316,7 +316,7 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
                            inContext:(GSWContext*)aContext
 {
   NSObject <GSWActionResults> * results = nil;
-  GSWComponent* component=GSWContext_component(aContext);
+  GSWComponent* component=[aContext component];
   NSString* senderID=nil;
   NSString* elementID=nil;
   BOOL disabledInContext=NO;
@@ -327,17 +327,17 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
   NSInteger y=0;
 
 
-  GSWContext_appendZeroElementIDComponent(aContext);
+  [aContext appendZeroElementIDComponent];
 
-  senderID=GSWContext_senderID(aContext);
+  senderID=[aContext senderID];
 
-  elementID=GSWContext_elementID(aContext);
+  elementID=[aContext elementID];
 
   if ([elementID isEqualToString:senderID])
     {
       //TODO
     };
-  GSWContext_deleteLastElementIDComponent(aContext);
+  [aContext deleteLastElementIDComponent];
   disabledInContext=[self disabledInComponent:component];
   if (!disabledInContext)
     {
@@ -366,7 +366,7 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
         }
       else
         {
-          elementID=GSWContext_elementID(aContext);
+          elementID=[aContext elementID];
 
           if ([elementID isEqualToString:senderID])
             {
@@ -496,11 +496,11 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
 {
   NSString           * srcValue = nil;
   id                   borderValue = nil;
-  GSWComponent       * component = GSWContext_component(context);
+  GSWComponent       * component = [context component];
 
   borderValue=[_border valueInComponent:component];
   if (borderValue != nil)
-    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"border", NSStringWithObject(borderValue), NO);
+    [response _appendTagAttribute:@"border" value:NSStringWithObject(borderValue) escapingHTMLAttributeValue:NO];
 
   [self appendURLAttributesToResponse:response
                             inContext:context];
@@ -508,10 +508,10 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
   if (![self disabledInComponent:component])
     {
       if ([context isInForm])
-	GSWResponse_appendContentAsciiString(response, @" type=image");
+	[response _appendContentAsciiString:@" type=image"];
       else
 	{
-	  GSWResponse_appendContentAsciiString(response,@" ismap");
+	  [response _appendContentAsciiString:@" ismap"];
 	}
   }
 
@@ -538,12 +538,9 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
   else if (_value != nil)
     {
       BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
-      GSWContext_appendZeroElementIDComponent(context);
-      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
-								    @"src", 
-								    [context _componentActionURLIsSecure:secure], 
-								    NO);
-      GSWContext_deleteLastElementIDComponent(context);
+      [context appendZeroElementIDComponent];
+      [response _appendTagAttribute:@"src" value:[context _componentActionURLIsSecure:secure] escapingHTMLAttributeValue:NO];
+      [context deleteLastElementIDComponent];
     }
   else if (srcValue != nil)
     {
@@ -553,19 +550,19 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
 	  NSString * url = [context _urlForResourceNamed: srcValue 
 				    inFramework: nil];
 	  if (url != nil)
-	    GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"src", url, NO);      
+	    [response _appendTagAttribute:@"src" value:url escapingHTMLAttributeValue:NO];      
 	  else
 	    {
-	      GSWResponse_appendContentAsciiString(response, @" src=\"");
-	      GSWResponse_appendContentAsciiString(response, [component baseURL]);
-	      GSWResponse_appendContentCharacter(response,'/');
-	      GSWResponse_appendContentString(response, srcValue);
-	      GSWResponse_appendContentCharacter(response, '"');
+	      [response _appendContentAsciiString:@" src=\""];
+	      [response _appendContentAsciiString:[component baseURL]];
+	      [response appendContentCharacter:'/'];
+	      [response appendContentString:srcValue];
+	      [response appendContentCharacter:'"'];
 	    }
 	}
       else
 	{
-	  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"src", srcValue, NO);
+	  [response _appendTagAttribute:@"src" value:srcValue escapingHTMLAttributeValue:NO];
 	}
     }
   else if (_data != nil && _mimeType != nil)
@@ -588,21 +585,21 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
 -(void)appendToResponse:(GSWResponse*)response
               inContext:(GSWContext*)context
 {
-  GSWComponent * component = GSWContext_component(context);
+  GSWComponent * component = [context component];
   BOOL isInForm = NO;
 
   if ([self disabledInComponent:component])
     {
-      GSWResponse_appendContentAsciiString(response, @"<img");
+      [response _appendContentAsciiString:@"<img"];
     }
   else
     {
       isInForm = [context isInForm];
       if (isInForm)
-	GSWResponse_appendContentAsciiString(response, @"<input");
+	[response _appendContentAsciiString:@"<input"];
       else
 	{
-	  GSWResponse_appendContentAsciiString(response, @"<a");
+	  [response _appendContentAsciiString:@"<a"];
 	  if (_file == nil
 	      && (_actionClass != nil 
 		  || _directActionName != nil))
@@ -613,9 +610,7 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
 	  else 
 	    {
 	      BOOL secure = (_secure != nil ? [_secure boolValueInComponent:component] : NO);
-	      GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"href",
-									    [context _componentActionURLIsSecure:secure],
-									    NO);      
+	      [response _appendTagAttribute:@"href" value:[context _componentActionURLIsSecure:secure] escapingHTMLAttributeValue:NO];      
 	      
 	    }
 	  [self appendConstantAttributesToResponse:response
@@ -631,12 +626,12 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
 	    {
 	      NSString* targetValue = NSStringWithObject([_target valueInComponent:component]);
 	      if (targetValue != nil)
-		GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, @"target", targetValue, YES);
+		[response _appendTagAttribute:@"target" value:targetValue escapingHTMLAttributeValue:YES];
 	    }
-	  GSWResponse_appendContentAsciiString(response, @"><img");
+	  [response _appendContentAsciiString:@"><img"];
 	  [self appendAttributesToResponse:response
 		inContext:context];
-	  GSWResponse_appendContentAsciiString(response, @"></a>");
+	  [response _appendContentAsciiString:@"></a>"];
 	  return;
 	}
     }
@@ -651,7 +646,7 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
   
   [self appendAttributesToResponse:response
 	inContext:context];
-  GSWResponse_appendContentCharacter(response,'>');
+  [response appendContentCharacter:'>'];
 }
 
 //--------------------------------------------------------------------
@@ -669,13 +664,11 @@ static GSWAssociation * static_defaultBorderAssociation = nil;
                                                 otherQueryAssociations: _sessionIDQueryAssociations 
                                                              inContext: context];
   
-  GSWResponse_appendTagAttributeValueEscapingHTMLAttributeValue(response, 
-								@"href", 
-								[context _directActionURLForActionNamed:actionStr
+  [response _appendTagAttribute:@"href" value:[context _directActionURLForActionNamed:actionStr
 									 queryDictionary:queryDictionary
 									 isSecure:[self secureInContext:context]
 									 port:0
-									 escapeQueryDictionary:YES], NO);  
+									 escapeQueryDictionary:YES] escapingHTMLAttributeValue:NO];  
 }
 
 

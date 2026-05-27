@@ -297,7 +297,7 @@ BOOL canBeOnSegment(NSPoint m,NSPoint a,NSPoint b)
 -(id)copyWithZone:(NSZone*)zone
 {
   GSWGeometricRegion* clone = nil;
-  clone=[[isa allocWithZone:zone] init];
+  clone=[[[self class] allocWithZone:zone] init];
   if (clone)
     {
       ASSIGN(clone->_userDefinedString,_userDefinedString);
