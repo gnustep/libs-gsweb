@@ -63,6 +63,7 @@
   DESTROY(_sessionOrderedTimeOuts);
   DESTROY(_sessionTimeOuts);
   //Do Not Retain ! DESTROY(target);
+  [_timer invalidate];
   DESTROY(_timer);
   DESTROY(_selfLock);
   [super dealloc];
@@ -272,17 +273,17 @@
                            [_timer fireDate]);
               NSDebugMLLog(@"sessions",@"[old timer isValide]=%s",
                            [_timer isValid] ? "YES" : "NO");
-/*
-  if (timer && [[timer fireDate]compare:[NSDate date]]==NSOrderedDescending)
-  [timer invalidate];
-*/
+              [_timer invalidate];
               ASSIGN(_timer,newTimer);
               NSDebugMLLog(@"sessions",@"old timer=%@",_timer);
               NSDebugMLLog(@"sessions",@"new timer=%@",newTimer);
             }
         }
       else
-        ASSIGN(_timer,newTimer);
+        {
+          [_timer invalidate];
+          ASSIGN(_timer,newTimer);
+        }
     }
   NS_HANDLER
     {
