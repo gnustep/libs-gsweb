@@ -105,7 +105,7 @@ COMMON = $(SRCROOT)/common
 # The module sources, relative to this directory.  apxs -c accepts several
 # .c files and links them into one module.  Add new files here (and to
 # GSW_HDRS when they have a private header) and re-run ./config.status.
-GSW_SRCS = mod_gsw.c gsw_net.c gsw_shm.c gsw_apps.c gsw_status.c
+GSW_SRCS = mod_gsw.c gsw_net.c gsw_shm.c gsw_apps.c gsw_status.c gsw_request.c
 GSW_HDRS = gsw_private.h gsw_compat.h
 
 # Expand to the path style the apxs rule below uses.
