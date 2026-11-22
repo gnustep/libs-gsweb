@@ -21,226 +21,33 @@
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-#include "httpd.h"
-#include "http_config.h"
-#include "http_core.h"
-#include "http_log.h"
-#include "http_main.h"
-#include "http_protocol.h"
-#include "http_request.h"
-#include "util_script.h"
-#include "http_connection.h"
-#include "apr_tables.h"
-
-#include "apr_strings.h"
-#include "apr_lib.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-
-/*
- * apr_parse_int64() was added in APR 1.3.  On older APR installations
- * (e.g. some FreeBSD ports) it is not declared, which produces an
- * implicit-declaration warning.  Provide a portable fallback that
- * matches the same calling convention:
- *
- *   apr_status_t apr_parse_int64(apr_int64_t *val, const char *str,
- *                                int base, char **end);
- *
- * The fallback uses strtoll() and sets *end to point past the last
- * consumed digit, or to the first non-digit if the string is empty.
- */
-#if (APR_VERSION_MAJOR < 1) || \
-    ((APR_VERSION_MAJOR == 1) && (APR_VERSION_MINOR < 3))
-static apr_status_t apr_parse_int64(apr_int64_t *val, const char *str,
-                                    int base, char **end)
-{
-  char *s = (char *) str;
-  char *e;
-  long long v;
-
-  if (s == NULL || *s == '\0') {
-    if (end) *end = s;
-    return APR_ENOENT;
-  }
-
-  v = strtoll(s, &e, base);
-  if (e == s) {
-    /* no digits consumed */
-    if (end) *end = s;
-    return APR_ENOENT;
-  }
-
-  if (v < INT64_MIN || v > INT64_MAX) {
-    if (end) *end = e;
-    return APR_ENOENT;
-  }
-
-  *val = (apr_int64_t) v;
-  if (end) *end = e;
-  return APR_SUCCESS;
-}
-#endif
-
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <arpa/inet.h>
-// needed on FreeBSD at least
-#include <unistd.h>
-#include <poll.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-
-#if !defined(OS2) && !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
-#include "unixd.h"
-#define MOD_EXIPC_SET_MUTEX_PERMS /* XXX Apache should define something */
-#endif
+#include "gsw_private.h"
+#include "gsw_compat.h"   /* apr_parse_int64 fallback, mutex-perms shim */
 
 
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
-/* Data declarations.                                                       */
-/*                                                                          */
-/* Here are the static cells and structure declarations private to our      */
-/* module.                                                                  */
+/* Data definitions.  The types, constants and their extern declarations live */
+/* in gsw_private.h.  Each of these cells is defined in exactly one source   */
+/* file; they stay here until the code that owns them moves out.             */
 /*                                                                          */
 /*--------------------------------------------------------------------------*/
 
-/*
- * Sample configuration record.  Used for both per-directory and per-server
- * configuration data.
- *
- * It's perfectly reasonable to have two different structures for the two
- * different environments.  The same command handlers will be called for
- * both, though, so the handlers need to be able to tell them apart.  One
- * possibility is for both structures to start with an int which is 0 for
- * one and 1 for the other.
- *
- * Note that while the per-directory and per-server configuration records are
- * available to most of the module handlers, they should be treated as
- * READ-ONLY by all except the command and merge handlers.  Sometimes handlers
- * are handed a record that applies to the current location by implication or
- * inheritance, and modifying it will change the rules for other locations.
- */
+// used to read configs  (moves to gsw_cmds.c)
+int instance_count;
+int last_app_index;
 
+// sample-module trace state  (moves to gsw_hooks_stub.c)
+const char *trace = NULL;
+apr_table_t *static_calls_made = NULL;
+apr_pool_t *gsw_pool = NULL;
+apr_pool_t *gsw_subpool = NULL;
 
-typedef struct gsw_cfg {
-  int cmode;                  /* Environment to which record applies
-   * (directory, server, or combination).
-   */
-#define CONFIG_MODE_SERVER 1
-#define CONFIG_MODE_DIRECTORY 2
-#define CONFIG_MODE_COMBO 3     /* Shouldn't ever happen. */
-  int local;                  /* Boolean: "Example" directive declared
-   * here?
-   */
-  int congenital;             /* Boolean: did we inherit an "Example"? */
-  char *trace;                /* Pointer to trace string. */
-  char *loc;                  /* Location to which this record applies. */
-  int  showApps;
-  apr_table_t * app_table;
-  apr_time_t   connect_timeout;   // WOConnectTimeout, default 5 sec
-  apr_time_t   wait_timeout;      // WOWaitTimeout, default 60 sec
-  apr_off_t    max_body_size;     // WOMaxBodySize, default 8 MiB
-} gsw_cfg;
-
-#define MAX_URL_LENGTH        256
-#define MAX_NAME_LENGTH        64
-#define UNREACHABLE       -10
-#define INTERNAL_ERROR    500
-
-#define RETRY_COUNT       3
-
-typedef struct gsw_app_conf {
-  char        app_name[MAX_NAME_LENGTH];
-  char        host_name[MAX_NAME_LENGTH];
-  u_int16_t   instance_number;
-  u_int16_t   port;
-  u_int16_t   total_index;                  // index in shared memory
-  char        redirect_url[MAX_URL_LENGTH];    /* in case of error */
-
-} gsw_app_conf;
-
-
-#define GSW_INST_CACHE          "gsw_inst_cache"
-#define X_WO_VERSION_HEADER     "x-webobjects-adaptor-version: 20130612\r\n"
-#define SERVER_SOFTWARE         "SERVER_SOFTWARE"
-#define SERVER_NAME             "SERVER_NAME"
-#define SERVER_PORT             "SERVER_PORT"
-#ifndef REMOTE_HOST
-#define REMOTE_HOST             "REMOTE_HOST"
-#endif
-#define DOCUMENT_ROOT           "DOCUMENT_ROOT"
-#define SERVER_ADMIN            "SERVER_ADMIN"
-#define SCRIPT_FILENAME         "SCRIPT_FILENAME"
-#define REMOTE_PORT             "REMOTE_PORT"
-#define REMOTE_ADDR             "REMOTE_ADDR"
-#define REMOTE_USER             "REMOTE_USER"
-#define AUTH_TYPE               "AUTH_TYPE"
-#define REMOTE_IDENT            "REMOTE_IDENT"
-#define REDIRECT_QUERY_STRING   "REDIRECT_QUERY_STRING"
-#define REDIRECT_URL            "REDIRECT_URL"
-#define CONTENT_LENGTH          "content-length"
-#define DEFAULT_APP_COUNT       10
-#define REFUSING_SESSIONS_HEADER "x-webobjects-refusenewsessions: "
-#define DEFAULT_CONNECT_TIMEOUT  apr_time_from_sec(5)
-#define DEFAULT_WAIT_TIMEOUT     apr_time_from_sec(60)
-#define DEFAULT_MAX_BODY_SIZE    (8 * 1024 * 1024)   // 8 MiB
-
-// used to read configs
-static int instance_count;
-static int last_app_index;
-
-
-/*
- * Let's set up a module-local static cell to point to the accreting callback
- * trace.  As each API callback is made to us, we'll tack on the particulars
- * to whatever we've already recorded.  To avoid massive memory bloat as
- * directories are walked again and again, we record the routine/environment
- * the first time (non-request context only), and ignore subsequent calls for
- * the same routine/environment.
- */
-static const char *trace = NULL;
-static apr_table_t *static_calls_made = NULL;
-
-/*
- * To avoid leaking memory from pools other than the per-request one, we
- * allocate a module-private pool, and then use a sub-pool of that which gets
- * freed each time we modify the trace.  That way previous layers of trace
- * data don't get lost.
- */
-static apr_pool_t *gsw_pool = NULL;
-static apr_pool_t *gsw_subpool = NULL;
-
-
-// shared memory
+// shared memory  (moves to gsw_shm.c)
 apr_shm_t *exipc_shm;
 char *shmfilename;
 apr_global_mutex_t *exipc_mutex;
 char *mutexfilename;
-
-
-typedef struct exipc_data {
-  apr_time_t    last_response_time; // in sec since January 1, 1970
-  apr_time_t    last_request_time;  // in sec since January 1, 1970
-  u_int32_t load;
-  u_int8_t unreachable;             // 0=online 1=unreachable
-  u_int8_t refusing;                // 0=serving new sessions 1=refusing
-} exipc_data;
-
-/*
- * Declare ourselves so the configuration routines can find and know us.
- * We'll fill it in at the end of the module.
- */
-module AP_MODULE_DECLARE_DATA gsw_module;
-
-#define ADAPTOR_PREFIX "/wo/"
-// xx handler uri: wo/TCWebMail.woa/1/wo/xxxx
-//                 PREFIX/APPNAME.woa/INSTANCE/...
 
 
 
@@ -281,7 +88,7 @@ int print_app(void *rec, const char *key, gsw_app_conf *appconf)
 /*
  * Locate our directory configuration record for the current request.
  */
-static gsw_cfg *our_dconfig(const request_rec *r)
+gsw_cfg *our_dconfig(const request_rec *r)
 {
     return (gsw_cfg *) ap_get_module_config(r->per_dir_config, &gsw_module);
 }
@@ -289,7 +96,7 @@ static gsw_cfg *our_dconfig(const request_rec *r)
 /*
  * Likewise for our configuration record for a connection.
  */
-static gsw_cfg *our_cconfig(const conn_rec *c)
+gsw_cfg *our_cconfig(const conn_rec *c)
 {
     return (gsw_cfg *) ap_get_module_config(c->conn_config, &gsw_module);
 }
@@ -297,7 +104,7 @@ static gsw_cfg *our_cconfig(const conn_rec *c)
 /*
  * This routine sets up some module-wide cells if they haven't been already.
  */
-static void setup_module_cells(void)
+void setup_module_cells(void)
 {
     /*
      * If we haven't already allocated our module-private pool, do so now.
@@ -538,195 +345,6 @@ gsw_app_conf * find_app(request_rec *r)
 }
 
 
-// returns the socket or <0 on error
-
-int connect_host(char * hostname, u_int16_t port, apr_time_t timeout)
-{
-  int                  sock = -1;
-  int                  flag = 1;
-  struct addrinfo      hints;
-  struct addrinfo     * res = NULL;
-  struct addrinfo     * ai;
-  int                  gai;
-  char                 portstr[8];
-
-  memset(&hints, 0, sizeof(hints));
-  hints.ai_family   = AF_UNSPEC;   // IPv4 and IPv6
-  hints.ai_socktype = SOCK_STREAM;
-
-  snprintf(portstr, sizeof(portstr), "%u", (unsigned) port);
-
-  gai = getaddrinfo(hostname, portstr, &hints, &res);
-  if (gai != 0) {
-    return -1;
-  }
-
-  for (ai = res; ai != NULL; ai = ai->ai_next) {
-    int flags;
-
-    sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-    if (sock < 0) {
-      continue;
-    }
-
-    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY,
-               (char *) &flag, sizeof(int));
-
-    // non-blocking connect + poll with timeout
-    flags = fcntl(sock, F_GETFL, 0);
-    if ((flags >= 0) && (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == 0)) {
-      if (connect(sock, ai->ai_addr, ai->ai_addrlen) != 0) {
-        struct pollfd pfd;
-        int           rs;
-        int           so_error = 0;
-        socklen_t     len = sizeof(so_error);
-        int           timeout_ms = (int) (timeout / 1000);  // apr_time_t is microseconds
-
-        if (errno != EINPROGRESS) {
-          close(sock);
-          sock = -1;
-          continue;
-        }
-
-        pfd.fd      = sock;
-        pfd.events  = POLLOUT;   // a connecting socket becomes writable when done
-        pfd.revents = 0;
-
-        do {
-          rs = poll(&pfd, 1, timeout_ms);
-        } while ((rs < 0) && (errno == EINTR));
-
-        if (rs <= 0) {
-          // timeout or poll error: try the next address
-          close(sock);
-          sock = -1;
-          continue;
-        }
-
-        // check the result of the connect
-        if ((getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len) != 0) ||
-            (so_error != 0)) {
-          close(sock);
-          sock = -1;
-          continue;
-        }
-      }
-
-      // restore blocking mode
-      fcntl(sock, F_SETFL, flags);
-      break;
-    }
-
-    // fcntl failed: fall back to a plain blocking connect
-    if (connect(sock, ai->ai_addr, ai->ai_addrlen) == 0) {
-      break;
-    }
-
-    close(sock);
-    sock = -1;
-  }
-
-  freeaddrinfo(res);
-
-  return sock;
-}
-
-static int write_sock(int socket, const void *data, size_t len, request_rec *r)
-{
-  int        rval = 0;
-
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "sending '%s' len:%d", data, len);
-
-    rval = send(socket, data, len, 0);
-
-    if (rval < 0) {
-
-        /*
-         * Anything except EAGAIN or EWOULDBLOCK is trouble. If it's
-         * EPIPE or ECONNRESET, assume we've lost the backend
-         * connection permanently.
-         */
-        switch (errno) {
-            case EAGAIN:
-                break;
-            case EINTR:
-                break;
-            default:
-        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "cannot write to socket (len %d)", (int)len);
-        return -1;
-                break;
-        }
-    }
-  return 0;
-}
-
-void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool, apr_time_t timeout)
-{
-  size_t        rval = 1;
-  int   i = 0;
-  int   done = 0;
-  char  buffer[1024];
-  char  b;
-  struct pollfd pfd;
-  int           rs;
-  apr_time_t    deadline = apr_time_now() + timeout;
-  
-  
-  pfd.fd      = socket;
-  pfd.events  = POLLIN;
-  pfd.revents = 0;
-  
-  while (((done == 0) && (i < sizeof(buffer) -1)) && (rval >0)) {
-    apr_time_t remaining = deadline - apr_time_now();
-    int        wait_ms   = (remaining > 0) ? (int) (remaining / 1000) : 0;
-
-    rs = poll(&pfd, 1, wait_ms);
-    if ((rs < 0) && (errno == EINTR)) {
-      continue;
-    }
-    if ((rs <= 0) || (pfd.revents == 0)) {
-      // timeout: the backend accepted the connection but never responded
-      ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "read_sock_line: timeout waiting for data");
-      return NULL;
-    }
-    
-    rval= read(socket, &b, 1);
-    
-    if (rval == -1) {
-      if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
-        continue;
-      }
-      ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "read_sock_line:'%s'", strerror(errno));
-
-      return NULL;
-    }
-    
-    buffer[i] = b;
-    
-    if (b == '\n') {
-      done = 1;
-      buffer[i] = '\0';
-      if ((i>0) && (buffer[i-1] == '\r')) {
-        buffer[i-1] = '\0';
-      }
-    }
-    i++;
-  }
-  
-  buffer[i] = '\0';
-     
-    // in case we got a \0 in the string?
-  i = strlen(buffer);
-  if (i > 0) {
-    void * newBuf = apr_palloc(pool,i+1);
-    strncpy(newBuf, buffer, i+1);
-    //   ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "read_sock_line:'%s'", newBuf);
-    return newBuf;
-  }
-  return NULL;
-}
-
-
 /*
 HTTP/1.0 200 OK NeXT WebObjects
 x-webobjects-loadaverage: 1
@@ -963,7 +581,7 @@ void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool, gsw_
   return postbuf;
 }
 
-static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t contentLen)
+int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t contentLen)
 {
     gsw_cfg               * cfg = our_dconfig(r);
     int                     soc = -1;
@@ -1433,7 +1051,7 @@ static void print_css(request_rec * r)
              </style>\n", r);
 }
 
-static void showApps(request_rec * r, gsw_cfg *dcfg)
+void showApps(request_rec * r, gsw_cfg *dcfg)
 {
     ap_set_content_type(r, "text/html");
     
@@ -1531,7 +1149,7 @@ static void showApps(request_rec * r, gsw_cfg *dcfg)
  *  DECLINED ("this isn't something with which we want to get involved")
  *  HTTP_mumble ("an error status should be reported")
  */
-static int gsw_handler(request_rec *r)
+int gsw_handler(request_rec *r)
 {
   gsw_app_conf   * app = NULL;
   gsw_cfg        * dcfg;
@@ -1707,7 +1325,7 @@ static int gsw_handler(request_rec *r)
  * The return value is a pointer to the created module-specific
  * structure.
  */
-static void *gsw_create_dir_config(apr_pool_t *p, char *dirspec)
+void *gsw_create_dir_config(apr_pool_t *p, char *dirspec)
 {
     gsw_cfg *cfg;
     char *dname = dirspec;
@@ -1753,7 +1371,7 @@ static void *gsw_create_dir_config(apr_pool_t *p, char *dirspec)
  * The return value is a pointer to the created module-specific structure
  * containing the merged values.
  */
-static void *gsw_merge_dir_config(apr_pool_t *p, void *parent_conf,
+void *gsw_merge_dir_config(apr_pool_t *p, void *parent_conf,
                                       void *newloc_conf)
 {
 
@@ -1805,7 +1423,7 @@ static void *gsw_merge_dir_config(apr_pool_t *p, void *parent_conf,
  * The return value is a pointer to the created module-specific
  * structure.
  */
-static void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
+void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
 {
   
   gsw_cfg *cfg;
@@ -1846,7 +1464,7 @@ static void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
  * The return value is a pointer to the created module-specific structure
  * containing the merged values.
  */
-static void *gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
+void *gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
                                          void *server2_conf)
 {
 
@@ -1877,7 +1495,7 @@ static void *gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
  * This routine is called before the server processes the configuration
  * files.  There is no return value.
  */
-static int gsw_pre_config(apr_pool_t *pconf, apr_pool_t *plog,
+int gsw_pre_config(apr_pool_t *pconf, apr_pool_t *plog,
                         apr_pool_t *ptemp)
 {
     /*
@@ -1921,18 +1539,6 @@ void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s)
   
 }
 
-/* unixd_set_global_mutex_perms changed name to ap_unixd_set_global_mutex_perms
- * in Apache 2.4. This function provides a wrapper with the new name for old
- * versions.
- */
-#ifdef AP_NEED_SET_MUTEX_PERMS
-#if (AP_SERVER_MAJORVERSION_NUMBER == 2) && (AP_SERVER_MINORVERSION_NUMBER < 4)
-static inline apr_status_t ap_unixd_set_global_mutex_perms(apr_global_mutex_t *gmutex) {
-    return unixd_set_global_mutex_perms(gmutex);
-}
-#endif
-#endif
-
 /*
  * This routine is called to perform any module-specific fixing of header
  * fields, et cetera.  It is invoked just before any content-handler.
@@ -1941,7 +1547,7 @@ static inline apr_status_t ap_unixd_set_global_mutex_perms(apr_global_mutex_t *g
  * server will still call any remaining modules with an handler for this
  * phase.
  */
-static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
+int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
                           apr_pool_t *ptemp, server_rec *s)
 {
   void          * data; /* These two help ensure that we only init once. */
@@ -2049,7 +1655,7 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
  * server will still call any remaining modules with an handler for this
  * phase.
  */
-static int gsw_open_logs(apr_pool_t *pconf, apr_pool_t *plog,
+int gsw_open_logs(apr_pool_t *pconf, apr_pool_t *plog,
                         apr_pool_t *ptemp, server_rec *s)
 {
     /*
@@ -2082,7 +1688,7 @@ static apr_status_t gsw_child_exit(void *data)
  * to the shared memory segment, and reinitialize the mutex.
  */
 
-static void gsw_child_init(apr_pool_t *p, server_rec *s)
+void gsw_child_init(apr_pool_t *p, server_rec *s)
 {
   apr_status_t rs;
   
@@ -2121,7 +1727,7 @@ static void gsw_child_init(apr_pool_t *p, server_rec *s)
  * server will still call any remaining modules with an handler for this
  * phase.
  */
-static void gsw_insert_filter(request_rec *r)
+void gsw_insert_filter(request_rec *r)
 {
     gsw_cfg *cfg;
 
@@ -2138,7 +1744,7 @@ static void gsw_insert_filter(request_rec *r)
  * server will still call any remaining modules with an handler for this
  * phase.
  */
-static int gsw_quick_handler(request_rec *r, int lookup_uri)
+int gsw_quick_handler(request_rec *r, int lookup_uri)
 {
     return DECLINED;
 }
@@ -2154,7 +1760,7 @@ static int gsw_quick_handler(request_rec *r, int lookup_uri)
  * server will still call any remaining modules with an handler for this
  * phase.
  */
-static int gsw_pre_connection(conn_rec *c, void *csd)
+int gsw_pre_connection(conn_rec *c, void *csd)
 {
     gsw_cfg *cfg;
 
@@ -2174,7 +1780,7 @@ static int gsw_pre_connection(conn_rec *c, void *csd)
  */
  
  // FIXME: remove??
-static int gsw_process_connection(conn_rec *c)
+int gsw_process_connection(conn_rec *c)
 {
     return DECLINED;
 }
@@ -2188,7 +1794,7 @@ static int gsw_process_connection(conn_rec *c)
  * further modules are called for this phase.
  */
  // FIXME: remove??
-static int gsw_post_read_request(request_rec *r)
+int gsw_post_read_request(request_rec *r)
 {
   return DECLINED;
 }
@@ -2201,7 +1807,7 @@ static int gsw_post_read_request(request_rec *r)
  * The return value is OK, DECLINED, or HTTP_mumble.  If we return OK, no
  * further modules are called for this phase.
  */
-static int gsw_translate_handler(request_rec *r)
+int gsw_translate_handler(request_rec *r)
 {
   if (strncmp(r->uri, "/wo/",4) != 0) {
     return DECLINED;
@@ -2218,7 +1824,7 @@ static int gsw_translate_handler(request_rec *r)
  * The return value is OK, DECLINED, or HTTP_mumble.  If we return OK, no
  * further modules are called for this phase.
  */
-static int gsw_map_to_storage_handler(request_rec *r)
+int gsw_map_to_storage_handler(request_rec *r)
 {
   if (strncmp(r->uri, "/wo/",4) != 0) {
     return DECLINED;
@@ -2239,7 +1845,7 @@ static int gsw_map_to_storage_handler(request_rec *r)
  * the server will still call any remaining modules with an handler
  * for this phase.
  */
-static int gsw_header_parser_handler(request_rec *r)
+int gsw_header_parser_handler(request_rec *r)
 {
   return DECLINED;
 }
@@ -2254,7 +1860,7 @@ static int gsw_header_parser_handler(request_rec *r)
  * HTTP_UNAUTHORIZED).  If we return OK, no other modules are given a chance
  * at the request during this phase.
  */
-static int gsw_check_user_id(request_rec *r)
+int gsw_check_user_id(request_rec *r)
 {
 
     gsw_cfg *cfg;
@@ -2277,7 +1883,7 @@ static int gsw_check_user_id(request_rec *r)
  * If *all* modules return DECLINED, the request is aborted with a server
  * error.
  */
-static int gsw_auth_checker(request_rec *r)
+int gsw_auth_checker(request_rec *r)
 {
 
     gsw_cfg *cfg;
@@ -2300,7 +1906,7 @@ static int gsw_auth_checker(request_rec *r)
  * return OK or DECLINED.  The first one to return any other status, however,
  * will abort the sequence (and the request) as usual.
  */
-static int gsw_access_checker(request_rec *r)
+int gsw_access_checker(request_rec *r)
 {
 
     gsw_cfg *cfg;
@@ -2318,7 +1924,7 @@ static int gsw_access_checker(request_rec *r)
  * The return value is OK, DECLINED, or HTTP_mumble.  If we return OK, no
  * further modules are given a chance at the request for this phase.
  */
-static int gsw_type_checker(request_rec *r)
+int gsw_type_checker(request_rec *r)
 {
 
     gsw_cfg *cfg;
@@ -2340,7 +1946,7 @@ static int gsw_type_checker(request_rec *r)
  * server will still call any remaining modules with an handler for this
  * phase.
  */
-static int gsw_fixer_upper(request_rec *r)
+int gsw_fixer_upper(request_rec *r)
 {
 
     gsw_cfg *cfg;
@@ -2357,7 +1963,7 @@ static int gsw_fixer_upper(request_rec *r)
  * The return value is OK, DECLINED, or HTTP_mumble.  If we return OK, any
  * remaining modules with an handler for this phase will still be called.
  */
-static int gsw_logger(request_rec *r)
+int gsw_logger(request_rec *r)
 {
 
     gsw_cfg *cfg;

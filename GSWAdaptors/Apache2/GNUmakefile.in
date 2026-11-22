@@ -25,11 +25,10 @@ APXS:=@APXS@
 SERVERAPI:=@SERVERAPI@
 # APRCONFIG is set by configure (AC_PATH_PROG) to the path of apr-config,
 # or to the literal string "no" when apr-config was not found.  When it
-# is "no", the $(shell ...) lines below print "no: not found" to stderr
-# and expand to empty, which is harmless: the APR headers are found via
-# APXS's INCLUDEDIR (apxs -q INCLUDEDIR points at the Apache include tree,
-# which contains apr-1).  If you have a separate apr-config, configure
-# with --with-apr-config=/path/to/apr-config.
+# is "no", the $(shell ...) lines below are skipped entirely: the APR
+# headers and flags are found via APXS's INCLUDEDIR (apxs -q INCLUDEDIR
+# points at the Apache include tree, which contains apr-1).  If you have
+# a separate apr-config, configure with --with-apr-config=/path/to/apr-config.
 APRCONFIG:=@APRCONFIG@
 
 C_CPPFLAGS=@CONFIG_CPPFLAGS@
@@ -54,11 +53,23 @@ AP_INCDIR := $(shell ($(APXS) -q INCLUDEDIR))
 AP_LIBDIR := $(shell ($(APXS) -q LIBEXECDIR))
 AP_SYSDIR := $(shell ($(APXS) -q SYSCONFDIR))
 
+# When configure did not find apr-config, APRCONFIG is the literal "no"
+# and running it produces five "no: not found" messages on stderr.  Skip
+# the queries in that case and leave the variables empty; the APR flags
+# then come from apxs / the Apache include tree.
+ifneq ($(APRCONFIG),no)
 APR_CFLAGS   := $(shell ($(APRCONFIG) --cflags))
 APR_CPPFLAGS := $(shell ($(APRCONFIG) --cppflags))
 APR_INCDIR   := $(shell ($(APRCONFIG) --includedir))
 APR_LDFLAGS  := $(shell ($(APRCONFIG) --ldflags))
 APR_LIBS     := $(shell ($(APRCONFIG) --libs))
+else
+APR_CFLAGS   :=
+APR_CPPFLAGS :=
+APR_INCDIR   :=
+APR_LDFLAGS  :=
+APR_LIBS     :=
+endif
 
 ifneq ($(APR_INCDIR),)
 APR_CPPFLAGS += -I$(APR_INCDIR)
@@ -91,6 +102,15 @@ MOD_CONF := mod_gsw.conf
 
 COMMON = $(SRCROOT)/common
 
+# The module sources, relative to this directory.  apxs -c accepts several
+# .c files and links them into one module.  Add new files here (and to
+# GSW_HDRS when they have a private header) and re-run ./config.status.
+GSW_SRCS = mod_gsw.c gsw_net.c
+GSW_HDRS = gsw_private.h gsw_compat.h
+
+# Expand to the path style the apxs rule below uses.
+GSW_ALL_SRCS = $(addprefix $(SRCROOT)/Apache2/,$(GSW_SRCS))
+
 GSW_CPPFLAGS = \
 	-D$(SERVERAPI) -DREENTRANT -DEAPI \
 	-I. -I$(COMMON) \
@@ -119,9 +139,9 @@ all:: $(ADAPTOR)
 
 
 # Link the final adaptor module with APXS
-$(ADAPTOR): $(SRCROOT)/Apache2/mod_gsw.c
+$(ADAPTOR): $(GSW_ALL_SRCS) $(GSW_HDRS)
 	$(APXS) -c -o $@ $(APXS_FLAGS) $(CFLAGS) $(LDFLAGS) \
-		$(SRCROOT)/Apache2/mod_gsw.c
+		$(GSW_ALL_SRCS)
 
 
 # Install module (via apxs) and mod_gsw.conf file
@@ -134,7 +154,8 @@ install: $(ADAPTOR)
 	  echo App Name=YOURAPP Instance=1 Host=HOSTIP:PORT ; \
 
 clean:
-	rm -f $(ADAPTOR) core *~ mod_gsw.lo mod_gsw.o mod_gsw.slo
+	rm -f $(ADAPTOR) core *~ *.o *.lo *.slo
+	rm -rf .libs
 
 distclean: clean
 	rm -rf config.log config.status GNUmakefile autom4te.cache
