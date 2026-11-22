@@ -43,11 +43,6 @@ apr_table_t *static_calls_made = NULL;
 apr_pool_t *gsw_pool = NULL;
 apr_pool_t *gsw_subpool = NULL;
 
-// shared memory  (moves to gsw_shm.c)
-apr_shm_t *exipc_shm;
-char *shmfilename;
-apr_global_mutex_t *exipc_mutex;
-char *mutexfilename;
 
 
 
@@ -123,87 +118,6 @@ void setup_module_cells(void)
 }
 
 
-void * read_shared_mem(apr_pool_t * pool, int appcount)
-{
-  apr_size_t   memsize = apr_shm_size_get(exipc_shm);
-  void       * mem     = NULL;
-
-  if (memsize) {
-    mem = apr_pcalloc(pool, memsize);
-    
-    if (mem) {
-      void * base = NULL;
-      apr_status_t rv;
-
-
-      rv = apr_global_mutex_lock(exipc_mutex);
-      if (rv != APR_SUCCESS) {
-        //char errstr[1024];
-        //apr_strerror(rv,errstr,1024);
-        //syslog(LOG_ERR,"rv != APR_SUCCESS %s\n", errstr);
-        return NULL;
-      }
-      base = apr_shm_baseaddr_get(exipc_shm);
-      memcpy(mem, base, memsize);
-      apr_global_mutex_unlock(exipc_mutex);
-    }
-  }
-  
-  return mem;
-}
-
-
-void mark_unreachable(request_rec *r, gsw_app_conf * app)
-{
-  exipc_data   * mem   = NULL;
-  apr_time_t     now     = apr_time_now();
-  u_int16_t      index   = app->total_index;
-  
-  apr_global_mutex_lock(exipc_mutex);
-  mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
-  
-  if (mem) {
-    mem[index].last_request_time = now;
-    mem[index].unreachable = 1;
-  }
-  
-  apr_global_mutex_unlock(exipc_mutex);
-}
-
-void mark_refusing(gsw_app_conf * app)
-{
-  exipc_data   * mem   = NULL;
-  apr_time_t     now     = apr_time_now();
-  u_int16_t      index   = app->total_index;
-  
-  apr_global_mutex_lock(exipc_mutex);
-  mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
-  
-  if (mem) {
-    mem[index].last_request_time = now;
-    mem[index].refusing = 1;
-  }
-  
-  apr_global_mutex_unlock(exipc_mutex);
-}
-
-void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr_time_t last_response_time, u_int32_t load)
-{
-  exipc_data   * mem   = NULL;
-  u_int16_t      index   = app->total_index;
-  
-  apr_global_mutex_lock(exipc_mutex);
-  mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
-  
-  if (mem) {
-    mem[index].last_request_time = last_request_time;
-    mem[index].last_response_time = last_response_time;
-    mem[index].load = load;
-    mem[index].unreachable = 0;
-  }
-
-  apr_global_mutex_unlock(exipc_mutex);
-}
 
 
 /*
@@ -1522,21 +1436,6 @@ static int app_count(server_rec *s)
   }
   
   return 0;
-}
-
-void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s)
-{
-  int i;
-  
-  exipc_data *currentRecord  =  (exipc_data *) apr_shm_baseaddr_get(xxx);
-
-  for (i = 0;i<count;i++) {
-    currentRecord[i].last_response_time = 0;
-    currentRecord[i].load = 0;
-    currentRecord[i].unreachable = 0;
-    currentRecord[i].refusing = 0;
-  }
-  
 }
 
 /*
