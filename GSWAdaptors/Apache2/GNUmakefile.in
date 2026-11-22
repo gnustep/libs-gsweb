@@ -23,6 +23,13 @@
 
 APXS:=@APXS@
 SERVERAPI:=@SERVERAPI@
+# APRCONFIG is set by configure (AC_PATH_PROG) to the path of apr-config,
+# or to the literal string "no" when apr-config was not found.  When it
+# is "no", the $(shell ...) lines below print "no: not found" to stderr
+# and expand to empty, which is harmless: the APR headers are found via
+# APXS's INCLUDEDIR (apxs -q INCLUDEDIR points at the Apache include tree,
+# which contains apr-1).  If you have a separate apr-config, configure
+# with --with-apr-config=/path/to/apr-config.
 APRCONFIG:=@APRCONFIG@
 
 C_CPPFLAGS=@CONFIG_CPPFLAGS@

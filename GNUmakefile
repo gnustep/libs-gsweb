@@ -47,9 +47,14 @@ include ./config.mak
 #
 # The list of subproject directories
 #
+ifeq ($(GDL2),yes)
 SUBPROJECTS = GSWeb \
 	GSWExtensions \
 	GSWDatabase
+else
+SUBPROJECTS = GSWeb \
+        GSWExtensions 
+endif
 
 #	GSWExtensionsGSW \
 #GSWAdaptors

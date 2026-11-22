@@ -33,16 +33,67 @@
 #include "apr_tables.h"
 
 #include "apr_strings.h"
+#include "apr_lib.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
-#include <sys/socket.h> 
-#include <netinet/in.h> 
-#include <netinet/tcp.h> 
-#include <netdb.h> 
-#include <arpa/inet.h> 
+/*
+ * apr_parse_int64() was added in APR 1.3.  On older APR installations
+ * (e.g. some FreeBSD ports) it is not declared, which produces an
+ * implicit-declaration warning.  Provide a portable fallback that
+ * matches the same calling convention:
+ *
+ *   apr_status_t apr_parse_int64(apr_int64_t *val, const char *str,
+ *                                int base, char **end);
+ *
+ * The fallback uses strtoll() and sets *end to point past the last
+ * consumed digit, or to the first non-digit if the string is empty.
+ */
+#if (APR_VERSION_MAJOR < 1) || \
+    ((APR_VERSION_MAJOR == 1) && (APR_VERSION_MINOR < 3))
+static apr_status_t apr_parse_int64(apr_int64_t *val, const char *str,
+                                    int base, char **end)
+{
+  char *s = (char *) str;
+  char *e;
+  long long v;
+
+  if (s == NULL || *s == '\0') {
+    if (end) *end = s;
+    return APR_ENOENT;
+  }
+
+  v = strtoll(s, &e, base);
+  if (e == s) {
+    /* no digits consumed */
+    if (end) *end = s;
+    return APR_ENOENT;
+  }
+
+  if (v < INT64_MIN || v > INT64_MAX) {
+    if (end) *end = e;
+    return APR_ENOENT;
+  }
+
+  *val = (apr_int64_t) v;
+  if (end) *end = e;
+  return APR_SUCCESS;
+}
+#endif
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 // needed on FreeBSD at least
 #include <unistd.h>
+#include <poll.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <string.h>
 
 #if !defined(OS2) && !defined(WIN32) && !defined(BEOS) && !defined(NETWARE)
 #include "unixd.h"
@@ -92,12 +143,15 @@ typedef struct gsw_cfg {
   char *loc;                  /* Location to which this record applies. */
   int  showApps;
   apr_table_t * app_table;
+  apr_time_t   connect_timeout;   // WOConnectTimeout, default 5 sec
+  apr_time_t   wait_timeout;      // WOWaitTimeout, default 60 sec
+  apr_off_t    max_body_size;     // WOMaxBodySize, default 8 MiB
 } gsw_cfg;
 
-#define MAX_URL_LENGTH		256	
-#define MAX_NAME_LENGTH		64	
-#define UNREACHABLE       -10		
-#define INTERNAL_ERROR    500		
+#define MAX_URL_LENGTH        256
+#define MAX_NAME_LENGTH        64
+#define UNREACHABLE       -10
+#define INTERNAL_ERROR    500
 
 #define RETRY_COUNT       3
 
@@ -107,7 +161,7 @@ typedef struct gsw_app_conf {
   u_int16_t   instance_number;
   u_int16_t   port;
   u_int16_t   total_index;                  // index in shared memory
-  char        redirect_url[MAX_URL_LENGTH];	/* in case of error */
+  char        redirect_url[MAX_URL_LENGTH];    /* in case of error */
 
 } gsw_app_conf;
 
@@ -133,6 +187,9 @@ typedef struct gsw_app_conf {
 #define CONTENT_LENGTH          "content-length"
 #define DEFAULT_APP_COUNT       10
 #define REFUSING_SESSIONS_HEADER "x-webobjects-refusenewsessions: "
+#define DEFAULT_CONNECT_TIMEOUT  apr_time_from_sec(5)
+#define DEFAULT_WAIT_TIMEOUT     apr_time_from_sec(60)
+#define DEFAULT_MAX_BODY_SIZE    (8 * 1024 * 1024)   // 8 MiB
 
 // used to read configs
 static int instance_count;
@@ -164,13 +221,13 @@ static apr_pool_t *gsw_subpool = NULL;
 apr_shm_t *exipc_shm;
 char *shmfilename;
 apr_global_mutex_t *exipc_mutex;
-char *mutexfilename; 
+char *mutexfilename;
 
 
 typedef struct exipc_data {
   apr_time_t    last_response_time; // in sec since January 1, 1970
   apr_time_t    last_request_time;  // in sec since January 1, 1970
-  u_int32_t load;                
+  u_int32_t load;
   u_int8_t unreachable;             // 0=online 1=unreachable
   u_int8_t refusing;                // 0=serving new sessions 1=refusing
 } exipc_data;
@@ -259,7 +316,7 @@ static void setup_module_cells(void)
 }
 
 
-void * read_shared_mem(apr_pool_t * pool, int appcount) 
+void * read_shared_mem(apr_pool_t * pool, int appcount)
 {
   apr_size_t   memsize = apr_shm_size_get(exipc_shm);
   void       * mem     = NULL;
@@ -275,13 +332,13 @@ void * read_shared_mem(apr_pool_t * pool, int appcount)
       rv = apr_global_mutex_lock(exipc_mutex);
       if (rv != APR_SUCCESS) {
         //char errstr[1024];
-        //apr_strerror(rv,errstr,1024);			
+        //apr_strerror(rv,errstr,1024);
         //syslog(LOG_ERR,"rv != APR_SUCCESS %s\n", errstr);
         return NULL;
       }
       base = apr_shm_baseaddr_get(exipc_shm);
       memcpy(mem, base, memsize);
-      apr_global_mutex_unlock(exipc_mutex); 
+      apr_global_mutex_unlock(exipc_mutex);
     }
   }
   
@@ -292,31 +349,35 @@ void * read_shared_mem(apr_pool_t * pool, int appcount)
 void mark_unreachable(request_rec *r, gsw_app_conf * app)
 {
   exipc_data   * mem   = NULL;
-  apr_time_t     now     = apr_time_now(); 
+  apr_time_t     now     = apr_time_now();
   u_int16_t      index   = app->total_index;
   
-  apr_global_mutex_lock(exipc_mutex); 	
+  apr_global_mutex_lock(exipc_mutex);
   mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
   
-  mem[index].last_request_time = now;
-  mem[index].unreachable = 1;
+  if (mem) {
+    mem[index].last_request_time = now;
+    mem[index].unreachable = 1;
+  }
   
-  apr_global_mutex_unlock(exipc_mutex); 
+  apr_global_mutex_unlock(exipc_mutex);
 }
 
 void mark_refusing(gsw_app_conf * app)
 {
   exipc_data   * mem   = NULL;
-  apr_time_t     now     = apr_time_now(); 
+  apr_time_t     now     = apr_time_now();
   u_int16_t      index   = app->total_index;
   
-  apr_global_mutex_lock(exipc_mutex); 	
+  apr_global_mutex_lock(exipc_mutex);
   mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
   
-  mem[index].last_request_time = now;
-  mem[index].refusing = 1;
+  if (mem) {
+    mem[index].last_request_time = now;
+    mem[index].refusing = 1;
+  }
   
-  apr_global_mutex_unlock(exipc_mutex); 
+  apr_global_mutex_unlock(exipc_mutex);
 }
 
 void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr_time_t last_response_time, u_int32_t load)
@@ -324,15 +385,17 @@ void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr
   exipc_data   * mem   = NULL;
   u_int16_t      index   = app->total_index;
   
-  apr_global_mutex_lock(exipc_mutex); 	
+  apr_global_mutex_lock(exipc_mutex);
   mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
   
-  mem[index].last_request_time = last_request_time;
-  mem[index].last_response_time = last_response_time;
-  mem[index].load = load;
-  mem[index].unreachable = 0;
+  if (mem) {
+    mem[index].last_request_time = last_request_time;
+    mem[index].last_response_time = last_response_time;
+    mem[index].load = load;
+    mem[index].unreachable = 0;
+  }
 
-  apr_global_mutex_unlock(exipc_mutex); 
+  apr_global_mutex_unlock(exipc_mutex);
 }
 
 
@@ -343,7 +406,7 @@ void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 {
     
-    if (((name) && (strlen(name))) && (cfg->app_table)) 
+    if (((name) && (strlen(name))) && (cfg->app_table))
     {
         
         const        apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
@@ -352,9 +415,9 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
         apr_time_t   t;
         exipc_data * mem;
         int          appcount = tarr->nelts;
-        u_int32_t    lastload = UINT32_MAX;                
-        int          lastindex = -1;                
-        int          lastUnreachableIndex = -1;                
+        u_int32_t    lastload = UINT32_MAX;
+        int          lastindex = -1;
+        int          lastUnreachableIndex = -1;
         
         if (!appcount) {
             return NULL;
@@ -395,7 +458,7 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
                     }
                 }
                 
-            }    
+            }
         }
         if (lastindex >= 0) {
             return (gsw_app_conf *) telts[lastindex].val;
@@ -422,16 +485,17 @@ gsw_app_conf * find_app(request_rec *r)
       appName++;
     } else {
      return NULL;
-    }   
+    }
   } else {
     return NULL;
   }
 
-  strncpy(app_name, appName, sizeof(app_name));
+  strncpy(app_name, appName, sizeof(app_name) - 1);
+  app_name[sizeof(app_name) - 1] = '\0';
   //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name '%s'", app_name);
   
   if ((appName = index(app_name, '.'))) {
-    *appName = '\0';    
+    *appName = '\0';
     appName++;
   
   // now get the instance number if any
@@ -444,7 +508,7 @@ gsw_app_conf * find_app(request_rec *r)
       // parse error?
       if (instance_nr == 0) {
         instance_nr = -1;
-      }    
+      }
     }
   }
 
@@ -460,8 +524,8 @@ gsw_app_conf * find_app(request_rec *r)
 
     snprintf(tmp_key, sizeof(tmp_key), "%s:%d", app_name, instance_nr);
   
-    app_conf = (gsw_app_conf *) apr_table_get(cfg->app_table, (const char  *)tmp_key); 	
-   	
+    app_conf = (gsw_app_conf *) apr_table_get(cfg->app_table, (const char  *)tmp_key);
+       
     return app_conf;
     
   }
@@ -470,107 +534,168 @@ gsw_app_conf * find_app(request_rec *r)
   
   //print_app(r, NULL, app_conf);
   
-  return app_conf;        
+  return app_conf;
 }
 
 
 // returns the socket or <0 on error
 
-int connect_host(char * hostname, u_int16_t port)
+int connect_host(char * hostname, u_int16_t port, apr_time_t timeout)
 {
-  int 					       ok;
-  struct sockaddr_in 	 socketAddress;
-  in_addr_t            in_addr;
-  int                  sock;
+  int                  sock = -1;
   int                  flag = 1;
+  struct addrinfo      hints;
+  struct addrinfo     * res = NULL;
+  struct addrinfo     * ai;
+  int                  gai;
+  char                 portstr[8];
 
-  socketAddress.sin_addr.s_addr = 0;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family   = AF_UNSPEC;   // IPv4 and IPv6
+  hints.ai_socktype = SOCK_STREAM;
 
-  sock = socket(AF_INET, SOCK_STREAM, 0);
+  snprintf(portstr, sizeof(portstr), "%u", (unsigned) port);
 
-  if (socket < 0) {
+  gai = getaddrinfo(hostname, portstr, &hints, &res);
+  if (gai != 0) {
     return -1;
   }
 
-  ok = setsockopt(sock,            /* socket affected */
-                  IPPROTO_TCP,     /* set option at TCP level */
-                  TCP_NODELAY,     /* name of option */
-                  (char *) &flag,  /* the cast is historical cruft */
-                  sizeof(int));    /* length of option value */
-  if (ok != 0) {
-    goto saveclose;
-  }
-  
-  if (inet_aton(hostname, &socketAddress.sin_addr) == 0) {
-    // failure
-    struct hostent * host = NULL;
-         
-    host = gethostbyname((const char *)hostname);
-    if (host != NULL) {
-      memcpy(&socketAddress.sin_addr, host->h_addr_list[0], host->h_length);
+  for (ai = res; ai != NULL; ai = ai->ai_next) {
+    int flags;
+
+    sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+    if (sock < 0) {
+      continue;
     }
 
-  }
-  
-  socketAddress.sin_family = AF_INET;
-  socketAddress.sin_port = htons(port);
+    setsockopt(sock, IPPROTO_TCP, TCP_NODELAY,
+               (char *) &flag, sizeof(int));
 
-  if (socketAddress.sin_addr.s_addr != 0) {   
-    ok = connect(sock, (struct sockaddr *)&socketAddress, sizeof(struct sockaddr_in));
-  
-    if (ok == 0) {
-      return sock;
+    // non-blocking connect + poll with timeout
+    flags = fcntl(sock, F_GETFL, 0);
+    if ((flags >= 0) && (fcntl(sock, F_SETFL, flags | O_NONBLOCK) == 0)) {
+      if (connect(sock, ai->ai_addr, ai->ai_addrlen) != 0) {
+        struct pollfd pfd;
+        int           rs;
+        int           so_error = 0;
+        socklen_t     len = sizeof(so_error);
+        int           timeout_ms = (int) (timeout / 1000);  // apr_time_t is microseconds
+
+        if (errno != EINPROGRESS) {
+          close(sock);
+          sock = -1;
+          continue;
+        }
+
+        pfd.fd      = sock;
+        pfd.events  = POLLOUT;   // a connecting socket becomes writable when done
+        pfd.revents = 0;
+
+        do {
+          rs = poll(&pfd, 1, timeout_ms);
+        } while ((rs < 0) && (errno == EINTR));
+
+        if (rs <= 0) {
+          // timeout or poll error: try the next address
+          close(sock);
+          sock = -1;
+          continue;
+        }
+
+        // check the result of the connect
+        if ((getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &len) != 0) ||
+            (so_error != 0)) {
+          close(sock);
+          sock = -1;
+          continue;
+        }
+      }
+
+      // restore blocking mode
+      fcntl(sock, F_SETFL, flags);
+      break;
     }
+
+    // fcntl failed: fall back to a plain blocking connect
+    if (connect(sock, ai->ai_addr, ai->ai_addrlen) == 0) {
+      break;
+    }
+
+    close(sock);
+    sock = -1;
   }
 
-saveclose:
-  
-  close(sock);  
-  return -1;
+  freeaddrinfo(res);
+
+  return sock;
 }
 
 static int write_sock(int socket, const void *data, size_t len, request_rec *r)
 {
-  int		rval = 0;
+  int        rval = 0;
 
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "sending '%s' len:%d", data, len);
 
-	rval = send(socket, data, len, 0);
+    rval = send(socket, data, len, 0);
 
-	if (rval < 0) {
+    if (rval < 0) {
 
-		/*
-		 * Anything except EAGAIN or EWOULDBLOCK is trouble. If it's
-		 * EPIPE or ECONNRESET, assume we've lost the backend
-		 * connection permanently.
-		 */
-		switch (errno) {
-			case EAGAIN:
-				break;
-			case EINTR:
-				break;
-			default:
-        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "cannot write to socket '%s'", data);
+        /*
+         * Anything except EAGAIN or EWOULDBLOCK is trouble. If it's
+         * EPIPE or ECONNRESET, assume we've lost the backend
+         * connection permanently.
+         */
+        switch (errno) {
+            case EAGAIN:
+                break;
+            case EINTR:
+                break;
+            default:
+        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "cannot write to socket (len %d)", (int)len);
         return -1;
-				break;
-		}
-	}
+                break;
+        }
+    }
   return 0;
 }
 
-void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool)
+void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool, apr_time_t timeout)
 {
-  size_t		rval = 1;
+  size_t        rval = 1;
   int   i = 0;
   int   done = 0;
   char  buffer[1024];
   char  b;
+  struct pollfd pfd;
+  int           rs;
+  apr_time_t    deadline = apr_time_now() + timeout;
   
+  
+  pfd.fd      = socket;
+  pfd.events  = POLLIN;
+  pfd.revents = 0;
   
   while (((done == 0) && (i < sizeof(buffer) -1)) && (rval >0)) {
+    apr_time_t remaining = deadline - apr_time_now();
+    int        wait_ms   = (remaining > 0) ? (int) (remaining / 1000) : 0;
+
+    rs = poll(&pfd, 1, wait_ms);
+    if ((rs < 0) && (errno == EINTR)) {
+      continue;
+    }
+    if ((rs <= 0) || (pfd.revents == 0)) {
+      // timeout: the backend accepted the connection but never responded
+      ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "read_sock_line: timeout waiting for data");
+      return NULL;
+    }
+    
     rval= read(socket, &b, 1);
     
     if (rval == -1) {
+      if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
+        continue;
+      }
       ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "read_sock_line:'%s'", strerror(errno));
 
       return NULL;
@@ -582,16 +707,16 @@ void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool)
       done = 1;
       buffer[i] = '\0';
       if ((i>0) && (buffer[i-1] == '\r')) {
-        buffer[i-1] = '\0';       
+        buffer[i-1] = '\0';
       }
     }
     i++;
   }
   
   buffer[i] = '\0';
-	
-	// in case we got a \0 in the string?
-  i = strlen(buffer);	
+     
+    // in case we got a \0 in the string?
+  i = strlen(buffer);
   if (i > 0) {
     void * newBuf = apr_palloc(pool,i+1);
     strncpy(newBuf, buffer, i+1);
@@ -671,7 +796,7 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
   
   
   newString = apr_psprintf(r->pool, "%s %s%s.woa/%d/%s HTTP/1.1\r\n", r->method, ADAPTOR_PREFIX, appName, app->instance_number
-,restStr);		
+,restStr);
 
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newString:'%s'", newString);
 
@@ -696,10 +821,12 @@ static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
   // GET /wo/PBX HTTP/1.1
   
   
-  //snprintf(tmpStr, sizeof(tmpStr), "%s\r\n", r->the_request);
-  strncpy(tmpStr, fixRequestString(r,app), sizeof(tmpStr));
-
-  retval = write_sock(soc,tmpStr,strlen(tmpStr), r);
+  // write the request line directly: it can be longer than any fixed buffer
+  // (it embeds the full URI path + query)
+  {
+    const char * reqLine = fixRequestString(r,app);
+    retval = write_sock(soc, reqLine, strlen(reqLine), r);
+  }
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "send_headers:'%s'", tmpStr);
 
   if (retval != 0) {
@@ -752,7 +879,7 @@ static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
   }
   
   /*
-   *	Apache custom responses.  If we have redirected, add special headers
+   *    Apache custom responses.  If we have redirected, add special headers
    */
 
   if (r->prev) {
@@ -782,7 +909,16 @@ uint32_t get_content_len(request_rec *r)
     if (!hdrs[i].key)
       continue;
     if (strcasecmp(hdrs[i].key, CONTENT_LENGTH) == 0) {
-      len = atoi((const char *)hdrs[i].val);
+      apr_int64_t  v;
+      char        * end;
+
+      // apr_parse_int64: no wrap-around like atoi, and it tells us
+      // when the value does not fit
+      if (apr_parse_int64(&v, (char *)hdrs[i].val, 10, &end) == APR_SUCCESS) {
+        if ((v >= 0) && (v <= UINT32_MAX)) {
+          len = (uint32_t) v;
+        }
+      }
       break;
     }
   }
@@ -793,11 +929,20 @@ void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool, gsw_
 {
   char * postbuf = NULL;
   char * tmpbuf = NULL;
+  gsw_cfg * cfg = our_dconfig(r);
   if ((r->method_number == M_POST) && (ap_should_client_block(r))) {
-    apr_off_t 	bytesread = 0;
+    apr_off_t     bytesread = 0;
     apr_off_t   len_read = 0;
     
     if (!clength) {
+      return NULL;
+    }
+    
+    // refuse to buffer more than WOMaxBodySize (client-controlled value)
+    if ((cfg->max_body_size > 0) && (clength > cfg->max_body_size)) {
+      ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                     "POST body of %lld bytes exceeds WOMaxBodySize (%lld)",
+                     (long long) clength, (long long) cfg->max_body_size);
       return NULL;
     }
     
@@ -812,7 +957,7 @@ void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool, gsw_
       bytesread += len_read;
       tmpbuf += len_read;
     }
-    postbuf[clength] = '\0';    
+    postbuf[clength] = '\0';
   }
 
   return postbuf;
@@ -820,106 +965,112 @@ void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool, gsw_
 
 static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t contentLen)
 {
-	int                     soc = -1;
-	char                  * newBuf = NULL;
-	apr_pool_t            * sub_pool = NULL;
-	int                     refusing_seen = 0;
-	int                     load_avr_seen = 0;
-	int                     length_seen = 0;
-	u_int32_t               newload = 0;
-	size_t                  content_length = 0;
-	char                  * content_type = NULL;
-	char                  * content_encoding = NULL;
-	char                  * location = NULL;
-	int                     http_status = DECLINED;
+    gsw_cfg               * cfg = our_dconfig(r);
+    int                     soc = -1;
+    char                  * newBuf = NULL;
+    apr_pool_t            * sub_pool = NULL;
+    int                     refusing_seen = 0;
+    int                     load_avr_seen = 0;
+    int                     length_seen = 0;
+    u_int32_t               newload = 0;
+    size_t                  content_length = 0;
+    char                  * content_type = NULL;
+    char                  * content_encoding = NULL;
+    char                  * location = NULL;
+    int                     http_status = DECLINED;
     char                    tmpStr[512];
     apr_time_t              request_time;
     apr_time_t              done_time;
-	
-	apr_pool_create(&sub_pool, r->pool);
+    
+    apr_pool_create(&sub_pool, r->pool);
     
     
-	soc = connect_host(app->host_name, app->port);
-  	
-	if (soc != -1) {
-		if (send_headers(soc, app, r)  == 0) {
-			int   headers_done = 0;			
-			
-			request_time = apr_time_now();
-			// check if we are on a POST trip...
+    soc = connect_host(app->host_name, app->port, cfg->connect_timeout);
+      
+    if (soc != -1) {
+        if (send_headers(soc, app, r)  == 0) {
+            int   headers_done = 0;
+            
+            request_time = apr_time_now();
+            // check if we are on a POST trip...
             if (postdata) {
                 write_sock(soc, CRLF, 2, r);
                 write_sock(soc, postdata, contentLen, r);
-			}
-			write_sock(soc, CRLF, 2, r);
-			
-			// HTTP/1.0 200 OK NeXT WebObjects
-			if ((newBuf = read_sock_line(soc, r, sub_pool))) {
-				if ((strncasecmp(newBuf,"HTTP/",5) != 0) || (strlen(newBuf) < 15)) {
-					ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no 'HTTP/...'", newBuf);
-					apr_pool_destroy(sub_pool);
-					return DECLINED;
-				} else {
-					newBuf[12] = '\0';
-					http_status = atoi(newBuf+9);
-					if (http_status==200) {            
-						http_status=OK;
-					} 
+            }
+            write_sock(soc, CRLF, 2, r);
+            
+            // HTTP/1.0 200 OK NeXT WebObjects
+            if ((newBuf = read_sock_line(soc, r, sub_pool, cfg->wait_timeout))) {
+                if ((strncasecmp(newBuf,"HTTP/",5) != 0) || (strlen(newBuf) < 15)) {
+                    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no 'HTTP/...'", newBuf);
+                    apr_pool_destroy(sub_pool);
+                    return DECLINED;
+                } else {
+                    // parse the status code properly instead of assuming
+                    // a fixed position in the status line
+                    if (sscanf(newBuf, "HTTP/%*d.%*d %d", &http_status) != 1) {
+                        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no status code", newBuf);
+                        apr_pool_destroy(sub_pool);
+                        return DECLINED;
+                    }
+                    if (http_status==200) {
+                        http_status=OK;
+                    }
                     if (http_status == 302) {
                         r->status = http_status;
                     }
-				}
-			}
-			
-			while (headers_done == 0) {
-				newBuf = read_sock_line(soc, r, sub_pool);
+                }
+            }
+            
+            while (headers_done == 0) {
+                newBuf = read_sock_line(soc, r, sub_pool, cfg->wait_timeout);
                 int copy_header = 1;
                 
-				if (newBuf != NULL) {
-					if (load_avr_seen == 0) {
-						if (strncasecmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
-							load_avr_seen = 1;
-							newload = atoi(newBuf+26);
+                if (newBuf != NULL) {
+                    if (load_avr_seen == 0) {
+                        if (strncasecmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
+                            load_avr_seen = 1;
+                            newload = atoi(newBuf+26);
                             copy_header = 0;
-						}
-					}
+                        }
+                    }
                     if (refusing_seen == 0) {
-						if (strncasecmp(newBuf, REFUSING_SESSIONS_HEADER, 32) == 0) {
-							refusing_seen = 1;
+                        if (strncasecmp(newBuf, REFUSING_SESSIONS_HEADER, 32) == 0) {
+                            refusing_seen = 1;
                             copy_header = 0;
-						}
-					}          
-					if (length_seen == 0) {
-						if (strncasecmp(newBuf, "content-length: ", 16) == 0) {
-							length_seen = 1;
-							content_length = atol(newBuf+16);
-							snprintf(tmpStr, sizeof(tmpStr), "%zu", content_length);
-							apr_table_set(r->headers_out, "Content-Length", tmpStr);
+                        }
+                    }
+                    if (length_seen == 0) {
+                        if (strncasecmp(newBuf, "content-length: ", 16) == 0) {
+                            length_seen = 1;
+                            content_length = atol(newBuf+16);
+                            snprintf(tmpStr, sizeof(tmpStr), "%zu", content_length);
+                            apr_table_set(r->headers_out, "Content-Length", tmpStr);
                             copy_header = 0;
-						}
-					}
-					if (content_type == NULL) {
-						if (strncasecmp(newBuf, "content-type: ", 14) == 0) {
-							content_type = newBuf+14;
+                        }
+                    }
+                    if (content_type == NULL) {
+                        if (strncasecmp(newBuf, "content-type: ", 14) == 0) {
+                            content_type = newBuf+14;
                             copy_header = 1;
-						}
-					}
-					if (content_encoding == NULL) {
-						if (strncasecmp(newBuf, "content-encoding: ", 18) == 0) {
-							content_encoding = newBuf+18;
-							apr_table_set(r->headers_out, "Content-Encoding", content_encoding);
+                        }
+                    }
+                    if (content_encoding == NULL) {
+                        if (strncasecmp(newBuf, "content-encoding: ", 18) == 0) {
+                            content_encoding = newBuf+18;
+                            apr_table_set(r->headers_out, "Content-Encoding", content_encoding);
                             copy_header = 0;
-						}
-					}
-					if (location == NULL) {
-                        // Apple has a bug, giving us a 'L', so we do that too but accept a 'l' too -- dw 
-						if (strncasecmp(newBuf, "location: ", 10) == 0) {
-							location = newBuf+10;
-							apr_table_set(r->headers_out, "Location", location);
+                        }
+                    }
+                    if (location == NULL) {
+                        // Apple has a bug, giving us a 'L', so we do that too but accept a 'l' too -- dw
+                        if (strncasecmp(newBuf, "location: ", 10) == 0) {
+                            location = newBuf+10;
+                            apr_table_set(r->headers_out, "Location", location);
                             //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
                             copy_header = 0;
-						}
-					}
+                        }
+                    }
                     if (copy_header == 1) {
                         char * hdrValue = index(newBuf, ':');
                         
@@ -931,43 +1082,43 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
                             apr_table_set(r->headers_out, newBuf, hdrValue);
                         }
                     }
-				} else {
-					headers_done = 1;
-				}
-			} // while
-			
-			// do the request
-			if ((content_length > 0)) {
-				size_t    bytesDone = 0;
-				size_t    blockSize = 1024;
-				size_t    rval=1;
-				char      * transferBuf = NULL;
-				
+                } else {
+                    headers_done = 1;
+                }
+            } // while
+            
+            // do the request
+            if ((content_length > 0)) {
+                size_t    bytesDone = 0;
+                size_t    blockSize = 1024;
+                size_t    rval=1;
+                char      * transferBuf = NULL;
+                
                 if (content_type != NULL) {
                     ap_set_content_type(r, content_type);
-				}
+                }
                 
-				if (content_length < blockSize) {
-					blockSize = content_length;
-				}
-				transferBuf = apr_palloc(sub_pool, blockSize);
-				if (! transferBuf) {
-					goto internal_error;
-				}
-				
-				while ((bytesDone < content_length) && (rval > 0)) {
-					rval= read(soc, transferBuf, blockSize);
-					if (rval > 0) {
-						ap_rwrite(transferBuf, rval, r);
-						bytesDone += rval;
-					} 	
-				}
-			}
-		}
-		
-		close(soc);
+                if (content_length < blockSize) {
+                    blockSize = content_length;
+                }
+                transferBuf = apr_palloc(sub_pool, blockSize);
+                if (! transferBuf) {
+                    goto internal_error;
+                }
+                
+                while ((bytesDone < content_length) && (rval > 0)) {
+                    rval= read(soc, transferBuf, blockSize);
+                    if (rval > 0) {
+                        ap_rwrite(transferBuf, rval, r);
+                        bytesDone += rval;
+                    }
+                }
+            }
+        }
         
-        done_time = apr_time_now();		
+        close(soc);
+        
+        done_time = apr_time_now();
         ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %ld ms", apr_time_msec(done_time - request_time));
         
         if ((http_status==302) && (refusing_seen==1)) {
@@ -976,17 +1127,17 @@ static int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, u
             update_app_statistics(app, request_time, done_time, newload);
         }
         
-	} else { // -1
+    } else { // -1
         http_status = UNREACHABLE;
     }
-	
-	//apr_pool_destroy(sub_pool);
-	
-	return http_status;
-	
+    
+    //apr_pool_destroy(sub_pool);
+    
+    return http_status;
+    
 internal_error:
-	close(soc);
-	return INTERNAL_ERROR;  
+    close(soc);
+    return INTERNAL_ERROR;
 }
 
 
@@ -1049,6 +1200,69 @@ static const char *set_inst_count(cmd_parms *cmd, void *key, const char *value)
   return NULL;
 }
 
+static const char *set_connect_timeout(cmd_parms *cmd, void *mconfig, const char *value)
+{
+  gsw_cfg *cfg = (gsw_cfg *) mconfig;
+  apr_int64_t  v;
+  char        * end;
+
+  if (apr_parse_int64(&v, (char *)value, 10, &end) != APR_SUCCESS) {
+    return apr_psprintf(cmd->pool, "WOConnectTimeout: invalid value '%s'", value);
+  }
+  if (*end != '\0') {
+    return apr_psprintf(cmd->pool, "WOConnectTimeout: invalid value '%s'", value);
+  }
+  if (v < 0) {
+    return "WOConnectTimeout must not be negative";
+  }
+
+  cfg->connect_timeout = apr_time_from_sec(v);
+
+  return NULL;
+}
+
+static const char *set_wait_timeout(cmd_parms *cmd, void *mconfig, const char *value)
+{
+  gsw_cfg *cfg = (gsw_cfg *) mconfig;
+  apr_int64_t  v;
+  char        * end;
+
+  if (apr_parse_int64(&v, (char *)value, 10, &end) != APR_SUCCESS) {
+    return apr_psprintf(cmd->pool, "WOWaitTimeout: invalid value '%s'", value);
+  }
+  if (*end != '\0') {
+    return apr_psprintf(cmd->pool, "WOWaitTimeout: invalid value '%s'", value);
+  }
+  if (v < 0) {
+    return "WOWaitTimeout must not be negative";
+  }
+
+  cfg->wait_timeout = apr_time_from_sec(v);
+
+  return NULL;
+}
+
+static const char *set_max_body_size(cmd_parms *cmd, void *mconfig, const char *value)
+{
+  gsw_cfg *cfg = (gsw_cfg *) mconfig;
+  apr_int64_t  v;
+  char        * end;
+
+  if (apr_parse_int64(&v, (char *)value, 10, &end) != APR_SUCCESS) {
+    return apr_psprintf(cmd->pool, "WOMaxBodySize: invalid value '%s'", value);
+  }
+  if (*end != '\0') {
+    return apr_psprintf(cmd->pool, "WOMaxBodySize: invalid value '%s'", value);
+  }
+  if (v < 0) {
+    return "WOMaxBodySize must not be negative";
+  }
+
+  cfg->max_body_size = (apr_off_t) v;
+
+  return NULL;
+}
+
 //
 //const char*(* cmd_func::take3)
 //                           (cmd_parms *parms, void *mconfig, const char *w, const char *w2, const char *w3)
@@ -1063,10 +1277,10 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   char           tmpStr[128];
   char         * appName      = NULL;
   char         * instanceStr = NULL;
-  char         * hostName     = NULL;  
-  char         * portStr      = NULL;  
+  char         * hostName     = NULL;
+  char         * portStr      = NULL;
   char         * keyStr       = NULL;
-  int            len          = 0;  
+  int            len          = 0;
   gsw_cfg *modulecfg = ap_get_module_config(cmd->server->module_config, &gsw_module);
   const apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
 
@@ -1078,7 +1292,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   hostName = strrchr(word3, '=');
   
   if ((!appName) || (!instanceStr) || (!hostName)) {
-    return apr_psprintf(cmd->temp_pool, "App '%s' '%s' '%s' is invalid.", word1, word2, word3);		
+    return apr_psprintf(cmd->temp_pool, "App '%s' '%s' '%s' is invalid.", word1, word2, word3);
   }
   
   appConf = apr_pcalloc(cmd->pool, sizeof(gsw_app_conf));
@@ -1104,8 +1318,8 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   appConf->total_index = last_app_index;
   
   if (instance_count < appConf->total_index) {
-    return apr_psprintf(cmd->temp_pool, "InstanceCount is '%d', but you added '%d' applications. Increase InstanceCount.", 
-                        instance_count, appConf->total_index);		
+    return apr_psprintf(cmd->temp_pool, "InstanceCount is '%d', but you added '%d' applications. Increase InstanceCount.",
+                        instance_count, appConf->total_index);
   }
   
   snprintf(tmpStr, sizeof(tmpStr), "%s:%d", appName, appConf->instance_number);
@@ -1114,7 +1328,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   keyStr = apr_pcalloc(cmd->pool,len);
   strncpy(keyStr, tmpStr, len);
 
-  apr_table_addn((apr_table_t*) tarr, (const char *) keyStr, (const char *) appConf);	
+  apr_table_addn((apr_table_t*) tarr, (const char *) keyStr, (const char *) appConf);
   last_app_index++;
               
   return NULL;
@@ -1371,6 +1585,10 @@ static int gsw_handler(request_rec *r)
       if (r->method_number == M_POST) {
         contentLen = get_content_len(r);
         postdata = read_post_data(r, contentLen, r->pool, app);
+        if (postdata == NULL) {
+          // the body exceeds WOMaxBodySize (or the client aborted)
+          return 413; // HTTP_PAYLOAD_TOO_LARGE
+        }
       }
       
       
@@ -1398,7 +1616,7 @@ static int gsw_handler(request_rec *r)
       }
       
     }
-  } 
+  }
     
     /*
      * If we're only supposed to send header information (HEAD request), we're
@@ -1509,7 +1727,10 @@ static void *gsw_create_dir_config(apr_pool_t *p, char *dirspec)
      * Finally, add our trace to the callback list.
      */
 
-   cfg->app_table = apr_table_make(p, 1);   // default 
+   cfg->app_table = apr_table_make(p, 1);   // default
+    cfg->connect_timeout = DEFAULT_CONNECT_TIMEOUT;
+    cfg->wait_timeout = DEFAULT_WAIT_TIMEOUT;
+    cfg->max_body_size = DEFAULT_MAX_BODY_SIZE;
 
 
     dname = (dname != NULL) ? dname : "";
@@ -1603,6 +1824,11 @@ static void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
    */
   sname = (sname != NULL) ? sname : "";
   cfg->loc = apr_pstrcat(p, "SVR(", sname, ")", NULL);
+  
+  cfg->app_table = apr_table_make(p, 1);   // default, like gsw_create_dir_config
+  cfg->connect_timeout = DEFAULT_CONNECT_TIMEOUT;
+  cfg->wait_timeout = DEFAULT_WAIT_TIMEOUT;
+  cfg->max_body_size = DEFAULT_MAX_BODY_SIZE;
   
   return (void *) cfg;
 }
@@ -1728,46 +1954,46 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
   
   //openlog("www", LOG_PID,LOG_USER);
   
-  /* 
-   * The following checks if this routine has been called before. 
+  /*
+   * The following checks if this routine has been called before.
    * This is necessary because the parent process gets initialized
-   * a couple of times as the server starts up, and we don't want 
+   * a couple of times as the server starts up, and we don't want
    * to create any more mutexes and shared memory segments than
-   * we're actually going to use. 
+   * we're actually going to use.
    */
 
   apr_pool_userdata_get(&data, userdata_key, s->process->pool);
   if (!data) {
-    apr_pool_userdata_set((const void *) 1, userdata_key, 
+    apr_pool_userdata_set((const void *) 1, userdata_key,
                           apr_pool_cleanup_null, s->process->pool);
 
     return OK;
-  } 
+  }
   
   /* Create the shared memory segment */
   
-  /* 
-   * Create a unique filename using our pid. This information is 
+  /*
+   * Create a unique filename using our pid. This information is
    * stashed in the global variable so the children inherit it.
-   * TODO get the location from the environment $TMPDIR or somesuch. 
+   * TODO get the location from the environment $TMPDIR or somesuch.
    */
   
   cfg = ap_get_module_config(s->module_config, &gsw_module);
 
   appcount = instance_count;
   
-  apr_temp_dir_get(&temp_dir, pconf);		
+  apr_temp_dir_get(&temp_dir, pconf);
 
-  apr_filepath_merge(&shmfilename, temp_dir, 
-                     apr_psprintf(pconf, "gsw_shm.%ld", (long int)getpid()), 0, pconf);		
+  apr_filepath_merge(&shmfilename, temp_dir,
+                     apr_psprintf(pconf, "gsw_shm.%ld", (long int)getpid()), 0, pconf);
 
   /* Now create that segment */
 
-  rs = apr_shm_create(&exipc_shm, (sizeof(exipc_data) * appcount), 
+  rs = apr_shm_create(&exipc_shm, (sizeof(exipc_data) * appcount),
                       (const char *) shmfilename, pconf);
   if (rs != APR_SUCCESS) {
-    ap_log_error(APLOG_MARK, APLOG_ERR, rs, s, 
-                 "Failed to create shared memory segment on file %s", 
+    ap_log_error(APLOG_MARK, APLOG_ERR, rs, s,
+                 "Failed to create shared memory segment on file %s",
                  shmfilename);
     return HTTP_INTERNAL_SERVER_ERROR;
   }
@@ -1775,20 +2001,20 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
   
   /* Create global mutex */
   
-  /* 
+  /*
    * Create another unique filename to lock upon. Note that
    * depending on OS and locking mechanism of choice, the file
-   * may or may not be actually created. 
+   * may or may not be actually created.
    */
 
-  apr_filepath_merge(&mutexfilename, temp_dir, 
-                     apr_psprintf(pconf, "gsw_mutex.%ld", (long int)getpid()), 0, pconf);		
+  apr_filepath_merge(&mutexfilename, temp_dir,
+                     apr_psprintf(pconf, "gsw_mutex.%ld", (long int)getpid()), 0, pconf);
   
-  rs = apr_global_mutex_create(&exipc_mutex, (const char *) mutexfilename, 
+  rs = apr_global_mutex_create(&exipc_mutex, (const char *) mutexfilename,
                                APR_LOCK_DEFAULT, pconf);
   if (rs != APR_SUCCESS) {
-    ap_log_error(APLOG_MARK, APLOG_ERR, rs, s, 
-                 "Failed to create mutex on file %s", 
+    ap_log_error(APLOG_MARK, APLOG_ERR, rs, s,
+                 "Failed to create mutex on file %s",
                  mutexfilename);
 
     return HTTP_INTERNAL_SERVER_ERROR;
@@ -1797,19 +2023,19 @@ static int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
 #ifdef MOD_EXIPC_SET_MUTEX_PERMS
   rs = ap_unixd_set_global_mutex_perms(exipc_mutex);
   if (rs != APR_SUCCESS) {
-    ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s, 
+    ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s,
                  "Parent could not set permissions on Example IPC "
                  "mutex: check User and Group directives");
     return HTTP_INTERNAL_SERVER_ERROR;
   }
 #endif /* MOD_EXIPC_SET_MUTEX_PERMS */
 
-  apr_global_mutex_lock(exipc_mutex); 	
+  apr_global_mutex_lock(exipc_mutex);
   
-  /* Created it, now let's zero it out */  
+  /* Created it, now let's zero it out */
   init_shared_mem(exipc_shm, appcount, s);
 
-  apr_global_mutex_unlock(exipc_mutex); 
+  apr_global_mutex_unlock(exipc_mutex);
   
   
   return OK;
@@ -1851,7 +2077,7 @@ static apr_status_t gsw_child_exit(void *data)
     return APR_SUCCESS;
 }
 
-/* 
+/*
  * This routine gets called when a child inits. We use it to attach
  * to the shared memory segment, and reinitialize the mutex.
  */
@@ -1865,22 +2091,22 @@ static void gsw_child_init(apr_pool_t *p, server_rec *s)
    */
   setup_module_cells();
   
-  /* 
+  /*
    * Re-open the mutex for the child. Note we're reusing
-   * the mutex pointer global here. 
+   * the mutex pointer global here.
    */
 
-  rs = apr_global_mutex_child_init(&exipc_mutex, 
-                                   (const char *) mutexfilename, 
+  rs = apr_global_mutex_child_init(&exipc_mutex,
+                                   (const char *) mutexfilename,
                                    p);
   if (rs != APR_SUCCESS) {
-    ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s, 
-                 "Failed to reopen mutex on file %s", 
+    ap_log_error(APLOG_MARK, APLOG_CRIT, rs, s,
+                 "Failed to reopen mutex on file %s",
                  mutexfilename);
     /* There's really nothing else we can do here, since
      * This routine doesn't return a status. */
     exit(1); /* Ugly, but what else? */
-  } 
+  }
   
   apr_pool_cleanup_register(p, s, gsw_child_exit, gsw_child_exit);
   
@@ -2219,7 +2445,7 @@ static void gsw_register_hooks(apr_pool_t *p)
  */
  
 /*
-RSRC_CONF - httpd.conf at top level or in a VirtualHost context. 
+RSRC_CONF - httpd.conf at top level or in a VirtualHost context.
 
 ACCESS_CONF - httpd.conf in a Directory context.
 */
@@ -2233,7 +2459,7 @@ ACCESS_CONF - httpd.conf in a Directory context.
 
 static const command_rec gsw_cmds[] =
 {
-    AP_INIT_FLAG("ShowApps", 
+    AP_INIT_FLAG("ShowApps",
                  set_ShowApps,
                  NULL,
                  RSRC_CONF,
@@ -2252,7 +2478,25 @@ static const command_rec gsw_cmds[] =
                 RSRC_CONF,
                 "InstanceCount <number> -- the number of instances to tell the module how much shared memory is needed"
                 ),
-  
+
+  AP_INIT_TAKE1("WOConnectTimeout",
+                set_connect_timeout,
+                NULL,
+                RSRC_CONF,
+                "WOConnectTimeout <seconds> -- timeout for connecting to the backend application (default 5)"),
+
+  AP_INIT_TAKE1("WOWaitTimeout",
+                set_wait_timeout,
+                NULL,
+                RSRC_CONF,
+                "WOWaitTimeout <seconds> -- timeout for reading a response from the backend application (default 60)"),
+
+  AP_INIT_TAKE1("WOMaxBodySize",
+                set_max_body_size,
+                NULL,
+                RSRC_CONF,
+                "WOMaxBodySize <bytes> -- maximum POST body size to buffer; larger requests get a 413 (default 8388608)"),
+
     {NULL}
 };
 /*--------------------------------------------------------------------------*/
