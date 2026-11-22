@@ -224,6 +224,9 @@ extern char *mutexfilename;
 /*                                                                          */
 /*--------------------------------------------------------------------------*/
 
+/* gsw_cmds.c */
+extern const command_rec gsw_cmds[];
+
 /* gsw_config.c */
 gsw_cfg * our_dconfig(const request_rec *r);
 gsw_cfg * our_cconfig(const conn_rec *c);
