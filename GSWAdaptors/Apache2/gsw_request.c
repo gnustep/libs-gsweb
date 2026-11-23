@@ -41,29 +41,30 @@ x-webobjects-adaptorstats: applicationThreadCreation=+0.000s applicationThreadRu
 
 */
 
-static int send_header_string(int soc, const char * key, const char * value, request_rec *r)
-{
-    int                     retval = 0;
-    char tmpStr[512];
-    
-    snprintf(tmpStr, sizeof(tmpStr)-1, "%s: %s\r\n",key, value);
-    retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
-    return retval;
-    
-}
-
 const char * fixRequestString(request_rec *r, gsw_app_conf *app)
 {
   char            * req_str = r->the_request;
-  size_t            len = strlen(req_str);
-  char            * appName = apr_palloc(r->pool,len+5);
+  size_t            len;
+  char            * appName;
   char            * spaceStr;
   char            * instanceStr;
   char            * restStr = NULL;
   int               instance_nr = -1;
   char            * newString = NULL;
 
-  strncpy(appName, req_str, len);
+  if (req_str == NULL) {
+    // subrequests and some internal redirects have no request line; fall
+    // back to the parsed URI so we still send something well formed
+    req_str = apr_psprintf(r->pool, "%s %s HTTP/1.1", r->method,
+                           r->uri ? r->uri : "/");
+  }
+
+  len = strlen(req_str);
+  appName = apr_palloc(r->pool, len + 5);
+
+  // copy with explicit NUL: strncpy(dst, src, len) leaves dst unterminated
+  memcpy(appName, req_str, len);
+  appName[len] = '\0';
 
   // GET /wo/PBX HTTP/1.1
   
@@ -115,88 +116,144 @@ static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
   apr_table_entry_t     * hdrs = NULL;
   int                     retval = 0;
   int                     i = 0;
-  char tmpStr[512];
+  char                   * hdrBuf = NULL;
+  size_t                  bufLen = 0;
+  size_t                  bufSize = 0;
   const char            * ap_str;
   server_rec            * s = r->server;
   conn_rec              * c = r->connection;
- 
+
   hdrs_arr = (apr_array_header_t*) apr_table_elts(r->headers_in);
   hdrs = (apr_table_entry_t *) hdrs_arr->elts;
 
   // GET /wo/PBX HTTP/1.1
-  
-  
+
   // write the request line directly: it can be longer than any fixed buffer
   // (it embeds the full URI path + query)
   {
     const char * reqLine = fixRequestString(r,app);
     retval = write_sock(soc, reqLine, strlen(reqLine), r);
   }
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "send_headers:'%s'", tmpStr);
 
   if (retval != 0) {
     return retval;
   }
-  
+
+  // build the entire header block in one buffer and send it in a single
+  // call, instead of one write_sock() per header
+  bufSize = 4096;
+  hdrBuf = apr_palloc(r->pool, bufSize);
+  hdrBuf[0] = '\0';
+  bufLen = 0;
+
+#define APPEND_HDR(key, value) \
+  do { \
+    int _n; \
+    while ((size_t) (_n = snprintf(NULL, 0, "%s: %s\r\n", (key), (value))) >= (bufSize - bufLen)) { \
+      size_t _newSize = bufSize * 2; \
+      char  *_newBuf  = apr_palloc(r->pool, _newSize); \
+      memcpy(_newBuf, hdrBuf, bufLen);   /* keep what we already appended */ \
+      hdrBuf  = _newBuf; \
+      bufSize = _newSize; \
+    } \
+    _n = snprintf(hdrBuf + bufLen, bufSize - bufLen, "%s: %s\r\n", (key), (value)); \
+    bufLen += (size_t) _n; \
+  } while (0)
+
   for (i = 0; i < hdrs_arr->nelts; ++i) {
-    if (!hdrs[i].key)
+    if (!hdrs[i].key || !hdrs[i].val)
       continue;
-    snprintf(tmpStr, sizeof(tmpStr), "%s: %s\r\n", hdrs[i].key, hdrs[i].val);
-    retval = write_sock(soc,tmpStr,strlen(tmpStr), r);
-    if (retval != 0) {
-      return retval;
+    // drop headers with CR/LF in key or value: they would let a client
+    // inject extra headers into the request we forward to the backend
+    if (!gsw_header_is_safe(hdrs[i].key, hdrs[i].val)) {
+      ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                     "dropping header with CR/LF in key or value: '%s'", hdrs[i].key);
+      continue;
     }
+    APPEND_HDR(hdrs[i].key, hdrs[i].val);
   }
   // write x-webobjects-adaptor-version to the app
-  snprintf(tmpStr, sizeof(tmpStr), X_WO_VERSION_HEADER);
+  {
+    int _n = snprintf(NULL, 0, "%s", X_WO_VERSION_HEADER);
+    while ((size_t) _n >= (bufSize - bufLen)) {
+      size_t _newSize = bufSize * 2;
+      char  *_newBuf  = apr_palloc(r->pool, _newSize);
+      memcpy(_newBuf, hdrBuf, bufLen);
+      hdrBuf  = _newBuf;
+      bufSize = _newSize;
+    }
+    _n = snprintf(hdrBuf + bufLen, bufSize - bufLen, "%s", X_WO_VERSION_HEADER);
+    bufLen += (size_t) _n;
+  }
 
-  retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
-  
-  retval = send_header_string(soc, SERVER_NAME, s->server_hostname, r);
+  if ((s != NULL) && (s->server_hostname != NULL)) {
+    APPEND_HDR(SERVER_NAME, s->server_hostname);
+  }
 
   // SERVER_PORT
-  snprintf(tmpStr, sizeof(tmpStr), "SERVER_PORT: %hu\r\n",ap_get_server_port(r));
-  retval = write_sock(soc, tmpStr, strlen(tmpStr), r);
+  {
+    char portStr[16];
+    snprintf(portStr, sizeof(portStr), "%hu", ap_get_server_port(r));
+    APPEND_HDR(SERVER_PORT, portStr);
+  }
 
 #if (AP_SERVER_MAJORVERSION_NUMBER == 2) && (AP_SERVER_MINORVERSION_NUMBER < 4)
-    retval = send_header_string(soc, REMOTE_ADDR, c->remote_ip, r);
+  if ((c != NULL) && (c->remote_ip != NULL)) {
+    APPEND_HDR(REMOTE_ADDR, c->remote_ip);
+  }
 #else
-    retval = send_header_string(soc, REMOTE_ADDR, c->client_ip, r);
+  if ((c != NULL) && (c->client_ip != NULL)) {
+    APPEND_HDR(REMOTE_ADDR, c->client_ip);
+  }
 #endif
 
   if (r->user != NULL) {
-    retval = send_header_string(soc, REMOTE_USER, r->user, r);
-  }
-  
-  if (r->ap_auth_type != NULL) {
-    retval = send_header_string(soc, AUTH_TYPE, r->ap_auth_type, r);
-  }
-  
-  ap_str = (char *)ap_get_remote_logname(r);
-  
-  if (ap_str != NULL) {
-    retval = send_header_string(soc, REMOTE_IDENT, ap_str, r);
+    if (gsw_header_is_safe(REMOTE_USER, r->user)) {
+      APPEND_HDR(REMOTE_USER, r->user);
+    }
   }
 
-  // the_request
-  if (r->unparsed_uri != NULL) {
-    retval = send_header_string(soc, "the_request", r->the_request, r);
+  if (r->ap_auth_type != NULL) {
+    if (gsw_header_is_safe(AUTH_TYPE, r->ap_auth_type)) {
+      APPEND_HDR(AUTH_TYPE, r->ap_auth_type);
+    }
   }
-  
+
+  ap_str = (char *)ap_get_remote_logname(r);
+
+  if (ap_str != NULL) {
+    if (gsw_header_is_safe(REMOTE_IDENT, ap_str)) {
+      APPEND_HDR(REMOTE_IDENT, ap_str);
+    }
+  }
+
+  // the_request  (guard the pointer we actually format, not unparsed_uri)
+  if (r->the_request != NULL) {
+    if (gsw_header_is_safe("the_request", r->the_request)) {
+      APPEND_HDR("the_request", r->the_request);
+    }
+  }
+
   /*
    *    Apache custom responses.  If we have redirected, add special headers
    */
 
   if (r->prev) {
     if (r->prev->args) {
-      retval = send_header_string(soc, REDIRECT_QUERY_STRING, r->prev->args, r);
+      if (gsw_header_is_safe(REDIRECT_QUERY_STRING, r->prev->args)) {
+        APPEND_HDR(REDIRECT_QUERY_STRING, r->prev->args);
+      }
     }
     if (r->prev->uri) {
-      retval = send_header_string(soc, REDIRECT_URL, r->prev->uri, r);
+      if (gsw_header_is_safe(REDIRECT_URL, r->prev->uri)) {
+        APPEND_HDR(REDIRECT_URL, r->prev->uri);
+      }
     }
   }
-  
-  return retval;
+
+#undef APPEND_HDR
+
+  return write_sock(soc, hdrBuf, bufLen, r);
 }
 
 uint32_t get_content_len(request_rec *r)
@@ -286,52 +343,77 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
     char                    tmpStr[512];
     apr_time_t              request_time;
     apr_time_t              done_time;
+    gsw_line_reader       * reader = NULL;
     
     apr_pool_create(&sub_pool, r->pool);
+    reader = (gsw_line_reader *) gsw_line_reader_init(sub_pool);
     
     
     soc = connect_host(app->host_name, app->port, cfg->connect_timeout);
       
     if (soc != -1) {
-        if (send_headers(soc, app, r)  == 0) {
+        int sh_rval = send_headers(soc, app, r);
+        if (sh_rval == 0) {
             int   headers_done = 0;
             
             request_time = apr_time_now();
             // check if we are on a POST trip...
             if (postdata) {
-                write_sock(soc, CRLF, 2, r);
-                write_sock(soc, postdata, contentLen, r);
+                if ((write_sock(soc, CRLF, 2, r) != 0) ||
+                    (write_sock(soc, postdata, contentLen, r) != 0)) {
+                    // the backend closed the connection mid-body-send
+                    ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "gsw: POST body send failed");
+                    goto unreachable;
+                }
             }
-            write_sock(soc, CRLF, 2, r);
+            if (write_sock(soc, CRLF, 2, r) != 0) {
+                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "gsw: final CRLF send failed");
+                goto unreachable;
+            }
             
             // HTTP/1.0 200 OK NeXT WebObjects
-            if ((newBuf = read_sock_line(soc, r, sub_pool, cfg->wait_timeout))) {
-                if ((strncasecmp(newBuf,"HTTP/",5) != 0) || (strlen(newBuf) < 15)) {
-                    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no 'HTTP/...'", newBuf);
+            newBuf = read_sock_line(soc, r, sub_pool, cfg->wait_timeout, reader);
+            if (newBuf == NULL) {
+                // timeout / read error / backend closed before responding
+                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "gsw: status-line read failed");
+                goto unreachable;
+            }
+            if ((strncasecmp(newBuf,"HTTP/",5) != 0) || (strlen(newBuf) < 15)) {
+                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "Got '%s' but no 'HTTP/...'", newBuf);
+                apr_pool_destroy(sub_pool);
+                return DECLINED;
+            } else {
+                // parse the status code properly instead of assuming
+                // a fixed position in the status line
+                if (sscanf(newBuf, "HTTP/%*d.%*d %d", &http_status) != 1) {
+                    ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "Got '%s' but no status code", newBuf);
                     apr_pool_destroy(sub_pool);
                     return DECLINED;
-                } else {
-                    // parse the status code properly instead of assuming
-                    // a fixed position in the status line
-                    if (sscanf(newBuf, "HTTP/%*d.%*d %d", &http_status) != 1) {
-                        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Got '%s' but no status code", newBuf);
-                        apr_pool_destroy(sub_pool);
-                        return DECLINED;
-                    }
-                    if (http_status==200) {
-                        http_status=OK;
-                    }
-                    if (http_status == 302) {
-                        r->status = http_status;
-                    }
+                }
+                if (http_status==200) {
+                    http_status=OK;
+                }
+                if (http_status == 302) {
+                    r->status = http_status;
                 }
             }
             
             while (headers_done == 0) {
-                newBuf = read_sock_line(soc, r, sub_pool, cfg->wait_timeout);
+                newBuf = read_sock_line(soc, r, sub_pool, cfg->wait_timeout, reader);
                 int copy_header = 1;
                 
-                if (newBuf != NULL) {
+                if (newBuf == NULL) {
+                    // the socket died mid-headers: bail out as unreachable
+                    // rather than pretending we saw the terminating blank line
+                    ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "gsw: header read failed mid-headers");
+                    goto unreachable;
+                }
+                if (newBuf[0] == '\0') {
+                    // a blank line terminates the header block
+                    headers_done = 1;
+                    continue;
+                }
+                {
                     if (load_avr_seen == 0) {
                         if (strncasecmp(newBuf, "x-webobjects-loadaverage: ", 26) == 0) {
                             load_avr_seen = 1;
@@ -357,13 +439,27 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
                     if (content_type == NULL) {
                         if (strncasecmp(newBuf, "content-type: ", 14) == 0) {
                             content_type = newBuf+14;
+                            // a CR/LF in the value would let the backend
+                            // inject headers into our response
+                            if (!gsw_header_is_safe("content-type", content_type)) {
+                                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                               "dropping backend content-type with CR/LF: '%s'", content_type);
+                                content_type = NULL;
+                            }
                             copy_header = 1;
                         }
                     }
                     if (content_encoding == NULL) {
                         if (strncasecmp(newBuf, "content-encoding: ", 18) == 0) {
                             content_encoding = newBuf+18;
-                            apr_table_set(r->headers_out, "Content-Encoding", content_encoding);
+                            if (!gsw_header_is_safe("content-encoding", content_encoding)) {
+                                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                               "dropping backend content-encoding with CR/LF: '%s'", content_encoding);
+                                content_encoding = NULL;
+                            }
+                            if (content_encoding != NULL) {
+                                apr_table_set(r->headers_out, "Content-Encoding", content_encoding);
+                            }
                             copy_header = 0;
                         }
                     }
@@ -371,7 +467,14 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
                         // Apple has a bug, giving us a 'L', so we do that too but accept a 'l' too -- dw
                         if (strncasecmp(newBuf, "location: ", 10) == 0) {
                             location = newBuf+10;
-                            apr_table_set(r->headers_out, "Location", location);
+                            if (!gsw_header_is_safe("location", location)) {
+                                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                               "dropping backend location with CR/LF: '%s'", location);
+                                location = NULL;
+                            }
+                            if (location != NULL) {
+                                apr_table_set(r->headers_out, "Location", location);
+                            }
                             //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "location '%s'", location);
                             copy_header = 0;
                         }
@@ -384,20 +487,28 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
                             hdrValue++; // space
                             hdrValue++; // first pos.
                             
-                            apr_table_set(r->headers_out, newBuf, hdrValue);
+                            // drop headers with CR/LF in key or value: they
+                            // would let the backend inject headers into our
+                            // response (response splitting)
+                            if (!gsw_header_is_safe(newBuf, hdrValue)) {
+                                ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                               "dropping backend header with CR/LF: '%s'", newBuf);
+                                copy_header = 0;
+                            } else {
+                                apr_table_set(r->headers_out, newBuf, hdrValue);
+                            }
                         }
                     }
-                } else {
-                    headers_done = 1;
                 }
             } // while
             
             // do the request
             if ((content_length > 0)) {
                 size_t    bytesDone = 0;
-                size_t    blockSize = 1024;
-                size_t    rval=1;
+                size_t    blockSize = 65536;   // 64 KiB
+                ssize_t   rval = 1;
                 char      * transferBuf = NULL;
+                struct pollfd pfd;
                 
                 if (content_type != NULL) {
                     ap_set_content_type(r, content_type);
@@ -411,14 +522,114 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
                     goto internal_error;
                 }
                 
+                pfd.fd      = soc;
+                pfd.events  = POLLIN;
+                pfd.revents = 0;
+                
+                // The buffered line reader may have already read past the
+                // header terminator into the body.  Hand those bytes to the
+                // client before touching the socket again, otherwise they are
+                // lost and the relay stalls waiting for data we consumed.
+                {
+                  char   * pendData  = NULL;
+                  size_t   pendCount = 0;
+                  
+                  if (gsw_line_reader_pending(reader, &pendData, &pendCount)) {
+                    size_t need = content_length - bytesDone;
+                    size_t take = (pendCount < need) ? pendCount : need;
+                    
+                    if (ap_rwrite(pendData, (apr_size_t) take, r) < 0) {
+                      ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                                    "gsw: pending write to client failed");
+                      rval = -1;
+                      goto body_done;
+                    }
+                    bytesDone += take;
+                    // advance the reader past what we just consumed
+                    reader->len -= take;
+                    if (reader->len > 0) {
+                      memmove(reader->buffer, reader->buffer + take, reader->len);
+                    }
+                  }
+                }
+                
                 while ((bytesDone < content_length) && (rval > 0)) {
-                    rval= read(soc, transferBuf, blockSize);
-                    if (rval > 0) {
-                        ap_rwrite(transferBuf, rval, r);
-                        bytesDone += rval;
+                    // poll with a timeout before each read: a backend that
+                    // stalls mid-body must not hang the worker forever
+                    apr_time_t remaining = cfg->wait_timeout - (apr_time_now() - request_time);
+                    int        rs;
+
+                    if (remaining <= 0) {
+                        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                       "body read: exceeded WOWaitTimeout");
+                        rval = -1;
+                        break;
+                    }
+
+                    do {
+                        rs = poll(&pfd, 1, (int) (remaining / 1000));
+                    } while ((rs < 0) && (errno == EINTR));
+                    if (rs < 0) {
+                        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                       "body read: poll failed: '%s'", strerror(errno));
+                        rval = -1;
+                        break;
+                    }
+                    if (rs == 0) {
+                        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                       "body read: timeout waiting for data");
+                        rval = -1;
+                        break;
+                    }
+                    
+                    rval = read(soc, transferBuf, blockSize);
+                    if (rval < 0) {
+                        if ((errno == EAGAIN) || (errno == EWOULDBLOCK) || (errno == EINTR)) {
+                            continue;
+                        }
+                        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                       "body read: '%s'", strerror(errno));
+                        rval = -1;
+                        break;
+                    }
+                    if (rval == 0) {
+                        // the backend closed the connection mid-body
+                        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                       "body read: connection closed by backend after %d of %d bytes",
+                                       (int) bytesDone, (int) content_length);
+                        break;
+                    }
+                    if (ap_rwrite(transferBuf, rval, r) < 0) {
+                        // the client went away; stop reading
+                        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                                      "gsw: body write to client failed after %d of %d bytes",
+                                      (int) bytesDone, (int) content_length);
+                        rval = -1;
+                        break;
+                    }
+                    bytesDone += (size_t) rval;
+                }
+                
+            body_done:
+                if ((rval < 0) || (bytesDone < content_length)) {
+                    ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                                  "gsw: body relay incomplete (%d of %d bytes)",
+                                  (int) bytesDone, (int) content_length);
+                    if (bytesDone > 0) {
+                        // We already streamed part of the body to the client,
+                        // so retrying on another instance would emit a second,
+                        // interleaved response.  Close what we have and report
+                        // success; Apache will fix up the truncated length.
+                        rval = 0;
+                    } else {
+                        // nothing sent yet: safe to mark unreachable and retry
+                        goto unreachable;
                     }
                 }
             }
+        } else {
+            ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                          "gsw: send_headers failed (%d)", sh_rval);
         }
         
         close(soc);
@@ -433,6 +644,8 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
         }
         
     } else { // -1
+        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "gsw: connect to %s:%u failed",
+                      app->host_name, (unsigned) app->port);
         http_status = UNREACHABLE;
     }
     
@@ -443,5 +656,12 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
 internal_error:
     close(soc);
     return INTERNAL_ERROR;
+
+unreachable:
+    // the backend socket failed mid-request: close it, mark the app
+    // unreachable, and let gsw_handler() retry on another instance
+    close(soc);
+    mark_unreachable(r, app);
+    return UNREACHABLE;
 }
 

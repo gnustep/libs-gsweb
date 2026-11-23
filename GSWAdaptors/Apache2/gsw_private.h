@@ -123,6 +123,8 @@ typedef struct gsw_cfg {
 #define UNREACHABLE       -10
 #define INTERNAL_ERROR    500
 
+// CRLF ("\015\012") comes from httpd.h; do not redefine it here.
+
 #define RETRY_COUNT       3
 
 typedef struct gsw_app_conf {
@@ -160,6 +162,13 @@ typedef struct gsw_app_conf {
 #define DEFAULT_CONNECT_TIMEOUT  apr_time_from_sec(5)
 #define DEFAULT_WAIT_TIMEOUT     apr_time_from_sec(60)
 #define DEFAULT_MAX_BODY_SIZE    (8 * 1024 * 1024)   // 8 MiB
+
+// header validation for CRLF injection / response splitting (cf.
+// CVE-2016-4975): returns 0 if key or value contains a raw CR/LF or a
+// percent-encoded one (%0d / %0a, case-insensitive).  Used both for
+// headers copied from the backend into the client response and for
+// client headers forwarded to the backend.
+int gsw_header_is_safe(const char * key, const char * value);
 
 typedef struct exipc_data {
   apr_time_t    last_response_time; // in sec since January 1, 1970
@@ -253,8 +262,24 @@ gsw_app_conf * find_app(request_rec *r);
 /* gsw_net.c */
 int connect_host(char * hostname, u_int16_t port, apr_time_t timeout);
 int write_sock(int socket, const void *data, size_t len, request_rec *r);
+
+// Per-connection buffered-line reader.  One instance is created per backend
+// socket (see gsw_line_reader_init) and passed to every read_sock_line() call
+// for that connection, so leftover bytes never leak across connections.
+#define GSW_LINE_BUF_SIZE 8192
+
+typedef struct gsw_line_reader {
+  char    buffer[GSW_LINE_BUF_SIZE];
+  size_t  len;      // valid bytes currently held in buffer
+} gsw_line_reader;
+
+void * gsw_line_reader_init(apr_pool_t * pool);
+// Exposes bytes the buffered reader already read past the last line header.
+// Sets *data to the pending bytes and *count to how many; the pointer is valid
+// until the next read_sock_line() on this reader.  Returns 0 if none pending.
+int gsw_line_reader_pending(gsw_line_reader * reader, char ** data, size_t * count);
 void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool,
-                      apr_time_t timeout);
+                      apr_time_t timeout, gsw_line_reader * reader);
 
 /* gsw_request.c */
 const char * fixRequestString(request_rec *r, gsw_app_conf *app);

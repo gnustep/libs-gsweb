@@ -102,11 +102,17 @@ int gsw_handler(request_rec *r)
       
       
       for (i = 0; ((i < RETRY_COUNT) && (handle_status <= OK)); i++) {
+        if (app == NULL) {
+          // every instance of this app is marked unreachable; do not call
+          // handle_request() with a NULL conf
+          break;
+        }
         handle_status = handle_request(r, app, postdata, contentLen);
         
         switch (handle_status) {
           case UNREACHABLE:
-            mark_unreachable(r,app);
+            // handle_request() already marked this instance unreachable via
+            // its `unreachable:` path; only re-resolve the app here
             app = find_app(r);
             break;
           case DECLINED:
