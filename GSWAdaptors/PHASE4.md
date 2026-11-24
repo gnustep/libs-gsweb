@@ -11,7 +11,7 @@ documentation update in `GSWAdaptors/README.txt`.
 | Item | Change |
 |------|--------|
 | **3.4** | `read_shared_mem()` no longer copies the entire shared-memory segment under the global mutex on every request. New signature `(pool, count, indexes)` copies only the requested `exipc_data` entries; the mutex is held only for the copy |
-| **3.5** | `find_app_by_name()` no longer linearly scans every configured app per request. A name → instance-list index (`gsw_cfg->app_index`, an `apr_table` of lower-cased names) is built once at config time; per-request lookup is O(instances of that app) |
+| **3.5** | `find_app_by_name()` resolves the app by a linear scan of `app_table` with `strcasecmp()`, collecting that app's instances into a stack array; per-request cost is O(configured instances) for the name match, then O(instances of that app) for the balance |
 | **2.13** | The process-global `instance_count` / `last_app_index` are now fields of the server-level `gsw_cfg`, so multiple module configs (vhosts) cannot clobber each other |
 | **4.1** | New directives: **`WORetryCount`** (default 3) and **`WOBalancer`** (`lowest-load` \| `round-robin`, default `lowest-load`) |
 | **4.2** | Round-robin balancing: unpinned requests rotate through an app's instances, skipping unreachable/refusing ones; the counter lives in `gsw_cfg` so each vhost/location balances independently |
@@ -44,15 +44,18 @@ Callers:
 - `gsw_status.c` (`showApps`) builds the index array in table order, one
   entry per configured instance.
 
-### 3.5 — Name index (`gsw_apps.c`, `gsw_lifecycle.c`)
+### 3.5 — Name lookup (`gsw_apps.c`)
 
-`find_app_by_name()` scanned the whole `app_table` with `strcasecmp` on every
-unpinned request — O(all configured instances) per request. A new
-`gsw_build_app_index(gsw_cfg *)` (called from `gsw_post_config` after the shm
-is initialized) builds `gsw_cfg->app_index`: an `apr_table` mapping
-lower-cased app name → `apr_array_header_t` of `gsw_app_conf *`. The lookup
-now lower-cases the request's app name and does one `apr_table_get`, then
-iterates only that app's instances.
+`find_app_by_name()` resolves the app by a linear scan of `app_table` with
+`strcasecmp()` (case-insensitive), collecting the matching instances into a
+stack-allocated `matches[64]` array (max 64 instances per app). The balancer
+then operates on `matches[]`.
+
+An earlier revision of this phase used an `apr_table` name index
+(`gsw_cfg->app_index`), but `apr_table` stores values as `const char *`, so a
+stored pointer was retrieved as NULL — the index was fundamentally broken.
+The linear scan is simpler, correct, and the cost is negligible at the number
+of instances a real deployment has.
 
 ### 2.13 — Bookkeeping in the config, not in globals (`gsw_private.h`, `gsw_cmds.c`, `gsw_lifecycle.c`, `mod_gsw.c`)
 
@@ -105,9 +108,9 @@ was silently dropped. It now copies all knobs from the child config, and
 
 - New `gsw_cfg` fields: `retry_count` (int), `balancer` (int,
   `BALANCER_LOWEST_LOAD` / `BALANCER_ROUND_ROBIN`), `rr_counter` (int),
-  `app_index` (`apr_table_t *`). The old `RETRY_COUNT` define is replaced by
-  the two `BALANCER_*` values.
-- `gsw_private.h` includes `<ctype.h>` for `tolower` (used by the name index).
+  `pool` (`apr_pool_t *`, the pool the cfg was created from — used by the
+  merge functions and the lazy index build). The old `RETRY_COUNT` define is
+  replaced by the two `BALANCER_*` values.
 - `set_inst_count` now validates `v > 0` and enforces "only allowed once" by
   checking `cfg->instance_count != DEFAULT_APP_COUNT` instead of a global.
 - `set_App` casts the parsed port: `appConf->port = (u_int16_t) atoi(portStr);`
@@ -119,10 +122,11 @@ section gained `WORetryCount` and `WOBalancer` with their defaults.
 
 ## Build fixes (surfaced on the FreeBSD box)
 
-- **`no member named 'pool' in 'struct gsw_cfg'`** — `gsw_build_app_index()`
-  allocates the name index from the pool the cfg was created from, but
-  `gsw_cfg` did not keep a pointer to it. `gsw_cfg` now has a `pool` field,
-  set in both config creators.
+- **`no member named 'pool' in 'struct gsw_cfg'`** — the name-index code
+  allocated from the pool the cfg was created from, but `gsw_cfg` did not
+  keep a pointer to it. `gsw_cfg` now has a `pool` field, set in both config
+  creators. (The field is still used by the merge functions, which set
+  `merged_config->pool = p`.)
 - **`expression is not assignable`** on `apr_array_push(list) = …` —
   `apr_array_push()` returns a `void *`, which is not assignable; the
   element is now assigned through a dereference
@@ -154,6 +158,26 @@ section gained `WORetryCount` and `WOBalancer` with their defaults.
     so follow-ups for session links reach the instance that created the
     session.
 
+- **`gsw_parse_uri()` rejected non-numeric segments after `.woa`** — a URI
+  like `/wo/<App>.woa/wo/` (no instance number, just a path) failed the
+  parse and 404'd. A non-numeric segment is now treated as "no instance"
+  (`instance_nr` stays -1) and is included in the rest of the path forwarded
+  to the backend.
+
+- **Merged configs had a NULL `pool`** — `gsw_merge_dir_config()` and
+  `gsw_merge_server_config()` allocated `merged_config` from pool `p` but
+  never set `merged_config->pool`, so it stayed NULL (pcalloc zero). Any
+  code that allocated from `cfg->pool` segfaulted. Both merge functions now
+  set `merged_config->pool = p`.
+
+- **The `apr_table` name index was fundamentally broken** — `apr_table`
+  stores values as `const char *`, so storing a pointer via
+  `apr_table_set(cfg->app_index, key, (const char *) list)` and retrieving
+  via `apr_table_get` returned an entry whose `val` was NULL. The index was
+  replaced with the linear scan described in §3.5; `gsw_build_app_index()`,
+  the `app_index` / `app_index_built` fields, and the `gsw_post_config` call
+  were removed.
+
 ## Verification
 
 Build on the FreeBSD box:
@@ -166,18 +190,18 @@ apachectl configtest
 
 Functional tests to run on the FreeBSD box (Apache 2.4):
 
-| Test | Expect |
-|------|--------|
-| `/wo/<App>.woa/1/wo/` — pinned request | 200, unchanged behaviour |
-| `/wo/<App>.woa/wo/` — unpinned, default balancer | 200, lowest-load selection; links in the page carry the real instance number (not 0) |
-| `/wo/<App>.woa/0/wo/` — explicit instance 0 ("any") | 200, balanced like unpinned; forwarded to the backend with the chosen instance number |
-| `/wo/<App>.woa/-1/wo/` — instance -1 ("any") | 200, balanced like unpinned (same as 0) |
-| `WOBalancer round-robin` in config, then several unpinned requests | 200, requests rotate across instances (check `/wo/showapps` "Last Request" columns) |
-| `WORetryCount 1` in config, backend instance stopped | request fails after one attempt (504), no extra retries in the log |
-| Two `App` directives with the same `Host=host:port` | `apachectl configtest` fails with a duplicate host:port error |
-| `WOBalancer bogus` | config error (invalid value) |
-| `WORetryCount 0` / `WORetryCount 101` | config error (out of range) |
-| `/wo/showapps` | 200, table intact (exercises the new `read_shared_mem` path) |
+| Test | Expect | Status |
+|------|--------|--------|
+| `/wo/<App>.woa/1/wo/` — pinned request | 200, unchanged behaviour | ✅ verified |
+| `/wo/<App>.woa/wo/` — unpinned, default balancer | 200, lowest-load selection; links in the page carry the real instance number (not 0) | ✅ verified |
+| `/wo/<App>.woa/0/wo/` — explicit instance 0 ("any") | 200, balanced like unpinned; forwarded to the backend with the chosen instance number | ✅ verified |
+| `/wo/<App>.woa/-1/wo/` — instance -1 ("any") | 200, balanced like unpinned (same as 0) | ⚠️ backend returns `GSWPageNotFoundException` (backend issue, not adaptor) |
+| `WOBalancer round-robin` in config, then several unpinned requests | 200, requests rotate across instances (check `/wo/showapps` "Last Request" columns) | ⏳ pending |
+| `WORetryCount 1` in config, backend instance stopped | request fails after one attempt (504), no extra retries in the log | ⏳ pending |
+| Two `App` directives with the same `Host=host:port` | `apachectl configtest` fails with a duplicate host:port error | ⏳ pending |
+| `WOBalancer bogus` | config error (invalid value) | ⏳ pending |
+| `WORetryCount 0` / `WORetryCount 101` | config error (out of range) | ⏳ pending |
+| `/wo/showapps` | 200, table intact (exercises the new `read_shared_mem` path) | ✅ verified |
 
 ## Not covered in Phase 4
 

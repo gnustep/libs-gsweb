@@ -89,14 +89,8 @@ int gsw_handler(request_rec *r)
     // the old code fell through to the 504 at the bottom, which is what
     // you get when the *backend* is unreachable, not when the URI does not
     // name a configured app
-    ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                  "gsw-debug: handler: find_app returned NULL for uri '%s' -> 404",
-                  r->uri ? r->uri : "(null)");
     return HTTP_NOT_FOUND;
   }
-  ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                "gsw-debug: handler: uri '%s' -> app '%s' instance %d",
-                r->uri, app->app_name, app->instance_number);
 
   {
     int i;
@@ -134,10 +128,6 @@ int gsw_handler(request_rec *r)
           break;
         }
         handle_status = handle_request(r, app, postdata, contentLen);
-
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                      "gsw-debug: handler: attempt %d to instance %d -> status %d",
-                      i, app ? app->instance_number : -1, handle_status);
 
         switch (handle_status) {
           case UNREACHABLE:
