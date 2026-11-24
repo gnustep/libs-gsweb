@@ -128,6 +128,7 @@ typedef struct gsw_cfg {
   char *loc;                  /* Location to which this record applies. */
   int  showApps;
   apr_table_t * app_table;
+  apr_pool_t  * pool;             // the pool this cfg was allocated from
   apr_time_t   connect_timeout;   // WOConnectTimeout, default 5 sec
   apr_time_t   wait_timeout;      // WOWaitTimeout, default 60 sec
   apr_off_t    max_body_size;     // WOMaxBodySize, default 8 MiB

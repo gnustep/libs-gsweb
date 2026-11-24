@@ -79,7 +79,8 @@ void *gsw_create_dir_config(apr_pool_t *p, char *dirspec)
      * Finally, add our trace to the callback list.
      */
 
-   cfg->app_table = apr_table_make(p, 1);   // default
+    cfg->pool = p;
+    cfg->app_table = apr_table_make(p, 1);   // default
     cfg->connect_timeout = DEFAULT_CONNECT_TIMEOUT;
     cfg->wait_timeout = DEFAULT_WAIT_TIMEOUT;
     cfg->max_body_size = DEFAULT_MAX_BODY_SIZE;
@@ -191,6 +192,7 @@ void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
   sname = (sname != NULL) ? sname : "";
   cfg->loc = apr_pstrcat(p, "SVR(", sname, ")", NULL);
   
+  cfg->pool = p;
   cfg->app_table = apr_table_make(p, 1);   // default, like gsw_create_dir_config
   cfg->connect_timeout = DEFAULT_CONNECT_TIMEOUT;
   cfg->wait_timeout = DEFAULT_WAIT_TIMEOUT;
