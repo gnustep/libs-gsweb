@@ -158,14 +158,28 @@ gmake clean && gmake
 apachectl configtest
 ```
 
-Then exercise:
+**Result:** clean build, zero warnings. `mod_gsw.la` produced and installed.
 
-- `/wo/<App>.woa/...` — normal request path (2.3/2.8/2.9/2.16)
+Functional tests (all against the live FreeBSD box, Apache 2.4):
+
+| Test | Result |
+|------|--------|
+| `/wo/DynamicElements.woa/1/wo/` — main page | ✅ 200, all 14 links |
+| `/wo/DynamicElements.woa/1/wo/<session>/0.1.6.1` — dot in rest (the `strrchr` bug) | ✅ 200 |
+| PopUpButton POST (multipart) | ✅ 200, value echoed back |
+| TextField POST | ✅ 200, string echoed back |
+| FileUpload POST (multipart with file) | ✅ 200, name/size/content correct |
+| CheckBox POST | ✅ 200, value echoed, `checked` set |
+| Browser (multi-select) POST | ✅ 200, both items echoed back |
+| RadioButtonList POST | ✅ 200, correct item selected |
+| Image page | ✅ 200 |
+| `/wo/HControl.woa/1/wa/config` | ✅ 200, JSON |
+| `/wo/showapps` | ✅ 200, both apps, correct stats |
+
+Remaining checks for the user to run on the FreeBSD box:
+
 - `/wo/<App>.woa/0/...` — instance 0 (2.2)
 - `/wo/<App>.woa` — no trailing path (2.3)
-- `/wo/<App>.woa/<instance>/.../0.1.6.1` — a dot in the rest of the path must
-  not break the parse (the `strrchr` bug above)
-- `/wo/showapps` — escaped table (1.8)
 - a POST larger than `WOMaxBodySize` — expect **413**, not 400 (1.6 caveat)
 - an `App` directive inside a `<VirtualHost>` — expect it to be honoured (2.14)
 - `ls -l` the shm file in the temp dir — expect `-rw-------` (1.9)
