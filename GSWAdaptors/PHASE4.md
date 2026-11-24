@@ -117,6 +117,13 @@ was silently dropped. It now copies all knobs from the child config, and
 `GSWAdaptors/README.txt` (the only documentation file changed): the Directives
 section gained `WORetryCount` and `WOBalancer` with their defaults.
 
+## Build fixes (surfaced on the FreeBSD box)
+
+- **`no member named 'pool' in 'struct gsw_cfg'`** — `gsw_build_app_index()`
+  allocates the name index from the pool the cfg was created from, but
+  `gsw_cfg` did not keep a pointer to it. `gsw_cfg` now has a `pool` field,
+  set in both config creators.
+
 ## Verification
 
 Build on the FreeBSD box:
