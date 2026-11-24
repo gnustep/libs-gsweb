@@ -147,8 +147,16 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
     // this a one-time cost per config.
     if (((name) && (strlen(name))) && (cfg->app_table))
     {
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "gsw-debug: find_app_by_name '%s': pool=%p index=%p table=%p",
+                      name, (void *) cfg->pool, (void *) cfg->app_index,
+                      (void *) cfg->app_table);
+
         if (!cfg->app_index) {
             gsw_build_app_index(cfg);
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': built index=%p",
+                          name, (void *) cfg->app_index);
         }
         if (!cfg->app_index) {
             ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
@@ -165,10 +173,6 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
         exipc_data       *mem;
         u_int16_t        *indexes;
         gsw_app_conf    **chosen = NULL;
-
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                      "gsw-debug: find_app_by_name '%s': index=%p app_table=%p",
-                      name, (void *) cfg->app_index, (void *) cfg->app_table);
 
         // case-insensitive lookup, like the old strcasecmp() scan
         key = apr_pstrdup(r->pool, name);
