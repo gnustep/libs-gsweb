@@ -65,10 +65,12 @@ int print_app(void *rec, const char *key, gsw_app_conf *appconf)
  * insensitive) to the list of its instances, so the per-request work is
  * O(instances of that app) only.
  *
- * The table is built once, at config time, after all App directives have
- * been read (gsw_post_config).  It is keyed by the lower-cased name and
- * holds pointers into cfg->app_table, so it is valid for the lifetime of
- * the config pool.
+ * The table is built once per cfg, after all App directives have been
+ * read.  gsw_post_config() builds it for the server-level config; the
+ * per-directory configs (which requests actually see) are merged copies
+ * whose index is built lazily on first use by find_app_by_name().  It is
+ * keyed by the lower-cased name and holds pointers into cfg->app_table,
+ * so it is valid for the lifetime of the config pool.
  */
 void gsw_build_app_index(gsw_cfg *cfg)
 {
@@ -76,13 +78,14 @@ void gsw_build_app_index(gsw_cfg *cfg)
     const apr_table_entry_t *telts;
     int                      i;
 
-    if (!cfg->app_table) {
+    if (!cfg->app_table || cfg->app_index_built) {
         return;
     }
 
     // the index must outlive the config-reading pool; the config pool is
     // the pool the cfg itself was allocated from
     cfg->app_index = apr_table_make(cfg->pool, 1);
+    cfg->app_index_built = 1;
 
     tarr = apr_table_elts(cfg->app_table);
     telts = (const apr_table_entry_t *) tarr->elts;
@@ -132,8 +135,20 @@ void gsw_build_app_index(gsw_cfg *cfg)
  */
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 {
-    if (((name) && (strlen(name))) && (cfg->app_index))
+    // The index is built on the server-level config in gsw_post_config(),
+    // but requests see the per-directory config (our_dconfig), which is a
+    // merged copy whose app_index is never built.  Build it lazily on
+    // first use: the cfg's pool is the config pool, so the index and the
+    // app_table entries it points into share a lifetime.  The flag makes
+    // this a one-time cost per config.
+    if (((name) && (strlen(name))) && (cfg->app_table))
     {
+        if (!cfg->app_index) {
+            gsw_build_app_index(cfg);
+        }
+        if (!cfg->app_index) {
+            return NULL;
+        }
         char              *key;
         apr_table_entry_t *entry;
         apr_array_header_t *list;

@@ -137,6 +137,7 @@ typedef struct gsw_cfg {
   int          instance_count;    // InstanceCount, default 10
   int          last_app_index;    // running counter while App directives are read
   apr_table_t * app_index;        // lower-cased app name -> apr_array of gsw_app_conf *
+  int          app_index_built;   // set once gsw_build_app_index() has run for this cfg
   int          rr_counter;        // round-robin position, per config (WOBalancer round-robin)
 } gsw_cfg;
 
