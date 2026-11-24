@@ -147,16 +147,8 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
     // this a one-time cost per config.
     if (((name) && (strlen(name))) && (cfg->app_table))
     {
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                      "gsw-debug: find_app_by_name '%s': pool=%p index=%p table=%p",
-                      name, (void *) cfg->pool, (void *) cfg->app_index,
-                      (void *) cfg->app_table);
-
         if (!cfg->app_index) {
             gsw_build_app_index(cfg);
-            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': built index=%p",
-                          name, (void *) cfg->app_index);
         }
         if (!cfg->app_index) {
             ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
@@ -173,6 +165,50 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
         exipc_data       *mem;
         u_int16_t        *indexes;
         gsw_app_conf    **chosen = NULL;
+
+        // case-insensitive lookup, like the old strcasecmp() scan
+        key = apr_pstrdup(r->pool, name);
+        for (i = 0; key[i]; i++) {
+            key[i] = (char) tolower((unsigned char) key[i]);
+        }
+
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "gsw-debug: find_app_by_name '%s': key='%s' index=%s, calling apr_table_get",
+                      name, key, cfg->app_index ? "set" : "null");
+
+        entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
+        if (!entry) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': not in index",
+                          name);
+            return NULL;
+        }
+        list = (apr_array_header_t *) entry->val;
+        n = list->nelts;
+        if (!n) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': empty instance list",
+                          name);
+            return NULL;
+        }
+
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "gsw-debug: find_app_by_name '%s': n=%d, reading shared mem",
+                      name, n);
+
+        // copy the statistics for exactly this app's instances
+        indexes = (u_int16_t *) apr_palloc(r->pool, sizeof(u_int16_t) * n);
+        for (i = 0; i < n; i++) {
+            indexes[i] = ((gsw_app_conf **) list->elts)[i]->total_index;
+        }
+
+        mem = read_shared_mem(r->pool, n, indexes);
+        if (!mem) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': read_shared_mem failed",
+                          name);
+            return NULL;
+        }
 
         // case-insensitive lookup, like the old strcasecmp() scan
         key = apr_pstrdup(r->pool, name);
