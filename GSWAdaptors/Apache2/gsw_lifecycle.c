@@ -199,12 +199,6 @@ int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
 
   apr_global_mutex_unlock(exipc_mutex);
 
-  /*
-   * Build the name -> instance list index that find_app_by_name() uses.
-   * The App directives have all been read by now, so the table is final.
-   */
-  gsw_build_app_index(cfg);
-
   return OK;
 }
 

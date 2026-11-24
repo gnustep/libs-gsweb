@@ -72,54 +72,6 @@ int print_app(void *rec, const char *key, gsw_app_conf *appconf)
  * keyed by the lower-cased name and holds pointers into cfg->app_table,
  * so it is valid for the lifetime of the config pool.
  */
-void gsw_build_app_index(gsw_cfg *cfg)
-{
-    const apr_array_header_t *tarr;
-    const apr_table_entry_t *telts;
-    int                      i;
-
-    if (!cfg->app_table || cfg->app_index_built) {
-        return;
-    }
-
-    // the index must outlive the config-reading pool; the config pool is
-    // the pool the cfg itself was allocated from
-    cfg->app_index = apr_table_make(cfg->pool, 1);
-    cfg->app_index_built = 1;
-
-    tarr = apr_table_elts(cfg->app_table);
-    telts = (const apr_table_entry_t *) tarr->elts;
-
-    for (i = 0; i < tarr->nelts; i++) {
-        gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-        char         *key;
-        apr_array_header_t *list;
-        apr_table_entry_t *entry;
-
-        if (appconf->app_name[0] == '\0') {
-            continue;
-        }
-
-        key = apr_pstrdup(cfg->pool, appconf->app_name);
-        {
-            int k;
-            for (k = 0; key[k]; k++) {
-                key[k] = (char) tolower((unsigned char) key[k]);
-            }
-        }
-
-        entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
-        if (entry) {
-            list = (apr_array_header_t *) entry->val;
-        } else {
-            list = apr_array_make(cfg->pool, 4, sizeof(gsw_app_conf *));
-            apr_table_set(cfg->app_index, key, (const char *) list);
-        }
-        *(gsw_app_conf **) apr_array_push(list) = appconf;
-    }
-
-}
-
 /*
  * Choose one instance of the named app for an unpinned request.
  *
@@ -139,64 +91,38 @@ void gsw_build_app_index(gsw_cfg *cfg)
  */
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 {
-    // The index is built on the server-level config in gsw_post_config(),
-    // but requests see the per-directory config (our_dconfig), which is a
-    // merged copy whose app_index is never built.  Build it lazily on
-    // first use: the cfg's pool is the config pool, so the index and the
-    // app_table entries it points into share a lifetime.  The flag makes
-    // this a one-time cost per config.
+    // Linear scan of app_table with case-insensitive name matching.
+    // The apr_table index approach doesn't work correctly for storing
+    // pointers (apr_table stores values as const char*, and the
+    // retrieved entry's val is NULL).  A linear scan is O(n) but n is
+    // small (number of apps), so it's fine.
     if (((name) && (strlen(name))) && (cfg->app_table))
     {
-        if (!cfg->app_index) {
-            gsw_build_app_index(cfg);
-        }
-        if (!cfg->app_index) {
-            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': no index after build",
-                          name);
-            return NULL;
-        }
-        char              *key;
-        apr_table_entry_t *entry;
-        apr_array_header_t *list;
+        const apr_array_header_t *tarr;
+        const apr_table_entry_t  *telts;
         int                i;
         int                n;
         apr_time_t         t;
         exipc_data       *mem;
         u_int16_t        *indexes;
         gsw_app_conf    **chosen = NULL;
+        gsw_app_conf    *matches[64];  // stack-allocated, max 64 instances per app
 
-        // case-insensitive lookup, like the old strcasecmp() scan
-        key = apr_pstrdup(r->pool, name);
-        for (i = 0; key[i]; i++) {
-            key[i] = (char) tolower((unsigned char) key[i]);
+        tarr = apr_table_elts(cfg->app_table);
+        telts = (const apr_table_entry_t *) tarr->elts;
+
+        // collect all instances of this app (case-insensitive match)
+        n = 0;
+        for (i = 0; i < tarr->nelts && n < 64; i++) {
+            gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
+            if (appconf && strcasecmp(appconf->app_name, name) == 0) {
+                matches[n++] = appconf;
+            }
         }
 
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                      "gsw-debug: find_app_by_name '%s': key='%s' index=%s, calling apr_table_get",
-                      name, key, cfg->app_index ? "set" : "null");
-
-        entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
-        if (!entry) {
-            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': not in index",
-                          name);
-            return NULL;
-        }
-        list = (apr_array_header_t *) entry->val;
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                      "gsw-debug: find_app_by_name '%s': entry found, list=%s",
-                      name, list ? "set" : "null");
-        if (!list) {
-            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': null list",
-                          name);
-            return NULL;
-        }
-        n = list->nelts;
         if (!n) {
             ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': empty instance list",
+                          "gsw-debug: find_app_by_name '%s': no matches in app_table",
                           name);
             return NULL;
         }
@@ -208,47 +134,7 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
         // copy the statistics for exactly this app's instances
         indexes = (u_int16_t *) apr_palloc(r->pool, sizeof(u_int16_t) * n);
         for (i = 0; i < n; i++) {
-            indexes[i] = ((gsw_app_conf **) list->elts)[i]->total_index;
-        }
-
-        mem = read_shared_mem(r->pool, n, indexes);
-        if (!mem) {
-            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': read_shared_mem failed",
-                          name);
-            return NULL;
-        }
-
-        // case-insensitive lookup, like the old strcasecmp() scan
-        key = apr_pstrdup(r->pool, name);
-        for (i = 0; key[i]; i++) {
-            key[i] = (char) tolower((unsigned char) key[i]);
-        }
-
-        entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
-        if (!entry) {
-            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': not in index",
-                          name);
-            return NULL;
-        }
-        list = (apr_array_header_t *) entry->val;
-        n = list->nelts;
-        if (!n) {
-            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                          "gsw-debug: find_app_by_name '%s': empty instance list",
-                          name);
-            return NULL;
-        }
-
-        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
-                      "gsw-debug: find_app_by_name '%s': n=%d, reading shared mem",
-                      name, n);
-
-        // copy the statistics for exactly this app's instances
-        indexes = (u_int16_t *) apr_palloc(r->pool, sizeof(u_int16_t) * n);
-        for (i = 0; i < n; i++) {
-            indexes[i] = ((gsw_app_conf **) list->elts)[i]->total_index;
+            indexes[i] = matches[i]->total_index;
         }
 
         mem = read_shared_mem(r->pool, n, indexes);
@@ -276,7 +162,7 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
                 }
                 if ((mem[j].unreachable == 0) && (mem[j].refusing == 0)) {
                     cfg->rr_counter = (j + 1) % n;
-                    chosen = &((gsw_app_conf **) list->elts)[j];
+                    chosen = &matches[j];
                     break;
                 }
             }
@@ -284,7 +170,7 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
                 // no reachable instance: fall back to the single-instance
                 // case, like the lowest-load path
                 if (n == 1) {
-                    chosen = &((gsw_app_conf **) list->elts)[0];
+                    chosen = &matches[0];
                 }
             }
         } else {
@@ -300,13 +186,13 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
                 if ((mem[i].unreachable == 0) && (mem[i].refusing == 0)) {
                     if (mem[i].load <= lastload) {
                         lastload = mem[i].load;
-                        chosen = &((gsw_app_conf **) list->elts)[i];
+                        chosen = &matches[i];
                     }
                 } else if (n == 1) {
                     // if there is only one instance, we have to hit it
                     // anyways
                     if (mem[i].unreachable == 1) {
-                        chosen = &((gsw_app_conf **) list->elts)[i];
+                        chosen = &matches[i];
                     }
                 }
             }
