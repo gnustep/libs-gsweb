@@ -80,7 +80,9 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
     newString = apr_psprintf(r->pool, "%s %s HTTP/1.1\r\n", r->method, uri_part);
   }
 
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newString:'%s'", newString);
+  ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                "gsw-debug: fixRequestString: '%s' -> '%s'",
+                r->uri ? r->uri : "(null)", newString);
 
   
   return newString;

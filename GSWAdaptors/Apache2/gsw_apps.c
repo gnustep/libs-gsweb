@@ -147,6 +147,9 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
             gsw_build_app_index(cfg);
         }
         if (!cfg->app_index) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': no index after build",
+                          name);
             return NULL;
         }
         char              *key;
@@ -167,11 +170,17 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 
         entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
         if (!entry) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': not in index",
+                          name);
             return NULL;
         }
         list = (apr_array_header_t *) entry->val;
         n = list->nelts;
         if (!n) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': empty instance list",
+                          name);
             return NULL;
         }
 
@@ -183,6 +192,9 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 
         mem = read_shared_mem(r->pool, n, indexes);
         if (!mem) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': read_shared_mem failed",
+                          name);
             return NULL;
         }
 
@@ -240,8 +252,14 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
         }
 
         if (chosen) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': chose instance %d (balancer %d)",
+                          name, (*chosen)->instance_number, cfg->balancer);
             return *chosen;
         }
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "gsw-debug: find_app_by_name '%s': no instance chosen (all unreachable/refusing)",
+                      name);
     }
     return NULL;
 }
@@ -357,9 +375,14 @@ gsw_app_conf * find_app(request_rec *r)
 
   if (!gsw_parse_uri(r->uri, app_name, sizeof(app_name),
                      &instance_nr, rest, sizeof(rest))) {
+    ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                  "gsw-debug: find_app: parse failed for uri '%s'",
+                  r->uri ? r->uri : "(null)");
     return NULL;
   }
-  //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name '%s'", app_name);
+  ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                "gsw-debug: find_app: uri '%s' app '%s' instance %d",
+                r->uri, app_name, instance_nr);
 
   cfg = our_dconfig(r);
 
@@ -372,6 +395,9 @@ gsw_app_conf * find_app(request_rec *r)
 
     app_conf = (gsw_app_conf *) apr_table_get(cfg->app_table, (const char  *)tmp_key);
 
+    ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                  "gsw-debug: find_app: table lookup '%s' -> %s",
+                  tmp_key, app_conf ? "found" : "NULL");
     return app_conf;
 
   }
@@ -382,7 +408,9 @@ gsw_app_conf * find_app(request_rec *r)
   // session, which the balancer picks.
   app_conf = find_app_by_name(app_name, cfg, r);
 
-  //print_app(r, NULL, app_conf);
+  ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                "gsw-debug: find_app: by_name '%s' -> %s",
+                app_name, app_conf ? "found" : "NULL");
 
   return app_conf;
 }
