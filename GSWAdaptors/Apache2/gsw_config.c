@@ -123,6 +123,7 @@ void *gsw_merge_dir_config(apr_pool_t *p, void *parent_conf,
      * Some things get copied directly from the more-specific record, rather
      * than getting merged.
      */
+    merged_config->pool = p;
     merged_config->local = nconf->local;
     merged_config->loc = apr_pstrdup(p, nconf->loc);
 
@@ -231,6 +232,7 @@ void *gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
      * Our inheritance rules are our own, and part of our module's semantics.
      * Basically, just note whence we came.
      */
+    merged_config->pool = p;
     merged_config->cmode =
         (s1conf->cmode == s2conf->cmode) ? s1conf->cmode : CONFIG_MODE_COMBO;
     merged_config->local = s2conf->local;
