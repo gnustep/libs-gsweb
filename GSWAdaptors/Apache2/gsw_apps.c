@@ -101,8 +101,11 @@ void gsw_build_app_index(gsw_cfg *cfg)
         }
 
         key = apr_pstrdup(cfg->pool, appconf->app_name);
-        for (i = 0; key[i]; i++) {
-            key[i] = (char) tolower((unsigned char) key[i]);
+        {
+            int k;
+            for (k = 0; key[k]; k++) {
+                key[k] = (char) tolower((unsigned char) key[k]);
+            }
         }
 
         entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
@@ -325,7 +328,10 @@ int gsw_parse_uri(const char * uri,
   memcpy(app_name, p, len);
   app_name[len] = '\0';
 
-  // the instance segment is optional
+  // the instance segment is optional.  It must be a non-negative integer
+  // (0 means "any instance"); a non-numeric segment (e.g. "/wo/.../wo/")
+  // means there is no instance and the segment is part of the rest of the
+  // path that is forwarded to the backend
   p = slash + 1;
   if (*p != '\0') {
     inst = p;
@@ -342,13 +348,17 @@ int gsw_parse_uri(const char * uri,
       memcpy(num, inst, len);
       num[len] = '\0';
       v = strtol(num, &end, 10);
-      if (*end != '\0' || v < 0 || v > 65535) {
-        return 0;
+      if (*end == '\0' && v >= 0 && v <= 65535) {
+        *instance_nr = (int) v;
+        // the segment was consumed as the instance number
+        if (slash != NULL) {
+          p = slash + 1;
+        } else {
+          p = p + len;
+        }
       }
-      *instance_nr = (int) v;
-    }
-    if (slash != NULL) {
-      p = slash + 1;
+      // else: not a number; instance_nr stays -1 and p still points at
+      // the segment, so it is included in the rest of the path
     }
   }
 
