@@ -67,9 +67,9 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
        * routed to.  The backend emits session links with instance 0
        * (meaning "any"), and a follow-up request for such a link must reach
        * the same instance that created the session — so even an explicit 0
-       * in the client's URI is replaced by app->instance_number.
-       * (find_app() resolves instance 0 to the app's own instance, so the
-       * two cannot drift apart.) */
+       * (or -1) in the client's URI is replaced by app->instance_number.
+       * (find_app() resolves instance <= 0 to the app's own instance, so
+       * the two cannot drift apart.) */
       snprintf(uri_part, sizeof(uri_part), "%s%s.woa/%d/%s",
                ADAPTOR_PREFIX, app_name, app->instance_number, rest);
     } else {
