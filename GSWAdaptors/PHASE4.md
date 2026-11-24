@@ -128,6 +128,19 @@ section gained `WORetryCount` and `WOBalancer` with their defaults.
   element is now assigned through a dereference
   (`*(gsw_app_conf **) apr_array_push(list) = appconf;`).
 
+## Runtime fix (surfaced in live testing)
+
+- **Unpinned requests returned 404** — `find_app_by_name()` looks up
+  `cfg->app_index`, but requests see the *per-directory* config
+  (`our_dconfig`), and `gsw_build_app_index()` only ran on the server-level
+  config in `gsw_post_config()`. The per-dir cfg's index was never built, so
+  every unpinned request (`/wo/<App>.woa/...` without an instance number)
+  failed to resolve. Pinned requests bypass the index (direct `app_table`
+  lookup), which is why they worked. The index is now built lazily on first
+  use in `find_app_by_name()` (the cfg's pool is the config pool, so the
+  index and the `app_table` entries it points into share a lifetime); an
+  `app_index_built` flag in `gsw_cfg` makes it a one-time cost per config.
+
 ## Verification
 
 Build on the FreeBSD box:
