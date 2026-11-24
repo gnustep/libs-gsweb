@@ -145,13 +145,14 @@ section gained `WORetryCount` and `WOBalancer` with their defaults.
   reached the backend, but the backend answered with session links carrying
   instance **0** (meaning "any"), and the adaptor forwarded the request
   *without* an instance number. Two follow-up changes:
-  - `find_app()` treats `instance_nr == 0` as unpinned (balanced via
-    `find_app_by_name()`) instead of doing a direct `app_table` lookup for a
-    non-existent `"App:0"` entry.
+  - `find_app()` treats a non-positive `instance_nr` (0 or -1, both meaning
+    "any") as unpinned (balanced via `find_app_by_name()`) instead of doing a
+    direct `app_table` lookup for a non-existent `"App:0"` entry.
   - `fixRequestString()` now *always* rewrites the forwarded request line to
     carry the instance the request was routed to (`app->instance_number`),
-    even when the client's URI carried no instance number or carried 0 — so
-    follow-ups for session links reach the instance that created the session.
+    even when the client's URI carried no instance number or carried 0/-1 —
+    so follow-ups for session links reach the instance that created the
+    session.
 
 ## Verification
 
@@ -170,6 +171,7 @@ Functional tests to run on the FreeBSD box (Apache 2.4):
 | `/wo/<App>.woa/1/wo/` — pinned request | 200, unchanged behaviour |
 | `/wo/<App>.woa/wo/` — unpinned, default balancer | 200, lowest-load selection; links in the page carry the real instance number (not 0) |
 | `/wo/<App>.woa/0/wo/` — explicit instance 0 ("any") | 200, balanced like unpinned; forwarded to the backend with the chosen instance number |
+| `/wo/<App>.woa/-1/wo/` — instance -1 ("any") | 200, balanced like unpinned (same as 0) |
 | `WOBalancer round-robin` in config, then several unpinned requests | 200, requests rotate across instances (check `/wo/showapps` "Last Request" columns) |
 | `WORetryCount 1` in config, backend instance stopped | request fails after one attempt (504), no extra retries in the log |
 | Two `App` directives with the same `Host=host:port` | `apachectl configtest` fails with a duplicate host:port error |
