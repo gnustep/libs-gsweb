@@ -82,6 +82,11 @@ void gsw_build_app_index(gsw_cfg *cfg)
         return;
     }
 
+    ap_log_error(APLOG_MARK, APLOG_INFO, 0, APLOG_NOERRNO,
+                 "gsw-debug: build_app_index: pool=%p app_table=%p nelts=%d",
+                 (void *) cfg->pool, (void *) cfg->app_table,
+                 (int) cfg->app_table->nelts);
+
     // the index must outlive the config-reading pool; the config pool is
     // the pool the cfg itself was allocated from
     cfg->app_index = apr_table_make(cfg->pool, 1);
@@ -100,6 +105,11 @@ void gsw_build_app_index(gsw_cfg *cfg)
             continue;
         }
 
+        ap_log_error(APLOG_MARK, APLOG_INFO, 0, APLOG_NOERRNO,
+                     "gsw-debug: build_app_index: [%d] appconf=%p name='%s' total_index=%d",
+                     i, (void *) appconf, appconf->app_name,
+                     (int) appconf->total_index);
+
         key = apr_pstrdup(cfg->pool, appconf->app_name);
         {
             int k;
@@ -117,6 +127,10 @@ void gsw_build_app_index(gsw_cfg *cfg)
         }
         *(gsw_app_conf **) apr_array_push(list) = appconf;
     }
+
+    ap_log_error(APLOG_MARK, APLOG_INFO, 0, APLOG_NOERRNO,
+                 "gsw-debug: build_app_index: done, index=%p",
+                 (void *) cfg->app_index);
 }
 
 /*
@@ -165,6 +179,10 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
         u_int16_t        *indexes;
         gsw_app_conf    **chosen = NULL;
 
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "gsw-debug: find_app_by_name '%s': index=%p app_table=%p",
+                      name, (void *) cfg->app_index, (void *) cfg->app_table);
+
         // case-insensitive lookup, like the old strcasecmp() scan
         key = apr_pstrdup(r->pool, name);
         for (i = 0; key[i]; i++) {
@@ -186,6 +204,10 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
                           name);
             return NULL;
         }
+
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "gsw-debug: find_app_by_name '%s': n=%d, reading shared mem",
+                      name, n);
 
         // copy the statistics for exactly this app's instances
         indexes = (u_int16_t *) apr_palloc(r->pool, sizeof(u_int16_t) * n);
