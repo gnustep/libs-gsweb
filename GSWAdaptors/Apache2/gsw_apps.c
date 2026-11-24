@@ -109,7 +109,7 @@ void gsw_build_app_index(gsw_cfg *cfg)
             list = apr_array_make(cfg->pool, 4, sizeof(gsw_app_conf *));
             apr_table_set(cfg->app_index, key, (const char *) list);
         }
-        apr_array_push(list) = (gsw_app_conf *) appconf;
+        *(gsw_app_conf **) apr_array_push(list) = appconf;
     }
 }
 
