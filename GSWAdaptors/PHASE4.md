@@ -123,6 +123,10 @@ section gained `WORetryCount` and `WOBalancer` with their defaults.
   allocates the name index from the pool the cfg was created from, but
   `gsw_cfg` did not keep a pointer to it. `gsw_cfg` now has a `pool` field,
   set in both config creators.
+- **`expression is not assignable`** on `apr_array_push(list) = …` —
+  `apr_array_push()` returns a `void *`, which is not assignable; the
+  element is now assigned through a dereference
+  (`*(gsw_app_conf **) apr_array_push(list) = appconf;`).
 
 ## Verification
 
