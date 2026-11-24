@@ -202,6 +202,8 @@ Functional tests to run on the FreeBSD box (Apache 2.4):
 | `WOBalancer bogus` | config error (invalid value) | ⏳ pending |
 | `WORetryCount 0` / `WORetryCount 101` | config error (out of range) | ⏳ pending |
 | `/wo/showapps` | 200, table intact (exercises the new `read_shared_mem` path) | ✅ verified |
+| `/wo/<App>.woa/wa/<action>` — unpinned direct action | 200, balanced like unpinned | ✅ verified |
+| `/wo/<App>.woa/1/wa/<action>` — pinned direct action | 200, unchanged behaviour | ✅ verified |
 
 ## Not covered in Phase 4
 
