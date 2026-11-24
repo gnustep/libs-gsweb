@@ -49,8 +49,11 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
   //
   // The URI part is parsed with the same gsw_parse_uri() that find_app()
   // uses, so the two cannot drift apart.  The instance number in the
-  // rewritten request line is the app's own instance_number (the one the
-  // request was routed to), not whatever the client asked for.
+  // rewritten request line is always the app's own instance_number (the one
+  // the request was routed to), even when the client's URI carried no
+  // instance number or carried 0 ("any") — the backend emits session links
+  // with instance 0, and follow-ups must reach the instance that created
+  // the session.
   {
     char   uri_part[512];
     char   app_name[MAX_NAME_LENGTH];
@@ -60,13 +63,15 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
 
     if (gsw_parse_uri(uri, app_name, sizeof(app_name),
                       &instance_nr, rest, sizeof(rest))) {
-      if (instance_nr != -1) {
-        snprintf(uri_part, sizeof(uri_part), "%s%s.woa/%d/%s",
-                 ADAPTOR_PREFIX, app_name, app->instance_number, rest);
-      } else {
-        snprintf(uri_part, sizeof(uri_part), "%s%s.woa/%s",
-                 ADAPTOR_PREFIX, app_name, rest);
-      }
+      /* Always rewrite the instance number to the one this request was
+       * routed to.  The backend emits session links with instance 0
+       * (meaning "any"), and a follow-up request for such a link must reach
+       * the same instance that created the session — so even an explicit 0
+       * in the client's URI is replaced by app->instance_number.
+       * (find_app() resolves instance 0 to the app's own instance, so the
+       * two cannot drift apart.) */
+      snprintf(uri_part, sizeof(uri_part), "%s%s.woa/%d/%s",
+               ADAPTOR_PREFIX, app_name, app->instance_number, rest);
     } else {
       // not a /wo/<App>.woa/... URI; leave it untouched
       snprintf(uri_part, sizeof(uri_part), "%s", uri);

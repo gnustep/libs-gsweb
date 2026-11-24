@@ -363,7 +363,7 @@ gsw_app_conf * find_app(request_rec *r)
 
   cfg = our_dconfig(r);
 
-  if (instance_nr != -1) {
+  if (instance_nr != -1 && instance_nr != 0) {
     char   tmp_key[128];
 
     // gsw_parse_uri() already stripped the ".woa" extension from app_name,
@@ -376,6 +376,10 @@ gsw_app_conf * find_app(request_rec *r)
 
   }
 
+  // instance_nr == 0 means "any instance" (the backend emits session links
+  // with instance 0), so it is treated like an unpinned request and
+  // balanced like one: the request must reach the instance that created
+  // the session, which the balancer picks.
   app_conf = find_app_by_name(app_name, cfg, r);
 
   //print_app(r, NULL, app_conf);
