@@ -83,9 +83,8 @@ void gsw_build_app_index(gsw_cfg *cfg)
     }
 
     ap_log_error(APLOG_MARK, APLOG_INFO, 0, APLOG_NOERRNO,
-                 "gsw-debug: build_app_index: pool=%p app_table=%p nelts=%d",
-                 (void *) cfg->pool, (void *) cfg->app_table,
-                 (int) cfg->app_table->nelts);
+                 "gsw-debug: build_app_index: pool=%p app_table=%p",
+                 (void *) cfg->pool, (void *) cfg->app_table);
 
     // the index must outlive the config-reading pool; the config pool is
     // the pool the cfg itself was allocated from
@@ -106,8 +105,8 @@ void gsw_build_app_index(gsw_cfg *cfg)
         }
 
         ap_log_error(APLOG_MARK, APLOG_INFO, 0, APLOG_NOERRNO,
-                     "gsw-debug: build_app_index: [%d] appconf=%p name='%s' total_index=%d",
-                     i, (void *) appconf, appconf->app_name,
+                     "gsw-debug: build_app_index: appconf=%p name='%s' total_index=%d",
+                     (void *) appconf, appconf->app_name,
                      (int) appconf->total_index);
 
         key = apr_pstrdup(cfg->pool, appconf->app_name);
@@ -129,8 +128,7 @@ void gsw_build_app_index(gsw_cfg *cfg)
     }
 
     ap_log_error(APLOG_MARK, APLOG_INFO, 0, APLOG_NOERRNO,
-                 "gsw-debug: build_app_index: done, index=%p",
-                 (void *) cfg->app_index);
+                 "gsw-debug: build_app_index: done");
 }
 
 /*
