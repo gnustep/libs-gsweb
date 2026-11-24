@@ -83,6 +83,10 @@ void *gsw_create_dir_config(apr_pool_t *p, char *dirspec)
     cfg->connect_timeout = DEFAULT_CONNECT_TIMEOUT;
     cfg->wait_timeout = DEFAULT_WAIT_TIMEOUT;
     cfg->max_body_size = DEFAULT_MAX_BODY_SIZE;
+    cfg->retry_count = DEFAULT_RETRY_COUNT;
+    cfg->balancer = DEFAULT_BALANCER;
+    cfg->instance_count = DEFAULT_APP_COUNT;
+    cfg->last_app_index = 0;
 
 
     dname = (dname != NULL) ? dname : "";
@@ -125,6 +129,16 @@ void *gsw_merge_dir_config(apr_pool_t *p, void *parent_conf,
     merged_config->showApps = nconf->showApps;
 //    snprintf(merged_config->appInfo, 1000, nconf->appInfo);
    merged_config->app_table = apr_table_copy(p, nconf->app_table);
+   merged_config->connect_timeout = nconf->connect_timeout;
+   merged_config->wait_timeout = nconf->wait_timeout;
+   merged_config->max_body_size = nconf->max_body_size;
+   merged_config->retry_count = nconf->retry_count;
+   merged_config->balancer = nconf->balancer;
+   /*
+    * instance_count / last_app_index are bookkeeping cells used while the
+    * config file is being read, not per-location settings: they stay at
+    * their defaults here.
+    */
 
 
     /*
@@ -181,6 +195,10 @@ void *gsw_create_server_config(apr_pool_t *p, server_rec *s)
   cfg->connect_timeout = DEFAULT_CONNECT_TIMEOUT;
   cfg->wait_timeout = DEFAULT_WAIT_TIMEOUT;
   cfg->max_body_size = DEFAULT_MAX_BODY_SIZE;
+  cfg->retry_count = DEFAULT_RETRY_COUNT;
+  cfg->balancer = DEFAULT_BALANCER;
+  cfg->instance_count = DEFAULT_APP_COUNT;
+  cfg->last_app_index = 0;
   
   return (void *) cfg;
 }
@@ -228,6 +246,8 @@ void *gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
     merged_config->connect_timeout = s2conf->connect_timeout;
     merged_config->wait_timeout = s2conf->wait_timeout;
     merged_config->max_body_size = s2conf->max_body_size;
+    merged_config->retry_count = s2conf->retry_count;
+    merged_config->balancer = s2conf->balancer;
     merged_config->showApps = s2conf->showApps;
     /*
      * Trace our call, including what we were asked to merge.

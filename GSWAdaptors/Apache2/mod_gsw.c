@@ -67,9 +67,11 @@
  */
 static void gsw_register_hooks(apr_pool_t *p)
 {
-  instance_count = DEFAULT_APP_COUNT; // default value
-  last_app_index = 0;
-
+    /*
+     * The bookkeeping cells (instance_count, last_app_index) live in the
+     * server-level gsw_cfg and are initialized by gsw_create_server_config;
+     * there is nothing global to reset here any more.
+     */
     ap_hook_pre_config(gsw_pre_config, NULL, NULL, APR_HOOK_MIDDLE);
     ap_hook_post_config(gsw_post_config, NULL, NULL, APR_HOOK_MIDDLE);
     ap_hook_open_logs(gsw_open_logs, NULL, NULL, APR_HOOK_MIDDLE);

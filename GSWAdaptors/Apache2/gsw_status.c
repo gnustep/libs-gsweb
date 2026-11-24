@@ -178,9 +178,16 @@ void showApps(request_rec * r, gsw_cfg *dcfg)
             int i;
             exipc_data * mem;
             int          appcount = tarr->nelts;
+            u_int16_t  * indexes;
             char         timestr[APR_CTIME_LEN];
-            
-            mem = read_shared_mem(r->pool,  appcount);
+
+            // one statistics entry per configured instance, in table order
+            indexes = (u_int16_t *) apr_palloc(r->pool, sizeof(u_int16_t) * appcount);
+            for (i = 0; i < appcount; i++) {
+                indexes[i] = ((gsw_app_conf *) telts[i].val)->total_index;
+            }
+
+            mem = read_shared_mem(r->pool, appcount, indexes);
             
             if (mem) {
                 ap_rputs("<div class=\"fail\"><table width=\"700\">\n",r);

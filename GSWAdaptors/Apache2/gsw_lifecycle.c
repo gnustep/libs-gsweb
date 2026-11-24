@@ -129,7 +129,7 @@ int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
   
   cfg = ap_get_module_config(s->module_config, &gsw_module);
 
-  appcount = instance_count;
+  appcount = cfg->instance_count;
   
   apr_temp_dir_get(&temp_dir, pconf);
 
@@ -198,8 +198,13 @@ int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
   init_shared_mem(exipc_shm, appcount, s);
 
   apr_global_mutex_unlock(exipc_mutex);
-  
-  
+
+  /*
+   * Build the name -> instance list index that find_app_by_name() uses.
+   * The App directives have all been read by now, so the table is final.
+   */
+  gsw_build_app_index(cfg);
+
   return OK;
 }
 

@@ -121,7 +121,7 @@ int gsw_handler(request_rec *r)
       // candidate.  Anything else (OK, 302, a mapped error status) ends
       // the loop: the response has already been relayed to the client, so
       // retrying would emit a second, interleaved response.
-      for (i = 0; ((i < RETRY_COUNT) && (handle_status <= OK)); i++) {
+      for (i = 0; ((i < dcfg->retry_count) && (handle_status <= OK)); i++) {
         if (app == NULL) {
           // every instance of this app is marked unreachable; do not call
           // handle_request() with a NULL conf

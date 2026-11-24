@@ -26,18 +26,15 @@
 
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
-/* Directive handlers for the six gsw directives, the command table the     */
-/* module struct points at, and the two cells used while reading the        */
-/* configuration (instance_count, last_app_index).                          */
+/* Directive handlers for the gsw directives and the command table the      */
+/* module struct points at.                                                 */
 /*                                                                          */
-/* This file *defines* instance_count and last_app_index; they are reached  */
-/* from other files through the extern declarations in gsw_private.h.       */
+/* The counters used while reading the configuration (instance_count,       */
+/* last_app_index) live in the server-level gsw_cfg, not in globals: a      */
+/* process-wide cell would be shared between virtual hosts, so a vhost      */
+/* with its own App directives would clobber the default server's counts.   */
 /*                                                                          */
 /*--------------------------------------------------------------------------*/
-
-// used to read configs
-int instance_count;
-int last_app_index;
 
 
 /*--------------------------------------------------------------------------*/
@@ -87,12 +84,18 @@ static const char * set_ShowApps(cmd_parms *cmd, void *mconfig, int mybool)
 static const char *set_inst_count(cmd_parms *cmd, void *key, const char *value)
 {
   gsw_cfg *cfg = ap_get_module_config(cmd->server->module_config, &gsw_module);
-  
-  if (instance_count != DEFAULT_APP_COUNT) {
+  int      v;
+
+  if (cfg->instance_count != DEFAULT_APP_COUNT) {
     return "InstanceCount is only allowed once.";
   }
 
-  instance_count = atoi((char *)value);
+  v = atoi((char *)value);
+  if (v <= 0) {
+    return "InstanceCount must be a positive number.";
+  }
+
+  cfg->instance_count = v;
 
   // success
   return NULL;
@@ -161,6 +164,44 @@ static const char *set_max_body_size(cmd_parms *cmd, void *mconfig, const char *
   return NULL;
 }
 
+static const char *set_retry_count(cmd_parms *cmd, void *mconfig, const char *value)
+{
+  gsw_cfg *cfg = (gsw_cfg *) mconfig;
+  apr_int64_t  v;
+  char        * end;
+
+  if (apr_parse_int64(&v, (char *)value, 10, &end) != APR_SUCCESS) {
+    return apr_psprintf(cmd->pool, "WORetryCount: invalid value '%s'", value);
+  }
+  if (*end != '\0') {
+    return apr_psprintf(cmd->pool, "WORetryCount: invalid value '%s'", value);
+  }
+  if (v < 1 || v > 100) {
+    return "WORetryCount must be between 1 and 100";
+  }
+
+  cfg->retry_count = (int) v;
+
+  return NULL;
+}
+
+static const char *set_balancer(cmd_parms *cmd, void *mconfig, const char *value)
+{
+  gsw_cfg *cfg = (gsw_cfg *) mconfig;
+
+  if (strcasecmp(value, "lowest-load") == 0) {
+    cfg->balancer = BALANCER_LOWEST_LOAD;
+  } else if (strcasecmp(value, "round-robin") == 0) {
+    cfg->balancer = BALANCER_ROUND_ROBIN;
+  } else {
+    return apr_psprintf(cmd->pool,
+                        "WOBalancer: invalid value '%s' (expected 'lowest-load' or 'round-robin')",
+                        value);
+  }
+
+  return NULL;
+}
+
 //
 //const char*(* cmd_func::take3)
 //                           (cmd_parms *parms, void *mconfig, const char *w, const char *w2, const char *w3)
@@ -181,6 +222,8 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   int            len          = 0;
   gsw_cfg *modulecfg = ap_get_module_config(cmd->server->module_config, &gsw_module);
   const apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
+  const apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
+  int            i;
 
 //App Name=TCWebMail Instance=1 Host=10.1.0.1:9901
 //App Name=PBX Instance=1 Host=10.1.0.1:9001
@@ -226,17 +269,34 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   strncpy(appConf->app_name, appName, sizeof(appConf->app_name));
   appConf->app_name[sizeof(appConf->app_name) - 1] = '\0';
 
-  appConf->port = atoi(portStr);
+  appConf->port = (u_int16_t) atoi(portStr);
 
   strncpy(appConf->host_name, hostName, sizeof(appConf->host_name));
   appConf->host_name[sizeof(appConf->host_name) - 1] = '\0';
 
   appConf->instance_number = atoi(instanceStr);
-  appConf->total_index = last_app_index;
+  appConf->total_index = (u_int16_t) modulecfg->last_app_index;
 
-  if (instance_count < appConf->total_index) {
+  if (modulecfg->instance_count < appConf->total_index) {
     return apr_psprintf(cmd->temp_pool, "InstanceCount is '%d', but you added '%d' applications. Increase InstanceCount.",
-                        instance_count, appConf->total_index);
+                        modulecfg->instance_count, appConf->total_index);
+  }
+
+  // Two instances on the same host:port would collide: the shared-memory
+  // statistics (load, unreachable, refusing) are kept per App directive, so
+  // both would read and write the same slot.  Reject the second one.
+  for (i = 0; i < tarr->nelts; i++) {
+    gsw_app_conf * existing = (gsw_app_conf *) telts[i].val;
+
+    if ((existing->port == appConf->port) &&
+        (strcmp(existing->host_name, appConf->host_name) == 0)) {
+      return apr_psprintf(cmd->temp_pool,
+                          "App '%s' instance %d: host %s:%u is already used by app '%s' instance %d. "
+                          "Each App directive needs its own host:port.",
+                          appName, appConf->instance_number,
+                          appConf->host_name, (unsigned) appConf->port,
+                          existing->app_name, existing->instance_number);
+    }
   }
 
   snprintf(tmpStr, sizeof(tmpStr), "%s:%d", appName, appConf->instance_number);
@@ -246,7 +306,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   strncpy(keyStr, tmpStr, len);
 
   apr_table_addn((apr_table_t*) tarr, (const char *) keyStr, (const char *) appConf);
-  last_app_index++;
+  modulecfg->last_app_index++;
 
   return NULL;
 }
@@ -318,6 +378,18 @@ const command_rec gsw_cmds[] =
                 NULL,
                 RSRC_CONF,
                 "WOMaxBodySize <bytes> -- maximum POST body size to buffer; larger requests get a 413 (default 8388608)"),
+
+  AP_INIT_TAKE1("WORetryCount",
+                set_retry_count,
+                NULL,
+                RSRC_CONF,
+                "WORetryCount <number> -- how often an unreachable backend instance is retried (default 3)"),
+
+  AP_INIT_TAKE1("WOBalancer",
+                set_balancer,
+                NULL,
+                RSRC_CONF,
+                "WOBalancer lowest-load | round-robin -- how unpinned requests are distributed over an app's instances (default lowest-load)"),
 
     {NULL}
 };

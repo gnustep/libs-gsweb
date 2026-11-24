@@ -57,71 +57,175 @@ int print_app(void *rec, const char *key, gsw_app_conf *appconf)
 
 
 /*
+ * Build the name -> instance list index that find_app_by_name() uses.
  *
+ * The old code walked the whole app table on every unpinned request and
+ * compared every entry's name; with many apps that is O(apps) per request
+ * even when only one app is involved.  The index maps an app name (case
+ * insensitive) to the list of its instances, so the per-request work is
+ * O(instances of that app) only.
+ *
+ * The table is built once, at config time, after all App directives have
+ * been read (gsw_post_config).  It is keyed by the lower-cased name and
+ * holds pointers into cfg->app_table, so it is valid for the lifetime of
+ * the config pool.
  */
+void gsw_build_app_index(gsw_cfg *cfg)
+{
+    const apr_array_header_t *tarr;
+    const apr_table_entry_t *telts;
+    int                      i;
 
+    if (!cfg->app_table) {
+        return;
+    }
+
+    // the index must outlive the config-reading pool; the config pool is
+    // the pool the cfg itself was allocated from
+    cfg->app_index = apr_table_make(cfg->pool, 1);
+
+    tarr = apr_table_elts(cfg->app_table);
+    telts = (const apr_table_entry_t *) tarr->elts;
+
+    for (i = 0; i < tarr->nelts; i++) {
+        gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
+        char         *key;
+        apr_array_header_t *list;
+        apr_table_entry_t *entry;
+
+        if (appconf->app_name[0] == '\0') {
+            continue;
+        }
+
+        key = apr_pstrdup(cfg->pool, appconf->app_name);
+        for (i = 0; key[i]; i++) {
+            key[i] = (char) tolower((unsigned char) key[i]);
+        }
+
+        entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
+        if (entry) {
+            list = (apr_array_header_t *) entry->val;
+        } else {
+            list = apr_array_make(cfg->pool, 4, sizeof(gsw_app_conf *));
+            apr_table_set(cfg->app_index, key, (const char *) list);
+        }
+        apr_array_push(list) = (gsw_app_conf *) appconf;
+    }
+}
+
+/*
+ * Choose one instance of the named app for an unpinned request.
+ *
+ * The instance list comes from the name index built at config time, so
+ * only this app's instances are considered.  The shared-memory statistics
+ * for exactly those instances are copied under the mutex (one entry each,
+ * not the whole segment).
+ *
+ * Balancing strategy (WOBalancer):
+ *   lowest-load  - pick the reachable instance with the lowest load
+ *   round-robin  - pick the next instance in rotation, skipping
+ *                  unreachable/refusing ones
+ *
+ * An unreachable instance is retried once it has not been touched for
+ * five minutes.  If the app has a single instance and it is unreachable,
+ * it is used anyway (there is nothing else to try).
+ */
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
 {
-    
-    if (((name) && (strlen(name))) && (cfg->app_table))
+    if (((name) && (strlen(name))) && (cfg->app_index))
     {
-        
-        const        apr_array_header_t *tarr = apr_table_elts(cfg->app_table);
-        const        apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
-        int          i;
-        apr_time_t   t;
-        exipc_data * mem;
-        int          appcount = tarr->nelts;
-        u_int32_t    lastload = UINT32_MAX;
-        int          lastindex = -1;
-        int          lastUnreachableIndex = -1;
-        
-        if (!appcount) {
+        char              *key;
+        apr_table_entry_t *entry;
+        apr_array_header_t *list;
+        int                i;
+        int                n;
+        apr_time_t         t;
+        exipc_data       *mem;
+        u_int16_t        *indexes;
+        gsw_app_conf    **chosen = NULL;
+
+        // case-insensitive lookup, like the old strcasecmp() scan
+        key = apr_pstrdup(r->pool, name);
+        for (i = 0; key[i]; i++) {
+            key[i] = (char) tolower((unsigned char) key[i]);
+        }
+
+        entry = (apr_table_entry_t *) apr_table_get(cfg->app_index, key);
+        if (!entry) {
             return NULL;
         }
-        
-        mem = read_shared_mem(r->pool,  appcount);
+        list = (apr_array_header_t *) entry->val;
+        n = list->nelts;
+        if (!n) {
+            return NULL;
+        }
+
+        // copy the statistics for exactly this app's instances
+        indexes = (u_int16_t *) apr_palloc(r->pool, sizeof(u_int16_t) * n);
+        for (i = 0; i < n; i++) {
+            indexes[i] = ((gsw_app_conf **) list->elts)[i]->total_index;
+        }
+
+        mem = read_shared_mem(r->pool, n, indexes);
         if (!mem) {
             return NULL;
         }
-        
-        
-        // current time
-        t = apr_time_now();
-        // substract 300 sec / 5 min
-        t = t - apr_time_from_sec(300);
-        
-        for (i = 0; i < tarr->nelts; i++) {
-            gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-            
-            if ((strcasecmp(appconf->app_name, name) == 0)) {
-                // enable unreachable instances after some time
+
+        // current time minus 300 sec / 5 min: the age-out for
+        // unreachable instances
+        t = apr_time_now() - apr_time_from_sec(300);
+
+        if (cfg->balancer == BALANCER_ROUND_ROBIN) {
+            // rotate through the instances, skipping the ones that are
+            // unreachable or refusing; the counter is per config, so each
+            // vhost/location balances independently
+            for (i = 0; i < n; i++) {
+                int  j = (cfg->rr_counter + i) % n;
+
+                if (mem[j].last_request_time < t) {
+                    mem[j].unreachable = 0;
+                    mem[j].refusing = 0;
+                }
+                if ((mem[j].unreachable == 0) && (mem[j].refusing == 0)) {
+                    cfg->rr_counter = (j + 1) % n;
+                    chosen = &((gsw_app_conf **) list->elts)[j];
+                    break;
+                }
+            }
+            if (!chosen) {
+                // no reachable instance: fall back to the single-instance
+                // case, like the lowest-load path
+                if (n == 1) {
+                    chosen = &((gsw_app_conf **) list->elts)[0];
+                }
+            }
+        } else {
+            // BALANCER_LOWEST_LOAD: the reachable instance with the
+            // lowest load
+            u_int32_t lastload = UINT32_MAX;
+
+            for (i = 0; i < n; i++) {
                 if (mem[i].last_request_time < t) {
                     mem[i].unreachable = 0;
                     mem[i].refusing = 0;
                 }
-                
                 if ((mem[i].unreachable == 0) && (mem[i].refusing == 0)) {
                     if (mem[i].load <= lastload) {
-                        lastindex = i;
                         lastload = mem[i].load;
+                        chosen = &((gsw_app_conf **) list->elts)[i];
                     }
-                } else {
-                    // if there is only one app, we have to hit it anyways.
-                    if (appcount == 1) {
-                        if (mem[i].unreachable == 1) {
-                            lastUnreachableIndex = i;
-                        }
+                } else if (n == 1) {
+                    // if there is only one instance, we have to hit it
+                    // anyways
+                    if (mem[i].unreachable == 1) {
+                        chosen = &((gsw_app_conf **) list->elts)[i];
                     }
                 }
-                
             }
         }
-        if (lastindex >= 0) {
-            return (gsw_app_conf *) telts[lastindex].val;
-        }
-        if (lastUnreachableIndex >= 0) {
-            return (gsw_app_conf *) telts[lastUnreachableIndex].val;
+
+        if (chosen) {
+            return *chosen;
         }
     }
     return NULL;

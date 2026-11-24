@@ -85,6 +85,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
@@ -130,6 +131,12 @@ typedef struct gsw_cfg {
   apr_time_t   connect_timeout;   // WOConnectTimeout, default 5 sec
   apr_time_t   wait_timeout;      // WOWaitTimeout, default 60 sec
   apr_off_t    max_body_size;     // WOMaxBodySize, default 8 MiB
+  int          retry_count;       // WORetryCount, default 3
+  int          balancer;          // WOBalancer, default BALANCER_LOWEST_LOAD
+  int          instance_count;    // InstanceCount, default 10
+  int          last_app_index;    // running counter while App directives are read
+  apr_table_t * app_index;        // lower-cased app name -> apr_array of gsw_app_conf *
+  int          rr_counter;        // round-robin position, per config (WOBalancer round-robin)
 } gsw_cfg;
 
 #define MAX_URL_LENGTH        256
@@ -139,7 +146,9 @@ typedef struct gsw_cfg {
 
 // CRLF ("\015\012") comes from httpd.h; do not redefine it here.
 
-#define RETRY_COUNT       3
+// load-balancing strategies for unpinned requests (WOBalancer)
+#define BALANCER_LOWEST_LOAD  0
+#define BALANCER_ROUND_ROBIN  1
 
 typedef struct gsw_app_conf {
   char        app_name[MAX_NAME_LENGTH];
@@ -176,6 +185,8 @@ typedef struct gsw_app_conf {
 #define DEFAULT_CONNECT_TIMEOUT  apr_time_from_sec(5)
 #define DEFAULT_WAIT_TIMEOUT     apr_time_from_sec(60)
 #define DEFAULT_MAX_BODY_SIZE    (8 * 1024 * 1024)   // 8 MiB
+#define DEFAULT_RETRY_COUNT      3
+#define DEFAULT_BALANCER         BALANCER_LOWEST_LOAD
 
 // header validation for CRLF injection / response splitting (cf.
 // CVE-2016-4975): returns 0 if key or value contains a raw CR/LF or a
@@ -211,10 +222,6 @@ extern module AP_MODULE_DECLARE_DATA gsw_module;
  * Shared cells.  Each one is *defined* in exactly one source file, which is
  * noted after the declaration.
  */
-
-// used to read configs  (defined in gsw_cmds.c)
-extern int instance_count;
-extern int last_app_index;
 
 /*
  * Let's set up a module-local static cell to point to the accreting callback
@@ -266,7 +273,10 @@ void * gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
                                void *server2_conf);
 
 /* gsw_shm.c */
-void * read_shared_mem(apr_pool_t * pool, int appcount);
+// Copies the exipc_data entries for the given app instances (by their
+// total_index) into a pool-allocated array; the mutex is held only for the
+// copy.  Returns NULL if the mutex cannot be taken.
+void * read_shared_mem(apr_pool_t * pool, int count, const u_int16_t * indexes);
 void mark_unreachable(request_rec *r, gsw_app_conf * app);
 void mark_refusing(gsw_app_conf * app);
 void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time,
@@ -275,6 +285,9 @@ void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s);
 
 /* gsw_apps.c */
 int print_app(void *rec, const char *key, gsw_app_conf *appconf);
+// Builds cfg->app_index (name -> instance list) from cfg->app_table; called
+// once at config time, after all App directives have been read.
+void gsw_build_app_index(gsw_cfg *cfg);
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r);
 gsw_app_conf * find_app(request_rec *r);
 int gsw_parse_uri(const char * uri,

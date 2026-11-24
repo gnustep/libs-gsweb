@@ -41,32 +41,41 @@ apr_global_mutex_t *exipc_mutex;
 char *mutexfilename;
 
 
-void * read_shared_mem(apr_pool_t * pool, int appcount)
+void * read_shared_mem(apr_pool_t * pool, int count, const u_int16_t * indexes)
 {
-  apr_size_t   memsize = apr_shm_size_get(exipc_shm);
-  void       * mem     = NULL;
+  exipc_data * mem = NULL;
+  int          i;
 
-  if (memsize) {
-    mem = apr_pcalloc(pool, memsize);
-    
+  if (count > 0) {
+    mem = (exipc_data *) apr_pcalloc(pool, sizeof(exipc_data) * count);
+
     if (mem) {
       void * base = NULL;
       apr_status_t rv;
-
 
       rv = apr_global_mutex_lock(exipc_mutex);
       if (rv != APR_SUCCESS) {
         //char errstr[1024];
         //apr_strerror(rv,errstr,1024);
         //syslog(LOG_ERR,"rv != APR_SUCCESS %s\n", errstr);
+        apr_global_mutex_unlock(exipc_mutex);
         return NULL;
       }
       base = apr_shm_baseaddr_get(exipc_shm);
-      memcpy(mem, base, memsize);
+      if (base) {
+        // Copy only the entries the caller asked for, not the whole
+        // segment: the mutex is held for the copy, so copying every
+        // configured instance on every request serialized all workers
+        // on the mutex for no reason.
+        for (i = 0; i < count; i++) {
+          memcpy(&mem[i], (char *) base + (size_t) indexes[i] * sizeof(exipc_data),
+                 sizeof(exipc_data));
+        }
+      }
       apr_global_mutex_unlock(exipc_mutex);
     }
   }
-  
+
   return mem;
 }
 

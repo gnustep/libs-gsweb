@@ -56,4 +56,7 @@ playground.xcworkspace
 *.o
 *.slo
 *.la
+*.lo
+
+config.log
 

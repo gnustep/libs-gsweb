@@ -78,6 +78,18 @@ WOMaxBodySize <bytes>
     forwarding it to the application. Larger requests are rejected
     with HTTP status 413. Default: 8388608 (8 MiB)
 
+WORetryCount <number>
+    How many times the adaptor retries a request whose backend
+    instance was unreachable, re-resolving the app between attempts
+    so the next candidate instance is tried. Default: 3
+
+WOBalancer lowest-load|round-robin
+    How unpinned requests (no instance number in the URL) are
+    distributed over an app's instances. lowest-load picks the
+    reachable instance with the lowest reported load; round-robin
+    rotates through the instances in order, skipping unreachable or
+    refusing ones. Default: lowest-load
+
 All directives can be used in the main server config or in a
 <VirtualHost> section.
 
