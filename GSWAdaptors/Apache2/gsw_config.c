@@ -216,6 +216,19 @@ void *gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
     merged_config->local = s2conf->local;
     merged_config->congenital = (s1conf->congenital | s1conf->local);
     merged_config->loc = apr_pstrdup(p, s2conf->loc);
+
+    /*
+     * The app table and the tuning knobs must be inherited the same way the
+     * dir-config merge does it.  The old code left them at their pcalloc
+     * zero/NULL values, so a vhost that inherited the default server config
+     * (the normal case: apps configured globally, no per-vhost directives)
+     * had an empty app table and the default timeouts.
+     */
+    merged_config->app_table = apr_table_copy(p, s2conf->app_table);
+    merged_config->connect_timeout = s2conf->connect_timeout;
+    merged_config->wait_timeout = s2conf->wait_timeout;
+    merged_config->max_body_size = s2conf->max_body_size;
+    merged_config->showApps = s2conf->showApps;
     /*
      * Trace our call, including what we were asked to merge.
      */

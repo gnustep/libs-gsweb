@@ -199,27 +199,46 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
   hostName++;
   instanceStr++;
 
-  strncpy(appConf->app_name, appName, sizeof(appConf->app_name));
+  // The names are stored in fixed MAX_NAME_LENGTH buffers; the old code
+  // silently truncated anything longer, and the table key (built from the
+  // *untruncated* name) no longer matched the stored app_name, so the
+  // instance lookup for such an app failed at request time.  Reject the
+  // directive instead.
+  if (strlen(appName) >= sizeof(appConf->app_name)) {
+    return apr_psprintf(cmd->temp_pool, "App name '%s' is too long (max %d characters).",
+                        appName, (int) (sizeof(appConf->app_name) - 1));
+  }
 
   portStr = strrchr(hostName, ':');
-  
+  if (portStr == NULL) {
+    return apr_psprintf(cmd->temp_pool, "App host '%s' is missing a port.", hostName);
+  }
+
   // remove port from string
   *portStr = '\0';
   portStr++;
-  
+
+  if (strlen(hostName) >= sizeof(appConf->host_name)) {
+    return apr_psprintf(cmd->temp_pool, "App host '%s' is too long (max %d characters).",
+                        hostName, (int) (sizeof(appConf->host_name) - 1));
+  }
+
+  strncpy(appConf->app_name, appName, sizeof(appConf->app_name));
+  appConf->app_name[sizeof(appConf->app_name) - 1] = '\0';
+
   appConf->port = atoi(portStr);
 
-  
   strncpy(appConf->host_name, hostName, sizeof(appConf->host_name));
+  appConf->host_name[sizeof(appConf->host_name) - 1] = '\0';
 
   appConf->instance_number = atoi(instanceStr);
   appConf->total_index = last_app_index;
-  
+
   if (instance_count < appConf->total_index) {
     return apr_psprintf(cmd->temp_pool, "InstanceCount is '%d', but you added '%d' applications. Increase InstanceCount.",
                         instance_count, appConf->total_index);
   }
-  
+
   snprintf(tmpStr, sizeof(tmpStr), "%s:%d", appName, appConf->instance_number);
 
   len = strlen(tmpStr)+1;
@@ -228,7 +247,7 @@ static const char * set_App(cmd_parms *cmd, void *mconfig,
 
   apr_table_addn((apr_table_t*) tarr, (const char *) keyStr, (const char *) appConf);
   last_app_index++;
-              
+
   return NULL;
 }
 

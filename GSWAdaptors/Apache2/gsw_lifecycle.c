@@ -24,6 +24,16 @@
 #include "gsw_private.h"
 #include "gsw_compat.h"   /* ap_unixd_set_global_mutex_perms shim, MOD_EXIPC_SET_MUTEX_PERMS */
 
+/*
+ * fchmod() is not declared on FreeBSD in this build: an Apache header
+ * un-#defines a standard-library feature macro (e.g. _POSIX_C_SOURCE) and
+ * <unistd.h> then omits it, and re-including <unistd.h> does not help because
+ * its include guard is already set.  <sys/stat.h> is the canonical home of
+ * fchmod() (per the FreeBSD man page) and is not feature-gated, so include
+ * it here, after the Apache headers.
+ */
+#include <sys/stat.h>
+
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
 /* Server-lifecycle hooks: pre/post configuration, log opening, and the     */
@@ -136,8 +146,21 @@ int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog,
                  shmfilename);
     return HTTP_INTERNAL_SERVER_ERROR;
   }
-  
-  
+
+  /*
+   * apr_shm_create() leaves the backing file at the default permissions
+   * (0644): any local user could read or write the live per-instance
+   * statistics.  Tighten it to owner-only.
+   */
+  {
+    int   shmfd = open((const char *) shmfilename, O_RDWR);
+
+    if (shmfd >= 0) {
+      fchmod(shmfd, 0600);
+      close(shmfd);
+    }
+  }
+
   /* Create global mutex */
   
   /*

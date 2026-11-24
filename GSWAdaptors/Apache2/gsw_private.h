@@ -56,6 +56,20 @@
 #include "apr_time.h"
 #include "apr_shm.h"
 
+/* HTTP status codes.  httpd.h does not include http_status.h, and the
+ * 413 macro name changed across Apache releases (HTTP_REQUEST_ENTITY_TOO_LARGE
+ * in 2.2, HTTP_PAYLOAD_TOO_LARGE in 2.4), so define what we use ourselves.
+ */
+#ifndef HTTP_PAYLOAD_TOO_LARGE
+#define HTTP_PAYLOAD_TOO_LARGE 413
+#endif
+#ifndef HTTP_BAD_REQUEST
+#define HTTP_BAD_REQUEST 400
+#endif
+#ifndef HTTP_NOT_FOUND
+#define HTTP_NOT_FOUND 404
+#endif
+
 /* POSIX */
 #include <stdio.h>
 #include <stdlib.h>
@@ -170,6 +184,11 @@ typedef struct gsw_app_conf {
 // client headers forwarded to the backend.
 int gsw_header_is_safe(const char * key, const char * value);
 
+// read_post_data() results (gsw_request.c)
+#define GSW_BODY_OK        0
+#define GSW_BODY_TOO_LARGE 1
+#define GSW_BODY_ABORTED   2
+
 typedef struct exipc_data {
   apr_time_t    last_response_time; // in sec since January 1, 1970
   apr_time_t    last_request_time;  // in sec since January 1, 1970
@@ -258,6 +277,10 @@ void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s);
 int print_app(void *rec, const char *key, gsw_app_conf *appconf);
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r);
 gsw_app_conf * find_app(request_rec *r);
+int gsw_parse_uri(const char * uri,
+                  char * app_name, size_t app_name_size,
+                  int * instance_nr,
+                  char * rest, size_t rest_size);
 
 /* gsw_net.c */
 int connect_host(char * hostname, u_int16_t port, apr_time_t timeout);
@@ -284,8 +307,13 @@ void * read_sock_line(int socket, request_rec *r, apr_pool_t * pool,
 /* gsw_request.c */
 const char * fixRequestString(request_rec *r, gsw_app_conf *app);
 uint32_t get_content_len(request_rec *r);
-void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool,
-                      gsw_app_conf * app);
+// Reads the request body into a pool buffer and returns it via *postdata
+// (NULL when there is no body).  Returns:
+//   GSW_BODY_OK        - body read in full, or no body to read
+//   GSW_BODY_TOO_LARGE - Content-Length exceeds WOMaxBodySize
+//   GSW_BODY_ABORTED   - the client went away mid-body
+int read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool,
+                   gsw_app_conf * app, void ** postdata);
 int handle_request(request_rec *r, gsw_app_conf * app, void * postdata,
                    uint32_t contentLen);
 

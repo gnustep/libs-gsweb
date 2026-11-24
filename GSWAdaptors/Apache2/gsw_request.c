@@ -43,66 +43,37 @@ x-webobjects-adaptorstats: applicationThreadCreation=+0.000s applicationThreadRu
 
 const char * fixRequestString(request_rec *r, gsw_app_conf *app)
 {
-  char            * req_str = r->the_request;
-  size_t            len;
-  char            * appName;
-  char            * spaceStr;
-  char            * instanceStr;
-  char            * restStr = NULL;
-  int               instance_nr = -1;
   char            * newString = NULL;
 
-  if (req_str == NULL) {
-    // subrequests and some internal redirects have no request line; fall
-    // back to the parsed URI so we still send something well formed
-    req_str = apr_psprintf(r->pool, "%s %s HTTP/1.1", r->method,
-                           r->uri ? r->uri : "/");
-  }
-
-  len = strlen(req_str);
-  appName = apr_palloc(r->pool, len + 5);
-
-  // copy with explicit NUL: strncpy(dst, src, len) leaves dst unterminated
-  memcpy(appName, req_str, len);
-  appName[len] = '\0';
-
   // GET /wo/PBX HTTP/1.1
-  
-  if ((appName = index(appName, '/'))) {
-    appName++;
-    if ((appName = index(appName, '/'))) {
-      appName++;
-      if ((spaceStr = index(appName, ' '))) {
-        *spaceStr = '\0';
-        instanceStr = appName;
-        instanceStr++;
-        if ((instanceStr = index(appName, '/'))) {
-          *instanceStr = '\0';
-          instanceStr++;
-          if ((spaceStr = index(instanceStr, '/'))) {
-            *spaceStr = '\0';
-            restStr = spaceStr;
-            restStr++;
-          }
-//          ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instanceStr:'%s'", instanceStr);
-        }
-//        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "appName:'%s'", appName);
-//        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "restStr:'%s'", restStr);
+  //
+  // The URI part is parsed with the same gsw_parse_uri() that find_app()
+  // uses, so the two cannot drift apart.  The instance number in the
+  // rewritten request line is the app's own instance_number (the one the
+  // request was routed to), not whatever the client asked for.
+  {
+    char   uri_part[512];
+    char   app_name[MAX_NAME_LENGTH];
+    char   rest[MAX_URL_LENGTH];
+    int    instance_nr = -1;
+    const char * uri = r->uri ? r->uri : "/";
+
+    if (gsw_parse_uri(uri, app_name, sizeof(app_name),
+                      &instance_nr, rest, sizeof(rest))) {
+      if (instance_nr != -1) {
+        snprintf(uri_part, sizeof(uri_part), "%s%s.woa/%d/%s",
+                 ADAPTOR_PREFIX, app_name, app->instance_number, rest);
+      } else {
+        snprintf(uri_part, sizeof(uri_part), "%s%s.woa/%s",
+                 ADAPTOR_PREFIX, app_name, rest);
       }
+    } else {
+      // not a /wo/<App>.woa/... URI; leave it untouched
+      snprintf(uri_part, sizeof(uri_part), "%s", uri);
     }
+
+    newString = apr_psprintf(r->pool, "%s %s HTTP/1.1\r\n", r->method, uri_part);
   }
-  
-  if (!restStr) {
-    restStr = "";
-  }
-  
-  if ((spaceStr = index(appName, '.'))) {
-    *spaceStr = '\0';
-  }
-  
-  
-  newString = apr_psprintf(r->pool, "%s %s%s.woa/%d/%s HTTP/1.1\r\n", r->method, ADAPTOR_PREFIX, appName, app->instance_number
-,restStr);
 
 //  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "newString:'%s'", newString);
 
@@ -258,71 +229,77 @@ static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
 
 uint32_t get_content_len(request_rec *r)
 {
-  apr_array_header_t    * hdrs_arr = NULL;
-  apr_table_entry_t     * hdrs = NULL;
-  int                     i = 0;
-  const char            * ap_str;
-  uint32_t                len = 0;
-  
-  hdrs_arr = (apr_array_header_t*) apr_table_elts(r->headers_in);
-  hdrs = (apr_table_entry_t *) hdrs_arr->elts;
-  
-  for (i = 0; i < hdrs_arr->nelts; ++i) {
-    if (!hdrs[i].key)
-      continue;
-    if (strcasecmp(hdrs[i].key, CONTENT_LENGTH) == 0) {
-      apr_int64_t  v;
-      char        * end;
+  const char * ap_str;
+  uint32_t     len = 0;
 
-      // apr_parse_int64: no wrap-around like atoi, and it tells us
-      // when the value does not fit
-      if (apr_parse_int64(&v, (char *)hdrs[i].val, 10, &end) == APR_SUCCESS) {
-        if ((v >= 0) && (v <= UINT32_MAX)) {
-          len = (uint32_t) v;
-        }
+  // apr_table_get() does the case-insensitive lookup for us; the old
+  // version walked the whole header table by hand
+  ap_str = apr_table_get(r->headers_in, CONTENT_LENGTH);
+  if (ap_str) {
+    apr_int64_t  v;
+    char        * end;
+
+    // apr_parse_int64: no wrap-around like atoi, and it tells us
+    // when the value does not fit
+    if (apr_parse_int64(&v, (char *)ap_str, 10, &end) == APR_SUCCESS) {
+      if ((v >= 0) && (v <= UINT32_MAX)) {
+        len = (uint32_t) v;
       }
-      break;
     }
   }
   return len;
 }
 
-void * read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool, gsw_app_conf * app)
+// Reads the request body into a pool buffer and returns it via *postdata
+// (set to NULL when there is no body).  Returns:
+//   GSW_BODY_OK        - body read in full, or no body to read
+//   GSW_BODY_TOO_LARGE - Content-Length exceeds WOMaxBodySize
+//   GSW_BODY_ABORTED   - the client went away mid-body
+//
+// The old version returned the buffer (or NULL on every failure), which made
+// the handler unable to tell an oversize body (413) apart from a client
+// abort (400).
+int read_post_data(request_rec *r, apr_off_t clength, apr_pool_t * pool,
+                   gsw_app_conf * app, void ** postdata)
 {
   char * postbuf = NULL;
   char * tmpbuf = NULL;
   gsw_cfg * cfg = our_dconfig(r);
+
+  *postdata = NULL;
+
   if ((r->method_number == M_POST) && (ap_should_client_block(r))) {
     apr_off_t     bytesread = 0;
     apr_off_t   len_read = 0;
-    
+
     if (!clength) {
-      return NULL;
+      return GSW_BODY_OK;
     }
-    
+
     // refuse to buffer more than WOMaxBodySize (client-controlled value)
     if ((cfg->max_body_size > 0) && (clength > cfg->max_body_size)) {
       ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
                      "POST body of %lld bytes exceeds WOMaxBodySize (%lld)",
                      (long long) clength, (long long) cfg->max_body_size);
-      return NULL;
+      return GSW_BODY_TOO_LARGE;
     }
-    
+
     postbuf = apr_palloc(pool,clength+1);
     tmpbuf = postbuf;
 
     while (bytesread < clength) {
       len_read = ap_get_client_block(r, tmpbuf, clength - bytesread);
       if (len_read < 0) {
-        return NULL;
+        return GSW_BODY_ABORTED;
       }
       bytesread += len_read;
       tmpbuf += len_read;
     }
     postbuf[clength] = '\0';
+    *postdata = postbuf;
   }
 
-  return postbuf;
+  return GSW_BODY_OK;
 }
 
 int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t contentLen)
@@ -347,6 +324,10 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
     
     apr_pool_create(&sub_pool, r->pool);
     reader = (gsw_line_reader *) gsw_line_reader_init(sub_pool);
+    if (reader == NULL) {
+        apr_pool_destroy(sub_pool);
+        return INTERNAL_ERROR;
+    }
     
     
     soc = connect_host(app->host_name, app->port, cfg->connect_timeout);
@@ -390,10 +371,13 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
                     apr_pool_destroy(sub_pool);
                     return DECLINED;
                 }
-                if (http_status==200) {
-                    http_status=OK;
-                }
-                if (http_status == 302) {
+                // map the backend status onto the client response.  The old
+                // code only handled 200 and 302; anything else (404, 500,
+                // 301, ...) left r->status at 200 and the client got a
+                // 200 with the app's error page.
+                if (http_status == 200) {
+                    http_status = OK;
+                } else if (http_status >= 100) {
                     r->status = http_status;
                 }
             }
@@ -502,8 +486,12 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
                 }
             } // while
             
-            // do the request
-            if ((content_length > 0)) {
+            // do the request.  204/304 responses never carry a body, and
+            // a zero Content-Length means there is nothing to relay; the old
+            // code also skipped those, but it did so by accident (a 204 with
+            // a spurious Content-Length would have stalled the worker in the
+            // body loop).
+            if ((content_length > 0) && (http_status != 204) && (http_status != 304)) {
                 size_t    bytesDone = 0;
                 size_t    blockSize = 65536;   // 64 KiB
                 ssize_t   rval = 1;
@@ -649,18 +637,20 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
         http_status = UNREACHABLE;
     }
     
-    //apr_pool_destroy(sub_pool);
-    
+    apr_pool_destroy(sub_pool);
+
     return http_status;
-    
+
 internal_error:
     close(soc);
+    apr_pool_destroy(sub_pool);
     return INTERNAL_ERROR;
 
 unreachable:
     // the backend socket failed mid-request: close it, mark the app
     // unreachable, and let gsw_handler() retry on another instance
     close(soc);
+    apr_pool_destroy(sub_pool);
     mark_unreachable(r, app);
     return UNREACHABLE;
 }

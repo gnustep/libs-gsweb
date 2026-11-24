@@ -112,6 +112,30 @@ static void print_image(request_rec * r)
  * this prints some CSS for use in the error page in gsw_handler
  */
 
+// Escape a string for use inside a HTML element or attribute.  The app
+// and host names come from the Apache config file, but a name containing
+// a '<' or a quote would otherwise break out of the table markup.
+static void html_escape(const char * in, char * out, size_t out_size)
+{
+  size_t  j = 0;
+  size_t  i;
+
+  if (out_size < 1) {
+    return;
+  }
+  for (i = 0; in[i] != '\0' && (j + 6 < out_size); i++) {
+    switch (in[i]) {
+      case '&':  memcpy(out + j, "&amp;", 5);  j += 5; break;
+      case '<':  memcpy(out + j, "&lt;", 4);   j += 4; break;
+      case '>':  memcpy(out + j, "&gt;", 4);   j += 4; break;
+      case '"':  memcpy(out + j, "&quot;", 6); j += 6; break;
+      case '\'': memcpy(out + j, "&#39;", 5);  j += 5; break;
+      default:   out[j++] = in[i]; break;
+    }
+  }
+  out[j] = '\0';
+}
+
 static void print_css(request_rec * r)
 {
     ap_rputs("<style type=\"text/css\"> \
@@ -165,13 +189,18 @@ void showApps(request_rec * r, gsw_cfg *dcfg)
                 
                 for (i = 0; i < tarr->nelts; i++) {
                     gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
-                    
+                    char         esc_name[MAX_NAME_LENGTH * 6];
+                    char         esc_host[MAX_NAME_LENGTH * 6];
+
+                    html_escape(appconf->app_name, esc_name, sizeof(esc_name));
+                    html_escape(appconf->host_name, esc_host, sizeof(esc_host));
+
                     ap_rprintf(r, "<tr><td><a href=\"%s%s.woa/%d/\">%s</a></td>", ADAPTOR_PREFIX,
                                appconf->app_name,
                                appconf->instance_number,
-                               appconf->app_name);
+                               esc_name);
                     ap_rprintf(r, "<td>%u</td>", appconf->instance_number);
-                    ap_rprintf(r, "<td>%s</td>", appconf->host_name);
+                    ap_rprintf(r, "<td>%s</td>", esc_host);
                     ap_rprintf(r, "<td>%u</td>", appconf->port);
                     ap_rprintf(r, "<td>%u</td>", mem[i].load);
                     ap_rprintf(r, "<td>%s</td>", (mem[i].unreachable == 1) ? "YES": "NO");

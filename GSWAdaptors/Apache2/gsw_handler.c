@@ -62,10 +62,10 @@ int gsw_handler(request_rec *r)
 
   dcfg = our_dconfig(r);
 
-    if (strncmp(r->uri, "/wo/showapps",12) == 0) {
-        showApps(r, dcfg);
-        return OK;
-    }
+  if (strncmp(r->uri, "/wo/showapps",12) == 0) {
+    showApps(r, dcfg);
+    return OK;
+  }
 
   /*
     * We're about to start sending content, so we need to force the HTTP
@@ -83,24 +83,44 @@ int gsw_handler(request_rec *r)
     
   
   app = find_app(r);
-    
-  if (app != NULL) {
+
+  if (app == NULL) {
+    // no app matches the URI (or every instance is marked unreachable):
+    // the old code fell through to the 504 at the bottom, which is what
+    // you get when the *backend* is unreachable, not when the URI does not
+    // name a configured app
+    return HTTP_NOT_FOUND;
+  }
+
+  {
     int i;
     handle_status = OK;
-    
+
     if (ap_setup_client_block(r, REQUEST_CHUNKED_ERROR) != OK) {
       ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "handle_request: DECLINED");
     } else {
       if (r->method_number == M_POST) {
+        int body_rval;
+
         contentLen = get_content_len(r);
-        postdata = read_post_data(r, contentLen, r->pool, app);
-        if (postdata == NULL) {
-          // the body exceeds WOMaxBodySize (or the client aborted)
-          return 413; // HTTP_PAYLOAD_TOO_LARGE
+        body_rval = read_post_data(r, contentLen, r->pool, app, &postdata);
+        if (body_rval == GSW_BODY_TOO_LARGE) {
+          // the body exceeds WOMaxBodySize
+          return HTTP_PAYLOAD_TOO_LARGE;
+        }
+        if (body_rval == GSW_BODY_ABORTED) {
+          // the client went away mid-body; there is nothing to do
+          return HTTP_BAD_REQUEST;
         }
       }
-      
-      
+
+      // The retry loop: handle_request() returns UNREACHABLE when the
+      // backend socket failed (connect refused, timeout, socket died
+      // mid-headers).  Each UNREACHABLE re-resolves the app, which skips
+      // the instance that was just marked unreachable and picks the next
+      // candidate.  Anything else (OK, 302, a mapped error status) ends
+      // the loop: the response has already been relayed to the client, so
+      // retrying would emit a second, interleaved response.
       for (i = 0; ((i < RETRY_COUNT) && (handle_status <= OK)); i++) {
         if (app == NULL) {
           // every instance of this app is marked unreachable; do not call
@@ -108,7 +128,7 @@ int gsw_handler(request_rec *r)
           break;
         }
         handle_status = handle_request(r, app, postdata, contentLen);
-        
+
         switch (handle_status) {
           case UNREACHABLE:
             // handle_request() already marked this instance unreachable via
@@ -125,11 +145,11 @@ int gsw_handler(request_rec *r)
             break;
         }
       }
-      
+
       if ((handle_status > OK)) {
         return handle_status;
       }
-      
+
     }
   }
     
@@ -152,6 +172,6 @@ int gsw_handler(request_rec *r)
      * We did what we wanted to do, so tell the rest of the server we
      * succeeded.
      */
-    return 504;
+    return 504; // HTTP_GATEWAY_TIMEOUT
 }
 

@@ -127,70 +127,140 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
     return NULL;
 }
 
+/*
+ * Parse the /wo/<App>.woa/<instance>/<rest> URI grammar.  Shared by
+ * find_app() and fixRequestString() so the two cannot drift apart.
+ *
+ * Returns 1 on success, 0 if the URI does not match the grammar.
+ */
+int gsw_parse_uri(const char * uri,
+                  char * app_name, size_t app_name_size,
+                  int * instance_nr,
+                  char * rest, size_t rest_size)
+{
+  const char * p;
+  const char * dot;
+  const char * slash;
+  const char * inst;
+  size_t      len;
+
+  if (app_name_size < 1 || rest_size < 1) {
+    return 0;
+  }
+  app_name[0] = '\0';
+  rest[0] = '\0';
+  *instance_nr = -1;
+
+  if (uri == NULL) {
+    return 0;
+  }
+
+  // skip the /wo/ prefix
+  if (strncmp(uri, ADAPTOR_PREFIX, strlen(ADAPTOR_PREFIX)) != 0) {
+    return 0;
+  }
+  p = uri + strlen(ADAPTOR_PREFIX);
+
+  // the app name runs to the next '/'
+  slash = strchr(p, '/');
+  if (slash == NULL) {
+    // no trailing path: accept "/wo/<App>.woa" as an empty rest
+    slash = p + strlen(p);
+  }
+  len = (size_t) (slash - p);
+  if (len == 0 || len >= app_name_size) {
+    return 0;
+  }
+
+  // the name must carry a ".woa" extension; the app name is the part
+  // before the last dot.  The search is bounded to the app segment:
+  // strrchr() would run past the segment into the rest of the URI,
+  // where a dot in a path component (e.g. "/.../0.1.6.1") would
+  // otherwise make the parse fail
+  dot = memchr(p, '.', (size_t) (slash - p));
+  if (dot == NULL) {
+    return 0;
+  }
+  len = (size_t) (dot - p);
+  if (len == 0 || len >= app_name_size) {
+    return 0;
+  }
+  memcpy(app_name, p, len);
+  app_name[len] = '\0';
+
+  // the instance segment is optional
+  p = slash + 1;
+  if (*p != '\0') {
+    inst = p;
+    slash = strchr(p, '/');
+    len = (size_t) ((slash ? slash : p + strlen(p)) - inst);
+    if (len == 0 || len >= 32) {
+      return 0;
+    }
+    {
+      char   num[32];
+      char  * end;
+      long   v;
+
+      memcpy(num, inst, len);
+      num[len] = '\0';
+      v = strtol(num, &end, 10);
+      if (*end != '\0' || v < 0 || v > 65535) {
+        return 0;
+      }
+      *instance_nr = (int) v;
+    }
+    if (slash != NULL) {
+      p = slash + 1;
+    }
+  }
+
+  // the remainder of the path (may be empty).  A rest that does not fit is
+  // a parse failure, not a silent truncation: the truncated path would be
+  // forwarded to the backend and produce a bogus 404 there
+  len = strlen(p);
+  if (len >= rest_size) {
+    return 0;
+  }
+  memcpy(rest, p, len);
+  rest[len] = '\0';
+
+  return 1;
+}
+
 gsw_app_conf * find_app(request_rec *r)
 {
-  char         * appName;
-  char         * instance_str = NULL;
-  char           app_name[128];
+  char           app_name[MAX_NAME_LENGTH];
+  char           rest[MAX_URL_LENGTH];
   int            instance_nr = -1;
   gsw_cfg      * cfg          = NULL;
   gsw_app_conf * app_conf     = NULL;
 
-  if ((appName = index(r->uri, '/'))) {
-    appName++;
-    if ((appName = index(appName, '/'))) {
-      appName++;
-    } else {
-     return NULL;
-    }
-  } else {
+  if (!gsw_parse_uri(r->uri, app_name, sizeof(app_name),
+                     &instance_nr, rest, sizeof(rest))) {
     return NULL;
   }
-
-  strncpy(app_name, appName, sizeof(app_name) - 1);
-  app_name[sizeof(app_name) - 1] = '\0';
   //ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name '%s'", app_name);
-  
-  if ((appName = index(app_name, '.'))) {
-    *appName = '\0';
-    appName++;
-  
-  // now get the instance number if any
-
-  if ((instance_str = index(appName, '/'))) {
-    instance_str++;
-    if ((appName = index(instance_str, '/'))) {
-      *appName = '\0';
-      instance_nr = atoi(instance_str);
-      // parse error?
-      if (instance_nr == 0) {
-        instance_nr = -1;
-      }
-    }
-  }
-
-  } else {
-    //    return NULL;
-
-  }
 
   cfg = our_dconfig(r);
 
   if (instance_nr != -1) {
     char   tmp_key[128];
 
+    // gsw_parse_uri() already stripped the ".woa" extension from app_name,
+    // so the key matches the bare-name key built by set_App (gsw_cmds.c)
     snprintf(tmp_key, sizeof(tmp_key), "%s:%d", app_name, instance_nr);
-  
+
     app_conf = (gsw_app_conf *) apr_table_get(cfg->app_table, (const char  *)tmp_key);
-       
+
     return app_conf;
-    
+
   }
 
   app_conf = find_app_by_name(app_name, cfg, r);
-  
+
   //print_app(r, NULL, app_conf);
-  
+
   return app_conf;
 }
 

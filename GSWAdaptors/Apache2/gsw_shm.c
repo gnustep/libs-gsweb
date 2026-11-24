@@ -117,7 +117,11 @@ void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time, apr
     mem[index].last_request_time = last_request_time;
     mem[index].last_response_time = last_response_time;
     mem[index].load = load;
+    // a successful response means the app is reachable again and is no
+    // longer refusing sessions; the old code never cleared refusing, so an
+    // app that refused once was skipped by find_app_by_name() forever
     mem[index].unreachable = 0;
+    mem[index].refusing = 0;
   }
 
   apr_global_mutex_unlock(exipc_mutex);
