@@ -184,6 +184,15 @@ gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r)
             return NULL;
         }
         list = (apr_array_header_t *) entry->val;
+        ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                      "gsw-debug: find_app_by_name '%s': entry found, list=%s",
+                      name, list ? "set" : "null");
+        if (!list) {
+            ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
+                          "gsw-debug: find_app_by_name '%s': null list",
+                          name);
+            return NULL;
+        }
         n = list->nelts;
         if (!n) {
             ap_log_rerror(APLOG_MARK, APLOG_INFO, 0, r,
