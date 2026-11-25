@@ -77,7 +77,24 @@ const char * fixRequestString(request_rec *r, gsw_app_conf *app)
       snprintf(uri_part, sizeof(uri_part), "%s", uri);
     }
 
-    newString = apr_psprintf(r->pool, "%s %s HTTP/1.1\r\n", r->method, uri_part);
+    /* r->uri carries no query string (Apache keeps it in r->args), so the
+     * rewritten request line would silently drop it.  The backend parses GET
+     * form values from the query string on the request line, so re-append it
+     * here.  gsw_header_is_safe() rejects CR/LF and control characters in
+     * either part, so neither can inject extra lines into the forwarded
+     * request. */
+    if (r->args && *r->args) {
+      if (!gsw_header_is_safe(uri_part, r->args)) {
+        ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r,
+                      "dropping query string with CR/LF from forwarded request");
+        newString = apr_psprintf(r->pool, "%s %s HTTP/1.1\r\n", r->method, uri_part);
+      } else {
+        newString = apr_psprintf(r->pool, "%s %s?%s HTTP/1.1\r\n",
+                                 r->method, uri_part, r->args);
+      }
+    } else {
+      newString = apr_psprintf(r->pool, "%s %s HTTP/1.1\r\n", r->method, uri_part);
+    }
   }
 
   return newString;
