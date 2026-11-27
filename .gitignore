@@ -64,3 +64,4 @@ GSWAdaptors/Apache2/.libs
 GSWAdaptors/Apache2/autom4te.cache
 GSWAdaptors/Apache2/config.status
 config.status
+GSWAdaptors/Apache2/GNUmakefile
