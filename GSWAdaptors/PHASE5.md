@@ -285,9 +285,7 @@ Fixed:
   which would have left a permanently-down instance flagged forever).
   It also logs at DEBUG which instance was flagged.
 
-**Verified on the box:** with DynamicElements down, the first request
-returns 504 in 15 ms (all retries against the dead instance), and
-`/wo/status` shows `"unreachable": true` for it.  After restarting the
-app, the flag clears on the next successful request and traffic resumes.
-
-(To be re-verified after the rebuild with this fix.)
+**Verified on the box (rebuild with this fix):** with DynamicElements
+down, the first request returns 504 in 9 ms and `/wo/status` shows
+`"unreachable": true` for it.  After restarting the app, the next request
+returns 200 in 13 ms and the flag clears to `"unreachable": false`.
