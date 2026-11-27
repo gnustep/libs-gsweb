@@ -55,23 +55,6 @@
 /* at it.  If it returns any other value, it's treated as the text of an    */
 /* error message.                                                           */
 /*--------------------------------------------------------------------------*/
-/*
- * Command handler for the NO_ARGS "Example" directive.  All we do is mark the
- * call in the trace log, and flag the applicability of the directive to the
- * current location in that location's configuration record.
- */
-static const char *cmd_gsw(cmd_parms *cmd, void *mconfig)
-{
-    gsw_cfg *cfg = (gsw_cfg *) mconfig;
-
-    /*
-     * "Example Wuz Here"
-     */
-    cfg->local = 1;
-    return NULL;
-}
-
-
 static const char * set_ShowApps(cmd_parms *cmd, void *mconfig, int mybool)
 {
     gsw_cfg *cfg = (gsw_cfg *) mconfig;

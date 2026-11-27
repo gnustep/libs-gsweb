@@ -212,10 +212,15 @@ void showApps(request_rec * r, gsw_cfg *dcfg)
                     ap_rprintf(r, "<td>%u</td>", mem[i].load);
                     ap_rprintf(r, "<td>%s</td>", (mem[i].unreachable == 1) ? "YES": "NO");
                     ap_rprintf(r, "<td>%s</td>", (mem[i].refusing == 1) ? "YES": "NO");
-                    apr_ctime(timestr, mem[i].last_request_time);
-                    ap_rprintf(r, "<td>%s</td>", timestr);
+                    // apr_time_t is in microseconds; apr_ctime() wants seconds
+                    if (mem[i].last_request_time > 0) {
+                        apr_ctime(timestr, (time_t) (mem[i].last_request_time / 1000000));
+                        ap_rprintf(r, "<td>%s</td>", timestr);
+                    } else {
+                        ap_rprintf(r, "<td>never</td>");
+                    }
                     if (mem[i].last_response_time > 0) {
-                        apr_ctime(timestr, mem[i].last_response_time);
+                        apr_ctime(timestr, (time_t) (mem[i].last_response_time / 1000000));
                         ap_rprintf(r, "<td>%s</td></tr>\n", timestr);
                     } else {
                         ap_rprintf(r, "<td>never</td></tr>\n");
@@ -237,5 +242,141 @@ void showApps(request_rec * r, gsw_cfg *dcfg)
     ap_rputs("</div>\n</body>\n", r);
     ap_rputs("</html>\n", r);
 
+}
+
+/*
+ * Machine-readable status: the same data as the HTML page above, as JSON.
+ *
+ * Served at /wo/status (the ?format=json query argument is accepted for
+ * symmetry with other status endpoints but is not required).  The output is
+ * intended for scripts and monitoring tools:
+ *
+ *   {
+ *     "showApps": true,
+ *     "apps": [
+ *       {
+ *         "name": "MyApp",
+ *         "instance": 1,
+ *         "host": "127.0.0.1",
+ *         "port": 8080,
+ *         "load": 3,
+ *         "unreachable": false,
+ *         "refusing": false,
+ *         "lastRequest": 1699999999,   // epoch seconds, 0 = never
+ *         "lastResponse": 1699999999   // epoch seconds, 0 = never
+ *       },
+ *       ...
+ *     ]
+ *   }
+ *
+ * Like the HTML page, the app list is only included when the ShowApps
+ * directive is on; otherwise "showApps" is false and "apps" is empty.
+ */
+void showStatusJson(request_rec * r, gsw_cfg *dcfg)
+{
+    ap_set_content_type(r, "application/json");
+
+    ap_rputs("{\n", r);
+    ap_rprintf(r, "  \"showApps\": %s,\n", (dcfg->showApps) ? "true" : "false");
+    ap_rputs("  \"apps\": [", r);
+
+    if ((dcfg->showApps) && (dcfg->app_table)) {
+        const apr_array_header_t *tarr = apr_table_elts(dcfg->app_table);
+        const apr_table_entry_t *telts = (const apr_table_entry_t*)tarr->elts;
+        int i;
+        exipc_data * mem;
+        int          appcount = tarr->nelts;
+        u_int16_t  * indexes;
+
+        indexes = (u_int16_t *) apr_palloc(r->pool, sizeof(u_int16_t) * appcount);
+        for (i = 0; i < appcount; i++) {
+            indexes[i] = ((gsw_app_conf *) telts[i].val)->total_index;
+        }
+
+        mem = read_shared_mem(r->pool, appcount, indexes);
+
+        if (mem) {
+            for (i = 0; i < appcount; i++) {
+                gsw_app_conf *appconf = (gsw_app_conf *) telts[i].val;
+                char         esc_name[MAX_NAME_LENGTH * 6];
+                char         esc_host[MAX_NAME_LENGTH * 6];
+
+                // Escape for JSON: the names come from the Apache config
+                // file, so the characters that can break the string are
+                // the double quote, the backslash, and control characters.
+                // (html_escape() is not suitable: it emits HTML entities
+                // like &amp; that would appear verbatim in the JSON.)
+                {
+                    const char * src;
+                    char       * dst;
+                    size_t      cap = sizeof(esc_name);
+
+                    for (src = appconf->app_name, dst = esc_name;
+                         *src != '\0' && ((size_t) (dst - esc_name) + 7 < cap);
+                         src++) {
+                        if (*src == '"' || *src == '\\') {
+                            *dst++ = '\\';
+                            *dst++ = *src;
+                        } else if ((unsigned char) *src < 0x20) {
+                            dst += snprintf(dst, (size_t) (cap - (dst - esc_name)),
+                                            "\\u%04x", (unsigned char) *src);
+                        } else {
+                            *dst++ = *src;
+                        }
+                    }
+                    *dst = '\0';
+                }
+                {
+                    const char * src;
+                    char       * dst;
+                    size_t      cap = sizeof(esc_host);
+
+                    for (src = appconf->host_name, dst = esc_host;
+                         *src != '\0' && ((size_t) (dst - esc_host) + 7 < cap);
+                         src++) {
+                        if (*src == '"' || *src == '\\') {
+                            *dst++ = '\\';
+                            *dst++ = *src;
+                        } else if ((unsigned char) *src < 0x20) {
+                            dst += snprintf(dst, (size_t) (cap - (dst - esc_host)),
+                                            "\\u%04x", (unsigned char) *src);
+                        } else {
+                            *dst++ = *src;
+                        }
+                    }
+                    *dst = '\0';
+                }
+
+                ap_rprintf(r, "%s\n    {\n", (i > 0) ? "," : "");
+                ap_rprintf(r, "      \"name\": \"%s\",\n", esc_name);
+                ap_rprintf(r, "      \"instance\": %u,\n", appconf->instance_number);
+                ap_rprintf(r, "      \"host\": \"%s\",\n", esc_host);
+                ap_rprintf(r, "      \"port\": %u,\n", appconf->port);
+                ap_rprintf(r, "      \"load\": %u,\n", mem[i].load);
+                ap_rprintf(r, "      \"unreachable\": %s,\n",
+                           (mem[i].unreachable == 1) ? "true" : "false");
+                ap_rprintf(r, "      \"refusing\": %s,\n",
+                           (mem[i].refusing == 1) ? "true" : "false");
+                // apr_time_t is in microseconds; the JSON fields are
+                // epoch seconds (0 = never, matching the HTML page).
+                // Format the numbers with snprintf() into small buffers
+                // and emit them with ap_rputs(): ap_rprintf() does not
+                // reliably process %lld on every Apache/APR build.
+                {
+                    char reqStr[24], respStr[24];
+                    snprintf(reqStr, sizeof(reqStr), "%lld",
+                             (long long) (mem[i].last_request_time / 1000000));
+                    snprintf(respStr, sizeof(respStr), "%lld",
+                             (long long) (mem[i].last_response_time / 1000000));
+                    ap_rprintf(r, "      \"lastRequest\": %s,\n", reqStr);
+                    ap_rprintf(r, "      \"lastResponse\": %s\n", respStr);
+                }
+                ap_rprintf(r, "    }");
+            }
+            ap_rputs("\n  ", r);
+        }
+    }
+
+    ap_rputs("]\n}\n", r);
 }
 

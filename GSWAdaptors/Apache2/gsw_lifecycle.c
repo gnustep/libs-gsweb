@@ -246,12 +246,7 @@ static apr_status_t gsw_child_exit(void *data)
 void gsw_child_init(apr_pool_t *p, server_rec *s)
 {
   apr_status_t rs;
-  
-  /*
-   * Set up any module cells that ought to be initialised.
-   */
-  setup_module_cells();
-  
+
   /*
    * Re-open the mutex for the child. Note we're reusing
    * the mutex pointer global here.

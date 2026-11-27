@@ -67,6 +67,13 @@ int gsw_handler(request_rec *r)
     return OK;
   }
 
+  // Machine-readable status for scripts/monitoring.  The ?format=json query
+  // argument is accepted but not required; the endpoint always answers JSON.
+  if (strncmp(r->uri, "/wo/status",10) == 0) {
+    showStatusJson(r, dcfg);
+    return OK;
+  }
+
   /*
     * We're about to start sending content, so we need to force the HTTP
     * headers to be sent at this point.  Otherwise, no headers will be sent
@@ -114,13 +121,14 @@ int gsw_handler(request_rec *r)
         }
       }
 
-      // The retry loop: handle_request() returns UNREACHABLE when the
+      // The retry loop: handle_request() returns BACKEND_DOWN when the
       // backend socket failed (connect refused, timeout, socket died
-      // mid-headers).  Each UNREACHABLE re-resolves the app, which skips
-      // the instance that was just marked unreachable and picks the next
-      // candidate.  Anything else (OK, 302, a mapped error status) ends
-      // the loop: the response has already been relayed to the client, so
-      // retrying would emit a second, interleaved response.
+      // mid-headers) before any response was relayed.  Each BACKEND_DOWN
+      // re-resolves the app, which skips the instance that was just marked
+      // unreachable and picks the next candidate.  Anything else (OK, 302,
+      // a mapped error status) ends the loop: the response has already been
+      // relayed to the client, so retrying would emit a second,
+      // interleaved response.
       for (i = 0; ((i < dcfg->retry_count) && (handle_status <= OK)); i++) {
         if (app == NULL) {
           // every instance of this app is marked unreachable; do not call
@@ -130,9 +138,9 @@ int gsw_handler(request_rec *r)
         handle_status = handle_request(r, app, postdata, contentLen);
 
         switch (handle_status) {
-          case UNREACHABLE:
-            // handle_request() already marked this instance unreachable via
-            // its `unreachable:` path; only re-resolve the app here
+          case BACKEND_DOWN:
+            // handle_request() already marked this instance unreachable;
+            // only re-resolve the app here
             app = find_app(r);
             break;
           case DECLINED:
@@ -149,6 +157,13 @@ int gsw_handler(request_rec *r)
       if ((handle_status > OK)) {
         return handle_status;
       }
+
+      // fell through the retry loop: every attempt was BACKEND_DOWN (or the
+      // app resolved to NULL).  handle_request() logged each attempt at
+      // DEBUG; log the outcome here so the 504 is explainable.
+      ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                    "gsw: %s %s failed after %d attempt(s), returning 504",
+                    r->method, r->uri, i);
 
     }
   }

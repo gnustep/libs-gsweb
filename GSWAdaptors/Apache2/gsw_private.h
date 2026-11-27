@@ -85,6 +85,8 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
+#include <time.h>
 
 /*--------------------------------------------------------------------------*/
 /*                                                                          */
@@ -113,18 +115,6 @@
 
 
 typedef struct gsw_cfg {
-  int cmode;                  /* Environment to which record applies
-   * (directory, server, or combination).
-   */
-#define CONFIG_MODE_SERVER 1
-#define CONFIG_MODE_DIRECTORY 2
-#define CONFIG_MODE_COMBO 3     /* Shouldn't ever happen. */
-  int local;                  /* Boolean: "Example" directive declared
-   * here?
-   */
-  int congenital;             /* Boolean: did we inherit an "Example"? */
-  char *trace;                /* Pointer to trace string. */
-  char *loc;                  /* Location to which this record applies. */
   int  showApps;
   apr_table_t * app_table;
   apr_pool_t  * pool;             // the pool this cfg was allocated from
@@ -140,8 +130,11 @@ typedef struct gsw_cfg {
 
 #define MAX_URL_LENGTH        256
 #define MAX_NAME_LENGTH        64
-#define UNREACHABLE       -10
 #define INTERNAL_ERROR    500
+// the backend socket failed before any response was relayed (connect
+// refused/timeout, or the socket died before the status line): the app
+// instance is marked unreachable and the handler may retry elsewhere
+#define BACKEND_DOWN      -11
 
 // CRLF ("\015\012") comes from httpd.h; do not redefine it here.
 
@@ -200,8 +193,8 @@ int gsw_header_is_safe(const char * key, const char * value);
 #define GSW_BODY_ABORTED   2
 
 typedef struct exipc_data {
-  apr_time_t    last_response_time; // in sec since January 1, 1970
-  apr_time_t    last_request_time;  // in sec since January 1, 1970
+  apr_time_t    last_response_time; // apr_time_t (microseconds since the epoch)
+  apr_time_t    last_request_time;  // apr_time_t (microseconds since the epoch)
   u_int32_t load;
   u_int8_t unreachable;             // 0=online 1=unreachable
   u_int8_t refusing;                // 0=serving new sessions 1=refusing
@@ -214,35 +207,19 @@ typedef struct exipc_data {
 /*
  * Declare ourselves so the configuration routines can find and know us.
  * The definition lives in mod_gsw.c, at the end of the module.
+ *
+ * AP_MODULE_DECLARE_DATA is a visibility attribute in Apache 2.4 (it
+ * expands to __attribute__((visibility("default")))); in 2.2 it is empty,
+ * and the -fvisibility=hidden flag in the makefile does the job there.
+ * The attribute is written out explicitly at the definition in mod_gsw.c
+ * so the module symbol is exported on both.
  */
-extern module AP_MODULE_DECLARE_DATA gsw_module;
+extern module gsw_module;
 
 /*
  * Shared cells.  Each one is *defined* in exactly one source file, which is
  * noted after the declaration.
  */
-
-/*
- * Let's set up a module-local static cell to point to the accreting callback
- * trace.  As each API callback is made to us, we'll tack on the particulars
- * to whatever we've already recorded.  To avoid massive memory bloat as
- * directories are walked again and again, we record the routine/environment
- * the first time (non-request context only), and ignore subsequent calls for
- * the same routine/environment.
- *
- * These are sample-module leftovers (defined in gsw_hooks_stub.c).
- */
-extern const char *trace;
-extern apr_table_t *static_calls_made;
-
-/*
- * To avoid leaking memory from pools other than the per-request one, we
- * allocate a module-private pool, and then use a sub-pool of that which gets
- * freed each time we modify the trace.  That way previous layers of trace
- * data don't get lost.
- */
-extern apr_pool_t *gsw_pool;
-extern apr_pool_t *gsw_subpool;
 
 // shared memory  (defined in gsw_shm.c)
 extern apr_shm_t *exipc_shm;
@@ -276,6 +253,8 @@ void * gsw_merge_server_config(apr_pool_t *p, void *server1_conf,
 // total_index) into a pool-allocated array; the mutex is held only for the
 // copy.  Returns NULL if the mutex cannot be taken.
 void * read_shared_mem(apr_pool_t * pool, int count, const u_int16_t * indexes);
+// Marks the instance unreachable in shared memory.  The request_rec is
+// only used for logging; pass NULL when there is no request context.
 void mark_unreachable(request_rec *r, gsw_app_conf * app);
 void mark_refusing(gsw_app_conf * app);
 void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time,
@@ -283,10 +262,6 @@ void update_app_statistics(gsw_app_conf * app, apr_time_t last_request_time,
 void init_shared_mem(const apr_shm_t * xxx, int count, server_rec * s);
 
 /* gsw_apps.c */
-int print_app(void *rec, const char *key, gsw_app_conf *appconf);
-// Builds cfg->app_index (name -> instance list) from cfg->app_table; called
-// once at config time, after all App directives have been read.
-void gsw_build_app_index(gsw_cfg *cfg);
 gsw_app_conf * find_app_by_name(char * name, gsw_cfg *cfg, request_rec *r);
 gsw_app_conf * find_app(request_rec *r);
 int gsw_parse_uri(const char * uri,
@@ -331,6 +306,9 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata,
 
 /* gsw_status.c */
 void showApps(request_rec * r, gsw_cfg *dcfg);
+// Machine-readable twin of showApps(): the same data as JSON, for scripts
+// and monitoring.  Served at /wo/status (optionally ?format=json).
+void showStatusJson(request_rec * r, gsw_cfg *dcfg);
 
 /* gsw_handler.c */
 int gsw_handler(request_rec *r);
@@ -342,22 +320,5 @@ int gsw_post_config(apr_pool_t *pconf, apr_pool_t *plog, apr_pool_t *ptemp,
 int gsw_open_logs(apr_pool_t *pconf, apr_pool_t *plog, apr_pool_t *ptemp,
                   server_rec *s);
 void gsw_child_init(apr_pool_t *p, server_rec *s);
-
-/* gsw_hooks_stub.c */
-void setup_module_cells(void);
-void gsw_insert_filter(request_rec *r);
-int gsw_quick_handler(request_rec *r, int lookup_uri);
-int gsw_pre_connection(conn_rec *c, void *csd);
-int gsw_process_connection(conn_rec *c);
-int gsw_post_read_request(request_rec *r);
-int gsw_translate_handler(request_rec *r);
-int gsw_map_to_storage_handler(request_rec *r);
-int gsw_header_parser_handler(request_rec *r);
-int gsw_check_user_id(request_rec *r);
-int gsw_auth_checker(request_rec *r);
-int gsw_access_checker(request_rec *r);
-int gsw_type_checker(request_rec *r);
-int gsw_fixer_upper(request_rec *r);
-int gsw_logger(request_rec *r);
 
 #endif /* GSW_PRIVATE_H */

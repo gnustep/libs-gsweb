@@ -106,7 +106,7 @@ COMMON = $(SRCROOT)/common
 # .c files and links them into one module.  Add new files here (and to
 # GSW_HDRS when they have a private header) and re-run ./config.status.
 GSW_SRCS = mod_gsw.c gsw_net.c gsw_shm.c gsw_apps.c gsw_status.c gsw_request.c \
-	gsw_cmds.c gsw_config.c gsw_handler.c gsw_lifecycle.c gsw_hooks_stub.c
+	gsw_cmds.c gsw_config.c gsw_handler.c gsw_lifecycle.c
 GSW_HDRS = gsw_private.h gsw_compat.h
 
 # Expand to the path style the apxs rule below uses.
@@ -121,6 +121,7 @@ GSW_CPPFLAGS = \
 GSW_CFLAGS = \
 	$(AP_CFLAGS) $(AP_CFLAGS_SH) \
 	$(APR_CFLAGS) \
+	-fvisibility=hidden \
 	$(OTHER_CFLAGS)
 
 GSW_LDFLAGS = \
@@ -147,15 +148,15 @@ $(ADAPTOR): $(GSW_ALL_SRCS) $(GSW_HDRS)
 
 # Install module (via apxs) and mod_gsw.conf file
 install: $(ADAPTOR)
-	$(APXS) -i -n gsw $(ADAPTOR)
-	  echo "-------------------------------------" ; \
-	  echo Please update your httpd.conf ; \
-	  echo Valid options are: ; \
-	  echo ShowApps on/off ; \
-	  echo App Name=YOURAPP Instance=1 Host=HOSTIP:PORT ; \
+	$(APXS) -i -n gsw $(ADAPTOR) ; \
+	echo "-------------------------------------" ; \
+	echo Please update your httpd.conf ; \
+	echo Valid options are: ; \
+	echo ShowApps on/off ; \
+	echo App Name=YOURAPP Instance=1 Host=HOSTIP:PORT ; \
 
 clean:
-	rm -f $(ADAPTOR) core *~ *.o *.lo *.slo
+	rm -f $(ADAPTOR) core *~ *.o *.lo *.slo *.la
 	rm -rf .libs
 
 distclean: clean

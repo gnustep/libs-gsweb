@@ -85,16 +85,29 @@ void mark_unreachable(request_rec *r, gsw_app_conf * app)
   exipc_data   * mem   = NULL;
   apr_time_t     now     = apr_time_now();
   u_int16_t      index   = app->total_index;
-  
+
   apr_global_mutex_lock(exipc_mutex);
   mem = (exipc_data *) apr_shm_baseaddr_get(exipc_shm);
-  
+
   if (mem) {
+    // last_request_time is the age-out clock for the unreachable flag
+    // (find_app_by_name() clears the flag once it has not been touched for
+    // five minutes), so it must be set on every mark, not only when the
+    // flag transitions.  The old code set it only on the 0->1 transition,
+    // which left the clock stale and let a permanently-down instance stay
+    // "unreachable" forever.
     mem[index].last_request_time = now;
     mem[index].unreachable = 1;
   }
-  
+
   apr_global_mutex_unlock(exipc_mutex);
+
+  if (r != NULL) {
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                  "gsw: marking %s instance %u (%s:%u) unreachable",
+                  app->app_name, (unsigned) app->instance_number,
+                  app->host_name, (unsigned) app->port);
+  }
 }
 
 void mark_refusing(gsw_app_conf * app)

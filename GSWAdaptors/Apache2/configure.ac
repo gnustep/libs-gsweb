@@ -101,7 +101,7 @@ if test x${SERVERAPI} = xunknown ; then
    AC_MSG_ERROR([ Could not determine Apache API version.  Use --with-server-api and specify either Apache or Apache2.  ])
 fi
 
-if test x${SERVERAPI} == xApache2 ; then
+if test x${SERVERAPI} = xApache2 ; then
    AC_PATH_PROG(APRCONFIG, "$APRCONFIG_NAME", "no", $BIN_PATH)
 fi
 

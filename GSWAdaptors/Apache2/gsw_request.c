@@ -160,6 +160,10 @@ static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
                      "dropping header with CR/LF in key or value: '%s'", hdrs[i].key);
       continue;
     }
+    // the Connection header is ours to decide (see below); never forward
+    // the client's, or a "keep-alive" from the client would contradict it
+    if (strcasecmp(hdrs[i].key, "Connection") == 0)
+      continue;
     APPEND_HDR(hdrs[i].key, hdrs[i].val);
   }
   // write x-webobjects-adaptor-version to the app
@@ -173,6 +177,31 @@ static int send_headers(int soc, gsw_app_conf *app, request_rec *r)
       bufSize = _newSize;
     }
     _n = snprintf(hdrBuf + bufLen, bufSize - bufLen, "%s", X_WO_VERSION_HEADER);
+    bufLen += (size_t) _n;
+  }
+
+  /*
+   * The backend connection is always closed after the response (see
+   * handle_request()), so it never gets reused.  Tell the backend that up
+   * front: it saves the backend from keeping the socket open waiting for a
+   * follow-up request that will never come, and it makes the one-shot
+   * nature of the connection explicit in the backend's own logs.
+   *
+   * Connection pooling/reuse to the backend is a deliberate non-goal for
+   * now (it would be a much larger change: a per-worker pool of sockets,
+   * lifetime management, and handling of backend-side keepalive timeouts);
+   * it may be revisited in a future version.
+   */
+  {
+    int _n = snprintf(NULL, 0, "%s", "Connection: close\r\n");
+    while ((size_t) _n >= (bufSize - bufLen)) {
+      size_t _newSize = bufSize * 2;
+      char  *_newBuf  = apr_palloc(r->pool, _newSize);
+      memcpy(_newBuf, hdrBuf, bufLen);
+      hdrBuf  = _newBuf;
+      bufSize = _newSize;
+    }
+    _n = snprintf(hdrBuf + bufLen, bufSize - bufLen, "%s", "Connection: close\r\n");
     bufLen += (size_t) _n;
   }
 
@@ -349,8 +378,16 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
     }
     
     
+    // which backend instance this request is being routed to (load-balancing
+    // diagnostics; the retry loop in gsw_handler() logs the same line for
+    // each attempt)
+    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                  "gsw: routing %s %s to %s:%u (instance %u)",
+                  r->method, r->uri, app->host_name,
+                  (unsigned) app->port, (unsigned) app->instance_number);
+
     soc = connect_host(app->host_name, app->port, cfg->connect_timeout);
-      
+
     if (soc != -1) {
         int sh_rval = send_headers(soc, app, r);
         if (sh_rval == 0) {
@@ -642,7 +679,11 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
         close(soc);
         
         done_time = apr_time_now();
-        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Request took %ld ms", apr_time_msec(done_time - request_time));
+        ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r,
+                      "gsw: %s %s -> %s:%u (instance %u) status %d, took %ld ms",
+                      r->method, r->uri, app->host_name,
+                      (unsigned) app->port, (unsigned) app->instance_number,
+                      http_status, apr_time_msec(done_time - request_time));
         
         if ((http_status==302) && (refusing_seen==1)) {
             mark_refusing(app);
@@ -651,9 +692,16 @@ int handle_request(request_rec *r, gsw_app_conf * app, void * postdata, uint32_t
         }
         
     } else { // -1
+        // The connect failed (refused or timeout) before any response was
+        // relayed, so it is safe to retry on another instance.  Mark the
+        // app unreachable here as well: the `unreachable:` label below only
+        // covers socket failures *after* the connect, and without this the
+        // flag would never be set for a downed backend, so the balancer
+        // would keep sending every request to it.
         ap_log_rerror(APLOG_MARK, APLOG_WARNING, 0, r, "gsw: connect to %s:%u failed",
                       app->host_name, (unsigned) app->port);
-        http_status = UNREACHABLE;
+        mark_unreachable(r, app);
+        http_status = BACKEND_DOWN;
     }
     
     apr_pool_destroy(sub_pool);
@@ -671,6 +719,6 @@ unreachable:
     close(soc);
     apr_pool_destroy(sub_pool);
     mark_unreachable(r, app);
-    return UNREACHABLE;
+    return BACKEND_DOWN;
 }
 

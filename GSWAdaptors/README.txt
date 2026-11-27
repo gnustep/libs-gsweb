@@ -43,6 +43,15 @@ If you enabled ShowApps, you can access the list of applications like this:
 
 http://www.example.org/wo/showapps
 
+There is also a machine-readable status endpoint for scripts and monitoring
+tools:
+
+http://www.example.org/wo/status
+
+It answers JSON with the same data as the HTML page (per-instance load,
+unreachable/refusing flags, last request/response times); the app list is
+only included when ShowApps is on.
+
 If an application is unreachable the adaptor will return an HTTP status 504
 
 
@@ -51,7 +60,7 @@ Directives
 
 ShowApps on|off
     If enabled, the list of configured applications is shown at
-    /wo/showapps.
+    /wo/showapps (HTML) and /wo/status (JSON).
 
 App Name=<name> Instance=<n> Host=<host>:<port>
     Configures one application instance. The app is reachable under
@@ -78,6 +87,10 @@ WOMaxBodySize <bytes>
     forwarding it to the application. Larger requests are rejected
     with HTTP status 413. Default: 8388608 (8 MiB)
 
+    Note: if Apache's own LimitRequestBody is set to a smaller value,
+    Apache rejects the request before the adaptor ever sees it, so the
+    effective limit is the smaller of the two.
+
 WORetryCount <number>
     How many times the adaptor retries a request whose backend
     instance was unreachable, re-resolving the app between attempts
@@ -91,6 +104,15 @@ WOBalancer lowest-load|round-robin
     refusing ones. Default: lowest-load
 
 All directives can be used in the main server config or in a
-<VirtualHost> section.
+<VirtualHost> section.  A <VirtualHost> that does not set any of them
+inherits the main server config, so the usual setup is to configure the
+apps and timeouts once in the main config and let every vhost inherit
+them; per-vhost directives override the inherited values for that vhost
+only.
+
+The adaptor opens a fresh connection to the backend for every request and
+closes it again after the response (it sends "Connection: close" to the
+backend).  There is no connection pooling to the backend; that would be a
+much larger change and is not planned for the near future.
 
 dw.

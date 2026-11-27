@@ -31,31 +31,6 @@
 /*                                                                          */
 /*--------------------------------------------------------------------------*/
 
-// callback function for looping the table
-
-int print_app(void *rec, const char *key, gsw_app_conf *appconf)
-{
-
-  request_rec  *r       = rec;
-//  gsw_app_conf *appconf = (gsw_app_conf *) value;
-
-  if (!appconf) {
-    ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "print_app: got a NULL conf");
-    return 0;
-  }
-  
- // ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "Key:'%s'", key);
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "app_name:'%s'", appconf->app_name);
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "host_name:'%s'", appconf->host_name);
- // ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "instance_number:'%u'", appconf->instance_number);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "load:'%d'", appconf->load);
-  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "port:'%u'", appconf->port);
-//  ap_log_rerror(APLOG_MARK, APLOG_DEBUG, 0, r, "unreachable:'%d'", appconf->unreachable);
-  
-  return 1; // continue loop
-}
-
-
 /*
  * Build the name -> instance list index that find_app_by_name() uses.
  *
